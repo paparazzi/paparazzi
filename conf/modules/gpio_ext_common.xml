@@ -1,7 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="gpio_ext_common" dir="gpio_ext" task="mcu">
   <doc>
-    <description>Common external GPIO functions.</description>
+    <description>
+Common functions for external GPIO
+
+This module wraps calls to the gpio_x functions (GCC only!) and
+redirects calls with port GPIOEXTx to modules.
+
+Modules can register their external gpio implementation by setting
+the callbacks in gpio_ext[]. See the gpio_ext_pca95xx module as an
+example.
   </doc>
   <header>
     <file name="gpio_ext_common.h"/>
@@ -14,7 +22,7 @@
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_set"/>
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_clear"/>
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_toggle"/>
-    <!-- Port and pin defines, to be used globally -->
+    <!-- Port and pin defines, made available globally -->
     <define name="GPIOEXT1" value="256"/>
     <define name="GPIOEXT2" value="257"/>
     <define name="GPIOEXT3" value="258"/>
