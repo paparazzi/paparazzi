@@ -10,5 +10,6 @@
   <init fun="gpio_ext_pca95xx_init()"/>
   <makefile>
     <file name="gpio_ext_pca95xx.c"/>
+    <file name="pca95xx.c" dir="peripherals"/>
   </makefile>
 </module>

@@ -25,8 +25,11 @@
 
 #include "modules/gpio_ext/gpio_ext_pca95xx.h"
 
+#include "generated/airframe.h"
+
 #include "modules/gpio_ext/gpio_ext_common.h"
 #include "peripherals/pca95xx.h"
+#include "mcu_periph/i2c.h"
 
 #include <stdbool.h>
 #include <assert.h>
@@ -39,10 +42,10 @@ struct gpio_ext_pca95xx_impl_t {
 };
 struct gpio_ext_pca95xx_impl_t gpio_ext_pca95xx_impl[GPIOEXT_NB];
 
-static const uint32_t ports[] = GPIO_EXT_PCA95XX_PORTS;
-static const struct i2c_periph *i2c_periphs[] = GPIO_EXT_PCA95XX_I2C_PERIPHS;
-static const uint8_t i2c_addrs[] = GPIO_EXT_PCA95XX_ADDRESSES;
-static const bool blockings[] = GPIO_EXT_PCA95XX_BLOCKINGS;
+static const uint32_t ports[] = { GPIO_EXT_PCA95XX_PORTS };
+static const struct i2c_periph *i2c_periphs[] = { GPIO_EXT_PCA95XX_I2C_PERIPHS };
+static const uint8_t i2c_addrs[] = { GPIO_EXT_PCA95XX_ADDRESSES };
+static const bool blockings[] = { GPIO_EXT_PCA95XX_BLOCKINGS };
 
 
 static void gpio_ext_pca95xx_setup_output(uint32_t port, uint32_t gpios) {

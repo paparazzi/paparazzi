@@ -84,7 +84,13 @@
             <define name="IMU_ACCEL_Z_SIGN" value="-1"/>
         </module>
         
-        <module name="gpio_ext" type="pca95xx"/>
+        <module name="gpio_ext" type="pca95xx">
+          <define name="USE_SOFTI2C0"/>
+          <define name="SOFTI2C0_SCL_GPIO" value="LED_STRIP_GPIO_PORT"/>
+          <define name="SOFTI2C0_SCL_PIN" value="LED_STRIP_GPIO_PIN"/>
+          <define name="SOFTI2C0_SDA_GPIO" value="SPI_SELECT_SLAVE1_PORT"/>
+          <define name="SOFTI2C0_SDA_PIN" value="SPI_SELECT_SLAVE1_PIN"/>
+        </module>
         <module name="gpio_flash"/>
 
         <!-- not all are tested or tuned -->
@@ -219,6 +225,13 @@
         <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
         <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
     </command_laws>
+    
+    <section name="GPIO_EXT" prefix="GPIO_EXT_">
+      <define name="PCA95XX_PORTS" value="GPIOEXT1"/>
+      <define name="PCA95XX_I2C_PERIPHS" value="&softi2c0"/>
+      <define name="PCA95XX_ADDRESSES" value="0x82"/>
+      <define name="PCA95XX_BLOCKINGS" value="TRUE"/>
+    </section>
 
     <section name="FILTER_1EURO" prefix="FILTER_1EURO_">
       <define name="ENABLED" value="FALSE"/> <!-- activate or not the filter by default -->
