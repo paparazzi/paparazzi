@@ -60,6 +60,30 @@ void __wrap_gpio_setup_output(uint32_t port, uint32_t gpios) {
   }
 }
 
+void __wrap_gpio_setup_input(uint32_t port, uint32_t gpios);
+void __real_gpio_setup_input(uint32_t port, uint32_t gpios);
+void __wrap_gpio_setup_input(uint32_t port, uint32_t gpios) {
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    SAFE_CALL(gpio_ext[port - GPIOEXT1].setup_input, port, gpios);
+  } else {
+    __real_gpio_setup_input(port, gpios);
+  }
+}
+
+uint32_t __wrap_gpio_get(uint32_t port, uint32_t gpios);
+uint32_t __real_gpio_get(uint32_t port, uint32_t gpios);
+uint32_t __wrap_gpio_get(uint32_t port, uint32_t gpios) {
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    if (gpio_ext[port - GPIOEXT1].get) {
+      return gpio_ext[port - GPIOEXT1].get(port, gpios);
+    } else {
+      return 0;
+    }
+  } else {
+    return __real_gpio_get(port, gpios);
+  }
+}
+
 void __wrap_gpio_set(uint32_t port, uint32_t gpios);
 void __real_gpio_set(uint32_t port, uint32_t gpios);
 void __wrap_gpio_set(uint32_t port, uint32_t gpios) {
@@ -67,6 +91,26 @@ void __wrap_gpio_set(uint32_t port, uint32_t gpios) {
     SAFE_CALL(gpio_ext[port - GPIOEXT1].set, port, gpios);
   } else {
     __real_gpio_set(port, gpios);
+  }
+}
+
+void __wrap_gpio_clear(uint32_t port, uint32_t gpios);
+void __real_gpio_clear(uint32_t port, uint32_t gpios);
+void __wrap_gpio_clear(uint32_t port, uint32_t gpios) {
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    SAFE_CALL(gpio_ext[port - GPIOEXT1].clear, port, gpios);
+  } else {
+    __real_gpio_clear(port, gpios);
+  }
+}
+
+void __wrap_gpio_toggle(uint32_t port, uint32_t gpios);
+void __real_gpio_toggle(uint32_t port, uint32_t gpios);
+void __wrap_gpio_toggle(uint32_t port, uint32_t gpios) {
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    SAFE_CALL(gpio_ext[port - GPIOEXT1].toggle, port, gpios);
+  } else {
+    __real_gpio_toggle(port, gpios);
   }
 }
 

@@ -11,7 +11,11 @@
   <makefile>
     <file name="gpio_ext_common.c"/>
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_setup_output"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_setup_input"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_get"/>
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_set"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_clear"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_toggle"/>
     <!-- Port and pin defines, to be used globally -->
     <define name="GPIOEXT1" value="256"/>
     <define name="GPIOEXT2" value="257"/>
