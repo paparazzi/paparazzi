@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="gpio_ext_common" dir="gpio_ext">
+<module name="gpio_ext_common" dir="gpio_ext" task="mcu">
   <doc>
     <description>Common external GPIO functions.</description>
   </doc>
