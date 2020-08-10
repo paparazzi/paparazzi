@@ -29,6 +29,15 @@
 #include "led.h"
 
 #include <stdint.h>
+#include <assert.h>
+
+
+#define SAFE_CALL(_fn, _args...) if (_fn) _fn(_args);
+
+
+// Function pointer structs to external gpio implementations
+struct gpio_periph_t gpio_ext[GPIOEXT_NB];  // All initialized NULL!
+
 
 void gpio_ext_common_init(void)
 {
@@ -41,11 +50,21 @@ void gpio_ext_common_event(void)
 }
 
 // Wrapping functions
+void __wrap_gpio_setup_output(uint32_t port, uint32_t gpios);
+void __real_gpio_setup_output(uint32_t port, uint32_t gpios);
+void __wrap_gpio_setup_output(uint32_t port, uint32_t gpios) {
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    SAFE_CALL(gpio_ext[port - GPIOEXT1].setup_output, port, gpios);
+  } else {
+    __real_gpio_setup_output(port, gpios);
+  }
+}
+
 void __wrap_gpio_set(uint32_t port, uint32_t gpios);
 void __real_gpio_set(uint32_t port, uint32_t gpios);
 void __wrap_gpio_set(uint32_t port, uint32_t gpios) {
-  if (port >= GPIOEXT1 && port <= GPIOEXT4) {
-    // Do magic
+  if (port >= GPIOEXT1 && port < GPIOEXT1 + GPIOEXT_NB) {
+    SAFE_CALL(gpio_ext[port - GPIOEXT1].set, port, gpios);
   } else {
     __real_gpio_set(port, gpios);
   }

@@ -26,6 +26,21 @@
 #ifndef GPIO_EXT_COMMON_H
 #define GPIO_EXT_COMMON_H
 
+
+#include <stdint.h>
+
+
+struct gpio_periph_t {
+  void (*setup_output)(uint32_t port, uint32_t gpios);
+  void (*setup_input)(uint32_t port, uint32_t gpios);
+  uint32_t (*get)(uint32_t port, uint32_t gpios);
+  void (*set)(uint32_t port, uint32_t gpios);
+  void (*clear)(uint32_t port, uint32_t gpios);
+  void (*toggle)(uint32_t port, uint32_t gpios);
+  void *impl_data;  // Pointer to implementation-specific data
+};
+extern struct gpio_periph_t gpio_ext[GPIOEXT_NB];
+
 extern void gpio_ext_common_init(void);
 extern void gpio_ext_common_event(void);
 

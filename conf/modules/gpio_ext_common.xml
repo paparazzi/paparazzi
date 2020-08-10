@@ -10,12 +10,14 @@
   <event fun="gpio_ext_common_event()"/>
   <makefile>
     <file name="gpio_ext_common.c"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_setup_output"/>
     <flag name="LDFLAGS" value="Wl,-wrap,gpio_set"/>
     <!-- Port and pin defines, to be used globally -->
     <define name="GPIOEXT1" value="256"/>
     <define name="GPIOEXT2" value="257"/>
     <define name="GPIOEXT3" value="258"/>
     <define name="GPIOEXT4" value="259"/>
+    <define name="GPIOEXT_NB" value="4"/>
     <define name="GPIOE0" value="1"/>
     <define name="GPIOE1" value="2"/>
     <define name="GPIOE2" value="4"/>
