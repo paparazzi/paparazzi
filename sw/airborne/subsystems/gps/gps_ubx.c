@@ -167,8 +167,8 @@ static void gps_ubx_parse_nav_pvt(void)
 
   // Copy HMSL and ground speed
   gps_ubx.state.hmsl        = UBX_NAV_PVT_hMSL(gps_ubx.msg_buf);
-  gps_ubx.state.gspeed      = UBX_NAV_PVT_gSpeed(gps_ubx.msg_buf);
   SetBit(gps_ubx.state.valid_fields, GPS_VALID_HMSL_BIT);
+  gps_ubx.state.gspeed      = UBX_NAV_PVT_gSpeed(gps_ubx.msg_buf) / 10;
 
   // Copy NED velocities
   gps_ubx.state.ned_vel.x   = UBX_NAV_PVT_velN(gps_ubx.msg_buf) / 10;
