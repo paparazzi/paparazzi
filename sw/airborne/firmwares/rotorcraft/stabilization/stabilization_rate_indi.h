@@ -34,4 +34,6 @@ extern void stabilization_rate_read_rc_switched_sticks(void);
 extern void stabilization_rate_run(bool in_flight);
 extern void stabilization_rate_enter(void);
 
+extern struct FloatRates stabilization_rate_sp;
+
 #endif /* STABILIZATION_RATE_INDI */

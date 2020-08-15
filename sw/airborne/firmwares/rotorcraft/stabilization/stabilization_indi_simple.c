@@ -35,6 +35,9 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
+// Added to access variable "stabilization_rate_sp" for direct rate control
+#include "firmwares/rotorcraft/stabilization/stabilization_rate_indi.h"
+
 #include "state.h"
 #include "generated/airframe.h"
 #include "paparazzi.h"
@@ -327,9 +330,9 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
 
   /* Check if we are running the rate controller and overwrite */
   if (rate_control) {
-    indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * ((float)radio_control.values[RADIO_ROLL]  / MAX_PPRZ * indi.max_rate - body_rates->p);
-    indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * ((float)radio_control.values[RADIO_PITCH] / MAX_PPRZ * indi.max_rate - body_rates->q);
-    indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * ((float)radio_control.values[RADIO_YAW]   / MAX_PPRZ * indi.max_rate - body_rates->r);
+    indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * (stabilization_rate_sp.p - body_rates->p);
+    indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * (stabilization_rate_sp.q - body_rates->q);
+    indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * (stabilization_rate_sp.r - body_rates->r);
   }
 
   //Increment in angular acceleration requires increment in control input
