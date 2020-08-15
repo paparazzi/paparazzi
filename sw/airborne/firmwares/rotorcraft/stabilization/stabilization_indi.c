@@ -35,6 +35,9 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
+// Added to access variable "stabilization_rate_sp" for direct rate control
+#include "firmwares/rotorcraft/stabilization/stabilization_rate_indi.h"
+
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
@@ -350,9 +353,9 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   struct FloatRates rate_ref;
   if (rate_control) { //Check if we are running the rate controller
-    rate_ref.p = (float)radio_control.values[RADIO_ROLL]  / MAX_PPRZ * STABILIZATION_INDI_MAX_RATE;
-    rate_ref.q = (float)radio_control.values[RADIO_PITCH] / MAX_PPRZ * STABILIZATION_INDI_MAX_RATE;
-    rate_ref.r = (float)radio_control.values[RADIO_YAW]   / MAX_PPRZ * STABILIZATION_INDI_MAX_RATE;
+    rate_ref.p = stabilization_rate_sp.p;
+    rate_ref.q = stabilization_rate_sp.q;
+    rate_ref.r = stabilization_rate_sp.r;
   } else {
     //calculate the virtual control (reference acceleration) based on a PD controller
     rate_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
