@@ -120,6 +120,11 @@ void stabilization_rate_read_rc_switched_sticks(void)
   }
 }
 
+void stabilization_rate_set_rpy_setpoint_i(struct Int32Eulers *rpy)
+{
+  stabilization_rate_sp = *rpy;
+}
+
 void stabilization_rate_enter(void)
 {
   stabilization_indi_enter();

@@ -330,6 +330,7 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
 
   /* Check if we are running the rate controller and overwrite */
   if (rate_control) {
+
     indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * (stabilization_rate_sp.p - body_rates->p);
     indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * (stabilization_rate_sp.q - body_rates->q);
     indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * (stabilization_rate_sp.r - body_rates->r);
