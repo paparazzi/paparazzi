@@ -98,7 +98,7 @@ void gpio_ext_pca95xx_init(void)
     gpio_ext[ext_i].get = gpio_ext_pca95xx_get;
     gpio_ext[ext_i].set = gpio_ext_pca95xx_set;
     gpio_ext[ext_i].clear = gpio_ext_pca95xx_clear;
-    gpio_ext[ext_i].toggle  =gpio_ext_pca95xx_toggle;
+    gpio_ext[ext_i].toggle = gpio_ext_pca95xx_toggle;
     gpio_ext[ext_i].impl_data = &impl[ext_i];
     /* Set up pca95xx impl struct */
     impl[ext_i].output_reg = 0xFF;
@@ -106,15 +106,15 @@ void gpio_ext_pca95xx_init(void)
     impl[ext_i].blocking = blockings[i];
     /* Set up pca95xx peripheral */
     pca95xx_init(&impl[ext_i].periph, i2c_periphs[i], i2c_addrs[i]);
-//    /* Configure pins as input (default) and wait for IC to wake up */
-//    do {
-//      pca95xx_configure(&impl[ext_i].periph, 0xFF, true);
-//    } while (impl[ext_i].periph.i2c_trans.status != I2CTransSuccess);
-    /* Configure pins as output high and wait for IC to wake up */
+    /* Configure pins as input (default) and wait for IC to wake up */
     do {
-      pca95xx_set_output(&impl[ext_i].periph, 0xFF, true);
+      pca95xx_configure(&impl[ext_i].periph, 0xFF, true);
     } while (impl[ext_i].periph.i2c_trans.status != I2CTransSuccess);
-    pca95xx_configure(&impl[ext_i].periph, 0x00, true);
+//    /* Configure pins as output high and wait for IC to wake up */
+//    do {
+//      pca95xx_set_output(&impl[ext_i].periph, 0xFF, true);
+//    } while (impl[ext_i].periph.i2c_trans.status != I2CTransSuccess);
+//    pca95xx_configure(&impl[ext_i].periph, 0x00, true);
   }
 }
 
