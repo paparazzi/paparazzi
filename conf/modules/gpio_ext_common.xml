@@ -10,6 +10,7 @@ redirects calls with port GPIOEXTx to modules.
 Modules can register their external gpio implementation by setting
 the callbacks in gpio_ext[]. See the gpio_ext_pca95xx module as an
 example.
+    </description>
   </doc>
   <header>
     <file name="gpio_ext_common.h"/>
