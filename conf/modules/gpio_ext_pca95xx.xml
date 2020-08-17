@@ -13,17 +13,16 @@ All defines can be given as comma-separated lists to support multiple
 ICs.
     </description>
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
-      <define name="PCA95XX_PORTS" value="GPIOEXTx, GPIOEXTy, ..." description="External GPIO ports provided by the respective PCA95XX."/>
-      <define name="PCA95XX_I2C_PERIPHS" value="&i2c0, &i2c1, ..." description="I2C bus the respective IC is connected to."/>
-      <define name="PCA95XX_ADDRESSES" value="0x82, 0xFF, ..." description="I2C addresses of the respective devices."/>
-      <define name="PCA95XX_BLOCKINGS" value="TRUE, FALSE, ..." description="Whether writing to this device it blocking or not."/>
+      <define name="PROVIDERx" value="GPIO_EXT_PCA95XX" description="Set-up module as provider for port GPIOEXTx"/>
+      <define name="BLOCKINGx" value="TRUE|FALSE" description="Whether write operations to this port should be blocking. (Note: reading is always blocking)."/>
+      <define name="I2C_PERIPHx" value="&i2c0" description="Pointer(!) to i2c peripheral"/>
+      <define name="I2C_ADDRESSx" value="0x82" description="I2C address of GPIO expander"/>
     </section>
   </doc>
   <autoload name="gpio_ext_common"/>
   <header>
     <file name="gpio_ext_pca95xx.h"/>
   </header>
-  <init fun="gpio_ext_pca95xx_init()"/>
   <makefile>
     <file name="gpio_ext_pca95xx.c"/>
     <file name="pca95xx.c" dir="peripherals"/>

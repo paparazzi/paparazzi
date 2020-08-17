@@ -26,6 +26,6 @@
 #ifndef GPIO_EXT_PCA95XX_H
 #define GPIO_EXT_PCA95XX_H
 
-extern void gpio_ext_pca95xx_init(void);
+extern struct gpio_ext_functions pca95xx_functions;
 
 #endif  // GPIO_EXT_PCA95XX_H

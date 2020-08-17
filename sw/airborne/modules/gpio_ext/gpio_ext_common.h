@@ -26,20 +26,27 @@
 #ifndef GPIO_EXT_COMMON_H
 #define GPIO_EXT_COMMON_H
 
+#include "mcu_periph/i2c.h"
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
-struct gpio_periph_t {
+// External GPIO implementation struct
+struct gpio_ext_functions {
   void (*setup_output)(uint32_t port, uint32_t gpios);
   void (*setup_input)(uint32_t port, uint32_t gpios);
   uint32_t (*get)(uint32_t port, uint32_t gpios);
   void (*set)(uint32_t port, uint32_t gpios);
   void (*clear)(uint32_t port, uint32_t gpios);
   void (*toggle)(uint32_t port, uint32_t gpios);
-  void *impl_data;  // Pointer to implementation-specific data
 };
-extern struct gpio_periph_t gpio_ext[GPIOEXT_NB];
+
+
+// External GPIO configuration
+extern struct i2c_periph *gpio_ext_i2c_periph[];
+extern const uint8_t gpio_ext_i2c_addr[];
+extern const bool gpio_ext_blocking[];
 
 
 #endif  // GPIO_EXT_COMMON_H
