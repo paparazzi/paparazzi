@@ -14,7 +14,7 @@ ICs.
     </description>
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
       <define name="PCA95XX_PORTS" value="GPIOEXTx, GPIOEXTy, ..." description="External GPIO ports provided by the respective PCA95XX."/>
-      <define name="PCA95XX_I2C_PERIPHS" value="i2c0, i2c1, ..." description="I2C bus the respective IC is connected to."/>
+      <define name="PCA95XX_I2C_PERIPHS" value="&i2c0, &i2c1, ..." description="I2C bus the respective IC is connected to."/>
       <define name="PCA95XX_ADDRESSES" value="0x82, 0xFF, ..." description="I2C addresses of the respective devices."/>
       <define name="PCA95XX_BLOCKINGS" value="TRUE, FALSE, ..." description="Whether writing to this device it blocking or not."/>
     </section>
