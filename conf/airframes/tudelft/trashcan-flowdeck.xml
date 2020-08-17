@@ -236,10 +236,10 @@
     </command_laws>
     
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
-      <define name="PCA95XX_PORTS" value="GPIOEXT1"/>
-      <define name="PCA95XX_I2C_PERIPHS" value="&softi2c0"/>
-      <define name="PCA95XX_ADDRESSES" value="0x82"/>
-      <define name="PCA95XX_BLOCKINGS" value="TRUE"/>
+      <define name="PROVIDER1" value="GPIO_EXT_PCA95XX"/>
+      <define name="BLOCKING1" value="TRUE"/>
+      <define name="I2C_PERIPH1" value="&softi2c0"/>
+      <define name="I2C_ADDRESS1" value="0x82"/>
     </section>
 
     <section name="FILTER_1EURO" prefix="FILTER_1EURO_">
