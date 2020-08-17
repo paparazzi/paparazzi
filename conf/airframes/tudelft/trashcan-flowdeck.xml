@@ -69,6 +69,7 @@
         <module name="telemetry" type="transparent_usb"/>
         <!-- <module name="telemetry" type="transparent_frsky_x"/> -->
         
+        <define name="USE_SOFTI2C0"/>
         <define name="SOFTI2C0_SCL_GPIO" value="LED_STRIP_GPIO_PORT"/>
         <define name="SOFTI2C0_SCL_PIN" value="LED_STRIP_GPIO_PIN"/>
         <define name="SOFTI2C0_SDA_GPIO" value="SPI_SELECT_SLAVE1_PORT"/>
@@ -79,7 +80,6 @@
           <configure name="SONAR_VL53L1X_I2C_DEV" value="softi2c0"/>
         </module> -->
         <module name="opticflow" type="pmw3901">
-          <define name="USE_SOFTI2C0"/>
           <define name="SENSOR_SYNC_SEND_OPTICFLOW_PMW3901" value="TRUE"/>
           <configure name="OPTICFLOW_PMW3901_SPI_DEV" value="SPI2"/>
           <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="3"/>

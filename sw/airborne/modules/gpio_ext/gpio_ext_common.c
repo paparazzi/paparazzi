@@ -25,6 +25,7 @@
 
 #include "gpio_ext_common.h"
 
+#include "generated/airframe.h"
 #include "mcu_periph/gpio.h"
 #include "led.h"
 
