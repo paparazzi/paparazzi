@@ -77,8 +77,18 @@ let expand_aicraft x =
     Xml.Element ("ignoring_aircraft",["name", ac_name],[])
   in
   try
+    (* parse aircraft *)
     let ac = Aircraft.parse_aircraft ~parse_all:true "" x in
-    if List.length ac.Aircraft.xml > 0 then Xml.Element (Xml.tag x, Xml.attribs x, ac.Aircraft.xml)
+    (* Add latest generated settings if any with a special tag as it is the only way to have this information.
+     * The settings parsed by Aircraft module will not include module settings as we don't know the target.
+     * It should be the correct settings, unless an aircraft is rebuilt with different parameters or target
+     * and with the server already running and not restarted. *)
+    let settings_xml = try
+        let xml = ExtXml.parse_file (Env.paparazzi_home // "var" // "aircrafts" // ac_name // "settings.xml") in
+        [Xml.Element ("generated_settings", [], Xml.children xml)]
+      with _ -> []
+    in
+    if List.length ac.Aircraft.xml > 0 then Xml.Element (Xml.tag x, Xml.attribs x, ac.Aircraft.xml @ settings_xml)
     else failwith "Nothing to parse"
   with
     | Failure msg -> handle_error_message "Fail with" msg
