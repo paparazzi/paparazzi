@@ -32,7 +32,6 @@ extern void stabilization_rate_init(void);
 extern void stabilization_rate_read_rc(void);
 extern void stabilization_rate_read_rc_switched_sticks(void);
 extern void stabilization_indi_rate_set_setpoint_i(struct Int32Rates *pqr);
-extern void stabilization_indi_rate_calc_cmd(struct FloatRates rate_ref, bool in_flight);
 extern void stabilization_indi_rate_run(bool in_flight, struct Int32Rates rates_sp);
 extern void stabilization_indi_rate_enter(void);
 

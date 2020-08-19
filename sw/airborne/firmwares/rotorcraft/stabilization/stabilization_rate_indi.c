@@ -33,6 +33,8 @@
 
 struct FloatRates stabilization_rate_sp;
 
+static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct FloatRates rate_ref, bool in_flight)
+
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
 #endif
@@ -125,7 +127,7 @@ void stabilization_rate_set_setpoint_i(struct Int32Rates *pqr)
   RATES_FLOAT_OF_BFP(stabilization_rate_sp, *pqr);
 }
 
-void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct FloatRates rate_ref, bool in_flight)
+static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct FloatRates rate_ref, bool in_flight)
 {
   /* Get the angular acceleration references */
   indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * (rate_ref.p - body_rates->p);
