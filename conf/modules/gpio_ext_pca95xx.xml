@@ -8,9 +8,6 @@ Uses the gpio_ext_common mechanism for transparent redirecting of gpio
 calls. Multiple PCA95XX can be used, on different I2C busses.
 Configuration and writing can be performed non-blocking (reading is
 always blocking).
-
-All defines can be given as comma-separated lists to support multiple
-ICs.
     </description>
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
       <define name="PROVIDERx" value="GPIO_EXT_PCA95XX" description="Set-up module as provider for port GPIOEXTx"/>

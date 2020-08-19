@@ -7,9 +7,7 @@ Common functions for external GPIO
 This module wraps calls to the gpio_x functions (GCC only!) and
 redirects calls with port GPIOEXTx to modules.
 
-Modules can register their external gpio implementation by setting
-the callbacks in gpio_ext[]. See the gpio_ext_pca95xx module as an
-example.
+See gpio_ext_pca95xx as an example implementation.
     </description>
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
       <define name="PROVIDERx" value="GPIO_EXT_xxx" description="Provider module for port GPIOEXTx"/>
