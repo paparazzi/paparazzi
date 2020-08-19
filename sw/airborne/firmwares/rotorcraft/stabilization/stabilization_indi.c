@@ -58,6 +58,7 @@ float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
 
+static void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
 static void lms_estimation(void);
 static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);

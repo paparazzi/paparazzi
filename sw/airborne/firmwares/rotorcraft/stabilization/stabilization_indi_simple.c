@@ -78,7 +78,7 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
 static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control);
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], bool in_flight);
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
 
@@ -352,9 +352,9 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], bool in_
 void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), struct Int32Quat quat_sp) // how does quat_sp is set when using RC?
 {
   /* attitude error                          */
-  struct Int32Quat att_err;
+  struct Int32Quat att_err; 
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &stab_att_sp_quat);
+  int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
