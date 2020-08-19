@@ -348,27 +348,8 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  *
  * Function that calculates the INDI commands
  */
-static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_control, bool in_flight)
+static void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
 {
-
-  struct FloatRates rate_ref;
-  if (rate_control) { //Check if we are running the rate controller
-    rate_ref.p = stabilization_rate_sp.p;
-    rate_ref.q = stabilization_rate_sp.q;
-    rate_ref.r = stabilization_rate_sp.r;
-  } else {
-    //calculate the virtual control (reference acceleration) based on a PD controller
-    rate_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
-                 / reference_acceleration.rate_p;
-    rate_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
-                 / reference_acceleration.rate_q;
-    rate_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
-                 / reference_acceleration.rate_r;
-
-    // Possibly we can use some bounding here
-    /*BoundAbs(rate_ref.r, 5.0);*/
-  }
-
   struct FloatRates *body_rates = stateGetBodyRates_f();
 
   q_filt = (q_filt*3+body_rates->q)/4;
@@ -495,7 +476,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
  *
  * Function that should be called to run the INDI controller
  */
-void stabilization_indi_run(bool in_flight, bool rate_control)
+void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
 {
 
   /* Propagate the filter on the gyroscopes */
@@ -519,13 +500,26 @@ void stabilization_indi_run(bool in_flight, bool rate_control)
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &stab_att_sp_quat);
+  int32_quat_inv_comp(&att_err, att_quat, &quat_sp); // [quat_sp is stab_att_sp_quat -- HOW TO DISTINGUISH WHAT YOU GET FROM RC AND SET BY USER FROM ANOTHER MODULE?]
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
 
+  struct FloatRates rate_ref; 
+
+  //calculate the virtual control (reference acceleration) based on a PD controller
+  rate_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
+                / reference_acceleration.rate_p;
+  rate_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
+                / reference_acceleration.rate_q;
+  rate_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
+                / reference_acceleration.rate_r;
+
+  // Possibly we can use some bounding here
+  /*BoundAbs(rate_ref.r, 5.0);*/
+
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(&att_err, rate_control, in_flight);
+  stabilization_indi_calc_cmd(rate_ref, in_flight);
 
   // Set the stab_cmd to 42 to indicate that it is not used
   stabilization_cmd[COMMAND_ROLL] = 42;
