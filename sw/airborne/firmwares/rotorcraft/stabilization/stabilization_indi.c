@@ -35,9 +35,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
-// Added to access variable "stabilization_rate_sp" for direct rate control
-#include "firmwares/rotorcraft/stabilization/stabilization_rate_indi.h"
-
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
@@ -349,7 +346,7 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  *
  * Function that calculates the INDI commands
  */
-static void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
+void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
 {
   struct FloatRates *body_rates = stateGetBodyRates_f();
 
@@ -479,7 +476,6 @@ static void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flig
  */
 void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
 {
-
   /* Propagate the filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
   float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
@@ -501,7 +497,7 @@ void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &quat_sp); // [quat_sp is stab_att_sp_quat -- HOW TO DISTINGUISH WHAT YOU GET FROM RC AND SET BY USER FROM ANOTHER MODULE?]
+  int32_quat_inv_comp(&att_err, att_quat, &quat_sp); 
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
