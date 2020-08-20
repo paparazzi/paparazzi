@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
+ *               2020 Rohan Chotalal 
  *
  * This file is part of paparazzi.
  *
@@ -22,6 +23,7 @@
 /** @file stabilization_rate_indi.c
  *  Rate stabilization for rotorcrafts based on INDI by Ewoud Smeur.
  */
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate_indi.h"
 
@@ -127,33 +129,37 @@ void stabilization_rate_set_setpoint_i(struct Int32Rates *pqr)
   RATES_FLOAT_OF_BFP(stabilization_rate_sp, *pqr);
 }
 
-static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct FloatRates rate_ref, bool in_flight)
+static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], bool in_flight)
 {
   /* Get the angular acceleration references */
   indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * (rate_ref.p - body_rates->p);
   indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * (rate_ref.q - body_rates->q);
   indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * (rate_ref.r - body_rates->r);
 
+// WE NEED TO CHOOSE BETWEEN STABILIZATION_INDI_SIMPLE AND STABILIZATION_INDI - NOT SURE IF I DID CORRECTLY HERE:
+#ifdef STABILIZATION_ATTITUDE_INDI_SIMPLE
   stabilization_indi_calc_cmd(indi_commands)
+  /* copy the INDI command */
+  stabilization_cmd[COMMAND_ROLL] = stabilization_att_indi_cmd[COMMAND_ROLL];
+  stabilization_cmd[COMMAND_PITCH] = stabilization_att_indi_cmd[COMMAND_PITCH];
+  stabilization_cmd[COMMAND_YAW] = stabilization_att_indi_cmd[COMMAND_YAW];
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+#else
+  stabilization_indi_calc_cmd(rate_ref, in_flight);
+#endif
 }
 
-void stabilization_indi_rate_run(bool in_flight __attribute__((unused)), struct Int32Rates rates_sp)
+void stabilization_rate_run(bool in_flight __attribute__((unused)), struct Int32Rates rates_sp)
 {
   /* set rate set-point */
   stabilization_rate_set_setpoint_i(rates_sp) // NOT SURE ABOUT DOING THIS! 
 
   /* compute the INDI rate command */
   stabilization_indi_rate_calc_cmd(indi_comands, in_flight);
-
-  /* copy the INDI rate command */
-  stabilization_cmd[COMMAND_ROLL] = indi_commands[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = indi_commands[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = indi_commands[COMMAND_YAW];
-
-  /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ); 
 }
 
 void stabilization_indi_rate_enter(void)

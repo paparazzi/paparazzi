@@ -35,9 +35,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
-// Added to access variable "stabilization_rate_sp" for direct rate control
-#include "firmwares/rotorcraft/stabilization/stabilization_rate_indi.h"
-
 #include "state.h"
 #include "generated/airframe.h"
 #include "paparazzi.h"
@@ -78,7 +75,7 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
 static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], bool in_flight);
+static inline void stabilization_indi_calc_cmd(int32_t indi_commands[]);
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
 
@@ -291,7 +288,7 @@ static inline void finite_difference(float output[3], float new[3], float old[3]
  * @param att_err quaternion attitude error
  * @param rate_control rate control enabled, otherwise attitude control
  */
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], bool in_flight __attribute__((unused)))
+void stabilization_indi_calc_cmd(int32_t indi_commands[])
 {
   //Increment in angular acceleration requires increment in control input
   //G1 is the control effectiveness. In the yaw axis, we need something additional: G2.
@@ -349,10 +346,10 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], bool in_
  * @param in_flight not used
  * @param rate_control rate control enabled, otherwise attitude control
  */
-void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), struct Int32Quat quat_sp) // how does quat_sp is set when using RC?
+void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), struct Int32Quat quat_sp)
 {
   /* attitude error                          */
-  struct Int32Quat att_err; 
+  struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
   int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
   /* wrap it in the shortest direction       */
@@ -395,7 +392,7 @@ void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), str
   indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
 
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(stabilization_att_indi_cmd, in_flight);
+  stabilization_indi_calc_cmd(stabilization_att_indi_cmd);
 
   /* copy the INDI command */
   stabilization_cmd[COMMAND_ROLL] = stabilization_att_indi_cmd[COMMAND_ROLL];

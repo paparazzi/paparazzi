@@ -54,7 +54,8 @@ extern void stabilization_indi_enter(void);
 extern void stabilization_indi_set_failsafe_setpoint(void);
 extern void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy);
 extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-extern stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
+extern void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
+extern void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
 extern void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 
 #endif /* STABILIZATION_INDI */
