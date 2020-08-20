@@ -9,7 +9,7 @@
   <depends>stabilization_indi|stabilization_indi_simple</depends>
   <autoload name="stabilization" type="rotorcraft"/>
   <header>
-    <file name="stabilization_rate.h"/>
+    <file name="stabilization_rate_indi.h"/>
   </header>
   <init fun="stabilization_rate_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
