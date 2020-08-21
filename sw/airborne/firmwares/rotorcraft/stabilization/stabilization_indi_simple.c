@@ -74,7 +74,7 @@
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
-static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
+// static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
 
@@ -384,14 +384,14 @@ void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), str
   rates_for_feedback.r = indi.rate[2].o[0];
 #endif
 
-  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
+  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err.qx)
                              - indi.reference_acceleration.rate_p * rates_for_feedback.p;
 
-  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
+  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err.qy)
                              - indi.reference_acceleration.rate_q * rates_for_feedback.q;
 
   //This separates the P and D controller and lets you impose a maximum yaw rate.
-  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz) / indi.reference_acceleration.rate_r;
+  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi.reference_acceleration.rate_r;
   BoundAbs(rate_ref_r, indi.attitude_max_yaw_rate);
   indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
 
