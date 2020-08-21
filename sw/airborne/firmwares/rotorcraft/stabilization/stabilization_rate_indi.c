@@ -44,7 +44,7 @@ struct ReferenceSystem reference_acceleration = {
   STABILIZATION_INDI_REF_RATE_R
 }; // these values are defined in airframe.h file
 
-// variables in case we use "stabilization_indi.c" module
+// variables in case we use "stabilization_indi.c" 
 float q_filt = 0.0;
 float r_filt = 0.0;
 
@@ -165,7 +165,7 @@ void stabilization_rate_set_setpoint_i(struct Int32Rates *pqr)
 /**
  * @brief Calculate commanded rates, given setpoint rates 
  */
-static void stabilization_rate_indi_calc_cmd(struct Int32Rates rates_sp, )
+static void stabilization_rate_indi_calc_cmd(struct Int32Rates rates_sp, bool in_flight)
 {
   struct FloatRates angular_acc_ref;
 
