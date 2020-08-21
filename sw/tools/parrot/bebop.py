@@ -60,6 +60,7 @@ class Bebop(ParrotUtils):
         print('Join Wifi:\t\t' + join[self.read_from_config('JOIN_WIFI')])
         print('Network id:\t\t' + self.read_from_config('WIFI_SSID'))
         print('Wifi Amode:\t\t' + self.read_from_config('WIFI_AMODE'))
+        print('IP Address:\t\t' + self.read_from_config('WIFI_ADDRESS'))
         print('Currently running:\t' + self.check_running())
         autorun = {'Unknown': 'Native (autorun not installed)', '0': 'Native', '1': 'Paparazzi'}
         print('Autorun at start:\t'+autorun[self.read_from_config('START_PPRZ')])
@@ -114,6 +115,13 @@ class Bebop(ParrotUtils):
         self.write_to_config('JOIN_WIFI', mode_id[mode])
         print('The Wifi mode is now ' + mode)
 
+    def bebop_set_address(self, address):
+        '''
+        Set static IP or dhcp
+        '''
+        self.write_to_config('WIFI_ADDRESS', address)
+        print('The IP address is now ' + address)
+
     def bebop_shutdown(self):
         '''
         Proper bebop shutdown
@@ -142,9 +150,13 @@ class Bebop(ParrotUtils):
         ss = self.subparsers.add_parser('wifimode', help='Set the Wifi mode the Bebop 1 or 2')
         ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
 
+        ss = self.subparsers.add_parser('address', help='Set the IP address, static or dhcp')
+        ss.add_argument('address', help="The new IP address (static) or 'dhcp'")
+
         ss = self.subparsers.add_parser('configure_network', help='Configure the network on the Bebop 1 or 2')
         ss.add_argument('name', help='The network ID (SSID) to join in managed mode')
         ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
+        ss.add_argument('address', help="The new IP address (static) or 'dhcp'")
 
         ss = self.subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the Bebop 1 or 2')
         ss.add_argument('type', choices=['native', 'paparazzi'],
@@ -170,11 +182,23 @@ class Bebop(ParrotUtils):
             if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
+        # Change the wifi mode
+        elif args.command == 'address':
+            if not (self.is_ip(args.address) or args.address == 'dhcp'):
+                print("Invalid address or dhcp option. Leaving.")
+                return
+            self.bebop_set_address(args.address)
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
         # Install and configure network
         elif args.command == 'configure_network':
             print('=== Current network setup ===')
             self.uav_status()
             print('=============================')
+            if not (self.is_ip(args.address) or args.address == 'dhcp'):
+                print("Invalid address or dhcp option. Leaving.")
+                return
             if self.check_autoboot():
                 print('Custom autostart (and network) script already installed')
                 if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
@@ -189,6 +213,7 @@ class Bebop(ParrotUtils):
             sleep(0.5)
             self.bebop_set_ssid(args.name)
             self.bebop_set_wifi_mode(args.mode)
+            self.bebop_set_address(args.address)
             sleep(0.5)
             print('== New network setup after boot ==')
             self.uav_status()

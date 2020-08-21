@@ -187,7 +187,7 @@ class ParrotUtils:
             return ["./", name]
         return name.rsplit('/', 1)
 
-    def is_ip(address):
+    def is_ip(self, address):
         try:
             socket.inet_aton(address)
             ip = True
