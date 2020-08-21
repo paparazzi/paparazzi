@@ -820,10 +820,12 @@ let setting = fun logging _sender vs ->
              "value", List.assoc "value" vs] in
   Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs;
-  (* mark the setting as not yet confirmed *)
-  let ac = Hashtbl.find aircrafts ac_id in
-  let idx = PprzLink.int_of_value (List.assoc "index" vs) in
-  ac.dl_setting_values.(idx) <- None
+  try
+    (* mark the setting as not yet confirmed *)
+    let ac = Hashtbl.find aircrafts ac_id in
+    let idx = PprzLink.int_of_value (List.assoc "index" vs) in
+    ac.dl_setting_values.(idx) <- None
+  with Not_found -> ()
 
 
 (** Got a GET_DL_SETTING, and send an GET_SETTING *)
@@ -833,10 +835,12 @@ let get_setting = fun logging _sender vs ->
              "ac_id", PprzLink.String ac_id ] in
   Dl_Pprz.message_send dl_id "GET_SETTING" vs;
   log logging ac_id "GET_SETTING" vs;
-  (* mark the setting as not yet confirmed *)
-  let ac = Hashtbl.find aircrafts ac_id in
-  let idx = PprzLink.int_of_value (List.assoc "index" vs) in
-  ac.dl_setting_values.(idx) <- None
+  try
+    (* mark the setting as not yet confirmed *)
+    let ac = Hashtbl.find aircrafts ac_id in
+    let idx = PprzLink.int_of_value (List.assoc "index" vs) in
+    ac.dl_setting_values.(idx) <- None
+  with Not_found -> ()
 
 
 (** Got a JUMP_TO_BLOCK, and send an BLOCK *)
