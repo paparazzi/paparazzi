@@ -321,7 +321,13 @@ void acInfoCalcPositionEnu_i(uint8_t ac_id)
   {
     if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_I))
     {
-      enu_of_lla_point_i(&ti_acs[ac_nr].enu_pos_i, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      struct EnuCoor_i enu;
+      enu_of_lla_point_i(&enu, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      // convert ENU pos from cm to BFP with INT32_POS_FRAC
+      enu.x = POS_BFP_OF_REAL(enu.x) / 100;
+      enu.y = POS_BFP_OF_REAL(enu.y) / 100;
+      enu.z = POS_BFP_OF_REAL(enu.z) / 100;
+      ti_acs[ac_nr].enu_pos_i = enu;
     } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_F))
     {
       enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, &state.ned_origin_f, acInfoGetPositionLla_f(ac_id));
@@ -418,7 +424,13 @@ void acInfoCalcPositionEnu_f(uint8_t ac_id)
       enu_of_lla_point_f(&ti_acs[ac_nr].enu_pos_f, &state.ned_origin_f, acInfoGetPositionLla_f(ac_id));
     } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I) || bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_UTM_I))
     {
-      enu_of_lla_point_i(&ti_acs[ac_nr].enu_pos_i, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      struct EnuCoor_i enu;
+      enu_of_lla_point_i(&enu, &state.ned_origin_i, acInfoGetPositionLla_i(ac_id));
+      // convert ENU pos from cm to BFP with INT32_POS_FRAC
+      enu.x = POS_BFP_OF_REAL(enu.x) / 100;
+      enu.y = POS_BFP_OF_REAL(enu.y) / 100;
+      enu.z = POS_BFP_OF_REAL(enu.z) / 100;
+      ti_acs[ac_nr].enu_pos_i = enu;
       SetBit(ti_acs[ac_nr].status, AC_INFO_POS_ENU_I);
       ENU_FLOAT_OF_BFP(ti_acs[ac_nr].enu_pos_f, ti_acs[ac_nr].enu_pos_i);
     }
