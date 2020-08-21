@@ -53,7 +53,7 @@
 #else
 #define GPIO_EXT_PCA95XX_I2C_PERIPH4_PTR NULL
 #endif
-static struct i2c_periph *i2c_periph[] = {
+static struct i2c_periph * const i2c_periph[] = {
     GPIO_EXT_PCA95XX_I2C_PERIPH1_PTR,
     GPIO_EXT_PCA95XX_I2C_PERIPH2_PTR,
     GPIO_EXT_PCA95XX_I2C_PERIPH3_PTR,
