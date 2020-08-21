@@ -12,7 +12,7 @@ always blocking).
     <section name="GPIO_EXT" prefix="GPIO_EXT_">
       <define name="PROVIDERx" value="GPIO_EXT_PCA95XX" description="Set-up module as provider for port GPIOEXTx"/>
       <define name="BLOCKINGx" value="TRUE|FALSE" description="Whether write operations to this port should be blocking. (Note: reading is always blocking)."/>
-      <define name="I2C_PERIPHx" value="&i2c0" description="Pointer(!) to i2c peripheral"/>
+      <define name="I2C_PERIPHx" value="i2c0" description="I2C peripheral"/>
       <define name="I2C_ADDRESSx" value="0x82" description="I2C address of GPIO expander"/>
     </section>
   </doc>
