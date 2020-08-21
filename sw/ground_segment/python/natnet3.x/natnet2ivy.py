@@ -152,7 +152,7 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
         msg['enu_xd'] = vel[0]
         msg['enu_yd'] = vel[1]
         msg['enu_zd'] = vel[2]
-        msg['tow'] = int(stamp) # TODO convert to GPS itow ?
+        msg['tow'] = int(1000. * stamp) # TODO convert to GPS itow ?
         # convert quaternion to psi euler angle
         dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
         dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
