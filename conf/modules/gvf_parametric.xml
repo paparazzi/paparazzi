@@ -3,6 +3,9 @@
 <module name="gvf_parametric" dir="guidance/gvf_parametric">
   <doc>
     <description>Guidance algorithm for tracking 2D and 3D smooth trajectories that are defined by a parametric equation.
+
+      For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .
+      This algorithm needs the Eigen library, be sure you have it installed, e.g., git submodule update --init --recursive sw/ext/eigen
     </description>
   </doc>
 
