@@ -24,7 +24,7 @@
  */
 
 #include "modules/range_finder/cf_deck_multi_ranger.h"
-#include "peripherals/pca95x4.h"
+#include "peripherals/pca95xx.h"
 #include "peripherals/vl53l1x_nonblocking.h"
 #include "peripherals/vl53l1x_api.h"
 #include "subsystems/abi.h"
@@ -64,11 +64,11 @@
 #endif
 
 // PCA I/O pins to enable sensors
-#define MULTI_RANGER_PIN_FRONT  PCA95X4_P4
-#define MULTI_RANGER_PIN_BACK   PCA95X4_P1
-#define MULTI_RANGER_PIN_RIGHT  PCA95X4_P2
-#define MULTI_RANGER_PIN_LEFT   PCA95X4_P6
-#define MULTI_RANGER_PIN_UP     PCA95X4_P0
+#define MULTI_RANGER_PIN_FRONT  PCA95XX_P4
+#define MULTI_RANGER_PIN_BACK   PCA95XX_P1
+#define MULTI_RANGER_PIN_RIGHT  PCA95XX_P2
+#define MULTI_RANGER_PIN_LEFT   PCA95XX_P6
+#define MULTI_RANGER_PIN_UP     PCA95XX_P0
 #define MULTI_RANGER_PIN_ALL    (MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK | MULTI_RANGER_PIN_RIGHT | MULTI_RANGER_PIN_LEFT | MULTI_RANGER_PIN_UP)
 
 enum MultiRangerStatus {
@@ -117,7 +117,7 @@ struct cf_deck_multi_ranger {
   // VL53L1X devices
   struct SingleRanger ranger[MULTI_RANGER_NB];    ///< sensor array
   // I/O expander
-  struct pca95x4 pca;
+  struct pca95xx pca;
 };
 
 static struct cf_deck_multi_ranger multi_ranger;
@@ -140,10 +140,10 @@ void multi_ranger_init(void)
   multi_ranger.status = MULTI_RANGER_UNINIT;
 
   // init I/O expander
-  pca95x4_init(&multi_ranger.pca, &(MULTI_RANGER_I2C_DEV), PCA95X4_DEFAULT_ADDRESS);
+  pca95xx_init(&multi_ranger.pca, &(MULTI_RANGER_I2C_DEV), PCA95XX_DEFAULT_ADDRESS);
 #if MULTI_RANGER_EARLY_INIT
-  pca95x4_configure(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), true); // configure output
-  pca95x4_set_output(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), true); // select none
+  pca95xx_configure(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), true); // configure output
+  pca95xx_set_output(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), true); // select none
 #endif
 
   // init vl53l1x array
@@ -182,31 +182,31 @@ void multi_ranger_periodic(void)
 {
   switch (multi_ranger.status) {
     case MULTI_RANGER_UNINIT:
-      pca95x4_configure(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), false); // configure output
+      pca95xx_configure(&multi_ranger.pca, ~(MULTI_RANGER_PIN_ALL), false); // configure output
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_IO:
-      pca95x4_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT, false); // select front
+      pca95xx_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT, false); // select front
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_FRONT:
       multi_ranger_boot_device(&multi_ranger.ranger[MULTI_RANGER_FRONT].dev);
-      pca95x4_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK, false); // select back
+      pca95xx_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK, false); // select back
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_BACK:
       multi_ranger_boot_device(&multi_ranger.ranger[MULTI_RANGER_BACK].dev);
-      pca95x4_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK | MULTI_RANGER_PIN_RIGHT, false); // select right
+      pca95xx_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK | MULTI_RANGER_PIN_RIGHT, false); // select right
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_RIGHT:
       multi_ranger_boot_device(&multi_ranger.ranger[MULTI_RANGER_RIGHT].dev);
-      pca95x4_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK | MULTI_RANGER_PIN_RIGHT | MULTI_RANGER_PIN_LEFT, false); // select left
+      pca95xx_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_FRONT | MULTI_RANGER_PIN_BACK | MULTI_RANGER_PIN_RIGHT | MULTI_RANGER_PIN_LEFT, false); // select left
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_LEFT:
       multi_ranger_boot_device(&multi_ranger.ranger[MULTI_RANGER_LEFT].dev);
-      pca95x4_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_ALL, false); // select up
+      pca95xx_set_output(&multi_ranger.pca, MULTI_RANGER_PIN_ALL, false); // select up
       multi_ranger.status++;
       break;
     case MULTI_RANGER_CONF_UP:

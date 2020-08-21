@@ -19,15 +19,15 @@
  */
 
 /**
- * @file peripherals/pca95x4.c
+ * @file peripherals/pca95xx.c
  *
  * Driver for the 8-bit I/O expander based on i2c
  */
 
-#include "peripherals/pca95x4.h"
+#include "peripherals/pca95xx.h"
 
 // Init function
-void pca95x4_init(struct pca95x4 *dev, struct i2c_periph *i2c_p, uint8_t addr)
+void pca95xx_init(struct pca95xx *dev, struct i2c_periph *i2c_p, uint8_t addr)
 {
   /* set i2c_peripheral */
   dev->i2c_p = i2c_p;
@@ -39,7 +39,7 @@ void pca95x4_init(struct pca95x4 *dev, struct i2c_periph *i2c_p, uint8_t addr)
 }
 
 // Configure function
-bool pca95x4_configure(struct pca95x4 *dev, uint8_t val, bool blocking)
+bool pca95xx_configure(struct pca95xx *dev, uint8_t val, bool blocking)
 {
   if (dev->i2c_trans.status != I2CTransDone &&
       dev->i2c_trans.status != I2CTransSuccess &&
@@ -47,7 +47,7 @@ bool pca95x4_configure(struct pca95x4 *dev, uint8_t val, bool blocking)
     return false; // previous transaction not finished
   }
   // send config value
-  dev->i2c_trans.buf[0] = PCA95X4_CONFIG_REG;
+  dev->i2c_trans.buf[0] = PCA95XX_CONFIG_REG;
   dev->i2c_trans.buf[1] = val;
   if (blocking) {
     return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
@@ -57,7 +57,7 @@ bool pca95x4_configure(struct pca95x4 *dev, uint8_t val, bool blocking)
 }
 
 // Set output function
-bool pca95x4_set_output(struct pca95x4 *dev, uint8_t mask, bool blocking)
+bool pca95xx_set_output(struct pca95xx *dev, uint8_t mask, bool blocking)
 {
   if (dev->i2c_trans.status != I2CTransDone &&
       dev->i2c_trans.status != I2CTransSuccess &&
@@ -65,12 +65,26 @@ bool pca95x4_set_output(struct pca95x4 *dev, uint8_t mask, bool blocking)
     return false; // previous transaction not finished
   }
   // send mask value
-  dev->i2c_trans.buf[0] = PCA95X4_OUTPUT_REG;
+  dev->i2c_trans.buf[0] = PCA95XX_OUTPUT_REG;
   dev->i2c_trans.buf[1] = mask;
   if (blocking) {
     return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
   } else {
     return i2c_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
   }
+}
+
+// Get input function
+bool pca95xx_get_input(struct pca95xx *dev, uint8_t mask, uint8_t *result) {
+  if (dev->i2c_trans.status != I2CTransDone &&
+      dev->i2c_trans.status != I2CTransSuccess &&
+      dev->i2c_trans.status != I2CTransFailed) {
+    return false; // previous transaction not finished
+  }
+  // get input register
+  dev->i2c_trans.buf[0] = PCA95XX_INPUT_REG;
+  bool ret = i2c_blocking_transceive(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 1, 1);
+  *result = dev->i2c_trans.buf[0] & mask;
+  return ret;
 }
 

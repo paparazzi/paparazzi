@@ -644,7 +644,7 @@ void softi2c_event(void) {
 
 static void softi2c_spin(struct i2c_periph *p) {
   softi2c_device_event((struct softi2c_device *) p->reg_addr);
-  sys_time_usleep(5);  // For I2C timing.
+//  sys_time_usleep(5);  // For I2C timing. // TvD 2020-08-18: Hangs? Interrupt issue when called from SPI?
 }
 
 static bool softi2c_idle(struct i2c_periph *p) {

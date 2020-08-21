@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gpio_ext_pca95xx" dir="gpio_ext" task="mcu">
+  <doc>
+    <description>
+PCA95XX external GPIO peripheral
+
+Uses the gpio_ext_common mechanism for transparent redirecting of gpio
+calls. Multiple PCA95XX can be used, on different I2C busses.
+Configuration and writing can be performed non-blocking (reading is
+always blocking).
+    </description>
+    <define    name="GPIO_EXT_PROVIDERx" value="GPIO_EXT_PCA95XX" description="Set-up module as provider for port GPIOEXTx"/>
+    <configure name="GPIO_EXT_PCA95XX_I2C_PERIPHx" value="softi2c0" description="I2C peripheral"/>
+    <define    name="GPIO_EXT_PCA95XX_I2C_ADDRESSx" value="0x82" description="I2C address of GPIO expander"/>
+    <define    name="GPIO_EXT_PCA95XX_BLOCKINGx" value="TRUE|FALSE" description="Whether write operations to this port should be blocking. (Note: reading is always blocking)."/>
+  </doc>
+  <autoload name="gpio_ext_common"/>
+  <header>
+    <file name="gpio_ext_pca95xx.h"/>
+  </header>
+  <makefile>
+    <configure name="GPIO_EXT_PCA95XX_I2C_PERIPH1" default="undefined" case="upper|lower"/>
+    <define name="GPIO_EXT_PCA95XX_I2C_PERIPH1" value="$(GPIO_EXT_PCA95XX_I2C_PERIPH1_LOWER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH1),undefined)"/>
+    <define name="USE_$(GPIO_EXT_PCA95XX_I2C_PERIPH1_UPPER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH1),undefined)"/>
+    
+    <configure name="GPIO_EXT_PCA95XX_I2C_PERIPH2" default="undefined" case="upper|lower"/>
+    <define name="GPIO_EXT_PCA95XX_I2C_PERIPH2" value="$(GPIO_EXT_PCA95XX_I2C_PERIPH2_LOWER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH2),undefined)"/>
+    <define name="USE_$(GPIO_EXT_PCA95XX_I2C_PERIPH2_UPPER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH2),undefined)"/>
+    
+    <configure name="GPIO_EXT_PCA95XX_I2C_PERIPH3" default="undefined" case="upper|lower"/>
+    <define name="GPIO_EXT_PCA95XX_I2C_PERIPH3" value="$(GPIO_EXT_PCA95XX_I2C_PERIPH3_LOWER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH3),undefined)"/>
+    <define name="USE_$(GPIO_EXT_PCA95XX_I2C_PERIPH3_UPPER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH3),undefined)"/>
+    
+    <configure name="GPIO_EXT_PCA95XX_I2C_PERIPH4" default="undefined" case="upper|lower"/>
+    <define name="GPIO_EXT_PCA95XX_I2C_PERIPH4" value="$(GPIO_EXT_PCA95XX_I2C_PERIPH4_LOWER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH4),undefined)"/>
+    <define name="USE_$(GPIO_EXT_PCA95XX_I2C_PERIPH4_UPPER)" cond="ifneq ($(GPIO_EXT_PCA95XX_I2C_PERIPH4),undefined)"/>
+    
+    <file name="gpio_ext_pca95xx.c"/>
+    <file name="pca95xx.c" dir="peripherals"/>
+  </makefile>
+</module>

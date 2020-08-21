@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gpio_ext_common" dir="gpio_ext" task="mcu">
+  <doc>
+    <description>
+Common functions for external GPIO
+
+This module wraps calls to the gpio_x functions (GCC only!) and
+redirects calls with port GPIOEXTx to modules.
+
+See gpio_ext_pca95xx as an example implementation.
+    </description>
+  </doc>
+  <header>
+    <file name="gpio_ext_common.h"/>
+  </header>
+  <makefile>
+    <file name="gpio_ext_common.c"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_setup_output"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_setup_input"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_get"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_set"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_clear"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_toggle"/>
+    <!-- Port and pin defines, made available globally -->
+    <define name="GPIOEXT1" value="256"/>
+    <define name="GPIOEXT2" value="257"/>
+    <define name="GPIOEXT3" value="258"/>
+    <define name="GPIOEXT4" value="259"/>
+    <define name="GPIOEXT_NB" value="4"/>
+    <define name="GPIOE0" value="1"/>
+    <define name="GPIOE1" value="2"/>
+    <define name="GPIOE2" value="4"/>
+    <define name="GPIOE3" value="8"/>
+    <define name="GPIOE4" value="16"/>
+    <define name="GPIOE5" value="32"/>
+    <define name="GPIOE6" value="64"/>
+    <define name="GPIOE7" value="128"/>
+  </makefile>
+</module>
