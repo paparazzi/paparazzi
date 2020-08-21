@@ -33,10 +33,25 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #endif
 
+/* -- define variables */
 struct FloatRates stabilization_rate_sp;
+struct ReferenceSystem reference_acceleration = {
+  STABILIZATION_INDI_REF_ERR_P,
+  STABILIZATION_INDI_REF_ERR_Q,
+  STABILIZATION_INDI_REF_ERR_R,
+  STABILIZATION_INDI_REF_RATE_P,
+  STABILIZATION_INDI_REF_RATE_Q,
+  STABILIZATION_INDI_REF_RATE_R
+}; // these values are defined in airframe.h file
 
+// variables in case we use "stabilization_indi.c" module
+float q_filt = 0.0;
+float r_filt = 0.0;
+
+/* -- define functions */
 static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct FloatRates rate_ref, bool in_flight)
 
+/* -- RC deadbands */ 
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
 #endif
@@ -59,6 +74,7 @@ static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], struct Flo
   (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -67,11 +83,13 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
                           &stabilization_rate_sp.p,
                           &stabilization_rate_sp.q,
-                          &stabilization_rate_sp.r,
-                          &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization_rate_sp.r);
 }
 #endif
 
+/**
+ * @brief Initialize rate controller
+ */
 void stabilization_rate_init(void)
 {
   stabilization_indi_init();
@@ -81,6 +99,9 @@ void stabilization_rate_init(void)
 #endif
 }
 
+/**
+ * @brief Read RC comands with roll and yaw sticks
+ */
 void stabilization_rate_read_rc(void)
 {
   if (ROLL_RATE_DEADBAND_EXCEEDED()) {
@@ -102,7 +123,10 @@ void stabilization_rate_read_rc(void)
   }
 }
 
-//Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
+/**
+ * @brief Read rc with roll and yaw sitcks switched if the default orientation is vertical 
+ * but airplane sticks are desired
+ */
 void stabilization_rate_read_rc_switched_sticks(void)
 {
   if (ROLL_RATE_DEADBAND_EXCEEDED()) {
@@ -124,45 +148,69 @@ void stabilization_rate_read_rc_switched_sticks(void)
   }
 }
 
+/**
+ * @brief Set rate setpoints when received from another module
+ */
+/* 
 void stabilization_rate_set_setpoint_i(struct Int32Rates *pqr)
 {
   RATES_FLOAT_OF_BFP(stabilization_rate_sp, *pqr);
 }
+*/ 
 
-static void stabilization_indi_rate_calc_cmd(int32_t indi_commands[], bool in_flight)
+/* -----
+-----> CHECK FROM HERE ONWARDS! 
+----- */
+
+/**
+ * @brief Calculate commanded rates, given setpoint rates 
+ */
+static void stabilization_rate_indi_calc_cmd(struct Int32Rates rates_sp, )
 {
-  /* Get the angular acceleration references */
-  indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * (rate_ref.p - body_rates->p);
-  indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * (rate_ref.q - body_rates->q);
-  indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * (rate_ref.r - body_rates->r);
+  struct FloatRates angular_acc_ref;
 
-// WE NEED TO CHOOSE BETWEEN STABILIZATION_INDI_SIMPLE AND STABILIZATION_INDI - NOT SURE IF I DID CORRECTLY HERE:
 #ifdef STABILIZATION_ATTITUDE_INDI_SIMPLE
-  stabilization_indi_calc_cmd(indi_commands)
-  /* copy the INDI command */
-  stabilization_cmd[COMMAND_ROLL] = stabilization_att_indi_cmd[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = stabilization_att_indi_cmd[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = stabilization_att_indi_cmd[COMMAND_YAW];
-
-  /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  /* Calculate the angular acceleration references */
+  angular_accel_ref.p =  reference_acceleration.rate_p * (RATES_FLOAT_OF_BFP(rates_sp.p) - body_rates->p);
+  angular_accel_ref.q =  reference_acceleration.rate_q * (RATES_FLOAT_OF_BFP(rates_sp.q) - body_rates->q);
+  angular_accel_ref.r =  reference_acceleration.rate_r * (RATES_FLOAT_OF_BFP(rates_sp.r) - body_rates->r);
 #else
-  stabilization_indi_calc_cmd(rate_ref, in_flight);
-#endif
+  struct FloatRates *body_rates = stateGetBodyRates_f();
+
+  q_filt = (q_filt*3+body_rates->q)/4;
+  r_filt = (r_filt*3+body_rates->r)/4;
+
+  //calculate the virtual control (reference acceleration) based on a PD controller
+  angular_accel_ref.p = (RATES_FLOAT_OF_BFP(rates_sp.p) - body_rates->p) * reference_acceleration.rate_p;
+  angular_accel_ref.q = (RATES_FLOAT_OF_BFP(rates_sp.q) - q_filt) * reference_acceleration.rate_q;
+  angular_accel_ref.r = (RATES_FLOAT_OF_BFP(rates_sp.r) - r_filt) * reference_acceleration.rate_r;
+#endif 
+
+  stabilization_indi_calc_cmd(angular_accel_ref, in_flight)
 }
 
-void stabilization_rate_run(bool in_flight __attribute__((unused)), struct Int32Rates rates_sp)
+/**
+ * @brief Run this indi rate interface 
+ */
+void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp)
 {
-  /* set rate set-point */
-  stabilization_rate_set_setpoint_i(rates_sp) // NOT SURE ABOUT DOING THIS! 
-
   /* compute the INDI rate command */
-  stabilization_indi_rate_calc_cmd(indi_comands, in_flight);
+  stabilization_indi_rate_calc_cmd(indi_comands); 
 }
 
-void stabilization_indi_rate_enter(void)
+/**
+ * @brief Run this indi rate interface from the "stabilization_rate_run" function
+ */
+void stabilization_rate_run(bool in_flight)
+{
+  /* compute the INDI rate command */
+  stabilization_rate_indi_calc_cmd(in_flight, stabilization_rate_sp); 
+}
+
+/**
+ * @brief Enter this indi rate module 
+ */
+void stabilization_rate_indi_enter(void)
 {
   stabilization_indi_enter();
 }

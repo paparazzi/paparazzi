@@ -287,15 +287,15 @@ static inline void finite_difference(float output[3], float new[3], float old[3]
  * @param att_err quaternion attitude error
  * @param rate_control rate control enabled, otherwise attitude control
  */
-void stabilization_indi_calc_cmd(int32_t indi_commands[])
+void stabilization_indi_calc_cmd(struct FloatRates angular_accel_ref, bool in_flight __attribute__((unused)))
 {
   //Increment in angular acceleration requires increment in control input
   //G1 is the control effectiveness. In the yaw axis, we need something additional: G2.
   //It takes care of the angular acceleration caused by the change in rotation rate of the propellers
   //(they have significant inertia, see the paper mentioned in the header for more explanation)
-  indi.du.p = 1.0 / indi.g1.p * (indi.angular_accel_ref.p - indi.rate_d[0]);
-  indi.du.q = 1.0 / indi.g1.q * (indi.angular_accel_ref.q - indi.rate_d[1]);
-  indi.du.r = 1.0 / (indi.g1.r + indi.g2) * (indi.angular_accel_ref.r - indi.rate_d[2] + indi.g2 * indi.du.r);
+  indi.du.p = 1.0 / indi.g1.p * (angular_accel_ref.p - indi.rate_d[0]);
+  indi.du.q = 1.0 / indi.g1.q * (angular_accel_ref.q - indi.rate_d[1]);
+  indi.du.r = 1.0 / (indi.g1.r + indi.g2) * (angular_accel_ref.r - indi.rate_d[2] + indi.g2 * indi.du.r);
 
   //add the increment to the total control input
   indi.u_in.p = indi.u[0].o[0] + indi.du.p;
@@ -334,9 +334,14 @@ void stabilization_indi_calc_cmd(int32_t indi_commands[])
   }
 
   /*  INDI feedback */
-  indi_commands[COMMAND_ROLL] = indi.u_in.p;
-  indi_commands[COMMAND_PITCH] = indi.u_in.q;
-  indi_commands[COMMAND_YAW] = indi.u_in.r;
+  stabilization_cmd[COMMAND_ROLL] = indi.u_in.p;
+  stabilization_cmd[COMMAND_PITCH] = indi.u_in.q;
+  stabilization_cmd[COMMAND_YAW] = indi.u_in.r;
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
 /**
@@ -391,17 +396,7 @@ void stabilization_indi_attitude_run(bool in_flight __attribute__((unused)), str
   indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
 
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(stabilization_att_indi_cmd);
-
-  /* copy the INDI command */
-  stabilization_cmd[COMMAND_ROLL] = stabilization_att_indi_cmd[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = stabilization_att_indi_cmd[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = stabilization_att_indi_cmd[COMMAND_YAW];
-
-  /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  stabilization_indi_calc_cmd(indi.angular_accel_ref, in_flight);
 }
 
 /**

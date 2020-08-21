@@ -32,10 +32,10 @@
 
 #include "math/pprz_algebra_int.h"
 
-extern void stabilization_indi_rate_set_setpoint_i(struct Int32Rates *pqr);
-extern void stabilization_rate_run(bool in_flight, struct Int32Rates rates_sp);
-extern void stabilization_indi_rate_enter(void);
-
 extern struct FloatRates stabilization_rate_sp;
+
+/* extern void stabilization_rate_indi_set_setpoint_i(struct Int32Rates *pqr); -- TO BE REMOVED */
+extern void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp);
+extern void stabilization_rate_indi_enter(void);
 
 #endif /* STABILIZATION_RATE_INDI */
