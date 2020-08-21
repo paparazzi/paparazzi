@@ -346,18 +346,8 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  *
  * Function that calculates the INDI commands
  */
-void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
+void stabilization_indi_calc_cmd(struct FloatRates angular_accel_ref, bool in_flight)
 {
-  struct FloatRates *body_rates = stateGetBodyRates_f();
-
-  q_filt = (q_filt*3+body_rates->q)/4;
-  r_filt = (r_filt*3+body_rates->r)/4;
-
-  //calculate the virtual control (reference acceleration) based on a PD controller
-  angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
-  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
-  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
-
   g2_times_du = 0.0;
   int8_t i;
   for (i = 0; i < INDI_NUM_ACT; i++) {
@@ -466,6 +456,11 @@ void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
   for (i = 0; i < INDI_NUM_ACT; i++) {
     actuators_pprz[i] = (int16_t) indi_u[i];
   }
+
+  // Set the stab_cmd to 42 to indicate that it is not used
+  stabilization_cmd[COMMAND_ROLL] = 42;
+  stabilization_cmd[COMMAND_PITCH] = 42;
+  stabilization_cmd[COMMAND_YAW] = 42;
 }
 
 /**
@@ -502,9 +497,10 @@ void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
 
+  // local variable to compute rate setpoints based on attitude error
   struct FloatRates rate_ref; 
 
-  //calculate the virtual control (reference acceleration) based on a PD controller
+  // calculate the virtual control (reference acceleration) based on a PD controller
   rate_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
                 / reference_acceleration.rate_p;
   rate_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
@@ -515,13 +511,18 @@ void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
   // Possibly we can use some bounding here
   /*BoundAbs(rate_ref.r, 5.0);*/
 
-  /* compute the INDI command */
-  stabilization_indi_calc_cmd(rate_ref, in_flight);
+  struct FloatRates *body_rates = stateGetBodyRates_f();
 
-  // Set the stab_cmd to 42 to indicate that it is not used
-  stabilization_cmd[COMMAND_ROLL] = 42;
-  stabilization_cmd[COMMAND_PITCH] = 42;
-  stabilization_cmd[COMMAND_YAW] = 42;
+  q_filt = (q_filt*3+body_rates->q)/4;
+  r_filt = (r_filt*3+body_rates->r)/4;
+
+  //calculate the virtual control (reference acceleration) based on a PD controller
+  angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
+  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
+  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
+
+  /* compute the INDI command */
+  stabilization_indi_calc_cmd(angular_accel_ref, in_flight);
 
   // Reset thrust increment boolean
   indi_thrust_increment_set = false;
