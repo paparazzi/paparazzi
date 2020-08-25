@@ -34,6 +34,7 @@
 
 extern struct FloatRates stabilization_rate_sp;
 
+extern void void stabilization_rate_indi_cmd(bool in_flight, struct Int32Rates rate_sp);
 extern void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp);
 extern void stabilization_rate_indi_enter(void);
 
