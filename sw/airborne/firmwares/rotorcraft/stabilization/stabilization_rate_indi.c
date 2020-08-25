@@ -83,7 +83,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
                           &stabilization_rate_sp.p,
                           &stabilization_rate_sp.q,
-                          &stabilization_rate_sp.r);
+                          &stabilization_rate_sp.r); [// CHECK WITH EWOUD]
 }
 #endif
 
@@ -158,10 +158,6 @@ void stabilization_rate_set_setpoint_i(struct Int32Rates *pqr)
 }
 */ 
 
-/* -----
------> CHECK FROM HERE ONWARDS! 
------ */
-
 /**
  * @brief Calculate commanded rates, given setpoint rates 
  */
@@ -195,7 +191,7 @@ static void stabilization_rate_indi_calc_cmd(struct Int32Rates rates_sp, bool in
 void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp)
 {
   /* compute the INDI rate command */
-  stabilization_indi_rate_calc_cmd(indi_comands); 
+  stabilization_rate_indi_calc_cmd(in_flight, rates_sp); 
 }
 
 /**
@@ -204,7 +200,7 @@ void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp)
 void stabilization_rate_run(bool in_flight)
 {
   /* compute the INDI rate command */
-  stabilization_rate_indi_calc_cmd(in_flight, stabilization_rate_sp); 
+  stabilization_rate_indi_run(in_flight, stabilization_rate_sp); 
 }
 
 /**
