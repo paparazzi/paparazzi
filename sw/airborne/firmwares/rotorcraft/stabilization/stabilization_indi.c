@@ -55,7 +55,6 @@ float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
 
-static void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
 static void lms_estimation(void);
 static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
@@ -346,8 +345,18 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  *
  * Function that calculates the INDI commands
  */
-void stabilization_indi_calc_cmd(struct FloatRates angular_accel_ref, bool in_flight)
+void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
 {
+  struct FloatRates *body_rates = stateGetBodyRates_f();
+
+  q_filt = (q_filt*3+body_rates->q)/4;
+  r_filt = (r_filt*3+body_rates->r)/4;
+
+  //calculate the virtual control (reference acceleration) based on a PD controller
+  angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
+  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
+  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
+
   g2_times_du = 0.0;
   int8_t i;
   for (i = 0; i < INDI_NUM_ACT; i++) {
@@ -511,18 +520,8 @@ void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
   // Possibly we can use some bounding here
   /*BoundAbs(rate_ref.r, 5.0);*/
 
-  struct FloatRates *body_rates = stateGetBodyRates_f();
-
-  q_filt = (q_filt*3+body_rates->q)/4;
-  r_filt = (r_filt*3+body_rates->r)/4;
-
-  //calculate the virtual control (reference acceleration) based on a PD controller
-  angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
-  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
-  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
-
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(angular_accel_ref, in_flight);
+  stabilization_indi_calc_cmd(rate_ref, in_flight);
 
   // Reset thrust increment boolean
   indi_thrust_increment_set = false;
