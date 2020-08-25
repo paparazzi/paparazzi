@@ -63,13 +63,17 @@ static void calc_g1g2_pseudo_inv(void);
 static void bound_g_mat(void);
 
 int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-struct ReferenceSystem reference_acceleration = {
-  STABILIZATION_INDI_REF_ERR_P,
-  STABILIZATION_INDI_REF_ERR_Q,
-  STABILIZATION_INDI_REF_ERR_R,
-  STABILIZATION_INDI_REF_RATE_P,
-  STABILIZATION_INDI_REF_RATE_Q,
-  STABILIZATION_INDI_REF_RATE_R,
+struct Indi_gains indi_gains = {
+  .att = {
+    STABILIZATION_INDI_REF_ERR_P,
+    STABILIZATION_INDI_REF_ERR_Q,
+    STABILIZATION_INDI_REF_ERR_R
+  },
+  .rate = {
+    STABILIZATION_INDI_REF_RATE_P,
+    STABILIZATION_INDI_REF_RATE_Q,
+    STABILIZATION_INDI_REF_RATE_R
+  },
 };
 
 #if STABILIZATION_INDI_USE_ADAPTIVE
@@ -97,11 +101,6 @@ float act_pref[INDI_NUM_ACT] = {0.0};
 #endif
 
 float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
-
-/** Maximum rate you can request in RC rate mode (rad/s)*/
-#ifndef STABILIZATION_INDI_MAX_RATE
-#define STABILIZATION_INDI_MAX_RATE 6.0
-#endif
 
 #ifdef STABILIZATION_INDI_WLS_PRIORITIES
 static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
@@ -345,20 +344,36 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  *
  * Function that calculates the INDI commands
  */
-void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
+void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 {
+  /* Propagate the filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
+  float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
+  int8_t i;
+  for (i = 0; i < 3; i++) {
+    update_butterworth_2_low_pass(&measurement_lowpass_filters[i], rate_vect[i]);
+    update_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], rate_vect[i]);
 
+    //Calculate the angular acceleration via finite difference
+    angular_acceleration[i] = (measurement_lowpass_filters[i].o[0]
+                               - measurement_lowpass_filters[i].o[1]) * PERIODIC_FREQUENCY;
+
+    // Calculate derivatives for estimation
+    float estimation_rate_d_prev = estimation_rate_d[i];
+    estimation_rate_d[i] = (estimation_output_lowpass_filters[i].o[0] - estimation_output_lowpass_filters[i].o[1]) * PERIODIC_FREQUENCY;
+    estimation_rate_dd[i] = (estimation_rate_d[i] - estimation_rate_d_prev) * PERIODIC_FREQUENCY;
+  }
+
+  // FIXME: this should be configurable!
   q_filt = (q_filt*3+body_rates->q)/4;
   r_filt = (r_filt*3+body_rates->r)/4;
 
   //calculate the virtual control (reference acceleration) based on a PD controller
-  angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
-  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
-  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
+  angular_accel_ref.p = (rate_sp.p - body_rates->p) * indi_gains.rate.p;
+  angular_accel_ref.q = (rate_sp.q - q_filt) * indi_gains.rate.q;
+  angular_accel_ref.r = (rate_sp.r - r_filt) * indi_gains.rate.r;
 
   g2_times_du = 0.0;
-  int8_t i;
   for (i = 0; i < INDI_NUM_ACT; i++) {
     g2_times_du += g2[i] * indi_du[i];
   }
@@ -478,50 +493,29 @@ void stabilization_indi_calc_cmd(struct FloatRates rate_ref, bool in_flight)
  *
  * Function that should be called to run the INDI controller
  */
-void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp)
+void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight)
 {
-  /* Propagate the filter on the gyroscopes */
-  struct FloatRates *body_rates = stateGetBodyRates_f();
-  float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
-  int8_t i;
-  for (i = 0; i < 3; i++) {
-    update_butterworth_2_low_pass(&measurement_lowpass_filters[i], rate_vect[i]);
-    update_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], rate_vect[i]);
-
-    //Calculate the angular acceleration via finite difference
-    angular_acceleration[i] = (measurement_lowpass_filters[i].o[0]
-                               - measurement_lowpass_filters[i].o[1]) * PERIODIC_FREQUENCY;
-
-    // Calculate derivatives for estimation
-    float estimation_rate_d_prev = estimation_rate_d[i];
-    estimation_rate_d[i] = (estimation_output_lowpass_filters[i].o[0] - estimation_output_lowpass_filters[i].o[1]) * PERIODIC_FREQUENCY;
-    estimation_rate_dd[i] = (estimation_rate_d[i] - estimation_rate_d_prev) * PERIODIC_FREQUENCY;
-  }
-
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &quat_sp); 
+  int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
 
   // local variable to compute rate setpoints based on attitude error
-  struct FloatRates rate_ref; 
+  struct FloatRates rate_sp;
 
   // calculate the virtual control (reference acceleration) based on a PD controller
-  rate_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
-                / reference_acceleration.rate_p;
-  rate_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
-                / reference_acceleration.rate_q;
-  rate_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
-                / reference_acceleration.rate_r;
+  rate_sp.p = indi_gains.att.p * QUAT1_FLOAT_OF_BFP(att_err.qx) / indi_gains.rate.p;
+  rate_sp.q = indi_gains.att.q * QUAT1_FLOAT_OF_BFP(att_err.qy) / indi_gains.rate.q;
+  rate_sp.r = indi_gains.att.r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi_gains.rate.r;
 
   // Possibly we can use some bounding here
-  /*BoundAbs(rate_ref.r, 5.0);*/
+  /*BoundAbs(rate_sp.r, 5.0);*/
 
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(rate_ref, in_flight);
+  stabilization_indi_rate_run(rate_sp, in_flight);
 
   // Reset thrust increment boolean
   indi_thrust_increment_set = false;

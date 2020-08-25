@@ -21,12 +21,12 @@
       <define name="G1_YAW" value="{-1, 1, -1, 1}" description="control effectiveness of every actuator on the yaw axis"/>
       <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}" description="control effectiveness of every actuator on the thrust axis"/>
       <define name="G2" value="{-60.0,   60.0,  -60.0,  60.0}" description="control effectiveness of every actuator derivative on the yaw axis (important for propellers with strong torque changes)"/>
-      <define name="REF_ERR_P" value="600.0" description="reference acceleration"/>
-      <define name="REF_ERR_Q" value="600.0" description="reference acceleration"/>
-      <define name="REF_ERR_R" value="600.0" description="reference acceleration"/>
-      <define name="REF_RATE_P" value="28.0" description="reference acceleration"/>
-      <define name="REF_RATE_Q" value="28.0" description="reference acceleration"/>
-      <define name="REF_RATE_R" value="28.0" description="reference acceleration"/>
+      <define name="REF_ERR_P" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_ERR_Q" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_ERR_R" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_P" value="28.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_Q" value="28.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_R" value="28.0" description="INDI gains linear controller"/>
       <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
       <define name="FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
@@ -41,12 +41,12 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="indi">
-        <dl_setting var="reference_acceleration.err_p" min="0" step="1" max="2500" shortname="kp_p" param="STABILIZATION_INDI_REF_ERR_P"/>
-        <dl_setting var="reference_acceleration.rate_p" min="0" step="0.1" max="100" shortname="kd_p" param="STABILIZATION_INDI_REF_RATE_P"/>
-        <dl_setting var="reference_acceleration.err_q" min="0" step="1" max="2500" shortname="kp_q" param="STABILIZATION_INDI_REF_ERR_Q"/>
-        <dl_setting var="reference_acceleration.rate_q" min="0" step="0.1" max="100" shortname="kd_q" param="STABILIZATION_INDI_REF_RATE_P"/>
-        <dl_setting var="reference_acceleration.err_r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R"/>
-        <dl_setting var="reference_acceleration.rate_r" min="0" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_gains.att.p" min="0" step="1" max="2500" shortname="kp_p" param="STABILIZATION_INDI_REF_ERR_P"/>
+        <dl_setting var="indi_gains.rate.p" min="0" step="0.1" max="100" shortname="kd_p" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_gains.att.q" min="0" step="1" max="2500" shortname="kp_q" param="STABILIZATION_INDI_REF_ERR_Q"/>
+        <dl_setting var="indi_gains.rate.q" min="0" step="0.1" max="100" shortname="kd_q" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_gains.att.r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R"/>
+        <dl_setting var="indi_gains.rate.r" min="0" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P"/>
         <dl_setting var="indi_use_adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8"/>
       </dl_settings>
     </dl_settings>

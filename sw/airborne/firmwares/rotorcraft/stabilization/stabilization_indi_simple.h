@@ -40,13 +40,9 @@
 extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 
-struct ReferenceSystem {
-  float err_p;
-  float err_q;
-  float err_r;
-  float rate_p;
-  float rate_q;
-  float rate_r;
+struct Indi_gains {
+  struct FloatRates att;
+  struct FloatRates rate;
 };
 
 struct IndiEstimation {
@@ -73,7 +69,7 @@ struct IndiVariables {
   struct FloatRates g1;
   float g2;
 
-  struct ReferenceSystem reference_acceleration;
+  struct Indi_gains gains;
 
   bool adaptive;             ///< Enable adataptive estimation
   float max_rate;            ///< Maximum rate in rate control in rad/s
@@ -88,8 +84,8 @@ extern void stabilization_indi_enter(void);
 extern void stabilization_indi_set_failsafe_setpoint(void);
 extern void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy);
 extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-extern void stabilization_indi_calc_cmd(struct FloatRates rates_ref, bool in_flight, bool rate_control);
-extern void stabilization_indi_attitude_run(bool in_flight, struct Int32Quat quat_sp);
+extern void stabilization_indi_rate_run(struct FloatRates rates_sp, bool in_flight);
+extern void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight);
 extern void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 
 #endif /* STABILIZATION_INDI_SIMPLE_H */

@@ -30,12 +30,4 @@
 /* access declarations of basic functions from "stabilization_rate.h" file */
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 
-#include "math/pprz_algebra_int.h"
-
-extern struct FloatRates stabilization_rate_sp;
-
-extern void stabilization_rate_indi_cmd(bool in_flight, struct Int32Rates rate_sp);
-extern void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp);
-extern void stabilization_rate_indi_enter(void);
-
 #endif /* STABILIZATION_RATE_INDI */

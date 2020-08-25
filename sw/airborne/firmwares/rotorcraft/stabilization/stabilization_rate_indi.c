@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
- *               2020 Rohan Chotalal 
+ *               2020 Rohan Chotalal
  *
  * This file is part of paparazzi.
  *
@@ -33,10 +33,17 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #endif
 
+#include "firmwares/rotorcraft/autopilot_rc_helpers.h"
+
 /* -- define variables */
 struct FloatRates stabilization_rate_sp;
 
-/* -- RC deadbands */ 
+/** Maximum rate you can request in RC rate mode (rad/s)*/
+#ifndef STABILIZATION_INDI_MAX_RATE
+#define STABILIZATION_INDI_MAX_RATE 6.0
+#endif
+
+/* -- RC deadbands */
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
 #endif
@@ -65,14 +72,20 @@ struct FloatRates stabilization_rate_sp;
 
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {
-  float dummy = 0; 
+  float dummy = 0;
+  float fb_p = stabilization_cmd[COMMAND_ROLL];
+  float fb_q = stabilization_cmd[COMMAND_PITCH];
+  float fb_r = stabilization_cmd[COMMAND_YAW];
 
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
                           &stabilization_rate_sp.p,
                           &stabilization_rate_sp.q,
                           &stabilization_rate_sp.r,
-                          &dummy, &dummy, &dummy, // [CHECK THIS!] 
-                          &stabilization_cmd[COMMAND_THRUST]); [// CHECK WITH EWOUD]
+                          &dummy, &dummy, &dummy,
+                          &fb_p,
+                          &fb_q,
+                          &fb_r,
+                          &stabilization_cmd[COMMAND_THRUST]);
 }
 #endif
 
@@ -86,6 +99,14 @@ void stabilization_rate_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RATE_LOOP, send_rate);
 #endif
+}
+
+/**
+ * @brief Reset rate controller
+ */
+void stabilization_rate_enter(void)
+{
+  stabilization_indi_enter();
 }
 
 /**
@@ -113,7 +134,7 @@ void stabilization_rate_read_rc(void)
 }
 
 /**
- * @brief Read rc with roll and yaw sitcks switched if the default orientation is vertical 
+ * @brief Read rc with roll and yaw sitcks switched if the default orientation is vertical
  * but airplane sticks are desired
  */
 void stabilization_rate_read_rc_switched_sticks(void)
@@ -137,38 +158,11 @@ void stabilization_rate_read_rc_switched_sticks(void)
   }
 }
 
-void stabilization_rate_indi_cmd(bool in_flight, struct Int32Rates rate_sp)
-{
-#ifdef STABILIZATION_ATTITUDE_INDI_SIMPLE
-stabilization_indi_calc_cmd(rate_sp, in_flight, TRUE)
-#else
-stabilization_indi_calc_cmd(rate_sp, in_flight)
-#endif
-}
-
 /**
- * @brief Run this indi rate interface (when module mode!) 
- */
-void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp)
-{
-  /* compute the INDI rate command */
-  stabilization_indi_calc_cmd(rates_sp, in_flight);
-}
-
-/**
- * @brief Run this indi rate interface from the "stabilization_rate_run" function 
- * (according to Gautier, when in RC mode)
+ * @brief Run indi rate interface from the "stabilization_rate_run" function
  */
 void stabilization_rate_run(bool in_flight)
 {
   /* compute the INDI rate command */
-  stabilization_rate_indi_calc_run(in_flight, stabilization_rate_sp); 
-}
-
-/**
- * @brief Enter this indi rate module 
- */
-void stabilization_rate_indi_enter(void)
-{
-  stabilization_indi_enter();
+  stabilization_indi_rate_run(stabilization_rate_sp, in_flight);
 }
