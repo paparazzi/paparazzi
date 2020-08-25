@@ -147,18 +147,17 @@ stabilization_indi_calc_cmd(rate_sp, in_flight)
 }
 
 /**
- * @brief Run this indi rate interface 
+ * @brief Run this indi rate interface (when module mode!) 
  */
 void stabilization_rate_indi_run(bool in_flight, struct Int32Rates rates_sp)
 {
-  stabilization_rate_sp = rates_sp; // -- CHANGE THIS
-
   /* compute the INDI rate command */
-  stabilization_indi_calc_cmd(stabilization_rate_sp, in_flight);
+  stabilization_indi_calc_cmd(rates_sp, in_flight);
 }
 
 /**
- * @brief Run this indi rate interface from the "stabilization_rate_run" function
+ * @brief Run this indi rate interface from the "stabilization_rate_run" function 
+ * (according to Gautier, when in RC mode)
  */
 void stabilization_rate_run(bool in_flight)
 {
