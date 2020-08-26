@@ -70,6 +70,9 @@ val get_gcs_icon_path : string -> string -> string
 (* Default targets for modules *)
 val default_module_targets : string
 
+val dump_fp : string
+(** path to flight plan dump tool *)
+
 val filter_absolute_path : string -> string
 (** remove absolute path paparazzi_home/conf if it exists
  *  returns a relative path *)

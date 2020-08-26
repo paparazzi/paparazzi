@@ -29,7 +29,6 @@ module Tm_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
-let dump_fp = Env.paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
 let log = ref [||]
 
@@ -66,7 +65,7 @@ let store_conf = fun conf acs ->
 	    (** We must "dump" the flight plan from the original one *)
 	    ignore (Sys.command (sprintf "mkdir -p %s" ac_dir));
 	    let dump = ac_dir // "flight_plan.xml" in
-	    let c = sprintf "%s %s > %s" dump_fp fp dump in
+	    let c = sprintf "%s %s %s" Env.dump_fp fp dump in
 	    if Sys.command c <> 0 then
 	      failwith c;
           end
