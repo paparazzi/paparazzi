@@ -395,8 +395,7 @@ void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight __
   int32_quat_normalize(&att_err);
 
   struct FloatRates rate_sp;
-
-  // indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err.qx) - rate setpoint
+  // Divide by rate gain to make it equivalent to a parallel structure
   rate_sp.p = indi.gains.att.p * QUAT1_FLOAT_OF_BFP(att_err.qx) / indi.gains.rate.p;
   rate_sp.q = indi.gains.att.q * QUAT1_FLOAT_OF_BFP(att_err.qy) / indi.gains.rate.q;
   rate_sp.r = indi.gains.att.r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi.gains.rate.r;

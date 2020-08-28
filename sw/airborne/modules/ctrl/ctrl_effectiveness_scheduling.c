@@ -142,9 +142,9 @@ void ctrl_eff_scheduling_periodic_b(void)
 
   /*Make pitch gain equal to roll gain for turns forward flight*/
   if(airspeed > 12.0) {
-    reference_acceleration.err_q = 107.0;
+    indi_gains.att.q = 107.0;
   } else {
-    reference_acceleration.err_q = 200.0;
+    indi_gains.att.q = 200.0;
   }
 
 }
