@@ -28,7 +28,7 @@ def make_Bd(B):
     return Bd
 
 def make_Zh(Z, m):
-    edges = Z.size/m
+    edges = int(Z.size/m)
     Zh = np.zeros(Z.size)
 
     for i in range(0, edges):
@@ -39,7 +39,7 @@ def make_Zh(Z, m):
     return Zh
 
 def make_Dz(Z, m):
-    edges = Z.size/m
+    edges = int(Z.size/m)
     Dz = np.zeros((Z.size, edges))
     
     j = 0
@@ -51,7 +51,7 @@ def make_Dz(Z, m):
     return Dz
 
 def make_Dzt(Z, m, l):
-    edges = Z.size/m
+    edges = int(Z.size/m)
     if l == 2:
         return np.eye(edges)
 
@@ -78,7 +78,7 @@ def make_Dztstar(d, m, l):
     return np.diag(Ztstar)
 
 def make_DPzh(Z, m):
-    edges = Z.size/m
+    edges = int(Z.size/m)
     DPzh = np.zeros((2*edges, 2*edges))
     
     Zt = np.diag(make_Dzt(Z, m, 1))
@@ -93,7 +93,7 @@ def make_DPzh(Z, m):
     return DPzh
 
 def make_E(Z, d, m, l):
-    edges = Z.size/m
+    edges = int(Z.size/m)
     E = np.zeros(edges)
     if edges == 1:
         E[0] =  la.norm(Z)**l - d**l

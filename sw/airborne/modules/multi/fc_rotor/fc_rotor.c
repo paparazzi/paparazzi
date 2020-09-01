@@ -20,7 +20,7 @@
  */
 #include "math/pprz_algebra_float.h"
 #include "subsystems/abi.h"
-//#include "subsystems/datalink/datalink.h" // dl_buffer
+#include "subsystems/datalink/datalink.h"
 #include "autopilot.h"
 #include "modules/multi/fc_rotor/fc_rotor.h"
 #include "firmwares/rotorcraft/navigation.h"
@@ -32,7 +32,7 @@ void fc_rotor_init(void)
 void fc_read_msg(uint8_t *buf)
 {
   struct FloatVect3 u;
-  uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id();
+  uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id(buf);
 
   if (ac_id == AC_ID) {
     // 0: 2D control, 1: 3D control
