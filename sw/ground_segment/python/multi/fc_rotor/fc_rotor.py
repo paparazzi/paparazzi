@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2017 Hector Garcia de Marina <hgdemarina@gmail.com>
 #                    Gautier Hattenberger <gautier.hattenberger@enac.fr>
