@@ -72,7 +72,11 @@ class Bebop(ParrotUtils):
         self.upload_file('bebop/button_switch', self.scripts_path, kill_prog=False)
         self.upload_file('bebop/pprzstarter', self.scripts_path, kill_prog=False)
         self.execute_command("mount -o remount,rw /")
-        self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
+        if self.check_connect2hub():
+            self.execute_command("sed -i 's|connect2hub|pprzstarter|' /etc/init.d/rcS")
+            self.execute_command("rm /data/ftp/internal_000/scripts/connect2hub")
+        else:
+            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/pprzstarter")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/button_switch")
@@ -96,6 +100,13 @@ class Bebop(ParrotUtils):
     def check_autoboot(self):
         pprzstarter = self.execute_command('grep "pprzstarter" /etc/init.d/rcS')
         if "pprzstarter" in pprzstarter:
+            return True
+        else:
+            return False
+
+    def check_connect2hub(self):
+        connect2hub = self.execute_command('grep "connect2hub" /etc/init.d/rcS')
+        if "connect2hub" in connect2hub:
             return True
         else:
             return False
