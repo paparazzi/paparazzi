@@ -11,6 +11,7 @@ else
   JOIN_WIFI=0
   START_PPRZ=0
   WIFI_ADDRESS="dhcp"
+  WIFI_AMODE="none"
 fi
 if [ "$JOIN_WIFI" -gt "0" ]
 then
