@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar_pwm" dir="sonar">
+  <doc>
+    <description>
+      Driver for a PWM based sonar range sensor
+      Reads sensor using PWM input and outputs sonar distance to object in [cm]
+
+      Why PWM over ADC:
+      One only needs to connect GND, VCC and one more signal wire, same as ADC but not the disadvantages of ADC sensors noise
+
+      Sensor example: Maxbotix LV-EZ1
+    </description>
+    <configure name="SONAR_PWM_CHANNEL" value="PWM_INPUTx" description="Select PWM input channel for sensor to use e.g. PWM_INPUT1"/>
+    <define name="USE_SONAR" value="TRUE" description="Activate use of sonar in INS extended filter (only rotorcraft) or not if one only wants to measure distance"/>
+    <define name="SONAR_OFFSET" value="0.1234"  description="Sensor offset in CM, as in where one onts zero to be, default is 0"/>
+    <define name="SONAR_SCALE" value="SONAR_PWM_PERIOD" description="Sensor scale"/>
+    <define name="SONAR_MIN_RANGE" value="0.44" unit="m" description="If defined, set limit to minimum value reported, default 0.15"/>
+    <define name="SONAR_MAX_RANGE" value="3.0" unit="m" description="If defined, set limit to maximum value reported, default 6.0"/>
+    <define name="SONAR_COMPENSATE_ROTATION" value="TRUE" description="Compensate AGL for body rotation, if not defined, defaults to FALSE"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
+    <define name="SONAR_PWM_PERIOD" value="4096" description="period in microsec (e.g. 4096 for 12 bits sensor)"/>
+    <define name="SONAR_PWM_OFFSET" value="20" description="initial offset on the raw pwm signal if needed (default: 820usec)"/>
+    <define name="SONAR_USE_PWM_FILTER" value="TRUE" description="Enable or disable a median filter on the sensor output values"/>
+    <define name="SONAR_MEDIAN_SIZE" value="9" description="If median filter is enabled then set this option to filter the output more(or less), default is 7"/>
+    <define name="SENSOR_SYNC_SEND_SONAR" description="If defined, sends raw and scaled sonar values, useful for debugging sensor issues"/>
+  </doc>
+
+  <depends>pwm_meas</depends>
+  <header>
+    <file name="sonar_pwm.h" />
+  </header>
+
+  <init fun="sonar_pwm_init()" />
+  <periodic fun="sonar_pwm_read()" freq="20" />
+
+  <makefile target="ap">
+    <file name="sonar_pwm.c" />
+    <define name="SONAR_PWM_CHANNEL" value="$(SONAR_PWM_CHANNEL)" cond="ifdef SONAR_PWM_CHANNEL" />
+    <define name="$(SONAR_PWM_CHANNEL)_TICKS_PER_USEC" value="1" />
+    <define name="USE_$(SONAR_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_LOW" />
+  </makefile>
+</module>
