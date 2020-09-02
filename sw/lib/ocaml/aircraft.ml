@@ -262,7 +262,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
             with Not_found ->
               (* target not found or not defined, add in all targets instead *)
               List.iter (fun t ->
-                let c = Hashtbl.find config_by_target target in
+                let c = Hashtbl.find config_by_target t.AfT.name in
                 Hashtbl.replace config_by_target target { c with autopilot = true }
               ) target_list;
               Some autopilots
