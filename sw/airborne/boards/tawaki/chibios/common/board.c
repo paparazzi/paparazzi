@@ -269,19 +269,19 @@ void boardInit(void) {
  */
 void mcu_periph_energy_save(void)
 {
-  palSetLineMode(LINE_D15_LED1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A10_LED2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_C07_LED3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_D10_LED4, PAL_MODE_INPUT);
-  palSetLineMode(LINE_E04_SPI4_CS_INTERNAL, PAL_MODE_INPUT);
-  palSetLineMode(LINE_B12_SPI2_CS_EXTERNAL, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A00_AUX_A1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A01_AUX_A2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A02_AUX_A3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A06_AUX_A4, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A03_AUX_B1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_A07_AUX_B2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_B00_AUX_B3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_B01_AUX_B4, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED1, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED2, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED3, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED4, PAL_MODE_INPUT);
+  palSetLineMode(LINE_SPI4_INTERNAL_CS, PAL_MODE_INPUT);
+  palSetLineMode(LINE_SPI2_EXTERNAL_CS, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_A1, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_A2, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_A3, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_A4, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_B1, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_B2, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_B3, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX_B4, PAL_MODE_INPUT);
 }
 

@@ -52,10 +52,10 @@
 #define	AUX_A1                         0U
 #define	AUX_A2                         1U
 #define	AUX_A3                         2U
-#define	AUX_B1                         3U
+#define	AUX_A4                         3U
 #define	PA04                           4U
 #define	PA05                           5U
-#define	AUX_A4                         6U
+#define	AUX_B1                         6U
 #define	AUX_B2                         7U
 #define	PA08                           8U
 #define	USB_VBUS                       9U
@@ -242,8 +242,8 @@
 #define	LINE_AUX_A1                    PAL_LINE(GPIOA, 0U)
 #define	LINE_AUX_A2                    PAL_LINE(GPIOA, 1U)
 #define	LINE_AUX_A3                    PAL_LINE(GPIOA, 2U)
-#define	LINE_AUX_B1                    PAL_LINE(GPIOA, 3U)
-#define	LINE_AUX_A4                    PAL_LINE(GPIOA, 6U)
+#define	LINE_AUX_A4                    PAL_LINE(GPIOA, 3U)
+#define	LINE_AUX_B1                    PAL_LINE(GPIOA, 6U)
 #define	LINE_AUX_B2                    PAL_LINE(GPIOA, 7U)
 #define	LINE_USB_VBUS                  PAL_LINE(GPIOA, 9U)
 #define	LINE_LED2                      PAL_LINE(GPIOA, 10U)
@@ -331,10 +331,10 @@
 #define VAL_GPIOA_MODER                 (PIN_MODE_INPUT(AUX_A1) | \
 					 PIN_MODE_INPUT(AUX_A2) | \
 					 PIN_MODE_INPUT(AUX_A3) | \
-					 PIN_MODE_INPUT(AUX_B1) | \
+					 PIN_MODE_INPUT(AUX_A4) | \
 					 PIN_MODE_INPUT(PA04) | \
 					 PIN_MODE_INPUT(PA05) | \
-					 PIN_MODE_INPUT(AUX_A4) | \
+					 PIN_MODE_INPUT(AUX_B1) | \
 					 PIN_MODE_INPUT(AUX_B2) | \
 					 PIN_MODE_INPUT(PA08) | \
 					 PIN_MODE_INPUT(USB_VBUS) | \
@@ -348,10 +348,10 @@
 #define VAL_GPIOA_OTYPER                (PIN_OTYPE_OPENDRAIN(AUX_A1) | \
 					 PIN_OTYPE_OPENDRAIN(AUX_A2) | \
 					 PIN_OTYPE_OPENDRAIN(AUX_A3) | \
-					 PIN_OTYPE_OPENDRAIN(AUX_B1) | \
+					 PIN_OTYPE_OPENDRAIN(AUX_A4) | \
 					 PIN_OTYPE_PUSHPULL(PA04) | \
 					 PIN_OTYPE_PUSHPULL(PA05) | \
-					 PIN_OTYPE_OPENDRAIN(AUX_A4) | \
+					 PIN_OTYPE_OPENDRAIN(AUX_B1) | \
 					 PIN_OTYPE_OPENDRAIN(AUX_B2) | \
 					 PIN_OTYPE_PUSHPULL(PA08) | \
 					 PIN_OTYPE_OPENDRAIN(USB_VBUS) | \
@@ -365,10 +365,10 @@
 #define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(AUX_A1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(AUX_A2) | \
 					 PIN_OSPEED_SPEED_VERYLOW(AUX_A3) | \
-					 PIN_OSPEED_SPEED_VERYLOW(AUX_B1) | \
+					 PIN_OSPEED_SPEED_VERYLOW(AUX_A4) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA04) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA05) | \
-					 PIN_OSPEED_SPEED_VERYLOW(AUX_A4) | \
+					 PIN_OSPEED_SPEED_VERYLOW(AUX_B1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(AUX_B2) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA08) | \
 					 PIN_OSPEED_SPEED_VERYLOW(USB_VBUS) | \
@@ -382,10 +382,10 @@
 #define VAL_GPIOA_PUPDR                 (PIN_PUPDR_PULLDOWN(AUX_A1) | \
 					 PIN_PUPDR_PULLDOWN(AUX_A2) | \
 					 PIN_PUPDR_PULLDOWN(AUX_A3) | \
-					 PIN_PUPDR_PULLDOWN(AUX_B1) | \
+					 PIN_PUPDR_PULLDOWN(AUX_A4) | \
 					 PIN_PUPDR_PULLDOWN(PA04) | \
 					 PIN_PUPDR_PULLDOWN(PA05) | \
-					 PIN_PUPDR_PULLDOWN(AUX_A4) | \
+					 PIN_PUPDR_PULLDOWN(AUX_B1) | \
 					 PIN_PUPDR_PULLDOWN(AUX_B2) | \
 					 PIN_PUPDR_PULLDOWN(PA08) | \
 					 PIN_PUPDR_PULLDOWN(USB_VBUS) | \
@@ -399,10 +399,10 @@
 #define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_HIGH(AUX_A1) | \
 					 PIN_ODR_LEVEL_HIGH(AUX_A2) | \
 					 PIN_ODR_LEVEL_HIGH(AUX_A3) | \
-					 PIN_ODR_LEVEL_HIGH(AUX_B1) | \
+					 PIN_ODR_LEVEL_HIGH(AUX_A4) | \
 					 PIN_ODR_LEVEL_LOW(PA04) | \
 					 PIN_ODR_LEVEL_LOW(PA05) | \
-					 PIN_ODR_LEVEL_HIGH(AUX_A4) | \
+					 PIN_ODR_LEVEL_HIGH(AUX_B1) | \
 					 PIN_ODR_LEVEL_HIGH(AUX_B2) | \
 					 PIN_ODR_LEVEL_LOW(PA08) | \
 					 PIN_ODR_LEVEL_LOW(USB_VBUS) | \
@@ -416,10 +416,10 @@
 #define VAL_GPIOA_AFRL			(PIN_AFIO_AF(AUX_A1, 0) | \
 					 PIN_AFIO_AF(AUX_A2, 0) | \
 					 PIN_AFIO_AF(AUX_A3, 0) | \
-					 PIN_AFIO_AF(AUX_B1, 0) | \
+					 PIN_AFIO_AF(AUX_A4, 0) | \
 					 PIN_AFIO_AF(PA04, 0) | \
 					 PIN_AFIO_AF(PA05, 0) | \
-					 PIN_AFIO_AF(AUX_A4, 0) | \
+					 PIN_AFIO_AF(AUX_B1, 0) | \
 					 PIN_AFIO_AF(AUX_B2, 0))
 
 #define VAL_GPIOA_AFRH			(PIN_AFIO_AF(PA08, 0) | \
