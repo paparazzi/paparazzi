@@ -60,6 +60,7 @@ class Bebop(ParrotUtils):
         print('Join Wifi:\t\t' + join[self.read_from_config('JOIN_WIFI')])
         print('Network id:\t\t' + self.read_from_config('WIFI_SSID'))
         print('Wifi Amode:\t\t' + self.read_from_config('WIFI_AMODE'))
+        print('IP Address:\t\t' + self.read_from_config('WIFI_ADDRESS'))
         print('Currently running:\t' + self.check_running())
         autorun = {'Unknown': 'Native (autorun not installed)', '0': 'Native', '1': 'Paparazzi'}
         print('Autorun at start:\t'+autorun[self.read_from_config('START_PPRZ')])
@@ -71,7 +72,11 @@ class Bebop(ParrotUtils):
         self.upload_file('bebop/button_switch', self.scripts_path, kill_prog=False)
         self.upload_file('bebop/pprzstarter', self.scripts_path, kill_prog=False)
         self.execute_command("mount -o remount,rw /")
-        self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
+        if self.check_connect2hub():
+            self.execute_command("sed -i 's|connect2hub|pprzstarter|' /etc/init.d/rcS")
+            self.execute_command("rm /data/ftp/internal_000/scripts/connect2hub")
+        else:
+            self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
         self.execute_command("chmod a+x /etc/init.d/rcS")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/pprzstarter")
         self.execute_command("chmod a+x /data/ftp/internal_000/scripts/button_switch")
@@ -99,6 +104,13 @@ class Bebop(ParrotUtils):
         else:
             return False
 
+    def check_connect2hub(self):
+        connect2hub = self.execute_command('grep "connect2hub" /etc/init.d/rcS')
+        if "connect2hub" in connect2hub:
+            return True
+        else:
+            return False
+
     def bebop_set_ssid(self, name):
         '''
         Set network SSID (of the router to join, not the Bebop SSID in master mode)
@@ -113,6 +125,21 @@ class Bebop(ParrotUtils):
         mode_id = { 'master': '0', 'managed': '1' }
         self.write_to_config('JOIN_WIFI', mode_id[mode])
         print('The Wifi mode is now ' + mode)
+
+    def bebop_set_address(self, address):
+        '''
+        Set static IP or dhcp
+        '''
+        self.write_to_config('WIFI_ADDRESS', address)
+        print('The IP address is now ' + address)
+
+    def bebop_set_wifi_key(self, amode, key):
+        '''
+        Set encryption mode and key
+        '''
+        self.write_to_config('WIFI_AMODE', amode)
+        self.write_to_config('WIFI_KEY', key)
+        print('The encryption mode is ' + amode + ' with key ' + key)
 
     def bebop_shutdown(self):
         '''
@@ -142,9 +169,17 @@ class Bebop(ParrotUtils):
         ss = self.subparsers.add_parser('wifimode', help='Set the Wifi mode the Bebop 1 or 2')
         ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
 
+        ss = self.subparsers.add_parser('address', help='Set the IP address, static or dhcp')
+        ss.add_argument('address', help="The new IP address (static) or 'dhcp'")
+
+        ss = self.subparsers.add_parser('wifikey', help='Set the Wifi encryption')
+        ss.add_argument('amode', help="Encryption mode ('none' to disable, or available modes are: open|shared|openshared|wpa|wpapsk|wpa2|wpa2psk|wpanone|ftpsk)")
+        ss.add_argument('key', help="Encryption key (anything when 'amode' is set to 'none')")
+
         ss = self.subparsers.add_parser('configure_network', help='Configure the network on the Bebop 1 or 2')
         ss.add_argument('name', help='The network ID (SSID) to join in managed mode')
         ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
+        ss.add_argument('address', help="The new IP address (static) or 'dhcp'")
 
         ss = self.subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the Bebop 1 or 2')
         ss.add_argument('type', choices=['native', 'paparazzi'],
@@ -170,11 +205,29 @@ class Bebop(ParrotUtils):
             if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
+        # Change the wifi mode
+        elif args.command == 'address':
+            if not (self.is_ip(args.address) or args.address == 'dhcp'):
+                print("Invalid address or dhcp option. Leaving.")
+                return
+            self.bebop_set_address(args.address)
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
+        # Change the wifi encryption mode
+        elif args.command == 'wifikey':
+            self.bebop_set_wifi_key(args.amode, args.key)
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
         # Install and configure network
         elif args.command == 'configure_network':
             print('=== Current network setup ===')
             self.uav_status()
             print('=============================')
+            if not (self.is_ip(args.address) or args.address == 'dhcp'):
+                print("Invalid address or dhcp option. Leaving.")
+                return
             if self.check_autoboot():
                 print('Custom autostart (and network) script already installed')
                 if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
@@ -189,6 +242,7 @@ class Bebop(ParrotUtils):
             sleep(0.5)
             self.bebop_set_ssid(args.name)
             self.bebop_set_wifi_mode(args.mode)
+            self.bebop_set_address(args.address)
             sleep(0.5)
             print('== New network setup after boot ==')
             self.uav_status()
@@ -209,7 +263,7 @@ class Bebop(ParrotUtils):
             self.write_to_config('START_PPRZ', autorun[args.type])
             print('The autostart on boot is changed to ' + args.type)
 
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the autostart
