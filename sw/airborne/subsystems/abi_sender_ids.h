@@ -123,7 +123,7 @@
 #endif
 
 /*
- * IDs of AGL measurment modules that can be loaded (sonars,...) (message 2)
+ * IDs of AGL measurment modules that can be loaded (sonars, lidars,...) (message 2)
  */
 #ifndef AGL_SONAR_ADC_ID
 #define AGL_SONAR_ADC_ID 1
@@ -171,6 +171,10 @@
 
 #ifndef AGL_VL53L1X_ID
 #define AGL_VL53L1X_ID 12
+#endif
+
+#ifndef AGL_SONAR_PWM_ID
+#define AGL_SONAR_PWM_ID 13
 #endif
 
 /*
