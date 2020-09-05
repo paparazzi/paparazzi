@@ -21,7 +21,7 @@
 /**
  * @file modules/guidance/gvf_parametric/gvf_parametric.h
  *
- * Guiding vector field algorithm for 2D and 3D complex trajectories.
+ * Guiding vector field algorithm for 2D and 3D parametric trajectories.
  */
 
 #ifndef GVF_PARAMETRIC_H
@@ -107,7 +107,7 @@ extern void gvf_parametric_init(void);
 extern void gvf_parametric_set_direction(int8_t s);
 extern void gvf_parametric_control_2D(float, float, float, float, float, float, float, float);
 extern void gvf_parametric_control_3D(float, float, float, float, float, float, float, float, float,
-                                    float, float, float);
+                                      float, float, float);
 
 // 2D Trefoil
 extern bool gvf_parametric_2D_trefoil_XY(float, float, float, float, float, float, float);
@@ -119,8 +119,10 @@ extern bool gvf_parametric_3D_ellipse_wp(uint8_t, float, float, float, float);
 extern bool gvf_parametric_3D_ellipse_wp_delta(uint8_t, float, float, float, float);
 
 // 3D Lissajous
-extern bool gvf_parametric_3D_lissajous_XYZ(float, float, float, float, float, float, float, float, float, float, float, float, float);
-extern bool gvf_parametric_3D_lissajous_wp_center(uint8_t, float, float, float, float, float, float, float, float, float, float, float);
+extern bool gvf_parametric_3D_lissajous_XYZ(float, float, float, float, float, float, float, float, float, float, float,
+    float, float);
+extern bool gvf_parametric_3D_lissajous_wp_center(uint8_t, float, float, float, float, float, float, float, float,
+    float, float, float);
 
 #ifdef __cplusplus
 }

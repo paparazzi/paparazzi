@@ -59,6 +59,7 @@
 
   <header>
     <file name="gvf_parametric.h"/>
+    <file name="gvf_parametric_low_level_control.h"/>
     <file name="trajectories/gvf_parametric_3d_ellipse.h"/>
     <file name="trajectories/gvf_parametric_3d_lissajous.h"/>
     <file name="trajectories/gvf_parametric_2d_trefoil.h"/>
@@ -73,6 +74,7 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_parametric.cpp"/>
+    <file name="gvf_parametric_low_level_control.c"/>
     <file name="trajectories/gvf_parametric_3d_ellipse.c"/>
     <file name="trajectories/gvf_parametric_3d_lissajous.c"/>
     <file name="trajectories/gvf_parametric_2d_trefoil.c"/>

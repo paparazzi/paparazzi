@@ -28,6 +28,7 @@
 #include <Eigen/Dense>
 
 #include "gvf_parametric.h"
+#include "gvf_parametric_low_level_control.h"
 #include "./trajectories/gvf_parametric_3d_ellipse.h"
 #include "./trajectories/gvf_parametric_3d_lissajous.h"
 #include "./trajectories/gvf_parametric_2d_trefoil.h"
@@ -77,10 +78,12 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_parametric_t0;
 
-  float wb = gvf_parametric_control.w*gvf_parametric_control.beta;
+  float wb = gvf_parametric_control.w * gvf_parametric_control.beta;
 
-  if(delta_T < 200)
-    pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &wb, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
+  if (delta_T < 200) {
+    pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &wb, plen,
+                                 gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
+  }
 }
 
 static void send_circle_parametric(struct transport_tx *trans, struct link_device *dev)
@@ -88,10 +91,11 @@ static void send_circle_parametric(struct transport_tx *trans, struct link_devic
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_parametric_t0;
 
-  if(delta_T < 200)
+  if (delta_T < 200)
     if (gvf_parametric_trajectory.type == ELLIPSE_3D) {
-      pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1], &gvf_parametric_trajectory.p_parametric[2]);
-  }
+      pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_parametric_trajectory.p_parametric[0],
+                           &gvf_parametric_trajectory.p_parametric[1], &gvf_parametric_trajectory.p_parametric[2]);
+    }
 }
 
 #endif // PERIODIC TELEMETRY
@@ -136,7 +140,7 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   }
 
   float L = gvf_parametric_control.L;
-  float beta = gvf_parametric_control.beta*gvf_parametric_control.s;
+  float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
 
   Eigen::Vector3f X;
   Eigen::Matrix3f J;
@@ -153,18 +157,18 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   gvf_parametric_trajectory.phi_errors[1] = phi2;
 
   // Chi
-  X(0) = L*beta*f1d - kx*phi1;
-  X(1) = L*beta*f2d - ky*phi2;
-  X(2) = L + beta*(kx*phi1*f1d + ky*phi2*f2d);
+  X(0) = L * beta * f1d - kx * phi1;
+  X(1) = L * beta * f2d - ky * phi2;
+  X(2) = L + beta * (kx * phi1 * f1d + ky * phi2 * f2d);
   X *= L;
 
   // Jacobian
   J.setZero();
-  J(0, 0) = -kx*L;
-  J(1, 1) = -ky*L;
-  J(2, 0) = (beta*L)*(beta*f1dd+kx*f1d);
-  J(2, 1) = (beta*L)*(beta*f2dd+ky*f2d);
-  J(2, 2) = beta*beta*(kx*(phi1*f1dd-L*f1d*f1d) + ky*(phi2*f2dd-L*f2d*f2d));
+  J(0, 0) = -kx * L;
+  J(1, 1) = -ky * L;
+  J(2, 0) = (beta * L) * (beta * f1dd + kx * f1d);
+  J(2, 1) = (beta * L) * (beta * f2dd + ky * f2d);
+  J(2, 2) = beta * beta * (kx * (phi1 * f1dd - L * f1d * f1d) + ky * (phi2 * f2dd - L * f2d * f2d));
   J *= L;
 
   // Guidance algorithm
@@ -184,13 +188,13 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   Eigen::Matrix<float, 1, 2> ht;
 
   G << 1, 0, 0,
-       0, 1, 0,
-       0, 0, 0;
+  0, 1, 0,
+  0, 0, 0;
   Fp << 0, -1, 0,
-        1,  0, 0;
+  1,  0, 0;
   Gp << 0, -1, 0,
-        1,  0, 0,
-        0,  0, 0;
+  1,  0, 0,
+  0,  0, 0;
 
   h << sinf(course), cosf(course);
   ht = h.transpose();
@@ -202,27 +206,18 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   I.setIdentity();
 
   float aux = ht * Fp * X;
-  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux / sqrtf(Xt * G * X));
+  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux /
+                       sqrtf(Xt * G * X));
 
-  // Low-level control
-  if (autopilot_get_mode() == AP_MODE_AUTO2) {
+  // Virtual coordinate update, even if the vehicle is not in autonomous mode, the parameter w will get "closer" to
+  // the vehicle. So it is not only okei but advisable to update it.
+  gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
 
-    // Virtual coordinate
-    gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
-
-    // Lateral XY coordinates
-    lateral_mode = LATERAL_MODE_ROLL;
-
-    struct FloatEulers *att = stateGetNedToBodyEulers_f();
-
-    h_ctl_roll_setpoint =
-      -gvf_parametric_control.k_roll * atanf(heading_rate * ground_speed / GVF_PARAMETRIC_GRAVITY / cosf(att->theta));
-    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
-  }
-
+  gvf_parametric_low_level_control_2D(heading_rate);
 }
 
-void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
+void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d,
+                               float f3d, float f1dd, float f2dd, float f3dd)
 {
   uint32_t now = get_sys_time_msec();
   gvf_parametric_control.delta_T = now - gvf_parametric_t0;
@@ -234,7 +229,7 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   }
 
   float L = gvf_parametric_control.L;
-  float beta = gvf_parametric_control.beta*gvf_parametric_control.s;
+  float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
 
   Eigen::Vector4f X;
   Eigen::Matrix4f J;
@@ -311,30 +306,15 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
 
   float aux = ht * Fp * X;
 
-  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux / sqrtf(Xt * G * X));
+  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux /
+                       sqrtf(Xt * G * X));
   float climbing_rate = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
 
-  // Low-level control
-  if (autopilot_get_mode() == AP_MODE_AUTO2) {
+  // Virtual coordinate update, even if the vehicle is not in autonomous mode, the parameter w will get "closer" to
+  // the vehicle. So it is not only okei but advisable to update it.
+  gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
 
-    // Virtual coordinate
-    gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
-
-    // Vertical Z coordinate
-    v_ctl_mode = V_CTL_MODE_AUTO_CLIMB;
-    v_ctl_speed_mode = V_CTL_SPEED_THROTTLE;
-
-    v_ctl_climb_setpoint = gvf_parametric_control.k_climb * climbing_rate; // Setting point for vertical speed
-
-    // Lateral XY coordinates
-    lateral_mode = LATERAL_MODE_ROLL;
-
-    struct FloatEulers *att = stateGetNedToBodyEulers_f();
-
-    h_ctl_roll_setpoint =
-      -gvf_parametric_control.k_roll * atanf(heading_rate * ground_speed / GVF_PARAMETRIC_GRAVITY / cosf(att->theta));
-    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
-  }
+  gvf_parametric_low_level_control_3D(heading_rate, climbing_rate);
 }
 
 /** 2D TRAJECTORIES **/
@@ -354,7 +334,8 @@ bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float 
   float f1, f2, f1d, f2d, f1dd, f2dd;
 
   gvf_parametric_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd);
-  gvf_parametric_control_2D(gvf_parametric_2d_trefoil_par.kx, gvf_parametric_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd, f2dd);
+  gvf_parametric_control_2D(gvf_parametric_2d_trefoil_par.kx, gvf_parametric_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd,
+                            f2dd);
 
   return true;
 }
@@ -395,7 +376,8 @@ bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float 
   float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
   gvf_parametric_3d_ellipse_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
-  gvf_parametric_control_3D(gvf_parametric_3d_ellipse_par.kx, gvf_parametric_3d_ellipse_par.ky, gvf_parametric_3d_ellipse_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
+  gvf_parametric_control_3D(gvf_parametric_3d_ellipse_par.kx, gvf_parametric_3d_ellipse_par.ky,
+                            gvf_parametric_3d_ellipse_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 
   return true;
 }
@@ -417,7 +399,8 @@ bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, f
 
 // 3D Lissajous
 
-bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
+bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
+                                     float wz, float dx, float dy, float dz, float alpha)
 {
   // Safety first! If the asked altitude is low
   if ((zo - cz) < 1) {
@@ -443,12 +426,14 @@ bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, flo
   float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
   gvf_parametric_3d_lissajous_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
-  gvf_parametric_control_3D(gvf_parametric_3d_lissajous_par.kx, gvf_parametric_3d_lissajous_par.ky, gvf_parametric_3d_lissajous_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
+  gvf_parametric_control_3D(gvf_parametric_3d_lissajous_par.kx, gvf_parametric_3d_lissajous_par.ky,
+                            gvf_parametric_3d_lissajous_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 
   return true;
 }
 
-bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
+bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
+    float wz, float dx, float dy, float dz, float alpha)
 {
   gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
   return true;
