@@ -66,14 +66,19 @@ endif
 #ifeq ($(BUILDDIR),.)
 #  BUILDDIR = build
 #endif
-OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
-           $(BUILDDIR)/$(PROJECT).hex \
-           $(BUILDDIR)/$(PROJECT).bin \
-           $(BUILDDIR)/$(PROJECT).dmp \
-           $(BUILDDIR)/$(PROJECT).list
+
+# Various directories
+OBJDIR    = $(BUILDDIR)/obj
+LSTDIR    = $(BUILDDIR)/lst
+
+OUTFILES = $(OBJDIR)/$(PROJECT).elf \
+           $(OBJDIR)/$(PROJECT).hex \
+           $(OBJDIR)/$(PROJECT).bin \
+           $(OBJDIR)/$(PROJECT).dmp \
+           $(OBJDIR)/$(PROJECT).list
 
 ifdef SREC
-OUTFILES += $(BUILDDIR)/$(PROJECT).srec
+OUTFILES += $(OBJDIR)/$(PROJECT).srec
 endif
 
 # Source files groups and paths
@@ -87,10 +92,6 @@ endif
 ASRC	  = $(ACSRC) $(ACPPSRC)
 TSRC	  = $(TCSRC) $(TCPPSRC)
 SRCPATHS  = $(sort $(dir $(ASMXSRC)) $(dir $(ASMSRC)) $(dir $(ASRC)) $(dir $(TSRC)))
-
-# Various directories
-OBJDIR    = $(BUILDDIR)/obj
-LSTDIR    = $(BUILDDIR)/lst
 
 # Object files groups
 ACOBJS    = $(addprefix $(OBJDIR)/, $(notdir $(ACSRC:.c=.o)))
@@ -119,7 +120,7 @@ ASFLAGS   = $(MCFLAGS) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)
 ASXFLAGS  = $(MCFLAGS) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.S=.lst)) $(ADEFS)
 CFLAGS    = $(MCFLAGS) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
 CPPFLAGS  = $(MCFLAGS) $(OPT) $(CPPOPT) $(CPPWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS) $(UPDEFS)
-LDFLAGS   = $(MCFLAGS) $(OPT) -nostartfiles $(LLIBDIR) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--library-path=$(RULESPATH)/ld,--script=$(LDSCRIPT)$(LDOPT)
+LDFLAGS   = $(MCFLAGS) $(OPT) -nostartfiles $(LLIBDIR) -Wl,-Map=$(OBJDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--library-path=$(RULESPATH)/ld,--script=$(LDSCRIPT)$(LDOPT)
 
 # Thumb interwork enabled only if needed because it kills performance.
 ifneq ($(strip $(TSRC)),)
