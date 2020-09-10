@@ -61,7 +61,7 @@ NPROCS := 1
 J ?= AUTO
 ifeq ($J,AUTO)
 ifeq ($(UNAME),Linux)
-	NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
+	NPROCS := $(shell grep -c '^processor' /proc/cpuinfo)
 else ifeq ($(UNAME),Darwin)
 	NPROCS := $(shell sysctl hw.ncpu | awk '{print $$2}')
 endif # $(UNAME)

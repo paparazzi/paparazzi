@@ -121,9 +121,6 @@ static size_t getTimerWidth(const PWMDriver *pwmp);
  */
 void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 {
-  _Static_assert((void *) &driver->dsdb == (void *) &driver->dsdb.widths16);
-  _Static_assert((void *) &driver->dsdb.widths32 == (void *) &driver->dsdb.widths16);
-  
   memset((void *) &driver->dsdb, 0, sizeof(driver->dsdb));
   const size_t timerWidthInBytes = getTimerWidth(config->pwmp);
 

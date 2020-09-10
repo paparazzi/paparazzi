@@ -104,6 +104,7 @@ static enum {
 /** sdlog filenames
  */
 static char chibios_sdlog_filenames[68];
+static char NO_FILE_NAME[] = "none";
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -112,7 +113,14 @@ static void send_sdlog_status(struct transport_tx *trans, struct link_device *de
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
-  pprz_msg_send_LOGGER_STATUS(trans, dev, AC_ID, &status, &errno, &used, strlen(chibios_sdlog_filenames), chibios_sdlog_filenames);
+  uint8_t size = strlen(chibios_sdlog_filenames);
+  char *filenames = chibios_sdlog_filenames;
+  if (size == 0) {
+    // when no file opened
+    filenames = NO_FILE_NAME;
+    size = strlen(filenames);
+  }
+  pprz_msg_send_LOGGER_STATUS(trans, dev, AC_ID, &status, &errno, &used, size, filenames);
 }
 #endif
 
@@ -250,7 +258,7 @@ static void thd_startlog(void *arg)
 		      SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
       sdOk = false;
     }
-    chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), ", %s", tmpFilename);
+    chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s, %s", chibios_sdlog_filenames, tmpFilename);
 #endif
   }
 
