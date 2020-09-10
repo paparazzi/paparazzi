@@ -35,6 +35,8 @@
 
 #include "std.h" // for ABS
 
+/** Computer orientation in euler angles from accel and mag
+ *  This is not working when the IMU is upside-down, then use the quaternion based function */
 static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers *e, struct FloatVect3 *accel,
     struct FloatVect3 *mag)
 {
