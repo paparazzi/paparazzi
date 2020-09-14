@@ -51,6 +51,14 @@ extern int stick_axis_count, stick_button_count;
  */
 extern int stick_init( int device_index );
 
+/** Check that all axis has been moved. Axis positions are unknown until an event has been received.
+ *
+ *  @param device_index  which device index to open (SDL enumerates all available devices at init)
+ *
+ *  @returns  1 if all axis moved, 0 otherwise
+ */
+extern int stick_check_axis(void);
+
 /** Update joystick values.
  *
  *  Updates stick_axis_values array and stick_button_values
