@@ -1,0 +1,64 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_tfmini_i2c" dir="lidar">
+  <doc>
+    <description>
+    The TF Mini LiDAR is an unidirectional range finder based on time-of-flight (ToF) via IR LED technology. 
+    It uses adaptive algorithms for indoor and outdoor application environment. 
+    The sensor can be used as a distance-measuring tool to detect the distance to surfaces, suitable for AGL hold and terrain following.
+    The maximum detection distance is 12 meters. The device supports 100Hz sampling rate.
+
+    To be able to use the I2C version of the TFmini ranger, enable this module in your airframe and set you wanted parameters.
+    </description>
+    <configure name="TFMINI_I2C_DEV" value="i2c2" description="I2C device port on flightcontroller to use for this device"/>
+    <configure name="TFMINI_I2C_ADDR" value="0x20" description="Other than default I2C Slave address 0x10 to use for the device"/>
+    <configure name="USE_TFMINI_I2C_AGL" value="0" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
+    <configure name="TFMINI_I2C_COMPENSATE_ROTATION" value="1" description="Compensate AGL measurements for body rotation. Disabled by default"/>
+    <define name="TFMINI_I2C_USE_FILTER" value="TRUE" description="If this is line is added one enables a median filter on the sensor output, not needed in normal use"/>
+    <define name="AGL_LIDAR_TFMINI_I2C_ID" value="254" description="Set own ID if using both U, S and I version of sensor at the same time"/>
+    <define name="TFMINI_I2C_OFFSET" value="0.56"  description="Sensor offset in CM, as in where one wants zero to be, default is 0.0"/>
+    <define name="TFMINI_I2C_MIN_RANGE" value="0.44" unit="m" description="If defined, set limit to minimum value reported, default 0.3"/>
+    <define name="TFMINI_I2C_MAX_RANGE" value="3.0" unit="m" description="If defined, set limit to maximum value reported, default 6.0"/>
+    <define name="TFMINI_I2C_MEDIAN_SIZE" value="9" description="If median filter is enabled then set this option to filter the output more(or less), default is 7"/>
+    <define name="SENSOR_SYNC_SEND_SONAR" description="If defined, sends raw and scaled ranging values, useful for debugging sensor issues"/>
+ </doc>
+
+  <settings>
+    <dl_settings NAME="Ranger">
+      <dl_settings NAME="TFMini I2C">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="tfmini_i2c.compensate_rotation" shortname="Derotate AGL"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="tfmini_i2c.update_agl" shortname="Update AGL"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="tfmini_i2c.h"/>
+  </header>
+  <init fun="tfmini_i2c_init()"/>
+  <periodic fun="tfmini_i2c_downlink()" freq="10" autorun="TRUE"/> <!-- in Hz, Only used for debugging, usefull to get more messages -->
+  <periodic fun="tfmini_i2c_periodic()" freq="100"/> <!-- In Hz, poll data, since we have 2 states in the state machine, divide the frequency
+   by 2 to get the actual number of readings per second. For example 100Hz = 50 range readings -->
+  <event fun="tfmini_i2c_event()"/>
+  <makefile>
+    <configure name="TFMINI_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <configure name="TFMINI_I2C_ADDR" default="0x20"/>
+    <configure name="USE_TFMINI_I2C_AGL" default="0"/>
+    <configure name="TFMINI_I2C_COMPENSATE_ROTATION" default="0"/>
+    <define name="TFMINI_I2C_ADDR" value="$(TFMINI_I2C_ADDR)"/>
+    <define name="USE_$(TFMINI_I2C_DEV_UPPER)"/>
+    <define name="TFMINI_I2C_DEV" value="$(TFMINI_I2C_DEV_LOWER)"/>
+    <define name="USE_TFMINI_I2C_AGL" value="$(USE_TFMINI_I2C_AGL)"/>
+    <define name="TFMINI_I2C_COMPENSATE_ROTATION" value="$(TFMINI_I2C_COMPENSATE_ROTATION)"/>
+    <define name="TFMINI_I2C_MIN_RANGE" value="0.3"/>
+    <define name="TFMINI_I2C_MAX_RANGE" value="6.0"/>
+    <define name="TFMINI_I2C_MEDIAN_SIZE" value="7"/>
+    <define name="SENSOR_SYNC_SEND_SONAR" value="0"/>
+    <file name="tfmini_i2c.c"/>
+  </makefile>
+  <makefile target="nps">
+    <define name="USE_SONAR" value="1"/><!-- in NPS use a virtual sonar to simulate rangeing measurements -->
+  </makefile>
+</module>
+
+

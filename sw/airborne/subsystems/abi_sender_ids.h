@@ -177,6 +177,10 @@
 #define AGL_SONAR_PWM_ID 13
 #endif
 
+#ifndef AGL_LIDAR_TFMINI_I2C_ID
+#define AGL_LIDAR_TFMINI_I2C_ID 14
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
