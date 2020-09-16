@@ -129,10 +129,11 @@ struct TFMiniI2C tfmini_i2c;
  */
 static void tfmini_i2c_send_lidar(struct transport_tx *trans, struct link_device *dev)
 {
+  uint8_t trans_status = tfmini_i2c.trans.status;
   pprz_msg_send_LIDAR(trans, dev, AC_ID,
                       &tfmini_i2c.dist,
                       &tfmini_i2c.status,
-                      (uint8_t*)tfmini_i2c.trans.status);//No guarantee on value but for telemetry of no importance
+                      &trans_status);
 }
 
 /**
@@ -224,10 +225,6 @@ void tfmini_i2c_periodic(void)
         tfmini_i2c.dist = tfmini_i2c.dist * gain;
       }
 
-#else // SITL
-tfmini_i2c.dist = stateGetPositionEnu_f()->z;
-#endif // SITL
-
       // Datasheet states FFFF is the output if a valid distance value could not be aquired but depend on not implemented on setting
       //if (tfmini.dist != 0xFFFF) {
         if (tfmini_i2c.update_agl) {
@@ -241,6 +238,9 @@ tfmini_i2c.dist = stateGetPositionEnu_f()->z;
     default:
       break;
   }
+#else // SITL
+tfmini_i2c.dist = stateGetPositionEnu_f()->z;
+#endif // SITL
 }
 
 //Sonar message can be misused used to debug raw and scaled
