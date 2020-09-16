@@ -505,9 +505,13 @@ void int32_eulers_of_rmat(struct Int32Eulers *e, struct Int32RMat *rm)
 {
   const float dcm00 = TRIG_FLOAT_OF_BFP(rm->m[0]);
   const float dcm01 = TRIG_FLOAT_OF_BFP(rm->m[1]);
-  const float dcm02 = TRIG_FLOAT_OF_BFP(rm->m[2]);
+  float dcm02 = TRIG_FLOAT_OF_BFP(rm->m[2]);
   const float dcm12 = TRIG_FLOAT_OF_BFP(rm->m[5]);
   const float dcm22 = TRIG_FLOAT_OF_BFP(rm->m[8]);
+
+  // asinf does not exist outside [-1,1]
+  BoundAbs(dcm02, 1.0);
+
   const float phi   = atan2f(dcm12, dcm22);
   const float theta = -asinf(dcm02);
   const float psi   = atan2f(dcm01, dcm00);
@@ -547,9 +551,12 @@ void int32_eulers_of_quat(struct Int32Eulers *e, struct Int32Quat *q)
                          INT32_TRIG_FRAC + INT32_QUAT_FRAC - INT32_TRIG_FRAC);
   const float dcm00 = (float)idcm00 / (1 << INT32_TRIG_FRAC);
   const float dcm01 = (float)idcm01 / (1 << INT32_TRIG_FRAC);
-  const float dcm02 = (float)idcm02 / (1 << INT32_TRIG_FRAC);
+  float dcm02 = (float)idcm02 / (1 << INT32_TRIG_FRAC);
   const float dcm12 = (float)idcm12 / (1 << INT32_TRIG_FRAC);
   const float dcm22 = (float)idcm22 / (1 << INT32_TRIG_FRAC);
+
+  // asinf does not exist outside [-1,1]
+  BoundAbs(dcm02, 1.0);
 
   const float phi   = atan2f(dcm12, dcm22);
   const float theta = -asinf(dcm02);
