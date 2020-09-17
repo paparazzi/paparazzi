@@ -13,7 +13,7 @@ By default, PprzLink default message definition is used. You can find it in ``sw
 
 Add your message in that file on the model of the other messages. Make sure to add it in the appropriate message class (telemetry, datalink, ground, ...), and make sure to use a free ``id``. This *id* being encoded on a uin8_t, it must be comprise between 1 and 255 (0 is reserved). As you can see, there are not much left in the telemetry class...
 
-Re-build paparazzi. your message should now be present in the ``var/messages.xml`` file.
+Re-build paparazzi with ``make`` at the root directory. your message should now be present in the ``var/messages.xml`` file.
 
 
 Send a telemetry message
