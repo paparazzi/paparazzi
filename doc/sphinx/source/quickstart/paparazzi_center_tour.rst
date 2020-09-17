@@ -1,4 +1,4 @@
-.. quickstart main_quickstart paparazzi_center_tour
+.. quickstart paparazzi_center_tour
 
 =================
 Paparazzi Center
@@ -16,13 +16,18 @@ This panel is dedicated to the configuration of the aircrafts. You can change th
 
 The *id* field is the **uniq** identifier of the aircraft, between 0 and 255.
 
-An aircraft is composed of an airframe, a flight plan, some settings, a radio and a telemetry configuration file. These concepts are explained in the :doc:`../user_guide/index_user_guide`.
+An aircraft is composed of an airframe, a flight plan, some settings, a radio and a telemetry configuration file. These concepts are explained later.
 
+For now, remember that you can select other files by hitting the ``...`` button, or edit the current file with the ``Edit`` button.
+
+.. note::
+
+    The ``Edit`` button open the file with *gedit* by default. You can change it by setting the ``EDITOR`` environnement variable.
 
 Building panel
 ===============
 
-This panel lets you choose for wich target you want to build the firmware with the **Target** combobox. Build and clean the firmware with the *Build* and *Clean* buttons.
+This panel lets you choose for which target you want to build the firmware with the **Target** combobox. Build and clean the firmware with the *Build* and *Clean* buttons.
 
 Some usual targets are:
 
@@ -37,11 +42,11 @@ If the selected target is not a simulator, you can choose how you want to flash 
 Execution and Running agents panels
 ====================================
 
-In the Execution panel, a combo box provide a set of predefined and user sessions (collections of programs).
+In the Execution panel, a combo box provides a set of sessions (collections of programs).
 
 The Simulation session runs a server, a GCS and a simulator for the aircraft selected in the configuration panel. Note that *sim* or *nps* target must have been built prior to the simulation.
 
-The launched programs can be stopped and restarted (Stop/Redo buttons).
+The launched programs can be stopped and restarted individually (Stop/Redo buttons). All programs can be stopped and removed from the list at once by the *Stop/Remove All Processes* button. A common mistake is to have multiple instances of the same program running. This button is very handy to use!
 
 
 Console panel

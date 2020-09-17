@@ -1,4 +1,4 @@
-.. developer_guide main_developer index_developer
+.. developer_guide index_developer
 
 =================
 Developer Guide
@@ -10,5 +10,6 @@ TBD
     :maxdepth: 2
 
     system_overview
-    developer2
+    communication
+    modules
 

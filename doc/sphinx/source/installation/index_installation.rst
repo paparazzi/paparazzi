@@ -13,6 +13,10 @@ The steps required to install the software needed to be able to let your UAS fly
 - Compile the Paparazzi software from sourcecode
 - Complete any final configuration
 
+.. note::
+
+    If you run **Ubuntu** 16.04 or higher LTS (18.04, 20.04), go to the :doc:`../quickstart/install` page to get quickly running !
+
 .. toctree::
     :maxdepth: 2
 

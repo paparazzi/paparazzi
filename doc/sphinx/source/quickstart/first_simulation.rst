@@ -1,4 +1,4 @@
-.. quickstart main_quickstart first_simu
+.. quickstart first_simu
 
 ======================
 Flight Simulation
@@ -19,7 +19,7 @@ The GCS layout can be changed, but in this layout there are 3 very important pan
 
 - the red one (left) is the strips panel. Each aircraft have its own strip, which display the state of the aircraft, and let you send commands.
 - the green panel (top right) is the map. The default background is black. Click on the google earth icon (green circle) to load the tiles.
-- the purple panel feature various widgets. The first of these describe the flight plan.
+- the purple panel features various widgets. The first of these describes the flight plan.
 
 Now, lets launch the drone:
 
@@ -28,10 +28,5 @@ Now, lets launch the drone:
 - In real life, we would now launch the drone. In simulation, there is a magic button to do so in the strip. Click on the button in the red circle.
 
 The drone should now move, and the current block will change to "Standby".
-
-
-The Strip
-=========
-
 
 

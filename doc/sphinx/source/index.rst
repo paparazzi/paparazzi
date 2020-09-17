@@ -27,9 +27,9 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    quickstart/index_start
-    installation/index_installation
+    quickstart/index_quick_start
     user_guide/index_user_guide
+    installation/index_installation
     developer_guide/index_developer
     tutorials/index_tutorials
     support/index_support
