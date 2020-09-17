@@ -6,9 +6,6 @@ Sensor Calibration
 
 The Accelerometers and magnetometers must be calibrated for the drone to fly correctly.
 
-Before you start, you can clear the log directory *paparazzi/var/logs*, it will simplify log file search process.
-
-
 Accelerometer calibration
 ==========================
 

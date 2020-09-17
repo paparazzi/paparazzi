@@ -85,7 +85,7 @@ The purple panel at the bottom is the Aircraft panel.
 
 The **Flight Plan** tab display the full flight plan of the aircraft. Double clicking on a block makes the aircraft go to this block.
 
-The **GPS** tab gives you info about GPS state. Its usually a good idea to wait for the *Pos accuracy* to be good enough before procedding to a flight.
+The **GPS** tab gives you info about GPS state. Its usually a good idea to wait for the *Pos accuracy* to be good enough (around 5 meters or less) before proceeding to a flight.
 
 The **PFD** tab diplay a primary flight display. Very useful for the ground checks before take off, and if the aircraft is out of sight.
 

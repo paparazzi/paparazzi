@@ -4,7 +4,7 @@
 Experimental Flight
 ======================
 
-The easiest drone to fly with paparazzi is the **Bebop 2**, from Parrot. It is no longer produced but can still be found 2nd handed.
+The easiest drone to fly with paparazzi is the **Bebop 2**, from Parrot. It is no longer produced but can still be found 2nd hand.
 
 Using the Bebop 2 with Paparazzi
 --------------------------------
@@ -25,7 +25,7 @@ You should get the telemetry from the bebop.
 Making the changes permanent
 ----------------------------
 
-In the current state, you have to do the process all over again every time you restart the Bebop. We can use paparazzi by default.
+In the current state, you have to do the process all over again every time you restart the Bebop. However, you can start Paparazzi by default with the following steps:
 
 - Power up the Bebop
 - Connect your laptop to the Bebop's wifi network
@@ -44,13 +44,13 @@ Install the autostart script with ``./bebop.py install_autostart``.
 Change network settings
 -----------------------
 
-You can change the network settings of the drone to make it connect to an existing WiFi network: ``./bebop.py configure_network mySSID managed``.
+You can change the network settings of the drone to make it connect to an existing WiFi network: ``./bebop.py configure_network mySSID managed dhcp``. You can replace ``dhcp`` by a fixed IP address to use static IP instead of getting the address from your external router DHCP in ``managed`` mode.
 
 
 Calibration
 -----------
 
-The default values may be good enough to be able to fly, but it is recommanded that you calibrate the drone before you fly. Go the :doc:`../tutorials/beginner/sensor_calibration` page to learn how to do that.
+The default values may be good enough to be able to fly, but it is recommanded that you calibrate the drone before flying. Go to the :doc:`../tutorials/beginner/sensor_calibration` page to learn how to do that.
 
 
 Connect a Joystick

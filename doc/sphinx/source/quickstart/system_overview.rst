@@ -4,7 +4,7 @@
 Overall System Overview
 ========================
 
-The typical configuration constitute of a standard laptop as ground station and one more more drones with a RC transmitter for each as safety link. The Command and Control link is made by a pair of modems on the ground and in the drones.
+The typical configuration constitute of a standard laptop as ground station and one or more drones, possibly with a RC transmitter for each as safety link. The Command and Control link is made by a pair of modems on the ground and in the drones.
 
 .. image:: general_arch.png
 

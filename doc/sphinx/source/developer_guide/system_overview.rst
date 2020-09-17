@@ -4,7 +4,7 @@
 System Architecture
 =========================
 
-The typical configuration constitute of a standard laptop as ground station and one more more drones with a RC transmitter for each as safety link. The Command and Control link is made by a pair of modems on the ground and in the drones.
+The typical configuration constitute of a standard laptop as ground station and one or more drones, possibly with a RC transmitter for each as safety link. The Command and Control link is made by a pair of modems on the ground and in the drones.
 
 .. image:: general_arch.png
 
@@ -15,13 +15,13 @@ The Gound Control Station (GCS) constits of multiples programs, communicating wi
 
 .. note::
 
-    Ivy is a simple protocol and a set of open-source (LGPL) libraries and programs that allows applications to broadcast information through text messages, with a subscription mechanism based on regular expressions.
+    Ivy is a simple protocol and a set of open-source (LGPL) libraries and programs that allows applications to broadcast information through text messages, with a publisher / subscriber mechanism based on regular expressions.
 
 .. image:: agents_arch.png
 
 The core Paparazzi programs are Link, which handle the communication with the drones, the Server, which maintain the state of all aircrafts, and the GCS, the user facing application to control the drones.
 
-Many other tools have been developed for various use case, they are available in the *Tools* menu of the paparazzi center. But more interresting: you can write your own tools that will interact with Paparazzi via the Ivy bus.
+Many other tools have been developed for various use cases, they are available in the *Tools* menu of the paparazzi center. But more interesting: you can write your own tools that will interact with Paparazzi via the Ivy bus.
 
 Airborne architecture
 ---------------------

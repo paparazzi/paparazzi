@@ -44,13 +44,17 @@ Here is an extract of the Paparazzi tree:
     ├── start.py
     ├── sw
     │   ├── ext
-    │   └── airborne
-    │       ├── autopilot.c
-    │       ├── autopilot.h
-    │       └── modules
-    │           ├── decawave
-    │           ├── demo_module
-    │           └── gps
+    │   ├── airborne
+    │   │   ├── autopilot.c
+    │   │   ├── autopilot.h
+    │   │   └── modules
+    │   │       ├── decawave
+    │   │       ├── demo_module
+    │   │       └── gps
+    │   ├── ground_segment
+    │   │   ├── tmtc
+    │   │   └── cockpit
+    │   └── simulator
     └── var
         ├── aircrafts
         │   └── Microjet
@@ -108,7 +112,10 @@ Software
 
 Paparazzi softwares are located in ``sw``. Airborne code, that will run on the drone itself, is located in ``sw/airborne``.
 
-``sw/ext`` contains external software dependencies.
+- ``sw/ext`` contains external software dependencies.
+- ``sw/simulator`` contains the simulators
+- ``sw/ground_segment/tmtc`` contains ????????????
+- ``sw/ground_segment/cockpit`` contains the GCS code
 
 Doc
 ---
