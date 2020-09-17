@@ -9,7 +9,7 @@ New joystick configurations can be added in the ``paparazzi/conf/joystick`` dire
 Profile a joystick
 ==================
 
-Test if your joystick is recognised: plug your joystick then run ``dmesg``. The message is different for every device, but the last lines should look like these::
+Test if your joystick is recognized: plug your joystick then run ``dmesg``. The message is different for every device, but the last lines should look like these::
 
     [49174.642275] usb 1-1: new low-speed USB device number 8 using xhci_hcd
     [49174.812307] usb 1-1: New USB device found, idVendor=046d, idProduct=c214, bcdDevice= 2.05
@@ -183,4 +183,3 @@ Your calibration and mapping will be lost once you unplug the joystick, so store
     ``sudo jscal-store /dev/input/js0``
 
 If you replug your joystick the next time, udev should take care of automatically loading the appropriate configuration. 
-
