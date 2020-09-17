@@ -48,6 +48,15 @@ ml_stick_init(value device_index_val) {
   return Val_int(opened);
 }
 
+/** Check if all axis received events. Axis positions are unknown until an event has been received.
+ * @param device_index_val  an ocaml integer with the target device index
+ */
+value ml_stick_check_axis(value _unit)
+{
+  int status = stick_check_axis();
+  return Val_int(status);
+}
+
 /** Return a tuple with
  *  - the number of buttons
  *  - one integer with the buttons values

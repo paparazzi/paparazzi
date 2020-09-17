@@ -53,6 +53,8 @@ int8_t stick_axis_values[AXIS_COUNT] = {0, 0, 0, 0, 0, 0};
 uint8_t stick_hat_value = 0;
 int32_t stick_button_values = 0;
 
+int8_t stick_axis_moved[AXIS_COUNT] = {0};
+
 int stick_axis_count = 0;
 int stick_button_count = 0;
 
@@ -190,6 +192,40 @@ int stick_read( void ) {
   return 0;
 }
 
+int stick_check_axis(void)
+{
+  int cnt;
+  while (SDL_PollEvent(&sdl_event)) {
+    switch (sdl_event.type) {
+      case SDL_JOYAXISMOTION:
+        for (cnt = 0; cnt < stick_axis_count; cnt++) {
+          if (sdl_event.jaxis.axis == cnt) {
+            stick_axis_values[cnt] = (((sdl_event.jaxis.value - axis_min[cnt]) * ABS_MAX_VALUE) / (axis_max[cnt] - axis_min[cnt])) - ABS_MID_VALUE;
+            stick_axis_moved[cnt] = 1;
+            break;
+          }
+        }
+        break;
+
+      case SDL_QUIT:
+        printf("Quitting...\n");
+        exit(1);
+        break;
+
+      default:
+        //do nothing
+        break;
+    }
+  }
+  
+  for (cnt = 0; cnt < stick_axis_count; cnt++) {
+    if (stick_axis_moved[cnt] == 0) {
+      return 0;
+    }
+  }
+  return 1;
+  
+}
 
 int stick_init( int device_index ) {
 

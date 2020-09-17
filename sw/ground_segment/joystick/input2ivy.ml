@@ -40,6 +40,7 @@ open Random
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
 let verbose = ref false (* Command line option *)
+let axis_check = ref false (* Command line option *)
 
 (** global trim file name *)
 let trim_file_name = ref ""
@@ -64,6 +65,9 @@ let index_of_blocks = Hashtbl.create 13
 external stick_init : int -> int = "ml_stick_init"
 (** [stick_init device] Return 0 on success. Search for a device if [device]
     is the empty string *)
+
+external stick_check_axis : unit -> int =  "ml_stick_check_axis"
+(** Return 1 once all axis received events. Axis positions are unknown until an event has been received. *)
 
 external stick_read : unit -> int * int * int * int array = "ml_stick_read"
 (** Return the number of buttons, an integer of bits for the buttons values,
@@ -591,6 +595,7 @@ let () =
       "-d",  Arg.Set_int device_index, "<device index>";
       "-v",  Arg.Set verbose, "Verbose mode (useful to identify the channels of an input device)";
       "-id", Arg.Set_int joystick_id, "Joystick ID, from 0-255.  Each joystick requires a unique ID in a multiple joystick configuration.";
+      "-c", Arg.Set axis_check, "Check all axis moved for correct initilization before starting normal behavior";
       "-", Arg.String anon_fun, "<xml file of actions>"
     ]
   and usage_msg = "Usage: " in
@@ -630,6 +635,12 @@ let () =
   (*let tstatus = (Unix.tcgetattr Unix.stdin) in
     tstatus.c_icanon <- false;
     Unix.tcsetattr Unix.stdin Unix.TCSANOW tstatus;*)
+  
+  if !axis_check then
+    while stick_check_axis() <> 1 do
+      (* It seems there is no proper way to wait less than a second before OCAML 4.03.0, introducing Unix.sleepf *)
+      ignore (Unix.select [] [] [] 0.1)
+    done;
 
   ignore (Glib.Timeout.add actions.period_ms (fun () -> execute_actions actions ac_id; true));
   (*ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:(fun x -> execute_kb_action actions x) (Glib.Io.channel_of_descr Unix.stdin));*)
