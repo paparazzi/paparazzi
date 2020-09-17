@@ -13,7 +13,7 @@ Accelerometer calibration
 ==========================
 
 1. Flash the board with your normal AP firmware (if it is not already on it.)
-2. Switch to the "raw sensors" telemetry mode in the GCS via Settings->Telemetry and make sure that *Server* is running.
+2. Switch to the "raw sensors" telemetry mode in the GCS via Settings->Telemetry and make sure that *Server* is running without the ``-n`` option.
 
 .. figure:: raw_sensors.jpg
     :alt: How to set raw sensors telemetry
@@ -189,5 +189,4 @@ The IMU may not be perfectly aligned with the drone body. In this case, you can 
 - PSI is along the yaw axis (around Z)
 
 In the example above from a fixedwing, BODY_TO_IMU_THETA is set to 3 degrees for the drone to be slightly pitching up. 
-
 
