@@ -4,7 +4,7 @@
 Communication
 =============
 
-We saw in the User Guide :doc:`../user_guide/communication` section that you can change what messages are sent, and at what rate. We will see in this section how you can define and send your own messages.
+We saw in the User Guide :doc:`../user_guide/communication` section that you can change which messages are sent, and at which rate. We will see in this section how you can define and send your own messages.
 
 Define a new message
 --------------------
