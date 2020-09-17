@@ -11,7 +11,7 @@ The typical configuration constitute of a standard laptop as ground station and 
 Ground architecture
 -------------------
 
-The Gound Control Station (GCS) constitute of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_.
+The Gound Control Station (GCS) constits of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_.
 
 .. note::
 
