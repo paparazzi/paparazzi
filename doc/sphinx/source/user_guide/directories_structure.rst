@@ -114,7 +114,7 @@ Paparazzi softwares are located in ``sw``. Airborne code, that will run on the d
 
 - ``sw/ext`` contains external software dependencies.
 - ``sw/simulator`` contains the simulators
-- ``sw/ground_segment/tmtc`` contains ????????????
+- ``sw/ground_segment/tmtc``, for "telemetry and telecommand" contains tools related to modems (link), and the server.
 - ``sw/ground_segment/cockpit`` contains the GCS code
 
 Doc

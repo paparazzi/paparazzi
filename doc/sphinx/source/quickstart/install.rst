@@ -8,19 +8,14 @@ Paparazzi runs best on **Ubuntu 16.04 or higher**, so this quick installation gu
 
 Open a terminal and execute each lines below. If one fails, ask for help on gitter.
 
-First, lets install the GNU Arm Embedded Toolchain
---------------------------------------------------
+Version specific prerequisites
+------------------------------
 
 **If you have Ubuntu 20.04:**
 
 .. code-block:: bash
 
     sudo apt-get install python-is-python3
-    wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2
-    sudo tar -xvf gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2 -C /usr/local
-    sudo ln -s /usr/local/gcc-arm-none-eabi-7-2017-q4-major /usr/local/gcc-arm-none-eabi
-    echo "export PATH=\"\$PATH:/usr/local/gcc-arm-none-eabi/bin\"" >> .bashrc
-    source .bashrc
 
 **If you have Ubuntu 18.04 or lower:**
 
@@ -28,10 +23,9 @@ First, lets install the GNU Arm Embedded Toolchain
 
     sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
     sudo apt-get update
-    sudo apt-get -f -y install gcc-arm-embedded
 
-Then install Paparazzi
-----------------------
+Install Paparazzi
+-----------------
 
 Add paparazzi apt-repository and install dependencies:
 
@@ -39,7 +33,7 @@ Add paparazzi apt-repository and install dependencies:
 
     sudo add-apt-repository -y ppa:paparazzi-uav/ppa
     sudo apt-get update
-    sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim
+    sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim gcc-arm-embedded
 
 Clone the repository: 
 
