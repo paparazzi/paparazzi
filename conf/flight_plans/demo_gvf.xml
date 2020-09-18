@@ -29,10 +29,12 @@
 
   <variables>
     <variable var="angle_ps" init="0" min="-180" max="179" step="1"/>
+    <variable init="0" max="100" min="0" step="5" var="ell_delta"/>
   </variables>
 
   <modules> 
     <module name="gvf_module"/>
+    <module name="gvf_parametric"/>
   </modules>
 
   <blocks>
@@ -78,6 +80,18 @@
       <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, flight_altitude)"/>
       <call fun="gvf_nav_survey_polygon_run()"/>
     </block>
+    <block name="3D_ellipse">
+      <call fun="gvf_parametric_3D_ellipse_wp_delta(WP_ELLIPSE,gvf_parametric_3d_ellipse_par.r,flight_altitude-ground_alt,ell_delta,gvf_parametric_3d_ellipse_par.alpha)"/>
+    </block>
+    <block name="3D_lissajous">
+      <call fun="gvf_parametric_3D_lissajous_wp_center(WP_ELLIPSE,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+    </block>
+    <block name="2D_trefoil">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="gvf_parametric_2D_trefoil_wp(WP_ELLIPSE,gvf_parametric_2d_trefoil_par.w1,gvf_parametric_2d_trefoil_par.w2,gvf_parametric_2d_trefoil_par.ratio,gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+    </block>
+
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>

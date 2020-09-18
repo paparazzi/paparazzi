@@ -1,0 +1,87 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gvf_parametric" dir="guidance/gvf_parametric">
+  <doc>
+    <description>Guidance algorithm for tracking 2D and 3D smooth trajectories that are defined by a parametric equation.
+
+      For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .
+      This algorithm needs the Eigen library, be sure you have it installed, e.g., git submodule update --init --recursive sw/ext/eigen
+    </description>
+  </doc>
+
+  <settings name="GVF_PARAMETRIC">
+    <dl_settings>
+      <dl_settings NAME="GVF_PARAMETRIC">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_parametric_control.s" shortname = "direction"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_control.k_roll" shortname="k_roll" param="GVF_PARAMETRIC_CONTROL_KROLL"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_control.k_climb" shortname="k_climb" param="GVF_PARAMETRIC_CONTROL_KCLIMB"/>
+          <dl_setting MAX="10" MIN="0.01" STEP="0.05" VAR="gvf_parametric_control.L" shortname="L" param="GVF_PARAMETRIC_CONTROL_L"/>
+          <dl_setting MAX="1" MIN="0.001" STEP="0.005" VAR="gvf_parametric_control.beta" shortname="beta" param="GVF_PARAMETRIC_CONTROL_BETA"/>
+          <dl_setting MAX="1.5" MIN="0.5" STEP="0.01" VAR="gvf_parametric_control.k_psi" shortname="k_psi" param="GVF_PARAMETRIC_CONTROL_KPSI"/>
+        </dl_settings>
+        <dl_settings NAME="2D_trefoil">
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.kx" shortname="2d_tre_kx" param="GVF_PARAMETRIC_2D_TREFOIL_KX"/>
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_2d_trefoil_par.ky" shortname="2d_tre_ky" param="GVF_PARAMETRIC_2D_TREFOIL_KY"/>
+          <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_parametric_2d_trefoil_par.w1" shortname="2d_tre_w1" param="GVF_PARAMETRIC_2D_TREFOIL_W1"/>
+          <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_parametric_2d_trefoil_par.w2" shortname="2d_tre_w2" param="GVF_PARAMETRIC_2D_TREFOIL_W2"/>
+          <dl_setting MAX="200" MIN="10" STEP="5" VAR="gvf_parametric_2d_trefoil_par.ratio" shortname="2d_tre_ratio" param="GVF_PARAMETRIC_2D_TREFOIL_RATIO"/>
+          <dl_setting MAX="200" MIN="10" STEP="5" VAR="gvf_parametric_2d_trefoil_par.r" shortname="2d_tre_r" param="GVF_PARAMETRIC_2D_TREFOIL_R"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_parametric_2d_trefoil_par.alpha" shortname="2d_tre_alpha" param="GVF_PARAMETRIC_2D_TREFOIL_ALPHA"/>
+        </dl_settings>
+        <dl_settings NAME="3D_ellipse">
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.kx" shortname="3d_ell_kx" param="GVF_PARAMETRIC_3D_ELLIPSE_KX"/>
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.ky" shortname="3d_ell_ky" param="GVF_PARAMETRIC_3D_ELLIPSE_KY"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_ellipse_par.kz" shortname="3d_ell_kz" param="GVF_PARAMETRIC_3D_ELLIPSE_KZ"/>
+          <dl_setting MAX="150" MIN="0.0" STEP="5" VAR="gvf_parametric_3d_ellipse_par.r" shortname="3d_ell_r" param="GVF_PARAMETRIC_3D_ELLIPSE_R"/>
+          <dl_setting MAX="150" MIN="10" STEP="5" VAR="gvf_parametric_3d_ellipse_par.zl" shortname="3d_ell_zl" param="GVF_PARAMETRIC_3D_ELLIPSE_ZL"/>
+          <dl_setting MAX="150" MIN="10" STEP="5" VAR="gvf_parametric_3d_ellipse_par.zh" shortname="3d_ell_zh" param="GVF_PARAMETRIC_3D_ELLIPSE_ZH"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_parametric_3d_ellipse_par.alpha" shortname="3d_ell_alpha" param="GVF_PARAMETRIC_3D_ELLIPSE_ALPHA"/>
+        </dl_settings>
+        <dl_settings NAME="3D_lissajous">
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.kx" shortname="3d_lis_kx" param="GVF_PARAMETRIC_3D_LISSAJOUS_KX"/>
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.ky" shortname="3d_lis_ky" param="GVF_PARAMETRIC_3D_LISSAJOUS_KY"/>
+          <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.kz" shortname="3d_lis_kz" param="GVF_PARAMETRIC_3D_LISSAJOUS_KZ"/>
+          <dl_setting MAX="250" MIN="-250" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cx" shortname="3d_lis_cx" param="GVF_PARAMETRIC_3D_LISSAJOUS_CX"/>
+          <dl_setting MAX="250" MIN="-250" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cy" shortname="3d_lis_cy" param="GVF_PARAMETRIC_3D_LISSAJOUS_CY"/>
+          <dl_setting MAX="50" MIN="-50" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cz" shortname="3d_lis_cz" param="GVF_PARAMETRIC_3D_LISSAJOUS_CZ"/>
+          <dl_setting MAX="10" MIN="-10.0" STEP="0.5" VAR="gvf_parametric_3d_lissajous_par.wx" shortname="3d_lis_wx" param="GVF_PARAMETRIC_3D_LISSAJOUS_WX"/>
+          <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="gvf_parametric_3d_lissajous_par.wy" shortname="3d_lis_wy" param="GVF_PARAMETRIC_3D_LISSAJOUS_WY"/>
+          <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="gvf_parametric_3d_lissajous_par.wz" shortname="3d_lis_wz" param="GVF_PARAMETRIC_3D_LISSAJOUS_WZ"/>
+          <dl_setting MAX="180" MIN="-180.0" STEP="1" VAR="gvf_parametric_3d_lissajous_par.dx" shortname="3d_lis_dx" param="GVF_PARAMETRIC_3D_LISSAJOUS_DX"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_parametric_3d_lissajous_par.dy" shortname="3d_lis_dy" param="GVF_PARAMETRIC_3D_LISSAJOUS_DY"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_parametric_3d_lissajous_par.dz" shortname="3d_lis_dz" param="GVF_PARAMETRIC_3D_LISSAJOUS_DZ"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_parametric_3d_lissajous_par.alpha" shortname="3d_lis_alpha" param="GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="gvf_parametric.h"/>
+    <file name="gvf_parametric_low_level_control.h"/>
+    <file name="trajectories/gvf_parametric_3d_ellipse.h"/>
+    <file name="trajectories/gvf_parametric_3d_lissajous.h"/>
+    <file name="trajectories/gvf_parametric_2d_trefoil.h"/>
+  </header>
+
+  <init fun = "gvf_parametric_init()"/>
+
+  <makefile target="ap|nps" firmware="fixedwing">
+    <configure name="CXXSTANDARD" value="-std=c++14"/>
+    <flag name="CXXFLAGS" value="Wno-int-in-bool-context -Wno-deprecated-copy"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
+    <define name="EIGEN_NO_MALLOC"/>
+    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
+    <file name="gvf_parametric.cpp"/>
+    <file name="gvf_parametric_low_level_control.c"/>
+    <file name="trajectories/gvf_parametric_3d_ellipse.c"/>
+    <file name="trajectories/gvf_parametric_3d_lissajous.c"/>
+    <file name="trajectories/gvf_parametric_2d_trefoil.c"/>
+    <flag name="LDFLAGS" value="lstdc++" />
+  </makefile>
+
+  <makefile target="ap" firmware="fixedwing">
+    <define name="EIGEN_NO_DEBUG"/>
+  </makefile>
+</module>
