@@ -15,7 +15,7 @@ Version specific prerequisites
 
 .. code-block:: bash
 
-    sudo apt-get install python-is-python3
+    sudo apt-get install python-is-python3 gdb-multiarch
 
 **If you have Ubuntu 18.04 or lower:**
 
