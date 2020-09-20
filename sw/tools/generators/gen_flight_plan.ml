@@ -213,13 +213,14 @@ let pprz_throttle = fun s ->
 (********************* Vertical control ********************************************)
 let output_vmode = fun out stage_xml wp last_wp ->
   let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
+  let t = ExtXml.attrib_or_default stage_xml "nav_type" "Nav" in
   if Compat.lowercase_ascii (Xml.tag stage_xml) <> "manual"
   then begin
     if pitch = "auto"
     then begin
-      lprintf out "NavVerticalAutoPitchMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
+      lprintf out "%sVerticalAutoPitchMode(%s);\n" t (pprz_throttle (parsed_attrib stage_xml "throttle"))
     end else begin
-      lprintf out "NavVerticalAutoThrottleMode(RadOfDeg(%s));\n" (parse pitch);
+      lprintf out "%sVerticalAutoThrottleMode(RadOfDeg(%s));\n" t (parse pitch);
     end
   end;
 
@@ -227,7 +228,7 @@ let output_vmode = fun out stage_xml wp last_wp ->
   begin
     match vmode with
         "climb" ->
-          lprintf out "NavVerticalClimbMode(%s);\n" (parsed_attrib stage_xml "climb")
+          lprintf out "%sVerticalClimbMode(%s);\n" t (parsed_attrib stage_xml "climb")
       | "alt" ->
         let alt =
           try
@@ -255,20 +256,22 @@ let output_vmode = fun out stage_xml wp last_wp ->
               if wp = ""
               then failwith "alt or waypoint required in alt vmode"
               else sprintf "WaypointAlt(%s)" wp in
-        lprintf out "NavVerticalAltitudeMode(%s, 0.);\n" alt;
+        lprintf out "%sVerticalAltitudeMode(%s, 0.);\n" t alt;
       | "xyz" -> () (** Handled in Goto3D() *)
       | "glide" ->
-        lprintf out "NavGlide(%s, %s);\n" last_wp wp
+        lprintf out "%sGlide(%s, %s);\n" t last_wp wp
       | "throttle" ->
         if (pitch = "auto") then
           failwith "auto pich mode not compatible with vmode=throttle";
-        lprintf out "NavVerticalThrottleMode(%s);\n" (pprz_throttle (parsed_attrib stage_xml "throttle"))
+        lprintf out "%sVerticalThrottleMode(%s);\n" t (pprz_throttle (parsed_attrib stage_xml "throttle"))
       | x -> failwith (sprintf "Unknown vmode '%s'" x)
   end;
   vmode
 
 (****************** Horizontal control *********************************************)
 let output_hmode out x wp last_wp =
+  let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+  let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
   try
     let hmode = ExtXml.attrib x "hmode" in
     begin
@@ -276,13 +279,13 @@ let output_hmode out x wp last_wp =
           "route" ->
             if last_wp = "last_wp" then
               fprintf stderr "NOTICE: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
-            lprintf out "NavSegment(%s, %s);\n" last_wp wp
-        | "direct" -> lprintf out "NavGotoWaypoint(%s);\n" wp
+            lprintf out "%sSegment(%s, %s%s);\n" t last_wp wp p
+        | "direct" -> lprintf out "%sGotoWaypoint(%s%s);\n" t wp p
         | x -> failwith (sprintf "Unknown hmode '%s'" x)
     end;
     hmode
   with
-      ExtXml.Error _ -> lprintf out "NavGotoWaypoint(%s);\n" wp; "direct" (* Default behaviour *)
+      ExtXml.Error _ -> lprintf out "%sGotoWaypoint(%s%s);\n" t wp p; "direct" (* Default behaviour *)
 
 
 
@@ -396,7 +399,9 @@ let rec print_stage = fun out index_of_waypoints x ->
       | "heading" ->
         stage out;
         fp_pre_call out x;
-        lprintf out "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sHeading(RadOfDeg(%s)%s);\n" t (parsed_attrib x "course") p;
         ignore (output_vmode out x "" "");
         stage_until out x;
         fp_post_call out x;
@@ -407,13 +412,17 @@ let rec print_stage = fun out index_of_waypoints x ->
         let id = ExtXml.attrib x "ac_id"
         and d = ExtXml.attrib x "distance"
         and h = ExtXml.attrib x "height" in
-        lprintf out "NavFollow(%s, %s, %s);\n" id d h;
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sFollow(%s, %s, %s%s);\n" t id d h p;
         fp_post_call out x;
         lprintf out "break;\n"
       | "attitude" ->
         stage out;
         fp_pre_call out x;
-        lprintf out "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sAttitude(RadOfDeg(%s)%s);\n" t (parsed_attrib x "roll") p;
         ignore (output_vmode out x "" "");
         stage_until out x;
         fp_post_call out x;
@@ -421,7 +430,9 @@ let rec print_stage = fun out index_of_waypoints x ->
       | "manual" ->
         stage out;
         fp_pre_call out x;
-        lprintf out "NavSetManual(%s, %s, %s);\n" (parsed_attrib x "roll") (parsed_attrib x "pitch") (parsed_attrib x "yaw");
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sSetManual(%s, %s, %s%s);\n" t (parsed_attrib x "roll") (parsed_attrib x "pitch") (parsed_attrib x "yaw") p;
         ignore (output_vmode out x "" "");
         stage_until out x;
         fp_post_call out x;
@@ -429,6 +440,7 @@ let rec print_stage = fun out index_of_waypoints x ->
       | "go" ->
         stage out;
         fp_pre_call out x;
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let wp =
           try
             get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints
@@ -451,9 +463,9 @@ let rec print_stage = fun out index_of_waypoints x ->
             get_index_waypoint (ExtXml.attrib x "from") index_of_waypoints
           with ExtXml.Error _ -> "last_wp" in
         if last_wp = "last_wp" then
-          lprintf out "if (NavApproaching(%s,%s)) {\n" wp at
+          lprintf out "if (%sApproaching(%s,%s)) {\n" t wp at
         else
-          lprintf out "if (NavApproachingFrom(%s,%s,%s)) {\n" wp last_wp at;
+          lprintf out "if (%sApproachingFrom(%s,%s,%s)) {\n" t wp last_wp at;
         right ();
         fp_post_call out x;
         lprintf out "NextStageAndBreakFrom(%s);\n" wp;
@@ -471,6 +483,8 @@ let rec print_stage = fun out index_of_waypoints x ->
       | "stay" ->
         stage out;
         fp_pre_call out x;
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
         begin
           try
             let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
@@ -478,7 +492,7 @@ let rec print_stage = fun out index_of_waypoints x ->
             ignore (output_vmode out x wp "");
           with
               Xml2h.Error _ ->
-                lprintf out "NavGotoXY(last_x, last_y);\n";
+                lprintf out "%sGotoXY(last_x, last_y%s);\n" t p;
                 ignore(output_vmode out x "" "")
         end;
         stage_until out x;
@@ -503,7 +517,9 @@ let rec print_stage = fun out index_of_waypoints x ->
         let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
         let r = parsed_attrib  x "radius" in
         let _vmode = output_vmode out x wp "" in
-        lprintf out "NavCircleWaypoint(%s, %s);\n" wp r;
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sCircleWaypoint(%s, %s%s);\n" t wp r p;
         stage_until out x;
         fp_post_call out x;
         lprintf out "break;\n"
@@ -595,15 +611,17 @@ let rec print_stage = fun out index_of_waypoints x ->
         and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
         and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints
         and orientation = ExtXml.attrib_or_default x "orientation" "NS" in
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
         stage out;
         if orientation <> "NS" && orientation <> "WE" then
           failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
-        lprintf out "NavSurveyRectangleInit(%s, %s, %s, %s);\n" wp1 wp2 grid orientation;
+        lprintf out "%sSurveyRectangleInit(%s, %s, %s, %s%s);\n" t wp1 wp2 grid orientation p;
         lprintf out "NextStageAndBreak();\n";
         left ();
         stage out;
         fp_pre_call out x;
-        lprintf out "NavSurveyRectangle(%s, %s);\n" wp1 wp2;
+        lprintf out "%sSurveyRectangle(%s, %s);\n" t wp1 wp2;
         stage_until out x;
         fp_post_call out x;
         lprintf out "break;\n"
