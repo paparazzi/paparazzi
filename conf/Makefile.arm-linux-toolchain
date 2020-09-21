@@ -44,8 +44,8 @@ CP    = $(PREFIX)-objcopy
 DMP   = $(PREFIX)-objdump
 NM    = $(PREFIX)-nm
 SIZE  = $(PREFIX)-size
-GDB   = $(PREFIX)-gdb
 STRIP = $(PREFIX)-strip
+GDB   = gdb-multiarch
 
 # some general commands
 RM = rm
