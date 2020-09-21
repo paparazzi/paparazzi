@@ -15,13 +15,14 @@ Version specific prerequisites
 
 .. code-block:: bash
 
-    sudo apt-get install python-is-python3 gdb-multiarch
+    sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch
 
 **If you have Ubuntu 18.04 or lower:**
 
 .. code-block:: bash
 
     sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+    sudo apt-get install gcc-arm-embedded
     sudo apt-get update
 
 Install Paparazzi
@@ -33,7 +34,7 @@ Add paparazzi apt-repository and install dependencies:
 
     sudo add-apt-repository -y ppa:paparazzi-uav/ppa
     sudo apt-get update
-    sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim gcc-arm-embedded
+    sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util
 
 Clone the repository: 
 
