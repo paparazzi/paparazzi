@@ -354,6 +354,9 @@ endif
 
 # Settings for GDB
 GDB = $(shell which arm-none-eabi-gdb)
+ifeq ($(GDB),)
+GDB = $(shell which gdb-multiarch)
+endif
 
 
 # Settings for OOCD
