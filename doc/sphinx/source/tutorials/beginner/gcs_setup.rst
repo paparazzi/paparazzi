@@ -1,4 +1,4 @@
-.. tutorials main_tutorials beginner gcs_setup
+.. tutorials beginner gcs_setup
 
 ======================
 GCS Setup

@@ -1,4 +1,4 @@
-.. tutorials main_tutorials intermediate index_intermediate
+.. tutorials intermediate
 
 ================================
 Create a new radio configuration

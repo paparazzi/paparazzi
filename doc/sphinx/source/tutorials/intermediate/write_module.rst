@@ -1,4 +1,4 @@
-.. tutorials main_tutorials intermediate write_module
+.. tutorials intermediate
 
 ======================
 Write a New Module
