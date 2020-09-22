@@ -279,7 +279,7 @@ class map2d:
                 a3d.plot([XY[0]], [XY[1]], [altitude], marker='o', markerfacecolor='r', markeredgecolor='r')
                 a3d.plot([traj.wpoint[0]], [traj.wpoint[1]], [traj.wpoint[2]], marker='x', markerfacecolor='r', markeredgecolor='r')
 
-            a3d.axis('equal')
+            #a3d.axis('equal')
             if traj.deltaz < 0:
                 a3d.set_zlim(traj.zo+1.5*traj.deltaz, traj.zo-1.5*traj.deltaz)
             else:

@@ -18,7 +18,7 @@ class MessagesApp(wx.App):
 
 def main():
     if len(sys.argv) != 2:
-        print "Usage: gvfApp id_aircraft"
+        print ("Usage: gvfApp id_aircraft")
         return
     id_ac = int(sys.argv[1])
     application = MessagesApp(0, id_ac)
