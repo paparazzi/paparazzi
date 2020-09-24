@@ -142,11 +142,13 @@ ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 
 static: cockpit tmtc generators sim_static joystick static_h
 
-libpprzlink:
+libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update
+
+libpprzlink.install:
 	$(Q)Q=$(Q) MAKEFLAGS=-j1 DESTDIR=$(PPRZLINK_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
 
-libpprz: libpprzlink _save_build_version
+libpprz: libpprzlink.update libpprzlink.install _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
 
 cockpit: libpprz
@@ -337,7 +339,7 @@ test_sim: all
 	prove tests/sim
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
-subdirs $(SUBDIRS) conf ext libpprz libpprzlink cockpit cockpit.opt tmtc tmtc.opt generators\
+subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static lpctools opencv_bebop\
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_sim test_all_confs
