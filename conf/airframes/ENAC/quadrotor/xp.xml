@@ -1,0 +1,72 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Quadricopter XP">
+
+  <description>
+    * Autopilot:   Tawaki/ Apogee
+    * Actuators:   4 in 1 Holybro BLHELI ESC
+    * Telemetry:   XBee and Wifibroadcast (compagnon board)
+    * GPS:         ublox M8P (optional DGPS) or Datalink
+    * RC:          FrSky XM+ or Datalink
+
+    IMU Apogee :    
+      - MPU6050 (acc+gyro), 
+      - MPU9150 (acc+gyro+mag) = MPU6050 + AK8975
+                   
+    MAG Apogee (AK8975 on I2C1) or on external GPS board (LIS3MDL on I2C1) or Datalink
+
+    BARO Apogee (MPL3115A2 on I2C1)
+
+    MISC Apogee: 
+      - Dshot(TIM3): 0(srv0),2(srv2),3(serv3),6(Aux1) 
+      - Servo(TIM2): srv1
+      - Leds(TIM1): PPMin
+
+  </description>
+
+  <firmware name="rotorcraft">
+
+    <configure name="PERIODIC_FREQUENCY" value="1000"/>
+    <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <configure name="KILL_AS_FAILSAFE" value="1"/>
+
+    <!-- OPTION 1A & 1B -->
+    <target name="ap" board="apogee_1.0_chibios"/>
+    <!-- OPTION 1C -->
+    <!--target name="nps" board="pc"/-->
+
+  </firmware>
+
+  <!--apogee_1.0_chibios -->
+  <!-- OPTION 1A -->
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_board_apogee_mpu9150.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_target_flying.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_target_apogee.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_imu_apogee_mpu9150.xml"/>
+  <!-- OPTION 1B -->
+  <!--include href="conf/airframes/ENAC/quadrotor/xp/xp_option_board_apogee_lis3mdl.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_target_flying.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_target_apogee.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_imu_apogee_lis3mdl.xml"/-->
+
+  <!--tawaki_1.0 & apogee_1.0_chibios -->
+  <!-- OPTION 2A -->
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_indoor.xml"/>
+  <!-- OPTION 2B -->
+  <!--include href="conf/airframes/ENAC/quadrotor/xp/xp_option_outdoor.xml"/-->
+
+  <!-- OPTION 1C -->
+  <!--include href="conf/airframes/ENAC/quadrotor/xp/xp_option_board_tawaki.xml"/-->
+  <!--include href="conf/airframes/ENAC/quadrotor/xp/xp_option_board_apogee_mpu9150.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_board_apogee_lis3mdl.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_target_nps.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_option_outdoor_nps.xml"/-->
+
+  <!-- All targets -->
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_stab_rate.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_stab_attitude.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_guidance.xml"/>
+  <include href="conf/airframes/ENAC/quadrotor/xp/xp_common_modules.xml"/>
+
+
+</airframe>

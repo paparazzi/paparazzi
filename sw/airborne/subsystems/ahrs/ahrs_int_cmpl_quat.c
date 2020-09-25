@@ -112,6 +112,8 @@ struct AhrsIntCmplQuat ahrs_icq;
 static inline void UNUSED ahrs_icq_update_mag_full(struct Int32Vect3 *mag, float dt);
 static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt);
 
+static struct Int32Rates gyro_bias0;
+
 void ahrs_icq_init(void)
 {
 
@@ -174,6 +176,7 @@ bool ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
 
   /* Use low passed gyro value as initial bias */
   RATES_COPY(ahrs_icq.gyro_bias, *lp_gyro);
+  RATES_COPY(gyro_bias0, *lp_gyro);
   RATES_COPY(ahrs_icq.high_rez_bias, *lp_gyro);
   INT_RATES_LSHIFT(ahrs_icq.high_rez_bias, ahrs_icq.high_rez_bias, 28);
 
@@ -655,6 +658,11 @@ void ahrs_icq_realign_heading(int32_t heading)
 
   /* compute ltp to imu rotations */
   int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
+
+  /* reset gyro bias to initial value */
+  RATES_COPY(ahrs_icq.gyro_bias, gyro_bias0);
+  RATES_COPY(ahrs_icq.high_rez_bias, gyro_bias0);
+  INT_RATES_LSHIFT(ahrs_icq.high_rez_bias, ahrs_icq.high_rez_bias, 28);
 
   ahrs_icq.heading_aligned = true;
 }

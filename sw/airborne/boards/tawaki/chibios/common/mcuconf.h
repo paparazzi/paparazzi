@@ -284,7 +284,8 @@
 #define STM32_PWM_USE_TIM4                  TRUE
 #endif
 #ifndef STM32_PWM_USE_TIM5
-#define STM32_PWM_USE_TIM5                  FALSE // enable for servo 9, 10, 11, 13 on AUX connectors
+//#define STM32_PWM_USE_TIM5                  FALSE // enable for servo 9, 10, 11, 13 on AUX connectors
+#define STM32_PWM_USE_TIM5                  TRUE // enable for servo 9, 10, 11, 13 on AUX connectors
 #endif
 #define STM32_PWM_USE_TIM8                  FALSE
 #define STM32_PWM_USE_TIM9                  FALSE

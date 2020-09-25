@@ -1,0 +1,17 @@
+<airframe>
+
+  <module name="extra_dl">
+    <configure name="EXTRA_DL_PORT" value="UART3"/>
+    <configure name="EXTRA_DL_BAUD" value="B115200"/>
+  </module>
+
+  <module name="actuators" type="dshot"/>
+  <servos driver="DShot">
+    <servo name="FR" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="2" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="4" min="0" neutral="100" max="2000"/>
+  </servos>  
+
+</airframe>
+

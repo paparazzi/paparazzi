@@ -30,7 +30,16 @@
 #include "modules/light/light_scheduler.h"
 #include "modules/light/light_ws2812_arch.h"
 
+//#include "state.h"
+#include "generated/modules.h"
+#include "subsystems/gps.h"
+
+#ifndef WS2812_SEQUENCE
+#define WS2812_SEQUENCE 0
+#endif
+
 static uint32_t s = 0;
+static uint32_t sequence = WS2812_SEQUENCE;
 
 void light_scheduler_init(void)
 {
@@ -40,10 +49,53 @@ void light_scheduler_init(void)
 void light_scheduler_periodic(void)
 {
   uint32_t n, s0;
-  for (n = 0; n < WS2812_NB_LEDS; n++) {
-    s0 = s + 10 * n;
-    light_ws2812_arch_set(n, s0 % 255, (s0 + 85) % 255, (s0 + 170) % 255);
+
+  //uint32_t freq = LIGHT_SCHEDULER_PERIODIC_FREQ;
+
+  if (autopilot_get_mode() == AP_MODE_KILL) sequence=2;
+  else if(GpsFixValid()) sequence=1;
+
+  switch (sequence) 
+  {
+    case 0:
+      for (n = 0; n < WS2812_NB_LEDS; n++) {
+        s0 = s + 10 * n;
+        light_ws2812_arch_set(n, s0 % 255, (s0 + 85) % 255, (s0 + 170) % 255);
+      }
+      s += 10;
+      break;
+
+    case 1: // steady
+      for (n = 0; n < WS2812_NB_LEDS; n++) {
+        if(n<4)  light_ws2812_arch_set(n, 50, 50, 50); // 4 rear
+        if(n>=4 && n<8)  light_ws2812_arch_set(n, 0, 50, 0);   // 4 right
+        if(n>=8 && n<12) light_ws2812_arch_set(n, 50, 0, 0);   // 4 left
+      }
+      break;
+
+    case 2: // rotating
+      if(s==0) {
+        light_ws2812_arch_set(3, 0, 0, 0);light_ws2812_arch_set(0, 50, 50, 50);
+        light_ws2812_arch_set(7, 0, 0, 0);light_ws2812_arch_set(4, 0, 50, 0);
+        light_ws2812_arch_set(11, 0, 0, 0);light_ws2812_arch_set(8, 50, 0, 0);
+      }
+      if(s==1) {
+        light_ws2812_arch_set(0, 0, 0, 0);light_ws2812_arch_set(1, 50, 50, 50);
+        light_ws2812_arch_set(4, 0, 0, 0);light_ws2812_arch_set(5, 0, 50, 0);
+        light_ws2812_arch_set(8, 0, 0, 0);light_ws2812_arch_set(9, 50, 0, 0);
+      }
+      if(s==2) {
+        light_ws2812_arch_set(1, 0, 0, 0);light_ws2812_arch_set(2, 50, 50, 50);
+        light_ws2812_arch_set(5, 0, 0, 0);light_ws2812_arch_set(6, 0, 50, 0);
+        light_ws2812_arch_set(9, 0, 0, 0);light_ws2812_arch_set(10, 50, 0, 0);
+      }
+      if(s==3) {
+        light_ws2812_arch_set(2, 0, 0, 0);light_ws2812_arch_set(3, 50, 50, 50);
+        light_ws2812_arch_set(6, 0, 0, 0);light_ws2812_arch_set(7, 0, 50, 0);
+        light_ws2812_arch_set(10, 0, 0, 0);light_ws2812_arch_set(11, 50, 0, 0);
+	s=0;
+      } else s++;
+      break;
   }
-  s += 10;
 }
 

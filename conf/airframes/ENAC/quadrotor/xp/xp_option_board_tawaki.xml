@@ -1,0 +1,10 @@
+<firmware>
+
+    <module name="board" type="tawaki">
+      <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
+      <define name="IMU_MPU_SMPLRT_DIV" value="0"/>
+    </module>
+
+</firmware>
+

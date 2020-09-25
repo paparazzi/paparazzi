@@ -1,0 +1,21 @@
+<airframe>
+
+  <module name="fdm" type="jsbsim"/>
+  <module name="radio_control" type="ppm"/>
+  <module name="actuators" type="pwm"/>
+ 
+ <servos driver="Pwm">
+    <servo name="FR" no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="FL" no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BR" no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="BL" no="4" min="1000" neutral="1100" max="1900"/>
+  </servos>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+
+</airframe>
+

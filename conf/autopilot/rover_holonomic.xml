@@ -40,6 +40,9 @@
 
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
+      <on_enter>
+        <call fun="rover_holo_guidance_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>

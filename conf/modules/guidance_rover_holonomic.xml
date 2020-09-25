@@ -14,7 +14,8 @@
         <dl_setting var="rover_holo_guidance.speed_pid.i" min="0." step="0.01" max="1." shortname="s_ki" handler="set_speed_igain" param="ROVER_HOLO_GUIDANCE_SPEED_IGAIN" type="float" persistent="true" module="guidance/rover_guidance_holonomic"/>
         <dl_setting var="rover_holo_guidance.turn_pid.p" min="0." step="0.01" max="10." shortname="t_kp" param="ROVER_HOLO_GUIDANCE_TURN_PGAIN" type="float" persistent="true"/>
         <dl_setting var="rover_holo_guidance.turn_pid.d" min="0." step="0.01" max="10." shortname="t_kd" param="ROVER_HOLO_GUIDANCE_TURN_DGAIN" type="float" persistent="true"/>
-        <dl_setting var="rover_holo_guidance.turn_pid.i" min="0." step="0.01" max="1." shortname="t_ki" handler="set_turn_igain" param="ROVER_HOLO_GUIDANCE_TURN_IGAIN" type="float" persistent="true" module="guidance/rover_guidance_holonomic"/>
+        <dl_setting var="rover_holo_guidance.max_speed" min="0." step="0.01" max="2." shortname="s_max" param="ROVER_HOLO_GUIDANCE_MAX_SPEED" type="float" persistent="true"/>
+        <dl_setting var="rover_holo_guidance.accel" min="0." step="0.05" max="1." shortname="acc" param="ROVER_HOLO_GUIDANCE_ACCEL" type="float" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>

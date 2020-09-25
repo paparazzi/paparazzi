@@ -1,0 +1,9 @@
+<firmware>
+
+    <module name="imu" type="apogee_mpu9150">
+      <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="APOGEE_SMPLRT_DIV"     value="1"/>
+    </module>
+
+</firmware>
+

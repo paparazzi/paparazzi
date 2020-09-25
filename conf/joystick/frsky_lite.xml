@@ -1,0 +1,30 @@
+<!--
+FrSky lite (mode 2)
+http://www.frsky-rc.com/product/pro.php?pro_id=137
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/>
+    <axis index="2" name="throttle"/>
+    <axis index="3" name="yaw"/>
+    <axis index="4" name="mode"/>
+    <axis index="5" name="arm"/>
+  </input>
+
+  <messages period="0.05">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="throttle" value="Fit(throttle,-127,127,0,127)" />
+      <field name="roll" value="roll" />
+      <field name="pitch" value="-pitch" />
+      <field name="yaw" value="yaw"/>
+      <field name="mode" value="Fit(mode,-127,126,0,2)"/>
+    </message>
+    <message class="ground" name="DL_SETTING" on_event="arm">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="Fit(arm,-127,126,0,1)"/>
+    </message>
+  </messages>
+</joystick>

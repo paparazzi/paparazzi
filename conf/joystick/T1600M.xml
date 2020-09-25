@@ -1,0 +1,52 @@
+<!-- Thrusmaster T1600 M
+
+  4 axis, 1 hat, 16 buttons
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/>
+    <axis index="2" name="yaw"/>
+    <axis index="3" name="thrust"/>
+    <button index="0" name="fire"/>
+    <button index="1" name="top_center"/>
+    <button index="2" name="top_left"/>
+    <button index="3" name="top_right"/>
+    <button index="4" name="far_left"/>
+  </input>
+
+  <variables>
+    <!-- manual by default and when pressing b_green, AUTO1 on b_yellow, AUTO2 on b_red -->
+    <var name="mode" default="2"/>
+    <set var="mode" value="0" on_event="top_left"/>
+    <set var="mode" value="1" on_event="top_center"/>
+    <set var="mode" value="2" on_event="top_right"/>
+  </variables>
+
+  <messages period="0.01">
+
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode"        value="mode"/>
+      <field name="throttle"    value="Fit(-thrust,-127,127,0,127)"/>
+      <field name="roll"        value="roll"/>
+      <field name="yaw"         value="yaw"/>
+      <field name="pitch"       value="pitch"/>
+    </message>
+
+
+    <!-- resurrect throttle on start button -->
+    <message class="ground" name="DL_SETTING" on_event="fire">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="0"/>
+    </message>
+    <!-- kill throttle when pressing both back and blue buttons at the same time -->
+    <message class="ground" name="DL_SETTING" on_event="fire && far_left">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="1"/>
+    </message>
+
+  </messages>
+
+</joystick>

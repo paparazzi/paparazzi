@@ -1,0 +1,52 @@
+<airframe>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="90." unit="deg/s"/>
+    <define name="DEADBAND_R" value="250"/>
+
+     <!-- reference -->
+    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+
+   <!-- feedback -->
+    <define name="PHI_PGAIN" value="432"/>
+    <define name="PHI_DGAIN" value="207"/>
+    <define name="PHI_IGAIN" value="100"/>
+
+    <define name="THETA_PGAIN" value="432"/>
+    <define name="THETA_DGAIN" value="207"/>
+    <define name="THETA_IGAIN" value="100"/>
+
+    <define name="PSI_PGAIN" value="1392"/>
+    <define name="PSI_DGAIN" value="350"/>
+    <define name="PSI_IGAIN" value="20"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="60"/>
+    <define name="THETA_DDGAIN" value="60"/>
+    <define name="PSI_DDGAIN" value="170"/>
+
+    <define name="PHI_AGAIN" value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN" value="0"/>
+  </section>
+
+
+</airframe>
+

@@ -1,0 +1,15 @@
+<airframe>
+
+  <module name="gps" type="datalink"/>
+    <module name="ins" type="gps_passthrough"/>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+  </module>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="USE_GPS_HEADING" value="1"/>
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </section>
+
+</airframe>
+

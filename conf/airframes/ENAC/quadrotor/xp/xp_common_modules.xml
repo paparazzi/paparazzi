@@ -1,0 +1,58 @@
+<airframe>
+
+  <module name="telemetry" type="xbee_api"/>
+
+  <module name="ahrs" type="int_cmpl_quat" />
+
+  <module name="stabilization" type="int_quat"/>
+  <module name="motor_mixing"/>
+  <module name="air_data"/>
+  <module name="filter" type="1euro_imu">
+    <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
+    <define name="AHRS_ALIGNER_IMU_ID" value="IMU_F1E_ID"/>
+  </module>
+
+  <commands>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TYPE" value="QUAD_X"/>
+    <define name="REVERSE" value="TRUE"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+  </command_laws>
+
+  <section name="NAV">
+    <define name="ARRIVED_AT_WAYPOINT" value="0.25"/>
+    <define name="NAV_DESCEND_VSPEED" value="-0.4"/>
+    <define name="NAV_CLIMB_VSPEED" value="0.5"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+</airframe>
+

@@ -1,0 +1,36 @@
+<airframe>
+
+
+
+  <!--Info: Tawaki: Auxa1, Apogee: PPMin -->
+  <module name="light_scheduler">
+    <define name="WS2812_NB_LEDS" value="12"/>
+    <define name="WS2812_SEQUENCE" value="2"/>
+  </module>
+
+  <module name="actuators" type="pwm"/>
+  <module name="switch" type="servo"/>
+
+  <module name="extra_dl">
+    <configure name="EXTRA_DL_PORT" value="UART6"/>
+    <configure name="EXTRA_DL_BAUD" value="B115200"/>
+  </module>
+
+  <servos driver="Pwm">
+    <servo name="SWITCH" no="1" min="1000" neutral="1000" max="1900"/>
+  </servos>
+
+  <module name="actuators" type="dshot">
+    <define name="DSHOT_SPEED" value="300"/>
+    <define name="USE_DSHOT_TIM3" value="TRUE"/>
+    <define name="USE_DSHOT6" value="TRUE"/>
+  </module>
+  <servos driver="DShot">
+    <servo name="FR" no="0" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="2" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="6" min="0" neutral="100" max="2000"/>
+  </servos>  
+
+</airframe>
+

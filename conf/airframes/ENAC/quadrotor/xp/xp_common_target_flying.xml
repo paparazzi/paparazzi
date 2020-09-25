@@ -1,0 +1,14 @@
+<airframe>
+
+  <module name="radio_control" type="sbus"/>
+  <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
+
+  <!--module name="tlsf"/>
+  <module name="pprzlog"/>
+  <module name="logger" type="sd_chibios"/>
+  <module name="flight_recorder"/-->
+
+</airframe>
+
+
+

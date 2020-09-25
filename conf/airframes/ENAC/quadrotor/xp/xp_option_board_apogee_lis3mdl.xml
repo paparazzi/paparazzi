@@ -1,0 +1,14 @@
+<firmware>
+
+    <module name="imu" type="apogee">
+      <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="APOGEE_SMPLRT_DIV"     value="1"/>
+    </module>
+
+    <module name="mag_lis3mdl.xml">
+      <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
+      <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c1"/>
+    </module>
+
+</firmware>
+

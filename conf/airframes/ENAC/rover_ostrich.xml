@@ -102,6 +102,8 @@
     <define name="TURN_PGAIN" value="0.3"/>
     <define name="TURN_DGAIN" value="0.1"/>
     <define name="TURN_IGAIN" value="0."/>
+    <define name="MAX_SPEED" value="0.5"/>
+    <define name="ACCEL" value="0.1"/>
   </section>
 
   <section name="MISC">

@@ -64,6 +64,8 @@ struct RoverHoloGuidance {
   struct RoverHoloGuidanceSetpoint sp;    ///< setpoints
   struct RoverHoloGuidancePID speed_pid;  ///< motor speed controller
   struct RoverHoloGuidancePID turn_pid;   ///< turn rate controller
+  float accel;
+  float max_speed;
 };
 
 extern struct RoverHoloGuidance rover_holo_guidance;

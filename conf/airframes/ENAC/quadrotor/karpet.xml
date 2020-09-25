@@ -1,0 +1,188 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Karpet">
+
+  <description>
+    * Autopilot:   Apogee / Chimera
+    * Actuators:   PWM motor controller (DSHOT)
+    * Telemetry:   UDP datalink
+    * GPS:         datalink
+    * RC:          datalink
+  </description>
+
+  <firmware name="rotorcraft">
+    <configure name="OPT" value="0"/>
+    <configure name="PERIODIC_FREQUENCY" value="1000"/>
+    <target name="ap" board="apogee_1.0_chibios"/>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
+    <module name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B115200"/>
+      <configure name="MODEM_PORT" value="UART1"/>
+    </module>
+
+    <module name="actuators" type="dshot">
+      <define name="DSHOT_SPEED" value="300"/>
+    </module>
+
+    <module name="light_scheduler">
+      <define name="WS2812_NB_LEDS" value="12"/>
+    </module>
+
+    <module name="gps" type="datalink">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </module>
+
+    <module name="motor_mixing"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="imu" type="apogee_mpu9150">
+      <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="APOGEE_SMPLRT_DIV"     value="1"/>
+    </module>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="gps_passthrough"/>
+    <module name="stabilization" type="int_quat"/>
+
+  </firmware>
+
+  <servos driver="DShot">
+    <servo name="FR" no="0" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="2" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="5" min="0" neutral="100" max="2000"/>
+  </servos>  
+
+
+  <commands>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TYPE"    value="QUAD_X"/>
+    <define name="REVERSE" value="false"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+  </command_laws>
+
+  
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
+
+    <define name="ACCEL_X_SIGN" value="-1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="-57"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-4"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-192"/>
+    <define name="ACCEL_X_SENS" value="2.46154229935" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.43602916679" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.46158796549" integer="16"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+    <define name="USE_GPS_HEADING"              value="TRUE"/>
+  </section>
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"   value="45."  unit="deg"/>
+    <define name="SP_MAX_THETA" value="45."  unit="deg"/>
+    <define name="SP_MAX_R"     value="90." unit="deg/s"/>
+    <define name="DEADBAND_R"   value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="597"/>
+    <define name="PHI_DGAIN" value="191"/>
+    <define name="PHI_IGAIN" value="35"/>
+
+    <define name="THETA_PGAIN" value="617"/>
+    <define name="THETA_DGAIN" value="191"/>
+    <define name="THETA_IGAIN" value="34"/>
+
+    <define name="PSI_PGAIN" value="806"/>
+    <define name="PSI_DGAIN" value="350"/>
+    <define name="PSI_IGAIN" value="20"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value="69"/>
+    <define name="THETA_DDGAIN" value="69"/>
+    <define name="PSI_DDGAIN"   value="170"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP"  value="125"/>
+    <define name="HOVER_KD"  value="85"/>
+    <define name="HOVER_KI"  value="30"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="REF_MAX_SPEED"  value="0.5" unit="m/s"/>
+    <define name="PGAIN"          value="265"/>
+    <define name="DGAIN"          value="174"/>
+    <define name="IGAIN"          value="20"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL"   value="HOOPERFLY/hooperfly_teensyfly_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE"   value="4"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"   value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"   value="AP_MODE_NAV"/>
+    <define name="ARRIVED_AT_WAYPOINT"   value="0.25"/>
+  </section>
+
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="10.5" unit="V"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+</airframe>
