@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from lxml import etree
-from typing import List
+from typing import List, Union
 import sys
 from xml_utils import get_attrib, get_attrib_default
 
@@ -51,6 +51,7 @@ class FlightPlan:
     @staticmethod
     def parse_waypoints(ways_elt: etree.Element):
         waypoints = []
+        w_no = 1    # first waypoint number is 1.
         for way_e in ways_elt.findall("waypoint"):
             name = get_attrib(way_e, "name")
             x = get_attrib_default(way_e, "x", None, float)
@@ -59,8 +60,9 @@ class FlightPlan:
             lon = get_attrib_default(way_e, "lon", None)
             alt = get_attrib_default(way_e, "alt", None, float)
             height = get_attrib_default(way_e, "height", None, float)
-            waypoint = Waypoint(name, x, y, lat, lon, alt, height)
+            waypoint = Waypoint(name, x, y, lat, lon, alt, height, w_no)
             waypoints.append(waypoint)
+            w_no += 1
         return waypoints
 
     @staticmethod
@@ -85,13 +87,33 @@ class FlightPlan:
             excs.append(exc)
         return excs
 
-    def get_waypoint_no(self, name: str):
-        for wp in self.waypoints:
-            if wp.name == name:
-                return self.waypoints.index(wp) + 1
+    def get_waypoint(self, key: Union[str, int]):
+        """
+        :param key: Waypoint name or number
+        :type key: str or int
+        """
+        if type(key) == str:
+            for wp in self.waypoints:
+                if wp.name == key:
+                    return wp
+        elif type(key) == int:
+            for wp in self.waypoints:
+                if wp.no == key:
+                    return wp
 
-    def get_block_names(self):
-        return [block.name for block in self.blocks]
+    def get_block(self, key: Union[str, int]):
+        """
+        :param key: Block name or number
+        :type key: str or int
+        """
+        if type(key) == str:
+            for block in self.blocks:
+                if block.name == key:
+                    return block
+        elif type(key) == int:
+            for block in self.blocks:
+                if block.no == key:
+                    return block
 
     def get_block_groups(self):
         return list(set(filter(lambda x: x is not None,
@@ -100,15 +122,9 @@ class FlightPlan:
     def get_blocks_from_group(self, groupname):
         return list(filter(lambda block: get_attrib_default(block.xml, "group", None) == groupname, self.blocks))
 
-    def get_block_number(self, block_name):
-        for block in self.blocks:
-            if block.name == block_name:
-                return block.no
-        raise Exception("No block named {}".format(block_name))
-
 
 class Waypoint:
-    def __init__(self, name, x, y, lat, lon, alt, height):
+    def __init__(self, name, x, y, lat, lon, alt, height, no):
         self.name = name
         self.x = x
         self.y = y
@@ -116,6 +132,7 @@ class Waypoint:
         self.lon = lon
         self.alt = alt
         self.height = height
+        self.no = no
 
 
 class Block:
