@@ -2,6 +2,8 @@
 
 from lxml import etree
 from typing import List
+import sys
+from xml_utils import get_attrib, get_attrib_default
 
 
 class FlightPlan:
@@ -19,41 +21,44 @@ class FlightPlan:
         self.security_height = None
         self.alt = None
 
-    def parse(self, fp_xml):
+    @staticmethod
+    def parse(fp_xml):
+        fp = FlightPlan()
         fp_tree = etree.parse(fp_xml)
         fp_element = fp_tree.find("flight_plan")
 
-        self.name = fp_element.attrib["name"]
-        self.lat0 = fp_element.attrib["lat0"]
-        self.lon0 = fp_element.attrib["lon0"]
-        self.max_dist_from_home = fp_element.attrib["max_dist_from_home"]
-        self.ground_alt = fp_element.attrib["ground_alt"]
-        self.security_height = fp_element.attrib["security_height"]
-        self.alt = fp_element.attrib["alt"]
+        fp.name = get_attrib(fp_element, "name")
+        fp.lat0 = get_attrib(fp_element, "lat0")
+        fp.lon0 = get_attrib(fp_element, "lon0")
+        fp.max_dist_from_home = get_attrib(fp_element, "max_dist_from_home")
+        fp.ground_alt = get_attrib(fp_element, "ground_alt")
+        fp.security_height = get_attrib(fp_element, "security_height")
+        fp.alt = get_attrib(fp_element, "alt")
 
         if fp_element.find("header") is not None:
-            self.header = fp_element.find("header").text
+            fp.header = fp_element.find("header").text
 
         ways_elt = fp_element.find("waypoints")
-        self.waypoints = FlightPlan.parse_waypoints(ways_elt)
+        fp.waypoints = FlightPlan.parse_waypoints(ways_elt)
 
         blocks_elt = fp_element.find("blocks")
-        self.blocks = FlightPlan.parse_blocks(blocks_elt)
+        fp.blocks = FlightPlan.parse_blocks(blocks_elt)
 
         excs_elt = fp_element.find("exceptions")
-        self.exceptions = FlightPlan.parse_exceptions(excs_elt)
+        fp.exceptions = FlightPlan.parse_exceptions(excs_elt)
+        return fp
 
     @staticmethod
     def parse_waypoints(ways_elt: etree.Element):
         waypoints = []
         for way_e in ways_elt.findall("waypoint"):
-            name = way_e.attrib["name"]
-            x = way_e.attrib.get("x")
-            y = way_e.attrib.get("y")
-            lat = way_e.attrib.get("lat")
-            lon = way_e.attrib.get("lon")
-            alt = way_e.attrib.get("alt")
-            height = way_e.attrib.get("height")
+            name = get_attrib(way_e, "name")
+            x = get_attrib_default(way_e, "x", None, float)
+            y = get_attrib_default(way_e, "y", None, float)
+            lat = get_attrib_default(way_e, "lat", None)
+            lon = get_attrib_default(way_e, "lon", None)
+            alt = get_attrib_default(way_e, "alt", None, float)
+            height = get_attrib_default(way_e, "height", None, float)
             waypoint = Waypoint(name, x, y, lat, lon, alt, height)
             waypoints.append(waypoint)
         return waypoints
@@ -62,8 +67,8 @@ class FlightPlan:
     def parse_blocks(blocks_elt):
         blocks = []
         for b_e in blocks_elt.findall("block"):
-            name = b_e.attrib["name"]
-            no = b_e.attrib["no"]
+            name = get_attrib(b_e, "name")
+            no = get_attrib(b_e, "no")
             block = Block(name, no, b_e)
             blocks.append(block)
         return blocks
@@ -74,8 +79,8 @@ class FlightPlan:
             return []
         excs = []
         for ex_e in exs_elt.findall("exception"):
-            cond = ex_e.attrib["cond"]
-            deroute = ex_e.attrib["deroute"]
+            cond = get_attrib(ex_e, "cond")
+            deroute = get_attrib(ex_e, "deroute")
             exc = Exc(cond, deroute)
             excs.append(exc)
         return excs
@@ -89,10 +94,11 @@ class FlightPlan:
         return [block.name for block in self.blocks]
 
     def get_block_groups(self):
-        return list(set(filter(lambda x: x is not None, [block.xml.attrib.get("group") for block in self.blocks])))
+        return list(set(filter(lambda x: x is not None,
+                               [get_attrib_default(block.xml, "group", None) for block in self.blocks])))
 
     def get_blocks_from_group(self, groupname):
-        return list(filter(lambda b: b.xml.attrib.get("group") == groupname, self.blocks))
+        return list(filter(lambda block: get_attrib_default(block.xml, "group", None) == groupname, self.blocks))
 
     def get_block_number(self, block_name):
         for block in self.blocks:
@@ -124,3 +130,8 @@ class Exc:
         self.cond = cond
         self.deroute = deroute
 
+
+if __name__ == "__main__":
+    flight_plan = FlightPlan.parse(sys.argv[1])
+    for b in flight_plan.blocks:
+        print(b.name)

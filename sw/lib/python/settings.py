@@ -5,6 +5,7 @@ from typing import List
 import sys
 from os import path, getenv
 import time
+from xml_utils import get_attrib, get_attrib_default
 
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
 sys.path.append(PPRZ_HOME + "/var/lib/python")
@@ -54,12 +55,12 @@ class PprzSettingsParser:
         return parser.parse_dl_settings(sets_element)
 
     def parse_dl_setting(self, element):
-        var = element.attrib["var"]
-        min_v = float(element.attrib["min"])
-        max_v = float(element.attrib["max"])
-        shortname = element.attrib.get("shortname", var)
-        step = float(element.attrib.get("step", 1))
-        values = element.attrib.get("values")
+        var = get_attrib(element, "var")
+        min_v = get_attrib(element, "min", typ=float)
+        max_v = get_attrib(element, "max", typ=float)
+        shortname = get_attrib_default(element, "shortname", var)
+        step = get_attrib_default(element, "step", 1, typ=float)
+        values = get_attrib_default(element, "values", None)
 
         if values is None:
             values = []
@@ -72,16 +73,17 @@ class PprzSettingsParser:
         setting = PprzSetting(var, self.setting_nb, shortname, min_v, max_v, step, values, element)
 
         for e_button in element.findall("strip_button"):
-            name = e_button.attrib["name"]
-            value = e_button.attrib["value"]
-            icon = e_button.attrib.get("icon")
-            group = e_button.attrib.get("group")
+            name = get_attrib(e_button, "name")
+            value = get_attrib(e_button, "value")
+            icon = get_attrib_default(e_button, "icon", None)
+            group = get_attrib_default(e_button, "group", None)
+
             button = StripButton(value, name, icon, group)
             setting.buttons.append(button)
 
         for e_key in element.findall("key_press"):
-            key = e_key.attrib["key"]
-            value = e_key.attrib["value"]
+            key = get_attrib(e_key, "key")
+            value = get_attrib(e_key, "value")
             key_press = KeyPress(key, value)
             setting.key_press.append(key_press)
 
@@ -89,7 +91,7 @@ class PprzSettingsParser:
         return setting
 
     def parse_dl_settings(self, element):
-        name = element.attrib.get("name")
+        name = get_attrib_default(element, "name", None)
         group = PprzSettingsGrp(name)
         for child in element.getchildren():
             if child.tag == "dl_settings":
@@ -215,4 +217,3 @@ if __name__ == "__main__":
 
     # example2 usage: ./setting.py <path_var_AC>/settings.xml <ac_id>
     # example2()
-
