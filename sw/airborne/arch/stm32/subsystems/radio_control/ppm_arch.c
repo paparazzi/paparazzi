@@ -56,7 +56,13 @@
 static uint32_t timer_rollover_cnt;
 
 
-#if USE_PPM_TIM2
+#if USE_PPM_TIM1
+
+PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
+#define PPM_TIMER           TIM1
+#define RCC_TIM_PPM         RCC_TIM1
+
+#elif USE_PPM_TIM2
 
 PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_TIMER           TIM2
@@ -80,17 +86,23 @@ PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
 #define PPM_TIMER           TIM5
 #define RCC_TIM_PPM         RCC_TIM5
 
-#elif USE_PPM_TIM1
-
-PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
-#define PPM_TIMER           TIM1
-#define RCC_TIM_PPM         RCC_TIM1
-
 #elif USE_PPM_TIM8
 
 PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
 #define PPM_TIMER           TIM8
 #define RCC_TIM_PPM         RCC_TIM8
+
+#elif USE_PPM_TIM9
+
+PRINT_CONFIG_MSG("Using TIM9 for PPM input.")
+#define PPM_TIMER           TIM9
+#define RCC_TIM_PPM         RCC_TIM9
+
+#elif USE_PPM_TIM12
+
+PRINT_CONFIG_MSG("Using TIM12 for PPM input.")
+#define PPM_TIMER           TIM12
+#define RCC_TIM_PPM         RCC_TIM12
 
 #else
 #error Unknown PPM input timer configuration.
@@ -232,7 +244,7 @@ void tim1_cc_isr(void) {
   }
 }
 
-#elif USE_PPM_TIM8 && defined(STM32F4)
+#elif USE_PPM_TIM8
 
 #if defined(STM32F1)
 void tim8_up_isr(void) {
@@ -253,6 +265,40 @@ void tim8_cc_isr(void) {
     ppm_decode_frame(now);
   }
 }
+
+#elif USE_PPM_TIM9 && defined(STM32F4)
+
+void tim1_brk_tim9_isr(void)
+{
+  if ((TIM9_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM9, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM9) + timer_rollover_cnt;
+    ppm_decode_frame(now);
+
+  } else if ((TIM9_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
+    timer_clear_flag(TIM9, TIM_SR_UIF);
+  }
+}
+
+#elif USE_PPM_TIM12 && defined(STM32F4)
+
+void tim8_brk_tim12_isr(void)
+{
+  if ((TIM12_SR & PPM_CC_IF) != 0) {
+    timer_clear_flag(TIM12, PPM_CC_IF);
+
+    uint32_t now = timer_get_counter(TIM12) + timer_rollover_cnt;
+    ppm_decode_frame(now);
+
+  } else if ((TIM12_SR & TIM_SR_UIF) != 0) {
+    timer_rollover_cnt += (1 << 16);
+    timer_clear_flag(TIM12, TIM_SR_UIF);
+  }
+}
+
+
 
 #endif /* USE_PPM_TIM1 */
 
