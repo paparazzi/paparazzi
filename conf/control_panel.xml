@@ -285,6 +285,7 @@
       <program name="Joystick">
         <arg flag="-ac" constant="GCS"/>
         <arg flag="T1600M_ground.xml"/>
+        <arg flag="-c"/>
       </program>
       <program name="FC Rotorcraft">
         <arg flag="-gr" constant="ENAC/explorer.json"/>
@@ -390,14 +391,21 @@
       </program>
       <program name="Link Combiner"/>
       <program name="gst-launch-1.0">
-        <arg flag="rtspsrc" constant="location=rtsp://192.168.1.111:8554/test"/>
+        <arg flag="rtspsrc" constant="location=rtsp://192.168.1.112:8554/test"/>
+        <arg flag="!" constant="rtph264depay"/>
+        <arg flag="!" constant="avdec_h264"/>
+        <arg flag="!" constant="xvimagesink"/>
+        <arg flag="sync=false"/>
+      </program>
+      <program name="gst-launch-1.0">
+        <arg flag="rtspsrc" constant="location=rtsp://192.168.1.112:8554/test2"/>
         <arg flag="!" constant="rtph264depay"/>
         <arg flag="!" constant="avdec_h264"/>
         <arg flag="!" constant="xvimagesink"/>
         <arg flag="sync=false"/>
       </program>
       <program name="groundpi">
-        <arg flag="root@groundpi_111" constant="/home/pi/groundpi.sh 192.168.1.236 > /dev/null 2>&1 &"/>
+        <arg flag="root@groundpi_112" constant="/home/pi/groundpi.sh 192.168.1.236 > /dev/null 2>&1 &"/>
       </program>
     </session>
     <session name="Flight UDP/Wifi Joystick">
@@ -554,6 +562,25 @@
         <arg flag="-f" constant="5"/>
       </program>
     </session>
+    <session name="Explorer_115_XBEE">
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="NatNet3">
+        <arg flag="-ac" constant="115"/>
+        <arg flag="115"/>
+        <arg flag="-s" constant="192.168.1.230"/>
+        <arg flag="-f" constant="5"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="Explorer_115"/>
+        <arg flag="T1600M.xml"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+    </session>
     <session name="Swarm Bebop2 211 213">
       <program name="Server"/>
       <program name="Data Link">
@@ -570,7 +597,7 @@
         <arg flag="211"/>
         <arg flag="-ac" constant="213"/>
         <arg flag="213"/>
-        <arg flag="-s" constant="192.168.1.230"/>
+        <arg flag="-s" constant="192.168.1.231"/>
         <arg flag="-f" constant="10"/>
         <arg flag="-gr"/>
       </program>
@@ -603,25 +630,6 @@
         <arg flag="211" constant="5005"/>
         <arg flag="-ns" constant="192.168.1.230"/>
         <arg flag="-ss" constant="192.168.1.237"/>
-      </program>
-    </session>
-    <session name="Explorer_115_XBEE">
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="NatNet3">
-        <arg flag="-ac" constant="115"/>
-        <arg flag="115"/>
-        <arg flag="-s" constant="192.168.1.230"/>
-        <arg flag="-f" constant="5"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-ac" constant="Explorer_115"/>
-        <arg flag="T1600M.xml"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-transport" constant="xbee"/>
-        <arg flag="-s" constant="57600"/>
       </program>
     </session>
     <session name="Flight USB-serial@57600">
