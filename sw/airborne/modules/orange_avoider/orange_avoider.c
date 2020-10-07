@@ -136,8 +136,8 @@ void orange_avoider_periodic(void)
       break;
     case OBSTACLE_FOUND:
       // stop
-      waypoint_set_here_2d(WP_GOAL);
-      waypoint_set_here_2d(WP_TRAJECTORY);
+      waypoint_move_here_2d(WP_GOAL);
+      waypoint_move_here_2d(WP_TRAJECTORY);
 
       // randomly select new search direction
       chooseRandomIncrementAvoidance();
@@ -226,7 +226,7 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
 {
   VERBOSE_PRINT("Moving waypoint %d to x:%f y:%f\n", waypoint, POS_FLOAT_OF_BFP(new_coor->x),
                 POS_FLOAT_OF_BFP(new_coor->y));
-  waypoint_set_xy_i(waypoint, new_coor->x, new_coor->y);
+  waypoint_move_xy_i(waypoint, new_coor->x, new_coor->y);
   return false;
 }
 
