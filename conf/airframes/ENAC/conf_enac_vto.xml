@@ -94,7 +94,7 @@
    airframe="airframes/ENAC/quadrotor/explorer_indi_tawaki_114.xml"
    radio="radios/FrSky_X-Lite.xml"
    telemetry="telemetry/ENAC/explorer_2telem_vto.xml"
-   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_rotation.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_QR_Survey_enac.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/filter_1euro_imu.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="blue"
@@ -105,7 +105,7 @@
    airframe="airframes/ENAC/quadrotor/explorer_indi_115.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_QRInventory_enac.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_QR_Survey_enac.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/filter_1euro_imu.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="#ace2152e152e"
@@ -151,7 +151,7 @@
    telemetry="telemetry/default_rover.xml"
    flight_plan="flight_plans/rover_optitrack.xml"
    settings="settings/rover_basic.xml"
-   settings_modules=""
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/guidance_rover_holonomic.xml modules/imu_common.xml modules/nav_rover_base.xml"
    gui_color="blue"
   />
   <aircraft
