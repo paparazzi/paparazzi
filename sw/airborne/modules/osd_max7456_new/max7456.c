@@ -56,21 +56,6 @@
 #if !defined(MAX7456_SPI_DEV)
 #define MAX7456_SPI_DEV 		spi2
 #endif
-
-#if !defined(MAX7456_SLAVE_IDX)
-#define USE_SPI_SLAVE1			1
-#define MAX7456_SLAVE_IDX		SPI_SLAVE1
-#endif
-
-#elif defined(BOARD_MATEK_F405_WING)
-
-#if !defined(USE_SPI2)
-#define USE_SPI2			1
-#endif
-#if !defined(MAX7456_SPI_DEV)
-#define MAX7456_SPI_DEV 		spi2
-#endif
-
 #if !defined(MAX7456_SLAVE_IDX)
 #define USE_SPI_SLAVE1			1
 #define MAX7456_SLAVE_IDX		SPI_SLAVE1
@@ -85,7 +70,6 @@
 #if !defined(MAX7456_SPI_DEV)
 #define MAX7456_SPI_DEV 		spi3
 #endif
-
 #if !defined(MAX7456_SLAVE_IDX)
 #define USE_SPI_SLAVE0			1
 #define MAX7456_SLAVE_IDX		SPI_SLAVE0
@@ -99,9 +83,8 @@
 #if !defined(MAX7456_SPI_DEV)
 #define MAX7456_SPI_DEV 		spi2
 #endif
-
 #if !defined(MAX7456_SLAVE_IDX)
-#define USE_SPI_SLAVE0			1
+#define USE_SPI_SLAVE1			1
 #define MAX7456_SLAVE_IDX		SPI_SLAVE1
 #endif
 
@@ -113,10 +96,22 @@
 #if !defined(MAX7456_SPI_DEV)
 #define MAX7456_SPI_DEV 		spi1
 #endif
-
 #if !defined(MAX7456_SLAVE_IDX)
 #define USE_SPI_SLAVE0			1
 #define MAX7456_SLAVE_IDX		SPI_SLAVE0
+#endif
+
+#elif defined(BOARD_MATEK_F405_WING)
+
+#if !defined(USE_SPI2)
+#define USE_SPI2			1
+#endif
+#if !defined(MAX7456_SPI_DEV)
+#define MAX7456_SPI_DEV 		spi2
+#endif
+#if !defined(MAX7456_SLAVE_IDX)
+#define USE_SPI_SLAVE1			1
+#define MAX7456_SLAVE_IDX		SPI_SLAVE1
 #endif
 
 #if !defined(USE_PAL_FOR_OSD_VIDEO)
@@ -442,6 +437,7 @@ return;
 static void draw_osd_flying_screen(void){
 
 float temp = 0;
+
 //uint8_t pitch = 0;
 struct FloatEulers* att = stateGetNedToBodyEulers_f();
 struct EnuCoor_f* pos = stateGetPositionEnu_f();
@@ -459,6 +455,8 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 // I HAVE TRIED TO USE ALL DIFFERENT COMBINATIONS IN THE BELOW CODE.
 #if USE_PAL_FOR_OSD_VIDEO
 #pragma message "OSD USES PAL"
+
+
    switch (step){
 
           case (0):
@@ -550,18 +548,18 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           case (80):
                if(DegOfRad(att->theta) > 2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 9, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 5, 15);
  
-               }else{ osd_put_s("    ", C_JUST, 5, 9, 15); }
+               }else{ osd_put_s("    ", C_JUST, 5, 5, 15); }
                step = 90;
           break;
 
           case (90):
                if(DegOfRad(att->theta) < -2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 5, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 9, 15);
  
-               }else{ osd_put_s("   ", C_JUST, 5, 5, 15); }
+               }else{ osd_put_s("   ", C_JUST, 5, 9, 15); }
                step = 100;
           break;
 
@@ -610,22 +608,13 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 #endif
           
 
-/*
-          case (122):
-               if (max7456_osd_status == OSD_IDLE && osd_stat_reg_valid == TRUE){
-                  if ( (osd_stat_reg & (OSD_PAL_DETECTED|OSD_NTSC_DETECTED)) == 0 ){ 
-                     osd_put_s("NO VIDEO", L_JUST|BLINK|INVERT, 8, 3, 1); 
 
-                  }else{ osd_put_s("           ", FALSE, 8, 3, 1); }
-               }
-               step = 10;
-          break;
-*/
           default:	step = 10; break;
    }
 
 #else // IF NTSC IS USED WE HAVE ONLY 13 ROWS NOT 15
 #pragma message "OSD USES NTSC"
+
 
    switch (step){
 
@@ -673,12 +662,12 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           break;
 
           case (40):
-               osd_sprintf(osd_string, "%.0f Km", (state.h_speed_norm_f*3.6));
+               osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
                osd_put_s(osd_string, R_JUST, 6, 0, 29);
                step = 41; 
           break;
           case (41):
-               osd_sprintf(osd_string, "%.0fThr", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
+               osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
                osd_put_s(osd_string, R_JUST, 5, 1, 29);
                step = 50;
           break;
@@ -690,18 +679,18 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
                osd_sprintf(osd_string, "%.0fm", BARO_ALTITUDE_VAR );
 #else
 #warning OSD USES THE DEFAULT BARO ALTITUDE VARIABLE
-               osd_sprintf(osd_string, "%.0fm", baro_alt );
+               osd_sprintf(osd_string, "%.0fM", baro_alt );
 #endif
 #else
 #pragma message "ALTITUDE IS COMING FROM GPS"
-               osd_sprintf(osd_string, "%.0fm", GetPosAlt() );
+               osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
 #endif
                osd_put_s(osd_string, L_JUST, 6, 12, 1); // "FALSE = L_JUST
                step = 60;
           break;
 
           case (60):
-               osd_sprintf(osd_string, "%.0fm", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 12, 16);
                step = 70;
           break; 
@@ -718,18 +707,18 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           case (80):
                if(DegOfRad(att->theta) > 2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 9, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 5, 15);
  
-               }else{ osd_put_s("    ", C_JUST, 5, 9, 15); }
+               }else{ osd_put_s("    ", C_JUST, 5, 5, 15); }
                step = 90;
           break;
 
           case (90):
                if(DegOfRad(att->theta) < -2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 5, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 9, 15);
  
-               }else{ osd_put_s("   ", C_JUST, 5, 5, 15); }
+               }else{ osd_put_s("   ", C_JUST, 5, 9, 15); }
                step = 100;
           break;
 
@@ -768,7 +757,7 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
        
           case (122):
                if (sonar_adc.distance < 8.0){
-                  osd_sprintf(osd_string, "S%.2fm", sonar_adc.distance );
+                  osd_sprintf(osd_string, "S%.2fM", sonar_adc.distance );
                   osd_put_s(osd_string, C_JUST, 6, 11, 1); 
 
                }else{ osd_put_s("        ", FALSE, 6, 11, 15); }
@@ -792,6 +781,7 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           default:	step = 10; break;
    }
 #endif
+
 
 return;
 }
@@ -821,6 +811,8 @@ return;
 
 /*44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444*/
 static char ascii_to_osd_c(char c){
+
+return(c);
 
 if (c >= '0' && c <= '9'){
    if (c == '0'){ c -= 38; }else{  c -= 48; }
