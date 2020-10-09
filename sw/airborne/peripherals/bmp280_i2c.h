@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
- *
+ * 
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -20,7 +19,7 @@
 
 /**
  * @file peripherals/bmp280_i2c.h
- * @brief Sensor driver for BMP3 sensor via I2C
+ * @brief Sensor driver for BMP280 sensor via I2C
  *
  * Modified for Paparazzi from SDP3 driver from BoshSensortec
  * see https://github.com/BoschSensortec/BMP3-Sensor-API

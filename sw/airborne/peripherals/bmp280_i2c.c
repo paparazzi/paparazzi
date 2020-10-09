@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
- *
+ * 
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
