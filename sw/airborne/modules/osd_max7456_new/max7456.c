@@ -453,6 +453,9 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 // row = OSD ROW NUMBER
 // column = OSD COLUMN NUMBER
 // I HAVE TRIED TO USE ALL DIFFERENT COMBINATIONS IN THE BELOW CODE.
+//************************************ P A L *********************************//
+//************************************ P A L *********************************//
+//************************************ P A L *********************************//
 #if USE_PAL_FOR_OSD_VIDEO
 #pragma message "OSD USES PAL"
 
@@ -612,6 +615,9 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           default:	step = 10; break;
    }
 
+//************************************ N T S C *********************************//
+//************************************ N T S C *********************************//
+//************************************ N T S C *********************************//
 #else // IF NTSC IS USED WE HAVE ONLY 13 ROWS NOT 15
 #pragma message "OSD USES NTSC"
 
@@ -619,7 +625,7 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
    switch (step){
 
           case (0):
-               osd_put_s("HDG", FALSE, 3, 0, 14);
+               osd_put_s("HDG", FALSE, 3, 1, 14);
                step = 1;
           break;
           case (1):
@@ -637,10 +643,10 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           break;
 
           case (20):
-               temp = ((float)electrical.vsupply)/10;
+               temp = ((float)electrical.vsupply);
                osd_sprintf(osd_string, "%.1fV", temp );
                if (temp > LOW_BAT_LEVEL){
-                  osd_put_s(osd_string, L_JUST, 5, 0, 1);
+                  osd_put_s(osd_string, L_JUST, 5, 1, 2);
 
                }else{ osd_put_s(osd_string, L_JUST|BLINK|INVERT, 5, 0, 1); }
                step = 30;
@@ -657,18 +663,18 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
                if (temp < 0){ temp += 360; } 
 #endif
                osd_sprintf(osd_string, "%.0f", temp);
-               osd_put_s(osd_string, C_JUST, 3, 1, 15);
+               osd_put_s(osd_string, C_JUST, 3, 2, 15);
                step = 40;
           break;
 
           case (40):
                osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
-               osd_put_s(osd_string, R_JUST, 6, 0, 29);
+               osd_put_s(osd_string, R_JUST, 6, 1, 29);
                step = 41; 
           break;
           case (41):
                osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
-               osd_put_s(osd_string, R_JUST, 5, 1, 29);
+               osd_put_s(osd_string, R_JUST, 5, 2, 29);
                step = 50;
           break;
 
