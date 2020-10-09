@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Chris Efstathiou hendrixgr@gmail.com
  *
  * This file is part of paparazzi.
  *
@@ -20,10 +20,10 @@
  */
 
 /**
- * @file modules/sensors/baro_bmp3.h
+ * @file modules/sensors/baro_bmp280.h
  * Bosch BMP280 I2C sensor interface.
  *
- * This reads the values for pressure and temperature from the Bosch BMP3 sensor through I2C.
+ * This reads the values for pressure and temperature from the Bosch BMP280 sensor through I2C.
  */
 
 #ifndef BARO_BMP280_H
