@@ -76,6 +76,10 @@
 #define BARO_BMP3_SENDER_ID 20
 #endif
 
+#ifndef BARO_BMP280_SENDER_ID
+#define BARO_BMP280_SENDER_ID 22
+#endif
+
 #ifndef METEO_STICK_SENDER_ID
 #define METEO_STICK_SENDER_ID 30
 #endif
