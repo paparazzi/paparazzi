@@ -1,8 +1,8 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# omnibus_f4_aio.makefile
-#
-# https://www.openpilot.org/products/openpilot-revolution-platform/
+# matek_f405_wing_v1.makefile
+# http://www.mateksys.com/?portfolio=f405-wing
+# 
 #
 
 BOARD=matek_f405_wing
