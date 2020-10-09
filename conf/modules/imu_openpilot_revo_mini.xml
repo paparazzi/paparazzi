@@ -1,0 +1,66 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_openpilot_revo_mini" dir="imu">
+  <doc>
+    <description>
+      Driver for IMU on OpenPilot Revo board.
+      - Accelerometer/Gyroscope: MPU6000 via SPI1
+      - Magnetometer: HMC58xx via I2C1
+      The IMU positive X-axis is as inidcated with arrows on the board,
+      Z-axis is negative towards the side of the MPU and LEDs (that side is up).
+      If ACCEL and GYRO SENS/NEUTRAL are not defined, the defaults from the datasheet will be used.
+    </description>
+    <section name="IMU" prefix="IMU_">
+    <define name="MAG_X_NEUTRAL" value="513"/>
+    <define name="MAG_Y_NEUTRAL" value="-122"/>
+    <define name="MAG_Z_NEUTRAL" value="244"/>
+
+    <define name="MAG_X_SENS" value="4.40279806863" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.83593672855" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.3880900598" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_mpu6000_hmc5883.h" dir="subsystems/imu"/>
+  </header>
+  <init fun="imu_mpu_hmc_init()"/>
+  <periodic fun="imu_mpu_hmc_periodic()"/>
+  <event fun="imu_mpu_hmc_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <!-- HMC is on I2C1 on OpenPilot Revolution -->
+    <define name="IMU_HMC_I2C_DEV" value="i2c1"/>
+    <define name="USE_I2C1"/>
+    <!-- MPU600 is on SPI1 using SPI_SLAVE_2 as defined in openpilot_revo_1.0.h -->
+    <define name="IMU_MPU_SPI_DEV" value="spi1"/>
+    <define name="USE_SPI1"/>
+    <define name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+    <define name="USE_SPI_SLAVE2"/>
+
+    <!-- set channels and signs so that positive x-axis is indicated by arrows on board
+         and the side with MPU and LEDs is up (negative z-axis)-->
+    <define name="IMU_MPU_CHAN_X" value="1"/>
+    <define name="IMU_MPU_CHAN_Y" value="0"/>
+    <define name="IMU_MPU_CHAN_Z" value="2"/>
+    <define name="IMU_MPU_X_SIGN" value="-1"/>
+    <define name="IMU_MPU_Y_SIGN" value="-1"/>
+    <define name="IMU_MPU_Z_SIGN" value="-1"/>
+    <define name="IMU_HMC_CHAN_X" value="1"/>
+    <define name="IMU_HMC_CHAN_Y" value="0"/>
+    <define name="IMU_HMC_CHAN_Z" value="2"/>
+    <define name="IMU_HMC_X_SIGN" value="1"/>
+    <define name="IMU_HMC_Y_SIGN" value="1"/>
+    <define name="IMU_HMC_Z_SIGN" value="-1"/>
+
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
+
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_spi.c" dir="peripherals"/>
+    <file name="hmc58xx.c" dir="peripherals"/>
+    <file name="imu_mpu6000_hmc5883.c" dir="subsystems/imu"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+</module>
