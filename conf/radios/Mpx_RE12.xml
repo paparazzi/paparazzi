@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<!-- $Id: openTX_radio_8ch.xml, Oct 2020
+<!-- $Id: RE12_ppmenc_mode5_easyglider.xml,v 1 2008/12/21 9:50:00
 --
 -- (c) 2003 Pascal Brisset, Antoine Drouin
---     Edited by Chris Efstathiou 2008 - 2020
+--     Edited by Chris Efstathiou 2008
 -- This file is part of paparazzi.
 --
 -- paparazzi is free software; you can redistribute it and/or modify
@@ -40,13 +40,13 @@
 -->
 <!DOCTYPE radio SYSTEM "/radio.dtd">
 <radio name="X8_OPEN9X" data_min="700" data_max="2200" sync_min="2500" sync_max="18000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="ROLL"		min="988" neutral="1500" max="2012" average="0"/>
+  <channel ctl="C" function="ROLL"		min="988" neutral="1500" max="2012" average="0"/>
   <channel ctl="B" function="PITCH"		min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="C" function="THROTTLE"		min="988" neutral="988"  max="2012" average="0"/>
-  <channel ctl="D" function="YAW"		min="988" neutral="1500" max="2012" average="0"/>  
-  <channel ctl="E" function="MODE"		min="988" neutral="1500" max="2012" average="10"/>
+  <channel ctl="D" function="THROTTLE"		min="950" neutral="950"  max="2050" average="0"/>
+  <channel ctl="A" function="YAW"		min="988" neutral="1500" max="2012" average="0"/>  
+  <channel ctl="G" function="MODE"		min="988" neutral="1500" max="2012" average="10"/>
   <channel ctl="E" function="PARACHUTE"		min="988" neutral="988" max="2012" average="10"/>
-  <channel ctl="F" function="AUX1"		min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="G" function="AUX2"		min="988" neutral="1500" max="2012" average="0"/>
-</radio>
+  <channel ctl="H" function="CAM_PAN"		min="988" neutral="1500" max="2012" average="0"/>
+  <channel ctl="I" function="CAM_TILT"		min="988" neutral="1500" max="2012" average="0"/>
+ </radio>
   
