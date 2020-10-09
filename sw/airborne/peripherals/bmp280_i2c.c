@@ -35,15 +35,9 @@
  */
 static void parse_sensor_data(struct Bmp280_I2c *bmp);
 static void parse_calib_data(struct Bmp280_I2c *bmp);
-#if (defined(BMP280_COMPENSATION) && BMP280_COMPENSATION == BMP280_DOUBLE_PRECISION_COMPENSATION)
 PRINT_CONFIG_MSG("BMP280 uses double precision compensation")
 static double compensate_pressure(struct Bmp280_I2c *bmp);
 static double  compensate_temperature(struct Bmp280_I2c *bmp);
-#else
-PRINT_CONFIG_MSG("BMP280 uses integer compensation")
-static int32_t compensate_pressure(struct Bmp280_I2c *bmp);
-static int32_t  compensate_temperature(struct Bmp280_I2c *bmp);
-#endif
 
 int64_t t_fine;
 
@@ -215,8 +209,6 @@ return;
  * @brief This internal API is used to compensate the raw temperature data and
  * return the compensated temperature data in float data type.
  */
-#if (defined(BMP280_COMPENSATION) && BMP280_COMPENSATION == BMP280_DOUBLE_PRECISION_COMPENSATION)
-#pragma message "BARO USES DOUBLE PRECISION COMPENSATION"
 static double compensate_temperature(struct Bmp280_I2c *bmp)
 {
 
@@ -263,50 +255,4 @@ static double compensate_pressure(struct Bmp280_I2c *bmp)
   return(p);
 }
 
-#else
-#pragma message "BARO USES INTEGER COMPENSATION"
 
-// Returns temperature in DegC, resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
-// t_fine carries fine temperature as global value
-
-int32_t compensate_temperature(struct Bmp280_I2c *bmp)
-{
-int32_t var1, var2, T;
-
-var1 = ( (((bmp->raw_temperature>>3)-((int32_t)(bmp->calib.dig_t1)<<1))) * ((int32_t)(bmp->calib.dig_t2)) ) >> 11;
-var2 = (((((bmp->raw_temperature>>4)-((int32_t)bmp->calib.dig_t1)) * ((bmp->raw_temperature>>4)-((int32_t)bmp->calib.dig_t1))) >> 12) * ((int32_t)bmp->calib.dig_t3)) >> 14;
-t_fine = var1 + var2;
-T = (t_fine * 5 + 128) >> 8;
-bmp->temperature = (uint32_t)T;
-
-return T;
-}
-
-
-// Returns pressure in Pa as unsigned 32 bit integer. Output value of “96386” equals 96386 Pa = 963.86 hPa
-int32_t compensate_pressure(struct Bmp280_I2c *bmp)
-{
-int32_t var1, var2;
-uint32_t p;
-
-var1 = (((int32_t)t_fine)>>1)-(int32_t)64000;
-var2 = (((var1>>2)*(var1>>2)) >> 11 )*((int32_t)bmp->calib.dig_p6);
-var2 = var2+((var1*((int32_t)bmp->calib.dig_p5))<<1);
-var2 = (var2>>2)+(((int32_t)bmp->calib.dig_p4)<<16);
-var1 = (((bmp->calib.dig_p3*(((var1>>2)*(var1>>2)) >> 13 )) >> 3)+((((int32_t)bmp->calib.dig_p2)*var1)>>1))>>18;
-var1 =((((32768+var1))*((int32_t)bmp->calib.dig_p5))>>15);
-if (var1 == 0){ return 0; } // avoid exception caused by division by zero
-p = (((uint32_t)(((int32_t)1048576)-(int32_t)bmp->raw_pressure)-(var2>>12)))*3125;
-if (p < 0x80000000){
-   p = (p << 1) / ((uint32_t)var1);
-
-}else{  p = (p/(uint32_t)var1)*2; }
-var1 = (((int32_t)bmp->calib.dig_p9)*((int32_t)(((p>>3)*(p>>3))>>13)))>>12;
-var2 = (((int32_t)(p>>2))*((int32_t)bmp->calib.dig_p8))>>13;
-p = (uint32_t)((int32_t)p+((var1 + var2+bmp->calib.dig_p7) >> 4));
-bmp->pressure = p;
-
-return p;
-}
-
-#endif
