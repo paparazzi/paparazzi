@@ -62,6 +62,21 @@
 #define MAX7456_SLAVE_IDX		SPI_SLAVE1
 #endif
 
+#elif defined(BOARD_MATEK_F405_WING)
+
+#if !defined(USE_SPI2)
+#define USE_SPI2			1
+#endif
+#if !defined(MAX7456_SPI_DEV)
+#define MAX7456_SPI_DEV 		spi2
+#endif
+
+#if !defined(MAX7456_SLAVE_IDX)
+#define USE_SPI_SLAVE1			1
+#define MAX7456_SLAVE_IDX		SPI_SLAVE1
+#endif
+
+
 #elif defined(BOARD_REVO_MINI)
 
 #if !defined(USE_SPI3)
