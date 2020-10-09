@@ -1,11 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- Twinjet Multiplex (http://www.multiplex-rc.de/)
-     Twog v1 board (http://wiki.paparazziuav.org/wiki/Twog_v1)
-     PerkinElmer TPS334 IR Sensors
-     Aligned infrared sensor
-     XBee modem with AT firmware
-     LEA 5H GPS
+<!-- Easystar glider from Multiplex (http://www.multiplex-rc.de/)
+     BOARD = Matek f405 Wing
+     IMU = MPU6000
+     BARO = BMP280
 -->
 
 <airframe name="Easystar">
@@ -30,7 +28,7 @@
 	<define name="BAROMETER_AVAILABLE" value="0" />
 
  	<module name="telemetry" type="transparent">  
-              <configure name="MODEM_BAUD" value="B57600"/>  
+              <configure name="MODEM_BAUD" value="B19200"/>  
               <configure name="MODEM_PORT" value="UART6 "/>
 <!--          <configure name="MODEM_LED"  value="1"/>  -->
         </module>
@@ -69,7 +67,6 @@
 		<define name="BMP280_SYNC_SEND"/>
 		<configure name="BMP280_I2C_DEV" value="i2c1" />
 		<configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" /> 
-		<define name="BMP280_COMPENSATION" value="BMP280_DOUBLE_PRECISION_COMPENSATION" />  
 	</module>
 
 	<module name="osd_max7456_new.xml"> 
