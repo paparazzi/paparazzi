@@ -445,6 +445,22 @@ struct EnuCoor_f* pos = stateGetPositionEnu_f();
 float ph_x = waypoints[WP_HOME].x - pos->x;
 float ph_y = waypoints[WP_HOME].y - pos->y;
 
+#if defined(OSD_CHECK_CHARACTER_SET) && OSD_CHECK_CHARACTER_SET == 1
+#warning OSD_in CHECK_CHARACTER_SET MODE
+
+char osd_charset[OSD_STRING_SIZE]= {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,'\0' };
+uint8_t x = 0;
+static uint8_t y=0, line=0;
+
+               if (line <= 14){ 
+                  for(x=0; x<28; x++) { osd_charset[x]=y++; }
+                  osd_charset[x]=0xff;
+                  line++;
+                  osd_put_s(osd_charset, FALSE, 27, line, 1);
+               }  
+               return;
+#endif
+
 // osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column)
 //attributes =  BLINK, INVERT, C_JUST (Center Justified), R_JUST (Right Justified)
 // L_JUST (Left Justified) which is also the default behavior, same as attribute FALSE or 0
@@ -506,12 +522,12 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
           break;
 
           case (40):
-               osd_sprintf(osd_string, "%.0f Km", (state.h_speed_norm_f*3.6));
+               osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
                osd_put_s(osd_string, R_JUST, 6, 1, 29);
                step = 41; 
           break;
           case (41):
-               osd_sprintf(osd_string, "%.0fThr", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
+               osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
                osd_put_s(osd_string, R_JUST, 5, 2, 29);
                step = 50;
           break;
@@ -527,14 +543,14 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 #endif
 #else
 #pragma message "ALTITUDE IS COMING FROM GPS"
-               osd_sprintf(osd_string, "%.0fm", GetPosAlt() );
+               osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
 #endif
                osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
                step = 60;
           break;
 
           case (60):
-               osd_sprintf(osd_string, "%.0fm", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 14, 16);
                step = 70;
           break; 
@@ -601,7 +617,7 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
        
           case (122):
                if (sonar_adc.distance < 8.0){
-                  osd_sprintf(osd_string, "S%.2fm", sonar_adc.distance );
+                  osd_sprintf(osd_string, "S%.2fM", sonar_adc.distance );
                   osd_put_s(osd_string, C_JUST, 6, 13, 1); 
 
                }else{ osd_put_s("        ", FALSE, 6, 4, 15); }
@@ -623,7 +639,6 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 
 
    switch (step){
-
           case (0):
                osd_put_s("HDG", FALSE, 3, 1, 14);
                step = 1;
@@ -818,7 +833,12 @@ return;
 /*44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444*/
 static char ascii_to_osd_c(char c){
 
+#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
+#warning OSD USES THE CUSTOM MATEK TYPE OSD CHIP
+
 return(c);
+
+#else
 
 if (c >= '0' && c <= '9'){
    if (c == '0'){ c -= 38; }else{  c -= 48; }
@@ -854,6 +874,8 @@ if (c >= 'a' && c <= 'z'){
      }
 
 return(c);
+
+#endif
 }                       
 
 /*55555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555*/
