@@ -155,6 +155,7 @@
 /*************************   PRIVATE FUNCTION PROTOTYPES    *******************************/
 /******************************************************************************************/
 static char ascii_to_osd_c( char c);
+static void osd_put_c(char c , uint8_t attributes, uint8_t row, uint8_t column);
 static void osd_put_s(char *string,  uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column);
 static bool _osd_sprintf(char* buffer, char* string, float value);
 static void check_osd_status(void);
@@ -192,6 +193,10 @@ enum max7456_osd_status_codes{
      OSD_INIT4,
      OSD_READ_STATUS,
      OSD_IDLE,
+     OSD_C_STEP1,
+     OSD_C_STEP2,
+     OSD_C_STEP3,
+     OSD_C_STEP4,
      OSD_S_STEP1,
      OSD_S_STEP2,
      OSD_S_STEP3,
@@ -409,6 +414,36 @@ if (max7456_trans.status == SPITransSuccess) {
                     }
           break;  
 
+          case (OSD_C_STEP1):
+               max7456_trans.input_length = 0;
+               max7456_trans.output_length = 2;
+               max7456_trans.output_buf[0] = OSD_DMAL_REG;
+               max7456_trans.output_buf[1] = (uint8_t)(osd_char_address);
+               max7456_osd_status = OSD_C_STEP2;
+               spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+          break;
+          
+          case (OSD_C_STEP2): 
+               max7456_trans.output_length = 2;
+               max7456_trans.output_buf[0] = OSD_DMM_REG;
+                max7456_trans.output_buf[1] = OSD_AUTO_INCREMENT_MODE | osd_attr;
+               max7456_osd_status = OSD_C_STEP3;
+               spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+          break;
+          case (OSD_C_STEP3):  
+               max7456_trans.output_length = 1; //1 byte tranfers, auto address incrementing.
+               max7456_trans.output_buf[0] = osd_char;
+               spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+               max7456_osd_status = OSD_C_STEP4;
+           break;  
+          case (OSD_C_STEP4):  
+               max7456_trans.output_length = 1; //1 byte tranfers, auto address incrementing.
+               max7456_trans.output_buf[0] = 0xFF; //Exit the auto increment mode
+               spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+               max7456_osd_status = OSD_FINISHED;
+           break;  
+
+
           case (OSD_READ_STATUS):
                osd_stat_reg = max7456_trans.input_buf[0];
                osd_stat_reg_valid = TRUE;
@@ -448,7 +483,7 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
 #if defined(OSD_CHECK_CHARACTER_SET) && OSD_CHECK_CHARACTER_SET == 1
 #warning OSD_in CHECK_CHARACTER_SET MODE
 
-char osd_charset[OSD_STRING_SIZE]= {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,'\0' };
+char osd_charset[OSD_STRING_SIZE]= {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,'\0' };
 uint8_t x = 0;
 static uint8_t y=0, line=0;
 
@@ -550,9 +585,17 @@ static uint8_t y=0, line=0;
           break;
 
           case (60):
+#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
+               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER!!!!
+               osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_put_s(osd_string, C_JUST, 6, 13, 16);
+#else
                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 14, 16);
                step = 70;
+#endif
+
+
           break; 
 
           case (70):
@@ -563,7 +606,6 @@ static uint8_t y=0, line=0;
           // A Text PFD as graphics are not the strong point of the MAX7456 
           // In order to level the aircraft while fpving 
           // just move the stick to the opposite direction from the angles shown on the osd
-          // and that's why positive pitch (UP) is shown below the OSD center
           case (80):
                if(DegOfRad(att->theta) > 2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
@@ -644,7 +686,9 @@ static uint8_t y=0, line=0;
                step = 1;
           break;
           case (1):
+#if !defined USE_MATEK_TYPE_OSD_CHIP || USE_MATEK_TYPE_OSD_CHIP == 0
                osd_put_s("DISTANCE", FALSE, 8, 11, 12);
+#endif
                step = 10;
           break; 
 
@@ -711,8 +755,14 @@ static uint8_t y=0, line=0;
           break;
 
           case (60):
+#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
+               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+               osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_put_s(osd_string, C_JUST, 6, 11, 16);
+#else
                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 12, 16);
+#endif
                step = 70;
           break; 
 
@@ -948,8 +998,30 @@ if (max7456_osd_status == OSD_IDLE){
 return;
 }
 
+//66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666//
+static void osd_put_c(char c , uint8_t attributes, uint8_t row, uint8_t column){
 
-/*66666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666*/
+if (row > 15){ column = 15; }
+if (column > 29){ column = 29; }
+ 
+osd_char_address = ((uint16_t)row*30) + column;
+osd_attr = (attributes & (BLINK|INVERT)); 
+osd_char = c;
+//TRIGGER THE SPI TRANSFERS. The rest of the spi transfers occur in the "max7456_event" function.
+if (max7456_osd_status == OSD_IDLE){
+    max7456_trans.output_length = 2;
+    max7456_trans.output_buf[0] = OSD_DMAH_REG;
+    max7456_trans.output_buf[1] = (uint8_t)((osd_char_address>>8) & 0x0001);
+    max7456_osd_status = OSD_C_STEP1;
+    spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+
+}
+
+return;
+}
+
+
+//77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777//
 // A VERY VERY STRIPED DOWN sprintf function suitable only for the paparazzi OSD.
 static bool _osd_sprintf(char* buffer, char* string, float value){
 
@@ -963,20 +1035,45 @@ uint16_t i_dec = 0;
 uint16_t i_frac = 0;
 
 char to_asc[10] = {48,48,48,48,48,48,48,48,48,48};
+char string_buf[OSD_STRING_SIZE];
 
 // Clear the osd string.
 for (x=0; x < sizeof(osd_string); x++){ osd_string[x] = 0; }
+for (x=0; x < sizeof(string_buf); x++){ string_buf[x] = 0; }
+
+//copy the string passed as parameter to a buffer
+for (x=0; x < sizeof(string_buf); x++){ string_buf[x] = *(string+x); if(string_buf[x] == '\0') break; }
 x = 0;
+param_start = 0;
+param_end = 0;
+//Now check for any special character
+while (string_buf[x] != '\0'){
+      if (string_buf[x] == '%'){ if(string_buf[x+1] == 'c'){ (param_start = x+2); param_end = x+4; break; } }
+      x++;
+}
+if (param_end-param_start){
+   //load the special character value where the % character was
+   string_buf[x] = ((string_buf[param_start]-48)*100) + ((string_buf[param_start+1]-48)*10) + (string_buf[param_start+2]-48); 
+   x++; // increment x to the next character which should be the 'c' character
+}
+
+//Move the rest of the buffer forward so only the special character remains.
+for (y=(x+4); y<=sizeof(string_buf); y++){ string_buf[x++] = string_buf[y]; }
+    
+x = 0;
+y = 0;
+param_start = 0;
+param_end = 0;
 // Search for the prameter start and stop positions.
-while (*(string+x) != '\0'){
-      if (*(string+x) == '%'){
+while ( string_buf[x] != '\0'){
+      if ( string_buf[x] == '%'){
          param_start = x; 
 
-      }else if (*(string+x) == 'f'){ param_end = x; break; }
+      }else if ( string_buf[x] == 'f'){ param_end = x; break; }
       x++;
 }
 // find and bound the precision specified.
-frac_nb = *(string+param_end-1) - 48; // Convert to number, ASCII 48 = '0'
+frac_nb =  string_buf[param_end-1] - 48; // Convert to number, ASCII 48 = '0'
 if(frac_nb > 3){ frac_nb = 3; }       // Bound value.
 
 y = (sizeof(to_asc)- 1); // Point y to the end of the array.
@@ -1014,7 +1111,7 @@ do{
 
 // Fill the buffer with the characters in the beggining of the string if any.
 for (x=0; x<param_start; x++){
-    *(buffer+x) = *(string+x);
+    *(buffer+x) = string_buf[x];
 }
 
 // x is now pointing to the next character in osd_string. 
@@ -1027,14 +1124,14 @@ while (y < sizeof(to_asc)){
 // "param_end" is pointing to the last format character in the string.
 do{
      param_end++; 
-     *(buffer + x++) = *(string+param_end);
+     *(buffer + x++) = string_buf[param_end];
 
-  }while(*(string+param_end) != '\0'); //Write the rest of the string including the terminating char.
+  }while(string_buf[param_end] != '\0'); //Write the rest of the string including the terminating char.
 
 
 return(0);
 }
-
+//888888888888888888888888888888888888888888888888888888888888888888888888888888888888888//
 static void check_osd_status(void){
 
 osd_stat_reg_valid = FALSE;
