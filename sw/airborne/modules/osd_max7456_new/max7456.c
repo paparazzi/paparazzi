@@ -757,6 +757,7 @@ static uint8_t y=0, line=0;
           case (60):
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
                osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 11, 16);
 #else
