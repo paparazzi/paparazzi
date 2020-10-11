@@ -749,7 +749,7 @@ static uint8_t y=0, line=0;
 #if OSD_USE_BARO_ALTITUDE && !defined(SITL)
 #pragma message "OSD ALTITUDE IS COMING FROM BAROMETER"
 #if defined BARO_ALTITUDE_VAR
-               osd_sprintf(osd_string, "%.0fm", BARO_ALTITUDE_VAR );
+               osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR );
 #else
 #warning OSD USES THE DEFAULT BARO ALTITUDE VARIABLE
                osd_sprintf(osd_string, "%.0fM", baro_alt );
@@ -765,8 +765,12 @@ static uint8_t y=0, line=0;
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
                // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-               osd_sprintf(osd_string, "%c191%.0f", home_direction() );
+               osd_sprintf(osd_string, "%191c%.0f", home_direction() );
                osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+#else
+               osd_sprintf(osd_string, "H%.0f", home_direction() );
+               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+
 #endif
                step = 60;
           break;
@@ -775,11 +779,11 @@ static uint8_t y=0, line=0;
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
                // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-               osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 11, 15);
+               osd_sprintf(osd_string, "%160c%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_put_s(osd_string, C_JUST, 6, 12, 15);
 #else
                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 12, 16);
+               osd_put_s(osd_string, C_JUST, 6, 12, 15);
 #endif
                step = 70;
           break; 
@@ -1064,20 +1068,28 @@ for (x=0; x < sizeof(string_buf); x++){ string_buf[x] = *(string+x); if(string_b
 x = 0;
 param_start = 0;
 param_end = 0;
-//Now check for any special character
-while (string_buf[x] != '\0'){
-      if (string_buf[x] == '%'){ if(string_buf[x+1] == 'c'){ (param_start = x+2); param_end = x+4; break; } }
+//do {
+      //Now check for any special character
+      while (string_buf[x] != '\0'){
+      // EXAMPLE: in "%160c"x is '%' x+4 = 'c' and x+1='1', x+2='6' and x+3='0'
+      if (string_buf[x] == '%'){ if(string_buf[x+4] == 'c'){ (param_start = x+1); param_end = x+3; break; } }
       x++;
-}
-if (param_end-param_start){
-   //load the special character value where the % character was
-   string_buf[x] = ((string_buf[param_start]-48)*100) + ((string_buf[param_start+1]-48)*10) + (string_buf[param_start+2]-48); 
-   x++; // increment x to the next character which should be the 'c' character
-}
+      }
+      if (param_end-param_start){
+         //load the special character value where the % character was
+         string_buf[x] = ((string_buf[param_start]-48)*100) + ((string_buf[param_start+1]-48)*10) + (string_buf[param_start+2]-48); 
+         x++; // increment x to the next character which should be the first special character's digit
+         //Move the rest of the buffer forward so only the special character remains,
+         // for example in %170c '%' now has the special character's code and x now points to '1'
+         // which will be overwritten with the rest of the string after the 'c' 
+         for (y=(x+4); y<=sizeof(string_buf); y++){ string_buf[x++] = string_buf[y]; }
+      }
 
-//Move the rest of the buffer forward so only the special character remains.
-for (y=(x+4); y<=sizeof(string_buf); y++){ string_buf[x++] = string_buf[y]; }
-    
+
+
+//}while((param_end-param_start > 0)); 
+
+// RESET THE USED VARIABLES JUST TO BE SAFE.    
 x = 0;
 y = 0;
 param_start = 0;
