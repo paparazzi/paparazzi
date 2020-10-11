@@ -26,6 +26,10 @@
 #include "std.h"
 #include "stdio.h"
 
+#include <math.h>
+#include <inttypes.h>
+#include "inter_mcu.h"
+
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/spi.h"
@@ -160,6 +164,8 @@ static void osd_put_s(char *string,  uint8_t attributes, uint8_t char_nb, uint8_
 static bool _osd_sprintf(char* buffer, char* string, float value);
 static void check_osd_status(void);
 static void draw_osd_flying_screen(void);
+static float home_direction(void);
+
 
 #ifdef BOARD_KROOZ
 static void max7456_before_cb(struct spi_transaction *trans);
@@ -175,6 +181,8 @@ float MAG_Heading = 0;
 /******************************************************************************************/
 /*******************************   GLOBAL VARIABLES   *************************************/
 /******************************************************************************************/
+float home_dir;
+
 struct spi_transaction max7456_trans;
 
 uint8_t osd_spi_tx_buffer[2];
@@ -682,7 +690,7 @@ static uint8_t y=0, line=0;
 
    switch (step){
           case (0):
-               osd_put_s("HDG", FALSE, 3, 1, 14);
+               osd_put_s("HDG", FALSE, 3, 0, 14);
                step = 1;
           break;
           case (1):
@@ -722,7 +730,7 @@ static uint8_t y=0, line=0;
                if (temp < 0){ temp += 360; } 
 #endif
                osd_sprintf(osd_string, "%.0f", temp);
-               osd_put_s(osd_string, C_JUST, 3, 2, 15);
+               osd_put_s(osd_string, C_JUST, 3, 1, 15);
                step = 40;
           break;
 
@@ -751,6 +759,15 @@ static uint8_t y=0, line=0;
                osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
 #endif
                osd_put_s(osd_string, L_JUST, 6, 12, 1); // "FALSE = L_JUST
+               step = 52;
+          break;
+          case (52):
+#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
+               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+               osd_sprintf(osd_string, "%c191%.0f", home_direction() );
+               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+#endif
                step = 60;
           break;
 
@@ -759,7 +776,7 @@ static uint8_t y=0, line=0;
                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
                // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
                osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 11, 16);
+               osd_put_s(osd_string, C_JUST, 6, 11, 15);
 #else
                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
                osd_put_s(osd_string, C_JUST, 6, 12, 16);
@@ -1073,62 +1090,60 @@ while ( string_buf[x] != '\0'){
       }else if ( string_buf[x] == 'f'){ param_end = x; break; }
       x++;
 }
-// find and bound the precision specified.
-frac_nb =  string_buf[param_end-1] - 48; // Convert to number, ASCII 48 = '0'
-if(frac_nb > 3){ frac_nb = 3; }       // Bound value.
+if (param_end - param_start){
+   // find and bound the precision specified.
+   frac_nb =  string_buf[param_end-1] - 48; // Convert to number, ASCII 48 = '0'
+   if(frac_nb > 3){ frac_nb = 3; }       // Bound value.
 
-y = (sizeof(to_asc)- 1); // Point y to the end of the array.
-i_dec = abs((int16_t)value);
-// Fist we will deal with the fractional part if specified.
-if (frac_nb > 0 && frac_nb <= 3){
-   i_frac = abs((int16_t)((value - (int16_t)value) * 1000)); // Max precision is 3 digits.
-   x = 100;
-   z = frac_nb;
-   do{                            // Example if frac_nb=2 then 952 will show as .95
-        z--;
-        digit = (i_frac / x);
-        to_asc[y+z] = digit + 48; // Convert to ASCII
-        i_frac -= digit * x;      // Calculate the remainder.
-        x /= 10;                  // 952-(9*100) = 52, 52-(10*5)=2 etc.
+   y = (sizeof(to_asc)- 1); // Point y to the end of the array.
+   i_dec = abs((int16_t)value);
+   // Fist we will deal with the fractional part if specified.
+   if (frac_nb > 0 && frac_nb <= 3){
+      i_frac = abs((int16_t)((value - (int16_t)value) * 1000)); // Max precision is 3 digits.
+      x = 100;
+      z = frac_nb;
+      do{                            // Example if frac_nb=2 then 952 will show as .95
+           z--;
+           digit = (i_frac / x);
+           to_asc[y+z] = digit + 48; // Convert to ASCII
+           i_frac -= digit * x;      // Calculate the remainder.
+           x /= 10;                  // 952-(9*100) = 52, 52-(10*5)=2 etc.
 
-     }while(z > 0);
+      }while(z > 0);
 
-   y -= frac_nb;     // set y to point where the dot must be placed.
-   to_asc[y] = '.';
-   y--;             // Set y to point where the rest of the numbers must be written.
-}
+      y -= frac_nb;     // set y to point where the dot must be placed.
+      to_asc[y] = '.';
+      y--;             // Set y to point where the rest of the numbers must be written.
 
-// Now it is time for the integer part. "y" already points to the position just before the dot.
-do{
-     to_asc[y] = (i_dec % 10) + 48;            //Write at least one digit even if value is zero.
-     i_dec /= 10;
-     if (i_dec <= 0){                          // This way the leading zero is ommited.
-        if(value < 0){ y--; to_asc[y] = '-'; } // Place the minus sign if needed.
-        break;
+   }  // if (frac_nb > 0 && frac_nb <= 3){
 
-     }else{ y--; }
+   // Now it is time for the integer part. "y" already points to the position just before the dot.
+   do{
+        to_asc[y] = (i_dec % 10) + 48;            //Write at least one digit even if value is zero.
+        i_dec /= 10;
+        if (i_dec <= 0){                          // This way the leading zero is ommited.
+           if(value < 0){ y--; to_asc[y] = '-'; } // Place the minus sign if needed.
+           break;
 
-  }while(1); 
+        }else{ y--; }
 
-// Fill the buffer with the characters in the beggining of the string if any.
-for (x=0; x<param_start; x++){
-    *(buffer+x) = string_buf[x];
-}
+   }while(1); 
 
-// x is now pointing to the next character in osd_string. 
-// y is already pointing to the first digit or negative sign in "to_asc" array.
-while (y < sizeof(to_asc)){
-      *(buffer + x) = to_asc[y];
-      x++; y++;
-}
-// x is now pointing to the next character in osd_string. 
-// "param_end" is pointing to the last format character in the string.
-do{
-     param_end++; 
-     *(buffer + x++) = string_buf[param_end];
+   // Fill the buffer with the characters in the beggining of the string if any.
+   for (x=0; x<param_start; x++){ *(buffer+x) = string_buf[x]; }
 
-  }while(string_buf[param_end] != '\0'); //Write the rest of the string including the terminating char.
+   // x is now pointing to the next character in osd_string. 
+   // y is already pointing to the first digit or negative sign in "to_asc" array.
+   while (y < sizeof(to_asc)){ *(buffer + x) = to_asc[y]; x++; y++; }
+   // x is now pointing to the next character in osd_string. 
+   // "param_end" is pointing to the last format character in the string.
+   do{
+        param_end++; 
+        *(buffer + x++) = string_buf[param_end];
 
+   }while(string_buf[param_end] != '\0'); //Write the rest of the string including the terminating char.
+
+} // if (param_end - param_start){
 
 return(0);
 }
@@ -1147,6 +1162,146 @@ if (max7456_osd_status == OSD_IDLE){
 
 return;
 }
+
+typedef struct {
+  float fx;
+  float fy;
+  float fz;
+} VECTOR;
+
+typedef struct {
+  float fx1; float fx2; float fx3;
+  float fy1; float fy2; float fy3;
+  float fz1; float fz2; float fz3;
+} MATRIX;
+
+/*******************************************************************
+; function name:   vSubtractVectors
+; description:     subtracts two vectors a = b - c
+; parameters:
+;*******************************************************************/
+static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC)
+{
+  svA->fx = svB.fx - svC.fx;
+  svA->fy = svB.fy - svC.fy;
+  svA->fz = svB.fz - svC.fz;
+}
+
+/*******************************************************************
+; function name:   vMultiplyMatrixByVector
+; description:     multiplies matrix by vector svA = smB * svC
+; parameters:
+;*******************************************************************/
+static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC)
+{
+  svA->fx = smB.fx1 * svC.fx  +  smB.fx2 * svC.fy  +  smB.fx3 * svC.fz;
+  svA->fy = smB.fy1 * svC.fx  +  smB.fy2 * svC.fy  +  smB.fy3 * svC.fz;
+  svA->fz = smB.fz1 * svC.fx  +  smB.fz2 * svC.fy  +  smB.fz3 * svC.fz;
+}
+
+
+static float home_direction(void)
+{
+
+  static VECTOR svPlanePosition,
+         Home_Position,
+         Home_PositionForPlane,
+         Home_PositionForPlane2;
+
+  static MATRIX smRotation;
+
+  /*
+  By swapping coordinates (fx=fPlaneNorth, fy=fPlaneEast) we make the the circle angle go from 0 (0 is to the top of the circle)
+  to 360 degrees or from 0 radians to 2 PI radians in a clockwise rotation. This way the GPS reported angle can be directly
+  applied to the rotation matrices (in radians).
+  In standard mathematical notation 0 is to the right (East) of the circle, -90 is to the bottom, +-180 is to the left
+  and +90 is to the top (counterclockwise rotation).
+  When reading back the actual rotated coordinates fx has the y coordinate and fy has the x
+  represented on a circle in standard mathematical notation.
+  */
+
+  svPlanePosition.fx = stateGetPositionEnu_f()->y;
+  svPlanePosition.fy = stateGetPositionEnu_f()->x;
+  svPlanePosition.fz = stateGetPositionUtm_f()->alt;
+
+  Home_Position.fx = WaypointY(WP_HOME);
+  Home_Position.fy = WaypointX(WP_HOME);
+  Home_Position.fz = waypoints[WP_HOME].a;
+
+  /* distance between plane and object */
+  vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
+
+  /* yaw */
+  smRotation.fx1 = cosf(stateGetHorizontalSpeedDir_f());
+  smRotation.fx2 = sinf(stateGetHorizontalSpeedDir_f());
+  smRotation.fx3 = 0.;
+  smRotation.fy1 = -smRotation.fx2;
+  smRotation.fy2 = smRotation.fx1;
+  smRotation.fy3 = 0.;
+  smRotation.fz1 = 0.;
+  smRotation.fz2 = 0.;
+  smRotation.fz3 = 1.;
+
+  vMultiplyMatrixByVector(&Home_PositionForPlane2, smRotation, Home_PositionForPlane);
+
+  /* DEFAULT ORIENTATION IS 0 = FRONT, 90 = RIGHT, 180 = BACK, -90 = LEFT
+   *
+   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx))); 
+   *
+   *   plane front
+   *
+   *                  0˚
+                      ^
+   *                  I
+   *             -45˚ I  45˚
+   *                \ I /
+   *                 \I/
+   *       -90˚-------I------- 90˚
+   *                 /I\
+   *                / I \
+   *            -135˚ I  120˚
+   *                  I
+   *                 180
+   *             plane back
+   *
+   *
+   */
+
+  /*
+   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fx, (Home_PositionForPlane2.fy))); 
+   *
+   *
+   *   plane front
+   *
+   *                  90˚
+                      ^
+   *                  I
+   *             135˚ I  45˚
+   *                \ I /
+   *                 \I/
+   *       180˚-------I------- 0˚
+   *                 /I\
+   *                / I \
+   *            -135˚ I  -45˚
+   *                  I
+   *                -90
+   *             plane back
+   *
+   *
+   */
+
+  /* fPan =   0˚  -> antenna looks along the wing
+             90˚  -> antenna looks in flight direction
+            -90˚  -> antenna looks backwards
+  */
+  /* fixed to the plane*/
+  home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx))); 
+  home_dir = DegOfRad(home_dir);
+  if(home_dir < 0){ home_dir += 360; }
+
+return(home_dir);
+}
+
 
 #else	// #if !defined(SITL)
 
