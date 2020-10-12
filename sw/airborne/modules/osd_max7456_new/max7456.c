@@ -511,7 +511,10 @@ static uint8_t y=0, line=0;
 //char_nb = the number of chars to reserve (clear) 
 // row = OSD ROW NUMBER
 // column = OSD COLUMN NUMBER
-// I HAVE TRIED TO USE ALL DIFFERENT COMBINATIONS IN THE BELOW CODE.
+// BE CAREFULL, THE MATEK OSD DOS NOT HAVE SMALL ENGLISH LETTERS, ONLY CAPITAL LETTERS!!!!
+// The reason the osd display uses a switch statement is because the OSD can only accept one transfer
+// at a time so each time the periodic function is called  a single string trasfer occurs.
+// Later i might try something different....
 //************************************ P A L *********************************//
 //************************************ P A L *********************************//
 //************************************ P A L *********************************//
@@ -526,21 +529,23 @@ static uint8_t y=0, line=0;
                step = 1;
           break;
           case (1):
-               osd_put_s("DISTANCE", FALSE, 8, 13, 12);
+#if !defined USE_MATEK_TYPE_OSD_CHIP || USE_MATEK_TYPE_OSD_CHIP == 0
+               osd_put_s("DISTANCE", FALSE, 8, 14, 12);
+#endif
                step = 10;
           break; 
 
           case (10):
 #if CAMERA_MODULE_WITH_LOCK_AVAILABLE
 #pragma message "OSD MESSAGE: camera lock available"
-               if (cam_lock) osd_put_s("( )", BLINK, 3, 7, 14); else
+               if (cam_lock) osd_put_s("( )", BLINK, 3, 8, 14); else
 #endif
-	       osd_put_s("( )", FALSE, 3, 7, 14);  
+	       osd_put_s("( )", FALSE, 3, 8, 14);  
                step = 20;
           break;
 
           case (20):
-               temp = ((float)electrical.vsupply)/10;
+               temp = ((float)electrical.vsupply);
                osd_sprintf(osd_string, "%.1fV", temp );
                if (temp > LOW_BAT_LEVEL){
                   osd_put_s(osd_string, L_JUST, 5, 1, 1);
@@ -548,7 +553,6 @@ static uint8_t y=0, line=0;
                }else{ osd_put_s(osd_string, L_JUST|BLINK|INVERT, 5, 1, 1); }
                step = 30;
           break;
-
           case (30):
 #if OSD_USE_MAG_COMPASS && !defined(SITL)
 #pragma message "OSD USES THE MAGNETIC HEADING"
@@ -560,16 +564,16 @@ static uint8_t y=0, line=0;
                if (temp < 0){ temp += 360; } 
 #endif
                osd_sprintf(osd_string, "%.0f", temp);
-               osd_put_s(osd_string, C_JUST, 3, 2, 15);
+               osd_put_s(osd_string, C_JUST, 3, 1, 15);
                step = 40;
           break;
 
           case (40):
                osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
                osd_put_s(osd_string, R_JUST, 6, 1, 29);
-               step = 41; 
+               step = 42; 
           break;
-          case (41):
+          case (42):
                osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
                osd_put_s(osd_string, R_JUST, 5, 2, 29);
                step = 50;
@@ -579,31 +583,43 @@ static uint8_t y=0, line=0;
 #if OSD_USE_BARO_ALTITUDE && !defined(SITL)
 #pragma message "OSD ALTITUDE IS COMING FROM BAROMETER"
 #if defined BARO_ALTITUDE_VAR
-               osd_sprintf(osd_string, "%.0fm", BARO_ALTITUDE_VAR );
+               osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR );
 #else
 #warning OSD USES THE DEFAULT BARO ALTITUDE VARIABLE
-               osd_sprintf(osd_string, "%.0fm", baro_alt );
+               osd_sprintf(osd_string, "%.0fM", baro_alt );
 #endif
 #else
 #pragma message "ALTITUDE IS COMING FROM GPS"
                osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
 #endif
                osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
+               step = 52;
+          break;
+          case (52):
+#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
+               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+               osd_sprintf(osd_string, "%191c%.0f", home_direction() );
+               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+#else
+               osd_sprintf(osd_string, "H%.0f", home_direction() );
+               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+
+#endif
                step = 60;
           break;
 
           case (60):
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER!!!!
-               osd_sprintf(osd_string, "%c160%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 13, 16);
+               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+               osd_sprintf(osd_string, "%160c%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+               osd_put_s(osd_string, C_JUST, 6, 14, 15);
 #else
                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 14, 16);
-               step = 70;
+               osd_put_s(osd_string, C_JUST, 6, 14, 15);
 #endif
-
-
+               step = 70;
           break; 
 
           case (70):
@@ -614,39 +630,40 @@ static uint8_t y=0, line=0;
           // A Text PFD as graphics are not the strong point of the MAX7456 
           // In order to level the aircraft while fpving 
           // just move the stick to the opposite direction from the angles shown on the osd
+          // and that's why positive pitch (UP) is shown below the OSD center
           case (80):
                if(DegOfRad(att->theta) > 2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 5, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 6, 15);
  
-               }else{ osd_put_s("    ", C_JUST, 5, 5, 15); }
+               }else{ osd_put_s("    ", C_JUST, 5, 6, 15); }
                step = 90;
           break;
 
           case (90):
                if(DegOfRad(att->theta) < -2){ 
                  osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 9, 15);
+                 osd_put_s(osd_string, C_JUST, 5, 10, 15);
  
-               }else{ osd_put_s("   ", C_JUST, 5, 9, 15); }
+               }else{ osd_put_s("   ", C_JUST, 5, 10, 15); }
                step = 100;
           break;
 
           case (100):
                if(DegOfRad(att->phi) > 2){ 
                  osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
-                 osd_put_s(osd_string, FALSE, 5, 7, 18);
+                 osd_put_s(osd_string, FALSE, 5, 8, 18);
  
-               }else{ osd_put_s("     ", FALSE, 5, 7, 18); }
+               }else{ osd_put_s("     ", FALSE, 5, 8, 18); }
                step = 110;
           break;
 
           case (110):
                if(DegOfRad(att->phi) < -2){ 
                  osd_sprintf(osd_string, "<%.0f", DegOfRad(fabs(att->phi)) );
-                 osd_put_s(osd_string, R_JUST, 5, 7, 13);
+                 osd_put_s(osd_string, R_JUST, 5, 8, 13);
  
-               }else{ osd_put_s("     ", R_JUST, 5, 7, 13); }
+               }else{ osd_put_s("     ", R_JUST, 5, 8, 13); }
                step = 120;
           break;
 
@@ -668,19 +685,28 @@ static uint8_t y=0, line=0;
           case (122):
                if (sonar_adc.distance < 8.0){
                   osd_sprintf(osd_string, "S%.2fM", sonar_adc.distance );
-                  osd_put_s(osd_string, C_JUST, 6, 13, 1); 
+                  osd_put_s(osd_string, C_JUST, 6, 11, 1); 
 
-               }else{ osd_put_s("        ", FALSE, 6, 4, 15); }
+               }else{ osd_put_s("        ", FALSE, 6, 11, 15); }
             
                step = 10;
           break;
 #endif
           
 
+/*
+          case (122):
+               if (max7456_osd_status == OSD_IDLE && osd_stat_reg_valid == TRUE){
+                  if ( (osd_stat_reg & (OSD_PAL_DETECTED|OSD_NTSC_DETECTED)) == 0 ){ 
+                     osd_put_s("NO VIDEO", L_JUST|BLINK|INVERT, 8, 3, 1); 
 
+                  }else{ osd_put_s("           ", FALSE, 8, 3, 1); }
+               }
+               step = 10;
+          break;
+*/
           default:	step = 10; break;
    }
-
 //************************************ N T S C *********************************//
 //************************************ N T S C *********************************//
 //************************************ N T S C *********************************//
@@ -737,9 +763,9 @@ static uint8_t y=0, line=0;
           case (40):
                osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
                osd_put_s(osd_string, R_JUST, 6, 1, 29);
-               step = 41; 
+               step = 42; 
           break;
-          case (41):
+          case (42):
                osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
                osd_put_s(osd_string, R_JUST, 5, 2, 29);
                step = 50;
@@ -1045,6 +1071,15 @@ return;
 
 //77777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777//
 // A VERY VERY STRIPED DOWN sprintf function suitable only for the paparazzi OSD.
+// ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+// THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+// EXAMPLES
+// special char 160 is an OSD character displaying a small "DIST" 
+// float_foo = 10,1234
+// Example1: osd_sprintf(osd_string, "%160c%.2fM", float_foo); 
+// prints DIST 1 0 , 1 2 M with a total of 7 OSD characters
+// Example2: osd_sprintf(osd_string, "%.0f%160cM", float_foo);
+// prints 1 0 DIST M  with a total of 4 OSD characters
 static bool _osd_sprintf(char* buffer, char* string, float value){
 
 uint8_t param_start = 0;
@@ -1084,8 +1119,6 @@ param_end = 0;
          // which will be overwritten with the rest of the string after the 'c' 
          for (y=(x+4); y<=sizeof(string_buf); y++){ string_buf[x++] = string_buf[y]; }
       }
-
-
 
 //}while((param_end-param_start > 0)); 
 
@@ -1187,11 +1220,11 @@ typedef struct {
   float fz1; float fz2; float fz3;
 } MATRIX;
 
-/*******************************************************************
-; function name:   vSubtractVectors
-; description:     subtracts two vectors a = b - c
-; parameters:
-;*******************************************************************/
+//*******************************************************************
+//   function name:   vSubtractVectors
+//   description:     subtracts two vectors a = b - c
+//   parameters:
+//*******************************************************************
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC)
 {
   svA->fx = svB.fx - svC.fx;
@@ -1199,11 +1232,11 @@ static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC)
   svA->fz = svB.fz - svC.fz;
 }
 
-/*******************************************************************
-; function name:   vMultiplyMatrixByVector
-; description:     multiplies matrix by vector svA = smB * svC
-; parameters:
-;*******************************************************************/
+//*******************************************************************
+// function name:   vMultiplyMatrixByVector
+// description:     multiplies matrix by vector svA = smB * svC
+// parameters:
+//*******************************************************************
 static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC)
 {
   svA->fx = smB.fx1 * svC.fx  +  smB.fx2 * svC.fy  +  smB.fx3 * svC.fz;
