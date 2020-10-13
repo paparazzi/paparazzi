@@ -25,7 +25,7 @@
 #include <time.h>
 #include <stdio.h>
 
-#define NAV_C // needed to get the nav funcitons like Inside...
+#define NAV_C // needed to get the nav functions like Inside...
 #include "generated/flight_plan.h"
 
 #define ORANGE_AVOIDER_VERBOSE TRUE
@@ -37,10 +37,11 @@
 #define VERBOSE_PRINT(...)
 #endif
 
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters);
-uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
-uint8_t increase_nav_heading(float incrementDegrees);
-uint8_t chooseRandomIncrementAvoidance(void);
+static uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters);
+static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters);
+static uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
+static uint8_t increase_nav_heading(float incrementDegrees);
+static uint8_t chooseRandomIncrementAvoidance(void);
 
 enum navigation_state_t {
   SAFE,
@@ -54,13 +55,20 @@ float oa_color_count_frac = 0.18f;
 
 // define and initialise global variables
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
-int32_t color_count = 0;               // orange color count from color filter for obstacle detection
+int32_t color_count = 0;                // orange color count from color filter for obstacle detection
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
+/*
+ * This next section defines an ABI messaging event (http://wiki.paparazziuav.org/wiki/ABI), necessary
+ * any time data calculated in another module needs to be accessed. Including the file where this external
+ * data is defined is not enough, since modules are executed parallel to each other, at different frequencies,
+ * in different threads. The ABI event is triggered every time new data is sent out, and as such the function
+ * defined in this file does not need to be explicitly called, only bound in the init function
+ */
 #ifndef ORANGE_AVOIDER_VISUAL_DETECTION_ID
 #define ORANGE_AVOIDER_VISUAL_DETECTION_ID ABI_BROADCAST
 #endif
@@ -99,7 +107,7 @@ void orange_avoider_periodic(void)
   // compute current color thresholds
   int32_t color_count_threshold = oa_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
 
-  VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count, navigation_state);
+  VERBOSE_PRINT("Color_count: %d  threshold: %d state: %d \n", color_count, color_count_threshold, navigation_state);
 
   // update our safe confidence using color threshold
   if(color_count < color_count_threshold){
@@ -176,7 +184,8 @@ uint8_t increase_nav_heading(float incrementDegrees)
   // normalize heading to [-pi, pi]
   FLOAT_ANGLE_NORMALIZE(new_heading);
 
-  // set heading
+  // set heading, declared in firmwares/rotorcraft/navigation.h
+  // for performance reasons the navigation variables are stored and processed in Binary Fixed-Point format
   nav_heading = ANGLE_BFP_OF_REAL(new_heading);
 
   VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(new_heading));
@@ -184,9 +193,20 @@ uint8_t increase_nav_heading(float incrementDegrees)
 }
 
 /*
+ * Calculates coordinates of distance forward and sets waypoint 'waypoint' to those coordinates
+ */
+uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
+{
+  struct EnuCoor_i new_coor;
+  calculateForwards(&new_coor, distanceMeters);
+  moveWaypoint(waypoint, &new_coor);
+  return false;
+}
+
+/*
  * Calculates coordinates of a distance of 'distanceMeters' forward w.r.t. current position and heading
  */
-static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters)
+uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeters)
 {
   float heading  = stateGetNedToBodyEulers_f()->psi;
 
@@ -207,17 +227,6 @@ uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor)
   VERBOSE_PRINT("Moving waypoint %d to x:%f y:%f\n", waypoint, POS_FLOAT_OF_BFP(new_coor->x),
                 POS_FLOAT_OF_BFP(new_coor->y));
   waypoint_move_xy_i(waypoint, new_coor->x, new_coor->y);
-  return false;
-}
-
-/*
- * Calculates coordinates of distance forward and sets waypoint 'waypoint' to those coordinates
- */
-uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
-{
-  struct EnuCoor_i new_coor;
-  calculateForwards(&new_coor, distanceMeters);
-  moveWaypoint(waypoint, &new_coor);
   return false;
 }
 
