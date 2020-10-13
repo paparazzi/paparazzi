@@ -41,7 +41,7 @@
 #include "state.h"
 
 // for GetPosAlt, include correct header until we have unified API
-#ifdef AP
+#if AP
 //#include "subsystems/navigation/nav.h"
 #include "subsystems/navigation/common_nav.h"
 #else
@@ -166,10 +166,15 @@ static float home_direction(void)
   svPlanePosition.fx = stateGetPositionEnu_f()->y;
   svPlanePosition.fy = stateGetPositionEnu_f()->x;
   svPlanePosition.fz = stateGetPositionUtm_f()->alt;
-
+#ifdef AP
   Home_Position.fx = WaypointY(WP_HOME);
   Home_Position.fy = WaypointX(WP_HOME);
   Home_Position.fz = ground_alt;
+#else
+  Home_Position.fx = waypoint_get_x(WP_HOME);
+  Home_Position.fy = waypoint_get_y(WP_HOME);
+  Home_Position.fz = 0;
+#endif
 
   /* distance between plane and object */
   vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
@@ -513,9 +518,13 @@ void max7456_periodic(void)
   float temp = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-
+#if AP
   float ph_x = waypoints[WP_HOME].x - pos->x;
   float ph_y = waypoints[WP_HOME].y - pos->y;
+#else
+  float ph_x = waypoint_get_x(WP_HOME) - pos->x;
+  float ph_y = waypoint_get_y(WP_HOME) - pos->y;
+#endif
 //This code is executed always and checks if the "osd_enable" var has been changed by telemetry.
 //If yes then it commands a reset but this time turns on or off the osd overlay, not the video.
   if (max7456_osd_status == OSD_IDLE) {
@@ -589,7 +598,11 @@ void max7456_periodic(void)
         step = 42;
         break;
       case (42):
+#if AP
         osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE] / MAX_PPRZ) * 100));
+#else
+        osd_sprintf(osd_string, "%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ) * 100));
+#endif
         osd_put_s(osd_string, R_JUST, 5, 2, 29);
         step = 50;
         break;
