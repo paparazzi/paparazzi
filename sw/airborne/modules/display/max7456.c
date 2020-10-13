@@ -106,7 +106,7 @@ enum osd_attributes{
      R_JUST = 0x01,
      C_JUST = 0x02,
 
-};        
+};
 
 uint8_t max7456_osd_status = OSD_UNINIT;
 uint8_t osd_enable = true;
@@ -209,7 +209,7 @@ static float home_direction(void)
    */
 
   /*
-   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fx, (Home_PositionForPlane2.fy))); 
+   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fx, (Home_PositionForPlane2.fy)));
    *
    *
    *   plane front
@@ -236,7 +236,7 @@ static float home_direction(void)
             -90˚  -> antenna looks backwards
   */
   /* fixed to the plane*/
-  home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx))); 
+  home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
   home_dir = DegOfRad(home_dir);
   if(home_dir < 0){ home_dir += 360; }
 
@@ -253,8 +253,8 @@ if (max7456_osd_status == OSD_IDLE){
    max7456_trans.input_length = 1;
    max7456_trans.output_buf[0] = OSD_STAT_REG;
    max7456_osd_status = OSD_READ_STATUS;
-   spi_submit(&(MAX7456_SPI_DEV), &max7456_trans); 
-}   
+   spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+}
 
 return;
 }
@@ -273,12 +273,12 @@ if (c >= '0' && c <= '9'){
    if (c == '0'){ c -= 38; }else{  c -= 48; }
 }
 else
-if (c >= 'A' && c <= 'Z'){ 
-    c -= 54; 
+if (c >= 'A' && c <= 'Z'){
+    c -= 54;
 }
 else
-if (c >= 'a' && c <= 'z'){ 
-   c -= 60; 
+if (c >= 'a' && c <= 'z'){
+   c -= 60;
 
 }else{
        switch (c){
@@ -307,7 +307,6 @@ return(c);
 #endif
 }                       
 
-
 static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column)
 {
 
@@ -316,7 +315,7 @@ char osd_buf[OSD_STRING_SIZE];
 
 if (row > 15){ column = 15; }
 if (column > 29){ column = 29; }
- 
+
 // translate the string and put it to the "osd_string" '\0' = 0xff
 x = 0;
 while (*(string+x) != '\0'){ osd_string[x] = ascii_to_osd_c(*(string+x)); x++; }
@@ -324,14 +323,14 @@ osd_string[x] = 0xff;
 string_len = x;
 idx = x;
 
-if (attributes & C_JUST){ 
+if (attributes & C_JUST){
    if(char_nb%2 == 0){ char_nb++; }
    post_offset = (char_nb - string_len)/2;
    aft_offset = char_nb - string_len;
-   if( ((int8_t)column-(char_nb/2)) >= 0){ column -= (char_nb/2); } 
+   if( ((int8_t)column-(char_nb/2)) >= 0){ column -= (char_nb/2); }
    for(x=0; x<30; x++){ osd_buf[x] = 0; } // FILL WITH SPACES
    // COPY THE ORIGINAL STRING TO ITS NEW POSITION
-   for(x=0; x<string_len; x++){ osd_buf[post_offset+x] = osd_string[x]; } 
+   for(x=0; x<string_len; x++){ osd_buf[post_offset+x] = osd_string[x]; }
    osd_buf[string_len+aft_offset] = 0xFF; // TERMINATE THE MODIFIED STRING
    // COPY THE MODIFIED STRING TO MAIN OSD STRING
    x = 0;
@@ -347,7 +346,7 @@ if (attributes & R_JUST){
    //First shift right the string and then add spaces at the beggining
    while(idx >= 0){ osd_string[idx+post_offset] = osd_string[idx]; idx--; }
    idx = 0;
-   while(idx < post_offset){ osd_string[idx] = 0; idx++; } 
+   while(idx < post_offset){ osd_string[idx] = 0; idx++; }
    //osd_string[idx] = 0xff;
 
 }else{
@@ -355,10 +354,10 @@ if (attributes & R_JUST){
         for (x=0; x < (int8_t)(sizeof(osd_string)); x++){ if(osd_string[x] == 0xFF){ break; } }
         for (; x< char_nb; x++){  osd_string[x] = 0; }
         osd_string[x] = 0xff;
-     } 
+     }
 
 osd_char_address = ((uint16_t)row*30) + column;
-osd_attr = (attributes & (BLINK|INVERT)); 
+osd_attr = (attributes & (BLINK|INVERT));
 //TRIGGER THE SPI TRANSFERS. The rest of the spi transfers occur in the "max7456_event" function.
 if (max7456_osd_status == OSD_IDLE){
     max7456_trans.output_length = 2;
@@ -406,17 +405,17 @@ param_end = 0;
       }
       if (param_end-param_start){
          //load the special character value where the % character was
-         string_buf[x] = ((string_buf[param_start]-48)*100) + ((string_buf[param_start+1]-48)*10) + (string_buf[param_start+2]-48); 
+         string_buf[x] = ((string_buf[param_start]-48)*100) + ((string_buf[param_start+1]-48)*10) + (string_buf[param_start+2]-48);
          x++; // increment x to the next character which should be the first special character's digit
          //Move the rest of the buffer forward so only the special character remains,
          // for example in %170c '%' now has the special character's code and x now points to '1'
-         // which will be overwritten with the rest of the string after the 'c' 
+         // which will be overwritten with the rest of the string after the 'c'
          for (y=(x+4); y<=sizeof(string_buf); y++){ string_buf[x++] = string_buf[y]; }
       }
 
-//}while((param_end-param_start > 0)); 
+//}while((param_end-param_start > 0));
 
-// RESET THE USED VARIABLES JUST TO BE SAFE.    
+// RESET THE USED VARIABLES JUST TO BE SAFE.
 x = 0;
 y = 0;
 param_start = 0;
@@ -424,7 +423,7 @@ param_end = 0;
 // Search for the prameter start and stop positions.
 while ( string_buf[x] != '\0'){
       if ( string_buf[x] == '%'){
-         param_start = x; 
+         param_start = x;
 
       }else if ( string_buf[x] == 'f'){ param_end = x; break; }
       x++;
@@ -466,23 +465,23 @@ if (param_end - param_start){
 
         }else{ y--; }
 
-   }while(1); 
+   }while(1);
 
    // Fill the buffer with the characters in the beggining of the string if any.
    for (x=0; x<param_start; x++){ *(buffer+x) = string_buf[x]; }
 
-   // x is now pointing to the next character in osd_string. 
+   // x is now pointing to the next character in osd_string.
    // y is already pointing to the first digit or negative sign in "to_asc" array.
    while (y < sizeof(to_asc)){ *(buffer + x) = to_asc[y]; x++; y++; }
-   // x is now pointing to the next character in osd_string. 
+   // x is now pointing to the next character in osd_string.
    // "param_end" is pointing to the last format character in the string.
    do{
-        param_end++; 
+        param_end++;
         *(buffer + x++) = string_buf[param_end];
 
    }while(string_buf[param_end] != '\0'); //Write the rest of the string including the terminating char.
 
-} // if (param_end - param_start){
+} // End of if (param_end - param_start)
 
 return(0);
 }
@@ -548,158 +547,147 @@ float ph_y = waypoints[WP_HOME].y - pos->y;
     max7456_trans.output_buf[0] = OSD_OSDBL_REG_R;
     max7456_osd_status = OSD_INIT3;
     spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
-  } else if (max7456_osd_status == OSD_IDLE && osd_enable > 0) { // DRAW THE OSD SCREEN
-    //draw_osd();
-
-   switch (step){
-
-          case (0):
-               osd_put_s("HDG", FALSE, 3, 1, 14);
-               step = 1;
-          break;
-          case (1):
+  } else if (max7456_osd_status == OSD_IDLE && osd_enable > 0) {
+            switch (step){
+              case (0):
+                osd_put_s("HDG", FALSE, 3, 1, 14);
+                step = 1;
+                break;
+              case (1):
 #if !defined USE_MATEK_TYPE_OSD_CHIP || USE_MATEK_TYPE_OSD_CHIP == 0
-               osd_put_s("DISTANCE", FALSE, 8, 14, 12);
+                osd_put_s("DISTANCE", FALSE, 8, 14, 12);
 #endif
-               step = 10;
-          break; 
+                step = 10;
+                break;
+              case (10):
+	        osd_put_s("( )", FALSE, 3, 8, 14);
+                step = 20;
+                break;
+              case (20):
+                temp = ((float)electrical.vsupply);
+                osd_sprintf(osd_string, "%.1fV", temp );
+                if (temp > LOW_BAT_LEVEL){
+                   osd_put_s(osd_string, L_JUST, 5, 1, 1);
 
-          case (10):
-	       osd_put_s("( )", FALSE, 3, 8, 14);  
-               step = 20;
-          break;
-
-          case (20):
-               temp = ((float)electrical.vsupply);
-               osd_sprintf(osd_string, "%.1fV", temp );
-               if (temp > LOW_BAT_LEVEL){
-                  osd_put_s(osd_string, L_JUST, 5, 1, 1);
-
-               }else{ osd_put_s(osd_string, L_JUST|BLINK|INVERT, 5, 1, 1); }
-               step = 30;
-          break;
-          case (30):
+                }else{ osd_put_s(osd_string, L_JUST|BLINK|INVERT, 5, 1, 1); }
+                step = 30;
+                break;
+              case (30):
 #if OSD_USE_MAG_COMPASS && !defined(SITL)
 #pragma message "OSD USES THE MAGNETIC HEADING"
-               temp = DegOfRad(MAG_Heading);
-               if (temp < 0){ temp += 360; }
+                temp = DegOfRad(MAG_Heading);
+                if (temp < 0){ temp += 360; }
 #else
 #pragma message "OSD USES THE GPS HEADING"
-               temp = DegOfRad(state.h_speed_dir_f);
-               if (temp < 0){ temp += 360; } 
+                temp = DegOfRad(state.h_speed_dir_f);
+                if (temp < 0){ temp += 360; }
 #endif
-               osd_sprintf(osd_string, "%.0f", temp);
-               osd_put_s(osd_string, C_JUST, 3, 1, 15);
-               step = 40;
-          break;
-
-          case (40):
-               osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
-               osd_put_s(osd_string, R_JUST, 6, 1, 29);
-               step = 42; 
-          break;
-          case (42):
-               osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
-               osd_put_s(osd_string, R_JUST, 5, 2, 29);
-               step = 50;
-          break;
-
-          case (50):
+                osd_sprintf(osd_string, "%.0f", temp);
+                osd_put_s(osd_string, C_JUST, 3, 1, 15);
+                step = 40;
+                break;
+              case (40):
+                osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f*3.6));
+                osd_put_s(osd_string, R_JUST, 6, 1, 29);
+                step = 42;
+                break;
+              case (42):
+                osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE]/MAX_PPRZ)*100));
+                osd_put_s(osd_string, R_JUST, 5, 2, 29);
+                step = 50;
+                break;
+              case (50):
 #if OSD_USE_BARO_ALTITUDE && !defined(SITL)
 #pragma message "OSD ALTITUDE IS COMING FROM BAROMETER"
 #if defined BARO_ALTITUDE_VAR
-               osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR );
+                osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR );
 #else
 #warning OSD USES THE DEFAULT BARO ALTITUDE VARIABLE
-               osd_sprintf(osd_string, "%.0fM", baro_alt );
+                osd_sprintf(osd_string, "%.0fM", baro_alt );
 #endif
 #else
 #pragma message "ALTITUDE IS COMING FROM GPS"
-               osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
+                osd_sprintf(osd_string, "%.0fM", GetPosAlt() );
 #endif
-               osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
-               step = 52;
-          break;
-          case (52):
+                osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
+                step = 52;
+                break;
+              case (52):
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
-               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-               osd_sprintf(osd_string, "%191c%.0f", home_direction() );
-               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+                // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+                osd_sprintf(osd_string, "%191c%.0f", home_direction() );
+                osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
 #else
-               osd_sprintf(osd_string, "H%.0f", home_direction() );
-               osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
+                osd_sprintf(osd_string, "H%.0f", home_direction() );
+                osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
 
 #endif
-               step = 60;
-          break;
+                step = 60;
+                break;
 
-          case (60):
+              case (60):
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-               // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
-               // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-               osd_sprintf(osd_string, "%160c%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 14, 15);
+                // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+                // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+                osd_sprintf(osd_string, "%160c%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+                osd_put_s(osd_string, C_JUST, 6, 14, 15);
 #else
-               osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
-               osd_put_s(osd_string, C_JUST, 6, 14, 15);
+                osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x*ph_x + ph_y *ph_y)));
+                osd_put_s(osd_string, C_JUST, 6, 14, 15);
 #endif
-               step = 70;
-          break; 
-
-          case (70):
-               osd_sprintf(osd_string, "%.1fVZ", stateGetSpeedEnu_f()->z);
-               osd_put_s(osd_string, R_JUST, 9, 14, 29);
-               step = 80;
-          break;
-          // A Text PFD as graphics are not the strong point of the MAX7456 
-          // In order to level the aircraft while fpving 
-          // just move the stick to the opposite direction from the angles shown on the osd
-          // and that's why positive pitch (UP) is shown below the OSD center
-          case (80):
-               if(DegOfRad(att->theta) > 2){ 
-                 osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 6, 15);
+                step = 70;
+                break;
+              case (70):
+                osd_sprintf(osd_string, "%.1fVZ", stateGetSpeedEnu_f()->z);
+                osd_put_s(osd_string, R_JUST, 9, 14, 29);
+                step = 80;
+                break;
+              // A Text PFD as graphics are not the strong point of the MAX7456
+              // In order to level the aircraft while fpving
+              // just move the stick to the opposite direction from the angles shown on the osd
+              // and that's why positive pitch (UP) is shown below the OSD center
+              case (80):
+                if (DegOfRad(att->theta) > 2){
+                   osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
+                   osd_put_s(osd_string, C_JUST, 5, 6, 15);
  
-               }else{ osd_put_s("    ", C_JUST, 5, 6, 15); }
-               step = 90;
-          break;
-
-          case (90):
-               if(DegOfRad(att->theta) < -2){ 
-                 osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-                 osd_put_s(osd_string, C_JUST, 5, 10, 15);
+                }else{ osd_put_s("    ", C_JUST, 5, 6, 15); }
+                step = 90;
+                break;
+              case (90):
+                if (DegOfRad(att->theta) < -2){
+                   osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
+                   osd_put_s(osd_string, C_JUST, 5, 10, 15);
  
-               }else{ osd_put_s("   ", C_JUST, 5, 10, 15); }
-               step = 100;
-          break;
-
-          case (100):
-               if(DegOfRad(att->phi) > 2){ 
-                 osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
-                 osd_put_s(osd_string, FALSE, 5, 8, 18);
+                }else{ osd_put_s("   ", C_JUST, 5, 10, 15); }
+                step = 100;
+                break;
+              case (100):
+                if (DegOfRad(att->phi) > 2){
+                   osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
+                   osd_put_s(osd_string, FALSE, 5, 8, 18);
  
-               }else{ osd_put_s("     ", FALSE, 5, 8, 18); }
-               step = 110;
-          break;
-
-          case (110):
-               if(DegOfRad(att->phi) < -2){ 
-                 osd_sprintf(osd_string, "<%.0f", DegOfRad(fabs(att->phi)) );
-                 osd_put_s(osd_string, R_JUST, 5, 8, 13);
+                }else{ osd_put_s("     ", FALSE, 5, 8, 18); }
+                step = 110;
+                break;
+              case (110):
+                if (DegOfRad(att->phi) < -2){
+                   osd_sprintf(osd_string, "<%.0f", DegOfRad(fabs(att->phi)) );
+                   osd_put_s(osd_string, R_JUST, 5, 8, 13);
  
-               }else{ osd_put_s("     ", R_JUST, 5, 8, 13); }
-               step = 120;
-          break;
+                }else{ osd_put_s("     ", R_JUST, 5, 8, 13); }
+                step = 120;
+                break;
 
-          case (120):
-               check_osd_status();
-               step = 10;
-          break;
+              case (120):
+                check_osd_status();
+                step = 10;
+                break;
 
-          default:	step = 10; break;
-   }
-  }
+              default: step = 10; break;
+   }  // End of switch statement.
+  }  // End of if (max7456_osd_status == OSD_UNINIT)
   return;
 }
 
