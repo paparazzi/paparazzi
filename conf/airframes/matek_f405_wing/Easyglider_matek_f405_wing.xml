@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="Easyglider Matek">
+<airframe name="Easyglider_Matek">
   <description>
     Easyglider from Multiplex
     BOARD = Matek f405 Wing
@@ -52,14 +52,14 @@
         <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
       </module>
       <module name="spi" type="master"/>
-      <module name="nav_line.xml"/>
-      <module name="gps_ubx_ucenter.xml"/> 
-      <module name="baro_bmp280_i2c.xml">
+      <module name="nav_line"/>
+      <module name="gps_ubx_ucenter"/> 
+      <module name="baro_bmp280_i2c">
         <define name="BMP280_SYNC_SEND"/>
         <configure name="BMP280_I2C_DEV" value="i2c1" />
         <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
       </module>
-      <module name="osd_max7456.xml">
+      <module name="osd_max7456">
         <configure name="MAX7456_SPI_DEV" value="spi2" />
         <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
         <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
@@ -334,7 +334,7 @@
     <define name="ALT_SHIFT_PLUS_PLUS" value="100"/>
     <define name="ALT_SHIFT_PLUS" value="10"/>
     <define name="ALT_SHIFT_MINUS" value="-10"/>
-    <define name="SPEECH_NAME" value="DART"/>
+    <define name="SPEECH_NAME" value="Easyglider"/>
   </section>
 
   <section name="SIMU">
