@@ -1,0 +1,56 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_matek_wing" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors for the Matek F405 Wing board with proper configuration
+      - IMU MPU6000
+      - Baro (BMP280)
+      Normal front of the board is on the servo S3-S8 servo connector
+      Normal up of the board is on STM32F405 side
+    </description>
+  </doc>
+  <autoload name="gps"  type="ublox" />
+  <autoload name="control" /> 
+  <autoload name="telemetry" type="transparent"/> 
+  <autoload name="control" />
+  <autoload name="radio_control" type="ppm"/>
+  <autoload name="navigation" />
+  <autoload name="imu" type="mpu6000"/>
+  <autoload name="ahrs" type="float_dcm"/>
+  <autoload name="ins" type="alt_float"/>
+  <autoload name="spi" type="master"/>
+  <autoload name="nav_line"/>
+  <autoload name="gps_ubx_ucenter"/> 
+  <autoload name="osd_max7456" />
+  <autoload name="baro_bmp280_i2c" />
+
+  <makefile target="!sim|nps|fbw">
+    <define name="GPS_BAUD" value="B38400"/>
+    <define name="GPS_PORT" value="UART1"/>
+    <define name="GPS_LED" value="2"/>
+    <!-- MODEM CONFIGURATION -->
+    <define  name="MODEM_BAUD" value="B19200"/>
+    <define  name="MODEM_PORT" value="UART6 "/>
+    <define name="RADIO_CONTROL_PPM_PIN" value="UART2_RX"/>
+    <!-- IMU CONFIGURATION -->
+    <configure name="IMU_MPU_SPI_DEV" value="spi1" case="upper|lower"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+    <!-- AHRS CONFIGURATION -->
+    <define name="USE_MAGNETOMETER" value="0"/>
+    <define name="AHRS_USE_GPS_HEADING" value="1"/>
+    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+    <!-- BAROMETER BMP280 CONFIGURATION -->
+    <define name="BMP280_SYNC_SEND"/>
+    <configure name="BMP280_I2C_DEV" value="i2c1" />
+    <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
+    <!-- OSD CONFIGURATION -->
+    <define name="MAX7456_SPI_DEV" value="spi2" />
+    <define name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
+    <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
+    <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
+    <define name="OSD_USE_BARO_ALTITUDE" value="0" />
+    <define name="BARO_ALTITUDE_VAR" value="baro_alt" /> <!-- if non defined the default var is ''baro_alt'' -->
+    <define name="OSD_USE_MAG_COMPASS" value="0" />
+  </makefile>
+</module>
