@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_matek_wing" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors and subsystems
+      for the Matek F405 Wing board with proper configuration.
+      IMU MPU6000
+      Baro (BMP280)
+      OSD
+      Normal front of the board is on the servo S3-S8 servo connector
+      Normal up of the board is on STM32F405 side.
+    </description>
+  </doc>
+  <autoload name="imu" type="mpu6000"/>
+  <autoload name="spi" type="master"/>
+  <autoload name="osd_max7456" />
+  <autoload name="baro_bmp280_i2c" />
+
+  <makefile target="!sim|nps|fbw">
+    <!-- IMU CONFIGURATION -->
+    <configure name="IMU_MPU_SPI_DEV" value="spi1" case="upper|lower"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+    <!-- BAROMETER BMP280 CONFIGURATION -->
+    <configure name="BMP280_I2C_DEV" value="i2c1" />
+    <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
+    <!-- OSD CONFIGURATION -->
+    <define name="MAX7456_SPI_DEV" value="spi2" />
+    <define name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
+    <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
+    <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
+    <define name="OSD_USE_BARO_ALTITUDE" value="0" />
+    <define name="BARO_ALTITUDE_VAR" value="baro_alt" /> <!-- if non defined the default var is ''baro_alt'' -->
+    <define name="OSD_USE_MAG_COMPASS" value="0" />
+  </makefile>
+</module>

@@ -23,7 +23,6 @@
     <define name="MAX7456_SPI_DEV" value="$(MAX7456_SPI_DEV_LOWER)" />
     <define name="MAX7456_SLAVE_IDX" value="$(MAX7456_SLAVE_IDX_UPPER)" />
     <file name="max7456.c" />
-    <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
     <define name="OSD_USE_EXTERNAL_SPRINTF" value="0" />
   </makefile>
 </module>
