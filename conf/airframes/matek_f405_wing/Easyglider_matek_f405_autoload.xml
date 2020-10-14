@@ -77,7 +77,7 @@
     <set servo="MOTOR" value="@THROTTLE"/>
     <set servo="AILERON" value="@ROLL"/>
     <set servo="ELEVATOR" value="@PITCH"/>
-    <set servo="RUDDER" value="@YAW"/>
+    <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
     <set servo="CAM_TILT" value="@CAM_TILT"/>
     <set servo="PARACHUTE" value="@PARACHUTE"/>

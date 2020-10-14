@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="Easyglider_Matek">
+<airframe name="Easyglider Matek">
   <description>
     Easyglider from Multiplex
     BOARD = Matek f405 Wing
@@ -52,14 +52,14 @@
         <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
       </module>
       <module name="spi" type="master"/>
-      <module name="nav_line"/>
-      <module name="gps_ubx_ucenter"/> 
-      <module name="baro_bmp280_i2c">
+      <module name="nav_line.xml"/>
+      <module name="gps_ubx_ucenter.xml"/> 
+      <module name="baro_bmp280_i2c.xml">
         <define name="BMP280_SYNC_SEND"/>
         <configure name="BMP280_I2C_DEV" value="i2c1" />
         <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
       </module>
-      <module name="osd_max7456">
+      <module name="osd_max7456.xml">
         <configure name="MAX7456_SPI_DEV" value="spi2" />
         <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
         <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
@@ -103,6 +103,7 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="YAW" value="@YAW"/>
+<!--    <set command="PARACHUTE" value="@PARACHUTE"/> -->
   </rc_commands>
 
   <section name="MIXER">
@@ -114,7 +115,7 @@
     <set servo="MOTOR" value="@THROTTLE"/>
     <set servo="AILERON" value="@ROLL"/>
     <set servo="ELEVATOR" value="@PITCH"/>
-    <set servo="RUDDER" value="@YAW"/>
+    <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
     <set servo="CAM_TILT" value="@CAM_TILT"/>
     <set servo="PARACHUTE" value="@PARACHUTE"/>
@@ -334,7 +335,7 @@
     <define name="ALT_SHIFT_PLUS_PLUS" value="100"/>
     <define name="ALT_SHIFT_PLUS" value="10"/>
     <define name="ALT_SHIFT_MINUS" value="-10"/>
-    <define name="SPEECH_NAME" value="Easyglider"/>
+    <define name="SPEECH_NAME" value="DART"/>
   </section>
 
   <section name="SIMU">
