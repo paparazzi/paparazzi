@@ -3,16 +3,19 @@
 <module name="board_matek_wing" dir="boards">
   <doc>
     <description>
-      Autoload several onboard sensors for the Matek F405 Wing board with proper configuration
-      - IMU MPU6000
-      - Baro (BMP280)
+      Autoload several onboard sensors and subsystems
+      for the Matek F405 Wing board with proper configuration.
+      IMU MPU6000
+      Baro (BMP280)
+      OSD
+      GPS and many other subsystems which i always use.
       Normal front of the board is on the servo S3-S8 servo connector
-      Normal up of the board is on STM32F405 side
+      Normal up of the board is on STM32F405 side.
     </description>
   </doc>
   <autoload name="gps"  type="ublox" />
-  <autoload name="control" /> 
-  <autoload name="telemetry" type="transparent"/> 
+  <autoload name="control" />
+  <autoload name="telemetry" type="transparent"/>
   <autoload name="control" />
   <autoload name="radio_control" type="ppm"/>
   <autoload name="navigation" />
@@ -21,7 +24,7 @@
   <autoload name="ins" type="alt_float"/>
   <autoload name="spi" type="master"/>
   <autoload name="nav_line"/>
-  <autoload name="gps_ubx_ucenter"/> 
+  <autoload name="gps_ubx_ucenter"/>
   <autoload name="osd_max7456" />
   <autoload name="baro_bmp280_i2c" />
 
