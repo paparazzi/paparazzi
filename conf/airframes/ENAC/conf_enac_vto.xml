@@ -50,7 +50,7 @@
    airframe="airframes/ENAC/quadrotor/bebop2_optitrack_swarm.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_survey_enac.xml"
+   flight_plan="flight_plans/rotorcraft_joystick_enac_vertical.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="#d25d4e5af836"
