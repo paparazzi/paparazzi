@@ -270,8 +270,8 @@ static char ascii_to_osd_c(char c)
 {
 
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-#warning OSD USES THE CUSTOM MATEK TYPE OSD CHIP
-
+PRINT_CONFIG_MSG("OSD USES THE CUSTOM MATEK TYPE OSD CHIP")
+  
   return (c);
 
 #else
@@ -580,11 +580,11 @@ void max7456_periodic(void)
         break;
       case (30):
 #if OSD_USE_MAG_COMPASS && !defined(SITL)
-#pragma message "OSD USES THE MAGNETIC HEADING"
-        temp = DegOfRad(MAG_Heading);
+PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
+  temp = DegOfRad(MAG_Heading);
         if (temp < 0) { temp += 360; }
 #else
-#pragma message "OSD USES THE GPS HEADING"
+PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
         temp = DegOfRad(state.h_speed_dir_f);
         if (temp < 0) { temp += 360; }
 #endif
@@ -608,15 +608,15 @@ void max7456_periodic(void)
         break;
       case (50):
 #if OSD_USE_BARO_ALTITUDE && !defined(SITL)
-#pragma message "OSD ALTITUDE IS COMING FROM BAROMETER"
+PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
 #if defined BARO_ALTITUDE_VAR
         osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR);
 #else
-#warning OSD USES THE DEFAULT BARO ALTITUDE VARIABLE
+PRINT_CONFIG_MSG("OSD USES THE DEFAULT BARO ALTITUDE VARIABLE")
         osd_sprintf(osd_string, "%.0fM", baro_alt);
 #endif
 #else
-#pragma message "ALTITUDE IS COMING FROM GPS"
+PRINT_CONFIG_MSG("ALTITUDE IS COMING FROM GPS")
         osd_sprintf(osd_string, "%.0fM", GetPosAlt());
 #endif
         osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
