@@ -713,12 +713,12 @@ void max7456_event(void)
         break;
       case (OSD_READ_STATUS):
         osd_stat_reg = max7456_trans.input_buf[1];
-        if (osd_stat_reg & (OSD_MEMORY_READY_FLAG|OSD_RESET_FINISHED_FLAG)) {
-           max7456_trans.output_length = 1;
-           max7456_trans.input_length = 2;
-           max7456_trans.output_buf[0] = OSD_STAT_REG;
-           max7456_osd_status = OSD_READ_STATUS;
-           spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+        if (osd_stat_reg & (OSD_NVRAM_BUSY_FLAG | OSD_RESET_BUSY_FLAG)) {
+          max7456_trans.output_length = 1;
+          max7456_trans.input_length = 2;
+          max7456_trans.output_buf[0] = OSD_STAT_REG;
+          max7456_osd_status = OSD_READ_STATUS;
+          spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         } else {
           osd_attr = 0;
           max7456_trans.status = SPITransDone;
