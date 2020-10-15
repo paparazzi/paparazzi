@@ -56,8 +56,14 @@
 #define OSD_AUTO_INCREMENT_MODE   (1<<0)    // default = NO AUTO INCREMENT
 
 //OSD STATUS REGISTER BIT POSITIONS
-#define OSD_MEMORY_READY_FLAG     (1<<5)    // DMM reg, default = 0
-#define OSD_RESET_FINISHED_FLAG   (1<<6)    // default = NO AUTO INCREMENT
+#define OSD_UNUSED_FLAG           (1<<7)    // It is not used.
+#define OSD_RESET_BUSY_FLAG       (1<<6)    // 0=power on reset completed, 1=busy with reset.
+#define OSD_NVRAM_BUSY_FLAG       (1<<5)    // 0=memory available, 1=memory busy
+#define OSD_VSYNC_ABSENT_FLAG     (1<<4)    // 0=vertical sync active, 1= no vsync
+#define OSD_HSYNC_ABSENT_FLAG     (1<<3)    // 0=Horizontal sync active, 1= no Hsync
+#define OSD_LOS_ABSENT_FLAG       (1<<2)    // 0=sync active, 1= no sync
+#define OSD_NTSC_PRESENT_FLAG     (1<<1)    // 0=No NTSC signal detected, 1=NTSC signal detected.
+#define OSD_PAL_PRESENT_FLAG      (1<<0)    // 0=No PAL signal detected, 1=PAL signal detected.
 
 // MAX7456 VIDEO_MODE_0 register
 #define VIDEO_MODE_0_WRITE              0x00
@@ -123,7 +129,7 @@
 
 // MAX7456 FM_DATA_OUT register
 #define FM_DATA_OUT_READ                0xC0
-
+/*
 // MAX7456 STATUS register
 #define STATUS_READ                     0xA0
 #define STATUS_40_RESET_BUSY            0x40
@@ -131,7 +137,7 @@
 #define STATUS_04_LOSS_OF_SYNC          0x04
 #define STATUS_02_PAL_DETECTED          0x02
 #define STATUS_01_NTSC_DETECTED         0x01
-
+*/
 // MAX7456 requires clearing OSD Black Level register bit 0x10 after reset
 #define OSDBL_WR                        0x6C
 #define OSDBL_RD                        0xEC
