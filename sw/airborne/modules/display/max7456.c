@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Chris
+ * Copyright (C) 2013-2020 Chris Efstathiou hendrixgr@gmail.com
  *
  * This file is part of paparazzi.
  *
@@ -70,7 +70,6 @@ typedef struct {
 
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC);
 static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC);
-static void check_osd_status(void);
 static float home_direction(void);
 static char ascii_to_osd_c(char c);
 static void osd_put_s(char *string,  uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column);
@@ -114,7 +113,6 @@ uint8_t max7456_osd_status = OSD_UNINIT;
 uint8_t osd_enable = true;
 uint8_t osd_enable_val = OSD_IMAGE_ENABLE;
 uint8_t osd_stat_reg = 0;
-bool  osd_stat_reg_valid = false;
 float home_dir = 0;
 
 
@@ -196,10 +194,9 @@ static float home_direction(void)
    *
    * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
    *
-   *   plane front
-   *
+   *             plane front
    *                  0˚
-                      ^
+   *                  ^
    *                  I
    *             -45˚ I  45˚
    *                \ I /
@@ -207,7 +204,7 @@ static float home_direction(void)
    *       -90˚-------I------- 90˚
    *                 /I\
    *                / I \
-   *            -135˚ I  120˚
+   *            -135˚ I  135˚
    *                  I
    *                 180
    *             plane back
@@ -215,33 +212,6 @@ static float home_direction(void)
    *
    */
 
-  /*
-   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fx, (Home_PositionForPlane2.fy)));
-   *
-   *
-   *   plane front
-   *
-   *                  90˚
-                      ^
-   *                  I
-   *             135˚ I  45˚
-   *                \ I /
-   *                 \I/
-   *       180˚-------I------- 0˚
-   *                 /I\
-   *                / I \
-   *            -135˚ I  -45˚
-   *                  I
-   *                -90
-   *             plane back
-   *
-   *
-   */
-
-  /* fPan =   0˚  -> antenna looks along the wing
-             90˚  -> antenna looks in flight direction
-            -90˚  -> antenna looks backwards
-  */
   /* fixed to the plane*/
   home_dir = (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
   home_dir = DegOfRad(home_dir);
@@ -250,28 +220,12 @@ static float home_direction(void)
   return (home_dir);
 }
 
-static void check_osd_status(void)
-{
-
-  osd_stat_reg_valid = FALSE;
-
-  if (max7456_osd_status == OSD_IDLE) {
-    max7456_trans.output_length = 1;
-    max7456_trans.input_length = 1;
-    max7456_trans.output_buf[0] = OSD_STAT_REG;
-    max7456_osd_status = OSD_READ_STATUS;
-    spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
-  }
-
-  return;
-}
-
 static char ascii_to_osd_c(char c)
 {
 
 #if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-PRINT_CONFIG_MSG("OSD USES THE CUSTOM MATEK TYPE OSD CHIP")
-  
+  PRINT_CONFIG_MSG("OSD USES THE CUSTOM MATEK TYPE OSD CHIP")
+
   return (c);
 
 #else
@@ -292,7 +246,6 @@ PRINT_CONFIG_MSG("OSD USES THE CUSTOM MATEK TYPE OSD CHIP")
       case (';'): c = 0x43; break;
       case (':'): c = 0x44; break;
       case (','): c = 0x45; break;
-      //case('''): c = 0x46; break;
       case ('/'): c = 0x47; break;
       case ('"'): c = 0x48; break;
       case ('-'): c = 0x49; break;
@@ -580,11 +533,11 @@ void max7456_periodic(void)
         break;
       case (30):
 #if OSD_USE_MAG_COMPASS && !defined(SITL)
-PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
-  temp = DegOfRad(MAG_Heading);
+        PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
+        temp = DegOfRad(MAG_Heading);
         if (temp < 0) { temp += 360; }
 #else
-PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
+        PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
         temp = DegOfRad(state.h_speed_dir_f);
         if (temp < 0) { temp += 360; }
 #endif
@@ -608,15 +561,15 @@ PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
         break;
       case (50):
 #if OSD_USE_BARO_ALTITUDE && !defined(SITL)
-PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
+        PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
 #if defined BARO_ALTITUDE_VAR
         osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR);
 #else
-PRINT_CONFIG_MSG("OSD USES THE DEFAULT BARO ALTITUDE VARIABLE")
+        PRINT_CONFIG_MSG("OSD USES THE DEFAULT BARO ALTITUDE VARIABLE")
         osd_sprintf(osd_string, "%.0fM", baro_alt);
 #endif
 #else
-PRINT_CONFIG_MSG("ALTITUDE IS COMING FROM GPS")
+        PRINT_CONFIG_MSG("ALTITUDE IS COMING FROM GPS")
         osd_sprintf(osd_string, "%.0fM", GetPosAlt());
 #endif
         osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
@@ -687,14 +640,8 @@ PRINT_CONFIG_MSG("ALTITUDE IS COMING FROM GPS")
           osd_put_s(osd_string, R_JUST, 5, 8, 13);
 
         } else { osd_put_s("     ", R_JUST, 5, 8, 13); }
-        step = 120;
-        break;
-
-      case (120):
-        check_osd_status();
         step = 10;
         break;
-
       default: step = 10; break;
     }  // End of switch statement.
   }  // End of if (max7456_osd_status == OSD_UNINIT)
@@ -731,13 +678,6 @@ void max7456_event(void)
         max7456_osd_status = OSD_FINISHED;
         spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         break;
-      /*
-            case (OSD_READ_STATUS):
-              osd_stat_reg = max7456_trans.input_buf[0];
-              osd_stat_reg_valid = true;
-              max7456_osd_status = OSD_FINISHED;
-              break;
-      */
       case (OSD_S_STEP1):
         max7456_trans.output_length = 2;
         max7456_trans.output_buf[0] = OSD_DMAL_REG;
@@ -764,23 +704,30 @@ void max7456_event(void)
           spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         }
         break;
-      case (OSD_READ_STATUS):
-        osd_stat_reg = max7456_trans.input_buf[0];
-        osd_stat_reg_valid = TRUE;
-        max7456_trans.status = SPITransDone;
-        max7456_osd_status = OSD_IDLE;
-        break;
       case (OSD_FINISHED):
-        osd_attr = 0;
-        max7456_trans.status = SPITransDone;
-        max7456_osd_status = OSD_IDLE;
+        max7456_trans.output_length = 1;
+        max7456_trans.input_length = 2;
+        max7456_trans.output_buf[0] = OSD_STAT_REG;
+        max7456_osd_status = OSD_READ_STATUS;
+        spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         break;
+      case (OSD_READ_STATUS):
+        osd_stat_reg = max7456_trans.input_buf[1];
+        if (osd_stat_reg & (OSD_NVRAM_BUSY_FLAG | OSD_RESET_BUSY_FLAG)) {
+          max7456_trans.output_length = 1;
+          max7456_trans.input_length = 2;
+          max7456_trans.output_buf[0] = OSD_STAT_REG;
+          max7456_osd_status = OSD_READ_STATUS;
+          spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
+        } else {
+          osd_attr = 0;
+          max7456_trans.status = SPITransDone;
+          max7456_osd_status = OSD_IDLE;
+        }
+        break;
+
       default: break;
     }
   }
   return;
 }
-
-
-
-

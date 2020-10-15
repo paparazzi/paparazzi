@@ -25,8 +25,8 @@
     <configure name="BMP280_I2C_DEV" value="i2c1" />
     <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
     <!-- OSD CONFIGURATION -->
-    <define name="MAX7456_SPI_DEV" value="spi2" />
-    <define name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
+    <configure name="MAX7456_SPI_DEV" value="spi2" />
+    <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
     <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
     <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
     <define name="OSD_USE_BARO_ALTITUDE" value="0" />
