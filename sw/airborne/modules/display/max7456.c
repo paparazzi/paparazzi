@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Chris
+ * Copyright (C) 2013-2020 Chris Efstathiou hendrixgr@gmail.com
  *
  * This file is part of paparazzi.
  *
