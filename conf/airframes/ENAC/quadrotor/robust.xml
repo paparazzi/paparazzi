@@ -13,6 +13,7 @@
   <firmware name="rotorcraft">
     <configure name="PERIODIC_FREQUENCY" value="512"/>
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <configure name="INDI_NUM_ACT" value="6"/>
 
     <target name="ap" board="tawaki_1.0">
     <module name="radio_control" type="sbus"/>
@@ -218,7 +219,7 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <define name="NUM_ACT" value="6"/>
+
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="111"/>
     <define name="REF_ERR_Q" value="111"/>

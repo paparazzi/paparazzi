@@ -675,6 +675,36 @@
         <arg flag="-s" constant="57600"/>
       </program>
     </session>
+    <session name="Swarm_Robust">
+      <program name="Server"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-maps_zoom" constant="20"/>
+        <arg flag="-auto_hide_fp"/>
+        <arg flag="-layout" constant="ENAC/enac_voliere.xml"/>
+        <arg flag="-zoom" constant="40"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="-ac" constant="151"/>
+        <arg flag="151"/>
+        <arg flag="-ac" constant="154"/>
+        <arg flag="154"/>
+        <arg flag="-s" constant="192.168.1.230"/>
+        <arg flag="-f" constant="10"/>
+        <arg flag="-gr"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-ac" constant="GCS"/>
+        <arg flag="T1600M_ground.xml"/>
+      </program>
+      <program name="FC Rotorcraft">
+        <arg flag="-gr" constant="ENAC/robust.json"/>
+      </program>
+    </session>
     <session name="Swarm Bebop2 210 213">
       <program name="Server"/>
       <program name="Data Link">
