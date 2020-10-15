@@ -129,15 +129,7 @@
 
 // MAX7456 FM_DATA_OUT register
 #define FM_DATA_OUT_READ                0xC0
-/*
-// MAX7456 STATUS register
-#define STATUS_READ                     0xA0
-#define STATUS_40_RESET_BUSY            0x40
-#define STATUS_20_NVRAM_BUSY            0x20
-#define STATUS_04_LOSS_OF_SYNC          0x04
-#define STATUS_02_PAL_DETECTED          0x02
-#define STATUS_01_NTSC_DETECTED         0x01
-*/
+
 // MAX7456 requires clearing OSD Black Level register bit 0x10 after reset
 #define OSDBL_WR                        0x6C
 #define OSDBL_RD                        0xEC
