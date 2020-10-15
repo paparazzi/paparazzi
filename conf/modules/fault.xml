@@ -1,0 +1,33 @@
+
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fault">
+  <doc>
+    <description>Cuts off the motors</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="FAULT">
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="upper_front_effectiveness" shortname="UP_FR"   module="modules/fault/fault" handler="Set_Upper_Front"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="upper_right_effectiveness" shortname="UP_RG"   module="modules/fault/fault" handler="Set_Upper_Right"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="upper_left_effectiveness" shortname="UP_LF"   module="modules/fault/fault" handler="Set_Upper_Left"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="bottom_front_effectiveness" shortname="BOT_FR" module="modules/fault/fault" handler="Set_Bottom_Front"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="bottom_right_effectiveness" shortname="BOT_RG" module="modules/fault/fault" handler="Set_Bottom_Right"/>
+        <dl_setting MAX="1.0" MIN="0.0" STEP="0.1" VAR="bottom_left_effectiveness" shortname="BOT_LF" module="modules/fault/fault" handler="Set_Bottom_Left"/>
+<!--         <dl_setting MAX="9600.0" MIN="-9600.0" STEP="1" VAR="fault_offset_right" shortname="right_offset" module="modules/fault/fault" handler="Set_Offset_Right"/>
+        <dl_setting MAX="9600.0" MIN="-9600.0" STEP="1" VAR="fault_offset_left" shortname="left_offset" module="modules/fault/fault" handler="Set_Offset_Left"/> -->
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="fault.h"/>
+  </header>
+  <init fun="fault_init()"/>
+  <!--periodic fun="fault_periodic()" freq="60" autorun="TRUE"/-->
+  <!--event fun="fault_event()"/>
+  <datalink message="fault_datalink_event()" fun="fault_datalink_callback()"/-->
+  <makefile>
+    <file name="fault.c"/>
+  </makefile>
+</module>
