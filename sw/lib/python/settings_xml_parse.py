@@ -99,8 +99,8 @@ class PaparazziACSettings:
                 if 'values' in the_setting.attrib:
                     settings.values = the_setting.attrib['values'].split('|')
                     count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
-                    if len(settings.values) != count:
-                        print("Warning: possibly wrong number of values (%i) for %s (expected %i)" % (len(settings.values), shortname, count))
+#                     if len(settings.values) != count:
+#                         print("Warning: possibly wrong number of values (%i) for %s (expected %i)" % (len(settings.values), shortname, count))
 
                 setting_group.member_list.append(settings)
                 self.lookup.append(settings)
