@@ -58,8 +58,9 @@
 #error "You need to use a telemetry xml file with Logger process!"
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#warning This module can only be used with uart downlink for now.
+#ifndef SDLOGGER_DOWNLINK_DEVICE
+//#define SDLOGGER_DOWNLINK_DEVICE usb_serial
+#error No downlink device defined for SD Logger
 #endif
 
 struct sdlogger_spi_periph sdlogger_spi;
@@ -192,10 +193,15 @@ void sdlogger_spi_direct_periodic(void)
         /* Put bytes to the buffer until all is written or buffer is full */
         for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE; i++) {
           long fd = 0;
-          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
-            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
-          }
-          else {
+//          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
+//            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
+//          } else {
+//            /* No free space left, abort for-loop */
+//            break;
+//          }
+          if ((SDLOGGER_DOWNLINK_DEVICE).device.check_free_space(&(SDLOGGER_DOWNLINK_DEVICE), &fd, 1)) {
+            (SDLOGGER_DOWNLINK_DEVICE).device.put_byte(&(SDLOGGER_DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
+          } else {
             /* No free space left, abort for-loop */
             break;
           }
