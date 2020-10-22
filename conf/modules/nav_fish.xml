@@ -1,0 +1,54 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_fish" dir="nav">
+  <doc>
+    <description>
+      Bio-inspired swarm navigation
+
+      based on fish behavior as modeled in:
+      Calovi DS, Litchinko A, Lecheval V, Lopez U, Pérez Escudero A, Chaté H, et al. (2018)
+      Disentangling and modeling interactions in fish with burst-and-coast swimming reveal distinct
+      alignment and attraction behaviors. PLoS Comput Biol 14(1): e1005933.
+      https://doi.org/10.1371/journal.pcbi.1005933
+
+    </description>
+    <section name="NAV_FISH" prefix="NAV_FISH_">
+      <define name="FLUCT" value="0.1" description="intensity of fluctuations"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Nav Fish">
+        <dl_setting var="nav_fish_params.alt" shortname="alt" min="0.5" step=".1" max="10.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.max_velocity" shortname="max V" min="0.1" step=".1" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.min_velocity" shortname="min V" min="0.1" step=".1" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.min_d2d" shortname="min d2d" min="0.1" step=".1" max="5.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.alpha" shortname="alpha" min="0.01" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.e_w1" shortname="e_w1" min="0.0" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.e_w2" shortname="e_w2" min="0.0" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.y_w" shortname="yw" min="0.01" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.l_w" shortname="lw" min="0.1" step=".1" max="10.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.fluct" shortname="fluct" min="0.01" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+	<dl_setting var="nav_fish_params.alpha_rep" shortname="alpha rep" min="0.0" step=".01" max="5.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.y_att" shortname="y_att" min="0.01" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.l_att" shortname="l_att" min="0.01" step=".1" max="5.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.d0_att" shortname="d0_att" min="0.01" step=".1" max="5.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.y_ali" shortname="y_ali" min="0.01" step=".01" max="10.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.l_ali" shortname="l_ali" min="0.01" step=".1" max="20.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.d0_ali" shortname="d0_ali" min="0.01" step=".1" max="5.0" module="modules/nav/nav_fish"/>
+	<dl_setting var="nav_fish_params.tr_y_att" shortname="tr_y_att" min="0.01" step=".01" max="1.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.tr_l_att" shortname="tr_l_att" min="0.01" step=".1" max="20.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.tr_y_ali" shortname="tr_y_ali" min="0.01" step=".01" max="5.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.tr_l_ali" shortname="tr_l_ali" min="0.01" step=".1" max="20.0" module="modules/nav/nav_fish"/>
+        <dl_setting var="nav_fish_params.strategy" shortname="strategy" min="0" step="1" max="2" module="modules/nav/nav_fish"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="nav_fish.h"/>
+  </header>
+  <init fun="nav_fish_init()"/>
+  <makefile>
+    <file name="nav_fish.c"/>
+  </makefile>
+</module>
