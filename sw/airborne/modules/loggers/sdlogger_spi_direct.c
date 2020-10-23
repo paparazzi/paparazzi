@@ -191,8 +191,9 @@ void sdlogger_spi_direct_periodic(void)
     case SDLogger_Downloading:
       if (sdcard1.status == SDCard_Idle) {
         /* Put bytes to the buffer until all is written or buffer is full */
-        for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE; i++) {
-          long fd = 0;
+        long fd = 0;
+        uint16_t chunk_size = 64;
+        for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE && chunk_size > 0; i++, chunk_size--) {
 //          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
 //            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
 //          } else {
@@ -209,6 +210,7 @@ void sdlogger_spi_direct_periodic(void)
         }
         /* Request next block if entire buffer was written to uart */
         if (sdlogger_spi.sdcard_buf_idx >= SD_BLOCK_SIZE) {
+          (SDLOGGER_DOWNLINK_DEVICE).device.send_message(&(SDLOGGER_DOWNLINK_DEVICE), fd);  // Flush buffers
           if (sdlogger_spi.download_length > 0) {
             sdcard_spi_read_block(&sdcard1, sdlogger_spi.download_address, NULL);
             sdlogger_spi.download_address++;
