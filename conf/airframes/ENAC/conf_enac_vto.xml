@@ -30,7 +30,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/ENAC/rotorcraft_optitrack_survey_enac.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/video_rtp_stream.xml modules/air_data.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
    gui_color="yellow"
   />
   <aircraft
@@ -47,34 +47,34 @@
   <aircraft
    name="BEBOP2_211"
    ac_id="211"
-   airframe="airframes/ENAC/quadrotor/bebop2_optitrack_swarm.xml"
+   airframe="airframes/ENAC/quadrotor/bebop2_fish.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_joystick_enac_vertical.xml"
+   flight_plan="flight_plans/ENAC/fish_voliere.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_fish.xml modules/stabilization_indi_simple.xml"
    gui_color="#d25d4e5af836"
   />
   <aircraft
    name="BEBOP2_212"
    ac_id="212"
-   airframe="airframes/ENAC/quadrotor/bebop2_optitrack_swarm.xml"
+   airframe="airframes/ENAC/quadrotor/bebop2_fish.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_survey_enac.xml"
+   flight_plan="flight_plans/ENAC/fish_voliere.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/guidance_indi.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_fish.xml modules/stabilization_indi_simple.xml"
    gui_color="#ffbbe2ec0000"
   />
   <aircraft
    name="BEBOP2_213"
    ac_id="213"
-   airframe="airframes/ENAC/quadrotor/bebop2_optitrack_swarm.xml"
+   airframe="airframes/ENAC/quadrotor/bebop2_fish.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_survey_enac.xml"
+   flight_plan="flight_plans/ENAC/fish_voliere.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/guidance_indi.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_fish.xml modules/stabilization_indi_simple.xml"
    gui_color="#5ae778c7f4fa"
   />
   <aircraft
