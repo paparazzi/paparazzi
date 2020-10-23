@@ -1,0 +1,115 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="190" ground_alt="185" lat0="43.462976" lon0="1.2733345" max_dist_from_home="50" name="Demo fish nav Muret outdoor" security_height="0.3">
+  <header>
+#include "autopilot.h"
+#include "subsystems/datalink/datalink.h"
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="1.0" y="0.0"/>
+    <waypoint name="TD" x="1.0" y="0"/>
+    <waypoint name="S1" x="16.4" y="60.3"/>
+    <waypoint name="S2" x="52.5" y="35.7"/>
+    <waypoint name="S3" x="56.0" y="-19.8"/>
+    <waypoint name="S4" x="29.9" y="-52.4"/>
+    <waypoint name="S5" x="-23.8" y="-50.1"/>
+    <waypoint name="S6" x="-57.6" y="-22.4"/>
+    <waypoint name="S7" x="-51.0" y="21.4"/>
+    <waypoint name="S8" x="-25.5" y="57.3"/>
+    <waypoint name="_N1" x="88.2" y="46.6"/>
+    <waypoint name="_N2" x="44.5" y="-92.5"/>
+    <waypoint name="_N3" x="-78.7" y="-51.5"/>
+    <waypoint name="_N4" x="-29.2" y="89.5"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Net" type="dynamic">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector color="green" name="Safety" type="dynamic">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+      <corner name="S5"/>
+      <corner name="S6"/>
+      <corner name="S7"/>
+      <corner name="S8"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0.1" var="fp_throttle"/>
+  </variables>
+  <exceptions>
+    <exception cond="(datalink_time > 5 @AND
+      !(IndexOfBlock('Takeoff') > nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="land"/>
+    <exception cond="(!InsideNet(GetPosX(),GetPosY())  @AND
+      !(IndexOfBlock('Takeoff') > nav_block) @AND
+      !(nav_block >= IndexOfBlock('Landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
+    <exception cond="(stateGetPositionEnu_f()->z @GT 50 @AND
+      !(IndexOfBlock('Takeoff') > nav_block) @AND
+      !(nav_block >= IndexOfBlock('Landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f() @DEREF z @GT 1.0" deroute="Standby"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time>2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="autopilot_set_mode(AP_MODE_NAV)"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block group="fish" name="Guided_run" strip_button="Guided run">
+      <exception cond="!InsideSafety(GetPosX(),GetPosY())" deroute="Standby"/>
+      <call_once fun="autopilot_set_mode(AP_MODE_GUIDED)"/>
+      <call fun="nav_fish_velocity_run()"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="stateGetPositionEnu_f()->z @LT 0.3" deroute="Ramp down"/>
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Ramp down">
+      <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Landed"/>
+      <set value="guidance_v_delta_t/9600." var="fp_throttle"/>
+      <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="EmergencyLanding">
+      <call_once fun="autopilot_set_mode(AP_MODE_NAV)"/>
+      <stay throttle="0.1" vmode="throttle" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -1,0 +1,248 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="bebop2_optitrack">
+  <description>
+    Bebop2, INDI, No Vision, ENAC
+  </description>
+
+  <firmware name="rotorcraft">
+    <define name="FAILSAFE_MODE_TOO_FAR_FROM_HOME" value="AP_MODE_NAV"/>
+    <define name="FAILSAFE_MODE_DISTANCE" value="MAX_DIST_FROM_HOME"/>
+
+    <target name="ap" board="bebop2">
+      <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi"/>
+      <configure name="HOST" value="192.168.1.$(AC_ID)"/>
+      <configure name="MODEM_HOST" value="192.168.1.255"/>
+      <define name="CLIMB_VSPEED" value="0.2"/>
+      <define name="STABILIZATION_INDI_G1_P" value="0.094"/>
+      <define name="STABILIZATION_INDI_G1_Q" value="0.094"/>
+      <define name="STABILIZATION_INDI_G1_R" value="0.0025"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.36"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <!-- Use GPS heading instead of magneto -->
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+      <define name="USE_SONAR" value="0"/>
+      <module name="ins" type="gps_passthrough"/>
+    </target>
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
+      <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+      <define name="CLIMB_VSPEED" value="0.8"/>
+      <define name="STABILIZATION_INDI_G1_P" value="0.05"/>
+      <define name="STABILIZATION_INDI_G1_Q" value="0.025"/>
+      <define name="STABILIZATION_INDI_G1_R" value="0.0022"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <module name="ins" type="extended"/>
+    </target>
+
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="bebop"/>
+    <module name="imu" type="bebop"/>
+    <module name="gps" type="datalink"/>
+    <module name="stabilization" type="indi_simple"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    
+    <module name="traffic_info"/>
+    <module name="nav" type="fish"/>
+    
+
+    <module name="air_data"/>
+  </firmware>
+
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="6000"/>
+  </commands>
+
+  <servos driver="Default">
+    <servo name="TOP_LEFT" no="0" min="2500" neutral="2500" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="2500" neutral="2500" max="12000"/>
+  </servos>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="REVERSE" value="TRUE"/>
+    <define name="TYPE" value="QUAD_X"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+  </command_laws>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
+
+  <!-- Magnetometer still needs to be calibrated -->
+  <section name="IMU" prefix="IMU_">
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="7.28514789391" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.33022132691" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.57102035692" integer="16"/>
+  </section>
+
+  <!-- local magnetic field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <!--<define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/> -->
+    <!-- Use GPS altitude measurments and set the R gain -->
+    <define name="USE_GPS_ALT" value="1"/>
+    <define name="VFF_R_GPS" value="0.01"/>
+  </section>
+
+
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+  </section>
+
+  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- attitude reference generation model -->
+    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.9"/>
+    <define name="REF_MAX_P" value="600." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.9"/>
+    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.9"/>
+    <define name="REF_MAX_R" value="600." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <!--define name="G1_P" value="0.094"/>
+    <define name="G1_Q" value="0.094"/>
+    <define name="G1_R" value="0.0025"/>
+    <define name="G2_R" value="0.36"/-->
+
+    <!-- Here it is assumed that your removed the damping from your bebop2!
+         The dampers do not really damp, but cause oscillation. By removing/
+         fixing them, the bebop2 will fly much better-->
+    <define name="FILTER_ROLL_RATE" value="FALSE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="600.0"/>
+    <define name="REF_ERR_Q" value="600.0"/>
+    <define name="REF_ERR_R" value="600.0"/>
+    <define name="REF_RATE_P" value="28.0"/>
+    <define name="REF_RATE_Q" value="28.0"/>
+    <define name="REF_RATE_R" value="28.0"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="200"/>
+    <define name="HOVER_KD" value="70"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.56"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="PGAIN" value="200"/>
+    <define name="DGAIN" value="180"/>
+    <define name="IGAIN" value="15"/>
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="DESCEND_VSPEED" value="-0.4"/>
+  </section>
+
+  <section name="NAV_FISH" prefix="NAV_FISH_">
+    <define name="BODY_LENGTH" value="0.5"/>
+    <define name="FLUCT" value="0.02"/>
+    <define name="YW" value="0.06"/>
+    <define name="LW" value="1.5"/>
+    <define name="WALL_DISTANCE" value="3.5"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <!--define name="JSBSIM_MODEL" value="bebop" type="string"/-->
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <!--define name="NO_MOTOR_MIXING" value="FALSE"/-->
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+    <define name="ARRIVED_AT_WAYPOINT" value="0.15"/>
+
+    <!--define name="NO_RC_THRUST_LIMIT" value="TRUE"/-->
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+</airframe>

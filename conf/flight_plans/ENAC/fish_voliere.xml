@@ -1,0 +1,95 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="148" ground_alt="146" lat0="43.5640917" lon0="1.4829201" max_dist_from_home="3.5" name="Demo fish nav Enac indoor" security_height="0.3">
+  <header>
+#include "autopilot.h"
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="1.0" y="0.0"/>
+    <waypoint name="TD" x="1.0" y="0"/>
+    <waypoint name="S1" x="0" y="4.0"/>
+    <waypoint name="S2" x="3.0" y="3.0"/>
+    <waypoint name="S3" x="4.0" y="0"/>
+    <waypoint name="S4" x="3.0" y="-3.0"/>
+    <waypoint name="S5" x="0" y="-4.0"/>
+    <waypoint name="S6" x="-3.0" y="-3.0"/>
+    <waypoint name="S7" x="-4.0" y="0"/>
+    <waypoint name="S8" x="-3.0" y="3.0"/>
+    <waypoint name="_N1" x="4.5" y="5.2"/>
+    <waypoint name="_N2" x="4.5" y="-5.2"/>
+    <waypoint name="_N3" x="-4.5" y="-5.2"/>
+    <waypoint name="_N4" x="-4.5" y="5.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector name="Safety" color="green" type="dynamic">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+      <corner name="S5"/>
+      <corner name="S6"/>
+      <corner name="S7"/>
+      <corner name="S8"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0.1" var="fp_throttle"/>
+  </variables>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f() @DEREF z @GT 1.0" deroute="Standby"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle" until="stage_time>2"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="STDBY"/> 
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="autopilot_set_mode(AP_MODE_NAV)"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Guided_run" strip_button="Guided run" group="fish">
+      <exception cond="!InsideSafety(GetPosX(),GetPosY())" deroute="Standby"/>
+      <call_once fun="autopilot_set_mode(AP_MODE_GUIDED)"/>
+      <call fun="nav_fish_velocity_run()"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="stateGetPositionEnu_f()->z @LT 0.3" deroute="Ramp down"/>
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Ramp down">
+      <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Landed"/>
+      <set var="fp_throttle" value="guidance_v_delta_t/9600."/>
+      <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>
