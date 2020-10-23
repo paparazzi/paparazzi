@@ -335,7 +335,7 @@ void parse_single_byte(unsigned char byte)
 
     case SearchingPPRZ_STX:
       if (byte == PPRZ_STX) {
-        printf("Got PPRZ_STX\n");
+//        printf("Got PPRZ_STX\n");
         parser.crc_a = 0;
         parser.crc_b = 0;
         parser.counter = 1;
@@ -387,7 +387,7 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCA:
-      printf("CRCA: %d vs %d\n", byte, parser.crc_a);
+//      printf("CRCA: %d vs %d\n", byte, parser.crc_a);
       if (byte == parser.crc_a) {
         parser.state = CheckingCRCB;
       }
@@ -397,17 +397,17 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCB:
-      printf("CRCB: %d vs %d\n", byte, parser.crc_b);
+//      printf("CRCB: %d vs %d\n", byte, parser.crc_b);
       if (byte == parser.crc_b && parser.msg_id == 31) {
-        printf("MSG ID: %d \t"
-               "SENDER_ID: %d\t"
-               "LEN: %d\t"
-               "SETTING: %d\n",
-               parser.msg_id,
-               parser.sender_id,
-               parser.length,
-               parser.payload[0]);
-        printf("Request confirmed\n");
+//        printf("MSG ID: %d \t"
+//               "SENDER_ID: %d\t"
+//               "LEN: %d\t"
+//               "SETTING: %d\n",
+//               parser.msg_id,
+//               parser.sender_id,
+//               parser.length,
+//               parser.payload[0]);
+//        printf("Request confirmed\n");
 
         /* Check what to do next if the command was received */
         if (global_state == WaitingForIndexRequestConfirmation
@@ -434,7 +434,7 @@ void parse_single_byte(unsigned char byte)
 
 void parse_index_byte(unsigned char byte)
 {
-  printf("parse_index_byte %d/512: %x\n", index_cnt, byte);
+//  printf("parse_index_byte %d/512: %x\n", index_cnt, byte);
   unsigned char *pc;
   pc = (unsigned char*)&log_index;
   pc[index_cnt] = byte;
