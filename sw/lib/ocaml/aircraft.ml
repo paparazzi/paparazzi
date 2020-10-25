@@ -335,6 +335,8 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
       let settings_modules = List.fold_left
           (fun acc m ->
             if List.exists (fun name ->
+              let name = List.hd (Str.split (Str.regexp "~") name) in
+              (* FIXME use correctly the settings name in filtered settings ? *)
               m.Module.xml_filename = (if Filename.is_relative name
               then (Env.paparazzi_conf // name) else name)) settings_modules_files
             then acc @ m.Module.settings else acc
