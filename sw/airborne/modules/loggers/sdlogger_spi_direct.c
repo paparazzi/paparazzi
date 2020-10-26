@@ -59,7 +59,6 @@
 #endif
 
 #ifndef SDLOGGER_DOWNLINK_DEVICE
-//#define SDLOGGER_DOWNLINK_DEVICE usb_serial
 #error No downlink device defined for SD Logger
 #endif
 
@@ -194,12 +193,6 @@ void sdlogger_spi_direct_periodic(void)
         long fd = 0;
         uint16_t chunk_size = 64;
         for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE && chunk_size > 0; i++, chunk_size--) {
-//          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
-//            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
-//          } else {
-//            /* No free space left, abort for-loop */
-//            break;
-//          }
           if ((SDLOGGER_DOWNLINK_DEVICE).device.check_free_space(&(SDLOGGER_DOWNLINK_DEVICE), &fd, 1)) {
             (SDLOGGER_DOWNLINK_DEVICE).device.put_byte(&(SDLOGGER_DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
           } else {
