@@ -214,6 +214,9 @@ void mag_compass(void)
       mag_declination -= mag_heading_rad;
       if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; }
       mag_heading_rad = mag_heading_rad + mag_declination;
+      if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
+        mag_heading_rad -= (2.0 * M_PI);
+      } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
       declination_calculated = TRUE;
     }
   }
