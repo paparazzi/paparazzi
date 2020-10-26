@@ -5,19 +5,25 @@
     <description>
 Direct SPI SD Logger that saves pprzlog messages to SD Card.
 
-This module logs data directly to an SD Card which is connected on a SPI port. For now, it is only possible to use a radio switch to start and stop logging.
+Supported SD cards:
+- SDv2 cards. Old SDv1 cards are not supported.
+- Both SDSC and SDHC/SDXC are supported.
+Some SD cards need to be zeroed out before use: https://askubuntu.com/a/511476
+
+This module logs data directly to an SD Card which is connected on a SPI port.
+Logging can be started/stopped by setting sdlogger_spi.do_log from the GCS
+or by defining SDLOGGER_ON_ARM to TRUE.
 
 The values to be logged are defined in the telemetry config file. An example is available in rotorcraft_with_logger.xml. The logmessage is defined as the default message in the process "Logger".
 
 A LOGGER_LED can be enabled which indicates if the logger is writing or reading data.
 
-Downloading of the data occurs over an UART datalink. There is no check to verify that all data is transfered, so it is recommended to use an FTDI cable to the UART port.
-
-Do not use start/stop functionality of the module, the module is not intended to be used like this.
+Downloading of the data occurs over the configured serial device using sw/logalizer/sdlogger_download. There is no check to verify that all data is transfered. For UART it is recommended to use an FTDI cable.
 </description>
     <configure name="SDLOGGER_DIRECT_SPI" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="Port to which the SD Card is connected."/>
     <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="Port to which the SD Card is connected."/>
     <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX2"/>
+    <define name="SDLOGGER_ON_ARM" value="TRUE" description="Start/stop SD logger with motor arming"/>
     <configure name="SDLOGGER_DOWNLINK_DEVICE" value="DOWNLINK_DEVICE|uartX|usb_serial|..." description="Note: case sensitive!"/>
     <configure name="LOGGER_LED" value="none"/>
   </doc>
@@ -37,7 +43,7 @@ Do not use start/stop functionality of the module, the module is not intended to
     <file name="sdlogger_spi_direct.h"/>
   </header>
   <init fun="sdlogger_spi_direct_init()"/>
-  <periodic fun="sdlogger_spi_direct_periodic()" freq="512" start="sdlogger_spi_direct_start()" stop="sdlogger_spi_direct_stop()" autorun="TRUE"/>
+  <periodic fun="sdlogger_spi_direct_periodic()" freq="512" start="sdlogger_spi_direct_start()" stop="sdlogger_spi_direct_stop()" autorun="LOCK"/>
   <datalink message="SETTING" fun="sdlogger_spi_direct_command()"/>
   <makefile target="ap">
 
