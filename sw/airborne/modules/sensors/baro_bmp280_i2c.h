@@ -34,6 +34,8 @@
 extern struct Bmp280_I2c baro_bmp280;
 
 extern float baro_alt;
+extern float baro_press;
+extern float baro_temp;
 extern  bool baro_alt_valid;
 
 void baro_bmp280_init(void);
