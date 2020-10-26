@@ -283,7 +283,7 @@ void write_command(float value)
   crc_a += length; crc_b += crc_a;
 
   msg[2]  = 0; // Sender ID
-  crc_a += 0; crc_b += crc_a; // ok to here
+  crc_a += 0; crc_b += crc_a;
 
   msg[3] = 0xFF; // Receiver ID (broadcast)
   crc_a += 0xFF; crc_b += crc_a;
