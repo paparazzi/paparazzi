@@ -229,8 +229,7 @@ void mag_compass(void)
   if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
     mag_heading_rad -= (2.0 * M_PI);
   } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
-  mag_heading_deg = DegOfRad(mag_heading_rad);  // Now convert to degrees.
-  mag_course_deg = mag_heading_deg;
+  mag_course_deg = DegOfRad(mag_heading_rad);  // Now convert to degrees.
   if (mag_course_deg < 0) { mag_course_deg += 360; } // translate the +180, -180 to 0-360.
 
 #endif
