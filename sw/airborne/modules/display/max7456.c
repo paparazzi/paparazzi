@@ -636,6 +636,7 @@ void draw_osd(void)
   float temp = 0;
   float altitude = 0;
   float distance_to_home = 0;
+  float throttle_percentage = 0;
 
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
@@ -744,12 +745,23 @@ void draw_osd(void)
       break;
 
     case (50):
-#if AP
-      osd_sprintf(osd_string, "THR%.0f", (((float)ap_state->commands[COMMAND_THROTTLE] / MAX_PPRZ) * 100));
-#else
-      osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ) * 100));
-#endif
+#if defined(COMMAND_THROTTLE)
+      if (ap_state->commands[COMMAND_THROTTLE] > 0){
+        throttle_percentage = ((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.;
+      } else {
+        throttle_percentage = ((float)ap_state->commands[COMMAND_THROTTLE] / (float)MIN_PPRZ) * 100.; 
+      }
+      osd_sprintf(osd_string, "THR%.0f", throttle_percentage);
       osd_put_s(osd_string, L_JUST, 5, 3, 1);
+#elif defined(COMMAND_THRUST)
+      if (stabilization_cmd[COMMAND_THRUST] > 0){
+        throttle_percentage = ((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.;
+      } else {
+        throttle_percentage = ((float)stabilization_cmd[COMMAND_THRUST] / (float)MIN_PPRZ) * 100.; 
+      }
+      osd_sprintf(osd_string, "THR%.0f", throttle_percentage);
+      osd_put_s(osd_string, L_JUST, 5, 3, 1);
+#endif
       step = 60;
       break;
 
