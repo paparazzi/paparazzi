@@ -651,7 +651,15 @@ void draw_osd(void)
 
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
-  gps_course_deg = (DegOfRad(gps.course) / ((int32_t)1e6));
+
+  //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
+  gps_course_deg = state.h_speed_dir_f;
+  if (gps_course_deg > M_PI) { // Angle normalization (-180 deg to 180 deg)
+    gps_course_deg -= (2.0 * M_PI);
+  } else if (gps_course_deg < -M_PI) { gps_course_deg += (2.0 * M_PI); }
+  gps_course_deg = DegOfRad(gps_course_deg);  // Now convert to degrees.
+  if (gps_course_deg < 0) { gps_course_deg += 360; } // translate the +180, -180 to 0-360.
+
 #if defined(BARO_ALTITUDE_VAR)
   float baro_alt_correction = 0;
   RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), {if (gps.fix == GPS_FIX_3D) { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;}});
