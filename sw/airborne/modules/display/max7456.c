@@ -174,8 +174,8 @@ void mag_compass(void)
   int32_t x = 0, y = 0, z = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
-  float mag_declination = 0;
-  bool declination_calculated = FALSE;
+  static float mag_declination = 0;
+  static bool declination_calculated = FALSE;
 
 #if defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)
   x = ((imu.mag_unscaled.x - imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
@@ -213,14 +213,13 @@ void mag_compass(void)
       } else if (mag_declination < -M_PI) { mag_declination += (2.0 * M_PI); }
       mag_declination -= mag_heading_rad;
       if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; }
-      mag_heading_rad = mag_heading_rad + mag_declination;
-      if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
-        mag_heading_rad -= (2.0 * M_PI);
-      } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
       declination_calculated = TRUE;
     }
   }
-
+  mag_heading_rad = mag_heading_rad + mag_declination;
+  if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
+    mag_heading_rad -= (2.0 * M_PI);
+  } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
   // Magnetic COMPASS Heading N = 0, E = 90, S = 180, W = 270
   mag_course_deg = DegOfRad(mag_heading_rad);
   if (mag_course_deg < 0) { mag_course_deg += 360; }
