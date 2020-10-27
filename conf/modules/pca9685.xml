@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="pca9685" dir="pca9685">
+  <doc>
+    <description>
+      pca9685 additional servo driver
+      in a c code file write pca9865_set_servo(12, 1500); to set servo number 12.
+      In the flight plan you can use  call_once fun="pca9865_set_servo(12, 1500)"
+    </description>
+  </doc>
+  <settings>
+  </settings>
+  <header>
+    <file name="pca9685_i2c.h"/>
+  </header>
+  <init fun="pca9685_i2c_init()"/>
+  <periodic fun="pca9685_i2c_periodic()" freq="10"/>
+  <event fun="pca9685_i2c_event()"/>
+  <makefile>
+    <file name="pca9685_i2c.c"/>
+  </makefile>
+</module>
