@@ -170,7 +170,6 @@ float home_dir_deg = 0;
 // Periodic function called with a frequency defined in the module .xml file
 void mag_compass(void)
 {
-#if !defined(SITL)
   int32_t x = 0, y = 0, z = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
@@ -223,16 +222,6 @@ void mag_compass(void)
   // Magnetic COMPASS Heading N = 0, E = 90, S = 180, W = 270
   mag_course_deg = DegOfRad(mag_heading_rad);
   if (mag_course_deg < 0) { mag_course_deg += 360; }
-
-#else // #if !defined(SITL)
-  mag_heading_rad = state.h_speed_dir_f;
-  if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
-    mag_heading_rad -= (2.0 * M_PI);
-  } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
-  mag_course_deg = DegOfRad(mag_heading_rad);  // Now convert to degrees.
-  if (mag_course_deg < 0) { mag_course_deg += 360; } // translate the +180, -180 to 0-360.
-
-#endif
 
   return;
 }
@@ -652,7 +641,7 @@ void draw_osd(void)
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
 
-  //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
+  //gps_course_deg = (DegOfRad((float)gps.course) / (float)1e7);
   gps_course_deg = state.h_speed_dir_f;
   if (gps_course_deg > M_PI) { // Angle normalization (-180 deg to 180 deg)
     gps_course_deg -= (2.0 * M_PI);
@@ -669,7 +658,7 @@ void draw_osd(void)
   switch (step) {
 
     case (0):
-#if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1  && !defined(SITL)
+#if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1  
       PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
       temp = mag_course_deg;
 #else
@@ -799,7 +788,7 @@ void draw_osd(void)
 
     case (70):
       altitude = 99999;
-#if OSD_USE_BARO_ALTITUDE && !defined(SITL)
+#if OSD_USE_BARO_ALTITUDE
       PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
 #if defined(BARO_ALTITUDE_VAR)
       altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
