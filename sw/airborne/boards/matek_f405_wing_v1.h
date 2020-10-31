@@ -225,9 +225,7 @@
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOC
 #define ADC_2_GPIO_PIN GPIO1
-#ifndef CURRENT_ADC_IN
 #define CURRENT_ADC_IN ADC_2
-#endif
 #endif
 
 // RSSI MEASUREMENT INPUT
@@ -251,8 +249,8 @@
 #define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
-#ifndef CURRENT_ADC_IN
-#define CURRENT_ADC_IN ADC_2
+#ifndef ADC_CHANNEL_CURRENT
+#define ADC_CHANNEL_CURRENT ADC_2
 #endif
 
 /* no voltage divider on board, adjust VoltageOfAdc in airframe file */
