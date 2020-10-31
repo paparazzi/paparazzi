@@ -85,7 +85,7 @@
     <module name="uav_recovery">
       <define name="PARACHUTE_SERVO_CHANNEL" value="PARACHUTE" />
     </module>
-
+ 
   </firmware>
 
   <firmware name="setup">
@@ -97,12 +97,13 @@
 
   <servos>
     <servo name="MOTOR" no="0" min="1100" neutral="1100" max="2000"/>
-    <servo name="AILERON" no="2" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="PARACHUTE" no="1" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_L" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVATOR" no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="CAM_PAN" no="5" min="943" neutral="1520" max="2056"/>
-    <servo name="CAM_TILT" no="6" min="996" neutral="1221" max="2004"/>
-    <servo name="PARACHUTE" no="7" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_R" no="5" min="1100" neutral="1100" max="2000"/>
+    <servo name="CAM_PAN" no="6" min="943" neutral="1520" max="2056"/>
+    <servo name="CAM_TILT" no="7" min="996" neutral="1221" max="2004"/>
   </servos>
 
   <commands>
@@ -125,17 +126,18 @@
 
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
-    <define name="COMBI_SWITCH" value="0.3"/>
+    <define name="COMBI_SWITCH" value="0.5"/>
   </section>
 
   <command_laws>
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="AILERON" value="@ROLL"/>
+    <set servo="PARACHUTE" value="@PARACHUTE"/>
+    <set servo="AILERON_L" value="@ROLL"/>
+    <set servo="AILERON_R" value="@ROLL"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
     <set servo="CAM_TILT" value="@CAM_TILT"/>
-    <set servo="PARACHUTE" value="@PARACHUTE"/>
   </command_laws>
 
   <!-- EMPTY "auto_rc_commands" block means NO RC RUDDER CONTROL IN AUTO2 AND AUTO1 -->
@@ -230,7 +232,7 @@
 <!-- The below definition affect the throttle percentage shown on the GCS. -->
     <define name="POWER_CTL_BAT_NOMINAL" value="12.6" unit="volt"/>
     <!-- outer loop ALTITUDE proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="0.07" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.08" unit="(m/s)/m"/>
     <!-- outer loop ALTITUDE LIMIT (saturation) -->
     <define name="ALTITUDE_MAX_CLIMB" value="3" unit="m/s"/>
     <!-- outer loop AIRSPEED proportional gain -->

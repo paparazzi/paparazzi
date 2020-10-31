@@ -88,12 +88,13 @@
 
   <servos>
     <servo name="MOTOR" no="0" min="1100" neutral="1100" max="2000"/>
-    <servo name="AILERON" no="2" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="PARACHUTE" no="1" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_L" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVATOR" no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="CAM_PAN" no="5" min="943" neutral="1520" max="2056"/>
-    <servo name="CAM_TILT" no="6" min="996" neutral="1221" max="2004"/>
-    <servo name="PARACHUTE" no="7" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_R" no="5" min="1100" neutral="1100" max="2000"/>
+    <servo name="CAM_PAN" no="6" min="943" neutral="1520" max="2056"/>
+    <servo name="CAM_TILT" no="7" min="996" neutral="1221" max="2004"/>
   </servos>
 
   <commands>
@@ -111,6 +112,7 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="YAW" value="@YAW"/>
+    <!--  <set command="PARACHUTE" value="@AUX3"/> -->
   </rc_commands>
 
   <section name="MIXER">
@@ -120,12 +122,13 @@
 
   <command_laws>
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="AILERON" value="@ROLL"/>
+    <set servo="PARACHUTE" value="@PARACHUTE"/>
+    <set servo="AILERON_L" value="@ROLL"/>
+    <set servo="AILERON_R" value="@ROLL"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
     <set servo="CAM_TILT" value="@CAM_TILT"/>
-    <set servo="PARACHUTE" value="@PARACHUTE"/>
   </command_laws>
 
   <!-- EMPTY "auto_rc_commands" block means NO RC RUDDER CONTROL IN AUTO2 AND AUTO1 -->
