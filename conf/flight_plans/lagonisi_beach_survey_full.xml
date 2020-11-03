@@ -8,7 +8,7 @@
 </header>
   <waypoints>
     <waypoint height="0" name="HOME" x="14.2" y="3.2"/>
-    <waypoint Height="0" lat="37.8135782" lon="23.8691062"  name="TD"/>
+    <waypoint height="0" lat="37.8135782" lon="23.8691062" name="TD"/>
     <waypoint height="0" name="CAM_POINT" x="58.6" y="-69.1"/>
     <waypoint height="30" name="STANDBY" x="30.3" y="-7.1"/>
     <waypoint height="30" name="RIGHT_HERE" x="-1.8" y="-57.6"/>
@@ -18,11 +18,18 @@
     <waypoint height="30" lat="37.8122403" lon="23.8693681" name="AF_SOUTH"/>
     <waypoint height="30" lat="37.8146538" lon="23.8689732" name="AF_NORTH"/>
     <waypoint height="30" name="RELEASE" x="29.6" y="12.7"/>
+    <waypoint alt="200" lat="37.811080" lon="23.867030" name="WP1"/>
+    <waypoint alt="200" lat="37.808666" lon="23.866264" name="WP2"/>
+    <waypoint alt="200" lat="37.807357" lon="23.864500" name="WP3"/>
+    <waypoint alt="200" lat="37.805642" lon="23.865021" name="WP4"/>
+    <waypoint alt="200" lat="37.804542" lon="23.863828" name="WP5"/>
+    <waypoint alt="200" lat="37.803268" lon="23.863155" name="WP6"/>
     <waypoint alt="200" lat="37.799805" lon="23.865531" name="TARGET"/>
   </waypoints>
   <sectors/>
   <variables/>
   <exceptions>
+<!--    <exception cond="radio_control.status == RC_REALLY_LOST" deroute="Return Home"/> -->
     <exception cond="(RcChannel(YAW) > MAX_PPRZ/2)&&(autopilot.mode == AP_MODE_AUTO2)" deroute="Target"/>
     <exception cond="(MIN_PPRZ/2 > RcChannel(YAW))&&(autopilot.mode == AP_MODE_AUTO2)" deroute="Return Home"/>
     <exception cond="(MIN_PPRZ/2 > RcChannel(AUX1))&&(autopilot.mode == AP_MODE_AUTO2)" deroute="Land"/>
@@ -58,7 +65,29 @@
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle height="30" radius="nav_radius" wp="STANDBY"/>
     </block>
+    <block name="Target" strip_button="Go to TARGET" strip_icon="kill.png">
+      <exception cond="electrical.bat_low&&(autopilot.mode == AP_MODE_AUTO2)" deroute="Return Home"/>
+      <go from="HOME" height="200" hmode="route" wp="WP1"/>
+      <go from="WP1" height="200" hmode="route" wp="WP2"/>
+      <go from="WP2" height="200" hmode="route" wp="WP3"/>
+      <go from="WP3" height="200" hmode="route" wp="WP4"/>
+      <go from="WP4" height="200" hmode="route" wp="WP5"/>
+      <go from="WP5" height="200" hmode="route" wp="WP6"/>
+      <go alt="200+ground_alt" from="WP6" hmode="route" wp="TARGET"/>
+      <circle height="200" radius="(nav_radius*2)" until="NavCircleCount() > 2" wp="TARGET"/>
+      <deroute block="Return Home"/>
+    </block>
     <block name="Return Home" strip_button="Return Home" strip_icon="home.png">
+      <go from="TARGET" height="200" hmode="route" wp="WP6"/>
+      <go from="WP6" height="200" hmode="route" wp="WP5"/>
+      <go from="WP5" height="200" hmode="route" wp="WP4"/>
+      <go from="WP4" height="200" hmode="route" wp="WP3"/>
+      <go from="WP3" height="200" hmode="route" wp="WP2"/>
+      <go from="WP2" height="200" hmode="route" wp="WP1"/>
+      <go from="WP1" height="200" hmode="route" wp="HOME"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Return Home NOW" strip_button="Return Home" strip_icon="home.png">
       <call fun="NavSetWaypointHere(WP_RIGHT_HERE)"/>
       <set value="GetPosAlt()" var="WaypointAlt(WP_RIGHT_HERE)"/>
       <go from="RIGHT_HERE" height="200" hmode="route" wp="HOME"/>
@@ -111,12 +140,6 @@
       <call fun="DeployParachute()"/>
       <set value="1" var="autopilot.kill_throttle"/>
       <circle height="70." radius="nav_radius" wp="HOME"/>
-    </block>
-    <block name="Target" strip_button="Go to TARGET" strip_icon="kill.png">
-      <exception cond="electrical.bat_low&&(autopilot.mode == AP_MODE_AUTO2)" deroute="Return Home"/>
-      <go alt="200+ground_alt" from="HOME" hmode="route" wp="TARGET"/>
-      <circle height="200" radius="(nav_radius*2)" until="NavCircleCount() > 2" wp="TARGET"/>
-      <deroute block="Return Home"/>
     </block>
   </blocks>
 </flight_plan>
