@@ -9,18 +9,18 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="cube">
-        <dl_setting MIN="0" MAX="360" STEP="1" VAR="cube_alpha"   module="nav_cube" handler="SetAlpha"/>
-        <dl_setting MIN="1" MAX="12"  STEP="1" VAR="cube_sect"    module="nav_cube" handler="SetSect"/>
-        <dl_setting MIN="1" MAX="50"  STEP="1" VAR="cube_grid_x"  module="nav_cube" handler="SetGridX"/>
-        <dl_setting MIN="1" MAX="50"  STEP="1" VAR="cube_grid_z"  module="nav_cube" handler="SetGridZ"/>
-        <dl_setting MIN="-200" MAX="200" STEP="10" VAR="cube_offs_x"  module="nav_cube" handler="SetOffsX"/>
-        <dl_setting MIN="-400" MAX="200" STEP="10" VAR="cube_offs_y"  module="nav_cube" handler="SetOffsY"/>
-        <dl_setting MIN="-200" MAX="200" STEP="10" VAR="cube_offs_z"  module="nav_cube" handler="SetOffsZ"/>
-        <dl_setting MIN="1" MAX="500" STEP="10" VAR="cube_size_x"  module="nav_cube" handler="SetSizeX"/>
-        <dl_setting MIN="1" MAX="500" STEP="10" VAR="cube_size_y"  module="nav_cube" handler="SetSizeY"/>
-        <dl_setting MIN="1" MAX="500" STEP="10" VAR="cube_size_z"  module="nav_cube" handler="SetSizeZ"/>
-        <dl_setting MIN="1" MAX="8"   STEP="1"  VAR="cube_nsect_x" module="nav_cube" handler="SetNSectX"/>
-        <dl_setting MIN="1" MAX="8"   STEP="1"  VAR="cube_nsect_z" module="nav_cube" handler="SetNSectZ"/>
+        <dl_setting MIN="0" MAX="360" STEP="1" VAR="nav_cube.alpha"   module="nav/nav_cube" handler="SetAlpha"/>
+        <dl_setting MIN="1" MAX="12"  STEP="1" VAR="nav_cube.sect"    module="nav/nav_cube" handler="SetSect"/>
+        <dl_setting MIN="1" MAX="50"  STEP="1" VAR="nav_cube.grid_x"  module="nav/nav_cube" handler="SetGridX"/>
+        <dl_setting MIN="1" MAX="50"  STEP="1" VAR="nav_cube.grid_z"  module="nav/nav_cube" handler="SetGridZ"/>
+        <dl_setting MIN="-200" MAX="200" STEP="10" VAR="nav_cube.offset.x"  module="nav/nav_cube" handler="SetOffsX"/>
+        <dl_setting MIN="-400" MAX="200" STEP="10" VAR="nav_cube.offset.y"  module="nav/nav_cube" handler="SetOffsY"/>
+        <dl_setting MIN="-200" MAX="200" STEP="10" VAR="nav_cube.offset.z"  module="nav/nav_cube" handler="SetOffsZ"/>
+        <dl_setting MIN="1" MAX="500" STEP="10" VAR="nav_cube.size.x"  module="nav/nav_cube" handler="SetSizeX"/>
+        <dl_setting MIN="1" MAX="500" STEP="10" VAR="nav_cube.size.y"  module="nav/nav_cube" handler="SetSizeY"/>
+        <dl_setting MIN="1" MAX="500" STEP="10" VAR="nav_cube.size.z"  module="nav/nav_cube" handler="SetSizeZ"/>
+        <dl_setting MIN="1" MAX="8"   STEP="1"  VAR="nav_cube.nsect_x" module="nav/nav_cube" handler="SetNSectX"/>
+        <dl_setting MIN="1" MAX="8"   STEP="1"  VAR="nav_cube.nsect_z" module="nav/nav_cube" handler="SetNSectZ"/>
       </dl_settings>
     </dl_settings>
   </settings>
