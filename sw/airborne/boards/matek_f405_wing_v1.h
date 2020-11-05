@@ -251,8 +251,8 @@
 #define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
-#ifndef CURRENT_ADC_IN
-#define CURRENT_ADC_IN ADC_2
+#ifndef ADC_CHANNEL_CURRENT
+#define ADC_CHANNEL_CURRENT ADC_2
 #endif
 
 /* no voltage divider on board, adjust VoltageOfAdc in airframe file */
