@@ -170,6 +170,7 @@ float home_dir_deg = 0;
 // Periodic function called with a frequency defined in the module .xml file
 void mag_compass(void)
 {
+#if !defined(SITL)
   int32_t x = 0, y = 0, z = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
@@ -222,6 +223,16 @@ void mag_compass(void)
   // Magnetic COMPASS Heading N = 0, E = 90, S = 180, W = 270
   mag_course_deg = DegOfRad(mag_heading_rad);
   if (mag_course_deg < 0) { mag_course_deg += 360; }
+
+#else // #if !defined(SITL)
+  mag_heading_rad = state.h_speed_dir_f;
+  if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
+    mag_heading_rad -= (2.0 * M_PI);
+  } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
+  mag_course_deg = DegOfRad(mag_heading_rad);  // Now convert to degrees.
+  if (mag_course_deg < 0) { mag_course_deg += 360; } // translate the +180, -180 to 0-360.
+
+#endif
 
   return;
 }
@@ -625,7 +636,7 @@ void draw_osd(void)
   float temp = 0;
   float altitude = 0;
   float distance_to_home = 0;
-  float throttle_percentage = 0;
+  float home_direction_degrees = 0;
 
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
@@ -641,7 +652,7 @@ void draw_osd(void)
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
 
-  //gps_course_deg = (DegOfRad((float)gps.course) / (float)1e7);
+  //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
   gps_course_deg = state.h_speed_dir_f;
   if (gps_course_deg > M_PI) { // Angle normalization (-180 deg to 180 deg)
     gps_course_deg -= (2.0 * M_PI);
@@ -658,7 +669,7 @@ void draw_osd(void)
   switch (step) {
 
     case (0):
-#if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1  
+#if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1  && !defined(SITL)
       PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
       temp = mag_course_deg;
 #else
@@ -675,14 +686,21 @@ void draw_osd(void)
       break;
 
     case (10):
+#if defined(OSD_HOME_DIR_RELATIVE_STYLE) && OSD_HOME_DIR_RELATIVE_STYLE == 1
+  PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE RELATIVE STYLE, 0 IS GOING BACK HOME")
+      home_direction_degrees = home_direction();
+#else
+  PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE ILS STYLE, MATCH THE HEADING TO HOME DIR TO GET BACK HOME")
+      home_direction_degrees = (float)(atan2(pos->y, pos->x));
+#endif
       // The reading is actually showing the difference between your heading and home heading.
       // When the home_dir goes to 0 the aircraft is headed straight back home.
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       // All special character codes must be in 3 digit format!
-      osd_sprintf(osd_string, "%191c%.0f", home_direction()); // 0 when heading straight back home.
+      osd_sprintf(osd_string, "%191c%.0f", home_direction_degrees); // 0 when heading straight back home.
       osd_put_s(osd_string, C_JUST, 5, 2, 15); // "FALSE = L_JUST
 #else
-      osd_sprintf(osd_string, "H%.0f", home_direction());
+      osd_sprintf(osd_string, "H%.0f", home_direction_degrees);
       osd_put_s(osd_string, C_JUST, 5, 2, 15); // "FALSE = L_JUST
 
 #endif
@@ -734,23 +752,12 @@ void draw_osd(void)
       break;
 
     case (50):
-#if defined(COMMAND_THROTTLE)
-      if (ap_state->commands[COMMAND_THROTTLE] > 0){
-        throttle_percentage = ((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.;
-      } else {
-        throttle_percentage = ((float)ap_state->commands[COMMAND_THROTTLE] / (float)MIN_PPRZ) * 100.; 
-      }
-      osd_sprintf(osd_string, "THR%.0f", throttle_percentage);
-      osd_put_s(osd_string, L_JUST, 5, 3, 1);
-#elif defined(COMMAND_THRUST)
-      if (stabilization_cmd[COMMAND_THRUST] > 0){
-        throttle_percentage = ((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.;
-      } else {
-        throttle_percentage = ((float)stabilization_cmd[COMMAND_THRUST] / (float)MIN_PPRZ) * 100.; 
-      }
-      osd_sprintf(osd_string, "THR%.0f", throttle_percentage);
-      osd_put_s(osd_string, L_JUST, 5, 3, 1);
+#if AP
+      osd_sprintf(osd_string, "THR%.0f", (((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.));
+#else
+      osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
 #endif
+      osd_put_s(osd_string, L_JUST, 5, 3, 1);
       step = 60;
       break;
 
@@ -788,7 +795,7 @@ void draw_osd(void)
 
     case (70):
       altitude = 99999;
-#if OSD_USE_BARO_ALTITUDE
+#if OSD_USE_BARO_ALTITUDE && !defined(SITL)
       PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
 #if defined(BARO_ALTITUDE_VAR)
       altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
@@ -934,6 +941,7 @@ void max7456_init(void)
 #if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag_heading);
 #endif
+home_direction();
 
   return;
 }
