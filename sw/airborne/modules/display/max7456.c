@@ -692,6 +692,12 @@ void draw_osd(void)
 #else
   PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE ILS STYLE, MATCH THE HEADING TO HOME DIR TO GET BACK HOME")
       home_direction_degrees = (float)(atan2(pos->y, pos->x));
+      home_direction_degrees = RadOfDeg(90) - home_direction_degrees; // convert to 0 rad = North
+      if (home_direction_degrees > M_PI) { // Angle normalization (-180 deg to 180 deg still in radians)
+        home_direction_degrees -= (2.0 * M_PI);
+      } else if (home_direction_degrees < -M_PI) { gps_course_deg += (2.0 * M_PI); }
+      home_direction_degrees = DegOfRad(home_direction_degrees);  // Now convert to degrees.
+      if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the +180, -180 to 0-360.
 #endif
       // The reading is actually showing the difference between your heading and home heading.
       // When the home_dir goes to 0 the aircraft is headed straight back home.
