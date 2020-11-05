@@ -138,6 +138,7 @@
   -->
   </auto_rc_commands>
 
+
   <ap_only_commands>
     <copy command="CAM_PAN"/>
     <copy command="CAM_TILT"/>
