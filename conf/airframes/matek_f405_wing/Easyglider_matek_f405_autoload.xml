@@ -324,19 +324,6 @@
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
  </section>
 
-  <section name="NAV">
-    <define name="NAV_PITCH" value="0."/>
-    <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
-    <define name="NAV_GROUND_SPEED_PGAIN" value="0.015"/>
-    <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>
-  </section>
-
-  <section name="GLS_APPROACH" prefix="APP_">
-    <define name="ANGLE" value="5"/>
-    <define name="INTERCEPT_AF_TOD" value="10"/>
-    <define name="TARGET_SPEED" value="13"/>
-  </section>
-
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
     <define name="DEFAULT_THROTTLE" value="0.8" unit="%"/>
