@@ -42,7 +42,7 @@
     <block name="Wait Gps">
       <set value="0" var="h_ctl_disabled"/>
       <set value="1" var="autopilot.kill_throttle"/>
-      <call fun="Flaps(0.5)"/>
+      <call fun="Flaps(0.0)"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo Init">
@@ -61,6 +61,7 @@
       <set value="TRUE" var="autopilot.launch"/>
       <set value="0" var="h_ctl_disabled"/>
       <set value="0" var="autopilot.kill_throttle"/>
+      <call fun="Flaps(0.5)"/>
       <attitude pitch="20" roll="0.0" throttle="1.0" until="GetPosAlt() > GetAltRef()+20" vmode="throttle"/>
       <call fun="Flaps(0.0)"/>
       <deroute block="Standby"/>
