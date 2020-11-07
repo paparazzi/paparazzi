@@ -51,7 +51,7 @@
 
 
 enum oval_status { OR12, OC2, OR21, OC1 };
-
+extern enum oval_status oval_status;
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern float last_x, last_y;
