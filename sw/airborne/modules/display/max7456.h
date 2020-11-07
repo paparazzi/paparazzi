@@ -36,6 +36,9 @@ extern void max7456_periodic(void);
 extern void max7456_event(void);
 
 extern uint8_t osd_enable;
+extern float mag_course_deg;
+extern float mag_heading_rad;
+extern float home_dir_deg;
 
 
 #endif //MAX7456_H
