@@ -92,7 +92,7 @@
     <servo name="AILERON_L" no="2" min="1000" neutral="1500" max="2000"/>
     <servo name="ELEVATOR" no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_R" no="5" min="1100" neutral="1100" max="2000"/>
+    <servo name="AILERON_R" no="5" min="1000" neutral="1500" max="2000"/>
     <servo name="CAM_PAN" no="6" min="943" neutral="1520" max="2056"/>
     <servo name="CAM_TILT" no="7" min="996" neutral="1221" max="2004"/>
   </servos>
