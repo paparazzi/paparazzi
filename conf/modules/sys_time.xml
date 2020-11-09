@@ -5,7 +5,7 @@
     <description>
       Sys-time peripheral
     </description>
-    <configure name="SYS_TIME_LED" value="none|num" value="LED number used for systime heartbeat or 'none' to disable"/>
+    <configure name="SYS_TIME_LED" value="none|num" description="LED number used for systime heartbeat or 'none' to disable"/>
   </doc>
   <header>
     <file name="sys_time.h" dir="mcu_periph"/>
@@ -15,7 +15,7 @@
     <define name="SYS_TIME_LED" value="$(SYS_TIME_LED)" cond="ifneq ($(SYS_TIME_LED), none)"/>
     <file name="sys_time.c" dir="mcu_periph"/>
     <file_arch name="sys_time_arch.c" dir="mcu_periph"/>
-    <flag name="LDFLAGS" value="lrt" cond="ifeq ($(ARCH), linux)">
+    <flag name="LDFLAGS" value="lrt" cond="ifeq ($(ARCH), linux)"/>
   </makefile>
 </module>
 
