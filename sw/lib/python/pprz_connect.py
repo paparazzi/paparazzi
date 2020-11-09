@@ -216,7 +216,7 @@ class PprzConnect(object):
                     msg['flight_plan'], msg['settings'], msg['radio'],
                     msg['default_gui_color'])
             self._conf_list_by_name[conf.name] = conf
-            self._conf_list_by_id[int(conf.id)] = conf
+            self._conf_list_by_id[conf.id] = conf
             if self._notify is not None:
                 self._notify(conf) # user defined general callback
             if self.verbose:
