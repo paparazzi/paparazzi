@@ -35,7 +35,7 @@
 #include "inttypes.h"
 
 extern void detect_window_init(void);
-extern struct image_t* detect_window(struct image_t *img);
+extern struct image_t* detect_window(struct image_t *img, uint8_t camera_id);
 
 uint16_t detect_window_sizes(uint8_t *in, uint32_t image_width, uint32_t image_height, uint16_t *coordinate,
                              uint32_t *integral_image, uint8_t MODE);
