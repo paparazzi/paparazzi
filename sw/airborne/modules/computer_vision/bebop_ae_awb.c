@@ -146,7 +146,7 @@ PRINT_CONFIG_VAR(BEBOP_AWB_MIN_GREY_PIXELS)
 struct ae_setting_t ae_set;
 struct awb_setting_t awb_set;
 
-static struct image_t *update_ae_awb(struct image_t *img)
+static struct image_t *update_ae_awb(struct image_t *img, uint8_t camera_id)
 {
   static struct isp_yuv_stats_t yuv_stats;
 
@@ -352,5 +352,5 @@ void bebop_ae_awb_init(void)
   awb_set.gain_scheduling_tolerance = BEBOP_AWB_GAIN_SCHEDULING_TOLERANCE;
   awb_set.gain_scheduling_step      = BEBOP_AWB_GAIN_SCHEDULING_STEP;
 
-  cv_add_to_device_async(&front_camera, update_ae_awb, BEBOP_AE_AWB_NICE, 0);
+  cv_add_to_device_async(&front_camera, update_ae_awb, BEBOP_AE_AWB_NICE, 0, 0);
 }

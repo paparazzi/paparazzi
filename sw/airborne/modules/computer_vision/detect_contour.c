@@ -33,8 +33,8 @@
 PRINT_CONFIG_VAR(DETECT_CONTOUR_FPS)
 
 // Function
-struct image_t *contour_func(struct image_t *img);
-struct image_t *contour_func(struct image_t *img)
+struct image_t *contour_func(struct image_t *img, uint8_t camera_id);
+struct image_t *contour_func(struct image_t *img, uint8_t camera_id)
 {
 
   if (img->type == IMAGE_YUV422) {
@@ -46,7 +46,7 @@ struct image_t *contour_func(struct image_t *img)
 
 void detect_contour_init(void)
 {
-  cv_add_to_device(&DETECT_CONTOUR_CAMERA, contour_func, DETECT_CONTOUR_FPS);
+  cv_add_to_device(&DETECT_CONTOUR_CAMERA, contour_func, DETECT_CONTOUR_FPS, 0);
   // in the mavlab, bright
   cont_thres.lower_y = 16;  cont_thres.lower_u = 135; cont_thres.lower_v = 80;
   cont_thres.upper_y = 100; cont_thres.upper_u = 175; cont_thres.upper_v = 165;
