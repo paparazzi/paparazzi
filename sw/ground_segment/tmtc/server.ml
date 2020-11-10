@@ -749,9 +749,9 @@ let listen_intruders = fun log ->
   ignore(Ground_Pprz.message_bind "INTRUDER" (update_intruder log))
 
 let send_config = fun http _asker args ->
-  let ac_id' = PprzLink.string_assoc "ac_id" args in
+  let real_id = PprzLink.string_assoc "ac_id" args in
   try
-    let _is_replayed, ac_id, root_dir, conf_xml = replayed ac_id' in
+    let _is_replayed, ac_id, root_dir, conf_xml = replayed real_id in
 
     let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
     let ac_name = ExtXml.attrib conf "name" in
@@ -770,7 +770,7 @@ let send_config = fun http _asker args ->
                                                        "settings.xml") else "file://replay" in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
-    [ "ac_id", PprzLink.String ac_id;
+    [ "ac_id", PprzLink.String real_id;
       "flight_plan", PprzLink.String fp;
       "airframe", PprzLink.String af;
       "radio", PprzLink.String rc;
@@ -779,7 +779,7 @@ let send_config = fun http _asker args ->
       "ac_name", PprzLink.String ac_name ]
   with
       Not_found ->
-        failwith (sprintf "ground UNKNOWN %s" ac_id')
+        failwith (sprintf "ground UNKNOWN %s" real_id)
 
 let ivy_server = fun http ->
   ignore (Ground_Pprz.message_answerer my_id "AIRCRAFTS" send_aircrafts_msg);
