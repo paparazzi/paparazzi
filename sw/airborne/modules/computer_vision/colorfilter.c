@@ -56,7 +56,7 @@ volatile int color_count = 0;
 #include "subsystems/abi.h"
 
 // Function
-static struct image_t *colorfilter_func(struct image_t *img)
+static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id)
 {
   // Filter
   color_count = image_yuv422_colorfilt(img, img,
@@ -81,5 +81,5 @@ static struct image_t *colorfilter_func(struct image_t *img)
 
 void colorfilter_init(void)
 {
-  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func, COLORFILTER_FPS);
+  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func, COLORFILTER_FPS, 0);
 }

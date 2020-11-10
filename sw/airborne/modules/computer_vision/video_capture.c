@@ -61,7 +61,7 @@ int video_capture_index = 0;
 static char save_dir[256];
 
 // Forward function declarations
-struct image_t *video_capture_func(struct image_t *img);
+struct image_t *video_capture_func(struct image_t *img, uint8_t camera_id);
 void video_capture_save(struct image_t *img);
 
 
@@ -80,11 +80,11 @@ void video_capture_init(void)
   // This prevents empty folders if nothing is actually recorded.
 
   // Add function to computer vision pipeline
-  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func, VIDEO_CAPTURE_FPS);
+  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func, VIDEO_CAPTURE_FPS, 0);
 }
 
 
-struct image_t *video_capture_func(struct image_t *img)
+struct image_t *video_capture_func(struct image_t *img, uint8_t camera_id)
 {
   // If take_shot bool is set, save the image
   if (video_capture_take_shot || video_capture_record_video) {

@@ -131,7 +131,7 @@ struct vision_relative_position_struct {
 
 
 // Function
-static struct image_t *detect_gate_func(struct image_t *img)
+static struct image_t *detect_gate_func(struct image_t *img, uint8_t camera_id)
 {
   // detect the gate and draw it in the image:
   if (just_filtering) {
@@ -354,7 +354,7 @@ void detect_gate_init(void)
   detect_gate_y = 0;
   detect_gate_z = 0;
 
-  cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
+  cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS, 0);
 
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VISION_POSITION_ESTIMATE, send_detect_gate_visual_position);
 }
