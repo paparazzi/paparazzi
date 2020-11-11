@@ -9,6 +9,8 @@
       <message name="DL_VALUE"         period="0.65"/> 
       <message name="WP_MOVED"         period="0.75"/>
       <message name="IMU_MAG"          period="0.85"/>
+      <message name="CAM_POINT"        period="0.95"/>
+      <message name="CAM"              period="0.45"/>
       <message name="GPS"              period="1.25"/>
       <message name="ENERGY"           period="1.35"/>
       <message name="SEGMENT"          period="1.45"/>
