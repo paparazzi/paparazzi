@@ -58,6 +58,10 @@
 #define OSD_STRING_SIZE     31
 #define osd_sprintf         _osd_sprintf
 
+#if !defined(OSD_USE_FLOAT_LOW_PASS_FILTERING)
+#define OSD_USE_FLOAT_LOW_PASS_FILTERING
+#endif
+
 //LOW PASS filter strength, cannot be 0, MAX=16
 #if !defined(AMPS_LOW_PASS_FILTER_STRENGTH) || AMPS_LOW_PASS_FILTER_STRENGTH == 0
 #define AMPS_LOW_PASS_FILTER_STRENGTH 6
@@ -395,13 +399,6 @@ static void calc_flight_time_left(void)
   float horizontal_speed = 0;
   static uint32_t bat_capacity_used = 0;
 
-  uint32_t current_amps_int = 0;
-  uint32_t horizontal_speed_int = 0;
-  static uint64_t current_amps_sum = 0;
-  static uint64_t horizontal_speed_sum = 0;
-  static uint32_t current_amps_filtered = 0;
-  static uint32_t horizontal_speed_filtered = 0;
-
   current_amps = electrical.current;
   bat_capacity_used += current_amps / (3600.0 * MAX7456_PERIODIC_FREQ);
   bat_capacity_left = (uint32_t)BAT_CAPACITY - bat_capacity_used;
@@ -416,6 +413,30 @@ static void calc_flight_time_left(void)
   current_amps = 1.0; // FIXME, Find how to tell if the rotorcraft is on the ground or it is flying.
   horizontal_speed = 10.0;
 #endif
+
+#if defined(OSD_USE_FLOAT_LOW_PASS_FILTERING)
+
+  static double current_amps_sum = 0;
+  static double horizontal_speed_sum = 0;
+  static float current_amps_filtered = 0;
+  static float horizontal_speed_filtered = 0;
+
+  current_amps_sum = (current_amps_sum - current_amps_filtered) + current_amps;
+  current_amps_filtered = current_amps_sum / (1<<AMPS_LOW_PASS_FILTER_STRENGTH);
+  current_amps = current_amps_filtered;
+
+  horizontal_speed_sum = (horizontal_speed_sum - horizontal_speed_filtered) + horizontal_speed;
+  horizontal_speed_filtered = horizontal_speed_sum / (1<<SPEED_LOW_PASS_FILTER_STRENGTH);
+  horizontal_speed = horizontal_speed_filtered;
+
+#else
+
+  uint32_t current_amps_int = 0;
+  uint32_t horizontal_speed_int = 0;
+  static uint64_t current_amps_sum = 0;
+  static uint64_t horizontal_speed_sum = 0;
+  static uint32_t current_amps_filtered = 0;
+  static uint32_t horizontal_speed_filtered = 0;
 
   // LOW PASS FILTERS for making the OSD 'max_flyable_distance_left' var change more gently.
   current_amps_int = (uint32_t)(current_amps * 1000.0);
@@ -432,11 +453,13 @@ static void calc_flight_time_left(void)
   current_amps = (float)(current_amps_filtered) / 1000.;
   horizontal_speed = (float)(horizontal_speed_filtered) / 1000.;
 
-  max_flyable_distance_left = ((bat_capacity_left / (current_amps * 1000)) * 3600) * horizontal_speed;
+#endif
 
+  max_flyable_distance_left = ((bat_capacity_left / (current_amps * 1000)) * 3600) * horizontal_speed;
 
   return;
 }
+
 
 static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column)
 {
