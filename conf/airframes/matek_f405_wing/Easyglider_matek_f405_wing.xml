@@ -87,11 +87,11 @@
       <define name="USE_PARACHUTE" value="true"/>
       <define name="PARACHUTE_SERVO_CHANNEL" value="PARACHUTE" />
       <define name="AIRBORNE_WIND_CORRECTION" value="1.0" />
+      <define name="PARACHUTE_WIND_CORRECTION" value="0.5" />
+      <define name="PARACHUTE_DESCENT_RATE" value="3.0" />
+      <define name="PARACHUTE_LINE_LENGTH" value="2.0" />
       <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />
       <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10.0" />
-      <define name="PARACHUTE_DESCENT_RATE"           value="3.0" />
-      <define name="PARACHUTE_WIND_CORRECTION"        value="0.5" /> 
-      <define name="PARACHUTE_LINE_LENGTH"            value="2.0" /> 
     </module>
  
   </firmware>
