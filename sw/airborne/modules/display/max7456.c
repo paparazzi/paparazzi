@@ -400,7 +400,7 @@ static void calc_flight_time_left(void)
   static float bat_capacity_used = 0;
 
   current_amps = electrical.current;
-  bat_capacity_used += current_amps / ((3600. / 1000.) * MAX7456_PERIODIC_FREQ);
+  bat_capacity_used += (current_amps*1000.) / (3600. * (float)MAX7456_PERIODIC_FREQ);
   bat_capacity_left = (float)BAT_CAPACITY - bat_capacity_used;
   if(bat_capacity_left < 0){ bat_capacity_left = 0; }
   horizontal_speed = state.h_speed_norm_f;
