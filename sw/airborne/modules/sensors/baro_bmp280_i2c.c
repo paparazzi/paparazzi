@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/sensors/baro_bmp280.c
+ * @file modules/sensors/baro_bmp280_i2c.c
  * Bosch BMP280 I2C sensor interface.
  *
  * This reads the values for pressure and temperature from the Bosch BMP280 sensor through I2C.
@@ -95,7 +95,7 @@ void baro_bmp280_event(void)
     baro_alt = pprz_isa_altitude_of_pressure(baro_bmp280.pressure);
     if (baro_correction_valid == false){
       //Only when flying relatively straight
-      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0 && stateGetSpeedEnu_f()->z < 0.3) {
+      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0 && stateGetSpeedEnu_f()->z < 0.5) {
         baro_alt_error = GetPosAlt() - baro_alt;
         baro_correction_valid = true;
       }
