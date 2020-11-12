@@ -1,6 +1,5 @@
 /*
- * $Id: parachute.c 21 November 2012 by Chris Efstathiou
- *
+ * Copyright (C) 2013-2020 Chris Efstathiou hendrixgr@gmail.com
  *
  * This file is part of paparazzi.
  *
@@ -18,8 +17,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file modules/uav_recovery/uav_recovery.c
  *
  */
+
 
 #include "autopilot.h"
 #include "state.h"
@@ -32,10 +36,21 @@
 #include "modules/multi/traffic_info.h"
 #include "uav_recovery.h"
 
+#if defined(USE_PARACHUTE) && USE_PARACHUTE == 1
+
+#ifndef GLUE_DEFINITIONS_STEP2
+#define GLUE_DEFINITIONS_STEP2(a, b)  (a##b)
+#endif
+#ifndef GLUE_DEFINITIONS
+#define GLUE_DEFINITIONS(a, b)  GLUE_DEFINITIONS_STEP2(a, b)
+#endif
+
 #if defined(PARACHUTE_SERVO_CHANNEL) && PARACHUTE_SERVO_CHANNEL != -1
-#define PARACHUTE_OUTPUT_COMMAND    CONCAT(COMMAND_, PARACHUTE_SERVO_CHANNEL)
+#define PARACHUTE_OUTPUT_COMMAND    GLUE_DEFINITIONS(COMMAND_, PARACHUTE_SERVO_CHANNEL)
 #else
 #warning YOU HAVE NOT DEFINED A PARACHUTE RELEASE AUTOPILOT SERVO
+#endif
+
 #endif
 
 /** TERMINAL VELOCITY OF THE PARACHUTE PLUS PAYLOAD */
@@ -58,8 +73,8 @@ float  parachute_z;
 float  airborne_wind_dir = 0;
 float  airborne_wind_speed = 0;
 float  calculated_wind_dir = 0;
-bool   wind_measurements_valid = TRUE;
-bool   wind_info_valid = TRUE;
+bool   wind_measurements_valid = true;
+bool   wind_info_valid = false;
 bool   deploy_parachute_var = 0;
 bool   land_direction = 0;
 
@@ -82,8 +97,8 @@ void uav_recovery_init(void)
   deploy_parachute_var = 0;
   airborne_wind_dir = 0;
   airborne_wind_speed = 0;
-  wind_measurements_valid = TRUE;
-  wind_info_valid = TRUE;
+  wind_measurements_valid = true;
+  wind_info_valid = true;
 #if defined(PARACHUTE_OUTPUT_COMMAND)
   ap_state->commands[PARACHUTE_OUTPUT_COMMAND] = MIN_PPRZ;
 #endif
@@ -106,6 +121,8 @@ void uav_recovery_periodic(void)
 
     } else { ap_state->commands[PARACHUTE_OUTPUT_COMMAND] = MIN_PPRZ; }
   }
+#else
+#warning PARACHUTE COMMAND NOT FOUND
 #endif
 
   return;
@@ -134,9 +151,9 @@ uint8_t calculate_wind_no_airspeed(uint8_t wp, float radius, float height)
 //struct EnuCoor_f* pos = stateGetPositionEnu_f();
 //struct UtmCoor_f * pos = stateGetPositionUtm_f();
 
-  static bool init = FALSE;
+  static bool init = false;
   static float circle_count = 0;
-  static bool wind_measurement_started = FALSE;
+  static bool wind_measurement_started = false;
 
 //Legacy estimator values
   float estimator_hspeed_dir = 0;
@@ -148,28 +165,28 @@ uint8_t calculate_wind_no_airspeed(uint8_t wp, float radius, float height)
   float speed_min_buf = 1000.0;
   float heading_angle_buf = 0;
 
-  if (init == FALSE) {
+  if (init == false) {
     airborne_wind_dir = 0;
     airborne_wind_speed = 0;
-    wind_measurements_valid = FALSE;
+    wind_measurements_valid = false;
     speed_max_buf = 0;
     speed_min_buf = 1000.;
     heading_angle_buf = 0;
-    wind_measurement_started = FALSE;
-    init = TRUE;
+    wind_measurement_started = false;
+    init = true;
   }
 
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(Height(height), 0.);
   NavCircleWaypoint(wp, radius);
-  if (nav_in_circle == FALSE || GetPosAlt() < Height(height - 10)) {
-    return (TRUE);
+  if (nav_in_circle == false || GetPosAlt() < Height(height - 10)) {
+    return (true);
   }
   NavVerticalThrottleMode(MAX_PPRZ * (float)V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE);
   // Wait until we are in altitude and in circle.
-  if (wind_measurement_started == FALSE) {
+  if (wind_measurement_started == false) {
     circle_count = NavCircleCount();
-    wind_measurement_started = TRUE;
+    wind_measurement_started = true;
   }
   if (estimator_hspeed_mod > speed_max_buf) {
     speed_max_buf = estimator_hspeed_mod;
@@ -201,16 +218,16 @@ uint8_t calculate_wind_no_airspeed(uint8_t wp, float radius, float height)
     //Convert from 180, -180 to 0, 360 in Degrees. 0=NORTH, 90=EAST
     if (airborne_wind_dir < 0) { airborne_wind_dir += 360; }
     calculated_wind_dir = heading_angle_buf;
-    wind_measurements_valid = TRUE;
-    wind_info_valid = TRUE;
+    wind_measurements_valid = true;
+    wind_info_valid = true;
 
     //NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
     // EXIT and continue the flight plan.
-    init = FALSE;
-    return (FALSE);
+    init = false;
+    return (false);
   }
 
-  return (TRUE);
+  return (true);
 }
 
 
