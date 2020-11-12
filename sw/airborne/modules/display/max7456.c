@@ -162,7 +162,6 @@ uint8_t max7456_osd_status = OSD_UNINIT;
 uint8_t osd_enable = true;
 uint8_t osd_enable_val = OSD_IMAGE_ENABLE;
 uint8_t osd_stat_reg = 0;
-uint32_t bat_capacity_left = 0;
 uint32_t max_flyable_distance_left = 0;
 
 float mag_course_deg = 0;
@@ -209,7 +208,7 @@ void mag_compass(void)
   } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
 
   if (declination_calculated == FALSE) {
-    if (gps.fix == GPS_FIX_3D && state.h_speed_norm_f > 10.0) {
+    if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) {
       mag_declination = state.h_speed_dir_f;
       if (mag_declination > M_PI) { // Angle normalization (-180 deg to 180 deg)
         mag_declination -= (2.0 * M_PI);
@@ -283,7 +282,7 @@ static float home_direction(void)
   When reading back the actual rotated coordinates fx has the y coordinate and fy has the x when
   represented on a circle in standard mathematical notation.
   */
-  if (gps.fix == GPS_FIX_3D && state.h_speed_norm_f > 5.0) { //Only when flying
+  if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
     svPlanePosition.fx = stateGetPositionEnu_f()->y;
     svPlanePosition.fy = stateGetPositionEnu_f()->x;
     svPlanePosition.fz = stateGetPositionUtm_f()->alt;
@@ -337,7 +336,7 @@ static float home_direction(void)
     */
 
     /* fixed to the plane*/
-    home_dir = (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
+    home_dir = atan2(Home_PositionForPlane2.fy, Home_PositionForPlane2.fx);
     if (home_dir > M_PI) { // Angle normalization (-180 deg to 180 deg but still in radians)
       home_dir -= (2.0 * M_PI);
     } else if (home_dir < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
@@ -397,16 +396,18 @@ static void calc_flight_time_left(void)
 {
   float current_amps = 0;
   float horizontal_speed = 0;
+  float bat_capacity_left = 0;
   static float bat_capacity_used = 0;
+  
 
   current_amps = electrical.current;
   bat_capacity_used += (current_amps*1000.) / (3600. * (float)MAX7456_PERIODIC_FREQ);
   bat_capacity_left = (float)BAT_CAPACITY - bat_capacity_used;
   if(bat_capacity_left < 0){ bat_capacity_left = 0; }
-  horizontal_speed = state.h_speed_norm_f;
+  horizontal_speed = stateGetHorizontalSpeedNorm_f();
 
 #if AP
-  if (state.h_speed_norm_f < 5.0 || autopilot.launch == FALSE) {
+  if (stateGetHorizontalSpeedNorm_f() < 5.0 || autopilot.launch == FALSE) {
     current_amps = LOITER_BAT_CURRENT;
     horizontal_speed = MINIMUM_AIRSPEED;
   }
@@ -686,7 +687,7 @@ void draw_osd(void)
       PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
       temp = mag_course_deg;
 #else
-      if (gps.fix == GPS_FIX_3D && state.h_speed_norm_f > 5.0) { //Only when flying
+      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
         PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
         temp = gps_course_deg;
       } else {
@@ -777,19 +778,19 @@ void draw_osd(void)
 
     case (60):
 #if AP
-      if ((fabs(state.h_speed_norm_f * cos(att->phi)) < stall_speed) && (GetPosAlt() > (ground_alt + 10))) {
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi)) < stall_speed) && (GetPosAlt() > (ground_alt + 10))) {
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
         osd_sprintf(osd_string, "STALL!", 0);
         osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
       } else {
-        osd_sprintf(osd_string, "%.0f%161c", (state.h_speed_norm_f * 3.6));
+        osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
         osd_put_s(osd_string, R_JUST, 6, 1, 30);
       }
 #else
         osd_sprintf(osd_string, "STALL!", 0);
         osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
       } else {
-        osd_sprintf(osd_string, "%.0fKM", (state.h_speed_norm_f * 3.6));
+        osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
         osd_put_s(osd_string, R_JUST, 6, 1, 30);
       }
 #endif
@@ -797,9 +798,9 @@ void draw_osd(void)
 #else // #if AP
 
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
-      osd_sprintf(osd_string, "%.0f%161c", (state.h_speed_norm_f * 3.6));
+      osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
 #else
-      osd_sprintf(osd_string, "%.0fKM", (state.h_speed_norm_f * 3.6));
+      osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
 #endif
       osd_put_s(osd_string, R_JUST, 6, 1, 30);
 
