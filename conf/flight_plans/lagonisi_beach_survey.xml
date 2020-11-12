@@ -2,16 +2,7 @@
 
 <flight_plan alt="200." ground_alt="42" lat0="37.7776225" lon0="23.9184623" max_dist_from_home="4000" name="lagonisi_beach_survey" qfu="180" security_height="100.">
   <header>
-#include "subsystems/ins/ins_alt_float.h"
-#include "subsystems/datalink/datalink.h"
-#include "generated/airframe.h"
-#if defined(COMMAND_FLAPS)
-#define Flaps(x) ({ (*ap_state).commands[COMMAND_FLAPS] = (int16_t)((float)MAX_PPRZ * (float)x); 0; })
-#else
-#define Flaps(x)    {0;}
-#endif
-#define RcChannel(x) ((*fbw_state).channels[RADIO_ ## x])
-</header>
+  </header>
   <waypoints>
     <waypoint height="0" name="HOME" x="14.2" y="3.2"/>
     <waypoint height="0" lat="37.777399" lon="23.918696" name="TD"/>
@@ -35,14 +26,13 @@
   <sectors/>
   <variables/>
   <exceptions>
-    <exception cond="(RcChannel(YAW) > MAX_PPRZ/2)&&(autopilot.mode == AP_MODE_AUTO2) && (GetPosAlt() > GetAltRef()+20)" deroute="Target"/>
-    <exception cond="(MIN_PPRZ/2 > RcChannel(YAW))&&(autopilot.mode == AP_MODE_AUTO2) && (GetPosAlt() > GetAltRef()+20)" deroute="Return Home"/>
+    <exception cond="(imcu_get_radio(RADIO_YAW) > MAX_PPRZ/2)&&(autopilot.mode == AP_MODE_AUTO2) && (GetPosAlt() > GetAltRef()+20)" deroute="Target"/>
+    <exception cond="(MIN_PPRZ/2 > imcu_get_radio(RADIO_YAW))&&(autopilot.mode == AP_MODE_AUTO2) && (GetPosAlt() > GetAltRef()+20)" deroute="Return Home"/>
   </exceptions>
   <blocks>
     <block name="Wait Gps">
       <set value="0" var="h_ctl_disabled"/>
       <set value="1" var="autopilot.kill_throttle"/>
-      <call fun="Flaps(0.0)"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo Init">
@@ -52,7 +42,6 @@
     </block>
     <block name="Holding Point">
       <set value="1" var="autopilot.kill_throttle"/>
-      <call fun="Flaps(0.5)"/>
       <attitude roll="0" throttle="0" until="((state.h_speed_norm_f > 5.0) || (sqrt(dist2_to_home)) > 10)" vmode="throttle"/>
       <deroute block="Takeoff"/>
     </block>
@@ -61,22 +50,18 @@
       <set value="TRUE" var="autopilot.launch"/>
       <set value="0" var="h_ctl_disabled"/>
       <set value="0" var="autopilot.kill_throttle"/>
-      <call fun="Flaps(0.5)"/>
       <attitude pitch="20" roll="0.0" throttle="1.0" until="GetPosAlt() > GetAltRef()+20" vmode="throttle"/>
-      <call fun="Flaps(0.0)"/>
       <deroute block="Standby"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <exception cond="electrical.bat_low&&(autopilot.mode == AP_MODE_AUTO2)&&(GetPosAlt() > GetAltRef()+20)" deroute="Land"/>
       <exception cond="radio_control.status == RC_REALLY_LOST&&(autopilot.mode == AP_MODE_AUTO2)&&(GetPosAlt() > GetAltRef()+20)" deroute="Land"/>
-      <call fun="Flaps(0.0)"/>
       <set value="0" var="h_ctl_disabled"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle height="30" radius="nav_radius" wp="STANDBY"/>
     </block>
     <block name="Target" strip_button="Go to TARGET" strip_icon="kill.png">
       <exception cond="electrical.bat_low&&(autopilot.mode == AP_MODE_AUTO2)&&(GetPosAlt() > GetAltRef()+20)" deroute="Return Home NOW"/>
-      <call fun="Flaps(0.0)"/>
       <go from="HOME" height="200" hmode="route" wp="WP1"/>
       <go from="WP1" height="200" hmode="route" wp="WP2"/>
       <go from="WP2" height="200" hmode="route" wp="WP3"/>
@@ -88,7 +73,6 @@
       <deroute block="Return Home"/>
     </block>
     <block name="Return Home" strip_button="Return Home" strip_icon="home.png">
-      <call fun="Flaps(0.0)"/>
       <go from="TARGET" height="200" hmode="route" wp="WP6"/>
       <go from="WP6" height="200" hmode="route" wp="WP5"/>
       <go from="WP5" height="200" hmode="route" wp="WP4"/>
@@ -99,7 +83,6 @@
       <deroute block="Standby"/>
     </block>
     <block name="Return Home NOW" strip_button="Return Home" strip_icon="home.png">
-      <call fun="Flaps(0.0)"/>
       <call fun="NavSetWaypointHere(WP_RIGHT_HERE)"/>
       <set value="GetPosAlt()" var="WaypointAlt(WP_RIGHT_HERE)"/>
       <go from="RIGHT_HERE" height="200" hmode="route" wp="HOME"/>
@@ -121,8 +104,7 @@
     </block>
     <block name="Final North">
       <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="Flare North"/>
-      <call fun="Flaps(0.5)"/>
-      <go from="AF_NORTH" hmode="route" vmode="glide" wp="TD"/>
+       <go from="AF_NORTH" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="Flare North">
       <go approaching_time="0" from="AF_NORTH" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
@@ -136,7 +118,6 @@
     </block>
     <block name="final South">
       <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="Flare South"/>
-      <call fun="Flaps(0.5)"/>
       <go from="AF_SOUTH" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="Flare South">
@@ -150,7 +131,6 @@
       <circle alt="(ground_alt+30)" radius="nav_radius" until="NavQdrCloseTo(DegOfRad(parachute_start_qdr)-(nav_radius/fabs(nav_radius))*10) && 10>fabs(GetPosAlt()-(ground_alt+30))" wp="BASELEG"/>
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <go from="MOB" hmode="route" wp="RELEASE"/>
-      <call fun="Flaps(0.5)"/>
       <attitude pitch="10" roll="0.0" throttle="0" until="MINIMUM_AIRSPEED > state.h_speed_norm_f" vmode="throttle"/>
       <call fun="DeployParachute()"/>
       <set value="1" var="autopilot.kill_throttle"/>
