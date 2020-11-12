@@ -42,7 +42,7 @@
     </block>
     <block name="Holding Point">
       <set value="1" var="autopilot.kill_throttle"/>
-      <attitude roll="0" throttle="0" until="((state.h_speed_norm_f > 5.0) || (sqrt(dist2_to_home)) > 10)" vmode="throttle"/>
+      <attitude roll="0" throttle="0" until="((stateGetHorizontalSpeedNorm_f() > 5.0) || (sqrt(dist2_to_home)) > 10)" vmode="throttle"/>
       <deroute block="Takeoff"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp AF_NORTH)" strip_icon="takeoff.png">
@@ -131,7 +131,7 @@
       <circle alt="(ground_alt+30)" radius="nav_radius" until="NavQdrCloseTo(DegOfRad(parachute_start_qdr)-(nav_radius/fabs(nav_radius))*10) && 10>fabs(GetPosAlt()-(ground_alt+30))" wp="BASELEG"/>
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <go from="MOB" hmode="route" wp="RELEASE"/>
-      <attitude pitch="10" roll="0.0" throttle="0" until="MINIMUM_AIRSPEED > state.h_speed_norm_f" vmode="throttle"/>
+      <attitude pitch="10" roll="0.0" throttle="0" until="MINIMUM_AIRSPEED > stateGetHorizontalSpeedNorm_f()" vmode="throttle"/>
       <call fun="DeployParachute()"/>
       <set value="1" var="autopilot.kill_throttle"/>
       <circle height="70." radius="nav_radius" wp="HOME"/>
