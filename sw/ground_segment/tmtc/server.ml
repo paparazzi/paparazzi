@@ -689,6 +689,11 @@ let listen_acs = fun log timestamp ->
   if !replay_old_log then
     ignore (Tm_Pprz.message_bind "PPRZ_MODE" (ident_msg log timestamp))
 
+(* Remove aicraft on AIRCRAFT_DIE message.  *)
+let remove_aircraft = fun _sender vs ->
+  let ac_id = PprzLink.string_assoc "ac_id" vs in
+  Hashtbl.remove aircrafts ac_id
+
 let send_intruder_acinfo = fun id intruder ->
   let cm_of_m_32 = fun f -> PprzLink.Int32 (Int32.of_int (truncate (100. *. f))) in
   let cm_of_m = fun f -> PprzLink.Int (truncate (100. *. f)) in
@@ -931,6 +936,8 @@ let () =
 
   (* Waits for new aircrafts *)
   listen_acs logging !timestamp;
+
+  ignore(Ground_Pprz.message_bind "AIRCRAFT_DIE" remove_aircraft);
 
   (* wait for new external vehicles/intruders *)
   listen_intruders logging;
