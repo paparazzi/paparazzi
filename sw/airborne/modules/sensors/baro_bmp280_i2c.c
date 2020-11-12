@@ -67,6 +67,7 @@ static void send_baro_bmp_data(struct transport_tx *trans, struct link_device *d
 
 void baro_bmp280_init(void)
 {
+
   bmp280_i2c_init(&baro_bmp280, &BMP280_I2C_DEV, BMP280_SLAVE_ADDR);
 #if DOWNLINK && !defined(BMP280_SYNC_SEND)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BMP_STATUS, send_baro_bmp_data);
@@ -80,6 +81,9 @@ void baro_bmp280_periodic(void)
 
 void baro_bmp280_event(void)
 {
+  static bool baro_correction_valid = FALSE;
+  static float baro_alt_error = 0;
+
   bmp280_i2c_event(&baro_bmp280);
 
   if (baro_bmp280.data_available) {
@@ -89,6 +93,14 @@ void baro_bmp280_event(void)
     AbiSendMsgTEMPERATURE(BARO_BMP_SENDER_ID, baro_bmp280.temperature);
     baro_bmp280.data_available = false;
     baro_alt = pprz_isa_altitude_of_pressure(baro_bmp280.pressure);
+    if (baro_correction_valid == FALSE){
+      //Only when flying relatively straight
+      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0 && stateGetSpeedEnu_f()->z < 0.3) {
+        baro_alt_error = GetPosAlt() - baro_alt;
+        baro_correction_valid = TRUE;
+      }
+    }
+    baro_alt += baro_alt_error; 
     baro_alt_valid = TRUE;
     baro_press = (float)baro_bmp280.pressure;
     baro_temp = ((float)baro_bmp280.temperature) / 100;
