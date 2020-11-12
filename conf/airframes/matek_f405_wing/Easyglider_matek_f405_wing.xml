@@ -84,6 +84,7 @@
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
     <module name="uav_recovery">
+      <define name="USE_PARACHUTE" value="true"/>
       <define name="PARACHUTE_SERVO_CHANNEL" value="PARACHUTE" />
       <define name="AIRBORNE_WIND_CORRECTION" value="1.0" />
       <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />

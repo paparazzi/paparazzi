@@ -74,7 +74,14 @@
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
     <module name="uav_recovery">
+      <define name="USE_PARACHUTE" value="true"/>
       <define name="PARACHUTE_SERVO_CHANNEL" value="PARACHUTE" />
+      <define name="AIRBORNE_WIND_CORRECTION" value="1.0" />
+      <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />
+      <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10.0" />
+      <define name="PARACHUTE_DESCENT_RATE"           value="3.0" />
+      <define name="PARACHUTE_WIND_CORRECTION"        value="0.5" /> 
+      <define name="PARACHUTE_LINE_LENGTH"            value="2.0" /> 
     </module>
 
   </firmware>
@@ -92,7 +99,7 @@
     <servo name="AILERON_L" no="2" min="1000" neutral="1500" max="2000"/>
     <servo name="ELEVATOR" no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_R" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_R" no="5" min="1100" neutral="1100" max="2000"/>
     <servo name="CAM_PAN" no="6" min="943" neutral="1520" max="2056"/>
     <servo name="CAM_TILT" no="7" min="996" neutral="1221" max="2004"/>
   </servos>
@@ -323,7 +330,20 @@
     <define name="CLIMB_NAV_RATIO" value="0.8"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
  </section>
+<!--
+  <section name="NAV">
+    <define name="NAV_PITCH" value="0."/>
+    <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="NAV_GROUND_SPEED_PGAIN" value="0.015"/>
+    <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>
+  </section>
 
+  <section name="GLS_APPROACH" prefix="APP_">
+    <define name="ANGLE" value="5"/>
+    <define name="INTERCEPT_AF_TOD" value="10"/>
+    <define name="TARGET_SPEED" value="13"/>
+  </section>
+-->
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
     <define name="DEFAULT_THROTTLE" value="0.8" unit="%"/>
