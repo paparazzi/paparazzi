@@ -177,7 +177,7 @@ void mag_compass(void)
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
   static float mag_declination = 0;
-  static bool declination_calculated = FALSE;
+  static bool declination_calculated = false;
 
 #if defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)
   x = ((imu.mag_unscaled.x - imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
@@ -207,16 +207,20 @@ void mag_compass(void)
     mag_heading_rad -= (2.0 * M_PI);
   } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
 
-  if (declination_calculated == FALSE) {
+  if (declination_calculated == false) {
+#if defined(NOMINAL_AIRSPEED)
+    if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > (float)NOMINAL_AIRSPEED) {
+#else
     if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) {
+#endif
       mag_declination = stateGetHorizontalSpeedDir_f();
       if (mag_declination > M_PI) { // Angle normalization (-180 deg to 180 deg)
         mag_declination -= (2.0 * M_PI);
       } else if (mag_declination < -M_PI) { mag_declination += (2.0 * M_PI); }
       mag_declination -= mag_heading_rad;
-      if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; }
-      declination_calculated = TRUE;
-    }
+      declination_calculated = true;
+      if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; declination_calculated = false; }
+     }
   }
   mag_heading_rad = mag_heading_rad + mag_declination;
   if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
@@ -289,7 +293,7 @@ static float home_direction(void)
 #ifdef AP
     Home_Position.fx = WaypointY(WP_HOME);
     Home_Position.fy = WaypointX(WP_HOME);
-    Home_Position.fz = ground_alt;
+    Home_Position.fz = GetAltRef();
 #else
     Home_Position.fx = waypoint_get_x(WP_HOME);
     Home_Position.fy = waypoint_get_y(WP_HOME);
@@ -407,7 +411,7 @@ static void calc_flight_time_left(void)
   horizontal_speed = stateGetHorizontalSpeedNorm_f();
 
 #if AP
-  if (stateGetHorizontalSpeedNorm_f() < 5.0 || autopilot.launch == FALSE) {
+  if (stateGetHorizontalSpeedNorm_f() < 5.0 || autopilot.launch == false) {
     current_amps = LOITER_BAT_CURRENT;
     horizontal_speed = MINIMUM_AIRSPEED;
   }
@@ -677,7 +681,9 @@ void draw_osd(void)
 
 #if defined(BARO_ALTITUDE_VAR)
   static float baro_alt_correction = 0;
-  RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), {if (gps.fix == GPS_FIX_3D) { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;}});
+  if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
+    RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;});
+  }
 #endif
 
   //THE SWITCH STATEMENT ENSURES THAT ONLY ONE SPI TRANSACTION WILL OCUUR IN EVERY PERIODIC FUNCTION CALL
@@ -719,10 +725,10 @@ void draw_osd(void)
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       // All special character codes must be in 3 digit format!
       osd_sprintf(osd_string, "%191c%.0f", home_direction_degrees); // 0 when heading straight back home.
-      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "FALSE = L_JUST
+      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "false = L_JUST
 #else
       osd_sprintf(osd_string, "H%.0f", home_direction_degrees);
-      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "FALSE = L_JUST
+      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "false = L_JUST
 
 #endif
       step = 20;
@@ -743,9 +749,9 @@ void draw_osd(void)
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
         //Since we only send one special character the float variable is replaced by a zero.
         osd_sprintf(osd_string, "%030c%031c", 0);
-        osd_put_s(osd_string, FALSE, 2, 2, 1);
+        osd_put_s(osd_string, false, 2, 2, 1);
 #else
-        osd_put_s("**", FALSE, 2, 2, 1);
+        osd_put_s("**", false, 2, 2, 1);
 #endif
       } else {
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
@@ -784,7 +790,7 @@ void draw_osd(void)
 
     case (60):
 #if AP
-      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi)) < stall_speed) && (GetPosAlt() > (ground_alt + 10))) {
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi)) < stall_speed) && (GetPosAlt() > (GetAltRef() + 10))) {
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
         osd_sprintf(osd_string, "STALL!", 0);
         osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
@@ -837,7 +843,7 @@ void draw_osd(void)
 #else
       osd_sprintf(osd_string, "%.0fM", altitude);
 #endif
-      osd_put_s(osd_string, R_JUST, 6, 2, 30); // "FALSE = L_JUST
+      osd_put_s(osd_string, R_JUST, 6, 2, 30); // "false = L_JUST
       step = 80;
       break;
 
@@ -907,9 +913,9 @@ void draw_osd(void)
     case (114):
       if (DegOfRad(att->phi) > 3) {
         osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
-        osd_put_s(osd_string, FALSE, 5, 8, 18);
+        osd_put_s(osd_string, false, 5, 8, 18);
 
-      } else { osd_put_s("     ", FALSE, 5, 8, 18); }
+      } else { osd_put_s("     ", false, 5, 8, 18); }
       step = 116;
       break;
 
@@ -925,9 +931,9 @@ void draw_osd(void)
     case (120):
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       osd_sprintf(osd_string, "%126c", 0);
-      osd_put_s(osd_string, FALSE, 1, 8, 15); // FALSE = L_JUST
+      osd_put_s(osd_string, false, 1, 8, 15); // false = L_JUST
 #else
-      osd_put_s("+", FALSE, 1, 8, 15); // FALSE = L_JUST
+      osd_put_s("+", false, 1, 8, 15); // false = L_JUST
 #endif
       step = 0;
       break;
