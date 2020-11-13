@@ -109,6 +109,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="2000"/>
+    <axis name="FLAPS" failsafe_value="0"/>
     <axis name="CAM_PAN" failsafe_value="0"/>
     <axis name="CAM_TILT" failsafe_value="0"/>
     <axis name="PARACHUTE" failsafe_value="0"/>
@@ -119,19 +120,23 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="YAW" value="@YAW"/>
-    <!--  <set command="PARACHUTE" value="@AUX3"/> -->
+    <set command="FLAPS" value="@AUX1"/> 
+    <set command="PARACHUTE" value="@AUX3"/> 
   </rc_commands>
 
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
-    <define name="COMBI_SWITCH" value="0.3"/>
+    <define name="COMBI_SWITCH" value="0.5"/>
   </section>
 
   <command_laws>
+    <let var="roll" value="@ROLL"/>
+    <let var="flaps" value="@FLAPS"/>
+
     <set servo="MOTOR" value="@THROTTLE"/>
     <set servo="PARACHUTE" value="@PARACHUTE"/>
-    <set servo="AILERON_L" value="@ROLL"/>
-    <set servo="AILERON_R" value="@ROLL"/>
+    <set servo="AILERON_L" value="$roll + $flaps"/>
+    <set servo="AILERON_R" value="$roll - $flaps"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
