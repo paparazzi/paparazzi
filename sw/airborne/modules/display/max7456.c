@@ -676,7 +676,7 @@ void draw_osd(void)
   if (gps_course_deg < 0) { gps_course_deg += 360; } // translate the +180, -180 to 0-360.
 
 #if defined(BARO_ALTITUDE_VAR)
-  float baro_alt_correction = 0;
+  static float baro_alt_correction = 0;
   RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), {if (gps.fix == GPS_FIX_3D) { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;}});
 #endif
 
