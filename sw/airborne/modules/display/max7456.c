@@ -790,20 +790,31 @@ void draw_osd(void)
 
     case (60):
 #if AP
-      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi)) < stall_speed) && (GetPosAlt() > (GetAltRef() + 10))) {
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
-        osd_sprintf(osd_string, "STALL!", 0);
-        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && GetPosAlt() > (GetAltRef() + 10)) {
+        if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+          osd_sprintf(osd_string, "STALL!", 0);
+          osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+        } else {
+          osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
+          osd_put_s(osd_string, R_JUST, 6, 1, 30);
+        }
       } else {
-        osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
+        osd_sprintf(osd_string, "%.0f%161c", 0);
         osd_put_s(osd_string, R_JUST, 6, 1, 30);
       }
 #else
-        osd_sprintf(osd_string, "STALL!", 0);
-        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && GetPosAlt() > (GetAltRef() + 10)) {
+        if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+          osd_sprintf(osd_string, "STALL!", 0);
+          osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+        } else {
+          osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
+          osd_put_s(osd_string, R_JUST, 6, 1, 30);
+        }
       } else {
-        osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
-        osd_put_s(osd_string, R_JUST, 6, 1, 30);
+          osd_sprintf(osd_string, "%.0fKM", 0);
+          osd_put_s(osd_string, R_JUST, 6, 1, 30);
       }
 #endif
 
@@ -829,7 +840,7 @@ void draw_osd(void)
 #endif
 
 #else
-      if (gps.fix == GPS_FIX_3D) {
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
         altitude = GetPosAlt();
       } else {
 #if defined(BARO_ALTITUDE_VAR)
