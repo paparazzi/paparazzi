@@ -48,7 +48,12 @@ PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 #ifndef OPTICFLOW_FPS
 #define OPTICFLOW_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
+
+#ifndef OPTICFLOW_FPS_CAMERA2
+#define OPTICFLOW_FPS_CAMERA2 0       ///< Default FPS (zero means run at camera fps)
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FPS)
+PRINT_CONFIG_VAR(OPTICFLOW_FPS_CAMERA2)
 
 #ifdef OPTICFLOW_CAMERA2
 #define ACTIVE_CAMERAS 2
