@@ -209,7 +209,7 @@ void mag_compass(void)
 
   if (declination_calculated == FALSE) {
     if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) {
-      mag_declination = state.h_speed_dir_f;
+      mag_declination = stateGetHorizontalSpeedDir_f();
       if (mag_declination > M_PI) { // Angle normalization (-180 deg to 180 deg)
         mag_declination -= (2.0 * M_PI);
       } else if (mag_declination < -M_PI) { mag_declination += (2.0 * M_PI); }
@@ -398,12 +398,12 @@ static void calc_flight_time_left(void)
   float horizontal_speed = 0;
   float bat_capacity_left = 0;
   static float bat_capacity_used = 0;
-  
+
 
   current_amps = electrical.current;
-  bat_capacity_used += (current_amps*1000.) / (3600. * (float)MAX7456_PERIODIC_FREQ);
+  bat_capacity_used += (current_amps * 1000.) / (3600. * (float)MAX7456_PERIODIC_FREQ);
   bat_capacity_left = (float)BAT_CAPACITY - bat_capacity_used;
-  if(bat_capacity_left < 0){ bat_capacity_left = 0; }
+  if (bat_capacity_left < 0) { bat_capacity_left = 0; }
   horizontal_speed = stateGetHorizontalSpeedNorm_f();
 
 #if AP
@@ -424,11 +424,11 @@ static void calc_flight_time_left(void)
   static float horizontal_speed_filtered = 0;
 
   current_amps_sum = (current_amps_sum - current_amps_filtered) + current_amps;
-  current_amps_filtered = current_amps_sum / (1<<AMPS_LOW_PASS_FILTER_STRENGTH);
+  current_amps_filtered = current_amps_sum / (1 << AMPS_LOW_PASS_FILTER_STRENGTH);
   current_amps = current_amps_filtered;
 
   horizontal_speed_sum = (horizontal_speed_sum - horizontal_speed_filtered) + horizontal_speed;
-  horizontal_speed_filtered = horizontal_speed_sum / (1<<SPEED_LOW_PASS_FILTER_STRENGTH);
+  horizontal_speed_filtered = horizontal_speed_sum / (1 << SPEED_LOW_PASS_FILTER_STRENGTH);
   horizontal_speed = horizontal_speed_filtered;
 
 #else
@@ -650,7 +650,7 @@ void draw_osd(void)
   float temp = 0;
   float altitude = 0;
   float distance_to_home = 0;
-  float home_direction_degrees = 0;
+  static float home_direction_degrees = 0;
 
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
@@ -665,9 +665,10 @@ void draw_osd(void)
 
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
+  mag_compass();
 
   //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
-  gps_course_deg = state.h_speed_dir_f;
+  gps_course_deg = stateGetHorizontalSpeedDir_f();
   if (gps_course_deg > M_PI) { // Angle normalization (-180 deg to 180 deg)
     gps_course_deg -= (2.0 * M_PI);
   } else if (gps_course_deg < -M_PI) { gps_course_deg += (2.0 * M_PI); }
@@ -701,14 +702,18 @@ void draw_osd(void)
 
     case (10):
 #if defined(OSD_HOME_DIR_RELATIVE_STYLE) && OSD_HOME_DIR_RELATIVE_STYLE == 1
-  PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE RELATIVE STYLE, 0 IS GOING BACK HOME")
+      PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE RELATIVE STYLE, 0 IS GOING BACK HOME")
       // The reading is actually showing the difference between your heading and home heading.
       // When the home_dir goes to 0 the aircraft is headed straight back home.
       home_direction_degrees = home_direction();
 #else
-  PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE ILS STYLE, MATCH THE HEADING TO HOME DIR TO GET BACK HOME")
-      home_direction_degrees = gps_course_deg + home_direction(); //home_direction returns degrees -180 to +180
-      if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
+      PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE ILS STYLE, MATCH THE HEADING TO HOME DIR TO GET BACK HOME")
+      //Only when flying because i need this indication to remain stable if the GPS is lost.
+      // This way i can still have the synchronized magnetic compass heading and the last bearing home.
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
+        home_direction_degrees = gps_course_deg + home_direction(); //home_direction returns degrees -180 to +180
+        if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
+      }
 #endif
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       // All special character codes must be in 3 digit format!
@@ -956,15 +961,13 @@ void max7456_init(void)
 #if DOWNLINK
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag_heading);
 #endif
-home_direction();
+  home_direction();
 
   return;
 }
 
 void max7456_periodic(void)
 {
-
-  mag_compass();
 
   //This code is executed always and checks if the "osd_enable" var has been changed by telemetry.
   //If yes then it commands a reset but this time turns on or off the osd overlay, not the video.
