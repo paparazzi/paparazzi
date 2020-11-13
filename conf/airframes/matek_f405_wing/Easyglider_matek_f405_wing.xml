@@ -45,7 +45,7 @@
     <module name="imu" type="mpu6000" />
     <module name="ahrs" type="float_dcm"/>
     <module name="ins" type="alt_float">
-<!--  <configure name="USE_MAGNETOMETER" value="TRUE"/>  -->
+      <configure name="USE_MAGNETOMETER" value="true"/>
       <define name="AHRS_USE_GPS_HEADING" value="1"/>
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     </module>
@@ -63,9 +63,6 @@
       <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
       <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
       <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
-      <define name="OSD_HOME_DIR_RELATIVE_STYLE" value="0" />
-      <define name="OSD_USE_MAG_COMPASS" value="0" />
-      <define name="OSD_USE_BARO_ALTITUDE" value="0" />
       <define name="BARO_ALTITUDE_VAR" value="baro_alt" />
     </module>
     <module name="mag" type="hmc58xx">
@@ -73,9 +70,9 @@
       <!--<define name="HMC58XX_STARTUP_DELAY" value="1.4"/>--> 
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
 <!--  temporary for debugging external magneto and setup orientation sign and Body to Magneto angles-->
-<!--  <define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/> -->
-<!--  When all calibration is done and everything works, set the below definition to TRUE -->
-      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+<!--  <define name="MODULE_HMC58XX_SYNC_SEND" value="true"/> -->
+<!--  When all calibration is done and everything works, set the below definition to true -->
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="true"/>
       <define name="HMC58XX_CHAN_X" value="0"/>
       <define name="HMC58XX_CHAN_Y" value="1"/>
       <define name="HMC58XX_CHAN_Z" value="2"/>
@@ -324,16 +321,16 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
-    <define name="NO_XBEE_API_INIT"  value="TRUE"/>
+    <define name="NO_XBEE_API_INIT"  value="true"/>
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
 
     <!-- MIN_CIRCLE_RADIUS used and needed for spiral navigation function and panic autolanding turns-->
     <define name="MIN_CIRCLE_RADIUS" value="40."/>
 
-    <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
+    <!--UNLOCKED_HOME_MODE if set to true means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
-    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <define name="UNLOCKED_HOME_MODE" value="true"/>
 
     <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
     or  fly a long range mission you define the wanted mode behaviour here.
