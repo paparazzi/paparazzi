@@ -166,6 +166,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="Path_Plan_Explorer2"
+   ac_id="2"
+   airframe="airframes/ENAC/quadrotor/explorer_2_murat_voliere.xml"
+   radio="radios/T10CG_SBUS.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/rotorcraft_optitrack_enac_demo.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/object_tracking.xml modules/stabilization_indi.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="Robust_151"
    ac_id="151"
    airframe="airframes/ENAC/quadrotor/robust.xml"

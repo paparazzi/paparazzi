@@ -32,7 +32,7 @@
     </module>
 
     <module name="actuators" type="dshot">
-      <!--define name="DSHOT_SPEED" value="300"/-->
+      <define name="DSHOT_SPEED" value="300"/>
     </module>
 
     <module name="board" type="tawaki">
