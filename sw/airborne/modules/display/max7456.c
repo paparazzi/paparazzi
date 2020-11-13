@@ -175,20 +175,25 @@ float home_dir_deg = 0;
 // Periodic function called with a frequency defined in the module .xml file
 void mag_compass(void)
 {
+
   int32_t x = 0, y = 0, z = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
   static float mag_declination = 0;
   static bool declination_calculated = false;
 
+  struct Int32Vect3 mag;
+  struct Int32Vect3 mag_neutrals;
+  VECT3_COPY(mag, imu.mag_unscaled);
+  VECT3_COPY(mag_neutrals, imu.mag_neutral);
 #if defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)
-  x = ((imu.mag_unscaled.x - imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
-  y = ((imu.mag_unscaled.y - imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN;
-  z = ((imu.mag_unscaled.z - imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN;
+  x = ((mag.x - mag_neutrals.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
+  y = ((mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN;
+  z = ((mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN;
 #else
-  x = (imu.mag_unscaled.x - imu.mag_neutral.x) * IMU_MAG_X_SIGN;
-  y = (imu.mag_unscaled.y - imu.mag_neutral.y) * IMU_MAG_Y_SIGN;
-  z = (imu.mag_unscaled.z - imu.mag_neutral.z) * IMU_MAG_Z_SIGN;
+  x = (mag.x - mag_neutrals.x) * IMU_MAG_X_SIGN;
+  y = (mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN;
+  z = (mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN;
 #endif
   cos_roll = cosf(att->phi);
   sin_roll = sinf(att->phi);
@@ -197,6 +202,7 @@ void mag_compass(void)
   // Pitch&Roll Compensation:
   mag_x = x * cos_pitch + y * sin_roll * sin_pitch + z * cos_roll * sin_pitch;
   mag_y = y * cos_roll - z * sin_roll;
+
   // Magnetic Heading N = 0, E = 90, S = +-180, W = -90
   mag_heading_rad = atan2(-mag_y, mag_x);
 #if defined(AHRS_MAG_DECLINATION)
