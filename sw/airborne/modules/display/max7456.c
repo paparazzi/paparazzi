@@ -784,14 +784,13 @@ void draw_osd(void)
 #else
       osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
 #endif
-      osd_put_s(osd_string, L_JUST, 5, 3, 1);
+      osd_put_s(osd_string, L_JUST, 6, 3, 1);
       step = 60;
       break;
 
     case (60):
 #if AP
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
-      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && GetPosAlt() > (GetAltRef() + 10)) {
         if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
           osd_sprintf(osd_string, "STALL!", 0);
           osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
@@ -799,12 +798,7 @@ void draw_osd(void)
           osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
           osd_put_s(osd_string, R_JUST, 6, 1, 30);
         }
-      } else {
-        osd_sprintf(osd_string, "%.0f%161c", 0);
-        osd_put_s(osd_string, R_JUST, 6, 1, 30);
-      }
 #else
-      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && GetPosAlt() > (GetAltRef() + 10)) {
         if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
           osd_sprintf(osd_string, "STALL!", 0);
           osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
@@ -812,10 +806,6 @@ void draw_osd(void)
           osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
           osd_put_s(osd_string, R_JUST, 6, 1, 30);
         }
-      } else {
-        osd_sprintf(osd_string, "%.0fKM", 0);
-        osd_put_s(osd_string, R_JUST, 6, 1, 30);
-      }
 #endif
 
 #else // #if AP
