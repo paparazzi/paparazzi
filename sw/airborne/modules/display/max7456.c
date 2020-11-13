@@ -113,7 +113,9 @@ typedef struct {
   float fz1; float fz2; float fz3;
 } MATRIX;
 
+#if AP
 static void mag_compass(void);
+#endif
 static void send_mag_heading(struct transport_tx *trans, struct link_device *dev);
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC);
 static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC);
@@ -169,7 +171,7 @@ float mag_heading_rad = 0;
 float gps_course_deg = 0;
 float home_dir_deg = 0;
 
-
+#if AP
 // Periodic function called with a frequency defined in the module .xml file
 void mag_compass(void)
 {
@@ -232,6 +234,7 @@ void mag_compass(void)
 
   return;
 }
+#endif
 
 
 static void send_mag_heading(struct transport_tx *trans, struct link_device *dev)
@@ -669,7 +672,9 @@ void draw_osd(void)
 
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
+#if AP
   mag_compass();
+#endif
 
   //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
   gps_course_deg = stateGetHorizontalSpeedDir_f();
@@ -692,13 +697,22 @@ void draw_osd(void)
     case (0):
 #if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1
       PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
+#if AP
       temp = mag_course_deg;
+#else
+      temp = stateGetNedToBodyEulers_f()->psi;
+#endif
+
 #else
       PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
       if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
         temp = gps_course_deg;
       } else {
+#if AP
         temp = mag_course_deg;
+#else
+        temp = stateGetNedToBodyEulers_f()->psi;
+#endif
       }
 #endif
       osd_sprintf(osd_string, "%.0f", temp);
