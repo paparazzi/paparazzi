@@ -688,8 +688,8 @@ void draw_osd(void)
       PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
       temp = mag_course_deg;
 #else
+      PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
       if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
-        PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
         temp = gps_course_deg;
       } else {
         temp = mag_course_deg;
