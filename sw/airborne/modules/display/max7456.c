@@ -176,14 +176,14 @@ float home_dir_deg = 0;
 void mag_compass(void)
 {
 
-  int32_t x = 0, y = 0, z = 0;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  struct Int32Vect3 mag;
+  struct Int32Vect3 mag_neutrals;
+  int32_t x = 0, y = 0, z = 0;
   float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
   static float mag_declination = 0;
   static bool declination_calculated = false;
 
-  struct Int32Vect3 mag;
-  struct Int32Vect3 mag_neutrals;
   VECT3_COPY(mag, imu.mag_unscaled);
   VECT3_COPY(mag_neutrals, imu.mag_neutral);
 #if (defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)) &&  !defined(USE_MAGNETOMETER)
@@ -683,58 +683,40 @@ void draw_osd(void)
   mag_compass();
 #endif
 
-  //gps_course_deg = (DegOfRad((float)gps.course) / 1e6);
-  gps_course_deg = stateGetHorizontalSpeedDir_f();
-  if (gps_course_deg > M_PI) { // Angle normalization (-180 deg to 180 deg)
-    gps_course_deg -= (2.0 * M_PI);
-  } else if (gps_course_deg < -M_PI) { gps_course_deg += (2.0 * M_PI); }
-  gps_course_deg = DegOfRad(gps_course_deg);  // Now convert to degrees.
-  if (gps_course_deg < 0) { gps_course_deg += 360; } // translate the +180, -180 to 0-360.
+
+  if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) { //Only when flying
+    gps_course_deg = (float)gps.course;
+    gps_course_deg = DegOfRad(gps_course_deg / 1e7);
+  } else {
+#if AP
+    gps_course_deg = mag_course_deg;
+#else
+    gps_course_deg = stateGetNedToBodyEulers_f()->psi;
+#endif
+  }
 
 #if defined(BARO_ALTITUDE_VAR)
   static float baro_alt_correction = 0;
   if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
     RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;});
+    altitude = GetPosAlt();
+  } else {
+    altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
   }
+#else
+  altitude = GetPosAlt();
 #endif
 
   //THE SWITCH STATEMENT ENSURES THAT ONLY ONE SPI TRANSACTION WILL OCUUR IN EVERY PERIODIC FUNCTION CALL
   switch (step) {
 
     case (0):
-#if defined(OSD_USE_MAG_COMPASS) && OSD_USE_MAG_COMPASS == 1
-      PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
-#if AP
-      temp = mag_course_deg;
-#else
-      temp = stateGetNedToBodyEulers_f()->psi;
-#endif
-
-#else
-      PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
-      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
-        temp = gps_course_deg;
-      } else {
-#if AP
-        temp = mag_course_deg;
-#else
-        temp = stateGetNedToBodyEulers_f()->psi;
-#endif
-      }
-#endif
-      osd_sprintf(osd_string, "%.0f", temp);
+      osd_sprintf(osd_string, "%.0f", gps_course_deg);
       osd_put_s(osd_string, C_JUST, 3, 1, 15);
       step = 10;
       break;
 
     case (10):
-#if defined(OSD_HOME_DIR_RELATIVE_STYLE) && OSD_HOME_DIR_RELATIVE_STYLE == 1
-      PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE RELATIVE STYLE, 0 IS GOING BACK HOME")
-      // The reading is actually showing the difference between your heading and home heading.
-      // When the home_dir goes to 0 the aircraft is headed straight back home.
-      home_direction_degrees = home_direction();
-#else
-      PRINT_CONFIG_MSG("OSD HOME DIRECTION USES THE ILS STYLE, MATCH THE HEADING TO HOME DIR TO GET BACK HOME")
       //Only when flying because i need this indication to remain stable if the GPS is lost.
       // This way i can still have the synchronized magnetic compass heading and the last bearing home.
       if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
@@ -742,7 +724,6 @@ void draw_osd(void)
         if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
         if (home_direction_degrees >= 360) { home_direction_degrees -= 360; }
       }
-#endif
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       // All special character codes must be in 3 digit format!
       osd_sprintf(osd_string, "%191c%.0f", home_direction_degrees); // 0 when heading straight back home.
@@ -843,23 +824,6 @@ void draw_osd(void)
       break;
 
     case (70):
-      altitude = 99999;
-#if OSD_USE_BARO_ALTITUDE
-      PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
-#if defined(BARO_ALTITUDE_VAR)
-      altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
-#endif
-
-#else
-      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
-        altitude = GetPosAlt();
-      } else {
-#if defined(BARO_ALTITUDE_VAR)
-        altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
-#endif
-      }
-#endif
-
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       osd_sprintf(osd_string, "%.0f%177c", altitude);
 #else
