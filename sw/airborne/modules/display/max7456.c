@@ -713,6 +713,7 @@ void draw_osd(void)
       if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
         home_direction_degrees = gps_course_deg + home_direction(); //home_direction returns degrees -180 to +180
         if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
+        if (home_direction_degrees >= 360) { home_direction_degrees -= 360; } 
       }
 #endif
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
