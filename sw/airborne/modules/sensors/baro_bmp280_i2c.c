@@ -81,8 +81,9 @@ void baro_bmp280_periodic(void)
 
 void baro_bmp280_event(void)
 {
-  static bool baro_correction_valid = false;
+  static bool baro_correction_valid = false, time_noted = false;
   static float baro_alt_error = 0;
+  static uint16_t time_buf = 0;
 
   bmp280_i2c_event(&baro_bmp280);
 
@@ -95,9 +96,12 @@ void baro_bmp280_event(void)
     baro_alt = pprz_isa_altitude_of_pressure(baro_bmp280.pressure);
     if (baro_correction_valid == false){
       //Only when flying relatively straight
-      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0 && stateGetSpeedEnu_f()->z < 0.5) {
-        baro_alt_error = GetPosAlt() - baro_alt;
-        baro_correction_valid = true;
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 600 && stateGetHorizontalSpeedNorm_f() > 10.0) {
+         if (time_noted == false) { time_buf = autopilot.flight_time; time_noted = true; }
+         if (autopilot.flight_time - time_buf > 60) { // 1 minute with good conditions.
+           baro_alt_error = GetPosAlt() - baro_alt;
+           baro_correction_valid = true;
+         }
       }
     }
     baro_alt += baro_alt_error; 
