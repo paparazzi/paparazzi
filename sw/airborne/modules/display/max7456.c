@@ -186,7 +186,7 @@ void mag_compass(void)
   struct Int32Vect3 mag_neutrals;
   VECT3_COPY(mag, imu.mag_unscaled);
   VECT3_COPY(mag_neutrals, imu.mag_neutral);
-#if defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)
+#if (defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)) &&  !defined(USE_MAGNETOMETER)
   x = ((mag.x - mag_neutrals.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
   y = ((mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN;
   z = ((mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN;
@@ -195,6 +195,7 @@ void mag_compass(void)
   y = (mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN;
   z = (mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN;
 #endif
+
   cos_roll = cosf(att->phi);
   sin_roll = sinf(att->phi);
   cos_pitch = cosf(att->theta);
