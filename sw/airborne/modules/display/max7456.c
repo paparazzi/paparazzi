@@ -220,7 +220,7 @@ void mag_compass(void)
       mag_declination -= mag_heading_rad;
       declination_calculated = true;
       if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; declination_calculated = false; }
-     }
+    }
   }
   mag_heading_rad = mag_heading_rad + mag_declination;
   if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
@@ -719,7 +719,7 @@ void draw_osd(void)
       if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
         home_direction_degrees = gps_course_deg + home_direction(); //home_direction returns degrees -180 to +180
         if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
-        if (home_direction_degrees >= 360) { home_direction_degrees -= 360; } 
+        if (home_direction_degrees >= 360) { home_direction_degrees -= 360; }
       }
 #endif
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
@@ -813,8 +813,8 @@ void draw_osd(void)
           osd_put_s(osd_string, R_JUST, 6, 1, 30);
         }
       } else {
-          osd_sprintf(osd_string, "%.0fKM", 0);
-          osd_put_s(osd_string, R_JUST, 6, 1, 30);
+        osd_sprintf(osd_string, "%.0fKM", 0);
+        osd_put_s(osd_string, R_JUST, 6, 1, 30);
       }
 #endif
 
@@ -899,10 +899,10 @@ void draw_osd(void)
       step = 110;
       break;
 
-      // A Text PFD as graphics are not the strong point of the MAX7456
-      // In order to level the aircraft while fpving
-      // just move the stick to the opposite direction from the angles shown on the osd
-      // and that's why positive pitch (UP) is shown below the OSD center
+    // A Text PFD as graphics are not the strong point of the MAX7456
+    // In order to level the aircraft while fpving
+    // just move the stick to the opposite direction from the angles shown on the osd
+    // and that's why positive pitch (UP) is shown below the OSD center
     case (110):
       if (DegOfRad(att->theta) > 3) {
         osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
