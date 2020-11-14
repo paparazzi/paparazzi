@@ -665,6 +665,9 @@ void draw_osd(void)
   float altitude = 0;
   float distance_to_home = 0;
   static float home_direction_degrees = 0;
+#if defined(BARO_ALTITUDE_VAR)
+  static float baro_alt_correction = 0;
+#endif
 
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
@@ -683,34 +686,20 @@ void draw_osd(void)
   mag_compass();
 #endif
 
-
-  if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) { //Only when flying
-    gps_course_deg = (float)gps.course;
-    gps_course_deg = DegOfRad(gps_course_deg / 1e7);
-  } else {
-#if AP
-    gps_course_deg = mag_course_deg;
-#else
-    gps_course_deg = stateGetNedToBodyEulers_f()->psi;
-#endif
-  }
-
-#if defined(BARO_ALTITUDE_VAR)
-  static float baro_alt_correction = 0;
-  if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
-    RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;});
-    altitude = GetPosAlt();
-  } else {
-    altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
-  }
-#else
-  altitude = GetPosAlt();
-#endif
-
   //THE SWITCH STATEMENT ENSURES THAT ONLY ONE SPI TRANSACTION WILL OCUUR IN EVERY PERIODIC FUNCTION CALL
   switch (step) {
 
     case (0):
+      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) { //Only when flying
+        gps_course_deg = (float)gps.course;
+        gps_course_deg = DegOfRad(gps_course_deg / 1e7);
+      } else {
+#if AP
+        gps_course_deg = mag_course_deg;
+#else
+        gps_course_deg = stateGetNedToBodyEulers_f()->psi;
+#endif
+      }
       osd_sprintf(osd_string, "%.0f", gps_course_deg);
       osd_put_s(osd_string, C_JUST, 3, 1, 15);
       step = 10;
@@ -793,21 +782,21 @@ void draw_osd(void)
     case (60):
 #if AP
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
-        if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
-          osd_sprintf(osd_string, "STALL!", 0);
-          osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
-        } else {
-          osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
-          osd_put_s(osd_string, R_JUST, 6, 1, 30);
-        }
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+        osd_sprintf(osd_string, "STALL!", 0);
+        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      } else {
+        osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
+        osd_put_s(osd_string, R_JUST, 6, 1, 30);
+      }
 #else
-        if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
-          osd_sprintf(osd_string, "STALL!", 0);
-          osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
-        } else {
-          osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
-          osd_put_s(osd_string, R_JUST, 6, 1, 30);
-        }
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+        osd_sprintf(osd_string, "STALL!", 0);
+        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      } else {
+        osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
+        osd_put_s(osd_string, R_JUST, 6, 1, 30);
+      }
 #endif
 
 #else // #if AP
@@ -824,6 +813,16 @@ void draw_osd(void)
       break;
 
     case (70):
+#if defined(BARO_ALTITUDE_VAR)
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
+        RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;});
+        altitude = GetPosAlt();
+      } else {
+        altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
+      }
+#else
+      altitude = GetPosAlt();
+#endif
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       osd_sprintf(osd_string, "%.0f%177c", altitude);
 #else
