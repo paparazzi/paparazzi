@@ -353,7 +353,7 @@ static float home_direction(void)
     home_dir = atan2(Home_PositionForPlane2.fy, Home_PositionForPlane2.fx);
     if (home_dir > M_PI) { // Angle normalization (-180 deg to 180 deg but still in radians)
       home_dir -= (2.0 * M_PI);
-    } else if (home_dir < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
+    } else if (home_dir < -M_PI) { home_dir += (2.0 * M_PI); }
     home_dir_deg = DegOfRad(home_dir); // Now convert radians to degrees.
 
   } // END OF if (gps.fix == GPS_FIX_3D) statement.
