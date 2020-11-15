@@ -46,7 +46,7 @@
     <module name="ahrs" type="float_dcm"/>
     <module name="ins" type="alt_float">
       <configure name="USE_MAGNETOMETER" value="true"/>
-      <define name="AHRS_USE_GPS_HEADING" value="1"/>
+      <define name="AHRS_USE_GPS_HEADING" value="true"/>
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     </module>
     <module name="spi" type="master"/>
@@ -61,8 +61,8 @@
     <module name="osd_max7456">
       <configure name="MAX7456_SPI_DEV" value="spi2" />
       <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
-      <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
-      <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
+      <define name="USE_MATEK_TYPE_OSD_CHIP" value="true" />
+      <define name="USE_PAL_FOR_OSD_VIDEO" value="true" />
       <define name="BARO_ALTITUDE_VAR" value="baro_alt" />
     </module>
     <module name="mag" type="hmc58xx">
@@ -90,6 +90,7 @@
       <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />
       <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10.0" />
     </module>
+    <module name="fixed_wing_cam_v1"/>
  
   </firmware>
 
