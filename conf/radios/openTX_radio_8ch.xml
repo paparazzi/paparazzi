@@ -38,14 +38,14 @@
 -- Note: a command may be reversed by exchanging min and max values
 -->
 <!DOCTYPE radio SYSTEM "/radio.dtd">
-<radio name="X8_OPEN9X" data_min="700" data_max="2200" sync_min="2500" sync_max="18000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="ROLL"          min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="B" function="PITCH"	    min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="C" function="THROTTLE"      min="988" neutral="988"  max="2012" average="0"/>
-  <channel ctl="D" function="YAW"           min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="E" function="MODE"          min="988" neutral="1500" max="2012" average="10"/>
-  <channel ctl="E" function="PARACHUTE"     min="988" neutral="988" max="2012" average="10"/>
-  <channel ctl="F" function="AUX1"          min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="G" function="AUX2"          min="988" neutral="1500" max="2012" average="0"/>
+<radio name="OPENTX" data_min="700" data_max="2200" sync_min="2500" sync_max="18000" pulse_type="NEGATIVE">
+  <channel ctl="A" function="ROLL"      min="988"  neutral="1500"  max="2012"  average="0"/>
+  <channel ctl="B" function="PITCH"	min="988"  neutral="1500"  max="2012"  average="0"/>
+  <channel ctl="C" function="THROTTLE"  min="988"  neutral="988"   max="2012"  average="0"/>
+  <channel ctl="D" function="YAW"       min="988"  neutral="1500"  max="2012"  average="0"/>
+  <channel ctl="E" function="MODE"      min="988"  neutral="1500"  max="2012"  average="10"/>
+  <channel ctl="E" function="AUX1"      min="988"  neutral="1500"   max="2012"  average="10"/>
+  <channel ctl="F" function="AUX2"      min="988"  neutral="1500"  max="2012"  average="0"/>
+  <channel ctl="G" function="AUX3"      min="988"  neutral="1500"  max="2012"  average="0"/>
 </radio>
   

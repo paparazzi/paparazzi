@@ -47,6 +47,9 @@
 #else
 #include "firmwares/rotorcraft/navigation.h"
 #endif
+#if DOWNLINK
+#include "subsystems/datalink/telemetry.h"
+#endif
 
 // Peripherials
 #include "modules/display/max7456.h"
@@ -54,6 +57,49 @@
 
 #define OSD_STRING_SIZE     31
 #define osd_sprintf         _osd_sprintf
+
+#if !defined(OSD_USE_FLOAT_LOW_PASS_FILTERING)
+#define OSD_USE_FLOAT_LOW_PASS_FILTERING
+#endif
+
+//LOW PASS filter strength, cannot be 0, MAX=16
+#if !defined(AMPS_LOW_PASS_FILTER_STRENGTH) || AMPS_LOW_PASS_FILTER_STRENGTH == 0
+#define AMPS_LOW_PASS_FILTER_STRENGTH 6
+#endif
+
+#if !defined(SPEED_LOW_PASS_FILTER_STRENGTH) || SPEED_LOW_PASS_FILTER_STRENGTH == 0
+#define SPEED_LOW_PASS_FILTER_STRENGTH 6
+#endif
+
+#if !defined(BAT_CAPACITY)
+#pragma message "BAT_CAPACITY not defined, 5000 mah will be used."
+#define BAT_CAPACITY  5000.0
+#endif
+
+#if AP
+
+#if !defined(LOITER_BAT_CURRENT)
+#pragma message "LOITER_BAT_CURRENT not defined, 10 Amps will be used for LOITER current draw."
+#define LOITER_BAT_CURRENT  10.0
+#endif
+
+#if !defined(STALL_AIRSPEED)
+#pragma message "STALL_AIRSPEED not defined, 10 m/s will be used."
+#define STALL_AIRSPEED  10.0
+#endif
+
+#endif
+
+#if !defined(IMU_MAG_X_SIGN)
+#define IMU_MAG_X_SIGN 1
+#endif
+#if !defined(IMU_MAG_X_SIGN)
+#define IMU_MAG_Y_SIGN 1
+#endif
+#if !defined(IMU_MAG_X_SIGN)
+#define IMU_MAG_Z_SIGN 1
+#endif
+
 
 typedef struct {
   float fx;
@@ -67,11 +113,16 @@ typedef struct {
   float fz1; float fz2; float fz3;
 } MATRIX;
 
-
+#if AP
+static void mag_compass(void);
+#endif
+static void send_mag_heading(struct transport_tx *trans, struct link_device *dev);
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC);
 static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC);
 static float home_direction(void);
 static char ascii_to_osd_c(char c);
+static void calc_flight_time_left(void);
+static void draw_osd(void);
 static void osd_put_s(char *string,  uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column);
 static bool _osd_sprintf(char *buffer, char *string, float value);
 
@@ -113,8 +164,95 @@ uint8_t max7456_osd_status = OSD_UNINIT;
 uint8_t osd_enable = true;
 uint8_t osd_enable_val = OSD_IMAGE_ENABLE;
 uint8_t osd_stat_reg = 0;
-float home_dir = 0;
+uint32_t max_flyable_distance_left = 0;
 
+float mag_course_deg = 0;
+float mag_heading_rad = 0;
+float gps_course_deg = 0;
+float home_dir_deg = 0;
+
+#if AP
+// Periodic function called with a frequency defined in the module .xml file
+void mag_compass(void)
+{
+
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  struct Int32Vect3 mag;
+  struct Int32Vect3 mag_neutrals;
+  int32_t x = 0, y = 0, z = 0;
+  float cos_roll; float sin_roll; float cos_pitch; float sin_pitch; float mag_x; float mag_y;
+  static float mag_declination = 0;
+  static bool declination_calculated = false;
+
+  VECT3_COPY(mag, imu.mag_unscaled);
+  VECT3_COPY(mag_neutrals, imu.mag_neutral);
+#if (defined(IMU_MAG_X_SENS) && defined(IMU_MAG_Y_SENS) && defined(IMU_MAG_Z_SENS)) &&  !defined(USE_MAGNETOMETER)
+  x = ((mag.x - mag_neutrals.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN;
+  y = ((mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN;
+  z = ((mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN;
+#else
+  x = (mag.x - mag_neutrals.x) * IMU_MAG_X_SIGN;
+  y = (mag.y - mag_neutrals.y) * IMU_MAG_Y_SIGN;
+  z = (mag.z - mag_neutrals.z) * IMU_MAG_Z_SIGN;
+#endif
+
+  cos_roll = cosf(att->phi);
+  sin_roll = sinf(att->phi);
+  cos_pitch = cosf(att->theta);
+  sin_pitch = sinf(att->theta);
+  // Pitch&Roll Compensation:
+  mag_x = x * cos_pitch + y * sin_roll * sin_pitch + z * cos_roll * sin_pitch;
+  mag_y = y * cos_roll - z * sin_roll;
+
+  // Magnetic Heading N = 0, E = 90, S = +-180, W = -90
+  mag_heading_rad = atan2(-mag_y, mag_x);
+#if defined(AHRS_MAG_DECLINATION)
+  if (AHRS_MAG_DECLINATION != 0.0) {
+    //conversion from degrees to radians is done in the airframe.h file
+    mag_heading_rad = mag_heading_rad + AHRS_MAG_DECLINATION;
+  }
+#endif
+  if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
+    mag_heading_rad -= (2.0 * M_PI);
+  } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
+
+  if (declination_calculated == false) {
+#if defined(NOMINAL_AIRSPEED)
+    if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > (float)NOMINAL_AIRSPEED) {
+#else
+    if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) {
+#endif
+      mag_declination = stateGetHorizontalSpeedDir_f();
+      if (mag_declination > M_PI) { // Angle normalization (-180 deg to 180 deg)
+        mag_declination -= (2.0 * M_PI);
+      } else if (mag_declination < -M_PI) { mag_declination += (2.0 * M_PI); }
+      mag_declination -= mag_heading_rad;
+      declination_calculated = true;
+      if (fabs(mag_declination) > RadOfDeg(10.)) { mag_declination = 0; declination_calculated = false; }
+    }
+  }
+  mag_heading_rad = mag_heading_rad + mag_declination;
+  if (mag_heading_rad > M_PI) { // Angle normalization (-180 deg to 180 deg)
+    mag_heading_rad -= (2.0 * M_PI);
+  } else if (mag_heading_rad < -M_PI) { mag_heading_rad += (2.0 * M_PI); }
+  // Magnetic COMPASS Heading N = 0, E = 90, S = 180, W = 270
+  mag_course_deg = DegOfRad(mag_heading_rad);
+  if (mag_course_deg < 0) { mag_course_deg += 360; }
+
+  return;
+}
+#endif
+
+
+static void send_mag_heading(struct transport_tx *trans, struct link_device *dev)
+{
+
+#if DOWNLINK
+  pprz_msg_send_IMU_MAG(trans, dev, AC_ID, &mag_course_deg, &gps_course_deg, &home_dir_deg);
+#endif
+
+  return;
+}
 
 //*******************************************************************
 //   function name:   vSubtractVectors
@@ -144,12 +282,10 @@ static void vMultiplyMatrixByVector(VECTOR *svA, MATRIX smB, VECTOR svC)
 static float home_direction(void)
 {
 
-  static VECTOR svPlanePosition,
-         Home_Position,
-         Home_PositionForPlane,
-         Home_PositionForPlane2;
-
+  static VECTOR svPlanePosition, Home_Position, Home_PositionForPlane, Home_PositionForPlane2;
   static MATRIX smRotation;
+  float home_dir = 0;
+
 
   /*
   By swapping coordinates (fx=fPlaneNorth, fy=fPlaneEast) we make the the circle angle go from 0 (0 is to the top of the circle)
@@ -157,67 +293,72 @@ static float home_direction(void)
   applied to the rotation matrices (in radians).
   In standard mathematical notation 0 is to the right (East) of the circle, -90 is to the bottom, +-180 is to the left
   and +90 is to the top (counterclockwise rotation).
-  When reading back the actual rotated coordinates fx has the y coordinate and fy has the x
+  When reading back the actual rotated coordinates fx has the y coordinate and fy has the x when
   represented on a circle in standard mathematical notation.
   */
-
-  svPlanePosition.fx = stateGetPositionEnu_f()->y;
-  svPlanePosition.fy = stateGetPositionEnu_f()->x;
-  svPlanePosition.fz = stateGetPositionUtm_f()->alt;
+  if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
+    svPlanePosition.fx = stateGetPositionEnu_f()->y;
+    svPlanePosition.fy = stateGetPositionEnu_f()->x;
+    svPlanePosition.fz = stateGetPositionUtm_f()->alt;
 #ifdef AP
-  Home_Position.fx = WaypointY(WP_HOME);
-  Home_Position.fy = WaypointX(WP_HOME);
-  Home_Position.fz = ground_alt;
+    Home_Position.fx = WaypointY(WP_HOME);
+    Home_Position.fy = WaypointX(WP_HOME);
+    Home_Position.fz = GetAltRef();
 #else
-  Home_Position.fx = waypoint_get_x(WP_HOME);
-  Home_Position.fy = waypoint_get_y(WP_HOME);
-  Home_Position.fz = 0;
+    Home_Position.fx = waypoint_get_x(WP_HOME);
+    Home_Position.fy = waypoint_get_y(WP_HOME);
+    Home_Position.fz = 0;
 #endif
 
-  /* distance between plane and object */
-  vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
+    /* distance between plane and object */
+    vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
 
-  /* yaw */
-  smRotation.fx1 = cosf(stateGetHorizontalSpeedDir_f());
-  smRotation.fx2 = sinf(stateGetHorizontalSpeedDir_f());
-  smRotation.fx3 = 0.;
-  smRotation.fy1 = -smRotation.fx2;
-  smRotation.fy2 = smRotation.fx1;
-  smRotation.fy3 = 0.;
-  smRotation.fz1 = 0.;
-  smRotation.fz2 = 0.;
-  smRotation.fz3 = 1.;
+    /* yaw */
+    smRotation.fx1 = cosf(stateGetHorizontalSpeedDir_f());
+    smRotation.fx2 = sinf(stateGetHorizontalSpeedDir_f());
+    smRotation.fx3 = 0.;
+    smRotation.fy1 = -smRotation.fx2;
+    smRotation.fy2 = smRotation.fx1;
+    smRotation.fy3 = 0.;
+    smRotation.fz1 = 0.;
+    smRotation.fz2 = 0.;
+    smRotation.fz3 = 1.;
 
-  vMultiplyMatrixByVector(&Home_PositionForPlane2, smRotation, Home_PositionForPlane);
+    vMultiplyMatrixByVector(&Home_PositionForPlane2, smRotation, Home_PositionForPlane);
 
-  /* DEFAULT ORIENTATION IS 0 = FRONT, 90 = RIGHT, 180 = BACK, -90 = LEFT
-   *
-   * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
-   *
-   *             plane front
-   *                  0˚
-   *                  ^
-   *                  I
-   *             -45˚ I  45˚
-   *                \ I /
-   *                 \I/
-   *       -90˚-------I------- 90˚
-   *                 /I\
-   *                / I \
-   *            -135˚ I  135˚
-   *                  I
-   *                 180
-   *             plane back
-   *
-   *
-   */
+    /* DEFAULT ORIENTATION IS 0 = FRONT, 90 = RIGHT, 180 = BACK, -90 = LEFT
+     *
+     * WHEN home_dir =  (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
+     *
+     *             plane front
+     *                  0˚
+     *                  ^
+     *                  I
+     *             -45˚ I  45˚
+     *                \ I /
+     *                 \I/
+     *       -90˚-------I------- 90˚
+     *                 /I\
+     *                / I \
+     *            -135˚ I  135˚
+     *                  I
+     *                 180
+     *             plane back
+     *
+     *
+     * When the home_dir variable goes to 0 the aircraft is headed straight back home
+    */
 
-  /* fixed to the plane*/
-  home_dir = (float)(atan2(Home_PositionForPlane2.fy, (Home_PositionForPlane2.fx)));
-  home_dir = DegOfRad(home_dir);
-  if (home_dir < 0) { home_dir += 360; }
+    /* fixed to the plane*/
+    home_dir = atan2(Home_PositionForPlane2.fy, Home_PositionForPlane2.fx);
+    if (home_dir > M_PI) { // Angle normalization (-180 deg to 180 deg but still in radians)
+      home_dir -= (2.0 * M_PI);
+    } else if (home_dir < -M_PI) { home_dir += (2.0 * M_PI); }
+    home_dir_deg = DegOfRad(home_dir); // Now convert radians to degrees.
 
-  return (home_dir);
+  } // END OF if (gps.fix == GPS_FIX_3D) statement.
+
+  return (home_dir_deg);
 }
 
 static char ascii_to_osd_c(char c)
@@ -229,6 +370,7 @@ static char ascii_to_osd_c(char c)
   return (c);
 
 #else
+  PRINT_CONFIG_MSG("OSD USES THE STANDARF MAX7456 OSD CHIP")
 
   if (c >= '0' && c <= '9') {
     if (c == '0') { c -= 38; } else {  c -= 48; }
@@ -246,6 +388,7 @@ static char ascii_to_osd_c(char c)
       case (';'): c = 0x43; break;
       case (':'): c = 0x44; break;
       case (','): c = 0x45; break;
+      //case('''): c = 0x46; break;
       case ('/'): c = 0x47; break;
       case ('"'): c = 0x48; break;
       case ('-'): c = 0x49; break;
@@ -262,6 +405,77 @@ static char ascii_to_osd_c(char c)
 
 #endif
 }
+
+static void calc_flight_time_left(void)
+{
+  float current_amps = 0;
+  float horizontal_speed = 0;
+  float bat_capacity_left = 0;
+  static float bat_capacity_used = 0;
+
+
+  current_amps = electrical.current;
+  bat_capacity_used += (current_amps * 1000.) / (3600. * (float)MAX7456_PERIODIC_FREQ);
+  bat_capacity_left = (float)BAT_CAPACITY - bat_capacity_used;
+  if (bat_capacity_left < 0) { bat_capacity_left = 0; }
+  horizontal_speed = stateGetHorizontalSpeedNorm_f();
+
+#if AP
+  if (stateGetHorizontalSpeedNorm_f() < 5.0 || autopilot.launch == false) {
+    current_amps = LOITER_BAT_CURRENT;
+    horizontal_speed = MINIMUM_AIRSPEED;
+  }
+#else // #if AP
+  current_amps = 1.0; // FIXME, Find how to tell if the rotorcraft is on the ground or it is flying.
+  horizontal_speed = 10.0;
+#endif
+
+#if defined(OSD_USE_FLOAT_LOW_PASS_FILTERING)
+
+  static double current_amps_sum = 0;
+  static double horizontal_speed_sum = 0;
+  static float current_amps_filtered = 0;
+  static float horizontal_speed_filtered = 0;
+
+  current_amps_sum = (current_amps_sum - current_amps_filtered) + current_amps;
+  current_amps_filtered = current_amps_sum / (1 << AMPS_LOW_PASS_FILTER_STRENGTH);
+  current_amps = current_amps_filtered;
+
+  horizontal_speed_sum = (horizontal_speed_sum - horizontal_speed_filtered) + horizontal_speed;
+  horizontal_speed_filtered = horizontal_speed_sum / (1 << SPEED_LOW_PASS_FILTER_STRENGTH);
+  horizontal_speed = horizontal_speed_filtered;
+
+#else
+
+  uint32_t current_amps_int = 0;
+  uint32_t horizontal_speed_int = 0;
+  static uint64_t current_amps_sum = 0;
+  static uint64_t horizontal_speed_sum = 0;
+  static uint32_t current_amps_filtered = 0;
+  static uint32_t horizontal_speed_filtered = 0;
+
+  // LOW PASS FILTERS for making the OSD 'max_flyable_distance_left' var change more gently.
+  current_amps_int = (uint32_t)(current_amps * 1000.0);
+  horizontal_speed_int = (uint32_t)(horizontal_speed * 1000.0);
+
+  current_amps_sum = (current_amps_sum - current_amps_filtered) + current_amps_int;
+  current_amps_filtered = (current_amps_sum + (1 << (AMPS_LOW_PASS_FILTER_STRENGTH - 1))) >>
+                          (AMPS_LOW_PASS_FILTER_STRENGTH);
+
+  horizontal_speed_sum = (horizontal_speed_sum - horizontal_speed_filtered) + horizontal_speed_int;
+  horizontal_speed_filtered = (horizontal_speed_sum + (1 << (SPEED_LOW_PASS_FILTER_STRENGTH - 1))) >>
+                              (SPEED_LOW_PASS_FILTER_STRENGTH);
+
+  current_amps = (float)(current_amps_filtered) / 1000.;
+  horizontal_speed = (float)(horizontal_speed_filtered) / 1000.;
+
+#endif
+
+  max_flyable_distance_left = ((bat_capacity_left / (current_amps * 1000)) * 3600) * horizontal_speed;
+
+  return;
+}
+
 
 static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t row, uint8_t column)
 {
@@ -328,7 +542,6 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
 
 static bool _osd_sprintf(char *buffer, char *string, float value)
 {
-
   uint8_t param_start = 0;
   uint8_t param_end = 0;
   uint8_t frac_nb = 0;
@@ -347,28 +560,27 @@ static bool _osd_sprintf(char *buffer, char *string, float value)
 
 //copy the string passed as parameter to a buffer
   for (x = 0; x < sizeof(string_buf); x++) { string_buf[x] = *(string + x); if (string_buf[x] == '\0') { break; } }
-  x = 0;
-  param_start = 0;
-  param_end = 0;
-//do {
-  //Now check for any special character
-  while (string_buf[x] != '\0') {
-    // EXAMPLE: in "%160c"x is '%' x+4 = 'c' and x+1='1', x+2='6' and x+3='0'
-    if (string_buf[x] == '%') { if (string_buf[x + 4] == 'c') { (param_start = x + 1); param_end = x + 3; break; } }
-    x++;
-  }
-  if (param_end - param_start) {
-    //load the special character value where the % character was
-    string_buf[x] = ((string_buf[param_start] - 48) * 100) + ((string_buf[param_start + 1] - 48) * 10) +
-                    (string_buf[param_start + 2] - 48);
-    x++; // increment x to the next character which should be the first special character's digit
-    //Move the rest of the buffer forward so only the special character remains,
-    // for example in %170c '%' now has the special character's code and x now points to '1'
-    // which will be overwritten with the rest of the string after the 'c'
-    for (y = (x + 4); y <= sizeof(string_buf); y++) { string_buf[x++] = string_buf[y]; }
-  }
-
-//}while((param_end-param_start > 0));
+  do {
+    x = 0;
+    param_start = 0;
+    param_end = 0;
+    //Now check for any special character
+    while (string_buf[x] != '\0') {
+      // EXAMPLE: in "%160c"x is '%' x+4 = 'c' and x+1='1', x+2='6' and x+3='0'
+      if (string_buf[x] == '%') { if (string_buf[x + 4] == 'c') { (param_start = x + 1); param_end = x + 3; break; } }
+      x++;
+    }
+    if (param_end - param_start) {
+      //load the special character value where the % character was
+      string_buf[x] = ((string_buf[param_start] - 48) * 100) + ((string_buf[param_start + 1] - 48) * 10) +
+                      (string_buf[param_start + 2] - 48);
+      x++; // increment x to the next character which should be the first special character's digit
+      //Move the rest of the buffer forward so only the special character remains,
+      // for example in %170c '%' now has the special character's code and x now points to '1'
+      // which will be overwritten with the rest of the string after the 'c'
+      for (y = (x + 4); y <= sizeof(string_buf); y++) { string_buf[x++] = string_buf[y]; }
+    }
+  } while ((param_end - param_start > 0));
 
 // RESET THE USED VARIABLES JUST TO BE SAFE.
   x = 0;
@@ -436,9 +648,285 @@ static bool _osd_sprintf(char *buffer, char *string, float value)
 
     } while (string_buf[param_end] != '\0'); //Write the rest of the string including the terminating char.
 
-  } // End of if (param_end - param_start)
+    // End of if (param_end - param_start)
+  } else {
+    for (x = 0; x < sizeof(string_buf); x++) {
+      *(buffer + x) = string_buf[x]; //Write the rest of the string including the terminating char.
+      if (*(buffer + x) == '\0') { break; }
+    }
+  }
 
   return (0);
+}
+
+void draw_osd(void)
+{
+  float temp = 0;
+  float altitude = 0;
+  float distance_to_home = 0;
+  static float home_direction_degrees = 0;
+#if defined(BARO_ALTITUDE_VAR)
+  static float baro_alt_correction = 0;
+#endif
+
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  struct EnuCoor_f *pos = stateGetPositionEnu_f();
+#if AP
+  float ph_x = waypoints[WP_HOME].x - pos->x;
+  float ph_y = waypoints[WP_HOME].y - pos->y;
+  float stall_speed = STALL_AIRSPEED;
+#else // FOR ROTORCRAFTS
+  float ph_x = waypoint_get_x(WP_HOME) - pos->x;
+  float ph_y = waypoint_get_y(WP_HOME) - pos->y;
+#endif // #if AP
+
+  distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
+  calc_flight_time_left();
+#if AP
+  mag_compass();
+#endif
+
+  //THE SWITCH STATEMENT ENSURES THAT ONLY ONE SPI TRANSACTION WILL OCUUR IN EVERY PERIODIC FUNCTION CALL
+  switch (step) {
+
+    case (0):
+      if (gps.fix == GPS_FIX_3D && stateGetHorizontalSpeedNorm_f() > 10.0) { //Only when flying
+        gps_course_deg = (float)gps.course;
+        gps_course_deg = DegOfRad(gps_course_deg / 1e7);
+      } else {
+#if AP
+        gps_course_deg = mag_course_deg;
+#else
+        gps_course_deg = stateGetNedToBodyEulers_f()->psi;
+#endif
+      }
+      osd_sprintf(osd_string, "%.0f", gps_course_deg);
+      osd_put_s(osd_string, C_JUST, 3, 1, 15);
+      step = 10;
+      break;
+
+    case (10):
+      //Only when flying because i need this indication to remain stable if the GPS is lost.
+      // This way i can still have the synchronized magnetic compass heading and the last bearing home.
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000 && stateGetHorizontalSpeedNorm_f() > 5.0) { //Only when flying
+        home_direction_degrees = gps_course_deg + home_direction(); //home_direction returns degrees -180 to +180
+        if (home_direction_degrees < 0) { home_direction_degrees += 360; } // translate the -180, +180 to 0-360.
+        if (home_direction_degrees >= 360) { home_direction_degrees -= 360; }
+      }
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      // All special character codes must be in 3 digit format!
+      osd_sprintf(osd_string, "%191c%.0f", home_direction_degrees); // 0 when heading straight back home.
+      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "false = L_JUST
+#else
+      osd_sprintf(osd_string, "H%.0f", home_direction_degrees);
+      osd_put_s(osd_string, C_JUST, 5, 2, 15); // "false = L_JUST
+
+#endif
+      step = 20;
+      break;
+
+    case (20):
+      temp = ((float)electrical.vsupply);
+      osd_sprintf(osd_string, "%.1fV", temp);
+      if (temp > LOW_BAT_LEVEL) {
+        osd_put_s(osd_string, L_JUST, 5, 1, 1);
+
+      } else { osd_put_s(osd_string, (L_JUST | BLINK | INVERT), 5, 1, 1); }
+      step = 30;
+      break;
+
+    case (30):
+      if (gps.fix == GPS_FIX_3D) {
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+        //Since we only send one special character the float variable is replaced by a zero.
+        osd_sprintf(osd_string, "%030c%031c", 0);
+        osd_put_s(osd_string, false, 2, 2, 1);
+#else
+        osd_put_s("**", false, 2, 2, 1);
+#endif
+      } else {
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+        //Since we only send one special character the float variable is replaced by a zero.
+        osd_sprintf(osd_string, "%030c%031c", 0); // ALL special osd chars must have 3 digits.
+        osd_put_s(osd_string, (L_JUST | BLINK), 2, 2, 1);
+#else
+        osd_put_s("**", (L_JUST | BLINK), 2, 2, 1);
+#endif
+      }
+      step = 40;
+      break;
+
+    case (40):
+#if AP
+      if (autopilot.mode == AP_MODE_AUTO2) {
+        osd_put_s("A2", L_JUST, 2, 2, 3);
+      } else if (autopilot.mode == AP_MODE_AUTO1) {
+        osd_put_s("A1", L_JUST, 2, 2, 3);
+      } else {
+        osd_put_s("MAN", L_JUST, 3, 2, 3);
+      }
+#endif
+      step = 50;
+      break;
+
+    case (50):
+#if AP
+      osd_sprintf(osd_string, "THR%.0f", (((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.));
+#else
+      osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
+#endif
+      osd_put_s(osd_string, L_JUST, 6, 3, 1);
+      step = 60;
+      break;
+
+    case (60):
+#if AP
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+        osd_sprintf(osd_string, "STALL!", 0);
+        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      } else {
+        osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
+        osd_put_s(osd_string, R_JUST, 6, 1, 30);
+      }
+#else
+      if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
+        osd_sprintf(osd_string, "STALL!", 0);
+        osd_put_s(osd_string, (R_JUST | BLINK), 6, 1, 30);
+      } else {
+        osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
+        osd_put_s(osd_string, R_JUST, 6, 1, 30);
+      }
+#endif
+
+#else // #if AP
+
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));
+#else
+      osd_sprintf(osd_string, "%.0fKM", (stateGetHorizontalSpeedNorm_f() * 3.6));
+#endif
+      osd_put_s(osd_string, R_JUST, 6, 1, 30);
+
+#endif
+      step = 70;
+      break;
+
+    case (70):
+#if defined(BARO_ALTITUDE_VAR)
+      if (gps.fix == GPS_FIX_3D && gps.pdop < 1000) {
+        RunOnceEvery((MAX7456_PERIODIC_FREQ * 300), { baro_alt_correction = GetPosAlt() - BARO_ALTITUDE_VAR;});
+        altitude = GetPosAlt();
+      } else {
+        altitude = BARO_ALTITUDE_VAR + baro_alt_correction;
+      }
+#else
+      altitude = GetPosAlt();
+#endif
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      osd_sprintf(osd_string, "%.0f%177c", altitude);
+#else
+      osd_sprintf(osd_string, "%.0fM", altitude);
+#endif
+      osd_put_s(osd_string, R_JUST, 6, 2, 30); // "false = L_JUST
+      step = 80;
+      break;
+
+    case (80):
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      osd_sprintf(osd_string, "%.1f%159c", stateGetSpeedEnu_f()->z);
+#else
+      osd_sprintf(osd_string, "%.1fVZ", stateGetSpeedEnu_f()->z);
+#endif
+      if (stateGetSpeedEnu_f()->z > 3.0) {
+        osd_put_s(osd_string, (R_JUST | BLINK), 6, 3, 30);
+      } else {
+        osd_put_s(osd_string, R_JUST, 6, 3, 30);
+      }
+      step = 90;
+      break;
+
+    case (90):
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
+      // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
+      osd_sprintf(osd_string, "%160c%.1fK%012c", (distance_to_home / 1000));
+      osd_put_s(osd_string, L_JUST, 7, 15, 1);
+#else
+      osd_sprintf(osd_string, "%.1fKM", (distance_to_home / 1000));
+      osd_put_s(osd_string, L_JUST, 7, 15, 1);
+#endif
+      step = 100;
+      break;
+
+    case (100):
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      osd_sprintf(osd_string, "%147c%.1fK%012c", (max_flyable_distance_left / 1000));
+#else
+      osd_sprintf(osd_string, "%.1fKM", (max_flyable_distance_left / 1000));
+#endif
+      if ((max_flyable_distance_left + 1000.0) < distance_to_home) {
+        osd_put_s(osd_string, (R_JUST | BLINK), 7, 15, 30);
+      } else {
+        osd_put_s(osd_string, (R_JUST), 7, 15, 30);
+      }
+      step = 110;
+      break;
+
+    // A Text PFD as graphics are not the strong point of the MAX7456
+    // In order to level the aircraft while fpving
+    // just move the stick to the opposite direction from the angles shown on the osd
+    // and that's why positive pitch (UP) is shown below the OSD center
+    case (110):
+      if (DegOfRad(att->theta) > 3) {
+        osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
+        osd_put_s(osd_string, C_JUST, 5, 6, 15);
+
+      } else { osd_put_s("    ", C_JUST, 5, 6, 15); }
+      step = 112;
+      break;
+
+    case (112):
+      if (DegOfRad(att->theta) < -3) {
+        osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
+        osd_put_s(osd_string, C_JUST, 5, 10, 15);
+
+      } else { osd_put_s("   ", C_JUST, 5, 10, 15); }
+      step = 114;
+      break;
+
+    case (114):
+      if (DegOfRad(att->phi) > 3) {
+        osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
+        osd_put_s(osd_string, false, 5, 8, 18);
+
+      } else { osd_put_s("     ", false, 5, 8, 18); }
+      step = 116;
+      break;
+
+    case (116):
+      if (DegOfRad(att->phi) < -3) {
+        osd_sprintf(osd_string, "<%.0f", DegOfRad(fabs(att->phi)));
+        osd_put_s(osd_string, R_JUST, 5, 8, 13);
+
+      } else { osd_put_s("     ", R_JUST, 5, 8, 13); }
+      step = 120;
+      break;
+
+    case (120):
+#if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
+      osd_sprintf(osd_string, "%126c", 0);
+      osd_put_s(osd_string, false, 1, 8, 15); // false = L_JUST
+#else
+      osd_put_s("+", false, 1, 8, 15); // false = L_JUST
+#endif
+      step = 0;
+      break;
+
+    default: step = 0; break;
+  }  // End of switch statement.
+
+  return;
 }
 
 void max7456_init(void)
@@ -462,24 +950,19 @@ void max7456_init(void)
   osd_enable_val = OSD_IMAGE_ENABLE;
   max7456_osd_status = OSD_UNINIT;
 
+#if DOWNLINK
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag_heading);
+#endif
+  home_direction();
+
   return;
 }
 
 void max7456_periodic(void)
 {
 
-  float temp = 0;
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  struct EnuCoor_f *pos = stateGetPositionEnu_f();
-#if AP
-  float ph_x = waypoints[WP_HOME].x - pos->x;
-  float ph_y = waypoints[WP_HOME].y - pos->y;
-#else
-  float ph_x = waypoint_get_x(WP_HOME) - pos->x;
-  float ph_y = waypoint_get_y(WP_HOME) - pos->y;
-#endif
-//This code is executed always and checks if the "osd_enable" var has been changed by telemetry.
-//If yes then it commands a reset but this time turns on or off the osd overlay, not the video.
+  //This code is executed always and checks if the "osd_enable" var has been changed by telemetry.
+  //If yes then it commands a reset but this time turns on or off the osd overlay, not the video.
   if (max7456_osd_status == OSD_IDLE) {
     if (osd_enable > 1) {
       osd_enable = 1;
@@ -498,6 +981,7 @@ void max7456_periodic(void)
     //This operation needs at least 100us but when the periodic function will be invoked again
     //sufficient time will have elapsed even with at a periodic frequency of 1000 Hz
     max7456_trans.output_buf[1] = OSD_RESET;
+    //We give an extra delay step by going to the event function and back here for the Reset to complete.
     max7456_osd_status = OSD_INIT1;
     spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
   } else if (max7456_osd_status == OSD_INIT2) {
@@ -507,144 +991,11 @@ void max7456_periodic(void)
     max7456_osd_status = OSD_INIT3;
     spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
   } else if (max7456_osd_status == OSD_IDLE && osd_enable > 0) {
-    switch (step) {
-      case (0):
-        osd_put_s("HDG", FALSE, 3, 1, 14);
-        step = 1;
-        break;
-      case (1):
-#if !defined USE_MATEK_TYPE_OSD_CHIP || USE_MATEK_TYPE_OSD_CHIP == 0
-        osd_put_s("DISTANCE", FALSE, 8, 14, 12);
-#endif
-        step = 10;
-        break;
-      case (10):
-        osd_put_s("( )", FALSE, 3, 8, 14);
-        step = 20;
-        break;
-      case (20):
-        temp = ((float)electrical.vsupply);
-        osd_sprintf(osd_string, "%.1fV", temp);
-        if (temp > LOW_BAT_LEVEL) {
-          osd_put_s(osd_string, L_JUST, 5, 1, 1);
-
-        } else { osd_put_s(osd_string, L_JUST | BLINK | INVERT, 5, 1, 1); }
-        step = 30;
-        break;
-      case (30):
-#if OSD_USE_MAG_COMPASS && !defined(SITL)
-        PRINT_CONFIG_MSG("OSD USES THE MAGNETIC HEADING")
-        temp = DegOfRad(MAG_Heading);
-        if (temp < 0) { temp += 360; }
-#else
-        PRINT_CONFIG_MSG("OSD USES THE GPS HEADING")
-        temp = DegOfRad(state.h_speed_dir_f);
-        if (temp < 0) { temp += 360; }
-#endif
-        osd_sprintf(osd_string, "%.0f", temp);
-        osd_put_s(osd_string, C_JUST, 3, 1, 15);
-        step = 40;
-        break;
-      case (40):
-        osd_sprintf(osd_string, "%.0f KM", (state.h_speed_norm_f * 3.6));
-        osd_put_s(osd_string, R_JUST, 6, 1, 29);
-        step = 42;
-        break;
-      case (42):
-#if AP
-        osd_sprintf(osd_string, "%.0fTHR", (((float)ap_state->commands[COMMAND_THROTTLE] / MAX_PPRZ) * 100));
-#else
-        osd_sprintf(osd_string, "%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ) * 100));
-#endif
-        osd_put_s(osd_string, R_JUST, 5, 2, 29);
-        step = 50;
-        break;
-      case (50):
-#if OSD_USE_BARO_ALTITUDE && !defined(SITL)
-        PRINT_CONFIG_MSG("OSD ALTITUDE IS COMING FROM BAROMETER")
-#if defined BARO_ALTITUDE_VAR
-        osd_sprintf(osd_string, "%.0fM", BARO_ALTITUDE_VAR);
-#else
-        PRINT_CONFIG_MSG("OSD USES THE DEFAULT BARO ALTITUDE VARIABLE")
-        osd_sprintf(osd_string, "%.0fM", baro_alt);
-#endif
-#else
-        PRINT_CONFIG_MSG("ALTITUDE IS COMING FROM GPS")
-        osd_sprintf(osd_string, "%.0fM", GetPosAlt());
-#endif
-        osd_put_s(osd_string, L_JUST, 6, 14, 1); // "FALSE = L_JUST
-        step = 52;
-        break;
-      case (52):
-#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-        // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
-        // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-        osd_sprintf(osd_string, "%191c%.0f", home_direction());
-        osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
-#else
-        osd_sprintf(osd_string, "H%.0f", home_direction());
-        osd_put_s(osd_string, C_JUST, 4, 2, 15); // "FALSE = L_JUST
-
-#endif
-        step = 60;
-        break;
-
-      case (60):
-#if defined USE_MATEK_TYPE_OSD_CHIP && USE_MATEK_TYPE_OSD_CHIP == 1
-        // ANY SPECIAL CHARACTER CODE MUST BE A 3 DIGIT NUMBER WITH THE LEADING ZEROS!!!!
-        // THE SPECIAL CHARACTER CAN BE PLACED BEFORE OR AFTER THE FLOAT OR ANY OTHER CHARACTER
-        osd_sprintf(osd_string, "%160c%.0fM", (float)(sqrt(ph_x * ph_x + ph_y * ph_y)));
-        osd_put_s(osd_string, C_JUST, 6, 14, 15);
-#else
-        osd_sprintf(osd_string, "%.0fM", (float)(sqrt(ph_x * ph_x + ph_y * ph_y)));
-        osd_put_s(osd_string, C_JUST, 6, 14, 15);
-#endif
-        step = 70;
-        break;
-      case (70):
-        osd_sprintf(osd_string, "%.1fVZ", stateGetSpeedEnu_f()->z);
-        osd_put_s(osd_string, R_JUST, 9, 14, 29);
-        step = 80;
-        break;
-      // A Text PFD as graphics are not the strong point of the MAX7456
-      // In order to level the aircraft while fpving
-      // just move the stick to the opposite direction from the angles shown on the osd
-      // and that's why positive pitch (UP) is shown below the OSD center
-      case (80):
-        if (DegOfRad(att->theta) > 2) {
-          osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-          osd_put_s(osd_string, C_JUST, 5, 6, 15);
-
-        } else { osd_put_s("    ", C_JUST, 5, 6, 15); }
-        step = 90;
-        break;
-      case (90):
-        if (DegOfRad(att->theta) < -2) {
-          osd_sprintf(osd_string, "%.0f", DegOfRad(att->theta));
-          osd_put_s(osd_string, C_JUST, 5, 10, 15);
-
-        } else { osd_put_s("   ", C_JUST, 5, 10, 15); }
-        step = 100;
-        break;
-      case (100):
-        if (DegOfRad(att->phi) > 2) {
-          osd_sprintf(osd_string, "%.0f>", DegOfRad(att->phi));
-          osd_put_s(osd_string, FALSE, 5, 8, 18);
-
-        } else { osd_put_s("     ", FALSE, 5, 8, 18); }
-        step = 110;
-        break;
-      case (110):
-        if (DegOfRad(att->phi) < -2) {
-          osd_sprintf(osd_string, "<%.0f", DegOfRad(fabs(att->phi)));
-          osd_put_s(osd_string, R_JUST, 5, 8, 13);
-
-        } else { osd_put_s("     ", R_JUST, 5, 8, 13); }
-        step = 10;
-        break;
-      default: step = 10; break;
-    }  // End of switch statement.
+    draw_osd();
   }  // End of if (max7456_osd_status == OSD_UNINIT)
+
+
+
   return;
 }
 
@@ -664,13 +1015,16 @@ void max7456_event(void)
         max7456_trans.output_length = 2;
         max7456_trans.input_length = 0;
         max7456_trans.output_buf[0] = OSD_OSDBL_REG;
-        max7456_trans.output_buf[1] = max7456_trans.input_buf[0] & (~(1 << 4));
+        //Max7456 requires that you read first and then change only bit4 of the OSDBL register.
+        //Reading was started in the periodic function and now we rerwrite the OSDBL register.
+        max7456_trans.output_buf[1] = max7456_trans.input_buf[1] & (~(1 << 4));
         max7456_osd_status = OSD_INIT4;
         spi_submit(&(MAX7456_SPI_DEV), &max7456_trans);
         break;
       case (OSD_INIT4):
         max7456_trans.output_buf[0] = OSD_VM0_REG;
 #if USE_PAL_FOR_OSD_VIDEO
+#pragma message "Camera and OSD must be both PAL or NTSC otherwise only the camera picture will be visible."
         max7456_trans.output_buf[1] = OSD_VIDEO_MODE_PAL | osd_enable_val;
 #else
         max7456_trans.output_buf[1] = osd_enable_val;

@@ -1,0 +1,132 @@
+<!DOCTYPE layout SYSTEM "layout.dtd">
+
+<layout width="1362" height="1008">
+  <rows>
+    <widget NAME="map2d" size="654">
+      <papget type="message_field" display="text" x="1159" y="168">
+        <property name="scale" value="1."/>
+        <property name="field" value="WEATHER:windspeed"/>
+        <property name="format" value="%.1f Wind speed"/>
+        <property name="size" value="15."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="1151" y="85">
+        <property name="scale" value="1."/>
+        <property name="field" value="AIRBORNE_ANTENNA:mag_heading_deg"/>
+        <property name="format" value="%.0f Mag"/>
+        <property name="size" value="25."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="18" y="510">
+        <property name="scale" value="1."/>
+        <property name="field" value="ENERGY:voltage"/>
+        <property name="format" value="%.2f BAT"/>
+        <property name="size" value="24."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="1153" y="10">
+        <property name="scale" value="0.036"/>
+        <property name="field" value="GPS:speed"/>
+        <property name="format" value="%.0f Km/h"/>
+        <property name="size" value="25."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="16" y="286">
+        <property name="scale" value="1."/>
+        <property name="field" value="BAT:energy"/>
+        <property name="format" value="%.0f mah"/>
+        <property name="size" value="25."/>
+        <property name="color" value="green"/>
+      </papget>
+      <papget type="message_field" display="text" x="17" y="157">
+        <property name="scale" value="1."/>
+        <property name="field" value="CAM_POINT:cam_point_lon"/>
+        <property name="format" value="%.4f E"/>
+        <property name="size" value="25."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="19" y="195">
+        <property name="scale" value="10."/>
+        <property name="field" value="CAM_POINT:cam_point_distance_from_home"/>
+        <property name="format" value="%.0f meters"/>
+        <property name="size" value="15."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="1159" y="191">
+        <property name="scale" value="1."/>
+        <property name="field" value="WEATHER:wind_from"/>
+        <property name="format" value="%.0f wind from"/>
+        <property name="size" value="15."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="18" y="121">
+        <property name="scale" value="1."/>
+        <property name="field" value="CAM_POINT:cam_point_lat"/>
+        <property name="format" value="%.4f N"/>
+        <property name="size" value="25."/>
+        <property name="color" value="yellow"/>
+      </papget>
+      <papget type="message_field" display="text" x="1164" y="264">
+        <property name="scale" value=".01"/>
+        <property name="field" value="BMP_STATUS:temp"/>
+        <property name="format" value="%.1f  C"/>
+        <property name="size" value="15."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="21" y="323">
+        <property name="scale" value="0.01"/>
+        <property name="field" value="BAT:amps"/>
+        <property name="format" value="%.1f A"/>
+        <property name="size" value="15."/>
+        <property name="color" value="green"/>
+      </papget>
+      <papget type="message_field" display="text" x="24" y="558">
+        <property name="scale" value="1."/>
+        <property name="field" value="ENERGY:current"/>
+        <property name="format" value="%.1f Amps"/>
+        <property name="size" value="25."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="1161" y="215">
+        <property name="scale" value=".01"/>
+        <property name="field" value="BMP_STATUS:UP"/>
+        <property name="format" value="%.1f Baro Alt m"/>
+        <property name="size" value="15."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="1163" y="239">
+        <property name="scale" value="1."/>
+        <property name="field" value="BMP_STATUS:press"/>
+        <property name="format" value="%.0f pascal"/>
+        <property name="size" value="15."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+      <papget type="message_field" display="text" x="1156" y="57">
+        <property name="scale" value="0.1"/>
+        <property name="field" value="GPS:course"/>
+        <property name="format" value="%.0f° HDG"/>
+        <property name="size" value="25."/>
+        <property name="color" value="orange"/>
+      </papget>
+      <papget type="message_field" display="text" x="1162" y="102">
+        <property name="scale" value="1."/>
+        <property name="field" value="IMU_MAG:mx"/>
+        <property name="format" value="%.0f Mag Course"/>
+        <property name="size" value="15."/>
+        <property name="color" value="#00ff00"/>
+      </papget>
+    </widget>
+    <columns>
+      <rows SIZE="374">
+        <widget NAME="strips" size="220"/>
+        <widget NAME="alarms" size="122"/>
+      </rows>
+      <rows SIZE="350">
+        <widget NAME="aircraft" size="347"/>
+      </rows>
+      <rows SIZE="300">
+        <widget NAME="plugin" size="347"/>
+      </rows>
+    </columns>
+  </rows>
+</layout>

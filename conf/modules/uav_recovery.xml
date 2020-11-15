@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="uav_recovery" dir="uav_recovery">
+  <doc>
+    <description>Parachute</description>
+    <define name="USE_PARACHUTE" value="true OR false" description="whether to use parachute recovery or not"/>
+    <define name="PARACHUTE_SERVO_CHANNEL" value="The paraccute servo name" description="which servo to use, -1 if none" />
+    <define name="PARACHUTE_DESCENT_RATE" value="3.0" description="calculated descent rate in meters/second"/>
+    <define name="PARACHUTE_WIND_CORRECTION" value="1.0" description="to estimate the landing spot better"/>
+    <define name="PARACHUTE_LINE_LENGTH" value="3.0" description="the parachute to plane distance in meters."/>
+    <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="90." description="fixed wind direction for the simulator ONLY!"/>
+    <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10." description="fixed wind speed for the simulator ONLY!"/>
+    <define name="AIRBORNE_WIND_CORRECTION" value="1.0" description="Airframe dependant wind calculation correction factor." />
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Parachute">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="deploy_parachute_var" shortname="deploy parachute">
+<!--         <strip_button name="parachute" icon="on.png" value="1" group="parachute" />  -->
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="uav_recovery.h"/>
+  </header>
+  <init fun="uav_recovery_init()"/>
+  <periodic fun="uav_recovery_periodic()" freq="10"/>
+  <makefile>
+    <file name="uav_recovery.c"/>
+  </makefile>
+</module>

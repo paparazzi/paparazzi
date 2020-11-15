@@ -3,32 +3,35 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
-      <message name="ALIVE"          period="5.0"/>
-      <message name="ATTITUDE"       period="0.55"/>
-      <message name="ESTIMATOR"      period="0.60"/>
-      <message name="DL_VALUE"       period="0.65"/> 
-      <message name="WP_MOVED"       period="0.75"/>
-      <message name="GPS"            period="1.25"/>
-      <message name="ENERGY"            period="1.35"/>
-      <message name="SEGMENT"        period="1.45"/>
-      <message name="WEATHER"        period="1.65"/>
-      <message name="BMP_STATUS"     period="1.75"/> <!-- BARO BMP280 DATA -->
-      <message name="CIRCLE"         period="2.05"/>
-      <message name="DESIRED"        period="2.25"/>
-      <message name="NAVIGATION"     period="3.05"/>
-      <message name="PPRZ_MODE"      period="5.05"/>
-      <message name="GPS_SOL"        period="5.25"/>
-      <message name="NAVIGATION_REF" period="9.35"/>
+      <message name="ALIVE"            period="5.0"/>
+      <message name="ATTITUDE"         period="0.45"/>
+      <message name="ESTIMATOR"        period="0.55"/>
+      <message name="DL_VALUE"         period="0.65"/> 
+      <message name="IMU_MAG"          period="0.75"/>
+      <message name="CAM_POINT"        period="0.85"/>
+      <message name="CAM"              period="0.95"/>
+      <message name="WP_MOVED"         period="1.05"/>
+      <message name="GPS"              period="1.15"/>
+      <message name="ENERGY"           period="1.25"/>
+      <message name="SEGMENT"          period="1.35"/>
+      <message name="BMP_STATUS"       period="1.55"/> <!-- BARO BMP280 DATA -->
+      <message name="CIRCLE"           period="2.05"/>
+      <message name="WEATHER"          period="2.15"/>
+      <message name="DESIRED"          period="2.25"/>
+      <message name="NAVIGATION"       period="3.05"/>
+      <message name="PPRZ_MODE"        period="5.05"/>
+      <message name="GPS_SOL"          period="5.25"/>
+      <message name="NAVIGATION_REF"   period="9.35"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"          period="5.0"/>
-      <message name="ATTITUDE"       period="0.65"/>
-      <message name="ENERGY"            period="0.95"/>
+      <message name="ATTITUDE"       period="0.55"/>
+      <message name="ESTIMATOR"      period="0.65"/>
+      <message name="DL_VALUE"       period="0.75"/>
       <message name="CAM_POINT"      period="1.05"/>
-      <message name="GPS"            period="1.25"/>
-      <message name="ESTIMATOR"      period="1.35"/>
+      <message name="GPS"            period="1.15"/>
       <message name="WP_MOVED"       period="1.45"/>
-      <message name="DL_VALUE"       period="1.55"/>
+      <message name="ENERGY"         period="1.65"/>
       <message name="SURVEY"         period="2.05"/>
       <message name="CIRCLE"         period="2.15"/>
       <message name="DESIRED"        period="2.25"/>
@@ -40,13 +43,14 @@
     </mode>
     <mode name="extremal">
       <message name="ALIVE"          period="5"/>
-      <message name="ATTITUDE"       period="0.5"/>
+      <message name="ATTITUDE"       period="0.55"/>
+      <message name="DL_VALUE"       period="0.75"/>
       <message name="CAM_POINT"      period="1.0"/>
       <message name="GPS"            period="5.1"/>
       <message name="ESTIMATOR"      period="5.2"/>
       <message name="NAVIGATION"     period="5.4"/>
-      <message name="PPRZ_MODE"      period="5.5"/>
-      <message name="ENERGY"            period="10.1"/>
+      <message name="PPRZ_MODE"      period="5.6"/>
+      <message name="ENERGY"         period="5.8"/>
       <message name="DESIRED"        period="10.2"/>
     </mode>
     <mode name="raw_sensors">

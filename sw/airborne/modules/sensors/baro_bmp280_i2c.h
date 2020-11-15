@@ -20,14 +20,14 @@
  */
 
 /**
- * @file modules/sensors/baro_bmp280.h
+ * @file modules/sensors/baro_bmp280_i2c.h
  * Bosch BMP280 I2C sensor interface.
  *
  * This reads the values for pressure and temperature from the Bosch BMP280 sensor through I2C.
  */
 
-#ifndef BARO_BMP280_H
-#define BARO_BMP280_H
+#ifndef BARO_BMP280_I2C_H
+#define BARO_BMP280_I2C_H
 
 #include "peripherals/bmp280_i2c.h"
 

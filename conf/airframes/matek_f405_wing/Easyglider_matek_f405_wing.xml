@@ -27,11 +27,9 @@
     <define name="USE_ADC_4"/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS"/>
-    <define name="MAGNETOMETER_AVAILABLE" value="0" />
-    <define name="BAROMETER_AVAILABLE" value="0" />
 
     <module name="telemetry" type="transparent">
-      <configure  name="MODEM_BAUD" value="B57600"/>
+      <configure  name="MODEM_BAUD" value="B19200"/>
       <configure  name="MODEM_PORT" value="UART6 "/>
     </module>
     <module name="gps"  type="ublox" >
@@ -47,28 +45,53 @@
     <module name="imu" type="mpu6000" />
     <module name="ahrs" type="float_dcm"/>
     <module name="ins" type="alt_float">
-      <configure name="USE_MAGNETOMETER" value="0"/>
-      <define name="AHRS_USE_GPS_HEADING" value="1"/>
+      <configure name="USE_MAGNETOMETER" value="true"/>
+      <define name="AHRS_USE_GPS_HEADING" value="true"/>
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     </module>
     <module name="spi" type="master"/>
-    <module name="nav_line"/>
     <module name="gps_ubx_ucenter"/>
+    <module name="nav_line"/>
+
     <module name="baro_bmp280_i2c">
-      <define name="BMP280_SYNC_SEND"/>
+      <!-- <define name="BMP280_SYNC_SEND"/> -->
       <configure name="BMP280_I2C_DEV" value="i2c1" />
       <configure name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR" />
     </module>
     <module name="osd_max7456">
       <configure name="MAX7456_SPI_DEV" value="spi2" />
       <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1" />
-      <define name="USE_MATEK_TYPE_OSD_CHIP" value="1" />
-      <define name="USE_PAL_FOR_OSD_VIDEO" value="1" />
-      <define name="OSD_USE_BARO_ALTITUDE" value="0" />
-      <define name="BARO_ALTITUDE_VAR" value="baro_alt" /> <!-- if non defined the default var is ''baro_alt'' -->
-      <define name="OSD_USE_MAG_COMPASS" value="0" />
+      <define name="USE_MATEK_TYPE_OSD_CHIP" value="true" />
+      <define name="USE_PAL_FOR_OSD_VIDEO" value="true" />
+      <define name="BARO_ALTITUDE_VAR" value="baro_alt" />
     </module>
-
+    <module name="mag" type="hmc58xx">
+      <!-- If you mag somehow does not work, Enable this line or increase the delay if it still does not work -->
+      <!--<define name="HMC58XX_STARTUP_DELAY" value="1.4"/>--> 
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+<!--  temporary for debugging external magneto and setup orientation sign and Body to Magneto angles-->
+<!--  <define name="MODULE_HMC58XX_SYNC_SEND" value="true"/> -->
+<!--  When all calibration is done and everything works, set the below definition to true -->
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="true"/>
+      <define name="HMC58XX_CHAN_X" value="0"/>
+      <define name="HMC58XX_CHAN_Y" value="1"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+    </module>
+    <module name="uav_recovery">
+      <define name="USE_PARACHUTE" value="true"/>
+      <define name="PARACHUTE_SERVO_CHANNEL" value="PARACHUTE" />
+      <define name="AIRBORNE_WIND_CORRECTION" value="1.0" />
+      <define name="PARACHUTE_WIND_CORRECTION" value="0.5" />
+      <define name="PARACHUTE_DESCENT_RATE" value="3.0" />
+      <define name="PARACHUTE_LINE_LENGTH" value="2.0" />
+      <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />
+      <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10.0" />
+    </module>
+    <module name="fixed_wing_cam_v1"/>
+ 
   </firmware>
 
   <firmware name="setup">
@@ -80,12 +103,13 @@
 
   <servos>
     <servo name="MOTOR" no="0" min="1100" neutral="1100" max="2000"/>
-    <servo name="AILERON" no="2" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="PARACHUTE" no="1" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_L" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVATOR" no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="CAM_PAN" no="5" min="943" neutral="1520" max="2056"/>
-    <servo name="CAM_TILT" no="6" min="996" neutral="1221" max="2004"/>
-    <servo name="PARACHUTE" no="7" min="950" neutral="950" max="2050"/>
+    <servo name="AILERON_R" no="5" min="1100" neutral="1100" max="2000"/>
+    <servo name="CAM_PAN" no="6" min="943" neutral="1520" max="2056"/>
+    <servo name="CAM_TILT" no="7" min="996" neutral="1221" max="2004"/>
   </servos>
 
   <commands>
@@ -93,6 +117,7 @@
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="2000"/>
+    <axis name="FLAPS" failsafe_value="0"/>
     <axis name="CAM_PAN" failsafe_value="0"/>
     <axis name="CAM_TILT" failsafe_value="0"/>
     <axis name="PARACHUTE" failsafe_value="0"/>
@@ -103,22 +128,27 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="YAW" value="@YAW"/>
-<!--    <set command="PARACHUTE" value="@PARACHUTE"/> -->
+    <set command="FLAPS" value="@AUX1"/> 
+    <set command="PARACHUTE" value="@AUX3"/> 
   </rc_commands>
 
   <section name="MIXER">
     <define name="AILERON_DIFF" value="0.66"/>
-    <define name="COMBI_SWITCH" value="0.3"/>
+    <define name="COMBI_SWITCH" value="0.5"/>
   </section>
 
   <command_laws>
+    <let var="roll" value="@ROLL"/>
+    <let var="flaps" value="@FLAPS"/>
+
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="AILERON" value="@ROLL"/>
+    <set servo="PARACHUTE" value="@PARACHUTE"/>
+    <set servo="AILERON_L" value="$roll + $flaps"/>
+    <set servo="AILERON_R" value="$roll - $flaps"/>
     <set servo="ELEVATOR" value="@PITCH"/>
     <set servo="RUDDER"  value="@YAW + @ROLL*COMBI_SWITCH"/>
     <set servo="CAM_PAN" value="@CAM_PAN"/>
     <set servo="CAM_TILT" value="@CAM_TILT"/>
-    <set servo="PARACHUTE" value="@PARACHUTE"/>
   </command_laws>
 
   <!-- EMPTY "auto_rc_commands" block means NO RC RUDDER CONTROL IN AUTO2 AND AUTO1 -->
@@ -127,7 +157,6 @@
   <set command="YAW" value="@YAW"/>
   -->
   </auto_rc_commands>
-
 
   <ap_only_commands>
     <copy command="CAM_PAN"/>
@@ -139,26 +168,27 @@
    Magnetic field intensity (North-East-vertical) / total field strength
    H_x = INTENSITY_x / Total Magnetic Field
    Total Magnetic Field = (intensityEAST^2+intensityNORTH^2+intensityVERTICAL^2) 
-   Calculated for LAGONISI ATTIKI 21 AUGUST 2020
+   Calculated for LAGONISI ATTIKI 23 October 2020
 -->
   <section name="AHRS" prefix="AHRS_" >
-    <define name="MAG_DECLINATION"  value="5.3" />
-    <define name="H_X" value="(25242.1/47035.5)" />
-    <define name="H_Y" value="(2224.0/47035.5)" />
-    <define name="H_Z" value="(39626.2/47035.5) " />
+    <define name="MAG_DECLINATION"  value="5.3" unit="deg" />
+    <define name="H_X" value="(25243.2/47047.8)" />
+    <define name="H_Y" value="(2232.5/47047.8)" />
+    <define name="H_Z" value="(39639.5/47047.8) " />
   </section>
 
   <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
     <!-- Calibration Neutral -->
     <define name="GYRO_P_NEUTRAL" value="0"/>
     <define name="GYRO_Q_NEUTRAL" value="0"/>
     <define name="GYRO_R_NEUTRAL" value="0"/>
-
     <!-- SENS = 14.375 LSB/(deg/sec) * 57.6 deg/rad = 828 LSB/rad/sec / 12bit FRAC: 4096 / 828 -->
     <define name="GYRO_P_SENS" value="4.947"  integer="16"/>
     <define name="GYRO_Q_SENS" value="4.947"  integer="16"/>
     <define name="GYRO_R_SENS" value="4.947"  integer="16"/>
-
     <define name="GYRO_P_Q" value="0."/>
     <define name="GYRO_P_R" value="0"/>
     <define name="GYRO_Q_P" value="0."/>
@@ -166,21 +196,36 @@
     <define name="GYRO_R_P" value="0."/>
     <define name="GYRO_R_Q" value="0."/>
 
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value="-1"/>
-
     <define name="ACCEL_X_SIGN" value="1"/>
     <define name="ACCEL_Y_SIGN" value="-1"/>
     <define name="ACCEL_Z_SIGN" value="-1"/>
+    <!-- Found with calibrate.py script -->
+    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
+    <define name="ACCEL_X_NEUTRAL" value="63"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-55"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-363"/>
+    <define name="ACCEL_X_SENS" value="4.92325848105" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.91672766019" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.85646198137" integer="16"/>
 
     <define name="MAG_X_SIGN" value="1"/>
     <define name="MAG_Y_SIGN" value="1"/>
     <define name="MAG_Z_SIGN" value="1"/>
+    <!-- Found with calibrate.py script -->
+    <define name="MAG_X_NEUTRAL" value="127"/>
+    <define name="MAG_Y_NEUTRAL" value="-72"/>
+    <define name="MAG_Z_NEUTRAL" value="-24"/>
+    <define name="MAG_X_SENS" value="5.62922068812" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.80146852641" integer="16"/>
+    <define name="MAG_Z_SENS" value="6.19489790035" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="-90." unit="deg"/> <!-- YAW -->
+  </section>
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="radians"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="radians"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -198,7 +243,7 @@
 <!-- The below definition affect the throttle percentage shown on the GCS. -->
     <define name="POWER_CTL_BAT_NOMINAL" value="12.6" unit="volt"/>
     <!-- outer loop ALTITUDE proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="0.07" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.08" unit="(m/s)/m"/>
     <!-- outer loop ALTITUDE LIMIT (saturation) -->
     <define name="ALTITUDE_MAX_CLIMB" value="3" unit="m/s"/>
     <!-- outer loop AIRSPEED proportional gain -->
@@ -255,9 +300,11 @@
 
   <section name="BAT">
     <!-- FOR USE WITH A CURRENT SENSOR  -->
+    <define name="BAT_CAPACITY" value="5000" unit="mah"/>
+    <define name="LOITER_BAT_CURRENT" value="10" unit="Amps"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="7.5" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="8.5" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.0" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
   </section>
 
@@ -275,16 +322,16 @@
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
     <define name="XBEE_INIT" value="\"ATPL2\rATRN1\rATTT80\r\""/>
-    <define name="NO_XBEE_API_INIT"  value="TRUE"/>
+    <define name="NO_XBEE_API_INIT"  value="true"/>
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
 
     <!-- MIN_CIRCLE_RADIUS used and needed for spiral navigation function and panic autolanding turns-->
     <define name="MIN_CIRCLE_RADIUS" value="40."/>
 
-    <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
+    <!--UNLOCKED_HOME_MODE if set to true means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
-    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <define name="UNLOCKED_HOME_MODE" value="true"/>
 
     <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
     or  fly a long range mission you define the wanted mode behaviour here.
@@ -302,7 +349,7 @@
     <define name="CLIMB_NAV_RATIO" value="0.8"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
  </section>
-
+<!--
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
@@ -315,7 +362,7 @@
     <define name="INTERCEPT_AF_TOD" value="10"/>
     <define name="TARGET_SPEED" value="13"/>
   </section>
-
+-->
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
     <define name="DEFAULT_THROTTLE" value="0.8" unit="%"/>
@@ -335,7 +382,7 @@
     <define name="ALT_SHIFT_PLUS_PLUS" value="100"/>
     <define name="ALT_SHIFT_PLUS" value="10"/>
     <define name="ALT_SHIFT_MINUS" value="-10"/>
-    <define name="SPEECH_NAME" value="DART"/>
+    <define name="SPEECH_NAME" value="Easyglider"/>
   </section>
 
   <section name="SIMU">
