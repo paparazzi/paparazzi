@@ -42,9 +42,11 @@
       <call_once fun="NavSetWaypointHere(WP_HOME)"/>
     </block>
     <block name="Holding Point">
+      <exception cond="((imcu_get_radio(RADIO_THROTTLE) > (MAX_PPRZ-(MAX_PPRZ/10)))&&(autopilot.mode == AP_MODE_AUTO2))" deroute="Takeoff"/>
       <set value="1" var="autopilot.kill_throttle"/>
+      <call fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)" />
-      <attitude roll="0" throttle="0" until="((stateGetHorizontalSpeedNorm_f() > 5.0) || (sqrt(dist2_to_home)) > 10)" vmode="throttle"/>
+      <attitude roll="0" throttle="0" until="((sqrt(dist2_to_home) > 10)&& (700 > gps.pdop))" vmode="throttle"/>
       <deroute block="Takeoff"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp AF_NORTH)" strip_icon="takeoff.png">
