@@ -31,7 +31,7 @@
   </exceptions>
   <blocks>
     <block name="Wait Gps">
-      <set value="0" var="h_ctl_disabled"/>
+      <set value="false" var="h_ctl_disabled"/>
       <set value="1" var="autopilot.kill_throttle"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, 0)" />
       <while cond="!GpsFixValid()"/>
@@ -51,9 +51,9 @@
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp AF_NORTH)" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
-      <set value="TRUE" var="autopilot.launch"/>
-      <set value="0" var="h_ctl_disabled"/>
-      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="true" var="autopilot.launch"/>
+      <set value="false" var="h_ctl_disabled"/>
+      <set value="false" var="autopilot.kill_throttle"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)" />
       <attitude pitch="20" roll="0.0" throttle="1.0" until="GetPosAlt() > GetAltRef()+20" vmode="throttle"/>
       <deroute block="Standby"/>
@@ -61,7 +61,8 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <exception cond="electrical.bat_low&&(autopilot.mode == AP_MODE_AUTO2)&&(GetPosAlt() > GetAltRef()+20)" deroute="Land"/>
       <exception cond="radio_control.status == RC_REALLY_LOST&&(autopilot.mode == AP_MODE_AUTO2)&&(GetPosAlt() > GetAltRef()+20)" deroute="Land"/>
-      <set value="0" var="h_ctl_disabled"/>
+      <set value="false" var="h_ctl_disabled"/>
+      <set value="false" var="autopilot.kill_throttle"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, 0)" />
       <circle height="30" radius="nav_radius" wp="STANDBY"/>
@@ -119,7 +120,7 @@
     </block>
     <block name="Flare North">
       <go approaching_time="0" from="AF_NORTH" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
-      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+      <attitude roll="0.0" throttle="0.0" until="false" vmode="throttle"/>
     </block>
     <block name="Land From South" strip_button="Land FROM SOUTH (wp AF_SOUTH-TD)" strip_icon="land-left.png">
       <call_once fun="imcu_set_command(COMMAND_FLAPS, 0)" />
@@ -135,7 +136,7 @@
     </block>
     <block name="Flare South">
       <go approaching_time="0" from="AF_SOUTH" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
-      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+      <attitude roll="0.0" throttle="0.0" until="false" vmode="throttle"/>
     </block>
     <block name="Recover Uav" strip_button="Recover" strip_icon="parachute.png">
       <call fun="LockParachute()"/>
