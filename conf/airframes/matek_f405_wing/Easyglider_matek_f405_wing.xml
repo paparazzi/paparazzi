@@ -90,8 +90,7 @@
       <define name="FIXED_WIND_DIRECTION_FOR_TESTING" value="330.0" />
       <define name="FIXED_WIND_SPEED_FOR_TESTING" value="10.0" />
     </module>
-    <module name="fixed_wing_cam_v1"/>
- 
+
   </firmware>
 
   <firmware name="setup">
