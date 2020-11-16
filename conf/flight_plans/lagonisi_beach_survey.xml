@@ -32,7 +32,7 @@
   <blocks>
     <block name="Wait Gps">
       <set value="false" var="h_ctl_disabled"/>
-      <set value="1" var="autopilot.kill_throttle"/>
+      <set value="true" var="autopilot.kill_throttle"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, 0)" />
       <while cond="!GpsFixValid()"/>
     </block>
@@ -43,8 +43,8 @@
     </block>
     <block name="Holding Point">
       <exception cond="((imcu_get_radio(RADIO_THROTTLE) > (MAX_PPRZ-(MAX_PPRZ/10)))&&(autopilot.mode == AP_MODE_AUTO2))" deroute="Takeoff"/>
-      <set value="1" var="autopilot.kill_throttle"/>
-      <call fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)"/>
+      <set value="true" var="autopilot.kill_throttle"/>
+      <call_once fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, MAX_PPRZ/2)" />
       <attitude roll="0" throttle="0" until="((sqrt(dist2_to_home) > 10)&& (700 > gps.pdop))" vmode="throttle"/>
       <deroute block="Takeoff"/>
@@ -148,7 +148,7 @@
       <go from="MOB" hmode="route" wp="RELEASE"/>
       <attitude pitch="10" roll="0.0" throttle="0" until="MINIMUM_AIRSPEED > stateGetHorizontalSpeedNorm_f()" vmode="throttle"/>
       <call fun="DeployParachute()"/>
-      <set value="1" var="autopilot.kill_throttle"/>
+      <set value="true" var="autopilot.kill_throttle"/>
       <circle height="70." radius="nav_radius" wp="HOME"/>
     </block>
   </blocks>

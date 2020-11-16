@@ -27,8 +27,6 @@
     <define name="USE_ADC_4"/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS"/>
-    <define name="MAGNETOMETER_AVAILABLE" value="0" />
-    <define name="BAROMETER_AVAILABLE" value="0" />
 
     <!-- load standard internal sensors, then custom modules -->
     <module name="board_matek_wing">
