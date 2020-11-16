@@ -32,7 +32,7 @@
   <blocks>
     <block name="Wait Gps">
       <set value="false" var="h_ctl_disabled"/>
-      <set value="1" var="autopilot.kill_throttle"/>
+      <set value="true" var="autopilot.kill_throttle"/>
       <call_once fun="imcu_set_command(COMMAND_FLAPS, 0)" />
       <while cond="!GpsFixValid()"/>
     </block>
@@ -148,7 +148,7 @@
       <go from="MOB" hmode="route" wp="RELEASE"/>
       <attitude pitch="10" roll="0.0" throttle="0" until="MINIMUM_AIRSPEED > stateGetHorizontalSpeedNorm_f()" vmode="throttle"/>
       <call fun="DeployParachute()"/>
-      <set value="1" var="autopilot.kill_throttle"/>
+      <set value="true" var="autopilot.kill_throttle"/>
       <circle height="70." radius="nav_radius" wp="HOME"/>
     </block>
   </blocks>
