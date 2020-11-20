@@ -85,7 +85,7 @@ struct opticflow_t {
 #define FAST9_MAX_CORNERS 512
 #define FAST9_MAX_CORNERS_CAMERA2 512
 
-extern void opticflow_calc_init(struct opticflow_t *opticflow[]);
+extern void opticflow_calc_init(struct opticflow_t opticflow[]);
 extern bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
                           struct opticflow_result_t *result);
 
