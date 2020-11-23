@@ -641,7 +641,7 @@ bool dma_lld_start(DMADriver *dmap)
 
 #if STM32_DMA_ADVANCED
   if (cfg->fifo) {
-    dmaStreamSetFIFO(dmap->dmastream, STM32_DMA_FCR_DMDIS | STM32_DMA_FCR_FEIE | fifo_msk);
+    dmap->fifomode = STM32_DMA_FCR_DMDIS | STM32_DMA_FCR_FEIE | fifo_msk;
   } else {
     osalDbgAssert(cfg->direction != DMA_DIR_M2M, "fifo mode mandatory for M2M");
     osalDbgAssert(cfg->psize == cfg->msize,
