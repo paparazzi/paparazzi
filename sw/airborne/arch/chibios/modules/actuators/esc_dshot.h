@@ -132,6 +132,12 @@ typedef struct {
   uint8_t  crc8;
 }  __attribute__((__packed__)) DshotTelemetry ;
 
+typedef union {
+#if DSHOT_AT_LEAST_ONE_32B_TIMER
+  uint32_t widths32[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
+#endif
+  uint16_t widths16[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
+} DshotDmaBuffer;   // alignment to satisfy dma requirement
 
 /**
  * @brief   Type of a structure representing an DSHOT driver.
@@ -161,7 +167,17 @@ typedef struct  {
   /**
    * @brief if non null : dshot telemetry serial driver
    */
-  SerialDriver  *tlm_sd;
+  SerialDriver	*tlm_sd;
+
+  /**
+   * @brief dshot dma buffer, sgould be defined in a non Dcached region
+   */
+  DshotDmaBuffer *dma_buf;
+
+  /**
+   * @brief   DMA memory is in a cached section and beed to be flushed
+   */
+  bool		 dcache_memory_in_use;
 } DSHOTConfig;
 
 void     dshotStart(DSHOTDriver *driver, const DSHOTConfig *config);
@@ -199,12 +215,6 @@ typedef struct {
   volatile bool     onGoingQry;
 } DshotPackets;
 
-typedef union {
-  uint16_t widths16[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
-#if DSHOT_AT_LEAST_ONE_32B_TIMER
-  uint32_t widths32[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
-#endif
-} DshotDmaBuffer __attribute__((aligned(16)));   // alignment to satisfy dma requirement
 
 /**
  * @brief   DSHOT  driver structure.
@@ -251,6 +261,5 @@ struct  DSHOTDriver {
   THD_WORKING_AREA(waDshotTlmRec, 512);
 
   DshotPackets dshotMotors;
-  DshotDmaBuffer dsdb;
 };
 
