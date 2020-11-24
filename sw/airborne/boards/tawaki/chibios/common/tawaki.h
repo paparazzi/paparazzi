@@ -529,6 +529,7 @@
 #define DSHOT_CONF4_DEF { \
   .dma_stream = STM32_PWM4_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM4_UP_DMA_CHANNEL, \
+  .dma_buf = &dshot4DmaBuffer,              \
   .pwmp = &PWMD4,                           \
   .tlm_sd = DSHOT_TELEMETRY_DEV             \
 }

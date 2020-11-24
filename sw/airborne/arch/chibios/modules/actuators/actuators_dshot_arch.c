@@ -46,7 +46,8 @@ static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD3);
 static DSHOTConfig dshotcfg3 = DSHOT_CONF3_DEF;
 #endif
 #if DSHOT_CONF_TIM4
-static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD4);
+static DSHOTDriver  DSHOTD4;
+static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot4DmaBuffer);
 static DSHOTConfig dshotcfg4 = DSHOT_CONF4_DEF;
 #endif
 #if DSHOT_CONF_TIM5
