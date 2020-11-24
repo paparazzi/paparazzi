@@ -40,6 +40,10 @@
 #define DSHOT_AT_LEAST_ONE_32B_TIMER TRUE
 #endif
 
+#ifndef DSHOT_CHANNEL_FIRST_INDEX
+#define DSHOT_CHANNEL_FIRST_INDEX 0
+#endif
+
 /** DMA buffer size and number of channels
  */
 #define DSHOT_BIT_WIDTHS              16

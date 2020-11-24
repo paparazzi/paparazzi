@@ -205,19 +205,23 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
  * @note      see also dshotSendThrottles
  * @api
  */
-void dshotSetThrottle(DSHOTDriver *driver, const  uint8_t index,
+void dshotSetThrottle(DSHOTDriver *driver, const uint8_t index,
                       const  uint16_t throttle)
 {
   if (throttle > 0 && throttle <= DSHOT_CMD_MAX) {
+    chDbgAssert(false, "dshotSetThrottle throttle error");
     return; // special commands (except MOTOR_STOP) can't be applied from this function
   } else {
     // send normal throttle
-    if (index < DSHOT_CHANNELS) {
-      setDshotPacketThrottle(&driver->dshotMotors.dp[index], Min(throttle, DSHOT_MAX_VALUE));
-    } else if (index == DSHOT_ALL_MOTORS) {
+    if (index == DSHOT_ALL_MOTORS) {
       for (uint8_t _index = 0; _index < DSHOT_CHANNELS; _index++) {
         setDshotPacketThrottle(&driver->dshotMotors.dp[_index], Min(throttle, DSHOT_MAX_VALUE));
       }
+    } else if ((index - DSHOT_CHANNEL_FIRST_INDEX) < DSHOT_CHANNELS) {
+      setDshotPacketThrottle(&driver->dshotMotors.dp[index - DSHOT_CHANNEL_FIRST_INDEX],
+			     Min(throttle, DSHOT_MAX_VALUE));
+    } else {
+      chDbgAssert(false, "dshotSetThrottle index error");
     }
   }
 }
