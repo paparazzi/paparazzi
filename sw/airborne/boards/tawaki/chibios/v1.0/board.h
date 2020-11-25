@@ -1633,7 +1633,7 @@
 #define SRVB4_TIM_AF	 2
 #define VBAT_MEAS_ADC	 1
 #define VBAT_MEAS_ADC_FN	 IN
-#define VBAT_MEAS_ADC_IN	 1
+#define VBAT_MEAS_ADC_IN	 10
 #define RC2_TIM	 8
 #define RC2_TIM_FN	 CH
 #define RC2_TIM_CH	 1
