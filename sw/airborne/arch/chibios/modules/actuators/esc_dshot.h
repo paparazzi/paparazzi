@@ -41,26 +41,26 @@
 #endif
 
 #ifndef DSHOT_CHANNEL_FIRST_INDEX
-#define DSHOT_CHANNEL_FIRST_INDEX 0
+#define DSHOT_CHANNEL_FIRST_INDEX 0U
 #endif
 
 /** DMA buffer size and number of channels
  */
-#define DSHOT_BIT_WIDTHS              16
-#define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2 
-#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2
+#define DSHOT_BIT_WIDTHS              16U
+#define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2U 
+#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2U
 #define DSHOT_DMA_BUFFER_SIZE	      (DSHOT_BIT_WIDTHS + \
 				       DSHOT_PRE_FRAME_SILENT_SYNC_BITS + \
 				       DSHOT_POST_FRAME_SILENT_SYNC_BITS )
 
-#define DSHOT_CHANNELS                4 // depend on the number of channels per timer
+#define DSHOT_CHANNELS                4U // depend on the number of channels per timer
 
 /**
  * @brief   special value for index : send order to all channels
  * @note    could be used as index in dshotSetThrottle and
  *          dshotSendSpecialCommand functions
  */
-#define DSHOT_ALL_MOTORS 255
+#define DSHOT_ALL_MOTORS 255U
 
 /**
  * @brief   Driver state machine possible states.
