@@ -530,7 +530,9 @@
   .dma_stream = STM32_PWM4_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM4_UP_DMA_CHANNEL, \
   .pwmp = &PWMD4,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV             \
+  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .dma_buf = &dshot4DmaBuffer,              \
+  .dcache_memory_in_use = false             \
 }
 
 #endif
@@ -570,7 +572,9 @@
   .dma_stream = STM32_PWM1_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \
   .pwmp = &PWMD1,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV             \
+  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .dma_buf = &dshot1DmaBuffer,              \
+  .dcache_memory_in_use = false             \
 }
 
 #endif

@@ -71,9 +71,11 @@ typedef enum {
  *          upon.
  */
 typedef enum {
-  DMA_ERR_TRANSFER_ERROR   = 1 << 0,        /**< DMA transfer failure.         */
-  DMA_ERR_DIRECTMODE_ERROR = 1 << 1,        /**< DMA Direct Mode failure.      */
-  DMA_ERR_FIFO_ERROR       = 1 << 2         /**< DMA FIFO overrun or underrun. */
+  DMA_ERR_TRANSFER_ERROR   = 1U << 0U,          /**< DMA transfer failure.         */
+  DMA_ERR_DIRECTMODE_ERROR = 1U << 1U,          /**< DMA Direct Mode failure.      */
+  DMA_ERR_FIFO_ERROR       = 1U << 2U,          /**< DMA FIFO error.  */
+  DMA_ERR_FIFO_FULL        = 1U << 3U,          /**< DMA FIFO overrun */
+  DMA_ERR_FIFO_EMPTY       = 1U << 4U,          /**< DMA FIFO underrun. */
 } dmaerrormask_t;
 
 /**
@@ -316,9 +318,15 @@ typedef struct  {
   /**
    * @brief   DMA memory data granurality in bytes (1,2,4)
    */
-  uint8_t   msize; // 1,2,4
+  uint8_t		msize; // 1,2,4
+#ifdef STM32F7XX
+  /**
+   * @brief   DMA memory is in a cached section and beed to be flushed
+   */
+bool		dcache_memory_in_use;
+#endif
 #if STM32_DMA_ADVANCED
-#define STM32_DMA_FIFO_SIZE 4 // hardware specification for dma V2
+#define STM32_DMA_FIFO_SIZE 16 // hardware specification for dma V2
 
   /**
    * @brief   DMA peripheral burst size
@@ -343,7 +351,10 @@ typedef struct  {
   /**
    * @brief   DMA enable peripheral as flow controller
    */
-  bool      transfert_end_ctrl_by_periph; // PFCTRL bit
+  bool			transfert_end_ctrl_by_periph; // PFCTRL bit
+#endif
+#ifdef STM32_DMA_DRIVER_USER_DATA_FIELD
+  void *user_data;
 #endif
 }  DMAConfig;
 
@@ -397,13 +408,35 @@ struct DMADriver {
    */
   uint32_t         dmamode;
 
+#ifdef STM32F7XX
   /**
-   * @brief hold size of current transaction
+   * @brief	periph address (or destination memory in case of M2M)
    */
-  size_t         size;
+  volatile void			     * periphp;
+#endif
+
+#if STM32_DMA_ADVANCED
+  /**
+   * @brief	hold DMA Fifo FCR register for the stream
+   */
+  uint32_t		     fifomode;
+#endif
 
   /**
-   * @brief Driver state
+   * @brief	hold size of current transaction
+   */
+  size_t		     size;
+
+#if CH_DBG_SYSTEM_STATE_CHECK
+  volatile size_t		     nbTransferError;
+  volatile size_t		     nbDirectModeError;
+  volatile size_t		     nbFifoError;
+  volatile size_t		     nbFifoFull;
+  volatile size_t		     nbFifoEmpty;
+  volatile dmaerrormask_t	     lastError;
+#endif
+  /**
+   * @brief	Driver state
    */
   volatile dmastate_t		     state;
 
@@ -439,6 +472,7 @@ void  dmaStopTransfert(DMADriver *dmap);
 bool  dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
 void  dmaStopTransfertI(DMADriver *dmap);
 
+static  inline dmastate_t dmaGetState(DMADriver *dmap) {return dmap->state;}
 
 // low level driver
 
@@ -574,15 +608,31 @@ static inline void _dma_isr_full_code(DMADriver *dmap)
   }
 }
 
-static inline void _dma_isr_error_code(DMADriver *dmap, dmaerrormask_t err)
-{
-  dma_lld_stop_transfert(dmap);
+static inline void _dma_isr_error_code(DMADriver *dmap, dmaerrormask_t err) {
+#if CH_DBG_SYSTEM_STATE_CHECK == TRUE
+  if (err & DMA_ERR_TRANSFER_ERROR)
+    dmap->nbTransferError++;
+  if (err & DMA_ERR_DIRECTMODE_ERROR)
+    dmap->nbDirectModeError++;
+  if (err & DMA_ERR_FIFO_ERROR) {
+    dmap->nbFifoError++;
+    if (err & DMA_ERR_FIFO_FULL)
+       dmap->nbFifoFull++;
+    if (err & DMA_ERR_FIFO_EMPTY)
+       dmap->nbFifoEmpty++;
+  }
+  dmap->lastError = err;
+#endif
+  if (err & (DMA_ERR_TRANSFER_ERROR | DMA_ERR_DIRECTMODE_ERROR))
+    dma_lld_stop_transfert(dmap);
+  else
+    return;
+
   if (dmap->config->error_cb != NULL) {
     dmap->state = DMA_ERROR;
     dmap->config->error_cb(dmap, err);
-    if (dmap->state == DMA_ERROR) {
+    if (dmap->state == DMA_ERROR)
       dmap->state = DMA_READY;
-    }
   } else {
     dmap->state = DMA_READY;
   }

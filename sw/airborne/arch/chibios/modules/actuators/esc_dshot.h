@@ -40,23 +40,27 @@
 #define DSHOT_AT_LEAST_ONE_32B_TIMER TRUE
 #endif
 
+#ifndef DSHOT_CHANNEL_FIRST_INDEX
+#define DSHOT_CHANNEL_FIRST_INDEX 0U
+#endif
+
 /** DMA buffer size and number of channels
  */
-#define DSHOT_BIT_WIDTHS              16
-#define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2 
-#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2
+#define DSHOT_BIT_WIDTHS              16U
+#define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2U
+#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2U
 #define DSHOT_DMA_BUFFER_SIZE	      (DSHOT_BIT_WIDTHS + \
 				       DSHOT_PRE_FRAME_SILENT_SYNC_BITS + \
 				       DSHOT_POST_FRAME_SILENT_SYNC_BITS )
 
-#define DSHOT_CHANNELS                4 // depend on the number of channels per timer
+#define DSHOT_CHANNELS                4U // depend on the number of channels per timer
 
 /**
  * @brief   special value for index : send order to all channels
  * @note    could be used as index in dshotSetThrottle and
  *          dshotSendSpecialCommand functions
  */
-#define DSHOT_ALL_MOTORS 255
+#define DSHOT_ALL_MOTORS 255U
 
 /**
  * @brief   Driver state machine possible states.
@@ -132,6 +136,12 @@ typedef struct {
   uint8_t  crc8;
 }  __attribute__((__packed__)) DshotTelemetry ;
 
+typedef union {
+#if DSHOT_AT_LEAST_ONE_32B_TIMER
+  uint32_t widths32[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
+#endif
+  uint16_t widths16[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
+} DshotDmaBuffer;   // alignment to satisfy dma requirement
 
 /**
  * @brief   Type of a structure representing an DSHOT driver.
@@ -161,7 +171,17 @@ typedef struct  {
   /**
    * @brief if non null : dshot telemetry serial driver
    */
-  SerialDriver  *tlm_sd;
+  SerialDriver	*tlm_sd;
+
+  /**
+   * @brief dshot dma buffer, sgould be defined in a non Dcached region
+   */
+  DshotDmaBuffer *dma_buf;
+
+  /**
+   * @brief   DMA memory is in a cached section and beed to be flushed
+   */
+  bool		 dcache_memory_in_use;
 } DSHOTConfig;
 
 void     dshotStart(DSHOTDriver *driver, const DSHOTConfig *config);
@@ -199,12 +219,6 @@ typedef struct {
   volatile bool     onGoingQry;
 } DshotPackets;
 
-typedef union {
-  uint16_t widths16[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
-#if DSHOT_AT_LEAST_ONE_32B_TIMER
-  uint32_t widths32[DSHOT_DMA_BUFFER_SIZE][DSHOT_CHANNELS];
-#endif
-} DshotDmaBuffer __attribute__((aligned(16)));   // alignment to satisfy dma requirement
 
 /**
  * @brief   DSHOT  driver structure.
@@ -251,6 +265,5 @@ struct  DSHOTDriver {
   THD_WORKING_AREA(waDshotTlmRec, 512);
 
   DshotPackets dshotMotors;
-  DshotDmaBuffer dsdb;
 };
 
