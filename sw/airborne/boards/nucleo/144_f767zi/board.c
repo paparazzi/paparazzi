@@ -219,10 +219,7 @@ void __early_init(void) {
  */
 bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
   (void)sdcp;
-  /* assume card is inserted as there is no SD_DETECT pin
-   * actual detection will be done by the software
-   */
-  return true;
+  return false;
 }
 
 /**
@@ -242,8 +239,7 @@ bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
 bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
 
   (void)mmcp;
-  /* TODO: Fill the implementation.*/
-  return true;
+  return false;
 }
 
 /**
@@ -252,7 +248,6 @@ bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
 bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 
   (void)mmcp;
-  /* TODO: Fill the implementation.*/
   return false;
 }
 #endif
@@ -263,23 +258,5 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  */
 void boardInit(void) {
 
-}
-
-/** Energy saving procedure for SD log closing
- */
-void mcu_periph_energy_save(void)
-{
-  palSetLineMode(LINE_LED1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_LED2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_SPI4_INTERNAL_CS, PAL_MODE_INPUT);
-  palSetLineMode(LINE_SPI2_EXTERNAL_CS, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_A1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_A2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_A3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_A4, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_B1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_B2, PAL_MODE_INPUT);
-  //palSetLineMode(LINE_AUX_B3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX_B4, PAL_MODE_INPUT);
 }
 
