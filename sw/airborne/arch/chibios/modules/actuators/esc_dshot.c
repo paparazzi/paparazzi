@@ -42,10 +42,10 @@
 */
 
 /** Base freq of DSHOT signal (in kHz)
- * Possible values are: 150, 300, 600, 1200
+ * Possible values are: 150, 300, 600
  */
 #ifndef DSHOT_SPEED
-#define DSHOT_SPEED 600
+#define DSHOT_SPEED 300
 #endif
 
 /** Baudrate of the serial link used for telemetry data
@@ -121,7 +121,7 @@ static size_t getTimerWidth(const PWMDriver *pwmp);
  */
 void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 {
-  memset((void *) &driver->dsdb, 0, sizeof(driver->dsdb));
+  memset((void *) config->dma_buf, 0, sizeof(*(config->dma_buf)));
   const size_t timerWidthInBytes = getTimerWidth(config->pwmp);
 
   static const SerialConfig  tlmcfg =  {
@@ -137,10 +137,11 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .stream = config->dma_stream,
     .channel = config->dma_channel,
     .dma_priority = 3,
-    .irq_priority = 6,
+    .irq_priority = 2,
     .direction = DMA_DIR_M2P,
     .psize = timerWidthInBytes,
     .msize = timerWidthInBytes,
+    .dcache_memory_in_use = config->dcache_memory_in_use,
     .inc_peripheral_addr = false,
     .inc_memory_addr = true,
     .circular = false,
@@ -148,40 +149,33 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .end_cb = NULL,
     .pburst = 0,
     .mburst = 0,
-    .fifo = 0
+    .fifo = 4
   };
 
   driver->pwm_conf = (PWMConfig) {
-    .frequency = TICK_FREQ,
-    .period    = TICKS_PER_PERIOD,
-    .callback  = NULL,
-    .channels  = {
-      {
-        .mode = PWM_OUTPUT_ACTIVE_HIGH,
-        .callback = NULL
-      },
-      {
-        .mode = DSHOT_CHANNELS > 1 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
-        .callback = NULL
-      },
-      {
-        .mode = DSHOT_CHANNELS > 2 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
-        .callback = NULL
-      },
-      {
-        .mode = DSHOT_CHANNELS > 3 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
-        .callback = NULL
-      },
-    },
-    .cr2  =  STM32_TIM_CR2_CCDS,
-    .dier =  STM32_TIM_DIER_UDE
+  .frequency = TICK_FREQ,
+  .period    = TICKS_PER_PERIOD,
+  .callback  = NULL,
+  .channels  = {
+    {.mode = PWM_OUTPUT_ACTIVE_HIGH,
+     .callback = NULL},
+    {.mode = DSHOT_CHANNELS > 1 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+     .callback = NULL},
+    {.mode = DSHOT_CHANNELS > 2 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+     .callback = NULL},
+    {.mode = DSHOT_CHANNELS > 3 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+     .callback = NULL},
+  },
+  .cr2  =  STM32_TIM_CR2_CCDS,
+  .dier =  STM32_TIM_DIER_UDE
   };
 
   driver->crc_errors = 0;
   dmaObjectInit(&driver->dmap);
   chMBObjectInit(&driver->mb, driver->_mbBuf, ARRAY_LEN(driver->_mbBuf));
 
-  dmaStart(&driver->dmap, &driver->dma_conf);
+  const bool dmaOk = dmaStart(&driver->dmap, &driver->dma_conf);
+  chDbgAssert(dmaOk == true, "dshot dma start error");
 
   if (driver->config->tlm_sd) {
     sdStart(driver->config->tlm_sd, &tlmcfg);
@@ -197,7 +191,8 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     pwmEnableChannel(driver->config->pwmp, j, 0);
     driver->dshotMotors.dp[j] =  makeDshotPacket(0, 0);
   }
-
+  driver->dshotMotors.onGoingQry = false;
+  driver->dshotMotors.currentTlmQry = 0U;
 }
 
 /**
@@ -210,19 +205,23 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
  * @note      see also dshotSendThrottles
  * @api
  */
-void dshotSetThrottle(DSHOTDriver *driver, const  uint8_t index,
+void dshotSetThrottle(DSHOTDriver *driver, const uint8_t index,
                       const  uint16_t throttle)
 {
   if (throttle > 0 && throttle <= DSHOT_CMD_MAX) {
+    chDbgAssert(false, "dshotSetThrottle throttle error");
     return; // special commands (except MOTOR_STOP) can't be applied from this function
   } else {
     // send normal throttle
-    if (index < DSHOT_CHANNELS) {
-      setDshotPacketThrottle(&driver->dshotMotors.dp[index], Min(throttle, DSHOT_MAX_VALUE));
-    } else if (index == DSHOT_ALL_MOTORS) {
+    if (index == DSHOT_ALL_MOTORS) {
       for (uint8_t _index = 0; _index < DSHOT_CHANNELS; _index++) {
         setDshotPacketThrottle(&driver->dshotMotors.dp[_index], Min(throttle, DSHOT_MAX_VALUE));
       }
+    } else if ((index - DSHOT_CHANNEL_FIRST_INDEX) < DSHOT_CHANNELS) {
+      setDshotPacketThrottle(&driver->dshotMotors.dp[index - DSHOT_CHANNEL_FIRST_INDEX],
+			     Min(throttle, DSHOT_MAX_VALUE));
+    } else {
+      chDbgAssert(false, "dshotSetThrottle index error");
     }
   }
 }
@@ -310,10 +309,10 @@ void dshotSendFrame(DSHOTDriver *driver)
       chMBPostTimeout(&driver->mb, driver->dshotMotors.currentTlmQry, TIME_IMMEDIATE);
     }
 
-    buildDshotDmaBuffer(&driver->dshotMotors, &driver->dsdb, getTimerWidth(driver->config->pwmp));
+    buildDshotDmaBuffer(&driver->dshotMotors, driver->config->dma_buf, getTimerWidth(driver->config->pwmp));
     dmaStartTransfert(&driver->dmap,
                       &driver->config->pwmp->tim->DMAR,
-                      &driver->dsdb, DSHOT_DMA_BUFFER_SIZE * DSHOT_CHANNELS);
+                      driver->config->dma_buf, DSHOT_DMA_BUFFER_SIZE * DSHOT_CHANNELS);
 
   }
 }
@@ -407,7 +406,7 @@ static void buildDshotDmaBuffer(DshotPackets *const dsp, DshotDmaBuffer *const d
 #endif
       }
     }
-    // the bits for silence sync in case of continous sending are zeroed once at init
+    // the bits for silence sync (pre and post) in case of continous sending are zeroed once at init
   }
 }
 

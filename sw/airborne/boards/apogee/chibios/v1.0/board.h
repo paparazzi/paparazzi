@@ -349,12 +349,19 @@
 /**
  * DSHOT
  */
-#define DSHOT_SERVO_0 0
-#define DSHOT_SERVO_0_GPIO GPIOB
-#define DSHOT_SERVO_0_PIN GPIO0
-#define DSHOT_SERVO_0_AF GPIO_AF2
-#define DSHOT_SERVO_0_DRIVER DSHOTD3
-#define DSHOT_SERVO_0_CHANNEL 2
+#ifndef DSHOT_TELEMETRY_DEV
+#define DSHOT_TELEMETRY_DEV NULL
+#endif
+
+#ifndef USE_DSHOT_TIM2
+#define USE_DSHOT_TIM2 1
+#endif
+
+#ifndef USE_DSHOT_TIM3
+#define USE_DSHOT_TIM3 1
+#endif
+
+#if USE_DSHOT_TIM2 // Servo 1, 4, 5
 
 #define DSHOT_SERVO_1 1
 #define DSHOT_SERVO_1_GPIO GPIOA
@@ -362,20 +369,6 @@
 #define DSHOT_SERVO_1_AF GPIO_AF1
 #define DSHOT_SERVO_1_DRIVER DSHOTD2
 #define DSHOT_SERVO_1_CHANNEL 2
-
-#define DSHOT_SERVO_2 2
-#define DSHOT_SERVO_2_GPIO GPIOB
-#define DSHOT_SERVO_2_PIN GPIO5
-#define DSHOT_SERVO_2_AF GPIO_AF2
-#define DSHOT_SERVO_2_DRIVER DSHOTD3
-#define DSHOT_SERVO_2_CHANNEL 1
-
-#define DSHOT_SERVO_3 3
-#define DSHOT_SERVO_3_GPIO GPIOB
-#define DSHOT_SERVO_3_PIN GPIO4
-#define DSHOT_SERVO_3_AF GPIO_AF2
-#define DSHOT_SERVO_3_DRIVER DSHOTD3
-#define DSHOT_SERVO_3_CHANNEL 0
 
 #define DSHOT_SERVO_4 4
 #define DSHOT_SERVO_4_GPIO GPIOB
@@ -391,6 +384,41 @@
 #define DSHOT_SERVO_5_DRIVER DSHOTD2
 #define DSHOT_SERVO_5_CHANNEL 0
 
+#define DSHOT_CONF_TIM2 1
+#define DSHOT_CONF2_DEF { \
+  .dma_stream = STM32_PWM2_UP_DMA_STREAM,   \
+  .dma_channel = STM32_PWM2_UP_DMA_CHANNEL, \
+  .pwmp = &PWMD2,                           \
+  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .dma_buf = &dshot2DmaBuffer,              \
+  .dcache_memory_in_use = false             \
+}
+
+#endif
+
+#if USE_DSHOT_TIM3 // Servo 0,2,3,6
+
+#define DSHOT_SERVO_0 0
+#define DSHOT_SERVO_0_GPIO GPIOB
+#define DSHOT_SERVO_0_PIN GPIO0
+#define DSHOT_SERVO_0_AF GPIO_AF2
+#define DSHOT_SERVO_0_DRIVER DSHOTD3
+#define DSHOT_SERVO_0_CHANNEL 2
+
+#define DSHOT_SERVO_2 2
+#define DSHOT_SERVO_2_GPIO GPIOB
+#define DSHOT_SERVO_2_PIN GPIO5
+#define DSHOT_SERVO_2_AF GPIO_AF2
+#define DSHOT_SERVO_2_DRIVER DSHOTD3
+#define DSHOT_SERVO_2_CHANNEL 1
+
+#define DSHOT_SERVO_3 3
+#define DSHOT_SERVO_3_GPIO GPIOB
+#define DSHOT_SERVO_3_PIN GPIO4
+#define DSHOT_SERVO_3_AF GPIO_AF2
+#define DSHOT_SERVO_3_DRIVER DSHOTD3
+#define DSHOT_SERVO_3_CHANNEL 0
+
 #if USE_DSHOT6
 // DSHOT6 on AUX1 pin, not activated by default
 #define DSHOT_SERVO_6 6
@@ -401,25 +429,17 @@
 #define DSHOT_SERVO_6_CHANNEL 3
 #endif
 
-#ifndef DSHOT_TELEMETRY_DEV
-#define DSHOT_TELEMETRY_DEV NULL
-#endif
-
-#define DSHOT_CONF_TIM2 1
-#define DSHOT_CONF2_DEF { \
-  .dma_stream = STM32_PWM2_UP_DMA_STREAM,   \
-  .dma_channel = STM32_PWM2_UP_DMA_CHANNEL, \
-  .pwmp = &PWMD2,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV             \
-}
-
 #define DSHOT_CONF_TIM3 1
 #define DSHOT_CONF3_DEF { \
   .dma_stream = STM32_PWM3_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM3_UP_DMA_CHANNEL, \
   .pwmp = &PWMD3,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV             \
+  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .dma_buf = &dshot3DmaBuffer,              \
+  .dcache_memory_in_use = false             \
 }
+
+#endif
 
 /**
  * PPM radio defines

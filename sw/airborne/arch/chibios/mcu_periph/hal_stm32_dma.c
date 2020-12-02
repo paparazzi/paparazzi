@@ -49,6 +49,9 @@ TODO :
  * @param[in] flags     pre-shifted content of the ISR register
  */
 static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags);
+static inline uint32_t getFCR_FS(const DMADriver *dmap) {
+  return (dmap->dmastream->stream->FCR & DMA_SxFCR_FS_Msk);
+}
 
 void dmaObjectInit(DMADriver *dmap)
 {
@@ -65,6 +68,10 @@ void dmaObjectInit(DMADriver *dmap)
 #endif
 #if defined( STM32_DMA_DRIVER_EXT_INIT_HOOK)
   STM32_DMA_DRIVER_EXT_INIT_HOOK(dmap);
+#endif
+#if CH_DBG_SYSTEM_STATE_CHECK == TRUE
+  dmap->nbTransferError = dmap->nbDirectModeError = dmap->nbFifoError = 0U;
+  dmap->lastError = 0U;
 #endif
 #if STM32_DMA_USE_ASYNC_TIMOUT
   chVTObjectInit(&dmap->vt);
@@ -167,51 +174,64 @@ bool dmaStartTransfert(DMADriver *dmap, volatile void *periphp,  void * mem0p, c
 bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  void *  mem0p, const size_t size)
 {
   osalDbgCheckClassI();
-  osalDbgCheck((dmap != NULL) && (mem0p != NULL) && (periphp != NULL) &&
-               (size > 0U) && ((size == 1U) || ((size & 1U) == 0U)));
-
 #if (CH_DBG_ENABLE_ASSERTS != FALSE)
-  const DMAConfig     *cfg = dmap->config;
-  osalDbgAssert((dmap->state == DMA_READY) ||
-                (dmap->state == DMA_COMPLETE) ||
-                (dmap->state == DMA_ERROR),
-                "not ready");
+  if (size != dmap->size) {
+    osalDbgCheck((dmap != NULL) && (mem0p != NULL) && (periphp != NULL) &&
+		 (size > 0U) && ((size == 1U) || ((size & 1U) == 0U)));
 
-  osalDbgAssert((uint32_t) periphp % cfg->psize == 0, "peripheral address not aligned");
-  osalDbgAssert((uint32_t) mem0p % cfg->msize == 0, "memory address not aligned");
+    const DMAConfig	    *cfg = dmap->config;
+    osalDbgAssert((dmap->state == DMA_READY) ||
+		  (dmap->state == DMA_COMPLETE) ||
+		  (dmap->state == DMA_ERROR),
+		  "not ready");
+    /* if (cfg->pburst) */
+    /*   osalDbgAssert((uint32_t) periphp % (cfg->pburst * cfg->psize) == 0, "peripheral address not aligned"); */
+    /* else */
+      osalDbgAssert((uint32_t) periphp % cfg->psize == 0, "peripheral address not aligned");
 
-  /*
-    In the circular mode, it is mandatory to respect the following rule in case of a burst mode
-    configured for memory:
-    DMA_SxNDTR = Multiple of ((Mburst beat) × (Msize)/(Psize)), where:
-    – (Mburst beat) = 4, 8 or 16 (depending on the MBURST bits in the DMA_SxCR
-    register)
-    – ((Msize)/(Psize)) = 1, 2, 4, 1/2 or 1/4 (Msize and Psize represent the MSIZE and
-    PSIZE bits in the DMA_SxCR register. They are byte dependent)
-    – DMA_SxNDTR = Number of data items to transfer on the AHB peripheral port
+    /* if (cfg->mburst) */
+    /*   osalDbgAssert((uint32_t) mem0p % (cfg->mburst * cfg->msize) == 0, "memory address not aligned"); */
+    /* else */
+      osalDbgAssert((uint32_t) mem0p % cfg->msize == 0, "memory address not aligned");
 
-    NDTR must also be a multiple of the Peripheral  size multiplied by the peripheral data
-    size, otherwise this could result in a bad DMA behavior.
+    /*
+      In the circular mode, it is mandatory to respect the following rule in case of a burst mode
+      configured for memory:
+      DMA_SxNDTR = Multiple of ((Mburst beat) × (Msize)/(Psize)), where:
+      – (Mburst beat) = 4, 8 or 16 (depending on the MBURST bits in the DMA_SxCR
+      register)
+      – ((Msize)/(Psize)) = 1, 2, 4, 1/2 or 1/4 (Msize and Psize represent the MSIZE and
+      PSIZE bits in the DMA_SxCR register. They are byte dependent)
+      – DMA_SxNDTR = Number of data items to transfer on the AHB peripheral port
 
-   */
+      NDTR must also be a multiple of the Peripheral burst size multiplied by the peripheral data
+      size, otherwise this could result in a bad DMA behavior.
+
+    */
 # if  STM32_DMA_ADVANCED
-  if (cfg->mburst) {
-    osalDbgAssert((size % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
-		  "mburst alignment rule not respected");
-    osalDbgAssert((((uint32_t) mem0p) % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
-		  "memory address alignment rule not respected");
-  }
-  if (cfg->pburst) {
-    osalDbgAssert((size % (cfg->pburst * cfg->psize)) == 0,
-                  "pburst alignment rule not respected");
-  }
-  if (cfg->mburst) {
-    osalDbgAssert((size % (cfg->mburst * cfg->msize)) == 0,
-                  "mburst alignment rule not respected");
+    if (cfg->mburst) {
+      osalDbgAssert((size % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
+		    "mburst alignment rule not respected");
+      osalDbgAssert((size % (cfg->mburst * cfg->msize)) == 0,
+		    "mburst alignment rule not respected");
+      osalDbgAssert((((uint32_t) mem0p) % cfg->mburst) == 0,
+		    "memory address alignment rule not respected");
+    }
+    if (cfg->pburst) {
+      osalDbgAssert((size % (cfg->pburst * cfg->psize)) == 0,
+		    "pburst alignment rule not respected");
+      osalDbgAssert((((uint32_t) periphp) % cfg->pburst) == 0,
+		    "peripheral address alignment rule not respected");
+   }
+
+
+
+# endif //  STM32_DMA_ADVANCED
   }
 
-# endif
-#endif
+#endif // CH_DBG_ENABLE_ASSERTS != FALSE
+  dmap->state    = DMA_ACTIVE;
+
 #if STM32_DMA_USE_ASYNC_TIMOUT
   dmap->currPtr = mem0p;
   if (dmap->config->timeout != TIME_INFINITE) {
@@ -220,7 +240,6 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  void *  mem0p,
   }
 #endif
 
-  dmap->state    = DMA_ACTIVE;
   return dma_lld_start_transfert(dmap, periphp, mem0p, size);
 }
 
@@ -313,6 +332,7 @@ msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void *mem0p, 
 
   osalSysLock();
   osalDbgAssert(dmap->thread == NULL, "already waiting");
+  osalDbgAssert(dmap->config->circular == false, "blocking API is incompatible with circular mode");
   dmaStartTransfertI(dmap, periphp, mem0p, size);
   msg = osalThreadSuspendTimeoutS(&dmap->thread, timeout);
   if (msg != MSG_OK) {
@@ -430,8 +450,9 @@ bool dma_lld_start(DMADriver *dmap)
     isr_flags |= STM32_DMA_CR_DMEIE | STM32_DMA_CR_TCIE;
   }
 
-
+#if CH_KERNEL_MAJOR < 6
   dmap->dmastream =  STM32_DMA_STREAM(cfg->stream);
+#endif
 
   // portable way (V1, V2) to retreive controler number
 #if STM32_DMA_ADVANCED
@@ -504,87 +525,87 @@ bool dma_lld_start(DMADriver *dmap)
 
   if (cfg->fifo) {
     switch (cfg->msize) {
-      case 1:
-        switch (cfg->mburst) {
-          case 4 :
-            switch (cfg->fifo) {
-              case 1: break;
-              case 2: break;
-              case 3: break;
-              case 4: break;
-            }
-            break;
-          case 8 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: break;
-              case 3: goto forbiddenCombination;
-              case 4: break;
-            }
-            break;
-          case 16 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: break;
-            }
-            break;
-        }
-        break;
-      case 2:
-        switch (cfg->mburst) {
-          case 4 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: break;
-              case 3: goto forbiddenCombination;
-              case 4: break;
-            }
-            break;
-          case 8 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: break;
-            }
-            break;
-          case 16 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: goto forbiddenCombination;
-            }
-        }
-        break;
-      case 4:
-        switch (cfg->mburst) {
-          case 4 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: break;
-            }
-            break;
-          case 8 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: goto forbiddenCombination;
-            }
-            break;
-          case 16 :
-            switch (cfg->fifo) {
-              case 1: goto forbiddenCombination;
-              case 2: goto forbiddenCombination;
-              case 3: goto forbiddenCombination;
-              case 4: goto forbiddenCombination;
-            }
-        }
+    case 1: // msize 1
+      switch (cfg->mburst) {
+      case 4 : // msize 1 mburst 4
+	switch (cfg->fifo) {
+	case 1: break; // msize 1 mburst 4 fifo 1/4
+	case 2: break; // msize 1 mburst 4 fifo 2/4
+	case 3: break; // msize 1 mburst 4 fifo 3/4
+	case 4: break; // msize 1 mburst 4 fifo 4/4
+	}
+	break;
+      case 8 : // msize 1 mburst 8
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination;  // msize 1 mburst 8 fifo 1/4
+	case 2: break;			    // msize 1 mburst 8 fifo 2/4
+	case 3: goto forbiddenCombination;  // msize 1 mburst 8 fifo 3/4
+	case 4: break;			    // msize 1 mburst 8 fifo 4/4
+	}
+	break;
+      case 16 :  // msize 1 mburst 16
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 1 mburst 16 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 1 mburst 16 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 1 mburst 16 fifo 3/4
+	case 4: break;			   // msize 1 mburst 16 fifo 4/4
+	}
+	break;
+      }
+      break;
+    case 2: // msize 2
+      switch (cfg->mburst) {
+      case 4 : // msize 2 mburst 4
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 2 mburst 4 fifo 1/4
+	case 2: break;			   // msize 2 mburst 4 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 2 mburst 4 fifo 3/4
+	case 4: break;			   // msize 2 mburst 4 fifo 4/4
+	}
+	break;
+      case 8 :
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 2 mburst 8 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 2 mburst 8 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 2 mburst 8 fifo 3/4
+	case 4: break;			   // msize 2 mburst 8 fifo 4/4
+	}
+	break;
+      case 16 :
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 2 mburst 16 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 2 mburst 16 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 2 mburst 16 fifo 3/4
+	case 4: goto forbiddenCombination; // msize 2 mburst 16 fifo 4/4
+	}
+      }
+      break;
+    case 4:
+      switch (cfg->mburst) {
+      case 4 :
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 4 mburst 4 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 4 mburst 4 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 4 mburst 4 fifo 3/4
+	case 4: break;			   // msize 4 mburst 4 fifo 4/4
+	}
+	break;
+      case 8 :
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 4 mburst 8 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 4 mburst 8 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 4 mburst 8 fifo 3/4
+	case 4: goto forbiddenCombination; // msize 4 mburst 8 fifo 4/4
+	}
+	break;
+      case 16 :
+	switch (cfg->fifo) {
+	case 1: goto forbiddenCombination; // msize 4 mburst 16 fifo 1/4
+	case 2: goto forbiddenCombination; // msize 4 mburst 16 fifo 2/4
+	case 3: goto forbiddenCombination; // msize 4 mburst 16 fifo 3/4
+	case 4: goto forbiddenCombination; // msize 4 mburst 16 fifo 4/4
+	}
+      }
     }
   }
 # endif
@@ -619,25 +640,33 @@ bool dma_lld_start(DMADriver *dmap)
 #  endif
 #endif
 
-  const bool error = dmaStreamAllocate(dmap->dmastream,
-                                       cfg->irq_priority,
-                                       (stm32_dmaisr_t) &dma_lld_serve_interrupt,
-                                       (void *) dmap);
+#if STM32_DMA_ADVANCED
+  if (cfg->fifo) {
+    dmap->fifomode = STM32_DMA_FCR_DMDIS | STM32_DMA_FCR_FEIE | fifo_msk;
+  } else {
+    osalDbgAssert(cfg->direction != DMA_DIR_M2M, "fifo mode mandatory for M2M");
+    osalDbgAssert(cfg->psize == cfg->msize,
+		  "msize == psize is mandatory when fifo is disabled");
+    dmap->fifomode = 0U;
+  }
+#endif
+
+#if CH_KERNEL_MAJOR < 6
+  const bool error = dmaStreamAllocate( dmap->dmastream,
+					cfg->irq_priority,
+					(stm32_dmaisr_t) &dma_lld_serve_interrupt,
+					(void *) dmap );
+#else
+  dmap->dmastream = dmaStreamAllocI(dmap->config->stream,
+				    cfg->irq_priority,
+				    (stm32_dmaisr_t) &dma_lld_serve_interrupt,
+				    (void *) dmap );
+  bool error = dmap->dmastream == NULL;
+#endif
   if (error) {
     osalDbgAssert(false, "stream already allocated");
     return false;
   }
-
-#if STM32_DMA_ADVANCED
-  if (cfg->fifo) {
-    dmaStreamSetFIFO(dmap->dmastream, STM32_DMA_FCR_DMDIS | STM32_DMA_FCR_FEIE | fifo_msk);
-  } else {
-    osalDbgAssert(cfg->direction != DMA_DIR_M2M, "fifo mode mandatory for M2M");
-    osalDbgAssert(cfg->psize == cfg->msize, "msize == psize is mandatory when fifo is disabled");
-  }
-#endif
-
-
 
   return true;
 
@@ -661,12 +690,24 @@ forbiddenCombination:
  */
 bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
 {
+#ifdef STM32F7XX
+  if (dmap->config->dcache_memory_in_use &&
+      (dmap->config->direction != DMA_DIR_P2M)) {
+    cacheBufferFlush(mem0p, size * dmap->config->msize);
+  }
+#endif
   dmap->mem0p = mem0p;
+#ifdef STM32F7XX
+  dmap->periphp = periphp;
+#endif
   dmap->size = size;
   dmaStreamSetPeripheral(dmap->dmastream, periphp);
   dmaStreamSetMemory0(dmap->dmastream, mem0p);
   dmaStreamSetTransactionSize(dmap->dmastream, size);
   dmaStreamSetMode(dmap->dmastream, dmap->dmamode);
+#if STM32_DMA_ADVANCED
+  dmaStreamSetFIFO(dmap->dmastream, dmap->fifomode);
+#endif
   dmaStreamEnable(dmap->dmastream);
 
   return true;
@@ -693,7 +734,11 @@ void dma_lld_stop_transfert(DMADriver *dmap)
  */
 void dma_lld_stop(DMADriver *dmap)
 {
+#if CH_KERNEL_MAJOR < 6
   dmaStreamRelease(dmap->dmastream);
+#else
+  dmaStreamFree(dmap->dmastream);
+#endif
 }
 
 
@@ -711,19 +756,41 @@ static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags)
 {
 
   /* DMA errors handling.*/
-  if ((flags & (STM32_DMA_ISR_TEIF | STM32_DMA_ISR_DMEIF | STM32_DMA_ISR_FEIF)) != 0) {
+#if CH_DBG_SYSTEM_STATE_CHECK
+  const uint32_t feif_msk = dmap->config->fifo != 0U ? STM32_DMA_ISR_FEIF : 0U;
+#else
+  static const uint32_t feif_msk = 0U;
+#endif
+  //const uint32_t feif_msk = STM32_DMA_ISR_FEIF;
+  if ((flags & (STM32_DMA_ISR_TEIF | STM32_DMA_ISR_DMEIF | feif_msk)) != 0U) {
     /* DMA, this could help only if the DMA tries to access an unmapped
        address space or violates alignment rules.*/
     const dmaerrormask_t err =
-      ((flags & STM32_DMA_ISR_TEIF)  ? DMA_ERR_TRANSFER_ERROR : 0UL) |
-      ((flags & STM32_DMA_ISR_DMEIF) ? DMA_ERR_DIRECTMODE_ERROR : 0UL) |
-      ((flags & STM32_DMA_ISR_FEIF)  ? DMA_ERR_FIFO_ERROR : 0UL);
+      ( (flags & STM32_DMA_ISR_TEIF)  ? DMA_ERR_TRANSFER_ERROR : 0UL) |
+      ( (flags & STM32_DMA_ISR_DMEIF) ? DMA_ERR_DIRECTMODE_ERROR : 0UL) |
+      ( (flags & feif_msk)  ? DMA_ERR_FIFO_ERROR : 0UL) |
+      ( getFCR_FS(dmap) == (0b100 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_EMPTY: 0UL) |
+      ( getFCR_FS(dmap) == (0b101 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_FULL: 0UL);
 
     _dma_isr_error_code(dmap, err);
   } else {
     /* It is possible that the transaction has already be reset by the
        DMA error handler, in this case this interrupt is spurious.*/
     if (dmap->state == DMA_ACTIVE) {
+#ifdef STM32F7XX
+      if (dmap->config->dcache_memory_in_use)
+	  switch (dmap->config->direction) {
+	  case DMA_DIR_M2P : break;
+	  case DMA_DIR_P2M :
+	    cacheBufferInvalidate(dmap->mem0p,
+				  dmap->size * dmap->config->msize);
+	    break;
+	  case DMA_DIR_M2M :
+	    cacheBufferInvalidate(dmap->periphp,
+				  dmap->size * dmap->config->msize);
+	    break;
+      }
+#endif
 
       if ((flags & STM32_DMA_ISR_TCIF) != 0) {
         /* Transfer complete processing.*/
