@@ -63,6 +63,7 @@
       <board name="tawaki_.*"/>
       <board name="crazybee_f4_.*"/>
       <board name="crazyflie_.*"/>
+      <board name="nucleo.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -79,6 +80,7 @@
       <board name="tawaki_.*"/>
       <board name="crazybee_f4_.*"/>
       <board name="crazyflie_.*"/>
+      <board name="nucleo.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -100,6 +102,7 @@
       <board name="tawaki_.*"/>
       <board name="vms_ecu_.*"/>
       <board name="crazyflie_.*"/>
+      <board name="nucleo.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
