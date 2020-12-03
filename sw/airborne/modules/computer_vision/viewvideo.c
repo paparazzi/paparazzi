@@ -269,7 +269,7 @@ void viewvideo_init(void)
 
 #ifdef VIEWVIDEO_CAMERA2
   cv_add_to_device_async(&VIEWVIDEO_CAMERA2, viewvideo_function2,
-                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS, 0);
+                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS, 1);
   fprintf(stderr, "[viewvideo] Added asynchronous video streamer listener for CAMERA2 at %u FPS \n", VIEWVIDEO_FPS);
 #endif
 }
