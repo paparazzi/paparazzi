@@ -55,8 +55,8 @@
 #define EXHAUSTIVE_FAST 0
 #define ACT_FAST 1
 // TODO: these are now adapted, but perhaps later could be a setting:
-uint16_t n_time_steps = 10;
-uint16_t n_agents = 25;
+uint16_t n_time_steps[2] = {10, 10};
+uint16_t n_agents[2] = {25, 25};
 
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
@@ -492,6 +492,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 {
 //  PRINT("start fast9 camera: %s\n", opticflow->camera->dev_name);
   if (opticflow->just_switched_method) {
+    PRINT("just switched, cam %d\n", opticflow->id);
     // Create the image buffers
     image_create(&opticflow->img_gray, img->w, img->h, IMAGE_GRAYSCALE);
     image_create(&opticflow->prev_img_gray, img->w, img->h, IMAGE_GRAYSCALE);
@@ -546,7 +547,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     } else if (opticflow->corner_method == ACT_FAST) {
       // ACT-FAST corner detection:
       act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
-               &opticflow->fast9_ret_corners, n_agents, n_time_steps,
+               &opticflow->fast9_ret_corners, n_agents[opticflow->id], n_time_steps[opticflow->id],
                opticflow->actfast_long_step, opticflow->actfast_short_step, opticflow->actfast_min_gradient,
                opticflow->actfast_gradient_method, opticflow->id);
     }
@@ -562,9 +563,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
           opticflow->fast9_threshold--;
         }
 
-        if (opticflow->corner_method == ACT_FAST && n_agents < opticflow->fast9_rsize) {
-          n_time_steps++;
-          n_agents++;
+        if (opticflow->corner_method == ACT_FAST && n_agents[opticflow->id] < opticflow->fast9_rsize) {
+          n_time_steps[opticflow->id]++;
+          n_agents[opticflow->id]++;
         }
 
       } else if (result->corner_cnt > opticflow->max_track_corners * 2) {
@@ -573,9 +574,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
           opticflow->fast9_threshold++;
         }
 
-        if (opticflow->corner_method == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
-          n_time_steps--;
-          n_agents--;
+        if (opticflow->corner_method == ACT_FAST && n_time_steps[opticflow->id] > 5 && n_agents[opticflow->id] > 10) {
+          n_time_steps[opticflow->id]--;
+          n_agents[opticflow->id]--;
         }
       }
     }
@@ -587,10 +588,12 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   // Check if we found some corners to track
   if (result->corner_cnt < 1) {
+    PRINT("too few corners camera %d\n", opticflow->id);
     // Clear the result otherwise the previous values will be returned for this frame too
     VECT3_ASSIGN(result->vel_cam, 0, 0, 0);
     VECT3_ASSIGN(result->vel_body, 0, 0, 0);
-    result->div_size = 0; result->divergence = 0;
+    result->div_size = 0;
+    result->divergence = 0;
     result->noise_measurement = 5.0;
 
     image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
@@ -653,9 +656,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     free(back_vectors);
   }
 
-//  PRINT("camera %s, show_flow %d\n", opticflow->camera->dev_name, opticflow->show_flow);
+//  PRINT("camera %d, show_flow %d\n", opticflow->id, opticflow->show_flow);
   if (opticflow->show_flow) {
-    PRINT("drawing %d points, camera: %s\n", result->tracked_cnt, opticflow->camera->dev_name);
+    PRINT("drawing %d points, camera: %d\n", result->tracked_cnt, opticflow->id);
     uint8_t color[4] = {0, 0, 0, 0};
     uint8_t bad_color[4] = {0, 0, 0, 0};
     image_show_flow_color(img, vectors, result->tracked_cnt, opticflow->subpixel_factor, color, bad_color);
@@ -1008,7 +1011,7 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
 bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        struct opticflow_result_t *result)
 {
-  PRINT("edge start camera %s\n", opticflow->camera->dev_name);
+  PRINT("edge start camera %d\n", opticflow->id);
   // Define Static Variables
   static struct edge_hist_t edge_hist[MAX_HORIZON];
   static uint8_t current_frame_nr = 0;
@@ -1174,10 +1177,10 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
   bool flow_successful = false;
   // A switch counter that checks in the loop if the current method is similar,
   // to the previous (for reinitializing structs)
-  static int8_t switch_counter = -1;
-  if (switch_counter != opticflow->method) {
+  static int8_t switch_counter[2] = {-1, -1};
+  if (switch_counter[opticflow->id] != opticflow->method) {
     opticflow->just_switched_method = true;
-    switch_counter = opticflow->method;
+    switch_counter[opticflow->id] = opticflow->method;
     // Clear the static result
     memset(result, 0, sizeof(struct opticflow_result_t));
   } else {
