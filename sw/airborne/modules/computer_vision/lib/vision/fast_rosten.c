@@ -32,9 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdlib.h>
-//#include <stdio.h>
 #include "fast_rosten.h"
-//#define PRINT(string,...) fprintf(stderr, "[fast_rosten->%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
 
 static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel_size);
 

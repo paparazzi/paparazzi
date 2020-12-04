@@ -22,14 +22,11 @@ All rights reserved.
  * de Croon, G.C.H.E. "ACT-FAST: efficiently finding corners by actively exploring images.", in submission.
  *
  */
-//#include <stdio.h>
 #include "fast_rosten.h"
 #include "act_fast.h"
 #include "math.h"
 #include "image.h"
 #include "../../opticflow/opticflow_calculator.h"
-
-//#define PRINT(string,...) fprintf(stderr, "[act_fast>%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
 
 // ACT-FAST agents arrays
 // equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c

@@ -374,8 +374,6 @@ PRINT_CONFIG_VAR(OPTICFLOW_TRACK_BACK_CAMERA2)
 PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW)
 PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW_CAMERA2)
 
-#define PRINT(string,...) fprintf(stderr, "[opticflow_module->%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
-
 
 //Include median filter
 #include "filters/median_filter.h"
@@ -490,9 +488,7 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
 bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                              struct opticflow_result_t *result)
 {
-//  PRINT("start fast9 camera: %s\n", opticflow->camera->dev_name);
   if (opticflow->just_switched_method) {
-    PRINT("just switched, cam %d\n", opticflow->id);
     // Create the image buffers
     image_create(&opticflow->img_gray, img->w, img->h, IMAGE_GRAYSCALE);
     image_create(&opticflow->prev_img_gray, img->w, img->h, IMAGE_GRAYSCALE);
@@ -536,7 +532,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   } else if (!opticflow->feature_management) {
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
-//    PRINT("camera name: %s\n", opticflow->camera->dev_name);
     if (opticflow->corner_method == EXHAUSTIVE_FAST) {
       // FAST corner detection
       // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
@@ -588,7 +583,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   // Check if we found some corners to track
   if (result->corner_cnt < 1) {
-    PRINT("too few corners camera %d\n", opticflow->id);
     // Clear the result otherwise the previous values will be returned for this frame too
     VECT3_ASSIGN(result->vel_cam, 0, 0, 0);
     VECT3_ASSIGN(result->vel_body, 0, 0, 0);
@@ -606,7 +600,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   // Execute a Lucas Kanade optical flow
   result->tracked_cnt = result->corner_cnt;
-//  PRINT("res cnt %d\n", result->tracked_cnt);
   uint8_t keep_bad_points = 0;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, opticflow->fast9_ret_corners,
                                        &result->tracked_cnt,
@@ -656,9 +649,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     free(back_vectors);
   }
 
-//  PRINT("camera %d, show_flow %d\n", opticflow->id, opticflow->show_flow);
   if (opticflow->show_flow) {
-    PRINT("drawing %d points, camera: %d\n", result->tracked_cnt, opticflow->id);
     uint8_t color[4] = {0, 0, 0, 0};
     uint8_t bad_color[4] = {0, 0, 0, 0};
     image_show_flow_color(img, vectors, result->tracked_cnt, opticflow->subpixel_factor, color, bad_color);
@@ -816,7 +807,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   }
   free(vectors);
   image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
-//  PRINT("end fast9 camera: %s\n", opticflow->camera->dev_name);
   return true;
 }
 
@@ -1011,7 +1001,6 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
 bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        struct opticflow_result_t *result)
 {
-  PRINT("edge start camera %d\n", opticflow->id);
   // Define Static Variables
   static struct edge_hist_t edge_hist[MAX_HORIZON];
   static uint8_t current_frame_nr = 0;

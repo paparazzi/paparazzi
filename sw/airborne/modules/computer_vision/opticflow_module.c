@@ -60,7 +60,6 @@ PRINT_CONFIG_VAR(OPTICFLOW_FPS_CAMERA2)
 #else
 #define ACTIVE_CAMERAS 1
 #endif
-//#define PRINT(string,...) fprintf(stderr, "[opticflow_module->%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow[ACTIVE_CAMERAS];                         ///< Opticflow calculations
