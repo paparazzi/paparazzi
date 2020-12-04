@@ -29,23 +29,32 @@
     <module name="bebop_cam"/>
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
-      <define name="MAX_HORIZON" value="10"/>
-      <define name="OPTICFLOW_MAX_TRACK_CORNERS" value="10"/>
-      <define name="OPTICFLOW_SUBPIXEL_FACTOR" value = "200"/> <!-- due to high framerate of the bebop bottom camera, a high subpixel factor is needed-->
-      <define name="OPTICFLOW_CORNER_METHOD" value="0"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit-->
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
-      <define name="MAX_TRACK_CORNERS" value="10"/>
+      <define name="OPTICFLOW_MAX_TRACK_CORNERS" value="10"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="0"/>
+      <define name="OPTICFLOW_FPS" value="5"/>
+      <define name="OPTICFLOW_SHOW_FLOW" value="1"/>
+
+      <define name="OPTICFLOW_CAMERA2" value="front_camera"/>
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="0.8"/> <!--Obtained from a linefit-->
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="0.85"/> <!--Obtained from a linefit-->
+      <define name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="10"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_FPS_CAMERA2" value="5"/>
+      <define name="OPTICFLOW_SHOW_FLOW_CAMERA2" value="1"/>
     </module>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
+      <define name="VIDEO_CAPTURE_FPS" value="5"/>
     </module>
 
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_CAMERA2" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
   </firmware>
