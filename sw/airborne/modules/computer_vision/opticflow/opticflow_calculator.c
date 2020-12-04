@@ -434,13 +434,12 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
   opticflow[0].actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD;
 
   opticflow[0].camera = &OPTICFLOW_CAMERA;
-  PRINT("initialize camera 0");
+  opticflow[0].id = 0;
   // TODO Currently applies the same rotation to both cameras
   struct FloatEulers euler = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
   float_rmat_of_eulers(&body_to_cam, &euler);
 
 #ifdef OPTICFLOW_CAMERA2
-  PRINT("initialize camera 1");
   opticflow[1].method = OPTICFLOW_METHOD_CAMERA2; //0 = LK_fast9, 1 = Edgeflow
   opticflow[1].window_size = OPTICFLOW_WINDOW_SIZE_CAMERA2;
   opticflow[1].search_distance = OPTICFLOW_SEARCH_DISTANCE_CAMERA2;
@@ -467,7 +466,7 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
   opticflow[1].fast9_threshold = OPTICFLOW_FAST9_THRESHOLD_CAMERA2;
   opticflow[1].fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2;
   opticflow[1].fast9_padding = OPTICFLOW_FAST9_PADDING_CAMERA2;
-  opticflow[1].fast9_rsize = FAST9_MAX_CORNERS_CAMERA2;
+  opticflow[1].fast9_rsize = FAST9_MAX_CORNERS;
   opticflow[1].fast9_ret_corners = calloc(opticflow[0].fast9_rsize, sizeof(struct point_t));
 
   opticflow[1].corner_method = OPTICFLOW_CORNER_METHOD_CAMERA2;
@@ -477,6 +476,7 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
   opticflow[1].actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2;
 
   opticflow[1].camera = &OPTICFLOW_CAMERA2;
+  opticflow[1].id = 1;
 #endif
 }
 /**
@@ -490,7 +490,7 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
 bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                              struct opticflow_result_t *result)
 {
-  PRINT("test6213\n");
+//  PRINT("start fast9 camera: %s\n", opticflow->camera->dev_name);
   if (opticflow->just_switched_method) {
     // Create the image buffers
     image_create(&opticflow->img_gray, img->w, img->h, IMAGE_GRAYSCALE);
@@ -535,24 +535,20 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   } else if (!opticflow->feature_management) {
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
-
+//    PRINT("camera name: %s\n", opticflow->camera->dev_name);
     if (opticflow->corner_method == EXHAUSTIVE_FAST) {
       // FAST corner detection
       // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
       // to 0 (see defines), however a more permanent solution should be considered
-      PRINT("here\n");
       fast9_detect(&opticflow->prev_img_gray, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                   opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
-                   &opticflow->fast9_rsize,
-                   &opticflow->fast9_ret_corners,
-                   NULL);
-      PRINT("here2\n");
+                   opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt, &opticflow->fast9_rsize,
+                   &opticflow->fast9_ret_corners, NULL);
     } else if (opticflow->corner_method == ACT_FAST) {
       // ACT-FAST corner detection:
       act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
                &opticflow->fast9_ret_corners, n_agents, n_time_steps,
                opticflow->actfast_long_step, opticflow->actfast_short_step, opticflow->actfast_min_gradient,
-               opticflow->actfast_gradient_method);
+               opticflow->actfast_gradient_method, opticflow->id);
     }
 
     // Adaptive threshold
@@ -607,7 +603,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   // Execute a Lucas Kanade optical flow
   result->tracked_cnt = result->corner_cnt;
-  PRINT("res cnt %d\n", result->tracked_cnt);
+//  PRINT("res cnt %d\n", result->tracked_cnt);
   uint8_t keep_bad_points = 0;
   struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, opticflow->fast9_ret_corners,
                                        &result->tracked_cnt,
@@ -657,7 +653,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     free(back_vectors);
   }
 
+//  PRINT("camera %s, show_flow %d\n", opticflow->camera->dev_name, opticflow->show_flow);
   if (opticflow->show_flow) {
+    PRINT("drawing %d points, camera: %s\n", result->tracked_cnt, opticflow->camera->dev_name);
     uint8_t color[4] = {0, 0, 0, 0};
     uint8_t bad_color[4] = {0, 0, 0, 0};
     image_show_flow_color(img, vectors, result->tracked_cnt, opticflow->subpixel_factor, color, bad_color);
@@ -813,11 +811,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       opticflow->fast9_ret_corners[i].count = vectors[i].pos.count;
     }
   }
-  PRINT("free\n");
   free(vectors);
-  PRINT("free end\n");
   image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
-  PRINT("test6213 end\n");
+//  PRINT("end fast9 camera: %s\n", opticflow->camera->dev_name);
   return true;
 }
 
@@ -897,7 +893,6 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
  */
 static void manage_flow_features(struct image_t *img, struct opticflow_t *opticflow, struct opticflow_result_t *result)
 {
-  PRINT("test847\n");
   // first check if corners have not moved too close together due to flow:
   int16_t c1 = 0;
   while (c1 < (int16_t)result->corner_cnt - 1) {
@@ -1000,7 +995,6 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
     }
     free(region_count);
   }
-  PRINT("test847 end\n");
 }
 
 /**
@@ -1014,7 +1008,7 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
 bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        struct opticflow_result_t *result)
 {
-  PRINT("test2365\n");
+  PRINT("edge start camera %s\n", opticflow->camera->dev_name);
   // Define Static Variables
   static struct edge_hist_t edge_hist[MAX_HORIZON];
   static uint8_t current_frame_nr = 0;
@@ -1025,7 +1019,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   struct edgeflow_displacement_t displacement;
   displacement.x = calloc(img->w, sizeof(int32_t));
   displacement.y = calloc(img->h, sizeof(int32_t));
-  PRINT("heeee\n");
   // If the methods just switched to this one, reintialize the
   // array of edge_hist structure.
   if (opticflow->just_switched_method == 1 && edge_hist[0].x == NULL) {
@@ -1036,7 +1029,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
       FLOAT_EULERS_ZERO(edge_hist[i].eulers);
     }
   }
-  PRINT("woooo\n");
   uint16_t disp_range;
   if (opticflow->search_distance < DISP_RANGE_MAX) {
     disp_range = opticflow->search_distance;
@@ -1078,7 +1070,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   //Calculate the corresponding derotation of the two frames
   int16_t der_shift_x = 0;
   int16_t der_shift_y = 0;
-  PRINT("woooo2\n");
   if (opticflow->derotation) {
     der_shift_x = (int16_t)((edge_hist[current_frame_nr].eulers.phi - edge_hist[previous_frame_nr[0]].eulers.phi) *
                             opticflow->camera->camera_intrinsics.focal_x * opticflow->derotation_correction_factor_x);
@@ -1127,7 +1118,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
   result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
   result->surface_roughness = 0.0f;
-  PRINT("woooo3\n");
   //......................Calculating VELOCITY ..................... //
 
   /*Estimate fps per direction
@@ -1159,17 +1149,14 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   }
 
   result->noise_measurement = 0.2;
-  PRINT("woooo4\n");
   if (opticflow->show_flow) {
     draw_edgeflow_img(img, edgeflow, prev_edge_histogram_x, edge_hist_x);
   }
   // Increment and wrap current time frame
   current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;
-  PRINT("pre frees\n");
   // Free alloc'd variables
   free(displacement.x);
   free(displacement.y);
-  PRINT("test2365 end\n");
   return true;
 }
 
@@ -1197,15 +1184,11 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
     opticflow->just_switched_method = false;
   }
 
-  if (result != NULL) {
-    // Switch between methods (0 = fast9/lukas-kanade, 1 = EdgeFlow)
-    if (opticflow->method == 0) {
-      flow_successful = calc_fast9_lukas_kanade(opticflow, img, result);
-    } else if (opticflow->method == 1) {
-      flow_successful = calc_edgeflow_tot(opticflow, img, result);
-    }
-  } else {
-    PRINT("result was NULL!!\n");
+  // Switch between methods (0 = fast9/lukas-kanade, 1 = EdgeFlow)
+  if (opticflow->method == 0) {
+    flow_successful = calc_fast9_lukas_kanade(opticflow, img, result);
+  } else if (opticflow->method == 1) {
+    flow_successful = calc_edgeflow_tot(opticflow, img, result);
   }
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot

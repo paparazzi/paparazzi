@@ -60,7 +60,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_FPS_CAMERA2)
 #else
 #define ACTIVE_CAMERAS 1
 #endif
-#define PRINT(string,...) fprintf(stderr, "[opticflow_module->%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
+//#define PRINT(string,...) fprintf(stderr, "[opticflow_module->%s()] \n" string,__FUNCTION__ , ##__VA_ARGS__)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow[ACTIVE_CAMERAS];                         ///< Opticflow calculations
@@ -173,11 +173,11 @@ struct image_t *opticflow_module_calc(struct image_t *img, uint8_t camera_id)
   img->eulers = pose.eulers;
 
   // Do the optical flow calculation
-  static struct opticflow_result_t temp_result; // static so that the number of corners is kept between frames
-  if(opticflow_calc_frame(&opticflow[camera_id], img, &temp_result)){
+  static struct opticflow_result_t temp_result[ACTIVE_CAMERAS]; // static so that the number of corners is kept between frames
+  if(opticflow_calc_frame(&opticflow[camera_id], img, &temp_result[camera_id])){
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
-    opticflow_result[camera_id] = temp_result;
+    opticflow_result[camera_id] = temp_result[camera_id];
     opticflow_got_result[camera_id] = true;
     pthread_mutex_unlock(&opticflow_mutex);
   }

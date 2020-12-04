@@ -80,10 +80,10 @@ struct opticflow_t {
   int actfast_gradient_method;    ///< Whether to use a simple or Sobel filter
 
   const struct video_config_t *camera;
+  int id;
 };
 
 #define FAST9_MAX_CORNERS 512
-#define FAST9_MAX_CORNERS_CAMERA2 512
 
 extern void opticflow_calc_init(struct opticflow_t opticflow[]);
 extern bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
