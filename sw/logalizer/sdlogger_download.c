@@ -16,6 +16,13 @@
 #include <endian.h>
 #endif
 
+#define PRINT(string,...) fprintf(stderr, "[sdlogger_download->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#ifdef DEBUG
+#define DEBUG_PRINT PRINT
+#else
+#define DEBUG_PRINT(...)
+#endif
+
 #define PPRZ_STX 0x99
 
 /* File pointer for temp.tlm */
@@ -330,12 +337,12 @@ void write_command(float value)
 */
 void parse_single_byte(unsigned char byte)
 {
-//  printf("parser.state %d\n", parser.state);
+  DEBUG_PRINT("parser.state %d\n", parser.state);
   switch (parser.state) {
 
     case SearchingPPRZ_STX:
       if (byte == PPRZ_STX) {
-//        printf("Got PPRZ_STX\n");
+        DEBUG_PRINT("Got PPRZ_STX\n");
         parser.crc_a = 0;
         parser.crc_b = 0;
         parser.counter = 1;
@@ -387,7 +394,7 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCA:
-//      printf("CRCA: %d vs %d\n", byte, parser.crc_a);
+      DEBUG_PRINT("CRCA: %d vs %d\n", byte, parser.crc_a);
       if (byte == parser.crc_a) {
         parser.state = CheckingCRCB;
       }
@@ -397,17 +404,17 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCB:
-//      printf("CRCB: %d vs %d\n", byte, parser.crc_b);
+      DEBUG_PRINT("CRCB: %d vs %d\n", byte, parser.crc_b);
       if (byte == parser.crc_b && parser.msg_id == 31) {
-//        printf("MSG ID: %d \t"
-//               "SENDER_ID: %d\t"
-//               "LEN: %d\t"
-//               "SETTING: %d\n",
-//               parser.msg_id,
-//               parser.sender_id,
-//               parser.length,
-//               parser.payload[0]);
-//        printf("Request confirmed\n");
+        DEBUG_PRINT("MSG ID: %d \t"
+               "SENDER_ID: %d\t"
+               "LEN: %d\t"
+               "SETTING: %d\n",
+               parser.msg_id,
+               parser.sender_id,
+               parser.length,
+               parser.payload[0]);
+        DEBUG_PRINT("Request confirmed\n");
 
         /* Check what to do next if the command was received */
         if (global_state == WaitingForIndexRequestConfirmation
@@ -434,7 +441,7 @@ void parse_single_byte(unsigned char byte)
 
 void parse_index_byte(unsigned char byte)
 {
-//  printf("parse_index_byte %d/512: %x\n", index_cnt, byte);
+  DEBUG_PRINT("parse_index_byte %d/512: %x\n", index_cnt, byte);
   unsigned char *pc;
   pc = (unsigned char*)&log_index;
   pc[index_cnt] = byte;
@@ -458,7 +465,7 @@ void parse_download_byte(unsigned char byte)
 {
   static long long dcnt = 0;
   dcnt++;
-  //printf("Got \t (%d) \t 0x%02x\n", dcnt, byte);
+  DEBUG_PRINT("Got \t (%lld) \t 0x%02x\n", dcnt, byte);
   fputc(byte, fp);
 
   /* Show progress */
