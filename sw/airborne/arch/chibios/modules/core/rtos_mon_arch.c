@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ *               2020 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi
  *
@@ -36,10 +37,119 @@ static uint32_t idle_counter, last_idle_counter;
 
 static uint16_t get_stack_free(const thread_t *tp);
 
+#if USE_SHELL
+#include "modules/core/shell.h"
+#include "printf.h"
+#include "string.h"
+#define MAX_CPU_INFO_ENTRIES 20
+
+typedef struct _ThreadCpuInfo {
+  float    ticks[MAX_CPU_INFO_ENTRIES];
+  float    cpu[MAX_CPU_INFO_ENTRIES];
+  float    totalTicks;
+} ThreadCpuInfo ;
+
+
+static void stampThreadCpuInfo (ThreadCpuInfo *ti)
+{
+  const thread_t *tp =  chRegFirstThread();
+  uint32_t idx=0;
+  float totalTicks =0;
+  do {
+    totalTicks+= (float) tp->time;
+    ti->cpu[idx] = (float) tp->time - ti->ticks[idx];;
+    ti->ticks[idx] = (float) tp->time;
+    tp = chRegNextThread ((thread_t *)tp);
+    idx++;
+  } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
+
+  const float diffTotal = totalTicks- ti->totalTicks;
+  ti->totalTicks = totalTicks;
+  tp =  chRegFirstThread();
+  idx=0;
+  do {
+    ti->cpu[idx] =  (ti->cpu[idx]*100.f)/diffTotal;
+    tp = chRegNextThread ((thread_t *)tp);
+    idx++;
+  } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
+}
+
+static float stampThreadGetCpuPercent (const ThreadCpuInfo *ti, const uint32_t idx)
+{
+  if (idx >= MAX_CPU_INFO_ENTRIES)
+    return -1.f;
+  return ti->cpu[idx];
+}
+
+static void cmd_threads(shell_stream_t *lchp, int argc,const char* const argv[]) {
+  static const char *states[] = {CH_STATE_NAMES};
+  thread_t *tp = chRegFirstThread();
+  (void)argv;
+  (void)argc;
+  float totalTicks=0;
+  float idleTicks=0;
+
+  static ThreadCpuInfo threadCpuInfo = {
+    .ticks = {[0 ... MAX_CPU_INFO_ENTRIES-1] = 0.f},
+    .cpu =   {[0 ... MAX_CPU_INFO_ENTRIES-1] =-1.f},
+    .totalTicks = 0.f
+  };
+  stampThreadCpuInfo (&threadCpuInfo);
+
+  chprintf (lchp, "    addr    stack  frestk prio refs  state        time \t percent        name\r\n");
+  uint32_t idx=0;
+  do {
+    chprintf (lchp, "%.8lx %.8lx %6lu %4lu %4lu %9s %9lu   %.1f    \t%s\r\n",
+        (uint32_t)tp, (uint32_t)tp->ctx.sp,
+        get_stack_free (tp),
+        (uint32_t)tp->prio, (uint32_t)(tp->refs - 1),
+        states[tp->state], (uint32_t)tp->time,
+        stampThreadGetCpuPercent (&threadCpuInfo, idx),
+        chRegGetThreadNameX(tp));
+    totalTicks+= (float) tp->time;
+    if (strcmp (chRegGetThreadNameX(tp), "idle") == 0)
+      idleTicks =  (float) tp->time;
+    tp = chRegNextThread ((thread_t *)tp);
+    idx++;
+  } while (tp != NULL);
+  const float idlePercent = (idleTicks*100.f)/totalTicks;
+  const float cpuPercent = 100.f - idlePercent;
+  chprintf (lchp, "\r\ncpu load = %.2f%%\r\n", cpuPercent);
+}
+
+static void cmd_rtos_mon(shell_stream_t *sh, int argc, const char * const argv[])
+{
+  (void) argv;
+  if (argc > 0) {
+    chprintf(sh, "Usage: rtos_mon\r\n");
+    return;
+  }
+
+  chprintf(sh, "Data reported in the RTOS_MON message:\r\n");
+  chprintf(sh, " core free mem: %u\r\n", rtos_mon.core_free_memory);
+  chprintf(sh, " heap free mem: %u\r\n", rtos_mon.heap_free_memory);
+  chprintf(sh, " heap fragments: %u\r\n", rtos_mon.heap_fragments);
+  chprintf(sh, " heap largest: %u\r\n", rtos_mon.heap_largest);
+  chprintf(sh, " CPU load: %d \%\r\n", rtos_mon.cpu_load);
+  chprintf(sh, " number of threads: %d\r\n", rtos_mon.thread_counter);
+  chprintf(sh, " thread names: %s\r\n", rtos_mon.thread_names);
+  for (int i = 0; i < rtos_mon.thread_counter; i++) {
+    chprintf(sh, " thread %d load: %0.1f, free stack: %d\r\n", i,
+        (float)rtos_mon.thread_load[i] / 10.f, rtos_mon.thread_free_stack[i]);
+  }
+  chprintf(sh, " CPU time: %.2f\r\n", rtos_mon.cpu_time);
+}
+#endif
+
 void rtos_mon_init_arch(void)
 {
   idle_counter = 0;
   last_idle_counter = 0;
+
+#if USE_SHELL
+  shell_add_entry("rtos_mon", cmd_rtos_mon);
+  shell_add_entry("threads", cmd_threads);
+#endif
 }
 
 // Fill data structure
@@ -85,15 +195,15 @@ void rtos_mon_periodic_arch(void)
     rtos_mon.thread_counter++;
   } while (tp != NULL && rtos_mon.thread_counter < RTOS_MON_MAX_THREADS);
 
-  // store individual thread load (as centi-percent integer)
+  // store individual thread load (as centi-percent integer, i.e. (th_time/sum)*10*100)
   for (i = 0; i < rtos_mon.thread_counter; i ++) {
-    rtos_mon.thread_load[i] = (uint16_t)(10000.f * (float)thread_p_time[i] / sum);
+    rtos_mon.thread_load[i] = (uint16_t)(1000.f * (float)thread_p_time[i] / sum);
   }
 
   // assume we call the counter once a second
   // so the difference in seconds is always one
   // NOTE: not perfectly precise, +-5% on average so take it into consideration
-  rtos_mon.cpu_load = (1 - (float)(idle_counter - last_idle_counter) / CH_CFG_ST_FREQUENCY) * 100;
+  rtos_mon.cpu_load = (uint8_t)((1.f - ((float)idle_counter / sum)) * 100.f);
   last_idle_counter = idle_counter;
 }
 
