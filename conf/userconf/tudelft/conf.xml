@@ -298,6 +298,17 @@
    release="c11f888de1eba08d751f1ff0b03bf4a5bec8e8fa"
   />
   <aircraft
+   name="Neddrone4"
+   ac_id="14"
+   airframe="airframes/tudelft/neddrone4.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/ins_ekf2.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml modules/sys_id_chirp.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="Quadplane"
    ac_id="222"
    airframe="airframes/tudelft/aa_quadplane.xml"
