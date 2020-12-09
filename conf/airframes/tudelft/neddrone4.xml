@@ -2,7 +2,7 @@
 
 <!-- This is a Nedderdrone
      * Autopilot:   Pixhawk 4
-     * Actuators:   12x T-Moter ESC + Motors and 8x Servos (all CAN)
+     * Actuators:   12x T-Motor ESC + Motors and 8x Servos (all CAN)
      * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
@@ -28,6 +28,7 @@
         <define name="AIRSPEED_ETS_SCALE" value="1.24"/>
       </module>
 
+      <!-- TODO: add this module -->
       <!--module name="scheduling_indi_simple"/-->
 
       <!-- Forward FuelCell data back to the GCS -->
@@ -38,9 +39,6 @@
       <module name="pprzlog"/>
       <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
-
-      <!-- WINDTUNNEL -->
-      <!--<module name="ctrl_windtunnel"/>-->
 
       <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
 
@@ -70,18 +68,6 @@
       <define name="RADIO_KILL_SWITCH" value="6"/>
       <define name="RADIO_BACK_THOLD"  value="0"/>
     </target>
-
-    <module name="sys_id_chirp">
-      <define name="CHIRP_AXES"        value="{0,1,2,3,4,5,6,7}"/>
-      <define name="CHIRP_ENABLED"     value="FALSE"/>
-      <define name="CHIRP_USE_NOISE"   value="FALSE"/>
-      <define name="CHIRP_EXPONENTIAL" value="FALSE"/>
-      <define name="CHIRP_FADEIN"      value="TRUE"/>
-    </module>
-
-    <!--module name="fbw_settings"/-->
-
-    <!--module name="flap_wiggle"/-->
 
     <module name="telemetry"     type="transparent">
       <configure name="MODEM_BAUD" value="B115200"/>
@@ -201,43 +187,29 @@
   <command_laws>
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <let var="th_hold"     value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-    <let var="fwd_hold"    value="RadioControlValues(RADIO_FMODE)> 4800"/>
-    <let var="back_hold1"   value="RadioControlValues(RADIO_BACK_THOLD) > -4800"/>
-    <let var="back_hold2"   value="RadioControlValues(RADIO_BACK_THOLD) > 4800"/>
-
-    <let var="motor_2_s"   value="((LessThan(actuators[SERVO_MOTOR_2_IDX], 1) || $th_hold)? -9600 : ((actuators[SERVO_MOTOR_2_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_3_s"   value="((LessThan(actuators[SERVO_MOTOR_3_IDX], 1) || $th_hold)? -9600 : ((actuators[SERVO_MOTOR_3_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_4_s"   value="((LessThan(actuators[SERVO_MOTOR_4_IDX], 1) || $th_hold)? -9600 : ((actuators[SERVO_MOTOR_4_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_5_s"   value="((LessThan(actuators[SERVO_MOTOR_5_IDX], 1) || $th_hold)? -9600 : ((actuators[SERVO_MOTOR_5_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_8_s"   value="((LessThan(actuators[SERVO_MOTOR_8_IDX], 1) || $th_hold || $back_hold2)? -9600 : ((actuators[SERVO_MOTOR_8_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_9_s"   value="((LessThan(actuators[SERVO_MOTOR_9_IDX], 1) || $th_hold || $back_hold1)? -9600 : ((actuators[SERVO_MOTOR_9_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_10_s"  value="((LessThan(actuators[SERVO_MOTOR_10_IDX], 1) || $th_hold || $back_hold1)? -9600 : ((actuators[SERVO_MOTOR_10_IDX]-1500)*9600/6691-2))"/>
-    <let var="motor_11_s"  value="((LessThan(actuators[SERVO_MOTOR_11_IDX], 1) || $th_hold || $back_hold2)? -9600 : ((actuators[SERVO_MOTOR_11_IDX]-1500)*9600/6691-2))"/>
 
     <set servo="MOTOR_1"   value="($th_hold? -9600 : motor_mixing.commands[0])"/> 
-    <set servo="MOTOR_2"   value="(($th_hold || $fwd_hold)? $motor_2_s : motor_mixing.commands[1])"/>
-    <set servo="MOTOR_3"   value="(($th_hold || $fwd_hold)? $motor_3_s : motor_mixing.commands[2])"/>
-    <set servo="MOTOR_4"   value="(($th_hold || $fwd_hold)? $motor_4_s : motor_mixing.commands[3])"/>
-    <set servo="MOTOR_5"   value="(($th_hold || $fwd_hold)? $motor_5_s : motor_mixing.commands[4])"/>
+    <set servo="MOTOR_2"   value="($th_hold? -9600 : motor_mixing.commands[1])"/>
+    <set servo="MOTOR_3"   value="($th_hold? -9600 : motor_mixing.commands[2])"/>
+    <set servo="MOTOR_4"   value="($th_hold? -9600 : motor_mixing.commands[3])"/>
+    <set servo="MOTOR_5"   value="($th_hold? -9600 : motor_mixing.commands[4])"/>
     <set servo="MOTOR_6"   value="($th_hold? -9600 : motor_mixing.commands[5])"/>
     <set servo="MOTOR_7"   value="($th_hold? -9600 : motor_mixing.commands[6])"/>
-    <set servo="MOTOR_8"   value="(($th_hold || $fwd_hold || $back_hold2)? $motor_8_s : motor_mixing.commands[7])"/>
-    <set servo="MOTOR_9"   value="(($th_hold || $fwd_hold || $back_hold1)? $motor_9_s : motor_mixing.commands[8])"/>
-    <set servo="MOTOR_10"  value="(($th_hold || $fwd_hold || $back_hold1)? $motor_10_s : motor_mixing.commands[9])"/>
-    <set servo="MOTOR_11"  value="(($th_hold || $fwd_hold || $back_hold2)? $motor_11_s : motor_mixing.commands[10])"/>
+    <set servo="MOTOR_8"   value="($th_hold? -9600 : motor_mixing.commands[7])"/>
+    <set servo="MOTOR_9"   value="($th_hold? -9600 : motor_mixing.commands[8])"/>
+    <set servo="MOTOR_10"  value="($th_hold? -9600 : motor_mixing.commands[9])"/>
+    <set servo="MOTOR_11"  value="($th_hold? -9600 : motor_mixing.commands[10])"/>
     <set servo="MOTOR_12"  value="($th_hold? -9600 : motor_mixing.commands[11])"/>
 
-    <call fun="int16_vect_zero(actuators_pprz,8)"/>
-    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
-    <!-- Removed ApplyDiff -->
-    <set servo="AIL_1"     value="-2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[0]"/>
-    <set servo="AIL_2"     value="-2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[1]"/>
-    <set servo="AIL_3"     value=" 2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[2]"/>
-    <set servo="AIL_4"     value=" 2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[3]"/>
-    <set servo="FLAP_1"    value="-2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[4]"/>
-    <set servo="FLAP_2"    value="-2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[5]"/>
-    <set servo="FLAP_3"    value=" 2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[6]"/>
-    <set servo="FLAP_4"    value=" 2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS) + actuators_pprz[7]"/>
+    <!-- Removed ApplyDiff for differential control -->
+    <set servo="AIL_1"     value="-2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="AIL_2"     value="-2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="AIL_3"     value=" 2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="AIL_4"     value=" 2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="FLAP_1"    value="-2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="FLAP_2"    value="-2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="FLAP_3"    value=" 2*@PITCH + (- 2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
+    <set servo="FLAP_4"    value=" 2*@PITCH + (  2*@YAW) + RadioControlValues(RADIO_FLAPS)"/>
   </command_laws>
 
   <section name="MISC">
