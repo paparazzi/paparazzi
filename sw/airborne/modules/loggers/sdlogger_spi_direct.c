@@ -58,8 +58,8 @@
 #error "You need to use a telemetry xml file with Logger process!"
 #endif
 
-#ifndef DOWNLINK_DEVICE
-#warning This module can only be used with uart downlink for now.
+#ifndef SDLOGGER_DOWNLINK_DEVICE
+#error No downlink device defined for SD Logger
 #endif
 
 struct sdlogger_spi_periph sdlogger_spi;
@@ -190,12 +190,12 @@ void sdlogger_spi_direct_periodic(void)
     case SDLogger_Downloading:
       if (sdcard1.status == SDCard_Idle) {
         /* Put bytes to the buffer until all is written or buffer is full */
-        for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE; i++) {
-          long fd = 0;
-          if (uart_check_free_space(&(DOWNLINK_DEVICE), &fd, 1)) {
-            uart_put_byte(&(DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
-          }
-          else {
+        long fd = 0;
+        uint16_t chunk_size = 64;
+        for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE && chunk_size > 0; i++, chunk_size--) {
+          if ((SDLOGGER_DOWNLINK_DEVICE).device.check_free_space(&(SDLOGGER_DOWNLINK_DEVICE), &fd, 1)) {
+            (SDLOGGER_DOWNLINK_DEVICE).device.put_byte(&(SDLOGGER_DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
+          } else {
             /* No free space left, abort for-loop */
             break;
           }
@@ -203,6 +203,7 @@ void sdlogger_spi_direct_periodic(void)
         }
         /* Request next block if entire buffer was written to uart */
         if (sdlogger_spi.sdcard_buf_idx >= SD_BLOCK_SIZE) {
+          (SDLOGGER_DOWNLINK_DEVICE).device.send_message(&(SDLOGGER_DOWNLINK_DEVICE), fd);  // Flush buffers
           if (sdlogger_spi.download_length > 0) {
             sdcard_spi_read_block(&sdcard1, sdlogger_spi.download_address, NULL);
             sdlogger_spi.download_address++;

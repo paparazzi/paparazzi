@@ -16,6 +16,13 @@
 #include <endian.h>
 #endif
 
+#define PRINT(string,...) fprintf(stderr, "[sdlogger_download->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#ifdef DEBUG
+#define DEBUG_PRINT PRINT
+#else
+#define DEBUG_PRINT(...)
+#endif
+
 #define PPRZ_STX 0x99
 
 /* File pointer for temp.tlm */
@@ -55,6 +62,7 @@ enum normal_parser_states {
   SearchingPPRZ_STX,
   ParsingLength,
   ParsingSenderId,
+  SkippingTwoBytes,
   ParsingMsgId,
   ParsingMsgPayload,
   CheckingCRCA,
@@ -270,10 +278,10 @@ void close_port(void)
 
 void write_command(float value)
 {
-  unsigned char msg[12];
+  unsigned char msg[14];
   unsigned char crc_a = 0;
   unsigned char crc_b = 0;
-  unsigned char length = 12;
+  unsigned char length = 14;
   unsigned char *pc;
   pc = (unsigned char*)&value;
 
@@ -284,25 +292,31 @@ void write_command(float value)
   msg[2]  = 0; // Sender ID
   crc_a += 0; crc_b += crc_a;
 
-  msg[3]  = 4; // MSG_ID = SETTING
+  msg[3] = 0xFF; // Receiver ID (broadcast)
+  crc_a += 0xFF; crc_b += crc_a;
+
+  msg[4] = 0x02; // Class/Component
+  crc_a += 0x02; crc_b += crc_a;
+
+  msg[5]  = 4; // MSG_ID = SETTING
   crc_a += 4; crc_b += crc_a;
 
-  msg[4]  = setting; // setting index
+  msg[6]  = setting; // setting index
   crc_a += setting; crc_b += crc_a;
 
-  msg[5]  = ac_id; // AC_ID
+  msg[7]  = ac_id; // AC_ID
   crc_a += ac_id; crc_b += crc_a;
 
-  msg[6]  = pc[0]; // value
-  crc_a += msg[6]; crc_b += crc_a;
-  msg[7]  = pc[1]; // value
-  crc_a += msg[7]; crc_b += crc_a;
-  msg[8]  = pc[2]; // value
+  msg[8]  = pc[0]; // value
   crc_a += msg[8]; crc_b += crc_a;
-  msg[9]  = pc[3]; // value
+  msg[9]  = pc[1]; // value
   crc_a += msg[9]; crc_b += crc_a;
-  msg[10] = crc_a;
-  msg[11] = crc_b;
+  msg[10]  = pc[2]; // value
+  crc_a += msg[10]; crc_b += crc_a;
+  msg[11]  = pc[3]; // value
+  crc_a += msg[11]; crc_b += crc_a;
+  msg[12] = crc_a;
+  msg[13] = crc_b;
 
   if (write(fd, msg, length) != length) {
     fprintf(stderr, "write_command: could not write %d bytes", length);
@@ -323,11 +337,12 @@ void write_command(float value)
 */
 void parse_single_byte(unsigned char byte)
 {
+  DEBUG_PRINT("parser.state %d\n", parser.state);
   switch (parser.state) {
 
     case SearchingPPRZ_STX:
       if (byte == PPRZ_STX) {
-        //printf("Got PPRZ_STX\n");
+        DEBUG_PRINT("Got PPRZ_STX\n");
         parser.crc_a = 0;
         parser.crc_b = 0;
         parser.counter = 1;
@@ -348,7 +363,16 @@ void parse_single_byte(unsigned char byte)
       parser.crc_a += byte;
       parser.crc_b += parser.crc_a;
       parser.counter++;
-      parser.state = ParsingMsgId;
+      parser.state = SkippingTwoBytes;
+      break;
+
+    case SkippingTwoBytes:
+      parser.crc_a += byte;
+      parser.crc_b += parser.crc_a;
+      parser.counter++;
+      if (parser.counter == 5) {
+        parser.state = ParsingMsgId;
+      }
       break;
 
     case ParsingMsgId:
@@ -360,7 +384,7 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case ParsingMsgPayload:
-      parser.payload[parser.counter-4] = byte;
+      parser.payload[parser.counter-6] = byte;
       parser.crc_a += byte;
       parser.crc_b += parser.crc_a;
       parser.counter++;
@@ -370,7 +394,7 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCA:
-      //printf("CRCA: %d vs %d\n", byte, parser.crc_a);
+      DEBUG_PRINT("CRCA: %d vs %d\n", byte, parser.crc_a);
       if (byte == parser.crc_a) {
         parser.state = CheckingCRCB;
       }
@@ -380,17 +404,17 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case CheckingCRCB:
-      //printf("CRCB: %d vs %d\n", byte, parser.crc_b);
+      DEBUG_PRINT("CRCB: %d vs %d\n", byte, parser.crc_b);
       if (byte == parser.crc_b && parser.msg_id == 31) {
-        /*printf("MSG ID: %d \t"
+        DEBUG_PRINT("MSG ID: %d \t"
                "SENDER_ID: %d\t"
                "LEN: %d\t"
                "SETTING: %d\n",
                parser.msg_id,
                parser.sender_id,
                parser.length,
-               parser.payload[0]);*/
-        //printf("Request confirmed\n");
+               parser.payload[0]);
+        DEBUG_PRINT("Request confirmed\n");
 
         /* Check what to do next if the command was received */
         if (global_state == WaitingForIndexRequestConfirmation
@@ -417,6 +441,7 @@ void parse_single_byte(unsigned char byte)
 
 void parse_index_byte(unsigned char byte)
 {
+  DEBUG_PRINT("parse_index_byte %d/512: %x\n", index_cnt, byte);
   unsigned char *pc;
   pc = (unsigned char*)&log_index;
   pc[index_cnt] = byte;
@@ -440,7 +465,7 @@ void parse_download_byte(unsigned char byte)
 {
   static long long dcnt = 0;
   dcnt++;
-  //printf("Got \t (%d) \t 0x%02x\n", dcnt, byte);
+  DEBUG_PRINT("Got \t (%lld) \t 0x%02x\n", dcnt, byte);
   fputc(byte, fp);
 
   /* Show progress */
