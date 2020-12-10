@@ -6,6 +6,9 @@ import os
 import sys
 from lxml import etree
 
+def printerr(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -29,7 +32,7 @@ class PaparazziACSettings:
         # extract aircraft node from conf.xml file
         ac_node = conf_tree.xpath('/conf/aircraft[@ac_id=%i]' % ac_id)
         if (len(ac_node) != 1):
-            print("Aircraft ID %i not found." % ac_id)
+            printerr("Aircraft ID %i not found." % ac_id)
             sys.exit(1)
 
         # save AC name for reference
@@ -39,7 +42,7 @@ class PaparazziACSettings:
         settings_xml_path = os.path.join(paparazzi_home, 'var/aircrafts/' + self.name + '/settings.xml')
 
         if not os.path.isfile(settings_xml_path):
-            print("Could not find %s, did you build it?" % settings_xml_path)
+            printerr("Could not find %s, did you build it?" % settings_xml_path)
             sys.exit(1)
 
         index = 0 # keep track of index/id of setting starting at 0
@@ -52,7 +55,7 @@ class PaparazziACSettings:
                 else:
                     setting_group_name = the_tab.attrib['name']
             except:
-                #print("Could not read name of settings group")
+                #printerr("Could not read name of settings group")
                 continue
 
             #print("parsing setting group:", setting_group_name)
@@ -71,7 +74,7 @@ class PaparazziACSettings:
                     else:
                         shortname = varname
                 except:
-                    print("Could not get name for setting in group", setting_group)
+                    printerr("Could not get name for setting in group", setting_group)
                     continue
 
                 settings = PaparazziSetting(shortname, varname)
@@ -93,14 +96,14 @@ class PaparazziACSettings:
                     else:
                         settings.step = float(the_setting.attrib['step'])
                 except:
-                    print("Could not get min/max/step for setting", name)
+                    printerr("Could not get min/max/step for setting", name)
                     continue
 
                 if 'values' in the_setting.attrib:
                     settings.values = the_setting.attrib['values'].split('|')
                     count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
                     if len(settings.values) != count:
-                        print("Warning: possibly wrong number of values (%i) for %s (expected %i)" % (len(settings.values), shortname, count))
+                        printerr("Warning: possibly wrong number of values (%i) for %s (expected %i)" % (len(settings.values), shortname, count))
 
                 setting_group.member_list.append(settings)
                 self.lookup.append(settings)
