@@ -88,6 +88,11 @@
 #define STALL_AIRSPEED  10.0
 #endif
 
+#if !defined(MINIMUM_AIRSPEED)
+#pragma message "MINIMUM_AIRSPEED not defined, 1.3 * STALL_SPEED will be used"
+#define MINIMUM_AIRSPEED (1.3f * STALL_AIRSPEED)
+#endif
+
 #endif
 
 #if !defined(IMU_MAG_X_SIGN)

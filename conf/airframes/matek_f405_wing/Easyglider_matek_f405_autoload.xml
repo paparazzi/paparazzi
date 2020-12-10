@@ -29,7 +29,7 @@
     <define name="USE_AHRS_GPS_ACCELERATIONS"/>
 
     <!-- load standard internal sensors, then custom modules -->
-    <module name="board_matek_wing">
+    <module name="board_matek_f405_wing">
       <define name="BMP280_SYNC_SEND"/>
     </module>
 

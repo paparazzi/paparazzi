@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="board_matek_wing" dir="boards">
+<module name="board_matek_f405_wing" dir="boards">
   <doc>
     <description>
       Autoload several onboard sensors and subsystems
