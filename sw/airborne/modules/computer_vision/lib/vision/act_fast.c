@@ -32,8 +32,7 @@ All rights reserved.
 // equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c
 // TODO Currently hardcoded to two cameras
 #define MAX_AGENTS FAST9_MAX_CORNERS
-struct agent_t agents_arr[MAX_AGENTS];
-struct agent_t *agents[2] = {agents_arr, agents_arr + FAST9_MAX_CORNERS / 2};
+struct agent_t agents[2][MAX_AGENTS];
 
 /**
  * Do an ACT-FAST corner detection.
@@ -60,7 +59,7 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
    */
 
   // ensure that n_agents is never bigger than max_agents
-  n_agents = (n_agents < MAX_AGENTS / 2) ? n_agents : MAX_AGENTS / 2;
+  n_agents = (n_agents < MAX_AGENTS) ? n_agents : MAX_AGENTS;
   // min_gradient should be bigger than 0:
   min_gradient = (min_gradient == 0) ? 1 : min_gradient;
 

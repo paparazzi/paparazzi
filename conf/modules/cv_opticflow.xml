@@ -66,9 +66,9 @@
       <!-- Camera 2 parameters -->
       <define name="DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="1.0" description="Correction factor for derotation (in x direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
       <define name="DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="1.0" description="Correction factor for derotation (in y direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
-      <configure name="BODY_TO_CAM_PHI" value="0" description="Rotation from body frame to camera frame around x axis"/>
-      <configure name="BODY_TO_CAM_THETA" value="0" description="Rotation from body frame to camera frame around y axis"/>
-      <configure name="BODY_TO_CAM_PSI" value="0" description="Rotation from body frame to camera frame around z axis"/>
+      <configure name="BODY_TO_CAM_PHI_CAMERA2" value="0" description="Rotation from body frame to camera frame around x axis"/>
+      <configure name="BODY_TO_CAM_THETA_CAMERA2" value="0" description="Rotation from body frame to camera frame around y axis"/>
+      <configure name="BODY_TO_CAM_PSI_CAMERA2" value="0" description="Rotation from body frame to camera frame around z axis"/>
 
       <!-- General optical flow calculation parameters for camera 2-->
       <define name="METHOD_CAMERA2" value="0" description="Method used to calculate optical flow"/>

@@ -378,7 +378,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW_CAMERA2)
 //Include median filter
 #include "filters/median_filter.h"
 struct MedianFilter3Float vel_filt;
-struct FloatRMat body_to_cam;
+struct FloatRMat body_to_cam[2];
 
 /* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
@@ -434,8 +434,8 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
   opticflow[0].camera = &OPTICFLOW_CAMERA;
   opticflow[0].id = 0;
   // TODO Currently applies the same rotation to both cameras
-  struct FloatEulers euler = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
-  float_rmat_of_eulers(&body_to_cam, &euler);
+  struct FloatEulers euler_cam1 = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
+  float_rmat_of_eulers(&body_to_cam[0], &euler_cam1);
 
 #ifdef OPTICFLOW_CAMERA2
   opticflow[1].method = OPTICFLOW_METHOD_CAMERA2; //0 = LK_fast9, 1 = Edgeflow
@@ -475,6 +475,10 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
 
   opticflow[1].camera = &OPTICFLOW_CAMERA2;
   opticflow[1].id = 1;
+
+  struct FloatEulers euler_cam2 = {OPTICFLOW_BODY_TO_CAM_PHI_CAMERA2, OPTICFLOW_BODY_TO_CAM_THETA_CAMERA2,
+      OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2};
+  float_rmat_of_eulers(&body_to_cam[1], &euler_cam2);
 #endif
 }
 /**
@@ -768,6 +772,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       }
     }
   }
+  result->camera_id = opticflow->id;
 
   // Velocity calculation
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
@@ -1109,6 +1114,7 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   result->divergence = -1.0 * (float)edgeflow.div_x /
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
   result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
+  result->camera_id = opticflow->id;
   result->surface_roughness = 0.0f;
   //......................Calculating VELOCITY ..................... //
 
@@ -1187,7 +1193,7 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
   * ARdrone and Bebop, however this can be different for other quadcopters
   * ALWAYS double check!
   */
-  float_rmat_transp_vmult(&result->vel_body, &body_to_cam, &result->vel_cam);
+  float_rmat_transp_vmult(&result->vel_body, &body_to_cam[opticflow->id], &result->vel_cam);
 
   return flow_successful;
 }
