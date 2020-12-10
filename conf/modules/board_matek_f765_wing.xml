@@ -1,0 +1,42 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_matek_f765_wing" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors and subsystems
+      for the Matek F765 Wing board with proper configuration.
+      IMU ICM20602 (auto-detected from MPU6000 driver)
+      Baro (BMP280)
+      OSD
+      Normal back of the board is on the battery/ESC wires
+      Normal up of the board is on MCU side.
+    </description>
+    <configure name="BOARD_MATEK_ROTATED" value="FALSE|TRUE" description="if TRUE, the board is not using is default orientation and axis can be redefined by hand"/>
+  </doc>
+  <autoload name="imu" type="mpu6000"/>
+  <autoload name="spi" type="master"/>
+  <autoload name="osd_max7456"/>
+  <autoload name="baro_bmp280_i2c"/>
+  <autoload name="current_sensor"/>
+
+  <makefile target="!sim|nps|fbw">
+    <!-- IMU CONFIGURATION -->
+    <configure name="IMU_MPU_SPI_DEV" value="spi3" case="upper|lower"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE4"/>
+    <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+    <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+    <define name="IMU_MPU_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_MATEK_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_MATEK_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_X_SIGN" value="-1" cond="ifeq (,$(findstring $(BOARD_MATEK_ROTATED),1 TRUE))"/>
+    <!-- BAROMETER BMP280 CONFIGURATION -->
+    <configure name="BMP280_I2C_DEV" value="i2c2"/>
+    <!-- OSD CONFIGURATION -->
+    <configure name="MAX7456_SPI_DEV" value="spi2"/>
+    <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE5"/>
+    <define name="USE_MATEK_TYPE_OSD_CHIP" value="true" />
+    <define name="USE_PAL_FOR_OSD_VIDEO" value="true" />
+    <define name="BARO_ALTITUDE_VAR" value="baro_alt" /> <!-- if non defined the default var is ''baro_alt'' -->
+    <!-- CURRENT SENSOR -->
+    <configure name="ADC_CURRENT_SENSOR" value="ADC_4"/>
+  </makefile>
+</module>
