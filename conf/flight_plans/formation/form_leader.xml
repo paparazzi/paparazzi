@@ -14,6 +14,10 @@
     <waypoint alt="210.0" name="AF" x="187.0" y="-2.8"/>
     <waypoint alt="185.0" name="RWAY" x="42.3" y="47.5"/>
   </waypoints>
+  <modules>
+    <module name="traffic_info"/>
+    <module name="formation_flight"/>
+  </modules>
   <blocks>
     <block name="init formation">
       <!-- formation_init() is already called -->

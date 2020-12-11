@@ -7,7 +7,7 @@
 #ifndef FORMATION_H
 #define FORMATION_H
 
-//#include "subsystems/datalink/datalink.h" // dl_buffer
+#include "subsystems/datalink/datalink.h" // dl_buffer
 #include "generated/airframe.h"           // AC_ID
 #include "modules/multi/traffic_info.h"
 
@@ -43,7 +43,7 @@ static inline void updateSlot(uint8_t id, float se, float sn, float sa)
 
 static inline void updateFormationStatus(uint8_t id, uint8_t status) { formation[ti_acs_id[id]].status = status; }
 
-static inline void parseFormationStatus(uint8_t *buff)
+static inline void parseFormationStatus(uint8_t *buf)
 {
   uint8_t ac_id = DL_FORMATION_STATUS_ac_id(buf);
   uint8_t leader = DL_FORMATION_STATUS_leader_id(buf);
