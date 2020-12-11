@@ -9,6 +9,10 @@
     <waypoint alt="260.0" name="WAIT1" x="118.0" y="84.9"/>
     <waypoint alt="240.0" name="WAIT2" x="-34.4" y="143.5"/>
   </waypoints>
+  <modules>
+    <module name="traffic_info"/>
+    <module name="formation_flight"/>
+  </modules>
   <blocks>
     <block name="init formation">
       <!-- formation_init() is already called -->
