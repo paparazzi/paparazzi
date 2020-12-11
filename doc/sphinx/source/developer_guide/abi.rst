@@ -29,6 +29,7 @@ The messages are described in ``conf/abi.xml`` analoguous to other messages in p
      <message name="DATA" id="0">
       <field name="a" type="float"/>
       <field name="b" type="struct bla"/>
+      <field name="c" type="struct foo *"/>
      </message>
      ...
     </class>
@@ -44,7 +45,7 @@ Include header and declare an ``abi_event`` as a global ``static`` variable (but
 
     static abi_event ev;
 
-    void data_cb(uint8_t sender_id, float a, struct bla b) {
+    void data_cb(uint8_t sender_id, float a, struct bla b, struct foo * c) {
      // do something here
     }
 
@@ -76,7 +77,8 @@ Include header, then call the send function with the appropriate parameters
 
     float var = 2.;
     struct bla s;
-    AbiSendMsgDATA(SENDER_ID, var, s);
+    struct foo f;
+    AbiSendMsgDATA(SENDER_ID, var, s, &f);
 
 Replace ``SENDER_ID`` by your sender ID defined in ``sw/airborne/subsystems/abi_sender_ids.h``.
 
@@ -163,7 +165,7 @@ The generated code in ``var/include/abi_messages.h`` for the message defined abo
     ABI_EXTERN abi_event* abi_queues[ABI_MESSAGE_NB]; // Magic trick to avoid generating .c file
 
     // Callbacks
-    typedef void (*abi_callbackDATA)(uint8_t sender_id, float a, struct bla b); // Specific callback for DATA message (arguments are const to prevent modifying them)
+    typedef void (*abi_callbackDATA)(uint8_t sender_id, float a, struct bla b, struct foo * c); // Specific callback for DATA message (arguments are const to prevent modifying them)
 
     // Bind and Send for each messages
     static inline void AbiBindMsgDATA(uint8_t sender_id, abi_event * ev, abi_callbackDATA cb) {
@@ -173,7 +175,7 @@ The generated code in ``var/include/abi_messages.h`` for the message defined abo
       ABI_PREPEND(abi_queues[ABI_BARO_ABS_ID],ev);
     }
 
-    static inline void AbiSendMsgDATA(uint8_t sender_id, float a, struct bla b) {
+    static inline void AbiSendMsgDATA(uint8_t sender_id, float a, struct bla b, struct foo * c) {
      // Call all callback functions
      abi_event* e;
      ABI_FOREACH(abi_queues[ABI_DATA_ID],e) {
