@@ -44,7 +44,7 @@ Include header and declare an ``abi_event`` as a global ``static`` variable (but
 
     static abi_event ev;
 
-    void data_cb(uint8_t sender_id, const float * a, const struct bla * b) {
+    void data_cb(uint8_t sender_id, float a, struct bla b) {
      // do something here
     }
 
