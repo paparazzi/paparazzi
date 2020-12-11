@@ -1,0 +1,594 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<airframe name="Bebop">
+  <description>
+  Parrot Bebop Quadcopter (https://www.openuas.org/airframes/)
++ Airframe to validate all onboard functionally...
+  Parrot Bebop
+     + Autopilot:   Default Parrot Bebop board
+     + Actuators:   Default Motors
+     + GPS:         Default Furuno
+     + TELEMETRY:   Default WiFi
+     + CURRENT:     Default Build in V/A sensing
+     + RC RX:       Joystick on USB of a GCS forward via Wifi (for now...)
+
+ NOTES:
+     + Hey, calibrate your magneto! Yes, you too ;), unit UKF auto works...
+     + Yeah.. and your Accelometer also... EKF2 will like you if you use it :)
+     + Uses PAPARAZZI "standard" radio channel settings
+     + One could make a flightplan mimicing exact default behaviour of Parrot App
+     + Tested with Firmware v4.0.6, update to this Bebop firmware version if not done already
+     + Can use INDI full for control
+     + Flash the PPRZ firmware via WiFi or USB
+     + Regular Telemetry is possible via USB to FTDI serial to Modem, added kernel drivers see:
+        https://wiki.paparazziuav.org/wiki/Howto.crosscompile_for_parrot_drones
+        https://wiki.paparazziuav.org/wiki/Use_the_USB_port_on_Parrot_Drones
+     + Bottom camera can used just for some mapping, not high resolution but still fun...
+     + PPRZLink v2 advised for tcas fun
+     + Theoretically an RC receiver can be added with e.g. SBus RX out via FTDI to USB
+     + There are no other modification, also not on the vibration absorbers. Oh yeah, it is black ;)
+     + To testfly this airframe yourself you need to:
+     ++ point to your own calibrations xml, search for 'calibration' in this document
+     ++ Make sure your drone runs firmware 4.0.6
+
+ WIP:
+     + Not all gains are tuned to optimum, feel free to enhance and a PR...
+     + The front cam is not yet fully supported with internal code
+     + Sonar needs to be put to good use
+     + SD SRTM via onboard storage not implemented (yet..)
+     + likely more, but we forgot...
+
+ Launching
+     + 1)Set TX to AUTO2 (or even switch off your TX is you dare)
+       2) wait until props spins after a second or so
+       3) There it goes...
+
+  Setting1:
+  + All setting a so this object is ment to fly inide a "virtual" box of 10m x 10m with RTK to the max of its envelope with no wind
+   The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
+  Setting2:
+  + All setting a so this object is ment to fly outside to the max of its envelope unde various wind conditions
+  </description>
+
+  <firmware name="rotorcraft">
+
+    <!-- ************************* MODULES ************************* -->
+    <!-- Warning: unit conversion does not work in this section of airframe,
+    so use the native units, or you'll have big trouble... -->
+    <target name="ap" board="bebop">
+
+      <!-- Towards less aligner issues -->
+      <!--
+      <define name="AHRS_ALIGNER_SAMPLES_NB" value="600"/>
+      <define name="LOW_NOISE_THRESHOLD" value="30000"/>
+      <define name="LOW_NOISE_TIME" value="10"/>
+      -->
+      <module name="stabilization" type="rate_indi"/>
+      <!--<module name="stabilization" type="indi_simple"/>--><!-- not used ATM -->
+      <module name="stabilization" type="indi">
+        <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+        <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+        <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+        <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+      </module>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
+      <!-- INDI RPM feedback not implemented in sim, will it be YOU who adds this? TIA! -->
+      <module name="stabilization" type="indi">
+      </module>
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) or if one wants to use Gazebo sim -->
+      <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g test external device triggering while mission flying in sim -->
+    </target>
+
+    <define name="WIND_INFO"/>
+    <define name="WIND_INFO_RET"/>
+
+    <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>--><!-- TODO test on Busybox -->
+
+    <!-- amount of time it take for the bat to trigger check -->
+    <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+    <!-- TODO: specificaly test for Disco see if needed or which value -->
+    <define name="BAT_CHECKER_DELAY" value="60"/><!-- unit="s/10", thus tenth of seconds per default use ELECTRICAL_PERIODIC_FREQ if you for some reason want it differently-->
+    <!-- Only one main battery so CATASTROPHIC_BATTERY kill should be somewhat delayed -->
+    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/> <!-- unit="s/10, thus  tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
+    <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
+    <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/><!-- HZ-->
+    <configure name="USE_BARO_BOARD" value="TRUE"/>
+
+    <!-- USE_SONAR means the device can read values. It does not mean we want to use those values in AHRS yet
+    For that you have a setting <define name="AHRS_USE_SONAR" value="TRUE"/>
+    Since sometimes you want to just read sonar values to scan an area surface height difference but not do
+    anything with it AGL in control -->
+    <define name="USE_SONAR" value="TRUE"/>
+
+    <define name="AHRS_USE_SONAR" value="TRUE"/>
+    <define name="SENSOR_SYNC_SEND_SONAR"/><!-- Enable if you want it debug sonar device, eg raw values -->
+
+    <module name="telemetry" type="transparent_udp"/>
+     <!-- By adding new kernel drivers to the airframe it is very well possible to use all kinds of external devices. -->
+
+    <!-- E.g. a serial modem via FTDI cable on Micro USB 2, testflights performed, all works well -->
+    <!-- Possible if one connect other serial devices they present them as ttyACMx devices, if so try UART5 or UART6 -->
+    <!-- For this to work out kernel drivers ( xyz.ko ) must be installed on the Airframe -->
+
+    <!-- One can also use type="xbee_api" if Digi Xbee modem is connected-->
+    <!-- <module name="telemetry" type="transparent"
+      <configure name="MODEM_PORT" value="UART2"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </module>-->
+
+    <!-- <module name="extra_pprz_dl"/>--> <!-- e.g. for WiFi *AND* a LongRangeModem -->
+
+    <module name="radio_control" type="datalink"/>
+
+    <!-- Or.... -->
+    <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
+      <!--<module name="radio_control" type="sbus"> --><!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
+      <!-- <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/> --> <!-- Set the OpenRXSR receiver to maximum channel output of 8 9ms -->
+      <!-- <define name="RADIO_CONTROL_NB_CHANNEL" value="12"/>--> <!-- An Orange R620X Has maximum sbus channel output of 12 -->
+    <!--</module>-->
+
+    <!-- This GPS setting can be set using Sirftool -->
+    <module name="gps" type="furuno"/><!-- For Optitrack use type= datalink-->
+
+
+    <!--<module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
+
+    <module name="motor_mixing"/>
+    <module name="actuators" type="bebop"/>
+    <module name="imu" type="bebop"/>
+
+    <module name="ins" type="extended"/> <!-- type="ekf2, or extended"/>-->
+    <module name="ahrs" type="float_cmpl_quat"><!-- or float_cmpl_quat ?-->
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/><!-- if using INS EKF2 this forced already-->
+      <configure name="AHRS_USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/>
+      <!-- <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/>-->
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="3.0" unit="m/s"/>
+      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0.0f"/>
+    </module>
+
+    <!-- Also used if QNH needed -->
+    <module name="air_data">
+     <define name="CALC_AIRSPEED" value="FALSE"/>
+     <define name="CALC_TAS_FACTOR" value="FALSE"/>
+     <define name="CALC_AMSL_BARO" value="TRUE"/>
+    </module>
+
+    <module name="geo_mag"/>
+
+    <module name="send_imu_mag_current"/> <!-- enable if airframe has added electronic or other devices, recalibrate and stuffcalibration in this airframefile-->
+
+    <module name="nav" type="survey_rectangle_rotorcraft">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/><!-- in deg -->
+    </module>
+    <module name="nav" type="survey_poly_rotorcraft">
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/><!-- in M -->
+    </module>
+
+    <!--<module name="logger_file">
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </module>-->
+
+    <!-- can be used in flightplan during takeoff/landing or lowflyby with default sonar -->
+    <module name="agl_dist">
+        <!-- Make sure something like this is defined <define name="USE_SONAR"/>-->
+    </module>
+
+    <module name="bebop_cam"/>
+
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/media/ouas"/>
+    </module>
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <!-- <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/> -->
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+    </module>
+
+    <!--<module name="bebop_ae_awb"/>-->
+
+    <!--
+    <module name="cv_blob_locator">
+      <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
+    </module>
+    -->
+
+    <!-- Embed State data in your Photo file, e.g. Position of photo when taken  -->
+    <module name="video_exif">
+    </module>
+
+    <module name="digital_cam_video">
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0"/> <!-- unit="s"/> -->
+    </module>
+
+    <!-- When flying multiple airframes over eg a mesh they can have info of eachothers position etc. -->
+    <module name="traffic_info">
+    </module>
+<!--
+    <module name="tcas">
+    </module>
+-->
+
+    <module name="sys_mon"/><!-- for MCU load debugging -->
+  </firmware>
+
+<!-- ********************** RC COMMANDS ************************** -->
+<!--  <rc_commands>
+    <set command="THRUST" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>-->
+
+<!-- ************************ COMMANDS ***************************** -->
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="5800"/>
+  </commands>
+
+  <servos driver="Default">
+   <!-- Simple <servo name="TOP_LEFT" no="0" min="2500" neutral="2500" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="2500" neutral="2500" max="12000"/>-->
+
+    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="9800"/>
+    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="9800"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="9800"/>
+    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="9800"/>
+
+  </servos>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+
+    <!-- Time cross layout (X), with order NW (CCW), NE (CW), SE (CCW), SW (CW) -->
+    <define name="REVERSE" value="TRUE"/>
+    <define name="TYPE" value="QUAD_X"/>
+  </section>
+
+  <command_laws>
+   <!--<call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>-->
+
+    <set servo="TOP_LEFT"     value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
+    <set servo="TOP_RIGHT"    value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
+  </command_laws>
+
+  <!--<include href="conf/airframes/OPENUAS/calibrations/openuas_cal_parrot_bebop.xml"/>-->
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="640"/>
+    <define name="OUTPUT_WIDTH" value="640"/>
+    <define name="OFFSET_X" value="0.15"/>
+    <define name="TARGET_EXPOSURE" value="30"/>
+    <define name="ZOOM" value="1.25"/>
+  </section>
+
+  <section name="BEBOP_BOTTOM_CAMERA" prefix="MT9V117_">
+    <!--<define name="TARGET_FPS" value="2"/>
+    <define name="FOCAL_X" value="0.48686"/>
+    <define name="OFFSET_X" value="0.48908"/>
+    <define name="CENTER_X" value="0.51015"/>
+    <define name="CENTER_Y" value="0.51015"/>
+    <define name="DHANE_K" value="1.25"/>-->
+  </section>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
+
+<!-- ************************* IMU ************************* -->
+  <section name="IMU" prefix="IMU_">
+    <!-- Accelerometer calibrated for THIS, for your airframe RECALIBRATE -->
+    <define name="ACCEL_X_NEUTRAL" value="45"/>
+    <define name="ACCEL_Y_NEUTRAL" value="3"/>
+    <define name="ACCEL_Z_NEUTRAL" value="123"/>
+    <define name="ACCEL_X_SENS" value="2.43271539166" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44118861813" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.41672180127" integer="16"/>
+
+<!--
+Calibrating the Magnetometer
+
+First of all it is important to know that all ferromagnetic materials near the mag distort the measurements.
+So preferably you do the mag calibration with the mag/autopilot mounted in your frame and as far away from metal and magnets as possible.
+Calibrating for the Earth magnetic field
+
+The most crucial part for the magnetometer calibration:
+
+1) Stop Server, start server, creates new log file we need for calibration
+2) Slowly spin your aircraft around all axes round a minute or so...
+3) Stop the server so it will write the log file
+4) Run a Calibartion calculation script to get your calibration coefficients:
+
+ sw/tools/calibration/calibrate.py -s MAG var/logs/YY_MM_DD__hh_mm_ss.data -vp
+
+ ( Where YY_MM_DD__hh_mm_ss.data is the name of the log data file that was just generated.)
+
+5) Paste the results below (CTRL+SHIFT+C to copy form terminal) overwriteing
+6) Save this file, then in PPRZ center: clean, build and upload to aircraft... Done!
+-->
+
+    <!-- ***************** MAGNETO ********************************-->
+      <!-- Magnetometer still needs to be calibrated -->
+    <define name="MAG_X_NEUTRAL" value="100"/>
+    <define name="MAG_Y_NEUTRAL" value="-25"/>
+    <define name="MAG_Z_NEUTRAL" value="-233"/>
+    <define name="MAG_X_SENS" value="8.85770945687" integer="16"/>
+    <define name="MAG_Y_SENS" value="9.44123598656" integer="16"/>
+    <define name="MAG_Z_SENS" value="9.50485406332" integer="16"/>
+
+
+    <!--define name="MAG_OFFSET" value="-?.0" unit="deg"--> <!--  TODO: at least 3 axis in worst case -->
+
+    <!-- Magneto current calibration TODO:
+    Best done outside, set it to RC direct and throttle up and down with raw messages -->
+    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
+    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
+
+    <!-- most likly OK with an physically unmodified airframe -->
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+  </section>
+
+  <!-- local magnetic field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="AHRS_">
+    <!-- <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>--> <!-- only for Optitrack -->
+
+    <!-- Values used if no GNSS fix, on 3D fix is updated by geo_mag module -->
+    <!-- Better use the geo_mag module if you have a GNSS, else replace the values with your local magnetic field -->
+
+    <!--North, East and Vertical Components do: Normalize[{19738.7, 899.5, 44845.6}] -->
+    <!-- Local Magnetic field DE2020 -->
+    <define name="H_X" value="0.402784"/>
+    <define name="H_Y" value="0.018355"/>
+    <define name="H_Z" value="0.915111"/>
+  </section>
+
+<!-- *************************** SONAR DEVICE ***************************** -->
+  <section name="SONAR" prefix="SONAR_">
+    <define name="SCALE" value="0.016775" integer="16"/>
+    <define name="OFFSET" value="0.03" unit="m"/><!-- The landing gear height to tarmac, well ~0 m with this flyingwing -->
+    <define name="MAX_RANGE" value="9.0" unit="m"/>
+    <define name="MIN_RANGE" value="0.18" unit="m"/>
+  </section>
+
+  <!-- *************************** AGL **************************** -->
+  <section name="AGL" prefix="AGL_DIST_SONAR_">
+    <define name="ID" value="ABI_BROADCAST"/>
+    <define name="MAX_RANGE" value="9." unit="m"/>
+    <define name="MIN_RANGE" value="0.018" unit="m"/>
+    <define name="FILTER" value="0.15"/> <!--Low pass filter time constant-->
+  </section>
+
+<!-- ************************ MAG_CALIB_UKF ************************ -->
+<!-- HOTSTART TRUE for faster convergence flights to flight -->
+<!-- <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt"/>-->
+  <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
+    <define name="HOTSTART" value="FALSE"/>
+    <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt"/>
+    <define name="NORM" value="1.0f"/>
+    <define name="NOISE_RMS" value="5e-2f"/>
+    <define name="GEO_MAG_TIMEOUT" value="0"/>
+    <define name="INITIAL_STATE" value="0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0" type="float[]"/>
+    <define name="VERBOSE" value="FALSE"/><!-- Disable after testing -->
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <!-- For those super precice target landings... well better swap the M8N GNSS for a M8P or M9P -->
+    <define name="BODY_TO_GPS_X" value="0.08" unit="m"/>
+    <define name="BODY_TO_GPS_Y" value="0.0" unit="m"/>
+    <define name="BODY_TO_GPS_Z" value="0.07" unit="m"/>
+
+    <!-- <define name="USE_INS_MODULE"/> -->
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+
+    <define name="SONAR_COMPENSATE_ROTATION" value="TRUE"/><!-- compensate AGL for body rotation -->
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+
+    <define name="USE_GPS_ALT" value="TRUE"/>
+    <define name="USE_GPS_ALT_SPEED" value="FALSE"/>
+    <define name="VFF_R_GPS" value="0.1"/>
+
+    <!-- trust more the baro over the gps alt -->
+    <define name="INV_NXZ" value="0.3"/>
+    <define name="INV_NH" value="2.0"/>
+  </section>
+
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+  </section>
+
+  <!-- only for classic control enable attitude reference generation model
+  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">-->
+
+    <!-- attitude reference generation model -->
+<!--
+    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.9"/>
+    <define name="REF_MAX_P" value="600." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.9"/>
+    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.9"/>
+    <define name="REF_MAX_R" value="600." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+  </section>-->
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_ROLL" value="{20 , -20, -20 , 20 }"/>
+    <define name="G1_PITCH" value="{14 , 14, -14 , -14 }"/>
+    <define name="G1_YAW" value="{-1, 1, -1, 1}"/>
+    <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}"/>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2" value="{-61.2093, 65.3670, -65.7419, 65.4516}"/>
+
+<!-- OLD ask -->
+<!--
+    <define name="G1_P" value="0.05"/>
+    <define name="G1_Q" value="0.025"/>
+    <define name="G1_R" value="0.0022"/>
+    <define name="G2_R" value="0.20"/>-->
+
+    <!-- ? Maybe with a High capacity battery(heavier, and weight lies higher) for the bebop1 we also need to filter the roll rate due to the dampers -->
+    <define name="FILTER_ROLL_RATE" value="TRUE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
+
+    <!-- Here it is assumed that your removed the damping from your bebop!
+         The dampers damp, but also cause oscillation. By making them fix, the bebop could fly better with INDI -->
+    <!--<define name="FILTER_ROLL_RATE" value="FALSE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>-->
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="600.0"/>
+    <define name="REF_ERR_Q" value="600.0"/>
+    <define name="REF_ERR_R" value="600.0"/>
+    <define name="REF_RATE_P" value="28.0"/>
+    <define name="REF_RATE_Q" value="28.0"/>
+    <define name="REF_RATE_R" value="28.0"/>
+
+    <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF" value="5.0"/>
+
+    <!-- OLD - ASK
+
+second order filter parameters -->
+    <!-- NOT USED <define name="FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF_R" value="4.0"/> -->
+
+    <!-- first order actuator dynamics -->
+ <!--   <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>-->
+
+    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="TRUE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/> <!-- TODO: tune better -->
+
+    <!--Priority for each axis (roll, pitch, yaw and thrust)-->
+    <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="283"/>
+    <define name="HOVER_KD" value="82"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="22" unit="deg"/><!-- TODO: determine -->
+    <define name="REF_MAX_SPEED" value="2.5" unit="m/s"/>
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
+    <define name="REF_ZETA" value="1.0"/> <!-- 1.0 or more for no waypoint overshooting -->
+  </section>
+
+  <section name="MISC">
+    <define name="ARRIVED_AT_WAYPOINT" value="2.2" unit="m"/> <!-- To set how far away you find OK that drone thnks the waypoint is reached -->
+    <define name="KILL_MODE_DISTANCE" value="MAX_DIST_FROM_HOME*1.1+HOME_RADIUS" unit="m"/>  <!--  improve value by default turn radius calc -->
+    <define name="DEFAULT_CIRCLE_RADIUS" value="5." unit="m"/><!-- for if you want to.... circle ;) -->
+    <define name="CARROT" value="4." unit="s"/>
+    <!-- UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
+    If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
+    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
+    or  fly a long range mission you define the wanted mode behaviour here.
+    If you do not define it, it defaults to flying to the flightplan HOME -->
+    <!--<define name="AP_MODE_AUTO2" value="MODE_AUTO2"/>-->
+    <!--<define name="RC_LOST_MODE" value="AP_MODE_AUTO2"/>-->
+
+    <!-- TODO: SET some modem values with multipoint also the $AC_ID -->
+    <!--  Here XBEE init will be misused to set SiK Si10xx based modems as the Hope and RFdesign -->
+    <!--  <define name="XBEE_INIT" value="ATS17=$AC_ID\rATS16=134\rAT&W\rATZ\r" type="string"/>  -->
+    <!--  <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED" value="2.7" unit="m/s"/>
+    <define name="DESCEND_VSPEED" value="-1.5" unit="m/s"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_RC_CLIMB"/> <!--or use AP_MODE_ATTITUDE_Z_HOLD"/>-->
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+<!-- **************************** BAT ****************************** -->
+  <section name="BAT">
+    <define name="MAX_BAT_CAPACITY" value="1600" unit="mAh"/> <!-- Original Parrot battery -->
+    <!-- <define name="MAX_BAT_CAPACITY" value="2150" unit="mAh"/>--> <!-- 3rd party battery -->
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/>  <!-- At 11.7 10.6 A at 12.2v 11.0A rounded then to 11000 to be at safe side-->
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="500" unit="mA"/> <!-- 500mA, with additional device on must remeasure -->
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
+    <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/> <!-- 3S lipo 3x4.2 = 12.6 -->
+    <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/> <!-- TODO: test when AP board switches off -->
+    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/>
+  </section>
+
+<!-- ********************** GCS SPECIFICS ************************** -->
+  <section name="GCS">
+    <!--<define name="SPEECH_NAME" value="Bebop"/>Not for multiple-->
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS"      value="1"/>
+    <define name="ALT_SHIFT_MINUS"     value="-1"/>
+    <define name="AC_ICON"             value="quadrotor_xi"/>
+  </section>
+
+<!-- ************************ NPSSIM ******************************* -->
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="bebop" type="string"/>
+    <define name="WEIGHT" value="0.4"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
+  </section>
+
+</airframe>

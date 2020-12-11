@@ -14,26 +14,25 @@
 <airframe name="TaxiIII">
 
   <firmware name="fixedwing">
-    <target name="sim" 			        board="pc"/>
+    <target name="sim"                          board="pc"/>
 
-    <target name="ap" 			        board="tiny_2.11"/>
+    <target name="ap"                           board="tiny_2.11"/>
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
     <define name="AGR_CLIMB"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
-    <define name="USE_I2C0"/>
+
     <define name="PITCH_TRIM"/>
 
     <define name="USE_I2C0"/>
-
     <module name="radio_control" type="ppm">
        <!-- for debugging PPM value the one below -->
        <!-- <define name="TELEMETRY_MODE_FBW" value="1"/> -->
     </module>
 
     <module name="telemetry" type="transparent">
-      <configure name="MODEM_BAUD" value="B9600"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
       <configure name="MODEM_PORT" value="UART1"/>
     </module>
 
@@ -49,12 +48,12 @@
   <modules>
     <module name="gps" type="ubx_ucenter"/>
     <module name="infrared_adc"/>
-    <module name="ahrs_infrared"/>  
+    <module name="ahrs_infrared"/>
 
     <module name="digital_cam">
       <!-- <define name="DC_SHUTTER_GPIO" value="CAM_SWITCH_GPIO"/>--><!-- Not compiling ATM -->
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/>
-    </module>  
+    </module>
 <!--
     <module name="sys_mon"/>
 -->
@@ -85,7 +84,7 @@
     <module name="nav" type="flower"/>
     <module name="nav" type="bungee_takeoff"/>
     <module name="nav" type="catapult"/>
-    
+
   </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
@@ -99,14 +98,14 @@
 
 <!-- commands section -->
   <commands>
-    <axis name="THROTTLE" 	failsafe_value="0"/>
-    <axis name="ROLL"     	failsafe_value="0"/>
-    <axis name="PITCH"    	failsafe_value="0"/>
-    <axis name="YAW"      	failsafe_value="0"/>
+    <axis name="THROTTLE"       failsafe_value="0"/>
+    <axis name="ROLL"           failsafe_value="0"/>
+    <axis name="PITCH"          failsafe_value="0"/>
+    <axis name="YAW"            failsafe_value="0"/>
 <!-- for tuning via RC these ones below -->
 <!--
-    <axis name="GAIN1"		failsafe_value="0"/>
-    <axis name="CALIB"		failsafe_value="0"/>
+    <axis name="GAIN1"          failsafe_value="0"/>
+    <axis name="CALIB"          failsafe_value="0"/>
     -->
   </commands>
 
@@ -382,7 +381,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
     <define name="DEVICE_TYPE" value="PPRZ"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
-  
+
   <section name="DIGITAL_CAMERA" prefix="DC_">
     <define name="AUTOSHOOT_PERIOD" value="3" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="70" unit="meter"/>
@@ -394,4 +393,3 @@ If not set before when you would enter home mode you had to flip a bit via the G
   </section>
 
 </airframe>
-

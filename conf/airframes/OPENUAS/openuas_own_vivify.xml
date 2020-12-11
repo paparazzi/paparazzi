@@ -1,13 +1,13 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
-
-<!--
-     * Vivify (http://www.openuas.org/)
+<airframe name="Vivify">
+  <description>
+     * Vivify (http://www.openuas.org/airframes)
      Lisa M v2.0 (http://paparazzi.enac.fr/wiki/index.php/)
      With modified power routing by setting Jumper J1
      + Aspirin v2.2 inclusive MS5611
-     + XBee XSC 900Mhz or XBP868 depending on location flown
+     +  depending on location flown
      + uBlox LEA5H and Sarantel helix GPS antenna
-     + Spektrum RX DSMX clone - optional mission demanding a R16Scan40MHZ RX
+     + Open RXSR - optional mission demanding a R16Scan40MHZ RX
      + Analog Airspeed sensor
      + MK2 Second LisaM as FTD, plus additional power measurement for this board
 
@@ -25,9 +25,8 @@
     Modules to activate:
      + Current sensor on battery wires going to motor
      + geo_mag module if fixed for fixedwing
--->
 
-<airframe name="Vivify">
+  </description>
   <!-- ************************* FIRMWARE ************************* -->
   <firmware name="fixedwing">
     <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
@@ -61,7 +60,7 @@
 
       <define name="USE_AIRSPEED"/>
       <define name="AGR_CLIMB"/>
-      <!-- <define name="ALT_KALMAN"/>-->
+
       <define name="TUNE_AGRESSIVE_CLIMB"/>
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
@@ -79,13 +78,12 @@
 
       <!-- * Communication * -->
       <module name="telemetry" type="transparent">
-        <!-- or use type="xbee_api"> -->
         <configure name="MODEM_BAUD" value="B9600"/>
         <!--  <configure name="MODEM_BAUD" value="B57600"/>-->
         <configure name="MODEM_PORT" value="UART2"/>
       </module>
 
-      <module name="control" type="energy"/>
+      <module name="control" type="energy"/><!-- or energyadaptive-->
 
       <!-- * Sensors * -->
       <module name="gps" type="ublox">
@@ -102,7 +100,6 @@
 
     <target name="fbw" board="lisa_m_2.0">
       <configure name="SEPARATE_FBW" value="1"/>
-
       <configure name="FLASH_MODE" value="SWD"/>
 
       <configure name="SYS_TIME_LED" value="2"/>
@@ -159,8 +156,8 @@
     <!-- ****************************** SIM *********************************-->
     <target name="sim" board="pc">
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
-      <module name="telemetry" 	type="xbee_api">
-        <configure name="MODEM_BAUD" 		value="B9600"/>
+      <module name="telemetry"  type="xbee_api">
+        <configure name="MODEM_BAUD"            value="B9600"/>
       </module>
       <module name="control" type="energy"/>
       <module name="imu" type="aspirin_v2.2"/>
@@ -190,10 +187,14 @@
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
     </module>
     <!-- CDW: module name="obc2014"/-->
-    <!-- Load -->
+
     <!-- module name="sys_mon"/> -->
+
     <!--
     <module name="flight_benchmark">
+      <define name="BENCHMARK_AIRSPEED value="TRUE"/>
+      <define name="BENCHMARK_ALTITUDE value="TRUE"/>
+      <define name="BENCHMARK_POSITION value="TRUE"/>
       <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="2" unit="m/s"/>
       <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
       <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
@@ -207,7 +208,7 @@
       <define name="AIRSPEED_ADC_BIAS" value="413"/>
     </module>
 
-    <module name="tune_airspeed" />
+    <module name="tune_airspeed"/>
 
     <module name="adc_generic">
       <!-- If we want to read the voltage of battery voltage main engine over AP board via V_BATT -->
@@ -261,10 +262,10 @@
     <module name="nav" type="bungee_takeoff"/>
   </firmware>
 
-  <firmware name="test_progs">
+  <!--<firmware name="test_progs">
     <target name="test_can" board="lisa_m_2.0"/>
-  </firmware>
-
+  </firmware>-->
+  
   <firmware name="setup">
     <target name="tunnel" board="lisa_m_2.0"/>
   </firmware>
@@ -598,7 +599,6 @@ we had an option to use glovs, or start up spinning the prop after a throw. If t
   <!-- ************************ GCS SPECIFICS ******************************** -->
   <section name="GCS">
     <define name="SPEECH_NAME" value="Vivify"/>
-    <!--TODO:  rather see this in <airframe name="Vivify" spokenname="sayitnow"> as optional parameter-->
     <define name="AC_ICON" value="flyingwing"/>
   </section>
 

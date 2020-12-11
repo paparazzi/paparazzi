@@ -1,0 +1,251 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+
+<airframe name="xvert">
+  <description>
+    * E-flite X-VERT VTOL (https://www.openuas.org/airframes/)
+      + Autopilot:   Default STM32F3 based
+      + Actuators:   Default servos, 2 PWM servo's, 2 escs through some proprietary atmega uart protocol
+      + GPS:         Ublox M8N GNSS over I2C
+      + IMU:         MPU6500 on mainboard and external HMC58XX on GNSS module
+      + TELEMETRY:   Si10xx Chip based with full fledged multifreq firmware
+      + CURRENT:     A standard Volt and Current sensor on the analog ports
+      + RANGER:      {none yet}
+      + RC:          RC over Datalink
+
+    NOTES:
+      + Hey, calibrate your magneto! Yes, you too ;), unit UKF auto works...
+      + Yeah.. and you Accelometer also... EKF2 will like you :)
+      + Flashing the firmware is done (For now..) via tiny SWD wires solderd on Main PCB, for Hardcore builder only ;)...
+    WIP:
+      + Many thing to improve, e.g. RC and the Flashing method
+
+  </description>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="xvert_1.0"/>
+
+
+    <define name="BAT_CHECKER_DELAY" value="80" />
+    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+
+    <!-- To fix the 32k ram limit issue:-->
+    <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
+    <define name="PPRZ_TRIG_CONST" value="const"/>
+    <define name="THD_WORKING_AREA_MAIN" value="802"/>
+    <define name="UART_THREAD_STACK_SIZE" value="190"/>
+    <define name="I2C_THREAD_STACK_SIZE" value="190"/>
+
+    <configure name="USE_MAGNETOMETER" value="TRUE"/>
+
+    <module name="telemetry" type="transparent" >
+      <define name="MODEM_BAUD" value="B57600"/>
+    </module>
+
+    <module name="guidance" type="hybrid"/>
+    <module name="motor_mixing"/>
+    <!--<module name="sys_mon"/>-->
+    <!--<module name="gps" type="ubx_ucenter"/>-->
+    <module name="send_imu_mag_current"/>
+    <module name="air_data"/>
+
+    <module name="imu" type="mpu9250_i2c">
+        <configure name="IMU_MPU9250_I2C_DEV" value="i2c1"/>
+        <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+        <define name="IMU_MPU9250_I2C_ADDR" value="MPU9250_ADDR"/>
+        <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+    </module>
+
+    <module name="stabilization" type="indi_simple" />
+
+    <module name="ahrs" type="float_cmpl_quat" >
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+    </module>
+
+    <module name="ins" type="float_invariant">
+      <define name="INS_PROPAGATE_FREQUENCY" value="500"/>
+      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
+    </module>
+
+    <module name="actuators" type="xvert">
+      <define name="SERVO_HZ" value="400" />
+    </module>
+
+    <module name="radio_control" type="datalink"/>
+    <module name="gps" type="ubx_i2c">
+       <configure name="GPS_UBX_I2C_DEV" value="i2c2"/>
+    </module>
+
+    <module name="mag" type="hmc58xx">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+    </module>
+  </firmware>
+
+  <section name="INS" prefix="INS_">
+    <define name="H_X" value="0.5138"/>
+    <define name="H_Y" value="0.00019"/>
+    <define name="H_Z" value="0.8578"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <!-- replace this with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="30"/>
+    <define name="MAG_Y_NEUTRAL" value="127"/>
+    <define name="MAG_Z_NEUTRAL" value="140"/>
+    <define name="MAG_X_SENS" value="7.11726808648" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.09366475279" integer="16"/>
+    <define name="MAG_Z_SENS" value="6.84467824688" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="-52"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-4"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-7"/>
+    <define name="ACCEL_X_SENS" value="2.45056441681" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44991708802" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.44199722843" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="90." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
+  </section>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <servos driver="Xvert">
+    <servo name="RM" no="0" min="1160" neutral="1200" max="1880"/>
+    <servo name="LM" no="1" min="1160" neutral="1200" max="1880"/>
+    <servo name="ELEVON_RIGHT"  no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVON_LEFT" no="3" min="1000" neutral="1500" max="2000"/>
+  </servos>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="RM" value="motor_mixing.commands[0]"/>
+    <set servo="LM"  value="motor_mixing.commands[1]"/>
+
+    <!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
+    <!-- First the correct feedback is stored in variables -->
+    <let var="aileron_feedback_left"  value="@YAW"/>
+    <let var="aileron_feedback_right" value="@YAW"/>
+
+    <let var="elevator_feedback_left"  value="-@PITCH"/>
+    <let var="elevator_feedback_right" value="+@PITCH"/>
+
+    <!--     if using PID with gain scheduling -->
+    <let var="forward_left"  value="$aileron_feedback_left + $elevator_feedback_left"/>
+    <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+
+    <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
+    <set servo="ELEVON_LEFT"    value="$forward_left" />
+    <set servo="ELEVON_RIGHT"   value="$forward_right" />
+  </command_laws>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="2"/>
+    <define name="SCALE" value="256"/>
+    <define name="PITCH_COEF"  value="{ 0, 0}"/>
+    <define name="ROLL_COEF"   value="{  -256, 256 }"/>
+    <define name="YAW_COEF"    value="{ 0,  0 }"/>
+    <define name="THRUST_COEF" value="{  256,  256 }"/>
+  </section>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE" />
+    <define name="CALC_TAS_FACTOR" value="FALSE" />
+    <define name="CALC_AMSL_BARO" value="TRUE" />
+  </section>
+
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg" />
+    <define name="SP_MAX_THETA" value="45" unit="deg" />
+    <define name="SP_MAX_R" value="300" unit="deg/s" />
+    <define name="DEADBAND_A" value="0" />
+    <define name="DEADBAND_E" value="0" />
+    <define name="DEADBAND_R" value="50" />
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.01292" />
+    <define name="G1_Q" value="0.014867" />
+    <define name="G1_R" value="0.012055" />
+    <define name="G2_R" value="0.0" />
+    <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
+    <define name="FILTER_ROLL_RATE" value="FALSE" />
+    <define name="FILTER_PITCH_RATE" value="FALSE" />
+    <define name="FILTER_YAW_RATE" value="FALSE" />
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="100.0" />
+    <define name="REF_ERR_Q" value="100.0" />
+    <define name="REF_ERR_R" value="100.0" />
+    <define name="REF_RATE_P" value="14.0" />
+    <define name="REF_RATE_Q" value="14.0" />
+    <define name="REF_RATE_R" value="14.0" />
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.04" />
+    <define name="ACT_DYN_Q" value="0.04" />
+    <define name="ACT_DYN_R" value="0.04" />
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE" />
+    <define name="ADAPTIVE_MU" value="0.0001" />
+    <!-- max rates (conservative) -->
+    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="deg/s"/>
+    <define name="STABILIZATION_INDI_MAX_R" value="200" unit="deg/s"/> <!--Does not seem to be applied-->
+    <define name="FULL_AUTHORITY" value="TRUE"/>
+  </section>
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="350" />
+    <define name="HOVER_KD" value="85" />
+    <define name="HOVER_KI" value="20" />
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.6" />
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE" />
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="30" unit="deg" />
+    <define name="REF_MAX_SPEED" value="3" unit="m/s" />
+    <define name="PGAIN" value="50" />
+    <define name="DGAIN" value="100" />
+    <define name="IGAIN" value="30" />
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED" value="4.5" />
+    <define name="DESCEND_VSPEED" value="-1.0" />
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
+    <define name="MODE_AUTO2" value="AP_MODE_RC_DIRECT" />
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
+  </section>
+
+  <section name="BAT">
+    <!-- 2S LiPo with 950mAh -->
+    <define name="LOW_BAT_LEVEL" value="7.5" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="7.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="7.0" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="8.4" unit="V"/>
+  </section>
+
+</airframe>
