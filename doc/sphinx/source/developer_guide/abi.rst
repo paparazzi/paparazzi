@@ -21,7 +21,7 @@ General Idea
 Message definition
 ------------------
 
-The messages are described in ``conf/abi.xml`` analoguous to other messages in paparazzi. Name are unique, IDs starts from 0. "type" field should be a real C type.
+The messages are described in ``conf/abi.xml`` analoguous to other messages in paparazzi. Name are unique, IDs starts from 0. "type" field should be a valid C type or pointer.
 
 .. code-block:: xml
 
@@ -196,6 +196,5 @@ If you want to use ABI outside of one of the Paparazzi firmwares (``rotorcraft``
 
     #define ABI_C 1
     #include "subsystems/abi.h"
-
 
 
