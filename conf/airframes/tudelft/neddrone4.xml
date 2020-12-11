@@ -238,6 +238,15 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
+    <!-- Rotate the IMU (for Pixhawk 4) -->
+    <define name="MPU_CHAN_X" value="1"/>
+    <define name="MPU_CHAN_Y" value="0"/>
+    <define name="MPU_CHAN_Z" value="2"/>
+
+    <define name="MPU_X_SIGN" value="1"/>
+    <define name="MPU_Y_SIGN" value="1"/>
+    <define name="MPU_Z_SIGN" value="-1"/>
+
     <!-- Calibrated in the MAVLab 14-05-2020 -->
     <define name="ACCEL_X_NEUTRAL" value="-337"/>
     <define name="ACCEL_Y_NEUTRAL" value="64"/>
