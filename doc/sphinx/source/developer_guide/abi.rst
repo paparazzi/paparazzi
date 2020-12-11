@@ -181,7 +181,7 @@ The generated code in ``var/include/abi_messages.h`` for the message defined abo
      ABI_FOREACH(abi_queues[ABI_DATA_ID],e) {
       if (e->id == ABI_BROADCAST || e->id == sender_id) { // call function only if selected source or broadcast address
        abi_callbackDATA cb = (abi_callbackDATA)(e->cb); // C black magic
-       cb(sender_id, a, b);
+       cb(sender_id, a, b, c);
       }
      }
     }
@@ -196,5 +196,4 @@ If you want to use ABI outside of one of the Paparazzi firmwares (``rotorcraft``
 
     #define ABI_C 1
     #include "subsystems/abi.h"
-
 
