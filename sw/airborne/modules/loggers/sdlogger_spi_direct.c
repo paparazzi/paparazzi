@@ -64,14 +64,14 @@
 #error No downlink device defined for SD Logger
 #endif
 
-//#if SDLOGGER_DOWNLINK_DEVICE != DOWNLINK_DEVICE
+#ifdef SDLOGGER_DOWNLINK_DEVICE_LISTEN
 // Listen for setting commands on download port
 #include "pprzlink/dl_protocol.h"
 #include "generated/settings.h"
 
 #include <string.h>
 
-#define DO_LISTEN_DOWNLOAD_PORT
+PRINT_CONFIG_MSG("Listening to SETTING on SD logger download port.");
 
 static struct download_port_t {
   struct link_device *device;
@@ -109,7 +109,7 @@ static void sdlogger_spi_direct_download_port_periodic(void) {
     download_port.msg_available = false;
   }
 }
-//#endif // SDLOGGER_DOWNLINK_DEVICE != DOWNLINK_DEVICE
+#endif // SDLOGGER_DOWNLINK_DEVICE_LISTEN
 
 struct sdlogger_spi_periph sdlogger_spi;
 
@@ -150,7 +150,7 @@ void sdlogger_spi_direct_init(void)
   sdlogger_spi.device.get_byte = (get_byte_t)sdlogger_spi_direct_get_byte;
   sdlogger_spi.device.periph = &sdlogger_spi;
 
-#ifdef DO_LISTEN_DOWNLOAD_PORT
+#ifdef SDLOGGER_DOWNLINK_DEVICE_LISTEN
   sdlogger_spi_direct_download_port_init();
 #endif
 }
@@ -161,7 +161,7 @@ void sdlogger_spi_direct_init(void)
  */
 void sdlogger_spi_direct_periodic(void)
 {
-#ifdef DO_LISTEN_DOWNLOAD_PORT
+#ifdef SDLOGGER_DOWNLINK_DEVICE_LISTEN
   sdlogger_spi_direct_download_port_periodic();
 #endif
 

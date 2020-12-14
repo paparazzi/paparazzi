@@ -67,6 +67,7 @@ Downloading of the data occurs over the configured serial device using sw/logali
     <define name="SDLOGGER_DOWNLINK_DEVICE" value="$(SDLOGGER_DOWNLINK_DEVICE)"/>
     <define name="USE_$(SDLOGGER_DOWNLINK_DEVICE_UPPER)" cond="ifneq ($(SDLOGGER_DOWNLINK_DEVICE_UPPER),DOWNLINK_DEVICE)"/>
     <file_arch name="usb_ser_hw.c" dir="." cond="ifeq ($(SDLOGGER_DOWNLINK_DEVICE_UPPER),USB_SERIAL)"/>
+    <define name="SDLOGGER_DOWNLINK_DEVICE_LISTEN" cond="ifneq ($(SDLOGGER_DOWNLINK_DEVICE_UPPER),DOWNLINK_DEVICE)"/>
   </makefile>
 </module>
 
