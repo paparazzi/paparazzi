@@ -8,7 +8,7 @@
      + RC RX:       OpenRX FrSky compatible over air 2.4Ghz CPPM out on LED pin
 
   NOTES:
-     + All set to expect flying on 2s LiPo battery, 1s LiPo battery possible but no gains set (yet..)
+     + All set to expect flying on 2s LiPo battery, 1s LiPo battery possible but no gains set or autocompensation (yet..)
      + Removed Camera and Video TX to be replaced by a JeVois (www.jevois.org) camera on Uart1
      + RC control also possible via wifi telemetry module
      + Vison: added a JeVois on UART1 TX/RX
@@ -17,6 +17,7 @@
 
    WIP:
      + GPS:         uBlox SAM M8Q with Magneto n Baro GNSS
+     + FPV RC only target to learn to recover your Drone in case of AP mishap
     </description>
 
     <firmware name="rotorcraft">
@@ -56,7 +57,9 @@
         <module name="radio_control" type="cc2500_frsky">
             <define name="CC2500_RX_LED" value="LED_2"/>
             <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON"/>
+            <!--<define name="CC2500_AUTOBIND" value="TRUE"/>-->
             <define name="CC2500_TELEMETRY_SENSORS" value="SENSOR_NONE"/>
+            <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
         </module>
 
         <module name="motor_mixing"/>
@@ -85,7 +88,7 @@
         </module>
 
         <!-- not all are tested or tuned -->
-       <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..)
+       <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..)-->
         <!-- <module name="stabilization" type="rate_indi"/> -->
 
         <module name="stabilization" type="int_quat"/>
@@ -95,11 +98,14 @@
 
         <module name="ins" type="extended"/>
 
-        <!-- Not yet tested -->
-        <!--<module name="osd_max7456">
+        <module name="osd_max7456">
            <configure name="MAX7456_SPI_DEV" value="SPI2"/>
            <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE1"/>
-        </module>-->
+           <!--<define name="OSD_USE_EXTERNAL_SPRINTF" value="0" />-->
+	   <define name="USE_MATEK_TYPE_OSD_CHIP" value="FALSE" />
+           <!--<define name="USE_PAL_FOR_OSD_VIDEO" value="TRUE" />-->
+           <!--<define name="BARO_ALTITUDE_VAR" value="baro_alt" />-->
+        </module>
 
         <!-- <module name="filter_1euro_imu"> -->
             <!--<define name="IMU_F1E_ID" value="30"/>-->
@@ -149,7 +155,7 @@
         <!--<module name="geo_mag"/>
         <<module name="air_data"/>-->
 
-        <!-- below temporary until tested then disable it -->
+        <!-- below temporary until measuerd and values set then disable it -->
         <!-- <module name="send_imu_mag_current"/> -->
 
 <!--
@@ -196,7 +202,7 @@
         <define name="TYPE" value="QUAD_X"/>
     </section>
 
-   <!-- in case we need much more precise mixing use the table here instead of motor_mixing_run
+   <!-- in case we need much more precise mixing use the table here instead of motor_mixing_run -->
   <!-- section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
@@ -277,15 +283,14 @@
 
     </section>
 
-
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
-        <define name="SP_MAX_PHI"     value="50." unit="deg"/>
-        <define name="SP_MAX_THETA"   value="50." unit="deg"/>
-        <define name="SP_MAX_R"       value="90." unit="deg/s"/>
-        <define name="DEADBAND_A"     value="2"/>
-        <define name="DEADBAND_E"     value="2"/>
-        <define name="DEADBAND_R"     value="100"/>
+        <define name="SP_MAX_PHI"     value="30." unit="deg"/>
+        <define name="SP_MAX_THETA"   value="30." unit="deg"/>
+        <define name="SP_MAX_R"       value="120." unit="deg/s"/>
+        <define name="DEADBAND_A"     value="0"/>
+        <define name="DEADBAND_E"     value="0"/>
+        <define name="DEADBAND_R"     value="80"/>
 
         <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
         <define name="REF_ZETA_P"   value="0.85"/>
@@ -318,7 +323,6 @@
         <define name="THETA_DDGAIN" value="0"/>
         <define name="PSI_DDGAIN"   value="0"/>
     </section>
-
 
     <!-- when using stabilization  type float_quat use ones below, not tuned yet! -->
 <!--
@@ -404,7 +408,7 @@
         <define name="ADAPTIVE_MU" value="0.0003"/>
 
         <!--Maxium yaw rate, to avoid instability -->
-        <define name="MAX_R" value="120" unit="deg/s"/>
+        <define name="MAX_R" value="180" unit="deg/s"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -462,6 +466,7 @@
     <!-- If flying on a 2S1P 300mAh 40/80C LiPo -->
     <section name="BAT">
         <define name="MAX_BAT_CAPACITY" value="300" unit="mAh"/>
+        <define name="BAT_CAPACITY" value="MAX_BAT_CAPACITY"/><!--temp fix until OSD module is fixed-->
         <!-- tested at V 7.6 the avg -->  <!-- idle RPM then ?A half throttle ?A-->
         <define name="MILLIAMP_AT_IDLE_THROTTLE" value="10" unit="mA"/>  <!-- TODO ??mA, with additional RC receiver and wifi and jevois cam ~??mA -->
         <define name="MILLIAMP_AT_FULL_THROTTLE" value="240" unit="mA"/> <!-- TODO At 7.2 ?? A at 8.2v ??A rounded then to ?? to be at safe side-->

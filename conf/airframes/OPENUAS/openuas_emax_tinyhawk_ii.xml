@@ -57,8 +57,8 @@
 
         <module name="radio_control" type="cc2500_frsky">
             <define name="CC2500_RX_LED" value="LED_2"/>
-            <!--<define name="CC2500_BIND_BUTTON" value="BIND_BUTTON"/>-->
-            <define name="CC2500_AUTOBIND" value="TRUE"/>
+            <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON"/>
+            <!--<define name="CC2500_AUTOBIND" value="TRUE"/>-->
             <define name="CC2500_TELEMETRY_SENSORS" value="SENSOR_NONE"/>
             <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
         </module>
