@@ -1,90 +1,37 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
-<airframe name="Disco">
+<airframe name="Twinstar_ND">
   <description>
-* Parrot Disco Fixedwing (https://www.openuas.org/airframes/)
-+ Airframe to validate all onboard functionally...
-  Parrot Disco
-     + Autopilot:   Default Parrot C.H.U.C.K.
-     + Actuators:   Default Disco servos
-     + GPS:         Default uBlox M8N GNSS
-     + AIRSPEED:    Default MS4515DO
-     + TELEMETRY:   Default WiFi
-     + CURRENT:     Default Build in V/A sensing
-     + RC RX:       OpenR-XSR Sbus out
++ Airframe with PX4 Pixracer v1 AP hardware
+    + Model: Multiplex Twinstar ND
+    + Autopilot:   PX4FMU 4.0 aka Pixracer v1.0 R15
+    + Actuators:   Regular 12g metal gear digital servos
+    + GPS:         Ublox M9N GNSS
+    + RCRX:        OpenRXSR Receiver
+    + AIRSPEED:    Eagletree via I2C
+    + TELEMETRY:   Si10xx Chip based with custom firmware
+    + CURRENT:     A standard V/I sensor on the analog ports
+    + RANGER:      TFMini
 
- NOTES:
+NOTES:
+     + Using Enahanced Total Energy control as control loop in Final AC
+     + Servo pins point to tail of airframe
+     + Engine battery voltage and amp values via separate sensor
+     + Flashing the firmware is done via original PX4 bootloader...
+       Simple, USB cable in, upload.. voila PPRZ aircraft on a Pixracer...
+     + A GNSS device with ANOTHER magneto on it is used, external...
+     + On I2C we have airspeed sensor and external magneto via a I2C split
 
-     + Hey, calibrate your magneto! Yes, you too ;), unit UKF auto works...
-     + Yeah.. and your Accelometer also... EKF2 will like you :)
-     + All kinds of info https://fccid.io/2AG6I-DISCO
-     + Uses PAPARAZZI "standard" radio channel settings, see TU Delft Devo 10 output
-     + One could make a flightplan mimicing exact default behaviour of Parrot assisted flight
-     + Tested with Firmware v1.7.1, considder updating to this Disco firmware version if not done already
-     + Can use Enhanced Total Energy Control System (ETECS) for control
-     + Flash the PPRZ firmware via WiFi or USB
-     + Enlarged battery bay to fit a high capacity 5200 mAh 3S battery. The all-up weight (AUW)) of the airframe will be ~150g more
-       Center of gravity still the same, flighttime doubles...
-     + Regular Telemetry is possible via USB to FTDI serial to Modem, added kernel drivers see:
-        https://wiki.paparazziuav.org/wiki/Howto.crosscompile_for_parrot_drones
-        https://wiki.paparazziuav.org/wiki/Use_the_USB_port_on_Parrot_Drones
-     + Bottom camera can used just for some mapping, not high resolution but still fun...
-     + The Parrot C.H.U.C.K. can be removed and placed in a regular plane also
-     + If you change your control from ETECS to Classic or New make sure to disable the settings/estimation/ac_char
-     + Added 12c 5200mAh battery, expect flighttimes of 52minutes at 15m/s
-     + PPRZLink v2 advised for tcas fun
-     + OpenRX XSR but e.g a Spektrum DSMX Orange R620X Receiver with SBUS out possible
-
- WIP:
-     + It flies well, still not all gains are tuned to optimum, feel free to enhance and a PR...
-     + The front cam is not yet fully supported with internal code, however successful video recording, streaming already possible with current module
-     + Sonar needs to be put to good use e.g. last part of flare in landing
-     + Investigate effectiveness scheduling for (high)speed adjustments on non transitional fixedwing
-
- Launching
-     + 1)Set TX to AUTO2 (or even switch off your TX is you dare)
-       2) Move nose to ground
-       3) wait until props spins after a second or so,
-       4) move aircraft slight pitch up
-       5) throw...
-
- RC:
-     If the RC receiver is Orange R620X make sure to set modeswitch to Auto2 on your TX when binding!
-     else if one would lose RC or switch of transmitter during Auto2 flight, it will hop to manual... very bad...
-
-     A PPM receiver could theoretically be used, only for Linux ARCH no software to handle it is written (hint!)
-     SUMD also. For the PPRZ Spektum could also, but not if you also want to fly it with RC but without PPRZ as AP only original
-     since Spektrum serial OUTPUT is not handled by the Parrot main AP
-     So a Spektrum DSMX with SBUS out, as there a plenty work well.
-
-     The setup of Transmitter is in such a way that one could fly without PPRZ just Parrot original AP with a 3rd party RC transmitter
-     Thus modeswitch on 5 for well... mode
-
-     TX Channel Nr  Function                        Control type        Comments
-     1              Roll                            Stick
-     2              Pitch                           Stick
-     3              Throttle                        Stick
-     4              Yaw                             Stick               Used to set the Disco in loiter
-     setself        Gear                            3-position switch   Used to configure the piloting mode:
-                      Auto-pilot with Parrot SkyController2 (Risky so better limit this one exept if you teaching people to fly with Skycontroller student AND RCTX for teacher )
-                      Auto-pilot with RC controller
-                      Full manual with RC controller
-     setself        Automatic Take-off/Landing      2-position switch Used in “Auto-pilot with RC controller” mode
-     setself        Start: SWx    Landing: SWy
-     setself        Motor off in manual mode    SW?
-
-     TIP:
-     As soon as a RC receiver is connected to Disco, one has extra options in Freeflight Pro to set up the RC receiver
-     These values are then stored in the map.cfg file on the Disco
-     One finds some setting on the Disco board in /etc/radio/map.cfg  incase of need of extreme customization ;)
-     Telnet there, Mount the partition to RW and adjust at will...
+     If testing "Classic" (as in not ETECS..) make sure to disable the settings/estimation/ac_char
+     Se the USE_AIRSPEED value to FALSE at first, for no airspeed tests
+     Use also flightplan_versatile if no airspeed sensor is ues and use
+     flightplan versatile_unified only with enabled airspeed sensor
   </description>
   <firmware name="fixedwing">
 <!-- ********************** For in the real flying hardware ******************** -->
 
-    <target name="ap" board="disco">
+    <target name="ap" board="px4fmu_4.0"><!-- <target name="ap" board="px4fmu_4.0_chibios">-->
 
-      <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
-
+      <!--<define name="USE_I2C0"/>-->
       <!-- Towards better kind of aligner initial conditions -->
       <!--
       <define name="AHRS_ALIGNER_SAMPLES_NB" value="600"/>
@@ -93,24 +40,15 @@
       <define name="LOW_NOISE_TIME" value="10"/>
       <!-- -->
 
-      <!--<configure name="FLASH_MODE" value="USB"/>--><!-- TODO: WIFI or USB-->
-      <!-- WIP: Front Camera parameters -->
-      <define name="H264_ROTATE" value="TRUE"/>
-      <define name="MT9F002_OUTPUT_HEIGHT" value="520" />
-      <define name="MT9F002_OUTPUT_WIDTH" value="240" />
-      <define name="MT9F002_OFFSET_X" value="0.072" />
-      <define name="MT9F002_TARGET_EXPOSURE" value="4" />
-      <define name="MT9F002_ZOOM" value="1.25"/>
-
-      <!-- <configure name="CPU_LED" value="1"/>--> <!-- Change to whatever you like -->
+      <configure name="CPU_LED" value="1"/> <!-- Change to whatever you like -->
 
       <!-- Note that PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
       <configure name="PERIODIC_FREQUENCY" value="512"/> <!--  unit="Hz" -->
 
-      <define name="DISCO_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
-      <define name="DISCO_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/><!-- Set to 8G maybe possible -->
-      <define name="DISCO_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
-      <define name="DISCO_SMPLRT_DIV" value="3"/><!-- Do not change randomly ;) -->
+      <!-- NOT USED now<define name="xxx_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+      <define name="xxxx_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
+      <define name="xxx_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="xxx_SMPLRT_DIV" value="3"/>-->
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/><!--  unit="Hz" -->
       <configure name="AHRS_CORRECT_FREQUENCY" value="500"/> <!--  unit="Hz" -->
@@ -121,68 +59,82 @@
       <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
       <configure name="MODULES_FREQUENCY" value="512"/> <!--  unit="Hz" -->
 
-      <module name="imu" type="disco"/>
-
-      <module name="sonar_bebop"><!-- already in IMU as autoload but we need to set a few things-->
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="FALSE"/><!-- activate later if all works and test GLS autoland with it -->
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4"/> <!-- in M -->
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0"/> <!-- in s -->
-        <define name="SENSOR_SYNC_SEND_SONAR"/>  <!-- Disable after testflights -->
+      <module name="imu" type="mpu9250_spi">
+        <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+        <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+        <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+        <!-- To be able (for now) to set AP IMU orientaion -->
+        <!-- <define name="IMU_MPU9250_CHAN_X" value="1"/>
+        <define name="IMU_MPU9250_CHAN_Y" value="0"/>
+        <define name="IMU_MPU9250_CHAN_Z" value="2"/>
+        <define name="IMU_MPU9250_X_SIGN" value="-1"/>
+        <define name="IMU_MPU9250_Y_SIGN" value="-1"/>
+        <define name="IMU_MPU9250_Z_SIGN" value="-1"/> -->
       </module>
 
-      <module name="actuators" type="disco"/>
-      <!-- This GPS is a real ublox M8N, so setting can be saved, no need
+      <!-- This GPS is a real ublox M9N, so setting can be saved, no need
       for ubx_ucenter one has can set it oneself since we have all kinds
       of nifty Galilleio setting we rather keep that, but for now, lazyness -->
       <module name="gps" type="ubx_ucenter"/>
 
-      <module name="airspeed" type="ms45xx_i2c">
-        <!--Gives cut-off freq of 1/(2*pi*tau) in 1Hz -->
-        <define name="MS45XX_LOWPASS_TAU" value="0.25"/> <!-- TODO: find optimum value for stock Disco -->
+      <module name="airspeed_ets">
+        <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO Disable after first 10 test flights -->
+        <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
+        <!-- <define name="AIRSPEED_ETS_SCALE"   value="1.44"/>--> <!-- default 1.8-->
+        <!-- <define name="AIRSPEED_ETS_OFFSET"  value="50"/> --> <!-- default 0 -->
       </module>
+
+      <module name="current_sensor">
+        <define name="USE_ADC_3"/> <!-- should not be needed if defaults are correct...-->
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
+      </module>
+
+      <module name="adc_generic">
+        <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
+        <!--<configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
+      </module>
+
+      <!-- <module name="adc_generic">-->
+      <!-- <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  <!-- Misuse the RSSI pin? -->
+      <!-- RPM measuring sensor -->
+      <!-- <configure name="ADC_CHANNEL_GENERIC2" value="ADC_x"/>
+      </module>-->
 
       <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
       <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
-        <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>  <!-- Set the OpenRXSR receiver to maximum channel output of 8 9ms -->
-        <!--<define name="RADIO_CONTROL_NB_CHANNEL" value="12"/>--> <!-- An Orange R620X Has maximum sbus channel output of 12 -->
+        <define name="RADIO_CONTROL_NB_CHANNEL" value="16"/>  <!-- Set the OpenRXSR receiver to maximum channel output of 8 9ms -->
+        <!--<configure name="SBUS_PORT" value="UART5"/>--> <!-- Default use UART2  on FMU4 -->
+        <!-- Mode set one a three way switch -->
+        <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
+        <define name="RADIO_GEAR" value="RADIO_AUX2"/>
+        <define name="RADIO_FLAP" value="RADIO_AUX3"/>
       </module>
-        <!-- If one want to use a Joystick over Wifi(not advised...) one can us this instead of sbus-->
+
+      <!-- If one want to use a Joystick over connection one can us this instead of sbus-->
       <!--<module name="radio_control" type="datalink"/>-->
 
-      <!-- Those modules not so much use in simulation, therefore only in this target section real HW -->
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
       <!--<module name="flight_benchmark">
-        <define name="BENCHMARK_AIRSPEED value="TRUE"/>
-        <define name="BENCHMARK_ALTITUDE value="TRUE"/>
-        <define name="BENCHMARK_POSITION value="TRUE"/>
+        <define name="BENCHMARK_AIRSPEED" value="TRUE"/>
+        <define name="BENCHMARK_ALTITUDE" value="TRUE"/>
+        <define name="BENCHMARK_POSITION" value="TRUE"/>
         <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="1" unit="m/s"/>
         <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
         <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
       </module>-->
 
-      <!-- <module name="sys_mon"/> --><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
+      <module name="sys_mon"/><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
       <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
 
-      <!-- Used for writing e.g highspeed accelometer and gyro values for needed tuning can be disabled when all is done -->
-      <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/Disco/logger"/>
-      </module>
-
       <!-- For easier on desk testing transparent_usb, else transparent -->
-      <!-- <module name="telemetry" type="transparent_usb"/>--> <!-- FIXME: gives compile error -->
+       <module name="telemetry" type="transparent_usb"/>
 
-      <module name="telemetry" type="transparent_udp"/>
-
-      <!-- By adding new kernel drivers to the Disco it is very well possible to use all kinds of external devices. -->
-      <!-- E.g. a serial modem via FTDI cable on CHUCK Micro USB 2, testflights performed, all works well -->
-      <!-- Possible if one connect other serial devices they present them as ttyACMx devices, if so try UART5 or UART6 -->
-
-      <!--<module name="telemetry" type="transparent">--><!-- Or use type="xbee_api" for Digi Xbee modems -->
-       <!-- <configure name="MODEM_PORT" value="UART2"/>
-        <configure name="MODEM_BAUD" value="B9600"/>-->
-      <!--</module>-->
-
-      <!-- <module name="extra_pprz_dl"/>--> <!-- e.g. for WiFi *AND* a LongRangeModem -->
+      <!-- Or use type="xbee_api" for Digi Xbee modems -->
+       <!-- UART2 is Telem1 on pixracer -->
+      <!--<module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART2"/>
+        <configure name="MODEM_BAUD" value="B57600"/>
+      </module>-->
 
     </target>
 
@@ -191,6 +143,8 @@
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/><!--  unit="Hz" -->
       <module name="radio_control" type="ppm"/>
+      <define name="RADIO_GEAR" value="RADIO_AUX2"/>
+      <define name="RADIO_FLAP" value="RADIO_AUX3"/>
       <!--<define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>-->
       <module name="telemetry" type="transparent"/>
       <!--<module name="imu" type="aspirin_v2.2"/>-->
@@ -208,7 +162,9 @@
       <configure name="PERIODIC_FREQUENCY" value="512"/> <!--  unit="Hz" -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/><!--  unit="Hz" -->
       <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="datalink"/>
+      <module name="radio_control" type="ppm"/>
+      <define name="RADIO_GEAR" value="RADIO_AUX2"/>
+      <define name="RADIO_FLAP" value="RADIO_AUX3"/>
       <!--<define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>-->
       <define name="INS_BARO_ID" value="BARO_SIM_SENDER_ID"/>
       <module name="telemetry"   type="transparent"/>
@@ -222,29 +178,6 @@
       <!--<module name="radio_control" type="datalink"/>-->
       <module name="udp"/><!--FIXME-->
     </target>
-
-<!-- ********* Yet another way for simulation of the flight *********-->
-<!-- FIXME: Needs fixes in CRRC simfdm-->
-<!--
-    <target name="nps" board="pc">
-      <configure name="PERIODIC_FREQUENCY" value="512"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-      <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="crrcsim"/>
-      <module name="imu" type="nps"/>
-      <module name="telemetry" type="transparent"/>
-    </target>
--->
-
-<!-- ********************* and another one ... ********************* -->
-    <!-- <target name="yasim" board="pc"> -->
-      <!-- Note NPS needs the ppm type radio_control module -->
-      <!--
-      <module name="radio_control" type="ppm">
-      <module name="fdm" type="yasim"/>
-      <module name="udp"/>-->
-    <!-- </target>-->
 
 <!-- ********** Common Defines and Config and values for both Real Hardware and Simulation ***** -->
 
@@ -261,7 +194,6 @@
     -->
 
     <define name="USE_AIRSPEED" value="TRUE"/><!-- Use the sensor, not stating use it in flight -->
-
     <define name="RADIO_CONTROL_AUTO1"/><!--FIXME: not working in JSBSim target-->
 
     <define name="AGR_CLIMB"/> <!--Has aggressive mode handy for testing purposes -->
@@ -271,8 +203,7 @@
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
 
-    <define name="autopilot_motors_on" value="TRUE"/><!-- TODO: choose ;) -->
-    <!-- <define name="MS45XX_SENSOR_SYNC_SEND"/>--> <!-- Temp for debugging Airspeed -->
+    <define name="autopilot_motors_on" value="TRUE"/>
     <!-- temp fix for geomag, normally only used for rotorcraft -->
     <define name="SENSOR_SYNC_SEND"/> <!-- Temp for debugging Baro -->
     <configure name="USE_BARO_BOARD" value="TRUE"/>
@@ -293,12 +224,15 @@
 
 <!-- ************************* MODULES ************************* -->
 <!-- Warning: unit conversion does not work in this section of airframe, so use the native units, or you'll have trouble...-->
-    <module name="gps" type="ublox"/>
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B57600"/>
+      <!-- <configure name="GPS_PORT" value="UARTx"/>--><!-- Now uses the default GPS port on pixracer -->
+    </module>
     <module name="tune_airspeed"/> <!-- Enable if one want to perform airspeed tuning -->
 
-    <module name="ahrs" type="float_cmpl_quat"> <!-- Compare e.g.cmpl_quat  float_dcm -->
+    <module name="ahrs" type="float_cmpl_quat"> <!-- Compare e.g. float_dcm -->
         <configure name="AHRS_USE_MAGNETOMETER" value="TRUE"/> <!-- as in USE it for values in the AHRS -->
-        <!--<configure name="AHRS_ALIGNER_LED" value="2"/>--><!-- Which color you want sir? ;) -->
+        <configure name="AHRS_ALIGNER_LED" value="2"/><!-- Which color you want sir? ;) -->
         <define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/> <!-- if TRUE with those high roll n pith angles magneto should be calibrated well or use UKF autocalib -->
         <define name="AHRS_USE_GPS_HEADING" value="TRUE"/><!-- TRUE by default Use GPS course to update heading for time being,if FALSE data from magneto only -->
         <!-- <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE"/>--> <!--Already TRUE by default Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"-->
@@ -312,23 +246,57 @@
         <define name="AHRS_FC_MAG_ID" value="MAG_CALIB_UKF_ID" /><!-- for when using the mag_clib_ukf -->
     </module>
 
-    <module name="ins" type="alt_float"/>  <!--Does not work in SIM: extended thus use alt_float"/> -->
+    <module name="ins" type="alt_float"> <!--Does not work in SIM: extended thus use alt_float"/> -->
+      <define name="USE_BAROMETER"/>
+    </module>
 
     <!-- See http://wiki.paparazziuav.org/wiki/EnergyControl -->
-    <module name="control" type="energyadaptive"/><!-- or energyadaptive use type="new" to you gusto -->
+    <module name="control" type="new"/><!-- energy or energyadaptive or type="new" to you gusto -->
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
-    <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
-    <!-- <module name="send_imu_mag_current"/>--> <!-- Can be Disabled after one time callibration, quite the same for all Discos -->
+    <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
+    <module name="send_imu_mag_current"/> <!-- Can be Disabled after one time callibration -->
+
+    <module name="baro_ms5611_spi" >
+      <configure name="MS5611_SPI_DEV" value="spi1"/>
+      <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
+      <define name="SENSOR_SYNC_SEND"/>
+    </module>
 
     <!-- Also used if QNH needed -->
     <module name="air_data">
-     <define name="CALC_AIRSPEED" value="FALSE"/><!--  we set use airspeed elsewhere-->
+     <define name="CALC_AIRSPEED" value="TRUE"/><!--  we set use airspeed elsewhere-->
      <define name="CALC_TAS_FACTOR" value="FALSE"/>
      <define name="CALC_AMSL_BARO" value="TRUE"/>
     </module>
 
     <module name="geo_mag"/>
+
+      <!-- The Pixravcer has a built in SD card slot connected over SPI bus to the MCU -->
+<!--
+  <module name="logger_sd_spi_direct.xml">
+    <configure name="SDLOGGER_DIRECT_SPI" value="spi2"/>
+    <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="SPI_SLAVE4"/>
+    <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX3"/>
+    <configure name="LOGGER_LED" value="3"/>
+  </module>
+  -->
+
+   <!--  As in telemetry file to add still...
+    <process name="Logger">
+    <mode name="default">
+      <message name="FBW_STATUS"          period="1.2"/>
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="IMU_ACCEL"           period="0.05"/>
+      <message name="IMU_GYRO"            period="0.05"/>
+      <message name="IMU_MAG"             period="0.1"/>
+      <message name="IMU_ACCEL_RAW"       period="0.002"/>
+      <message name="IMU_GYRO_RAW"        period="0.002"/>
+      <message name="IMU_MAG_RAW"         period="0.002"/>
+      <message name="COMMANDS"            period=".002"/>
+    </mode>
+  </process>
+  -->
 
     <module name="nav" type="line"/>
     <module name="nav" type="line_border"/>
@@ -341,76 +309,51 @@
     <module name="nav" type="vertical_raster"/>
     <module name="nav" type="flower"/>
 
+    <!-- module name="nav" type="catapult"/> --><!-- TODO Switch it on later after first flights -->
+
+    <module name="mag" type="hmc58xx">
+   <!-- We will use the magnetometor that is available on our GPS board
+      Thi one is temperature compensated and furtherest away from all other devices
+      so less influens (still to measure raw mag values to check this though )
+      In case we where sloppy builing in the GPS+mag combo , we always are ;)
+      we nead to compensate this a bit e.g. the pitch
+      lucky the tree axis are aligned already in hardware ;) -->
+   <!-- <define name="MAG_TO_IMU_THETA" value="6" unit="deg"/>-->
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="FALSE"/><!-- When all calib and works to TRUE -->
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+
+      <!--
+      If you build in your GPS where theMAGNETOMETER resides on the board not alligned with the Accelo/Gyro axis the nset these values
+      <define name="MAG_TO_IMU_PHI" value="0.0" unit="deg"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" unit="deg"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" unit="deg"/>
+      -->
+    </module>
+
     <!-- can be used in flightplan during takeoff/landing or lowflyby with default sonar -->
     <module name="agl_dist">
         <define name="USE_SONAR"/>
     </module>
 
-    <!-- Propellor spinup of Disco is to slow with direct handlaunch, "catapult" module not all to usable -->
-    <!-- <module name="nav" type="catapult"/>-->
-
-    <!-- Quite a good alternative for the catapult module in this case -->
-    <module name="takeoff_detect">
-      <define name="TAKEOFF_DETECT_LAUNCH_PITCH" value="0.785398"/><!-- unit="rad"--><!--45deg Pitch angle for takeoff detection (sets 'launch' state to TRUE)-->
-      <define name="TAKEOFF_DETECT_ABORT_PITCH" value="-0.349066"/> <!-- unit="rad"--> <!-- -20deg Pitch angle to abort takeoff (set 'launch' to FALSE)-->
-      <define name="TAKEOFF_DETECT_TIMER" value="1.2"/> <!-- Timer for takeoff detection in seconds (default 2s above pitch angle threshold)-->
-      <define name="TAKEOFF_DETECT_DISABLE_TIMER" value="6.0"/> <!--Timer for module de-activation (default 4s after the launch detection)-->
-      <define name="TAKEOFF_DETECT_ALSO_IN_AUTO1" value="TRUE"/> <!-- Sometimes throwing is not so easy :) so takeoff stabilized -->
-    </module>
+    <module name="nav" type="catapult"/>
 
     <module name="photogrammetry_calculator"/>
 
-    <module name="bebop_cam"/>
-
-    <module name="video_capture">
-      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
-      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/media/bottomcam"/>
+    <!--Unkn aux camsw -->
+    <module name="digital_cam">
+      <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO2"/><!-- correct pin add to board file one from Wifi pins-->
     </module>
-
-    <!-- FIXME NOT ready for Fixedwing primetime... need fixing -->
-    <!--<module name="cv_blob_locator">
-     <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
-    </module>-->
-
-    <!-- Steam MJPG life to a videoviewer e.g. VLC via:
-      vlc ./sw/tools/rtp_viewer/rtp_5000.sdp
-
-      where the sdp file contains this:
-
-       v=0
-       m=video 5000 RTP/AVP 26
-       c=IN IP4 0.0.0.0
-
-      One can also stream life in GCS via Video Papget, see PPRZ Wiki on howto
-    -->
 
     <!--
-    <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
-      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="8"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="65"/>
-    </module>
-    -->
-
-    <module name="video_rtp_stream">
-     <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-     <define name="VIEWVIDEO_QUALITY_FACTOR" value="99"/>
-     <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="0"/>
-    </module>
-
-    <!-- Record video, take picture and stream video using build in Parrot commands -->
-    <module name="dc_ctrl_parrot_mykonos">
-       <define name="DC_CTRL_PARROT_MYKONOS_CAMERA" value="front_camera"/><!-- add index -->
-       <define name="DC_CTRL_PARROT_MYKONOS_SYNC_SEND" value="TRUE"/>
-    </module>
-
-    <module name="video_exif"><!-- Embed State data, e.g. Position in Photos taken -->
-    </module>
-
     <module name="digital_cam_video">
-      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0"/><!--unit="s"-->
-    </module>
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0"/>
+    </module>-->
 
     <!-- Nice when flying multiple airframes, Now the next step is to get the cam look at other AC_ID working between Rotor and Fixed -->
     <module name="traffic_info">
@@ -422,18 +365,27 @@
   </firmware>
 
 <!-- ************************* ACTUATORS ************************* -->
+  <!-- Different for every airframe -->
   <servos>
-    <servo name="S_THROTTLE" no="0" min="1000" neutral="1001" max="12500"/>
-    <servo name="S_ELEVON_LEFT" no="1" min="1100" neutral="1500" max="1900"/>
-    <servo name="S_ELEVON_RIGHT" no="6" min="1900" neutral="1500" max="1100"/><!--neutral maybe 1450 in this arframe a new servo with no good midpoint-->
-    <!-- Below 4 empty, but usable, servo connectors on the CHUCK board -->
-    <servo name="S_RUDDER" no="2" min="1100" neutral="150" max="1900"/> <!-- There is no rudder servo Can be used for other purpose e.g. added drop mechanism -->
-    <servo name="S_ELEVATOR" no="3" min="1100" neutral="1500" max="1900"/> <!-- There is no pure elevator servo Can be used for other purpose e.g. added ACL lights module -->
-    <servo name="S_GEAR" no="4" min="1100" neutral="1500" max="1900"/> <!-- No gear eiter Can be used for other purpose of choice -->
-    <servo name="S_FLAPS" no="5" min="1100" neutral="1500" max="1900"/> <!-- No real flaps either, Can be used for other purpose of choice -->
+    <servo name="S_THROTTLE_LEFT"  no="0" min="1100" neutral="1130" max="1900"/>
+    <servo name="S_THROTTLE_RIGHT" no="1" min="1100" neutral="1130" max="1900"/>
+    <servo name="S_AILERON_LEFT" no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_AILERON_RIGHT" no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_ELEVATOR" no="4" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_RUDDER" no="5" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <section name="ServoPositions">
+    <!--  Just name a few,  value can be used in e.g. flightplan -->
+    <define name="LANDINGGEAR_EXTEND" value="-MAX_PPRZ" />
+    <define name="LANDINGGEAR_RETRACT" value="MAX_PPRZ" />
+    <define name="FLAP_FULL" value="-MAX_PPRZ" />
+    <define name="FLAP_HALF" value="-MAX_PPRZ/2" />
+    <define name="FLAP_NONE" value="0" /><!-- TODO hardware mod use full servo range -->
+    <define name="BEACON_ROTATE" value="MAX_PPRZ" />
+    <define name="BEACON_FLASH" value="0" />
+    <define name="BEACON_OFF" value="-MAX_PPRZ" />
+
     <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ" />
     <define name="SERVO_HATCH_OPEN" value="0" />
     <define name="SERVO_HATCH_CLOSED" value="-9600" />
@@ -444,26 +396,21 @@
     <define name="ThrottleHigh()" value="(ap_state->commands[COMMAND_THROTTLE]>9600/2)" />
   </section>
 <!-- ********************** SERVO MIXER **************************** -->
+   <!--For mixed controls -->
   <section name="MIXER">
-    <define name="ELEVON_ROLL_FACTOR" value="0.7f"/>
-    <define name="ELEVON_PITCH_FACTOR" value="0.6f"/>
-    <define name="ELEVON_YAW_FACTOR" value="0.9f"/>
-    <!-- Set up/down deflection differences, needs many in flight tests to find acceptable values-->
-    <define name="ELEVON_DIFF" value="0.3f"/> <!-- TODO: not used yet, not tuned yet... -->
+    <define name="ASSIST_ROLL_WITH_RUDDER" value="0.09"/><!-- just a tiny bit works well-->
+    <define name="AILERON_DIFF" value="0.3f"/> <!-- TODO: not used yet, not tuned yet... -->
   </section>
 
 <!-- ************************ COMMAND LAWS ************************* -->
   <command_laws>
-    <let var="aileron" value="@ROLL * ELEVON_ROLL_FACTOR"/>
-    <let var="elevator" value="@PITCH * ELEVON_PITCH_FACTOR"/>
-    <let var="leftyaw" value="(@YAW >= 0? 0 : 1)"/>
-    <let var="rightyaw" value="(1 - $leftyaw)"/>
-    <!-- opposite of left -->
-    <let var="rudderleft" value="-(@YAW * $leftyaw) * ELEVON_YAW_FACTOR"/>
-    <let var="rudderright" value="(@YAW * $rightyaw) * ELEVON_YAW_FACTOR"/>
-    <set servo="S_THROTTLE" value="@THROTTLE"/>
-    <set servo="S_ELEVON_LEFT" value="$elevator - $aileron + $rudderleft"/>
-    <set servo="S_ELEVON_RIGHT" value="$elevator + $aileron + $rudderright "/>
+    <set servo="S_THROTTLE_LEFT" value="@THROTTLE"/>
+    <set servo="S_THROTTLE_RIGHT" value="@THROTTLE"/>
+    <let var="roll" value="@ROLL"/>
+    <set servo="S_AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="S_AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+    <set servo="S_ELEVATOR" value="@PITCH"/>
+    <set servo="S_RUDDER" value="@YAW - @ROLL*ASSIST_ROLL_WITH_RUDDER"/>
   </command_laws>
 
 <!-- ************************ RC COMMANDS ************************** -->
@@ -472,25 +419,34 @@
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
     <set command="YAW" value="@YAW"/>
-    <!-- for EXTRAs e.g. tuning via RC these ones below -->
-    <!-- <set command="GAIN1" value="@GAIN1"/> -->
-    <!-- <set command="CALIB" value="@GAIN2"/> -->
+    <!--<set command="GEAR" value="@AUX1"/>
+    <set command="FLAP" value="@AUX2"/>-->
+    <!-- for tuning via RC these ones below -->
+    <!--
+    <set command="GAIN1"    value="@GAIN1"/>
+    <set command="CALIB"    value="@CALIB"/>-->
   </rc_commands>
 
-<!-- ************************ AUTO RC COMMANDS ********************* -->
+<!-- ************************ AUTO RC COMMANDS ***************************** -->
   <auto_rc_commands>
-    <!--**TEMPorary for heading change steering if someting not OK with course in Autonomous flight **-->
-    <set command="YAW" value="@YAW"/>
+    <!-- To still be able to use rudder in auto mode, which is handy with sidewind landing in auto1 stabilization mode only YAW
+    Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if someting not OK with course gains in Autonomous flight
+    TODO disable again after strong wind sidewind autolanding is 100% tuned
+      Note that in auto2 mode the Flap and Gear are after test then controlable by flightplan conditions e.g landng block extend gear and flap -->
+    <set command="YAW" value="@YAW"/>   <!-- TODO: Diable later -->
+    <!--<set command="GEAR" value="@GEAR"/>--> <!-- TODO: Diable later -->
+    <!--<set command="FLAP" value="@FLAP"/>--> <!-- TODO: Diable later -->
+
     <!-- To be able to set gain values via RC Transmitter these ones below.
-     This way the can keep his eye on a fast moving plane and set somegain values
-     makes life of a single testpiloted AC much easier -->
-    <!--<set command="GAIN1"    value="@GAIN1"/>
-    <set command="CALIB"    value="@GAIN2"/>-->
-    <!-- Todo to determin best pitch for flare in auto2 one can add Pitch command temporary also-->
-    <!--<set command="PITCH" value="@PITCH"/>-->
+    This way the can keep his eye on a fast moving plane and set somegain values
+    makes life of a single testpiloted AC much easier -->
+    <!--
+    <set command="GAIN1"    value="@GAIN1"/>
+    <set command="CALIB"    value="@CALIB"/> -->
   </auto_rc_commands>
 
-<!-- *************************** COMMANDS ************************** -->
+
+<!-- ************************ COMMANDS ***************************** -->
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="5"/>
@@ -498,15 +454,15 @@
     <axis name="YAW" failsafe_value="0"/>
   </commands>
 
-<!-- *************************** AUTO1 ***************************** -->
+<!-- ************************ AUTO1 ***************************** -->
   <!-- Do not set MAX_ROLL, MAX_PITCH to small of a value, otherwise one can NOT control the plane very well manually -->
   <!-- If you have dual rate swith it of with same swtch as mode switch thus auto1 means dualrate is switched off also -->
   <section name="AUTO1" prefix="AUTO1_">
     <define name="MAX_ROLL" value="60" unit="deg"/> <!-- More autority while testflying for first time -->
-    <define name="MAX_PITCH" value="45" unit="deg"/> <!-- More autority while testflying for first time -->
+    <define name="MAX_PITCH" value="55" unit="deg"/> <!-- More autority while testflying for first time -->
   </section>
 
-<!-- **************************** TRIM ***************************** -->
+<!-- ************************ TRIM ***************************** -->
   <section name="TRIM" prefix="COMMAND_">
     <define name="ROLL_TRIM" value="0.0"/>
     <define name="PITCH_TRIM" value="0.0"/>
@@ -515,16 +471,20 @@
 <!-- ************************ FAILSAFE ***************************** -->
 <!-- Strategy for failsafe is slow wide circles and loosing height in a controlled fashion -->
   <section name="FAILSAFE" prefix="FAILSAFE_">
-    <define name="DEFAULT_THROTTLE" value="0.0" unit="%"/>
-    <define name="DEFAULT_ROLL" value="15.0" unit="deg"/>
-    <define name="DEFAULT_PITCH" value="-10.0" unit="deg"/>
-    <define name="DELAY_WITHOUT_GPS" value="5" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.20" unit="%"/>
+    <define name="DEFAULT_GEAR" value="1100"/>
+    <define name="DEFAULT_ROLL" value="10.0" unit="deg"/>
+    <define name="DEFAULT_PITCH" value="-5.0" unit="deg"/>
+    <!--  TODO Maybe extent flap to landing position, testfly it first -->
+    <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
+    <define name="KILL_MODE_DISTANCE" value="MAX_DIST_FROM_HOME*1.3+HOME_RADIUS" unit="m"/><!--  improve value by default turn radius calc -->
+    <define name="DELAY_WITHOUT_GPS" value="4" unit="s"/>
   </section>
 
-<!-- **************************** IMU ****************************** -->
+<!-- ************************* IMU ************************* -->
   <section name="IMU" prefix="IMU_">
 
-    <!-- ********************* GYRO ********************-->
+    <!-- ***************** GYRO *****************-->
     <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_R_SENS" value=" 1.01" integer="16"/>
@@ -575,25 +535,13 @@ The most crucial part for the magnetometer calibration:
 6) Save, rebuild and upload to Disco... Done!
 -->
 
-<!-- TODO separate calib includes based on calib_$AC_ID.xml
-<!-- Disco A -->
-<!--
-    <define name="MAG_X_NEUTRAL" value="4"/>
-    <define name="MAG_Y_NEUTRAL" value="-111"/>
-    <define name="MAG_Z_NEUTRAL" value="-515"/>
-    <define name="MAG_X_SENS" value="6.99930117435" integer="16"/>
-    <define name="MAG_Y_SENS" value="6.85616692786" integer="16"/>
-    <define name="MAG_Z_SENS" value="7.25614648348" integer="16"/>
--->
-<!-- Disco B -->
-    <define name="MAG_X_NEUTRAL" value="-76"/>
-    <define name="MAG_Y_NEUTRAL" value="-148"/>
-    <define name="MAG_Z_NEUTRAL" value="-544"/>
-    <define name="MAG_X_SENS" value="9.32170888384" integer="16"/>
-    <define name="MAG_Y_SENS" value="9.08947221668" integer="16"/>
-    <define name="MAG_Z_SENS" value="9.38604192016" integer="16"/>
-
-    <!-- Should be same for everyone -->
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+    <!--define name="MAG_OFFSET" value="-?.0" unit="deg"--> <!--  TODO: at least 3 axis in worst case -->
     <define name="MAG_X_CURRENT_COEF" value="0.000321738038902"/>
     <define name="MAG_Y_CURRENT_COEF" value="-0.000820010304048"/>
     <define name="MAG_Z_CURRENT_COEF" value="0.00139218924958"/>
@@ -617,10 +565,10 @@ The most crucial part for the magnetometer calibration:
 
 <!-- ************************* INS ************************* -->
   <section name="INS">
-    <!--  For those super precise target landings ;) well better build in a uBLox M8P-->
-    <define name="INS_BODY_TO_GPS_X" value="0.11" unit="m"/>
+    <!--  For those super precice target landings ;) well better build in a uBLox M8P-->
+    <define name="INS_BODY_TO_GPS_X" value="0.05" unit="m"/>
     <define name="INS_BODY_TO_GPS_Y" value="0.0" unit="m"/>
-    <define name="INS_BODY_TO_GPS_Z" value="0.03" unit="m"/>
+    <define name="INS_BODY_TO_GPS_Z" value="0.06" unit="m"/>
 
     <!-- <define name="USE_INS_MODULE"/> -->
 
@@ -633,11 +581,12 @@ The most crucial part for the magnetometer calibration:
   </section>
 
 <!-- ************************* SONAR ************************* -->
+  <!-- TODO: Set correct values if one uses a Maxbotix LV1 (Model 1010) -->
   <section name="SONAR" prefix="SONAR_">
-    <define name="SCALE" value="0.016775" integer="16"/>
-    <define name="OFFSET" value="0.03" unit="m"/> <!-- Landing gear height to tarmac, well ~0 m with this flyingwing -->
-    <define name="MAX_RANGE" value="9.0" unit="m"/>
-    <define name="MIN_RANGE" value="0.18" unit="m"/>
+    <define name="SCALE" value="0.00650498" integer="16"/><!-- XL-MaxSonar-EZ4 5V supply scaled to 3.3V -->
+    <define name="OFFSET" value="0.20" unit="m"/> <!-- Landing gear height to tarmac -->
+    <define name="MAX_RANGE" value="4.0" unit="m"/>
+    <define name="MIN_RANGE" value="0.5" unit="m"/>
   </section>
 
 <!-- ***************************** AGL ***************************** -->
@@ -650,8 +599,8 @@ The most crucial part for the magnetometer calibration:
 
 <!-- ************************* MAG_CALIB_UKF ************************* -->
   <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
-    <define name="HOTSTART" value="FALSE"/><!-- for faster convergence flights to flight -->
-    <define name="HOTSTART_SAVE_FILE" value=""/><!--<define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt"/>-->
+    <define name="HOTSTART" value="FALSE"/><!-- for faster convergence flights to flight if there is a storage option -->
+    <define name="HOTSTART_SAVE_FILE" value=""/>
     <define name="NORM" value="1.0f"/>
     <define name="NOISE_RMS" value="5e-2f"/>
     <define name="GEO_MAG_TIMEOUT" value="0"/>
@@ -663,8 +612,8 @@ The most crucial part for the magnetometer calibration:
 <!-- ************************* H ************************* -->
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
 
-     <define name="COURSE_PGAIN" value="1.25"/><!-- TODO: Tune values -->
-     <define name="COURSE_DGAIN" value="0.2"/><!-- TODO: Tune values -->
+     <define name="COURSE_PGAIN" value="0.8"/><!-- TODO: Tune values -->
+     <define name="COURSE_DGAIN" value="0.3"/><!-- TODO: Tune values -->
      <define name="COURSE_TAU" value="0.5"/><!-- TODO: Tune values -->
      <!--
      The prebank is an adjustment to the roll setting which is performed when the aircraft is
@@ -681,24 +630,25 @@ The most crucial part for the magnetometer calibration:
     -->
     <define name="COURSE_PRE_BANK_CORRECTION" value="0.98"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="75" unit="deg"/>
-    <define name="PITCH_MAX_SETPOINT" value="60" unit="deg"/>
-    <define name="PITCH_MIN_SETPOINT" value="-60" unit="deg"/>
+    <define name="ROLL_MAX_SETPOINT" value="50" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="30" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30" unit="deg"/>
 
-    <define name="PITCH_PGAIN" value="6500"/>
-    <define name="PITCH_DGAIN" value="100"/>
-    <define name="PITCH_IGAIN" value="30"/>
-    <define name="PITCH_KFFA" value="10."/>
-    <define name="PITCH_KFFD" value="0."/>
+    <define name="PITCH_PGAIN" value="7200"/>
+    <define name="PITCH_DGAIN" value="6.0"/>
+    <define name="PITCH_IGAIN" value="100"/>
+    <define name="PITCH_KFFA" value="0.0"/>
+    <define name="PITCH_KFFD" value="0.0"/>
 
-    <define name="ELEVATOR_OF_ROLL" value="1500" unit="PPRZ_MAX"/>
-    <define name="ROLL_SLEW" value="0.5"/><!-- TODO: Determine best value-->
-    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
-    <define name="ROLL_RATE_GAIN" value="1400"/>
+    <define name="ELEVATOR_OF_ROLL" value="1600" unit="PPRZ_MAX"/>
+    <define name="ROLL_SLEW" value="0.3"/><!-- TODO: Determine best value-->
+    <define name="ROLL_ATTITUDE_GAIN" value="7400."/>
+    <define name="ROLL_RATE_GAIN" value="200."/>
     <define name="ROLL_IGAIN" value="100."/>
-    <define name="ROLL_KFFA" value="100"/>
-    <define name="ROLL_KFFD" value="0"/>
+    <define name="ROLL_KFFA" value="0.0"/>
+    <define name="ROLL_KFFD" value="0.0"/>
 
+    <!--<define name="PITCH_OF_ROLL" value="RadOfDeg(1.0)"/>-->
     <!--<define name="PITCH_OF_ROLL" value="4." unit="deg"/>--><!-- TODO: : ?-->
     <define name="AILERON_OF_THROTTLE" value="0.0"/><!-- TODO: : ?-->
 
@@ -714,28 +664,28 @@ The most crucial part for the magnetometer calibration:
 
     <!-- Classic -->
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="0.15"/> <!--unit="(m/s)/m"-->
+    <define name="ALTITUDE_PGAIN" value="0.10"/> <!--unit="(m/s)/m"-->
     <!-- disable climb rate limiter -->
     <define name="AUTO_CLIMB_LIMIT" value="2*V_CTL_ALTITUDE_MAX_CLIMB"/>
     <!-- auto throttle -->
     <!-- Cruise throttle + limits -->
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30" unit="%"/>  <!-- TODO: Determine -->
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.40" unit="%"/>  <!-- TODO: Determine -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.50" unit="%"/> <!-- TODO: Determine -->
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.90" unit="%"/>
 
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000" unit="pprz_t"/>
 
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.39" unit="%/(m/s)"/> <!-- TODO: Determine -->
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/> <!-- TODO: Determine -->
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_PGAIN" value="0.005" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.002"/>
     <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.11" unit="rad/(m/s)"/> <!-- TODO: Determine -->
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15" unit="rad/(m/s)"/> <!-- TODO: Determine -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0." unit="rad"/> <!-- default 0 -->
 
-    <define name="THROTTLE_SLEW_LIMITER" value="0.6" unit="m/s/s"/>  <!-- Limiter for e.g. a powerful motor -->
+    <define name="THROTTLE_SLEW_LIMITER" value="0.9" unit="m/s/s"/>  <!-- Limiter for e.g. a powerful motor -->
 
     <!-- airspeed control -->
     <!-- Best to never set AUTO_AIRSPEED_SETPOINT lower than airframe stall speed if you hate repairs ;) -->
@@ -760,10 +710,7 @@ The most crucial part for the magnetometer calibration:
     <define name="AUTO_GROUNDSPEED_PGAIN" value="0.8"/>
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0.2"/>
 
-    <define name="AIRSPEED_PGAIN" value="0.19"/>
-
-    <!-- For control classic as in not new or enegry etc.-->
-    <define name="AUTO_AIRSPEED_PGAIN" value="0.18" unit="%/(m/s)"/>
+    <define name="AIRSPEED_PGAIN" value="0.15"/>
 
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="3.0" unit="m/s"/> <!-- TODO: Determine -->
@@ -776,18 +723,18 @@ The most crucial part for the magnetometer calibration:
     <define name="AUTO_PITCH_DGAIN" value="0.01"/>   <!-- TODO: Determine -->
     <define name="AUTO_PITCH_IGAIN" value="0.00"/> <!-- TODO: Determine -->
     <!--define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.14"/-->
-    <define name="AUTO_PITCH_MAX_PITCH" value="55" unit="deg"/><!-- TODO: Determine default and best -->
-    <define name="AUTO_PITCH_MIN_PITCH" value="-55" unit="deg"/><!-- TODO: Determine default and best -->
+    <define name="AUTO_PITCH_MAX_PITCH" value="55." unit="deg"/><!-- TODO: Determine default and best -->
+    <define name="AUTO_PITCH_MIN_PITCH" value="-55." unit="deg"/><!-- TODO: Determine default and best -->
 
     <!-- ============= ETECS ============= -->
     <define name="ENERGY_TOT_PGAIN" value="0.35"/> <!-- TODO: Determine -->
     <define name="ENERGY_TOT_IGAIN" value="0.20"/> <!-- TODO: Determine -->
     <define name="ENERGY_DIFF_PGAIN" value="0.40"/> <!-- TODO: Determine -->
-    <define name="ENERGY_DIFF_IGAIN" value="0.10"/> <!-- TODO: Determine -->
+    <define name="ENERGY_DIFF_IGAIN" value="0.20"/> <!-- TODO: Determine -->
 
     <define name="GLIDE_RATIO" value="7."/> <!-- 7 to 1 --> <!-- TODO: Determine default but also with heavier batt -->
 
-    <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.06"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.07"/>
     <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.01"/>
 
     <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.01"/> <!-- TODO: Determine -->
@@ -798,61 +745,60 @@ The most crucial part for the magnetometer calibration:
 
 <!-- ************************* AGGRESIVE *************************** -->
   <section name="AGGRESSIVE" prefix="AGR_">
-    <define name="BLEND_START" value="40" unit="m"/> <!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_START" value="30" unit="m"/> <!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
     <define name="BLEND_END" value="10" unit="m"/> <!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
-    <define name="CLIMB_THROTTLE" value="0.99" unit="%"/> <!-- Throttlelevel for Aggressive Climb -->
+    <define name="CLIMB_THROTTLE" value="0.85" unit="%"/> <!-- Throttlelevel for Aggressive Climb -->
     <define name="CLIMB_PITCH" value="45" unit="deg"/> <!-- Pitch for Aggressive Climb -->
-    <define name="DESCENT_THROTTLE" value="0.7" unit="%"/> <!-- Throttlelevel for Aggressive Decent -->
-    <define name="DESCENT_PITCH" value="-45" unit="deg"/> <!-- Pitch for Aggressive Decent -->
-    <define name="CLIMB_NAV_RATIO" value="0.8" unit="%"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
-    <define name="DESCENT_NAV_RATIO" value="1.0" unit="%"/>
+    <define name="DESCENT_THROTTLE" value="0.5" unit="%"/> <!-- Throttlelevel for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-30" unit="deg"/> <!-- Pitch for Aggressive Decent -->
+    <define name="CLIMB_NAV_RATIO" value="0.6" unit="%"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="0.9" unit="%"/>
   </section>
 
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
-    <!-- <define name="MAX_BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
-    <define name="MAX_BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
-    <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/> <!-- TODO: calibrate even better -->
+    <define name="MAX_BAT_CAPACITY" value="2200" unit="mAh"/>
+    <!-- The boards/px4fmu_4.0.h contains #define DefaultMilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)  test if valid  for common device -->
+    <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/><!-- TODO: calibrate even better -->
     <!-- tested at V 11.7 the avg -->  <!-- 1idel RPM then 1.0A half throttle 4A-->
-    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/>  <!-- 500mA, with additional RC receiver ~600mA -->
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="11000" unit="mA"/> <!-- At 11.7 10.6 A at 12.2v 11.0A rounded then to 11000 to be at safe side-->
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000" unit="mA"/>
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/> <!-- 3S lipo 3x4.2 = 12.6 -->
     <define name="LOW_BAT_LEVEL" value="10.6" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.0" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/> <!-- TODO: test when AP board switches off -->
-    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/><!-- Get rid if this one maybe? -->
+    <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
 <!-- ***************************** MISC **************************** -->
   <section name="MISC">
     <!-- All for use with default motor and propeller -->
-    <define name="MINIMUM_AIRSPEED" value="10." unit="m/s"/> <!-- TODO: Determine -->
-    <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/> <!-- TODO: Determine -->
-    <define name="MAXIMUM_AIRSPEED" value="23." unit="m/s"/> <!-- TODO: Determine -->
+    <define name="MINIMUM_AIRSPEED" value="13." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="35." unit="m/s"/>
 
     <!-- Values here are only referred to by the flightplan m*_s*_airspeed.xml in final AC -->
-    <define name="CLIMB_AIRSPEED" value="12." unit="m/s"/> <!-- TODO: Determine max and get best values -->
-    <define name="TRACKING_AIRSPEED" value="18." unit="m/s"/> <!-- TODO: Tune to optimum value -->
-    <define name="GLIDE_AIRSPEED" value="10." unit="m/s"/> <!-- TODO: Tune to optimum value -->
-    <define name="STALL_AIRSPEED" value="7." unit="m/s"/> <!-- TODO: Determine limit of plane in testflights (and set at this * 1.1?) -->
-    <define name="RACE_AIRSPEED" value="22." unit="m/s"/>
-    <define name="MIN_SPEED_FOR_TAKEOFF" value="11." unit="m/s"/> <!-- TODO: determine and change to make it for airspeed -->
+    <define name="CLIMB_AIRSPEED" value="7." unit="m/s"/> <!-- TODO: Determine max and get best values -->
+    <define name="TRACKING_AIRSPEED" value="20." unit="m/s"/> <!-- TODO: Tune to optimum value -->
+    <define name="GLIDE_AIRSPEED" value="16." unit="m/s"/> <!-- TODO: Tune to optimum value -->
+    <define name="STALL_AIRSPEED" value="12." unit="m/s"/> <!-- TODO: Determine limit of plane in testflights (and set at this * 1.1?) -->
+    <define name="RACE_AIRSPEED" value="21." unit="m/s"/>
+    <define name="MIN_SPEED_FOR_TAKEOFF" value="13." unit="m/s"/> <!-- TODO: determine and change to make it for airspeed -->
     <!-- AIRSPEED_SETPOINT_SLEW is in m/s/s - e.g. a change from 15m/s to 18m/s takes 3s with the default value of 1.-->
-    <define name="AIRSPEED_SETPOINT_SLEW" value="1.5" unit="m/s/s"/> <!-- TODO: Tune to optimum value -->
+    <define name="AIRSPEED_SETPOINT_SLEW" value="0.4" unit="m/s/s"/> <!-- TODO: Tune to optimum value -->
 
     <define name="TAKEOFF_PITCH_ANGLE" value="35" unit="deg"/> <!-- TODO: Tune to optimum value -->
-    <define name="FLARE_PITCH_ANGLE" value="40" unit="deg"/> <!-- TODO: Tune to optimum value -->
-    <define name="NAV_GLIDE_PITCH_TRIM" value="1.0" unit="deg"/> <!-- TODO: determine -->
+    <define name="FLARE_PITCH_ANGLE" value="15" unit="deg"/> <!-- TODO: Tune to optimum value -->
+    <define name="NAV_GLIDE_PITCH_TRIM" value="-1.0" unit="deg"/> <!-- TODO: determine -->
 
     <define name="KILL_MODE_DISTANCE" value="MAX_DIST_FROM_HOME*1.3+HOME_RADIUS" unit="m"/>  <!--  improve value by default turn radius calc -->
 
-    <define name="DEFAULT_CIRCLE_RADIUS" value="35." unit="m"/> <!-- TODO: Determine convinient minimum -->
+    <define name="DEFAULT_CIRCLE_RADIUS" value="80." unit="m"/> <!-- TODO: Determine convinient minimum -->
     <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
-    <define name="LANDING_CIRCLE_RADIUS" value="30." unit="m"/> <!-- TODO: determine optimum minimum -->
+    <define name="LANDING_CIRCLE_RADIUS" value="90." unit="m"/> <!-- TODO: determine optimum minimum -->
     <!-- MIN_CIRCLE_RADIUS used and needed for spiral navigation function and panic autolanding turns-->
-    <define name="MIN_CIRCLE_RADIUS" value="25." unit="m"/> <!-- TODO: determine optimum minimum -->
+    <define name="MIN_CIRCLE_RADIUS" value="60." unit="m"/> <!-- TODO: determine optimum minimum -->
 
-    <define name="CARROT" value="4." unit="s"/>
+    <define name="CARROT" value="6." unit="s"/>
 
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
@@ -892,34 +838,49 @@ The most crucial part for the magnetometer calibration:
     <define name="RADIUS_MIN" value="70." unit="m"/><!-- TODO: for default bottomcam -->
   </section>
 
+  <section name="DIGITAL_CAMERA" prefix="DC_">
+    <define name="AUTOSHOOT_PERIOD" value="3.0" unit="s"/>
+    <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="m"/>
+  </section>
+
+  <!-- ************************* CATAPULT ************************* -->
+  <!--  Can as well be your handlaunch, te human catapult ;) -->
+  <section name="CATAPULT" prefix="NAV_CATAPULT_">
+    <define name="MOTOR_DELAY" value="0." unit="s"/> <!-- TODO determine -->
+    <define name="HEADING_DELAY" value="3.0" unit="s"/><!--  Set to quite a lower value if MAG is working 100% OK -->
+    <define name="ACCELERATION_THRESHOLD" value="1.1"/> <!-- TODO determine -->
+    <define name="INITIAL_PITCH" value="20.0" unit="deg"/>
+    <define name="INITIAL_THROTTLE" value="1.0"/>
+  </section>
+
 <!-- ************************ GLS_APPROACH ************************* -->
  <!-- see: -->
   <section name="GLS_APPROACH" prefix="APP_">
     <define name="DISTANCE_AF_SD" value="20" unit="m"/>
-    <define name="ANGLE" value="4" unit="deg"/> <!-- TODO: determine optimal value -->
-    <define name="INTERCEPT_AF_SD" value="80" unit="m"/> <!--Watch it after landing airspeed = 0 thus aircraft throttles up again, not good -->
+    <define name="ANGLE" value="10" unit="deg"/> <!-- TODO: determine optimal value -->
+    <define name="INTERCEPT_AF_SD" value="100" unit="m"/> <!--Watch it after landing airspeed = 0 thus aircraft throttles up again, not good -->
     <!--<define name="INTERCEPT_RATE" value="0.624" unit="m/s/s"/>-->
-    <define name="TARGET_SPEED" value="12.0" unit="m/s"/> <!-- Via airspeed -->
+    <define name="TARGET_SPEED" value="13.0" unit="m/s"/> <!-- Via airspeed -->
   </section>
 
 <!-- ********************** GCS SPECIFICS ************************** -->
   <section name="GCS">
-    <define name="AC_ICON" value="flyingwing"/>
-    <define name="ALT_SHIFT_PLUS_PLUS" value="40"/>
-    <define name="ALT_SHIFT_PLUS" value="20"/>
-    <define name="ALT_SHIFT_MINUS" value="-20"/>
+    <define name="SPEECH_NAME" value="Twinstar"/>
+    <define name="AC_ICON" value="fixedwing"/> <!--  Just to make sure ;) -->
+    <define name="ALT_SHIFT_PLUS_PLUS" value="50"/> <!-- TODO: change for more testflight convinience -->
+    <define name="ALT_SHIFT_PLUS" value="10"/>  <!-- TODO: change for more testflight convinience -->
+    <define name="ALT_SHIFT_MINUS" value="-10"/>  <!-- TODO: change for more testflight convinience -->
   </section>
 
 <!-- ************************* SIMU ******************************** -->
   <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <define name="JSBSIM_LAUNCHSPEED" value="10.0"/><!-- should use MIN_SPEED_FOR_TAKEOFF-->
-    <define name="WEIGHT" value="1."/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
-    <define name="YAW_RESPONSE_FACTOR" value=".9"/>   <!--default 1.-->
-    <define name="PITCH_RESPONSE_FACTOR" value="1."/> <!--default 1.-->
-    <define name="ROLL_RESPONSE_FACTOR" value="20."/> <!--default 15-->
+    <define name="WEIGHT" value="1.0"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0.0"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0.0"/>
+    <define name="YAW_RESPONSE_FACTOR" value="0.9"/>   <!--default 1.-->
+    <define name="PITCH_RESPONSE_FACTOR" value="1.0"/> <!--default 1.-->
+    <define name="ROLL_RESPONSE_FACTOR" value="20.0"/> <!--default 15-->
   </section>
 
 <!-- ************************ JSBSIM ******************************* -->

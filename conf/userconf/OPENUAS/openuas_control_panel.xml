@@ -166,7 +166,7 @@
       </program>
       <program name="Link Combiner"/>
     </session>
-    <session name="OpenUAS testflights">
+    <session name="OpenUAS testflights 2020">
       <program name="GCS">
         <arg flag="-speech"/>
         <arg flag="-layout" constant="OPENUAS/openuas_bottom_settings.xml"/>
@@ -185,7 +185,6 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GPSd position display"/>
     </session>
     <session name="Flight USB-serial@9600">
       <program name="Data Link">
