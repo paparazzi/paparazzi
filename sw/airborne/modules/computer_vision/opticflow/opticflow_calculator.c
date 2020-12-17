@@ -433,7 +433,7 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
 
   opticflow[0].camera = &OPTICFLOW_CAMERA;
   opticflow[0].id = 0;
-  // TODO Currently applies the same rotation to both cameras
+
   struct FloatEulers euler_cam1 = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
   float_rmat_of_eulers(&body_to_cam[0], &euler_cam1);
 
