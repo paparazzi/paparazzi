@@ -132,7 +132,7 @@ void opticflow_module_run(void)
   for (int idx_camera = 0; idx_camera < ACTIVE_CAMERAS; idx_camera++) {
     if (opticflow_got_result[idx_camera]) {
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts,
+      AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID + idx_camera, now_ts,
                              opticflow_result[idx_camera].flow_x,
                              opticflow_result[idx_camera].flow_y,
                              opticflow_result[idx_camera].flow_der_x,
