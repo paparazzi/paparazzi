@@ -1,15 +1,22 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar">
+<module name="sonar_adc" dir="sonar">
   <doc>
     <description>
      Sonar ADC driver.
-     Reads an anlog sonar sensor and outputs sonar distance in [m]
+     Reads an anlog sonar sensor and outputs sonar distance in [cm]
     </description>
-    <configure name="ADC_SONAR" value="ADC_X" description="select ADC to use with the sonar"/>
-    <define name="SONAR_OFFSET" value="0"  description="sensor offset in [adc] - default is 0"/>
-    <define name="SONAR_SCALE" value="0.0166" description="sensor scale factor [m/adc] - default is 0.0166"/>
-    <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
+    <configure name="ADC_SONAR" value="ADC_X" description="Select ADC port to use with the sonar, e.g. ADC_3"/>
+    <define name="SONAR_OFFSET" value="0.0234"  description="sensor offset in [adc], default is 0"/>
+    <define name="SONAR_SCALE" value="0.0345" description="Sensor scale factor [cm/adc], default is 0.0166"/>
+    <define name="USE_SONAR" value="TRUE" description="Activate use of sonar in INS extended filter (only rotorcraft)"/>
+    <define name="SONAR_USE_ADC_FILTER" value="TRUE" description="Enable or disable the median filter on the sonor output values"/>
+    <define name="SONAR_MEDIAN_SIZE" value="9" description="If median filter is enable then set this option to filter the output more(or less), default is 7"/>
+    <define name="SONAR_MIN_RANGE" value="0.44" unit="m" description="If defined, set limit to minimum value reported, default 0.15"/>
+    <define name="SONAR_MAX_RANGE" value="3.0" unit="m" description="If defined, set limit to maximum value reported, default 6.0"/>
+    <define name="SONAR_COMPENSATE_ROTATION" value="TRUE" description="Compensate AGL for body rotation, if not defined, defaults to FALSE"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
+    <define name="SENSOR_SYNC_SEND_SONAR" description="If defined, sends raw and scaled sonar values, useful for debugging sonar issues"/>
   </doc>
 
   <header>

@@ -802,8 +802,8 @@ The most crucial part for the magnetometer calibration:
   -->
 
   <section name="SONAR" prefix="SONAR_">
-    <define name="MEDIAN_SIZE" value="15"/><!-- snice no ground shielded adc voltage ripple is huge-->
-    <!--<define name="USE_ADC_FILTER" value="TRUE"/>-->
+    <define name="MEDIAN_SIZE" value="15"/><!-- since no ground shielded adc voltage ripple is huge-->
+    <define name="SONAR_USE_ADC_LOWPASS_FILTER" value="TRUE"/>
     <define name="SCALE" value="0.0025375" integer="16"/> <!-- 0.003844734 TODO: MB1010, LV-MaxSonar-EZ1 5V supply scaled to 3.3V 3.3/5 = 0.66 * scale 0.0166-->
     <define name="OFFSET" value="90.0"/> <!-- No unit, value is ADC meas offset. FIXME to a Si Unit. BTW AC is Belly landing no landing gear so height to tarmac almost 0 -->
     <define name="MAX_RANGE" value="6.0" unit="m"/> <!-- test for various surface, but at lease short grass -->
