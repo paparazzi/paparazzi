@@ -3,29 +3,33 @@
 <module name="airspeed_ets" dir="sensors">
   <doc>
     <description>
-      Airspeed ETS (I2C).
-      Driver for the EagleTree Systems Airspeed Sensor.
-      Has only been tested with V3 of the sensor hardware.
+      Driver for the EagleTree Systems Airspeed Sensor v3 connected via an I2C port. The device
+      Measures airspeed from 4m/s to 156m/s with about 0,5 m/s resolution
 
       Notes:
-      Connect directly to TWOG/Tiny/Lisa I2C port. Multiple sensors can be chained together.
-      Sensor may be in the proprietary mode (default) or in 3rd-party mode. In 3rd-party mode you must define AIRSPEED_ETS_3RD_PARTY_MODE.
-      A eLogger is needed to set sensor to 3rd-party mode, which is supposed to be more reliable than the default mode.
+      Connects directly to a flightcontroller board I2C port. Has signal level conversion build in. Multiple sensors can be chained together.
+      Sensor may be in the default or in 3rd-party mode. If set to 3rd-party mode you must define AIRSPEED_ETS_3RD_PARTY_MODE.
+      
+      To set sensor to 3rd-party mode one can use the supplied Jumper.
 
       Sensor module wire assignments:
       - Red wire: 5V
       - White wire: Ground
       - Yellow wire: SDA
       - Brown wire: SCL
+
+      Note that if airspeed is used in conjunction with AGL module, the filter better be set  to disabled and the filter of the AGL module to be used.
     </description>
     <configure name="AIRSPEED_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
     <define name="AIRSPEED_ETS_OFFSET" value="offset" description="sensor reading offset for sensor in proprietary mode (default: 0)"/>
     <define name="AIRSPEED_ETS_SCALE" value="scale" description="sensor scale factor for sensor in proprietary mode  (default: 1.8)"/>
-    <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
+    <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds(float), somtimes needed if sensor initialization is not OK, default 0.2s"/>
     <define name="AIRSPEED_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
-    <define name="USE_AIRSPEED_ETS" value="TRUE|FALSE" description="set airspeed in state interface"/>
     <define name="AIRSPEED_ETS_3RD_PARTY_MODE"  description="read raw value for sensor in third-party mode"/>
-    <define name="AIRSPEED_ETS_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
+    <define name="AIRSPEED_ETS_USE_FILTER" value="TRUE" description="Enable or disable a filter on the sensor output values"/>
+    <define name="AIRSPEED_ETS_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter .15 is about 1hz"/>
+    <define name="USE_AIRSPEED_ETS" value="TRUE|FALSE" description="Set airspeed in state interface for this sensor"/>
+    <define name="AIRSPEED_ETS_SDLOG" value="TRUE|FALSE" description="start logging to SD card for Chibios only"/>
   </doc>
 
   <header>

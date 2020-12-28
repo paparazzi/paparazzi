@@ -39,12 +39,12 @@
  * Brown wire: SCL
  */
 
-#include "sensors/airspeed_ets.h"
-#include "state.h"
 #include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#include "mcu_periph/sys_time.h"
+#include "modules/sensors/airspeed_ets.h"
+
+#include "subsystems/abi.h"
 #include "pprzlink/messages.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
 
@@ -59,29 +59,60 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_ETS automatically set to TRUE")
 #warning either set USE_AIRSPEED_ETS or AIRSPEED_ETS_SYNC_SEND to use airspeed_ets
 #endif
 
+#ifndef AIRSPEED_ETS_USE_FILTER
+#define AIRSPEED_ETS_USE_FILTER FALSE
+#endif
+
+/** Time constant for second order Butterworth low pass filter
+ * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
+ */
+#ifndef AIRSPEED_ETS_LOWPASS_TAU
+#define AIRSPEED_ETS_LOWPASS_TAU 0.15
+#endif
+
 #define AIRSPEED_ETS_ADDR 0xEA
+
 #ifndef AIRSPEED_ETS_SCALE
 #define AIRSPEED_ETS_SCALE 1.8
 #endif
+
 #ifndef AIRSPEED_ETS_OFFSET
 #define AIRSPEED_ETS_OFFSET 0
 #endif
+
 #define AIRSPEED_ETS_OFFSET_MAX 1750
 #define AIRSPEED_ETS_OFFSET_MIN 1450
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT 40
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG 60
-#define AIRSPEED_ETS_NBSAMPLES_AVRG 10
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+#define AIRSPEED_ETS_NBSAMPLES_AVRG 20
+#else
+#define AIRSPEED_ETS_NBSAMPLES_AVRG 20
+#endif
 
 #ifndef AIRSPEED_ETS_I2C_DEV
 #define AIRSPEED_ETS_I2C_DEV i2c0
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 
-/** delay in seconds until sensor is read after startup */
+/** Delay in seconds until sensor is read after startup */
 #ifndef AIRSPEED_ETS_START_DELAY
 #define AIRSPEED_ETS_START_DELAY 0.2
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+#include "filters/low_pass_filter.h"
+#endif
+
+#if USE_AIRSPEED_ETS
+#include "state.h"
+#endif
 
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
@@ -90,7 +121,6 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 bool log_airspeed_ets_started;
 #endif
 #endif
-
 
 // Global variables
 uint16_t airspeed_ets_raw;
@@ -101,6 +131,10 @@ int airspeed_ets_buffer_idx;
 float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 
 struct i2c_transaction airspeed_ets_i2c_trans;
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+static Butterworth2LowPass airspeed_filter;
+#endif
 
 // Local variables
 volatile bool airspeed_ets_i2c_done;
@@ -126,6 +160,11 @@ void airspeed_ets_init(void)
   for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n) {
     airspeed_ets_buffer[n] = 0.0;
   }
+
+#ifdef AIRSPEED_ETS_USE_FILTER
+  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_ETS_LOWPASS_TAU,
+                              AIRSPEED_ETS_READ_PERIODIC_PERIOD, airspeed_ets);
+#endif
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
@@ -225,6 +264,13 @@ void airspeed_ets_read_event(void)
       airspeed_ets += airspeed_ets_buffer[n];
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
+    
+//Additional filter can be used, but beware the delay ;)
+#ifdef AIRSPEED_ETS_USE_FILTER
+      float a_out = airspeed_tmp;
+      airspeed_ets = update_butterworth_2_low_pass(&airspeed_filter, a_out);
+#endif
+
 #if USE_AIRSPEED_ETS
     stateSetAirspeed_f(airspeed_ets);
 #endif
@@ -234,7 +280,6 @@ void airspeed_ets_read_event(void)
   } else {
     airspeed_ets = 0.0;
   }
-
 
 #if AIRSPEED_ETS_SDLOG
 #ifndef SITL
@@ -251,8 +296,6 @@ void airspeed_ets_read_event(void)
   }
 #endif
 #endif
-
-
 
   // Transaction has been read
   airspeed_ets_i2c_trans.status = I2CTransDone;
