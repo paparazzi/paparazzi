@@ -435,7 +435,6 @@
   .pwmp = &PWMD3,                           \
   .tlm_sd = DSHOT_TELEMETRY_DEV,            \
   .dma_buf = &dshot3DmaBuffer,              \
-  .dcache_memory_in_use = false             \
 }
 
 #endif
