@@ -34,21 +34,10 @@
 #include "subsystems/navigation/waypoints.h"
 #endif
 
-#define MAX_BUF_LEN 74
+#define MAX_BUF_LEN 50
 
-#define LEN_ID_FR 30
-#define LEN_ID_SERIAL 24
 
 static struct uart_periph *dev = &(E_ID_DEV);
-static char id_fr[LEN_ID_FR];
-
-static int put_ID(uint8_t *buf)
-{
-  buf[0] = E_ID_ID_FR;
-  buf[1] = strlen(id_fr);
-  memcpy(buf + 2, id_fr, LEN_ID_FR);
-  return LEN_ID_FR + 2;
-}
 
 static int put_lat(uint8_t *buf)
 {
@@ -144,14 +133,6 @@ static int put_lat_lon_home(uint8_t *buf)
 
 void e_identification_fr_init()
 {
-  for (int i = 0; i < LEN_ID_FR; i++) {
-    id_fr[i] = '0';
-  }
-
-  memcpy(id_fr, ID_MANUFACTURER, 3);
-  memcpy(id_fr + 3, ID_MODEL, 3);
-  int id_len = Min(strlen(ID_SERIAL), LEN_ID_SERIAL);
-  memcpy(id_fr + LEN_ID_SERIAL + 6 - id_len, ID_SERIAL, id_len);
 }
 
 
@@ -164,7 +145,6 @@ void e_identification_fr_periodic()
     buf[1] = 0;   //filled later with message length
     uint8_t offset = 2;
 
-    offset += put_ID(buf + offset);
     offset += put_lat(buf + offset);
     offset += put_lon(buf + offset);
     offset += put_alt(buf + offset);
