@@ -7,7 +7,7 @@
 <airframe name="Apogee">
 
   <firmware name="fixedwing">
-    <configure name="RTOS_DEBUG" value="1"/>
+    <configure name="RTOS_DEBUG" value="0"/>
 
     <target name="ap" board="apogee_1.0_chibios">
       <module name="radio_control" type="sbus"/>
@@ -39,7 +39,11 @@
     <!-- Sensors -->
     <module name="gps" type="ublox"/>
 
-    <!--module name="sys_mon"/-->
+    <module name="shell">
+      <configure name="SHELL_PORT" value="uart6"/>
+    </module>
+
+    <module name="sys_mon"/>
 
     <!--module name="spi_master"/-->
     <!-- <module name="mcp355x"> -->

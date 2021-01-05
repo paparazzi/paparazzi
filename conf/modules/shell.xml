@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="shell" dir="core">
+  <doc>
+    <description>Simple debug shell</description>
+    <configure name="SHELL_PORT" value="uartX" description="serial link to use for the shell"/>
+    <configure name="SHELL_BAUD" value="B115200" description="baudrate for the shell"/>
+    <configure name="SHELL_DYNAMIC_ENTRIES_NUMBER" value="5" description="maximum number of dynamic commands to register"/>
+  </doc>
+  <header>
+    <file name="shell.h"/>
+  </header>
+  <init fun="shell_init()"/>
+  <makefile target="ap">
+    <configure name="SHELL_PORT" case="upper|lower"/>
+    <configure name="SHELL_BAUD" default="B115200"/>
+    <configure name="SHELL_DYNAMIC_ENTRIES_NUMBER" default="5"/>
+    <file name="shell.c"/>
+    <file_arch name="shell_arch.c"/>
+    <file_arch name="microrl/microrl.c"/>
+    <file_arch name="microrl/microrlShell.c"/>
+    <include name="$(SRC_ARCH)/modules/core"/>
+    <include name="modules/loggers/sdlog_chibios"/>
+    <file name="printf.c" dir="modules/loggers/sdlog_chibios"/>
+    <define name="USE_SHELL"/>
+    <define name="USE_$(SHELL_PORT_UPPER)"/>
+    <define name="USE_$(SHELL_PORT_UPPER)_TX" value="FALSE"/>
+    <define name="USE_$(SHELL_PORT_UPPER)_RX" value="FALSE"/>
+    <define name="$(SHELL_PORT_UPPER)_BAUD" value="$(SHELL_BAUD)"/>
+    <define name="SHELL_DEV" value="$(SHELL_PORT_LOWER)"/>
+    <define name="SHELL_DYNAMIC_ENTRIES_NUMBER" value="$(SHELL_DYNAMIC_ENTRIES_NUMBER)"/>
+  </makefile>
+</module>
