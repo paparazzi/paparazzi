@@ -58,6 +58,7 @@ GENERATE_KEYS ?= 0
 # Number of processes can also be explicitly set with e.g. J=4
 # For serial compilation, call make with J=1
 NPROCS := 1
+UNAME = $(shell uname -s)
 J ?= AUTO
 ifeq ($J,AUTO)
 ifeq ($(UNAME),Linux)
