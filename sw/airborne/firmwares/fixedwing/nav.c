@@ -424,7 +424,7 @@ void nav_home(void)
   NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
   /** Nominal speed */
   nav_pitch = 0.;
-  if (autopilot_in_flight() && autopilot.launch) {
+  if (autopilot.launch) {
     v_ctl_mode = V_CTL_MODE_AUTO_ALT;
   } else {
     v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE;
