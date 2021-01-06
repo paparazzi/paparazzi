@@ -1,10 +1,5 @@
 /*
- * Copyright (C) 2013 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
- * Utah State University, http://aggieair.usu.edu/
- *
- * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
- * Calvin Coopmans (c.r.coopmans@ieee.org)
- *
+ * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -25,13 +20,11 @@
  */
 /**
  * @file arch/chibios/subsystems/actuators/actuators_uavcan.h
- * Interface from actuators to ChibiOS PWM driver
+ * Interface from actuators to ChibiOS CAN driver using UAVCan
  *
- * PWM configuration files are defined in the board file,
- * so maximal architecture independence is ensured.
  */
-#ifndef ACTUATORS_UAVCAN_H
-#define ACTUATORS_UAVCAN_H
+#ifndef ACTUATORS_UAVCAN_ARCH_H
+#define ACTUATORS_UAVCAN_ARCH_H
 
 #include "std.h"
 #include "hal.h"
@@ -44,11 +37,10 @@
 
 extern int16_t actuators_uavcan_values[ACTUATORS_UAVCAN_NB];
 
-extern void actuators_uavcan_init(void);
+extern void actuators_uavcan_arch_init(void);
 extern void actuators_uavcan_commit(void);
 
-#define ActuatorsUavcanInit   actuators_uavcan_init
 #define ActuatorUavcanSet(_i, _v) { actuators_uavcan_values[_i] = _v; }
 #define ActuatorsUavcanCommit  actuators_uavcan_commit
 
-#endif /* ACTUATORS_UAVCAN_H */
+#endif /* ACTUATORS_UAVCAN_ARCH_H */

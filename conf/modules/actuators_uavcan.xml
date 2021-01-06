@@ -15,9 +15,12 @@
     <define name="ACTUATORS"/> 
     <define name="USE_CAN1"/>
     <define name="USE_CAN2"/>   
-    <file_arch name="actuators_uavcan.c" dir="subsystems/actuators"/>
+    <file_arch name="actuators_uavcan_arch.c" dir="subsystems/actuators"/>
     <file name="canard.c" dir="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
+  </makefile>
+  <makefile target="nps">
+    <file_arch name="actuators_uavcan_arch.c" dir="subsystems/actuators"/>
   </makefile>
 </module>
 

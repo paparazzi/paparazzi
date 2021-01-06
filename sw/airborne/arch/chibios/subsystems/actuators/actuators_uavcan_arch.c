@@ -1,10 +1,5 @@
 /*
- * Copyright (C) 2013 AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
- * Utah State University, http://aggieair.usu.edu/
- *
- * Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
- * Calvin Coopmans (c.r.coopmans@ieee.org)
- *
+ * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -24,13 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/subsystems/actuators/actuators_pwm_arch.c
- * Interface from actuators to ChibiOS PWM driver
- *
- * PWM configuration files are defined in the board file,
- * so maximal architecture independence is ensured.
+ * @file arch/chibios/subsystems/actuators/actuators_uavcan_arch.c
+ * Interface from actuators to ChibiOS CAN driver using UAVCan
+ * 
  */
+
 #include "subsystems/actuators/actuators_uavcan.h"
+#include "subsystems/actuators/actuators_uavcan_arch.h"
 
 #include <canard.h>
 #include <string.h>
@@ -288,7 +283,7 @@ static void uavcanInitIface(struct uavcan_iface_t *iface) {
   chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, can_tx, (void*)iface);
 }
 
-void actuators_uavcan_init(void)
+void actuators_uavcan_arch_init(void)
 {
   /*----------------
    * Configure CAN busses
