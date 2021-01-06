@@ -38,6 +38,7 @@
 
 
 static struct uart_periph *dev = &(E_ID_DEV);
+bool e_identification_started = false;
 
 static int put_lat(uint8_t *buf)
 {
@@ -138,8 +139,11 @@ void e_identification_fr_init()
 
 void e_identification_fr_periodic()
 {
-
-  if (gps.fix) {
+  if(autopilot_in_flight()) {
+    e_identification_started = true;
+  }
+  
+  if (GpsFixValid() && e_identification_started) {
     uint8_t buf[MAX_BUF_LEN];
     buf[0] = 0X99;  //PPRZ_STX
     buf[1] = 0;   //filled later with message length
