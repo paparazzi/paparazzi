@@ -147,9 +147,9 @@ void e_identification_fr_init()
 void e_identification_fr_periodic()
 {
 #if defined(FIXEDWING_FIRMWARE)
-  if(autopilot.launch) {
+  if (autopilot.launch) {
 #elif defined(ROTORCRAFT_FIRMWARE)
-  if(autopilot_in_flight()) {
+  if (autopilot_in_flight()) {
 #else
 #error "firmware unsupported!"
 #endif
