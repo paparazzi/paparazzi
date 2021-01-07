@@ -9,7 +9,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="eID">
-        <dl_setting shortname="e_id_running" var="e_identification_started" min="0" step="1" max="1"/>
+        <dl_setting shortname="e_id_running" var="e_identification_started" min="0" step="1" max="1" values="STOPPED|RUNNING"/>
       </dl_settings>
     </dl_settings>
   </settings>
