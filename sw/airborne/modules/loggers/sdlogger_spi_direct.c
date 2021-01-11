@@ -35,6 +35,8 @@
 #include "subsystems/datalink/telemetry.h"
 #include "led.h"
 
+#include <stdbool.h>
+
 #if SDLOGGER_ON_ARM
 #include "autopilot.h"
 #endif
@@ -58,9 +60,56 @@
 #error "You need to use a telemetry xml file with Logger process!"
 #endif
 
-#ifndef SDLOGGER_DOWNLINK_DEVICE
+#ifndef SDLOGGER_DOWNLOAD_DEVICE
 #error No downlink device defined for SD Logger
 #endif
+
+#ifdef SDLOGGER_DOWNLOAD_DEVICE_LISTEN
+// Listen for setting commands on download port
+#include "pprzlink/dl_protocol.h"
+#include "generated/settings.h"
+
+#include <string.h>
+
+PRINT_CONFIG_MSG("Listening to SETTING on SD logger download port.");
+
+static struct download_port_t {
+  struct link_device *device;
+  struct pprz_transport transport;
+  bool msg_available;
+  uint8_t msg_buf[256];
+} download_port;
+
+static void sdlogger_spi_direct_download_port_init(void) {
+  download_port.device = &((SDLOGGER_DOWNLOAD_DEVICE).device);
+  pprz_transport_init(&download_port.transport);
+}
+
+static void sdlogger_spi_direct_download_port_parse_msg(void) {
+  switch (IdOfPprzMsg(download_port.msg_buf)) {
+    case DL_SETTING: {
+      uint8_t index = DL_SETTING_index(download_port.msg_buf);
+      uint8_t ac_id = DL_SETTING_ac_id(download_port.msg_buf);
+      float value = DL_SETTING_value(download_port.msg_buf);
+      if (ac_id == AC_ID) {
+        DlSetting(index, value);
+        pprz_msg_send_DL_VALUE(&download_port.transport.trans_tx, download_port.device, AC_ID, &index, &value);
+        sdlogger_spi_direct_command();
+      }
+      break; }
+    default:
+      break;
+  }
+}
+
+static void sdlogger_spi_direct_download_port_periodic(void) {
+  pprz_check_and_parse(download_port.device, &download_port.transport, download_port.msg_buf, &download_port.msg_available);
+  if (download_port.msg_available) {
+    sdlogger_spi_direct_download_port_parse_msg();
+    download_port.msg_available = false;
+  }
+}
+#endif // SDLOGGER_DOWNLOAD_DEVICE_LISTEN
 
 struct sdlogger_spi_periph sdlogger_spi;
 
@@ -101,6 +150,9 @@ void sdlogger_spi_direct_init(void)
   sdlogger_spi.device.get_byte = (get_byte_t)sdlogger_spi_direct_get_byte;
   sdlogger_spi.device.periph = &sdlogger_spi;
 
+#ifdef SDLOGGER_DOWNLOAD_DEVICE_LISTEN
+  sdlogger_spi_direct_download_port_init();
+#endif
 }
 
 /**
@@ -109,6 +161,10 @@ void sdlogger_spi_direct_init(void)
  */
 void sdlogger_spi_direct_periodic(void)
 {
+#ifdef SDLOGGER_DOWNLOAD_DEVICE_LISTEN
+  sdlogger_spi_direct_download_port_periodic();
+#endif
+
   sdcard_spi_periodic(&sdcard1);
 
 #if SDLOGGER_ON_ARM
@@ -193,8 +249,8 @@ void sdlogger_spi_direct_periodic(void)
         long fd = 0;
         uint16_t chunk_size = 64;
         for (uint16_t i = sdlogger_spi.sdcard_buf_idx; i < SD_BLOCK_SIZE && chunk_size > 0; i++, chunk_size--) {
-          if ((SDLOGGER_DOWNLINK_DEVICE).device.check_free_space(&(SDLOGGER_DOWNLINK_DEVICE), &fd, 1)) {
-            (SDLOGGER_DOWNLINK_DEVICE).device.put_byte(&(SDLOGGER_DOWNLINK_DEVICE), fd, sdcard1.input_buf[i]);
+          if ((SDLOGGER_DOWNLOAD_DEVICE).device.check_free_space(&(SDLOGGER_DOWNLOAD_DEVICE), &fd, 1)) {
+            (SDLOGGER_DOWNLOAD_DEVICE).device.put_byte(&(SDLOGGER_DOWNLOAD_DEVICE), fd, sdcard1.input_buf[i]);
           } else {
             /* No free space left, abort for-loop */
             break;
@@ -203,7 +259,7 @@ void sdlogger_spi_direct_periodic(void)
         }
         /* Request next block if entire buffer was written to uart */
         if (sdlogger_spi.sdcard_buf_idx >= SD_BLOCK_SIZE) {
-          (SDLOGGER_DOWNLINK_DEVICE).device.send_message(&(SDLOGGER_DOWNLINK_DEVICE), fd);  // Flush buffers
+          (SDLOGGER_DOWNLOAD_DEVICE).device.send_message(&(SDLOGGER_DOWNLOAD_DEVICE), fd);  // Flush buffers
           if (sdlogger_spi.download_length > 0) {
             sdcard_spi_read_block(&sdcard1, sdlogger_spi.download_address, NULL);
             sdlogger_spi.download_address++;
@@ -418,6 +474,4 @@ uint8_t sdlogger_spi_direct_get_byte(void *p)
   (void) p;
   return 0;
 }
-
-
 

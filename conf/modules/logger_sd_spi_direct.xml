@@ -24,7 +24,7 @@ Downloading of the data occurs over the configured serial device using sw/logali
     <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="Port to which the SD Card is connected."/>
     <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX2"/>
     <define name="SDLOGGER_ON_ARM" value="TRUE" description="Start/stop SD logger with motor arming"/>
-    <configure name="SDLOGGER_DOWNLINK_DEVICE" value="DOWNLINK_DEVICE|uartX|usb_serial|..." description="Note: case sensitive!"/>
+    <configure name="SDLOGGER_DOWNLOAD_DEVICE" value="DOWNLINK_DEVICE|uartX|usb_serial|..." description="Note: case sensitive!"/>
     <configure name="LOGGER_LED" value="none"/>
   </doc>
   <settings>
@@ -63,10 +63,11 @@ Downloading of the data occurs over the configured serial device using sw/logali
     <define name="USE_$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" value="1" />
     <define name="SDLOGGER_SPI_LINK_SLAVE_NUMBER" value="$(SDLOGGER_DIRECT_SPI_SLAVE_UPPER)" />
     
-    <configure name="SDLOGGER_DOWNLINK_DEVICE" default="DOWNLINK_DEVICE" case="upper"/>
-    <define name="SDLOGGER_DOWNLINK_DEVICE" value="$(SDLOGGER_DOWNLINK_DEVICE)"/>
-    <define name="USE_$(SDLOGGER_DOWNLINK_DEVICE_UPPER)" cond="ifneq ($(SDLOGGER_DOWNLINK_DEVICE_UPPER),DOWNLINK_DEVICE)"/>
-    <file_arch name="usb_ser_hw.c" dir="." cond="ifeq ($(SDLOGGER_DOWNLINK_DEVICE_UPPER),USB_SERIAL)"/>
+    <configure name="SDLOGGER_DOWNLOAD_DEVICE" default="DOWNLINK_DEVICE" case="upper"/>
+    <define name="SDLOGGER_DOWNLOAD_DEVICE" value="$(SDLOGGER_DOWNLOAD_DEVICE)"/>
+    <define name="USE_$(SDLOGGER_DOWNLOAD_DEVICE_UPPER)" cond="ifneq ($(SDLOGGER_DOWNLOAD_DEVICE_UPPER),DOWNLINK_DEVICE)"/>
+    <file_arch name="usb_ser_hw.c" dir="." cond="ifeq ($(SDLOGGER_DOWNLOAD_DEVICE_UPPER),USB_SERIAL)"/>
+    <define name="SDLOGGER_DOWNLOAD_DEVICE_LISTEN" cond="ifneq ($(SDLOGGER_DOWNLOAD_DEVICE_UPPER),DOWNLINK_DEVICE)"/>
   </makefile>
 </module>
 
