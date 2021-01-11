@@ -26,6 +26,8 @@
 #ifndef E_IDENTIFICATION_FR_H
 #define E_IDENTIFICATION_FR_H
 
+#include "stdbool.h"
+
 enum e_id_type {
   // 0 reserved for future use
   E_ID_PROTOCOL_VERSION = 1,
@@ -45,8 +47,7 @@ enum e_id_type {
 extern void e_identification_fr_init(void);
 extern void e_identification_fr_periodic(void);
 
-#define E_Identification_Fr_Start() (e_identification_fr_e_identification_fr_periodic_status = MODULES_START)
-#define E_Identification_Fr_Stop() (e_identification_fr_e_identification_fr_periodic_status = MODULES_STOP)
+extern bool e_identification_started;
 
 #endif
 

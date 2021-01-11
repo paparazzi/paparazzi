@@ -6,11 +6,18 @@
     <configure name="E_ID_PORT" value="UARTx" description="UART where the e-id device is connected to (UART1, UART2, etc"/>
     <configure name="E_ID_BAUD" value="B115200" description="UART baud rate"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="eID">
+        <dl_setting shortname="e_id_running" var="e_identification_started" min="0" step="1" max="1" values="STOPPED|RUNNING"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="e_identification_fr.h"/>
   </header>
   <init fun="e_identification_fr_init()"/>
-  <periodic fun="e_identification_fr_periodic()" freq="4" autorun="FALSE"/>
+  <periodic fun="e_identification_fr_periodic()" freq="4" autorun="TRUE"/>
   <makefile target="ap">
     <configure name="E_ID_PORT"  case="upper|lower"/>
     <configure name="E_ID_BAUD" default="B115200"/>
