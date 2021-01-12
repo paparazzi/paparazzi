@@ -142,7 +142,7 @@ void opticflow_module_run(void)
                              opticflow_result[idx_camera].camera_id);
       //TODO Find an appropriate quality measure for the noise model in the state filter, for now it is tracked_cnt
       if (opticflow_result[idx_camera].noise_measurement < 0.8) {
-        AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_ID, now_ts,
+        AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_ID + idx_camera, now_ts,
                                     opticflow_result[idx_camera].vel_body.x,
                                     opticflow_result[idx_camera].vel_body.y,
                                     0.0f, //opticflow_result.vel_body.z,
