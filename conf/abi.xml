@@ -65,7 +65,6 @@
       <field name="flow_der_y" type="int16_t">The derotated flow calculation in the y direction (in subpixels)</field>
       <field name="quality" type="float"/>
       <field name="size_divergence" type="float">Divergence as determined with the size method (in 1/seconds) with LK, and Divergence (1/seconds) itself with EF</field>
-      <field name="camera_id" type="uint8_t">Camera id as passed to cv_add_to_device</field>
     </message>
 
     <message name="VELOCITY_ESTIMATE" id="12">

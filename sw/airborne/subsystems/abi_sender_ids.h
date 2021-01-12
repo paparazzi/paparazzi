@@ -382,12 +382,20 @@
 #define VEL_OPTICFLOW_ID 3
 #endif
 
+#ifndef VEL_OPTICFLOW_CAM1_ID
+#define VEL_OPTICFLOW_CAM1_ID 3
+#endif
+
+#ifndef VEL_OPTICFLOW_CAM2_ID
+#define VEL_OPTICFLOW_CAM2_ID 4
+#endif
+
 #ifndef VEL_STEREOCAM_ID
-#define VEL_STEREOCAM_ID 4
+#define VEL_STEREOCAM_ID 5
 #endif
 
 #ifndef VEL_OPTICFLOW_PMW3901_ID
-#define VEL_OPTICFLOW_PMW3901_ID 5
+#define VEL_OPTICFLOW_PMW3901_ID 6
 #endif
 
 /*
