@@ -690,14 +690,14 @@ forbiddenCombination:
  */
 bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
 {
-#ifdef STM32F7XX
+#if __DCACHE_PRESENT
   if (dmap->config->dcache_memory_in_use &&
       (dmap->config->direction != DMA_DIR_P2M)) {
     cacheBufferFlush(mem0p, size * dmap->config->msize);
   }
 #endif
   dmap->mem0p = mem0p;
-#ifdef STM32F7XX
+#if __DCACHE_PRESENT
   dmap->periphp = periphp;
 #endif
   dmap->size = size;
@@ -777,7 +777,7 @@ static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags)
     /* It is possible that the transaction has already be reset by the
        DMA error handler, in this case this interrupt is spurious.*/
     if (dmap->state == DMA_ACTIVE) {
-#ifdef STM32F7XX
+#if __DCACHE_PRESENT
       if (dmap->config->dcache_memory_in_use)
 	  switch (dmap->config->direction) {
 	  case DMA_DIR_M2P : break;

@@ -178,10 +178,12 @@ typedef struct  {
    */
   DshotDmaBuffer *dma_buf;
 
+#if __DCACHE_PRESENT
   /**
    * @brief   DMA memory is in a cached section and beed to be flushed
    */
   bool		 dcache_memory_in_use;
+#endif
 } DSHOTConfig;
 
 void     dshotStart(DSHOTDriver *driver, const DSHOTConfig *config);

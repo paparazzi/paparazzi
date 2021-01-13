@@ -141,7 +141,9 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .direction = DMA_DIR_M2P,
     .psize = timerWidthInBytes,
     .msize = timerWidthInBytes,
+#if __DCACHE_PRESENT
     .dcache_memory_in_use = config->dcache_memory_in_use,
+#endif
     .inc_peripheral_addr = false,
     .inc_memory_addr = true,
     .circular = false,
