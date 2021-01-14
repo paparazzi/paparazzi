@@ -72,7 +72,7 @@ static void	TRNGClearErrors(void)
 static bool TRNGGenerate(size_t size, uint32_t *out)
 {
   while (size) {
-    out[size--] = TRNGGet();
+    out[--size] = TRNGGet();
   }
   return TRNGGetErrors();
 }
@@ -82,14 +82,9 @@ static bool TRNGGenerate(size_t size, uint32_t *out)
  * PPRZ API *
  ************/
 
-static uint32_t last;
-
 void rng_init(void)
 {
   TRNGStart();
-
-  // dont forget to throw away the first generated number
-  last = rng_wait_and_get();
 }
 
 void rng_deinit(void)
@@ -107,7 +102,6 @@ bool rng_get(uint32_t *rand_nr)
     return false;
   }
   else {
-    last = *rand_nr;
     return true;
   }
 }
@@ -117,12 +111,11 @@ bool rng_get(uint32_t *rand_nr)
 // the clocks are not setup properly.
 uint32_t rng_wait_and_get(void)
 {
-  uint32_t tmp = last;
-  bool err = false;
-  while (tmp == last || err) {
+  uint32_t tmp = 0;
+  bool err = true;
+  do {
     err = TRNGGenerate(1, &tmp);
-  }
-  last = tmp;
+  }  while (err);
   return tmp;
 }
 
