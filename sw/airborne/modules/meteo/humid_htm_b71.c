@@ -23,7 +23,7 @@
  */
 
 /** \file humid_htm_b71.c
- *  \brief TronSens HTM-B71 humidity/temperature sensor i2c interface
+ *  \brief TronSens HTM-B71 or IST HYT-271 humidity/temperature sensor i2c interface
  *
  */
 
@@ -46,7 +46,7 @@
 #define HTM_I2C_DEV i2c0
 #endif
 
-#define HTM_SLAVE_ADDR 0x28
+#define HTM_SLAVE_ADDR (0x28 << 1)
 
 struct i2c_transaction htm_trans;
 uint8_t htm_status;
