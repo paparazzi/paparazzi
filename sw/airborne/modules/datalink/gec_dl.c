@@ -145,7 +145,7 @@ static void start_message(struct pprzlink_msg *msg,
                           uint8_t payload_len __attribute__((unused)))
 {
   PPRZ_MUTEX_LOCK(get_trans(msg)->mtx_tx);  // lock mutex
-  memset(get_trans(msg)->tx_msg, _FD, TRANSPORT_PAYLOAD_LEN);// erase message data
+  memset(get_trans(msg)->tx_msg, 0, TRANSPORT_PAYLOAD_LEN);// erase message data
   get_trans(msg)->tx_msg_idx = 0;// reset index
 }
 
@@ -216,7 +216,7 @@ void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
 {
   get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd,
       get_trans(msg)->tx_msg_idx);
-  get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, _FD, DL_TYPE_UINT8,
+  get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, fd, DL_TYPE_UINT8,
       DL_FORMAT_SCALAR, get_trans(msg)->tx_msg, get_trans(msg)->tx_msg_idx);
   get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 }
@@ -262,7 +262,7 @@ static void start_message(struct gec_transport *trans,
                           uint8_t payload_len __attribute__((unused)))
 {
   PPRZ_MUTEX_LOCK(trans->mtx_tx);  // lock mutex
-  memset(trans->tx_msg, _FD, TRANSPORT_PAYLOAD_LEN);  // erase message data
+  memset(trans->tx_msg, 0, TRANSPORT_PAYLOAD_LEN);  // erase message data
   trans->tx_msg_idx = 0;  // reset index
 }
 
@@ -287,7 +287,7 @@ void gec_encapsulate_and_send_msg(struct gec_transport *trans,
                                   struct link_device *dev, long fd)
 {
   trans->pprz_tp.trans_tx.start_message(trans, dev, fd, trans->tx_msg_idx);
-  trans->pprz_tp.trans_tx.put_bytes(trans, dev, _FD, DL_TYPE_UINT8,
+  trans->pprz_tp.trans_tx.put_bytes(trans, dev, fd, DL_TYPE_UINT8,
                                     DL_FORMAT_SCALAR, trans->tx_msg, trans->tx_msg_idx);
   trans->pprz_tp.trans_tx.end_message(trans, dev, fd);
 }
