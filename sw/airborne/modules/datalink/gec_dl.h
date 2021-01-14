@@ -82,9 +82,6 @@ struct gec_transport {
   // ecnryption primitives
   struct gec_sts_ctx sts;
   struct gec_whitelist whitelist;
-
-  // optional mutex
-  PPRZ_MUTEX(mtx_tx);
 };
 
 /** PPRZ transport structure */
