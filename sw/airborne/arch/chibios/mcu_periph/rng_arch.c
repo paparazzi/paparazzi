@@ -32,14 +32,6 @@
 
 // FIXME remove and use API from ChibiOS after updating to newer version
 
-//#if !STM32_HAS_RNG1
-//#error "RNG1 not present in MCU"
-//#endif
-//
-//#if !defined(STM32_RNGCLK)
-//#error "STM32_RNGCLK not defined in this HAL"
-//#endif
-
 static void TRNGStart(void)
 {
   rccEnableAHB2(RCC_AHB2ENR_RNGEN, 0);
