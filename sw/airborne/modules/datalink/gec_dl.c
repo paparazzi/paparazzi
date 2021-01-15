@@ -196,8 +196,6 @@ static void end_message(struct pprzlink_msg *msg, long fd)
   switch (gec_tp.sts.protocol_stage) {
     case CRYPTO_OK:
       if (gec_encrypt_message(gec_tp.tx_msg, &gec_tp.tx_msg_idx)) {
-        // unlock mutex
-        PPRZ_MUTEX_UNLOCK(get_trans(msg)->mtx_tx);
         gec_encapsulate_and_send_msg(msg, fd);
         return;
       }
@@ -217,10 +215,11 @@ static void end_message(struct pprzlink_msg *msg, long fd)
  */
 void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
 {
-  get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd,
-      get_trans(msg)->tx_msg_idx);
+  get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd, get_trans(msg)->tx_msg_idx);
   get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, fd, DL_TYPE_UINT8,
       DL_FORMAT_SCALAR, get_trans(msg)->tx_msg, get_trans(msg)->tx_msg_idx);
+  // unlock mutex
+  PPRZ_MUTEX_UNLOCK(get_trans(msg)->mtx_tx);
   get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 }
 
@@ -276,6 +275,7 @@ static void end_message(struct gec_transport *trans, struct link_device *dev,
     case CRYPTO_OK:
       if (gec_encrypt_message(gec_tp.tx_msg, &gec_tp.tx_msg_idx)) {
         gec_encapsulate_and_send_msg(trans, dev, fd);
+        return;
       }
       break;
     default:
@@ -292,6 +292,8 @@ void gec_encapsulate_and_send_msg(struct gec_transport *trans,
   trans->pprz_tp.trans_tx.start_message(trans, dev, fd, trans->tx_msg_idx);
   trans->pprz_tp.trans_tx.put_bytes(trans, dev, fd, DL_TYPE_UINT8,
                                     DL_FORMAT_SCALAR, trans->tx_msg, trans->tx_msg_idx);
+  // unlock mutex
+  PPRZ_MUTEX_UNLOCK(trans->mtx_tx);
   trans->pprz_tp.trans_tx.end_message(trans, dev, fd);
 }
 
