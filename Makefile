@@ -276,6 +276,7 @@ clean:
 	$(Q)$(MAKE) -C $(EXT) clean
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)find . -name '*.pyc' -exec rm -f {} \;
+	$(Q)find . -name 'Cargo.lock' -exec rm -f {} \;
 
 cleanspaces:
 	find sw -path sw/ext -prune -o -type f -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
