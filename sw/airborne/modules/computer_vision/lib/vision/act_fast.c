@@ -36,6 +36,7 @@ All rights reserved.
   struct agent_t agents[1][MAX_AGENTS];
 #else
   struct agent_t agents[2][MAX_AGENTS];
+#endif
 
 /**
  * Do an ACT-FAST corner detection.
