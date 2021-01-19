@@ -631,17 +631,28 @@
  */
 
 // In case, do dynamic config of UARTs
+#ifndef USE_UART8_RX
 #define USE_UART8_RX TRUE
+#endif
 #ifndef USE_UART8_TX // may be used in half duplex mode
 #define USE_UART8_TX FALSE
 #endif
+// Tx and Rx are configured on the same pin, only one of them should be used
+#define UART8_GPIO_PORT_TX  PAL_PORT(LINE_RC1)
+#define UART8_GPIO_TX       PAL_PAD(LINE_RC1)
 #define UART8_GPIO_PORT_RX  PAL_PORT(LINE_RC1)
 #define UART8_GPIO_RX       PAL_PAD(LINE_RC1)
 #define UART8_GPIO_AF       RC1_UART_AF
 
-// FIXME when RC2 is used for FrSky telemetry
-#define USE_UART6_RX TRUE
-#define USE_UART6_TX FALSE
+#ifndef USE_UART6_RX
+#define USE_UART6_RX FALSE
+#endif
+#ifndef USE_UART6_TX
+#define USE_UART6_TX TRUE
+#endif
+// Tx and Rx are configured on the same pin, only one of them should be used
+#define UART6_GPIO_PORT_TX  PAL_PORT(LINE_RC2)
+#define UART6_GPIO_TX       PAL_PAD(LINE_RC2)
 #define UART6_GPIO_PORT_RX  PAL_PORT(LINE_RC2)
 #define UART6_GPIO_RX       PAL_PAD(LINE_RC2)
 #define UART6_GPIO_AF       RC2_USART_AF
