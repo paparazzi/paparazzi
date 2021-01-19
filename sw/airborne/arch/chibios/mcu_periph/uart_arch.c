@@ -126,11 +126,23 @@ static void handle_uart_tx(struct uart_periph *p)
 #define USE_UART1_RX TRUE
 #endif
 
+#ifndef UART1_CR1
+#define UART1_CR1 0
+#endif
+
+#ifndef UART1_CR2
+#define UART1_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART1_CR3
+#define UART1_CR3 0
+#endif
+
 static SerialConfig usart1_config = {
-  UART1_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART1_BAUD,                                  /*     BITRATE    */
+  UART1_CR1,                                   /*    USART CR1   */
+  UART1_CR2,                                   /*    USART CR2   */
+  UART1_CR3                                    /*    USART CR3   */
 };
 
 static struct SerialInit uart1_init_struct = SERIAL_INIT_NULL;
@@ -219,20 +231,37 @@ void uart1_init(void)
 #define USE_UART2_RX TRUE
 #endif
 
+
 /* by default disable HW flow control */
 #ifndef UART2_HW_FLOW_CONTROL
 #define UART2_HW_FLOW_CONTROL FALSE
 #endif
 
-static SerialConfig usart2_config = {
-  UART2_BAUD,                                               /*     BITRATE    */
-  0,                                                        /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
-#if UART2_HW_FLOW_CONTROL
-  USART_CR3_CTSE | USART_CR3_RTSE
-#else
-  0                                                         /*    USART CR3   */
+#if UART2_HW_FLOW_CONTROL && defined(UART2_CR3)
+#warning "UART2_CR3 reset to your value, HW flow control not enabled! You may want to set USART_CR3_CTSE | USART_CR3_RTSE yourself."
 #endif
+
+#ifndef UART2_CR1
+#define UART2_CR1 0
+#endif
+
+#ifndef UART2_CR2
+#define UART2_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART2_CR3
+#if UART2_HW_FLOW_CONTROL
+#define UART2_CR3 USART_CR3_CTSE | USART_CR3_RTSE
+#else
+#define UART2_CR3 0
+#endif
+#endif
+
+static SerialConfig usart2_config = {
+  UART2_BAUD,                         /*     BITRATE    */
+  UART2_CR1,                          /*    USART CR1   */
+  UART2_CR2,                          /*    USART CR2   */
+  UART2_CR3                           /*    USART CR3   */
 };
 
 static struct SerialInit uart2_init_struct = SERIAL_INIT_NULL;
@@ -320,11 +349,23 @@ void uart2_init(void)
 #define USE_UART3_RX TRUE
 #endif
 
+#ifndef UART3_CR1
+#define UART3_CR1 0
+#endif
+
+#ifndef UART3_CR2
+#define UART3_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART3_CR3
+#define UART3_CR3 0
+#endif
+
 static SerialConfig usart3_config = {
-  UART3_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART3_BAUD,                        /*     BITRATE    */
+  UART3_CR1,                         /*    USART CR1   */
+  UART3_CR2,                         /*    USART CR2   */
+  UART3_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart3_init_struct = SERIAL_INIT_NULL;
@@ -412,11 +453,23 @@ void uart3_init(void)
 #define USE_UART4_RX TRUE
 #endif
 
+#ifndef UART4_CR1
+#define UART4_CR1 0
+#endif
+
+#ifndef UART4_CR2
+#define UART4_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART4_CR3
+#define UART4_CR3 0
+#endif
+
 static SerialConfig usart4_config = {
-  UART4_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART4_BAUD,                        /*     BITRATE    */
+  UART4_CR1,                         /*    USART CR1   */
+  UART4_CR2,                         /*    USART CR2   */
+  UART4_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart4_init_struct = SERIAL_INIT_NULL;
@@ -504,11 +557,23 @@ void uart4_init(void)
 #define USE_UART5_RX TRUE
 #endif
 
+#ifndef UART5_CR1
+#define UART5_CR1 0
+#endif
+
+#ifndef UART5_CR2
+#define UART5_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART5_CR3
+#define UART5_CR3 0
+#endif
+
 static SerialConfig usart5_config = {
-  UART5_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART5_BAUD,                        /*     BITRATE    */
+  UART5_CR1,                         /*    USART CR1   */
+  UART5_CR2,                         /*    USART CR2   */
+  UART5_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart5_init_struct = SERIAL_INIT_NULL;
@@ -596,11 +661,23 @@ void uart5_init(void)
 #define USE_UART6_RX TRUE
 #endif
 
+#ifndef UART6_CR1
+#define UART6_CR1 0
+#endif
+
+#ifndef UART6_CR2
+#define UART6_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART6_CR3
+#define UART6_CR3 0
+#endif
+
 static SerialConfig usart6_config = {
-  UART6_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART6_BAUD,                        /*     BITRATE    */
+  UART6_CR1,                         /*    USART CR1   */
+  UART6_CR2,                         /*    USART CR2   */
+  UART6_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart6_init_struct = SERIAL_INIT_NULL;
@@ -693,11 +770,23 @@ void uart6_init(void)
 #define USE_UART7_RX TRUE
 #endif
 
+#ifndef UART7_CR1
+#define UART7_CR1 0
+#endif
+
+#ifndef UART7_CR2
+#define UART7_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART7_CR3
+#define UART7_CR3 0
+#endif
+
 static SerialConfig usart7_config = {
-  UART7_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART7_BAUD,                        /*     BITRATE    */
+  UART7_CR1,                         /*    USART CR1   */
+  UART7_CR2,                         /*    USART CR2   */
+  UART7_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart7_init_struct = SERIAL_INIT_NULL;
@@ -785,11 +874,23 @@ void uart7_init(void)
 #define USE_UART8_RX TRUE
 #endif
 
+#ifndef UART8_CR1
+#define UART8_CR1 0
+#endif
+
+#ifndef UART8_CR2
+#define UART8_CR2 USART_CR2_STOP1_BITS
+#endif
+
+#ifndef UART8_CR3
+#define UART8_CR3 0
+#endif
+
 static SerialConfig usart8_config = {
-  UART8_BAUD,                                             /*     BITRATE    */
-  0,                                                      /*    USART CR1   */
-  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
-  0                                                       /*    USART CR3   */
+  UART8_BAUD,                        /*     BITRATE    */
+  UART8_CR1,                         /*    USART CR1   */
+  UART8_CR2,                         /*    USART CR2   */
+  UART8_CR3                          /*    USART CR3   */
 };
 
 static struct SerialInit uart8_init_struct = SERIAL_INIT_NULL;
