@@ -5,6 +5,7 @@
     <description>Format and send via UART tracking data according to French regulation.</description>
     <configure name="E_ID_PORT" value="UARTx" description="UART where the e-id device is connected to (UART1, UART2, etc"/>
     <configure name="E_ID_BAUD" value="B115200" description="UART baud rate"/>
+    <define name="E_ID_SWAP_RXTX" value="FALSE" description="Set to TRUE to swap UART Rx and Tx"/>
   </doc>
   <settings>
     <dl_settings>

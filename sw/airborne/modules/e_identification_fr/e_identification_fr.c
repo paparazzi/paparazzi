@@ -36,6 +36,10 @@
 
 #define MAX_BUF_LEN 50
 
+#ifndef E_ID_SWAP_RXTX
+#define E_ID_SWAP_RXTX FALSE
+#endif
+
 
 static struct uart_periph *dev = &(E_ID_DEV);
 bool e_identification_started = false;
@@ -141,7 +145,7 @@ static int put_lat_lon_home(uint8_t *buf)
 
 void e_identification_fr_init()
 {
-#if defined(E_ID_SWAP_RXTX)
+#if E_ID_SWAP_RXTX
   uart_periph_swap(dev);
 #endif
 }
