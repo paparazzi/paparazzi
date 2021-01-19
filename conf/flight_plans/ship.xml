@@ -1,0 +1,21 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="70" ground_alt="10" lat0="82.19" lon0="19.23" max_dist_from_home="30000" name="Nansen ship" qfu="180" security_height="60">
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="-20.0"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <while cond="!GpsFixValid()"/>
+      <while cond="LessThan(NavBlockTime(), 15)"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call fun="NavSetGroundReferencePosHere()"/>
+    </block>
+  </blocks>
+</flight_plan>

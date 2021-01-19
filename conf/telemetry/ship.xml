@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap">
+    <mode name="default">
+      <message name="GPS"	     period="1."	phase="0."/>
+
+      <message name="ALIVE"          period="16."	phase="1"/>
+      <message name="NAVIGATION_REF" period="16."	phase="9"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+    </mode>
+  </process>
+</telemetry>
