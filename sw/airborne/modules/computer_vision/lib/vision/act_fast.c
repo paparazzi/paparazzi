@@ -32,7 +32,10 @@ All rights reserved.
 // equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c
 // TODO Currently hardcoded to two cameras
 #define MAX_AGENTS FAST9_MAX_CORNERS
-struct agent_t agents[2][MAX_AGENTS];
+#ifndef OPTICFLOW_CAMERA2
+  struct agent_t agents[1][MAX_AGENTS];
+#else
+  struct agent_t agents[2][MAX_AGENTS];
 
 /**
  * Do an ACT-FAST corner detection.
