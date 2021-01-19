@@ -641,7 +641,9 @@
 
 // FIXME when RC2 is used for FrSky telemetry
 #define USE_UART6_RX TRUE
+#ifndef USE_UART6_TX
 #define USE_UART6_TX FALSE
+#endif
 #define UART6_GPIO_PORT_RX  PAL_PORT(LINE_RC2)
 #define UART6_GPIO_RX       PAL_PAD(LINE_RC2)
 #define UART6_GPIO_AF       RC2_USART_AF
