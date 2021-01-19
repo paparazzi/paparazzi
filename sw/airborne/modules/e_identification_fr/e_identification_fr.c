@@ -141,6 +141,9 @@ static int put_lat_lon_home(uint8_t *buf)
 
 void e_identification_fr_init()
 {
+#if defined(E_ID_SWAP_RXTX)
+  uart_periph_swap(dev);
+#endif
 }
 
 
