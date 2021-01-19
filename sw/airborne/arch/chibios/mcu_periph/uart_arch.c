@@ -969,6 +969,16 @@ void uart_periph_invert_data_logic(struct uart_periph *p, bool invert_rx, bool i
   sdStop((SerialDriver *)(p->reg_addr));
   sdStart((SerialDriver *)(p->reg_addr), conf);
 }
+
+void uart_periph_swap(struct uart_periph *p)
+{
+  struct SerialInit *init_struct = (struct SerialInit *)(p->init_struct);
+  SerialConfig *conf = init_struct->conf;
+  conf->cr2 |= USART_CR2_SWAP; // swap rx/tx
+
+  sdStop((SerialDriver *)(p->reg_addr));
+  sdStart((SerialDriver *)(p->reg_addr), conf);
+}
 #endif
 
 // Check free space and set a positive value for fd if valid

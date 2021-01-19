@@ -98,6 +98,7 @@ extern void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud);
 extern void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity);
 extern void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx_enabled, bool hw_flow_control);
 extern void uart_periph_invert_data_logic(struct uart_periph *p, bool invert_rx, bool invert_tx);
+extern void uart_periph_swap(struct uart_periph *p);
 extern void uart_put_byte(struct uart_periph *p, long fd, uint8_t data);
 extern void uart_put_buffer(struct uart_periph *p, long fd, const uint8_t *data, uint16_t len);
 extern int uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len);

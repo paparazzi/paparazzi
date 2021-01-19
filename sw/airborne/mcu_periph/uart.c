@@ -300,3 +300,8 @@ void WEAK uart_periph_invert_data_logic(struct uart_periph *p __attribute__((unu
 {
 }
 
+void WEAK uart_periph_swap(struct uart_periph *p __attribute__((unused)))
+{
+}
+
+
