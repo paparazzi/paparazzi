@@ -117,22 +117,19 @@ static void update_gps(struct gps_data_t *gpsdata,
 
 static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
 {
-        if (gps_waiting (gpsdata, 500)) {
+        if (gps_waiting (gpsdata, 150)) {
             if (gps_read (gpsdata) == -1) {
 		    perror("gps read error");
-		    //exit 2;
-		    //ret = 2;
-		    //running = false;
 	    } else {
 		    update_gps(gpsdata, NULL, 0);
 	    }
 	}
+	return true;
 }
 
 int main(int argc, char *argv[])
 {
-    char *server = NULL, *port = DEFAULT_GPSD_PORT;
-    bool running = true;
+    char *port = DEFAULT_GPSD_PORT;
     int ret = 0;
     GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
     
