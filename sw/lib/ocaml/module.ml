@@ -141,7 +141,7 @@ type periodic = {
     call: string;
     fname: string;
     period_freq: period_freq;
-    delay: int option;
+    delay: float option;
     start: string option;
     stop: string option;
     autorun: autorun
@@ -149,7 +149,7 @@ type periodic = {
 
 let parse_periodic = fun xml ->
   let get = fun x -> ExtXml.attrib_opt xml x in
-  let geti = fun x ->  ExtXml.attrib_opt_int xml x in
+  let getf = fun x ->  ExtXml.attrib_opt_float xml x in
   let call = snd (List.find (fun (a, _) -> Compat.lowercase_ascii a = "fun")
                  (Xml.attribs xml)) in
   let call_regexp = Str.regexp "\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\(.*\\)" in
@@ -176,7 +176,7 @@ let parse_periodic = fun xml ->
         with _ -> Period p
       end
    in
-  { call; fname; period_freq; delay = geti "delay";
+  { call; fname; period_freq; delay = getf "delay";
     start = get "start"; stop = get "stop";
     autorun = match get "autorun" with
       | None -> Lock
