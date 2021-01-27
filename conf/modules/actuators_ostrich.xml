@@ -18,6 +18,10 @@
     <define name="$(ACTUATORS_OSTRICH_PORT_UPPER)_BAUD" value="$(ACTUATORS_OSTRICH_BAUD)"/>  
     
     <file name="actuators_ostrich.c"/>
+    <test>
+        <define name="USE_UART6"/>
+        <define name="ACTUATORS_OSTRICH_DEV" value="uart6"/>
+    </test>
   </makefile>
 </module>
 

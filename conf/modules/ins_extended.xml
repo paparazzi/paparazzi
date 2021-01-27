@@ -43,5 +43,6 @@
     <file name="ins_int.c" dir="subsystems/ins"/>
     <file name="vf_extended_float.c" dir="subsystems/ins"/>
     <define name="USE_VFF_EXTENDED"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 </module>

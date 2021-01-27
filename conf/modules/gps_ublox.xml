@@ -42,6 +42,11 @@
       $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
       endif
     </raw>
+    <test>
+      <define name="PRIMARY_GPS" value="GPS_UBX"/>
+      <define name="USE_UART2"/>
+      <define name="UBX_GPS_LINK" value="uart2"/>
+    </test>
   </makefile>
 </module>
 

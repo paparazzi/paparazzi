@@ -29,6 +29,9 @@ test:
 	$(Q)make -C math test
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
 
+test_modules:
+	prove -v $(PAPARAZZI_HOME)/tests/modules/test_modules.py
+
 clean:
 	$(Q)rm -rf results/*
 

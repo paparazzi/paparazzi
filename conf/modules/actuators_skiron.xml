@@ -24,11 +24,21 @@
     <define name="$(ACTUATORS_SKIRON_I2C_DEV_UPPER)_SCLL" value="$(ACTUATORS_SKIRON_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <define name="$(ACTUATORS_SKIRON_I2C_DEV_UPPER)_SCLH" value="$(ACTUATORS_SKIRON_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <file name="actuators_skiron.c" dir="subsystems/actuators"/>
+    <test>
+        <define name="SERVOS_SKIRON_NB" value="4"/>
+        <define name="USE_I2C0"/>
+        <define name="ACTUATORS_SKIRON_I2C_DEV" value="i2c0"/>
+    </test>
   </makefile>
   <makefile target="nps">
     <define name="USE_I2C0"/>
     <define name="ACTUATORS_SKIRON_I2C_DEV" value="i2c0"/>
     <file name="actuators_skiron.c" dir="subsystems/actuators"/>
+    <test>
+        <define name="SERVOS_SKIRON_NB" value="4"/>
+        <define name="USE_I2C0"/>
+        <define name="ACTUATORS_SKIRON_I2C_DEV" value="i2c0"/>
+    </test>
   </makefile>
 </module>
 

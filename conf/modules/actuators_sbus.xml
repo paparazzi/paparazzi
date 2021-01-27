@@ -20,6 +20,11 @@
     <define name="$(ACTUATORS_SBUS_DEV_UPPER)_BAUD" value="100000"/>
     <define name="USE_$(ACTUATORS_SBUS_DEV_UPPER)_RX" value="FALSE"/>
     <file name="actuators_sbus.c" dir="subsystems/actuators"/>
+    <test>
+        <define name="USE_UART1"/>
+        <define name="PERIODIC_FREQUENCY" value="500"/>
+        <define name="ACTUATORS_SBUS_DEV" value="uart1"/>
+    </test>
   </makefile>
 </module>
 

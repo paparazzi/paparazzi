@@ -31,5 +31,11 @@
     <define name="USE_MISSION"/>
     <file name="mission_common.c"/>
     <file name="mission_fw_nav.c"/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>

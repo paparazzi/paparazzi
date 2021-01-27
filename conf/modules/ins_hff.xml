@@ -22,5 +22,8 @@
     <file name="vf_float.c" dir="subsystems/ins"/>
     <file name="hf_float.c" dir="subsystems/ins"/>
     <define name="USE_HFF"/>
+    <test firmware="rotorcraft">
+      <define name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+    </test>
   </makefile>
 </module>

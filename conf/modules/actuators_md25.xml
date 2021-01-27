@@ -19,6 +19,10 @@
     <define name="USE_$(ACTUATORS_MD25_DEV_UPPER)"/>
     <define name="$(ACTUATORS_MD25_DEV_UPPER)_CLOCK_SPEED" value="100000"/>
     <file name="actuators_md25.c"/>
+    <test>
+        <define name="USE_I2C2"/>
+        <define name="ACTUATORS_MD25_DEV" value="i2c2"/>
+    </test>
   </makefile>
 </module>
 

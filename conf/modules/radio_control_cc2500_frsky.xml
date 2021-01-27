@@ -67,5 +67,16 @@
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
+      <define name="CC2500_SPI_DEV" value="spi1"/>
+      <define name="CC2500_SPI_SLAVE_IDX" value="2"/>
+      <define name="USE_SPI1"/>
+      <define name="USE_SPI_SLAVE2"/>
+      <define name="SPI_MASTER"/>
+      <define name="CC2500_GDO0_GPIO" value="GPIOA"/>
+      <define name="CC2500_GDO0_PIN" value="GPIO0"/>
+    </test>
   </makefile>
 </module>

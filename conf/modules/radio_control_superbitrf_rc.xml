@@ -50,6 +50,22 @@
     <file name="superbitrf_rc.c" dir="subsystems/radio_control"/>
     <file name="superbitrf.c" dir="subsystems/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_SUPERBITRF"/>
+      <define name="USE_SUPERBITRF"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/superbitrf_rc.h" type="string"/>
+      <define name="SUPERBITRF_SPI_DEV" value="spi2"/>
+      <define name="USE_SPI2"/>
+      <define name="SPI_MASTER"/>
+      <define name="SUPERBITRF_SPI_SLAVE_IDX" value="3"/>
+      <define name="USE_SPI_SLAVE3"/>
+      <define name="SPEKTRUM_BIND_PIN_PORT" value="GPIOA"/>
+      <define name="SPEKTRUM_BIND_PIN" value="GPIO0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

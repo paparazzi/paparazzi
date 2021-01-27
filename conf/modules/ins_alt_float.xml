@@ -20,5 +20,6 @@
     <define name="INS_TYPE_H" value="subsystems/ins/ins_alt_float.h" type="string"/>
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_alt_float.c" dir="subsystems/ins"/>
+    <test firmware="fixedwing"/>
   </makefile>
 </module>

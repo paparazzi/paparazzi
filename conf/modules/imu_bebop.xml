@@ -38,5 +38,13 @@
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
     <file name="imu_bebop.c" dir="subsystems/imu"/>
+    <test>
+      <define name="BEBOP_MAG_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="BEBOP_MPU_I2C_DEV" value="i2c2"/>
+      <define name="USE_I2C2"/>
+      <define name="IMU_TYPE_H" value="subsystems/imu/imu_bebop.h" type="string"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>

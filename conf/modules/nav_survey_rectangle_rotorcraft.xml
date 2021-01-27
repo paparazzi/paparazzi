@@ -46,5 +46,6 @@ or using flightplan primitive
   <init fun="nav_survey_rectangle_rotorcraft_init()"/>
   <makefile target="ap|sim|nps">
     <file name="nav_survey_rectangle_rotorcraft.c"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 </module>

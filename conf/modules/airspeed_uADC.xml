@@ -26,6 +26,12 @@
     <define name="USE_$(UADC_UART_UPPER)"/>
     <define name="uADC_DEV" value="$(UADC_UART_LOWER)"/>
     <define name="$(UADC_UART_UPPER)_BAUD" value="B115200"/>
+    <test>
+      <define name="uADC_DEV" value="uart0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

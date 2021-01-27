@@ -5,6 +5,8 @@
     <description>
       GPS via UDP.
       Read GPS messages from UDP port 7000.
+
+      TODO not working; to be removed or fixed
     </description>
     <define name="GPS_UDP_HOST" value="192.168.1.2" description="host sending GPS messages"/>
   </doc>

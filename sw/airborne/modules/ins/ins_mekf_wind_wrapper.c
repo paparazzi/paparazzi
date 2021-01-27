@@ -26,6 +26,7 @@
 
 #include "modules/ins/ins_mekf_wind_wrapper.h"
 #include "modules/ins/ins_mekf_wind.h"
+#include "modules/air_data/air_data.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"

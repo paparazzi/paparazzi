@@ -28,6 +28,11 @@
     <define name="$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_BAUD" value="115200" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
     <define name="USE_$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_RC" value="FALSE" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
     <file name="actuators_spektrum.c" dir="subsystems/actuators"/>
+    <test>
+        <define name="PERIODIC_FREQUENCY" value="500"/>
+        <define name="USE_UART4"/>
+        <define name="ACTUATORS_SPEKTRUM_DEV" value="uart4"/>
+    </test>
   </makefile>
 </module>
 

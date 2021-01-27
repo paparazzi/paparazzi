@@ -13,5 +13,6 @@
   </header>
   <makefile target="ap|sim|nps">
     <file name="nav_drop.c"/>
+    <test firmware="fixedwing"/>
   </makefile>
 </module>

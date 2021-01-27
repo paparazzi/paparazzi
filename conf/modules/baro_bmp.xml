@@ -18,6 +18,13 @@
     <define name="BMP_I2C_DEV" value="$(BMP_I2C_DEV_LOWER)"/>
     <file name="baro_bmp.c"/>
     <file name="bmp085.c" dir="peripherals"/>
+    <test firmware="fixedwing">
+      <define name="USE_I2C1"/>
+      <define name="BMP_I2C_DEV" value="i2c1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

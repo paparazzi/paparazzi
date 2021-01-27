@@ -64,6 +64,7 @@ Receiving:
 #include "subsystems/electrical.h"
 //#include "subsystems/navigation/common_nav.h"  //why is should this be needed?
 #include "generated/settings.h"
+#include "led.h"
 
 #ifndef GSM_LINK
 #define GSM_LINK UART3100

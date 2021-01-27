@@ -48,5 +48,13 @@
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
+    <test>
+      <define name="IMU_TYPE_H" value="imu/imu_mpu9250_spi.h" type="string"/>
+      <define name="SPI_MASTER"/>
+      <define name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+      <define name="USE_SPI1"/>
+      <define name="IMU_MPU9250_SPI_SLAVE_IDX" value="0"/>
+      <define name="USE_SPI_SLAVE0"/>
+    </test>
   </makefile>
 </module>

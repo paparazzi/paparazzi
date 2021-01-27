@@ -35,6 +35,7 @@
 
 // for ahrs_register_impl
 #include "subsystems/ahrs.h"
+#include "subsystems/abi.h"
 
 #define GX3_CHKSM(_ubx_payload) (uint16_t)((uint16_t)(*((uint8_t*)_ubx_payload+66+1))|(uint16_t)(*((uint8_t*)_ubx_payload+66+0))<<8)
 
@@ -260,13 +261,13 @@ void gx3_packet_read_message(void)
   struct FloatRates body_rate;
   /* compute body rates */
   struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&imu.body_to_imu);
-  FLOAT_RMAT_TRANSP_RATEMULT(body_rate, *body_to_imu_rmat, ahrs_gx3.rate);
+  float_rmat_ratemult(&body_rate, body_to_imu_rmat, &ahrs_gx3.rate);
   /* Set state */
   stateSetBodyRates_f(&body_rate);
 
   // Attitude
   struct FloatRMat ltp_to_body_rmat;
-  float_rmat_comp(ltp_to_body_rmat, ahrs_gx3.rmat, *body_to_imu_rmat);
+  float_rmat_comp(&ltp_to_body_rmat, &ahrs_gx3.rmat, body_to_imu_rmat);
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
   struct FloatEulers ltp_to_body_eulers;

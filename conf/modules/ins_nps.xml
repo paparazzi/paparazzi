@@ -19,6 +19,10 @@
 
     <!-- use attitude from nps sim -->
     <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+    <test>
+      <include name="../simulator/nps"/>
+      <shell cmd="pkg-config glib-2.0 --cflags"/>
+    </test>
   </makefile>
 
   <makefile target="nps|hitl" firmware="rotorcraft">

@@ -302,7 +302,7 @@ ab_clean:
 #
 # Tests
 #
-test: test_math test_examples
+test: test_math test_examples test_modules
 
 # subset of airframes for coverity test to pass the limited build time on travis
 test_coverity: all
@@ -323,6 +323,10 @@ test_tudelft: all
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
+
+# test compilation of modules
+test_modules: all
+	prove -v tests/modules/test_modules.py
 
 test_all_confs: all opencv_bebop
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))

@@ -42,6 +42,13 @@
       $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
       endif
     </raw>
+    <test>
+      <define name="PRIMARY_GPS" value="GPS_MTK"/>
+      <define name="MTK_GPS_PORT" value="uart2"/>
+      <define name="MTK_GPS_BAUD" value="115200"/>
+      <define name="USE_UART2"/>
+      <define name="MTK_GPS_LINK" value="uart2"/>
+    </test>
   </makefile>
   <makefile target="fbw">
     <define name="USE_GPS"/>

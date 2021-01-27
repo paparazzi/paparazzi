@@ -172,7 +172,7 @@ void ahrs_dcm_propagate(struct FloatRates *gyro, float dt)
   compute_ahrs_representations();
 }
 
-void ahrs_dcm_update_gps(struct GpsState *gps_s)
+void ahrs_dcm_update_gps(struct GpsState *gps_s UNUSED)
 {
   static float last_gps_speed_3d = 0;
 

@@ -18,6 +18,12 @@
     <define name="USE_$(BARO_HCA_I2C_DEV_UPPER)"/>
     <define name="BARO_HCA_I2C_DEV" value="$(BARO_HCA_I2C_DEV_LOWER)"/>
     <file name="baro_hca.c"/>
+    <test>
+      <define name="USE_I2C0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 
 </module>

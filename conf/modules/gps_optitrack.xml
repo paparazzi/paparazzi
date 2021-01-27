@@ -15,6 +15,7 @@
   <autoload name="gps_sim"/>
   <makefile target="ap">
     <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+    <test/>
   </makefile>
 </module>
 

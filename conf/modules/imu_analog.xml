@@ -89,5 +89,15 @@ else ifeq ($(ARCH), stm32)
 $(error Not implemented for the stm32 yet... should be trivial, just do it...)
 endif
     </raw>
+    <test>
+      <define name="ADC_CHANNEL_GYRO_NB_SAMPLES" value="10"/>
+      <define name="ADC_CHANNEL_ACCEL_NB_SAMPLES" value="10"/>
+      <define name="ADC_CHANNEL_GYRO_P" value="1"/>
+      <define name="ADC_CHANNEL_GYRO_Q" value="2"/>
+      <define name="ADC_CHANNEL_GYRO_R" value="3"/>
+      <define name="ADC_CHANNEL_ACCEL_X" value="1"/>
+      <define name="ADC_CHANNEL_ACCEL_Y" value="2"/>
+      <define name="ADC_CHANNEL_ACCEL_Z" value="3"/>
+    </test>
   </makefile>
 </module>

@@ -52,6 +52,10 @@ Block example:
   <periodic fun="nav_catapult_highrate_module()" autorun="TRUE"/>
   <makefile target="ap|sim|nps">
     <file name="nav_catapult.c"/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+      <define name="NAV_CATAPULT_HIGHRATE_MODULE_FREQ" value="100"/>
+    </test>
   </makefile>
 </module>
 

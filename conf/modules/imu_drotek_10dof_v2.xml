@@ -37,5 +37,11 @@
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_drotek_10dof_v2.c" dir="subsystems/imu"/>
+    <test>
+      <define name="IMU_TYPE_H" value="imu/imu_drotek_10dof_v2.h" type="string"/>
+      <define name="USE_I2C1"/>
+      <define name="DROTEK_2_I2C_DEV" value="i2c1"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>

@@ -12,6 +12,9 @@
   <makefile target="ap">
     <define name="ACTUATORS"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
+    <test firmware="rotorcraft">
+      <configure name="SRC_BOARD" value="boards/ardrone"/>
+    </test>
   </makefile>
 </module>
 

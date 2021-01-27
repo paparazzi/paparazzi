@@ -42,5 +42,17 @@
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
+    <test>
+      <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
+      <define name="IMU_PX4FMU_SPI_DEV" value="spi1"/>
+      <define name="IMU_L3G_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+      <define name="IMU_LSM_SPI_SLAVE_IDX" value="SPI_SLAVE1"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI1"/>
+      <define name="USE_SPI_SLAVE0"/>
+      <define name="USE_SPI_SLAVE1"/>
+      <define name="USE_I2C2"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>

@@ -37,6 +37,11 @@
     <define name="HOTT_SIM_GAM_SENSOR" value="$(HOTT_SIM_GAM_SENSOR)"/>
     <define name="HOTT_SIM_GPS_SENSOR" value="$(HOTT_SIM_GPS_SENSOR)"/>
     <define name="HOTT_SIM_VARIO_SENSOR" value="$(HOTT_SIM_VARIO_SENSOR)"/>
+    <test firmware="fixedwing">
+        <define name="HOTT_PORT" value="uart1"/>
+        <define name="USE_UART1"/>
+        <define name="HOTT_SIM_EAM_SENSOR" value="1"/>
+    </test>
   </makefile>
 </module>
 

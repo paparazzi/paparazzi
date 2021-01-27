@@ -40,6 +40,10 @@
     <define name="USE_$(AIRSPEED_ETS_I2C_DEV_UPPER)"/>
     <define name="AIRSPEED_ETS_I2C_DEV" value="$(AIRSPEED_ETS_I2C_DEV_LOWER)"/>
     <file name="airspeed_ets.c"/>
+    <test>
+      <define name="USE_I2C0"/>
+      <define name="USE_AIRSPEED_ETS"/>
+    </test>
   </makefile>
 
 </module>

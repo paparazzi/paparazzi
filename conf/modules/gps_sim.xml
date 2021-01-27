@@ -16,5 +16,6 @@
   <makefile target="sim">
     <file name="gps_sim.c" dir="subsystems/gps"/>
     <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
+    <test/>
   </makefile>
 </module>

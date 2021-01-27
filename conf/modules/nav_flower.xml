@@ -12,5 +12,8 @@
   <init fun="nav_flower_init()"/>
   <makefile target="ap|sim|nps|hitl">
     <file name="nav_flower.c"/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+    </test>
   </makefile>
 </module>

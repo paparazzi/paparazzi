@@ -26,6 +26,12 @@
     <file name="common_flight_plan.c" dir="subsystems/navigation"/>
     <file name="waypoints.c" dir="subsystems/navigation"/>
     <define name="USE_NAVIGATION"/>
+    <test firmware="rover">
+      <define name="USE_GENERATED_AUTOPILOT"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

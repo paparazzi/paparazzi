@@ -44,6 +44,15 @@
     <file name="radio_control.c" dir="subsystems"/>
     <file name="sbus_dual.c" dir="subsystems/radio_control"/>
     <file name="sbus_common.c" dir="subsystems/radio_control"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_SBUS"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/sbus_dual.h" type="string"/>
+      <define name="SBUS1_UART_DEV" value="uart4"/>
+      <define name="SBUS2_UART_DEV" value="uart5"/>
+      <define name="USE_UART4"/>
+      <define name="USE_UART5"/>
+    </test>
   </makefile>
 </module>
 

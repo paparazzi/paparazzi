@@ -55,6 +55,10 @@
   <makefile target="ap|sim|nps|hitl">
     <file name="nav_skid_landing.c"/>
     <define name="CTRL_VERTICAL_LANDING" value="1"/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+      <define name="CTRL_VERTICAL_LANDING"/>
+    </test>
   </makefile>
 </module>
 

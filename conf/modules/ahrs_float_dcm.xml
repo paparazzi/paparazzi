@@ -48,6 +48,10 @@
     <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
     <file name="ahrs_float_dcm.c" dir="subsystems/ahrs"/>
     <file name="ahrs_float_dcm_wrapper.c" dir="subsystems/ahrs"/>
+    <test firmware="fixedwing">
+        <define name="PRIMARY_AHRS" value="ahrs_dcm"/>
+        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
+    </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), dcm float_dcm))

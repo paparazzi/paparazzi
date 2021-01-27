@@ -50,5 +50,11 @@
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
       endif
     </raw>
+    <test firmware="fixedwing">
+      <define name="PERIODIC_FREQUENCY" value="100"/>
+      <define name="VN_PORT" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="PRIMARY_GPS" value="GPS_VECTORNAV"/>
+    </test>
   </makefile>
 </module>

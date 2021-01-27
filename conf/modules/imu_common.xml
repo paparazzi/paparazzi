@@ -24,5 +24,6 @@
   <makefile target="!sim|fbw">
     <define name="USE_IMU"/>
     <file name="imu.c" dir="subsystems"/>
+    <test/>
   </makefile>
 </module>

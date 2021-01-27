@@ -29,5 +29,6 @@ You can use:
   </header>
   <makefile target="ap|nps">
     <file name="nav_survey_poly_rotorcraft.c"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 </module>

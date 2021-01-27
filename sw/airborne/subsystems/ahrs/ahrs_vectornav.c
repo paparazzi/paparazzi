@@ -26,7 +26,9 @@
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #include "subsystems/ahrs/ahrs_vectornav.h"
+#include "subsystems/ahrs/ahrs_vectornav_wrapper.h"
 #include "subsystems/abi.h"
+#include "state.h"
 
 struct AhrsVectornav ahrs_vn;
 

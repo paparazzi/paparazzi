@@ -71,7 +71,7 @@ static inline void actuators_ardrone_reset_flipflop(void)
 {
   gpio_setup_output(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
   gpio_clear(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
-  int32_t stop = sys_time.nb_sec + 2;
+  uint32_t stop = sys_time.nb_sec + 2;
   while (sys_time.nb_sec < stop);
   gpio_set(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_FLIPFLOP);
 }

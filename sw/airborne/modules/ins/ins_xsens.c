@@ -157,7 +157,9 @@ static void handle_ins_msg(void)
   update_state_interface();
 
   if (xsens.new_attitude) {
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
     new_ins_attitude = true;
+#endif
     xsens.new_attitude = false;
   }
 

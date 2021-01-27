@@ -41,9 +41,6 @@
 #error "You must at least define the primary Spektrum satellite receiver."
 #endif
 
-/* Changed radio control order Notice */
-INFO("Radio-Control now follows PPRZ sign convention: this means you might need to reverese some channels in your transmitter: RollRight / PitchUp / YawRight / FullThrottle / Auto2 are positive deflections")
-
 /* Number of low pulses sent during binding to the satellite receivers
  * Spektrum documentation recommend that master and slave receivers
  * should be configured in DSMX 11ms mode, other modes (DSM2, 22ms) will be

@@ -14,5 +14,8 @@
   </header>
   <makefile target="ap|sim|nps">
     <file name="nav_gls.c"/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+    </test>
   </makefile>
 </module>

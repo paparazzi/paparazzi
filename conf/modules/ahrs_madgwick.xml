@@ -49,6 +49,10 @@ else
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_madgwick_wrapper.h\"
 endif
     </raw>
+    <test>
+        <define name="PRIMARY_AHRS" value="ahrs_madgwick"/>
+        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_madgwick_wrapper.h" type="string"/>
+    </test>
   </makefile>
 </module>
 

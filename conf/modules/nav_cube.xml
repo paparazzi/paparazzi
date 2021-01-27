@@ -29,5 +29,6 @@
   </header>
   <makefile target="ap|sim|nps">
     <file name="nav_cube.c"/>
+    <test firmware="fixedwing"/>
   </makefile>
 </module>

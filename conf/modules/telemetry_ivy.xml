@@ -24,6 +24,9 @@
   <makefile target="ap" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+    <test>
+      <configure name="SRC_FIRMWARE" value="firmwares/fixedwing"/>
+    </test>
   </makefile>
   <makefile target="ap|fbw" firmware="fixedwing">
     <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>

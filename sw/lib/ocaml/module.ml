@@ -128,7 +128,9 @@ let rec parse_makefile mkf = function
   | Xml.Element ("file_arch", _, []) as xml ->
     { mkf with files_arch = parse_file xml :: mkf.files_arch }
   | Xml.Element ("raw", [], [Xml.PCData raw]) ->
-    {mkf with raws = raw :: mkf.raws}
+    { mkf with raws = raw :: mkf.raws }
+  | Xml.Element ("test", _, _) ->
+    mkf
   | _ -> failwith "Module.parse_makefile: unreachable"
 
 type autorun = True | False | Lock

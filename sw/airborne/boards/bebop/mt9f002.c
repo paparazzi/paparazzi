@@ -1108,7 +1108,7 @@ void mt9f002_reset_exposure(struct mt9f002_t *mt)
 /* Handler for propagating user resolution change so the camera
  *
  */
-void mt9f002_setting_update_resolution(float in)
+void mt9f002_setting_update_resolution(float in UNUSED)
 {
   mt9f002.sensor_width = CFG_MT9F002_PIXEL_ARRAY_WIDTH / mt9f002.set_zoom;
   mt9f002.sensor_height = CFG_MT9F002_PIXEL_ARRAY_HEIGHT / mt9f002.set_zoom;
@@ -1130,12 +1130,12 @@ void mt9f002_setting_update_resolution(float in)
   isp_request_statistics_yuv_window(0, mt9f002.sensor_width, 0, mt9f002.sensor_height, 1, 1);
 }
 
-void mt9f002_setting_update_color(float in)
+void mt9f002_setting_update_color(float in UNUSED)
 {
   mt9f002_set_gains(&mt9f002);
 }
 
-void mt9f002_setting_update_exposure(float in)
+void mt9f002_setting_update_exposure(float in UNUSED)
 {
   mt9f002_set_exposure(&mt9f002);
 }

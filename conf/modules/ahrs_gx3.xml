@@ -25,5 +25,11 @@
     <file name="ahrs.c" dir="subsystems"/>
     <file name="imu.c" dir="subsystems"/>
     <file name="ahrs_gx3.c" dir="subsystems/ahrs"/>
+    <test>
+      <define name="GX3_PORT" value="uart3"/>
+      <define name="USE_UART3"/>
+      <define name="PRIMARY_AHRS" value="ahrs_gx3"/>
+      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_gx3.h" type="string"/>
+    </test>
   </makefile>
 </module>

@@ -33,6 +33,7 @@
 #include "modules/gps/gps_ubx_i2c.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
+#include <string.h>
 
 // ublox i2c address
 #define GPS_I2C_SLAVE_ADDR (0x42 << 1)
@@ -55,7 +56,7 @@ uint16_t gps_ubx_i2c_bytes_to_read;     ///< ublox bytes to read
 /** null function
  * @param p unused
  */
-void null_function(struct GpsUbxI2C *p);
+void null_function(struct GpsUbxI2C *p, uint32_t baudrate);
 
 /** Check available space in transmit buffer
  * @param p unused
@@ -120,7 +121,7 @@ void gps_ubx_i2c_init(void)
   gps_i2c.device.set_baudrate = (set_baudrate_t)null_function;                    ///< set device baudrate
 }
 
-void null_function(struct GpsUbxI2C *p __attribute__((unused))) {}
+void null_function(struct GpsUbxI2C *p __attribute__((unused)), uint32_t baudrate __attribute__((unused))) {}
 
 int gps_i2c_check_free_space(struct GpsUbxI2C *p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len)
 {

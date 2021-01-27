@@ -61,5 +61,16 @@
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>
+    <test>
+      <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
+      <define name="SPI_MASTER"/>
+      <define name="IMU_MPU_SPI_DEV" value="spi1"/>
+      <define name="USE_SPI1"/>
+      <define name="IMU_MPU_SPI_SLAVE_IDX" value="0"/>
+      <define name="USE_SPI_SLAVE0"/>
+      <define name="IMU_HMC_I2C_DEV" value="i2c2"/>
+      <define name="USE_I2C2"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>

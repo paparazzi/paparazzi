@@ -60,8 +60,8 @@
     <file name="mt9f002.h"/>
   </header>
 
-  <init fun="mt9v117_init(&mt9v117)"/>
-  <init fun="mt9f002_init(&mt9f002)"/>
+  <init fun="mt9v117_init(PTR(mt9v117))"/>
+  <init fun="mt9f002_init(PTR(mt9f002))"/>
   <makefile target="ap">
     <file name="mt9v117.c"/>
     <file name="mt9f002.c"/>
@@ -69,6 +69,9 @@
 
     <define name="I2C_BUF_LEN" value="56"/>
     <define name="USE_I2C0"/>
+    <test>
+      <define name="USE_I2C0"/>
+    </test>
   </makefile>
   <makefile target="nps">
     <file name="mt9v117_nps.c"/>

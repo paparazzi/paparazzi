@@ -24,6 +24,10 @@
     <define name="$(ACTUATORS_ASCTEC_I2C_DEV_UPPER)_SCLL" value="$(ACTUATORS_ASCTEC_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <define name="$(ACTUATORS_ASCTEC_I2C_DEV_UPPER)_SCLH" value="$(ACTUATORS_ASCTEC_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <file name="actuators_asctec.c" dir="subsystems/actuators"/>
+    <test>
+        <define name="USE_I2C1"/>
+        <define name="ACTUATORS_ASCTEC_I2C_DEV" value="i2c1"/>
+    </test>
   </makefile>
   <makefile target="nps">
     <define name="USE_I2C0"/>

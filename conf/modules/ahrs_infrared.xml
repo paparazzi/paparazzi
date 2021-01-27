@@ -18,5 +18,8 @@
   <periodic fun="ahrs_infrared_periodic()" freq="60"/>
   <makefile>
     <file name="ahrs_infrared.c"/>
+    <test>
+        <define name="IR_HORIZ_SENSOR_ALIGNED"/>
+    </test>
   </makefile>
 </module>
