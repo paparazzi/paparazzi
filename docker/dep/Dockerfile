@@ -16,7 +16,9 @@ RUN add-apt-repository ppa:team-gcc-arm-embedded/ppa
 
 # install paparazzi-dev which pull in the dependencies
 # also install cross compiler and some stuff for X
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive \
+    TZ=Etc/UTC \
+    apt-get update && apt-get install -y \
     cmake \
     gcc-arm-embedded \
     libcanberra-gtk-module \
