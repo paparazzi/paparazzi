@@ -13,4 +13,5 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     g++-arm-linux-gnueabi \
     libgazebo8-dev \
     rustc cargo \
+    python3-lxml \
     && rm -rf /var/lib/apt/lists/*
