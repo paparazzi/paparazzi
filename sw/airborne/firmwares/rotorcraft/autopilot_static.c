@@ -348,7 +348,7 @@ void autopilot_static_on_rc_frame(void)
       if (new_autopilot_mode == MODE_MANUAL) {
         autopilot_static_set_mode(new_autopilot_mode);
       }
-      /* if in HOME mode, don't allow switching to non-manual modes */
+      /* if in HOME or FAILSAFE mode, don't allow switching to non-manual modes */
       else if (((autopilot.mode != AP_MODE_HOME) && (autopilot.mode != AP_MODE_FAILSAFE))
 
 #if UNLOCKED_HOME_MODE
@@ -391,4 +391,3 @@ void autopilot_static_on_rc_frame(void)
   }
 
 }
-
