@@ -326,7 +326,10 @@ static void mateksys3901l0x_parse(uint8_t byte)
                                 now_ts, 
                                 mateksys3901l0x.motionX_clean,
                                 mateksys3901l0x.motionY_clean,
-                                mateksys3901l0x.motion_quality);
+                                0,
+                                0,
+                                mateksys3901l0x.motion_quality,
+                                0.0);
         }
       }
       // Start reading again
