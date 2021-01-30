@@ -1,0 +1,55 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mateksys_3901_l0x">
+
+  <doc>
+    <description>
+      Transfers flow X and Y and range data of the Mateksys3901-l0X sensor to the autopilot
+      This by the default serial connection not by connecting the debug pins on ther sensor
+      The Data is in MSP compatible output.
+    </description>
+    <configure name="MATEKSYS_3901_L0X_PORT" value="UART1" description="Set to which UART the sensor serial stream pin is connected to"/>
+    <configure name="MATEKSYS_3901_L0X_BAUD" value="115200" description="Sets the baudrate of the UART"/>
+    <define name="MATEKSYS_3901_L0X_MOTION_THRES" value="120" description="Sets the minimum motion quality to accept the flow measurement [0-255]"/>
+    <define name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200" description="Sets the minimum distance quality to accept the distance measurement [0-255]"/>
+    <define name="USE_MATEKSYS_3901_L0X_AGL" value="0" description="Send AGL measurements on ABI bus"/>
+    <define name="USE_MATEKSYS_3901_L0X_OPTICAL_FLOW" value="0" description="Send optical flow measurements on ABI bus"/>
+    <define name="MATEKSYS_3901_L0X_COMPENSATE_ROTATION" value="0" description="Adjust distance from ground by compensating body rotation"/>
+  </doc>
+
+  <header>
+    <file name="mateksys_3901_l0x.h" dir="modules/optical_flow"/>
+  </header>
+
+  <init fun="mateksys3901l0x_init()"/>
+  <event fun="mateksys3901l0x_event()"/>
+
+  <makefile>
+
+    <!-- Configure default UART port and baudrate -->
+    <configure name="MATEKSYS_3901_L0X_PORT" default="UART3" case="upper|lower"/>
+    <configure name="MATEKSYS_3901_L0X_BAUD" default="B115200"/>
+
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(MATEKSYS_3901_L0X_PORT_UPPER)"/>
+    <!-- If the driver is used on a serial port where the TX pin is not available, since the TX is not needed for this sensor it can be disabled -->
+    <define name="USE_$(MATEKSYS_3901_L0X_PORT)_TX" value="FALSE"/>
+    <define name="$(MATEKSYS_3901_L0X_PORT_UPPER)_BAUD" value="$(MATEKSYS_3901_L0X_BAUD)"/>
+    <define name="MATEKSYS_3901_L0X_PORT" value="$(MATEKSYS_3901_L0X_PORT_LOWER)"/>
+
+    <!-- Data processing configuration parameters -->
+    <define name="MATEKSYS_3901_L0X_MOTION_THRES" value="120"/>
+    <define name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200"/>
+    <define name="USE_MATEKSYS_3901_L0X_AGL" value="1"/>
+    <define name="USE_MATEKSYS_3901_L0X_OPTICAL_FLOW" value="1"/>
+    <define name="MATEKSYS_3901_L0X_COMPENSATE_ROTATION" value="0"/>
+
+    <file name="mateksys_3901_l0x.c" dir="modules/optical_flow"/>
+
+  </makefile>
+
+  <makefile target="nps|sim">
+    <define name="USE_SONAR" value="1"/>  <!-- in NPS use a virtual sonar to simulate lidar measurements -->
+  </makefile>
+
+</module>
