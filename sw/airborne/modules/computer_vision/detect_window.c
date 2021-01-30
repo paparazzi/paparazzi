@@ -39,13 +39,13 @@ PRINT_CONFIG_VAR(DETECT_WINDOW_FPS)
 void detect_window_init(void)
 {
 #ifdef DETECT_WINDOW_CAMERA
-  cv_add_to_device(&DETECT_WINDOW_CAMERA, detect_window, DETECT_WINDOW_FPS);
+  cv_add_to_device(&DETECT_WINDOW_CAMERA, detect_window, DETECT_WINDOW_FPS, 0);
 #else
 #warning "DETECT_WINDOW_CAMERA not defined, CV callback not added to device"
 #endif
 }
 
-struct image_t *detect_window(struct image_t *img)
+struct image_t *detect_window(struct image_t *img, uint8_t camera_id)
 {
 
   uint16_t coordinate[2];

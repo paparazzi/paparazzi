@@ -22,16 +22,21 @@ All rights reserved.
  * de Croon, G.C.H.E. "ACT-FAST: efficiently finding corners by actively exploring images.", in submission.
  *
  */
-
 #include "fast_rosten.h"
 #include "act_fast.h"
 #include "math.h"
 #include "image.h"
 #include "../../opticflow/opticflow_calculator.h"
 
+// ACT-FAST agents arrays
 // equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c
+// TODO Currently hardcoded to two cameras
 #define MAX_AGENTS FAST9_MAX_CORNERS
-struct agent_t agents[MAX_AGENTS];
+#ifndef OPTICFLOW_CAMERA2
+  struct agent_t agents[1][MAX_AGENTS];
+#else
+  struct agent_t agents[2][MAX_AGENTS];
+#endif
 
 /**
  * Do an ACT-FAST corner detection.
@@ -46,8 +51,9 @@ struct agent_t agents[MAX_AGENTS];
  * @param[in] min_gradient The minimum gradient, in order to determine when to take a long or short step
  * @param[in] gradient_method: 0 = simple {-1, 0, 1}, 1 = Sobel {-1,0,1,-2,0,2,-1,0,1}
 */
-void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners, struct point_t **ret_corners,
-              uint16_t n_agents, uint16_t n_time_steps, float long_step, float short_step, int min_gradient, int gradient_method)
+void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners, struct point_t **ret_corners, 
+              uint16_t n_agents, uint16_t n_time_steps, float long_step, float short_step, int min_gradient,
+              int gradient_method, int camera_id)
 {
 
   /*
@@ -56,7 +62,7 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
    * 2) loop over the agents, moving and checking for corners
    */
 
-  // ensure that n_agents is never bigger than MAX_AGENTS
+  // ensure that n_agents is never bigger than max_agents
   n_agents = (n_agents < MAX_AGENTS) ? n_agents : MAX_AGENTS;
   // min_gradient should be bigger than 0:
   min_gradient = (min_gradient == 0) ? 1 : min_gradient;
@@ -84,7 +90,7 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
       py = ((float)(rand() % 10000) + 1) / 10000.0f;
       pnorm = sqrtf(px * px + py * py);
       struct agent_t ag = { (border + c * step_size_x), (border + r * step_size_y), 1, px / pnorm, py / pnorm};
-      agents[a] = ag;
+      agents[camera_id][a] = ag;
       a++;
       if (a == n_agents) { break; }
     }
@@ -105,41 +111,41 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
     // loop over the agents
     for (a = 0; a < n_agents; a++) {
       // only do something if the agent is active:
-      if (agents[a].active) {
+      if (agents[camera_id][a].active) {
         // check if this position is a corner:
-        uint16_t x = (uint16_t) agents[a].x;
-        uint16_t y = (uint16_t) agents[a].y;
+        uint16_t x = (uint16_t) agents[camera_id][a].x;
+        uint16_t y = (uint16_t) agents[camera_id][a].y;
         if (fast9_detect_pixel(img, fast_threshold, x, y)) {
           // we arrived at a corner, yeah!!!
-          agents[a].active = 0;
+          agents[camera_id][a].active = 0;
           continue;
         } else {
           // make a step:
-          struct point_t loc = { .x = agents[a].x, .y = agents[a].y};
+          struct point_t loc = { .x = agents[camera_id][a].x, .y = agents[camera_id][a].y};
           image_gradient_pixel(img, &loc, gradient_method, &dx, &dy);
           int gradient = (abs(dx) + abs(dy)) / 2;
           if (abs(gradient) >= min_gradient) {
             // determine the angle and make a step in that direction:
             float norm_factor = sqrtf((float)(dx * dx + dy * dy));
-            agents[a].x += (dy / norm_factor) * short_step;
-            agents[a].y += (dx / norm_factor) * short_step;
+            agents[camera_id][a].x += (dy / norm_factor) * short_step;
+            agents[camera_id][a].y += (dx / norm_factor) * short_step;
           } else {
             // make a step in the preferred direction:
-            agents[a].x += agents[a].preferred_dir_x * long_step;
-            agents[a].y += agents[a].preferred_dir_y * long_step;
+            agents[camera_id][a].x += agents[camera_id][a].preferred_dir_x * long_step;
+            agents[camera_id][a].y += agents[camera_id][a].preferred_dir_y * long_step;
           }
         }
 
         // let the agent move over the image in a toroid world:
-        if (agents[a].x > img->w - border) {
-          agents[a].x = border;
-        } else if (agents[a].x < border) {
-          agents[a].x = img->w - border;
+        if (agents[camera_id][a].x > img->w - border) {
+          agents[camera_id][a].x = border;
+        } else if (agents[camera_id][a].x < border) {
+          agents[camera_id][a].x = img->w - border;
         }
-        if (agents[a].y > img->h - border) {
-          agents[a].y = border;
-        } else if (agents[a].y < border) {
-          agents[a].y = img->h - border;
+        if (agents[camera_id][a].y > img->h - border) {
+          agents[camera_id][a].y = border;
+        } else if (agents[camera_id][a].y < border) {
+          agents[camera_id][a].y = img->h - border;
         }
       }
     }
@@ -150,20 +156,20 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
   for (a = 0; a < n_agents; a++) {
 
     // for active agents do a last check on the new position:
-    if (agents[a].active) {
+    if (agents[camera_id][a].active) {
       // check if the last step brought the agent to a corner:
-      uint16_t x = (uint16_t) agents[a].x;
-      uint16_t y = (uint16_t) agents[a].y;
+      uint16_t x = (uint16_t) agents[camera_id][a].x;
+      uint16_t y = (uint16_t) agents[camera_id][a].y;
       if (fast9_detect_pixel(img, fast_threshold, x, y)) {
         // we arrived at a corner, yeah!!!
-        agents[a].active = 0;
+        agents[camera_id][a].active = 0;
       }
     }
 
     // if inactive, the agent is a corner:
-    if (!agents[a].active) {
-      (*ret_corners)[(*num_corners)].x = (uint32_t) agents[a].x;
-      (*ret_corners)[(*num_corners)].y = (uint32_t) agents[a].y;
+    if (!agents[camera_id][a].active) {
+      (*ret_corners)[(*num_corners)].x = (uint32_t) agents[camera_id][a].x;
+      (*ret_corners)[(*num_corners)].y = (uint32_t) agents[camera_id][a].y;
       (*num_corners)++;
     }
   }

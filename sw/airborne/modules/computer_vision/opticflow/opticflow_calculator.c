@@ -55,8 +55,8 @@
 #define EXHAUSTIVE_FAST 0
 #define ACT_FAST 1
 // TODO: these are now adapted, but perhaps later could be a setting:
-uint16_t n_time_steps = 10;
-uint16_t n_agents = 25;
+uint16_t n_time_steps[2] = {10, 10};
+uint16_t n_agents[2] = {25, 25};
 
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
@@ -68,68 +68,133 @@ uint16_t n_agents = 25;
 #ifndef OPTICFLOW_CORNER_METHOD
 #define OPTICFLOW_CORNER_METHOD ACT_FAST
 #endif
+
+#ifndef OPTICFLOW_CORNER_METHOD_CAMERA2
+#define OPTICFLOW_CORNER_METHOD_CAMERA2 ACT_FAST
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_CORNER_METHOD)
+PRINT_CONFIG_VAR(OPTICFLOW_CORNER_METHOD_CAMERA2)
 
 /* Set the default values */
 #ifndef OPTICFLOW_MAX_TRACK_CORNERS
 #define OPTICFLOW_MAX_TRACK_CORNERS 25
 #endif
+
+#ifndef OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2
+#define OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2 25
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_MAX_TRACK_CORNERS)
+PRINT_CONFIG_VAR(OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2)
 
 #ifndef OPTICFLOW_WINDOW_SIZE
 #define OPTICFLOW_WINDOW_SIZE 10
 #endif
+
+#ifndef OPTICFLOW_WINDOW_SIZE_CAMERA2
+#define OPTICFLOW_WINDOW_SIZE_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE)
+PRINT_CONFIG_VAR(OPTICFLOW_WINDOW_SIZE_CAMERA2)
 
 #ifndef OPTICFLOW_SEARCH_DISTANCE
 #define OPTICFLOW_SEARCH_DISTANCE 20
 #endif
+
+#ifndef OPTICFLOW_SEARCH_DISTANCE_CAMERA2
+#define OPTICFLOW_SEARCH_DISTANCE_CAMERA2 20
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_SEARCH_DISTANCE)
+PRINT_CONFIG_VAR(OPTICFLOW_SEARCH_DISTANCE_CAMERA2)
 
 #ifndef OPTICFLOW_SUBPIXEL_FACTOR
 #define OPTICFLOW_SUBPIXEL_FACTOR 10
 #endif
+
+#ifndef OPTICFLOW_SUBPIXEL_FACTOR_CAMERA2
+#define OPTICFLOW_SUBPIXEL_FACTOR_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR)
+PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR_CAMERA2)
 
 #ifndef OPTICFLOW_RESOLUTION_FACTOR
 #define OPTICFLOW_RESOLUTION_FACTOR 100
 #endif
+
+#ifndef OPTICFLOW_RESOLUTION_FACTOR_CAMERA2
+#define OPTICFLOW_RESOLUTION_FACTOR_CAMERA2 100
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_RESOLUTION_FACTOR)
+PRINT_CONFIG_VAR(OPTICFLOW_RESOLUTION_FACTOR_CAMERA2)
 
 #ifndef OPTICFLOW_MAX_ITERATIONS
 #define OPTICFLOW_MAX_ITERATIONS 10
 #endif
+
+#ifndef OPTICFLOW_MAX_ITERATIONS_CAMERA2
+#define OPTICFLOW_MAX_ITERATIONS_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_MAX_ITERATIONS)
+PRINT_CONFIG_VAR(OPTICFLOW_MAX_ITERATIONS_CAMERA2)
 
 #ifndef OPTICFLOW_THRESHOLD_VEC
 #define OPTICFLOW_THRESHOLD_VEC 2
 #endif
+
+#ifndef OPTICFLOW_THRESHOLD_VEC_CAMERA2
+#define OPTICFLOW_THRESHOLD_VEC_CAMERA2 2
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC)
+PRINT_CONFIG_VAR(OPTICFLOW_THRESHOLD_VEC_CAMERA2)
 
 #ifndef OPTICFLOW_PYRAMID_LEVEL
 #define OPTICFLOW_PYRAMID_LEVEL 2
 #endif
+
+#ifndef OPTICFLOW_PYRAMID_LEVEL_CAMERA2
+#define OPTICFLOW_PYRAMID_LEVEL_CAMERA2 2
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_PYRAMID_LEVEL)
+PRINT_CONFIG_VAR(OPTICFLOW_PYRAMID_LEVEL_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_ADAPTIVE
 #define OPTICFLOW_FAST9_ADAPTIVE TRUE
 #endif
+
+#ifndef OPTICFLOW_FAST9_ADAPTIVE_CAMERA2
+#define OPTICFLOW_FAST9_ADAPTIVE_CAMERA2 TRUE
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_ADAPTIVE)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_ADAPTIVE_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_THRESHOLD
 #define OPTICFLOW_FAST9_THRESHOLD 20
 #endif
+
+#ifndef OPTICFLOW_FAST9_THRESHOLD_CAMERA2
+#define OPTICFLOW_FAST9_THRESHOLD_CAMERA2 20
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_THRESHOLD_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_MIN_DISTANCE
 #define OPTICFLOW_FAST9_MIN_DISTANCE 10
 #endif
+
+#ifndef OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2
+#define OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_PADDING
 #define OPTICFLOW_FAST9_PADDING 20
 #endif
+
+#ifndef OPTICFLOW_FAST9_PADDING_CAMERA2
+#define OPTICFLOW_FAST9_PADDING_CAMERA2 20
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_PADDING)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_PADDING_CAMERA2)
 
 // thresholds FAST9 that are currently not set from the GCS:
 #define FAST9_LOW_THRESHOLD 5
@@ -139,66 +204,130 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_PADDING)
 #ifndef OPTICFLOW_METHOD
 #define OPTICFLOW_METHOD 0
 #endif
+
+#ifndef OPTICFLOW_METHOD_CAMERA2
+#define OPTICFLOW_METHOD_CAMERA2 0
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
+PRINT_CONFIG_VAR(OPTICFLOW_METHOD_CAMERA2)
 
 #if OPTICFLOW_METHOD > 1
-#error WARNING: Both Lukas Kanade and EdgeFlow are NOT selected
+#error WARNING: Both Lukas Kanade and EdgeFlow are NOT selected camera1
+#endif
+
+#if OPTICFLOW_METHOD_CAMERA2 > 1
+#error WARNING: Both Lukas Kanade and EdgeFlow are NOT selected camera2
 #endif
 
 #ifndef OPTICFLOW_DEROTATION
 #define OPTICFLOW_DEROTATION TRUE
 #endif
+
+#ifndef OPTICFLOW_DEROTATION_CAMERA2
+#define OPTICFLOW_DEROTATION_CAMERA2 TRUE
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CAMERA2)
 
 #ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X
 #define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X 1.0
 #endif
+
+#ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2
+#define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2 1.0
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X)
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2)
 
 #ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y
 #define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y 1.0
 #endif
+
+#ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2
+#define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2 1.0
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y)
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2)
 
 #ifndef OPTICFLOW_MEDIAN_FILTER
 #define OPTICFLOW_MEDIAN_FILTER FALSE
 #endif
+
+#ifndef OPTICFLOW_MEDIAN_FILTER_CAMERA2
+#define OPTICFLOW_MEDIAN_FILTER_CAMERA2 FALSE
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
+PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER_CAMERA2)
 
 #ifndef OPTICFLOW_FEATURE_MANAGEMENT
 #define OPTICFLOW_FEATURE_MANAGEMENT 0
 #endif
+
+#ifndef OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2
+#define OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2 0
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FEATURE_MANAGEMENT)
+PRINT_CONFIG_VAR(OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_REGION_DETECT
 #define OPTICFLOW_FAST9_REGION_DETECT 1
 #endif
+
+#ifndef OPTICFLOW_FAST9_REGION_DETECT_CAMERA2
+#define OPTICFLOW_FAST9_REGION_DETECT_CAMERA2 1
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_REGION_DETECT)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_REGION_DETECT_CAMERA2)
 
 #ifndef OPTICFLOW_FAST9_NUM_REGIONS
 #define OPTICFLOW_FAST9_NUM_REGIONS 9
 #endif
+
+#ifndef OPTICFLOW_FAST9_NUM_REGIONS_CAMERA2
+#define OPTICFLOW_FAST9_NUM_REGIONS_CAMERA2 9
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_NUM_REGIONS)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_NUM_REGIONS_CAMERA2)
 
 #ifndef OPTICFLOW_ACTFAST_LONG_STEP
 #define OPTICFLOW_ACTFAST_LONG_STEP 10
 #endif
+
+#ifndef OPTICFLOW_ACTFAST_LONG_STEP_CAMERA2
+#define OPTICFLOW_ACTFAST_LONG_STEP_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_LONG_STEP)
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_LONG_STEP_CAMERA2)
 
 #ifndef OPTICFLOW_ACTFAST_SHORT_STEP
 #define OPTICFLOW_ACTFAST_SHORT_STEP 2
 #endif
+
+#ifndef OPTICFLOW_ACTFAST_SHORT_STEP_CAMERA2
+#define OPTICFLOW_ACTFAST_SHORT_STEP_CAMERA2 2
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_SHORT_STEP)
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_SHORT_STEP_CAMERA2)
 
 #ifndef OPTICFLOW_ACTFAST_GRADIENT_METHOD
 #define OPTICFLOW_ACTFAST_GRADIENT_METHOD 1
 #endif
+
+#ifndef OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2
+#define OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2 1
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_GRADIENT_METHOD)
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2)
 
 #ifndef OPTICFLOW_ACTFAST_MIN_GRADIENT
 #define OPTICFLOW_ACTFAST_MIN_GRADIENT 10
 #endif
+
+#ifndef OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2
+#define OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2 10
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT)
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2)
 
 // Defaults for ARdrone
 #ifndef OPTICFLOW_BODY_TO_CAM_PHI
@@ -211,26 +340,45 @@ PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT)
 #define OPTICFLOW_BODY_TO_CAM_PSI -M_PI_2
 #endif
 
+#ifndef OPTICFLOW_BODY_TO_CAM_PHI_CAMERA2
+#define OPTICFLOW_BODY_TO_CAM_PHI_CAMERA2 0
+#endif
+#ifndef OPTICFLOW_BODY_TO_CAM_THETA_CAMERA2
+#define OPTICFLOW_BODY_TO_CAM_THETA_CAMERA2 0
+#endif
+#ifndef OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2
+#define OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2 -M_PI_2
+#endif
+
 // Tracking back flow to make the accepted flow vectors more robust:
 // Default is false, as it does take extra processing time
 #ifndef OPTICFLOW_TRACK_BACK
 #define OPTICFLOW_TRACK_BACK FALSE
 #endif
+
+#ifndef OPTICFLOW_TRACK_BACK_CAMERA2
+#define OPTICFLOW_TRACK_BACK_CAMERA2 FALSE
+#endif
 PRINT_CONFIG_VAR(OPTICFLOW_TRACK_BACK)
+PRINT_CONFIG_VAR(OPTICFLOW_TRACK_BACK_CAMERA2)
 
 // Whether to draw the flow on the image:
 // False by default, since it changes the image and costs time.
 #ifndef OPTICFLOW_SHOW_FLOW
 #define OPTICFLOW_SHOW_FLOW FALSE
 #endif
-PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW)
 
+#ifndef OPTICFLOW_SHOW_FLOW_CAMERA2
+#define OPTICFLOW_SHOW_FLOW_CAMERA2 FALSE
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW)
+PRINT_CONFIG_VAR(OPTICFLOW_SHOW_FLOW_CAMERA2)
 
 
 //Include median filter
 #include "filters/median_filter.h"
 struct MedianFilter3Float vel_filt;
-struct FloatRMat body_to_cam;
+struct FloatRMat body_to_cam[2];
 
 /* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
@@ -245,47 +393,93 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
  * Initialize the opticflow calculator
  * @param[out] *opticflow The new optical flow calculator
  */
-void opticflow_calc_init(struct opticflow_t *opticflow)
+void opticflow_calc_init(struct opticflow_t opticflow[])
 {
   /* Set the default values */
-  opticflow->method = OPTICFLOW_METHOD; //0 = LK_fast9, 1 = Edgeflow
-  opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
-  opticflow->search_distance = OPTICFLOW_SEARCH_DISTANCE;
-  opticflow->derotation = OPTICFLOW_DEROTATION; //0 = OFF, 1 = ON
-  opticflow->derotation_correction_factor_x = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X;
-  opticflow->derotation_correction_factor_y = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y;
-  opticflow->track_back = OPTICFLOW_TRACK_BACK;
-  opticflow->show_flow = OPTICFLOW_SHOW_FLOW;
-  opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
-  opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
-  if (opticflow->subpixel_factor == 0) {
-    opticflow->subpixel_factor = 10;
+  opticflow[0].method = OPTICFLOW_METHOD; //0 = LK_fast9, 1 = Edgeflow
+  opticflow[0].window_size = OPTICFLOW_WINDOW_SIZE;
+  opticflow[0].search_distance = OPTICFLOW_SEARCH_DISTANCE;
+  opticflow[0].derotation = OPTICFLOW_DEROTATION; //0 = OFF, 1 = ON
+  opticflow[0].derotation_correction_factor_x = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X;
+  opticflow[0].derotation_correction_factor_y = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y;
+  opticflow[0].track_back = OPTICFLOW_TRACK_BACK;
+  opticflow[0].show_flow = OPTICFLOW_SHOW_FLOW;
+  opticflow[0].max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
+  opticflow[0].subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
+  if (opticflow[0].subpixel_factor == 0) {
+    opticflow[0].subpixel_factor = 10;
   }
-  opticflow->resolution_factor = OPTICFLOW_RESOLUTION_FACTOR;
-  opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
-  opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
-  opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
-  opticflow->median_filter = OPTICFLOW_MEDIAN_FILTER;
-  opticflow->feature_management = OPTICFLOW_FEATURE_MANAGEMENT;
-  opticflow->fast9_region_detect = OPTICFLOW_FAST9_REGION_DETECT;
-  opticflow->fast9_num_regions = OPTICFLOW_FAST9_NUM_REGIONS;
+  opticflow[0].resolution_factor = OPTICFLOW_RESOLUTION_FACTOR;
+  opticflow[0].max_iterations = OPTICFLOW_MAX_ITERATIONS;
+  opticflow[0].threshold_vec = OPTICFLOW_THRESHOLD_VEC;
+  opticflow[0].pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
+  opticflow[0].median_filter = OPTICFLOW_MEDIAN_FILTER;
+  opticflow[0].feature_management = OPTICFLOW_FEATURE_MANAGEMENT;
+  opticflow[0].fast9_region_detect = OPTICFLOW_FAST9_REGION_DETECT;
+  opticflow[0].fast9_num_regions = OPTICFLOW_FAST9_NUM_REGIONS;
 
-  opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
-  opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
-  opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
-  opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
-  opticflow->fast9_rsize = FAST9_MAX_CORNERS;
-  opticflow->fast9_ret_corners = calloc(opticflow->fast9_rsize, sizeof(struct point_t));
+  opticflow[0].fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
+  opticflow[0].fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
+  opticflow[0].fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
+  opticflow[0].fast9_padding = OPTICFLOW_FAST9_PADDING;
+  opticflow[0].fast9_rsize = FAST9_MAX_CORNERS;
+  opticflow[0].fast9_ret_corners = calloc(opticflow[0].fast9_rsize, sizeof(struct point_t));
 
-  opticflow->corner_method = OPTICFLOW_CORNER_METHOD;
-  opticflow->actfast_long_step = OPTICFLOW_ACTFAST_LONG_STEP;
-  opticflow->actfast_short_step = OPTICFLOW_ACTFAST_SHORT_STEP;
-  opticflow->actfast_min_gradient = OPTICFLOW_ACTFAST_MIN_GRADIENT;
-  opticflow->actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD;
+  opticflow[0].corner_method = OPTICFLOW_CORNER_METHOD;
+  opticflow[0].actfast_long_step = OPTICFLOW_ACTFAST_LONG_STEP;
+  opticflow[0].actfast_short_step = OPTICFLOW_ACTFAST_SHORT_STEP;
+  opticflow[0].actfast_min_gradient = OPTICFLOW_ACTFAST_MIN_GRADIENT;
+  opticflow[0].actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD;
 
-  struct FloatEulers euler = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
-  float_rmat_of_eulers(&body_to_cam, &euler);
+  opticflow[0].camera = &OPTICFLOW_CAMERA;
+  opticflow[0].id = 0;
 
+  struct FloatEulers euler_cam1 = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
+  float_rmat_of_eulers(&body_to_cam[0], &euler_cam1);
+
+#ifdef OPTICFLOW_CAMERA2
+  opticflow[1].method = OPTICFLOW_METHOD_CAMERA2; //0 = LK_fast9, 1 = Edgeflow
+  opticflow[1].window_size = OPTICFLOW_WINDOW_SIZE_CAMERA2;
+  opticflow[1].search_distance = OPTICFLOW_SEARCH_DISTANCE_CAMERA2;
+  opticflow[1].derotation = OPTICFLOW_DEROTATION_CAMERA2; //0 = OFF, 1 = ON
+  opticflow[1].derotation_correction_factor_x = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2;
+  opticflow[1].derotation_correction_factor_y = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2;
+  opticflow[1].track_back = OPTICFLOW_TRACK_BACK_CAMERA2;
+  opticflow[1].show_flow = OPTICFLOW_SHOW_FLOW_CAMERA2;
+  opticflow[1].max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2;
+  opticflow[1].subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR_CAMERA2;
+  if (opticflow[1].subpixel_factor == 0) {
+    opticflow[1].subpixel_factor = 10;
+  }
+  opticflow[1].resolution_factor = OPTICFLOW_RESOLUTION_FACTOR_CAMERA2;
+  opticflow[1].max_iterations = OPTICFLOW_MAX_ITERATIONS_CAMERA2;
+  opticflow[1].threshold_vec = OPTICFLOW_THRESHOLD_VEC_CAMERA2;
+  opticflow[1].pyramid_level = OPTICFLOW_PYRAMID_LEVEL_CAMERA2;
+  opticflow[1].median_filter = OPTICFLOW_MEDIAN_FILTER_CAMERA2;
+  opticflow[1].feature_management = OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2;
+  opticflow[1].fast9_region_detect = OPTICFLOW_FAST9_REGION_DETECT_CAMERA2;
+  opticflow[1].fast9_num_regions = OPTICFLOW_FAST9_NUM_REGIONS_CAMERA2;
+
+  opticflow[1].fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE_CAMERA2;
+  opticflow[1].fast9_threshold = OPTICFLOW_FAST9_THRESHOLD_CAMERA2;
+  opticflow[1].fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2;
+  opticflow[1].fast9_padding = OPTICFLOW_FAST9_PADDING_CAMERA2;
+  opticflow[1].fast9_rsize = FAST9_MAX_CORNERS;
+  opticflow[1].fast9_ret_corners = calloc(opticflow[0].fast9_rsize, sizeof(struct point_t));
+
+  opticflow[1].corner_method = OPTICFLOW_CORNER_METHOD_CAMERA2;
+  opticflow[1].actfast_long_step = OPTICFLOW_ACTFAST_LONG_STEP_CAMERA2;
+  opticflow[1].actfast_short_step = OPTICFLOW_ACTFAST_SHORT_STEP_CAMERA2;
+  opticflow[1].actfast_min_gradient = OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2;
+  opticflow[1].actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2;
+
+  opticflow[1].camera = &OPTICFLOW_CAMERA2;
+  opticflow[1].id = 1;
+
+  struct FloatEulers euler_cam2 = {OPTICFLOW_BODY_TO_CAM_PHI_CAMERA2, OPTICFLOW_BODY_TO_CAM_THETA_CAMERA2,
+      OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2};
+  float_rmat_of_eulers(&body_to_cam[1], &euler_cam2);
+#endif
 }
 /**
  * Run the optical flow with fast9 and lukaskanade on a new image frame
@@ -342,23 +536,19 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   } else if (!opticflow->feature_management) {
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
-
     if (opticflow->corner_method == EXHAUSTIVE_FAST) {
       // FAST corner detection
       // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
       // to 0 (see defines), however a more permanent solution should be considered
       fast9_detect(&opticflow->prev_img_gray, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                   opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
-                   &opticflow->fast9_rsize,
-                   &opticflow->fast9_ret_corners,
-                   NULL);
-
+                   opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt, &opticflow->fast9_rsize,
+                   &opticflow->fast9_ret_corners, NULL);
     } else if (opticflow->corner_method == ACT_FAST) {
       // ACT-FAST corner detection:
       act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
-               &opticflow->fast9_ret_corners, n_agents, n_time_steps,
+               &opticflow->fast9_ret_corners, n_agents[opticflow->id], n_time_steps[opticflow->id],
                opticflow->actfast_long_step, opticflow->actfast_short_step, opticflow->actfast_min_gradient,
-               opticflow->actfast_gradient_method);
+               opticflow->actfast_gradient_method, opticflow->id);
     }
 
     // Adaptive threshold
@@ -366,26 +556,26 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
       // This works well for exhaustive FAST, but drives the threshold to the minimum for ACT-FAST:
       // Decrease and increase the threshold based on previous values
-      if (result->corner_cnt < 40) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
+      if (result->corner_cnt < opticflow->max_track_corners / 2) {
         // make detections easier:
         if (opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) {
           opticflow->fast9_threshold--;
         }
 
-        if (opticflow->corner_method == ACT_FAST && n_agents < opticflow->fast9_rsize) {
-          n_time_steps++;
-          n_agents++;
+        if (opticflow->corner_method == ACT_FAST && n_agents[opticflow->id] < opticflow->fast9_rsize) {
+          n_time_steps[opticflow->id]++;
+          n_agents[opticflow->id]++;
         }
 
-      } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2) {
+      } else if (result->corner_cnt > opticflow->max_track_corners * 2) {
 
         if (opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
           opticflow->fast9_threshold++;
         }
 
-        if (opticflow->corner_method == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
-          n_time_steps--;
-          n_agents--;
+        if (opticflow->corner_method == ACT_FAST && n_time_steps[opticflow->id] > 5 && n_agents[opticflow->id] > 10) {
+          n_time_steps[opticflow->id]--;
+          n_agents[opticflow->id]--;
         }
       }
     }
@@ -400,7 +590,8 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     // Clear the result otherwise the previous values will be returned for this frame too
     VECT3_ASSIGN(result->vel_cam, 0, 0, 0);
     VECT3_ASSIGN(result->vel_body, 0, 0, 0);
-    result->div_size = 0; result->divergence = 0;
+    result->div_size = 0;
+    result->divergence = 0;
     result->noise_measurement = 5.0;
 
     image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
@@ -542,10 +733,10 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       float theta_diff = opticflow->img_gray.eulers.theta - opticflow->prev_img_gray.eulers.theta;
       float psi_diff = opticflow->img_gray.eulers.psi - opticflow->prev_img_gray.eulers.psi;
 
-      if (strcmp(OPTICFLOW_CAMERA.dev_name, bottom_camera.dev_name) == 0) {
+      if (strcmp(opticflow->camera->dev_name, bottom_camera.dev_name) == 0) {
         // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
-        diff_flow_x = phi_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
-        diff_flow_y = theta_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_y;
+        diff_flow_x = phi_diff * opticflow->camera->camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
+        diff_flow_y = theta_diff * opticflow->camera->camera_intrinsics.focal_y;
         result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
                              opticflow->derotation_correction_factor_x;
         result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
@@ -581,15 +772,16 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       }
     }
   }
+  result->camera_id = opticflow->id;
 
   // Velocity calculation
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
   // TODO: Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   // TODO: This is actually only correct for the bottom camera:
   result->vel_cam.x = (float)result->flow_der_x * result->fps * agl_dist_value_filtered /
-                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.camera_intrinsics.focal_x);
+                      (opticflow->subpixel_factor * opticflow->camera->camera_intrinsics.focal_x);
   result->vel_cam.y = (float)result->flow_der_y * result->fps * agl_dist_value_filtered /
-                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.camera_intrinsics.focal_y);
+                      (opticflow->subpixel_factor * opticflow->camera->camera_intrinsics.focal_y);
   result->vel_cam.z = result->divergence * result->fps * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted
@@ -620,7 +812,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   }
   free(vectors);
   image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
-
   return true;
 }
 
@@ -634,16 +825,16 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
   // reserve memory for the predicted flow vectors:
   struct flow_t *predicted_flow_vectors = malloc(sizeof(struct flow_t) * n_points);
 
-  float K[9] = {OPTICFLOW_CAMERA.camera_intrinsics.focal_x, 0.0f, OPTICFLOW_CAMERA.camera_intrinsics.center_x,
-                0.0f, OPTICFLOW_CAMERA.camera_intrinsics.focal_y, OPTICFLOW_CAMERA.camera_intrinsics.center_y,
+  float K[9] = {opticflow->camera->camera_intrinsics.focal_x, 0.0f, opticflow->camera->camera_intrinsics.center_x,
+                0.0f, opticflow->camera->camera_intrinsics.focal_y, opticflow->camera->camera_intrinsics.center_y,
                 0.0f, 0.0f, 1.0f
                };
   // TODO: make an option to not do distortion / undistortion (Dhane_k = 1)
-  float k = OPTICFLOW_CAMERA.camera_intrinsics.Dhane_k;
+  float k = opticflow->camera->camera_intrinsics.Dhane_k;
 
   float A, B, C; // as in Longuet-Higgins
 
-  if (strcmp(OPTICFLOW_CAMERA.dev_name, front_camera.dev_name) == 0) {
+  if (strcmp(opticflow->camera->dev_name, front_camera.dev_name) == 0) {
     // specific for the x,y swapped Bebop 2 images:
     A = -psi_diff;
     B = theta_diff;
@@ -825,7 +1016,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   struct edgeflow_displacement_t displacement;
   displacement.x = calloc(img->w, sizeof(int32_t));
   displacement.y = calloc(img->h, sizeof(int32_t));
-
   // If the methods just switched to this one, reintialize the
   // array of edge_hist structure.
   if (opticflow->just_switched_method == 1 && edge_hist[0].x == NULL) {
@@ -836,7 +1026,6 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
       FLOAT_EULERS_ZERO(edge_hist[i].eulers);
     }
   }
-
   uint16_t disp_range;
   if (opticflow->search_distance < DISP_RANGE_MAX) {
     disp_range = opticflow->search_distance;
@@ -878,12 +1067,11 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   //Calculate the corresponding derotation of the two frames
   int16_t der_shift_x = 0;
   int16_t der_shift_y = 0;
-
   if (opticflow->derotation) {
     der_shift_x = (int16_t)((edge_hist[current_frame_nr].eulers.phi - edge_hist[previous_frame_nr[0]].eulers.phi) *
-                            OPTICFLOW_CAMERA.camera_intrinsics.focal_x * opticflow->derotation_correction_factor_x);
+                            opticflow->camera->camera_intrinsics.focal_x * opticflow->derotation_correction_factor_x);
     der_shift_y = (int16_t)((edge_hist[current_frame_nr].eulers.theta - edge_hist[previous_frame_nr[1]].eulers.theta) *
-                            OPTICFLOW_CAMERA.camera_intrinsics.focal_y * opticflow->derotation_correction_factor_y);
+                            opticflow->camera->camera_intrinsics.focal_y * opticflow->derotation_correction_factor_y);
   }
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
@@ -925,10 +1113,9 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   result->tracked_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
   result->divergence = -1.0 * (float)edgeflow.div_x /
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
-  result->div_size =
-    result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
+  result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
+  result->camera_id = opticflow->id;
   result->surface_roughness = 0.0f;
-
   //......................Calculating VELOCITY ..................... //
 
   /*Estimate fps per direction
@@ -948,9 +1135,9 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   // TODO scale flow to rad/s here
 
   // Calculate velocity
-  result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * OPTICFLOW_CAMERA.camera_intrinsics.focal_x /
+  result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * opticflow->camera->camera_intrinsics.focal_x /
                       RES;
-  result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * OPTICFLOW_CAMERA.camera_intrinsics.focal_y /
+  result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * opticflow->camera->camera_intrinsics.focal_y /
                       RES;
   result->vel_cam.z = result->divergence * fps_x * agl_dist_value_filtered;
 
@@ -960,17 +1147,14 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   }
 
   result->noise_measurement = 0.2;
-
-#if OPTICFLOW_SHOW_FLOW
-  draw_edgeflow_img(img, edgeflow, prev_edge_histogram_x, edge_hist_x);
-#endif
+  if (opticflow->show_flow) {
+    draw_edgeflow_img(img, edgeflow, prev_edge_histogram_x, edge_hist_x);
+  }
   // Increment and wrap current time frame
   current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;
-
   // Free alloc'd variables
   free(displacement.x);
   free(displacement.y);
-
   return true;
 }
 
@@ -988,10 +1172,10 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
   bool flow_successful = false;
   // A switch counter that checks in the loop if the current method is similar,
   // to the previous (for reinitializing structs)
-  static int8_t switch_counter = -1;
-  if (switch_counter != opticflow->method) {
+  static int8_t switch_counter[2] = {-1, -1};
+  if (switch_counter[opticflow->id] != opticflow->method) {
     opticflow->just_switched_method = true;
-    switch_counter = opticflow->method;
+    switch_counter[opticflow->id] = opticflow->method;
     // Clear the static result
     memset(result, 0, sizeof(struct opticflow_result_t));
   } else {
@@ -1004,13 +1188,12 @@ bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
   } else if (opticflow->method == 1) {
     flow_successful = calc_edgeflow_tot(opticflow, img, result);
   }
-
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
   * ARdrone and Bebop, however this can be different for other quadcopters
   * ALWAYS double check!
   */
-  float_rmat_transp_vmult(&result->vel_body, &body_to_cam, &result->vel_cam);
+  float_rmat_transp_vmult(&result->vel_body, &body_to_cam[opticflow->id], &result->vel_cam);
 
   return flow_successful;
 }

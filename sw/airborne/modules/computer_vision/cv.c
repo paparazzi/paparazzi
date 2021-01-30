@@ -43,7 +43,7 @@ static inline uint32_t timeval_diff(struct timeval *A, struct timeval *B)
 }
 
 
-struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, uint16_t fps)
+struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, uint16_t fps, uint8_t id)
 {
   // Create a new video listener
   struct video_listener *new_listener = malloc(sizeof(struct video_listener));
@@ -54,6 +54,7 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
   new_listener->next = NULL;
   new_listener->async = NULL;
   new_listener->maximum_fps = fps;
+  new_listener->id = id;
 
   // Initialise the device that we want our function to use
   add_video_device(device);
@@ -80,10 +81,10 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
 
 
 struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level,
-    uint16_t fps)
+    uint16_t fps, uint8_t id)
 {
   // Create a normal listener
-  struct video_listener *listener = cv_add_to_device(device, func, fps);
+  struct video_listener *listener = cv_add_to_device(device, func, fps, id);
 
   // Add asynchronous structure to override default synchronous behavior
   listener->async = malloc(sizeof(struct cv_async));
@@ -163,7 +164,7 @@ void *cv_async_thread(void *args)
     }
 
     // Execute vision function from this thread
-    listener->func(&async->img_copy);
+    listener->func(&async->img_copy, listener->id);
 
     // Mark image as processed
     async->img_processed = true;
@@ -198,7 +199,7 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
       }
     } else {
       // Execute the cvFunction and catch result
-      result = listener->func(img);
+      result = listener->func(img, listener->id);
 
       // If result gives an image pointer, use it in the next stage
       if (result != NULL) {

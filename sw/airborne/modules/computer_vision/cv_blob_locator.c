@@ -58,8 +58,8 @@ volatile bool marker_enabled = false;
 volatile bool window_enabled = false;
 
 // Computer vision thread
-struct image_t *cv_marker_func(struct image_t *img);
-struct image_t *cv_marker_func(struct image_t *img)
+struct image_t *cv_marker_func(struct image_t *img, uint8_t camera_id);
+struct image_t *cv_marker_func(struct image_t *img, uint8_t camera_id)
 {
 
   if (!marker_enabled) {
@@ -80,8 +80,8 @@ struct image_t *cv_marker_func(struct image_t *img)
 
 
 // Computer vision thread
-struct image_t *cv_window_func(struct image_t *img);
-struct image_t *cv_window_func(struct image_t *img)
+struct image_t *cv_window_func(struct image_t *img, uint8_t camera_id);
+struct image_t *cv_window_func(struct image_t *img, uint8_t camera_id)
 {
 
   if (!window_enabled) {
@@ -127,8 +127,8 @@ struct image_t *cv_window_func(struct image_t *img)
 }
 
 
-struct image_t *cv_blob_locator_func(struct image_t *img);
-struct image_t *cv_blob_locator_func(struct image_t *img)
+struct image_t *cv_blob_locator_func(struct image_t *img, uint8_t camera_id);
+struct image_t *cv_blob_locator_func(struct image_t *img, uint8_t camera_id)
 {
 
   if (!blob_enabled) {
@@ -249,9 +249,9 @@ void cv_blob_locator_init(void)
 
   georeference_init();
 
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func, BLOB_LOCATOR_FPS);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func, BLOB_LOCATOR_FPS);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func, BLOB_LOCATOR_FPS);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func, BLOB_LOCATOR_FPS, 0);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func, BLOB_LOCATOR_FPS, 0);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func, BLOB_LOCATOR_FPS, 0);
 }
 
 void cv_blob_locator_periodic(void)

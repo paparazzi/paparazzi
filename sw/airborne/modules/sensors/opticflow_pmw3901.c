@@ -143,6 +143,7 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
 #if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
   float dummy_f = 0.f;
   uint16_t dummy_u16 = 0;
+  uint8_t dummy_u8 = 0;
   float fps = 1.f / dt;
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
       &fps,                 /* fps */
@@ -157,7 +158,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
       &dummy_f,             /* vel_z */
       &dummy_f,             /* div_size */
       &dummy_f,             /* surface_roughness */
-      &dummy_f              /* divergence */
+      &dummy_f,             /* divergence */
+      &dummy_u8             /* camera_id */
       );
 #endif
 }

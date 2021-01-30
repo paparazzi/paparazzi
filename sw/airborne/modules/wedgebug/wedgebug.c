@@ -299,9 +299,9 @@ uint8_t getMedian(uint8_t *a, uint32_t n);
 
 //Core
 static struct image_t *copy_left_img_func(struct image_t
-    *img); // Function 1: Copies left image into a buffer (buf_left)
+    *img, uint8_t camera_id); // Function 1: Copies left image into a buffer (buf_left)
 static struct image_t *copy_right_img_func(struct image_t
-    *img); // Function 2: Copies left image into a buffer (buf_right)
+    *img, uint8_t camera_id); // Function 2: Copies left image into a buffer (buf_right)
 void UYVYs_interlacing_V(struct image_t *YY, struct image_t *left,
                          struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
 void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right);
@@ -540,7 +540,7 @@ uint16_t getMedian16bit(uint16_t *a, uint32_t n)
 // Core:
 
 // Function 1
-static struct image_t *copy_left_img_func(struct image_t *img)
+static struct image_t *copy_left_img_func(struct image_t *img, uint8_t camera_id)
 {
   image_copy(img, &img_left);
   //show_image_data(img);
@@ -550,7 +550,7 @@ static struct image_t *copy_left_img_func(struct image_t *img)
 
 
 // Function 2
-static struct image_t *copy_right_img_func(struct image_t *img)
+static struct image_t *copy_right_img_func(struct image_t *img, uint8_t camera_id)
 {
   image_copy(img, &img_right);
   //show_image_data(img);
@@ -1655,8 +1655,8 @@ void wedgebug_init()
 
 
   // Adding callback functions
-  cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
-  cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
+  cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS, 0);
+  cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS, 1);
 
 
   //Initialization of constant rotation matrices and transition vectors for frame to frame transformations

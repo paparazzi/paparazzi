@@ -6,6 +6,7 @@
       Compute optical flow.
       Made for Linux video Devices.
       Computes x and y velocity using optical flow and distance to ground (using sonar).
+      Cannot define CAMERA2 without first defining CAMERA.
     </description>
 
     <!-- Optical flow calculation parameters -->
@@ -39,7 +40,7 @@
       <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
       <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
-      <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
+      <define name="THRESHOLD_VEC" value="2" description="Threshold in subpixels when the iterations of Lucas Kanade should stop"/>
 
       <define name="CORNER_METHOD" value="1" description="Method used to look for corners, exhaustive FAST (0) or ACT-FAST (1)."/>
 
@@ -57,51 +58,130 @@
       <define name="ACTFAST_MIN_GRADIENT" value="10" description="Threshold that decides when there is sufficient texture for edge following"/>
       <define name="ACTFAST_GRADIENT_METHOD" value="1" description="Whether to use a simple (0) or Sobel (1) filter"/>
 
+      <!-- =========== CAMERA 2 SETTINGS ============ -->
+
+      <!-- Video device parameters for camera 2 -->
+      <define name="CAMERA2" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations"/>
+
+      <!-- Camera 2 parameters -->
+      <define name="DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="1.0" description="Correction factor for derotation (in x direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
+      <define name="DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="1.0" description="Correction factor for derotation (in y direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
+      <configure name="BODY_TO_CAM_PHI_CAMERA2" value="0" description="Rotation from body frame to camera frame around x axis"/>
+      <configure name="BODY_TO_CAM_THETA_CAMERA2" value="0" description="Rotation from body frame to camera frame around y axis"/>
+      <configure name="BODY_TO_CAM_PSI_CAMERA2" value="0" description="Rotation from body frame to camera frame around z axis"/>
+
+      <!-- General optical flow calculation parameters for camera 2-->
+      <define name="METHOD_CAMERA2" value="0" description="Method used to calculate optical flow"/>
+      <define name="WINDOW_SIZE_CAMERA2" value="10" description="Window size used for block matching (pixels)"/>
+      <define name="SEARCH_DISTANCE_CAMERA2" value="10" description="Maximum search distance for blockmatching (pixels)"/>
+      <define name="SUBPIXEL_FACTOR_CAMERA2" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
+      <define name="RESOLUTION_FACTOR_CAMERA2" value="1000" description="The resolution factor needed to calculate the divergence without floats"/>
+      <define name="DEROTATION_CAMERA2" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
+      <define name="MEDIAN_FILTER_CAMERA2" value="0" description="A median filter on the resulting velocities to be turned on or off (last 5 measurements)"/>
+      <define name="FEATURE_MANAGEMENT_CAMERA2" value="1" description="Whether to keep already tracked corners in memory for the next frame or re-detect new ones every time"/>
+      <define name="FPS_CAMERA2" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
+      <define name="TRACK_BACK_CAMERA2" value="TRUE" description="Whether flow vectors are tracked back to the previous image and only kept if they end up close to the original point."/>
+      <define name="SHOW_FLOW_CAMERA2" value="TRUE" description="Whether to draw the flow vectors in the image."/>
+
+      <!-- Lucas Kanade optical flow calculation parameters -->
+      <define name="MAX_TRACK_CORNERS_CAMERA2" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
+      <define name="MAX_ITERATIONS_CAMERA2" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
+      <define name="THRESHOLD_VEC_CAMERA2" value="2" description="Threshold in subpixels when the iterations of Lucas Kanade should stop"/>
+
+      <define name="CORNER_METHOD_CAMERA2" value="1" description="Method used to look for corners, exhaustive FAST (0) or ACT-FAST (1)."/>
+
+      <!-- FAST9 corner detection parameters -->
+      <define name="FAST9_ADAPTIVE_CAMERA2" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
+      <define name="FAST9_THRESHOLD_CAMERA2" value="20" description="FAST9 default threshold"/>
+      <define name="FAST9_MIN_DISTANCE_CAMERA2" value="10" description="The amount of pixels between corners that should be detected"/>
+      <define name="FAST9_PADDING_CAMERA2" value="20" description="The outer border in which no corners will be searched"/>
+      <define name="FAST9_REGION_DETECT_CAMERA2" value="1" description="Whether to detect fast9 corners in regions of interest or the whole image (only works with feature management)"/>
+      <define name="FAST9_NUM_REGIONS_CAMERA2" value="9" description="The number of regions of interest to split the image into"/>
+
+      <!-- ACT-FAST parameters -->
+      <define name="ACTFAST_LONG_STEP_CAMERA2" value="10" description="Step size to take when there is no texture"/>
+      <define name="ACTFAST_SHORT_STEP_CAMERA2" value="2" description="Step size to take when there is an edge to be followed"/>
+      <define name="ACTFAST_MIN_GRADIENT_CAMERA2" value="10" description="Threshold that decides when there is sufficient texture for edge following"/>
+      <define name="ACTFAST_GRADIENT_METHOD_CAMERA2" value="1" description="Whether to use a simple (0) or Sobel (1) filter"/>
+
     </section>
   </doc>
 
   <settings>
-	<dl_settings NAME="Vision stabilization">
+	<dl_settings name="Vision stabilization">
       <!-- Optical flow calculations parameters -->
-      <dl_settings name="vision_calc">
-      <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
-      <dl_setting var="opticflow.corner_method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="corner_method" values="exhaustive-FAST|ACT-FAST" param="CORNER_METHOD"/>
-        <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
-        <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
-        <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
-        <dl_setting var="opticflow.resolution_factor" module="computer_vision/opticflow_module" min="10" step="10" max="10000" shortname="resolution_factor" param="OPTICFLOW_RESOLUTION_FACTOR"/>
-        <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
-        <dl_setting var="opticflow.median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
-        <dl_setting var="opticflow.feature_management" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="feature_management" param="OPTICFLOW_FEATURE_MANAGEMENT"/>
-        <dl_setting var="opticflow.track_back" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="track_back" param="OPTICFLOW_TRACK_BACK"/>
-        <dl_setting var="opticflow.show_flow" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="show_flow" param="OPTICFLOW_SHOW_FLOW"/>
-
+      <dl_settings name="vision_calc camera1">
+        <dl_setting var="opticflow[0].method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
+        <dl_setting var="opticflow[0].corner_method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="corner_method" values="exhaustive-FAST|ACT-FAST" param="CORNER_METHOD"/>
+        <dl_setting var="opticflow[0].window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
+        <dl_setting var="opticflow[0].search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
+        <dl_setting var="opticflow[0].subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow[0].resolution_factor" module="computer_vision/opticflow_module" min="10" step="10" max="10000" shortname="resolution_factor" param="OPTICFLOW_RESOLUTION_FACTOR"/>
+        <dl_setting var="opticflow[0].derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
+        <dl_setting var="opticflow[0].median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
+        <dl_setting var="opticflow[0].feature_management" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="feature_management" param="OPTICFLOW_FEATURE_MANAGEMENT"/>
+        <dl_setting var="opticflow[0].track_back" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="track_back" param="OPTICFLOW_TRACK_BACK"/>
+        <dl_setting var="opticflow[0].show_flow" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="show_flow" param="OPTICFLOW_SHOW_FLOW"/>
 
         <!-- Specifically for Lucas Kanade and FAST9 -->
-        <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
-        <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
-        <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
-        <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
-        <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
-        <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
-        <dl_setting var="opticflow.fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING"/>
-        <dl_setting var="opticflow.fast9_region_detect" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="fast9_region_detect" param="OPTICFLOW_FAST9_REGION_DETECT"/>
-        <dl_setting var="opticflow.fast9_num_regions" module="computer_vision/opticflow_module" min="1" step="1" max="25" shortname="fast9_num_regions" param="OPTICFLOW_FAST9_NUM_REGIONS"/>
+        <dl_setting var="opticflow[0].max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
+        <dl_setting var="opticflow[0].max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
+        <dl_setting var="opticflow[0].threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
+        <dl_setting var="opticflow[0].fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
+        <dl_setting var="opticflow[0].fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
+        <dl_setting var="opticflow[0].fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
+        <dl_setting var="opticflow[0].fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING"/>
+        <dl_setting var="opticflow[0].fast9_region_detect" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="fast9_region_detect" param="OPTICFLOW_FAST9_REGION_DETECT"/>
+        <dl_setting var="opticflow[0].fast9_num_regions" module="computer_vision/opticflow_module" min="1" step="1" max="25" shortname="fast9_num_regions" param="OPTICFLOW_FAST9_NUM_REGIONS"/>
 
         <!-- ACT-FAST settings -->
-        <dl_setting var="opticflow.actfast_long_step" module="computer_vision/opticflow_module" min="1" step="1" max="100" shortname="actfast_long_step" param="OPTICFLOW_ACTFAST_LONG_STEP"/>
-        <dl_setting var="opticflow.actfast_short_step" module="computer_vision/opticflow_module" min="1" step="1" max="10" shortname="actfast_short_step" param="OPTICFLOW_ACTFAST_SHORT_STEP"/>
-        <dl_setting var="opticflow.actfast_min_gradient" module="computer_vision/opticflow_module" min="1" step="1" max="255" shortname="actfast_min_gradient" param="OPTICFLOW_ACTFAST_MIN_GRADIENT"/>
-        <dl_setting var="opticflow.actfast_gradient_method" module="computer_vision/opticflow_module" min="0" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD"/>        
+        <dl_setting var="opticflow[0].actfast_long_step" module="computer_vision/opticflow_module" min="1" step="1" max="100" shortname="actfast_long_step" param="OPTICFLOW_ACTFAST_LONG_STEP"/>
+        <dl_setting var="opticflow[0].actfast_short_step" module="computer_vision/opticflow_module" min="1" step="1" max="10" shortname="actfast_short_step" param="OPTICFLOW_ACTFAST_SHORT_STEP"/>
+        <dl_setting var="opticflow[0].actfast_min_gradient" module="computer_vision/opticflow_module" min="1" step="1" max="255" shortname="actfast_min_gradient" param="OPTICFLOW_ACTFAST_MIN_GRADIENT"/>
+        <dl_setting var="opticflow[0].actfast_gradient_method" module="computer_vision/opticflow_module" min="0" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD"/>
 
         <!-- Changes pyramid level of lucas kanade optical flow. -->
-        <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
+        <dl_setting var="opticflow[0].pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
+      </dl_settings>
+
+      <dl_settings name="vision_calc camera2">
+        <dl_setting var="opticflow[1].method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD_CAMERA2"/>
+        <dl_setting var="opticflow[1].corner_method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="corner_method" values="exhaustive-FAST|ACT-FAST" param="CORNER_METHOD_CAMERA2"/>
+        <dl_setting var="opticflow[1].window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE_CAMERA2"/>
+        <dl_setting var="opticflow[1].search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE_CAMERA2"/>
+        <dl_setting var="opticflow[1].subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR_CAMERA2"/>
+        <dl_setting var="opticflow[1].resolution_factor" module="computer_vision/opticflow_module" min="10" step="10" max="10000" shortname="resolution_factor" param="OPTICFLOW_RESOLUTION_FACTOR_CAMERA2"/>
+        <dl_setting var="opticflow[1].derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION_CAMERA2"/>
+        <dl_setting var="opticflow[1].median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER_CAMERA2"/>
+        <dl_setting var="opticflow[1].feature_management" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="feature_management" param="OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2"/>
+        <dl_setting var="opticflow[1].track_back" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="track_back" param="OPTICFLOW_TRACK_BACK_CAMERA2"/>
+        <dl_setting var="opticflow[1].show_flow" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="show_flow" param="OPTICFLOW_SHOW_FLOW_CAMERA2"/>
+
+        <!-- Specifically for Lucas Kanade and FAST9 -->
+        <dl_setting var="opticflow[1].max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2"/>
+        <dl_setting var="opticflow[1].max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS_CAMERA2"/>
+        <dl_setting var="opticflow[1].threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_region_detect" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="fast9_region_detect" param="OPTICFLOW_FAST9_REGION_DETECT_CAMERA2"/>
+        <dl_setting var="opticflow[1].fast9_num_regions" module="computer_vision/opticflow_module" min="1" step="1" max="25" shortname="fast9_num_regions" param="OPTICFLOW_FAST9_NUM_REGIONS_CAMERA2"/>
+
+        <!-- ACT-FAST settings -->
+        <dl_setting var="opticflow[1].actfast_long_step" module="computer_vision/opticflow_module" min="1" step="1" max="100" shortname="actfast_long_step" param="OPTICFLOW_ACTFAST_LONG_STEP_CAMERA2"/>
+        <dl_setting var="opticflow[1].actfast_short_step" module="computer_vision/opticflow_module" min="1" step="1" max="10" shortname="actfast_short_step" param="OPTICFLOW_ACTFAST_SHORT_STEP_CAMERA2"/>
+        <dl_setting var="opticflow[1].actfast_min_gradient" module="computer_vision/opticflow_module" min="1" step="1" max="255" shortname="actfast_min_gradient" param="OPTICFLOW_ACTFAST_MIN_GRADIENT_CAMERA2"/>
+        <dl_setting var="opticflow[1].actfast_gradient_method" module="computer_vision/opticflow_module" min="0" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD_CAMERA2"/>
+
+        <!-- Changes pyramid level of lucas kanade optical flow. -->
+        <dl_setting var="opticflow[1].pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL_CAMERA2"/>
       </dl_settings>
     </dl_settings>
   </settings>
 
+  <depends>video_thread</depends>
   <autoload name="agl_dist"/>
-  <autoload name="video_thread"/>
   <autoload name="pose_history"/>
 
   <header>

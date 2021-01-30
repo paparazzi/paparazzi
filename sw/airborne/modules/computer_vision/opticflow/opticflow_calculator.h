@@ -79,12 +79,13 @@ struct opticflow_t {
   int actfast_min_gradient;       ///< Threshold that decides when there is sufficient texture for edge following
   int actfast_gradient_method;    ///< Whether to use a simple or Sobel filter
 
-
+  const struct video_config_t *camera;
+  uint8_t id;
 };
 
 #define FAST9_MAX_CORNERS 512
 
-extern void opticflow_calc_init(struct opticflow_t *opticflow);
+extern void opticflow_calc_init(struct opticflow_t opticflow[]);
 extern bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
                           struct opticflow_result_t *result);
 

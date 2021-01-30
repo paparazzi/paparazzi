@@ -111,7 +111,7 @@ static void save_shot_on_disk(struct image_t *img, struct image_t *img_jpeg)
 
 }
 
-static struct image_t *log_image(struct image_t *img)
+static struct image_t *log_image(struct image_t *img, uint8_t camera_id)
 {
   if (!created_jpeg) {
 
@@ -148,7 +148,7 @@ void video_usb_logger_start(void)
   }
 
   // Subscribe to a camera
-  cv_add_to_device(&VIDEO_USB_LOGGER_CAMERA, log_image, VIDEO_USB_LOGGER_FPS);
+  cv_add_to_device(&VIDEO_USB_LOGGER_CAMERA, log_image, VIDEO_USB_LOGGER_FPS, 0);
 }
 
 /** Stop the logger an nicely close the file */

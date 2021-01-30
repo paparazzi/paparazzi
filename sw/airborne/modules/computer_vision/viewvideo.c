@@ -191,7 +191,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 }
 
 #ifdef VIEWVIDEO_CAMERA
-static struct image_t *viewvideo_function1(struct image_t *img)
+static struct image_t *viewvideo_function1(struct image_t *img, uint8_t camera_id)
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
@@ -202,7 +202,7 @@ static struct image_t *viewvideo_function1(struct image_t *img)
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
-static struct image_t *viewvideo_function2(struct image_t *img)
+static struct image_t *viewvideo_function2(struct image_t *img, uint8_t camera_id)
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
@@ -263,13 +263,13 @@ void viewvideo_init(void)
 
 #ifdef VIEWVIDEO_CAMERA
   cv_add_to_device_async(&VIEWVIDEO_CAMERA, viewvideo_function1,
-                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS);
+                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS, 0);
   fprintf(stderr, "[viewvideo] Added asynchronous video streamer listener for CAMERA1 at %u FPS \n", VIEWVIDEO_FPS);
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
   cv_add_to_device_async(&VIEWVIDEO_CAMERA2, viewvideo_function2,
-                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS);
+                         VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS, 1);
   fprintf(stderr, "[viewvideo] Added asynchronous video streamer listener for CAMERA2 at %u FPS \n", VIEWVIDEO_FPS);
 #endif
 }

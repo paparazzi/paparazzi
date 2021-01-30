@@ -43,7 +43,7 @@ static float K[9] = {0.0f, 0.0f, 0.0f,
                      0.0f, 0.0f, 1.0f};
 
 // Function
-static struct image_t *undistort_image_func(struct image_t *img)
+static struct image_t *undistort_image_func(struct image_t *img, uint8_t camera_id)
 {
   // TODO: These commands could actually only be run when the parameters or image size are changed
   float normalized_step = (max_x_normalized - min_x_normalized) / img->w;
@@ -118,5 +118,5 @@ void undistort_image_init(void)
   min_x_normalized = UNDISTORT_MIN_X_NORMALIZED;
   max_x_normalized = UNDISTORT_MAX_X_NORMALIZED;
   center_ratio = UNDISTORT_CENTER_RATIO;
-  listener = cv_add_to_device(&UNDISTORT_CAMERA, undistort_image_func, UNDISTORT_FPS);
+  listener = cv_add_to_device(&UNDISTORT_CAMERA, undistort_image_func, UNDISTORT_FPS), 0;
 }

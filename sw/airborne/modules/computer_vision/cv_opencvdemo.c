@@ -33,8 +33,8 @@
 PRINT_CONFIG_VAR(OPENCVDEMO_FPS)
 
 // Function
-struct image_t *opencv_func(struct image_t *img);
-struct image_t *opencv_func(struct image_t *img)
+struct image_t *opencv_func(struct image_t *img, uint8_t camera_id);
+struct image_t *opencv_func(struct image_t *img, uint8_t camera_id)
 {
 
   if (img->type == IMAGE_YUV422) {
@@ -49,6 +49,6 @@ struct image_t *opencv_func(struct image_t *img)
 
 void opencvdemo_init(void)
 {
-  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func, OPENCVDEMO_FPS);
+  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func, OPENCVDEMO_FPS, 0);
 }
 

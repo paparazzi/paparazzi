@@ -300,7 +300,7 @@ static void unwrap_LUT(struct image_t *img_raw, struct image_t *img)
   }
 }
 
-static struct image_t *camera_cb(struct image_t *img)
+static struct image_t *camera_cb(struct image_t *img, uint8_t camera_id)
 {
   set_output_image_size();
   update_LUT(img);
@@ -314,6 +314,6 @@ void pano_unwrap_init()
 {
   image_create(&pano_unwrapped_image, 0, 0, IMAGE_YUV422);
   set_output_image_size();
-  cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, PANO_UNWRAP_FPS);
+  cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, PANO_UNWRAP_FPS, 0);
 }
 
