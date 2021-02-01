@@ -147,7 +147,6 @@ int _isatty_r(struct _reent *r, int fd)
   return 1;
 }
 
-#endif // USE_CHIBIOS_RTOS
 
 /***************************************************************************/
 
@@ -177,6 +176,7 @@ void _exit(int i) {
 void _kill(void) {}
 
 /***************************************************************************/
+#endif // USE_CHIBIOS_RTOS
 
 void *__dso_handle;
 void __cxa_pure_virtual(void);    
