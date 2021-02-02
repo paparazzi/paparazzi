@@ -102,7 +102,6 @@
       <board name="lia_.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
-      <board name="vms_ecu_.*"/>
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>

@@ -275,17 +275,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="VMS_ECU"
-   ac_id="47"
-   airframe="airframes/AGGIEAIR/aggieair_ecu_example.xml"
-   radio="radios/AGGIEAIR/aggieair_taranis.xml"
-   telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/vms_ecu_demo.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml modules/ahrs_float_mlkf.xml modules/imu_common.xml modules/gps.xml"
-   gui_color="#00009e93ffff"
-  />
-  <aircraft
    name="Yapa2_XSens"
    ac_id="29"
    airframe="airframes/tudelft/yapa_xsens.xml"
