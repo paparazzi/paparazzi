@@ -54,7 +54,6 @@
     <variable name="FLASH_MODE" value="DFU-UTIL"/>
     <boards>
       <board name="apogee_.*"/>
-      <board name="stm32f4_discovery"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="navstik_.*"/>
       <board name="elle*"/>
@@ -71,7 +70,6 @@
     <variable name="FLASH_MODE" value="STLINK"/>
     <boards>
       <board name="apogee_.*"/>
-      <board name="stm32f4_discovery"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="cc3d"/>
       <board name="elle*"/>
@@ -89,7 +87,6 @@
     <variable name="FLASH_MODE" value="SWD"/>
     <boards>
       <board name="apogee_.*"/>
-      <board name="stm32f4_discovery"/>
       <board name="li[s]?a_m_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
@@ -120,7 +117,6 @@
     <variable name="FLASH_MODE" value="JTAG_BMP"/>
     <boards>
       <board name="apogee_*"/>
-      <board name="stm32f4_discovery"/>
       <board name="li[s]?a_[ms]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
