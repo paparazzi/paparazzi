@@ -318,15 +318,4 @@
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/airspeed_adc.xml modules/photogrammetry_calculator.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_energy.xml modules/imu_common.xml modules/tune_airspeed.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/stabilization_attitude_fw.xml modules/digital_cam_uart.xml"
    gui_color="#fffffac7c07a"
   />
-  <aircraft
-   name="XVert"
-   ac_id="217"
-   airframe="airframes/OPENUAS/openuas_eflite_xvert.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft_slow.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_float_invariant.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
-   gui_color="#fffff3c90091"
-  />
 </conf>

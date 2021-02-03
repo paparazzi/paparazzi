@@ -199,13 +199,15 @@ endif
 # Project name defined in board makefile
 
 # Imported source files and paths
+# Licensing files.
+include $(CHIBIOS)/os/license/license.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STARTUP)
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)
 include $(CHIBIOS_BOARD_DIR)/board.mk
-include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
@@ -220,15 +222,8 @@ LDSCRIPT= $(CHIBIOS_LINKER_DIR)/$(CHIBIOS_BOARD_LINKER)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = $(STARTUPSRC) \
-       $(KERNSRC) \
-       $(PORTSRC) \
-       $(OSALSRC) \
-       $(HALSRC) \
-       $(PLATFORMSRC) \
-       $(BOARDSRC) \
+CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(FATFSSRC) \
        $(CHIBIOS_BOARD_MAIN)
 
 ECSRC = $(filter %.c, $($(TARGET).srcs))
@@ -261,9 +256,7 @@ TCPPSRC =
 # List ASM source files here
 ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(CHIBIOS)/os/license $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(FATFSINC) \
-         $(CHIBIOS)/os/various $(CHIBIOS_BOARD_DIR) $(CHIBIOS_PROJECT_DIR)
+INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS_BOARD_DIR)
 
 # Output directory and files
 BUILDDIR := $(AIRCRAFT_BUILD_DIR)/$(TARGET)

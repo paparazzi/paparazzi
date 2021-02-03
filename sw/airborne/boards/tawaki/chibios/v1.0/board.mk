@@ -19,3 +19,8 @@ BOARDINC = $(CHIBIOS_BOARD_DIR) $(BOARDCOMMON)
 
 # List of all the board related files.
 BOARDSRC = ${BOARDCOMMON}/board.c
+
+# Shared variables
+ALLCSRC += $(BOARDSRC)
+ALLINC  += $(BOARDINC)
+

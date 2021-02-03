@@ -57,7 +57,8 @@ static ICUConfig pwm_input1_cfg = {
   input1_period_cb,
   NULL,
   PWM_INPUT1_CHANNEL,
-  0
+  0,
+  0xFFFFFFFFU
 };
 #endif
 
@@ -85,7 +86,8 @@ static ICUConfig pwm_input2_cfg = {
   input2_period_cb,
   NULL,
   PWM_INPUT2_CHANNEL,
-  0
+  0,
+  0xFFFFFFFFU
 };
 #endif
 

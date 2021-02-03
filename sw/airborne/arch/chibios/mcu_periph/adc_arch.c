@@ -221,10 +221,18 @@ static void adc_sample_time_on_all_channels(uint32_t *smpr1, uint32_t *smpr2, ui
  * @param[in] buffer pointer to a @p buffer with samples
  * @param[in] n number of samples
  */
-void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
+void adc1callback(ADCDriver *adcp)
 {
   if (adcp->state != ADC_STOP) {
 #if USE_AD1
+    const size_t n = ADC_BUF_DEPTH / 2U;
+    // depending on half buffer that has just been filled
+    // if adcIsBufferComplete return true, the last filled
+    // half buffer start in the middle of buffer, else, is start at
+    // beginiing of buffer
+    const adcsample_t *buffer = adc_samples + (adcIsBufferComplete(adcp) ?
+					   n : 0U);
+
     for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
       if (adc1_buffers[channel] != NULL) {
         adc1_sum_tmp[channel] = 0;

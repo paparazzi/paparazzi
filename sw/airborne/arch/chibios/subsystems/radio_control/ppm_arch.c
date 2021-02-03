@@ -83,7 +83,8 @@ static ICUConfig ppm_icucfg = {
   icuperiodcb,
   icuoverflowcb,
   PPM_CHANNEL,
-  0
+  0,
+  0xFFFFFFFFU
 };
 
 void ppm_arch_init(void)

@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,22 +19,22 @@
  */
 MEMORY
 {
-    flash0  : org = 0x08002000, len = 256k
-    flash1  : org = 0x00000000, len = 0
-    flash2  : org = 0x00000000, len = 0
-    flash3  : org = 0x00000000, len = 0
-    flash4  : org = 0x00000000, len = 0
-    flash5  : org = 0x00000000, len = 0
-    flash6  : org = 0x00000000, len = 0
-    flash7  : org = 0x00000000, len = 0
-    ram0    : org = 0x20000000, len = 64k
-    ram1    : org = 0x00000000, len = 0
-    ram2    : org = 0x00000000, len = 0
-    ram3    : org = 0x00000000, len = 0
-    ram4    : org = 0x00000000, len = 0
-    ram5    : org = 0x00000000, len = 0
-    ram6    : org = 0x00000000, len = 0
-    ram7    : org = 0x00000000, len = 0
+    flash0 (rx) : org = 0x08002000, len = 256k
+    flash1 (rx) : org = 0x00000000, len = 0
+    flash2 (rx) : org = 0x00000000, len = 0
+    flash3 (rx) : org = 0x00000000, len = 0
+    flash4 (rx) : org = 0x00000000, len = 0
+    flash5 (rx) : org = 0x00000000, len = 0
+    flash6 (rx) : org = 0x00000000, len = 0
+    flash7 (rx) : org = 0x00000000, len = 0
+    ram0   (wx) : org = 0x20000000, len = 64k
+    ram1   (wx) : org = 0x00000000, len = 0
+    ram2   (wx) : org = 0x00000000, len = 0
+    ram3   (wx) : org = 0x00000000, len = 0
+    ram4   (wx) : org = 0x00000000, len = 0
+    ram5   (wx) : org = 0x00000000, len = 0
+    ram6   (wx) : org = 0x00000000, len = 0
+    ram7   (wx) : org = 0x00000000, len = 0
 }
 
 /* For each data/text section two region are defined, a virtual region
