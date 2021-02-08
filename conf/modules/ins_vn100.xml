@@ -25,6 +25,14 @@
     <define name="VN100_SPI_DEV" value="$(VN100_SPI_DEV_LOWER)" />
     <define name="VN100_SLAVE_IDX" value="$(VN100_SLAVE_IDX_UPPER)" />
     <file name="ins_vn100.c"/>
+    <test firmware="fixedwing">
+      <define name="VN100_SPI_DEV" value="spi1"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

@@ -15,6 +15,12 @@
   <event fun="charge_sens_event()"/>
   <makefile target="ap">
     <file name="charge_sens.c"/>
+    <test>
+      <define name="USE_I2C0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

@@ -20,5 +20,9 @@
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
     <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <test firmware="rotorcraft">
+      <define name="PRIMARY_AHRS" value="ahrs_sim"/>
+      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    </test>
   </makefile>
 </module>

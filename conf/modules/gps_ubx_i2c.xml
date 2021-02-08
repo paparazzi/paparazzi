@@ -26,6 +26,14 @@
     <define name="GPS_I2C"/>
     <define name="I2C_BUF_LEN" value="255"/>
     <file name="gps_ubx_i2c.c"/>
+    <test>
+      <!--define name="PRIMARY_GPS" value="GPS_UBX"/-->
+      <define name="GPS_UBX_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="GPS_I2C"/>
+      <define name="UBX_GPS_PORT" value="GPS_I2C"/>
+      <define name="I2C_BUF_LEN" value="255"/>
+    </test>
   </makefile>
 
 </module>

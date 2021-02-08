@@ -22,5 +22,10 @@
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="imu_swing.c" dir="subsystems/imu"/>
+    <test>
+      <define name="IMU_TYPE_H" value="subsystems/imu/imu_swing.h" type="string"/>
+      <define name="USE_I2C0"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>

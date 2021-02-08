@@ -68,12 +68,28 @@
     
     <file name="radio_control.c" dir="subsystems"/>
     <file name="spektrum.c" dir="subsystems/radio_control"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
+      <define name="SPEKTRUM_PRIMARY_UART" value="uart2"/>
+      <define name="SPEKTRUM_SECONDARY_UART" value="uart3"/>
+      <define name="USE_UART2"/>
+      <define name="USE_UART3"/>
+      <define name="SPEKTRUM_PRIMARY_BIND_CONF_PORT" value="GPIOA"/>
+      <define name="SPEKTRUM_PRIMARY_BIND_CONF_PIN" value="GPIO0"/>
+      <define name="SPEKTRUM_SECONDARY_BIND_CONF_PORT" value="GPIOA"/>
+      <define name="SPEKTRUM_SECONDARY_BIND_CONF_PIN" value="GPIO1"/>
+    </test>
   </makefile>
   <makefile target="sim|nps|hitl">
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum_arch.h" type="string"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file_arch name="spektrum_arch.c" dir="subsystems/radio_control"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
+    </test>
   </makefile>
 </module>
 

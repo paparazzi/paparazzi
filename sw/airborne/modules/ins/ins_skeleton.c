@@ -72,6 +72,76 @@ struct InsModuleInt ins_module;
 
 void ins_module_wrapper_init(void);
 
+/** copy position and speed to state interface */
+static void ins_ned_to_state(void)
+{
+  stateSetPositionNed_i(&ins_module.ltp_pos);
+  stateSetSpeedNed_i(&ins_module.ltp_speed);
+  stateSetAccelNed_i(&ins_module.ltp_accel);
+
+#if defined SITL && USE_NPS
+  if (nps_bypass_ins) {
+    sim_overwrite_ins();
+  }
+#endif
+}
+
+/***********************************************************
+ * ABI callback functions
+ **********************************************************/
+
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
+{
+  /* call module implementation */
+  ins_module_update_baro(pressure);
+  ins_ned_to_state();
+}
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp, struct Int32Vect3 *accel)
+{
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+
+  if (last_stamp > 0) {
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+    /* call module implementation */
+    ins_module_propagate(accel, dt);
+    ins_ned_to_state();
+  }
+  last_stamp = stamp;
+}
+
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp, struct GpsState *gps_s)
+{
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+
+  if (last_stamp > 0) {
+    float dt = (float)(stamp - last_stamp) * 1e-6;
+
+    /* copy GPS state */
+    ins_module.gps = *gps_s;
+
+    if (!ins_module.ltp_initialized) {
+      ins_reset_local_origin();
+    }
+
+    if (gps_s->fix >= GPS_FIX_3D) {
+      /* call module implementation */
+      ins_module_update_gps(gps_s, dt);
+      ins_ned_to_state();
+    }
+  }
+  last_stamp = stamp;
+}
+
+static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
+                           struct FloatQuat *q_b2i_f)
+{
+  orientationSetQuat_f(&ins_module.body_to_imu, q_b2i_f);
+}
 /*********************************************************************
  * weak functions that are used if not implemented in a module
  ********************************************************************/
@@ -172,73 +242,3 @@ void ins_module_wrapper_init(void)
   AbiBindMsgBODY_TO_IMU_QUAT(INS_MODULE_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 
-/** copy position and speed to state interface */
-static void ins_ned_to_state(void)
-{
-  stateSetPositionNed_i(&ins_module.ltp_pos);
-  stateSetSpeedNed_i(&ins_module.ltp_speed);
-  stateSetAccelNed_i(&ins_module.ltp_accel);
-
-#if defined SITL && USE_NPS
-  if (nps_bypass_ins) {
-    sim_overwrite_ins();
-  }
-#endif
-}
-
-/***********************************************************
- * ABI callback functions
- **********************************************************/
-
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
-{
-  /* call module implementation */
-  ins_module_update_baro(pressure);
-  ins_ned_to_state();
-}
-
-static void accel_cb(uint8_t sender_id __attribute__((unused)),
-                     uint32_t stamp, struct Int32Vect3 *accel)
-{
-  /* timestamp in usec when last callback was received */
-  static uint32_t last_stamp = 0;
-
-  if (last_stamp > 0) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-    /* call module implementation */
-    ins_module_propagate(accel, dt);
-    ins_ned_to_state();
-  }
-  last_stamp = stamp;
-}
-
-static void gps_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp, struct GpsState *gps_s)
-{
-  /* timestamp in usec when last callback was received */
-  static uint32_t last_stamp = 0;
-
-  if (last_stamp > 0) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-
-    /* copy GPS state */
-    ins_module.gps = *gps_s;
-
-    if (!ins_module.ltp_initialized) {
-      ins_reset_local_origin();
-    }
-
-    if (gps_s->fix >= GPS_FIX_3D) {
-      /* call module implementation */
-      ins_module_update_gps(gps_s, dt);
-      ins_ned_to_state();
-    }
-  }
-  last_stamp = stamp;
-}
-
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  orientationSetQuat_f(&ins_module.body_to_imu, q_b2i_f);
-}

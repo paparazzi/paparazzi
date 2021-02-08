@@ -35,6 +35,9 @@
       $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_datalink.h\"
       endif
     </raw>
+    <test firmware="rotorcraft">
+      <define name="PRIMARY_GPS" value="GPS_DATALINK"/>
+    </test>
   </makefile>
   <makefile target="fbw">
     <define name="USE_GPS"/>

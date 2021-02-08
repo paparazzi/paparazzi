@@ -16,6 +16,10 @@
     <define name="USE_BARO_DIFF"/>
     <define name="USE_ADS1114_2"/>
     <define name="ADS1114_2_PGA" value="0x1"/> <!-- PGA gain = 1  (+/- 4.096V) -->
+    <test arch="test">
+      <define name="USE_ADS1114_1"/>
+      <define name="BARO_DIFF_ADS" value="ads1114_1"/>
+    </test>
   </makefile>
 </module>
 

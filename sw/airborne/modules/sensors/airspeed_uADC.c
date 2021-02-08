@@ -34,6 +34,7 @@
 #include "subsystems/datalink/downlink.h"
 
 #include <ctype.h>
+#include <stdlib.h>
 
 #if FLIGHTRECORDER_SDLOG
 #include "subsystems/datalink/telemetry.h"

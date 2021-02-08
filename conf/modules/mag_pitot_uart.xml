@@ -28,6 +28,10 @@
     <!-- Sources and PPRZLink for transport -->
     <file name="mag_pitot_uart.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+    <test>
+      <define name="MAG_PITOT_PORT" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

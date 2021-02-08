@@ -30,6 +30,14 @@
     <!-- TODO: check output mode -->
     <define name="XSENS_OUTPUT_MODE" value="0x1836"/>
     <define name="IMU_TYPE_H" value="modules/ins/imu_xsens.h" type="string"/>
+    <test>
+      <define name="IMU_TYPE_H" value="modules/ins/imu_xsens.h" type="string"/>
+      <define name="XSENS_LINK" value="uart1"/>
+      <define name="USE_UART1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

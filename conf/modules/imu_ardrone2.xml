@@ -26,5 +26,9 @@
 
     <file name="imu_ardrone2.c" dir="subsystems/imu"/>
     <file name="navdata.c" dir="boards/ardrone"/>
+    <test>
+      <include name="boards/ardrone"/>
+      <define name="_GNU_SOURCE"/>
+    </test>
   </makefile>
 </module>

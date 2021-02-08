@@ -26,5 +26,6 @@
     <!-- only add ak8975 mag to "normal" apogee driver -->
     <define name="APOGEE_USE_MPU9150"/>
     <file name="ak8975.c" dir="peripherals"/>
+    <test/>
   </makefile>
 </module>

@@ -14,6 +14,10 @@
   </header>
   <makefile>
     <file name="nav_heli_spinup.c"/>
+    <test firmware="rotorcraft">
+      <define name="THROTTLE_POINTS_NB" value="3"/>
+      <define name="THROTTLE_CURVES_NB" value="2"/>
+    </test>
   </makefile>
 </module>
 

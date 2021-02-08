@@ -43,6 +43,10 @@ Warning: you still need to tell the driver, which paparazzi port you use.
   <makefile target="ap|fbw">
     <file name="gps_ubx_ucenter.c"/>
     <define name="GPS_UBX_UCENTER"/>
+    <test>
+        <define name="UBX_GPS_LINK" value="uart2"/>
+        <define name="USE_UART2"/>
+    </test>
   </makefile>
 </module>
 

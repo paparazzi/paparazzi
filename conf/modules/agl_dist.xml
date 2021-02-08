@@ -20,6 +20,7 @@
   <init fun="agl_dist_init()"/>
   <makefile>
     <file name="agl_dist.c"/>
+    <test/>
   </makefile>
 </module>
 

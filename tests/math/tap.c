@@ -4,7 +4,7 @@ Copyright 2012 Jake Gelbman <gelbman@gmail.com>
 This file is licensed under the GPLv2 or any later version
 */
 
-#define _BSD_SOURCE 1
+#define _DEFAULT_SOURCE 1
 
 #include <stdio.h>
 #include <stdlib.h>

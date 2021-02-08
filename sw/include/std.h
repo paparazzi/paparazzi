@@ -37,6 +37,8 @@
 #define _STRINGIFY(s) #s
 #define STRINGIFY(s) _STRINGIFY(s)
 
+#define PTR(_f) &_f
+
 #ifndef FALSE
 #define FALSE false
 #endif

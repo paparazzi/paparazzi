@@ -38,6 +38,12 @@
     <define name="USE_$(AIRSPEED_AMSYS_I2C_DEV_UPPER)"/>
     <define name="AIRSPEED_AMSYS_I2C_DEV" value="$(AIRSPEED_AMSYS_I2C_DEV_LOWER)"/>
     <file name="airspeed_amsys.c"/>
+    <test>
+      <define name="USE_I2C0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 
 </module>

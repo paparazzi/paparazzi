@@ -100,6 +100,7 @@ bool nav_survey_disc_run(uint8_t center_wp, float radius)
       disc_survey.c2.y = waypoints[center_wp].y - upwind.y * radius;
       disc_survey.status = SEGMENT;
       /* No break; */
+      /* fallthrough */
 
     case SEGMENT:
       nav_route_xy(disc_survey.c1.x, disc_survey.c1.y, disc_survey.c2.x, disc_survey.c2.y);

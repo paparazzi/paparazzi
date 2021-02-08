@@ -34,6 +34,9 @@
     <file name="gps.c" dir="subsystems"/>
     <define name="USE_GPS"/>
     <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
+    <test>
+        <define name="PRIMARY_GPS" value="GPS_DATALINK"/>
+    </test>
   </makefile>
 </module>
 

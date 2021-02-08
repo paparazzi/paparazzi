@@ -54,5 +54,16 @@
     <file name="guidance_v.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_h.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+    <test firmware="fixedwing">
+      <configure name="SRC_FIRMWARE" value="firmwares/fixedwing"/>
+      <define name="V_CTL_ALTITUDE_PGAIN" value="1"/>
+      <define name="V_CTL_ALTITUDE_MAX_CLIMB" value="1"/>
+      <define name="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.5"/>
+      <define name="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.5"/>
+      <define name="V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05"/>
+      <define name="V_CTL_AUTO_THROTTLE_PGAIN" value="1"/>
+      <define name="V_CTL_AUTO_THROTTLE_IGAIN" value="0"/>
+      <define name="V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0"/>
+    </test>
   </makefile>
 </module>

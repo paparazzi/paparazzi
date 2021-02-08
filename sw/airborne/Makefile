@@ -35,6 +35,11 @@ INCLUDES = -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPA
 
 VPATH = .
 
+# AND and OR variables to be used in XML module files
+AND = &&
+OR = ||
+REDIRECT = >
+
 ifneq ($(MAKECMDGOALS),clean)
   include $(AIRCRAFT_BUILD_DIR)/Makefile.ac
   $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)

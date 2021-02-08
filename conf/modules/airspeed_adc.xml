@@ -27,6 +27,11 @@
 
   <makefile target="ap|sim">
     <file name="airspeed_adc.c"/>
+    <test arch="test">
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="1"/>
+      <define name="AIRSPEED_ADC_BIAS" value="0"/>
+      <define name="ADC_CHANNEL_AIRSPEED" value="0"/>
+    </test>
   </makefile>
   <makefile target="ap">
     <define name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>

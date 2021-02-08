@@ -13,7 +13,8 @@
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
-<!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw)*>
+<!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw|test)*>
+<!ELEMENT test (configure|define|include|file|file_arch|shell)*>
 <!ELEMENT section (define|configure)*>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT configure EMPTY>
@@ -22,6 +23,7 @@
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
 <!ELEMENT file_arch EMPTY>
+<!ELEMENT shell EMPTY>
 <!ELEMENT raw (#PCDATA)>
 <!ELEMENT dl_settings (dl_setting|dl_settings)+>
 <!ELEMENT dl_setting (strip_button|key_press)*>
@@ -95,6 +97,9 @@ name CDATA #REQUIRED
 value CDATA #REQUIRED
 cond CDATA #IMPLIED>
 
+<!ATTLIST shell
+cmd CDATA #REQUIRED>
+
 <!ATTLIST file
 name CDATA #REQUIRED
 dir CDATA #IMPLIED
@@ -147,3 +152,9 @@ group CDATA #IMPLIED
 key CDATA #REQUIRED
 value CDATA #REQUIRED
 >
+
+<!ATTLIST test
+arch CDATA #IMPLIED
+firmware CDATA #IMPLIED
+>
+

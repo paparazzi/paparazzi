@@ -13,6 +13,7 @@
   <makefile>
     <define name="USE_ADC"/>
     <file_arch name="adc_arch.c" dir="mcu_periph"/>
+    <test/>
   </makefile>
 </module>
 

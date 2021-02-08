@@ -29,6 +29,11 @@
     <define name="RADIO_CONTROL_TYPE_DATALINK"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file name="rc_datalink.c" dir="subsystems/radio_control"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_DATALINK"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/rc_datalink.h" type="string"/>
+    </test>
   </makefile>
 </module>
 

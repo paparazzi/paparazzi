@@ -45,6 +45,7 @@
 
     <define name="USE_AHRS_ALIGNER"/>
     <define name="INS_TYPE_H" value="subsystems/ins/ins_float_invariant_wrapper.h" type="string"/>
+    <test firmware="rotorcraft"/>
   </makefile>
   <makefile target="ap|nps" firmware="fixedwing">
     <define name="INS_FINV_USE_UTM"/>

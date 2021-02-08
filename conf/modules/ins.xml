@@ -20,5 +20,6 @@
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_int.c" dir="subsystems/ins"/>
     <file name="vf_float.c" dir="subsystems/ins"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 </module>

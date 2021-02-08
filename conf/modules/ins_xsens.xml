@@ -37,6 +37,17 @@
     <define name="USE_GPS_XSENS_RAW_DATA"/>
     <define name="GPS_NB_CHANNELS" value="16"/>
     <define name="GPS_TYPE_H" value="modules/ins/ins_xsens.h" type="string"/>
+    <test firmware="fixedwing">
+      <include name="../../var/include"/>
+      <define name="PRIMARY_GPS" value="GPS_XSENS"/>
+      <define name="USE_GPS_XSENS"/>
+      <define name="USE_GPS"/>
+      <define name="XSENS_LINK" value="uart0"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+    </test>
   </makefile>
 </module>
 

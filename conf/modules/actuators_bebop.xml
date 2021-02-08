@@ -16,6 +16,11 @@
     <define name="BEBOP_ACTUATORS_I2C_DEV" value="$(BEBOP_ACTUATORS_I2C_DEV_LOWER)"/>
     <define name="USE_$(BEBOP_ACTUATORS_I2C_DEV_UPPER)"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
+    <test firmware="rotorcraft">
+      <configure name="SRC_BOARD" value="boards/bebop"/>
+      <define name="BEBOP_ACTUATORS_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+    </test>
   </makefile>
 </module>
 

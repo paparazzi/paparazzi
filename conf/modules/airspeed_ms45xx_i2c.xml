@@ -43,5 +43,12 @@
 
   <makefile target="ap">
     <file name="airspeed_ms45xx_i2c.c"/>
+    <test>
+      <define name="MS45XX_I2C_PERIODIC_PERIOD" value="0.001"/>
+      <define name="USE_I2C2"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>

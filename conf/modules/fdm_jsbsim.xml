@@ -22,7 +22,7 @@
     <configure name="JSBSIM_INC" value="$(JSBSIM_ROOT)/include/JSBSim"/>
     <configure name="JSBSIM_LIB" value="$(JSBSIM_ROOT)/lib"/>
     <configure name="JSBSIM_USE_SGPATH" value="TRUE"/>
-    <configure name="FIND_JSBSIM_VIA_PKG_CONFIG" default="$(shell pkg-config JSBSim --exists && echo 'yes')"/>
+    <configure name="FIND_JSBSIM_VIA_PKG_CONFIG" default="$(shell pkg-config JSBSim --exists ${AND} echo 'yes')"/>
     <raw>
       ifeq ($(FIND_JSBSIM_VIA_PKG_CONFIG), yes)
       nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)

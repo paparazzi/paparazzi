@@ -69,6 +69,17 @@
     <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
     <file name="ahrs_int_cmpl_quat.c" dir="subsystems/ahrs"/>
     <file name="ahrs_int_cmpl_quat_wrapper.c" dir="subsystems/ahrs"/>
+    <test>
+        <define name="PRIMARY_AHRS" value="ahrs_icq"/>
+        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h" type="string"/>
+        <define name="USE_MAGNETOMETER"/>
+    </test>
+    <test>
+        <define name="PRIMARY_AHRS" value="ahrs_icq"/>
+        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h" type="string"/>
+        <define name="AHRS_USE_GPS_HEADING"/>
+        <define name="USE_GPS"/>
+    </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), icq int_cmpl_quat))

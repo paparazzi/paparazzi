@@ -46,6 +46,13 @@
       $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
       endif
     </raw>
+    <test>
+      <define name="PRIMARY_GPS" value="GPS_NMEA"/>
+      <define name="FURUNO_GPS_PORT" value="uart2"/>
+      <define name="FURUNO_GPS_BAUD" value="115200"/>
+      <define name="USE_UART2"/>
+      <define name="NMEA_GPS_LINK" value="uart2"/>
+    </test>
   </makefile>
   <makefile target="fbw">
     <define name="USE_GPS"/>

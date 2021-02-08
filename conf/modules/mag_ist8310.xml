@@ -38,5 +38,12 @@
     <configure name="MAG_IST8310_I2C_DEV" case="upper|lower"/>
     <define name="USE_$(MAG_IST8310_I2C_DEV_UPPER)"/>
     <define name="MAG_IST8310_I2C_DEV" value="$(MAG_IST8310_I2C_DEV_LOWER)"/>
+    <test>
+      <define name="MAG_IST8310_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>

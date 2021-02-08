@@ -181,8 +181,10 @@ class FilesCreate:
         # set makefile
         c_file = etree.Element("file")
         c_file.attrib["name"] = "{}.c".format(self.name)
+        test = etree.Element("test")
         makefile = etree.Element("makefile")
         makefile.append(c_file)
+        makefile.append(test)
         self.xml.append(makefile)
 
     def build_src(self, licence="GPLv2"):

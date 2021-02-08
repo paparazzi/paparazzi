@@ -22,6 +22,10 @@
     <define name="BMP3_I2C_DEV" value="$(BMP3_I2C_DEV_LOWER)"/>
     <file name="baro_bmp3.c"/>
     <file name="bmp3_i2c.c" dir="peripherals"/>
+    <test arch="test">
+      <define name="USE_I2C1"/>
+      <define name="BMP3_I2C_DEV" value="i2c1"/>
+    </test>
   </makefile>
 </module>
 

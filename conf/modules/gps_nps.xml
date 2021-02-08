@@ -17,5 +17,9 @@
   <makefile target="nps|hitl">
     <file name="gps_sim_nps.c" dir="subsystems/gps"/>
     <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
+    <test>
+      <include name="../simulator/nps"/>
+      <shell cmd="pkg-config glib-2.0 --cflags"/>
+    </test>
   </makefile>
 </module>

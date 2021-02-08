@@ -9,7 +9,7 @@ before_install:
   - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa -y
   - sudo apt-get update -q
 install:
-  - sudo apt-get install -y --allow-unauthenticated paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev libgps-dev
+  - sudo apt-get install -y --allow-unauthenticated paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev libgps-dev python3-lxml
 script:
   - arm-none-eabi-gcc --version
   - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then make test_all_confs; else make test; fi; fi

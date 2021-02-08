@@ -50,5 +50,10 @@
   <init fun="nav_fish_init()"/>
   <makefile>
     <file name="nav_fish.c"/>
+    <test firmware="rotorcraft">
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>

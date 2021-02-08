@@ -18,6 +18,7 @@
   </header>
   <makefile>
     <file name="nav_poles.c"/>
+    <test firmware="fixedwing"/>
   </makefile>
 </module>
 
