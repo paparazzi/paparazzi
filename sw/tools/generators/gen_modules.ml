@@ -111,7 +111,12 @@ let get_functions_modulos = fun modules ->
       let p, _ = get_period_and_freq x in
       let d = begin try
         let _d = float_of_string (Xml.attrib x "delay") in
-        if _d > 0.95 then _d /. 65536. else _d (* try to keep some backward compatibility *)
+        if _d > 0.99 then
+          begin
+            fprintf stderr "Warning: 'delay' attribute should be a float value between 0. and 1.\n";
+            _d /. 65536.
+          end
+        else _d (* try to keep some backward compatibility *)
         with _ ->
           delay := !delay +. 0.1;
           if !delay > 0.9 then delay := 0.;
