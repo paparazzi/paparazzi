@@ -9,8 +9,8 @@
     <file name="humid_htm_b71.h"/>
   </header>
   <init fun="humid_htm_init()"/>
-  <periodic fun="humid_htm_start()" freq="4" delay="10"/>
-  <periodic fun="humid_htm_read()"  freq="4" delay="14"/>
+  <periodic fun="humid_htm_start()" freq="4" delay="0.66"/>
+  <periodic fun="humid_htm_read()"  freq="4" delay="0.9"/>
   <event fun="humid_htm_event()"/>
   <makefile target="ap">
     <configure name="HTM_I2C_DEV" default="i2c0" case="upper|lower"/>

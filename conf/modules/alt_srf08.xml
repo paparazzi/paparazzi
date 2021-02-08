@@ -8,10 +8,10 @@
     <file name="alt_srf08.h"/>
   </header>
   <init fun="srf08_init()"/>
-  <periodic fun="srf08_initiate_ranging()" freq="1"/>
-  <!-- 65ms since initiate_ranging() (the spec ask for 65ms),
-       delay="4", 60Hz, 4x 16.7ms = 66.7ms -->
-  <periodic fun="srf08_receive()" freq="1" delay="4"/>
+  <periodic fun="srf08_initiate_ranging()" freq="1" delay="0."/>
+  <!-- 70ms (delay 0.7 with freq = 1Hz since initiate_ranging()
+       (the spec ask for 65ms) -->
+  <periodic fun="srf08_receive()" freq="1" delay="0.07"/>
   <event fun="srf08_event()"/>
   <makefile>
     <file name="alt_srf08.c"/>

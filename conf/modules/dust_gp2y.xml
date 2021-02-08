@@ -12,7 +12,7 @@
     <file name="dust_gp2y.h"/>
   </header>
   <init fun="dust_gp2y_init()"/>
-  <periodic fun="dust_gp2y_periodic()" freq="4" delay="1"/>
+  <periodic fun="dust_gp2y_periodic()" freq="4" delay="0.6"/>
   <event fun="dust_gp2y_event()"/>
   <makefile target="ap">
     <file name="dust_gp2y.c"/>
