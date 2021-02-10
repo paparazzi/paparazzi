@@ -794,8 +794,8 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
           match GToolbox.question_box "SRTM" ["Download"; "Cancel"] msg with
           | 1 ->
               begin try
-                let tile_zip = x^".hgt.zip" in
-                let url = Srtm.srtm_url // (Srtm.area_of_tile x) // tile_zip in
+                let tile_zip = x^".SRTMGL1.hgt.zip" in
+                let url = Srtm.srtm_url // tile_zip in
                 let dest = Env.paparazzi_home // "data" // "srtm" // tile_zip in
                 let tmp_dest = Env.paparazzi_home // "var" // tile_zip in
                 ignore(Http.file_of_url ~dest:tmp_dest url);
