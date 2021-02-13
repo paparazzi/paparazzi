@@ -43,7 +43,7 @@
 	url = https://github.com/tudelft/gazebo_models.git
 [submodule "sw/ext/eigen"]
 	path = sw/ext/eigen
-	url = https://github.com/eigenteam/eigen-git-mirror.git
+	url = https://gitlab.com/libeigen/eigen.git
 [submodule "sw/ext/ecl"]
 	path = sw/ext/ecl
 	url = https://github.com/PX4/ecl.git
