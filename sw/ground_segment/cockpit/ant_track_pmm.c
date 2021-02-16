@@ -277,7 +277,7 @@ int hservo = theta_servo_center_pw, vservo = psi_servo_center_pw;
 
 		   // Convert angles to servo microsecond values suitable for the Pololu micro Maestro servo controller.
 		   vpos = (psi_servo_center_pw-(psi_servo_pw_span/2)) + (vpos*(psi_servo_pw_span/vfov));
-		   hpos = theta_servo_center_pw + (hpos*(theta_servo_pw_span/(hfov/2)));
+		   hpos = theta_servo_center_pw + (hpos * (theta_servo_pw_span / hfov));
 
 		   //convert the values to integer.
 		   hservo = hpos;
@@ -438,7 +438,7 @@ int main(int argc, char** argv) {
 		int x = 0, y = 0, z = 0;
 		char buffer[20];
 		char serial_open = 0;
-		printf ("Antenna Tracker for the Paparazzi autopilot, Chris Efstathiou 2010 \n");
+		printf ("Antenna Tracker for the Paparazzi autopilot\n");
 
 		if (argc > 1){
 			char arg_string1[] = "--help";
@@ -717,3 +717,4 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
+
