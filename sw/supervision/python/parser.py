@@ -29,7 +29,6 @@ import xml.etree.ElementTree as Et
 import os
 import re
 import logging
-import time
 
 from typing import  List, Dict
 import shutil
