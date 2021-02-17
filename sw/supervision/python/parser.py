@@ -29,7 +29,6 @@ import xml.etree.ElementTree as Et
 import os
 import re
 import logging
-import time
 
 from typing import  List, Dict
 import shutil
@@ -809,16 +808,13 @@ class Data(object):
 # [Data methods] Init data methods
 
     def init_data(self):
-        init = time.clock()
-
         self.load_cache()
         self.load_conf_files()
         self.load_sets_and_configs()
         self.load_devices()
         self.load_sessions_and_programs()
 
-        LOGGER.info("All data loaded in : %s seconds.\n",
-                    time.clock() - init)
+        LOGGER.info("All data loaded.\n")
 
     def load_cache(self):
         LOGGER.info("Loading cache...")
