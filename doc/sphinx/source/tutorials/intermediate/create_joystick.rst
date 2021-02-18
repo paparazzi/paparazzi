@@ -9,7 +9,7 @@ New joystick configurations can be added in the ``paparazzi/conf/joystick`` dire
 Profile a joystick
 ==================
 
-Test if your joystick is recognized: plug your joystick then run ``dmesg``. The message is different for every device, but the last lines should look like these::
+Test if your joystick is recognized: plug your joystick then run ``dmesg``. The message is different for every device, but the last lines should look like these:
 
     [49174.642275] usb 1-1: new low-speed USB device number 8 using xhci_hcd
     [49174.812307] usb 1-1: New USB device found, idVendor=046d, idProduct=c214, bcdDevice= 2.05
@@ -20,7 +20,7 @@ Test if your joystick is recognized: plug your joystick then run ``dmesg``. The 
     [49174.823608] hid-generic 0003:046D:C214.000B: input,hidraw4: USB HID v1.10 Joystick [Logitech Logitech Attack 3] on usb-0000:00:14.0-1/input0
 
 
-Launch ``./sw/ground_segment/joystick/test_stick``. It will display joystick informations, then print current status::
+Launch ``./sw/ground_segment/joystick/test_stick``. It will display joystick information, then print current status:
 
     Available button: 5 (0x5)
     Available hats: 0 (0x0)
@@ -94,7 +94,7 @@ Create a new file for your joystick in the ``paparazzi/conf/joystick`` directory
 Inputs
 ------
 
-Edit the *input* section according to your info given by *test_stick*. There are 3 kind of inputs :
+Edit the *input* section according to your info given by *test_stick*. There are 3 kind of inputs:
 
 - *axis*: "analog" stick that range from a min to a max value,
 - *hat*: tiny stick or arrows that can have 8 directions (up, down, left, right, up-left, ...),
@@ -102,7 +102,7 @@ Edit the *input* section according to your info given by *test_stick*. There are
 
 *name* and *index* attributes are mandatory for all.
 
-Axis has 4 optionnal attributes:
+Axis has 4 optional attributes:
 
 - *deadband*: input values within the deadband output 0. Range in [0, 127].
 - *exponent*: gives precise control around center values, and greater speed at high values. Range in [0, 1.0]. 0 has no effect, 1.0 has maximum effect.
@@ -124,7 +124,7 @@ The *period* attribute on the *messages* section is the period in seconds at whi
 
 In this section, you define which messages will be sent, the value of each field, and the conditions required to send the message.
 
-The *message* tag has two required attributes: the *name* and *class* of the message, and two optionnal attributes : *send_always* and *on_event*.
+The *message* tag has two required attributes: the *name* and *class* of the message, and two optional attributes : *send_always* and *on_event*.
 
 *send_always* is a boolean that default to *false*. If set to *true*, messages will keep be sent at the *period* rate. If set to *false*, message will be sent only when one of its field change value.
 
@@ -137,12 +137,12 @@ In the message node, all fields must be specified except the *ac_id* field, that
 
 *value* is a "C like" expression made of axis and variables names, operators, and a set of utily functions.
 
-Thoses functions are:
+Those functions are:
 
 - ``Scale(toto, min, max)`` : scale toto from default min/max values [-128, 127] to [*min*, *max*] 
 - ``Fit(x, min_in, max_in, min_out, max_out)`` : scale *x* from *min_in* *max_in* to *min_out*, *max_out*
 - ``Bound(x, min, max)`` : bound x between *min* and *max*
-- ``PprzMode(x)`` : scale input value to [0;1;2]. usefull for RC mode.
+- ``PprzMode(x)`` : scale input value to [0;1;2]. useful for RC mode.
 - ``JoystickID()`` : return the joystick ID.
 - ``IndexOfEnum(NAME)`` : return the index of the enum member *NAME*
 - ``IndexOfSetting('setting_name')`` : return the index of the setting *setting_name*.
