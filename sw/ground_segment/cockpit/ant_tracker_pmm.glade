@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
+<interface>
+  <requires lib="gtk+" version="3.12"/>
+  <object class="GtkAdjustment" id="azim_pw_span_adjustment">
+    <property name="lower">600</property>
+    <property name="upper">1400</property>
+    <property name="value">1000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="azimuth_scale_adjustment">
+    <property name="upper">360</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="azimuth_trim_adjustment">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="elev_pw_span_adjustment">
+    <property name="lower">600</property>
+    <property name="upper">1400</property>
+    <property name="value">1000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="elevation_scale_adjustment">
+    <property name="upper">90</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="elevation_trim_adjustment">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="hnp_scale_adjustment">
+    <property name="upper">360</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <signal name="value-changed" handler="on_hnp_changed" swapped="no"/>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="name">antenna_tracker</property>
+    <property name="can_focus">False</property>
+    <property name="halign">baseline</property>
+    <property name="title" translatable="yes">Paparazzi Antenna Tracker</property>
+    <property name="default_width">650</property>
+    <property name="default_height">500</property>
+    <child>
+      <object class="GtkLayout" id="layout1">
+        <property name="name">ant_track_gui</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">baseline</property>
+        <property name="resize_mode">immediate</property>
+        <property name="width">400</property>
+        <property name="height">300</property>
+        <child>
+          <object class="GtkRadioButton" id="radiobutton1">
+            <property name="label" translatable="yes">Manual</property>
+            <property name="name">AUTO</property>
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="xalign">0</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <signal name="toggled" handler="on_mode_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">14</property>
+            <property name="y">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="radiobutton2">
+            <property name="label" translatable="yes">Auto</property>
+            <property name="name">MANUAL</property>
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="xalign">0</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">radiobutton1</property>
+          </object>
+          <packing>
+            <property name="x">139</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="azimuth_scale">
+            <property name="name">azimuth</property>
+            <property name="width_request">421</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="halign">baseline</property>
+            <property name="adjustment">azimuth_scale_adjustment</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_azimuth_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">120</property>
+            <property name="y">64</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="elevation_scale">
+            <property name="name">elevation</property>
+            <property name="width_request">421</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="halign">center</property>
+            <property name="adjustment">elevation_scale_adjustment</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_elevation_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">120</property>
+            <property name="y">122</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="entry1">
+            <property name="name">entry1</property>
+            <property name="width_request">481</property>
+            <property name="height_request">77</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="max_length">43</property>
+          </object>
+          <packing>
+            <property name="x">50</property>
+            <property name="y">175</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="id_label">
+            <property name="name">label1</property>
+            <property name="width_request">48</property>
+            <property name="height_request">35</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">id</property>
+          </object>
+          <packing>
+            <property name="x">1</property>
+            <property name="y">196</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="set_home_button">
+            <property name="label" translatable="yes">Set Home Here</property>
+            <property name="name">Set_Home_Here</property>
+            <property name="width_request">125</property>
+            <property name="height_request">29</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="resize_mode">immediate</property>
+            <property name="image_position">bottom</property>
+            <signal name="clicked" handler="on_set_home_button_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">299</property>
+            <property name="y">26</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="hnp_scale">
+            <property name="name">horizontal_neutral_point_scale</property>
+            <property name="width_request">420</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="tooltip_text">Used when the antenna tracker cannot be moved to point to the North WHEN AZIMUTH IS SET TO 0 IN MANUAL MODE.
+For example use it if the antenna tracker is mounted on a vehicle which cannot be steered to look to the North when the Azimuth servo is centered.
+To center the Azimuth servo set mode to MANUAL and then Azimuth scale to 0
+</property>
+            <property name="opacity">0.95999999999999996</property>
+            <property name="adjustment">hnp_scale_adjustment</property>
+            <property name="round_digits">1</property>
+          </object>
+          <packing>
+            <property name="x">121</property>
+            <property name="y">229</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="azim_label">
+            <property name="name">Azimuth_label</property>
+            <property name="width_request">70</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Azimuth °</property>
+          </object>
+          <packing>
+            <property name="x">1</property>
+            <property name="y">96</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="elev_label">
+            <property name="width_request">70</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Elevation °</property>
+          </object>
+          <packing>
+            <property name="x">3</property>
+            <property name="y">154</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="hnp_label">
+            <property name="width_request">108</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Neutral Heading °</property>
+          </object>
+          <packing>
+            <property name="x">8</property>
+            <property name="y">261</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="azim_servo_pw_label">
+            <property name="width_request">100</property>
+            <property name="height_request">29</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">1500 us</property>
+          </object>
+          <packing>
+            <property name="x">540</property>
+            <property name="y">97</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="elev_servo_pw_label">
+            <property name="width_request">71</property>
+            <property name="height_request">26</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">1000 us</property>
+          </object>
+          <packing>
+            <property name="x">556</property>
+            <property name="y">157</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="reset_home_button">
+            <property name="label" translatable="yes">Reset Home</property>
+            <property name="width_request">116</property>
+            <property name="height_request">27</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_reset_home_button_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">500</property>
+            <property name="y">28</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="elevation_trim_scale">
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">Adjust the elevation of the Antenna in case the best reception is not parallel with the antenna's mechanical longitudinal axis.
+This adjustment works realtime in both modes.</property>
+            <property name="adjustment">elevation_trim_adjustment</property>
+            <property name="show_fill_level">True</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_elev_trim_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">342</property>
+            <property name="y">334</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="elev_trim_label">
+            <property name="width_request">94</property>
+            <property name="height_request">26</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Elevation trim °</property>
+          </object>
+          <packing>
+            <property name="x">398</property>
+            <property name="y">314</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="azimuth_trim_scale">
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">Adjust the azimuth of the Antenna in case the best reception is not parallel with the antenna's mechanical longitudinal axis.
+This adjustment works realtime in both modes.</property>
+            <property name="adjustment">azimuth_trim_adjustment</property>
+            <property name="show_fill_level">True</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_azim_trim_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">123</property>
+            <property name="y">333</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="elevation_pw_span_scale">
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">After you find the correct setting you can make a shell script and run the Antenna tracker command with the --tilt_epa=xxxx option so the changes became more permanent.
+From command prompt run the antenna tracker executable with the --help parameter for more help.  																															</property>
+            <property name="adjustment">elev_pw_span_adjustment</property>
+            <property name="show_fill_level">True</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_elev_pw_span_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">341</property>
+            <property name="y">433</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="azimuth_pw_span_scale">
+            <property name="width_request">200</property>
+            <property name="height_request">50</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">After you find the correct setting you can make a shell script and run the Antenna tracker command with the --pan_epa=xxxx option so the changes became more permanent.
+From command prompt run the antenna tracker executable with the --help parameter for more help. </property>
+            <property name="adjustment">azim_pw_span_adjustment</property>
+            <property name="show_fill_level">True</property>
+            <property name="round_digits">1</property>
+            <signal name="value-changed" handler="on_azim_pw_span_changed" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">126</property>
+            <property name="y">432</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="azim_trim_label">
+            <property name="width_request">89</property>
+            <property name="height_request">20</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Azimuth trim °</property>
+          </object>
+          <packing>
+            <property name="x">181</property>
+            <property name="y">319</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="elev_pw_span_label">
+            <property name="width_request">181</property>
+            <property name="height_request">28</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Elevation servo PW range (us)
+      decrease -- increase</property>
+          </object>
+          <packing>
+            <property name="x">354</property>
+            <property name="y">408</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="azim_pw_span_label">
+            <property name="width_request">176</property>
+            <property name="height_request">28</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Azimuth servo PW range (us)
+     decrease -- increase</property>
+          </object>
+          <packing>
+            <property name="x">143</property>
+            <property name="y">407</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="servo_pw_label">
+            <property name="width_request">69</property>
+            <property name="height_request">21</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Servo PW</property>
+          </object>
+          <packing>
+            <property name="x">556</property>
+            <property name="y">76</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
