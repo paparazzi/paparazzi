@@ -282,21 +282,7 @@ void set_servos(void){
     hservo = hpos+azim_trim_pw;;
     vservo = vpos+elev_trim_pw;
   }
-/*
-  // FIXME Sanity check.
-  if (vservo < (psi_servo_center_pw - (fabs(psi_servo_pw_span / 2) + elev_trim_pw)) ) {
-    vservo = (psi_servo_center_pw - (fabs(psi_servo_pw_span / 2) + elev_trim_pw));
 
-  } else 
-    if (vservo > (psi_servo_center_pw + fabs(psi_servo_pw_span / 2))) { 
-      vservo = (psi_servo_center_pw + fabs(psi_servo_pw_span / 2));
-    }
-
-  if (hservo < (theta_servo_center_pw - fabs(theta_servo_pw_span / 2))) {
-    hservo = (theta_servo_center_pw - fabs(theta_servo_pw_span / 2));
-
-  } else if (hservo > (theta_servo_center_pw + fabs(theta_servo_pw_span / 2))) { hservo = (theta_servo_center_pw + fabs(theta_servo_pw_span / 2)); }
-*/
   hservo *= 4; //The pololu Maestro uses 0.25 microsecond increments so we need to multiply microseconds by 4.
   vservo *= 4; //The pololu Maestro uses 0.25 microsecond increments so we need to multiply microseconds by 4.
   //g_message("home_alt %f gps_alt %f azim %f elev %f", home_alt, gps_alt, ant_azim, ant_elev);
