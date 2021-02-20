@@ -26,6 +26,7 @@ let my_id = "ground"
 let gps_mode_3D = 3
 let no_md5_check = ref false
 let replay_old_log = ref false
+let log_name_arg = ref ""
 
 
 open Printf
@@ -121,8 +122,8 @@ let logger = fun () ->
     printf "Creating '%s'\n" logs_path; flush stdout;
     Unix.mkdir logs_path 0o755
   end;
-  let log_name = sprintf "%s.log" basename
-  and data_name = sprintf "%s.data" basename in
+  let log_name = if (!log_name_arg = "") then sprintf "%s.log" basename else sprintf "%s__%s.log" !log_name_arg basename in
+  let data_name = if (!log_name_arg = "") then sprintf "%s.data" basename else sprintf "%s__%s.log" !log_name_arg basename in 
   let f = open_out (logs_path // log_name) in
   (* version string with whitespace/newline at the end stripped *)
   output_string f ("<!-- logged with runtime paparazzi_version " ^  Env.get_paparazzi_version () ^ " -->\n");
@@ -916,6 +917,7 @@ let () =
       "-n", Arg.Clear logging, "Disable log";
       "-timestamp", Arg.Set timestamp, "Bind on timestampped messages";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
+      "-log_name", Arg.Set_string log_name_arg, "Name for output log (Time stamp will be";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
 
   Arg.parse
