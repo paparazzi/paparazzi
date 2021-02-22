@@ -147,7 +147,7 @@ def main():
             if options.fg_time_offset:
                 simargs.append("--fg_time_offset")
                 simargs.append(str(options.fg_time_offset))
-        if options.js_dev is not -1:
+        if options.js_dev != -1:
             simargs.append("--js_dev")
             simargs.append(str(options.js_dev))
         if options.spektrum_dev:
