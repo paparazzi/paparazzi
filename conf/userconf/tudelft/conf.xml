@@ -56,6 +56,17 @@
    gui_color="#fffff996b847"
   />
   <aircraft
+   name="Altura_PID"
+   ac_id="19"
+   airframe="airframes/tudelft/altura_pid.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/ins_ekf2.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="BebopMavlink"
    ac_id="9"
    airframe="airframes/tudelft/bebop_mavlink.xml"
@@ -141,7 +152,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
    gui_color="blue"
   />
   <aircraft
@@ -315,7 +326,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile_airspeed.xml"
    settings="settings/fixedwing_basic.xml settings/estimation/ac_char.xml"
-   settings_modules="modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_attitude_fw.xml modules/air_data.xml modules/ahrs_int_cmpl_quat.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/ins_ekf2.xml modules/gps.xml modules/guidance_energy.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="white"
    release="997fa535902c4d8f73bc34c02c862652cd47cae5"
   />
