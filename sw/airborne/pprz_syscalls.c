@@ -151,13 +151,6 @@ int _isatty_r(struct _reent *r, int fd)
 /***************************************************************************/
 
 __attribute__((used))
-void _fini(void) {
-  return;
-}
-
-/***************************************************************************/
-
-__attribute__((used))
 pid_t _getpid(void)
 {
   return 1;
@@ -178,8 +171,16 @@ void _kill(void) {}
 /***************************************************************************/
 #endif // USE_CHIBIOS_RTOS
 
+
+/***************************************************************************/
+
+__attribute__((used))
+void _fini(void) {
+  return;
+}
+
 void *__dso_handle;
-void __cxa_pure_virtual(void);    
+void __cxa_pure_virtual(void);
 void __cxa_pure_virtual() { while (1); } //TODO: Handle properly, maybe generate a traceback
 
 #pragma GCC diagnostic pop
