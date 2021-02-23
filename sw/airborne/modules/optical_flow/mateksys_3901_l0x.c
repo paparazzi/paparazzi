@@ -73,15 +73,15 @@ static void mateksys3901l0x_parse(uint8_t byte);
 static void mateksys3901l0x_send_optical_flow(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_OPTICAL_FLOW(trans, dev, AC_ID,
-                                    &mateksys3901l0x.time_sec,
-                                    &mateksys3901l0x.sensor_id,
-                                    &mateksys3901l0x.motionX_clean,
-                                    &mateksys3901l0x.motionY_clean,
-                                    &mateksys3901l0x.velocityX,
-                                    &mateksys3901l0x.velocityY,
-                                    &mateksys3901l0x.motion_quality,
-                                    &mateksys3901l0x.distance_clean,
-                                    &mateksys3901l0x.distancemm_quality);
+                              &mateksys3901l0x.time_usec,
+                              &mateksys3901l0x.sensor_id,
+                              &mateksys3901l0x.motionX_clean,
+                              &mateksys3901l0x.motionY_clean,
+                              &mateksys3901l0x.velocityX,
+                              &mateksys3901l0x.velocityY,
+                              &mateksys3901l0x.motion_quality,
+                              &mateksys3901l0x.distance_clean,
+                              &mateksys3901l0x.distancemm_quality);
 }
 
 #endif
@@ -291,7 +291,7 @@ static void mateksys3901l0x_parse(uint8_t byte)
     case MATEKSYS_3901_L0X_PARSE_CHECKSUM:
 
       // When the distance and motion info are valid (max values based on sensor specifications)...
-      if (mateksys3901l0x.distancemm > 0 && mateksys3901l0x.distancemm <= 3000 && abs(mateksys3901l0x.motionX) <= 300 && abs(mateksys3901l0x.motionY) <= 300) {
+      if (mateksys3901l0x.distancemm > 0 && mateksys3901l0x.distancemm <= 3000 && abs(mateksys3901l0x.motionX) <= 90 && abs(mateksys3901l0x.motionY) <= 90) {
         // ... compensate AGL measurement for body rotation
         if (MATEKSYS_3901_L0X_COMPENSATE_ROTATION) {
           float phi = stateGetNedToBodyEulers_f()->phi;
@@ -300,32 +300,31 @@ static void mateksys3901l0x_parse(uint8_t byte)
           mateksys3901l0x.distancemm = mateksys3901l0x.distancemm * gain;
         }
 
-        // send messages with no error measurements
-        mateksys3901l0x.distance_clean = mateksys3901l0x.distancemm/1000.f;
-        mateksys3901l0x.motionX_clean = mateksys3901l0x.motionX;
-        mateksys3901l0x.motionY_clean = mateksys3901l0x.motionY;
+        // send messages with no error measurements and scaled correctly
+        mateksys3901l0x.distance_clean = mateksys3901l0x.distancemm/1000.f;       // distance from ground in meters
+        mateksys3901l0x.motionX_clean = mateksys3901l0x.motionX;                  // precomputed flow in deg/sec
+        mateksys3901l0x.motionY_clean = mateksys3901l0x.motionY;                // precomputed flow in deg/sec (add - to comply with body fixed reference frame)
 
         // estimate velocity and send it to telemetry
-        mateksys3901l0x.velocityX = mateksys3901l0x.distance_clean * sin(RadOfDeg(mateksys3901l0x.motionX_clean));
-        mateksys3901l0x.velocityY = mateksys3901l0x.distance_clean * sin(RadOfDeg(mateksys3901l0x.motionY_clean));
+        mateksys3901l0x.velocityX = mateksys3901l0x.distance_clean * tan(RadOfDeg(mateksys3901l0x.motionX_clean));  // velocity in m/sec
+        mateksys3901l0x.velocityY = mateksys3901l0x.distance_clean * tan(RadOfDeg(mateksys3901l0x.motionY_clean));  // velocity in m/sec
 
         // get ticks
-        uint32_t now_ts = get_sys_time_usec();
-        mateksys3901l0x.time_sec = now_ts*1e-6;
+        mateksys3901l0x.time_usec = get_sys_time_usec();
 
         // send AGL (if requested)
         if (USE_MATEKSYS_3901_L0X_AGL) {
           AbiSendMsgAGL(AGL_LIDAR_MATEKSYS_3901_L0X_ID, 
-                        now_ts, 
+                        mateksys3901l0x.time_usec, 
                         mateksys3901l0x.distance_clean);
         }
 
         // send optical flow (if requested)
         if (USE_MATEKSYS_3901_L0X_OPTICAL_FLOW) {
           AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_MATEKSYS_3901_L0X_ID, 
-                                now_ts, 
-                                mateksys3901l0x.motionX_clean,
-                                mateksys3901l0x.motionY_clean,
+                                mateksys3901l0x.time_usec, 
+                                mateksys3901l0x.motionX_clean,          // motion in deg/sec
+                                mateksys3901l0x.motionY_clean,          // motion in deg/sec
                                 0,
                                 0,
                                 mateksys3901l0x.motion_quality,

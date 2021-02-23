@@ -6,6 +6,12 @@
   <process name="Main">
 
     <mode name="default" key_press="d">
+      <message name="DEBUG"                    period="0.05"/>
+      <message name="IMU_ACCEL_RAW"            period=".05"/>
+      <message name="IMU_GYRO_RAW"             period=".05"/>
+      <message name="IMU_MAG_RAW"              period=".05"/>
+      <message name="BARO_MS5611"              period=".1"/>
+      <message name="OPTICAL_FLOW"             period="0.01"/>
       <message name="AUTOPILOT_VERSION"        period="11.1"/>
       <message name="DL_VALUE"                 period="1.1"/>
       <message name="ROTORCRAFT_STATUS"        period="1.2"/>

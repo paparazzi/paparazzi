@@ -74,7 +74,7 @@ enum Mateksys3901l0XParseStatus {
 struct Mateksys3901l0X {
   struct link_device *device;
   enum Mateksys3901l0XParseStatus parse_status;
-  float  time_sec;
+  float  time_usec;
   uint8_t  sensor_id;
 	uint8_t  motion_quality;
   int32_t  motionX;
