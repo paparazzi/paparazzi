@@ -12,13 +12,7 @@
   <description>Altura flying PID</description>
   <firmware name="rotorcraft">
 
-    <!--  -->
-
-    <target name="ap" board="px4fmu_5.0_chibios">
-      <configure name="FLASH_MODE"   value="SWD"/>
-      <configure name="RTOS_DEBUG" value="1"/>
-      <configure name="PERIODIC_FREQUENCY" value="500"/>
-    </target>
+    <target name="ap" board="px4fmu_5.0_chibios"/>
 
     <define name="BAT_CHECKER_DELAY" value="80" />
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
@@ -69,7 +63,16 @@
 
     <module name="geo_mag"/>
     <module name="send_imu_mag_current" />
-    
+    <!--<module name="mag" type="hmc58xx">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="-"/>
+    </module>-->
     <!-- Magenetometer in external GPS module-->
     <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
