@@ -12,7 +12,13 @@
   <description>Altura flying PID</description>
   <firmware name="rotorcraft">
 
-    <target name="ap" board="px4fmu_5.0_chibios"/>
+    <!--  -->
+
+    <target name="ap" board="px4fmu_5.0_chibios">
+      <configure name="FLASH_MODE"   value="SWD"/>
+      <configure name="RTOS_DEBUG" value="1"/>
+      <configure name="PERIODIC_FREQUENCY" value="500"/>
+    </target>
 
     <define name="BAT_CHECKER_DELAY" value="80" />
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
@@ -22,8 +28,8 @@
     <module name="optical_flow_mateksys_3901_l0x" />
 
     <module name="telemetry" type="transparent">
-      <!-- <configure name="MODEM_PORT" value="UART2"/>  Telem2 on pixhawk4 -->
-      <!--<configure name="MODEM_PORT" value="UART7"/>--><!--  DebugUart on pixhawk4 -->
+      <!--<configure name="MODEM_PORT" value="UART2"/>  Telem2 on pixhawk4 -->
+      <configure name="MODEM_PORT" value="UART2"/> <!--  DebugUart on pixhawk4 -->
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
