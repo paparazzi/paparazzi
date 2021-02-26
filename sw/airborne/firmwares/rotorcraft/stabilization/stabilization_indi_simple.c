@@ -74,6 +74,8 @@
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
+struct FloatRates rates_filt_fo;
+
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
 
@@ -181,6 +183,8 @@ void indi_init_filters(void)
     init_butterworth_2_low_pass(&indi.est.u[i], tau_est, sample_time, 0.0);
     init_butterworth_2_low_pass(&indi.est.rate[i], tau_est, sample_time, 0.0);
   }
+  // Init rate filter for feedback
+  RATES_COPY(rates_filt_fo, (*stateGetBodyRates_f()));
 }
 
 void stabilization_indi_enter(void)
@@ -300,19 +304,23 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
   finite_difference_from_filter(indi.rate_d, indi.rate);
 
   //The rates used for feedback are by default the measured rates. If needed they can be filtered (see below)
-  struct FloatRates rates_filt_fo;
-  RATES_COPY(rates_filt_fo, (*body_rates));
 
   //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
   //Note that due to the delay, the PD controller can not be as aggressive.
 #if STABILIZATION_INDI_FILTER_ROLL_RATE
   rates_filt_fo.p = (rates_filt_fo.p*3+body_rates->p)/4;
+#else
+  rates_filt_fo.p = body_rates->p;
 #endif
 #if STABILIZATION_INDI_FILTER_PITCH_RATE
   rates_filt_fo.q = (rates_filt_fo.q*3+body_rates->q)/4;
+#else
+  rates_filt_fo.q = body_rates->q;
 #endif
 #if STABILIZATION_INDI_FILTER_YAW_RATE
   rates_filt_fo.r = (rates_filt_fo.r*3+body_rates->r)/4;
+#else
+  rates_filt_fo.r = body_rates->r;
 #endif
 
   //This separates the P and D controller and lets you impose a maximum yaw rate.
