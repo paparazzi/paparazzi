@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_udp" dir="datalink" task="datalink">
+<module name="telemetry_transparent_udp" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using PPRZ protocol over UDP

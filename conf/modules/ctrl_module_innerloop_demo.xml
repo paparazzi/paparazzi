@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ctrl_module_demo" dir="ctrl">
+<module name="ctrl_module_innerloop_demo" dir="ctrl">
   <doc>
     <description>
         Demo Control Module.

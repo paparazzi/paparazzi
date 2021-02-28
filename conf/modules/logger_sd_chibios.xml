@@ -14,7 +14,9 @@
     <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
     <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
   </doc>
-  <depends>tlsf</depends>
+  <dep>
+    <depends>tlsf</depends>
+  </dep>
   <header>
     <file name="sdlog_chibios.h" />
   </header>

@@ -7,6 +7,9 @@
   <header>
     <file name="baro_MS5534A.h"/>
   </header>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <init fun="baro_MS5534A_init()"/>
   <periodic fun="baro_MS5534A_send()" freq="20"/>
   <event fun="baro_MS5534A_event()"/>
@@ -14,7 +17,6 @@
     <file name="baro_MS5534A.c"/>
     <define name="USE_BARO_MS5534A"/>
     <define name="USE_SPI_SLAVE0"/>
-    <define name="SPI_MASTER"/>
     <configure name="BARO_MS5534A_W1" value="0xAC20"/>
     <configure name="BARO_MS5534A_W2" value="0x87D9"/>
     <configure name="BARO_MS5534A_W3" value="0x8D9C"/>

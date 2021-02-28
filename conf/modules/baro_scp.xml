@@ -8,13 +8,14 @@
   <header>
     <file name="baro_scp.h"/>
   </header>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <init fun="baro_scp_init()"/>
   <periodic fun="baro_scp_periodic()" freq="1.8"/>
   <event fun="baro_scp_event()"/>
   <makefile target="ap">
     <file name="baro_scp.c"/>
-    <define name="SPI_MASTER"/>
-    <define name="USE_SPI"/>
   </makefile>
 </module>
 

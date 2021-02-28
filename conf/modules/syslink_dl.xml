@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="syslink" dir="datalink/bitcraze" task="datalink">
+<module name="syslink_dl" dir="datalink/bitcraze" task="datalink">
   <doc>
     <description>
       Bitcraze syslink module

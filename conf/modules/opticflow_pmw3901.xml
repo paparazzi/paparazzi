@@ -26,6 +26,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="opticflow_pmw3901.h"/>
   </header>
@@ -41,9 +44,6 @@
     <define name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
     <file name="opticflow_pmw3901.c"/>
     <file name="pmw3901.c" dir="peripherals"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
   </makefile>
 </module>
 

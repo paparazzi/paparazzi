@@ -4,7 +4,9 @@
   <doc>
     <description>TCAS collision avoidance</description>
   </doc>
-  <depends>traffic_info</depends>
+  <dep>
+    <depends>traffic_info</depends>
+  </dep>
   <header>
     <file name="tcas.h"/>
   </header>

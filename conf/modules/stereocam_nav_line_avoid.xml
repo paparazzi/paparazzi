@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stereoavoid" dir="stereocam">
+<module name="stereocam_nav_line_avoid" dir="stereocam">
   <doc>
     <description>Read Stereoboard Obstacle Protocol and plan around obstacles during nav-line navigation</description>
     <configure name="STEREO_UART" value="UARTX" description="Sets the UART port number of the connected camera (required)"/>

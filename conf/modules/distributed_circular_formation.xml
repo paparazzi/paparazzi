@@ -27,7 +27,9 @@
     </dl_settings>
   </settings>
 
-  <depends>gvf_module.xml</depends>
+  <dep>
+    <depends>gvf_module</depends>
+  </dep>
 
   <header>
     <file name="dcf.h"/>

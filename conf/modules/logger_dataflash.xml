@@ -32,6 +32,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="high_speed_logger_direct_memory.h"/>
   </header>
@@ -43,7 +46,6 @@
     <configure name="HS_LOG_SPI" default="spi1" case="upper|lower"/>
     <configure name="HS_LOG_SPI_SLAVE" default="spi_slave1" case="upper|lower"/>
 
-    <define name="SPI_MASTER" value="1" />
     <define name="USE_$(HS_LOG_SPI_UPPER)" value="1" />
     <define name="USE_$(HS_LOG_SPI_SLAVE_UPPER)" value="1" />
     <define name="HIGH_SPEED_LOGGER_DIRECT_MEMORY_DEVICE" value="$(HS_LOG_SPI_LOWER)" />

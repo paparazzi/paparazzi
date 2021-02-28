@@ -69,7 +69,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <depends>video_thread</depends>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
   <header>
     <file name="pano_unwrap.h"/>
   </header>

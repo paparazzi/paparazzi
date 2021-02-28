@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mateksys_3901_l0x">
+<module name="optical_flow_mateksys_3901_l0x" dir="optical_flow">
 
   <doc>
     <description>
@@ -18,7 +18,7 @@
   </doc>
 
   <header>
-    <file name="mateksys_3901_l0x.h" dir="modules/optical_flow"/>
+    <file name="mateksys_3901_l0x.h"/>
   </header>
 
   <init fun="mateksys3901l0x_init()"/>
@@ -44,7 +44,7 @@
     <define name="USE_MATEKSYS_3901_L0X_OPTICAL_FLOW" value="1"/>
     <define name="MATEKSYS_3901_L0X_COMPENSATE_ROTATION" value="0"/>
 
-    <file name="mateksys_3901_l0x.c" dir="modules/optical_flow"/>
+    <file name="mateksys_3901_l0x.c"/>
 
   </makefile>
 

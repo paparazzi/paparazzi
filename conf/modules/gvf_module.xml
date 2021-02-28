@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gvf" dir="guidance/gvf">
+<module name="gvf_module" dir="guidance/gvf">
   <doc>
     <description>Guidance algorithm for tracking smooth trajectories. The algorithm is based on the idea of stearing the vehicle to a vector field that smoothly converges to the desired trajectory.
 For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .

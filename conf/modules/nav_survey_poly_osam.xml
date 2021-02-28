@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_poly" dir="nav">
+<module name="nav_survey_poly_osam" dir="nav">
   <doc>
     <description>
 Polygon survey from OSAM.

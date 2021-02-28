@@ -202,6 +202,55 @@ type datalink = { message: string; func: string }
 let fprint_datalink = fun ch d ->
   Printf.fprintf ch "(msg_id == DL_%s) { %s; }\n" d.message d.func
 
+type dependencies = {
+    requires: string list;
+    requires_option: string list list;
+    requires_func: string list;
+    conflicts: string list;
+    provides: string list;
+  }
+
+(* comma separated values *)
+let parse_module_list = Str.split (Str.regexp "[ \t]*,[ \t]*")
+(* pipe separated values *)
+let parse_module_options = Str.split (Str.regexp "[ \t]*|[ \t]*")
+
+(* split required modules into
+ * - actual modules (requires list)
+ * - functionalities (marked by @, requires_func list)
+ * - pipe-separated modules (requires_option list)
+ *)
+let split_module_func_list = List.fold_left (fun (ml, mo, fl) s ->
+  try
+    if s.[0] = '@' then
+      (* adding a required functionality *)
+      (ml, mo, fl @ [String.sub s 1 ((String.length s) - 1)])
+    else begin
+      let p_split = parse_module_options s in
+      if List.length p_split > 1 then
+        (* adding several modules option *)
+        (ml, mo @ [p_split], fl)
+      else
+        (* adding a required module *)
+        (ml @ p_split, mo, fl)
+    end
+  with _ -> (ml @ [s], mo, fl)
+  ) ([], [], [])
+
+let empty_dep = { requires = []; requires_option = []; requires_func = []; conflicts = []; provides = [] }
+
+let rec parse_dependencies dep = function
+  | Xml.Element ("dep", _, children) ->
+      List.fold_left parse_dependencies dep children
+  | Xml.Element ("depends", _, [Xml.PCData depends]) ->
+    let (r, ro, rf) = split_module_func_list (parse_module_list depends) in
+    { dep with  requires = r; requires_option = ro; requires_func = rf }
+  | Xml.Element ("conflicts", _, [Xml.PCData conflicts]) ->
+    { dep with conflicts = parse_module_list conflicts }
+  | Xml.Element ("provides", _, [Xml.PCData provides]) ->
+    { dep with provides = parse_module_list provides }
+  | _ -> failwith "Module.parse_dependencies: unreachable"
+
 type autoload = {
     aname: string;
     atype: string option
@@ -231,9 +280,7 @@ type t = {
   task: string option;
   path: string;
   doc: Xml.xml;
-  requires: string list;
-  conflicts: string list;
-  provides: string list;
+  dependencies: dependencies option;
   autoloads: autoload list;
   settings: Settings.t list;
   headers: file list;
@@ -248,11 +295,9 @@ type t = {
 let empty =
   { xml_filename = ""; name = ""; dir = None;
     task = None; path = ""; doc = Xml.Element ("doc", [], []);
-    requires = []; conflicts = []; provides = []; autoloads = []; settings = [];
+    dependencies = None; autoloads = []; settings = [];
     headers = []; inits = []; periodics = []; events = []; datalinks = [];
     makefiles = []; xml = Xml.Element ("module", [], []) }
-
-let parse_module_list = Str.split (Str.regexp "[ \t]*,[ \t]*")
 
 let rec parse_xml m = function
   | Xml.Element ("module", _, children) as xml ->
@@ -264,12 +309,8 @@ let rec parse_xml m = function
   (*| Xml.Element ("settings_file", [("name", name)], files) -> m (* TODO : remove unused *)*)
   | Xml.Element ("settings", _, _) as xml ->
     { m with settings = Settings.from_xml xml :: m.settings }
-  | Xml.Element ("depends", _, [Xml.PCData depends]) ->
-    { m with requires = parse_module_list depends }
-  | Xml.Element ("conflicts", _, [Xml.PCData conflicts]) ->
-    { m with conflicts = parse_module_list conflicts }
-  | Xml.Element ("provides", _, [Xml.PCData provides]) ->
-    { m with provides = parse_module_list provides }
+  | Xml.Element ("dep", _, _) as xml ->
+    { m with dependencies = Some (parse_dependencies empty_dep xml) }
   | Xml.Element ("autoload", _, []) as xml ->
     let aname = find_name xml
     and atype = ExtXml.attrib_opt xml "type" in
@@ -333,7 +374,7 @@ let from_module_name = fun name mtype ->
 (** check if a makefile node is compatible with a target and a firmware
  * TODO add 'board' type filter ? *)
 let check_mk = fun target firmware mk ->
-  (mk.firmware = (Some firmware) || mk.firmware = None) && GC.test_targets target (GC.targets_of_string mk.targets)
+  (mk.firmware = (Some firmware) || mk.firmware = None || firmware = "none") && GC.test_targets target (GC.targets_of_string mk.targets)
 
 (** check if a module is compatible with a target and a firmware *)
 let check_loading = fun target firmware m ->

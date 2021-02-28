@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="trigger_ext" dir="core">
+<module name="trig_test" dir="core">
   <doc>
     <description></description>
   </doc>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="qrcode" dir="computer_vision/qrcode">
+<module name="cv_qrcode" dir="computer_vision/qrcode">
   <doc>
     <description>
       QR code reader using ZBAR library
@@ -10,9 +10,11 @@
     <define name="QRCODE_CAMERA" value="front_camera|bottom_camera" description="The V4L2 camera device that is used for searching a QR code"/>
     <define name="QRCODE_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
     <define name="QRCODE_DRAW_RECTANGLE" value="TRUE|FALSE" description="Whether or not to draw a rectangle around a found QR code"/>
- </doc>
+  </doc>
 
-  <depends>video_thread</depends>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
 
   <header>
     <file name="qr_code.h"/>

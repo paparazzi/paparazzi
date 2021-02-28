@@ -40,6 +40,9 @@
       <define name="MAG_45_HACK" value="1"/>
     </section>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -56,8 +59,6 @@
     <file name="max1168.c" dir="peripherals"/>
     <file name="max1168_arch.c" dir="$(SRC_ARCH)/peripherals"/>
     <raw>
-include $(CFG_SHARED)/spi_master.makefile
-
 ifeq ($(ARCH), lpc21)
 $(TARGET).CFLAGS += -DUSE_SPI_SLAVE0
 $(TARGET).CFLAGS += -DUSE_SPI1

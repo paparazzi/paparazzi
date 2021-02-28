@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="cartography">
+<module name="photogrammetry_calculator" dir="cartography">
   <doc>
     <description>Photogrammetry navigation functions</description>
   </doc>

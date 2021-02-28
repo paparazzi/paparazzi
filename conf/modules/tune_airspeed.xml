@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav">
+<module name="tune_airspeed" dir="nav">
   <doc>
     <description>NAV AIRSPEED.
       Navigation Airspeeds to be called from the flightplan.

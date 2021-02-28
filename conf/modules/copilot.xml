@@ -24,7 +24,9 @@
   </doc>
 
 
-  <depends>extra_dl</depends>
+  <dep>
+    <depends>extra_dl</depends>
+  </dep>
   <header>
     <file name="copilot.h"/>
   </header>

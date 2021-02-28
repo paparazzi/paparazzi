@@ -12,7 +12,9 @@
     <define name="FOLLOW_OFFSET_Y" value="0"  description="the y offset in ENU (meters) from the plane"/>
     <define name="FOLLOW_OFFSET_Z" value="0"  description="the z offset in ENU (meters) from the plane"/>
   </doc>
-  <depends>traffic_info</depends>
+  <dep>
+    <depends>traffic_info</depends>
+  </dep>
   <header>
     <file name="follow.h"/>
   </header>

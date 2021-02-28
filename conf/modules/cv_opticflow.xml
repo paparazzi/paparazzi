@@ -180,9 +180,9 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
-  <autoload name="agl_dist"/>
-  <autoload name="pose_history"/>
+  <dep>
+    <depends>video_thread,agl_dist,pose_history</depends>
+  </dep>
 
   <header>
     <file name="opticflow_module.h"/>

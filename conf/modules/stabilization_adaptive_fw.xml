@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_adaptive" dir="stabilization">
+<module name="stabilization_adaptive_fw" dir="stabilization">
   <doc>
     <description>
       Adaptive attitude and lateral (heading) control for fixedwing aircraft.

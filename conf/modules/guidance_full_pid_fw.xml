@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_full_pid" dir="guidance">
+<module name="guidance_full_pid_fw" dir="guidance">
   <doc>
     <description>
       Vertical control for fixedwing aircraft based on PID

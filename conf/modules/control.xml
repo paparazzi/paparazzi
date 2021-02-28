@@ -9,7 +9,8 @@
       - guidance_basic_fw
     </description>
   </doc>
-  <autoload name="stabilization_attitude_fw"/>
-  <autoload name="guidance_basic_fw"/>
+  <dep>
+    <depends>stabilization_attitude_fw,guidance_basic_fw</depends>
+  </dep>
   <makefile target="ap|sim|nps" firmware="fixedwing"/>
 </module>

@@ -26,7 +26,9 @@
     <define name="SENSOR_SYNC_SEND_SONAR" description="If defined, sends raw and scaled sonar values, useful for debugging sensor issues"/>
   </doc>
 
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="sonar_pwm.h" />
   </header>
