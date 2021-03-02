@@ -104,6 +104,24 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
+/** Default flow message delay (in ms) */
+#ifndef INS_FLOW_SENSOR_DELAY
+#define INS_FLOW_SENSOR_DELAY 15.0
+#endif
+PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
+
+/** Default minimum accepted quality (1 to 255) */
+#ifndef INS_MIN_FLOW_QUALITY
+#define INS_MIN_FLOW_QUALITY 1.0
+#endif
+PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
+
+/** Max flow rate that the sensor can measure (rad/sec) */
+#ifndef INS_MAX_FLOW_RATE
+#define INS_MAX_FLOW_RATE 10.0
+#endif
+PRINT_CONFIG_VAR(INS_MAX_FLOW_RATE)
+
 /* All registered ABI events */
 static abi_event agl_ev;
 static abi_event baro_ev;
@@ -113,8 +131,9 @@ static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event body_to_imu_ev;
 static abi_event optical_flow_ev;
+
+/* Build optical flow and gps message struct based on flow message defined in common.h */
 struct gps_message gps_msg = {};
-/* Build optical flow struct based on flow message defined in common.h */
 struct flow_message flow_msg = {};
 
 /* All ABI callbacks */
@@ -128,7 +147,8 @@ static void body_to_imu_cb(uint8_t sender_id, struct FloatQuat *q_b2i_f);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
 
 /* Main EKF2 structure for keeping track of the status and use cross messaging */
-struct ekf2_t {
+struct ekf2_t
+{
 
   // stamp and dt for sensors
   uint32_t gyro_stamp;
@@ -144,13 +164,23 @@ struct ekf2_t {
   bool gyro_valid;
   bool accel_valid;
 
-  // optical flow debugging
+  // optical flow and gyro values
   float flow_quality;
   float flow_x;
   float flow_y;
   float gyro_roll;
   float gyro_pitch;
   float gyro_yaw;
+
+  // additional flow info for debugging purposes
+  float flow_compensation1;
+  float flow_compensation2;
+  struct flowSample sample_delayed;
+  float delay_flow_x;
+  float delay_flow_y;
+  float delay_gyro_x;
+  float delay_gyro_y;
+  float delay_gyro_z;
 
   uint8_t quat_reset_counter;
   uint64_t ltp_stamp;
@@ -163,10 +193,10 @@ struct ekf2_t {
 static void ins_ekf2_publish_attitude(uint32_t stamp);
 
 /* Static local variables */
-static Ekf ekf;                                   ///< EKF class itself
-static parameters *ekf_params;                    ///< The EKF parameters
-struct ekf2_t ekf2;                               ///< Local EKF2 status structure
-static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;  ///< Component ID for EKF
+static Ekf ekf;                                  ///< EKF class itself
+static parameters *ekf_params;                   ///< The EKF parameters
+struct ekf2_t ekf2;                              ///< Local EKF2 status structure
+static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2; ///< Component ID for EKF
 
 /* External paramters */
 struct ekf2_parameters_t ekf2_params;
@@ -176,15 +206,31 @@ struct ekf2_parameters_t ekf2_params;
 
 static void send_opticflow_debug(struct transport_tx *trans, struct link_device *dev)
 {
+  ekf2.sample_delayed = ekf.get_flow_sample_delayed();
+  ekf2.flow_compensation1 = ekf.get_compensated_flow()(0);
+  ekf2.flow_compensation2 = ekf.get_compensated_flow()(1);
+  ekf2.delay_flow_x = ekf2.sample_delayed.flowRadXY(0);
+  ekf2.delay_flow_y = ekf2.sample_delayed.flowRadXY(1);
+  ekf2.delay_gyro_x = ekf2.sample_delayed.gyroXYZ(0);
+  ekf2.delay_gyro_y = ekf2.sample_delayed.gyroXYZ(1);
+  ekf2.delay_gyro_z = ekf2.sample_delayed.gyroXYZ(2);
+
   pprz_msg_send_DEBUG(trans, dev, AC_ID,
-                        &ekf2.flow_quality,
-                        &ekf2.flow_x,
-                        &ekf2.flow_y,
-                        &ekf2.flow_stamp,
-                        &ekf2.gyro_stamp,
-                        &ekf2.gyro_roll,
-                        &ekf2.gyro_pitch,
-                        &ekf2.gyro_yaw);
+                      &ekf2.flow_quality,
+                      &ekf2.flow_x,
+                      &ekf2.flow_y,
+                      &ekf2.flow_stamp,
+                      &ekf2.gyro_stamp,
+                      &ekf2.gyro_roll,
+                      &ekf2.gyro_pitch,
+                      &ekf2.gyro_yaw,
+                      &ekf2.flow_compensation1,
+                      &ekf2.flow_compensation2,
+                      &ekf2.delay_flow_x,
+                      &ekf2.delay_flow_y,
+                      &ekf2.delay_gyro_x,
+                      &ekf2.delay_gyro_y,
+                      &ekf2.delay_gyro_z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
@@ -207,13 +253,28 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_ekf_soln_status(&soln_status);
 
   uint16_t innov_test_status;
-  float mag, vel, pos, hgt, tas, hagl, beta, mag_decl;
+  float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl;
+  uint8_t terrain_valid, dead_reckoning;
   ekf.get_innovation_test_status(&innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
+  ekf.get_flow_innov(&flow);
   ekf.get_mag_decl_deg(&mag_decl);
+
+  if (ekf.get_terrain_valid()) {
+    terrain_valid = 1;
+  } else {
+    terrain_valid = 0;
+  }
+
+  if (ekf.inertial_dead_reckoning()) {
+    dead_reckoning = 1;
+  } else {
+    dead_reckoning = 0;
+  }
+
   pprz_msg_send_INS_EKF2(trans, dev, AC_ID,
                          &control_mode, &filter_fault_status, &gps_check_status, &soln_status,
-                         &innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta,
-                         &mag_decl);
+                         &innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &flow, &beta,
+                         &mag_decl, &terrain_valid, &dead_reckoning);
 }
 
 static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *dev)
@@ -226,8 +287,8 @@ static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *de
   gps_blocked_b = gps_blocked;
 
   pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
-                         &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked_b,
-                         &vibe[0], &vibe[1], &vibe[2]);
+                             &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked_b,
+                             &vibe[0], &vibe[1], &vibe[2]);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
@@ -239,16 +300,22 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
   ekf.get_filter_fault_status(&filter_fault_status);
 
   // Check the alignment and if GPS is fused
-  if ((control_mode & 0x7) == 0x7) {
+  if ((control_mode & 0x7) == 0x7)
+  {
     mde = 3;
-  } else if ((control_mode & 0x7) == 0x3) {
+  }
+  else if ((control_mode & 0x7) == 0x3)
+  {
     mde = 4;
-  } else {
+  }
+  else
+  {
     mde = 2;
   }
 
   // Check if there is a covariance error
-  if (filter_fault_status) {
+  if (filter_fault_status)
+  {
     mde = 6;
   }
 
@@ -274,7 +341,7 @@ static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
   ekf.get_gyro_bias(gyro_bias);
   ekf.get_state_delayed(states);
 
-  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias[0], &accel_bias[1], &accel_bias[2], 
+  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias[0], &accel_bias[1], &accel_bias[2],
                           &gyro_bias[0], &gyro_bias[1], &gyro_bias[2], &states[19], &states[20], &states[21]);
 }
 #endif
@@ -286,15 +353,19 @@ void ins_ekf2_init(void)
   ekf_params = ekf.getParamHandle();
   ekf_params->mag_fusion_type = MAG_FUSE_TYPE_HEADING;
   ekf_params->is_moving_scaler = 0.8f;
-  
-  ekf_params->fusion_mode |= MASK_USE_OF;  // adding optical flow to GPS usage
-  ekf_params->flow_qual_min = 1;
-  ekf_params->flow_delay_ms = 15;
-  ekf_params->reset_timeout_max = 1e9;
-  ekf_params->flow_innov_gate = 100;
-  ekf_params->flow_noise = 100;
-  ekf_params->flow_noise_qual_min = 0;
-  ekf_params->range_aid = 1;
+
+  ekf_params->fusion_mode |= MASK_USE_OF; // adding optical flow to GPS usage
+
+  /* Set optical flow parameters */
+  ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
+  ekf_params->flow_delay_ms = INS_FLOW_SENSOR_DELAY;
+  ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
+
+  /* Set range as default AGL measurement if possible */
+  // ekf_params->range_aid = 1;
+  // ekf_params->max_hagl_for_range_aid = 1e10;
+  // ekf_params->max_vel_for_range_aid = 1e10;
+  // ekf_params->rng_gnd_clearance = 0.00001;
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;
@@ -305,10 +376,12 @@ void ins_ekf2_init(void)
   ekf2.accel_valid = false;
   ekf2.got_imu_data = false;
   ekf2.quat_reset_counter = 0;
-  
 
   /* Initialize the range sensor limits */
   ekf.set_rangefinder_limits(INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
+
+  /* Initialize the flow sensor limits */
+  ekf.set_optical_flow_limits(INS_MAX_FLOW_RATE, INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG, send_opticflow_debug);
@@ -340,12 +413,14 @@ void ins_ekf2_update(void)
   ekf.set_in_air_status(true); // ekf.set_in_air_status(autopilot_in_flight());
 
   /* Update the EKF */
-  if (ekf2.got_imu_data && ekf.update()) {
+  if (ekf2.got_imu_data && ekf.update())
+  {
     filter_control_status_u control_status;
     ekf.get_control_mode(&control_status.value);
 
     // Only publish position after successful alignment
-    if (control_status.flags.tilt_align) {
+    if (control_status.flags.tilt_align)
+    {
       /* Get the position */
       float pos_f[3] = {};
       struct NedCoor_f pos;
@@ -388,7 +463,8 @@ void ins_ekf2_update(void)
 
       // Only update the origin when the state estimator has updated the origin
       bool ekf_origin_valid = ekf.get_ekf_origin(&origin_time, &ekf_origin, &ref_alt);
-      if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
+      if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp))
+      {
         lla_ref.lat = ekf_origin.lat_rad * 180.0 / M_PI * 1e7; // Reference point latitude in degrees
         lla_ref.lon = ekf_origin.lon_rad * 180.0 / M_PI * 1e7; // Reference point longitude in degrees
         lla_ref.alt = ref_alt * 1000.0;
@@ -401,7 +477,8 @@ void ins_ekf2_update(void)
   }
 
 #if defined SITL && USE_NPS
-  if (nps_bypass_ins) {
+  if (nps_bypass_ins)
+  {
     sim_overwrite_ins();
   }
 #endif
@@ -409,7 +486,8 @@ void ins_ekf2_update(void)
   ekf2.got_imu_data = false;
 }
 
-void ins_ekf2_change_param(int32_t unk) {
+void ins_ekf2_change_param(int32_t unk)
+{
   ekf_params->mag_fusion_type = ekf2_params.mag_fusion_type = unk;
 }
 
@@ -426,7 +504,8 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   imu_sample.delta_vel = Vector3f{ekf2.accel.x, ekf2.accel.y, ekf2.accel.z} * imu_sample.delta_vel_dt;
   ekf.setIMUData(imu_sample);
 
-  if (ekf.attitude_valid()) {
+  if (ekf.attitude_valid())
+  {
     // Calculate the quaternion
     struct FloatQuat ltp_to_body_quat;
     const Quatf att_q{ekf.calculate_quaternion()};
@@ -445,7 +524,8 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 
 #ifndef NO_RESET_UPDATE_SETPOINT_HEADING
 
-    if (ekf2.quat_reset_counter < quat_reset_counter) {
+    if (ekf2.quat_reset_counter < quat_reset_counter)
+    {
       float psi = matrix::Eulerf(matrix::Quatf(delta_q_reset)).psi();
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
       stab_att_sp_euler.psi += ANGLE_BFP_OF_REAL(psi);
@@ -494,12 +574,12 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
 {
   // Calculate the air density
   float rho = pprz_isa_density_of_pressure(pressure,
-              20.0f); // TODO: add temperature compensation now set to 20 degree celcius
+                                           20.0f); // TODO: add temperature compensation now set to 20 degree celcius
   ekf.set_air_density(rho);
 
   // Calculate the height above mean sea level based on pressure
   float height_amsl_m = pprz_isa_height_of_pressure_full(pressure,
-                        101325.0); //101325.0 defined as PPRZ_ISA_SEA_LEVEL_PRESSURE in pprz_isa.h
+                                                         101325.0); //101325.0 defined as PPRZ_ISA_SEA_LEVEL_PRESSURE in pprz_isa.h
   ekf.setBaroData(stamp, height_amsl_m);
 }
 
@@ -523,14 +603,16 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   float_rmat_transp_ratemult(&ekf2.gyro, body_to_imu_rmat, &imu_rate);
 
   // Calculate the Gyro interval
-  if (ekf2.gyro_stamp > 0) {
+  if (ekf2.gyro_stamp > 0)
+  {
     ekf2.gyro_dt = stamp - ekf2.gyro_stamp;
     ekf2.gyro_valid = true;
   }
   ekf2.gyro_stamp = stamp;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
-  if (ekf2.gyro_valid && ekf2.accel_valid) {
+  if (ekf2.gyro_valid && ekf2.accel_valid)
+  {
     ins_ekf2_publish_attitude(stamp);
   }
 }
@@ -549,14 +631,16 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   float_rmat_transp_vmult(&ekf2.accel, body_to_imu_rmat, &accel_imu);
 
   // Calculate the Accelerometer interval
-  if (ekf2.accel_stamp > 0) {
+  if (ekf2.accel_stamp > 0)
+  {
     ekf2.accel_dt = stamp - ekf2.accel_stamp;
     ekf2.accel_valid = true;
   }
   ekf2.accel_stamp = stamp;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
-  if (ekf2.gyro_valid && ekf2.accel_valid) {
+  if (ekf2.gyro_valid && ekf2.accel_valid)
+  {
     ins_ekf2_publish_attitude(stamp);
   }
 }
@@ -621,32 +705,36 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
   orientationSetQuat_f(&ekf2.body_to_imu, q_b2i_f);
 }
 
+/* Update INS based on Optical Flow information */
 static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
-                            uint32_t stamp, 
-                            int32_t flow_x, 
-                            int32_t flow_y, 
-                            int32_t flow_der_x __attribute__((unused)), 
-                            int32_t flow_der_y __attribute__((unused)), 
-                            float quality, 
+                            uint32_t stamp,
+                            int32_t flow_x,
+                            int32_t flow_y,
+                            int32_t flow_der_x __attribute__((unused)),
+                            int32_t flow_der_y __attribute__((unused)),
+                            float quality,
                             float size_divergence __attribute__((unused)))
 {
   // update time
   ekf2.flow_dt = stamp - ekf2.flow_stamp;
   ekf2.flow_stamp = stamp;
 
-  // send debug information
-  ekf2.flow_x =  - RadOfDeg(flow_y)*(1e-6*ekf2.flow_dt);          // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
-  ekf2.flow_y =  - RadOfDeg(flow_x)*(1e-6*ekf2.flow_dt);          // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
-  ekf2.gyro_roll = ekf2.gyro.p*(1e-6*ekf2.flow_dt);             
-  ekf2.gyro_pitch = ekf2.gyro.q*(1e-6*ekf2.flow_dt);
-  ekf2.gyro_yaw = ekf2.gyro.r*(1e-6*ekf2.flow_dt);
+  /* Build integrated flow and gyro messages for filter
+  NOTE: pure rotations should result in same flow_x and 
+  gyro_roll and same flow_y and gyro_pitch */
+  ekf2.flow_quality = quality;
+  ekf2.flow_x = - RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
+  ekf2.flow_y = - RadOfDeg(flow_x) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
+  ekf2.gyro_roll = ekf2.gyro.p * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_pitch = ekf2.gyro.q * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_yaw = ekf2.gyro.r * (1e-6 * ekf2.flow_dt);
 
-
-  // once callback initaiated, build the optical flow message with what is received
-  flow_msg.quality = quality;                                                                    // quality indicator between 0 and 255
-  flow_msg.flowdata = Vector2f(ekf2.flow_x, ekf2.flow_y);                                        // measured delta angle of the image about the X and Y body axes (rad), RH rotaton is positive
-  flow_msg.gyrodata = Vector3f{ekf2.gyro_roll, ekf2.gyro_pitch, ekf2.gyro_yaw};                  // measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
-  flow_msg.dt = ekf2.flow_dt;                                                                    // amount of integration time (usec)
+  /* once callback initaiated, build the 
+  optical flow message with what is received */
+  flow_msg.quality = quality;                                                   // quality indicator between 0 and 255
+  flow_msg.flowdata = Vector2f(ekf2.flow_x, ekf2.flow_y);                       // measured delta angle of the image about the X and Y body axes (rad), RH rotaton is positive
+  flow_msg.gyrodata = Vector3f{ekf2.gyro_roll, ekf2.gyro_pitch, ekf2.gyro_yaw}; // measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
+  flow_msg.dt = ekf2.flow_dt;                                                   // amount of integration time (usec)
 
   // update the optical flow data based on the callback
   ekf.setOpticalFlowData(stamp, &flow_msg);

@@ -239,6 +239,13 @@
       <field name="gyro_roll" type="float" unit="rad/sec"/>
       <field name="gyro_pitch" type="float" unit="rad/sec"/>
       <field name="gyro_yaw" type="float" unit="rad/sec"/>
+      <field name="flow_compensation1" type="float"/>
+      <field name="flow_compensation2" type="float"/>
+      <field name="delay_flow_x" type="float"/>
+      <field name="delay_flow_y" type="float"/>
+      <field name="delay_gyro_x" type="float"/>
+      <field name="delay_gyro_y" type="float"/>
+      <field name="delay_gyro_z" type="float"/>
     </message>
 
     <message name="SURVEY" id="27"> 
@@ -1499,8 +1506,11 @@
       <field name="innov_hgt"             type="float"/>
       <field name="innov_tas"             type="float"/>
       <field name="innov_hagl"            type="float"/>
+      <field name="innov_flow"            type="float"/>
       <field name="innov_beta"            type="float"/>
       <field name="mag_decl"              type="float" unit="deg">Magnetic declination</field>
+      <field name="terrain_status"        type="uint8" values="INVALID|VALID">terrain detection for valid for ground sensors</field>
+      <field name="dead_reckoning"        type="uint8" values="INACTIVE|ACTIVE">active if all positioning sensors fail</field>
     </message>
 
     <message name="ROTORCRAFT_CAM" id="168">
