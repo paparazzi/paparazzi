@@ -32,6 +32,7 @@
 #include "autopilot_arming_common.h"
 #include "autopilot_firmware.h"
 #include "autopilot.h"
+#include "mcu_periph/sys_time.h"
 
 /** Delay until motors are armed/disarmed.
  * In number of rc frames received.
@@ -56,12 +57,14 @@ enum arming_state {
 
 uint32_t autopilot_motors_on_counter;
 enum arming_state autopilot_check_motor_status;
+float motor_kill_time;
 
 
 static inline void autopilot_arming_init(void)
 {
   autopilot_motors_on_counter = 0;
   autopilot_check_motor_status = STATUS_INITIALISE_RC;
+  motor_kill_time = 0.0;
 }
 
 
@@ -71,8 +74,9 @@ static inline void autopilot_arming_set(bool motors_on)
 {
   if (motors_on) {
     autopilot_check_motor_status = STATUS_MOTORS_ON;
-  } else {
+  } else if (autopilot_check_motor_status == STATUS_MOTORS_ON) {
     autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
+    motor_kill_time = get_sys_time_float();
   }
 }
 
@@ -123,6 +127,11 @@ static inline void autopilot_arming_check_motors_on(void)
         break;
       case STATUS_MOTORS_AUTOMATICALLY_OFF: // Motors were disarmed externally
         //(possibly due to crash)
+        // If the vehicle was killed accidentally, allow rapid re-arm
+        if ( (get_sys_time_float() - motor_kill_time) < 10.0) {
+          autopilot.motors_on = true;
+          autopilot_check_motor_status = STATUS_MOTORS_ON;
+        }
         //wait extra delay before enabling the normal arming state machine
         autopilot.motors_on = false;
         autopilot_motors_on_counter = 0;
