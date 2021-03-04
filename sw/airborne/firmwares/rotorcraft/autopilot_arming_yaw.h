@@ -42,9 +42,13 @@
 #define MOTOR_ARMING_DELAY  40
 #endif
 
+// Allow re-arming from motors_on after RC kill within 10 seconds
+#define MOTOR_RE_ARM_TIME 10.0
+
 /// Motors ON check state machine states
 enum arming_state {
   STATUS_INITIALISE_RC,
+  STATUS_MOTORS_RC_KILLED,
   STATUS_MOTORS_AUTOMATICALLY_OFF,
   STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT,
   STATUS_MOTORS_OFF,
@@ -64,9 +68,8 @@ static inline void autopilot_arming_init(void)
 {
   autopilot_motors_on_counter = 0;
   autopilot_check_motor_status = STATUS_INITIALISE_RC;
-  motor_kill_time = 0.0;
+  motor_kill_time = -MOTOR_RE_ARM_TIME;
 }
-
 
 /** Update the status of the check_motors state machine.
  */
@@ -74,9 +77,11 @@ static inline void autopilot_arming_set(bool motors_on)
 {
   if (motors_on) {
     autopilot_check_motor_status = STATUS_MOTORS_ON;
-  } else if (autopilot_check_motor_status == STATUS_MOTORS_ON) {
-    autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
+  } else if (kill_switch_is_on() && (autopilot_check_motor_status == STATUS_MOTORS_ON)) {
+    autopilot_check_motor_status = STATUS_MOTORS_RC_KILLED;
     motor_kill_time = get_sys_time_float();
+  } else {
+    autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
   }
 }
 
@@ -125,13 +130,17 @@ static inline void autopilot_arming_check_motors_on(void)
           autopilot_check_motor_status = STATUS_MOTORS_OFF;
         }
         break;
+      case STATUS_MOTORS_RC_KILLED: // Motors were killed by kill mode
+        // If the vehicle was killed accidentally, allow rapid re-arm
+        if ( (get_sys_time_float() - motor_kill_time) < MOTOR_RE_ARM_TIME) {
+          autopilot_check_motor_status = STATUS_MOTORS_ON;
+        } else {
+          autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
+          autopilot.motors_on = false;
+        }
+        break;
       case STATUS_MOTORS_AUTOMATICALLY_OFF: // Motors were disarmed externally
         //(possibly due to crash)
-        // If the vehicle was killed accidentally, allow rapid re-arm
-        if ( (get_sys_time_float() - motor_kill_time) < 10.0) {
-          autopilot.motors_on = true;
-          autopilot_check_motor_status = STATUS_MOTORS_ON;
-        }
         //wait extra delay before enabling the normal arming state machine
         autopilot.motors_on = false;
         autopilot_motors_on_counter = 0;
@@ -205,6 +214,10 @@ static inline void autopilot_arming_check_motors_on(void)
     }
   } else {
     autopilot.arming_status = AP_ARMING_STATUS_KILLED;
+    if (kill_switch_is_on()) {
+      autopilot_check_motor_status = STATUS_MOTORS_RC_KILLED;
+      autopilot.motors_on = false;
+    }
   }
 }
 
