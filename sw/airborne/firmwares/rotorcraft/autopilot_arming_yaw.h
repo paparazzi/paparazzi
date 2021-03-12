@@ -68,7 +68,7 @@ static inline void autopilot_arming_init(void)
 {
   autopilot_motors_on_counter = 0;
   autopilot_check_motor_status = STATUS_INITIALISE_RC;
-  motor_kill_time = -MOTOR_RE_ARM_TIME;
+  motor_kill_time = 0;
 }
 
 /** Update the status of the check_motors state machine.
@@ -215,7 +215,6 @@ static inline void autopilot_arming_check_motors_on(void)
   } else {
     autopilot.arming_status = AP_ARMING_STATUS_KILLED;
     if (kill_switch_is_on()) {
-      autopilot_check_motor_status = STATUS_MOTORS_RC_KILLED;
       autopilot.motors_on = false;
     }
   }
