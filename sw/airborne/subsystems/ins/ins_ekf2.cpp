@@ -54,15 +54,21 @@ PRINT_CONFIG_VAR(INS_EKF2_AGL_ID)
 
 /** Default AGL sensor minimum range */
 #ifndef INS_SONAR_MIN_RANGE
-#define INS_SONAR_MIN_RANGE 0.001
+#define INS_SONAR_MIN_RANGE
 #endif
 PRINT_CONFIG_VAR(INS_SONAR_MIN_RANGE)
 
 /** Default AGL sensor maximum range */
 #ifndef INS_SONAR_MAX_RANGE
-#define INS_SONAR_MAX_RANGE 4.0
+#define INS_SONAR_MAX_RANGE
 #endif
 PRINT_CONFIG_VAR(INS_SONAR_MAX_RANGE)
+
+/** Default AGL sensor maximum range */
+#ifndef USE_RANGE_AID
+#define USE_RANGE_AID
+#endif
+PRINT_CONFIG_VAR(USE_RANGE_AID)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
@@ -104,21 +110,21 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
-/** Default flow message delay (in ms) */
+/* Default flow/radar message delay (in ms) */
 #ifndef INS_FLOW_SENSOR_DELAY
-#define INS_FLOW_SENSOR_DELAY 15.0
+#define INS_FLOW_SENSOR_DELAY
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
 
-/** Default minimum accepted quality (1 to 255) */
+/* Default minimum accepted quality (1 to 255) */
 #ifndef INS_MIN_FLOW_QUALITY
-#define INS_MIN_FLOW_QUALITY 1.0
+#define INS_MIN_FLOW_QUALITY
 #endif
 PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
 
-/** Max flow rate that the sensor can measure (rad/sec) */
+/* Max flow rate that the sensor can measure (rad/sec) */
 #ifndef INS_MAX_FLOW_RATE
-#define INS_MAX_FLOW_RATE 10.0
+#define INS_MAX_FLOW_RATE
 #endif
 PRINT_CONFIG_VAR(INS_MAX_FLOW_RATE)
 
@@ -362,10 +368,7 @@ void ins_ekf2_init(void)
   ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
 
   /* Set range as default AGL measurement if possible */
-  // ekf_params->range_aid = 1;
-  // ekf_params->max_hagl_for_range_aid = 1e10;
-  // ekf_params->max_vel_for_range_aid = 1e10;
-  // ekf_params->rng_gnd_clearance = 0.00001;
+  ekf_params->range_aid = USE_RANGE_AID;
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;

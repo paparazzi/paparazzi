@@ -5,6 +5,12 @@
     <description>
       simple INS and AHRS using EKF2 from PX4
     </description>
+    <define name="INS_SONAR_MIN_RANGE" value="0.08" description="AGL sensor minimum range in meters"/>
+    <define name="INS_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range in meters"/>
+    <define name="USE_RANGE_AID" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
+    <define name="INS_FLOW_SENSOR_DELAY" value="0" description="flow/radar message delay in ms"/>
+    <define name="INS_MIN_FLOW_QUALITY" value="110" description="Minimum quality of the optical flow message accepted [0 to 255]"/>
+    <define name="INS_MAX_FLOW_RATE" value="0" description="Maximum flow rate the sensor can perceive [in rad/sec]"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
@@ -21,6 +27,14 @@
   <periodic fun="ins_ekf2_update()" autorun="TRUE"/>
   <makefile target="ap|nps">
     <configure name="CXXSTANDARD" value="-std=c++11"/>
+
+    <!-- Data processing configuration parameters -->
+    <define name="INS_SONAR_MIN_RANGE" value="0.08"/>
+    <define name="INS_SONAR_MAX_RANGE" value="3"/>
+    <define name="USE_RANGE_AID" value="1"/>
+    <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
+    <define name="INS_MIN_FLOW_QUALITY" value="110"/>
+    <define name="INS_MAX_FLOW_RATE" value="0"/>
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>
@@ -52,5 +66,6 @@
     <file name="terrain_estimator.cpp" dir="ecl/EKF"/>
     <file name="vel_pos_fusion.cpp" dir="ecl/EKF"/>
     <file name="gps_yaw_fusion.cpp" dir="ecl/EKF"/>
+    
   </makefile>
 </module>
