@@ -25,6 +25,7 @@
 module Af = Airframe
 module AfT = Airframe.Target
 module AfF = Airframe.Firmware
+module GC = Gen_common
 
 let (//) = Filename.concat
 let get_string_opt = fun x -> match x with Some s -> s | None -> ""
@@ -111,8 +112,7 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
   let unloaded = ref [] in    (* modules not loaded for this target / firmware *)
   let conflicts = ref [] in   (* modules in conflict *)
   let required = ref [] in    (* functionalities required *)
-  let provided = ref [] in    (* functionalities provided (should contain required)*)
-  let required_option = ref [] in (* lists of options, at least one per list should be validated *)
+  let provided = ref [] in    (* functionalities provided (should contain required) *)
   let add_unique = fun l s ->
     if List.exists (fun e -> String.compare s e = 0) l then l else l @ [s]
   in
@@ -136,10 +136,17 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
       match m.Module.dependencies with
       | Some dep ->
           (* iter over requires *)
-          List.iter (fun dep_name ->
-            (* get module from name *)
-            let _m = Module.from_module_name dep_name None in
-            test_module _m (if name = "root" then UserLoad else Depend)
+          List.iter (fun dep_expr ->
+            match dep_expr with
+            | GC.Var dep_name ->
+                if Str.string_match (Str.regexp "^@.*") dep_name 0 then
+                  (* add to required list *)
+                  required := !required @ [dep_expr]
+                else
+                  (* get module from name *)
+                  let _m = Module.from_module_name dep_name None in
+                  test_module _m (if name = "root" then UserLoad else Depend)
+            | _ -> required := !required @ [dep_expr] (* expression of required modules or functionalities *)
           ) dep.Module.requires;
           (* iter over autoload modules *)
           List.iter (fun autoload ->
@@ -149,11 +156,9 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
           (* add conflicts to list *)
           conflicts := !conflicts @ dep.Module.conflicts;
           (* add required to list (if not present) *)
-          required := List.fold_left add_unique !required dep.Module.requires_func;
+          (*required := List.fold_left add_unique !required dep.Module.requires_func;*)
           (* add provides to list (if not present) *)
           provided := List.fold_left add_unique !provided dep.Module.provides;
-          (* add modules options *)
-          required_option := !required_option @ dep.Module.requires_option;
           (* all dep and autoload resolved, add to list *)
           if not (name = "root") then (* don't add root module *)
             resolved := !resolved @ [(name, (load_type, m))]
@@ -186,9 +191,8 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
     conflicts := [];
     required := [];
     provided := [];
-    required_option := [];
     (* iter on modules of this target from a meta module *)
-    let root_dep = { Module.empty_dep with Module.requires = (List.map (fun (_, m) -> m.Module.name) conf.modules) } in
+    let root_dep = { Module.empty_dep with Module.requires = (List.map (fun (_, m) -> GC.Var m.Module.name) conf.modules) } in
     let root_module = {
       Module.empty with
       Module.name = "root";
@@ -209,18 +213,11 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
             failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for target '%s'" name target)
         ) !provided
       ) !conflicts;
-      (* chek that all required functionalities are provided *)
+      (* chek that all required functionalities or modules are provided *)
       List.iter (fun r ->
-        if not (List.exists (fun p -> r = p) !provided) then
-          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for target '%s'" r target)
-      ) !required;
-      (* check that modules option are validated *)
-      List.iter (fun l ->
-        List.iter (fun (name, _) ->
-          if not (List.exists (fun r -> r = name) l) then
-            failwith (Printf.sprintf "Error [Aircraft]: modules option not validated for '%s' for target '%s'" name target)
-        ) !resolved
-      ) !required_option
+        if not (List.exists (fun p -> GC.eval_bool p r) (!provided @ (fst (List.split !resolved)))) then
+          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for target '%s'" (GC.sprint_expr r) target)
+      ) !required
     end;
     (* add configure, defines and modules to conf for all resolved modules *)
     let new_conf = List.fold_left (fun c (lt, m) ->
@@ -496,7 +493,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
       let settings = [system_settings] @ settings @ settings_modules in
       (* filter on targets *)
       let settings = List.fold_left (fun l s ->
-        if Gen_common.test_targets target (Gen_common.targets_of_string s.Settings.target) then s :: l
+        if GC.test_targets target (GC.bool_expr_of_string s.Settings.target) then s :: l
         else l
       ) [] settings in
       Some (List.rev settings)
