@@ -9,7 +9,9 @@
     <define name="RPM_PULSE_PER_RND" value="14" description="Amount of pulses per round"/>
     <define name="RPM_FILTER_TAU" value="0.3" description="1/cut-off-frequency = filter time"/>
   </doc>
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="rpm_sensor.h"/>
   </header>

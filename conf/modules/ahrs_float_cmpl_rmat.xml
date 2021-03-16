@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_flat_cmpl_rmat" dir="ahrs">
+<module name="ahrs_float_cmpl_rmat" dir="ahrs">
   <doc>
     <description>
       AHRS using complementary filter in floating point.

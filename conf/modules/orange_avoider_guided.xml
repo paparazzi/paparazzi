@@ -34,7 +34,9 @@ define which filter to use.
     </dl_settings>
   </settings>
   
-  <depends>cv_detect_color_object</depends>
+  <dep>
+    <depends>cv_detect_color_object</depends>
+  </dep>
   <header>
     <file name="orange_avoider_guided.h"/>
   </header>

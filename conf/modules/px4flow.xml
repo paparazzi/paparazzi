@@ -18,7 +18,9 @@
     </dl_settings>
   </settings>
 
-  <depends>mavlink_decoder</depends>
+  <dep>
+    <depends>mavlink_decoder</depends>
+  </dep>
   <header>
     <file name="px4flow.h"/>
   </header>

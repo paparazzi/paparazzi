@@ -22,6 +22,9 @@
     <define name="BLUEGIGA_DRDY_GPIO" value="GPIOX" description="GPIO port used for data ready pin"/>
     <define name="BLUEGIGA_DRDY_GPIO_PIN" value="GPIOY" description="GPIO pin number used for data ready pin"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="telemetry" type="nps"/>
   <autoload name="telemetry" type="sim"/>
   <header>
@@ -30,9 +33,6 @@
   <init fun="bluegiga_dl_init()"/>
   <event fun="bluegiga_dl_event()"/>
   <makefile target="!fbw|sim|nps">
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <configure name="BLUEGIGA_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="MODEM_LED" default="none"/>
     <define name="USE_$(BLUEGIGA_SPI_DEV_UPPER)_SLAVE"/>

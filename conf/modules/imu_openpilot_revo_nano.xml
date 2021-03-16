@@ -22,6 +22,9 @@
     <define name="IMU_MPU9250_Y_SIGN" value="1" description="axis sign"/>
     <define name="IMU_MPU9250_Z_SIGN" value="1" description="axis sign"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -43,8 +46,5 @@
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_spi.c" dir="peripherals"/>
     <file name="imu_mpu9250_spi.c" dir="subsystems/imu"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
   </makefile>
 </module>

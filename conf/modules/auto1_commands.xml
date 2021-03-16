@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="auto1_cmd" dir="switching">
+<module name="auto1_commands" dir="switching">
   <doc>
     <description>AUTO1 FLAPS/HATCH COMMANDS.
       Enable RC controlled HATCH and BRAKE/FLAPS in both MANUAL and AUTO1, while automatic in AUTO2.

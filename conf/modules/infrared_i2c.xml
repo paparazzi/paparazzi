@@ -1,7 +1,7 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <!-- @define IR_I2C_READ_ONLY for read only module -->
 
-<module name="ir_i2c" dir="sensors">
+<module name="infrared_i2c" dir="sensors">
   <doc>
     <description>I2C Infrared sensor</description>
   </doc>

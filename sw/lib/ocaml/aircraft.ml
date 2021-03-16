@@ -25,12 +25,13 @@
 module Af = Airframe
 module AfT = Airframe.Target
 module AfF = Airframe.Firmware
+module GC = Gen_common
 
 let (//) = Filename.concat
 let get_string_opt = fun x -> match x with Some s -> s | None -> ""
 
 (* type of loading (user, auto) *)
-type load_type = UserLoad | AutoLoad | Unloaded
+type load_type = UserLoad | AutoLoad | Unloaded | Depend
 
 (* configuration sorted by target *)
 type target_conf = {
@@ -69,41 +70,162 @@ let init_aircraft_conf = fun name ->
     xml = []
   }
 
-(* add a module if compatible with target and firmware
- * and its autoloaded modules to a conf, return final conf *)
-let rec target_conf_add_module = fun conf target firmware name mtype load_type ->
+(* add a module with configuration *)
+let target_conf_add_module_config = fun conf target firmware m load_type ->
+  { conf with
+    configures = List.fold_left (fun cm mk ->
+        if Module.check_mk target firmware mk then
+          List.fold_left (fun cmk c ->
+            if not (c.Module.cvalue = None) then cmk @ [c]
+              else cmk
+            ) cm mk.Module.configures
+        else
+          cm) conf.configures m.Module.makefiles;
+    configures_default = List.fold_left (fun cm mk ->
+        if Module.check_mk target firmware mk then
+          List.fold_left (fun cmk c ->
+            if not (c.Module.default = None && c.Module.case = None) then cmk @ [c]
+              else cmk
+            ) cm mk.Module.configures
+        else
+          cm) conf.configures_default m.Module.makefiles;
+    modules = conf.modules @ [(load_type, m)] }
+
+(* add a module if compatible with target and firmware *)
+let target_conf_add_module = fun conf target firmware name mtype load_type ->
   let m = Module.from_module_name name mtype in
-  (* add autoloaded modules *)
-  let conf = List.fold_left (fun c autoload ->
-      target_conf_add_module c target firmware autoload.Module.aname autoload.Module.atype AutoLoad
-    ) conf m.Module.autoloads in
   (* check compatibility with target *)
   if Module.check_loading target firmware m then
-    (* check is the module itself is already loaded, merging options in all case *)
+    (* check if the module itself is already loaded, merging options in all case *)
     let add_module = if List.exists (fun (_, lm) -> m.Module.name = lm.Module.name) conf.modules
       then [] else [(load_type, m)] in
-    (* add configures and defines to conf if needed *)
-    { conf with
-      configures = List.fold_left (fun cm mk ->
-          if Module.check_mk target firmware mk then
-            List.fold_left (fun cmk c ->
-              if not (c.Module.cvalue = None) then cmk @ [c]
-                else cmk
-              ) cm mk.Module.configures
-          else
-            cm) conf.configures  m.Module.makefiles;
-      configures_default = List.fold_left (fun cm mk ->
-          if Module.check_mk target firmware mk then
-            List.fold_left (fun cmk c ->
-              if not (c.Module.default = None && c.Module.case = None) then cmk @ [c]
-                else cmk
-              ) cm mk.Module.configures
-          else
-            cm) conf.configures_default  m.Module.makefiles;
-      modules = conf.modules @ add_module }
+    (* add module but not yet configurations *)
+    { conf with modules = conf.modules @ add_module }
   else begin
     (* add "unloaded" module for reference *)
     { conf with modules = conf.modules @ [(Unloaded, m)] } end
+
+(* topological sort to load modules and their dependencies *)
+let resolve_modules_dep = fun config_by_target firmware fail ->
+  let resolved = ref [] in    (* modules to load (fully resolved) *)
+  let unresolved = ref [] in  (* modules no fully resolved (for cycle detection) *)
+  let unloaded = ref [] in    (* modules not loaded for this target / firmware *)
+  let conflicts = ref [] in   (* modules in conflict *)
+  let required = ref [] in    (* functionalities required *)
+  let provided = ref [] in    (* functionalities provided (should contain required) *)
+  let add_unique = fun l s ->
+    if List.exists (fun e -> String.compare s e = 0) l then l else l @ [s]
+  in
+  (* recursive dependency resolution *)
+  let rec dep_resolve = fun m target load_type ->
+    let test_module = fun _m lt ->
+      (* test if module is not in resolved *)
+      if not (List.mem_assoc _m.Module.name !resolved) then begin
+        (* test if module is in unresolved to detect cycles *)
+        if List.mem_assoc _m.Module.name !unresolved then
+          failwith ("Error [Aircraft]: cyclic dependency found when loading module "^_m.Module.name);
+        (* no cycle, call resolve function recursively *)
+        dep_resolve _m target lt
+      end
+    in
+    let name = m.Module.name in
+    (* mark module has unresolved *)
+    unresolved := !unresolved @ [(name, m)];
+    (* if module should be loaded, look for dependencies *)
+    if Module.check_loading target firmware m then begin
+      match m.Module.dependencies with
+      | Some dep ->
+          (* iter over requires *)
+          List.iter (fun dep_expr ->
+            match dep_expr with
+            | GC.Var dep_name ->
+                if Str.string_match (Str.regexp "^@.*") dep_name 0 then
+                  (* add to required list *)
+                  required := !required @ [dep_expr]
+                else
+                  (* get module from name *)
+                  let _m = Module.from_module_name dep_name None in
+                  test_module _m (if name = "root" then UserLoad else Depend)
+            | _ -> required := !required @ [dep_expr] (* expression of required modules or functionalities *)
+          ) dep.Module.requires;
+          (* iter over autoload modules *)
+          List.iter (fun autoload ->
+            let _m = Module.from_module_name autoload.Module.aname autoload.Module.atype in
+            test_module _m AutoLoad
+          ) m.Module.autoloads;
+          (* add conflicts to list *)
+          conflicts := !conflicts @ dep.Module.conflicts;
+          (* add required to list (if not present) *)
+          (*required := List.fold_left add_unique !required dep.Module.requires_func;*)
+          (* add provides to list (if not present) *)
+          provided := List.fold_left add_unique !provided dep.Module.provides;
+          (* all dep and autoload resolved, add to list *)
+          if not (name = "root") then (* don't add root module *)
+            resolved := !resolved @ [(name, (load_type, m))]
+      | None ->
+          (* no dep, only check autoload *)
+          List.iter (fun autoload ->
+            let _m = Module.from_module_name autoload.Module.aname autoload.Module.atype in
+            test_module _m AutoLoad
+          ) m.Module.autoloads;
+          if not (name = "root") then (* don't add root module *)
+            resolved := !resolved @ [(name, (load_type, m))] (* add to list *)
+    end else begin
+      (* not adding module, but still add autoloads if target is valid *)
+      List.iter (fun autoload ->
+        let _m = Module.from_module_name autoload.Module.aname autoload.Module.atype in
+        test_module _m AutoLoad
+      ) m.Module.autoloads;
+      (* return resolved but not adding module *)
+      unloaded := !unloaded @ [(Unloaded, m)];
+    end;
+    (* remove from unresolved list to make search faster *)
+    unresolved := List.remove_assoc name !unresolved
+  in
+  (* iter on all targets *)
+  Hashtbl.iter (fun target conf ->
+    (* reset global lists *)
+    resolved := [];
+    unresolved := [];
+    unloaded := [];
+    conflicts := [];
+    required := [];
+    provided := [];
+    (* iter on modules of this target from a meta module *)
+    let root_dep = { Module.empty_dep with Module.requires = (List.map (fun (_, m) -> GC.Var m.Module.name) conf.modules) } in
+    let root_module = {
+      Module.empty with
+      Module.name = "root";
+      Module.dependencies = Some root_dep;
+      Module.makefiles = [Module.empty_makefile]
+    } in
+    dep_resolve root_module target UserLoad;
+    (* test for conflicts and required functionalities and option if requested *)
+    if fail then begin
+      (* check conflicts for resolved modules *)
+      List.iter (fun c ->
+        List.iter (fun (name, _) ->
+          if name = c then
+            failwith (Printf.sprintf "Error [Aircraft]: find conflict with module while loading '%s' for target '%s'" name target)
+        ) !resolved;
+        List.iter (fun name ->
+          if name = c then
+            failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for target '%s'" name target)
+        ) !provided
+      ) !conflicts;
+      (* chek that all required functionalities or modules are provided *)
+      List.iter (fun r ->
+        if not (List.exists (fun p -> GC.eval_bool p r) (!provided @ (fst (List.split !resolved)))) then
+          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for target '%s'" (GC.sprint_expr r) target)
+      ) !required
+    end;
+    (* add configure, defines and modules to conf for all resolved modules *)
+    let new_conf = List.fold_left (fun c (lt, m) ->
+      target_conf_add_module_config c target firmware m lt
+    ) { conf with modules = !unloaded } (snd (List.split !resolved)) in
+    (*let new_conf = { new_conf with modules = new_conf.modules @ !unloaded } in*)
+    Hashtbl.replace config_by_target target new_conf
+  ) config_by_target
 
 
 (* sort element of an airframe type by target *)
@@ -120,7 +242,7 @@ let sort_airframe_by_target = fun config_by_target airframe ->
     List.iter (fun (t, f) ->
         let name = t.AfT.name in (* target name *)
         if Hashtbl.mem config_by_target name then
-          failwith "[Error] Gen_airframe: two targets with the same name";
+          failwith "Error [Aircraft]: two targets with the same name";
         (* init and add configure/define from airframe *)
         let conf = init_target_conf f.AfF.name t.AfT.board in
         let conf = { conf with
@@ -182,8 +304,10 @@ let get_loaded_modules = fun config_by_target target ->
   try
     let config = Hashtbl.find config_by_target target in
     let modules = config.modules in
-    (List.fold_left (fun l (t, m) -> if t <> Unloaded then l @ [m] else l) [] modules)
-  with Not_found -> [] (* nothing for this target *)
+    (List.fold_left (fun
+      (lt, lm) (t, m) ->
+        if t <> Unloaded then (lt @ [t], lm @ [m]) else (lt, lm)) ([], []) modules)
+  with Not_found -> ([], []) (* nothing for this target *)
 
 (** Extract all modules
  *  if a modules is not in any target, it will not appear in the list
@@ -314,8 +438,10 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
   if verbose then
     Printf.printf " done\n%!";
 
-  (* TODO resolve modules dep *)
-  let loaded_modules = get_loaded_modules config_by_target target in
+  (* resolve modules dep *)
+  (* don't fail if no target specified, execpt for cyclic dependencies *)
+  resolve_modules_dep config_by_target firmware (not (target = ""));
+  let loaded_types, loaded_modules = get_loaded_modules config_by_target target in
   let all_modules = get_all_modules config_by_target in
 
   if verbose then
@@ -367,7 +493,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
       let settings = [system_settings] @ settings @ settings_modules in
       (* filter on targets *)
       let settings = List.fold_left (fun l s ->
-        if Gen_common.test_targets target (Gen_common.targets_of_string s.Settings.target) then s :: l
+        if GC.test_targets target (GC.bool_expr_of_string s.Settings.target) then s :: l
         else l
       ) [] settings in
       Some (List.rev settings)
@@ -379,9 +505,12 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
     Printf.printf " done\n%!";
 
   if verbose then begin
+    let letter_of_load_tyoe = function
+      | UserLoad -> "U" | Depend -> "D" | AutoLoad -> "A" | Unloaded -> "N"
+    in
     Printf.printf "Loading modules:\n";
-  List.iter (fun m ->
-    Printf.printf " - %s (%s) [%s]\n" m.Module.name (get_string_opt m.Module.dir) m.Module.xml_filename) loaded_modules
+  List.iter2 (fun lt m ->
+    Printf.printf " - (%s) %s (%s) [%s]\n" (letter_of_load_tyoe lt) m.Module.name (get_string_opt m.Module.dir) m.Module.xml_filename) loaded_types loaded_modules
   end;
 
   (* return aircraft conf *)

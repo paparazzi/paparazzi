@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="throttle_curve" dir="helicopter">
+<module name="heli_throttle_curve" dir="helicopter">
   <doc>
     <description>Throttle Curve Mixers</description>
     <define name="THROTTLE_CURVE_RPM_FB_P" value="0" description="The RPM controller feeadback P gain of the PI controller"/>

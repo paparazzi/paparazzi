@@ -66,7 +66,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <autoload name="stabilization" type="rotorcraft"/>
+  <dep>
+    <depends>stabilization_rotorcraft</depends>
+  </dep>
   <header>
     <file name="stabilization_indi_simple.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar">
+<module name="sonar_bebop" dir="sonar">
   <doc>
     <description>
      Bebop Sonar driver.
@@ -11,6 +11,9 @@
     <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4" description="Sudden changes in sonar height larger than this value are neglected [unit: meters]"/>
     <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0" description="Sudden changes in sonar height shorter than this value are neglected [unit: seconds]"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
 
   <header>
     <file name="sonar_bebop.h"/>
@@ -24,9 +27,6 @@
   <makefile target="ap">
     <define name="USE_SPI0" value="1"/>
     <define name="USE_ADC0" value="1"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
   </makefile>
 
 </module>

@@ -1,12 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="vn100" dir="ins">
+<module name="ins_vn100" dir="ins">
   <doc>
     <description>VectorNav VN100 (SPI)</description>
     <configure name="VN100_SPI_DEV" value="spiX" description="select spi peripherals (default spi1)"/>
     <configure name="VN100_SLAVE_IDX" value="SPI_SLAVEX" description="spi slave index"/>
   </doc>
-  <!-- <conflicts>ins</conflicts> -->
+  <dep>
+    <depends>spi_master</depends>
+    <!--conflicts>ins</conflicts-->
+  </dep>
   <header>
     <file name="ins_vn100.h"/>
   </header>
@@ -17,9 +20,6 @@
   <makefile>
     <configure name="VN100_SPI_DEV" default="spi1" case="upper|lower"/>
     <configure name="VN100_SLAVE_IDX" default="spi_slave0" case="upper|lower"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <define name="USE_$(VN100_SPI_DEV_UPPER)" />
     <define name="USE_$(VN100_SLAVE_IDX_UPPER)" />
     <define name="VN100_SPI_DEV" value="$(VN100_SPI_DEV_LOWER)" />

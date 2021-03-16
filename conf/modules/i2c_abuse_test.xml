@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="benchmark">
+<module name="i2c_abuse_test" dir="benchmark">
   <doc>
     <description></description>
   </doc>

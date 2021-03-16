@@ -13,7 +13,9 @@
     </description>
     <configure name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="input" description="select on which arch dep input the pwm line is connected"/>
   </doc>
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="xtend_rssi.h"/>
   </header>

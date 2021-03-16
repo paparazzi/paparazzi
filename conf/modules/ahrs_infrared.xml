@@ -10,7 +10,9 @@
     - ADC channels can be used for gyros.
     </description>
   </doc>
-  <depends>infrared_adc</depends>
+  <dep>
+    <depends>infrared_adc</depends>
+  </dep>
   <header>
     <file name="ahrs_infrared.h"/>
   </header>

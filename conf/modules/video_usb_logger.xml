@@ -13,7 +13,9 @@
     <define name="VIDEO_USB_LOGGER_JPEG_WITH_EXIF_HEADER" value="TRUE" description="Whether to store data in the exif header or not"/>
     <define name="VIDEO_USB_LOGGER_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
-  <depends>video_thread,pose_history</depends>
+  <dep>
+    <depends>video_thread,pose_history</depends>
+  </dep>
   <header>
     <file name="video_usb_logger.h"/>
   </header>

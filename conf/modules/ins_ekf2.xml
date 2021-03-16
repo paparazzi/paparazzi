@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ekf2" dir="ins">
+<module name="ins_ekf2" dir="ins">
   <doc>
     <description>
       simple INS and AHRS using EKF2 from PX4

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_rectangle_for_rotorcraft" dir="nav">
+<module name="nav_survey_rectangle_rotorcraft" dir="nav">
   <doc>
     <description>
 Survey a rectangle with a rotorcraft.

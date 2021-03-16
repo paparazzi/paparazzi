@@ -70,6 +70,25 @@ let sprint_bool = fun v e ->
   in
   print_b "" v e
 
+(** pretty print boolean expression *)
+let sprint_expr = fun e ->
+  let rec print_b s = function
+    | Any -> sprintf "%sAny " s
+    | Var x -> sprintf "%s %s " s x
+    | Not e -> let s = sprintf "%sNot ( " s in
+               let s = print_b s e in
+               sprintf "%s) " s
+    | And (e1, e2) -> let s = sprintf "%sAnd ( " s in
+                      let s = print_b s e1 in
+                      let s =  print_b s e2 in
+                      sprintf "%s) " s
+    | Or (e1, e2) -> let s = sprintf "%sOr ( " s in
+                     let s = print_b s e1 in
+                     let s = print_b s e2 in
+                     sprintf "%s) " s
+  in
+  print_b "" e
+
 
 (** remove all duplicated elements of a list *)
 let singletonize = fun ?(compare = compare) l ->
@@ -85,24 +104,24 @@ let union = fun l1 l2 -> singletonize (l1 @ l2)
 (** union of a list of list *)
 let union_of_lists = fun l -> singletonize (List.flatten l)
 
-(** [targets_of_string]
- * Returns the targets expression of a string
+(** [bool_expr_of_string]
+ * Returns the boolean expression of a string
  *)
-let targets_of_string =
-  let rec expr_of_targets op = function
+let bool_expr_of_string =
+  let rec expr_of_string op = function
     | [] -> Any
     | [e] -> Var e
-    | l::ls -> op (Var l) (expr_of_targets op ls)
+    | l::ls -> op (Var l) (expr_of_string op ls)
   in
   let pipe = Str.regexp "|" in
-  fun targets ->
-    match targets with 
+  fun s ->
+    match s with 
     | None -> Any
     | Some t ->
         if String.length t > 0 && String.get t 0 = '!' then
-          Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (String.sub t 1 ((String.length t) - 1))))
+          Not (expr_of_string (fun x y -> Or(x,y)) (Str.split pipe (String.sub t 1 ((String.length t) - 1))))
         else
-          expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe t)
+          expr_of_string (fun x y -> Or(x,y)) (Str.split pipe t)
 
 
 (** [test_targets target targets]

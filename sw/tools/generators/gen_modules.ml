@@ -182,7 +182,7 @@ let modules_of_task = fun modules ->
   List.iter (fun m ->
     let task = match m.Module.task with None -> "default" | Some t -> t in
     if Hashtbl.mem h task then
-      Hashtbl.replace h task (List.append [m] (Hashtbl.find h task))
+      Hashtbl.replace h task (List.append (Hashtbl.find h task) [m])
     else
       Hashtbl.add h task [m]
   ) modules;

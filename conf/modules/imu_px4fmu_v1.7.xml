@@ -10,6 +10,9 @@
     <define name="PX4FMU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000" description="gyroscope range setting of the MPU"/>
     <define name="PX4FMU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -31,9 +34,6 @@
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_px4fmu.c" dir="subsystems/imu"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <test>
       <define name="IMU_TYPE_H" value="imu/imu_px4fmu.h" type="string"/>
       <define name="SPI_MASTER"/>

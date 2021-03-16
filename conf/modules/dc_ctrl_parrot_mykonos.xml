@@ -41,7 +41,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <conflicts>digital_cam,digital_cam_servo,digital_cam_i2co,digital_cam_i2c,digital_cam_video</conflicts>
+  <dep>
+    <conflicts>digital_cam,digital_cam_servo,digital_cam_i2co,digital_cam_i2c,digital_cam_video</conflicts>
+  </dep>
   <header>
     <file name="dc_ctrl_parrot_mykonos.h"/>
     <file name="dc.h"/>

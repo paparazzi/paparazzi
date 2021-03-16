@@ -51,7 +51,9 @@
     </dl_settings>
   </settings>
 
-  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
+  <dep>
+    <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
+  </dep>
 
   <header>
     <file name="gpio_cam_ctrl.h"/>

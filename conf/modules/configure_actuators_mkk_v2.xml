@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="config">
+<module name="configure_actuators_mkk_v2" dir="config">
   <doc>
     <description>Configure Mikrokopter MKK v2.0 BLDC motor controllers (requires subsystem actuators_mkk_v2)</description>
   </doc>

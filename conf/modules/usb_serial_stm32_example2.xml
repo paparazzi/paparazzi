@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="usb_serial_stm32_example1" dir="com">
+<module name="usb_serial_stm32_example2" dir="com">
   <doc>
     <description>
       STM32 USB-serial example.

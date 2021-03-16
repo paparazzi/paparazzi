@@ -1,9 +1,12 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gumstix_interface">
+<module name="gumstix_qr_code_spi_link" dir="gumstix_interface">
   <doc>
     <description>QR code gumstix interface</description>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="qr_code_spi_link.h"/>
   </header>

@@ -4,7 +4,9 @@
   <doc>
     <description>Camera control to point a segment</description>
   </doc>
-  <depends>cam_point</depends>
+  <dep>
+    <depends>cam_point</depends>
+  </dep>
   <header>
     <file name="cam_segment.h"/>
   </header>

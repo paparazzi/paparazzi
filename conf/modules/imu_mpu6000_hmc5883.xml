@@ -29,6 +29,9 @@
     <define name="IMU_HMC_Y_SIGN" value="-1" description="axis sign"/>
     <define name="IMU_HMC_Z_SIGN" value="1" description="axis sign"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -58,9 +61,6 @@
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_mpu6000_hmc5883.c" dir="subsystems/imu"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <test>
       <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
       <define name="SPI_MASTER"/>

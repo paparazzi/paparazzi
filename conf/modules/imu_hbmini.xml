@@ -6,6 +6,9 @@
       HBmini IMU.
     </description>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -30,8 +33,5 @@
     <file_arch name="max1168_arch.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_hbmini.c" dir="boards/hbmini"/>
-    <raw>
-include $(CFG_SHARED)/spi_master.makefile
-    </raw>
   </makefile>
 </module>

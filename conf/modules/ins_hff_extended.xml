@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins" dir="ins">
+<module name="ins_hff_extended" dir="ins">
   <doc>
     <description>
       extended INS with vertical filter using sonar.

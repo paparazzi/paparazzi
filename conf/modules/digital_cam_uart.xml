@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="uart_cam_ctrl" dir="digital_cam">
+<module name="digital_cam_uart" dir="digital_cam">
   <doc>
     <description>
       Digital Photo Camera Triggering (using a UART link)
@@ -53,7 +53,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c</conflicts>
+  <dep>
+    <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c</conflicts>
+  </dep>
   <header>
     <file name="uart_cam_ctrl.h"/>
     <file name="dc.h"/>

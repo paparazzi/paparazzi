@@ -17,7 +17,9 @@
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
   </doc>
 
-  <conflicts>digital_cam,digital_cam_i2c,digital_cam_uart,digital_cam_video</conflicts>
+  <dep>
+    <conflicts>digital_cam,digital_cam_i2c,digital_cam_uart,digital_cam_video</conflicts>
+  </dep>
 
   <header>
     <file name="servo_cam_ctrl.h"/>
