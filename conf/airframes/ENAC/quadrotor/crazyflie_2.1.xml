@@ -10,6 +10,10 @@
 
     <target name="ap" board="crazyflie_2.1">
       <!--module name="gps" type="datalink"/-->
+      <module name="cf_deck" type="multi_ranger"/>
+      <module name="range_forcefield">
+        <define name="RANGE_FORCEFIELD_MAX_VEL" value="0.1"/>
+      </module>
     </target>
 
     <target name="nps" board="pc">
@@ -44,10 +48,6 @@
       <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     </module>
 
-    <module name="cf_deck" type="multi_ranger"/>
-    <module name="range_forcefield">
-      <define name="RANGE_FORCEFIELD_MAX_VEL" value="0.1"/>
-    </module>
     <module name="sonar" type="vl53l1x">
       <define name="SENSOR_SYNC_SEND_SONAR"/>
     </module>

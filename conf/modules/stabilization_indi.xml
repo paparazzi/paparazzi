@@ -52,7 +52,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>stabilization_rotorcraft"</depends>
+    <depends>stabilization_rotorcraft</depends>
   </dep>
   <header>
     <file name="stabilization_indi.h"/>

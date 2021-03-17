@@ -84,7 +84,7 @@ void video_capture_init(void)
 }
 
 
-struct image_t *video_capture_func(struct image_t *img, uint8_t camera_id)
+struct image_t *video_capture_func(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   // If take_shot bool is set, save the image
   if (video_capture_take_shot || video_capture_record_video) {

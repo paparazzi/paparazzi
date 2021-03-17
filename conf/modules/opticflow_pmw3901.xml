@@ -35,7 +35,7 @@
   <init fun="opticflow_pmw3901_init()"/>
   <periodic fun="opticflow_pmw3901_periodic()" freq="100"/>
   <event fun="opticflow_pmw3901_event()"/>
-  <makefile>
+  <makefile target="ap">
     <configure name="OPTICFLOW_PMW3901_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" default="1"/>
     <define name="USE_$(OPTICFLOW_PMW3901_SPI_DEV_UPPER)"/>
