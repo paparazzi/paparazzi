@@ -12,5 +12,5 @@
   <dep>
     <depends>stabilization_attitude_fw,guidance_basic_fw</depends>
   </dep>
-  <makefile target="ap|sim|nps" firmware="fixedwing"/>
+  <makefile target="ap|sim|nps|hitl" firmware="fixedwing"/>
 </module>

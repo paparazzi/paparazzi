@@ -56,7 +56,7 @@ volatile int color_count = 0;
 #include "subsystems/abi.h"
 
 // Function
-static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id)
+static struct image_t *colorfilter_func(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   // Filter
   color_count = image_yuv422_colorfilt(img, img,

@@ -191,7 +191,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 }
 
 #ifdef VIEWVIDEO_CAMERA
-static struct image_t *viewvideo_function1(struct image_t *img, uint8_t camera_id)
+static struct image_t *viewvideo_function1(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
@@ -202,7 +202,7 @@ static struct image_t *viewvideo_function1(struct image_t *img, uint8_t camera_i
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
-static struct image_t *viewvideo_function2(struct image_t *img, uint8_t camera_id)
+static struct image_t *viewvideo_function2(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
