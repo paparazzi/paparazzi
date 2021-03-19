@@ -76,7 +76,8 @@ PPRZCENTER=sw/supervision
 MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 
-SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER) sw/tools
+SUBDIRS = $(PPRZCENTER) $(LOGALIZER) sw/tools
+SUBDIRS_EXTRA = $(MISC)
 
 #
 # Communication protocol version
@@ -107,7 +108,7 @@ MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
 GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(MAVLINK_PROTOCOL_H)
 
-all: ground_segment ext lpctools
+all: ground_segment ext subdirs_extra lpctools
 
 _print_building:
 	@echo "------------------------------------------------------------"
@@ -183,10 +184,14 @@ opencv_bebop:
 # make misc subdirs
 #
 subdirs: $(SUBDIRS)
+subdirs_extra: $(SUBDIRS_EXTRA)
 
 $(MISC): ext
 
 $(SUBDIRS): libpprz
+	$(MAKE) -C $@
+
+$(SUBDIRS_EXTRA): libpprz
 	$(MAKE) -C $@
 
 $(PPRZCENTER): libpprz
