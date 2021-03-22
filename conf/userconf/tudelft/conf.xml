@@ -338,7 +338,7 @@
    radio="radios/spektrum.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/control/stabilization_att_int.xml settings/nps.xml settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml"
+   settings="settings/nps.xml settings/rotorcraft_basic.xml"
    settings_modules="modules/sys_id_chirp.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
    release="f739a81cfa2c633e33f31ab5f095d8f617276974"
@@ -507,7 +507,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml"
+   settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/optical_flow_hover.xml modules/cv_opticflow.xml modules/bebop_cam.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="red"
   />
