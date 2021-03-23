@@ -37,7 +37,6 @@ Q=@
 #
 # find compiler toolchain
 #
-ALLOW_OLD_ARM_MULTILIB_TOOLCHAIN = 1
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 #
