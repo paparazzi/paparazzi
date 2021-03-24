@@ -20,7 +20,7 @@
     <file name="opencv_example.cpp"/>
     <file name="opencv_image_functions.cpp"/>
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include"/>
-    <flag name="LDFLAGS" value="-L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib -lopencv_world -L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib -llibprotobuf -llibjpeg-turbo -llibpng -llibtiff -lzlib -lquirc -ltegra_hal -ldl -lm -lpthread -lrt"/>
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib -lopencv_world -L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib -llibprotobuf -llibjpeg-turbo -llibpng -llibtiff -lzlib -lquirc -ltegra_hal -ldl -lm -lpthread -lrt"/>
   </makefile>
   <makefile target="nps">
     <file name="cv_opencvdemo.c"/>
