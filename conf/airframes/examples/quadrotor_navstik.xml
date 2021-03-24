@@ -32,6 +32,12 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
+    
+    <module name="gps" type="ubx_ucenter"/>
+    <!--module name="airspeed_ms45xx_i2c">
+      <configure name="MS45XX_I2C_DEV" value="i2c3"/>
+    </module>
+    <module name="direct_memory_logger"/-->
   </firmware>
 
   <firmware name="test_progs">
@@ -41,14 +47,6 @@
     <target name="test_telemetry" board="navstik_1.0"/>
     <target name="test_actuators_pwm_sin" board="navstik_1.0"/>
   </firmware>
-
-  <modules>
-    <module name="gps" type="ubx_ucenter"/>
-    <!--module name="airspeed_ms45xx_i2c">
-      <configure name="MS45XX_I2C_DEV" value="i2c3"/>
-    </module>
-    <module name="direct_memory_logger"/-->
-  </modules>
 
   <servos driver="Asctec_v2">
     <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>

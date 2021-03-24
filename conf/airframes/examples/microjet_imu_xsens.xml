@@ -30,11 +30,8 @@
     <module name="control"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
-  </firmware>
-
-  <modules>
     <module name="sys_mon"/>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>

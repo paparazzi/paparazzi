@@ -43,9 +43,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     </module>
     <module name="control" type="energyadaptive"/>
     <module name="navigation"/>
-</firmware>
-
-  <modules>
+    
     <module name="airspeed_ets">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="AIRSPEED_ETS_SCALE"   value="1.44"/> <!-- default 1.8-->
@@ -63,7 +61,8 @@ twog_1.0 + aspirin + ETS baro + ETS speed
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/><!-- 18:aux 22:camsw-->
     </module>
     <module name="nav" type="survey_polygon"/>
-  </modules>
+</firmware>
+
 
 <!-- ################################################## -->
   <servos>    <!-- Actuators -->
