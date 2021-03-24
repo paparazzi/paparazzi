@@ -31,14 +31,12 @@
     <define name="HFF_R_SPEED_MIN" value="2."/>
     <define name="VF_FLOAT_MEAS_NOISE" value="2."/>
     <define name="USE_ADC_2" value="1"/>
-  </firmware>
-
-  <modules main_freq="512">
+    
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="osd_max7456"/>
     <module name="hott_telemetry"/>
-  </modules>
+  </firmware>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>

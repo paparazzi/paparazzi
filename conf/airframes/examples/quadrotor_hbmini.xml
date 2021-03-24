@@ -26,11 +26,8 @@
     <module name="stabilization" type="int_euler"/>
     <module name="ahrs"          type="float_cmpl_rmat"/>
     <module name="ins"           type="hff"/>
-  </firmware>
-
-  <modules main_freq="512">
     <module name="gps" type="ubx_ucenter"/>
-  </modules>
+  </firmware>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
