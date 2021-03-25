@@ -185,8 +185,8 @@ float vision_time, prev_vision_timeXY, prev_vision_timeZ;
 
 bool oscillatingX;
 bool oscillatingY;
-int16_t flowX;
-int16_t flowY;
+int32_t flowX;
+int32_t flowY;
 struct OFhistory historyX;
 struct OFhistory historyY;
 
@@ -598,8 +598,8 @@ void vertical_ctrl_module_run(bool in_flight)
   stabilization_cmd[COMMAND_THRUST] = des_inputs.thrust;
 }
 
-void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y,
-                         int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div)
+void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int32_t flow_x, int32_t flow_y,
+                         int32_t flow_der_x, int32_t flow_der_y, float quality, float size_div)
 {
   if (!derotated) {
     flowX = flow_x;

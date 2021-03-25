@@ -60,7 +60,7 @@
    airframe="airframes/ENAC/quadrotor/crazyflie_2.1.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
+   flight_plan="flight_plans/ENAC/crazyflie_multi_ranger_test.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_madgwick.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/opticflow_pmw3901.xml modules/range_forcefield.xml modules/sonar_vl53l1x.xml modules/stabilization_int_quat.xml"
    gui_color="blue"
