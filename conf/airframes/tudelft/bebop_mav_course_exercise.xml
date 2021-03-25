@@ -108,10 +108,10 @@
     <define name="OFFSET_X" value="0.09" />
     <define name="OFFSET_Y" value="0.00" />
     <define name="ZOOM" value="1.25"/>
-    <define name="GAIN_GREEN1" value="4.0"/>
-    <define name="GAIN_GREEN2" value="4.0"/>
-    <define name="GAIN_BLUE" value="5.0"/>
-    <define name="GAIN_RED" value="5.0"/>
+    <define name="GAIN_GREEN1" value="10.0"/>
+    <define name="GAIN_GREEN2" value="10.0"/>
+    <define name="GAIN_BLUE" value="12.5"/>
+    <define name="GAIN_RED" value="9.0"/>
     <define name="TARGET_EXPOSURE" value="20" />
     <define name="OUTPUT_SCALER" value="0.25"/>
     <define name="TARGET_FPS" value="30" />
