@@ -25,14 +25,12 @@
     <module name="control"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
-  </firmware>
-
-  <modules>
+    
     <module name="ahrs_chimu_spi" >
       <define name="CHIMU_BIG_ENDIAN" />
     </module>
     <module name="nav" type="line"/>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>

@@ -47,6 +47,22 @@
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
     </module>
     <module name="ins"/>
+    
+    <!-- This will automatically configure your UBLOX GPS on startup. No need
+	 for manual configuration.
+      -->
+    <module name="gps" type="ubx_ucenter"/>
+
+    <!-- Uncomment the following module if you want to update the normalized
+	 magnetic field at startup using GPS fix.
+      -->
+    <!--module name="geo_mag"/-->
+
+    <!-- Uncomment the following line if you want to calculate the motor
+	 current to magnetic field distortion curve.
+	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
+      -->
+    <!--module name="send_imu_mag_current"/-->
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -118,24 +134,6 @@
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>
   </section>
-
-  <modules main_freq="512">
-    <!-- This will automatically configure your UBLOX GPS on startup. No need
-	 for manual configuration.
-      -->
-    <module name="gps" type="ubx_ucenter"/>
-
-    <!-- Uncomment the following module if you want to update the normalized
-	 magnetic field at startup using GPS fix.
-      -->
-    <!--module name="geo_mag"/-->
-
-    <!-- Uncomment the following line if you want to calculate the motor
-	 current to magnetic field distortion curve.
-	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
-      -->
-    <!--module name="send_imu_mag_current"/-->
-  </modules>
 
   <section name="INS" prefix="INS_">
   </section>

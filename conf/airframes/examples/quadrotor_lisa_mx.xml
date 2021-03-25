@@ -44,16 +44,13 @@
 	    <!--define name="AHRS_MAG_UPDATE_ALL_AXES" value="1"/-->
     </module>
     <module name="ins" type="hff"/>
-
-    <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
-  </firmware>
-
-
-  <modules>
+    
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
-  </modules>
+
+    <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+  </firmware>
 
   <servos driver="Pwm">
     <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>

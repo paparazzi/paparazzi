@@ -293,34 +293,6 @@
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
   </section>
 
-  <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
-
-    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
-    <load name="led_safety_status.xml">
-          <define name="USE_LED_BODY" value="1"/>
-          <define name="SAFETY_WARNING_LED" value="BODY"/>
-    </load>
-
-  <!--Use an airspeed sensor and get the measured airspeed in the messages-->
-<!--    <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
-    </load>-->
-
-<!--     <load name="high_speed_logger_spi_link.xml"/> -->
-
-<!--    <load name="AOA_adc.xml">
-      <configure name="ADC_AOA" value="ADC_2"/>
-      <define name="AOA_OFFSET" value="0"/>
-      <define name="AOA_FILTER" value="0"/>
-      <define name="USE_AOA"/>
-      <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
-    </load>-->
-
-  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-<!--     <load name="gain_scheduling.xml"/> -->
-  </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
     <module name="radio_control" type="spektrum">
@@ -361,5 +333,31 @@
     </module>
 
     <module name="ins"/>
+    
+    <load name="gps_ubx_ucenter.xml"/>
+
+    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
+    <load name="led_safety_status.xml">
+          <define name="USE_LED_BODY" value="1"/>
+          <define name="SAFETY_WARNING_LED" value="BODY"/>
+    </load>
+
+  <!--Use an airspeed sensor and get the measured airspeed in the messages-->
+<!--    <load name="airspeed_ets.xml">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+    </load>-->
+
+<!--     <load name="high_speed_logger_spi_link.xml"/> -->
+
+<!--    <load name="AOA_adc.xml">
+      <configure name="ADC_AOA" value="ADC_2"/>
+      <define name="AOA_OFFSET" value="0"/>
+      <define name="AOA_FILTER" value="0"/>
+      <define name="USE_AOA"/>
+      <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
+    </load>-->
+
+  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
+<!--     <load name="gain_scheduling.xml"/> -->
   </firmware>
 </airframe>

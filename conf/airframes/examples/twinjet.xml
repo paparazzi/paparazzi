@@ -26,6 +26,12 @@
     <module name="gps"           type="ublox"/>
     <module name="navigation"/>
     <module name="ins" type="gps_passthrough"/>
+    <module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
+    </module>
+    <module name="infrared_adc"/>
+    <module name="ahrs_infrared"/>
+    <module name="nav" type="line"/>
   </firmware>
 
   <firmware name="setup">
@@ -34,16 +40,6 @@
       <configure name="TUNNEL_PORT" value="UART0"/>
     </target>
   </firmware>
-
-  <modules>
-    <module name="adc_generic">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
-    </module>
-    <module name="infrared_adc"/>
-    <module name="ahrs_infrared"/>
-    <module name="nav" type="line"/>
-  </modules>
-
 
   <servos>
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>

@@ -38,11 +38,8 @@
     <module name="telemetry" 	type="transparent"/>
     <module name="control"/>
     <module name="navigation"/>
-  </firmware>
-
-  <modules>
     <module name="sys_mon"/>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>

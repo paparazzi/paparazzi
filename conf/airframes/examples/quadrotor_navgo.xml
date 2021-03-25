@@ -2,16 +2,6 @@
 
 <airframe name="Blender">
 
-  <modules main_freq="512">
-    <module name="switch" type="servo"/>
-    <module name="rotorcraft_cam"/>
-    <module name="digital_cam">
-      <!-- AUX1 -->
-      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
-    </module>
-    <module name="nav" type="survey_rectangle_rotorcraft"/>
-  </modules>
-
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
@@ -43,6 +33,14 @@
     <module name="ins"           type="hff"/>
 
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
+    
+    <module name="switch" type="servo"/>
+    <module name="rotorcraft_cam"/>
+    <module name="digital_cam">
+      <!-- AUX1 -->
+      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
+    </module>
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
   </firmware>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">

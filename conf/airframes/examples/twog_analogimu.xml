@@ -209,10 +209,7 @@
     <module name="gps"       type="ublox"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
-  </firmware>
-
-  <modules>
     <module name="nav" type="line"/>
-  </modules>
+  </firmware>
 
 </airframe>

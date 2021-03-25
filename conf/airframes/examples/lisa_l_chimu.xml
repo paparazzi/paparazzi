@@ -23,13 +23,10 @@
     <module name="gps" 		    type="ublox"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
-  </firmware>
-
-  <modules>
     <module name="ahrs_chimu_uart">
       <configure name="CHIMU_UART_NR" value="3"/>
     </module>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>
