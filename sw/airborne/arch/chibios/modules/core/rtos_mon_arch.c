@@ -209,32 +209,12 @@ void rtos_mon_periodic_arch(void)
 
 static uint16_t get_stack_free(const thread_t *tp)
 {
-#if defined STM32F4
   int32_t index = 0;
-  // FIXME this is for STM32F4 only
-  const uint8_t *max_ram_addr = (uint8_t*) (0x20000000 + (128*1024));
-  const int32_t internal_struct_size = (CH_KERNEL_MAJOR == 2) ? 80 : 120;
-  unsigned long long *stk_addr = (unsigned long long *) ((uint8_t *)tp + internal_struct_size);
-
-  while ((stk_addr[index] == 0x5555555555555555) && (((uint8_t *) &(stk_addr[index])) < max_ram_addr))
+  extern const uint8_t __ram0_end__;
+  unsigned long long *stkAdr =  (unsigned long long *) ((uint8_t *) tp->wabase);
+  while ((stkAdr[index] == 0x5555555555555555) && ( ((uint8_t *) &(stkAdr[index])) < &__ram0_end__))
     index++;
-
-  const int32_t free_bytes = (index * (int32_t)sizeof(long long)) - internal_struct_size;
-  uint16_t ret;
-  if (free_bytes < 0) {
-    // stack overflow ?
-    ret = 0;
-  } else if (free_bytes > 0xFFFF) {
-    // return value in Kbytes
-    ret = (uint16_t) (free_bytes / 1024);
-  } else {
-    // return value in bytes
-    ret = (uint16_t) free_bytes;
-  }
-  return ret;
-#else
-  (void)tp;
-  return 0;
-#endif
+  const int32_t freeBytes =  index * (int32_t) sizeof(long long);
+  return (uint16_t)freeBytes;
 }
 
