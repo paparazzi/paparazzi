@@ -430,7 +430,6 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
 
     <define name="SONAR_COMPENSATE_ROTATION" value="TRUE"/><!-- compensate AGL for body rotation -->
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
     <define name="USE_GPS_ALT" value="1"/>
     <define name="USE_GPS_ALT_SPEED" value="1"/>
