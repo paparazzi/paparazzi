@@ -114,7 +114,7 @@ let module2mk = fun f target firmware m ->
       begin match mk.Module.condition with Some c -> fprintf f "%s\n" c | None -> () end;
       List.iter (define2mk f ~target) mk.Module.defines;
       List.iter (include2mk f ~target (*FIXME vpath*)) mk.Module.inclusions;
-      List.iter (flag2mk f ~target) mk.Module.flags;
+      List.iter (flag2mk f ~target) (List.rev mk.Module.flags) (* reverse list to restore original order, it matters for flags *);
       List.iter (file2mk f dir_name target) mk.Module.files;
       List.iter (file2mk f ~arch:true dir_name target) mk.Module.files_arch;
       List.iter (raw2mk f) mk.Module.raws;
