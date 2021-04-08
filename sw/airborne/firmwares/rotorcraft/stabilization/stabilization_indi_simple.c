@@ -295,6 +295,12 @@ static inline void finite_difference(float output[3], float new[3], float old[3]
  */
 void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __attribute__((unused)))
 {
+  //Propagate input filters
+  //first order actuator dynamics
+  indi.u_act_dyn.p = indi.u_act_dyn.p + STABILIZATION_INDI_ACT_DYN_P * (indi.u_in.p - indi.u_act_dyn.p);
+  indi.u_act_dyn.q = indi.u_act_dyn.q + STABILIZATION_INDI_ACT_DYN_Q * (indi.u_in.q - indi.u_act_dyn.q);
+  indi.u_act_dyn.r = indi.u_act_dyn.r + STABILIZATION_INDI_ACT_DYN_R * (indi.u_in.r - indi.u_act_dyn.r);
+
   // Propagate the filter on the gyroscopes and actuators
   struct FloatRates *body_rates = stateGetBodyRates_f();
   filter_pqr(indi.u, &indi.u_act_dyn);
@@ -339,10 +345,24 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
   indi.du.q = 1.0 / indi.g1.q * (indi.angular_accel_ref.q - indi.rate_d[1]);
   indi.du.r = 1.0 / (indi.g1.r + indi.g2) * (indi.angular_accel_ref.r - indi.rate_d[2] + indi.g2 * indi.du.r);
 
-  //add the increment to the total control input
-  indi.u_in.p = indi.u[0].o[0] + indi.du.p;
-  indi.u_in.q = indi.u[1].o[0] + indi.du.q;
-  indi.u_in.r = indi.u[2].o[0] + indi.du.r;
+  //Don't increment if thrust is off and on the ground
+  //without this the inputs will increment to the maximum before even getting in the air.
+  if (stabilization_cmd[COMMAND_THRUST] < 300 && !in_flight) {
+    FLOAT_RATES_ZERO(indi.u_in);
+
+    // If on the gournd, no increments, just proportional control
+    indi.u_in.p = indi.du.p;
+    indi.u_in.q = indi.du.q;
+    indi.u_in.r = indi.du.r;
+  } else {
+    //add the increment to the total control input
+    indi.u_in.p = indi.u[0].o[0] + indi.du.p;
+    indi.u_in.q = indi.u[1].o[0] + indi.du.q;
+    indi.u_in.r = indi.u[2].o[0] + indi.du.r;
+
+    // only run the estimation if the commands are not zero.
+    lms_estimation();
+  }
 
   //bound the total control input
 #if STABILIZATION_INDI_FULL_AUTHORITY
@@ -356,24 +376,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
   Bound(indi.u_in.q, -4500, 4500);
   Bound(indi.u_in.r, -4500, 4500);
 #endif
-
-  //Propagate input filters
-  //first order actuator dynamics
-  indi.u_act_dyn.p = indi.u_act_dyn.p + STABILIZATION_INDI_ACT_DYN_P * (indi.u_in.p - indi.u_act_dyn.p);
-  indi.u_act_dyn.q = indi.u_act_dyn.q + STABILIZATION_INDI_ACT_DYN_Q * (indi.u_in.q - indi.u_act_dyn.q);
-  indi.u_act_dyn.r = indi.u_act_dyn.r + STABILIZATION_INDI_ACT_DYN_R * (indi.u_in.r - indi.u_act_dyn.r);
-
-  //Don't increment if thrust is off
-  //TODO: this should be something more elegant, but without this the inputs
-  //will increment to the maximum before even getting in the air.
-  if (stabilization_cmd[COMMAND_THRUST] < 300) {
-    FLOAT_RATES_ZERO(indi.du);
-    FLOAT_RATES_ZERO(indi.u_act_dyn);
-    FLOAT_RATES_ZERO(indi.u_in);
-  } else {
-    // only run the estimation if the commands are not zero.
-    lms_estimation();
-  }
 
   /*  INDI feedback */
   stabilization_cmd[COMMAND_ROLL] = indi.u_in.p;
