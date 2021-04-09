@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
@@ -16,12 +16,12 @@
     <waypoint name="GOAL" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
     <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
-    <waypoint lat="51.9906465" lon="4.3767025" name="_CZ2"/>
-    <waypoint lat="51.9906882" lon="4.376805" name="_CZ3"/>
+    <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
+    <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
     <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
 
     <waypoint lat="51.9905860" lon="4.3767712" name="_OZ1"/>
-    <waypoint lat="51.9906456" lon="4.3767088" name="_OZ2"/>
+    <waypoint lat="51.9906430" lon="4.3767110" name="_OZ2"/>
     <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
     <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
   </waypoints>

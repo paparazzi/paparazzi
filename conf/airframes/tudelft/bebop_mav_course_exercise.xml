@@ -1,9 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_avoider">
-  <description>Vision Course TUDelft V2019
+  <description>MAVLAB Course TUDelft
   </description>
-
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
@@ -12,12 +11,12 @@
       <define name="MT9V117_TARGET_FPS" value="20"/>
       
       <!-- Detect orange -->
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="30"/>
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="170"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="70"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="130"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="150"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="190"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="40"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="145"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="65"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="140"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="160"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="225"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
@@ -55,6 +54,7 @@
     <!-- Video/Camera modules -->
     <module name="bebop_cam"/>
     <!--module name="bebop_ae_awb">
+      <define name="CV_AE_AWB_AV" value="1" />
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
     <module name="video_capture">
@@ -65,9 +65,6 @@
       <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
       <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_DRAW1" value="1"/>
-    </module>
-    <module name="orange_avoider">
-      <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
     </module>
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
@@ -110,12 +107,15 @@
     <define name="OUTPUT_HEIGHT" value="520" />
     <define name="OUTPUT_WIDTH" value="240" />
     <define name="OFFSET_X" value="0.09" />
+    <define name="OFFSET_Y" value="0.00" />
     <define name="ZOOM" value="1.25"/>
     <define name="GAIN_GREEN1" value="10.0"/>
     <define name="GAIN_GREEN2" value="10.0"/>
     <define name="GAIN_BLUE" value="12.5"/>
     <define name="GAIN_RED" value="9.0"/>
-    <define name="TARGET_EXPOSURE" value="30" />
+    <define name="TARGET_EXPOSURE" value="20" />
+    <define name="OUTPUT_SCALER" value="0.25"/>
+    <define name="TARGET_FPS" value="30" />
   </section>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
@@ -149,6 +149,7 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
     <!-- Use GPS altitude measurments and set the R gain -->
     <define name="USE_GPS_ALT" value="1"/>
