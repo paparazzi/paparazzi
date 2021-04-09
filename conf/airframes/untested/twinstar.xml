@@ -21,7 +21,7 @@
     <module name="radio_control" type="ppm"/>
     <module name="telemetry"     type="transparent"/>
     <module name="control"/>
-    <module name="gps"           type="ublox_utm"/>
+    <module name="gps"           type="ublox"/>
     <module name="ins"           type="gps_passthrough"/>
     <module name="navigation"/>
   </firmware>
