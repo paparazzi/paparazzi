@@ -142,10 +142,6 @@
    <define name="IGAIN" value="6"/>
  </section>
 
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <module name="radio_control" type="superbitrf_rc">
@@ -169,5 +165,8 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
+
+    <module name="gps" type="ubx_ucenter"/>
+
   </firmware>
 </airframe>
