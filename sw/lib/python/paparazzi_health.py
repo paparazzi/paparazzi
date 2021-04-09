@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 
@@ -258,7 +258,7 @@ class PaparazziOverview(object):
                 af.flight_plan = atype.get('flight_plan')
                 af.release = release
                 if (not atype.get('settings_modules') is None) & (not atype.get('settings_modules') == ""):
-                    modules = atype.get('settings_modules').translate(None, '[]').split()
+                    modules = atype.get('settings_modules').translate(str.maketrans('','','[]')).split()
                 af.modules = modules
                 list_of_airframes.append(af)
         return list_of_airframes
