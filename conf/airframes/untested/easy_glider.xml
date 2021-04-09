@@ -170,7 +170,7 @@
     <!-- Actuators are automatically chosen according to board -->
     <module name="control"/>
     <!-- Sensors -->
-    <module name="gps" 		    type="ublox_utm"/>
+    <module name="gps" 		    type="ublox"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
   </firmware>

@@ -212,7 +212,7 @@
     </module>
     <module name="imu" type="aspirin_i2c"/>
     -->
-    <module name="imu" type="ppzuav"/>
+    <module name="imu" type="pprzuav"/>
     <module name="ahrs" type="float_dcm">
 <!--      <configure name="USE_MAGNETOMETER" /> -->
     </module>
@@ -229,7 +229,7 @@
     <module name="control"/>
     <!-- Sensors -->
     <module name="navigation"/>
-    <module name="gps" type="ublox_utm"/>
+    <module name="gps" type="ublox"/>
 
 
 </firmware>

@@ -116,8 +116,8 @@ class Module:
                     file_name = file_name[file_name.rfind('/')+1:]
                 self.files[file_name] = ""
 
-        self.missing_files = list(self.files.viewkeys())
-        for mod_file in self.files.viewkeys():
+        self.missing_files = list(self.files.keys())
+        for mod_file in self.files.keys():
             if mod_file in file_dict:
                 self.files[mod_file] = file_dict[mod_file]
                 if mod_file in self.missing_files:
@@ -131,9 +131,10 @@ class Module:
         for _, value in self.files.items():
             commit_processes.append(self.open_commit_log_process(value))
         for process in commit_processes:
-            out = process.communicate()
-            if out[0][:-2]:
-                commit_list.append(out[0][:-2])
+            out, rest = process.communicate()
+            out = out.decode('utf-8')
+            if out[:-2]:
+                commit_list.append(out[:-2])
         commit_list = sorted(commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'),
                              reverse=True)
         self.last_commit = commit_list[0]
@@ -191,6 +192,7 @@ class PaparazziOverview(object):
         process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename], bufsize=-1,
                                    stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
+        stdoutput = stdoutput.decode("utf-8") 
         if stdoutput == "":
             stdoutput = "00-00-0000"
         return stdoutput
