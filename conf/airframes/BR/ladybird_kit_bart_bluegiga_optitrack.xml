@@ -187,14 +187,6 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
- <modules main_freq="512">
-   <module name="send_imu_mag_current"/>
- <module name="stereocam">
-	<configure name="STEREO_UART" value="UART1"/>
-	<configure name="STEREO_BAUD" value="B115200"/>
-</module>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <module name="radio_control" type="datalink">
@@ -229,5 +221,10 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
+    <module name="send_imu_mag_current"/>
+    <module name="stereocam">
+      <configure name="STEREO_UART" value="UART1"/>
+      <configure name="STEREO_BAUD" value="B115200"/>
+    </module>
   </firmware>
 </airframe>

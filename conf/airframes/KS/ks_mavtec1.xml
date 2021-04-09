@@ -37,9 +37,6 @@
     <module name="guidance"      type="indi"/>
   </firmware>
 
-  <modules>
-  </modules>
-
   <servos driver="Pwm">
     <servo name="MOTOR_0" no="0" min="1148" neutral="1200" max="1832"/>
     <servo name="MOTOR_1" no="1" min="1148" neutral="1200" max="1832"/>

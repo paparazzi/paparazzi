@@ -30,14 +30,12 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="hff"/>
-  </firmware>
 
-  <modules>
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="switch" type="servo"/>
     <module name="gps" type="ubx_ucenter"/>
-  </modules>
+  </firmware>
 
   <servos driver="Asctec_v2">
     <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>
