@@ -174,11 +174,6 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
-   <module name="send_imu_mag_current"/>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <module name="radio_control" type="superbitrf_rc">
@@ -222,5 +217,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
     </module>
     <module name="ins"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

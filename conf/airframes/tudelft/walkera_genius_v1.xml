@@ -1,23 +1,23 @@
-<!-- this is a default Walkera V120D02S frame equiped with Lisa/S 0.1 -->
-<!-- Using Lisa/S V1.0 as it is software compatible. -->
+<!-- this is a Walkera Genius V1 frame equiped with Lisa/S 0.1 with brushless main rotor -->
+<!-- Using Lisa/S V1.0 board file as it is software compatible. -->
 
 <!--
      Applicable configuration:
-     airframe="airframes/tudelft/IMAV2013/walkera_V120D02S.xml"
+     airframe="airframes/tudelft/IMAV2013/walkera_genius_v1.xml"
      radio="radios/cockpitSX.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/rotorcraft_basic.xml"
      settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
 -->
 
-<airframe name="walkera_v120d02s">
+<airframe name="walkera_genius_v1">
 
   <servos driver="Pwm">
-    <servo name="CIC_FRONT" no="5" min="2000" neutral="1550" max="900"/>
-    <servo name="CIC_RIGHT" no="0" min="900" neutral="1550" max="2000"/>
-    <servo name="CIC_LEFT" no="1" min="900" neutral="1550" max="2000"/>
-    <servo name="TAIL" no="2" min="1000" neutral="1400" max="1800"/>
-    <servo name="GAS" no="3" min="900" neutral="980" max="2200"/>
+    <servo name="CIC_FRONT" no="4" min="570" neutral="1600" max="2200"/>
+    <servo name="CIC_RIGHT" no="5" min="570" neutral="1400" max="2200"/>
+    <servo name="CIC_LEFT" no="0" min="570" neutral="1600" max="2200"/>
+    <servo name="TAIL" no="2" min="0" neutral="0" max="500"/>
+    <servo name="GAS" no="3" min="0" neutral="10" max="500"/>
   </servos>
 
   <commands>
@@ -35,14 +35,14 @@
     <let var="gas" value="($hoverpower) + $halfway * (((@THRUST) - ($hoverstick)) * (MAX_PPRZ - ($hoverpower))) / (MAX_PPRZ - ($hoverstick))  + (1 - $halfway) * ((@THRUST - ($hoverstick)) * ($hoverpower)) / ($hoverstick)"/>
 
     <set servo="GAS" value="$gas"/>
-    <set servo="CIC_LEFT" value="((@PITCH*0.5*0.5)-(@ROLL*0.5*0.7))+($collective)"/>
-    <set servo="CIC_RIGHT" value="((-@PITCH*0.5*0.5)-(@ROLL*0.5*0.7))-($collective)"/>
-    <set servo="CIC_FRONT" value="-@PITCH*0.5*1.0+($collective)"/>
-    <set servo="TAIL" value="@YAW"/>
+    <set servo="CIC_LEFT" value="((@PITCH*0.5*0.5)-(@ROLL*0.5*0.73))-($collective)"/>
+    <set servo="CIC_RIGHT" value="((-@PITCH*0.5*0.5)-(@ROLL*0.5*0.73))+($collective)"/>
+    <set servo="CIC_FRONT" value="-@PITCH*0.5-($collective)"/>
+    <set servo="TAIL" value="@YAW+0.4*$gas"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI" value="190." unit="deg"/>
+    <define name="BODY_TO_IMU_PHI" value="185." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
 
@@ -50,13 +50,18 @@
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
-    <!-- From delft MAVLab (TODO) -->
-    <define name="MAG_X_NEUTRAL" value="-638"/>
-    <define name="MAG_Y_NEUTRAL" value="-101"/>
-    <define name="MAG_Z_NEUTRAL" value="-307"/>
-    <define name="MAG_X_SENS" value="3.61215021824" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.23407732206" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.28237277804" integer="16"/>
+    <!-- From delft MAVLab -->
+    <define name="MAG_X_NEUTRAL" value="396"/>
+    <define name="MAG_Y_NEUTRAL" value="-260"/>
+    <define name="MAG_Z_NEUTRAL" value="-91"/>
+    <define name="MAG_X_SENS" value="3.71635905504" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.5526454063" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
+
+    <!-- Current correction -->
+    <define name="MAG_X_CURRENT_COEF" value="-0.390312445109"/>
+    <define name="MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
+    <define name="MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
   </section>
 
  <section name="AUTOPILOT">
@@ -66,8 +71,8 @@
  </section>
 
  <section name="BAT">
-   <define name="MILLIAMP_AT_FULL_THROTTLE" value="10"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="4.3" unit="V"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="3700"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="3.4" unit="V"/>
  </section>
 
 
@@ -100,20 +105,20 @@
     <!-- feedback -->
     <define name="PHI_PGAIN" value="3052"/>
     <define name="PHI_DGAIN" value="108"/>
-    <define name="PHI_IGAIN" value="14"/>
+    <define name="PHI_IGAIN" value="0"/>
 
     <define name="THETA_PGAIN" value="3052"/>
     <define name="THETA_DGAIN" value="108"/>
-    <define name="THETA_IGAIN" value="14"/>
+    <define name="THETA_IGAIN" value="0"/>
 
-    <define name="PSI_PGAIN" value="1099"/>
-    <define name="PSI_DGAIN" value="201"/>
-    <define name="PSI_IGAIN" value="19"/>
+    <define name="PSI_PGAIN" value="944"/>
+    <define name="PSI_DGAIN" value="300"/>
+    <define name="PSI_IGAIN" value="10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN" value="0"/>
     <define name="THETA_DDGAIN" value="0"/>
-    <define name="PSI_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
 
     <define name="PHI_AGAIN" value="0"/>
     <define name="THETA_AGAIN" value="0"/>
@@ -137,29 +142,25 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="16"/>
-   <define name="DGAIN" value="35"/>
-   <define name="IGAIN" value="6"/>
+   <define name="PGAIN" value="50"/>
+   <define name="DGAIN" value="50"/>
+   <define name="IGAIN" value="0"/>
  </section>
-
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
- </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <module name="radio_control" type="superbitrf_rc">
-        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/> <!-- TUDelft Dx6i: TX 4 -->
+        <define name="RADIO_TRANSMITTER_ID" value="2008496626"/>   <!-- TUDelft Dx6i: TX 4 -->
         <define name="RADIO_TRANSMITTER_CHAN" value="6"/>
         <define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/>
-        <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
       </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
     <module name="actuators" type="pwm">
-      <define name="SERVO_HZ" value="50"/>
+      <define name="TIM5_SERVO_HZ" value="2000"/>
+      <define name="SERVO_HZ" value="300"/>
       <define name="USE_SERVOS_1AND2"/>
     </module>
 
@@ -169,5 +170,8 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
+
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

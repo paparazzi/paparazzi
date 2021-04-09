@@ -30,9 +30,7 @@
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -64,7 +62,9 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </module>
     <module name="video_exif"/>
-  </modules>
+
+  </firmware>
+
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

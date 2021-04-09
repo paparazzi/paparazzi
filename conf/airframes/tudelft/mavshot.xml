@@ -239,19 +239,6 @@
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
-  <modules main_freq="512">
-    <module name="gps" type="ubx_ucenter"/>
-
-    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
-    <module name="led_safety_status">
-      <define name="USE_LED_BODY" value="1"/>
-      <define name="SAFETY_WARNING_LED" value="BODY"/>
-    </module>
-
-    <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <!--module name="gain_scheduling"/-->
-  </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <module name="radio_control" type="spektrum">
@@ -287,5 +274,16 @@
     </module>
 
     <module name="ins"/>
+
+    <module name="gps" type="ubx_ucenter"/>
+
+    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
+    <module name="led_safety_status">
+      <define name="USE_LED_BODY" value="1"/>
+      <define name="SAFETY_WARNING_LED" value="BODY"/>
+    </module>
+
+    <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
+    <!--module name="gain_scheduling"/-->
   </firmware>
 </airframe>

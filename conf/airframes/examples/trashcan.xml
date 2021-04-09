@@ -85,7 +85,7 @@
         </module>
 
         <!-- not all are tested or tuned -->
-       <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..)
+       <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..) -->
         <!-- <module name="stabilization" type="rate_indi"/> -->
 
         <module name="stabilization" type="int_quat"/>
@@ -196,7 +196,7 @@
         <define name="TYPE" value="QUAD_X"/>
     </section>
 
-   <!-- in case we need much more precise mixing use the table here instead of motor_mixing_run
+   <!-- in case we need much more precise mixing use the table here instead of motor_mixing_run -->
   <!-- section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>

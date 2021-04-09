@@ -5,11 +5,14 @@
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="TRUE" />
+    </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
+        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="TRUE" />
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
@@ -36,6 +39,7 @@
 
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>
     </module>
+    <define name="USE_SONAR" value="TRUE"/>
     <module name="ins" type="extended"/>
 
     <!--module name="guidance" type="indi">
@@ -53,8 +57,46 @@
     <module name="ctrl_module_outerloop_demo"/>
     <module name="sonar_bebop"/>
 
-    <module name="jevois_mavlink"/>
+    <!--module name="jevois_mavlink"/-->
 
+    <module name="bebop_cam"/>
+
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images/"/>
+    </module>
+
+    <module name="pose_history">
+      <define name="POSE_HISTORY_SIZE" value="128" />
+    </module>
+
+    <!-- For tuning the color filter: -->
+    <!--
+    <module name="cv_colorfilter">
+	  <define name="COLORFILTER_CAMERA" value="front_camera"/>
+	  <define name="COLORFILTER_FPS" value="0"/>
+    </module>
+    -->
+
+    <module name="cv_detect_gate">
+     <define name="DETECT_GATE_CAMERA" value="front_camera"/>
+     <define name="DETECT_GATE_FPS" value="0"/>
+     <define name="DETECT_GATE_Y_MIN" value="31"/>
+     <define name="DETECT_GATE_Y_MAX" value="130"/>
+     <define name="DETECT_GATE_U_MIN" value="62"/>
+     <define name="DETECT_GATE_U_MAX" value="138"/>
+     <define name="DETECT_GATE_V_MIN" value="148"/>
+     <define name="DETECT_GATE_V_MAX" value="221"/>
+    </module>
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <!-- <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/> -->
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="50"/>
+    </module>
+
+    <!--<module name="bebop_ae_awb"/>-->
   </firmware>
 
   <commands>
@@ -85,6 +127,14 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="640" />
+    <define name="OUTPUT_WIDTH" value="640" />
+    <define name="OFFSET_X" value="0.15" />
+    <define name="TARGET_EXPOSURE" value="30" />
+    <define name="ZOOM" value="1.25"/>
+  </section>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>

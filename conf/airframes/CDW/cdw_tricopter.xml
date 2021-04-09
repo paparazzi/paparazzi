@@ -44,6 +44,10 @@ LiPo/LiIo-Zellen: 3
     <module name="stabilization" type="int_euler"/>
     <module name="ahrs" type="int_cmpl_euler"/>
     <module name="ins" type="hff"/>
+
+    <module name="configure_actuators_mkk_v2"/>
+    <module name="imu_quality_assessment"/>
+
   </firmware>
 
   <section name="AUTOPILOT">
@@ -52,13 +56,7 @@ LiPo/LiIo-Zellen: 3
     <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_Z_HOLD"/>
   </section>
 
-  <!-- ************************* MODULES ************************* -->
-
-  <modules>
-    <module name="configure_actuators_mkk_v2"/>
-    <module name="imu_quality_assessment"/>
-  </modules>
-
+ 
   <!-- ************************* ACTUATORS ************************* -->
 
   <section name="ACTUATORS_MKK_V2" prefix="ACTUATORS_MKK_V2_">
