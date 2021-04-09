@@ -277,7 +277,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="5.0" />
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
     <!-- Portland 
     Normalize[{19443.3, 5354.0,48519.5}] = (0.37004, 0.101896, 0.923411)-->
     <define name="H_X" value="0.37004"/>

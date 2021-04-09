@@ -105,7 +105,6 @@
     <define name="VFF_VZ_R_GPS" value="0.01"/>     
     <define name="SONAR_MIN_RANGE" value="0.0"/>
     <define name="SONAR_MAX_RANGE" value="3.5"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
   </section>
 

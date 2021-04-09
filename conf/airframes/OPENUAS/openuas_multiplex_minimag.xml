@@ -317,7 +317,6 @@ NOTES:
 
     <module name="ins" type="alt_float">  <!--Does not work in SIM: extended thus use alt_float"/> -->
       <define name="SONAR_COMPENSATE_ROTATION" value="TRUE"/><!-- compensate AGL for body rotation -->
-      <!--<define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>-->
     </module>
 
     <!-- See http://wiki.paparazziuav.org/wiki/EnergyControl -->

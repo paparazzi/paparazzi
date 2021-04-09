@@ -97,7 +97,6 @@
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_MIN_RANGE" value="0.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
     <define name="USE_GPS_ALT" value="1"/>
     <define name="USE_GPS_ALT_SPEED" value="1"/>
     <define name="VFF_R_GPS" value="0.01"/>

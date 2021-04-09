@@ -178,7 +178,6 @@
     <define name="USE_GPS_SPEED" value="true"/>
     <define name="INS_VFF_R_GPS" value="0.1"/>
     <define name="INS_VFF_VZ_R_GPS" value="0.1"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="true"/>
   </section>
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
