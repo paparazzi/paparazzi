@@ -379,6 +379,7 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/air_data.xml] modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/spektrum_soft_bind.xml modules/stabilization_indi_simple.xml"
    gui_color="#fff0cccaccca"
+   release="234e898f7fd1483806808313d3086f12a1b5730a"
   />
   <aircraft
    name="Splash3"
@@ -390,6 +391,7 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/lidar_tfmini.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
    gui_color="blue"
+   release="009b121cfd12be8d3e236e0cbd5b564f2639d54f"
   />
   <aircraft
    name="TwoSeasTwenty"
@@ -401,6 +403,7 @@
    settings="settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml"
    settings_modules="modules/gps.xml modules/guidance_basic_fw.xml modules/light.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="blue"
+   release="679fcad03bab95b2982cb6d8e3537486da45d306"
   />
   <aircraft
    name="Walkera_GeniusV1"

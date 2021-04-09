@@ -191,6 +191,7 @@ class PaparazziOverview(object):
         process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename], bufsize=-1,
                                    stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
+        stdoutput = stdoutput.decode("utf-8") 
         if stdoutput == "":
             stdoutput = "00-00-0000"
         return stdoutput
