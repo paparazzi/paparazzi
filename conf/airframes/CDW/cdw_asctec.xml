@@ -30,6 +30,11 @@
     <module name="stabilization" type="int_euler"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="hff"/>
+
+    <!--   <module name="logger_spi_link"/> -->
+    <module name="imu_quality_assessment"/>
+    <module name="gps" type="ubx_ucenter" />
+
   </firmware>
 
   <section name="AUTOPILOT">
@@ -38,13 +43,6 @@
     <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
   </section>
 
-  <!-- ************************* MODULES ************************* -->
-
-  <modules main_freq="512">
-    <!--   <module name="logger_spi_link"/> -->
-    <module name="imu_quality_assessment"/>
-    <module name="gps" type="ubx_ucenter" />
-  </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
 

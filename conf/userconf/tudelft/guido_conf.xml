@@ -1,0 +1,46 @@
+<conf>
+  <aircraft
+   name="ARDrone2_Guido_optitrack"
+   ac_id="29"
+   airframe="airframes/tudelft/guido_ardrone2_optitrack.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_guido_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml"
+   gui_color="#fffff996b847"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/cv_opticflow.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/optical_flow_landing.xml modules/stabilization_indi_simple.xml"
+  />
+  <aircraft
+   name="Bebop2_opticflow"
+   ac_id="4"
+   airframe="airframes/tudelft/bebop2_opticflow.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_guido_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/optical_flow_landing.xml modules/stabilization_indi_simple.xml modules/video_capture.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Bebop2_undistort_front"
+   ac_id="5"
+   airframe="airframes/tudelft/bebop2_undistort_front.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_guido_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_undistort_image.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Bebop_opticflow"
+   ac_id="14"
+   airframe="airframes/tudelft/bebop_opticflow.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml modules/video_capture.xml"
+   gui_color="blue"
+  />
+</conf>
