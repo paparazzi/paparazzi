@@ -785,8 +785,8 @@ let check_geo_ref = fun wgs84 xml ->
 let dummy_waypoint =
   Xml.Element ("waypoint",
                ["name", "dummy";
-                "x", "42.";
-                "y", "42." ],
+                "x", "0.";
+                "y", "0." ],
                [])
 
 
