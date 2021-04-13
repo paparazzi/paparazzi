@@ -7,10 +7,6 @@
 
       PWM input measurement mcu periph access and init wrapper for other modules.
 
-      For LPC21xx on the TWOG:
-      - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V to 3.3V voltage divider)
-      - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
-
       For STM32:
       - each board (or airframe file) has to define the PWM input pin and parameters
       - example can be found in sw/airborne/boards/apogee_1.0.h board file

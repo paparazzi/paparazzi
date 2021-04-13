@@ -156,19 +156,9 @@ $(TARGET).srcs   += subsystems/electrical.c
 ## HARDWARE SUPPORT FOR ALL NON-SIMULATION TARGETS (ap)
 ##
 
-# baro has variable offset amplifier on booz board
-ifeq ($(BOARD), booz)
-ns_CFLAGS += -DUSE_DAC
-ns_srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-endif
-
 #
 # Interrupts
 #
-ifeq ($(ARCH), lpc21)
-ns_srcs += $(SRC_ARCH)/armVIC.c
-endif
-
 ifeq ($(ARCH), stm32)
 ns_srcs += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif

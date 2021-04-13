@@ -37,19 +37,5 @@
     <define name="HAL_USE_RTC" value="TRUE" cond="ifeq (,$(findstring $(SDLOG_USE_RTC),0 FALSE))"/>
     <define name="HAL_USE_SDC" value="TRUE"/>
     <define name="HAL_USE_USB" value="TRUE"/>
-    <!--test>
-      <include name="arch/chibios"/>
-      <include name="../ext/chibios/os/hal/include"/>
-      <include name="../ext/chibios/os/rt/include"/>
-      <include name="../ext/chibios/os/license"/>
-      <include name="../ext/chibios/os/common/ports/ARM/compilers/GCC"/>
-      <include name="../ext/chibios/os/common/ports/ARM"/>
-      <include name="../ext/chibios/os/common/startup/ARM/devices/LPC214x"/>
-      <include name="../ext/chibios/os/common/oslib/include"/>
-      <include name="../ext/chibios/os/hal/osal/rt"/>
-      <include name="boards/apogee/chibios/v1.0"/>
-      <include name="../ext/chibios/os/hal/ports/STM32/STM32F4xx"/>
-      <include name="../ext/chibios/os/hal/ports/common/ARMCMx"/>
-    </test-->
   </makefile>
 </module>

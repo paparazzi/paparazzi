@@ -16,5 +16,9 @@
       <configure name="SRC_BOARD" value="boards/ardrone"/>
     </test>
   </makefile>
+  <makefile target="nps">
+    <define name="ACTUATORS"/>
+    <file_arch name="actuators_pwm_arch.c" dir="subsystems/actuators"/>
+  </makefile>
 </module>
 

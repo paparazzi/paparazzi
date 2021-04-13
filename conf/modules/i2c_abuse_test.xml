@@ -13,11 +13,7 @@
   <makefile>
     <file name="i2c_abuse_test.c"/>
     <raw>
-ifeq ($(ARCH), lpc21)
-$(TARGET).CFLAGS += -DI2C_ABUSE_LED=3
-$(TARGET).CFLAGS += -DUSE_I2C0
-$(TARGET).CFLAGS += -DI2C_ABUSE_PORT=i2c0
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 $(TARGET).CFLAGS += -DI2C_ABUSE_LED=7
 $(TARGET).CFLAGS += -DI2C_ABUSE_PORT=i2c2
 endif

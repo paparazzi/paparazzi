@@ -32,7 +32,6 @@
   <periodic fun="imu_aspirin2_periodic()"/>
   <event fun="imu_aspirin2_event()"/>
   <makefile target="!sim|nps|fbw|hitl">
-    <!-- default for stm32, do we want to provide i2c0,spi1,SPI_SLAVE0 defaults for lpc again?-->
     <configure name="ASPIRIN_2_SPI_DEV" default="spi2" case="lower|upper"/>
     <configure name="ASPIRIN_2_SPI_SLAVE_IDX" default="SPI_SLAVE2"/>
 

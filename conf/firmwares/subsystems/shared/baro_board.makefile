@@ -9,12 +9,8 @@
 USE_BARO_BOARD ?= TRUE
 ifeq ($(USE_BARO_BOARD), TRUE)
 
-# booz baro
-ifeq ($(BOARD), booz)
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # Lisa/L
-else ifeq ($(BOARD), lisa_l)
+ifeq ($(BOARD), lisa_l)
   BARO_BOARD_CFLAGS += -DUSE_I2C2
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
@@ -183,20 +179,6 @@ LIA_BARO ?= BARO_MS5611_SPI
     BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
   endif
 
-# navgo baro
-else ifeq ($(BOARD), navgo)
-  include $(CFG_SHARED)/spi_master.makefile
-  BARO_BOARD_CFLAGS += -DUSE_SPI_SLAVE0
-  BARO_BOARD_CFLAGS += -DUSE_SPI1
-  BARO_BOARD_SRCS += peripherals/mcp355x.c
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
-# hbmini baro
-else ifeq ($(BOARD), hbmini)
-  BARO_BOARD_CFLAGS += -DUSE_I2C1
-  BARO_BOARD_SRCS += peripherals/bmp085.c
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # krooz baro
 else ifeq ($(BOARD), krooz)
   BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
@@ -237,15 +219,6 @@ else ifeq ($(BOARD), apogee)
   BARO_BOARD_CFLAGS += -DUSE_I2C1
   BARO_BOARD_SRCS += peripherals/mpl3115.c
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
-# Umarim
-else ifeq ($(BOARD), umarim)
-  ifeq ($(BOARD_VERSION), 1.0)
-    BARO_BOARD_CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
-    BARO_BOARD_CFLAGS += -DADS1114_I2C_DEV=i2c1
-    BARO_BOARD_SRCS += peripherals/ads1114.c
-    BARO_BOARD_SRCS += boards/umarim/baro_board.c
-  endif
 
 # Naze32
 else ifeq ($(BOARD), naze32)

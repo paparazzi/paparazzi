@@ -21,7 +21,7 @@
  */
 
 /**
- * @file arch/lpc21/subsystems/settings_arch.c
+ * @file arch/stm32/subsystems/settings_arch.c
  * Persistent settings low level flash routines stm32.
  *
  * data          flash_addr
