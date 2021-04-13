@@ -1,3 +1,55 @@
+Paparazzi v5.18.0_stable
+========================
+
+Stable version release, the last of series 5
+
+The next version 6.0 will be unstable with several incompatible changes
+and the end of the support of lpc21 and bare-metal stm32 (libopencm3).
+
+General
+-------
+- rewrite aircraft generator (#2545) (#2562) (#2581) (#2684)
+- pprzlink update (#2548) (#2590) (#2591)
+- documentation (#2558) (#2583) (#2604) (#2628)
+- bug fix (#2569) (#2572) (#2577) (#2616) (#2619) (#2662) (#2663) (#2665)
+- bebop network script (#2571)
+- improve joystick tool (#2579)
+- selectable navigation functions for flight plan (#2585)
+- Ubuntu 20.04 and Python 3 support (#2586) (#2588) (#2587) (#2595) (#2689)
+- python lib for FP, settings, etc (#2592)
+- fix secure pprzlink (#2645) (#2646)
+- update docker to 18.04 (#2656) (#2679)
+- test node for modules (#2653)
+- fix SRTM download (#2659)
+- server arg to set log file name (#2664)
+- module dependency (#2669)
+- support LTP waypoints in flight plan (#2676)
+- dummy WP at (0,0) (#2694)
+
+Airborne
+--------
+- bug fix (#2532) (#2536) (#2549) (#2553) (#2555) (#2552) (#2566) (#2580) (#2598) (#2609) (#2625) (#2652) (#2672) (#2675)
+- cleaning (#2534) (#2547) (#2557) (#2593) (#2630) (#2680) (#2683)
+- board config (#2542) (#2620) (#2629) (#2649) (#2650) (#2678) (#2690) (#2691)
+- system identification modules (#2544) (#2510) (#2551)
+- new board support: Eachine (#2540), Tawaki 1.1 (#2574) (#2596), Matek F405 (#2602) (#2614), nucleo144 (#2624), Matek F7
+- sensors (#2554)
+- split arming from AP code (#2550)
+- hybrid guidance (#2533)
+- drivers (#2564) (#2575) (#2578)
+- improve INDI code (#2573) (#2668) (#2688)
+- GVF parametric guidance (#2559)
+- support more timers (#2584) (#2667)
+- bio inspired swarm nav (#2597)
+- SPI SD logger update (#2605)
+- shell module (#2634) (#2681)
+- ID module update (#2638) (#2640)
+- computer vision (#2618) (#2655)
+- update to ChibiOS 20.3 (#2657)
+- update eigen (#2658) (#2682)
+- rapid rearming after kill (#2670)
+
+
 Paparazzi v5.16.0_stable
 ========================
 
