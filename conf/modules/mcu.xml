@@ -17,7 +17,6 @@
     <defina name="USE_LED"/>
     <file name="mcu.c" dir="."/>
     <file_arch name="mcu_arch.c" dir="."/>
-    <file_arch name="armVIC.c" dir="." cond="ifeq ($(ARCH), lpc21)"/>
     <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), stm32)"/>
     <file_arch name="led_arch.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
     <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), chibios)"/>

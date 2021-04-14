@@ -103,10 +103,6 @@ endif
 #
 # Interrupt Vectors
 #
-ifeq ($(ARCH), lpc21)
-  ns_srcs 		+= $(SRC_ARCH)/armVIC.c
-endif
-
 ifeq ($(ARCH), stm32)
   ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
@@ -214,6 +210,7 @@ sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDO
 sim.srcs 		+= subsystems/datalink/downlink.c subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c pprzlink/src/ivy_transport.c subsystems/datalink/telemetry.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 
 sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
+sim.srcs 		+= $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 
 # hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
 sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
@@ -254,6 +251,7 @@ else
   include $(CFG_SHARED)/hitl.makefile
 endif
 nps.srcs += nps/nps_autopilot_fixedwing.c
+nps.srcs += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 
 # add normal ap and fbw sources
 nps.CFLAGS  += $(fbw_CFLAGS) $(ap_CFLAGS)

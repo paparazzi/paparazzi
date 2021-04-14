@@ -39,9 +39,7 @@ endif
 
 COMMON_SETUP_CFLAGS += -DUSE_LED
 
-ifeq ($(ARCH), lpc21)
-COMMON_SETUP_SRCS += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 COMMON_SETUP_SRCS += $(SRC_ARCH)/led_hw.c
 COMMON_SETUP_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
@@ -89,14 +87,6 @@ endif
 ifneq ($(TUNNEL_RX_LED),none)
  usb_tunnel.CFLAGS += -DTUNNEL_RX_LED=$(TUNNEL_RX_LED)
 endif
-
-ifeq ($(ARCH), lpc21)
-# for the usb_tunnel we need to set PCLK higher with the flag USE_USB_HIGH_PCLK
-usb_tunnel.CFLAGS += -DUSE_USB_HIGH_PCLK
-usb_tunnel.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
-usb_tunnel.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-endif
-
 
 
 #

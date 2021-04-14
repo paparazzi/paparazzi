@@ -3,10 +3,10 @@
 
 
 /* Default actuators driver */
-#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_4017.h"
-#define ActuatorDefaultSet(_x,_y) Actuator4017Set(_x,_y)
-#define ActuatorsDefaultInit() Actuators4017Init()
-#define ActuatorsDefaultCommit() Actuators4017Commit()
+#define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
+#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorsDefaultInit() ActuatorsPwmInit()
+#define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
 
 #define DefaultVoltageOfAdc(adc) (1.0*adc)

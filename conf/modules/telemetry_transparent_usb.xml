@@ -27,12 +27,6 @@
     <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
     <file_arch name="usb_ser_hw.c" dir="."/>
-    <raw>
-      ifeq ($(ARCH), lpc21)
-      $(TARGET).srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
-      $(TARGET).srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
-      endif
-    </raw>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>

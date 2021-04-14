@@ -23,7 +23,7 @@
 ################################################################################
 #
 #
-#  Common test programs for the all LPC21 and STM32 boards
+#  Common test programs for the all STM32 boards
 #
 ################################################################################
 
@@ -62,9 +62,7 @@ endif
 
 COMMON_TEST_CFLAGS += -DUSE_LED
 
-ifeq ($(ARCH), lpc21)
-COMMON_TEST_SRCS += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 COMMON_TEST_SRCS += $(SRC_ARCH)/led_hw.c
 COMMON_TEST_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
@@ -91,16 +89,11 @@ ifneq (,$(findstring usb, $(MODEM_DEV)))
 COMMON_TELEMETRY_CFLAGS += -DUSE_USB_SERIAL
 COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=usb_serial
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=usb_serial
-ifeq ($(ARCH), lpc21)
-COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
-COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
-else
 ifeq ($(ARCH), stm32)
 COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/usb_ser_hw.c
 else
 ifneq ($(ARCH), sim)
-$(error telemetry_transparent_usb currently only implemented for the lpc21 and stm32)
-endif
+$(error telemetry_transparent_usb currently only implemented for the stm32)
 endif
 endif
 else
@@ -294,13 +287,7 @@ test_ms2100.srcs   += test/peripherals/test_ms2100.c
 test_ms2100.srcs   += peripherals/ms2100.c $(SRC_ARCH)/peripherals/ms2100_arch.c
 test_ms2100.CFLAGS += -DUSE_SPI -DSPI_MASTER
 test_ms2100.srcs   += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
-ifeq ($(ARCH), lpc21)
-test_ms2100.CFLAGS += -DUSE_SPI1
-test_ms2100.CFLAGS += -DUSE_SPI_SLAVE1
-test_ms2100.CFLAGS += -DMS2100_SLAVE_IDX=1
-test_ms2100.CFLAGS += -DMS2100_SPI_DEV=spi1
-test_ms2100.CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 test_ms2100.CFLAGS += -DUSE_SPI2
 test_ms2100.CFLAGS += -DUSE_SPI_SLAVE4
 test_ms2100.CFLAGS += -DMS2100_SLAVE_IDX=4
