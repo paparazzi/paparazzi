@@ -213,7 +213,7 @@ sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
 sim.srcs 		+= $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c
 
 # hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
-sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
+sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_airspeed.c
 
 ######################################################################
 ##

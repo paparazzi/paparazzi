@@ -9,7 +9,7 @@ module type AIRCRAFT =
     val init : int -> GPack.box -> unit
     val boot : Simlib.value -> unit
     val commands : Simlib.pprz_t array -> unit
-    val infrared_and_airspeed : float -> float -> float -> float -> unit
+    val airspeed : float -> unit
     val attitude_and_rates : float -> float -> float -> float -> float -> float -> unit
     val gps : Gps.state -> unit
   end

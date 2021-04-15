@@ -23,7 +23,7 @@
     <file_arch name="sim_gps.c" dir="."/>
     <file_arch name="sim_adc_generics.c" dir="."/>
     <file_arch name="sim_ahrs.c" dir="."/>
-    <file_arch name="sim_ir.c" dir="."/>
+    <file_arch name="sim_airspeed.c" dir="."/>
   </makefile>
 </module>
 

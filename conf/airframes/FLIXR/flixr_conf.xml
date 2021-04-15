@@ -44,17 +44,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="fraser"
-   ac_id="11"
-   airframe="airframes/FLIXR/flixr_fraser_lisa_m_rotorcraft.xml"
-   radio="radios/TGY9x_jeti.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/gps.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="px4"
    ac_id="36"
    airframe="airframes/untested/quadrotor_px4fmu.xml"
