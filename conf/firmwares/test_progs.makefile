@@ -353,31 +353,6 @@ test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_
 
 
 #
-# simple test of mikrokopter motor controllers
-#
-test_esc_mkk_simple.ARCHDIR = $(ARCH)
-test_esc_mkk_simple.CFLAGS += $(COMMON_TEST_CFLAGS)
-test_esc_mkk_simple.srcs   += $(COMMON_TEST_SRCS)
-
-test_esc_mkk_simple.srcs   += test/test_esc_mkk_simple.c
-test_esc_mkk_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
-test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c2
-
-
-#
-# simple test of asctec v1 motor controllers
-#
-test_esc_asctecv1_simple.ARCHDIR = $(ARCH)
-test_esc_asctecv1_simple.CFLAGS += $(COMMON_TEST_CFLAGS)
-test_esc_asctecv1_simple.srcs   += $(COMMON_TEST_SRCS)
-
-test_esc_asctecv1_simple.srcs   += test/test_esc_asctecv1_simple.c
-test_esc_asctecv1_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
-
-
-#
 # Test manual : a simple test with rc and servos
 # add the desired actuators and radio_control subsystem to this target
 #

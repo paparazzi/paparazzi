@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+<!-- this is a quadrotor frame equiped with Lisa/M -->
 
 <airframe name="setup_lisam2">
 
@@ -29,8 +29,6 @@
     <target name="test_actuators_pwm_sin"   board="lisa_m_2.0">
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_esc_mkk_simple"      board="lisa_m_2.0"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_m_2.0"/>
     <target name="test_baro_board"          board="lisa_m_2.0">
       <configure name="BARO_LED" value="5"/>
       <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->

@@ -206,10 +206,9 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s
 
-  external set_ir_and_airspeed : int -> int -> int -> float -> unit = "set_ir_and_airspeed"
-  let infrared_and_airspeed = fun ir_left ir_front ir_top air_speed ->
-    (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
-    set_ir_and_airspeed (truncate ir_left) (truncate ir_front) (truncate ir_top) air_speed
+  external set_airspeed : float -> unit = "set_airspeed"
+  let airspeed = fun air_speed ->
+    set_airspeed air_speed
 
   external provide_attitude : float -> float -> float -> unit = "provide_attitude"
   external provide_rates : float -> float -> float -> unit = "provide_rates"
