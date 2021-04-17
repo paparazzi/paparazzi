@@ -22,17 +22,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="demo_cc3d"
-   ac_id="2"
-   airframe="airframes/untested/demo_cc3d.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/demo.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/test_actuators_pwm.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="flixr_lisamx"
    ac_id="42"
    airframe="airframes/FLIXR/flixr_lisa_mx.xml"
@@ -41,61 +30,6 @@
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/setup_actuators.xml settings/estimation/ahrs_secondary.xml"
    settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="px4"
-   ac_id="36"
-   airframe="airframes/untested/quadrotor_px4fmu.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="quad_cc3d"
-   ac_id="3"
-   airframe="airframes/untested/quad_cc3d.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="quad_flip32"
-   ac_id="32"
-   airframe="airframes/untested/quad_flip32.xml"
-   radio="radios/TGY9x_jeti.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/gps.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="quad_revo_nano"
-   ac_id="4"
-   airframe="airframes/untested/quad_revo_nano.xml"
-   radio="radios/TGY9x_jeti.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/air_data.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/gps.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="test_bbb"
-   ac_id="1"
-   airframe="airframes/untested/beagle_bone_black.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="[settings/test_settings.xml] settings/dummy.xml"
-   settings_modules="modules/imu_common.xml"
    gui_color="blue"
   />
   <aircraft
