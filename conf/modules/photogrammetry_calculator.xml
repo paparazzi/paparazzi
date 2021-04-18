@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="photogrammetry_calculator" dir="cartography">
+  <doc>
+    <description>Photogrammetry navigation functions</description>
+  </doc>
+  <settings>
+    <dl_settings name="control">
+      <dl_settings name="photocalc">
+
+        <dl_setting max="90" min="-90" step="1" module="cartography/photogrammetry_calculator" var="photogrammetry_sweep_angle" shortname="Angle" param="PHOTOGRAMMETRY_SWEEP_ANGLE" unit="rad" alt_unit="deg"/>
+
+        <dl_setting max="95" min="0" step="1" VAR="photogrammetry_sidelap" module="cartography/photogrammetry_calculator" shortname="SideLap %" param="PHOTOGRAMMETRY_SIDELAP" handler="UpdateSideLap" />
+        <dl_setting max="95" min="0" step="1" var="photogrammetry_overlap" module="cartography/photogrammetry_calculator" shortname="OverLap %" param="PHOTOGRAMMETRY_OVERLAP" handler="UpdateOverLap" />
+        <dl_setting max="200" min="1" step="1" var="photogrammetry_resolution" module="cartography/photogrammetry_calculator" shortname="Pixel mm" param="PHOTOGRAMMETRY_RESOLUTION" handler="UpdateResolution"  />
+
+        <dl_setting max="500" min="1" step="1" var="photogrammetry_height_min" shortname="h_min" />
+        <dl_setting max="500" min="1" step="1" var="photogrammetry_height_max" shortname="h_max" />
+        <dl_setting max="500" min="1" step="1" var="photogrammetry_radius_min" shortname="r_min" />
+
+
+        <dl_setting max="500" min="1" step="1" var="photogrammetry_height" module="cartography/photogrammetry_calculator" shortname="computed height" handler="UpdateHeight" />
+        <dl_setting max="1000" min="1" step="1" var="photogrammetry_sidestep" module="cartography/photogrammetry_calculator" shortname="computed sidestep" handler="UpdateSideStep" />
+        <dl_setting max="1000" min="1" step="1" var="photogrammetry_triggerstep" module="cartography/photogrammetry_calculator" shortname="computed trigger" handler="UpdateTriggerStep" />
+
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="photogrammetry_calculator.h"/>
+  </header>
+  <init fun="init_photogrammetry_calculator()"/>
+<!--
+  <periodic fun="periodic_1Hz_demo()" freq="1." start="start_demo()" stop="stop_demo()" autorun="TRUE"/>
+-->
+  <makefile>
+    <define name="photogrammetry_calculator_LED" value="2"/>
+    <file name="photogrammetry_calculator.c"/>
+  </makefile>
+</module>
+
