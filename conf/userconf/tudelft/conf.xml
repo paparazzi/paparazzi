@@ -286,6 +286,17 @@
    release="997fa535902c4d8f73bc34c02c862652cd47cae5"
   />
   <aircraft
+   name="Neddrone4"
+   ac_id="14"
+   airframe="airframes/tudelft/neddrone4.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/highspeed_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/guidance_indi_hybrid.xml modules/air_data.xml modules/ins_ekf2.xml modules/stabilization_indi_simple.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="OrigamiMXS_wifi_indi_stereocam"
    ac_id="15"
    airframe="airframes/tudelft/origami_lisamxs_wifi_indi_stereoboard.xml"
@@ -296,17 +307,6 @@
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/range_forcefield.xml modules/stabilization_indi_simple.xml modules/stabilization_int_quat.xml"
    gui_color="blue"
    release="c11f888de1eba08d751f1ff0b03bf4a5bec8e8fa"
-  />
-  <aircraft
-   name="Neddrone4"
-   ac_id="14"
-   airframe="airframes/tudelft/neddrone4.xml"
-   radio="radios/crossfire_sbus.xml"
-   telemetry="telemetry/highspeed_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/air_data.xml modules/ins_ekf2.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
-   gui_color="blue"
   />
   <aircraft
    name="Quadplane"

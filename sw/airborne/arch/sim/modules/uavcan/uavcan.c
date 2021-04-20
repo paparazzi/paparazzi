@@ -19,28 +19,23 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/subsystems/actuators/actuators_uavcan.h
+ * @file arch/chibios/subsystems/actuators/actuators_uavcan_arch.c
  * Interface from actuators to ChibiOS CAN driver using UAVCan
- *
+ * 
  */
-#ifndef ACTUATORS_UAVCAN_ARCH_H
-#define ACTUATORS_UAVCAN_ARCH_H
 
-#include "std.h"
-#include "hal.h"
+#include "uavcan.h"
 
-#include BOARD_CONFIG
-
-#ifndef ACTUATORS_UAVCAN_NB
-#define ACTUATORS_UAVCAN_NB 20
+/** uavcan interfaces */
+#if UAVCAN_USE_CAN1
+struct uavcan_iface_t uavcan1;
+#endif
+#if UAVCAN_USE_CAN2
+struct uavcan_iface_t uavcan2;
 #endif
 
-extern int16_t actuators_uavcan_values[ACTUATORS_UAVCAN_NB];
-
-extern void actuators_uavcan_arch_init(void);
-extern void actuators_uavcan_commit(void);
-
-#define ActuatorUavcanSet(_i, _v) { actuators_uavcan_values[_i] = _v; }
-#define ActuatorsUavcanCommit  actuators_uavcan_commit
-
-#endif /* ACTUATORS_UAVCAN_ARCH_H */
+/** uavcan external functions */
+void uavcan_init(void) {}
+void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb) {}
+void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id, uint8_t priority,
+                      const void* payload, uint16_t payload_len) {}

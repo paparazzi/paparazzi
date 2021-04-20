@@ -19,14 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN_H
-#define ACTUATORS_UAVCAN_H
+#ifndef ACTUATORS_UAVCAN1_H
+#define ACTUATORS_UAVCAN1_H
 
-#include "modules/uavcan/uavcan.h"
-#include BOARD_CONFIG
+#include "actuators_uavcan.h"
 
-/* External functions */
-extern void actuators_uavcan_init(struct uavcan_iface_t* iface);
-extern void actuators_uavcan_commit(struct uavcan_iface_t* iface, int16_t *values, uint8_t nb);
+/** Stub file needed per uavcan interface because of generator */
+extern int16_t actuators_uavcan1_values[SERVOS_UAVCAN1_NB];
 
-#endif /* ACTUATORS_UAVCAN_H */
+#define ActuatorsUavcan1Init() actuators_uavcan_init(&uavcan1)
+#define ActuatorUavcan1Set(_i, _v) { actuators_uavcan1_values[_i] = _v; }
+#define ActuatorsUavcan1Commit()  actuators_uavcan_commit(&uavcan1, actuators_uavcan1_values, SERVOS_UAVCAN1_NB)
+
+#endif /* ACTUATORS_UAVCAN1_H */

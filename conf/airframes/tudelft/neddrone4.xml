@@ -73,7 +73,10 @@
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
-    <module name="actuators"     type="uavcan"/>
+    <module name="actuators"     type="uavcan">
+      <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
+      <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
+    </module>
     <module name="imu"           type="mpu6000"/>
     <module name="gps"           type="ublox"/>
     <module name="gps"           type="ubx_ucenter"/>
@@ -130,8 +133,8 @@
 
   </firmware>
 
-  <servos driver="Uavcan">
-    <!-- CAN BUS 1 (Front Wing) -->
+  <!-- CAN BUS 1 (Front Wing) -->
+  <servos driver="Uavcan1">
     <servo name="MOTOR_1" no="0" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_2" no="1" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_3" no="2" min="-8191" neutral="1500" max="8191"/>
@@ -142,18 +145,20 @@
     <servo name="FLAP_1" no="7" min="6000" neutral="0" max="-6000"/>
     <servo name="FLAP_2" no="8" min="-6000" neutral="0" max="6000"/>
     <servo name="AIL_2" no="9" min="-6000" neutral="0" max="6000"/>
+  </servos>
 
-    <!-- CAN BUS 2 (Back Wing) -->
-    <servo name="MOTOR_7" no="10" min="-8191" neutral="1500" max="8191"/>
-    <servo name="MOTOR_8" no="11" min="-8191" neutral="1500" max="8191"/>
-    <servo name="MOTOR_9"  no="12" min="-8191" neutral="1500" max="8191"/>
-    <servo name="MOTOR_10" no="13" min="-8191" neutral="1500" max="8191"/>
-    <servo name="MOTOR_11" no="14" min="-8191" neutral="1500" max="8191"/>
-    <servo name="MOTOR_12" no="15" min="-8191" neutral="1500" max="8191"/>
-    <servo name="FLAP_3" no="16" min="-6000" neutral="0" max="6000"/>
-    <servo name="AIL_3" no="17" min="-6000" neutral="0" max="6000"/>
-    <servo name="AIL_4" no="18" min="6000" neutral="0" max="-6000"/>
-    <servo name="FLAP_4" no="19" min="6000" neutral="0" max="-6000"/>
+  <!-- CAN BUS 2 (Back Wing) -->
+  <servos driver="Uavcan2">
+    <servo name="MOTOR_7" no="0" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_8" no="1" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_9"  no="2" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_10" no="3" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_11" no="4" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_12" no="5" min="-8191" neutral="1500" max="8191"/>
+    <servo name="FLAP_3" no="6" min="-6000" neutral="0" max="6000"/>
+    <servo name="AIL_3" no="7" min="-6000" neutral="0" max="6000"/>
+    <servo name="AIL_4" no="8" min="6000" neutral="0" max="-6000"/>
+    <servo name="FLAP_4" no="9" min="6000" neutral="0" max="-6000"/>
   </servos>
 
   <commands>
