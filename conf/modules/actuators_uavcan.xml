@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_uavcan" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      UAVCan actuators
+   </description>
+  </doc>
+  <dep>
+    <depends>uavcan</depends>
+  </dep>
+  <header>
+    <file name="actuators_uavcan.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile target="ap|nps">
+    <file name="actuators_uavcan.c" dir="subsystems/actuators"/>
+  </makefile>
+</module>
+

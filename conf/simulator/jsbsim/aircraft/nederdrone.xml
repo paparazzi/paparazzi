@@ -1,0 +1,606 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Ewoud Smeur</author>
+    <filecreationdate>23-04-2020</filecreationdate>
+    <version>Version 0.9 - beta</version>
+    <description>Nederdrone</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="M2"> 1 </wingarea>
+    <wingspan unit="M"> 2 </wingspan>
+    <chord unit="M"> 0.25 </chord>
+    <htailarea unit="M2"> 0 </htailarea>
+    <htailarm unit="M"> 0 </htailarm>
+    <vtailarea unit="M2"> 0 </vtailarea>
+    <vtailarm unit="M"> 0 </vtailarm>
+    <wing_incidence unit="DEG"> 90 </wing_incidence>
+    <location name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2"> 2.25 </ixx>
+    <iyy unit="KG*M2"> 0.3322  </iyy>
+    <izz unit="KG*M2"> 4.0 </izz>
+    <ixy unit="KG*M2"> 0. </ixy>
+    <ixz unit="KG*M2"> 0. </ixz>
+    <iyz unit="KG*M2"> 0. </iyz>
+        <emptywt unit="KG"> 13.0 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x> 0.41 </x>
+        <y> 0.2 </y>
+        <z>-0.11 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x>  0.41</x>
+        <y> -0.2   </y>
+        <z> -0.11 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.11  </x>
+        <y> 0.2</y>
+        <z> 0.41 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.11  </x>
+        <y>-0.2</y>
+        <z> 0.41 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="m1_lag">
+        <input> fcs/m1 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m1_lag</output>
+      </lag_filter>
+      <lag_filter name="m2_lag">
+        <input> fcs/m2 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m2_lag</output>
+      </lag_filter>
+      <lag_filter name="m3_lag">
+        <input> fcs/m3 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m3_lag</output>
+      </lag_filter>
+      <lag_filter name="m4_lag">
+        <input> fcs/m4 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m4_lag</output>
+      </lag_filter>
+      <lag_filter name="m5_lag">
+        <input> fcs/m5 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m5_lag</output>
+      </lag_filter>
+      <lag_filter name="m6_lag">
+        <input> fcs/m6 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m6_lag</output>
+      </lag_filter>
+      <lag_filter name="m7_lag">
+        <input> fcs/m7 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m7_lag</output>
+      </lag_filter>
+      <lag_filter name="m8_lag">
+        <input> fcs/m8 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m8_lag</output>
+      </lag_filter>
+      <lag_filter name="m9_lag">
+        <input> fcs/m9 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m9_lag</output>
+      </lag_filter>
+      <lag_filter name="m10_lag">
+        <input> fcs/m10 </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m10_lag</output>
+      </lag_filter>
+      <lag_filter name="m11_lag">
+        <input> fcs/m11</input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m11_lag</output>
+      </lag_filter>
+      <lag_filter name="m12_lag">
+        <input> fcs/m12</input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> 18.0 </c1>
+        <output> fcs/m12_lag</output>
+      </lag_filter>
+    </channel>
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/m1</property>
+    <property>fcs/m2</property>
+    <property>fcs/m3</property>
+    <property>fcs/m4</property>
+    <property>fcs/m5</property>
+    <property>fcs/m6</property>
+    <property>fcs/m7</property>
+    <property>fcs/m8</property>
+    <property>fcs/m9</property>
+    <property>fcs/m10</property>
+    <property>fcs/m11</property>
+    <property>fcs/m12</property>
+    <property>fcs/m1_lag</property>
+    <property>fcs/m2_lag</property>
+    <property>fcs/m3_lag</property>
+    <property>fcs/m4_lag</property>
+    <property>fcs/m5_lag</property>
+    <property>fcs/m6_lag</property>
+    <property>fcs/m7_lag</property>
+    <property>fcs/m8_lag</property>
+    <property>fcs/m9_lag</property>
+    <property>fcs/m10_lag</property>
+    <property>fcs/m11_lag</property>
+    <property>fcs/m12_lag</property>
+    <property>fcs/ail1</property>
+    <property>fcs/ail2</property>
+    <property>fcs/ail3</property>
+    <property>fcs/ail4</property>
+    <property>fcs/flap1</property>
+    <property>fcs/flap2</property>
+    <property>fcs/flap3</property>
+    <property>fcs/flap4</property>
+
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="m1" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m1_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>-1.105</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m2" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m2_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>-0.735</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m3" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m3_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>-0.320</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m4" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m4_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>0.320</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m5" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m5_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>0.735</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m6" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m6_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.141</x>
+        <y>1.105</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m7" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m7_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>1.105</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m8" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m8_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>0.735</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m9" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m9_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>0.320</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m10" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m10_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>-0.320</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m11" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m11_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>-0.735</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    <force name="m12" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/m12_lag</property>
+          <value> 3.822 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.141</x>
+        <y>-1.105</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    
+    <!--<moment name="mom" frame="BODY" unit="FT*LBS">-->
+      <!--<function>-->
+        <!--<product>-->
+          <!--<property>fcs/m12_lag</property>-->
+          <!--<value> 13500000 </value>-->
+        <!--</product>-->
+      <!--</function>-->
+      <!--<direction>-->
+        <!--<x>0</x>-->
+        <!--<y>0</y>-->
+        <!--<z>-1</z>-->
+      <!--</direction>-->
+      <!--<location unit="M">-->
+        <!--<x>0.2</x>-->
+        <!--<y>-1.0</y>-->
+        <!--<z>0</z>-->
+      <!--</location>-->
+      <!--<axis name="N"/>-->
+    <!--</moment>-->
+
+
+    <!-- Then the Moment Couples -->
+
+    <!--yaw moments-->
+    <force name="yaw" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <sum>
+            <property>fcs/m1_lag</property>
+            <property>fcs/m3_lag</property>
+            <property>fcs/m5_lag</property>
+            <property>fcs/m7_lag</property>
+            <property>fcs/m9_lag</property>
+            <property>fcs/m11_lag</property>
+            <product>
+              <sum>
+                <property>fcs/m2_lag</property>
+                <property>fcs/m4_lag</property>
+                <property>fcs/m6_lag</property>
+                <property>fcs/m8_lag</property>
+                <property>fcs/m10_lag</property>
+                <property>fcs/m12_lag</property>
+              </sum>
+              <value> -1 </value>
+            </product>
+          </sum>
+          <value> 1.2 </value>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-1</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <force name="yaw2" frame="BODY" unit="LBS">
+        <product>
+          <sum>
+            <property>fcs/m1_lag</property>
+            <property>fcs/m3_lag</property>
+            <property>fcs/m5_lag</property>
+            <property>fcs/m7_lag</property>
+            <property>fcs/m9_lag</property>
+            <property>fcs/m11_lag</property>
+            <product>
+              <sum>
+                <property>fcs/m2_lag</property>
+                <property>fcs/m4_lag</property>
+                <property>fcs/m6_lag</property>
+                <property>fcs/m8_lag</property>
+                <property>fcs/m10_lag</property>
+                <property>fcs/m12_lag</property>
+              </sum>
+              <value> -1 </value>
+            </product>
+          </sum>
+          <value> 1.2 </value>
+        </product>
+      <location unit="M">
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <!--<aerodynamics>-->
+    <!--<axis name="DRAG">-->
+      <!--<function name="aero/coefficient/CD">-->
+        <!--<description>Drag</description>-->
+        <!--<product>-->
+          <!--<property>aero/qbar-psf</property>-->
+          <!--<value>47.9</value> [> Conversion to pascals <]-->
+          <!--<value>0.0151</value> [> CD x Area (m^2) <]-->
+          <!--<value>0.224808943</value> [> N to LBS <]-->
+        <!--</product>-->
+      <!--</function>-->
+    <!--</axis>-->
+  <!--</aerodynamics>-->
+  <aerodynamics file="Systems/aerodynamics_nederdrone.xml"/>
+
+</fdm_config>
