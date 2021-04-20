@@ -5,10 +5,10 @@
     <description>
       UAVCan interface for transmitting/receiving uavcan messages on CAN busses
    </description>
-    <configure name="UAVCAN_USE_CAN1" value="FALSE" description="Enable UAVCAN on CAN1 interface"/>
-    <configure name="UAVCAN_USE_CAN2" value="FALSE" description="Enable UAVCAN on CAN2 interface"/>
-    <define name="UAVCAN_NODE_ID" value="100" description="The UAVCAN node ID of the AP"/>
-    <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
+   <configure name="UAVCAN_USE_CAN1" value="FALSE" description="Enable UAVCAN on CAN1 interface"/>
+   <configure name="UAVCAN_USE_CAN2" value="FALSE" description="Enable UAVCAN on CAN2 interface"/>
+   <define name="UAVCAN_NODE_ID" value="100" description="The UAVCAN node ID of the AP"/>
+   <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
   </doc>
   <header>
     <file name="uavcan.h" dir="modules/uavcan"/>
