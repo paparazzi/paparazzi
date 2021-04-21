@@ -65,7 +65,7 @@
       <define name="RADIO_FMODE"       value="0"/> <!-- Throttle curve select -->
       <define name="RADIO_FBW_MODE"    value="0"/> <!-- Switch between AP and FBW control -->
       <define name="RADIO_FLAPS"       value="0"/> <!-- Flaps control -->
-      <define name="RADIO_KILL_SWITCH" value="6"/>
+      <define name="RADIO_KILL_SWITCH" value="0"/>
       <define name="RADIO_BACK_THOLD"  value="0"/>
     </target>
 
