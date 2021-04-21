@@ -13,7 +13,7 @@
   <header>
     <file name="actuators_uavcan.h" dir="subsystems/actuators"/>
   </header>
-  <makefile target="ap|nps">
+  <makefile target="ap">
     <file name="actuators_uavcan.c" dir="subsystems/actuators"/>
   </makefile>
 </module>
