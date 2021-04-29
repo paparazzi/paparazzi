@@ -790,31 +790,6 @@ let dummy_waypoint =
                [])
 
 
-let print_inside_polygon = fun out pts ->
-  let (_, pts) = List.split pts in
-  let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
-  let rec f = fun i j ->
-    if i = j then
-      let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
-      if xg > xd then begin
-        lprintf out "return FALSE;\n"
-      end else begin
-        if ad <> 0. || ag <> 0. then
-          lprintf out "float dy = _y - %.1f;\n" yl;
-        let dy_times = fun f -> if f = 0. then "" else sprintf "+dy*%f" f in
-        lprintf out "return (%.1f%s<= _x && _x <= %.1f%s);\n" xg (dy_times ag) xd (dy_times ad)
-      end
-    else
-      let ij2 = (i+j) / 2 in
-      let yl = layers.(ij2).G2D.top in
-      lprintf out "if (_y <= %.1f) {\n" yl;
-      right (); f i ij2; left ();
-      lprintf out "} else {\n";
-      right (); f (ij2+1) j; left ();
-      lprintf out "}\n"
-  in
-  f 0 (Array.length layers - 1);;
-
 let print_inside_polygon_global = fun out pts ->
   lprintf out "uint8_t i, j;\n";
   lprintf out "bool c = false;\n";
@@ -836,16 +811,10 @@ let print_inside_polygon_global = fun out pts ->
   lprintf out "return c;\n"
 
 
-type sector_type = StaticSector | DynamicSector
-
-let print_inside_sector = fun out t (s, pts) ->
+let print_inside_sector = fun out (s, pts) ->
   lprintf out "static inline bool %s(float _x, float _y) {\n" (inside_function s);
   right ();
-  begin
-    match t with
-    | StaticSector -> print_inside_polygon out pts
-    | DynamicSector -> print_inside_polygon_global out pts
-  end;
+  print_inside_polygon_global out pts;
   left ();
   lprintf out "}\n"
 
@@ -1126,9 +1095,8 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   (* print sectors *)
   let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
   let sectors = List.filter (fun x -> Compat.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
-  let sectors_type = List.map (fun x -> match ExtXml.attrib_or_default x "type" "static" with "dynamic" -> DynamicSector | _ -> StaticSector) sectors in
   let sectors = List.map (parse_wpt_sector index_of_waypoints waypoints) sectors in
-  List.iter2 (print_inside_sector out) sectors_type sectors;
+  List.iter (print_inside_sector out) sectors;
 
   (* print main flight plan state machine *)
   lprintf out "\nstatic inline void auto_nav(void) {\n";
