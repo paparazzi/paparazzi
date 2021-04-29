@@ -18,7 +18,7 @@
     <waypoint name="CLIMB" x="-122.5" y="35.4"/>
   </waypoints>
   <sectors>
-    <sector name="Square" type="dynamic">
+    <sector name="Square">
       <corner name="C1"/>
       <corner name="C2"/>
       <corner name="C3"/>

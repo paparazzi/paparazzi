@@ -23,7 +23,7 @@
     <waypoint name="_G4" x="2.5" y="-46.9"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="Flight_Area" type="dynamic">
+    <sector color="red" name="Flight_Area">
       <corner name="_G1"/>
       <corner name="_G2"/>
       <corner name="_G3"/>

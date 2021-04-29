@@ -60,7 +60,7 @@ static inline bool delay_test_gf(bool test, int delay) {
     <waypoint name="_HERE" x="86.0" y="-117.2"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="FlyZone" type="dynamic">
+    <sector color="red" name="FlyZone">
       <corner name="_NFZ1"/>
       <corner name="_NFZ2"/>
       <corner name="_NFZ3"/>
@@ -69,7 +69,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <corner name="_NFZ5"/>
       <corner name="_NFZ6"/>
     </sector>
-    <sector color="orange" name="Search" type="dynamic">
+    <sector color="orange" name="Search">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>

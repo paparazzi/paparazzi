@@ -36,7 +36,7 @@ static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), i
       <corner name="_N3"/>
       <corner name="_N4"/>
     </sector>
-    <sector name="Survey" color="green" type="dynamic">
+    <sector name="Survey" color="green">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>
