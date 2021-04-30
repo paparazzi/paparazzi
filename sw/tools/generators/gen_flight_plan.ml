@@ -1095,6 +1095,10 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   (* print sectors *)
   let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
   let sectors = List.filter (fun x -> Compat.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
+  List.iter (fun x -> match ExtXml.attrib_opt x "type" with
+      Some _ -> failwith "Error: attribute \"type\" on flight plan tag \"sector\" is deprecated and must be removed. All sectors are now dynamics.\n"
+    | _ -> ()
+    ) sectors;
   let sectors = List.map (parse_wpt_sector index_of_waypoints waypoints) sectors in
   List.iter (print_inside_sector out) sectors;
 
