@@ -1,49 +1,18 @@
-<?xml version="1.0"?>
-<!-- $Id: openuas_mx22.xml,v 1.0 2011/04/19 11:05:00 mmm Exp $
---
--- No license whatsoever, free to use, 2011 OpenUAS.org
---
--- This file can be used in combination with the paparazzi autopilot.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC transmitter, e.g. Graupner MX22
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- no: order in the PPM frame
--- function: logical command
--- averaged: channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
 <!--
 The order of the list below is of importance if you do not define a
 "no=" (order in the PPM frame) parameter.
 If you do not define this then the order of the PPM is the one of
 the order of the functon in the list
 -->
-
 <!DOCTYPE radio SYSTEM "../radio.dtd">
 <radio name="OpenUAS MX22" data_min="1000" data_max="2000" sync_min="5000" sync_max="15000" pulse_type="NEGATIVE">
-  <channel ctl="LeftStickVertical"    function="THROTTLE"      min="1070" neutral="1110" max="1950" average="0"/>
-  <channel ctl="RightStickHorizontal" function="ROLL"          min="1094" neutral="1491" max="1829" average="0"/>
-  <channel ctl="RightStickVertical"   function="PITCH"         min="1910" neutral="1555" max="1130" average="0"/>
-  <channel ctl="LeftStickHorizontal"  function="YAW"           min="1986" neutral="1540" max="1050" average="0"/>
-  <channel ctl="CONTROL8"             function="MODE"          min="1000" neutral="1500" max="2000" average="1"/>
-  <channel ctl="SW8"                  function="MANUALRELEASE" min="1000" neutral="1000" max="2000" average="1"/>
-  <channel ctl="CONTROL5"             function="GAIN1"         min="1000" neutral="1500" max="1900" average="0"/>
-  <channel ctl="CONTROL6"             function="CALIB"         min="1000" neutral="1500" max="1900" average="0"/>
-  <channel ctl="NONE"	                function="NOTUSED"       min="1100" neutral="1500" max="1900" average="0"/>
+  <channel function="THROTTLE" min="1070" neutral="1110" max="1950" average="0"/>
+  <channel function="ROLL" min="1094" neutral="1491" max="1829" average="0"/>
+  <channel function="PITCH" min="1130" neutral="1555" max="1910" average="0" reverse="1"/>
+  <channel function="YAW" min="1050" neutral="1540" max="1986" average="0" reverse="1"/>
+  <channel function="MODE" min="1000" neutral="1500" max="2000" average="1"/>
+  <channel function="MANUALRELEASE" min="1000" neutral="1000" max="2000" average="1"/>
+  <channel function="GAIN1" min="1000" neutral="1500" max="1900" average="0"/>
+  <channel function="CALIB" min="1000" neutral="1500" max="1900" average="0"/>
+  <channel function="NOTUSED" min="1100" neutral="1500" max="1900" average="0"/>
 </radio>
-

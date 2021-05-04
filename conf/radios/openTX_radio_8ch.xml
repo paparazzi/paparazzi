@@ -1,51 +1,11 @@
-<?xml version="1.0"?>
-<!-- $Id: openTX_radio_8ch.xml, Oct 2020
---
--- Chris Efstathiou 2008 - 2020
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.  
-
--- Attributes of root (Radio) tag :
--- name: name of RC
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
- 
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- no: order in the PPM frame
--- function: logical command
--- averaged: channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
 <!DOCTYPE radio SYSTEM "/radio.dtd">
 <radio name="OPENTX" data_min="700" data_max="2200" sync_min="2500" sync_max="18000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="ROLL"      min="988"  neutral="1500"  max="2012"  average="0"/>
-  <channel ctl="B" function="PITCH"	min="988"  neutral="1500"  max="2012"  average="0"/>
-  <channel ctl="C" function="THROTTLE"  min="988"  neutral="988"   max="2012"  average="0"/>
-  <channel ctl="D" function="YAW"       min="988"  neutral="1500"  max="2012"  average="0"/>
-  <channel ctl="E" function="MODE"      min="988"  neutral="1500"  max="2012"  average="10"/>
-  <channel ctl="E" function="AUX1"      min="988"  neutral="1500"   max="2012"  average="10"/>
-  <channel ctl="F" function="AUX2"      min="988"  neutral="1500"  max="2012"  average="0"/>
-  <channel ctl="G" function="AUX3"      min="988"  neutral="1500"  max="2012"  average="0"/>
+  <channel function="ROLL" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="PITCH" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="THROTTLE" min="2012" neutral="988" max="988" average="0" reverse="1"/>
+  <channel function="YAW" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="MODE" min="2012" neutral="1500" max="988" average="10" reverse="1"/>
+  <channel function="AUX1" min="2012" neutral="1500" max="988" average="10" reverse="1"/>
+  <channel function="AUX2" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="AUX3" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
 </radio>
-  

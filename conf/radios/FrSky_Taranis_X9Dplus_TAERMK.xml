@@ -1,10 +1,9 @@
-<?xml version="1.0"?>
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="FrSky Taranis X9Dplus TAERMK" data_min="988" data_max="2012" sync_min="6000" sync_max="18000" pulse_type="NEGATIVE">
-  <channel ctl="LeftStickVertical"    function="THROTTLE"      min="988" neutral="988" max="2012" average="0"/>
-  <channel ctl="RightStickHorizontal" function="ROLL"          min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="RightStickVertical"   function="PITCH"         min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="LeftStickHorizontal"  function="YAW"           min="988" neutral="1500" max="2012" average="0"/>
-  <channel ctl="ModeSwitch"           function="MODE"          min="2012" neutral="1500" max="988" average="0"/>
-  <channel ctl="KillSwitch"           function="KILL_SWITCH"   min="2012" neutral="1500" max="988" average="0"/>
+  <channel function="THROTTLE" min="2012" neutral="988" max="988" average="0" reverse="1"/>
+  <channel function="ROLL" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="PITCH" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="YAW" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="MODE" min="2012" neutral="1500" max="988" average="0"/>
+  <channel function="KILL_SWITCH" min="2012" neutral="1500" max="988" average="0"/>
 </radio>

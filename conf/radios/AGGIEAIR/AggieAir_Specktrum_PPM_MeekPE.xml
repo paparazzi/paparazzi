@@ -1,13 +1,11 @@
-<?xml version="1.0"?>
-
 <!DOCTYPE radio SYSTEM "../radio.dtd">
 <radio name="OSAM_Spektrum_PPM_MeekPE" data_min="900" data_max="2100" sync_min="5500" sync_max="13500" pulse_type="POSITIVE">
-  <channel ctl="right_stick_horiz" function="ROLL" min="1930" neutral="1530" max="1130" average="0"/>
-  <channel ctl="Flap" function="FLAP" min="1130" neutral="1530" max="1930" average="10"/>
-  <channel ctl="right_stick_vert" function="PITCH" min="1930" neutral="1530" max="1130" average="0"/>
-  <channel ctl="Mode" function="MODE" min="1130" neutral="1530" max="1930" average="10"/>
-  <channel ctl="left_stick_horiz" function="YAW" min="1130" neutral="1530" max="1930" average="0"/>
-  <channel ctl="Knob" function="KNOB" min="1130" neutral="1130" max="1930" average="10"/>
-  <channel ctl="left_stick_vert" function="THROTTLE" min="1130" neutral="1130" max="1930" average="0"/>  
+  <channel function="ROLL" min="1130" neutral="1530" max="1930" average="0" reverse="1"/>
+  <channel function="FLAP" min="1130" neutral="1530" max="1930" average="10"/>
+  <channel function="PITCH" min="1130" neutral="1530" max="1930" average="0" reverse="1"/>
+  <channel function="MODE" min="1130" neutral="1530" max="1930" average="10"/>
+  <channel function="YAW" min="1130" neutral="1530" max="1930" average="0"/>
+  <channel function="KNOB" min="1130" neutral="1130" max="1930" average="10"/>
+  <channel function="THROTTLE" min="1130" neutral="1130" max="1930" average="0"/>  
 </radio>
 <!-- Please use only if you now what your doing-->
