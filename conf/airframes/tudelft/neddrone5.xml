@@ -214,6 +214,7 @@
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 18.9040120162 * adc)"/>
     <define name="ARRIVED_AT_WAYPOINT" value="50.0"/>
 
+    <!-- Avoid GPS loss behavior when having RC or datalink -->
     <define name="NO_GPS_LOST_WITH_DATALINK_TIME" value="20"/>
     <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>
   </section>

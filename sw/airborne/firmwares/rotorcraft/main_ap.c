@@ -318,6 +318,9 @@ void failsafe_check(void)
 #if NO_GPS_LOST_WITH_RC_VALID
       radio_control.status != RC_OK &&
 #endif
+#ifdef NO_GPS_LOST_WITH_DATALINK_TIME
+      datalink_time > NO_GPS_LOST_WITH_DATALINK_TIME && 
+#endif
       GpsIsLost()) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
