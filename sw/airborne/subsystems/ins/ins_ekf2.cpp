@@ -27,6 +27,7 @@
  */
 
 #include "subsystems/ins/ins_ekf2.h"
+#include "subsystems/navigation/waypoints.h"
 #include "subsystems/abi.h"
 #include "stabilization/stabilization_attitude.h"
 #include "generated/airframe.h"
@@ -346,6 +347,9 @@ void ins_ekf2_update(void)
         lla_ref.alt = ref_alt * 1000.0;
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         stateSetLocalOrigin_i(&ekf2.ltp_def);
+
+        /* update local ENU coordinates of global waypoints */
+        waypoints_localize_all();
 
         ekf2.ltp_stamp = origin_time;
       }
