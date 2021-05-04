@@ -249,7 +249,7 @@ static void ubx_navsvin_callback(uint8_t len, uint8_t msg[])
     float meanAcc = (float) 0.1 * UBX_NAV_SVIN_meanACC(msg);
     u8 valid      = UBX_NAV_SVIN_Valid(msg);
     u8 active     = UBX_NAV_SVIN_Active(msg);
-    printf("iTow: %u \t dur: %u \t meaAcc: %f \t valid: %u \t active: %u \n", iTow, dur, meanAcc, valid, active);
+    printf_debug("iTow: %u \t dur: %u \t meaAcc: %f \t valid: %u \t active: %u \n", iTow, dur, meanAcc, valid, active);
   }
 }
 /**
