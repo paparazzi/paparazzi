@@ -1,16 +1,17 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- This is a Nedderdrone
-     * Airframe:    TUD00289
+     * Airframe:    TUD00328
      * Autopilot:   Pixhawk 4
+     * FBW:         Pixhawk 4
      * Actuators:   12x T-Motor ESC + Motors and 8x Servos (all CAN)
-     * Datalink:    Herelink
+     * Datalink:    Doodlelabs 2.4GHz
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="Neddrone4">
-  <description>Neddrone4</description>
+<airframe name="Neddrone5">
+  <description>Neddrone5</description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_5.0_chibios">
@@ -21,12 +22,9 @@
         <configure name="SBUS_PORT" value="UART3"/>
       </module>
 
-      <module name="airspeed" type="ets">
+      <module name="airspeed" type="ms45xx_i2c">
         <define name="USE_I2C4"/>
-        <configure name="AIRSPEED_ETS_I2C_DEV" value="I2C4"/>
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>
-        <define name="USE_AIRSPEED_ETS" value="TRUE"/>
-        <define name="AIRSPEED_ETS_SCALE" value="1.24"/>
+        <define name="MS45XX_I2C_DEV" value="i2c4"/>
       </module>
 
       <!-- TODO: add this module -->
@@ -196,7 +194,7 @@
     <set servo="MOTOR_10"  value="($th_hold? -9600 : motor_mixing.commands[9])"/>
     <set servo="MOTOR_11"  value="($th_hold? -9600 : motor_mixing.commands[10])"/>
     <set servo="MOTOR_12"  value="($th_hold? -9600 : motor_mixing.commands[11])"/>
-
+ 
     <!-- Removed ApplyDiff for differential control -->
     <set servo="AIL_1"     value="-2*@PITCH + (  2*@YAW)"/>
     <set servo="AIL_2"     value="-2*@PITCH + (- 2*@YAW)"/>
@@ -213,7 +211,7 @@
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.5"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-    <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 17.9024749557 * adc)"/>
+    <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 18.9040120162 * adc)"/>
     <define name="ARRIVED_AT_WAYPOINT" value="50.0"/>
 
     <define name="NO_GPS_LOST_WITH_DATALINK_TIME" value="20"/>
@@ -243,25 +241,29 @@
     <define name="MPU_Y_SIGN" value="1"/>
     <define name="MPU_Z_SIGN" value="-1"/>
 
-    <!-- Calibrated in the MAVLab 14-05-2020 -->
-    <define name="ACCEL_X_NEUTRAL" value="-337"/>
-    <define name="ACCEL_Y_NEUTRAL" value="64"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
-    <define name="ACCEL_X_SENS" value="4.670307671109528" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.9016250738902425" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.846689188075245" integer="16"/>
+    <!-- Calibrated 09-03-2021 in MAVLab outside body -->
+    <define name="ACCEL_X_NEUTRAL" value="16"/>
+    <define name="ACCEL_Y_NEUTRAL" value="31"/>
+    <define name="ACCEL_Z_NEUTRAL" value="10"/>
+    <define name="ACCEL_X_SENS" value="4.793311542012962" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.893892083504835" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.791159603565934" integer="16"/>
 
-    <!--define name= "MAG_X_CURRENT_COEF" value="-1.7139708082316483"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="-0.7696784114750511"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="1.1626106815908253"/-->
+    <!-- NOT CALIBRATED (internal magnetometer) -->
+    <!--define name="MAG_X_NEUTRAL" value="-13"/>
+    <define name="MAG_Y_NEUTRAL" value="-15"/>
+    <define name="MAG_Z_NEUTRAL" value="12"/>
+    <define name="MAG_X_SENS" value="12.823826623678" integer="16"/>
+    <define name="MAG_Y_SENS" value="12.86305350064853" integer="16"/>
+    <define name="MAG_Z_SENS" value="12.512614596093622" integer="16"/-->
 
-    <!-- Calibrated at valkenburg 20-05-2020 -->
-    <define name="MAG_X_NEUTRAL" value="866"/>
-    <define name="MAG_Y_NEUTRAL" value="-1530"/>
-    <define name="MAG_Z_NEUTRAL" value="-3313"/>
-    <define name="MAG_X_SENS" value="0.6067461130451115" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6544292255627779" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6352539557433349" integer="16"/>
+    <!-- NOT CALIBRATED (external magnetometer) -->
+    <define name="MAG_X_NEUTRAL" value="2457"/>
+    <define name="MAG_Y_NEUTRAL" value="-1123"/>
+    <define name="MAG_Z_NEUTRAL" value="-1843"/>
+    <define name="MAG_X_SENS" value="0.590610116730755" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.6411943049128617" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6279536066632421" integer="16"/>
 
     <!-- Define axis in hover frame -->
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
