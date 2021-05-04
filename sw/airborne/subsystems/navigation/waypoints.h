@@ -26,6 +26,10 @@
 #ifndef WAYPOINTS_H
 #define WAYPOINTS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
@@ -127,5 +131,9 @@ extern void waypoint_globalize(uint8_t wp_id);
 extern void waypoint_localize(uint8_t wp_id);
 /** update local ENU coordinates of all global waypoints */
 extern void waypoints_localize_all(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* WAYPOINTS_H */
