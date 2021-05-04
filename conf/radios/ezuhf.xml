@@ -1,16 +1,13 @@
-<?xml version="1.0"?>
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
-  <!-- sync-max == based on 8ch radio output from ezuhf, assuming a 7c futaba radio:
+<!-- sync-max == based on 8ch radio output from ezuhf, assuming a 7c futaba radio:
        22500 - (7*1080) = 14940. 1080 being the "minimum" for the futaba. -->
 <radio name="ezuhf" data_min="800" data_max="2200" sync_min="5000" sync_max="14940" pulse_type="NEGATIVE">
-  <channel ctl="right_stick_horiz" function="ROLL" min="1080" neutral="1500" max="1920" average="0"/>
-  <channel ctl="right_stick_vert" function="PITCH" min="1080" neutral="1500" max="1920" average="0"/>
-  <channel ctl="left_stick_vert" function="THROTTLE" min="1080" neutral="1000" max="1916" average="0"/>
-  <channel ctl="left_stick_horiz" function="YAW" min="1080" neutral="1500" max="1912" average="0"/>
-  <channel ctl="switch_E" function="MODE" min="1002" neutral="1500" max="1984" average="10"/>
-  <channel ctl="NOTUSEDA" function="NOTUSEDA" min="0" neutral="1500" max="2000" average="0"/>
-  <channel ctl="switch_G" function="CALIB" min="1002" neutral="1500" max="1984" average="10"/>
-  <channel ctl="NOTUSEDB" function="NOTUSEDB" min="0" neutral="1500" max="2000" average="0"/>
+  <channel function="ROLL" min="1080" neutral="1500" max="1920" average="0"/>
+  <channel function="PITCH" min="1080" neutral="1500" max="1920" average="0"/>
+  <channel function="THROTTLE" min="1080" neutral="1000" max="1916" average="0"/>
+  <channel function="YAW" min="1080" neutral="1500" max="1912" average="0"/>
+  <channel function="MODE" min="1002" neutral="1500" max="1984" average="10"/>
+  <channel function="NOTUSEDA" min="0" neutral="1500" max="2000" average="0"/>
+  <channel function="CALIB" min="1002" neutral="1500" max="1984" average="10"/>
+  <channel function="NOTUSEDB" min="0" neutral="1500" max="2000" average="0"/>
 </radio>
-

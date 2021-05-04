@@ -1,11 +1,10 @@
-<?xml version="1.0"?>
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="FlyElectric Rx25" data_min="900" data_max="2050" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="A" function="THROTTLE" min="1200" neutral="1200" max="1900" average="0"/>
- <channel ctl="D" function="ROLL"     max="1200" neutral="1483" min="1900" average="0"/>
- <channel ctl="C" function="PITCH"    max="1200" neutral="1518" min="1900" average="0"/>
- <channel ctl="B" function="YAW"      max="1200" neutral="1522" min="1900" average="0"/>
- <channel ctl="G" function="GEAR"     min="1200" neutral="1500" max="1900" average="1"/>
- <channel ctl="E" function="FLAP"     min="1200" neutral="1500" max="1900" average="1"/>
- <channel ctl="F" function="MODE"     min="1200" neutral="1500" max="1900" average="1"/>
+<radio name="FlyElectric Rx25" data_min="900" data_max="2050" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" min="1200" neutral="1200" max="1900" average="0"/>
+ <channel function="ROLL" max="1900" neutral="1483" min="1200" average="0" reverse="1"/>
+ <channel function="PITCH" max="1900" neutral="1518" min="1200" average="0" reverse="1"/>
+ <channel function="YAW" max="1900" neutral="1522" min="1200" average="0" reverse="1"/>
+ <channel function="GEAR" min="1200" neutral="1500" max="1900" average="1"/>
+ <channel function="FLAP" min="1200" neutral="1500" max="1900" average="1"/>
+ <channel function="MODE" min="1200" neutral="1500" max="1900" average="1"/>
 </radio>

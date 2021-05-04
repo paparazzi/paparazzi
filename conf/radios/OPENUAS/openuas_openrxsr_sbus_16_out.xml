@@ -1,32 +1,3 @@
-<?xml version="1.0"?>
-<!-- $Id$,  1.0 2019/05/17 18:14:00 mmm Exp $
---
--- No license whatsoever, free to use, 2019 OpenUAS
---
--- This file can be used in combination with the paparazzi autopilot.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC transmitter, e.g. Graupner MX22
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- no: order in the PPM frame
--- function: logical command
--- averaged: channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
 <!--
 The order of the list below is of importance if you do not define a
 "no=" (order in the PPM frame) parameter.
@@ -34,21 +5,21 @@ If you do not define this then the order of the PPM is the one of
 the order of the functon in the list
 -->
 <!DOCTYPE radio SYSTEM "../radio.dtd">
-<radio name="Generic SBUS" data_min="890" data_max="2190" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="left_stick_vert"   function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="right_stick_vert"  function="PITCH"    min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="left_stick_horiz"  function="YAW"      min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="mode"              function="MODE"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw1"               function="AUX1"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw2"               function="AUX2"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw3"               function="AUX3"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw4"               function="AUX4"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw5"               function="AUX5"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw6"               function="AUX6"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw7"               function="AUX7"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw8"               function="AUX8"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw9"               function="AUX9"     min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw10"              function="AUX10"    min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="sw11"              function="AUX11"    min="1100" neutral="1500" max="1900" average="0"/>
+<radio name="Generic SBUS" data_min="890" data_max="2190" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
+ <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="MODE" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX1" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX2" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX3" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX4" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX5" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX6" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX7" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX8" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX9" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX10" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="AUX11" min="1100" neutral="1500" max="1900" average="0"/>
 </radio>

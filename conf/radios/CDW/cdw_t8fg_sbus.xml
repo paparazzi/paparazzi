@@ -1,56 +1,11 @@
-<?xml version="1.0"?>
-<!-- $Id$
---
--- (c) 2013 Gautier Hattenberger
---
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- pulse_type: POSITIVE ( Futaba and others) | NEGATIVE (JR)
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- function: logical command
--- average: (boolean) channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
-
 <!DOCTYPE radio SYSTEM "../radio.dtd">
-<radio name="Futaba T10CG with SBUS" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="A" function="ROLL"     min="1107" neutral="1520" max="1932" average="0"/>
- <channel ctl="B" function="PITCH"    min="1107" neutral="1520" max="1932" average="0"/>
- <channel ctl="C" function="THROTTLE" min="1932" neutral="1932" max="1107" average="0"/>
- <channel ctl="D" function="YAW"      min="1107" neutral="1520" max="1932" average="0"/>
- <channel ctl="E" function="MODE"     max="1107" neutral="1520" min="1932" average="1"/>
- <channel ctl="F" function="FLAPS"    max="1107" neutral="1520" min="1932" average="1"/>
- <channel ctl="G" function="GAIN1"    min="1107" neutral="1520" max="1932" average="0"/>
- <channel ctl="H" function="GAIN2"    min="1107" neutral="1520" max="1932" average="0"/>
+<radio name="Futaba T10CG with SBUS" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="ROLL" min="1107" neutral="1520" max="1932" average="0"/>
+ <channel function="PITCH" min="1107" neutral="1520" max="1932" average="0"/>
+ <channel function="THROTTLE" min="1107" neutral="1932" max="1932" average="0" reverse="1"/>
+ <channel function="YAW" min="1107" neutral="1520" max="1932" average="0"/>
+ <channel function="MODE" max="1932" neutral="1520" min="1107" average="1" reverse="1"/>
+ <channel function="FLAPS" max="1932" neutral="1520" min="1107" average="1" reverse="1"/>
+ <channel function="GAIN1" min="1107" neutral="1520" max="1932" average="0"/>
+ <channel function="GAIN2" min="1107" neutral="1520" max="1932" average="0"/>
 </radio>
