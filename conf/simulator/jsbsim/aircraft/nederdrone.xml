@@ -5,7 +5,7 @@
   <fileheader>
     <author>Ewoud Smeur</author>
     <filecreationdate>23-04-2020</filecreationdate>
-    <version>Version 0.9 - beta</version>
+    <version>Version 0.92 - beta</version>
     <description>Nederdrone</description>
   </fileheader>
 
@@ -386,7 +386,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>1.105</y>
+        <y>-1.105</y>
         <z>0</z>
       </location>
       <direction>
@@ -404,7 +404,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>0.735</y>
+        <y>-0.735</y>
         <z>0</z>
       </location>
       <direction>
@@ -422,7 +422,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>0.320</y>
+        <y>-0.320</y>
         <z>0</z>
       </location>
       <direction>
@@ -440,7 +440,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>-0.320</y>
+        <y>0.320</y>
         <z>0</z>
       </location>
       <direction>
@@ -458,7 +458,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>-0.735</y>
+        <y>0.735</y>
         <z>0</z>
       </location>
       <direction>
@@ -476,7 +476,7 @@
       </function>
       <location unit="M">
         <x>0.141</x>
-        <y>-1.105</y>
+        <y>1.105</y>
         <z>0</z>
       </location>
       <direction>
@@ -517,17 +517,17 @@
             <property>fcs/m1_lag</property>
             <property>fcs/m3_lag</property>
             <property>fcs/m5_lag</property>
-            <property>fcs/m7_lag</property>
-            <property>fcs/m9_lag</property>
-            <property>fcs/m11_lag</property>
+            <property>fcs/m8_lag</property>
+            <property>fcs/m10_lag</property>
+            <property>fcs/m12_lag</property>
             <product>
               <sum>
                 <property>fcs/m2_lag</property>
                 <property>fcs/m4_lag</property>
                 <property>fcs/m6_lag</property>
-                <property>fcs/m8_lag</property>
-                <property>fcs/m10_lag</property>
-                <property>fcs/m12_lag</property>
+                <property>fcs/m7_lag</property>
+                <property>fcs/m9_lag</property>
+                <property>fcs/m11_lag</property>
               </sum>
               <value> -1 </value>
             </product>
@@ -553,17 +553,17 @@
             <property>fcs/m1_lag</property>
             <property>fcs/m3_lag</property>
             <property>fcs/m5_lag</property>
-            <property>fcs/m7_lag</property>
-            <property>fcs/m9_lag</property>
-            <property>fcs/m11_lag</property>
+            <property>fcs/m8_lag</property>
+            <property>fcs/m10_lag</property>
+            <property>fcs/m12_lag</property>
             <product>
               <sum>
                 <property>fcs/m2_lag</property>
                 <property>fcs/m4_lag</property>
                 <property>fcs/m6_lag</property>
-                <property>fcs/m8_lag</property>
-                <property>fcs/m10_lag</property>
-                <property>fcs/m12_lag</property>
+                <property>fcs/m7_lag</property>
+                <property>fcs/m9_lag</property>
+                <property>fcs/m11_lag</property>
               </sum>
               <value> -1 </value>
             </product>
