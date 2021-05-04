@@ -91,7 +91,7 @@ Should be unified for Hybrid, FW and rotorcraft
   <sectors>
     <!-- ***** -->
     <!-- since hidden corners cannot be accidentaly changed -->
-    <sector color="yellow" name="MissionBoundary" type="dynamic">
+    <sector color="yellow" name="MissionBoundary">
       <corner name="_MB1"/>
       <corner name="_MB2"/>
       <corner name="_MB3"/>
@@ -101,14 +101,14 @@ Should be unified for Hybrid, FW and rotorcraft
       <corner name="_MB7"/>
       <corner name="_MB8"/>
     </sector>
-    <sector color="purple" name="SearchArea" type="dynamic">
+    <sector color="purple" name="SearchArea">
       <corner name="SA1"/>
       <corner name="SA2"/>
       <corner name="SA3"/>
       <corner name="SA4"/>
       <corner name="SA5"/>
     </sector>
-    <sector color="lightblue" name="Square" type="dynamic">
+    <sector color="lightblue" name="Square">
       <corner name="Q1"/>
       <corner name="Q2"/>
       <corner name="Q3"/>

@@ -23,13 +23,13 @@
     <waypoint name="_N4" x="-29.2" y="89.5"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="Net" type="dynamic">
+    <sector color="red" name="Net">
       <corner name="_N1"/>
       <corner name="_N2"/>
       <corner name="_N3"/>
       <corner name="_N4"/>
     </sector>
-    <sector color="green" name="Safety" type="dynamic">
+    <sector color="green" name="Safety">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>

@@ -71,7 +71,7 @@ static inline void set_expo(float e) {
     <waypoint name="ZBDIR" x="-83.3" y="-105.3"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="FlyZone" type="dynamic">
+    <sector color="red" name="FlyZone">
       <corner name="_NFZ1"/>
       <corner name="_NFZ2"/>
       <corner name="_NFZ3"/>
@@ -80,7 +80,7 @@ static inline void set_expo(float e) {
       <corner name="_NFZ5"/>
       <corner name="_NFZ6"/>
     </sector>
-    <sector color="green" name="MAP" type="dynamic">
+    <sector color="green" name="MAP">
       <corner name="_MAP1"/>
       <corner name="_MAP2"/>
       <corner name="_MAP3"/>
