@@ -1,12 +1,12 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="GraupnerMC20" data_min="950" data_max="2150" sync_min="5000" sync_max="15000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- left stick up/down -->
-  <channel ctl="B" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="C" function="PITCH" min="1900" neutral="1500" max="1100" average="0"/>    <!-- right stick up/down -->
-  <channel ctl="D" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
-  <channel ctl="E" function="MODE" min="1100" neutral="1500" max="1900" average="1"/>     <!-- left middle 3-pos switch -->
-  <channel ctl="F" function="GAIN1" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left slider prop channel -->
-  <channel ctl="G" function="GAIN2" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right slider prop channel -->
-  <channel ctl="H" function="SWITCH1" min="1100" neutral="1500" max="1900" average="1"/>     <!-- switch (channel 8) -->
-  <channel ctl="I" function="UNUSED" min="1100" neutral="1500" max="1900" average="1"/>     <!-- channel 9 is transmitted but cannot be controlled -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- left stick up/down -->
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>    <!-- right stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="1"/>     <!-- left middle 3-pos switch -->
+  <channel function="GAIN1" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left slider prop channel -->
+  <channel function="GAIN2" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right slider prop channel -->
+  <channel function="SWITCH1" min="1100" neutral="1500" max="1900" average="1"/>     <!-- switch (channel 8) -->
+  <channel function="UNUSED" min="1100" neutral="1500" max="1900" average="1"/>     <!-- channel 9 is transmitted but cannot be controlled -->
 </radio>

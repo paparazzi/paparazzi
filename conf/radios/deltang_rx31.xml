@@ -1,10 +1,10 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="GraupnerMC22" data_min="750" data_max="2750" sync_min="4000" sync_max="25000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
-  <channel ctl="B" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="C" function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
-  <channel ctl="D" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
-  <channel ctl="E" function="MODE" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
-  <channel ctl="F" function="KILL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
-  <channel ctl="G" function="EXTRA" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
+  <channel function="KILL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="EXTRA" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
 </radio>

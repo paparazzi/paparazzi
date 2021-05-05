@@ -1,9 +1,9 @@
 <!DOCTYPE radio SYSTEM "../radio.dtd">
 <radio name="Quadshot1 RX 6" data_min="700" data_max="2300" sync_min="4000" sync_max="20000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="B" function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
-  <channel ctl="C" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
-  <channel ctl="D" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>	<!-- left stick left/right-->
-  <channel ctl="E" function="MODE2" min="1900" neutral="1500" max="1100" average="0"/>     <!-- right switch -->
-  <channel ctl="F" function="MODE" min="1900" neutral="1500" max="1100" average="0"/>     <!-- left switch -->
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>	<!-- left stick left/right-->
+  <channel function="MODE2" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>     <!-- right switch -->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>     <!-- left switch -->
 </radio>

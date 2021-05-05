@@ -1,12 +1,11 @@
 <!-- Graupner/JR MC24 with robbe R6107SP -->
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="mc24r" data_min="800" data_max="2200" sync_min="5000" sync_max="25000" pulse_type="POSITIVE">
-  <channel ctl="C" function="ROLL"     min="1900" neutral="1500" max="1096" average="0"/>
-  <channel ctl="B" function="PITCH"    min="1900" neutral="1500" max="1096" average="0"/>
-  <channel ctl="D" function="THROTTLE" min="1096" neutral="1096" max="1900" average="0"/>
-  <channel ctl="A" function="YAW"      min="1900" neutral="1500" max="1096" average="0"/>
-  <channel ctl="H" function="MODE"     min="966"  neutral="1500" max="2025" average="1"/>
-  <channel ctl="E" function="GAIN1"    min="1096" neutral="1500" max="1900" average="1"/>
-  <channel ctl="F" function="CALIB"    min="1096" neutral="1500" max="1900" average="0"/>
+  <channel function="ROLL" min="1096" neutral="1500" max="1900" average="0" reverse="1"/>
+  <channel function="PITCH" min="1096" neutral="1500" max="1900" average="0" reverse="1"/>
+  <channel function="THROTTLE" min="1096" neutral="1096" max="1900" average="0"/>
+  <channel function="YAW" min="1096" neutral="1500" max="1900" average="0" reverse="1"/>
+  <channel function="MODE" min="966" neutral="1500" max="2025" average="1"/>
+  <channel function="GAIN1" min="1096" neutral="1500" max="1900" average="1"/>
+  <channel function="CALIB" min="1096" neutral="1500" max="1900" average="0"/>
 </radio>

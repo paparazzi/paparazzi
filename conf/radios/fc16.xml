@@ -1,11 +1,11 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="fc16" data_min="850" data_max="2200" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
-  <channel ctl="C" function="ROLL" min="2032" neutral="1530" max="1038" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="B" function="PITCH" min="1072" neutral="1519" max="1991" average="0"/>    <!-- left stick up/down -->
-  <channel ctl="D" function="THROTTLE" min="1981" neutral="1981" max="1065" average="0"/>	<!-- right stick up/down -->
-  <channel ctl="A" function="YAW" min="1959" neutral="1513" max="1087" average="0"/>		<!-- left stick left/right-->
-  <channel ctl="E" function="GAIN1" min="964" neutral="1537" max="2080" average="10"/>    <!-- right center slider -->
-  <channel ctl="G" function="MODE" min="944" neutral="1521" max="2118" average="10"/>     <!-- left switch -->
-  <channel ctl="I" function="CALIB" min="943" neutral="1520" max="2118" average="10"/>    <!-- right switch -->
-  <channel ctl="F" function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="ROLL" min="1038" neutral="1530" max="2032" average="0" reverse="1"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1072" neutral="1519" max="1991" average="0"/>    <!-- left stick up/down -->
+  <channel function="THROTTLE" min="1065" neutral="1981" max="1981" average="0" reverse="1"/>	<!-- right stick up/down -->
+  <channel function="YAW" min="1087" neutral="1513" max="1959" average="0" reverse="1"/>		<!-- left stick left/right-->
+  <channel function="GAIN1" min="964" neutral="1537" max="2080" average="10"/>    <!-- right center slider -->
+  <channel function="MODE" min="944" neutral="1521" max="2118" average="10"/>     <!-- left switch -->
+  <channel function="CALIB" min="943" neutral="1520" max="2118" average="10"/>    <!-- right switch -->
+  <channel function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
 </radio>

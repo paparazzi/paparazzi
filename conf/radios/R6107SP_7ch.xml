@@ -1,10 +1,10 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="FASST TX Module" data_min="700" data_max="2300" sync_min="4000" sync_max="15000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="B" function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
-  <channel ctl="C" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
-  <channel ctl="D" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>	<!-- left stick left/right-->
-  <channel ctl="E" function="MODE" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
-  <channel ctl="F" function="EXTRA1" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
-  <channel ctl="G" function="FLAPS" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>	<!-- left stick left/right-->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="EXTRA1" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="FLAPS" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
 </radio>

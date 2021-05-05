@@ -1,4 +1,4 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="cockpitMM" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="A" function="THROTTLE" min="1120" neutral="1120" max="2000" average="0"/>
+<radio name="cockpitMM" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" min="1120" neutral="1120" max="2000" average="0"/>
 </radio>

@@ -1,12 +1,10 @@
-
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="T7chp" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
-  <channel ctl="right_stick_horiz" function="ROLL" min="1939" neutral="1525" max="1114" average="0"/>
-  <channel ctl="right_stick_vert" function="PITCH" min="1112" neutral="1518" max="1937" average="0"/>
-  <channel ctl="left_stick_vert" function="THROTTLE" min="1940" neutral="1940" max="1115" average="0"/>
-  <channel ctl="left_stick_horiz" function="YAW" min="1940" neutral="1520" max="1115" average="0"/>
-  <channel ctl="switch_E" function="MODE" min="966" neutral="1526" max="2079" average="10"/>
-  <channel ctl="switch_G" function="CALIB" min="2080" neutral="1525" max="969" average="10"/>
-  <channel ctl="VRA" function="GAIN1" min="970" neutral="970" max="2078" average="10"/>
+  <channel function="ROLL" min="1114" neutral="1525" max="1939" average="0" reverse="1"/>
+  <channel function="PITCH" min="1112" neutral="1518" max="1937" average="0"/>
+  <channel function="THROTTLE" min="1115" neutral="1940" max="1940" average="0" reverse="1"/>
+  <channel function="YAW" min="1115" neutral="1520" max="1940" average="0" reverse="1"/>
+  <channel function="MODE" min="966" neutral="1526" max="2079" average="10"/>
+  <channel function="CALIB" min="969" neutral="1525" max="2080" average="10" reverse="1"/>
+  <channel function="GAIN1" min="970" neutral="970" max="2078" average="10"/>
 </radio>

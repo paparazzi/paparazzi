@@ -1,12 +1,12 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="GraupnerMC22" data_min="750" data_max="2750" sync_min="5000" sync_max="15000" pulse_type="NEGATIVE">
-  <channel ctl="A" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
-  <channel ctl="B" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
-  <channel ctl="C" function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
-  <channel ctl="D" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
-  <channel ctl="E" function="MODE" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
-  <channel ctl="F" function="PAN" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
-  <channel ctl="G" function="TILT" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
-  <channel ctl="H" function="GENERAL1" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
-  <channel ctl="I" function="GENERAL2" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>	<!-- right stick up/down -->
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>    <!-- left stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>		<!-- left stick left/right-->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
+  <channel function="PAN" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="TILT" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left switch -->
+  <channel function="GENERAL1" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
+  <channel function="GENERAL2" min="1100" neutral="1500" max="1900" average="10"/>     <!-- left switch -->
 </radio>

@@ -1,13 +1,12 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
-
 <radio name="fc28">
-  <channel ctl="D" function="THROTTLE" min="1000" neutral="1600" max="2200" average="0" pulse_type="POSITIVE"/>
-  <channel ctl="C" function="ROLL"     min="1000" neutral="1600" max="2200" average="0"/>
-  <channel ctl="B" function="PITCH"    min="1000" neutral="1600" max="2200" average="0"/>
-  <channel ctl="A" function="YAW"      min="1000" neutral="1600" max="2200" average="0"/>
-  <channel ctl="G" function="MODE"     min="1000" neutral="1600" max="2200" average="10"/>
-  <channel ctl="E" function="GAIN1"    min="1000" neutral="1600" max="2200" average="10"/>
-  <channel ctl="F" function="GAIN2"    min="1000" neutral="1600" max="2200" average="10"/>
-  <channel ctl="H" function="LLS"      min="1000" neutral="1600" max="2200" average="10"/>
-  <channel ctl="I" function="CALIB"    min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="THROTTLE" min="1000" neutral="1600" max="2200" average="0" pulse_type="POSITIVE"/>
+  <channel function="ROLL" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel function="PITCH" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel function="YAW" min="1000" neutral="1600" max="2200" average="0"/>
+  <channel function="MODE" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="GAIN1" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="LLS" min="1000" neutral="1600" max="2200" average="10"/>
+  <channel function="CALIB" min="1000" neutral="1600" max="2200" average="10"/>
 </radio>

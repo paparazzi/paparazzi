@@ -1,13 +1,13 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Turnigy 9x" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="1" function="ROLL"        min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="2" function="THROTTLE"    min="1000" neutral="1000" max="2000" average="0"/>
- <channel ctl="3" function="PITCH"       min="2000" neutral="1500" max="1000" average="0"/>
- <channel ctl="4" function="YAW"         min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="5" function="UNUSED1"      min="2000" neutral="1500" max="1000" average="1"/>
- <channel ctl="6" function="MODE"        min="1500" neutral="1250" max="1000" average="1"/>
+<radio name="Turnigy 9x" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="ROLL" min="1000" neutral="1500" max="2000" average="0"/>
+ <channel function="THROTTLE" min="1000" neutral="1000" max="2000" average="0"/>
+ <channel function="PITCH" min="1000" neutral="1500" max="2000" average="0" reverse="1"/>
+ <channel function="YAW" min="1000" neutral="1500" max="2000" average="0"/>
+ <channel function="UNUSED1" min="1000" neutral="1500" max="2000" average="1" reverse="1"/>
+ <channel function="MODE" min="1000" neutral="1250" max="1500" average="1" reverse="1"/>
 <!-- <channel ctl="7" function="KILL"        min="1000" neutral="1500" max="2000" average="1"/>
  <channel ctl="8" function="GAIN1"       min="1000" neutral="1500" max="2000" average="1"/>-->
- <channel ctl="7" function="UNUSED2"        min="1000" neutral="1500" max="2000" average="1"/>
- <channel ctl="8" function="UNUSED3"       min="1000" neutral="1500" max="2000" average="1"/>
+ <channel function="UNUSED2" min="1000" neutral="1500" max="2000" average="1"/>
+ <channel function="UNUSED3" min="1000" neutral="1500" max="2000" average="1"/>
 </radio>

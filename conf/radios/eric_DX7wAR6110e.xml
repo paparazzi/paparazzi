@@ -1,13 +1,12 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <!--<serial name="Spektrum Serial" data_min="900 pulse_type="NEGATIVE">-->
-<radio name="DX7 on NoVa Frame with AR7000 (malaysian)" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="right_stick_vert" function="THROTTLE"     max="1883" neutral="1098" min="1098" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL"    min="1103" neutral="1491" max="1883" average="0"/>
- <channel ctl="left_stick_vert" function="PITCH"      min="1875" neutral="1491" max="1103" average="0"/>
- <channel ctl="left_stick_horiz" function="YAW" min="1104" neutral="1491" max="1871" average="0"/>
- <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
- <channel ctl="aux2" function="SWITCH1"     min="1125" neutral="1523" max="1922" average="1"/>
- <channel ctl="switch_C" function="MODE"    min="1922" neutral="1523" max="1125" average="1"/>
- <channel ctl="aux3" function="AUX1"    min="1103" neutral="1500" max="1876" average="1"/>
+<radio name="DX7 on NoVa Frame with AR7000 (malaysian)" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" max="1883" neutral="1098" min="1098" average="0"/>
+ <channel function="ROLL" min="1103" neutral="1491" max="1883" average="0"/>
+ <channel function="PITCH" min="1103" neutral="1491" max="1875" average="0" reverse="1"/>
+ <channel function="YAW" min="1104" neutral="1491" max="1871" average="0"/>
+ <channel function="UNUSED" min="948" neutral="1500" max="2050" average="1" reverse="1"/>
+ <channel function="SWITCH1" min="1125" neutral="1523" max="1922" average="1"/>
+ <channel function="MODE" min="1125" neutral="1523" max="1922" average="1" reverse="1"/>
+ <channel function="AUX1" min="1103" neutral="1500" max="1876" average="1"/>
 </radio>
-
