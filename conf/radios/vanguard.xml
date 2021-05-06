@@ -2,7 +2,7 @@
 <radio name="vanguard" data_min="900" data_max="2100" sync_min="5000" sync_max="20000" pulse_type="POSITIVE">
  <channel function="PITCH" min="1240" neutral="1500" max="1760" average="0"/>
  <channel function="RUDDER" min="1071" neutral="1480" max="1920" average="0" reverse="1"/>
- <channel function="THROTTLE" min="2027" neutral="950" max="950" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="950" neutral="950" max="2027" average="0"/>
  <channel function="ROLL" min="1100" neutral="1524" max="1800" average="0"/>
  <channel function="GAIN1" min="1084" neutral="1500" max="1895" average="1"/> <!-- center slider        -->
  <channel function="MODE" min="1105" neutral="1514" max="1915" average="1" reverse="1"/> <!-- Top right switch     -->

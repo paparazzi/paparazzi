@@ -1,13 +1,13 @@
 <!DOCTYPE radio SYSTEM "../radio.dtd">
 <!-- Values set by experiment using X8R receiver SBus connection -->
 <radio name="FrSky X9D + X8R receiver SBus connection" data_min="350" data_max="2500" sync_min="8000" sync_max="19000" pulse_type="POSITIVE">
- <channel function="ROLL" min="2015" neutral="1490" max="990" average="0" reverse="1"/>
- <channel function="PITCH" min="2015" neutral="1490" max="990" average="0" reverse="1"/>
- <channel function="THROTTLE" min="2015" neutral="990" max="990" average="0" reverse="1"/>
- <channel function="YAW" min="2015" neutral="1490" max="990" average="0" reverse="1"/>
+ <channel function="ROLL" min="990" neutral="1490" max="2015" average="0"/>
+ <channel function="PITCH" min="990" neutral="1490" max="2015" average="0"/>
+ <channel function="THROTTLE" min="990" neutral="990" max="2015" average="0"/>
+ <channel function="YAW" min="990" neutral="1490" max="2015" average="0"/>
 
- <channel function="MODE" min="1862" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="KILL" min="2015" neutral="1490" max="990" average="1" reverse="1"/>
- <channel function="AUX2" min="2015" neutral="990" max="990" average="0" reverse="1"/>
- <channel function="UNUSED2" min="2015" neutral="1900" max="990" average="1" reverse="1"/>
+ <channel function="MODE" min="990" neutral="1500" max="1862" average="1"/>
+ <channel function="KILL" min="990" neutral="1490" max="2015" average="1"/>
+ <channel function="AUX2" min="990" neutral="990" max="2015" average="0"/>
+ <channel function="UNUSED2" min="990" neutral="1900" max="2015" average="1"/>
 </radio>

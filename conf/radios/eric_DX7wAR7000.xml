@@ -5,7 +5,7 @@
  <channel function="ROLL" min="1125" neutral="1524" max="1923" average="0"/>
  <channel function="PITCH" min="1127" neutral="1524" max="1914" average="0" reverse="1"/>
  <channel function="YAW" min="1127" neutral="1519" max="1917" average="0"/>
- <channel function="UNUSED" min="2050" neutral="1500" max="948" average="1"/>
+ <channel function="UNUSED" min="948" neutral="1500" max="2050" average="1" reverse="1"/>
  <channel function="SWITCH1" min="1125" neutral="1523" max="1922" average="1"/>
  <channel function="MODE" min="1125" neutral="1523" max="1922" average="1" reverse="1"/>
  <channel function="AUX1" min="1103" neutral="1500" max="1876" average="1"/>

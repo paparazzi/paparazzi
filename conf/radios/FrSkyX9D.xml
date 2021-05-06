@@ -1,11 +1,11 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <!-- Values set by experiment using X8R receiver SBus connection -->
 <radio name="FrSky X9D + X8R receiver SBus connection" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
- <channel function="ROLL" min="2011" neutral="1503" max="990" average="0" reverse="1"/>
- <channel function="PITCH" min="2011" neutral="1498" max="987" average="0"/>
- <channel function="YAW" min="2011" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="THROTTLE" min="2011" neutral="998" max="998" average="0" reverse="1"/>
- <channel function="UNUSED" min="2050" neutral="1500" max="950" average="1"/>
- <channel function="GAIN1" min="2050" neutral="1496" max="948" average="1"/>
- <channel function="MODE" min="2011" neutral="1500" max="987" average="1"/> <!-- mode switch is on channel 7 -->
+ <channel function="ROLL" min="990" neutral="1503" max="2011" average="0"/>
+ <channel function="PITCH" min="987" neutral="1498" max="2011" average="0" reverse="1"/>
+ <channel function="YAW" min="990" neutral="1500" max="2011" average="0"/>
+ <channel function="THROTTLE" min="998" neutral="998" max="2011" average="0"/>
+ <channel function="UNUSED" min="950" neutral="1500" max="2050" average="1" reverse="1"/>
+ <channel function="GAIN1" min="948" neutral="1496" max="2050" average="1" reverse="1"/>
+ <channel function="MODE" min="987" neutral="1500" max="2011" average="1" reverse="1"/> <!-- mode switch is on channel 7 -->
 </radio>

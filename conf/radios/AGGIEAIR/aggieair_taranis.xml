@@ -19,20 +19,20 @@ Note: a command may be reversed by exchanging min and max values
 -->
 <!DOCTYPE radio SYSTEM "../radio.dtd">
 <radio name="Taranis" data_min="987" data_max="2012" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
- <channel function="THROTTLE" min="2012" neutral="990" max="990" average="0" reverse="1"/>
- <channel function="ROLL" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="PITCH" min="2012" neutral="1500" max="990" average="0"/>
- <channel function="YAW" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="SWITCH_A" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="FLAP" min="2012" neutral="1500" max="990" average="1"/>
- <channel function="SWITCH_C" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="MODE" min="2012" neutral="1500" max="990" average="1"/>
- <channel function="SWITCH_E" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="KILL_SWITCH" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="SIM_SRC" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="SWITCH_H" min="2012" neutral="1500" max="990" average="1" reverse="1"/>
- <channel function="POT_S1" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="POT_S2" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="LEFT_SLIDER" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
- <channel function="RIGHT_SLIDER" min="2012" neutral="1500" max="990" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="990" neutral="990" max="2012" average="0"/>
+ <channel function="ROLL" min="990" neutral="1500" max="2012" average="0"/>
+ <channel function="PITCH" min="990" neutral="1500" max="2012" average="0" reverse="1"/>
+ <channel function="YAW" min="990" neutral="1500" max="2012" average="0"/>
+ <channel function="SWITCH_A" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="FLAP" min="990" neutral="1500" max="2012" average="1" reverse="1"/>
+ <channel function="SWITCH_C" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="MODE" min="990" neutral="1500" max="2012" average="1" reverse="1"/>
+ <channel function="SWITCH_E" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="KILL_SWITCH" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="SIM_SRC" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="SWITCH_H" min="990" neutral="1500" max="2012" average="1"/>
+ <channel function="POT_S1" min="990" neutral="1500" max="2012" average="0"/>
+ <channel function="POT_S2" min="990" neutral="1500" max="2012" average="0"/>
+ <channel function="LEFT_SLIDER" min="990" neutral="1500" max="2012" average="0"/>
+ <channel function="RIGHT_SLIDER" min="990" neutral="1500" max="2012" average="0"/>
 </radio>

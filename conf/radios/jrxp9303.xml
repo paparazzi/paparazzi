@@ -1,10 +1,10 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="JR XP903" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="NEGATIVE">
- <channel function="THROTTLE" max="950" neutral="1500" min="2050" average="0" reverse="1"/>
- <channel function="ROLL" min="2050" neutral="1500" max="950" average="0"/>
- <channel function="PITCH" min="2050" neutral="1500" max="950" average="0"/>
- <channel function="YAW" min="2050" neutral="1500" max="950" average="0" reverse="1"/>
- <channel function="MODE" min="2050" neutral="1500" max="950" average="1"/>
- <channel function="MODE2" min="2050" neutral="1496" max="948" average="1"/>
- <channel function="UNUSED" min="2050" neutral="1500" max="948" average="1"/>
+ <channel function="THROTTLE" max="2050" neutral="1500" min="950" average="0"/>
+ <channel function="ROLL" min="950" neutral="1500" max="2050" average="0" reverse="1"/>
+ <channel function="PITCH" min="950" neutral="1500" max="2050" average="0" reverse="1"/>
+ <channel function="YAW" min="950" neutral="1500" max="2050" average="0"/>
+ <channel function="MODE" min="950" neutral="1500" max="2050" average="1" reverse="1"/>
+ <channel function="MODE2" min="948" neutral="1496" max="2050" average="1" reverse="1"/>
+ <channel function="UNUSED" min="948" neutral="1500" max="2050" average="1" reverse="1"/>
 </radio>

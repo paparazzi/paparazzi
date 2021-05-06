@@ -8,9 +8,9 @@ the order of the functon in the list
 <!-->pulse_type="POSITIVE">-->
 <radio name="OpenUAS R615X cppm" data_min="900" data_max="2100" sync_min="5000" sync_max="16000" pulse_type="NEGATIVE">
   <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>
-  <channel function="PITCH" min="2100" neutral="1500" max="900" average="0"/>
-  <channel function="THROTTLE" min="2100" neutral="920" max="900" average="0" reverse="1"/>
-  <channel function="YAW" min="2100" neutral="1500" max="900" average="0" reverse="1"/>
-  <channel function="MODE" min="2100" neutral="1500" max="900" average="0" reverse="1"/>
-  <channel function="MANUALRELEASE" min="2100" neutral="910" max="900" average="1" reverse="1"/>
+  <channel function="PITCH" min="900" neutral="1500" max="2100" average="0" reverse="1"/>
+  <channel function="THROTTLE" min="900" neutral="920" max="2100" average="0"/>
+  <channel function="YAW" min="900" neutral="1500" max="2100" average="0"/>
+  <channel function="MODE" min="900" neutral="1500" max="2100" average="0"/>
+  <channel function="MANUALRELEASE" min="900" neutral="910" max="2100" average="1"/>
 </radio>

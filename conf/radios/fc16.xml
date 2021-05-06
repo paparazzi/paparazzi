@@ -4,8 +4,8 @@
   <channel function="PITCH" min="1072" neutral="1519" max="1991" average="0"/>    <!-- left stick up/down -->
   <channel function="THROTTLE" min="1065" neutral="1981" max="1981" average="0" reverse="1"/>	<!-- right stick up/down -->
   <channel function="YAW" min="1087" neutral="1513" max="1959" average="0" reverse="1"/>		<!-- left stick left/right-->
-  <channel function="GAIN1" min="2080" neutral="1537" max="964" average="10" reverse="1"/>    <!-- right center slider -->
-  <channel function="MODE" min="2118" neutral="1521" max="944" average="10" reverse="1"/>     <!-- left switch -->
-  <channel function="CALIB" min="2118" neutral="1520" max="943" average="10" reverse="1"/>    <!-- right switch -->
+  <channel function="GAIN1" min="964" neutral="1537" max="2080" average="10"/>    <!-- right center slider -->
+  <channel function="MODE" min="944" neutral="1521" max="2118" average="10"/>     <!-- left switch -->
+  <channel function="CALIB" min="943" neutral="1520" max="2118" average="10"/>    <!-- right switch -->
   <channel function="GAIN2" min="1000" neutral="1600" max="2200" average="10"/>
 </radio>

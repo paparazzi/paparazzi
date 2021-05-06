@@ -3,5 +3,5 @@
  <channel function="ROLL" min="1100" neutral="1560" max="2000" average="0" reverse="1"/>
  <channel function="THROTTLE" min="1140" neutral="1140" max="1900" average="0"/>
  <channel function="PITCH" max="1940" neutral="1520" min="1120" average="0" reverse="1"/>
- <channel function="MODE" min="2144" neutral="1530" max="920" average="11"/>
+ <channel function="MODE" min="920" neutral="1530" max="2144" average="11" reverse="1"/>
 </radio>

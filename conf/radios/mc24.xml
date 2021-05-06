@@ -7,6 +7,6 @@
   <channel function="SWITCH1" min="1096" neutral="1500" max="1900" average="1"/>
   <channel function="GAIN1" min="1096" neutral="1500" max="1900" average="1"/>
   <channel function="CALIB" min="1096" neutral="1500" max="1900" average="0"/>
-  <channel function="MODE" min="2025" neutral="1500" max="966" average="1" reverse="1"/>
+  <channel function="MODE" min="966" neutral="1500" max="2025" average="1"/>
   <channel function="SWITCH2" min="1096" neutral="1500" max="1900" average="1"/>
 </radio>

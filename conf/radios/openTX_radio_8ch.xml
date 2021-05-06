@@ -1,11 +1,11 @@
 <!DOCTYPE radio SYSTEM "/radio.dtd">
 <radio name="OPENTX" data_min="700" data_max="2200" sync_min="2500" sync_max="18000" pulse_type="NEGATIVE">
-  <channel function="ROLL" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
-  <channel function="PITCH" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
-  <channel function="THROTTLE" min="2012" neutral="988" max="988" average="0" reverse="1"/>
-  <channel function="YAW" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
-  <channel function="MODE" min="2012" neutral="1500" max="988" average="10" reverse="1"/>
-  <channel function="AUX1" min="2012" neutral="1500" max="988" average="10" reverse="1"/>
-  <channel function="AUX2" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
-  <channel function="AUX3" min="2012" neutral="1500" max="988" average="0" reverse="1"/>
+  <channel function="ROLL" min="988" neutral="1500" max="2012" average="0"/>
+  <channel function="PITCH" min="988" neutral="1500" max="2012" average="0"/>
+  <channel function="THROTTLE" min="988" neutral="988" max="2012" average="0"/>
+  <channel function="YAW" min="988" neutral="1500" max="2012" average="0"/>
+  <channel function="MODE" min="988" neutral="1500" max="2012" average="10"/>
+  <channel function="AUX1" min="988" neutral="1500" max="2012" average="10"/>
+  <channel function="AUX2" min="988" neutral="1500" max="2012" average="0"/>
+  <channel function="AUX3" min="988" neutral="1500" max="2012" average="0"/>
 </radio>

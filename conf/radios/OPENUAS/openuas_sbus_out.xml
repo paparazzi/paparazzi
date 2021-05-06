@@ -12,8 +12,8 @@ the order of the functon in the list
   <channel function="ROLL" min="1107" neutral="1520" max="1932" average="0"/>
   <channel function="PITCH" min="1107" neutral="1520" max="1932" average="0"/>
   <channel function="YAW" min="1107" neutral="1520" max="1932" average="0"/>
-  <channel function="MODE" min="2072" neutral="1520" max="966" average="1" reverse="1"/>
-  <channel function="AUX2" min="2072" neutral="1520" max="966" average="1" reverse="1"/>
-  <channel function="AUX3" min="2072" neutral="1520" max="966" average="1" reverse="1"/>
-  <channel function="AUX4" min="2072" neutral="1520" max="966" average="1" reverse="1"/>
+  <channel function="MODE" min="966" neutral="1520" max="2072" average="1"/>
+  <channel function="AUX2" min="966" neutral="1520" max="2072" average="1"/>
+  <channel function="AUX3" min="966" neutral="1520" max="2072" average="1"/>
+  <channel function="AUX4" min="966" neutral="1520" max="2072" average="1"/>
 </radio>

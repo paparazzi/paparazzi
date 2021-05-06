@@ -1,10 +1,10 @@
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="cockpitSX (easy)" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
- <channel function="ROLL" min="2050" neutral="1500" max="950" average="0"/>
- <channel function="PITCH" min="2050" neutral="1500" max="950" average="0"/>
- <channel function="YAW" min="2050" neutral="1500" max="950" average="0" reverse="1"/>
+ <channel function="ROLL" min="950" neutral="1500" max="2050" average="0" reverse="1"/>
+ <channel function="PITCH" min="950" neutral="1500" max="2050" average="0" reverse="1"/>
+ <channel function="YAW" min="950" neutral="1500" max="2050" average="0"/>
  <channel function="THROTTLE" min="1223" neutral="1223" max="2050" average="0"/>
- <channel function="UNUSED" min="2050" neutral="1500" max="950" average="1"/> <!-- center slider        -->
- <channel function="GAIN1" min="2050" neutral="1496" max="948" average="1"/> <!-- top right slider     -->
- <channel function="MODE" min="2050" neutral="1500" max="948" average="1"/> <!-- Top right switch -->
+ <channel function="UNUSED" min="950" neutral="1500" max="2050" average="1" reverse="1"/> <!-- center slider        -->
+ <channel function="GAIN1" min="948" neutral="1496" max="2050" average="1" reverse="1"/> <!-- top right slider     -->
+ <channel function="MODE" min="948" neutral="1500" max="2050" average="1" reverse="1"/> <!-- Top right switch -->
 </radio>

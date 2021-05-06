@@ -4,8 +4,8 @@
   <channel function="PITCH" min="1112" neutral="1518" max="1937" average="0"/>
   <channel function="THROTTLE" min="1115" neutral="1940" max="1940" average="0" reverse="1"/>
   <channel function="YAW" min="1115" neutral="1498" max="1940" average="0"/>
-  <channel function="CALIB" min="2080" neutral="1525" max="969" average="10"/>
-  <channel function="GAIN1" min="2078" neutral="1520" max="970" average="10" reverse="1"/>
-  <channel function="GAIN2" min="2077" neutral="1518" max="970" average="10" reverse="1"/>
-  <channel function="MODE" min="2079" neutral="1526" max="966" average="10"/>
+  <channel function="CALIB" min="969" neutral="1525" max="2080" average="10" reverse="1"/>
+  <channel function="GAIN1" min="970" neutral="1520" max="2078" average="10"/>
+  <channel function="GAIN2" min="970" neutral="1518" max="2077" average="10"/>
+  <channel function="MODE" min="966" neutral="1526" max="2079" average="10" reverse="1"/>
 </radio>
