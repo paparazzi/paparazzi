@@ -981,7 +981,6 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
         end
     with _ -> ()
   end;
-  ground_alt := get_float "ground_alt";
   let home_mode_height = try
     max (get_float "home_mode_height") !security_height
     with _ -> !security_height in
@@ -1181,6 +1180,7 @@ let generate = fun flight_plan ?(check=false) ?(dump=false) xml_file out_fp ->
     | _ -> failwith ("Error: unkown wp_frame \"" ^ frame ^ "\". Use \"utm\" or \"ltp\"")
     in
 
+  ground_alt := float_attrib xml "ground_alt";
   let ref0 = {
     frame;
     utm0 = utm_of WGS84 !fp_wgs84;
