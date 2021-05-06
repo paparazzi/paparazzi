@@ -39,7 +39,7 @@ let check_function_name = fun s ->
 
 
 let norm1_ppm = fun c ->
-  if c.neutral = c.min then
+  if c.neutral = c.min || c.neutral = c.max then
     sprintf "tmp_radio * (MAX_PPRZ / (float)(RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d)))" c.max c.min, "0"
   else
     sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
@@ -78,7 +78,7 @@ let gen_normalize_ppm_fir = fun out channels ->
   fprintf out "}\n\n"
 
 let norm1_ppm2 = fun c ->
-  if c.neutral = c.min then
+  if c.neutral = c.min || c.neutral = c.max then
     sprintf "(tmp_radio * MAX_PPRZ) / (RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d))" c.max c.min, "0"
   else
     sprintf "(tmp_radio >=0 ? (tmp_radio *  MAX_PPRZ) / (RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d)) : (tmp_radio * MIN_PPRZ) / (RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d)))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
@@ -120,6 +120,7 @@ let generate = fun radio xml_file out_file ->
     let (mini, maxi) = if c.reverse then (c.max, c.min) else (c.min, c.max) in
     fprintf out "#define RADIO_%s_MIN %d\n" c.cname mini;
     fprintf out "#define RADIO_%s_MAX %d\n\n" c.cname maxi;
+    if c.max < c.min then failwith (sprintf "Error: \"%s\" radio channel: max must be superior to min! Use reverse=\"1\" to reverse the channel." c.cname)
   ) radio.channels;
 
   let ppm_pulse_type = match radio.pulse_type with
