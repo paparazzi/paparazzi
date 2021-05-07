@@ -47,7 +47,7 @@ typedef struct _ThreadCpuInfo {
   float    cpu[RTOS_MON_MAX_THREADS];
   float    totalTicks;
   float    totalISRTicks;
-}} ThreadCpuInfo ;
+} ThreadCpuInfo ;
 
 
 static void stampThreadCpuInfo (ThreadCpuInfo *ti)
@@ -87,8 +87,8 @@ static float stampISRGetCpuPercent (const ThreadCpuInfo *ti)
 }
 
 static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const argv[]) {
-  static const char *states[] = {THD_STATE_NAMES};
-  Thread *tp = chRegFirstThread();
+  static const char *states[] = {CH_STATE_NAMES};
+  thread_t *tp = chRegFirstThread();
   (void)argv;
   (void)argc;
   float totalTicks=0;
