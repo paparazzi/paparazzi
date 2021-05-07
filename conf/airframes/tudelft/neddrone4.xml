@@ -373,8 +373,6 @@
     <define name="ESTIMATION_FILT_CUTOFF" value="5.0"/>
     <define name="FILT_CUTOFF_R" value="4.0"/>
 
-    <define name="FILTER_YAW_RATE" value="TRUE"/>
-
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.0354"/>
     <define name="ACT_DYN_Q" value="0.0354"/>
