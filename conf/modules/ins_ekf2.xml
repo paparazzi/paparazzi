@@ -10,13 +10,21 @@
     <define name="USE_RANGE_AID" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
     <define name="INS_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay in ms"/>
     <define name="INS_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0 to 255]"/>
-    <define name="INS_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive [in rad/sec]"/>
+    <define name="INS_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive in rad/sec"/>
+    <define name="FLOW_OFFSET_X" value="-0.13" description="Flow sensor X offset from IMU position in meters"/>
+    <define name="FLOW_OFFSET_Y" value="-0.15" description="Flow sensor Y offset from IMU position in meters"/>
+    <define name="FLOW_OFFSET_Z" value="0.17" description="Flow sensor Z offset from IMU position in meters"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
       <!-- EKF2 Configuration parameters -->
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
+        <dl_setting var="ekf_params->flow_qual_min" min="0" step="1" max="255" shortname="flow_quality" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf_params->range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf.offset_x" min="0" step="0.005" max="1" shortname="x_offset" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf.offset_y" min="0" step="0.005" max="1" shortname="y_offset" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf.offset_z" min="0" step="0.005" max="1" shortname="z_offset" module="subsystems/ins/ins_ekf2"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -35,6 +43,9 @@
     <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
     <define name="INS_MIN_FLOW_QUALITY" value="100"/>
     <define name="INS_MAX_FLOW_RATE" value="20"/>
+    <define name="FLOW_OFFSET_X" value="-0.13"/>
+    <define name="FLOW_OFFSET_Y" value="-0.15"/>
+    <define name="FLOW_OFFSET_Z" value="0.17"/>
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>

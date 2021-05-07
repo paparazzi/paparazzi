@@ -128,6 +128,24 @@ PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
 #endif
 PRINT_CONFIG_VAR(INS_MAX_FLOW_RATE)
 
+/* Flow sensor X offset from IMU position in meters */
+#ifndef FLOW_OFFSET_X
+#define FLOW_OFFSET_X
+#endif
+PRINT_CONFIG_VAR(FLOW_OFFSET_X)
+
+/* Flow sensor Y offset from IMU position in meters */
+#ifndef FLOW_OFFSET_Y
+#define FLOW_OFFSET_Y
+#endif
+PRINT_CONFIG_VAR(FLOW_OFFSET_Y)
+
+/* Flow sensor Z offset from IMU position in meters */
+#ifndef FLOW_OFFSET_Z
+#define FLOW_OFFSET_Z
+#endif
+PRINT_CONFIG_VAR(FLOW_OFFSET_Z)
+
 /* All registered ABI events */
 static abi_event agl_ev;
 static abi_event baro_ev;
@@ -177,6 +195,9 @@ struct ekf2_t
   float gyro_roll;
   float gyro_pitch;
   float gyro_yaw;
+  float offset_x;
+  float offset_y;
+  float offset_z;
 
   // additional flow info for debugging purposes
   float flow_compensation1;
@@ -366,6 +387,12 @@ void ins_ekf2_init(void)
   ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
   ekf_params->flow_delay_ms = INS_FLOW_SENSOR_DELAY;
   ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
+
+  /* Set flow sensor offset from IMU position in xyz (m) */
+  ekf.offset_x = FLOW_OFFSET_X;
+  ekf.offset_y = FLOW_OFFSET_Y;
+  ekf.offset_z = FLOW_OFFSET_Z;
+  ekf_params->flow_pos_body = {ekf.offset_x, ekf.offset_y, ekf.offset_z};
 
   /* Set range as default AGL measurement if possible */
   ekf_params->range_aid = USE_RANGE_AID;
