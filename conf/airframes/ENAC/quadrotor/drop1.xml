@@ -26,6 +26,7 @@
     </target>
 
     <module name="telemetry" type="xbee_api"/>
+    <module name="sys_mon"/>
 
     <module name="motor_mixing"/>
 
