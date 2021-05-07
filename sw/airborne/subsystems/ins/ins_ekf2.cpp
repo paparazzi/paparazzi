@@ -728,9 +728,9 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   ekf2.flow_quality = quality;
   ekf2.flow_x = - RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
   ekf2.flow_y = - RadOfDeg(flow_x) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
-  ekf2.gyro_roll = ekf2.gyro.p * (1e-6 * ekf2.flow_dt);
-  ekf2.gyro_pitch = ekf2.gyro.q * (1e-6 * ekf2.flow_dt);
-  ekf2.gyro_yaw = ekf2.gyro.r * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_roll = NAN;                                                         // ekf2.gyro.p * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_pitch = NAN;                                                        // ekf2.gyro.q * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_yaw = NAN;                                                          // ekf2.gyro.r * (1e-6 * ekf2.flow_dt);
 
   /* once callback initaiated, build the 
   optical flow message with what is received */
