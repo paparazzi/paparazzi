@@ -26,11 +26,14 @@
     </target>
 
     <module name="telemetry" type="xbee_api"/>
+    <module name="sys_mon"/>
 
     <module name="motor_mixing"/>
 
     <module name="actuators" type="dshot">
       <define name="DSHOT_SPEED" value="300"/>
+      <define name="USE_UART5"/>
+      <define name="DSHOT_TELEMETRY_DEV" value="'&SD5'"/>
     </module>
 
     <module name="board" type="tawaki">

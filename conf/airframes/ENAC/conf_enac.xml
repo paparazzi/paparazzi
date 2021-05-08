@@ -123,7 +123,7 @@
   <aircraft
    name="Quad_dshot"
    ac_id="2"
-   airframe="airframes/ENAC/quadrotor/drop1.xml"
+   airframe="airframes/ENAC/quadrotor/dshot_tlm.xml"
    radio="radios/T10CG_SBUS.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
