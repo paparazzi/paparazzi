@@ -33,6 +33,8 @@
     <module name="actuators" type="dshot">
       <define name="DSHOT_SPEED" value="300"/>
       <define name="USE_UART5"/>
+      <define name="USE_UART5_RX" value="FALSE"/>
+      <define name="USE_UART5_TX" value="FALSE"/>
       <define name="DSHOT_TELEMETRY_DEV" value="'&SD5'"/>
     </module>
 
