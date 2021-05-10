@@ -103,11 +103,6 @@
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{ 110.f,   -110.f,   110.f,   -110.f}"/>
 
-    <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="FALSE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
-
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="380.f"/>
     <define name="REF_ERR_Q" value="380.f"/>

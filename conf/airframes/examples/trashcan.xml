@@ -376,11 +376,6 @@
         <define name="G1_R" value="0.0022"/>
         <define name="G2_R" value="0.20"/>
 
-        <!-- For some airframes, e.g. Bebop2 we need to filter the roll rate due to the dampers -->
-        <define name="FILTER_ROLL_RATE" value="FALSE"/>
-        <define name="FILTER_PITCH_RATE" value="FALSE"/>
-        <define name="FILTER_YAW_RATE" value="FALSE"/>
-
         <!-- reference acceleration for attitude control -->
         <define name="REF_ERR_P" value="170.0"/>
         <define name="REF_ERR_Q" value="600.0"/>
@@ -392,7 +387,6 @@
         <!-- second order filter parameters -->
         <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
         <define name="FILT_CUTOFF" value="5.0"/>
-        <define name="FILT_CUTOFF_P" value="5.0"/>
 
         <!-- first order actuator dynamics (indi_simple) -->
         <define name="ACT_DYN_P" value="0.06"/>
