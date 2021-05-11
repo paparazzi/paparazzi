@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="scheduling_indi_simple" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectivenss matrix.
+      This is necessary if the vehicle has different operating points,
+      with significantly different control effectivenss. 
+      
+      If instead using online adaptation is an option, be sure to 
+      not use this module at the same time!
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="scheduling">
+        <dl_setting var="use_scheduling" min="0" step="1" max="1" shortname="enable" persistent="true" module="ctrl/scheduling_indi_simple"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="scheduling_indi_simple.h"/>
+  </header>
+  <init fun="ctrl_eff_scheduling_init()"/>
+  <periodic fun="ctrl_eff_scheduling_periodic()" freq="20"/>
+  <makefile>
+    <file name="scheduling_indi_simple.c"/>
+  </makefile>
+</module>

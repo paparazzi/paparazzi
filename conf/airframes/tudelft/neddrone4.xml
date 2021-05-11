@@ -26,8 +26,7 @@
         <define name="MS45XX_I2C_DEV" value="i2c4"/>
       </module>
 
-      <!-- TODO: add this module -->
-      <!--module name="scheduling_indi_simple"/-->
+      <module name="scheduling_indi_simple"/>
 
       <!-- Forward FuelCell data back to the GCS -->
       <!--module name="generic_uart_sensor"/-->

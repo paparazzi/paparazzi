@@ -49,5 +49,6 @@ struct guidance_indi_hybrid_params {
 };
 
 extern struct guidance_indi_hybrid_params gih_params;
+extern float guidance_indi_specific_force_gain;
 
 #endif /* GUIDANCE_INDI_HYBRID_H */
