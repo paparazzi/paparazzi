@@ -75,7 +75,7 @@ bool indi_accel_sp_set_3d = false;
 
 struct FloatVect3 sp_accel = {0.0, 0.0, 0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
-float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
+float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
@@ -242,7 +242,7 @@ void guidance_indi_run(float *heading_sp)
   guidance_indi_filter_thrust();
 
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
-  thrust_in = thrust_filt.o[0] + control_increment.z * thrust_in_specific_force_gain;
+  thrust_in = thrust_filt.o[0] + control_increment.z * guidance_indi_specific_force_gain;
   Bound(thrust_in, 0, 9600);
 
 #if GUIDANCE_INDI_RC_DEBUG

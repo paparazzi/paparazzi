@@ -46,9 +46,15 @@ struct guidance_indi_hybrid_params {
   float pos_gainz;
   float speed_gain;
   float speed_gainz;
+  float heading_bank_gain;
 };
 
 extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
+extern float guidance_indi_max_airspeed;
+extern float nav_max_speed;
+extern float lift_eff_scaling;
+extern bool take_heading_control;
+extern float guidance_indi_max_bank;
 
 #endif /* GUIDANCE_INDI_HYBRID_H */
