@@ -148,8 +148,8 @@
     <define name="G1_Q" value="0.025"/>
     <define name="G1_R" value="0.0022"/>
 
-    <!--unit: rad/s-->
-    <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="100.0"/>
+    <!--unit: Hz-->
+    <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="170.0"/>
