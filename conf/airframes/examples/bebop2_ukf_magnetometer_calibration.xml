@@ -148,10 +148,8 @@
     <define name="G1_Q" value="0.025"/>
     <define name="G1_R" value="0.0022"/>
 
-    <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
+    <!--unit: Hz-->
+    <define name="FILT_CUTOFF_P" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="170.0"/>
@@ -163,7 +161,6 @@
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="3.2"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>

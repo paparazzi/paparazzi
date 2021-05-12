@@ -464,16 +464,8 @@ The most crucial part for the magnetometer calibration:
     <define name="G1_R" value="0.0022"/>
     <define name="G2_R" value="0.20"/>-->
 
-    <!-- ? Maybe with a High capacity battery(heavier, and weight lies higher) for the bebop1 we also need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
-
-    <!-- Here it is assumed that your removed the damping from your bebop!
-         The dampers damp, but also cause oscillation. By making them fix, the bebop could fly better with INDI -->
-    <!--<define name="FILTER_ROLL_RATE" value="FALSE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>-->
+    <!--unit: Hz-->
+    <define name="FILT_CUTOFF_P" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -490,7 +482,7 @@ The most crucial part for the magnetometer calibration:
 
 second order filter parameters -->
     <!-- NOT USED <define name="FILT_CUTOFF" value="4.0"/>
-    <define name="FILT_CUTOFF_R" value="4.0"/> -->
+    <define name="FILT_CUTOFF_RDOT" value="4.0"/> -->
 
     <!-- first order actuator dynamics -->
  <!--   <define name="ACT_DYN_P" value="0.06"/>

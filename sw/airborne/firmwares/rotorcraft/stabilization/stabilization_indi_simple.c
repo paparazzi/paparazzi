@@ -39,6 +39,7 @@
 #include "generated/airframe.h"
 #include "paparazzi.h"
 #include "subsystems/radio_control.h"
+#include "filters/low_pass_filter.h"
 
 #if !defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
 #error You have to define the first order time constant of the actuator dynamics!
@@ -51,8 +52,8 @@
 #endif
 
 // the yaw sometimes requires more filtering
-#ifndef STABILIZATION_INDI_FILT_CUTOFF_R
-#define STABILIZATION_INDI_FILT_CUTOFF_R STABILIZATION_INDI_FILT_CUTOFF
+#ifndef STABILIZATION_INDI_FILT_CUTOFF_RDOT
+#define STABILIZATION_INDI_FILT_CUTOFF_RDOT STABILIZATION_INDI_FILT_CUTOFF
 #endif
 
 #ifndef STABILIZATION_INDI_MAX_RATE
@@ -71,10 +72,28 @@
 #define STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF 4.0
 #endif
 
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_P
+#define STABILIZATION_INDI_FILTER_ROLL_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_P 20.0
+#endif
+
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_Q
+#define STABILIZATION_INDI_FILTER_PITCH_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_Q 20.0
+#endif
+
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_R
+#define STABILIZATION_INDI_FILTER_YAW_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_R 20.0
+#endif
+
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
-struct FloatRates rates_filt_fo;
+static struct FirstOrderLowPass rates_filt_fo[3];
 
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
@@ -83,6 +102,7 @@ static void indi_init_filters(void);
 #define INDI_EST_SCALE 0.001
 
 struct IndiVariables indi = {
+  .cutoff_r = STABILIZATION_INDI_FILT_CUTOFF_R,
   .max_rate = STABILIZATION_INDI_MAX_RATE,
   .attitude_max_yaw_rate = STABILIZATION_INDI_MAX_R,
 
@@ -172,8 +192,8 @@ void indi_init_filters(void)
 {
   // tau = 1/(2*pi*Fc)
   float tau = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_FILT_CUTOFF);
-  float tau_r = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_R);
-  float tau_axis[3] = {tau, tau, tau_r};
+  float tau_rdot = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_RDOT);
+  float tau_axis[3] = {tau, tau, tau_rdot};
   float tau_est = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   // Filtering of gyroscope and actuators
@@ -183,8 +203,21 @@ void indi_init_filters(void)
     init_butterworth_2_low_pass(&indi.est.u[i], tau_est, sample_time, 0.0);
     init_butterworth_2_low_pass(&indi.est.rate[i], tau_est, sample_time, 0.0);
   }
+
   // Init rate filter for feedback
-  RATES_COPY(rates_filt_fo, (*stateGetBodyRates_f()));
+  float time_constants[3] = {1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_P), 1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_Q), 1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_R)};
+
+  init_first_order_low_pass(&rates_filt_fo[0], time_constants[0], sample_time, stateGetBodyRates_f()->p);
+  init_first_order_low_pass(&rates_filt_fo[1], time_constants[1], sample_time, stateGetBodyRates_f()->q);
+  init_first_order_low_pass(&rates_filt_fo[2], time_constants[2], sample_time, stateGetBodyRates_f()->r);
+}
+
+// Callback function for setting cutoff frequency for r
+void stabilization_indi_simple_reset_r_filter_cutoff(float new_cutoff) {
+  float sample_time = 1.0 / PERIODIC_FREQUENCY;
+  indi.cutoff_r = new_cutoff;
+  float time_constant = 1.0/(2.0 * M_PI * indi.cutoff_r);
+  init_first_order_low_pass(&rates_filt_fo[2], time_constant, sample_time, stateGetBodyRates_f()->r);
 }
 
 void stabilization_indi_enter(void)
@@ -309,33 +342,33 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
   // Calculate the derivative of the rates
   finite_difference_from_filter(indi.rate_d, indi.rate);
 
-  //The rates used for feedback are by default the measured rates. If needed they can be filtered (see below)
-
+  //The rates used for feedback are by default the measured rates.
   //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
-  //Note that due to the delay, the PD controller can not be as aggressive.
+  //Note that due to the delay, the PD controller may need relaxed gains.
+  struct FloatRates rates_filt;
 #if STABILIZATION_INDI_FILTER_ROLL_RATE
-  rates_filt_fo.p = (rates_filt_fo.p*3+body_rates->p)/4;
+  rates_filt.p = update_first_order_low_pass(&rates_filt_fo[0], body_rates->p);
 #else
-  rates_filt_fo.p = body_rates->p;
+  rates_filt.p = body_rates->p;
 #endif
 #if STABILIZATION_INDI_FILTER_PITCH_RATE
-  rates_filt_fo.q = (rates_filt_fo.q*3+body_rates->q)/4;
+  rates_filt.q = update_first_order_low_pass(&rates_filt_fo[1], body_rates->q);
 #else
-  rates_filt_fo.q = body_rates->q;
+  rates_filt.q = body_rates->q;
 #endif
 #if STABILIZATION_INDI_FILTER_YAW_RATE
-  rates_filt_fo.r = (rates_filt_fo.r*3+body_rates->r)/4;
+  rates_filt.r = update_first_order_low_pass(&rates_filt_fo[2], body_rates->r);
 #else
-  rates_filt_fo.r = body_rates->r;
+  rates_filt.r = body_rates->r;
 #endif
 
-  //This separates the P and D controller and lets you impose a maximum yaw rate.
+  //This lets you impose a maximum yaw rate.
   BoundAbs(rate_sp.r, indi.attitude_max_yaw_rate);
 
   // Compute reference angular acceleration:
-  indi.angular_accel_ref.p = (rate_sp.p - rates_filt_fo.p) * indi.gains.rate.p;
-  indi.angular_accel_ref.q = (rate_sp.q - rates_filt_fo.q) * indi.gains.rate.q;
-  indi.angular_accel_ref.r = (rate_sp.r - rates_filt_fo.r) * indi.gains.rate.r;
+  indi.angular_accel_ref.p = (rate_sp.p - rates_filt.p) * indi.gains.rate.p;
+  indi.angular_accel_ref.q = (rate_sp.q - rates_filt.q) * indi.gains.rate.q;
+  indi.angular_accel_ref.r = (rate_sp.r - rates_filt.r) * indi.gains.rate.r;
 
   //Increment in angular acceleration requires increment in control input
   //G1 is the control effectiveness. In the yaw axis, we need something additional: G2.

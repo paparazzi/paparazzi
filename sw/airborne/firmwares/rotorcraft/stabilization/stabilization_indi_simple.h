@@ -58,6 +58,7 @@ struct IndiEstimation {
 };
 
 struct IndiVariables {
+  float cutoff_r;
   struct FloatRates angular_accel_ref;
   struct FloatRates du;
   struct FloatRates u_in;
@@ -87,6 +88,7 @@ extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t h
 extern void stabilization_indi_rate_run(struct FloatRates rates_sp, bool in_flight);
 extern void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight);
 extern void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
+extern void stabilization_indi_simple_reset_r_filter_cutoff(float new_cutoff);
 
 #endif /* STABILIZATION_INDI_SIMPLE_H */
 

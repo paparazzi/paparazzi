@@ -37,7 +37,8 @@
       <define name="REF_RATE_Q" value="28.0" description="linear gains for INDI reference"/>
       <define name="REF_RATE_R" value="28.0" description="linear gains for INDI reference"/>
       <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
-      <define name="FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
+      <define name="FILT_CUTOFF" value="8.0" description="second order filter cutoff frequency Hz"/>
+      <define name="FILT_CUTOFF_RDOT" value="8.0" description="second order filter cutoff frequency rdot Hz"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
       <define name="ACT_DYN_P" value="0.1" description="first order actuator dynamics on roll rate"/>
       <define name="ACT_DYN_Q" value="0.1" description="first order actuator dynamics on pitch rate"/>
@@ -45,6 +46,9 @@
       <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
       <define name="FULL_AUTHORITY" value="FALSE" description="Enable full control authority"/>
+      <define name="FILT_CUTOFF_P" value="30.0" description="First order filter P cutoff value"/>
+      <define name="FILT_CUTOFF_Q" value="30.0" description="First order filter Q cutoff value"/>
+      <define name="FILT_CUTOFF_R" value="30.0" description="First order filter R cutoff value"/>
     </section>
   </doc>
   <settings>
@@ -63,6 +67,7 @@
         <dl_setting var="indi.adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8" persistent="true"/>
         <dl_setting var="indi.max_rate" min="0" step="0.01" max="400.0" shortname="max_rate" param="STABILIZATION_INDI_MAX_RATE" unit="rad/s" alt_unit="deg/s"/>
         <dl_setting var="indi.attitude_max_yaw_rate" min="0" step="0.01" max="400.0" shortname="max_yaw_rate_attitude" param="STABILIZATION_INDI_MAX_R" unit="rad/s" alt_unit="deg/s"/>
+        <dl_setting var="indi.cutoff_r" min="0.2" step="0.1" max="30.0" shortname="r_cutoff_hz" handler="reset_r_filter_cutoff" type="float" module="stabilization/stabilization_indi_simple"/>
       </dl_settings>
     </dl_settings>
   </settings>

@@ -206,9 +206,9 @@
     <define name="G1_R" value="0.0022"/>
     <define name="G2_R" value="0.20"/>
 
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
-    <define name="FILTER_PITCH_RATE" value="TRUE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
+    <!--unit: Hz-->
+    <define name="FILT_CUTOFF_P" value="20.0"/>
+    <define name="FILT_CUTOFF_Q" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="170.0"/>
@@ -217,12 +217,6 @@
     <define name="REF_RATE_P" value="14.3"/>
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
-
-    <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="20.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="20.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>

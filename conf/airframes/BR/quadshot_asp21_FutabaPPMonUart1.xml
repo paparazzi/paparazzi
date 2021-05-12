@@ -233,7 +233,7 @@
     <define name="REF_RATE_R" value="12.0"/>
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
+    <define name="FILT_CUTOFF_RDOT" value="3.2"/>
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.03"/>
     <define name="ACT_DYN_Q" value="0.03"/>
