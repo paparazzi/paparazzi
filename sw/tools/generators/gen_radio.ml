@@ -117,10 +117,10 @@ let generate = fun radio xml_file out_file ->
     check_function_name c.cname;
     fprintf out "#define RADIO_%s %d\n" c.cname i;
     fprintf out "#define RADIO_%s_NEUTRAL %d\n" c.cname c.neutral;
-    let (mini, maxi) = if c.reverse then (c.max, c.min) else (c.min, c.max) in
-    fprintf out "#define RADIO_%s_MIN %d\n" c.cname mini;
-    fprintf out "#define RADIO_%s_MAX %d\n\n" c.cname maxi;
-    if c.max < c.min then failwith (sprintf "Error: \"%s\" radio channel: max must be superior to min! Use reverse=\"1\" to reverse the channel." c.cname)
+    fprintf out "#define RADIO_%s_MIN %d\n" c.cname c.min;
+    fprintf out "#define RADIO_%s_MAX %d\n\n" c.cname c.max;
+    if (not c.reverse && (c.max < c.min)) || (c.reverse && (c.min < c.max))
+      then failwith (sprintf "Error: \"%s\" radio channel: max must be superior to min! Use reverse=\"1\" to reverse the channel." c.cname)
   ) radio.channels;
 
   let ppm_pulse_type = match radio.pulse_type with

@@ -37,12 +37,15 @@ let parse_channel = function
     let bget = fun attrib ->
       try Xml.attrib xml attrib <> "0"
       with Xml.No_attribute _ -> false in
+    let reverse = bget "reverse" in
+    let min = ExtXml.int_attrib xml "min"
+    and max = ExtXml.int_attrib xml "max" in
     { cname = Xml.attrib xml "function";
-      min = ExtXml.int_attrib xml "min";
-      max = ExtXml.int_attrib xml "max";
+      min = if reverse then max else min;
+      max = if reverse then min else max;
       neutral = ExtXml.int_attrib xml "neutral";
       average = bget "average";
-      reverse = bget "reverse";
+      reverse;
       }
   | _ -> failwith "Radio.parse_channel: unreachable"
 
