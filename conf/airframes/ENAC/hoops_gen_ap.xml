@@ -207,8 +207,8 @@
     <define name="G2_R" value="0.20"/>
 
     <!--unit: Hz-->
-    <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="20.0"/>
-    <define name="STABILIZATION_INDI_FILT_CUTOFF_Q" value="20.0"/>
+    <define name="FILT_CUTOFF_P" value="20.0"/>
+    <define name="FILT_CUTOFF_Q" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="170.0"/>
