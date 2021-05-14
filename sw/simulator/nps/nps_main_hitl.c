@@ -116,7 +116,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
   nps_ins_init(); // initialize ins variables and pointers
 
   // configure port
-  int fd = open(INS_DEV, O_WRONLY | O_NOCTTY | O_SYNC);//open(INS_DEV, O_RDWR | O_NOCTTY);
+  int fd = open(STRINGIFY(INS_DEV), O_WRONLY | O_NOCTTY | O_SYNC);//open(INS_DEV, O_RDWR | O_NOCTTY);
   if (fd < 0) {
     printf("INS THREAD: data loop error opening port %i\n", fd);
     return(NULL);
@@ -188,7 +188,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
 void *nps_ap_data_loop(void *data __attribute__((unused)))
 {
   // configure port
-  int fd = open(AP_DEV, O_RDONLY | O_NOCTTY);
+  int fd = open(STRINGIFY(AP_DEV), O_RDONLY | O_NOCTTY);
   if (fd < 0) {
     printf("AP data loop error opening port %i\n", fd);
     return(NULL);

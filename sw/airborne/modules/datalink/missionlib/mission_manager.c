@@ -38,10 +38,12 @@
 #pragma GCC diagnostic pop
 
 // for waypoints, include correct header until we have unified API
-#ifdef AP
+#if defined(FIXEDWING_FIRMWARE)
 #include "subsystems/navigation/common_nav.h"
-#else
+#elif defined(ROTORCRAFT_FIRMWARE)
 #include "firmwares/rotorcraft/navigation.h"
+#else
+#error "Mission manager: unsupported firmware"
 #endif
 #include "generated/flight_plan.h"
 

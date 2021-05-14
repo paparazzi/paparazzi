@@ -854,7 +854,13 @@ inline int16_t pprz_trig_int_f(int32_t angle)
 #endif
 }
 
+#else
+
+// dummy init
+int pprz_trig_int_init(void) { return 0; }
+
 #endif // PPRZ_TRIG_INT_COMPR_FLASH
+
 
 int32_t pprz_itrig_sin(int32_t angle)
 {
