@@ -68,7 +68,6 @@ int main(void)
 static inline void main_init(void)
 {
   mcu_init();
-  mcu_int_enable();
 
   sys_time_register_timer((1. / 50), NULL);
   downlink_init();

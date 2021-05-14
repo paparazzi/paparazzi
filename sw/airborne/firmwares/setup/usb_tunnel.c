@@ -95,7 +95,6 @@ int main(void)
 
   VCOM_init();
 
-  mcu_int_enable();
 
   while (1) {
     VCOM_event();

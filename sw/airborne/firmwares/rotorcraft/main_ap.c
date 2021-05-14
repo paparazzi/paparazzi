@@ -31,39 +31,9 @@
 #define ABI_C
 
 #include <inttypes.h>
-#include "mcu.h"
-#include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/settings.h"
-
-#include "subsystems/commands.h"
-#include "subsystems/actuators.h"
-
-#if USE_IMU
-#include "subsystems/imu.h"
-#endif
-#if USE_GPS
-#include "subsystems/gps.h"
-#endif
-
-#if USE_BARO_BOARD
-#include "subsystems/sensors/baro.h"
-PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
-#endif
-
-#include "subsystems/electrical.h"
-
-#include "autopilot.h"
-
 #include "subsystems/radio_control.h"
-
-#include "subsystems/ahrs.h"
-
-#include "state.h"
 
 #include "firmwares/rotorcraft/main_ap.h"
 
@@ -73,10 +43,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 #include "generated/modules.h"
 #include "subsystems/abi.h"
-
-// needed for stop-gap measure waypoints_localize_all()
-#include "subsystems/navigation/waypoints.h"
-
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
@@ -95,9 +61,6 @@ PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
  */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
-/* BARO_PERIODIC_FREQUENCY is defined in the shared/baro_board.makefile and defaults to 50Hz */
-PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
-
 #if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
@@ -105,49 +68,47 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #endif
 #endif
 
-tid_t main_periodic_tid; ///< id for main_periodic() timer
-tid_t modules_tid;       ///< id for modules_periodic_task() timer
-tid_t failsafe_tid;      ///< id for failsafe_check() timer
-tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
-tid_t electrical_tid;    ///< id for electrical_periodic() timer
-tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
-#if USE_BARO_BOARD
-tid_t baro_tid;          ///< id for baro_periodic() timer
+/**
+ * IDs for timers
+ */
+tid_t modules_mcu_core_tid; // single step
+tid_t modules_sensors_tid;
+tid_t modules_estimation_tid;
+tid_t modules_radio_control_tid;
+tid_t modules_control_actuators_tid; // single step
+tid_t modules_datalink_tid;
+tid_t modules_default_tid;
+tid_t failsafe_tid;      ///< id for failsafe_check() timer FIXME
+
+#define SYS_PERIOD (1.f / PERIODIC_FREQUENCY)
+#define DATALINK_PERIOD (1.f / TELEMETRY_FREQUENCY)
+
+#ifndef ESTIMATION_OFFSET
+#define ESTIMATION_OFFSET 6e-4f
+#endif
+
+#ifndef CONTROL_OFFSET
+#define CONTROL_OFFSET 7e-4f
+#endif
+
+#ifndef DEFAULT_OFFSET
+#define DEFAULT_OFFSET 8e-4f
 #endif
 
 void main_init(void)
 {
-  mcu_init();
-
-#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
-  pprz_trig_int_init();
-#endif
-
-  electrical_init();
-
-  stateInit();
-
-#ifndef INTER_MCU_AP
-  actuators_init();
-#else
-  intermcu_init();
-#endif
-
+  modules_mcu_init();
+  modules_core_init();
+  modules_sensors_init();
+  modules_estimation_init();
 #ifndef INTER_MCU_AP
   radio_control_init();
+  // modules_radio_control_init(); FIXME
 #endif
-
-#if USE_BARO_BOARD
-  baro_init();
-#endif
-
-#if USE_AHRS
-  ahrs_init();
-#endif
-
-  autopilot_init();
-
-  modules_init();
+  modules_control_init();
+  modules_actuators_init();
+  modules_datalink_init();
+  modules_default_init();
 
   // call autopilot implementation init after guidance modules init
   // it will set startup mode
@@ -157,37 +118,17 @@ void main_init(void)
   autopilot_static_init();
 #endif
 
-  /* temporary hack:
-   * Since INS is now a module, LTP_DEF is not yet initialized when autopilot_init is called
-   * This led to the problem that global waypoints were not "localized",
-   * so as a stop-gap measure we localize them all (again) here..
-   */
-  waypoints_localize_all();
-
-  settings_init();
-
-  mcu_int_enable();
-
-#if DOWNLINK
-  downlink_init();
-#endif
-
-#ifdef INTER_MCU_AP
-  intermcu_init();
-#endif
+  // register timers with temporal dependencies
+  modules_sensors_tid = sys_time_register_timer(SYS_PERIOD, NULL);
+  modules_estimation_tid = sys_time_register_timer_offset(modules_sensors_tid, ESTIMATION_OFFSET, NULL);
+  modules_control_actuators_tid = sys_time_register_timer_offset(modules_sensors_tid, CONTROL_OFFSET, NULL);
+  modules_default_tid = sys_time_register_timer_offset(modules_sensors_tid, DEFAULT_OFFSET, NULL); // should it be an offset ?
 
   // register the timers for the periodic functions
-  main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-#if PERIODIC_FREQUENCY != MODULES_FREQUENCY
-  modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
-#endif
-  radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
-  failsafe_tid = sys_time_register_timer(0.05, NULL);
-  electrical_tid = sys_time_register_timer(0.1, NULL);
-  telemetry_tid = sys_time_register_timer((1. / TELEMETRY_FREQUENCY), NULL);
-#if USE_BARO_BOARD
-  baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
-#endif
+  modules_mcu_core_tid = sys_time_register_timer(SYS_PERIOD, NULL);
+  modules_radio_control_tid = sys_time_register_timer((1. / 60.), NULL); // FIXME
+  modules_datalink_tid = sys_time_register_timer(DATALINK_PERIOD, NULL);
+  failsafe_tid = sys_time_register_timer(0.05, NULL); // FIXME
 
 #if USE_IMU
   // send body_to_imu from here for now
@@ -201,70 +142,60 @@ void main_init(void)
 
 void handle_periodic_tasks(void)
 {
-  if (sys_time_check_and_ack_timer(main_periodic_tid)) {
-    main_periodic();
-#if PERIODIC_FREQUENCY == MODULES_FREQUENCY
-    /* Use the main periodc freq timer for modules if the freqs are the same
-     * This is mainly useful for logging each step.
-     */
-    modules_periodic_task();
-#else
+  if (sys_time_check_and_ack_timer(modules_sensors_tid)) {
+    modules_sensors_periodic_task();
   }
-  /* separate timer for modules, since it has a different freq than main */
-  if (sys_time_check_and_ack_timer(modules_tid)) {
-    modules_periodic_task();
-#endif
+
+  if (sys_time_check_and_ack_timer(modules_estimation_tid)) {
+    modules_estimation_periodic_task();
   }
-  if (sys_time_check_and_ack_timer(radio_control_tid)) {
+
+  if (sys_time_check_and_ack_timer(modules_radio_control_tid)) {
     radio_control_periodic_task();
+    modules_radio_control_periodic_task(); // FIXME integrate above
   }
-  if (sys_time_check_and_ack_timer(failsafe_tid)) {
-    failsafe_check();
-  }
-  if (sys_time_check_and_ack_timer(electrical_tid)) {
-    electrical_periodic();
-  }
-  if (sys_time_check_and_ack_timer(telemetry_tid)) {
-    telemetry_periodic();
-  }
-#if USE_BARO_BOARD
-  if (sys_time_check_and_ack_timer(baro_tid)) {
-    baro_periodic();
-  }
-#endif
-}
 
-void main_periodic(void)
-{
-#if INTER_MCU_AP
-  /* Inter-MCU watchdog */
-  intermcu_periodic();
-#endif
-
-  /* run control loops */
-  autopilot_periodic();
-  /* set actuators     */
-  //actuators_set(autopilot_get_motors_on());
+  if (sys_time_check_and_ack_timer(modules_control_actuators_tid)) {
+    modules_control_periodic_task();
 
 #if USE_THROTTLE_CURVES
-  throttle_curve_run(commands, autopilot_get_mode());
+    throttle_curve_run(commands, autopilot_get_mode());
 #endif
 
 #ifndef INTER_MCU_AP
-  SetActuatorsFromCommands(commands, autopilot_get_mode());
+    SetActuatorsFromCommands(commands, autopilot_get_mode());
 #else
-  intermcu_set_actuators(commands, autopilot_get_mode());
+    intermcu_set_actuators(commands, autopilot_get_mode());
 #endif
+    modules_actuators_periodic_task(); // FIXME integrate above in actuators periodic
 
-  if (autopilot_in_flight()) {
-    RunOnceEvery(PERIODIC_FREQUENCY, autopilot.flight_time++);
+    if (autopilot_in_flight()) {
+      RunOnceEvery(PERIODIC_FREQUENCY, autopilot.flight_time++); // TODO make it 1Hz periodic ?
+    }
   }
 
-#if defined DATALINK || defined SITL
-  RunOnceEvery(PERIODIC_FREQUENCY, datalink_time++);
-#endif
+  if (sys_time_check_and_ack_timer(modules_default_tid)) {
+    modules_default_periodic_task();
+  }
 
-  RunOnceEvery(10, LED_PERIODIC());
+  if (sys_time_check_and_ack_timer(modules_mcu_core_tid)) {
+    modules_mcu_periodic_task();
+    modules_core_periodic_task();
+    RunOnceEvery(10, LED_PERIODIC()); // FIXME periodic in led module
+  }
+
+  if (sys_time_check_and_ack_timer(modules_datalink_tid)) {
+    telemetry_periodic();
+    modules_datalink_periodic_task(); // FIXME integrate above
+#if defined DATALINK || defined SITL
+    RunOnceEvery(TELEMETRY_FREQUENCY, datalink_time++);
+#endif
+  }
+
+  if (sys_time_check_and_ack_timer(failsafe_tid)) {
+    failsafe_check(); // FIXME integrate somewhere else
+  }
+
 }
 
 void telemetry_periodic(void)
@@ -338,18 +269,15 @@ void failsafe_check(void)
 
 void main_event(void)
 {
-  /* event functions for mcu peripherals: i2c, usb_serial.. */
-  mcu_event();
-
+  modules_mcu_event_task();
+  modules_core_event_task();
+  modules_sensors_event_task();
+  modules_estimation_event_task();
+  modules_radio_control_event_task(); // FIXME
   if (autopilot.use_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
-
-#if USE_BARO_BOARD
-  BaroEvent();
-#endif
-
-  autopilot_event();
-
-  modules_event_task();
+  modules_actuators_event_task();
+  modules_datalink_event_task();
+  modules_default_event_task();
 }

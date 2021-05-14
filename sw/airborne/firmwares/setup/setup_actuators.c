@@ -83,7 +83,6 @@ static inline void main_init(void)
 
   modules_init();
 
-  mcu_int_enable();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 }
 

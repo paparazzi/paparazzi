@@ -34,7 +34,6 @@ int main(void)
   mcu_init();
   sys_time_register_timer(0.5, main_periodic_05);
 
-  mcu_int_enable();
 
   while (1) {
     /* sleep for 1s */

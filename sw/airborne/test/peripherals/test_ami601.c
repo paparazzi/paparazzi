@@ -60,7 +60,6 @@ static inline void main_init(void)
   LED_ON(4);
   ami601_init();
   downlink_init();
-  mcu_int_enable();
 }
 
 static inline void main_periodic_task(void)

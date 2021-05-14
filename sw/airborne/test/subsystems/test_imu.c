@@ -80,7 +80,6 @@ static inline void main_init(void)
 
   modules_init();
 
-  mcu_int_enable();
 
   downlink_init();
   pprz_dl_init();

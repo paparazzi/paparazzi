@@ -94,6 +94,15 @@ extern void sys_time_init(void);
 extern tid_t sys_time_register_timer(float duration, sys_time_cb cb);
 
 /**
+ * Register a new system timer with an fixed offset from another one.
+ * @param timer timer providing start time and duration
+ * @param offset offset in seconds beetween the timers (will overlap if longer than duration)
+ * @param cb Callback function that is called from the ISR when timer elapses, or NULL
+ * @return -1 if it failed, the timer id otherwise
+ */
+extern tid_t sys_time_register_timer_offset(tid_t timer, float offset, sys_time_cb cb);
+
+/**
  * Cancel a system timer by id.
  * @param id Timer id.
  */

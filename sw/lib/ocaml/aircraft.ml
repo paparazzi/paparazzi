@@ -106,7 +106,7 @@ let target_conf_add_module = fun conf target firmware name mtype load_type ->
     { conf with modules = conf.modules @ [(Unloaded, m)] } end
 
 (* topological sort to load modules and their dependencies *)
-let resolve_modules_dep = fun config_by_target firmware fail ->
+let resolve_modules_dep = fun config_by_target firmware user_target ->
   let resolved = ref [] in    (* modules to load (fully resolved) *)
   let unresolved = ref [] in  (* modules no fully resolved (for cycle detection) *)
   let unloaded = ref [] in    (* modules not loaded for this target / firmware *)
@@ -155,8 +155,6 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
           ) m.Module.autoloads;
           (* add conflicts to list *)
           conflicts := !conflicts @ dep.Module.conflicts;
-          (* add required to list (if not present) *)
-          (*required := List.fold_left add_unique !required dep.Module.requires_func;*)
           (* add provides to list (if not present) *)
           provided := List.fold_left add_unique !provided dep.Module.provides;
           (* all dep and autoload resolved, add to list *)
@@ -191,8 +189,15 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
     conflicts := [];
     required := [];
     provided := [];
+    (* check if a board, target or firmware specific module is available *)
+    let target_module_name = Env.paparazzi_conf // "modules" // "targets" // target ^ ".xml" in
+    let target_module = if Sys.file_exists target_module_name then [GC.Var target_module_name] else [] in
+    let firmware_module_name = Env.paparazzi_conf // "modules" // "firmwares" // conf.firmware_name ^ ".xml" in
+    let firmware_module = if Sys.file_exists firmware_module_name then [GC.Var firmware_module_name] else [] in
+    let board_module_name = Env.paparazzi_conf // "modules" // "boards" // conf.board_type ^ ".xml" in
+    let board_module = if Sys.file_exists board_module_name then [GC.Var board_module_name] else [] in
     (* iter on modules of this target from a meta module *)
-    let root_dep = { Module.empty_dep with Module.requires = (List.map (fun (_, m) -> GC.Var m.Module.name) conf.modules) } in
+    let root_dep = { Module.empty_dep with Module.requires = (List.map (fun (_, m) -> GC.Var m.Module.name) conf.modules) @ target_module @ firmware_module @ board_module } in
     let root_module = {
       Module.empty with
       Module.name = "root";
@@ -201,7 +206,7 @@ let resolve_modules_dep = fun config_by_target firmware fail ->
     } in
     dep_resolve root_module target UserLoad;
     (* test for conflicts and required functionalities and option if requested *)
-    if fail then begin
+    if (not (user_target = "")) && (target = user_target) then begin
       (* check conflicts for resolved modules *)
       List.iter (fun c ->
         List.iter (fun (name, _) ->
@@ -440,7 +445,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
 
   (* resolve modules dep *)
   (* don't fail if no target specified, execpt for cyclic dependencies *)
-  resolve_modules_dep config_by_target firmware (not (target = ""));
+  resolve_modules_dep config_by_target firmware target;
   let loaded_types, loaded_modules = get_loaded_modules config_by_target target in
   let all_modules = get_all_modules config_by_target in
 

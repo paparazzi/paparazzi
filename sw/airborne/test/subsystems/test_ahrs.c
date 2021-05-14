@@ -78,7 +78,6 @@ static inline void main_init(void)
   pprz_dl_init();
   downlink_init();
 
-  mcu_int_enable();
 }
 
 static inline void main_periodic_task(void)

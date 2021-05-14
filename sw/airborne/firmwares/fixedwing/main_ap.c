@@ -47,17 +47,8 @@
 #if USE_IMU
 #include "subsystems/imu.h"
 #endif
-#if USE_AHRS
-#include "subsystems/ahrs.h"
-#endif
-#if USE_BARO_BOARD
-#include "subsystems/sensors/baro.h"
-PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
-#endif
-
 
 // autopilot
-#include "state.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
@@ -115,13 +106,6 @@ PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
  */
 PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 
-/* BARO_PERIODIC_FREQUENCY is defined in baro_board.makefile
- * defaults to 50Hz or set by BARO_PERIODIC_FREQUENCY configure option in airframe file
- */
-#if USE_BARO_BOARD
-PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
-#endif
-
 
 #if USE_IMU
 #ifdef AHRS_PROPAGATE_FREQUENCY
@@ -141,10 +125,6 @@ tid_t attitude_tid;    ///< id for attitude_loop() timer
 tid_t navigation_tid;  ///< id for navigation_task() timer
 #endif
 tid_t monitor_tid;     ///< id for monitor_task() timer
-#if USE_BARO_BOARD
-tid_t baro_tid;          ///< id for baro_periodic() timer
-#endif
-
 
 void init_ap(void)
 {
@@ -152,26 +132,7 @@ void init_ap(void)
   mcu_init();
 #endif /* SINGLE_MCU */
 
-  /** - start interrupt task */
-  mcu_int_enable();
-
-#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
-  pprz_trig_int_init();
-#endif
-
-  /****** initialize and reset state interface ********/
-
-  stateInit();
-
   /************* Sensors initialization ***************/
-
-#if USE_AHRS
-  ahrs_init();
-#endif
-
-#if USE_BARO_BOARD
-  baro_init();
-#endif
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
@@ -202,9 +163,6 @@ void init_ap(void)
   modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
   telemetry_tid = sys_time_register_timer(1. / TELEMETRY_FREQUENCY, NULL);
   monitor_tid = sys_time_register_timer(1.0, NULL);
-#if USE_BARO_BOARD
-  baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
-#endif
 
 #if DOWNLINK
   downlink_init();
@@ -232,12 +190,6 @@ void handle_periodic_tasks_ap(void)
   if (sys_time_check_and_ack_timer(sensors_tid)) {
     sensors_task();
   }
-
-#if USE_BARO_BOARD
-  if (sys_time_check_and_ack_timer(baro_tid)) {
-    baro_periodic();
-  }
-#endif
 
 #if USE_GENERATED_AUTOPILOT
   if (sys_time_check_and_ack_timer(attitude_tid)) {
@@ -374,10 +326,6 @@ void event_task_ap(void)
   /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 #endif /* SINGLE_MCU */
-
-#if USE_BARO_BOARD
-  BaroEvent();
-#endif
 
   modules_event_task();
 
