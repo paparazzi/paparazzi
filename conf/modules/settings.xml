@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="settings" dir="core" task="core">
+  <doc>
+    <description>
+      Settings interface
+    </description>
+  </doc>
+  <dep>
+    <provides>settings</provides>
+  </dep>
+  <header>
+    <file name="settings.h" dir="subsystems"/>
+  </header>
+  <init fun="settings_init()"/>
+  <makefile target="!fbw">
+    <file name="settings.c" dir="subsystems"/>
+    <file_arch name="settings_arch.c" dir="subsystems"/>
+    <test/>
+  </makefile>
+</module>
+
+

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_quality_assessment" dir="benchmark">
+<module name="imu_quality_assessment" dir="benchmark" task="sensors">
   <doc>
     <description>
       Give comparable with IMU Health information.

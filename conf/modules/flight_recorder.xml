@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="flight_recorder" dir="loggers">
+<module name="flight_recorder" dir="loggers" task="core">
   <doc>
     <description>
       Record flight data according to your telemetry file.

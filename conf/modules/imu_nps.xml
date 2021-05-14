@@ -1,12 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_nps" dir="imu">
+<module name="imu_nps" dir="imu" task="sensors">
   <doc>
     <description>
       Simulated IMU for NPS.
     </description>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <header>
     <file name="imu_nps.h" dir="subsystems/imu"/>
   </header>

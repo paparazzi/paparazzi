@@ -6,6 +6,10 @@
     <configure name="ACTUATORS_OSTRICH_PORT" value="UARTx" description="UART port (default UART6)"/>
     <configure name="ACTUATORS_OSTRICH_BAUD" value="B115200" description="UART baudrate (default 115200)"/>
   </doc>
+  <dep>
+    <depends>uart,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_ostrich.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar_adc" dir="sonar">
+<module name="sonar_adc" dir="sonar" task="sensors">
   <doc>
     <description>
      Sonar ADC driver.
@@ -12,6 +12,10 @@
     <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
   </doc>
 
+  <dep>
+    <depends>adc</depends>
+    <provides>sonar</provides>
+  </dep>
   <header>
     <file name="sonar_adc.h"/>
   </header>

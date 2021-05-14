@@ -11,11 +11,14 @@
       - command_laws section to map motor_mixing commands to servos
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_esc32.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="ap">
-    <define name="ACTUATORS"/>
     <define name="USE_CAN_EXT_ID"/>
     <file name="can.c" dir="mcu_periph"/>
     <file_arch name="can_arch.c" dir="mcu_periph"/>

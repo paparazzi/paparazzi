@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="intermcu_spi" dir="intermcu">
+<module name="intermcu_spi" dir="intermcu" task="core">
   <doc>
     <description>
       Inter-MCU communication over SPI
@@ -14,8 +14,9 @@
   </doc>
   <dep>
     <depends>spi_master</depends>
+    <provides>intermcu,commands,radio_control</provides>
   </dep>
-
+  <init fun="intermcu_init()"/>
   <makefile target="ap|fbw" firmware="fixedwing">
     <raw>
       ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))

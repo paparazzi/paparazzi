@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="shell" dir="core">
+<module name="shell" dir="core" task="core">
   <doc>
     <description>Simple debug shell</description>
     <configure name="SHELL_PORT" value="uartX" description="serial link to use for the shell"/>

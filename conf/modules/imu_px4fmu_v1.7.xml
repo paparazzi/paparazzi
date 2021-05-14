@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_px4fmu_v1.7" dir="imu">
+<module name="imu_px4fmu_v1.7" dir="imu" task="sensors">
   <doc>
     <description>
       MPU6000 via SPI and HMC5883 via I2C on the PX4FMU v1.7 board
@@ -11,10 +11,11 @@
     <define name="PX4FMU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,i2c,imu_common</depends>
+    <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_px4fmu.h" dir="subsystems/imu"/>
   </header>

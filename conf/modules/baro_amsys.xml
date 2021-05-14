@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_amsys" dir="sensors">
+<module name="baro_amsys" dir="sensors" task="sensors">
   <doc>
     <description>
       Baro AMSYS (I2C).
@@ -21,6 +21,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
 
   <header>
     <file name="baro_amsys.h"/>

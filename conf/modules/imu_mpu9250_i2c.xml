@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu9250_i2c" dir="imu">
+<module name="imu_mpu9250_i2c" dir="imu" task="sensors">
   <doc>
     <description>
       IMU with MPU9250 via I2C.
@@ -17,8 +17,12 @@
     <define name="IMU_MPU9250_CHAN_Y" value="1" description="channel index"/>
     <define name="IMU_MPU9250_CHAN_Z" value="2" description="channel index"/>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu9250_i2c.h" dir="subsystems/imu"/>
   </header>

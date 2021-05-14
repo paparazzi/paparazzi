@@ -1,10 +1,14 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_hmc5843" dir="sensors">
+<module name="mag_hmc5843" dir="sensors" task="sensors">
   <doc>
     <description>hmc5843 magnetometer</description>
     <configure name="HMC5843_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>mag</provides>
+  </dep>
   <header>
     <file name="mag_hmc5843.h"/>
   </header>

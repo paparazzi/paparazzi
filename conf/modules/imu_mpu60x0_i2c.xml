@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu60x0_i2c" dir="imu">
+<module name="imu_mpu60x0_i2c" dir="imu" task="sensors">
   <doc>
     <description>
       IMU with MPU60x0 via I2C.
@@ -12,8 +12,12 @@
     <define name="IMU_MPU60X0_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
     <define name="IMU_MPU60X0_I2C_ADDR" value="MPU60X0_ADDR" description="I2C address of the MPU"/>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu60x0_i2c.h" dir="subsystems/imu"/>
   </header>

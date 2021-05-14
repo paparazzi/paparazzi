@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_heli_spinup" dir="nav">
+<module name="nav_heli_spinup" dir="nav" task="control">
   <doc>
     <description>Helicopter Rotor spinup
       This module controls the spinup of the main rotor from a Helicopter.
@@ -9,6 +9,9 @@
       - Then call nav_heli_spinup_run
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_heli_spinup.h"/>
   </header>

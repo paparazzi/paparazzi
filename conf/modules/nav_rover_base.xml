@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_rover_base" dir="nav">
+<module name="nav_rover_base" dir="nav" task="control">
   <doc>
     <description>
       Basic navigation functions for Rovers
@@ -15,6 +15,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <provides>navigation</provides>
+  </dep>
   <header>
     <file name="nav_rover_base.h"/>
   </header>

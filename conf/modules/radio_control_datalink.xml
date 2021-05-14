@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_datalink" dir="radio_control">
+<module name="radio_control_datalink" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Radio control over datalink
@@ -8,6 +8,9 @@
     <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="RADIO_CONTROL_DATALINK_LED" value="none|num" description="LED number or 'none' to disable"/>
   </doc>
+  <dep>
+    <provides>radio_control</provides>
+  </dep>
   <header>
     <file name="rc_datalink.h" dir="subsystems/radio_control"/>
   </header>

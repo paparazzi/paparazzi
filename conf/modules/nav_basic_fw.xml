@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_basic_fw" dir="nav">
+<module name="nav_basic_fw" dir="nav" task="control">
   <doc>
     <description>
       Standard navigation patterns and flight plan handling
@@ -25,6 +25,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <provides>navigation</provides>
+  </dep>
   <header>
     <file name="nav.h" dir="firmwares/fixedwing"/>
   </header>

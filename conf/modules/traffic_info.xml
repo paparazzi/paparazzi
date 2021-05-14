@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="traffic_info" dir="multi">
+<module name="traffic_info" dir="multi" task="core">
   <doc>
     <description>Keeps track of other aircraft in airspace</description>
   </doc>

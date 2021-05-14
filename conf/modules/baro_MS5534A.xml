@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_MS5534A" dir="sensors">
+<module name="baro_MS5534A" dir="sensors" task="sensors">
   <doc>
     <description>MS5534a barometer (SPI)</description>
   </doc>
@@ -9,6 +9,7 @@
   </header>
   <dep>
     <depends>spi_master</depends>
+    <provides>baro</provides>
   </dep>
   <init fun="baro_MS5534A_init()"/>
   <periodic fun="baro_MS5534A_send()" freq="20"/>

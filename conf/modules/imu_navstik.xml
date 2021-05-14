@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_navstik" dir="imu">
+<module name="imu_navstik" dir="imu" task="sensors">
   <doc>
     <description>
       Navstik IMU: MPU60x0 and HMC5883 via I2C.
@@ -17,8 +17,12 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_navstik.h" dir="subsystems/imu"/>
   </header>

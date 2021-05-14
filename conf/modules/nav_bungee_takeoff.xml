@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_bungee_takeoff" dir="nav">
+<module name="nav_bungee_takeoff" dir="nav" task="control">
   <doc>
     <description>
       Takeoff functions for bungee takeoff.
@@ -19,6 +19,9 @@
       <define name="THROTTLE" value="throttle" unit="normalized" description="Throttle setpoint (between 0 and 1) used after crossing the throttle line"/>
     </section>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_bungee_takeoff.h"/>
   </header>

@@ -54,7 +54,7 @@
   </settings>
   
   <dep>
-    <depends>video_thread</depends>
+    <depends>i2c,video_thread</depends>
   </dep>
   
   <header>

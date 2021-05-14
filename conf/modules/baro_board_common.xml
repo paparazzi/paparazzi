@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_board_common" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Baro module calling internal barometer functions for boards supporting them
+    </description>
+    <configure name="USE_BARO_BOARD" value="FALSE|TRUE" description="enable or not the internal baro driver (default TRUE)"/>
+  </doc>
+  <dep>
+    <provides>baro</provides>
+  </dep>
+  <header>
+    <file name="baro_board_common.h"/>
+  </header>
+  <init fun="baro_board_init()"/>
+  <periodic fun="baro_board_periodic()" freq="BARO_PERIODIC_FREQUENCY"/>
+  <event fun="baro_board_event()"/>
+  <makefile target="ap">
+    <configure name="USE_BARO_BOARD" default="TRUE"/>
+    <configure name="BARO_LED" default="none"/>
+    <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>
+    <define name="USE_BARO_BOARD" value="$(USE_BARO_BOARD)"/>
+    <define name="BARO_LED" value="$(BARO_LED)" cond="ifneq ($(BARO_LED),none)"/>
+    <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
+    <file name="baro_board_common.c"/>
+  </makefile>
+</module>
+

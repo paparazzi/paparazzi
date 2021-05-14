@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_v1.5" dir="imu">
+<module name="imu_aspirin_v1.5" dir="imu" task="sensors">
   <doc>
     <description>
       Aspirin v1.5 IMU.

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_um6" dir="imu">
+<module name="imu_um6" dir="imu" task="sensors">
   <doc>
     <description>
       CHR-UM6 IMU.
@@ -8,8 +8,12 @@
     <configure name="UM6_PORT" value="uart3" description="UART to use"/>
     <configure name="UM6_BAUD" value="B115200" description="Baud rate"/>
   </doc>
-  <define name="USE_IMU"/>
+  <dep>
+    <depends>uart,imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_um6.h" dir="subsystems/imu"/>
   </header>

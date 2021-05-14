@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="state_interface" dir="core" task="core">
+  <doc>
+    <description>
+      State Interface
+
+      Contains the state vector and all the necessary convertion functions
+    </description>
+  </doc>
+  <dep>
+    <depends>math</depends>
+    <provides>state</provides>
+  </dep>
+  <header>
+    <file name="state.h" dir="."/>
+  </header>
+  <init fun="stateInit()"/>
+  <makefile target="!fbw">
+    <file name="state.c" dir="."/>
+    <test/>
+  </makefile>
+</module>
+
+

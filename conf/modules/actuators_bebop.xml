@@ -7,13 +7,16 @@
     </description>
     <configure name="BEBOP_ACTUATORS_I2C_DEV" value="i2cX" description="I2C port (default i2c1)"/>
   </doc>
+  <dep>
+    <depends>i2c,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <autoload name="actuators" type="nps"/>
   <header>
     <file name="actuators.h" dir="boards/bebop"/>
   </header>
   <makefile target="ap">
     <configure name="BEBOP_ACTUATORS_I2C_DEV" default="i2c1" case="upper|lower"/>
-    <define name="ACTUATORS"/>
     <define name="BEBOP_ACTUATORS_I2C_DEV" value="$(BEBOP_ACTUATORS_I2C_DEV_LOWER)"/>
     <define name="USE_$(BEBOP_ACTUATORS_I2C_DEV_UPPER)"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>

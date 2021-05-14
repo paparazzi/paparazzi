@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_ets" dir="sensors">
+<module name="airspeed_ets" dir="sensors" task="sensors">
   <doc>
     <description>
       Airspeed ETS (I2C).
@@ -27,6 +27,10 @@
     <define name="AIRSPEED_ETS_3RD_PARTY_MODE"  description="read raw value for sensor in third-party mode"/>
     <define name="AIRSPEED_ETS_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>airspeed</provides>
+  </dep>
 
   <header>
     <file name="airspeed_ets.h"/>

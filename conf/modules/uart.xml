@@ -7,6 +7,9 @@
       To activate a specific UART peripheral, define flag USE_UARTX where X is your UART peripheral number
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="uart.h" dir="mcu_periph"/>
   </header>
@@ -15,7 +18,7 @@
     <file_arch name="uart_arch.c" dir="mcu_periph"/>
     <file name="serial_port.c" dir="arch/linux" cond="ifeq ($(ARCH), linux)"/>
   </makefile>
-  <makefile target="sim|nps">
+  <makefile target="sim|nps|hitl">
     <include name="arch/linux"/>
     <file name="serial_port.c" dir="arch/linux"/>
   </makefile>

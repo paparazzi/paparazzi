@@ -22,6 +22,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>sonar</provides>
+  </dep>
 
   <header>
     <file name="lidar_sf11.h"/>

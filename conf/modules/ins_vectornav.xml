@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_vectornav" dir="ins">
+<module name="ins_vectornav" dir="ins" task="estimation">
   <doc>
     <description>
       Vectornav INS Driver.
@@ -8,9 +8,14 @@
     <configure name="VN_PORT" value="uart3" description="UART to use"/>
     <configure name="VN_BAUD" value="B921600" description="UART baudrate"/>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>uart,gps</depends>
+    <provides>imu,ins,ahrs,gps</provides>
+  </dep>
   <autoload name="ins_sim"/>
   <autoload name="ins_nps"/>
+  <autoload name="imu_sim"/>
+  <autoload name="imu_nps"/>
   <header>
     <file name="ins.h" dir="subsystems"/>
   </header>

@@ -1,11 +1,14 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_flower" dir="nav">
+<module name="nav_flower" dir="nav" task="control">
   <doc>
     <description>
       Make a flower navigation pattern
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_flower.h"/>
   </header>

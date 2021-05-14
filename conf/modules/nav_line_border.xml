@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_line_border" dir="nav">
+<module name="nav_line_border" dir="nav" task="control">
   <doc>
     <description>
        navigate along a border line (line 1-2) with turns in the same direction
@@ -16,6 +16,9 @@
 
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_line_border.h"/>
   </header>

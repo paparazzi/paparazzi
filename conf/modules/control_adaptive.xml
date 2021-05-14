@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="control_adaptive" dir="control">
+<module name="control_adaptive" dir="control" task="control">
   <doc>
     <description>
       Adaptive control for fixed-wing aircraft.

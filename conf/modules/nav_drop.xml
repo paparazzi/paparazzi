@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_drop" dir="nav">
+<module name="nav_drop" dir="nav" task="control">
   <doc>
     <description>
       Compute the dropping point for a fixedwing aircraft.
@@ -8,6 +8,9 @@
       Needs some waypoints to be defined in the flight plan: REALEASE, CLIMB, BASELEG
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_drop.h"/>
   </header>

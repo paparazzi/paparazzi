@@ -1,13 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_sim_hitl" dir="gps">
+<module name="gps_sim_hitl" dir="gps" task="sensors">
   <doc>
     <description>
       Sim HITL GPS
       Simulate GPS for HITL (HardwareInTheLoop) from rotorcrafts horizontal/vertical reference system.
     </description>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>gps</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <header>
     <file name="gps.h" dir="subsystems"/>

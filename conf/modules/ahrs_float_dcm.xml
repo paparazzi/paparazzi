@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_float_dcm" dir="ahrs">
+<module name="ahrs_float_dcm" dir="ahrs" task="estimation">
   <doc>
     <description>
       AHRS using DCM filter.
@@ -15,7 +15,6 @@
       But since people already know it under that name, we kept it.
     </description>
     <configure name="USE_MAGNETOMETER" value="FALSE" description="set to FALSE to disable magnetometer"/>
-    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
     <define name="USE_MAGNETOMETER_ONGROUND" description="use magnetic compensation before takeoff only while GPS course not good"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" description="enable forward acceleration compensation from GPS speed"/>
     <define name="ACCEL_WEIGHT_FILTER" value="8" description="adjust accel drift heuristic filter (default 8, 0 to disable filter)"/>
@@ -31,21 +30,15 @@
     </dl_settings>
   </settings>
 
+  <dep>
+    <depends>ahrs_common,@imu,@gps</depends>
+    <provides>ahrs</provides>
+  </dep>
   <autoload name="ahrs_sim"/>
-  <header>
-    <file name="ahrs.h" dir="subsystems"/>
-  </header>
 
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="0"/>
-
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
-    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
-    <define name="USE_AHRS"/>
-    <define name="USE_AHRS_ALIGNER"/>
-
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
     <file name="ahrs_float_dcm.c" dir="subsystems/ahrs"/>
     <file name="ahrs_float_dcm_wrapper.c" dir="subsystems/ahrs"/>
     <test firmware="fixedwing">

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_basic_rotorcraft" dir="nav">
+<module name="nav_basic_rotorcraft" dir="nav" task="control">
   <doc>
     <description>
       Standard navigation patterns and flight plan handling for rotorcraft
@@ -19,6 +19,7 @@
   </settings>
   <dep>
     <depends>guidance_rotorcraft</depends>
+    <provides>navigation</provides>
   </dep>
   <header>
     <file name="navigation.h" dir="firmwares/rotorcraft"/>

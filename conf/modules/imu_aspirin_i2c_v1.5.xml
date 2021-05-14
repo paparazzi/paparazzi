@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_i2c_v1.5" dir="sensors">
+<module name="imu_aspirin_i2c_v1.5" dir="sensors" task="sensors">
   <doc>
     <description>
       Aspirin v1.5 IMU.
@@ -10,8 +10,12 @@
       For configuration see the imu_aspirin_common module
     </description>
   </doc>
-  <autoload name="imu_aspirin_i2c_common"/>
+  <dep>
+    <depends>imu_aspirin_i2c_common</depends>
+    <provides>imu</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_ASPIRIN_VERSION_1_5"/>
   </makefile>

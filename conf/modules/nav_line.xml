@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_line" dir="nav">
+<module name="nav_line" dir="nav" task="control">
   <doc>
     <description>
        Fixedwing navigation along a line with nice U-turns.
@@ -11,6 +11,9 @@
 
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_line.h"/>
   </header>

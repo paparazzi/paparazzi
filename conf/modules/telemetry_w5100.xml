@@ -16,6 +16,10 @@
     <define name="W5100_DRDY_GPIO" value="GPIOX" description="GPIO port used for data ready pin"/>
     <define name="W5100_DRDY_GPIO_PIN" value="GPIOY" description="GPIO pin number used for data ready pin"/>
   </doc>
+  <dep>
+    <depends>spi_master,datalink_common</depends>
+    <provides>datalink,telemetry</provides>
+  </dep>
   <autoload name="telemetry" type="sim"/>
   <header>
     <file name="w5100.h" dir="subsystems/datalink"/>
@@ -35,27 +39,11 @@
     <define name="W5100_SUBNET" value="$(W5100_SUBNET)"/>
     <define name="W5100_MULTICAST_IP" value="$(W5100_MULTICAST_IP)"/>
     <define name="W5100_MULTICAST_PORT" value="$(W5100_MULTICAST_PORT)"/>
-    <define name="DOWNLINK"/>
-    <define name="PERIODIC_TELEMETRY"/>
     <define name="DOWNLINK_DEVICE" value="chip0"/>
     <define name="DOWNLINK_TRANSPORT" value="pprz_w5100_tp"/>
     <define name="DATALINK" value="W5100"/>
-    <file name="downlink.c" dir="subsystems/datalink"/>
-    <file name="datalink.c" dir="subsystems/datalink"/>
-    <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
     <file name="w5100.c" dir="subsystems/datalink"/>
-  </makefile>
-  <makefile target="ap|nps" firmware="fixedwing">
-    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
-  </makefile>
-  <makefile target="ap|fbw|nps" firmware="fixedwing">
-    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
-  </makefile>
-  <makefile target="ap|nps" firmware="rotorcraft">
-    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
 </module>
 

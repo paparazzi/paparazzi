@@ -1,14 +1,18 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_swing" dir="imu">
+<module name="imu_swing" dir="imu" task="sensors">
   <doc>
     <description>
       Driver for IMU on the Parrot Swing drone.
       - Accelerometer/Gyroscope: MPU6000 via I2C0
     </description>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <!--autoload name="sonar_bebop"/-->
   <header>
     <file name="imu_swing.h" dir="subsystems/imu"/>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_alt_float" dir="ins">
+<module name="ins_alt_float" dir="ins" task="estimation">
   <doc>
     <description>
       INS with Kalman Filter on altitude.
@@ -12,6 +12,10 @@
     <define name="INS_ALT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
     <define name="DEBUG_ALT_KALMAN" description="if defined, send the debug ALT_KALMAN telemetry message"/>
   </doc>
+  <dep>
+    <depends>@imu,@gps</depends>
+    <provides>ins</provides>
+  </dep>
   <header>
     <file name="ins_alt_float.h" dir="subsystems/ins"/>
   </header>

@@ -6,8 +6,11 @@
       Actuators for NPS (dummy pwm)
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <makefile target="nps">
-    <define name="ACTUATORS"/>
     <file_arch name="actuators_pwm_arch.c" dir="subsystems/actuators"/>
   </makefile>
 </module>

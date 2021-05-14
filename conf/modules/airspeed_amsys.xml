@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_amsys" dir="sensors">
+<module name="airspeed_amsys" dir="sensors" task="sensors">
   <doc>
     <description>
       Airspeed AMSYS (I2C)
@@ -25,6 +25,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>airspeed</provides>
+  </dep>
 
   <header>
     <file name="airspeed_amsys.h"/>

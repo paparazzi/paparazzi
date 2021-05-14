@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu6000" dir="imu">
+<module name="imu_mpu6000" dir="imu" task="sensors">
   <doc>
     <description>
       IMU with MPU6000 via SPI.
@@ -13,10 +13,11 @@
     <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu6000.h" dir="subsystems/imu"/>
   </header>

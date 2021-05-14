@@ -12,7 +12,7 @@
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
 <!ELEMENT periodic EMPTY>
-<!ELEMENT event (handler*)>
+<!ELEMENT event EMPTY>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
 <!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw|test)*>
@@ -44,7 +44,8 @@ type CDATA #IMPLIED>
 <!ATTLIST header>
 
 <!ATTLIST init
-fun CDATA #REQUIRED>
+fun CDATA #REQUIRED
+cond CDATA #IMPLIED>
 
 <!ATTLIST periodic
 fun CDATA #REQUIRED
@@ -53,13 +54,12 @@ freq CDATA #IMPLIED
 delay CDATA #IMPLIED
 start CDATA #IMPLIED
 stop CDATA #IMPLIED
-autorun (TRUE|FALSE|LOCK) #IMPLIED >
+autorun (TRUE|FALSE|LOCK) #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST event
-fun CDATA #REQUIRED>
-
-<!ATTLIST handler
-fun CDATA #REQUIRED>
+fun CDATA #REQUIRED
+cond CDATA #IMPLIED>
 
 <!ATTLIST datalink
 message CDATA #REQUIRED

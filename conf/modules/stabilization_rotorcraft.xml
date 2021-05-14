@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_rotorcraft" dir="stabilization">
+<module name="stabilization_rotorcraft" dir="stabilization" task="control">
   <doc>
     <description>
       Base stabilization code for rotorcraft

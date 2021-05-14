@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu9250" dir="sensors">
+<module name="imu_mpu9250" dir="sensors" task="sensors">
   <doc>
     <description>
       Test module for the mpu9250 with I2C
@@ -9,6 +9,12 @@
     <configure name="IMU_MPU9250_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
     <define name="IMU_MPU9250_ADDR" value="MPU9250_ADDR|MPU9250_ADDR_ALT" description="Use regular or alternate I2C address"/>
   </doc>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
+  <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu9250.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_energy" dir="guidance">
+<module name="guidance_energy" dir="guidance" task="control">
   <doc>
     <description>
       Energy based vertical control for fixedwing aircraft.
@@ -58,6 +58,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
   <header>
     <file name="energy_ctrl.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_rate_indi" dir="stabilization">
+<module name="stabilization_rate_indi" dir="stabilization" task="control">
   <doc>
     <description>
       Rate INDI controller for rotorcraft
@@ -8,6 +8,7 @@
   </doc>
   <dep>
     <depends>stabilization_indi|stabilization_indi_simple,stabilization_rotorcraft</depends>
+    <provides>commands</provides>
   </dep>
   <header>
     <file name="stabilization_rate_indi.h"/>

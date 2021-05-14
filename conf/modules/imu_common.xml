@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_common" dir="imu">
+<module name="imu_common" dir="imu" task="sensors">
   <doc>
     <description>
       Common part for all IMUs.

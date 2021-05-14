@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_ms5611_i2c" dir="sensors">
+<module name="baro_ms5611_i2c" dir="sensors" task="sensors">
   <doc>
     <description>
       Baro MS5611 (I2C)
@@ -9,15 +9,20 @@
     <configure name="MS5611_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
   <header>
     <file name="baro_ms5611_i2c.h"/>
   </header>
   <init fun="baro_ms5611_init()"/>
-  <periodic fun="baro_ms5611_read()" freq="4"/>
-  <periodic fun="baro_ms5611_periodic_check()" freq="40"/>
+  <periodic fun="baro_ms5611_periodic()" freq="MS5611_PERIODIC_FREQUENCY"/>
   <event fun="baro_ms5611_event()"/>
   <makefile target="ap">
+    <configure name="MS5611_PERIODIC_FREQUENCY" default="50"/>
     <configure name="MS5611_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="MS5611_PERIODIC_FREQUENCY" value="$(MS5611_PERIODIC_FREQUENCY)"/>
     <define name="USE_$(MS5611_I2C_DEV_UPPER)"/>
     <define name="MS5611_I2C_DEV" value="$(MS5611_I2C_DEV_LOWER)"/>
     <file name="baro_ms5611_i2c.c"/>
