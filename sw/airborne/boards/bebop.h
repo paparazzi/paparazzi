@@ -61,11 +61,6 @@
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
 
-/* by default activate onboard baro */
-#ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
-#endif
-
 /* The ADC from the sonar */
 #if USE_ADC0
 #define ADC0_ID             0

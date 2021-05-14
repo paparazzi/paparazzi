@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="disco" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Parrot Disco
+    </description>
+  </doc>
+  <dep>
+    <depends>baro_ms5611_i2c</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <configure name="MS5611_I2C_DEV" value="i2c1"/>
+    <define name="BARO_BOARD" value="BARO_MS5611_I2C"/>
+  </makefile>
+</module>
+

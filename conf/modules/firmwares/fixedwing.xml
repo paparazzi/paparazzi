@@ -1,0 +1,52 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="fixedwing" dir="firmwares" task="core">
+  <doc>
+    <description>
+        Fixedwing firmware common definitions
+    </description>
+    <configure name="WIND_INFO" value="FALSE|TRUE" description="parse WIND_INFO message (default TRUE)"/>
+  </doc>
+  <dep>
+    <depends>system_core,autopilot_gnc,actuators_pwm</depends>
+  </dep>
+  <makefile>
+    <configure name="PERIODIC_FREQUENCY" default="60"/>
+    <configure name="SRC_FIRMWARE" value="firmwares/fixedwing"/>
+    <configure name="WIND_INFO" default="TRUE"/>
+    <define name="FIXEDWING_FIRMWARE"/>
+    <define name="PERIODIC_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <define name="WIND_INFO" cond="ifeq ($(WIND_INFO), TRUE)"/>
+    <define name="AHRS_PROPAGATE_FREQUENCY" value="$(AHRS_PROPAGATE_FREQUENCY)" cond="ifdef AHRS_PROPAGATE_FREQUENCY"/>
+    <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)" cond="ifdef AHRS_CORRECT_FREQUENCY"/>
+    <define name="AHRS_MAG_CORRECT_FREQUENCY" value="$(AHRS_MAG_CORRECT_FREQUENCY)" cond="ifdef AHRS_MAG_CORRECT_FREQUENCY"/>
+    <include name="$(SRC_FIRMWARE)"/>
+    <define name="INTER_MCU"/>
+    <file name="inter_mcu.c" dir="."/>
+  </makefile>
+  <makefile target="ap">
+    <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>
+    <file name="main_chibios.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(RTOS), chibios)"/>
+  </makefile>
+  <makefile target="!fbw">
+    <file name="main_ap.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="ap|nps|hitl">
+    <define name="FBW" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))"/>
+    <file name="main_fbw.c" dir="$(SRC_FIRMWARE)" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))"/>
+  </makefile>
+  <makefile target="fbw|sim">
+    <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>
+    <file name="main_chibios.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(RTOS), chibios)"/>
+    <file name="main_fbw.c" dir="$(SRC_FIRMWARE)"/>
+ </makefile>
+  <makefile target="nps|hitl">
+    <define name="AP"/>
+    <file name="nps_autopilot_fixedwing.c" dir="nps"/>
+  </makefile>
+  <makefile target="nps|hitl">
+    <define name="AP"/>
+    <file name="nps_autopilot_fixedwing.c" dir="nps"/>
+  </makefile>
+</module>
+

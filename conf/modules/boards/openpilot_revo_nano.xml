@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="openpilot_revo_nano" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for OpenPilot Revo Nano
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

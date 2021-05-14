@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="hitl" dir="targets" task="core">
+  <doc>
+    <description>
+      Hardware In The Loop simulation
+      Based on NPS simulator
+    </description>
+  </doc>
+  <dep>
+    <depends>targets/nps</depends>
+  </dep>
+  <makefile target="hitl">
+    <configure name="INS_DEV" default="/dev/ttyUSB1"/>
+    <configure name="INS_BAUD" default="B921600"/>
+    <configure name="AP_DEV" default="/dev/ttyUSB2"/>
+    <configure name="AP_BAUD" default="B921600"/>
+    <define name="AP_DEV" value="$(AP_DEV)"/>
+    <define name="AP_BAUD" value="$(AP_BAUD)"/>
+    <define name="INS_DEV" value="$(INS_DEV)"/>
+    <define name="INS_BAUD" value="$(INS_BAUD)"/>
+  </makefile>
+</module>
+
