@@ -238,5 +238,6 @@ let generate = fun settings xml_files out_xml out_file ->
   begin_out out (String.concat " " xml_files) h_name;
   print_dl_settings out settings xml;
   print_persistent_settings out settings xml;
-  finish_out out h_name
+  finish_out out h_name;
+  close_out out
 

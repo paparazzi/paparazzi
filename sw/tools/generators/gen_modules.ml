@@ -452,5 +452,6 @@ let generate = fun modules xml_file out_file ->
 
   parse_modules out modules;
 
-  finish_out out h_name
+  finish_out out h_name;
+  close_out out
 
