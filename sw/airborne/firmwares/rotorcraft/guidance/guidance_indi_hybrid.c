@@ -67,13 +67,19 @@ struct guidance_indi_hybrid_params gih_params = {
 
   .speed_gain = GUIDANCE_INDI_SPEED_GAIN,
   .speed_gainz = GUIDANCE_INDI_SPEED_GAINZ,
+
+  .heading_bank_gain = GUIDANCE_INDI_HEADING_BANK_GAIN,
 };
 
-#ifdef GUIDANCE_INDI_MAX_AIRSPEED
+#ifndef GUIDANCE_INDI_MAX_AIRSPEED
+#error "You must have an airspeed sensor to use this guidance"
+#endif
+float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
+
 // Max ground speed that will be commanded
 #define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
 float nav_max_speed = NAV_MAX_SPEED;
-#endif
+
 #ifndef MAX_DECELERATION
 #define MAX_DECELERATION 1.
 #endif
@@ -82,6 +88,9 @@ struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
+
+/*Boolean to force the heading to a static value (only use for specific experiments)*/
+bool take_heading_control = false;
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_DYN_P
@@ -101,14 +110,19 @@ static void guidance_indi_filter_thrust(void);
 #endif
 #endif
 
-#ifndef GUIDANCE_INDI_MAX_AIRSPEED
-#error "You must have an airspeed sensor to use this guidance"
+#ifdef GUIDANCE_INDI_LINE_GAIN
+float guidance_indi_line_gain = GUIDANCE_INDI_LINE_GAIN;
+#else
+float guidance_indi_line_gain = 1.0;
 #endif
-float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
 float inv_eff[4];
 
 float lift_pitch_eff = GUIDANCE_INDI_PITCH_LIFT_EFF;
+float lift_eff_scaling = GUIDANCE_INDI_LIFT_EFF_SCALING;
+
+// Max bank angle in radians
+float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
 
 /** state eulers in zxy order */
 struct FloatEulers eulers_zxy;
@@ -140,6 +154,26 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
 struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain);
 struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_GUIDANCE_INDI_HYBRID(trans, dev, AC_ID,
+                              &sp_accel.x,
+                              &sp_accel.y,
+                              &sp_accel.z,
+                              &euler_cmd.x,
+                              &euler_cmd.y,
+                              &euler_cmd.z,
+                              &filt_accel_ned[0].o[0],
+                              &filt_accel_ned[1].o[0],
+                              &filt_accel_ned[2].o[0],
+                              &speed_sp.x,
+                              &speed_sp.y,
+                              &speed_sp.z);
+}
+#endif
+
 /**
  * @brief Init function
  */
@@ -156,6 +190,10 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
+#endif
 }
 
 /**
@@ -233,12 +271,12 @@ void guidance_indi_run(float *heading_sp) {
         float dv = bv * bv - 4.0 * av * cv;
 
         // dv can only be positive, but just in case
-        if(dv < 0) {
+        if(dv < 0.0) {
           dv = fabs(dv);
         }
         float d_sqrt = sqrtf(dv);
 
-        groundspeed_factor = (-bv + d_sqrt)  / (2 * av);
+        groundspeed_factor = (-bv + d_sqrt)  / (2.0 * av);
       }
 
       desired_airspeed.x = groundspeed_factor * speed_sp.x - windspeed.x;
@@ -250,12 +288,16 @@ void guidance_indi_run(float *heading_sp) {
     // desired airspeed can not be larger than max airspeed
     speed_sp_b_x = Min(norm_des_as,guidance_indi_max_airspeed);
 
+    if(force_forward) {
+      speed_sp_b_x = guidance_indi_max_airspeed;
+    }
+
     // Calculate accel sp in body axes, because we need to regulate airspeed
     struct FloatVect2 sp_accel_b;
     // In turn acceleration proportional to heading diff
     sp_accel_b.y = atan2(desired_airspeed.y, desired_airspeed.x) - psi;
     FLOAT_ANGLE_NORMALIZE(sp_accel_b.y);
-    sp_accel_b.y *= GUIDANCE_INDI_HEADING_BANK_GAIN;
+    sp_accel_b.y *= gih_params.heading_bank_gain;
 
     // Control the airspeed
     sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
@@ -314,7 +356,10 @@ void guidance_indi_run(float *heading_sp) {
   accel_filt.y = filt_accel_ned[1].o[0];
   accel_filt.z = filt_accel_ned[2].o[0];
 
-  struct FloatVect3 a_diff = { sp_accel.x - accel_filt.x, sp_accel.y - accel_filt.y, sp_accel.z - accel_filt.z};
+  struct FloatVect3 a_diff;
+  a_diff.x = sp_accel.x - accel_filt.x;
+  a_diff.y = sp_accel.y - accel_filt.y;
+  a_diff.z = sp_accel.z - accel_filt.z;
 
   //Bound the acceleration error so that the linearization still holds
   Bound(a_diff.x, -6.0, 6.0);
@@ -346,10 +391,11 @@ void guidance_indi_run(float *heading_sp) {
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
 
   //Bound euler angles to prevent flipping
-  Bound(guidance_euler_cmd.phi, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
+  Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
   Bound(guidance_euler_cmd.theta, -RadOfDeg(120.0), RadOfDeg(25.0));
 
-  float coordinated_turn_roll = guidance_euler_cmd.phi;
+  // Use the current roll angle to determine the corresponding heading rate of change.
+  float coordinated_turn_roll = eulers_zxy.phi;
 
   if( (guidance_euler_cmd.theta > 0.0) && ( fabs(guidance_euler_cmd.phi) < guidance_euler_cmd.theta)) {
     coordinated_turn_roll = ((guidance_euler_cmd.phi > 0.0) - (guidance_euler_cmd.phi < 0.0))*guidance_euler_cmd.theta;
@@ -366,9 +412,15 @@ void guidance_indi_run(float *heading_sp) {
   omega -= accely_filt.o[0]*FWD_SIDESLIP_GAIN;
 #endif
 
+// For a hybrid it is important to reduce the sideslip, which is done by changing the heading.
+// For experiments, it is possible to fix the heading to a different value.
 #ifndef KNIFE_EDGE_TEST
-  *heading_sp += omega / PERIODIC_FREQUENCY;
-  FLOAT_ANGLE_NORMALIZE(*heading_sp);
+  if(take_heading_control) {
+    *heading_sp = ANGLE_FLOAT_OF_BFP(nav_heading);
+  } else {
+    *heading_sp += omega / PERIODIC_FREQUENCY;
+    FLOAT_ANGLE_NORMALIZE(*heading_sp);
+  }
 #endif
 
   guidance_euler_cmd.psi = *heading_sp;
@@ -378,7 +430,7 @@ void guidance_indi_run(float *heading_sp) {
 
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
   thrust_in = thrust_filt.o[0] + euler_cmd.z*guidance_indi_specific_force_gain;
-  Bound(thrust_in, 0, 9600);
+  Bound(thrust_in, GUIDANCE_INDI_MIN_THROTTLE, 9600);
 
 #if GUIDANCE_INDI_RC_DEBUG
   if(radio_control.values[RADIO_THROTTLE]<300) {
@@ -486,9 +538,9 @@ float guidance_indi_get_liftd(float airspeed, float theta) {
     float pitch_interp = DegOfRad(theta);
     Bound(pitch_interp, -80.0, -40.0);
     float ratio = (pitch_interp + 40.0)/(-40.);
-    liftd = -24.0*ratio;
+    liftd = -24.0*ratio*lift_pitch_eff/0.12*lift_eff_scaling;
   } else {
-    liftd = -(airspeed - 8.5)*lift_pitch_eff/M_PI*180.0;
+    liftd = -(airspeed - 8.5)*lift_pitch_eff/M_PI*180.0*lift_eff_scaling;
   }
   //TODO: bound liftd
   return liftd;
@@ -562,8 +614,8 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
 
   // Normal vector scaled to be the distance to the line
   struct FloatVect2 v_to_line, v_along_line;
-  v_to_line.x = dist_to_line*normalv.x/length_normalv;
-  v_to_line.y = dist_to_line*normalv.y/length_normalv;
+  v_to_line.x = dist_to_line*normalv.x/length_normalv*guidance_indi_line_gain;
+  v_to_line.y = dist_to_line*normalv.y/length_normalv*guidance_indi_line_gain;
 
   // Depending on the normal vector, the distance could be negative
   float dist_to_line_abs = fabs(dist_to_line);
@@ -632,8 +684,15 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
   } else {
     // Calculate distance to waypoint
     float dist_to_wp = FLOAT_VECT2_NORM(pos_error);
+
     // Calculate max speed to decelerate from
-    float max_speed_decel = sqrt(2*dist_to_wp*MAX_DECELERATION);
+
+    // dist_to_wp can only be positive, but just in case
+    float max_speed_decel2 = 2*dist_to_wp*MAX_DECELERATION;
+    if(max_speed_decel2 < 0.0) {
+      max_speed_decel2 = fabs(max_speed_decel2);
+    }
+    float max_speed_decel = sqrtf(max_speed_decel2);
 
     // Bound the setpoint velocity vector
     float max_h_speed = Min(nav_max_speed, max_speed_decel);
