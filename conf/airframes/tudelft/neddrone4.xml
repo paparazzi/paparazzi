@@ -21,9 +21,12 @@
         <configure name="SBUS_PORT" value="UART3"/>
       </module>
 
-      <module name="airspeed" type="ms45xx_i2c">
+      <module name="airspeed_ets.xml">
         <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
+        <configure name="AIRSPEED_ETS_I2C_DEV" value="I2C4"/>
+        <define name="AIRSPEED_ETS_SYNC_SEND"/>
+        <define name="USE_AIRSPEED_ETS" value="TRUE"/>
+        <define name="AIRSPEED_ETS_SCALE" value="1.24"/>
       </module>
 
       <module name="scheduling_indi_simple"/>
