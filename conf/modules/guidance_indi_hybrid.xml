@@ -14,7 +14,6 @@
         <dl_setting var="gih_params.speed_gain" min="0" step="0.1" max="10.0" shortname="kd" param="GUIDANCE_INDI_SPEED_GAIN" persistent="true"/>
         <dl_setting var="gih_params.speed_gainz" min="0" step="0.1" max="10.0" shortname="kd_z" param="GUIDANCE_INDI_SPEED_GAINZ" persistent="true"/>
         <dl_setting var="gih_params.heading_bank_gain" min="0" step="0.1" max="30.0" shortname="bank gain" param="GUIDANCE_INDI_HEADING_BANK_GAIN" persistent="true"/>
-        <dl_setting var="lift_eff_scaling" min="0" step="0.1" max="5.0" shortname="lift_eff_scaling" param="GUIDANCE_INDI_LIFT_EFF_SCALING" persistent="true"/>
         <dl_setting var="guidance_indi_max_airspeed" min="12.0" step="1.0" max="30.0" shortname="cruise_airspeed"/>
         <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0" shortname="nav_max_speed"/>
         <dl_setting var="guidance_indi_max_bank" min="10.0" step="1.0" max="50.0" shortname="max_bank"/>

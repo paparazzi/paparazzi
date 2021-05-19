@@ -84,13 +84,13 @@ float nav_max_speed = NAV_MAX_SPEED;
 #define MAX_DECELERATION 1.
 #endif
 
+/*Boolean to force the heading to a static value (only use for specific experiments)*/
+bool take_heading_control = false;
+
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
-
-/*Boolean to force the heading to a static value (only use for specific experiments)*/
-bool take_heading_control = false;
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_DYN_P
@@ -119,7 +119,6 @@ float guidance_indi_line_gain = 1.0;
 float inv_eff[4];
 
 float lift_pitch_eff = GUIDANCE_INDI_PITCH_LIFT_EFF;
-float lift_eff_scaling = GUIDANCE_INDI_LIFT_EFF_SCALING;
 
 // Max bank angle in radians
 float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
@@ -538,9 +537,9 @@ float guidance_indi_get_liftd(float airspeed, float theta) {
     float pitch_interp = DegOfRad(theta);
     Bound(pitch_interp, -80.0, -40.0);
     float ratio = (pitch_interp + 40.0)/(-40.);
-    liftd = -24.0*ratio*lift_pitch_eff/0.12*lift_eff_scaling;
+    liftd = -24.0*ratio*lift_pitch_eff/0.12;
   } else {
-    liftd = -(airspeed - 8.5)*lift_pitch_eff/M_PI*180.0*lift_eff_scaling;
+    liftd = -(airspeed - 8.5)*lift_pitch_eff/M_PI*180.0;
   }
   //TODO: bound liftd
   return liftd;
