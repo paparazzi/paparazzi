@@ -25,7 +25,7 @@ import os
 import threading
 import socket
 import array
-from cStringIO import StringIO
+from io import StringIO
 import wx
 import array
 from PIL import Image

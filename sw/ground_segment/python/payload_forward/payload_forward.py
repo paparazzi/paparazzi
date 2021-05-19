@@ -24,7 +24,7 @@ import threading
 import socket
 import array
 import jpeg100_decoder
-from cStringIO import StringIO
+from io import StringIO
 
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../..')))
@@ -85,7 +85,8 @@ class PayloadForwarderFrame(wx.Frame):
 
         # Background
         dc.SetBrush(wx.Brush(wx.Colour(0,0,0), wx.TRANSPARENT))
-        font = wx.Font(11, wx.ROMAN, wx.BOLD, wx.NORMAL)
+        font = wx.Font(11, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+
         dc.SetFont(font)
         dc.DrawText("UDP: " + self.settings.ip + ":" + str(self.settings.port),2,2)
         dc.DrawText("Data: " + str(self.data['packets']) + " packets, " + str(round(float(self.data['bytes'])/1024.0,2)) + "kb)",2,22)
@@ -104,7 +105,7 @@ class PayloadForwarderFrame(wx.Frame):
         self.data = { 'packets': 0, 'bytes': 0}
 
         # Decoder
-        if (self.settings.decoder is 'jpeg100'):
+        if (self.settings.decoder == 'jpeg100'):
             self.decoder = jpeg100_decoder.ThumbNailFromPayload()
         else:
             self.decoder = MinimalDecoder()
