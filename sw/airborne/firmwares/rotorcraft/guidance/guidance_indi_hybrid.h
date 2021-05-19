@@ -53,7 +53,6 @@ extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
 extern float guidance_indi_max_airspeed;
 extern float nav_max_speed;
-extern float lift_eff_scaling;
 extern bool take_heading_control;
 extern float guidance_indi_max_bank;
 
