@@ -218,12 +218,10 @@ let ms_key = fun key ->
   let s = Bytes.to_string ms_key in
   (s, s.[n-2])
 
-let google_version = Maps_support.google_version
-
 let url_of_tile_key = fun maps_source s ->
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
-      Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
+      Google -> sprintf "http://mt1.google.com/vt/lyrs=s&x=%d&s=&y=%d&z=%d" x y z
     | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
     | MQ -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/osm/%d/%d/%d.png" z x y
     | MQ_Aerial -> sprintf "http://otile1.mqcdn.com/tiles/1.0.0/sat/%d/%d/%d.png" z x y

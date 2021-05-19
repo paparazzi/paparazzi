@@ -124,13 +124,10 @@ _save_build_version:
 	$(Q)test -d $(PAPARAZZI_HOME)/var || mkdir -p $(PAPARAZZI_HOME)/var
 	$(Q)./paparazzi_version > $(PAPARAZZI_HOME)/var/build_version.txt
 
-update_google_version:
-	-$(MAKE) -C data/maps
-
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml conf/tools/blacklisted
+conf: conf/conf.xml conf/control_panel.xml conf/tools/blacklisted
 
 conf/%.xml :conf/%_example.xml
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
@@ -138,7 +135,7 @@ conf/%.xml :conf/%_example.xml
 conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
-ground_segment: _print_building update_google_version conf libpprz subdirs static
+ground_segment: _print_building conf libpprz subdirs static
 ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 
 static: cockpit tmtc generators sim_static joystick static_h
@@ -291,7 +288,6 @@ dist_clean :
 	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: make dist_clean_irreversible"
 
 dist_clean_irreversible: clean
-	rm -rf conf/maps_data conf/maps.xml
 	rm -rf conf/conf.xml conf/controlpanel.xml
 	rm -rf var
 
@@ -343,7 +339,7 @@ test_math:
 test_sim: all
 	prove tests/sim
 
-.PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
+.PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static opencv_bebop\
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
