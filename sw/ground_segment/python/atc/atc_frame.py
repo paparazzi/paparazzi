@@ -24,7 +24,7 @@ import time
 import threading
 import math
 import array
-from cStringIO import StringIO
+from io import StringIO
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
@@ -154,7 +154,7 @@ class AtcFrame(wx.Frame):
         if self.cfg.Exists('left'):
             self.x = int(self.cfg.Read('left'))
             self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y), wx.SIZE_USE_EXISTING)
+            self.SetPosition(wx.Point(self.x,self.y))
 
     def OnClose(self, event):
         self.interface.shutdown()

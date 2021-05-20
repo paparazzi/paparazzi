@@ -189,7 +189,7 @@ class WindFrame(wx.Frame):
         if self.cfg.Exists('left'):
             self.x = int(self.cfg.Read('left'))
             self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y), wx.SIZE_USE_EXISTING)
+            self.SetPosition(wx.Point(self.x,self.y))
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)

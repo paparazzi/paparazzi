@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2016 TUDelft
+# Copyright (C) 2018 TUDelft
 #
 # This file is part of paparazzi.
 #
@@ -18,28 +18,18 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-# Script that should be run to have a distance counter on screen. Works with both NPS and AP.
-
 import wx
-import sys
-import argparse
-import distance_counter
+import fuel_cell_viewer
 
-parser = argparse.ArgumentParser(description='Capture PAYLOAD messages over the IVY bus and forward to a remote application.', epilog='payload.py is part of the paparazzi-uav project.')
-settings = parser.parse_args()
-
-print(settings)
-
-class DistanceFrame(wx.App):
+class FuelCellApp(wx.App):
     def OnInit(self):
-        self.main = distance_counter.DistanceCounterFrame(settings)
+        self.main = fuel_cell_viewer.FuelCellFrame()
         self.main.Show()
         self.SetTopWindow(self.main)
         return True
 
 def main():
-    application = DistanceFrame(0)
+    application = FuelCellApp(0)
     application.MainLoop()
 
 if __name__ == '__main__':

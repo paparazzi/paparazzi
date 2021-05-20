@@ -291,7 +291,7 @@ class EnergyMonFrame(wx.Frame):
         spacing = boxh+10
 
         dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
-	dc.SetBrush(wx.Brush(wx.Colour(220,220,220))) 
+        dc.SetBrush(wx.Brush(wx.Colour(220,220,220))) 
         dc.DrawRectangle(tdx, int(nr*spacing+tdx), int(boxw), boxh)
         dc.SetTextForeground(wx.Colour(0, 0, 0))
         if color < 0.2:
@@ -317,7 +317,7 @@ class EnergyMonFrame(wx.Frame):
     def DischargePlot(self, dc):
         self.tdx = int(self.stat * 10.0 / 300.0)
         dc.SetPen(wx.Pen(wx.Colour(0,0,0),1))
-	dc.SetBrush(wx.Brush(wx.Colour(250,250,250))) 
+        dc.SetBrush(wx.Brush(wx.Colour(250,250,250))) 
         dc.DrawRectangle(self.plot_x(0.0), self.plot_y(1.0), self.w-self.stat-2*self.tdx, self.h-2*self.tdx)
         
         for i in range(0,6):
@@ -427,7 +427,7 @@ class EnergyMonFrame(wx.Frame):
         if self.cfg.Exists('left'):
             self.x = int(self.cfg.Read('left'))
             self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y), wx.SIZE_USE_EXISTING)
+            self.SetPosition(wx.Point(self.x,self.y))
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
