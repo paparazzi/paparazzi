@@ -55,6 +55,7 @@ type strip_param = {
   color : string;
   min_bat : float;
   max_bat : float;
+  nb_cell_bat : float option;
   alt_shift_plus_plus : float;
   alt_shift_plus : float;
   alt_shift_minus : float;
