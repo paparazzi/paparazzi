@@ -386,13 +386,16 @@ let get_rc_max_rate = fun af_xml ->
 
 let get_bat_levels = fun af_xml ->
   let default_catastrophic_level = 9.
-  and default_max_level = 12.5 in
+  and default_max_level = 12.5
+  and default_nb_cell = None in
   try
     let bat_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "BAT") "section" in
     let fvalue = fun name default ->
       try ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-    fvalue "CATASTROPHIC_BAT_LEVEL" default_catastrophic_level, fvalue "MAX_BAT_LEVEL" default_max_level
-  with _ -> (default_catastrophic_level, default_max_level)
+    let fvalue_opt = fun name default ->
+      try Some (ExtXml.float_attrib (ExtXml.child bat_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value") with _ -> default in
+    fvalue "CATASTROPHIC_BAT_LEVEL" default_catastrophic_level, fvalue "MAX_BAT_LEVEL" default_max_level, fvalue_opt "BAT_NB_CELLS" default_nb_cell
+  with _ -> (default_catastrophic_level, default_max_level, default_nb_cell)
 
 let get_alt_shift = fun af_xml ->
   let default_plus_plus = 30.
@@ -528,10 +531,11 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     ac_notebook#page_num w#coerce = ac_notebook#current_page in
 
   (** Add a strip *)
-  let min_bat, max_bat = get_bat_levels af_xml in
+  let min_bat, max_bat, nb_cell_bat = get_bat_levels af_xml in
   let alt_shift_plus_plus, alt_shift_plus, alt_shift_minus = get_alt_shift af_xml in
   let icons_theme = get_icons_theme af_xml in
-  let param = { Strip.color = color; min_bat = min_bat; max_bat = max_bat;
+  let param = { Strip.color = color;
+                min_bat = min_bat; max_bat = max_bat; nb_cell_bat = nb_cell_bat;
                 alt_shift_plus_plus = alt_shift_plus_plus;
                 alt_shift_plus = alt_shift_plus;
                 alt_shift_minus = alt_shift_minus;
