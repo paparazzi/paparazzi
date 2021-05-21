@@ -30,7 +30,7 @@
 #include BOARD_CONFIG
 
 #if USE_BARO_BOARD
-PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
+//PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD) // FIXME debug message broken?
 #endif
 
 void baro_board_init(void)

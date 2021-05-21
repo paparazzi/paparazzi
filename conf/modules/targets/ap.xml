@@ -5,7 +5,7 @@
     <description>AP target specific module</description>
   </doc>
   <dep>
-    <depends>system_core,electrical,settings</depends>
+    <depends>system_core,electrical,settings,baro_board</depends>
   </dep>
   <makefile target="ap">
     <define name="AP"/>

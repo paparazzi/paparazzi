@@ -103,7 +103,6 @@ void autopilot_static_init(void)
 
 void autopilot_static_periodic(void)
 {
-  attitude_loop();
 }
 
 /**

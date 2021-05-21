@@ -20,7 +20,6 @@
     <configure name="USE_BARO_BOARD" default="TRUE"/>
     <configure name="BARO_LED" default="none"/>
     <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>
-    <define name="USE_BARO_BOARD" value="$(USE_BARO_BOARD)"/>
     <define name="BARO_LED" value="$(BARO_LED)" cond="ifneq ($(BARO_LED),none)"/>
     <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
     <file name="baro_board_common.c"/>

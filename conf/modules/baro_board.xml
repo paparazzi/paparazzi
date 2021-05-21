@@ -193,20 +193,6 @@ else ifeq ($(BOARD),$(filter $(BOARD),px4fmu))
     BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi4
     BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE4
   endif
-# apogee baro
-else ifeq ($(BOARD), apogee)
-  BARO_BOARD_CFLAGS += -DUSE_I2C1
-  BARO_BOARD_SRCS += peripherals/mpl3115.c
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
-# Umarim
-else ifeq ($(BOARD), umarim)
-  ifeq ($(BOARD_VERSION), 1.0)
-    BARO_BOARD_CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
-    BARO_BOARD_CFLAGS += -DADS1114_I2C_DEV=i2c1
-    BARO_BOARD_SRCS += peripherals/ads1114.c
-    BARO_BOARD_SRCS += boards/umarim/baro_board.c
-  endif
 
 # Naze32
 else ifeq ($(BOARD), naze32)

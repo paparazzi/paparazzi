@@ -28,9 +28,11 @@
     <configure name="INTERMCU_PORT" default="UART2" case="upper|lower"/>
     <configure name="FBW_MODE_LED" default="none"/>
     <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
+    <define name="INTER_MCU_FBW"/>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <configure name="INTERMCU_PORT" default="UART5" case="upper|lower"/>
+    <define name="INTER_MCU_AP"/>
   </makefile>
   <makefile target="ap|fbw" firmware="fixedwing">
     <raw>

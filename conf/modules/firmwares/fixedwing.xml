@@ -8,7 +8,7 @@
     <configure name="WIND_INFO" value="FALSE|TRUE" description="parse WIND_INFO message (default TRUE)"/>
   </doc>
   <dep>
-    <depends>system_core,autopilot_gnc,actuators_pwm</depends>
+    <depends>system_core,autopilot_gnc_fw,actuators_pwm</depends>
   </dep>
   <makefile>
     <configure name="PERIODIC_FREQUENCY" default="60"/>
