@@ -9,8 +9,8 @@
   <dep>
     <depends>autopilot_gnc</depends>
   </dep>
-  <periodic fun="navigation_task()" freq="NAVIGATION_FREQUENCY" cond="FIXEDWING_FIRMWARE && !USE_GENERATED_AUTOPILOT"/>
-  <periodic fun="attitude_loop()" freq="CONTROL_FREQUENCY" cond="FIXEDWING_FIRMWARE && !USE_GENERATED_AUTOPILOT && !AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+  <periodic fun="navigation_task()" freq="NAVIGATION_FREQUENCY" cond="FIXEDWING_FIRMWARE @AND !USE_GENERATED_AUTOPILOT"/>
+  <periodic fun="attitude_loop()" freq="CONTROL_FREQUENCY" cond="FIXEDWING_FIRMWARE @AND !USE_GENERATED_AUTOPILOT @AND !AHRS_TRIGGERED_ATTITUDE_LOOP"/>
   <makefile target="!fbw"/>
 </module>
 

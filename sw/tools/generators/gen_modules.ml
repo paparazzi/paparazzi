@@ -42,7 +42,9 @@ let lprintf = fun out f ->
 (* Encapsulate a condition attribute for function calls *)
 let lprintf_with_cond out s = function
   | None -> lprintf out "%s;\n" s
-  | Some cond -> fprintf out "#if %s\n%s%s;\n#endif\n" cond (String.make !margin ' ') s
+  | Some cond ->
+      let cond_expr = Fp_proc.parse_expression cond in
+      fprintf out "#if %s\n%s%s;\n#endif\n" (Expr_syntax.sprint cond_expr) (String.make !margin ' ') s
 
 let print_headers = fun out modules ->
   lprintf out  "#include \"std.h\"\n";
