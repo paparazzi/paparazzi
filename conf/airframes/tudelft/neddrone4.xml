@@ -22,10 +22,7 @@
       </module>
 
       <module name="airspeed_ets.xml">
-        <define name="USE_I2C4"/>
         <configure name="AIRSPEED_ETS_I2C_DEV" value="I2C4"/>
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>
-        <define name="USE_AIRSPEED_ETS" value="TRUE"/>
         <define name="AIRSPEED_ETS_SCALE" value="1.24"/>
       </module>
 
@@ -351,6 +348,7 @@
     <define name="CRITIC_BAT_LEVEL" value="18.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="19.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="25.2" unit="V"/>
+    <define name="BAT_NB_CELLS" value="6"/>
   </section>
 
 </airframe>

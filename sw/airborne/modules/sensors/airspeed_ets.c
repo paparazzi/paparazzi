@@ -45,6 +45,7 @@
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include "pprzlink/messages.h"
+#include "subsystems/abi.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
 
@@ -225,6 +226,10 @@ void airspeed_ets_read_event(void)
       airspeed_ets += airspeed_ets_buffer[n];
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
+    
+    // Publish airspeed sensor
+    AbiSendMsgAIRSPEED(AIRSPEED_ETS_ID, airspeed_ets);
+
 #if USE_AIRSPEED_ETS
     stateSetAirspeed_f(airspeed_ets);
 #endif
