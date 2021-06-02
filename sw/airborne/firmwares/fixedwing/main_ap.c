@@ -204,6 +204,10 @@ void handle_periodic_tasks_ap(void)
     RunOnceEvery(TELEMETRY_FREQUENCY, datalink_time++);
 #endif
   }
+
+  if (sys_time_check_and_ack_timer(monitor_tid)) {
+    monitor_task();
+  }
 }
 
 
