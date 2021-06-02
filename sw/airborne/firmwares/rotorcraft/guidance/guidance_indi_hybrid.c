@@ -84,6 +84,11 @@ float nav_max_speed = NAV_MAX_SPEED;
 #define MAX_DECELERATION 1.
 #endif
 
+/*Airspeed threshold where making a turn is "worth it"*/
+#ifndef TURN_AIRSPEED_TH
+#define TURN_AIRSPEED_TH 10.0
+#endif
+
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
 bool take_heading_control = false;
 
@@ -265,7 +270,7 @@ void guidance_indi_run(float *heading_sp) {
   float norm_des_as = FLOAT_VECT2_NORM(desired_airspeed);
 
   // Make turn instead of straight line
-  if((airspeed > 10.0) && (norm_des_as > 12.0)) {
+  if((airspeed > TURN_AIRSPEED_TH) && (norm_des_as > (TURN_AIRSPEED_TH+2.0) )) {
 
   // Give the wind cancellation priority.
     if (norm_des_as > guidance_indi_max_airspeed) {

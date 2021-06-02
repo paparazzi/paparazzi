@@ -45,6 +45,8 @@
 
 #include "subsystems/actuators.h"
 
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+
 /** Set the default File logger path to the USB drive */
 #ifndef FILE_LOGGER_PATH
 #define FILE_LOGGER_PATH /data/video/usb
@@ -92,6 +94,7 @@ static void file_logger_write_row(FILE *file) {
   fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
   fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
   fprintf(file, "%f,%f,%f,", accel->x, accel->y, accel->z);
+  /*fprintf(file, "%f,%f,%f,", sp_accel.x, sp_accel.y, sp_accel.z);*/
   fprintf(file, "%d,%d,%d,%d\n", actuators[0], actuators[1], actuators[2], actuators[3]);
 }
 
