@@ -5,6 +5,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2">
       <define name="STABILIZATION_INDI_G2_R" value="0.2784"/>
+
+      <module name="logger_file">
+        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+      </module>
     </target>
 
     <target name="nps" board="pc">
@@ -12,6 +16,10 @@
       <module name="udp"/>
       <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
       <!-- <define name="STABILIZATION_INDI_G2_R" value="0.20"/> --><!-- for gazebo -->
+
+      <module name="logger_file">
+        <define name="FILE_LOGGER_PATH" value="/home/dennis/Documents/bebop_hybrid_logs"/>
+      </module>
     </target>
 
 	  <!-- Subsystem section -->
@@ -33,9 +41,6 @@
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter"/>
-    <module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </module>
   </firmware>
   
   <commands>
@@ -131,20 +136,20 @@
     <define name="G1_R" value="0.00122"/>
 
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="170.0"/>
+    <define name="REF_ERR_P" value="600.0"/>
     <define name="REF_ERR_Q" value="600.0"/>
-    <define name="REF_ERR_R" value="600.0"/>
-    <define name="REF_RATE_P" value="14.3"/>
+    <define name="REF_ERR_R" value="170.0"/>
+    <define name="REF_RATE_P" value="28.0"/>
     <define name="REF_RATE_Q" value="28.0"/>
-    <define name="REF_RATE_R" value="28.0"/>
+    <define name="REF_RATE_R" value="14.3"/>
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.06"/>
-    <define name="ACT_DYN_Q" value="0.06"/>
-    <define name="ACT_DYN_R" value="0.06"/>
+    <define name="ACT_DYN_P" value="0.1"/>
+    <define name="ACT_DYN_Q" value="0.1"/>
+    <define name="ACT_DYN_R" value="0.1"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
@@ -175,12 +180,12 @@
     <define name="POS_GAINZ" value="0.2"/>
     <define name="SPEED_GAIN" value="1.0"/>
     <define name="SPEED_GAINZ" value="1.0"/>
-    <define name="HEADING_BANK_GAIN" value="15."/>
+    <define name="FILTER_CUTOFF" value="1.0"/>
+    <define name="HEADING_BANK_GAIN" value="1."/>
     <define name="MAX_AIRSPEED" value="2."/>
     <define name="PITCH_LIFT_EFF" value="0.12"/>
-    <define name="HEADING_BANK_GAIN" value="15."/>
     <define name="SPECIFIC_FORCE_GAIN" value="-400."/>
-    <define name="THRUST_DYNAMICS" value="0.06"/>
+    <define name="THRUST_DYNAMICS" value="0.1"/>
     <define name="MIN_THROTTLE" value="0."/>
   </section>
 
@@ -188,7 +193,7 @@
     <!--The Quadshot uses a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
-    <define name="TRANSITION_MAX_OFFSET" value="-80.0" unit="deg"/>
+    <define name="TRANSITION_MAX_OFFSET" value="0.0" unit="deg"/>
     <!-- For hybrid guidance by default set to 15-->
     <!--<define name="MAX_AIRSPEED" value="20.0"/>-->
   </section>
