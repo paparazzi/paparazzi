@@ -57,8 +57,8 @@
 #endif
 
 #ifndef GUIDANCE_INDI_POS_GAIN
-#define GUIDANCE_INDI_POS_GAIN = 0.5;
-#define GUIDANCE_INDI_POS_GAINZ = 0.5;
+#define GUIDANCE_INDI_POS_GAIN 0.5
+#define GUIDANCE_INDI_POS_GAINZ 0.5
 #endif
 
 struct guidance_indi_hybrid_params gih_params = {
