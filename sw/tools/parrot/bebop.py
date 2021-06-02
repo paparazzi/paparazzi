@@ -160,7 +160,7 @@ class Bebop(ParrotUtils):
         # Parse the extra arguments
         self.parser.add_argument('--min_version', metavar='MIN', default='3.3.0',
                 help='force minimum version allowed')
-        self.parser.add_argument('--max_version', metavar='MAX', default='4.4.2',
+        self.parser.add_argument('--max_version', metavar='MAX', default='4.7.1',
                 help='force maximum version allowed')
 
         ss = self.subparsers.add_parser('networkid', help='Set the network ID (SSID) to join in managed mode')
