@@ -186,10 +186,10 @@
   </section>
 
   <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
-    <define name="POS_GAIN" value="0.2"/>
-    <define name="POS_GAINZ" value="0.2"/>
-    <define name="SPEED_GAIN" value="1.0"/>
-    <define name="SPEED_GAINZ" value="1.0"/>
+    <define name="POS_GAIN" value="1.1"/>
+    <define name="POS_GAINZ" value="1.1"/>
+    <define name="SPEED_GAIN" value="3.0"/>
+    <define name="SPEED_GAINZ" value="3.0"/>
     <define name="FILTER_CUTOFF" value="1.0"/>
     <define name="HEADING_BANK_GAIN" value="1."/>
     <define name="MAX_AIRSPEED" value="10."/>
