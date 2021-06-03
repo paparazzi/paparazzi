@@ -86,9 +86,9 @@ class EscMessage(object):
 
     def get_volt(self):
         if (self.id in [6,7,8,9,16,17,18,19]):
-            return "Servo " + str(self.id) + " " +str(round(self.volt_m ,0)) + "V"
+            return "Servo " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
         else:
-            return "Mot " + str(self.id) + " " +str(round(self.volt_m ,0)) + "V"
+            return "Mot " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
     def get_volt_perc(self):
         return self.volt_b / (6*4.2)
 
@@ -482,7 +482,7 @@ class FuelCellFrame(wx.Frame):
             dy = int(mo_co[1]*h)
             self.StatusBox(dc, dx, dy, 0, 0, m.get_volt(), m.get_volt_perc(), 1)
             self.StatusBox(dc, dx, dy, 1, 0, m.get_current(), m.get_current_perc(), 1)
-            self.StatusBox(dc, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color)
+            self.StatusBox(dc, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color())
             self.StatusBox(dc, dx, dy, 3, 0, m.get_temp(), m.get_temp_perc(), m.get_temp_color())
 
 
@@ -518,7 +518,7 @@ class FuelCellFrame(wx.Frame):
         self.cell = BatteryCell()
         self.motors = MotorList()
         self.fuelcell = FuelCellStatus()
-        self.fuelcell.update('<0,0,0,0x08020000>')
+        self.fuelcell.update('<0,0,0,0x00000000>')
      
         self.interface = IvyMessagesInterface("fuelcellframe")
         self.interface.subscribe(self.message_recv)
