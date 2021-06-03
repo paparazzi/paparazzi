@@ -25,7 +25,14 @@
     <module name="ins" type="ekf2">
       <define name="INS_EKF2_OPTITRACK" value="true"/>
     </module>
-    
+
+    <module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+      <!--<define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.0"/>-->
+    </module>
+
     <module name="air_data"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="logger_file">
@@ -54,6 +61,20 @@
     <define name="REVERSE" value="TRUE"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
+
+
+  <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
+    <define name="POS_GAIN" value="0.2"/>
+    <define name="POS_GAINZ" value="0.2"/>
+    <define name="SPEED_GAIN" value="1.0"/>
+    <define name="SPEED_GAINZ" value="1.0"/>
+    <define name="HEADING_BANK_GAIN" value="15."/>
+    <define name="MAX_AIRSPEED" value="10."/>
+    <define name="PITCH_LIFT_EFF" value="0.0"/>
+    <define name="HEADING_BANK_GAIN" value="15."/>
+    <define name="MIN_THROTTLE" value="0."/>
+  </section>
+    
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
@@ -176,6 +197,8 @@
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
 
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+
+    <define name="TRANSITION_MAX_OFFSET" value="0."/>
   </section>
 
   <section name="BAT">

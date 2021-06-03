@@ -126,11 +126,7 @@ extern void nav_parse_MOVE_WP(uint8_t *buf);
 
 extern void set_exception_flag(uint8_t flag_num);
 
-extern float nav_max_speed;
 extern bool force_forward;
-extern struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain);
-extern struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
-extern struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v, struct FloatVect2 to_end_v, struct EnuCoor_i target, float pos_gain);
 
 extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_i *p);

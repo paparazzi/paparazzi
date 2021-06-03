@@ -43,6 +43,9 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #endif
 
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
+
 #include "subsystems/actuators.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
@@ -71,6 +74,7 @@ static void file_logger_write_header(FILE *file) {
   fprintf(file, "att_phi,att_theta,att_psi,");
   fprintf(file, "rate_p,rate_q,rate_r,");
   fprintf(file, "accel_x,accel_y,accel_z,");
+  fprintf(file, "airspeed,");
   fprintf(file, "m_cmd1,m_cmd2,m_cmd3,m_cmd4");
   fprintf(file, "\n");
 }
@@ -94,8 +98,11 @@ static void file_logger_write_row(FILE *file) {
   fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
   fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
   fprintf(file, "%f,%f,%f,", accel->x, accel->y, accel->z);
-  /*fprintf(file, "%f,%f,%f,", sp_accel.x, sp_accel.y, sp_accel.z);*/
-  fprintf(file, "%d,%d,%d,%d\n", actuators[0], actuators[1], actuators[2], actuators[3]);
+  fprintf(file, "%f,", stateGetAirspeed_f());
+  fprintf(file, "%f,%f,%f,", sp_accel.x, sp_accel.y, sp_accel.z);
+  fprintf(file, "%d,%d,%d,%d,", actuators[0], actuators[1], actuators[2], actuators[3]);
+  fprintf(file, "%d,%d,%d,", guidance_h.ref.pos.x,guidance_h.ref.pos.y,guidance_v_z_ref);
+  fprintf(file, "%f,%f,%f\n", gi_speed_sp.x,gi_speed_sp.y,gi_speed_sp.z);
 }
 
 

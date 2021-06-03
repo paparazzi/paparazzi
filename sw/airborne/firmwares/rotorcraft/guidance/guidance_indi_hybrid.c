@@ -149,7 +149,7 @@ float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
 
-struct FloatVect3 speed_sp = {0.0, 0.0, 0.0};
+struct FloatVect3 gi_speed_sp = {0.0, 0.0, 0.0};
 
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
@@ -172,9 +172,9 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
                               &filt_accel_ned[0].o[0],
                               &filt_accel_ned[1].o[0],
                               &filt_accel_ned[2].o[0],
-                              &speed_sp.x,
-                              &speed_sp.y,
-                              &speed_sp.z);
+                              &gi_speed_sp.x,
+                              &gi_speed_sp.y,
+                              &gi_speed_sp.z);
 }
 #endif
 
@@ -246,27 +246,28 @@ void guidance_indi_run(float *heading_sp) {
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
   if(autopilot.mode == AP_MODE_NAV) {
-    speed_sp = nav_get_speed_setpoint(gih_params.pos_gain);
+    gi_speed_sp = nav_get_speed_setpoint(gih_params.pos_gain);
   } else{
-    speed_sp.x = pos_x_err * gih_params.pos_gain;
-    speed_sp.y = pos_y_err * gih_params.pos_gain;
-    speed_sp.z = pos_z_err * gih_params.pos_gainz;
+    gi_speed_sp.x = pos_x_err * gih_params.pos_gain;
+    gi_speed_sp.y = pos_y_err * gih_params.pos_gain;
+    gi_speed_sp.z = pos_z_err * gih_params.pos_gainz;
   }
 
   //for rc control horizontal, rotate from body axes to NED
   float psi = eulers_zxy.psi;
   /*NAV mode*/
-  float speed_sp_b_x = cosf(psi) * speed_sp.x + sinf(psi) * speed_sp.y;
-  float speed_sp_b_y =-sinf(psi) * speed_sp.x + cosf(psi) * speed_sp.y;
+  float speed_sp_b_x = cosf(psi) * gi_speed_sp.x + sinf(psi) * gi_speed_sp.y;
+  float speed_sp_b_y =-sinf(psi) * gi_speed_sp.x + cosf(psi) * gi_speed_sp.y;
 
-  float airspeed = stateGetAirspeed_f();
+  /*float airspeed = stateGetAirspeed_f();*/
+  float airspeed = 0.0;
 
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
   struct FloatVect2 airspeed_v = {cos(psi)*airspeed, sin(psi)*airspeed};
   struct FloatVect2 windspeed;
   VECT2_DIFF(windspeed, *groundspeed, airspeed_v);
 
-  VECT2_DIFF(desired_airspeed, speed_sp, windspeed); // Use 2d part of speed_sp
+  VECT2_DIFF(desired_airspeed, gi_speed_sp, windspeed); // Use 2d part of gi_speed_sp
   float norm_des_as = FLOAT_VECT2_NORM(desired_airspeed);
 
   // Make turn instead of straight line
@@ -278,8 +279,8 @@ void guidance_indi_run(float *heading_sp) {
 
       // if the wind is faster than we can fly, just fly in the wind direction
       if(FLOAT_VECT2_NORM(windspeed) < guidance_indi_max_airspeed) {
-        float av = speed_sp.x * speed_sp.x + speed_sp.y * speed_sp.y;
-        float bv = -2 * (windspeed.x * speed_sp.x + windspeed.y * speed_sp.y);
+        float av = gi_speed_sp.x * gi_speed_sp.x + gi_speed_sp.y * gi_speed_sp.y;
+        float bv = -2 * (windspeed.x * gi_speed_sp.x + windspeed.y * gi_speed_sp.y);
         float cv = windspeed.x * windspeed.x + windspeed.y * windspeed.y - guidance_indi_max_airspeed * guidance_indi_max_airspeed;
 
         float dv = bv * bv - 4.0 * av * cv;
@@ -293,8 +294,8 @@ void guidance_indi_run(float *heading_sp) {
         groundspeed_factor = (-bv + d_sqrt)  / (2.0 * av);
       }
 
-      desired_airspeed.x = groundspeed_factor * speed_sp.x - windspeed.x;
-      desired_airspeed.y = groundspeed_factor * speed_sp.y - windspeed.y;
+      desired_airspeed.x = groundspeed_factor * gi_speed_sp.x - windspeed.x;
+      desired_airspeed.y = groundspeed_factor * gi_speed_sp.y - windspeed.y;
 
       speed_sp_b_x = guidance_indi_max_airspeed;
     }
@@ -319,7 +320,7 @@ void guidance_indi_run(float *heading_sp) {
     sp_accel.x = cosf(psi) * sp_accel_b.x - sinf(psi) * sp_accel_b.y;
     sp_accel.y = sinf(psi) * sp_accel_b.x + cosf(psi) * sp_accel_b.y;
 
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    sp_accel.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   } else { // Go somewhere in the shortest way
 
     if(airspeed > 10.0) {
@@ -332,12 +333,12 @@ void guidance_indi_run(float *heading_sp) {
         speed_sp_b_x = guidance_indi_max_airspeed + groundspeed_x - airspeed;
       }
     }
-    speed_sp.x = cosf(psi) * speed_sp_b_x - sinf(psi) * speed_sp_b_y;
-    speed_sp.y = sinf(psi) * speed_sp_b_x + cosf(psi) * speed_sp_b_y;
+    gi_speed_sp.x = cosf(psi) * speed_sp_b_x - sinf(psi) * speed_sp_b_y;
+    gi_speed_sp.y = sinf(psi) * speed_sp_b_x + cosf(psi) * speed_sp_b_y;
 
-    sp_accel.x = (speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
-    sp_accel.y = (speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    sp_accel.x = (gi_speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
+    sp_accel.y = (gi_speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
+    sp_accel.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   }
 
   // Bound the acceleration setpoint

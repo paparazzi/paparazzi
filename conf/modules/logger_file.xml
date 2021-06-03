@@ -12,7 +12,7 @@
 	<file name="file_logger.h" />
   </header>
   <periodic fun="file_logger_periodic()" start="file_logger_start()"
-		    stop="file_logger_stop()" autorun="FALSE" period="0.01" />
+		    stop="file_logger_stop()" autorun="FALSE" period="0.002" />
   <makefile>
 	<file name="file_logger.c"/>
   </makefile>
