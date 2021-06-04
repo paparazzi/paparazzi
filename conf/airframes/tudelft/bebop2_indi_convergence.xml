@@ -30,9 +30,9 @@
       <define name="BEBOP_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
       <define name="BEBOP_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
     </module>
-    <module name="gps" type="datalink"/>
-    <!--<module name="gps" type="ublox"/>-->
-    <!--<module name="gps" type="ubx_ucenter"/>-->
+    <!--<module name="gps" type="datalink"/>-->
+    <module name="gps" type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="indi_simple"/>
     <module name="guidance" type="indi_hybrid"/>
 
@@ -174,7 +174,7 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
-    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="MAX_BANK" value="35" unit="deg"/>
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
@@ -195,11 +195,14 @@
     <define name="SPECIFIC_FORCE_GAIN" value="-400."/>
     <define name="THRUST_DYNAMICS" value="0.06"/>
     <define name="MIN_THROTTLE" value="0."/>
+    <define name="MIN_PITCH" value="-35."/>
+    <define name="MAX_PITCH" value="35."/>
   </section>
 
   <section name="FORWARD">
     <!-- This is the pitch angle that the drone will have in forward flight, where 0 degrees is hover-->
     <define name="TRANSITION_MAX_OFFSET" value="0.0" unit="deg"/>
+    <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">

@@ -61,6 +61,11 @@
 #define GUIDANCE_INDI_POS_GAINZ 0.5
 #endif
 
+#ifndef GUIDANCE_INDI_MIN_PITCH
+#define GUIDANCE_INDI_MIN_PITCH -120
+#define GUIDANCE_INDI_MAX_PITCH 25
+#endif
+
 struct guidance_indi_hybrid_params gih_params = {
   .pos_gain = GUIDANCE_INDI_POS_GAIN,
   .pos_gainz = GUIDANCE_INDI_POS_GAINZ,
@@ -126,7 +131,7 @@ float inv_eff[4];
 float lift_pitch_eff = GUIDANCE_INDI_PITCH_LIFT_EFF;
 
 // Max bank angle in radians
-float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
+float guidance_indi_max_bank = DegOfRad(GUIDANCE_H_MAX_BANK);
 
 /** state eulers in zxy order */
 struct FloatEulers eulers_zxy;
@@ -406,8 +411,8 @@ void guidance_indi_run(float *heading_sp) {
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
 
   //Bound euler angles to prevent flipping
-  Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
-  Bound(guidance_euler_cmd.theta, -RadOfDeg(120.0), RadOfDeg(25.0));
+  Bound(guidance_euler_cmd.phi, -RadOfDeg(guidance_indi_max_bank), RadOfDeg(guidance_indi_max_bank));
+  Bound(guidance_euler_cmd.theta, RadOfDeg(GUIDANCE_INDI_MIN_PITCH), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
   float coordinated_turn_roll = eulers_zxy.phi;
