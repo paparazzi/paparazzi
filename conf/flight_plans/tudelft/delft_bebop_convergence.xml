@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="10" ground_alt="0" lat0="51 59 27.6" lon0="4 22 42.0" max_dist_from_home="1000" name="Delft Basic" security_height="2">
+<flight_plan alt="5" ground_alt="0" lat0="51 59 27.6" lon0="4 22 42.0" max_dist_from_home="200" name="Delft Basic" security_height="2">
   <header>
     #include "autopilot.h"
     #include "subsystems/datalink/datalink.h"
@@ -17,33 +17,55 @@
     <waypoint name="p4" x="4.9" y="-34.4"/>
     <waypoint name="CAM" x="14.2" y="-29.4"/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
-    <waypoint name="_G1" x="-31.4" y="27.3"/>
-    <waypoint name="_G2" x="0.5" y="37.0"/>
-    <waypoint name="_G3" x="35.1" y="-33.6"/>
-    <waypoint name="_G4" x="2.5" y="-46.9"/>
+    <waypoint name="_HG1" lat="51.99145087814413" lon="4.378416538238525"/>
+    <waypoint name="_HG2" lat="51.99130883618111" lon="4.377756714820861"/>
+    <waypoint name="_HG3" lat="51.99051933891883" lon="4.378344118595123"/>
+    <waypoint name="_HG4" lat="51.99071258535118" lon="4.378966391086578"/>
+    <waypoint name="SG1" lat="51.991269196483096" lon="4.377896189689636"/>
+    <waypoint name="SG2" lat="51.990608529683556" lon="4.378384351730347"/>
+    <waypoint name="SG3" lat="51.990745618845914" lon="4.378829598426819"/>
+    <waypoint name="SG4" lat="51.99136994731342" lon="4.378365576267242"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flight_Area">
-      <corner name="_G1"/>
-      <corner name="_G2"/>
-      <corner name="_G3"/>
-      <corner name="_G4"/>
+      <corner name="_HG1"/>
+      <corner name="_HG2"/>
+      <corner name="_HG3"/>
+      <corner name="_HG4"/>
+    </sector>
+    <sector color="yellow" name="Soft_Geo">
+      <corner name="SG1"/>
+      <corner name="SG2"/>
+      <corner name="SG3"/>
+      <corner name="SG4"/>
     </sector>
   </sectors>
   <exceptions>
-    <exception cond="!InsideFlight_Area(GetPosX(), GetPosY())" deroute="Holding point"/>
-    <!--<exception cond="((radio_control.status == RC_REALLY_LOST) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
-      (autopilot_in_flight() == true) )" deroute="descend att 0"/>-->
-    <exception cond="(datalink_time > 60 &&
-      !(datalink_time > 120) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <!--<exception cond="!InsideFlight_Area(GetPosX(), GetPosY())" deroute="Holding point"/>-->
+    <exception cond="Or(!InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 20) &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block >= IndexOfBlock('landed'))" deroute="descend att 0"/>
+    <exception cond="!InsideSoft_Geo(GetPosX(), GetPosY()) &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block >= IndexOfBlock('landed'))" deroute="ComeBackAndLand"/>
+    <exception cond="GetPosAlt() > GetAltRef() + 15 &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block > IndexOfBlock('land here'))" deroute="land here"/>
+    <exception cond="((radio_control.status == RC_REALLY_LOST) &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block > IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
+    <exception cond="(datalink_time > 20 &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block > IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="descend att 0"/>
+    <exception cond="(datalink_time > 10 &&
+      !(IndexOfBlock('Takeoff') >= nav_block) &&
+      !(nav_block > IndexOfBlock('land here')) &&
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
     <exception cond="(electrical.bat_low &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+      !(nav_block > IndexOfBlock('land here')) &&
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
     <exception cond="(electrical.bat_critical &&
       !(IndexOfBlock('Holding point') > nav_block) &&
@@ -94,16 +116,6 @@
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
-    </block>
-    <block name="test yaw">
-      <go wp="p1"/>
-      <for from="1" to="16" var="i">
-        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time > 3"/>
-      </for>
-      <deroute block="Standby"/>
-    </block>
-    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
