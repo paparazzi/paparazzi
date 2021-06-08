@@ -1,28 +1,21 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
     #include "subsystems/radio_control.h"
     #include "subsystems/ahrs.h"
-    #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
 </header>
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
     <waypoint name="CLIMB" x="1.9" y="1.0"/>
     <waypoint name="STDBY" x="0.5" y="0.3"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
-    <waypoint name="GOAL" x="2.5" y="-0.0"/>
-    <waypoint name="TRAJECTORY" x="0.4" y="1.4"/>
     <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
     <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
     <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
     <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
-    <waypoint lat="51.9905860" lon="4.3767712" name="_OZ1"/>
-    <waypoint lat="51.9906430" lon="4.3767110" name="_OZ2"/>
-    <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
-    <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
     <waypoint name="p1" x="-4.3" y="0.7"/>
     <waypoint name="p2" x="0.9" y="4.6"/>
     <waypoint name="p3" x="4.5" y="-0.9"/>
@@ -34,12 +27,6 @@
       <corner name="_CZ2"/>
       <corner name="_CZ3"/>
       <corner name="_CZ4"/>
-    </sector>
-    <sector color="#FF9922" name="ObstacleZone">
-      <corner name="_OZ1"/>
-      <corner name="_OZ2"/>
-      <corner name="_OZ3"/>
-      <corner name="_OZ4"/>
     </sector>
     <sector color="red" name="Flyzone">
       <corner name="p1"/>
@@ -74,23 +61,15 @@
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
-    <block name="safe">
-      <set value="AP_MODE_NAV" var="autopilot_mode_auto2"/>
-      <go wp="STDBY"/>
-      <call_once fun="NavSetWaypointHere(WP_TD)"/>
-      <deroute block="Safe landing"/>
-    </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
-    <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
-      <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
-      <stay wp="GOAL"/>
-    </block>
-    <block name="STOP">
-      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+    <block name="safe">
+      <set value="AP_MODE_NAV" var="autopilot_mode_auto2"/>
       <stay wp="STDBY"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <exception cond="LessThan(RadioControlValues(RADIO_THROTTLE), (MAX_PPRZ / 20))" deroute="Safe landing"/>
     </block>
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
