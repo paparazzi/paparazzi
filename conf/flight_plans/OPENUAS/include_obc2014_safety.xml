@@ -80,7 +80,7 @@
     -->
 
     <!-- Case of loss of GPS AND loss of datalink -->
-    <exception cond="And(datalink_time > 10, !GpsFixValid())" deroute="DatalinkAndGpsFailure"/>
+    <exception cond="And(datalink_time @GT 10, !GpsFixValid())" deroute="DatalinkAndGpsFailure"/>
   </exceptions>
 
   <blocks>

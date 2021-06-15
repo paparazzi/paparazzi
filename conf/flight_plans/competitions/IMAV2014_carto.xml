@@ -42,7 +42,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
     <include name="Data" procedure="IMAV2014_data.xml"/>
   </includes>
   <exceptions>
-    <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+    <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 150)" deroute="Center"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -61,7 +61,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
       <set value="100." var="WaypointAlt(WP_STDBY)"/>
     </block>
     <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Carto1"/>
+      <exception cond="GetPosAlt() @GT GetAltRef()+25" deroute="Carto1"/>
       <call fun="{ hackhd_command(HACKHD_POWER_ON); FALSE; }"/>
       <while cond="LessThan(NavBlockTime(), 4)"/>
       <call fun="{ hackhd_command(HACKHD_SHOOT); FALSE; }"/>
@@ -75,7 +75,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
     <block name="Carto1" strip_button="Carto" strip_icon="survey.png">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <call fun="nav_compute_baseleg(WP_N3, WP_S3, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 15 > fabs(GetPosAlt() - WaypointAlt(WP_STDBY)))" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 15 @GT fabs(GetPosAlt() - WaypointAlt(WP_STDBY)))" wp="_BASELEG" alt="WaypointAlt(WP_STDBY)"/>
       <attitude alt="WaypointAlt(WP_STDBY)" roll="0.0" until="stage_time>=2"/>
       <set value="MODULES_START" var="hackhd_hackhd_autoshoot_status"/>
       <go approaching_time="0" from="N3" hmode="route" wp="S3" alt="WaypointAlt(WP_STDBY)"/>
@@ -119,11 +119,11 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
     </block>
     <block name="land">
       <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="GetAltRef() + 3 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 3 @GT GetPosAlt()" deroute="flare"/>
       <call fun="{ hackhd_command(HACKHD_POWER_OFF); FALSE; }"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
