@@ -109,7 +109,7 @@
     <!--The Quadshot uses a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
-    <define name="TRANSITION_MAX_OFFSET" value="-80.0" unit="deg"/>
+    <define name="TRANSITION_MAX_OFFSET" value="-90.0" unit="deg"/>
     <!-- For hybrid guidance by default set to 15-->
     <!--<define name="MAX_AIRSPEED" value="20.0"/>-->
   </section>
@@ -220,12 +220,16 @@
     <define name="SPEED_GAIN" value="1.0"/>
     <define name="SPEED_GAINZ" value="1.0"/>
     <define name="MAX_AIRSPEED" value="12."/>
+    <define name="ZERO_AIRSPEED" value="FALSE"/>
+    <define name="NAV_SPEED_MARGIN" value="10.0"/>
     <define name="PITCH_LIFT_EFF" value="0.12"/>
     <define name="HEADING_BANK_GAIN" value="15."/>
     <define name="SPECIFIC_FORCE_GAIN" value="-1300."/>
     <define name="THRUST_DYNAMICS" value="0.04"/>
     <define name="MIN_THROTTLE" value="0.0"/>
     <define name="MIN_THROTTLE_FWD" value="0.0"/>
+    <define name="MIN_PITCH" value="-120."/>
+    <define name="MAX_PITCH" value="60."/>
   </section>
 
   <section name="RADIO" prefix="RADIO_">

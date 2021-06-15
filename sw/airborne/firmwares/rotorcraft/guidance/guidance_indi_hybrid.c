@@ -81,8 +81,16 @@ struct guidance_indi_hybrid_params gih_params = {
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
+// Tell the guidance that the airspeed needs to be zero'd. recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case
+#ifndef GUIDANCE_INDI_ZERO_AIRSPEED
+#define GUIDANCE_INDI_ZERO_AIRSPEED FALSE
+#endif
+
 // Max ground speed that will be commanded
-#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
+#ifndef GUIDANCE_INDI_NAV_SPEED_MARGIN
+#define GUIDANCE_INDI_NAV_SPEED_MARGIN 10.0
+#endif
+#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
 float nav_max_speed = NAV_MAX_SPEED;
 
 #ifndef MAX_DECELERATION
@@ -264,8 +272,13 @@ void guidance_indi_run(float *heading_sp) {
   float speed_sp_b_x = cosf(psi) * gi_speed_sp.x + sinf(psi) * gi_speed_sp.y;
   float speed_sp_b_y =-sinf(psi) * gi_speed_sp.x + cosf(psi) * gi_speed_sp.y;
 
-  /*float airspeed = stateGetAirspeed_f();*/
-  float airspeed = 0.0;
+  // Get airspeed or zero it
+  float airspeed;
+  if (!GUIDANCE_INDI_ZERO_AIRSPEED) {
+    airspeed = stateGetAirspeed_f();
+  } else {
+    airspeed = 0.0;
+  }
 
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
   struct FloatVect2 airspeed_v = {cos(psi)*airspeed, sin(psi)*airspeed};

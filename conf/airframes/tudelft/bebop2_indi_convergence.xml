@@ -190,7 +190,9 @@
     <define name="SPEED_GAINZ" value="3.0"/>
     <define name="FILTER_CUTOFF" value="1.0"/>
     <define name="HEADING_BANK_GAIN" value="1."/>
-    <define name="MAX_AIRSPEED" value="10."/>
+    <define name="NAV_SPEED_MARGIN" value="0."/>
+    <define name="MAX_AIRSPEED" value="4."/>
+    <define name="ZERO_AIRSPEED" value="TRUE"/>
     <define name="PITCH_LIFT_EFF" value="0.0"/>
     <define name="SPECIFIC_FORCE_GAIN" value="-400."/>
     <define name="THRUST_DYNAMICS" value="0.06"/>
