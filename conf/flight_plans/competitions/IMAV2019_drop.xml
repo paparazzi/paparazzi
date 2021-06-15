@@ -84,17 +84,17 @@ static inline bool delay_test_gf(bool test, int delay) {
     <module name="nav" type="survey_rectangle_rotorcraft"/>
   </modules>
   <!--exceptions>
-    <exception cond="(delay_test_rc(RCLost(),20) &&
-      !(IndexOfBlock('Takeoff') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_rc(RCLost(),20) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
-    <exception cond="(datalink_time @GT 10 &&
-      !(IndexOfBlock('Takeoff') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
-    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) &&
-      !(IndexOfBlock('Takeoff') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
   </exceptions-->
   <blocks>

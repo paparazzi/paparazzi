@@ -121,7 +121,7 @@ Should be unified for Hybrid, FW and rotorcraft
   <exceptions>
     <exception cond="And((datalink_time) @GT 300, autopilot.launch @GT 0) " deroute="Standby"/>
     <exception cond="LOW_BAT_LEVEL @GT PowerVoltage()" deroute="Standby"/>
-    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 600) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) && !(nav_block == IndexOfBlock('Takeoff')) && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('Final')) && !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
+    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 600) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) @AND !(nav_block == IndexOfBlock('Takeoff')) @AND !(nav_block == IndexOfBlock('land')) @AND !(nav_block == IndexOfBlock('Final')) @AND !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS" pre_call="NavKillThrottle()">
@@ -297,7 +297,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="BASELEG"/>
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" />
       <set var="v_ctl_auto_airspeed_setpoint" value="MINIMUM_AIRSPEED"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 @GT fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) @AND 10 @GT fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
     </block>-->
 
  <!-- *********** Land *********** -->
@@ -324,7 +324,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
       <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) @AND 15 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
     </block>
 
     <block name="Final">

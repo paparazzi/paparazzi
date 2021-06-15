@@ -20,9 +20,9 @@
   </waypoints>
   <exceptions>
     <!-- RC-Loss -->
-    <exception cond="((radio_control.status == RC_REALLY_LOST) &&
-      !(IndexOfBlock('Takeoff') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="((radio_control.status == RC_REALLY_LOST) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
 
     <!-- GPS loss -->
@@ -32,20 +32,20 @@
     <!-- Not done from flight plan -->
 
     <!-- Datalink loss -->
-    <exception cond="(datalink_time @GT 60 &&
-      !(datalink_time @GT 120) &&
-      !(IndexOfBlock('Takeoff') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(datalink_time @GT 60 @AND
+      !(datalink_time @GT 120) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="DatalinkLoss"/>
 
     <!-- Battery loss -->
-    <exception cond="(electrical.bat_low &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_low @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
-    <exception cond="(electrical.bat_critical &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_critical @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
 

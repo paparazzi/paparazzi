@@ -28,7 +28,7 @@
       <set value="compute_baseleg()" var="unit"/>
       <circle radius="BOMB_RADIUS" until="circle_count @GT 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance @GT fabs(GetPosAlt() - baseleg_alt)" wp="BASELEG"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) @AND baseleg_alt_tolerance @GT fabs(GetPosAlt() - baseleg_alt)" wp="BASELEG"/>
     </block>
 
     <block name="final">
@@ -87,7 +87,7 @@
     <block name="roll" strip_button="Roll">
       <set value="TRUE" var="h_ctl_disabled"/>
       <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-      <while cond="3 @GT stage_time && (stateGetNedToBodyEulers_f()->phi @GT 0 ||  -M_PI_2 @GT stateGetNedToBodyEulers_f()->phi)"/>
+      <while cond="3 @GT stage_time @AND (stateGetNedToBodyEulers_f()->phi @GT 0 ||  -M_PI_2 @GT stateGetNedToBodyEulers_f()->phi)"/>
       <set value="FALSE" var="h_ctl_disabled"/>
       <return/>
     </block>-->

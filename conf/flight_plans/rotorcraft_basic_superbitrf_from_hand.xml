@@ -46,12 +46,12 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   </sectors>
   <exceptions>
     <!-- Check inside small flight area, then goto Center(Standby) -->
-    <exception cond="Or(! InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 50) && !(nav_block == IndexOfBlock('Init')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('landed'))" deroute="Standby"/>
+    <exception cond="Or(! InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 50) @AND !(nav_block == IndexOfBlock('Init')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('landed'))" deroute="Standby"/>
     <!-- Check if battery is empty, then Land Here -->
-    <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed'))" deroute="land"/>
-    <exception cond="electrical.bat_critical && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed'))" deroute="land here"/>
+    <exception cond="electrical.bat_low @AND !(nav_block == IndexOfBlock('land')) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed'))" deroute="land"/>
+    <exception cond="electrical.bat_critical @AND !(nav_block == IndexOfBlock('land')) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed'))" deroute="land here"/>
     <!-- Check if time is up(10 seconds range), then Land Here
-    <exception cond="10 @GT time_until_land && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed'))" deroute="land here"/>-->
+    <exception cond="10 @GT time_until_land @AND !(nav_block == IndexOfBlock('land')) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed'))" deroute="land here"/>-->
   </exceptions>
   <blocks>
     <block name="Init">

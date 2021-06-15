@@ -33,16 +33,16 @@ Your safe aircraft operation is *your* responsibility
   <exceptions>
  <!-- Check if battery voltage is low, then try to go to block Land. This is deemed better than to land at that very spot since that can be above something unknown,
   is less safe and has less chance of AC recovery. It states battery LOW, not battery critical -->
- <!--   <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
-    <exception cond="electrical.bat_critical && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
+ <!--   <exception cond="electrical.bat_low @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
+    <exception cond="electrical.bat_critical @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
     <!-- No connection for some time in flight, then try to land -->
-    <exception cond="autopilot_in_flight() && datalink_time @GT 55 && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
+    <exception cond="autopilot_in_flight() @AND datalink_time @GT 55 @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
     <!-- If somehow the AC isVALUEVALUE higher than initial ground position plus 60m, just land -->
  <!--tofix only in flight   <exception cond="GetPosAlt() @GT (GetAltRef() + 60)" deroute="Land"/> -->
     <!-- No link for 20 seconds and no GPS valid position fix, but the AC can still hover...however no option to give commands, emergency landing -->
-  <!--  <exception cond="And(datalink_time @GT 20, !GpsFixValid()) && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>-->
+  <!--  <exception cond="And(datalink_time @GT 20, !GpsFixValid()) @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>-->
     <!-- Check if outside a safety circle from where the drone started the climb, if outside come back to where climb was started, defer from default outside behaviour-->
-  <exception cond="(((((WaypointX(WP__CLIMB)) - GetPosX())*((WaypointX(WP__CLIMB)) - GetPosX()))) + ((((WaypointY(WP__CLIMB)) - GetPosY())*((WaypointY(WP__CLIMB)) - GetPosY())))) @GT (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME) && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
+  <exception cond="(((((WaypointX(WP__CLIMB)) - GetPosX())*((WaypointX(WP__CLIMB)) - GetPosX()))) + ((((WaypointY(WP__CLIMB)) - GetPosY())*((WaypointY(WP__CLIMB)) - GetPosY())))) @GT (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME) @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
   </exceptions>
   <blocks>
     <block name="Setting home location"><!-- TODO: make sure there is an indicator in "ardrone2_simple.xml" GCS layout config screen displaying "Waiting for GPS position..."-->

@@ -25,9 +25,9 @@
   </header>
 
   <exceptions>
-      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
-      <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
-    <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('WaitGPS')) && !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
+      <exception cond="electrical.bat_low @AND (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
+      <exception cond="electrical.bat_critical @AND (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
+    <exception cond="(!InsideRED(GetPosX(), GetPosY()) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed')) @AND !(nav_block == IndexOfBlock('WaitGPS')) @AND !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
   </exceptions>
 
   <blocks>

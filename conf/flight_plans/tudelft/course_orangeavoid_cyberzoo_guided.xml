@@ -49,38 +49,38 @@ inline void setGuided(void){
   </sectors>
   <exceptions>
     <!-- RC lost -->
-    <!--exception cond="((radio_control.status == RC_REALLY_LOST) &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <!--exception cond="((radio_control.status == RC_REALLY_LOST) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="Standby"/-->
     <!-- Datalink lost (constant RPM descent) -->
-    <exception cond="((datalink_time @GT 5) &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="((datalink_time @GT 5) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing XY -->
-    <exception cond="(!InsideCyberZoo(GetPosX(), GetPosY()) &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(!InsideCyberZoo(GetPosX(), GetPosY()) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing Z 2.5 -->
-    <exception cond="((GetPosAlt() @GT 3.5) &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="((GetPosAlt() @GT 3.5) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing Z 4.5 (constant RPM descent)-->
-    <exception cond="((GetPosAlt() @GT 4.5) &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
+    <exception cond="((GetPosAlt() @GT 4.5) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
       (autopilot_in_flight() == true) )" deroute="Landed"/>
     <!-- Bat low -->
-    <exception cond="(electrical.bat_low &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_low @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Bat critical (constant RPM no stabilization)-->
-    <exception cond="(electrical.bat_critical &&
-      !(IndexOfBlock('Holding point') @GT nav_block) &&
-      !(nav_block >= IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_critical @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
   <blocks>

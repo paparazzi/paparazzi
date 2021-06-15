@@ -25,7 +25,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
     <include name="Data" procedure="IMAV2014_data.xml"/>
   </includes>
   <exceptions>
-    <exception cond="(autopilot_flight_time @GT (60*8)) && (IndexOfBlock('Back Home') >= nav_block) && !(nav_block == IndexOfBlock('Holding point'))" deroute="Back Home"/>
+    <exception cond="(autopilot_flight_time @GT (60*8)) @AND (IndexOfBlock('Back Home') >= nav_block) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Back Home"/>
     <exception cond="Or(InsideRed(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 150)" deroute="Center"/>
   </exceptions>
   <blocks>
@@ -48,7 +48,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
       <exception cond="stateGetPositionEnu_f()->z @GT 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <call fun="NavResurrect()"/>
-      <attitude pitch="0" roll="0" throttle="0" until="stage_time>3 && autopilot_motors_on" vmode="throttle"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time>3 @AND autopilot_motors_on" vmode="throttle"/>
       <stay vmode="climb" climb="0.5" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
