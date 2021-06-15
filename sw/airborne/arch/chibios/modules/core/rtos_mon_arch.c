@@ -33,7 +33,6 @@
 #endif
 
 static uint32_t thread_p_time[RTOS_MON_MAX_THREADS];
-static uint32_t idle_counter, last_idle_counter;
 
 static uint16_t get_stack_free(const thread_t *tp);
 
@@ -54,7 +53,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
 {
   const thread_t *tp =  chRegFirstThread();
   uint32_t idx=0;
-  
+
   ti->totalTicks =0;
   do {
     ti->ticks[idx] = (float) tp->stats.cumulative;
@@ -75,7 +74,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
 
 static float stampThreadGetCpuPercent (const ThreadCpuInfo *ti, const uint32_t idx)
 {
-  if (idx >= RTOS_MON_MAX_THREADS) 
+  if (idx >= RTOS_MON_MAX_THREADS)
     return -1.f;
 
   return ti->cpu[idx];
@@ -95,14 +94,14 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const 
   float idleTicks=0;
 
   static ThreadCpuInfo threadCpuInfo = {
-    .ticks = {[0 ... RTOS_MON_MAX_THREADS-1] = 0.f}, 
-    .cpu =   {[0 ... RTOS_MON_MAX_THREADS-1] =-1.f}, 
+    .ticks = {[0 ... RTOS_MON_MAX_THREADS-1] = 0.f},
+    .cpu =   {[0 ... RTOS_MON_MAX_THREADS-1] =-1.f},
     .totalTicks = 0.f,
     .totalISRTicks = 0.f
   };
-  
+
   stampThreadCpuInfo (&threadCpuInfo);
-  
+
   chprintf (lchp, "    addr    stack  frestk prio refs  state        time \t percent        name\r\n");
   uint32_t idx=0;
   do {
@@ -117,11 +116,12 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const 
 
     totalTicks+= (float)tp->stats.cumulative;
     if (strcmp(chRegGetThreadNameX(tp), "idle") == 0)
-    idleTicks = (float)tp->stats.cumulative;
+      idleTicks = (float)tp->stats.cumulative;
     tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while (tp != NULL);
 
+  totalTicks += ch.kernel_stats.m_crit_isr.cumulative;
   const float idlePercent = (idleTicks*100.f)/totalTicks;
   const float cpuPercent = 100.f - idlePercent;
   chprintf (lchp, "Interrupt Service Routine \t\t     %9lu   %.2f%%    \tISR\r\n",
@@ -156,9 +156,6 @@ static void cmd_rtos_mon(shell_stream_t *sh, int argc, const char * const argv[]
 
 void rtos_mon_init_arch(void)
 {
-  idle_counter = 0;
-  last_idle_counter = 0;
-
 #if USE_SHELL
   shell_add_entry("rtos_mon", cmd_rtos_mon);
   shell_add_entry("threads", cmd_threads);
@@ -181,6 +178,7 @@ void rtos_mon_periodic_arch(void)
   // loop threads to find idle thread
   // store info on other threads
   thread_t *tp;
+  float idle_counter = 0.f;
   float sum = 0.f;
   rtos_mon.thread_name_idx = 0;
   tp = chRegFirstThread();
@@ -200,7 +198,7 @@ void rtos_mon_periodic_arch(void)
 
     // if current thread is 'idle' thread, store its value separately
     if (tp == chSysGetIdleThreadX()) {
-      idle_counter = (uint32_t)tp->stats.cumulative;
+      idle_counter = (float)tp->stats.cumulative;
     }
     // get next thread
     tp = chRegNextThread(tp);
@@ -217,8 +215,7 @@ void rtos_mon_periodic_arch(void)
   // assume we call the counter once a second
   // so the difference in seconds is always one
   // NOTE: not perfectly precise, +-5% on average so take it into consideration
-  rtos_mon.cpu_load = (uint8_t)((1.f - ((float)idle_counter / sum)) * 100.f);
-  last_idle_counter = idle_counter;
+  rtos_mon.cpu_load = (uint8_t)((1.f - (idle_counter / sum)) * 100.f);
 }
 
 static uint16_t get_stack_free(const thread_t *tp)
