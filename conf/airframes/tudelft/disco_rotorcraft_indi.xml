@@ -215,13 +215,17 @@
   </section>
 
   <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
-    <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
-    <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
+    <define name="POS_GAIN" value="0.2"/>
+    <define name="POS_GAINZ" value="0.2"/>
+    <define name="SPEED_GAIN" value="1.0"/>
+    <define name="SPEED_GAINZ" value="1.0"/>
     <define name="MAX_AIRSPEED" value="12."/>
     <define name="PITCH_LIFT_EFF" value="0.12"/>
     <define name="HEADING_BANK_GAIN" value="15."/>
     <define name="SPECIFIC_FORCE_GAIN" value="-1300."/>
     <define name="THRUST_DYNAMICS" value="0.04"/>
+    <define name="MIN_THROTTLE" value="0.0"/>
+    <define name="MIN_THROTTLE_FWD" value="0.0"/>
   </section>
 
   <section name="RADIO" prefix="RADIO_">
