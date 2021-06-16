@@ -30,7 +30,9 @@
     <module name="air_data"/>
     <module name="actuators" type="disco"/>
     <!--<module name="control" type="new"/>-->
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi">
+      <configure name="INDI_NUM_ACT" value="3"/>
+    </module>
     <module name="guidance" type="indi_hybrid"/>
     <!--<module name="sonar_bebop">
       <define name="USE_SONAR"/>
@@ -40,17 +42,6 @@
     <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </module>
-
-    <module name="ctrl_effectiveness_scheduling">
-        <define name="SQUARED_ROLL_EFF" value="0.0"/>
-        <define name="PITCH_EFF_AT_60" value="8.79"/>
-        <define name="YAW_EFF_AT_60" value="11.52"/>
-        <!--function of the form: A + B*airspeed^2-->
-        <define name="CE_PITCH_A" value="8.79"/>
-        <define name="CE_PITCH_B" value="0.0"/>
-        <define name="CE_YAW_A" value="11.52"/>
-        <define name="CE_YAW_B" value="0.0309"/>
     </module>
 
     <!--Switch advanced INDI scheduling functions on or off-->
