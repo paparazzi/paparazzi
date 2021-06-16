@@ -149,7 +149,7 @@
     <define name="G2" value="{0, 0, 0}"/>
 
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="107.0"/>
+    <define name="REF_ERR_P" value="200.0"/>
     <define name="REF_ERR_Q" value="200.0"/>
     <define name="REF_ERR_R" value="200.0"/>
     <define name="REF_RATE_P" value="14.0"/>
@@ -221,8 +221,8 @@
     <define name="THRUST_DYNAMICS" value="0.04"/>
     <define name="MIN_THROTTLE" value="0.0"/>
     <define name="MIN_THROTTLE_FWD" value="0.0"/>
-    <define name="MIN_PITCH" value="-120."/>
-    <define name="MAX_PITCH" value="60."/>
+    <define name="MIN_PITCH" value="-110."/>
+    <define name="MAX_PITCH" value="-70."/>
   </section>
 
   <section name="RADIO" prefix="RADIO_">

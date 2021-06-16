@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="70" ground_alt="0" lat0="52.169348" lon0="4.411563" max_dist_from_home="500" name="Altura fp Valkenburg" security_height="30">
+<flight_plan alt="70" ground_alt="0" lat0="52.1682089" lon0="4.4128499" max_dist_from_home="500" name="Altura fp Valkenburg" security_height="30">
   <header>
     #include "autopilot.h"
     #include "subsystems/datalink/datalink.h"
