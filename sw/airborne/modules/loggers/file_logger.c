@@ -107,7 +107,7 @@ static void file_logger_write_row(FILE *file) {
   fprintf(file, "%d,%d,%d,%d,", actuators[0], actuators[1], actuators[2], actuators[3]);
   fprintf(file, "%d,%d,%d,", guidance_h.ref.pos.x,guidance_h.ref.pos.y,guidance_v_z_ref);
   fprintf(file, "%f,%f,%f,", gi_speed_sp.x,gi_speed_sp.y,gi_speed_sp.z);
-  fprintf(file, "%d,%d,%d\n", navigation_target.x, navigation_target.y, navigation_target.y);
+  fprintf(file, "%d,%d,%d\n", navigation_target.x, navigation_target.y, navigation_target.z);
 }
 
 
