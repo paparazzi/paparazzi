@@ -46,7 +46,7 @@ NM    = $(PREFIX)-nm
 SIZE  = $(PREFIX)-size
 STRIP = $(PREFIX)-strip
 
-GDB = $(shell $(PREFIX)-gdb)
+GDB = $(shell which $(PREFIX)-gdb)
 ifeq ($(GDB),)
 GDB = $(shell which gdb-multiarch)
 endif
