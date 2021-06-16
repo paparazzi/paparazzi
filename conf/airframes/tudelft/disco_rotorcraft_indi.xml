@@ -90,7 +90,9 @@
     <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
 
-    <set servo="MOTOR" value="$th_hold? -9600 : @THRUST"/>
+    <let var="motor_thrust" value="$manual? @THRUST : actuators_pprz[2]"/>
+
+    <set servo="MOTOR" value="$th_hold? -9600 : $motor_thrust"/>
     <set servo="AILEVON_LEFT" value="($elevator - $aileron) * $manual - actuators_pprz[0] * $autopil"/>
     <set servo="AILEVON_RIGHT" value="($elevator + $aileron) * $manual + actuators_pprz[1] * $autopil"/>
   </command_laws>
