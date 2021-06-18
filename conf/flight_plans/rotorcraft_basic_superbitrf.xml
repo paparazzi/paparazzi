@@ -65,7 +65,7 @@
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <exception cond="stateGetPositionEnu_f()->z @GT 5.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 5.0" deroute="Standby"/>
       <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">

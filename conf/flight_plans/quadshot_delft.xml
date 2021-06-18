@@ -35,13 +35,13 @@
       <call_once fun="NavResurrect()"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z @GT 5.0" deroute="Climb"/>
+      <exception cond="GetPosHeight() @GT 5.0" deroute="Climb"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <set value="FALSE" var="force_forward_flight"/>
       <attitude pitch="0" roll="0" throttle="0.5" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <exception cond="stateGetPositionEnu_f()->z @GT 20.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <set value="FALSE" var="force_forward_flight"/>
       <stay climb="2" vmode="climb" wp="STDBY"/>
@@ -90,11 +90,11 @@
       <go wp="STDBY"/>
     </block>
     <block name="descent">
-      <exception cond="8.0 @GT stateGetPositionEnu_f()->z" deroute="descent_slow"/>
+      <exception cond="8.0 @GT GetPosHeight()" deroute="descent_slow"/>
       <stay climb="-1" vmode="climb" wp="STDBY"/>
     </block>
     <block name="descent_slow">
-      <exception cond="2.0 @GT stateGetPositionEnu_f()->z" deroute="flare"/>
+      <exception cond="2.0 @GT GetPosHeight()" deroute="flare"/>
       <stay climb="-1" vmode="climb" wp="STDBY"/>
     </block>
     <block name="flare">

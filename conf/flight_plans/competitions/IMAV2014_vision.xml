@@ -49,7 +49,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
-      <exception cond="stateGetPositionEnu_f()->z @GT 2.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
       <call fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="stage_time>3 @AND autopilot_motors_on" vmode="throttle"/>

@@ -75,14 +75,14 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <exception cond="stateGetPositionEnu_f()->z @GT 5.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 5.0" deroute="Standby"/>
       <set value="0" var="autopilot.flight_time"/>
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
      <exception cond="block_time @GT 30" deroute="land"/>
      <!-- To make sure that takoff is straight up -->
     <attitude pitch="0" roll="0" throttle="0.90" until="stage_time @GT 1" vmode="throttle"/>
-<!--Alternative <exception cond="WaypointAlt(WP_A) @GT stateGetPositionEnu_f()->z" deroute="A_to_B_and_back"/>-->
-     <stay vmode="climb" climb="nav_climb_vspeed" until="WaypointAlt(WP_STDBY) @GT stateGetPositionEnu_f()->z" wp="CLIMB"/>
+<!--Alternative <exception cond="WaypointAlt(WP_A) @GT GetPosHeight()" deroute="A_to_B_and_back"/>-->
+     <stay vmode="climb" climb="nav_climb_vspeed" until="WaypointAlt(WP_STDBY) @GT GetPosHeight()" wp="CLIMB"/>
      </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle()">
       <exception cond="block_time @GT 60" deroute="land"/>

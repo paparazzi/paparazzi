@@ -96,11 +96,11 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
 <!-- In real life aircraft can be blown sideways with strong wind TODO experiment with results of 2 stages 2 -->
 <!-- TODO see if adding this 2nd stage is better -->
    <!--  <attitude pitch="0" roll="0" throttle="0.90" until="stage_time @GT 2" vmode="throttle"/>-->
-<!--Alternative <exception cond="WaypointAlt(WP_A) @GT stateGetPositionEnu_f()->z" deroute="A_to_B_and_back"/>-->
+<!--Alternative <exception cond="WaypointAlt(WP_A) @GT GetPosHeight()" deroute="A_to_B_and_back"/>-->
 <!-- See http://lists.gnu.org/archive/html/paparazzi-devel/2014-06/msg00138.html -->
     <!--<call_once fun="GuidanceVSetRef(0,0,0)"/>-->
      <!--<call_once fun="nav_set_heading_current()"/>-->
-     <stay vmode="climb" climb="0.7" until="WaypointAlt(WP_A) @GT stateGetPositionEnu_f()->z" wp="_CLIMB"/>
+     <stay vmode="climb" climb="0.7" until="WaypointAlt(WP_A) @GT GetPosHeight()" wp="_CLIMB"/>
     </block>
 <!-- The From A to B and back, The only one visible block so no GCS choices to toy around with, a non expert would get confused -->
     <block key="m" name="From A to B and back">

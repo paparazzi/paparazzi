@@ -52,7 +52,7 @@
       !(IndexOfBlock('Takeoff') @GT nav_block) @AND
       !(nav_block >= IndexOfBlock('Landed')) @AND
       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
-    <exception cond="(stateGetPositionEnu_f()->z @GT 50 @AND
+    <exception cond="(GetPosHeight() @GT 50 @AND
       !(IndexOfBlock('Takeoff') @GT nav_block) @AND
       !(nav_block >= IndexOfBlock('Landed')) @AND
       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
@@ -94,7 +94,7 @@
       <go wp="TD"/>
     </block>
     <block name="flare">
-      <exception cond="stateGetPositionEnu_f()->z @LT 0.3" deroute="Ramp down"/>
+      <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
