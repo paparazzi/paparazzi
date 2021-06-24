@@ -200,7 +200,7 @@
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="40." unit="deg"/>
-    <define name="SP_MAX_THETA"   value="30." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="25." unit="deg"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
     <define name="DEADBAND_A"     value="250"/>
@@ -247,8 +247,8 @@
     <define name="THRUST_DYNAMICS" value="0.04"/>
     <define name="MIN_THROTTLE" value="0.0"/>
     <define name="MIN_THROTTLE_FWD" value="0.0"/>
-    <define name="MIN_PITCH" value="-120."/>
-    <define name="MAX_PITCH" value="-60."/>
+    <define name="MIN_PITCH" value="-115."/>
+    <define name="MAX_PITCH" value="-75."/>
   </section>
 
   <section name="AUTOPILOT">

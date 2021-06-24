@@ -14,6 +14,10 @@
     <waypoint name="p2" x="141.1" y="129.5"/>
     <waypoint name="p3" x="237.6" y="-38.1"/>
     <waypoint name="p4" x="135.8" y="-91.8"/>
+    <waypoint name="p5" x="34.3" y="80.7"   alt="80"/>
+    <waypoint name="p6" x="141.1" y="129.5" alt="80"/>
+    <waypoint name="p7" x="237.6" y="-38.1" alt="80"/>
+    <waypoint name="p8" x="135.8" y="-91.8" alt="80"/>
     <waypoint name="TD" x="36.3" y="-4.0"/>
     <waypoint name="GF1" x="-224.1" y="136.6"/>
     <waypoint name="GF2" x="-89.4" y="-289.8"/>
@@ -73,6 +77,20 @@
         <go from="p2" hmode="route" wp="p3"/>
         <go from="p3" hmode="route" wp="p4"/>
         <go from="p4" hmode="route" wp="p1"/>
+      </while>
+    </block>
+    <block name="route_run">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavResurrect()"/>
+      <while cond="true">
+        <go from="p1" hmode="route" wp="p2"/>
+        <go from="p2" hmode="route" wp="p3"/>
+        <go from="p3" hmode="route" wp="p4"/>
+        <go from="p4" hmode="route" wp="p5"/>
+        <go from="p5" hmode="route" wp="p6"/>
+        <go from="p6" hmode="route" wp="p7"/>
+        <go from="p7" hmode="route" wp="p8"/>
+        <go from="p8" hmode="route" wp="p1"/>
       </while>
     </block>
     <block name="ReturnStbyNoThrottle">

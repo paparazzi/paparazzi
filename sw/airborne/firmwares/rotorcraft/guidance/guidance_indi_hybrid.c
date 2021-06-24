@@ -453,6 +453,19 @@ void guidance_indi_run(float *heading_sp) {
   } else {
     *heading_sp += omega / PERIODIC_FREQUENCY;
     FLOAT_ANGLE_NORMALIZE(*heading_sp);
+    #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+      float delta_limit = STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
+      float heading = stabilization_attitude_get_heading_f();
+
+      float delta_psi = *heading_sp - heading;
+      FLOAT_ANGLE_NORMALIZE(delta_psi);
+      if (delta_psi > delta_limit) {
+        *heading_sp = heading + delta_limit;
+      } else if (delta_psi < -delta_limit) {
+        *heading_sp = heading - delta_limit;
+      }
+      FLOAT_ANGLE_NORMALIZE(*heading_sp);
+    #endif
   }
 #endif
 
