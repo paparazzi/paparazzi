@@ -8,17 +8,17 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
-    <waypoint name="CLIMB" x="0.0" y="5.0"/>
-    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
-    <waypoint name="p1" x="-19.9" y="14.3"/>
-    <waypoint name="p2" x="-0.6" y="21.6"/>
-    <waypoint name="p3" x="22.2" y="-26.5"/>
-    <waypoint name="p4" x="4.9" y="-34.4"/>
-    <waypoint name="TD" x="5.6" y="-10.9"/>
-    <waypoint name="GF1" x="-83.6" y="52.0"/>
-    <waypoint name="GF2" x="-23.7" y="-104.1"/>
-    <waypoint name="GF3" x="220.6" y="-37.4"/>
-    <waypoint name="GF4" x="119.1" y="94.7"/>
+    <waypoint name="CLIMB" x="26.6" y="23.2"/>
+    <waypoint name="STDBY" x="49.5" y="15.8"/>
+    <waypoint name="p1" x="34.3" y="80.7"/>
+    <waypoint name="p2" x="141.1" y="129.5"/>
+    <waypoint name="p3" x="237.6" y="-38.1"/>
+    <waypoint name="p4" x="135.8" y="-91.8"/>
+    <waypoint name="TD" x="36.3" y="-4.0"/>
+    <waypoint name="GF1" x="-224.1" y="136.6"/>
+    <waypoint name="GF2" x="-89.4" y="-289.8"/>
+    <waypoint name="GF3" x="442.6" y="-139.6"/>
+    <waypoint name="GF4" x="219.7" y="301.2"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Geofence">
@@ -54,6 +54,12 @@
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
+    <!--<block name="Takeoff1" strip_button="Takeoff" strip_icon="takeoff.png">
+      <set value="true" var="force_forward"/>
+      <exception cond="stateGetPositionEnu_f()->z > 50.0" deroute="route"/>
+      <call_once fun="nav_set_heading_current()"/>
+      <attitude pitch="-10." roll="0" throttle="1.0" vmode="throttle"/>
+    </block>-->
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
@@ -74,7 +80,7 @@
       <set value="1" var="autopilot.kill_throttle"/>
       <set value="true" var="force_forward"/>
       <call_once fun="NavKillThrottle()"/>
-      <circle radius="nav_radius" wp="STDBY" throttle="0.0"/>
+      <circle radius="nav_radius" throttle="0.0" wp="STDBY"/>
     </block>
   </blocks>
 </flight_plan>

@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="Disco Rotorcraft" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Dennis van Wijngaarden</author>
+    <filecreationdate>21-06-2021</filecreationdate>
+    <version>Version 0.9 - beta</version>
+    <description>Disco rotorcraft</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="IN2"> 425 </wingarea>
+    <wingspan unit="IN"> 45 </wingspan>
+    <chord unit="IN"> 9.45 </chord>
+    <htailarea unit="FT2"> 0 </htailarea>
+    <htailarm unit="FT"> 0 </htailarm>
+    <vtailarea unit="FT2"> 0 </vtailarea>
+    <vtailarm unit="FT"> 0 </vtailarm>
+    <wing_incidence unit="DEG"> 90 </wing_incidence>
+    <location name="AERORP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="SLUG*FT2"> 0.01143077 </ixx>
+    <iyy unit="SLUG*FT2"> 0.00088507457028 </iyy>
+    <izz unit="SLUG*FT2"> 0.01143077 </izz>
+    <ixy unit="SLUG*FT2"> 0. </ixy>
+    <ixz unit="SLUG*FT2"> 0. </ixz>
+    <iyz unit="SLUG*FT2"> 0. </iyz>
+        <emptywt unit="LBS"> 1.653 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.15 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.15</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+    <flight_control name="actuator_dynamics">
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="ele_left_lag">
+        <input> fcs/ele_left </input>
+        <c1> 54 </c1>
+        <output> fcs/ele_left_lag</output>
+      </lag_filter>
+      <lag_filter name="ele_right_lag">
+        <input> fcs/ele_right </input>
+        <c1> 54 </c1>
+        <output> fcs/ele_right_lag</output>
+      </lag_filter>
+      <lag_filter name="mot_lag">
+        <input> fcs/mot </input>
+        <c1> 31.7 </c1>
+        <output> fcs/mot_lag</output>
+      </lag_filter>
+    </channel>
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/ele_left</property>
+    <property>fcs/ele_left_lag</property>
+    <property>fcs/ele_right</property>
+    <property>fcs/ele_right_lag</property>
+    <property>fcs/mot</property>
+    <property>fcs/mot_lag</property>
+    <property>fcs/none1</property>
+    <property>fcs/none2</property>
+    <property>fcs/none3</property>
+    <property>fcs/none4</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="mot" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/mot_lag</property>
+          <value> 1.7 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <!--Yaw moments-->
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics file="Systems/aerodynamics_disco.xml"/>
+
+</fdm_config>

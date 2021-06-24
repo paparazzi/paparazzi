@@ -1,0 +1,159 @@
+<aerodynamics>
+
+  <axis name="YAW">
+    <function name="elevon_yaw" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.65 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> -.65 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="PITCH">
+    <function name="elevon_pitch" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.0373430666 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> 0.0373430666 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="LIFT">
+
+    <function name="aero/force/Lift_alpha">
+      <description>Lift due to alpha</description>
+      <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-rad</independentVar>
+            <tableData>
+              <!---1.87 -0.35
+              -1.57  0.0
+              -1.27  0.65
+              -0.80  0.65
+               0.00  0.0
+               0.80  0.2
+               1.27  0.2
+               1.57  0.0
+               1.87 -0.2-->
+              -1.77 -0.750
+              -1.57  0.250
+              -1.34  1.400
+              -0.97  0.710
+               0.00  0.0
+               0.80  0.2
+               1.27  0.2
+               1.57  0.0
+               1.87 -0.2
+            </tableData>
+          </table>
+      </product>
+    </function>
+
+  </axis>
+
+  <axis name="DRAG">
+
+    <function name="aero/force/Drag_basic">
+       <description>Drag at zero lift</description>
+       <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-rad</independentVar>
+            <tableData>
+             -1.57    0.028
+             -1.31    0.036
+              0.00    1.500
+              1.31    0.036
+              1.57    0.028
+              <!---1.57    0.28
+             -1.31    0.36
+              0.00    1.500
+              1.31    0.36
+              1.57    0.28-->
+            </tableData>
+          </table>
+       </product>
+    </function>
+
+    <function name="aero/force/Drag_induced">
+       <description>Induced drag</description>
+         <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>aero/cl-squared</property>
+           <value>0.04</value>
+         </product>
+    </function>
+
+    <!--<function name="aero/force/Drag_beta">-->
+       <!--<description>Drag due to sideslip</description>-->
+       <!--<product>-->
+          <!--<property>aero/qbar-psf</property>-->
+          <!--<property>metrics/Sw-sqft</property>-->
+          <!--<table>-->
+            <!--<independentVar lookup="row">aero/beta-rad</independentVar>-->
+            <!--<tableData>-->
+              <!---1.57       1.230-->
+              <!---0.26    0.050-->
+               <!--0.00       0.000-->
+               <!--0.26    0.050-->
+               <!--1.57       1.230-->
+            <!--</tableData>-->
+          <!--</table>-->
+       <!--</product>-->
+    <!--</function>-->
+
+  </axis>
+
+  <axis name="SIDE">
+
+    <function name="aero/force/Side_beta">
+       <description>Side force due to beta</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>aero/beta-rad</property>
+           <value>-1</value>
+       </product>
+    </function>
+
+  </axis>
+
+  <axis name="ROLL">
+
+    <function name="aero/moment/Roll_beta">
+       <description>Yaw moment due to beta</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>metrics/bw-ft</property>
+           <property>aero/beta-rad</property>
+           <value>
+              0.24
+              <!--ifthen>
+                <gt><p>aero/qbar-psf</p> <v>0</v></gt>
+                <v>0.12</v>
+                <v>0.00</v>
+              </ifthen>-->
+           </value>
+       </product>
+    </function>
+
+  </axis>
+
+ </aerodynamics>
