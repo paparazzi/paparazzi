@@ -32,6 +32,7 @@
     </target>
 
     <target name="nps"          board="pc">
+      <define name="USE_AIRSPEED" value="TRUE"/>
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
       <module name="radio_control" type="datalink"/>
@@ -129,7 +130,6 @@
     <define name="TRANSITION_MAX_OFFSET" value="-90.0" unit="deg"/>
     <!-- For hybrid guidance by default set to 15-->
     <!--<define name="MAX_AIRSPEED" value="20.0"/>-->
-    <define name="USE_AIRSPEED" value="TRUE"/>
   </section>
 
   <!--<section name="AUTO1" prefix="AUTO1_">
@@ -169,7 +169,7 @@
     <define name="G1_ROLL"   value="{   0,    0,       0}"/>
     <define name="G1_PITCH"  value="{-8.79,   8.79,    0}"/>
     <define name="G1_YAW"    value="{-15.97,  -15.97,    0}"/>
-    <define name="G1_THRUST" value="{    0,   0,    -0.7}"/>
+    <define name="G1_THRUST" value="{    0,   0,    -1.8}"/>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{0, 0, 0}"/>
 
@@ -243,8 +243,8 @@
     <define name="PITCH_EFF_SCALING" value="1.0"/>
     <define name="PITCH_LIFT_EFF" value="0.12"/>
     <define name="HEADING_BANK_GAIN" value="15."/>
-    <define name="SPECIFIC_FORCE_GAIN" value="-1300."/>
-    <define name="THRUST_DYNAMICS" value="0.04"/>
+    <!--define name="SPECIFIC_FORCE_GAIN" value="-1300."/-->
+    <!--define name="THRUST_DYNAMICS" value="0.04"/-->
     <define name="MIN_THROTTLE" value="0.0"/>
     <define name="MIN_THROTTLE_FWD" value="0.0"/>
     <define name="MIN_PITCH" value="-115."/>

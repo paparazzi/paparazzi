@@ -34,8 +34,8 @@
   </sectors>
   <exceptions>
     <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 1500) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point'))" deroute="ReturnStbyNoThrottle"/>
-    <exception cond="datalink_time > 25 && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
-    <exception cond="radio_control.status == RC_REALLY_LOST && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="ReturnStbyNoThrottle"/>
+    <exception cond="datalink_time > 25 && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
+    <exception cond="radio_control.status == RC_REALLY_LOST && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
