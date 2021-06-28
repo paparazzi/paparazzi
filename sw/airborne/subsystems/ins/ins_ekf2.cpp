@@ -248,9 +248,9 @@ static void send_opticflow_debug(struct transport_tx *trans, struct link_device 
                       &ekf2.flow_y,
                       &ekf2.flow_stamp,
                       &ekf2.gyro_stamp,
-                      &ekf2.gyro_roll,
-                      &ekf2.gyro_pitch,
-                      &ekf2.gyro_yaw,
+                      &ekf2.offset_x,
+                      &ekf2.offset_y,
+                      &ekf2.offset_z,
                       &ekf2.flow_compensation1,
                       &ekf2.flow_compensation2,
                       &ekf2.delay_flow_x,
@@ -389,10 +389,10 @@ void ins_ekf2_init(void)
   ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
 
   /* Set flow sensor offset from IMU position in xyz (m) */
-  ekf.offset_x = FLOW_OFFSET_X;
-  ekf.offset_y = FLOW_OFFSET_Y;
-  ekf.offset_z = FLOW_OFFSET_Z;
-  ekf_params->flow_pos_body = {ekf.offset_x, ekf.offset_y, ekf.offset_z};
+  ekf2.offset_x = FLOW_OFFSET_X;
+  ekf2.offset_y = FLOW_OFFSET_Y;
+  ekf2.offset_z = FLOW_OFFSET_Z;
+  ekf_params->flow_pos_body = {0.001*ekf2.offset_x, 0.001*ekf2.offset_y, 0.001*ekf2.offset_z};
 
   /* Set range as default AGL measurement if possible */
   ekf_params->range_aid = USE_RANGE_AID;
@@ -519,6 +519,11 @@ void ins_ekf2_update(void)
 void ins_ekf2_change_param(int32_t unk)
 {
   ekf_params->mag_fusion_type = ekf2_params.mag_fusion_type = unk;
+  ekf_params->flow_qual_min = ekf2_params.flow_qual_min = unk;
+  ekf_params->range_aid = ekf2_params.range_aid = unk;
+  ekf2.offset_x = ekf2_params.offset_x = unk;
+  ekf2.offset_y = ekf2_params.offset_y = unk;
+  ekf2.offset_z = ekf2_params.offset_z = unk;
 }
 
 /** Publish the attitude and get the new state

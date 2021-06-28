@@ -21,7 +21,7 @@
 
     <module name="telemetry" type="transparent">
       <!--<configure name="MODEM_PORT" value="UART2"/>  Telem2 on pixhawk4 -->
-      <configure name="MODEM_PORT" value="UART2"/> <!--  DebugUart on pixhawk4 -->
+      <configure name="MODEM_PORT" value="UART3"/> <!--  DebugUart on pixhawk4 -->
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
@@ -37,7 +37,7 @@
         <!-- Block for ekf2 debugging on optical flow -->
 
     <module name="optical_flow_mateksys_3901_l0x.xml">
-    <configure name="MATEKSYS_3901_L0X_PORT" value="UART3"/>
+    <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
     </module>  
 
     <module name="baro_ms5611_spi" >

@@ -37,7 +37,6 @@ https://github.com/iNavFlight/inav/wiki/MSP-V2
 
 #include "std.h"
 #include "stdbool.h"
-//#include "filters/median_filter.h" //Who knows we need it ;)
 
 #define MSP2_IS_SENSOR_MESSAGE(x)   ((x) >= 0x1F00 && (x) <= 0x1FFF)
 
