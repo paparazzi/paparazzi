@@ -10,7 +10,7 @@
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <!--exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(1.)" deroute="Standby"/-->
+      <!--exception cond="booz_ins_enu_pos.z @GT POS_BFP_OF_REAL(1.)" deroute="Standby"/-->
       <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>

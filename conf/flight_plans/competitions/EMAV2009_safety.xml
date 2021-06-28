@@ -2,7 +2,7 @@
 
 <procedure>
   <exceptions>
-    <exception cond="Or(! InsideGreen(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 150)" deroute="Center"/>
+    <exception cond="Or(! InsideGreen(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 150)" deroute="Center"/>
   </exceptions>
 
   <blocks>

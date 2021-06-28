@@ -19,7 +19,7 @@
     <waypoint name="CLIMB" x="-114.5" y="162.3"/>
   </waypoints>
   <exceptions>
-    <!--exception cond="datalink_time > 22" deroute="Standby"/-->
+    <!--exception cond="datalink_time @GT 22" deroute="Standby"/-->
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -33,10 +33,10 @@
     <block name="Holding point">
       <set value="1" var="autopilot.kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
-      <exception cond="NavBlockTime() > 10" deroute="Takeoff"/>
+      <exception cond="NavBlockTime() @GT 10" deroute="Takeoff"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
-      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() @GT GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="autopilot.kill_throttle"/>
       <set value="0" var="autopilot.flight_time"/>
       <set value="1" var="launch"/>
@@ -46,19 +46,19 @@
     </block>
     <block key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <circle radius="nav_radius" wp="STDBY"/>
-      <exception cond="NavBlockTime() > 30" deroute="Figure 8 around wp 1"/>
+      <exception cond="NavBlockTime() @GT 30" deroute="Figure 8 around wp 1"/>
     </block>
     <block key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="base_pattern">
       <eight center="1" radius="nav_radius" turn_around="2"/>
-      <exception cond="NavBlockTime() > 120" deroute="Oval 1-2"/>
+      <exception cond="NavBlockTime() @GT 120" deroute="Oval 1-2"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="base_pattern">
       <oval p1="1" p2="2" radius="nav_radius"/>
-      <exception cond="NavBlockTime() > 90" deroute="Survey S1-S2"/>
+      <exception cond="NavBlockTime() @GT 90" deroute="Survey S1-S2"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" group="extra_pattern">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
-      <exception cond="NavBlockTime() > 180" deroute="Path 1,2,S1,S2,STDBY"/>
+      <exception cond="NavBlockTime() @GT 180" deroute="Path 1,2,S1,S2,STDBY"/>
     </block>
     <block name="Path 1,2,S1,S2,STDBY" strip_button="Path (1,2,S1,S2,STDBY)" strip_icon="path.png" group="extra_pattern">
       <path wpts="1,2 S1"/>
@@ -69,7 +69,7 @@
       <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
-      <exception cond="NavBlockTime() > 90" deroute="Land Right AF-TD"/>
+      <exception cond="NavBlockTime() @GT 90" deroute="Land Right AF-TD"/>
     </block>
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="land">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
@@ -77,11 +77,11 @@
     </block>
     <block name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 10 @GT GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">

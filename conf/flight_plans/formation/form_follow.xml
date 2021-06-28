@@ -40,7 +40,7 @@
     <block name="land"> <!-- basic landing function out of formation -->
       <call_once fun="stop_formation()"/>
       <exception cond="(GROUND_ALT+10> GetPosAlt())" deroute="stop"/>
-      <circle radius="50" until="225 > GetPosAlt()" wp="IAF"/>
+      <circle radius="50" until="225 @GT GetPosAlt()" wp="IAF"/>
       <go alt="215" wp="AF"/>
       <go from="AF" hmode="route" vmode="glide" wp="RWAY"/>
     </block>

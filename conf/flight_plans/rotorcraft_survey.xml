@@ -40,7 +40,7 @@
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
@@ -80,7 +80,7 @@
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
-      <exception cond="rectangle_survey_sweep_num > 1" deroute="Standby"/>
+      <exception cond="rectangle_survey_sweep_num @GT 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
 

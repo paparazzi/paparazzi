@@ -25,9 +25,9 @@
   </header>
 
   <exceptions>
-      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
-      <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
-    <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('WaitGPS')) && !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
+      <exception cond="electrical.bat_low @AND (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
+      <exception cond="electrical.bat_critical @AND (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
+    <exception cond="(!InsideRED(GetPosX(), GetPosY()) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed')) @AND !(nav_block == IndexOfBlock('WaitGPS')) @AND !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
   </exceptions>
 
   <blocks>
@@ -52,22 +52,22 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff-Standby" strip_button="Takeoff-Standby" strip_icon="takeoff.png" group="takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 10.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Takeoff-Map" strip_button="Takeoff-Map" strip_icon="survey.png" group="takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="SurveyPoly"/>
+      <exception cond="GetPosHeight() @GT 10.0" deroute="SurveyPoly"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Takeoff-Drop" strip_button="Takeoff-Drop" strip_icon="parachute.png" group="takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="drop"/>
+      <exception cond="GetPosHeight() @GT 10.0" deroute="drop"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Takeoff-Water" strip_button="Takeoff-Water" group="takeoff">
-      <exception cond="stateGetPositionEnu_f()->z > 27.0" deroute="drop_water"/>
+      <exception cond="GetPosHeight() @GT 27.0" deroute="drop_water"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
@@ -82,24 +82,24 @@
       <go wp="CRUISE"/>
     </block>
     <block name="LookRobot" >
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="FC" until="LessThan(stateGetPositionEnu_f()->z, 20)"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="FC" until="LessThan(GetPosHeight(), 20)"/>
       <call_once fun="NavCopyWaypointPositionOnly(WP_CAM,WP_FC)"/>
     </block>
     <block name="Vision" >
       <exception cond="! InsideTENNIS(GetPosX(), GetPosY())" deroute="NoVision"/>
-      <exception cond="block_time > 60" deroute="ComeBackAndVisualLand"/>
+      <exception cond="block_time @GT 60" deroute="ComeBackAndVisualLand"/>
       <call_once fun="StartVision()"/>
       <stay wp="CAM"/>
     </block>
     <block name="NoVision" >
-      <exception cond="block_time > 60" deroute="ComeBackAndLand"/>
+      <exception cond="block_time @GT 60" deroute="ComeBackAndLand"/>
       <call_once fun="StartVision()"/>
       <stay wp="FC"/>
     </block>
     <block name="ComeBackAndLand" strip_button="ComeBackAndLand" strip_icon="land-right.png" group="hover">
       <call_once fun="StopVision()"/>
       <call_once fun="NavSetWaypointHere(WP_CRUISE)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="GetPosHeight() @GT 30"/>
       <call_once fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
       <go wp="CRUISE"/>
       <deroute block="land"/>
@@ -107,7 +107,7 @@
     <block name="ComeBackAndVisualLand">
       <call_once fun="StopVision()"/>
       <call_once fun="NavSetWaypointHere(WP_CRUISE)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="GetPosHeight() @GT 30"/>
       <call_once fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
       <call_once fun="NavCopyWaypointPositionOnly(WP_CAM,WP_TD)"/>
       <go wp="CRUISE"/>
@@ -138,37 +138,37 @@
 <!-- DROPPINGS -->
     <block name="drop" group="drop">
        <go wp="DROP"/>
-       <stay climb="nav_descend_vspeed" vmode="climb" wp="DROP" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="DROP" until="LessThan(GetPosHeight(), 6)"/>
        <call_once fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="stateGetPositionEnu_f()->z > 13"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="GetPosHeight() @GT 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone1" group="drop">
        <go wp="RZ1"/>
-       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ1" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ1" until="LessThan(GetPosHeight(), 6)"/>
        <call_once fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="stateGetPositionEnu_f()->z > 13"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="GetPosHeight() @GT 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone2" group="drop">
        <go wp="RZ2"/>
-       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ2" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ2" until="LessThan(GetPosHeight(), 6)"/>
        <call_once fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="stateGetPositionEnu_f()->z > 13"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="GetPosHeight() @GT 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_zone3" group="drop">
        <go wp="RZ3"/>
-       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(GetPosHeight(), 6)"/>
        <call_once fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 13"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="GetPosHeight() @GT 13"/>
        <deroute block="land"/>
     </block>
     <block name="drop_water" group="drop">
        <go wp="WD"/>
-       <stay climb="nav_descend_vspeed" vmode="climb" wp="WD" until="LessThan(stateGetPositionEnu_f()->z, 8)"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="WD" until="LessThan(GetPosHeight(), 8)"/>
        <call_once fun="DropOpen()"/>
-       <stay climb="nav_climb_vspeed" vmode="climb" wp="WD" until="stateGetPositionEnu_f()->z > 12"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="WD" until="GetPosHeight() @GT 12"/>
        <deroute block="land"/>
     </block>
 

@@ -47,8 +47,8 @@
     </module>
   </modules>
   <exceptions>
-    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 1500) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
-    <exception cond="datalink_time > 25 && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
+    <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -70,12 +70,12 @@
       <attitude pitch="-65" roll="0" throttle="0" until="stage_time>1" vmode="throttle"/>
     </block>
     <block name="TakeoffLow" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 18.0" deroute="Takeoff"/>
+      <exception cond="GetPosHeight() @GT 18.0" deroute="Takeoff"/>
       <call_once fun="nav_set_heading_current()"/>
       <attitude pitch="-45." roll="0" throttle="0.8" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 40.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 40.0" deroute="Standby"/>
       <call_once fun="nav_set_heading_current()"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
@@ -142,7 +142,7 @@
     </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
       <set value="TRUE" var="force_forward"/>
-      <exception cond="rectangle_survey_sweep_num > 1" deroute="Standby"/>
+      <exception cond="rectangle_survey_sweep_num @GT 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
 
@@ -160,7 +160,7 @@
     </block>
     <block name="descend">
       <set value="FALSE" var="force_forward"/>
-      <exception cond="LessThan(stateGetPositionEnu_f()->z, 15.0)" deroute="flare"/>
+      <exception cond="LessThan(GetPosHeight(), 15.0)" deroute="flare"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">

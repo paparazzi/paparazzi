@@ -36,7 +36,7 @@
     </sector>
   </sectors>
   <exceptions>
-    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() > 2.2) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT 2.2) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -57,7 +57,7 @@
       <call_once fun="NavResurrect()"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > 0.8" deroute="Standby"/>
+      <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
@@ -83,13 +83,13 @@
     <block name="Flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
-      <exception cond="0.10 > GetPosAlt()" deroute="Landed"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
       <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Safe landing">
       <exception cond="!nav_is_in_flight()" deroute="Manual"/>
-      <exception cond="0.10 > GetPosAlt()" deroute="Manual"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Manual"/>
       <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>

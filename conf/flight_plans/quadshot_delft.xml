@@ -35,35 +35,35 @@
       <call_once fun="NavResurrect()"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Climb"/>
+      <exception cond="GetPosHeight() @GT 5.0" deroute="Climb"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <set value="FALSE" var="force_forward_flight"/>
       <attitude pitch="0" roll="0" throttle="0.5" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <exception cond="stateGetPositionEnu_f()->z > 20.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <set value="FALSE" var="force_forward_flight"/>
       <stay climb="2" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
+      <exception cond="radio_control.status @GT RC_OK" deroute="land"/>
       <set value="FALSE" var="force_forward_flight"/>
       <stay wp="STDBY"/>
     </block>
     <block name="stay_p1">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
+      <exception cond="radio_control.status @GT RC_OK" deroute="land"/>
       <set value="FALSE" var="force_forward_flight"/>
       <stay wp="p1"/>
     </block>
     <block name="go_p2_p1">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
+      <exception cond="radio_control.status @GT RC_OK" deroute="land"/>
       <set value="FALSE" var="force_forward_flight"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
     <block name="pylon_racing">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
+      <exception cond="radio_control.status @GT RC_OK" deroute="land"/>
       <set value="FALSE" var="force_forward_flight"/>
       <go wp="p2"/>
       <go wp="p3"/>
@@ -72,7 +72,7 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="pylon_racing_forward">
-      <exception cond="radio_control.status > RC_OK" deroute="land"/>
+      <exception cond="radio_control.status @GT RC_OK" deroute="land"/>
       <set value="TRUE" var="force_forward_flight"/>
       <go wp="p2"/>
       <go wp="p3"/>
@@ -90,15 +90,15 @@
       <go wp="STDBY"/>
     </block>
     <block name="descent">
-      <exception cond="8.0 > stateGetPositionEnu_f()->z" deroute="descent_slow"/>
+      <exception cond="8.0 @GT GetPosHeight()" deroute="descent_slow"/>
       <stay climb="-1" vmode="climb" wp="STDBY"/>
     </block>
     <block name="descent_slow">
-      <exception cond="2.0 > stateGetPositionEnu_f()->z" deroute="flare"/>
+      <exception cond="2.0 @GT GetPosHeight()" deroute="flare"/>
       <stay climb="-1" vmode="climb" wp="STDBY"/>
     </block>
     <block name="flare">
-      <exception cond="0.3 > sonar_adc.distance" deroute="landed"/>
+      <exception cond="0.3 @GT sonar_adc.distance" deroute="landed"/>
       <attitude pitch="0" roll="0" throttle="0.13" vmode="throttle"/>
     </block>
     <block name="landed">

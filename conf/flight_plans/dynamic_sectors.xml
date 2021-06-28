@@ -41,7 +41,7 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_icon="takeoff.png" strip_button="Takeoff (wp CLIMB)">
-      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() @GT GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="autopilot.kill_throttle"/>
       <go wp="CLIMB"/>
     </block>
@@ -67,12 +67,12 @@
     </block>
     <block name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) @AND 10 @GT fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 10 @GT GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">

@@ -17,7 +17,7 @@
       <while COND="!GPS_FIX_VALID(gps_mode)"/>
     </block>
     <block NAME="init">
-      <while COND="10 > block_time"/>
+      <while COND="10 @GT block_time"/>
       <set VALUE="reset_nav_reference()" VAR="unit"/>
       <set VALUE="reset_waypoints()" VAR="unit"/>
       <deroute BLOCK="circlehome"/>

@@ -76,7 +76,7 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Take off" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
-      <exception cond="stateGetPositionEnu_f()->z @GT 0.6" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 0.6" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>
@@ -101,7 +101,7 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
       <go wp="TD"/>
     </block>
     <block name="Land Target" strip_button="Land Target" group="target">
-      <exception cond="stateGetPositionEnu_f()->z @LT 0.3" deroute="Ramp down"/>
+      <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Kill Engine"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
