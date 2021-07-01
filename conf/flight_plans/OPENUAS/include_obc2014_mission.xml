@@ -555,7 +555,7 @@ mode must be activated. A controlled flight termination mode may be
 termination mode (Section 5.6).
 -->
 
-    <block name="CommsHoldLoiter" strip_button="CommsHold" strip_icon="recenter.png" group="Link" @GT  <!-- TODO other ICON -->
+    <block name="CommsHoldLoiter" strip_button="CommsHold" strip_icon="recenter.png" group="Link">  <!-- TODO other ICON -->
       <!-- stop streaming thumbnails -->
       <!-- CDW set value="0" var="ticket_thumbnails"/ -->
       <!-- TODO: maybe set a little lower speed ? max endurence speed? -->
