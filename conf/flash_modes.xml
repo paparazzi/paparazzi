@@ -36,6 +36,7 @@
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
+      <board name="holybro_.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -53,6 +54,7 @@
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
+      <board name="holybro_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -74,6 +76,7 @@
       <board name="crazyflie_.*"/>
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
+      <board name="holybro_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
