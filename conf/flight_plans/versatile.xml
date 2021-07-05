@@ -32,6 +32,9 @@
   <variables>
     <variable var="roll_step" init="15." min="0." max="50." step="1.0"/>
   </variables>
+  <modules>
+  	<module name="nav_line"/>
+  </modules>
   <exceptions/>
   <blocks>
     <block name="Wait GPS">

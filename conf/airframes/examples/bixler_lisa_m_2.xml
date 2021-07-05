@@ -35,7 +35,6 @@
     <module name="gps" type="ublox"/>
     <module name="navigation"/>
     <module name="ins" type="alt_float"/>
-    <module name="nav" type="line"/>
   </firmware>
 
   <!-- commands section -->
