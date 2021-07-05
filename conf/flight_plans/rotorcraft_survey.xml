@@ -21,6 +21,9 @@
     <waypoint name="S1" x="32.6" y="-35.2" height="25"/>
     <waypoint name="S2" x="-88.6" y="48.9"/>
   </waypoints>
+  <modules>
+  	<module name="nav_survey" type="rectangle_rotorcraft"/>
+  </modules>
   <blocks>
     <block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
