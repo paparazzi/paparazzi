@@ -218,6 +218,7 @@
       <message name="AHRS_BIAS"                period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.01"/>
       <message name="GUIDANCE_H_REF_INT"       period="0.02"/>
+      <message name="GUIDANCE_INDI_HYBRID"     period="0.02"/>
       <message name="ESC"                      period="0.02"/>
       <message name="STAB_ATTITUDE_INDI"       period="0.002"/>
       <message name="PPM"                      period="0.05"/>
