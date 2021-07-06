@@ -200,8 +200,18 @@ void guidance_indi_init(void)
  * Call upon entering indi guidance
  */
 void guidance_indi_enter(void) {
-  thrust_in = 0.0;
-  thrust_act = 0;
+  thrust_in = stabilization_cmd[COMMAND_THRUST];
+  thrust_act = thrust_in;
+
+  float tau = 1.0 / (2.0 * M_PI * filter_cutoff);
+  float sample_time = 1.0 / PERIODIC_FREQUENCY;
+  for (int8_t i = 0; i < 3; i++) {
+    init_butterworth_2_low_pass(&filt_accel_ned[i], tau, sample_time, 0.0);
+  }
+  init_butterworth_2_low_pass(&roll_filt, tau, sample_time, stateGetNedToBodyEulers_f()->phi);
+  init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, stateGetNedToBodyEulers_f()->theta);
+  init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
+  init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 }
 
 #include "firmwares/rotorcraft/navigation.h"
