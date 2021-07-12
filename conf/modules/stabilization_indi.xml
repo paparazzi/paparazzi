@@ -28,7 +28,10 @@
       <define name="REF_RATE_Q" value="28.0" description="INDI gains linear controller"/>
       <define name="REF_RATE_R" value="28.0" description="INDI gains linear controller"/>
       <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
-      <define name="FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
+      <define name="FILT_CUTOFF" value="8.0" description="second order cutoff frequency for angular accelerations in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_Q" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_R" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
       <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}" description="actuator dynamics"/>
       <define name="ACT_IS_SERVO" value="{0,0,0,0}" description="1 for every actuator that is a servo"/>
