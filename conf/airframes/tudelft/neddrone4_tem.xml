@@ -71,8 +71,9 @@
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>
     <module name="imu"           type="mpu6000"/>
-    <module name="gps"           type="ublox"/>
-    <module name="gps"           type="ubx_ucenter"/>
+    <module name="gps"           type="datalink"/>
+    <!--module name="gps"           type="ublox"/>
+    <module name="gps"           type="ubx_ucenter"/-->
     <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ins"           type="ekf2" />
@@ -214,6 +215,11 @@
     <!-- Avoid GPS loss behavior when having RC or datalink -->
     <define name="NO_GPS_LOST_WITH_DATALINK_TIME" value="20"/>
     <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>
+
+    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_GPSYAW"/>
+    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_GPS"/>
+    <define name="INS_EKF2_GPS_CHECK_MASK" value="0"/>
+    <define name="INS_EKF2_GPS_COURSE_YAW" value="TRUE"/>
   </section>
 
   <section name="FORWARD">

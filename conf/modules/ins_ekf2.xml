@@ -5,6 +5,17 @@
     <description>
       simple INS and AHRS using EKF2 from PX4
     </description>
+    <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
+    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
+    <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
+    <define name="INS_SONAR_MIN_RANGE" value="0.001" description="Minimum range in meters for the AGL sensor"/>
+    <define name="INS_SONAR_MAX_RANGE" value="4.0" description="Maximum range in meters for the AGL sensor"/>
+    <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
+    <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
+    <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
+    <define name="INS_EKF2_ACCEL_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for acceleration measurements"/>
+    <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
+    <define name="INS_EKF2_GPS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for GPS measurements"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
