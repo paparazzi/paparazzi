@@ -26,7 +26,7 @@ class Message(PprzMessage):
         super(Message, self).__init__(class_name, name)
         self.field_controls = []
         self.index = None
-        self.last_seen = time.clock()
+        self.last_seen = time.time()
 
 
 class Aircraft(object):
@@ -111,8 +111,7 @@ class MessagesFrame(wx.Frame):
         messages_book = aircraft.messages_book
         aircraft.messages[name] = Message(msg_class, name)
         field_panel = wx.Panel(messages_book)
-        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].fieldnames), 2)
-
+        grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].fieldnames), 2, 5, 0)
         index = self.find_page(messages_book, name)
         messages_book.InsertPage(index, field_panel, name, imageId=1)
         aircraft.messages[name].index = index
