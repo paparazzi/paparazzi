@@ -1,0 +1,75 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Nederdrone Cyberzoo" security_height="0.4">
+  <header>
+    #include "subsystems/datalink/datalink.h"
+    #include "subsystems/electrical.h"
+    #include "subsystems/radio_control.h"
+    #include "subsystems/ahrs.h"
+    #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+    #include "firmwares/rotorcraft/navigation.h"
+</header>
+  <waypoints>
+    <waypoint lat="51.990631" lon="4.376808" name="HOME"/>
+    <waypoint name="CLIMB" x="-0.7" y="-0.6"/>
+    <waypoint name="STDBY" x="0.5" y="0.3"/>
+    <waypoint name="ROPE" x="-2.4" y="1.3"/>
+    <waypoint name="TD" x="0.6" y="-1.3"/>
+    <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
+    <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
+    <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
+    <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
+  </waypoints>
+  <sectors>
+    <sector color="blue" name="CyberZoo">
+      <corner name="_CZ1"/>
+      <corner name="_CZ2"/>
+      <corner name="_CZ3"/>
+      <corner name="_CZ4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <!-- <variable var="rope_heading" init="0.0f" type="float" min="-180.0" max="180.0" step="0.1"/> -->
+    <variable var="rope_heading" init="0.0f" type="float" min="0." max="10." step="0.1"/>
+  </variables>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 2)"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="NavSetWaypointHere(WP_ROPE)"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block key="r" name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+      <call_once fun="NavResurrect()"/>
+    </block>
+    <block name="TakeoffLow" strip_button="Takeoff" strip_icon="takeoff.png">
+      <call_once fun="nav_set_heading_current()"/>
+      <!-- <set value="DegOfRad(stateGetNedToBodyEulers_f()->psi)" var="rope_heading"/> -->
+      <set var="rope_heading" value="stateGetNedToBodyEulers_f()->psi"/>
+      <attitude pitch="-20." roll="0" throttle="0.85" until="stage_time>1" vmode="throttle"/>
+    </block>
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Approach Rope">
+      <!--set value="1" var="approaching_rope"/-->
+      <set value="1" var="take_heading_control"/>
+      <call_once fun="nav_set_heading_rad(rope_heading)"/>
+      <stay alt="0.15+WaypointAlt(WP_ROPE)" wp="ROPE"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

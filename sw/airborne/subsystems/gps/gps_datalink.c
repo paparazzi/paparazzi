@@ -41,10 +41,10 @@ struct GpsState gps_datalink;
 void gps_datalink_init(void)
 {
   gps_datalink.fix = GPS_FIX_NONE;
-  gps_datalink.pdop = 0;
-  gps_datalink.sacc = 0;
-  gps_datalink.pacc = 0;
-  gps_datalink.cacc = 0;
+  gps_datalink.pdop = 10;
+  gps_datalink.sacc = 5;
+  gps_datalink.pacc = 1;
+  gps_datalink.cacc = 1;
 
   gps_datalink.comp_id = GPS_DATALINK_ID;
 
@@ -108,7 +108,7 @@ static void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t
   gps_datalink.course = ((int32_t)heading) * 1e3;
   SetBit(gps_datalink.valid_fields, GPS_VALID_COURSE_BIT);
 
-  gps_datalink.num_sv = 7;
+  gps_datalink.num_sv = 30;
   gps_datalink.tow = tow;
   gps_datalink.fix = GPS_FIX_3D; // set 3D fix to true
 
