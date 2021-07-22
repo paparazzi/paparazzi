@@ -49,10 +49,6 @@ let store_conf = fun conf acs ->
 	  let ac_dir = replay_dir // "var" // "aircrafts" // ac_name in
 
 	  let w = fun s ->
-	    (* Histotical: still useful ? *)
-	    let f = replay_dir // "conf" // ExtXml.attrib x s in
-	    write_xml f (ExtXml.child x s);
-	    (* Write in the conf/ directory of the A/C *)
 	    let f = ac_dir // "conf" // ExtXml.attrib x s in
 	    write_xml f (ExtXml.child x s);
 	    f in
