@@ -54,6 +54,8 @@ let store_conf = fun conf acs ->
 	    f in
 	  ignore (w "airframe");
 	  ignore (w "radio");
+          let f_settings = ac_dir // "settings.xml" in
+          write_xml f_settings (ExtXml.child x "generated_settings");
           (* test if flight plan is an original one or the dumped version *)
           let orig_fp = List.exists (fun e -> compare (Xml.tag e) "flight_plan" = 0) (Xml.children x) in
           if orig_fp then begin
