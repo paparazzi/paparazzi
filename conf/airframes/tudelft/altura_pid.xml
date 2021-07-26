@@ -75,7 +75,7 @@
 
     <module name="radio_control" type="sbus">
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
-      <configure name="SBUS_PORT" value="UART7"/>
+      <configure name="SBUS_PORT" value="UART4"/>
     </module>
 
     <module name="geo_mag"/>

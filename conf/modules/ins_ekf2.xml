@@ -20,11 +20,11 @@
       <!-- EKF2 Configuration parameters -->
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <dl_setting var="ekf2_params.flow_qual_min" min="0" step="1" max="255" shortname="flow_quality" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <dl_setting var="ekf2_params.range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <dl_setting var="ekf2_params.offset_x" min="-1000" step="1" max="1000" shortname="x_offset (mm)" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <dl_setting var="ekf2_params.offset_y" min="-1000" step="1" max="1000" shortname="y_offset (mm)" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <dl_setting var="ekf2_params.offset_z" min="-1000" step="1" max="1000" shortname="z_offset (mm)" module="subsystems/ins/ins_ekf2" handler="change_param"/>
+        <!-- <dl_setting var="ekf2_params.flow_qual_min" min="0" step="1" max="255" shortname="flow_quality" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf2_params.range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf2_params.offset_x" min="-1000" step="1" max="1000" shortname="x_offset (mm)" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf2_params.offset_y" min="-1000" step="1" max="1000" shortname="y_offset (mm)" module="subsystems/ins/ins_ekf2"/>
+        <dl_setting var="ekf2_params.offset_z" min="-1000" step="1" max="1000" shortname="z_offset (mm)" module="subsystems/ins/ins_ekf2"/> -->
       </dl_settings>
     </dl_settings>
   </settings>
