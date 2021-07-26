@@ -296,14 +296,14 @@ static void mateksys3901l0x_parse(uint8_t byte)
         if (MATEKSYS_3901_L0X_COMPENSATE_ROTATION) {
           float phi = stateGetNedToBodyEulers_f()->phi;
           float theta = stateGetNedToBodyEulers_f()->theta;
-          float gain = (float)fabs((double)(cosf(phi) * cosf(theta)));
-          mateksys3901l0x.distancemm = mateksys3901l0x.distancemm * gain;
+          float angle_tot = atan(sqrt(pow(tan(phi),2)+pow(tan(theta),2)));
+          mateksys3901l0x.distancemm = mateksys3901l0x.distancemm * cos(angle_tot);
         }
 
         // send messages with no error measurements and scaled correctly
         mateksys3901l0x.distance_clean = mateksys3901l0x.distancemm/1000.f;       // distance from ground in meters
         mateksys3901l0x.motionX_clean = mateksys3901l0x.motionX;                  // precomputed flow in deg/sec
-        mateksys3901l0x.motionY_clean = mateksys3901l0x.motionY;                // precomputed flow in deg/sec (add - to comply with body fixed reference frame)
+        mateksys3901l0x.motionY_clean = mateksys3901l0x.motionY;                  // precomputed flow in deg/sec (add - to comply with body fixed reference frame)
 
         // estimate velocity and send it to telemetry
         mateksys3901l0x.velocityX = mateksys3901l0x.distance_clean * tan(RadOfDeg(mateksys3901l0x.motionX_clean));  // velocity in m/sec
@@ -316,7 +316,7 @@ static void mateksys3901l0x_parse(uint8_t byte)
         if (USE_MATEKSYS_3901_L0X_AGL) {
           AbiSendMsgAGL(AGL_LIDAR_MATEKSYS_3901_L0X_ID, 
                         mateksys3901l0x.time_usec, 
-                        mateksys3901l0x.distance_clean);
+                        mateksys3901l0x.distancemm);
         }
 
         // send optical flow (if requested)

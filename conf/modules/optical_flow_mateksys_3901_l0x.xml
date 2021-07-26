@@ -42,7 +42,7 @@
     <define name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200"/>
     <define name="USE_MATEKSYS_3901_L0X_AGL" value="1"/>
     <define name="USE_MATEKSYS_3901_L0X_OPTICAL_FLOW" value="1"/>
-    <define name="MATEKSYS_3901_L0X_COMPENSATE_ROTATION" value="0"/>
+    <define name="MATEKSYS_3901_L0X_COMPENSATE_ROTATION" value="1"/>
 
     <file name="mateksys_3901_l0x.c" dir="modules/optical_flow"/>
 
