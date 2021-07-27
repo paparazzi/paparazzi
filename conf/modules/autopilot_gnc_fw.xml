@@ -11,6 +11,7 @@
   </dep>
   <periodic fun="navigation_task()" freq="NAVIGATION_FREQUENCY" cond="FIXEDWING_FIRMWARE @AND !USE_GENERATED_AUTOPILOT"/>
   <periodic fun="attitude_loop()" freq="CONTROL_FREQUENCY" cond="FIXEDWING_FIRMWARE @AND !USE_GENERATED_AUTOPILOT @AND !AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+  <periodic fun="monitor_task()" freq="1"/>
   <makefile target="!fbw"/>
 </module>
 

@@ -134,3 +134,58 @@ void autopilot_firmware_init(void)
 #endif
 }
 
+
+#include "generated/flight_plan.h"
+#include "generated/airframe.h"
+
+#ifdef LOW_BATTERY_KILL_DELAY
+#warning LOW_BATTERY_KILL_DELAY has been renamed to CATASTROPHIC_BAT_KILL_DELAY, please update your airframe file!
+#endif
+
+/** Maximum time allowed for catastrophic battery level before going into kill mode */
+#ifndef CATASTROPHIC_BAT_KILL_DELAY
+#define CATASTROPHIC_BAT_KILL_DELAY 5
+#endif
+
+/** Maximum distance from HOME waypoint before going into kill mode */
+#ifndef KILL_MODE_DISTANCE
+#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#endif
+
+/** Default minimal speed for takeoff in m/s */
+#ifndef MIN_SPEED_FOR_TAKEOFF
+#define MIN_SPEED_FOR_TAKEOFF 5.
+#endif
+
+/** monitor stuff run at 1Hz */
+void monitor_task(void)
+{
+  if (autopilot.flight_time) {
+    autopilot.flight_time++;
+  }
+
+  static uint8_t t = 0;
+  if (ap_electrical.vsupply < CATASTROPHIC_BAT_LEVEL) {
+    t++;
+  } else {
+    t = 0;
+  }
+#if !USE_GENERATED_AUTOPILOT
+  // only check for static autopilot
+  autopilot.kill_throttle |= (t >= CATASTROPHIC_BAT_KILL_DELAY);
+  autopilot.kill_throttle |= autopilot.launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
+#endif
+
+  if (!autopilot.flight_time &&
+      stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
+    autopilot.flight_time = 1;
+    autopilot.launch = true; /* Not set in non auto launch */
+#if DOWNLINK
+    uint16_t time_sec = sys_time.nb_sec;
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
+#endif
+  }
+
+}
+
+

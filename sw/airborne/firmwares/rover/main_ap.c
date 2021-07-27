@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2018-2021 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of Paparazzi.
  *
@@ -51,11 +51,6 @@ PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
  */
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
-/* MODULES_FREQUENCY is defined in generated/modules.h
- * according to main_freq parameter set for modules in airframe file
- */
-PRINT_CONFIG_VAR(MODULES_FREQUENCY)
-
 #if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
@@ -68,27 +63,15 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
  */
 tid_t modules_mcu_core_tid; // single step
 tid_t modules_sensors_tid;
-tid_t modules_estimation_tid;
 tid_t modules_radio_control_tid;
-tid_t modules_control_actuators_tid; // single step
+tid_t modules_gnc_tid; // estimation, control, actuators, default in a single step
 tid_t modules_datalink_tid;
 tid_t modules_default_tid;
 tid_t failsafe_tid;      ///< id for failsafe_check() timer FIXME
 
 #define SYS_PERIOD (1.f / PERIODIC_FREQUENCY)
+#define SENSORS_PERIOD (1.f / PERIODIC_FREQUENCY)
 #define DATALINK_PERIOD (1.f / TELEMETRY_FREQUENCY)
-
-#ifndef ESTIMATION_OFFSET
-#define ESTIMATION_OFFSET 6e-4f
-#endif
-
-#ifndef CONTROL_OFFSET
-#define CONTROL_OFFSET 7e-4f
-#endif
-
-#ifndef DEFAULT_OFFSET
-#define DEFAULT_OFFSET 8e-4f
-#endif
 
 void main_init(void)
 {
@@ -108,10 +91,21 @@ void main_init(void)
   autopilot_generated_init();
 
   // register timers with temporal dependencies
-  modules_sensors_tid = sys_time_register_timer(SYS_PERIOD, NULL);
-  modules_estimation_tid = sys_time_register_timer_offset(modules_sensors_tid, ESTIMATION_OFFSET, NULL);
-  modules_control_actuators_tid = sys_time_register_timer_offset(modules_sensors_tid, CONTROL_OFFSET, NULL);
-  modules_default_tid = sys_time_register_timer_offset(modules_sensors_tid, DEFAULT_OFFSET, NULL); // should it be an offset ?
+  modules_sensors_tid = sys_time_register_timer(SENSORS_PERIOD, NULL);
+
+  // common GNC group (estimation, control, actuators, default)
+  // is called with an offset of half the main period (1/PERIODIC_FREQUENCY)
+  // which is the default resolution of SYS_TIME_FREQUENCY,
+  // hence the resolution of the virtual timers.
+  // In practice, this is the best compromised between having enough time between
+  // the sensor readings (triggerd in sensors task group) and the lag between
+  // the state update and control/actuators update
+  //
+  //      |      PERIODIC_FREQ       |
+  //      |            |             |
+  //      read         gnc
+  //
+  modules_gnc_tid = sys_time_register_timer_offset(modules_sensors_tid, 1.f / (2.f * PERIODIC_FREQUENCY), NULL);
 
   // register the timers for the periodic functions
   modules_mcu_core_tid = sys_time_register_timer(SYS_PERIOD, NULL);
@@ -135,27 +129,20 @@ void handle_periodic_tasks(void)
     modules_sensors_periodic_task();
   }
 
-  if (sys_time_check_and_ack_timer(modules_estimation_tid)) {
-    modules_estimation_periodic_task();
-  }
-
   if (sys_time_check_and_ack_timer(modules_radio_control_tid)) {
     radio_control_periodic_task();
     modules_radio_control_periodic_task(); // FIXME integrate above
   }
 
-  if (sys_time_check_and_ack_timer(modules_control_actuators_tid)) {
+  if (sys_time_check_and_ack_timer(modules_gnc_tid)) {
+    modules_estimation_periodic_task();
     modules_control_periodic_task();
+    modules_default_periodic_task();
     SetActuatorsFromCommands(commands, autopilot_get_mode());
     modules_actuators_periodic_task(); // FIXME integrate above in actuators periodic
-
     if (autopilot_in_flight()) {
       RunOnceEvery(PERIODIC_FREQUENCY, autopilot.flight_time++); // TODO make it 1Hz periodic ?
     }
-  }
-
-  if (sys_time_check_and_ack_timer(modules_default_tid)) {
-    modules_default_periodic_task();
   }
 
   if (sys_time_check_and_ack_timer(modules_mcu_core_tid)) {
