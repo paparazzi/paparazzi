@@ -141,12 +141,12 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
             | GC.Var dep_name ->
                 if Str.string_match (Str.regexp "^@.*") dep_name 0 then
                   (* add to required list *)
-                  required := !required @ [dep_expr]
+                  required := !required @ [(dep_expr, name)]
                 else
                   (* get module from name *)
                   let _m = Module.from_module_name dep_name None in
                   test_module _m (if name = "root" then UserLoad else Depend)
-            | _ -> required := !required @ [dep_expr] (* expression of required modules or functionalities *)
+            | _ -> required := !required @ [(dep_expr, name)] (* expression of required modules or functionalities *)
           ) dep.Module.requires;
           (* iter over autoload modules *)
           List.iter (fun autoload ->
@@ -154,7 +154,7 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
             test_module _m AutoLoad
           ) m.Module.autoloads;
           (* add conflicts to list *)
-          conflicts := !conflicts @ dep.Module.conflicts;
+          conflicts := !conflicts @ (List.map (fun c -> (c, name)) dep.Module.conflicts);
           (* add provides to list (if not present) *)
           provided := List.fold_left add_unique !provided dep.Module.provides;
           (* all dep and autoload resolved, add to list *)
@@ -208,20 +208,20 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
     (* test for conflicts and required functionalities and option if requested *)
     if (not (user_target = "")) && (target = user_target) then begin
       (* check conflicts for resolved modules *)
-      List.iter (fun c ->
+      List.iter (fun (c, cname) ->
         List.iter (fun (name, _) ->
           if name = c then
-            failwith (Printf.sprintf "Error [Aircraft]: find conflict with module while loading '%s' for target '%s'" name target)
+            failwith (Printf.sprintf "Error [Aircraft]: find conflict with module '%s' while loading '%s' in target '%s'" cname name target)
         ) !resolved;
         List.iter (fun name ->
           if name = c then
-            failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for target '%s'" name target)
+            failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for '%s' in target '%s'" name cname target)
         ) !provided
       ) !conflicts;
       (* chek that all required functionalities or modules are provided *)
-      List.iter (fun r ->
+      List.iter (fun (r, name) ->
         if not (List.exists (fun p -> GC.eval_bool p r) (!provided @ (fst (List.split !resolved)))) then
-          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for target '%s'" (GC.sprint_expr r) target)
+          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
       ) !required
     end;
     (* add configure, defines and modules to conf for all resolved modules *)
