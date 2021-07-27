@@ -40,6 +40,18 @@
 
 extern struct GpsState gps_datalink;
 
+struct fake_flow {
+  float time_sec;
+  uint8_t sensor_id;
+  int32_t flow_x;
+  int32_t flow_y;
+  float flow_comp_m_x;
+  float flow_comp_m_y;
+  uint8_t flow_quality;
+  float ground_distance;
+  uint8_t distance_quality;
+};
+
 extern void gps_datalink_init(void);
 
 #define gps_datalink_periodic_check() gps_periodic_check(&gps_datalink)

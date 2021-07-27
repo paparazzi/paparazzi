@@ -34,11 +34,11 @@
       <define name="IMU_MPU_Z_SIGN" value="-1"/>
     </module>
 
-        <!-- Block for ekf2 debugging on optical flow -->
+    <!-- Block for ekf2 debugging on optical flow -->
 
-    <module name="optical_flow_mateksys_3901_l0x.xml">
+    <!-- <module name="optical_flow_mateksys_3901_l0x.xml">
     <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
-    </module>  
+    </module>   -->
 
     <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="SPI4"/>
@@ -46,26 +46,30 @@
       <define name="SENSOR_SYNC_SEND"/>
     </module>
 
-
-    <module name="mag_ist8310">
+    <!-- <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
-    </module>
+    </module> -->
 
     <module name="ins" type="ekf2"/>
 
     <!-- End block -->
 
-    <module name="gps" type="ublox" >
+    <!-- <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B57600"/>
     </module>
-    <module name="gps" type="ubx_ucenter" />
+    
+    <module name="gps" type="ubx_ucenter" /> -->
+
+    <module name="gps" type="datalink" >
+      <configure name="GPS_BAUD" value="B115200"/>
+    </module>
 
     <module name="stabilization" type="indi_simple"/>
     
     <module name="ahrs" type="float_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
       <define name="AHRS_ICQ_MAG_ID" value="MAG_IST8310_SENDER_ID"/>
     </module>
 
@@ -190,6 +194,9 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
+
+    <!-- For Optitrack constant heading -->
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
 
     <!-- For vibrating airfames -->
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>

@@ -36,7 +36,7 @@
     <!--  <configure name="MODULES_FREQUENCY" value="2000"/>--> <!--  unit="Hz" -->
 
     <module name="telemetry" type="transparent">
-       <configure name="MODEM_PORT" value="UART2"/><!--  Telem2 on pixhawk4 -->
+       <configure name="MODEM_PORT" value="UART3"/><!--  Telem2 on pixhawk4 -->
        <!--<configure name="MODEM_PORT" value="UART7"/>--><!--  DebugUart on pixhawk4 -->
        <configure name="MODEM_BAUD" value="B115200"/>
     </module>
@@ -63,7 +63,7 @@
      </module>
 
     <module name="optical_flow_mateksys_3901_l0x.xml">
-      <configure name="MATEKSYS_3901_L0X_PORT" value="UART4"/>
+      <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/> <!-- TELEM1 on Pixhawk4 -->
     </module>  
      
     <module name="gps" type="ublox" >
@@ -87,7 +87,7 @@
         <!-- Mode set one a three way switch -->
         <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
-      <configure name="SBUS_PORT" value="UART3"/>
+      <configure name="SBUS_PORT" value="UART4"/>
     </module>
 
     <module name="geo_mag" />
@@ -235,7 +235,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="SONAR_MAX_RANGE" value="2.2" />
+    <!-- <define name="SONAR_MAX_RANGE" value="2.2" /> -->
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
   </section>
 

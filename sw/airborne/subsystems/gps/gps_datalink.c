@@ -32,10 +32,17 @@
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
 
 struct LtpDef_i ltp_def;
 
 struct GpsState gps_datalink;
+
+/* default Magnetometer to use in INS */
+#ifndef MAG_DATALINK_ID
+#define MAG_DATALINK_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(MAG_DATALINK_ID)
 
 /** GPS initialization */
 void gps_datalink_init(void)
@@ -170,7 +177,33 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
 
   // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
+  // convert here the course to vector
+  // take the value from  state for new vector conversion
+
+  struct Int32Vect3 mag = {1, 1, 1};
+  struct fake_flow flow;
+
+  // populate flow message
+  flow.time_sec = 1.2;
+  flow.sensor_id = 3;
+  flow.flow_x = 10;
+  flow.flow_y = 10;
+  flow.flow_comp_m_x = 0.1;
+  flow.flow_comp_m_y = 0.1;
+  flow.flow_quality = 100;
+  flow.ground_distance = 2.1;
+  flow.distance_quality = 2;
+
+  // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
+  AbiSendMsgIMU_MAG_INT32(MAG_DATALINK_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
+
+  // Send magnetometer fake message
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+
+  // Send optical flow fake message
+  DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 
+  &flow.flow_comp_m_x, &flow.flow_comp_m_y, &flow.flow_quality, &flow.ground_distance, &flow.distance_quality);                     
 }
 
 /** Parse the REMOTE_GPS_LOCAL datalink packet */
