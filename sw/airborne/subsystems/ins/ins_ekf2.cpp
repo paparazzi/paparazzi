@@ -448,13 +448,6 @@ void ins_ekf2_update(void)
     filter_control_status_u control_status;
     ekf.get_control_mode(&control_status.value);
 
-    // update values that you can dynamically allocate
-    // ekf_params->flow_qual_min = ekf2_params.flow_qual_min;
-    // ekf_params->range_aid = ekf2_params.range_aid;
-    // ekf2.offset_x = ekf2_params.offset_x;
-    // ekf2.offset_y = ekf2_params.offset_y;
-    // ekf2.offset_z = ekf2_params.offset_z;
-
     // Only publish position after successful alignment
     if (control_status.flags.tilt_align)
     {

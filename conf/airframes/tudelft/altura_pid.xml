@@ -56,7 +56,7 @@
     <!-- End block -->
 
     <!-- <module name="gps" type="ublox" >
-      <configure name="GPS_BAUD" value="B57600"/>
+      <configure name="GPS_BAUD" value="B115200"/>
     </module>
     
     <module name="gps" type="ubx_ucenter" /> -->

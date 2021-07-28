@@ -21,10 +21,10 @@
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
         <!-- <dl_setting var="ekf2_params.flow_qual_min" min="0" step="1" max="255" shortname="flow_quality" module="subsystems/ins/ins_ekf2"/>
-        <dl_setting var="ekf2_params.range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2"/>
-        <dl_setting var="ekf2_params.offset_x" min="-1000" step="1" max="1000" shortname="x_offset (mm)" module="subsystems/ins/ins_ekf2"/>
-        <dl_setting var="ekf2_params.offset_y" min="-1000" step="1" max="1000" shortname="y_offset (mm)" module="subsystems/ins/ins_ekf2"/>
-        <dl_setting var="ekf2_params.offset_z" min="-1000" step="1" max="1000" shortname="z_offset (mm)" module="subsystems/ins/ins_ekf2"/> -->
+        <dl_setting var="ekf2_params.range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2"/> -->
+        <dl_setting var="ekf2_params.offset_x" min="-1000" step="1" max="1000" shortname="x_offset (mm)"/>
+        <dl_setting var="ekf2_params.offset_y" min="-1000" step="1" max="1000" shortname="y_offset (mm)"/>
+        <dl_setting var="ekf2_params.offset_z" min="-1000" step="1" max="1000" shortname="z_offset (mm)"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -37,12 +37,12 @@
     <configure name="CXXSTANDARD" value="-std=c++11"/>
 
     <!-- Data processing configuration parameters -->
-    <define name="INS_SONAR_MIN_RANGE" value="0.05"/>
-    <define name="INS_SONAR_MAX_RANGE" value="3"/>
+    <define name="INS_SONAR_MIN_RANGE" value="0.04"/>
+    <define name="INS_SONAR_MAX_RANGE" value="3000"/>
     <define name="USE_RANGE_AID" value="1"/>
     <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
     <define name="INS_MIN_FLOW_QUALITY" value="100"/>
-    <define name="INS_MAX_FLOW_RATE" value="20"/>
+    <define name="INS_MAX_FLOW_RATE" value="200"/>
     <define name="FLOW_OFFSET_X" value="-130"/>
     <define name="FLOW_OFFSET_Y" value="-150"/>
     <define name="FLOW_OFFSET_Z" value="170"/>

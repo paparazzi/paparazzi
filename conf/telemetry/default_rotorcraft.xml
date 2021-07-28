@@ -7,6 +7,7 @@
 
     <mode name="default" key_press="d">
       <message name="DEBUG"                    period="0.05"/>
+      <message name="DEBUG_DATALINK"           period="0.05"/>
       <message name="IMU_ACCEL_RAW"            period=".05"/>
       <message name="IMU_GYRO_RAW"             period=".05"/>
       <message name="IMU_MAG_RAW"              period=".05"/>
@@ -39,7 +40,7 @@
       <message name="DIVERGENCE"               period="0.05"/>
       <message name="DRAGSPEED"                period="0.02"/>
       <message name="LOGGER_STATUS"            period="5.1"/>
-      <message name="LIDAR"                    period="1.2"/>
+      <message name="LIDAR"                    period="0.5"/>
       <message name="INS_EKF2"                 period=".25"/>
     </mode>
 
