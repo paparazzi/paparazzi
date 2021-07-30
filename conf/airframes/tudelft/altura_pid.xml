@@ -36,9 +36,9 @@
 
     <!-- Block for ekf2 debugging on optical flow -->
 
-    <!-- <module name="optical_flow_mateksys_3901_l0x.xml">
+    <module name="optical_flow_mateksys_3901_l0x.xml">
     <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
-    </module>   -->
+    </module>  
 
     <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="SPI4"/>

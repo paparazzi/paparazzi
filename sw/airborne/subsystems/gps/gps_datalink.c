@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2014 Freek van Tienen
  *
@@ -206,7 +207,7 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
   AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
-  AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts, flow.flow_x, flow.flow_y, 0, 0, flow.flow_quality, 0);
+  // AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts, flow.flow_x, flow.flow_y, 0, 0, flow.flow_quality, 0);
   AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, flow.ground_distance);
 
   // Send magnetometer fake message

@@ -238,9 +238,11 @@
       <field name="debug_5" type="float"/>
       <field name="debug_6" type="float"/>
       <field name="debug_7" type="float"/>
-      <field name="debug_8" type="int32"/>
-      <field name="debug_9" type="int32"/>
-      <field name="debug_10" type="int32"/>
+      <field name="debug_8" type="float"/>
+      <field name="debug_9" type="float"/>
+      <field name="debug_10" type="float"/>
+      <field name="debug_11" type="float"/>
+      <field name="debug_12" type="float"/>
     </message>
 
     <message name="SURVEY" id="27"> 

@@ -250,21 +250,31 @@ struct ekf2_parameters_t ekf2_params;
 static void send_debug(struct transport_tx *trans, struct link_device *dev)
 {
 
-  // get flow info for telemetry
+  // for validation the following is required
+  // fake_gps_speed
+  // fake_magneto_heading
+  // fake_agl_sensor
+  // real_imu_gyro
+  // real_optical_flow
+
+  // this fundtion will then record the processed values and the estimation of body velocities 
+  // from both the optitrack gps and the flow
+
+  // get flow info
   ekf2.sample_delayed = ekf.get_flow_sample_delayed();
-  ekf2.flow_compensation1 = ekf.get_compensated_flow()(0);
-  ekf2.flow_compensation2 = ekf.get_compensated_flow()(1);
-  ekf2.delay_flow_x = ekf2.sample_delayed.flowRadXY(0);
-  ekf2.delay_flow_y = ekf2.sample_delayed.flowRadXY(1);
-  ekf2.delay_gyro_x = ekf2.sample_delayed.gyroXYZ(0);
-  ekf2.delay_gyro_y = ekf2.sample_delayed.gyroXYZ(1);
-  ekf2.delay_gyro_z = ekf2.sample_delayed.gyroXYZ(2);
+  ekf2.delay_flow_x = ekf2.sample_delayed.flowRadXY(0);  // float
+  ekf2.delay_flow_y = ekf2.sample_delayed.flowRadXY(1);  // float
+
+  // get gyro info
+  ekf2.delay_gyro_x = ekf2.sample_delayed.gyroXYZ(0);  // float
+  ekf2.delay_gyro_y = ekf2.sample_delayed.gyroXYZ(1);  // float
+  ekf2.delay_gyro_z = ekf2.sample_delayed.gyroXYZ(2);  // float
 
   // get gps velocity
   ekf2.gps_delayed = ekf.get_gps_sample_delayed();
-  ekf2.vel_x = ekf2.gps_delayed.vel(0);
-  ekf2.vel_y = ekf2.gps_delayed.vel(1);
-  ekf2.vel_z = ekf2.gps_delayed.vel(2);
+  ekf2.vel_x = ekf2.gps_delayed.vel(0);  // float
+  ekf2.vel_y = ekf2.gps_delayed.vel(1);  // float
+  ekf2.vel_z = ekf2.gps_delayed.vel(2);  // float
 
   // get magnetometer
   ekf2.mag_delayed = ekf.get_mag_sample_delayed();
@@ -276,7 +286,18 @@ static void send_debug(struct transport_tx *trans, struct link_device *dev)
   ekf2.range_delayed = ekf.get_range_sample_delayed();
   ekf2.rng = ekf2.range_delayed.rng;
 
-  pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, &ekf2.vel_y, &ekf2.vel_z, &ekf2.mag_x, &ekf2.mag_y, &ekf2.mag_z, &ekf2.rng, 0, 0, 0);
+  pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, 
+                                         &ekf2.vel_y, 
+                                         &ekf2.vel_z, 
+                                         &ekf2.mag_x, 
+                                         &ekf2.mag_y, 
+                                         &ekf2.mag_z, 
+                                         &ekf2.rng, 
+                                         &ekf2.delay_flow_x, 
+                                         &ekf2.delay_flow_y, 
+                                         &ekf2.delay_gyro_x,
+                                         &ekf2.delay_gyro_y
+                                         &ekf2.delay_gyro_z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
