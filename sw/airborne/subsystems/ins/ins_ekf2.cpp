@@ -296,7 +296,7 @@ static void send_debug(struct transport_tx *trans, struct link_device *dev)
                                          &ekf2.delay_flow_x, 
                                          &ekf2.delay_flow_y, 
                                          &ekf2.delay_gyro_x,
-                                         &ekf2.delay_gyro_y
+                                         &ekf2.delay_gyro_y,
                                          &ekf2.delay_gyro_z);
 }
 

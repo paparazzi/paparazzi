@@ -205,6 +205,9 @@
       <message name="IMU_ACCEL_SCALED"         period=".075"/>
       <message name="IMU_MAG_SCALED"           period=".2"/>
       <message name="LIDAR"                    period="0.05"/>
+      <message name="DEBUG"                    period="0.05"/>
+      <message name="OPTICAL_FLOW"             period="0.05"/>
+      <message name="DEBUG_DATALINK"           period="0.05"/>
     </mode>
   </process>
 
