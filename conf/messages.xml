@@ -231,21 +231,16 @@
     </message>
 
     <message name="DEBUG" id="26">
-      <field name="quality" type="float" unit="m"/>
-      <field name="flowx" type="float" unit="deg"/>
-      <field name="flowy" type="float" unit="deg"/>
-      <field name="flow_dt" type="uint32" unit="usec"/>
-      <field name="gyro_dt" type="uint32" unit="usec"/>
-      <field name="gyro_roll" type="float" unit="rad/sec"/>
-      <field name="gyro_pitch" type="float" unit="rad/sec"/>
-      <field name="gyro_yaw" type="float" unit="rad/sec"/>
-      <field name="flow_compensation1" type="float"/>
-      <field name="flow_compensation2" type="float"/>
-      <field name="delay_flow_x" type="float"/>
-      <field name="delay_flow_y" type="float"/>
-      <field name="delay_gyro_x" type="float"/>
-      <field name="delay_gyro_y" type="float"/>
-      <field name="delay_gyro_z" type="float"/>
+      <field name="debug_1" type="float"/>
+      <field name="debug_2" type="float"/>
+      <field name="debug_3" type="float"/>
+      <field name="debug_4" type="float"/>
+      <field name="debug_5" type="float"/>
+      <field name="debug_6" type="float"/>
+      <field name="debug_7" type="float"/>
+      <field name="debug_8" type="int32"/>
+      <field name="debug_9" type="int32"/>
+      <field name="debug_10" type="int32"/>
     </message>
 
     <message name="SURVEY" id="27"> 

@@ -209,6 +209,22 @@ struct ekf2_t
   float delay_gyro_y;
   float delay_gyro_z;
 
+  // magnetometer information
+  struct magSample mag_delayed;
+  float mag_x;
+  float mag_y;
+  float mag_z;
+
+  // gps velocity information
+  struct gpsSample gps_delayed;
+  float vel_x;
+  float vel_y;
+  float vel_z;
+
+  // agl value information
+  struct rangeSample range_delayed;
+  float rng;
+
   uint8_t quat_reset_counter;
   uint64_t ltp_stamp;
   struct LtpDef_i ltp_def;
@@ -231,8 +247,10 @@ struct ekf2_parameters_t ekf2_params;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_opticflow_debug(struct transport_tx *trans, struct link_device *dev)
+static void send_debug(struct transport_tx *trans, struct link_device *dev)
 {
+
+  // get flow info for telemetry
   ekf2.sample_delayed = ekf.get_flow_sample_delayed();
   ekf2.flow_compensation1 = ekf.get_compensated_flow()(0);
   ekf2.flow_compensation2 = ekf.get_compensated_flow()(1);
@@ -242,22 +260,23 @@ static void send_opticflow_debug(struct transport_tx *trans, struct link_device 
   ekf2.delay_gyro_y = ekf2.sample_delayed.gyroXYZ(1);
   ekf2.delay_gyro_z = ekf2.sample_delayed.gyroXYZ(2);
 
-  pprz_msg_send_DEBUG(trans, dev, AC_ID,
-                      &ekf2.flow_quality,
-                      &ekf2.flow_x,
-                      &ekf2.flow_y,
-                      &ekf2.flow_stamp,
-                      &ekf2.gyro_stamp,
-                      &ekf2.offset_x,
-                      &ekf2.offset_y,
-                      &ekf2.offset_z,
-                      &ekf2.flow_compensation1,
-                      &ekf2.flow_compensation2,
-                      &ekf2.delay_flow_x,
-                      &ekf2.delay_flow_y,
-                      &ekf2.delay_gyro_x,
-                      &ekf2.delay_gyro_y,
-                      &ekf2.delay_gyro_z);
+  // get gps velocity
+  ekf2.gps_delayed = ekf.get_gps_sample_delayed();
+  ekf2.vel_x = ekf2.gps_delayed.vel(0);
+  ekf2.vel_y = ekf2.gps_delayed.vel(1);
+  ekf2.vel_z = ekf2.gps_delayed.vel(2);
+
+  // get magnetometer
+  ekf2.mag_delayed = ekf.get_mag_sample_delayed();
+  ekf2.mag_x = ekf2.mag_delayed.mag(0);
+  ekf2.mag_y = ekf2.mag_delayed.mag(1);
+  ekf2.mag_z = ekf2.mag_delayed.mag(2);
+
+  // get agl/range
+  ekf2.range_delayed = ekf.get_range_sample_delayed();
+  ekf2.rng = ekf2.range_delayed.rng;
+
+  pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, &ekf2.vel_y, &ekf2.vel_z, &ekf2.mag_x, &ekf2.mag_y, &ekf2.mag_z, &ekf2.rng, 0, 0, 0);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
@@ -414,7 +433,7 @@ void ins_ekf2_init(void)
   ekf.set_optical_flow_limits(INS_MAX_FLOW_RATE, INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG, send_opticflow_debug);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG, send_debug);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2, send_ins_ekf2);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2_EXT, send_ins_ekf2_ext);

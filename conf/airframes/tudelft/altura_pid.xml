@@ -22,7 +22,7 @@
     <module name="telemetry" type="transparent">
       <!--<configure name="MODEM_PORT" value="UART2"/>  Telem2 on pixhawk4 -->
       <configure name="MODEM_PORT" value="UART3"/> <!--  DebugUart on pixhawk4 -->
-      <configure name="MODEM_BAUD" value="B115200"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
     </module>
 
     <module name="imu" type="mpu6000">
@@ -61,6 +61,8 @@
     
     <module name="gps" type="ubx_ucenter" /> -->
 
+
+    <!-- GPS modified to send also separate ABI messages for magnetometer and optical flow -->
     <module name="gps" type="datalink" >
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
