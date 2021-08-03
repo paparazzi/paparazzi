@@ -286,9 +286,9 @@
    release="997fa535902c4d8f73bc34c02c862652cd47cae5"
   />
   <aircraft
-   name="Neddrone4"
+   name="Nederdrone4"
    ac_id="14"
-   airframe="airframes/tudelft/neddrone4_tem.xml"
+   airframe="airframes/tudelft/nederdrone4_tem.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/nederdrone_cyberzoo.xml"
@@ -298,9 +298,9 @@
    release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
   />
   <aircraft
-   name="Neddrone5"
+   name="Nederdrone5"
    ac_id="27"
-   airframe="airframes/tudelft/neddrone5.xml"
+   airframe="airframes/tudelft/nederdrone5.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/nederdrone_waal.xml"
