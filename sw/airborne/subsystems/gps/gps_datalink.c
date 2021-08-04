@@ -214,8 +214,8 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 
   // Send optical flow fake message
-  DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 
-  &flow.flow_comp_m_x, &flow.flow_comp_m_y, &flow.flow_quality, &flow.ground_distance, &flow.distance_quality);
+  // DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 
+  // &flow.flow_comp_m_x, &flow.flow_comp_m_y, &flow.flow_quality, &flow.ground_distance, 0, &flow.distance_quality);
 
   // Send AGL fake message 
   DOWNLINK_SEND_LIDAR(DefaultChannel, DefaultDevice, &flow.ground_distance, 0, 0);

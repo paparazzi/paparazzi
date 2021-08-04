@@ -286,18 +286,18 @@ static void send_debug(struct transport_tx *trans, struct link_device *dev)
   ekf2.range_delayed = ekf.get_range_sample_delayed();
   ekf2.rng = ekf2.range_delayed.rng;
 
-  pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, 
-                                         &ekf2.vel_y, 
-                                         &ekf2.vel_z, 
-                                         &ekf2.mag_x, 
-                                         &ekf2.mag_y, 
-                                         &ekf2.mag_z, 
-                                         &ekf2.rng, 
-                                         &ekf2.delay_flow_x, 
-                                         &ekf2.delay_flow_y, 
-                                         &ekf2.delay_gyro_x,
-                                         &ekf2.delay_gyro_y,
-                                         &ekf2.delay_gyro_z);
+  // pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, 
+  //                                        &ekf2.vel_y, 
+  //                                        &ekf2.vel_z, 
+  //                                        &ekf2.mag_x, 
+  //                                        &ekf2.mag_y, 
+  //                                        &ekf2.mag_z, 
+  //                                        &ekf2.rng, 
+  //                                        &ekf2.delay_flow_x, 
+  //                                        &ekf2.delay_flow_y, 
+  //                                        &ekf2.delay_gyro_x,
+  //                                        &ekf2.delay_gyro_y,
+  //                                        &ekf2.delay_gyro_z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)

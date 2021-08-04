@@ -75,12 +75,13 @@ static void mateksys3901l0x_send_optical_flow(struct transport_tx *trans, struct
   pprz_msg_send_OPTICAL_FLOW(trans, dev, AC_ID,
                               &mateksys3901l0x.time_usec,
                               &mateksys3901l0x.sensor_id,
-                              &mateksys3901l0x.motionX_clean,
-                              &mateksys3901l0x.motionY_clean,
+                              &mateksys3901l0x.motionX,
+                              &mateksys3901l0x.motionY,
                               &mateksys3901l0x.velocityX,
                               &mateksys3901l0x.velocityY,
                               &mateksys3901l0x.motion_quality,
-                              &mateksys3901l0x.distance_clean,
+                              &mateksys3901l0x.distancemm,
+                              &mateksys3901l0x.distancemm_compensated,
                               &mateksys3901l0x.distancemm_quality);
 }
 
@@ -98,6 +99,7 @@ void mateksys3901l0x_init(void)
   mateksys3901l0x.motionY = 0;                                                
   mateksys3901l0x.distancemm_quality = 0;
 	mateksys3901l0x.distancemm = 0;
+  mateksys3901l0x.distancemm_compensated = 0;
   mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
 
 #if PERIODIC_TELEMETRY
@@ -292,22 +294,20 @@ static void mateksys3901l0x_parse(uint8_t byte)
 
       // When the distance and motion info are valid (max values based on sensor specifications)...
       if (mateksys3901l0x.distancemm > 0 && mateksys3901l0x.distancemm <= 3000 && abs(mateksys3901l0x.motionX) <= 90 && abs(mateksys3901l0x.motionY) <= 90) {
-        // ... compensate AGL measurement for body rotation
+        
+        // get from ground distance to altitude by compensating for body rotation 
         if (MATEKSYS_3901_L0X_COMPENSATE_ROTATION) {
+
           float phi = stateGetNedToBodyEulers_f()->phi;
           float theta = stateGetNedToBodyEulers_f()->theta;
           float angle_tot = atan(sqrt(pow(tan(phi),2)+pow(tan(theta),2)));
-          mateksys3901l0x.distancemm = mateksys3901l0x.distancemm * cos(angle_tot);
+          mateksys3901l0x.distancemm_compensated = mateksys3901l0x.distancemm * cos(angle_tot);
+
         }
 
-        // send messages with no error measurements and scaled correctly
-        mateksys3901l0x.distance_clean = mateksys3901l0x.distancemm/1000.f;       // distance from ground in meters
-        mateksys3901l0x.motionX_clean = mateksys3901l0x.motionX;                  // precomputed flow in deg/sec
-        mateksys3901l0x.motionY_clean = mateksys3901l0x.motionY;                  // precomputed flow in deg/sec (add - to comply with body fixed reference frame)
-
-        // estimate velocity and send it to telemetry
-        mateksys3901l0x.velocityX = mateksys3901l0x.distance_clean * tan(RadOfDeg(mateksys3901l0x.motionX_clean));  // velocity in m/sec
-        mateksys3901l0x.velocityY = mateksys3901l0x.distance_clean * tan(RadOfDeg(mateksys3901l0x.motionY_clean));  // velocity in m/sec
+        // estimate velocity and send it to telemetry (flow not compensated for gyro measurements)
+        mateksys3901l0x.velocityX = mateksys3901l0x.distancemm_compensated * tan(RadOfDeg(mateksys3901l0x.motionX));  // velocity in m/sec
+        mateksys3901l0x.velocityY = mateksys3901l0x.distancemm_compensated * tan(RadOfDeg(mateksys3901l0x.motionY));  // velocity in m/sec
 
         // get ticks
         mateksys3901l0x.time_usec = get_sys_time_usec();
@@ -316,15 +316,15 @@ static void mateksys3901l0x_parse(uint8_t byte)
         if (USE_MATEKSYS_3901_L0X_AGL) {
           AbiSendMsgAGL(AGL_LIDAR_MATEKSYS_3901_L0X_ID, 
                         mateksys3901l0x.time_usec, 
-                        mateksys3901l0x.distancemm);
+                        mateksys3901l0x.distancemm_compensated);
         }
 
         // send optical flow (if requested)
         if (USE_MATEKSYS_3901_L0X_OPTICAL_FLOW) {
           AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_MATEKSYS_3901_L0X_ID, 
                                 mateksys3901l0x.time_usec, 
-                                mateksys3901l0x.motionX_clean,          // motion in deg/sec
-                                mateksys3901l0x.motionY_clean,          // motion in deg/sec
+                                mateksys3901l0x.motionX,          // motion in deg/sec
+                                mateksys3901l0x.motionY,          // motion in deg/sec
                                 0,
                                 0,
                                 mateksys3901l0x.motion_quality,

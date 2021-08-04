@@ -55,17 +55,17 @@
 
     <!-- End block -->
 
-    <!-- <module name="gps" type="ublox" >
+    <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
     
-    <module name="gps" type="ubx_ucenter" /> -->
+    <module name="gps" type="ubx_ucenter" />
 
 
     <!-- GPS modified to send also separate ABI messages for magnetometer and optical flow -->
-    <module name="gps" type="datalink" >
+    <!-- <module name="gps" type="datalink" >
       <configure name="GPS_BAUD" value="B115200"/>
-    </module>
+    </module> -->
 
     <module name="stabilization" type="indi_simple"/>
     

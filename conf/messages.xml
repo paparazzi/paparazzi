@@ -1951,7 +1951,8 @@
       <field name="flow_comp_m_x" type="float" unit="m"/>
       <field name="flow_comp_m_y" type="float" unit="m"/>
       <field name="flow_quality" type="uint8"/>
-      <field name="ground_distance" type="float" unit="m"/>
+      <field name="distance_raw" type="int32" unit="mm"/>
+      <field name="distance_compensated" type="int32" unit="mm"/>
       <field name="distance_quality" type="uint8"/>
     </message>
 
