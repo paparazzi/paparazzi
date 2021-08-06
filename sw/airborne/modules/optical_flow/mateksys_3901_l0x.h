@@ -75,18 +75,18 @@ struct Mateksys3901l0X {
   enum Mateksys3901l0XParseStatus parse_status;
   float  time_usec;
   uint8_t  sensor_id;
-	uint8_t  motion_quality;
+  uint8_t  motion_quality;
   int32_t  motionX_temp;
   int32_t  motionX;
   int32_t  motionY_temp;
   int32_t  motionY;
-	uint8_t  distancemm_quality;
+  uint8_t  distancemm_quality;
   int32_t  distancemm_temp;
   int32_t  distancemm;
-	int32_t  distancemm_compensated;
+  int32_t  distancemm_compensated;
   float  velocityX;
   float  velocityY;
-	uint8_t  parse_crc; 
+  uint8_t  parse_crc; 
 };
 
 extern struct Mateksys3901l0X mateksys3901l0x;
