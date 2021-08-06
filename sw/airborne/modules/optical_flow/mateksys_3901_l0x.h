@@ -76,11 +76,12 @@ struct Mateksys3901l0X {
   float  time_usec;
   uint8_t  sensor_id;
 	uint8_t  motion_quality;
+  int32_t  motionX_temp;
   int32_t  motionX;
+  int32_t  motionY_temp;
   int32_t  motionY;
-  int32_t  motionX_clean;
-  int32_t  motionY_clean;
 	uint8_t  distancemm_quality;
+  int32_t  distancemm_temp;
   int32_t  distancemm;
 	int32_t  distancemm_compensated;
   float  velocityX;

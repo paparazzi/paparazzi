@@ -509,15 +509,6 @@
 
     <!-- 61 is free -->
 
-    <message name="DEBUG_DATALINK" id="61">
-      <field name="debug_1" type="float"/>
-      <field name="debug_2" type="float"/>
-      <field name="debug_3" type="int32"/>
-      <field name="debug_4" type="int32"/>
-      <field name="debug_5" type="float"/>
-      <field name="debug_6" type="float"/>
-    </message>
-
     <message name="TURB_PRESSURE_VOLTAGE" id="62">
       <field name="ch_1_p" type="float"/>
       <field name="ch_1_t" type="float"/>

@@ -25,6 +25,7 @@
  *
  */
 
+#include <stdlib.h>
 #include "mateksys_3901_l0x.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/abi.h"
@@ -44,6 +45,14 @@
 
 #ifndef MATEKSYS_3901_L0X_DISTANCE_THRES
 #define MATEKSYS_3901_L0X_DISTANCE_THRES
+#endif
+
+#ifndef MATEKSYS_3901_L0X_MAX_FLOW
+#define MATEKSYS_3901_L0X_MAX_FLOW
+#endif
+
+#ifndef MATEKSYS_3901_L0X_MAX_DISTANCE
+#define MATEKSYS_3901_L0X_MAX_DISTANCE
 #endif
 
 #ifndef USE_MATEKSYS_3901_L0X_AGL
@@ -94,10 +103,13 @@ void mateksys3901l0x_init(void)
 {
   mateksys3901l0x.device = &((MATEKSYS_3901_L0X_PORT).device);
   mateksys3901l0x.parse_crc = 0;
-	mateksys3901l0x.motion_quality = 0;                                             
-  mateksys3901l0x.motionX = 0;                                                    
+	mateksys3901l0x.motion_quality = 0;    
+  mateksys3901l0x.motionX_temp = 0;                                         
+  mateksys3901l0x.motionX = 0;   
+  mateksys3901l0x.motionY_temp = 0;                                                 
   mateksys3901l0x.motionY = 0;                                                
   mateksys3901l0x.distancemm_quality = 0;
+  mateksys3901l0x.distancemm_temp = 0;
 	mateksys3901l0x.distancemm = 0;
   mateksys3901l0x.distancemm_compensated = 0;
   mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
@@ -207,26 +219,26 @@ static void mateksys3901l0x_parse(uint8_t byte)
       if (mateksys3901l0x.distancemm_quality <= MATEKSYS_3901_L0X_DISTANCE_THRES) {
         mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
       } else {
-        mateksys3901l0x.distancemm = byte;
+        mateksys3901l0x.distancemm_temp = byte;
         mateksys3901l0x.parse_crc += byte;
         mateksys3901l0x.parse_status++;
       }
       break;
 
     case MATEKSYS_3901_L0X_PARSE_DISTANCE_B2:
-      mateksys3901l0x.distancemm |= (byte << 8);
+      mateksys3901l0x.distancemm_temp |= (byte << 8);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
 		case MATEKSYS_3901_L0X_PARSE_DISTANCE_B3:
-      mateksys3901l0x.distancemm |= (byte << 16);
+      mateksys3901l0x.distancemm_temp |= (byte << 16);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
     case MATEKSYS_3901_L0X_PARSE_DISTANCE_B4:
-      mateksys3901l0x.distancemm |= (byte << 24);
+      mateksys3901l0x.distancemm_temp |= (byte << 24);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_CHECKSUM;
       break;
@@ -242,50 +254,50 @@ static void mateksys3901l0x_parse(uint8_t byte)
       if (mateksys3901l0x.motion_quality <= MATEKSYS_3901_L0X_MOTION_THRES) {
         mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
       } else {
-        mateksys3901l0x.motionY = byte;
+        mateksys3901l0x.motionY_temp = byte;
         mateksys3901l0x.parse_crc += byte;
         mateksys3901l0x.parse_status++;
       }
       break;
 
     case MATEKSYS_3901_L0X_PARSE_MOTIONY_B2:
-      mateksys3901l0x.motionY |= (byte << 8);
+      mateksys3901l0x.motionY_temp |= (byte << 8);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
 		case MATEKSYS_3901_L0X_PARSE_MOTIONY_B3:
-      mateksys3901l0x.motionY |= (byte << 16);
+      mateksys3901l0x.motionY_temp |= (byte << 16);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
     case MATEKSYS_3901_L0X_PARSE_MOTIONY_B4:
-      mateksys3901l0x.motionY |= (byte << 24);
+      mateksys3901l0x.motionY_temp |= (byte << 24);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
     case MATEKSYS_3901_L0X_PARSE_MOTIONX_B1:
-      mateksys3901l0x.motionX = byte;
+      mateksys3901l0x.motionX_temp = byte;
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
     case MATEKSYS_3901_L0X_PARSE_MOTIONX_B2:
-      mateksys3901l0x.motionX |= (byte << 8);
+      mateksys3901l0x.motionX_temp |= (byte << 8);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 
 		case MATEKSYS_3901_L0X_PARSE_MOTIONX_B3:
-      mateksys3901l0x.motionX |= (byte << 16);
+      mateksys3901l0x.motionX_temp |= (byte << 16);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
 		
 		case MATEKSYS_3901_L0X_PARSE_MOTIONX_B4:
-      mateksys3901l0x.motionX |= (byte << 24);
+      mateksys3901l0x.motionX_temp |= (byte << 24);
       mateksys3901l0x.parse_crc += byte;
       mateksys3901l0x.parse_status++;
       break;
@@ -293,21 +305,25 @@ static void mateksys3901l0x_parse(uint8_t byte)
     case MATEKSYS_3901_L0X_PARSE_CHECKSUM:
 
       // When the distance and motion info are valid (max values based on sensor specifications)...
-      if (mateksys3901l0x.distancemm > 0 && mateksys3901l0x.distancemm <= 3000 && abs(mateksys3901l0x.motionX) <= 90 && abs(mateksys3901l0x.motionY) <= 90) {
+      if (mateksys3901l0x.distancemm_temp > 0 && mateksys3901l0x.distancemm_temp <= MATEKSYS_3901_L0X_MAX_DISTANCE && abs(mateksys3901l0x.motionX_temp) <= MATEKSYS_3901_L0X_MAX_FLOW && abs(mateksys3901l0x.motionY_temp) <= MATEKSYS_3901_L0X_MAX_FLOW) {
+        
+        // pass temporary message
+        mateksys3901l0x.motionX = mateksys3901l0x.motionX_temp;
+        mateksys3901l0x.motionY = mateksys3901l0x.motionY_temp;
+        mateksys3901l0x.distancemm = mateksys3901l0x.distancemm_temp;
         
         // get from ground distance to altitude by compensating for body rotation 
         if (MATEKSYS_3901_L0X_COMPENSATE_ROTATION) {
 
           float phi = stateGetNedToBodyEulers_f()->phi;
           float theta = stateGetNedToBodyEulers_f()->theta;
-          float angle_tot = atan(sqrt(pow(tan(phi),2)+pow(tan(theta),2)));
-          mateksys3901l0x.distancemm_compensated = mateksys3901l0x.distancemm * cos(angle_tot);
+          mateksys3901l0x.distancemm_compensated = (mateksys3901l0x.distancemm * cos(phi)) * cos(theta);
 
         }
 
         // estimate velocity and send it to telemetry (flow not compensated for gyro measurements)
-        mateksys3901l0x.velocityX = mateksys3901l0x.distancemm_compensated * tan(RadOfDeg(mateksys3901l0x.motionX));  // velocity in m/sec
-        mateksys3901l0x.velocityY = mateksys3901l0x.distancemm_compensated * tan(RadOfDeg(mateksys3901l0x.motionY));  // velocity in m/sec
+        mateksys3901l0x.velocityX = mateksys3901l0x.distancemm_compensated * sin(RadOfDeg(mateksys3901l0x.motionY));  // velocity in m/sec
+        mateksys3901l0x.velocityY = mateksys3901l0x.distancemm_compensated * sin(RadOfDeg(mateksys3901l0x.motionX));  // velocity in m/sec
 
         // get ticks
         mateksys3901l0x.time_usec = get_sys_time_usec();
