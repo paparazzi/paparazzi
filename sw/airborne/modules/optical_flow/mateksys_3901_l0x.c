@@ -103,14 +103,14 @@ void mateksys3901l0x_init(void)
 {
   mateksys3901l0x.device = &((MATEKSYS_3901_L0X_PORT).device);
   mateksys3901l0x.parse_crc = 0;
-	mateksys3901l0x.motion_quality = 0;    
+  mateksys3901l0x.motion_quality = 0;    
   mateksys3901l0x.motionX_temp = 0;                                         
   mateksys3901l0x.motionX = 0;   
   mateksys3901l0x.motionY_temp = 0;                                                 
   mateksys3901l0x.motionY = 0;                                                
   mateksys3901l0x.distancemm_quality = 0;
   mateksys3901l0x.distancemm_temp = 0;
-	mateksys3901l0x.distancemm = 0;
+  mateksys3901l0x.distancemm = 0;
   mateksys3901l0x.distancemm_compensated = 0;
   mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
 
