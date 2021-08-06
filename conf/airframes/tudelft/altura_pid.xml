@@ -38,10 +38,10 @@
 
     <module name="optical_flow_mateksys_3901_l0x.xml">
       <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
-      <configure name="MATEKSYS_3901_L0X_MOTION_THRES" value="80"/>
-      <configure name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200"/>
-      <configure name="MATEKSYS_3901_L0X_MAX_DISTANCE" value="2500"/>
-      <configure name="MATEKSYS_3901_L0X_MAX_FLOW" value="150"/>
+      <define name="MATEKSYS_3901_L0X_MOTION_THRES" value="80"/>
+      <define name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200"/>
+      <define name="MATEKSYS_3901_L0X_MAX_DISTANCE" value="2500"/>
+      <define name="MATEKSYS_3901_L0X_MAX_FLOW" value="150"/>
     </module>  
 
     <module name="baro_ms5611_spi" >
@@ -50,12 +50,25 @@
       <define name="SENSOR_SYNC_SEND"/>
     </module>
 
-    <!-- <module name="mag_ist8310">
+    <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
-    </module> -->
+    </module>
 
-    <module name="ins" type="ekf2"/>
+    <module name="ins" type="ekf2">
+      <define name="INS_SONAR_MIN_RANGE" value="0.00"/>
+      <define name="INS_SONAR_MAX_RANGE" value="3000"/>
+      <define name="USE_RANGE_AID" value="1"/>
+      <define name="INS_FLOW_SENSOR_DELAY" value="100"/>
+      <define name="INS_MIN_FLOW_QUALITY" value="100"/>
+      <define name="INS_MAX_FLOW_RATE" value="200"/>
+      <define name="FLOW_OFFSET_X" value="0"/>
+      <define name="FLOW_OFFSET_Y" value="0"/>
+      <define name="FLOW_OFFSET_Z" value="0"/>
+      <define name="INS_FLOW_NOISE" value="0.01"/>
+      <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
+      <define name="INS_FLOW_INNOV_GATE" value="3"/>
+    </module>
 
     <!-- End block -->
 
@@ -64,7 +77,6 @@
     </module>
     
     <module name="gps" type="ubx_ucenter" />
-
 
     <!-- GPS modified to send also separate ABI messages for magnetometer and optical flow -->
     <!-- <module name="gps" type="datalink" >
@@ -75,7 +87,7 @@
     
     <module name="ahrs" type="float_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
       <define name="AHRS_ICQ_MAG_ID" value="MAG_IST8310_SENDER_ID"/>
     </module>
 

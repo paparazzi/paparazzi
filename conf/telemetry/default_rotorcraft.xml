@@ -204,9 +204,10 @@
       <message name="IMU_GYRO_SCALED"          period=".075"/>
       <message name="IMU_ACCEL_SCALED"         period=".075"/>
       <message name="IMU_MAG_SCALED"           period=".2"/>
+      <message name="IMU_MAG_RAW"              period=".2"/>
       <message name="LIDAR"                    period="0.05"/>
-      <message name="DEBUG"                    period="0.05"/>
       <message name="OPTICAL_FLOW"             period="0.05"/>
+      <message name="INS_EKF2"                 period="0.1"/>
     </mode>
   </process>
 

@@ -5,26 +5,24 @@
     <description>
       simple INS and AHRS using EKF2 from PX4
     </description>
-    <define name="INS_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range in meters"/>
-    <define name="INS_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range in meters"/>
+    <define name="INS_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
+    <define name="INS_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
     <define name="USE_RANGE_AID" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
-    <define name="INS_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay in ms"/>
-    <define name="INS_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0 to 255]"/>
-    <define name="INS_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive in rad/sec"/>
-    <define name="FLOW_OFFSET_X" value="-130" description="Flow sensor X offset from IMU position in millimeters"/>
-    <define name="FLOW_OFFSET_Y" value="-150" description="Flow sensor Y offset from IMU position in millimeters"/>
-    <define name="FLOW_OFFSET_Z" value="170" description="Flow sensor Z offset from IMU position in millimeters"/>
+    <define name="INS_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay [ms]"/>
+    <define name="INS_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0-255]"/>
+    <define name="INS_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive [rad/sec]]"/>
+    <define name="FLOW_OFFSET_X" value="-130" description="Flow sensor X offset from IMU position [mm]"/>
+    <define name="FLOW_OFFSET_Y" value="-150" description="Flow sensor Y offset from IMU position [mm]"/>
+    <define name="FLOW_OFFSET_Z" value="170" description="Flow sensor Z offset from IMU position [mm]"/>
+    <define name="INS_FLOW_NOISE" value="0.01" description="Flow sensor noise [rad/sec]"/>
+    <define name="INS_FLOW_NOISE_QMIN" value="0.03" description="Flow sensor noise when quality is minimum [rad/sec]"/>
+    <define name="INS_FLOW_INNOV_GATE" value="3" description="Flow sensor innovation gate [STD]"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
       <!-- EKF2 Configuration parameters -->
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
-        <!-- <dl_setting var="ekf2_params.flow_qual_min" min="0" step="1" max="255" shortname="flow_quality" module="subsystems/ins/ins_ekf2"/>
-        <dl_setting var="ekf2_params.range_aid" min="0" step="1" max="1" shortname="use_range_aid" values="OFF|ON" module="subsystems/ins/ins_ekf2"/> -->
-        <dl_setting var="ekf2_params.offset_x" min="-1000" step="1" max="1000" shortname="x_offset (mm)"/>
-        <dl_setting var="ekf2_params.offset_y" min="-1000" step="1" max="1000" shortname="y_offset (mm)"/>
-        <dl_setting var="ekf2_params.offset_z" min="-1000" step="1" max="1000" shortname="z_offset (mm)"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -36,7 +34,7 @@
   <makefile target="ap|nps">
     <configure name="CXXSTANDARD" value="-std=c++11"/>
 
-    <!-- Data processing configuration parameters -->
+    <!-- Data processing configuration parameters
     <define name="INS_SONAR_MIN_RANGE" value="0.04"/>
     <define name="INS_SONAR_MAX_RANGE" value="3000"/>
     <define name="USE_RANGE_AID" value="1"/>
@@ -46,6 +44,9 @@
     <define name="FLOW_OFFSET_X" value="-130"/>
     <define name="FLOW_OFFSET_Y" value="-150"/>
     <define name="FLOW_OFFSET_Z" value="170"/>
+    <define name="INS_FLOW_NOISE" value="0.01"/>
+    <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
+    <define name="INS_FLOW_INNOV_GATE" value="3"/> -->
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>

@@ -90,7 +90,7 @@ static void mateksys3901l0x_send_optical_flow(struct transport_tx *trans, struct
                               &mateksys3901l0x.velocityY,
                               &mateksys3901l0x.motion_quality,
                               &mateksys3901l0x.distancemm,
-                              &mateksys3901l0x.distancemm_compensated,
+                              &mateksys3901l0x.distance_compensated,
                               &mateksys3901l0x.distancemm_quality);
 }
 
@@ -111,7 +111,7 @@ void mateksys3901l0x_init(void)
   mateksys3901l0x.distancemm_quality = 0;
   mateksys3901l0x.distancemm_temp = 0;
   mateksys3901l0x.distancemm = 0;
-  mateksys3901l0x.distancemm_compensated = 0;
+  mateksys3901l0x.distance_compensated = 0;
   mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
 
 #if PERIODIC_TELEMETRY
@@ -317,13 +317,13 @@ static void mateksys3901l0x_parse(uint8_t byte)
 
           float phi = stateGetNedToBodyEulers_f()->phi;
           float theta = stateGetNedToBodyEulers_f()->theta;
-          mateksys3901l0x.distancemm_compensated = (mateksys3901l0x.distancemm * cos(phi)) * cos(theta);
+          mateksys3901l0x.distance_compensated = ((mateksys3901l0x.distancemm * cos(phi)) * cos(theta)) * 0.001;
 
         }
 
         // estimate velocity and send it to telemetry (flow not compensated for gyro measurements)
-        mateksys3901l0x.velocityX = mateksys3901l0x.distancemm_compensated * sin(RadOfDeg(mateksys3901l0x.motionY));  // velocity in m/sec
-        mateksys3901l0x.velocityY = mateksys3901l0x.distancemm_compensated * sin(RadOfDeg(mateksys3901l0x.motionX));  // velocity in m/sec
+        mateksys3901l0x.velocityX = mateksys3901l0x.distance_compensated * sin(RadOfDeg(mateksys3901l0x.motionY));  // velocity in m/sec
+        mateksys3901l0x.velocityY = mateksys3901l0x.distance_compensated * sin(RadOfDeg(mateksys3901l0x.motionX));  // velocity in m/sec
 
         // get ticks
         mateksys3901l0x.time_usec = get_sys_time_usec();
@@ -332,7 +332,7 @@ static void mateksys3901l0x_parse(uint8_t byte)
         if (USE_MATEKSYS_3901_L0X_AGL) {
           AbiSendMsgAGL(AGL_LIDAR_MATEKSYS_3901_L0X_ID, 
                         mateksys3901l0x.time_usec, 
-                        mateksys3901l0x.distancemm_compensated);
+                        mateksys3901l0x.distance_compensated);
         }
 
         // send optical flow (if requested)

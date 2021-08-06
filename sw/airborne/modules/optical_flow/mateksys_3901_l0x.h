@@ -83,7 +83,7 @@ struct Mateksys3901l0X {
   uint8_t  distancemm_quality;
   int32_t  distancemm_temp;
   int32_t  distancemm;
-  int32_t  distancemm_compensated;
+  int32_t  distance_compensated;
   float  velocityX;
   float  velocityY;
   uint8_t  parse_crc; 

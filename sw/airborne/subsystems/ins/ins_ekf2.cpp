@@ -146,6 +146,24 @@ PRINT_CONFIG_VAR(FLOW_OFFSET_Y)
 #endif
 PRINT_CONFIG_VAR(FLOW_OFFSET_Z)
 
+/* Flow sensor noise in rad/sec */
+#ifndef INS_FLOW_NOISE
+#define INS_FLOW_NOISE
+#endif
+PRINT_CONFIG_VAR(INS_FLOW_NOISE)
+
+/* Flow sensor noise at qmin in rad/sec */
+#ifndef INS_FLOW_NOISE_QMIN
+#define INS_FLOW_NOISE_QMIN
+#endif
+PRINT_CONFIG_VAR(INS_FLOW_NOISE_QMIN)
+
+/* Flow sensor innovation gate */
+#ifndef INS_FLOW_INNOV_GATE
+#define INS_FLOW_INNOV_GATE
+#endif
+PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE)
+
 /* All registered ABI events */
 static abi_event agl_ev;
 static abi_event baro_ev;
@@ -427,6 +445,9 @@ void ins_ekf2_init(void)
   ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
   ekf_params->flow_delay_ms = INS_FLOW_SENSOR_DELAY;
   ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
+  ekf_params->flow_noise = INS_FLOW_NOISE;
+	ekf_params->flow_noise_qual_min = INS_FLOW_NOISE_QMIN;
+	ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
 
   /* Set flow sensor offset from IMU position in xyz (m) */
   ekf2.offset_x = FLOW_OFFSET_X;

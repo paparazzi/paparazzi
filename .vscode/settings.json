@@ -10,6 +10,7 @@
     },
     "files.associations": {
         "mateksys_3901_l0x.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "iterator": "cpp"
     },
 }
