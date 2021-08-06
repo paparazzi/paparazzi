@@ -36,9 +36,13 @@
 
     <!-- Block for ekf2 debugging on optical flow -->
 
-    <!-- <module name="optical_flow_mateksys_3901_l0x.xml">
-    <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
-    </module>   -->
+    <module name="optical_flow_mateksys_3901_l0x.xml">
+      <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
+      <configure name="MATEKSYS_3901_L0X_MOTION_THRES" value="80"/>
+      <configure name="MATEKSYS_3901_L0X_DISTANCE_THRES" value="200"/>
+      <configure name="MATEKSYS_3901_L0X_MAX_DISTANCE" value="2500"/>
+      <configure name="MATEKSYS_3901_L0X_MAX_FLOW" value="150"/>
+    </module>  
 
     <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="SPI4"/>
@@ -55,17 +59,17 @@
 
     <!-- End block -->
 
-    <!-- <module name="gps" type="ublox" >
+    <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
     
-    <module name="gps" type="ubx_ucenter" /> -->
+    <module name="gps" type="ubx_ucenter" />
 
 
     <!-- GPS modified to send also separate ABI messages for magnetometer and optical flow -->
-    <module name="gps" type="datalink" >
+    <!-- <module name="gps" type="datalink" >
       <configure name="GPS_BAUD" value="B115200"/>
-    </module>
+    </module> -->
 
     <module name="stabilization" type="indi_simple"/>
     

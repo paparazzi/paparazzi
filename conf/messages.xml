@@ -238,9 +238,11 @@
       <field name="debug_5" type="float"/>
       <field name="debug_6" type="float"/>
       <field name="debug_7" type="float"/>
-      <field name="debug_8" type="int32"/>
-      <field name="debug_9" type="int32"/>
-      <field name="debug_10" type="int32"/>
+      <field name="debug_8" type="float"/>
+      <field name="debug_9" type="float"/>
+      <field name="debug_10" type="float"/>
+      <field name="debug_11" type="float"/>
+      <field name="debug_12" type="float"/>
     </message>
 
     <message name="SURVEY" id="27"> 
@@ -506,15 +508,6 @@
     </message>
 
     <!-- 61 is free -->
-
-    <message name="DEBUG_DATALINK" id="61">
-      <field name="debug_1" type="float"/>
-      <field name="debug_2" type="float"/>
-      <field name="debug_3" type="int32"/>
-      <field name="debug_4" type="int32"/>
-      <field name="debug_5" type="float"/>
-      <field name="debug_6" type="float"/>
-    </message>
 
     <message name="TURB_PRESSURE_VOLTAGE" id="62">
       <field name="ch_1_p" type="float"/>
@@ -1949,7 +1942,8 @@
       <field name="flow_comp_m_x" type="float" unit="m"/>
       <field name="flow_comp_m_y" type="float" unit="m"/>
       <field name="flow_quality" type="uint8"/>
-      <field name="ground_distance" type="float" unit="m"/>
+      <field name="distance_raw" type="int32" unit="mm"/>
+      <field name="distance_compensated" type="int32" unit="mm"/>
       <field name="distance_quality" type="uint8"/>
     </message>
 
