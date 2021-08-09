@@ -67,7 +67,7 @@
       <define name="FLOW_OFFSET_Z" value="0"/>
       <define name="INS_FLOW_NOISE" value="0.01"/>
       <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
-      <define name="INS_FLOW_INNOV_GATE" value="3"/>
+      <define name="INS_FLOW_INNOV_GATE" value="10"/>
     </module>
 
     <!-- End block -->
@@ -103,11 +103,11 @@
     <module name="geo_mag"/>
     <module name="send_imu_mag_current" />
 
-    <!-- Magenetometer in external GPS module
+    <!-- Magenetometer in external GPS module -->
     <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_IST8310_I2C_DEV" value="I2C1"/>
-    </module> -->
+    </module>
 
     <module name="motor_mixing"/>
 

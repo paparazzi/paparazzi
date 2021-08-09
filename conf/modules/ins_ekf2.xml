@@ -34,8 +34,8 @@
   <makefile target="ap|nps">
     <configure name="CXXSTANDARD" value="-std=c++11"/>
 
-    <!-- Data processing configuration parameters
-    <define name="INS_SONAR_MIN_RANGE" value="0.04"/>
+    <!-- Data processing configuration parameters -->
+    <!-- <define name="INS_SONAR_MIN_RANGE" value="0.04"/>
     <define name="INS_SONAR_MAX_RANGE" value="3000"/>
     <define name="USE_RANGE_AID" value="1"/>
     <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
