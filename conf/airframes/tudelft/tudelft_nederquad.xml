@@ -73,9 +73,7 @@
     <module name="stabilization" type="int_quat" />
     <!--<module name="stabilization" type="float_quat"/>-->
     <!--<module name="stabilization" type="rate_indi"/>-->
-    <module name="ins" type="ekf2">
-      <!--<define name="INS_EKF2_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>-->
-    </module>
+    <module name="ins" type="ekf2"/>
 
     <module name="current_sensor">
      <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />

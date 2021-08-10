@@ -55,20 +55,7 @@
       <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
     </module>
 
-    <module name="ins" type="ekf2">
-      <define name="INS_SONAR_MIN_RANGE" value="0.00"/>
-      <define name="INS_SONAR_MAX_RANGE" value="3000"/>
-      <define name="USE_RANGE_AID" value="1"/>
-      <define name="INS_FLOW_SENSOR_DELAY" value="100"/>
-      <define name="INS_MIN_FLOW_QUALITY" value="100"/>
-      <define name="INS_MAX_FLOW_RATE" value="200"/>
-      <define name="FLOW_OFFSET_X" value="0"/>
-      <define name="FLOW_OFFSET_Y" value="0"/>
-      <define name="FLOW_OFFSET_Z" value="0"/>
-      <define name="INS_FLOW_NOISE" value="0.01"/>
-      <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
-      <define name="INS_FLOW_INNOV_GATE" value="10"/>
-    </module>
+    <module name="ins" type="ekf2"/>
 
     <!-- End block -->
 
