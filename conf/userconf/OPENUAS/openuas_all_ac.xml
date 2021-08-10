@@ -1,5 +1,17 @@
 <conf>
   <aircraft
+   name="A160"
+   ac_id="222"
+   airframe="airframes/OPENUAS/openuas_wltech_xk_a160.xml"
+   radio="radios/OPENUAS/openuas_rxsr_cppm_8ch.xml"
+   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu_rc.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_new.xml"
+   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/geo_mag.xml modules/gps.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/photogrammetry_calculator.xml modules/stabilization_adaptive_fw.xml"
+   gui_color="#ffffd7b80000"
+   release="4446ea27fbf9191469fb70885257f345a57d4483"
+  />
+  <aircraft
    name="ARDrone_2"
    ac_id="238"
    airframe="airframes/OPENUAS/openuas_parrot_ardrone_2.xml"
