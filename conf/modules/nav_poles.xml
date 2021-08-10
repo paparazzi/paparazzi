@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="poles" dir="nav">
+<module name="nav_poles" dir="nav">
   <doc>
     <description>Navigate around two poles</description>
   </doc>

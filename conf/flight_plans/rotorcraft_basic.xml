@@ -51,7 +51,7 @@
     </block>
     <block name="line_p1_p2">
       <go from="p1" hmode="route" wp="p2"/>
-      <stay wp="p2" until="stage_time>10"/>
+      <stay wp="p2" until="stage_time @GT 10"/>
       <go from="p2" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
@@ -67,7 +67,7 @@
     <block name="test yaw">
       <go wp="p1"/>
       <for var="i" from="1" to="16">
-        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time > 3"/>
+        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time @GT 3"/>
       </for>
       <deroute block="Standby"/>
     </block>

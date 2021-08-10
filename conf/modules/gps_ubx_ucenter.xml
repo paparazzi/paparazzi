@@ -33,7 +33,9 @@ Warning: you still need to tell the driver, which paparazzi port you use.
     </dl_settings>
   </settings>
 
-  <depends>gps_ublox</depends>
+  <dep>
+    <depends>gps_ublox</depends>
+  </dep>
 
   <header>
     <file name="gps_ubx_ucenter.h"/>

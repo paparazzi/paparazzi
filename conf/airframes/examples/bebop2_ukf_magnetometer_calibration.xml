@@ -29,9 +29,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
-
-  <modules main_freq="512">
+    
     <module name="geo_mag"/>
     <module name="mag_calib_ukf"/>
     <module name="air_data"/>
@@ -40,7 +38,7 @@
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -113,7 +111,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
 
@@ -151,10 +148,8 @@
     <define name="G1_Q" value="0.025"/>
     <define name="G1_R" value="0.0022"/>
 
-    <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
+    <!--unit: Hz-->
+    <define name="FILT_CUTOFF_P" value="20.0"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="170.0"/>
@@ -166,7 +161,6 @@
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="3.2"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>

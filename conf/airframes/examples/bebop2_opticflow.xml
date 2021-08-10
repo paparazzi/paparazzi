@@ -105,7 +105,6 @@
     <define name="VFF_VZ_R_GPS" value="0.01"/>     
     <define name="SONAR_MIN_RANGE" value="0.0"/>
     <define name="SONAR_MAX_RANGE" value="3.5"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
   </section>
 
@@ -145,13 +144,6 @@
     <define name="G1_R" value="0.0010"/>
     <define name="G2_R" value="0.236"/>
 
-    <!-- Here it is assumed that your removed the damping from your bebop2!
-         The dampers do not really damp, but cause oscillation. By removing/
-         fixing them, the bebop2 will fly much better-->
-    <define name="FILTER_ROLL_RATE" value="FALSE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
-
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
     <define name="REF_ERR_Q" value="600.0"/>
@@ -160,16 +152,7 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
-    <!-- second order filter parameters -->
-    <!-- old?
-	<define name="FILT_OMEGA" value="20.0"/>
-    <define name="FILT_ZETA" value="0.7"/>
-    <define name="FILT_OMEGA_R" value="20.0"/>
-    <define name="FILT_ZETA_R" value="0.7"/>
-	-->
-
-	<define name="FILT_CUTOFF" value="3.2"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
+	  <define name="FILT_CUTOFF" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>

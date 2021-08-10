@@ -11,6 +11,10 @@
     <configure name="FLIGHTRECORDER_SDLOG" value="TRUE|FALSE" description="Enable/disable logging on internal SD card (default=TRUE)"/>
     <define name="FLIGHTRECORDER_DEVICE" value="dev" description="Device to be used when not internal SD card (ex: uart0)"/>
   </doc>
+  <dep>
+    <depends>logger_sd_chibios,pprzlog</depends>
+    <provides>flight_recorder</provides>
+  </dep>
   <header>
     <file name="flight_recorder.h"/>
   </header>

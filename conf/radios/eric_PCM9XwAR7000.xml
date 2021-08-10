@@ -1,85 +1,12 @@
-<?xml version="1.0"?>
-<!-- $Id: cockpitSX.xml 3160 2009-03-31 23:22:21Z flixr $
---
--- (c) 2006 Pascal Brisset, Antoine Drouin
---
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- function: logical command
--- average: (boolean) channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
-
-<!--
-<!DOCTYPE radio SYSTEM "radio.dtd">
-<!--<serial name="Spektrum Serial" data_min="900pulse_type="NEGATIVE">-//>
-<radio name="PCM9X radio file for a1000" data_min="1000" data_max="2000" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="right_stick_vert" function="THROTTLE"     max="1905" neutral="1111" min="1111" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL"    min="1111" neutral="1509" max="1906" average="0"/>
- <channel ctl="left_stick_vert" function="PITCH"      min="1907" neutral="1509" max="1114" average="0"/>
- <channel ctl="left_stick_horiz" function="YAW" min="1115" neutral="1506" max="1900" average="0"/>
- <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
- <channel ctl="aux2" function="SWITCH1"     min="1112" neutral="1509" max="1905" average="1"/>
- <channel ctl="aux3" function="AUX1"    min="1905" neutral="1905" max="1905" average="1"/>
- <channel ctl="switch_C" function="MODE"    min="1904" neutral="1509" max="1112" average="1"/>
-</radio> -->
-
-<!--
-<!DOCTYPE radio SYSTEM "radio.dtd">
-<!--<serial name="Spektrum Serial" data_min="900pulse_type="NEGATIVE">////>
-<radio name="PCM9X radio file for a1000" data_min="1000" data_max="2000" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="right_stick_vert" function="THROTTLE"     max="1905" neutral="1110" min="1110" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL"    min="1108" neutral="1509" max="1911" average="0"/>
- <channel ctl="left_stick_vert" function="PITCH"      min="1913" neutral="1511" max="1106" average="0"/>
- <channel ctl="left_stick_horiz" function="YAW" min="1111" neutral="1505" max="1905" average="0"/>
- <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
- <channel ctl="aux2" function="SWITCH1"     min="1111" neutral="1509" max="1906" average="1"/>
- <channel ctl="aux3" function="AUX1"    min="1905" neutral="1905" max="1905" average="1"/>
- <channel ctl="switch_C" function="MODE"    min="1907" neutral="1509" max="1111" average="1"/>
-</radio>
--->
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <!--<serial name="Spektrum Serial" data_min="900pulse_type="NEGATIVE">-->
-<radio name="PCM9X radio file for a1000" data_min="1000" data_max="2000" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="right_stick_vert" function="THROTTLE"     max="1906" neutral="1112" min="1112" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL"    min="1112" neutral="1510" max="1903" average="0"/>
- <channel ctl="left_stick_vert" function="PITCH"      min="1908" neutral="1510" max="1109" average="0"/>
- <channel ctl="left_stick_horiz" function="YAW" min="1113" neutral="1506" max="1904" average="0"/>
- <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
- <channel ctl="aux2" function="SWITCH1"     min="1110" neutral="1509" max="1906" average="1"/>
- <channel ctl="aux3" function="AUX1"    min="1905" neutral="1905" max="1905" average="1"/>
- <channel ctl="switch_C" function="MODE"    min="1907" neutral="1509" max="1111" average="1"/>
+<radio name="PCM9X radio file for a1000" data_min="1000" data_max="2000" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" max="1906" neutral="1112" min="1112" average="0"/>
+ <channel function="ROLL" min="1112" neutral="1510" max="1903" average="0"/>
+ <channel function="PITCH" min="1109" neutral="1510" max="1908" average="0" reverse="1"/>
+ <channel function="YAW" min="1113" neutral="1506" max="1904" average="0"/>
+ <channel function="UNUSED" min="948" neutral="1500" max="2050" average="1" reverse="1"/>
+ <channel function="SWITCH1" min="1110" neutral="1509" max="1906" average="1"/>
+ <channel function="AUX1" min="1905" neutral="1905" max="1905" average="1"/>
+ <channel function="MODE" min="1111" neutral="1509" max="1907" average="1" reverse="1"/>
 </radio>

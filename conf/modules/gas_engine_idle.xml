@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gas_engine">
+<module name="gas_engine_idle" dir="gas_engine">
   <doc>
     <description>Gas Engine Idle</description>
   </doc>

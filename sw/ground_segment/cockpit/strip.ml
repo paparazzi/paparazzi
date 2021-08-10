@@ -55,6 +55,7 @@ type strip_param = {
   color : string;
   min_bat : float;
   max_bat : float;
+  nb_cell_bat : float option;
   alt_shift_plus_plus : float;
   alt_shift_plus : float;
   alt_shift_minus : float;
@@ -197,6 +198,7 @@ let add = fun config strip_param (strips:GPack.box) ->
   let color = strip_param.color
   and min_bat = strip_param.min_bat
   and max_bat = strip_param.max_bat
+  and nb_cell_bat = strip_param.nb_cell_bat
   and alt_shift_plus_plus = strip_param.alt_shift_plus_plus
   and alt_shift_plus = strip_param.alt_shift_plus
   and alt_shift_minus = strip_param.alt_shift_minus in
@@ -307,7 +309,9 @@ object
     agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
   method set_bat value =
     let v = if value < 0.1 then "UNK" else (string_of_float value) in
-    bat#set value [0.5, v]
+    match nb_cell_bat with
+    | None -> bat#set value [0.5, v]
+    | Some nb -> bat#set value [0.3, v; 0.7, sprintf "%.1f /c" (value /. nb)]
   method set_throttle ?(kill=false) value =
     let background = if kill then "red" else "orange" in
     throttle#set ~background value (sprintf "%.0f%%" value)

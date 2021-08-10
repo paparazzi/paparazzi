@@ -131,6 +131,8 @@ extern void nav_register_oval(nav_rover_oval_init nav_oval_init, nav_rover_oval 
 #define GetPosY() (stateGetPositionEnu_f()->y)
 /// Get current altitude above MSL
 #define GetPosAlt() (stateGetPositionEnu_f()->z+state.ned_origin_f.hmsl)
+/// Get current height above reference
+#define GetPosHeight() (stateGetPositionEnu_f()->z)
 /**
  * Get current altitude reference for local coordinates.
  * This is the ground_alt from the flight plan at first,

@@ -4,7 +4,9 @@
   <doc>
     <description></description>
   </doc>
-  <depends>trig_test.xml</depends>
+  <dep>
+    <depends>trig_test</depends>
+  </dep>
   <header>
     <file name="windturbine.h"/>
   </header>

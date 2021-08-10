@@ -87,6 +87,15 @@ let float_attrib = fun xml a ->
 let name_of = fun wp -> ExtXml.attrib wp "name"
 
 
+type ref_type = UTM | LTP
+
+type ref0 = {
+    frame : ref_type;
+    utm0 : utm;
+    ecef0 : ecef;
+    geo0 : geographic
+}
+
 let ground_alt = ref 0.
 let security_height = ref 0.
 let fp_wgs84 = ref { posn_lat = 0.; posn_long = 0.}
@@ -121,37 +130,57 @@ let localize_waypoint = fun rel_utm_of_wgs84 waypoint ->
       Xml.No_attribute "lat" | Xml.No_attribute "lon" ->
         waypoint
 
+let wgs84_of_x_y = fun ref0 x y alt ->
+  match ref0.frame with
+    | UTM ->
+      Latlong.of_utm Latlong.WGS84 (Latlong.utm_add ref0.utm0 (x, y))
+    | LTP ->
+      let ned = make_ned [|y; x; -. (float_of_string alt -. !ground_alt)|] in
+      let ecef = ecef_of_ned ref0.ecef0 ned in
+      let (geo, _) = Latlong.geo_of_ecef Latlong.WGS84 ecef in
+      geo
 
-let print_waypoint_utm = fun out default_alt waypoint ->
+let print_waypoint_utm = fun out ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
   check_altitude (float_of_string alt) waypoint;
+  let (x, y) = match ref0.frame with
+    | UTM -> (x, y)
+    | LTP ->
+      let wgs84 = wgs84_of_x_y ref0 x y alt in
+      let utm = utm_of ~zone:ref0.utm0.utm_zone Latlong.WGS84 wgs84 in
+      (utm.utm_x -. ref0.utm0.utm_x, utm.utm_y -. ref0.utm0.utm_y)
+  in
   fprintf out " {%.1f, %.1f, %s},\\\n" x y alt
 
-let print_waypoint_enu = fun out utm0 default_alt waypoint ->
+let print_waypoint_enu = fun out ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
-  let ecef0 = Latlong.ecef_of_geo Latlong.WGS84 (Latlong.of_utm Latlong.WGS84 utm0) !ground_alt in
-  let ecef = Latlong.ecef_of_geo Latlong.WGS84 (Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y))) (float_of_string alt) in
-  let ned = Latlong.array_of_ned (Latlong.ned_of_ecef ecef0 ecef) in
+  let ned = match ref0.frame with
+    | UTM ->
+      let ecef = Latlong.ecef_of_geo Latlong.WGS84 (Latlong.of_utm Latlong.WGS84 (Latlong.utm_add ref0.utm0 (x, y))) (float_of_string alt) in
+      Latlong.array_of_ned (Latlong.ned_of_ecef ref0.ecef0 ecef)
+    | LTP ->
+      [|y; x; -. (float_of_string alt -. !ground_alt)|]
+  in
   fprintf out " {%.2f, %.2f, %.2f}, /* ENU in meters  */ \\\n" ned.(1) ned.(0) (-.ned.(2))
 
 let convert_angle = fun rad -> Int64.of_float (1e7 *. (Rad>>Deg)rad)
 
-let print_waypoint_lla = fun out utm0 default_alt waypoint ->
+let print_waypoint_lla = fun out ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
-  let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
+  let wgs84 = wgs84_of_x_y ref0 x y alt in
   fprintf out " {.lat=%Ld, .lon=%Ld, .alt=%.0f}, /* 1e7deg, 1e7deg, mm (above NAV_MSL0, local msl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (1000. *. float_of_string alt) (Egm96.of_wgs84 wgs84)
 
-let print_waypoint_lla_wgs84 = fun out utm0 default_alt waypoint ->
+let print_waypoint_lla_wgs84 = fun out ref0 default_alt waypoint ->
   let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
   and alt = try sof (float_attrib waypoint "height" +. !ground_alt) with _ -> default_alt in
   let alt = try Xml.attrib waypoint "alt" with _ -> alt in
-  let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
+  let wgs84 = wgs84_of_x_y ref0 x y alt in
   if Srtm.available wgs84 then
     check_altitude_srtm (float_of_string alt) waypoint wgs84;
   let alt = float_of_string alt +. Egm96.of_wgs84 wgs84 in
@@ -756,43 +785,17 @@ let check_geo_ref = fun wgs84 xml ->
 let dummy_waypoint =
   Xml.Element ("waypoint",
                ["name", "dummy";
-                "x", "42.";
-                "y", "42." ],
+                "x", "0.";
+                "y", "0." ],
                [])
 
 
-let print_inside_polygon = fun out pts ->
-  let (_, pts) = List.split pts in
-  let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
-  let rec f = fun i j ->
-    if i = j then
-      let {G2D.top=yl; left_side=(xg, ag); right_side=(xd, ad)} = layers.(i) in
-      if xg > xd then begin
-        lprintf out "return FALSE;\n"
-      end else begin
-        if ad <> 0. || ag <> 0. then
-          lprintf out "float dy = _y - %.1f;\n" yl;
-        let dy_times = fun f -> if f = 0. then "" else sprintf "+dy*%f" f in
-        lprintf out "return (%.1f%s<= _x && _x <= %.1f%s);\n" xg (dy_times ag) xd (dy_times ad)
-      end
-    else
-      let ij2 = (i+j) / 2 in
-      let yl = layers.(ij2).G2D.top in
-      lprintf out "if (_y <= %.1f) {\n" yl;
-      right (); f i ij2; left ();
-      lprintf out "} else {\n";
-      right (); f (ij2+1) j; left ();
-      lprintf out "}\n"
-  in
-  f 0 (Array.length layers - 1);;
-
-let print_inside_polygon_global = fun out pts ->
+let print_inside_polygon_global = fun out pts name ->
   lprintf out "uint8_t i, j;\n";
   lprintf out "bool c = false;\n";
   (* build array of wp id *)
-  let (ids, _) = List.split pts in
-  lprintf out "const uint8_t nb_pts = %d;\n" (List.length pts);
-  lprintf out "const uint8_t wps_id[] = { %s };\n\n" (String.concat ", " ids);
+  lprintf out "const uint8_t nb_pts = %s_NB;\n" name;
+  lprintf out "const uint8_t wps_id[] = %s;\n\n" name;
   (* start algo *)
   lprintf out "for (i = 0, j = nb_pts - 1; i < nb_pts; j = i++) {\n";
   right ();
@@ -807,18 +810,16 @@ let print_inside_polygon_global = fun out pts ->
   lprintf out "return c;\n"
 
 
-type sector_type = StaticSector | DynamicSector
-
-let print_inside_sector = fun out t (s, pts) ->
+let print_inside_sector = fun out (s, pts) ->
+  let (ids, _) = List.split pts in
+  let name = "SECTOR_"^(Compat.uppercase_ascii s) in
+  Xml2h.define_out out (name^"_NB") (string_of_int (List.length pts));
+  Xml2h.define_out out name ("{ "^(String.concat ", " ids)^" }");
   lprintf out "static inline bool %s(float _x, float _y) {\n" (inside_function s);
   right ();
-  begin
-    match t with
-    | StaticSector -> print_inside_polygon out pts
-    | DynamicSector -> print_inside_polygon_global out pts
-  end;
+  print_inside_polygon_global out pts name;
   left ();
-  lprintf out "}\n"
+  lprintf out "}\n\n"
 
 
 let parse_wpt_sector = fun indexes waypoints xml ->
@@ -923,7 +924,7 @@ let print_auto_init_bindings = fun out abi_msgs variables ->
 (**
  * Print flight plan header
  *)
-let print_flight_plan_h = fun xml utm0 xml_file out_file ->
+let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   let out = open_out out_file in
 
   let waypoints = Xml.children (ExtXml.child xml "waypoints")
@@ -980,7 +981,6 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
         end
     with _ -> ()
   end;
-  ground_alt := get_float "ground_alt";
   let home_mode_height = try
     max (get_float "home_mode_height") !security_height
     with _ -> !security_height in
@@ -989,9 +989,9 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
 
   (* print general defines *)
   Xml2h.define_out out "NAV_DEFAULT_ALT" (sprintf "%.0f /* nominal altitude of the flight plan */" (float_of_string alt));
-  Xml2h.define_out out "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
-  Xml2h.define_out out "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
-  Xml2h.define_out out "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
+  Xml2h.define_out out "NAV_UTM_EAST0" (sprintf "%.0f" ref0.utm0.utm_x);
+  Xml2h.define_out out "NAV_UTM_NORTH0" (sprintf "%.0f" ref0.utm0.utm_y);
+  Xml2h.define_out out "NAV_UTM_ZONE0" (sprintf "%d" ref0.utm0.utm_zone);
   Xml2h.define_out out "NAV_LAT0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_lat));
   Xml2h.define_out out "NAV_LON0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_long));
   Xml2h.define_out out "NAV_ALT0" (sprintf "%.0f /* mm above msl */" (1000. *. !ground_alt));
@@ -1005,16 +1005,16 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
   define_waypoints_indices out waypoints;
 
   Xml2h.define_out out "WAYPOINTS_UTM" "{ \\";
-  List.iter (print_waypoint_utm out alt) waypoints;
+  List.iter (print_waypoint_utm out ref0 alt) waypoints;
   lprintf out "};\n";
   Xml2h.define_out out "WAYPOINTS_ENU" "{ \\";
-  List.iter (print_waypoint_enu out utm0 alt) waypoints;
+  List.iter (print_waypoint_enu out ref0 alt) waypoints;
   lprintf out "};\n";
   Xml2h.define_out out "WAYPOINTS_LLA" "{ \\";
-  List.iter (print_waypoint_lla out utm0 alt) waypoints;
+  List.iter (print_waypoint_lla out ref0 alt) waypoints;
   lprintf out "};\n";
   Xml2h.define_out out "WAYPOINTS_LLA_WGS84" "{ \\";
-  List.iter (print_waypoint_lla_wgs84 out utm0 alt) waypoints;
+  List.iter (print_waypoint_lla_wgs84 out ref0 alt) waypoints;
   lprintf out "};\n";
   Xml2h.define_out out "WAYPOINTS_GLOBAL" "{ \\";
   List.iter (print_waypoint_global out) waypoints;
@@ -1081,13 +1081,7 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
       _ -> ()
   end;
 
-  (* start "C" part *)
-  lprintf out "\n#ifdef NAV_C\n\n";
-
-  (* print variables and ABI initialization *)
-  List.iter (fun v -> print_var_impl out abi_msgs v) variables;
   lprintf out "\n";
-  print_auto_init_bindings out abi_msgs variables;
 
   (* index of waypoints *)
   let index_of_waypoints =
@@ -1097,12 +1091,32 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
   (* print sectors *)
   let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
   let sectors = List.filter (fun x -> Compat.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
-  let sectors_type = List.map (fun x -> match ExtXml.attrib_or_default x "type" "static" with "dynamic" -> DynamicSector | _ -> StaticSector) sectors in
+  List.iter (fun x -> match ExtXml.attrib_opt x "type" with
+      Some _ -> failwith "Error: attribute \"type\" on flight plan tag \"sector\" is deprecated and must be removed. All sectors are now dynamics.\n"
+    | _ -> ()
+    ) sectors;
   let sectors = List.map (parse_wpt_sector index_of_waypoints waypoints) sectors in
-  List.iter2 (print_inside_sector out) sectors_type sectors;
+  List.iter (print_inside_sector out) sectors;
+
+  (* geofencing sector *)
+  begin
+    try
+      let geofence_sector = Xml.attrib xml "geofence_sector" in
+      lprintf out "\n#define InGeofenceSector(_x, _y) %s(_x, _y)\n" (inside_function geofence_sector)
+    with
+        _ -> ()
+  end;
+
+  (* start "C" part *)
+  lprintf out "\n#ifdef NAV_C\n\n";
+
+  (* print variables and ABI initialization *)
+  List.iter (fun v -> print_var_impl out abi_msgs v) variables;
+  lprintf out "\n";
+  print_auto_init_bindings out abi_msgs variables;
 
   (* print main flight plan state machine *)
-  lprintf out "\nstatic inline void auto_nav(void) {\n";
+  lprintf out "static inline void auto_nav(void) {\n";
   right ();
   List.iter (print_exception out) global_exceptions;
   lprintf out "switch (nav_block) {\n";
@@ -1114,15 +1128,6 @@ let print_flight_plan_h = fun xml utm0 xml_file out_file ->
   left ();
   lprintf out "}\n";
   lprintf out "#endif // NAV_C\n";
-
-  (* geofencing sector FIXME why here ? *)
-  begin
-    try
-      let geofence_sector = Xml.attrib xml "geofence_sector" in
-      lprintf out "#define InGeofenceSector(_x, _y) %s(_x, _y)\n" (inside_function geofence_sector)
-    with
-        _ -> ()
-  end;
 
   Xml2h.finish_out out h_name;
   close_out out
@@ -1168,16 +1173,33 @@ let generate = fun flight_plan ?(check=false) ?(dump=false) xml_file out_fp ->
   let xml = ExtXml.subst_child "blocks" (index_blocks (element "blocks" [] blocks)) xml in
   let waypoints = Xml.children (ExtXml.child xml "waypoints") in
 
-  let utm0 = utm_of WGS84 !fp_wgs84 in
-  let rel_utm_of_wgs84 = fun wgs84 ->
-    (* force utm zone to be the same that reference point *)
-    let utm = utm_of ~zone:utm0.utm_zone WGS84 wgs84 in
-    (utm.utm_x -. utm0.utm_x, utm.utm_y -. utm0.utm_y) in
-  let waypoints =
-    List.map (localize_waypoint rel_utm_of_wgs84) waypoints in
+  let frame = ExtXml.attrib_or_default xml "wp_frame" "UTM" in
+  let frame = match Compat.uppercase_ascii frame with
+    | "UTM" -> UTM
+    | "LTP" -> LTP
+    | _ -> failwith ("Error: unkown wp_frame \"" ^ frame ^ "\". Use \"utm\" or \"ltp\"")
+    in
 
+  ground_alt := float_attrib xml "ground_alt";
+  let ref0 = {
+    frame;
+    utm0 = utm_of WGS84 !fp_wgs84;
+    ecef0 = Latlong.ecef_of_geo Latlong.WGS84 !fp_wgs84 !ground_alt;
+    geo0 = !fp_wgs84
+  } in
+  
+  let waypoints = match frame with
+    | UTM ->
+      let rel_utm_of_wgs84 = fun wgs84 ->
+        (* force utm zone to be the same that reference point *)
+        let utm = utm_of ~zone:ref0.utm0.utm_zone WGS84 wgs84 in
+        (utm.utm_x -. ref0.utm0.utm_x, utm.utm_y -. ref0.utm0.utm_y) in
+      List.map (localize_waypoint rel_utm_of_wgs84) waypoints
+    | LTP -> waypoints
+    in
+  
   let xml = ExtXml.subst_child "waypoints" (element "waypoints" [] waypoints) xml in
 
   if dump then dump_fligh_plan xml out_fp
-  else print_flight_plan_h xml utm0 xml_file out_fp
+  else print_flight_plan_h xml ref0 xml_file out_fp
 

@@ -114,15 +114,7 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
 #endif /** WIND_INFO */
 
 #ifdef HITL
-    /** Infrared and GPS sensors are replaced by messages on the datalink */
-    case DL_HITL_INFRARED: {
-      /** This code simulates infrared.c:ir_update() */
-      infrared.roll = DL_HITL_INFRARED_roll(buf);
-      infrared.pitch = DL_HITL_INFRARED_pitch(buf);
-      infrared.top = DL_HITL_INFRARED_top(buf);
-    }
-    break;
-
+    /** GPS sensors are replaced by messages on the datalink */
     case DL_HITL_UBX: {
       /** This code simulates gps_ubx.c:parse_ubx() */
       if (gps_msg_received) {

@@ -9,7 +9,9 @@
     <configure name="GPS_UBX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c1)"/>
   </doc>
 
-  <depends>gps_ublox</depends>
+  <dep>
+    <depends>gps_ublox</depends>
+  </dep>
   <autoload name="gps_ublox"/>
   <header>
     <file name="gps_ubx_i2c.h"/>

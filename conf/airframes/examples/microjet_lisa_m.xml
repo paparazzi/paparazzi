@@ -42,9 +42,7 @@
     <module name="ins" type="alt_float">
       <define name="USE_BAROMETER" value="TRUE"/>
     </module>
-  </firmware>
-
-  <modules>
+    
     <module name="sys_mon"/>
     <module name="baro_sim"/>
     <module name="air_data">
@@ -54,7 +52,7 @@
     <module name="digital_cam_servo">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
     </module>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>

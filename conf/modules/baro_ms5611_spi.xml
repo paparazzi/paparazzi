@@ -10,6 +10,9 @@
     <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE0" description="SPI slave select index"/>
     <define name="SENSOR_SYNC_SEND" description="flag to enable sending BARO_MS5611 message on every new measurement"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="baro_ms5611_spi.h"/>
   </header>
@@ -20,9 +23,6 @@
   <makefile target="ap">
     <configure name="MS5611_SPI_DEV" default="spi1" case="upper|lower"/>
     <configure name="MS5611_SLAVE_IDX" default="spi_slave0" case="upper|lower"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <define name="USE_$(MS5611_SPI_DEV_UPPER)" />
     <define name="USE_$(MS5611_SLAVE_IDX_UPPER)" />
     <define name="MS5611_SPI_DEV" value="$(MS5611_SPI_DEV_LOWER)" />

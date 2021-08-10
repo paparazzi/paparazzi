@@ -390,7 +390,7 @@ void ahrs_fc_update_mag_2d_dumb(struct FloatVect3 *mag)
   };
   const float mag_rate_update_gain = 2.5;
   RATES_ADD_SCALED_VECT(ahrs_fc.rate_correction, r2, (mag_rate_update_gain * res_norm));
-  const float mag_bias_update_gain = -2.5e-4;
+  const float mag_bias_update_gain = -mag_rate_update_gain * 1e-4;
   RATES_ADD_SCALED_VECT(ahrs_fc.gyro_bias, r2, (mag_bias_update_gain * res_norm));
 
 }
@@ -462,7 +462,7 @@ void ahrs_fc_update_heading(float heading)
    * Otherwise the bias will be falsely "corrected".
    */
   if (fabs(residual_ltp.z) < sinf(RadOfDeg(5.))) {
-    heading_bias_update_gain = -2.5e-4;
+    heading_bias_update_gain = -heading_rate_update_gain * 1e-4;
   } else {
     heading_bias_update_gain = 0.0;
   }

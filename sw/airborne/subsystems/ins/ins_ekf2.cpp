@@ -27,6 +27,7 @@
  */
 
 #include "subsystems/ins/ins_ekf2.h"
+#include "subsystems/navigation/waypoints.h"
 #include "subsystems/abi.h"
 #include "stabilization/stabilization_attitude.h"
 #include "generated/airframe.h"
@@ -45,6 +46,24 @@
 #if USE_INS_NAV_INIT
 #error INS initialization from flight plan is not yet supported
 #endif
+
+/** The EKF2 fusion mode setting */
+#ifndef INS_EKF2_FUSION_MODE
+#define INS_EKF2_FUSION_MODE (MASK_USE_GPS)
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_FUSION_MODE)
+
+/** The EKF2 primary vertical distance sensor type */
+#ifndef INS_EKF2_VDIST_SENSOR_TYPE
+#define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_BARO
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_VDIST_SENSOR_TYPE)
+
+/** The EKF2 GPS checks before initialization */
+#ifndef INS_EKF2_GPS_CHECK_MASK
+#define INS_EKF2_GPS_CHECK_MASK 21 // (MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_GPS_CHECK_MASK)
 
 /** default AGL sensor to use in INS */
 #ifndef INS_EKF2_AGL_ID
@@ -254,10 +273,10 @@ struct ekf2_t
 static void ins_ekf2_publish_attitude(uint32_t stamp);
 
 /* Static local variables */
-static Ekf ekf;                                  ///< EKF class itself
-static parameters *ekf_params;                   ///< The EKF parameters
-struct ekf2_t ekf2;                              ///< Local EKF2 status structure
-static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2; ///< Component ID for EKF
+static Ekf ekf;                                   ///< EKF class itself
+static parameters *ekf_params;                    ///< The EKF parameters
+struct ekf2_t ekf2;                               ///< Local EKF2 status structure
+static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;  ///< Component ID for EKF
 
 /* External paramters */
 struct ekf2_parameters_t ekf2_params;
@@ -438,6 +457,9 @@ void ins_ekf2_init(void)
   ekf_params = ekf.getParamHandle();
   ekf_params->mag_fusion_type = MAG_FUSE_TYPE_HEADING;
   ekf_params->is_moving_scaler = 0.8f;
+  ekf_params->fusion_mode = INS_EKF2_FUSION_MODE;
+  ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
+  ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 
   ekf_params->fusion_mode |= MASK_USE_OF; // adding optical flow to GPS usage
 
@@ -561,6 +583,9 @@ void ins_ekf2_update(void)
         lla_ref.alt = ref_alt * 1000.0;
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         stateSetLocalOrigin_i(&ekf2.ltp_def);
+
+        /* update local ENU coordinates of global waypoints */
+        waypoints_localize_all();
 
         ekf2.ltp_stamp = origin_time;
       }
@@ -772,8 +797,13 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.lat = gps_s->lla_pos.lat;
   gps_msg.lon = gps_s->lla_pos.lon;
   gps_msg.alt = gps_s->hmsl;
+#if INS_EKF2_GPS_COURSE_YAW
+  gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
+  gps_msg.yaw_offset = 0;
+#else
   gps_msg.yaw = NAN;
   gps_msg.yaw_offset = NAN;
+#endif
   gps_msg.fix_type = gps_s->fix;
   gps_msg.eph = gps_s->hacc / 100.0;
   gps_msg.epv = gps_s->vacc / 100.0;

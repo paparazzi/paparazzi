@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <!--
 Attributes of root (Radio) tag :
 name: name of RC
@@ -8,7 +7,6 @@ sync_min: min width of a pulse to be considered as a synchro pulse
 sync_max: max width of a pulse to be considered as a synchro pulse
 min, max and sync are expressed in micro-seconds
 -->
-
 <!--
 Attributes of channel tag :
 ctl: name of the command on the transmitter - only for displaying
@@ -19,25 +17,22 @@ max: maximum pulse length (micro-seconds)
 neutral: neutral pulse length (micro-seconds)
 Note: a command may be reversed by exchanging min and max values
 -->
-
 <!DOCTYPE radio SYSTEM "../radio.dtd">
-<radio name="Taranis" data_min="987" data_max="2159" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="1"  function="THROTTLE"           min="987" neutral="987" max="2159" average="0"/>
- <channel ctl="2"  function="ROLL"               min="987" neutral="1573" max="2159" average="0"/>
- <channel ctl="3"  function="PITCH"              min="2159" neutral="1573" max="1497" average="0"/>
- <channel ctl="4"  function="YAW"                min="987" neutral="1573" max="2159" average="0"/>
- <channel ctl="5"  function="SWITCH_A"           min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="6"  function="FLAP"               min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="7"  function="SWITCH_C"           min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="8"  function="MODE"               min="2159" neutral="1573" max="987" average="1"/>
- <channel ctl="9"  function="SWITCH_E"           min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="10" function="KILL_SWITCH"        min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="11" function="SIM_SRC"           min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="12" function="SWITCH_H"           min="987" neutral="1573" max="2159" average="1"/>
- <channel ctl="13" function="POT_S1"             min="987" neutral="1573" max="2159" average="0"/>
- <channel ctl="14" function="POT_S2"             min="987" neutral="1573" max="2159" average="0"/>
- <channel ctl="15" function="LEFT_SLIDER"        min="987" neutral="1573" max="2159" average="0"/>
- <channel ctl="16" function="RIGHT_SLIDER"       min="987" neutral="1573" max="2159" average="0"/>
+<radio name="Taranis" data_min="987" data_max="2159" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" min="987" neutral="987" max="2159" average="0"/>
+ <channel function="ROLL" min="987" neutral="1573" max="2159" average="0"/>
+ <channel function="PITCH" min="1497" neutral="1573" max="2159" average="0" reverse="1"/>
+ <channel function="YAW" min="987" neutral="1573" max="2159" average="0"/>
+ <channel function="SWITCH_A" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="FLAP" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="SWITCH_C" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="MODE" min="987" neutral="1573" max="2159" average="1" reverse="1"/>
+ <channel function="SWITCH_E" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="KILL_SWITCH" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="SIM_SRC" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="SWITCH_H" min="987" neutral="1573" max="2159" average="1"/>
+ <channel function="POT_S1" min="987" neutral="1573" max="2159" average="0"/>
+ <channel function="POT_S2" min="987" neutral="1573" max="2159" average="0"/>
+ <channel function="LEFT_SLIDER" min="987" neutral="1573" max="2159" average="0"/>
+ <channel function="RIGHT_SLIDER" min="987" neutral="1573" max="2159" average="0"/>
 </radio>
-
-

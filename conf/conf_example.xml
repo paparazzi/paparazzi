@@ -22,17 +22,6 @@
    gui_color="white"
   />
   <aircraft
-   name="Hexa_LisaL"
-   ac_id="5"
-   airframe="airframes/examples/h_hex.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_euler.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="white"
-  />
-  <aircraft
    name="LadyLisa"
    ac_id="6"
    airframe="airframes/examples/ladybird_lisa_s.xml"
@@ -53,17 +42,6 @@
    settings="settings/fixedwing_basic.xml settings/estimation/ac_char.xml"
    settings_modules="modules/digital_cam.xml modules/light.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_attitude_fw.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml"
    gui_color="#ffffffffffff"
-  />
-  <aircraft
-   name="Microjet"
-   ac_id="14"
-   airframe="airframes/examples/microjet.xml"
-   radio="radios/cockpitMM.xml"
-   telemetry="telemetry/default_fixedwing.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/nav_survey_poly_osam.xml modules/nav_smooth.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml modules/infrared_adc.xml modules/gps.xml modules/imu_common.xml modules/tune_airspeed.xml"
-   gui_color="#6293ba"
   />
   <aircraft
    name="Minion_Lia"
@@ -121,28 +99,6 @@
    gui_color="#710080"
   />
   <aircraft
-   name="Twinstar_energyadaptive"
-   ac_id="26"
-   airframe="airframes/examples/Twinstar_energyadaptive.xml"
-   radio="radios/Corona_24_DIY.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/digital_cam.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/gps.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Umarim_Lite"
-   ac_id="28"
-   airframe="airframes/examples/umarim_lite_v2.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml modules/ahrs_float_dcm.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="ardrone2"
    ac_id="31"
    airframe="airframes/examples/ardrone2.xml"
@@ -173,17 +129,6 @@
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/cv_opticflow.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="krooz_quad"
-   ac_id="34"
-   airframe="airframes/examples/krooz_sd_quad_mkk.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
   />
   <aircraft

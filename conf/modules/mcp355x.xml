@@ -4,6 +4,9 @@
   <doc>
     <description>MCP355X ADC driver (SPI)</description>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="mcp355x.h"/>
   </header>
@@ -13,7 +16,6 @@
   <makefile target="ap">
     <file name="mcp355x.c" dir="peripherals"/>
     <define name="USE_SPI_SLAVE0"/>
-    <define name="SPI_MASTER"/>
   </makefile>
 </module>
 

@@ -1,0 +1,14 @@
+name: Issues due date
+on:
+  schedule:
+    - cron:  '0 * * * *'
+jobs:
+  Ubuntu:
+    name: Add labels to issues
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Issue Due Dates Action
+        uses: alexleventer/github-issue-due-dates-action@1.1.0
+        with:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+

@@ -79,11 +79,6 @@
 #define VFF_R_SONAR_OF_M 0.2
 #endif
 
-#ifndef INS_SONAR_UPDATE_ON_AGL
-#define INS_SONAR_UPDATE_ON_AGL FALSE
-PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
-#endif
-
 #endif // USE_SONAR
 
 #if USE_GPS
@@ -216,10 +211,6 @@ void ins_int_init(void)
   // Bind to BARO_ABS message
   AbiBindMsgBARO_ABS(INS_INT_BARO_ID, &baro_ev, baro_cb);
   ins_int.baro_initialized = false;
-
-#if USE_SONAR
-  ins_int.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
-#endif
 
   ins_int.vf_reset = false;
   ins_int.hf_realign = false;

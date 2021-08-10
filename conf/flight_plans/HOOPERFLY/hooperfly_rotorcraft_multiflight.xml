@@ -36,7 +36,7 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block group="init_control" name="Takeoff" strip_button="Takeoff" strip_icon="launch.png">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
@@ -87,21 +87,21 @@
     <block group="pano_control" name="go_HOV_Pano" strip_button="CW Pano" strip_icon="pano_run.png">
       <call_once fun="NavSetWaypointHere(WP_HOV)"/>
       <for var="i" from="1" to="12">
-        <heading alt="WaypointAlt(WP_HOV)" course="30 * $i" until="stage_time > 5"/>
+        <heading alt="WaypointAlt(WP_HOV)" course="30 * $i" until="stage_time @GT 5"/>
       </for>
       <deroute block="go_HOV_0"/>
     </block>
     <block group="spin_control" name="go_HOV_spin_clockwise" strip_button="Spin Clockwise" strip_icon="circle-right.png">
         <call_once fun="NavSetWaypointHere(WP_HOV)"/>
         <for var="i" from="1" to="3">
-            <heading alt="WaypointAlt(WP_HOV)" course="120 * $i" until="stage_time > 0"/>
+            <heading alt="WaypointAlt(WP_HOV)" course="120 * $i" until="stage_time @GT 0"/>
         </for>
         <deroute block="go_HOV_0"/>
     </block>
     <block group="spin_control" name="go_HOV_spin_counterclockwise" strip_button="Spin Counterclockwise" strip_icon="circle-left.png">
         <call_once fun="NavSetWaypointHere(WP_HOV)"/>
         <for var="i" from="1" to="3">
-            <heading alt="WaypointAlt(WP_HOV)" course="-120 * $i" until="stage_time > 0"/>
+            <heading alt="WaypointAlt(WP_HOV)" course="-120 * $i" until="stage_time @GT 0"/>
         </for>
         <deroute block="go_HOV_0"/>
     </block>

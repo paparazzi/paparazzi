@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sensors">
+<module name="mag_hmc58xx" dir="sensors">
   <doc>
     <description>
       HMC58xx magnetometer.

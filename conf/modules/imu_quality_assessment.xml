@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="benchmark">
+<module name="imu_quality_assessment" dir="benchmark">
   <doc>
     <description>
       Give comparable with IMU Health information.

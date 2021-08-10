@@ -72,7 +72,7 @@ static inline void set_expo(float e) {
     <waypoint name="ZBDIR" x="-229.4" y="1.7"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="FlyZone" type="dynamic">
+    <sector color="red" name="FlyZone">
       <corner name="_NFZ1"/>
       <corner name="_NFZ2"/>
       <corner name="_NFZ3"/>
@@ -81,7 +81,7 @@ static inline void set_expo(float e) {
       <corner name="_NFZ5"/>
       <corner name="_NFZ6"/>
     </sector>
-    <sector color="green" name="MAP" type="dynamic">
+    <sector color="green" name="MAP">
       <corner name="_MAP1"/>
       <corner name="_MAP2"/>
       <corner name="_MAP3"/>
@@ -97,21 +97,21 @@ static inline void set_expo(float e) {
   </modules>
   <exceptions>
     <!-- RC-Loss -->
-    <exception cond="(delay_test_rc(RCLost(),20) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_rc(RCLost(),20) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
 
     <!-- Datalink loss -->
-    <exception cond="(datalink_time > 10 &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
 
     <!-- Geofence -->
-    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
 
   </exceptions>
@@ -128,7 +128,7 @@ static inline void set_expo(float e) {
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <exception cond="GetPosAlt() @GT GetAltRef()+25" deroute="Standby"/>
       <set value="0" var="autopilot.kill_throttle"/>
       <set value="0" var="autopilot.flight_time"/>
       <go from="HOME" pitch="30" throttle="0.8" vmode="throttle" wp="CLIMB"/>
@@ -151,11 +151,11 @@ static inline void set_expo(float e) {
     </block>
     <block name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
-      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
     <block name="final">
-      <exception cond="GetAltRef() + 3 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 3 @GT GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">

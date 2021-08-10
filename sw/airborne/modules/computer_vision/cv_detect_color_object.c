@@ -140,13 +140,13 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
 }
 
 struct image_t *object_detector1(struct image_t *img, uint8_t camera_id);
-struct image_t *object_detector1(struct image_t *img, uint8_t camera_id)
+struct image_t *object_detector1(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   return object_detector(img, 1);
 }
 
 struct image_t *object_detector2(struct image_t *img, uint8_t camera_id);
-struct image_t *object_detector2(struct image_t *img, uint8_t camera_id)
+struct image_t *object_detector2(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   return object_detector(img, 2);
 }

@@ -6,8 +6,9 @@
       Rate INDI controller for rotorcraft
     </description>
   </doc>
-  <depends>stabilization_indi|stabilization_indi_simple</depends>
-  <autoload name="stabilization" type="rotorcraft"/>
+  <dep>
+    <depends>stabilization_indi|stabilization_indi_simple,stabilization_rotorcraft</depends>
+  </dep>
   <header>
     <file name="stabilization_rate_indi.h"/>
   </header>

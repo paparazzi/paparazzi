@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_ppzuav" dir="imu">
+<module name="imu_pprzuav" dir="imu">
   <doc>
     <description>
       PPZUAV IMU.

@@ -31,7 +31,9 @@
       <define name="SEND_PTU" value="TRU|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
     </section>
   </doc>
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="mf_ptu.h"/>
   </header>

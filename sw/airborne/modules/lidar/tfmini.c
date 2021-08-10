@@ -49,10 +49,11 @@ static void tfmini_parse(uint8_t byte);
  */
 static void tfmini_send_lidar(struct transport_tx *trans, struct link_device *dev)
 {
+  uint8_t status = (uint8_t) tfmini.parse_status;
   pprz_msg_send_LIDAR(trans, dev, AC_ID,
                       &tfmini.distance,
                       &tfmini.mode,
-                      &tfmini.parse_status);
+                      &status);
 }
 
 #endif

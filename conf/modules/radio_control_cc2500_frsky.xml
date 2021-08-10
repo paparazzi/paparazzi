@@ -35,6 +35,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
     <file name="cc2500_paparazzi.h" dir="subsystems/radio_control/cc2500_frsky"/>
@@ -64,9 +67,6 @@
     <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_smartport.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>

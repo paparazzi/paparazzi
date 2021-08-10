@@ -1,0 +1,80 @@
+ <aerodynamics>
+
+  <axis name="LIFT">
+
+    <function name="aero/force/Lift_alpha">
+      <description>Lift due to alpha</description>
+      <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-deg</independentVar>
+            <tableData>
+              -180   0.14
+              -140  -0.80
+              -110  -0.63
+              -102  -0.74
+              -98  -0.64
+              -90  0.07
+              -79  1.15
+              -76  1.2
+              -72  1.1
+              -45  0.8
+               0   0.0
+               45  0.8
+               90  0.0
+               135 -0.8
+               180 0.0
+            </tableData>
+          </table>
+      </product>
+    </function>
+
+  </axis>
+
+  <axis name="DRAG">
+
+    <function name="aero/force/Drag_basic">
+       <description>Drag</description>
+       <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-deg</independentVar>
+            <tableData>
+             -180    1.7
+             -160    1.62
+             -100    0.4
+             -95     0.27
+             -92     0.24
+             -88     0.225
+             -83     0.235
+             -78     0.29
+             -65     0.6128
+             -20     1.36
+             -4      1.45
+             15      1.35
+             30      1.12
+            </tableData>
+          </table>
+          <value>2.0</value>
+       </product>
+    </function>
+
+  </axis>
+
+  <axis name="SIDE">
+
+    <function name="aero/force/Side_beta">
+       <description>Side force due to beta</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>aero/beta-rad</property>
+           <value>-4</value>
+       </product>
+    </function>
+
+  </axis>
+
+ </aerodynamics>

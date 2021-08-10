@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="humdid_pcap01" dir="meteo">
+<module name="humid_pcap01" dir="meteo">
   <doc>
     <description>
       ACAM Picocap capacitance sensor.

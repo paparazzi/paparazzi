@@ -31,7 +31,9 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
 
   <header>
     <file name="video_capture.h"/>

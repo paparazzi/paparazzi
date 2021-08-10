@@ -1,35 +1,16 @@
-<?xml version="1.0"?>
-<!-- (c) 2018 Freek van Tienen
---
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.
--->
+<!-- (c) 2018 Freek van Tienen-->
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Crossfire SBUS" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="left_stick_vert" function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
- <channel ctl="right_stick_horiz" function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="right_stick_vert" function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="left_stick_horiz" function="YAW" min="1100" neutral="1500" max="1900" average="0"/>
- <channel ctl="aux0" function="MODE" min="1100" neutral="1500" max="1900" average="1"/>
- <channel ctl="aux1" function="AUX1" min="1100" neutral="1500" max="1900" average="1"/> <!-- TH_HOLD -->
- <channel ctl="aux2" function="AUX2" min="1100" neutral="1500" max="1900" average="1"/> <!-- FMODE -->
- <channel ctl="aux3" function="AUX3" min="1100" neutral="1500" max="1900" average="1"/> <!-- FBW_MODE -->
- <channel ctl="aux4" function="AUX4" min="1100" neutral="1500" max="1900" average="1"/>
- <channel ctl="aux5" function="AUX5" min="1100" neutral="1500" max="1900" average="1"/>
- <channel ctl="aux6" function="AUX6" min="1100" neutral="1500" max="1900" average="1"/>
- <channel ctl="aux7" function="AUX7" min="1100" neutral="1500" max="1900" average="1"/>
+<radio name="Crossfire SBUS" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
+ <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="MODE" min="1100" neutral="1500" max="1900" average="1"/>
+ <channel function="AUX1" min="1100" neutral="1500" max="1900" average="1"/> <!-- TH_HOLD -->
+ <channel function="AUX2" min="1100" neutral="1500" max="1900" average="1"/> <!-- FMODE -->
+ <channel function="AUX3" min="1100" neutral="1500" max="1900" average="1"/> <!-- FBW_MODE -->
+ <channel function="AUX4" min="1100" neutral="1500" max="1900" average="1"/>
+ <channel function="AUX5" min="1100" neutral="1500" max="1900" average="1"/>
+ <channel function="AUX6" min="1100" neutral="1500" max="1900" average="1"/>
+ <channel function="AUX7" min="1100" neutral="1500" max="1900" average="1"/>
 </radio>

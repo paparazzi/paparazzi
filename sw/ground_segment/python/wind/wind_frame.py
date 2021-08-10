@@ -46,7 +46,7 @@ class WindFrame(wx.Frame):
             self.ground_gs_y[self.count_gs] = float(msg['vnorth']) * 0.0000019
             self.last_heading = float(msg['psi']) * 0.0139882
             self.count_gs = self.count_gs + 1
-            if self.count_gs > MSG_BUFFER_SIZE:
+            if self.count_gs >= MSG_BUFFER_SIZE:
                 self.count_gs = 0
             wx.CallAfter(self.update)
 
@@ -54,7 +54,7 @@ class WindFrame(wx.Frame):
             self.airspeed[self.count_as] = float(msg['airspeed'])
             self.heading[self.count_as] = self.last_heading * math.pi / 180.0
             self.count_as = self.count_as + 1
-            if self.count_as > MSG_BUFFER_SIZE:
+            if self.count_as >= MSG_BUFFER_SIZE:
                 self.count_as = 0
             wx.CallAfter(self.update)
 
@@ -163,7 +163,7 @@ class WindFrame(wx.Frame):
         self.ground_gs_y = [0] * MSG_BUFFER_SIZE
 
         self.count_as = 0
-        self.last_heading = 0;
+        self.last_heading = 0
         self.airspeed = [0] * MSG_BUFFER_SIZE
         self.heading  = [0] * MSG_BUFFER_SIZE
 
@@ -189,7 +189,7 @@ class WindFrame(wx.Frame):
         if self.cfg.Exists('left'):
             self.x = int(self.cfg.Read('left'))
             self.y = int(self.cfg.Read('top'))
-            self.SetPosition(wx.Point(self.x,self.y), wx.SIZE_USE_EXISTING)
+            self.SetPosition(wx.Point(self.x,self.y))
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)

@@ -36,7 +36,9 @@
     </dl_settings>
   </settings>
 
-  <depends>cv_opticflow|px4flow</depends>
+  <dep>
+    <depends>cv_opticflow|px4flow</depends>
+  </dep>
 
   <header>
     <file name="guidance_opticflow_hover.h"/>

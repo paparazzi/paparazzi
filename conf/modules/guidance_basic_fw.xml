@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_basic" dir="guidance">
+<module name="guidance_basic_fw" dir="guidance">
   <doc>
     <description>
       Legacy vertical control for fixedwing aircraft based on throttle (default) or pitch

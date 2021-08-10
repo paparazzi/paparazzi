@@ -380,7 +380,6 @@ The most crucial part for the magnetometer calibration:
     <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/>
 
     <define name="SONAR_COMPENSATE_ROTATION" value="TRUE"/><!-- compensate AGL for body rotation -->
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
     <define name="USE_GPS_ALT" value="TRUE"/>
     <define name="USE_GPS_ALT_SPEED" value="FALSE"/>
@@ -426,11 +425,6 @@ The most crucial part for the magnetometer calibration:
     <define name="G1_R" value="0.0032"/>
     <define name="G2_R" value="0.16"/>
 
-    <!-- For the ArDrone MAYBE we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="FALSE"/>
-    <define name="FILTER_PITCH_RATE" value="FALSE"/>
-    <define name="FILTER_YAW_RATE" value="FALSE"/>
-
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="380.0"/>
     <define name="REF_ERR_Q" value="380.0"/>
@@ -441,7 +435,6 @@ The most crucial part for the magnetometer calibration:
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="3.2"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>

@@ -27,7 +27,6 @@
 #include "modules/settings/rc_settings.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/sensors/infrared.h"
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 

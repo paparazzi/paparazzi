@@ -36,7 +36,7 @@
 
 
 /**
- * CMD_TO_US() is depending on architecture (e.g STM32 vs LPC),
+ * CMD_TO_US() is depending on architecture
  * and on the hardware settings (clock speed etc.). Hence it has to be
  * defined separately for each board.
  *

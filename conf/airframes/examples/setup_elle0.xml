@@ -28,8 +28,6 @@
     <target name="test_actuators_pwm_sin"   board="elle0_1.2">
       <define name="USE_SERVOS_7AND8"/>
     </target>
-    <target name="test_esc_mkk_simple"      board="elle0_1.2"/>
-    <target name="test_esc_asctecv1_simple" board="elle0_1.2"/>
     <target name="test_baro_board"          board="elle0_1.2">
       <configure name="BARO_LED" value="2"/>
     </target>

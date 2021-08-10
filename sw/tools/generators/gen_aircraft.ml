@@ -312,7 +312,7 @@ let () =
     Printf.printf " done\n%!";
 
     Printf.printf "Dumping modules header...%!";
-    let loaded_modules = Aircraft.get_loaded_modules ac.Aircraft.config_by_target target in
+    let _, loaded_modules = Aircraft.get_loaded_modules ac.Aircraft.config_by_target target in
     let abs_modules_h = aircraft_gen_dir // modules_h in
     generate_config_element loaded_modules
       (fun e -> Gen_modules.generate e "" abs_modules_h)

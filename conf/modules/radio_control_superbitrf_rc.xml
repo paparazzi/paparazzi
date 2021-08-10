@@ -19,6 +19,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <header>
     <file name="superbitrf_rc.h" dir="subsystems/radio_control"/>
   </header>

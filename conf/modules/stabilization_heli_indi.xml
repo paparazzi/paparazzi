@@ -46,7 +46,9 @@
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
     </section>
   </doc>
-  <autoload name="stabilization" type="rotorcraft"/>
+  <dep>
+    <depends>stabilization_rotorcraft</depends>
+  </dep>
   <header>
     <file name="stabilization_attitude.h"/>
   </header>

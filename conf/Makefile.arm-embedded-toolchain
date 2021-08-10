@@ -9,24 +9,9 @@
 
 PREFIX ?= arm-none-eabi
 
-#
-# if gcc can't be found in path, try the paparazzi toolchain in /opt
-#
 ifeq ($(shell which $(PREFIX)-gcc),)
-  ifdef ALLOW_OLD_ARM_MULTILIB_TOOLCHAIN
-    PPRZ_TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
-    ifneq ($(PPRZ_TOOLCHAIN),)
-      # set prefix with full path to /opt/paparazzi/arm-multilib toolchain
-      PREFIX=$(shell dirname $(PPRZ_TOOLCHAIN))/bin/arm-none-eabi
-      TOOLCHAIN_FOUND = 1
-    endif
-  endif
-else
-  TOOLCHAIN_FOUND = 1
-endif
-ifneq ($(TOOLCHAIN_FOUND),1)
   ifneq ($(MAKECMDGOALS),clean)
-    $(error Error: arm-none-eabi-gcc cross-compiler not found! Recommended toolchain is https://launchpad.net/gcc-arm-embedded)
+    $(warning Warning: arm-none-eabi-gcc cross-compiler not found! Some tools might not be able to build correctly)
   endif
 endif
 
@@ -40,7 +25,7 @@ NM    = $(PREFIX)-nm
 SIZE  = $(PREFIX)-size
 STRIP = $(PREFIX)-strip
 
-GDB = $(shell which arm-none-eabi-gdb)
+GDB = $(shell which $(PREFIX)-gdb)
 ifeq ($(GDB),)
 GDB = $(shell which gdb-multiarch)
 endif

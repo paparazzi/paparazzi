@@ -28,9 +28,7 @@
       <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -62,7 +60,7 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
     </module>
     <module name="video_exif"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -123,7 +121,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
 
@@ -172,7 +169,6 @@
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="8.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.1"/>

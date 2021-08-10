@@ -33,22 +33,22 @@ Your safe aircraft operation is *your* responsibility
   <exceptions>
  <!-- Check if battery voltage is low, then try to go to block Land. This is deemed better than to land at that very spot since that can be above something unknown,
   is less safe and has less chance of AC recovery. It states battery LOW, not battery critical -->
- <!--   <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
-    <exception cond="electrical.bat_critical && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
+ <!--   <exception cond="electrical.bat_low @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
+    <exception cond="electrical.bat_critical @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
     <!-- No connection for some time in flight, then try to land -->
-    <exception cond="autopilot_in_flight() && datalink_time > 55 && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
+    <exception cond="autopilot_in_flight() @AND datalink_time @GT 55 @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
     <!-- If somehow the AC isVALUEVALUE higher than initial ground position plus 60m, just land -->
- <!--tofix only in flight   <exception cond="GetPosAlt() > (GetAltRef() + 60)" deroute="Land"/> -->
+ <!--tofix only in flight   <exception cond="GetPosAlt() @GT (GetAltRef() + 60)" deroute="Land"/> -->
     <!-- No link for 20 seconds and no GPS valid position fix, but the AC can still hover...however no option to give commands, emergency landing -->
-  <!--  <exception cond="And(datalink_time > 20, !GpsFixValid()) && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>-->
+  <!--  <exception cond="And(datalink_time @GT 20, !GpsFixValid()) @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>-->
     <!-- Check if outside a safety circle from where the drone started the climb, if outside come back to where climb was started, defer from default outside behaviour-->
-  <exception cond="(((((WaypointX(WP__CLIMB)) - GetPosX())*((WaypointX(WP__CLIMB)) - GetPosX()))) + ((((WaypointY(WP__CLIMB)) - GetPosY())*((WaypointY(WP__CLIMB)) - GetPosY())))) > (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME) && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
+  <exception cond="(((((WaypointX(WP__CLIMB)) - GetPosX())*((WaypointX(WP__CLIMB)) - GetPosX()))) + ((((WaypointY(WP__CLIMB)) - GetPosY())*((WaypointY(WP__CLIMB)) - GetPosY())))) @GT (MAX_DIST_FROM_HOME*MAX_DIST_FROM_HOME) @AND !(nav_block == IndexOfBlock('Setting home location')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Land')) @AND !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
   </exceptions>
   <blocks>
     <block name="Setting home location"><!-- TODO: make sure there is an indicator in "ardrone2_simple.xml" GCS layout config screen displaying "Waiting for GPS position..."-->
       <call_once fun="NavKillThrottle()"/>
-<!-- if no valid fix or GPS accuracy > 11m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
-    <!-- <while cond="!GpsFixValid() || gps.pacc > 1100 || stateIsAttitudeValid()"/>-->
+<!-- if no valid fix or GPS accuracy @GT 11m or no AHRS , it's' a no-go, just wait TODO: timeout and message?-->
+    <!-- <while cond="!GpsFixValid() || gps.pacc @GT 1100 || stateIsAttitudeValid()"/>-->
     <while cond="!GpsFixValid()"/>
 <!-- Additional wait to allow for better GPS data in the last secons before takeoff -->
       <while cond="LessThan(NavBlockTime(), 8)"/>
@@ -91,16 +91,16 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <set value="0" var="autopilot.flight_time"/>
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
       <!-- todo test  various times -->
-     <exception cond="block_time > 560" deroute="Land"/>
+     <exception cond="block_time @GT 560" deroute="Land"/>
      <!-- To make sure that takoff is straight up to the height of first waypoint A, so no sideways take-off, since sideways movements starting at low height from takeoff can have nasty effects) -->
 <!-- In real life aircraft can be blown sideways with strong wind TODO experiment with results of 2 stages 2 -->
 <!-- TODO see if adding this 2nd stage is better -->
-   <!--  <attitude pitch="0" roll="0" throttle="0.90" until="stage_time > 2" vmode="throttle"/>-->
-<!--Alternative <exception cond="WaypointAlt(WP_A) > stateGetPositionEnu_f()->z" deroute="A_to_B_and_back"/>-->
+   <!--  <attitude pitch="0" roll="0" throttle="0.90" until="stage_time @GT 2" vmode="throttle"/>-->
+<!--Alternative <exception cond="WaypointAlt(WP_A) @GT GetPosHeight()" deroute="A_to_B_and_back"/>-->
 <!-- See http://lists.gnu.org/archive/html/paparazzi-devel/2014-06/msg00138.html -->
     <!--<call_once fun="GuidanceVSetRef(0,0,0)"/>-->
      <!--<call_once fun="nav_set_heading_current()"/>-->
-     <stay vmode="climb" climb="0.7" until="WaypointAlt(WP_A) > stateGetPositionEnu_f()->z" wp="_CLIMB"/>
+     <stay vmode="climb" climb="0.7" until="WaypointAlt(WP_A) @GT GetPosHeight()" wp="_CLIMB"/>
     </block>
 <!-- The From A to B and back, The only one visible block so no GCS choices to toy around with, a non expert would get confused -->
     <block key="m" name="From A to B and back">
@@ -109,7 +109,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <call_once fun="nav_set_heading_towards_waypoint(WP_B)"/>
       <go from="A" hmode="route" wp="B"/>
       <call_once fun="nav_set_heading_towards_waypoint(WP_A)"/>
-      <stay wp="B" until="stage_time > 3"/> <!-- Hang around for 3 seconds, any longer and people start get worried if all is OK...-->
+      <stay wp="B" until="stage_time @GT 3"/> <!-- Hang around for 3 seconds, any longer and people start get worried if all is OK...-->
       <go from="B" hmode="route" wp="A"/>
       <!-- to make sure the route height to touchdown is high not lower than on the first takeoff-->
    <!-- TODO: discuss this behaviour since it will look strange if drone first will climb to climb point and not decend when one presses land, perception difference-->
@@ -129,7 +129,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
     <block name="Emergency" key="e" strip_button="Emergency" strip_icon="home_emergency.png">
        <exception cond="!nav_is_in_flight()" deroute="landed"/>
    <!-- If landing would takes to long take drastic measures, kill everything -->
-     <!-- <exception cond="Block_time > 50" value="1" var="autopilot.kill_throttle"/>-->
+     <!-- <exception cond="Block_time @GT 50" value="1" var="autopilot.kill_throttle"/>-->
       <call_once fun="NavSetWaypointHere(WP__TDEMERGENCY)"/>
   <!--TODO: better test detect landing different surfaces and agles with sonar baro combi of AR-Drone 2 -->
       <call_once fun="NavStartDetectGround()"/>

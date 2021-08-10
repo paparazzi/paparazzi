@@ -403,5 +403,6 @@ let generate = fun airframe ac_id ac_name md5sum xml_file out_file ->
   define_out out "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
   fprintf out "\n";
   List.iter (parse_section out ac_id) (Xml.children airframe.Airframe.xml);
-  finish_out out h_name
+  finish_out out h_name;
+  close_out out
 

@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_rm3100" dir="sensors">
+  <doc>
+    <description>
+      PNI RM3100 magnetometer.
+      I2C interface.
+    </description>
+    <configure name="MAG_RM3100_I2C_DEV" value="i2cX" description="I2C device to use"/>
+    <define name="MODULE_RM3100_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
+    <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
+    <define name="RM3100_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
+    <define name="RM3100_CHAN_Y_SIGN" value="+|-" description="Reverse polarity of y axis (default: +)"/>
+    <define name="RM3100_CHAN_Z_SIGN" value="+|-" description="Reverse polarity of z axis (default: +)"/>
+    <define name="RM3100_CHAN_X" value="0|1|2" description="Channel id of x axis (default: 0)"/>
+    <define name="RM3100_CHAN_Y" value="0|1|2" description="Channel id of y axis (default: 1)"/>
+    <define name="RM3100_CHAN_Z" value="0|1|2" description="Channel id of z axis (default: 2)"/>
+    <section name="MAG_RM3100" prefix="RM3100_">
+      <define name="MAG_TO_IMU_PHI" value="0.0" description="Rotation between sensor frame and IMU frame (phi angle)"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
+      <define name="DATA_RATE" value="RM3100_RATE_150" description="Continuous conversion data rate"/>
+    </section>
+  </doc>
+  <header>
+    <file name="mag_rm3100.h"/>
+  </header>
+  <init fun="mag_rm3100_module_init()"/>
+  <periodic fun="mag_rm3100_module_periodic()" freq="60"/>
+  <periodic fun="mag_rm3100_report()" freq="10" autorun="FALSE"/>
+  <event fun="mag_rm3100_module_event()"/>
+  <makefile target="ap">
+    <file name="mag_rm3100.c"/>
+    <file name="rm3100.c" dir="peripherals"/>
+    <raw>
+      ifeq ($(MAG_RM3100_I2C_DEV),)
+        $(error mag_rm3100 module error: please configure MAG_RM3100_I2C_DEV)
+      endif
+    </raw>
+    <configure name="MAG_RM3100_I2C_DEV" case="upper|lower"/>
+    <define name="USE_$(MAG_RM3100_I2C_DEV_UPPER)"/>
+    <define name="MAG_RM3100_I2C_DEV" value="$(MAG_RM3100_I2C_DEV_LOWER)"/>
+    <test>
+      <define name="MAG_RM3100_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+</module>

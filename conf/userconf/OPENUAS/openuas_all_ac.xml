@@ -242,17 +242,6 @@
    gui_color="#fffff44a2254"
   />
   <aircraft
-   name="Taxi_III"
-   ac_id="225"
-   airframe="airframes/OPENUAS/openuas_graupner_taxi_iii.xml"
-   radio="radios/OPENUAS/openuas_mx22.xml"
-   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/digital_cam.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_basic_fw.xml modules/infrared_adc.xml modules/nav_basic_fw.xml modules/nav_catapult.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/stabilization_attitude_fw.xml"
-   gui_color="#ffffeb519c78"
-  />
-  <aircraft
    name="Tinyhawk_II"
    ac_id="179"
    airframe="airframes/OPENUAS/openuas_emax_tinyhawk_ii.xml"

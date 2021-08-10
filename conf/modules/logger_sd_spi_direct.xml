@@ -38,7 +38,9 @@ Downloading of the data occurs over the configured serial device using sw/logali
       </dl_settings>
     </dl_settings>
   </settings>
-  <autoload name="pprzlog"/>
+  <dep>
+    <depends>pprzlog,spi_master</depends>
+  </dep>
   <header>
     <file name="sdlogger_spi_direct.h"/>
   </header>
@@ -51,9 +53,6 @@ Downloading of the data occurs over the configured serial device using sw/logali
     <configure name="SDLOGGER_DIRECT_SPI_SLAVE" default="spi_slave2" case="upper|lower"/>
     <configure name="LOGGER_LED" default="none"/>
     <define name="LOGGER_LED" value="$(LOGGER_LED)" cond="ifneq ($(LOGGER_LED),none)"/>
-    <raw>
-        include $(CFG_SHARED)/spi_master.makefile
-    </raw>
 
     <file name="sdcard_spi.c" dir="peripherals"/>
     <file name="sdlogger_spi_direct.c"/>

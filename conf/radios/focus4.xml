@@ -1,9 +1,7 @@
-<?xml version="1.0"?>
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Focus4" data_min="800" data_max="2200" sync_min ="5000" sync_max ="20000" pulse_type="POSITIVE" >
- <channel ctl="RH" function="ROLL"  min="2000" neutral="1560" max="1100" average="0"/>
- <channel ctl="RV" function="THROTTLE"  min="1140" neutral="1140" max="1900" average="0"/>
- <channel ctl="B" function="PITCH"  max="1120" neutral="1520" min="1940" average="0"/>
- <channel ctl="A" function="MODE" min="2144" neutral="1530" max="920" average="11"/>
+<radio name="Focus4" data_min="800" data_max="2200" sync_min="5000" sync_max="20000" pulse_type="POSITIVE">
+ <channel function="ROLL" min="1100" neutral="1560" max="2000" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="1140" neutral="1140" max="1900" average="0"/>
+ <channel function="PITCH" max="1940" neutral="1520" min="1120" average="0" reverse="1"/>
+ <channel function="MODE" min="920" neutral="1530" max="2144" average="11" reverse="1"/>
 </radio>

@@ -60,7 +60,7 @@ static inline bool delay_test_gf(bool test, int delay) {
     <waypoint name="_HERE" x="86.0" y="-117.2"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="FlyZone" type="dynamic">
+    <sector color="red" name="FlyZone">
       <corner name="_NFZ1"/>
       <corner name="_NFZ2"/>
       <corner name="_NFZ3"/>
@@ -69,7 +69,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <corner name="_NFZ5"/>
       <corner name="_NFZ6"/>
     </sector>
-    <sector color="orange" name="Search" type="dynamic">
+    <sector color="orange" name="Search">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>
@@ -84,17 +84,17 @@ static inline bool delay_test_gf(bool test, int delay) {
     <module name="nav" type="survey_rectangle_rotorcraft"/>
   </modules>
   <!--exceptions>
-    <exception cond="(delay_test_rc(RCLost(),20) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_rc(RCLost(),20) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
-    <exception cond="(datalink_time > 10 &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
-    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) &&
-      !(IndexOfBlock('Takeoff') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) @AND
       (autopilot.launch == true) )" deroute="EmergencyLanding"/>
   </exceptions-->
   <blocks>
@@ -114,7 +114,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
-      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
@@ -127,8 +127,8 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="stateGetPositionEnu_f()->z > 2.0"/>
-      <stay wp="CLIMB" until="GetPosAlt() > GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Survey-WE SET" strip_button="Survey-WE" strip_icon="survey_we.png" group="survey">
       <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, sweep, WE)"/>
@@ -143,11 +143,11 @@ static inline bool delay_test_gf(bool test, int delay) {
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(10.)"/>
       <call_once fun="NavSetWaypointHere(WP__HERE)"/>
       <go wp="RED" from="_HERE" hmode="route"/>
-      <stay wp="RED" until="stage_time > 3"/>
+      <stay wp="RED" until="stage_time @GT 3"/>
       <go wp="BLUE" from="RED" hmode="route"/>
-      <stay wp="BLUE" until="stage_time > 3"/>
+      <stay wp="BLUE" until="stage_time @GT 3"/>
       <go wp="YELLOW" from="BLUE"/>
-      <stay wp="YELLOW" until="stage_time > 3"/>
+      <stay wp="YELLOW" until="stage_time @GT 3"/>
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(WaypointAlt(WP_STDBY))"/>
       <go wp="STDBY" from="YELLOW"/>
       <deroute block="Standby"/>
@@ -157,8 +157,8 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="stateGetPositionEnu_f()->z > 2.0"/>
-      <stay wp="CLIMB" until="GetPosAlt() > GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop RED" strip_button="RED" group="drop">
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(WaypointAlt(WP_RED))"/>
@@ -189,8 +189,8 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="stateGetPositionEnu_f()->z > 2.0"/>
-      <stay wp="CLIMB" until="GetPosAlt() > GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop BLUE" strip_button="BLUE" group="drop">
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(WaypointAlt(WP_BLUE))"/>
@@ -221,8 +221,8 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="stateGetPositionEnu_f()->z > 2.0"/>
-      <stay wp="CLIMB" until="GetPosAlt() > GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop YELLOW" strip_button="YELLOW" group="drop">
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(WaypointAlt(WP_YELLOW))"/>
@@ -253,8 +253,8 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="stateGetPositionEnu_f()->z > 2.0"/>
-      <stay wp="CLIMB" until="GetPosAlt() > GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop HOUSE" strip_button="HOUSE" group="drop">
       <set var="nav_flight_altitude" value="POS_BFP_OF_REAL(WaypointAlt(WP_HOUSE))"/>

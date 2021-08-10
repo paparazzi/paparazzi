@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="video_cam_ctrl" dir="digital_cam">
+<module name="digital_cam_video" dir="digital_cam">
   <doc>
     <description>
       Digital Photo Camera Triggering (using embedded video)
@@ -34,9 +34,10 @@
     </dl_settings>
   </settings>
 
-  <depends>video_capture</depends>
-
-  <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
+  <dep>
+    <depends>video_capture</depends>
+    <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
+  </dep>
 
   <header>
     <file name="video_cam_ctrl.h"/>

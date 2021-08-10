@@ -1,59 +1,13 @@
-
-<!--
--- (c) 2006 Pascal Brisset, Antoine Drouin
---
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- no: order in the PPM frame
--- function: logical command
--- averaged: channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Corona 2.4GHz DIY" data_min="800" data_max="2200" sync_min ="5000" sync_max ="15000"
-pulse_type="POSITIVE">
- <channel ctl="G" 	function="UNUSED"   min="1100"  neutral="1500" max="1900" average="0"/>
- <channel ctl="F" 	function="GAIN2"    min="1100"  neutral="1500" max="1900" average="0"/>
- <channel ctl="E" 	function="GAIN1"    min="1100"  neutral="1500" max="1900" average="0"/>
- <channel ctl="switch" 	function="MODE"     min="1100"  neutral="1500" max="1900" average="1"/>
- <channel ctl="B" 	function="YAW"      min="1900"  neutral="1500" max="1100" average="0"/>
- <channel ctl="C" 	function="PITCH"    min="1900"  neutral="1500" max="1100" average="0"/>
- <channel ctl="D" 	function="ROLL"     max="1100"  neutral="1500" min="1900" average="0"/>
- <channel ctl="A" 	function="THROTTLE" min="1100"  neutral="1100" max="1900" average="0"/>
+<radio name="Corona 2.4GHz DIY" data_min="800" data_max="2200" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+ <channel function="UNUSED" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="GAIN2" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="GAIN1" min="1100" neutral="1500" max="1900" average="0"/>
+ <channel function="MODE" min="1100" neutral="1500" max="1900" average="1"/>
+ <channel function="YAW" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>
+ <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0" reverse="1"/>
+ <channel function="ROLL" max="1900" neutral="1500" min="1100" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
 
 
 </radio>
-

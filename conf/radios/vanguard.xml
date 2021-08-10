@@ -1,53 +1,9 @@
-<?xml version="1.0"?>
-<!-- $Id$
---
--- (c) 2003 Pascal Brisset, Antoine Drouin
---
--- This file is part of paparazzi.
---
--- paparazzi is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 2, or (at your option)
--- any later version.
---
--- paparazzi is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with paparazzi; see the file COPYING.  If not, write to
--- the Free Software Foundation, 59 Temple Place - Suite 330,
--- Boston, MA 02111-1307, USA.
--->
-
-<!--
--- Attributes of root (Radio) tag :
--- name: name of RC
--- data_min: min width of a pulse to be considered as a data pulse
--- data_max: max width of a pulse to be considered as a data pulse
--- sync_min: min width of a pulse to be considered as a synchro pulse
--- sync_max: max width of a pulse to be considered as a synchro pulse
--- min, max and sync are expressed in micro-seconds
--->
-
-<!--
--- Attributes of channel tag :
--- ctl: name of the command on the transmitter - only for displaying
--- function: logical command
--- average: (boolean) channel filtered through several frames (for discrete commands)
--- min: minimum pulse length (micro-seconds)
--- max: maximum pulse length (micro-seconds)
--- neutral: neutral pulse length (micro-seconds)
--- Note: a command may be reversed by exchanging min and max values
--->
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="vanguard" data_min="900" data_max="2100" sync_min ="5000" sync_max ="20000" pulse_type="POSITIVE">
- <channel ctl="A" function="PITCH"    min="1240" neutral="1500" max="1760" average="0"/>
- <channel ctl="B" function="RUDDER" min="1920" neutral="1480" max="1071" average="0"/>
- <channel ctl="C" function="THROTTLE"      min="950" neutral="950" max="2027" average="0"/>
- <channel ctl="D" function="ROLL"    min="1100" neutral="1524" max="1800" average="0"/>
- <channel ctl="G" function="GAIN1"    min="1084" neutral="1500" max="1895" average="1"/> <!-- center slider        -->
- <channel ctl="E" function="MODE"     min="1915" neutral="1514" max="1105" average="1"/> <!-- Top right switch     -->
+<radio name="vanguard" data_min="900" data_max="2100" sync_min="5000" sync_max="20000" pulse_type="POSITIVE">
+ <channel function="PITCH" min="1240" neutral="1500" max="1760" average="0"/>
+ <channel function="RUDDER" min="1071" neutral="1480" max="1920" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="950" neutral="950" max="2027" average="0"/>
+ <channel function="ROLL" min="1100" neutral="1524" max="1800" average="0"/>
+ <channel function="GAIN1" min="1084" neutral="1500" max="1895" average="1"/> <!-- center slider        -->
+ <channel function="MODE" min="1105" neutral="1514" max="1915" average="1" reverse="1"/> <!-- Top right switch     -->
 </radio>

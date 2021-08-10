@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_ArduIMU" dir="ins">
+<module name="ins_arduimu" dir="ins">
   <doc>
     <description>ArduIMU v2</description>
   </doc>

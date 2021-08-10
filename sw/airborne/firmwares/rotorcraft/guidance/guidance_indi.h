@@ -37,7 +37,7 @@ extern void guidance_indi_run(float *heading_sp);
 extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, float heading);
 extern void guidance_indi_init(void);
 
-extern float guidance_indi_thrust_specific_force_gain;
+extern float guidance_indi_specific_force_gain;
 
 // settings for guidance INDI
 extern float guidance_indi_pos_gain;

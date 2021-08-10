@@ -55,9 +55,9 @@
     </module>
 
     <!--configure name="SDLOG_USE_RTC" value="FALSE"/-->
-    <module name="tlsf"/>
+    <!--module name="tlsf"/>
     <module name="pprzlog"/>
-    <module name="logger" type="sd_chibios"/>
+    <module name="logger" type="sd_chibios"/-->
     <module name="flight_recorder"/>
   </firmware>
 
@@ -216,7 +216,7 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="15"/>
     <define name="JSBSIM_MODEL" value="easystar" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_wind_estimator.h" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="JS_AXIS_MODE" value="4"/>
   </section>
 

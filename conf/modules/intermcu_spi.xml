@@ -12,6 +12,9 @@
     <configure name="INTER_MCU_SPI" value="SPI1" description="SPI used for inter mcu communication"/>
     <configure name="INTER_MCU_SLAVE" value="SLAVE0" description="Slave name"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
 
   <makefile target="ap|fbw" firmware="fixedwing">
     <raw>
@@ -22,7 +25,6 @@
     <configure name="INTER_MCU_SPI" default="SPI1"/>
     <configure name="INTER_MCU_SLAVE" default="SLAVE0"/>
     <define name="MCU_SPI_LINK"/>
-    <define name="USE_SPI"/>
     <file name="link_mcu_spi.c" dir="."/>
     <file name="spi.c" dir="mcu_periph"/>
     <file name="spi_arch.c" dir="$(SRC_ARCH)/mcu_periph"/>

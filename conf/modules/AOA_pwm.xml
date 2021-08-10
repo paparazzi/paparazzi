@@ -37,7 +37,9 @@
     </dl_settings>
   </settings>
 
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="aoa_pwm.h" />
   </header>

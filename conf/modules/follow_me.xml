@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="follow_me" dir="ctrl">
+  <doc>
+    <description>
+      Follow a ground based object which is transmitting the TARGET_POS datalink message or using RTK GPS.
+      This can be done using gpsd2ivy.
+    </description>
+    <section name="FOLLOW_ME" prefix="FOLLOW_ME_">
+      <define name="TIMEOUT" value="10." description="timeout of the ground GPS"/>
+      <define name="DISTANCE" value="5." description="distance to hover from the ground GPS"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="FollowMe">
+        <dl_setting var="follow_me_distance" min="0." max="50." step="0.1" shortname="distance" unit="m"/>
+        <dl_setting var="follow_me_height" min="0." max="100." step="0.1" shortname="height" unit="m"/>
+        <dl_setting var="follow_me_heading" min="0." max="360." step="1.0" shortname="heading"/>
+        <dl_setting var="follow_me_min_speed" min="0." max="100." step="0.1" shortname="min_speed"/>
+        <dl_setting var="follow_me_filt" min="0." max="1.0" step="0.01" shortname="filt_val"/>
+        <dl_setting var="follow_me_diag_speed" min="0." max="1.0" step="0.01" shortname="diag_speed"/>
+        <dl_setting var="follow_me_gps_delay" min="0." max="10000.0" step="1.0" shortname="gps_delay" unit="ms"/>
+        <dl_setting var="follow_me_datalink_delay" min="0." max="20000.0" step="1.0" shortname="dlink_delay" unit="ms"/>
+        <dl_setting var="follow_me_advance_ms" min="0." max="10000.0" step="1.0" shortname="advance" unit="ms"/>
+        <dl_setting var="follow_me_min_dist" min="0." max="100.0" step="0.1" shortname="min_dist" unit="m"/>
+        <dl_setting var="follow_me_min_height" min="0." max="100.0" step="0.1" shortname="min_height" unit="m"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="follow_me.h"/>
+  </header>
+  <init fun="follow_me_init()"/>
+  <datalink message="TARGET_POS" fun="follow_me_parse_target_pos(buf)"/>
+  <makefile>
+    <file name="follow_me.c"/>
+  </makefile>
+</module>
+

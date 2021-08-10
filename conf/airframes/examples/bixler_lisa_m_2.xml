@@ -37,10 +37,6 @@
     <module name="ins" type="alt_float"/>
   </firmware>
 
-  <modules>
-    <module name="nav" type="line"/>
-  </modules>
-
   <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="1" min="1120" neutral="1120" max="1920"/>

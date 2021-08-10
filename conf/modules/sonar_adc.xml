@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar">
+<module name="sonar_adc" dir="sonar">
   <doc>
     <description>
      Sonar ADC driver.
