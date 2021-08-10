@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_i2c_common" dir="sensors">
+<module name="imu_aspirin_i2c_v1.0" dir="sensors">
   <doc>
     <description>
       Aspirin v1.0 IMU using I2C only.

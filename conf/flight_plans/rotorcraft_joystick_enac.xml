@@ -36,7 +36,7 @@ static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), i
       <corner name="_N3"/>
       <corner name="_N4"/>
     </sector>
-    <sector name="Survey" color="green" type="dynamic">
+    <sector name="Survey" color="green">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>
@@ -65,7 +65,7 @@ static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), i
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <exception cond="stateGetPositionEnu_f()->z > 1.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 1.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>

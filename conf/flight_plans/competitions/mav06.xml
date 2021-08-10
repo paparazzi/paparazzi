@@ -26,13 +26,13 @@
 
    <!-- <block name="land">
       <set value="compute_baseleg()" var="unit"/>
-      <circle radius="BOMB_RADIUS" until="circle_count > 0.5" wp="BASELEG"/>
+      <circle radius="BOMB_RADIUS" until="circle_count @GT 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
-      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) && baseleg_alt_tolerance > fabs(GetPosAlt() - baseleg_alt)" wp="BASELEG"/>
+      <circle radius="BOMB_RADIUS" until="Qdr(DegOfRad(bomb_start_qdr)-10) @AND baseleg_alt_tolerance @GT fabs(GetPosAlt() - baseleg_alt)" wp="BASELEG"/>
     </block>
 
     <block name="final">
-      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
+      <exception cond="GetAltRef() + 10 @GT GetPosAlt()" deroute="flare"/>
       <go alt="baseleg_alt" approaching_time="16" from="AF" hmode="route" wp="TD"/>
       <go approaching_time="2" from="AF" hmode="route" throttle="0.1" vmode="throttle" wp="TD"/>
     </block>
@@ -43,12 +43,12 @@
     </block>
 
     <block name="circle 1">
-      <exception cond="block_time > 300" deroute="wait"/>
+      <exception cond="block_time @GT 300" deroute="wait"/>
       <circle wp="C1" radius="80"/>
     </block>
 
     <block name="climb">
-      <exception cond=" GetPosAlt() > GetAltRef() +30" deroute="wait"/>
+      <exception cond=" GetPosAlt() @GT GetAltRef() +30" deroute="wait"/>
       <attitude pitch="15" roll="0" throttle="0.8" until="10> stage_time" vmode="throttle"/>
     </block>-->
     <block name="wait" strip_button="Wait">
@@ -61,7 +61,7 @@
 
 
     <block name="target1" strip_button="T1">
-      <exception cond="block_time > 300" deroute="wait"/>
+      <exception cond="block_time @GT 300" deroute="wait"/>
       <eight center="TARGET1" radius="80" turn_around="C1"/>
     </block>
 
@@ -87,7 +87,7 @@
     <block name="roll" strip_button="Roll">
       <set value="TRUE" var="h_ctl_disabled"/>
       <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-      <while cond="3 > stage_time && (stateGetNedToBodyEulers_f()->phi > 0 ||  -M_PI_2 > stateGetNedToBodyEulers_f()->phi)"/>
+      <while cond="3 @GT stage_time @AND (stateGetNedToBodyEulers_f()->phi @GT 0 ||  -M_PI_2 @GT stateGetNedToBodyEulers_f()->phi)"/>
       <set value="FALSE" var="h_ctl_disabled"/>
       <return/>
     </block>-->

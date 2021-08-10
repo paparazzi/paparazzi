@@ -261,7 +261,7 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
       w in
 
   (* The sectors *)
-  (* Parse sectors and store dynamic ones *)
+  (* Parse and store sectors *)
   let sectors =
     let waypoints = ExtXml.child xml "waypoints" in
     try
@@ -283,10 +283,7 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
             let color_sector = ExtXml.attrib_or_default x "color" color in
             let segments = display_lines ~group:wpts_group#group color_sector geomap points in
             let wp_names = List.map (fun wp -> Xml.attrib wp "name") (Xml.children x) in
-            if ExtXml.attrib_or_default x "type" "" = "dynamic" then
-              [(wp_names, segments, color_sector)] @ l
-            else
-              l
+            [(wp_names, segments, color_sector)] @ l
           | _ -> failwith "Unknown sectors child")
       [] (Xml.children (ExtXml.child xml "sectors"))
     with Not_found -> [] in

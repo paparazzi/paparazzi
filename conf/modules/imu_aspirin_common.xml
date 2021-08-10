@@ -21,6 +21,9 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -48,8 +51,5 @@
     <file name="itg3200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_aspirin.c" dir="subsystems/imu"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
   </makefile>
 </module>

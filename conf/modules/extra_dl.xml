@@ -34,16 +34,11 @@
       else
       ifneq (,$(findstring usb_serial,$(EXTRA_DL_PORT_LOWER)))
         # usb_serial telemetry chosen, add files based on architecture
-        ifeq ($(ARCH), lpc21)
-        $(TARGET).srcs += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
-        $(TARGET).srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
-        else
         ifeq ($(ARCH), stm32)
         $(TARGET).srcs += $(SRC_ARCH)/usb_ser_hw.c
         else
         ifneq ($(ARCH), sim)
-        $(error telemetry_transparent_usb currently only implemented for the lpc21 and stm32)
-        endif
+        $(error telemetry_transparent_usb currently only implemented for the stm32)
         endif
         endif
       else

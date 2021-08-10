@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="calibration">
+<module name="send_imu_mag_current" dir="calibration">
   <doc>
     <description>
       Enables sending of IMU_MAG_CURRENT_CALIBRATION message.

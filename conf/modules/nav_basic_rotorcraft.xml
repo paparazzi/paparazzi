@@ -17,7 +17,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <autoload name="guidance" type="rotorcraft"/>
+  <dep>
+    <depends>guidance_rotorcraft</depends>
+  </dep>
   <header>
     <file name="navigation.h" dir="firmwares/rotorcraft"/>
   </header>

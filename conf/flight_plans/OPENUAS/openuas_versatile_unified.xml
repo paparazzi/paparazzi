@@ -91,7 +91,7 @@ Should be unified for Hybrid, FW and rotorcraft
   <sectors>
     <!-- ***** -->
     <!-- since hidden corners cannot be accidentaly changed -->
-    <sector color="yellow" name="MissionBoundary" type="dynamic">
+    <sector color="yellow" name="MissionBoundary">
       <corner name="_MB1"/>
       <corner name="_MB2"/>
       <corner name="_MB3"/>
@@ -101,14 +101,14 @@ Should be unified for Hybrid, FW and rotorcraft
       <corner name="_MB7"/>
       <corner name="_MB8"/>
     </sector>
-    <sector color="purple" name="SearchArea" type="dynamic">
+    <sector color="purple" name="SearchArea">
       <corner name="SA1"/>
       <corner name="SA2"/>
       <corner name="SA3"/>
       <corner name="SA4"/>
       <corner name="SA5"/>
     </sector>
-    <sector color="lightblue" name="Square" type="dynamic">
+    <sector color="lightblue" name="Square">
       <corner name="Q1"/>
       <corner name="Q2"/>
       <corner name="Q3"/>
@@ -119,16 +119,16 @@ Should be unified for Hybrid, FW and rotorcraft
     <variable var="roll_step" init="15." min="0." max="50." step="1.0"/>
   </variables>
   <exceptions>
-    <exception cond="And((datalink_time) > 300, autopilot.launch > 0) " deroute="Standby"/>
-    <exception cond="LOW_BAT_LEVEL > PowerVoltage()" deroute="Standby"/>
-    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 600) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) && !(nav_block == IndexOfBlock('Takeoff')) && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('Final')) && !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
+    <exception cond="And((datalink_time) @GT 300, autopilot.launch @GT 0) " deroute="Standby"/>
+    <exception cond="LOW_BAT_LEVEL @GT PowerVoltage()" deroute="Standby"/>
+    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 600) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) @AND !(nav_block == IndexOfBlock('Takeoff')) @AND !(nav_block == IndexOfBlock('land')) @AND !(nav_block == IndexOfBlock('Final')) @AND !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS" pre_call="NavKillThrottle()">
       <!-- Do Not Kill -->
       <!-- <call fun="Fly()"/>-->
       <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
-      <!--<while cond="!GpsFixValid() || gps.pacc > 1500 || stateIsAttitudeValid()"/>-->
+      <!--<while cond="!GpsFixValid() || gps.pacc @GT 1500 || stateIsAttitudeValid()"/>-->
       <while cond="!GpsFixValid()"/>
       <!-- Wiggle Wiggle when we have GPS , time to fly...-->
       <!--<set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>
@@ -177,7 +177,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <!-- <set var="ap_state->commands[COMMAND_LIGHT]" value="PPRZ_MAX"/> -->
       <set var="autopilot.kill_throttle" value="0"/>
       <!--<var="autopilot.launch" set value="1"  />-->
-      <while cond="1 > autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->
+      <while cond="1 @GT autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->
       <set var="autopilot.flight_time" value="0"/>
       <!--<call_once fun="AirbrakesOff()"/>-->
       <set var="v_ctl_auto_airspeed_setpoint" value="nav_airspeed_nominal_setting" /><!--or RACE_AIRSPEED? -->
@@ -187,7 +187,7 @@ Should be unified for Hybrid, FW and rotorcraft
     <block name="Climb-Out">
       <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED"/>
       <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC still on with a Auto2 mode switch-->
-      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+15" vmode="throttle"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() @GT ground_alt+15" vmode="throttle"/>
       <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
 
       <!-- Only for ETECS <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />-->
@@ -214,7 +214,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <deroute block="Standby"/>
     </block>
     <block name="SearchForTarget" strip_button="Searchtarget" strip_icon="survey.png" group="Scan">
-      <exception cond="block_time > 300" deroute="Standby"/> <!-- No patience, five minutes is enough for now... -->
+      <exception cond="block_time @GT 300" deroute="Standby"/> <!-- No patience, five minutes is enough for now... -->
       <call_once fun="nav_survey_polygon_setup(WP_SA1, 5, 45 , POLYSURVEY_DEFAULT_DISTANCE, 25, MIN_CIRCLE_RADIUS, GetAltRef()+40)"/>
       <call fun="nav_survey_polygon_run()"/>
     </block>
@@ -232,7 +232,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <go wp="1"/>
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE"/>
       <set var="v_ctl_auto_airspeed_setpoint" value="RACE_AIRSPEED"/>
-      <oval p1="1" p2="2" radius="nav_radius*1.2" until="block_time > 180"/>
+      <oval p1="1" p2="2" radius="nav_radius*1.2" until="block_time @GT 180"/>
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE"/>
       <set var="v_ctl_auto_airspeed_setpoint" value="NOMINAL_AIRSPEED"/>
       <deroute block="Standby"/>
@@ -245,23 +245,23 @@ Should be unified for Hybrid, FW and rotorcraft
       <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
     </block>
     <block name="Climb 75% throttle">
-      <circle pitch="10" radius="50+(GetPosAlt()-GetAltRef())/2" throttle="0.75" until="(LOW_BAT_LEVEL > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 600)" vmode="throttle" wp="1"/>
+      <circle pitch="10" radius="50+(GetPosAlt()-GetAltRef())/2" throttle="0.75" until="(LOW_BAT_LEVEL @GT PowerVoltage()) || (GetPosAlt() @GT GetAltRef()+ 600)" vmode="throttle" wp="1"/>
     </block>
     <block name="Climb 0m/s">
-      <circle climb="0" radius="nav_radius" until="LOW_BAT_LEVEL > PowerVoltage()" vmode="climb" wp="1"/>
+      <circle climb="0" radius="nav_radius" until="LOW_BAT_LEVEL @GT PowerVoltage()" vmode="climb" wp="1"/>
     </block>
     <block name="Climb 1m/s">
-      <circle climb="1" pitch="5" radius="50+(GetPosAlt()-GetAltRef())/2" until="LOW_BAT_LEVEL > PowerVoltage()" vmode="climb" wp="1"/>
+      <circle climb="1" pitch="5" radius="50+(GetPosAlt()-GetAltRef())/2" until="LOW_BAT_LEVEL @GT PowerVoltage()" vmode="climb" wp="1"/>
     </block>
     <block name="Climb nav_climb m/s">
-      <circle climb="nav_climb" radius="nav_radius" until="(LOW_BAT_LEVEL > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 600)" vmode="climb" wp="1"/>
+      <circle climb="nav_climb" radius="nav_radius" until="(LOW_BAT_LEVEL @GT PowerVoltage()) || (GetPosAlt() @GT GetAltRef()+ 600)" vmode="climb" wp="1"/>
     </block>
     <block name="Circle 0% throttle">
-      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle" wp="1"/>
+      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 @GT GetPosAlt()" vmode="throttle" wp="1"/>
       <deroute block="Standby"/>
     </block>
     <block name="Oval 0% throttle">
-      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle"/>
+      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 @GT GetPosAlt()" vmode="throttle"/>
       <deroute block="Standby"/>
     </block>
     <block name="Route 1-2">
@@ -294,10 +294,10 @@ Should be unified for Hybrid, FW and rotorcraft
     <!-- ALT
     <block key="<control>l" name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="BASELEG"/>
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" />
       <set var="v_ctl_auto_airspeed_setpoint" value="MINIMUM_AIRSPEED"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) @AND 10 @GT fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
     </block>-->
 
  <!-- *********** Land *********** -->
@@ -322,15 +322,15 @@ Should be unified for Hybrid, FW and rotorcraft
     <block name="land">
       <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
-      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
       <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
-      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) @AND 15 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
     </block>
 
     <block name="Final">
       <!--<call_once fun="AirbrakesOn()"/>-->
       <go approaching_time="6" from="AF" hmode="route" wp="TD"/>
-      <!--TODO: until="1.0 > agl_dist_value_filtered"/>-->
+      <!--TODO: until="1.0 @GT agl_dist_value_filtered"/>-->
     </block>
 
     <block name="Flare">
@@ -344,26 +344,26 @@ Should be unified for Hybrid, FW and rotorcraft
     <!-- Extras -->
     <block name="Steps roll -10, +10">
       <while cond="TRUE">
-        <attitude alt="GetPosAlt()" roll="10.0" until=" stage_time > 6" vmode="alt"/>
-        <attitude alt="GetPosAlt()" roll="-10.0" until="stage_time > 6" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="10.0" until=" stage_time @GT 6" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-10.0" until="stage_time @GT 6" vmode="alt"/>
       </while>
     </block>
     <block name="Steps roll -20, +20">
       <while cond="TRUE">
-        <attitude alt="GetPosAlt()" roll="20.0" until=" stage_time > 3" vmode="alt"/>
-        <attitude alt="GetPosAlt()" roll="-20.0" until="stage_time > 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="20.0" until=" stage_time @GT 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-20.0" until="stage_time @GT 3" vmode="alt"/>
       </while>
     </block>
     <block name="Steps roll from var">
       <while cond="TRUE">
-        <attitude alt="GetPosAlt()" roll="roll_step" until=" stage_time > 3" vmode="alt"/>
-        <attitude alt="GetPosAlt()" roll="-roll_step" until="stage_time > 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="roll_step" until=" stage_time @GT 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-roll_step" until="stage_time @GT 3" vmode="alt"/>
       </while>
     </block>
     <block name="Steps pitch -10, +10">
       <while cond="TRUE">
-        <attitude alt="GetPosAlt()" pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
-        <attitude alt="GetPosAlt()" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
+        <attitude alt="GetPosAlt()" pitch="10" roll="0.0" until=" stage_time @GT 2" vmode="alt"/>
+        <attitude alt="GetPosAlt()" pitch="-10" roll="0.0" until=" stage_time @GT 2" vmode="alt"/>
       </while>
     </block>
     <block name="Heading 30">
@@ -371,7 +371,7 @@ Should be unified for Hybrid, FW and rotorcraft
     </block>
     <block name="For loop (circles wp 1)">
       <for from="0" to="3" var="i">
-        <circle radius="DEFAULT_CIRCLE_RADIUS+ $i*10" wp="1" until="NavCircleCount() > 1"/>
+        <circle radius="DEFAULT_CIRCLE_RADIUS+ $i*10" wp="1" until="NavCircleCount() @GT 1"/>
       </for>
       <deroute block="Standby"/>
     </block>
@@ -380,7 +380,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <call fun="nav_flower_run()"/>
     </block>
     <block name="Test datalink (go to wp 2)">
-      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <exception cond="datalink_time @GT 22" deroute="Standby"/>
       <go from="STDBY" hmode="route" wp="2"/>
       <go from="2" hmode="route" wp="STDBY"/>
     </block>
@@ -403,7 +403,7 @@ Should be unified for Hybrid, FW and rotorcraft
     <block name="Terrain hugging">
       <oval p1="1" p2="2" radius="nav_radius"/>
       <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
-      <!--TODO: until="7.0 > agl_dist_value_filtered"/>-->
+      <!--TODO: until="7.0 @GT agl_dist_value_filtered"/>-->
     </block>
   </blocks>
 </flight_plan>

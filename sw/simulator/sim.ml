@@ -39,7 +39,7 @@ let georef_of_xml = fun xml ->
 
 
 (* Frequencies for perdiodic tasks are expressed in s *)
-let ir_period = 1./.20.
+let airspeed_period = 1./.20.
 let fm_period = 1./.25.
 let fg_period = 1./.25.
 let ahrs_period = 1./.20.
@@ -61,8 +61,8 @@ sig
   val commands : pprz_t array -> unit
     (** Called once at init *)
 
-  val infrared_and_airspeed : float -> float -> float -> float -> unit
-    (** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
+  val airspeed : float -> unit
+    (** [air_speed] Called on timer *)
 
   val attitude_and_rates : float -> float -> float -> float -> float -> float ->unit
     (** [ahrs phi theta psi p q r] Called on timer *)
@@ -155,8 +155,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let wind_x = ref 0.
     and wind_y = ref 0.
     and wind_z = ref 0. in
-    let infrared_contrast = ref 266.
-    and time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end
+    let time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end
     and gps_availability = ref 1 in
 
     let world_update = fun _ vs ->
@@ -164,7 +163,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       wind_x := PprzLink.float_assoc "wind_east" vs;
       wind_y := PprzLink.float_assoc "wind_north" vs;
       wind_z := PprzLink.float_assoc "wind_up" vs;
-      infrared_contrast := PprzLink.float_assoc "ir_contrast" vs;
       time_scale#set_value (PprzLink.float_assoc "time_scale" vs)
     in
 
@@ -203,16 +201,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
             | None -> 0. in
       FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y, !wind_z) agl fm_period
 
-    and ir_task = fun () ->
-      let phi, theta, _ = FlightModel.get_attitude !state in
-
-      let phi_sensor = phi +. FM.roll_neutral_default
-      and theta_sensor = theta +. FM.pitch_neutral_default in
-
-      let ir_left = sin phi_sensor *. !infrared_contrast
-      and ir_front = sin theta_sensor *. !infrared_contrast
-      and ir_top = cos phi_sensor *. cos theta_sensor *. !infrared_contrast in
-      Aircraft.infrared_and_airspeed ir_left ir_front ir_top (FlightModel.get_air_speed !state)
+    and airspeed_task = fun () ->
+      Aircraft.airspeed (FlightModel.get_air_speed !state)
 
     and gps_task = fun () ->
       let (x,y,z) = FlightModel.get_xyz !state in
@@ -265,7 +255,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let boot = fun () ->
       Aircraft.boot (time_scale:>value);
       Simlib.timer ~scale:time_scale fm_period fm_task;
-      Simlib.timer ~scale:time_scale ir_period ir_task;
+      Simlib.timer ~scale:time_scale airspeed_period airspeed_task;
       Simlib.timer ~scale:time_scale gps_period gps_task;
       Simlib.timer ~scale:time_scale ahrs_period ahrs_task;
 

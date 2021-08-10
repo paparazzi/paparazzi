@@ -575,7 +575,7 @@ The most crucial part for the magnetometer calibration:
 6) Save, rebuild and upload to Disco... Done!
 -->
 
-<!-- TODO separate calib includes based on calib_$AC_ID.xml
+<!-- TODO separate calib includes based on calib_$AC_ID.xml -->
 <!-- Disco A -->
 <!--
     <define name="MAG_X_NEUTRAL" value="4"/>

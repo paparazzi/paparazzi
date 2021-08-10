@@ -62,9 +62,7 @@ endif
 
 COMMON_DEMO_CFLAGS += -DUSE_LED
 
-ifeq ($(ARCH), lpc21)
-COMMON_DEMO_SRCS += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCH), stm32)
+ifeq ($(ARCH), stm32)
 COMMON_DEMO_SRCS += $(SRC_ARCH)/led_hw.c
 COMMON_DEMO_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif

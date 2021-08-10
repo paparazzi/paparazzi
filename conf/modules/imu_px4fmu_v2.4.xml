@@ -12,6 +12,9 @@
     <configure name="IMU_LSM_SPI_SLAVE_IDX" value="SPI_SLAVE1" description="slave select pin for the LSM303D"/>
     <define name="IMU_PX4_DISABLE_MAG" value="FALSE" description="define to TRUE to disable the mag on the Pixhawk"/>
   </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
@@ -39,9 +42,6 @@
     <file name="lsm303d_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_px4fmu_v2.4.c" dir="subsystems/imu"/>
-    <raw>
-      include $(CFG_SHARED)/spi_master.makefile
-    </raw>
     <test>
       <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
       <define name="IMU_PX4FMU_SPI_DEV" value="spi1"/>

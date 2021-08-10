@@ -114,7 +114,7 @@ let module2mk = fun f target firmware m ->
       begin match mk.Module.condition with Some c -> fprintf f "%s\n" c | None -> () end;
       List.iter (define2mk f ~target) mk.Module.defines;
       List.iter (include2mk f ~target (*FIXME vpath*)) mk.Module.inclusions;
-      List.iter (flag2mk f ~target) mk.Module.flags;
+      List.iter (flag2mk f ~target) (List.rev mk.Module.flags) (* reverse list to restore original order, it matters for flags *);
       List.iter (file2mk f dir_name target) mk.Module.files;
       List.iter (file2mk f ~arch:true dir_name target) mk.Module.files_arch;
       List.iter (raw2mk f) mk.Module.raws;
@@ -145,7 +145,7 @@ let dump_target_conf = fun out target conf ->
   List.iter (define2mk out) conf.AC.defines;
   fprintf out "\n";
   List.iter (fun (l, m) -> match l with
-              | AC.UserLoad | AC.AutoLoad -> module2mk out target conf.AC.firmware_name m
+              | AC.UserLoad | AC.AutoLoad | AC.Depend -> module2mk out target conf.AC.firmware_name m
               | _ -> ()
   ) conf.AC.modules;
   fprintf out "\nendif # end of target '%s'\n\n" target

@@ -10,7 +10,6 @@
       - command_laws section to map motor_mixing commands to servos
     </description>
     <configure name="ACTUATORS_ASCTEC_V2_I2C_DEV" value="i2cX" description="I2C port (default i2c1)"/>
-    <configure name="ACTUATORS_ASCTEC_V2_I2C_SCL_TIME" value="150" description="configurable I2C timing on lpc21 boards"/>
   </doc>
   <header>
     <file name="actuators_asctec_v2.h" dir="subsystems/actuators"/>
@@ -21,8 +20,6 @@
     <define name="ACTUATORS"/>
     <define name="ACTUATORS_ASCTEC_V2_I2C_DEV" value="$(ACTUATORS_ASCTEC_V2_I2C_DEV_LOWER)"/>
     <define name="USE_$(ACTUATORS_ASCTEC_V2_I2C_DEV_UPPER)"/>
-    <define name="$(ACTUATORS_ASCTEC_V2_I2C_DEV_UPPER)_SCLL" value="$(ACTUATORS_ASCTEC_V2_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
-    <define name="$(ACTUATORS_ASCTEC_V2_I2C_DEV_UPPER)_SCLH" value="$(ACTUATORS_ASCTEC_V2_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <file name="actuators_asctec_v2.c" dir="subsystems/actuators"/>
     <test>
         <define name="SERVO_FRONT" value="0"/>

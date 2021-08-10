@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="vi_datalink" dir="vehicle_interface">
+<module name="vehicle_interface_datalink" dir="vehicle_interface">
   <doc>
     <description>Vehicule Interface over Datalink</description>
   </doc>

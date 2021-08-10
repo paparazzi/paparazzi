@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="swashplate_mixing" dir="helicopter">
+<module name="heli_swashplate_mixing" dir="helicopter">
   <doc>
     <description>Helicopter Swashplate Mixing</description>
   </doc>

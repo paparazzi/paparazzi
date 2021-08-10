@@ -30,16 +30,18 @@ type bool_expr =
   | And of bool_expr * bool_expr
   | Or of bool_expr * bool_expr
 
+val eval_bool : string -> bool_expr -> bool
 val print_bool : string -> bool_expr -> unit
 val sprint_bool : string -> bool_expr -> string
+val sprint_expr : bool_expr -> string
 
 (** remove all duplicated elements of a list *)
 val singletonize : ?compare: ('a -> 'a -> int) -> 'a list -> 'a list
 
-(** [targets_of_string] targets
- * Returns the targets expression of a string
+(** [bool_expr_of_string] string
+ * Returns the boolean expression of a string
  *)
-val targets_of_string : string option -> bool_expr
+val bool_expr_of_string : string option -> bool_expr
 
 (** [test_targets target targets]
  * Test if [target] is allowed [targets]

@@ -37,9 +37,6 @@
     <module name="guidance"      type="indi"/>
   </firmware>
 
-  <modules>
-  </modules>
-
   <servos driver="Pwm">
     <servo name="MOTOR_0" no="0" min="1148" neutral="1200" max="1832"/>
     <servo name="MOTOR_1" no="1" min="1148" neutral="1200" max="1832"/>
@@ -183,7 +180,7 @@
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="3.2"/>
+    <define name="FILT_CUTOFF_RDOT" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.03"/>

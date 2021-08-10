@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ColorFilter" dir="computer_vision">
+<module name="cv_colorfilter" dir="computer_vision">
   <doc>
     <description>ColorFilter</description>
     <define name="COLORFILTER_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
@@ -20,7 +20,9 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
 
   <header>
     <file name="colorfilter.h"/>

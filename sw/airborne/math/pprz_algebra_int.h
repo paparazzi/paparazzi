@@ -612,6 +612,13 @@ static inline void int32_vect_zero(int32_t *a, const int n)
   for (i = 0; i < n; i++) { a[i] = 0.; }
 }
 
+/** a = 0 */
+static inline void int16_vect_zero(int16_t *a, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { a[i] = 0.; }
+}
+
 /** a = v * ones(n,1) */
 static inline void int32_vect_set_value(int32_t *a, const int32_t v, const int n)
 {

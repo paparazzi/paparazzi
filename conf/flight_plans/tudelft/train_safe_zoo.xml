@@ -1,0 +1,105 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
+  <header>
+    #include "subsystems/datalink/datalink.h"
+    #include "subsystems/electrical.h"
+    #include "subsystems/radio_control.h"
+    #include "subsystems/ahrs.h"
+</header>
+  <waypoints>
+    <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
+    <waypoint name="CLIMB" x="1.9" y="1.0"/>
+    <waypoint name="STDBY" x="0.5" y="0.3"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
+    <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
+    <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
+    <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
+    <waypoint name="p1" x="-4.3" y="0.7"/>
+    <waypoint name="p2" x="0.9" y="4.6"/>
+    <waypoint name="p3" x="4.5" y="-0.9"/>
+    <waypoint name="p4" x="-1.0" y="-4.5"/>
+  </waypoints>
+  <sectors>
+    <sector color="blue" name="CyberZoo">
+      <corner name="_CZ1"/>
+      <corner name="_CZ2"/>
+      <corner name="_CZ3"/>
+      <corner name="_CZ4"/>
+    </sector>
+    <sector color="red" name="Flyzone">
+      <corner name="p1"/>
+      <corner name="p2"/>
+      <corner name="p3"/>
+      <corner name="p4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT 2.2) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 2)"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block key="r" name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+      <call_once fun="NavResurrect()"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="safe">
+      <set value="AP_MODE_NAV" var="autopilot_mode_auto2"/>
+      <stay wp="STDBY"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <exception cond="LessThan(RadioControlValues(RADIO_THROTTLE), (MAX_PPRZ / 20))" deroute="Safe landing"/>
+    </block>
+    <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Land">
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Safe landing">
+      <exception cond="!nav_is_in_flight()" deroute="Manual"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Manual"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Manual">
+      <set value="AP_MODE_ATTITUDE_DIRECT" var="autopilot_mode_auto2"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

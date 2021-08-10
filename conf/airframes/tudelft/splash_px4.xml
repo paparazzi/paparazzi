@@ -1,0 +1,225 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a quadrotor frame equiped with
+* Autopilot:   Pixracer
+* IMU:         MPU 9250 & MS5611
+* Actuators:   PWM motor controllers
+* GPS:
+* RC:          Spektrum
+-->
+<airframe name="splash">
+  <description>Pixracer
+  </description>
+  <firmware name="rotorcraft">
+    <target name="ap" board="px4fmu_4.0" />
+    <define name="BAT_CHECKER_DELAY" value="80" />
+    <!-- amount of time it take for the bat to check -->
+    <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+    <!-- in seconds-->
+    <module name="telemetry" type="xbee_api" />
+
+    <module name="imu" type="mpu9250_spi">
+      <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+      <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+      <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+    </module>
+
+    <module name="gps" type="ublox" >
+      <configure name="GPS_BAUD" value="B57600"/>
+    </module>
+    <module name="gps" type="ubx_ucenter" />
+    <module name="stabilization" type="indi_simple" />
+    <!--<module name="stabilization" type="rate_indi" />-->
+    <module name="ahrs" type="int_cmpl_quat" >
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+
+    </module>
+    <module name="ins" type="extended" />
+    <module name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
+    </module>
+    <module name="actuators" type="pwm">
+      <define name="SERVO_HZ" value="400" />
+    </module>
+
+    <module name="motor_mixing" />
+
+    <module name="radio_control" type="spektrum">
+      <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
+      <define name="SPEKTRUM_HAS_SOFT_BIND_PIN" value="1"/>
+      <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="0" />
+      <define name="RADIO_KILL_SWITCH" value="5" />
+    </module>
+
+
+    <module name="px4_flash"/>
+    <module name="geo_mag" />
+    <module name="air_data" />
+    <module name="send_imu_mag_current" />
+    <module name="spektrum_soft_bind"/>
+  </firmware>
+
+  <section name="MISC">
+    <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
+    <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
+  </section>
+  <section name="IMU" prefix="IMU_">
+    <!-- replace this with your own calibration -->
+<!--     <define name="ACCEL_X_NEUTRAL" value="49"/>
+    <define name="ACCEL_Y_NEUTRAL" value="6"/>
+    <define name="ACCEL_Z_NEUTRAL" value="104"/>
+    <define name="ACCEL_X_SENS" value="7.53390969897" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="7.35267287758" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="7.45488455799" integer="16"/> -->
+
+    <!--TODO: TMP OLD IRIS CALIBRATION -->
+    <define name="MAG_X_NEUTRAL" value="105"/>
+    <define name="MAG_Y_NEUTRAL" value="10"/>
+    <define name="MAG_Z_NEUTRAL" value="-23"/>
+    <define name="MAG_X_SENS" value="4.01453293111" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.96379405627" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.92499630895" integer="16"/>
+  </section>
+  <commands>
+    <axis name="PITCH" failsafe_value="0" />
+    <axis name="ROLL" failsafe_value="0" />
+    <axis name="YAW" failsafe_value="0" />
+    <axis name="THRUST" failsafe_value="0" />
+  </commands>
+  <rc_commands>
+    <set command="THRUST" value="@THROTTLE" />
+    <set command="ROLL" value="@ROLL" />
+    <set command="PITCH" value="@PITCH" />
+    <set command="YAW" value="@YAW" />
+  </rc_commands>
+  <servos driver="Default">
+    <servo name="TOP_LEFT" no="0" min="1000" neutral="1100" max="2000" />
+    <servo name="TOP_RIGHT" no="1" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_RIGHT" no="2" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_LEFT" no="3" min="1000" neutral="1100" max="2000" />
+    <servo name="ZwaaiLight" no="4" min="1500" neutral="1700" max="2000" />
+  </servos>
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0" />
+    <define name="TRIM_PITCH" value="0" />
+    <define name="TRIM_YAW" value="0" />
+    <define name="REVERSE" value="FALSE" />
+    <define name="TYPE" value="QUAD_X" />
+  </section>
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)" />
+    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]" />
+    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]" />
+    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]" />
+    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]" />
+  </command_laws>
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE" />
+    <define name="CALC_TAS_FACTOR" value="FALSE" />
+    <define name="CALC_AMSL_BARO" value="TRUE" />
+  </section>
+  <!-- local magnetic field -->
+  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <!-- Delft -->
+    <define name="H_X" value="0.3892503" />
+    <define name="H_Y" value="0.0017972" />
+    <define name="H_Z" value="0.9211303" />
+    <!-- For vibrating airfames -->
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+  </section>
+  <section name="INS" prefix="INS_">
+    <define name="SONAR_MAX_RANGE" value="2.2" />
+  </section>
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg" />
+    <define name="SP_MAX_THETA" value="45" unit="deg" />
+    <define name="SP_MAX_R" value="300" unit="deg/s" />
+    <define name="DEADBAND_A" value="0" />
+    <define name="DEADBAND_E" value="0" />
+    <define name="DEADBAND_R" value="50" />
+  </section>
+  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- attitude reference generation model -->
+    <define name="REF_OMEGA_P" value="450" unit="deg/s" />
+    <define name="REF_ZETA_P" value="0.9" />
+    <define name="REF_MAX_P" value="600." unit="deg/s" />
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)" />
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s" />
+    <define name="REF_ZETA_Q" value="0.9" />
+    <define name="REF_MAX_Q" value="600." unit="deg/s" />
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)" />
+    <define name="REF_OMEGA_R" value="450" unit="deg/s" />
+    <define name="REF_ZETA_R" value="0.9" />
+    <define name="REF_MAX_R" value="600." unit="deg/s" />
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)" />
+  </section>
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.02692" />
+    <define name="G1_Q" value="0.025867" />
+    <define name="G1_R" value="0.002055" />
+    <define name="G2_R" value="0.15865" />
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="100.0" />
+    <define name="REF_ERR_Q" value="100.0" />
+    <define name="REF_ERR_R" value="100.0" />
+    <define name="REF_RATE_P" value="14.0" />
+    <define name="REF_RATE_Q" value="14.0" />
+    <define name="REF_RATE_R" value="14.0" />
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.04" />
+    <define name="ACT_DYN_Q" value="0.04" />
+    <define name="ACT_DYN_R" value="0.04" />
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE" />
+    <define name="ADAPTIVE_MU" value="0.0001" />
+    <!-- max rates (conservative) -->
+    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="deg/s"/>
+    <define name="STABILIZATION_INDI_MAX_R" value="200" unit="deg/s"/> <!--Does not seem to be applied-->
+  </section>
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="350" />
+    <define name="HOVER_KD" value="85" />
+    <define name="HOVER_KI" value="20" />
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.6" />
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE" />
+  </section>
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <!-- Good weather -->
+    <define name="MAX_BANK" value="20" unit="deg" />
+    <define name="REF_MAX_SPEED" value="2" unit="m/s" />
+    <!-- Bad weather -->
+    <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
+    <define name="PGAIN" value="50" />
+    <define name="DGAIN" value="100" />
+    <define name="IGAIN" value="30" />
+  </section>
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED" value="4.5" />
+    <define name="DESCEND_VSPEED" value="-1.0" />
+  </section>
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
+    <define name="MODE_AUTO2" value="AP_MODE_RC_DIRECT" />
+<!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
+  </section>
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700" />
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.2" unit="V" />
+    <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="10.2" unit="V" />
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V" />
+  </section>
+</airframe>

@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+<!-- this is a quadrotor frame equiped with Lisa/M -->
 
 <airframe name="setup_apogee">
 

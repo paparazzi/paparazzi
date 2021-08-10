@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="control" dir="control">
+<module name="control_adaptive" dir="control">
   <doc>
     <description>
       Adaptive control for fixed-wing aircraft.
@@ -9,7 +9,8 @@
       - guidance_basic_fw
     </description>
   </doc>
-  <autoload name="stabilization_adaptive_fw"/>
-  <autoload name="guidance_basic_fw"/>
+  <dep>
+    <depends>stabilization_adaptive_fw,guidance_basic_fw</depends>
+  </dep>
   <makefile target="ap|sim|nps" firmware="fixedwing"/>
 </module>

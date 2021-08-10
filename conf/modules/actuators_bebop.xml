@@ -7,6 +7,7 @@
     </description>
     <configure name="BEBOP_ACTUATORS_I2C_DEV" value="i2cX" description="I2C port (default i2c1)"/>
   </doc>
+  <autoload name="actuators" type="nps"/>
   <header>
     <file name="actuators.h" dir="boards/bebop"/>
   </header>

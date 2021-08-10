@@ -48,7 +48,9 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
 
   <header>
     <file name="cv_detect_color_object.h"/>

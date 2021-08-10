@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_float_dcm" dir="ahrs">
+<module name="ahrs_float_invariant" dir="ahrs">
   <doc>
     <description>
       AHRS using invariant filter.

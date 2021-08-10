@@ -267,7 +267,7 @@ void px4flow_i2c_downlink(void)
   uint8_t id = PX4FLOW_I2C_ID;
 
   float timestamp = get_sys_time_float();
-  static float distance_quality = 0;
+  static uint8_t distance_quality = 0;
 
 #if REQUEST_INT_FRAME
   int32_t flow_x = px4flow.i2c_int_frame.pixel_flow_x_integral;

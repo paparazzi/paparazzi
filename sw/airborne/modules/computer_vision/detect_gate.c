@@ -131,7 +131,7 @@ struct vision_relative_position_struct {
 
 
 // Function
-static struct image_t *detect_gate_func(struct image_t *img, uint8_t camera_id)
+static struct image_t *detect_gate_func(struct image_t *img, uint8_t camera_id __attribute__((unused)))
 {
   // detect the gate and draw it in the image:
   if (just_filtering) {

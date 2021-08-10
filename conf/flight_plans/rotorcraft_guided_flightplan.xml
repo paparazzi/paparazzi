@@ -68,7 +68,7 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
     <block name="Take off">
       <set var="desired_heading" value="stateGetNedToBodyEulers_f()->psi"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL,0.,0.,-climb_descent_vel,desired_heading)"/>
-      <while cond="LessThan(stateGetPositionEnu_f()->z,nominal_alt-0.2)"/>
+      <while cond="LessThan(GetPosHeight(),nominal_alt-0.2)"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET,0.,0.,-nominal_alt,desired_heading)"/>    
       <while cond="LessThan(stage_time,1)"/>
     </block>
@@ -115,7 +115,7 @@ NOTE: A velocity forcefield in the horizontal plane applied here, so if an obsta
     <block name="Land">
       <set var="desired_heading" value="stateGetNedToBodyEulers_f()->psi"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL,0.,0.,climb_descent_vel,desired_heading)"/>
-      <while cond="MoreThan(stateGetPositionEnu_f()->z,0.1)"/>
+      <while cond="MoreThan(GetPosHeight(),0.1)"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_YAW_OFFSET,0.,0.,0.,0.)"/>
       <while cond="LessThan(block_time,5)"/>
       <deroute block="Kill Engines"/>

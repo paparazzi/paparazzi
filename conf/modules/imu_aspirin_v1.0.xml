@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_common" dir="imu">
+<module name="imu_aspirin_v1.0" dir="imu">
   <doc>
     <description>
       Aspirin v1.0 IMU.

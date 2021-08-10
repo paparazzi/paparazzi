@@ -16,7 +16,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
-  <depends>traffic_info</depends>
+  <dep>
+    <depends>traffic_info</depends>
+  </dep>
   <header>
     <file name="formation.h"/>
   </header>

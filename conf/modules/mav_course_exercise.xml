@@ -1,0 +1,11 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mav_course_exercise">
+  <doc>
+    <description>
+    Exercise module for Autonomous Flight of MAV Course
+    </description>
+  </doc>
+  <depends>cv_detect_color_object</depends>
+  <!-- TODO Specify header, init, periodic, makefile sections  -->
+</module>

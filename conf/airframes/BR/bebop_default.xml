@@ -22,9 +22,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="float_mlkf"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -55,7 +53,7 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="10"/>
     </module>
     <module name="video_exif"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -110,7 +108,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
 

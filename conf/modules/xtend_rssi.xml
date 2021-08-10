@@ -4,16 +4,14 @@
   <doc>
     <description>
       Digi Xtend RSSI PWM Module.
-      For LPC21xx on the TWOG:
-      - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V to 3.3V voltage divider)
-      - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
 
-      Currently only available on LPC21xx arch.
       You must also load the module pwm_meas.xml
     </description>
     <configure name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="input" description="select on which arch dep input the pwm line is connected"/>
   </doc>
-  <depends>pwm_meas</depends>
+  <dep>
+    <depends>pwm_meas</depends>
+  </dep>
   <header>
     <file name="xtend_rssi.h"/>
   </header>

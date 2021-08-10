@@ -200,31 +200,6 @@
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 
-
-  <modules>
-<!--
-    <module name="adc_generic">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
-      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
-    </module>
--->
-    <module name="light">
-      <define name="LIGHT_LED_STROBE" value="2"/>
-      <define name="LIGHT_LED_NAV" value="3"/>
-      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </module>
-
-<!--    <module name="digital_cam_i2c"/>  -->
-    <module name="digital_cam">
-      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
-    </module>
-
-    <module name="nav" type="catapult"/>
-    <module name="nav" type="line"/>
-    <module name="air_data"/>
-  </modules>
-
   <firmware name="fixedwing">
 
     <target name="ap" board="lisa_m_2.0">
@@ -255,6 +230,7 @@
 
       <module name="control"/>
       <module name="navigation"/>
+      
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
@@ -283,6 +259,29 @@
       </module>
 
     </target>
+    
+          <!--
+    <module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
+    </module>
+-->
+    <module name="light">
+      <define name="LIGHT_LED_STROBE" value="2"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+    </module>
+
+<!--    <module name="digital_cam_i2c"/>  -->
+    <module name="digital_cam">
+      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
+    </module>
+
+    <module name="nav" type="catapult"/>
+    <module name="nav" type="line"/>
+    <module name="air_data"/>
+
 
     <configure name="FLASH_MODE" value="JTAG"/>
 

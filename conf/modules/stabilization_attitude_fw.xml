@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_attitude" dir="stabilization">
+<module name="stabilization_attitude_fw" dir="stabilization">
   <doc>
     <description>
       Legacy attitude and lateral (heading) control for fixedwing aircraft

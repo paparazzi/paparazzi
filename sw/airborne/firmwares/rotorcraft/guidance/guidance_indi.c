@@ -75,7 +75,7 @@ bool indi_accel_sp_set_3d = false;
 
 struct FloatVect3 sp_accel = {0.0, 0.0, 0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
-float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
+float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
@@ -165,9 +165,10 @@ void guidance_indi_run(float *heading_sp)
   float pos_y_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y) - stateGetPositionNed_f()->y;
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
-  float speed_sp_x = pos_x_err * guidance_indi_pos_gain;
-  float speed_sp_y = pos_y_err * guidance_indi_pos_gain;
-  float speed_sp_z = pos_z_err * guidance_indi_pos_gain;
+  // Use feed forward part from reference model
+  float speed_sp_x = pos_x_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  float speed_sp_y = pos_y_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+  float speed_sp_z = pos_z_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_v_zd_ref);
 
   // If the acceleration setpoint is set over ABI message
   if (indi_accel_sp_set_2d) {
@@ -190,9 +191,9 @@ void guidance_indi_run(float *heading_sp)
       indi_accel_sp_set_3d = false;
     }
   } else {
-    sp_accel.x = (speed_sp_x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain;
-    sp_accel.y = (speed_sp_y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain;
-    sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain;
+    sp_accel.x = (speed_sp_x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
+    sp_accel.y = (speed_sp_y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+    sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_v_zdd_ref);
   }
 
 #if GUIDANCE_INDI_RC_DEBUG
@@ -242,7 +243,7 @@ void guidance_indi_run(float *heading_sp)
   guidance_indi_filter_thrust();
 
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
-  thrust_in = thrust_filt.o[0] + control_increment.z * thrust_in_specific_force_gain;
+  thrust_in = thrust_filt.o[0] + control_increment.z * guidance_indi_specific_force_gain;
   Bound(thrust_in, 0, 9600);
 
 #if GUIDANCE_INDI_RC_DEBUG

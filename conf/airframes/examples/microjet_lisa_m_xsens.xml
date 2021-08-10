@@ -28,12 +28,9 @@
 
     <module name="control"/>
     <module name="navigation"/>
-  </firmware>
-
-  <modules>
     <module name="sys_mon"/>
     <module name="nav" type="line"/>
-  </modules>
+  </firmware>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>

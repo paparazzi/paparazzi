@@ -45,7 +45,12 @@ DMP   = $(PREFIX)-objdump
 NM    = $(PREFIX)-nm
 SIZE  = $(PREFIX)-size
 STRIP = $(PREFIX)-strip
-GDB   = gdb-multiarch
+
+GDB = $(shell which $(PREFIX)-gdb)
+ifeq ($(GDB),)
+GDB = $(shell which gdb-multiarch)
+endif
+
 
 # some general commands
 RM = rm

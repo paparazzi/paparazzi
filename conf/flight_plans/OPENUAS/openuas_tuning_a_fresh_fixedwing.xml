@@ -154,7 +154,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
   <includes/>
   <!-- The exceptions section allows for global error and failsafe handling -->
   <exceptions>
-    <!-- <exception cond="datalink_time > 15" deroute="Standby"/> -->
+    <!-- <exception cond="datalink_time @GT 15" deroute="Standby"/> -->
   </exceptions>
   <!-- The blocks section contains each block of the flightplan, which actually make the aircraft do something -->
   <blocks>
@@ -173,7 +173,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     </block>
     <!-- need this for simulation, manual takeoff for real testing -->
     <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
-      <exception cond="GetPosAlt() > (ground_alt+25)" deroute="Standby"/>
+      <exception cond="GetPosAlt() @GT (ground_alt+25)" deroute="Standby"/>
       <set value="0" var="autopilot.kill_throttle"/>
       <set value="1" var="autopilot.launch"/>
       <set value="0" var="autopilot.flight_time"/>
@@ -215,7 +215,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       </while>
     </block>
     <block name="Descent Auto Throttle Tuning">
-      <while cond="GetPosAlt() > (ground_alt + 25)">
+      <while cond="GetPosAlt() @GT (ground_alt + 25)">
       	<attitude roll="0.0" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
       </while>
     </block>
@@ -244,7 +244,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       </while>
     </block>
     <block name="Descent Auto Pitch Tuning">
-      <while cond="GetPosAlt() > (ground_alt + 25)">
+      <while cond="GetPosAlt() @GT (ground_alt + 25)">
       	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
       </while>
     </block>

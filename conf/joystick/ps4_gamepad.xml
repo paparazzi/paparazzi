@@ -1,0 +1,104 @@
+<!-- PlayStation 4 gamepad
+
+ It has 6 axes:
+  axis 0: LeftStickHorizontal
+  axis 1: LeftStickVertical
+  axis 2: L2 (left trigger). Also triggers button 6
+  axis 3: RightStickHorizontal
+  axis 4: RightStickVertical
+  axis 5: R2 (right trigger). Also triggers button 7
+
+ It has 13 buttons.
+  b0  - X (blue)
+  b1  - Circle (red)
+  b2  - Triangle (green)
+  b3  - Square (pink)
+  b4  - L1 (left shoulder button)
+  b5  - R1 (right shoulder button)
+  b6  - L2 (left trigger). Also triggers axis 2
+  b7  - R2 (right trigger). Also triggers axis 5
+  b8  - Share (left of touchscreen)
+  b9  - Options (right of touchscreen)
+  b10 - PS (below touchscreen)
+  b11 - L3 (press left stick)
+  b12 - R3 (press right stick)
+
+ and the DPad as a hat
+ You can use the Hat<Position>(<hat_name>) function to trigger events,
+ where <Position> is one of
+ Centered/Up/Right/Down/Left/RightUp/RightDown/LeftUp/LeftDown
+ so e.g. HatDown(dpad)
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="LeftStickHorizontal"/>
+    <axis index="1" name="LeftStickVertical"/>
+    <axis index="2" name="L2" trim="127"/>
+    <axis index="3" name="RightStickHorizontal"/>
+    <axis index="4" name="RightStickVertical"/>
+    <axis index="5" name="R2" trim="127"/>
+    <button index="0" name="X"/>
+    <button index="1" name="Circle"/>
+    <button index="2" name="Triangle"/>
+    <button index="3" name="Square"/>
+    <button index="4" name="L1"/>
+    <button index="5" name="R1"/>
+    <button index="6" name="L2"/>
+    <button index="7" name="R2"/>
+    <button index="8" name="Share"/>
+    <button index="9" name="Options"/>
+    <button index="10" name="PS"/>
+    <button index="11" name="L3"/>
+    <button index="12" name="R3"/>
+    <hat index="0" name="dpad"/>
+  </input>
+
+  <variables>
+    <!-- manual by default and when pressing X, AUTO1 on Square, AUTO2 on Triangle -->
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="X"/>
+    <set var="mode" value="1" on_event="Square"/>
+    <set var="mode" value="2" on_event="Triangle"/>
+  </variables>
+
+  <messages period="0.05">
+
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="mode"/>
+      <field name="throttle" value="Fit(-LeftStickVertical,-127,127,0,127)"/>
+      <field name="roll" value="RightStickHorizontal"/>
+      <field name="pitch" value="RightStickVertical"/>
+      <field name="yaw" value="LeftStickHorizontal"/>
+    </message>
+
+    <!-- go to "Start Engine" block if in AUTO2 and pressing Options button -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && Options">
+      <field name="block_id" value="IndexOfBlock('Start Engine')"/>
+    </message>
+
+    <!-- go to "Takeoff" block if in AUTO2 and pressing up on dpad -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatUp(dpad)">
+      <field name="block_id" value="IndexOfBlock('Takeoff')"/>
+    </message>
+
+    <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
+      <field name="block_id" value="IndexOfBlock('land here')"/>
+    </message>
+
+    <!-- resurrect throttle if throttle is 0 and R1 button is pressed -->
+    <message class="ground" name="DL_SETTING" on_event="(LeftStickVertical > 120) && R1">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="0"/>
+    </message>
+
+    <!-- kill throttle on L1 button -->
+    <message class="ground" name="DL_SETTING" on_event="L1">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="1"/>
+    </message>
+
+  </messages>
+</joystick>

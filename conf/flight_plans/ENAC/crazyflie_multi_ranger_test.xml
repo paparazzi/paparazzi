@@ -1,0 +1,118 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="147" ground_alt="146" lat0="43.5640917" lon0="1.4829201" max_dist_from_home="20" name="Rotorcraft Optitrack (ENAC)" security_height="0.3">
+  <header>
+#include "autopilot_guided.h"
+
+// Useful Combination of the flags fir the autopilot_guided_update
+#define GUIDED_FLAG_XY_VEL_BODY GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL
+#define GUIDED_FLAG_XY_VEL_BODY_YAW_RATE GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_RATE
+#define GUIDED_FLAG_XY_OFFSET_Z_VEL GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_Z_VEL
+#define GUIDED_FLAG_XY_OFFSET_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_YAW_OFFSET
+
+#ifdef NAV_C
+static float obstacle_dist, obstacle_azimuth, obstacle_bearing;
+static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused)), float _obstacle_dist, float _obstacle_azimuth, float _obstacle_bearing)
+{
+  if (And(CloseRadAngles(_obstacle_azimuth,0), CloseRadAngles(_obstacle_bearing,0))) {
+    obstacle_dist = _obstacle_dist;
+    obstacle_azimuth = _obstacle_azimuth;
+    obstacle_bearing = _obstacle_bearing;
+  }
+}
+#endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="-0.7" y="-0.8"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint name="S1" x="2" y="3.5"/>
+    <waypoint name="S2" x="2" y="-3.5"/>
+    <waypoint name="S3" x="-3" y="-3.5"/>
+    <waypoint name="S4" x="-3" y="3.5"/>
+    <waypoint name="_N1" x="4.5" y="5.2"/>
+    <waypoint name="_N2" x="4.5" y="-5.2"/>
+    <waypoint name="_N3" x="-4.5" y="-5.2"/>
+    <waypoint name="_N4" x="-4.5" y="5.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector name="Survey" color="green">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0.1" var="fp_throttle"/>
+	  <variable var="desired_heading" init="0.0f" type="float" min="0." max="10." step="0.1"/>
+	  <variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
+    <abi_binding name="OBSTACLE_DETECTION" handler="obstacle_detection_cb"/>
+    <abi_binding name="RANGE_FORCEFIELD" vars="vel_body_x_FF, vel_body_y_FF, vel_body_z_FF"/>
+	</variables>
+
+  <blocks>
+    <block name="FPInit">
+      <call_once fun="NavKillThrottle()"/>
+      <set var = "obstacle_dist" value="10.0"/><!--Or else it will turn everytime if the abi message is not received-->
+      <set var = "vel_body_x_FF" value="0."/>
+      <set var = "vel_body_y_FF" value="0."/>
+      <set var = "vel_body_z_FF" value="0."/>
+      <!--while cond="!GpsFixValid()"/-->
+      <while cond="TRUE"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine" strip_button="Start Engine" strip_icon="resurrect.png" group="home">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Take off" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT 0.6" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <stay wp="STDBY"/>
+    </block>
+
+    <block name="Stay and avoid" strip_button="Avoid">
+      <attitude roll="DegOfRad(vel_body_y_FF)" pitch="-DegOfRad(vel_body_x_FF)" alt="WaypointAlt(WP_STDBY)" vmode="alt" until="FALSE"/>
+    </block>
+    <block name="Guided avoid">
+      <while cond="1">
+        <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY,vel_body_x_FF,vel_body_y_FF,-nominal_alt,desired_heading)"/>
+      </while>
+    </block>
+
+
+    <block name="Land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="Land">
+      <go wp="TD"/>
+    </block>
+    <block name="Land Target" strip_button="Land Target" group="target">
+      <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
+      <exception cond="!nav_is_in_flight()" deroute="Kill Engine"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Ramp down">
+      <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Kill Engine"/>
+      <set var="fp_throttle" value="guidance_v_delta_t/9600."/>
+      <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
+    </block>
+    <block name="Kill Engine">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="1"/>
+    </block>
+  </blocks>
+</flight_plan>

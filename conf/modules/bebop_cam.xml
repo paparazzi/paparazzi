@@ -53,7 +53,9 @@
     </dl_settings>
   </settings>
   
-  <autoload name="video_thread"/>
+  <dep>
+    <depends>video_thread</depends>
+  </dep>
   
   <header>
     <file name="mt9v117.h"/>

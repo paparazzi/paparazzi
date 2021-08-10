@@ -39,16 +39,16 @@
   </sectors>
   <exceptions>
     <!-- Check inside small flight area, then goto Center(Standby) -->
-    <exception cond="Or(! InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 50) && !(nav_block == BLOCK_Init) && !(nav_block == BLOCK_Geo_init) && !(nav_block == BLOCK_Landed)" deroute="Standby"/>
+    <exception cond="Or(! InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 50) @AND !(nav_block == BLOCK_Init) @AND !(nav_block == BLOCK_Geo_init) @AND !(nav_block == BLOCK_Landed)" deroute="Standby"/>
     <!-- Check if battery is empty, then Land Here -->
-    <exception cond="electrical.bat_low && !(nav_block == BLOCK_Land) && !(nav_block == BLOCK_Flare) && !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
+    <exception cond="electrical.bat_low @AND !(nav_block == BLOCK_Land) @AND !(nav_block == BLOCK_Flare) @AND !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
     <!-- Check if time is up(10 seconds range), then Land Here -->
-    <exception cond="10 > time_until_end && !(nav_block == BLOCK_Land) && !(nav_block == BLOCK_Flare) && !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
+    <exception cond="10 @GT time_until_end @AND !(nav_block == BLOCK_Land) @AND !(nav_block == BLOCK_Flare) @AND !(nav_block == BLOCK_Landed)" deroute="Land_Here"/>
   </exceptions>
   <blocks>
     <block name="Init">
       <call_once fun="NavKillThrottle()"/>
-      <while cond="!GpsFixValid() || gps.pacc > 1500 || !(ahrs.status == AHRS_RUNNING)"/>
+      <while cond="!GpsFixValid() || gps.pacc @GT 1500 || !(ahrs.status == AHRS_RUNNING)"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
@@ -65,7 +65,7 @@
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT 5.0" deroute="Standby"/>
       <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">

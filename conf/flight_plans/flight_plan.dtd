@@ -66,6 +66,7 @@ max_dist_from_home CDATA #REQUIRED
 ground_alt CDATA #REQUIRED
 security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
+wp_frame CDATA #IMPLIED
 qfu CDATA #IMPLIED
 home_mode_height CDATA #IMPLIED
 geofence_max_alt CDATA #IMPLIED

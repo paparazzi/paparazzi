@@ -12,10 +12,10 @@
       Normal up of the board is on STM32F405 side.
     </description>
   </doc>
+  <dep>
+    <depends>spi_master,osd_max7456,baro_bmp280_i2c</depends>
+  </dep>
   <autoload name="imu" type="mpu6000"/>
-  <autoload name="spi" type="master"/>
-  <autoload name="osd_max7456" />
-  <autoload name="baro_bmp280_i2c" />
 
   <makefile target="!sim|nps|fbw">
     <!-- IMU CONFIGURATION -->

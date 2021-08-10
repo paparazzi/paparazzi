@@ -50,7 +50,7 @@
     </block>
     <block name="land"> <!-- basic landing function out of formation -->
       <exception cond="(GROUND_ALT+10> GetPosAlt())" deroute="stop"/>
-      <circle radius="50" until="WaypointAlt(WP_IAF) > GetPosAlt()" wp="IAF"/>
+      <circle radius="50" until="WaypointAlt(WP_IAF) @GT GetPosAlt()" wp="IAF"/>
       <go alt="WaypointAlt(WP_AF)" wp="AF"/>
       <go from="AF" hmode="route" vmode="glide" wp="RWAY"/>
     </block>

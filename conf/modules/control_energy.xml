@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="control" dir="control">
+<module name="control_energy" dir="control">
   <doc>
     <description>
       Energy control for fixed-wing aircraft.
@@ -9,7 +9,8 @@
       - guidance_energy
     </description>
   </doc>
-  <autoload name="stabilization_attitude_fw"/>
-  <autoload name="guidance_energy"/>
+  <dep>
+    <depends>stabilization_attitude_fw,guidance_energy</depends>
+  </dep>
   <makefile target="ap|sim|nps" firmware="fixedwing"/>
 </module>

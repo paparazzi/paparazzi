@@ -22,9 +22,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
-
-  <modules main_freq="512">
+    
     <module name="bat_voltage_ardrone2"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <module name="gps" type="ubx_ucenter"/>
@@ -40,7 +38,7 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -113,7 +111,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
 

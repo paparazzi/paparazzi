@@ -1,13 +1,11 @@
-<?xml version="1.0"?>
-
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="OSAMT7cap" data_min="900" data_max="2100" sync_min="5500" sync_max="13500" pulse_type="POSITIVE">
-  <channel ctl="right_stick_horiz" function="ROLL" min="1100" neutral="1500" max="1930" average="0"/>
-  <channel ctl="right_stick_vert" function="PITCH" min="1930" neutral="1500" max="1100" average="0"/>
-  <channel ctl="left_stick_vert" function="THROTTLE" min="1100" neutral="1100" max="1930" average="0"/>
-  <channel ctl="left_stick_horiz" function="YAW" min="1100" neutral="1500" max="1930" average="0"/>
-  <channel ctl="switch_D" function="CALIB" min="1100" neutral="1500" max="1930" average="10"/>
-  <channel ctl="dial1" function="GAIN1" min="1100" neutral="1500" max="1930" average="10"/>
-  <channel ctl="switch_G" function="MODE" min="1100" neutral="1500" max="1930" average="10"/>
+  <channel function="ROLL" min="1100" neutral="1500" max="1930" average="0"/>
+  <channel function="PITCH" min="1100" neutral="1500" max="1930" average="0" reverse="1"/>
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1930" average="0"/>
+  <channel function="YAW" min="1100" neutral="1500" max="1930" average="0"/>
+  <channel function="CALIB" min="1100" neutral="1500" max="1930" average="10"/>
+  <channel function="GAIN1" min="1100" neutral="1500" max="1930" average="10"/>
+  <channel function="MODE" min="1100" neutral="1500" max="1930" average="10"/>
 </radio>
 <!-- Please use only if you now what your doing-->

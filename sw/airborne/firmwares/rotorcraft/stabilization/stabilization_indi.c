@@ -48,6 +48,24 @@
 // Factor that the estimated G matrix is allowed to deviate from initial one
 #define INDI_ALLOWED_G_FACTOR 2.0
 
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_P
+#define STABILIZATION_INDI_FILTER_ROLL_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_P 20.0
+#endif
+
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_Q
+#define STABILIZATION_INDI_FILTER_PITCH_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_Q 20.0
+#endif
+
+#ifdef STABILIZATION_INDI_FILT_CUTOFF_R
+#define STABILIZATION_INDI_FILTER_YAW_RATE TRUE
+#else
+#define STABILIZATION_INDI_FILT_CUTOFF_R 20.0
+#endif
+
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
 float du_pref[INDI_NUM_ACT];
@@ -169,6 +187,7 @@ Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass measurement_lowpass_filters[3];
 Butterworth2LowPass estimation_output_lowpass_filters[3];
 Butterworth2LowPass acceleration_lowpass_filter;
+static struct FirstOrderLowPass rates_filt_fo[3];
 
 struct FloatVect3 body_accel_f;
 
@@ -286,6 +305,13 @@ void init_filters(void)
 
   // Filtering of the accel body z
   init_butterworth_2_low_pass(&acceleration_lowpass_filter, tau_est, sample_time, 0.0);
+
+  // Init rate filter for feedback
+  float time_constants[3] = {1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_P), 1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_Q), 1.0/(2 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_R)};
+
+  init_first_order_low_pass(&rates_filt_fo[0], time_constants[0], sample_time, stateGetBodyRates_f()->p);
+  init_first_order_low_pass(&rates_filt_fo[1], time_constants[1], sample_time, stateGetBodyRates_f()->q);
+  init_first_order_low_pass(&rates_filt_fo[2], time_constants[2], sample_time, stateGetBodyRates_f()->r);
 }
 
 /**
@@ -364,14 +390,30 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     estimation_rate_dd[i] = (estimation_rate_d[i] - estimation_rate_d_prev) * PERIODIC_FREQUENCY;
   }
 
-  // FIXME: this should be configurable!
-  q_filt = (q_filt*3+body_rates->q)/4;
-  r_filt = (r_filt*3+body_rates->r)/4;
+  //The rates used for feedback are by default the measured rates.
+  //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
+  //Note that due to the delay, the PD controller may need relaxed gains.
+  struct FloatRates rates_filt;
+#if STABILIZATION_INDI_FILTER_ROLL_RATE
+  rates_filt.p = update_first_order_low_pass(&rates_filt_fo[0], body_rates->p);
+#else
+  rates_filt.p = body_rates->p;
+#endif
+#if STABILIZATION_INDI_FILTER_PITCH_RATE
+  rates_filt.q = update_first_order_low_pass(&rates_filt_fo[1], body_rates->q);
+#else
+  rates_filt.q = body_rates->q;
+#endif
+#if STABILIZATION_INDI_FILTER_YAW_RATE
+  rates_filt.r = update_first_order_low_pass(&rates_filt_fo[2], body_rates->r);
+#else
+  rates_filt.r = body_rates->r;
+#endif
 
   //calculate the virtual control (reference acceleration) based on a PD controller
-  angular_accel_ref.p = (rate_sp.p - body_rates->p) * indi_gains.rate.p;
-  angular_accel_ref.q = (rate_sp.q - q_filt) * indi_gains.rate.q;
-  angular_accel_ref.r = (rate_sp.r - r_filt) * indi_gains.rate.r;
+  angular_accel_ref.p = (rate_sp.p - rates_filt.p) * indi_gains.rate.p;
+  angular_accel_ref.q = (rate_sp.q - rates_filt.q) * indi_gains.rate.q;
+  angular_accel_ref.r = (rate_sp.r - rates_filt.r) * indi_gains.rate.r;
 
   g2_times_du = 0.0;
   for (i = 0; i < INDI_NUM_ACT; i++) {

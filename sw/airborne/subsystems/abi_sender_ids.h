@@ -107,6 +107,10 @@
 #define AIRSPEED_SDP3X_ID 3
 #endif
 
+#ifndef AIRSPEED_ETS_ID
+#define AIRSPEED_ETS_ID 4
+#endif
+
 /*
  * IDs of Incidence angles (message 24)
  */
@@ -199,6 +203,10 @@
 
 #ifndef MAG_IST8310_SENDER_ID
 #define MAG_IST8310_SENDER_ID 4
+#endif
+
+#ifndef MAG_RM3100_SENDER_ID
+#define MAG_RM3100_SENDER_ID 5
 #endif
 
 #ifndef IMU_MAG_PITOT_ID

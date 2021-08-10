@@ -28,7 +28,7 @@
       <corner name="_N3"/>
       <corner name="_N4"/>
     </sector>
-    <sector name="Safety" color="green" type="dynamic">
+    <sector name="Safety" color="green">
       <corner name="S1"/>
       <corner name="S2"/>
       <corner name="S3"/>
@@ -78,7 +78,7 @@
       <go wp="TD"/>
     </block>
     <block name="flare">
-      <exception cond="stateGetPositionEnu_f()->z @LT 0.3" deroute="Ramp down"/>
+      <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>

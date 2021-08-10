@@ -51,11 +51,6 @@
     <module name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART1"/>
     </module>
-  </firmware>
-
-  <!-- ************************* MODULES ************************* -->
-
-  <modules>
     <module name="air_data"/>
     <module name="geo_mag"/>
     <module name="gps" type="ubx_ucenter"/>
@@ -78,7 +73,7 @@
     </module>
     <!-- module name="nav" type="catapult"/-->
     <module name="nav" type="line"/>
-  </modules>
+  </firmware>
 
   <!-- ************************* ACTUATORS ************************* -->
 
