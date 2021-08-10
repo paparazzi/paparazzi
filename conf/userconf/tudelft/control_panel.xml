@@ -79,7 +79,7 @@
       </program>
       <program name="Messages"/>
       <program name="Real-time Plotter">
-        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-g" constant="800x250-0+0"/>
         <arg flag="-t" constant="ACC"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
@@ -87,7 +87,7 @@
         <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
         <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
         <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-g" constant="800x250-0+250"/>
         <arg flag="-t" constant="GYRO"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
@@ -95,7 +95,7 @@
         <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
         <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
         <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-g" constant="800x250-0+500"/>
         <arg flag="-t" constant="MAG"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
@@ -103,7 +103,7 @@
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
         <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+750"/>
+        <arg flag="-g" constant="800x250-0+750"/>
         <arg flag="-t" constant="INNOVATION_STATUS"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
@@ -115,7 +115,7 @@
         <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_flow"/>
         <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_beta"/>
         <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-1000+0"/>
+        <arg flag="-g" constant="800x250-1000+0"/>
         <arg flag="-t" constant="POSITION"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
@@ -123,13 +123,20 @@
         <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:north:0.0039063"/>
         <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:up:0.0039063"/>
         <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-1000+250"/>
+        <arg flag="-g" constant="800x250-1000+250"/>
         <arg flag="-t" constant="VELOCITY"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
         <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:veast:0.0000019"/>
         <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:vnorth:0.0000019"/>
-        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:vup:0.0000019"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-1000+500"/>
+        <arg flag="-t" constant="OPTICAL FLOW"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
       </program>
     </session>
     <session name="helidd">
