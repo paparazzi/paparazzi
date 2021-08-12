@@ -205,13 +205,13 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   float flowtest = DegOfRad(atan(ecef_xd/(hmsl/10)));
 
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
-  AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+  // AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
   // AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts, flow.flow_x, flow.flow_y, 0, 0, flow.flow_quality, 0);
   // AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, flow.ground_distance);
 
   // Send magnetometer fake message
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+  // DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 
   // // Send optical flow fake message
   // // DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 

@@ -11,41 +11,26 @@
   <description>Quadooooo</description>
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_5.0_chibios" />
+
       <define name="BAT_CHECKER_DELAY" value="80" />
-    <!-- <define name="RADIO_MODE_2x3" value="true"/> -->
-    <!-- amount of time it take for the bat to check -->
-    <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+
       <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
-    <!-- in seconds-->
-       <!-- Note that PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
-     <configure name="PERIODIC_FREQUENCY" value="500"/> <!--  unit="Hz" -->
 
-   <!--   <define name="MPU6000_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
-      <define name="MPU6000_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
-      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
-      <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
-      <define name="IMU_MPU_SMPLRT_DIV" value="3"/>-->
+      <configure name="PERIODIC_FREQUENCY" value="500"/>
 
-     <!-- <configure name="AHRS_PROPAGATE_FREQUENCY" value="2000"/>--><!--  unit="Hz" -->
-    <!--  <configure name="AHRS_CORRECT_FREQUENCY" value="2000"/> --><!--  unit="Hz" -->
-    <!--  <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/>--><!-- best value unit="Hz" for ACTIVE magneto -->
-
-    <!--  <configure name="NAVIGATION_FREQUENCY" value="16"/>--> <!--  unit="Hz" -->
-    <!--  <configure name="CONTROL_FREQUENCY" value="120"/>--> <!--  unit="Hz" -->
-      <!--<configure name="TELEMETRY_FREQUENCY" value="60"/--> <!--  unit="Hz" -->
-    <!--  <configure name="MODULES_FREQUENCY" value="2000"/>--> <!--  unit="Hz" -->
-
-    <module name="telemetry" type="transparent">
-       <!--<configure name="MODEM_PORT" value="UART3"/>--><!--  Telem2 on pixhawk4 -->
-       <!--<configure name="MODEM_PORT" value="UART7"/>--><!--  DebugUart on pixhawk4 -->
-       <configure name="MODEM_BAUD" value="B115200"/>
-    </module>
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART2"/>
+        <configure name="MODEM_BAUD" value="B115200"/>
+      </module>
     
-    <module name="baro_ms5611_spi" >
-      <configure name="MS5611_SPI_DEV" value="spi1"/>
-      <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      <!--<define name="SENSOR_SYNC_SEND"/>-->
-    </module>
+      <!-- <module name="baro_ms5611_spi" >
+        <configure name="MS5611_SPI_DEV" value="spi1"/>
+        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
+      </module> -->
+
+      <!-- <module name="optical_flow_mateksys_3901_l0x.xml">
+        <configure name="MATEKSYS_3901_L0X_PORT" value="UART2"/>
+      </module>   -->
 
       <!-- Logger -->
       <module name="tlsf"/>
@@ -53,97 +38,72 @@
       <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
 
-    <module name="imu" type="mpu6000">
-        <define name="IMU_MPU_CHAN_X" value="1"/>
-        <define name="IMU_MPU_CHAN_Y" value="2"/>
-        <define name="IMU_MPU_CHAN_Z" value="0"/>
-        <define name="IMU_MPU_X_SIGN" value="+1"/>
-        <define name="IMU_MPU_Y_SIGN" value="-1"/>
-        <define name="IMU_MPU_Z_SIGN" value="-1"/>
-     </module>
+      <module name="imu" type="mpu6000">
+          <define name="IMU_MPU_CHAN_X" value="1"/>
+          <define name="IMU_MPU_CHAN_Y" value="2"/>
+          <define name="IMU_MPU_CHAN_Z" value="0"/>
+          <define name="IMU_MPU_X_SIGN" value="+1"/>
+          <define name="IMU_MPU_Y_SIGN" value="-1"/>
+          <define name="IMU_MPU_Z_SIGN" value="-1"/>
+      </module>
      
-    <module name="gps" type="ublox" >
-      <configure name="GPS_BAUD" value="B57600"/>
-    </module>
-    <module name="gps" type="ubx_ucenter" />
-    <module name="stabilization" type="indi_simple" />
-    <!--<module name="stabilization" type="rate_indi" />-->
-    <!--<module name="ahrs" type="float_cmpl_quat">
-    <configure name="USE_MAGNETOMETER" value="false"/>
-    <define name="AHRS_USE_GPS_HEADING" value="false"/>
-    </module>-->
+      <!-- <module name="gps" type="ublox" >
+        <configure name="GPS_BAUD" value="B57600"/>
+      </module>
 
-    <module name="ins" type="ekf2">
-      <!--<define name="INS_EKF2_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>-->
-    </module>
+      <module name="gps" type="ubx_ucenter" /> -->
 
-    <module name="current_sensor">
-     <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />
-    </module>
+      <module name="gps" type="datalink" >
+        <configure name="GPS_BAUD" value="B57600"/>
+      </module>
 
-      <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
-    <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
-        <!--<configure name="SBUS_PORT" value="UART5"/>--> <!-- Default used port is UART2  on FMU4 -->
-        <!-- Mode set one a three way switch -->
-        <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
-      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
-      <configure name="SBUS_PORT" value="UART3"/>
-    </module>
+      <module name="stabilization" type="indi_simple" />
 
-    <module name="geo_mag" />
-    <module name="air_data" />
-    <module name="send_imu_mag_current" />
+      <module name="ins" type="ekf2"/>
 
-    <!-- external mag for better heading estimate
-    uses the magnetometor that is available on the GPS board
-    Thi one is temperature compensated and furtherest away from all other devices
-    so less influens (still to measure raw mag values to check this though )
-    In case we where sloppy builing in the GPS+mag combo, ..we always are ;)
-    we nead to compensate this a bit e.g. the pitch
-    our luck at least the tree axis are aligned already in hardware :) -->
- 
-     <module name="mag" type="hmc58xx">
-      <!--define name="HMC58XX_MAG_TO_IMU_PHI" value="0." unit="deg"/>
-      <define name="HMC58XX_MAG_TO_IMU_THETA" value="0." unit="deg"/>
-      <define name="HMC58XX_MAG_TO_IMU_PSI" value="180." unit="deg"/-->
-      <!--<define name="HMC58XX_STARTUP_DELAY" value="1.4"/>--><!-- If you mag somehow does not work, Enable this line, and maybe even change it to a higher value if it still does not work e.g. 1.9 -->
-      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
-      <!--<define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/>--><!-- temporary for debugging external magneto and setup orientation sign and Body to Magneto angles-->
-      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/> <!-- When all calib and works to TRUE -->
+      <module name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />
+      </module>
 
-      <define name="HMC58XX_CHAN_X" value="1"/>
-      <define name="HMC58XX_CHAN_Y" value="0"/>
-      <define name="HMC58XX_CHAN_Z" value="2"/>
-      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
-      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
-      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-    </module> 
+      <module name="radio_control" type="sbus">
+        <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+        <configure name="SBUS_PORT" value="UART4"/>
+      </module>
 
+      <module name="geo_mag" />
+      <module name="air_data" />
+      <module name="send_imu_mag_current" />
+  
+      <module name="mag" type="hmc58xx">
+        <define name="HMC58XX_STARTUP_DELAY" value="1.4"/>
+        <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+        <define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/>
+        <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/> 
 
-    <module name="motor_mixing"/>
+        <define name="HMC58XX_CHAN_X" value="1"/>
+        <define name="HMC58XX_CHAN_Y" value="0"/>
+        <define name="HMC58XX_CHAN_Z" value="2"/>
+        <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+        <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+        <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+      </module> 
 
-    <module name="actuators" type="pwm">
-      <define name="SERVO_HZ" value="400" />
-    </module>
+      <module name="motor_mixing"/>
 
-    <module name="step_stab_att_quat_int"/>
+      <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="400" />
+      </module>
 
-    <!-- To get the signs (and channels) right, show a realtime plot scaled IMU_MAG mx, my, mz then:
-
-    - [x] When you align your IMU with the direction of north, you should see x>0, y=~0, z>0.
-
-    - [x] When pitching the IMU down, the magnetic vector is aligning with x,
-          so x should increase and z should decrease to zero.
-
-    - [x] If yawing your IMU to the left, the magnetic vector is aligning with y,
-          so y should be positive and increase, x should decrease to zero and z stay positive.
--->
   </firmware>
 
   <section name="MISC">
     <!--<define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />-->
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
     <define name="BAT_CHECKER_DELAY" value="80" />
+    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_GPSYAW | MASK_USE_OF"/>
+    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_GPS"/>
+    <define name="INS_EKF2_GPS_CHECK_MASK" value="0"/>
+    <define name="INS_EKF2_GPS_COURSE_YAW" value="TRUE"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -233,7 +193,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="SONAR_MAX_RANGE" value="2.2" />
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
   </section>
 
@@ -361,7 +320,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO1" value="AP_MODE_RC_DIRECT" />
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_DIRECT" />
     <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />
 <!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />

@@ -73,6 +73,11 @@
     <module name="stabilization" type="int_quat" />
     <!--<module name="stabilization" type="float_quat"/>-->
     <!--<module name="stabilization" type="rate_indi"/>-->
+
+    <module name="gps" type="datalink" >
+      <configure name="GPS_BAUD" value="B57600"/>
+    </module>
+    
     <module name="ins" type="ekf2"/>
 
     <module name="current_sensor">

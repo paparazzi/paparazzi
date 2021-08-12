@@ -67,9 +67,9 @@
     <!-- Include the ecl and matrix libraries from ext -->
     <include name="$(PAPARAZZI_SRC)/sw/ext/ecl/"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
-    <define name="__PAPARAZZI" value="true"/>
-    <define name="ECL_STANDALONE" value="true"/>
-    <define name="USE_MAGNETOMETER" value="true"/> <!-- Needed for IMU to get scaled version -->
+    <define name="__PAPARAZZI" value="TRUE"/>
+    <define name="ECL_STANDALONE" value="TRUE"/>
+    <define name="USE_MAGNETOMETER" value="TRUE"/> <!-- Needed for IMU to get scaled version -->
 
     <!-- Compile needed ecl files -->
     <file name="mathlib.cpp" dir="ecl/mathlib"/>

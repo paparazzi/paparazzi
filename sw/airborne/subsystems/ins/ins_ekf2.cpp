@@ -461,8 +461,6 @@ void ins_ekf2_init(void)
   ekf_params->vdist_sensor_type = INS_EKF2_VDIST_SENSOR_TYPE;
   ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 
-  ekf_params->fusion_mode |= MASK_USE_OF; // adding optical flow to GPS usage
-
   /* Set optical flow parameters */
   ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
   ekf_params->flow_delay_ms = INS_FLOW_SENSOR_DELAY;

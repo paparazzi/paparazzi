@@ -185,7 +185,7 @@
 
   <process name="FlightRecorder">
     <mode name="default">
-      <message name="ROTORCRAFT_FP"            period="0.05"/>
+      <message name="ROTORCRAFT_FP"            period="0.01"/>
       <message name="GPS_INT"                  period=".1"/>
       <message name="IMU_GYRO_SCALED"          period=".075"/>
       <message name="IMU_ACCEL_SCALED"         period=".075"/>
@@ -193,8 +193,7 @@
       <message name="IMU_GYRO_RAW"             period=".075"/>
       <message name="IMU_ACCEL_RAW"            period=".075"/>
       <message name="IMU_MAG_RAW"              period=".2"/>
-      <message name="LIDAR"                    period="0.05"/>
-      <message name="OPTICAL_FLOW"             period="0.05"/>
+      <message name="OPTICAL_FLOW"             period="0.01"/>
       <message name="INS_EKF2"                 period="0.05"/>
     </mode>
   </process>
