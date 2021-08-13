@@ -46,8 +46,8 @@
     <configure name="CXXSTANDARD" value="-std=c++11"/>
 
     <!-- Data processing configuration parameters -->
-    <define name="INS_SONAR_MIN_RANGE" value="0.04"/>
-    <define name="INS_SONAR_MAX_RANGE" value="3000"/>
+    <define name="INS_SONAR_MIN_RANGE" value="0.0"/>
+    <define name="INS_SONAR_MAX_RANGE" value="4.0"/>
     <define name="USE_RANGE_AID" value="1"/>
     <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
     <define name="INS_MIN_FLOW_QUALITY" value="100"/>
@@ -57,7 +57,7 @@
     <define name="FLOW_OFFSET_Z" value="170"/>
     <define name="INS_FLOW_NOISE" value="0.01"/>
     <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
-    <define name="INS_FLOW_INNOV_GATE" value="3"/>
+    <define name="INS_FLOW_INNOV_GATE" value="5"/>
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>

@@ -1,6 +1,6 @@
 <conf>
   <aircraft
-   name="Nederquad"
+   name="Nederquad_Cyberzoo"
    ac_id="88"
    airframe="airframes/tudelft/tudelft_nederquad_indi_cyberzoo.xml"
    radio="radios/crossfire_sbus.xml"
@@ -9,5 +9,16 @@
    settings="[settings/rotorcraft_basic.xml] [settings/control/stabilization_rate.xml] [settings/control/stabilization_indi.xml]"
    settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="yellow"
+  />
+  <aircraft
+   name="Nederquad_Outdoor"
+   ac_id="89"
+   airframe="airframes/tudelft/tudelft_nederquad_indi_outdoor.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
+   settings="[settings/rotorcraft_basic.xml] [settings/control/stabilization_rate.xml] [settings/control/stabilization_indi.xml]"
+   settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   gui_color="#ffffffffffff"
   />
 </conf>
