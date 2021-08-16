@@ -772,8 +772,7 @@ let send_config = fun http _asker args ->
     let fp = prefix ("var" // "aircrafts" // ac_name // "flight_plan.xml")
     and af = prefix ("conf" // ExtXml.attrib conf "airframe")
     and rc = prefix ("conf" // ExtXml.attrib conf "radio")
-    and settings = if not _is_replayed then prefix ("var" // "aircrafts" // ac_name //
-                                                       "settings.xml") else "file://replay" in
+    and settings = prefix ("var" // "aircrafts" // ac_name // "settings.xml") in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
     [ "ac_id", PprzLink.String real_id;
