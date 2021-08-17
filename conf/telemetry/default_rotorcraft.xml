@@ -42,8 +42,8 @@
       <message name="LIDAR"                    period="0.5"/>
       <message name="INS_EKF2"                 period=".25"/>
       <message name="IMU_GYRO_SCALED"          period=".05"/>
-      <message name="IMU_MAG_SCALED"          period=".05"/>
-      <message name="IMU_ACCEL_SCALED"          period=".05"/>
+      <message name="IMU_MAG_SCALED"           period=".05"/>
+      <message name="IMU_ACCEL_SCALED"         period=".05"/>
     </mode>
 
     <mode name="ppm">
