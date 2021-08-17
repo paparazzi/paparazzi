@@ -38,6 +38,10 @@
       <module name="flight_recorder"/>
 
       <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
+      <module name="adc_generic">
+        <configure name="ADC_CHANNEL_GENERIC1" value="ADC_5"/>
+        <configure name="ADC_CHANNEL_GENERIC2" value="ADC_6"/>
+      </module>
 
       <define name="RADIO_TH_HOLD"     value="RADIO_AUX1"/> <!-- Throttle hold in command laws -->
       <define name="RADIO_FMODE"       value="RADIO_AUX2"/> <!-- Throttle curve select -->
