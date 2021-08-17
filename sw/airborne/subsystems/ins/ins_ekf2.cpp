@@ -141,6 +141,12 @@ PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
 #endif
 PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
 
+/* Default minimum accepted quality (1 to 255) */
+#ifndef INS_MIN_FLOW_QUALITY_LOST_GPS
+#define INS_MIN_FLOW_QUALITY_LOST_GPS
+#endif
+PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY_LOST_GPS)
+
 /* Max flow rate that the sensor can measure (rad/sec) */
 #ifndef INS_MAX_FLOW_RATE
 #define INS_MAX_FLOW_RATE
@@ -182,6 +188,12 @@ PRINT_CONFIG_VAR(INS_FLOW_NOISE_QMIN)
 #define INS_FLOW_INNOV_GATE
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE)
+
+/* Flow sensor innovation gate when the GPS is lost */
+#ifndef INS_FLOW_INNOV_GATE_LOST_GPS
+#define INS_FLOW_INNOV_GATE_LOST_GPS
+#endif
+PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE_LOST_GPS)
 
 /* All registered ABI events */
 static abi_event agl_ev;
@@ -275,6 +287,7 @@ struct ekf2_t
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
+static void ins_ekf2_flow_takeover();
 
 /* Static local variables */
 static Ekf ekf;                                   ///< EKF class itself
@@ -368,6 +381,8 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_flow_innov(&flow);
   ekf.get_mag_decl_deg(&mag_decl);
 
+  uint32_t fix_status = (control_mode >> 2) & 1;
+
   if (ekf.get_terrain_valid()) {
     terrain_valid = 1;
   } else {
@@ -381,7 +396,7 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   }
 
   pprz_msg_send_INS_EKF2(trans, dev, AC_ID,
-                         &control_mode, &filter_fault_status, &gps_check_status, &soln_status,
+                         &fix_status, &filter_fault_status, &gps_check_status, &soln_status,
                          &innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &flow, &beta,
                          &mag_decl, &terrain_valid, &dead_reckoning);
 }
@@ -527,6 +542,9 @@ void ins_ekf2_update(void)
 {
   /* Set EKF settings */
   ekf.set_in_air_status(true); // ekf.set_in_air_status(autopilot_in_flight());
+
+  /* Check if Flow should take over */
+  ins_ekf2_flow_takeover();
 
   /* Update the EKF */
   if (ekf2.got_imu_data && ekf.update())
@@ -688,6 +706,31 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   ekf2.got_imu_data = true;
 }
 
+/* Check if the GPS is active, otherwise increase flow power */
+static void ins_ekf2_flow_takeover(){
+
+  // Check if the agl is reasonable
+  struct rangeSample range = ekf.get_range_sample_delayed();
+  float agl = range.rng;
+
+  // Check if the GPS is really lost
+  uint32_t control_mode;
+  ekf.get_control_mode(&control_mode);
+  uint32_t fix_status = (control_mode >> 2) & 1;
+
+  if (!fix_status && agl < INS_SONAR_MAX_RANGE*1.5) {
+    ekf2.flow_takeover = 1;
+    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE_LOST_GPS;
+    ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY_LOST_GPS;
+  } else {
+    ekf2.flow_takeover = 0;
+    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
+    ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
+  }
+
+  ekf2.flow_innov = ekf_params->flow_innov_gate;
+}
+
 /* Update INS based on Baro information */
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float pressure)
 {
@@ -818,22 +861,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
   gps_msg.gdop = 0.0f;
-
-  // check state of GPS and if required make OF more powerful
-  // check if GPS is good, otherwise increase the optical flow authority
-
-  /* Get the position */
-  struct rangeSample range = ekf.get_range_sample_delayed();
-  float agl = range.rng;
-  if (gps_s->fix == 0 && agl < INS_SONAR_MAX_RANGE*1.5) {
-    ekf2.flow_takeover = 1;
-    ekf_params->flow_innov_gate = 200;
-  } else {
-    ekf2.flow_takeover = 0;
-    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
-  }
-
-  ekf2.flow_innov = ekf_params->flow_innov_gate;
 
   ekf.setGpsData(stamp, gps_msg);
 }

@@ -32,7 +32,10 @@
 
       <module name="optical_flow_mateksys_3901_l0x.xml">
         <configure name="MATEKSYS_3901_L0X_PORT" value="UART3"/>
-      </module>  
+        <!-- Calibration done live 17/08/2021 -->
+        <define name="MATEKSYS_3901_L0X_FLOW_X_SCALER" value="-1.13"/>
+        <define name="MATEKSYS_3901_L0X_FLOW_Y_SCALER" value="1.26"/>
+      </module> 
 
       <module name="gps" type="ublox" >
         <configure name="GPS_BAUD" value="B57600"/>
@@ -112,32 +115,32 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <!-- replace this with your own calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="-165"/>
-    <define name="ACCEL_Y_NEUTRAL" value="10"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-33"/>
-    <define name="ACCEL_X_SENS" value="4.7821440532144" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.836131753637321" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.896888362921523" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="1.2" unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="57." unit="deg"/>
+    <!-- Calibration ACCEL done 17/08/2021 -->
+    <define name="ACCEL_X_NEUTRAL" value="-162"/>
+    <define name="ACCEL_Y_NEUTRAL" value="9"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-23"/>
+    <define name="ACCEL_X_SENS" value="4.781593308240347" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.841708853357494" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.897351780600174" integer="16"/>
+
+    <!-- Calibration done on ground 17/08/2021 -->
+    <define name="BODY_TO_IMU_PHI"   value="1.1437" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="40.6374" unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
 
-    <!--Calibrated outside, based on sw/tools/calibration/calibrate.py -s MAG var/logs/16_12_05__16_32_21.data -vp -->
-    <define name="MAG_X_NEUTRAL" value="105"/>
-    <define name="MAG_Y_NEUTRAL" value="10"/>
-    <define name="MAG_Z_NEUTRAL" value="-23"/>
-    <define name="MAG_X_SENS" value="4.01453293111" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.96379405627" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.92499630895" integer="16"/> 
+    <!-- Calibration done outside 17/08/2021 -->
+    <define name="MAG_X_NEUTRAL" value="188"/>
+    <define name="MAG_Y_NEUTRAL" value="-4"/>
+    <define name="MAG_Z_NEUTRAL" value="-40"/>
+    <define name="MAG_X_SENS" value="3.8465362336375035" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.5338639944542787" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.663567611662951" integer="16"/>
 
-    <!--<define name="MAG_X_NEUTRAL" value="-168"/>
-    <define name="MAG_Y_NEUTRAL" value="25"/>
-    <define name="MAG_Z_NEUTRAL" value="-20"/>
-    <define name="MAG_X_SENS" value="4.391900221475915" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.675142624727608" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.487949192790667" integer="16"/>-->
+    <!-- Calibration done props off 17/08/2021 -->
+    <define name= "MAG_X_CURRENT_COEF" value="0.327866157321"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-2.84306050424"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.491914992028"/>
 
   </section>
   <commands>
