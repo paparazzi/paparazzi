@@ -340,6 +340,33 @@
         <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
       </program>
     </session>
+    <session name="Optical Flow Calibration">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="-g" constant="800x200+0-0"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="800x450-0+0"/>
+        <arg flag="-t" constant="X BODY ROTATION"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x450-0+500"/>
+        <arg flag="-t" constant="Y BODY ROTATION"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_y"/>
+      </program>
+    </session>
 
   </section>
 

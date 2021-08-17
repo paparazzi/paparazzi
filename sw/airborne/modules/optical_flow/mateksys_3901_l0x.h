@@ -87,6 +87,8 @@ struct Mateksys3901l0X {
   float  velocityX;
   float  velocityY;
   uint8_t  parse_crc; 
+  float scaler_x;
+  float scaler_y;
 };
 
 extern struct Mateksys3901l0X mateksys3901l0x;
@@ -94,6 +96,8 @@ extern struct Mateksys3901l0X mateksys3901l0x;
 extern void mateksys3901l0x_init(void);
 extern void mateksys3901l0x_event(void);
 extern void mateksys3901l0x_downlink(void);
+extern void mateksys_3901_l0x_scale_X(float scalex);
+extern void mateksys_3901_l0x_scale_Y(float scaley);
 
 #endif /* MATEKSYS_3901_L0X_H */
 

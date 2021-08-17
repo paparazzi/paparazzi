@@ -262,6 +262,10 @@ struct ekf2_t
   struct rangeSample range_delayed;
   float rng;
 
+  // optical flow takeover
+  uint8_t flow_takeover;
+  float flow_innov;
+
   uint8_t quat_reset_counter;
   uint64_t ltp_stamp;
   struct LtpDef_i ltp_def;
@@ -334,7 +338,8 @@ static void send_debug(struct transport_tx *trans, struct link_device *dev)
                                          &ekf2.delay_flow_y, 
                                          &ekf2.delay_gyro_x,
                                          &ekf2.delay_gyro_y,
-                                         &ekf2.delay_gyro_z);
+                                         &ekf2.flow_innov,
+                                         &ekf2.flow_takeover);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
@@ -813,6 +818,22 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
   gps_msg.gdop = 0.0f;
+
+  // check state of GPS and if required make OF more powerful
+  // check if GPS is good, otherwise increase the optical flow authority
+
+  /* Get the position */
+  struct rangeSample range = ekf.get_range_sample_delayed();
+  float agl = range.rng;
+  if (gps_s->fix == 0 && agl < INS_SONAR_MAX_RANGE*1.5) {
+    ekf2.flow_takeover = 1;
+    ekf_params->flow_innov_gate = 200;
+  } else {
+    ekf2.flow_takeover = 0;
+    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
+  }
+
+  ekf2.flow_innov = ekf_params->flow_innov_gate;
 
   ekf.setGpsData(stamp, gps_msg);
 }

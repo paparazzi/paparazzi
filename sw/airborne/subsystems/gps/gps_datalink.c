@@ -181,28 +181,28 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   // ground_distance --> mm
   // distance message lidar --> float meters
 
-  struct Int32Vect3 mag;
-  struct FloatVect3 mag_real;
-  float heading = course/1e7;
-  mag_real.x = cos(heading);
-  mag_real.y = sin(heading);
-  mag_real.z = 0;
-  MAGS_BFP_OF_REAL(mag, mag_real);
+  // struct Int32Vect3 mag;
+  // struct FloatVect3 mag_real;
+  // float heading = course/1e7;
+  // mag_real.x = cos(heading);
+  // mag_real.y = sin(heading);
+  // mag_real.z = 0;
+  // MAGS_BFP_OF_REAL(mag, mag_real);
 
-  struct fake_flow flow;
+  // struct fake_flow flow;
 
-  // populate flow message
-  flow.time_sec = NAN;
-  flow.sensor_id = 1;
-  flow.flow_x = DegOfRad(atan(ecef_xd/(hmsl/10)));
-  flow.flow_y = DegOfRad(atan(ecef_yd/(hmsl/10)));
-  flow.flow_comp_m_x = 0;
-  flow.flow_comp_m_y = 0;
-  flow.flow_quality = 255;
-  flow.ground_distance = hmsl;
-  flow.distance_quality = 255;
+  // // populate flow message
+  // flow.time_sec = NAN;
+  // flow.sensor_id = 1;
+  // flow.flow_x = DegOfRad(atan(ecef_xd/(hmsl/10)));
+  // flow.flow_y = DegOfRad(atan(ecef_yd/(hmsl/10)));
+  // flow.flow_comp_m_x = 0;
+  // flow.flow_comp_m_y = 0;
+  // flow.flow_quality = 255;
+  // flow.ground_distance = hmsl;
+  // flow.distance_quality = 255;
 
-  float flowtest = DegOfRad(atan(ecef_xd/(hmsl/10)));
+  // float flowtest = DegOfRad(atan(ecef_xd/(hmsl/10)));
 
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
   // AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);

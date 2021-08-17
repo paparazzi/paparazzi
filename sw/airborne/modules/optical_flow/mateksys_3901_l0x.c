@@ -40,31 +40,39 @@
 
 // Define configuration parameters
 #ifndef MATEKSYS_3901_L0X_MOTION_THRES
-#define MATEKSYS_3901_L0X_MOTION_THRES
+#define MATEKSYS_3901_L0X_MOTION_THRES 100
 #endif
 
 #ifndef MATEKSYS_3901_L0X_DISTANCE_THRES
-#define MATEKSYS_3901_L0X_DISTANCE_THRES
+#define MATEKSYS_3901_L0X_DISTANCE_THRES 200
 #endif
 
 #ifndef MATEKSYS_3901_L0X_MAX_FLOW
-#define MATEKSYS_3901_L0X_MAX_FLOW
+#define MATEKSYS_3901_L0X_MAX_FLOW 300
 #endif
 
 #ifndef MATEKSYS_3901_L0X_MAX_DISTANCE
-#define MATEKSYS_3901_L0X_MAX_DISTANCE
+#define MATEKSYS_3901_L0X_MAX_DISTANCE 3000
 #endif
 
 #ifndef USE_MATEKSYS_3901_L0X_AGL
-#define USE_MATEKSYS_3901_L0X_AGL
+#define USE_MATEKSYS_3901_L0X_AGL 1
 #endif
 
 #ifndef USE_MATEKSYS_3901_L0X_OPTICAL_FLOW
-#define USE_MATEKSYS_3901_L0X_OPTICAL_FLOW
+#define USE_MATEKSYS_3901_L0X_OPTICAL_FLOW 1
 #endif
 
 #ifndef MATEKSYS_3901_L0X_COMPENSATE_ROTATION
-#define MATEKSYS_3901_L0X_COMPENSATE_ROTATION
+#define MATEKSYS_3901_L0X_COMPENSATE_ROTATION 1
+#endif
+
+#ifndef MATEKSYS_3901_L0X_FLOW_X_SCALER
+#define MATEKSYS_3901_L0X_FLOW_X_SCALER 1
+#endif
+
+#ifndef MATEKSYS_3901_L0X_FLOW_Y_SCALER
+#define MATEKSYS_3901_L0X_FLOW_Y_SCALER 1
 #endif
 
 struct Mateksys3901l0X mateksys3901l0x = {
@@ -113,10 +121,28 @@ void mateksys3901l0x_init(void)
   mateksys3901l0x.distancemm = 0;
   mateksys3901l0x.distance_compensated = 0;
   mateksys3901l0x.parse_status = MATEKSYS_3901_L0X_PARSE_HEAD;
+  mateksys3901l0x.scaler_x = MATEKSYS_3901_L0X_FLOW_X_SCALER;
+  mateksys3901l0x.scaler_y = MATEKSYS_3901_L0X_FLOW_Y_SCALER;
 
 #if PERIODIC_TELEMETRY
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTICAL_FLOW, mateksys3901l0x_send_optical_flow);
 #endif
+}
+
+/**
+ * Scale the Flow X 
+ */
+void mateksys_3901_l0x_scale_X(float scalex)
+{
+  mateksys3901l0x.scaler_x = scalex;
+}
+
+/**
+ * Scale the Flow Y
+ */
+void mateksys_3901_l0x_scale_Y(float scaley)
+{
+  mateksys3901l0x.scaler_y = scaley;
 }
 
 /**
@@ -307,9 +333,9 @@ static void mateksys3901l0x_parse(uint8_t byte)
       // When the distance and motion info are valid (max values based on sensor specifications)...
       if (mateksys3901l0x.distancemm_temp > 0 && mateksys3901l0x.distancemm_temp <= MATEKSYS_3901_L0X_MAX_DISTANCE && abs(mateksys3901l0x.motionX_temp) <= MATEKSYS_3901_L0X_MAX_FLOW && abs(mateksys3901l0x.motionY_temp) <= MATEKSYS_3901_L0X_MAX_FLOW) {
         
-        // pass temporary message
-        mateksys3901l0x.motionX = mateksys3901l0x.motionX_temp;
-        mateksys3901l0x.motionY = mateksys3901l0x.motionY_temp;
+        // pass temporary message and apply calibration parameters
+        mateksys3901l0x.motionX = mateksys3901l0x.motionX_temp * mateksys3901l0x.scaler_x;
+        mateksys3901l0x.motionY = mateksys3901l0x.motionY_temp * mateksys3901l0x.scaler_y;
         mateksys3901l0x.distancemm = mateksys3901l0x.distancemm_temp;
         
         // get from ground distance to altitude by compensating for body rotation 

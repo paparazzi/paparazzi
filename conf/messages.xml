@@ -243,6 +243,7 @@
       <field name="debug_10" type="float"/>
       <field name="debug_11" type="float"/>
       <field name="debug_12" type="float"/>
+      <field name="debug_13" type="uint8" unit="bool"/>
     </message>
 
     <message name="SURVEY" id="27"> 
@@ -1943,7 +1944,7 @@
       <field name="flow_comp_m_y" type="float" unit="m"/>
       <field name="flow_quality" type="uint8"/>
       <field name="distance_raw" type="int32" unit="mm"/>
-      <field name="distance_compensated" type="int32" unit="mm"/>
+      <field name="distance_compensated" type="float" unit="mm"/>
       <field name="distance_quality" type="uint8"/>
     </message>
 

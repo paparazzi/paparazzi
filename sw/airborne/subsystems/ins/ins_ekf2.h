@@ -38,11 +38,7 @@ extern "C" {
 
 struct ekf2_parameters_t {
   int32_t mag_fusion_type;
-  int32_t flow_qual_min;
-  int32_t range_aid;
-  int32_t offset_x;         // offset in mm
-  int32_t offset_y;
-  int32_t offset_z;
+  int32_t flow_innov_gate;
 };
 
 extern void ins_ekf2_init(void);

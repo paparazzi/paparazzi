@@ -49,15 +49,15 @@
     <define name="INS_SONAR_MIN_RANGE" value="0.0"/>
     <define name="INS_SONAR_MAX_RANGE" value="4.0"/>
     <define name="USE_RANGE_AID" value="1"/>
-    <define name="INS_FLOW_SENSOR_DELAY" value="0"/>
-    <define name="INS_MIN_FLOW_QUALITY" value="100"/>
+    <define name="INS_FLOW_SENSOR_DELAY" value="15"/>
+    <define name="INS_MIN_FLOW_QUALITY" value="110"/>
     <define name="INS_MAX_FLOW_RATE" value="200"/>
     <define name="FLOW_OFFSET_X" value="-130"/>
     <define name="FLOW_OFFSET_Y" value="-150"/>
     <define name="FLOW_OFFSET_Z" value="170"/>
-    <define name="INS_FLOW_NOISE" value="0.01"/>
-    <define name="INS_FLOW_NOISE_QMIN" value="0.03"/>
-    <define name="INS_FLOW_INNOV_GATE" value="5"/>
+    <define name="INS_FLOW_NOISE" value="0.1"/>
+    <define name="INS_FLOW_NOISE_QMIN" value="0.2"/>
+    <define name="INS_FLOW_INNOV_GATE" value="3"/>
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>

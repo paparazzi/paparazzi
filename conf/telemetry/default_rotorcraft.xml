@@ -42,6 +42,8 @@
       <message name="LIDAR"                    period="0.5"/>
       <message name="INS_EKF2"                 period=".25"/>
       <message name="IMU_GYRO_SCALED"          period=".05"/>
+      <message name="IMU_MAG_SCALED"          period=".05"/>
+      <message name="IMU_ACCEL_SCALED"          period=".05"/>
     </mode>
 
     <mode name="ppm">
@@ -63,7 +65,9 @@
       <message name="IMU_GYRO_RAW"      period=".05"/>
       <message name="IMU_MAG_RAW"       period=".05"/>
       <message name="BARO_RAW"          period=".1"/>
-      <message name="ARDRONE_NAVDATA" period=".05"/>
+      <message name="ARDRONE_NAVDATA"   period=".05"/>
+      <message name="OPTICAL_FLOW"      period="0.05"/>
+      <message name="IMU_GYRO_SCALED"          period=".05"/>
     </mode>
 
     <mode name="scaled_sensors">
@@ -169,10 +173,14 @@
       <message name="ALIVE"             period="2.1"/>
       <message name="GUIDANCE_H_INT"    period="0.05"/>
       <message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>
-      <!-- <message name="GPS_INT"               period=".20"/> -->
-      <!--<message name="INS2"              period=".05"/>
-      <message name="INS3"              period=".20"/>-->
       <message name="INS_REF"           period="5.1"/>
+    </mode>
+
+    <mode name="optical_flow_calibration">
+      <message name="ROTORCRAFT_STATUS" period="1.2"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="OPTICAL_FLOW"      period="0.05"/>
+      <message name="IMU_GYRO_SCALED"   period="0.05"/>
     </mode>
 
     <mode name="RTCM3" >
@@ -195,6 +203,11 @@
       <message name="IMU_MAG_RAW"              period=".2"/>
       <message name="OPTICAL_FLOW"             period="0.01"/>
       <message name="INS_EKF2"                 period="0.05"/>
+      <message name="ROTORCRAFT_CMD"           period=".05"/>
+      <message name="ROTORCRAFT_STATUS"        period="0.05"/>
+      <message name="INS_REF"                  period="0.1"/>
+      <message name="GUIDANCE_H_INT"           period="0.1"/>
+      <message name="GUIDANCE_H_REF_INT"       period="0.1"/>
     </mode>
   </process>
 
