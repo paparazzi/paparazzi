@@ -478,6 +478,27 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
   }
 
 #if !USE_MAGNETOMETER
+#if INS_INV_USE_GPS_HEADING
+  // got a 3d fix, ground speed > INS_INV_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
+  // and course accuracy is better than 10deg
+  static const uint16_t gps_min_speed = INS_INV_HEADING_UPDATE_GPS_MIN_SPEED * 100;
+  static const uint32_t max_cacc = RadOfDeg(10 * 1e7);
+  if (gps_s->fix >= GPS_FIX_3D &&
+      gps_s->gspeed >= gps_min_speed &&
+      gps_s->cacc <= max_cacc) {
+    // gps_s->course is in rad * 1e7
+    struct FloatVect3 pseudo_mag = {
+      cosf((float)gps_s->course / 1e7f),
+      -sinf((float)gps_s->course / 1e7f),
+      0.f
+    };
+    ins_float_invariant_update_mag(&pseudo_mag);
+  }
+  else {
+    // if speed is tool low, better set measurements to zero
+    FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
+  }
+#else // else use GPS velocity (only for fixedwing)
   // Use pseudo-mag rebuilt from GPS horizontal velocity
   struct FloatVect2 vel = { ins_float_inv.meas.speed_gps.x, ins_float_inv.meas.speed_gps.y };
   float vel_norm = float_vect2_norm(&vel);
@@ -493,6 +514,7 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
     // if speed is tool low, better set measurements to zero
     FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
   }
+#endif
 #endif
 
 }
