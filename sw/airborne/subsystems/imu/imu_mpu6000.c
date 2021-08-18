@@ -28,7 +28,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
-#ifdef IMU_MPU_USE_MEDIAN_FILTER
+#if IMU_MPU_USE_MEDIAN_FILTER
 #include "filters/median_filter.h"
 #endif
 
@@ -106,15 +106,15 @@ PRINT_CONFIG_VAR(IMU_MPU_Z_SIGN)
 
 struct ImuMpu6000 imu_mpu_spi;
 
-#ifdef IMU_MPU_USE_MEDIAN_FILTER
-struct MedianFilter3Int medianfilter_accel;
-struct MedianFilter3Int medianfilter_rates;
+#if IMU_MPU_USE_MEDIAN_FILTER
+static struct MedianFilter3Int medianfilter_accel;
+static struct MedianFilter3Int medianfilter_rates;
 #endif
 
 void imu_mpu_spi_init(void)
 {
 
-#ifdef IMU_MPU_USE_MEDIAN_FILTER
+#if IMU_MPU_USE_MEDIAN_FILTER
   InitMedianFilterVect3Int(medianfilter_accel, 3);
   InitMedianFilterRatesInt(medianfilter_rates, 3);
 #endif
@@ -152,7 +152,7 @@ void imu_mpu_spi_event(void)
     };
 
     // In case sensor exhibits faulty large spike values in raw output remove them
-#ifdef IMU_MPU_USE_MEDIAN_FILTER
+#if IMU_MPU_USE_MEDIAN_FILTER
     UpdateMedianFilterVect3Int(medianfilter_accel, accel);
     UpdateMedianFilterRatesInt(medianfilter_rates, rates);
 #endif

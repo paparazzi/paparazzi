@@ -319,20 +319,20 @@ NOTES:
     <set servo="S_THROTTLE" value="@THROTTLE"/>
     <set servo="S_AILERON_L_R" value="@ROLL"/>
     <set servo="S_ELEVATOR" value="@PITCH"/>
-    <set servo="S_RUDDER" value="@YAW*0.5"/>
+    <set servo="S_RUDDER" value="@YAW*0.7"/>
   </command_laws>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="YAW" value="@YAW*0.5"/>
+    <set command="YAW" value="@YAW*0.6"/>
     <set command="GEAR" value="@AUX2"/>
     <set command="FLAP" value="@AUX3"/>
   </rc_commands>
 
-  <auto_rc_commands>
-      <set command="YAW" value="@YAW*.5"/>  <!-- TODO: Diable later now used if tiny plane turn radius is not yet correcly tuned to keep it in sight -->
+  <auto_rc_commands><!-- TODO: Diable later now used if tiny plane turn radius is not yet correcly tuned to keep it in sight -->
+      <set command="YAW" value="@YAW*0.8"/>  
   </auto_rc_commands>
 
   <commands>
@@ -436,33 +436,33 @@ NOTES:
     <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="deg"/><!-- not taken into account -->
     <define name="USE_GPS_ALT" value="TRUE"/>
-    <define name="VFF_R_GPS" value="0.01"/>
+    <define name="VFF_R_GPS" value="0.2"/>
     <!-- <define name="USE_GPS_ALT_SPEED" value="FALSE"/>--><!-- TODO: Check -->
 
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-     <define name="COURSE_PGAIN" value="0.9"/>
-     <define name="COURSE_DGAIN" value="0.03"/>
+     <define name="COURSE_PGAIN" value="0.95"/>
+     <define name="COURSE_DGAIN" value="0.2"/>
      <define name="COURSE_TAU" value="0.5"/>
-    <define name="COURSE_PRE_BANK_CORRECTION" value="0.99"/>
-    <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1.05"/>
+    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/>
     <define name="PITCH_MAX_SETPOINT" value="40" unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-40" unit="deg"/>
     <define name="PITCH_PGAIN" value="9500"/>
     <define name="PITCH_DGAIN" value="80"/>
-    <define name="PITCH_IGAIN" value="2"/>
+    <define name="PITCH_IGAIN" value="6"/>
     <define name="PITCH_KFFA" value="5."/>
     <define name="PITCH_KFFD" value="0."/>
     <!--<define name="ELEVATOR_OF_ROLL" value="1500" unit="PPRZ_MAX"/>-->
     <define name="ROLL_SLEW" value="0.2"/>
-    <define name="ROLL_ATTITUDE_GAIN" value="9500."/>
-    <define name="ROLL_RATE_GAIN" value="400."/>
-    <define name="ROLL_IGAIN" value="10."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
+    <define name="ROLL_IGAIN" value="20."/>
     <define name="ROLL_KFFA" value="10."/>
     <define name="ROLL_KFFD" value="0."/>
-    <!--<define name="PITCH_OF_ROLL" value="4." unit="deg"/>--><!-- TODO: -->
-    <!--<define name="AILERON_OF_THROTTLE" value="0.0"/>--><!-- Dangrous if set wrongly-->
+    <!--<define name="PITCH_OF_ROLL" value="2." unit="deg"/>--><!-- TODO: Tune -->
+    <!--<define name="AILERON_OF_THROTTLE" value="0.0"/>--><!-- TODO: Dangrous if set wrongly -->
 
   </section>
 
@@ -470,8 +470,8 @@ NOTES:
     <define name="POWER_CTL_BAT_NOMINAL" value="7.6" unit="volt"/>
     <define name="ALTITUDE_PGAIN" value="0.1"/>
     <define name="AUTO_CLIMB_LIMIT" value="1.5*V_CTL_ALTITUDE_MAX_CLIMB"/>
-    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.55" unit="%"/>
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.70" unit="%"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.50" unit="%"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.60" unit="%"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85" unit="%"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000" unit="pprz_t"/>
