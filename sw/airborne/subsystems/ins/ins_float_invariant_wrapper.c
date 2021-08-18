@@ -136,6 +136,12 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
   struct FloatRates gyro_f;
   RATES_FLOAT_OF_BFP(gyro_f, *gyro);
 
+#if USE_AHRS_ALIGNER
+  if (ins_float_inv.reset) {
+    ahrs_aligner_restart();
+  }
+#endif
+
 #if USE_AUTO_INS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)
   PRINT_CONFIG_MSG("Calculating dt for INS float_invariant propagation.")
   /* timestamp in usec when last callback was received */
