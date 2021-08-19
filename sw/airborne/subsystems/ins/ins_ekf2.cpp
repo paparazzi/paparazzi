@@ -628,6 +628,15 @@ void ins_ekf2_change_param(int32_t unk)
   ekf_params->mag_fusion_type = ekf2_params.mag_fusion_type = unk;
 }
 
+void ins_ekf2_remove_gps(int32_t mode)
+{
+  if (mode) {
+    ekf_params->fusion_mode = ekf2_params.fusion_mode = (MASK_USE_OF | MASK_USE_GPSYAW);
+  } else {
+    ekf_params->fusion_mode = ekf2_params.fusion_mode = INS_EKF2_FUSION_MODE;
+  }
+}
+
 /** Publish the attitude and get the new state
  *  Directly called after a succeslfull gyro+accel reading
  */
@@ -890,7 +899,7 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   NOTE: pure rotations should result in same flow_x and 
   gyro_roll and same flow_y and gyro_pitch */
   ekf2.flow_quality = quality;
-  ekf2.flow_x = - RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
+  ekf2.flow_x = RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
   ekf2.flow_y = - RadOfDeg(flow_x) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
   ekf2.gyro_roll = NAN;                                                         // ekf2.gyro.p * (1e-6 * ekf2.flow_dt);
   ekf2.gyro_pitch = NAN;                                                        // ekf2.gyro.q * (1e-6 * ekf2.flow_dt);

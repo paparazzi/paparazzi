@@ -7,8 +7,9 @@
 * GPS:         Ublox                  http://wiki.paparazziuav.org/wiki/Subsystem/gps
 * RC:          SBUS
 -->
-<airframe name="tudelft_quado_outdoor">
-  <description>Quadooooo</description>
+
+<airframe name="nederquad_outdoor">
+  <description> Nederquad for Indoor Outdoor Flight </description>
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_5.0_chibios" />
 
@@ -22,21 +23,39 @@
         <configure name="MODEM_PORT" value="UART2"/>
         <configure name="MODEM_BAUD" value="B115200"/>
       </module>
-
-      <!-- SENSORS USED -->
     
-      <module name="baro_ms5611_spi" >
+      <!-- <module name="baro_ms5611_spi" >
         <configure name="MS5611_SPI_DEV" value="spi1"/>
         <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-      </module>
+      </module> -->
 
       <module name="optical_flow_mateksys_3901_l0x.xml">
         <configure name="MATEKSYS_3901_L0X_PORT" value="UART3"/>
+        <configure name="USE_MATEKSYS_3901_L0X_AGL" value="0"/>
         <!-- Calibration done live 17/08/2021 -->
         <define name="MATEKSYS_3901_L0X_FLOW_X_SCALER" value="-1.13"/>
         <define name="MATEKSYS_3901_L0X_FLOW_Y_SCALER" value="1.26"/>
-      </module> 
+      </module>  
 
+      <module name="lidar_lite">
+          <configure name="LIDAR_LITE_I2C_DEV" value="I2C4"/>
+      </module>
+
+      <!-- Logger -->
+      <module name="tlsf"/>
+      <module name="pprzlog"/>
+      <module name="logger" type="sd_chibios"/>
+      <module name="flight_recorder"/>
+
+      <module name="imu" type="mpu6000">
+          <define name="IMU_MPU_CHAN_X" value="1"/>
+          <define name="IMU_MPU_CHAN_Y" value="2"/>
+          <define name="IMU_MPU_CHAN_Z" value="0"/>
+          <define name="IMU_MPU_X_SIGN" value="+1"/>
+          <define name="IMU_MPU_Y_SIGN" value="-1"/>
+          <define name="IMU_MPU_Z_SIGN" value="-1"/>
+      </module>
+     
       <module name="gps" type="ublox" >
         <configure name="GPS_BAUD" value="B57600"/>
       </module>
@@ -47,13 +66,28 @@
         <configure name="GPS_BAUD" value="B57600"/>
       </module> -->
 
-      <module name="imu" type="mpu6000">
-          <define name="IMU_MPU_CHAN_X" value="1"/>
-          <define name="IMU_MPU_CHAN_Y" value="2"/>
-          <define name="IMU_MPU_CHAN_Z" value="0"/>
-          <define name="IMU_MPU_X_SIGN" value="+1"/>
-          <define name="IMU_MPU_Y_SIGN" value="-1"/>
-          <define name="IMU_MPU_Z_SIGN" value="-1"/>
+      <module name="stabilization" type="indi_simple" />
+
+      <module name="ins" type="ekf2"/>
+
+      <!-- <module name="ahrs" type="int_cmpl_quat">
+        <configure name="USE_MAGNETOMETER" value="FALSE"/>
+        <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+        <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+      </module>
+      <module name="ins" type="extended">
+        <define name="INS_USE_GPS_ALT" value="1"/>
+        <define name="INS_USE_GPS_ALT_SPEED" value="1"/>
+        <define name="INS_VFF_R_GPS" value="0.01"/>
+      </module> -->
+
+      <module name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />
+      </module>
+
+      <module name="radio_control" type="sbus">
+        <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+        <configure name="SBUS_PORT" value="UART4"/>
       </module>
 
       <module name="geo_mag" />
@@ -74,28 +108,6 @@
         <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
       </module> 
 
-      <!-- LOGGER -->
-
-      <module name="tlsf"/>
-      <module name="pprzlog"/>
-      <module name="logger" type="sd_chibios"/>
-      <module name="flight_recorder"/>
-
-      <!-- CONTROLLER AND OTHER -->
-
-      <module name="stabilization" type="indi_simple" />
-
-      <module name="ins" type="ekf2"/>
-
-      <module name="current_sensor">
-      <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />
-      </module>
-
-      <module name="radio_control" type="sbus">
-        <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
-        <configure name="SBUS_PORT" value="UART4"/>
-      </module>
-
       <module name="motor_mixing"/>
 
       <module name="actuators" type="pwm">
@@ -106,11 +118,9 @@
 
   <section name="MISC">
     <define name="BAT_CHECKER_DELAY" value="80" />
-    <!-- EKF2 SETTINGS  -->
-    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_GPSYAW | MASK_USE_OF"/>
+    <define name="INS_EKF2_FUSION_MODE" value="MASK_USE_GPS | MASK_USE_OF"/>
     <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_RANGE"/>
     <define name="INS_EKF2_GPS_CHECK_MASK" value="0"/>
-    <!-- This command uses GPS course as heading input, discarding the magnetometer -->
     <define name="INS_EKF2_GPS_COURSE_YAW" value="FALSE"/>
   </section>
 
@@ -159,11 +169,11 @@
   </rc_commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" /><!-- OK -->
-    <servo name="TOP_RIGHT" no="3" min="1000" neutral="1100" max="2000" /><!-- OK -->
-    <servo name="BOTTOM_RIGHT" no="1" min="1000" neutral="1100" max="2000" /><!-- OK -->
-    <servo name="BOTTOM_LEFT" no="0" min="1000" neutral="1100" max="2000" /><!-- OK -->
-    <servo name="RELEASE_SERVO" no="4" min="1100" neutral="1400" max="2000"/><!-- min:2000,neutral:1600,max:1200 for release -->
+    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" />
+    <servo name="TOP_RIGHT" no="3" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_RIGHT" no="1" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_LEFT" no="0" min="1000" neutral="1100" max="2000" />
+    <servo name="RELEASE_SERVO" no="4" min="1100" neutral="1400" max="2000"/>
   </servos>
   
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -188,52 +198,22 @@
     <define name="CALC_TAS_FACTOR" value="FALSE" />
     <define name="CALC_AMSL_BARO" value="TRUE" />
   </section>
-  <!-- local magnetic field -->
-  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+
   <section name="AHRS" prefix="AHRS_">
-    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Delft -->
     <define name="H_X" value="0.3892503" />
     <define name="H_Y" value="0.0017972" />
     <define name="H_Z" value="0.9211303" />
-    <!-- For vibrating airfames -->
-    <!--<define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>-->
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
   </section>
 
-  <!-- setpoint limits for attitude stabilization rc flight -->
-  <!-- <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">   
-    <define name="SP_MAX_PHI" value="45" unit="deg" />
-    <define name="SP_MAX_THETA" value="45" unit="deg" />
-    <define name="SP_MAX_R" value="300" unit="deg/s" />
-    <define name="DEADBAND_A" value="0" />
-    <define name="DEADBAND_E" value="0" />
-    <define name="DEADBAND_R" value="50" />
-  </section> -->
-<!-- attitude reference generation model -->
-  <!-- <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
-    <define name="REF_OMEGA_P" value="450" unit="deg/s" />
-    <define name="REF_ZETA_P" value="0.9" />
-    <define name="REF_MAX_P" value="600." unit="deg/s" />
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)" />
-    <define name="REF_OMEGA_Q" value="450" unit="deg/s" />
-    <define name="REF_ZETA_Q" value="0.9" />
-    <define name="REF_MAX_Q" value="600." unit="deg/s" />
-    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)" />
-    <define name="REF_OMEGA_R" value="450" unit="deg/s" />
-    <define name="REF_ZETA_R" value="0.9" />
-    <define name="REF_MAX_R" value="600." unit="deg/s" />
-    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)" />
-  </section> -->
-
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
     <define name="G1_P" value="0.01965369" />
     <define name="G1_Q" value="0.018093345" />
-    <define name="G1_R" value="0.002" />
+    <define name="G1_R" value="0.0008" />
     <define name="G2_R" value="0.0000000" />
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="TRUE" />
@@ -245,10 +225,10 @@
     <define name="REF_ERR_R" value="49" />
     <define name="REF_RATE_P" value="22.5" />
     <define name="REF_RATE_Q" value="22.5" />
-    <define name="REF_RATE_R" value="6" />
+    <define name="REF_RATE_R" value="4" />
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="1.5"/>
-    <define name="FILT_CUTOFF_R" value="0.5"/>
+    <define name="FILT_CUTOFF_R" value="1.0"/>
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.0354" />
     <define name="ACT_DYN_Q" value="0.0354" />
@@ -312,14 +292,12 @@
     <define name="ADAPT_THROTTLE_ENABLED" value="FALSE" />
   </section>
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg" />
     <define name="REF_MAX_SPEED" value="2" unit="m/s" />
-    <!-- Bad weather -->
-    <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="50" />
-    <define name="DGAIN" value="100" />
-    <define name="IGAIN" value="30" />
+    <!-- Correct gains for perfect hovering -->
+    <define name="PGAIN" value="90" />
+    <define name="DGAIN" value="200" />
+    <define name="IGAIN" value="80" />
   </section>
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED" value="4.5" />
@@ -328,9 +306,8 @@
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO1" value="AP_MODE_HOVER_DIRECT" />
-    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />
-<!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
+    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD" />
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
   <section name="BAT">

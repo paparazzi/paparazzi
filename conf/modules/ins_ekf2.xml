@@ -36,6 +36,7 @@
       <!-- EKF2 Configuration parameters -->
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
+        <dl_setting var="ekf2_params.fusion_mode" min="0" max="1" step="1" shortname="remove_gps" values="FALSE|TRUE" module="subsystems/ins/ins_ekf2" handler="remove_gps" type="bool" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>

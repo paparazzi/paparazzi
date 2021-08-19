@@ -181,13 +181,13 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   // ground_distance --> mm
   // distance message lidar --> float meters
 
-  // struct Int32Vect3 mag;
-  // struct FloatVect3 mag_real;
-  // float heading = course/1e7;
-  // mag_real.x = cos(heading);
-  // mag_real.y = sin(heading);
-  // mag_real.z = 0;
-  // MAGS_BFP_OF_REAL(mag, mag_real);
+  struct Int32Vect3 mag;
+  struct FloatVect3 mag_real;
+  float heading = course/1e7;
+  mag_real.x = cos(heading);
+  mag_real.y = -sin(heading);
+  mag_real.z = 0;
+  MAGS_BFP_OF_REAL(mag, mag_real);
 
   // struct fake_flow flow;
 
@@ -205,13 +205,13 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   // float flowtest = DegOfRad(atan(ecef_xd/(hmsl/10)));
 
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
-  // AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+  AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
   // AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts, flow.flow_x, flow.flow_y, 0, 0, flow.flow_quality, 0);
   // AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, flow.ground_distance);
 
   // Send magnetometer fake message
-  // DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 
   // // Send optical flow fake message
   // // DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 
@@ -274,8 +274,17 @@ static void parse_gps_datalink_local(float enu_x, float enu_y, float enu_z,
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
+  struct Int32Vect3 mag;
+  struct FloatVect3 mag_real;
+  float heading = course/1e7;
+  mag_real.x = cos(heading);
+  mag_real.y = -sin(heading);
+  mag_real.z = 0;
+  MAGS_BFP_OF_REAL(mag, mag_real);
+
   // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
