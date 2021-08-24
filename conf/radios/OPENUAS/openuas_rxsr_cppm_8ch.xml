@@ -1,0 +1,17 @@
+<!--
+The order of the list below is of importance if you do not define a
+"no=" (order in the PPM frame) parameter.
+If you do not define this then the order of the PPM is the one of
+the order of the functon in the list
+-->
+<!DOCTYPE radio SYSTEM "../radio.dtd">
+<radio name="OpenUAS_OpenRXSR" data_min="980" data_max="2100" sync_min="5000" sync_max="16000" pulse_type="NEGATIVE">
+  <channel function="THROTTLE" min="980" neutral="990" max="2040" average="0"/>
+  <channel function="ROLL" min="1000" neutral="1500" max="1900" average="0"/>
+  <channel function="PITCH" min="1000" neutral="1500" max="1900" average="0"/>
+  <channel function="YAW" min="1000" neutral="1500" max="1900" average="0"/>
+  <channel function="MODE" min="1000" neutral="1500" max="1900" average="2"/>
+  <channel function="AUX2" min="1000" neutral="1100" max="1900" average="4"/>
+  <channel function="AUX3" min="1000" neutral="1500" max="1900" average="6"/>
+  <channel function="AUX4" min="1000" neutral="1500" max="1900" average="6"/> 
+</radio>

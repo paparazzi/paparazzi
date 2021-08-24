@@ -28,11 +28,13 @@
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
+#if IMU_MPU_USE_MEDIAN_FILTER
+#include "filters/median_filter.h"
+#endif
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_MPU_SPI_SLAVE_IDX)
 PRINT_CONFIG_VAR(IMU_MPU_SPI_DEV)
-
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
 #if !defined IMU_MPU_LOWPASS_FILTER && !defined  IMU_MPU_SMPLRT_DIV
@@ -102,11 +104,21 @@ PRINT_CONFIG_VAR(IMU_MPU_Y_SIGN)
 #endif
 PRINT_CONFIG_VAR(IMU_MPU_Z_SIGN)
 
-
 struct ImuMpu6000 imu_mpu_spi;
+
+#if IMU_MPU_USE_MEDIAN_FILTER
+static struct MedianFilter3Int medianfilter_accel;
+static struct MedianFilter3Int medianfilter_rates;
+#endif
 
 void imu_mpu_spi_init(void)
 {
+
+#if IMU_MPU_USE_MEDIAN_FILTER
+  InitMedianFilterVect3Int(medianfilter_accel, 3);
+  InitMedianFilterRatesInt(medianfilter_rates, 3);
+#endif
+
   mpu60x0_spi_init(&imu_mpu_spi.mpu, &IMU_MPU_SPI_DEV, IMU_MPU_SPI_SLAVE_IDX);
   // change the default configuration
   imu_mpu_spi.mpu.config.smplrt_div = IMU_MPU_SMPLRT_DIV;
@@ -115,7 +127,6 @@ void imu_mpu_spi_init(void)
   imu_mpu_spi.mpu.config.gyro_range = IMU_MPU_GYRO_RANGE;
   imu_mpu_spi.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
 }
-
 
 void imu_mpu_spi_periodic(void)
 {
@@ -139,6 +150,12 @@ void imu_mpu_spi_event(void)
       IMU_MPU_Y_SIGN * (int32_t)(imu_mpu_spi.mpu.data_rates.value[IMU_MPU_CHAN_Y]),
       IMU_MPU_Z_SIGN * (int32_t)(imu_mpu_spi.mpu.data_rates.value[IMU_MPU_CHAN_Z])
     };
+
+    // In case sensor exhibits faulty large spike values in raw output remove them
+#if IMU_MPU_USE_MEDIAN_FILTER
+    UpdateMedianFilterVect3Int(medianfilter_accel, accel);
+    UpdateMedianFilterRatesInt(medianfilter_rates, rates);
+#endif
     // unscaled vector
     VECT3_COPY(imu.accel_unscaled, accel);
     RATES_COPY(imu.gyro_unscaled, rates);
