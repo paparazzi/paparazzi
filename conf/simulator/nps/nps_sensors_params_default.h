@@ -30,12 +30,27 @@
 #define NPS_BODY_TO_IMU_THETA  IMU_BODY_TO_IMU_THETA
 #define NPS_BODY_TO_IMU_PSI    IMU_BODY_TO_IMU_PSI
 
+// try to determine propagate frequency
+#if defined AHRS_PROPAGATE_FREQUENCY
+#define NPS_PROPAGATE AHRS_PROPAGATE_FREQUENCY
+#elif defined INS_PROPAGATE_FREQUENCY
+#define NPS_PROPAGATE INS_PROPAGATE_FREQUENCY
+#elif defined PERIODIC_FREQUENCY
+#define NPS_PROPAGATE PERIODIC_FREQUENCY
+#else
+#define 512. // historical magic number
+#endif
+
 /*
  * Accelerometer
  */
-/* ADXL345 configured to +-16g with 13bit resolution */
-#define NPS_ACCEL_MIN -4095
-#define NPS_ACCEL_MAX  4095
+/* assume resolution is less than 16 bits, so saturation will not occur */
+#ifndef NPS_ACCEL_MIN
+#define NPS_ACCEL_MIN -65536
+#endif
+#ifndef NPS_ACCEL_MAX
+#define NPS_ACCEL_MAX  65536
+#endif
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
 #define NPS_ACCEL_SENSITIVITY_XX  (IMU_ACCEL_X_SIGN * ACCEL_BFP_OF_REAL(1./IMU_ACCEL_X_SENS))
@@ -54,16 +69,22 @@
 #define NPS_ACCEL_BIAS_Y          0
 #define NPS_ACCEL_BIAS_Z          0
 /* s */
-#define NPS_ACCEL_DT              (1./512.)
+#ifndef NPS_ACCEL_DT
+#define NPS_ACCEL_DT              (1./NPS_PROPAGATE)
+#endif
 
 
 
 /*
  * Gyrometer
  */
-/* IMU-3000 has 16 bit resolution */
-#define NPS_GYRO_MIN -32767
-#define NPS_GYRO_MAX  32767
+/* assume resolution is less than 16 bits, so saturation will not occur */
+#ifndef NPS_GYRO_MIN
+#define NPS_GYRO_MIN -65536
+#endif
+#ifndef NPS_GYRO_MAX
+#define NPS_GYRO_MAX  65536
+#endif
 
 /* 2^12/GYRO_X_SENS */
 #define NPS_GYRO_SENSITIVITY_PP   (IMU_GYRO_P_SIGN * RATE_BFP_OF_REAL(1./IMU_GYRO_P_SENS))
@@ -86,16 +107,22 @@
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_Q RadOfDeg(0.5)
 #define NPS_GYRO_BIAS_RANDOM_WALK_STD_DEV_R RadOfDeg(0.5)
 /* s */
-#define NPS_GYRO_DT (1./512.)
+#ifndef NPS_GYRO_DT
+#define NPS_GYRO_DT (1./NPS_PROPAGATE)
+#endif
 
 
 
 /*
  *  Magnetometer
  */
- /* Large number to avoid saturation */
-#define NPS_MAG_MIN -10000000
-#define NPS_MAG_MAX  10000000
+/* assume resolution is less than 16 bits, so saturation will not occur */
+#ifndef NPS_MAG_MIN
+#define NPS_MAG_MIN -65536
+#endif
+#ifndef NPS_MAG_MAX
+#define NPS_MAG_MAX  65536
+#endif
 
 #define NPS_MAG_IMU_TO_SENSOR_PHI    0.
 #define NPS_MAG_IMU_TO_SENSOR_THETA  0.
@@ -113,14 +140,16 @@
 #define NPS_MAG_NOISE_STD_DEV_Y  2e-3
 #define NPS_MAG_NOISE_STD_DEV_Z  2e-3
 
+#ifndef NPS_MAG_DT
 #define NPS_MAG_DT (1./100.)
+#endif
 
 
 /*
  *  Barometer (pressure and std dev in Pascal)
  */
 #define NPS_BARO_DT              (1./50.)
-#define NPS_BARO_NOISE_STD_DEV   2
+#define NPS_BARO_NOISE_STD_DEV   0.2
 
 /*
  *  GPS
@@ -158,6 +187,8 @@
 
 #endif /* GPS_PERFECT */
 
-#define NPS_GPS_DT                           (1./4.)
+#ifndef NPS_GPS_DT
+#define NPS_GPS_DT                           (1./10.)
+#endif
 
 #endif /* NPS_SENSORS_PARAMS_H */

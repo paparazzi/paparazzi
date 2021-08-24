@@ -947,7 +947,7 @@ The most crucial part for the magnetometer calibration:
     <define name="COMMANDS_NB" value="4"/>
     <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
-    <!-- <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>-->
+    <!-- <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>-->
     <define name="JS_AXIS_MODE" value="4"/>
     <define name="BYPASS_AHRS" value="TRUE"/>
     <define name="BYPASS_INS" value="TRUE"/>
