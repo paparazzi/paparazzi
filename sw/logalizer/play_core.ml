@@ -59,7 +59,7 @@ let store_conf = fun conf acs ->
 	  ignore (w "radio");
           let xml_settings =
             try
-              ExtXml.child x "settings"
+              ExtXml.child x "generated_settings"
             with _ ->
               Printf.printf "Replay: no settings for display\n%!";
               Xml.Element("settings",[],[])
