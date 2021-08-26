@@ -47,9 +47,6 @@
     <define name="INS_TYPE_H" value="subsystems/ins/ins_float_invariant_wrapper.h" type="string"/>
     <test firmware="rotorcraft"/>
   </makefile>
-  <makefile target="ap|nps" firmware="fixedwing">
-    <define name="INS_FINV_USE_UTM"/>
-  </makefile>
   <makefile target="sim">
     <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
     <define name="USE_AHRS"/>

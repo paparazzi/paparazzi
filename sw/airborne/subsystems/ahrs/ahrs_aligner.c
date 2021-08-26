@@ -80,14 +80,7 @@ static void send_aligner(struct transport_tx *trans, struct link_device *dev)
 
 void ahrs_aligner_init(void)
 {
-
-  ahrs_aligner.status = AHRS_ALIGNER_RUNNING;
-  INT_RATES_ZERO(gyro_sum);
-  INT_VECT3_ZERO(accel_sum);
-  INT_VECT3_ZERO(mag_sum);
-  samples_idx = 0;
-  ahrs_aligner.noise = 0;
-  ahrs_aligner.low_noise_cnt = 0;
+  ahrs_aligner_restart();
 
   // for now: only bind to gyro message and still read from global imu struct
   AbiBindMsgIMU_GYRO_INT32(AHRS_ALIGNER_IMU_ID, &gyro_ev, gyro_cb);
@@ -95,6 +88,17 @@ void ahrs_aligner_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FILTER_ALIGNER, send_aligner);
 #endif
+}
+
+void ahrs_aligner_restart(void)
+{
+  ahrs_aligner.status = AHRS_ALIGNER_RUNNING;
+  INT_RATES_ZERO(gyro_sum);
+  INT_VECT3_ZERO(accel_sum);
+  INT_VECT3_ZERO(mag_sum);
+  samples_idx = 0;
+  ahrs_aligner.noise = 0;
+  ahrs_aligner.low_noise_cnt = 0;
 }
 
 #ifndef LOW_NOISE_THRESHOLD
