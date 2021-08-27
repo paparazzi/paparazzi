@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_effectiveness_morphing" dir="ctrl">
+  <doc>
+    <description>
+      Morphing geometry hexacopter RoBust v3 requires to re-compute its control effectivenss matrix at each different arm positions.
+      This modules reads the adc values from servos that are morphing the geometry, calculates the new effectiveness values for pitch and roll, and applies them.
+    </description>
+    <configure name="ADC_CHANNEL_MORPHING1" value="ADCX" description="choose which ADC is used for input 1"/>
+    <configure name="ADC_CHANNEL_MORPHING2" value="ADCX" description="choose which ADC is used for input 2"/>
+  </doc>
+  <header>
+    <file name="ctrl_effectiveness_morphing.h"/>
+  </header>
+  <init fun="ctrl_eff_morphing_init()"/>
+  <periodic fun="ctrl_eff_morphing_periodic()" freq="100"/>
+  <makefile>
+    <file name="ctrl_effectiveness_morphing.c"/>
+    <define name="USE_${ADC_CHANNEL_MORPHING1}" cond="ifneq ($(ADC_CHANNEL_MORPHING1),)"/>
+    <define name="ADC_CHANNEL_MORPHING1" value="$(ADC_CHANNEL_MORPHING1)" cond="ifneq ($(ADC_CHANNEL_MORPHING1),)"/>
+    <define name="USE_${ADC_CHANNEL_MORPHING2}" cond="ifneq ($(ADC_CHANNEL_MORPHING2),)"/>
+    <define name="ADC_CHANNEL_MORPHING2" value="$(ADC_CHANNEL_MORPHING2)" cond="ifneq ($(ADC_CHANNEL_MORPHING2),)"/>
+  </makefile>
+</module>
