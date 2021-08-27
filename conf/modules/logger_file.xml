@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_file" dir="loggers">
+<module name="logger_file" dir="loggers" task="core">
   <doc>
 	<description>
       Logs to a csv file.

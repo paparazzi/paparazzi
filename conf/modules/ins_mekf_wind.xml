@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_mekf_wind" dir="ins">
+<module name="ins_mekf_wind" dir="ins" task="estimation">
   <doc>
     <description>
       MEKF-Wind INS estimator.
@@ -59,6 +59,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@imu,@gps,@airspeed</depends>
+    <provides>ahrs,ins</provides>
+  </dep>
   <header>
     <file name="ins_mekf_wind_wrapper.h"/>
   </header>

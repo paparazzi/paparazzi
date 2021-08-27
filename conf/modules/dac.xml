@@ -7,6 +7,9 @@
       To activate a specific DAC input, define flag USE_DACX where X is your DAC input number
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="dac.h" dir="mcu_periph"/>
   </header>

@@ -19,6 +19,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>uart</depends>
+  </dep>
   <header>
     <file name="jevois.h"/>
   </header>

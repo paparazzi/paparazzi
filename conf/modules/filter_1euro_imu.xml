@@ -40,6 +40,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@imu</depends>
+  </dep>
   <header>
     <file name="filter_1euro_imu.h"/>
   </header>

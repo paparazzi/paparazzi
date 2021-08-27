@@ -13,7 +13,10 @@
     <configure name="MODEM_PORT_IN" value="4243" description="input UDP port"/>
     <configure name="MODEM_BROADCAST" value="TRUE|FALSE" description="UDP socket in broadcast mode"/>
   </doc>
-
+  <dep>
+    <depends>udp,datalink_common</depends>
+    <provides>datalink,telemetry</provides>
+  </dep>
   <makefile target="nps|hitl">
     <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
     <configure name="MODEM_PORT_OUT" default="4242"/>
@@ -26,18 +29,6 @@
     <define name="$(MODEM_DEV_UPPER)_BROADCAST" value="$(MODEM_BROADCAST)"/>
     <define name="DOWNLINK_DEVICE" value="$(MODEM_DEV_LOWER)"/>
     <define name="PPRZ_UART" value="$(MODEM_DEV_LOWER)"/>
-    <raw>
-      include $(CFG_SHARED)/udp.makefile
-    </raw>
-  </makefile>
-  <makefile target="nps|hitl" firmware="fixedwing">
-    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
-  </makefile>
-  <makefile target="nps|hitl" firmware="rotorcraft">
-    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
 </module>
 

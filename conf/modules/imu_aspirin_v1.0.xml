@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_v1.0" dir="imu">
+<module name="imu_aspirin_v1.0" dir="imu" task="sensors">
   <doc>
     <description>
       Aspirin v1.0 IMU.
@@ -10,7 +10,12 @@
       For configuration see the imu_aspirin_common module
     </description>
   </doc>
-  <autoload name="imu_aspirin_common"/>
+  <dep>
+    <depends>imu_aspirin_common</depends>
+    <provides>imu</provides>
+  </dep>
+  <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_ASPIRIN_VERSION_1_0"/>
   </makefile>

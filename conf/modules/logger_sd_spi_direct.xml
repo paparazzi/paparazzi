@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_sd_spi_direct" dir="loggers">
+<module name="logger_sd_spi_direct" dir="loggers" task="core">
   <doc>
     <description>
 Direct SPI SD Logger that saves pprzlog messages to SD Card.

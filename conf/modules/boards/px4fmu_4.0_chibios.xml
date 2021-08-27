@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="px4fmu_4.0_chibios" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for PX4FMU v4.0 with ChibiOS
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

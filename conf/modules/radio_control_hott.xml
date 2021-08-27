@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_hott" dir="radio_control">
+<module name="radio_control_hott" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Radio control based on Graupner HOTT SUMD
@@ -8,6 +8,10 @@
     <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="HOTT_PORT" value="UARTX" description="UART name where HOTT receiver is plugged"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>radio_control</provides>
+  </dep>
   <header>
     <file name="hott.h" dir="subsystems/radio_control"/>
   </header>

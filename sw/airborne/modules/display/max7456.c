@@ -41,10 +41,10 @@
 #include "state.h"
 
 // for GetPosAlt, include correct header until we have unified API
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
 //#include "subsystems/navigation/nav.h"
 #include "subsystems/navigation/common_nav.h"
-#else
+#elif defined(ROTORCRAFT_FIRMWARE)
 #include "firmwares/rotorcraft/navigation.h"
 #endif
 #if DOWNLINK
@@ -76,7 +76,7 @@
 #define BAT_CAPACITY  5000.0
 #endif
 
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
 
 #if !defined(LOITER_BAT_CURRENT)
 #pragma message "LOITER_BAT_CURRENT not defined, 10 Amps will be used for LOITER current draw."
@@ -118,7 +118,7 @@ typedef struct {
   float fz1; float fz2; float fz3;
 } MATRIX;
 
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
 static void mag_compass(void);
 #endif
 static void send_mag_heading(struct transport_tx *trans, struct link_device *dev);
@@ -176,7 +176,7 @@ float mag_heading_rad = 0;
 float gps_course_deg = 0;
 float home_dir_deg = 0;
 
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
 // Periodic function called with a frequency defined in the module .xml file
 void mag_compass(void)
 {
@@ -305,7 +305,7 @@ static float home_direction(void)
     svPlanePosition.fx = stateGetPositionEnu_f()->y;
     svPlanePosition.fy = stateGetPositionEnu_f()->x;
     svPlanePosition.fz = stateGetPositionUtm_f()->alt;
-#ifdef AP
+#if defined(FIXEDWING_FIRMWARE)
     Home_Position.fx = WaypointY(WP_HOME);
     Home_Position.fy = WaypointX(WP_HOME);
     Home_Position.fz = GetAltRef();
@@ -425,12 +425,12 @@ static void calc_flight_time_left(void)
   if (bat_capacity_left < 0) { bat_capacity_left = 0; }
   horizontal_speed = stateGetHorizontalSpeedNorm_f();
 
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
   if (stateGetHorizontalSpeedNorm_f() < 5.0 || autopilot.launch == false) {
     current_amps = LOITER_BAT_CURRENT;
     horizontal_speed = MINIMUM_AIRSPEED;
   }
-#else // #if AP
+#else // #if !FW
   current_amps = 1.0; // FIXME, Find how to tell if the rotorcraft is on the ground or it is flying.
   horizontal_speed = 10.0;
 #endif
@@ -676,18 +676,18 @@ void draw_osd(void)
 
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
   float ph_x = waypoints[WP_HOME].x - pos->x;
   float ph_y = waypoints[WP_HOME].y - pos->y;
   float stall_speed = STALL_AIRSPEED;
 #else // FOR ROTORCRAFTS
   float ph_x = waypoint_get_x(WP_HOME) - pos->x;
   float ph_y = waypoint_get_y(WP_HOME) - pos->y;
-#endif // #if AP
+#endif //
 
   distance_to_home = (float)(sqrt(ph_x * ph_x + ph_y * ph_y));
   calc_flight_time_left();
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
   mag_compass();
 #endif
 
@@ -699,7 +699,7 @@ void draw_osd(void)
         gps_course_deg = (float)gps.course;
         gps_course_deg = DegOfRad(gps_course_deg / 1e7);
       } else {
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
         gps_course_deg = mag_course_deg;
 #else
         gps_course_deg = stateGetNedToBodyEulers_f()->psi;
@@ -762,7 +762,7 @@ void draw_osd(void)
       break;
 
     case (40):
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
       if (autopilot.mode == AP_MODE_AUTO2) {
         osd_put_s("A2", L_JUST, 2, 2, 3);
       } else if (autopilot.mode == AP_MODE_AUTO1) {
@@ -775,7 +775,7 @@ void draw_osd(void)
       break;
 
     case (50):
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
       osd_sprintf(osd_string, "THR%.0f", (((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.));
 #else
       osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
@@ -785,7 +785,7 @@ void draw_osd(void)
       break;
 
     case (60):
-#if AP
+#if defined(FIXEDWING_FIRMWARE)
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       if ((fabs(stateGetHorizontalSpeedNorm_f() * cos(att->phi))) < stall_speed) {
         osd_sprintf(osd_string, "STALL!", 0);
@@ -804,7 +804,7 @@ void draw_osd(void)
       }
 #endif
 
-#else // #if AP
+#else // #if !FW
 
 #if defined(USE_MATEK_TYPE_OSD_CHIP) && USE_MATEK_TYPE_OSD_CHIP == 1
       osd_sprintf(osd_string, "%.0f%161c", (stateGetHorizontalSpeedNorm_f() * 3.6));

@@ -9,12 +9,15 @@
     </description>
     <configure name="ACTUATORS_SBUS_DEV" value="UARTX" description="UART port (default uart4)"/>
   </doc>
+  <dep>
+    <depends>uart,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_sbus.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="!sim">
     <configure name="ACTUATORS_SBUS_DEV" default="uart4" case="upper|lower"/>
-    <define name="ACTUATORS"/>
     <define name="ACTUATORS_SBUS_DEV" value="$(ACTUATORS_SBUS_DEV_LOWER)"/>
     <define name="USE_$(ACTUATORS_SBUS_DEV_UPPER)"/>
     <define name="$(ACTUATORS_SBUS_DEV_UPPER)_BAUD" value="100000"/>

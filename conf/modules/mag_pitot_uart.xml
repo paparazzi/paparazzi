@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_pitot_uart" dir="sensors">
+<module name="mag_pitot_uart" dir="sensors" task="sensors">
   <doc>
     <description>Remotely located magnetometer and pitot tube over uart (RS232) communication</description>
     <configure name="MAG_PITOT_PORT" value="UART5" description="select which uart it is connected to"/>
@@ -9,6 +9,10 @@
     <define name="IMU_TO_MAG_THETA" value="0" description="rotation of magneto compared to the magneto in pitch axis"/>
     <define name="IMU_TO_MAG_PSI" value="0" description="rotation of magneto compared to the magneto in yaw axis"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>mag</provides>
+  </dep>
   <header>
     <file name="mag_pitot_uart.h"/>
   </header>

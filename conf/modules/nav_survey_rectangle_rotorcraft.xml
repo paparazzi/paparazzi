@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_rectangle_rotorcraft" dir="nav">
+<module name="nav_survey_rectangle_rotorcraft" dir="nav" task="control">
   <doc>
     <description>
 Survey a rectangle with a rotorcraft.
@@ -40,6 +40,9 @@ or using flightplan primitive
     </dl_settings>
   </settings>
 
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_survey_rectangle_rotorcraft.h"/>
   </header>

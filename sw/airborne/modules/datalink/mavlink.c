@@ -309,7 +309,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
     }
     break;
 
-#ifndef AP
+#ifdef ROTORCRAFT_FIRMWARE
     /* only for rotorcraft */
     case MAVLINK_MSG_ID_COMMAND_LONG: {
       mavlink_command_long_t cmd;
@@ -438,7 +438,7 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
 {
   uint8_t mav_state = MAV_STATE_CALIBRATING;
   uint8_t mav_mode = 0;
-#ifdef AP
+#if defined(FIXEDWING_FIRMWARE)
   uint8_t mav_type = MAV_TYPE_FIXED_WING;
   switch (autopilot_get_mode()) {
     case AP_MODE_MANUAL:
@@ -456,7 +456,7 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
     default:
       break;
   }
-#else
+#elif defined(ROTORCRAFT_FIRMWARE)
   uint8_t mav_type = MAV_TYPE_QUADROTOR;
   switch (autopilot_get_mode()) {
     case AP_MODE_HOME:
@@ -486,6 +486,8 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
     default:
       break;
   }
+#else
+#error "mavlink datalink: unsupported firmware"
 #endif
   if (stateIsAttitudeValid()) {
     if (autopilot_throttle_killed()) {

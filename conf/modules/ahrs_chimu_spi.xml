@@ -1,15 +1,19 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_chimu_spi" dir="ins">
+<module name="ahrs_chimu_spi" dir="ins" task="estimation">
   <doc>
     <description>CHimu (SPI)</description>
     <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
+  <dep>
+    <depends>spi_slave_hs</depends>
+    <provides>ahrs,imu</provides>
+  </dep>
   <autoload name="ahrs_sim"/>
-  <autoload name="spi" type="slave_hs"/>
   <header>
     <file name="ins_module.h"/>
   </header>
+  <init fun="ahrs_init()"/>
   <event fun="parse_ins_msg()"/>
   <makefile target="ap">
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>

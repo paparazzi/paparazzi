@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_piksi" dir="gps">
+<module name="gps_piksi" dir="gps" task="sensors">
   <doc>
     <description>
       Swift-Nav Piksi RTK GPS.
@@ -9,7 +9,10 @@
     <configure name="PIKSI_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="PIKSI_GPS_BAUD" value="B115200" description="UART baud rate"/>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>uart,gps</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>

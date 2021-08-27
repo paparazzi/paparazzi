@@ -41,8 +41,6 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   let servos_period = 1./.40. (* s *)
   let periodic_period = 1./.60. (* s *)
-  let nav_period = 1./.4. (* s *)
-  let monitor_period = 1. (* s *)
   let rc_period = 1./.40. (* s *)
   let sys_time_period = 1./.120. (* s *)
 
@@ -124,8 +122,6 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   external sys_time_task : unit -> unit = "sim_sys_time_task"
   external periodic_task : unit -> unit = "sim_periodic_task"
-  external nav_task : unit -> unit = "sim_nav_task"
-  external monitor_task : unit -> unit = "sim_monitor_task"
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
   external update_adc1 : int -> unit = "update_adc1"
@@ -191,8 +187,6 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let boot = fun time_scale ->
     Simlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Simlib.timer ~scale:time_scale periodic_period periodic_task;
-    Simlib.timer ~scale:time_scale nav_period nav_task;
-    Simlib.timer ~scale:time_scale monitor_period monitor_task;
     Simlib.timer ~scale:time_scale sys_time_period sys_time_task;
 
     (* Forward or broacast messages according to "link" mode *)

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_vectornav" dir="ahrs">
+<module name="ahrs_vectornav" dir="ahrs" task="estimation">
   <doc>
     <description>
       Vectornav VN200 over uart used as AHRS.
@@ -8,10 +8,15 @@
     <configure name="VN_PORT" value="uart3" description="UART to use"/>
     <configure name="VN_BAUD" value="B921600" description="UART baudrate"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>ahrs,imu</provides>
+  </dep>
   <autoload name="ahrs_sim"/>
   <header>
     <file name="ahrs.h" dir="subsystems"/>
   </header>
+  <init fun="ahrs_init()"/>
   <event fun="ahrs_vectornav_event()"/>
   <makefile target="ap">
     <configure name="VN_PORT" default="uart3" case="upper|lower"/>

@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="sim" dir="targets" task="core">
+  <doc>
+    <description>
+      Basic Simulator (SIM)
+
+      Bindings between embedded autopilot code and a flight dynamic model (FDM).
+      FDM and low level code is written in OCaml.
+      Only for fixed-wing.
+    </description>
+  </doc>
+  <dep>
+    <depends>system_core,electrical,settings,actuators_dummy</depends>
+  </dep>
+  <makefile target="sim">
+    <define name="SITL"/>
+    <define name="AP"/>
+    <define name="FBW"/>
+    <file name="main.c" dir="$(SRC_FIRMWARE)"/>
+    <file_arch name="sim_ap.c" dir="."/>
+    <file_arch name="sim_gps.c" dir="."/>
+    <file_arch name="sim_adc_generic.c" dir="."/>
+    <file_arch name="sim_ahrs.c" dir="."/>
+    <file_arch name="sim_airspeed.c" dir="."/>
+    <raw>
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+  sim.CFLAGS += $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
+endif
+
+sim.CFLAGS  	+= $(CPPFLAGS)
+    </raw>
+  </makefile>
+</module>
+

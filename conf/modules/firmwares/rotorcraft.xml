@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="rotorcraft" dir="firmwares" task="core">
+  <doc>
+    <description>
+        Rotorcraft firmware common definitions
+    </description>
+  </doc>
+  <dep>
+    <depends>system_core,autopilot_gnc</depends>
+  </dep>
+  <makefile>
+    <configure name="PERIODIC_FREQUENCY" default="512"/>
+    <configure name="SRC_FIRMWARE" value="firmwares/rotorcraft"/>
+    <define name="ROTORCRAFT_FIRMWARE"/>
+    <define name="PERIODIC_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <define name="AHRS_PROPAGATE_FREQUENCY" value="$(AHRS_PROPAGATE_FREQUENCY)" cond="ifdef AHRS_PROPAGATE_FREQUENCY"/>
+    <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)" cond="ifdef AHRS_CORRECT_FREQUENCY"/>
+    <define name="AHRS_MAG_CORRECT_FREQUENCY" value="$(AHRS_MAG_CORRECT_FREQUENCY)" cond="ifdef AHRS_MAG_CORRECT_FREQUENCY"/>
+    <include name="$(SRC_FIRMWARE)"/>
+    <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>
+    <file name="main_chibios.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(RTOS), chibios)"/>
+  </makefile>
+  <makefile target="!fbw">
+    <file name="main_ap.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="fbw">
+    <file name="main_fbw.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="nps|hitl">
+    <file name="nps_autopilot_rotorcraft.c" dir="nps"/>
+  </makefile>
+</module>
+

@@ -23,4 +23,6 @@ extern void baro_ms5611_periodic_check(void);
 extern void baro_ms5611_event(void);
 extern void baro_ms5611_send_coeff(void);
 
+#define baro_ms5611_periodic() { baro_ms5611_read(); baro_ms5611_periodic_check(); }
+
 #endif

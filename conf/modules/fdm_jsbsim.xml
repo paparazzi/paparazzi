@@ -16,6 +16,9 @@
     <configure name="JSBSIM_ROOT" value="/usr" description="set root directory for JSBSim library when auto-detection (see FIND_JSBSIM_VIA_PKG_CONFIG) is not used (default path: /usr)"/>
     <configure name="JSBSIM_USE_SGPATH" value="FALSE|TRUE" description="old version of jsbsim don't use SGPath module, can be forced to true or false if not found automatically"/>
   </doc>
+  <dep>
+    <provides>baro</provides>
+  </dep>
   <header/>
   <makefile target="nps|hitl">
     <configure name="JSBSIM_ROOT" default="/usr"/>
@@ -25,18 +28,18 @@
     <configure name="FIND_JSBSIM_VIA_PKG_CONFIG" default="$(shell pkg-config JSBSim --exists ${AND} echo 'yes')"/>
     <raw>
       ifeq ($(FIND_JSBSIM_VIA_PKG_CONFIG), yes)
-      nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
-      nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
+      $(TARGET).CFLAGS  += $(shell pkg-config JSBSim --cflags)
+      $(TARGET).LDFLAGS += $(shell pkg-config JSBSim --libs)
         ifeq ($(shell pkg-config JSBSim --modversion), 1.0)
-        nps.CFLAGS += -DNPS_JSBSIM_USE_SGPATH=FALSE
+        $(TARGET).CFLAGS += -DNPS_JSBSIM_USE_SGPATH=FALSE
         else
-        nps.CFLAGS += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
+        $(TARGET).CFLAGS += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
         endif
       else
       FIND_JSBSIM_VIA_PKG_CONFIG = no
-      nps.CFLAGS  += -I$(JSBSIM_INC)
-      nps.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
-      nps.CFLAGS  += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
+      $(TARGET).CFLAGS  += -I$(JSBSIM_INC)
+      $(TARGET).LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+      $(TARGET).CFLAGS  += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
       endif
     </raw>
     <file name="nps_fdm_jsbsim.cpp" dir="nps"/>

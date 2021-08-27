@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="lisa_mxs_1.0_nimble" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Lisa/MXS 1.0 for Nimble frame
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

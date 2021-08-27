@@ -7,20 +7,28 @@
       Also includes GPIO and LED drivers
     </description>
   </doc>
+  <dep>
+    <provides>mcu</provides>
+  </dep>
   <header>
     <file name="mcu.h" dir="."/>
     <file name="gpio.h" dir="mcu_periph"/>
-    <file name="led.h" dir="."/>
   </header>
+  <init fun="mcu_init()"/>
+  <event fun="mcu_event()"/>
   <makefile>
     <define name="PERIPHERALS_AUTO_INIT"/>
-    <defina name="USE_LED"/>
     <file name="mcu.c" dir="."/>
     <file_arch name="mcu_arch.c" dir="."/>
-    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), stm32)"/>
-    <file_arch name="led_arch.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
-    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), chibios)"/>
-    <file_arch name="gpio_ardrone.c" dir="boards/ardrone" cond="ifeq ($(BOARD), ardrone)"/>
+    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifneq ($(BOARD), ardrone)"/>
+    <file_arch name="led_hw.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
+    <file_arch name="led_hw.c" dir="." cond="ifeq ($(TARGET), sim)"/>
+    <test>
+      <define name="PERIPHERALS_AUTO_INIT"/>
+    </test>
+  </makefile>
+  <makefile target="!nps|sim">
+    <define name="USE_LED"/>
   </makefile>
 </module>
 

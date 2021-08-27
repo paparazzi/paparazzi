@@ -72,7 +72,6 @@ static inline void main_init(void)
   settings_init();
   pprz_dl_init();
 
-  mcu_int_enable();
 
 #if DOWNLINK
   downlink_init();

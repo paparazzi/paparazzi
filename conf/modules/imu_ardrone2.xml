@@ -1,13 +1,17 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_ardrone2" dir="imu">
+<module name="imu_ardrone2" dir="imu" task="sensors">
   <doc>
     <description>
       IMU on Parrot ARDrone2.
     </description>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>uart,imu_common</depends>
+    <provides>imu,mag,sonar</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_ardrone2.h" dir="subsystems/imu"/>
   </header>

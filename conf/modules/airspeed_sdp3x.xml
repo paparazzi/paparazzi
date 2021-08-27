@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_sdp3x" dir="sensors">
+<module name="airspeed_sdp3x" dir="sensors" task="sensors">
   <doc>
     <description>
       SDP3X differential pressure sensor for e.g measuring airspeed.
@@ -26,6 +26,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>airspeed</provides>
+  </dep>
 
   <header>
     <file name="airspeed_sdp3x.h"/>

@@ -28,7 +28,7 @@
   <header>
     <file name="nav_airspeed.h"/>
   </header>
-  <makefile>
+  <makefile target="!fbw">
     <file name="nav_airspeed.c"/>
   </makefile>
 </module>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="intermcu_uart" dir="intermcu">
+<module name="intermcu_uart" dir="intermcu" task="core">
   <doc>
     <description>
       Inter-MCU communication over UART
@@ -14,13 +14,25 @@
     <configure name="FBW_MODE_LED" value="none|num" description="LED number or 'none'"/>
   </doc>
 
+  <dep>
+    <depends>uart</depends>
+    <provides>intermcu,commands,radio_control</provides>
+  </dep>
+  <header>
+    <file name="intermcu.h" dir="subsystems" cond="ROTORCRAFT_FIRMWARE"/>
+    <file name="inter_mcu.h" dir="." cond="FIXEDWING_FIRMWARE"/>
+  </header>
+  <init fun="intermcu_init()"/>
+  <periodic fun="intermcu_periodic()"/>
   <makefile target="fbw" firmware="fixedwing">
     <configure name="INTERMCU_PORT" default="UART2" case="upper|lower"/>
     <configure name="FBW_MODE_LED" default="none"/>
     <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
+    <define name="INTER_MCU_FBW"/>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <configure name="INTERMCU_PORT" default="UART5" case="upper|lower"/>
+    <define name="INTER_MCU_AP"/>
   </makefile>
   <makefile target="ap|fbw" firmware="fixedwing">
     <raw>

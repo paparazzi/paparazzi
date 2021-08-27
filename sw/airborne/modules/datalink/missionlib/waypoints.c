@@ -48,7 +48,7 @@
 static void mavlink_send_wp(uint8_t sysid, uint8_t compid, uint16_t seq)
 {
   if (seq < NB_WAYPOINT) { // Due to indexing
-#ifdef AP
+#ifdef FIXEDWING_FIRMWARE
     /* for fixedwing firmware send as LOCAL_ENU for now */
     mavlink_msg_mission_item_send(MAVLINK_COMM_0,
                                   sysid,

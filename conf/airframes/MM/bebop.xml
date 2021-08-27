@@ -29,9 +29,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -56,7 +54,7 @@
     <!--module name="ir_mlx">
       <define name="MLX_I2C_DEV" value="i2c3"/>
     </module-->
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

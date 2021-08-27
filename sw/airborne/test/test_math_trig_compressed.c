@@ -204,7 +204,6 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-  mcu_int_enable();
 
   downlink_init();
 }

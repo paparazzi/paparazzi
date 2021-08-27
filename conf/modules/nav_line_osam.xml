@@ -1,11 +1,14 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_line_osam" dir="nav">
+<module name="nav_line_osam" dir="nav" task="control">
   <doc>
     <description>
       Fly along a line
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_line_osam.h"/>
   </header>

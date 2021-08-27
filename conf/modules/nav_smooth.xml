@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_smooth" dir="nav">
+<module name="nav_smooth" dir="nav" task="control">
   <doc>
     <description>
        Smooth navigation to wp_a along an arc (around wp_cd), a segment (from wp_rd to wp_ta) and a second arc (around wp_ca).
@@ -13,6 +13,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_smooth.h"/>
   </header>

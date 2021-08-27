@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="AOA_pwm" dir="sensors">
+<module name="AOA_pwm" dir="sensors" task="sensors">
   <doc>
     <description>
       Angle of Attack sensor using PWM input

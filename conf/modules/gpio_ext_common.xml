@@ -10,6 +10,9 @@ redirects calls with port GPIOEXTx to modules.
 See gpio_ext_pca95xx as an example implementation.
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="gpio_ext_common.h"/>
   </header>

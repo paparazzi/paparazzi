@@ -72,7 +72,6 @@ static inline void main_init(void)
   adc_buf_channel(ADC_7, &buf_adc[7], ADC_NB_SAMPLES);
 #endif
 
-  mcu_int_enable();
 }
 
 int main(void)

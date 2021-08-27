@@ -1,12 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_gps_passthrough" dir="ins">
+<module name="ins_gps_passthrough" dir="ins" task="estimation">
   <doc>
     <description>
       INS which just passes GPS through.
     </description>
     <define name="INS_PT_GPS_ID" value="GPS_MULTI_ID" description="ABI sender ID of the GPS to use"/>
   </doc>
+  <dep>
+    <depends>@gps</depends>
+    <provides>ins</provides>
+  </dep>
   <header>
     <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
   </header>

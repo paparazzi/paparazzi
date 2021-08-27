@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="navigation" dir="nav">
+<module name="navigation" dir="nav" task="control">
   <doc>
     <description>
       Meta module for loading proper navigation

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_bmi088_i2c" dir="imu">
+<module name="imu_bmi088_i2c" dir="imu" task="sensors">
   <doc>
     <description>
       IMU with BMI088 via I2C.
@@ -16,8 +16,12 @@
     <define name="IMU_BMI088_CHAN_Y" value="1" description="channel index"/>
     <define name="IMU_BMI088_CHAN_Z" value="2" description="channel index"/>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_bmi088_i2c.h"/>
   </header>

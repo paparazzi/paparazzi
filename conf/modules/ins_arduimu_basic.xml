@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_arduimu_basic" dir="ins">
+<module name="ins_arduimu_basic" dir="ins" task="estimation">
   <doc>
     <description>ArduIMU v2</description>
     <define name="USE_HIGH_ACCEL_FLAG" description="flag to disable accelerometers on high acceleration detection (low speed, high thrust)"/>
@@ -15,6 +15,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@gps</depends>
+    <provides>imu,ins,ahrs</provides>
+  </dep>
   <header>
     <file name="ins_arduimu_basic.h"/>
   </header>

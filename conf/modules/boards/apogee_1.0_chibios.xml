@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="apogee_1.0_chibios" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Apogee 1.0 with ChibiOS
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board_common</depends>
+    <provides>baro</provides>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <define name="USE_I2C1"/>
+    <file name="mpl3115.c" dir="peripherals"/>
+    <file name="baro_board.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+

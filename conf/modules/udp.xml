@@ -7,6 +7,9 @@
       To activate a specific UDP peripheral, define flag USE_UDPX where X is your UDP peripheral number
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="udp.h" dir="mcu_periph"/>
   </header>
@@ -16,7 +19,7 @@
     <file_arch name="udp_arch.c" dir="mcu_periph"/>
     <file name="udp_socket.c" dir="arch/linux" cond="ifeq ($(ARCH), linux)"/>
   </makefile>
-  <makefile target="nps">
+  <makefile target="nps|hitl">
     <include name="arch/linux"/>
     <file name="udp_socket.c" dir="arch/linux"/>
   </makefile>

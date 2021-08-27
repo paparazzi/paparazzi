@@ -86,7 +86,6 @@ static inline void main_init(void)
 
   radio_control_init();
 
-  mcu_int_enable();
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
 

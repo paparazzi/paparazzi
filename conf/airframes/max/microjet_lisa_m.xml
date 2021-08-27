@@ -65,9 +65,7 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
     </module>  
-    </firmware>
 
-  <modules>
     <module name="sys_mon"/>
     <module name="baro_sim"/>
     <module name="air_data">
@@ -77,7 +75,7 @@
     <module name="digital_cam_servo">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER"/>
     </module>
-  </modules>
+  </firmware>
 
   
   <servos>

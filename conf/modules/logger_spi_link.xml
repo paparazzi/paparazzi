@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_spi_link" dir="loggers">
+<module name="logger_spi_link" dir="loggers" task="core">
   <doc>
     <description>Stream all IMU data to external High-Speed SD-logger via SPI</description>
     <configure name="HS_LOG_SPI_DEV" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="SPI bus which the logger is connected to (default: spi1)"/>

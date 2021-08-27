@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_lisa_s_v1.0" dir="imu">
+<module name="imu_lisa_s_v1.0" dir="imu" task="sensors">
   <doc>
     <description>
       IMU on LisaS board.
@@ -16,7 +16,12 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
-  <autoload name="imu_aspirin_v2_common"/>
+  <dep>
+    <depends>imu_aspirin_v2_common</depends>
+    <provides>imu</provides>
+  </dep>
+  <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <makefile target="!sim|nps|fbw">
     <configure name="ASPIRIN_2_SPI_DEV" value="spi1" case="lower|upper"/>
     <configure name="ASPIRIN_2_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>

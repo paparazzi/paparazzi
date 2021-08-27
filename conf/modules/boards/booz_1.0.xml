@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="booz_1.0" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Booz v1.0
+    </description>
+  </doc>
+  <dep>
+    <depends>baro_board_common,dac</depends>
+    <provides>baro</provides>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <file name="baro_board.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+

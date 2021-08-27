@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_lisa_mx_v2.1" dir="imu">
+<module name="imu_lisa_mx_v2.1" dir="imu" task="sensors">
   <doc>
     <description>
       IMU on Lisa/MX v2.1 boards.

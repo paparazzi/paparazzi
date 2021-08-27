@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar_vl53l1x" dir="sonar">
+<module name="sonar_vl53l1x" dir="sonar" task="sensors">
   <doc>
     <description>
      VL53L1X laser ranger AGL driver
@@ -21,6 +21,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>sonar</provides>
+  </dep>
 
   <header>
     <file name="sonar_vl53l1x.h"/>

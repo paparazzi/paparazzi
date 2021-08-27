@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_common">
+<module name="imu_aspirin_common" task="sensors">
   <doc>
     <description>
       Common functionality of Aspirin IMUs.
@@ -22,10 +22,11 @@
     </section>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,i2c,imu_common</depends>
+    <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_aspirin.h" dir="subsystems/imu"/>
   </header>

@@ -51,9 +51,6 @@ extern void reset_to_dfu(void);
                  );                            \
   }
 
-#define mcu_int_enable()  {}
-#define mcu_int_disable() {}
-
 uint32_t timer_get_frequency(uint32_t timer_peripheral);
 
 #endif /* STM32_MCU_ARCH_H */

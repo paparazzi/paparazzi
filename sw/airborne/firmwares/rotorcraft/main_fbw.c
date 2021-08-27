@@ -91,7 +91,6 @@ void main_init(void)
 
   modules_init();
 
-  mcu_int_enable();
 
   intermcu_init();
 

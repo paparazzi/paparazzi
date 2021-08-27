@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_common" dir="ahrs" task="estimation">
+  <doc>
+    <description>
+      Generic AHRS interface.
+      Still requires at least one module providing the actual AHRS implementation.
+    </description>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+  </doc>
+  <dep>
+    <depends>@ahrs</depends>
+  </dep>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+  <init fun="ahrs_init()"/>
+  <makefile target="!sim|fbw">
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <test>
+      <define name="PRIMARY_AHRS" value="ahrs_dcm"/>
+      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
+    </test>
+  </makefile>
+  <makefile target="sim">
+    <define name="USE_AHRS"/>
+    <file name="ahrs.c" dir="subsystems"/>
+  </makefile>
+</module>
+

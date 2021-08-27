@@ -8,7 +8,11 @@
     <configure name="TELEMETRY_INTERMCU_DEV" value="UART3" description="Device used to communicate the telemetry over on the FBW side"/>
     <configure name="TELEMETRY_INTERMCU_BAUD" value="B19200" description="UART baud rate"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
   <!-- <depends>intermcu</depends> -->
+    <provides>datalink,telemetry</provides>
+  </dep>
   <header>
     <file name="telemetry_intermcu.h"/>
   </header>

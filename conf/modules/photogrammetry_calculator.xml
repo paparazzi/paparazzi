@@ -33,7 +33,7 @@
 <!--
   <periodic fun="periodic_1Hz_demo()" freq="1." start="start_demo()" stop="stop_demo()" autorun="TRUE"/>
 -->
-  <makefile>
+  <makefile target="!fbw">
     <define name="photogrammetry_calculator_LED" value="2"/>
     <file name="photogrammetry_calculator.c"/>
   </makefile>

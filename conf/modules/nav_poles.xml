@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_poles" dir="nav">
+<module name="nav_poles" dir="nav" task="control">
   <doc>
     <description>Navigate around two poles</description>
   </doc>
@@ -13,6 +13,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_poles.h"/>
   </header>

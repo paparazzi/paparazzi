@@ -158,14 +158,6 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
-   <module name="led_safety_status">
-     <define name="USE_LED_BODY" value="1"/>
-     <define name="SAFETY_WARNING_LED" value="5"/>
-   </module>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <module name="radio_control" type="ppm">
@@ -188,6 +180,7 @@
     <module name="imu"           type="aspirin_v2.1"/>
     <define name="LISA_M_LONGITUDINAL_X"/>
     <module name="gps"           type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>
@@ -196,6 +189,10 @@
     <!--define name="USE_INS_NAV_INIT"/-->
     <!--module name="stabilization"   type="int_euler"/>
     <module name="ahrs"          type="int_cmpl_euler"/-->
+    <module name="led_safety_status">
+      <define name="USE_LED_BODY" value="1"/>
+      <define name="SAFETY_WARNING_LED" value="5"/>
+    </module>
   </firmware>
 
 </airframe>

@@ -94,13 +94,15 @@ let raw2mk = fun f raw ->
 
 let file2mk = fun f ?(arch = false) dir_name target file ->
   let name = file.Module.filename in
-  let dir_name = match file.Module.directory with Some d -> d
-    | None -> "$(" ^ dir_name ^ ")" in
+  let dir_name = match file.Module.directory with
+    | Some "." -> ""
+    | Some d -> d^"/"
+    | None -> "$(" ^ dir_name ^ ")/" in
   let cond, cond_end = match file.Module.filecond with None -> "", ""
     | Some c -> "\n"^c^"\n", "\nendif" in
   let fmt =
-    if arch then format_of_string "%s%s.srcs += arch/$(ARCH)/%s/%s%s\n"
-    else format_of_string "%s%s.srcs += %s/%s%s\n" in
+    if arch then format_of_string "%s%s.srcs += arch/$(ARCH)/%s%s%s\n"
+    else format_of_string "%s%s.srcs += %s%s%s\n" in
   fprintf f fmt cond target dir_name name cond_end
 
 (* module files and flags except configuration flags *)

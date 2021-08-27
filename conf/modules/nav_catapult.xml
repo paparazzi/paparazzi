@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_catapult" dir="nav">
+<module name="nav_catapult" dir="nav" task="control">
   <doc>
     <description>
       Catapult launch timing system.
@@ -44,6 +44,9 @@ Block example:
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_catapult.h"/>
   </header>

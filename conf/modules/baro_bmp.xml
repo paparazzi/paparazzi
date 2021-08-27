@@ -1,11 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_bmp" dir="sensors">
+<module name="baro_bmp" dir="sensors" task="sensors">
   <doc>
     <description>Bosch BMP085 pressure sensor</description>
     <configure name="BMP_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
     <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
   <header>
     <file name="baro_bmp.h"/>
   </header>

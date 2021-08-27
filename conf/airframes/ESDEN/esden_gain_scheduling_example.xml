@@ -173,16 +173,6 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
-<!--//////////////INCLUDE THE GAIN SCHEDULING MODULE\\\\\\\\\\\\\\\\-->
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
-   <module name="led_safety_status">
-   	 <define name="USE_LED_BODY" value="1"/>
-         <define name="SAFETY_WARNING_LED" value="BODY"/>
-   </module>
-  <!-- FIXME <module name="gain_scheduling"/>-->
-</modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <module name="radio_control" type="ppm">
@@ -206,7 +196,9 @@
     <module name="imu"           type="aspirin_v2.1"/>
     <!--module name="imu"	    type="aspirin_v1.0"/-->
     <module name="gps"           type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="int_quat"/>
+    <!-- FIXME <module name="gain_scheduling"/>-->
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>
       <define name="AHRS_USE_GPS_HEADING" value="1"/>
@@ -215,5 +207,9 @@
     <!--define name="USE_INS_NAV_INIT"/-->
     <!--module name="stabilization"   type="int_euler"/>
     <module name="ahrs"          type="int_cmpl_euler"/-->
+    <module name="led_safety_status">
+      <define name="USE_LED_BODY" value="1"/>
+      <define name="SAFETY_WARNING_LED" value="BODY"/>
+    </module>
   </firmware>
 </airframe>

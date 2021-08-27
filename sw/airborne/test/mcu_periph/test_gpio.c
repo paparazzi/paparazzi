@@ -62,7 +62,6 @@ int main(void)
   unsigned int tmr_2 = sys_time_register_timer(2, NULL);
   sys_time_register_timer(1, main_periodic);
 
-  mcu_int_enable();
 
   while (1) {
     if (sys_time_check_and_ack_timer(tmr_2)) {

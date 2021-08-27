@@ -46,6 +46,9 @@
 #include "subsystems/electrical.h"
 #include "firmwares/fixedwing/main_fbw.h"
 
+/** FIXME dummy definition for compat with rotorcraft **/
+static inline void intermcu_init(void) {}
+static inline void intermcu_periodic(void) {}
 
 /** Data structure shared by fbw and ap processes */
 struct fbw_state {

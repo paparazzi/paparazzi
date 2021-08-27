@@ -11,11 +11,14 @@
       Can be adjusted in the "servos_ppm_hw.h" file to suit your particular receiver.
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_ppm.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="!sim">
-    <define name="ACTUATORS"/>
     <define name="SERVOS_PPM_MAT"/>
     <file_arch name="actuators_ppm_hw.c" dir="subsystems/actuators"/>
   </makefile>

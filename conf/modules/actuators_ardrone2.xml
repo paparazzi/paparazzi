@@ -6,12 +6,15 @@
       Actuators Driver for ARDrone2
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <autoload name="actuators" type="nps"/>
   <header>
     <file name="actuators.h" dir="boards/ardrone"/>
   </header>
   <makefile target="ap">
-    <define name="ACTUATORS"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
     <test firmware="rotorcraft">
       <configure name="SRC_BOARD" value="boards/ardrone"/>

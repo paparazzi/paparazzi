@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_cube" dir="nav">
+<module name="nav_cube" dir="nav" task="control">
   <doc>
     <description>
       Fixedwing Navigation in a cube towards a center.
@@ -24,6 +24,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_cube.h"/>
   </header>

@@ -6,11 +6,10 @@
       Galois Embedded Crypto over transparent datalink
     </description>
   </doc>
-
-  <autoload name="telemetry" type="secure_common"/>
-  <autoload name="rng"/>
-  <autoload name="haclc"/>
-
+  <dep>
+    <depends>telemetry_secure_common,rng,haclc,datalink_common</depends>
+    <provides>datalink,telemetry</provides>
+  </dep>
   <header>
     <file name="gec_dl.h"/>
   </header>

@@ -51,6 +51,11 @@ extern uint8_t  mcu1_status;
  */
 extern void autopilot_firmware_init(void);
 
+/** monitoring task
+ *  should be called at 1Hz
+ */
+extern void monitor_task(void);
+
 #endif /* AUTOPILOT_FIRMWARE_H */
 
 

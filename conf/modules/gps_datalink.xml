@@ -1,13 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_datalink" dir="gps">
+<module name="gps_datalink" dir="gps" task="sensors">
   <doc>
     <description>
       Remote GPS via datalink.
       Parses the REMOTE_GPS and REMOTE_GPS_SMALL datalink messages and publishes it onboard via ABI.
     </description>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>gps,@datalink</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>

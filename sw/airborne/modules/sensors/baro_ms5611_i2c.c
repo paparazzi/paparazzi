@@ -46,6 +46,12 @@
 #define MS5611_SLAVE_ADDR 0xEE
 #endif
 
+/// set to TRUE if baro is actually a MS5607
+#ifndef MS5611_TYPE_MS5607
+#define MS5611_TYPE_MS5607 FALSE
+#endif
+PRINT_CONFIG_VAR(BB_MS5611_TYPE_MS5607)
+
 struct Ms5611_I2c baro_ms5611;
 
 float fbaroms, ftempms;
@@ -59,7 +65,7 @@ float baro_ms5611_sigma2;
 
 void baro_ms5611_init(void)
 {
-  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR, FALSE);
+  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR, MS5611_TYPE_MS5607);
 
   baro_ms5611_enabled = true;
   baro_ms5611_alt_valid = false;

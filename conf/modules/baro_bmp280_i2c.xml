@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_bmp280_i2c" dir="sensors">
+<module name="baro_bmp280_i2c" dir="sensors" task="sensors">
   <doc>
     <description>
       Bosch-Sensortech BMP280xx pressure sensor
@@ -9,6 +9,10 @@
     <define name="BMP280_SLAVE_ADDR" value="BMP280_I2C_ADDR|BMP280_I2C_ADDR_ALT" description="i2c slave address (default BMP280_I2C_ADDR)"/>
     <define name="BMP280_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
   <header>
     <file name="baro_bmp280_i2c.h"/>
   </header>

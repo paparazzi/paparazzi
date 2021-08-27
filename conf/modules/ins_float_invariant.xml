@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_float_invariant" dir="ins">
+<module name="ins_float_invariant" dir="ins" task="estimation">
   <doc>
     <description>
       Invariant INS (in float).
@@ -29,6 +29,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@imu,@gps</depends>
+    <provides>ins,ahrs</provides>
+  </dep>
   <header>
     <file name="ins_float_invariant_wrapper.h" dir="subsystems/ins"/>
   </header>

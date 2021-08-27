@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_apogee_mpu9150" dir="imu">
+<module name="imu_apogee_mpu9150" dir="imu" task="sensors">
   <doc>
     <description>
       Driver for IMU on Apogee board.
@@ -16,6 +16,10 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <autoload name="imu_nps"/>
   <autoload name="imu_apogee"/>
   <header>

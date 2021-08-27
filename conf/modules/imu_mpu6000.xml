@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu6000" dir="imu">
+<module name="imu_mpu6000" dir="imu" task="sensors">
   <doc>
     <description>
       IMU with an Invensense MPU6000 connected via the SPI bus to flightcontroller.
@@ -14,10 +14,11 @@
     <define name="IMU_MPU_USE_MEDIAN_FILTER" value="FALSE" description="Use ONLY in case the MPU has spikes in the raw output due to various reasons. Default is FALSE"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu6000.h" dir="subsystems/imu"/>
   </header>

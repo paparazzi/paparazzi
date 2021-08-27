@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="autopilot_gnc" task="control">
+  <doc>
+    <description>
+      Autopilot Guidance Navigation anc Control
+    </description>
+  </doc>
+  <dep>
+    <depends>system_core,@guidance,@navigation,@commands</depends>
+    <provides>autopilot</provides>
+  </dep>
+  <header>
+    <file name="autopilot.h" dir="."/>
+  </header>
+  <init fun="autopilot_init()"/>
+  <periodic fun="autopilot_periodic()"/>
+  <event fun="autopilot_event()"/>
+  <makefile target="!fbw">
+    <file name="autopilot.c" dir="."/>
+    <file name="autopilot_firmware.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="autopilot_utils.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="autopilot_static.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(USE_GENERATED_AUTOPILOT), TRUE)"/>
+    <file name="autopilot_generated.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(USE_GENERATED_AUTOPILOT), TRUE)"/>
+    <define name="USE_GENERATED_AUTOPILOT" value="1" cond="ifeq ($(USE_GENERATED_AUTOPILOT), TRUE)"/>
+  </makefile>
+  <makefile target="!fbw" firmware="rotorcraft">
+    <file name="autopilot_guided.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+</module>
+

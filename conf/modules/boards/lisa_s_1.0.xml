@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="lisa_s_1.0" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Lisa/S 1.0
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

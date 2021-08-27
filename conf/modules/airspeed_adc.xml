@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_adc" dir="sensors">
+<module name="airspeed_adc" dir="sensors" task="sensors">
   <doc>
     <description>Airspeed sensor (ADC).
     Using the internal ADC.
@@ -19,6 +19,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>adc</depends>
+    <provides>airspeed</provides>
+  </dep>
   <header>
     <file name="airspeed_adc.h"/>
   </header>

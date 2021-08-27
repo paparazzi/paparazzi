@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="AOA_adc" dir="sensors">
+<module name="AOA_adc" dir="sensors" task="sensors">
   <doc>
     <description>Angle of Attack using internal ADC</description>
     <configure name="ADC_AOA" value="ADC_X" description="select the ADC channel to use"/>

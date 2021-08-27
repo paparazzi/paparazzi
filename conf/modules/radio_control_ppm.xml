@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_ppm" dir="radio_control">
+<module name="radio_control_ppm" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Radio control based on PPM input
@@ -13,6 +13,9 @@
     <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="PPM_CONFIG" value="num" description="Select PPM config, as some boards can used different mapping for the ppm input pin"/>
   </doc>
+  <dep>
+    <provides>radio_control</provides>
+  </dep>
   <header>
     <file name="ppm.h" dir="subsystems/radio_control"/>
   </header>

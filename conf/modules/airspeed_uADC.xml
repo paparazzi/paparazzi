@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_uADC" dir="sensors">
+<module name="airspeed_uADC" dir="sensors" task="sensors">
   <doc>
     <description>
       Driver for the Aeroprobe uADC air data computer.
@@ -13,6 +13,10 @@
     </description>
     <configure name="UADC_UART" value="UARTX" description="UART on which computer is connected"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>airspeed,aoa</provides>
+  </dep>
   <header>
     <file name="met_module.h"/>
     <file name="airspeed_uADC.h"/>

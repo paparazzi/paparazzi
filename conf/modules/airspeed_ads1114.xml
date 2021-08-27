@@ -1,12 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_ads1114" dir="sensors">
+<module name="airspeed_ads1114" dir="sensors" task="sensors">
   <doc>
     <description>
       ADS1114 airspeed sensor.
       Module to extend the baro_board module with an airspeed sensor using ads1114 adc
     </description>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>airspeed</provides>
+  </dep>
   <header>
     <file name="airspeed_ads1114.h"/>
   </header>

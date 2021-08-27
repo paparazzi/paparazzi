@@ -19,6 +19,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>uart</depends>
+    <provides>sonar</provides>
+  </dep>
 
   <header>
     <file name="tfmini.h"/>

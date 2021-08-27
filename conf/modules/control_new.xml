@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="control_new" dir="control">
+<module name="control_new" dir="control" task="control">
   <doc>
     <description>
       Full PID control for fixed-wing aircraft.

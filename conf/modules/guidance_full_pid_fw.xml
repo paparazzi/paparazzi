@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_full_pid_fw" dir="guidance">
+<module name="guidance_full_pid_fw" dir="guidance" task="control">
   <doc>
     <description>
       Vertical control for fixedwing aircraft based on PID
@@ -73,6 +73,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
   <header>
     <file name="guidance_v_n.h"/>
     <file name="guidance_h.h"/>

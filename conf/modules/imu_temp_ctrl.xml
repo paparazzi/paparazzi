@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_temp_ctrl" dir="ins">
+<module name="imu_temp_ctrl" dir="ins" task="sensors">
   <doc>
     <description>
       Bebop2/Disco INS (MPU6x) sensor temperature control.

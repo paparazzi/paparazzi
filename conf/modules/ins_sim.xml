@@ -1,12 +1,17 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_sim" dir="ins">
+<module name="ins_sim" dir="ins" task="estimation">
   <doc>
     <description>
      Simulated AHRS and INS.
     </description>
   </doc>
- <autoload name="gps_sim"/>
+  <dep>
+    <depends>@imu,@gps</depends>
+    <provides>ins,ahrs</provides>
+  </dep>
+  <autoload name="imu_sim"/>
+  <autoload name="gps_sim"/>
   <header>
     <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
   </header>

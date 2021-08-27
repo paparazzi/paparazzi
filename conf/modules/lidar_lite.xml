@@ -13,7 +13,6 @@
     <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
     <configure name="LIDAR_LITE_MEDIAN_LENGTH" value="7" description="Length of median filter for Lidar-lite measurements"/>
   </doc>
-
   <settings>
     <dl_settings NAME="Lidar lite">
       <dl_settings NAME="Lidar">
@@ -22,6 +21,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>sonar</provides>
+  </dep>
 
   <header>
     <file name="lidar_lite.h"/>

@@ -52,7 +52,6 @@ static inline void main_init(void)
   radio_control_init();
   downlink_init();
   pprz_dl_init();
-  mcu_int_enable();
 }
 
 extern uint32_t debug_len;

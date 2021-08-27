@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="krooz_sd" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Krooz SD
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+
