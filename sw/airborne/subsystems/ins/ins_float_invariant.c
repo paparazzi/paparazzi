@@ -606,7 +606,7 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   /* as_dot = as * RE */
   s_dot.as = (s->as) * (ins_float_inv.corr.RE);
   // keep as in a reasonable range, so 50% around the nominal value
-  if (s->as < 0.5f || s->as > 1.5f) {
+  if ( ((s->as < 0.5f) && (s_dot.as < 0.f)) || ((s->as > 1.5f) && (s_dot.as > 0.f)) ) {
     s_dot.as = 0.f;
   }
 
