@@ -44,6 +44,9 @@
       <define name="RADIO_FMODE"       value="RADIO_AUX2"/> <!-- Throttle curve select -->
       <define name="RADIO_FBW_MODE"    value="RADIO_AUX3"/> <!-- Switch between AP and FBW control -->
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+
+      <!-- Use the external mag (not in NPS target as then it needs to listen to all) -->
+      <define name="INS_EKF2_MAG_ID" value="MAG_LIS3MDL_SENDER_ID"/>
     </target>
 
     <target name="nps" board="pc">
