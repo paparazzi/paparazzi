@@ -29,6 +29,7 @@
       </module>
 
       <module name="imu" type="px4fmu_v2.4"/>
+      <module name="gps" type="ublox"/>
 
       <!--module name="stabilization" type="indi_simple"/-->
       <module name="stabilization" type="float_euler"/>
