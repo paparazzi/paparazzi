@@ -91,6 +91,10 @@ class CreateModGUI(Ui_CreateModule_Window):
         author = self.author_edit.text()
         email = self.email_edit.text()
         description = unidecode.unidecode(self.description_edit.toPlainText())
+        task = self.task_combo.currentText()
+        depends = self.depends_edit.text()
+        provides = self.provides_edit.text()
+        conflicts = self.conflicts_edit.text()
         self.description_edit.setPlainText(description)
         if name == "" or author == "" or description == "" or email == "":
             self.statusbar.showMessage("Please fill the name, author, mail and description!")
@@ -98,9 +102,13 @@ class CreateModGUI(Ui_CreateModule_Window):
             return
         fc.name = name
         fc.directory = directory
+        fc.task = task
         fc.description = description
         fc.author = author
         fc.email = email
+        fc.depends = depends
+        fc.provides = provides
+        fc.conflicts = conflicts
 
         for comp in self.components:
             if comp.comp_type == "Init":
