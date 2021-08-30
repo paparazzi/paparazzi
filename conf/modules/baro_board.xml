@@ -242,6 +242,8 @@ endif # check board
 ap.CFLAGS += $(BARO_BOARD_CFLAGS)
 ap.srcs += $(BARO_BOARD_SRCS)
 
+else
+ap.CFLAGS += -DUSE_BARO_BOARD=FALSE
 endif # check USE_BARO_BOARD
     </raw>
   </makefile>

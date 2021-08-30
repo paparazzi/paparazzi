@@ -182,6 +182,7 @@
 
   <dep>
     <depends>video_thread,agl_dist,pose_history</depends>
+    <provides>velocity</provides>
   </dep>
 
   <header>

@@ -27,7 +27,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps|@position|@velocity</depends>
     <provides>ins</provides>
   </dep>
 

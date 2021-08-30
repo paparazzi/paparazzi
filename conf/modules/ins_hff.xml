@@ -12,7 +12,7 @@
     <define name="INS_INT_VEL_ID" value="ABI_BROADCAST" description="The ABI sender id of the VELOCITY_ESTIMATE (e.g. from opticflow"/>
   </doc>
   <dep>
-    <depends>@imu,@gps</depends>
+    <depends>@imu,@gps|@position|@velocity</depends>
     <provides>ins</provides>
   </dep>
   <header>
