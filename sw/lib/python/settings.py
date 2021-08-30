@@ -34,7 +34,7 @@ from pprzlink.message import PprzMessage
 
 class PprzSettingsManager:
     def __init__(self, settings_xml_path, ac_id, ivy: IvyMessagesInterface):
-        self.ac_id = ac_id
+        self.ac_id = str(ac_id)
         self.ivy = ivy
         self.settings_grp = PprzSettingsParser.parse(settings_xml_path)
         self.ivy.subscribe(self.update_values, PprzMessage('ground', 'DL_VALUES'))
