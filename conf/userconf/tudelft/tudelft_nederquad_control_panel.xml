@@ -262,7 +262,6 @@
         <arg flag="-c" constant="0.00"/>
         <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
         <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_y"/>
-        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
       </program>
     </session>
     <session name="NEDERQUAD OUTDOOR">
@@ -337,7 +336,7 @@
         <arg flag="-t" constant="LIDAR"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
+        <arg flag="-c" constant="*:telemetry:LIDAR:distance"/>
       </program>
     </session>
     <session name="Optical Flow Calibration">
