@@ -17,6 +17,7 @@
   </header>
   <makefile target="ap">
     <file name="actuators_uavcan.c" dir="subsystems/actuators"/>
+    <file name="pprz_random.c" dir="math"/>
   </makefile>
 </module>
 
