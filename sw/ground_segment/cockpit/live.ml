@@ -918,7 +918,7 @@ let get_telemetry_status = fun alarm _sender vs ->
   let time_link_lost = PprzLink.float_assoc "time_since_last_msg" vs in
   Hashtbl.replace ac.time_link_lost link_id time_link_lost; 
   let time_lost = Hashtbl.fold (fun link_id time best ->
-          Float.min time best
+          if time < best then time else best
     ) ac.time_link_lost 9999.0 in
   (* Update link page *)
   let rx_msgs_rate = PprzLink.float_assoc "rx_bytes_rate" vs

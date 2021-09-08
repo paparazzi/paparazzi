@@ -333,7 +333,7 @@ let send_telemetry_status = fun a ->
         else
             let tslm = U.gettimeofday () -. a.last_msg_date in
             let tsllm = U.gettimeofday () -. link_status.last_link_status_date +. (float_of_int link_status.rx_lost_time) in
-            Float.max tslm tsllm (* greatest time between last message and last message from this link *)
+            if tslm > tsllm then tslm else tsllm (* greatest time between last message and last message from this link *)
     in
     [ "ac_id", PprzLink.String id;
       "link_id", PprzLink.String link_id;
