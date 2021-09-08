@@ -917,6 +917,8 @@ let get_telemetry_status = fun alarm _sender vs ->
   let link_id = try if int_of_string link_id = -1 then "single" else link_id with _ -> link_id in
   let time_link_lost = PprzLink.float_assoc "time_since_last_msg" vs in
   Hashtbl.replace ac.time_link_lost link_id time_link_lost; 
+  if link_id <> "no_id" then
+          Hashtbl.remove ac.time_link_lost "no_id";
   let time_lost = Hashtbl.fold (fun link_id time best ->
           if time < best then time else best
     ) ac.time_link_lost 9999.0 in
