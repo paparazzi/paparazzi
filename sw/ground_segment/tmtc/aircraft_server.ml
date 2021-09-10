@@ -67,6 +67,7 @@ type datalink_status = {
     mutable downlink_rate : int;
  }
 type link_status = {
+    last_link_status_date : float;
     rx_lost_time : int;
     rx_bytes : int;
     rx_msgs : int;
@@ -84,6 +85,7 @@ let datalink_status_init = fun () ->
   }
 let link_status_init = fun () ->
   {
+    last_link_status_date = 0.0;
     rx_lost_time = 9999;
     rx_bytes = 0;
     rx_msgs = 0;

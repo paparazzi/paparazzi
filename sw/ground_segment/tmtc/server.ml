@@ -328,9 +328,16 @@ let send_wind = fun a ->
 let send_telemetry_status = fun a ->
   let id = a.id in
   let tl_payload = fun link_id datalink_status link_status ->
+    let time_since_last_msg = if link_id = "no_id" then
+            U.gettimeofday () -. a.last_msg_date
+        else
+            let tslm = U.gettimeofday () -. a.last_msg_date in
+            let tsllm = U.gettimeofday () -. link_status.last_link_status_date +. (float_of_int link_status.rx_lost_time) in
+            if tslm > tsllm then tslm else tsllm (* greatest time between last message and last message from this link *)
+    in
     [ "ac_id", PprzLink.String id;
       "link_id", PprzLink.String link_id;
-      "time_since_last_msg", PprzLink.Float (U.gettimeofday () -. a.last_msg_date); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
+      "time_since_last_msg", PprzLink.Float (time_since_last_msg); (* don't use rx_lost_time from LINK_REPORT so it also works in simulation *)
       "rx_bytes", PprzLink.Int64 (Int64.of_int link_status.rx_bytes);
       "rx_msgs", PprzLink.Int64 (Int64.of_int link_status.rx_msgs);
       "rx_bytes_rate", PprzLink.Float link_status.rx_bytes_rate;
@@ -874,6 +881,7 @@ let link_report = fun logging _sender vs ->
   try
     let ac = Hashtbl.find aircrafts ac_id in
     let link_status = {
+      last_link_status_date = U.gettimeofday ();
       Aircraft_server.rx_lost_time = PprzLink.int_assoc "rx_lost_time" vs;
       rx_bytes = PprzLink.int_assoc "rx_bytes" vs;
       rx_msgs = PprzLink.int_assoc "rx_msgs" vs;
