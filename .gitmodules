@@ -46,7 +46,7 @@
 	url = https://gitlab.com/libeigen/eigen.git
 [submodule "sw/ext/ecl"]
 	path = sw/ext/ecl
-	url = git@github.com:pcampolucci/PX4-ECL.git
+	url = https://github.com/PX4/ecl.git
 [submodule "sw/ext/matrix"]
 	path = sw/ext/matrix
 	url = https://github.com/PX4/Matrix.git

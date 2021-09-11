@@ -248,34 +248,7 @@ struct ekf2_t
   float offset_y;
   float offset_z;
 
-  // additional flow info for debugging purposes
-  float flow_compensation1;
-  float flow_compensation2;
-  struct flowSample sample_delayed;
-  float delay_flow_x;
-  float delay_flow_y;
-  float delay_gyro_x;
-  float delay_gyro_y;
-  float delay_gyro_z;
-
-  // magnetometer information
-  struct magSample mag_delayed;
-  float mag_x;
-  float mag_y;
-  float mag_z;
-
-  // gps velocity information
-  struct gpsSample gps_delayed;
-  float vel_x;
-  float vel_y;
-  float vel_z;
-
-  // agl value information
-  struct rangeSample range_delayed;
-  float rng;
-
   // optical flow takeover
-  uint8_t flow_takeover;
   float flow_innov;
 
   uint8_t quat_reset_counter;
@@ -287,7 +260,6 @@ struct ekf2_t
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
-static void ins_ekf2_flow_takeover();
 
 /* Static local variables */
 static Ekf ekf;                                   ///< EKF class itself
@@ -300,60 +272,6 @@ struct ekf2_parameters_t ekf2_params;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-
-static void send_debug(struct transport_tx *trans, struct link_device *dev)
-{
-
-  // for validation the following is required
-  // fake_gps_speed
-  // fake_magneto_heading
-  // fake_agl_sensor
-  // real_imu_gyro
-  // real_optical_flow
-
-  // this fundtion will then record the processed values and the estimation of body velocities 
-  // from both the optitrack gps and the flow
-
-  // get flow info
-  ekf2.sample_delayed = ekf.get_flow_sample_delayed();
-  ekf2.delay_flow_x = ekf2.sample_delayed.flowRadXY(0);  // float
-  ekf2.delay_flow_y = ekf2.sample_delayed.flowRadXY(1);  // float
-
-  // get gyro info
-  ekf2.delay_gyro_x = ekf2.sample_delayed.gyroXYZ(0);  // float
-  ekf2.delay_gyro_y = ekf2.sample_delayed.gyroXYZ(1);  // float
-  ekf2.delay_gyro_z = ekf2.sample_delayed.gyroXYZ(2);  // float
-
-  // get gps velocity
-  ekf2.gps_delayed = ekf.get_gps_sample_delayed();
-  ekf2.vel_x = ekf2.gps_delayed.vel(0);  // float
-  ekf2.vel_y = ekf2.gps_delayed.vel(1);  // float
-  ekf2.vel_z = ekf2.gps_delayed.vel(2);  // float
-
-  // get magnetometer
-  ekf2.mag_delayed = ekf.get_mag_sample_delayed();
-  ekf2.mag_x = ekf2.mag_delayed.mag(0);
-  ekf2.mag_y = ekf2.mag_delayed.mag(1);
-  ekf2.mag_z = ekf2.mag_delayed.mag(2);
-
-  // get agl/range
-  ekf2.range_delayed = ekf.get_range_sample_delayed();
-  ekf2.rng = ekf2.range_delayed.rng;
-
-  pprz_msg_send_DEBUG(trans, dev, AC_ID, &ekf2.vel_x, 
-                                         &ekf2.vel_y, 
-                                         &ekf2.vel_z, 
-                                         &ekf2.mag_x, 
-                                         &ekf2.mag_y, 
-                                         &ekf2.mag_z, 
-                                         &ekf2.rng, 
-                                         &ekf2.delay_flow_x, 
-                                         &ekf2.delay_flow_y, 
-                                         &ekf2.delay_gyro_x,
-                                         &ekf2.delay_gyro_y,
-                                         &ekf2.flow_innov,
-                                         &ekf2.flow_takeover);
-}
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
@@ -515,7 +433,6 @@ void ins_ekf2_init(void)
   ekf.set_optical_flow_limits(INS_MAX_FLOW_RATE, INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG, send_debug);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2, send_ins_ekf2);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2_EXT, send_ins_ekf2_ext);
@@ -541,10 +458,7 @@ void ins_ekf2_init(void)
 void ins_ekf2_update(void)
 {
   /* Set EKF settings */
-  ekf.set_in_air_status(true); // ekf.set_in_air_status(autopilot_in_flight());
-
-  /* Check if Flow should take over */
-  ins_ekf2_flow_takeover();
+  ekf.set_in_air_status(autopilot_in_flight());
 
   /* Update the EKF */
   if (ekf2.got_imu_data && ekf.update())
@@ -715,31 +629,6 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   ekf2.got_imu_data = true;
 }
 
-/* Check if the GPS is active, otherwise increase flow power */
-static void ins_ekf2_flow_takeover(){
-
-  // Check if the agl is reasonable
-  struct rangeSample range = ekf.get_range_sample_delayed();
-  float agl = range.rng;
-
-  // Check if the GPS is really lost
-  uint32_t control_mode;
-  ekf.get_control_mode(&control_mode);
-  uint32_t fix_status = (control_mode >> 2) & 1;
-
-  if (!fix_status && agl < INS_SONAR_MAX_RANGE*1.5) {
-    ekf2.flow_takeover = 1;
-    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE_LOST_GPS;
-    ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY_LOST_GPS;
-  } else {
-    ekf2.flow_takeover = 0;
-    ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
-    ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
-  }
-
-  ekf2.flow_innov = ekf_params->flow_innov_gate;
-}
-
 /* Update INS based on Baro information */
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float pressure)
 {
@@ -899,13 +788,13 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   NOTE: pure rotations should result in same flow_x and 
   gyro_roll and same flow_y and gyro_pitch */
   ekf2.flow_quality = quality;
-  ekf2.flow_x = RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
+  ekf2.flow_x = RadOfDeg(flow_y) * (1e-6 * ekf2.flow_dt);                       // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
   ekf2.flow_y = - RadOfDeg(flow_x) * (1e-6 * ekf2.flow_dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
-  ekf2.gyro_roll = NAN;                                                         // ekf2.gyro.p * (1e-6 * ekf2.flow_dt);
-  ekf2.gyro_pitch = NAN;                                                        // ekf2.gyro.q * (1e-6 * ekf2.flow_dt);
-  ekf2.gyro_yaw = NAN;                                                          // ekf2.gyro.r * (1e-6 * ekf2.flow_dt);
+  ekf2.gyro_roll = NAN;
+  ekf2.gyro_pitch = NAN;
+  ekf2.gyro_yaw = NAN;
 
-  /* once callback initaiated, build the 
+  /* once callback initiated, build the 
   optical flow message with what is received */
   flow_msg.quality = quality;                                                   // quality indicator between 0 and 255
   flow_msg.flowdata = Vector2f(ekf2.flow_x, ekf2.flow_y);                       // measured delta angle of the image about the X and Y body axes (rad), RH rotaton is positive
