@@ -22,7 +22,6 @@
 
 /** @file modules/optical_flow/mateksys_3901_l0x.h
  *  @brief Driver for the mateksys_3901_l0x sensor via MSPx protocol output
- *
  */
 
 /*
@@ -44,7 +43,7 @@ https://github.com/iNavFlight/inav/wiki/MSP-V2
 #define MSP2_SENSOR_OPTIC_FLOW      0x1F02
 
 enum Mateksys3901l0XParseStatus {
-  MATEKSYS_3901_L0X_INITIALIZE,               // initialization
+  MATEKSYS_3901_L0X_INITIALIZE,
   MATEKSYS_3901_L0X_PARSE_HEAD,               
   MATEKSYS_3901_L0X_PARSE_HEAD2,             
   MATEKSYS_3901_L0X_PARSE_DIRECTION,          
@@ -52,13 +51,13 @@ enum Mateksys3901l0XParseStatus {
   MATEKSYS_3901_L0X_PARSE_FUNCTION_ID_B1, 
   MATEKSYS_3901_L0X_PARSE_FUNCTION_ID_B2,     
   MATEKSYS_3901_L0X_PARSE_SIZE,
-  MATEKSYS_3901_L0X_PARSE_POINTER,             // ??
-  MATEKSYS_3901_L0X_PARSE_DISTANCEQUALITY,     // used if lidar message
+  MATEKSYS_3901_L0X_PARSE_POINTER,
+  MATEKSYS_3901_L0X_PARSE_DISTANCEQUALITY,
   MATEKSYS_3901_L0X_PARSE_DISTANCE_B1,
   MATEKSYS_3901_L0X_PARSE_DISTANCE_B2,
   MATEKSYS_3901_L0X_PARSE_DISTANCE_B3,
   MATEKSYS_3901_L0X_PARSE_DISTANCE_B4,
-  MATEKSYS_3901_L0X_PARSE_MOTIONQUALITY,       // used if flow message
+  MATEKSYS_3901_L0X_PARSE_MOTIONQUALITY,
   MATEKSYS_3901_L0X_PARSE_MOTIONY_B1,
   MATEKSYS_3901_L0X_PARSE_MOTIONY_B2,
   MATEKSYS_3901_L0X_PARSE_MOTIONY_B3,
@@ -73,7 +72,7 @@ enum Mateksys3901l0XParseStatus {
 struct Mateksys3901l0X {
   struct link_device *device;
   enum Mateksys3901l0XParseStatus parse_status;
-  float  time_usec;
+  float    time_usec;
   uint8_t  sensor_id;
   uint8_t  motion_quality;
   int32_t  motionX_temp;
@@ -83,12 +82,12 @@ struct Mateksys3901l0X {
   uint8_t  distancemm_quality;
   int32_t  distancemm_temp;
   int32_t  distancemm;
-  float  distance_compensated;
-  float  velocityX;
-  float  velocityY;
+  float    distance_compensated;
+  float    velocityX;
+  float    velocityY;
   uint8_t  parse_crc; 
-  float scaler_x;
-  float scaler_y;
+  float    scaler_x;
+  float    scaler_y;
 };
 
 extern struct Mateksys3901l0X mateksys3901l0x;
