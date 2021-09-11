@@ -73,19 +73,19 @@ PRINT_CONFIG_VAR(INS_EKF2_AGL_ID)
 
 /** Default AGL sensor minimum range */
 #ifndef INS_SONAR_MIN_RANGE
-#define INS_SONAR_MIN_RANGE
+#define INS_SONAR_MIN_RANGE 0.001
 #endif
 PRINT_CONFIG_VAR(INS_SONAR_MIN_RANGE)
 
 /** Default AGL sensor maximum range */
 #ifndef INS_SONAR_MAX_RANGE
-#define INS_SONAR_MAX_RANGE
+#define INS_SONAR_MAX_RANGE 4
 #endif
 PRINT_CONFIG_VAR(INS_SONAR_MAX_RANGE)
 
 /** Default AGL sensor maximum range */
 #ifndef USE_RANGE_AID
-#define USE_RANGE_AID
+#define USE_RANGE_AID 1
 #endif
 PRINT_CONFIG_VAR(USE_RANGE_AID)
 
@@ -131,55 +131,55 @@ PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
 /* Default flow/radar message delay (in ms) */
 #ifndef INS_FLOW_SENSOR_DELAY
-#define INS_FLOW_SENSOR_DELAY
+#define INS_FLOW_SENSOR_DELAY 15
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
 
 /* Default minimum accepted quality (1 to 255) */
 #ifndef INS_MIN_FLOW_QUALITY
-#define INS_MIN_FLOW_QUALITY
+#define INS_MIN_FLOW_QUALITY  100
 #endif
 PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
 
 /* Max flow rate that the sensor can measure (rad/sec) */
 #ifndef INS_MAX_FLOW_RATE
-#define INS_MAX_FLOW_RATE
+#define INS_MAX_FLOW_RATE 200
 #endif
 PRINT_CONFIG_VAR(INS_MAX_FLOW_RATE)
 
 /* Flow sensor X offset from IMU position in meters */
 #ifndef FLOW_OFFSET_X
-#define FLOW_OFFSET_X
+#define FLOW_OFFSET_X 0
 #endif
 PRINT_CONFIG_VAR(FLOW_OFFSET_X)
 
 /* Flow sensor Y offset from IMU position in meters */
 #ifndef FLOW_OFFSET_Y
-#define FLOW_OFFSET_Y
+#define FLOW_OFFSET_Y 0
 #endif
 PRINT_CONFIG_VAR(FLOW_OFFSET_Y)
 
 /* Flow sensor Z offset from IMU position in meters */
 #ifndef FLOW_OFFSET_Z
-#define FLOW_OFFSET_Z
+#define FLOW_OFFSET_Z 0
 #endif
 PRINT_CONFIG_VAR(FLOW_OFFSET_Z)
 
 /* Flow sensor noise in rad/sec */
 #ifndef INS_FLOW_NOISE
-#define INS_FLOW_NOISE
+#define INS_FLOW_NOISE 0.03
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_NOISE)
 
 /* Flow sensor noise at qmin in rad/sec */
 #ifndef INS_FLOW_NOISE_QMIN
-#define INS_FLOW_NOISE_QMIN
+#define INS_FLOW_NOISE_QMIN 0.05
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_NOISE_QMIN)
 
 /* Flow sensor innovation gate */
 #ifndef INS_FLOW_INNOV_GATE
-#define INS_FLOW_INNOV_GATE
+#define INS_FLOW_INNOV_GATE 4
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE)
 
