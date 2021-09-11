@@ -27,7 +27,7 @@
     <file name="lidar_lite.h"/>
   </header>
   <init fun="lidar_lite_init()"/>
-  <periodic fun="lidar_lite_downlink()" freq="4" autorun="TRUE"/> <!-- for debug -->
+  <periodic fun="lidar_lite_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
   <periodic fun="lidar_lite_periodic()" freq="100"/> <!-- poll data, since we have 4 states in the state machine, divide the frequency
    by 4 to get the actual number of readings per second. For example 100Hz = 25 range readings -->
   <event fun="lidar_lite_event()"/>

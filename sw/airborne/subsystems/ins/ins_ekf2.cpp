@@ -141,12 +141,6 @@ PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
 #endif
 PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
 
-/* Default minimum accepted quality (1 to 255) */
-#ifndef INS_MIN_FLOW_QUALITY_LOST_GPS
-#define INS_MIN_FLOW_QUALITY_LOST_GPS
-#endif
-PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY_LOST_GPS)
-
 /* Max flow rate that the sensor can measure (rad/sec) */
 #ifndef INS_MAX_FLOW_RATE
 #define INS_MAX_FLOW_RATE
@@ -188,12 +182,6 @@ PRINT_CONFIG_VAR(INS_FLOW_NOISE_QMIN)
 #define INS_FLOW_INNOV_GATE
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE)
-
-/* Flow sensor innovation gate when the GPS is lost */
-#ifndef INS_FLOW_INNOV_GATE_LOST_GPS
-#define INS_FLOW_INNOV_GATE_LOST_GPS
-#endif
-PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE_LOST_GPS)
 
 /* All registered ABI events */
 static abi_event agl_ev;
