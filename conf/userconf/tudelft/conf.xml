@@ -309,10 +309,6 @@
    gui_color="blue"
    release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
   />
-
-   gui_color="blue"
-   release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
-  />
   <aircraft
    name="OrigamiMXS_wifi_indi_stereocam"
    ac_id="15"
