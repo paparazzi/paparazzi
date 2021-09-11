@@ -6,12 +6,6 @@
   <process name="Main">
 
     <mode name="default" key_press="d">
-      <message name="DEBUG"                    period="0.05"/>
-      <message name="IMU_ACCEL_RAW"            period=".05"/>
-      <message name="IMU_GYRO_RAW"             period=".05"/>
-      <message name="IMU_MAG_RAW"              period=".05"/>
-      <message name="BARO_MS5611"              period=".1"/>
-      <message name="OPTICAL_FLOW"             period="0.01"/>
       <message name="AUTOPILOT_VERSION"        period="11.1"/>
       <message name="DL_VALUE"                 period="1.1"/>
       <message name="ROTORCRAFT_STATUS"        period="1.2"/>
@@ -39,11 +33,8 @@
       <message name="DIVERGENCE"               period="0.05"/>
       <message name="DRAGSPEED"                period="0.02"/>
       <message name="LOGGER_STATUS"            period="5.1"/>
-      <message name="LIDAR"                    period="0.5"/>
+      <message name="LIDAR"                    period="1.2"/>
       <message name="INS_EKF2"                 period=".25"/>
-      <message name="IMU_GYRO_SCALED"          period=".05"/>
-      <message name="IMU_MAG_SCALED"           period=".05"/>
-      <message name="IMU_ACCEL_SCALED"         period=".05"/>
     </mode>
 
     <mode name="ppm">
@@ -65,9 +56,7 @@
       <message name="IMU_GYRO_RAW"      period=".05"/>
       <message name="IMU_MAG_RAW"       period=".05"/>
       <message name="BARO_RAW"          period=".1"/>
-      <message name="ARDRONE_NAVDATA"   period=".05"/>
-      <message name="OPTICAL_FLOW"      period="0.05"/>
-      <message name="IMU_GYRO_SCALED"          period=".05"/>
+      <message name="ARDRONE_NAVDATA" period=".05"/>
     </mode>
 
     <mode name="scaled_sensors">
@@ -173,14 +162,10 @@
       <message name="ALIVE"             period="2.1"/>
       <message name="GUIDANCE_H_INT"    period="0.05"/>
       <message name="ROTORCRAFT_TUNE_HOVER"    period=".1"/>
+      <!-- <message name="GPS_INT"               period=".20"/> -->
+      <!--<message name="INS2"              period=".05"/>
+      <message name="INS3"              period=".20"/>-->
       <message name="INS_REF"           period="5.1"/>
-    </mode>
-
-    <mode name="optical_flow_calibration">
-      <message name="ROTORCRAFT_STATUS" period="1.2"/>
-      <message name="ALIVE"             period="2.1"/>
-      <message name="OPTICAL_FLOW"      period="0.05"/>
-      <message name="IMU_GYRO_SCALED"   period="0.05"/>
     </mode>
 
     <mode name="RTCM3" >
@@ -193,23 +178,27 @@
 
   <process name="FlightRecorder">
     <mode name="default">
-      <message name="ROTORCRAFT_FP"            period="0.01"/>
+      <message name="AUTOPILOT_VERSION"        period="11.1"/>
+      <message name="DL_VALUE"                 period="1.1"/>
+      <message name="ROTORCRAFT_STATUS"        period="1.2"/>
+      <message name="ROTORCRAFT_FP"            period="0.25"/>
+      <message name="INS_REF"                  period="5.1"/>
+      <message name="ROTORCRAFT_NAV_STATUS"    period="1.6"/>
+      <message name="WP_MOVED"                 period="1.3"/>
       <message name="GPS_INT"                  period=".1"/>
+      <message name="INS"                      period=".1"/>
+      <message name="I2C_ERRORS"               period="4.1"/>
+      <message name="UART_ERRORS"              period="3.1"/>
+      <message name="ENERGY"                   period="2.5"/>
+      <message name="DATALINK_REPORT"          period="5.1"/>
+      <message name="STATE_FILTER_STATUS"      period="3.2"/>
+      <message name="AIR_DATA"                 period="1.3"/>
+      <message name="SURVEY"                   period="2.5"/>
       <message name="IMU_GYRO_SCALED"          period=".075"/>
       <message name="IMU_ACCEL_SCALED"         period=".075"/>
       <message name="IMU_MAG_SCALED"           period=".2"/>
-      <message name="IMU_GYRO_RAW"             period=".075"/>
-      <message name="IMU_ACCEL_RAW"            period=".075"/>
-      <message name="IMU_MAG_RAW"              period=".2"/>
-      <message name="OPTICAL_FLOW"             period="0.01"/>
-      <message name="INS_EKF2"                 period="0.05"/>
-      <message name="ROTORCRAFT_CMD"           period=".05"/>
-      <message name="ROTORCRAFT_STATUS"        period="0.05"/>
-      <message name="INS_REF"                  period="0.1"/>
-      <message name="GUIDANCE_H_INT"           period="0.1"/>
-      <message name="GUIDANCE_H_REF_INT"       period="0.1"/>
+      <message name="LIDAR"                    period="0.05"/>
     </mode>
   </process>
 
 </telemetry>
-
