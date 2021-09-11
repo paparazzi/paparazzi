@@ -35,6 +35,12 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 
+/** Set to 1 to receive also magnetometer ABI messages */
+#ifndef GPS_DATALINK_USE_MAG
+#define GPS_DATALINK_USE_MAG 1
+#endif
+PRINT_CONFIG_VAR(GPS_DATALINK_USE_MAG)
+
 struct LtpDef_i ltp_def;
 
 struct GpsState gps_datalink;
@@ -170,22 +176,28 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
-  // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
 
-  struct Int32Vect3 mag;
-  struct FloatVect3 mag_real;
-  // course from gps in [0, 2*Pi]*1e7 (CW/north)
-  float heading = course/1e7;
-  mag_real.x = cos(heading);
-  mag_real.y = -sin(heading);
-  mag_real.z = 0;
-  MAGS_BFP_OF_REAL(mag, mag_real);
+  // if selected, publish magnetometer data
+  if (GPS_DATALINK_USE_MAG) {
 
-  // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
-  AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+    struct Int32Vect3 mag;
+    struct FloatVect3 mag_real;
+    // course from gps in [0, 2*Pi]*1e7 (CW/north)
+    float heading = course/1e7;
+    mag_real.x = cos(heading);
+    mag_real.y = -sin(heading);
+    mag_real.z = 0;
+    MAGS_BFP_OF_REAL(mag, mag_real);
+
+    // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
+    AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+
+  }
+
+  // publish new GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 }
 
 /** Parse the REMOTE_GPS_LOCAL datalink packet */
@@ -238,17 +250,27 @@ static void parse_gps_datalink_local(float enu_x, float enu_y, float enu_z,
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
-  struct Int32Vect3 mag;
-  struct FloatVect3 mag_real;
-  float heading = course/1e7;
-  mag_real.x = cos(heading);
-  mag_real.y = -sin(heading);
-  mag_real.z = 0;
-  MAGS_BFP_OF_REAL(mag, mag_real);
-
-  // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+
+  // if selected, publish magnetometer data
+  if (GPS_DATALINK_USE_MAG) {
+
+    struct Int32Vect3 mag;
+    struct FloatVect3 mag_real;
+    // course from gps in [0, 2*Pi]*1e7 (CW/north)
+    float heading = course/1e7;
+    mag_real.x = cos(heading);
+    mag_real.y = -sin(heading);
+    mag_real.z = 0;
+    MAGS_BFP_OF_REAL(mag, mag_real);
+
+    // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
+    AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+
+  }
+
+  // Publish GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 

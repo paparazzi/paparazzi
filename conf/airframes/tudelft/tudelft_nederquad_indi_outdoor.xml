@@ -56,15 +56,15 @@
           <define name="IMU_MPU_Z_SIGN" value="-1"/>
       </module>
      
-      <module name="gps" type="ublox" >
+      <!-- <module name="gps" type="ublox" >
         <configure name="GPS_BAUD" value="B57600"/>
       </module>
 
-      <module name="gps" type="ubx_ucenter" />
+      <module name="gps" type="ubx_ucenter" /> -->
 
-      <!-- <module name="gps" type="datalink" >
+      <module name="gps" type="datalink" >
         <configure name="GPS_BAUD" value="B57600"/>
-      </module> -->
+      </module>
 
       <module name="stabilization" type="indi_simple" />
 
