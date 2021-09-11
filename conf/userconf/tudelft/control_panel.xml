@@ -67,7 +67,7 @@
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
   </section>
   <section name="sessions">
-      <session name="EKF Pietro">
+      <session name="EKF Full">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
         <arg flag="-s" constant="57600"/>
