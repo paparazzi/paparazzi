@@ -14,27 +14,19 @@
     </target>
 
     <configure name="PERIODIC_FREQUENCY"  value="500"/>
-
     <module name="telemetry"     type="transparent">
-      <configure name="MODEM_PORT" value="UART2"/>
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
-
     <module name="imu" type="mpu6000"/>
-
     <module name="gps" type="ublox">
       <!--configure name="GPS_PORT" value="UART1"/-->
     </module>
-
-    <!-- <module name="gps"  type="ubx_ucenter"/> -->
-
+    <module name="gps"  type="ubx_ucenter"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
     </module>
-
-    <!-- <module name="ins" type="alt_float"/> -->
-    <module name="ins" type="ekf2"/>
+    <module name="ins" type="alt_float"/>
 
     <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
@@ -56,10 +48,10 @@
     </module>
 
     <!-- Logger -->
-    <module name="tlsf"/>
+    <!--module name="tlsf"/>
     <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/>
-    <!-- <module name="flight_recorder"/ -->
+    <module name="flight_recorder"/-->
 
   </firmware>
 
