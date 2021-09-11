@@ -173,55 +173,19 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
 
-  // UNIT LEGEND
-  // hmsl --> mm
-  // course --> [0, 2*Pi]*1e7 (CW/north)
-  // ecef_xd/yd --> cm/sec (earth centered earth fixed, int32)
-  // flow_x/y --> deg/sec
-  // ground_distance --> mm
-  // distance message lidar --> float meters
-
   struct Int32Vect3 mag;
   struct FloatVect3 mag_real;
+  // course from gps in [0, 2*Pi]*1e7 (CW/north)
   float heading = course/1e7;
   mag_real.x = cos(heading);
   mag_real.y = -sin(heading);
   mag_real.z = 0;
   MAGS_BFP_OF_REAL(mag, mag_real);
 
-  // struct fake_flow flow;
-
-  // // populate flow message
-  // flow.time_sec = NAN;
-  // flow.sensor_id = 1;
-  // flow.flow_x = DegOfRad(atan(ecef_xd/(hmsl/10)));
-  // flow.flow_y = DegOfRad(atan(ecef_yd/(hmsl/10)));
-  // flow.flow_comp_m_x = 0;
-  // flow.flow_comp_m_y = 0;
-  // flow.flow_quality = 255;
-  // flow.ground_distance = hmsl;
-  // flow.distance_quality = 255;
-
-  // float flowtest = DegOfRad(atan(ecef_xd/(hmsl/10)));
-
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
   AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
-  // AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts, flow.flow_x, flow.flow_y, 0, 0, flow.flow_quality, 0);
-  // AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, flow.ground_distance);
-
-  // Send magnetometer fake message
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
-
-  // // Send optical flow fake message
-  // // DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice, &flow.time_sec, &flow.sensor_id, &flow.flow_x, &flow.flow_y, 
-  // // &flow.flow_comp_m_x, &flow.flow_comp_m_y, &flow.flow_quality, &flow.ground_distance, 0, &flow.distance_quality);
-
-  // // Send AGL fake message 
-  // DOWNLINK_SEND_LIDAR(DefaultChannel, DefaultDevice, &flow.ground_distance, 0, 0);
-
-  // // Send additional values to debug the problem
-  // DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z, &gps_datalink.ecef_vel.x, &gps_datalink.ecef_vel.y, 0, 0, 0, 0, 0, 0, 0);
 }
 
 /** Parse the REMOTE_GPS_LOCAL datalink packet */
