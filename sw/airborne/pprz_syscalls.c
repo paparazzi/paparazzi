@@ -73,6 +73,9 @@
 
 #ifndef USE_CHIBIOS_RTOS // already defined by chibios syscalls
 
+
+/***************************************************************************/
+
 __attribute__((used))
 int _read_r(struct _reent *r, int file, char * ptr, int len)
 {
