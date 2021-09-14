@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="airspeed_otf" dir="sensors">
+<module name="airspeed_otf" dir="sensors" task="sensors">
   <doc>
     <description>
       OTF! airspeed/flow angle sensor
@@ -14,6 +14,10 @@
     </description>
     <configure name="OTF_UART" value="UARTX" description="UART on which computer is connected"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>airspeed,aoa</provides>
+  </dep>
   <header>
     <file name="met_module.h"/>
     <file name="airspeed_otf.h"/>

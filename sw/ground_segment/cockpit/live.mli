@@ -67,7 +67,8 @@ type aircraft = private {
     mutable airspeed : float;
     mutable version : string;
     mutable last_gps_acc : gps_acc_level;
-    mutable last_bat_warn_time : float
+    mutable last_bat_warn_time : float;
+    time_link_lost: (string, float) Hashtbl.t
   }
 
 val aircrafts : (string, aircraft) Hashtbl.t

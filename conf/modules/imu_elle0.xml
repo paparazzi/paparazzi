@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_elle0" dir="imu">
+<module name="imu_elle0" dir="imu" task="sensors">
   <doc>
     <description>
       MPU9250 IMU via SPI.

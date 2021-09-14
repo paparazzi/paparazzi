@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_udp" dir="gps">
+<module name="gps_udp" dir="gps" task="sensors">
   <doc>
     <description>
       GPS via UDP.
@@ -10,7 +10,10 @@
     </description>
     <define name="GPS_UDP_HOST" value="192.168.1.2" description="host sending GPS messages"/>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>udp,gps</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>

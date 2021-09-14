@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_hff" dir="ins">
+<module name="ins_hff" dir="ins" task="estimation">
   <doc>
     <description>
       INS with float vertical and horizontal filters.
@@ -11,6 +11,10 @@
     <define name="INS_INT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
     <define name="INS_INT_VEL_ID" value="ABI_BROADCAST" description="The ABI sender id of the VELOCITY_ESTIMATE (e.g. from opticflow"/>
   </doc>
+  <dep>
+    <depends>@imu,@gps|@position|@velocity</depends>
+    <provides>ins</provides>
+  </dep>
   <header>
     <file name="ins_int.h" dir="subsystems/ins"/>
   </header>

@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="lisa_l_1.0" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Lisa/L 1.0
+    </description>
+  </doc>
+  <dep>
+    <depends>i2c,baro_board_common</depends>
+    <provides>baro</provides>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <define name="USE_I2C2"/>
+    <file name="baro_board.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+

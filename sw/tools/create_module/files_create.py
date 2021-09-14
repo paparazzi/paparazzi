@@ -2,6 +2,7 @@
 import os
 from lxml import etree
 from collections import namedtuple
+import datetime
 
 
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC")
@@ -46,9 +47,14 @@ class FilesCreate:
         self.src = ""
         self._name = ""
         self._directory = ""
+        self._task = ""
         self._description = ""
         self._author = ""
         self._email = ""
+        self._year = datetime.datetime.now().year
+        self._depends = ""
+        self._provides = ""
+        self._conflicts = ""
         self.inits = []
         self.periodics = []
         self.events = []
@@ -74,6 +80,16 @@ class FilesCreate:
         self._directory = d.lower()
 
     @property
+    def task(self):
+        if self._task == "":
+            return None
+        return self._task
+
+    @task.setter
+    def task(self, t):
+        self._task = t
+
+    @property
     def description(self):
         return self._description
 
@@ -96,6 +112,44 @@ class FilesCreate:
     @email.setter
     def email(self, email):
         self._email = "<{}>".format(email)
+
+    @property
+    def year(self):
+        return self._year
+
+    @property
+    def depends(self):
+        if self._depends == "":
+            return None
+        return self._depends
+
+    @depends.setter
+    def depends(self, depends):
+        self._depends = depends
+
+    @property
+    def provides(self):
+        if self._provides == "":
+            return None
+        return self._provides
+
+    @provides.setter
+    def provides(self, provides):
+        self._provides = provides
+
+    @property
+    def conflicts(self):
+        if self._conflicts == "":
+            return None
+        return self._conflicts
+
+    @conflicts.setter
+    def conflicts(self, conflicts):
+        self._conflicts = conflicts
+
+    def has_dep(self):
+        # at least one is not empty
+        return self._depends != "" or self._provides != "" or self._conflicts != ""
 
     def add_init(self, fun):
         fun = fun.strip("()")
@@ -135,12 +189,31 @@ class FilesCreate:
         self.xml.attrib["name"] = self.name
         # set directory
         self.xml.attrib["dir"] = self.directory
-        #set description
+        # set task
+        if self.task is not None:
+            self.xml.attrib["task"] = self.task
+        # set description
         description = etree.Element("description")
         description.text = self.description
         doc = etree.Element("doc")
         doc.append(description)
         self.xml.append(doc)
+        # set dependencies
+        if self.has_dep():
+            dep = etree.Element("dep")
+            if self.depends is not None:
+                depends = etree.Element("depends")
+                depends.text = self.depends
+                dep.append(depends)
+            if self.provides is not None:
+                provides = etree.Element("provides")
+                provides.text = self.provides
+                dep.append(provides)
+            if self.conflicts is not None:
+                conflicts = etree.Element("conflicts")
+                conflicts.text = self.conflicts
+                dep.append(conflicts)
+            self.xml.append(dep)
         # set header
         h_file = etree.Element("file")
         h_file.attrib["name"] = "{}.h".format(self.name)
@@ -188,8 +261,8 @@ class FilesCreate:
         self.xml.append(makefile)
 
     def build_src(self, licence="GPLv2"):
-        cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(
-                author=self.author, email=self.email, licence=LICENCES[licence])
+        cop = "/*\n * Copyright (C) {year} {author} {email}\n{licence}\n */".format(
+                year=self.year, author=self.author, email=self.email, licence=LICENCES[licence])
         description = "/** @file \"modules/{dir}/{name}.c\"\n * @author {author} {email}\n * {description}\n */".format(
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
         include = "#include \"modules/{dir}/{name}.h\"".format(dir=self.directory, name=self.name)
@@ -221,7 +294,7 @@ class FilesCreate:
         self.src = "{}\n\n{}\n\n{}\n\n{}\n".format(cop, description, include, declarations)
 
     def build_header(self, licence="GPLv2"):
-        cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(author=self.author, email=self.email, licence=LICENCES[licence])
+        cop = "/*\n * Copyright (C) {year} {author} {email}\n{licence}\n */".format(year=self.year, author=self.author, email=self.email, licence=LICENCES[licence])
         description = "/** @file \"modules/{dir}/{name}.h\"\n * @author {author} {email}\n * {description}\n */".format(
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
         includes = ""

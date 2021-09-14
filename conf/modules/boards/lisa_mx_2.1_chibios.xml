@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="lisa_mx_2.1_chibios" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Lisa/MX 2.1 with ChibiOS
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

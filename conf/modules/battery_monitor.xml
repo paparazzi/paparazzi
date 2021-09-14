@@ -34,6 +34,9 @@
 	  	</dl_settings>
 	  </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+  </dep>
 
   <header>
     <file name="battery_monitor.h"/>

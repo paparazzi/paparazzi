@@ -144,7 +144,8 @@ type periodic = {
     delay: float option;
     start: string option;
     stop: string option;
-    autorun: autorun
+    autorun: autorun;
+    cond: string option
   }
 
 let parse_periodic = fun xml ->
@@ -177,25 +178,28 @@ let parse_periodic = fun xml ->
       end
    in
   { call; fname; period_freq; delay = getf "delay";
-    start = get "start"; stop = get "stop";
+    start = get "start"; stop = get "stop"; cond = get "cond";
     autorun = match get "autorun" with
       | None -> Lock
       | Some "TRUE" | Some "true" -> True
       | Some "FALSE" | Some "false" -> False
       | Some "LOCK" | Some "lock" -> Lock
-      | Some _ -> failwith "Module.parse_periodic: unreachable" }
+      | Some a -> failwith ("Module.parse_periodic: unknown autorun: " ^ a) }
 
-type event = { ev: string; handlers: string list }
+type init = { iname: string; cond: string option }
 
-let make_event = fun f handlers ->
+let make_init = fun f cond ->
+  { iname = f;
+    cond = cond
+  }
+
+type event = { ev: string; cond: string option }
+
+let make_event = fun f cond ->
   { ev = f;
-    handlers = List.map
-      (function
-        | Xml.Element ("handler", _, []) as xml -> Xml.attrib xml "fun"
-        | _ -> failwith "Module.make_event: unreachable"
-      ) handlers }
+    cond = cond
+  }
 
-let fprint_event = fun ch e -> Printf.fprintf ch "%s;\n" e.ev
 
 type datalink = { message: string; func: string }
 
@@ -261,7 +265,7 @@ type t = {
   autoloads: autoload list;
   settings: Settings.t list;
   headers: file list;
-  inits: string list;
+  inits: init list;
   periodics: periodic list;
   events: event list;
   datalinks: datalink list;
@@ -282,8 +286,8 @@ let rec parse_xml m = function
     and dir = ExtXml.attrib_opt xml "dir"
     and task = ExtXml.attrib_opt xml "task" in
     List.fold_left parse_xml { m with name; dir; task; xml } children
-  | Xml.Element ("doc", _, _) as xml -> { m with doc = xml }
-  (*| Xml.Element ("settings_file", [("name", name)], files) -> m (* TODO : remove unused *)*)
+  | Xml.Element ("doc", _, _) as xml ->
+    { m with doc = xml }
   | Xml.Element ("settings", _, _) as xml ->
     { m with settings = Settings.from_xml xml :: m.settings }
   | Xml.Element ("dep", _, _) as xml ->
@@ -297,12 +301,15 @@ let rec parse_xml m = function
                List.fold_left (fun acc f -> parse_file f :: acc) m.headers files
     }
   | Xml.Element ("init", _, []) as xml ->
-    { m with inits = Xml.attrib xml "fun" :: m.inits }
+    let f = Xml.attrib xml "fun"
+    and c = ExtXml.attrib_opt xml "cond" in
+    { m with inits = make_init f c :: m.inits }
   | Xml.Element ("periodic", _, []) as xml ->
     { m with periodics = parse_periodic xml :: m.periodics }
-  | Xml.Element ("event", _, handlers) as xml ->
-    let f = Xml.attrib xml "fun" in
-    { m with events = make_event f handlers :: m.events }
+  | Xml.Element ("event", _, []) as xml ->
+    let f = Xml.attrib xml "fun"
+    and c = ExtXml.attrib_opt xml "cond" in
+    { m with events = make_event f c :: m.events }
   | Xml.Element ("datalink", _, []) as xml ->
     let message = Xml.attrib xml "message"
     and func = Xml.attrib xml "fun" in

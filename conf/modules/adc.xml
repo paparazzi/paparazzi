@@ -7,6 +7,9 @@
       To activate a specific ADC input, define flag USE_ADC_X where X is your ADC input number
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="adc.h" dir="mcu_periph"/>
   </header>

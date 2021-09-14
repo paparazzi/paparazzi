@@ -6,6 +6,9 @@
       Random Number Generator
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="rng.h" dir="mcu_periph"/>
   </header>

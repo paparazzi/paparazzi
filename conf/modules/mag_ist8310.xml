@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_ist8310" dir="sensors">
+<module name="mag_ist8310" dir="sensors" task="sensors">
   <doc>
     <description>
       ST IST8310 magnetometer.
@@ -20,6 +20,10 @@
       <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
     </section>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>mag</provides>
+  </dep>
   <header>
     <file name="mag_ist8310.h"/>
   </header>

@@ -396,10 +396,6 @@ void init_fbw(void)
   fbw_periodic_tid = sys_time_register_timer((1. / 60.), NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
 
-#ifndef SINGLE_MCU
-  mcu_int_enable();
-#endif
-
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_fbw_status);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_COMMANDS, send_commands);

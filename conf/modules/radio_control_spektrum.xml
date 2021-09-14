@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_spektrum" dir="radio_control">
+<module name="radio_control_spektrum" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Radio control based on Spektrum DSM2 or DSMX receivers
@@ -14,6 +14,10 @@
     <define name="USE_DSMX" value="FALSE|TRUE" description="activate DSMX binding mode for compatible receivers (default: FALSE, DSM2 is used)"/>
     <define name="SPEKTRUM_SYS_TYPE" value="0" description="force system type (default: 0 for auto detect)"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>radio_control</provides>
+  </dep>
   <header>
     <file name="spektrum.h" dir="subsystems/radio_control"/>
   </header>

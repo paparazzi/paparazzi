@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_sd_chibios" dir="loggers">
+<module name="logger_sd_chibios" dir="loggers" task="core">
   <doc>
     <description>
       Log on a SD card, either text or binary data.

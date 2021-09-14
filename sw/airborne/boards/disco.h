@@ -71,9 +71,9 @@ extern struct video_config_t front_camera;
 /* ISP */
 //struct mt9f002_t mt9f002;
 
-/* by default activate onboard baro */
+/* by default baro module is used */
 #ifndef USE_BARO_BOARD
-#define USE_BARO_BOARD 1
+#define USE_BARO_BOARD 0
 #endif
 
 /* The ADC from the sonar */

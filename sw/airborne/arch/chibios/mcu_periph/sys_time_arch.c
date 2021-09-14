@@ -46,6 +46,9 @@ static void thd_sys_tick(void *arg);
 static THD_WORKING_AREA(wa_thd_sys_tick, 1024);
 static void sys_tick_handler(void);
 
+static uint32_t cpu_ticks = 0;
+static uint32_t cpu_counter = 0;
+
 void sys_time_arch_init(void)
 {
 
@@ -68,9 +71,10 @@ void sys_time_arch_init(void)
 uint32_t get_sys_time_usec(void)
 {
   chMtxLock(&sys_time_mtx);
+  uint32_t current = chSysGetRealtimeCounterX();
   uint32_t t = sys_time.nb_sec * 1000000 +
-    usec_of_sys_time_ticks(sys_time.nb_sec_rem) +
-    usec_of_sys_time_ticks(chVTGetSystemTime() - sys_time.nb_tick);
+    TIME_I2US(sys_time.nb_sec_rem) +
+    RTC2US(STM32_SYSCLK, current - cpu_counter);
   chMtxUnlock(&sys_time_mtx);
   return t;
 }
@@ -78,9 +82,10 @@ uint32_t get_sys_time_usec(void)
 uint32_t get_sys_time_msec(void)
 {
   chMtxLock(&sys_time_mtx);
+  uint32_t current = chSysGetRealtimeCounterX();
   uint32_t t = sys_time.nb_sec * 1000 +
-    msec_of_sys_time_ticks(sys_time.nb_sec_rem) +
-    msec_of_sys_time_ticks(chVTGetSystemTime() - sys_time.nb_tick);
+    TIME_I2MS(sys_time.nb_sec_rem) +
+    RTC2MS(STM32_SYSCLK, current - cpu_counter);
   chMtxUnlock(&sys_time_mtx);
   return t;
 }
@@ -100,21 +105,20 @@ void sys_time_usleep(uint32_t us)
     chSysPolledDelayX(US2RTC(STM32_HCLK, us));
     chSysEnable();
   } else {
-    uint64_t wait_st = ((uint64_t)us * CH_CFG_ST_FREQUENCY) / 1000000UL;
-    chThdSleep((systime_t)wait_st);
+    chThdSleepMicroseconds(us);
   }
 }
 
 void sys_time_msleep(uint16_t ms)
 {
-  uint64_t wait_st = ((uint64_t)ms * CH_CFG_ST_FREQUENCY) / 1000UL;
-  chThdSleep((systime_t)wait_st);
+  chThdSleepMilliseconds(ms);
 }
 
 void sys_time_ssleep(uint8_t s)
 {
-  chThdSleep(TIME_S2I(s));
+  chThdSleepSeconds(s);
 }
+
 
 /*
  * Sys_tick thread
@@ -125,8 +129,9 @@ static __attribute__((noreturn)) void thd_sys_tick(void *arg)
   chRegSetThreadName("sys_tick_handler");
 
   while (TRUE) {
+    systime_t t = chVTGetSystemTime();
     sys_tick_handler();
-    chThdSleepMilliseconds(1);
+    chThdSleepUntilWindowed(t, t + TIME_US2I(USEC_OF_SEC(1.f/(SYS_TIME_FREQUENCY))));
   }
 }
 
@@ -134,16 +139,20 @@ static void sys_tick_handler(void)
 {
   chMtxLock(&sys_time_mtx);
   /* current time in sys_ticks */
-  sys_time.nb_tick = chVTGetSystemTime();
+  sys_time.nb_tick++;
   /* max time is 2^32 / CH_CFG_ST_FREQUENCY, i.e. around 10 days at 10kHz */
-  uint32_t sec = sys_time.nb_tick / CH_CFG_ST_FREQUENCY;
+  cpu_ticks = chVTGetSystemTime();
+  /* store high resolution counter for accurate timing */
+  cpu_counter = chSysGetRealtimeCounterX();
+  /* increment secondes and remainder */
+  uint32_t sec = cpu_ticks / CH_CFG_ST_FREQUENCY;
 #ifdef SYS_TIME_LED
   if (sec > sys_time.nb_sec) {
     LED_TOGGLE(SYS_TIME_LED);
   }
 #endif
   sys_time.nb_sec = sec;
-  sys_time.nb_sec_rem = sys_time.nb_tick - sys_time_ticks_of_sec(sys_time.nb_sec);
+  sys_time.nb_sec_rem = cpu_ticks - cpu_ticks_of_sec(sys_time.nb_sec); // in CPU ticks
 
   /* advance virtual timers */
   for (unsigned int i = 0; i < SYS_TIME_NB_TIMER; i++) {

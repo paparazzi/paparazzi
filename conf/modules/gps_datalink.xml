@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_datalink" dir="gps">
+<module name="gps_datalink" dir="gps" task="sensors">
   <doc>
     <description>
       Remote GPS via datalink.
@@ -8,7 +8,10 @@
     </description>
     <define name="GPS_DATALINK_USE_MAG" value="1" description="Choose to receive also GPS extracted magnetometer messages"/>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>gps,@datalink</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_gls" dir="nav">
+<module name="nav_gls" dir="nav" task="control">
   <doc>
     <description>
       gps landing system
@@ -12,6 +12,9 @@
   <header>
     <file name="nav_gls.h"/>
   </header>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <makefile target="ap|sim|nps">
     <file name="nav_gls.c"/>
     <test firmware="fixedwing">

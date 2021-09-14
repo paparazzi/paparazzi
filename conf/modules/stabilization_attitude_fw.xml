@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_attitude_fw" dir="stabilization">
+<module name="stabilization_attitude_fw" dir="stabilization" task="control">
   <doc>
     <description>
       Legacy attitude and lateral (heading) control for fixedwing aircraft
@@ -46,6 +46,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@attitude_command</depends>
+    <provides>commands</provides>
+  </dep>
   <header>
     <file name="stabilization_attitude.h"/>
   </header>

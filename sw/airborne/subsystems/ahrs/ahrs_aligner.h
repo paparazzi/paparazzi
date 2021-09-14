@@ -48,6 +48,7 @@ struct AhrsAligner {
 extern struct AhrsAligner ahrs_aligner;
 
 extern void ahrs_aligner_init(void);
+extern void ahrs_aligner_restart(void);
 extern void ahrs_aligner_run(void);
 
 #endif /* AHRS_ALIGNER_H */

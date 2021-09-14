@@ -11,11 +11,14 @@
     </description>
     <define name="DSHOT_SPEED" value="600" description="DSHOT speed (150,300,600,1200)"/>
   </doc>
+  <dep>
+    <depends>actuators,@commands</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_dshot.h"/>
   </header>
   <makefile>
-    <define name="ACTUATORS"/>
     <file_arch name="actuators_dshot_arch.c"/>
     <file_arch name="esc_dshot.c" cond="ifeq ($(RTOS),chibios)"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky">
+<module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky" task="radio_control">
   <doc>
     <description>
       Software implementation of Frsky radio control protocol for onboard CC2500 receiver.
@@ -37,6 +37,7 @@
   </settings>
   <dep>
     <depends>spi_master</depends>
+    <provides>radio_control</provides>
   </dep>
   <header>
     <file name="cc2500.h" dir="peripherals"/>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sys_mon" dir="core">
+<module name="sys_mon" dir="core" task="core">
   <doc>
     <description>
 System monitor.

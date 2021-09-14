@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_nps" dir="gps">
+<module name="gps_nps" dir="gps" task="sensors">
   <doc>
     <description>
       Simulated GPS for NPS.
@@ -8,7 +8,10 @@
       The GPS sensor configuration is done in the header file referenced by NPS_SENSORS_PARAMS.
     </description>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>gps</depends>
+    <provides>gps</provides>
+  </dep>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>

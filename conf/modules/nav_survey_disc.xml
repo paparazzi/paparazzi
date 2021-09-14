@@ -1,11 +1,14 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_disc" dir="nav">
+<module name="nav_survey_disc" dir="nav" task="control">
   <doc>
     <description>
       Disc Survey.
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_survey_disc.h"/>
   </header>

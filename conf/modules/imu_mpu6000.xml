@@ -1,9 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu6000" dir="imu">
+<module name="imu_mpu6000" dir="imu" task="sensors">
   <doc>
     <description>
-      IMU with MPU6000 via SPI.
+      IMU with an Invensense MPU6000 connected via the SPI bus to flightcontroller.
     </description>
     <configure name="IMU_MPU_SPI_DEV" value="spi1" description="SPI device to use for MPU6000"/>
     <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0" description="slave index of the MPU CS pin"/>
@@ -11,12 +11,14 @@
     <define name="IMU_MPU_SMPLRT_DIV" value="3" description="sample rate divider setting of the MPU"/>
     <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000" description="gyroscope range setting of the MPU"/>
     <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
+    <define name="IMU_MPU_USE_MEDIAN_FILTER" value="FALSE" description="Use ONLY in case the MPU has spikes in the raw output due to various reasons. Default is FALSE"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu6000.h" dir="subsystems/imu"/>
   </header>

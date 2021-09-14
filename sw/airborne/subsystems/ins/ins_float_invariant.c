@@ -35,7 +35,7 @@
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#if INS_FINV_USE_UTM
+#if FIXEDWING_FIRMWARE
 #include "firmwares/fixedwing/nav.h"
 #endif
 
@@ -82,55 +82,55 @@ bool log_started = false;
 // Default values for the tuning gains
 // Tuning parameter of speed error on attitude (e-2)
 #ifndef INS_INV_LV
-#define INS_INV_LV 2.
+#define INS_INV_LV 2.f
 #endif
 // Tuning parameter of mag error on attitude (e-2)
 #ifndef INS_INV_LB
-#define INS_INV_LB 6.
+#define INS_INV_LB 6.f
 #endif
 // Tuning parameter of horizontal speed error on speed
 #ifndef INS_INV_MV
-#define INS_INV_MV 8.
+#define INS_INV_MV 8.f
 #endif
 // Tuning parameter of vertical speed error on speed
 #ifndef INS_INV_MVZ
-#define INS_INV_MVZ 15.
+#define INS_INV_MVZ 15.f
 #endif
 // Tuning parameter of baro error on vertical speed
 #ifndef INS_INV_MH
-#define INS_INV_MH 0.2
+#define INS_INV_MH 0.2f
 #endif
 // Tuning parameter of horizontal position error on position
 #ifndef INS_INV_NX
-#define INS_INV_NX 0.8
+#define INS_INV_NX 0.8f
 #endif
 // Tuning parameter of vertical position error on position
 #ifndef INS_INV_NXZ
-#define INS_INV_NXZ 0.5
+#define INS_INV_NXZ 0.5f
 #endif
 // Tuning parameter of baro error on vertical position
 #ifndef INS_INV_NH
-#define INS_INV_NH 1.2
+#define INS_INV_NH 1.2f
 #endif
 // Tuning parameter of speed error on gyro biases (e-3)
 #ifndef INS_INV_OV
-#define INS_INV_OV 1.2
+#define INS_INV_OV 1.2f
 #endif
 // Tuning parameter of mag error on gyro biases (e-3)
 #ifndef INS_INV_OB
-#define INS_INV_OB 1.
+#define INS_INV_OB 1.f
 #endif
 // Tuning parameter of speed error on accel biases (e-2)
 #ifndef INS_INV_RV
-#define INS_INV_RV 4.
+#define INS_INV_RV 4.f
 #endif
 // Tuning parameter of baro error on accel biases (vertical projection) (e-8)
 #ifndef INS_INV_RH
-#define INS_INV_RH 8.
+#define INS_INV_RH 8.f
 #endif
 // Tuning parameter of baro error on baro bias
 #ifndef INS_INV_SH
-#define INS_INV_SH 0.01
+#define INS_INV_SH 0.01f
 #endif
 
 
@@ -220,7 +220,7 @@ void ins_float_invariant_init(void)
 {
 
   // init position
-#if INS_FINV_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm0;
   utm0.north = (float)nav_utm_north0;
   utm0.east = (float)nav_utm_east0;
@@ -281,7 +281,7 @@ void ins_float_invariant_init(void)
 
 void ins_reset_local_origin(void)
 {
-#if INS_FINV_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
@@ -291,11 +291,14 @@ void ins_reset_local_origin(void)
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
+  // reset state position and velocity to zero
+  FLOAT_VECT3_ZERO(ins_float_inv.state.pos);
+  FLOAT_VECT3_ZERO(ins_float_inv.state.speed);
 }
 
 void ins_reset_altitude_ref(void)
 {
-#if INS_FINV_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = state.utm_origin_f;
   utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
@@ -310,6 +313,9 @@ void ins_reset_altitude_ref(void)
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
+  // reset vertical position and velocity to zero
+  ins_float_inv.state.pos.z = 0.f;
+  ins_float_inv.state.speed.z = 0.f;
 }
 
 void ins_float_invariant_align(struct FloatRates *lp_gyro,
@@ -380,7 +386,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   float_quat_invert(&q_b2n, &ins_float_inv.state.quat);
   struct FloatVect3 accel_n;
   float_quat_vmult(&accel_n, &q_b2n, &ins_float_inv.cmd.accel);
-  VECT3_SMUL(accel_n, accel_n, 1. / (ins_float_inv.state.as));
+  VECT3_SMUL(accel_n, accel_n, 1.f / (ins_float_inv.state.as));
   VECT3_ADD(accel_n, A);
   stateSetAccelNed_f((struct NedCoor_f *)&accel_n);
 
@@ -440,9 +446,7 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
 {
 
   if (gps_s->fix >= GPS_FIX_3D && ins_float_inv.is_aligned) {
-    ins_gps_fix_once = true;
-
-#if INS_FINV_USE_UTM
+#if FIXEDWING_FIRMWARE
     if (state.utm_initialized_f) {
       struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
       // position (local ned)
@@ -465,9 +469,36 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
       ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
     }
 #endif
+    // when getting first GPS pos (or after reset), set state to current pos and speed
+    if (!ins_gps_fix_once) {
+      ins_float_inv.state.pos = ins_float_inv.meas.pos_gps;
+      ins_float_inv.state.speed = ins_float_inv.meas.speed_gps;
+      ins_gps_fix_once = true;
+    }
   }
 
 #if !USE_MAGNETOMETER
+#if INS_INV_USE_GPS_HEADING
+  // got a 3d fix, ground speed > INS_INV_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
+  // and course accuracy is better than 10deg
+  static const uint16_t gps_min_speed = INS_INV_HEADING_UPDATE_GPS_MIN_SPEED * 100;
+  static const uint32_t max_cacc = RadOfDeg(10 * 1e7);
+  if (gps_s->fix >= GPS_FIX_3D &&
+      gps_s->gspeed >= gps_min_speed &&
+      gps_s->cacc <= max_cacc) {
+    // gps_s->course is in rad * 1e7
+    struct FloatVect3 pseudo_mag = {
+      cosf((float)gps_s->course / 1e7f),
+      -sinf((float)gps_s->course / 1e7f),
+      0.f
+    };
+    ins_float_invariant_update_mag(&pseudo_mag);
+  }
+  else {
+    // if speed is tool low, better set measurements to zero
+    FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
+  }
+#else // else use GPS velocity (only for fixedwing)
   // Use pseudo-mag rebuilt from GPS horizontal velocity
   struct FloatVect2 vel = { ins_float_inv.meas.speed_gps.x, ins_float_inv.meas.speed_gps.y };
   float vel_norm = float_vect2_norm(&vel);
@@ -483,6 +514,7 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
     // if speed is tool low, better set measurements to zero
     FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
   }
+#endif
 #endif
 
 }
@@ -504,7 +536,7 @@ void ins_float_invariant_update_baro(float pressure)
       baro_prev = pressure;
     }
     baro_moy = (baro_moy * (i - 1) + pressure) / i;
-    alpha = (10.*alpha + (baro_moy - baro_prev)) / (11.0f);
+    alpha = (10.f*alpha + (baro_moy - baro_prev)) / (11.0f);
     baro_prev = baro_moy;
     // test stop condition
     if (fabs(alpha) < 0.1f) {
@@ -574,7 +606,7 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   float_quat_vmul_right(&tmp_quat, &(s->quat), &ins_float_inv.corr.LE);
   QUAT_ADD(s_dot.quat, tmp_quat);
 
-  float norm2_r = 1. - FLOAT_QUAT_NORM2(s->quat);
+  float norm2_r = 1.f - FLOAT_QUAT_NORM2(s->quat);
   QUAT_SMUL(tmp_quat, s->quat, norm2_r);
   QUAT_ADD(s_dot.quat, tmp_quat);
 
@@ -582,7 +614,7 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   struct FloatQuat q_b2n;
   float_quat_invert(&q_b2n, &(s->quat));
   float_quat_vmult((struct FloatVect3 *)&s_dot.speed, &q_b2n, &(c->accel));
-  VECT3_SMUL(s_dot.speed, s_dot.speed, 1. / (s->as));
+  VECT3_SMUL(s_dot.speed, s_dot.speed, 1.f / (s->as));
   VECT3_ADD(s_dot.speed, A);
   VECT3_ADD(s_dot.speed, ins_float_inv.corr.ME);
 
@@ -596,7 +628,7 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   /* as_dot = as * RE */
   s_dot.as = (s->as) * (ins_float_inv.corr.RE);
   // keep as in a reasonable range, so 50% around the nominal value
-  if (s->as < 0.5f || s->as > 1.5f) {
+  if ( ((s->as < 0.5f) && (s_dot.as < 0.f)) || ((s->as > 1.5f) && (s_dot.as > 0.f)) ) {
     s_dot.as = 0.f;
   }
 
@@ -624,7 +656,7 @@ static inline void error_output(struct InsFloatInv *_ins)
   float_quat_vmult(&YBt, &q_b2n, &(_ins->meas.mag));
 
   float_quat_vmult(&I, &q_b2n, &(_ins->cmd.accel));
-  VECT3_SMUL(I, I, 1. / (_ins->state.as));
+  VECT3_SMUL(I, I, 1.f / (_ins->state.as));
 
   /*--------- E = ( ŷ - y ) ----------*/
   /* Eb = ( B - YBt ) */
@@ -632,8 +664,8 @@ static inline void error_output(struct InsFloatInv *_ins)
 
   // pos and speed error only if GPS data are valid
   // or while waiting first GPS data to prevent diverging
-  if ((gps.fix >= GPS_FIX_3D && ins_float_inv.is_aligned
-#if INS_FINV_USE_UTM
+  if ((gps.fix >= GPS_FIX_3D && _ins->is_aligned
+#if FIXEDWING_FIRMWARE
        && state.utm_initialized_f
 #else
        && state.ned_initialized_f
@@ -653,34 +685,34 @@ static inline void error_output(struct InsFloatInv *_ins)
   /*--------------Gains--------------*/
 
   /**** LvEv + LbEb = -lvIa x Ev +  lb < B x Eb, Ia > Ia *****/
-  VECT3_SMUL(Itemp, I, -_ins->gains.lv / 100.);
+  VECT3_SMUL(Itemp, I, -_ins->gains.lv / 100.f);
   VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
   VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
   temp = VECT3_DOT_PRODUCT(Ebtemp, I);
-  temp = (_ins->gains.lb / 100.) * temp;
+  temp = (_ins->gains.lb / 100.f) * temp;
 
   VECT3_SMUL(Ebtemp, I, temp);
   VECT3_ADD(Evtemp, Ebtemp);
   VECT3_COPY(_ins->corr.LE, Evtemp);
 
   /***** MvEv + MhEh = -mv * Ev + (-mh * <Eh,e3>)********/
-  _ins->corr.ME.x = (-_ins->gains.mv) * Ev.x + 0.;
-  _ins->corr.ME.y = (-_ins->gains.mv) * Ev.y + 0.;
+  _ins->corr.ME.x = (-_ins->gains.mv) * Ev.x + 0.f;
+  _ins->corr.ME.y = (-_ins->gains.mv) * Ev.y + 0.f;
   _ins->corr.ME.z = ((-_ins->gains.mvz) * Ev.z) + ((-_ins->gains.mh) * Eh);
 
   /****** NxEx + NhEh = -nx * Ex + (-nh * <Eh, e3>) ********/
-  _ins->corr.NE.x = (-_ins->gains.nx) * Ex.x + 0.;
-  _ins->corr.NE.y = (-_ins->gains.nx) * Ex.y + 0.;
+  _ins->corr.NE.x = (-_ins->gains.nx) * Ex.x + 0.f;
+  _ins->corr.NE.y = (-_ins->gains.nx) * Ex.y + 0.f;
   _ins->corr.NE.z = ((-_ins->gains.nxz) * Ex.z) + ((-_ins->gains.nh) * Eh);
 
   /****** OvEv + ObEb = ovIa x Ev - ob < B x Eb, Ia > Ia ********/
-  VECT3_SMUL(Itemp, I, _ins->gains.ov / 1000.);
+  VECT3_SMUL(Itemp, I, _ins->gains.ov / 1000.f);
   VECT3_CROSS_PRODUCT(Evtemp, Itemp, Ev);
 
   VECT3_CROSS_PRODUCT(Ebtemp, B, Eb);
   temp = VECT3_DOT_PRODUCT(Ebtemp, I);
-  temp = (-_ins->gains.ob / 1000.) * temp;
+  temp = (-_ins->gains.ob / 1000.f) * temp;
 
   VECT3_SMUL(Ebtemp, I, temp);
   VECT3_ADD(Evtemp, Ebtemp);
@@ -688,7 +720,7 @@ static inline void error_output(struct InsFloatInv *_ins)
 
   /* a scalar */
   /****** RvEv + RhEh = rv < Ia, Ev > + (-rhEh) **************/
-  _ins->corr.RE = ((_ins->gains.rv / 100.) * VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh / 10000.) * Eh);
+  _ins->corr.RE = ((_ins->gains.rv / 100.f) * VECT3_DOT_PRODUCT(Ev, I)) + ((-_ins->gains.rh / 10000.f) * Eh);
 
   /****** ShEh ******/
   _ins->corr.SE = (_ins->gains.sh) * Eh;

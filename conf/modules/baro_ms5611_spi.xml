@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_ms5611_spi" dir="sensors">
+<module name="baro_ms5611_spi" dir="sensors" task="sensors">
   <doc>
     <description>
       Baro MS5611 (SPI)
@@ -12,6 +12,7 @@
   </doc>
   <dep>
     <depends>spi_master</depends>
+    <provides>baro</provides>
   </dep>
   <header>
     <file name="baro_ms5611_spi.h"/>

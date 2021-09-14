@@ -7,6 +7,9 @@
       To activate a specific SPI peripheral, define flag USE_SPIX where X is your SPI peripheral number
     </description>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="spi.h" dir="mcu_periph"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_bmp3" dir="sensors">
+<module name="baro_bmp3" dir="sensors" task="sensors">
   <doc>
     <description>
       Bosch-Sensortech BMP3xx pressure sensor
@@ -10,6 +10,10 @@
     <define name="BMP3_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
     <define name="BMP3_COMPENSATION" value="BMP3_SINGLE_PRECISION_COMPENSATION" description="select precision for compensation (single precision, double precision, or integer)"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
   <header>
     <file name="baro_bmp3.h"/>
   </header>

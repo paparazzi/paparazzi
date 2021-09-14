@@ -9,7 +9,7 @@
     <configure name="RTOS_DEBUG" value="0"/>
 
     <target name="ap" board="crazyflie_2.1">
-      <!--module name="gps" type="datalink"/-->
+      <module name="gps" type="datalink"/>
       <module name="cf_deck" type="multi_ranger"/>
       <module name="range_forcefield">
         <define name="RANGE_FORCEFIELD_MAX_VEL" value="0.1"/>

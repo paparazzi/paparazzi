@@ -17,6 +17,9 @@
     <define name="PIPE_RX_BUFFER_SIZE" value="1024"/>
     <define name="PIPE_TX_BUFFER_SIZE" value="1024"/>
   </doc>
+  <dep>
+    <depends>mcu</depends>
+  </dep>
   <header>
     <file name="pipe.h" dir="mcu_periph"/>
   </header>

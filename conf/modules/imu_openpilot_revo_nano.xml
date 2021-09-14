@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_openpilot_revo_nano" dir="imu">
+<module name="imu_openpilot_revo_nano" dir="imu" task="sensors">
   <doc>
     <description>
       IMU driver for OpenPilot Revo Nano.
@@ -23,10 +23,11 @@
     <define name="IMU_MPU9250_Z_SIGN" value="1" description="axis sign"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu9250_spi.h" dir="subsystems/imu"/>
   </header>

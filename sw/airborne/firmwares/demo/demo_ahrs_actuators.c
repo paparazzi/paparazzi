@@ -98,7 +98,6 @@ static inline void main_init(void)
 
   settings_init();
 
-  mcu_int_enable();
 
   downlink_init();
 

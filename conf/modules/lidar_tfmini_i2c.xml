@@ -31,6 +31,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>sonar</provides>
+  </dep>
 
   <header>
     <file name="tfmini_i2c.h"/>

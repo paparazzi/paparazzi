@@ -188,6 +188,7 @@ NOTES:
       <define name="RADIO_FLAP" value="RADIO_AUX3"/>
       <!--<define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>-->
       <module name="telemetry" type="transparent"/>
+      <module name="imu" type="sim"/>
       <!--<module name="imu" type="aspirin_v2.2"/>-->
       <!--<module name="ahrs" type="float_dcm"/>
       <module name="ins" type="alt_float"/>-->
@@ -1113,7 +1114,7 @@ The most crucial part for the magnetometer calibration:
     <define name="COMMANDS_NB" value="4"/>
     <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
-    <!-- <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>-->
+    <!-- <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>-->
     <define name="JS_AXIS_MODE" value="4"/>
     <define name="BYPASS_AHRS" value="TRUE"/>
     <define name="BYPASS_INS" value="TRUE"/>

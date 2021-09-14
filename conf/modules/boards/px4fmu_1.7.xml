@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="px4fmu_1.7" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for PX4FMU v1.7
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_board</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

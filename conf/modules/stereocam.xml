@@ -16,6 +16,9 @@
     <define name="STEREO_BODY_TO_STEREO_THETA" value="0"/>
     <define name="STEREO_BODY_TO_STEREO_PSI" value="90"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+  </dep>
   <header>
     <file name="stereocam.h"/>
   </header>

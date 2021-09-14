@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_calib_ukf" dir="calibration">
+<module name="mag_calib_ukf" dir="calibration" task="sensors">
   <doc>
     <description>
       Calibrate magnetometer using UKF

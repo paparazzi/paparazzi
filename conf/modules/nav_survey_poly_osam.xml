@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_poly_osam" dir="nav">
+<module name="nav_survey_poly_osam" dir="nav" task="control">
   <doc>
     <description>
 Polygon survey from OSAM.
@@ -28,6 +28,9 @@ You can use:
     </dl_settings>
   </settings>
 
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_survey_poly_osam.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mission_fw" dir="mission">
+<module name="mission_fw" dir="mission" task="control">
   <doc>
     <description>
       Interface for mission control of fixed wing aircraft.

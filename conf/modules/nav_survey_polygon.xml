@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_survey_polygon" dir="nav">
+<module name="nav_survey_polygon" dir="nav" task="control">
   <doc>
     <description>
       Survey a polygon with a fixedwing.
@@ -26,6 +26,9 @@ Block example:
 -->
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_survey_polygon.h"/>
   </header>

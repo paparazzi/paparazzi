@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_sbus_dual" dir="radio_control">
+<module name="radio_control_sbus_dual" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Radio control using two Futaba SBUS receivers
@@ -9,6 +9,10 @@
     <configure name="SBUS1_PORT" value="UARTX" description="UART name where first SBUS receiver is plugged"/>
     <configure name="SBUS2_PORT" value="UARTX" description="UART name where second SBUS receiver is plugged"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>radio_control</provides>
+  </dep>
   <header>
     <file name="sbus_dual.h" dir="subsystems/radio_control"/>
   </header>

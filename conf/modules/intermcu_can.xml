@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="intermcu_can" dir="intermcu">
+<module name="intermcu_can" dir="intermcu" task="core">
   <doc>
     <description>
       Inter-MCU communication over CAN
@@ -11,6 +11,9 @@
     <configure name="SEPARATE_FBW" value="FALSE|TRUE" description="Enable separation between AP and FBW on separated MCU"/>
   </doc>
 
+  <dep>
+    <provides>intermcu,commands,radio_control</provides>
+  </dep>
   <makefile target="ap|fbw" firmware="fixedwing">
     <raw>
       ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))

@@ -41,6 +41,7 @@
     <module name="board" type="tawaki">
       <configure name="BOARD_TAWAKI_ROTATED" value="TRUE"/>
     </module>
+    <module name="actuators" type="pwm"/>
 
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
@@ -55,9 +56,6 @@
     </module>
 
     <!--configure name="SDLOG_USE_RTC" value="FALSE"/-->
-    <!--module name="tlsf"/>
-    <module name="pprzlog"/>
-    <module name="logger" type="sd_chibios"/-->
     <module name="flight_recorder"/>
   </firmware>
 

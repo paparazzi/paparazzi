@@ -49,15 +49,23 @@ let store_conf = fun conf acs ->
 	  let ac_dir = replay_dir // "var" // "aircrafts" // ac_name in
 
 	  let w = fun s ->
-	    (* Histotical: still useful ? *)
-	    let f = replay_dir // "conf" // ExtXml.attrib x s in
-	    write_xml f (ExtXml.child x s);
-	    (* Write in the conf/ directory of the A/C *)
+            let f = replay_dir // "conf" // ExtXml.attrib x s in
+            write_xml f (ExtXml.child x s);
+
 	    let f = ac_dir // "conf" // ExtXml.attrib x s in
 	    write_xml f (ExtXml.child x s);
 	    f in
 	  ignore (w "airframe");
 	  ignore (w "radio");
+          let xml_settings =
+            try
+              ExtXml.child x "generated_settings"
+            with _ ->
+              Printf.printf "Replay: no settings for display\n%!";
+              Xml.Element("settings",[],[])
+          in
+          write_xml (ac_dir // "settings.xml") xml_settings;
+          write_xml (replay_dir // "settings.xml") xml_settings;
           (* test if flight plan is an original one or the dumped version *)
           let orig_fp = List.exists (fun e -> compare (Xml.tag e) "flight_plan" = 0) (Xml.children x) in
           if orig_fp then begin

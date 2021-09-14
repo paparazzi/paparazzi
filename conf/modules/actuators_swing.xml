@@ -6,11 +6,14 @@
       Actuators Driver for Swing
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators.h" dir="boards/swing"/>
   </header>
   <makefile target="ap">
-    <define name="ACTUATORS"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
   </makefile>
 </module>

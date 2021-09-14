@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_hff_extended" dir="ins">
+<module name="ins_hff_extended" dir="ins" task="estimation">
   <doc>
     <description>
       extended INS with vertical filter using sonar.
@@ -26,6 +26,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@imu,@gps|@position|@velocity</depends>
+    <provides>ins</provides>
+  </dep>
 
   <header>
     <file name="ins_int.h" dir="subsystems/ins"/>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sonar_bebop" dir="sonar">
+<module name="sonar_bebop" dir="sonar" task="sensors">
   <doc>
     <description>
      Bebop Sonar driver.
@@ -12,7 +12,8 @@
     <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0" description="Sudden changes in sonar height shorter than this value are neglected [unit: seconds]"/>
   </doc>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,adc</depends>
+    <provides>sonar</provides>
   </dep>
 
   <header>

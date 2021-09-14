@@ -201,6 +201,11 @@
 
       <!--Switch advanced INDI scheduling functions on or off-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
+
+      <!-- Use the external mag (not in NPS target as then it needs to listen to all) -->
+      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
+      <define name="INS_EKF2_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
     </target>
 
     <target name="nps"          board="pc">
@@ -316,11 +321,10 @@
     <!--</module>-->
 
     <!--<module name="ins"/>-->
-    <module name="ins" type="ekf2"/>
-    <!--<module name="ins" type="float_invariant">-->
-      <!--<define name="INS_PROPAGATE_FREQUENCY" value="500"/>-->
-      <!--<define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>-->
-    <!--</module>-->
+    <!-- <module name="ins" type="ekf2"/> -->
+    <module name="ins" type="float_invariant">
+      <define name="INS_PROPAGATE_FREQUENCY" value="500"/>
+    </module>
 
   </firmware>
 </airframe>

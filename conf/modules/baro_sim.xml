@@ -1,12 +1,15 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_sim" dir="sensors">
+<module name="baro_sim" dir="sensors" task="sensors">
   <doc>
     <description>
       Simulated barometer.
       Sends the BARO_ABS ABI message with gps.hmsl converted to absolute pressure.
     </description>
   </doc>
+  <dep>
+    <provides>baro</provides>
+  </dep>
 
   <header>
     <file name="baro_sim.h"/>

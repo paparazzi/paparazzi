@@ -16,11 +16,17 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,1,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,1,0,0">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Module name</string>
           </property>
@@ -35,6 +41,12 @@
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="label_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Directory</string>
           </property>
@@ -42,9 +54,80 @@
         </item>
         <item>
          <widget class="QComboBox" name="directory_combo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="editable">
            <bool>true</bool>
           </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Task</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="task_combo">
+          <item>
+           <property name="text">
+            <string/>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>mcu</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>core</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>sensors</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>estimation</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>radio_control</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>control</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>actuators</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>datalink</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>default</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
@@ -112,6 +195,44 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Depends</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="depends_edit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Provides</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="provides_edit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>Conflicts</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="conflicts_edit">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>Description</string>
@@ -165,7 +286,7 @@
           <x>0</x>
           <y>0</y>
           <width>859</width>
-          <height>356</height>
+          <height>316</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="scroll_area_layout">

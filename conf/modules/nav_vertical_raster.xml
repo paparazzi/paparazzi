@@ -1,11 +1,14 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_vertical_raster" dir="nav">
+<module name="nav_vertical_raster" dir="nav" task="control">
   <doc>
     <description>
       Copy of nav line with altitude changes at every sweep
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_vertical_raster.h"/>
   </header>

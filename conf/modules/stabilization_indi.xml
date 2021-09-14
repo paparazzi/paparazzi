@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabilization_indi" dir="stabilization">
+<module name="stabilization_indi" dir="stabilization" task="control">
   <doc>
     <description>
       Full INDI stabilization controller for rotorcraft
@@ -55,7 +55,8 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>stabilization_rotorcraft</depends>
+    <depends>stabilization_rotorcraft,@attitude_command</depends>
+    <provides>commands</provides>
   </dep>
   <header>
     <file name="stabilization_indi.h"/>

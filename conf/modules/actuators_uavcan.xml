@@ -8,13 +8,16 @@
    <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
   </doc>
   <dep>
-    <depends>uavcan</depends>
+    <depends>uavcan,actuators</depends>
+    <provides>actuators</provides>
   </dep>
+  <autoload name="actuators" type="nps"/>
   <header>
     <file name="actuators_uavcan.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="ap">
     <file name="actuators_uavcan.c" dir="subsystems/actuators"/>
+    <file name="pprz_random.c" dir="math"/>
   </makefile>
 </module>
 

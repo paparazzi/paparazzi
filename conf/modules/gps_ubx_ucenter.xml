@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_ubx_ucenter" dir="gps">
+<module name="gps_ubx_ucenter" dir="gps" task="sensors">
   <doc>
     <description>
 Ublox GPS autoconfiguration.

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mission_rotorcraft" dir="mission">
+<module name="mission_rotorcraft" dir="mission" task="control">
   <doc>
     <description>
       Interface for mission control of rotorcraft.

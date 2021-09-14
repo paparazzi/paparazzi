@@ -1,0 +1,47 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="system_core" dir="core" task="core">
+  <doc>
+    <description>
+      Core system components meta module
+
+      Includes: sys_time, commands interfaces
+    </description>
+  </doc>
+  <dep>
+    <depends>mcu,math,state_interface,@actuators|@intermcu,settings|@no_settings</depends>
+    <provides>core</provides>
+  </dep>
+  <makefile>
+    <configure name="SRC_BOARD" value="boards/$(BOARD)"/>
+    <configure name="SRC_SUBSYSTEMS" value="subsystems"/>
+    <configure name="SRC_MODULES" value="modules"/>
+    <configure name="SRC_ARCH" value="arch/$(ARCH)"/>
+    <define name="BOARD_CONFIG" value="$(BOARD_CFG)"/>
+    <define name="SYS_TIME_LED" value="$(SYS_TIME_LED)" cond="ifneq ($(SYS_TIME_LED),none)"/>
+    <include name="$(SRC_BOARD)"/>
+    <include name="$(SRC_MODULES)"/>
+    <file name="sys_time.c" dir="mcu_periph"/>
+    <file_arch name="sys_time_arch.c" dir="mcu_periph"/>
+    <flag name="LDFLAGS" value="lrt" cond="ifeq ($(ARCH), linux)"/>
+    <raw>
+VPATH += $(PAPARAZZI_HOME)/var/share
+VPATH += $(PAPARAZZI_HOME)/sw/ext
+$(TARGET).ARCHDIR = $(ARCH)
+    </raw>
+    <test/>
+  </makefile>
+  <makefile target="fbw" firmware="fixedwing">
+    <file name="commands.c" dir="subsystems"/>
+  </makefile>
+  <makefile target="ap|sim|nps|hitl" firmware="fixedwing" cond="ifeq (,$(findstring $(SEPARATE_FBW),0 FALSE))">
+    <file name="commands.c" dir="subsystems"/>
+  </makefile>
+  <makefile firmware="rotorcraft">
+    <file name="commands.c" dir="subsystems"/>
+  </makefile>
+  <makefile firmware="rover">
+    <file name="commands.c" dir="subsystems"/>
+  </makefile>
+</module>
+

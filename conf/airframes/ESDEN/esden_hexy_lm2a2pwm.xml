@@ -144,10 +144,6 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
       <module name="radio_control" type="spektrum">
@@ -172,6 +168,7 @@
     <module name="imu"           type="aspirin_v2.1"/>
     <define name="LISA_M_LONGITUDINAL_X"/>
     <module name="gps"           type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"/>

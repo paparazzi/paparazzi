@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_skytraq" dir="gps">
+<module name="gps_skytraq" dir="gps" task="sensors">
   <doc>
     <description>
       Skytraq GPS (UART)
@@ -9,7 +9,10 @@
     <configure name="SKYTRAQ_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="SKYTRAQ_GPS_BAUD" value="B38400" description="UART baud rate"/>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>uart,gps</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>

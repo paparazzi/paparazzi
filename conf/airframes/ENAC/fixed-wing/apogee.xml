@@ -17,12 +17,6 @@
       <module name="radio_control" type="ppm"/>
     </target>
 
-    <define name="USE_I2C1"/>
-    <!--define name="USE_I2C2"/-->
-    <!--define name="AGR_CLIMB"/-->
-    <!--define name="LOITER_TRIM"/-->
-    <!--define name="PITCH_TRIM"/-->
-
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
     <module name="tlsf"/>

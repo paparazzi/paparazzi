@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_i2c_common">
+<module name="imu_aspirin_i2c_common" task="sensors">
   <doc>
     <description>
       Common functionality of Aspirin IMUs using I2C only.
@@ -19,8 +19,12 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
-  <autoload name="imu_common"/>
+  <dep>
+    <depends>i2c,imu_common</depends>
+    <provides>imu,mag</provides>
+  </dep>
   <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
   <header>
     <file name="imu_aspirin_i2c.h" dir="subsystems/imu"/>
   </header>

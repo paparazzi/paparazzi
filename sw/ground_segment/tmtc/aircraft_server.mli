@@ -56,6 +56,7 @@ type datalink_status = {
     mutable downlink_rate : int;
  }
 type link_status = {
+    last_link_status_date : float;
     rx_lost_time : int;
     rx_bytes : int;
     rx_msgs : int;

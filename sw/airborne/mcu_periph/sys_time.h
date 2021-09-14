@@ -46,15 +46,11 @@
  * sys_time.resolution is set from this define.
  */
 #ifndef SYS_TIME_FREQUENCY
-#if USE_CHIBIOS_RTOS
-#define SYS_TIME_FREQUENCY CH_CFG_ST_FREQUENCY
-#else /* NO RTOS */
 #if defined PERIODIC_FREQUENCY
 #define SYS_TIME_FREQUENCY (2 * PERIODIC_FREQUENCY)
 #else /* !defined PERIODIC_FREQUENCY */
 #define SYS_TIME_FREQUENCY 1000
 #endif
-#endif /* USE_CHIBIOS_RTOS */
 #endif
 
 typedef int8_t tid_t; ///< sys_time timer id type
@@ -92,6 +88,15 @@ extern void sys_time_init(void);
  * @return -1 if it failed, the timer id otherwise
  */
 extern tid_t sys_time_register_timer(float duration, sys_time_cb cb);
+
+/**
+ * Register a new system timer with an fixed offset from another one.
+ * @param timer timer providing start time and duration
+ * @param offset offset in seconds beetween the timers (will overlap if longer than duration)
+ * @param cb Callback function that is called from the ISR when timer elapses, or NULL
+ * @return -1 if it failed, the timer id otherwise
+ */
+extern tid_t sys_time_register_timer_offset(tid_t timer, float offset, sys_time_cb cb);
 
 /**
  * Cancel a system timer by id.

@@ -1,13 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_sim" dir="gps">
+<module name="gps_sim" dir="gps" task="sensors">
   <doc>
     <description>
       Simulated GPS
       For simple fixedwing OCaml simulator. Does not model any GPS inaccuracies/noise.
     </description>
   </doc>
-  <autoload name="gps"/>
+  <dep>
+    <depends>gps</depends>
+    <provides>gps</provides>
+  </dep>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>

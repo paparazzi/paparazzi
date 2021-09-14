@@ -1,14 +1,19 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_chimu_uart" dir="ins">
+<module name="ahrs_chimu_uart" dir="ins" task="estimation">
   <doc>
     <description>CHimu (UART)</description>
     <configure name="CHIMU_UART_NR" value="3" description="UART"/>
     <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
+  <dep>
+    <depends>uart</depends>
+    <provides>ahrs,imu</provides>
+  </dep>
   <header>
     <file name="ins_module.h"/>
   </header>
+  <init fun="ahrs_init()"/>
   <event fun="parse_ins_msg()"/>
   <makefile target="ap">
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>

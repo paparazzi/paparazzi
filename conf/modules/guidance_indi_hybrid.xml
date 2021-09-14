@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_indi_hybrid" dir="guidance">
+<module name="guidance_indi_hybrid" dir="guidance" task="control">
   <doc>
     <description>
       Guidance controller for hybrids using INDI
@@ -21,6 +21,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
   <header>
     <file name="guidance_indi_hybrid.h"/>
   </header>

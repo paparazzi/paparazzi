@@ -12,13 +12,16 @@
     <configure name="ACTUATORS_SPEKTRUM_DEV" value="UARTX" description="UART port (default uart4)"/>
     <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UARTX" description="UART port for optional secondary output"/>
   </doc>
+  <dep>
+    <depends>uart,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_spektrum.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="!sim">
     <configure name="ACTUATORS_SPEKTRUM_DEV" default="uart4" case="upper|lower"/>
     <configure name="ACTUATORS_SPEKTRUM_DEV2" case="upper|lower"/>
-    <define name="ACTUATORS"/>
     <define name="ACTUATORS_SPEKTRUM_DEV" value="$(ACTUATORS_SPEKTRUM_DEV_LOWER)"/>
     <define name="USE_$(ACTUATORS_SPEKTRUM_DEV_UPPER)"/>
     <define name="$(ACTUATORS_SPEKTRUM_DEV_UPPER)_BAUD" value="115200"/>

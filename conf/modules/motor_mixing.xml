@@ -19,6 +19,10 @@
       <define name="THRUST_COEF" value="{ 256, 256, 256, 256 }" description="array of thurst coefficient"/>
     </section>
   </doc>
+  <dep>
+    <depends>@commands</depends>
+    <provides>mixing</provides>
+  </dep>
   <header>
     <file name="motor_mixing.h" dir="subsystems/actuators"/>
   </header>

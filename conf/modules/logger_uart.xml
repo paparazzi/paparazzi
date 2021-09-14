@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_uart" dir="loggers">
+<module name="logger_uart" dir="loggers" task="core">
   <doc>
     <description>Stream IMU raw data over UART for off-board logging.</description>
     <configure name="LOGGER_PORT" value="UART1|UART2|UART3|UART4|UART5|UART6" description="Port to stream the realtime log"/>

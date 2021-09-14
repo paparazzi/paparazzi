@@ -28,8 +28,6 @@
 
 #ifndef  SYS_TIME_FREQUENCY
 #error SYS_TIME_FREQUENCY should be defined in Makefile.chibios or airframe.xml and be equal to CH_CFG_ST_FREQUENCY
-#elif SYS_TIME_FREQUENCY != CH_CFG_ST_FREQUENCY
-#error SYS_TIME_FREQUENCY should be equal to CH_CFG_ST_FREQUENCY
 #elif  CH_CFG_ST_FREQUENCY < (2 * PERIODIC_FREQUENCY)
 #error CH_CFG_ST_FREQUENCY and SYS_TIME_FREQUENCY should be >= 2 x PERIODIC_FREQUENCY
 #endif
@@ -79,9 +77,14 @@ static void thd_ap(void *arg)
   chRegSetThreadName("AP");
 
   while (!chThdShouldTerminateX()) {
+    systime_t t = chVTGetSystemTime();
     handle_periodic_tasks();
     main_event();
-    chThdSleepMicroseconds(500);
+    // The sleep time is computed to have a polling interval of
+    // 1e6 / CH_CFG_ST_FREQUENCY. If time is passed, thanks to the
+    // "Windowed" sleep function, the execution is not blocked until
+    // a complet roll-over.
+    chThdSleepUntilWindowed(t, t + TIME_US2I(1000000 / CH_CFG_ST_FREQUENCY));
   }
 
   chThdExit(0);

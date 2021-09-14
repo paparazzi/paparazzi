@@ -138,7 +138,7 @@ class Link:
     def removeFromBuffer(self,message):
         self.buffer.remove(message.message())
 
-    def acAc(self, ac_id):
+    def addAc(self, ac_id):
         self.acs = self.acs + [ac_id]
 
     def aircrafts(self):

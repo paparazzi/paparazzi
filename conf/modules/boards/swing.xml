@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="swing" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Parrot Swing
+    </description>
+  </doc>
+  <dep>
+    <depends>baro_board_common</depends>
+    <provides>baro</provides>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <file name="baro_board.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+

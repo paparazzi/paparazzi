@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2010  The Paparazzi Team
+ * Copyright (C) 2003-2021  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -40,40 +40,8 @@
 #include "inter_mcu.h"
 #include "link_mcu.h"
 
-// Sensors
-#if USE_GPS
-#include "subsystems/gps.h"
-#endif
-#if USE_IMU
-#include "subsystems/imu.h"
-#endif
-#if USE_AHRS
-#include "subsystems/ahrs.h"
-#endif
-#if USE_BARO_BOARD
-#include "subsystems/sensors/baro.h"
-PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
-#endif
-
-
-// autopilot
-#include "state.h"
-#include "autopilot.h"
-#include "firmwares/fixedwing/nav.h"
-#include "generated/flight_plan.h"
-
-// datalink & telemetry
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-#endif
-
-// modules & settings
-#include "subsystems/settings.h"
+#include "generated/airframe.h"
 #include "generated/modules.h"
-#include "generated/settings.h"
-#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
-#include "modules/settings/rc_settings.h"
-#endif
 #include "subsystems/abi.h"
 
 #include "led.h"
@@ -110,18 +78,6 @@ PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 #endif
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
-/* MODULES_FREQUENCY is defined in generated/modules.h
- * according to main_freq parameter set for modules in airframe file
- */
-PRINT_CONFIG_VAR(MODULES_FREQUENCY)
-
-/* BARO_PERIODIC_FREQUENCY is defined in baro_board.makefile
- * defaults to 50Hz or set by BARO_PERIODIC_FREQUENCY configure option in airframe file
- */
-#if USE_BARO_BOARD
-PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
-#endif
-
 
 #if USE_IMU
 #ifdef AHRS_PROPAGATE_FREQUENCY
@@ -132,56 +88,33 @@ INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY t
 #endif
 #endif // USE_IMU
 
+/**
+ * IDs for timers
+ */
+tid_t modules_mcu_core_tid; // single step
+tid_t modules_sensors_tid;
+//tid_t modules_radio_control_tid; // done in FBW
+tid_t modules_gnc_tid; // estimation, control, actuators, default in a single step
+tid_t modules_datalink_tid;
 
-tid_t modules_tid;     ///< id for modules_periodic_task() timer
-tid_t telemetry_tid;   ///< id for telemetry_periodic() timer
-tid_t sensors_tid;     ///< id for sensors_task() timer
-tid_t attitude_tid;    ///< id for attitude_loop() timer
-#if !USE_GENERATED_AUTOPILOT
-tid_t navigation_tid;  ///< id for navigation_task() timer
-#endif
-tid_t monitor_tid;     ///< id for monitor_task() timer
-#if USE_BARO_BOARD
-tid_t baro_tid;          ///< id for baro_periodic() timer
-#endif
-
+#define SYS_PERIOD (1.f / PERIODIC_FREQUENCY)
+#define SENSORS_PERIOD (1.f / PERIODIC_FREQUENCY)
+#define DATALINK_PERIOD (1.f / TELEMETRY_FREQUENCY)
 
 void init_ap(void)
 {
-#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  mcu_init();
-#endif /* SINGLE_MCU */
-
-  /** - start interrupt task */
-  mcu_int_enable();
-
-#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
-  pprz_trig_int_init();
+#ifndef SINGLE_MCU
+  modules_mcu_init();
 #endif
-
-  /****** initialize and reset state interface ********/
-
-  stateInit();
-
-  /************* Sensors initialization ***************/
-
-#if USE_AHRS
-  ahrs_init();
-#endif
-
-#if USE_BARO_BOARD
-  baro_init();
-#endif
-
-  /************* Links initialization ***************/
-#if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
-  link_mcu_init();
-#endif
-
-  /************ Internal status ***************/
-  autopilot_init();
-
-  modules_init();
+  modules_core_init();
+  modules_sensors_init();
+  modules_estimation_init();
+  //radio_control_init(); FIXME done in FBW
+  // modules_radio_control_init(); FIXME
+  modules_control_init();
+  modules_actuators_init();
+  modules_datalink_init();
+  modules_default_init();
 
   // call autopilot implementation init after guidance modules init
   // it will set startup mode
@@ -191,24 +124,26 @@ void init_ap(void)
   autopilot_static_init();
 #endif
 
-  settings_init();
+  // register timers with temporal dependencies
+  modules_sensors_tid = sys_time_register_timer(SENSORS_PERIOD, NULL);
 
-  /**** start timers for periodic functions *****/
-  sensors_tid = sys_time_register_timer(1. / PERIODIC_FREQUENCY, NULL);
-#if !USE_GENERATED_AUTOPILOT
-  navigation_tid = sys_time_register_timer(1. / NAVIGATION_FREQUENCY, NULL);
-#endif
-  attitude_tid = sys_time_register_timer(1. / CONTROL_FREQUENCY, NULL);
-  modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
-  telemetry_tid = sys_time_register_timer(1. / TELEMETRY_FREQUENCY, NULL);
-  monitor_tid = sys_time_register_timer(1.0, NULL);
-#if USE_BARO_BOARD
-  baro_tid = sys_time_register_timer(1. / BARO_PERIODIC_FREQUENCY, NULL);
-#endif
+  // common GNC group (estimation, control, actuators, default)
+  // is called with an offset of half the main period (1/PERIODIC_FREQUENCY)
+  // which is the default resolution of SYS_TIME_FREQUENCY,
+  // hence the resolution of the virtual timers.
+  // In practice, this is the best compromised between having enough time between
+  // the sensor readings (triggerd in sensors task group) and the lag between
+  // the state update and control/actuators update
+  //
+  //      |      PERIODIC_FREQ       |
+  //      |            |             |
+  //      read         gnc
+  //
+  modules_gnc_tid = sys_time_register_timer_offset(modules_sensors_tid, 1.f / (2.f * PERIODIC_FREQUENCY), NULL);
 
-#if DOWNLINK
-  downlink_init();
-#endif
+  // register the timers for the periodic functions
+  modules_mcu_core_tid = sys_time_register_timer(SYS_PERIOD, NULL);
+  modules_datalink_tid = sys_time_register_timer(DATALINK_PERIOD, NULL);
 
   /* set initial trim values.
    * these are passed to fbw via inter_mcu.
@@ -223,51 +158,34 @@ void init_ap(void)
   // send body_to_imu from here for now
   AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
 #endif
+
 }
 
 
 void handle_periodic_tasks_ap(void)
 {
-
-  if (sys_time_check_and_ack_timer(sensors_tid)) {
-    sensors_task();
+  if (sys_time_check_and_ack_timer(modules_sensors_tid)) {
+    modules_sensors_periodic_task();
   }
 
-#if USE_BARO_BOARD
-  if (sys_time_check_and_ack_timer(baro_tid)) {
-    baro_periodic();
-  }
-#endif
-
-#if USE_GENERATED_AUTOPILOT
-  if (sys_time_check_and_ack_timer(attitude_tid)) {
-    autopilot_periodic();
-  }
-#else
-  // static autopilot
-  if (sys_time_check_and_ack_timer(navigation_tid)) {
-    navigation_task();
+  if (sys_time_check_and_ack_timer(modules_gnc_tid)) {
+    modules_estimation_periodic_task();
+    modules_control_periodic_task();
+    modules_default_periodic_task();
   }
 
-#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
-  if (sys_time_check_and_ack_timer(attitude_tid)) {
-    attitude_loop();
-  }
-#endif
-
-#endif
-
-  if (sys_time_check_and_ack_timer(modules_tid)) {
-    modules_periodic_task();
+  if (sys_time_check_and_ack_timer(modules_mcu_core_tid)) {
+    modules_mcu_periodic_task();
+    modules_core_periodic_task();
+    LED_PERIODIC(); // FIXME periodic in led module
   }
 
-  if (sys_time_check_and_ack_timer(monitor_tid)) {
-    monitor_task();
-  }
-
-  if (sys_time_check_and_ack_timer(telemetry_tid)) {
+  if (sys_time_check_and_ack_timer(modules_datalink_tid)) {
     reporting_task();
-    LED_PERIODIC();
+    modules_datalink_periodic_task(); // FIXME integrate above
+#if defined DATALINK || defined SITL
+    RunOnceEvery(TELEMETRY_FREQUENCY, datalink_time++);
+#endif
   }
 
 }
@@ -278,7 +196,6 @@ void handle_periodic_tasks_ap(void)
 
 /**
  * Send a series of initialisation messages followed by a stream of periodic ones.
- * Called at 60Hz.
  */
 void reporting_task(void)
 {
@@ -293,7 +210,6 @@ void reporting_task(void)
   }
   /* then report periodicly */
   else {
-    //PeriodicSendAp(DefaultChannel, DefaultDevice);
 #if PERIODIC_TELEMETRY
     periodic_telemetry_send_Ap(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
@@ -301,97 +217,30 @@ void reporting_task(void)
 }
 
 
-
-/** Run at PERIODIC_FREQUENCY (60Hz if not defined) */
-void sensors_task(void)
-{
-  //FIXME: this is just a kludge
-#if USE_AHRS && defined SITL && !USE_NPS
-  update_ahrs_from_sim();
-#endif
-}
-
-#ifdef LOW_BATTERY_KILL_DELAY
-#warning LOW_BATTERY_KILL_DELAY has been renamed to CATASTROPHIC_BAT_KILL_DELAY, please update your airframe file!
-#endif
-
-/** Maximum time allowed for catastrophic battery level before going into kill mode */
-#ifndef CATASTROPHIC_BAT_KILL_DELAY
-#define CATASTROPHIC_BAT_KILL_DELAY 5
-#endif
-
-/** Maximum distance from HOME waypoint before going into kill mode */
-#ifndef KILL_MODE_DISTANCE
-#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
-#endif
-
-/** Default minimal speed for takeoff in m/s */
-#ifndef MIN_SPEED_FOR_TAKEOFF
-#define MIN_SPEED_FOR_TAKEOFF 5.
-#endif
-
-/** monitor stuff run at 1Hz */
-void monitor_task(void)
-{
-  if (autopilot.flight_time) {
-    autopilot.flight_time++;
-  }
-#if defined DATALINK || defined SITL
-  datalink_time++;
-#endif
-
-  static uint8_t t = 0;
-  if (ap_electrical.vsupply < CATASTROPHIC_BAT_LEVEL) {
-    t++;
-  } else {
-    t = 0;
-  }
-#if !USE_GENERATED_AUTOPILOT
-  // only check for static autopilot
-  autopilot.kill_throttle |= (t >= CATASTROPHIC_BAT_KILL_DELAY);
-  autopilot.kill_throttle |= autopilot.launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
-#endif
-
-  if (!autopilot.flight_time &&
-      stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
-    autopilot.flight_time = 1;
-    autopilot.launch = true; /* Not set in non auto launch */
-#if DOWNLINK
-    uint16_t time_sec = sys_time.nb_sec;
-    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
-#endif
-  }
-
-}
-
-
 /*********** EVENT ***********************************************************/
 void event_task_ap(void)
 {
-
 #ifndef SINGLE_MCU
   /* for SINGLE_MCU done in main_fbw */
   /* event functions for mcu peripherals: i2c, usb_serial.. */
-  mcu_event();
+  modules_mcu_event_task();
 #endif /* SINGLE_MCU */
+  modules_core_event_task();
+  modules_sensors_event_task();
+  modules_estimation_event_task();
+  modules_datalink_event_task();
+  modules_default_event_task();
 
-#if USE_BARO_BOARD
-  BaroEvent();
-#endif
 
-  modules_event_task();
-
+  // TODO integrate in modules
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_event_task();
 #endif
-
   if (inter_mcu_received_fbw) {
     /* receive radio control task from fbw */
     inter_mcu_received_fbw = false;
     autopilot_on_rc_frame();
   }
-
-  autopilot_event();
 
 } /* event_task_ap() */
 

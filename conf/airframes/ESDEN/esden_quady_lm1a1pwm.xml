@@ -140,38 +140,35 @@
    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
- <modules main_freq="512">
+ <firmware name="rotorcraft">
+   <target name="ap" board="lisa_m_1.0">
+     <module name="radio_control" type="spektrum">
+       <define name="RADIO_MODE" value="RADIO_FLAP"/>
+       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+     </module>
+   </target>
+
+   <target name="nps" board="pc">
+     <module name="fdm"           type="jsbsim"/>
+     <module name="radio_control" type="ppm"/>
+   </target>
+
+   <module name="motor_mixing"/>
+   <module name="actuators"     type="pwm">
+     <define name="SERVO_HZ" value="400"/>
+     <define name="USE_SERVOS_7AND8"/>
+   </module>
+
+   <module name="telemetry"     type="transparent"/>
+   <module name="imu"           type="aspirin_v1.0"/>
+   <module name="gps"           type="ublox"/>
    <module name="gps" type="ubx_ucenter"/>
-</modules>
-
-  <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_1.0">
-      <module name="radio_control" type="spektrum">
-        <define name="RADIO_MODE" value="RADIO_FLAP"/>
-        <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-      </module>
-    </target>
-
-    <target name="nps" board="pc">
-      <module name="fdm"           type="jsbsim"/>
-      <module name="radio_control" type="ppm"/>
-    </target>
-
-    <module name="motor_mixing"/>
-    <module name="actuators"     type="pwm">
-      <define name="SERVO_HZ" value="400"/>
-      <define name="USE_SERVOS_7AND8"/>
-    </module>
-
-    <module name="telemetry"     type="transparent"/>
-    <module name="imu"           type="aspirin_v1.0"/>
-    <module name="gps"           type="ublox"/>
-    <module name="stabilization" type="int_quat"/>
-    <module name="ahrs"          type="int_cmpl_quat"/>
-    <module name="ins"/>
-    <!--define name="USE_INS_NAV_INIT"/-->
-    <!--module name="stabilization"   type="int_euler"/>
+   <module name="stabilization" type="int_quat"/>
+   <module name="ahrs"          type="int_cmpl_quat"/>
+   <module name="ins"/>
+   <!--define name="USE_INS_NAV_INIT"/-->
+   <!--module name="stabilization"   type="int_euler"/>
     <module name="ahrs"          type="int_cmpl_euler"/-->
   </firmware>
 

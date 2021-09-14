@@ -6,11 +6,14 @@
       Actuators Driver using direct PWM output
     </description>
   </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators_pwm.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="!sim">
-    <define name="ACTUATORS"/>
     <file_arch name="actuators_pwm_arch.c" dir="subsystems/actuators"/>
     <file_arch name="actuators_shared_arch.c" dir="subsystems/actuators" cond="ifeq ($(ARCH), stm32)"/>
   </makefile>

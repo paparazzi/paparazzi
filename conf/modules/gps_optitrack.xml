@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_optitrack" dir="gps">
+<module name="gps_optitrack" dir="gps" task="sensors">
   <doc>
     <description>
       Optitrack used as indoor GPS.
@@ -9,8 +9,10 @@
       So as a hack optitrack sends the heading in the GPS course field.
     </description>
   </doc>
-  <autoload name="gps"/>
-  <autoload name="gps_datalink"/>
+  <dep>
+    <depends>gps_datalink</depends>
+    <provides>gps</provides>
+  </dep>
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <makefile target="ap">

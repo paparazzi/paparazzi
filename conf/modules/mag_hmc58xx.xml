@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_hmc58xx" dir="sensors">
+<module name="mag_hmc58xx" dir="sensors" task="sensors">
   <doc>
     <description>
       HMC58xx magnetometer.
@@ -22,6 +22,10 @@
       <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
     </section>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>mag</provides>
+  </dep>
   <header>
     <file name="mag_hmc58xx.h"/>
   </header>

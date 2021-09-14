@@ -33,9 +33,6 @@
 
 #include "std.h"
 
-#define mcu_int_enable()  {}
-#define mcu_int_disable() {}
-
 extern void mcu_arch_init(void);
 
 #if USE_HARD_FAULT_RECOVERY

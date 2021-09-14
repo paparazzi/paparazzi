@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="nav_skid_landing" dir="nav">
+<module name="nav_skid_landing" dir="nav" task="control">
   <doc>
     <description>
     Landing on skidpads
@@ -49,6 +49,9 @@
     </dl_settings>
   </settings>
 
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
   <header>
     <file name="nav_skid_landing.h"/>
   </header>

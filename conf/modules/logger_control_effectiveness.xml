@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="logger_control_effectiveness" dir="loggers">
+<module name="logger_control_effectiveness" dir="loggers" task="core">
   <doc>
     <description>
       Logs to a csv file data required to compute control effectiveness

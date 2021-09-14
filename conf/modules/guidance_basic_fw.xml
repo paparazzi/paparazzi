@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="guidance_basic_fw" dir="guidance">
+<module name="guidance_basic_fw" dir="guidance" task="control">
   <doc>
     <description>
       Legacy vertical control for fixedwing aircraft based on throttle (default) or pitch
@@ -45,6 +45,10 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@navigation</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
   <header>
     <file name="guidance_v.h"/>
     <file name="guidance_h.h"/>

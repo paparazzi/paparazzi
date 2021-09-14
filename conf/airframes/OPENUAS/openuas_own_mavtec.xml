@@ -29,18 +29,6 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="float_mlkf"/>
     <module name="ins" type="hff"/>
-  </firmware>
-
-  <section name="AUTOPILOT">
-    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
-    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
-    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
-  </section>
-
-  <!-- ************************* MODULES ************************* -->
-
-  <modules main_freq="512">
     <!--   <module name="logger_spi_link"/>
     <module name="imu_quality_assessment"/> -->
     <module name="switch" type="servo"/>
@@ -49,7 +37,14 @@
     <module name="nav" type="survey_rectangle_rotorcraft"/>
     <module name="nav" type="survey_poly_rotorcraft"/>
     <module name="geo_mag"/>
-  </modules>
+  </firmware>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+  </section>
 
   <!-- ************************* ACTUATORS ************************* -->
 

@@ -35,9 +35,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <!--module name="wind_estimator"/-->
     <module name="geo_mag"/>
     <module name="air_data"/>
@@ -50,7 +48,7 @@
       <configure name="SHT_UART" value="UART5"/>
     </module>
     <module name="imu_temp_ctrl"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

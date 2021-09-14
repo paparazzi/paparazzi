@@ -56,7 +56,6 @@ static inline void main_init(void)
   ms2100_init(&ms2100, &(MS2100_SPI_DEV), MS2100_SLAVE_IDX);
   downlink_init();
   pprz_dl_init();
-  mcu_int_enable();
 }
 
 static inline void main_periodic_task(void)

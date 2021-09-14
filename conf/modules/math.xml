@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="math" task="core">
+  <doc>
+    <description>
+      Math library.
+      - algebra (integer, float, double)
+      - geodetic (integer, float, double)
+      - trigo (int)
+      - orientation conversion
+      Basic functions, extra matrix decompositions not included.
+    </description>
+  </doc>
+  <dep>
+    <provides>math</provides>
+  </dep>
+  <header>
+    <file name="pprz_algebra_int.h" dir="math"/>
+    <file name="pprz_algebra_float.h" dir="math"/>
+    <file name="pprz_algebra_double.h" dir="math"/>
+    <file name="pprz_geodetic_int.h" dir="math"/>
+    <file name="pprz_geodetic_float.h" dir="math"/>
+    <file name="pprz_geodetic_double.h" dir="math"/>
+    <file name="pprz_trig_int.h" dir="math"/>
+    <file name="pprz_orientation_conversion.h" dir="math"/>
+    <file name="pprz_stat.h"/>
+  </header>
+  <init fun="pprz_trig_int_init()"/>
+  <makefile>
+    <file name="pprz_algebra_int.c" dir="math"/>
+    <file name="pprz_algebra_float.c" dir="math"/>
+    <file name="pprz_algebra_double.c" dir="math"/>
+    <file name="pprz_geodetic_int.c" dir="math"/>
+    <file name="pprz_geodetic_float.c" dir="math"/>
+    <file name="pprz_geodetic_double.c" dir="math"/>
+    <file name="pprz_trig_int.c" dir="math"/>
+    <file name="pprz_orientation_conversion.c" dir="math"/>
+    <file name="pprz_stat.c" dir="math"/>
+  </makefile>
+</module>
+

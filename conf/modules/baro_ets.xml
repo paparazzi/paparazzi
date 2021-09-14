@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_ets" dir="sensors">
+<module name="baro_ets" dir="sensors" task="sensors">
   <doc>
     <description>
       Baro ETS (I2C).
@@ -25,6 +25,10 @@
     <define name="BARO_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
     <define name="BARO_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>baro</provides>
+  </dep>
 
   <header>
     <file name="baro_ets.h"/>

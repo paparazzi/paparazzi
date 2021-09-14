@@ -23,4 +23,4 @@ fi
 
 export HOME=/home/$USER_NAME
 
-exec /usr/local/bin/gosu $USER_NAME "$@"
+exec /usr/sbin/gosu $USER_NAME "$@"

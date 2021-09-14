@@ -56,6 +56,22 @@ tid_t sys_time_register_timer(float duration, sys_time_cb cb)
   return -1;
 }
 
+tid_t sys_time_register_timer_offset(tid_t timer, float offset, sys_time_cb cb)
+{
+  if (timer >=0 && timer < SYS_TIME_NB_TIMER) {
+    for (tid_t i = 0; i < SYS_TIME_NB_TIMER; i++) {
+      if (!sys_time.timer[i].in_use && (timer < i)) { // timer should be already registered
+        sys_time.timer[i].cb         = cb;
+        sys_time.timer[i].elapsed    = false;
+        sys_time.timer[i].end_time   = sys_time.timer[timer].end_time + sys_time_ticks_of_sec(offset); // add offset to end time
+        sys_time.timer[i].duration   = sys_time.timer[timer].duration; // copy duration
+        sys_time.timer[i].in_use     = true;
+        return i;
+      }
+    }
+  }
+  return -1;
+}
 
 void sys_time_cancel_timer(tid_t id)
 {
@@ -69,10 +85,8 @@ void sys_time_cancel_timer(tid_t id)
 // FIXME: race condition ??
 void sys_time_update_timer(tid_t id, float duration)
 {
-  mcu_int_disable();
   sys_time.timer[id].end_time -= (sys_time.timer[id].duration - sys_time_ticks_of_sec(duration));
   sys_time.timer[id].duration = sys_time_ticks_of_sec(duration);
-  mcu_int_enable();
 }
 
 void sys_time_init(void)

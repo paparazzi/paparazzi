@@ -6,11 +6,14 @@
       Actuators Driver for Disco plane
     </description>
   </doc>
+  <dep>
+    <depends>i2c,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
   <header>
     <file name="actuators.h" dir="boards/disco"/>
   </header>
   <makefile target="ap">
-    <define name="ACTUATORS"/>
     <define name="USE_I2C1"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
     <file_arch name="pwm_sysfs.c" dir="mcu_periph"/>
