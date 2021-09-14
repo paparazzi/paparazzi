@@ -72,22 +72,22 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_CHECK_MASK)
 PRINT_CONFIG_VAR(INS_EKF2_AGL_ID)
 
 /** Default AGL sensor minimum range */
-#ifndef INS_SONAR_MIN_RANGE
-#define INS_SONAR_MIN_RANGE 0.001
+#ifndef INS_EKF2_SONAR_MIN_RANGE
+#define INS_EKF2_SONAR_MIN_RANGE 0.001
 #endif
-PRINT_CONFIG_VAR(INS_SONAR_MIN_RANGE)
+PRINT_CONFIG_VAR(INS_EKF2_SONAR_MIN_RANGE)
 
 /** Default AGL sensor maximum range */
-#ifndef INS_SONAR_MAX_RANGE
-#define INS_SONAR_MAX_RANGE 4
+#ifndef INS_EKF2_SONAR_MAX_RANGE
+#define INS_EKF2_SONAR_MAX_RANGE 4
 #endif
-PRINT_CONFIG_VAR(INS_SONAR_MAX_RANGE)
+PRINT_CONFIG_VAR(INS_EKF2_SONAR_MAX_RANGE)
 
-/** Default AGL sensor maximum range */
-#ifndef USE_RANGE_AID
-#define USE_RANGE_AID 1
+/** If enabled uses radar sensor as primary AGL source, if possible */
+#ifndef INS_EKF2_RANGE_MAIN_AGL
+#define INS_EKF2_RANGE_MAIN_AGL 1
 #endif
-PRINT_CONFIG_VAR(USE_RANGE_AID)
+PRINT_CONFIG_VAR(INS_EKF2_RANGE_MAIN_AGL)
 
 /** default barometer to use in INS */
 #ifndef INS_EKF2_BARO_ID
@@ -130,58 +130,58 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
 /* Default flow/radar message delay (in ms) */
-#ifndef INS_FLOW_SENSOR_DELAY
-#define INS_FLOW_SENSOR_DELAY 15
+#ifndef INS_EKF2_FLOW_SENSOR_DELAY
+#define INS_EKF2_FLOW_SENSOR_DELAY 15
 #endif
 PRINT_CONFIG_VAR(INS_FLOW_SENSOR_DELAY)
 
 /* Default minimum accepted quality (1 to 255) */
-#ifndef INS_MIN_FLOW_QUALITY
-#define INS_MIN_FLOW_QUALITY  100
+#ifndef INS_EKF2_MIN_FLOW_QUALITY
+#define INS_EKF2_MIN_FLOW_QUALITY  100
 #endif
-PRINT_CONFIG_VAR(INS_MIN_FLOW_QUALITY)
+PRINT_CONFIG_VAR(INS_EKF2_MIN_FLOW_QUALITY)
 
 /* Max flow rate that the sensor can measure (rad/sec) */
-#ifndef INS_MAX_FLOW_RATE
-#define INS_MAX_FLOW_RATE 200
+#ifndef INS_EKF2_MAX_FLOW_RATE
+#define INS_EKF2_MAX_FLOW_RATE 200
 #endif
-PRINT_CONFIG_VAR(INS_MAX_FLOW_RATE)
+PRINT_CONFIG_VAR(INS_EKF2_MAX_FLOW_RATE)
 
 /* Flow sensor X offset from IMU position in meters */
-#ifndef FLOW_OFFSET_X
-#define FLOW_OFFSET_X 0
+#ifndef INS_EKF2_FLOW_OFFSET_X
+#define INS_EKF2_FLOW_OFFSET_X 0
 #endif
-PRINT_CONFIG_VAR(FLOW_OFFSET_X)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_X)
 
 /* Flow sensor Y offset from IMU position in meters */
-#ifndef FLOW_OFFSET_Y
-#define FLOW_OFFSET_Y 0
+#ifndef INS_EKF2_FLOW_OFFSET_Y
+#define INS_EKF2_FLOW_OFFSET_Y 0
 #endif
-PRINT_CONFIG_VAR(FLOW_OFFSET_Y)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_Y)
 
 /* Flow sensor Z offset from IMU position in meters */
-#ifndef FLOW_OFFSET_Z
-#define FLOW_OFFSET_Z 0
+#ifndef INS_EKF2_FLOW_OFFSET_Z
+#define INS_EKF2_FLOW_OFFSET_Z 0
 #endif
-PRINT_CONFIG_VAR(FLOW_OFFSET_Z)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_Z)
 
 /* Flow sensor noise in rad/sec */
-#ifndef INS_FLOW_NOISE
-#define INS_FLOW_NOISE 0.03
+#ifndef INS_EKF2_FLOW_NOISE
+#define INS_EKF2_FLOW_NOISE 0.03
 #endif
-PRINT_CONFIG_VAR(INS_FLOW_NOISE)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE)
 
 /* Flow sensor noise at qmin in rad/sec */
-#ifndef INS_FLOW_NOISE_QMIN
-#define INS_FLOW_NOISE_QMIN 0.05
+#ifndef INS_EKF2_FLOW_NOISE_QMIN
+#define INS_EKF2_FLOW_NOISE_QMIN 0.05
 #endif
-PRINT_CONFIG_VAR(INS_FLOW_NOISE_QMIN)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_NOISE_QMIN)
 
 /* Flow sensor innovation gate */
-#ifndef INS_FLOW_INNOV_GATE
-#define INS_FLOW_INNOV_GATE 4
+#ifndef INS_EKF2_FLOW_INNOV_GATE
+#define INS_EKF2_FLOW_INNOV_GATE 4
 #endif
-PRINT_CONFIG_VAR(INS_FLOW_INNOV_GATE)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_INNOV_GATE)
 
 /* All registered ABI events */
 static abi_event agl_ev;
@@ -330,22 +330,16 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
   ekf.get_filter_fault_status(&filter_fault_status);
 
   // Check the alignment and if GPS is fused
-  if ((control_mode & 0x7) == 0x7)
-  {
+  if ((control_mode & 0x7) == 0x7) {
     mde = 3;
-  }
-  else if ((control_mode & 0x7) == 0x3)
-  {
+  } else if ((control_mode & 0x7) == 0x3) {
     mde = 4;
-  }
-  else
-  {
+  } else {
     mde = 2;
   }
 
   // Check if there is a covariance error
-  if (filter_fault_status)
-  {
+  if (filter_fault_status) {
     mde = 6;
   }
 
@@ -388,21 +382,21 @@ void ins_ekf2_init(void)
   ekf_params->gps_check_mask = INS_EKF2_GPS_CHECK_MASK;
 
   /* Set optical flow parameters */
-  ekf_params->flow_qual_min = INS_MIN_FLOW_QUALITY;
-  ekf_params->flow_delay_ms = INS_FLOW_SENSOR_DELAY;
-  ekf_params->range_delay_ms = INS_FLOW_SENSOR_DELAY;
-  ekf_params->flow_noise = INS_FLOW_NOISE;
-	ekf_params->flow_noise_qual_min = INS_FLOW_NOISE_QMIN;
-	ekf_params->flow_innov_gate = INS_FLOW_INNOV_GATE;
+  ekf_params->flow_qual_min = INS_EKF2_MIN_FLOW_QUALITY;
+  ekf_params->flow_delay_ms = INS_EKF2_FLOW_SENSOR_DELAY;
+  ekf_params->range_delay_ms = INS_EKF2_FLOW_SENSOR_DELAY;
+  ekf_params->flow_noise = INS_EKF2_FLOW_NOISE;
+	ekf_params->flow_noise_qual_min = INS_EKF2_FLOW_NOISE_QMIN;
+	ekf_params->flow_innov_gate = INS_EKF2_FLOW_INNOV_GATE;
 
   /* Set flow sensor offset from IMU position in xyz (m) */
-  ekf2.offset_x = FLOW_OFFSET_X;
-  ekf2.offset_y = FLOW_OFFSET_Y;
-  ekf2.offset_z = FLOW_OFFSET_Z;
-  ekf_params->flow_pos_body = {0.001*ekf2.offset_x, 0.001*ekf2.offset_y, 0.001*ekf2.offset_z};
+  ekf2.offset_x = INS_EKF2_FLOW_OFFSET_X;
+  ekf2.offset_y = INS_EKF2_FLOW_OFFSET_Y;
+  ekf2.offset_z = INS_EKF2_FLOW_OFFSET_Z;
+  ekf_params->flow_pos_body = {0.001f*ekf2.offset_x, 0.001f*ekf2.offset_y, 0.001f*ekf2.offset_z};
 
   /* Set range as default AGL measurement if possible */
-  ekf_params->range_aid = USE_RANGE_AID;
+  ekf_params->range_aid = INS_EKF2_RANGE_MAIN_AGL;
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;
@@ -415,10 +409,10 @@ void ins_ekf2_init(void)
   ekf2.quat_reset_counter = 0;
 
   /* Initialize the range sensor limits */
-  ekf.set_rangefinder_limits(INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
+  ekf.set_rangefinder_limits(INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
 
   /* Initialize the flow sensor limits */
-  ekf.set_optical_flow_limits(INS_MAX_FLOW_RATE, INS_SONAR_MIN_RANGE, INS_SONAR_MAX_RANGE);
+  ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
@@ -449,14 +443,12 @@ void ins_ekf2_update(void)
   ekf.set_in_air_status(autopilot_in_flight());
 
   /* Update the EKF */
-  if (ekf2.got_imu_data && ekf.update())
-  {
+  if (ekf2.got_imu_data && ekf.update()) {
     filter_control_status_u control_status;
     ekf.get_control_mode(&control_status.value);
 
     // Only publish position after successful alignment
-    if (control_status.flags.tilt_align)
-    {
+    if (control_status.flags.tilt_align) {
       /* Get the position */
       float pos_f[3] = {};
       struct NedCoor_f pos;
@@ -499,8 +491,7 @@ void ins_ekf2_update(void)
 
       // Only update the origin when the state estimator has updated the origin
       bool ekf_origin_valid = ekf.get_ekf_origin(&origin_time, &ekf_origin, &ref_alt);
-      if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp))
-      {
+      if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
         lla_ref.lat = ekf_origin.lat_rad * 180.0 / M_PI * 1e7; // Reference point latitude in degrees
         lla_ref.lon = ekf_origin.lon_rad * 180.0 / M_PI * 1e7; // Reference point longitude in degrees
         lla_ref.alt = ref_alt * 1000.0;
@@ -516,8 +507,7 @@ void ins_ekf2_update(void)
   }
 
 #if defined SITL && USE_NPS
-  if (nps_bypass_ins)
-  {
+  if (nps_bypass_ins) {
     sim_overwrite_ins();
   }
 #endif
@@ -552,8 +542,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   imu_sample.delta_vel = Vector3f{ekf2.accel.x, ekf2.accel.y, ekf2.accel.z} * imu_sample.delta_vel_dt;
   ekf.setIMUData(imu_sample);
 
-  if (ekf.attitude_valid())
-  {
+  if (ekf.attitude_valid()) {
     // Calculate the quaternion
     struct FloatQuat ltp_to_body_quat;
     const Quatf att_q{ekf.calculate_quaternion()};
@@ -572,8 +561,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 
 #ifndef NO_RESET_UPDATE_SETPOINT_HEADING
 
-    if (ekf2.quat_reset_counter < quat_reset_counter)
-    {
+    if (ekf2.quat_reset_counter < quat_reset_counter) {
       float psi = matrix::Eulerf(matrix::Quatf(delta_q_reset)).psi();
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
       stab_att_sp_euler.psi += ANGLE_BFP_OF_REAL(psi);
@@ -651,16 +639,14 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
   float_rmat_transp_ratemult(&ekf2.gyro, body_to_imu_rmat, &imu_rate);
 
   // Calculate the Gyro interval
-  if (ekf2.gyro_stamp > 0)
-  {
+  if (ekf2.gyro_stamp > 0) {
     ekf2.gyro_dt = stamp - ekf2.gyro_stamp;
     ekf2.gyro_valid = true;
   }
   ekf2.gyro_stamp = stamp;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
-  if (ekf2.gyro_valid && ekf2.accel_valid)
-  {
+  if (ekf2.gyro_valid && ekf2.accel_valid) {
     ins_ekf2_publish_attitude(stamp);
   }
 }
@@ -679,16 +665,14 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   float_rmat_transp_vmult(&ekf2.accel, body_to_imu_rmat, &accel_imu);
 
   // Calculate the Accelerometer interval
-  if (ekf2.accel_stamp > 0)
-  {
+  if (ekf2.accel_stamp > 0) {
     ekf2.accel_dt = stamp - ekf2.accel_stamp;
     ekf2.accel_valid = true;
   }
   ekf2.accel_stamp = stamp;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
-  if (ekf2.gyro_valid && ekf2.accel_valid)
-  {
+  if (ekf2.gyro_valid && ekf2.accel_valid) {
     ins_ekf2_publish_attitude(stamp);
   }
 }

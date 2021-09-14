@@ -209,6 +209,10 @@
 #define MAG_RM3100_SENDER_ID 5
 #endif
 
+#ifndef MAG_DATALINK_SENDER_ID
+#define MAG_DATALINK_SENDER_ID 6
+#endif
+
 #ifndef IMU_MAG_PITOT_ID
 #define IMU_MAG_PITOT_ID 50
 #endif

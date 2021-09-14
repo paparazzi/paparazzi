@@ -65,6 +65,22 @@ void gps_datalink_init(void)
   ltp_def_from_lla_i(&ltp_def, &llh_nav0);
 }
 
+// Send GPS heading info as magnetometer messages
+static void send_magnetometer(int32_t course, uint32_t now_ts)
+{
+  struct Int32Vect3 mag;
+  struct FloatVect3 mag_real;
+  // course from gps in [0, 2*Pi]*1e7 (CW/north)
+  float heading = course/1e7;
+  mag_real.x = cos(heading);
+  mag_real.y = -sin(heading);
+  mag_real.z = 0;
+  MAGS_BFP_OF_REAL(mag, mag_real);
+
+  // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
+  AbiSendMsgIMU_MAG_INT32(MAG_DATALINK_SENDER_ID, now_ts, &mag);
+}
+
 // Parse the REMOTE_GPS_SMALL datalink packet
 static void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t speed_xyz, uint32_t tow)
 {
@@ -180,20 +196,7 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
 
   // if selected, publish magnetometer data
   if (GPS_DATALINK_USE_MAG) {
-
-    struct Int32Vect3 mag;
-    struct FloatVect3 mag_real;
-    // course from gps in [0, 2*Pi]*1e7 (CW/north)
-    float heading = course/1e7;
-    mag_real.x = cos(heading);
-    mag_real.y = -sin(heading);
-    mag_real.z = 0;
-    MAGS_BFP_OF_REAL(mag, mag_real);
-
-    // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
-    AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
-
+    send_magnetometer(course, now_ts);
   }
 
   // publish new GPS data
@@ -254,20 +257,7 @@ static void parse_gps_datalink_local(float enu_x, float enu_y, float enu_z,
 
   // if selected, publish magnetometer data
   if (GPS_DATALINK_USE_MAG) {
-
-    struct Int32Vect3 mag;
-    struct FloatVect3 mag_real;
-    // course from gps in [0, 2*Pi]*1e7 (CW/north)
-    float heading = course/1e7;
-    mag_real.x = cos(heading);
-    mag_real.y = -sin(heading);
-    mag_real.z = 0;
-    MAGS_BFP_OF_REAL(mag, mag_real);
-
-    // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
-    AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &mag);
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
-
+    send_magnetometer(course, now_ts);
   }
 
   // Publish GPS data
