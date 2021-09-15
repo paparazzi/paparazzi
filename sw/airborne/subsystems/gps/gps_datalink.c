@@ -32,6 +32,7 @@
 
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
+#include "subsystems/imu.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 
@@ -76,6 +77,10 @@ static void send_magnetometer(int32_t course, uint32_t now_ts)
   mag_real.y = -sin(heading);
   mag_real.z = 0;
   MAGS_BFP_OF_REAL(mag, mag_real);
+
+  // update IMU information
+  VECT3_COPY(imu.mag_unscaled, mag);
+  imu_scale_mag(&imu);
 
   // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
   AbiSendMsgIMU_MAG_INT32(MAG_DATALINK_SENDER_ID, now_ts, &mag);
@@ -195,9 +200,9 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   uint32_t now_ts = get_sys_time_usec();
 
   // if selected, publish magnetometer data
-  if (GPS_DATALINK_USE_MAG) {
+  #if GPS_DATALINK_USE_MAG
     send_magnetometer(course, now_ts);
-  }
+  #endif
 
   // publish new GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
@@ -256,9 +261,9 @@ static void parse_gps_datalink_local(float enu_x, float enu_y, float enu_z,
   uint32_t now_ts = get_sys_time_usec();
 
   // if selected, publish magnetometer data
-  if (GPS_DATALINK_USE_MAG) {
+  #if GPS_DATALINK_USE_MAG
     send_magnetometer(course, now_ts);
-  }
+  #endif
 
   // Publish GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
