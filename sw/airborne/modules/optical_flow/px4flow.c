@@ -173,6 +173,7 @@ void px4flow_downlink(void)
                             &optical_flow.flow_comp_m_y,
                             &optical_flow.quality,
                             &optical_flow.ground_distance,
+                            0,
                             &distance_quality);
 }
 

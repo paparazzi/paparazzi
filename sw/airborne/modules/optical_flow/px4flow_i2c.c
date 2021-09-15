@@ -298,5 +298,6 @@ void px4flow_i2c_downlink(void)
                             &flow_comp_m_y,
                             &quality,
                             &ground_distance,
+                            0,
                             &distance_quality);
 }
