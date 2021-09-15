@@ -102,6 +102,7 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
       float phi = stateGetNedToBodyEulers_f()->phi;
       float theta = stateGetNedToBodyEulers_f()->theta;
       float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+      optical_flow.distance = optical_flow.ground_distance;
       optical_flow.ground_distance = optical_flow.ground_distance / gain;
   }
 
@@ -172,6 +173,7 @@ void px4flow_downlink(void)
                             &optical_flow.flow_comp_m_x,
                             &optical_flow.flow_comp_m_y,
                             &optical_flow.quality,
+                            &optical_flow.distance,
                             &optical_flow.ground_distance,
                             &distance_quality);
 }

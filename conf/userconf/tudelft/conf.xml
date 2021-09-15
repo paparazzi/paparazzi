@@ -310,6 +310,17 @@
    release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
   />
   <aircraft
+   name="Nederquad"
+   ac_id="89"
+   airframe="airframes/tudelft/nederquad.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
+   settings="[settings/rotorcraft_basic.xml] [settings/control/stabilization_rate.xml] [settings/control/stabilization_indi.xml]"
+   settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/lidar_lite.xml modules/nav_basic_rotorcraft.xml modules/optical_flow_mateksys_3901_l0x.xml modules/stabilization_indi_simple.xml"
+   gui_color="#406b937dccd0"
+  />
+  <aircraft
    name="OrigamiMXS_wifi_indi_stereocam"
    ac_id="15"
    airframe="airframes/tudelft/origami_lisamxs_wifi_indi_stereoboard.xml"

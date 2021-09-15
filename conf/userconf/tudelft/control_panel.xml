@@ -67,6 +67,78 @@
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
   </section>
   <section name="sessions">
+      <session name="EKF Full">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="bottom_settings.xml"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="800x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-0+750"/>
+        <arg flag="-t" constant="INNOVATION_STATUS"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_vel"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_pos"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_hgt"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_tas"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_hagl"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_flow"/>
+        <arg flag="-c" constant="*:telemetry:INS_EKF2:innov_beta"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-1000+0"/>
+        <arg flag="-t" constant="POSITION"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:east:0.0039063"/>
+        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:north:0.0039063"/>
+        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:up:0.0039063"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-1000+250"/>
+        <arg flag="-t" constant="VELOCITY"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:veast:0.0000019"/>
+        <arg flag="-c" constant="*:telemetry:ROTORCRAFT_FP:vnorth:0.0000019"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="800x250-1000+500"/>
+        <arg flag="-t" constant="OPTICAL FLOW"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:flow_x"/>
+        <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
+      </program>
+    </session>
     <session name="helidd">
       <program name="BluegigaUsbDongle">
         <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>

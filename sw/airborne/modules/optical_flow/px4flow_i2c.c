@@ -278,6 +278,7 @@ void px4flow_i2c_downlink(void)
 
   uint8_t quality = px4flow.i2c_int_frame.qual;
   float ground_distance = ((float)px4flow.i2c_int_frame.ground_distance) / 1000.0;
+  float distance = 0;
 #else
   int32_t flow_x = px4flow.i2c_frame.pixel_flow_x_sum;
   int32_t flow_y = px4flow.i2c_frame.pixel_flow_y_sum;
@@ -287,6 +288,7 @@ void px4flow_i2c_downlink(void)
 
   uint8_t quality = px4flow.i2c_frame.qual;
   float ground_distance = ((float)px4flow.i2c_frame.ground_distance) / 1000.0;
+  float distance;
 #endif
 
   DOWNLINK_SEND_OPTICAL_FLOW(DefaultChannel, DefaultDevice,
@@ -298,5 +300,6 @@ void px4flow_i2c_downlink(void)
                             &flow_comp_m_y,
                             &quality,
                             &ground_distance,
+                            &distance,
                             &distance_quality);
 }

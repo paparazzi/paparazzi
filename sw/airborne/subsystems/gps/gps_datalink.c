@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2014 Freek van Tienen
  *
@@ -31,7 +32,15 @@
 
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
+#include "subsystems/imu.h"
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/downlink.h"
+
+/** Set to 1 to receive also magnetometer ABI messages */
+#ifndef GPS_DATALINK_USE_MAG
+#define GPS_DATALINK_USE_MAG 1
+#endif
+PRINT_CONFIG_VAR(GPS_DATALINK_USE_MAG)
 
 struct LtpDef_i ltp_def;
 
@@ -55,6 +64,26 @@ void gps_datalink_init(void)
   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
 
   ltp_def_from_lla_i(&ltp_def, &llh_nav0);
+}
+
+// Send GPS heading info as magnetometer messages
+static void send_magnetometer(int32_t course, uint32_t now_ts)
+{
+  struct Int32Vect3 mag;
+  struct FloatVect3 mag_real;
+  // course from gps in [0, 2*Pi]*1e7 (CW/north)
+  float heading = course/1e7;
+  mag_real.x = cos(heading);
+  mag_real.y = -sin(heading);
+  mag_real.z = 0;
+  MAGS_BFP_OF_REAL(mag, mag_real);
+
+  // update IMU information
+  VECT3_COPY(imu.mag_unscaled, mag);
+  imu_scale_mag(&imu);
+
+  // Send fake ABI for GPS, Magnetometer and Optical Flow for GPS fusion
+  AbiSendMsgIMU_MAG_INT32(MAG_DATALINK_SENDER_ID, now_ts, &mag);
 }
 
 // Parse the REMOTE_GPS_SMALL datalink packet
@@ -168,8 +197,14 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
-  // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
+
+  // if selected, publish magnetometer data
+  #if GPS_DATALINK_USE_MAG
+    send_magnetometer(course, now_ts);
+  #endif
+
+  // publish new GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
@@ -223,8 +258,14 @@ static void parse_gps_datalink_local(float enu_x, float enu_y, float enu_z,
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
-  // publish new GPS data
   uint32_t now_ts = get_sys_time_usec();
+
+  // if selected, publish magnetometer data
+  #if GPS_DATALINK_USE_MAG
+    send_magnetometer(course, now_ts);
+  #endif
+
+  // Publish GPS data
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 

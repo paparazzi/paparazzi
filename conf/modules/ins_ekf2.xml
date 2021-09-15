@@ -5,11 +5,21 @@
     <description>
       simple INS and AHRS using EKF2 from PX4
     </description>
+    <define name="INS_EKF2_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
+    <define name="INS_EKF2_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
+    <define name="INS_EKF2_RANGE_MAIN_AGL" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
+    <define name="INS_EKF2_FLOW_SENSOR_DELAY" value="15" description="flow/radar message delay [ms]"/>
+    <define name="INS_EKF2_MIN_FLOW_QUALITY" value="100" description="Minimum quality of the optical flow message accepted [0-255]"/>
+    <define name="INS_EKF2_MAX_FLOW_RATE" value="20" description="Maximum flow rate the sensor can perceive [rad/sec]]"/>
+    <define name="INS_EKF2_FLOW_OFFSET_X" value="-130" description="Flow sensor X offset from IMU position [mm]"/>
+    <define name="INS_EKF2_FLOW_OFFSET_Y" value="-150" description="Flow sensor Y offset from IMU position [mm]"/>
+    <define name="INS_EKF2_FLOW_OFFSET_Z" value="170" description="Flow sensor Z offset from IMU position [mm]"/>
+    <define name="INS_EKF2_FLOW_NOISE" value="0.01" description="Flow sensor noise [rad/sec]"/>
+    <define name="INS_EKF2_FLOW_NOISE_QMIN" value="0.03" description="Flow sensor noise when quality is minimum [rad/sec]"/>
+    <define name="INS_EKF2_FLOW_INNOV_GATE" value="3" description="Flow sensor innovation gate [STD]"/>
     <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
     <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
     <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
-    <define name="INS_SONAR_MIN_RANGE" value="0.001" description="Minimum range in meters for the AGL sensor"/>
-    <define name="INS_SONAR_MAX_RANGE" value="4.0" description="Maximum range in meters for the AGL sensor"/>
     <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
     <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
@@ -22,6 +32,7 @@
       <!-- EKF2 Configuration parameters -->
       <dl_settings name="ekf2">
         <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
+        <dl_setting var="ekf2_params.fusion_mode" min="0" max="1" step="1" shortname="remove_gps" values="FALSE|TRUE" module="subsystems/ins/ins_ekf2" handler="remove_gps" type="bool" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -45,9 +56,9 @@
     <!-- Include the ecl and matrix libraries from ext -->
     <include name="$(PAPARAZZI_SRC)/sw/ext/ecl/"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
-    <define name="__PAPARAZZI" value="true"/>
-    <define name="ECL_STANDALONE" value="true"/>
-    <define name="USE_MAGNETOMETER" value="true"/> <!-- Needed for IMU to get scaled version -->
+    <define name="__PAPARAZZI" value="TRUE"/>
+    <define name="ECL_STANDALONE" value="TRUE"/>
+    <define name="USE_MAGNETOMETER" value="TRUE"/> <!-- Needed for IMU to get scaled version -->
 
     <!-- Compile needed ecl files -->
     <file name="mathlib.cpp" dir="ecl/mathlib"/>
@@ -67,5 +78,6 @@
     <file name="terrain_estimator.cpp" dir="ecl/EKF"/>
     <file name="vel_pos_fusion.cpp" dir="ecl/EKF"/>
     <file name="gps_yaw_fusion.cpp" dir="ecl/EKF"/>
+    
   </makefile>
 </module>

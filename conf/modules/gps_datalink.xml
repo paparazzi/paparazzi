@@ -6,6 +6,7 @@
       Remote GPS via datalink.
       Parses the REMOTE_GPS and REMOTE_GPS_SMALL datalink messages and publishes it onboard via ABI.
     </description>
+    <define name="GPS_DATALINK_USE_MAG" value="1" description="Choose to receive also GPS extracted magnetometer messages"/>
   </doc>
   <dep>
     <depends>gps,@datalink</depends>
