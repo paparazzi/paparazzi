@@ -481,6 +481,9 @@ extern void float_quat_of_orientation_vect(struct FloatQuat *q, const struct Flo
 /// Quaternion from rotation matrix.
 extern void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm);
 
+/// Tilt twist decomposition of quaternion
+extern void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, struct FloatQuat *quat);
+
 
 /* defines for backwards compatibility */
 #define FLOAT_QUAT_ZERO(_q) WARNING("FLOAT_QUAT_ZERO macro is deprecated, use the lower case function instead") float_quat_identity(&(_q))

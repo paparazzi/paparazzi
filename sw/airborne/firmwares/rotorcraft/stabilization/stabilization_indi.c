@@ -538,20 +538,35 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight)
 {
   /* attitude error                          */
-  struct Int32Quat att_err;
-  struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  int32_quat_inv_comp(&att_err, att_quat, &quat_sp);
-  /* wrap it in the shortest direction       */
-  int32_quat_wrap_shortest(&att_err);
-  int32_quat_normalize(&att_err);
+  struct FloatQuat att_err;
+  struct FloatQuat *att_quat = stateGetNedToBodyQuat_f();
+  struct FloatQuat quat_sp_f;
+
+  QUAT_FLOAT_OF_BFP(quat_sp_f, quat_sp);
+  float_quat_inv_comp_norm_shortest(&att_err, att_quat, &quat_sp_f);
+
+  struct FloatVect3 att_fb;
+
+#if TILT_TWIST_CTRL
+  struct FloatQuat tilt;
+  struct FloatQuat twist;
+  float_quat_tilt_twist(&tilt, &twist, &att_err);
+  att_fb.x = tilt.qx;
+  att_fb.y = tilt.qy;
+  att_fb.z = twist.qz;
+#else
+  att_fb.x = att_err.qx;
+  att_fb.y = att_err.qy;
+  att_fb.z = att_err.qz;
+#endif
 
   // local variable to compute rate setpoints based on attitude error
   struct FloatRates rate_sp;
 
   // calculate the virtual control (reference acceleration) based on a PD controller
-  rate_sp.p = indi_gains.att.p * QUAT1_FLOAT_OF_BFP(att_err.qx) / indi_gains.rate.p;
-  rate_sp.q = indi_gains.att.q * QUAT1_FLOAT_OF_BFP(att_err.qy) / indi_gains.rate.q;
-  rate_sp.r = indi_gains.att.r * QUAT1_FLOAT_OF_BFP(att_err.qz) / indi_gains.rate.r;
+  rate_sp.p = indi_gains.att.p * att_fb.x / indi_gains.rate.p;
+  rate_sp.q = indi_gains.att.q * att_fb.y / indi_gains.rate.q;
+  rate_sp.r = indi_gains.att.r * att_fb.z / indi_gains.rate.r;
 
   // Possibly we can use some bounding here
   /*BoundAbs(rate_sp.r, 5.0);*/

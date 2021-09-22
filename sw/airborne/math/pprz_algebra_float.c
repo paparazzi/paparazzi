@@ -618,6 +618,44 @@ void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm)
   }
 }
 
+/**
+ * @brief Tilt twist decomposition of a quaternion (z axis)
+ * 
+ * Decomposes a quaternion rotation in two rotations:
+ * 1. A rotation that aligns the z axis.
+ * 2. A rotation around the z axis.
+ * 
+ * Useful for control of vehicles that are slow in rotation around the z axis.
+ *
+ * @param tilt Tilt output
+ * @param twist Twist output
+ * @param quat Quaternion input
+ */
+void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, struct FloatQuat *quat)
+{
+  struct FloatVect3 z = {0., 0., 1.};
+  struct FloatVect3 z_rot;
+
+  // Find the z axis of the target quaternion reference frame
+  struct FloatQuat qinv;
+  float_quat_invert(&qinv, quat);
+  float_quat_vmult(&z_rot, &qinv, &z);
+
+  // The cross product gives the axis around which to rotate to match the Z vectors.
+  struct FloatVect3 axis;
+  VECT3_CROSS_PRODUCT(axis, z, z_rot); 
+
+  tilt->qi = 1 + z_rot.z;
+  tilt->qx = axis.x;
+  tilt->qy = axis.y;
+  tilt->qz = axis.z;
+
+  float_quat_normalize(tilt);
+
+  // The tilt quaternion completes the rotation.
+  float_quat_inv_comp_norm_shortest(twist, tilt, quat);
+}
+
 
 /*
  *
