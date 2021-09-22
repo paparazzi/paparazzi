@@ -352,21 +352,21 @@ let set_attribs = fun ((model, path):node) attribs ->
 let rec replace_assoc a v = function
 [] -> [(a, v)]
   | (a', v')::l ->
-    if a = Compat.uppercase_ascii a'
+    if a = String.uppercase_ascii a'
     then (a, v)::l
     else (a', v')::replace_assoc a v l
 
 let set_attrib = fun node (a, v) ->
   let atbs = attribs node in
-  set_attribs node (replace_assoc (Compat.uppercase_ascii a) v atbs)
+  set_attribs node (replace_assoc (String.uppercase_ascii a) v atbs)
 
 let attrib = fun node at ->
-  let at = Compat.uppercase_ascii at in
+  let at = String.uppercase_ascii at in
   let ats = attribs node in
   let rec loop = function
   [] -> raise Not_found
     | (a,v)::avs ->
-      if Compat.uppercase_ascii a = at then v else loop avs in
+      if String.uppercase_ascii a = at then v else loop avs in
   loop ats
 
 let tag = fun ((model, path):node) ->

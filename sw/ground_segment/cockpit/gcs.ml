@@ -501,7 +501,7 @@ let resize = fun (widget:GObj.widget) orientation size ->
 
 let rec pack_widgets = fun orientation xml widgets packing ->
   let size = try Some (ExtXml.int_attrib xml "size") with _ -> None in
-  match Compat.lowercase_ascii (Xml.tag xml) with
+  match String.lowercase_ascii (Xml.tag xml) with
       "widget" ->
         let name = ExtXml.attrib xml "name" in
         let widget =
@@ -528,7 +528,7 @@ and pack_list = fun resize orientation xmls widgets packing ->
 
 let rec find_widget_children = fun name xml ->
   let xmls = Xml.children xml in
-  match Compat.lowercase_ascii (Xml.tag xml) with
+  match String.lowercase_ascii (Xml.tag xml) with
       "widget" when ExtXml.attrib xml "name" = name -> xmls
     | "rows" | "columns" ->
       let rec loop = function
@@ -542,7 +542,7 @@ let rec find_widget_children = fun name xml ->
 
 let rec replace_widget_children = fun name children xml ->
   let xmls = Xml.children xml
-  and tag = Compat.lowercase_ascii (Xml.tag xml) in
+  and tag = String.lowercase_ascii (Xml.tag xml) in
   match tag with
       "widget" ->
         Xml.Element("widget",
@@ -564,7 +564,7 @@ let rec update_widget_size = fun orientation widgets xml ->
     if orientation = `HORIZONTAL then rect.Gtk.width else rect.Gtk.height
   in
   let xmls = Xml.children xml
-  and tag = Compat.lowercase_ascii (Xml.tag xml) in
+  and tag = String.lowercase_ascii (Xml.tag xml) in
   match tag with
       "widget" ->
         let name = ExtXml.attrib xml "name" in

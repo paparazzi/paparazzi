@@ -349,7 +349,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 let attributes_pretty_printer = fun attribs ->
   (* Remove the optional attributes *)
   let valid = fun a ->
-    let a = Compat.lowercase_ascii a in
+    let a = String.lowercase_ascii a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
     && a <> "post_call" && a <> "key" && a <> "group" in
 

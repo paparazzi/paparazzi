@@ -111,7 +111,7 @@ let parse_message = fun m ->
 
   (** Generating send function *)
   let gen_send_macro = fun _ ->
-    let param_name = fun f -> Compat.lowercase_ascii (field_name f) in
+    let param_name = fun f -> String.lowercase_ascii (field_name f) in
     let rec param_names = fun f r ->
       if Xml.tag f = "field" then
         param_name f :: r

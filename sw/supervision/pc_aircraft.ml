@@ -83,7 +83,7 @@ let parse_conf_xml = fun vbox ->
   let strings = ref [] in
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
   let compare_ignore_case = fun s1 s2 ->
-    String.compare (Compat.lowercase_ascii s1) (Compat.lowercase_ascii s2) in
+    String.compare (String.lowercase_ascii s1) (String.lowercase_ascii s2) in
   let ordered = List.sort compare_ignore_case ("" :: !strings) in
   Gtk_tools.combo ordered vbox
 

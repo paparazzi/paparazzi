@@ -84,7 +84,7 @@ module Gen_onboard = struct
     Printf.fprintf h "\n/* Messages IDs */\n";
     List.iter (fun msg ->
       if msg.id > !highest_id then highest_id := msg.id;
-      Printf.fprintf h "#define ABI_%s_ID %d\n" (Compat.capitalize_ascii msg.name) msg.id
+      Printf.fprintf h "#define ABI_%s_ID %d\n" (String.capitalize_ascii msg.name) msg.id
     ) messages;
     !highest_id
 
@@ -109,14 +109,14 @@ module Gen_onboard = struct
   let print_callbacks = fun h messages ->
     Printf.fprintf h "\n/* Callbacks */\n";
     List.iter (fun msg ->
-      Printf.fprintf h "typedef void (*abi_callback%s)" (Compat.capitalize_ascii msg.name);
+      Printf.fprintf h "typedef void (*abi_callback%s)" (String.capitalize_ascii msg.name);
       print_args h msg.fields;
       Printf.fprintf h ";\n";
     ) messages
 
   (* Print a bind function *)
   let print_msg_bind = fun h msg ->
-    let name = Compat.capitalize_ascii msg.name in
+    let name = String.capitalize_ascii msg.name in
     Printf.fprintf h "\nstatic inline void AbiBindMsg%s(uint8_t sender_id, abi_event * ev, abi_callback%s cb) {\n" name name;
     Printf.fprintf h "  if (abi_queues[ABI_%s_ID] == ev) return;\n" name;
     Printf.fprintf h "  ev->id = sender_id;\n";
@@ -133,7 +133,7 @@ module Gen_onboard = struct
         | [(n,_)] -> Printf.fprintf h ", %s);\n" n
         | (n,_)::l' -> Printf.fprintf h ", %s" n; args h l'
     in
-    let name = Compat.capitalize_ascii msg.name in
+    let name = String.capitalize_ascii msg.name in
     Printf.fprintf h "\nstatic inline void AbiSendMsg%s" name;
     print_args h msg.fields;
     Printf.fprintf h " {\n";

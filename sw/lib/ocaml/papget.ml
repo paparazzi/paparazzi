@@ -368,7 +368,7 @@ object (self)
     let (x, y) = item#xy in
     let attrs =
       [ "type", msg_obj#type_;
-        "display", Compat.lowercase_ascii item#renderer#tag;
+        "display", String.lowercase_ascii item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, scale_prop::val_props@renderer_props)
 end
@@ -387,7 +387,7 @@ object
     let (x, y) = item#xy in
     let attrs =
       [ "type", type_;
-        "display", Compat.lowercase_ascii item#renderer#tag;
+        "display", String.lowercase_ascii item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
 end
@@ -416,7 +416,7 @@ object (self)
     let (x, y) = item#xy in
     let attrs =
       [ "type", "video_plugin";
-        "display", Compat.lowercase_ascii item#renderer#tag;
+        "display", String.lowercase_ascii item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
   initializer ignore(adj#connect#value_changed (fun () -> self#update_zoom (string_of_float adj#value)))
