@@ -482,7 +482,7 @@ extern void float_quat_of_orientation_vect(struct FloatQuat *q, const struct Flo
 extern void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm);
 
 /// Tilt twist decomposition of quaternion
-void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, struct FloatQuat *quat);
+extern void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, struct FloatQuat *quat);
 
 
 /* defines for backwards compatibility */
