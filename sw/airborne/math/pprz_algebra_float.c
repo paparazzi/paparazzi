@@ -618,6 +618,39 @@ void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm)
   }
 }
 
+#include <stdio.h>
+/**
+ * @brief Tilt twist decomposition of a quaternion (z axis)
+ *
+ * @param tilt Tilt output
+ * @param twist Twist output
+ * @param quat Quaternion input
+ */
+void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, struct FloatQuat *quat)
+{
+  struct FloatVect3 z = {0., 0., 1.};
+  struct FloatVect3 z_rot;
+
+  struct FloatQuat qinv;
+  float_quat_invert(&qinv, quat);
+
+  float_quat_vmult(&z_rot, &qinv, &z);
+
+  struct FloatVect3 axis;
+
+  // if z_rot(3) is not 1!
+  VECT3_CROSS_PRODUCT(axis, z, z_rot); 
+
+  tilt->qi = 1 + z_rot.z;
+  tilt->qx = axis.x;
+  tilt->qy = axis.y;
+  tilt->qz = axis.z;
+
+  float_quat_normalize(tilt);
+
+  float_quat_inv_comp_norm_shortest(twist, tilt, quat);
+}
+
 
 /*
  *

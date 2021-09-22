@@ -34,12 +34,12 @@
 
 
 #define DISPLAY_FLOAT_QUAT(text, quat) {        \
-    float quat_norm = FLOAT_QUAT_NORM(quat);        \
+    float quat_norm = float_quat_norm(&quat);        \
     printf("%s %f %f %f %f (%f)\n",text, quat.qi, quat.qx, quat.qy, quat.qz, quat_norm); \
   }
 
 #define DISPLAY_FLOAT_QUAT_AS_INT(text, quat) {       \
-    float quat_norm = FLOAT_QUAT_NORM(quat);        \
+    float quat_norm = float_quat_norm(&quat);        \
     struct Int32Quat qi;            \
     QUAT_BFP_OF_REAL(qi, quat);           \
     printf("%s %d %d %d %d (%f)\n",text, qi.qi, qi.qx, qi.qy, qi.qz, quat_norm); \
