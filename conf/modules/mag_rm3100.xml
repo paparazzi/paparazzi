@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_rm3100" dir="sensors">
+<module name="mag_rm3100" dir="sensors" task="sensors">
   <doc>
     <description>
       PNI RM3100 magnetometer.
