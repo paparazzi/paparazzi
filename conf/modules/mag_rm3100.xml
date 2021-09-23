@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_rm3100" dir="sensors">
+<module name="mag_rm3100" dir="sensors" task="sensors">
   <doc>
     <description>
       PNI RM3100 magnetometer.
@@ -22,6 +22,10 @@
       <define name="DATA_RATE" value="RM3100_RATE_150" description="Continuous conversion data rate"/>
     </section>
   </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>mag</provides>
+  </dep>
   <header>
     <file name="mag_rm3100.h"/>
   </header>
