@@ -29,7 +29,7 @@
   <firmware name="fixedwing">
 
     <!-- ********************** For in the real flying hardware ********************-->
-    <target name="ap" board="px4fmu_4.0">
+    <target name="ap" board="px4fmu_4.0_chibios">
       <define name="FLASH_MODE" value="PX4_BOOTLOADER"/>
 
       <configure name="CPU_LED" value="1"/>

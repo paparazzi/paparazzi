@@ -29,7 +29,7 @@ NOTES:
   <firmware name="fixedwing">
 <!-- ********************** For in the real flying hardware ******************** -->
 
-    <target name="ap" board="px4fmu_4.0"><!-- <target name="ap" board="px4fmu_4.0_chibios">-->
+    <target name="ap" board="px4fmu_4.0_chibios">
 
       <!--<define name="USE_I2C0"/>-->
       <!-- Towards better kind of aligner initial conditions -->
@@ -85,21 +85,15 @@ NOTES:
       </module>
 
       <module name="current_sensor">
-        <define name="USE_ADC_3"/> <!-- should not be needed if defaults are correct...-->
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+        <define name="USE_ADC_2"/> <!-- should not be needed if defaults are correct...-->
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
         <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
       </module>
 
       <module name="adc_generic">
-        <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
-        <!--<configure name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>-->
+        <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/>
+        <!--<configure name="ADC_CHANNEL_GENERIC2" value="ADC_1"/>--><!-- misues V measurment -->
       </module>
-
-      <!-- <module name="adc_generic">-->
-      <!-- <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  <!-- Misuse the RSSI pin? -->
-      <!-- RPM measuring sensor -->
-      <!-- <configure name="ADC_CHANNEL_GENERIC2" value="ADC_x"/>
-      </module>-->
 
       <!-- SBUS out is AETR by default, our transmitter sends TAER as per standard so correct in radio file -->
       <module name="radio_control" type="sbus"> <!-- The output type of RX, over the air it can can be all kinds e.g. DSMX, FRSky-->
@@ -126,15 +120,15 @@ NOTES:
       <module name="sys_mon"/><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
       <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
 
-      <!-- For easier on desk testing transparent_usb, else transparent -->
-       <module name="telemetry" type="transparent_usb"/>
+      <!-- For easier on desk testing transparent_usb, else transparent NOT not (yet) working in ChiBios -->
+      <!--<module name="telemetry" type="transparent_usb"/>-->
 
       <!-- Or use type="xbee_api" for Digi Xbee modems -->
        <!-- UART2 is Telem1 on pixracer -->
-      <!--<module name="telemetry" type="transparent">
+      <module name="telemetry" type="transparent">
         <configure name="MODEM_PORT" value="UART2"/>
         <configure name="MODEM_BAUD" value="B57600"/>
-      </module>-->
+      </module>
 
     </target>
 

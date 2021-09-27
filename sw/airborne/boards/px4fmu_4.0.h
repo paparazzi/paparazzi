@@ -62,7 +62,7 @@
 #define UART1_GPIO_PORT_TX GPIOB
 #define UART1_GPIO_TX GPIO6
 
-//Not used yet unil find some time to test
+//Not used yet until find some time to test
 /*
 #define ESP8266_TX
 #define ESP8266_RX
@@ -228,75 +228,79 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define SDIO_CMD_PORT GPIOD
 #define SDIO_CMD_PIN GPIO2
 
-/* Onboard ADCs */
+
 #if USE_AD_TIM2
 #undef USE_AD_TIM2 // timer2 is used by the buzzer
 #endif
 #define USE_AD_TIM3 1
 
-// Internal ADC used for board voltage level measurement
+/*
+ * ADCs 
+ */
+// VOLT_SENS
 #ifndef USE_ADC_1
 #define USE_ADC_1 1
 #endif
 #if USE_ADC_1
-#define AD1_1_CHANNEL 4 //ADC12_IN4
+#define AD1_1_CHANNEL 2
 #define ADC_1 AD1_1
 #define ADC_1_GPIO_PORT GPIOA
-#define ADC_1_GPIO_PIN GPIO4
+#define ADC_1_GPIO_PIN GPIO2
 #endif
 
+// CUR_SENS
 #ifndef USE_ADC_2
 #define USE_ADC_2 1
 #endif
 #if USE_ADC_2
-#define AD1_2_CHANNEL 2 // ADC123_IN2 (--> IN2 corresponds to channel 2)
-#define ADC_2 AD1_2 // ADC123 means it can be used by ADC 1 and 2 and 3 (the f4 supports 3 adc's), does not matter which. Each ADC can address 4 pins, so in this case we are using ADC 1, on its second pin.
+#define AD1_2_CHANNEL 3 
+#define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOA
-#define ADC_2_GPIO_PIN GPIO2
+#define ADC_2_GPIO_PIN GPIO3
 #endif
 
+// VDD_V5_SENS , Internal ADC used for board voltage level measurement
 #ifndef USE_ADC_3
 #define USE_ADC_3 1
 #endif
 #if USE_ADC_3
-#define AD1_3_CHANNEL 3 // ADC123_IN3
+#define AD1_3_CHANNEL 4
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
 #define ADC_3_GPIO_PIN GPIO3
 #endif
 
-//ADC_pin_RSSI_IN
+// RSSI , ADC pin to measure analog RSSI signal, but can as well be used for whatever ADC signal to measure
 #ifndef USE_ADC_4
 #define USE_ADC_4 1
 #endif
 #if USE_ADC_4
-#define AD1_4_CHANNEL 11 // ADC123_IN11
+#define AD1_4_CHANNEL 11
 #define ADC_4 AD1_4
 #define ADC_4_GPIO_PORT GPIOC
 #define ADC_4_GPIO_PIN GPIO1
 #endif
 
-/* Allow to define another ADC_CHANNEL_VSUPPLY in the airframe file */
+/* This way it allows one to define another ADC_CHANNEL_VSUPPLY an airframe file setting */
 #ifndef ADC_CHANNEL_VSUPPLY
-  #define ADC_CHANNEL_VSUPPLY ADC_1 // Per default for the board to sense voltage (V) level via external sensor is via ADC_2
-  #define DefaultVoltageOfAdc(adc) (10.5 * (float)adc) // FIXME: More precise value scale internal vdd to 5V
+  #define ADC_CHANNEL_VSUPPLY ADC_3 //Use Internal if not defined per default for the board. To sense voltage (V) level via External sensor is default via ADC_1
+  #define DefaultVoltageOfAdc(adc) (10.5 * (float)adc) // FIXME: Could be even more precise value to scale internal vdd to 5V
 #else
-  #if USE_ADC_2
+  #if USE_ADC_1
     #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.245f * (float)adc) // About the value scale for a common 3DR clone Power Brick 
   #else
-    #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 6.0f * (float)adc) // About the value scale for a common other sensor 
+    #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 6.0f * (float)adc) // About the value scale for a common other 3rd party sensor 
   #endif
 #endif
 
 /* Allow to define another ADC for Current measurement in the airframe file */
 #ifndef ADC_CHANNEL_CURRENT
-#define ADC_CHANNEL_CURRENT ADC_3 // Per default for the board to sense current (I) via external sensor is via ADC_3
+#define ADC_CHANNEL_CURRENT ADC_2 // Per default for the board to sense current (I) via external sensor is via ADC_2
 #endif
-
-#if USE_ADC_3
+#if USE_ADC_2
 #define DefaultMilliAmpereOfAdc(adc) (9.55 * ((float)adc))// Quite close to the value scale for a common 3DR clone Power Brick 
 #else
-#define DefaultMilliAmpereOfAdc(adc) (0.1 * ((float)adc)) // FIXME: Value scale internal current use, for whatever it is useful
+#define DefaultMilliAmpereOfAdc(adc) (0.1 * ((float)adc)) // FIXME: Set more precise value scale internal flightcontroller current use, for whatever it is useful...
 #endif
 
 #ifndef ADC_CHANNEL_RSSI

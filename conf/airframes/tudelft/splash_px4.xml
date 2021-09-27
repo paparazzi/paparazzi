@@ -1,50 +1,54 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
-
-<!-- this is a quadrotor frame equiped with
-* Autopilot:   Pixracer
-* IMU:         MPU 9250 & MS5611
-* Actuators:   PWM motor controllers
-* GPS:
-* RC:          Spektrum
--->
 <airframe name="splash">
-  <description>Pixracer
+  <description>
+    This is a quadrotor frame equiped with
+    + Autopilot:   Pixracer
+    + IMU:         MPU 9250 and MS5611
+    + Actuators:   PWM motor controllers
+    + GPS:         uBlox M8N
+    + RC:          Spektrum
   </description>
   <firmware name="rotorcraft">
-    <target name="ap" board="px4fmu_4.0" />
-    <define name="BAT_CHECKER_DELAY" value="80" />
-    <!-- amount of time it take for the bat to check -->
-    <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
-    <!-- in seconds-->
-    <module name="telemetry" type="xbee_api" />
+    <target name="ap" board="px4fmu_4.0_chibios"> 
+      <define name="FLASH_MODE" value="PX4_BOOTLOADER"/>
+      <define name="BAT_CHECKER_DELAY" value="80" />
+      <!-- amount of time it take for the bat to check -->
+      <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+      <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+    <!-- in seconds-->  
+      <module name="telemetry" type="xbee_api" />
 
-    <module name="imu" type="mpu9250_spi">
-      <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
-      <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
-      <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
-    </module>
+      <module name="imu" type="mpu9250_spi">
+        <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+        <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+        <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+      </module>
 
-    <module name="gps" type="ublox" >
-      <configure name="GPS_BAUD" value="B57600"/>
-    </module>
-    <module name="gps" type="ubx_ucenter" />
+      <module name="gps" type="ublox" >
+        <configure name="GPS_BAUD" value="B57600" />
+      </module>
+
+      <module name="gps" type="ubx_ucenter"/>
+
+      <module name="current_sensor">
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_2" />
+      </module>
+
+      <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="400" />
+      </module>
+
+    </target>
+
     <module name="stabilization" type="indi_simple" />
     <!--<module name="stabilization" type="rate_indi" />-->
     <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
-
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+    </module>
 
-    </module>
     <module name="ins" type="extended" />
-    <module name="current_sensor">
-      <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
-    </module>
-    <module name="actuators" type="pwm">
-      <define name="SERVO_HZ" value="400" />
-    </module>
 
     <module name="motor_mixing" />
 
@@ -55,8 +59,6 @@
       <define name="RADIO_KILL_SWITCH" value="5" />
     </module>
 
-
-    <module name="px4_flash"/>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />

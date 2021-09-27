@@ -62,5 +62,5 @@ ACTUATORS ?= actuators_pwm
 #
 # default External Current and Volt Sensor configuration
 #
-# ADC_CURRENT_SENSOR ?= ADC_3
-# ADC_VOLTAGE_SENSOR ?= ADC_2
+# ADC_CURRENT_SENSOR ?= ADC_2
+# ADC_VOLTAGE_SENSOR ?= ADC_1

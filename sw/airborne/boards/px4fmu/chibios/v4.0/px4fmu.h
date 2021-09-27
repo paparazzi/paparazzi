@@ -3,6 +3,11 @@
 
 #define BOARD_PX4FMU
 
+/* differences between board not implemented ATM consider them all the same for time being */
+//#define BOARD_PX4FMU_V4_R12
+//#define BOARD_PX4FMU_V4_R14
+//#define BOARD_PX4FMU_V4_R15
+
 /**
  * ChibiOS board file
  */
@@ -66,7 +71,7 @@
 
 // CUR_SENS
 #ifndef USE_ADC_2
-#define USE_ADC_2 2
+#define USE_ADC_2 1
 #endif
 #if USE_ADC_2
 #define AD1_2_CHANNEL ADC_CHANNEL_IN3
@@ -76,6 +81,9 @@
 #endif
 
 // VDD_V5_SENS
+#ifndef USE_ADC_3
+#define USE_ADC_3 1
+#endif
 #if USE_ADC_3
 #define AD1_3_CHANNEL ADC_CHANNEL_IN4
 #define ADC_3 AD1_3
@@ -83,19 +91,45 @@
 #define ADC_3_GPIO_PIN GPIO4
 #endif
 
-/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
-#ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY ADC_1
+// RSSI , ADC pin to measure analog RSSI signal, but can as well be used for whatever ADC signal to measure
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL ADC_CHANNEL_IN11
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO1
 #endif
 
-/* allow to define ADC_CHANNEL_CURRENT in the airframe file*/
+//-------------- TODO between here -------------
+/** allow to define ADC_CHANNEL_VSUPPLY in the airframe file 
+ * If not defined, assume that no external sensor is use, so alternatively use internal measurement
+*/
+#ifndef ADC_CHANNEL_VSUPPLY 
+  #define ADC_CHANNEL_VSUPPLY ADC_3 // Per default for the board to sense voltage (V) level, via external sensor default is via ADC_1
+  #define DefaultVoltageOfAdc(adc) (10.5 * (float)adc) // FIXME: More precise value scale internal vdd to 5V
+#else
+  #if USE_ADC_1
+    #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.245f * (float)adc) // About the value scale for a common 3DR clone Power Brick 
+  #else
+    #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 6.0f * (float)adc) // About the value scale for a common other sensor 
+  #endif
+#endif
+
+/* Allow to define a different ADC for Current measurement in the airframe file */
 #ifndef ADC_CHANNEL_CURRENT
-#define ADC_CHANNEL_CURRENT ADC_2
+  #define ADC_CHANNEL_CURRENT ADC_2 // Per default for the board to sense current (I) via external sensor is via ADC_3
+#endif
+#if USE_ADC_2
+  #define DefaultMilliAmpereOfAdc(adc) (9.55 * ((float)adc))// Quite close to the value scale for a common 3DR clone Power Brick 
+#else
+  #define DefaultMilliAmpereOfAdc(adc) (0.1 * ((float)adc)) // FIXME: Value scale internal current use, for whatever it is useful
 #endif
 
-/* Default powerbrick values */
-#define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
+#ifndef ADC_CHANNEL_RSSI
+#define ADC_CHANNEL_RSSI ADC_4
+#endif
 
 /*
  * PWM defines TODO
@@ -232,40 +266,48 @@
 /**
  * UART defines
  */
+
+/* WiFi ESP Connector, it is just a serial port UART1*/
 #define UART1_GPIO_PORT_TX GPIOB
 #define UART1_GPIO_TX GPIO6
 #define UART1_GPIO_PORT_RX GPIOB
 #define UART1_GPIO_RX GPIO7
 #define UART1_GPIO_AF 7
 
+/* -TELEM1 Connector */
 #define UART2_GPIO_PORT_TX GPIOD
 #define UART2_GPIO_TX GPIO5
 #define UART2_GPIO_PORT_RX GPIOD
 #define UART2_GPIO_RX GPIO6
 #define UART2_GPIO_AF 7
 
+/* -TELEM2 Connector */
 #define UART3_GPIO_PORT_TX GPIOD
 #define UART3_GPIO_TX GPIO8
 #define UART3_GPIO_PORT_RX GPIOD
 #define UART3_GPIO_RX GPIO9
 #define UART3_GPIO_AF 7
 
+/* -GPS Connector */
 #define UART4_GPIO_PORT_TX GPIOA
 #define UART4_GPIO_TX GPIO0
 #define UART4_GPIO_PORT_RX GPIOA
 #define UART4_GPIO_RX GPIO1
 #define UART4_GPIO_AF 8
 
+/* e.g. for a Spektrum satellite receiver rx only)*/
 #define UART6_GPIO_PORT_RX GPIOC
 #define UART6_GPIO_RX GPIO7
 #define UART6_GPIO_AF 8
 
+/* Serial Debugging Info Connector, not used with PPRZ as of now, use JTAG for debugging, so this uart can be put to other use if really needed */
 #define UART7_GPIO_PORT_TX GPIOE
 #define UART7_GPIO_TX GPIO8
 #define UART7_GPIO_PORT_RX GPIOE
 #define UART7_GPIO_RX GPIO7
 #define UART7_GPIO_AF 8
 
+/* Connector -FRS FrSky */
 #define UART8_GPIO_PORT_TX GPIOE
 #define UART8_GPIO_TX GPIO1
 #define UART8_GPIO_PORT_RX GPIOE
@@ -278,7 +320,7 @@
 #define RADIO_CONTROL_POWER_ON gpio_clear // yes, inverted
 #define RADIO_CONTROL_POWER_OFF gpio_set
 
-//A receiver on powered on 3.3v
+// A receiver on powered on 3.3v
 #define PERIPHERAL3V3_ENABLE_PORT GPIOC //VDD_3V3_PERIPHERAL_EN
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
 #define PERIPHERAL3V3_ENABLE_ON gpio_set
@@ -303,6 +345,17 @@
 // #define PWM_INPUT1_GPIO_PIN       GPIO8
 // #define PWM_INPUT1_GPIO_AF        GPIO_AF1
 
+//ESP Not used yet until we find some time to test
+/*
+#define ESP8266_TX
+#define ESP8266_RX
+#define ESP8266_PD ( power down )
+#define ESP8266_GPIO2
+#define ESP8266_RESET
+#define ESP8266_GPIO0
+#define ESP8266_RTS
+#define ESP8266_CTS
+*/
 
 /**
  * I2C defines
@@ -388,7 +441,7 @@
 #endif
 
 /**
- * SDIO
+ * SDIO to microSD card connector
  */
 #define SDIO_D0_PORT GPIOC
 #define SDIO_D0_PIN GPIO8
@@ -403,6 +456,7 @@
 #define SDIO_CMD_PORT GPIOD
 #define SDIO_CMD_PIN GPIO2
 #define SDIO_AF 12
+
 // bat monitoring for file closing
 #define SDLOG_BAT_ADC ADCD1
 #define SDLOG_BAT_CHAN AD1_1_CHANNEL
@@ -411,10 +465,9 @@
 #define SDLOG_USB_VBUS_PORT GPIOA
 #define SDLOG_USB_VBUS_PIN GPIO9
 
-/*
- * Actuators for fixedwing
- */
- /* Default actuators driver */
+ /* 
+  * Default actuator driver type is pwm
+  */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
 #define ActuatorsDefaultInit() ActuatorsPwmInit()

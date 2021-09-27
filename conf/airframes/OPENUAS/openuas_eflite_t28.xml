@@ -35,7 +35,7 @@ NOTES:
   <firmware name="fixedwing">
 <!-- ********************** For in the real flying hardware ******************** -->
 
-    <target name="ap" board="px4fmu_4.0">
+    <target name="ap" board="px4fmu_4.0_chibios">
    <!--<define name="GPS_UBX_MAX_PAYLOAD" value="2048"/>--><!-- Temp enlarge buffer for debugging velocity issue of uBlox M9 types FW v4.03-->
  
       <!-- Towards better kind of aligner initial conditions -->
@@ -98,12 +98,12 @@ NOTES:
 
       <!--<module name="filter_1euro_imu"/>-->
 
-      <configure name="USE_ADC_2" value="TRUE"/> <!-- For external PowerBrick Voltage measure-->
-      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_2"/>
+      <configure name="USE_ADC_1" value="TRUE"/> <!-- For external PowerBrick Voltage measure-->
+      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
 
       <module name="current_sensor"><!-- For external PowerBrick Current measurement-->
-        <configure name="USE_ADC_3" value="TRUE"/>
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+        <configure name="USE_ADC_2" value="TRUE"/>
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
         <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.01"/><!-- Set a good value if your linearity is not so linear as our sensor was -->
       </module>
 
@@ -159,11 +159,11 @@ NOTES:
       <module name="tune_airspeed"/>
 
       <!-- For easier on desk testing transparent_usb, else transparent -->
-      <module name="telemetry" type="transparent_usb"/>
-      <!--module name="telemetry" type="transparent">--><!-- Or use type="xbee_api" for Digi Xbee modems -->
-       <!-- <configure name="MODEM_PORT" value="UART2"/>--> <!--  Telem1 on pixracer -->
-       <!-- <configure name="MODEM_BAUD" value="B57600"/>--><!-- B9600 later on for distance -->
-     <!-- </module>-->
+      <!--<module name="telemetry" type="transparent_usb"/>-->
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART2"/> <!--  Telem1 on pixracer -->
+        <configure name="MODEM_BAUD" value="B57600"/>
+      </module>
 
      <!--<module name="pwm_meas">
         <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
@@ -369,12 +369,6 @@ NOTES:
     </mode>
   </process>
   -->
-
-   <!--  <module name="current_sensor">
-        <define name="USE_ADC_3"/>
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>-->
-        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
-   <!--  </module>-->
 
     <module name="nav" type="line"/>
     <module name="nav" type="line_border"/>

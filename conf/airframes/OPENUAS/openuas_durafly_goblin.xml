@@ -30,7 +30,7 @@ NOTES:
 
   </description>
   <firmware name="fixedwing">
-    <target name="ap" board="px4fmu_4.0">
+    <target name="ap" board="px4fmu_4.0_chibios">
       <configure name="CPU_LED" value="1"/>
       <configure name="PERIODIC_FREQUENCY" value="512"/>
       <!-- Not enabled ATM default should be good -->
@@ -61,12 +61,12 @@ NOTES:
         <define name="IMU_MPU9250_Z_SIGN" value="+1"/>
       </module>
 
-      <configure name="USE_ADC_2" value="TRUE"/>
-      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_2"/>
+      <configure name="USE_ADC_1" value="TRUE"/>
+      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
 
       <module name="current_sensor">
-        <configure name="USE_ADC_3" value="TRUE"/>
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+        <configure name="USE_ADC_2" value="TRUE"/>
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
         <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.1"/>
       </module>
 
@@ -313,8 +313,7 @@ NOTES:
   </section>
 
   <section name="SONAR" prefix="SONAR_">
-    <define name="MEDIAN_SIZE" value="15"/>
-    <!--<define name="USE_ADC_FILTER" value="TRUE"/>-->
+    <!--<define name="USE_ADC_LOWPASS_FILTER" value="TRUE"/>-->
     <define name="SCALE" value="0.0025375" integer="16"/>
     <define name="OFFSET" value="90.0"/>
     <define name="MAX_RANGE" value="6.0" unit="m"/>

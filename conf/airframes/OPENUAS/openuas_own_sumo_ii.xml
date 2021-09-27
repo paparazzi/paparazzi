@@ -31,7 +31,7 @@ NOTES:
   <firmware name="fixedwing">
 <!-- ********************** For in the real flying hardware ******************** -->
 
-    <target name="ap" board="px4fmu_4.0">
+    <target name="ap" board="px4fmu_4.0_chibios">
 
       <!-- Towards better kind of aligner initial conditions -->
 
@@ -89,12 +89,12 @@ NOTES:
         <define name="AIRSPEED_ETS_SYNC_SEND"/>  <!-- TODO Disable after first 10 test flights -->
       </module>
 
-      <configure name="USE_ADC_2" value="TRUE"/> <!-- For external PowerBrick Voltage measure-->
-      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_2"/>
+      <configure name="USE_ADC_1" value="TRUE"/> <!-- For external PowerBrick Voltage measure-->
+      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
 
       <module name="current_sensor"><!-- For external PowerBrick Current measurement-->
-        <configure name="USE_ADC_3" value="TRUE"/>
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+        <configure name="USE_ADC_2" value="TRUE"/>
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
         <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.01"/><!-- Set a good value if your linearity is not so linear as our sensor was -->
       </module>
 

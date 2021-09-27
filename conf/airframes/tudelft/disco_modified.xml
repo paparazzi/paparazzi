@@ -49,7 +49,7 @@
   </description>
   <firmware name="fixedwing">
 <!-- ********************** For in the real flying hardware ******************** -->
-    <target name="ap" board="px4fmu_4.0"/>
+    <target name="ap" board="px4fmu_4.0_chibios"/>
 
       <!-- Towards a better and no messing it all up kind of aligner -->
       <!--
@@ -57,8 +57,7 @@
       <define name="LOW_NOISE_THRESHOLD" value="30000"/>
       <define name="LOW_NOISE_TIME" value="10"/>
       -->
-      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/><!-- TODO to boardfile, if default remove define-->
-
+      <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
 
       <!-- <configure name="CPU_LED" value="1"/>--> <!-- Change to whatever you like -->
 
@@ -131,8 +130,8 @@
     </module>-->
 
     <module name="current_sensor">
-      <define name="USE_ADC_3"/>
-      <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+      <define name="USE_ADC_2"/>
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
       <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/><!-- TODO determine -->
     </module>
 
