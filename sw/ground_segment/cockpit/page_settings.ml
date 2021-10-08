@@ -250,7 +250,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
 
   (** Insert the related buttons in the strip and prepare the papgets DnD *)
   List.iter (fun x ->
-    match Compat.lowercase_ascii (Xml.tag x) with
+    match String.lowercase_ascii (Xml.tag x) with
         "strip_button" ->
           let label = ExtXml.attrib x "name"
           and sp_value = ExtXml.float_attrib x "value"
@@ -294,7 +294,7 @@ let same_tag_for_all = function
   | x::xs ->
     let tag_first = Xml.tag x in
     List.iter (fun y -> assert(ExtXml.tag_is y tag_first)) xs;
-    Compat.lowercase_ascii tag_first
+    String.lowercase_ascii tag_first
 
 
 (** Build the tree of settings *)

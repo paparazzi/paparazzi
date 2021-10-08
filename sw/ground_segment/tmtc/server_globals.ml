@@ -24,7 +24,7 @@ let string_of_values = fun values ->
 (** get modes from autopilot xml file *)
 let modes_from_autopilot = fun ap_xml ->
   let ap = ExtXml.child ap_xml
-    ~select:(fun x -> Compat.uppercase_ascii (ExtXml.attrib_or_default x "gcs_mode" "") = "TRUE")
+    ~select:(fun x -> String.uppercase_ascii (ExtXml.attrib_or_default x "gcs_mode" "") = "TRUE")
     "state_machine"
   in
   let modes = List.filter (fun x -> Xml.tag x = "mode") (Xml.children ap) in

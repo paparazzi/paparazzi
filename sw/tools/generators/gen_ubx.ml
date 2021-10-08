@@ -112,7 +112,7 @@ let parse_message = fun class_name m ->
 
   (** Generating send function *)
   let param_type = fun f -> c_type (format f) in
-  let param_name = fun f ->Compat.lowercase_ascii (field_name f) in
+  let param_name = fun f ->String.lowercase_ascii (field_name f) in
   let param_name_and_type = fun f ->
     sprintf "%s ubx_%s" (param_type f) (param_name f) in
   let rec param_names = fun f r ->

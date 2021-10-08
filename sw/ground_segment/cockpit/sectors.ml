@@ -7,7 +7,7 @@ let (//) = Filename.concat
 
 let rec display = fun (geomap:MapCanvas.widget) r ->
 
-  match Compat.lowercase_ascii (Xml.tag r) with
+  match String.lowercase_ascii (Xml.tag r) with
       "disc" ->
         let rad = float_of_string (ExtXml.attrib r "radius")
         and geo = Latlong.of_string (ExtXml.attrib (ExtXml.child r "point") "pos") in

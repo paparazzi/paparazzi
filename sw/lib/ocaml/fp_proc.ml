@@ -72,7 +72,7 @@ let transform_values = fun attribs_not_modified env attribs ->
   List.map
     (fun (a, v) ->
       let v' =
-        if List.mem (Compat.lowercase_ascii a) attribs_not_modified
+        if List.mem (String.lowercase_ascii a) attribs_not_modified
         then v
         else transform_expression env (parse_expression v) in
       (a, v'))
@@ -83,7 +83,7 @@ let prefix_or_deroute = fun prefix reroutes name attribs ->
   List.map
     (fun (a, v) ->
       let v' =
-        if Compat.lowercase_ascii a = name then
+        if String.lowercase_ascii a = name then
           try List.assoc v reroutes with
               Not_found -> prefix v
         else v in
@@ -105,7 +105,7 @@ let transform_stage = fun prefix reroutes env xml ->
   let rec tr = fun xml ->
     match xml with
         Xml.Element (tag, attribs, children) -> begin
-          match Compat.lowercase_ascii tag with
+          match String.lowercase_ascii tag with
               "exception" ->
                 transform_exception prefix reroutes env xml
             | "while" ->
@@ -276,7 +276,7 @@ let process_includes = fun dir xml ->
 
 
 let remove_attribs = fun xml names ->
-  List.filter (fun (x,_) -> not (List.mem (Compat.lowercase_ascii x) names)) (Xml.attribs xml)
+  List.filter (fun (x,_) -> not (List.mem (String.lowercase_ascii x) names)) (Xml.attribs xml)
 
 let xml_assoc_attrib = fun a v xmls ->
   List.find (fun x -> ExtXml.attrib x a = v) xmls
@@ -327,7 +327,7 @@ let replace_from = fun stage waypoints ->
 
 let process_stage = fun stage waypoints ->
   let rec do_it = fun stage ->
-    match Compat.lowercase_ascii (Xml.tag stage) with
+    match String.lowercase_ascii (Xml.tag stage) with
         "go" | "stay" | "circle" ->
           replace_from (replace_wp stage waypoints) waypoints
 

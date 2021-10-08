@@ -74,7 +74,7 @@ let get_cap_name = fun f ->
   match name with
     | [Str.Text t]
     | [Str.Text t; Str.Delim "("; Str.Delim ")"]
-    | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> Compat.uppercase_ascii t
+    | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> String.uppercase_ascii t
     | _ -> failwith "Gen_modules: not a valid function name"
 
 (** Computes the required modulos *)
@@ -114,7 +114,7 @@ let print_function_freq = fun out modules ->
   fprintf out "\n";
   List.iter (fun m ->
     List.iter (fun i ->
-      let fname = Compat.uppercase_ascii i.Module.fname in
+      let fname = String.uppercase_ascii i.Module.fname in
       let p, f = get_period_and_freq i.Module.period_freq in
       lprintf out "#define %s_PERIOD %s\n" fname p;
       lprintf out "#define %s_FREQ %s\n" fname f;

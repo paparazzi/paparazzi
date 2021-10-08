@@ -92,7 +92,7 @@ let print_includes = fun includes out_h ->
   ) (Xml.children includes)
 
 let print_mode_name = fun sm_name name ->
-  String.concat "" [(Compat.uppercase_ascii sm_name); "_MODE_"; (Compat.uppercase_ascii name)]
+  String.concat "" [(String.uppercase_ascii sm_name); "_MODE_"; (String.uppercase_ascii name)]
 
 (** Define modes *)
 let print_modes = fun modes sm_name out_h ->
@@ -339,7 +339,7 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
   try
     (* Get state machine name *)
     let name = Xml.attrib sm "name" in
-    let name_up = Compat.uppercase_ascii name in
+    let name_up = String.uppercase_ascii name in
     (* Generate start of header *)
     begin_out out_h xml_file ("AUTOPILOT_CORE_"^name_up^"_H");
     fprintf out_h "/*** %s ***/\n\n" ap_name;

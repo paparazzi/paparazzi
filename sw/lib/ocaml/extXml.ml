@@ -82,7 +82,7 @@ let attrib_opt_map = fun xml attr f ->
 let attrib_opt_int = fun xml attr -> attrib_opt_map xml attr int_of_string
 let attrib_opt_float = fun xml attr -> attrib_opt_map xml attr float_of_string
 
-let tag_is = fun x v -> Compat.lowercase_ascii (Xml.tag x) = Compat.lowercase_ascii v
+let tag_is = fun x v -> String.lowercase_ascii (Xml.tag x) = String.lowercase_ascii v
 
 let attrib_or_default = fun x a default ->
   try Xml.attrib x a
@@ -153,7 +153,7 @@ let my_to_string_fmt = fun tab_attribs x ->
   s
 
 let to_string_fmt = fun ?(tab_attribs = false) xml ->
-  let l = Compat.lowercase_ascii in
+  let l = String.lowercase_ascii in
   let rec lower = function
     | Xml.PCData _ as x -> x
     | Xml.Element (t, ats, cs) ->
@@ -164,7 +164,7 @@ let to_string_fmt = fun ?(tab_attribs = false) xml ->
 
 
 let subst_attrib = fun attrib value xml ->
-  let u = Compat.uppercase_ascii in
+  let u = String.uppercase_ascii in
   let uattrib = u attrib in
   match xml with
   | Xml.Element (tag, attrs, children) ->
