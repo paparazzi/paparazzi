@@ -1,0 +1,117 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="Rover Steering">
+
+  <firmware name="rover">
+    <autopilot name="rover_steering.xml"/>
+
+
+    <target name="ap" board="matek_f765_car">
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+      <module name="radio_control" type="sbus"/>
+    </target>
+    
+    <!--target name="nps" board="pc">
+      <module name="radio_control" type="ppm"/>
+      <module name="nps"/>
+    </target-->    
+    
+    <!-- Servos working with PWM signals -->
+    <module name="actuators"     type="pwm"/>
+    
+    <module name="telemetry"     type="xbee_api"/>
+    
+    
+    <module name="board" type="matek_f765_car"/> <!-- IMU included -->
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B115200"/>
+    </module>
+
+    <module name="ahrs" type="float_dcm"/>
+
+    <module name="nav" type="rover_base"/>
+    <module name="guidance" type="rover_steering"/>
+  </firmware>
+
+
+  <!-- COMMANDS SECTION -->
+  <servos>
+    <servo name="MOTOR_THROTTLE" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_STEERING" no="2" min="1000" neutral="1500" max="2000"/>
+  </servos>
+  
+  <!-- High level commands -->
+  <commands>
+    <axis name="SPEED"    failsafe_value="0"/>
+    <axis name="STEERING" failsafe_value="0"/>
+    <axis name="THROTTLE" failsafe_value="0"/> <!-- for board module compilation -->
+    <axis name="ROLL"     failsafe_value="0"/> <!-- for board module compilation -->
+    <axis name="THRUST"   failsafe_value="0"/> <!-- for board module compilation -->
+  </commands>
+
+  <!-- Macro for radio control commands -->
+  <rc_commands>
+    <set command="SPEED"    value="@THROTTLE"/>
+    <set command="STEERING" value="@ROLL"/>
+  </rc_commands>
+
+  <!-- Slower when turning -->
+  <section name="MIXER">
+    <define name="TURN_RATIO" value="0.5"/>
+  </section>
+
+  <command_laws>
+    <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
+    <set servo="MOTOR_STEERING" value="@ROLL"/>
+  </command_laws>
+
+
+
+  <!-- Modules config -->
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <define name="USE_GPS_HEADING" value="TRUE"/>
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </section>
+
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> 
+    <define name="MODE_AUTO1"  value="AP_MODE_DIRECT"/> 
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/> <!-- Ignoring radio_control.values -->
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+  
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="7.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="7.5" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS"      value="1"/>
+    <define name="ALT_SHIFT_MINUS"     value="-1"/>
+    <define name="AC_ICON"             value="quadrotor_x"/>
+  </section>
+
+</airframe>
