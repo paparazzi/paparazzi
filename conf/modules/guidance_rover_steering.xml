@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_rover_steering" dir="guidance" task="control">
+  <doc>
+    <description>
+      Steering guidance for rover.
+    </description>
+  </doc>
+  
+  
+  <!--settings target="ap">
+    <dl_settings>
+      <dl_settings NAME="GuidanceSteering">
+
+      </dl_settings>
+    </dl_settings>
+  </settings-->
+  
+  <dep>
+    <depends>@navigation</depends>
+    <provides>guidance,commands</provides>
+  </dep>
+  
+  <header>
+    <file name="rover_guidance_steering.h"/>
+  </header>
+  
+  <init fun="rover_guidance_steering_init()"/>
+  <makefile target="ap" firmware="rover">
+    <file name="rover_guidance_steering.c" dir="$(SRC_FIRMWARE)/guidance"/>
+  </makefile>
+  
+</module>
