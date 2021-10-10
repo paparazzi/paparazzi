@@ -11,16 +11,15 @@
       <module name="radio_control" type="sbus"/>
     </target>
     
-    <!--target name="nps" board="pc">
+    <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
-      <module name="nps"/>
-    </target-->    
+      <module name="fdm" type="jsbsim_rover"/>
+    </target>    
     
     <!-- Servos working with PWM signals -->
     <module name="actuators"     type="pwm"/>
     
     <module name="telemetry"     type="xbee_api"/>
-    
     
     <module name="board" type="matek_f765_car"/> <!-- IMU included -->
     <configure name="USE_MAGNETOMETER" value="FALSE"/>
@@ -31,6 +30,7 @@
 
     <module name="ahrs" type="float_dcm"/>
 
+    <module name="ins"/>
     <module name="nav" type="rover_base"/>
     <module name="guidance" type="rover_steering"/>
   </firmware>
@@ -58,9 +58,9 @@
   </rc_commands>
 
   <!-- Slower when turning -->
-  <section name="MIXER">
+  <!--section name="MIXER">
     <define name="TURN_RATIO" value="0.5"/>
-  </section>
+  </section-->
 
   <command_laws>
     <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
@@ -94,6 +94,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
   

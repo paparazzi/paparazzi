@@ -26,7 +26,7 @@
   </header>
   
   <init fun="rover_guidance_steering_init()"/>
-  <makefile target="ap" firmware="rover">
+  <makefile target="ap|nps" firmware="rover">
     <file name="rover_guidance_steering.c" dir="$(SRC_FIRMWARE)/guidance"/>
   </makefile>
   
