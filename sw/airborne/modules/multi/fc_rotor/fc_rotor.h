@@ -32,4 +32,6 @@
 extern void fc_rotor_init(void);
 extern void fc_read_msg(uint8_t *buf);
 
+extern bool fc_rotor_started;
+
 #endif // FC_ROTOR_H
