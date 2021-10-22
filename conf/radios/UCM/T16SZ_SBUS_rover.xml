@@ -49,7 +49,7 @@
  <channel ctl="B" function="PITCH"    min="1000" neutral="1500" max="2000" average="0"/>
  <channel ctl="C" function="THROTTLE" min="1000" neutral="1500" max="2000" average="0"/>
  <channel ctl="D" function="YAW"      min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="E" function="MODE"     min="1000" neutral="1520" max="2000" average="1" reverse="1"/>
+ <channel ctl="E" function="MODE"     min="1000" neutral="1520" max="2000" average="1"/>
  <channel ctl="F" function="GAIN1"    min="1000" neutral="1520" max="2000" average="0"/>
  <channel ctl="G" function="GAIN2"    min="1000" neutral="1520" max="2000" average="0"/>
  <channel ctl="H" function="GAIN3"    min="1000" neutral="1500" max="2000" average="0"/>
