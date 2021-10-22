@@ -22,9 +22,16 @@
       <field name="cpu_time" type="uint16" unit="s"></field>
     </message>
     
-    <!--message name="HELLO_WORLD" id="37">
-      <field name="MSG" type="char[]"/>
-    </message-->
+    <message name="STEERING_ROVER_DATA" id="37">
+      <field name="ap_mode"  type="uint8" values="MANUAL|ASSISTED|NAV|HOME|KILL"/>
+      <field name="nav_mode" type="uint8" values="WAYPOINT|ROUTE|CIRCLE|HEADING|MANUAL"/>
+      <field name="rc_throttle"       type="int16"/>
+      <field name="rc_roll"           type="int16"/>
+      <field name="command_speed"     type="int16"/>
+      <field name="command_steering"  type="int16"/>
+      <field name="actuator_speed"    type="int16"/>
+      <field name="actuator_steering" type="int16"/>
+    </message>
     
     <message name="ARDRONE_NAVDATA" id="5">
       <field name="taille" type="uint16" />
@@ -1896,7 +1903,8 @@
       <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
       <field name="frame_rate"   type="uint8" unit="Hz"/>
       <field name="gps_status"   type="uint8" values="NO_FIX|NA|2D|3D|DGPS|RTK"/>
-      <field name="ap_mode"      type="uint8">Rover AP modes are generated from XML file</field>
+      <field name="ap_mode"      type="uint8" values="MANUAL|AUTO1|NAV|HOME|KILL"/>
+      <!--field name="ap_mode"      type="uint8">Rover AP modes are generated from XML file</field-->
       <field name="ap_motors_on" type="uint8" values="MOTORS_OFF|MOTORS_ON"/>
       <field name="cpu_time"     type="uint16" unit="s"/>
       <field name="vsupply"      type="float" unit="V"/>
