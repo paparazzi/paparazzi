@@ -28,7 +28,7 @@
     <!-- * AP MODES * -->
     <!-- RC Manual -->
     <mode name="DIRECT" shortname="MANUAL">
-      <select cond="RCMode2()"/>
+      <select cond="RCMode0()"/>
       <control freq="NAV_FREQ"> <!-- Only for display -->
         <call fun="nav_periodic_task()"/>
       </control>
@@ -65,7 +65,7 @@
     
     <!-- Navegation -->
     <mode name="NAV">
-      <select cond="RCMode0()" exception="HOME"/>
+      <select cond="RCMode2()" exception="HOME"/>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
