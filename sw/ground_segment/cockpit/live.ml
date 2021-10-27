@@ -1003,17 +1003,6 @@ let highlight_fp = fun ac b s ->
   end
 
 
-let check_approaching = fun ac geo1 geo2 alert ->
-  match ac.track#last with
-      None -> ()
-    | Some ac_pos ->
-      let s_len = LL.wgs84_distance geo1 geo2 in (* length of the segment *)
-      let d = LL.wgs84_distance ac_pos geo2 in (* distance to end of the segment *)
-      (* only log_and_say "approaching" if close enough but not too much and when flying long segments *)
-      if d < ac.speed *. approaching_alert_time && d > approaching_alert_dmin && s_len > approaching_alert_slmin then
-        log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_speech_name)
-
-
 let ac_alt_graph = [14,0;-5,0;-7,-6]
 let translate = fun l dx dy -> List.map (fun (x, y) -> (x + dx, y + dy)) l
 let rotate_and_translate = fun l angle dx dy ->
@@ -1321,9 +1310,6 @@ let listen_flight_params = fun geomap auto_center_new_ac auto_center_ac alert al
     let geo1 = { posn_lat = (Deg>>Rad)(a "segment1_lat"); posn_long = (Deg>>Rad)(a "segment1_long") }
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
     ac.track#draw_segment geo1 geo2;
-
-    (* Check if approaching the end of the segment *)
-    check_approaching ac geo1 geo2 alert
   in
   safe_bind "SEGMENT_STATUS" get_segment_status;
 
