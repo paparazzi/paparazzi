@@ -735,6 +735,6 @@ let wgs84_hmsl = fun geo ->
 
 let wgs84_distance = fun geo1 geo2 ->
   let e1 = ecef_of_geo WGS84 geo1 0.
-  and e2 = ecef_of_geo WGS84 geo1 0. in
+  and e2 = ecef_of_geo WGS84 geo2 0. in
   ecef_distance e1 e2
 
