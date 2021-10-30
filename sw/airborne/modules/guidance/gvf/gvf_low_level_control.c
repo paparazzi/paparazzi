@@ -32,7 +32,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #endif
 
-void gvf_low_level_control_2D(float omega)
+void gvf_low_level_control(float omega)
 {
 #if defined(FIXEDWING_FIRMWARE)
   if (autopilot_get_mode() == AP_MODE_AUTO2) {

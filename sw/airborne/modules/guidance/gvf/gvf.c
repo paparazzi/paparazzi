@@ -165,11 +165,7 @@ void gvf_control_2D(float ke, float kn, float e,
                     struct gvf_grad *grad, struct gvf_Hess *hess)
 {
   gvf_t0 = get_sys_time_msec();
- 
-  #ifdef FIXEDWING_FIRMWARE 
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  #endif
-  
+
   float ground_speed = stateGetHorizontalSpeedNorm_f();
   float course = stateGetHorizontalSpeedDir_f();
   float px_dot = ground_speed * sinf(course);
@@ -222,7 +218,7 @@ void gvf_control_2D(float ke, float kn, float e,
 
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
 
-  gvf_low_level_control_2D(float omega)
+  gvf_low_level_control(omega);
 }
 
 void gvf_set_direction(int8_t s)
