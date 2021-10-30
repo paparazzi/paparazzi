@@ -36,7 +36,6 @@
 #elif defined(ROVER_FIRMWARE)
 #include "state.h"
 #include "firmwares/rover/navigation.h"
-#include "firmwares/rover/guidance/rover_guidance_steering.h"
 #else
 #error "Firmware not supported by GVF!"
 #endif
