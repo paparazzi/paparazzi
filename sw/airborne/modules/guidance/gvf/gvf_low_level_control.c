@@ -30,6 +30,8 @@
 
 #if defined(FIXEDWING_FIRMWARE)
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
+#elif defined(ROVER_FIRMWARE)
+#include "firmwares/rover/guidance/rover_guidance_steering.h"
 #endif
 
 void gvf_low_level_control(float omega)
@@ -46,6 +48,11 @@ void gvf_low_level_control(float omega)
     h_ctl_roll_setpoint =
       -atanf(omega * ground_speed / GVF_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
+  }
+
+#elif defined(ROVER_FIRMWARE)
+  if (autopilot_get_mode() != AP_MODE_DIRECT) {
+    guidance_control.omega = omega;
   }
 
 #else
