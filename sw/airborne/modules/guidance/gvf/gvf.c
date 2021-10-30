@@ -24,6 +24,7 @@
 #include "std.h"
 
 #include "modules/guidance/gvf/gvf.h"
+#include "modules/guidance/gvf/gvf_low_level_control.h"
 #include "modules/guidance/gvf/trajectories/gvf_ellipse.h"
 #include "modules/guidance/gvf/trajectories/gvf_line.h"
 #include "modules/guidance/gvf/trajectories/gvf_sin.h"
@@ -220,22 +221,8 @@ void gvf_control_2D(float ke, float kn, float e,
   float mr_y = cosf(course);
 
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
-  
-#ifdef FIXEDWING_FIRMWARE
-  // Coordinated turn
-  if (autopilot_get_mode() == AP_MODE_AUTO2) {
 
-    h_ctl_roll_setpoint =
-      -atanf(omega * ground_speed / GVF_GRAVITY / cosf(att->theta));
-    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
-
-    lateral_mode = LATERAL_MODE_ROLL;
-  }
-  
-#elif defined(ROVER_FIRMWARE)
-  guidance_control.omega = omega;
-
-#endif
+  gvf_low_level_control_2D(float omega)
 }
 
 void gvf_set_direction(int8_t s)
