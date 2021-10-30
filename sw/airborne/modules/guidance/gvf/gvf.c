@@ -22,7 +22,6 @@
 
 #include <math.h>
 #include "std.h"
-#include <stdio.h>
 
 #include "modules/guidance/gvf/gvf.h"
 #include "modules/guidance/gvf/trajectories/gvf_ellipse.h"
@@ -33,9 +32,12 @@
 #include "firmwares/fixedwing/nav.h"
 #include "subsystems/navigation/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#else
+#elif defined(ROVER_FIRMWARE)
 #include "state.h"
 #include "firmwares/rover/navigation.h"
+#include "firmwares/rover/guidance/rover_guidance_steering.h"
+#else
+#error "Firmware not supported by GVF!"
 #endif
 
 #include "autopilot.h"
@@ -230,10 +232,9 @@ void gvf_control_2D(float ke, float kn, float e,
     lateral_mode = LATERAL_MODE_ROLL;
   }
   
-#endif
+#elif defined(ROVER_FIRMWARE)
+  guidance_control.omega = omega;
 
-#ifdef ROVER_FIRMWARE
-  printf("Hello World");
 #endif
 }
 

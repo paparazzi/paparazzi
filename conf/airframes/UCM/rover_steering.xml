@@ -41,8 +41,8 @@
   
   <!-- Low level commands (PWM signal) -->
   <commands>
-    <axis name="SPEED"    failsafe_value="0"/>
-    <axis name="STEERING" failsafe_value="0"/>
+    <axis name="SPEED"    failsafe_value="1500"/>
+    <axis name="STEERING" failsafe_value="1500"/>
     <axis name="THROTTLE" failsafe_value="0"/> <!-- for board module compilation -->
     <axis name="ROLL"     failsafe_value="0"/> <!-- for board module compilation -->
     <axis name="THRUST"   failsafe_value="0"/> <!-- for board module compilation -->
@@ -91,6 +91,11 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_MODEL" value="simple_quad" type="string"/> <!-- for NPS module compilation -->
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+
+  <section name="GUIDANCE">
+    <define name="DRIVE_SHAFT_DISTANCE" value="0.5"/>
+    <define name="MAX_DELTA" value="15.0"/>
   </section>
   
   <section name="BAT">
