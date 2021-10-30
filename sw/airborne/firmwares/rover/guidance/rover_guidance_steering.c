@@ -2,10 +2,11 @@
 
 #define AUTOPILOT_CORE_GUIDANCE_C
 
-// Mandatory headers
+/** Mandatory dependencies header **/
 #include "firmwares/rover/guidance/rover_guidance_steering.h"
 
 #include "generated/airframe.h"
+#include "generated/autopilot_core_guidance.h"
 #include "generated/autopilot_core_guidance.h"
 
 #include "subsystems/datalink/telemetry.h"
@@ -15,8 +16,11 @@
 #include "navigation.h"
 #include "state.h"
 
+#include <math.h>
 #include <stdio.h>
 
+// Control
+rover_ctrl guidance_control;
 
 /** Send DEBUG Telemetry messages **/
 static void send_msg(struct transport_tx *trans, struct link_device *dev)
@@ -30,26 +34,48 @@ static void send_msg(struct transport_tx *trans, struct link_device *dev)
   int16_t ac_speed     = actuators[SERVO_MOTOR_THROTTLE_IDX];
   int16_t ac_steering  = actuators[SERVO_MOTOR_STEERING_IDX];
 
-  pprz_msg_send_STEERING_ROVER_DATA(trans, dev, AC_ID, &ap_mode, &nav_mode, &rc_t, &rc_r, &cmd_speed, &cmd_steering, &ac_speed, &ac_steering);
+  pprz_msg_send_STEERING_ROVER_DATA(trans, dev, AC_ID, &ap_mode, &nav_mode, &rc_t, &rc_r, 
+                                    &cmd_speed, &cmd_steering, &ac_speed, &ac_steering, &guidance_control.delta);
 }
 
+bool rover_guidance_steering_set_delta(float delta){
+  guidance_control.delta = delta;
+  return true;
+}
+
+/** INIT function**/
 void rover_guidance_steering_init(void)
 {
-  // guidance state machine from code generation
+  // Guidance state machine init
   autopilot_core_guidance_init();
 
-  // init debugging telemetry
+  // Debugging telemetry init
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
+
+  guidance_control.delta = 0.0;
 }
 
+/** PERIODIC function **/
 void rover_guidance_steering_periodic(void)
-{
-  //guidance state machine from code generation 
-  #if EXTERN_AP == AP_MODE_NAV 
-    autopilot_core_guidance_periodic_task();
-  #endif
+{ 
+  // Check GPS state values
+  guidance_control.speedNorm = stateGetHorizontalSpeedNorm_f();
+  guidance_control.speedDir = stateGetHorizontalSpeedDir_f();
 
-  // periodic debugging telemetry
+  // ASSISTED guidance
+  if (autopilot_get_mode() == AP_MODE_ASSISTED) {
+    if (fabs(guidance_control.omega)>0) {
+      float delta = atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / guidance_control.speedNorm);
+      guidance_control.delta = BoundDelta(delta);
+    }
+  }
+
+  // NAV guidance state machine from code generation 
+  if (autopilot_get_mode() == AP_MODE_NAV) {
+    autopilot_core_guidance_periodic_task();
+  }
+
+  // periodic steering_rover telemetry
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
 }
 

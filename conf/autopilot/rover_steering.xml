@@ -38,7 +38,7 @@
 
 
         <call fun="rover_guidance_steering_periodic()"/> <!-- Only for Steering Rover telemetry-->
-        <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/> <!-- Throttle as displayed in GCS-->
+        <call fun="SetAPThrottleFromCommands(commands[COMMAND_SPEED])"/>
       </control>
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
@@ -50,15 +50,13 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <!--call fun="SetCommands(commands_failsafe)"-->
-
-        <!-- To be removed-->
-        <call fun="commands[COMMAND_SPEED]    = TRIM_PPRZ(500.0)"/>
-        <call fun="commands[COMMAND_STEERING] = TRIM_PPRZ(500.0)"/>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+        
+        <call fun="rover_guidance_steering_periodic()"/>
+        <call fun="SetSteeringCmdFromDelta(guidance_control.delta)"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
 
-        <call fun="rover_guidance_steering_periodic()"/> <!-- Only for Steering Rover telemetry-->
-        <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
+        <call fun="SetAPThrottleFromCommands()"/>
       </control>
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
@@ -73,7 +71,7 @@
         <call fun="rover_guidance_steering_periodic()"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
 
-        <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
+        <call fun="SetAPThrottleFromCommands()"/>
       </control>
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
     </mode>
@@ -87,7 +85,7 @@
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
         
         <call fun="rover_guidance_steering_periodic()"/>
-        <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
+        <call fun="SetAPThrottleFromCommands()"/>
       </control>
       <exception cond="GpsIsLost()" deroute="KILL"/>
     </mode>
@@ -102,7 +100,7 @@
       </on_enter>
       <control>
         <call fun="SetCommands(commands_failsafe)"/>
-        <call fun="autopilot.throttle = commands[COMMAND_SPEED]"/>
+        <call fun="SetAPThrottleFromCommands()"/>
       </control>
     </mode>
 
@@ -118,13 +116,12 @@
     <mode name="NAV_DIRECT">
       <select cond="nav.mode == NAV_MODE_MANUAL"/>
       <control>
+        <call fun="SetCommands(commands_failsafe)"/>
+
         <!-- copy manual nav controls to commands (fliht plan)-->
         <!--call fun="commands[COMMAND_SPEED]    = TRIM_PPRZ(nav.speed * MAX_PPRZ)"/>
         <call fun="commands[COMMAND_STEERING] = TRIM_PPRZ(nav.turn  * MAX_PPRZ)"/-->
 
-        <!-- To be removed-->
-        <call fun="commands[COMMAND_SPEED]    = TRIM_PPRZ(500.0)"/>
-        <call fun="commands[COMMAND_STEERING] = TRIM_PPRZ(500.0)"/>
 
       </control>
     </mode>

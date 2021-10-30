@@ -64,12 +64,9 @@
       <stay wp="STDBY"/>
     </block>
     
-    <block name="line_P1_P2">
-      <go wp="P1" approaching_time="0"/>
+    <block name="Set Delta">
       <while cond="TRUE">
-        <go from="P1" hmode="route" wp="P2" approaching_time="0"/>
-        <stay wp="P2" until="stage_time>10"/>
-        <go from="P2" hmode="route" wp="P1" approaching_time="0"/>
+	<call fun="rover_guidance_steering_set_delta(delta)"/>
       </while>
     </block>
     
