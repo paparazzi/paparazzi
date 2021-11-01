@@ -31,7 +31,9 @@
       <field name="command_steering"  type="int16"/>
       <field name="actuator_speed"    type="int16"/>
       <field name="actuator_steering" type="int16"/>
-      <field name="delta"             type="float"/>
+      <field name="guidance_omega"     type="float"/>
+      <field name="guidance_delta"     type="float"/>
+      <field name="guidance_speedNorm" type="float"/>
     </message>
     
     <message name="ARDRONE_NAVDATA" id="5">
