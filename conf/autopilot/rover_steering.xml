@@ -53,7 +53,7 @@
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
         
         <call fun="rover_guidance_steering_periodic()"/>
-        <call fun="SetSteeringCmdFromDelta(guidance_control.delta)"/>
+        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta)"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
 
         <call fun="SetAPThrottleFromCommands()"/>

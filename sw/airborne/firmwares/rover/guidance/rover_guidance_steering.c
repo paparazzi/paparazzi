@@ -81,6 +81,7 @@ void rover_guidance_steering_periodic(void)
     delta *= 180/PI;
 
     guidance_control.delta = BoundDelta(delta);
+    commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta);
   }
 
   // NAV guidance

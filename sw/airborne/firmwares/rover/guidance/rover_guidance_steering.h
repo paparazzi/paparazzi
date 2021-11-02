@@ -68,23 +68,15 @@ extern bool rover_guidance_steering_set_delta(float delta);
 // Bound delta
 #define BoundDelta(delta) (delta <  MIN_DELTA ? MIN_DELTA : \
                           (delta >  MAX_DELTA ? MAX_DELTA : \
-                           delta))
+                           delta));
 
 // Bound speed
 #define BoundSpeed(speed) (speed <  MIN_SPEED ? MIN_SPEED : \
                           (speed >  MAX_SPEED ? MAX_SPEED : \
-                           speed))
+                           speed));
 
 // Set steering command from delta
-# define SetSteeringCmdFromDelta(delta){ \
-  if (delta > 0) { \
-    int dif = (SERVO_MOTOR_STEERING_MAX - SERVO_MOTOR_STEERING_NEUTRAL - 300) * fabs(delta)/MAX_DELTA * 96/5; \
-    commands[COMMAND_STEERING] = SERVO_MOTOR_STEERING_NEUTRAL + dif; \
-  } else { \
-    int dif = (SERVO_MOTOR_STEERING_NEUTRAL - SERVO_MOTOR_STEERING_MIN - 300) * fabs(delta)/MAX_DELTA * 96/5; \
-    commands[COMMAND_STEERING] = SERVO_MOTOR_STEERING_NEUTRAL - dif; \
-  } \
-}
+# define GetCmdFromDelta(delta) (delta/MAX_DELTA * MAX_PPRZ);
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \
