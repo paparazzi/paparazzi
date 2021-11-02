@@ -7,7 +7,6 @@
 
 #include "generated/airframe.h"
 #include "generated/autopilot_core_guidance.h"
-#include "generated/autopilot_core_ap.h"
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/actuators/actuators_default.h"

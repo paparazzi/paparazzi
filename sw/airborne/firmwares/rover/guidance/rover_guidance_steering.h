@@ -41,7 +41,7 @@
 #define MAX_SPEED 999.0
 #endif
 #ifndef MIN_SPEED 
-#define MIN_SPEED 0.1
+#define MIN_SPEED 0.2
 #endif
 
 // DRIVE_SHAFT_DISTANCE: Distance between front and rear wheels
@@ -78,10 +78,10 @@ extern bool rover_guidance_steering_set_delta(float delta);
 // Set steering command from delta
 # define SetSteeringCmdFromDelta(delta){ \
   if (delta > 0) { \
-    float dif = (SERVO_MOTOR_STEERING_MAX - SERVO_MOTOR_STEERING_NEUTRAL) * delta/MAX_DELTA; \
+    int dif = (SERVO_MOTOR_STEERING_MAX - SERVO_MOTOR_STEERING_NEUTRAL - 300) * fabs(delta)/MAX_DELTA * 96/5; \
     commands[COMMAND_STEERING] = SERVO_MOTOR_STEERING_NEUTRAL + dif; \
   } else { \
-    float dif = (SERVO_MOTOR_STEERING_NEUTRAL - SERVO_MOTOR_STEERING_MIN) * delta/MAX_DELTA;; \
+    int dif = (SERVO_MOTOR_STEERING_NEUTRAL - SERVO_MOTOR_STEERING_MIN - 300) * fabs(delta)/MAX_DELTA * 96/5; \
     commands[COMMAND_STEERING] = SERVO_MOTOR_STEERING_NEUTRAL - dif; \
   } \
 }

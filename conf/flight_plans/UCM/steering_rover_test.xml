@@ -5,8 +5,8 @@
 
 </header>
   <waypoints>
-    <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="ELLIPSE" x="-2" y="-2"/>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="STDBY" x="-0.7" y="-0.8"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="P1" x="-1" y="-4"/>

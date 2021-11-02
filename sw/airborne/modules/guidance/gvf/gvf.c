@@ -166,6 +166,8 @@ void gvf_control_2D(float ke, float kn, float e,
   gvf_t0 = get_sys_time_msec();
 
   float ground_speed = stateGetHorizontalSpeedNorm_f();
+  ground_speed = ground_speed<0.2 ? 0.2 : ground_speed;
+  
   float course = stateGetHorizontalSpeedDir_f();
   float px_dot = ground_speed * sinf(course);
   float py_dot = ground_speed * cosf(course);

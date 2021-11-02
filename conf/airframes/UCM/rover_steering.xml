@@ -94,7 +94,7 @@
   </section>
 
   <section name="GUIDANCE">
-    <define name="DRIVE_SHAFT_DISTANCE" value="0.5"/>
+    <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
     <define name="MAX_DELTA" value="15.0"/>
   </section>
   
