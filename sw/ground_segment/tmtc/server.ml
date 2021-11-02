@@ -141,15 +141,15 @@ let logger = fun () ->
   close_out f;
   open_out (logs_path // data_name)
 
+let time_of_timestamp = function
+  | Some x -> x
+  | None -> U.gettimeofday() -. start_time
 
 let log = fun ?timestamp logging ac_name msg_name values ->
   match logging with
       Some log ->
         let s = string_of_values values in
-        let t =
-          match timestamp with
-              Some x -> x
-            | None   -> U.gettimeofday () -. start_time in
+        let t = time_of_timestamp timestamp in
         fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
     | None -> ()
 
@@ -168,7 +168,14 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       let msg = Tele_Pprz.message_of_id msg_id in
       log ?timestamp logging ac_name msg.PprzLink.name values;
       if not !udp_json_stream_disable then begin
-        let json_msg = sprintf "{ \"%s\": %s }" ac_name (Tele_Pprz.json_of_message msg values) in
+        let json_name =
+          try
+            let a = Hashtbl.find aircrafts ac_name in
+            sprintf "%s (%s)" a.name ac_name
+          with _ -> ac_name
+        in
+        let t = time_of_timestamp timestamp in
+        let json_msg = sprintf "{ \"%s\": %s, \"timestamp\": %f }" json_name (Tele_Pprz.json_of_message msg values) t in
         let len = String.length json_msg in
         let n = Unix.sendto udp_fd (Bytes.of_string json_msg) 0 len [] udp_sockaddr in
         assert(n = len)
