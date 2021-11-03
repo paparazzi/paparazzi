@@ -5,7 +5,7 @@
     <description>FBW target specific module</description>
   </doc>
   <dep>
-    <depends>system_core,electrical</depends>
+    <depends>electrical</depends>
     <provides>no_settings</provides>
   </dep>
   <makefile target="fbw">
