@@ -7,7 +7,7 @@
     </description>
   </doc>
   <dep>
-    <depends>system_core,autopilot_gnc</depends>
+    <depends>system_core,autopilot_gnc,guidance_rotorcraft</depends>
   </dep>
   <makefile>
     <configure name="PERIODIC_FREQUENCY" default="512"/>
