@@ -61,8 +61,6 @@ void rover_guidance_steering_periodic(void)
 { 
   // Definitions
   float delta;
-  float R = guidance_control.r;
-  float Kv = 0.01; //TODO: struct in .h
 
   // Check GPS state values
   guidance_control.speedNorm = stateGetHorizontalSpeedNorm_f();
@@ -74,7 +72,6 @@ void rover_guidance_steering_periodic(void)
   // ASSISTED guidance
   if (autopilot_get_mode() == AP_MODE_ASSISTED) {
     delta = 0.0;
-    // delta = DRIVE_SHAFT_DISTANCE/R + speed**2/R; //TODO: check L/R sign
     if (fabs(guidance_control.omega)>0.0) {
       delta += -atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / speed);
     }
@@ -87,6 +84,10 @@ void rover_guidance_steering_periodic(void)
   // NAV guidance
   else if (autopilot_get_mode() == AP_MODE_NAV) {
     autopilot_core_guidance_periodic_task();
+    
+    guidance_control.delta = BoundDelta(guidance_control.delta);
+    commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta);
+    commands[COMMAND_SPEED] = 0;
   } 
 
   // FAILSAFE values

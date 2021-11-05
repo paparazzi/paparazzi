@@ -28,8 +28,13 @@
     <module name="ins"/>
     <module name="ahrs" type="float_dcm"/>
     <module name="nav" type="rover_base"/>
-    <module name="guidance" type="rover_steering"/>
     <module name="gvf" type="module"/>
+
+    <module name="guidance" type="rover_steering">
+      <define name="MAX_DELTA" value="15.0"/>
+      <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
+    </module>
+
   </firmware>
 
 
@@ -91,11 +96,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_MODEL" value="simple_quad" type="string"/> <!-- for NPS module compilation -->
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
-  </section>
-
-  <section name="GUIDANCE">
-    <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
-    <define name="MAX_DELTA" value="15.0"/>
   </section>
   
   <section name="BAT">
