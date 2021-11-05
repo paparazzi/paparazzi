@@ -5,18 +5,26 @@
     <description>
       Steering guidance for rover.
     </description>
+    <!-- TODO: Rover hardware configuration without defining global var.
+    <configure name="MAX_DELTA_C" value="15.0"/>
+    <configure name="MIN_DELTA_C" value="-$(MAX_DELTA_C)"/>
+    <configure name="DRIVE_SHAFT_DISTANCE_C" value="0.25"/>
+    -->
   </doc>
-  
-  
-  <!--settings target="ap">
-    <dl_settings>
-      <dl_settings NAME="GuidanceSteering">
 
+  <settings name="SR Guidance">
+    <dl_settings>
+      <dl_settings NAME="SR Guidance">
+        <dl_settings NAME="Control">
+          <!--FIXME: Set MIN_DELTA/MAX_DELTA config limits-->
+          <dl_setting MAX="15.0" MIN="-15.0" STEP="0.01" VAR="guidance_control.delta" shortname="sr_delta" param="SR_GUIDANCE_DELTA"/>
+          <dl_setting MAX="0.0" MIN="0.0"    STEP="0.01" VAR="guidance_control.speed" shortname="sr_speed" param="SR_GUIDANCE_SPEED"/>
+        </dl_settings>
       </dl_settings>
     </dl_settings>
-  </settings-->
+  </settings>
   
-  <dep>
+    <dep>
     <depends>@navigation</depends>
     <provides>guidance,commands</provides>
   </dep>
@@ -24,7 +32,7 @@
   <header>
     <file name="rover_guidance_steering.h"/>
   </header>
-  
+
   <init fun="rover_guidance_steering_init()"/>
   <makefile target="ap|nps" firmware="rover">
     <file name="rover_guidance_steering.c" dir="$(SRC_FIRMWARE)/guidance"/>
