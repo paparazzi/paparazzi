@@ -87,7 +87,6 @@ void rover_guidance_steering_periodic(void)
   // NAV guidance
   else if (autopilot_get_mode() == AP_MODE_NAV) {
     autopilot_core_guidance_periodic_task();
-    guidance_control.delta = 0.0;
   } 
 
   // FAILSAFE values

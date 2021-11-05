@@ -35,7 +35,9 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #elif defined(ROVER_FIRMWARE)
 #include "state.h"
+#include "modules/nav/nav_rover_base.h"
 #include "firmwares/rover/navigation.h"
+struct EnuCoor_f gvf_wp;
 #else
 #error "Firmware not supported by GVF!"
 #endif
@@ -92,7 +94,7 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
 
   if (delta_T < 200)
     if (gvf_trajectory.type == ELLIPSE &&
-        (gvf_trajectory.p[2] == gvf_trajectory.p[3])) {
+        ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3])) {
       pprz_msg_send_CIRCLE(trans, dev, AC_ID,
                            &gvf_trajectory.p[0], &gvf_trajectory.p[1],
                            &gvf_trajectory.p[2]);
@@ -165,19 +167,12 @@ void gvf_control_2D(float ke, float kn, float e,
 {
   gvf_t0 = get_sys_time_msec();
 
-#if defined(FIXEDWING_FIRMWARE)
   float ground_speed = stateGetHorizontalSpeedNorm_f();
+  ground_speed = ground_speed<0.2 ? 0.2 : ground_speed;
+  
   float course = stateGetHorizontalSpeedDir_f();
   float px_dot = ground_speed * sinf(course);
   float py_dot = ground_speed * cosf(course);
-#elif defined(ROVER_FIRMWARE)
-  // We assume that the course and psi
-  // of the rover (steering wheel) are the same
-  float course = stateGetNedToBodyEulers_f()->psi;
-  float px_dot = stateGetSpeedEnu_f()->x;
-  float py_dot = stateGetSpeedEnu_f()->y;
-#endif
-
   int s = gvf_control.s;
 
   // gradient Phi
@@ -386,15 +381,16 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
   gvf_trajectory.p[2] = a;
   gvf_trajectory.p[3] = b;
   gvf_trajectory.p[4] = alpha;
-
+  
   // SAFE MODE
   if (a < 1 || b < 1) {
     gvf_trajectory.p[2] = 60;
     gvf_trajectory.p[3] = 60;
   }
 
-  if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
+  if ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3]) {
     horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+
   } else {
     horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   }
@@ -633,6 +629,12 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
 
   if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
     nav.mode = NAV_MODE_CIRCLE;
+
+    gvf_wp.x = x;
+    gvf_wp.y = y;
+    nav_rover_base.circle.center = gvf_wp;
+    nav_rover_base.circle.radius = a;
+
   } else {
     nav.mode = NAV_MODE_WAYPOINT;
   }
