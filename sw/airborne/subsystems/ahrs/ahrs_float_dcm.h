@@ -72,8 +72,8 @@ extern struct AhrsFloatDCM ahrs_dcm;
 // Mode 1 = DCM integration with Kp and Ki
 // Mode 2 = direct accelerometer -> euler
 
-#ifndef MIN_COURSE_SPEED
-#define MIN_COURSE_SPEED 500
+#ifndef AHRS_FLOAT_MIN_SPEED_GPS_COURSE
+#define AHRS_FLOAT_MIN_SPEED_GPS_COURSE 5 // m/s
 #endif
 
 #define PERFORMANCE_REPORTING 1
