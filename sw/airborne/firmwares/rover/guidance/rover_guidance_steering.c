@@ -75,7 +75,7 @@ void rover_guidance_steering_periodic(void)
     if (fabs(guidance_control.omega)>0.0) {
       delta += -atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / speed);
     }
-    delta *= 180/PI;
+    delta *= 180/M_PI;
 
     guidance_control.delta = BoundDelta(delta);
     commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta);
@@ -87,7 +87,6 @@ void rover_guidance_steering_periodic(void)
     
     guidance_control.delta = BoundDelta(guidance_control.delta);
     commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta);
-    commands[COMMAND_SPEED] = 0;
   } 
 
   // FAILSAFE values
