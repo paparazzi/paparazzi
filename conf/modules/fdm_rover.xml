@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_rover" dir="fdm">
+  <doc>
+    <description>
+
+    </description>
+  </doc>
+  <header/>
+  <makefile target="nps|hitl">
+    <file name="nps_fdm_rover.c" dir="nps"/>
+  </makefile>
+</module>
+

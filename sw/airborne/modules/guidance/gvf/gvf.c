@@ -37,7 +37,7 @@
 #include "state.h"
 #include "modules/nav/nav_rover_base.h"
 #include "firmwares/rover/navigation.h"
-struct EnuCoor_f gvf_wp;
+struct EnuCoor_f gvf_draw_wp;
 #else
 #error "Firmware not supported by GVF!"
 #endif
@@ -630,9 +630,9 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
   if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
     nav.mode = NAV_MODE_CIRCLE;
 
-    gvf_wp.x = x;
-    gvf_wp.y = y;
-    nav_rover_base.circle.center = gvf_wp;
+    gvf_draw_wp.x = x;
+    gvf_draw_wp.y = y;
+    nav_rover_base.circle.center = gvf_draw_wp;
     nav_rover_base.circle.radius = a;
 
   } else {

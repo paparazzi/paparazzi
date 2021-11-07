@@ -33,10 +33,6 @@
 
 
 /** Global variables definitions **/
-// PI: For radian <--> deg conversions
-#ifndef PI
-#define PI acos(-1.0)
-#endif
 
 // MIN_DELTA, MAX_DELTA: Min and max wheels turning angle (deg)
 #ifndef MAX_DELTA 

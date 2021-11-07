@@ -12,7 +12,8 @@
     
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="jsbsim_rover"/> <!-- for NPS module compilation -->
+      <module name="fdm" type="rover"/> <!-- for NPS module compilation -->
+      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
     </target>    
     
     <module name="actuators" type="pwm"/>
@@ -46,11 +47,8 @@
   
   <!-- Low level commands (PWM signal) -->
   <commands>
-    <axis name="SPEED"    failsafe_value="1500"/>
-    <axis name="STEERING" failsafe_value="1500"/>
-    <axis name="THROTTLE" failsafe_value="0"/> <!-- for board module compilation -->
-    <axis name="ROLL"     failsafe_value="0"/> <!-- for board module compilation -->
-    <axis name="THRUST"   failsafe_value="0"/> <!-- for board module compilation -->
+    <axis name="SPEED"    failsafe_value="1000"/>
+    <axis name="STEERING" failsafe_value="0"/>
   </commands>
 
   <!-- When SetCommandsFromRC -->
@@ -94,7 +92,6 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/> <!-- for NPS module compilation -->
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
   
