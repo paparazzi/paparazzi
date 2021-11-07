@@ -87,6 +87,7 @@ void rover_guidance_steering_periodic(void)
     
     guidance_control.delta = BoundDelta(guidance_control.delta);
     commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta);
+    commands[COMMAND_SPEED] = 0;
   } 
 
   // FAILSAFE values

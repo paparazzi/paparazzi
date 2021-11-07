@@ -12,7 +12,7 @@
     
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="rover"/> <!-- for NPS module compilation -->
+      <module name="fdm" type="rover"/>
       <define name="NPS_BYPASS_AHRS" value="TRUE"/>
     </target>    
     
@@ -47,7 +47,7 @@
   
   <!-- Low level commands (PWM signal) -->
   <commands>
-    <axis name="SPEED"    failsafe_value="1000"/>
+    <axis name="SPEED"    failsafe_value="0"/>
     <axis name="STEERING" failsafe_value="0"/>
   </commands>
 
