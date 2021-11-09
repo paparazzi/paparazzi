@@ -67,7 +67,7 @@ extern void nav_reset_utm_zone(void);
 extern void nav_reset_reference(void) __attribute__((unused));
 extern void nav_reset_alt(void) __attribute__((unused));
 extern void nav_update_waypoints_alt(void) __attribute__((unused));
-extern void common_nav_periodic_task_4Hz(void);
+extern void common_nav_periodic_task(void);
 extern float get_time_to_home(void); /* estimated time to home point in seconds */
 
 

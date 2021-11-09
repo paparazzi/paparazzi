@@ -71,7 +71,7 @@ static float timeout;
 
 abi_event object_ev;
 
-static const float nav_dt = 1.f / NAV_FREQ;
+static const float nav_dt = 1.f / NAVIGATION_FREQUENCY;
 
 // callback on follow target message
 static void get_object(uint8_t sender_id __attribute__((unused)),

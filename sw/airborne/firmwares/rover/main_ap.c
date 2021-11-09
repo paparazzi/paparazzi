@@ -86,10 +86,6 @@ void main_init(void)
   modules_datalink_init();
   modules_default_init();
 
-  // call autopilot implementation init after guidance modules init
-  // it will set startup mode
-  autopilot_generated_init();
-
   // register timers with temporal dependencies
   modules_sensors_tid = sys_time_register_timer(SENSORS_PERIOD, NULL);
 

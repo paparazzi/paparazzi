@@ -107,7 +107,7 @@ bool mission_element_convert(struct _mission_element *el)
 }
 
 // navigation time step
-static const float dt_navigation = 1.0 / ((float)NAV_FREQ);
+static const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
 
 //  last_mission_wp, last target wp from mission elements, not used actively and kept for future implementations
 struct EnuCoor_i last_mission_wp = { 0., 0., 0. };

@@ -60,7 +60,7 @@
       <on_enter>
         <call fun="stabilization_attitude_enter()"/>
       </on_enter>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -77,7 +77,7 @@
         <call fun="stabilization_attitude_enter()"/>
         <call fun="guidance_v_z_enter()"/>
       </on_enter>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -95,7 +95,7 @@
         <call fun="stabilization_attitude_enter()"/>
         <call fun="guidance_v_z_enter()"/>
       </on_enter>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -116,7 +116,7 @@
         <call fun="guidance_v_mode = GUIDANCE_V_MODE_GUIDED"/>
         <call fun="guidance_v_guided_enter()"/>
       </on_enter>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -135,7 +135,7 @@
         <call fun="stabilization_attitude_enter()"/>
         <call fun="guidance_v_z_enter()"/>
       </on_enter>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_home()"/>
       </control>
       <control>

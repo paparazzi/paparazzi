@@ -43,8 +43,13 @@
 #define CARROT_DIST 2.f
 #endif
 
-#ifndef NAV_FREQ
-#define NAV_FREQ 16
+/** default navigation frequency */
+#ifndef NAVIGATION_FREQUENCY
+#if PERIODIC_FREQUENCY == 512
+#define NAVIGATION_FREQUENCY 16
+#else // if not 512, assume a multiple of 20 (e.g. 200, 500, 1000, ...)
+#define NAVIGATION_FREQUENCY 20
+#endif
 #endif
 
 

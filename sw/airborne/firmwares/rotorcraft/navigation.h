@@ -40,7 +40,14 @@
 #define CARROT 0
 #endif
 
-#define NAV_FREQ 16
+/** default navigation frequency */
+#ifndef NAVIGATION_FREQUENCY
+#if PERIODIC_FREQUENCY == 512
+#define NAVIGATION_FREQUENCY 16
+#else // if not 512, assume a multiple of 20 (e.g. 200, 500, 1000, ...)
+#define NAVIGATION_FREQUENCY 20
+#endif
+#endif
 
 extern struct EnuCoor_i navigation_target;
 extern struct EnuCoor_i navigation_carrot;
@@ -178,8 +185,6 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
 bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
 #define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
 
-
-extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp);
 
 /* should we really keep this one ??
  * maybe better to use the `goto` flight plan primitive and
