@@ -18,7 +18,6 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>guidance_rotorcraft</depends>
     <provides>navigation</provides>
   </dep>
   <header>
