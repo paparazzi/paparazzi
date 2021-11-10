@@ -29,7 +29,7 @@
 #include "subsystems/radio_control.h"
 #include "mcu_periph/uart.h"
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "autopilot.h"
 
 #if COMMANDS_NB > 8

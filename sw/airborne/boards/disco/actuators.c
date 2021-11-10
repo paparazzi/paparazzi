@@ -31,7 +31,7 @@
  */
 
 #include "subsystems/actuators.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "autopilot.h"
 #include "subsystems/abi.h"

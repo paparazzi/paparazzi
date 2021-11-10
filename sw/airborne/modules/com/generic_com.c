@@ -29,7 +29,7 @@
 
 #include "state.h"
 #include "subsystems/gps.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"
 #include "autopilot.h"

@@ -61,7 +61,7 @@ Receiving:
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/gps.h"
 #include "autopilot.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 //#include "subsystems/navigation/common_nav.h"  //why is should this be needed?
 #include "generated/settings.h"
 #include "led.h"

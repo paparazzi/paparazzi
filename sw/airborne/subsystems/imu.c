@@ -228,7 +228,7 @@ void WEAK imu_scale_accel(struct Imu *_imu)
 }
 
 #if !defined SITL && defined IMU_MAG_X_CURRENT_COEF && defined IMU_MAG_Y_CURRENT_COEF && defined IMU_MAG_Z_CURRENT_COEF
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 void WEAK imu_scale_mag(struct Imu *_imu)
 {
   struct Int32Vect3 mag_correction;

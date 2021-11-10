@@ -28,7 +28,7 @@
 #include "state.h"
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 #ifndef WINDTUNNEL_TO_BODY_PHI
 #define WINDTUNNEL_TO_BODY_PHI 0

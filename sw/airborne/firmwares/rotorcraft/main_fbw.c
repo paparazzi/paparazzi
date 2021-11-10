@@ -37,7 +37,7 @@
 #include "subsystems/actuators/motor_mixing.h"
 #endif
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/intermcu/intermcu_fbw.h"
 #include "firmwares/rotorcraft/main_fbw.h"

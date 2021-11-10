@@ -27,7 +27,7 @@
 #ifndef HOTT_EAM_H
 #define HOTT_EAM_H
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/imu.h"
 #include "autopilot.h"
 #include "state.h"

@@ -33,7 +33,7 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/settings.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"

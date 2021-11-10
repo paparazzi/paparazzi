@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/electrical.h
+ * @file modules/energy/electrical.h
  *
  * Interface for electrical status: supply voltage, current, battery status, etc.
  */
 
-#ifndef SUBSYSTEMS_ELECTRICAL_H
-#define SUBSYSTEMS_ELECTRICAL_H
+#ifndef ELECTRICAL_H
+#define ELECTRICAL_H
 
 #include "std.h"
 #include "generated/airframe.h"
@@ -55,4 +55,4 @@ extern struct Electrical electrical;
 extern void electrical_init(void);
 extern void electrical_periodic(void);
 
-#endif /* SUBSYSTEMS_ELECTRICAL_H */
+#endif /* ELECTRICAL_H */

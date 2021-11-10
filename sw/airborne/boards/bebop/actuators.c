@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/actuators.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "led_hw.h"
 #include "autopilot.h"

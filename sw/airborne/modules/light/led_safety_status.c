@@ -28,7 +28,7 @@
 
 #include "led.h"
 #include "generated/airframe.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/radio_control.h"
 #include "autopilot.h"
 #include "autopilot_rc_helpers.h"

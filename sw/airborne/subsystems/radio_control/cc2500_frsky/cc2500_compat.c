@@ -28,7 +28,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 #include <stdbool.h>
 #include <assert.h>

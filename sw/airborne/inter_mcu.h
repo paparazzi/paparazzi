@@ -43,7 +43,7 @@
 #include "pprz_mutex.h"
 #include "generated/airframe.h"
 #include "subsystems/radio_control.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "firmwares/fixedwing/main_fbw.h"
 
 /** FIXME dummy definition for compat with rotorcraft **/

@@ -30,7 +30,7 @@
 #include "generated/modules.h"
 
 #include <stdint.h>
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
 

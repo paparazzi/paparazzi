@@ -37,7 +37,7 @@
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "autopilot.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "state.h"
 
 // for GetPosAlt, include correct header until we have unified API

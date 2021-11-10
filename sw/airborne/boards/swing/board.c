@@ -34,7 +34,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <linux/input.h>
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 /**
  * Battery reading thread

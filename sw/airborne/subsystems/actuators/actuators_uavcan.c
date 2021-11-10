@@ -25,7 +25,7 @@
  */
 
 #include "actuators_uavcan.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "math/pprz_random.h"
 
 /* By default enable the usage of the current sensing in the ESC telemetry */

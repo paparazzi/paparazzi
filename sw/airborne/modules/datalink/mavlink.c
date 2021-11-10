@@ -46,7 +46,7 @@
 #include "generated/settings.h"
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "state.h"
 #include "pprz_version.h"
 #include "autopilot.h"
@@ -768,7 +768,7 @@ static void mavlink_send_rc_channels(struct transport_tx *trans, struct link_dev
   MAVLinkSendMessage();
 }
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 static void mavlink_send_battery_status(struct transport_tx *trans, struct link_device *dev)
 {
   static uint16_t voltages[10];

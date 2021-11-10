@@ -29,7 +29,7 @@
 
 #include "subsystems/intermcu.h"
 #include "generated/airframe.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
 void RadioControlEvent(void (*frame_handler)(void));

@@ -26,7 +26,7 @@
 #include "subsystems/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include <stdio.h>
 
 #include "subsystems/datalink/telemetry.h"

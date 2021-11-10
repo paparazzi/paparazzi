@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/electrical.c
+ * @file modules/energy/electrical.c
  *
  * Implemnetation for electrical status: supply voltage, current, battery status, etc.
  */
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 #include "mcu_periph/adc.h"
 #include "subsystems/commands.h"

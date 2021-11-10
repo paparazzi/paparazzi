@@ -32,7 +32,7 @@
 
 #include <stdint.h>
 //#include "mcu_periph/sys_time.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
 
