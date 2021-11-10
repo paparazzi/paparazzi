@@ -23,8 +23,8 @@
 #error "Steering rover firmware requires the servo MOTOR_STEERING"
 #endif
 
-#ifndef COMMAND_SPEED
-#error "Steering rover firmware requires the command MOTOR_THROTTLE"
+#ifndef COMMAND_THROTTLE
+#error "Steering rover firmware requires the command COMMAND_THROTTLE"
 #endif
 
 #ifndef COMMAND_STEERING
@@ -42,7 +42,7 @@
 #define MIN_DELTA -MAX_DELTA
 #endif
 
-// MIN_SPEED, MAX_SPEED: Min and max speed (m/s)
+// MIN_SPEED, MAX_SPEED: Min and max state speed (m/s)
 #ifndef MAX_SPEED 
 #define MAX_SPEED 999.0
 #endif
@@ -58,11 +58,18 @@
 
 
 /** Steering rover guidance STRUCTURES **/
+
+// High commands
 typedef struct {
+  float speed;
+  float delta;
+} RTcmd_t;
+
+// Main structure
+typedef struct {
+  RTcmd_t cmd;
   float speedNorm;
   float speedDir;
-  float delta;
-  float speed;
   float omega;
   float r;
 } rover_ctrl;
@@ -91,7 +98,7 @@ extern bool rover_guidance_steering_set_delta(float delta);
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \
-    autopilot.throttle = commands[COMMAND_SPEED]; \
+    autopilot.throttle = commands[COMMAND_THROTTLE]; \
   }
 
 #endif // ROVER_GUIDANCE_STEERING_H
