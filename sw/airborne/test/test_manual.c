@@ -44,7 +44,7 @@
 #include "subsystems/actuators/motor_mixing.h"
 #endif
 
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);

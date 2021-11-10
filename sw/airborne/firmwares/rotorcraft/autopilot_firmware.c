@@ -34,7 +34,7 @@
 //#include "mcu_periph/sys_time.h"
 #include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"

@@ -38,7 +38,7 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "subsystems/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"

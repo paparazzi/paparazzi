@@ -12,7 +12,7 @@
       <include name="subsystems/actuators.h"/>
       <include name="navigation.h"/>
       <include name="guidance/rover_guidance.h"/>
-      <include name="subsystems/radio_control.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
       <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
     </includes>
 

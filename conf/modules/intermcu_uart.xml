@@ -68,7 +68,7 @@
     <define name="SECONDARY_GPS" value="GPS_IMCU" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <define name="IMCU_GPS" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <file name="intermcu_ap.c" dir="subsystems/intermcu"/>
-    <file name="radio_control.c" dir="subsystems"/>
+    <file name="radio_control.c" dir="modules/radio_control"/>
   </makefile>
   <makefile target="ap|fbw" firmware="rotorcraft">
     <configure name="INTERMCU_BAUD" default="B230400"/>

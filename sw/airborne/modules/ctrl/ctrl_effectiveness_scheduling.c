@@ -28,7 +28,7 @@
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 #include "state.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #error "You need to use WLS control allocation for this module"

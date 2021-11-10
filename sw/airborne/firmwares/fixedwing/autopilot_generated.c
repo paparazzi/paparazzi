@@ -29,7 +29,7 @@
 #include "firmwares/fixedwing/autopilot_generated.h"
 #include "autopilot.h"
 
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 #include "modules/core/settings.h"

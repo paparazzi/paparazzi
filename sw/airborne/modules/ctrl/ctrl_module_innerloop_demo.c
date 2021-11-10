@@ -26,7 +26,7 @@
 
 #include "modules/ctrl/ctrl_module_innerloop_demo.h"
 #include "state.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
 struct ctrl_module_demo_struct {

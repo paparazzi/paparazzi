@@ -29,7 +29,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "generated/airframe.h"
 
 struct Int32Rates stabilization_none_rc_cmd;

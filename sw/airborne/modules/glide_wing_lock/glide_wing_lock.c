@@ -31,7 +31,7 @@
 
 #include "mcu_periph/adc.h"
 #include "modules/core/commands.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "autopilot.h"
 
 struct adc_buf adcbuf;

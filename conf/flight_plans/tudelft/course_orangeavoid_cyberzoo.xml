@@ -4,7 +4,7 @@
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
-    #include "subsystems/radio_control.h"
+    #include "modules/radio_control/radio_control.h"
     #include "subsystems/ahrs.h"
     #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
 </header>

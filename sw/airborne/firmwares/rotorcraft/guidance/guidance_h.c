@@ -33,7 +33,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #if GUIDANCE_INDI_HYBRID
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
 #else

@@ -28,7 +28,7 @@
 #define AUTOPILOT_RC_HELPERS_H
 
 #include "generated/airframe.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 /** RC mode switch position helper
  *  switch positions threshold are evenly spaced

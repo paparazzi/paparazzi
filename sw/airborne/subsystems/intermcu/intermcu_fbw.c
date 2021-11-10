@@ -28,7 +28,7 @@
 
 #include "intermcu_fbw.h"
 #include "pprzlink/intermcu_msg.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "modules/energy/electrical.h"
 #include "mcu_periph/uart.h"
 #include "modules/telemetry/telemetry_intermcu.h"

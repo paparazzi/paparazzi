@@ -39,7 +39,7 @@
 #include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 #include "modules/energy/electrical.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "autopilot.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"

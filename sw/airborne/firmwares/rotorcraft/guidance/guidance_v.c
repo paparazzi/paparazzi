@@ -29,7 +29,7 @@
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/navigation.h"
 

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky" task="radio_control">
+<module name="radio_control_cc2500_frsky" dir="radio_control" task="radio_control">
   <doc>
     <description>
       Software implementation of Frsky radio control protocol for onboard CC2500 receiver.
@@ -41,12 +41,12 @@
   </dep>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
-    <file name="cc2500_paparazzi.h" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_settings.h" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky/cc2500_paparazzi.h"/>
+    <file name="cc2500_frsky/cc2500_settings.h"/>
   </header>
   <init fun="cc2500_init()"/>
   <makefile target="ap|fbw|sim|nps">
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
   </makefile>
@@ -56,21 +56,21 @@
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/>
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c" dir="subsystems"/>
+    <file name="radio_control.c"/>
     <file name="cc2500.c" dir="peripherals"/>
-    <file name="cc2500_paparazzi.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_settings.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_compat.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_rx.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_rx_spi.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
-    <file name="cc2500_smartport.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky/cc2500_paparazzi.c"/>
+    <file name="cc2500_frsky/cc2500_settings.c"/>
+    <file name="cc2500_frsky/cc2500_compat.c"/>
+    <file name="cc2500_frsky/cc2500_common.c"/>
+    <file name="cc2500_frsky/cc2500_rx.c"/>
+    <file name="cc2500_frsky/cc2500_rx_spi.c"/>
+    <file name="cc2500_frsky/cc2500_rx_spi_common.c"/>
+    <file name="cc2500_frsky/cc2500_frsky_shared.c"/>
+    <file name="cc2500_frsky/cc2500_frsky_x.c"/>
+    <file name="cc2500_frsky/cc2500_smartport.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
       <define name="CC2500_SPI_DEV" value="spi1"/>
       <define name="CC2500_SPI_SLAVE_IDX" value="2"/>
       <define name="USE_SPI1"/>

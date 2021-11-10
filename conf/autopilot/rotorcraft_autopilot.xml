@@ -11,7 +11,7 @@
       <include name="navigation.h"/>
       <include name="guidance.h"/>
       <include name="stabilization/stabilization_attitude.h"/>
-      <include name="subsystems/radio_control.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
       <include name="subsystems/gps.h"/>
       <include name="subsystems/actuators.h"/>
       <include name="subsystems/actuators/motor_mixing.h"/>

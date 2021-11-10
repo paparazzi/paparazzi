@@ -53,7 +53,7 @@
 #include "autopilot_guided.h"
 
 #if defined RADIO_CONTROL
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #endif
 
 #include "modules/datalink/missionlib/mission_manager.h"
@@ -728,7 +728,7 @@ static void mavlink_send_gps_status(struct transport_tx *trans, struct link_devi
 }
 
 #if defined RADIO_CONTROL
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 // since they really want PPM values, use a hack to check if are using ppm subsystem
 #ifdef PPM_PULSE_TYPE_POSITIVE
 #define RC_CHANNELS RADIO_CTL_NB

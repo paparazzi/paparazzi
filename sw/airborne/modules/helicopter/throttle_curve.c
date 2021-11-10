@@ -27,7 +27,7 @@
 #include "throttle_curve.h"
 #include "modules/core/commands.h"
 #include "autopilot.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "modules/core/abi.h"
 
 /* The switching values for the Throttle Curve Mode switch */

@@ -5,7 +5,7 @@
     #include "autopilot.h"
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
-    #include "subsystems/radio_control.h"
+    #include "modules/radio_control/radio_control.h"
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>

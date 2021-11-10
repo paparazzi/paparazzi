@@ -33,7 +33,7 @@
 #include <inttypes.h>
 #include "led.h"
 
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #include "firmwares/rotorcraft/main_ap.h"
 

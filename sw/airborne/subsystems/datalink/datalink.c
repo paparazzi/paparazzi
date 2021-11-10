@@ -37,7 +37,7 @@
 #include "pprzlink/messages.h"
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #endif
 
 #if USE_GPS

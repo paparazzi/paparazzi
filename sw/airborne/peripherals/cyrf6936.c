@@ -28,7 +28,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
