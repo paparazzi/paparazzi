@@ -23,7 +23,7 @@
 #include "std.h"
 #include "subsystems/sensors/baro.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 enum LisaBaroStatus {

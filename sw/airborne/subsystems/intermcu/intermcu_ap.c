@@ -49,7 +49,7 @@ static inline void intermcu_parse_msg(void (*rc_frame_handler)(void));
 
 #if IMCU_GPS
 #include "std.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/gps.h"
 static struct GpsState gps_imcu;
 #endif

@@ -26,7 +26,7 @@
 
 #include <math.h>
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 

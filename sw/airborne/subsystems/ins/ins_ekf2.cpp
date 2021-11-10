@@ -28,7 +28,7 @@
 
 #include "subsystems/ins/ins_ekf2.h"
 #include "subsystems/navigation/waypoints.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "stabilization/stabilization_attitude.h"
 #include "generated/airframe.h"
 #include "EKF/ekf.h"

@@ -32,7 +32,7 @@
  */
 
 #include "gps_mtk.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 #include "mcu_periph/sys_time.h"

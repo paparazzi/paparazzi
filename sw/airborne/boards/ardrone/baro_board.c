@@ -27,7 +27,7 @@
  */
 
 #include "subsystems/sensors/baro.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "baro_board.h"
 #include "navdata.h"
 

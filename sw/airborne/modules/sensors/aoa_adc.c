@@ -30,7 +30,7 @@
 
 #include "modules/sensors/aoa_adc.h"
 #include "generated/airframe.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 
 // Messages

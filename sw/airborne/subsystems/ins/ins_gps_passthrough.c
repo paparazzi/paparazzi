@@ -34,7 +34,7 @@
 
 #include "state.h"
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE

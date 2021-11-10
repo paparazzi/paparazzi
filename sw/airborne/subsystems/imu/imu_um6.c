@@ -32,7 +32,7 @@
 */
 #include "subsystems/imu/imu_um6.h"
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
 struct UM6Packet UM6_packet;

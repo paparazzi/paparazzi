@@ -26,7 +26,7 @@
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 
 #ifndef AHRS_ICQ_OUTPUT_ENABLED

@@ -28,7 +28,7 @@
 #include "modules/core/commands.h"
 #include "autopilot.h"
 #include "subsystems/radio_control.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 /* The switching values for the Throttle Curve Mode switch */
 #define THROTTLE_CURVE_SWITCH_VAL (MAX_PPRZ*2/THROTTLE_CURVES_NB)

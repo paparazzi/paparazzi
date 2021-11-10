@@ -26,7 +26,7 @@
  * L3GD20H + LSM303D (both on spi)
  */
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/l3gd20_regs.h"
 #include "peripherals/lsm303d_regs.h"

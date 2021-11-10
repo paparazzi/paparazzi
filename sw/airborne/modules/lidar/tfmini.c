@@ -26,7 +26,7 @@
  */
 #include "tfmini.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // State interface for rotation compensation
 #include "state.h"

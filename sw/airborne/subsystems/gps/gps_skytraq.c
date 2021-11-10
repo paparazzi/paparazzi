@@ -21,7 +21,7 @@
 
 #include "subsystems/gps.h"
 #include "subsystems/gps/gps_skytraq.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 #include "pprzlink/pprzlink_device.h"
 

@@ -41,8 +41,8 @@
 #include "autopilot.h"
 #include "generated/modules.h"
 
-#include "subsystems/abi.h"
-#include "subsystems/abi_sender_ids.h"
+#include "modules/core/abi.h"
+#include "modules/core/abi_sender_ids.h"
 
 #include "std.h"
 #include "subsystems/datalink/telemetry.h"

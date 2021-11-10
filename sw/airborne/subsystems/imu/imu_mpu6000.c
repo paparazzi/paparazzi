@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
 #if IMU_MPU_USE_MEDIAN_FILTER
 #include "filters/median_filter.h"

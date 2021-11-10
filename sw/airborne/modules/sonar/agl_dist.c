@@ -27,7 +27,7 @@
  */
 
 #include "modules/sonar/agl_dist.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "generated/airframe.h"
 
 float agl_dist_valid;

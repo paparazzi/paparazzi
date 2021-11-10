@@ -39,7 +39,7 @@ struct AhrsChimu ahrs_chimu;
 
 void ahrs_chimu_update_gps(uint8_t gps_fix, uint16_t gps_speed_3d);
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
  */

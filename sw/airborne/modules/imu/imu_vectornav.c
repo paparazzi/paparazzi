@@ -32,7 +32,7 @@
 #include "mcu_periph/sys_time.h"
 
 // Abi
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Generated
 #include "generated/airframe.h"

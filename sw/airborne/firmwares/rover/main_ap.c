@@ -37,7 +37,7 @@
 #include "firmwares/rover/main_ap.h"
 
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)

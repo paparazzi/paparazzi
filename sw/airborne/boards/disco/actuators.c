@@ -34,7 +34,7 @@
 #include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <endian.h>
 #include <string.h>
 

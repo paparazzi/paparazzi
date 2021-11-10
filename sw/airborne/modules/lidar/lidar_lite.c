@@ -32,7 +32,7 @@
  *
  */
 #include "modules/lidar/lidar_lite.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "filters/median_filter.h"
 
 // State interface for rotation compensation

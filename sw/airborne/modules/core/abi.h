@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/abi.h
+ * @file modules/core/abi.h
  *
  * Main include for ABI (AirBorneInterface).
  * @todo explain how to use ABI

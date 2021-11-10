@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/abi_common.h
+ * @file modules/core/abi_common.h
  *
  * Common tools for ABI middelware.
  */
@@ -37,7 +37,7 @@
  * Ex: '#include "subsystems/gps.h"' in order to use the GpsState structure
  */
 
-#include "subsystems/abi_sender_ids.h"
+#include "modules/core/abi_sender_ids.h"
 
 /* Some magic to avoid to compile C code, only headers */
 #ifdef ABI_C

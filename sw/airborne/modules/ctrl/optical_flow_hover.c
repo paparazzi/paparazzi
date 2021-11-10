@@ -23,7 +23,7 @@
 
 #include "generated/airframe.h"
 #include "paparazzi.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "modules/energy/electrical.h"

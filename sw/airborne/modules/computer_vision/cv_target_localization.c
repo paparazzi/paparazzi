@@ -31,7 +31,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_float.h"
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/navigation/waypoints.h"
 #include "generated/flight_plan.h"

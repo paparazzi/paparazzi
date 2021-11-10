@@ -38,8 +38,8 @@
 
 #include "modules/dragspeed/dragspeed.h"
 
-#include "subsystems/abi.h"
-#include "subsystems/abi_common.h"
+#include "modules/core/abi.h"
+#include "modules/core/abi_common.h"
 #include "subsystems/datalink/telemetry.h"
 
 #include <stdio.h>

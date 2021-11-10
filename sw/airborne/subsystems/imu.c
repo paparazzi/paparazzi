@@ -30,7 +30,7 @@
 
 #include "subsystems/imu.h"
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #ifdef IMU_POWER_GPIO
 #include "mcu_periph/gpio.h"

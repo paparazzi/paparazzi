@@ -20,7 +20,7 @@
  */
 
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "generated/airframe.h"
 #include "subsystems/imu/imu_nps.h"
 #include "nps_sensors.h"

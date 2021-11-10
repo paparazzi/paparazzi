@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
 
 // Set SPI_CS High to enable I2C mode of ADXL345

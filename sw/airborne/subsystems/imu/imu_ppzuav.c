@@ -29,7 +29,7 @@
  */
 
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
 
 /* i2c default suitable for Tiny/Twog */

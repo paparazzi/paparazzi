@@ -33,7 +33,7 @@
 #ifndef BARO_NO_DOWNLINK
 #include "subsystems/datalink/downlink.h"
 #endif
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 

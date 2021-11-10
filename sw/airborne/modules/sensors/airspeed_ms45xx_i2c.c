@@ -29,7 +29,7 @@
 #include "mcu_periph/i2c.h"
 #include "modules/sensors/airspeed_ms45xx_i2c.h"
 #include "filters/low_pass_filter.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"

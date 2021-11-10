@@ -24,7 +24,7 @@
  *  @brief driver for the Parallax SF11-A/B/C Laser Rangefinder connected over i2c bus.
  */
 #include "modules/lidar/lidar_sf11.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "filters/median_filter.h"
 
 // State interface for rotation compensation

@@ -26,7 +26,7 @@
 
 #include "subsystems/ahrs/ahrs_float_dcm_wrapper.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 
 #ifndef AHRS_DCM_OUTPUT_ENABLED

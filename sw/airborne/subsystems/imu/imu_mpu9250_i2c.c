@@ -28,7 +28,7 @@
 #include "subsystems/imu.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined  IMU_MPU9250_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)

@@ -30,7 +30,7 @@
 // Own Header
 #include "guidance_opticflow_hover.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Stabilization
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"

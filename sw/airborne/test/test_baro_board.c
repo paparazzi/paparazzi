@@ -38,7 +38,7 @@
 #include "subsystems/sensors/baro.h"
 
 #define ABI_C
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "test_baro_board_imu.h"
 

@@ -28,7 +28,7 @@
 #include BOARD_CONFIG
 #include "generated/airframe.h"
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #ifndef USE_AIRSPEED_ADC
 #define USE_AIRSPEED_ADC TRUE

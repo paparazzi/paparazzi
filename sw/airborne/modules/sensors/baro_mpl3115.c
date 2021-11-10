@@ -28,7 +28,7 @@
 
 #include "modules/sensors/baro_mpl3115.h"
 #include "peripherals/mpl3115.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 //Messages
 #include "mcu_periph/uart.h"

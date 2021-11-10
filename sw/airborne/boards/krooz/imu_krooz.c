@@ -34,7 +34,7 @@
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "filters/median_filter.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"

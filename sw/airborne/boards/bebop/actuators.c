@@ -30,7 +30,7 @@
 #include "actuators.h"
 #include "led_hw.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"

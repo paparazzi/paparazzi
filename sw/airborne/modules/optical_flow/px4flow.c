@@ -29,7 +29,7 @@
 
 #include "modules/optical_flow/px4flow.h"
 #include "modules/datalink/mavlink_decoder.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // State interface for rotation compensation
 #include "state.h"

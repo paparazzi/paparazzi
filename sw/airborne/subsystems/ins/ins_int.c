@@ -28,7 +28,7 @@
 
 #include "subsystems/ins/ins_int.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"

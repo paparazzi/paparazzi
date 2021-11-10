@@ -29,7 +29,7 @@
 #include "peripherals/bmp085.h"
 #include "peripherals/bmp085_regs.h"
 #include <libopencm3/stm32/gpio.h>
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "led.h"
 

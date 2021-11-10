@@ -45,7 +45,7 @@
 #include "navdata.h"
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/gpio.h"
 
 /* Internal used functions */

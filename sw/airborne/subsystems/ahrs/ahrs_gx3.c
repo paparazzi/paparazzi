@@ -35,7 +35,7 @@
 
 // for ahrs_register_impl
 #include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #define GX3_CHKSM(_ubx_payload) (uint16_t)((uint16_t)(*((uint8_t*)_ubx_payload+66+1))|(uint16_t)(*((uint8_t*)_ubx_payload+66+0))<<8)
 

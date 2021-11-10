@@ -42,7 +42,7 @@
 #include "subsystems/radio_control.h"
 #include "state.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <stdio.h>
 
 #define UWB_SERIAL_PORT (&((SERIAL_UART).device))

@@ -47,7 +47,7 @@
 #include "state.h"
 #include "modules/core/commands.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // for launch
 #include "autopilot.h"

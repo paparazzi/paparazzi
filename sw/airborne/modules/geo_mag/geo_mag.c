@@ -30,7 +30,7 @@
 #include "math/pprz_geodetic_wmm2020.h"
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 //FIXME: should not be in this spot
 //for kill_throttle check

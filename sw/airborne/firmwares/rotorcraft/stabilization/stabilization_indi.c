@@ -40,7 +40,7 @@
 #include "generated/airframe.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/actuators.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 #include "wls/wls_alloc.h"
 #include <stdio.h>

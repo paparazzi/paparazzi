@@ -36,7 +36,7 @@
 #include "mcu_periph/pwm_input.h"
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "generated/airframe.h"
 
 #if LOG_AOA

@@ -9,7 +9,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 #include "mcu_periph/uart.h"

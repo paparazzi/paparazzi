@@ -28,7 +28,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "pprzlink/messages.h"
 
-#include "subsystems/abi.h"                 // rssi messages subscription
+#include "modules/core/abi.h"                 // rssi messages subscription
 #include "generated/airframe.h"             // AC_ID
 
 #ifndef NB_ACS_ID

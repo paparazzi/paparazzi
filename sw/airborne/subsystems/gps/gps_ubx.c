@@ -21,7 +21,7 @@
 
 
 #include "subsystems/gps/gps_ubx.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 #ifndef USE_GPS_UBX_RTCM

@@ -27,7 +27,7 @@
 #include "modules/core/microrl/microrlShell.h"
 #include "mcu_periph/uart.h"
 #include "printf.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 /*************************
  * Basic static commands *

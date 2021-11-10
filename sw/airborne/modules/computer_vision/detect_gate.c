@@ -14,8 +14,8 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_simple_matrix.h"
-#include "subsystems/abi.h"
-#include "subsystems/abi_sender_ids.h"
+#include "modules/core/abi.h"
+#include "modules/core/abi_sender_ids.h"
 
 #include "modules/computer_vision/snake_gate_detection.h"
 

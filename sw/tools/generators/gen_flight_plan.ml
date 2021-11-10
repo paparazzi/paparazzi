@@ -944,7 +944,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   (* include general headers *)
   fprintf out "#include \"std.h\"\n";
   fprintf out "#include \"generated/modules.h\"\n";
-  fprintf out "#include \"subsystems/abi.h\"\n";
+  fprintf out "#include \"modules/core/abi.h\"\n";
   fprintf out "#include \"autopilot.h\"\n\n";
   (* print variables and ABI bindings declaration *)
 

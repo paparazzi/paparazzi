@@ -37,7 +37,7 @@
 #include "firmwares/fixedwing/nav.h"
 
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
  */

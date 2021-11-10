@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/abi_sender_ids.h
+ * @file modules/core/abi_sender_ids.h
  *
  * Convenience defines for ABI sender IDs.
  */

@@ -33,7 +33,7 @@
 // to get MPU status
 #include "boards/apogee/imu_apogee.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 // sd-log

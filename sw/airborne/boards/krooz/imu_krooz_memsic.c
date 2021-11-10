@@ -36,7 +36,7 @@
 #include "led.h"
 #include "filters/median_filter.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ

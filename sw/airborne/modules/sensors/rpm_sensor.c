@@ -26,7 +26,7 @@
 #include "modules/sensors/rpm_sensor.h"
 #include "mcu_periph/pwm_input.h"
 #include "modules/energy/electrical.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 
 static struct FirstOrderLowPass rpm_lp;

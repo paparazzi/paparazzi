@@ -37,7 +37,7 @@
 
 #include "subsystems/datalink/downlink.h"
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);

@@ -31,7 +31,7 @@
 #include <stdlib.h> /* for abs() */
 #include "subsystems/imu.h"
 #include "led.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 
 struct AhrsAligner ahrs_aligner;

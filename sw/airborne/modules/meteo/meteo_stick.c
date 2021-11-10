@@ -21,7 +21,7 @@
 
 #include "modules/meteo/meteo_stick.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "peripherals/ads1220.h"
 #include "mcu_periph/pwm_input.h"
 #include "generated/airframe.h"

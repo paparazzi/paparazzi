@@ -34,7 +34,7 @@
 #include "led.h"
 #endif
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // for memset
 #include <string.h>

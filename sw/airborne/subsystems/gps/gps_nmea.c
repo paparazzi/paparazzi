@@ -32,7 +32,7 @@
 
 #include "gps_nmea.h"
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 #include "math/pprz_geodetic_float.h"

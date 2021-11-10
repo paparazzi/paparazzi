@@ -23,7 +23,7 @@
 #include "modules/sonar/sonar_adc.h"
 #include "generated/airframe.h"
 #include "mcu_periph/adc.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #ifdef SITL
 #include "state.h"
 #endif

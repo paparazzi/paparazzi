@@ -19,7 +19,7 @@
  *
  */
 #include "math/pprz_algebra_float.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/datalink/datalink.h"
 #include "autopilot.h"
 #include "modules/multi/fc_rotor/fc_rotor.h"

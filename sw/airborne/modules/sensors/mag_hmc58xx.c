@@ -52,7 +52,7 @@
 
 #if MODULE_HMC58XX_UPDATE_AHRS
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #if defined HMC58XX_MAG_TO_IMU_PHI && defined HMC58XX_MAG_TO_IMU_THETA && defined HMC58XX_MAG_TO_IMU_PSI
 #define USE_MAG_TO_IMU 1

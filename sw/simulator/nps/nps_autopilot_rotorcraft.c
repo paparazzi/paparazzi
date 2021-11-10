@@ -43,7 +43,7 @@
 #endif
 #endif
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"

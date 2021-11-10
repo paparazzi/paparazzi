@@ -42,7 +42,7 @@
 #include "sensors/baro_ets.h"
 #include "mcu_periph/i2c.h"
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <math.h>
 #include "mcu_periph/sys_time.h"
 

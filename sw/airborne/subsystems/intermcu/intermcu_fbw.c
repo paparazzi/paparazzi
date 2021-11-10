@@ -74,7 +74,7 @@ static void checkPx4RebootCommand(unsigned char b);
 #define IMCU_GPS_ID GPS_MULTI_ID
 #endif
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/gps.h"
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);

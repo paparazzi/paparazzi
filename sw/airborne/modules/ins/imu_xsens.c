@@ -31,7 +31,7 @@
 #include "generated/airframe.h"
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 static void handle_ins_msg(void);
 

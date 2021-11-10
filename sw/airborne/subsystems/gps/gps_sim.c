@@ -20,7 +20,7 @@
  */
 
 #include "subsystems/gps/gps_sim.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 void gps_sim_init(void)
 {

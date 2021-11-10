@@ -26,7 +26,7 @@
 
 #include "subsystems/gps/gps_sim_hitl.h"
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "state.h"
 #include "guidance/guidance_h.h"

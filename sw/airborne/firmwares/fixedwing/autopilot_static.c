@@ -62,7 +62,7 @@ static inline void copy_from_to_fbw(void);
 
 /// @todo, properly implement or remove
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 volatile uint8_t new_ins_attitude = 0;
 static abi_event new_att_ev;
 static void new_att_cb(uint8_t sender_id __attribute__((unused)),

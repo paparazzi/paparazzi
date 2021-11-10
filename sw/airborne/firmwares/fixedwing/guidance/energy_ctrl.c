@@ -66,7 +66,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 /////// DEFAULT GUIDANCE_V NECESSITIES //////
 

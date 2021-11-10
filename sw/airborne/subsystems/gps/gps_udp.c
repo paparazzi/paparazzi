@@ -20,7 +20,7 @@
  */
 
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "fms/fms_network.h"
 #include <string.h>

@@ -29,7 +29,7 @@
  */
 
 #include "modules/air_data/air_data.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
 #include "generated/airframe.h"

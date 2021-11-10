@@ -37,7 +37,7 @@
  * and used to send the normal GPS telemetry messages.
  */
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/gps.h"
 #include "led.h"
 #include "modules/core/settings.h"

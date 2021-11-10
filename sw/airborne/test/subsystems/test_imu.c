@@ -38,7 +38,7 @@
 #include "modules/datalink/pprz_dl.h"
 
 #include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "generated/modules.h"
 

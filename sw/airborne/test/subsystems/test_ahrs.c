@@ -32,7 +32,7 @@
 #include "generated/periodic_telemetry.h"
 
 #define ABI_C
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "std.h"
 #include "mcu.h"

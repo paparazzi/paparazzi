@@ -32,7 +32,7 @@
 
 #include "subsystems/gps/gps_piksi.h"
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 #include "math/pprz_geodetic_double.h"
 

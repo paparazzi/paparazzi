@@ -50,7 +50,7 @@
 #include "mcu_periph/sys_time.h"
 
 // Abi
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 
 #if !defined INS_VN_BODY_TO_IMU_PHI && !defined INS_VN_BODY_TO_IMU_THETA && !defined INS_VN_BODY_TO_IMU_PSI

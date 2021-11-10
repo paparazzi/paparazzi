@@ -31,7 +31,7 @@
 #include "generated/flight_plan.h"        // reference lla NAV_XXX0
 
 #include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/imu.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"

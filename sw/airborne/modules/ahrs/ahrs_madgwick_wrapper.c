@@ -26,7 +26,7 @@
 
 #include "modules/ahrs/ahrs_madgwick_wrapper.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
 #include "state.h"

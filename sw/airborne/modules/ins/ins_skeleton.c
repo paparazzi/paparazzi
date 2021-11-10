@@ -25,7 +25,7 @@
  */
 
 #include "modules/ins/ins_skeleton.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
 

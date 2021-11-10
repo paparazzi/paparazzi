@@ -46,7 +46,7 @@
 #include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "filters/low_pass_filter.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default

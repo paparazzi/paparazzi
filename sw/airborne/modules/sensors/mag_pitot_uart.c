@@ -29,7 +29,7 @@
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/imu.h"
 #include "state.h"
 

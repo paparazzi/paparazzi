@@ -22,7 +22,7 @@
 
 #include "sensors/baro_hca.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <math.h>
 
 //Messages

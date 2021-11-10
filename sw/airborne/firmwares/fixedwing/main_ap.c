@@ -42,7 +42,7 @@
 
 #include "generated/airframe.h"
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "led.h"
 

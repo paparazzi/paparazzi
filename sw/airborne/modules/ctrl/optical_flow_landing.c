@@ -45,7 +45,7 @@
 
 #include "generated/airframe.h"
 #include "paparazzi.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 

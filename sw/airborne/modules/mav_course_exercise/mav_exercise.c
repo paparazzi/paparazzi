@@ -19,7 +19,7 @@
  */
 
 #include "mav_exercise.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "state.h"
 #include "autopilot_static.h"

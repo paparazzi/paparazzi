@@ -28,7 +28,7 @@
 #include "state.h" // To get current states
 
 #include "modules/datalink/extra_pprz_dl.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"

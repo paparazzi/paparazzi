@@ -27,7 +27,7 @@
 #include "peripherals/pca95xx.h"
 #include "peripherals/vl53l1x_nonblocking.h"
 #include "peripherals/vl53l1x_api.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "subsystems/datalink/downlink.h"
 
 // By default, do early init to be compatible with the flow_deck
