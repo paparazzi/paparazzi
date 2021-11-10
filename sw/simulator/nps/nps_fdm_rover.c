@@ -45,15 +45,15 @@ static struct EcefCoor_d ecefdef;
 static float rover_time;
 
 // static functions declaration
-
 static void init_ltp(void);
 
 
 /** NPS FDM interface **/
 void nps_fdm_init(double dt)
 {
-  fdm.init_dt = dt;
-  fdm.curr_dt = dt;
+  fdm.init_dt = dt; // (1 / simulation freq)
+  fdm.curr_dt = 0.001;
+  fdm.time = dt;
   fdm.nan_count = 0;
   fdm.pressure = -1;
   fdm.pressure_sl = PPRZ_ISA_SEA_LEVEL_PRESSURE;
@@ -61,16 +61,21 @@ void nps_fdm_init(double dt)
   fdm.dynamic_pressure = -1;
   fdm.temperature = -1;
 
+  rover_time = 0;
+
   init_ltp();
 }
 
-void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb)
+void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb __attribute__((unused)))
 { 
 
-  fdm.ecef_ecef_vel.x = 100;
+  // Podemos traducir el comando como cierta aceleración (está entre -1 y 1)
+  fdm.ecef_ecef_vel.x = fdm.ecef_ecef_vel.x + commands[COMMAND_STEERING]*fdm.curr_dt;
+  
   fdm.ecef_pos = ecefdef;
-  fdm.ecef_pos.x = ecefdef.x + (sin(rover_time) * 100.f);
-  rover_time = rover_time < 20*M_PI ? rover_time + 0.001 : 0;
+  fdm.ecef_pos.x = ecefdef.x + commands[COMMAND_STEERING]*(100.f * cos(rover_time));
+  fdm.ecef_pos.y = ecefdef.y + commands[COMMAND_STEERING]*(100.f * sin(rover_time));
+  rover_time += fdm.curr_dt;
 
 }
 
@@ -120,10 +125,10 @@ static void init_ltp(void)
   rover_time = 0;
 
 #ifdef AHRS_H_X
-#pragma message "Using magnetic field as defined in airframe file."
   fdm.ltp_h.x = AHRS_H_X;
   fdm.ltp_h.y = AHRS_H_Y;
   fdm.ltp_h.z = AHRS_H_Z;
+  PRINT_CONFIG_MSG("Using magnetic field as defined in airframe file.")
 #else
   fdm.ltp_h.x = 0.4912;
   fdm.ltp_h.y = 0.1225;

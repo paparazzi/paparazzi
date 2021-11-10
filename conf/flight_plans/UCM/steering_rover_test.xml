@@ -57,6 +57,11 @@
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     
+    <block name="Start Engine">
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
+      <while cond="1"/>
+    </block>
+    
     <block name="Holding point">
       <call_once fun="NavKillThrottle()"/>
     </block>

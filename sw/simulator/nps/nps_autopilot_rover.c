@@ -165,11 +165,13 @@ void nps_autopilot_run_step(double time)
 
   handle_periodic_tasks();
 
-  /* scale final motor commands to 0-1 for feeding the fdm */
+  /* feeding the fdm with raw atuators signal */
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-    //actuators_pprz[i] = autopilot_get_motors_on() ? actuators_pprz[i] : 0;
-    nps_autopilot.commands[i] = (double)actuators_pprz[i] / MAX_PPRZ;
+    commands[i] = autopilot_get_motors_on() ? commands[i] : 0;
+    nps_autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
   }
+
+  PRINT_CONFIG_MSG("Using throttle, steering commands because rover's fdm don't have explicit actuators.")
 }
 
 
