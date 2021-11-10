@@ -24,7 +24,7 @@
  * Sensor is LPS22HB (I2C) from ST but is accessed through sysfs interface
  */
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "modules/core/abi.h"
 #include "baro_board.h"
 #include <stdlib.h>

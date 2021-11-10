@@ -26,7 +26,7 @@
  */
 
 #include "modules/sensors/airspeed_ads1114.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "baro_board.h"
 #include "peripherals/ads1114.h"
 

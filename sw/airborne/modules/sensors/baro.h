@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/sensors/baro.h
+ * @file modules/sensors/baro.h
  *
  * Common barometric sensor implementation.
  * Used with baro integrated to the autopilot board.

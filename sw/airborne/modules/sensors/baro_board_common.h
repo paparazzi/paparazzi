@@ -28,7 +28,7 @@
 #define MODULE_BARO_BOARD_H
 
 #if USE_BARO_BOARD
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "baro_board.h"
 #ifndef BARO_BOARD
 #define BARO_BOARD BARO_BOARD_DEFAULT

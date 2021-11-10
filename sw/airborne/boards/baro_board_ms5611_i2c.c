@@ -27,7 +27,7 @@
  *
  */
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "peripherals/ms5611_i2c.h"
 
 #include BOARD_CONFIG // include board specific settings

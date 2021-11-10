@@ -35,7 +35,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "modules/datalink/pprz_dl.h"
 
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 
 #define ABI_C
 #include "modules/core/abi.h"

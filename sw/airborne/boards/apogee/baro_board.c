@@ -27,7 +27,7 @@
  */
 
 #include "std.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "peripherals/mpl3115.h"
 
 // to get MPU status
