@@ -38,7 +38,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"

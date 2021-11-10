@@ -788,7 +788,7 @@ static void mavlink_send_battery_status(struct transport_tx *trans, struct link_
   MAVLinkSendMessage();
 }
 
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 /**
  * Send Metrics typically displayed on a HUD for fixed wing aircraft.
  */

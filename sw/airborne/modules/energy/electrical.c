@@ -28,7 +28,7 @@
 #include "modules/energy/electrical.h"
 
 #include "mcu_periph/adc.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
 #include "autopilot.h"
 

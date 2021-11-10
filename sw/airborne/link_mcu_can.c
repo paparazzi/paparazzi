@@ -24,7 +24,7 @@
 #include "mcu_periph/can.h"
 #include "led.h"
 
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////

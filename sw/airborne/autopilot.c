@@ -37,7 +37,7 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
 #include "subsystems/radio_control.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 //#include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"

@@ -28,7 +28,7 @@
 #define INTERMCU_ROTORCRAFT_H
 
 #include "std.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "pprzlink/pprz_transport.h"
 
 #define INTERMCU_AP   0

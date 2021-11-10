@@ -49,7 +49,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 #include "modules/core/settings.h"
 

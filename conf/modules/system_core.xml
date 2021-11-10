@@ -32,16 +32,16 @@ $(TARGET).ARCHDIR = $(ARCH)
     <test/>
   </makefile>
   <makefile target="fbw" firmware="fixedwing">
-    <file name="commands.c" dir="subsystems"/>
+    <file name="commands.c"/>
   </makefile>
   <makefile target="ap|sim|nps|hitl" firmware="fixedwing" cond="ifeq (,$(findstring $(SEPARATE_FBW),0 FALSE))">
-    <file name="commands.c" dir="subsystems"/>
+    <file name="commands.c"/>
   </makefile>
   <makefile firmware="rotorcraft">
-    <file name="commands.c" dir="subsystems"/>
+    <file name="commands.c"/>
   </makefile>
   <makefile firmware="rover">
-    <file name="commands.c" dir="subsystems"/>
+    <file name="commands.c"/>
   </makefile>
 </module>
 

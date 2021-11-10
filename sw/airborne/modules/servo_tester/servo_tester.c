@@ -26,7 +26,7 @@
  */
 
 #include "servo_tester.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "generated/airframe.h"
 #include "generated/airframe.h"
 #include "subsystems/actuators.h"

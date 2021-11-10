@@ -29,7 +29,7 @@
 #define AUTOPILOT_UTILS_H
 
 #include "std.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
 extern bool ap_ahrs_is_aligned(void);
 extern uint8_t ap_mode_of_3way_switch(void);

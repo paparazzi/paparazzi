@@ -57,7 +57,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #endif
 #ifdef FIXEDWING_FIRMWARE
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #endif
 #endif
 

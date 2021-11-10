@@ -31,7 +31,7 @@
 #include "autopilot_arming.h"
 
 #include "subsystems/radio_control.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "subsystems/actuators.h"
 #include "modules/energy/electrical.h"
 #include "modules/core/settings.h"

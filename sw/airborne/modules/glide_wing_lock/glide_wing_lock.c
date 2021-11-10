@@ -30,7 +30,7 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "mcu_periph/adc.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "subsystems/radio_control.h"
 #include "autopilot.h"
 

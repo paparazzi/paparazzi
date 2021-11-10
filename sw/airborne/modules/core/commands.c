@@ -20,27 +20,12 @@
  *
  */
 
-/** \file commands.h
- *  \brief Hardware independent code for commands handling
+/** \file modules/core/commands.c
+ *  \brief Hardware independent data structures for commands handling
  *
  */
 
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#include "modules/core/commands.h"
 
-#include "paparazzi.h"
-#include "generated/airframe.h"
-
-/** Storage of intermediate command values.
- *  These values come from the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
- *  They are asyncronisly used to set the servos
- */
-extern pprz_t commands[COMMANDS_NB];
-extern const pprz_t commands_failsafe[COMMANDS_NB];
-
-#define SetCommands(t) { \
-    int i; \
-    for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
-  }
-
-#endif /*  COMMANDS_H */
+pprz_t commands[COMMANDS_NB];
+const pprz_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;

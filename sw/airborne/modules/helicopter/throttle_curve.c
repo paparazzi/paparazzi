@@ -25,7 +25,7 @@
  */
 
 #include "throttle_curve.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "autopilot.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/abi.h"

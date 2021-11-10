@@ -45,7 +45,7 @@
 #include "subsystems/imu.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
 #include "subsystems/abi.h"
 
