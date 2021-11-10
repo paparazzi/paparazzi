@@ -54,7 +54,7 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #include "subsystems/datalink/telemetry.h" //? or just downlink.h should be enough
 
@@ -109,7 +109,7 @@ static inline void dc_ctrl_parrot_mykonos_send_shot_position(void)
 
 #if DC_CTRL_PARROT_MYKONOS_LOG
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 struct Dc_Ctrl_Parrot_Mykonos dc_ctrl_parrot_mykonos;

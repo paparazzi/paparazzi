@@ -21,7 +21,7 @@
  */
 
 #include "modules/ins/alt_filter.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/sensors/baro_ets.h"
 
 #include "mcu_periph/uart.h"

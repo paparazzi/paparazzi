@@ -35,7 +35,7 @@
 #include "modules/radio_control/radio_control.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #else
 #if NO_GPS_NEEDED_FOR_NAV
 #define GpsIsLost() FALSE

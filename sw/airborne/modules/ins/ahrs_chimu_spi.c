@@ -13,7 +13,7 @@
 #include "state.h"
 
 // For centripedal corrections
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "subsystems/ahrs.h"
 
 #include "generated/airframe.h"

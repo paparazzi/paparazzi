@@ -26,7 +26,7 @@
 #include "modules/e_identification_fr/e_identification_fr.h"
 #include "state.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 

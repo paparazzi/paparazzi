@@ -30,7 +30,7 @@
 #define GPS_NMEA_H
 
 #include "mcu_periph/uart.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #define GPS_NMEA_NB_CHANNELS 12
 

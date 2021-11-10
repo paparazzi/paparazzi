@@ -32,7 +32,7 @@
 #define AHRS_INT_CMPL_QUAT_H
 
 #include "subsystems/ahrs.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_orientation_conversion.h"

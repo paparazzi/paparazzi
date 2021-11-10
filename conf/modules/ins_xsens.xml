@@ -34,7 +34,7 @@
     <define name="XSENS_OUTPUT_MODE" value="0x1836"/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
-    <file name="gps.c" dir="subsystems"/>
+    <file name="gps.c" dir="modules/gps"/>
     <define name="USE_GPS"/>
     <define name="USE_GPS_XSENS"/>
     <define name="USE_GPS_XSENS_RAW_DATA"/>

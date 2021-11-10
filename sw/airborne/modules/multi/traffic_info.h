@@ -31,7 +31,7 @@
 #include "mcu_periph/sys_time.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #ifndef NB_ACS_ID
 #define NB_ACS_ID 256

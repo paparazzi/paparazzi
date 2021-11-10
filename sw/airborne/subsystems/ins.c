@@ -29,7 +29,7 @@
 
 #if USE_GPS
 // for ins_reset_utm_zone
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "state.h"
 #endif
 

@@ -40,7 +40,7 @@
 #include "modules/loggers/sdlog_chibios.h"
 #include "modules/loggers/pprzlog_tp.h"
 
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/datalink/extra_pprz_dl.h"
 
 struct MF_DAQ mf_daq;

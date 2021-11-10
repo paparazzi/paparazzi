@@ -22,7 +22,7 @@
 
 #include "exif_module.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 
 //////////////////////////////////////////////////////////////

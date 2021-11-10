@@ -38,7 +38,7 @@
     <file name="ins_vectornav_wrapper.c" dir="subsystems/ins"/>
     <define name="INS_TYPE_H" value="subsystems/ins/ins_vectornav_wrapper.h" type="string"/>
 
-    <file name="gps.c" dir="subsystems"/>
+    <file name="gps.c" dir="modules/gps"/>
     <define name="USE_GPS"/>
     <raw>
       ifdef SECONDARY_GPS
@@ -52,7 +52,7 @@
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_ubx.h\"
       endif
     </raw>
     <test firmware="fixedwing">

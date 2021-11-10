@@ -14,7 +14,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="gps">
-        <dl_setting MAX="2" MIN="0" STEP="1" values="AUTO|PRIMARY|SECONDARY" module="subsystems/gps" VAR="multi_gps_mode" shortname="multi_mode" param="MULTI_GPS_MODE">
+        <dl_setting MAX="2" MIN="0" STEP="1" values="AUTO|PRIMARY|SECONDARY" module="modules/gps/gps" VAR="multi_gps_mode" shortname="multi_mode" param="MULTI_GPS_MODE">
           <!-- uncomment this if you want strip buttons for the multi GPS modes
           <strip_button name="GPS AUTO" icon="gps.png" value="0" group="gps_mode"/>
           <strip_button name="GPS PRIMARY" icon="gps1.png" value="1" group="gps_mode_setting"/>
@@ -25,13 +25,13 @@
   </settings>
 
   <header>
-    <file name="gps.h" dir="subsystems"/>
+    <file name="gps.h"/>
   </header>
   <init fun="gps_init()"/>
 
   <makefile target="fbw|ap|sim|nps|hitl">
     <configure name="GPS_LED" default="none"/>
-    <file name="gps.c" dir="subsystems"/>
+    <file name="gps.c"/>
     <define name="USE_GPS"/>
     <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <test>

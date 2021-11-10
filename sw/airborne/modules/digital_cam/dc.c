@@ -96,7 +96,7 @@ uint16_t dc_photo_nr = 0;
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #if DC_SHOT_EXTRA_DL
 #include "modules/datalink/extra_pprz_dl.h"
 #endif

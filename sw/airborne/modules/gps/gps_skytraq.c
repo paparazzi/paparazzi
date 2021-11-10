@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/gps.h"
-#include "subsystems/gps/gps_skytraq.h"
+#include "modules/gps/gps.h"
+#include "modules/gps/gps_skytraq.h"
 #include "modules/core/abi.h"
 #include "led.h"
 #include "pprzlink/pprzlink_device.h"

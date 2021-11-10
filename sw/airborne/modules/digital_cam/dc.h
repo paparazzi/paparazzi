@@ -40,7 +40,7 @@
 #include "std.h"
 #include "state.h"
 #include "generated/airframe.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 /** export the number of the last photo */
 extern uint16_t dc_photo_nr;

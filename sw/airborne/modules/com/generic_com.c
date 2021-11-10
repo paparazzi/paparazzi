@@ -28,7 +28,7 @@
 #include "mcu_periph/i2c.h"
 
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/energy/electrical.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"

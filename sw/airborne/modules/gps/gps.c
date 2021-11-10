@@ -38,7 +38,7 @@
  */
 
 #include "modules/core/abi.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "led.h"
 #include "modules/core/settings.h"
 #include "generated/settings.h"

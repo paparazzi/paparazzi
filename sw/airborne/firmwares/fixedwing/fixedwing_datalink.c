@@ -42,7 +42,7 @@
 #endif
 
 #ifdef HITL
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 #define MOfMM(_x) (((float)(_x))/1000.)

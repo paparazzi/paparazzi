@@ -33,7 +33,7 @@
 #include <math.h>
 
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 
 #ifndef USE_INS_NAV_INIT

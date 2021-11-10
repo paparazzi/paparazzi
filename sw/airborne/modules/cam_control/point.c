@@ -77,7 +77,7 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "subsystems/navigation/common_nav.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "math/pprz_geodetic_float.h"
 #include "state.h"
 

@@ -160,7 +160,7 @@ let _ =
     fprintf out "/* Please DO NOT EDIT */\n\n";
 
     fprintf out "#include \"pprzlink/pprzlink_device.h\"\n\n";
-    fprintf out "#include \"subsystems/gps/gps_ubx.h\"\n\n";
+    fprintf out "#include \"modules/gps/gps_ubx.h\"\n\n";
 
     define "UBX_SYNC1" "0xB5";
     define "UBX_SYNC2" "0x62";

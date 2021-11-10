@@ -661,7 +661,7 @@ static void mavlink_send_attitude_quaternion(struct transport_tx *trans, struct 
 }
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 static void mavlink_send_gps_raw_int(struct transport_tx *trans, struct link_device *dev)

@@ -34,7 +34,7 @@
 #ifndef MTK_H
 #define MTK_H
 
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "mcu_periph/uart.h"
 
 /** Includes macros generated from mtk.xml */

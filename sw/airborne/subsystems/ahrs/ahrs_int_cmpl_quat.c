@@ -34,7 +34,7 @@
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"

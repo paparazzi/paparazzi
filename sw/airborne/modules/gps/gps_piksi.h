@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Freek van Tienen
+ * Copyright (C) 2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -21,44 +21,31 @@
  */
 
 /**
- * @file gps_sirf.h
- * @brief Sirf protocol specific code
+ * @file modules/gps/gps_piksi.h
  *
+ * Driver for Piksi modules from Swift-Nav
+ *
+ * http://docs.swiftnav.com/wiki/Piksi_Integration_Tutorial
+ * https://github.com/swift-nav/sbp_tutorial
  */
 
-#ifndef GPS_SIRF_H
-#define GPS_SIRF_H
-
-#include "std.h"
-#include "subsystems/gps.h"
+#ifndef GPS_PIKSI_H
+#define GPS_PIKSI_H
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_SIRF
+#define PRIMARY_GPS GPS_PIKSI
 #endif
 
-#define SIRF_GPS_NB_CHANNELS 16
-#define SIRF_MAXLEN 255
+extern struct GpsState gps_piksi;
 
-//Read states
-#define UNINIT  0
-#define GOT_A0  1
-#define GOT_A2  2
-#define GOT_B0  3
+extern void gps_piksi_event(void);
+extern void gps_piksi_init(void);
 
-struct GpsSirf {
-  bool msg_available;
-  bool msg_valid;
-  char msg_buf[SIRF_MAXLEN];  ///< buffer for storing one nmea-line
-  int msg_len;
-  int read_state;
-  struct GpsState state;
-};
+#define gps_piksi_periodic_check() gps_periodic_check(&gps_piksi)
 
-extern struct GpsSirf gps_sirf;
+/*
+ * Reset base station position
+ */
+extern void gps_piksi_set_base_pos(void);
 
-extern void gps_sirf_init(void);
-extern void gps_sirf_event(void);
-
-#define gps_sirf_periodic_check() gps_periodic_check(&gps_sirf.state)
-
-#endif /* GPS_SIRF_H */
+#endif /* GPS_PIKSI_H */

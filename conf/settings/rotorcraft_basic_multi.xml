@@ -11,7 +11,7 @@
         <strip_button name="POWER OFF" icon="off.png" value="0" group="power_switch"/>
       </dl_setting>
       <dl_setting var="autopilot.mode" min="0" step="1" max="19" module="autopilot" shortname="mode" values="KILL|Fail|HOME|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav|RC_D|CareFree|Forward|Module|Flip|Guided" handler="SetModeHandler"/>
-      <dl_setting var="multi_gps_mode" min="0" step="1" max="2" module="subsystems/gps" shortname="gpsmode" values="AUTO|PRIMARY|SECONDARY">
+      <dl_setting var="multi_gps_mode" min="0" step="1" max="2" module="modules/gps/gps" shortname="gpsmode" values="AUTO|PRIMARY|SECONDARY">
         <strip_button name="AUTO" icon="gps.png" value="0" group="gps_mode"/>
         <strip_button name="PRIMARY" icon="gps1.png" value="1" group="gps_mode_setting"/>
         <strip_button name="SECONDARY" icon="gps2.png" value="2" group="gps_mode_setting"/>

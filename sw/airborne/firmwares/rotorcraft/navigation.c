@@ -31,7 +31,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "subsystems/gps.h" // needed by auto_nav from the flight plan
+#include "modules/gps/gps.h" // needed by auto_nav from the flight plan
 #include "subsystems/ins.h"
 #include "state.h"
 

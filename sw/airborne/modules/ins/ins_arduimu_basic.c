@@ -31,7 +31,7 @@
 #include "state.h"
 
 // GPS data for ArduIMU
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 // Command vector for thrust
 #include "generated/airframe.h"

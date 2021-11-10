@@ -35,7 +35,7 @@
 #include "math/pprz_algebra_float.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 #include <string.h>

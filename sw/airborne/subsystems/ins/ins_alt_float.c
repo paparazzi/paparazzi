@@ -34,7 +34,7 @@
 
 #include "state.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "firmwares/fixedwing/nav.h"
 
 #include "generated/airframe.h"

@@ -86,7 +86,7 @@ static inline uint16_t pin_of_gpio(uint32_t __attribute__((unused)) port, uint16
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 static inline void hackhd_send_shot_position(void)
 {
@@ -117,7 +117,7 @@ static inline void hackhd_send_shot_position(void)
 #if HACKHD_LOG
 #include "modules/loggers/sdlog_chibios.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 static inline void hackhd_log_shot_position(void)
 {

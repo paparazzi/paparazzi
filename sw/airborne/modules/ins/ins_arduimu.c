@@ -17,7 +17,7 @@ Autoren@ZHAW:   schmiemi
 #ifndef UBX
 #error "currently only compatible with uBlox GPS modules"
 #endif
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 int32_t GPS_Data[14];
 
 #ifndef ARDUIMU_I2C_DEV

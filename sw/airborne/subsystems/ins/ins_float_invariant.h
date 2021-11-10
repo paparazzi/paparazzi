@@ -28,7 +28,7 @@
 #define INS_FLOAT_INVARIANT_H
 
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
 

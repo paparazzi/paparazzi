@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2014 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -17,35 +17,35 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- * @file subsystems/gps/gps_piksi.h
+ * @file gps_datalink.h
+ * @brief GPS system based on datalink
  *
- * Driver for Piksi modules from Swift-Nav
- *
- * http://docs.swiftnav.com/wiki/Piksi_Integration_Tutorial
- * https://github.com/swift-nav/sbp_tutorial
+ * This GPS parses the datalink REMOTE_GPS packet and sets the
+ * GPS structure to the values received.
  */
 
-#ifndef GPS_PIKSI_H
-#define GPS_PIKSI_H
+#ifndef GPS_DATALINK_H
+#define GPS_DATALINK_H
+
+#include "std.h"
+#include "generated/airframe.h"
+#include "modules/gps/gps.h"
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_PIKSI
+#define PRIMARY_GPS GPS_DATALINK
 #endif
 
-extern struct GpsState gps_piksi;
+extern struct GpsState gps_datalink;
 
-extern void gps_piksi_event(void);
-extern void gps_piksi_init(void);
+extern void gps_datalink_init(void);
 
-#define gps_piksi_periodic_check() gps_periodic_check(&gps_piksi)
+#define gps_datalink_periodic_check() gps_periodic_check(&gps_datalink)
 
-/*
- * Reset base station position
- */
-extern void gps_piksi_set_base_pos(void);
+extern void gps_datalink_parse_REMOTE_GPS(uint8_t *buf);
+extern void gps_datalink_parse_REMOTE_GPS_SMALL(uint8_t *buf);
+extern void gps_datalink_parse_REMOTE_GPS_LOCAL(uint8_t *buf);
 
-#endif /* GPS_PIKSI_H */
+#endif /* GPS_DATALINK_H */

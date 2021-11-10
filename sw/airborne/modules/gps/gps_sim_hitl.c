@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/gps/gps_sim_hitl.c
+ * @file modules/gps/gps_sim_hitl.c
  * GPS subsystem simulation from rotorcrafts horizontal/vertical reference system
  */
 
-#include "subsystems/gps/gps_sim_hitl.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps_sim_hitl.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 
 #include "state.h"

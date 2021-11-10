@@ -30,7 +30,7 @@
 #define INS_INT_H
 
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"

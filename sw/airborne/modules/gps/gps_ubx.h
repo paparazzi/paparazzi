@@ -27,7 +27,7 @@
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #ifdef GPS_CONFIGURE
 #warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"

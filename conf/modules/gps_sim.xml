@@ -12,13 +12,13 @@
     <provides>gps</provides>
   </dep>
   <header>
-    <file name="gps.h" dir="subsystems"/>
+    <file name="gps.h"/>
   </header>
   <init fun="gps_sim_init()"/>
   <periodic fun="gps_sim_periodic_check()" freq="1." autorun="TRUE"/>
   <makefile target="sim">
-    <file name="gps_sim.c" dir="subsystems/gps"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
+    <file name="gps_sim.c"/>
+    <define name="GPS_TYPE_H" value="modules/gps/gps_sim.h" type="string"/>
     <test/>
   </makefile>
 </module>

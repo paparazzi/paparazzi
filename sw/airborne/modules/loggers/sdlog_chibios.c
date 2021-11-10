@@ -39,7 +39,7 @@
 #if HAL_USE_RTC
 #include <hal_rtc.h>
 #include <time.h>
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 // Delay before starting SD log

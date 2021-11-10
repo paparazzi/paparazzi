@@ -75,7 +75,7 @@ static void checkPx4RebootCommand(unsigned char b);
 #endif
 
 #include "modules/core/abi.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 #endif

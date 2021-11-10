@@ -38,7 +38,7 @@
 #if !USE_GPS
 #error "USE_GPS needs to be 1 to use the Xsens GPS!"
 #endif
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"

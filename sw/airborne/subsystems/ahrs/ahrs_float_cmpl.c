@@ -34,7 +34,7 @@
 #include "math/pprz_simple_matrix.h"
 #include "generated/airframe.h"
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 //#include "../../test/pprz_algebra_print.h"

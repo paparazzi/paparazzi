@@ -31,7 +31,7 @@
  */
 
 #include "gps_nmea.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 #include "led.h"
 

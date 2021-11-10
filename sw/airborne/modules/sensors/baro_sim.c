@@ -26,7 +26,7 @@
  */
 
 #include "math/pprz_isa.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 
 PRINT_CONFIG_VAR(BARO_SIM_SENDER_ID)

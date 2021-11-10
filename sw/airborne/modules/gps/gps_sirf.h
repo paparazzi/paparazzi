@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Freek van Tienen
+ * Copyright (C) 2012 Freek van Tienen
  *
  * This file is part of paparazzi.
  *
@@ -17,35 +17,48 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 /**
- * @file gps_datalink.h
- * @brief GPS system based on datalink
+ * @file gps_sirf.h
+ * @brief Sirf protocol specific code
  *
- * This GPS parses the datalink REMOTE_GPS packet and sets the
- * GPS structure to the values received.
  */
 
-#ifndef GPS_DATALINK_H
-#define GPS_DATALINK_H
+#ifndef GPS_SIRF_H
+#define GPS_SIRF_H
 
 #include "std.h"
-#include "generated/airframe.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_DATALINK
+#define PRIMARY_GPS GPS_SIRF
 #endif
 
-extern struct GpsState gps_datalink;
+#define SIRF_GPS_NB_CHANNELS 16
+#define SIRF_MAXLEN 255
 
-extern void gps_datalink_init(void);
+//Read states
+#define UNINIT  0
+#define GOT_A0  1
+#define GOT_A2  2
+#define GOT_B0  3
 
-#define gps_datalink_periodic_check() gps_periodic_check(&gps_datalink)
+struct GpsSirf {
+  bool msg_available;
+  bool msg_valid;
+  char msg_buf[SIRF_MAXLEN];  ///< buffer for storing one nmea-line
+  int msg_len;
+  int read_state;
+  struct GpsState state;
+};
 
-extern void gps_datalink_parse_REMOTE_GPS(uint8_t *buf);
-extern void gps_datalink_parse_REMOTE_GPS_SMALL(uint8_t *buf);
-extern void gps_datalink_parse_REMOTE_GPS_LOCAL(uint8_t *buf);
+extern struct GpsSirf gps_sirf;
 
-#endif /* GPS_DATALINK_H */
+extern void gps_sirf_init(void);
+extern void gps_sirf_event(void);
+
+#define gps_sirf_periodic_check() gps_periodic_check(&gps_sirf.state)
+
+#endif /* GPS_SIRF_H */

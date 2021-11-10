@@ -31,7 +31,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "modules/core/abi.h"
 #include "modules/decawave/trilateration.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "state.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"

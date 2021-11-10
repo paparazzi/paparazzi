@@ -22,11 +22,11 @@
  */
 
 /**
- * @file subsystems/gps/gps_furuno.c
+ * @file modules/gps/gps_furuno.c
  * GPS furuno based NMEA parser
  */
 
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "gps_nmea.h"
 #include <stdio.h>
 #include <string.h>

@@ -34,7 +34,7 @@
 #include "math/pprz_orientation_conversion.h"
 
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 /** Ins implementation state (fixed point) */
 struct InsModuleInt {

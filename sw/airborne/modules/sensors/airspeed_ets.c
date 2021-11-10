@@ -87,7 +87,7 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
 #include "modules/loggers/sdlog_chibios.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 bool log_airspeed_ets_started;
 #endif
 #endif

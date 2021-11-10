@@ -35,7 +35,7 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "mcu_periph/uart.h"
 
 #include "state.h"

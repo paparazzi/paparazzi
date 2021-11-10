@@ -41,7 +41,7 @@
 #endif
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 #ifdef RADIO_CONTROL_DATALINK_LED

@@ -20,7 +20,7 @@
  */
 
 
-#include "subsystems/gps/gps_ubx.h"
+#include "modules/gps/gps_ubx.h"
 #include "modules/core/abi.h"
 #include "led.h"
 
@@ -30,7 +30,7 @@
 
 
 #if USE_GPS_UBX_RTCM
-#include "subsystems/gps/librtcm3/CRC24Q.h"
+#include "modules/gps/librtcm3/CRC24Q.h"
 #define RTCM3_PREAMBLE 0xD3
 #define RTCM3_MSG_1005 0x69
 #define RTCM3_MSG_1077 0xB1

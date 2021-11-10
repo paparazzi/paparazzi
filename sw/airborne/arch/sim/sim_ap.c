@@ -12,7 +12,7 @@
 #include "std.h"
 #include "inter_mcu.h"
 #include "autopilot.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "generated/settings.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

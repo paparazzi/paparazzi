@@ -30,7 +30,7 @@
 #define INS_VECTORNAV_H
 
 // Subsystems
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "subsystems/ins.h"
 
 // Peripheral

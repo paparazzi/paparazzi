@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/gps/gps_sim_nps.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps_sim_nps.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 #include "nps_sensors.h"
 #include "nps_fdm.h"

@@ -40,7 +40,7 @@
 #include "modules/nav/nav_geofence.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 static bool gps_lost;
 

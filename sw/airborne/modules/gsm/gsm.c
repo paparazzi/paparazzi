@@ -59,7 +59,7 @@ Receiving:
 #include "mcu_periph/uart.h"
 #include "std.h"
 #include "subsystems/datalink/downlink.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "autopilot.h"
 #include "modules/energy/electrical.h"
 //#include "subsystems/navigation/common_nav.h"  //why is should this be needed?

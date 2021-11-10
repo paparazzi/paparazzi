@@ -35,7 +35,7 @@ static unit_t unit __attribute__((unused));
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
 #include "inter_mcu.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #include "generated/flight_plan.h"
 

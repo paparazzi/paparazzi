@@ -2,7 +2,7 @@
 #define GPS_UDP_H
 
 #include "std.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_UDP

@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/gps/gps_sim.h"
+#include "modules/gps/gps_sim.h"
 #include "modules/core/abi.h"
 
 void gps_sim_init(void)

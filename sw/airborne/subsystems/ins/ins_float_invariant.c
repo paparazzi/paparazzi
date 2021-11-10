@@ -31,7 +31,7 @@
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
 #include "subsystems/ins.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"

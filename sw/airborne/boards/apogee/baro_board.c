@@ -39,7 +39,7 @@
 // sd-log
 #if APOGEE_BARO_SDLOG
 #include "modules/loggers/sdlog_chibios.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 bool log_apogee_baro_started;
 #endif
 

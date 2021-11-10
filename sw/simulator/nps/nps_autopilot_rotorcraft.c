@@ -88,7 +88,7 @@ void nps_autopilot_run_systime_step(void)
 }
 
 #include <stdio.h>
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 void nps_autopilot_run_step(double time)
 {

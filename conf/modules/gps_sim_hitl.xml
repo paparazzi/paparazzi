@@ -13,14 +13,14 @@
   </dep>
   <autoload name="gps_nps"/>
   <header>
-    <file name="gps.h" dir="subsystems"/>
+    <file name="gps.h"/>
   </header>
   <init fun="gps_sim_hitl_init()"/>
   <event fun="gps_sim_hitl_event()"/>
   <makefile target="ap" firmware="rotorcraft">
-    <file name="gps_sim_hitl.c" dir="subsystems/gps"/>
+    <file name="gps_sim_hitl.c"/>
     <define name="HITL"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_hitl.h" type="string"/>
+    <define name="GPS_TYPE_H" value="modules/gps/gps_sim_hitl.h" type="string"/>
     <test firmware="rotorcraft"/>
   </makefile>
 </module>

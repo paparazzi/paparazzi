@@ -30,7 +30,7 @@
 #include "subsystems/ins/hf_float.h"
 #include "subsystems/imu.h"
 #include "state.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include <stdlib.h>
 #include "filters/low_pass_filter.h"
 #include "generated/airframe.h"

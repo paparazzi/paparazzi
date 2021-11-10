@@ -22,7 +22,7 @@
  */
 
 /**
- * @file subsystems/gps/gps_piksi.c
+ * @file modules/gps/gps_piksi.c
  *
  * Driver for Piksi modules from Swift-Nav
  *
@@ -30,8 +30,8 @@
  * https://github.com/swift-nav/sbp_tutorial
  */
 
-#include "subsystems/gps/gps_piksi.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps_piksi.h"
+#include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 #include "math/pprz_geodetic_double.h"

@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 enum AhrsDCMStatus {
   AHRS_DCM_UNINIT,

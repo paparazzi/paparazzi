@@ -18,7 +18,7 @@
       <include name="guidance/guidance_common.h"/>
       <include name="guidance/guidance_h.h"/>
       <include name="stabilization/stabilization_attitude.h"/>
-      <include name="subsystems/gps.h"/>
+      <include name="modules/gps/gps.h"/>
 
       <!-- We have to manually include the module's header files, so 
       we can use the provided functions -->
