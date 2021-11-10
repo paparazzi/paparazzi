@@ -38,7 +38,7 @@
 
 
         <call fun="rover_guidance_steering_periodic()"/> <!-- Only for Steering Rover telemetry-->
-        <call fun="SetAPThrottleFromCommands(commands[COMMAND_SPEED])"/>
+        <call fun="SetAPThrottleFromCommands(commands[COMMAND_THROTTLE])"/>
       </control>
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
@@ -53,7 +53,7 @@
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
         
         <call fun="rover_guidance_steering_periodic()"/>
-        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.delta)"/>
+        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta)"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
 
         <call fun="SetAPThrottleFromCommands()"/>
@@ -119,7 +119,7 @@
         <call fun="SetCommands(commands_failsafe)"/>
 
         <!-- copy manual nav controls to commands (fliht plan)-->
-        <!--call fun="commands[COMMAND_SPEED]    = TRIM_PPRZ(nav.speed * MAX_PPRZ)"/>
+        <!--call fun="commands[COMMAND_THROTTLE]    = TRIM_PPRZ(nav.speed * MAX_PPRZ)"/>
         <call fun="commands[COMMAND_STEERING] = TRIM_PPRZ(nav.turn  * MAX_PPRZ)"/-->
 
 
@@ -133,7 +133,7 @@
 
         <!--call fun="VECT2_COPY(rover_guidance.sp.pos, nav.carrot)"/>
         <call fun="rover_guidance_run(&nav.heading)"/>
-        <call fun="commands[COMMAND_SPEED] = TRIM_PPRZ(rover_guidance.cmd.motor_speed)"/>
+        <call fun="commands[COMMAND_THROTTLE] = TRIM_PPRZ(rover_guidance.cmd.motor_speed)"/>
         <call fun="commands[COMMAND_TURN] = TRIM_PPRZ(rover_guidance.cmd.motor_turn)"/-->
 
       </control>
