@@ -167,12 +167,19 @@ void gvf_control_2D(float ke, float kn, float e,
 {
   gvf_t0 = get_sys_time_msec();
 
-  float ground_speed = stateGetHorizontalSpeedNorm_f();
-  ground_speed = ground_speed<0.2 ? 0.2 : ground_speed;
-  
-  float course = stateGetHorizontalSpeedDir_f();
-  float px_dot = ground_speed * sinf(course);
-  float py_dot = ground_speed * cosf(course);
+  #if defined(FIXEDWING_FIRMWARE)
+    float ground_speed = stateGetHorizontalSpeedNorm_f();
+    float course = stateGetHorizontalSpeedDir_f();
+    float px_dot = ground_speed * sinf(course);
+    float py_dot = ground_speed * cosf(course);
+  #elif defined(ROVER_FIRMWARE)
+    // We assume that the course and psi
+    // of the rover (steering wheel) are the same
+    float course = stateGetNedToBodyEulers_f()->psi;
+    float px_dot = stateGetSpeedEnu_f()->x;
+    float py_dot = stateGetSpeedEnu_f()->y;
+  #endif
+
   int s = gvf_control.s;
 
   // gradient Phi
