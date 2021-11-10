@@ -35,7 +35,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/datalink.h"
 #include "modules/datalink/pprz_dl.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "generated/settings.h"
 
 #if USE_UDP

@@ -34,7 +34,7 @@
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
 #include "modules/energy/electrical.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 

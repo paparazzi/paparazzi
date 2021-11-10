@@ -21,7 +21,7 @@
  */
 
 /**
- * @file arch/stm32/subsystems/settings_arch.c
+ * @file arch/stm32/modules/core/settings_arch.c
  * Persistent settings low level flash routines stm32.
  *
  * data          flash_addr
@@ -32,7 +32,7 @@
  *        max sector erase time 40ms, max prog time 70us per 2 bytes
  */
 
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/crc.h>

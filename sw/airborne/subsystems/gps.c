@@ -40,7 +40,7 @@
 #include "subsystems/abi.h"
 #include "subsystems/gps.h"
 #include "led.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "generated/settings.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic.h"

@@ -51,7 +51,7 @@
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 
 #include "pprz_version.h"
 

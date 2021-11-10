@@ -22,7 +22,7 @@
 
 
 /**
- * @file modules/settings/rc_settings.h
+ * @file modules/core/rc_settings.h
  * Variable setting though the radio control
  *
  * The 'rc_control' section of a XML flight plan allows the user to change the

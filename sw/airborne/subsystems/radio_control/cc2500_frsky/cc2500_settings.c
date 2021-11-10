@@ -29,7 +29,7 @@
 #include BOARD_CONFIG
 #include "mcu_periph/gpio.h"
 #include "generated/airframe.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 
 #include <string.h>
 

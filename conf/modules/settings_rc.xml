@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="settings_rc" dir="settings">
+<module name="settings_rc" dir="core" task="core">
   <doc>
     <description>
       Change settings via Remote Control, e.g. tune your aircraft

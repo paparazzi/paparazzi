@@ -20,13 +20,13 @@
  */
 
 /**
- * @file arch/linux/subsystems/settings_arch.c
+ * @file arch/linux/modules/core/settings_arch.c
  * linux arch Persistent settings.
  *
  * Saves the PersistentSettings struct to a binary file.
  */
 
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include <stdio.h>
 
 /** Default file used to store persistent settings */

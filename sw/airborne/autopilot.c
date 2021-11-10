@@ -42,7 +42,7 @@
 //#include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"
 
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "generated/settings.h"
 
 #include "pprz_version.h"

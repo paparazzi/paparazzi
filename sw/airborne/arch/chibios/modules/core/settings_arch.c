@@ -21,14 +21,14 @@
  */
 
 /**
- * @file arch/chibios/subsystems/settings_arch.c
+ * @file arch/chibios/modules/core/settings_arch.c
  * Persistent settings low level flash routines stm32.
  *
  * FIXME dummy file
  *
  */
 
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 
 int32_t persistent_write(void *ptr __attribute__((unused)), uint32_t size __attribute__((unused)))
 {

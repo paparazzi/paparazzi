@@ -32,7 +32,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 
 /* Default SuperbitRF SPI DEV */
 #ifndef SUPERBITRF_SPI_DEV

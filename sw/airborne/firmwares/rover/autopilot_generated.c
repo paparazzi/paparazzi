@@ -32,7 +32,7 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "subsystems/datalink/telemetry.h"
 
 #include "generated/settings.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 The Paparazzi Team
+ * Copyright (C) 2009-2014 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,25 +20,30 @@
  */
 
 /**
- * @file arch/sim/subsystems/settings_arch.c
- * Sim arch Persistent settings.
+ * @file modules/core/settings.h
+ * Persistent settings interface.
  *
- * Unimplemented.
  */
 
-#include "subsystems/settings.h"
+#ifndef CORE_SETTINGS_H
+#define CORE_SETTINGS_H
 
-int32_t persistent_write(void *ptr UNUSED, uint32_t size UNUSED)
-{
-  return -1;
-}
+#include "std.h"
 
-int32_t persistent_read(void *ptr UNUSED, uint32_t size UNUSED)
-{
-  return -1;
-}
+extern void settings_init(void);
+extern int32_t settings_store(void);
+extern int32_t settings_clear(void);
 
-int32_t persistent_clear(void)
-{
-  return -1;
-}
+extern bool settings_store_flag;
+extern bool settings_clear_flag;
+
+#define settings_StoreSettings(_v) { settings_store_flag = _v; settings_store(); }
+#define settings_ClearSettings(_v) { settings_clear_flag = _v; settings_clear(); }
+
+/* implemented in arch dependant code */
+int32_t persistent_write(void *ptr, uint32_t size);
+int32_t persistent_read(void *ptr, uint32_t size);
+int32_t persistent_clear(void);
+
+
+#endif /* CORE_SETTINGS_H */

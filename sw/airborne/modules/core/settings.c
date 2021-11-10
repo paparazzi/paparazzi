@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/settings.c
+ * @file modules/core/settings.c
  * Persistent settings interface.
  *
  */
 
-#include "subsystems/settings.h"
+#include "modules/core/settings.h"
 #include "generated/settings.h"
 
 struct PersistentSettings pers_settings;
