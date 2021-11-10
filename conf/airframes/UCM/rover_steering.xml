@@ -47,13 +47,13 @@
   
   <!-- Low level commands (PWM signal) -->
   <commands>
-    <axis name="SPEED"    failsafe_value="0"/>
+    <axis name="THROTTLE"    failsafe_value="0"/>
     <axis name="STEERING" failsafe_value="0"/>
   </commands>
 
   <!-- When SetCommandsFromRC -->
   <rc_commands>
-    <set command="SPEED"    value="@THROTTLE"/>
+    <set command="THROTTLE"    value="@THROTTLE"/>
     <set command="STEERING" value="@ROLL"/>
   </rc_commands>
 
@@ -63,7 +63,7 @@
 
   <!-- When SetActuatorsFromCommands-->
   <command_laws>
-    <set servo="MOTOR_THROTTLE" value="@SPEED"/>
+    <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
     <set servo="MOTOR_STEERING" value="@STEERING"/>
   </command_laws>
 
