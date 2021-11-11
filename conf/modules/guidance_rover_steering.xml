@@ -18,7 +18,7 @@
         <dl_settings NAME="Control">
           <!--FIXME: Set MIN_DELTA/MAX_DELTA config limits-->
           <dl_setting MAX="15.0" MIN="-15.0" STEP="0.1" VAR="guidance_control.cmd.delta" shortname="sr_delta" param="SR_GUIDANCE_DELTA"/>
-          <dl_setting MAX="10.0" MIN="0.0"    STEP="0.1" VAR="guidance_control.cmd.speed" shortname="sr_speed" param="SR_GUIDANCE_SPEED"/>
+          <dl_setting MAX="10.0" MIN="-10.0"    STEP="0.1" VAR="guidance_control.cmd.speed" shortname="sr_speed" param="SR_GUIDANCE_SPEED"/>
         </dl_settings>
       </dl_settings>
     </dl_settings>
