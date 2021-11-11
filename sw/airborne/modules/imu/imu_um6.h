@@ -36,7 +36,7 @@
 #include "generated/airframe.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 
 #define IMU_UM6_BUFFER_LENGTH 32
 #define IMU_UM6_DATA_OFFSET 5

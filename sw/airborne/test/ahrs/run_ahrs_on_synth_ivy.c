@@ -10,7 +10,7 @@
 #include "test/ahrs/ahrs_on_synth.h"
 
 #include "modules/imu/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"

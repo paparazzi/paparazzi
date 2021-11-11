@@ -31,7 +31,7 @@
 #include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 #include "subsystems/ins.h"
 #include "math/pprz_algebra.h"
 

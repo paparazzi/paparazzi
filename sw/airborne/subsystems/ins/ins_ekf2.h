@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 #include "subsystems/ins.h"
 
 struct ekf2_parameters_t {

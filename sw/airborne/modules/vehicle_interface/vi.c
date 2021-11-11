@@ -22,7 +22,7 @@
 #include "vehicle_interface/vi.h"
 
 #include "modules/imu/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 #include "modules/gps/gps.h"
 
 #include "generated/airframe.h"

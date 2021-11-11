@@ -16,7 +16,7 @@
     <dl_settings>
       <dl_settings NAME="invariant">
         <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_float_inv.reset" shortname="reset"/>
-        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lx" shortname="lx" module="subsystems/ahrs/ahrs_float_invariant" param="AHRS_INV_LX"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lx" shortname="lx" module="modules/ahrs/ahrs_float_invariant" param="AHRS_INV_LX"/>
         <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.ly" shortname="ly" param="AHRS_INV_LY"/>
         <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lz" shortname="lz" param="AHRS_INV_LZ"/>
         <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.mx" shortname="mx" param="AHRS_INV_MX"/>
@@ -35,26 +35,26 @@
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
-    <file name="ahrs_float_invariant.c" dir="subsystems/ahrs"/>
-    <file name="ahrs_float_invariant_wrapper.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_invariant.c"/>
+    <file name="ahrs_float_invariant_wrapper.c"/>
     <test>
         <define name="PRIMARY_AHRS" value="ahrs_float_invariant"/>
-        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_invariant_wrapper.h" type="string"/>
+        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_invariant_wrapper.h" type="string"/>
     </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), invariant float_invariant))
 # this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
 $(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_float_invariant
 else
 # this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
 $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_float_invariant
 endif
 else
 # plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_invariant_wrapper.h\"
 endif
     </raw>
   </makefile>

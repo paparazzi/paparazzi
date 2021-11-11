@@ -44,7 +44,7 @@
 #include "std.h"
 #include "navdata.h"
 #include "subsystems/ins.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/gpio.h"
 

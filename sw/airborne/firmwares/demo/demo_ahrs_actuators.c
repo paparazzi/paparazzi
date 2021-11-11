@@ -47,7 +47,7 @@
 
 #include "state.h"
 #include "modules/imu/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 
 #include "modules/core/commands.h"
 #include "subsystems/actuators.h"

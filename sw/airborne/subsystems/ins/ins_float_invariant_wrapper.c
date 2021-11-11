@@ -30,7 +30,7 @@
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
 #if USE_AHRS_ALIGNER
-#include "subsystems/ahrs/ahrs_aligner.h"
+#include "modules/ahrs/ahrs_aligner.h"
 #endif
 
 #ifndef INS_FINV_FILTER_ID

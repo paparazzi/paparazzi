@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_chimu_uart" dir="ins" task="estimation">
+<module name="ahrs_chimu_uart" dir="ahrs" task="estimation">
   <doc>
     <description>CHimu (UART)</description>
     <configure name="CHIMU_UART_NR" value="3" description="UART"/>
@@ -11,7 +11,7 @@
     <provides>ahrs,imu</provides>
   </dep>
   <header>
-    <file name="ins_module.h"/>
+    <file name="ins_module.h" dir="modules/ins"/>
   </header>
   <init fun="ahrs_init()"/>
   <event fun="parse_ins_msg()"/>
@@ -23,8 +23,8 @@
     <define name="INS_LINK" value="uart$(CHIMU_UART_NR)"/>
     <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
     <file name="ahrs_chimu_uart.c"/>
-    <file name="imu_chimu.c"/>
-    <file name="ahrs.c" dir="subsystems"/>
-    <define name="AHRS_TYPE_H" value="modules/ins/ahrs_chimu.h" type="string"/>
+    <file name="imu_chimu.c" dir="modules/ins"/>
+    <file name="ahrs.c"/>
+    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_chimu.h" type="string"/>
   </makefile>
 </module>

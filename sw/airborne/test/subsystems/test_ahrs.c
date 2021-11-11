@@ -49,7 +49,7 @@
 #include "generated/modules.h"
 
 #include "modules/imu/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/ahrs/ahrs.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);

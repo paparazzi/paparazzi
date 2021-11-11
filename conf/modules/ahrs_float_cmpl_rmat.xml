@@ -22,11 +22,11 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="AHRS">
-        <dl_setting var="ahrs_fc.gravity_heuristic_factor" min="0" step="1" max="50" module="subsystems/ahrs/ahrs_float_cmpl" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR" type="uint8" persistent="true"/>
-        <dl_setting var="ahrs_fc.accel_omega" min="0.02" step="0.02" max="0.2" module="subsystems/ahrs/ahrs_float_cmpl" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" type="float" persistent="true"/>
-        <dl_setting var="ahrs_fc.accel_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_float_cmpl" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" type="float" persistent="true"/>
-        <dl_setting var="ahrs_fc.mag_omega" min="0.02" step="0.01" max="0.1" module="subsystems/ahrs/ahrs_float_cmpl" shortname="mag_omega" param="AHRS_MAG_OMEGA" unit="rad/s" type="float" persistent="true"/>
-        <dl_setting var="ahrs_fc.mag_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_float_cmpl" shortname="mag_zeta" param="AHRS_MAG_ZETA" type="float" persistent="true"/>
+        <dl_setting var="ahrs_fc.gravity_heuristic_factor" min="0" step="1" max="50" module="modules/ahrs/ahrs_float_cmpl" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR" type="uint8" persistent="true"/>
+        <dl_setting var="ahrs_fc.accel_omega" min="0.02" step="0.02" max="0.2" module="modules/ahrs/ahrs_float_cmpl" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" type="float" persistent="true"/>
+        <dl_setting var="ahrs_fc.accel_zeta" min="0.7" step="0.05" max="1.5" module="modules/ahrs/ahrs_float_cmpl" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" type="float" persistent="true"/>
+        <dl_setting var="ahrs_fc.mag_omega" min="0.02" step="0.01" max="0.1" module="modules/ahrs/ahrs_float_cmpl" shortname="mag_omega" param="AHRS_MAG_OMEGA" unit="rad/s" type="float" persistent="true"/>
+        <dl_setting var="ahrs_fc.mag_zeta" min="0.7" step="0.05" max="1.5" module="modules/ahrs/ahrs_float_cmpl" shortname="mag_zeta" param="AHRS_MAG_ZETA" type="float" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -45,27 +45,27 @@
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <define name="AHRS_PROPAGATE_RMAT"/>
-    <file name="ahrs_float_cmpl.c" dir="subsystems/ahrs"/>
-    <file name="ahrs_float_cmpl_wrapper.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_cmpl.c"/>
+    <file name="ahrs_float_cmpl_wrapper.c"/>
     <test>
         <define name="PRIMARY_AHRS" value="ahrs_fc"/>
-        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_cmpl_wrapper.h" type="string"/>
+        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_cmpl_wrapper.h" type="string"/>
         <define name="AHRS_PROPAGATE_RMAT"/>
     </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), fcr float_cmpl_rmat))
 # this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
 $(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_fc
 else
 # this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
 $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_fc
 endif
 else
 # plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
 endif
     </raw>
   </makefile>

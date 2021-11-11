@@ -24,8 +24,8 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="AHRS">
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="subsystems/ahrs" />
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="subsystems/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="modules/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="modules/ahrs" />
       </dl_settings>
     </dl_settings>
   </settings>
@@ -39,26 +39,26 @@
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="0"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
-    <file name="ahrs_float_dcm.c" dir="subsystems/ahrs"/>
-    <file name="ahrs_float_dcm_wrapper.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_dcm.c"/>
+    <file name="ahrs_float_dcm_wrapper.c"/>
     <test firmware="fixedwing">
         <define name="PRIMARY_AHRS" value="ahrs_dcm"/>
-        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
+        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
     </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), dcm float_dcm))
 # this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
 $(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_dcm
 else
 # this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
 $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_dcm
 endif
 else
 # plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_dcm_wrapper.h\"
 endif
     </raw>
   </makefile>

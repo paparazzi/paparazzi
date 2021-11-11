@@ -72,7 +72,7 @@
     <configure name="USE_MAGNETOMETER" default="TRUE"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
-    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_aligner.c" dir="modules/ahrs"/>
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_mekf_wind.cpp"/>
     <file name="ins_mekf_wind_wrapper.c"/>
@@ -92,9 +92,9 @@
     <flag name="CXXFLAGS" value="Wno-logical-not-parentheses"/>
   </makefile>
   <makefile target="sim" firmware="fixedwing">
-    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     <define name="USE_AHRS"/>
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+    <file name="ahrs.c" dir="modules/ahrs"/>
+    <file name="ahrs_sim.c" dir="modules/ahrs"/>
   </makefile>
 </module>

@@ -18,9 +18,9 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="AHRS">
-        <dl_setting var="ahrs_mlkf.mag_noise.x" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_x" param="AHRS_MAG_NOISE_X" type="float" persistent="true"/>
-        <dl_setting var="ahrs_mlkf.mag_noise.y" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_y" param="AHRS_MAG_NOISE_Y" type="float" persistent="true"/>
-        <dl_setting var="ahrs_mlkf.mag_noise.z" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_z" param="AHRS_MAG_NOISE_Z" type="float" persistent="true"/>
+        <dl_setting var="ahrs_mlkf.mag_noise.x" min="0.0" step="0.02" max="1.0" module="modules/ahrs/ahrs_float_mlkf" shortname="mag_noise_x" param="AHRS_MAG_NOISE_X" type="float" persistent="true"/>
+        <dl_setting var="ahrs_mlkf.mag_noise.y" min="0.0" step="0.02" max="1.0" module="modules/ahrs/ahrs_float_mlkf" shortname="mag_noise_y" param="AHRS_MAG_NOISE_Y" type="float" persistent="true"/>
+        <dl_setting var="ahrs_mlkf.mag_noise.z" min="0.0" step="0.02" max="1.0" module="modules/ahrs/ahrs_float_mlkf" shortname="mag_noise_z" param="AHRS_MAG_NOISE_Z" type="float" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -33,26 +33,26 @@
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
-    <file name="ahrs_float_mlkf.c" dir="subsystems/ahrs"/>
-    <file name="ahrs_float_mlkf_wrapper.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_mlkf.c"/>
+    <file name="ahrs_float_mlkf_wrapper.c"/>
     <test>
         <define name="PRIMARY_AHRS" value="ahrs_mlkf"/>
-        <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_float_mlkf_wrapper.h" type="string"/>
+        <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_mlkf_wrapper.h" type="string"/>
     </test>
     <raw>
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), mlkf float_mlkf))
 # this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_mlkf_wrapper.h\"
 $(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_mlkf
 else
 # this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_mlkf_wrapper.h\"
 $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_mlkf
 endif
 else
 # plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_mlkf_wrapper.h\"
 endif
     </raw>
   </makefile>

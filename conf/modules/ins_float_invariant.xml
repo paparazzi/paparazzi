@@ -42,7 +42,7 @@
     <configure name="USE_MAGNETOMETER" default="TRUE"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
 
-    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_aligner.c" dir="modules/ahrs"/>
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_float_invariant.c" dir="subsystems/ins"/>
     <file name="ins_float_invariant_wrapper.c" dir="subsystems/ins"/>
@@ -52,9 +52,9 @@
     <test firmware="rotorcraft"/>
   </makefile>
   <makefile target="sim">
-    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     <define name="USE_AHRS"/>
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+    <file name="ahrs.c" dir="modules/ahrs"/>
+    <file name="ahrs_sim.c" dir="modules/ahrs"/>
   </makefile>
 </module>
