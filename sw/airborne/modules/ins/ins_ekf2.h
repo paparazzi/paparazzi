@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015 Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
- * Utah State University, http://aggieair.usu.edu/
+ * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -19,16 +18,37 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-/**
- * @file ins_vectornav_wrapper.c
- *
- * Vectornav VN-200 INS subsystem
- *
- * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
- */
-#include "subsystems/ins/ins_vectornav_wrapper.h"
 
-void gps_vectornav_init(void)
-{
-  gps.nb_channels = 0;
+/**
+ * @file modules/ins/ins_ekf2.h
+ *
+ * INS based in the EKF2 of PX4
+ *
+ */
+
+#ifndef INS_EKF2_H
+#define INS_EKF2_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "modules/ahrs/ahrs.h"
+#include "modules/ins/ins.h"
+
+struct ekf2_parameters_t {
+  int32_t mag_fusion_type;
+  int32_t fusion_mode;
+};
+
+extern void ins_ekf2_init(void);
+extern void ins_ekf2_update(void);
+extern void ins_ekf2_change_param(int32_t unk);
+extern void ins_ekf2_remove_gps(int32_t mode);
+extern struct ekf2_parameters_t ekf2_params;
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* INS_EKF2_H */

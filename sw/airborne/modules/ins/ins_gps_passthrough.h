@@ -19,16 +19,14 @@
  */
 
 /**
- * @file subsystems/ins/ins_float_invariant_wrapper.h
+ * @file modules/ins/ins_gps_passthrough.h
  *
- * Paparazzi specific wrapper to run INVARIANT filter.
+ * Simply passes GPS through to the state interface.
  */
 
-#ifndef INS_FLOAT_INVARIANT_WRAPPER_H
-#define INS_FLOAT_INVARIANT_WRAPPER_H
+#ifndef INS_GPS_PASSTHROUGH_H
+#define INS_GPS_PASSTHROUGH_H
 
-#include "subsystems/ins/ins_float_invariant.h"
+extern void ins_gps_passthrough_init(void);
 
-extern void ins_float_invariant_wrapper_init(void);
-
-#endif /* INS_FLOAT_INVARIANT_WRAPPER_H */
+#endif /* INS_GPS_PASSTHROUGH_H */

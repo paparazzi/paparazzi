@@ -20,20 +20,15 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file ins_vectornav_wrapper.h
+ * @file ins_vectornav_wrapper.c
  *
  * Vectornav VN-200 INS subsystem
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#ifndef INS_VECTORNAV_WRAPPER_H
-#define INS_VECTORNAV_WRAPPER_H
+#include "modules/ins/ins_vectornav_wrapper.h"
 
-#include "subsystems/ins/ins_vectornav.h"
-
-#ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_VECTORNAV
-#endif
-extern void gps_vectornav_init(void);
-
-#endif /* INS_VECTORNAV_WRAPPER_H */
+void gps_vectornav_init(void)
+{
+  gps.nb_channels = 0;
+}

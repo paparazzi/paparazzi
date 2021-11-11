@@ -73,7 +73,7 @@
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
     <file name="ahrs_aligner.c" dir="modules/ahrs"/>
-    <file name="ins.c" dir="subsystems"/>
+    <file name="ins.c"/>
     <file name="ins_mekf_wind.cpp"/>
     <file name="ins_mekf_wind_wrapper.c"/>
     <flag name="LDFLAGS" value="lstdc++" />

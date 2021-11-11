@@ -21,13 +21,13 @@
  */
 
 /**
- * @file subsystems/ins/hf_float.c
+ * @file modules/ins/hf_float.c
  *
  * Horizontal filter (x,y) to estimate position and velocity.
  *
  */
 
-#include "subsystems/ins/hf_float.h"
+#include "modules/ins/hf_float.h"
 #include "modules/imu/imu.h"
 #include "state.h"
 #include "modules/gps/gps.h"

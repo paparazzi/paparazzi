@@ -31,7 +31,7 @@
 #if USE_AHRS_ALIGNER
 #include "modules/ahrs/ahrs_aligner.h"
 #endif
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "modules/core/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"

@@ -21,14 +21,14 @@
  */
 
 /**
- * @file subsystems/ins/ins_alt_float.h
+ * @file modules/ins/ins_alt_float.h
  * Filters altitude and climb rate for fixedwings.
  */
 
 #ifndef INS_ALT_FLOAT_H
 #define INS_ALT_FLOAT_H
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #include <inttypes.h>
 #include "std.h"

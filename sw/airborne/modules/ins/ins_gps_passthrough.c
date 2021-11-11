@@ -20,14 +20,14 @@
  */
 
 /**
- * @file subsystems/ins/ins_gps_passthrough.c
+ * @file modules/ins/ins_gps_passthrough.c
  *
  * Simply converts GPS ECEF position and velocity to NED
  * and passes it through to the state interface.
  */
 
-#include "subsystems/ins/ins_gps_passthrough.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins_gps_passthrough.h"
+#include "modules/ins/ins.h"
 
 #include <inttypes.h>
 #include <math.h>

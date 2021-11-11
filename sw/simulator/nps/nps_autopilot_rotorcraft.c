@@ -32,7 +32,7 @@
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 #include "modules/ahrs/ahrs.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "math/pprz_algebra.h"
 
 #ifndef NPS_NO_MOTOR_MIXING

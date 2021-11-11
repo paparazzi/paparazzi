@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/ins/vf_float.h
+ * @file modules/ins/vf_float.h
  *
  * Vertical filter (in float) estimating altitude, velocity and accel bias.
  *

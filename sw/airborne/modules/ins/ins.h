@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/ins.h
+ * @file modules/ins/ins.h
  * Integrated Navigation System interface.
  */
 

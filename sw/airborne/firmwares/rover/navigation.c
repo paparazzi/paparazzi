@@ -31,7 +31,7 @@
 
 #include "pprz_debug.h"
 #include "modules/gps/gps.h" // needed by auto_nav from the flight plan
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "state.h"
 
 #include "autopilot.h"

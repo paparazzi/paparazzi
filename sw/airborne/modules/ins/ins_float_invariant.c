@@ -19,18 +19,18 @@
  */
 
 /**
- * @file subsystems/ins/ins_float_invariant.c
+ * @file modules/ins/ins_float_invariant.c
  * @author Jean-Philippe Condomines <jp.condomines@gmail.com>
  *
  * INS using invariant filter.
  *
  */
 
-#include "subsystems/ins/ins_float_invariant.h"
+#include "modules/ins/ins_float_invariant.h"
 
 #include "modules/ahrs/ahrs_int_utils.h"
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "modules/gps/gps.h"
 
 #include "generated/airframe.h"

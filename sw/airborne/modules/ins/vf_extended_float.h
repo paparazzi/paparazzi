@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/ins/vf_extended_float.h
+ * @file modules/ins/vf_extended_float.h
  *
  * Interface for extended vertical filter (in float).
  *

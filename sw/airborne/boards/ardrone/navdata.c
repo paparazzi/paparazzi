@@ -43,7 +43,7 @@
 
 #include "std.h"
 #include "navdata.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "modules/ahrs/ahrs.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/gpio.h"

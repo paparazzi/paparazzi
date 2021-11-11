@@ -19,7 +19,7 @@
  */
 
 /**
- * @file subsystems/ins/ins_float_invariant.h
+ * @file modules/ins/ins_float_invariant.h
  * INS using invariant filter.
  * For more information, please send an email to "jp.condomines@gmail.com"
  */
@@ -27,7 +27,7 @@
 #ifndef INS_FLOAT_INVARIANT_H
 #define INS_FLOAT_INVARIANT_H
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "modules/gps/gps.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"

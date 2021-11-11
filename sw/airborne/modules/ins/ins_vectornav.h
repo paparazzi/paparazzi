@@ -31,7 +31,7 @@
 
 // Subsystems
 #include "modules/gps/gps.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 // Peripheral
 #include "peripherals/vn200_serial.h"

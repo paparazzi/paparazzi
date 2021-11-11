@@ -26,7 +26,7 @@
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
-#include "subsystems/ins/ins_vectornav.h"
+#include "modules/ins/ins_vectornav.h"
 #include "math/pprz_geodetic_wgs84.h"
 
 struct InsVectornav ins_vn;

@@ -26,7 +26,7 @@
  */
 
 #include "ins_xsens700.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #include "generated/airframe.h"
 

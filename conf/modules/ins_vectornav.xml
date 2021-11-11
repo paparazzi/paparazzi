@@ -17,7 +17,7 @@
   <autoload name="imu_sim"/>
   <autoload name="imu_nps"/>
   <header>
-    <file name="ins.h" dir="subsystems"/>
+    <file name="ins.h"/>
   </header>
   <init fun="ins_vectornav_init()"/>
   <periodic fun="ins_vectornav_monitor()" freq="1.0" autorun="TRUE"/>
@@ -33,10 +33,10 @@
 
     <file name="vn200_serial.c" dir="peripherals"/>
 
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_vectornav.c" dir="subsystems/ins"/>
-    <file name="ins_vectornav_wrapper.c" dir="subsystems/ins"/>
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_vectornav_wrapper.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_vectornav.c"/>
+    <file name="ins_vectornav_wrapper.c"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_vectornav_wrapper.h" type="string"/>
 
     <file name="gps.c" dir="modules/gps"/>
     <define name="USE_GPS"/>
@@ -44,10 +44,10 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), vectornav))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/ins/ins_vectornav_wrapper.h\"
       ap.CFLAGS += -DSECONDARY_GPS=GPS_VECTORNAV
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/ins/ins_vectornav_wrapper.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_vectornav_wrapper.h\"
       ap.CFLAGS += -DPRIMARY_GPS=GPS_VECTORNAV
       endif
       else

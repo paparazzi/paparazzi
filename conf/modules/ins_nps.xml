@@ -12,7 +12,7 @@
   </dep>
   <autoload name="gps_nps"/>
   <header>
-    <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
+    <file name="ins_gps_passthrough.h"/>
   </header>
   <init fun="ins_gps_passthrough_init()"/>
   <makefile target="nps|hitl">
@@ -30,13 +30,13 @@
   </makefile>
 
   <makefile target="nps|hitl" firmware="rotorcraft">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough.c"/>
   </makefile>
   <makefile target="nps|hitl" firmware="fixedwing">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough_utm.c"/>
   </makefile>
 </module>

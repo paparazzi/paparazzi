@@ -26,7 +26,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "math/pprz_geodetic_float.h"
 
 float dist2_to_home;

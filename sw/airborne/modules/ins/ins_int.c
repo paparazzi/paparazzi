@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/ins/ins_int.c
+ * @file modules/ins/ins_int.c
  *
  * INS for rotorcrafts combining vertical and horizontal filters.
  *
  */
 
-#include "subsystems/ins/ins_int.h"
+#include "modules/ins/ins_int.h"
 
 #include "modules/core/abi.h"
 
@@ -36,13 +36,13 @@
 #include "generated/airframe.h"
 
 #if USE_VFF_EXTENDED
-#include "subsystems/ins/vf_extended_float.h"
+#include "modules/ins/vf_extended_float.h"
 #else
-#include "subsystems/ins/vf_float.h"
+#include "modules/ins/vf_float.h"
 #endif
 
 #if USE_HFF
-#include "subsystems/ins/hf_float.h"
+#include "modules/ins/hf_float.h"
 #endif
 
 #if defined SITL && USE_NPS

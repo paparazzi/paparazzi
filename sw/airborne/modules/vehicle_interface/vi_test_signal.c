@@ -21,7 +21,7 @@
 
 #include "booz_fms.h"
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "math/pprz_algebra_int.h"
 
 #define FMS_TEST_SIGNAL_DEFAULT_MODE       STEP_YAW

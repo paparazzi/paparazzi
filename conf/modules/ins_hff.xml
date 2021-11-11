@@ -16,15 +16,15 @@
     <provides>ins</provides>
   </dep>
   <header>
-    <file name="ins_int.h" dir="subsystems/ins"/>
+    <file name="ins_int.h"/>
   </header>
   <init fun="ins_int_init()"/>
   <makefile target="ap|nps">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_int.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_int.c" dir="subsystems/ins"/>
-    <file name="vf_float.c" dir="subsystems/ins"/>
-    <file name="hf_float.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_int.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_int.c"/>
+    <file name="vf_float.c"/>
+    <file name="hf_float.c"/>
     <define name="USE_HFF"/>
     <test firmware="rotorcraft">
       <define name="AHRS_PROPAGATE_FREQUENCY" value="500"/>

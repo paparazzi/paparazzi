@@ -25,7 +25,7 @@
  */
 
 #include "ins_xsens.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #include "generated/airframe.h"
 

@@ -20,14 +20,14 @@
  */
 
 /**
- * @file subsystems/ins/ins_gps_passthrough_utm.c
+ * @file modules/ins/ins_gps_passthrough_utm.c
  *
  * Simply passes GPS UTM position and velocity through to the state interface.
  * For fixedwing firmware since it sets UTM pos only.
  */
 
-#include "subsystems/ins/ins_gps_passthrough.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins_gps_passthrough.h"
+#include "modules/ins/ins.h"
 
 #include <inttypes.h>
 #include <math.h>

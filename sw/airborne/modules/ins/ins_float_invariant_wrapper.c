@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/ins/ins_float_invariant_wrapper.c
+ * @file modules/ins/ins_float_invariant_wrapper.c
  *
  * Paparazzi specific wrapper to run INVARIANT filter.
  */
 
-#include "subsystems/ins/ins_float_invariant_wrapper.h"
+#include "modules/ins/ins_float_invariant_wrapper.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"

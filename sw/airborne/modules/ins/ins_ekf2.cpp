@@ -20,13 +20,13 @@
  */
 
 /**
- * @file subsystems/ins/ins_ekf2.cpp
+ * @file modules/ins/ins_ekf2.cpp
  *
  * INS based in the EKF2 of PX4
  *
  */
 
-#include "subsystems/ins/ins_ekf2.h"
+#include "modules/ins/ins_ekf2.h"
 #include "subsystems/navigation/waypoints.h"
 #include "modules/core/abi.h"
 #include "stabilization/stabilization_attitude.h"

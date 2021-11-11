@@ -25,7 +25,7 @@
     <file name="xsens700.c"/>
     <file name="xsens_parser.c"/>
     <file name="ins_xsens700.c"/>
-    <file name="ins.c" dir="subsystems"/>
+    <file name="ins.c"/>
     <configure name="XSENS_PORT" default="uart1" case="upper|lower"/>
     <configure name="XSENS_BAUD" default="B115200"/>
     <define name="USE_$(XSENS_PORT_UPPER)" value="1"/>

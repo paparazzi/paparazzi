@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/ins/hf_float.h
+ * @file modules/ins/hf_float.h
  *
  * Horizontal filter (x,y) to estimate position and velocity.
  *

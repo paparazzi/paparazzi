@@ -20,12 +20,12 @@
  */
 
 /**
- * @file subsystems/ins.c
+ * @file modules/ins/ins.c
  * Integrated Navigation System interface.
  */
 
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #if USE_GPS
 // for ins_reset_utm_zone

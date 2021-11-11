@@ -33,7 +33,7 @@
  */
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi.h"
-#include "subsystems/ins/ins_int.h"
+#include "modules/ins/ins_int.h"
 #include "modules/radio_control/radio_control.h"
 #include "state.h"
 #include "modules/imu/imu.h"

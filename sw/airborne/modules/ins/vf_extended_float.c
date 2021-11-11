@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/ins/vf_extended_float.c
+ * @file modules/ins/vf_extended_float.c
  *
  * Extended vertical filter (in float).
  *
@@ -31,7 +31,7 @@
  * X = [ z zdot accel_bias baro_offset obstacle_height ]
  */
 
-#include "subsystems/ins/vf_extended_float.h"
+#include "modules/ins/vf_extended_float.h"
 #include "generated/airframe.h"
 #include "std.h"
 

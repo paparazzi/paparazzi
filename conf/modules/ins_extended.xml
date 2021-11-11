@@ -25,7 +25,7 @@
   <settings>
     <dl_settings NAME="Ins Extended">
       <dl_settings NAME="INS">
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="modules/ins/vf_extended_float"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_obs_height" shortname="r_obs_height"/>
@@ -38,14 +38,14 @@
   </dep>
 
   <header>
-    <file name="ins_int.h" dir="subsystems/ins"/>
+    <file name="ins_int.h"/>
   </header>
   <init fun="ins_int_init()"/>
   <makefile target="ap|nps">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_int.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_int.c" dir="subsystems/ins"/>
-    <file name="vf_extended_float.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_int.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_int.c"/>
+    <file name="vf_extended_float.c"/>
     <define name="USE_VFF_EXTENDED"/>
     <test firmware="rotorcraft"/>
   </makefile>

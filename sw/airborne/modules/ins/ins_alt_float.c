@@ -20,11 +20,11 @@
  */
 
 /**
- * @file subsystems/ins/ins_alt_float.c
+ * @file modules/ins/ins_alt_float.c
  * Filters altitude and climb rate for fixedwings.
  */
 
-#include "subsystems/ins/ins_alt_float.h"
+#include "modules/ins/ins_alt_float.h"
 
 #include "modules/core/abi.h"
 #include "state.h"

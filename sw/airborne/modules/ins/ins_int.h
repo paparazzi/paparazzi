@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/ins/ins_int.h
+ * @file modules/ins/ins_int.h
  *
  * INS for rotorcrafts combining vertical and horizontal filters.
  *
@@ -29,7 +29,7 @@
 #ifndef INS_INT_H
 #define INS_INT_H
 
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 #include "modules/gps/gps.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
