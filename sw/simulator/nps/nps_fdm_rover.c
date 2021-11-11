@@ -43,9 +43,9 @@ struct NpsFdm fdm;
 static struct LtpDef_d ltpdef;
 
 // Physical model's structures
-static struct EcefCoor_d rover_pos;
-static struct EcefCoor_d rover_vel;
-static struct EcefCoor_d rover_acc;
+static struct EnuCoor_d rover_pos;
+static struct EnuCoor_d rover_vel;
+static struct EnuCoor_d rover_acc;
 static struct FloatEulers rover_eul;
 
 // static functions declaration
@@ -78,15 +78,18 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
   double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
-  double speed = FLOAT_VECT2_NORM(fdm.ecef_ecef_vel);
-  
+
+  enu_of_ecef_point_d(&rover_pos, &ltpdef, &fdm.ecef_pos);
+  enu_of_ecef_vect_d(&rover_vel, &ltpdef, &fdm.ecef_ecef_vel);
+  double speed = FLOAT_VECT2_NORM(rover_vel);
+
 
   /** Physical model for car-like robots *********************************/
   // INIT
-  rover_pos = fdm.ecef_pos;
-  rover_vel = fdm.ecef_ecef_vel;
+  //rover_pos  = fdm.ltpprz_pos;
+  //rover_vel  = fdm.ltp_ecef_vel;
   rover_eul  = *stateGetNedToBodyEulers_f();
-  double phi = fdm.ltp_to_body_eulers.psi;
+  double phi = fdm.rover_eul.psi;
 
   // EULER INTEGRATION
   speed += commands[COMMAND_THROTTLE] * fdm.curr_dt;
@@ -98,24 +101,24 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   // phi have to be contained in [-180º,180º). So:
   phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
 
-  rover_acc.x = -(commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
+  rover_acc.x = (commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
   rover_acc.y = (commands[COMMAND_THROTTLE] * sin(phi) + speed * cos(phi) * phi_d);
 
-  rover_vel.x = -speed * cos(phi);
+  rover_vel.x = speed * cos(phi);
   rover_vel.y = speed * sin(phi);
   
-  rover_pos.x += fdm.ecef_ecef_vel.x * fdm.curr_dt;
-  rover_pos.y += fdm.ecef_ecef_vel.y * fdm.curr_dt;
+  rover_pos.x += rover_vel.x * fdm.curr_dt;
+  rover_pos.y += rover_vel.y * fdm.curr_dt;
 
   /**********************************************************************/
-  /* in ECEF */
-  fdm.ecef_pos = rover_pos;
-  fdm.ecef_ecef_vel = rover_vel;
-  fdm.ecef_ecef_accel= rover_acc;
-
   /* in LTP pprz */
-  ned_of_ecef_point_d(&fdm.ltpprz_pos, &ltpdef, &fdm.ecef_pos);
-  ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
+  //fdm.ltpprz_pos = rover_pos;
+  //fdm.ltp_ecef_vel = rover_vel;
+  //fdm.ltp_ecef_accel= rover_acc;
+
+  /* in ECEF */
+  ecef_of_enu_point_d(&fdm.ecef_pos, &ltpdef, &rover_pos);
+  ecef_of_enu_vect_d(&fdm.ecef_ecef_vel, &ltpdef, &rover_vel);
 
   /* Euler */
   fdm.ltp_to_body_eulers.psi = phi;
@@ -124,7 +127,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   rover_eul.psi = (float)phi;
   stateSetNedToBodyEulers_f(&rover_eul);
 
-  fdm.body_ecef_rotvel.r   = phi_d;
+  fdm.body_ecef_rotvel.r   = phi_d; 
   fdm.body_ecef_rotaccel.r = phi_dd;
 
   // Testing zone //
@@ -169,8 +172,7 @@ static void init_ltp(void)
 
   ecef_of_lla_d(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_d(&ltpdef, &fdm.ecef_pos);
-
+  ltp_def_from_ecef_d(&ltpdef, &ecef_nav0);
   fdm.ecef_pos = ecef_nav0;
 
   fdm.ltp_g.x = 0.;
