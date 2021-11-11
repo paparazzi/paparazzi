@@ -317,7 +317,7 @@ let rec parse_section = fun out ac_id s ->
       let nb_servos = List.fold_right (fun s m -> max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
 
       define_out out (sprintf "SERVOS_%s_NB" (String.uppercase_ascii driver)) (string_of_int nb_servos);
-      fprintf out "#include \"subsystems/actuators/actuators_%s.h\"\n" (String.lowercase_ascii driver);
+      fprintf out "#include \"modules/actuators/actuators_%s.h\"\n" (String.lowercase_ascii driver);
       fprintf out "\n";
       List.iter (parse_servo out driver) servos;
       print_reverse_servo_table out driver servos;

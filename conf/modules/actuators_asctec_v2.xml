@@ -16,14 +16,14 @@
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_asctec_v2.h" dir="subsystems/actuators"/>
+    <file name="actuators_asctec_v2.h"/>
   </header>
   <makefile target="!sim|nps">
     <configure name="ACTUATORS_ASCTEC_V2_I2C_DEV" default="i2c1" case="upper|lower"/>
     <configure name="ACTUATORS_ASCTEC_V2_I2C_SCL_TIME" default="150"/>
     <define name="ACTUATORS_ASCTEC_V2_I2C_DEV" value="$(ACTUATORS_ASCTEC_V2_I2C_DEV_LOWER)"/>
     <define name="USE_$(ACTUATORS_ASCTEC_V2_I2C_DEV_UPPER)"/>
-    <file name="actuators_asctec_v2.c" dir="subsystems/actuators"/>
+    <file name="actuators_asctec_v2.c"/>
     <test>
         <define name="SERVO_FRONT" value="0"/>
         <define name="SERVO_BACK" value="1"/>
@@ -36,7 +36,7 @@
   <makefile target="nps">
     <define name="USE_I2C0"/>
     <define name="ACTUATORS_ASCTEC_V2_I2C_DEV" value="i2c0"/>
-    <file name="actuators_asctec_v2.c" dir="subsystems/actuators"/>
+    <file name="actuators_asctec_v2.c"/>
   </makefile>
 </module>
 

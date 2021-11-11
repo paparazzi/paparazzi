@@ -30,7 +30,7 @@
  * Some part of this code is coming from the APM Disco and Bebop drivers
  */
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "autopilot.h"

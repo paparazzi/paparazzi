@@ -56,7 +56,7 @@ extern "C" {
 #include "filters/low_pass_filter.h"
 #include "filters/high_pass_filter.h"
 
-#include "subsystems/actuators/motor_mixing_types.h"
+#include "modules/actuators/motor_mixing_types.h"
 }
 
 #if defined(NPS_DEBUG_VIDEO)

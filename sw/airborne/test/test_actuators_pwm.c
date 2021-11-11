@@ -48,7 +48,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#include "subsystems/actuators/actuators_pwm.h"
+#include "modules/actuators/actuators_pwm.h"
 
 
 static inline void main_init(void);

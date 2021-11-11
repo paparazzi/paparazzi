@@ -104,7 +104,7 @@ setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_P
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
 setup_actuators.srcs += subsystems/datalink/downlink.c pprzlink/src/pprz_transport.c modules/datalink/pprz_dl.c
 
-setup_actuators.srcs   += subsystems/actuators.c
+setup_actuators.srcs   += modules/actuators/actuators.c
 setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c
 
 ifeq ($(TARGET), setup_actuators)

@@ -11,11 +11,11 @@
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_dualpwm.h" dir="subsystems/actuators"/>
+    <file name="actuators_dualpwm.h"/>
   </header>
   <makefile target="!sim|nps">
-    <file_arch name="actuators_dualpwm_arch.c" dir="subsystems/actuators"/>
-    <file_arch name="actuators_shared_arch.c" dir="subsystems/actuators"/>
+    <file_arch name="actuators_dualpwm_arch.c"/>
+    <file_arch name="actuators_shared_arch.c"/>
   </makefile>
 </module>
 

@@ -50,7 +50,7 @@
 #include "modules/ahrs/ahrs.h"
 
 #include "modules/core/commands.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "modules/core/settings.h"
 
 #include "pprz_version.h"

@@ -29,7 +29,7 @@
 #include "modules/core/commands.h"
 #include "generated/airframe.h"
 #include "generated/airframe.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "generated/modules.h"
 
 int32_t servo_test_val;

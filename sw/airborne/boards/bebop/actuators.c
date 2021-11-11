@@ -25,7 +25,7 @@
  * Actuator driver for the bebop and bebop 2
  */
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "led_hw.h"

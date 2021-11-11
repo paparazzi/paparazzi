@@ -5,7 +5,7 @@
 <settings target="test_actuators_pwm">
   <dl_settings>
     <dl_settings NAME="Actuators" >
-      <dl_setting VAR="actuators_pwm_values[0]" MIN="900" STEP="1" MAX="2100" module="subsystems/actuators/actuators_pwm" shortname="chan0"/>
+      <dl_setting VAR="actuators_pwm_values[0]" MIN="900" STEP="1" MAX="2100" module="modules/actuators/actuators_pwm" shortname="chan0"/>
       <dl_setting VAR="actuators_pwm_values[1]" MIN="900" STEP="1" MAX="2100" shortname="chan1"/>
       <dl_setting VAR="actuators_pwm_values[2]" MIN="900" STEP="1" MAX="2100" shortname="chan2"/>
       <dl_setting VAR="actuators_pwm_values[3]" MIN="900" STEP="1" MAX="2100" shortname="chan3"/>

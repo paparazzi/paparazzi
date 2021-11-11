@@ -37,7 +37,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/core/commands.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "modules/energy/electrical.h"
 #include "modules/radio_control/radio_control.h"
 #include "autopilot.h"

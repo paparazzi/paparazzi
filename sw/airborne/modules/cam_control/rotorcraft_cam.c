@@ -40,7 +40,7 @@
 
 #include "modules/cam_control/rotorcraft_cam.h"
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "state.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "std.h"

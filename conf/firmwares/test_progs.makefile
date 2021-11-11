@@ -336,10 +336,10 @@ test_actuators_pwm.srcs   += $(COMMON_TEST_SRCS)
 test_actuators_pwm.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_actuators_pwm.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_actuators_pwm.srcs   += test/test_actuators_pwm.c
-test_actuators_pwm.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c $(SRC_ARCH)/subsystems/actuators/actuators_shared_arch.c
+test_actuators_pwm.srcs   += $(SRC_ARCH)/modules/actuators/actuators_pwm_arch.c $(SRC_ARCH)/modules/actuators/actuators_shared_arch.c
 # only add this so it doesn't fail to build if you also have setup_actuators.xml settings file loaded
 # remove me again when we have auto loading of settings according to subsystem/module/target...
-test_actuators_pwm.srcs   += subsystems/actuators.c
+test_actuators_pwm.srcs   += modules/actuators/actuators.c
 
 
 #
@@ -349,7 +349,7 @@ test_actuators_pwm_sin.ARCHDIR = $(ARCH)
 test_actuators_pwm_sin.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_actuators_pwm_sin.srcs   += $(COMMON_TEST_SRCS)
 test_actuators_pwm_sin.srcs   += test/test_actuators_pwm_sin.c
-test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/subsystems/actuators/actuators_pwm_arch.c $(SRC_ARCH)/subsystems/actuators/actuators_shared_arch.c
+test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/modules/actuators/actuators_pwm_arch.c $(SRC_ARCH)/modules/actuators/actuators_shared_arch.c
 
 
 #
@@ -363,7 +363,7 @@ test_manual.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_manual.srcs   += $(COMMON_TELEMETRY_SRCS)
 
 test_manual.srcs   += subsystems/commands.c
-test_manual.srcs   += subsystems/actuators.c
+test_manual.srcs   += modules/actuators/actuators.c
 test_manual.srcs   += test/test_manual.c
 
 ifeq ($(TARGET), test_manual)

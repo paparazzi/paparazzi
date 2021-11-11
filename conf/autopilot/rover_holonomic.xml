@@ -9,7 +9,7 @@
       <include name="autopilot.h"/>
       <include name="autopilot_rc_helpers.h"/>
       <include name="modules/gps/gps.h"/>
-      <include name="subsystems/actuators.h"/>
+      <include name="modules/actuators/actuators.h"/>
       <include name="navigation.h"/>
       <include name="guidance/rover_guidance_holonomic.h"/>
       <include name="modules/radio_control/radio_control.h"/>

@@ -39,9 +39,9 @@
 #include "led.h"
 
 #include "modules/core/commands.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 #endif
 
 #include "modules/radio_control/radio_control.h"

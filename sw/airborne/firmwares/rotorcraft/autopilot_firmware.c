@@ -79,7 +79,7 @@ static uint32_t autopilot_in_flight_counter;
 
 
 #if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 #endif
 
 static void send_status(struct transport_tx *trans, struct link_device *dev)

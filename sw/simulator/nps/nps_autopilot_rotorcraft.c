@@ -36,7 +36,7 @@
 #include "math/pprz_algebra.h"
 
 #ifndef NPS_NO_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 
 #if NPS_COMMANDS_NB != MOTOR_MIXING_NB_MOTOR
 #warning "NPS_COMMANDS_NB does not match MOTOR_MIXING_NB_MOTOR!"
@@ -50,7 +50,7 @@
 
 // for datalink_time hack
 #include "subsystems/datalink/datalink.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 
 struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;

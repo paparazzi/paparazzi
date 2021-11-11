@@ -62,7 +62,7 @@
 #endif
 
 #if LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #endif
 
 /** Write the log header line according to the enabled parts */

@@ -16,11 +16,11 @@
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_ppm.h" dir="subsystems/actuators"/>
+    <file name="actuators_ppm.h"/>
   </header>
   <makefile target="!sim">
     <define name="SERVOS_PPM_MAT"/>
-    <file_arch name="actuators_ppm_hw.c" dir="subsystems/actuators"/>
+    <file_arch name="actuators_ppm_hw.c"/>
   </makefile>
 </module>
 

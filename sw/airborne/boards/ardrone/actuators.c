@@ -28,7 +28,7 @@
  * Actuator driver for ardrone2 version
  */
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "actuators.h"
 #include "mcu_periph/gpio.h"
 #include "led_hw.h"

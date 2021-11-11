@@ -38,7 +38,7 @@
 #include "mcu_periph/gpio.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/core/commands.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 //#include "modules/energy/electrical.h"
 #include "subsystems/datalink/telemetry.h"
 
