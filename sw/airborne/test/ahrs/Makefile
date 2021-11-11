@@ -36,7 +36,7 @@ SRCS= run_ahrs_on_flight_log.c                    \
 	  ../../math/pprz_trig_int.c                  \
 	  ../../subsystems/ahrs.c                     \
 	  ../../subsystems/ahrs/ahrs_aligner.c        \
-	  ../../subsystems/imu.c                      \
+	  ../../modules/imu/imu.c                      \
       ../../state.c                               \
       ../../math/pprz_orientation_conversion.c    \
       ../../math/pprz_geodetic_double.c           \
@@ -125,8 +125,8 @@ endif
 
 RAOS_SRCS =  ./ahrs_on_synth.c			 \
 			 ../../state.c \
-			 ../../subsystems/imu.c              \
-			 ../../subsystems/imu/imu_dummy.c    \
+			 ../../modules/imu/imu.c              \
+			 ../../modules/imu/imu_dummy.c    \
 			 ../../math/pprz_trig_int.c          \
 			 ../../math/pprz_orientation_conversion.c \
 			 ../../math/pprz_geodetic_int.c \

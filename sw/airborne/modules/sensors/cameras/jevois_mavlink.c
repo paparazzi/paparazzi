@@ -37,7 +37,7 @@
 #include <mavlink/mavlink_types.h>
 #include "mavlink/paparazzi/mavlink.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "autopilot.h"
 #include "generated/modules.h"
 

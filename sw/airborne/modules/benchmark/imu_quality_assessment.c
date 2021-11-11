@@ -22,7 +22,7 @@
 
 #include "imu_quality_assessment.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "generated/airframe.h"
 
 struct imu_quality_assessment_data_struct imu_quality_assessment_data;

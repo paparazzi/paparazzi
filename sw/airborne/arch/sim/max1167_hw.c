@@ -22,7 +22,7 @@
 
 #include "max1167_hw.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 void max1167_hw_init(void) {}
 

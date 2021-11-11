@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_mpu9250" dir="sensors" task="sensors">
+<module name="imu_mpu9250" dir="imu" task="sensors">
   <doc>
     <description>
       Test module for the mpu9250 with I2C

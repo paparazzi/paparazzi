@@ -29,7 +29,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_mpu9250_spi.h" dir="subsystems/imu"/>
+    <file name="imu_mpu9250_spi.h"/>
   </header>
 
   <init fun="imu_mpu9250_init()"/>
@@ -46,6 +46,6 @@
 
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_spi.c" dir="peripherals"/>
-    <file name="imu_mpu9250_spi.c" dir="subsystems/imu"/>
+    <file name="imu_mpu9250_spi.c"/>
   </makefile>
 </module>

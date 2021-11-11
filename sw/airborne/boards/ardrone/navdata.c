@@ -325,7 +325,7 @@ static void *navdata_read(void *data __attribute__((unused)))
   return NULL;
 }
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 static void navdata_publish_imu(void)
 {
   RATES_ASSIGN(imu.gyro_unscaled, navdata.measure.vx, -navdata.measure.vy, -navdata.measure.vz);

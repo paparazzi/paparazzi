@@ -28,7 +28,7 @@
  */
 
 #include "subsystems/ins/hf_float.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "state.h"
 #include "modules/gps/gps.h"
 #include <stdlib.h>

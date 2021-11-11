@@ -30,7 +30,7 @@
 #include "pprzlink/intermcu_msg.h"
 #include "mcu_periph/uart.h"
 #include "modules/core/abi.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "state.h"
 
 /* Main magneto structure */

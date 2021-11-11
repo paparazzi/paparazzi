@@ -24,7 +24,7 @@
  * Enables sending of IMU_MAG_CURRENT_CALIBRATION message.
  */
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/energy/electrical.h"
 
 #include "pprzlink/messages.h"

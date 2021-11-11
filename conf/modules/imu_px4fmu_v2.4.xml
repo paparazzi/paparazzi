@@ -19,7 +19,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_px4fmu_v2.4.h" dir="subsystems/imu"/>
+    <file name="imu_px4fmu_v2.4.h"/>
   </header>
   <init fun="imu_px4_init()"/>
   <periodic fun="imu_px4_periodic()"/>
@@ -42,7 +42,7 @@
     <file name="l3gd20_spi.c" dir="peripherals"/>
     <file name="lsm303d_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_px4fmu_v2.4.c" dir="subsystems/imu"/>
+    <file name="imu_px4fmu_v2.4.c"/>
     <test>
       <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
       <define name="IMU_PX4FMU_SPI_DEV" value="spi1"/>

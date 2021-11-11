@@ -32,7 +32,7 @@
 
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 

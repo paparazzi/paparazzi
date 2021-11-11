@@ -30,7 +30,7 @@
 #define IMU_VECTORNAV_H
 
 // Subsystem
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 // Peripheral
 #include "peripherals/vn200_serial.h"

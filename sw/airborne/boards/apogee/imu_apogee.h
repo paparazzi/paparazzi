@@ -32,7 +32,7 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #if APOGEE_USE_MPU9150
 #include "peripherals/ak8975.h"
 #endif

@@ -33,7 +33,7 @@
 
 #include "state.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 

@@ -36,7 +36,7 @@
 #include "subsystems/ins/ins_int.h"
 #include "modules/radio_control/radio_control.h"
 #include "state.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"

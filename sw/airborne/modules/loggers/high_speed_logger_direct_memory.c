@@ -29,7 +29,7 @@
 
 #include <string.h>
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/uart.h"
 

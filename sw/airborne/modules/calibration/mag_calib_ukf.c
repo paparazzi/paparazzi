@@ -30,7 +30,7 @@
 
 #include "math/pprz_algebra_double.h"
 #include "state.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
 #include "subsystems/ahrs/ahrs_magnetic_field_model.h"

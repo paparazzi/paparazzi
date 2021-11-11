@@ -33,7 +33,7 @@
 #define AHRS_GX3_H
 
 #include "generated/airframe.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/ins.h"
 #include "modules/gps/gps.h"
 #include "mcu_periph/uart.h"

@@ -20,7 +20,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_mpu6000.h" dir="subsystems/imu"/>
+    <file name="imu_mpu6000.h"/>
   </header>
   <init fun="imu_mpu_spi_init()"/>
   <periodic fun="imu_mpu_spi_periodic()"/>
@@ -34,13 +34,13 @@
     <define name="IMU_MPU_SPI_SLAVE_IDX" value="$(IMU_MPU_SPI_SLAVE_IDX)"/>
     <define name="USE_$(IMU_MPU_SPI_SLAVE_IDX)"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_mpu6000.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
-    <file name="imu_mpu6000.c" dir="subsystems/imu"/>
+    <file name="imu_mpu6000.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000.h" type="string"/>
+      <define name="IMU_TYPE_H" value="modules/imu/imu_mpu6000.h" type="string"/>
       <define name="SPI_MASTER"/>
       <define name="IMU_MPU_SPI_DEV" value="spi1"/>
       <define name="USE_SPI1"/>

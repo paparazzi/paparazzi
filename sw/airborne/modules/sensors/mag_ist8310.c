@@ -50,7 +50,7 @@
 #endif
 
 #if MODULE_IST8310_UPDATE_AHRS
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 
 #if defined IST8310_MAG_TO_IMU_PHI && defined IST8310_MAG_TO_IMU_THETA && defined IST8310_MAG_TO_IMU_PSI

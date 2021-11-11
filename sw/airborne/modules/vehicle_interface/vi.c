@@ -21,7 +21,7 @@
 
 #include "vehicle_interface/vi.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/ahrs.h"
 #include "modules/gps/gps.h"
 

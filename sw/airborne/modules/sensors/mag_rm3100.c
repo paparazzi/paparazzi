@@ -58,7 +58,7 @@
 #endif
 
 #if MODULE_RM3100_UPDATE_AHRS
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 
 #if defined RM3100_MAG_TO_IMU_PHI && defined RM3100_MAG_TO_IMU_THETA && defined RM3100_MAG_TO_IMU_PSI

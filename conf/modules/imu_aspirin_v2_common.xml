@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_v2_common" task="sensors">
+<module name="imu_aspirin_v2_common" dir="imu" task="sensors">
   <doc>
     <description>
       Common functionality of Aspirin v2 IMUs.
@@ -27,7 +27,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_aspirin_2_spi.h" dir="subsystems/imu"/>
+    <file name="imu_aspirin_2_spi.h"/>
   </header>
   <init fun="imu_aspirin2_init()"/>
   <periodic fun="imu_aspirin2_periodic()"/>
@@ -41,10 +41,10 @@
     <define name="ASPIRIN_2_SPI_SLAVE_IDX" value="$(ASPIRIN_2_SPI_SLAVE_IDX)"/>
     <define name="USE_$(ASPIRIN_2_SPI_SLAVE_IDX)"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_aspirin_2_spi.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_aspirin_2_spi.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
-    <file name="imu_aspirin_2_spi.c" dir="subsystems/imu"/>
+    <file name="imu_aspirin_2_spi.c"/>
   </makefile>
 </module>

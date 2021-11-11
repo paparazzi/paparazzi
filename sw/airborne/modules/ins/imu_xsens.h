@@ -32,7 +32,7 @@
 
 #include "std.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "xsens.h"
 
 extern void imu_xsens_init(void);

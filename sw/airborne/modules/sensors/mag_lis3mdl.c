@@ -50,7 +50,7 @@
 #endif
 
 #if MODULE_LIS3MDL_UPDATE_AHRS
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 
 #if defined LIS3MDL_MAG_TO_IMU_PHI && defined LIS3MDL_MAG_TO_IMU_THETA && defined LIS3MDL_MAG_TO_IMU_PSI

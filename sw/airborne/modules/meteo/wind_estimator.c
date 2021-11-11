@@ -285,7 +285,7 @@ static inline void wind_estimator_step(void)
 #endif
 }
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 /*----------------wind_estimator_periodic-------------*/
 /*  Put Data from State in struct use by the Thread   */
 /*----------------------------------------------------*/

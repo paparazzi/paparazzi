@@ -48,7 +48,7 @@
 #include "generated/settings.h"
 #include "generated/modules.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/ahrs.h"
 
 static inline void main_init(void);

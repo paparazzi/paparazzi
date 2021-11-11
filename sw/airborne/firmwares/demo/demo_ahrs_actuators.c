@@ -46,7 +46,7 @@
 #include "led.h"
 
 #include "state.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/ahrs.h"
 
 #include "modules/core/commands.h"

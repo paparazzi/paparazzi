@@ -15,7 +15,7 @@
 
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 #define AHRS_TYPE_FLG 0
 #define AHRS_TYPE_FCR 1

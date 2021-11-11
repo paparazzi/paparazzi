@@ -29,7 +29,7 @@
 #include "ahrs_aligner.h"
 
 #include <stdlib.h> /* for abs() */
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "led.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"

@@ -42,7 +42,7 @@
 #include "nps_fdm.h"
 
 #include "modules/radio_control/radio_control.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 #include "modules/core/commands.h"

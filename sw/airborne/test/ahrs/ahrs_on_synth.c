@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "subsystems/ahrs.h"
 #include "../simulator/nps/nps_random.h"
 

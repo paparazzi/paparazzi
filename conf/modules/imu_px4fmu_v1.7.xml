@@ -17,7 +17,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_px4fmu.h" dir="subsystems/imu"/>
+    <file name="imu_px4fmu.h"/>
   </header>
   <init fun="imu_px4fmu_init()"/>
   <periodic fun="imu_px4fmu_periodic()"/>
@@ -34,7 +34,7 @@
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_px4fmu.c" dir="subsystems/imu"/>
+    <file name="imu_px4fmu.c"/>
     <test>
       <define name="IMU_TYPE_H" value="imu/imu_px4fmu.h" type="string"/>
       <define name="SPI_MASTER"/>

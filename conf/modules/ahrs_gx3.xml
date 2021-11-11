@@ -27,7 +27,7 @@
     <define name="USE_IMU"/>
 
     <file name="ahrs.c" dir="subsystems"/>
-    <file name="imu.c" dir="subsystems"/>
+    <file name="imu.c" dir="modules/imu"/>
     <file name="ahrs_gx3.c" dir="subsystems/ahrs"/>
     <test>
       <define name="GX3_PORT" value="uart3"/>

@@ -27,7 +27,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_mpu6000_hmc5883.h" dir="subsystems/imu"/>
+    <file name="imu_mpu6000_hmc5883.h"/>
   </header>
   <init fun="imu_mpu_hmc_init()"/>
   <periodic fun="imu_mpu_hmc_periodic()"/>
@@ -57,11 +57,11 @@
     <define name="IMU_HMC_Y_SIGN" value="1"/>
     <define name="IMU_HMC_Z_SIGN" value="-1"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_mpu6000_hmc5883.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_mpu6000_hmc5883.c" dir="subsystems/imu"/>
+    <file name="imu_mpu6000_hmc5883.c"/>
   </makefile>
 </module>
