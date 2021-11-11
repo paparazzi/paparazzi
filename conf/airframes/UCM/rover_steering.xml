@@ -13,7 +13,9 @@
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
       <module name="fdm" type="rover"/>
-      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+      <!--define name="NPS_BYPASS_AHRS" value="TRUE"/-->
+      <!--define name="NPS_BYPASS_INS"  value="TRUE"/-->
+      <define name="PRINT_TIME"      value="TRUE"/>
     </target>    
     
     <module name="actuators" type="pwm"/>

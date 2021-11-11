@@ -33,16 +33,20 @@
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 
+#include "firmwares/rover/guidance/rover_guidance_steering.h"
+#include "state.h"
 
 // NpsFdm structure
 struct NpsFdm fdm;
 
 // Reference point
 static struct LtpDef_d ltpdef;
-static struct EcefCoor_d ecefdef;
 
-// rover time
-static float rover_time;
+// Physical model's structures
+static struct EcefCoor_d rover_pos;
+static struct EcefCoor_d rover_vel;
+static struct EcefCoor_d rover_acc;
+static struct FloatEulers rover_eul;
 
 // static functions declaration
 static void init_ltp(void);
@@ -54,6 +58,7 @@ void nps_fdm_init(double dt)
   fdm.init_dt = dt; // (1 / simulation freq)
   fdm.curr_dt = 0.001;
   fdm.time = dt;
+
   fdm.nan_count = 0;
   fdm.pressure = -1;
   fdm.pressure_sl = PPRZ_ISA_SEA_LEVEL_PRESSURE;
@@ -61,25 +66,73 @@ void nps_fdm_init(double dt)
   fdm.dynamic_pressure = -1;
   fdm.temperature = -1;
 
-  rover_time = 0;
+  fdm.ltp_to_body_eulers.psi = (double)stateGetNedToBodyEulers_f()->psi;
 
   init_ltp();
 }
 
 void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb __attribute__((unused)))
 { 
+  // Steering rover cmds: 
+  //    COMMAND_STEERING -> delta parameter
+  //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
-  // Podemos traducir el comando como cierta aceleración (está entre -1 y 1)
-  fdm.ecef_ecef_vel.x = fdm.ecef_ecef_vel.x + commands[COMMAND_STEERING]*fdm.curr_dt;
+  double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
+  double speed = FLOAT_VECT2_NORM(fdm.ecef_ecef_vel);
   
-  fdm.ecef_pos = ecefdef;
-  fdm.ecef_pos.x = ecefdef.x + commands[COMMAND_STEERING]*(100.f * cos(rover_time));
-  fdm.ecef_pos.y = ecefdef.y + commands[COMMAND_STEERING]*(100.f * sin(rover_time));
-  rover_time += fdm.curr_dt;
 
+  /** Physical model for car-like robots *********************************/
+  // INIT
+  rover_pos = fdm.ecef_pos;
+  rover_vel = fdm.ecef_ecef_vel;
+  rover_eul  = *stateGetNedToBodyEulers_f();
+  double phi = fdm.ltp_to_body_eulers.psi;
+
+  // EULER INTEGRATION
+  speed += commands[COMMAND_THROTTLE] * fdm.curr_dt;
+
+  double phi_dd = tan(delta) / DRIVE_SHAFT_DISTANCE * commands[COMMAND_THROTTLE];
+  double phi_d  = tan(delta) / DRIVE_SHAFT_DISTANCE * speed;
+  phi += phi_d * fdm.curr_dt;
+
+  // phi have to be contained in [-180º,180º). So:
+  phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
+
+  rover_acc.x = -(commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
+  rover_acc.y = (commands[COMMAND_THROTTLE] * sin(phi) + speed * cos(phi) * phi_d);
+
+  rover_vel.x = -speed * cos(phi);
+  rover_vel.y = speed * sin(phi);
+  
+  rover_pos.x += fdm.ecef_ecef_vel.x * fdm.curr_dt;
+  rover_pos.y += fdm.ecef_ecef_vel.y * fdm.curr_dt;
+
+  /**********************************************************************/
+  /* in ECEF */
+  fdm.ecef_pos = rover_pos;
+  fdm.ecef_ecef_vel = rover_vel;
+  fdm.ecef_ecef_accel= rover_acc;
+
+  /* in LTP pprz */
+  ned_of_ecef_point_d(&fdm.ltpprz_pos, &ltpdef, &fdm.ecef_pos);
+  ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
+
+  /* Euler */
+  fdm.ltp_to_body_eulers.psi = phi;
+  EULERS_COPY(fdm.ltpprz_to_body_eulers, fdm.ltp_to_body_eulers);
+
+  rover_eul.psi = (float)phi;
+  stateSetNedToBodyEulers_f(&rover_eul);
+
+  fdm.body_ecef_rotvel.r   = phi_d;
+  fdm.body_ecef_rotaccel.r = phi_dd;
+
+  // Testing zone //
+  
 }
 
-// Atmosphere functions have not been implemented.
+
+// Atmosphere functions had not been implemented.
 void nps_fdm_set_wind(double speed __attribute__((unused)),
                       double dir __attribute__((unused)))
 {
@@ -101,9 +154,9 @@ void nps_fdm_set_temperature(double temp __attribute__((unused)),
 {
 }
 
-/***************************************************************************
- ** Initial calibration
- ****************************************************************************/
+/*************************
+ ** Initial calibration **
+ *************************/
 
 static void init_ltp(void)
 {
@@ -113,16 +166,17 @@ static void init_ltp(void)
   llh_nav0.lon = RadOfDeg((double)NAV_LON0 / 1e7);
 
   struct EcefCoor_d ecef_nav0;
+
   ecef_of_lla_d(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_d(&ltpdef, &ecef_nav0);
+  ltp_def_from_ecef_d(&ltpdef, &fdm.ecef_pos);
+
+  fdm.ecef_pos = ecef_nav0;
 
   fdm.ltp_g.x = 0.;
   fdm.ltp_g.y = 0.;
   fdm.ltp_g.z = 0.; // accel data are already with the correct format
 
-  ecefdef = ecef_nav0;
-  rover_time = 0;
 
 #ifdef AHRS_H_X
   fdm.ltp_h.x = AHRS_H_X;

@@ -87,7 +87,7 @@ void rover_guidance_steering_periodic(void)
     
     guidance_control.cmd.delta = BoundDelta(guidance_control.cmd.delta);
     commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);
-    commands[COMMAND_THROTTLE] = 0;
+    commands[COMMAND_THROTTLE] = guidance_control.cmd.speed * MAX_PPRZ / 10; // Tmp value. Testing NPS!!
   } 
 
   // FAILSAFE values
