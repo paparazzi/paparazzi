@@ -203,4 +203,6 @@ void sim_overwrite_ins(void)
   VECT3_COPY(ltp_accel, fdm.ltpprz_ecef_accel);
   stateSetAccelNed_f(&ltp_accel);
 
+  // Testing zone //
+  stateGetPositionEnu_i();
 }
