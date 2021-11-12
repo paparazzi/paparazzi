@@ -37,7 +37,7 @@
 
 #ifdef NAV
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "math/pprz_geodetic_float.h"
 #endif
 

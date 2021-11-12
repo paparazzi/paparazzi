@@ -30,8 +30,8 @@
 #include "std.h"
 #include "math/pprz_geodetic_float.h"
 #include "state.h"
-#include "subsystems/navigation/waypoints.h"
-#include "subsystems/navigation/common_flight_plan.h"
+#include "modules/nav/waypoints.h"
+#include "modules/nav/common_flight_plan.h"
 #include "autopilot.h"
 
 /** default approaching_time for a wp */ // FIXME

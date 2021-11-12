@@ -20,26 +20,40 @@
  */
 
 /**
- * @file subsystems/navigation/nav_survey_rectangle.c
- *
- * Automatic survey of a rectangle for fixedwings.
- *
- * Rectangle is defined by two points, sweep can be south-north or west-east.
+ * @file modules/nav/common_flight_plan.c
+ * Common flight_plan functions shared between fixedwing and rotorcraft.
  */
 
-#ifndef NAV_SURVEY_RECTANGLE_H
-#define NAV_SURVEY_RECTANGLE_H
+#include "modules/nav/common_flight_plan.h"
 
-#include "firmwares/fixedwing/nav.h"
-
-typedef enum {NS, WE} survey_orientation_t;
-extern float nav_survey_sweep; //added to allow dynamic grid argument
-
-extern void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so);
-extern void nav_survey_rectangle(uint8_t wp1, uint8_t wp2);
-
-#define NavSurveyRectangleInit(_wp1, _wp2, _grid, _orientation) nav_survey_rectangle_init(_wp1, _wp2, _grid, _orientation)
-#define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
+#include "generated/flight_plan.h"
 
 
-#endif // NAV_SURVEY_RECTANGLE_H
+/** In s */
+uint16_t stage_time, block_time;
+
+uint8_t nav_stage, nav_block;
+
+/** To save the current block/stage to enable return */
+uint8_t last_block, last_stage;
+
+
+void nav_init_block(void)
+{
+  if (nav_block >= NB_BLOCK) {
+    nav_block = NB_BLOCK - 1;
+  }
+  nav_stage = 0;
+  block_time = 0;
+  InitStage();
+}
+
+void nav_goto_block(uint8_t b)
+{
+  if (b != nav_block) { /* To avoid a loop in a the current block */
+    last_block = nav_block;
+    last_stage = nav_stage;
+  }
+  nav_block = b;
+  nav_init_block();
+}

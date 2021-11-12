@@ -20,11 +20,11 @@
  */
 
 /**
- * @file subsystems/navigation/common_nav.c
+ * @file modules/nav/common_nav.c
  *
  */
 
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "generated/flight_plan.h"
 #include "modules/ins/ins.h"
 #include "math/pprz_geodetic_float.h"

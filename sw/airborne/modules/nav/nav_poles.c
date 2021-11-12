@@ -24,7 +24,7 @@
  */
 
 #include "modules/nav/nav_poles.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 
 uint8_t nav_poles_count = 0;
 float nav_poles_time = 0.;

@@ -62,7 +62,7 @@ Receiving:
 #include "modules/gps/gps.h"
 #include "autopilot.h"
 #include "modules/energy/electrical.h"
-//#include "subsystems/navigation/common_nav.h"  //why is should this be needed?
+//#include "modules/nav/common_nav.h"  //why is should this be needed?
 #include "generated/settings.h"
 #include "led.h"
 

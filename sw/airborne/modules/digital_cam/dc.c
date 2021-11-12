@@ -36,7 +36,7 @@
 
 // for waypoints, include correct header until we have unified API
 #ifdef FIXEDWING_FIRMWARE
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #else
 #include "firmwares/rotorcraft/navigation.h"
 #endif

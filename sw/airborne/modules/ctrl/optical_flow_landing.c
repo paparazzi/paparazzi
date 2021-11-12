@@ -51,7 +51,7 @@
 
 // used for automated landing:
 #include "autopilot.h"
-#include "subsystems/navigation/common_flight_plan.h"
+#include "modules/nav/common_flight_plan.h"
 #include "modules/datalink/telemetry.h"
 
 // for measuring time

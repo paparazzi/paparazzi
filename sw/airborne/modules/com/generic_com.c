@@ -33,7 +33,7 @@
 #include "generated/airframe.h"
 #include "inter_mcu.h"
 #include "autopilot.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 
 #define NB_DATA 24
 

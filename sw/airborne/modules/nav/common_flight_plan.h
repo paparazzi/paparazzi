@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/common_flight_plan.h
+ * @file modules/nav/common_flight_plan.h
  * Common flight_plan functions shared between fixedwing and rotorcraft.
  */
 

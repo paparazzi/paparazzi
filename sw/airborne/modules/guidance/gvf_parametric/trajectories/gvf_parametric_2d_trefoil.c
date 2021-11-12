@@ -26,7 +26,7 @@
  * 2D trefoil know
  */
 
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "modules/guidance/gvf_parametric/gvf_parametric.h"
 #include "gvf_parametric_2d_trefoil.h"
 

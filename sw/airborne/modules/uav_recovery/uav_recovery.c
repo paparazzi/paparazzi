@@ -28,7 +28,7 @@
 #include "autopilot.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"

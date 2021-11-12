@@ -26,7 +26,7 @@
 
 #include <math.h>
 #include "cam.h"
-#include "subsystems/navigation/common_nav.h" //needed for WaypointX, WaypointY and ground_alt
+#include "modules/nav/common_nav.h" //needed for WaypointX, WaypointY and ground_alt
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "state.h"

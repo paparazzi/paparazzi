@@ -20,14 +20,14 @@
  */
 
 /**
- * @file subsystems/navigation/nav_survey_rectangle.c
+ * @file modules/nav/nav_survey_rectangle.c
  *
  * Automatic survey of a rectangle for fixedwings.
  *
  * Rectangle is defined by two points, sweep can be south-north or west-east.
  */
 
-#include "subsystems/navigation/nav_survey_rectangle.h"
+#include "modules/nav/nav_survey_rectangle.h"
 #include "state.h"
 
 float nav_survey_sweep;

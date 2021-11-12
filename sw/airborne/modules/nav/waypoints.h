@@ -19,7 +19,7 @@
  */
 
 /**
- * @file subsystems/navigation/waypoints.h
+ * @file modules/nav/waypoints.h
  *
  */
 

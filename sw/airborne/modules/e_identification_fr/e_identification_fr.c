@@ -31,7 +31,7 @@
 #include "generated/flight_plan.h"
 
 #if defined(ROTORCRAFT_FIRMWARE)
-#include "subsystems/navigation/waypoints.h"
+#include "modules/nav/waypoints.h"
 #endif
 
 #define MAX_BUF_LEN 50

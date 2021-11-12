@@ -19,11 +19,11 @@
  */
 
 /**
- * @file subsystems/navigation/waypoints.c
+ * @file modules/nav/waypoints.c
  *
  */
 
-#include "subsystems/navigation/waypoints.h"
+#include "modules/nav/waypoints.h"
 #include "state.h"
 #include "modules/datalink/downlink.h"
 #include "generated/flight_plan.h"

@@ -39,7 +39,7 @@
 #endif
 #include "modules/gps/gps.h"
 #include "math/pprz_geodetic_float.h"
-#include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
+#include "modules/nav/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
 
 /** ABI binding for gps data.

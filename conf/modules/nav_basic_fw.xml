@@ -21,7 +21,7 @@
         <dl_setting MAX="50" MIN="5" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
         <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
-        <dl_setting min="10" max="500" step="1" var="nav_survey_sweep" type="float" shortname="Distance" module="subsystems/navigation/nav_survey_rectangle"/>
+        <dl_setting min="10" max="500" step="1" var="nav_survey_sweep" type="float" shortname="Distance" module="modules/nav/nav_survey_rectangle"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -34,8 +34,8 @@
   <init fun="nav_init()"/>
   <makefile target="ap|sim|nps|hitl" firmware="fixedwing">
     <file name="nav.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="common_flight_plan.c" dir="subsystems/navigation"/>
-    <file name="nav_survey_rectangle.c" dir="subsystems/navigation"/>
+    <file name="common_flight_plan.c"/>
+    <file name="nav_survey_rectangle.c"/>
     <define name="NAV"/>
     <test firmware="fixedwing">
       <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>

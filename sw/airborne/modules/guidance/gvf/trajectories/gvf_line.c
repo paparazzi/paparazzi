@@ -27,7 +27,7 @@
  */
 
 
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "gvf_line.h"
 #include "generated/airframe.h"
 

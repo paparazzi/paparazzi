@@ -26,7 +26,7 @@
  * 3D ellipse (intersection between a cylinder and a tilted plane)
  */
 
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "modules/guidance/gvf_parametric/gvf_parametric.h"
 #include "gvf_parametric_3d_ellipse.h"
 

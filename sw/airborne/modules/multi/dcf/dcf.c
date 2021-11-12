@@ -25,7 +25,7 @@
 #include "modules/muti/dcf/dcf.h"
 //#include "modules/datalink/datalink.h" // dl_buffer
 #include "modules/datalink/telemetry.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "autopilot.h"
 #include "std.h"
 

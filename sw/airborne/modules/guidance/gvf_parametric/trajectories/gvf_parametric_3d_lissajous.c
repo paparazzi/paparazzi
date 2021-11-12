@@ -26,7 +26,7 @@
  * 3D lissajous
  */
 
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "modules/guidance/gvf_parametric/gvf_parametric.h"
 #include "gvf_parametric_3d_lissajous.h"
 

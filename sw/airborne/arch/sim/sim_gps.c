@@ -12,7 +12,7 @@
 #include "math/pprz_geodetic_int.h"
 
 // currently needed for nav_utm_zone0
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 
 #include <caml/mlvalues.h>
 

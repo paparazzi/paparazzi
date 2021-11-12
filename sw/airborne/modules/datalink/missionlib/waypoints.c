@@ -40,8 +40,8 @@
 #include "generated/flight_plan.h"
 
 
-#include "subsystems/navigation/waypoints.h"
-//#include "subsystems/navigation/common_nav.h" // for fixed-wing aircraft
+#include "modules/nav/waypoints.h"
+//#include "modules/nav/common_nav.h" // for fixed-wing aircraft
 
 #include "modules/datalink/missionlib/mission_manager.h"
 

@@ -29,7 +29,7 @@
 #include "modules/guidance/gvf/trajectories/gvf_sin.h"
 
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
 

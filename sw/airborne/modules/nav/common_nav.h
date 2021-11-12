@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/navigation/common_nav.h
+ * @file modules/nav/common_nav.h
  *
  */
 
@@ -29,7 +29,7 @@
 
 #include "std.h"
 #include "state.h"
-#include "subsystems/navigation/common_flight_plan.h"
+#include "modules/nav/common_flight_plan.h"
 
 extern float max_dist_from_home;
 extern float dist2_to_home;
