@@ -6,8 +6,8 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   <header>
 
 #include "autopilot.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/electrical.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/energy/electrical.h"
 #include "modules/datalink/datalink.h"
 
   </header>

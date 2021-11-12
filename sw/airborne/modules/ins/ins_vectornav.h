@@ -22,14 +22,14 @@
 /**
  * @file ins_vectornav.h
  *
- * Vectornav VN-200 INS subsystem
+ * Vectornav VN-200 INS module
  *
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #ifndef INS_VECTORNAV_H
 #define INS_VECTORNAV_H
 
-// Subsystems
+// Modules
 #include "modules/gps/gps.h"
 #include "modules/ins/ins.h"
 

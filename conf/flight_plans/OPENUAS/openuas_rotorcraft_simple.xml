@@ -14,9 +14,9 @@ Your safe aircraft operation is *your* responsibility
 //Set Generic options
     #include "autopilot.h"
 //Enable AHRS Health test functions
-    #include "subsystems/ahrs/ahrs_aligner.h"
+    #include "modules/ahrs/ahrs_aligner.h"
 //Enable advanced electrical power functions
-    #include "subsystems/electrical.h"
+    #include "modules/energy/electrical.h"
 //Enable datalink tests
     #include "modules/datalink/datalink.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"

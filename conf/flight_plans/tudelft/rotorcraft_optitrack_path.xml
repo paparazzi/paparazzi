@@ -5,8 +5,8 @@
   <header>
     #include "autopilot.h"
     #include "modules/radio_control/radio_control.h"
-    #include "subsystems/ahrs.h"
-    #include "subsystems/electrical.h"
+    #include "modules/ahrs/ahrs.h"
+    #include "modules/energy/electrical.h"
     #include "modules/datalink/datalink.h"
   </header>
   <waypoints>

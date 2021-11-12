@@ -28,8 +28,8 @@
  *
  */
 
-#ifndef SUBSYSTEMS_SENSORS_BARO_H
-#define SUBSYSTEMS_SENSORS_BARO_H
+#ifndef SENSORS_BARO_H
+#define SENSORS_BARO_H
 
 #include BOARD_CONFIG
 
@@ -43,4 +43,4 @@
 extern void baro_init(void);
 extern void baro_periodic(void);
 
-#endif /* SUBSYSTEMS_SENSORS_BARO_H */
+#endif /* SENSORS_BARO_H */

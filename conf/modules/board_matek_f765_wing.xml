@@ -3,7 +3,7 @@
 <module name="board_matek_f765_wing" dir="boards">
   <doc>
     <description>
-      Autoload several onboard sensors and subsystems
+      Autoload several onboard sensors and modules
       for the Matek F765 Wing board with proper configuration.
       IMU ICM20602 (auto-detected from MPU6000 driver)
       Baro (BMP280)

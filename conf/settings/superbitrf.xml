@@ -3,7 +3,7 @@
 <settings target="!sim|nps">
   <dl_settings>
     <dl_settings NAME="Superbit">
-      <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="subsystems/settings" values="Store"/>
+      <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="modules/core/settings" values="Store"/>
       <dl_setting var="superbitrf.bind_mfg_id32" type="uint32" min="0" step="1" max="4294967295" shortname ="mfg_id" persistent="true" module="modules/datalink/superbitrf" handler="set_mfg_id"/>
       <dl_setting var="superbitrf.num_channels" type="uint8" min="0" step="1" max="14" shortname ="#chan" persistent="true" module="modules/datalink/superbitrf"/>
       <dl_setting var="superbitrf.protocol" type="uint8" min="0" step="1" max="32" shortname ="prot" persistent="true" module="modules/datalink/superbitrf" handler="set_protocol"/>

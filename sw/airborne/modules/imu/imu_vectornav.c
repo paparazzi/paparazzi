@@ -23,7 +23,7 @@
 /**
  * @file modules/imu/imu_vectornav.c
  *
- * Vectornav VN-200 IMU subsystems, to be used with other AHRS/INS algorithms.
+ * Vectornav VN-200 IMU module, to be used with other AHRS/INS algorithms.
  */
 
 #include "modules/imu/imu_vectornav.h"

@@ -20,10 +20,10 @@ PAPARAZZI_HOME  = getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 # Directories
 conf_dir        = path.join(PAPARAZZI_HOME, "conf/")
 
-firmwares_dir   = path.join(conf_dir, "firmwares/")
+firmwares_dir   = path.join(conf_dir, "modules/firmwares/")
 modules_dir     = path.join(conf_dir, "modules/")
 airframes_dir   = path.join(conf_dir, "airframes/")
-boards_dir      = path.join(conf_dir, "boards/")
+boards_dir      = path.join(conf_dir, "modules/boards/")
 
 flight_plan_dir = path.join(conf_dir, "flight_plans/")
 
@@ -83,16 +83,10 @@ def get_list_of_modules():
     return get_list_of_files( modules_dir, ".xml")
 
 def get_list_of_firmwares():
-    return get_list_of_files( firmwares_dir, ".makefile")
+    return get_list_of_files( firmwares_dir, ".xml")
 
 def get_list_of_boards():
-    return get_list_of_files( boards_dir, ".makefile")
-
-def get_list_of_subsystems(firmware):
-    subsys_dir = path.join( firmwares_dir, "subsystems/" + firmware + "/")
-    # \todo how about shared
-    #subsys_dir = path.join( firmwares_dir, "subsystems/shared/" )
-    return get_list_of_files(subsys_dir, ".makefile")
+    return get_list_of_files( boards_dir, ".xml")
 
 def get_list_of_flight_plan_files():
     mylist = glob.glob(path.join(flight_plan_dir, "*.xml"))
@@ -135,14 +129,8 @@ if __name__ == '__main__':
     boards = get_list_of_boards()
     for b in boards:
       print(" - ```" + b + "```" )
-    print("\nFIRMWARES - SUBSYSTEMS\n---------\n")
+    print("\nFIRMWARES\n---------\n")
     firmwares = get_list_of_firmwares()
-    firmwares.append("shared")
-    for f in firmwares:
-        print(" - " + f)
-        subsystems = get_list_of_subsystems(f)
-        for s in subsystems:
-            print("   - ```", s, "```")
     print("\nMODULES\n-------\n")
     modules  = get_list_of_modules()
     for m in modules:

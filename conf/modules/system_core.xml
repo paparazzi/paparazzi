@@ -14,7 +14,6 @@
   </dep>
   <makefile>
     <configure name="SRC_BOARD" value="boards/$(BOARD)"/>
-    <configure name="SRC_SUBSYSTEMS" value="subsystems"/>
     <configure name="SRC_MODULES" value="modules"/>
     <configure name="SRC_ARCH" value="arch/$(ARCH)"/>
     <define name="BOARD_CONFIG" value="$(BOARD_CFG)"/>

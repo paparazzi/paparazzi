@@ -41,7 +41,7 @@ Include header and declare an ``abi_event`` as a global ``static`` variable (but
 
 .. code-block:: C
 
-    #include "subsystems/abi.h"
+    #include "modules/core/abi.h"
 
     static abi_event ev;
 
@@ -60,7 +60,7 @@ The first parameter is the sender ID you want to receive the message from.
 
 * ``ABI_BROADCAST`` is used to receive messages from all senders.
 * ``ABI_DISABLE`` disable the callback (it will never be called).
-* Senders IDs can be found in the file ``sw/airborne/subsystems/abi_sender_ids.h``
+* Senders IDs can be found in the file ``sw/airborne/modules/core/abi_sender_ids.h``
 
 The second parameter is a pointer to the global ``abi_event`` you declared. This variable **can't** be reused for another bind. You must declare one abi_event per bind.
 
@@ -80,7 +80,7 @@ Include header, then call the send function with the appropriate parameters
     struct foo f;
     AbiSendMsgDATA(SENDER_ID, var, s, &f);
 
-Replace ``SENDER_ID`` by your sender ID defined in ``sw/airborne/subsystems/abi_sender_ids.h``.
+Replace ``SENDER_ID`` by your sender ID defined in ``sw/airborne/modules/core/abi_sender_ids.h``.
 
 Your sender ID identifier should be constructed as the concatenation of the name of the message and the name of your module, suffixed with ``_ID``.
 
@@ -98,7 +98,7 @@ Your sender ID identifier should be constructed as the concatenation of the name
 Code generation
 ---------------
 
-The generated code will be in ``var/include/abi_messages.h`` and include some structure definition from ``sw/airborne/subsystems/abi_common.h`` (``sw/airborne/subsystems/abi.h`` is a convenience header that only includes ``var/include/abi_messages.h``).
+The generated code will be in ``var/include/abi_messages.h`` and include some structure definition from ``sw/airborne/modules/core/abi_common.h`` (``sw/airborne/modules/core/abi.h`` is a convenience header that only includes ``var/include/abi_messages.h``).
 
 Bind and Send functions are generated, as well as callback type definition. A linked list is used to store the binded callbacks for each message. The head of the list is in an array to allow a fast access. 
 
@@ -110,16 +110,16 @@ In depth
 Generated code
 ______________
 
-Here is the code of ``sw/airborne/subsystems/abi_common.h``:
+Here is the code of ``sw/airborne/modules/core/abi_common.h``:
 
 .. code-block:: C
 
     /* Include here headers with structure definition you may want to use with ABI
-     * Ex: '#include "subsystems/gps.h"' in order to use the GpsState structure
+     * Ex: '#include "modules/gps/gps.h"' in order to use the GpsState structure
      */
-    #include "subsystems/gps.h"
+    #include "modules/gps/gps.h"
 
-    #include "subsystems/abi_sender_ids.h"
+    #include "modules/core/abi_sender_ids.h"
 
     #ifdef ABI_C
     #define ABI_EXTERN
@@ -156,7 +156,7 @@ The generated code in ``var/include/abi_messages.h`` for the message defined abo
 .. code-block:: C
 
     // Code generated in var/include/abi_messages.h
-    #include "subsystems/abi_common.h
+    #include "modules/core/abi_common.h
     // Message IDs
     #define ABI_DATA_ID 0
     
@@ -195,5 +195,5 @@ If you want to use ABI outside of one of the Paparazzi firmwares (``rotorcraft``
 .. code-block:: C
 
     #define ABI_C 1
-    #include "subsystems/abi.h"
+    #include "modules/core/abi.h"
 

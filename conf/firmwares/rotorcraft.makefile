@@ -21,7 +21,6 @@
 #
 #
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
-CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/rotorcraft
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 

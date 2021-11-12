@@ -19,18 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file subsystems/actuators/actuators_pwm_arch.h
+/** @file modules/actuators/actuators_dualpwm_arch.h
  *  dummy servos handling for test
  */
 
-#ifndef ACTUATORS_PWM_ARCH_H
-#define ACTUATORS_PWM_ARCH_H
+#ifndef ACTUATORS_DUALPWM_ARCH_H
+#define ACTUATORS_DUALPWM_ARCH_H
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorPwmSet(_i, _v) {}
-#define ActuatorsPwmCommit() {}
+#define ActuatorDualpwmSet(_i, _v) {}
+#define ActuatorsDualPwmCommit() {}
 
-extern void actuators_pwm_arch_init(void);
+extern void actuators_dualpwm_arch_init(void);
 
-#endif /* ACTUATORS_PWM_ARCH_H */
+#endif /* ACTUATORS_DUALPWM_ARCH_H */

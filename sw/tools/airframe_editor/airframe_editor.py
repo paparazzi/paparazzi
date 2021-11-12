@@ -56,11 +56,6 @@ class AirframeEditor:
         list_of_modules = paparazzi.get_list_of_modules()
         self.update_combo(self.modules_combo, list_of_modules)
 
-    def find_subsystems(self, widget):
-        self.textbox.set_text(self.firmwares_combo.get_active_text())
-        list_of_subsystems = paparazzi.get_list_of_subsystems(self.firmwares_combo.get_active_text())
-        self.update_combo(self.subsystems_combo, list_of_subsystems)
-
     def find_boards(self, widget):
         list_of_boards = paparazzi.get_list_of_boards()
         self.update_combo(self.boards_combo, list_of_boards)
@@ -248,9 +243,6 @@ class AirframeEditor:
         self.btnFirmwares = Gtk.Button("Firmwares")
         self.btnFirmwares.connect("clicked", self.find_firmwares)
 
-        self.btnSubSystem = Gtk.Button("SubSystems")
-        self.btnSubSystem.connect("clicked", self.find_subsystems)
-
         self.btnModules = Gtk.Button("Add Modules")
         self.btnModules.connect("clicked", self.find_modules)
 
@@ -272,9 +264,6 @@ class AirframeEditor:
 
         self.firmwares_combo = Gtk.ComboBoxText.new_with_entry()
         self.find_firmwares(self.firmwares_combo)
-        self.firmwares_combo.connect("changed", self.find_subsystems)
-
-        self.subsystems_combo = Gtk.ComboBoxText.new_with_entry()
 
         self.boards_combo = Gtk.ComboBoxText.new_with_entry()
         self.find_boards(self.boards_combo)
@@ -282,10 +271,8 @@ class AirframeEditor:
 
         self.firmwarebar = Gtk.HBox()
         self.firmwarebar.pack_start(self.btnFirmwares, True, True, 0)
-        self.firmwarebar.pack_start(self.btnSubSystem, True, True, 0)
         self.firmwarebar.pack_start(self.firmwares_combo, True, True, 0)
         self.firmwarebar.pack_start(self.boards_combo, True, True, 0)
-        self.firmwarebar.pack_start(self.subsystems_combo, True, True, 0)
 
         self.modules_combo = Gtk.ComboBoxText.new_with_entry()
         self.find_modules(self.modules_combo)

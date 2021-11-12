@@ -30,10 +30,9 @@
 
 SRC_ARCH=arch/$(ARCH)
 SRC_BOARD=boards/$(BOARD)
-SRC_SUBSYSTEMS=subsystems
 SRC_MODULES=modules
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 VPATH += $(PAPARAZZI_HOME)/var/share
 
@@ -338,7 +337,7 @@ test_actuators_pwm.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_actuators_pwm.srcs   += test/test_actuators_pwm.c
 test_actuators_pwm.srcs   += $(SRC_ARCH)/modules/actuators/actuators_pwm_arch.c $(SRC_ARCH)/modules/actuators/actuators_shared_arch.c
 # only add this so it doesn't fail to build if you also have setup_actuators.xml settings file loaded
-# remove me again when we have auto loading of settings according to subsystem/module/target...
+# remove me again when we have auto loading of settings according to module/target...
 test_actuators_pwm.srcs   += modules/actuators/actuators.c
 
 
@@ -354,7 +353,7 @@ test_actuators_pwm_sin.srcs   += $(SRC_ARCH)/modules/actuators/actuators_pwm_arc
 
 #
 # Test manual : a simple test with rc and servos
-# add the desired actuators and radio_control subsystem to this target
+# add the desired actuators and radio_control modules to this target
 #
 test_manual.ARCHDIR = $(ARCH)
 test_manual.CFLAGS += $(COMMON_TEST_CFLAGS)
@@ -362,7 +361,7 @@ test_manual.srcs   += $(COMMON_TEST_SRCS)
 test_manual.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_manual.srcs   += $(COMMON_TELEMETRY_SRCS)
 
-test_manual.srcs   += subsystems/commands.c
+test_manual.srcs   += modules/core/commands.c
 test_manual.srcs   += modules/actuators/actuators.c
 test_manual.srcs   += test/test_manual.c
 
@@ -420,7 +419,7 @@ test_adc.srcs   += test/mcu_periph/test_adc.c
 #
 # test_imu
 #
-# add imu subsystem to test_imu target!
+# add imu module to test_imu target!
 #
 # configuration
 #   SYS_TIME_LED
@@ -434,14 +433,14 @@ test_imu.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_imu.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_imu.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_imu.srcs   += state.c
-test_imu.srcs   += test/subsystems/test_imu.c
+test_imu.srcs   += test/modules/test_imu.c
 test_imu.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
 
 #
 # test_ahrs
 #
-# add imu and ahrs subsystems to test_ahrs target!
+# add imu and ahrs modules to test_ahrs target!
 #
 # configuration
 #   SYS_TIME_LED
@@ -456,7 +455,7 @@ test_ahrs.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_ahrs.srcs   += modules/datalink/telemetry.c
 test_ahrs.CFLAGS += -DPERIODIC_TELEMETRY
 test_ahrs.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_ahrs.srcs   += test/subsystems/test_ahrs.c
+test_ahrs.srcs   += test/modules/test_ahrs.c
 test_ahrs.srcs   += state.c
 test_ahrs.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
@@ -471,7 +470,7 @@ test_radio_control.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_radio_control.srcs   += $(COMMON_TEST_SRCS)
 test_radio_control.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_radio_control.srcs   += $(COMMON_TELEMETRY_SRCS)
-test_radio_control.srcs   += test/subsystems/test_radio_control.c
+test_radio_control.srcs   += test/modules/test_radio_control.c
 
 
 #
@@ -486,9 +485,9 @@ test_settings.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_settings.srcs   += $(COMMON_TEST_SRCS)
 test_settings.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_settings.srcs   += $(COMMON_TELEMETRY_SRCS)
-test_settings.srcs   += subsystems/settings.c
-test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c
-test_settings.srcs   += test/subsystems/test_settings.c
+test_settings.srcs   += modules/core/settings.c
+test_settings.srcs   += $(SRC_ARCH)/modules/core/settings_arch.c
+test_settings.srcs   += test/modules/test_settings.c
 test_settings.CFLAGS += -DUSE_PERSISTENT_SETTINGS
 
 

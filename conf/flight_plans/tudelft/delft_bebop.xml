@@ -4,7 +4,7 @@
   <header>
     #include "autopilot.h"
     #include "modules/datalink/datalink.h"
-    #include "subsystems/electrical.h"
+    #include "modules/energy/electrical.h"
     #include "modules/radio_control/radio_control.h"
 </header>
   <waypoints>

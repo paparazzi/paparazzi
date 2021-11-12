@@ -5,10 +5,9 @@
 
 SRC_ARCH=arch/$(ARCH)
 SRC_BOARD=boards/$(BOARD)
-SRC_SUBSYSTEMS=subsystems
 SRC_MODULES=modules
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 SRC_FIRMWARE=firmwares/setup
 

@@ -216,7 +216,7 @@ static void adc_sample_time_on_all_channels(uint32_t *smpr1, uint32_t *smpr2, ui
  * is collected). Since we are assuming continuous ADC conversion, the ADC state is
  * never equal to ADC_COMPLETE.
  *
- * @note    Averaging is done when the subsystems ask for ADC values
+ * @note    Averaging is done when the modules ask for ADC values
  * @param[in] adcp pointer to a @p ADCDriver object
  * @param[in] buffer pointer to a @p buffer with samples
  * @param[in] n number of samples
