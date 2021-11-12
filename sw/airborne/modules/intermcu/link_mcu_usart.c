@@ -20,7 +20,7 @@
  *
  */
 
-#include "link_mcu_usart.h"
+#include "modules/intermcu/link_mcu_usart.h"
 #include "mcu_periph/uart.h"
 #include "led.h"
 

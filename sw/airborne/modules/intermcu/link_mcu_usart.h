@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,49 +19,33 @@
  */
 
 /**
- * @file link_mcu_spi.h
- * Transport for the communication between FBW and AP via SPI.
+ * @file modules/intermcu/link_mcu_usart.h
+ * Transport for the communication between FBW and AP via UART.
  *
  */
 
-#ifndef LINK_MCU_SPI_H
-#define LINK_MCU_SPI_H
+#ifndef LINK_MCU_USART_H
+#define LINK_MCU_USART_H
 
 #include <inttypes.h>
-#include "inter_mcu.h"
-#include "mcu_periph/spi.h"
-
-#ifndef SITL
-#include "link_mcu_hw.h"
-#endif
+#include "modules/intermcu/inter_mcu.h"
 
 struct link_mcu_msg {
   union  {
     struct fbw_state from_fbw;
     struct ap_state  from_ap;
   } payload;
-  uint16_t checksum;
 };
 
 extern struct link_mcu_msg link_mcu_from_ap_msg;
 extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
-extern struct spi_transaction link_mcu_trans;
-
 extern bool link_mcu_received;
 
+extern void link_mcu_send(void);
 extern void link_mcu_init(void);
 extern void link_mcu_event_task(void);
+extern void link_mcu_periodic_task(void);
 
-#ifdef FBW
-extern void link_mcu_restart(void);
-#endif /* FBW */
 
-#ifdef AP
-extern uint8_t link_mcu_nb_err;
-extern uint8_t link_mcu_fbw_nb_err;
-
-extern void link_mcu_send(void);
-#endif /* AP */
-
-#endif /* LINK_MCU_SPI_H */
+#endif /* LINK_MCU_USART_H */

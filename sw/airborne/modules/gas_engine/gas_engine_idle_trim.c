@@ -25,7 +25,7 @@
 int gas_engine_idle_trim_left = 0;
 int gas_engine_idle_trim_right = 0;
 
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 
 void periodic_gas_engine_idle_trim(void)

@@ -19,7 +19,7 @@
 
 #include <math.h>
 #include <inttypes.h>
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "modules/nav/common_nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"

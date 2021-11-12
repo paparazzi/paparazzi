@@ -20,7 +20,7 @@
  *
  */
 
-/** @file subsystems/intermcu/intermcu_ap.c
+/** @file modules/intermcu/intermcu_ap.c
  *  @brief Rotorcraft Inter-MCU on the autopilot
  */
 

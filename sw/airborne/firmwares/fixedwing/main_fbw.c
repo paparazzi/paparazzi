@@ -57,8 +57,8 @@
 #include "firmwares/fixedwing/fbw_datalink.h"
 #endif
 
-#include "inter_mcu.h"
-#include "link_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/intermcu/link_mcu.h"
 
 uint8_t fbw_mode;
 

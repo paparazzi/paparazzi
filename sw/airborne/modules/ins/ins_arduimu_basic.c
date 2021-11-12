@@ -35,7 +35,7 @@
 
 // Command vector for thrust
 #include "generated/airframe.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #define NB_DATA 9
 

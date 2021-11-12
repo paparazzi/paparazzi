@@ -19,7 +19,7 @@
  */
 
 /**
- * @file inter_mcu.h
+ * @file modules/intermcu/inter_mcu.h
  * Communication between fbw and ap processes.
  *
  * This unit contains the data structure used to communicate between the

@@ -19,8 +19,8 @@
     <provides>intermcu,commands,radio_control</provides>
   </dep>
   <header>
-    <file name="intermcu.h" dir="subsystems" cond="ROTORCRAFT_FIRMWARE"/>
-    <file name="inter_mcu.h" dir="." cond="FIXEDWING_FIRMWARE"/>
+    <file name="intermcu.h" cond="ROTORCRAFT_FIRMWARE"/>
+    <file name="inter_mcu.h" cond="FIXEDWING_FIRMWARE"/>
   </header>
   <init fun="intermcu_init()"/>
   <periodic fun="intermcu_periodic()"/>
@@ -46,7 +46,7 @@
     <define name="INTERMCU_LINK" value="$(INTERMCU_PORT_LOWER)"/>
     <define name="USE_$(INTERMCU_PORT_UPPER)"/>
     <define name="$(INTERMCU_PORT_UPPER)_BAUD" value="$(INTERMCU_BAUD)"/>
-    <file name="link_mcu_usart.c" dir="."/>
+    <file name="link_mcu_usart.c"/>
   </makefile>
 
   <makefile target="fbw" firmware="rotorcraft">
@@ -55,19 +55,19 @@
     <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
     <define name="INTER_MCU_FBW"/>
     <define name="DOWNLINK"/>
-    <file name="intermcu_fbw.c" dir="subsystems/intermcu"/>
+    <file name="intermcu_fbw.c"/>
   </makefile>
   <makefile target="ap" firmware="rotorcraft">
     <configure name="INTERMCU_PORT" default="UART3" case="upper|lower"/>
     <configure name="RADIO_CONTROL_LED" value="none"/>
     <define name="INTER_MCU_AP"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/intermcu/intermcu_ap.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="modules/intermcu/intermcu_ap.h" type="string"/>
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="GPS_SECONDARY_TYPE_H" value="subsystems/intermcu/intermcu_ap.h" type="string" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
+    <define name="GPS_SECONDARY_TYPE_H" value="modules/intermcu/intermcu_ap.h" type="string" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <define name="SECONDARY_GPS" value="GPS_IMCU" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <define name="IMCU_GPS" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
-    <file name="intermcu_ap.c" dir="subsystems/intermcu"/>
+    <file name="intermcu_ap.c"/>
     <file name="radio_control.c" dir="modules/radio_control"/>
   </makefile>
   <makefile target="ap|fbw" firmware="rotorcraft">

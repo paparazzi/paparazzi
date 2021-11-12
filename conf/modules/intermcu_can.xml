@@ -22,7 +22,7 @@
     </raw>
     <define name="INTER_MCU"/>
     <define name="MCU_CAN_LINK"/>
-    <file name="link_mcu_can.c" dir="."/>
+    <file name="link_mcu_can.c"/>
     <file name="can.c" dir="mcu_periph"/>
     <file name="can_arch.c" dir="$(SRC_ARCH)/mcu_periph"/>
   </makefile>

@@ -20,7 +20,7 @@
  *
  */
 
-#include "link_mcu_can.h"
+#include "modules/intermcu/link_mcu_can.h"
 #include "mcu_periph/can.h"
 #include "led.h"
 

@@ -28,7 +28,7 @@
 #define CAM_H
 
 #include <inttypes.h>
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #define CAM_MODE_OFF 0         /* Do nothing */
 #define CAM_MODE_ANGLES 1      /* Input: servo angles */

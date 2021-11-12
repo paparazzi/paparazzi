@@ -33,7 +33,7 @@
 
 // Include Servo and airframe servo channels
 #include "std.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "generated/airframe.h"
 
 #define DC_PUSH(X)    imcu_set_command(X, -MAX_PPRZ);

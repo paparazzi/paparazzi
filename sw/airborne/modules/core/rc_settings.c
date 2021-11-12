@@ -27,7 +27,7 @@
 #include "modules/core/rc_settings.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
 uint8_t rc_settings_mode = 0;

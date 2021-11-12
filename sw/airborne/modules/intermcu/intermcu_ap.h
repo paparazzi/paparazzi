@@ -20,14 +20,14 @@
  *
  */
 
-/** @file subsystems/intermcu/intermcu_ap.h
+/** @file modules/intermcu/intermcu_ap.h
  *  @brief Rotorcraft Inter-MCU on the autopilot
  */
 
 #ifndef INTERMCU_AP_ROTORCRAFT_H
 #define INTERMCU_AP_ROTORCRAFT_H
 
-#include "subsystems/intermcu.h"
+#include "modules/intermcu/intermcu.h"
 #include "generated/airframe.h"
 #include "modules/energy/electrical.h"
 

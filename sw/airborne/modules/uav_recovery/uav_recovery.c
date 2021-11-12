@@ -31,7 +31,7 @@
 #include "modules/nav/common_nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "modules/datalink/datalink.h"
 #include "modules/multi/traffic_info.h"
 #include "uav_recovery.h"

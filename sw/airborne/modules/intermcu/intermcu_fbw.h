@@ -20,14 +20,14 @@
  *
  */
 
-/** @file subsystems/intermcu/intermcu_fbw.h
+/** @file modules/intermcu/intermcu_fbw.h
  *  @brief Rotorcraft Inter-MCU on FlyByWire
  */
 
 #ifndef INTERMCU_FBW_ROTORCRAFT_H
 #define INTERMCU_FBW_ROTORCRAFT_H
 
-#include "subsystems/intermcu.h"
+#include "modules/intermcu/intermcu.h"
 
 extern bool autopilot_motors_on;
 extern pprz_t intermcu_commands[COMMANDS_NB];

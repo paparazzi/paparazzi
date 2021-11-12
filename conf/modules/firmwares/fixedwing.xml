@@ -22,7 +22,7 @@
     <define name="AHRS_MAG_CORRECT_FREQUENCY" value="$(AHRS_MAG_CORRECT_FREQUENCY)" cond="ifdef AHRS_MAG_CORRECT_FREQUENCY"/>
     <include name="$(SRC_FIRMWARE)"/>
     <define name="INTER_MCU"/>
-    <file name="inter_mcu.c" dir="."/>
+    <file name="inter_mcu.c" dir="modules/intermcu"/>
   </makefile>
   <makefile target="ap">
     <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>

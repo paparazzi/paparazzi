@@ -20,7 +20,7 @@
  *
  */
 
-#include "link_mcu_spi.h"
+#include "modules/intermcu/link_mcu_spi.h"
 
 #ifndef LINK_MCU_SPI_DEV
 #define LINK_MCU_SPI_DEV spi1

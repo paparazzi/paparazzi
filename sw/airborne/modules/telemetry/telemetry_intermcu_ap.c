@@ -27,7 +27,7 @@
 #define PERIODIC_C_INTERMCU
 #include "telemetry_intermcu.h"
 #include "telemetry_intermcu_ap.h"
-#include "subsystems/intermcu.h"
+#include "modules/intermcu/intermcu.h"
 #include "pprzlink/intermcu_msg.h"
 #include "pprzlink/short_transport.h"
 #include "generated/periodic_telemetry.h"

@@ -29,8 +29,8 @@
 #include "autopilot.h"
 #include "firmwares/fixedwing/autopilot_static.h"
 
-#include "inter_mcu.h"
-#include "link_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/intermcu/link_mcu.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

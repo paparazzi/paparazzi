@@ -10,7 +10,7 @@
 #include <time.h>
 #include <string.h>
 #include "std.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "autopilot.h"
 #include "modules/gps/gps.h"
 #include "generated/settings.h"

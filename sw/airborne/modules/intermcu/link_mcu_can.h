@@ -19,16 +19,16 @@
  */
 
 /**
- * @file link_mcu_usart.h
- * Transport for the communication between FBW and AP via UART.
+ * @file modules/intermcu/link_mcu_can.h
+ * Transport for the communication between FBW and AP via CAN.
  *
  */
 
-#ifndef LINK_MCU_USART_H
-#define LINK_MCU_USART_H
+#ifndef LINK_MCU_CAN_H
+#define LINK_MCU_CAN_H
 
 #include <inttypes.h>
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 struct link_mcu_msg {
   union  {
@@ -48,4 +48,4 @@ extern void link_mcu_event_task(void);
 extern void link_mcu_periodic_task(void);
 
 
-#endif /* LINK_MCU_USART_H */
+#endif /* LINK_MCU_CAN_H */

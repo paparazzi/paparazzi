@@ -25,7 +25,7 @@
  */
 
 #include "telemetry_intermcu.h"
-#include "subsystems/intermcu.h"
+#include "modules/intermcu/intermcu.h"
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
 #include "modules/datalink/telemetry.h"

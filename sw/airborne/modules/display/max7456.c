@@ -28,7 +28,7 @@
 #include "std.h"
 //#include "stdio.h"
 
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
