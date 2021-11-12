@@ -78,7 +78,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   //    COMMAND_STEERING -> delta parameter
   //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
-  double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
+  double delta = - commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
 
 
   /** Physical model for car-like robots *********************************/
@@ -107,7 +107,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   
   rover_pos.x += rover_vel.x * fdm.curr_dt;
   rover_pos.y += rover_vel.y * fdm.curr_dt;
-
+  
   /**********************************************************************/
   /* in ECEF */
   ecef_of_enu_point_d(&fdm.ecef_pos, &ltpdef, &rover_pos);
@@ -158,9 +158,9 @@ void nps_fdm_set_temperature(double temp __attribute__((unused)),
 {
 }
 
-/*************************
- ** Initial calibration **
- *************************/
+/**************************
+ ** Generating LTP plane **
+ **************************/
 
 static void init_ltp(void)
 {
