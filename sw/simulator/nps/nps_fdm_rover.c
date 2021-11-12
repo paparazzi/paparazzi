@@ -61,6 +61,8 @@ void nps_fdm_init(double dt)
   fdm.curr_dt = 0.001;
   fdm.time = dt;
 
+  fdm.on_ground = TRUE;
+
   fdm.nan_count = 0;
   fdm.pressure = -1;
   fdm.pressure_sl = PPRZ_ISA_SEA_LEVEL_PRESSURE;
@@ -98,7 +100,6 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   // phi have to be contained in [-180º,180º). So:
   phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
 
-  rover_acc.z = 0.0;
   rover_acc.x = (commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
   rover_acc.y = (commands[COMMAND_THROTTLE] * sin(phi) + speed * cos(phi) * phi_d);
 
@@ -107,8 +108,9 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   
   rover_pos.x += rover_vel.x * fdm.curr_dt;
   rover_pos.y += rover_vel.y * fdm.curr_dt;
-  
+
   /**********************************************************************/
+
   /* in ECEF */
   ecef_of_enu_point_d(&fdm.ecef_pos, &ltpdef, &rover_pos);
   ecef_of_enu_vect_d(&fdm.ecef_ecef_vel, &ltpdef, &rover_vel);
@@ -132,7 +134,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   fdm.body_ecef_rotaccel.r = phi_dd;
 
   // Testing zone //
-  
+
 }
 
 
