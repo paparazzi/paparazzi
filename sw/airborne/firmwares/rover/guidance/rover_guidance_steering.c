@@ -73,7 +73,7 @@ void rover_guidance_steering_periodic(void)
   if (autopilot_get_mode() == AP_MODE_ASSISTED) {
     delta = 0.0;
     if (fabs(guidance_control.omega)>0.0) {
-      delta += -atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / speed);
+      delta += atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / speed);
     }
     delta *= 180/M_PI;
 
