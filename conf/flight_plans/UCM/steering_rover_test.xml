@@ -55,6 +55,7 @@
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     
     <block name="Start Engine">

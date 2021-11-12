@@ -46,7 +46,9 @@ static struct LtpDef_d ltpdef;
 static struct EnuCoor_d rover_pos;
 static struct EnuCoor_d rover_vel;
 static struct EnuCoor_d rover_acc;
-static struct FloatEulers rover_eul;
+
+// Physical parameters
+static float mu = 0.1;
 
 // static functions declaration
 static void init_ltp(void);
@@ -66,8 +68,7 @@ void nps_fdm_init(double dt)
   fdm.dynamic_pressure = -1;
   fdm.temperature = -1;
 
-  fdm.ltp_to_body_eulers.psi = (double)stateGetNedToBodyEulers_f()->psi;
-
+  fdm.ltpprz_to_body_eulers.psi = 0.0;
   init_ltp();
 }
 
@@ -79,20 +80,16 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
 
   double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
 
-  enu_of_ecef_point_d(&rover_pos, &ltpdef, &fdm.ecef_pos);
-  enu_of_ecef_vect_d(&rover_vel, &ltpdef, &fdm.ecef_ecef_vel);
-  double speed = FLOAT_VECT2_NORM(rover_vel);
-
 
   /** Physical model for car-like robots *********************************/
   // INIT
-  //rover_pos  = fdm.ltpprz_pos;
-  //rover_vel  = fdm.ltp_ecef_vel;
-  rover_eul  = *stateGetNedToBodyEulers_f();
-  double phi = fdm.rover_eul.psi;
+  enu_of_ecef_point_d(&rover_pos, &ltpdef, &fdm.ecef_pos);
+  enu_of_ecef_vect_d(&rover_vel, &ltpdef, &fdm.ecef_ecef_vel);
+  double speed = FLOAT_VECT2_NORM(rover_vel);
+  double phi = fdm.ltpprz_to_body_eulers.psi;
 
   // EULER INTEGRATION
-  speed += commands[COMMAND_THROTTLE] * fdm.curr_dt;
+  speed += (commands[COMMAND_THROTTLE] - mu*speed) * fdm.curr_dt;
 
   double phi_dd = tan(delta) / DRIVE_SHAFT_DISTANCE * commands[COMMAND_THROTTLE];
   double phi_d  = tan(delta) / DRIVE_SHAFT_DISTANCE * speed;
@@ -101,6 +98,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   // phi have to be contained in [-180º,180º). So:
   phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
 
+  rover_acc.z = 0.0;
   rover_acc.x = (commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
   rover_acc.y = (commands[COMMAND_THROTTLE] * sin(phi) + speed * cos(phi) * phi_d);
 
@@ -111,21 +109,24 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   rover_pos.y += rover_vel.y * fdm.curr_dt;
 
   /**********************************************************************/
-  /* in LTP pprz */
-  //fdm.ltpprz_pos = rover_pos;
-  //fdm.ltp_ecef_vel = rover_vel;
-  //fdm.ltp_ecef_accel= rover_acc;
-
   /* in ECEF */
   ecef_of_enu_point_d(&fdm.ecef_pos, &ltpdef, &rover_pos);
   ecef_of_enu_vect_d(&fdm.ecef_ecef_vel, &ltpdef, &rover_vel);
+  ecef_of_enu_vect_d(&fdm.ecef_ecef_accel, &ltpdef, &rover_acc);
+
+  /* in NED */
+  ned_of_ecef_point_d(&fdm.ltpprz_pos, &ltpdef, &fdm.ecef_pos);
+  ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
+  ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
 
   /* Euler */
-  fdm.ltp_to_body_eulers.psi = phi;
-  EULERS_COPY(fdm.ltpprz_to_body_eulers, fdm.ltp_to_body_eulers);
+  fdm.ltpprz_to_body_eulers.psi = phi;
 
-  rover_eul.psi = (float)phi;
-  stateSetNedToBodyEulers_f(&rover_eul);
+  // ENU to NED and exporting heading (psi euler angle)
+  fdm.ltp_to_body_eulers.psi = - phi + M_PI / 2;
+
+  // Exporting Eulers to AHRS (in quaternions)
+  double_quat_of_eulers(&fdm.ltp_to_body_quat, &fdm.ltp_to_body_eulers);
 
   fdm.body_ecef_rotvel.r   = phi_d; 
   fdm.body_ecef_rotaccel.r = phi_dd;
