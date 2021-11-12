@@ -31,13 +31,13 @@
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 
 #if FLIGHTRECORDER_SDLOG
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "modules/loggers/pprzlog_tp.h"
 #include "modules/loggers/sdlog_chibios.h"
 #endif

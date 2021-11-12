@@ -35,7 +35,7 @@
 // FIXME Debugging Only
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 /* output mode : calibrated, orientation, position, velocity, status

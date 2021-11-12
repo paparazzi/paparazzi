@@ -3,7 +3,7 @@
      can finish it -->
 <flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

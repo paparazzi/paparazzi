@@ -40,11 +40,11 @@
 #include "led.h"
 #include "mcu_periph/i2c.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/downlink.h"
+#include "modules/datalink/telemetry.h"
 #include "modules/datalink/pprz_dl.h"
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "generated/settings.h"
 #include "generated/modules.h"
 

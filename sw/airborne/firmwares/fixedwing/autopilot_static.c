@@ -44,7 +44,7 @@
 #endif
 static bool gps_lost;
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;

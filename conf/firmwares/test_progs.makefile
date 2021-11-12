@@ -69,7 +69,7 @@ endif
 
 # pprz downlink/datalink
 COMMON_TELEMETRY_CFLAGS = -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-COMMON_TELEMETRY_SRCS   = subsystems/datalink/downlink.c pprzlink/src/pprz_transport.c modules/datalink/pprz_dl.c
+COMMON_TELEMETRY_SRCS   = modules/datalink/downlink.c pprzlink/src/pprz_transport.c modules/datalink/pprz_dl.c
 
 # check if we are using UDP
 ifneq (,$(findstring UDP, $(MODEM_DEV)))
@@ -453,7 +453,7 @@ test_ahrs.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TEST_SRCS)
 test_ahrs.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TELEMETRY_SRCS)
-test_ahrs.srcs   += subsystems/datalink/telemetry.c
+test_ahrs.srcs   += modules/datalink/telemetry.c
 test_ahrs.CFLAGS += -DPERIODIC_TELEMETRY
 test_ahrs.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_ahrs.srcs   += test/subsystems/test_ahrs.c

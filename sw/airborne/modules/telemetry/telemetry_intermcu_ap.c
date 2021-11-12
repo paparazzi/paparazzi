@@ -31,8 +31,8 @@
 #include "pprzlink/intermcu_msg.h"
 #include "pprzlink/short_transport.h"
 #include "generated/periodic_telemetry.h"
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/datalink/datalink.h"
 
 /* Telemetry InterMCU throughput */
 struct telemetry_intermcu_t telemetry_intermcu;

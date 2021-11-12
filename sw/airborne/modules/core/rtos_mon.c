@@ -25,7 +25,7 @@
 
 #include "modules/core/sys_mon.h"
 #include "modules/core/sys_mon_rtos.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct rtos_monitoring rtos_mon;
 

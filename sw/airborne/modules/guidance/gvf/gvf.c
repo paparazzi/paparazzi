@@ -44,7 +44,7 @@ gvf_seg gvf_segment;
 uint32_t gvf_t0 = 0;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_gvf(struct transport_tx *trans, struct link_device *dev)
 {
   // Do not know whether is a good idea to do this check here or to include

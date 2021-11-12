@@ -3,7 +3,7 @@
 <flight_plan alt="190" ground_alt="185" lat0="43.462976" lon0="1.2733345" max_dist_from_home="50" name="Demo fish nav Muret outdoor" security_height="0.3">
   <header>
 #include "autopilot.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>

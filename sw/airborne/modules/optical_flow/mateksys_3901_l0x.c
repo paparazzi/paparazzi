@@ -35,7 +35,7 @@
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 // Define configuration parameters
@@ -82,7 +82,7 @@ struct Mateksys3901l0X mateksys3901l0x = {
 static void mateksys3901l0x_parse(uint8_t byte);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 /**
  * Downlink message flow and lidar (included velocity estimation, not yet tested)

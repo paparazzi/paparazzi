@@ -34,7 +34,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 #ifndef ADC_CHANNEL_HUMID_HIH

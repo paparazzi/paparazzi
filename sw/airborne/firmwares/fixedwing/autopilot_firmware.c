@@ -39,7 +39,7 @@ uint8_t lateral_mode;
 uint8_t  mcu1_status;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/settings.h"
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS

@@ -31,7 +31,7 @@
 
 #include "state.h"
 #include "generated/flight_plan.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct georeference_filter_t {
   struct Int32Vect3 x;          ///< Target

@@ -27,7 +27,7 @@
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 //struct qr_code_spi_link_data qr_code_spi_link_data;
 struct spi_transaction qr_code_spi_link_transaction;

@@ -2,7 +2,7 @@
 
 <flight_plan alt="1548.0" ground_alt="1347.02" lat0="41.81415234" lon0="-111.97922965" max_dist_from_home="3160.158327555416" name="cacheJct" security_height="25">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

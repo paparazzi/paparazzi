@@ -45,7 +45,7 @@
 #include "modules/core/abi_sender_ids.h"
 
 #include "std.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 mavlink_system_t mavlink_system;

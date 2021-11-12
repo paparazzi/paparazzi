@@ -13,9 +13,9 @@
     <dl_settings>
       <dl_settings NAME="Superbit">
         <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="modules/core" values="Store"/>
-        <dl_setting var="superbitrf.bind_mfg_id32" type="uint32" min="0" step="1" max="4294967295" shortname ="mfg_id" persistent="true" module="subsystems/datalink/superbitrf" handler="set_mfg_id"/>
-        <dl_setting var="superbitrf.num_channels" type="uint8" min="0" step="1" max="14" shortname ="#chan" persistent="true" module="subsystems/datalink/superbitrf"/>
-        <dl_setting var="superbitrf.protocol" type="uint8" min="0" step="1" max="32" shortname ="prot" persistent="true" module="subsystems/datalink/superbitrf" handler="set_protocol"/>
+        <dl_setting var="superbitrf.bind_mfg_id32" type="uint32" min="0" step="1" max="4294967295" shortname ="mfg_id" persistent="true" module="modules/datalink/superbitrf" handler="set_mfg_id"/>
+        <dl_setting var="superbitrf.num_channels" type="uint8" min="0" step="1" max="14" shortname ="#chan" persistent="true" module="modules/datalink/superbitrf"/>
+        <dl_setting var="superbitrf.protocol" type="uint8" min="0" step="1" max="32" shortname ="prot" persistent="true" module="modules/datalink/superbitrf" handler="set_protocol"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -41,7 +41,7 @@
     <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
     <file name="radio_control.c"/>
     <file name="superbitrf_rc.c"/>
-    <file name="superbitrf.c" dir="subsystems/datalink"/>
+    <file name="superbitrf.c" dir="modules/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
@@ -52,7 +52,7 @@
     <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
     <file name="radio_control.c"/>
     <file name="superbitrf_rc.c"/>
-    <file name="superbitrf.c" dir="subsystems/datalink"/>
+    <file name="superbitrf.c" dir="modules/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
     <test>
       <define name="RADIO_CONTROL"/>

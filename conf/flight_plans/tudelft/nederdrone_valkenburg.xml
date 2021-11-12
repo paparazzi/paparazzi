@@ -3,7 +3,7 @@
 <flight_plan alt="60" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="5000" name="Nederdrone Valkenburg" security_height="2">
   <header>
     #include "autopilot.h"
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="12.6" y="-48.7"/>

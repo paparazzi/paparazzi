@@ -42,7 +42,7 @@ static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buf
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void mag_pitot_raw_downlink(struct transport_tx *trans, struct link_device *dev)
 {

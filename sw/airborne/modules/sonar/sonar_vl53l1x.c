@@ -30,7 +30,7 @@
 #include "state.h"
 #endif
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 #ifndef SONAR_VL53L1X_I2C_ADDR

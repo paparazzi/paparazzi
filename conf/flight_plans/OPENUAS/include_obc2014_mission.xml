@@ -57,7 +57,7 @@ TESTS:
 //Enable advanced electrical power functions
     #include "subsystems/electrical.h"
 //Enable datalink tests
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/datalink/datalink.h"
 //For interaction with the Flight termination Device (FTD)
     #define RCChannel(_x) ((*fbw_state).channels[_x])
 

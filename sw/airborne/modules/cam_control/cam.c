@@ -34,7 +34,7 @@
 #include "point.h"
 #endif // POINT_CAM
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #ifdef TEST_CAM
 float test_cam_estimator_x;

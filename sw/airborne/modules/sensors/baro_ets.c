@@ -52,7 +52,7 @@
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif //BARO_ETS_SYNC_SEND
 
 #define BARO_ETS_ADDR 0xE8

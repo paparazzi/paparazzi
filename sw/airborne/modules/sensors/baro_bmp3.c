@@ -32,7 +32,7 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /** default slave address */
 #ifndef BMP3_SLAVE_ADDR

@@ -178,7 +178,7 @@ struct link_mcu_msg link_mcu_from_fbw_msg;
 
 
 #ifdef AP
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #define RC_OK          0
 #define RC_LOST        1

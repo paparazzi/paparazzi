@@ -37,7 +37,7 @@
 #include "message_pragmas.h"
 
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /* Main device strcuture */
 struct laser_range_array_t {

@@ -26,7 +26,7 @@
 #ifndef RADIO_CONTROL_SUPERBITRF_RC_H
 #define RADIO_CONTROL_SUPERBITRF_RC_H
 
-#include "subsystems/datalink/superbitrf.h"
+#include "modules/datalink/superbitrf.h"
 
 /* Theoretically you could have 14 channel over DSM2/DSMX */
 #ifndef RADIO_CONTROL_NB_CHANNEL

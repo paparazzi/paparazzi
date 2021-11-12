@@ -40,7 +40,7 @@
 #include "modules/core/abi.h"
 #include <pthread.h>
 #include <unistd.h>
-#include "subsystems/datalink/downlink.h"//FIXME, include only when link need
+#include "modules/datalink/downlink.h"//FIXME, include only when link need
 
 #include "filters/median_filter.h"
 

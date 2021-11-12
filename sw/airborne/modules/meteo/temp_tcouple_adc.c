@@ -31,7 +31,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/meteo/temp_tcouple_adc.h"
 
 #ifndef ADC_CHANNEL_TEMP_REF

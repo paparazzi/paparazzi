@@ -161,7 +161,7 @@ static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 struct InsInt ins_int;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {

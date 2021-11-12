@@ -33,7 +33,7 @@
 //Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 //#include "gps.h"
 
 #define BARO_AMSYS_ADDR 0xE4

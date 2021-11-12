@@ -81,7 +81,7 @@
 #define SEND_WIND_ESTIMATOR TRUE
 #endif
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 static void send_wind_estimator(struct transport_tx *trans, struct link_device *dev)
 {
@@ -97,7 +97,7 @@ static void send_wind_estimator(struct transport_tx *trans, struct link_device *
 }
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #ifndef LOG_WIND_ESTIMATOR

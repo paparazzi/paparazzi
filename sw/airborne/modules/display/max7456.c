@@ -48,7 +48,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #endif
 #if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 // Peripherials

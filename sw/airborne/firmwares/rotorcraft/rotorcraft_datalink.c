@@ -25,7 +25,7 @@
  *
  */
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 #include "pprzlink/dl_protocol.h"
 

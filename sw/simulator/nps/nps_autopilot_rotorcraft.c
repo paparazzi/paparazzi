@@ -46,10 +46,10 @@
 #include "modules/core/abi.h"
 
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 // for datalink_time hack
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "modules/actuators/actuators.h"
 
 struct NpsAutopilot nps_autopilot;

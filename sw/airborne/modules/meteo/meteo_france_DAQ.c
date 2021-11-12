@@ -35,8 +35,8 @@
 
 #include "state.h"
 #include "autopilot.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/loggers/sdlog_chibios.h"
 #include "modules/loggers/pprzlog_tp.h"
 

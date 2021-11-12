@@ -7,17 +7,17 @@
     </description>
   </doc>
   <header>
-    <file name="telemetry.h" dir="subsystems/datalink"/>
-    <file name="datalink.h" dir="subsystems/datalink"/>
-    <file name="downlink.h" dir="subsystems/datalink"/>
+    <file name="telemetry.h"/>
+    <file name="datalink.h"/>
+    <file name="downlink.h"/>
   </header>
   <init fun="downlink_init()"/>
   <makefile>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
-    <file name="downlink.c" dir="subsystems/datalink"/>
-    <file name="datalink.c" dir="subsystems/datalink"/>
-    <file name="telemetry.c" dir="subsystems/datalink"/>
+    <file name="downlink.c"/>
+    <file name="datalink.c"/>
+    <file name="telemetry.c"/>
     <test firmware="fixedwing">
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart1"/>

@@ -44,7 +44,7 @@
 #define PERIODIC_C_EXTRA
 
 #include "modules/datalink/extra_pprz_dl.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 // By default don't update datalink_time when receiving messages from extra datalink
 #ifndef EXTRA_PPRZ_UPDATE_DL

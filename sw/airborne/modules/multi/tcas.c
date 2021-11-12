@@ -30,7 +30,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"  // SECURITY_HEIGHT
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 float tcas_alt_setpoint;
 float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;

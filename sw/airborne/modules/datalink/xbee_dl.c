@@ -24,7 +24,7 @@
  */
 
 #include "modules/datalink/xbee_dl.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"

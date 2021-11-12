@@ -23,7 +23,7 @@
 
 #include "modules/energy/MPPT.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 

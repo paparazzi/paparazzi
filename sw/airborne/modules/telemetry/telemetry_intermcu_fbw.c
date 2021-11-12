@@ -28,7 +28,7 @@
 #include "subsystems/intermcu.h"
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "firmwares/rotorcraft/main_fbw.h"
 
 #define MSG_SIZE 256

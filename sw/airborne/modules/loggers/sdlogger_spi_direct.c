@@ -30,9 +30,9 @@
 #define PERIODIC_C_LOGGER
 
 #include "modules/loggers/sdlogger_spi_direct.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/loggers/pprzlog_tp.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "led.h"
 
 #include <stdbool.h>

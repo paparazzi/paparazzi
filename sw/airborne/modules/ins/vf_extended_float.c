@@ -44,7 +44,7 @@ PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
 #if DEBUG_VFF_EXTENDED
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 /** initial covariance diagonal */
@@ -91,7 +91,7 @@ struct VffExtended vff;
 void vff_update_obs_height(float obs_height);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_vffe(struct transport_tx *trans, struct link_device *dev)
 {

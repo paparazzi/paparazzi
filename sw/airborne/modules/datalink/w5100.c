@@ -21,12 +21,12 @@
  */
 
 /**
- * @file subsystems/datalink/w5100.c
+ * @file modules/datalink/w5100.c
  * W5100 ethernet chip I/O
  */
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/w5100.h"
+#include "modules/datalink/w5100.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
 

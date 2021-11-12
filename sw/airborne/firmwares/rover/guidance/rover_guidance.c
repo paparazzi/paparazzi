@@ -35,7 +35,7 @@
 struct RoverGuidance rover_guidance;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 // TODO rover guidance messages
 #endif
 

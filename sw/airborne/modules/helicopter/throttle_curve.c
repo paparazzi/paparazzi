@@ -63,7 +63,7 @@ struct throttle_curve_t throttle_curve = {
 };
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void throttle_curve_send_telem(struct transport_tx *trans, struct link_device *dev)
 {

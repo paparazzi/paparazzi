@@ -84,7 +84,7 @@ struct AttRefQuatInt att_ref_quat_i;
 #define GAIN_PRESCALER_I 3
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)   //FIXME really use this message here ?
 {

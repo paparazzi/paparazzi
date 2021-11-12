@@ -31,9 +31,9 @@
 #define ABI_C
 #define MODULES_C
 
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/core/abi.h"
 
 #include "generated/airframe.h"

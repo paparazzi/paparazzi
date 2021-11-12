@@ -32,7 +32,7 @@
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /* Static functions used in the different statuses */
 static bool cyrf6936_write_register(struct Cyrf6936 *cyrf, const uint8_t addr, const uint8_t data);

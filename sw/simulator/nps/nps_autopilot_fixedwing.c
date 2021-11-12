@@ -53,11 +53,11 @@
 #include "autopilot.h"
 
 // for datalink_time hack
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 #if USE_SONAR
 // for sonar/lidar agl
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 struct NpsAutopilot nps_autopilot;

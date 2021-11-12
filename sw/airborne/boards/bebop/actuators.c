@@ -33,7 +33,7 @@
 #include "modules/core/abi.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
 static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)

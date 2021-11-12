@@ -29,7 +29,7 @@
 #include "modules/stereocam/stereocam.h"
 
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "pprzlink/messages.h"
 #include "pprzlink/intermcu_msg.h"
 

@@ -40,7 +40,7 @@ static bool ahrs_vectornav_output_enabled;
 static uint8_t ahrs_vectornav_id = AHRS_COMP_ID_VECTORNAV;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
 {

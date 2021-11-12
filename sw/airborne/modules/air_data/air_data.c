@@ -184,7 +184,7 @@ static void incidence_cb(uint8_t __attribute__((unused)) sender_id, uint8_t flag
 }
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_baro_raw(struct transport_tx *trans, struct link_device *dev)
 {

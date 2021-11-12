@@ -94,7 +94,7 @@ uint16_t dc_photo_nr = 0;
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "state.h"
 #include "modules/gps/gps.h"
 #if DC_SHOT_EXTRA_DL

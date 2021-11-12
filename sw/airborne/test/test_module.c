@@ -35,7 +35,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/modules.h"
 #include "modules/core/abi.h"
 

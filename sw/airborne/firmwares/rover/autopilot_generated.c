@@ -33,7 +33,7 @@
 #include "modules/core/commands.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/settings.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #include "generated/settings.h"
 

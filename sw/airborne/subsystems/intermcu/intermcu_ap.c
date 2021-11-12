@@ -56,7 +56,7 @@ static struct GpsState gps_imcu;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 /* Send FBW status */
 static void send_status(struct transport_tx *trans, struct link_device *dev)

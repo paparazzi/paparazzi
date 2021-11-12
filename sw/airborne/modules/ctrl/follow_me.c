@@ -25,7 +25,7 @@
 
 #include "follow_me.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/modules.h"
 
 // Distance to the target to hover from is by default 15 meters

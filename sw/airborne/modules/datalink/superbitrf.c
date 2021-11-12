@@ -20,11 +20,11 @@
  */
 
 /**
- * @file subsystems/datalink/superbitrf.c
+ * @file modules/datalink/superbitrf.c
  * DSM2 and DSMX datalink implementation for the cyrf6936 2.4GHz radio chip trough SPI
  */
 
-#include "subsystems/datalink/superbitrf.h"
+#include "modules/datalink/superbitrf.h"
 
 #include <string.h>
 #include "paparazzi.h"
@@ -183,7 +183,7 @@ static const uint8_t pn_codes[5][9][8] = {
 static const uint8_t pn_bind[] = { 0x98, 0x88, 0x1B, 0xE4, 0x30, 0x79, 0x03, 0x84 };
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_superbit(struct transport_tx *trans, struct link_device *dev)
 {

@@ -35,7 +35,7 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "imu_temp_ctrl.h"
 
 uint8_t imu_temp_ctrl_ok = 0;

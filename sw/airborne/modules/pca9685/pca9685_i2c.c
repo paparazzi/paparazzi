@@ -40,7 +40,7 @@
 #include "mcu_periph/uart.h"
 
 #if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 

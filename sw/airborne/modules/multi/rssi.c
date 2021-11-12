@@ -25,7 +25,7 @@
 
 #include "modules/multi/rssi.h"
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "pprzlink/messages.h"
 
 #include "modules/core/abi.h"                 // rssi messages subscription

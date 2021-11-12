@@ -5,7 +5,7 @@
     <description>
       Telemetry using PPRZ protocol over UART
 
-      Currently used as a makefile wrapper over the telemetry_transparent subsystem
+      Currently used as a makefile wrapper over the telemetry_transparent modules
     </description>
     <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
     <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>

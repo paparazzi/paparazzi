@@ -42,7 +42,7 @@ static uint8_t ahrs_fc_id = AHRS_COMP_ID_FC;
 static void compute_body_orientation_and_rates(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 

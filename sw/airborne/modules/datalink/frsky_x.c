@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/radio_control/cc2500_frsky/cc2500_smartport.h"
-#include "subsystems/datalink/frsky_x.h"
+#include "modules/radio_control/cc2500_frsky/cc2500_smartport.h"
+#include "modules/datalink/frsky_x.h"
 
 #include <string.h>
 

@@ -145,7 +145,7 @@ int32_t guidance_v_thrust_coeff;
 static int32_t get_vertical_thrust_coeff(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_vert_loop(struct transport_tx *trans, struct link_device *dev)
 {

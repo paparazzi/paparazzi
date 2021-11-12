@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/datalink/downlink.h" // TODO remove before PR
+#include "modules/datalink/downlink.h" // TODO remove before PR
 
 #include "cc2500.h"
 
@@ -63,7 +63,7 @@ static void cc2500_delayMicroseconds(uint32_t us) {
   float start = get_sys_time_float();
   while(get_sys_time_float() < start + (us / 1.0e6)) ;
 }
-// Fix naming conflict with subsystems/radio_control/cc2500_frsky delayMicroseconds
+// Fix naming conflict with modules/radio_control/cc2500_frsky delayMicroseconds
 #ifdef delayMicroseconds
 #undef delayMicroseconds
 #endif

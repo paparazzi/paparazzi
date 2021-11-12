@@ -20,7 +20,7 @@
  *
  */
 
-/** @file subsystems/datalink/telemetry_common.h
+/** @file modules/datalink/telemetry_common.h
  *
  *  Common tools for periodic telemetry interface
  *  Allows subsystem to register callback functions

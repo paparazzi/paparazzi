@@ -34,7 +34,7 @@
 #include "led.h"
 #include "mcu_periph/i2c.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/datalink/pprz_dl.h"
 
 #include "modules/imu/imu.h"

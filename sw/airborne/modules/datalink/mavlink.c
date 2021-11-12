@@ -34,7 +34,7 @@
 
 #if PERIODIC_TELEMETRY
 #define PERIODIC_C_MAVLINK
-#include "subsystems/datalink/telemetry_common.h"
+#include "modules/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
 #ifndef TELEMETRY_MAVLINK_NB_MSG
 #warning Using hardcoded msg periods. To customize specify a <process name="Mavlink" type="mavlink"> in your telemetry file.

@@ -32,7 +32,7 @@
 
 #include "generated/airframe.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 // FIXME test prog still need some includes here
 #include "modules/datalink/pprz_dl.h"

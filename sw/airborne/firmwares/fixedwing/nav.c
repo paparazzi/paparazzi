@@ -464,7 +464,7 @@ void nav_periodic_task(void)
  * \brief Periodic telemetry
  */
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_nav_ref(struct transport_tx *trans, struct link_device *dev)
 {

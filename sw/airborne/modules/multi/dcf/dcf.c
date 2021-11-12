@@ -23,8 +23,8 @@
 #include <std.h>
 
 #include "modules/muti/dcf/dcf.h"
-//#include "subsystems/datalink/datalink.h" // dl_buffer
-#include "subsystems/datalink/telemetry.h"
+//#include "modules/datalink/datalink.h" // dl_buffer
+#include "modules/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
 #include "std.h"

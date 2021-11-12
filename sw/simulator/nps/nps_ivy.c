@@ -20,7 +20,7 @@
 
 #include "generated/settings.h"
 #include "pprzlink/dl_protocol.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if USE_GPS
 #include "modules/gps/gps.h"

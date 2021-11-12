@@ -49,7 +49,7 @@ struct Sbus sbus1, sbus2;
 
 // Telemetry function
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_sbus(struct transport_tx *trans, struct link_device *dev)
 {

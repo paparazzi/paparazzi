@@ -62,7 +62,7 @@ struct GpsTimeSync gps_piksi_time_sync;
 static uint32_t time_since_last_heartbeat;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_piksi_heartbeat(struct transport_tx *trans, struct link_device *dev)
 {

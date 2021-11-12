@@ -158,7 +158,7 @@ void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[]);
 void indi_apply_measurement_butterworth_filters(int32_t _out[], int32_t _in[]);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 /* Telemetry messages here, at the moment there are none */
 

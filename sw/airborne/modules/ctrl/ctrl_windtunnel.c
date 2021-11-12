@@ -59,7 +59,7 @@ void ctrl_module_init(void);
 void ctrl_module_run(bool in_flight);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_windtunnel_meas(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatQuat windtunnel_to_body;

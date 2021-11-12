@@ -36,7 +36,7 @@
 // Downlink
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #ifndef IMU_APOGEE_CHAN_X
 #define IMU_APOGEE_CHAN_X 0

@@ -57,7 +57,7 @@ struct link_device *xdev = STEREO_PORT;
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include "led.h"
 

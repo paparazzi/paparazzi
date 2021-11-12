@@ -27,7 +27,7 @@
 #include "modules/sensors/mag_lis3mdl.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
 
 #ifndef LIS3MDL_CHAN_X

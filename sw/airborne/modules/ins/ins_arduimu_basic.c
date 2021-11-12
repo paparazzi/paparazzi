@@ -51,7 +51,7 @@
 #ifdef ARDUIMU_SYNC_SEND
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 struct i2c_transaction ardu_gps_trans;

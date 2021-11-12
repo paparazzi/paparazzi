@@ -48,7 +48,7 @@
 
 // for debugging
 #if SEND_INVARIANT_FILTER || PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #if LOG_INVARIANT_FILTER

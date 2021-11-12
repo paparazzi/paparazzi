@@ -37,7 +37,7 @@
 #include "math/pprz_rk_float.h"
 
 #if SEND_INVARIANT_FILTER
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 /*---------Invariant Observers-----------

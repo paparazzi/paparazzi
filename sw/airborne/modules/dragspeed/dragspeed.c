@@ -40,7 +40,7 @@
 
 #include "modules/core/abi.h"
 #include "modules/core/abi_common.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #include <stdio.h>
 

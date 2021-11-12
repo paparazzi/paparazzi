@@ -25,7 +25,7 @@
 
 #include "subsystems/navigation/waypoints.h"
 #include "state.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/flight_plan.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;

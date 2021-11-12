@@ -46,7 +46,7 @@ static uint8_t ahrs_finv_id = AHRS_COMP_ID_FINV;
 static void compute_body_orientation_and_rates(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)
 {

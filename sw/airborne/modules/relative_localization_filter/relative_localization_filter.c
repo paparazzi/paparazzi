@@ -24,7 +24,7 @@
  */
 
 #include "relative_localization_filter.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "state.h" // To get current states
 
 #include "modules/datalink/extra_pprz_dl.h"

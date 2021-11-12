@@ -34,7 +34,7 @@
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
 #include "modules/ahrs/ahrs_magnetic_field_model.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "TRICAL.h"
 
 //

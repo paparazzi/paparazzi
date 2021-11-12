@@ -7,7 +7,7 @@
     #include "modules/radio_control/radio_control.h"
     #include "subsystems/ahrs.h"
     #include "subsystems/electrical.h"
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/datalink/datalink.h"
   </header>
   <waypoints>
     <waypoint height="0" name="HOME" x="0.0" y="0.0" />

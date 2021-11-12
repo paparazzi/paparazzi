@@ -16,7 +16,7 @@
 
 #include "state.h"
 #include "navigation.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/flight_plan.h"
 
 #ifndef STEREOCAM_FOLLOW_ME_USE_OPTITRACK

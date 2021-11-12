@@ -27,7 +27,7 @@
 
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include "mcu_periph/adc.h"
 #include "modules/core/commands.h"

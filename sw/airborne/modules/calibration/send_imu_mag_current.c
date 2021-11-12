@@ -29,7 +29,7 @@
 
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 void send_imu_mag_current(void)
 {

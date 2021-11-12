@@ -73,7 +73,7 @@ static FILE* pprzLogFile = NULL;
 
 /** telemetry functions */
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)

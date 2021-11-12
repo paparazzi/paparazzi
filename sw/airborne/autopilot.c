@@ -40,7 +40,7 @@
 #include "modules/core/commands.h"
 #include "modules/actuators/actuators.h"
 //#include "modules/energy/electrical.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #include "modules/core/settings.h"
 #include "generated/settings.h"

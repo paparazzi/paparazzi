@@ -21,12 +21,12 @@
  */
 
 /**
- * @file subsystems/datalink/bluegiga.c
+ * @file modules/datalink/bluegiga.c
  * Datalink implementation for the BlueGiga Bluetooth radio chip trough SPI
  */
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/bluegiga.h"
+#include "modules/datalink/bluegiga.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/spi.h"
 
@@ -126,7 +126,7 @@ void bluegiga_increment_buf(uint8_t *buf_idx, uint8_t len)
 
 uint32_t a2a_msgs = 0;
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 uint32_t last_ts = 0;
 static void send_bluegiga(struct transport_tx *trans, struct link_device *dev)

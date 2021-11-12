@@ -29,7 +29,7 @@
 #include "mcu_periph/sys_time.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #if USE_I2C0

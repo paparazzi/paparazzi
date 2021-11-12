@@ -50,7 +50,7 @@ static bool   ppm_data_valid;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_ppm(struct transport_tx *trans, struct link_device *dev)
 {

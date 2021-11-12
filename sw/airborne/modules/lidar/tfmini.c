@@ -33,7 +33,7 @@
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct TFMini tfmini = {
   .parse_status = TFMINI_INITIALIZE
@@ -42,7 +42,7 @@ struct TFMini tfmini = {
 static void tfmini_parse(uint8_t byte);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 /**
  * Downlink message lidar

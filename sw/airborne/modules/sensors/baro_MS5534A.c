@@ -31,7 +31,7 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/uart.h"
 #ifndef BARO_NO_DOWNLINK
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 #include "modules/core/abi.h"
 #include "firmwares/fixedwing/nav.h"

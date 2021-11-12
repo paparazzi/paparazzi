@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/datalink/bluegiga.h
+ * @file modules/datalink/bluegiga.h
  * Bluegiga Bluetooth chip I/O
  */
 
@@ -29,7 +29,7 @@
 
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprz_transport.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 /* The different statuses the communication can be in */
 enum BlueGigaStatus {
@@ -42,9 +42,9 @@ enum BlueGigaStatus {
 #ifndef BLUEGIGA_BUFFER_SIZE
 #define BLUEGIGA_BUFFER_SIZE 256    // buffer max value: 256
 #elif BLUEGIGA_BUFFER_SIZE < 256
-#warning "BLUEGIGA_BUFFER_SIZE may be smaller than possible message length, check subsystems/datalink/bluegiga.c:dev_check_free_space for more information"
+#warning "BLUEGIGA_BUFFER_SIZE may be smaller than possible message length, check modules/datalink/bluegiga.c:dev_check_free_space for more information"
 #elif BLUEGIGA_BUFFER_SIZE > 256
-#error "BLUEGIGA_BUFFER_SIZE not made for sizes larger than 256, check subsystems/datalink/bluegiga.c for more information"
+#error "BLUEGIGA_BUFFER_SIZE not made for sizes larger than 256, check modules/datalink/bluegiga.c for more information"
 #endif
 
 #define BLUEGIGA_SPI_BUF_SIZE 20

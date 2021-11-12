@@ -21,13 +21,13 @@
  */
 
 /**
- * @file subsystems/datalink/telemetry.c
+ * @file modules/datalink/telemetry.c
  *
  * Periodic telemetry system utility function.
  *
  */
 
-#include "subsystems/datalink/telemetry_common.h"
+#include "modules/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
 
 /* Implement global structures from generated header.
@@ -68,7 +68,7 @@ int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, 
 
 #if USE_PERIODIC_TELEMETRY_REPORT
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /** Send an error report when trying to send message that as not been register
  * @param _process telemetry process id

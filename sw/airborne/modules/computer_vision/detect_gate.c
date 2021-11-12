@@ -19,7 +19,7 @@
 
 #include "modules/computer_vision/snake_gate_detection.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 //#define DEBUG_GATE

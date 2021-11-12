@@ -42,7 +42,7 @@ int16_t batmon_temp_offset;
 float batmon_temp_sensitivity;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_batmon(struct transport_tx *trans, struct link_device *dev)
 {
   static uint16_t power_status;

@@ -36,7 +36,7 @@
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /*
  * acceptable quality of optical flow (0-min,1-max)

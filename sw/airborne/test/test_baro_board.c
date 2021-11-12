@@ -32,7 +32,7 @@
 #include "led.h"
 
 #define DATALINK_C
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/datalink/pprz_dl.h"
 
 #include "modules/sensors/baro.h"

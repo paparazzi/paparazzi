@@ -32,7 +32,7 @@
 #include "state.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "modules/stereocam/stereocam.h"
 #include "modules/obstacle_avoidance/guidance_OA.h"
 #include "modules/obstacle_avoidance/obstacle_avoidance.h"

@@ -259,7 +259,7 @@ static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;  ///< Component ID for EKF
 struct ekf2_parameters_t ekf2_params;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {

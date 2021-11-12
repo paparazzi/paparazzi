@@ -4,7 +4,7 @@
 #include "cc2500_settings.h"
 #include "cc2500_smartport.h"
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #ifdef UNUSED
 #undef UNUSED

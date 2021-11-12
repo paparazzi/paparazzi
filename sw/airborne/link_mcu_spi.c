@@ -108,7 +108,7 @@ uint8_t link_mcu_nb_err;
 uint8_t link_mcu_fbw_nb_err;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_debug_link(struct transport_tx *trans, struct link_device *dev)
 {

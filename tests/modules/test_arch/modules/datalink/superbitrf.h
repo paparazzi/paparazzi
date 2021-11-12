@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/datalink/superbitrf.h
+ * @file modules/datalink/superbitrf.h
  * DSM2 and DSMX datalink implementation for the cyrf6936 2.4GHz radio chip trough SPI
  *
  * Dummy for tests so you don't have to remove the superbitrf.xml settings file.

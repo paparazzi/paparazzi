@@ -35,7 +35,7 @@ static uint16_t frsky_raw[RADIO_CTL_NB];
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_cc2500_ppm(struct transport_tx *trans, struct link_device *dev)
 {

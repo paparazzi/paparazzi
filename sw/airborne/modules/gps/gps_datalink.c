@@ -33,8 +33,8 @@
 #include "modules/gps/gps.h"
 #include "modules/core/abi.h"
 #include "modules/imu/imu.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
 
 /** Set to 1 to receive also magnetometer ABI messages */
 #ifndef GPS_DATALINK_USE_MAG

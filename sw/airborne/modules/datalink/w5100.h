@@ -21,7 +21,7 @@
  */
 
 /**
- * @file subsystems/datalink/w5100.h
+ * @file modules/datalink/w5100.h
  * W5100 ethernet chip I/O
  */
 
@@ -30,7 +30,7 @@
 
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprz_transport.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "generated/airframe.h"
 
 #define W5100_RX_BUFFER_SIZE 80

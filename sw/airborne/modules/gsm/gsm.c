@@ -58,7 +58,7 @@ Receiving:
 #include "gsm.h"
 #include "mcu_periph/uart.h"
 #include "std.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/gps/gps.h"
 #include "autopilot.h"
 #include "modules/energy/electrical.h"

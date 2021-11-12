@@ -42,7 +42,7 @@ static uint8_t ahrs_icq_id = AHRS_COMP_ID_ICQ;
 static void set_body_state_from_quat(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
 

@@ -35,7 +35,7 @@
 #include "modules/sensors/aoa_pwm.h"
 #include "mcu_periph/pwm_input.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
 
@@ -123,7 +123,7 @@ struct Aoa_Pwm ssa_pwm;
 enum Aoa_Type aoa_send_type;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_aoa(struct transport_tx *trans, struct link_device *dev)
 {

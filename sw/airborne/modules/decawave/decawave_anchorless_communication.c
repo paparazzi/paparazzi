@@ -38,7 +38,7 @@
  */
 
 #include "decawave_anchorless_communication.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "modules/radio_control/radio_control.h"
 #include "state.h"
 #include "mcu_periph/uart.h"

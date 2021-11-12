@@ -42,7 +42,7 @@
 
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 #ifndef USE_INS_NAV_INIT

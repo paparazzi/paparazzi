@@ -29,7 +29,7 @@
 #include "generated/airframe.h"     // AC_ID
 #include "generated/flight_plan.h"  // NAV_MSL0
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "pprzlink/dl_protocol.h"   // datalink messages
 #include "pprzlink/messages.h"	    // telemetry messages
 

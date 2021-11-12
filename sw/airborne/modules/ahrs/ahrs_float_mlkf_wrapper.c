@@ -43,7 +43,7 @@ static uint8_t ahrs_mlkf_id = AHRS_COMP_ID_MLKF;
 static void set_body_state_from_quat(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)

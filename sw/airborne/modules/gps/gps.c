@@ -79,7 +79,7 @@ uint8_t multi_gps_mode;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_svinfo_id(struct transport_tx *trans, struct link_device *dev,
                            uint8_t svid)

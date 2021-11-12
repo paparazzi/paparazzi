@@ -2,7 +2,7 @@
 
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
   <header>
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/datalink/datalink.h"
     #include "subsystems/electrical.h"
     #include "modules/radio_control/radio_control.h"
     #include "subsystems/ahrs.h"

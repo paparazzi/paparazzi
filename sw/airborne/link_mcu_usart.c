@@ -245,7 +245,7 @@ inline void parse_mavpilot_msg(void);
 
 
 #ifdef AP
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #define RC_OK          0
 #define RC_LOST        1

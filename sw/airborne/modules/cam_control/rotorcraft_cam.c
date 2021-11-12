@@ -45,7 +45,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "std.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 /** Gpio output to turn camera power power on.

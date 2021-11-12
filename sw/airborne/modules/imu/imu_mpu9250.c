@@ -50,7 +50,7 @@ void imu_mpu9250_event(void)
 }
 
 #include "math/pprz_algebra_int.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 void imu_mpu9250_report(void)
 {

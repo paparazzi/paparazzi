@@ -36,7 +36,7 @@
 #include "generated/airframe.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #ifdef SITL

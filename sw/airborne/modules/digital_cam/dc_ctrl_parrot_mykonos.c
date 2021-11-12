@@ -52,11 +52,11 @@
 #if DC_CTRL_PARROT_MYKONOS_SYNC_SEND
 
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "state.h"
 #include "modules/gps/gps.h"
 
-#include "subsystems/datalink/telemetry.h" //? or just downlink.h should be enough
+#include "modules/datalink/telemetry.h" //? or just downlink.h should be enough
 
 static inline void dc_ctrl_parrot_mykonos_send_shot_position(void)
 {

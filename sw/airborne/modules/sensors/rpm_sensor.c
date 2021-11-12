@@ -38,7 +38,7 @@ uint16_t rpm;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
 {

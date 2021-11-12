@@ -27,7 +27,7 @@
 #include "modules/sensors/mag_rm3100.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
 
 #ifndef RM3100_CHAN_X

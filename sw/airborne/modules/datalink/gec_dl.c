@@ -25,7 +25,7 @@
 
 #include "gec_dl.h"
 #include "modules/datalink/gec/gec.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "pprzlink/messages.h"
 #include <string.h> // for memset()
 
@@ -70,7 +70,7 @@
 struct gec_transport gec_tp;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_secure_link_info(struct transport_tx *trans, struct link_device *dev)
 {

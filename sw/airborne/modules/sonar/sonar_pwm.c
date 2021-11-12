@@ -41,11 +41,11 @@
 #include "filters/median_filter.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "pprzlink/messages.h"
 #endif
 #ifdef SENSOR_SYNC_SEND_SONAR
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 #include "generated/airframe.h"
 #ifdef SITL

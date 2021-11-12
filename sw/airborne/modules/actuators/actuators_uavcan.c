@@ -66,7 +66,7 @@ static bool actuators_uavcan_initialized = false;
 static uavcan_event esc_status_ev;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_device *dev)
 {

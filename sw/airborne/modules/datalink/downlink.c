@@ -26,14 +26,14 @@
  */
 
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if (defined DATALINK) || PERIODIC_TELEMETRY
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #endif
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 
 static uint32_t last_down_nb_bytes = 0;  // previous number of bytes sent

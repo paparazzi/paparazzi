@@ -28,7 +28,7 @@
 #include "sys_id_chirp.h"
 #include "pprz_chirp.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/airframe.h"
 #include "mcu_periph/sys_time.h"
 #include "filters/low_pass_filter.h"

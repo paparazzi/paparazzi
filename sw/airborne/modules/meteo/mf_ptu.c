@@ -69,7 +69,7 @@ bool log_ptu_started;
 #if SEND_PTU
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/gps/gps.h"
 #endif
 

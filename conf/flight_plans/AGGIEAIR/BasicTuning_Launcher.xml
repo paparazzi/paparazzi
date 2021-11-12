@@ -2,7 +2,7 @@
 
 <flight_plan alt="1550" ground_alt="1350" lat0="41.815562" lon0="-111.982437" max_dist_from_home="3000" name="BasicTuning" security_height="25" home_mode_height="200" qfu="90" geofence_sector="FlightArea" geofence_max_alt="3000" geofence_max_height="1000">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint alt="1545.0" name="HOME" x="1006.3" y="-116.4"/>

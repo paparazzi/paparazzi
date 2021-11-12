@@ -40,7 +40,7 @@
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct LidarLite lidar_lite;
 struct MedianFilterInt lidar_lite_filter;

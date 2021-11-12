@@ -40,7 +40,7 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 
@@ -62,7 +62,7 @@ void set_exception_flag(uint8_t flag_num)
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 {

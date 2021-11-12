@@ -72,7 +72,7 @@ static pthread_mutex_t opticflow_mutex;                  ///< Mutex lock fo thre
 struct image_t *opticflow_module_calc(struct image_t *img, uint8_t camera_id);     ///< The main optical flow calculation thread
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 /**
  * Send optical flow telemetry information
  * @param[in] *trans The transport structure to send the information over

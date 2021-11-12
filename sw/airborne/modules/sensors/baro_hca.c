@@ -28,7 +28,7 @@
 //Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 #define BARO_HCA_ADDR 0xF0

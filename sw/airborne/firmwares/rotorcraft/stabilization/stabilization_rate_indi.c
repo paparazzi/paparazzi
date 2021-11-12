@@ -68,7 +68,7 @@ struct FloatRates stabilization_rate_sp;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {

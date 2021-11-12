@@ -2,7 +2,7 @@
 
 <flight_plan alt="58" ground_alt="46" home_mode_height="10" lat0="52.142596" lon0="5.840263" max_dist_from_home="250" name="IMAV2014 Digit" security_height="5">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) {
   float dx = wp1_x - wp2_x;
   float dy = wp1_y - wp2_y;

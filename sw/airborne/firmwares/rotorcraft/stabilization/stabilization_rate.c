@@ -94,7 +94,7 @@ struct FloatRates stabilization_rate_fb_cmd;
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {

@@ -44,7 +44,7 @@ static struct FloatVect3 ins_finv_accel;
 static uint32_t ins_finv_last_stamp = 0;
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "state.h"
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {

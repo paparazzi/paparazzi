@@ -46,7 +46,7 @@
 #include "mcu_periph/sys_time.h"
 #include "pprzlink/messages.h"
 #include "modules/core/abi.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include <math.h>
 
 #ifndef USE_AIRSPEED_ETS

@@ -8,7 +8,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
 #include "autopilot.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/electrical.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
   </header>
   <waypoints>

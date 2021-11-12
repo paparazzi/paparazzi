@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/datalink/datalink.c
+ * @file modules/datalink/datalink.c
  * Handling of messages coming from ground and other A/Cs.
  *
  */
@@ -29,7 +29,7 @@
 #define MODULES_DATALINK_C
 
 #include "datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include "generated/modules.h"
 #include "generated/settings.h"

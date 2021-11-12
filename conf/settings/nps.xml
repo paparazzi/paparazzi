@@ -7,7 +7,7 @@
        <dl_setting var="nps_bypass_ahrs" min="0" step="1" max="1" module="nps/nps_autopilot" shortname="bypass_ahrs" values="No|Yes"/>
        <dl_setting var="nps_bypass_ins" min="0" step="1" max="1" module="nps/nps_autopilot" shortname="bypass_ins" values="No|Yes"/>
        <dl_setting var="gps_has_fix" min="0" step="1" max="1" module="modules/gps/gps_sim_nps" shortname="gps_fix" values="No|Yes"/>
-       <dl_setting var="datalink_enabled" min="0" step="1" max="1" module="subsystems/datalink/datalink" shortname="datalink" values="OFF|ON"/>
+       <dl_setting var="datalink_enabled" min="0" step="1" max="1" module="modules/datalink/datalink" shortname="datalink" values="OFF|ON"/>
        <dl_setting var="nps_electrical.supply_voltage" min="0" step="0.1" max="24" module="nps/nps_electrical" shortname="bat_voltage" unit="V"/>
        <dl_setting var="nps_atmosphere.wind_speed" min="0" step="0.1" max="25" module="nps/nps_atmosphere" shortname="wind_speed" unit="m/s" handler="set_wind_speed"/>
        <dl_setting var="nps_atmosphere.wind_dir" min="0" step="1" max="360" module="nps/nps_atmosphere" shortname="wind_dir" unit="rad" alt_unit="deg" handler="set_wind_dir"/>

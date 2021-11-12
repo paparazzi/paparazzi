@@ -26,7 +26,7 @@
 #include "modules/sensors/opticflow_pmw3901.h"
 
 #include "modules/core/abi.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/modules.h"
 
 #include "state.h"

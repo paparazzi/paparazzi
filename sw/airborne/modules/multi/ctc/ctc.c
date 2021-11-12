@@ -25,8 +25,8 @@
 #include <stdio.h>
 
 #include "modules/multi/ctc/ctc.h"
-//#include "subsystems/datalink/datalink.h" // dl_buffer
-#include "subsystems/datalink/telemetry.h"
+//#include "modules/datalink/datalink.h" // dl_buffer
+#include "modules/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"

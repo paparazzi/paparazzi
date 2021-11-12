@@ -20,7 +20,7 @@
  */
 
 /**
- * @file subsystems/datalink/superbitrf.h
+ * @file modules/datalink/superbitrf.h
  * DSM2 and DSMX datalink implementation for the cyrf6936 2.4GHz radio chip trough SPI
  */
 
@@ -31,7 +31,7 @@
 #include "peripherals/cyrf6936.h"
 #include "pprzlink/pprzlink_device.h"
 #include "pprzlink/pprz_transport.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 /* The timings in microseconds */
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */

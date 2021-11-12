@@ -32,7 +32,7 @@
 
 // for telemetry report
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 
 #ifndef INS_YAW_NEUTRAL_DEFAULT
@@ -306,7 +306,7 @@ static inline void parse_ins_msg(void)
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 extern void vn100_report_task(void)
 {

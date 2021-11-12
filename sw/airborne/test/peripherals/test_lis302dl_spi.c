@@ -29,7 +29,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #define DATALINK_C
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "led.h"
 
 #include "peripherals/lis302dl_spi.h"

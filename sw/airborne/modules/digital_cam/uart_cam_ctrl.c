@@ -32,7 +32,7 @@
 #include "modules/digital_cam/dc.h"
 
 // Telemetry
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #include BOARD_CONFIG
 

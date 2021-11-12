@@ -31,12 +31,12 @@
 #include "modules/core/abi.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "pprzlink/messages.h"
 #endif
 
 #ifdef SENSOR_SYNC_SEND
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 #ifdef SITL

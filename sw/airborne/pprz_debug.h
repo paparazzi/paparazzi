@@ -31,7 +31,7 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 extern uint8_t pprz_debug_mod;
 extern uint8_t pprz_debug_err;

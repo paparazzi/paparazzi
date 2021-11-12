@@ -23,14 +23,14 @@
 #define TELEMETRY_H
 
 /**
- * @file subsystems/datalink/telemetry.h
+ * @file modules/datalink/telemetry.h
  *
  * Periodic telemetry system header (includes downlink utility and generated code).
  *
  * In order to use it a subsystem/module:
  * - include this header:
  *    @code
- *    #include "subsystems/datalink/telemetry.h"
+ *    #include "modules/datalink/telemetry.h"
  *    @endcode
  * - write a callback function:
  *    @code
@@ -51,7 +51,7 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 #include "generated/periodic_telemetry.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /** Global telemetry structure
  *
