@@ -94,7 +94,8 @@ extern bool rover_guidance_steering_set_delta(float delta);
                            speed));
 
 // Set steering command from delta
-#define GetCmdFromDelta(delta) (delta/MAX_DELTA * MAX_PPRZ);
+#define GetCmdFromDelta(delta) (delta >= 0 ? delta/MAX_DELTA * MAX_PPRZ : \
+                                           - delta/MIN_DELTA * MAX_PPRZ);
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \
