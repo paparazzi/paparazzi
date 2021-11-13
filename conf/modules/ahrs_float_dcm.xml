@@ -24,8 +24,8 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="AHRS">
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="modules/ahrs" />
-        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="modules/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="modules/ahrs/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="modules/ahrs/ahrs" />
       </dl_settings>
     </dl_settings>
   </settings>
