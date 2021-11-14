@@ -50,6 +50,9 @@
 #define MIN_SPEED 0.2
 #endif
 
+// NAV max throttle
+#define MAX_THROTTLE 100000.0
+
 // DRIVE_SHAFT_DISTANCE: Distance between front and rear wheels (m)
 #ifndef DRIVE_SHAFT_DISTANCE
 #define DRIVE_SHAFT_DISTANCE 0.25
@@ -67,10 +70,9 @@ typedef struct {
 // Main structure
 typedef struct {
   RScmd_t cmd;
-  float speedNorm;
-  float speedDir;
-  float omega;
-  float r;
+  float state_speed;
+  float gvf_omega;
+  float throttle;
 } rover_ctrl;
 
 extern rover_ctrl guidance_control;
@@ -92,9 +94,17 @@ extern bool rover_guidance_steering_set_delta(float delta);
                           (speed >  MAX_SPEED ? MAX_SPEED : \
                            speed));
 
-// Set steering command from delta
+// Bound throttle
+#define BoundThrottle(throttle) (throttle < - MAX_THROTTLE ? - MAX_THROTTLE : \
+                                (throttle >   MAX_THROTTLE ?   MAX_THROTTLE : \
+                                 throttle));
+
+/* Set low commands from high commands */
 #define GetCmdFromDelta(delta) (delta >= 0 ? delta/MAX_DELTA * MAX_PPRZ : \
                                            - delta/MIN_DELTA * MAX_PPRZ);
+
+#define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle / MAX_THROTTLE * MAX_PPRZ);
+/* .. */
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \

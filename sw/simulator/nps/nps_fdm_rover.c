@@ -48,7 +48,7 @@ static struct EnuCoor_d rover_vel;
 static struct EnuCoor_d rover_acc;
 
 // Physical parameters
-static float mu = 0.1;
+static float mu = 0.01;
 
 // static functions declaration
 static void init_ltp(void);

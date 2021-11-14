@@ -50,20 +50,9 @@ void gvf_low_level_control(float omega)
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
   }
 
-#elif defined(ROVER_FIRMWARE)
+#elif defined(ROVER_FIRMWARE) 
   if (autopilot_get_mode() != AP_MODE_DIRECT) {
-    guidance_control.omega = omega;
-    guidance_control.r = gvf_trajectory.p[2];
-
-    // To the left or to the right??
-    /**
-    struct EnuCoor_f *p = stateGetPositionEnu_f();
-    float xr = p->x - gvf_trajectory.p[0];
-    float xr = p->y - gvf_trajectory.p[1]; 
-
-    guidance_control.turnSense;**/
-
-    
+    guidance_control.gvf_omega = omega; //TODO: set omega into external GVF variable
   }
 
 #else
