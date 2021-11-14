@@ -58,16 +58,15 @@
 
 
 /** Steering rover guidance STRUCTURES **/
-
 // High commands
 typedef struct {
   float speed;
   float delta;
-} RTcmd_t;
+} RScmd_t;
 
 // Main structure
 typedef struct {
-  RTcmd_t cmd;
+  RScmd_t cmd;
   float speedNorm;
   float speedDir;
   float omega;

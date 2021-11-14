@@ -21,21 +21,18 @@
 // Control
 rover_ctrl guidance_control;
 
-/** Send DEBUG Telemetry messages **/
+/** Send RS guidance telemetry messages **/
 static void send_msg(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t ap_mode  = autopilot_get_mode();
-  uint8_t nav_mode = nav.mode;
-  int16_t rc_t = radio_control.values[RADIO_THROTTLE];
-  int16_t rc_r = radio_control.values[RADIO_ROLL]; 
-  int16_t cmd_speed    = commands[COMMAND_THROTTLE];
-  int16_t cmd_steering = commands[COMMAND_STEERING];
-  int16_t ac_speed     = actuators[SERVO_MOTOR_THROTTLE_IDX];
-  int16_t ac_steering  = actuators[SERVO_MOTOR_STEERING_IDX];
 
-  pprz_msg_send_STEERING_ROVER_DATA(trans, dev, AC_ID, &ap_mode, &nav_mode, &rc_t, &rc_r, 
-                                    &cmd_speed, &cmd_steering, &ac_speed, &ac_steering, 
-                                    &guidance_control.omega, &guidance_control.cmd.delta,
+  pprz_msg_send_STEERING_ROVER_DATA(trans, dev, AC_ID, 
+                                    &ap_mode, &nav.mode, 
+                                    &commands[COMMAND_THROTTLE], &commands[COMMAND_STEERING], 
+                                    &actuators[SERVO_MOTOR_THROTTLE_IDX], &actuators[SERVO_MOTOR_STEERING_IDX], 
+                                    &guidance_control.cmd.delta,
+                                    &guidance_control.cmd.speed,
+                                    &guidance_control.omega, 
                                     &guidance_control.speedNorm);
 }
 
