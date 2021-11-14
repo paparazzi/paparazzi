@@ -6,7 +6,6 @@
 #include "firmwares/rover/guidance/rover_guidance_steering.h"
 
 #include "generated/airframe.h"
-#include "generated/autopilot_core_guidance.h"
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/actuators/actuators_default.h"
@@ -18,7 +17,10 @@
 #include <math.h>
 #include <stdio.h>
 
-// Control
+// Static guidance variables
+static float SR_Ke = 10000.0; // TODO: config parameter in guidance_control struct 
+
+// Guidance control main struct
 rover_ctrl guidance_control;
 
 /** Send RS guidance telemetry messages **/
@@ -32,8 +34,8 @@ static void send_msg(struct transport_tx *trans, struct link_device *dev)
                                     &actuators[SERVO_MOTOR_THROTTLE_IDX], &actuators[SERVO_MOTOR_STEERING_IDX], 
                                     &guidance_control.cmd.delta,
                                     &guidance_control.cmd.speed,
-                                    &guidance_control.omega, 
-                                    &guidance_control.speedNorm);
+                                    &guidance_control.gvf_omega, 
+                                    &guidance_control.state_speed);
 }
 
 bool rover_guidance_steering_set_delta(float delta){
@@ -44,52 +46,47 @@ bool rover_guidance_steering_set_delta(float delta){
 /** INIT function**/
 void rover_guidance_steering_init(void)
 {
-  // Guidance state machine init
-  autopilot_core_guidance_init();
-
   // Debugging telemetry init
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
 
   guidance_control.cmd.delta = 0.0;
+  guidance_control.cmd.speed = 0.0;
+  guidance_control.throttle = 0.0;
 }
 
 /** PERIODIC function **/
 void rover_guidance_steering_periodic(void)
 { 
-  // Definitions
-  float delta;
+  guidance_control.state_speed = stateGetHorizontalSpeedNorm_f();
 
-  // Check GPS state values
-  guidance_control.speedNorm = stateGetHorizontalSpeedNorm_f();
-  guidance_control.speedDir = stateGetHorizontalSpeedDir_f();
+  // speed is bounded to avoid GPS noise while driving at small velocity
+  float delta = 0.0;
+  float speed = BoundSpeed(guidance_control.state_speed); 
+  float omega = guidance_control.gvf_omega;
 
-  // Bounding Speed Norm
-  float speed = BoundSpeed(guidance_control.speedNorm);
-
-  // ASSISTED guidance
+  // ASSISTED guidance .....................................................
   if (autopilot_get_mode() == AP_MODE_ASSISTED) {
-    delta = 0.0;
-    if (fabs(guidance_control.omega)>0.0) {
-      delta += -atanf(guidance_control.omega * DRIVE_SHAFT_DISTANCE / speed);
+    if (fabs(omega)>0.0) {
+      delta = -atanf(omega * DRIVE_SHAFT_DISTANCE / speed);
     }
     delta *= 180/M_PI;
 
     guidance_control.cmd.delta = BoundDelta(delta);
-    commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);
   }
 
-  // NAV guidance
+  // NAV guidance ...........................................................
   else if (autopilot_get_mode() == AP_MODE_NAV) {
-    autopilot_core_guidance_periodic_task();
-    
     guidance_control.cmd.delta = BoundDelta(guidance_control.cmd.delta);
-    commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);
-    commands[COMMAND_THROTTLE] = guidance_control.cmd.speed * MAX_PPRZ / 10; // Tmp value. Testing NPS!!
+
+    // Control speed signal
+    float error = guidance_control.cmd.speed - guidance_control.state_speed;
+    guidance_control.throttle = BoundThrottle(SR_Ke * error); // Simple control model...
   } 
 
-  // FAILSAFE values
+  // FAILSAFE values ........................................................
   else {
     guidance_control.cmd.delta = 0.0;
+    guidance_control.cmd.speed = 0.0;
   }
 
   // periodic steering_rover telemetry
