@@ -43,8 +43,8 @@
 
   <!-- COMMANDS SECTION -->
   <servos>
-    <servo name="MOTOR_THROTTLE" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="MOTOR_STEERING" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_THROTTLE" no="0" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_STEERING" no="1" min="1000" neutral="1500" max="2000"/>
   </servos>
   
   <!-- Low level commands (PWM signal) -->

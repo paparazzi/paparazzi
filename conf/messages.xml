@@ -22,20 +22,6 @@
       <field name="cpu_time" type="uint16" unit="s"></field>
     </message>
     
-    <message name="STEERING_ROVER_DATA" id="37">
-      <field name="ap_mode"  type="uint8" values="MANUAL|ASSISTED|NAV|HOME|KILL"/>
-      <field name="nav_mode" type="uint8" values="WAYPOINT|ROUTE|CIRCLE|HEADING|MANUAL"/>
-      <field name="rc_throttle"       type="int16"/>
-      <field name="rc_roll"           type="int16"/>
-      <field name="command_speed"     type="int16"/>
-      <field name="command_steering"  type="int16"/>
-      <field name="actuator_speed"    type="int16"/>
-      <field name="actuator_steering" type="int16"/>
-      <field name="guidance_omega"     type="float"/>
-      <field name="guidance_delta"     type="float"/>
-      <field name="guidance_speedNorm" type="float"/>
-    </message>
-    
     <message name="ARDRONE_NAVDATA" id="5">
       <field name="taille" type="uint16" />
       <field name="nu_trame" type="uint16" />
@@ -1610,8 +1596,43 @@
       <field name="delay_ns" type="uint32"/>
     </message>
 
-    <!-- 181 is free -->
-    <!-- 182 is free -->
+    <!-- Firmware rover telemetry (in progress) ..................................... -->
+    <message name="ROVER_CMD" id="181">
+      <field name="cmds" type="int16[]" unit="pprz"/>
+    </message>
+
+    <message name="ROVER_FP" id="182">
+      <field name="east"     type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="north"    type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="up"       type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="veast"    type="int32" alt_unit="m/s" alt_unit_coef="0.0000019"/>
+      <field name="vnorth"   type="int32" alt_unit="m/s" alt_unit_coef="0.0000019"/>
+      <field name="vup"      type="int32" alt_unit="m/s" alt_unit_coef="0.0000019"/>
+      <field name="phi"      type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+      <field name="theta"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+      <field name="psi"      type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+      <field name="carrot_east"   type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="carrot_north"  type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="carrot_up"     type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
+      <field name="carrot_psi"    type="int32" alt_unit="deg" alt_unit_coef="0.0139882"/>
+      <field name="thrust"        type="int32"/>
+      <field name="flight_time"   type="uint16" unit="s"/>
+    </message>
+    <!-- .............................................................................. -->
+
+    <message name="STEERING_ROVER_DATA" id="183">
+      <field name="ap_mode"  type="uint8" values="MANUAL|ASSISTED|NAV|HOME|KILL"/>
+      <field name="nav_mode" type="uint8" values="WAYPOINT|ROUTE|CIRCLE|HEADING|MANUAL"/>
+      <field name="low_cmd_throttle"   type="int16" unit="pprz"/>
+      <field name="low_cmd_steering"   type="int16" unit="pprz"/>
+      <field name="actuator_speed"     type="int16" unit="pprz"/>
+      <field name="actuator_steering"  type="int16" unit="pprz"/>
+      <field name="guidance_delta"     type="float" unit="deg"/>
+      <field name="guidance_speed"     type="float" unit="m/s"/>
+      <field name="gvf_omega"          type="float" unit="rad/s"/>
+      <field name="status_speedNorm"   type="float" unit="m/s"/>
+    </message>
+
     <!-- 183 is free -->
     <!-- 184 is free -->
     <!-- 185 is free -->
@@ -1901,7 +1922,7 @@
 
     <message name="ROVER_STATUS" id="230">
       <description>
-        Rover status message
+        Rover status message.
       </description>
       <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>
       <field name="frame_rate"   type="uint8" unit="Hz"/>
