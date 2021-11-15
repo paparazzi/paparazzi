@@ -108,10 +108,7 @@
   </section>
 
   <section name="GCS">
-    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
-    <define name="ALT_SHIFT_PLUS"      value="1"/>
-    <define name="ALT_SHIFT_MINUS"     value="-1"/>
-    <define name="AC_ICON"             value="rotorcraft"/>
+    <define name="AC_ICON"             value="rover"/>
   </section>
 
 </airframe>
