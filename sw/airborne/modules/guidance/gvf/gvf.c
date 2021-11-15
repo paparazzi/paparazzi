@@ -518,11 +518,18 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
   
   nav.mode = NAV_MODE_ROUTE;
+  
   gvf_segment.seg = 1;
   gvf_segment.x1 = x1;
   gvf_segment.y1 = y1;
   gvf_segment.x2 = x2;
   gvf_segment.y2 = y2;
+
+  // Send rover_base navigation data to draw segment (ROUTE)
+  nav_rover_base.goto_wp.from.x = x1;
+  nav_rover_base.goto_wp.from.y = y1;
+  nav_rover_base.goto_wp.to.x = x2;
+  nav_rover_base.goto_wp.to.y = y2;
 
   return true;
 }
@@ -557,6 +564,12 @@ bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, 
   gvf_segment.y1 = y1;
   gvf_segment.x2 = x2;
   gvf_segment.y2 = y2;
+
+  // Send rover_base navigation data to draw segment (ROUTE)
+  nav_rover_base.goto_wp.from.x = x1;
+  nav_rover_base.goto_wp.from.y = y1;
+  nav_rover_base.goto_wp.to.x = x2;
+  nav_rover_base.goto_wp.to.y = y2;
 
   return true;
 }
@@ -634,14 +647,12 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
     gvf_trajectory.p[3] = 60;
   }
 
+  // Send rover_base navigation data to draw circle (CIRCLE)
   if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
     nav.mode = NAV_MODE_CIRCLE;
-
-    gvf_draw_wp.x = x;
-    gvf_draw_wp.y = y;
-    nav_rover_base.circle.center = gvf_draw_wp;
+    nav_rover_base.circle.center.x = x;
+    nav_rover_base.circle.center.y = y;
     nav_rover_base.circle.radius = a;
-
   } else {
     nav.mode = NAV_MODE_WAYPOINT;
   }
