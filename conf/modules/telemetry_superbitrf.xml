@@ -24,6 +24,16 @@
     <file name="superbitrf.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
     <file name="cyrf6936.c" dir="peripherals"/>
+    <test>
+      <define name="SPEKTRUM_BIND_PIN_PORT" value="GPIOA"/>
+      <define name="SPEKTRUM_BIND_PIN" value="GPIO0"/>
+      <define name="SUPERBITRF_SPI_DEV" value="spi1"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI1"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/superbitrf_rc.h" type="string"/>
+      <define name="DOWNLINK_DEVICE" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
   </makefile>
 </module>
 

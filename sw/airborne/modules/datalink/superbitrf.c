@@ -234,6 +234,7 @@ static void superbitrf_transmit_buffer(struct SuperbitRF *p, long fd, uint8_t *d
 static void superbitrf_send(struct SuperbitRF *p __attribute__((unused)), long fd __attribute__((unused))) { }
 
 static int null_function(struct SuperbitRF *p __attribute__((unused))) { return 0; }
+static uint8_t null_byte_function(struct SuperbitRF *p __attribute__((unused))) { return 0; }
 
 /**
  * Initialize the superbitrf
@@ -262,7 +263,7 @@ void superbitrf_init(void)
   superbitrf.device.put_buffer = (put_buffer_t) superbitrf_transmit_buffer;
   superbitrf.device.send_message = (send_message_t) superbitrf_send;
   superbitrf.device.char_available = (char_available_t) null_function; // not needed
-  superbitrf.device.get_byte = (get_byte_t) null_function; // not needed
+  superbitrf.device.get_byte = (get_byte_t) null_byte_function; // not needed
 
   // Initialize the binding pin
   gpio_setup_input(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
