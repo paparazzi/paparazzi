@@ -26,6 +26,13 @@
     
     <file name="laser_range_array.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+    <test>
+      <define name="LASER_RANGE_ARRAY_PORT" value="uart2"/>
+      <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="{0}"/>
+      <define name="LASER_RANGE_ARRAY_NUM_SENSORS" value="1"/>
+      <define name="LASER_RANGE_ARRAY_SEND_AGL" value="TRUE"/>
+      <define name="USE_UART2"/>
+    </test>
   </makefile>
 
   <makefile target="nps">
