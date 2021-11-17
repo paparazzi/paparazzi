@@ -45,6 +45,10 @@
     <file name="pprz_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
     <file name="frsky_x.c"/>
+    <test>
+      <define name="DOWNLINK_DEVICE" value="frsky_x_serial"/>
+      <define name="USE_FRSKY_X_SERIAL"/>
+    </test>
   </makefile>
 </module>
 

@@ -46,6 +46,14 @@
     <file name="bluegiga_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
     <file name="bluegiga.c"/>
+    <test>
+      <define name="BLUEGIGA_DRDY_GPIO" value="GPIOA"/>
+      <define name="BLUEGIGA_DRDY_GPIO_PIN" value="GPIO0"/>
+      <define name="DOWNLINK_DEVICE" value="bluegiga_p"/>
+      <define name="BLUEGIGA_SPI_DEV" value="spi2"/>
+      <define name="SPI_SLAVE"/>
+      <define name="USE_SPI2_SLAVE"/>
+    </test>
   </makefile>
 </module>
 

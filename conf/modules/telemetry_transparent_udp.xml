@@ -37,6 +37,11 @@
     <define name="DATALINK" value="PPRZ"/>
     <file name="pprz_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+    <test>
+      <define name="DOWNLINK_DEVICE" value="udp0"/>
+      <define name="USE_UDP"/>
+      <define name="USE_UDP0"/>
+    </test>
   </makefile>
 </module>
 
