@@ -36,6 +36,8 @@
     <module name="guidance" type="rover_steering">
       <define name="MAX_DELTA" value="15.0"/>
       <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
+      <define name="MIN_CMD_SHUT" value="3800"/>
+      <define name="MAX_CMD_SHUT" value="1350"/>
     </module>
 
   </firmware>
@@ -43,8 +45,8 @@
 
   <!-- COMMANDS SECTION -->
   <servos>
-    <servo name="MOTOR_THROTTLE" no="0" min="1000" neutral="1500" max="2000"/>
-    <servo name="MOTOR_STEERING" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_THROTTLE" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_STEERING" no="2" min="1000" neutral="1500" max="2000"/>
   </servos>
   
   <!-- Low level commands (PWM signal) -->
@@ -55,7 +57,7 @@
 
   <!-- When SetCommandsFromRC -->
   <rc_commands>
-    <set command="THROTTLE"    value="@THROTTLE"/>
+    <set command="THROTTLE" value="@THROTTLE"/>
     <set command="STEERING" value="@ROLL"/>
   </rc_commands>
 
