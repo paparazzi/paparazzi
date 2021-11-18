@@ -18,10 +18,11 @@
 #include <stdio.h>
 
 // Static guidance variables
-static float SR_Ke = 10000.0; // TODO: config parameter in guidance_control struct 
+static float SR_Ke = 10000.0; // TODO: configurable parameter in guidance_control struct 
 
 // Guidance control main struct
 rover_ctrl guidance_control;
+
 
 /** Send RS guidance telemetry messages **/
 static void send_msg(struct transport_tx *trans, struct link_device *dev)
@@ -43,6 +44,7 @@ bool rover_guidance_steering_set_delta(float delta){
   return true;
 }
 
+
 /** INIT function**/
 void rover_guidance_steering_init(void)
 {
@@ -54,6 +56,7 @@ void rover_guidance_steering_init(void)
   guidance_control.throttle = 0.0;
 }
 
+
 /** PERIODIC function **/
 void rover_guidance_steering_periodic(void)
 { 
@@ -62,7 +65,7 @@ void rover_guidance_steering_periodic(void)
   // speed is bounded to avoid GPS noise while driving at small velocity
   float delta = 0.0;
   float speed = BoundSpeed(guidance_control.state_speed); 
-  float omega = guidance_control.gvf_omega;
+  float omega = guidance_control.gvf_omega; //GVF give us this omega
 
   // ASSISTED guidance .....................................................
   if (autopilot_get_mode() == AP_MODE_ASSISTED) {
@@ -76,9 +79,10 @@ void rover_guidance_steering_periodic(void)
 
   // NAV guidance ...........................................................
   else if (autopilot_get_mode() == AP_MODE_NAV) {
+    // In NAV mode, we can set cmd.delta and cmd.speed from GCS settings panel
     guidance_control.cmd.delta = BoundDelta(guidance_control.cmd.delta);
 
-    // Control speed signal
+    // Control speed signal (not implemented yet, this is just for NPS tests)
     float error = guidance_control.cmd.speed - guidance_control.state_speed;
     guidance_control.throttle = BoundThrottle(SR_Ke * error); // Simple control model...
   } 
