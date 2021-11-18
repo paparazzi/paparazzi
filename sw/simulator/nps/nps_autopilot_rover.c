@@ -165,7 +165,7 @@ void nps_autopilot_run_step(double time)
 
   handle_periodic_tasks();
 
-  /* feeding the fdm with raw atuators signal */
+  /* feeding the fdm with raw low level commands */
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
     commands[i] = autopilot_get_motors_on() ? commands[i] : 0;
     nps_autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
@@ -203,6 +203,6 @@ void sim_overwrite_ins(void)
   VECT3_COPY(ltp_accel, fdm.ltpprz_ecef_accel);
   stateSetAccelNed_f(&ltp_accel);
 
-  // Make sure that ENU states are recalculated
+  // Here we make sure that ENU states are recalculated
   stateCalcPositionEnu_i();
 }
