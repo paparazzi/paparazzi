@@ -35,13 +35,19 @@
 /** Global variables definitions **/
 
 // MIN_DELTA, MAX_DELTA: Min and max wheels turning angle (deg)
+// You should measure this angle if you want to have an
+// efficient control in your steering
 #ifndef MAX_DELTA 
-#define MAX_DELTA 90.0
+#define MAX_DELTA 15.0
 #endif
 #ifndef MIN_DELTA 
 #define MIN_DELTA MAX_DELTA
 #endif
 
+// This variables allow you to configurate de max and min
+// steering actuator signal. There is a mecanic limitation
+// for the actuator in the steering of our rover, so we have
+// to limit the actuator travel.
 #ifndef MAX_CMD_SHUT
 #define MAX_CMD_SHUT 0
 #endif
@@ -51,13 +57,13 @@
 
 // MIN_SPEED, MAX_SPEED: Min and max state speed (m/s)
 #ifndef MAX_SPEED 
-#define MAX_SPEED 999.0
+#define MAX_SPEED 999.0 //We don't really use that variable
 #endif
 #ifndef MIN_SPEED 
-#define MIN_SPEED 0.2
-#endif
+#define MIN_SPEED 0.2 //But this one is mandatory because we have
+#endif                //to deal with GPS noise (and 1/v in guidance control).
 
-// NAV max throttle
+// NAV max throttle (not yet implemented)
 #define MAX_THROTTLE 100000.0
 
 // DRIVE_SHAFT_DISTANCE: Distance between front and rear wheels (m)
@@ -68,7 +74,7 @@
 
 
 /** Steering rover guidance STRUCTURES **/
-// High commands
+// High level commands
 typedef struct {
   float speed;
   float delta;
@@ -106,12 +112,12 @@ extern bool rover_guidance_steering_set_delta(float delta);
                                 (throttle >   MAX_THROTTLE ?   MAX_THROTTLE : \
                                  throttle));
 
-/* Set low commands from high commands */
+// Set low level commands from high level commands
 #define GetCmdFromDelta(delta) (delta >= 0 ? -delta/MAX_DELTA * (MAX_PPRZ - (int)MAX_CMD_SHUT) : \
                                              -delta/MIN_DELTA * (MAX_PPRZ - (int)MIN_CMD_SHUT));
 
+// This macro is for future NAV state
 #define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle / MAX_THROTTLE * MAX_PPRZ);
-/* .. */
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \
