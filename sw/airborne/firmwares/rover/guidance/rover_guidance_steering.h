@@ -39,7 +39,14 @@
 #define MAX_DELTA 90.0
 #endif
 #ifndef MIN_DELTA 
-#define MIN_DELTA -MAX_DELTA
+#define MIN_DELTA MAX_DELTA
+#endif
+
+#ifndef MAX_CMD_SHUT
+#define MAX_CMD_SHUT 0
+#endif
+#ifndef MIN_CMD_SHUT 
+#define MIN_CMD_SHUT 0
 #endif
 
 // MIN_SPEED, MAX_SPEED: Min and max state speed (m/s)
@@ -85,8 +92,8 @@ extern bool rover_guidance_steering_set_delta(float delta);
 
 /** MACROS **/
 // Bound delta
-#define BoundDelta(delta) (delta <  MIN_DELTA ? MIN_DELTA : \
-                          (delta >  MAX_DELTA ? MAX_DELTA : \
+#define BoundDelta(delta) (delta < -MIN_DELTA ? -MIN_DELTA : \
+                          (delta >  MAX_DELTA ?  MAX_DELTA : \
                            delta));
 
 // Bound speed
@@ -100,8 +107,8 @@ extern bool rover_guidance_steering_set_delta(float delta);
                                  throttle));
 
 /* Set low commands from high commands */
-#define GetCmdFromDelta(delta) (delta >= 0 ? delta/MAX_DELTA * MAX_PPRZ : \
-                                           - delta/MIN_DELTA * MAX_PPRZ);
+#define GetCmdFromDelta(delta) (delta >= 0 ? -delta/MAX_DELTA * (MAX_PPRZ - (int)MAX_CMD_SHUT) : \
+                                             -delta/MIN_DELTA * (MAX_PPRZ - (int)MIN_CMD_SHUT));
 
 #define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle / MAX_THROTTLE * MAX_PPRZ);
 /* .. */
