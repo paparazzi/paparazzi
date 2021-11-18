@@ -80,7 +80,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   //    COMMAND_STEERING -> delta parameter
   //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
-  double delta = - commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
+  double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
 
 
   /** Physical model for car-like robots *********************************/

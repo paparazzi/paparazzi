@@ -12,10 +12,9 @@
     
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="rover"/>
+      <module name="fdm" type="rover"/> <!-- NPS_FDM rover physics!! -->
       <define name="NPS_BYPASS_AHRS" value="TRUE"/>
       <define name="NPS_BYPASS_INS"  value="TRUE"/>
-      <!--define name="PRINT_TIME"   value="TRUE"/-->
     </target>    
     
     <module name="actuators" type="pwm"/>
@@ -43,11 +42,12 @@
   </firmware>
 
 
-  <!-- COMMANDS SECTION -->
-  <servos>
+  <!-- COMMANDS SECTION ..................................................................... -->
+  <servos> 
+    <!-- "no" 1 and 2 but no 0 because our board don't have S0 actuator entry... -->
     <servo name="MOTOR_THROTTLE" no="1" min="1000" neutral="1500" max="2000"/>
     <servo name="MOTOR_STEERING" no="2" min="1000" neutral="1500" max="2000"/>
-  </servos>
+  </servos> 
   
   <!-- Low level commands (PWM signal) -->
   <commands>
@@ -61,10 +61,6 @@
     <set command="STEERING" value="@ROLL"/>
   </rc_commands>
 
-  <!--section name="MIXER">
-    <define name="TURN_RATIO" value="0.5"/>
-  </section-->
-
   <!-- When SetActuatorsFromCommands-->
   <command_laws>
     <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
@@ -72,7 +68,7 @@
   </command_laws>
 
 
-  <!-- SECTIONS: General config -->
+  <!-- SECTIONS: General config ............................................................. -->
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -80,7 +76,7 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module if loaded -->
+    <!-- values used if no GPS fix (i.e NPS), on 3D fix is update by geo_mag module if loaded -->
     <!-- Toulouse -->
     <define name="H_X" value="0.513081"/>
     <define name="H_Y" value="-0.00242783"/>
@@ -110,7 +106,7 @@
   </section>
 
   <section name="GCS">
-    <define name="AC_ICON"             value="rover"/>
+    <define name="AC_ICON" value="rover"/>
   </section>
 
 </airframe>

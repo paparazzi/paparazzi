@@ -25,7 +25,7 @@
       <exception cond="kill_switch_is_on()"   deroute="KILL"/>
     </exceptions>
 
-    <!-- * AP MODES * -->
+    <!-- * AP MODES * ......................................................................... -->
     <!-- RC Manual -->
     <mode name="DIRECT" shortname="MANUAL">
       <select cond="RCMode0()"/>
@@ -43,6 +43,7 @@
     </mode>
 
     <!-- RC Assisted (High level cmds) -->
+    <!-- RC commands the throttle but GVF controls the steering (flight plan) -->
     <mode name="ASSISTED">
       <select cond="RCMode1()"/>
       <control freq="NAV_FREQ">
@@ -61,7 +62,7 @@
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
     
-    <!-- Navigation -->
+    <!-- Navigation (we have to work in this state because NAV is not yet implemented) -->
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
       <control freq="NAV_FREQ">
@@ -79,7 +80,7 @@
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
     </mode>
     
-    <!-- Come home -->
+    <!-- Come home (not yet implemented because we don't have NAV) -->
     <mode name="HOME">
       <control freq="NAV_FREQ">
         <call fun="nav_home()"/>
