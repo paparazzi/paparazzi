@@ -34,9 +34,9 @@ CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=50
 
 SRCS= run_ahrs_on_flight_log.c                    \
 	  ../../math/pprz_trig_int.c                  \
-	  ../../subsystems/ahrs.c                     \
-	  ../../subsystems/ahrs/ahrs_aligner.c        \
-	  ../../subsystems/imu.c                      \
+	  ../../modules/ahrs/ahrs.c                     \
+	  ../../modules/ahrs/ahrs_aligner.c        \
+	  ../../modules/imu/imu.c                      \
       ../../state.c                               \
       ../../math/pprz_orientation_conversion.c    \
       ../../math/pprz_geodetic_double.c           \
@@ -45,13 +45,13 @@ SRCS= run_ahrs_on_flight_log.c                    \
 
 all: run_ahrs_fcr_on_flight_log run_ahrs_ice_on_flight_log
 
-#run_ahrs_flq_on_flight_log: ../../subsystems/ahrs/ahrs_float_lkf_quat.c $(SRCS)
+#run_ahrs_flq_on_flight_log: ../../modules/ahrs/ahrs_float_lkf_quat.c $(SRCS)
 #	$(CC) -DAHRS_TYPE=AHRS_TYPE_FLQ $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-run_ahrs_fcr_on_flight_log: ../../subsystems/ahrs/ahrs_float_cmpl.c $(SRCS)
+run_ahrs_fcr_on_flight_log: ../../modules/ahrs/ahrs_float_cmpl.c $(SRCS)
 	$(CC) -DAHRS_TYPE=AHRS_TYPE_FCR -DAHRS_PROPAGATE_QUAT $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-run_ahrs_ice_on_flight_log: ../../subsystems/ahrs/ahrs_int_cmpl_euler.c $(SRCS)
+run_ahrs_ice_on_flight_log: ../../modules/ahrs/ahrs_int_cmpl_euler.c $(SRCS)
 	$(CC) -DAHRS_TYPE=AHRS_TYPE_ICE $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 ifndef AHRS_TYPE
@@ -95,38 +95,38 @@ AHRS_CFLAGS += -DUSE_AHRS_GPS_ACCELERATIONS
 endif
 
 
-AHRS_SRCS   += ../../subsystems/ahrs.c                      \
-			   ../../subsystems/ahrs/ahrs_aligner.c         \
+AHRS_SRCS   += ../../modules/ahrs/ahrs.c                      \
+			   ../../modules/ahrs/ahrs_aligner.c         \
 
 ifeq ($(AHRS_TYPE), AHRS_TYPE_ICE)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_int_cmpl_euler.h\"
 AHRS_CFLAGS += -DFACE_REINJ_1=1024
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_euler.c
+AHRS_SRCS   += ../../modules/ahrs/ahrs_int_cmpl_euler.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_ICQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_quat.c
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_int_cmpl_quat.h\"
+AHRS_SRCS   += ../../modules/ahrs/ahrs_int_cmpl_quat.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCR)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_dcm.c
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_dcm.h\"
+AHRS_SRCS   += ../../modules/ahrs/ahrs_float_dcm.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCR2)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl.h\"
 AHRS_CFLAGS += -DAHRS_PROPAGATE_RMAT
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl.c
+AHRS_SRCS   += ../../modules/ahrs/ahrs_float_cmpl.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl.h\"
 AHRS_CFLAGS += -DAHRS_PROPAGATE_QUAT
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl.c
+AHRS_SRCS   += ../../modules/ahrs/ahrs_float_cmpl.c
 endif
 
 
 RAOS_SRCS =  ./ahrs_on_synth.c			 \
 			 ../../state.c \
-			 ../../subsystems/imu.c              \
-			 ../../subsystems/imu/imu_dummy.c    \
+			 ../../modules/imu/imu.c              \
+			 ../../modules/imu/imu_dummy.c    \
 			 ../../math/pprz_trig_int.c          \
 			 ../../math/pprz_orientation_conversion.c \
 			 ../../math/pprz_geodetic_int.c \

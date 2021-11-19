@@ -73,7 +73,7 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 // revision information
 #if BATTERY_MONITOR_REV4

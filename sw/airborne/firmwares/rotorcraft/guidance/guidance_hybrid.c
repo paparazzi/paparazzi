@@ -34,7 +34,7 @@
 
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
 /* for guidance_v_thrust_coeff */
@@ -73,7 +73,7 @@ bool force_forward_flight;
 static int32_t v_control_pitch;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_hybrid_guidance(struct transport_tx *trans, struct link_device *dev)
 {

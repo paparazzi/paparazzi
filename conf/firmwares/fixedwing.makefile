@@ -5,12 +5,7 @@
 #
 
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
-CFG_FIXEDWING=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/fixedwing
-
-
-# Standard Fixed Wing Code
-include $(CFG_FIXEDWING)/autopilot.makefile
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 # automatically include correct actuators for the ap target
 ACTUATOR_TARGET = ap

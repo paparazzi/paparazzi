@@ -3,7 +3,7 @@
 
 #include "std.h"
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "autopilot.h"
 
 #define NAV_DEFAULT_ALT 260 /* nominal altitude of the flight plan */

@@ -36,11 +36,11 @@
 
 #include "math/pprz_isa.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 
 #if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 

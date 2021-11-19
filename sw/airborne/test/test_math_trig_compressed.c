@@ -81,7 +81,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "led.h"
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"

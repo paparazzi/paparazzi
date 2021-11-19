@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ahrs_chimu_spi" dir="ins" task="estimation">
+<module name="ahrs_chimu_spi" dir="ahrs" task="estimation">
   <doc>
     <description>CHimu (SPI)</description>
     <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
@@ -11,7 +11,7 @@
   </dep>
   <autoload name="ahrs_sim"/>
   <header>
-    <file name="ins_module.h"/>
+    <file name="ins_module.h" dir="modules/ins"/>
   </header>
   <init fun="ahrs_init()"/>
   <event fun="parse_ins_msg()"/>
@@ -23,8 +23,8 @@
     <define name="INS_LINK" value="spi_slave_hs"/>
     <define name="USE_USB_HIGH_PCLK" />
     <file name="ahrs_chimu_spi.c"/>
-    <file name="imu_chimu.c"/>
-    <file name="ahrs.c" dir="subsystems"/>
-    <define name="AHRS_TYPE_H" value="modules/ins/ahrs_chimu.h" type="string"/>
+    <file name="imu_chimu.c" dir="modules/ins"/>
+    <file name="ahrs.c"/>
+    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_chimu.h" type="string"/>
   </makefile>
 </module>

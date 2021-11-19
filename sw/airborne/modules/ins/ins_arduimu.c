@@ -17,7 +17,7 @@ Autoren@ZHAW:   schmiemi
 #ifndef UBX
 #error "currently only compatible with uBlox GPS modules"
 #endif
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 int32_t GPS_Data[14];
 
 #ifndef ARDUIMU_I2C_DEV
@@ -32,7 +32,7 @@ int32_t GPS_Data[14];
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct i2c_transaction ardu_gps_trans;
 struct i2c_transaction ardu_ins_trans;

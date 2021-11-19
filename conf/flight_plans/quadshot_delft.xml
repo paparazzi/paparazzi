@@ -3,9 +3,9 @@
 <flight_plan alt="40" ground_alt="0" lat0="52.170867" lon0="4.412194" max_dist_from_home="1000" name="Transitioning test" security_height="2">
   <header>
     #include "autopilot.h"
-    #include "subsystems/radio_control.h"
-    #include "subsystems/electrical.h"
-    #include "subsystems/actuators.h"
+    #include "modules/radio_control/radio_control.h"
+    #include "modules/energy/electrical.h"
+    #include "modules/actuators/actuators.h"
     #include "firmwares/rotorcraft/guidance/guidance_h.h"
     #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 </header>

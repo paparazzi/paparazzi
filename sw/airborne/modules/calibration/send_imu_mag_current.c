@@ -24,12 +24,12 @@
  * Enables sending of IMU_MAG_CURRENT_CALIBRATION message.
  */
 
-#include "subsystems/imu.h"
-#include "subsystems/electrical.h"
+#include "modules/imu/imu.h"
+#include "modules/energy/electrical.h"
 
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 void send_imu_mag_current(void)
 {

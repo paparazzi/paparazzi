@@ -103,7 +103,6 @@ DEBUG_MESSAGES = {
 """
 Binary logs
 
-See format description in sw/airborne/subsystems/datalink/fms_link.c
 
 """
 

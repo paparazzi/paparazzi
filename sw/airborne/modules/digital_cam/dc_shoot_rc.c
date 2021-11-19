@@ -27,7 +27,7 @@
  */
 
 #include "dc_shoot_rc.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "dc.h"
 
 #ifndef DC_RADIO_SHOOT

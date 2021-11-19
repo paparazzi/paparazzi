@@ -12,23 +12,23 @@
     <provides>ins</provides>
   </dep>
   <header>
-    <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
+    <file name="ins_gps_passthrough.h"/>
   </header>
   <init fun="ins_gps_passthrough_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough.c"/>
     <test firmware="rotorcraft"/>
   </makefile>
   <makefile target="ap|sim|nps" firmware="fixedwing">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough_utm.c"/>
   </makefile>
   <makefile target="ap" firmware="rover">
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough.c"/>
   </makefile>
 </module>

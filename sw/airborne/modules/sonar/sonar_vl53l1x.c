@@ -24,13 +24,13 @@
 
 #include "mcu_periph/i2c.h"
 #include "peripherals/vl53l1x_nonblocking.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #ifdef SITL
 #include "state.h"
 #endif
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 #ifndef SONAR_VL53L1X_I2C_ADDR

@@ -9,12 +9,12 @@
   <dep>
   </dep>
   <header>
-    <file name="actuators.h" dir="subsystems"/>
+    <file name="actuators.h"/>
   </header>
   <init fun="actuators_init()"/>
   <makefile>
     <define name="ACTUATORS"/>
-    <file name="actuators.c" dir="subsystems"/>
+    <file name="actuators.c"/>
     <test/>
   </makefile>
 </module>

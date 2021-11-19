@@ -31,7 +31,7 @@
 
 #include "mcu_periph/i2c.h"
 #include "modules/gps/gps_ubx_i2c.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include <math.h>
 #include <string.h>
 

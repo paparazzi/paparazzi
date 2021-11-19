@@ -25,8 +25,8 @@
  *
  */
 
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
 
 #include "pprzlink/messages.h"
 #include "pprzlink/dl_protocol.h"
@@ -37,12 +37,12 @@
 
 #ifdef NAV
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "math/pprz_geodetic_float.h"
 #endif
 
 #ifdef HITL
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 #define MOfMM(_x) (((float)(_x))/1000.)

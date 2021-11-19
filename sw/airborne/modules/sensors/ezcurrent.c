@@ -37,7 +37,7 @@
 
 #include "sensors/ezcurrent.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 #define EZCURRENT_ADDR 0xEF
 

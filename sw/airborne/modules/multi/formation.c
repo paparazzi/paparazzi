@@ -9,7 +9,7 @@
 #include "std.h"
 #include "state.h"
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"

@@ -28,9 +28,9 @@
  */
 
 #include "modules/gps/gps_ubx_ucenter.h"
-#include "subsystems/gps/gps_ubx.h"
+#include "modules/gps/gps_ubx.h"
 #include "ubx_protocol.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if PRINT_DEBUG_GPS_UBX_UCENTER
 #include <stdio.h>

@@ -36,7 +36,7 @@
 
 
 #if USE_GPS_XSENS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 struct XsensTime {

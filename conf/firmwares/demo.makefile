@@ -30,10 +30,9 @@
 
 SRC_ARCH=arch/$(ARCH)
 SRC_BOARD=boards/$(BOARD)
-SRC_SUBSYSTEMS=subsystems
 SRC_MODULES=modules
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 VPATH += $(PAPARAZZI_HOME)/var/share
 
@@ -77,7 +76,7 @@ endif
 #
 # Demo AHRS and actuators
 #
-# required subsystems:
+# required:
 #   - telemetry
 #   - imu
 #   - ahrs
@@ -92,8 +91,8 @@ demo_ahrs_actuators.ARCHDIR = $(ARCH)
 demo_ahrs_actuators.CFLAGS += $(COMMON_DEMO_CFLAGS)
 demo_ahrs_actuators.srcs   += $(COMMON_DEMO_SRCS)
 demo_ahrs_actuators.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-demo_ahrs_actuators.srcs   += subsystems/settings.c $(SRC_ARCH)/subsystems/settings_arch.c
-demo_ahrs_actuators.srcs   += subsystems/commands.c subsystems/actuators.c
+demo_ahrs_actuators.srcs   += modules/core/settings.c $(SRC_ARCH)/modules/core/settings_arch.c
+demo_ahrs_actuators.srcs   += modules/core/commands.c modules/actuators/actuators.c
 demo_ahrs_actuators.srcs   += state.c
 demo_ahrs_actuators.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 demo_ahrs_actuators.srcs   += firmwares/demo/demo_ahrs_actuators.c

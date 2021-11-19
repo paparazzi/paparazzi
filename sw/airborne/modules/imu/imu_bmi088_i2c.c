@@ -19,16 +19,16 @@
  */
 
 /**
- * @file subsystems/imu/imu_bmi088_i2c.c
+ * @file modules/imu/imu_bmi088_i2c.c
  *
  * IMU driver for the BMI088 using I2C
  *
  */
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 PRINT_CONFIG_VAR(IMU_BMI088_GYRO_RANGE)
 PRINT_CONFIG_VAR(IMU_BMI088_ACCEL_RANGE)

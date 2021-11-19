@@ -26,7 +26,7 @@
  */
 
 #include "modules/datalink/bitcraze/syslink_dl.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "mcu_periph/uart.h"
 #include <string.h>
 #include "led.h"

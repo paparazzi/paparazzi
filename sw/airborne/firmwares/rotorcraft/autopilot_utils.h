@@ -30,7 +30,7 @@
 #define AUTOPILOT_UTILS_H
 
 #include "std.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
 /** Set descent speed in failsafe mode */
 #ifndef FAILSAFE_DESCENT_SPEED

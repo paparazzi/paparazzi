@@ -42,11 +42,11 @@
  */
 
 #include "modules/mission/copilot.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 // needed for WP_MOVED confirmation
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "math/pprz_geodetic_float.h"
 
 /**

@@ -29,7 +29,7 @@
 
 #include "modules/optical_flow/px4flow.h"
 #include "modules/datalink/mavlink_decoder.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // State interface for rotation compensation
 #include "state.h"
@@ -37,7 +37,7 @@
 // Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 struct mavlink_heartbeat heartbeat;
 struct mavlink_optical_flow optical_flow;

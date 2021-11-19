@@ -31,7 +31,7 @@
 #include "modules/mission/mission_common.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "generated/flight_plan.h"
 
 /// Utility function: converts lla (int) to local point (float)

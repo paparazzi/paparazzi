@@ -25,8 +25,8 @@
  */
 
 #include "modules/ahrs/ahrs_madgwick_wrapper.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
 #include "state.h"
@@ -45,7 +45,7 @@ static uint8_t ahrs_madgwick_id = AHRS_COMP_ID_MADGWICK;
 static void compute_body_orientation_and_rates(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)
 {

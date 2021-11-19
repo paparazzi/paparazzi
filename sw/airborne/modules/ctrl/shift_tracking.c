@@ -30,7 +30,7 @@
 
 #include "firmwares/fixedwing/nav.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
 
@@ -47,7 +47,7 @@
 #endif
 
 #if SHIFT_TRACKING_DEBUG
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 #endif

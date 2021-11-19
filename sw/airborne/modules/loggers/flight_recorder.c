@@ -27,8 +27,8 @@
 
 #include "modules/loggers/flight_recorder.h"
 
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/datalink/downlink.h"
 #include "modules/loggers/pprzlog_tp.h"
 
 #if FLIGHTRECORDER_SDLOG
@@ -42,7 +42,7 @@ struct chibios_sdlog flightrecorder_sdlog;
 
 #else
 // include downlink for other devices
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 #ifndef TELEMETRY_PROCESS_FlightRecorder

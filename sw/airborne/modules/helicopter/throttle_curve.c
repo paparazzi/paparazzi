@@ -25,10 +25,10 @@
  */
 
 #include "throttle_curve.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "autopilot.h"
-#include "subsystems/radio_control.h"
-#include "subsystems/abi.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/core/abi.h"
 
 /* The switching values for the Throttle Curve Mode switch */
 #define THROTTLE_CURVE_SWITCH_VAL (MAX_PPRZ*2/THROTTLE_CURVES_NB)
@@ -63,7 +63,7 @@ struct throttle_curve_t throttle_curve = {
 };
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void throttle_curve_send_telem(struct transport_tx *trans, struct link_device *dev)
 {

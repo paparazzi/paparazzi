@@ -44,7 +44,7 @@
 #ifndef COPILOT_H
 #define COPILOT_H
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "modules/datalink/extra_pprz_dl.h"
 #include "pprz_mutex.h"
 

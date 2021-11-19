@@ -22,12 +22,12 @@
 
 #include "qr_code_spi_link.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/spi.h"
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 //struct qr_code_spi_link_data qr_code_spi_link_data;
 struct spi_transaction qr_code_spi_link_transaction;

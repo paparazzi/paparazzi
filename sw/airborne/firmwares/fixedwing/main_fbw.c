@@ -36,10 +36,10 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/commands.h"
-#include "subsystems/actuators.h"
-#include "subsystems/electrical.h"
-#include "subsystems/radio_control.h"
+#include "modules/core/commands.h"
+#include "modules/actuators/actuators.h"
+#include "modules/energy/electrical.h"
+#include "modules/radio_control/radio_control.h"
 #include "autopilot.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
@@ -50,15 +50,15 @@
 #endif
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #ifdef FBW_DATALINK
 #include "firmwares/fixedwing/fbw_datalink.h"
 #endif
 
-#include "inter_mcu.h"
-#include "link_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/intermcu/link_mcu.h"
 
 uint8_t fbw_mode;
 

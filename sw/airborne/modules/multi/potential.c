@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/dl_protocol.h"
 
 #include "potential.h"
@@ -13,7 +13,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "generated/airframe.h"
 
 //#include <stdio.h>

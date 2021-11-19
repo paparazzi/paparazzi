@@ -4,7 +4,7 @@
 
   <header>
 #include "autopilot.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #ifdef dc_Survey
 #define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
 #define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}

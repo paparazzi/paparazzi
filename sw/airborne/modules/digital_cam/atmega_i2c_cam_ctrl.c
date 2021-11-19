@@ -35,7 +35,7 @@
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 // In I2C mode we can not inline this function:
 void dc_send_command(uint8_t cmd)

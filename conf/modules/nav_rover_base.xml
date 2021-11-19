@@ -26,8 +26,8 @@
   <makefile>
     <file name="nav_rover_base.c"/>
     <file name="navigation.c" dir="firmwares/rover"/>
-    <file name="common_flight_plan.c" dir="subsystems/navigation"/>
-    <file name="waypoints.c" dir="subsystems/navigation"/>
+    <file name="common_flight_plan.c"/>
+    <file name="waypoints.c"/>
     <define name="USE_NAVIGATION"/>
     <test firmware="rover">
       <define name="USE_GENERATED_AUTOPILOT"/>

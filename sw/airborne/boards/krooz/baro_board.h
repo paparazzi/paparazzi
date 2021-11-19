@@ -2,7 +2,7 @@
 /*
  * board specific interface for the KroozSD board
  *
- * It uses the subsystems/sensors/baro_ms5611_i2c.c driver
+ * It uses the modules/sensors/baro_ms5611_i2c.c driver
  */
 
 #ifndef BOARDS_KROOZ_BARO_H

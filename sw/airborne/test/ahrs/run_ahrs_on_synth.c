@@ -2,9 +2,9 @@
 
 #include "test/ahrs/ahrs_on_synth.h"
 
-#include "subsystems/imu.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
+#include "modules/imu/imu.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/ahrs/ahrs_aligner.h"
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"

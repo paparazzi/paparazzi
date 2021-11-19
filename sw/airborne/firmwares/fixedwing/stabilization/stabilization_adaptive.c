@@ -266,7 +266,7 @@ inline static void h_ctl_cl_loop(void);
 #endif
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_calibration(struct transport_tx *trans, struct link_device *dev)
 {

@@ -28,7 +28,7 @@
   </header>
   <makefile target="ap|nps" firmware="rotorcraft">
     <define name="INS_TYPE_H" value="modules/ins/ins_skeleton.h" type="string"/>
-    <file name="ins.c" dir="subsystems"/>
+    <file name="ins.c"/>
     <file name="ins_skeleton.c"/>
     <test firmware="rotorcraft"/>
   </makefile>

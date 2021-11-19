@@ -28,12 +28,12 @@
 #include "mcu_periph/i2c.h"
 
 #include "state.h"
-#include "subsystems/gps.h"
-#include "subsystems/electrical.h"
+#include "modules/gps/gps.h"
+#include "modules/energy/electrical.h"
 #include "generated/airframe.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "autopilot.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 
 #define NB_DATA 24
 

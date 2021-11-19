@@ -40,11 +40,11 @@
 #include "state.h"
 #include "autopilot.h"
 #include "autopilot_guided.h"
-#include "subsystems/navigation/waypoints.h"
+#include "modules/nav/waypoints.h"
 #include "math/pprz_geodetic_float.h"
 #include "generated/flight_plan.h"
 #include <math.h>
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 #include <stdio.h>
 #include <stdlib.h>

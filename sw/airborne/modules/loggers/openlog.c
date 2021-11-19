@@ -30,7 +30,7 @@
 
 #include "openlog.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "mcu_periph/sys_time.h"
 
 void periodic_2Hz_openlog(void)

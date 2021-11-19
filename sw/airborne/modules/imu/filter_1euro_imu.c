@@ -27,7 +27,7 @@
 #include "filters/1e_filter.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "generated/airframe.h"
 
 /** Enable by default */

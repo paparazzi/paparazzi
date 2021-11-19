@@ -12,30 +12,30 @@
     <provides>radio_control</provides>
   </dep>
   <header>
-    <file name="rc_datalink.h" dir="subsystems/radio_control"/>
+    <file name="rc_datalink.h"/>
   </header>
   <makefile target="ap|fbw|sim|nps">
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="RADIO_CONTROL_DATALINK_LED" default="none"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
     <define name="RADIO_CONTROL_DATALINK_LED" value="$(RADIO_CONTROL_DATALINK_LED)" cond="ifneq ($(RADIO_CONTROL_DATALINK_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/rc_datalink.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/rc_datalink.h" type="string"/>
   </makefile>
   <makefile target="fbw|sim|nps">
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="rc_datalink.c" dir="subsystems/radio_control"/>
+    <file name="radio_control.c"/>
+    <file name="rc_datalink.c"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="rc_datalink.c" dir="subsystems/radio_control"/>
+    <file name="radio_control.c"/>
+    <file name="rc_datalink.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/rc_datalink.h" type="string"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/rc_datalink.h" type="string"/>
     </test>
   </makefile>
 </module>

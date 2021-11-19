@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 
-#include "subsystems/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/imu/imu.h"
+#include "modules/ahrs/ahrs.h"
 #include "../simulator/nps/nps_random.h"
 
 #include "../pprz_algebra_print.h"

@@ -33,7 +33,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 uint16_t adc_generic_val1;
 uint16_t adc_generic_val2;
@@ -49,7 +49,7 @@ uint16_t adc_generic_val2;
 #endif
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #ifndef ADC_GENERIC_PERIODIC_SEND

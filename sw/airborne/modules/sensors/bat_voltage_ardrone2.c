@@ -39,7 +39,7 @@
 #include <math.h>
 #include "mcu_periph/i2c_smbus.h"
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 void electrical_ardrone2_setup(void);
 

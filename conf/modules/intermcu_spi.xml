@@ -26,7 +26,7 @@
     <configure name="INTER_MCU_SPI" default="SPI1"/>
     <configure name="INTER_MCU_SLAVE" default="SLAVE0"/>
     <define name="MCU_SPI_LINK"/>
-    <file name="link_mcu_spi.c" dir="."/>
+    <file name="link_mcu_spi.c"/>
     <file name="spi.c" dir="mcu_periph"/>
     <file name="spi_arch.c" dir="$(SRC_ARCH)/mcu_periph"/>
   </makefile>

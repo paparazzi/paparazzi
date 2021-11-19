@@ -4,10 +4,10 @@
   max_dist_from_home="8" name="Test flight plan" security_height="0.4">
   <header>
     #include "autopilot.h"
-    #include "subsystems/radio_control.h"
-    #include "subsystems/ahrs.h"
-    #include "subsystems/electrical.h"
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/radio_control/radio_control.h"
+    #include "modules/ahrs/ahrs.h"
+    #include "modules/energy/electrical.h"
+    #include "modules/datalink/datalink.h"
   </header>
   <waypoints>
     <waypoint height="0" name="HOME" x="0.0" y="0.0" />

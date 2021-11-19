@@ -27,7 +27,7 @@
 #ifndef EXTRA_PPRZ_DL_H
 #define EXTRA_PPRZ_DL_H
 
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "pprzlink/pprz_transport.h"
 
 #if USE_UDP

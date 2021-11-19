@@ -28,7 +28,7 @@
  */
 
 #include "modules/optical_flow/px4flow_i2c.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "filters/median_filter.h"
 
 // State interface for rotation compensation
@@ -36,7 +36,7 @@
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /*
  * acceptable quality of optical flow (0-min,1-max)

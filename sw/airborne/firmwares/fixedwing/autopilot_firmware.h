@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "autopilot.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 // FIXME, move to control
 #define LATERAL_MODE_MANUAL    0

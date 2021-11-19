@@ -20,10 +20,10 @@
 
 #include "generated/settings.h"
 #include "pprzlink/dl_protocol.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 #include NPS_SENSORS_PARAMS
@@ -112,7 +112,7 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   nps_set_time_factor(atof(argv[5]));
 
 #if USE_GPS
-  // directly set gps fix in subsystems/gps/gps_sim_nps.h
+  // directly set gps fix in modules/gps/gps_sim_nps.h
   gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
 }

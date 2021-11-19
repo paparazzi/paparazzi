@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"
@@ -72,7 +72,7 @@ static pthread_mutex_t opticflow_mutex;                  ///< Mutex lock fo thre
 struct image_t *opticflow_module_calc(struct image_t *img, uint8_t camera_id);     ///< The main optical flow calculation thread
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 /**
  * Send optical flow telemetry information
  * @param[in] *trans The transport structure to send the information over

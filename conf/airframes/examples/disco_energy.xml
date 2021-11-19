@@ -66,7 +66,7 @@
     
     
     <!-- Navigation -->    
-    <define name="USE_GPS_UBX_RTCM" value="TRUE"/> <!--  required so that RTCM messages are decoded in /subsystems/gps/gps_ubx.c -->
+    <define name="USE_GPS_UBX_RTCM" value="TRUE"/> <!--  required so that RTCM messages are decoded in /modules/gps/gps_ubx.c -->
     <define name="GPS_UBX_UCENTER_RATE" value="0x00FA"/> <!-- Ucenter rate for RTCM messsage.. In milliseconds. 0x00FA = 250ms = 4Hz-->
     <module name="gps" type="ublox"/>
     <module name="gps" type="ubx_ucenter"/>

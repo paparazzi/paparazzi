@@ -37,12 +37,12 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
-#include "inter_mcu.h"
-#include "link_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/intermcu/link_mcu.h"
 
 #include "generated/airframe.h"
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "led.h"
 

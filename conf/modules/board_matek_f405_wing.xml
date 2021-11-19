@@ -3,7 +3,7 @@
 <module name="board_matek_f405_wing" dir="boards">
   <doc>
     <description>
-      Autoload several onboard sensors and subsystems
+      Autoload several onboard sensors and modules
       for the Matek F405 Wing board with proper configuration.
       IMU MPU6000
       Baro (BMP280)

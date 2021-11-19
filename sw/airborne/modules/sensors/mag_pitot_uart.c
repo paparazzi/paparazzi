@@ -29,8 +29,8 @@
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
-#include "subsystems/imu.h"
+#include "modules/core/abi.h"
+#include "modules/imu/imu.h"
 #include "state.h"
 
 /* Main magneto structure */
@@ -42,7 +42,7 @@ static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buf
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void mag_pitot_raw_downlink(struct transport_tx *trans, struct link_device *dev)
 {

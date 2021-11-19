@@ -12,12 +12,12 @@
       <include name="generated/airframe.h"/>
       <include name="autopilot.h"/>
       <include name="autopilot_rc_helpers.h"/>
-      <include name="inter_mcu.h"/>
+      <include name="modules/intermcu/inter_mcu.h"/>
       <include name="nav.h"/>
       <include name="guidance/guidance_common.h"/>
       <include name="guidance/guidance_h.h"/>
       <include name="stabilization/stabilization_attitude.h"/>
-      <include name="subsystems/gps.h"/>
+      <include name="modules/gps/gps.h"/>
     </includes>
 
     <control_block name="actuators_ap">

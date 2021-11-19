@@ -26,7 +26,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #define DATALINK_C
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #include "mcu_periph/i2c.h"
 #include "peripherals/ami601.h"

@@ -8,11 +8,11 @@
       <include name="generated/airframe.h"/>
       <include name="autopilot.h"/>
       <include name="autopilot_rc_helpers.h"/>
-      <include name="subsystems/gps.h"/>
-      <include name="subsystems/actuators.h"/>
+      <include name="modules/gps/gps.h"/>
+      <include name="modules/actuators/actuators.h"/>
       <include name="navigation.h"/>
       <include name="guidance/rover_guidance.h"/>
-      <include name="subsystems/radio_control.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
       <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
     </includes>
 

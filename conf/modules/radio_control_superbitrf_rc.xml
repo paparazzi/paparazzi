@@ -12,10 +12,10 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="Superbit">
-        <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="subsystems/settings" values="Store"/>
-        <dl_setting var="superbitrf.bind_mfg_id32" type="uint32" min="0" step="1" max="4294967295" shortname ="mfg_id" persistent="true" module="subsystems/datalink/superbitrf" handler="set_mfg_id"/>
-        <dl_setting var="superbitrf.num_channels" type="uint8" min="0" step="1" max="14" shortname ="#chan" persistent="true" module="subsystems/datalink/superbitrf"/>
-        <dl_setting var="superbitrf.protocol" type="uint8" min="0" step="1" max="32" shortname ="prot" persistent="true" module="subsystems/datalink/superbitrf" handler="set_protocol"/>
+        <dl_setting var="settings_store_flag" min="1" step="1" max="1" shortname="store" handler="StoreSettings" module="modules/core/settings" values="Store"/>
+        <dl_setting var="superbitrf.bind_mfg_id32" type="uint32" min="0" step="1" max="4294967295" shortname ="mfg_id" persistent="true" module="modules/datalink/superbitrf" handler="set_mfg_id"/>
+        <dl_setting var="superbitrf.num_channels" type="uint8" min="0" step="1" max="14" shortname ="#chan" persistent="true" module="modules/datalink/superbitrf"/>
+        <dl_setting var="superbitrf.protocol" type="uint8" min="0" step="1" max="32" shortname ="prot" persistent="true" module="modules/datalink/superbitrf" handler="set_protocol"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -24,14 +24,14 @@
     <provides>radio_control</provides>
   </dep>
   <header>
-    <file name="superbitrf_rc.h" dir="subsystems/radio_control"/>
+    <file name="superbitrf_rc.h"/>
   </header>
   <makefile target="ap|fbw|sim|nps">
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="SUPERBITRF_SPI_DEV" default="SPI2"/>
     <configure name="SUPERBITRF_SPI_SLAVE_IDX" default="2"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/superbitrf_rc.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/superbitrf_rc.h" type="string"/>
   </makefile>
   <makefile target="fbw">
     <define name="RADIO_CONTROL"/>
@@ -39,9 +39,9 @@
     <define name="USE_SUPERBITRF"/>
     <define name="USE_$(SUPERBITRF_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="superbitrf_rc.c" dir="subsystems/radio_control"/>
-    <file name="superbitrf.c" dir="subsystems/datalink"/>
+    <file name="radio_control.c"/>
+    <file name="superbitrf_rc.c"/>
+    <file name="superbitrf.c" dir="modules/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
@@ -50,15 +50,15 @@
     <define name="USE_SUPERBITRF"/>
     <define name="USE_$(SUPERBITRF_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="superbitrf_rc.c" dir="subsystems/radio_control"/>
-    <file name="superbitrf.c" dir="subsystems/datalink"/>
+    <file name="radio_control.c"/>
+    <file name="superbitrf_rc.c"/>
+    <file name="superbitrf.c" dir="modules/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_SUPERBITRF"/>
       <define name="USE_SUPERBITRF"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/superbitrf_rc.h" type="string"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/superbitrf_rc.h" type="string"/>
       <define name="SUPERBITRF_SPI_DEV" value="spi2"/>
       <define name="USE_SPI2"/>
       <define name="SPI_MASTER"/>

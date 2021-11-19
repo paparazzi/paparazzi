@@ -43,9 +43,9 @@
 
 #include "std.h"
 #include "navdata.h"
-#include "subsystems/ins.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/abi.h"
+#include "modules/ins/ins.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/gpio.h"
 
 /* Internal used functions */
@@ -128,7 +128,7 @@ ssize_t full_read(int fd, uint8_t *buf, size_t count)
 }
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 {
@@ -325,7 +325,7 @@ static void *navdata_read(void *data __attribute__((unused)))
   return NULL;
 }
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 static void navdata_publish_imu(void)
 {
   RATES_ASSIGN(imu.gyro_unscaled, navdata.measure.vx, -navdata.measure.vy, -navdata.measure.vz);

@@ -17,7 +17,7 @@
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_spektrum.h" dir="subsystems/actuators"/>
+    <file name="actuators_spektrum.h"/>
   </header>
   <makefile target="!sim">
     <configure name="ACTUATORS_SPEKTRUM_DEV" default="uart4" case="upper|lower"/>
@@ -30,7 +30,7 @@
     <define name="USE_$(ACTUATORS_SPEKTRUM_DEV2_UPPER)"/>
     <define name="$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_BAUD" value="115200" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
     <define name="USE_$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_RC" value="FALSE" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
-    <file name="actuators_spektrum.c" dir="subsystems/actuators"/>
+    <file name="actuators_spektrum.c"/>
     <test>
         <define name="PERIODIC_FREQUENCY" value="500"/>
         <define name="USE_UART4"/>

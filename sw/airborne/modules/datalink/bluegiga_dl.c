@@ -24,8 +24,8 @@
  */
 
 #include "modules/datalink/bluegiga_dl.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/bluegiga.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/bluegiga.h"
 
 #ifndef BLUEGIGA_UPDATE_DL
 #define BLUEGIGA_UPDATE_DL TRUE

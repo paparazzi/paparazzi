@@ -30,16 +30,16 @@
 
 #include <math.h>
 #include "boards/krooz/imu_krooz.h"
-#include "subsystems/imu/imu_krooz_sd_arch.h"
+#include "modules/imu/imu_krooz_sd_arch.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "filters/median_filter.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if !defined KROOZ_LOWPASS_FILTER && !defined  KROOZ_SMPLRT_DIV
 #define KROOZ_LOWPASS_FILTER MPU60X0_DLPF_256HZ

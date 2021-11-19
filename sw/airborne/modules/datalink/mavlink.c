@@ -34,7 +34,7 @@
 
 #if PERIODIC_TELEMETRY
 #define PERIODIC_C_MAVLINK
-#include "subsystems/datalink/telemetry_common.h"
+#include "modules/datalink/telemetry_common.h"
 #include "generated/periodic_telemetry.h"
 #ifndef TELEMETRY_MAVLINK_NB_MSG
 #warning Using hardcoded msg periods. To customize specify a <process name="Mavlink" type="mavlink"> in your telemetry file.
@@ -46,14 +46,14 @@
 #include "generated/settings.h"
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "state.h"
 #include "pprz_version.h"
 #include "autopilot.h"
 #include "autopilot_guided.h"
 
 #if defined RADIO_CONTROL
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #endif
 
 #include "modules/datalink/missionlib/mission_manager.h"
@@ -661,7 +661,7 @@ static void mavlink_send_attitude_quaternion(struct transport_tx *trans, struct 
 }
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 static void mavlink_send_gps_raw_int(struct transport_tx *trans, struct link_device *dev)
@@ -728,7 +728,7 @@ static void mavlink_send_gps_status(struct transport_tx *trans, struct link_devi
 }
 
 #if defined RADIO_CONTROL
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 // since they really want PPM values, use a hack to check if are using ppm subsystem
 #ifdef PPM_PULSE_TYPE_POSITIVE
 #define RC_CHANNELS RADIO_CTL_NB
@@ -768,7 +768,7 @@ static void mavlink_send_rc_channels(struct transport_tx *trans, struct link_dev
   MAVLinkSendMessage();
 }
 
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 static void mavlink_send_battery_status(struct transport_tx *trans, struct link_device *dev)
 {
   static uint16_t voltages[10];
@@ -788,7 +788,7 @@ static void mavlink_send_battery_status(struct transport_tx *trans, struct link_
   MAVLinkSendMessage();
 }
 
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 /**
  * Send Metrics typically displayed on a HUD for fixed wing aircraft.
  */

@@ -42,7 +42,7 @@
  */
 
 #include "modules/mission/copilot.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 // needed for WP_MOVED confirmation
 #include "firmwares/rotorcraft/navigation.h"

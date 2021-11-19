@@ -32,12 +32,12 @@
 #include <inttypes.h>
 #include "led.h"
 
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #include "firmwares/rover/main_ap.h"
 
 #include "generated/modules.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)

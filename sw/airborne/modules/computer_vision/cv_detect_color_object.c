@@ -28,7 +28,7 @@
 // Own header
 #include "modules/computer_vision/cv_detect_color_object.h"
 #include "modules/computer_vision/cv.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "std.h"
 
 #include <stdio.h>

@@ -28,14 +28,14 @@
 
 #include "baro_bmp280_i2c.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "math/pprz_isa.h"
 
 #if DOWNLINK && !defined(BMP280_SYNC_SEND)
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 /** default slave address */

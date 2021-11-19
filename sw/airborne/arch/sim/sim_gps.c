@@ -7,12 +7,12 @@
 /** From airborne/autopilot/ */
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#include "subsystems/gps/gps_sim.h"
+#include "modules/gps/gps_sim.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_geodetic_int.h"
 
 // currently needed for nav_utm_zone0
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 
 #include <caml/mlvalues.h>
 

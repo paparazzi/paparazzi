@@ -26,7 +26,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_gl1.h" dir="subsystems/imu"/>
+    <file name="imu_gl1.h"/>
   </header>
   <init fun="imu_gl1_init()"/>
   <periodic fun="imu_gl1_periodic()"/>
@@ -36,11 +36,11 @@
     <define name="GL1_I2C_DEV" value="$(GL1_I2C_DEV_LOWER)"/>
     <define name="USE_$(GL1_I2C_DEV_UPPER)"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_gl1.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_gl1.h" type="string"/>
 
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="l3g4200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_gl1.c" dir="subsystems/imu"/>
+    <file name="imu_gl1.c"/>
   </makefile>
 </module>

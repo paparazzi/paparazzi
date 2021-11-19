@@ -39,7 +39,7 @@
 #if HAL_USE_RTC
 #include <hal_rtc.h>
 #include <time.h>
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 
 // Delay before starting SD log
@@ -107,7 +107,7 @@ static char chibios_sdlog_filenames[68];
 static char NO_FILE_NAME[] = "none";
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t status = (uint8_t) chibios_sdlog_status;

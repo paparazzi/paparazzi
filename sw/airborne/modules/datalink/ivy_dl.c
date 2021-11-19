@@ -24,7 +24,7 @@
  */
 
 #include "modules/datalink/ivy_dl.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 struct ivy_transport ivy_tp;
 

@@ -25,8 +25,8 @@
 
 #include "modules/range_finder/teraranger_one.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/abi.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/core/abi.h"
+#include "modules/datalink/downlink.h"
 
 // check if I2C device is selected
 #ifndef TERARANGER_ONE_I2C_DEV

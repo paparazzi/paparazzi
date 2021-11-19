@@ -27,12 +27,12 @@
 #include "modules/ins/ins_mekf_wind_wrapper.h"
 #include "modules/ins/ins_mekf_wind.h"
 #include "modules/air_data/air_data.h"
-#include "subsystems/ahrs/ahrs_float_utils.h"
+#include "modules/ahrs/ahrs_float_utils.h"
 #if USE_AHRS_ALIGNER
-#include "subsystems/ahrs/ahrs_aligner.h"
+#include "modules/ahrs/ahrs_aligner.h"
 #endif
-#include "subsystems/ins.h"
-#include "subsystems/abi.h"
+#include "modules/ins/ins.h"
+#include "modules/core/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
 
@@ -73,7 +73,7 @@ static FILE* pprzLogFile = NULL;
 
 /** telemetry functions */
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "mcu_periph/sys_time.h"
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)

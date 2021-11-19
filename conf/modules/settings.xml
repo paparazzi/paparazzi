@@ -10,12 +10,12 @@
     <provides>settings</provides>
   </dep>
   <header>
-    <file name="settings.h" dir="subsystems"/>
+    <file name="settings.h"/>
   </header>
   <init fun="settings_init()"/>
   <makefile target="!fbw">
-    <file name="settings.c" dir="subsystems"/>
-    <file_arch name="settings_arch.c" dir="subsystems"/>
+    <file name="settings.c"/>
+    <file_arch name="settings_arch.c"/>
     <test/>
   </makefile>
 </module>

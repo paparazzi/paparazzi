@@ -49,14 +49,14 @@ extern "C" {
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "math/pprz_isa.h"
 #include "math/pprz_algebra_double.h"
 #include "filters/low_pass_filter.h"
 #include "filters/high_pass_filter.h"
 
-#include "subsystems/actuators/motor_mixing_types.h"
+#include "modules/actuators/motor_mixing_types.h"
 }
 
 #if defined(NPS_DEBUG_VIDEO)
@@ -120,7 +120,7 @@ struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES, NPS_ACTUATOR_
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 extern "C" {
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 }
 
 static void gazebo_init_range_sensors(void);

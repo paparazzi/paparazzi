@@ -29,8 +29,8 @@
 #include "autopilot.h"
 #include "firmwares/fixedwing/autopilot_static.h"
 
-#include "inter_mcu.h"
-#include "link_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/intermcu/link_mcu.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
@@ -40,11 +40,11 @@
 #include "modules/nav/nav_geofence.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #endif
 static bool gps_lost;
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
@@ -62,7 +62,7 @@ static inline void copy_from_to_fbw(void);
 
 /// @todo, properly implement or remove
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 volatile uint8_t new_ins_attitude = 0;
 static abi_event new_att_ev;
 static void new_att_cb(uint8_t sender_id __attribute__((unused)),

@@ -21,7 +21,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/airframe.h"
 #include "state.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <time.h>
 #include <stdio.h>
 

@@ -31,11 +31,11 @@
 #include "state.h"
 
 // GPS data for ArduIMU
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 // Command vector for thrust
 #include "generated/airframe.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #define NB_DATA 9
 
@@ -51,7 +51,7 @@
 #ifdef ARDUIMU_SYNC_SEND
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 struct i2c_transaction ardu_gps_trans;

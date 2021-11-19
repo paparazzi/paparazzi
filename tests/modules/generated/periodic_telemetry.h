@@ -3,7 +3,7 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "subsystems/datalink/telemetry_common.h"
+#include "modules/datalink/telemetry_common.h"
 
 #define TELEMETRY_FREQUENCY 60
 #define TELEMETRY_PPRZ_NB_MSG 1

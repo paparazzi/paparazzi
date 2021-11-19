@@ -28,11 +28,11 @@
 #include "autopilot.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
+#include "modules/nav/common_nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "inter_mcu.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/datalink/datalink.h"
 #include "modules/multi/traffic_info.h"
 #include "uav_recovery.h"
 
@@ -79,7 +79,7 @@ bool   deploy_parachute_var = 0;
 bool   land_direction = 0;
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_wind_info(struct transport_tx *trans, struct link_device *dev)
 {

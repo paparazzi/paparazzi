@@ -45,6 +45,6 @@
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_krooz_memsic.c" dir="boards/krooz"/>
-    <file_arch name="imu_krooz_sd_arch.c" dir="subsystems/imu"/>
+    <file_arch name="imu_krooz_sd_arch.c"/>
   </makefile>
 </module>

@@ -30,13 +30,13 @@
 
 #include "modules/sensors/aoa_adc.h"
 #include "generated/airframe.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 
 // Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /// Default offset value (assuming 0 AOA is in the middle of the range)
 #ifndef AOA_OFFSET

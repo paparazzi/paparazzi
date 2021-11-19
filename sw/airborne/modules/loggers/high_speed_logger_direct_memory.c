@@ -29,12 +29,12 @@
 
 #include <string.h>
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/uart.h"
 
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/downlink.h"
+#include "modules/datalink/telemetry.h"
 
 
 /******************************************************************/

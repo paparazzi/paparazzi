@@ -27,19 +27,19 @@
  */
 
 #include "std.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 #include "peripherals/mpl3115.h"
 
 // to get MPU status
 #include "boards/apogee/imu_apogee.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "led.h"
 
 // sd-log
 #if APOGEE_BARO_SDLOG
 #include "modules/loggers/sdlog_chibios.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 bool log_apogee_baro_started;
 #endif
 

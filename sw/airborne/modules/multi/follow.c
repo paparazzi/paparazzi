@@ -29,7 +29,7 @@
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 
-#include "subsystems/navigation/waypoints.h"
+#include "modules/nav/waypoints.h"
 
 #include "state.h"
 

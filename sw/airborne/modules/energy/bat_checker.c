@@ -30,7 +30,7 @@
 #include "modules/energy/bat_checker.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "mcu_periph/gpio.h"
 #include "led.h"
 

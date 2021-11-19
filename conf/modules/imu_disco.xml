@@ -25,7 +25,7 @@
   <autoload name="imu_sim"/>
   <autoload name="sonar_bebop"/>
   <header>
-    <file name="imu_disco.h" dir="subsystems/imu"/>
+    <file name="imu_disco.h"/>
   </header>
   <init fun="imu_disco_init()"/>
   <periodic fun="imu_disco_periodic()"/>
@@ -33,13 +33,13 @@
   <makefile target="!sim|nps|fbw">
     <define name="USE_I2C1"/>
     <define name="USE_I2C2"/>
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_disco.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_disco.h" type="string"/>
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
-    <file name="imu_disco.c" dir="subsystems/imu"/>
+    <file name="imu_disco.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="subsystems/imu/imu_disco.h" type="string"/>
+      <define name="IMU_TYPE_H" value="modules/imu/imu_disco.h" type="string"/>
       <define name="USE_I2C2"/>
       <define name="USE_I2C1"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>

@@ -29,8 +29,8 @@
 #include <string.h>
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
 
 struct _mission mission = { 0 };
 

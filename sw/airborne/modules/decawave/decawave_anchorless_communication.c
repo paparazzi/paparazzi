@@ -38,11 +38,11 @@
  */
 
 #include "decawave_anchorless_communication.h"
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/radio_control.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/radio_control/radio_control.h"
 #include "state.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <stdio.h>
 
 #define UWB_SERIAL_PORT (&((SERIAL_UART).device))

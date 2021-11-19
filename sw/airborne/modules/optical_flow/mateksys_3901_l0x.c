@@ -28,14 +28,14 @@
 #include <stdlib.h>
 #include "mateksys_3901_l0x.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // State interface for rotation compensation
 #include "state.h"
 
 // Messages
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 // Define configuration parameters
@@ -82,7 +82,7 @@ struct Mateksys3901l0X mateksys3901l0x = {
 static void mateksys3901l0x_parse(uint8_t byte);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 /**
  * Downlink message flow and lidar (included velocity estimation, not yet tested)

@@ -22,7 +22,7 @@
 
 #include "high_speed_logger_spi_link.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/spi.h"
 
 

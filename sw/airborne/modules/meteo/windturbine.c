@@ -29,13 +29,13 @@
 
 #include "meteo/windturbine.h"
 #include "core/trigger_ext.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "mcu_periph/sys_time.h"
 
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 void windturbine_periodic(void)

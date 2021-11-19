@@ -23,13 +23,13 @@
 
 #include "generated/airframe.h"
 #include "paparazzi.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include <stdio.h>
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 //
 //// for measuring time
 #include "mcu_periph/sys_time.h"

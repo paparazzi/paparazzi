@@ -14,7 +14,7 @@
   </dep>
   <autoload name="ahrs_sim"/>
   <header>
-    <file name="ahrs.h" dir="subsystems"/>
+    <file name="ahrs.h"/>
   </header>
   <init fun="ahrs_init()"/>
   <makefile target="ap">
@@ -26,14 +26,14 @@
     <define name="USE_AHRS"/>
     <define name="USE_IMU"/>
 
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="imu.c" dir="subsystems"/>
-    <file name="ahrs_gx3.c" dir="subsystems/ahrs"/>
+    <file name="ahrs.c"/>
+    <file name="imu.c" dir="modules/imu"/>
+    <file name="ahrs_gx3.c"/>
     <test>
       <define name="GX3_PORT" value="uart3"/>
       <define name="USE_UART3"/>
       <define name="PRIMARY_AHRS" value="ahrs_gx3"/>
-      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_gx3.h" type="string"/>
+      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_gx3.h" type="string"/>
     </test>
   </makefile>
 </module>

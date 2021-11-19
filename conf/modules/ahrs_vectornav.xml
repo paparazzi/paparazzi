@@ -14,7 +14,7 @@
   </dep>
   <autoload name="ahrs_sim"/>
   <header>
-    <file name="ahrs.h" dir="subsystems"/>
+    <file name="ahrs.h"/>
   </header>
   <init fun="ahrs_init()"/>
   <event fun="ahrs_vectornav_event()"/>
@@ -26,9 +26,9 @@
     <define name="$(VN_PORT_UPPER)_BAUD" value="$(VN_BAUD)"/>
 
     <file name="vn200_serial.c" dir="peripherals"/>
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="ahrs_vectornav.c" dir="subsystems/ahrs"/>
-    <file name="ahrs_vectornav_wrapper.c" dir="subsystems/ahrs"/>
+    <file name="ahrs.c"/>
+    <file name="ahrs_vectornav.c"/>
+    <file name="ahrs_vectornav_wrapper.c"/>
 
     <define name="USE_AHRS"/>
 
@@ -36,21 +36,21 @@
 ifdef SECONDARY_AHRS
 ifneq (,$(findstring $(SECONDARY_AHRS), vectornav))
 # this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_vectornav_wrapper.h\"
 $(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_vectornav
 else
 # this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_vectornav_wrapper.h\"
 $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_vectornav
 endif
 else
 # plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_vectornav_wrapper.h\"
 endif
     </raw>
     <test>
       <define name="PRIMARY_AHRS" value="ahrs_vectornav"/>
-      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_vectornav_wrapper.h" type="string"/>
+      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_vectornav_wrapper.h" type="string"/>
       <define name="VN_PORT" value="uart0"/>
       <define name="USE_UART0"/>
     </test>

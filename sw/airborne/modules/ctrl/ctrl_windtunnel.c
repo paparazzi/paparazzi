@@ -26,9 +26,9 @@
 
 #include "modules/ctrl/ctrl_windtunnel.h"
 #include "state.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 #ifndef WINDTUNNEL_TO_BODY_PHI
 #define WINDTUNNEL_TO_BODY_PHI 0
@@ -59,7 +59,7 @@ void ctrl_module_init(void);
 void ctrl_module_run(bool in_flight);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_windtunnel_meas(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatQuat windtunnel_to_body;

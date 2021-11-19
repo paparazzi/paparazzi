@@ -41,23 +41,23 @@
 #include "nps_electrical.h"
 #include "nps_fdm.h"
 
-#include "subsystems/radio_control.h"
-#include "subsystems/imu.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // for launch
 #include "autopilot.h"
 
 // for datalink_time hack
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 #if USE_SONAR
 // for sonar/lidar agl
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 struct NpsAutopilot nps_autopilot;
@@ -101,7 +101,7 @@ void nps_autopilot_run_systime_step(void)
 }
 
 #include <stdio.h>
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 void nps_autopilot_run_step(double time)
 {

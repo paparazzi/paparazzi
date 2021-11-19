@@ -31,7 +31,7 @@
 #include "modules/nav/nav_smooth.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))
 #define Norm2Pi(x) ({ uint8_t _i=1; float _x = x; while (_i && _x < 0.) { _i++;_x += 2*M_PI; } while (_i && _x > 2*M_PI) { _i++; _x -= 2*M_PI; } _x; })

@@ -29,7 +29,7 @@
 #define INS_MODULE_H
 
 #include "std.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #ifndef INS_FORMAT
 #define INS_FORMAT float

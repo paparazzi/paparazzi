@@ -30,12 +30,12 @@
 #include "generated/modules.h"
 
 #include <stdint.h>
-#include "subsystems/electrical.h"
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/radio_control.h"
+#include "modules/energy/electrical.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/radio_control/radio_control.h"
 
 #if USE_GPS
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #else
 #if NO_GPS_NEEDED_FOR_NAV
 #define GpsIsLost() FALSE
@@ -49,7 +49,7 @@
 #include "modules/nav/nav_geofence.h"
 
 #if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 #endif
 
 static void send_status(struct transport_tx *trans, struct link_device *dev)

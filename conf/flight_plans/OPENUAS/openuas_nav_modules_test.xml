@@ -2,7 +2,7 @@
 
 <flight_plan alt="300" ground_alt="200" lat0="50.799999" lon0="7.566666" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "modules/digital_cam/dc.h"
 #define LINE_START_FUNCTION dc_Survey(40);
 #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;

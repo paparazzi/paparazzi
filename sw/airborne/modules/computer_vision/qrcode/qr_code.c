@@ -46,7 +46,7 @@ void qrcode_init(void)
 }
 
 // Telemetry
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 zbar_image_scanner_t *scanner = 0;

@@ -31,7 +31,7 @@
 #include <unistd.h>
 #include "mcu.h"
 #include "boards/bebop.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 static int kill_gracefull(char *process_name)
 {

@@ -21,7 +21,7 @@
 
 #include "switching/switch_servo.h"
 #include "generated/airframe.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 
 bool switch_servo_on;
 

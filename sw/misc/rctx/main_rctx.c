@@ -74,10 +74,10 @@ LED_TOGGLE(3);
 #include "uart_hw.h"
 #include "uart.h"
 #include "autopilot.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 #include "messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 #if ((AC_ID > 0x108) || (AC_ID < (0x101)))
 //#error aircraft ID should be 0x101..0x108 for RC transmitter

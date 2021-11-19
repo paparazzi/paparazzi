@@ -27,30 +27,30 @@
 #include "nps_electrical.h"
 #include "nps_fdm.h"
 
-#include "subsystems/radio_control.h"
-#include "subsystems/imu.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#include "subsystems/ahrs.h"
-#include "subsystems/ins.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/ins/ins.h"
 #include "math/pprz_algebra.h"
 
 #ifndef NPS_NO_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 
 #if NPS_COMMANDS_NB != MOTOR_MIXING_NB_MOTOR
 #warning "NPS_COMMANDS_NB does not match MOTOR_MIXING_NB_MOTOR!"
 #endif
 #endif
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 // for datalink_time hack
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/actuators.h"
+#include "modules/datalink/datalink.h"
+#include "modules/actuators/actuators.h"
 
 struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
@@ -88,7 +88,7 @@ void nps_autopilot_run_systime_step(void)
 }
 
 #include <stdio.h>
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 
 void nps_autopilot_run_step(double time)
 {

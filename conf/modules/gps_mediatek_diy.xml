@@ -16,7 +16,7 @@
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>
-    <file name="gps.h" dir="subsystems"/>
+    <file name="gps.h"/>
   </header>
   <init fun="gps_mtk_init()"/>
   <periodic fun="gps_mtk_periodic_check()" freq="1." autorun="TRUE"/>
@@ -25,7 +25,7 @@
     <configure name="MTK_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="MTK_GPS_BAUD" default="$(GPS_BAUD)"/>
 
-    <file name="gps_mtk.c" dir="subsystems/gps"/>
+    <file name="gps_mtk.c"/>
 
     <define name="USE_$(MTK_GPS_PORT_UPPER)"/>
     <define name="MTK_GPS_LINK" value="$(MTK_GPS_PORT_LOWER)"/>
@@ -34,15 +34,15 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), mtk mediatek))
       # this is the secondary GPS
-      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/gps/gps_mtk.h\"
       $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_MTK
       else
-      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_mtk.h\"
       $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_MTK
       endif
       else
       # plain old single GPS usage
-      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_mtk.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_mtk.h\"
       endif
     </raw>
     <test>

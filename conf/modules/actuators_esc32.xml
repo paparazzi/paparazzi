@@ -16,13 +16,13 @@
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_esc32.h" dir="subsystems/actuators"/>
+    <file name="actuators_esc32.h"/>
   </header>
   <makefile target="ap">
     <define name="USE_CAN_EXT_ID"/>
     <file name="can.c" dir="mcu_periph"/>
     <file_arch name="can_arch.c" dir="mcu_periph"/>
-    <file_arch name="actuators_esc32.c" dir="subsystems/actuators"/>
+    <file_arch name="actuators_esc32.c"/>
   </makefile>
 </module>
 

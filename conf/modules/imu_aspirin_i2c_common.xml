@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="imu_aspirin_i2c_common" task="sensors">
+<module name="imu_aspirin_i2c_common" dir="imu" task="sensors">
   <doc>
     <description>
       Common functionality of Aspirin IMUs using I2C only.
@@ -26,7 +26,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_aspirin_i2c.h" dir="subsystems/imu"/>
+    <file name="imu_aspirin_i2c.h"/>
   </header>
   <init fun="imu_aspirin_i2c_init()"/>
   <periodic fun="imu_aspirin_i2c_periodic()"/>
@@ -42,6 +42,6 @@
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="itg3200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_aspirin_i2c.c" dir="subsystems/imu"/>
+    <file name="imu_aspirin_i2c.c"/>
   </makefile>
 </module>

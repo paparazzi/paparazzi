@@ -31,9 +31,9 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "autopilot.h"
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/electrical.h"
+#include "modules/datalink/downlink.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/energy/electrical.h"
 #include "std.h"
 //#include "modules/read_matrix_serial/read_matrix_serial.h"
 

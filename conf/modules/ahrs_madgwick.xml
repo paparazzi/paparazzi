@@ -22,7 +22,7 @@
     <provides>ahrs</provides>
   </dep>
   <header>
-    <file name="ahrs.h" dir="subsystems"/>
+    <file name="ahrs.h"/>
   </header>
 
   <makefile target="!sim|fbw">

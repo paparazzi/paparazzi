@@ -31,15 +31,15 @@
 #include "led.h"
 #include "mcu_periph/sys_time.h"
 
-#include "subsystems/commands.h"
-#include "subsystems/actuators.h"
+#include "modules/core/commands.h"
+#include "modules/actuators/actuators.h"
 #if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
+#include "modules/actuators/motor_mixing.h"
 #endif
 
-#include "subsystems/electrical.h"
-#include "subsystems/radio_control.h"
-#include "subsystems/intermcu/intermcu_fbw.h"
+#include "modules/energy/electrical.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/intermcu/intermcu_fbw.h"
 #include "firmwares/rotorcraft/main_fbw.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 

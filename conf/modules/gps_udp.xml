@@ -17,27 +17,27 @@
   <autoload name="gps_nps"/>
   <autoload name="gps_sim"/>
   <header>
-    <file name="gps.h" dir="subsystems"/>
+    <file name="gps.h"/>
   </header>
   <init fun="gps_udp_init()"/>
   <periodic fun="gps_udp_periodic_check()" freq="1." autorun="TRUE"/>
   <makefile target="ap">
 
-    <file name="gps_udp.c" dir="subsystems/gps"/>
+    <file name="gps_udp.c"/>
 
     <raw>
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), udp))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_udp.h\"
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/gps/gps_udp.h\"
       ap.CFLAGS += -DSECONDARY_GPS=GPS_UDP
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_udp.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_udp.h\"
       ap.CFLAGS += -DPRIMARY_GPS=GPS_UDP
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_udp.h\"
+      ap.CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_udp.h\"
       endif
     </raw>
   </makefile>

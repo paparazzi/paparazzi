@@ -24,7 +24,7 @@
 
 #include "state.h"
 #include "led.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "mcu_periph/uart.h"
 
 struct logger_uart_data_struct logger_uart_data;

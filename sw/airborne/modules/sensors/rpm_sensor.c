@@ -25,8 +25,8 @@
 
 #include "modules/sensors/rpm_sensor.h"
 #include "mcu_periph/pwm_input.h"
-#include "subsystems/electrical.h"
-#include "subsystems/abi.h"
+#include "modules/energy/electrical.h"
+#include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 
 static struct FirstOrderLowPass rpm_lp;
@@ -38,7 +38,7 @@ uint16_t rpm;
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
 {

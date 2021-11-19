@@ -98,7 +98,7 @@ static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURF
 #define IERROR_SCALE 1024
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)
 {

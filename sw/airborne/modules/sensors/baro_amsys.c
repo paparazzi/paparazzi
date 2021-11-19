@@ -25,7 +25,7 @@
 
 #include "sensors/baro_amsys.h"
 #include "mcu_periph/i2c.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 #include <math.h>
 #include "generated/flight_plan.h" // for ground alt
@@ -33,7 +33,7 @@
 //Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 //#include "gps.h"
 
 #define BARO_AMSYS_ADDR 0xE4

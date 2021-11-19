@@ -13,22 +13,22 @@
 #include "math/pprz_algebra_int.h"
 #include "pprz_algebra_print.h"
 
-#include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
-#include "subsystems/imu.h"
+#include "modules/ahrs/ahrs.h"
+#include "modules/ahrs/ahrs_aligner.h"
+#include "modules/imu/imu.h"
 
 #define AHRS_TYPE_FLG 0
 #define AHRS_TYPE_FCR 1
 #define AHRS_TYPE_ICE 2
 
 #if   defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FLQ
-#include "subsystems/ahrs/ahrs_float_lkf_quat.h"
+#include "modules/ahrs/ahrs_float_lkf_quat.h"
 #define OUT_FILE "./out_flq.txt"
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FCR
-#include "subsystems/ahrs/ahrs_float_cmpl.h"
+#include "modules/ahrs/ahrs_float_cmpl.h"
 #define OUT_FILE "./out_fcr.txt"
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_ICE
-#include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
+#include "modules/ahrs/ahrs_int_cmpl_euler.h"
 #define OUT_FILE "./out_ice.txt"
 #endif
 

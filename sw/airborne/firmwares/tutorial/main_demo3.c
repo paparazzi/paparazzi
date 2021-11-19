@@ -4,7 +4,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/datalink/uart_print.h"
+#include "modules/datalink/uart_print.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);

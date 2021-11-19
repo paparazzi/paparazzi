@@ -24,7 +24,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_navstik.h" dir="subsystems/imu"/>
+    <file name="imu_navstik.h"/>
   </header>
   <init fun="imu_navstik_init()"/>
   <periodic fun="imu_navstik_periodic()"/>
@@ -37,11 +37,11 @@
     <define name="NAVSTIK_MPU_I2C_DEV" value="$(NAVSTIK_MPU_I2C_DEV_LOWER)"/>
     <define name="USE_$(NAVSTIK_MPU_I2C_DEV_UPPER)"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_navstik.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_navstik.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_navstik.c" dir="subsystems/imu"/>
+    <file name="imu_navstik.c"/>
   </makefile>
 </module>

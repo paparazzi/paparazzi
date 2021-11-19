@@ -30,11 +30,11 @@
  * Some part of this code is coming from the APM Disco and Bebop drivers
  */
 
-#include "subsystems/actuators.h"
-#include "subsystems/electrical.h"
+#include "modules/actuators/actuators.h"
+#include "modules/energy/electrical.h"
 #include "actuators.h"
 #include "autopilot.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <endian.h>
 #include <string.h>
 

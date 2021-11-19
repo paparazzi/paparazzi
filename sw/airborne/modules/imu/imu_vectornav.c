@@ -23,7 +23,7 @@
 /**
  * @file modules/imu/imu_vectornav.c
  *
- * Vectornav VN-200 IMU subsystems, to be used with other AHRS/INS algorithms.
+ * Vectornav VN-200 IMU module, to be used with other AHRS/INS algorithms.
  */
 
 #include "modules/imu/imu_vectornav.h"
@@ -32,7 +32,7 @@
 #include "mcu_periph/sys_time.h"
 
 // Abi
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Generated
 #include "generated/airframe.h"
@@ -44,7 +44,7 @@ void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 static void send_vn_info(struct transport_tx *trans, struct link_device *dev)

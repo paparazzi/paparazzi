@@ -25,21 +25,21 @@
  */
 
 #include "ins_xsens.h"
-#include "subsystems/ins.h"
+#include "modules/ins/ins.h"
 
 #include "generated/airframe.h"
 
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "state.h"
 
 #if USE_GPS_XSENS
 #if !USE_GPS
 #error "USE_GPS needs to be 1 to use the Xsens GPS!"
 #endif
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "math/pprz_geodetic_float.h"
-#include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
+#include "modules/nav/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
 
 /** ABI binding for gps data.

@@ -28,7 +28,7 @@
 #include "std.h"
 //#include "stdio.h"
 
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
@@ -37,18 +37,18 @@
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "autopilot.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 #include "state.h"
 
 // for GetPosAlt, include correct header until we have unified API
 #if defined(FIXEDWING_FIRMWARE)
-//#include "subsystems/navigation/nav.h"
-#include "subsystems/navigation/common_nav.h"
+//#include "modules/nav/nav.h"
+#include "modules/nav/common_nav.h"
 #elif defined(ROTORCRAFT_FIRMWARE)
 #include "firmwares/rotorcraft/navigation.h"
 #endif
 #if DOWNLINK
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 // Peripherials

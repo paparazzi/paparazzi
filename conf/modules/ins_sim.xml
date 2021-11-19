@@ -13,21 +13,21 @@
   <autoload name="imu_sim"/>
   <autoload name="gps_sim"/>
   <header>
-    <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
+    <file name="ins_gps_passthrough.h"/>
   </header>
   <init fun="ins_gps_passthrough_init()"/>
   <makefile target="sim">
-    <file name="ahrs.c" dir="subsystems"/>
-    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+    <file name="ahrs.c" dir="modules/ahrs"/>
+    <file name="ahrs_sim.c" dir="modules/ahrs"/>
     <define name="USE_AHRS"/>
-    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
 
-    <file name="ins.c" dir="subsystems"/>
-    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
-    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c"/>
+    <file name="ins_gps_passthrough_utm.c"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
     <test firmware="rotorcraft">
       <define name="PRIMARY_AHRS" value="ahrs_sim"/>
-      <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     </test>
   </makefile>
 </module>

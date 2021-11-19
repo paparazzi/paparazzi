@@ -38,9 +38,9 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
-#include "subsystems/radio_control.h"
-#include "subsystems/actuators.h"
-#include "subsystems/abi.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/actuators/actuators.h"
+#include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 #include "wls/wls_alloc.h"
 #include <stdio.h>
@@ -194,7 +194,7 @@ struct FloatVect3 body_accel_f;
 void init_filters(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, g1_est[0],

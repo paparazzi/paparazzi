@@ -30,7 +30,7 @@
 #include "state.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 
 #if defined WP_RELEASE

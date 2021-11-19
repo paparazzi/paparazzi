@@ -32,7 +32,7 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "humid_sht_uart.h"
 
 uint16_t humidsht, tempsht;

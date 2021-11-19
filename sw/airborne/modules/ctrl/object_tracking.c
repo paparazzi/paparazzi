@@ -26,7 +26,7 @@
 #include "modules/ctrl/object_tracking.h"
 
 #include "firmwares/rotorcraft/navigation.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
 
@@ -56,7 +56,7 @@
 #endif
 
 #if OBJECT_TRACKING_DEBUG
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 #endif

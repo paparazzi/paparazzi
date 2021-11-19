@@ -86,7 +86,6 @@ class Target(object):
         self.name = name
         self.board = board
 
-        self.subsystems = None
         self.defines = None
 
     def __repr__(self):

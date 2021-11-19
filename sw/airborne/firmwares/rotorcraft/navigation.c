@@ -31,8 +31,8 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "subsystems/gps.h" // needed by auto_nav from the flight plan
-#include "subsystems/ins.h"
+#include "modules/gps/gps.h" // needed by auto_nav from the flight plan
+#include "modules/ins/ins.h"
 #include "state.h"
 
 #include "autopilot.h"
@@ -44,7 +44,7 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 
@@ -125,7 +125,7 @@ struct EnuCoor_i nav_segment_start, nav_segment_end;
 static inline void nav_set_altitude(void);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 void set_exception_flag(uint8_t flag_num)
 {

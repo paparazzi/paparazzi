@@ -35,10 +35,9 @@
 ################################################################################
 SRC_ARCH=arch/$(ARCH)
 SRC_BOARD=boards/$(BOARD)
-SRC_SUBSYSTEMS=subsystems
 SRC_MODULES=modules
 
-CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares
 
 # Enable debug mode by default for test programs
 RTOS_DEBUG ?= 1
@@ -68,7 +67,7 @@ COMMON_TEST_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 
 # pprz downlink/datalink
 COMMON_TELEMETRY_CFLAGS = -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-COMMON_TELEMETRY_SRCS   = subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c modules/datalink/pprz_dl.c
+COMMON_TELEMETRY_SRCS   = modules/datalink/downlink.c modules/datalink/pprz_transport.c modules/datalink/pprz_dl.c
 
 COMMON_TELEMETRY_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
 COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)

@@ -23,7 +23,7 @@
 #include "mcu_periph/uart.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #if USE_UART0

@@ -37,10 +37,10 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include <pthread.h>
 #include <unistd.h>
-#include "subsystems/datalink/downlink.h"//FIXME, include only when link need
+#include "modules/datalink/downlink.h"//FIXME, include only when link need
 
 #include "filters/median_filter.h"
 

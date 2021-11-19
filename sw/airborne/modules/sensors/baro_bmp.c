@@ -36,9 +36,9 @@
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 
 #ifndef BMP_I2C_DEV

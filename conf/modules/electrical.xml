@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="electrical" dir="fbw" task="core">
+<module name="electrical" dir="energy" task="core">
   <doc>
     <description>
       General electrical interface
@@ -11,22 +11,22 @@
     <provides>electrical</provides>
   </dep>
   <header>
-    <file name="electrical.h" dir="subsystems"/>
+    <file name="electrical.h"/>
   </header>
   <init fun="electrical_init()"/>
   <periodic fun="electrical_periodic()" freq="10"/>
   <makefile target="fbw|sim|nps|hitl" firmware="fixedwing">
-    <file name="electrical.c" dir="subsystems"/>
+    <file name="electrical.c"/>
     <test firmware="fixedwing"/>
   </makefile>
   <makefile target="ap" firmware="fixedwing" cond="ifeq (,$(findstring $(SEPARATE_FBW),0 FALSE))">
-    <file name="electrical.c" dir="subsystems"/>
+    <file name="electrical.c"/>
   </makefile>
   <makefile firmware="rotorcraft">
-    <file name="electrical.c" dir="subsystems"/>
+    <file name="electrical.c"/>
   </makefile>
   <makefile firmware="rover">
-    <file name="electrical.c" dir="subsystems"/>
+    <file name="electrical.c"/>
   </makefile>
 </module>
 

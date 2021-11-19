@@ -182,7 +182,7 @@ let () =
     Printf.fprintf h " */\n\n";
     Printf.fprintf h "#ifndef ABI_MESSAGES_H\n";
     Printf.fprintf h "#define ABI_MESSAGES_H\n\n";
-    Printf.fprintf h "#include \"subsystems/abi_common.h\"\n";
+    Printf.fprintf h "#include \"modules/core/abi_common.h\"\n";
 
     (** Print Messages IDs *)
     let highest_id = Gen_onboard.print_message_id h messages in

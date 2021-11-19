@@ -40,12 +40,12 @@
 
 #include "modules/cam_control/rotorcraft_cam.h"
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "state.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "std.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 
 /** Gpio output to turn camera power power on.

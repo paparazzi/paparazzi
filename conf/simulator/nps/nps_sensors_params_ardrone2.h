@@ -23,7 +23,7 @@
 #define NPS_SENSORS_PARAMS_H
 
 #include "generated/airframe.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 
 #define NPS_BODY_TO_IMU_PHI    IMU_BODY_TO_IMU_PHI

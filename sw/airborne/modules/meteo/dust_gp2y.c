@@ -33,7 +33,7 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 uint8_t  dust_gp2y_status;
 uint16_t dust_gp2y_density;

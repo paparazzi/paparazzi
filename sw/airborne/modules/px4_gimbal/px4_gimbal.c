@@ -11,10 +11,10 @@
  */
 
 #include "modules/px4_gimbal/px4_gimbal.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #include "generated/airframe.h" // AC_ID is required
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 
 #ifndef PX4_GIMBAL_PWM_CHAN
 #define PX4_GIMBAL_PWM_CHAN 0

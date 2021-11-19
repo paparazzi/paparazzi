@@ -24,7 +24,7 @@
  */
 
 #include "modules/boards/opa_controller_ap.h"
-#include "subsystems/intermcu.h"
+#include "modules/intermcu/intermcu.h"
 #include "generated/airframe.h"
 #include "mcu_periph/gpio.h"
 

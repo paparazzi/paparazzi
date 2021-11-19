@@ -29,10 +29,10 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#include "subsystems/ins/ins_int.h"
-#include "subsystems/radio_control.h"
+#include "modules/ins/ins_int.h"
+#include "modules/radio_control/radio_control.h"
 #include "state.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
@@ -43,7 +43,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "stdio.h"
 #include "filters/low_pass_filter.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 
@@ -154,7 +154,7 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
 struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE_INDI_HYBRID(trans, dev, AC_ID,

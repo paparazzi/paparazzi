@@ -15,19 +15,19 @@
   <autoload name="imu_sim"/>
   <!--autoload name="sonar_bebop"/-->
   <header>
-    <file name="imu_swing.h" dir="subsystems/imu"/>
+    <file name="imu_swing.h"/>
   </header>
   <init fun="imu_swing_init()"/>
   <periodic fun="imu_swing_periodic()"/>
   <event fun="imu_swing_event()"/>
   <makefile target="!sim|nps|fbw">
     <define name="USE_I2C0"/>
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_swing.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_swing.h" type="string"/>
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
-    <file name="imu_swing.c" dir="subsystems/imu"/>
+    <file name="imu_swing.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="subsystems/imu/imu_swing.h" type="string"/>
+      <define name="IMU_TYPE_H" value="modules/imu/imu_swing.h" type="string"/>
       <define name="USE_I2C0"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>
     </test>

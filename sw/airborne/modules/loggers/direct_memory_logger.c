@@ -27,7 +27,7 @@
 
 #include "direct_memory_logger.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "stabilization.h"
 
 struct DirectMemoryLogger dml;

@@ -9,7 +9,7 @@
       
       For more information see TRICAL project page (https://www.github.com/sfwa/TRICAL).
     </description>
-    <define name="[AHRS/INS]_XXX_MAG_ID" value="MAG_CALIB_UKF_ID" description="Select correct input mag for your estimation filter (AHRS or INS), replace XXX by your filter name as defined in sw/airborne/subssytems/abi_sender_ids.h"/>
+    <define name="[AHRS/INS]_XXX_MAG_ID" value="MAG_CALIB_UKF_ID" description="Select correct input mag for your estimation filter (AHRS or INS), replace XXX by your filter name as defined in sw/airborne/modules/core/abi_sender_ids.h"/>
     <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
       <define name="NORM" value="1.0f" description="Measurement norm of magnetometer"/>
       <define name="NOISE_RMS" value="2e-1f" description="Noise RMS of magnetometer"/>

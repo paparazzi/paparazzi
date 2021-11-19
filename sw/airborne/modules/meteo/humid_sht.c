@@ -32,13 +32,13 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "humid_sht.h"
 
 // sd-log
 #if SHT_SDLOG
 #include "modules/loggers/sdlog_chibios.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 bool log_sht_started;
 #endif
 

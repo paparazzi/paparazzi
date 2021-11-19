@@ -25,7 +25,7 @@
   <autoload name="imu_sim"/>
   <autoload name="imu_nps"/>
   <header>
-    <file name="imu_drotek_10dof_v2.h" dir="subsystems/imu"/>
+    <file name="imu_drotek_10dof_v2.h"/>
   </header>
   <init fun="imu_drotek2_init()"/>
   <periodic fun="imu_drotek2_periodic()"/>
@@ -40,7 +40,7 @@
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_drotek_10dof_v2.c" dir="subsystems/imu"/>
+    <file name="imu_drotek_10dof_v2.c"/>
     <test>
       <define name="IMU_TYPE_H" value="imu/imu_drotek_10dof_v2.h" type="string"/>
       <define name="USE_I2C1"/>

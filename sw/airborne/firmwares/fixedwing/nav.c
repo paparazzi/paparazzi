@@ -34,8 +34,8 @@ static unit_t unit __attribute__((unused));
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
-#include "inter_mcu.h"
-#include "subsystems/gps.h"
+#include "modules/intermcu/inter_mcu.h"
+#include "modules/gps/gps.h"
 
 #include "generated/flight_plan.h"
 
@@ -402,7 +402,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y)
             last_wp_y + nav_carrot_leg_progress * leg_y - nav_shift * leg_x / nav_leg_length);
 }
 
-#include "subsystems/navigation/common_nav.c"
+#include "modules/nav/common_nav.c"
 
 #ifndef FAILSAFE_HOME_RADIUS
 #define FAILSAFE_HOME_RADIUS DEFAULT_CIRCLE_RADIUS
@@ -464,7 +464,7 @@ void nav_periodic_task(void)
  * \brief Periodic telemetry
  */
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_nav_ref(struct transport_tx *trans, struct link_device *dev)
 {

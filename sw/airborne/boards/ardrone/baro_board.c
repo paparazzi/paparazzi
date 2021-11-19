@@ -26,8 +26,8 @@
  * Based on BMP180 implementation by C. de Wagter.
  */
 
-#include "subsystems/sensors/baro.h"
-#include "subsystems/abi.h"
+#include "modules/sensors/baro.h"
+#include "modules/core/abi.h"
 #include "baro_board.h"
 #include "navdata.h"
 

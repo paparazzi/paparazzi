@@ -25,7 +25,7 @@
  */
 
 #include "modules/sensors/baro_board_common.h"
-#include "subsystems/sensors/baro.h"
+#include "modules/sensors/baro.h"
 
 #include BOARD_CONFIG
 

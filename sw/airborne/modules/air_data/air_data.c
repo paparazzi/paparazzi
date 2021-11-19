@@ -29,7 +29,7 @@
  */
 
 #include "modules/air_data/air_data.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "math/pprz_isa.h"
 #include "state.h"
 #include "generated/airframe.h"
@@ -184,7 +184,7 @@ static void incidence_cb(uint8_t __attribute__((unused)) sender_id, uint8_t flag
 }
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_baro_raw(struct transport_tx *trans, struct link_device *dev)
 {

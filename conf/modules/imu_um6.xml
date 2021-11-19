@@ -15,7 +15,7 @@
   <autoload name="imu_nps"/>
   <autoload name="imu_sim"/>
   <header>
-    <file name="imu_um6.h" dir="subsystems/imu"/>
+    <file name="imu_um6.h"/>
   </header>
   <init fun="imu_um6_init()"/>
   <periodic fun="imu_um6_periodic()"/>
@@ -29,6 +29,6 @@
 
     <define name="IMU_TYPE_H" value="imu/imu_um6.h" type="string"/>
 
-    <file name="imu_um6.c" dir="subsystems/imu"/>
+    <file name="imu_um6.c"/>
   </makefile>
 </module>

@@ -31,10 +31,10 @@
 #define ABI_C
 #define MODULES_C
 
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/abi.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/downlink.h"
+#include "modules/core/abi.h"
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
@@ -46,12 +46,12 @@
 #include "led.h"
 
 #include "state.h"
-#include "subsystems/imu.h"
-#include "subsystems/ahrs.h"
+#include "modules/imu/imu.h"
+#include "modules/ahrs/ahrs.h"
 
-#include "subsystems/commands.h"
-#include "subsystems/actuators.h"
-#include "subsystems/settings.h"
+#include "modules/core/commands.h"
+#include "modules/actuators/actuators.h"
+#include "modules/core/settings.h"
 
 #include "pprz_version.h"
 

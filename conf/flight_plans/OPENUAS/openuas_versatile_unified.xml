@@ -19,11 +19,11 @@ Should be unified for Hybrid, FW and rotorcraft
 //Set Generic options
     #include "autopilot.h"
 //Enable AHRS Health test functions
-    #include "subsystems/ahrs/ahrs_aligner.h"
+    #include "modules/ahrs/ahrs_aligner.h"
 //Enable advanced electrical power functions
-    #include "subsystems/electrical.h"
+    #include "modules/energy/electrical.h"
 //Enable datalink tests
-    #include "subsystems/datalink/datalink.h"
+    #include "modules/datalink/datalink.h"
 
 // PHOTOGRAMMETRY settings
     #define PHOTOGRAMMETRY_OVERLAP 30       // 1-99 Procent

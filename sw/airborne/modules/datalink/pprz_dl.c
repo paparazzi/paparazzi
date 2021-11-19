@@ -24,7 +24,7 @@
  */
 
 #include "modules/datalink/pprz_dl.h"
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 
 #ifndef PPRZ_UPDATE_DL
 #define PPRZ_UPDATE_DL TRUE

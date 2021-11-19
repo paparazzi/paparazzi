@@ -36,7 +36,7 @@
 #endif
 #if defined RADIO_CONTROL
 #if defined RADIO_CONTROL_BIND_IMPL_FUNC & defined SPEKTRUM_BIND_PIN_PORT
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #endif
 #endif
 #if USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6 || USE_UART7 || USE_UART8

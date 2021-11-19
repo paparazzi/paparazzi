@@ -21,7 +21,7 @@
 
 #include "modules/meteo/meteo_stick.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "peripherals/ads1220.h"
 #include "mcu_periph/pwm_input.h"
 #include "generated/airframe.h"
@@ -188,8 +188,8 @@ bool log_ptu_started;
 #if SEND_MS
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
-#include "subsystems/gps.h"
+#include "modules/datalink/downlink.h"
+#include "modules/gps/gps.h"
 
 #define MS_DATA_SIZE 4
 

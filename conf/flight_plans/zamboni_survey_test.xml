@@ -2,7 +2,7 @@
 
 <flight_plan alt="310" ground_alt="185" lat0="59.81" lon0="10.3578" max_dist_from_home="550" name="Test zamboni" security_height="60" qfu="110">
   <header>
-#include "subsystems/datalink/datalink.h"
+#include "modules/datalink/datalink.h"
 #include "modules/digital_cam/dc.h"
 //#define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_DISTANCE;
 //#define LINE_START_FUNCTION dc_Survey(dc_gps_dist);

@@ -27,12 +27,12 @@
 #include "modules/esc32/esc32.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include <stdio.h>
 #include <string.h>
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 struct esc32 esc32;

@@ -27,7 +27,7 @@
 #include "modules/sensors/mag_ist8310.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
 
 #ifndef IST8310_CHAN_X
@@ -50,8 +50,8 @@
 #endif
 
 #if MODULE_IST8310_UPDATE_AHRS
-#include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/imu/imu.h"
+#include "modules/core/abi.h"
 
 #if defined IST8310_MAG_TO_IMU_PHI && defined IST8310_MAG_TO_IMU_THETA && defined IST8310_MAG_TO_IMU_PSI
 #define USE_MAG_TO_IMU 1

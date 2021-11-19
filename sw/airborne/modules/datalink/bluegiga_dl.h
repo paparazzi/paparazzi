@@ -27,7 +27,7 @@
 #define BLUEGIGA_DL_H
 
 #include "pprzlink/pprz_transport.h"
-#include "subsystems/datalink/bluegiga.h"
+#include "modules/datalink/bluegiga.h"
 
 /** PPRZ transport structure */
 extern struct pprz_transport pprz_bg_tp;

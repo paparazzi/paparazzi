@@ -26,7 +26,7 @@
 
 #include "nps_electrical.h"
 #include "generated/airframe.h"
-#include "subsystems/electrical.h"
+#include "modules/energy/electrical.h"
 
 struct NpsElectrical nps_electrical;
 

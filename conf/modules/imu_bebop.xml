@@ -25,7 +25,7 @@
   <autoload name="imu_sim"/>
   <autoload name="sonar_bebop"/>
   <header>
-    <file name="imu_bebop.h" dir="subsystems/imu"/>
+    <file name="imu_bebop.h"/>
   </header>
   <init fun="imu_bebop_init()"/>
   <periodic fun="imu_bebop_periodic()"/>
@@ -36,18 +36,18 @@
     <define name="BEBOP_MPU_I2C_DEV" value="i2c2"/>
     <define name="USE_I2C2"/>
 
-    <define name="IMU_TYPE_H" value="subsystems/imu/imu_bebop.h" type="string"/>
+    <define name="IMU_TYPE_H" value="modules/imu/imu_bebop.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
-    <file name="imu_bebop.c" dir="subsystems/imu"/>
+    <file name="imu_bebop.c"/>
     <test>
       <define name="BEBOP_MAG_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
       <define name="BEBOP_MPU_I2C_DEV" value="i2c2"/>
       <define name="USE_I2C2"/>
-      <define name="IMU_TYPE_H" value="subsystems/imu/imu_bebop.h" type="string"/>
+      <define name="IMU_TYPE_H" value="modules/imu/imu_bebop.h" type="string"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>
     </test>
   </makefile>

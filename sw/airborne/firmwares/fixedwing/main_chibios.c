@@ -48,7 +48,7 @@
 #endif
 
 #if USE_HARD_FAULT_RECOVERY
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 
 /*

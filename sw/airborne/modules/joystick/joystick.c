@@ -24,8 +24,8 @@
  */
 
 #include "modules/joystick/joystick.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/abi.h"
+#include "modules/datalink/datalink.h"
+#include "modules/core/abi.h"
 #include "pprzlink/dl_protocol.h"
 #include "generated/airframe.h"
 

@@ -30,13 +30,13 @@
 // Own Header
 #include "guidance_opticflow_hover.h"
 
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 // Stabilization
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "autopilot.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /** Default sender to accect VELOCITY_ESTIMATE messages from */
 #ifndef VISION_VELOCITY_ESTIMATE_ID

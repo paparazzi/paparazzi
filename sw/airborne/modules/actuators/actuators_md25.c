@@ -24,7 +24,7 @@
  * Driver for the MD25 rover controller board
  */
 
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "modules/actuators/actuators_md25.h"
 
 // Registers

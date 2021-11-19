@@ -45,7 +45,7 @@
     <define name="DATALINK" value="BLUEGIGA"/>
     <file name="bluegiga_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
-    <file name="bluegiga.c" dir="subsystems/datalink"/>
+    <file name="bluegiga.c"/>
   </makefile>
 </module>
 

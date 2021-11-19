@@ -45,14 +45,14 @@
 
 #include "generated/airframe.h"
 #include "paparazzi.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 
 // used for automated landing:
 #include "autopilot.h"
-#include "subsystems/navigation/common_flight_plan.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/nav/common_flight_plan.h"
+#include "modules/datalink/telemetry.h"
 
 // for measuring time
 #include "mcu_periph/sys_time.h"

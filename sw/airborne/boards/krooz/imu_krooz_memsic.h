@@ -34,7 +34,7 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 #include "peripherals/mpu60x0_i2c.h"
 #include "peripherals/hmc58xx.h"

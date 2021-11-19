@@ -27,7 +27,7 @@
 
 // #include "state.h"
 #include "math/pprz_algebra_int.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 
 #ifndef NUMBER_OF_GAINSETS
 #error You must define the number of gainsets to use this module!

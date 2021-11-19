@@ -28,7 +28,7 @@
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #define DATALINK_C
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "modules/datalink/pprz_dl.h"
 #include "mcu_periph/can.h"
 

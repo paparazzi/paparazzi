@@ -19,7 +19,7 @@
  */
 
 /**
- * @file subsystems/imu/imu_bmi088_i2c.h
+ * @file modules/imu/imu_bmi088_i2c.h
  *
  * IMU driver for the BMI088 using I2C
  *
@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 
 #include "peripherals/bmi088_i2c.h"
 

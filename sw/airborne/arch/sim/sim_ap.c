@@ -10,17 +10,17 @@
 #include <time.h>
 #include <string.h>
 #include "std.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 #include "autopilot.h"
-#include "subsystems/gps.h"
+#include "modules/gps/gps.h"
 #include "generated/settings.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "firmwares/fixedwing/main_ap.h"
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/flight_plan.h"
 
 #include "generated/modules.h"

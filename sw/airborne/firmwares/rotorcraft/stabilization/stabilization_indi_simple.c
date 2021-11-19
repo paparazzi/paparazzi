@@ -38,7 +38,7 @@
 #include "state.h"
 #include "generated/airframe.h"
 #include "paparazzi.h"
-#include "subsystems/radio_control.h"
+#include "modules/radio_control/radio_control.h"
 #include "filters/low_pass_filter.h"
 
 #if !defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
@@ -140,7 +140,7 @@ struct IndiVariables indi = {
 };
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
 {

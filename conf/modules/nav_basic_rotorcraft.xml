@@ -26,8 +26,8 @@
   <init fun="nav_init()"/>
   <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="navigation.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="common_flight_plan.c" dir="subsystems/navigation"/>
-    <file name="waypoints.c" dir="subsystems/navigation"/>
+    <file name="common_flight_plan.c"/>
+    <file name="waypoints.c"/>
     <define name="USE_NAVIGATION"/>
     <test firmware="rotorcraft">
       <configure name="SRC_FIRMWARE" value="firmwares/rotorcraft"/>

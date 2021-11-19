@@ -23,14 +23,14 @@
 #include "modules/sonar/sonar_adc.h"
 #include "generated/airframe.h"
 #include "mcu_periph/adc.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 #ifdef SITL
 #include "state.h"
 #endif
 
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 /** Sonar offset.
  *  Offset value in ADC

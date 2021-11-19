@@ -30,7 +30,7 @@
 
 #include "mcu_periph/sys_time.h"
 
-#include "subsystems/imu.h"
+#include "modules/imu/imu.h"
 #include "test_baro_board_imu.h"
 
 void test_baro_board_imu_init(void)

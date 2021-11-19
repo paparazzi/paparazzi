@@ -36,16 +36,16 @@
 
 #include "modules/sonar/sonar_pwm.h"
 #include "mcu_periph/pwm_input.h"
-#include "subsystems/abi.h"
+#include "modules/core/abi.h"
 
 #include "filters/median_filter.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "pprzlink/messages.h"
 #endif
 #ifdef SENSOR_SYNC_SEND_SONAR
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #endif
 #include "generated/airframe.h"
 #ifdef SITL

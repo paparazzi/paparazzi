@@ -33,8 +33,8 @@
 
 #include "state.h"
 
-#include "subsystems/imu.h"
-#include "subsystems/radio_control.h"
+#include "modules/imu/imu.h"
+#include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 
 #define MAX_SUM_ERR 40000
@@ -94,7 +94,7 @@ struct FloatRates stabilization_rate_fb_cmd;
    radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {

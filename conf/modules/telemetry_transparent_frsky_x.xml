@@ -27,13 +27,13 @@
   <autoload name="telemetry" type="sim"/>
   <header>
     <file name="pprz_dl.h"/>
-    <file name="frsky_x.h" dir="subsystems/datalink"/>
+    <file name="frsky_x.h"/>
   </header>
   <init fun="datalink_frsky_x_init()"/>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
   <makefile>
-    <file name="frsky_x.c" dir="subsystems/datalink"/>
+    <file name="frsky_x.c"/>
   </makefile>
   
   <makefile target="!fbw|sim|nps|hitl">
@@ -44,7 +44,7 @@
     <define name="DATALINK" value="PPRZ"/>
     <file name="pprz_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
-    <file name="frsky_x.c" dir="subsystems/datalink"/>
+    <file name="frsky_x.c"/>
   </makefile>
 </module>
 

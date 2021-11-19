@@ -31,7 +31,7 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "state.h"
-#include "inter_mcu.h"
+#include "modules/intermcu/inter_mcu.h"
 
 #ifndef CAM_PHI_MAX
 #define CAM_PHI_MAX RadOfDeg(45)

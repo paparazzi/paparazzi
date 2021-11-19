@@ -14,14 +14,14 @@
     <provides>radio_control</provides>
   </dep>
   <header>
-    <file name="sbus_dual.h" dir="subsystems/radio_control"/>
+    <file name="sbus_dual.h"/>
   </header>
   <makefile target="ap|fbw">
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="SBUS1_UART" value="$(SBUS1_PORT)" case="upper|lower"/>
     <configure name="SBUS2_UART" value="$(SBUS2_PORT)" case="upper|lower"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/sbus_dual.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus_dual.h" type="string"/>
   </makefile>
   <makefile target="fbw">
     <define name="RADIO_CONTROL"/>
@@ -32,9 +32,9 @@
     <define name="$(SBUS2_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS1_UART_DEV" value="$(SBUS1_UART_LOWER)"/>
     <define name="SBUS2_UART_DEV" value="$(SBUS2_UART_LOWER)"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="sbus_dual.c" dir="subsystems/radio_control"/>
-    <file name="sbus_common.c" dir="subsystems/radio_control"/>
+    <file name="radio_control.c"/>
+    <file name="sbus_dual.c"/>
+    <file name="sbus_common.c"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
     <define name="RADIO_CONTROL"/>
@@ -45,13 +45,13 @@
     <define name="$(SBUS2_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS1_UART_DEV" value="$(SBUS1_UART_LOWER)"/>
     <define name="SBUS2_UART_DEV" value="$(SBUS2_UART_LOWER)"/>
-    <file name="radio_control.c" dir="subsystems"/>
-    <file name="sbus_dual.c" dir="subsystems/radio_control"/>
-    <file name="sbus_common.c" dir="subsystems/radio_control"/>
+    <file name="radio_control.c"/>
+    <file name="sbus_dual.c"/>
+    <file name="sbus_common.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_SBUS"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/sbus_dual.h" type="string"/>
+      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus_dual.h" type="string"/>
       <define name="SBUS1_UART_DEV" value="uart4"/>
       <define name="SBUS2_UART_DEV" value="uart5"/>
       <define name="USE_UART4"/>

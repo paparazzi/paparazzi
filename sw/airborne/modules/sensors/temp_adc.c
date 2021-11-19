@@ -28,7 +28,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include BOARD_CONFIG
 
 bool temp_adc_sync_send = false;
@@ -49,7 +49,7 @@ float get_temp(uint8_t nr) {
 
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #define LM35 0
