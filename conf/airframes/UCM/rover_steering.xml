@@ -5,7 +5,7 @@
   <firmware name="rover">
     <autopilot name="rover_steering.xml"/>
 
-    <target name="ap" board="matek_f765_car">
+    <target name="ap" board="matek_f765_wing">
       <configure name="PERIODIC_FREQUENCY" value="100"/>
       <module name="radio_control" type="sbus"/>
     </target>

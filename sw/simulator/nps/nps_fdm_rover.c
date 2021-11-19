@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2021 Jesús Bautista <jesusbautistavillar@gmail.com> 
+ *                    Hector García <noeth3r@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -13,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 #include "nps_fdm.h"
@@ -91,7 +92,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   //    COMMAND_STEERING -> delta parameter
   //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
-  double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
+  double delta = RadOfDeg(commands[COMMAND_STEERING] * MAX_DELTA);
 
   /** Physical model for car-like robots .................. **/
   // From previous step...
