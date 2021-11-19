@@ -42,23 +42,23 @@ struct NpsFdm fdm;
 // Reference point
 static struct LtpDef_d ltpdef;
 
-// Physical model's structures
+// Static functions declaration
+static void init_ltp(void);
+
+/** Physical model structures **/
 static struct EnuCoor_d rover_pos;
 static struct EnuCoor_d rover_vel;
 static struct EnuCoor_d rover_acc;
 
-// Physical parameters
+/** Physical model parameters **/
 static float mu = 0.01;
 
-// static functions declaration
-static void init_ltp(void);
 
-
-/** NPS FDM interface **/
+/** NPS FDM rover init ***************************/
 void nps_fdm_init(double dt)
 {
   fdm.init_dt = dt; // (1 / simulation freq)
-  fdm.curr_dt = 0.001;
+  fdm.curr_dt = 0.001; // ¿Configurable from GCS?
   fdm.time = dt;
 
   fdm.on_ground = TRUE;
@@ -76,40 +76,56 @@ void nps_fdm_init(double dt)
 
 void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb __attribute__((unused)))
 { 
+
+  /****************************************************************************
+  PHYSICAL MODEL
+  -------------
+  The physical model of your rover goes here. This physics takes place in
+  the LTP plane, so we have to transfer every integration step to NED and ECEF.
+  
+  */
+
+  #ifdef COMMAND_STEERING // STEERING ROVER PHYSICS
+
   // Steering rover cmds: 
   //    COMMAND_STEERING -> delta parameter
   //    COMMAND_TRHOTTLE -> acceleration in heading direction
 
   double delta = commands[COMMAND_STEERING] * MAX_DELTA * M_PI / 180;
 
-
-  /** Physical model for car-like robots *********************************/
-  // INIT
+  /** Physical model for car-like robots .................. **/
+  // From previous step...
   enu_of_ecef_point_d(&rover_pos, &ltpdef, &fdm.ecef_pos);
   enu_of_ecef_vect_d(&rover_vel, &ltpdef, &fdm.ecef_ecef_vel);
   double speed = FLOAT_VECT2_NORM(rover_vel);
   double phi = fdm.ltpprz_to_body_eulers.psi;
-
-  // EULER INTEGRATION
-  speed += (commands[COMMAND_THROTTLE] - mu*speed) * fdm.curr_dt;
-
-  double phi_dd = tan(delta) / DRIVE_SHAFT_DISTANCE * commands[COMMAND_THROTTLE];
   double phi_d  = tan(delta) / DRIVE_SHAFT_DISTANCE * speed;
-  phi += phi_d * fdm.curr_dt;
 
+  // Setting accelerations
+  rover_acc.x = commands[COMMAND_THROTTLE] * cos(phi) - speed * (sin(phi) * phi_d + cos(phi) * mu);
+  rover_acc.y = commands[COMMAND_THROTTLE] * sin(phi) + speed * (cos(phi) * phi_d - sin(phi) * mu);
+  double phi_dd = tan(delta) / DRIVE_SHAFT_DISTANCE * commands[COMMAND_THROTTLE];
+
+  // Velocities (EULER INTEGRATION)
+  rover_vel.x += rover_acc.x * fdm.curr_dt;
+  rover_vel.y += rover_acc.y * fdm.curr_dt;
+  phi_d  = tan(delta) / DRIVE_SHAFT_DISTANCE * speed;
+
+  // Positions
+  rover_pos.x += rover_vel.x * fdm.curr_dt;
+  rover_pos.y += rover_vel.y * fdm.curr_dt;
+  phi += phi_d * fdm.curr_dt;
+  
   // phi have to be contained in [-180º,180º). So:
   phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
 
-  rover_acc.x = (commands[COMMAND_THROTTLE] * cos(phi) - speed * sin(phi) * phi_d);
-  rover_acc.y = (commands[COMMAND_THROTTLE] * sin(phi) + speed * cos(phi) * phi_d);
+  #else
+  #endif // STEERING ROVER PHYSICS
 
-  rover_vel.x = speed * cos(phi);
-  rover_vel.y = speed * sin(phi);
-  
-  rover_pos.x += rover_vel.x * fdm.curr_dt;
-  rover_pos.y += rover_vel.y * fdm.curr_dt;
 
-  /**********************************************************************/
+  /****************************************************************************/
+  // Coordenates transformations |
+  // ----------------------------|
 
   /* in ECEF */
   ecef_of_enu_point_d(&fdm.ecef_pos, &ltpdef, &rover_pos);
@@ -121,7 +137,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
 
-  /* Euler */
+  /* Eulers */
   fdm.ltpprz_to_body_eulers.psi = phi;
 
   // ENU to NED and exporting heading (psi euler angle)
@@ -130,35 +146,12 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   // Exporting Eulers to AHRS (in quaternions)
   double_quat_of_eulers(&fdm.ltp_to_body_quat, &fdm.ltp_to_body_eulers);
 
+  // Angular vel & acc
   fdm.body_ecef_rotvel.r   = phi_d; 
   fdm.body_ecef_rotaccel.r = phi_dd;
 
-  // Testing zone //
-
 }
 
-
-// Atmosphere functions had not been implemented.
-void nps_fdm_set_wind(double speed __attribute__((unused)),
-                      double dir __attribute__((unused)))
-{
-}
-
-void nps_fdm_set_wind_ned(double wind_north __attribute__((unused)),
-                          double wind_east __attribute__((unused)),
-                          double wind_down __attribute__((unused)))
-{
-}
-
-void nps_fdm_set_turbulence(double wind_speed __attribute__((unused)),
-                            int turbulence_severity __attribute__((unused)))
-{
-}
-
-void nps_fdm_set_temperature(double temp __attribute__((unused)),
-                             double h __attribute__((unused)))
-{
-}
 
 /**************************
  ** Generating LTP plane **
@@ -196,4 +189,27 @@ static void init_ltp(void)
 
 }
 
+
+/*****************************************************/
+// Atmosphere function (we don't need that features) //
+void nps_fdm_set_wind(double speed __attribute__((unused)),
+                      double dir __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_wind_ned(double wind_north __attribute__((unused)),
+                          double wind_east __attribute__((unused)),
+                          double wind_down __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_turbulence(double wind_speed __attribute__((unused)),
+                            int turbulence_severity __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_temperature(double temp __attribute__((unused)),
+                             double h __attribute__((unused)))
+{
+}
 
