@@ -53,6 +53,3 @@
 [submodule "sw/ext/libcanard"]
 	path = sw/ext/libcanard
 	url = https://github.com/UAVCAN/libcanard.git
-[submodule "sw/ext/PprzGCS"]
-	path = sw/ext/PprzGCS
-	url = https://github.com/paparazzi/PprzGCS
