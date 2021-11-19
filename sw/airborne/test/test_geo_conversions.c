@@ -25,13 +25,13 @@ static void test_ned_of_lla_point_i(void)
   // The lla point
   struct LlaCoor_i lla_input_i = {51.990956 * 1e7, 4.379049 * 1e7, 40.0 * 1e3};
 
-  // Convert lla to ned
+  // Convert lla to ned (in cm, no pos_frac!)
   struct NedCoor_i ned_output;
   ned_of_lla_point_i(&ned_output, &ltp_def, &lla_input_i);
 
   // Convert to floating point
   struct NedCoor_f ned_output_f;
-  NED_FLOAT_OF_BFP(ned_output_f, ned_output);
+  VECT3_SDIV(ned_output_f, ned_output, 100.0);
 
   // Print result
   DISPLAY_FLOAT_VECT3("lla_to_ned: ", ned_output_f);
