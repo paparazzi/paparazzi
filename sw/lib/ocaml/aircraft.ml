@@ -111,7 +111,7 @@ type sort_result = {
   unloaded: (load_type * Module.t) list;            (* modules not loaded for this target / firmware *)
   conflicts: (string * string) list;                (* modules in conflict *)
   required: (GC.bool_expr * string) list;           (* functionalities required *)
-  provided: string list;                            (* functionalities provided (should contain required) *)
+  provided: (string * string) list;                 (* functionalities provided (should contain required) (func * module name) *)
 }
 
 let init_sort_result = fun () ->
@@ -121,9 +121,6 @@ let init_sort_result = fun () ->
 
 (* topological sort to load modules and their dependencies *)
 let resolve_modules_dep = fun config_by_target firmware user_target ->
-  let add_unique = fun l s ->
-    if List.exists (fun e -> String.compare s e = 0) l then l else l @ [s]
-  in
   (* recursive dependency resolution *)
   let rec dep_resolve = fun sol m target load_type ->
     let test_module = fun s _m lt ->
@@ -164,8 +161,8 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
             ) sol m.Module.autoloads in
             (* add conflicts to list *)
             let sol = { sol with conflicts = sol.conflicts @ (List.map (fun c -> (c, name)) dep.Module.conflicts) } in
-            (* add provides to list (if not present) *)
-            let sol = { sol with provided = List.fold_left add_unique sol.provided dep.Module.provides } in
+            (* add provides to list *)
+            let sol = { sol with provided = sol.provided @ List.map (fun p -> (p, name)) dep.Module.provides } in
             (* all dep and autoload resolved, add to list *)
             if not (name = "root") then (* don't add root module *)
               { sol with resolved = sol.resolved @ [(name, (load_type, m))] } (* add to list and return solution *)
@@ -191,6 +188,53 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
     in
     (* remove from unresolved list to make search faster and return current solution *)
     { sol with unresolved = List.remove_assoc name sol.unresolved }
+  in
+  (* ordering solution after finding all dependencies *)
+  let dep_order = fun sol ->
+    let dep_list = List.map (fun (n, (_, m)) ->
+      let rec extract_dep l = function
+        | GC.Any | GC.Not _ -> l
+        | GC.And (e1, e2) | GC.Or (e1, e2) -> extract_dep (extract_dep l e1) e2
+        | GC.Var s ->
+            if Str.string_match (Str.regexp "^@.*") s 0 then
+              (* substitute functionality with module names *)
+              List.fold_left (fun acc (f, m_name) -> if String.compare f s = 0 then m_name :: acc else acc) l sol.provided
+            else
+              s :: l (* return normal module name *)
+      in
+      let depend_names = match m.Module.dependencies with
+        | Some d -> GC.singletonize (List.fold_left extract_dep [] d.Module.requires)
+        | None -> []
+      in
+      n, depend_names
+      ) sol.resolved
+    in
+    (* list items, each being unique
+     * code from https://rosettacode.org/wiki/Topological_sort#OCaml
+    *)
+    let all = GC.singletonize (List.flatten (List.map (fun (m, dep) -> m::dep) dep_list)) in
+    (* second topologic sort function *)
+    let get_deps = fun x -> try List.assoc x dep_list with Not_found -> [] in
+    let rec order acc later todo progress =
+      match todo, later with
+      | [], [] -> (List.rev acc)
+      | [], _ ->
+          if progress then order acc [] later false
+          else begin
+            let fail_s = List.fold_left (fun s m -> Printf.sprintf "%s '%s'" s m) "" later in
+            failwith (Printf.sprintf "Error [Aircraft]: un-orderable modules %s" fail_s)
+          end
+      | x::xs, _ ->
+          let deps = get_deps x in
+          let ok = List.for_all (fun dep -> List.mem dep acc) deps in
+          if ok then order (x::acc) later xs true
+          else order acc (x::later) xs progress
+    in
+    let starts, todo = List.partition (fun x -> get_deps x = []) all in
+    let res = order starts [] todo false in
+    (* apply new order to solution *)
+    let resolved = List.fold_left (fun l m -> try (m, List.assoc m sol.resolved) :: l with Not_found -> l) [] res in
+    { sol with resolved=List.rev resolved }
   in
   (* iter on all targets *)
   Hashtbl.iter (fun target conf ->
@@ -218,17 +262,19 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
           if name = c then
             failwith (Printf.sprintf "Error [Aircraft]: find conflict with module '%s' while loading '%s' in target '%s'" cname name target)
         ) solution.resolved;
-        List.iter (fun name ->
+        List.iter (fun (name, _) ->
           if name = c then
             failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for '%s' in target '%s'" name cname target)
         ) solution.provided
       ) solution.conflicts;
       (* chek that all required functionalities or modules are provided *)
       List.iter (fun (r, name) ->
-        if not (List.exists (fun p -> GC.eval_bool p r) (solution.provided @ (fst (List.split solution.resolved)))) then
+        if not (List.exists (fun p -> GC.eval_bool p r) (fst (List.split solution.provided) @ (fst (List.split solution.resolved)))) then
           failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
       ) solution.required
     end;
+    (* find final order *)
+    let solution = dep_order solution in
     (* add configure, defines and modules to conf for all resolved modules *)
     let new_conf = List.fold_left (fun c (lt, m) ->
       target_conf_add_module_config c target firmware m lt

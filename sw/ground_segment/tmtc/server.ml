@@ -27,7 +27,9 @@ let gps_mode_3D = 3
 let no_md5_check = ref false
 let replay_old_log = ref false
 let log_name_arg = ref ""
-
+let udp_json_stream_addr = ref "127.0.0.1"
+let udp_json_stream_port = ref 9870
+let udp_json_stream_disable = ref false
 
 open Printf
 open Latlong
@@ -139,22 +141,22 @@ let logger = fun () ->
   close_out f;
   open_out (logs_path // data_name)
 
-
-
-
-
+let time_of_timestamp = function
+  | Some x -> x
+  | None -> U.gettimeofday() -. start_time
 
 let log = fun ?timestamp logging ac_name msg_name values ->
   match logging with
       Some log ->
         let s = string_of_values values in
-        let t =
-          match timestamp with
-              Some x -> x
-            | None   -> U.gettimeofday () -. start_time in
+        let t = time_of_timestamp timestamp in
         fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
     | None -> ()
 
+
+(* Socket configuration for streaming *)
+let udp_fd = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0
+let udp_sockaddr = Unix.ADDR_INET (Unix.inet_addr_of_string !udp_json_stream_addr, !udp_json_stream_port)
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
@@ -165,6 +167,19 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       let (msg_id, values) = Tele_Pprz.values_of_string m in
       let msg = Tele_Pprz.message_of_id msg_id in
       log ?timestamp logging ac_name msg.PprzLink.name values;
+      if not !udp_json_stream_disable then begin
+        let json_name =
+          try
+            let a = Hashtbl.find aircrafts ac_name in
+            sprintf "%s (%s)" a.name ac_name
+          with _ -> ac_name
+        in
+        let t = time_of_timestamp timestamp in
+        let json_msg = sprintf "{ \"%s\": %s, \"timestamp\": %f }" json_name (Tele_Pprz.json_of_message msg values) t in
+        let len = String.length json_msg in
+        let n = Unix.sendto udp_fd (Bytes.of_string json_msg) 0 len [] udp_sockaddr in
+        assert(n = len)
+      end;
       Parse_messages_v1.log_and_parse ac_name ac msg values
     with
         Telemetry_error (ac_name, msg) ->
@@ -925,6 +940,9 @@ let () =
       "-timestamp", Arg.Set timestamp, "Bind on timestampped messages";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
       "-log_name", Arg.Set_string log_name_arg, "Name for output log (Time stamp will be";
+      "-udp_json_stream_addr", Arg.Set_string udp_json_stream_addr, "Address of the server to stream udp JSON telemetry messages (default is localhost)";
+      "-udp_json_stream_port", Arg.Set_int udp_json_stream_port, "Port of the server to stream udp JSON telemetry messages (default is 9870)";
+      "-udp_json_stream_disable", Arg.Set udp_json_stream_disable, "Disable udp JSON stream";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
 
   Arg.parse

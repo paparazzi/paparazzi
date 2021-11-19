@@ -8,9 +8,6 @@
     </description>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
   </doc>
-  <dep>
-    <depends>@ahrs</depends>
-  </dep>
   <header>
     <file name="ahrs.h" dir="subsystems"/>
   </header>

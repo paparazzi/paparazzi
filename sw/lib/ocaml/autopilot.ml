@@ -55,7 +55,7 @@ let get_sys_ap_settings = fun autopilots ->
       let dl_settings = List.fold_left (fun sl (_, autopilot) ->
         (* Filter state machines that need to be displayed *)
         let sm_filtered = List.filter (fun sm ->
-          try (Compat.lowercase_ascii (Xml.attrib sm "settings_mode")) = "true" with _ -> false
+          try (String.lowercase_ascii (Xml.attrib sm "settings_mode")) = "true" with _ -> false
           ) (Xml.children autopilot.xml) in
         if List.length sm_filtered = 0 then sl
         else
@@ -65,7 +65,7 @@ let get_sys_ap_settings = fun autopilots ->
             let name = Xml.attrib sm "name" in
             (* Iter on modes and store min, max and values *)
             let (_, min, max, values) = List.fold_left (fun (current, min, max, values) m ->
-              let print = try Compat.lowercase_ascii (Xml.attrib m "settings") <> "hide" with _ -> true in
+              let print = try String.lowercase_ascii (Xml.attrib m "settings") <> "hide" with _ -> true in
               let name = Xml.attrib m "name" in
               if print then begin
                 let min = match min with

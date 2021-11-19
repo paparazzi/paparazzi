@@ -108,7 +108,7 @@ let print_message_table = fun out_h xml ->
   let telemetry_types = Hashtbl.create 2 in
   (* For each process *)
   List.iter (fun process ->
-    let telem_type = Compat.uppercase_ascii (ExtXml.attrib_or_default process "type" "pprz") in
+    let telem_type = String.uppercase_ascii (ExtXml.attrib_or_default process "type" "pprz") in
     if not (Hashtbl.mem telemetry_types telem_type) then Hashtbl.add telemetry_types telem_type (Hashtbl.create 15);
     let messages = Hashtbl.find telemetry_types telem_type in
     (** For each mode of this process *)
@@ -147,7 +147,7 @@ let print_process_send = fun out_h xml ->
   List.iteri
     (fun p_id process ->
       let process_name = ExtXml.attrib process "name" in
-      let telem_type = Compat.uppercase_ascii (ExtXml.attrib_or_default process "type" "pprz") in
+      let telem_type = String.uppercase_ascii (ExtXml.attrib_or_default process "type" "pprz") in
       let modes = Xml.children process in
 
       fprintf out_h "\n/* Periodic telemetry (type %s): %s process */\n" telem_type process_name;
@@ -168,14 +168,14 @@ let print_process_send = fun out_h xml ->
       ) 0 modes in
 
       fprintf out_h "\n/* Functions for %s process */\n" process_name;
-      fprintf out_h "#ifdef PERIODIC_C_%s\n" (Compat.uppercase_ascii process_name);
-      fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (Compat.uppercase_ascii process_name);
-      fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (Compat.uppercase_ascii process_name);
+      fprintf out_h "#ifdef PERIODIC_C_%s\n" (String.uppercase_ascii process_name);
+      fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase_ascii process_name);
+      fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase_ascii process_name);
       fprintf out_h "#endif\n";
-      fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (Compat.uppercase_ascii process_name);
-      fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (Compat.uppercase_ascii process_name);
+      fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (String.uppercase_ascii process_name);
+      fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase_ascii process_name);
       fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
-      fprintf out_h "#endif /* PERIODIC_C_%s */\n" (Compat.uppercase_ascii process_name);
+      fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase_ascii process_name);
 
       lprintf out_h "static inline void periodic_telemetry_send_%s(struct periodic_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {\n" process_name;
       right ();

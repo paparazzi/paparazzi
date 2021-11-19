@@ -16,7 +16,7 @@
     </section>
   </doc>
   <dep>
-    <depends>nav_basic_rotorcraft</depends>
+    <provides>stabilization</provides>
   </dep>
   <header>
     <file name="stabilization.h" dir="firmwares/rotorcraft"/>

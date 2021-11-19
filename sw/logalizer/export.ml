@@ -165,7 +165,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
 
     let lookup = fun m field  ->
       try
-	PprzLink.string_of_value (Hashtbl.find last_values (m,Compat.lowercase_ascii field))
+	PprzLink.string_of_value (Hashtbl.find last_values (m,String.lowercase_ascii field))
       with
 	Not_found -> "" in
 

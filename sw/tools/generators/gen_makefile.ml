@@ -36,7 +36,7 @@ let (//) = Filename.concat
 
 let configure2mk = fun ?(default_configure=false) f c ->
   (* all makefiles variables are forced to uppercase *)
-  let name = Compat.uppercase_ascii c.Module.cname
+  let name = String.uppercase_ascii c.Module.cname
   and value = get_string_opt c.Module.cvalue
   and default = get_string_opt c.Module.default
   and case = get_string_opt c.Module.case in
@@ -109,7 +109,7 @@ let file2mk = fun f ?(arch = false) dir_name target file ->
 let module2mk = fun f target firmware m ->
   let name = m.Module.name in
   let dir = match m.Module.dir with Some d -> d | None -> name in
-  let dir_name = Compat.uppercase_ascii dir ^ "_DIR" in
+  let dir_name = String.uppercase_ascii dir ^ "_DIR" in
   (* iter makefile section *)
   List.iter (fun mk ->
     if Module.check_mk target firmware mk then begin
@@ -131,7 +131,7 @@ let dump_target_conf = fun out target conf ->
   fprintf out "ifeq ($(TARGET), %s)\n\n" target;
   let dir_list = singletonize (List.fold_left (fun l (_, m) -> match m.Module.dir with
     | None -> m.Module.name::l | Some d -> d::l) [] conf.AC.modules) in
-  List.iter (fun d -> fprintf out "%s_DIR = modules/%s\n" (Compat.uppercase_ascii d) d) dir_list;
+  List.iter (fun d -> fprintf out "%s_DIR = modules/%s\n" (String.uppercase_ascii d) d) dir_list;
   List.iter (fun p ->
     fprintf out "VPATH += %s\n" p;
     fprintf out "$(TARGET).CFLAGS += -I%s/modules\n" p

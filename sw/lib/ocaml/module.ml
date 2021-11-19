@@ -151,7 +151,7 @@ type periodic = {
 let parse_periodic = fun xml ->
   let get = fun x -> ExtXml.attrib_opt xml x in
   let getf = fun x ->  ExtXml.attrib_opt_float xml x in
-  let call = snd (List.find (fun (a, _) -> Compat.lowercase_ascii a = "fun")
+  let call = snd (List.find (fun (a, _) -> String.lowercase_ascii a = "fun")
                  (Xml.attribs xml)) in
   let call_regexp = Str.regexp "\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\(.*\\)" in
   let fname =

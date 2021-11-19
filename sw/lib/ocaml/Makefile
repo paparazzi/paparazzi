@@ -49,26 +49,12 @@ ifeq ($(LABLGTK2GNOMECANVAS),)
 LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/dev/null)
 endif
 
-CAMLP4_DEFS ?=
-OCAMLC_VER := $(shell ocamlc -version)
-OCAMLC_MAJOR := $(shell echo $(OCAMLC_VER) | cut -f1 -d.)
-OCAMLC_MINOR := $(shell echo $(OCAMLC_VER) | cut -f2 -d.)
-ifeq ($(shell test $(OCAMLC_MAJOR) -ge 4; echo $$?),0)
-ifeq ($(shell test $(OCAMLC_MINOR) -ge 4; echo $$?),0)
-CAMLP4_DEFS += -DOCAML_V404
-endif
-endif
-PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
-
-# which source files to run through caml4p
-PP_SRC = compat.ml
-
 INCLUDES=
 PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-SRC = compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml quaternion.ml
+SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml quaternion.ml
 SRC += gen_common.ml radio.ml settings.ml module.ml flight_plan.ml autopilot.ml airframe.ml telemetry.ml aircraft.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
@@ -139,19 +125,11 @@ ml_gtk_drag.o : ml_gtk_drag.c
 
 %.cmo : %.ml
 	@echo OC $<
-	@if test $(findstring $<,$(PP_SRC)); then \
-		$(OCAMLC) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<; \
-	else \
-		$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<; \
-	fi;
+	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
-	@if test $(findstring $<,$(PP_SRC)); then \
-		$(OCAMLOPT) $(INCLUDES) $(PP_OPTS) -package $(PKGCOMMON) -c $<; \
-	else \
-		$(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<; \
-	fi;
+	$(Q)$(OCAMLOPT) $(INCLUDES) -package $(PKGCOMMON) -c $<
 
 %.cmi : %.mli
 	@echo OC $<
@@ -208,8 +186,7 @@ clean :
 
 .depend: Makefile $(GEN_DEP)
 	@echo DEPEND $@
-	$(Q)$(OCAMLDEP) $(PP_OPTS) $(PP_SRC) > .depend
-	$(Q)$(OCAMLDEP) $(filter-out $(PP_SRC), $(SRC) $(XSRC)) *.mli >> .depend
+	$(Q)$(OCAMLDEP) $(SRC) $(XSRC) *.mli >> .depend
 
 ifneq ($(MAKECMDGOALS),clean)
 -include .depend

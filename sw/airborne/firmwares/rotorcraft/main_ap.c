@@ -261,6 +261,7 @@ void main_event(void)
   if (autopilot.use_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
+  modules_control_event_task();
   modules_actuators_event_task();
   modules_datalink_event_task();
   modules_default_event_task();

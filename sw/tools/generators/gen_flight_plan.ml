@@ -243,7 +243,7 @@ let pprz_throttle = fun s ->
 let output_vmode = fun out stage_xml wp last_wp ->
   let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
   let t = ExtXml.attrib_or_default stage_xml "nav_type" "Nav" in
-  if Compat.lowercase_ascii (Xml.tag stage_xml) <> "manual"
+  if String.lowercase_ascii (Xml.tag stage_xml) <> "manual"
   then begin
     if pitch = "auto"
     then begin
@@ -348,7 +348,7 @@ let rec index_stage = fun x ->
   end
 
 
-let inside_function = fun name -> "Inside" ^ Compat.capitalize_ascii name
+let inside_function = fun name -> "Inside" ^ String.capitalize_ascii name
 
 (* pre call utility function *)
 let fp_pre_call = fun out x ->
@@ -374,7 +374,7 @@ let stage_until = fun out x ->
 let rec print_stage = fun out index_of_waypoints x ->
   let stage out = incr stage; lprintf out "Stage(%d)\n" !stage; right () in
   begin
-    match Compat.lowercase_ascii (Xml.tag x) with
+    match String.lowercase_ascii (Xml.tag x) with
       | "return" ->
         stage out;
         lprintf out "Return(%s);\n" (ExtXml.attrib_or_default x "reset_stage" "0");
@@ -593,9 +593,9 @@ let rec print_stage = fun out index_of_waypoints x ->
         let statement = ExtXml.attrib  x "fun" in
         (* by default, function is called while returning TRUE *)
         (* otherwise, function is called once and returned value is ignored *)
-        let loop = Compat.uppercase_ascii (ExtXml.attrib_or_default x "loop" "TRUE") in
+        let loop = String.uppercase_ascii (ExtXml.attrib_or_default x "loop" "TRUE") in
         (* be default, go to next stage immediately *)
-        let break = Compat.uppercase_ascii (ExtXml.attrib_or_default x "break" "FALSE") in
+        let break = String.uppercase_ascii (ExtXml.attrib_or_default x "break" "FALSE") in
         begin match loop with
         | "TRUE" ->
             lprintf out "if (! (%s)) {\n" statement;
@@ -628,7 +628,7 @@ let rec print_stage = fun out index_of_waypoints x ->
         stage out;
         let statement = ExtXml.attrib  x "fun" in
         (* by default, go to next stage immediately *)
-        let break = Compat.uppercase_ascii (ExtXml.attrib_or_default x "break" "FALSE") in
+        let break = String.uppercase_ascii (ExtXml.attrib_or_default x "break" "FALSE") in
         lprintf out "%s;\n" statement;
         begin match break with
         | "TRUE" -> lprintf out "NextStageAndBreak();\n";
@@ -812,7 +812,7 @@ let print_inside_polygon_global = fun out pts name ->
 
 let print_inside_sector = fun out (s, pts) ->
   let (ids, _) = List.split pts in
-  let name = "SECTOR_"^(Compat.uppercase_ascii s) in
+  let name = "SECTOR_"^(String.uppercase_ascii s) in
   Xml2h.define_out out (name^"_NB") (string_of_int (List.length pts));
   Xml2h.define_out out name ("{ "^(String.concat ", " ids)^" }");
   lprintf out "static inline bool %s(float _x, float _y) {\n" (inside_function s);
@@ -1090,7 +1090,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
 
   (* print sectors *)
   let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
-  let sectors = List.filter (fun x -> Compat.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
+  let sectors = List.filter (fun x -> String.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
   List.iter (fun x -> match ExtXml.attrib_opt x "type" with
       Some _ -> failwith "Error: attribute \"type\" on flight plan tag \"sector\" is deprecated and must be removed. All sectors are now dynamics.\n"
     | _ -> ()
@@ -1174,7 +1174,7 @@ let generate = fun flight_plan ?(check=false) ?(dump=false) xml_file out_fp ->
   let waypoints = Xml.children (ExtXml.child xml "waypoints") in
 
   let frame = ExtXml.attrib_or_default xml "wp_frame" "UTM" in
-  let frame = match Compat.uppercase_ascii frame with
+  let frame = match String.uppercase_ascii frame with
     | "UTM" -> UTM
     | "LTP" -> LTP
     | _ -> failwith ("Error: unkown wp_frame \"" ^ frame ^ "\". Use \"utm\" or \"ltp\"")

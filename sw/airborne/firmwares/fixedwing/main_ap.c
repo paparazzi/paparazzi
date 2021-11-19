@@ -228,6 +228,7 @@ void event_task_ap(void)
   modules_core_event_task();
   modules_sensors_event_task();
   modules_estimation_event_task();
+  modules_control_event_task();
   modules_datalink_event_task();
   modules_default_event_task();
 
