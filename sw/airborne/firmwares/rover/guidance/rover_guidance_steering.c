@@ -1,4 +1,23 @@
-/* rover_steering_guidance.c */
+/*
+ * Copyright (C) 2021 Jesús Bautista <jesusbautistavillar@gmail.com> 
+ *                    Hector García <noeth3r@gmail.com>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
 #define AUTOPILOT_CORE_GUIDANCE_C
 
@@ -70,9 +89,8 @@ void rover_guidance_steering_periodic(void)
   // ASSISTED guidance .....................................................
   if (autopilot_get_mode() == AP_MODE_ASSISTED) {
     if (fabs(omega)>0.0) {
-      delta = -atanf(omega * DRIVE_SHAFT_DISTANCE / speed);
+      delta = DegOfRad(-atanf(omega * DRIVE_SHAFT_DISTANCE / speed));
     }
-    delta *= 180/M_PI;
 
     guidance_control.cmd.delta = BoundDelta(delta);
   }
