@@ -37,6 +37,11 @@
 #include "firmwares/rover/guidance/rover_guidance_steering.h"
 #include "state.h"
 
+// Check if rover firmware 
+#ifndef ROVER_FIRMWARE
+#error "The module nps_fdm_rover is designed for rovers and doesn't support other firmwares!!"
+#endif
+
 // NpsFdm structure
 struct NpsFdm fdm;
 
@@ -82,8 +87,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   PHYSICAL MODEL
   -------------
   The physical model of your rover goes here. This physics takes place in
-  the LTP plane, so we have to transfer every integration step to NED and ECEF.
-  
+  the LTP plane (so we transfer every integration step to NED and ECEF at the end).
   */
 
   #ifdef COMMAND_STEERING // STEERING ROVER PHYSICS
@@ -121,6 +125,7 @@ void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int
   phi = (phi > M_PI)? - 2*M_PI + phi : (phi < -M_PI)? 2*M_PI + phi : phi;
 
   #else
+  #warning "The physics of this rover are not yet implemented in nps_fdm_rover!!"
   #endif // STEERING ROVER PHYSICS
 
 
