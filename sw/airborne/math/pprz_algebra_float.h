@@ -728,6 +728,25 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
   }
 }
 
+/** o = a * b'
+ *
+ * a: [m x n]
+ * b: [l x n]
+ * o: [m x l]
+ */
+static inline void float_mat_mul_transpose(float **o, float **a, float **b, int m, int n, int l)
+{
+  int i, j, k;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < l; j++) {
+      o[i][j] = 0.;
+      for (k = 0; k < n; k++) {
+        o[i][j] += a[i][k] * b[j][k];
+      }
+    }
+  }
+}
+
 /** o = a * b
  *
  * a: [m x n]

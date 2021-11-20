@@ -102,6 +102,14 @@ extern float get_tas_factor(float p, float t);
 extern float tas_from_eas(float eas);
 
 /**
+ * Calculate equivalent airspeed from true airspeed.
+ *
+ * @param tas true airspeed (TAS) in m/s
+ * @return equivalent airspeed in m/s
+ */
+extern float eas_from_tas(float tas);
+
+/**
  * Calculate true airspeed from dynamic pressure.
  * Dynamic pressure @f$q@f$ (also called impact pressure) is the
  * difference between total(pitot) and static pressure.

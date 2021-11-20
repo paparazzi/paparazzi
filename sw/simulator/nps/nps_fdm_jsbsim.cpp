@@ -576,6 +576,7 @@ static void init_jsbsim(double dt)
     delete FDMExec;
     exit(-1);
   }
+  cout << "JSBSim model loaded from " << NPS_JSBSIM_MODEL << endl;
 
 #ifdef DEBUG
   cerr << "NumEngines: " << FDMExec->GetPropulsion()->GetNumEngines() << endl;
