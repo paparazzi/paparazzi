@@ -43,7 +43,8 @@ static float SR_Ke = 10000.0; // TODO: configurable parameter in guidance_contro
 rover_ctrl guidance_control;
 
 
-/** Send RS guidance telemetry messages **/
+/** Send RS guidance telemetry messages **/ //TODO: pprzlink request for steering rovers
+/*  
 static void send_msg(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t ap_mode  = autopilot_get_mode();
@@ -61,14 +62,14 @@ static void send_msg(struct transport_tx *trans, struct link_device *dev)
 bool rover_guidance_steering_set_delta(float delta){
   guidance_control.cmd.delta = delta;
   return true;
-}
+} */
 
 
 /** INIT function**/
 void rover_guidance_steering_init(void)
 {
   // Debugging telemetry init
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
+  // register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
 
   guidance_control.cmd.delta = 0.0;
   guidance_control.cmd.speed = 0.0;
@@ -111,8 +112,8 @@ void rover_guidance_steering_periodic(void)
     guidance_control.cmd.speed = 0.0;
   }
 
-  // periodic steering_rover telemetry
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
+  // periodic steering_rover telemetry 
+  // register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STEERING_ROVER_DATA, send_msg);
 }
 
 

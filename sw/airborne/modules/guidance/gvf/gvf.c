@@ -366,7 +366,7 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
-  heading = heading * M_PI / 180;
+  heading = RadOfDeg(heading);
 
   float a = waypoints[wp].x;
   float b = waypoints[wp].y;
@@ -466,7 +466,7 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
-  alpha = alpha * M_PI / 180;
+  alpha = RadOfDeg(alpha);
 
   float x = waypoints[wp].x;
   float y = waypoints[wp].y;
@@ -536,10 +536,10 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
 
 bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
-  float x1 = waypoints[wp1].enu_f.x;
-  float y1 = waypoints[wp1].enu_f.y;
-  float x2 = waypoints[wp2].enu_f.x;
-  float y2 = waypoints[wp2].enu_f.y;
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
 
   return gvf_line_XY1_XY2(x1, y1, x2, y2);
 }
@@ -576,10 +576,10 @@ bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, 
 
 bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 {
-  float x1 = waypoints[wp1].enu_f.x;
-  float y1 = waypoints[wp1].enu_f.y;
-  float x2 = waypoints[wp2].enu_f.x;
-  float y2 = waypoints[wp2].enu_f.y;
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
 
   return gvf_segment_loop_XY1_XY2(x1, y1, x2, y2, d1, d2);
 }
@@ -608,20 +608,20 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
 
 bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
-  float x1 = waypoints[wp1].enu_f.x;
-  float y1 = waypoints[wp1].enu_f.y;
-  float x2 = waypoints[wp2].enu_f.x;
-  float y2 = waypoints[wp2].enu_f.y;
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
 
   return gvf_segment_XY1_XY2(x1, y1, x2, y2);
 }
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
-  heading = heading * M_PI / 180;
+  heading = RadOfDeg(heading);
 
-  float a = waypoints[wp].enu_f.x;
-  float b = waypoints[wp].enu_f.y;
+  float a = waypoint_get_x(wp);
+  float b = waypoint_get_y(wp);
 
   return gvf_line_XY_heading(a, b, heading);
 }
@@ -670,7 +670,7 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
 
 bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
 {
-  gvf_ellipse_XY(waypoints[wp].enu_f.x,  waypoints[wp].enu_f.y, a, b, alpha);
+  gvf_ellipse_XY(waypoint_get_x(wp),  waypoint_get_y(wp), a, b, alpha);
   return true;
 }
 
@@ -703,10 +703,10 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 {
   w = 2 * M_PI * w;
 
-  float x1 = waypoints[wp1].enu_f.x;
-  float y1 = waypoints[wp1].enu_f.y;
-  float x2 = waypoints[wp2].enu_f.x;
-  float y2 = waypoints[wp2].enu_f.y;
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
 
   float zx = x1 - x2;
   float zy = y1 - y2;
@@ -721,10 +721,10 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
-  alpha = alpha * M_PI / 180;
+  alpha = RadOfDeg(alpha);
 
-  float x = waypoints[wp].enu_f.x;
-  float y = waypoints[wp].enu_f.y;
+  float x = waypoint_get_x(wp);
+  float y = waypoint_get_y(wp);
 
   gvf_sin_XY_alpha(x, y, alpha, w, off, A);
 
