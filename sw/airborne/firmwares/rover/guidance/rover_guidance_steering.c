@@ -26,9 +26,9 @@
 
 #include "generated/airframe.h"
 
-#include "subsystems/datalink/telemetry.h"
-#include "subsystems/actuators/actuators_default.h"
-#include "subsystems/radio_control.h"
+#include "modules/datalink/telemetry.h"
+#include "modules/actuators/actuators_default.h"
+#include "modules/radio_control/radio_control.h"
 #include "autopilot.h"
 #include "navigation.h"
 #include "state.h"
