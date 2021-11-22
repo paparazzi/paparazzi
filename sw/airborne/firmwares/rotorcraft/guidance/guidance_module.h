@@ -43,7 +43,7 @@
  * - void guidance_v_module_enter(void);
  * - void guidance_v_module_run(bool in_flight);
  *
- * If the module implements both V and H mode, take into account that the H is called first and later V
+ * If the module implements both V and H mode, take into account that the V is called first and later H
  *
  */
 
@@ -51,6 +51,5 @@
 #define GUIDANCE_MODULE_H_
 
 #include "generated/modules.h"
-
 
 #endif /* GUIDANCE_MODULE_H_ */
