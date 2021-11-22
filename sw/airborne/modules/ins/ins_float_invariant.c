@@ -478,6 +478,8 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
   }
 
 #if !USE_MAGNETOMETER
+  struct FloatVect3 pseudo_mag = { 0.f, 0.f, 0.f };
+  bool update_mag = false;
 #if INS_INV_USE_GPS_HEADING
   // got a 3d fix, ground speed > INS_INV_HEADING_UPDATE_GPS_MIN_SPEED (default 5.0 m/s)
   // and course accuracy is better than 10deg
@@ -487,34 +489,38 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
       gps_s->gspeed >= gps_min_speed &&
       gps_s->cacc <= max_cacc) {
     // gps_s->course is in rad * 1e7
-    struct FloatVect3 pseudo_mag = {
-      cosf((float)gps_s->course / 1e7f),
-      -sinf((float)gps_s->course / 1e7f),
-      0.f
-    };
-    ins_float_invariant_update_mag(&pseudo_mag);
-  }
-  else {
-    // if speed is tool low, better set measurements to zero
-    FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
+    float course = (float)gps_s->course / 1e7f;
+    pseudo_mag.x = cosf(course);
+    pseudo_mag.y = -sinf(course);
+    update_mag = true;
   }
 #else // else use GPS velocity (only for fixedwing)
   // Use pseudo-mag rebuilt from GPS horizontal velocity
   struct FloatVect2 vel = { ins_float_inv.meas.speed_gps.x, ins_float_inv.meas.speed_gps.y };
   float vel_norm = float_vect2_norm(&vel);
   if (vel_norm > INS_INV_HEADING_UPDATE_GPS_MIN_SPEED) {
-    struct FloatVect3 pseudo_mag = {
-      vel.x / vel_norm,
-      -vel.y / vel_norm,
-      0.f
-    };
-    ins_float_invariant_update_mag(&pseudo_mag);
+    pseudo_mag.x = vel.x / vel_norm;
+    pseudo_mag.y = -vel.y / vel_norm;
+    update_mag = true;
   }
-  else {
+#endif
+  if (update_mag) {
+    // create quat corresponding to psi
+    // quat_psi = [ cos(psi/2) 0 0 sin(psi/2) ]'
+    struct FloatEulers angles;
+    float_eulers_of_quat(&angles, &ins_float_inv.state.quat);
+    struct FloatQuat quat_psi = { cosf(angles.psi / 2.f), 0.f, 0.f, sinf(angles.psi / 2.f) };
+    // build quat corresponding to roll and pitch (from quat psi and current quat)
+    struct FloatQuat quat_horiz;
+    float_quat_inv_comp_norm_shortest(&quat_horiz, &quat_psi, &ins_float_inv.state.quat);
+    // rotate pseudo mag around horiz quaternion
+    struct FloatVect3 mag_final;
+    float_quat_vmult(&mag_final, &quat_horiz, &pseudo_mag);
+    ins_float_invariant_update_mag(&mag_final);
+  } else {
     // if speed is tool low, better set measurements to zero
     FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
   }
-#endif
 #endif
 
 }
