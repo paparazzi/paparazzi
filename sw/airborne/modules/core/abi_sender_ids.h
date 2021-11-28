@@ -111,6 +111,10 @@
 #define AIRSPEED_ETS_ID 4
 #endif
 
+#ifndef AIRSPEED_WE_QUAD_ID
+#define AIRSPEED_WE_QUAD_ID 5
+#endif
+
 /*
  * IDs of Incidence angles (message 24)
  */

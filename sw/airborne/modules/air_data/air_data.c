@@ -327,15 +327,9 @@ float get_tas_factor(float p, float t)
 }
 
 /**
- * Calculate true airspeed from equivalent airspeed.
- *
- * True airspeed (TAS) from EAS:
- * TAS = air_data.tas_factor * EAS
- *
- * @param eas equivalent airspeed (EAS) in m/s
- * @return true airspeed in m/s
+ * Internal utility function to compute current tas factor if needed
  */
-float tas_from_eas(float eas)
+static void compute_tas_factor(void)
 {
   // update tas factor if requested
   if (air_data.calc_tas_factor) {
@@ -351,7 +345,36 @@ float tas_from_eas(float eas)
       air_data.tas_factor = get_tas_factor(p, CelsiusOfKelvin(t));
     }
   }
+}
+
+/**
+ * Calculate true airspeed from equivalent airspeed.
+ *
+ * True airspeed (TAS) from EAS:
+ * TAS = air_data.tas_factor * EAS
+ *
+ * @param eas equivalent airspeed (EAS) in m/s
+ * @return true airspeed in m/s
+ */
+float tas_from_eas(float eas)
+{
+  compute_tas_factor();
   return air_data.tas_factor * eas;
+}
+
+/**
+ * Calculate equivalent airspeed from true airspeed.
+ *
+ * EAS from True airspeed (TAS):
+ * EAS = TAS / air_data.tas_factor
+ *
+ * @param tas true airspeed (TAS) in m/s
+ * @return equivalent airspeed in m/s
+ */
+float eas_from_tas(float tas)
+{
+  compute_tas_factor();
+  return tas / air_data.tas_factor;
 }
 
 /**

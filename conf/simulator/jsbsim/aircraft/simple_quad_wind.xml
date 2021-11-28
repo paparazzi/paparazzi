@@ -1,0 +1,314 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Gautier Hattenberger</author>
+    <filecreationdate>26-08-2021</filecreationdate>
+    <version>Version 1.0</version>
+    <description>
+      Simple Quadrotor in + configuration without rotor dynamic (front/back motors turning CW, left/right CCW)
+
+      Drag model is linear with speed and correspond to the quadrotor used in
+      IMAV2021 paper "Estimating wind using a quadrotor" (Hattenberger, Bronz, Condomines)
+    </description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="M2"> 1 </wingarea>
+    <wingspan unit="M"> 1 </wingspan>
+    <chord unit="M"> 1 </chord>
+    <htailarea unit="M2"> 0 </htailarea>
+    <htailarm unit="M"> 0 </htailarm>
+    <vtailarea unit="M2"> 0 </vtailarea>
+    <vtailarm unit="M"> 0 </vtailarm>
+    <location name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2"> 0.0068 </ixx>
+    <iyy unit="KG*M2"> 0.0068 </iyy>
+    <izz unit="KG*M2"> 0.0136 </izz>
+    <ixy unit="KG*M2"> 0. </ixy>
+    <ixz unit="KG*M2"> 0. </ixz>
+    <iyz unit="KG*M2"> 0. </iyz>
+    <emptywt unit="KG"> 0.896 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.25 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.25</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.25</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.25</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <external_reactions>
+
+    <property>fcs/front_motor</property>
+    <property>fcs/back_motor</property>
+    <property>fcs/right_motor</property>
+    <property>fcs/left_motor</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="front_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/front_motor</property>
+          <value> 3.6 </value>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.25</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="back_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/back_motor</property>
+          <value> 3.6 </value>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.25</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="right_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/right_motor</property>
+          <value> 3.6 </value>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0.25</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="left_motor" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/left_motor</property>
+          <value> 3.6 </value>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-0.25</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <!-- Then the Moment Couples -->
+
+    <moment name="front_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/front_motor</property>
+          <value> 0.1 </value>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.25</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="back_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/back_motor</property>
+          <value> 0.1 </value>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.25</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="right_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/right_motor</property>
+          <value> 0.1 </value>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0.25</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="left_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/left_motor</property>
+          <value> 0.1 </value>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-0.25</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>velocities/vtrue-fps</property>
+          <value>0.3048</value> <!-- conversion in m/s -->
+          <value>0.230292</value> <!-- drag coef -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+  </aerodynamics>
+
+</fdm_config>

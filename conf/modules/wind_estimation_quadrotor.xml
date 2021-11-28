@@ -1,0 +1,50 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="wind_estimation_quadrotor" dir="meteo">
+  <doc>
+    <description>
+      Wind estimation from quadrotor motion
+      Estimation using a linear Kalman filter
+
+      For details, see:
+      G. Hattenberger, M. Bronz, and J. Condomines, “Estimating wind using a quadrotor,”
+      in 12th international micro air vehicle conference, Puebla, México, 2021, p. 124–130.
+    </description>
+    <section name="WE_QUAD" prefix="WE_QUAD_">
+      <define name="MASS" value="required" description="mass of the airframe" unit="kg"/>
+      <define name="DRAG" value="required" description="linear drag coefficient modeling the relation between drag and bank angle"/>
+      <define name="P0_VA" value="1." description="initial covariance on airspeed estimate"/>
+      <define name="P0_W" value="1." description="initial covariance on wind estimate"/>
+      <define name="Q_VA" value="0.05" description="process noise on airspeed"/>
+      <define name="Q_W" value="0.001" description="process noise on wind estimate"/>
+      <define name="R" value="0.5" description="measurement noise on ground speed"/>
+      <define name="UPDATE_STATE" value="FALSE|TRUE" description="update directly wind estimation in state interface (default: TRUE)"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Wind quad">
+        <dl_setting MIN="0.001" MAX="1" STEP="0.01" VAR="we_quad_params.Q_va" shortname="Q_va" module="meteo/wind_estimation_quadrotor" handler="SetQva"/>
+        <dl_setting MIN="0.001" MAX="0.1" STEP="0.001" VAR="we_quad_params.Q_w" shortname="Q_w" module="meteo/wind_estimation_quadrotor" handler="SetQw"/>
+        <dl_setting MIN="0.01" MAX="3" STEP="0.01" VAR="we_quad_params.R" shortname="R" module="meteo/wind_estimation_quadrotor" handler="SetR"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="wind_estimation_quadrotor.h"/>
+  </header>
+  <init fun="wind_estimation_quadrotor_init()"/>
+  <periodic fun="wind_estimation_quadrotor_periodic()" freq="10.0" start="wind_estimation_quadrotor_stop()" stop="wind_estimation_quadrotor_start()" autorun="FALSE"/>
+  <periodic fun="wind_estimation_quadrotor_report()" freq="10.0" autorun="FALSE"/>
+  <makefile>
+    <file name="wind_estimation_quadrotor.c"/>
+    <file name="linear_kalman_filter.c" dir="filters"/>
+    <test>
+      <define name="WE_QUAD_MASS" value="1."/>
+      <define name="WE_QUAD_DRAG" value="1."/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="WIND_ESTIMATION_QUADROTOR_PERIODIC_PERIOD" value="0.1"/>
+    </test>
+  </makefile>
+</module>
