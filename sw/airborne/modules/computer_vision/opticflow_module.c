@@ -31,6 +31,7 @@
 #include <pthread.h>
 #include "state.h"
 #include "modules/core/abi.h"
+#include "modules/pose_history/pose_history.h"
 
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"

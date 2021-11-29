@@ -23,6 +23,7 @@
     <file name="telemetry_intermcu_ap.c"/>
     <file name="short_transport.c" dir="pprzlink/src"/>
     <define name="TELEMETRY_INTERMCU"/>
+    <test/>
   </makefile>
   <makefile target="fbw">
     <file name="telemetry_intermcu_fbw.c"/>
@@ -33,6 +34,10 @@
     <define name="USE_$(TELEMETRY_INTERMCU_DEV_UPPER)"/>
     <define name="$(TELEMETRY_INTERMCU_DEV_UPPER)_BAUD" value="$(TELEMETRY_INTERMCU_BAUD)"/>
     <define name="TELEMETRY_INTERMCU_DEV" value="$(TELEMETRY_INTERMCU_DEV_LOWER)"/>
+    <test>
+      <define name="TELEMETRY_INTERMCU_DEV" value="uart3"/>
+      <define name="USE_UART3"/>
+    </test>
   </makefile>
 </module>
 

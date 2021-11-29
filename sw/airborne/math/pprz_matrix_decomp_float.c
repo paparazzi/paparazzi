@@ -141,7 +141,7 @@ static inline float pythag(float a, float b)
 }
 
 
-int min(int num1, int num2) {
+static int imin(int num1, int num2) {
     return (num1 > num2 ) ? num2 : num1;
 }
 /** SVD decomposition
@@ -298,7 +298,7 @@ int pprz_svd_float(float **a, float *w, float **v, int m, int n)
   }
 
   /* Accumulation of left-hand transformations. */
-  for (i = min(m,n) - 1; i >= 0; --i) {
+  for (i = imin(m,n) - 1; i >= 0; --i) {
     l = i + 1;
     G = w[i];
     if (i < (n - 1)) {

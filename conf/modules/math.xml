@@ -36,6 +36,7 @@
     <file name="pprz_trig_int.c" dir="math"/>
     <file name="pprz_orientation_conversion.c" dir="math"/>
     <file name="pprz_stat.c" dir="math"/>
+    <test/>
   </makefile>
 </module>
 

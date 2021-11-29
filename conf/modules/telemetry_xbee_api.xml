@@ -31,6 +31,12 @@
     <define name="DATALINK" value="XBEE"/>
     <file name="xbee_dl.c"/>
     <file name="xbee_transport.c" dir="pprzlink/src"/>
+    <test>
+      <define name="DOWNLINK_DEVICE" value="uart1"/>
+      <define name="XBEE_UART" value="uart1"/>
+      <define name="XBEE_BAUD" value="B57600"/>
+      <define name="USE_UART1"/>
+    </test>
   </makefile>
 </module>
 

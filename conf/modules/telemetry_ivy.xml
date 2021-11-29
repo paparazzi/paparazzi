@@ -19,6 +19,7 @@
     <define name="DOWNLINK_TRANSPORT" value="ivy_tp"/>
     <file name="ivy_dl.c"/>
     <file name="ivy_transport.c" dir="pprzlink/src"/>
+    <test/>
   </makefile>
 </module>
 

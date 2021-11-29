@@ -224,7 +224,7 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
     MAT_SUB(count, 1, C, bb, bu_all);
 
     for (p = 0; p < count; p++) {
-      C[p][0] = abs(C[p][0]);
+      C[p][0] = fabsf(C[p][0]);
       if (C[p][0] < error_threshold) {
         errors_pu[it] += C[p][0];
         n_inliers_pu[it]++;
@@ -240,7 +240,7 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
     MAT_SUB(count, 1, C, bb, bv_all);
 
     for (p = 0; p < count; p++) {
-      C[p][0] = abs(C[p][0]);
+      C[p][0] = fabsf(C[p][0]);
       if (C[p][0] < error_threshold) {
         errors_pv[it] += C[p][0];
         n_inliers_pv[it]++;
@@ -288,7 +288,7 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
   MAT_SUB(count, 1, C, bb, bu_all);
   *min_error_u = 0;
   for (p = 0; p < count; p++) {
-    *min_error_u += abs(C[p][0]);
+    *min_error_u += fabsf(C[p][0]);
   }
   // bb = AA * pv:
   MAT_MUL(count, 3, 1, bb, AA, pv);
@@ -296,7 +296,7 @@ void fit_linear_flow_field(struct flow_t *vectors, int count, float error_thresh
   MAT_SUB(count, 1, C, bb, bv_all);
   *min_error_v = 0;
   for (p = 0; p < count; p++) {
-    *min_error_v += abs(C[p][0]);
+    *min_error_v += fabsf(C[p][0]);
   }
   *fit_error = (*min_error_u + *min_error_v) / (2 * count);
 
@@ -326,14 +326,14 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
   info->relative_velocity_x = -(parameters_u[2] + (im_width / 2.0f) * parameters_u[0] + (im_height / 2.0f) * parameters_u[1]);
   info->relative_velocity_y = -(parameters_v[2] + (im_width / 2.0f) * parameters_v[0] + (im_height / 2.0f) * parameters_v[1]);
 
-  float arv_x = abs(info->relative_velocity_x);
-  float arv_y = abs(info->relative_velocity_y);
+  float arv_x = fabsf(info->relative_velocity_x);
+  float arv_y = fabsf(info->relative_velocity_y);
 
   // extract inclination from flow field:
   float threshold_slope = 1.0;
   float eta = 0.002;
 
-  if (abs(parameters_v[1]) < eta && arv_y < threshold_slope && arv_x >= 2 * threshold_slope) {
+  if (fabsf(parameters_v[1]) < eta && arv_y < threshold_slope && arv_x >= 2 * threshold_slope) {
     // there is no forward motion and not enough vertical motion, but enough horizontal motion:
     info->slope_x = parameters_u[0] / info->relative_velocity_x;
   } else if (arv_y >= 2 * threshold_slope) {
@@ -345,7 +345,7 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
     info->slope_x = 0.0f;
   }
 
-  if (abs(parameters_u[0]) < eta && arv_x < threshold_slope && arv_y >= 2 * threshold_slope) {
+  if (fabsf(parameters_u[0]) < eta && arv_x < threshold_slope && arv_y >= 2 * threshold_slope) {
     // there is no forward motion, little horizontal movement, but sufficient vertical motion:
     info->slope_y = parameters_v[1] / info->relative_velocity_y;
   } else if (arv_x >= 2 * threshold_slope) {
@@ -362,12 +362,12 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
   // the FoE is the point where these 2 lines intersect (flow = (0,0))
   // x:
   float denominator = parameters_v[0] * parameters_u[1] - parameters_u[0] * parameters_v[1];
-  if (abs(denominator) > 1E-5) {
+  if (fabsf(denominator) > 1E-5) {
     info->focus_of_expansion_x = ((parameters_u[2] * parameters_v[1] - parameters_v[2] * parameters_u[1]) / denominator);
   } else { info->focus_of_expansion_x = 0.0f; }
   // y:
   denominator = parameters_u[1];
-  if (abs(denominator) > 1E-5) {
+  if (fabsf(denominator) > 1E-5) {
     info->focus_of_expansion_y = (-(parameters_u[0] * (info->focus_of_expansion_x) + parameters_u[2]) / denominator);
   } else { info->focus_of_expansion_y = 0.0f; }
 }

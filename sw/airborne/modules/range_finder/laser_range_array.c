@@ -67,7 +67,7 @@ void laser_range_array_init(void)
 #if LASER_RANGE_ARRAY_SEND_AGL
   // find sensor looking down
   for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
-    if (fabsf(laser_range_array_orientations[k * 2] + M_PI_2) < RadOfDeg(5)) {
+    if (fabsf(laser_range_array_orientations[k * 2] + (float)M_PI_2) < RadOfDeg(5)) {
       agl_id = k;
       break;
     }

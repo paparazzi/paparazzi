@@ -213,5 +213,9 @@
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
     <file name="undistortion.c" dir="modules/computer_vision/lib/vision"/>
+    <test arch="linux">
+      <include name="modules/computer_vision"/>
+      <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
+    </test>
   </makefile>
 </module>
