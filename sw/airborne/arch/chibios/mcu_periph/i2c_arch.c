@@ -383,7 +383,7 @@ static struct i2c_init i2c4_init_s = {
 struct i2c_errors i2c4_errors;
 // Thread
 static __attribute__((noreturn)) void thd_i2c4(void *arg);
-static THD_WORKING_AREA(wa_thd_i2c4, 128);
+static THD_WORKING_AREA(wa_thd_i2c4, I2C_THREAD_STACK_SIZE);
 
 /*
  * I2C4 init

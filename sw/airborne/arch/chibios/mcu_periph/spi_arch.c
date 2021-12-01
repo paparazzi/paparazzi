@@ -478,7 +478,7 @@ static __attribute__((noreturn)) void thd_spi4(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi4, 256);
+static THD_WORKING_AREA(wa_thd_spi4, SPI_THREAD_STACK_SIZE);
 
 void spi4_arch_init(void)
 {
