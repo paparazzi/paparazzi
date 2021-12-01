@@ -56,11 +56,7 @@
 #endif
 
 #if FFCONF_DEF < 8000
-#if _FS_SHARE != 0 && _FS_SHARE < SDLOG_NUM_FILES
-#error  if _FS_SHARE is not zero, it should be equal of superior to SDLOG_NUM_FILES
-#endif
-
-
+#error  upgrade FATFS to 0.14 at least
 #else // FFCONF_DEF > 8000
 #if FF_FS_LOCK != 0 && FF_FS_LOCK < SDLOG_NUM_FILES
 #error  if FF_FS_LOCK is not zero, it should be equal of superior to SDLOG_NUM_FILES
@@ -188,11 +184,7 @@ static void cleanQueue(const bool allQueue);
 static SdioError sdLogExpandLogFile(const FileDes fileObject, const size_t sizeInMo,
 				    const bool preallocate);
 
-#if (CH_KERNEL_MAJOR > 2)
 static void thdSdLog(void *arg) ;
-#else
-static msg_t thdSdLog(void *arg) ;
-#endif
 
 #endif //  SDLOG_NEED_QUEUE
 
@@ -669,11 +661,11 @@ SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
   if fatfs use stack for working buffers, stack size should be reserved accordingly
  */
 #define WA_LOG_BASE_SIZE 1024
-#if _USE_LFN == 2
-#if _FS_EXFAT
-static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((_MAX_LFN+1)*2)+(19*32));
+#if FF_USE_LFN == 2
+#if FF_FS_EXFAT
+static IN_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)+(19*32)));
 #else
-static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((_MAX_LFN+1)*2));
+static IN_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)));
 #endif
 #else
 static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE);
@@ -924,11 +916,7 @@ static void removeFromQueue(const size_t nbMsgToRFemove)
 }
 
 
-#if (CH_KERNEL_MAJOR > 2)
 static void thdSdLog(void *arg)
-#else
-static msg_t thdSdLog(void *arg)
-#endif
 {
   (void) arg;
   struct PerfBuffer {
@@ -1022,9 +1010,6 @@ static msg_t thdSdLog(void *arg)
       chThdExit(storageStatus = SDLOG_INTERNAL_ERROR);
     }
   }
-#if (CH_KERNEL_MAJOR == 2)
-  return SDLOG_OK;
-#endif
 }
 
 static size_t logMessageLen(const LogMessage *lm)
