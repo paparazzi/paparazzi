@@ -69,7 +69,7 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
 /*
  * Start log thread
  */
-static IN_DMA_SECTION(THD_WORKING_AREA(wa_thd_startlog, 2048));
+static IN_DMA_SECTION(THD_WORKING_AREA(wa_thd_startlog, 4096));
 static __attribute__((noreturn)) void thd_startlog(void *arg);
 
 /*

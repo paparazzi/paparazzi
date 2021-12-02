@@ -66,7 +66,7 @@ static USBMassStorageConfig msdConfig = {
 };
 
 
-static THD_WORKING_AREA(waThdUsbStorage, 1024);
+static THD_WORKING_AREA(waThdUsbStorage, 4096);
 void usbStorageStartPolling(void)
 {
   usbStorageThreadPtr = chThdCreateStatic(waThdUsbStorage, sizeof(waThdUsbStorage),
