@@ -107,7 +107,7 @@ void autopilot_static_init(void)
 }
 
 
-#define NAV_PRESCALER (PERIODIC_FREQUENCY / NAV_FREQ)
+#define NAV_PRESCALER (PERIODIC_FREQUENCY / NAVIGATION_FREQUENCY)
 void autopilot_static_periodic(void)
 {
 

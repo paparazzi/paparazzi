@@ -45,6 +45,7 @@
 #include "mcu_periph/uart.h"
 
 
+PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 
 struct RoverNavigation nav;
 
@@ -175,7 +176,7 @@ void nav_init_stage(void)
 
 void nav_periodic_task(void)
 {
-  RunOnceEvery(NAV_FREQ, { stage_time++;  block_time++; });
+  RunOnceEvery(NAVIGATION_FREQUENCY, { stage_time++;  block_time++; });
 
   //nav.dist2_to_wp = 0; FIXME
 

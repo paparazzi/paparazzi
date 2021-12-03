@@ -242,7 +242,7 @@ void navigation_task(void)
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
 
-  common_nav_periodic_task_4Hz();
+  common_nav_periodic_task();
   if (autopilot_get_mode() == AP_MODE_HOME) {
     nav_home();
   } else if (autopilot_get_mode() == AP_MODE_GPS_OUT_OF_ORDER) {
@@ -276,7 +276,6 @@ void navigation_task(void)
       h_ctl_course_loop();  /* aka compute nav_desired_roll */
     }
 
-    // climb_loop(); //4Hz
   }
 }
 

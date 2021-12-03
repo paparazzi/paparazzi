@@ -55,8 +55,8 @@
 
     <mode name="MANUAL" gcs_name="MANU">
       <select cond="RCMode0()"/>
-      <control freq="4"> <!-- only for display -->
-        <call fun="common_nav_periodic_task_4Hz()"/>
+      <control freq="NAVIGATION_FREQUENCY"> <!-- only for display -->
+        <call fun="common_nav_periodic_task()"/>
         <call fun="nav_periodic_task()"/>
       </control>
       <control> <!-- only for display -->
@@ -67,8 +67,8 @@
 
     <mode name="AUTO1">
       <select cond="RCMode1()"/>
-      <control freq="4"> <!-- only for display -->
-        <call fun="common_nav_periodic_task_4Hz()"/>
+      <control freq="NAVIGATION_FREQUENCY"> <!-- only for display -->
+        <call fun="common_nav_periodic_task()"/>
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -82,8 +82,8 @@
     <mode name="AUTO2">
       <select cond="$DEFAULT_MODE"/>
       <select cond="RCMode2()" exception="HOME"/>
-      <control freq="4">
-        <call fun="common_nav_periodic_task_4Hz()"/>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="common_nav_periodic_task()"/>
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -95,8 +95,8 @@
     </mode>
 
     <mode name="HOME" settings="hide">
-      <control freq="4">
-        <call fun="common_nav_periodic_task_4Hz()"/>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="common_nav_periodic_task()"/>
         <call fun="nav_home()"/>
       </control>
       <control>
@@ -108,8 +108,8 @@
     </mode>
 
     <mode name="GPS_LOST" gcs_name="NOGPS" settings="hide">
-      <control freq="4">
-        <call fun="common_nav_periodic_task_4Hz()"/>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="common_nav_periodic_task()"/>
         <call fun="nav_without_gps()"/>
       </control>
       <control>

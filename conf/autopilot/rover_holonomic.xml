@@ -27,7 +27,7 @@
 
     <mode name="DIRECT" shortname="MANUAL">
       <select cond="RCMode0() || RCMode1()"/>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -40,7 +40,7 @@
 
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -51,7 +51,7 @@
     </mode>
 
     <mode name="HOME">
-      <control freq="NAV_FREQ">
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_home()"/>
       </control>
       <control>

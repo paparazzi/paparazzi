@@ -56,20 +56,8 @@ extern void navigation_task(void);
 extern void attitude_loop(void);
 
 
-/* CONTROL_RATE will be removed in the next release
- * please use CONTROL_FREQUENCY instead
- */
 #ifndef CONTROL_FREQUENCY
-#ifdef  CONTROL_RATE
-#define CONTROL_FREQUENCY CONTROL_RATE
-#warning "CONTROL_RATE is deprecated. Please use CONTROL_FREQUENCY instead. Defaults to 60Hz if not defined."
-#else
 #define CONTROL_FREQUENCY 60
-#endif  // CONTROL_RATE
-#endif  // CONTROL_FREQUENCY
-
-#ifndef NAVIGATION_FREQUENCY
-#define NAVIGATION_FREQUENCY 4
 #endif
 
 #endif /* AUTOPILOT_STATIC_H */
