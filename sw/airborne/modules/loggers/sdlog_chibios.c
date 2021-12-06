@@ -69,7 +69,7 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
 /*
  * Start log thread
  */
-static THD_WORKING_AREA(wa_thd_startlog, 2048);
+static IN_DMA_SECTION(THD_WORKING_AREA(wa_thd_startlog, 4096));
 static __attribute__((noreturn)) void thd_startlog(void *arg);
 
 /*
@@ -291,7 +291,7 @@ static void thd_startlog(void *arg)
     static uint32_t timestamp = 0;
     // FIXME this could be done somewhere else, like in sys_time
     // we sync gps time to rtc every 5 seconds
-    if (chVTGetSystemTime() - timestamp > 5000) {
+    if (chVTGetSystemTime() - timestamp > TIME_S2I(5)) {
       timestamp = chVTGetSystemTime();
       if (gps.tow != 0) {
         // Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC
@@ -332,8 +332,8 @@ static void thd_bat_survey(void *arg)
 
 /*
   powerOutageIsr is called within a lock zone from an isr, so no lock/unlock is needed
- */
-static void  powerOutageIsr(void)
+*/
+static void powerOutageIsr(void)
 {
   chEvtBroadcastI(&powerOutageSource);
 }
