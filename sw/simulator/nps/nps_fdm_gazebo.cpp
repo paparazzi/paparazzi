@@ -57,6 +57,9 @@ extern "C" {
 #include "filters/high_pass_filter.h"
 
 #include "modules/actuators/motor_mixing_types.h"
+
+#include "math/pprz_geodetic_float.h"
+#include "state.h"
 }
 
 #if defined(NPS_DEBUG_VIDEO)
@@ -539,6 +542,21 @@ static void gazebo_read(void)
   fdm.lla_pos = to_pprz_lla(sphere->PositionTransform(pose.Pos(), gazebo::common::SphericalCoordinates::LOCAL,
                             gazebo::common::SphericalCoordinates::SPHERICAL));
   fdm.hmsl = pose.Pos().Z();
+
+  struct EnuCoor_f enu_f;
+  enu_f.x = pose.Pos().X();
+  enu_f.y = pose.Pos().Y();
+  enu_f.z = pose.Pos().Z();
+  struct EcefCoor_f ecef_f;
+  struct LlaCoor_f lla_f;
+  ecef_of_enu_point_f(&ecef_f, &state.ned_origin_f, &enu_f);
+  lla_of_ecef_f(&lla_f, &ecef_f);
+  fdm.ecef_pos.x = ecef_f.x;
+  fdm.ecef_pos.y = ecef_f.y;
+  fdm.ecef_pos.z = ecef_f.z;
+  fdm.lla_pos.lat = lla_f.lat;
+  fdm.lla_pos.lon = lla_f.lon;
+  fdm.lla_pos.alt = lla_f.alt;
 
   /* debug positions */
   fdm.lla_pos_pprz = fdm.lla_pos; // Don't really care...
