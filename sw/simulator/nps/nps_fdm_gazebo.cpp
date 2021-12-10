@@ -535,12 +535,8 @@ static void gazebo_read(void)
   // nan_count: unused
 
   /* position */
-  fdm.ecef_pos = to_pprz_ecef(sphere->PositionTransform(pose.Pos(), gazebo::common::SphericalCoordinates::LOCAL,
-                              gazebo::common::SphericalCoordinates::ECEF));
   fdm.ltpprz_pos = to_pprz_ned(sphere->PositionTransform(pose.Pos(), gazebo::common::SphericalCoordinates::LOCAL,
                                gazebo::common::SphericalCoordinates::GLOBAL));
-  fdm.lla_pos = to_pprz_lla(sphere->PositionTransform(pose.Pos(), gazebo::common::SphericalCoordinates::LOCAL,
-                            gazebo::common::SphericalCoordinates::SPHERICAL));
   fdm.hmsl = pose.Pos().Z();
 
   struct EnuCoor_f enu_f;
@@ -570,6 +566,10 @@ static void gazebo_read(void)
   } else {
     fdm.agl = pose.Pos().Z(); // TODO Measure with sensor
   }
+
+
+  // TODO replace Gazebo spherical transforms below by paparazzi equivalents!
+
 
   /* velocity */
   fdm.ecef_ecef_vel = to_pprz_ecef(sphere->VelocityTransform(vel, gazebo::common::SphericalCoordinates::LOCAL,
