@@ -1,3 +1,52 @@
+Paparazzi v6.0.0_testing
+========================
+
+First release candidate for v6.1_stable
+
+Many deep changes have already been done, including:
+- a complete dependency system for the modules
+- a reorganization of the airborne code
+- move all subsystems code to modules
+- the drop of lpc21 arch
+
+General
+-------
+- drop support of LPC21 boards and old stuff (#2695) (#2696) (#2697)
+- airborne code reorganization (#2721) (#2793) (#2795)
+- move all code in subsystems folder to modules folder (#2797)
+- remove static sectors support (#2701)
+- conf cleaning (#2712) (#2773)
+- Use correct address for google tiles. (#2727)
+- Pprzlink update
+- Pyhton scripts converted to Python3 (as much as possible)
+- indicate voltage/cell if number of cells is specified (#2732)
+- Fix flight plans (#2740)
+- Fix replay (#2754) (#2767)
+- Better link status (#2777)
+- Add new PPRZ GCS (from external repo https://github.com/paparazzi/PprzGCS) (#2780)
+- Server json stream for external plotter like PlotJuggler (#2792)
+
+Airborne
+--------
+- Add UAVCAN actuators for chibios (#2511) (#2698) (#2699)
+- Small bug fix (#2702) (#2704) (#2790) (#2802) (#2805)
+- Add GPS loss bypass with datalink timeout (#2709)
+- Feature accurate cpu load (#2716) (#2739)
+- Filter rates indi, hybrid guidance (#2718) (#2723) (#2724) (#2731)
+- Add a follow me module (#2509)
+- Fix airspeed ets to work with air_data module (#2733)
+- support for RM3100 magneto over I2C (#2742)
+- support Holybro Kakute F7 (#2746)
+- Add PPM input to Pixhawk 4 (px4fmuv5) (#2751)
+- correct ADC buffer offset for ChibiOS (#2761)
+- improve ins invariant (#2768) (#2770) (#2763) (#2803)
+- EKF2 Optical Flow Interface  (#2779)
+- ADD tilt twist control (twist around z) (#2782)
+- wind estimation from quadrotor motion (#2800)
+- update and harmonized navigation frequency (#2796)
+- Fix chibiOS log for F7: update chibios fatfs lfn2 dmastack (#2806)
+
+
 Paparazzi v5.18.0_stable
 ========================
 
