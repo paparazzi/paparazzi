@@ -1,0 +1,71 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sys_id_doublet" dir="system_identification">
+    <doc>
+        <description>Doublet input for system identification.
+            The doublet is a multi step maneuver for system identification. Two modes are implemented, the 0,1,-1,0 maneuver (which correspond to
+            one period of a squared sine wave oscillation, and the "so-called" 3-2-1-1 maneuver.
+
+            The module is used by including the module in the airframe file and adding the following line to the &lt;command_laws&gt; section:
+
+            &lt;call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/&gt;
+
+            You can pick the axes to apply doublets to by setting the DOUBLET_AXES variable with the COMMAND_XXX variables where XXX are the actuators defined in
+            the &lt;commands&gt; section of your airframe.
+
+            Remeber to deactivate the control input when the system identification input is running using (can be checked using the sys_id_wave_running() function)
+
+            Then, the GCS exposes the settings for the doublet.
+            - 3-2-1-1 setting is to execute the 3-2-1-1 doublet maneuver when active. Otherwise, the normal 1-1 doublet maneuver will be executed.
+            - The Doublet axis settings is the index (0-based) of the axis to choose within the DOUBLET_AXES variable specified. In the default, this means i.e. 0 means roll doublet.
+            - Amplitude is the amplitude of the doublet
+            - Length_s is the length in seconds of the doublet. The lenght of each doublet step depends on the active mode and on the doublet lenght.
+            - Extra_waiting_time_s is the length in second of the waiting time with zero input after the doublet maneuver is over.
+
+            Start the doublet by checking the Active box in the "Activate doublet". Stop the doublet by checking the Inactive box in the same input setting.
+
+            Add the message "DOUBLET" to your telemetry to see doublet progress, and to your logger to obtain information about the provided input.
+
+            Add the following message structure to the messages.xml file on a free ID
+
+            <!-- 
+            <message name="DOUBLET" id="181">
+                <field name="active"        type="uint8" unit="bool">Doublet is active</field>
+                <field name="axis"          type="uint8">Current doublet axis</field>
+                <field name="amplitude"           type="int16">Amplitude</field>
+                <field name="current_value" type="int16">Current doublet value</field>
+                <field name="mode_3211_active" type="uint8">Doublet 3211 mode active</field>
+            </message> 
+            -->
+            
+        </description>
+        <define name="DOUBLET_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the doublet is applied to (specify as array with {})"/>
+        <define name="DOUBLET_ENABLED"     value="TRUE|FALSE"  description="If false, the doublet does not run and values are not added"/>
+        <define name="DOUBLET_MOD3211"   value="TRUE|FALSE"  description="If true, the 3-2-1-1 doublet will be executed instead of the normal doublet"/>
+        </doc>
+
+    <settings>
+        <dl_settings name="System identification">
+            <dl_settings name="Doublet input">
+                <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="Doublet" var="doublet_active" type="uint8_t" module="system_identification/sys_id_doublet" handler="activate_handler"/>
+                <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="3-2-1-1 mode" var="doublet_mode_3211" type="uint8_t" module="system_identification/sys_id_doublet" handler="mod3211_handler"/>
+                <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="doublet_amplitude"               type="int32_t" module="system_identification/sys_id_doublet"/>
+                <dl_setting min="0"    max="5"    step="1"    shortname="Doublet axis"     var="doublet_axis"                    type="uint8_t" module="system_identification/sys_id_doublet" handler="axis_handler"/>
+                <dl_setting min="0"    max="100"  step="0.5"  shortname="Length_s"       var="doublet_length_s"                type="float"   module="system_identification/sys_id_doublet"/>
+                <dl_setting min="0"    max="100"  step="0.5"  shortname="Extra_waiting_s"   var="doublet_extra_waiting_time_s"              type="float"   module="system_identification/sys_id_doublet"/>
+            </dl_settings>
+        </dl_settings>
+    </settings>
+
+    <header>
+        <file name="sys_id_doublet.h"/>
+    </header>
+
+    <init fun="sys_id_doublet_init()"/>
+    <periodic fun="sys_id_doublet_run()" freq="60" autorun="TRUE"/>
+
+    <makefile>
+        <file name="pprz_doublet.c"/>
+        <file name="sys_id_doublet.c"/>
+    </makefile>
+</module>

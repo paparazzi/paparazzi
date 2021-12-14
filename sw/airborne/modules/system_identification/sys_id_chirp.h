@@ -53,6 +53,10 @@ extern float chirp_length_s;
 // Index of chirp axis in ACTIVE_CHIRP_AXES
 extern uint8_t chirp_axis;
 
+extern uint8_t chirp_fade_in;
+extern uint8_t chirp_exponential;
+
+
 extern void sys_id_chirp_init(void);
 
 // If chirp is running, update its values
@@ -63,6 +67,9 @@ extern void sys_id_chirp_activate_handler(uint8_t activate); // Activate the chi
 extern void sys_id_chirp_axis_handler(uint8_t axis); // Check if new axis is valid
 extern void sys_id_chirp_fstart_handler(float fstart); // Check if fstart is lower than current fend
 extern void sys_id_chirp_fstop_handler(float fstop); // Check if fend is higher than current fstart
+extern void sys_id_chirp_fade_in_activate_handler(uint8_t fade_in); // Fade in feature switch
+extern void sys_id_chirp_exponential_activate_handler(uint8_t exponential); // Exponential chirp feature switch
+extern uint8_t sys_id_chirp_running(void); // Check if the chirp is running or not
 
 // Add the current chirp values to the in_cmd values if motors_on is true
 extern void sys_id_chirp_add_values(bool motors_on, bool override_on, pprz_t in_cmd[]);

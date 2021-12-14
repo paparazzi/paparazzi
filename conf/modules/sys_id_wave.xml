@@ -1,0 +1,69 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sys_id_wave" dir="system_identification">
+    <doc>
+        <description>Wave maneuver for system identification.
+            The wave provide a sine input to the specified command axis. 
+            The module is used by including the module in the airframe file and adding the following line to the &lt;command_laws&gt; section:
+
+            &lt;call fun="sys_id_wave_add_values(autopilot_get_motors_on(),FALSE,values)"/&gt;
+
+            You can pick the axes to apply waves to by setting the WAVE_AXES variable with the COMMAND_XXX variables where XXX are the actuators defined in
+            the &lt;commands&gt; section of your airframe.
+
+            Remeber to deactivate the control input when the system identification input is running using (can be checked using the sys_id_wave_running() function)
+
+            Then, the GCS exposes the settings for the wave.
+            - The wave axis settings is the index (0-based) of the axis to choose within the WAVE_AXES variable specified. In the default, this means i.e. 0 means roll wave.
+            - Amplitude is the amplitude of the wave
+            - Freqyency_hz is the frequency in Hertz of the wave
+            - Lag_rad is the lag in radiants for the wave signal
+
+            Start the wave by checking the Active box in the "Activate wave". Stop the wave by checking the Inactive box in the same input setting.
+
+            Add the message "WAVE" to your telemetry to see wave progress, and to your logger to obtain information about the provided input.
+
+            Add the following message structure to the messages.xml file on a free ID
+
+            <!--  
+                <message name="WAVE" id="00">
+                    <field name="active" type="uint8" unit="bool">Wave is active</field>
+                    <field name="axis" type="uint8">Current wave axis</field>
+                    <field name="amplitude" type="int16">Wave amplitude</field>
+                    <field name="lag_rad" type="float">Lag in radiants</field>
+                    <field name="frequency_hz" type="float">Wave frequency</field>
+                    <field name="current_value" type="int16">Current wave value</field>
+                </message>
+            -->
+
+        </description>
+        <define name="WAVE_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the wave is applied to (specify as array with {})"/>
+        <define name="WAVE_ENABLED"     value="TRUE|FALSE"  description="If false, the wave does not run and values are not added"/>
+    </doc>
+
+    <settings>
+        <dl_settings name="System identification">
+            <dl_settings name="Wave input">
+                <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="Activate wave" var="wave_active" type="uint8_t" module="system_identification/sys_id_wave" handler="activate_handler">
+                </dl_setting>
+
+                <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="wave_amplitude"               type="int32_t" module="system_identification/sys_id_wave"/>
+                <dl_setting min="0"    max="5"    step="1"    shortname="Wave axis"      var="wave_axis"                    type="uint8_t" module="system_identification/sys_id_wave" handler="axis_handler"/>
+                <dl_setting min="0"    max="20"  step="0.5"  shortname="frenquency_hz"  var="frequency_hz_"                type="float"   module="system_identification/sys_id_wave" handler="frequency_hz_set"/>
+                <dl_setting min="0"    max="6.28"  step="0.0174"  shortname="lag_rad_"   var="lag_rad_"                     type="float"   module="system_identification/sys_id_wave" handler="lag_rad_set"/>
+            </dl_settings>
+        </dl_settings>
+    </settings>
+
+    <header>
+        <file name="sys_id_wave.h"/>
+    </header>
+
+    <init fun="sys_id_wave_init()"/>
+    <periodic fun="sys_id_wave_run()" freq="60" autorun="TRUE"/>
+
+    <makefile>
+        <file name="pprz_wave.c"/>
+        <file name="sys_id_wave.c"/>
+    </makefile>
+</module>
