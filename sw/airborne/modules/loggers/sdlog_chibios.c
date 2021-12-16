@@ -324,7 +324,10 @@ static void thd_bat_survey(void *arg)
   // in case of powerloss, we should go fast and avoid to flush ram buffer
   sdlog_chibios_finish(false);
   chThdExit(0);
-  mcu_deep_sleep();
+
+  // Only put to deep sleep in case there is no power on the USB
+  if(palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW)
+    mcu_deep_sleep();
   chThdSleep(TIME_INFINITE);
   while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }
