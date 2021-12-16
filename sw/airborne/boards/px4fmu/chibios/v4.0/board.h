@@ -1557,6 +1557,10 @@
 #define AF_LINE_OSC_OUT                  0U
 
 
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, lines[] = {group}, line = lines[i]; (i < group ## _SIZE) && (line=lines[i]); i++)
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

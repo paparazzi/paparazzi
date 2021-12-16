@@ -1535,6 +1535,9 @@
 
 
 
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, lines[] = {group}, line = lines[i]; (i < group ## _SIZE) && (line=lines[i]); i++)
+
 #define LINE_SERVOS_GROUP \
 	LINE_AUX3, \
 	LINE_AUX2, \

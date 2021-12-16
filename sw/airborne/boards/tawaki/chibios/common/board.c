@@ -270,11 +270,9 @@ void boardInit(void) {
 void mcu_periph_pwm_safe_mode(void)
 {
 #if (defined(LINE_SERVOS_GROUP_SIZE)) && (LINE_SERVOS_GROUP_SIZE != 0)
-  static const ioline_t pwmLines[LINE_SERVOS_GROUP_SIZE] = {LINE_SERVOS_GROUP};
-  
-  for (size_t i=0; i < LINE_SERVOS_GROUP_SIZE; i++) {
-    palClearLine(pwmLines[i]);
-    palSetLineMode(pwmLines[i], PAL_MODE_OUTPUT_OPENDRAIN);
+   BOARD_GROUP_FOREACH(line, LINE_SERVOS_GROUP) {
+    palClearLine(line);
+    palSetLineMode(line, PAL_MODE_OUTPUT_OPENDRAIN);
   }
 #else
   #warning "LINE_SERVOS_GROUP not defined or zero sized"
@@ -288,10 +286,8 @@ void mcu_periph_pwm_safe_mode(void)
 void mcu_periph_energy_save(void)
 {
 #if (defined(LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE)) && (LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE != 0)
-  static const ioline_t ioLines[LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE] = {LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP};
-  
-  for (size_t i=0; i < LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE; i++) {
-    palSetLineMode(ioLines[i], PAL_MODE_INPUT_PULLDOWN);
+  BOARD_GROUP_FOREACH(line, LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP) {
+    palSetLineMode(line, PAL_MODE_INPUT_PULLDOWN);
   }
 #else
   #warning "LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP not defined or zero sized"

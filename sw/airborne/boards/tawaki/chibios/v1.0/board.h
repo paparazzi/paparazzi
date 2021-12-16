@@ -1661,6 +1661,28 @@
 #define SRVA4_TIM_CH	 4
 #define SRVA4_TIM_AF	 1
 
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, lines[] = {group}, line = lines[i]; (i < group ## _SIZE) && (line=lines[i]); i++)
+
+#define LINE_SERVOS_GROUP \
+	LINE_AUX_A1, \
+	LINE_AUX_A2, \
+	LINE_AUX_A3, \
+	LINE_AUX_B1, \
+	LINE_AUX_A4, \
+	LINE_AUX_B2, \
+	LINE_AUX_B3, \
+	LINE_AUX_B4, \
+	LINE_SRVB1, \
+	LINE_SRVB2, \
+	LINE_SRVB3, \
+	LINE_SRVB4, \
+	LINE_SRVA1, \
+	LINE_SRVA2, \
+	LINE_SRVA3, \
+	LINE_SRVA4
+#define LINE_SERVOS_GROUP_SIZE 	 16
+
 #define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP \
 	LINE_AUX_A1, \
 	LINE_AUX_A2, \
@@ -1711,25 +1733,6 @@
 	LINE_SRVA3, \
 	LINE_SRVA4
 #define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE 	 48
-
-#define LINE_SERVOS_GROUP \
-	LINE_AUX_A1, \
-	LINE_AUX_A2, \
-	LINE_AUX_A3, \
-	LINE_AUX_B1, \
-	LINE_AUX_A4, \
-	LINE_AUX_B2, \
-	LINE_AUX_B3, \
-	LINE_AUX_B4, \
-	LINE_SRVB1, \
-	LINE_SRVB2, \
-	LINE_SRVB3, \
-	LINE_SRVB4, \
-	LINE_SRVA1, \
-	LINE_SRVA2, \
-	LINE_SRVA3, \
-	LINE_SRVA4
-#define LINE_SERVOS_GROUP_SIZE 	 16
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
