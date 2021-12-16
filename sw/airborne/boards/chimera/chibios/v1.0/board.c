@@ -288,7 +288,7 @@ void mcu_periph_energy_save(void)
   static const ioline_t ioLines[LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE] = {LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP};
   
   for (size_t i=0; i < LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE; i++) {
-    palSetLineMode(pwmLines[i], PAL_MODE_INPUT_PULLDOWN);
+    palSetLineMode(ioLines[i], PAL_MODE_INPUT_PULLDOWN);
   }
 #else
   #warning "LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP not defined or zero sized"
