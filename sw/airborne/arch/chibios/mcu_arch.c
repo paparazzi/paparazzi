@@ -157,3 +157,9 @@ void WEAK mcu_periph_energy_save(void)
   // see board.c file
 }
 
+void WEAK mcu_periph_pwm_safe_mode(void)
+{
+  // Default empty implementation
+  // see board.c file
+}
+

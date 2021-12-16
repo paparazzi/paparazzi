@@ -90,4 +90,7 @@ static inline void mcu_reset(void)
  */
 extern void mcu_periph_energy_save(void);
 
+/** PWM safe level setting when enterring usbstorage mode
+ */
+extern void mcu_periph_pwm_safe_mode(void);
 #endif /* CHIBIOS_MCU_ARCH_H */
