@@ -1535,26 +1535,20 @@
 
 
 
-#define BOARD_GROUP_FOREACH(line, group) \
-  for (ioline_t i=0, lines[] = {group}, line = lines[i]; (i < group ## _SIZE) && (line=lines[i]); i++)
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
 
-#define LINE_SERVOS_GROUP \
-	LINE_AUX3, \
-	LINE_AUX2, \
-	LINE_AUX1, \
-	LINE_SRV0_TIM3_CH1, \
-	LINE_SRV1_TIM3_CH2, \
-	LINE_SRV2_TIM3_CH3, \
-	LINE_SRV3_TIM3_CH4, \
-	LINE_AUX5, \
-	LINE_AUX4, \
-	LINE_AUX6, \
-	LINE_AUX7, \
-	LINE_SRV4_TIM4_CH1, \
-	LINE_SRV5_TIM4_CH2, \
-	LINE_SRV6_TIM4_CH3, \
-	LINE_SRV7_TIM4_CH4
-#define LINE_SERVOS_GROUP_SIZE 	 15
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP \
 	LINE_AUX3, \
@@ -1618,6 +1612,24 @@
 	LINE_DIS_D, \
 	LINE_XB_RST
 #define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE 	 60
+
+#define LINE_SERVOS_GROUP \
+	LINE_AUX3, \
+	LINE_AUX2, \
+	LINE_AUX1, \
+	LINE_SRV0_TIM3_CH1, \
+	LINE_SRV1_TIM3_CH2, \
+	LINE_SRV2_TIM3_CH3, \
+	LINE_SRV3_TIM3_CH4, \
+	LINE_AUX5, \
+	LINE_AUX4, \
+	LINE_AUX6, \
+	LINE_AUX7, \
+	LINE_SRV4_TIM4_CH1, \
+	LINE_SRV5_TIM4_CH2, \
+	LINE_SRV6_TIM4_CH3, \
+	LINE_SRV7_TIM4_CH4
+#define LINE_SERVOS_GROUP_SIZE 	 15
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
