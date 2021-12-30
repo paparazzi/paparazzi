@@ -1,6 +1,35 @@
-//
-// Created by ASUS on 07/12/2021.
-//
+/*
+ * Copyright (C) Alessandro Collicelli
+ *
+ * This file is part of paparazzi
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+/**
+ * @file "modules/system_identification/sys_id_wave.c"
+ * @author Alessandro Collicelli
+ * System excitation pure sine wave
+ * 
+ * This is the module implementation for the a sine wave input. Use sys_id_wave by adding the module to your airframe file and
+ * adding the following line to the top of the <command_laws> section of your airframe file:
+ *
+ * <call fun="sys_id_wave_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+ *
+ * In the GCS you can then start and stop the wave, change wave frequency. 
+ * Documentation of the specific options can be found in the module xml file.
+ */
 
 #ifndef SYS_ID_WAVE_H
 #define SYS_ID_WAVE_H

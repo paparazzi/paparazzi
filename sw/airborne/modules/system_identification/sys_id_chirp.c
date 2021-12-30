@@ -24,7 +24,6 @@
  */
 
 #include "std.h"
-#include "stdio.h"
 
 #include "sys_id_chirp.h"
 #include "pprz_chirp.h"

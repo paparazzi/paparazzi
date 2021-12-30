@@ -18,9 +18,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/system_identification/sys_id_doublet.c"
+ * @file "modules/system_identification/pprz_wave.c"
  * @author Alessandro Collicelli
  * System excitation pure sine wave
+ * 
  */
 
 #include "std.h"
@@ -45,9 +46,6 @@ void wave_reset(struct wave_t *wave, float current_time_s)
 {
     wave->start_time_s = current_time_s;
     wave->current_time_s = current_time_s;
-    // wave->lag_rad = 0.0f;
-    // wave->frequency_hz = 0.0f;
-    // wave->is_running = false;
     wave->current_value = 0.0f;
 }
 

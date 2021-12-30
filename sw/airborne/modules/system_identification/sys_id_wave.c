@@ -18,9 +18,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/system_identification/sys_id_doublet.c"
+ * @file "modules/system_identification/sys_id_wave.h"
  * @author Alessandro Collicelli
  * System excitation pure sine wave
+ * 
+ * This is the module implementation for a sine wave input. Use sys_id_wave by adding the module to your airframe file and
+ * adding the following line to the top of the <command_laws> section of your airframe file:
+ *
+ * <call fun="sys_id_wave_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+ *
+ * In the GCS you can then start and stop the wave, change wave frequency. 
+ * Documentation of the specific options can be found in the module xml file.
  */
 
 #include "std.h"

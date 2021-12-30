@@ -21,8 +21,16 @@
  * @file "modules/system_identification/sys_id_doublet.c"
  * @author Alessandro Collicelli
  * System identification doublet
+ * 
+ * This is the module implementation for the doublet maneuver. Use sys_id_chirp by adding the module to your airframe file and
+ * adding the following line to the top of the <command_laws> section of your airframe file:
+ *
+ * <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+ *
+ * In the GCS you can then start and stop the doublet, change type of doublet maneuvre. 
+ * Documentation of the specific options can be found in the module xml file.
+ *
  */
-
 #include "std.h"
 
 #include "sys_id_doublet.h"
@@ -124,8 +132,6 @@ void sys_id_doublet_init(void)
 
     set_current_doublet_values();
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DOUBLET, send_doublet);
-
-    // Filter cutoff frequency is the doublet maximum frequency
     
     for (uint8_t i = 0; i < DOUBLET_NB_AXES; i++) {
         current_doublet_values[i] = 0;
