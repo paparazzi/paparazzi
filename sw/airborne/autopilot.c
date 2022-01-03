@@ -166,12 +166,13 @@ void autopilot_on_rc_frame(void)
  */
 bool autopilot_set_mode(uint8_t new_autopilot_mode)
 {
+  uint8_t mode = autopilot.mode;
 #if USE_GENERATED_AUTOPILOT
   autopilot_generated_set_mode(new_autopilot_mode);
 #else
   autopilot_static_set_mode(new_autopilot_mode);
 #endif
-  return (autopilot.mode != new_autopilot_mode);
+  return (autopilot.mode != mode);
 }
 
 /** AP mode setting handler
