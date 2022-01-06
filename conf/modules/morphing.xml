@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="morphing" dir="morphing">
+  <doc>
+    <description>
+      RoBust hexacopter morphing module
+    </description>
+    <define name="TIME_PER_DEFLECTION" value="0.8" description="Time between servo steps for the 'servo_run' feature"/>
+  </doc>
+  <settings>
+    <dl_settings NAME="Morph">
+      <dl_settings NAME="Morph">
+        <dl_setting var="morph_command_1" min="-1" step=".01" max="1" module="modules/morphing/morphing" shortname="morph_cmd_1"/>
+        <dl_setting var="morph_command_2" min="-1" step=".01" max="1" module="modules/morphing/morphing" shortname="morph_cmd_2"/>
+        <dl_setting var="morph_dance_period" min="0." step=".1" max="4" module="modules/morphing/morphing" shortname="morph_period"/>
+        <!-- <dl_setting var="servo_test_val" min="1000" step="1" max="2000" module="modules/morphing/morphing" shortname="servo_input"/> -->
+        <!-- <dl_setting var="is_servo" min="0" step="1" max="1" module="modules/servo_tester/servo_tester" values="False|True" shortname="is_servo"/> -->
+        <dl_setting var="morph_do_dance" min="0" step="1" max="1" module="modules/morphing/morphing" values="Off|On" shortname="morph_dance"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="morphing.h"/>
+  </header>
+  <init fun="morphing_init()"/>
+  <periodic fun="morphing_periodic()" freq="20"/>
+  <makefile>
+    <file name="morphing.c"/>
+  </makefile>
+</module>
+
