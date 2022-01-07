@@ -25,13 +25,13 @@
  */
 
 #include "morphing.h"
-#include "subsystems/commands.h"
+#include "modules/core/commands.h"
 #include "generated/airframe.h"
-#include "subsystems/actuators.h"
+#include "modules/actuators/actuators.h"
 #include "generated/modules.h"
 
 // #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 int32_t servo_1_val;
 int32_t servo_2_val;

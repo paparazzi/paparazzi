@@ -37,7 +37,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 
 uint16_t adc_val1;
 uint16_t adc_val2;
@@ -60,7 +60,7 @@ float R1;
 #endif
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #endif
 
 #ifdef ADC_CHANNEL_MORPHING1
