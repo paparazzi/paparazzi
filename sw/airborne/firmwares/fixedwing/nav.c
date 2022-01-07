@@ -149,6 +149,7 @@ void nav_circle_XY(float x, float y, float radius)
   fly_to_xy(x + cosf(alpha_carrot)*radius_carrot,
             y + sinf(alpha_carrot)*radius_carrot);
   nav_in_circle = true;
+  nav_in_segment = false;
   nav_circle_x = x;
   nav_circle_y = y;
   nav_circle_radius = radius;
@@ -347,7 +348,6 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
   }
 }
 
-
 /**
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
  */
@@ -391,6 +391,7 @@ void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y)
   float carrot = CARROT * NOMINAL_AIRSPEED;
 
   nav_carrot_leg_progress = nav_leg_progress + Max(carrot / nav_leg_length, 0.);
+  nav_in_circle = false;
   nav_in_segment = true;
   nav_segment_x_1 = last_wp_x;
   nav_segment_y_1 = last_wp_y;

@@ -78,6 +78,7 @@ extern struct MeteoStick meteo_stick;
 extern void meteo_stick_init(void);
 extern void meteo_stick_periodic(void);
 extern void meteo_stick_event(void);
+extern void meteo_stick_report(void);
 
 #endif
 

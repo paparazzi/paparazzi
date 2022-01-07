@@ -3,33 +3,14 @@
 <module name="mission_fw" dir="mission" task="control">
   <doc>
     <description>
-      Interface for mission control of fixed wing aircraft.
-      This module parse datalink commands for basic navigation routines
-      and store them in a queue.
+      Specific interface for mission control of fixed wing aircraft.
     </description>
   </doc>
-  <header>
-    <file name="mission_common.h"/>
-  </header>
-  <init fun="mission_init()"/>
-  <periodic fun="mission_status_report()" freq="2" autorun="TRUE"/>
-
-  <datalink message="MISSION_GOTO_WP" fun="mission_parse_GOTO_WP(buf)"/>
-  <datalink message="MISSION_GOTO_WP_LLA" fun="mission_parse_GOTO_WP_LLA(buf)"/>
-  <datalink message="MISSION_CIRCLE" fun="mission_parse_CIRCLE(buf)"/>
-  <datalink message="MISSION_CIRCLE_LLA" fun="mission_parse_CIRCLE_LLA(buf)"/>
-  <datalink message="MISSION_SEGMENT" fun="mission_parse_SEGMENT(buf)"/>
-  <datalink message="MISSION_SEGMENT_LLA" fun="mission_parse_SEGMENT_LLA(buf)"/>
-  <datalink message="MISSION_PATH" fun="mission_parse_PATH(buf)"/>
-  <datalink message="MISSION_PATH_LLA" fun="mission_parse_PATH_LLA(buf)"/>
-  <datalink message="MISSION_CUSTOM" fun="mission_parse_CUSTOM(buf)"/>
-  <datalink message="GOTO_MISSION" fun="mission_parse_GOTO_MISSION(buf)"/>
-  <datalink message="NEXT_MISSION" fun="mission_parse_NEXT_MISSION(buf)"/>
-  <datalink message="END_MISSION" fun="mission_parse_END_MISSION(buf)"/>
-
+  <dep>
+    <depends>mission_common</depends>
+    <provides>mission</provides>
+  </dep>
   <makefile>
-    <define name="USE_MISSION"/>
-    <file name="mission_common.c"/>
     <file name="mission_fw_nav.c"/>
     <test firmware="fixedwing">
       <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>

@@ -25,7 +25,9 @@
     <configure name="MS_EEPROM_SLAVE_IDX" value="X" description="Index of the SPI slave for calibration EEPROM"/>
     <section name="METEO_STICK">
       <define name="LOG_MS" value="TRUE|FALSE" description="Log data on SD card (ascii format, raw PTU data + GPS data)"/>
-      <define name="SEND_MS" value="TRUE|FALSE" description="Send data over telemetry (PAYLOAD_FLOAT message, scaled PTU data)"/>
+      <define name="LOG_MS_FLIGHTRECORDER" value="TRUE|FALSE" description="Log data on SD card (METEO_STICK message in binary format)"/>
+      <define name="MS_LOG_FILE" value="flightrecorder_sdlog" description="Log for binary format (only available with LOG_MS_FLIGHTRECORDER to TRUE)"/>
+      <define name="SEND_MS_SYNC" value="TRUE|FALSE" description="Send data over telemetry sync to reading (METEO_STICK message, scaled PTU data)"/>
       <define name="USE_MS_EEPROM" value="TRUE|FALSE" description="Enable/disable usage of calibration data from EEPROM (default TRUE, set to FALSE if MS_EEPROM_SLAVE_IDX is not configured"/>
       <define name="MS_PRESSURE_OFFSET" value="0." description="Offset of the absolute pressure sensor (only used if EEPROM is not used)"/>
       <define name="MS_PRESSURE_SCALE" value="1." description="Scale factor of the absolute pressure sensor (only used if EEPROM is not used)"/>
@@ -52,6 +54,7 @@
   </header>
   <init fun="meteo_stick_init()"/>
   <periodic fun="meteo_stick_periodic()" freq="10" autorun="TRUE"/>
+  <periodic fun="meteo_stick_report()" freq="1" autorun="TRUE"/>
   <event fun="meteo_stick_event()"/>
   <makefile target="ap">
     <configure name="MS_SPI_DEV" case="upper|lower"/>

@@ -117,12 +117,12 @@ void mf_daq_send_report(void)
 
 void parse_mf_daq_msg(uint8_t *buf)
 {
-  mf_daq.nb = buf[2];
+  mf_daq.nb = pprzlink_get_PAYLOAD_FLOAT_values_length(buf);
   if (mf_daq.nb > 0) {
     if (mf_daq.nb > MF_DAQ_SIZE) { mf_daq.nb = MF_DAQ_SIZE; }
     // Store data struct directly from dl_buffer
-    float *bufloc = (float*)(buf+3);
-    memcpy(mf_daq.values, bufloc, mf_daq.nb * sizeof(float));
+    float *b = pprzlink_get_DL_PAYLOAD_FLOAT_values(buf);
+    memcpy(mf_daq.values, b, mf_daq.nb * sizeof(float));
     // Log on SD card
     if (log_started) {
       DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);

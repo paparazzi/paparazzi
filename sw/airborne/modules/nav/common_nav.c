@@ -28,6 +28,7 @@
 #include "generated/flight_plan.h"
 #include "modules/ins/ins.h"
 #include "math/pprz_geodetic_float.h"
+#include "modules/datalink/downlink.h"
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -173,3 +174,48 @@ void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt)
     waypoints[wp_id].a = alt;
   }
 }
+
+/** Move a waypoint in local frame.
+ * @param[in] wp_id Waypoint ID
+ * @param[in] ux    x (east) coordinate
+ * @param[in] uy    y (north) coordinate
+ * @param[in] alt   Altitude above MSL.
+ */
+void nav_move_waypoint_enu(uint8_t wp_id, float x, float y, float alt)
+{
+  if (wp_id < nb_waypoint) {
+    float dx, dy;
+    dx = x - waypoints[WP_HOME].x;
+    dy = y - waypoints[WP_HOME].y;
+    BoundAbs(dx, max_dist_from_home);
+    BoundAbs(dy, max_dist_from_home);
+    waypoints[wp_id].x = waypoints[WP_HOME].x + dx;
+    waypoints[wp_id].y = waypoints[WP_HOME].y + dy;
+    waypoints[wp_id].a = alt;
+  }
+}
+
+/** Move a waypoint from point structure (local frame).
+ * @param[in] wp_id Waypoint ID
+ * @param[in] p     new point
+ */
+void nav_move_waypoint_point(uint8_t wp_id, struct point *p)
+{
+  nav_move_waypoint_enu(wp_id, p->x, p->y, p->a);
+}
+
+/** Send a waypoint throught default telemetry channel
+ * @param[in] wp_id Waypoint ID
+ */
+void nav_send_waypoint(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    struct UtmCoor_f utm;
+    utm.zone = nav_utm_zone0;
+    utm.east = waypoints[wp_id].x + nav_utm_east0;
+    utm.north = waypoints[wp_id].y + nav_utm_north0;
+    utm.alt = waypoints[wp_id].a;
+    DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &utm.alt, &utm.zone);
+  }
+}
+

@@ -142,17 +142,50 @@ static inline bool mission_nav_path(struct _mission_path *path)
  */
 static inline bool mission_nav_custom(struct _mission_custom *custom, bool init)
 {
-  return custom->reg->cb(custom->nb, custom->params, init);
+  if (init) {
+    return custom->reg->cb(custom->nb, custom->params, MissionInit);
+  } else {
+    return custom->reg->cb(custom->nb, custom->params, MissionRun);
+  }
 }
+
+/** Implement waiting pattern
+ *  Only called when MISSION_WAIT_TIMEOUT is not 0
+ */
+#ifndef MISSION_WAIT_TIMEOUT
+#define MISSION_WAIT_TIMEOUT 120 // wait 2 minutes before ending mission
+#endif
+
+static bool mission_wait_started = false;
+#if MISSION_WAIT_TIMEOUT
+static float mission_wait_time = 0.f;
+static struct _mission_circle mission_wait_circle;
+static bool mission_wait_pattern(void) {
+  if (!mission_wait_started) {
+    mission_wait_circle.center.center_f = *stateGetPositionEnu_f();
+    mission_wait_circle.center.center_f.z += GetAltRef();
+    mission_wait_circle.radius = DEFAULT_CIRCLE_RADIUS;
+    mission_wait_time = 0.f;
+    mission_wait_started = true;
+  }
+  mission_nav_circle(&mission_wait_circle);
+  mission_wait_time += dt_navigation;
+  return (mission_wait_time < (float)MISSION_WAIT_TIMEOUT); // keep flying until TIMEOUT
+}
+#else
+static bool mission_wait_pattern(void) {
+  return false; // no TIMEOUT, end mission now
+}
+#endif
 
 int mission_run()
 {
   // current element
   struct _mission_element *el = NULL;
   if ((el = mission_get()) == NULL) {
-    // TODO do something special like a waiting circle before ending the mission ?
-    return false; // end of mission
+    return mission_wait_pattern();
   }
+  mission_wait_started = false;
 
   bool el_running = false;
   switch (el->type) {

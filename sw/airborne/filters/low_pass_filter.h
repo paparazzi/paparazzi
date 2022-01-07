@@ -86,6 +86,17 @@ static inline float get_first_order_low_pass(struct FirstOrderLowPass *filter)
   return filter->last_out;
 }
 
+/** Update time constant (tau parameter) for first order low pass filter
+ *
+ * @param filter first order low pass filter structure
+ * @param tau time constant of the first order low pass filter
+ * @param sample_time sampling period of the signal
+ */
+static inline void update_first_order_low_pass_tau(struct FirstOrderLowPass *filter, float tau, float sample_time)
+{
+  filter->time_const = 2.0f * tau / sample_time;
+}
+
 /** Second order low pass filter structure.
  *
  * using biquad filter with bilinear z transform

@@ -29,9 +29,36 @@
 #include "modules/nav/nav_line.h"
 #include "firmwares/fixedwing/nav.h"
 
+#if USE_MISSION
+#include "modules/mission/mission_common.h"
+
+static bool nav_line_mission(uint8_t nb, float *params, enum MissionRunFlag flag)
+{
+  if (nb != 3) {
+    return false; // wrong number of parameters
+  }
+  if (flag == MissionInit) {
+    nav_line_setup();
+  } else if (flag == MissionUpdate) {
+    return false; // nothing to do on update
+  }
+  uint8_t p1 = (uint8_t)(params[0]);
+  uint8_t p2 = (uint8_t)(params[1]);
+  float radius = params[2];
+  return nav_line_run(p1, p2, radius);
+}
+#endif
+
 /** Status along the pattern */
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
+
+void nav_line_init(void)
+{
+#if USE_MISSION
+  mission_register(nav_line_mission, "LINE");
+#endif
+}
 
 void nav_line_setup(void)
 {

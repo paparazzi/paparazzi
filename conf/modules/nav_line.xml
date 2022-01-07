@@ -17,6 +17,7 @@
   <header>
     <file name="nav_line.h"/>
   </header>
+  <init fun="nav_line_init()"/>
   <makefile target="ap|sim|nps|hitl">
     <file name="nav_line.c"/>
     <test firmware="fixedwing">

@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cloud_sensor" dir="meteo">
+  <doc>
+    <description>
+      Get data from Cloud Sensor
+      - compute Liquid Water Content (LWC) value from PAYLOAD_FLOAT data
+      - get already computed LWC from PAYLOAD_COMMAND data
+    </description>
+  </doc>
+  <settings>
+    <dl_settings NAME="CloudSensor">
+      <dl_settings NAME="Cloud">
+        <dl_setting max="1000." min="0." step="0.1" var="cloud_sensor_calib_alpha" shortname="alpha" module="meteo/cloud_sensor"/>
+        <dl_setting max="60000." min="0." step="10." var="cloud_sensor_calib_beta" shortname="beta" module="meteo/cloud_sensor"/>
+        <dl_setting max="1000." min="1." step="0.1" var="cloud_sensor_channel_scale" shortname="scale" module="meteo/cloud_sensor"/>
+        <dl_setting MAX="2" MIN="0" STEP="1" VAR="cloud_sensor_compute_coef" shortname="coef type" module="meteo/cloud_sensor" values="NONE|SINGLE|ANGSTROM"/>
+        <dl_setting max="1000." min="0." step="1." var="cloud_sensor_threshold" shortname="threshold" module="meteo/cloud_sensor"/>
+        <dl_setting max="1000." min="0." step="1." var="cloud_sensor_hysteresis" shortname="hysteresis" module="meteo/cloud_sensor"/>
+        <dl_setting max="20000." min="0." step="0.1" var="cloud_sensor_background" shortname="background" module="meteo/cloud_sensor"/>
+        <dl_setting MAX="1" MIN="1" STEP="1" VAR="cloud_sensor_compute_background" shortname="compute background" module="meteo/cloud_sensor"/>
+        <dl_setting MAX="20." MIN="0." STEP="0.1" VAR="cloud_sensor_tau" shortname="tau" module="meteo/cloud_sensor" handler="update_tau"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="cloud_sensor.h"/>
+  </header>
+  <init fun="cloud_sensor_init()"/>
+  <periodic fun="cloud_sensor_report()" freq="2." autorun="TRUE"/>
+  <datalink message="PAYLOAD_COMMAND" fun="LWC_callback(buf)"/>
+  <datalink message="PAYLOAD_FLOAT" fun="cloud_sensor_callback(buf)"/>
+  <makefile>
+    <file name="cloud_sensor.c"/>
+  </makefile>
+</module>
+

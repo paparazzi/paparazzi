@@ -25,6 +25,8 @@
 #include "peripherals/ads1220.h"
 #include "mcu_periph/pwm_input.h"
 #include "generated/airframe.h"
+#include "pprzlink/messages.h"
+#include "modules/datalink/downlink.h"
 
 /** Default scale and offset
  *  Only used if calibration from EEPROM is not used/available
@@ -163,8 +165,31 @@ static inline float get_humidity(uint32_t raw)
 #endif
 }
 
+/** Funnction to send over different transport and device
+ */
+static void meteo_stick_send_data(struct transport_tx *trans, struct link_device *device)
+{
+  pprz_msg_send_METEO_STICK(trans, device, AC_ID,
+      &stateGetPositionLla_i()->lat,
+      &stateGetPositionLla_i()->lon,
+      &gps.hmsl,
+      &gps.tow,
+      &meteo_stick.current_pressure,
+      &meteo_stick.current_temperature,
+      &meteo_stick.current_humidity,
+      &meteo_stick.current_airspeed);
+}
 
-/** Includes to log on SD card
+/** Send over telemetry synchrone to reading
+ *
+ * FALSE by default (the asynchronous report function is used by default)
+ */
+#ifndef SEND_MS_SYNC
+#define SEND_MS_SYNC FALSE
+#endif
+
+
+/** Includes to log on SD card as ASCII csv
  *
  * TRUE by default
  */
@@ -174,38 +199,101 @@ static inline float get_humidity(uint32_t raw)
 
 #if LOG_MS
 #include "modules/loggers/sdlog_chibios.h"
-bool log_ptu_started;
-#endif
-
-/* Includes and function to send over telemetry
- *
- * TRUE by default
- */
-#ifndef SEND_MS
-#define SEND_MS TRUE
-#endif
-
-#if SEND_MS
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
 #include "modules/gps/gps.h"
+static bool log_ptu_started;
 
-#define MS_DATA_SIZE 4
-
-static inline void meteo_stick_send_data(void)
+static inline void meteo_stick_log_data_ascii(void)
 {
-  float ptu_data[MS_DATA_SIZE];
-  ptu_data[0] = meteo_stick.current_pressure;
-  ptu_data[1] = meteo_stick.current_temperature;
-  ptu_data[2] = meteo_stick.current_humidity;
-  ptu_data[3] = meteo_stick.current_airspeed;
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, MS_DATA_SIZE, ptu_data);
+  if (pprzLogFile != -1) {
+    if (!log_ptu_started) {
+#if USE_MS_EEPROM
+      if (meteo_stick.eeprom.data_available) {
+        // Print calibration data in the log header
+        sdLogWriteLog(pprzLogFile, "# Calibration data (UUID: %s)\n#\n", meteo_stick.calib.uuid);
+        int i, j, k;
+        for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
+          sdLogWriteLog(pprzLogFile, "# Sensor: %d, time: %ld, num_temp: %d, num_coeff: %d\n", i,
+                        meteo_stick.calib.params[i].timestamp,
+                        meteo_stick.calib.params[i].num_temp,
+                        meteo_stick.calib.params[i].num_coeff);
+          if (meteo_stick.calib.params[i].timestamp == 0) {
+            continue; // No calibration
+          }
+          for (j = 0; j < meteo_stick.calib.params[i].num_temp; j++) {
+            sdLogWriteLog(pprzLogFile, "#  Reference temp: %.2f\n", meteo_stick.calib.params[i].temps[j]);
+            sdLogWriteLog(pprzLogFile, "#  Coeffs:");
+            for (k = 0; k < meteo_stick.calib.params[i].num_coeff; k++) {
+              sdLogWriteLog(pprzLogFile, " %.5f", meteo_stick.calib.params[i].coeffs[j][k]);
+            }
+            sdLogWriteLog(pprzLogFile, "\n");
+          }
+        }
+        sdLogWriteLog(pprzLogFile, "#\n");
+        sdLogWriteLog(pprzLogFile,
+                      "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(%%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
+        log_ptu_started = true;
+      }
+#else
+      sdLogWriteLog(pprzLogFile,
+                    "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(%%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
+      log_ptu_started = true;
+#endif
+    } else {
+      sdLogWriteLog(pprzLogFile, "%lu %lu %lu %lu %.2f %.2f %.2f %.2f %d %lu %d %lu %lu %lu %d %lu %lu\n",
+                    meteo_stick.pressure.data, meteo_stick.temperature.data,
+                    meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
+                    meteo_stick.current_pressure, meteo_stick.current_temperature,
+                    meteo_stick.current_humidity, meteo_stick.current_airspeed,
+                    gps.fix, gps.tow, gps.week,
+                    gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+                    gps.gspeed, gps.course, -gps.ned_vel.z);
+    }
+  }
 }
 
 #endif
 
+/** Includes and function to log to flight recorder
+ *
+ * FALSE by default
+ */
+#ifndef LOG_MS_FLIGHTRECORDER
+#define LOG_MS_FLIGHTRECORDER FALSE
+#endif
 
+// log to flight recorder by default
+#ifndef MS_LOG_FILE
+#define MS_LOG_FILE flightrecorder_sdlog
+#endif
+
+#if LOG_MS_FLIGHTRECORDER
+#include "modules/loggers/sdlog_chibios.h"
+#include "modules/loggers/pprzlog_tp.h"
+static bool log_tagged;
+
+static inline void meteo_stick_log_data_fr(void)
+{
+  if (MS_LOG_FILE.file != NULL && *(MS_LOG_FILE.file) != -1) {
+    if (log_tagged == false && GpsFixValid()) {
+      // write at least once ALIVE and GPS messages
+      // to log for correct extraction of binary data
+      DOWNLINK_SEND_ALIVE(pprzlog_tp, MS_LOG_FILE, 16, MD5SUM);
+      // Log GPS for time reference
+      uint8_t foo_u8 = 0;
+      int16_t foo_16 = 0;
+      uint16_t foo_u16 = 0;
+      struct UtmCoor_f utm = *stateGetPositionUtm_f();
+      int32_t east = utm.east * 100;
+      int32_t north = utm.north * 100;
+      DOWNLINK_SEND_GPS(pprzlog_tp, MS_LOG_FILE, &gps.fix,
+          &east, &north, &foo_16, &gps.hmsl, &foo_u16, &foo_16,
+          &gps.week, &gps.tow, &utm.zone, &foo_u8);
+      log_tagged = true;
+    }
+    meteo_stick_send_data(&pprzlog_tp.trans_tx, &(MS_LOG_FILE).device);
+  }
+}
+#endif
 
 /** Init function
  */
@@ -279,6 +367,9 @@ void meteo_stick_init(void)
 #if LOG_MS
   log_ptu_started = false;
 #endif
+#if LOG_MS_FLIGHTRECORDER
+  log_tagged = false;
+#endif
 }
 
 /** Periodic function
@@ -320,56 +411,15 @@ void meteo_stick_periodic(void)
 
   // Log data
 #if LOG_MS
-  if (pprzLogFile != -1) {
-    if (!log_ptu_started) {
-#if USE_MS_EEPROM
-      if (meteo_stick.eeprom.data_available) {
-        // Print calibration data in the log header
-        sdLogWriteLog(pprzLogFile, "# Calibration data (UUID: %s)\n#\n", meteo_stick.calib.uuid);
-        int i, j, k;
-        for (i = 0; i < MTOSTK_NUM_SENSORS; i++) {
-          sdLogWriteLog(pprzLogFile, "# Sensor: %d, time: %d, num_temp: %d, num_coeff: %d\n", i,
-                        meteo_stick.calib.params[i].timestamp,
-                        meteo_stick.calib.params[i].num_temp,
-                        meteo_stick.calib.params[i].num_coeff);
-          if (meteo_stick.calib.params[i].timestamp == 0) {
-            continue; // No calibration
-          }
-          for (j = 0; j < meteo_stick.calib.params[i].num_temp; j++) {
-            sdLogWriteLog(pprzLogFile, "#  Reference temp: %.2f\n", meteo_stick.calib.params[i].temps[j]);
-            sdLogWriteLog(pprzLogFile, "#  Coeffs:");
-            for (k = 0; k < meteo_stick.calib.params[i].num_coeff; k++) {
-              sdLogWriteLog(pprzLogFile, " %.5f", meteo_stick.calib.params[i].coeffs[j][k]);
-            }
-            sdLogWriteLog(pprzLogFile, "\n");
-          }
-        }
-        sdLogWriteLog(pprzLogFile, "#\n");
-        sdLogWriteLog(pprzLogFile,
-                      "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
-        log_ptu_started = true;
-      }
-#else
-      sdLogWriteLog(pprzLogFile,
-                    "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(%%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
-      log_ptu_started = true;
+  meteo_stick_log_data_ascii();
 #endif
-    } else {
-      sdLogWriteLog(pprzLogFile, "%lu %lu %lu %lu %.2f %.2f %.2f %.2f %d %lu %d %lu %lu %lu %d %lu %lu\n",
-                    meteo_stick.pressure.data, meteo_stick.temperature.data,
-                    meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
-                    meteo_stick.current_pressure, meteo_stick.current_temperature,
-                    meteo_stick.current_humidity, meteo_stick.current_airspeed,
-                    gps.fix, gps.tow, gps.week,
-                    gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
-                    gps.gspeed, gps.course, -gps.ned_vel.z);
-    }
-  }
+#if LOG_MS_FLIGHTRECORDER
+  meteo_stick_log_data_fr();
 #endif
 
-  // Send data
-#if SEND_MS
-  meteo_stick_send_data();
+  // Send data synch to reading
+#if SEND_MS_SYNC
+  meteo_stick_send_data(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 
   // Check if DP offset reset is required
@@ -442,5 +492,11 @@ void meteo_stick_event(void)
 #if USE_MS_EEPROM
   eeprom25AA256_event(&meteo_stick.eeprom);
 #endif
+}
+
+void meteo_stick_report(void)
+{
+  // send meteo_stick data at a different frequency
+  meteo_stick_send_data(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 }
 
