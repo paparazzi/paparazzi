@@ -261,18 +261,37 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 void boardInit(void) {
 }
 
+/** PWM safe level setting when enterring usbstorage mode
+ */
+void mcu_periph_pwm_safe_mode(void)
+{
+#if (defined(LINE_SERVOS_GROUP_SIZE)) && (LINE_SERVOS_GROUP_SIZE != 0)
+  static const ioline_t pwmLines[LINE_SERVOS_GROUP_SIZE] = {LINE_SERVOS_GROUP};
+  
+  for (size_t i=0; i < LINE_SERVOS_GROUP_SIZE; i++) {
+    palClearLine(pwmLines[i]);
+    palSetLineMode(pwmLines[i], PAL_MODE_OUTPUT_OPENDRAIN);
+  }
+#else
+  #warning "LINE_SERVOS_GROUP not defined or zero sized"
+  #warning "please define LINE_SERVOS_GROUP at board.cfg level"
+#endif
+
+}
+
 /** Energy saving procedure for SD log closing
  */
 void mcu_periph_energy_save(void)
 {
-  palSetLineMode(LINE_LED1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_LED2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_LED3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_LED4, PAL_MODE_INPUT);
-  palSetLineMode(LINE_SPI1_CS, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX1, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX2, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX3, PAL_MODE_INPUT);
-  palSetLineMode(LINE_AUX4, PAL_MODE_INPUT);
+#if (defined(LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE)) && (LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE != 0)
+  static const ioline_t ioLines[LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE] = {LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP};
+  
+  for (size_t i=0; i < LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE; i++) {
+    palSetLineMode(ioLines[i], PAL_MODE_INPUT_PULLDOWN);
+  }
+#else
+  #warning "LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP not defined or zero sized"
+  #warning "please define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP at board.cfg level"
+#endif
 }
 

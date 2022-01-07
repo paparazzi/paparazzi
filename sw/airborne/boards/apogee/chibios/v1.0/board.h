@@ -149,9 +149,6 @@
 #define LED_8_GPIO_ON gpio_set
 #define LED_8_GPIO_OFF gpio_clear
 
-/* Power Switch, on PB12 */
-#define POWER_SWITCH_GPIO GPIOB,GPIO12
-
 
 /* Pint to set Uart2 RX polarity, on PB13, output high inverts, low doesn't */
 #define RC_POLARITY_GPIO_PORT GPIOB
@@ -347,99 +344,6 @@
 }
 
 /**
- * DSHOT
- */
-#ifndef DSHOT_TELEMETRY_DEV
-#define DSHOT_TELEMETRY_DEV NULL
-#endif
-
-#ifndef USE_DSHOT_TIM2
-#define USE_DSHOT_TIM2 1
-#endif
-
-#ifndef USE_DSHOT_TIM3
-#define USE_DSHOT_TIM3 1
-#endif
-
-#if USE_DSHOT_TIM2 // Servo 1, 4, 5
-
-#define DSHOT_SERVO_1 1
-#define DSHOT_SERVO_1_GPIO GPIOA
-#define DSHOT_SERVO_1_PIN GPIO2
-#define DSHOT_SERVO_1_AF GPIO_AF1
-#define DSHOT_SERVO_1_DRIVER DSHOTD2
-#define DSHOT_SERVO_1_CHANNEL 2
-
-#define DSHOT_SERVO_4 4
-#define DSHOT_SERVO_4_GPIO GPIOB
-#define DSHOT_SERVO_4_PIN GPIO3
-#define DSHOT_SERVO_4_AF GPIO_AF1
-#define DSHOT_SERVO_4_DRIVER DSHOTD2
-#define DSHOT_SERVO_4_CHANNEL 1
-
-#define DSHOT_SERVO_5 5
-#define DSHOT_SERVO_5_GPIO GPIOA
-#define DSHOT_SERVO_5_PIN GPIO15
-#define DSHOT_SERVO_5_AF GPIO_AF1
-#define DSHOT_SERVO_5_DRIVER DSHOTD2
-#define DSHOT_SERVO_5_CHANNEL 0
-
-#define DSHOT_CONF_TIM2 1
-#define DSHOT_CONF2_DEF { \
-  .dma_stream = STM32_PWM2_UP_DMA_STREAM,   \
-  .dma_channel = STM32_PWM2_UP_DMA_CHANNEL, \
-  .pwmp = &PWMD2,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
-  .dma_buf = &dshot2DmaBuffer,              \
-}
-
-#endif
-
-#if USE_DSHOT_TIM3 // Servo 0,2,3,6
-
-#define DSHOT_SERVO_0 0
-#define DSHOT_SERVO_0_GPIO GPIOB
-#define DSHOT_SERVO_0_PIN GPIO0
-#define DSHOT_SERVO_0_AF GPIO_AF2
-#define DSHOT_SERVO_0_DRIVER DSHOTD3
-#define DSHOT_SERVO_0_CHANNEL 2
-
-#define DSHOT_SERVO_2 2
-#define DSHOT_SERVO_2_GPIO GPIOB
-#define DSHOT_SERVO_2_PIN GPIO5
-#define DSHOT_SERVO_2_AF GPIO_AF2
-#define DSHOT_SERVO_2_DRIVER DSHOTD3
-#define DSHOT_SERVO_2_CHANNEL 1
-
-#define DSHOT_SERVO_3 3
-#define DSHOT_SERVO_3_GPIO GPIOB
-#define DSHOT_SERVO_3_PIN GPIO4
-#define DSHOT_SERVO_3_AF GPIO_AF2
-#define DSHOT_SERVO_3_DRIVER DSHOTD3
-#define DSHOT_SERVO_3_CHANNEL 0
-
-#if USE_DSHOT6
-// DSHOT6 on AUX1 pin, not activated by default
-#define DSHOT_SERVO_6 6
-#define DSHOT_SERVO_6_GPIO GPIOB
-#define DSHOT_SERVO_6_PIN GPIO1
-#define DSHOT_SERVO_6_AF GPIO_AF2
-#define DSHOT_SERVO_6_DRIVER DSHOTD3
-#define DSHOT_SERVO_6_CHANNEL 3
-#endif
-
-#define DSHOT_CONF_TIM3 1
-#define DSHOT_CONF3_DEF { \
-  .dma_stream = STM32_PWM3_UP_DMA_STREAM,   \
-  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL, \
-  .pwmp = &PWMD3,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
-  .dma_buf = &dshot3DmaBuffer,              \
-}
-
-#endif
-
-/**
  * PPM radio defines
  */
 #define RC_PPM_TICKS_PER_USEC 2
@@ -480,15 +384,15 @@
 #define PWM_INPUT1_GPIO_PIN       GPIO8
 #define PWM_INPUT1_GPIO_AF        GPIO_AF1
 
-// PWM_INPUT 2 on PA2 (also SERVO 1)
+// PWM_INPUT 2 on PA3 (also SERVO 1)
 #if (USE_PWM1 && USE_PWM_INPUT2)
 #error "PW1 and PWM_INPUT2 are not compatible"
 #endif
-#define PWM_INPUT2_ICU            ICUD5
-#define PWM_INPUT2_CHANNEL        ICU_CHANNEL_4
+#define PWM_INPUT2_ICU            ICUD9
+#define PWM_INPUT2_CHANNEL        ICU_CHANNEL_1
 #define PWM_INPUT2_GPIO_PORT      GPIOA
 #define PWM_INPUT2_GPIO_PIN       GPIO2
-#define PWM_INPUT2_GPIO_AF        GPIO_AF2
+#define PWM_INPUT2_GPIO_AF        GPIO_AF3
 
 /**
  * I2C defines
@@ -597,19 +501,6 @@
 #define SDLOG_USB_VBUS_PIN GPIO9
 
 
-/**
- * For WS2812
- */
-#define WS2812D1_GPIO GPIOA
-#define WS2812D1_PIN GPIO8
-#define WS2812D1_AF 1
-#define WS2812D1_CFG_DEF { \
-  .dma_stream = STM32_PWM1_UP_DMA_STREAM, \
-  .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \
-  .dma_priority = STM32_PWM1_UP_DMA_PRIORITY, \
-  .pwm_channel = 0, \
-  .pwmp = &PWMD1 \
-}
 
 
 /*
@@ -2078,6 +1969,76 @@
 #define AF_OSC_OUT                       0U
 #define AF_LINE_OSC_OUT                  0U
 
+
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define LINE_SERVOS_GROUP \
+	LINE_PWM2_CH3, \
+	LINE_PWM2_CH1, \
+	LINE_PWM3_CH3, \
+	LINE_AUX1, \
+	LINE_PWM2_CH2, \
+	LINE_PWM3_CH1, \
+	LINE_PWM3_CH2, \
+	LINE_AUX4, \
+	LINE_AUX3, \
+	LINE_AUX2
+#define LINE_SERVOS_GROUP_SIZE 	 10
+
+#define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP \
+	LINE_UART4_TX, \
+	LINE_UART4_RX, \
+	LINE_PWM2_CH3, \
+	LINE_UART2_RX, \
+	LINE_ADC1_IN4, \
+	LINE_SPI1_SCK, \
+	LINE_SPI1_MISO, \
+	LINE_SPI1_MOSI, \
+	LINE_CU1_CH1, \
+	LINE_OTG_FS_VBUS, \
+	LINE_USART1_RX, \
+	LINE_OTG_FS_DM, \
+	LINE_OTG_FS_DP, \
+	LINE_PWM2_CH1, \
+	LINE_PWM3_CH3, \
+	LINE_AUX1, \
+	LINE_BOOT1, \
+	LINE_PWM2_CH2, \
+	LINE_PWM3_CH1, \
+	LINE_PWM3_CH2, \
+	LINE_USART1_TX, \
+	LINE_I2C1_SDA, \
+	LINE_I2C1_SCL, \
+	LINE_SPI1_CS, \
+	LINE_I2C2_SCL, \
+	LINE_I2C2_SDA, \
+	LINE_POWER_SWITCH, \
+	LINE_RX2_POL, \
+	LINE_SDIO_DETECT, \
+	LINE_AUX4, \
+	LINE_LED1, \
+	LINE_LED3, \
+	LINE_LED4, \
+	LINE_AUX3, \
+	LINE_AUX2, \
+	LINE_USART6_TX, \
+	LINE_USART6_RX, \
+	LINE_LED2
+#define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE 	 38
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

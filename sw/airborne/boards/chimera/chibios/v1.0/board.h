@@ -1534,6 +1534,103 @@
 #define AF_LINE_OSC_OUT                  0U
 
 
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP \
+	LINE_AUX3, \
+	LINE_RC1_UART4_RX, \
+	LINE_AUX2, \
+	LINE_AUX1, \
+	LINE_VBAT_MEAS, \
+	LINE_AUX0, \
+	LINE_SRV0_TIM3_CH1, \
+	LINE_SRV1_TIM3_CH2, \
+	LINE_XB_ASSO, \
+	LINE_USB_VBUS, \
+	LINE_SD_DETECT, \
+	LINE_OTG_FS_DM, \
+	LINE_OTG_FS_DP, \
+	LINE_SPI1_CS, \
+	LINE_SRV2_TIM3_CH3, \
+	LINE_SRV3_TIM3_CH4, \
+	LINE_RC1, \
+	LINE_SPI1_SCK, \
+	LINE_SPI1_MISO, \
+	LINE_SPI1_MOSI, \
+	LINE_USART1_TX, \
+	LINE_USART1_RX, \
+	LINE_I2C1_SCL, \
+	LINE_I2C1_SDA, \
+	LINE_I2C2_SCL, \
+	LINE_I2C2_SDA, \
+	LINE_LED1, \
+	LINE_LED2, \
+	LINE_DIS_C, \
+	LINE_DIS_DP, \
+	LINE_AUX5, \
+	LINE_AUX4, \
+	LINE_AUX6, \
+	LINE_AUX7, \
+	LINE_CAN1_RX, \
+	LINE_CAN1_TX, \
+	LINE_USART2_CTS, \
+	LINE_USART2_RTS, \
+	LINE_USART2_TX, \
+	LINE_USART2_RX, \
+	LINE_IMU_INT, \
+	LINE_USART3_TX, \
+	LINE_USART3_RX, \
+	LINE_LED3, \
+	LINE_LED4, \
+	LINE_SRV4_TIM4_CH1, \
+	LINE_SRV5_TIM4_CH2, \
+	LINE_SRV6_TIM4_CH3, \
+	LINE_SRV7_TIM4_CH4, \
+	LINE_UART8_RX, \
+	LINE_UART8_TX, \
+	LINE_DIS_G, \
+	LINE_DIS_F, \
+	LINE_DIS_A, \
+	LINE_DIS_B, \
+	LINE_APSW, \
+	LINE_RC2_UART7_RX, \
+	LINE_DIS_E, \
+	LINE_DIS_D, \
+	LINE_XB_RST
+#define LINE_HIZ_PULLDOWN_AT_PWROFF_GROUP_SIZE 	 60
+
+#define LINE_SERVOS_GROUP \
+	LINE_AUX3, \
+	LINE_AUX2, \
+	LINE_AUX1, \
+	LINE_SRV0_TIM3_CH1, \
+	LINE_SRV1_TIM3_CH2, \
+	LINE_SRV2_TIM3_CH3, \
+	LINE_SRV3_TIM3_CH4, \
+	LINE_AUX5, \
+	LINE_AUX4, \
+	LINE_AUX6, \
+	LINE_AUX7, \
+	LINE_SRV4_TIM4_CH1, \
+	LINE_SRV5_TIM4_CH2, \
+	LINE_SRV6_TIM4_CH3, \
+	LINE_SRV7_TIM4_CH4
+#define LINE_SERVOS_GROUP_SIZE 	 15
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

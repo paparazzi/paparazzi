@@ -41,7 +41,6 @@ static thread_t *usbStorageThreadPtr = NULL;
 /* USB mass storage driver */
 static bool isRunning = false;
 
-
 /* Turns on a LED when there is I/O activity on the USB port */
 static void usbActivity(bool active __attribute__((unused)))
 {
@@ -130,6 +129,10 @@ static void thdUsbStorage(void *arg)
   /* stop autopilot */
   pprz_terminate_autopilot_threads();
 
+  /* reconfigure pin for safety (stop servos, ESC, etc) */
+  mcu_periph_pwm_safe_mode();
+
+  
   /* wait until usb-storage is unmount and usb cable is unplugged*/
   while (!chThdShouldTerminateX() && palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN)) {
     chThdSleepMilliseconds(10);
