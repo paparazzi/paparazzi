@@ -50,6 +50,12 @@ enum MissionInsertMode {
   ReplaceNexts    ///< replace the next element and remove all the others
 };
 
+enum MissionRunFlag {
+  MissionRun = 0,   ///< normal run
+  MissionInit = 1,  ///< first exec
+  MissionUpdate = 2 ///< param update
+};
+
 struct _mission_wp {
   union {
     struct EnuCoor_f wp_f;
@@ -98,7 +104,7 @@ struct _mission_path {
  * @param[in] init true if the function is called for the first time
  * @return true until the function ends
  */
-typedef bool (*mission_custom_cb)(uint8_t nb, float *params, bool init);
+typedef bool (*mission_custom_cb)(uint8_t nb, float *params, enum MissionRunFlag flag);
 
 struct _mission_registered {
   mission_custom_cb cb;         ///< navigation/action function callback
@@ -178,6 +184,11 @@ extern bool mission_element_convert(struct _mission_element *el);
  */
 extern struct _mission_element *mission_get(void);
 
+/** Get mission element by index
+ * @return return a pointer to the mission element or NULL if no more elements
+ */
+extern struct _mission_element *mission_get_from_index(uint8_t index);
+
 /** Get the ENU component of LLA mission point
  * This function is firmware specific.
  * @param point pointer to the output ENU point (float)
@@ -214,6 +225,7 @@ extern int mission_parse_SEGMENT_LLA(uint8_t *buf);
 extern int mission_parse_PATH(uint8_t *buf);
 extern int mission_parse_PATH_LLA(uint8_t *buf);
 extern int mission_parse_CUSTOM(uint8_t *buf);
+extern int mission_parse_UPDATE(uint8_t *buf);
 extern int mission_parse_GOTO_MISSION(uint8_t *buf);
 extern int mission_parse_NEXT_MISSION(uint8_t *buf);
 extern int mission_parse_END_MISSION(uint8_t *buf);

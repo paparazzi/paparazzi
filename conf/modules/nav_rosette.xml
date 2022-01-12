@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_rosette" dir="nav">
+  <doc>
+    <description>
+      Adaptive flower pattern for cloud exploration
+      Can be used in mission mode with custom pattern and ID "RSTT"
+
+      See:
+      Titouan Verdu, Gautier Hattenberger, Simon Lacroix. Flight patterns for clouds exploration with a fleet of UAVs. 2019 International Conference on Unmanned Aircraft Systems (ICUAS 2019), Jul 2019, Atlanta, United States.
+      https://hal-enac.archives-ouvertes.fr/hal-02137839
+    </description>
+  </doc>
+  <header>
+    <file name="nav_rosette.h"/>
+  </header>
+  <init fun="nav_rosette_init()"/>
+  <makefile target="ap|sim|nps|hitl">
+    <file name="nav_rosette.c"/>
+  </makefile>
+</module>

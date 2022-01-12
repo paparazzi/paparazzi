@@ -224,18 +224,48 @@ static inline bool mission_nav_path(struct _mission_element *el)
  */
 static inline bool mission_nav_custom(struct _mission_custom *custom, bool init)
 {
-  return custom->reg->cb(custom->nb, custom->params, init);
+  if (init) {
+    return custom->reg->cb(custom->nb, custom->params, MissionInit);
+  } else {
+    return custom->reg->cb(custom->nb, custom->params, MissionRun);
+  }
 }
+
+/** Implement waiting pattern
+ *  Only called when MISSION_WAIT_TIMEOUT is not 0
+ */
+#ifndef MISSION_WAIT_TIMEOUT
+#define MISSION_WAIT_TIMEOUT 30 // wait 30 seconds before ending mission
+#endif
+
+static bool mission_wait_started = false;
+#if MISSION_WAIT_TIMEOUT
+static float mission_wait_time = 0.f;
+static struct _mission_element mission_wait_wp;
+static bool mission_wait_pattern(void) {
+  if (!mission_wait_started) {
+    mission_wait_wp.element.mission_wp.wp.wp_i = *stateGetPositionEnu_i();
+    mission_wait_time = 0.f;
+    mission_wait_started = true;
+  }
+  mission_nav_wp(&mission_wait_wp);
+  mission_wait_time += dt_navigation;
+  return (mission_wait_time < (float)MISSION_WAIT_TIMEOUT); // keep flying until TIMEOUT
+}
+#else
+static bool mission_wait_pattern(void) {
+  return false; // no TIMEOUT, end mission now
+}
+#endif
 
 int mission_run()
 {
   // current element
   struct _mission_element *el = NULL;
   if ((el = mission_get()) == NULL) {
-    mission.element_time = 0;
-    mission.current_idx  = 0;
-    return false; // end of mission
+    return mission_wait_pattern();
   }
+  mission_wait_started = false;
 
   bool el_running = false;
   switch (el->type) {

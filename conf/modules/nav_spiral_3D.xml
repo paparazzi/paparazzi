@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_spiral_3D" dir="nav">
+  <doc>
+    <description>
+      Fixedwing navigation in a 3D spiral.
+      creating a helix:
+      - start center (X, Y)
+      - start and stop altitude
+      - start and stop radius
+      - 3D speed of the circle
+        - in case alt diff is too small, vz is used as expension speed at constant altitude
+        - in case of radius diff too small, doing a constant radius circle
+          - if alt diff is too small, basic circle with horizontal speed (vz as no effect)
+      setup will fail if:
+      - alt diff and vz are not coherent
+      - vz is too small and not doing circle
+    </description>
+    <section name="NAV_SPIRAL_3D" prefix="NAV_SPIRAL_3D_">
+      <define name="DIST_DIFF" value="10." description="horizontal distance to start and stop pattern"/>
+      <define name="ALT_DIFF" value="10." description="vertical distance to start and stop pattern"/>
+      <define name="MIN_CIRCLE_RADIUS" value="60." description="minium circle radius in meters"/>
+    </section>
+  </doc>
+  <header>
+    <file name="nav_spiral_3D.h"/>
+  </header>
+  <init fun="nav_spiral_3D_init()"/>
+  <makefile target="ap|sim|nps|hitl">
+    <file name="nav_spiral_3D.c"/>
+  </makefile>
+</module>

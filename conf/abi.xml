@@ -204,6 +204,13 @@
       <field name="throttle"  type="int16_t">Throttle input in pprz_t [0;9600] or [-9600;9600] (for vertical speed control for instance)</field>
     </message>
 
+    <message name="PAYLOAD_DATA" id="29">
+      <field name="stamp" type="uint32_t" unit="us">Timestamp in micro-seconds</field>
+      <field name="data_type" type="int32_t">A data type id that can be used to identify the data format</field>
+      <field name="size" type="uint32_t">Data size or number of element, this may depend on the sender and the type of data</field>
+      <field name="data" type="uint8_t *">Pointer to an array of bytes, or any structure depending on the sender and the type of data</field>
+    </message>
+
   </msg_class>
 
 </protocol>

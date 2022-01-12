@@ -35,12 +35,12 @@
 #if USE_MISSION
 #include "modules/mission/mission_common.h"
 
-static bool nav_flower_mission(uint8_t nb, float *params, bool init)
+static bool nav_flower_mission(uint8_t nb, float *params, enum MissionRunFlag flag)
 {
   if (nb != 2) {
     return false; // wrong number of parameters
   }
-  if (init) {
+  if (flag == MissionInit) {
     uint8_t center = (uint8_t)(params[0]);
     uint8_t edge = (uint8_t)(params[1]);
     nav_flower_setup(center, edge);

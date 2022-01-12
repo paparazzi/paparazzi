@@ -32,6 +32,11 @@
 #include "modules/datalink/datalink.h"
 #include "modules/datalink/downlink.h"
 
+// Check for unique ID by default
+#ifndef MISSION_CHECK_UNIQUE_ID
+#define MISSION_CHECK_UNIQUE_ID TRUE
+#endif
+
 struct _mission mission = { 0 };
 
 void mission_init(void)
@@ -55,6 +60,14 @@ void mission_init(void)
 bool mission_insert(enum MissionInsertMode insert, struct _mission_element *element)
 {
   uint8_t tmp;
+
+#if MISSION_CHECK_UNIQUE_ID
+  // check that the new element id is not already in the list
+  if (mission_get_from_index(element->index) != NULL) {
+    return false;
+  }
+#endif
+
   // convert element if needed, return FALSE if failed
   if (!mission_element_convert(element)) { return false; }
 
@@ -71,16 +84,19 @@ bool mission_insert(enum MissionInsertMode insert, struct _mission_element *elem
       if (tmp == mission.insert_idx) { return false; } // no room to inser element
       mission.elements[tmp] = *element; // add element
       mission.current_idx = tmp; // move current index
+      mission.element_time = 0.; // reset timer
       break;
     case ReplaceCurrent:
       // current element can always be modified, index are not changed
       mission.elements[mission.current_idx] = *element;
+      mission.element_time = 0.; // reset timer
       break;
     case ReplaceAll:
       // reset queue and index
       mission.elements[0] = *element;
       mission.current_idx = 0;
       mission.insert_idx = 1;
+      mission.element_time = 0.; // reset timer
       break;
     case ReplaceNexts:
       tmp = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
@@ -117,6 +133,22 @@ static struct _mission_registered *mission_get_registered(char *type)
   for (int i = 0; i < MISSION_REGISTER_NB; i++) {
     if (str_equal(mission.registered[i].type, type)) {
       return &(mission.registered[i]);
+    }
+  }
+  return NULL; // not found
+}
+
+// Returns a pointer to a mission element struct with matching index, NULL if not found
+struct _mission_element *mission_get_from_index(uint8_t index)
+{
+  uint8_t i = mission.current_idx;
+  while (i != mission.insert_idx) {
+    if (mission.elements[i].index == index) {
+      return &mission.elements[i]; // return first next element with matching index
+    }
+    i++;
+    if (i == MISSION_ELEMENT_NB) {
+      i = 0;
     }
   }
   return NULL; // not found
@@ -378,12 +410,47 @@ int mission_parse_CUSTOM(uint8_t *buf)
   return mission_insert(insert, &me);
 }
 
+int mission_parse_UPDATE(uint8_t *buf)
+{
+  if (DL_MISSION_UPDATE_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
+
+  struct _mission_element *me = mission_get_from_index(DL_MISSION_UPDATE_index(buf));
+  if (me == NULL) {
+    return false; // unknown type
+  }
+
+  float duration = DL_MISSION_UPDATE_duration(buf);
+  if (duration > -2.f) { // no update should in fact be -9
+    me->duration = duration; // update
+  }
+
+  uint8_t nb = DL_MISSION_UPDATE_params_length(buf);
+  float params[MISSION_CUSTOM_MAX];
+  memcpy(params, DL_MISSION_UPDATE_params(buf), nb*sizeof(float));
+
+  switch (me->type) {
+    case MissionCustom:
+      return me->element.mission_custom.reg->cb(nb, params, MissionUpdate);
+    case MissionWP:
+    case MissionCircle:
+    case MissionSegment:
+    case MissionPath:
+    default:
+      // TODO handle update param for standard patterns
+      break;
+  }
+  return true;
+}
+
 int mission_parse_GOTO_MISSION(uint8_t *buf)
 {
   if (DL_GOTO_MISSION_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   uint8_t mission_id = DL_GOTO_MISSION_mission_id(buf);
   if (mission_id < MISSION_ELEMENT_NB) {
+    // reset timer
+    mission.element_time = 0.;
+    // set current index
     mission.current_idx = mission_id;
   } else { return false; }
 
@@ -396,6 +463,8 @@ int mission_parse_NEXT_MISSION(uint8_t *buf)
 
   if (mission.current_idx == mission.insert_idx) { return false; } // already at the last position
 
+  // reset timer
+  mission.element_time = 0.;
   // increment current index
   mission.current_idx = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
   return true;
@@ -405,6 +474,8 @@ int mission_parse_END_MISSION(uint8_t *buf)
 {
   if (DL_END_MISSION_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
+  // reset timer
+  mission.element_time = 0.;
   // set current index to insert index (last position)
   mission.current_idx = mission.insert_idx;
   return true;

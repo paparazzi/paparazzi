@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="cloud_sim" dir="meteo">
+  <doc>
+    <description>Basic cloud simulation for testing adaptive navigation patterns</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Cloud Sim">
+        <dl_setting max="1" min="0" step="1" var="cloud_sim.mode" shortname="mode" values="WP|POLYGON"/>
+        <dl_setting max="10." min="-10." step="0.1" var="cloud_sim.speed.x" shortname="v east"/>
+        <dl_setting max="10." min="-10." step="0.1" var="cloud_sim.speed.y" shortname="v north"/>
+        <dl_setting max="1" min="1" step="1" var="cloud_sim.reset" shortname="reset" values="RESET" module="meteo/cloud_sim" handler="reset"/>
+        <dl_setting max="500" min="50" step="10." var="cloud_sim.radius" shortname="radius"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="cloud_sim.h"/>
+  </header>
+  <init fun="cloud_sim_init()"/>
+  <periodic fun="cloud_sim_detect()" freq="10.0" autorun="TRUE"/>
+  <periodic fun="cloud_sim_move()" freq="1.0" autorun="FALSE"/>
+  <makefile>
+    <file name="cloud_sim.c"/>
+  </makefile>
+</module>

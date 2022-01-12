@@ -30,6 +30,7 @@
 
 #include "std.h"
 
+extern void nav_line_init(void);
 extern void nav_line_setup(void);
 extern bool nav_line_run(uint8_t wp1, uint8_t wp2, float radius);
 

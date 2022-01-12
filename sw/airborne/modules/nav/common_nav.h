@@ -49,6 +49,9 @@ struct point {
 #define Height(_h) (_h + ground_alt)
 
 extern void nav_move_waypoint(uint8_t wp_id, float utm_east, float utm_north, float alt);
+extern void nav_move_waypoint_enu(uint8_t wp_id, float x, float y, float alt);
+extern void nav_move_waypoint_point(uint8_t wp_id, struct point *p);
+extern void nav_send_waypoint(uint8_t wp_id);
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];

@@ -551,7 +551,21 @@ let rec select_gps_values = function
 	  l := (t, wgs84, a) :: !l
       done;
       List.rev !l
-
+  | (m, values)::_ when m.PprzLink.name = "MINIMAL_COM" ->
+      let lats = List.assoc "lat" values
+      and lons = List.assoc "lon" values
+      and alts = List.assoc "hmsl" values in
+      let l = ref [] in
+      for i = 0 to Array.length lats - 1 do
+	let a = snd alts.(i) in
+	if a > 0. then
+	  let t = fst lats.(i)
+	  and lat = snd lats.(i)
+	  and lon = snd lons.(i) in
+	  let wgs84 = make_geo_deg lat lon in
+	  l := (t, wgs84, a) :: !l
+      done;
+      List.rev !l
 
   | _ :: rest ->
 	select_gps_values rest
