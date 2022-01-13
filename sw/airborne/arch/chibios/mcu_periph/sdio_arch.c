@@ -57,22 +57,7 @@ bool sdio_connect(void)
 
   /*
    * Initializes the SDIO drivers.
-   *
-   * FIXME This could be hardcoded in board file ?
    */
-  const uint32_t mode = PAL_MODE_ALTERNATE(SDIO_AF) | PAL_STM32_OTYPE_PUSHPULL |
-    PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING | PAL_STM32_MODE_ALTERNATE;
-
-  palSetPadMode (SDIO_D0_PORT, SDIO_D0_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D1_PORT, SDIO_D1_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D2_PORT, SDIO_D2_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D3_PORT, SDIO_D3_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_CK_PORT, SDIO_CK_PIN, mode);
-  palSetPadMode (SDIO_CMD_PORT, SDIO_CMD_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  // palSetPadMode (GPIOD, GPIOD_SDIO_CMD, mode);
-
-  chThdSleepMilliseconds(100);
-
 
   sdcStart(&SDCD1, NULL);
   while (sdcConnect(&SDCD1) != HAL_SUCCESS) {

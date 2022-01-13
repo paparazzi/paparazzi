@@ -99,16 +99,21 @@ static void thdUsbStorage(void *arg)
   chRegSetThreadName("UsbStorage:polling");
   event_listener_t connected;
 
-  palEnablePadEvent(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, PAL_EVENT_MODE_BOTH_EDGES);
+  palEnableLineEvent(LINE_USB_VBUS, PAL_EVENT_MODE_RISING_EDGE);
   // wait transition to HIGH with rebound management
   do {
-    palWaitPadTimeout(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, TIME_INFINITE);
+    palWaitLineTimeout(LINE_USB_VBUS, TIME_INFINITE);
     chThdSleepMilliseconds(10);
-  } while (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW);
+  } while (palReadLine(LINE_USB_VBUS) == PAL_LOW);
 
   isRunning = true;
   chRegSetThreadName("UsbStorage:connected");
 
+  /* reconfigure pin for safety (stop servos, ESC, etc) */
+  palSetLine(LINE_AUX_B2);
+  mcu_periph_pwm_safe_mode();
+
+  
   /* Stop the logs*/
   // it's not a powerloss, wa have time to flush the ram buffer
   sdlog_chibios_finish(false);
@@ -126,15 +131,12 @@ static void thdUsbStorage(void *arg)
   msd_register_evt_connected(&connected, EVENT_MASK(1));
   chEvtWaitOne(EVENT_MASK(1));
 
+  palClearLine(LINE_AUX_B2);
   /* stop autopilot */
   pprz_terminate_autopilot_threads();
 
-  /* reconfigure pin for safety (stop servos, ESC, etc) */
-  mcu_periph_pwm_safe_mode();
-
-  
   /* wait until usb-storage is unmount and usb cable is unplugged*/
-  while (!chThdShouldTerminateX() && palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN)) {
+  while (!chThdShouldTerminateX() && (palReadLine(LINE_USB_VBUS) == PAL_HIGH)) {
     chThdSleepMilliseconds(10);
   }
 
