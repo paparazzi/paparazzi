@@ -110,7 +110,6 @@ static void thdUsbStorage(void *arg)
   chRegSetThreadName("UsbStorage:connected");
 
   /* reconfigure pin for safety (stop servos, ESC, etc) */
-  palSetLine(LINE_AUX_B2);
   mcu_periph_pwm_safe_mode();
 
   
@@ -131,7 +130,6 @@ static void thdUsbStorage(void *arg)
   msd_register_evt_connected(&connected, EVENT_MASK(1));
   chEvtWaitOne(EVENT_MASK(1));
 
-  palClearLine(LINE_AUX_B2);
   /* stop autopilot */
   pprz_terminate_autopilot_threads();
 
