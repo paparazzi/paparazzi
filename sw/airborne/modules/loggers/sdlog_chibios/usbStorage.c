@@ -112,11 +112,9 @@ static void thdUsbStorage(void *arg)
   /* reconfigure pin for safety (stop servos, ESC, etc) */
   mcu_periph_pwm_safe_mode();
 
-  
   /* Stop the logs*/
-  // it's not a powerloss, wa have time to flush the ram buffer
-  sdlog_chibios_finish(false);
-
+  // it's not a powerloss, we have time to flush the ram buffer
+  sdlog_chibios_finish(true);
 
   /* connect sdcard sdc interface sdio */
   if (sdio_connect() == false) {
