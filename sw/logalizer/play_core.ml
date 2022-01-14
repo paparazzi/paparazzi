@@ -169,7 +169,8 @@ let run = fun serial_port log adj i0 speed no_gui ->
         | Some channel ->
             try
               let msg_id, vs = Tm_Pprz.values_of_string m in
-              let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) vs in
+              (* receiver_id lost in Ivy logs, but it was probably 0. *)
+              let payload = Tm_Pprz.payload_of_values msg_id (int_of_string ac) 0 vs in
               let buf = Pprz_transport.Transport.packet payload in
               Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
               fprintf channel "%s%!" buf

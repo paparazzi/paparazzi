@@ -199,8 +199,9 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   let buf = Protocol.string_of_payload payload in
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
-    let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
-    let msg = Tm_Pprz.message_of_id msg_id in
+    let (header, values) = Tm_Pprz.values_of_payload payload in
+    let ac_id = header.sender_id in
+    let msg = Tm_Pprz.message_of_id header.message_id in
     send_message_over_ivy (string_of_int ac_id) msg.PprzLink.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.PprzLink.name = "PONG")
   with
@@ -394,7 +395,7 @@ let message_uplink = fun device ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = PprzLink.int_assoc "ac_id" vs in
     let msg_id, _ = Dl_Pprz.message_of_name name in
-    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    let s = Dl_Pprz.payload_of_values msg_id my_id ac_id vs in
     send ac_id device s High in
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
@@ -402,7 +403,7 @@ let message_uplink = fun device ->
   let broadcaster = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
     let msg_id, _ = Dl_Pprz.message_of_name name in
-    let payload = Dl_Pprz.payload_of_values msg_id my_id vs in
+    let payload = Dl_Pprz.payload_of_values msg_id my_id PprzLink.broadcast_id vs in
     broadcast device payload Low in
   let set_broadcaster = fun name ->
     ignore (Dl_Pprz.message_bind name (broadcaster name)) in
@@ -420,7 +421,7 @@ let send_ping_msg = fun device ->
   Hashtbl.iter
     (fun ac_id status ->
       let msg_id, _ = Dl_Pprz.message_of_name "PING" in
-      let s = Dl_Pprz.payload_of_values msg_id my_id [] in
+      let s = Dl_Pprz.payload_of_values msg_id my_id ac_id [] in
       send ac_id device s High;
       status.last_ping <- Unix.gettimeofday ()
     )
