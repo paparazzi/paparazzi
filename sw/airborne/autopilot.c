@@ -96,10 +96,15 @@ static void send_minimal_com(struct transport_tx *trans, struct link_device *dev
   float course = stateGetHorizontalSpeedDir_f();
   float climb = stateGetSpeedEnu_f()->z;
   uint8_t throttle = (uint8_t)(100 * autopilot.throttle / MAX_PPRZ);
+#if USE_GPS
+  uint8_t gps_fix = gps.fix;
+#else
+  uint8_t gps_fix = 0;
+#endif
   pprz_msg_send_MINIMAL_COM(trans, dev, AC_ID,
       &lat, &lon, &hmsl, &gspeed, &course, &climb,
       &electrical.vsupply, &throttle, &autopilot.mode,
-      &nav_block, &gps.fix, &autopilot.flight_time);
+      &nav_block, &gps_fix, &autopilot.flight_time);
 }
 
 void autopilot_init(void)
