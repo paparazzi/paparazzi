@@ -59,6 +59,7 @@ extern "C" {
 #include "modules/actuators/motor_mixing_types.h"
 
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_double.h"
 #include "state.h"
 }
 
@@ -534,25 +535,25 @@ static void gazebo_read(void)
   // on_ground: unused
   // nan_count: unused
 
+  // Transform ltp definition to double for accuracy
+  struct LtpDef_d ltpdef_d;
+  ltpdef_d.ecef.x = state.ned_origin_f.ecef.x;
+  ltpdef_d.ecef.y = state.ned_origin_f.ecef.y;
+  ltpdef_d.ecef.z = state.ned_origin_f.ecef.z;
+  ltpdef_d.lla.lat = state.ned_origin_f.lla.lat;
+  ltpdef_d.lla.lon = state.ned_origin_f.lla.lon;
+  ltpdef_d.lla.alt = state.ned_origin_f.lla.alt;
+  for (int i = 0; i < 3 * 3; i++) {
+    ltpdef_d.ltp_of_ecef.m[i] = state.ned_origin_f.ltp_of_ecef.m[i];
+  }
+  ltpdef_d.hmsl = state.ned_origin_f.hmsl;
+
   /* position */
   fdm.ltpprz_pos = to_pprz_ned(sphere->PositionTransform(pose.Pos(), gazebo::common::SphericalCoordinates::LOCAL,
-                               gazebo::common::SphericalCoordinates::GLOBAL));
-  fdm.hmsl = pose.Pos().Z();
-
-  struct EnuCoor_f enu_f;
-  enu_f.x = pose.Pos().X();
-  enu_f.y = pose.Pos().Y();
-  enu_f.z = pose.Pos().Z();
-  struct EcefCoor_f ecef_f;
-  struct LlaCoor_f lla_f;
-  ecef_of_enu_point_f(&ecef_f, &state.ned_origin_f, &enu_f);
-  lla_of_ecef_f(&lla_f, &ecef_f);
-  fdm.ecef_pos.x = ecef_f.x;
-  fdm.ecef_pos.y = ecef_f.y;
-  fdm.ecef_pos.z = ecef_f.z;
-  fdm.lla_pos.lat = lla_f.lat;
-  fdm.lla_pos.lon = lla_f.lon;
-  fdm.lla_pos.alt = lla_f.alt;
+                               gazebo::common::SphericalCoordinates::GLOBAL));  // Allows Gazebo worlds rotated wrt north.
+  fdm.hmsl = -fdm.ltpprz_pos.z;
+  ecef_of_ned_point_d(&fdm.ecef_pos, &ltpdef_d, &fdm.ltpprz_pos);
+  lla_of_ecef_d(&fdm.lla_pos, &fdm.ecef_pos);
 
   /* debug positions */
   fdm.lla_pos_pprz = fdm.lla_pos; // Don't really care...
