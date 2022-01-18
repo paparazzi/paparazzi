@@ -559,6 +559,7 @@ static void gazebo_read(void)
   fdm.lla_pos_pprz = fdm.lla_pos; // Don't really care...
   fdm.lla_pos_geod = fdm.lla_pos;
   fdm.lla_pos_geoc = fdm.lla_pos;
+  fdm.lla_pos_geoc.lat = gc_of_gd_lat_d(fdm.lla_pos.lat, fdm.hmsl);
 
   if(sonar) {
     double agl = sonar->Range();
@@ -568,27 +569,21 @@ static void gazebo_read(void)
     fdm.agl = pose.Pos().Z(); // TODO Measure with sensor
   }
 
-
-  // TODO replace Gazebo spherical transforms below by paparazzi equivalents!
-
-
   /* velocity */
-  fdm.ecef_ecef_vel = to_pprz_ecef(sphere->VelocityTransform(vel, gazebo::common::SphericalCoordinates::LOCAL,
-                                   gazebo::common::SphericalCoordinates::ECEF));
-  fdm.body_ecef_vel = to_pprz_body(pose.Rot().RotateVectorReverse(vel)); // Note: unused
   fdm.ltp_ecef_vel = to_pprz_ned(sphere->VelocityTransform(vel, gazebo::common::SphericalCoordinates::LOCAL,
                                  gazebo::common::SphericalCoordinates::GLOBAL));
   fdm.ltpprz_ecef_vel = fdm.ltp_ecef_vel; // ???
+  fdm.body_ecef_vel = to_pprz_body(pose.Rot().RotateVectorReverse(vel)); // Note: unused
+  ecef_of_ned_vect_d(&fdm.ecef_ecef_vel, &ltpdef_d, &fdm.ltp_ecef_vel);
 
   /* acceleration */
-  fdm.ecef_ecef_accel = to_pprz_ecef(sphere->VelocityTransform(accel, gazebo::common::SphericalCoordinates::LOCAL,
-                                     gazebo::common::SphericalCoordinates::ECEF)); // Note: unused
-  fdm.body_ecef_accel = to_pprz_body(pose.Rot().RotateVectorReverse(accel));
   fdm.ltp_ecef_accel = to_pprz_ned(sphere->VelocityTransform(accel, gazebo::common::SphericalCoordinates::LOCAL,
-                                   gazebo::common::SphericalCoordinates::GLOBAL)); // Note: unused
+                                     gazebo::common::SphericalCoordinates::GLOBAL)); // Note: unused
   fdm.ltpprz_ecef_accel = fdm.ltp_ecef_accel; // ???
+  fdm.body_ecef_accel = to_pprz_body(pose.Rot().RotateVectorReverse(accel));
   fdm.body_inertial_accel = fdm.body_ecef_accel; // Approximate, unused.
   fdm.body_accel = to_pprz_body(pose.Rot().RotateVectorReverse(accel - world->Gravity()));
+  ecef_of_ned_vect_d(&fdm.ecef_ecef_accel, &ltpdef_d, &fdm.ltp_ecef_accel);
 
   /* attitude */
   // ecef_to_body_quat: unused
