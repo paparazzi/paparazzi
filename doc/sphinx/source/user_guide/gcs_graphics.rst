@@ -9,7 +9,7 @@ GCS map can be enriched with intruders and shapes.
 Intruders
 ---------
 
-Intruders represents vehicules that are not managed by paparazzi. They are updated on the `INTRUDER` message.
+Intruders represents vehicules that are not managed by paparazzi. They are updated with the `INTRUDER` message.
 
 Intruders positions are transmitted by the server to the ACs with ACINFO messages.
 
@@ -45,7 +45,7 @@ Latitudes and longitudes are integers in 1e7deg: ``43.123456`` become ``43123456
 Shapes
 ------
 
-Shapes can be draw in the GCS by sending the **SHAPE** message defined below.
+Shapes can be drawn in the GCS by sending the **SHAPE** message defined below.
 
 .. image:: shapes.png
 
@@ -109,7 +109,7 @@ __________________________________________________________________
 Sectors are defined in the flight plan with waypoints, and are embedded in the aircraft. The aircraft can react to it even if telemetry is down.
 It is advised to keep the number of waypoints low, so this limits the sector "resolution".
 
-Shapes, on the other hand, are simply drawn in the GCS. This mean that the aircraft has no knowledge of their existance, so it can't react to them by itself.
+Shapes, on the other hand, are simply drawn in the GCS. It means that the aircraft has no knowledge of their existence, so it can't react to them by itself.
 Being purely on the ground station also means that the number of waypoints can be much higher, allowing to draw e.g. detailled curved zones.
 
 .. image:: complex_shape.png
