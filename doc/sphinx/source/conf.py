@@ -58,12 +58,19 @@ project = u'PaparazziUAV'
 copyright = u'2018, Paparazzi UAV Team'
 author = u'Paparazzi UAV Team'
 
+import subprocess
+import re
+
+pprz_version = subprocess.run(["../../../paparazzi_version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+pprz_version = pprz_version.stdout
+version = re.split('_|-', pprz_version)[0]
+print("Paparazzi version is {}.".format(version))
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = u'5.13'
+#version = u'5.13'
 # The full version, including alpha/beta/rc tags.
 release = u'_devel'
 
