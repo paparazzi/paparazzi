@@ -15,5 +15,6 @@ Start conquering the wolrd, by making incredible :doc:`flight_plans`!
     flight_plans
     communication
     radio
+    gcs_graphics
     directories_structure
     
