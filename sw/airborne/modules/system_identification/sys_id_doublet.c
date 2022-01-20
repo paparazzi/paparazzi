@@ -36,7 +36,7 @@
 #include "sys_id_doublet.h"
 #include "pprz_doublet.h"
 
-#include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/airframe.h"
 #include "mcu_periph/sys_time.h"
 

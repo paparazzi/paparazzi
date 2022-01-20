@@ -77,4 +77,4 @@ extern bool doublet_is_running(struct doublet_t *doublet, float current_time_s);
 
 extern float doublet_update(struct doublet_t *doublet, float current_time_s);
 
-#endif //THESIS_PPRZ_DOUBLET_H
+#endif //PPRZ_DOUBLET_H
