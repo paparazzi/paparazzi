@@ -28,27 +28,6 @@
 
     Add the message "CHIRP" to your telemetry to see chirp progress, and to your logger to automatically filter chirps in post-processing.
 
-    Add the following message structure to the messages.xml file on a free ID
-
-    <!-- 
-      <message name="CHIRP" id="00">
-      <field name="active"        type="uint8" unit="bool"> Chirp is active</field>
-      <field name="percentage_done"     type="float">Percentage done</field>
-      <field name="current_frequency"   type="float">Current frequency</field>
-      <field name="axis"          type="uint8">Current chirp axis</field>
-      <field name="amplitude"           type="int16">Amplitude</field>
-      <field name="fstart"              type="float">Start frequency</field>
-      <field name="fstop"               type="float">Stop frequency</field>
-      <field name="noise_onaxis_ratio"  type="float">Noise ratio onaxis</field>
-      <field name="noise_offaxis"       type="float">Noise offaxis</field>
-      <field name="current_value" type="int16">Current chirp value</field>
-      <field name="fade_in" type="uint8" unit="bool">Fade in feature active</field>
-      <field name="exponential" type="uint8" unit="bool">Exponential chirp active</field>
-    </message> 
-  -->
-
-
-
     </description>
     <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}" description="Which axes the chirp is applied to (specify as array with {})"/>
     <!-- <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the chirp is applied to (specify as array with {})"/> -->
