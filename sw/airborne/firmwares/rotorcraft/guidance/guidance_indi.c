@@ -73,6 +73,7 @@ struct FloatVect3 indi_accel_sp = {0.0, 0.0, 0.0};
 bool indi_accel_sp_set_2d = false;
 bool indi_accel_sp_set_3d = false;
 
+struct FloatVect3 speed_sp = {0.0, 0.0, 0.0};
 struct FloatVect3 sp_accel = {0.0, 0.0, 0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
@@ -119,12 +120,36 @@ static void guidance_indi_propagate_filters(struct FloatEulers *eulers);
 static void guidance_indi_calcG(struct FloatMat33 *Gmat);
 static void guidance_indi_calcG_yxz(struct FloatMat33 *Gmat, struct FloatEulers *euler_yxz);
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+static void send_indi_guidance(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_GUIDANCE_INDI_HYBRID(trans, dev, AC_ID,
+                              &sp_accel.x,
+                              &sp_accel.y,
+                              &sp_accel.z,
+                              &control_increment.x,
+                              &control_increment.y,
+                              &control_increment.z,
+                              &filt_accel_ned[0].o[0],
+                              &filt_accel_ned[1].o[0],
+                              &filt_accel_ned[2].o[0],
+                              &speed_sp.x,
+                              &speed_sp.y,
+                              &speed_sp.z);
+}
+#endif
+
 /**
  * @brief Init function
  */
 void guidance_indi_init(void)
 {
   AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_indi_guidance);
+#endif
 }
 
 /**
@@ -166,16 +191,16 @@ void guidance_indi_run(float *heading_sp)
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
   // Use feed forward part from reference model
-  float speed_sp_x = pos_x_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
-  float speed_sp_y = pos_y_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
-  float speed_sp_z = pos_z_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_v_zd_ref);
+  speed_sp.x = pos_x_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  speed_sp.y = pos_y_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+  speed_sp.z = pos_z_err * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(guidance_v_zd_ref);
 
   // If the acceleration setpoint is set over ABI message
   if (indi_accel_sp_set_2d) {
     sp_accel.x = indi_accel_sp.x;
     sp_accel.y = indi_accel_sp.y;
     // In 2D the vertical motion is derived from the flight plan
-    sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain;
+    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain;
     float dt = get_sys_time_float() - time_of_accel_sp_2d;
     // If the input command is not updated after a timeout, switch back to flight plan control
     if (dt > 0.5) {
@@ -191,9 +216,9 @@ void guidance_indi_run(float *heading_sp)
       indi_accel_sp_set_3d = false;
     }
   } else {
-    sp_accel.x = (speed_sp_x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
-    sp_accel.y = (speed_sp_y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
-    sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_v_zdd_ref);
+    sp_accel.x = (speed_sp.x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.x);
+    sp_accel.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_h.ref.accel.y);
+    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(guidance_v_zdd_ref);
   }
 
 #if GUIDANCE_INDI_RC_DEBUG
