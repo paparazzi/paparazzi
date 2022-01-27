@@ -202,6 +202,7 @@
       <message name="IMU_ACCEL_SCALED"         period=".075"/>
       <message name="IMU_MAG_SCALED"           period=".2"/>
       <message name="LIDAR"                    period="0.05"/>
+      <message name="ESC"                      period="0.05"/>
     </mode>
   </process>
 

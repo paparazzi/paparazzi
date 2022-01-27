@@ -126,9 +126,9 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 
   static const SerialConfig  tlmcfg =  {
     .speed = DSHOT_TELEMETRY_BAUD,
-    .cr1 = 0,                                      // pas de parité
+    .cr1 = 0,                          // pas de parité
     .cr2 = USART_CR2_STOP1_BITS,       // 1 bit de stop
-    .cr3 = 0                                       // pas de controle de flux hardware (CTS, RTS)
+    .cr3 = 0                           // pas de controle de flux hardware (CTS, RTS)
   };
 
   driver->config = config;
@@ -341,7 +341,7 @@ uint32_t dshotGetCrcErrorsCount(DSHOTDriver *driver)
  */
 const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_t index)
 {
-  return &driver->dshotMotors.dt[index];
+  return &driver->dshotMotors.dt[index - DSHOT_CHANNEL_FIRST_INDEX];
 }
 
 
