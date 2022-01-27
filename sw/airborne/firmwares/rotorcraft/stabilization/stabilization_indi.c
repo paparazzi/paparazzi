@@ -491,7 +491,12 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     if (act_is_servo[i]) {
       BoundAbs(indi_u[i], MAX_PPRZ);
     } else {
-      Bound(indi_u[i], 0, MAX_PPRZ);
+      if (autopilot.motors_on) {
+        Bound(indi_u[i], 0, MAX_PPRZ);
+      }
+      else {
+        indi_u[i] = -MAX_PPRZ;
+      }
     }
   }
 
