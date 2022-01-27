@@ -1,3 +1,18 @@
+Paparazzi v6.1.0_stable
+=====================
+
+Stable version release v6.1. This version is an intermediate step towards
+deaper changes planned for the series 6.
+
+Since the previous RC (6.0.0_testing), new additions are
+
+- collection of small fixes: (#2809) (#2812) (#2811)
+- adaptive navigation patterns (#2813)
+- fix Gazebo coordinate transform (#2808)
+- documentation (#2815) (#2816)
+- improve system identification tools (#2810)
+
+
 Paparazzi v6.0.0_testing
 ========================
 
