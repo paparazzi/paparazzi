@@ -1,0 +1,64 @@
+name: Doxygen
+
+on:
+  push:
+    branches: [ master, v5.14, v5.16, v5.18, v6.1 ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: ./paparazzi
+          submodules: recursive
+
+      - uses: actions/checkout@v2
+        with:
+          repository: 'paparazzi/paparazzi.github.com'
+          path: ./site
+          token: ${{ secrets.PUSH_TOKEN }}
+          
+      - name: Set env
+        run: |
+          BRANCH_NAME=${GITHUB_REF_NAME/master/latest}
+          echo "build doc for $BRANCH_NAME..."
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+      
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz doxygen-latex
+      
+      - name: Generate doc for modules and messages from XML files
+        run: |
+          export PAPARAZZI_HOME=$(realpath -e paparazzi)
+          export PAPARAZZI_SRC=$(realpath -e paparazzi)
+          ./paparazzi/sw/tools/doxygen_gen/gen_modules_doc.py -pv
+          ./paparazzi/sw/tools/doxygen_gen/gen_messages_doc.py -pv
+
+      - name: prepare doxygen conf
+        run: |
+          echo "OUTPUT_DIRECTORY=$(realpath output)" >> paparazzi/Doxyfile
+          echo "HTML_OUTPUT=./" >> paparazzi/Doxyfile
+          echo "PROJECT_NUMBER=$(./paparazzi/paparazzi_version)" >> paparazzi/Doxyfile
+          echo "QUIET=YES" >> paparazzi/Doxyfile
+       
+      - name: build doxygen
+        run: cd paparazzi && doxygen
+      
+      - name: copy and commit changes
+        run: |
+          rm -rf site/$BRANCH_NAME
+          cp -r output site/$BRANCH_NAME
+          cd site
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "Generated doxygen docs for $BRANCH_NAME."
+          git push https://$USERNAME:$REPO_KEY@github.com/paparazzi/paparazzi.github.com.git
+        env:
+          REPO_KEY: ${{secrets.PUSH_TOKEN}}
+          USERNAME: github-actions[bot]
+
+
