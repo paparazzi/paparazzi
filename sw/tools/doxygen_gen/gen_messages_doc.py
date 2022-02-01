@@ -20,7 +20,7 @@ def print_field(field):
     # if values are given, put those in the unit column
     if not unit:
         values = field.get('values', '')
-        unit = string.replace(values, '|', ', ')
+        unit = values.replace('|', ', ')
     return u"{name} | {type} | {unit} | {desc} |\n".format(name=name, type=type, desc=desc, unit=unit)
 
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     messages = read_messages_file(messages_file)
 
     # generate string containing markdown page
-    outstring = messages_page(messages).encode('utf-8')
+    outstring = messages_page(messages)
 
     #print(outstring)
 
