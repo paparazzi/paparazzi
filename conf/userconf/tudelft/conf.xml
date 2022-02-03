@@ -381,6 +381,17 @@
    release="009b121cfd12be8d3e236e0cbd5b564f2639d54f"
   />
   <aircraft
+   name="Splash4"
+   ac_id="1"
+   airframe="airframes/tudelft/splash4.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/highspeed_rotorcraft.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/air_data.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="blue"
+  />
+  <aircraft
    name="TwoSeasTwenty"
    ac_id="200"
    airframe="airframes/tudelft/twoseastwenty.xml"
