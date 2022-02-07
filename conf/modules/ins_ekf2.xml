@@ -46,7 +46,7 @@
   <init fun="ins_ekf2_init()"/>
   <periodic fun="ins_ekf2_update()" autorun="TRUE"/>
   <makefile target="ap|nps">
-    <configure name="CXXSTANDARD" value="-std=c++11"/>
+    <configure name="CXXSTANDARD" value="-std=c++14"/>
 
     <!-- EKF2 files -->
     <define name="INS_TYPE_H" value="modules/ins/ins_ekf2.h" type="string"/>
@@ -61,11 +61,11 @@
     <define name="USE_MAGNETOMETER" value="TRUE"/> <!-- Needed for IMU to get scaled version -->
 
     <!-- Compile needed ecl files -->
-    <file name="mathlib.cpp" dir="ecl/mathlib"/>
     <file name="geo.cpp" dir="ecl/geo"/>
     <file name="geo_mag_declination.cpp" dir="ecl/geo_lookup"/>
     <file name="airspeed_fusion.cpp" dir="ecl/EKF"/>
     <file name="control.cpp" dir="ecl/EKF"/>
+    <file name="mag_control.cpp" dir="ecl/EKF"/>
     <file name="covariance.cpp" dir="ecl/EKF"/>
     <file name="drag_fusion.cpp" dir="ecl/EKF"/>
     <file name="ekf.cpp" dir="ecl/EKF"/>
@@ -78,6 +78,10 @@
     <file name="terrain_estimator.cpp" dir="ecl/EKF"/>
     <file name="vel_pos_fusion.cpp" dir="ecl/EKF"/>
     <file name="gps_yaw_fusion.cpp" dir="ecl/EKF"/>
+    <file name="imu_down_sampler.cpp" dir="ecl/EKF"/>
+    <file name="EKFGSF_yaw.cpp" dir="ecl/EKF"/>
+    <file name="sensor_range_finder.cpp" dir="ecl/EKF"/>
+    <file name="utils.cpp" dir="ecl/EKF"/>
     
   </makefile>
 </module>

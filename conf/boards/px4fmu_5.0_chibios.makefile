@@ -19,7 +19,7 @@ MCU=cortex-m7
 
 # FPU on F7
 USE_FPU=hard
-#USE_FPU_OPT= -mfpu=fpv5-d16
+USE_FPU_OPT= -mfpu=fpv5-d16
 
 #USE_LTO=yes
 

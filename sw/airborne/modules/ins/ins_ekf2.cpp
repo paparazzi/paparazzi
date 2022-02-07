@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2022 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -301,21 +301,20 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 
 static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t gps_check_status, filter_fault_status, soln_status;
-  uint32_t control_mode;
+  uint16_t gps_check_status, soln_status;
+  uint16_t filter_fault_status = ekf.fault_status().value; // FIXME: 32bit instead of 16bit
+  uint32_t control_mode = ekf.control_status().value;
   ekf.get_gps_check_status(&gps_check_status);
-  ekf.get_filter_fault_status(&filter_fault_status);
-  ekf.get_control_mode(&control_mode);
   ekf.get_ekf_soln_status(&soln_status);
 
-  uint16_t innov_test_status;
+  uint16_t innov_test_status = ekf.innov_check_fail_status().value;
   float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl;
   uint8_t terrain_valid, dead_reckoning;
-  ekf.get_innovation_test_status(&innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
-  ekf.get_flow_innov(&flow);
+  // ekf.get_innovation_test_status(&innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
+  // ekf.get_flow_innov(&flow);
   ekf.get_mag_decl_deg(&mag_decl);
 
-  if (ekf.get_terrain_valid()) {
+  if (ekf.isTerrainEstimateValid()) {
     terrain_valid = 1;
   } else {
     terrain_valid = 0;
@@ -335,31 +334,30 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
 
 static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *dev)
 {
-  float gps_drift[3], vibe[3];
+  float gps_drift[3];
+  Vector3f vibe = ekf.getImuVibrationMetrics();
   bool gps_blocked;
   uint8_t gps_blocked_b;
   ekf.get_gps_drift_metrics(gps_drift, &gps_blocked);
-  ekf.get_imu_vibe_metrics(vibe);
   gps_blocked_b = gps_blocked;
 
   pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
                              &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked_b,
-                             &vibe[0], &vibe[1], &vibe[2]);
+                             &vibe(0), &vibe(1), &vibe(2));
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;
-  uint32_t control_mode;
-  uint16_t filter_fault_status;
+  filter_control_status_u control_mode = ekf.control_status();
+  uint32_t filter_fault_status = ekf.fault_status().value;
+  uint16_t filter_fault_status_16 = filter_fault_status; //FIXME
   uint8_t mde = 0;
-  ekf.get_control_mode(&control_mode);
-  ekf.get_filter_fault_status(&filter_fault_status);
 
   // Check the alignment and if GPS is fused
-  if ((control_mode & 0x7) == 0x7) {
+  if (control_mode.flags.tilt_align && control_mode.flags.yaw_align && control_mode.flags.gps) {
     mde = 3;
-  } else if ((control_mode & 0x7) == 0x3) {
+  } else if (control_mode.flags.tilt_align && control_mode.flags.yaw_align) {
     mde = 4;
   } else {
     mde = 2;
@@ -370,30 +368,29 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
     mde = 6;
   }
 
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_ekf2_id, &mde, &filter_fault_status);
+  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_ekf2_id, &mde, &filter_fault_status_16);
 }
 
 static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
 {
-  float velNE_wind[2], tas;
+  float tas;
+  Vector2f wind = ekf.getWindVelocity();
   uint8_t flags = 0x5;
   float f_zero = 0;
 
-  ekf.get_wind_velocity(velNE_wind);
   ekf.get_true_airspeed(&tas);
 
-  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &velNE_wind[1], &velNE_wind[0], &f_zero, &tas);
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind(1), &wind(0), &f_zero, &tas);
 }
 
 static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
 {
-  float accel_bias[3], gyro_bias[3], states[24];
-  ekf.get_accel_bias(accel_bias);
-  ekf.get_gyro_bias(gyro_bias);
-  ekf.get_state_delayed(states);
+  Vector3f accel_bias = ekf.getAccelBias();
+  Vector3f gyro_bias = ekf.getGyroBias();
+  Vector3f mag_bias = ekf.getMagBias();
 
-  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias[0], &accel_bias[1], &accel_bias[2],
-                          &gyro_bias[0], &gyro_bias[1], &gyro_bias[2], &states[19], &states[20], &states[21]);
+  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias(0), &accel_bias(1), &accel_bias(2),
+                          &gyro_bias(0), &gyro_bias(1), &gyro_bias(2), &mag_bias(0), &mag_bias(1), &mag_bias(2));
 }
 #endif
 
@@ -442,6 +439,11 @@ void ins_ekf2_init(void)
   /* Initialize the flow sensor limits */
   ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
 
+  /* Initialize the origin from flight plan */
+#if USE_INS_NAV_INIT
+  ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0 + NAV_MSL0)*1e-3);
+#endif
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
@@ -476,59 +478,53 @@ void ins_ekf2_update(void)
   if (ekf2.got_imu_data) {
     // Update the EKF but ignore the response and also copy the faster intermediate filter
     ekf.update();
-
-    // Get the status from the EKF
-    filter_control_status_u control_status;
-    ekf.get_control_mode(&control_status.value);
+    filter_control_status_u control_status = ekf.control_status();
 
     // Only publish position after successful alignment
     if (control_status.flags.tilt_align) {
       /* Get the position */
-      float pos_f[3] = {};
+      const Vector3f pos_f{ekf.getPosition()};
       struct NedCoor_f pos;
-      ekf.get_position(pos_f);
-      pos.x = pos_f[0];
-      pos.y = pos_f[1];
-      pos.z = pos_f[2];
+      pos.x = pos_f(0);
+      pos.y = pos_f(1);
+      pos.z = pos_f(2);
 
       // Publish to the state
       stateSetPositionNed_f(&pos);
 
       /* Get the velocity in NED frame */
-      float vel_f[3] = {};
+      const Vector3f vel_f{ekf.getVelocity()};
       struct NedCoor_f speed;
-      ekf.get_velocity(vel_f);
-      speed.x = vel_f[0];
-      speed.y = vel_f[1];
-      speed.z = vel_f[2];
+      speed.x = vel_f(0);
+      speed.y = vel_f(1);
+      speed.z = vel_f(2);
 
       // Publish to state
       stateSetSpeedNed_f(&speed);
 
       /* Get the accelrations in NED frame */
-      float vel_deriv_f[3] = {};
+      const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
       struct NedCoor_f accel;
-      ekf.get_vel_deriv_ned(vel_deriv_f);
-      accel.x = vel_deriv_f[0];
-      accel.y = vel_deriv_f[1];
-      accel.z = vel_deriv_f[2];
+      accel.x = vel_deriv_f(0);
+      accel.y = vel_deriv_f(1);
+      accel.z = vel_deriv_f(2);
 
       // Publish to state
       stateSetAccelNed_f(&accel);
 
       /* Get local origin */
       // Position of local NED origin in GPS / WGS84 frame
-      struct map_projection_reference_s ekf_origin = {};
+      double ekf_origin_lat, ekf_origin_lon;
       float ref_alt;
       struct LlaCoor_i lla_ref;
       uint64_t origin_time;
 
       // Only update the origin when the state estimator has updated the origin
-      bool ekf_origin_valid = ekf.get_ekf_origin(&origin_time, &ekf_origin, &ref_alt);
+      bool ekf_origin_valid = ekf.getEkfGlobalOrigin(origin_time, ekf_origin_lat, ekf_origin_lon, ref_alt);
       if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
-        lla_ref.lat = ekf_origin.lat_rad * 180.0 / M_PI * 1e7; // Reference point latitude in degrees
-        lla_ref.lon = ekf_origin.lon_rad * 180.0 / M_PI * 1e7; // Reference point longitude in degrees
-        lla_ref.alt = ref_alt * 1000.0;
+        lla_ref.lat = ekf_origin_lat * 1e7; // WGS-84 lat
+        lla_ref.lon = ekf_origin_lon * 1e7; // WGS-84 lon
+        lla_ref.alt = ref_alt * 1e3; // WGS-84 height
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         stateSetLocalOrigin_i(&ekf2.ltp_def);
 
@@ -613,22 +609,20 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 
     /* Get in-run gyro bias */
     struct FloatRates body_rates;
-    float gyro_bias[3];
-    ekf.get_gyro_bias(gyro_bias);
-    body_rates.p = ekf2.gyro.p - gyro_bias[0];
-    body_rates.q = ekf2.gyro.q - gyro_bias[1];
-    body_rates.r = ekf2.gyro.r - gyro_bias[2];
+    Vector3f gyro_bias{ekf.getGyroBias()};
+    body_rates.p = ekf2.gyro.p - gyro_bias(0);
+    body_rates.q = ekf2.gyro.q - gyro_bias(1);
+    body_rates.r = ekf2.gyro.r - gyro_bias(2);
 
     // Publish it to the state
     stateSetBodyRates_f(&body_rates);
 
     /* Get the in-run acceleration bias */
     struct Int32Vect3 accel;
-    float accel_bias[3];
-    ekf.get_accel_bias(accel_bias);
-    accel.x = ACCEL_BFP_OF_REAL(ekf2.accel.x - accel_bias[0]);
-    accel.y = ACCEL_BFP_OF_REAL(ekf2.accel.y - accel_bias[1]);
-    accel.z = ACCEL_BFP_OF_REAL(ekf2.accel.z - accel_bias[2]);
+    Vector3f accel_bias{ekf.getAccelBias()};
+    accel.x = ACCEL_BFP_OF_REAL(ekf2.accel.x - accel_bias(0));
+    accel.y = ACCEL_BFP_OF_REAL(ekf2.accel.y - accel_bias(1));
+    accel.z = ACCEL_BFP_OF_REAL(ekf2.accel.z - accel_bias(2));
 
     // Publish it to the state
     stateSetAccelBody_i(&accel);
@@ -642,21 +636,29 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 /* Update INS based on Baro information */
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float pressure)
 {
+  baroSample sample;
+  sample.time_us = stamp;
+
   // Calculate the air density
   float rho = pprz_isa_density_of_pressure(pressure,
               20.0f); // TODO: add temperature compensation now set to 20 degree celcius
   ekf.set_air_density(rho);
 
   // Calculate the height above mean sea level based on pressure
-  float height_amsl_m = pprz_isa_height_of_pressure_full(pressure,
+  sample.hgt = pprz_isa_height_of_pressure_full(pressure,
                         101325.0); //101325.0 defined as PPRZ_ISA_SEA_LEVEL_PRESSURE in pprz_isa.h
-  ekf.setBaroData(stamp, height_amsl_m);
+  ekf.setBaroData(sample);
 }
 
 /* Update INS based on AGL information */
 static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, float distance)
 {
-  ekf.setRangeData(stamp, distance);
+  rangeSample sample;
+  sample.time_us = stamp;
+  sample.rng = distance;
+  sample.quality = -1;
+
+  ekf.setRangeData(sample);
 }
 
 /* Update INS based on Gyro information */
@@ -718,6 +720,8 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
 {
   struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ekf2.body_to_imu);
   struct FloatVect3 mag_gauss, mag_body;
+  magSample sample;
+  sample.time_us = stamp;
 
   // Convert Magnetometer information to float and to radius 0.2f
   MAGS_FLOAT_OF_BFP(mag_gauss, *mag);
@@ -729,12 +733,11 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
   float_rmat_transp_vmult(&mag_body, body_to_imu_rmat, &mag_gauss);
 
   // Publish information to the EKF
-  float mag_r[3];
-  mag_r[0] = mag_body.x;
-  mag_r[1] = mag_body.y;
-  mag_r[2] = mag_body.z;
+  sample.mag(0) = mag_body.x;
+  sample.mag(1) = mag_body.y;
+  sample.mag(2) = mag_body.z;
 
-  ekf.setMagData(stamp, mag_r);
+  ekf.setMagData(sample);
   ekf2.got_imu_data = true;
 }
 
@@ -760,14 +763,14 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.epv = gps_s->vacc / 100.0;
   gps_msg.sacc = gps_s->sacc / 100.0;
   gps_msg.vel_m_s = gps_s->gspeed / 100.0;
-  gps_msg.vel_ned[0] = (gps_s->ned_vel.x) / 100.0;
-  gps_msg.vel_ned[1] = (gps_s->ned_vel.y) / 100.0;
-  gps_msg.vel_ned[2] = (gps_s->ned_vel.z) / 100.0;
+  gps_msg.vel_ned(0) = (gps_s->ned_vel.x) / 100.0;
+  gps_msg.vel_ned(1) = (gps_s->ned_vel.y) / 100.0;
+  gps_msg.vel_ned(2) = (gps_s->ned_vel.z) / 100.0;
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
-  gps_msg.gdop = 0.0f;
+  gps_msg.pdop = gps_s->pdop;
 
-  ekf.setGpsData(stamp, gps_msg);
+  ekf.setGpsData(gps_msg);
 }
 
 /* Save the Body to IMU information */
@@ -787,7 +790,8 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
                             float quality,
                             float size_divergence __attribute__((unused)))
 {
-  flow_message flow_msg;
+  flowSample sample;
+  sample.time_us = stamp;
 
   // Wait for two measurements in order to integrate
   if (ekf2.flow_stamp <= 0) {
@@ -796,7 +800,7 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   }
 
   // Calculate the timestamp
-  flow_msg.dt = (stamp - ekf2.flow_stamp);
+  sample.dt = (stamp - ekf2.flow_stamp);
   ekf2.flow_stamp = stamp;
 
   /* Build integrated flow and gyro messages for filter
@@ -804,15 +808,15 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   gyro_roll and same flow_y and gyro_pitch */
   Vector2f flowdata;
   flowdata(0) = RadOfDeg(flow_y) * (1e-6 *
-                                    flow_msg.dt);                       // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
+                                    sample.dt);                       // INTEGRATED FLOW AROUND Y AXIS (RIGHT -X, LEFT +X)
   flowdata(1) = - RadOfDeg(flow_x) * (1e-6 *
-                                      flow_msg.dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
+                                      sample.dt);                     // INTEGRATED FLOW AROUND X AXIS (FORWARD +Y, BACKWARD -Y)
 
-  flow_msg.quality = quality;                     // quality indicator between 0 and 255
-  flow_msg.flowdata =
+  sample.quality = quality;                     // quality indicator between 0 and 255
+  sample.flow_xy_rad =
     flowdata;                   // measured delta angle of the image about the X and Y body axes (rad), RH rotaton is positive
-  flow_msg.gyrodata = Vector3f{NAN, NAN, NAN};    // measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
+  sample.gyro_xyz = Vector3f{NAN, NAN, NAN};    // measured delta angle of the inertial frame about the body axes obtained from rate gyro measurements (rad), RH rotation is positive
 
   // Update the optical flow data based on the callback
-  ekf.setOpticalFlowData(stamp, &flow_msg);
+  ekf.setOpticalFlowData(sample);
 }
