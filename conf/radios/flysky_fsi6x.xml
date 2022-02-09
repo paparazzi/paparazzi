@@ -1,0 +1,16 @@
+<!DOCTYPE radio SYSTEM "radio.dtd">
+<!-- Documentation
+FlySky FS-i6X: https://bit.ly/3n5fbZY 
+FS-X6B: https://bit.ly/3EZrjCd 
+More extensive guide: https://bit.ly/3KbSugO
+-->
+<radio name="FlySky FS-i6X + FS-X6B receiver - PPM" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>           <!-- right stick left/right -->
+  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>          <!-- right stick up/down -->
+  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>       <!-- left stick up/down -->
+  <channel function="YAW" min="1100" neutral="1500" max="1900" average="0"/>	        <!-- left stick left/right-->
+  <channel function="KILL_SWITCH" min="1100" neutral="1500" max="1900" average="1"/>    <!-- switch (channel 5) -->
+  <channel function="AUX2" min="1100" neutral="1500" max="1900" average="1"/>           <!-- switch (channel 6) -->
+  <channel function="MODE" min="1100" neutral="1500" max="1900" average="1"/>           <!-- switch (channel 7) - three phase -->
+  <channel function="AUX3" min="1100" neutral="1500" max="1900" average="1"/>           <!-- switch (channel 8) -->
+</radio>
