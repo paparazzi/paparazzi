@@ -401,9 +401,10 @@ void image_add_border(struct image_t *input, struct image_t *output, uint8_t bor
 
 /**
  * This function takes previous padded pyramid level and outputs next level of pyramid without padding.
- * For calculating new pixel value 5x5 filter matrix suggested by Bouguet is used:
- * [1/16 1/8 3/4 1/8 1/16]' x [1/16 1/8 3/4 1/8 1/16]
- * To avoid decimal numbers, all coefficients are multiplied by 10000.
+ * For calculating new pixel value 3x3 Gaussian filter matrix is used:
+ * [1/4 1/2 1/4]' x [1/4 1/2 1/4]
+ * Blur and downsample is performed with two 1D convolutions (horizontal then vertical)
+ * instead of a single 2D convolution, to increase performance
  *
  * @param[in]  *input  - input image (grayscale only)
  * @param[out] *output - the output image
@@ -422,12 +423,10 @@ void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t b
   uint16_t w = input->w;
   int32_t sum = 0;
 
-  // Blur and downsample by performing a convolution with a 3x3 Gaussian kernel,
-  // separated into two 1D kernels [1/4 1/2 1/4]^T * [1/4 1/2 1/4]
   // Horizontal convolution
   for (uint16_t i = 0; i != output->h; i++) {
     for (uint16_t j = 0; j != output->w; j++) {
-      row = border_size + 2 * i; // Skip border, then every second pixel
+      row = border_size + 2 * i; // First skip border, then every second pixel
       col = border_size + 2 * j;
 
       sum = (input_buf[row * w + col]) >> 1;
@@ -441,7 +440,7 @@ void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t b
   for (uint16_t i = 0; i != output->h - border_size; i++) {
     for (uint16_t j = 0; j != output->w - border_size; j++) {
       // Wrong to add border_size again, but offset of a few px acceptable inaccuracy
-      row = border_size + i; // First skip border, then every second pixel
+      row = border_size + i;
       col = border_size + j;
 
       sum = (output_buf[row * w + col]) >> 1;
