@@ -60,7 +60,7 @@
 #define GOT_CHECKSUM1 8
 
 #define RXM_RTCM_VERSION        0x02
-#define NAV_RELPOSNED_VERSION   0x00
+#define NAV_RELPOSNED_VERSION   0x01
 /* last error type */
 #define GPS_UBX_ERR_NONE         0
 #define GPS_UBX_ERR_OVERRUN      1
@@ -83,13 +83,13 @@ extern struct GpsRelposNED gps_relposned;
 extern struct RtcmMan rtcm_man;
 
 #ifndef INJECT_BUFF_SIZE
-#define INJECT_BUFF_SIZE 512
+#define INJECT_BUFF_SIZE 1024 + 6
 #endif
 /* RTCM control struct type */
 struct rtcm_t {
   uint32_t nbyte;                     ///< number of bytes in message buffer
   uint32_t len;                       ///< message length (bytes)
-  uint8_t buff[INJECT_BUFF_SIZE + 1]; ///< message buffer
+  uint8_t buff[INJECT_BUFF_SIZE];     ///< message buffer
 };
 struct rtcm_t rtcm = { 0 };
 
@@ -125,17 +125,13 @@ static void gps_ubx_parse_nav_pvt(void)
   uint8_t gnssFixOK         = bit_is_set(flags, 0);
   uint8_t diffSoln          = bit_is_set(flags, 1);
   uint8_t carrSoln          = (flags & 0xC0) >> 6;
-  if (gnssFixOK > 0) {
-    if (diffSoln > 0) {
-      if (carrSoln == 2) {
-        gps_ubx.state.fix = 5; // rtk
-      } else {
-        gps_ubx.state.fix = 4; // dgnss
-      }
-    } else {
-      gps_ubx.state.fix = 3; // 3D
-    }
-  } else {
+  if (diffSoln && carrSoln == 2) {
+    gps_ubx.state.fix = 5; // rtk
+  } else if(diffSoln && carrSoln == 1) {
+    gps_ubx.state.fix = 4; // dgnss
+  } else if(gnssFixOK) {
+    gps_ubx.state.fix = 3; // 3D
+  } else{
     gps_ubx.state.fix = 0;
   }
 
@@ -349,35 +345,40 @@ static void gps_ubx_parse_nav_relposned(void)
 {
 #if USE_GPS_UBX_RTCM
   uint8_t version = UBX_NAV_RELPOSNED_version(gps_ubx.msg_buf);
-  if (version == NAV_RELPOSNED_VERSION) {
-    gps_relposned.iTOW          = UBX_NAV_RELPOSNED_iTOW(gps_ubx.msg_buf);
-    gps_relposned.refStationId  = UBX_NAV_RELPOSNED_refStationId(gps_ubx.msg_buf);
-    gps_relposned.relPosN     = UBX_NAV_RELPOSNED_relPosN(gps_ubx.msg_buf);
-    gps_relposned.relPosE     = UBX_NAV_RELPOSNED_relPosE(gps_ubx.msg_buf);
-    gps_relposned.relPosD     = UBX_NAV_RELPOSNED_relPosD(gps_ubx.msg_buf) ;
-    gps_relposned.relPosHPN   = UBX_NAV_RELPOSNED_relPosHPN(gps_ubx.msg_buf);
-    gps_relposned.relPosHPE   = UBX_NAV_RELPOSNED_relPosHPE(gps_ubx.msg_buf);
-    gps_relposned.relPosHPD   = UBX_NAV_RELPOSNED_relPosHPD(gps_ubx.msg_buf);
-    gps_relposned.accN      = UBX_NAV_RELPOSNED_accN(gps_ubx.msg_buf);
-    gps_relposned.accE      = UBX_NAV_RELPOSNED_accE(gps_ubx.msg_buf);
-    gps_relposned.accD      = UBX_NAV_RELPOSNED_accD(gps_ubx.msg_buf);
-    uint8_t flags           = UBX_NAV_RELPOSNED_flags(gps_ubx.msg_buf);
-    gps_relposned.carrSoln    = RTCMgetbitu(&flags, 3, 2);
-    gps_relposned.relPosValid = RTCMgetbitu(&flags, 5, 1);
-    gps_relposned.diffSoln    = RTCMgetbitu(&flags, 6, 1);
-    gps_relposned.gnssFixOK   = RTCMgetbitu(&flags, 7, 1);
-    if (gps_relposned.gnssFixOK > 0) {
-      if (gps_relposned.diffSoln > 0) {
-        if (gps_relposned.carrSoln == 2) {
-          gps_ubx.state.fix = 5; // rtk
-        } else {
-          gps_ubx.state.fix = 4; // dgnss
-        }
-      } else {
+  if (version <= NAV_RELPOSNED_VERSION) {
+    uint8_t flags       = UBX_NAV_RELPOSNED_flags(gps_ubx.msg_buf);
+    uint8_t carrSoln    = RTCMgetbitu(&flags, 3, 2);
+    uint8_t relPosValid = RTCMgetbitu(&flags, 5, 1);
+    uint8_t diffSoln    = RTCMgetbitu(&flags, 6, 1);
+    uint8_t gnssFixOK   = RTCMgetbitu(&flags, 7, 1);
+
+    /* Only save the latest valid relative position */
+    if(relPosValid) {
+      if (diffSoln && carrSoln == 2) {
+        gps_ubx.state.fix = 5; // rtk
+      } else if(diffSoln && carrSoln == 1) {
+        gps_ubx.state.fix = 4; // dgnss
+      } else if(gnssFixOK) {
         gps_ubx.state.fix = 3; // 3D
+      } else{
+        gps_ubx.state.fix = 0;
       }
-    } else {
-      gps_ubx.state.fix = 0;
+
+      gps_relposned.iTOW          = UBX_NAV_RELPOSNED_iTOW(gps_ubx.msg_buf);
+      gps_relposned.refStationId  = UBX_NAV_RELPOSNED_refStationId(gps_ubx.msg_buf);
+      gps_relposned.relPosN     = UBX_NAV_RELPOSNED_relPosN(gps_ubx.msg_buf);
+      gps_relposned.relPosE     = UBX_NAV_RELPOSNED_relPosE(gps_ubx.msg_buf);
+      gps_relposned.relPosD     = UBX_NAV_RELPOSNED_relPosD(gps_ubx.msg_buf) ;
+      gps_relposned.relPosHPN   = UBX_NAV_RELPOSNED_relPosHPN(gps_ubx.msg_buf);
+      gps_relposned.relPosHPE   = UBX_NAV_RELPOSNED_relPosHPE(gps_ubx.msg_buf);
+      gps_relposned.relPosHPD   = UBX_NAV_RELPOSNED_relPosHPD(gps_ubx.msg_buf);
+      gps_relposned.accN      = UBX_NAV_RELPOSNED_accN(gps_ubx.msg_buf);
+      gps_relposned.accE      = UBX_NAV_RELPOSNED_accE(gps_ubx.msg_buf);
+      gps_relposned.accD      = UBX_NAV_RELPOSNED_accD(gps_ubx.msg_buf);
+      gps_relposned.carrSoln    = carrSoln;
+      gps_relposned.relPosValid = relPosValid;
+      gps_relposned.diffSoln    = diffSoln;
+      gps_relposned.gnssFixOK   = gnssFixOK;
     }
   }
 #endif
