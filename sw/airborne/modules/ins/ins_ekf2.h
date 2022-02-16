@@ -45,6 +45,8 @@ extern void ins_ekf2_init(void);
 extern void ins_ekf2_update(void);
 extern void ins_ekf2_change_param(int32_t unk);
 extern void ins_ekf2_remove_gps(int32_t mode);
+extern void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf);
+extern void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);
 extern struct ekf2_parameters_t ekf2_params;
 
 #ifdef __cplusplus

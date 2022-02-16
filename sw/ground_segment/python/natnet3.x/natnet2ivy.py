@@ -70,6 +70,11 @@ parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help
 parser.add_argument('-f', '--freq', dest='freq', default=10, type=int, help="transmit frequency")
 parser.add_argument('-gr', '--ground_ref', dest='ground_ref', action='store_true', help="also send the GROUND_REF message")
 parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=int, help="amount of samples to compute velocity (should be greater than 2)")
+parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
+parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
+parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
+parser.add_argument('-zf', '--z_forward', dest='z_forward', action='store_true', help="Z-axis as forward")
+
 args = parser.parse_args()
 
 if args.ac is None:
@@ -125,6 +130,18 @@ def compute_velocity(ac_id):
             vel[2] /= nb
     return vel
 
+# Rotate the Z-forward to X-forward frame
+def rotZtoX(in_vec3, quat = False):
+    out_vec3 = {}
+    out_vec3[0] = -in_vec3[0]
+    out_vec3[1] = in_vec3[2]
+    out_vec3[2] = in_vec3[1]
+
+    # Copy the qi
+    if quat:
+        out_vec3[3] = in_vec3[3]
+    return out_vec3
+
 def receiveRigidBodyList( rigidBodyList, stamp ):
     for (ac_id, pos, quat, valid) in rigidBodyList:
         if not valid:
@@ -142,22 +159,57 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
             continue # too early for next message
         timestamp[i] = stamp
 
-        msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
-        msg['ac_id'] = id_dict[i]
-        msg['pad'] = 0
-        msg['enu_x'] = pos[0]
-        msg['enu_y'] = pos[1]
-        msg['enu_z'] = pos[2]
         vel = compute_velocity(i)
-        msg['enu_xd'] = vel[0]
-        msg['enu_yd'] = vel[1]
-        msg['enu_zd'] = vel[2]
-        msg['tow'] = int(1000. * stamp) # TODO convert to GPS itow ?
-        # convert quaternion to psi euler angle
-        dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
-        dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
-        msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
-        ivy.send(msg)
+
+        # Rotate everything if Z-forward
+        if args.z_forward:
+            pos = rotZtoX(pos)
+            vel = rotZtoX(vel)
+            quat = rotZtoX(quat, True)
+
+        # Check which message to send
+        if args.rgl_msg:
+            msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
+            msg['ac_id'] = id_dict[i]
+            msg['pad'] = 0
+            msg['enu_x'] = pos[0]
+            msg['enu_y'] = pos[1]
+            msg['enu_z'] = pos[2]
+            msg['enu_xd'] = vel[0]
+            msg['enu_yd'] = vel[1]
+            msg['enu_zd'] = vel[2]
+            msg['tow'] = int(1000. * stamp) # TODO convert to GPS itow ?
+            # convert quaternion to psi euler angle
+            dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
+            dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
+            msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
+            ivy.send(msg)
+        elif args.small_msg:
+            # First check if position fits in message
+            if abs(pos[0]*100.0) > pow(2, 10) or abs(pos[1]*100.0) > pow(2, 10) or pos[2]*100.0 > pow(2, 10) or pos[2] < 0.:
+                print("Position out of range for small message")
+                continue
+
+            # TODO calculate everything
+            msg = PprzMessage("datalink", "EXTERNAL_POSE_SMALL")
+            msg['ac_id'] = id_dict[i]
+            msg['timestamp'] = int(1000. * stamp) # Time in ms
+            ivy.send(msg)
+        else:
+            msg = PprzMessage("datalink", "EXTERNAL_POSE")
+            msg['ac_id'] = id_dict[i]
+            msg['timestamp'] = int(1000. * stamp) # Time in ms
+            msg['enu_x'] = pos[0]
+            msg['enu_y'] = pos[1]
+            msg['enu_z'] = pos[2]
+            msg['enu_xd'] = vel[0]
+            msg['enu_yd'] = vel[1]
+            msg['enu_zd'] = vel[2]
+            msg['body_qi'] = quat[3]
+            msg['body_qx'] = quat[0]
+            msg['body_qy'] = quat[1]
+            msg['body_qz'] = quat[2]
+            ivy.send(msg)
 
         # send GROUND_REF message if needed
         if args.ground_ref:
@@ -174,12 +226,16 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
 
 # start natnet interface
+natnet_version = (3,0,0,0)
+if args.old_natnet:
+    natnet_version = (2,9,0,0)
 natnet = NatNetClient(
         server=args.server,
         rigidBodyListListener=receiveRigidBodyList,
         dataPort=args.data_port,
         commandPort=args.command_port,
-        verbose=args.verbose)
+        verbose=args.verbose,
+        version=natnet_version)
 
 
 print("Starting Natnet3.x to Ivy interface at %s" % (args.server))

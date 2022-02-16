@@ -5,6 +5,17 @@
     <description>
       simple INS and AHRS using EKF2 from PX4
     </description>
+    <define name="INS_EKF2_OPTITRACK" value="false" description="Easy configuration of full optitrack (position- and yaw fusion, height, init origin)"/>
+    <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
+    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
+    <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
+    <define name="INS_EKF2_EVP_NOISE" value="0.1" description="External vision position noise [m]"/>
+    <define name="INS_EKF2_EVV_NOISE" value="1.0" description="External vision velocity noise [m/s]"/>
+    <define name="INS_EKF2_EVA_NOISE" value="0.05" description="External vision angle noise [rad]"/>
+    <define name="INS_EKF2_GPS_V_NOISE" value="0.3" description="GPS measurement noise for horizontal velocity [m/s]"/>
+    <define name="INS_EKF2_GPS_P_NOISE" value="0.5" description="GPS measurement position noise [m]"/>
+    <define name="INS_EKF2_BARO_NOISE" value="3.5" description="Barometric measurement noise for altitude [m]"/>
+    
     <define name="INS_EKF2_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
     <define name="INS_EKF2_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
     <define name="INS_EKF2_RANGE_MAIN_AGL" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
@@ -17,9 +28,6 @@
     <define name="INS_EKF2_FLOW_NOISE" value="0.01" description="Flow sensor noise [rad/sec]"/>
     <define name="INS_EKF2_FLOW_NOISE_QMIN" value="0.03" description="Flow sensor noise when quality is minimum [rad/sec]"/>
     <define name="INS_EKF2_FLOW_INNOV_GATE" value="3" description="Flow sensor innovation gate [STD]"/>
-    <define name="INS_EKF2_FUSION_MODE" value="(MASK_USE_GPS)" description="The sensor that are used for position fusion"/>
-    <define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_BARO" description="Primary sensor used for vertical distance"/>
-    <define name="INS_EKF2_GPS_CHECK_MASK" value="(MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)" description="GPS checks enabled before initialization of the global positioning"/>
     <define name="INS_EKF2_AGL_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for AGL measurements"/>
     <define name="INS_EKF2_BARO_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Barometric measurements"/>
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
@@ -45,6 +53,8 @@
   </header>
   <init fun="ins_ekf2_init()"/>
   <periodic fun="ins_ekf2_update()" autorun="TRUE"/>
+  <datalink message="EXTERNAL_POSE" fun="ins_ekf2_parse_EXTERNAL_POSE(buf)"/>
+  <datalink message="EXTERNAL_POSE_SMALL" fun="ins_ekf2_parse_EXTERNAL_POSE_SMALL(buf)"/>
   <makefile target="ap|nps">
     <configure name="CXXSTANDARD" value="-std=c++14"/>
 

@@ -30,6 +30,10 @@
 #ifndef SYS_TIME_H
 #define SYS_TIME_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include <stdlib.h>
 #include "std.h"
@@ -223,5 +227,9 @@ extern void sys_time_arch_init(void);
 #define SysTimeTimerStart(_t) { _t = get_sys_time_usec(); }
 #define SysTimeTimer(_t) ( get_sys_time_usec() - (_t))
 #define SysTimeTimerStop(_t) { _t = ( get_sys_time_usec() - (_t)); }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SYS_TIME_H */
