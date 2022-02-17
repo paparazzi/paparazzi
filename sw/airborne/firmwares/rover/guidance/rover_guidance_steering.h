@@ -63,13 +63,19 @@
 #define MIN_SPEED 0.2 //But this one is mandatory because we have
 #endif                //to deal with GPS noise (and 1/v in guidance control).
 
-// NAV max throttle (not yet implemented)
-#define MAX_THROTTLE 100000.0
+// NAV max throttle
+#define MAX_THROTTLE 10000.0
 
 // DRIVE_SHAFT_DISTANCE: Distance between front and rear wheels (m)
 #ifndef DRIVE_SHAFT_DISTANCE
 #define DRIVE_SHAFT_DISTANCE 0.25
-#warning "Construction variable DRIVE_SHAFT_DISTANCE for steer wheels rover not defined"
+#warning "Construction variable DRIVE_SHAFT_DISTANCE for steering wheel rover not defined"
+#endif
+
+// SR_MEASURED_KF: Lineal feed forward control constant (have to be measured in new servos)
+#ifndef SR_MEASURED_KF
+#define SR_MEASURED_KF 10
+#warning "Construction constant SR_MEASURED_KF for steering wheel rover not defined"
 #endif
 
 
@@ -78,14 +84,19 @@
 typedef struct {
   float speed;
   float delta;
-} RScmd_t;
+} sr_cmd_t;
 
 // Main structure
 typedef struct {
-  RScmd_t cmd;
+  sr_cmd_t cmd;
   float state_speed;
   float gvf_omega;
   float throttle;
+
+  float speed_error;
+  float kf;
+  float kp;
+  float ki;
 } rover_ctrl;
 
 extern rover_ctrl guidance_control;
@@ -110,13 +121,13 @@ extern bool rover_guidance_steering_set_delta(float delta);
 // Bound throttle
 #define BoundThrottle(throttle) (throttle < - MAX_THROTTLE ? - MAX_THROTTLE : \
                                 (throttle >   MAX_THROTTLE ?   MAX_THROTTLE : \
-                                 throttle));
+                                 throttle)); // TODO: remove, p+i -> 10% of feed forward
 
 // Set low level commands from high level commands
 #define GetCmdFromDelta(delta) (delta >= 0 ? -delta/MAX_DELTA * (MAX_PPRZ - (int)MAX_CMD_SHUT) : \
                                              -delta/MIN_DELTA * (MAX_PPRZ - (int)MIN_CMD_SHUT));
 
-// This macro is for future NAV state
+// This macro is for NAV state
 #define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle / MAX_THROTTLE * MAX_PPRZ);
 
 // Set AP throttle value
