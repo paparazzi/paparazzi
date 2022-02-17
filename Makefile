@@ -135,10 +135,13 @@ conf/%.xml :conf/%_example.xml
 conf/tools/blacklisted: conf/tools/blacklisted_example
 	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
-ground_segment: _print_building conf libpprz subdirs static
+ground_segment: _print_building conf libpprz subdirs static pprzgcs
 ground_segment.opt: ground_segment cockpit.opt tmtc.opt
 
 static: cockpit tmtc generators sim_static joystick static_h
+
+pprzgcs:
+	./get_pprzgcs.sh
 
 libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update

@@ -1,2 +1,2 @@
-<program command="$pprzgcs" name="PprzGCS" />
+<program command="var/pprzgcs" name="GCS" />
 
