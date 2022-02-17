@@ -24,25 +24,32 @@
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </module>
     <module name="ins" type="hff_extended"/>
-
+    <define name="USE_SONAR"/>
     <module name="pose_history"/>
-    <module name="bebop_cam"/>
+
+    <module name="bebop_cam">
+      <!-- IMPORTANT to limit these or FPS drops significantly -->
+      <define name="MT9F002_TARGET_FPS" value="30"/> <!-- Front cam -->
+      <define name="MT9V117_TARGET_FPS" value="60"/> <!-- Bottom cam -->
+    </module>
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit-->
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
-      <define name="OPTICFLOW_MAX_TRACK_CORNERS" value="10"/>
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS" value="20"/>
       <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="0"/>
-      <define name="OPTICFLOW_FPS" value="5"/>
-      <define name="OPTICFLOW_SHOW_FLOW" value="1"/>
+      <define name="OPTICFLOW_FPS" value="60"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW" value="0"/>
 
       <define name="OPTICFLOW_CAMERA2" value="front_camera"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="0.8"/> <!--Obtained from a linefit-->
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="0.85"/> <!--Obtained from a linefit-->
-      <define name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="10"/>
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="30"/>
       <define name="OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2" value="0"/>
-      <define name="OPTICFLOW_FPS_CAMERA2" value="5"/>
-      <define name="OPTICFLOW_SHOW_FLOW_CAMERA2" value="1"/>
+      <define name="OPTICFLOW_FPS_CAMERA2" value="20"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW_CAMERA2" value="0"/>
     </module>
 
     <module name="video_capture">
@@ -199,9 +206,4 @@
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 
-  <section name="OPTICFLOW" prefix="OPTICFLOW_">
-    <define name="CORNER_METHOD" value="0"/>
-    <define name="MAX_TRACK_CORNERS" value="10"/>
-  </section>
- 
 </airframe>

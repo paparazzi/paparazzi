@@ -140,13 +140,20 @@ void image_to_grayscale(struct image_t *input, struct image_t *output)
   output->pprz_ts = input->pprz_ts;
 
   // Copy the pixels
-  for (int y = 0; y < output->h; y++) {
-    for (int x = 0; x < output->w; x++) {
-      if (output->type == IMAGE_YUV422) {
+  int height = output->h;
+  int width = output->w;
+  if (output->type == IMAGE_YUV422) {
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
         *dest++ = 127;  // U / V
+        *dest++ = *source;    // Y
+        source += 2;
       }
-      *dest++ = *source;    // Y
-      source += 2;
+    }
+  } else {
+    for (int y = 0; y < height * width; y++) {
+        *dest++ = *source++;    // Y
+        source++;
     }
   }
 }
@@ -394,9 +401,10 @@ void image_add_border(struct image_t *input, struct image_t *output, uint8_t bor
 
 /**
  * This function takes previous padded pyramid level and outputs next level of pyramid without padding.
- * For calculating new pixel value 5x5 filter matrix suggested by Bouguet is used:
- * [1/16 1/8 3/4 1/8 1/16]' x [1/16 1/8 3/4 1/8 1/16]
- * To avoid decimal numbers, all coefficients are multiplied by 10000.
+ * For calculating new pixel value 3x3 Gaussian filter matrix is used:
+ * [1/4 1/2 1/4]' x [1/4 1/2 1/4]
+ * Blur and downsample is performed with two 1D convolutions (horizontal then vertical)
+ * instead of a single 2D convolution, to increase performance
  *
  * @param[in]  *input  - input image (grayscale only)
  * @param[out] *output - the output image
@@ -415,27 +423,30 @@ void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t b
   uint16_t w = input->w;
   int32_t sum = 0;
 
+  // Horizontal convolution
   for (uint16_t i = 0; i != output->h; i++) {
-
     for (uint16_t j = 0; j != output->w; j++) {
       row = border_size + 2 * i; // First skip border, then every second pixel
       col = border_size + 2 * j;
 
-      sum =    39 * (input_buf[(row - 2) * w + (col - 2)] + input_buf[(row - 2) * w + (col + 2)] +
-                     input_buf[(row + 2) * w + (col - 2)] + input_buf[(row + 2) * w + (col + 2)]);
-      sum +=  156 * (input_buf[(row - 2) * w + (col - 1)] + input_buf[(row - 2) * w + (col + 1)] +
-                     input_buf[(row - 1) * w + (col + 2)] + input_buf[(row + 1) * w + (col - 2)]
-                     + input_buf[(row + 1) * w + (col + 2)] + input_buf[(row + 2) * w + (col - 1)] + input_buf[(row + 2) * w + (col + 1)] +
-                     input_buf[(row - 1) * w + (col - 2)]);
-      sum +=  234 * (input_buf[(row - 2) * w + (col)] + input_buf[(row) * w    + (col - 2)] +
-                     input_buf[(row) * w    + (col + 2)] + input_buf[(row + 2) * w + (col)]);
-      sum +=  625 * (input_buf[(row - 1) * w + (col - 1)] + input_buf[(row - 1) * w + (col + 1)] +
-                     input_buf[(row + 1) * w + (col - 1)] + input_buf[(row + 1) * w + (col + 1)]);
-      sum +=  938 * (input_buf[(row - 1) * w + (col)] + input_buf[(row) * w    + (col - 1)] +
-                     input_buf[(row) * w    + (col + 1)] + input_buf[(row + 1) * w + (col)]);
-      sum += 1406 * input_buf[(row) * w    + (col)];
+      sum = (input_buf[row * w + col]) >> 1;
+      sum += (input_buf[row * w + col + 1] + input_buf[row * w + col - 1]) >> 2;
 
-      output_buf[i * output->w + j] = sum / 10000;
+      output_buf[i * output->w + j] = sum;
+    }
+  }
+  // Vertical convolution
+  w = output->w;
+  for (uint16_t i = 0; i != output->h - border_size; i++) {
+    for (uint16_t j = 0; j != output->w - border_size; j++) {
+      // Wrong to add border_size again, but offset of a few px acceptable inaccuracy
+      row = border_size + i;
+      col = border_size + j;
+
+      sum = (output_buf[row * w + col]) >> 1;
+      sum += (output_buf[(row + 1) * w + col] + output_buf[(row - 1) * w + col]) >> 2;
+
+      output_buf[i * output->w + j] = sum;
     }
   }
 }
