@@ -12,7 +12,7 @@
     
     <target name="nps" board="pc">
       <module name="radio_control" type="ppm"/>
-      <module name="fdm" type="rover"/> <!-- NPS_FDM rover physics!! -->
+      <module name="fdm"           type="rover"/> <!-- NPS_FDM rover physics!! -->
       <define name="NPS_BYPASS_AHRS" value="TRUE"/>
       <define name="NPS_BYPASS_INS"  value="TRUE"/>
     </target>    
@@ -29,14 +29,15 @@
 
     <module name="ins"/>
     <module name="ahrs" type="float_dcm"/>
-    <module name="nav" type="rover_base"/>
-    <module name="gvf" type="module"/>
+    <module name="nav"  type="rover_base"/>
+    <module name="gvf"  type="module"/>
 
     <module name="guidance" type="rover_steering">
-      <define name="MAX_DELTA" value="15.0"/>
+      <define name="MAX_DELTA"            value="15.0"/>
       <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
-      <define name="MIN_CMD_SHUT" value="3800"/>
-      <define name="MAX_CMD_SHUT" value="1350"/>
+      <define name="SR_MEASURED_KF"       value="1400.0"/>
+      <define name="MIN_CMD_SHUT"         value="3800"/>
+      <define name="MAX_CMD_SHUT"         value="1350"/>
     </module>
 
   </firmware>
