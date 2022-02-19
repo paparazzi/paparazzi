@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+ <!-- Bebop model provided by cbas at https://blendswap.com/blend/19902 -->
+ <path>bebop.ac</path>
+
+ <offsets>
+   <heading-deg>-90.</heading-deg>
+   <pitch-deg>0.</pitch-deg>
+   <roll-deg>0.</roll-deg>
+   <x-m>0.</x-m>
+   <y-m>0.</y-m>
+   <z-m>0.</z-m>
+  </offsets>
+
+
+</PropertyList>
