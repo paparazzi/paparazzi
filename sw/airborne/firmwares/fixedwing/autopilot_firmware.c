@@ -31,12 +31,11 @@
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include <stdint.h>
+#include "modules/energy/electrical.h"
 
-// ap copy of fbw readings
-struct Electrical ap_electrical;
+PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 
 uint8_t lateral_mode;
-uint8_t  mcu1_status;
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -56,6 +55,23 @@ uint8_t rc_settings_mode = 0;
 
 static void send_mode(struct transport_tx *trans, struct link_device *dev)
 {
+  /** Old FBW status
+   * - bit 0: RC OK
+   * - bit 1: RC REALLY LOST
+   * - bit 2: FBW AUTO
+   * - bit 3: FBW FAILSAFE
+   * - bit 4: RC averaged channels sent
+   */
+  uint8_t mcu1_status = 0;
+#ifdef RADIO_CONTROL
+  mcu1_status |= (radio_control.status == RC_OK ? (1<<0) : 0);
+  mcu1_status |= (radio_control.status == RC_REALLY_LOST ? (1<<2) : 0);
+  mcu1_status |= (radio_control.status == RC_OK ? (1<<4) : 0);
+#endif
+#ifdef AP_MODE_MANUAL
+  mcu1_status |= (autopilot_get_mode() == AP_MODE_MANUAL ? 0 : (1<<2));
+#endif
+
   pprz_msg_send_PPRZ_MODE(trans, dev, AC_ID,
                           &autopilot.mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
@@ -69,9 +85,9 @@ static void send_estimator(struct transport_tx *trans, struct link_device *dev)
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t throttle = 100 * autopilot.throttle / MAX_PPRZ;
-  float power = ap_electrical.vsupply * ap_electrical.current;
+  float power = electrical.vsupply * electrical.current;
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
-                       &throttle, &ap_electrical.vsupply, &ap_electrical.current, &power, &ap_electrical.charge, &ap_electrical.energy);
+                       &throttle, &electrical.vsupply, &electrical.current, &power, &electrical.charge, &electrical.energy);
 }
 
 // FIXME not the best place
@@ -101,6 +117,28 @@ static void send_airspeed(struct transport_tx *trans __attribute__((unused)),
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID, &airspeed, &zero, &zero, &zero);
 #endif
 }
+
+#if !INTERMCU_AP
+#include "modules/radio_control/radio_control.h"
+static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t fbw_mode = 1; // old FBW_AUTO
+#ifdef AP_MODE_MANUAL
+  if (autopilot_get_mode() == AP_MODE_MANUAL) { fbw_mode = 0; } // FBW Manual
+#endif
+#ifdef RADIO_CONTROL
+  uint8_t rc_status = radio_control.status;
+  uint8_t rc_rate = radio_control.frame_rate;
+#else
+  uint8_t rc_status = 0;
+  uint8_t rc_rate = 0;
+#endif
+  pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
+                           &rc_status, &rc_rate, &fbw_mode,
+                           &electrical.vsupply, &electrical.current);
+}
+#endif
+
 #endif /* PERIODIC_TELEMETRY */
 
 void autopilot_send_mode(void)
@@ -113,14 +151,6 @@ void autopilot_send_mode(void)
 
 void autopilot_firmware_init(void)
 {
-  ap_electrical.vsupply = 0.f;
-  ap_electrical.current = 0.f;
-  ap_electrical.charge  = 0.f;
-  ap_electrical.energy  = 0.f;
-
-  ap_electrical.bat_critical = false;
-  ap_electrical.bat_low = false;
-
 #if PERIODIC_TELEMETRY
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPRZ_MODE, send_mode);
@@ -130,6 +160,9 @@ void autopilot_firmware_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC_SETTINGS, send_rc_settings);
+#endif
+#if !INTERMCU_AP
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_fbw_status);
 #endif
 #endif
 }
@@ -160,12 +193,8 @@ void autopilot_firmware_init(void)
 /** monitor stuff run at 1Hz */
 void monitor_task(void)
 {
-  if (autopilot.flight_time) {
-    autopilot.flight_time++;
-  }
-
   static uint8_t t = 0;
-  if (ap_electrical.vsupply < CATASTROPHIC_BAT_LEVEL) {
+  if (electrical.vsupply < CATASTROPHIC_BAT_LEVEL) {
     t++;
   } else {
     t = 0;

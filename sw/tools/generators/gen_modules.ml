@@ -312,21 +312,65 @@ let print_event_functions = fun out modules ->
 
 let print_datalink_functions = fun out modules ->
   lprintf out "\n#include \"pprzlink/messages.h\"\n";
+  lprintf out "\n#include \"pprzlink/dl_protocol.h\"\n";
+  lprintf out "\n#include \"pprzlink/intermcu_msg.h\"\n";
   lprintf out "#include \"generated/airframe.h\"\n";
-  lprintf out "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused)),
+  lprintf out "static inline void modules_parse_datalink(uint8_t msg_id __attribute__((unused)),
+                                          uint8_t class_id __attribute__((unused)),
                                           struct link_device *dev __attribute__((unused)),
                                           struct transport_tx *trans __attribute__((unused)),
                                           uint8_t *buf __attribute__((unused))) {\n";
   right ();
-  let else_ = ref "" in
+  let msgs = Hashtbl.create 3 in
   List.iter (fun m ->
     List.iter (fun d ->
-      lprintf out "%sif (msg_id == DL_%s) { %s; }\n" !else_ d.Module.message d.Module.func;
-      else_ := "else "
+      if not (Hashtbl.mem msgs d.Module.dl_class) then
+        Hashtbl.add msgs d.Module.dl_class (Hashtbl.create 15);
+      let c = Hashtbl.find msgs d.Module.dl_class in
+      let new_cb = (d.Module.func, d.Module.cond) in
+      if Hashtbl.mem c d.Module.message then
+        Hashtbl.replace c d.Module.message (new_cb :: Hashtbl.find c d.Module.message)
+      else
+        Hashtbl.add c d.Module.message [new_cb]
     ) m.Module.datalinks
   ) modules;
+
+  lprintf out "switch (class_id) {\n";
+  right ();
+  Hashtbl.iter (fun class_name msg_tbl ->
+    let class_name = match class_name with None -> "datalink" | Some x -> x in
+    lprintf out "case DL_%s_CLASS_ID: {\n" class_name;
+    right ();
+    lprintf out "switch (msg_id) {\n";
+    right ();
+    Hashtbl.iter (fun msg_name _ ->
+      if compare msg_name "*" != 0 then begin (* skip wildcard *)
+        lprintf out "case DL_%s: {\n" msg_name;
+        right ();
+        List.iter (fun (cb, cond) ->
+          lprintf_with_cond out cb cond;
+        ) (Hashtbl.find msg_tbl msg_name);
+        lprintf out "break;\n";
+        left ();
+        lprintf out "}\n" (* close msg case *)
+      end
+    ) msg_tbl;
+    lprintf out "default: break;\n";
+    left ();
+    lprintf out "}\n"; (* close msg switch *)
+    Hashtbl.iter (fun msg_name _ ->
+      if compare msg_name "*" = 0 then (* callbacks for wildcard *)
+        List.iter (fun (cb, cond) -> lprintf_with_cond out cb cond) (Hashtbl.find msg_tbl msg_name)
+    ) msg_tbl;
+    left ();
+    lprintf out "  break;\n";
+    lprintf out "}\n"; (* close class case *)
+  ) msgs;
+  lprintf out "default: break;\n";
   left ();
-  lprintf out "}\n"
+  lprintf out "}\n"; (* close class switch *)
+  left ();
+  lprintf out "}\n" (* close function *)
 
 let parse_modules out modules =
   print_headers out modules;

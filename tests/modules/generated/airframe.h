@@ -17,6 +17,11 @@
 #define COMMAND_YAW 2
 #define COMMAND_THRUST 3
 
+#define SetCommandsFromRC(_commands_array, _rc_array) { }
+#define AllActuatorsInit() { }
+#define AllActuatorsCommit() { }
+#define SetActuatorsFromCommands(values, AP_MODE) { }
+
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #define DEFAULT_CIRCLE_RADIUS 80.
 #define NOMINAL_AIRSPEED 12.

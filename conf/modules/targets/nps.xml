@@ -42,6 +42,7 @@ VPATH += $(PAPARAZZI_SRC)/sw/simulator
     </raw>
     <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
     <define name="USE_BARO_BOARD" value="FALSE"/>
+    <define name="AP"/>
     <define name="SITL"/>
     <define name="USE_NPS"/>
     <flag name="LDFLAGS" value="lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas"/>

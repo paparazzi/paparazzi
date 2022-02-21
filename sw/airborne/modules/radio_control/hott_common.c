@@ -35,8 +35,8 @@
 
 #define HOTT_STATUS_UNINIT      0
 #define HOTT_STATUS_GOT_START   1
-#define HOTT_STATUS_GOT_HEADER1   2
-#define HOTT_STATUS_DATA   3
+#define HOTT_STATUS_GOT_HEADER1 2
+#define HOTT_STATUS_DATA        3
 
 
 void hott_common_init(struct SHott *hott_p, struct uart_periph *dev)
@@ -49,11 +49,10 @@ void hott_common_init(struct SHott *hott_p, struct uart_periph *dev)
 }
 
 #define HOTT_CRC_POLYNOME 0x1021
-/******************************************
-************************************* 
-* Function Name : CRC16 
-* Description : crc calculation, adds a 8 bit unsigned to 16 bit crc 
-*******************************************************************************/ 
+/*******************************************************************************
+* Function Name : CRC16
+* Description : crc calculation, adds a 8 bit unsigned to 16 bit crc
+*******************************************************************************/
 static uint16_t hott_CRC16(uint16_t crc, uint8_t value)
 {
   uint8_t i;
@@ -108,31 +107,30 @@ void hott_common_decode_event(struct SHott *hott_p, struct uart_periph *dev)
           if (rbyte == HOTT_START_BYTE) {
             hott_p->status++;
             hott_p->expected_channels = 0;
-            hott_p->buffer[hott_p->idx] = rbyte; // store header for crc 
+            hott_p->buffer[hott_p->idx] = rbyte; // store header for crc
             hott_p->idx++;
           }
           break;
         case HOTT_STATUS_GOT_START:
           if (rbyte ==0x01 || rbyte ==0x81) { // hott status
               /*
-               * SUMD_Header Byte 1 Status 
+               * SUMD_Header Byte 1 Status
                * 0x01: valid and live SUMD data frame
-               * 0x81: valid SUMD data frame with transmitter in fail safe condition. 
+               * 0x81: valid SUMD data frame with transmitter in fail safe condition.
                * Note:
-               * The SUMD_Data section contains 
-               * valid channel data. The channel data are 
-               * set by transmitter fail safe values. A FBL 
-               * system may replace the transmitter fail safe 
+               * The SUMD_Data section contains
+               * valid channel data. The channel data are
+               * set by transmitter fail safe values. A FBL
+               * system may replace the transmitter fail safe
                * data by FBL stored values
-               * 
-               * other values: Values different to 0x01 or 0x81 indicate an invalid SUMD data frame and 
+               *
+               * other values: Values different to 0x01 or 0x81 indicate an invalid SUMD data frame and
                * should not be  processed by SUMD algorithms
                * */
             hott_p->buffer[hott_p->idx] = rbyte; // store byte for CRC
             hott_p->idx++;
             hott_p->status++;
-          } else 
-          {
+          } else {
               hott_p->status=0; // reset
           }
           break;

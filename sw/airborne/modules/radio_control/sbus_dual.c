@@ -26,6 +26,7 @@
 
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/sbus_dual.h"
+#include "modules/core/abi.h"
 #include BOARD_CONFIG
 #include "mcu_periph/uart.h"
 #include <string.h>
@@ -60,10 +61,11 @@ static void send_sbus(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Init function
-void radio_control_impl_init(void)
+void sbus_dual_init(void)
 {
   sbus_common_init(&sbus1, &SBUS1_UART_DEV, RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
   sbus_common_init(&sbus2, &SBUS2_UART_DEV, RC2_POLARITY_GPIO_PORT, RC2_POLARITY_GPIO_PIN);
+  radio_control.nb_channel = SBUS_NB_CHANNEL;
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
@@ -77,7 +79,7 @@ static inline void sbus_dual_decode_event(void)
   sbus_common_decode_event(&sbus2, &SBUS2_UART_DEV);
 }
 
-void radio_control_impl_event(void (* _received_frame_handler)(void))
+void sbus_dual_event(void)
 {
   sbus_dual_decode_event();
   if (sbus2.frame_available) {
@@ -88,7 +90,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     } else {
       radio_control.status = RC_OK;
       NormalizePpmIIR(sbus2.pulses, radio_control);
-      _received_frame_handler();
+      AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_SBUS_DUAL_ID, &radio_control);
     }
     sbus2.frame_available = false;
   }
@@ -100,7 +102,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     } else {
       radio_control.status = RC_OK;
       NormalizePpmIIR(sbus1.pulses, radio_control);
-      _received_frame_handler();
+      AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_SBUS_DUAL_ID, &radio_control);
     }
     sbus1.frame_available = false;
   }

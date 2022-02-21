@@ -31,4 +31,15 @@
 
 extern struct Sbus sbus1, sbus2;
 
-#endif /* RC_SBUS_H */
+/**
+ * RC init function.
+ */
+extern void sbus_dual_init(void);
+
+/**
+ * RC event function.
+ */
+extern void sbus_dual_event(void);
+
+
+#endif /* RC_SBUS_DUAL_H */

@@ -7,7 +7,6 @@
 
       Define USE_DSMX on STM32 microcontrollers to bind in DSMX instead of DSM2
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT" value="uartX" description="UART for primary spektrum receiver"/>
     <configure name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="uartX" description="UART for optional secondary spektrum receiver"/>
     <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0|1" description="enable secondary receiver (default: disabled)"/>
@@ -15,19 +14,15 @@
     <define name="SPEKTRUM_SYS_TYPE" value="0" description="force system type (default: 0 for auto detect)"/>
   </doc>
   <dep>
-    <depends>uart</depends>
+    <depends>uart,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="spektrum.h"/>
   </header>
-  <makefile target="ap|fbw|sim|nps|test_radio_control">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-  </makefile>
-  <makefile target="fbw|test_radio_control">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/spektrum.h" type="string"/>
+  <init fun="spektrum_init()"/>
+  <event fun="spektrum_event()"/>
+  <makefile target="ap|fbw|test_radio_control">
     <define name="RADIO_CONTROL_BIND_IMPL_FUNC" value="spektrum_try_bind"/>
 
     <configure name="SPEKTRUM_PRIMARY_UART" value="$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)" case="upper|lower"/>
@@ -45,36 +40,9 @@
     <define name="$(SPEKTRUM_SECONDARY_UART_UPPER)_BAUD" value="B115200" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
     <define name="USE_$(SPEKTRUM_SECONDARY_UART_UPPER)_TX" value="FALSE" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
 
-    <file name="radio_control.c"/>
-    <file name="spektrum.c"/>
-  </makefile>
-  <makefile target="ap">
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/spektrum.h" type="string"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_BIND_IMPL_FUNC" value="spektrum_try_bind"/>
-
-    <configure name="SPEKTRUM_PRIMARY_UART" value="$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)" case="upper|lower"/>
-    <define name="USE_$(SPEKTRUM_PRIMARY_UART_UPPER)"/>
-    <define name="SPEKTRUM_PRIMARY_UART"  value="$(SPEKTRUM_PRIMARY_UART_LOWER)"/>
-    <define name="SPEKTRUM_PRIMARY_UART_UPPER"  value="$(SPEKTRUM_PRIMARY_UART_UPPER)_GPIO"/>
-    <define name="$(SPEKTRUM_PRIMARY_UART_UPPER)_BAUD" value="B115200"/>
-    <define name="USE_$(SPEKTRUM_PRIMARY_UART_UPPER)_TX" value="FALSE"/>
-
-    <configure name="SPEKTRUM_SECONDARY_UART" value="$(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT)" case="upper|lower"/>
-    <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" default="0"/>
-    <define name="USE_$(SPEKTRUM_SECONDARY_UART_UPPER)" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
-    <define name="SPEKTRUM_SECONDARY_UART"  value="$(SPEKTRUM_SECONDARY_UART_LOWER)" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
-    <define name="SPEKTRUM_SECONDARY_UART_UPPER"  value="$(SPEKTRUM_SECONDARY_UART_UPPER)_GPIO" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
-    <define name="$(SPEKTRUM_SECONDARY_UART_UPPER)_BAUD" value="B115200" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
-    <define name="USE_$(SPEKTRUM_SECONDARY_UART_UPPER)_TX" value="FALSE" cond="ifneq ($(USE_SECONDARY_SPEKTRUM_RECEIVER),0)"/>
-    
-    <file name="radio_control.c"/>
     <file name="spektrum.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/spektrum.h" type="string"/>
       <define name="SPEKTRUM_PRIMARY_UART" value="uart2"/>
       <define name="SPEKTRUM_SECONDARY_UART" value="uart3"/>
       <define name="USE_UART2"/>
@@ -86,13 +54,9 @@
     </test>
   </makefile>
   <makefile target="sim|nps|hitl">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/spektrum_arch.h" type="string"/>
-    <file name="radio_control.c"/>
     <file_arch name="spektrum_arch.c" dir="modules/radio_control"/>
     <test>
       <define name="RADIO_CONTROL"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/spektrum.h" type="string"/>
     </test>
   </makefile>
 </module>

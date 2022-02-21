@@ -5,13 +5,19 @@
     <description>
       Core system components meta module
 
-      Includes: sys_time, commands interfaces
+      Includes: sys_time, commands, LED interfaces
     </description>
   </doc>
   <dep>
     <depends>mcu,math,state_interface,@actuators|@intermcu,settings|@no_settings</depends>
     <provides>core</provides>
   </dep>
+  <header>
+    <file name="commands.h"/>
+    <file name="led.h" dir="."/>
+  </header>
+  <init fun="commands_init()"/>
+  <periodic fun="LED_PERIODIC()" freq="50"/>
   <makefile>
     <configure name="SRC_BOARD" value="boards/$(BOARD)"/>
     <configure name="SRC_MODULES" value="modules"/>
@@ -21,7 +27,10 @@
     <include name="$(SRC_BOARD)"/>
     <include name="$(SRC_MODULES)"/>
     <file name="sys_time.c" dir="mcu_periph"/>
+    <file name="commands.c"/>
     <file_arch name="sys_time_arch.c" dir="mcu_periph"/>
+    <file_arch name="led_hw.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
+    <file_arch name="led_hw.c" dir="." cond="ifeq ($(TARGET), sim)"/>
     <flag name="LDFLAGS" value="lrt" cond="ifeq ($(ARCH), linux)"/>
     <raw>
 VPATH += $(PAPARAZZI_HOME)/var/share
@@ -30,17 +39,8 @@ $(TARGET).ARCHDIR = $(ARCH)
     </raw>
     <test/>
   </makefile>
-  <makefile target="fbw" firmware="fixedwing">
-    <file name="commands.c"/>
-  </makefile>
-  <makefile target="ap|sim|nps|hitl" firmware="fixedwing" cond="ifeq (,$(findstring $(SEPARATE_FBW),0 FALSE))">
-    <file name="commands.c"/>
-  </makefile>
-  <makefile firmware="rotorcraft">
-    <file name="commands.c"/>
-  </makefile>
-  <makefile firmware="rover">
-    <file name="commands.c"/>
+  <makefile target="!nps|sim">
+    <define name="USE_LED"/>
   </makefile>
 </module>
 

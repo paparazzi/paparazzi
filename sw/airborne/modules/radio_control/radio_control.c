@@ -26,8 +26,20 @@
  */
 
 #include "modules/radio_control/radio_control.h"
+#include "led.h"
+
+//PRINT_CONFIG_VAR(RADIO_CONTROL_NB_CHANNEL)
 
 struct RadioControl radio_control;
+
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+
+static void send_rc(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_RC(trans, dev, AC_ID, radio_control.nb_channel, radio_control.values);
+}
+#endif
 
 void radio_control_init(void)
 {
@@ -40,7 +52,11 @@ void radio_control_init(void)
   radio_control.radio_ok_cpt = 0;
   radio_control.frame_rate = 0;
   radio_control.frame_cpt = 0;
-  radio_control_impl_init();
+  radio_control.nb_channel = RADIO_CONTROL_NB_CHANNEL; // can be changed by selected RC module
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
+#endif
 }
 
 void radio_control_periodic_task(void)

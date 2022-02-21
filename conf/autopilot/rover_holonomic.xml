@@ -32,7 +32,6 @@
       </control>
       <control>
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
         <call fun="SetAPThrottleFromCommands(commands[COMMAND_SPEED_X], commands[COMMAND_SPEED_Y])"/>
       </control>
       <exception cond="RCLost()" deroute="KILL"/>
@@ -45,7 +44,6 @@
       </control>
       <control>
         <call fun="rover_holo_guidance_periodic()"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
       </control>
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
     </mode>
@@ -56,7 +54,6 @@
       </control>
       <control>
         <call fun="rover_holo_guidance_periodic()"/>
-        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
       </control>
       <exception cond="GpsIsLost()" deroute="KILL"/>
     </mode>

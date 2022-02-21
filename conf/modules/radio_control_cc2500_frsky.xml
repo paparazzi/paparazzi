@@ -36,7 +36,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
@@ -44,19 +44,17 @@
     <file name="cc2500_frsky/cc2500_paparazzi.h"/>
     <file name="cc2500_frsky/cc2500_settings.h"/>
   </header>
-  <init fun="cc2500_init()"/>
+  <init fun="radio_control_cc2500_init()"/>
+  <event fun="radio_control_cc2500_event()"/>
   <makefile target="ap|fbw|sim|nps">
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
   </makefile>
   <makefile target="ap|fbw">
-    <define name="RADIO_CONTROL"/>
     <define name="USE_$(CC2500_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/>
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c"/>
     <file name="cc2500.c" dir="peripherals"/>
     <file name="cc2500_frsky/cc2500_paparazzi.c"/>
     <file name="cc2500_frsky/cc2500_settings.c"/>
@@ -70,7 +68,6 @@
     <file name="cc2500_frsky/cc2500_smartport.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
       <define name="CC2500_SPI_DEV" value="spi1"/>
       <define name="CC2500_SPI_SLAVE_IDX" value="2"/>
       <define name="USE_SPI1"/>

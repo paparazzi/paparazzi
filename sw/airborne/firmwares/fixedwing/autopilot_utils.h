@@ -30,7 +30,6 @@
 #define AUTOPILOT_UTILS_H
 
 #include "std.h"
-#include "modules/intermcu/inter_mcu.h"
 #include "generated/airframe.h"
 
 /** Get mode from pulse
@@ -61,45 +60,45 @@
  */
 
 // COMMAND_ROLL
-#define AP_COMMAND_SET_ROLL(_roll) { ap_state->commands[COMMAND_ROLL] = _roll; }
+#define AP_COMMAND_SET_ROLL(_roll) { command_set(COMMAND_ROLL, _roll); }
 
 // COMMAND_PITCH
-#define AP_COMMAND_SET_PITCH(_pitch) { ap_state->commands[COMMAND_PITCH] = _pitch; }
+#define AP_COMMAND_SET_PITCH(_pitch) { command_set(COMMAND_PITCH, _pitch); }
 
 // COMMAND_YAW
 #if H_CTL_YAW_LOOP && defined COMMAND_YAW
-#define AP_COMMAND_SET_YAW(_yaw) { ap_state->commands[COMMAND_YAW] = _yaw; }
+#define AP_COMMAND_SET_YAW(_yaw) { command_set(COMMAND_YAW, _yaw); }
 #else
 #define AP_COMMAND_SET_YAW(_yaw) {}
 #endif
 
 // COMMAND_THROTTLE
 #define AP_COMMAND_SET_THROTTLE(_throttle) { \
-  ap_state->commands[COMMAND_THROTTLE] = _throttle; \
+  command_set(COMMAND_THROTTLE, _throttle); \
   autopilot.throttle = _throttle; \
 }
 
 // COMMAND_CL
 #if H_CTL_CL_LOOP && defined COMMAND_CL
-#define AP_COMMAND_SET_CL(_cl) { ap_state->commands[COMMAND_CL] = cl; }
+#define AP_COMMAND_SET_CL(_cl) { command_set(COMMAND_CL, _cl); }
 #else
 #define AP_COMMAND_SET_CL(_cl) {}
 #endif
 
 // ROLL setpoint from RADIO
 #define AP_SETPOINT_ROLL(_roll, _max) { \
-  _roll = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., _max); \
+  _roll = FLOAT_OF_PPRZ(radio_control_get(RADIO_ROLL), 0., _max); \
 }
 
 // PITCH setpoint from RADIO
 #define AP_SETPOINT_PITCH(_pitch, _max) { \
-  _pitch = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., _max); \
+  _pitch = FLOAT_OF_PPRZ(radio_control_get(RADIO_PITCH), 0., _max); \
 }
 
 // PITCH setpoint from RADIO
 #if H_CTL_YAW_LOOP && defined RADIO_YAW
 #define AP_SETPOINT_YAW_RATE(_yaw, _max) { \
-  _yaw = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., _max); \
+  _yaw = FLOAT_OF_PPRZ(radio_control_get(RADIO_YAW), 0., _max); \
 }
 #else
 #define AP_SETPOINT_YAW_RATE(_yaw, _max) {}
@@ -107,7 +106,7 @@
 
 // THROTTLE setpoint from RADIO
 #define AP_SETPOINT_THROTTLE(_throttle) { \
-  _throttle = fbw_state->channels[RADIO_THROTTLE]; \
+  _throttle = radio_control_get(RADIO_THROTTLE); \
 }
 
 

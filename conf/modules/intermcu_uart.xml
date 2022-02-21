@@ -4,78 +4,55 @@
   <doc>
     <description>
       Inter-MCU communication over UART
-
-      To enable this, please set the "SEPARATE_FBW" configure option to TRUE
-      in your airframe file for both AP and FBW targets
     </description>
-    <configure name="SEPARATE_FBW" value="FALSE|TRUE" description="Enable separation between AP and FBW on separated MCU"/>
     <configure name="INTERMCU_PORT" value="UARTx" description="UART used for inter mcu communication (default: UART2 for FBW, UART5 for AP)"/>
     <configure name="INTERMCU_BAUD" value="B57600" description="UART baud rate"/>
     <configure name="FBW_MODE_LED" value="none|num" description="LED number or 'none'"/>
   </doc>
-
   <dep>
-    <depends>uart</depends>
-    <provides>intermcu,commands,radio_control</provides>
+    <depends>uart,radio_control_intermcu,datalink_common</depends>
+    <provides>intermcu,commands</provides>
   </dep>
   <header>
-    <file name="intermcu.h" cond="ROTORCRAFT_FIRMWARE"/>
-    <file name="inter_mcu.h" cond="FIXEDWING_FIRMWARE"/>
+    <file name="intermcu.h"/>
+    <file name="intermcu_ap.h" cond="INTERMCU_AP"/>
+    <file name="intermcu_fbw.h" cond="INTERMCU_FBW"/>
   </header>
   <init fun="intermcu_init()"/>
   <periodic fun="intermcu_periodic()"/>
-  <makefile target="fbw" firmware="fixedwing">
-    <configure name="INTERMCU_PORT" default="UART2" case="upper|lower"/>
-    <configure name="FBW_MODE_LED" default="none"/>
-    <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
-    <define name="INTER_MCU_FBW"/>
-  </makefile>
-  <makefile target="ap" firmware="fixedwing">
-    <configure name="INTERMCU_PORT" default="UART5" case="upper|lower"/>
-    <define name="INTER_MCU_AP"/>
-  </makefile>
-  <makefile target="ap|fbw" firmware="fixedwing">
-    <raw>
-      ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))
-      $(error Using intermcu via UART, so dual mcu with separate fbw. Please set option "SEPARATE_FBW" to TRUE.
-      endif
-    </raw>
-    <configure name="INTERMCU_BAUD" default="B57600"/>
-    <define name="INTERMCU"/>
-    <define name="MCU_UART_LINK"/>
-    <define name="INTERMCU_LINK" value="$(INTERMCU_PORT_LOWER)"/>
-    <define name="USE_$(INTERMCU_PORT_UPPER)"/>
-    <define name="$(INTERMCU_PORT_UPPER)_BAUD" value="$(INTERMCU_BAUD)"/>
-    <file name="link_mcu_usart.c"/>
-  </makefile>
-
-  <makefile target="fbw" firmware="rotorcraft">
+  <periodic fun="intermcu_send_status()" freq="10." cond="INTERMCU_FBW"/>
+  <event fun="intermcu_event()"/>
+  <datalink message="IMCU_FBW_STATUS" fun="intermcu_parse_IMCU_FBW_STATUS(buf)" class="intermcu" cond="INTERMCU_AP"/>
+  <datalink message="IMCU_COMMANDS" fun="intermcu_parse_IMCU_COMMANDS(buf)" class="intermcu" cond="INTERMCU_FBW"/>
+  <datalink message="IMCU_SPEKTRUM_SOFT_BIND" fun="intermcu_parse_IMCU_SPEKTRUM_SOFT_BIND(buf)" class="intermcu" cond="INTERMCU_FBW"/>
+  <datalink message="*" fun="intermcu_forward_uplink(buf)" cond="INTERMCU_FBW"/>
+  <makefile target="ap|fbw">
     <configure name="INTERMCU_PORT" default="UART3" case="upper|lower"/>
-    <configure name="FBW_MODE_LED" default="none"/>
-    <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
-    <define name="INTER_MCU_FBW"/>
-    <define name="DOWNLINK"/>
-    <file name="intermcu_fbw.c"/>
-  </makefile>
-  <makefile target="ap" firmware="rotorcraft">
-    <configure name="INTERMCU_PORT" default="UART3" case="upper|lower"/>
-    <configure name="RADIO_CONTROL_LED" value="none"/>
-    <define name="INTER_MCU_AP"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/intermcu/intermcu_ap.h" type="string"/>
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="GPS_SECONDARY_TYPE_H" value="modules/intermcu/intermcu_ap.h" type="string" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
-    <define name="SECONDARY_GPS" value="GPS_IMCU" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
-    <define name="IMCU_GPS" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
-    <file name="intermcu_ap.c"/>
-    <file name="radio_control.c" dir="modules/radio_control"/>
-  </makefile>
-  <makefile target="ap|fbw" firmware="rotorcraft">
     <configure name="INTERMCU_BAUD" default="B230400"/>
     <define name="INTERMCU_LINK" value="$(INTERMCU_PORT_LOWER)"/>
     <define name="USE_$(INTERMCU_PORT_UPPER)"/>
     <define name="$(INTERMCU_PORT_UPPER)_BAUD" value="$(INTERMCU_BAUD)"/>
+    <define name="DOWNLINK_DEVICE" value="$(INTERMCU_LINK)" cond="ifndef MODEM_PORT"/>
+    <define name="DOWNLINK_TRANSPORT" value="intermcu.transport" cond="ifndef MODEM_PORT"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+  <makefile target="fbw">
+    <configure name="FBW_MODE_LED" default="none"/>
+    <define name="FBW_MODE_LED" value="$(FBW_MODE_LED)" cond="ifneq ($(FBW_MODE_LED),none)"/>
+    <define name="INTERMCU_FBW"/>
+    <file name="intermcu_fbw.c"/>
+    <test firmware="fixedwing">
+      <define name="INTERMCU_LINK" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+  <makefile target="ap">
+    <define name="INTERMCU_AP"/>
+    <file name="intermcu_ap.c"/>
+    <test firmware="fixedwing">
+      <define name="INTERMCU_LINK" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
   </makefile>
 </module>
 

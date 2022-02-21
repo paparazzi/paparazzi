@@ -5,7 +5,6 @@
     <description>
       Radio control based on the SuperbitRF chip
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="SUPERBITRF_SPI_DEV" value="SPI2" description="SPI used for SuperbitRF"/>
     <configure name="SUPERBITRF_SPI_SLAVE_IDX" value="2" description="SPI slave number for SuperbitRF"/>
   </doc>
@@ -20,37 +19,24 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>spi_master</depends>
+    <depends>spi_master,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="superbitrf_rc.h"/>
   </header>
+  <init fun="superbitrf_rc_init()"/>
+  <event fun="superbitrf_rc_event()"/>
   <makefile target="ap|fbw|sim|nps">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="SUPERBITRF_SPI_DEV" default="SPI2"/>
     <configure name="SUPERBITRF_SPI_SLAVE_IDX" default="2"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/superbitrf_rc.h" type="string"/>
   </makefile>
-  <makefile target="fbw">
-    <define name="RADIO_CONTROL"/>
+  <makefile target="ap|fbw">
     <define name="RADIO_CONTROL_TYPE_SUPERBITRF"/>
     <define name="USE_SUPERBITRF"/>
     <define name="USE_$(SUPERBITRF_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c"/>
-    <file name="superbitrf_rc.c"/>
-    <file name="superbitrf.c" dir="modules/datalink"/>
-    <file name="cyrf6936.c" dir="peripherals"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_SUPERBITRF"/>
-    <define name="USE_SUPERBITRF"/>
-    <define name="USE_$(SUPERBITRF_SPI_DEV)"/>
-    <define name="USE_SPI_SLAVE$(SUPERBITRF_SPI_SLAVE_IDX)"/>
-    <file name="radio_control.c"/>
     <file name="superbitrf_rc.c"/>
     <file name="superbitrf.c" dir="modules/datalink"/>
     <file name="cyrf6936.c" dir="peripherals"/>
@@ -58,7 +44,6 @@
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_SUPERBITRF"/>
       <define name="USE_SUPERBITRF"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/superbitrf_rc.h" type="string"/>
       <define name="SUPERBITRF_SPI_DEV" value="spi2"/>
       <define name="USE_SPI2"/>
       <define name="SPI_MASTER"/>

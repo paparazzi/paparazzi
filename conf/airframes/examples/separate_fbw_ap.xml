@@ -205,8 +205,6 @@
     <target name="ap" board="lisa_m_2.0">
       <define name="LISA_M_LONGITUDINAL_X"/>
 
-      <configure name="SEPARATE_FBW" value="1"/>
-
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
@@ -227,6 +225,17 @@
       </module>
       <module name="gps" type="ubx_ucenter"/>
 
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
+        <configure name="MODEM_PORT" value="$(INTERMCU_PORT)"/>
+        <define name="TELEMETRY_DISABLE_RX"/>
+      </module>
+      <!--
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART2"/>
+      </module>
+      <module name="telemetry" type="intermcu"/>
+      -->
 
       <module name="control"/>
       <module name="navigation"/>
@@ -234,38 +243,43 @@
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
-      <configure name="SEPARATE_FBW" value="1"/>
-
       <configure name="SYS_TIME_LED" value="2"/>
       <define name="RADIO_CONTROL_LED" value="4"/>
       <define name="LINK_MCU_LED" value="3"/>
-
-      <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
-      <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1"/>
 
       <!-- split of ap/fbw specific modules for fbw -->
       <module name="actuators" type="pwm"/>
       <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
       </module>
+
+      <!-- Communication -->
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART5"/>
+      </module>
+      <module name="telemetry" type="intermcu"/>
+      <!--
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="$(INTERMCU_PORT)"/>
+        <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
+        <define name="TELEMETRY_DISABLE_RX"/>
+      </module>
+      -->
+
+      <module name="radio_control" type="spektrum"/>
+
     </target>
 
     <target name="sim" board="pc">
       <module name="control"/>
       <module name="navigation"/>
 
-      <module name="gps" type="ublox">
-        <configure name="GPS_PORT" value="UART1"/>
-      </module>
+      <module name="gps" type="ublox"/>
 
+      <module name="radio_control" type="ppm"/>
+      <module name="telemetry" type="sim"/>
     </target>
     
-          <!--
-    <module name="adc_generic">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
-      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
-    </module>
--->
     <module name="light">
       <define name="LIGHT_LED_STROBE" value="2"/>
       <define name="LIGHT_LED_NAV" value="3"/>
@@ -292,16 +306,6 @@
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
-
-    <module name="radio_control" type="spektrum">
-      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-    </module>
-
-    <!-- Communication -->
-    <module name="telemetry" type="transparent">
-      <configure name="MODEM_BAUD" value="B9600"/>
-      <configure name="MODEM_PORT" value="UART2"/>
-    </module>
 
     <!-- Sensors -->
     <module name="imu" type="aspirin_v2.1"/>

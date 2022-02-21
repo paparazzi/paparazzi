@@ -27,7 +27,6 @@
 #include "modules/core/rc_settings.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
-#include "modules/intermcu/inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
 uint8_t rc_settings_mode = 0;
@@ -39,7 +38,7 @@ float slider_1_val, slider_2_val;
 #define ParamValFloat(param_init_val, param_travel, cur_pulse, init_pulse) \
   (param_init_val + ((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ)
 
-#define RcChannel(x) (imcu_get_radio(x))
+#define RcChannel(x) (radio_control_get(x))
 
 /** Includes generated code from tuning_rc.xml */
 #include "generated/settings.h"

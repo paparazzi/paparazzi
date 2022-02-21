@@ -7,7 +7,7 @@
     </description>
   </doc>
   <dep>
-    <depends>i2c,baro_board_common</depends>
+    <depends>i2c,baro_board_common,hard_fault_recovery</depends>
     <provides>baro</provides>
   </dep>
   <makefile target="!sim|nps|fbw">

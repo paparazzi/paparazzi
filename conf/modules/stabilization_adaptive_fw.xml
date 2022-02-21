@@ -33,9 +33,9 @@
     <dl_settings>
       <dl_settings NAME="control horiz">
         <dl_settings NAME="trim">
-          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_roll_trim" shortname="roll_trim" module="modules/intermcu/inter_mcu" param="COMMAND_ROLL_TRIM"/>
-          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
-          <dl_setting MAX="9000" MIN="-9000" STEP="1" VAR="ap_state->command_yaw_trim" shortname="yaw_trim" param="COMMAND_YAW_TRIM"/>
+          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_roll_trim" shortname="roll_trim" module="modules/core/commands" param="COMMAND_ROLL_TRIM"/>
+          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
+          <dl_setting MAX="9000" MIN="-9000" STEP="1" VAR="command_yaw_trim" shortname="yaw_trim" param="COMMAND_YAW_TRIM"/>
         </dl_settings>
         <dl_settings NAME="attitude">
           <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll_pgain" param="H_CTL_ROLL_ATTITUDE_GAIN" module="stabilization/stabilization_attitude"/>

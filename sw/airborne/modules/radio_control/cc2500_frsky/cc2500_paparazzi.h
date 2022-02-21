@@ -33,8 +33,8 @@
 #define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
 #endif
 
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
-
+extern void radio_control_cc2500_init(void);
+extern void radio_control_cc2500_event(void);
 
 #endif // RADIO_CONTROL_CC2500_PAPARAZZI_H
+

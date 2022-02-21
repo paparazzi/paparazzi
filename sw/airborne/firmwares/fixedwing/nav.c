@@ -34,11 +34,13 @@ static unit_t unit __attribute__((unused));
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
-#include "modules/intermcu/inter_mcu.h"
 #include "modules/gps/gps.h"
 
 #include "generated/flight_plan.h"
 
+#if !USE_GENERATED_AUTOPILOT
+PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
+#endif
 
 enum oval_status oval_status;
 
@@ -172,20 +174,20 @@ void nav_glide(uint8_t start_wp, uint8_t wp)
 
 #define Goto3D(radius) {                                                \
     if (autopilot_get_mode() == AP_MODE_AUTO2) {                                 \
-      int16_t yaw = imcu_get_radio(RADIO_YAW);                          \
+      int16_t yaw = radio_control_get(RADIO_YAW);                          \
       if (yaw > MIN_DX || yaw < -MIN_DX) {                              \
         carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.);                        \
         carrot_x = Min(carrot_x, MAX_DIST_CARROT);                      \
         carrot_x = Max(carrot_x, -MAX_DIST_CARROT);                     \
       }                                                                 \
-      int16_t pitch = imcu_get_radio(RADIO_PITCH);                      \
+      int16_t pitch = radio_control_get(RADIO_PITCH);                      \
       if (pitch > MIN_DX || pitch < -MIN_DX) {                          \
         carrot_y += FLOAT_OF_PPRZ(pitch, 0, -20.);                      \
         carrot_y = Min(carrot_y, MAX_DIST_CARROT);                      \
         carrot_y = Max(carrot_y, -MAX_DIST_CARROT);                     \
       }                                                                 \
       v_ctl_mode = V_CTL_MODE_AUTO_ALT;                                 \
-      int16_t roll =  imcu_get_radio(RADIO_ROLL);                       \
+      int16_t roll =  radio_control_get(RADIO_ROLL);                       \
       if (roll > MIN_DX || roll < -MIN_DX) {                            \
         nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);                   \
         nav_altitude = Max(nav_altitude, MIN_HEIGHT_CARROT+ground_alt); \

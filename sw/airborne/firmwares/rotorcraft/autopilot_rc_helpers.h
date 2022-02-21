@@ -30,6 +30,7 @@
 
 #include "generated/airframe.h"
 #include "modules/radio_control/radio_control.h"
+#include "generated/modules.h"
 
 #define AUTOPILOT_THROTTLE_THRESHOLD      (MAX_PPRZ / 20)
 #define AUTOPILOT_YAW_THRESHOLD           (MAX_PPRZ * 19 / 20)

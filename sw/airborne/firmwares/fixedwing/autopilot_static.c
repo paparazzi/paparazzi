@@ -29,8 +29,6 @@
 #include "autopilot.h"
 #include "firmwares/fixedwing/autopilot_static.h"
 
-#include "modules/intermcu/inter_mcu.h"
-#include "modules/intermcu/link_mcu.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
@@ -42,17 +40,10 @@
 #if USE_GPS
 #include "modules/gps/gps.h"
 #endif
-static bool gps_lost;
 
 #include "modules/datalink/downlink.h"
 
-#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
-static uint8_t  mcu1_ppm_cpt;
-#endif
-
 static inline uint8_t pprz_mode_update(void);
-static inline uint8_t mcu1_status_update(void);
-static inline void copy_from_to_fbw(void);
 
 /** mode to enter when RC is lost in AP_MODE_MANUAL or AP_MODE_AUTO1 */
 #ifndef RC_LOST_MODE
@@ -90,9 +81,7 @@ void autopilot_event(void)
 void autopilot_static_init(void)
 {
   autopilot.mode = AP_MODE_AUTO2;
-
   lateral_mode = LATERAL_MODE_MANUAL;
-  gps_lost = false;
 
   ///@todo: properly implement/fix a triggered attitude loop
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
@@ -110,44 +99,12 @@ void autopilot_static_periodic(void)
  */
 void autopilot_static_on_rc_frame(void)
 {
-  uint8_t mode_changed = false;
-  copy_from_to_fbw();
-
-  /* rc_lost_while_in_use is true if we lost RC in MANUAL or AUTO1 */
-  uint8_t rc_lost_while_in_use = bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST) &&
-                        (autopilot_get_mode() == AP_MODE_AUTO1 || autopilot_get_mode() == AP_MODE_MANUAL);
-
-  /* RC_LOST_MODE defaults to AP_MODE_HOME, but it can also be set to NAV_MODE_NAV or MANUAL when the RC receiver is well configured to send failsafe commands */
-  if (rc_lost_while_in_use) { // Always: no exceptions!
-    mode_changed = autopilot_set_mode(RC_LOST_MODE);
-  }
-
-#ifdef RADIO_KILL_SWITCH
-  if (imcu_get_radio(RADIO_KILL_SWITCH) < MIN_PPRZ / 2) {
-    autopilot_set_kill_throttle(true);
-  }
+  // Send back uncontrolled channels.
+#ifdef SetAutoCommandsFromRC
+  SetAutoCommandsFromRC(commands, radio_control.values);
+#elif defined RADIO_YAW && defined COMMAND_YAW
+  command_set(COMMAND_YAW, radio_control_get(RADIO_YAW));
 #endif
-
-  /* If in-flight, with good GPS but too far, then activate HOME mode
-   * In MANUAL with good RC, FBW will allow to override. */
-  if (autopilot_get_mode() != AP_MODE_HOME && autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER && autopilot.launch) {
-    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
-      mode_changed = autopilot_set_mode(AP_MODE_HOME);
-    }
-  }
-  if (bit_is_set(imcu_get_status(), AVERAGED_CHANNELS_SENT)) {
-    bool pprz_mode_changed = pprz_mode_update();
-    mode_changed |= pprz_mode_changed;
-#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-    PPRZ_MUTEX_LOCK(fbw_state_mtx);
-    bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
-    PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
-    rc_settings(calib_mode_changed || pprz_mode_changed);
-    mode_changed |= calib_mode_changed;
-#endif
-  }
-  mode_changed |= mcu1_status_update();
-  if (mode_changed) { autopilot_send_mode(); }
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -155,38 +112,27 @@ void autopilot_static_on_rc_frame(void)
    */
   if (autopilot_get_mode() == AP_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_ROLL), 0., AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(radio_control_get(RADIO_ROLL), 0., AUTO1_MAX_ROLL);
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-    h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_PITCH), 0., AUTO1_MAX_PITCH);
+    h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(radio_control_get(RADIO_PITCH), 0., AUTO1_MAX_PITCH);
 #if H_CTL_YAW_LOOP && defined RADIO_YAW
     /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
-    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_YAW), 0., AUTO1_MAX_YAW_RATE);
+    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(radio_control_get(RADIO_YAW), 0., AUTO1_MAX_YAW_RATE);
 #endif
-  } /** Else asynchronously set by \a h_ctl_course_loop() */
+    // Note that old SetApOnlyCommands is no longer needed without a separated FBW
+  } else if (autopilot_get_mode() == AP_MODE_MANUAL) {
+    // Set commands from RC in MANUAL mode
+    SetCommandsFromRC(commands, radio_control.values);
+  }
+  /** Else asynchronously set by \a h_ctl_course_loop() */
 
   /** In AUTO1, throttle comes from RADIO_THROTTLE
       In MANUAL, the value is copied to get it in the telemetry */
   if (autopilot_get_mode() == AP_MODE_MANUAL || autopilot_get_mode() == AP_MODE_AUTO1) {
-    v_ctl_throttle_setpoint = imcu_get_radio(RADIO_THROTTLE);
+    v_ctl_throttle_setpoint = radio_control_get(RADIO_THROTTLE);
   }
   /** else asynchronously set by v_ctl_climb_loop(); */
-
-  mcu1_ppm_cpt = imcu_get_ppm_cpt();
-#endif // RADIO_CONTROL
-
-  // update electrical from FBW
-  imcu_get_electrical(&ap_electrical);
-
-#ifdef RADIO_CONTROL
-  /* the SITL check is a hack to prevent "automatic" launch in NPS */
-#ifndef SITL
-  if (!autopilot.flight_time) {
-    if (autopilot_get_mode() == AP_MODE_AUTO2 && imcu_get_radio(RADIO_THROTTLE) > THROTTLE_THRESHOLD_TAKEOFF) {
-      autopilot.launch = true;
-    }
-  }
-#endif
 #endif
 }
 
@@ -210,37 +156,11 @@ void autopilot_static_set_motors_on(bool motors_on)
   autopilot.motors_on = motors_on;
 }
 
-#ifdef FAILSAFE_DELAY_WITHOUT_GPS
-#define GpsTimeoutError (sys_time.nb_sec - gps.last_3dfix_time > FAILSAFE_DELAY_WITHOUT_GPS)
-#endif
-
 /**
  *  Compute desired_course
  */
 void navigation_task(void)
 {
-#if defined FAILSAFE_DELAY_WITHOUT_GPS
-  /** This section is used for the failsafe of GPS */
-  static uint8_t last_pprz_mode;
-
-  /** If aircraft is launched and is in autonomus mode, go into
-      AP_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
-  if (autopilot.launch) {
-    if (GpsTimeoutError) {
-      if (autopilot_get_mode() == AP_MODE_AUTO2 || autopilot_get_mode() == AP_MODE_HOME) {
-        last_pprz_mode = autopilot_get_mode();
-        autopilot_set_mode(AP_MODE_GPS_OUT_OF_ORDER);
-        autopilot_send_mode();
-        gps_lost = true;
-      }
-    } else if (gps_lost) { /* GPS is ok */
-      /** If aircraft was in failsafe mode, come back in previous mode */
-      autopilot_set_mode(last_pprz_mode);
-      gps_lost = false;
-      autopilot_send_mode();
-    }
-  }
-#endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
 
   common_nav_periodic_task();
   if (autopilot_get_mode() == AP_MODE_HOME) {
@@ -266,8 +186,9 @@ void navigation_task(void)
     v_ctl_altitude_loop();
   }
 
-  if (autopilot_get_mode() == AP_MODE_AUTO2 || autopilot_get_mode() == AP_MODE_HOME
-      || autopilot_get_mode() == AP_MODE_GPS_OUT_OF_ORDER) {
+  if (autopilot_get_mode() == AP_MODE_AUTO2 ||
+      autopilot_get_mode() == AP_MODE_HOME ||
+      autopilot_get_mode() == AP_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
     h_ctl_auto1_rate = false;
@@ -279,10 +200,110 @@ void navigation_task(void)
   }
 }
 
+/** Failsafe checks
+ *
+ * Checks order:
+ * - mode from RC
+ * - RC lost (if MANUAL or AUTO1)
+ * - RC kill switch (any case)
+ * - launch detect from RC
+ * - GPS lost (if AUTO2 or HOME)
+ * - too far from HOME (if not HOME or not GPS_OUT_OF_ORDER)
+ *
+ * send mode if changed at the end
+ */
+void autopilot_failsafe_checks(void)
+{
+  uint8_t mode_changed = false;
+
+#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
+  /* check normal mode from RC channel(s)
+   */
+  if (!RadioControlIsLost()) {
+    bool pprz_mode_changed = pprz_mode_update();
+    mode_changed |= pprz_mode_changed;
+#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+    bool calib_mode_changed = RcSettingsModeUpdate(radio_control.values);
+    rc_settings(calib_mode_changed || pprz_mode_changed);
+    mode_changed |= calib_mode_changed;
+#endif
+  }
+
+  /* RC lost while in use is true if we lost RC in MANUAL or AUTO1
+   *
+   * RC_LOST_MODE defaults to AP_MODE_HOME, but it can also be set to NAV_MODE_NAV or MANUAL when the RC receiver is well configured to send failsafe commands
+  */
+  if (RadioControlIsLost() &&
+      (autopilot_get_mode() == AP_MODE_AUTO1 ||
+       autopilot_get_mode() == AP_MODE_MANUAL)) {
+    mode_changed |= autopilot_set_mode(RC_LOST_MODE);
+  }
+
+  /* Check RC kill switch
+   */
+#ifdef RADIO_KILL_SWITCH
+  if (radio_control_get(RADIO_KILL_SWITCH) < MIN_PPRZ / 2) {
+    autopilot_set_kill_throttle(true); // not a mode change, just set kill_throttle
+  }
+#endif
+
+  /* the SITL check is a hack to prevent "automatic" launch in NPS
+  */
+#ifndef SITL
+  if (!autopilot.flight_time) {
+    if (autopilot_get_mode() == AP_MODE_AUTO2 && radio_control_get(RADIO_THROTTLE) > THROTTLE_THRESHOLD_TAKEOFF) {
+      autopilot.launch = true; // set launch to true from RC throttel up
+    }
+  }
+#endif
+
+#endif // RADIO_CONTROL
+
+#if USE_GPS && (defined FAILSAFE_DELAY_WITHOUT_GPS)
+  /* This section is used for the failsafe of GPS
+   */
+  static uint8_t last_pprz_mode;
+  static bool gps_lost = false;
+
+  /** If aircraft is launched and is in autonomus mode, go into
+      AP_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
+  if (autopilot.launch) {
+    // check GPS timeout
+    if (sys_time.nb_sec - gps.last_3dfix_time > FAILSAFE_DELAY_WITHOUT_GPS) {
+      if (autopilot_get_mode() == AP_MODE_AUTO2 ||
+          autopilot_get_mode() == AP_MODE_HOME) {
+        last_pprz_mode = autopilot_get_mode();
+        mode_changed |= autopilot_set_mode(AP_MODE_GPS_OUT_OF_ORDER);
+        gps_lost = true;
+      }
+    } else if (gps_lost) { /* GPS is ok */
+      /** If aircraft was in failsafe mode, come back in previous mode */
+      mode_changed |= autopilot_set_mode(last_pprz_mode);
+      gps_lost = false;
+    }
+  }
+#endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
+
+  /* If in-flight, with good GPS but too far, then activate HOME mode
+   * In MANUAL with good RC, FBW will allow to override. */
+  if (autopilot_get_mode() != AP_MODE_HOME &&
+      autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER &&
+      autopilot.launch) {
+    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
+      mode_changed |= autopilot_set_mode(AP_MODE_HOME);
+    }
+  }
+
+  // send new mode if needed
+  if (mode_changed) {
+    autopilot_send_mode();
+  }
+}
+
 
 void attitude_loop(void)
 {
-
+  // Call vertical climb loop if mode is at least AUTO2
   if (autopilot_get_mode() >= AP_MODE_AUTO2) {
 #if CTRL_VERTICAL_LANDING
     if (v_ctl_mode == V_CTL_MODE_LANDING) {
@@ -295,10 +316,10 @@ void attitude_loop(void)
       } else {
         if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
           v_ctl_climb_loop();
-        } /* v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB */
-      } /* v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE */
+        }
+      }
 #if CTRL_VERTICAL_LANDING
-    } /* v_ctl_mode == V_CTL_MODE_LANDING */
+    }
 #endif
 
 #if defined V_CTL_THROTTLE_IDLE
@@ -306,8 +327,8 @@ void attitude_loop(void)
 #endif
 
 #ifdef V_CTL_POWER_CTL_BAT_NOMINAL
-    if (ap_electrical.vsupply > 0.) {
-      v_ctl_throttle_setpoint *= V_CTL_POWER_CTL_BAT_NOMINAL / ap_electrical.vsupply;
+    if (electrical.vsupply > 0.f) {
+      v_ctl_throttle_setpoint *= V_CTL_POWER_CTL_BAT_NOMINAL / electrical.vsupply;
       v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
     }
 #endif
@@ -320,28 +341,21 @@ void attitude_loop(void)
     }
   }
 
-  h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
-  v_ctl_throttle_slew();
-  PPRZ_MUTEX_LOCK(ap_state_mtx);
-  AP_COMMAND_SET_THROTTLE(v_ctl_throttle_slewed);
-  AP_COMMAND_SET_ROLL(-h_ctl_aileron_setpoint);
-  AP_COMMAND_SET_PITCH(h_ctl_elevator_setpoint);
-  AP_COMMAND_SET_YAW(h_ctl_rudder_setpoint);
-  AP_COMMAND_SET_CL(h_ctl_flaps_setpoint);
-  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
-
-#if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
-  link_mcu_send();
-#elif defined INTER_MCU && defined SINGLE_MCU
-  /**Directly set the flag indicating to FBW that shared buffer is available*/
-  inter_mcu_received_ap = true;
-#endif
+  // Call attitude control and set commands if mode is at least AUTO1
+  if (autopilot_get_mode() >= AP_MODE_AUTO1) {
+    h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
+    v_ctl_throttle_slew();
+    AP_COMMAND_SET_THROTTLE(v_ctl_throttle_slewed);
+    AP_COMMAND_SET_ROLL(-h_ctl_aileron_setpoint);
+    AP_COMMAND_SET_PITCH(h_ctl_elevator_setpoint);
+    AP_COMMAND_SET_YAW(h_ctl_rudder_setpoint);
+    AP_COMMAND_SET_CL(h_ctl_flaps_setpoint);
+  }
 
 }
 
-/******************** Interaction with FBW *****************************/
 
-/** Update paparazzi mode.
+/** Update paparazzi mode from RC
  */
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static inline uint8_t pprz_mode_update(void)
@@ -353,22 +367,28 @@ static inline uint8_t pprz_mode_update(void)
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
-    return autopilot_set_mode(AP_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)));
+    uint8_t nm = AP_MODE_OF_PULSE(radio_control_get(RADIO_MODE));
+    bool b = autopilot_set_mode(nm);
+    return b;
+    //return autopilot_set_mode(AP_MODE_OF_PULSE(radio_control_get(RADIO_MODE)));
 #else
     INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
-    /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
-     * RADIO_MODE will switch between AP_MODE_MANUAL and any AP_MODE_AUTO mode selected by RADIO_AUTO_MODE.
+    /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between
+     * two switches/channels
+     * RADIO_MODE will switch between AP_MODE_MANUAL and any AP_MODE_AUTO mode
+     * selected by RADIO_AUTO_MODE.
      *
-     * This is mainly a cludge for entry level radios with no three-way switch but two available two-way switches which can be used.
+     * This is mainly a cludge for entry level radios with no three-way switch
+     * but two available two-way switches which can be used.
      */
-    if (AP_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)) == AP_MODE_MANUAL) {
+    if (AP_MODE_OF_PULSE(radio_control_get(RADIO_MODE)) == AP_MODE_MANUAL) {
       /* RADIO_MODE in MANUAL position */
       return autopilot_set_mode(AP_MODE_MANUAL);
     } else {
       /* RADIO_MODE not in MANUAL position.
        * Select AUTO mode bassed on RADIO_AUTO_MODE channel
        */
-      return autopilot_set_mode((imcu_get_radio(RADIO_AUTO_MODE) > THRESHOLD2) ? AP_MODE_AUTO2 : AP_MODE_AUTO1);
+      return autopilot_set_mode((radio_control_get(RADIO_AUTO_MODE) > THRESHOLD2) ? AP_MODE_AUTO2 : AP_MODE_AUTO1);
     }
 #endif // RADIO_AUTO_MODE
   } else {
@@ -382,29 +402,4 @@ static inline uint8_t pprz_mode_update(void)
 }
 #endif
 
-static inline uint8_t mcu1_status_update(void)
-{
-  uint8_t new_status = imcu_get_status();
-  if (mcu1_status != new_status) {
-    bool changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
-    mcu1_status = new_status;
-    return changed;
-  }
-  return false;
-}
 
-
-/** Send back uncontrolled channels.
- */
-static inline void copy_from_to_fbw(void)
-{
-  PPRZ_MUTEX_LOCK(fbw_state_mtx);
-  PPRZ_MUTEX_LOCK(ap_state_mtx);
-#ifdef SetAutoCommandsFromRC
-  SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
-#elif defined RADIO_YAW && defined COMMAND_YAW
-  ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
-#endif
-  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
-  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
-}

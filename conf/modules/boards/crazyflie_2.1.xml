@@ -1,0 +1,11 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="crazyflie_2.1" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Crazyflie 2.1
+    </description>
+  </doc>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

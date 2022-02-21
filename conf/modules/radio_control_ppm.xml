@@ -10,38 +10,24 @@
       If they set the PPM_CONFIG makefile variable, add it to the target.
       The PPM_CONFIG define is then used in the _board_.h file to set the configuration.
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="PPM_CONFIG" value="num" description="Select PPM config, as some boards can used different mapping for the ppm input pin"/>
   </doc>
   <dep>
+    <depends>radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="ppm.h"/>
   </header>
+  <init fun="ppm_init()"/>
+  <event fun="ppm_event()"/>
   <makefile target="ap|fbw|sim|nps|hitl">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/ppm.h" type="string"/>
     <define name="PPM_CONFIG" value="$(PPM_CONFIG)" cond="ifdef PPM_CONFIG"/>
-  </makefile>
-  <makefile target="fbw|sim|nps|hitl">
-    <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_PPM"/>
-    <file name="radio_control.c"/>
-    <file name="ppm.c"/>
-    <file_arch name="ppm_arch.c"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_PPM"/>
-    <file name="radio_control.c"/>
     <file name="ppm.c"/>
     <file_arch name="ppm_arch.c"/>
     <test>
-      <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_PPM"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/ppm.h" type="string"/>
     </test>
   </makefile>
 </module>

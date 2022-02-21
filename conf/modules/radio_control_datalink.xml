@@ -5,37 +5,25 @@
     <description>
       Radio control over datalink
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="RADIO_CONTROL_DATALINK_LED" value="none|num" description="LED number or 'none' to disable"/>
   </doc>
   <dep>
+    <depends>radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="rc_datalink.h"/>
   </header>
+  <init fun="rc_datalink_init()"/>
+  <event fun="rc_datalink_event()"/>
   <makefile target="ap|fbw|sim|nps">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="RADIO_CONTROL_DATALINK_LED" default="none"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
     <define name="RADIO_CONTROL_DATALINK_LED" value="$(RADIO_CONTROL_DATALINK_LED)" cond="ifneq ($(RADIO_CONTROL_DATALINK_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/rc_datalink.h" type="string"/>
-  </makefile>
-  <makefile target="fbw|sim|nps">
-    <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-    <file name="radio_control.c"/>
-    <file name="rc_datalink.c"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-    <file name="radio_control.c"/>
     <file name="rc_datalink.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_DATALINK"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/rc_datalink.h" type="string"/>
     </test>
   </makefile>
 </module>

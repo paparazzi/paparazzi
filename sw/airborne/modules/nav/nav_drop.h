@@ -42,7 +42,7 @@ extern bool compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t end
 #define NavDropComputeApproach(_target, _start, _radius) nav_drop_compute_approach(_target, _start, _radius)
 #define NavDropUpdateRelease(_wp) nav_drop_update_release(_wp)
 #define NavDropShoot() nav_drop_shoot()
-#define NavDropCloseHatch() ({ imcu_set_command(COMMAND_HATCH, MIN_PPRZ); })
+#define NavDropCloseHatch() ({ command_set(COMMAND_HATCH, MIN_PPRZ); })
 #define NavDropAligned() Qdr(DegOfRad(nav_drop_qdr_aligned))
 
 #endif // NAV_DROP_H

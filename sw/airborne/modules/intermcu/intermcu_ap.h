@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,46 +15,43 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
 /** @file modules/intermcu/intermcu_ap.h
- *  @brief Rotorcraft Inter-MCU on the autopilot
+ *  @brief Inter-MCU on the AP side
  */
 
-#ifndef INTERMCU_AP_ROTORCRAFT_H
-#define INTERMCU_AP_ROTORCRAFT_H
+#ifndef INTERMCU_AP_H
+#define INTERMCU_AP_H
 
 #include "modules/intermcu/intermcu.h"
 #include "generated/airframe.h"
-#include "modules/energy/electrical.h"
 
-void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
-void RadioControlEvent(void (*frame_handler)(void));
-void intermcu_send_spektrum_bind(void);
-void intermcu_set_enabled(bool value);
+/** send command vector over intermcu link instead of actuators
+ */
+extern void intermcu_send_commands(pprz_t *command_values, uint8_t ap_mode);
 
-/* We need radio defines for the Autopilot */
-#define RADIO_THROTTLE   0
-#define RADIO_ROLL       1
-#define RADIO_PITCH      2
-#define RADIO_YAW        3
-#define RADIO_MODE       4
-#define RADIO_KILL_SWITCH 5
-#define RADIO_AUX1       5
-#define RADIO_AUX2       6
-#define RADIO_AUX3       7
-#define RADIO_CONTROL_NB_CHANNEL 8
+/** send binding signal for spektrum receiver
+ */
+extern void intermcu_send_spektrum_bind(void);
+
+/** enable/disable intermcu link
+ */
+extern void intermcu_set_enabled(bool value);
+
+/** Datalink event functions
+ */
+extern void intermcu_parse_IMCU_FBW_STATUS(uint8_t *buf);
 
 /* Structure for FBW status */
 struct fbw_status_t {
   uint8_t rc_status;
   uint8_t frame_rate;
   uint8_t mode;
-  struct Electrical electrical;
 };
 
-#endif /* INTERMCU_AP_ROTORCRAFT_H */
+#endif /* INTERMCU_AP_H */
+

@@ -5,26 +5,21 @@
     <description>
       Radio control using two Futaba SBUS receivers
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="SBUS1_PORT" value="UARTX" description="UART name where first SBUS receiver is plugged"/>
     <configure name="SBUS2_PORT" value="UARTX" description="UART name where second SBUS receiver is plugged"/>
   </doc>
   <dep>
-    <depends>uart</depends>
+    <depends>uart,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="sbus_dual.h"/>
   </header>
+  <init fun="sbus_dual_init()"/>
+  <event fun="sbus_dual_event()"/>
   <makefile target="ap|fbw">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="SBUS1_UART" value="$(SBUS1_PORT)" case="upper|lower"/>
     <configure name="SBUS2_UART" value="$(SBUS2_PORT)" case="upper|lower"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus_dual.h" type="string"/>
-  </makefile>
-  <makefile target="fbw">
-    <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_SBUS"/>
     <define name="USE_$(SBUS1_UART_UPPER)"/>
     <define name="USE_$(SBUS2_UART_UPPER)"/>
@@ -32,26 +27,11 @@
     <define name="$(SBUS2_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS1_UART_DEV" value="$(SBUS1_UART_LOWER)"/>
     <define name="SBUS2_UART_DEV" value="$(SBUS2_UART_LOWER)"/>
-    <file name="radio_control.c"/>
-    <file name="sbus_dual.c"/>
-    <file name="sbus_common.c"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_SBUS"/>
-    <define name="USE_$(SBUS1_UART_UPPER)"/>
-    <define name="USE_$(SBUS2_UART_UPPER)"/>
-    <define name="$(SBUS1_UART_UPPER)_BAUD" value="B100000"/>
-    <define name="$(SBUS2_UART_UPPER)_BAUD" value="B100000"/>
-    <define name="SBUS1_UART_DEV" value="$(SBUS1_UART_LOWER)"/>
-    <define name="SBUS2_UART_DEV" value="$(SBUS2_UART_LOWER)"/>
-    <file name="radio_control.c"/>
     <file name="sbus_dual.c"/>
     <file name="sbus_common.c"/>
     <test>
       <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_SBUS"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus_dual.h" type="string"/>
       <define name="SBUS1_UART_DEV" value="uart4"/>
       <define name="SBUS2_UART_DEV" value="uart5"/>
       <define name="USE_UART4"/>

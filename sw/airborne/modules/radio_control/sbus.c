@@ -26,6 +26,7 @@
 
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/sbus.h"
+#include "modules/core/abi.h"
 #include BOARD_CONFIG
 
 #ifndef RC_POLARITY_GPIO_PORT
@@ -51,9 +52,10 @@ static void send_sbus(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Init function
-void radio_control_impl_init(void)
+void sbus_init(void)
 {
   sbus_common_init(&sbus, &SBUS_UART_DEV, RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+  radio_control.nb_channel = SBUS_NB_CHANNEL;
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
@@ -69,7 +71,7 @@ static inline void sbus_decode_event(void)
   sbus_common_decode_event(&sbus, &SBUS_UART_DEV);
 }
 
-void radio_control_impl_event(void (* _received_frame_handler)(void))
+void sbus_event(void)
 {
   sbus_decode_event();
 
@@ -89,7 +91,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       } else {
         radio_control.status = RC_OK;
         NormalizePpmIIR(sbus.pulses, radio_control);
-        _received_frame_handler();
+        AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_SBUS_ID, &radio_control);
       }
     }
     sbus.frame_available = false;

@@ -83,13 +83,12 @@ static inline void main_periodic_task(void)
   {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice, &blaa, 8, ppm_pulses);});
 #endif
 
-  LED_PERIODIC();
 }
 
 static inline void main_event_task(void)
 {
   mcu_event();
-  RadioControlEvent(main_on_radio_control_frame);
+  //RadioControlEvent(main_on_radio_control_frame); FIXME
 }
 
 static void main_on_radio_control_frame(void)

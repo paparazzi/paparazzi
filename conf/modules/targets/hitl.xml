@@ -15,6 +15,7 @@
     <configure name="INS_BAUD" default="B921600"/>
     <configure name="AP_DEV" default="/dev/ttyUSB2"/>
     <configure name="AP_BAUD" default="B921600"/>
+    <define name="AP"/>
     <define name="AP_DEV" value="$(AP_DEV)"/>
     <define name="AP_BAUD" value="$(AP_BAUD)"/>
     <define name="INS_DEV" value="$(INS_DEV)"/>

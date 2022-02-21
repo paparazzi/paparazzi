@@ -29,13 +29,7 @@
 #define RADIO_CONTROL_SPEKTRUM_RADIO_H
 
 /* Amount of Spektrum channels */
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL 14
-#endif
-
-#if RADIO_CONTROL_NB_CHANNEL > 14
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14. X-Plus channel expansion is not (yet) usable"
-#endif
+#define SPEKTRUM_NB_CHANNEL 14
 
 /* Default channel assignments */
 #ifndef RADIO_THROTTLE

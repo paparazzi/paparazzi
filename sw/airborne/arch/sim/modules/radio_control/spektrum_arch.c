@@ -29,6 +29,7 @@
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/spektrum_arch.h"
 #include "modules/radio_control/spektrum.h"
+#include "modules/core/abi.h"
 #include "std.h"
 #include <inttypes.h>
 
@@ -40,17 +41,18 @@
 
 static bool spektrum_available;
 
-void radio_control_impl_init(void)
+void spektrum_init(void)
 {
   spektrum_available = false;
 }
-void spektrum_event(void (*frame_handler)(void))
+
+void spektrum_event(void)
 {
   if (spektrum_available) {
     radio_control.frame_cpt++;
     radio_control.time_since_last_frame = 0;
     radio_control.status = RC_OK;
-    (*frame_handler)();
+    AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_SPEKTRUM_ID, &radio_control);
   }
   spektrum_available = false;
 }

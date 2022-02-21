@@ -12,6 +12,8 @@
     <file name="downlink.h"/>
   </header>
   <init fun="downlink_init()"/>
+  <periodic fun="telemetry_reporting_task()"/>
+  <periodic fun="datalink_periodic()" freq="1"/>
   <makefile>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>

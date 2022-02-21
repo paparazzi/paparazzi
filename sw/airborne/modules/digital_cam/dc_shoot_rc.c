@@ -27,7 +27,7 @@
  */
 
 #include "dc_shoot_rc.h"
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/radio_control/radio_control.h"
 #include "dc.h"
 
 #ifndef DC_RADIO_SHOOT
@@ -41,7 +41,7 @@ void dc_shoot_rc_periodic(void)
   static uint8_t rd_shoot = 0;
   static uint8_t rd_num = 0;
 
-  if ((rd_shoot == 0) && (imcu_get_radio(DC_RADIO_SHOOT) > DC_RADIO_SHOOT_THRESHOLD)) {
+  if ((rd_shoot == 0) && (radio_control_get(DC_RADIO_SHOOT) > DC_RADIO_SHOOT_THRESHOLD)) {
     dc_send_command(DC_SHOOT);
     rd_shoot = 1;
   }

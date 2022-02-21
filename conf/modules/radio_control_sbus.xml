@@ -5,47 +5,28 @@
     <description>
       Radio control based on Futaba SBUS
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="SBUS_PORT" value="UARTX" description="UART name where SBUS receiver is plugged"/>
   </doc>
   <dep>
-    <depends>uart</depends>
+    <depends>uart,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="sbus.h"/>
   </header>
+  <init fun="sbus_init()"/>
+  <event fun="sbus_event()"/>
   <makefile target="ap|fbw">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="SBUS_UART" value="$(SBUS_PORT)" case="upper|lower"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus.h" type="string"/>
-  </makefile>
-  <makefile target="fbw">
-    <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_SBUS"/>
     <define name="USE_$(SBUS_UART_UPPER)"/>
     <define name="USE_$(SBUS_UART_UPPER)_TX" value="FALSE"/>
     <define name="$(SBUS_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS_UART_DEV" value="$(SBUS_UART_LOWER)"/>
-    <file name="radio_control.c"/>
-    <file name="sbus.c"/>
-    <file name="sbus_common.c"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_SBUS"/>
-    <define name="USE_$(SBUS_UART_UPPER)"/>
-    <define name="USE_$(SBUS_UART_UPPER)_TX" value="FALSE"/>
-    <define name="$(SBUS_UART_UPPER)_BAUD" value="B100000"/>
-    <define name="SBUS_UART_DEV" value="$(SBUS_UART_LOWER)"/>
-    <file name="radio_control.c"/>
     <file name="sbus.c"/>
     <file name="sbus_common.c"/>
     <test>
-      <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_SBUS"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/sbus.h" type="string"/>
       <define name="SBUS_UART_DEV" value="uart4"/>
       <define name="USE_UART4"/>
     </test>

@@ -41,17 +41,6 @@ extern void ppm_arch_init(void);
 #include "generated/radio.h"
 
 /**
- * Default number of channels to actually use.
- */
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
-#endif
-
-#if RADIO_CONTROL_NB_CHANNEL > RADIO_CTL_NB
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than number of channels in radio file."
-#endif
-
-/**
  *  ppm pulse type : futaba is falling edge clocked whereas JR is rising edge
  */
 #define PPM_PULSE_TYPE_POSITIVE 0
@@ -61,13 +50,15 @@ extern uint16_t ppm_pulses[RADIO_CTL_NB];
 extern volatile bool ppm_frame_available;
 
 /**
- * RC event function with handler callback.
+ * RC init function.
+ */
+extern void ppm_init(void);
+
+/**
+ * RC event function.
  * PPM frames are normalized using the IIR filter.
  */
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
-
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
-
+extern void ppm_event(void);
 
 /**
  * Decode a PPM frame from global timer value.

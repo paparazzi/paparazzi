@@ -25,8 +25,6 @@
 
 #include "modules/radio_control/spektrum_radio.h"
 
-#define RadioControlEventImp spektrum_event
-
 #if USE_NPS
 extern void radio_control_feed(void);
 #endif

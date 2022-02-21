@@ -30,6 +30,10 @@
 #include <string.h>
 #include <stdbool.h>
 
+#if RADIO_CONTROL_NB_CHANNEL < SBUS_NB_CHANNEL
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be lower than 16."
+#endif
+
 /*
  * SBUS protocol and state machine status
  */

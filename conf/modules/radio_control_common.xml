@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_common" dir="radio_control" task="radio_control">
+  <doc>
+    <description>
+      Radio control common
+    </description>
+    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
+  </doc>
+  <header>
+    <file name="radio_control.h"/>
+  </header>
+  <init fun="radio_control_init()"/>
+  <periodic fun="radio_control_periodic_task()"/>
+  <makefile>
+    <configure name="RADIO_CONTROL_LED" default="none"/>
+    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
+    <define name="RADIO_CONTROL"/>
+    <file name="radio_control.c"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+    </test>
+  </makefile>
+</module>
+

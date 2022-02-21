@@ -63,7 +63,9 @@ cond CDATA #IMPLIED>
 
 <!ATTLIST datalink
 message CDATA #REQUIRED
-fun CDATA #REQUIRED>
+fun CDATA #REQUIRED
+class CDATA #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST makefile
 target CDATA #IMPLIED

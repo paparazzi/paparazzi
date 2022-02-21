@@ -17,7 +17,7 @@
   </header>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
-  <makefile target="!fbw|sim|nps|hitl">
+  <makefile target="!sim|nps|hitl">
     <define name="USE_USB_SERIAL"/>
     <define name="DOWNLINK_DEVICE" value="usb_serial"/>
     <define name="PPRZ_UART" value="usb_serial"/>

@@ -201,7 +201,14 @@ let make_event = fun f cond ->
   }
 
 
-type datalink = { message: string; func: string }
+type datalink = { message: string; func: string; dl_class: string option; cond: string option }
+
+let make_datalink = fun f m cl cond ->
+  { message = m;
+    func = f;
+    dl_class = cl;
+    cond = cond
+  }
 
 let fprint_datalink = fun ch d ->
   Printf.fprintf ch "(msg_id == DL_%s) { %s; }\n" d.message d.func
@@ -312,8 +319,10 @@ let rec parse_xml m = function
     { m with events = make_event f c :: m.events }
   | Xml.Element ("datalink", _, []) as xml ->
     let message = Xml.attrib xml "message"
-    and func = Xml.attrib xml "fun" in
-    { m with datalinks = { message; func } :: m.datalinks }
+    and func = Xml.attrib xml "fun"
+    and dl_class = ExtXml.attrib_opt xml "class"
+    and c = ExtXml.attrib_opt xml "cond" in
+    { m with datalinks = make_datalink func  message dl_class c :: m.datalinks }
   | Xml.Element ("makefile", _, _) as xml ->
     { m with makefiles = parse_makefile empty_makefile xml :: m.makefiles }
   | _ -> failwith "Module.parse_xml: unreachable"

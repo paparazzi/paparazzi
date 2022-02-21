@@ -28,7 +28,7 @@
 #include "std.h"
 //#include "stdio.h"
 
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/gpio.h"
@@ -776,7 +776,7 @@ void draw_osd(void)
 
     case (50):
 #if defined(FIXEDWING_FIRMWARE)
-      osd_sprintf(osd_string, "THR%.0f", (((float)ap_state->commands[COMMAND_THROTTLE] / (float)MAX_PPRZ) * 100.));
+      osd_sprintf(osd_string, "THR%.0f", (((float)command_get(COMMAND_THROTTLE) / (float)MAX_PPRZ) * 100.));
 #else
       osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
 #endif

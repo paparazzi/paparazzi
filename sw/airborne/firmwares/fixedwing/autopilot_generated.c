@@ -88,27 +88,13 @@ void autopilot_generated_set_motors_on(bool motors_on)
   autopilot.motors_on = motors_on;
 }
 
-static inline void copy_from_to_fbw(void)
-{
-  PPRZ_MUTEX_LOCK(fbw_state_mtx);
-  PPRZ_MUTEX_LOCK(ap_state_mtx);
-#ifdef SetAutoCommandsFromRC
-  SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
-#elif defined RADIO_YAW && defined COMMAND_YAW
-  ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
-#endif
-  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
-  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
-}
 
 void autopilot_generated_on_rc_frame(void)
 {
-
-  // update electrical from FBW
-  imcu_get_electrical(&ap_electrical);
-
-  // FIXME what to do here ?
-  copy_from_to_fbw();
-
+#ifdef SetAutoCommandsFromRC
+  SetAutoCommandsFromRC(commands, radio_control.values);
+#elif defined RADIO_YAW && defined COMMAND_YAW
+  command_set(COMMAND_YAW, radio_control_get(RADIO_YAW));
+#endif
 }
 

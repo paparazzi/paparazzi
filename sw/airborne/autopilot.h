@@ -96,6 +96,10 @@ extern void autopilot_event(void);
  */
 extern void autopilot_on_rc_frame(void);
 
+/** Autopilot periodic failsafe checks
+ */
+extern void autopilot_failsafe_checks(void);
+
 /** Set new autopilot mode
  *
  * @param[in] new_autopilot_mode new mode to set

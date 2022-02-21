@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gautier Hattenberger, Alexandre Bustico
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,27 @@
  */
 
 /**
- * @file firmwares/rover/main_chibios.h
+ * @file modules/gps/gps_intermcu.h
+ * @brief GPS system based on intermcu
  */
 
-#ifndef MAIN_CHIBIOS_H
-#define MAIN_CHIBIOS_H
+#ifndef GPS_INTERMCU_H
+#define GPS_INTERMCU_H
 
-#include <ch.h>
+#include "std.h"
+#include "generated/airframe.h"
+#include "modules/gps/gps.h"
 
-/** Terminate all autopilot threads
- *  Wait until proper stop
- */
-extern void pprz_terminate_autopilot_threads(void);
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_INTERMCU
+#endif
 
-#endif /* MAIN_CHIBIOS_H */
+extern struct GpsState gps_imcu;
+
+extern void gps_intermcu_init(void);
+
+#define gps_intermcu_periodic_check() gps_periodic_check(&gps_imcu)
+
+extern void gps_intermcu_parse_IMCU_REMOTE_GPS(uint8_t *buf);
+
+#endif /* GPS_INTERMCU_H */

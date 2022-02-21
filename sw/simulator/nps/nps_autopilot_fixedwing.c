@@ -22,25 +22,14 @@
 
 #include "nps_autopilot.h"
 
-#ifdef FBW
-#include "firmwares/fixedwing/main_fbw.h"
-#define Fbw(f) f ## _fbw()
-#else
-#define Fbw(f)
-#endif
-
-#ifdef AP
-#include "firmwares/fixedwing/main_ap.h"
-#define Ap(f) f ## _ap()
-#else
-#define Ap(f)
-#endif
+#include "main_ap.h"
 
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "nps_electrical.h"
 #include "nps_fdm.h"
 
+#include "generated/modules.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/sys_time.h"
@@ -73,9 +62,9 @@ bool nps_bypass_ins;
 #endif
 
 
-#if !defined (FBW) || !defined (AP)
-#error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
-#endif
+//#if !defined (FBW) || !defined (AP)
+//#error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
+//#endif
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
@@ -90,8 +79,8 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
   nps_bypass_ins = NPS_BYPASS_INS;
 
-  Fbw(init);
-  Ap(init);
+  modules_mcu_init();
+  main_ap_init();
 
 }
 
@@ -111,28 +100,25 @@ void nps_autopilot_run_step(double time)
 #if RADIO_CONTROL && !RADIO_CONTROL_TYPE_DATALINK
   if (nps_radio_control_available(time)) {
     radio_control_feed();
-    Fbw(event_task);
+    main_ap_event();
   }
 #endif
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 
   if (nps_sensors_mag_available()) {
     imu_feed_mag();
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 
   if (nps_sensors_baro_available()) {
     uint32_t now_ts = get_sys_time_usec();
     float pressure = (float) sensors.baro.value;
     AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, now_ts, pressure);
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 
   if (nps_sensors_temperature_available()) {
@@ -142,15 +128,13 @@ void nps_autopilot_run_step(double time)
 #if USE_AIRSPEED || USE_NPS_AIRSPEED
   if (nps_sensors_airspeed_available()) {
     AbiSendMsgAIRSPEED(AIRSPEED_NPS_ID, (float)sensors.airspeed.value);
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 #endif
 
   if (nps_sensors_gps_available()) {
     gps_feed_value();
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 
 #if USE_SONAR
@@ -164,8 +148,7 @@ void nps_autopilot_run_step(double time)
     DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &foo, &dist);
 #endif
 
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 #endif
 
@@ -173,8 +156,7 @@ void nps_autopilot_run_step(double time)
 #if USE_NPS_AOA && !NPS_SYNC_INCIDENCE
   if (nps_sensors_aoa_available()) {
     AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 1, (float)sensors.aoa.value, 0.f);
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 #endif
 
@@ -182,8 +164,7 @@ void nps_autopilot_run_step(double time)
 #if USE_NPS_SIDESLIP && !NPS_SYNC_INCIDENCE
   if (nps_sensors_sideslip_available()) {
     AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 2, 0.f, (float)sensors.sideslip.value);
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
   }
 #endif
 
@@ -199,8 +180,7 @@ void nps_autopilot_run_step(double time)
   if (flag == 3) {
     // both sensors are updated
     AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 3, (float)sensors.aoa.value, (float)sensors.sideslip.value);
-    Fbw(event_task);
-    Ap(event_task);
+    main_ap_event();
     flag = 0;
   }
 #endif
@@ -215,8 +195,7 @@ void nps_autopilot_run_step(double time)
     sim_overwrite_ins();
   }
 
-  Fbw(handle_periodic_tasks);
-  Ap(handle_periodic_tasks);
+  main_ap_periodic();
 
   /* scale final motor commands to 0-1 for feeding the fdm */
 #ifdef NPS_ACTUATOR_NAMES

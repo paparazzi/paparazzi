@@ -10,6 +10,7 @@
     </description>
   </doc>
   <dep>
+    <!--depends>actuators</depends-->
     <provides>actuators</provides>
   </dep>
   <header/>
