@@ -224,6 +224,30 @@ void nav_init(void)
   auto_nav_init();
 }
 
+void nav_parse_BLOCK(uint8_t *buf)
+{
+  if (DL_BLOCK_ac_id(buf) != AC_ID) { return; }
+  nav_goto_block(DL_BLOCK_block_id(buf));
+}
+
+void nav_parse_MOVE_WP(uint8_t *buf)
+{
+  uint8_t ac_id = DL_MOVE_WP_ac_id(buf);
+  if (ac_id != AC_ID) { return; }
+  if (stateIsLocalCoordinateValid()) {
+    uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
+    struct LlaCoor_i lla;
+    lla.lat = DL_MOVE_WP_lat(buf);
+    lla.lon = DL_MOVE_WP_lon(buf);
+    /* WP_alt from message is alt above MSL in mm
+     * lla.alt is above ellipsoid in mm
+     */
+    lla.alt = DL_MOVE_WP_alt(buf) - state.ned_origin_i.hmsl +
+      state.ned_origin_i.lla.alt;
+    waypoint_move_lla(wp_id, &lla);
+  }
+}
+
 static inline void UNUSED nav_advance_carrot(void)
 {
   struct EnuCoor_i *pos = stateGetPositionEnu_i();

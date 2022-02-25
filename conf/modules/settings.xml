@@ -13,6 +13,8 @@
     <file name="settings.h"/>
   </header>
   <init fun="settings_init()"/>
+  <datalink message="SETTING" fun="settings_parse_msg_SETTING(dev,trans,buf)"/>
+  <datalink message="GET_SETTING" fun="settings_parse_msg_GET_SETTING(dev,trans,buf)"/>
   <makefile target="!fbw">
     <file name="settings.c"/>
     <file_arch name="settings_arch.c"/>

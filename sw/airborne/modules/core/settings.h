@@ -29,10 +29,14 @@
 #define CORE_SETTINGS_H
 
 #include "std.h"
+#include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprzlink_transport.h"
 
 extern void settings_init(void);
 extern int32_t settings_store(void);
 extern int32_t settings_clear(void);
+extern void settings_parse_msg_SETTING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
+extern void settings_parse_msg_GET_SETTING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 extern bool settings_store_flag;
 extern bool settings_clear_flag;

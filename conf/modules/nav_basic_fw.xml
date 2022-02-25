@@ -32,6 +32,8 @@
     <file name="nav.h" dir="firmwares/fixedwing"/>
   </header>
   <init fun="nav_init()"/>
+  <datalink message="BLOCK" fun="nav_parse_BLOCK(dev,trans,buf)"/>
+  <datalink message="MOVE_WP" fun="nav_parse_MOVE_WP(dev,trans,buf)"/>
   <makefile target="ap|sim|nps|hitl" firmware="fixedwing">
     <file name="nav.c" dir="$(SRC_FIRMWARE)"/>
     <file name="common_flight_plan.c"/>

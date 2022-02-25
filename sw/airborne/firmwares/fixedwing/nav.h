@@ -41,6 +41,8 @@
 #include "modules/nav/common_flight_plan.h"
 #include "modules/nav/common_nav.h"
 #include "autopilot.h"
+#include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprzlink_transport.h"
 
 /** Default fixedwing navigation frequency */
 #ifndef NAVIGATION_FREQUENCY
@@ -124,6 +126,8 @@ extern void nav_periodic_task(void);
 extern void nav_home(void);
 extern void nav_init(void);
 extern void nav_without_gps(void);
+extern void nav_parse_BLOCK(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
+extern void nav_parse_MOVE_WP(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);

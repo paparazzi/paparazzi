@@ -88,6 +88,10 @@ extern bool autopilot_guided_move_ned(float vx, float vy, float vz, float headin
  */
 extern void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw);
 
+/** Parse GUIDED_SETPOINT_NED messages from datalink
+ */
+extern void autopilot_guided_parse_GUIDED(uint8_t *buf);
+
 /** Bitmask for setting the flags attribute in autopilot_guided_update function
  *  See function description for more details
  */

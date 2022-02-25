@@ -63,6 +63,9 @@ extern void parse_rc_4ch_datalink(
   int8_t pitch,
   int8_t yaw);
 
+extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
+extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
+
 /**
  * RC init function.
  */

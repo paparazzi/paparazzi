@@ -45,6 +45,7 @@
 
 extern void gps_ubx_init(void);
 extern void gps_ubx_event(void);
+extern void gps_ubx_parse_HITL_UBX(uint8_t *buf);
 
 #define gps_ubx_periodic_check() gps_periodic_check(&gps_ubx.state)
 

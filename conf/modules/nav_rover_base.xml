@@ -23,6 +23,8 @@
   </header>
   <init fun="nav_init()"/>
   <init fun="nav_rover_init()"/>
+  <datalink message="BLOCK" fun="nav_parse_BLOCK(buf)"/>
+  <datalink message="MOVE_WP" fun="nav_parse_MOVE_WP(buf)"/>
   <makefile>
     <file name="nav_rover_base.c"/>
     <file name="navigation.c" dir="firmwares/rover"/>

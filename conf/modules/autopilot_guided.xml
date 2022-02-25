@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="autopilot_guided" task="control">
+  <doc>
+    <description>
+      Guided mode interface for autpilote
+
+      only rotorcraft for now
+    </description>
+  </doc>
+  <dep>
+    <depends>@guidance</depends>
+  </dep>
+  <header>
+    <file name="autopilot_guided.h" dir="."/>
+  </header>
+  <datalink message="GUIDED_SETPOINT_NED" fun="autopilot_guided_parse_GUIDED(buf)" cond="AP_MODE_GUIDED"/>
+  <makefile target="!fbw" firmware="rotorcraft">
+    <file name="autopilot_guided.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+</module>
+

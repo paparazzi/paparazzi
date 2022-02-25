@@ -14,6 +14,7 @@
   <init fun="downlink_init()"/>
   <periodic fun="telemetry_reporting_task()"/>
   <periodic fun="datalink_periodic()" freq="1"/>
+  <datalink message="PING" fun="datalink_parse_PING(dev, trans, buf)"/>
   <makefile>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
@@ -27,7 +28,6 @@
     </test>
   </makefile>
   <makefile target="!fbw" firmware="fixedwing">
-    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
     <test firmware="fixedwing">
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
@@ -39,7 +39,6 @@
     <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
   <makefile firmware="rotorcraft">
-    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
     <test firmware="rotorcraft">
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
@@ -48,7 +47,6 @@
     </test>
   </makefile>
   <makefile firmware="rover">
-    <file name="rover_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="rover_telemetry.c" dir="$(SRC_FIRMWARE)"/>
     <test firmware="rover">
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
