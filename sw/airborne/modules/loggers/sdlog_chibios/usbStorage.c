@@ -36,6 +36,11 @@
 #include "mcu_periph/sdio.h"
 #include "led.h"
 
+/* Default disable USB on boot enable */
+#ifndef SDLOG_USB_VBUS_BOOT
+#define SDLOG_USB_VBUS_BOOT  false
+#endif
+
 static void thdUsbStorage(void *arg);
 static thread_t *usbStorageThreadPtr = NULL;
 /* USB mass storage driver */
@@ -100,12 +105,18 @@ static void thdUsbStorage(void *arg)
   chRegSetThreadName("UsbStorage:polling");
   event_listener_t connected;
 
-  palEnablePadEvent(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, PAL_EVENT_MODE_BOTH_EDGES);
-  // wait transition to HIGH with rebound management
-  do {
-    palWaitPadTimeout(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, TIME_INFINITE);
-    chThdSleepMilliseconds(10);
-  } while (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW);
+#if SDLOG_USB_VBUS_BOOT
+  // Enable usb power with boot
+  if(palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW)
+#endif
+  {
+    palEnablePadEvent(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, PAL_EVENT_MODE_BOTH_EDGES);
+    // wait transition to HIGH with rebound management
+    do {
+      palWaitPadTimeout(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, TIME_INFINITE);
+      chThdSleepMilliseconds(10);
+    } while (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW);
+  }
 
   isRunning = true;
   chRegSetThreadName("UsbStorage:connected");

@@ -737,6 +737,7 @@
 #if defined(LINE_USB_VBUS)
 #define SDLOG_USB_VBUS_PORT   PAL_PORT(LINE_USB_VBUS)
 #define SDLOG_USB_VBUS_PIN    PAL_PAD(LINE_USB_VBUS)
+#define SDLOG_USB_VBUS_BOOT   true
 #endif
 
 // bat monitoring for file closing
