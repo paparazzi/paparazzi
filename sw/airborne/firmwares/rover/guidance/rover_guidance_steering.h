@@ -63,9 +63,6 @@
 #define MIN_SPEED 0.2 //But this one is mandatory because we have
 #endif                //to deal with GPS noise (and 1/v in guidance control).
 
-// NAV max throttle
-#define MAX_THROTTLE 10000.0
-
 // DRIVE_SHAFT_DISTANCE: Distance between front and rear wheels (m)
 #ifndef DRIVE_SHAFT_DISTANCE
 #define DRIVE_SHAFT_DISTANCE 0.25
@@ -119,16 +116,14 @@ extern bool rover_guidance_steering_set_delta(float delta);
                            speed));
 
 // Bound throttle
-#define BoundThrottle(throttle) (throttle < - MAX_THROTTLE ? - MAX_THROTTLE : \
-                                (throttle >   MAX_THROTTLE ?   MAX_THROTTLE : \
-                                 throttle)); // TODO: remove, p+i -> 10% of feed forward
+#define BoundThrottle(throttle) TRIM_PPRZ((int)throttle);
 
 // Set low level commands from high level commands
 #define GetCmdFromDelta(delta) (delta >= 0 ? -delta/MAX_DELTA * (MAX_PPRZ - (int)MAX_CMD_SHUT) : \
                                              -delta/MIN_DELTA * (MAX_PPRZ - (int)MIN_CMD_SHUT));
 
 // This macro is for NAV state
-#define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle / MAX_THROTTLE * MAX_PPRZ);
+#define GetCmdFromThrottle(throttle) TRIM_PPRZ((int)throttle);
 
 // Set AP throttle value
 #define SetAPThrottleFromCommands(void) { \

@@ -43,14 +43,17 @@ rover_ctrl guidance_control;
 static struct PID_f rover_pid;
 static float time_step;
 static float last_speed_cmd;
+static uint8_t last_ap_mode;
 
 /** INIT function**/
 void rover_guidance_steering_init(void)
 {
   guidance_control.cmd.delta = 0.0;
   guidance_control.cmd.speed = 0.0;
-  guidance_control.throttle = 0.0;
+  guidance_control.throttle  = 0.0;
+
   last_speed_cmd = 0.0;
+  last_ap_mode   = AP_MODE_KILL;
 
   guidance_control.speed_error = 0.0;
   guidance_control.kf = SR_MEASURED_KF;
@@ -64,7 +67,9 @@ void rover_guidance_steering_init(void)
 }
 
 /** Controler functions **/
-static float delta_ctrl(void)
+
+/* Steering control (GVF) */
+static void delta_ctrl(void)
 {
   float delta = 0.0;
   float omega = guidance_control.gvf_omega; //GVF give us this omega
@@ -79,6 +84,25 @@ static float delta_ctrl(void)
   guidance_control.cmd.delta = BoundDelta(delta);
 }
 
+/* Speed control (feed feed forward + propotional + integral controler) (PID)*/
+static void speed_ctrl(void) 
+{
+  // - Looking for setting update
+  if (guidance_control.kp != rover_pid.g[0] || guidance_control.ki != rover_pid.g[2]) {
+    set_gains_pid_f(&rover_pid, guidance_control.kp, 0.f, guidance_control.ki);
+  }
+  if (guidance_control.cmd.speed != last_speed_cmd) {
+    last_speed_cmd = guidance_control.cmd.speed;
+    //reset_pid_f(&rover_pid);
+  }
+
+  // - Updating PID
+  guidance_control.speed_error = (guidance_control.cmd.speed - guidance_control.state_speed);
+  update_pid_f(&rover_pid, guidance_control.speed_error, time_step);
+
+  guidance_control.throttle = BoundThrottle(guidance_control.kf*guidance_control.cmd.speed + get_pid_f(&rover_pid));
+}
+
 
 /** PERIODIC function **/
 void rover_guidance_steering_periodic(void)
@@ -86,52 +110,64 @@ void rover_guidance_steering_periodic(void)
   guidance_control.state_speed = stateGetHorizontalSpeedNorm_f();
 
   // MANUAL guidance .......................................................
-  if (autopilot_get_mode() == AP_MODE_DIRECT) {
+  if (autopilot_get_mode() == AP_MODE_DIRECT) 
+  {
     // Reset speed PID
     if (rover_pid.sum != 0) {
       reset_pid_f(&rover_pid);
     }
+
     // Do nothing
+
+    last_ap_mode = AP_MODE_DIRECT;
   }
 
   // ASSISTED guidance .....................................................
-  else if (autopilot_get_mode() == AP_MODE_ASSISTED) {
-    // Reset speed PID
-    if (rover_pid.sum != 0) {
-      reset_pid_f(&rover_pid);
+  else if (autopilot_get_mode() == AP_MODE_ASSISTED) 
+  {
+    // Active cruiser mode at state speed
+    if (last_ap_mode != AP_MODE_ASSISTED) {
+      guidance_control.cmd.speed = guidance_control.state_speed;
     }
 
-    // GVF delta control
-    delta_ctrl();
+    // Speed control
+    speed_ctrl();
+
+    last_ap_mode = AP_MODE_ASSISTED;
   }
 
   // NAV guidance ...........................................................
-  else if (autopilot_get_mode() == AP_MODE_NAV) {
+  else if (autopilot_get_mode() == AP_MODE_NAV) 
+  {
+    // Keep your previous state speed
+    if (last_ap_mode != AP_MODE_NAV) {
+      guidance_control.cmd.speed = guidance_control.state_speed;
+    }
+
     // GVF delta control
     delta_ctrl();
 
+    // Speed control
+    speed_ctrl();
 
-    // Speed control (feed feed forward + propotional + integral controler)
-    // - Looking for setting update
-    if (guidance_control.kp != rover_pid.g[0] || guidance_control.ki != rover_pid.g[2]) {
-      set_gains_pid_f(&rover_pid, guidance_control.kp, 0.f, guidance_control.ki);
-    }
-    if (guidance_control.cmd.speed != last_speed_cmd) {
-      last_speed_cmd = guidance_control.cmd.speed;
-      reset_pid_f(&rover_pid);
-    }
-
-    // - Updating PID
-    guidance_control.speed_error = (guidance_control.cmd.speed - guidance_control.state_speed);
-    update_pid_f(&rover_pid, guidance_control.speed_error, time_step);
-
-    guidance_control.throttle = BoundThrottle(guidance_control.kf*guidance_control.cmd.speed + get_pid_f(&rover_pid));
+    last_ap_mode = AP_MODE_NAV;
   } 
 
-  // FAILSAFE values ........................................................
-  else {
+  // HOME guidance ..........................................................
+  else if (autopilot_get_mode() == AP_MODE_HOME) 
+  {
+    // Do nothing
+
+    last_ap_mode = AP_MODE_HOME;
+  }
+
+  // KILL guidance ..........................................................
+  else 
+  {
     guidance_control.cmd.delta = 0.0;
     guidance_control.cmd.speed = 0.0;
+
+    last_ap_mode = AP_MODE_KILL;
   }
 }
 
