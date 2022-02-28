@@ -29,11 +29,7 @@
     <!-- RC Manual -->
     <mode name="DIRECT" shortname="MANUAL">
       <select cond="RCMode0()"/>
-<<<<<<< HEAD
       <control freq="NAVIGATION_FREQUENCY"> <!-- Only for display -->
-=======
-      <control freq="NAV_FREQ"> <!-- Only for display -->
->>>>>>> 3a718179a85cbeeb5e7761b3eeee5b8d79ab6ddf
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -50,11 +46,7 @@
     <!-- RC commands the throttle but GVF controls the steering (flight plan) -->
     <mode name="ASSISTED">
       <select cond="RCMode1()"/>
-<<<<<<< HEAD
       <control freq="NAVIGATION_FREQUENCY">
-=======
-      <control freq="NAV_FREQ">
->>>>>>> 3a718179a85cbeeb5e7761b3eeee5b8d79ab6ddf
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -73,11 +65,7 @@
     <!-- Navigation (we have to work in this state because NAV is not yet implemented) -->
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
-<<<<<<< HEAD
       <control freq="NAVIGATION_FREQUENCY">
-=======
-      <control freq="NAV_FREQ">
->>>>>>> 3a718179a85cbeeb5e7761b3eeee5b8d79ab6ddf
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
@@ -94,11 +82,7 @@
     
     <!-- Come home (not yet implemented because we don't have NAV) -->
     <mode name="HOME">
-<<<<<<< HEAD
       <control freq="NAVIGATION_FREQUENCY">
-=======
-      <control freq="NAV_FREQ">
->>>>>>> 3a718179a85cbeeb5e7761b3eeee5b8d79ab6ddf
         <call fun="nav_home()"/>
       </control>
       <control>
