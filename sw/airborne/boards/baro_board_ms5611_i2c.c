@@ -41,8 +41,6 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
-#include "filters/median_filter.h"
-
 #if BARO_PERIODIC_FREQUENCY > 100
 #error "For MS5611 BARO_PERIODIC_FREQUENCY has to be <= 100"
 #endif
@@ -65,7 +63,6 @@
 PRINT_CONFIG_VAR(BB_MS5611_TYPE_MS5607)
 
 struct Ms5611_I2c bb_ms5611;
-struct MedianFilterFloat bb_ms5611_filt;
 
 void baro_init(void)
 {
@@ -74,8 +71,6 @@ void baro_init(void)
 #ifdef BARO_LED
   LED_OFF(BARO_LED);
 #endif
-
-  init_median_filter_f(&bb_ms5611_filt, 5);
 }
 
 void baro_periodic(void)
@@ -107,8 +102,7 @@ void baro_event(void)
 
     if (bb_ms5611.data_available) {
       uint32_t now_ts = get_sys_time_usec();
-      float pressure = update_median_filter_f(&bb_ms5611_filt, (float)bb_ms5611.data.pressure);
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, bb_ms5611.data.pressure);
       float temp = bb_ms5611.data.temperature / 100.0f;
       AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
       bb_ms5611.data_available = false;
