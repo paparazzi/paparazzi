@@ -55,14 +55,16 @@ def img_rescale(img, resize_factor):
 
 
 # This function will load images from the webcam
-def cam_feed():
+def cam_feed(nr_frames):
     pass
 
 
 if __name__ == "__main__":
 
+    from determine_optic_flow import determine_optic_flow
     import matplotlib.pyplot as plt
 
+    """
     path = "./AE4317_2019_datasets/AE4317_2019_datasets/cyberzoo_aggressive_flight/20190121-144646/"
     imgs = os.listdir(path)
     test = load_set(path, "YUV")
@@ -81,3 +83,27 @@ if __name__ == "__main__":
 
     plt.imshow(res_filt[imgs[0]])
     plt.show()
+    """
+
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        raise IOError("Cannot open webcam")
+
+    ret, frame = 0, 0
+
+    while True:
+        ret_prev, frame_prev = ret, frame
+        ret, frame = cap.read()
+        # frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+        # cv2.imshow('Input', frame)
+
+        if not ret_prev == 0:
+            determine_optic_flow(frame, frame_prev)
+
+        c = cv2.waitKey(1)
+        if c == 27:
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
