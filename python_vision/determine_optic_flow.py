@@ -10,9 +10,10 @@ Determine optic flow given two images
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+from Edge_detect import find_edge_OF
 
 
-def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=100, graphics=False):
+def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=100, graphics=True):
     # load the BGR color image:
     # BGR_1 = cv2.imread(filename_1);
     BGR_1 = filename_1
@@ -25,7 +26,7 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
     gray_2 = cv2.cvtColor(BGR_2, cv2.COLOR_BGR2GRAY)
 
     # (1) Detect features:
-    if (method == 'Harris'):
+    if method == 'Harris':
         gray_Harris = np.float32(gray_1)
         # https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345
         # blockSize	Neighborhood size (see the details on cornerEigenValsAndVecs).
@@ -50,7 +51,7 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
 
         corners = np.stack((inds[1].T, inds[0].T), axis=1)
 
-    elif (method == 'FAST'):
+    elif method == 'FAST':
         # Initiate FAST object with default values
         # https://docs.opencv.org/3.4/df/d74/classcv_1_1FastFeatureDetector.html
         threshold = 70
@@ -61,20 +62,16 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
         kp = fast.detect(gray_1, None)
         img2 = cv2.drawKeypoints(BGR_1, kp, None, color=(255, 0, 0))
         cv2.imshow('dst', img2)
-        print("Total Keypoints with nonmaxSuppression: {}".format(len(kp)))
+        # print("Total Keypoints with nonmaxSuppression: {}".format(len(kp)))
         # downselect the points:
         kp = np.random.choice(kp, size=max_points)
         n_points = len(kp)
 
         # convert the points to a 2D numpy array:
         corners = np.stack((kp.pt[0].T, kp.pt[1].T), axis=1)
+        corners = corners[0:99]
 
-        # corners = np.float32(np.zeros([n_points, 2]));
-        # for i in range(n_points):
-        #     corners[i, 0] = kp[i].pt[0];
-        #     corners[i, 1] = kp[i].pt[1];
-
-    elif (method == 'ShiTomasi'):
+    elif method == 'ShiTomasi':
         # https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541
         # maxCorners	Maximum number of corners to return. If there are more corners than are found, the strongest of them is returned. maxCorners <= 0 implies that no limit on the maximum is set and all detected corners are returned.
         # qualityLevel	Parameter characterizing the minimal accepted quality of image corners. The parameter value is multiplied by the best corner quality measure, which is the minimal eigenvalue (see cornerMinEigenVal ) or the Harris function response (see cornerHarris ). The corners with the quality measure less than the product are rejected. For example, if the best corner has the quality measure = 1500, and the qualityLevel=0.01 , then all the corners with the quality measure less than 15 are rejected.
@@ -95,8 +92,11 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
             cv2.circle(BGR_1, (x, y), 3, 255, -1)
         cv2.imshow('dst', BGR_1)
 
-    elif (method=="Tomasso"):
-        pass
+    elif method == "Tomasso":
+        edges = find_edge_OF(BGR_1)
+        inds = np.where(edges == 255)
+        corners = np.stack((inds[1].T, inds[0].T), axis=1)
+        corners = corners.astype("float32")
     # (2) Track the features to the next frame:
 
     # Parameters for lucas kanade optical flow
