@@ -65,8 +65,9 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
     """
-    path = "./AE4317_2019_datasets/AE4317_2019_datasets/cyberzoo_aggressive_flight/20190121-144646/"
+    path = "AE4317_2019_datasets/cyberzoo_aggressive_flight/20190121-144646/"
     imgs = os.listdir(path)
+
     test = load_set(path, "YUV")
 
     # print(test.items())
