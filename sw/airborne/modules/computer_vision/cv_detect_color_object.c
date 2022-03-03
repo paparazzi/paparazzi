@@ -26,15 +26,18 @@
  */
 
 // Own header
+#include "opencv_color_edges.h"
 #include "modules/computer_vision/cv_detect_color_object.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/core/abi.h"
 #include "std.h"
+#include "modules/computer_vision/lib/vision/image.h"
 
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 #include "pthread.h"
+
 
 #define PRINT(string,...) fprintf(stderr, "[object_detector->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #if OBJECT_DETECTOR_VERBOSE
@@ -121,13 +124,24 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
       return img;
   };
 
+  //struct image_t *sml_img;
+  //uint8_t down_smaple = 2;
+
+  //image_yuv422_downsample(img,sml_img,down_smaple);
+
+  opencv_color_edges((char *) img->buf, img->w, img->h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
+
   int32_t x_c, y_c;
 
+  x_c = 10;
+  y_c = 10;
+  uint32_t count = 100;
+
   // Filter and find centroid
-  uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
-  VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
-  VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
-        hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
+  //uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
+  //VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
+  //VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
+  //      hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
 
   pthread_mutex_lock(&mutex);
   global_filters[filter-1].color_count = count;
@@ -243,6 +257,10 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
         if (draw){
           *yp = 255;  // make pixel brighter in image
         }
+      } else {
+    	  if (draw){
+    	   *yp = 0;
+    	  }
       }
     }
   }
