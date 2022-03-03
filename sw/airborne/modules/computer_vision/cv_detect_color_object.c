@@ -26,6 +26,8 @@
  */
 
 // Own header
+#include "modules/computer_vision/obstacle_message.h"
+
 #include "modules/computer_vision/cv_detect_color_object.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/core/abi.h"
@@ -258,6 +260,11 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
 
 void color_object_detector_periodic(void)
 {
+
+  struct ObstacleMessage testMessage;
+  testMessage.obs_height = 10;
+  printf("%i\n",testMessage.obs_height);
+
   static struct color_object_t local_filters[2];
   pthread_mutex_lock(&mutex);
   memcpy(local_filters, global_filters, 2*sizeof(struct color_object_t));
