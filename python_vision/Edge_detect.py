@@ -1,7 +1,7 @@
 import cv2
 def find_edge_OF(image, gray_scale=False, blur=False, minTH=0, maxTH=200):
-    img = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
+    # img = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    img = image
     # Convert to graycsale
     if gray_scale == True:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
