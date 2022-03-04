@@ -92,6 +92,7 @@ if __name__ == "__main__":
         raise IOError("Cannot open webcam")
 
     ret, frame = 0, 0
+    plt.figure()
 
     while True:
         ret_prev, frame_prev = ret, frame
