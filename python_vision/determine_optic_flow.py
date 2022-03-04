@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 from Edge_detect import find_edge_OF
 
 
-def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=100, graphics=True):
+def determine_optic_flow(filename_1, filename_2, method="Canny", max_points=100, graphics=True):
     # load the BGR color image:
     # BGR_1 = cv2.imread(filename_1);
     BGR_1 = filename_1
@@ -92,11 +92,22 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
             cv2.circle(BGR_1, (x, y), 3, 255, -1)
         cv2.imshow('dst', BGR_1)
 
-    elif method == "Tomasso":
+    elif method == "Canny":
         edges = find_edge_OF(BGR_1)
         inds = np.where(edges == 255)
-        corners = np.stack((inds[1].T, inds[0].T), axis=1)
+
+        if len(inds) > max_points:
+            random_indices = np.random.choice(len(inds), size=max_points)
+            corners = np.stack((inds[random_indices, 1].T, inds[random_indices, 0].T), axis=1)
+        else:
+            corners = np.stack((inds[1].T, inds[0].T), axis=1)
+
         corners = corners.astype("float32")
+
+
+        # Drop some data points
+
+
     # (2) Track the features to the next frame:
 
     # Parameters for lucas kanade optical flow
@@ -122,9 +133,9 @@ def determine_optic_flow(filename_1, filename_2, method="Tomasso", max_points=10
                             (int(corners_new[p, 0]), int(corners_new[p, 1])), color, thickness=2, tipLength=0.5)
 
         cv2.imshow('Flow', im);
-        plt.figure();
         plt.imshow(im);
         plt.title('Optical flow');
+
 
 
 if __name__ == "__main__":
