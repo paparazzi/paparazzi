@@ -128,14 +128,15 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
   //uint8_t down_smaple = 2;
 
   //image_yuv422_downsample(img,sml_img,down_smaple);
+  struct obstacle new_obstacle;
 
-  opencv_color_edges((char *) img->buf, img->w, img->h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
+  new_obstacle = opencv_color_edges((char *) img->buf, img->w, img->h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max,draw);
 
   int32_t x_c, y_c;
 
-  x_c = 10;
-  y_c = 10;
-  uint32_t count = 100;
+  x_c = new_obstacle.pos_x;
+  y_c = new_obstacle.pos_y;
+  uint32_t count = new_obstacle.area;
 
   // Filter and find centroid
   //uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
@@ -149,6 +150,8 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
   global_filters[filter-1].y_c = y_c;
   global_filters[filter-1].updated = true;
   pthread_mutex_unlock(&mutex);
+
+  printf("Color count: %d \n",global_filters[filter-1].color_count);
 
   return img;
 }

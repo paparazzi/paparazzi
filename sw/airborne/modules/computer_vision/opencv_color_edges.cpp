@@ -26,6 +26,7 @@
 
 #include "opencv_color_edges.h"
 #include <stdio.h>
+//#include <stdbool.h>
 
 using namespace std;
 #include <opencv2/core/core.hpp>
@@ -35,10 +36,12 @@ using namespace cv;
 
 RNG rng(12345);
 
-void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
+struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
         int cb_min, int cb_max,
-        int cr_min, int cr_max)
+        int cr_min, int cr_max,bool draw)
 {
+	struct obstacle new_obstacle;
+
 	// Create a new image, using the original bebop image.
 	Mat M(width, height, CV_8UC2, img); // original
 	Mat image, contour_image, thresh_image,edge_image;
@@ -53,7 +56,7 @@ void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_ma
 	blur(thresh_image, thresh_image, Size(2, 2));
 
 	edge_image = thresh_image;
-	int edgeThresh = 35;
+	//int edgeThresh = 35;
 	//Canny(edge_image, edge_image, edgeThresh, edgeThresh * 3);
 	// Find contours
 	contour_image = edge_image;
@@ -64,7 +67,7 @@ void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_ma
 	if (contours.size()>0)
 	{
 
-	printf("Found contours %d\n",contours.size());
+	//printf("Found contours %d\n",int(contours.size()));
 
 	// Find Largest Contour
 	int largest_contour_index = 0;
@@ -85,8 +88,10 @@ void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_ma
 	}
 	Scalar color(255, 255, 255);
 
+	if (draw){
 	// Draw the contour and rectangle
 	rectangle(M, bounding_rect,  Scalar(0, 255, 0), 2, 8, 0);
+	}
 
 	// Get the moments
 	vector<Moments> mu(contours.size());
@@ -102,29 +107,33 @@ void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_ma
 
 
 	printf("Largest contour %d\n",largest_area);
-	printf("Bounding_rect %d %d %d %d\n",bounding_rect.x,bounding_rect.y,bounding_rect.height,bounding_rect.width);
-	printf("index %d  \n",largest_contour_index);
-	printf("Center %f %f\n",mc[largest_contour_index].x,mc[largest_contour_index].y);
+	//printf("Bounding_rect %d %d %d %d\n",bounding_rect.x,bounding_rect.y,bounding_rect.height,bounding_rect.width);
+	//printf("index %d  \n",largest_contour_index);
+	//printf("Center %f %f\n",mc[largest_contour_index].x,mc[largest_contour_index].y);
 
+	if (draw){
 	coloryuv_opencv_to_yuv422(M, img, width, height);
 	//grayscale_opencv_to_yuv422(thresh_image, img, width, height);
 	//colorbgr_opencv_to_yuv422(drawing, img, width, height);
+	}
+
+	new_obstacle.pos_x = mc[largest_contour_index].x;
+	new_obstacle.pos_y = mc[largest_contour_index].y;
+	new_obstacle.width = bounding_rect.width;
+	new_obstacle.height = bounding_rect.height;
+	new_obstacle.area = largest_area;
 
 	} else{
 		printf("No contour\n");
 
+		new_obstacle.pos_x = 0;
+		new_obstacle.pos_y = 0;
+		new_obstacle.width = 0;
+		new_obstacle.height = 0;
+		new_obstacle.area = 0;
+
 	};
 
+	return new_obstacle;
 
-
-
-
-
-
-
-
-
-
-
-  return;
 }

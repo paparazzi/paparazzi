@@ -23,6 +23,8 @@
  * A simple module showing what you can do with opencv on the bebop.
  */
 
+#include <stdbool.h>
+
 #ifndef OPENCV_COLOR_EDGES_H
 #define OPENCV_COLOR_EDGES_H
 
@@ -30,9 +32,17 @@
 extern "C" {
 #endif
 
-void opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
+struct obstacle{
+	int pos_x;
+	int pos_y;
+	int width;
+	int height;
+	int area;
+};
+
+struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
         int cb_min, int cb_max,
-        int cr_min, int cr_max);
+        int cr_min, int cr_max,bool draw);
 
 #ifdef __cplusplus
 }
