@@ -263,7 +263,9 @@ void color_object_detector_periodic(void)
 
   struct ObstacleMessage testMessage;
   testMessage.obs_height = 10;
-  printf("%i\n",testMessage.obs_height);
+
+  uint32_t stamp = get_sys_time_usec();
+  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(testMessage), &testMessage);
 
   static struct color_object_t local_filters[2];
   pthread_mutex_lock(&mutex);
