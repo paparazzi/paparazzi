@@ -10,102 +10,36 @@ Determine optic flow given two images
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
-from Edge_detect import find_edge_OF
+from Edge_detect import *
 
 
-def determine_optic_flow(filename_1, filename_2, method="Canny", max_points=100, graphics=True):
-    # load the BGR color image:
-    # BGR_1 = cv2.imread(filename_1);
-    BGR_1 = filename_1
-    # convert the image to gray scale:
-    gray_1 = cv2.cvtColor(BGR_1, cv2.COLOR_BGR2GRAY)
-    # load the BGR color image:
-    # BGR_2 = cv2.imread(filename_2);
-    BGR_2 = filename_2
-    # convert the image to gray scale:
-    gray_2 = cv2.cvtColor(BGR_2, cv2.COLOR_BGR2GRAY)
+
+def determine_optic_flow(filename_1, filename_2, method="ShiTomasi", max_points=100, graphics=True):
+
+    BGR_1 = cv2.imread(filename_1);
+    # BGR_1 = filename_1 # load the BGR color image:
+    gray_1 = cv2.cvtColor(BGR_1, cv2.COLOR_BGR2GRAY)  # convert the image to gray scale
+    BGR_2 = cv2.imread(filename_2);
+    # BGR_2 = filename_2     # load the BGR color image:
+    gray_2 = cv2.cvtColor(BGR_2, cv2.COLOR_BGR2GRAY) # convert the image to gray scale:
 
     # (1) Detect features:
     if method == 'Harris':
-        gray_Harris = np.float32(gray_1)
-        # https://docs.opencv.org/4.x/dd/d1a/group__imgproc__feature.html#gac1fc3598018010880e370e2f709b4345
-        # blockSize	Neighborhood size (see the details on cornerEigenValsAndVecs).
-        # ksize	Aperture parameter for the Sobel operator.
-        # k Harris detector free parameter.
-        blockSize = 2
-        ksize = 3
-        k = 0.04
-        # threshold_factor (multiplied with max value in image)
-        threshold_factor = 0.01
-        #  calculate the Harris value everywhere in the image:
-        dst = cv2.cornerHarris(gray_Harris, blockSize, ksize, k)
-        # dilate the values:
-        # dst = cv2.dilate(dst, None)
-        # Threshold the Harris values and set the corresponding pixels red
-        BGR_1[dst > threshold_factor * dst.max()] = [0, 0, 255]
-        # cv2.imshow('dst', BGR_1)
-
-        inds = np.where(dst > threshold_factor * dst.max())
-        n_points = len(inds[0])
-        # corners = np.float32(np.zeros([n_points, 2]));
-
-        corners = np.stack((inds[1].T, inds[0].T), axis=1)
+        corners, inds = edge_detect_Harris(image=BGR_1, image_gray=gray_1,blockSize=2,ksize=3,k=0.04,threshold_factor=0.01)
 
     elif method == 'FAST':
-        # Initiate FAST object with default values
-        # https://docs.opencv.org/3.4/df/d74/classcv_1_1FastFeatureDetector.html
-        threshold = 70
-        nonmaxSuppression = True
-        type_detector = cv2.FAST_FEATURE_DETECTOR_TYPE_9_16
-        fast = cv2.FastFeatureDetector_create(threshold, nonmaxSuppression, type_detector)
-        # find and draw the keypoints
-        kp = fast.detect(gray_1, None)
-        img2 = cv2.drawKeypoints(BGR_1, kp, None, color=(255, 0, 0))
-        cv2.imshow('dst', img2)
-        # print("Total Keypoints with nonmaxSuppression: {}".format(len(kp)))
-        # downselect the points:
-        kp = np.random.choice(kp, size=max_points)
-        n_points = len(kp)
 
-        # convert the points to a 2D numpy array:
-        corners = np.stack((kp.pt[0].T, kp.pt[1].T), axis=1)
-        corners = corners[0:99]
+        corners = edge_detect_FAST(image=BGR_1, image_gray=gray_1, threshold=70, max_points=max_points)
 
     elif method == 'ShiTomasi':
-        # https://docs.opencv.org/3.4/dd/d1a/group__imgproc__feature.html#ga1d6bb77486c8f92d79c8793ad995d541
-        # maxCorners	Maximum number of corners to return. If there are more corners than are found, the strongest of them is returned. maxCorners <= 0 implies that no limit on the maximum is set and all detected corners are returned.
-        # qualityLevel	Parameter characterizing the minimal accepted quality of image corners. The parameter value is multiplied by the best corner quality measure, which is the minimal eigenvalue (see cornerMinEigenVal ) or the Harris function response (see cornerHarris ). The corners with the quality measure less than the product are rejected. For example, if the best corner has the quality measure = 1500, and the qualityLevel=0.01 , then all the corners with the quality measure less than 15 are rejected.
-        # minDistance	Minimum possible Euclidean distance between the returned corners.
-        maxCorners = 100
-        qualityLevel = 0.01
-        minDistance = 10
-        C = cv2.goodFeaturesToTrack(gray_1, maxCorners, qualityLevel, minDistance)
 
-        n_points = C.shape[0]
-        corners = np.float32(np.zeros([n_points, 2]))
-        for i in range(n_points):
-            corners[i, :] = C[i][0]
+        corners = edge_detect_ShiTomasi(image=BGR_1, image_gray=gray_1, maxCorners=100, qualityLevel=0.01, minDistance=10)
 
-        C = np.int0(C)
-        for i in C:
-            x, y = i.ravel()
-            cv2.circle(BGR_1, (x, y), 3, 255, -1)
-        cv2.imshow('dst', BGR_1)
-
-    elif method == "Canny":
+    elif method == "Tomasso":
         edges = find_edge_OF(BGR_1)
         inds = np.where(edges == 255)
-
-        if len(inds) > max_points:
-            random_indices = np.random.choice(len(inds), size=max_points)
-            corners = np.stack((inds[random_indices, 1].T, inds[random_indices, 0].T), axis=1)
-        else:
-            corners = np.stack((inds[1].T, inds[0].T), axis=1)
-
+        corners = np.stack((inds[1].T, inds[0].T), axis=1)
         corners = corners.astype("float32")
-
-
-        # Drop some data points
 
 
     # (2) Track the features to the next frame:
@@ -133,11 +67,11 @@ def determine_optic_flow(filename_1, filename_2, method="Canny", max_points=100,
                             (int(corners_new[p, 0]), int(corners_new[p, 1])), color, thickness=2, tipLength=0.5)
 
         cv2.imshow('Flow', im);
+        plt.figure();
         plt.imshow(im);
         plt.title('Optical flow');
 
 
-
 if __name__ == "__main__":
     # Determine optic flow on the images provided on the repository:
-    determine_optic_flow('bebop_flowers_1.jpg', 'bebop_flowers_2.jpg')
+    determine_optic_flow('test_image_1.jpg', 'test_image_2.jpg')
