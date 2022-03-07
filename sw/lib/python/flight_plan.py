@@ -91,7 +91,7 @@ class FlightPlan:
         for b_e in blocks_elt.findall("block"):
             name = get_attrib(b_e, "name")
             no = get_attrib(b_e, "no")
-            block = Block(name, no, b_e)
+            block = Block(name, int(no), b_e)
             blocks.append(block)
         return blocks
 
@@ -156,7 +156,7 @@ class Waypoint:
 
 
 class Block:
-    def __init__(self, name, no, xml):
+    def __init__(self, name:str, no:int, xml):
         self.name = name
         self.no = no
         self.xml = xml
