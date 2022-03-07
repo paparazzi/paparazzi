@@ -26,6 +26,9 @@
 
 #include "opencv_color_edges.h"
 #include <stdio.h>
+#include <time.h>
+#include "modules/computer_vision/lib/vision/image.h"
+//#include "std.h"
 //#include <stdbool.h>
 
 using namespace std;
@@ -42,18 +45,28 @@ struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min,
 {
 	struct obstacle new_obstacle;
 
+	//struct image_t *down_img;
+
+	//image_yuv422_downsample(img, down_img, 2);
+
+	clock_t t;
+
 	// Create a new image, using the original bebop image.
 	Mat M(width, height, CV_8UC2, img); // original
 	Mat image, contour_image, thresh_image,edge_image;
+
 
 	// convert UYVY in paparazzi to YUV in opencv
 	cvtColor(M, M, CV_YUV2RGB_Y422);
 	cvtColor(M, M, CV_RGB2YUV);
 
+
+
 	// Threshold all values within the indicted YUV values.
 	inRange(M, Scalar(lum_min,cb_min,cr_min), Scalar(lum_max,cb_max,cr_max), thresh_image);
 
 	blur(thresh_image, thresh_image, Size(2, 2));
+
 
 	edge_image = thresh_image;
 	//int edgeThresh = 35;
@@ -62,7 +75,12 @@ struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min,
 	contour_image = edge_image;
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
+
+
+
 	findContours(contour_image, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+
 
 	if (contours.size()>0)
 	{
@@ -111,12 +129,17 @@ struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min,
 	//printf("index %d  \n",largest_contour_index);
 	//printf("Center %f %f\n",mc[largest_contour_index].x,mc[largest_contour_index].y);
 
+	t = clock();
+
 	if (draw){
-	coloryuv_opencv_to_yuv422(M, img, width, height);
+	//coloryuv_opencv_to_yuv422(M, img, width, height);
+
 	//grayscale_opencv_to_yuv422(thresh_image, img, width, height);
 	//colorbgr_opencv_to_yuv422(drawing, img, width, height);
 	}
 
+	t = clock() - t;
+		printf("Elapsed us %f \n", ((float)t/CLOCKS_PER_SEC));
 	new_obstacle.pos_x = mc[largest_contour_index].x;
 	new_obstacle.pos_y = mc[largest_contour_index].y;
 	new_obstacle.width = bounding_rect.width;
@@ -133,6 +156,8 @@ struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min,
 		new_obstacle.area = 0;
 
 	};
+
+
 
 	return new_obstacle;
 

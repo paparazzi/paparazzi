@@ -126,13 +126,12 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
       return img;
   };
 
-  //struct image_t *sml_img;
-  //uint8_t down_smaple = 2;
+  struct image_t sml_img;
+  image_yuv422_downsample(img,&sml_img,2);
 
-  //image_yuv422_downsample(img,sml_img,down_smaple);
   struct obstacle new_obstacle;
 
-  new_obstacle = opencv_color_edges((char *) img->buf, img->w, img->h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max,draw);
+  //new_obstacle = opencv_color_edges((char *) sml_img.buf, sml_img.w, sml_img.h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max,draw);
 
   int32_t x_c, y_c;
 
