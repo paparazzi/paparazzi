@@ -311,9 +311,6 @@ void *nps_main_display(void *data __attribute__((unused)))
   long int period_ns = 3 * DISPLAY_DT * 1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
-  struct NpsFdm fdm_ivy;
-  struct NpsSensors sensors_ivy;
-
   nps_ivy_init(nps_main.ivy_bus);
 
   // start the loop only if no_display is false
@@ -321,12 +318,7 @@ void *nps_main_display(void *data __attribute__((unused)))
     while (TRUE) {
       clock_get_current_time(&requestStart);
 
-      pthread_mutex_lock(&fdm_mutex);
-      memcpy(&fdm_ivy, &fdm, sizeof(fdm));
-      memcpy(&sensors_ivy, &sensors, sizeof(sensors));
-      pthread_mutex_unlock(&fdm_mutex);
-
-      nps_ivy_display(&fdm_ivy, &sensors_ivy);
+      nps_ivy_display(&fdm, &sensors);
 
       clock_get_current_time(&requestEnd);
 
