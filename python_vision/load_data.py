@@ -2,6 +2,7 @@ import cv2
 import os
 from tqdm import tqdm as tqdm
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 # This function loads one image from a specified directory
@@ -12,6 +13,8 @@ def load_img(img_path, color_format):
         return cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
     elif color_format.upper() == "RGB":
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    elif color_format.upper() == "BGR":
+        return img
     else:
         raise Exception("Invalid color format, supported types are RGB and YUV")
 
@@ -54,58 +57,52 @@ def img_rescale(img, resize_factor):
         return cv2.resize(img, (int(img.shape[1] / resize_factor), int(img.shape[0] / resize_factor)))
 
 
-# This function will load images from the webcam
-def cam_feed(nr_frames):
-    pass
-
-
 if __name__ == "__main__":
 
     from determine_optic_flow import determine_optic_flow
-    import matplotlib.pyplot as plt
+    import time
 
-    """
-    path = "AE4317_2019_datasets/cyberzoo_aggressive_flight/20190121-144646/"
-    imgs = os.listdir(path)
-
-    test = load_set(path, "YUV")
-
-    # print(test.items())
-
-    # print(len(test[imgs[0]]))
-
-    rescale = img_rescale(test, 4)
-    # print(rescale[imgs[0]].shape[0])
-
-    res_filt = filter_YUV(rescale, 50, 200, 120, 130, 120, 130)
-    # print(testFilter)
-
-    print(res_filt[imgs[0]])
-
-    plt.imshow(res_filt[imgs[0]])
+    plt.plot([1, 2, 3], [1, 2, 3])
     plt.show()
-    """
 
-    cap = cv2.VideoCapture(0)
+    path = "cyberzoo_manual_flight_data_set/flight_test/Obstacles/orange/"
+    set = load_set(path, "BGR")
 
-    if not cap.isOpened():
-        raise IOError("Cannot open webcam")
+    index = 0
+    prev = 0
 
-    ret, frame = 0, 0
-    plt.figure()
+    for key, value in set.items():
 
-    while True:
-        ret_prev, frame_prev = ret, frame
-        ret, frame = cap.read()
-        # frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-        # cv2.imshow('Input', frame)
+        new = value
 
-        if not ret_prev == 0:
-            determine_optic_flow(frame, frame_prev)
+        if index >= 1:
+            print(new, prev)
+            determine_optic_flow(new, prev)
+            time.sleep(20)
 
-        c = cv2.waitKey(1)
-        if c == 27:
-            break
+        prev = value
+        index += 1
 
-    cap.release()
-    cv2.destroyAllWindows()
+
+    # cap = cv2.VideoCapture(0)
+    #
+    # if not cap.isOpened():
+    #     raise IOError("Cannot open webcam")
+    #
+    # ret, frame = 0, 0
+    #
+    # while True:
+    #     ret_prev, frame_prev = ret, frame
+    #     ret, frame = cap.read()
+    #     # frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+    #     # cv2.imshow('Input', frame)
+    #
+    #     if not ret_prev == 0:
+    #         determine_optic_flow(frame, frame_prev)
+    #
+    #     c = cv2.waitKey(1)
+    #     if c == 27:
+    #         break
+    #
+    # cap.release()
+    # cv2.destroyAllWindows()
