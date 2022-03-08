@@ -75,7 +75,7 @@ PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 #endif
 
 #define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
-#define CARROT_DIST (12 << INT32_POS_FRAC)
+#define CARROT_DIST (200 << INT32_POS_FRAC)
 
 bool force_forward = false;
 
