@@ -168,6 +168,7 @@ Cargo.lock
 /sw/ground_segment/misc/video_synchronizer
 /sw/ground_segment/misc/ivy2serial
 /sw/ground_segment/misc/sbs2ivy
+/sw/ground_segment/misc/ublox2ivy
 
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp
