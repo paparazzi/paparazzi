@@ -27,9 +27,11 @@
 #include "opencv_color_edges.h"
 #include <stdio.h>
 #include <time.h>
+
+extern "C" {
 #include "modules/computer_vision/lib/vision/image.h"
-//#include "std.h"
-//#include <stdbool.h>
+}
+
 
 using namespace std;
 #include <opencv2/core/core.hpp>
@@ -39,115 +41,113 @@ using namespace cv;
 
 RNG rng(12345);
 
-struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
+struct obstacle opencv_color_edges(struct image_t *img,int lum_min, int lum_max,
         int cb_min, int cb_max,
-        int cr_min, int cr_max,bool draw)
+        int cr_min, int cr_max,int downsize_factor,bool draw, double min_obs_size)
 {
 	struct obstacle new_obstacle;
 
-	//struct image_t *down_img;
-
-	//image_yuv422_downsample(img, down_img, 2);
-
+	// Time process
 	clock_t t;
+	t = clock();
+
+	// Downsample image
+	struct image_t img_small;
+	image_create(&img_small,img->w/downsize_factor,img->h/downsize_factor,IMAGE_YUV422);
+	image_yuv422_downsample(img,&img_small,downsize_factor);
 
 	// Create a new image, using the original bebop image.
-	Mat M(width, height, CV_8UC2, img); // original
-	Mat image, contour_image, thresh_image,edge_image;
-
+	Mat M(img_small.h, img_small.w, CV_8UC2, img_small.buf); // original
+	Mat image, contour_image, thresh_image,blur_image,edge_image;
 
 	// convert UYVY in paparazzi to YUV in opencv
 	cvtColor(M, M, CV_YUV2RGB_Y422);
 	cvtColor(M, M, CV_RGB2YUV);
 
-
-
 	// Threshold all values within the indicted YUV values.
 	inRange(M, Scalar(lum_min,cb_min,cr_min), Scalar(lum_max,cb_max,cr_max), thresh_image);
 
-	blur(thresh_image, thresh_image, Size(2, 2));
+	// Blur image
+	blur(thresh_image, blur_image, Size(2, 2));
 
-
-	edge_image = thresh_image;
-	//int edgeThresh = 35;
-	//Canny(edge_image, edge_image, edgeThresh, edgeThresh * 3);
 	// Find contours
-	contour_image = edge_image;
+	contour_image = blur_image;
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
-
-
-
-	findContours(contour_image, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-
+	findContours(contour_image, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+	//drawContours(M, contours, -1, Scalar(0, 255, 0), 2);
 
 
 	if (contours.size()>0)
 	{
 
-	//printf("Found contours %d\n",int(contours.size()));
+		// Find Largest Contour
+		int largest_contour_index = 0;
+		int largest_area = 0;
+		Rect rect;
 
-	// Find Largest Contour
-	int largest_contour_index = 0;
-	int largest_area = 0;
-	Rect bounding_rect;
+		// iterate through each contour.
+		for (unsigned int i = 0; i < contours.size(); i++) {
+		//  Find the area of contour
+		double a = contourArea(contours[i], false);
+		if (a > min_obs_size*contour_image.cols*contour_image.rows){
+			if (a > largest_area) {
+			  largest_area = a;
+			  // Store the index of largest contour
+			  largest_contour_index = i;
+			}
+		}
+		}
 
-	// iterate through each contour.
-	for (unsigned int i = 0; i < contours.size(); i++) {
-	//  Find the area of contour
-	double a = contourArea(contours[i], false);
-	if (a > largest_area) {
-	  largest_area = a;
-	  // Store the index of largest contour
-	  largest_contour_index = i;
-	  // Find the bounding rectangle for biggest contour
-	  bounding_rect = boundingRect(contours[i]);
-	}
-	}
-	Scalar color(255, 255, 255);
+		/*
+		// Get the moments and mass centers
+		vector<Moments> mu(contours.size());
+		vector<Point2f> mc(contours.size());
+		for (unsigned int i = 0; i < contours.size(); i++) {
+		mu[i] = moments(contours[i],true);
+		mc[i] = Point2f(mu[i].m10 / mu[i].m00 , mu[i].m01 / mu[i].m00);
+		}
+		//new_obstacle.pos_x = mc[largest_contour_index].x*downsize_factor;
+		//new_obstacle.pos_y = mc[largest_contour_index].y*downsize_factor;
+		*/
 
-	if (draw){
-	// Draw the contour and rectangle
-	rectangle(M, bounding_rect,  Scalar(0, 255, 0), 2, 8, 0);
-	}
+		//printf("Moments %f %f %f\n",mu[largest_contour_index].m10,mu[largest_contour_index].m01,mu[largest_contour_index].m00);
 
-	// Get the moments
-	vector<Moments> mu(contours.size());
-	for (unsigned int i = 0; i < contours.size(); i++) {
-	mu[i] = moments(contours[i], false);
-	}
+		// Find the bounding rectangle for biggest contour
+		rect = boundingRect(contours[largest_contour_index]);
 
-	//  Get the mass centers:
-	vector<Point2f> mc(contours.size());
-	for (unsigned int i = 0; i < contours.size(); i++) {
-	mc[i] = Point2f(mu[i].m10 / mu[i].m00 , mu[i].m01 / mu[i].m00);
-	}
+		// Save in output variable
+		new_obstacle.pos_x = (rect.x+rect.width/2)*downsize_factor;
+		new_obstacle.pos_y = (rect.y+rect.height/2)*downsize_factor;
+		new_obstacle.width = rect.width*downsize_factor;
+		new_obstacle.height =rect.height*downsize_factor;
+		new_obstacle.area = largest_area*downsize_factor*downsize_factor;
+
+		//printf("Rect x %d y %d w %d h %d\n",rect.x+rect.width/2,rect.y+rect.height/2,rect.width,rect.height);
+		//printf("Total x %d Total y %d\n",img->w,img->h);
+		t = clock() - t;
+		printf("VISION OBSTACLE x pos %d y pos %d width %d height %d area %d Time elapsed (s) %f\n",new_obstacle.pos_x,new_obstacle.pos_y,new_obstacle.width,new_obstacle.height,new_obstacle.area,((float)t/CLOCKS_PER_SEC));
 
 
-	printf("Largest contour %d\n",largest_area);
-	//printf("Bounding_rect %d %d %d %d\n",bounding_rect.x,bounding_rect.y,bounding_rect.height,bounding_rect.width);
-	//printf("index %d  \n",largest_contour_index);
-	//printf("Center %f %f\n",mc[largest_contour_index].x,mc[largest_contour_index].y);
+		if (draw){
 
-	t = clock();
+			// Draw center of obstacle (crosshair)
+			struct point_t center;
+			center.x = new_obstacle.pos_x;
+			center.y = new_obstacle.pos_y;
+			uint8_t color[4] = {255, 255, 255, 255};
 
-	if (draw){
-	//coloryuv_opencv_to_yuv422(M, img, width, height);
+			//Crosshair
+			image_draw_crosshair(img, &center, color, 10);
+			// Obstacle rectangle
+			image_draw_rectangle(img,new_obstacle.pos_x,new_obstacle.pos_x+new_obstacle.width,new_obstacle.pos_y,new_obstacle.pos_y+new_obstacle.height,color);
 
-	//grayscale_opencv_to_yuv422(thresh_image, img, width, height);
-	//colorbgr_opencv_to_yuv422(drawing, img, width, height);
-	}
-
-	t = clock() - t;
-		printf("Elapsed us %f \n", ((float)t/CLOCKS_PER_SEC));
-	new_obstacle.pos_x = mc[largest_contour_index].x;
-	new_obstacle.pos_y = mc[largest_contour_index].y;
-	new_obstacle.width = bounding_rect.width;
-	new_obstacle.height = bounding_rect.height;
-	new_obstacle.area = largest_area;
+		}
 
 	} else{
-		printf("No contour\n");
+		t = clock() - t;
+
+		printf("VISION NO OBSTACLE Time elapsed (s) %f\n",((float)t/CLOCKS_PER_SEC));
 
 		new_obstacle.pos_x = 0;
 		new_obstacle.pos_y = 0;
@@ -156,7 +156,6 @@ struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min,
 		new_obstacle.area = 0;
 
 	};
-
 
 
 	return new_obstacle;

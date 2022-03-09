@@ -75,6 +75,8 @@ uint8_t cod_cr_max2 = 0;
 bool cod_draw1 = false;
 bool cod_draw2 = false;
 
+double min_obs_size = 0.05;
+
 // define global variables
 struct color_object_t {
   int32_t x_c;
@@ -83,6 +85,9 @@ struct color_object_t {
   bool updated;
 };
 struct color_object_t global_filters[2];
+
+// Added global obstacle
+struct obstacle global_obstacles[3];
 
 // Function
 uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc, bool draw,
@@ -126,18 +131,18 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
       return img;
   };
 
-  struct image_t sml_img;
-  image_yuv422_downsample(img,&sml_img,2);
+  int downsize = 2;
+  double min_obs = min_obs_size;
+  printf("MIN %f\n",min_obs);
 
   struct obstacle new_obstacle;
-
-  //new_obstacle = opencv_color_edges((char *) sml_img.buf, sml_img.w, sml_img.h,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max,draw);
+  new_obstacle = opencv_color_edges(img,lum_min, lum_max, cb_min, cb_max, cr_min, cr_max,downsize,draw,min_obs);
 
   int32_t x_c, y_c;
-
   x_c = new_obstacle.pos_x;
   y_c = new_obstacle.pos_y;
   uint32_t count = new_obstacle.area;
+
 
   // Filter and find centroid
   //uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
@@ -150,9 +155,13 @@ static struct image_t *object_detector(struct image_t *img, uint8_t filter)
   global_filters[filter-1].x_c = x_c;
   global_filters[filter-1].y_c = y_c;
   global_filters[filter-1].updated = true;
-  pthread_mutex_unlock(&mutex);
 
-  printf("Color count: %d \n",global_filters[filter-1].color_count);
+  global_obstacles[0].pos_x = new_obstacle.pos_x;
+  global_obstacles[0].pos_y = new_obstacle.pos_y;
+  global_obstacles[0].width = new_obstacle.width;
+  global_obstacles[0].height = new_obstacle.height;
+  global_obstacles[0].updated = true;
+  pthread_mutex_unlock(&mutex);
 
   return img;
 }
@@ -281,16 +290,27 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
 void color_object_detector_periodic(void)
 {
 
-  struct ObstacleMessage testMessage;
-  testMessage.obs_height = 10;
+  struct ObstacleMessage obstacleMessage;
 
-  uint32_t stamp = get_sys_time_usec();
-  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(testMessage), &testMessage);
 
   static struct color_object_t local_filters[2];
+  static struct obstacle local_obstacles[3];
   pthread_mutex_lock(&mutex);
   memcpy(local_filters, global_filters, 2*sizeof(struct color_object_t));
+  memcpy(local_obstacles, global_obstacles, 3*sizeof(struct color_object_t));
   pthread_mutex_unlock(&mutex);
+
+  if(global_filters[0].updated){
+	  obstacleMessage.pos_x = local_obstacles[0].pos_x;
+	  obstacleMessage.pos_y = local_obstacles[0].pos_y;
+	  obstacleMessage.obs_width = local_obstacles[0].width;
+	  obstacleMessage.obs_height = local_obstacles[0].height;
+	  obstacleMessage.quality = local_obstacles[0].area;
+	  obstacleMessage.time2impact = -1;
+
+	  uint32_t stamp = get_sys_time_usec();
+	  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(obstacleMessage), &obstacleMessage);
+  }
 
   if(local_filters[0].updated){
     AbiSendMsgVISUAL_DETECTION(COLOR_OBJECT_DETECTION1_ID, local_filters[0].x_c, local_filters[0].y_c,

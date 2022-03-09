@@ -25,6 +25,7 @@
     <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="0" description="Filter 2 min red chroma"/>
     <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="0" description="Filter 2 max red chroma"/>
     <define name="COLOR_OBJECT_DETECTOR_DRAW2" value="FALSE|TRUE" description="Whether or not to draw on image"/>
+    <define name="MIN_OBS_SIZE" value="0" description="Minimum obstacle size to detect"/>
   </doc>
 
   <settings>
@@ -62,6 +63,7 @@
     <file name="cv_detect_color_object.c"/>
     <file name="opencv_color_edges.cpp"/>
     <file name="opencv_image_functions.cpp"/>
+    <file name="lib/vision/image.c"/>
     
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include"/>
     
@@ -85,6 +87,8 @@
   	<file name="cv_detect_color_object.c"/>
     <file name="opencv_color_edges.cpp"/>
     <file name="opencv_image_functions.cpp"/>
+    <file name="lib/vision/image.c"/>
+        
     
     <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/>
     

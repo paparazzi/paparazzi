@@ -38,11 +38,12 @@ struct obstacle{
 	int width;
 	int height;
 	int area;
+	bool updated;
 };
 
-struct obstacle opencv_color_edges(char *img, int width, int height,int lum_min, int lum_max,
+struct obstacle opencv_color_edges(struct image_t *img,int lum_min, int lum_max,
         int cb_min, int cb_max,
-        int cr_min, int cr_max,bool draw);
+        int cr_min, int cr_max,int downsize_factor,bool draw,double min_obs_size);
 
 #ifdef __cplusplus
 }

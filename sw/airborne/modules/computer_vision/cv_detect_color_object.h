@@ -49,6 +49,8 @@ extern uint8_t cod_cr_max2;
 extern bool cod_draw1;
 extern bool cod_draw2;
 
+extern double min_obs_size;
+
 // Module functions
 extern void color_object_detector_init(void);
 extern void color_object_detector_periodic(void);
