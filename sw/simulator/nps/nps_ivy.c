@@ -32,17 +32,17 @@ pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
 static int ap_launch_index;
-
+static pthread_mutex_t ivy_mutex; // mutex for ivy send
 
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
                          void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[]);
+                         int argc, char *argv[]);
 
 /* Datalink Ivy functions */
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
-                          int argc __attribute__((unused)), char *argv[]);
+                          int argc, char *argv[]);
 
 void* ivy_main_loop(void* data __attribute__((unused)));
 
@@ -94,8 +94,10 @@ void nps_ivy_init(char *ivy_bus)
  */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
                          void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[])
+                         int argc, char *argv[])
 {
+  if (argc < 6) { return; }
+
   // wind speed in m/s
   struct FloatVect3 wind;
   wind.x = atof(argv[1]); //east
@@ -115,6 +117,7 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   // directly set gps fix in modules/gps/gps_sim_nps.h
   gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
+
 }
 
 /*
@@ -124,6 +127,8 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 
 void nps_ivy_send_WORLD_ENV_REQ(void)
 {
+  pthread_mutex_lock(&ivy_mutex);
+
   // First unbind from previous request if needed
   if (ivyPtr != NULL) {
     IvyUnbindMsg(ivyPtr);
@@ -150,6 +155,8 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   seq++;
 
   nps_ivy_send_world_env = false;
+
+  pthread_mutex_unlock(&ivy_mutex);
 }
 
 int find_launch_index(void)
@@ -169,8 +176,10 @@ int find_launch_index(void)
 
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
-                          int argc __attribute__((unused)), char *argv[])
+                          int argc, char *argv[])
 {
+  if (argc < 3) { return; }
+
   if (atoi(argv[1]) != AC_ID) {
     return;
   }
@@ -205,10 +214,16 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
 void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
 {
   struct NpsFdm fdm_ivy;
-  memcpy (&fdm_ivy, fdm_data, sizeof(struct NpsFdm));
-
   struct NpsSensors sensors_ivy;
-  memcpy (&sensors_ivy, sensors_data, sizeof(struct NpsSensors));
+
+  // make a local copy with mutex
+  pthread_mutex_lock(&fdm_mutex);
+  memcpy(&fdm_ivy, fdm_data, sizeof(fdm));
+  memcpy(&sensors_ivy, sensors_data, sizeof(sensors));
+  pthread_mutex_unlock(&fdm_mutex);
+
+  // protect Ivy thread
+  pthread_mutex_lock(&ivy_mutex);
 
   IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
              AC_ID,
@@ -265,7 +280,9 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
              fdm_ivy.wind.y,
              fdm_ivy.wind.z);
 
-  if(nps_ivy_send_world_env){
+  pthread_mutex_unlock(&ivy_mutex);
+
+  if (nps_ivy_send_world_env) {
     nps_ivy_send_WORLD_ENV_REQ();
   }
 }
