@@ -27,6 +27,8 @@
 
 #include "modules/core/settings.h"
 #include "generated/settings.h"
+#include "generated/airframe.h"
+#include "pprzlink/messages.h"
 #include "pprzlink/dl_protocol.h"
 
 struct PersistentSettings pers_settings;
