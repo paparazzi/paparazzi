@@ -43,6 +43,7 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
 
   /* parse telemetry messages coming from ground station */
   switch (msg_id) {
+#ifndef INTERMCU_FBW
 
 #ifdef USE_NAVIGATION
     case DL_BLOCK : {
@@ -82,6 +83,7 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
       break;
 #endif
 
+#endif // INTERMCU_FBW
     default:
       break;
   }

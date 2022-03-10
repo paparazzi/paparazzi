@@ -51,8 +51,8 @@
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
-#define PowerVoltage() (ap_electrical.vsupply)
-#define RcRoll(travel) (imcu_get_radio(RADIO_ROLL) * (float)travel /(float)MAX_PPRZ)
+#define PowerVoltage() (electrical.vsupply)
+#define RcRoll(travel) (radio_control_get(RADIO_ROLL) * (float)travel /(float)MAX_PPRZ)
 
 
 enum oval_status { OR12, OC2, OR21, OC1 };

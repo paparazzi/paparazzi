@@ -28,7 +28,7 @@
 #define CAM_H
 
 #include <inttypes.h>
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 
 #define CAM_MODE_OFF 0         /* Do nothing */
 #define CAM_MODE_ANGLES 1      /* Input: servo angles */
@@ -75,9 +75,9 @@ void cam_periodic(void);
 void cam_init(void);
 
 extern int16_t cam_pan_command;
-#define cam_SetPanCommand(x) { cam_pan_command = x; imcu_set_command(COMMAND_CAM_PAN, cam_pan_command);}
+#define cam_SetPanCommand(x) { cam_pan_command = x; command_set(COMMAND_CAM_PAN, cam_pan_command);}
 extern int16_t cam_tilt_command;
-#define cam_SetTiltCommand(x) { cam_tilt_command = x; imcu_set_command(COMMAND_CAM_TILT, cam_tilt_command);}
+#define cam_SetTiltCommand(x) { cam_tilt_command = x; command_set(COMMAND_CAM_TILT, cam_tilt_command);}
 
 #ifdef TEST_CAM
 extern float test_cam_estimator_x;

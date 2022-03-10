@@ -28,7 +28,10 @@
  */
 
 #include "modules/datalink/telemetry_common.h"
+#include "modules/datalink/telemetry.h"
 #include "generated/periodic_telemetry.h"
+#include "autopilot.h"
+
 
 /* Implement global structures from generated header.
  * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
@@ -65,6 +68,36 @@ int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, 
   // message is not in telemetry file
   return -1;
 }
+
+/** Peridioc task
+ * Send a series of initialisation messages followed by a stream of periodic ones.
+ */
+void telemetry_reporting_task(void)
+{
+  static uint8_t boot = true;
+
+  /* initialisation phase during boot */
+  if (boot) {
+#if DOWNLINK && !(defined INTERMCU_FBW)
+    autopilot_send_version();
+#endif
+    boot = false;
+  }
+  /* then report periodicly */
+  else {
+#if FIXEDWING_FIRMWARE
+#if AP
+    periodic_telemetry_send_Ap(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif // AP
+#if FBW || !TELEMETRY_INTERMCU // FIXME for now send both AP and FBW process if needed
+    periodic_telemetry_send_Fbw(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif //FBW
+#else // ROTORCRAFT && ROVER
+    periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+#endif
+  }
+}
+
 
 #if USE_PERIODIC_TELEMETRY_REPORT
 

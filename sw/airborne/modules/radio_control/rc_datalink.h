@@ -30,7 +30,6 @@
 #include "std.h"
 
 #define RC_DL_NB_CHANNEL 5
-#define RADIO_CONTROL_NB_CHANNEL RC_DL_NB_CHANNEL
 
 /**
  * Redefining RADIO_*
@@ -65,13 +64,14 @@ extern void parse_rc_4ch_datalink(
   int8_t yaw);
 
 /**
- * RC event function with handler callback.
+ * RC init function.
  */
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
+extern void rc_datalink_init(void);
 
 /**
- * Event macro with handler callback
+ * RC event function.
  */
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
+extern void rc_datalink_event(void);
 
 #endif /* RC_DATALINK_H */
+

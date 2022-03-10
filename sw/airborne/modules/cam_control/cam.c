@@ -193,7 +193,7 @@ void cam_periodic(void)
 
 
 #if defined(COMMAND_CAM_PWR_SW)
-  if (video_tx_state) { imcu_set_command(COMMAND_CAM_PWR_SW, MAX_PPRZ); } else { imcu_set_command(COMMAND_CAM_PWR_SW, MIN_PPRZ); }
+  if (video_tx_state) { command_set(COMMAND_CAM_PWR_SW, MAX_PPRZ); } else { command_set(COMMAND_CAM_PWR_SW, MIN_PPRZ); }
 #elif defined(VIDEO_TX_SWITCH)
   if (video_tx_state) { LED_OFF(VIDEO_TX_SWITCH); } else { LED_ON(VIDEO_TX_SWITCH); }
 #endif
@@ -250,10 +250,10 @@ void cam_angles(void)
   cam_theta_c = cam_tilt_c;
 
 #ifdef COMMAND_CAM_PAN
-  imcu_set_command(COMMAND_CAM_PAN, cam_pan);
+  command_set(COMMAND_CAM_PAN, cam_pan);
 #endif
 #ifdef COMMAND_CAM_TILT
-  imcu_set_command(COMMAND_CAM_TILT, cam_tilt);
+  command_set(COMMAND_CAM_TILT, cam_tilt);
 #endif
 }
 

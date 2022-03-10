@@ -38,7 +38,7 @@
   <init fun="dcf_init()"/>
 
   <datalink message="DCF_REG_TABLE" fun="parseRegTable(buf)"/>
-  <datalink message="DCF_THETA" fun="parseThetaTable(buf)"/>
+  <datalink message="DCF_THETA" fun="parseThetaTable(buf)" class="telemetry"/>
 
   <makefile firmware="fixedwing">
     <file name="dcf.c"/>

@@ -35,7 +35,7 @@
 
 // Command vector for thrust
 #include "generated/airframe.h"
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 
 #define NB_DATA 9
 
@@ -112,7 +112,7 @@ void ArduIMU_periodicGPS(void)
   //  - low speed
   //  - high thrust
   float speed = stateGetHorizontalSpeedNorm_f();
-  pprz_t cmd = imcu_get_command(COMMAND_THROTTLE);
+  pprz_t cmd = command_get(COMMAND_THROTTLE);
   if (speed < HIGH_ACCEL_LOW_SPEED && cmd > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = true;
   } else {

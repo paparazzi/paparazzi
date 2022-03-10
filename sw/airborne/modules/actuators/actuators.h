@@ -37,9 +37,10 @@
  */
 #include "generated/airframe.h"
 
-#if ACTUATORS_NB
-
 extern void actuators_init(void);
+extern void actuators_periodic(void);
+
+#if ACTUATORS_NB
 
 extern uint32_t actuators_delay_time;
 extern bool   actuators_delay_done;

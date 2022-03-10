@@ -30,7 +30,7 @@
 #include "state.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 
 
 #if defined WP_RELEASE
@@ -186,7 +186,7 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
 unit_t nav_drop_shoot(void)
 {
-  imcu_set_command(COMMAND_HATCH, MAX_PPRZ);
+  command_set(COMMAND_HATCH, MAX_PPRZ);
   return 0;
 }
 

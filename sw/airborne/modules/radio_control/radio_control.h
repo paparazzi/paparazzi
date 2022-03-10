@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
+ *               2021 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,29 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
+ */
+
+/**
+ * @file modules/radio_control/radio_control.h
+ * Generic interface for radio control modules
  */
 
 #ifndef RADIO_CONTROL_H
 #define RADIO_CONTROL_H
 
-#include "led.h"
 #include "generated/airframe.h"
 #include "paparazzi.h"
-
-/* underlying hardware, also include if RADIO_CONTROL is not defined for ap in dual mcu case */
-#include RADIO_CONTROL_TYPE_H
-
-/* RADIO_CONTROL_NB_CHANNEL needs to be defined to suitable default the implementation.
- * If not all available channels are needed, can be overridden in airframe file.
- */
-
-#if defined RADIO_CONTROL
-/* must be defined by underlying hardware */
-extern void radio_control_impl_init(void);
 
 /* timeouts - for now assumes 60Hz periodic */
 #ifndef RC_AVG_PERIOD
@@ -57,8 +50,12 @@ extern void radio_control_impl_init(void);
 #define RC_LOST        1
 #define RC_REALLY_LOST 2
 
-/* macro that can be used in the command laws */
-#define RCValue(_x) radio_control.values[_x]
+// if not redefined, use default number of channels
+// value should be large enough for all implementation by default
+#ifndef RADIO_CONTROL_NB_CHANNEL
+#define RADIO_CONTROL_NB_CHANNEL 32
+#endif
+
 
 struct RadioControl {
   uint8_t status;
@@ -66,18 +63,44 @@ struct RadioControl {
   uint8_t radio_ok_cpt;
   uint8_t frame_rate;
   uint8_t frame_cpt;
+  uint8_t nb_channel;
   pprz_t  values[RADIO_CONTROL_NB_CHANNEL];
 };
 
 extern struct RadioControl radio_control;
 
-#define RadioControlValues(_chan) radio_control.values[_chan]  ///< For easy access in command_laws
+// For easy access in command_laws
+#define RadioControlValues(_chan) radio_control.values[_chan]
+
+// Test is radio is reall lost
+#define RadioControlIsLost() (radio_control.status == RC_REALLY_LOST)
+
+/** Set a radio control channel value
+ * @param idx rc channel index
+ * @param value new value
+ */
+static inline void radio_control_set(uint8_t idx, pprz_t value)
+{
+  if (idx < radio_control.nb_channel) {
+    // Bound value ???
+    radio_control.values[idx] = value;
+  }
+}
+
+/** Get a radio control channel value
+ * @param idx rc channel index
+ * @return current value, 0 if index is invalid
+ */
+static inline pprz_t radio_control_get(uint8_t idx)
+{
+  if (idx < radio_control.nb_channel) {
+    return radio_control.values[idx];
+  }
+  return 0;
+}
+
+
 extern void radio_control_init(void);
 extern void radio_control_periodic_task(void);
-
-// Event implemented in radio_control/*.h
-
-
-#endif /* RADIO_CONTROL */
 
 #endif /* RADIO_CONTROL_H */

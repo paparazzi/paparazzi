@@ -44,9 +44,6 @@
 #define SPEKTRUM_MAX_CHANNELS (SPEKTRUM_CHANNELS_PER_FRAME * SPEKTRUM_MAX_FRAMES)
 #define SPEKTRUM_MIN_FRAME_SPACE  7       ///< Minum amount of time between frames (7ms), in fact either 11 or 22 ms
 
-/* Set the event function to the correct */
-#define RadioControlEvent(_received_frame_handler) spektrum_event(_received_frame_handler)
-
 /* Per satellite we keep track of data */
 struct spektrum_sat_t {
   bool valid;                             ///< True when we received a packet else false
@@ -61,12 +58,13 @@ struct spektrum_sat_t {
 struct spektrum_t {
   bool valid;                             ///< True when we received a packet else false
   uint8_t tx_type;                        ///< Transmitter type encoded (see wiki)
-  int8_t signs[RADIO_CONTROL_NB_CHANNEL]; ///< Signs for the RC channels
+  int8_t signs[SPEKTRUM_NB_CHANNEL];      ///< Signs for the RC channels
   struct spektrum_sat_t satellites[SPEKTRUM_SATELLITES_NB]; ///< All the satellites connected
 };
 
 /* External functions */
-extern void spektrum_event(void (*_received_frame_handler)(void));
+extern void spektrum_init(void);
+extern void spektrum_event(void);
 extern void spektrum_try_bind(void);
 
 #endif /* RADIO_CONTROL_SPEKTRUM_H */

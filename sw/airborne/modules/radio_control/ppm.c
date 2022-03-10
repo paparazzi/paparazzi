@@ -27,6 +27,11 @@
 
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/ppm.h"
+#include "modules/core/abi.h"
+
+#if RADIO_CONTROL_NB_CHANNEL < RADIO_CTL_NB
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be lower than number of channels in radio file."
+#endif
 
 uint16_t ppm_pulses[RADIO_CTL_NB];
 volatile bool ppm_frame_available;
@@ -63,12 +68,13 @@ static void send_ppm(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void radio_control_impl_init(void)
+void ppm_init(void)
 {
   ppm_frame_available = false;
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CTL_NB;
   ppm_data_valid = false;
+  radio_control.nb_channel = RADIO_CTL_NB;
 
   ppm_arch_init();
 
@@ -77,7 +83,7 @@ void radio_control_impl_init(void)
 #endif
 }
 
-void radio_control_impl_event(void (* _received_frame_handler)(void))
+void ppm_event(void)
 {
   if (ppm_frame_available) {
     radio_control.frame_cpt++;
@@ -87,7 +93,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     } else {
       radio_control.status = RC_OK;
       NormalizePpmIIR(ppm_pulses, radio_control);
-      _received_frame_handler();
+      AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_PPM_ID, &radio_control);
     }
     ppm_frame_available = false;
   }

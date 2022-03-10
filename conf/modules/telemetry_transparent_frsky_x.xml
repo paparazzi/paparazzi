@@ -36,7 +36,7 @@
     <file name="frsky_x.c"/>
   </makefile>
   
-  <makefile target="!fbw|sim|nps|hitl">
+  <makefile target="!sim|nps|hitl">
     <define name="USE_FRSKY_X_SERIAL"/>
     <define name="DOWNLINK_DEVICE" value="frsky_x_serial"/>
     <define name="PPRZ_UART" value="frsky_x_serial"/>

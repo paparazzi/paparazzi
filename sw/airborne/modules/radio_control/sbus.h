@@ -31,4 +31,14 @@
 
 extern struct Sbus sbus;
 
+/**
+ * RC init function.
+ */
+extern void sbus_init(void);
+
+/**
+ * RC event function.
+ */
+extern void sbus_event(void);
+
 #endif /* RC_SBUS_H */

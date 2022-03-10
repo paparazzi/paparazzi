@@ -35,8 +35,8 @@
 #include "led.h"
 #endif
 #if defined RADIO_CONTROL
-#if defined RADIO_CONTROL_BIND_IMPL_FUNC & defined SPEKTRUM_BIND_PIN_PORT
-#include "modules/radio_control/radio_control.h"
+#if defined RADIO_CONTROL_BIND_IMPL_FUNC && defined SPEKTRUM_BIND_PIN_PORT
+#include "modules/radio_control/spektrum.h"
 #endif
 #endif
 #if USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6 || USE_UART7 || USE_UART8
@@ -132,7 +132,7 @@ void mcu_init(void)
   PERIPHERAL3V3_ENABLE_ON(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);
 #endif
   /* for now this means using spektrum */
-#if defined RADIO_CONTROL & defined RADIO_CONTROL_BIND_IMPL_FUNC & defined SPEKTRUM_BIND_PIN_PORT
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_BIND_IMPL_FUNC && defined SPEKTRUM_BIND_PIN_PORT
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
 #if USE_UART0

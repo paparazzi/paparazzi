@@ -17,7 +17,7 @@
   </header>
   <init fun="superbitrf_dl_init()"/>
   <event fun="superbitrf_dl_event()"/>
-  <makefile target="!fbw|sim|nps">
+  <makefile target="!sim|nps">
     <define name="DOWNLINK_DEVICE" value="superbitrf"/>
     <define name="DOWNLINK_TRANSPORT" value="pprz_srf_tp"/>
     <define name="DATALINK" value="SUPERBITRF"/>

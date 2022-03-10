@@ -26,13 +26,15 @@
 
 #include "modules/radio_control/rc_datalink.h"
 #include "modules/radio_control/radio_control.h"
+#include "modules/core/abi.h"
 
 int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 volatile bool rc_dl_frame_available;
 
 
-void radio_control_impl_init(void)
+void rc_datalink_init(void)
 {
+  radio_control.nb_channel = RC_DL_NB_CHANNEL;
   rc_dl_frame_available = false;
 }
 
@@ -86,7 +88,7 @@ static void rc_datalink_normalize(int8_t *in, int16_t *out)
   Bound(out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);
 }
 
-void radio_control_impl_event(void (* _received_frame_handler)(void))
+void rc_datalink_event(void)
 {
   if (rc_dl_frame_available) {
     radio_control.frame_cpt++;
@@ -94,7 +96,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
     radio_control.radio_ok_cpt = 0;
     radio_control.status = RC_OK;
     rc_datalink_normalize(rc_dl_values, radio_control.values);
-    _received_frame_handler();
+    AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_DATALINK_ID, &radio_control);
     rc_dl_frame_available = false;
   }
 }

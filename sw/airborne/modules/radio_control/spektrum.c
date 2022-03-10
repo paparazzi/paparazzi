@@ -21,8 +21,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "modules/radio_control/spektrum.h"
-
 /**
  * @file modules/radio_control/spektrum.c
  *
@@ -31,10 +29,16 @@
  */
 
 #include "std.h"
+#include "modules/radio_control/spektrum.h"
 #include "modules/radio_control/radio_control.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
+
+#if RADIO_CONTROL_NB_CHANNEL < SPEKTRUM_NB_CHANNEL
+#warning "RADIO_CONTROL_NB_CHANNEL mustn't be lower than 14. X-Plus channel expansion is not (yet) usable"
+#endif
 
 /* Check if primary receiver is defined */
 #ifndef SPEKTRUM_PRIMARY_UART
@@ -158,12 +162,13 @@ void spektrum_try_bind(void)
 
 
 /** Main Radio initialization */
-void radio_control_impl_init(void)
+void spektrum_init(void)
 {
 
-  for (uint8_t i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
+  for (uint8_t i = 0; i < SPEKTRUM_NB_CHANNEL; i++) {
     spektrum.signs[i] = spektrum_signs[i];
   }
+  radio_control.nb_channel = SPEKTRUM_NB_CHANNEL;
 
   // Set polarity to normal on boards that can change this
 #ifdef RC_POLARITY_GPIO_PORT
@@ -279,7 +284,7 @@ static void spektrum_uart_check(struct uart_periph *dev, struct spektrum_sat_t *
 }
 
 /** Checks if there is one valid satellite and sets the radio_control structure */
-void spektrum_event(void (*frame_handler)(void))
+void spektrum_event(void)
 {
   spektrum_uart_check(&SPEKTRUM_PRIMARY_UART, &spektrum.satellites[0]);
 
@@ -313,13 +318,13 @@ void spektrum_event(void (*frame_handler)(void))
     radio_control.status = RC_OK;
 
     // Copy the radio control channels
-    for (uint8_t i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
+    for (uint8_t i = 0; i < radio_control.nb_channel; i++) {
       radio_control.values[i] = spektrum.satellites[sat_id].values[i] * spektrum.signs[i];
       Bound(radio_control.values[i], -MAX_PPRZ, MAX_PPRZ);
     }
 
     // We got a valid frame so execute the frame handler
-    (*frame_handler)();
+    AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_SPEKTRUM_ID, &radio_control);
   }
 }
 

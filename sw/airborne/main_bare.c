@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2017-2021 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of Paparazzi.
  *
@@ -20,28 +20,45 @@
  */
 
 /**
- * @file firmwares/rotorcraft/main.c
+ * @file main_bare.c
  *
- * Program main function
- * AP + FBW on single MCU
- * AP or FBW on dual MCU
+ * Program main function with baremetal inplementation (no RTOS)
+ *
+ * Calls AP on single/dual MCU
+ * Limit polling when used with an OS (e.g. Linux)
  * None on SITL
  */
 
-#if FBW
-#include "firmwares/rotorcraft/main_fbw.h"
-#else
-#include "firmwares/rotorcraft/main_ap.h"
+#if (defined AP) && (defined FBW)
+#error "AP and FBW can't be defined at the same time"
 #endif
+#if (!defined AP) && (!defined FBW)
+#error "AP or FBW should be defined"
+#endif
+
+#ifdef FBW
+#include "main_fbw.h"
+#define Call(f) main_fbw_ ## f
+#endif
+
+#ifdef AP
+#include "main_ap.h"
+#define Call(f) main_ap_ ## f
+#endif
+
+#include "generated/modules.h"
 
 #include "mcu_periph/sys_time.h"
 
 #define POLLING_PERIOD (500000/PERIODIC_FREQUENCY)
-#include <stdio.h>
+
 #ifndef SITL
 int main(void)
 {
-  main_init();
+  // mcu modules init in all cases
+  modules_mcu_init();
+
+  Call(init());
 
 #if LIMIT_EVENT_POLLING
   /* Limit main loop frequency to 1kHz.
@@ -55,8 +72,8 @@ int main(void)
   while (1) {
     t_begin = get_sys_time_usec();
 
-    handle_periodic_tasks();
-    main_event();
+    Call(periodic());
+    Call(event());
 
     /* sleep remaining time to limit to polling frequency */
     t_diff = get_sys_time_usec() - t_begin;
@@ -66,8 +83,8 @@ int main(void)
   }
 #else
   while (1) {
-    handle_periodic_tasks();
-    main_event();
+    Call(periodic());
+    Call(event());
   }
 #endif
 

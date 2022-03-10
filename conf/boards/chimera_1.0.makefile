@@ -23,7 +23,7 @@ USE_FPU_OPT= -mfpu=fpv5-d16
 
 USE_LTO ?= yes
 
-$(TARGET).CFLAGS += -DSTM32F7 -DPPRZLINK_ENABLE_FD -DUSE_HARD_FAULT_RECOVERY
+$(TARGET).CFLAGS += -DSTM32F7 -DPPRZLINK_ENABLE_FD
 
 ##############################################################################
 # Architecture or project specific options

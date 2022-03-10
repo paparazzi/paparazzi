@@ -21,18 +21,15 @@
  */
 
 /** @file modules/intermcu/intermcu.h
- *  @brief Rotorcraft Inter-MCU interface
+ *  @brief Inter-MCU interface
  */
 
-#ifndef INTERMCU_ROTORCRAFT_H
-#define INTERMCU_ROTORCRAFT_H
+#ifndef INTERMCU_H
+#define INTERMCU_H
 
 #include "std.h"
 #include "modules/core/commands.h"
 #include "pprzlink/pprz_transport.h"
-
-#define INTERMCU_AP   0
-#define INTERMCU_FBW  1
 
 #ifndef INTERMCU_LOST_CNT
 #define INTERMCU_LOST_CNT 25  /* 50ms with a 512Hz timer TODO fixed value */
@@ -46,16 +43,18 @@ enum intermcu_status {
   INTERMCU_LOST                     ///< No interMCU communication anymore
 };
 
+#ifdef BOARD_PX4IO
 /* InterMCU baudrate protection for PX4 */
 enum intermcu_PX4_baud_status {
   PX4_BAUD,
   CHANGING_BAUD,
   PPRZ_BAUD
 };
+#endif
 
 /* InterMCU command status bits */
 enum intermcu_cmd_status {
-  INTERMCU_CMD_MOTORS_ON,           ///< The status of autopilot_motors_on
+  INTERMCU_CMD_MOTORS_ON,           ///< The status of intermcu_ap_motors_on
   INTERMCU_CMD_DISARM,              ///< Whether or not to dis-arm the FBW
   INTERMCU_CMD_TIPPROPS,            ///< Enable tip props
   INTERMCU_CMD_FAILSAFE,            ///< Set FBW in failsafe mode
@@ -80,10 +79,13 @@ struct intermcu_t {
   enum intermcu_PX4_baud_status stable_px4_baud;
 #endif
 };
+
 extern struct intermcu_t intermcu;
 
 /* Functions defined in XML */
-void intermcu_init(void);
-void intermcu_periodic(void);
+extern void intermcu_init(void);
+extern void intermcu_periodic(void);
+extern void intermcu_event(void);
 
 #endif
+

@@ -1,5 +1,6 @@
 /*
- * (c) 2006 Pascal Brisset, Antoine Drouin
+ * Copyright (c) 2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2021 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,9 +38,42 @@
 extern pprz_t commands[COMMANDS_NB];
 extern const pprz_t commands_failsafe[COMMANDS_NB];
 
+/** Settings to trim roll, pitch and yaw commands if defined
+ */
+extern pprz_t command_roll_trim;
+extern pprz_t command_pitch_trim;
+extern pprz_t command_yaw_trim;
+
+// Set all commands from array
 #define SetCommands(t) { \
     int i; \
     for(i = 0; i < COMMANDS_NB; i++) commands[i] = t[i]; \
   }
+
+/** Set a command value
+ * @param idx command index
+ * @param value new value
+ */
+static inline void command_set(uint8_t idx, pprz_t value)
+{
+  if (idx < COMMANDS_NB) {
+    // Bound value ???
+    commands[idx] = value;
+  }
+}
+
+/** Get a command value
+ * @param idx command index
+ * @return current value, 0 if index is invalid
+ */
+static inline pprz_t command_get(uint8_t idx)
+{
+  if (idx < COMMANDS_NB) {
+    return commands[idx];
+  }
+  return 0; // is it the best value ???
+}
+
+extern void commands_init(void);
 
 #endif /*  COMMANDS_H */

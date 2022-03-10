@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="hard_fault_recovery" task="core">
+  <doc>
+    <description>
+      Minimal autopilot for recovery
+
+      Currently, only allow to take a fixedwing plane in manual in case of MCU hard fault
+      Recommanded modules are: electrical, radio_control and actuators
+
+      Init, periodic and event functions are called from main_chibios when activated
+    </description>
+    <define name="RECOVERY_DISABLE_ELECTRICAL" value="FALSE|TRUE" description="disable electrical in recovery mode"/>
+  </doc>
+  <dep>
+    <depends>system_core</depends>
+    <provides>recovery</provides>
+  </dep>
+  <makefile target="ap" firmware="fixedwing">
+    <define name="USE_HARD_FAULT_RECOVERY"/>
+    <file name="main_recovery.c" dir="firmwares/fixedwing"/>
+    <test firmware="fixedwing">
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_MODE" value="0"/>
+      <define name="DOWNLINK_DEVICE" value="uart1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+</module>
+

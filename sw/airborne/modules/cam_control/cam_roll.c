@@ -31,7 +31,7 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "state.h"
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commmands.h"
 
 #ifndef CAM_PHI_MAX
 #define CAM_PHI_MAX RadOfDeg(45)
@@ -71,7 +71,7 @@ void cam_periodic(void)
     default:
       phi_c = 0;
   }
-  imcu_set_command(COMMAND_CAM_ROLL, TRIM_PPRZ(phi_c * MAX_PPRZ / CAM_PHI_MAX));
+  command_set(COMMAND_CAM_ROLL, TRIM_PPRZ(phi_c * MAX_PPRZ / CAM_PHI_MAX));
 }
 
 #endif // MOBILE_CAM

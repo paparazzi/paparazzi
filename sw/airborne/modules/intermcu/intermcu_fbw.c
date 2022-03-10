@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,24 +15,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
 /** @file modules/intermcu/intermcu_fbw.c
- *  @brief Rotorcraft Inter-MCU on FlyByWire
+ *  @brief Inter-MCU on FlyByWire side
  */
 
-#define ABI_C
-
-#include "intermcu_fbw.h"
+#include "modules/intermcu/intermcu_fbw.h"
+#include "main_fbw.h"
 #include "pprzlink/intermcu_msg.h"
+#include "generated/modules.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/energy/electrical.h"
-#include "mcu_periph/uart.h"
-#include "modules/telemetry/telemetry_intermcu.h"
+#if TELEMETRY_INTERMCU
+#include "modules/datalink/intermcu_dl.h"
+#endif
+#include "modules/datalink/datalink.h"
+#include "modules/core/abi.h"
 
 
 #include "modules/spektrum_soft_bind/spektrum_soft_bind_fbw.h"
@@ -47,8 +50,8 @@ tid_t px4bl_tid; ///< id for time out of the px4 bootloader reset
 #endif
 
 #if RADIO_CONTROL_NB_CHANNEL > 8
-#undef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL 8
+//#undef RADIO_CONTROL_NB_CHANNEL
+//#define RADIO_CONTROL_NB_CHANNEL 8
 INFO("InterMCU UART will only send 8 radio channels!")
 #endif
 
@@ -58,24 +61,29 @@ struct intermcu_t intermcu = {
   .enabled = true,
   .msg_available = false
 };
-uint8_t imcu_msg_buf[128] __attribute__((aligned));  ///< The InterMCU message buffer
+uint8_t imcu_msg_buf[256] __attribute__((aligned));  ///< The InterMCU message buffer
 
 pprz_t intermcu_commands[COMMANDS_NB];
-bool autopilot_motors_on = false;
-static void intermcu_parse_msg(void (*commands_frame_handler)(void));
+bool intermcu_ap_motors_on = false;
+
 
 #ifdef BOARD_PX4IO
 static void checkPx4RebootCommand(unsigned char b);
 #endif
 
-#ifdef USE_GPS
+// ABI callback for radio control
+#ifndef IMCU_RADIO_CONTROL_ID
+#define IMCU_RADIO_CONTROL_ID ABI_BROADCAST
+#endif
+static abi_event rc_ev;
+static void rc_cb(uint8_t sender_id, struct RadioControl *rc);
 
+// ABI callback for GPS
+#ifdef USE_GPS
+#include "modules/gps/gps.h"
 #ifndef IMCU_GPS_ID
 #define IMCU_GPS_ID GPS_MULTI_ID
 #endif
-
-#include "modules/core/abi.h"
-#include "modules/gps/gps.h"
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 #endif
@@ -84,6 +92,7 @@ void intermcu_init(void)
 {
   pprz_transport_init(&intermcu.transport);
 
+  AbiBindMsgRADIO_CONTROL(IMCU_RADIO_CONTROL_ID, &rc_ev, rc_cb);
 #if USE_GPS
   AbiBindMsgGPS(IMCU_GPS_ID, &gps_ev, gps_cb);
 #endif
@@ -103,8 +112,100 @@ void intermcu_periodic(void)
   }
 }
 
-void intermcu_on_rc_frame(uint8_t fbw_mode)
+void intermcu_event(void)
 {
+  uint8_t i, c;
+
+  // Check if there are messages in the device
+  if (intermcu.device->char_available(intermcu.device->periph)) {
+    while (intermcu.device->char_available(intermcu.device->periph) && !intermcu.transport.trans_rx.msg_received) {
+      c = intermcu.device->get_byte(intermcu.device->periph);
+      parse_pprz(&intermcu.transport, c);
+
+#ifdef BOARD_PX4IO
+      // TODO: create a hook
+      checkPx4RebootCommand(c);
+#endif
+    }
+
+    // If we have a message copy it
+    if (intermcu.transport.trans_rx.msg_received) {
+      for (i = 0; i < intermcu.transport.trans_rx.payload_len; i++) {
+        imcu_msg_buf[i] = intermcu.transport.trans_rx.payload[i];
+      }
+
+      intermcu.msg_available = true;
+      intermcu.transport.trans_rx.msg_received = false;
+    }
+  }
+
+  if (intermcu.msg_available) {
+    uint8_t class_id = pprzlink_get_msg_class_id(imcu_msg_buf);
+    if (class_id == DL_intermcu_CLASS_ID) {
+      // parse intermcu messages and call callbacks
+      dl_parse_msg(intermcu.device, &intermcu.transport.trans_tx, imcu_msg_buf);
+#if TELEMETRY_INTERMCU
+    } else {
+      // forward all other messages if needed
+      intermcu_dl_on_msg(imcu_msg_buf, intermcu.transport.trans_rx.payload_len);
+#endif
+    }
+    intermcu.msg_available = false;
+  }
+}
+
+void intermcu_send_status(void)
+{
+#ifdef RADIO_CONTROL
+  uint8_t rc_status = radio_control.status;
+  uint8_t rc_rate = radio_control.frame_rate;
+#else
+  uint8_t rc_status = 0;
+  uint8_t rc_rate = 0;
+#endif
+  // Send Status
+  pprz_msg_send_IMCU_FBW_STATUS(&(intermcu.transport.trans_tx), intermcu.device, AC_ID,
+                                &fbw_mode, &rc_status, &rc_rate,
+                                &electrical.vsupply, &electrical.current);
+}
+
+void intermcu_parse_IMCU_COMMANDS(uint8_t *buf)
+{
+  uint8_t size = DL_IMCU_COMMANDS_values_length(buf);
+  int16_t *new_commands = DL_IMCU_COMMANDS_values(buf);
+  intermcu.cmd_status |= DL_IMCU_COMMANDS_status(buf);
+
+  // Read the autopilot status and then clear it
+  intermcu_ap_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+  INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+
+  for (int i = 0; i < size; i++) {
+    intermcu_commands[i] = new_commands[i];
+  }
+
+  intermcu.status = INTERMCU_OK;
+  intermcu.time_since_last_frame = 0;
+}
+
+void intermcu_parse_IMCU_SPEKTRUM_SOFT_BIND(uint8_t *buf __attribute__((unused)))
+{
+#if defined(SPEKTRUM_HAS_SOFT_BIND_PIN)
+  received_spektrum_soft_bind();
+#endif
+}
+
+void intermcu_forward_uplink(uint8_t *buf __attribute__((unused)))
+{
+  // forward all incoming messages to intermcu for AP side
+#if TELEMETRY_INTERMCU
+  uint8_t size = (DOWNLINK_TRANSPORT).trans_rx.payload_len; // FIXME is it always a valid length ?
+  intermcu_dl_repack(&(intermcu.transport.trans_tx), intermcu.device, buf, size);
+#endif
+}
+
+static void rc_cb(uint8_t sender_id __attribute__((unused)), struct RadioControl *rc __attribute__((unused)))
+{
+#if RADIO_CONTROL
   pprz_t  values[9];
 
   values[INTERMCU_RADIO_THROTTLE] = radio_control.values[RADIO_THROTTLE];
@@ -133,100 +234,8 @@ void intermcu_on_rc_frame(uint8_t fbw_mode)
 #endif
 
   pprz_msg_send_IMCU_RADIO_COMMANDS(&(intermcu.transport.trans_tx), intermcu.device,
-                                    INTERMCU_FBW, &fbw_mode, RADIO_CONTROL_NB_CHANNEL, values);
-}
-
-void intermcu_send_status(uint8_t mode)
-{
-  // Send Status
-  pprz_msg_send_IMCU_FBW_STATUS(&(intermcu.transport.trans_tx), intermcu.device, INTERMCU_FBW,
-                                &mode, &(radio_control.status), &(radio_control.frame_rate), &electrical.vsupply,
-                                &electrical.current);
-}
-
-#pragma GCC diagnostic ignored "-Wcast-align"
-static void intermcu_parse_msg(void (*commands_frame_handler)(void))
-{
-  /* Parse the Inter MCU message */
-  uint8_t msg_id = pprzlink_get_msg_id(imcu_msg_buf);
-#if PPRZLINK_DEFAULT_VER == 2
-  // Check that the message is really a intermcu message
-  if (pprzlink_get_msg_class_id(imcu_msg_buf) == DL_intermcu_CLASS_ID) {
+                                    INTERMCU_FBW, &fbw_mode, INTERMCU_RADIO_CONTROL_NB_CHANNEL, values);
 #endif
-    switch (msg_id) {
-      case DL_IMCU_COMMANDS: {
-        uint8_t i;
-        uint8_t size = DL_IMCU_COMMANDS_values_length(imcu_msg_buf);
-        int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
-        intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
-
-        // Read the autopilot status and then clear it
-        autopilot_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
-        INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON)
-
-        for (i = 0; i < size; i++) {
-          intermcu_commands[i] = new_commands[i];
-        }
-
-        intermcu.status = INTERMCU_OK;
-        intermcu.time_since_last_frame = 0;
-        commands_frame_handler();
-        break;
-      }
-  #if defined(TELEMETRY_INTERMCU_DEV)
-      case DL_IMCU_TELEMETRY: {
-        uint8_t size = DL_IMCU_TELEMETRY_msg_length(imcu_msg_buf);
-        uint8_t *msg = DL_IMCU_TELEMETRY_msg(imcu_msg_buf);
-        telemetry_intermcu_on_msg(msg, size);
-        break;
-      }
-  #endif
-  #if defined(SPEKTRUM_HAS_SOFT_BIND_PIN) //TODO: make subscribable module parser
-      case DL_IMCU_SPEKTRUM_SOFT_BIND:
-        received_spektrum_soft_bind();
-        break;
-  #endif
-
-      default:
-        break;
-    }
-#if PPRZLINK_DEFAULT_VER == 2
-  }
-#endif
-}
-#pragma GCC diagnostic pop
-
-void InterMcuEvent(void (*frame_handler)(void))
-{
-  uint8_t i, c;
-
-  // Check if there are messages in the device
-  if (intermcu.device->char_available(intermcu.device->periph)) {
-    while (intermcu.device->char_available(intermcu.device->periph) && !intermcu.transport.trans_rx.msg_received) {
-      c = intermcu.device->get_byte(intermcu.device->periph);
-      parse_pprz(&intermcu.transport, c);
-
-#ifdef BOARD_PX4IO
-      // TODO: create a hook
-      checkPx4RebootCommand(c);
-#endif
-    }
-
-    // If we have a message copy it
-    if (intermcu.transport.trans_rx.msg_received) {
-      for (i = 0; i < intermcu.transport.trans_rx.payload_len; i++) {
-        imcu_msg_buf[i] = intermcu.transport.trans_rx.payload[i];
-      }
-
-      intermcu.msg_available = true;
-      intermcu.transport.trans_rx.msg_received = false;
-    }
-  }
-
-  if (intermcu.msg_available) {
-    intermcu_parse_msg(frame_handler);
-    intermcu.msg_available = false;
-  }
 }
 
 #if USE_GPS

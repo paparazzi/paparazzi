@@ -29,13 +29,7 @@
 #include "modules/datalink/superbitrf.h"
 
 /* Theoretically you could have 14 channel over DSM2/DSMX */
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL 14
-#endif
-
-#if RADIO_CONTROL_NB_CHANNEL > 14
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14. X-Plus channel expansion is not (yet) usable"
-#endif
+#define SUPERBITRF_RC_NB_CHANNEL 14
 
 /* Default channel assignments */
 #ifndef RADIO_THROTTLE
@@ -90,11 +84,13 @@
 #endif
 
 /**
- * RC event function with handler callback.
+ * RC init function.
  */
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
+extern void superbitrf_rc_init(void);
 
-/* The radio control event handler */
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
+/**
+ * RC event function.
+ */
+extern void superbitrf_rc_event(void);
 
 #endif /* RADIO_CONTROL_SUPERBITRF_RC_H */

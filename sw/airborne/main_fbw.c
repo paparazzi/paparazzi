@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015 The Paparazzi Team
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of Paparazzi.
  *
@@ -14,37 +15,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * @file firmwares/rotorcraft/main_fbw.c
+ * @file main_fbw.c
  *
- * Rotorcraft FBW main loop.
+ * FBW main loop.
  */
 
-#include <inttypes.h>
-#include "mcu.h"
-#include "led.h"
-#include "mcu_periph/sys_time.h"
-
-#include "modules/core/commands.h"
-#include "modules/actuators/actuators.h"
-#if USE_MOTOR_MIXING
-#include "modules/actuators/motor_mixing.h"
-#endif
-
-#include "modules/energy/electrical.h"
-#include "modules/radio_control/radio_control.h"
-#include "modules/intermcu/intermcu_fbw.h"
-#include "firmwares/rotorcraft/main_fbw.h"
-#include "firmwares/rotorcraft/autopilot_rc_helpers.h"
-
 #define MODULES_C
+
+#define ABI_C
+
+#include "main_fbw.h"
+#include "generated/airframe.h"
 #include "generated/modules.h"
+#include "modules/core/abi.h"
+#include "modules/datalink/datalink.h"
+#include "modules/datalink/telemetry.h"
 
 /* So one can use these in command_laws section */
 #define And(x, y) ((x) && (y))
@@ -56,83 +47,69 @@
 
 
 /** Fly by wire modes */
-fbw_mode_enum fbw_mode;
+uint8_t fbw_mode;
 bool fbw_motors_on = false;
 
-/* MODULES_FREQUENCY is defined in generated/modules.h
- * according to main_freq parameter set for modules in airframe file
+/* if PRINT_CONFIG is defined, print some config options */
+PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
+/* SYS_TIME_FREQUENCY/PERIODIC_FREQUENCY should be an integer, otherwise the timer will not be correct */
+#if !(SYS_TIME_FREQUENCY/PERIODIC_FREQUENCY*PERIODIC_FREQUENCY == SYS_TIME_FREQUENCY)
+#warning "The SYS_TIME_FREQUENCY can not be divided by PERIODIC_FREQUENCY. Make sure this is the case for correct timing."
+#endif
+
+/* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
+ * defaults to 60Hz or set by TELEMETRY_FREQUENCY configure option in airframe file
  */
-PRINT_CONFIG_VAR(MODULES_FREQUENCY)
+PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
-tid_t main_periodic_tid; ///< id for main_periodic() timer
-tid_t modules_tid;     ///< id for modules_periodic_task() timer
-tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
-tid_t electrical_tid;    ///< id for electrical_periodic() timer
-tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
+/**
+ * IDs for timers
+ */
+tid_t periodic_tid;       ///< id for general periodic task timer
+tid_t radio_control_tid;  ///< id for radio_control_periodic() timer
+tid_t electrical_tid;     ///< id for electrical_periodic() timer
+tid_t telemetry_tid;      ///< id for telemetry_periodic() timer
+
+/**
+ * ABI RC binding
+ */
+#ifndef MAIN_FBW_RC_ID
+#define MAIN_FBW_RC_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(MAIN_FBW_RC_ID)
+static abi_event rc_ev;
+static void rc_cb(uint8_t sender_id, struct RadioControl *rc);
 
 
-/** Main initialization */
-void main_init(void)
+/**
+ * Main initialization
+ */
+void main_fbw_init(void)
 {
+  // mcu init done in main
+
+  modules_core_init();
+  modules_radio_control_init();
+  modules_actuators_init();
+  modules_datalink_init();
+
   // Set startup mode to Failsafe
   fbw_mode = FBW_MODE_FAILSAFE;
 
-  mcu_init();
-
-  actuators_init();
-
-  electrical_init();
-
-#if USE_MOTOR_MIXING
-  motor_mixing_init();
-#endif
-
-  radio_control_init();
-
-  modules_init();
-
-
-  intermcu_init();
+  // Bind to RC event
+  AbiBindMsgRADIO_CONTROL(MAIN_FBW_RC_ID, &rc_ev, rc_cb);
 
   // Register the timers for the periodic functions
-  main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-  modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
+  periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
-  telemetry_tid = sys_time_register_timer((1. / 10.), NULL);
+  telemetry_tid = sys_time_register_timer((1. / TELEMETRY_FREQUENCY), NULL);
 }
 
 
-//////////////////////////
-// PERIODIC
-
-void handle_periodic_tasks(void)
-{
-  if (sys_time_check_and_ack_timer(main_periodic_tid)) {
-    main_periodic();
-  }
-  if (sys_time_check_and_ack_timer(modules_tid)) {
-    modules_periodic_task();
-  }
-  if (sys_time_check_and_ack_timer(radio_control_tid)) {
-    radio_control_periodic_task();
-  }
-  if (sys_time_check_and_ack_timer(electrical_tid)) {
-    electrical_periodic();
-  }
-  if (sys_time_check_and_ack_timer(telemetry_tid)) {
-    telemetry_periodic();
-  }
-}
-
-void telemetry_periodic(void)
-{
-  /* Send status to AP */
-  intermcu_send_status(fbw_mode);
-
-  /* Handle Modems */
-  // TODO
-}
+/**
+ * Periodic tasks
+ */
 
 /* Checks the different safety cases and sets the correct FBW mode */
 static void fbw_safety_check(void)
@@ -171,11 +148,8 @@ static void fbw_safety_check(void)
 }
 
 /* Sets the actual actuator commands */
-void main_periodic(void)
+static void main_task_periodic(void)
 {
-  /* Inter-MCU watchdog */
-  intermcu_periodic();
-
   /* Safety check and set FBW mode */
   fbw_safety_check();
 
@@ -210,16 +184,35 @@ void main_periodic(void)
     SetCommands(commands_failsafe);
   }
 
-  /* If in auto copy autopilot motors on */
+  /* If in auto copy autopilot motors on and commands from intermcu */
   if (fbw_mode == FBW_MODE_AUTO) {
-    fbw_motors_on = autopilot_motors_on;
+    fbw_motors_on = intermcu_ap_motors_on;
+    SetCommands(intermcu_commands);
   }
 
-  /* Set actuators */
-  SetActuatorsFromCommands(commands, autopilot_get_mode());
+  /* in MANUAL, commands are updated in RC callback */
+}
 
-  /* Periodic blinking */
-  RunOnceEvery(10, LED_PERIODIC());
+void main_fbw_periodic(void)
+{
+  if (sys_time_check_and_ack_timer(radio_control_tid)) {
+    modules_radio_control_periodic_task();
+  }
+
+  if (sys_time_check_and_ack_timer(periodic_tid)) {
+    main_task_periodic();
+    modules_actuators_periodic_task();
+    modules_mcu_periodic_task();
+    modules_core_periodic_task();
+  }
+
+  if (sys_time_check_and_ack_timer(electrical_tid)) {
+    electrical_periodic();
+  }
+
+  if (sys_time_check_and_ack_timer(telemetry_tid)) {
+    modules_datalink_periodic_task();
+  }
 }
 
 
@@ -227,7 +220,7 @@ void main_periodic(void)
 // Event
 
 /** Callback when we received an RC frame */
-static void fbw_on_rc_frame(void)
+static void rc_cb(uint8_t sender_id __attribute__((unused)), struct RadioControl *rc __attribute__((unused)))
 {
   /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2) && !FBW_MODE_AUTO_ONLY) {
@@ -267,31 +260,20 @@ static void fbw_on_rc_frame(void)
 #warning "FBW: needs commands from RC in order to be useful."
 #endif
   }
-
-  /* Forward radiocontrol to AP */
-  intermcu_on_rc_frame(fbw_mode);
 }
 
-/** Callback when receive commands from the AP */
-static void fbw_on_ap_command(void)
+void main_fbw_parse_EMERGENCY_CMD(uint8_t *buf)
 {
-  // Only set the command from AP when we are in AUTO mode
-  if (fbw_mode == FBW_MODE_AUTO) {
-    SetCommands(intermcu_commands);
+  if (DL_EMERGENCY_CMD_ac_id(buf) == AC_ID && DL_EMERGENCY_CMD_cmd(buf) == 0) {
+    fbw_mode = FBW_MODE_FAILSAFE;
   }
 }
 
-void main_event(void)
+void main_fbw_event(void)
 {
-  /* Event functions for mcu peripherals: i2c, usb_serial.. */
-  mcu_event();
-
-  /* Handle RC */
-  RadioControlEvent(fbw_on_rc_frame);
-
-  /* InterMCU (gives autopilot commands as output) */
-  InterMcuEvent(fbw_on_ap_command);
-
-  /* FBW modules */
-  modules_event_task();
+  modules_mcu_event_task();
+  intermcu_event();
+  modules_radio_control_event_task();
+  modules_actuators_event_task();
+  modules_datalink_event_task();
 }

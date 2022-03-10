@@ -33,7 +33,7 @@
   </header>
   <init fun="bluegiga_dl_init()"/>
   <event fun="bluegiga_dl_event()"/>
-  <makefile target="!fbw|sim|nps">
+  <makefile target="!sim|nps">
     <configure name="BLUEGIGA_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="MODEM_LED" default="none"/>
     <define name="USE_$(BLUEGIGA_SPI_DEV_UPPER)_SLAVE"/>

@@ -5,45 +5,27 @@
     <description>
       Radio control based on Graupner HOTT SUMD
     </description>
-    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
     <configure name="HOTT_PORT" value="UARTX" description="UART name where HOTT receiver is plugged"/>
   </doc>
   <dep>
-    <depends>uart</depends>
+    <depends>uart,radio_control_common</depends>
     <provides>radio_control</provides>
   </dep>
   <header>
     <file name="hott.h"/>
   </header>
+  <init fun="hott_init()"/>
+  <event fun="hott_event()"/>
   <makefile target="ap|fbw">
-    <configure name="RADIO_CONTROL_LED" default="none"/>
     <configure name="HOTT_UART" value="$(HOTT_PORT)" case="upper|lower"/>
-    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/hott.h" type="string"/>
-  </makefile>
-  <makefile target="fbw">
-    <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_HOTT"/>
     <define name="USE_$(HOTT_UART_UPPER)"/>
     <define name="$(HOTT_UART_UPPER)_BAUD" value="B115200"/>
     <define name="HOTT_UART_DEV" value="$(HOTT_UART_LOWER)"/>
-    <file name="radio_control.c"/>
-    <file name="hott.c"/>
-    <file name="hott_common.c"/>
-  </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
-    <define name="RADIO_CONTROL"/>
-    <define name="RADIO_CONTROL_TYPE_HOTT"/>
-    <define name="USE_$(HOTT_UART_UPPER)"/>
-    <define name="$(HOTT_UART_UPPER)_BAUD" value="B115200"/>
-    <define name="HOTT_UART_DEV" value="$(HOTT_UART_LOWER)"/>
-    <file name="radio_control.c"/>
     <file name="hott.c"/>
     <file name="hott_common.c"/>
     <test>
-      <define name="RADIO_CONTROL"/>
       <define name="RADIO_CONTROL_TYPE_HOTT"/>
-      <define name="RADIO_CONTROL_TYPE_H" value="modules/radio_control/hott.h" type="string"/>
       <define name="HOTT_UART_DEV" value="uart5"/>
       <define name="USE_UART5"/>
     </test>

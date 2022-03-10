@@ -37,7 +37,7 @@
 /**
  * Macro to use radio.h file
  *
- *  HOTT:   7040..12000..16800 
+ *  HOTT:   7040..12000..16800
  *  PPM:  880..1500..2100
  */
 #define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * 8 ) // USEC IN HOTT OUT
@@ -58,14 +58,7 @@
  * input values to RC channels.
  */
 #define HOTT_NB_CHANNEL 32
-#define HOTT_BUF_LENGTH (HOTT_NB_CHANNEL*2+3+2) // 2 bytes per chennel 3 bytes header, 2 bytes CRC 
-
-/**
- * Default number of channels to actually use.
- */
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL HOTT_NB_CHANNEL
-#endif
+#define HOTT_BUF_LENGTH (HOTT_NB_CHANNEL*2+3+2) // 2 bytes per chennel 3 bytes header, 2 bytes CRC
 
 #if RADIO_CONTROL_NB_CHANNEL > HOTT_NB_CHANNEL
 #error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 32."
@@ -94,16 +87,4 @@ void hott_common_init(struct SHott *hott, struct uart_periph *dev);
  */
 void hott_common_decode_event(struct SHott *hott, struct uart_periph *dev);
 
-
-/**
- * RC event function with handler callback.
- */
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
-
-/**
- * Event macro with handler callback
- */
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
-
-
-#endif /* RC_HOTT_H */
+#endif /* RC_HOTT_COMMON_H */

@@ -63,17 +63,6 @@
 #define SBUS_NB_CHANNEL 16
 
 /**
- * Default number of channels to actually use.
- */
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL SBUS_NB_CHANNEL
-#endif
-
-#if RADIO_CONTROL_NB_CHANNEL > SBUS_NB_CHANNEL
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 16."
-#endif
-
-/**
  * SBUS structure
  */
 struct Sbus {
@@ -99,16 +88,5 @@ void sbus_common_init(struct Sbus *sbus, struct uart_periph *dev,
  */
 void sbus_common_decode_event(struct Sbus *sbus, struct uart_periph *dev);
 
+#endif /* RC_SBUS_COMMON_H */
 
-/**
- * RC event function with handler callback.
- */
-extern void radio_control_impl_event(void (* _received_frame_handler)(void));
-
-/**
- * Event macro with handler callback
- */
-#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
-
-
-#endif /* RC_SBUS_H */

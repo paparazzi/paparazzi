@@ -1,26 +1,30 @@
 /*
- * Copyright (C) 2013-2015 Gautier Hattenberger, Alexandre Bustico
+ * Copyright (C) 2013-2021 Gautier Hattenberger, Alexandre Bustico
  *
- * This file is part of paparazzi.
+ * This file is part of Paparazzi.
  *
- * paparazzi is free software; you can redistribute it and/or modify
+ * Paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * paparazzi is distributed in the hope that it will be useful,
+ * Paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
  */
 
 /**
- * @file firmwares/fixedwing/main_chibios.c
+ * @file main_chibios.c
+ *
+ * Program main function for ChibiOS inplementation
+ *
+ * Calls AP thread on single/dual MCU
  */
 
 #include "mcu_periph/sys_time.h"
@@ -33,51 +37,47 @@
 #error CH_CFG_ST_FREQUENCY and SYS_TIME_FREQUENCY should be >= 2 x PERIODIC_FREQUENCY
 #endif
 
+#if (defined AP) && (defined FBW)
+#error "AP and FBW can't be defined at the same time"
+#endif
+#if (!defined AP) && (!defined FBW)
+#error "AP or FBW should be defined"
+#endif
+
 #ifdef FBW
-#include "firmwares/fixedwing/main_fbw.h"
-#define Fbw(f) f ## _fbw()
-#else
-#define Fbw(f)
+#include "main_fbw.h"
+#define Call(f) main_fbw_ ## f
 #endif
 
 #ifdef AP
-#include "firmwares/fixedwing/main_ap.h"
-#define Ap(f) f ## _ap()
-#else
-#define Ap(f)
+#include "main_ap.h"
+#define Call(f) main_ap_ ## f
 #endif
 
-#if USE_HARD_FAULT_RECOVERY
-#include "modules/datalink/downlink.h"
-#endif
+#include "generated/modules.h"
 
-/*
- * Default autopilot thread stack size
- */
-#ifndef AP_THREAD_STACK_SIZE
-#define AP_THREAD_STACK_SIZE 8192
+#ifndef THD_WORKING_AREA_MAIN
+#define THD_WORKING_AREA_MAIN 8192
 #endif
 
 /*
  * PPRZ/AP thread
  */
 static void thd_ap(void *arg);
-static THD_WORKING_AREA(wa_thd_ap, AP_THREAD_STACK_SIZE);
+THD_WORKING_AREA(wa_thd_ap, THD_WORKING_AREA_MAIN);
 static thread_t *apThdPtr = NULL;
 
-/*
- * Default FBW thread stack size
- */
-#ifndef FBW_THREAD_STACK_SIZE
-#define FBW_THREAD_STACK_SIZE 1024
+#if USE_HARD_FAULT_RECOVERY
+#include "main_recovery.h"
+
+#ifndef THD_WORKING_AREA_RECOVERY
+#define THD_WORKING_AREA_RECOVERY 1024
 #endif
 
-/*
- * PPRZ/FBW thread
- */
-static void thd_fbw(void *arg);
-static THD_WORKING_AREA(wa_thd_fbw, FBW_THREAD_STACK_SIZE);
-static thread_t *fbwThdPtr = NULL;
+static void thd_recovery(void *arg);
+THD_WORKING_AREA(wa_thd_recovery, THD_WORKING_AREA_RECOVERY);
+static thread_t *recoveryThdPtr = NULL;
+#endif
 
 /**
  * Main function
@@ -85,30 +85,27 @@ static thread_t *fbwThdPtr = NULL;
 int main(void)
 {
   // Init
-  Fbw(init);
+
+  // mcu modules init in all cases
+  modules_mcu_init();
+
 #if USE_HARD_FAULT_RECOVERY
   // if recovering from hard fault, don't call AP init, only FBW
   if (!recovering_from_hard_fault) {
 #endif
-    Ap(init);
+    Call(init());
+    chThdSleepMilliseconds(100);
+
+    // Create threads
+    apThdPtr = chThdCreateStatic(wa_thd_ap, sizeof(wa_thd_ap), NORMALPRIO, thd_ap, NULL);
+
 #if USE_HARD_FAULT_RECOVERY
   } else {
-    // but we still need downlink to be initialized
-    downlink_init();
-    modules_datalink_init();
-  }
-#endif
+    main_recovery_init();
+    chThdSleepMilliseconds(100);
 
-  chThdSleepMilliseconds(100);
-
-  // Create threads
-  fbwThdPtr = chThdCreateStatic(wa_thd_fbw, sizeof(wa_thd_fbw), NORMALPRIO, thd_fbw, NULL);
-#if USE_HARD_FAULT_RECOVERY
-  // if recovering from hard fault, don't start AP thread, only FBW
-  if (!recovering_from_hard_fault) {
-#endif
-    apThdPtr = chThdCreateStatic(wa_thd_ap, sizeof(wa_thd_ap), NORMALPRIO, thd_ap, NULL);
-#if USE_HARD_FAULT_RECOVERY
+    // Create threads
+    recoveryThdPtr = chThdCreateStatic(wa_thd_recovery, sizeof(wa_thd_recovery), NORMALPRIO, thd_recovery, NULL);
   }
 #endif
 
@@ -129,8 +126,8 @@ static void thd_ap(void *arg)
 
   while (!chThdShouldTerminateX()) {
     systime_t t = chVTGetSystemTime();
-    Ap(handle_periodic_tasks);
-    Ap(event_task);
+    Call(periodic());
+    Call(event());
     // The sleep time is computed to have a polling interval of
     // 1e6 / CH_CFG_ST_FREQUENCY. If time is passed, thanks to the
     // "Windowed" sleep function, the execution is not blocked until
@@ -141,20 +138,21 @@ static void thd_ap(void *arg)
   chThdExit(0);
 }
 
+#if USE_HARD_FAULT_RECOVERY
 /*
- * PPRZ/FBW thread
+ * PPRZ/RECOVERY thread
  *
- * Call PPRZ FBW periodic and event functions
+ * Call PPRZ minimal AP after MCU hard fault
  */
-static void thd_fbw(void *arg)
+static void thd_recovery(void *arg)
 {
   (void) arg;
-  chRegSetThreadName("FBW");
+  chRegSetThreadName("RECOVERY");
 
   while (!chThdShouldTerminateX()) {
     systime_t t = chVTGetSystemTime();
-    Fbw(handle_periodic_tasks);
-    Fbw(event_task);
+    main_recovery_periodic();
+    main_recovery_event();
     // The sleep time is computed to have a polling interval of
     // 1e6 / CH_CFG_ST_FREQUENCY. If time is passed, thanks to the
     // "Windowed" sleep function, the execution is not blocked until
@@ -164,6 +162,7 @@ static void thd_fbw(void *arg)
 
   chThdExit(0);
 }
+#endif
 
 /*
  * Terminate autopilot threads
@@ -176,10 +175,12 @@ void pprz_terminate_autopilot_threads(void)
     chThdWait(apThdPtr);
     apThdPtr = NULL;
   }
-  if (fbwThdPtr != NULL) {
-    chThdTerminate(fbwThdPtr);
-    chThdWait(fbwThdPtr);
-    fbwThdPtr = NULL;
+#if USE_HARD_FAULT_RECOVERY
+  if (recoveryThdPtr != NULL) {
+    chThdTerminate(recoveryThdPtr);
+    chThdWait(recoveryThdPtr);
+    recoveryThdPtr = NULL;
   }
+#endif
 }
 

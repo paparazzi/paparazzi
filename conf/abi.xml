@@ -211,6 +211,10 @@
       <field name="data" type="uint8_t *">Pointer to an array of bytes, or any structure depending on the sender and the type of data</field>
     </message>
 
+    <message name="RADIO_CONTROL" id="30">
+      <field name="rc" type="struct RadioControl *">Pointer to a radio control structure</field>
+    </message>
+
   </msg_class>
 
 </protocol>

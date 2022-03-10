@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_intermcu" dir="radio_control" task="radio_control">
+  <doc>
+    <description>
+      Radio control over intermcu
+    </description>
+  </doc>
+  <dep>
+    <depends>radio_control_common</depends>
+    <provides>radio_control</provides>
+  </dep>
+  <header>
+    <file name="rc_intermcu.h"/>
+  </header>
+  <init fun="rc_intermcu_init()"/>
+  <datalink message="IMCU_RADIO_COMMANDS" fun="rc_intermcu_parse_msg(buf)" class="intermcu"/>
+  <datalink message="IMCU_FBW_STATUS" fun="rc_intermcu_parse_fbw_status(buf)" class="intermcu"/>
+  <makefile target="ap">
+    <define name="RADIO_CONTROL_TYPE_INTERMCU"/>
+    <file name="rc_intermcu.c"/>
+    <test>
+      <define name="RADIO_CONTROL"/>
+      <define name="RADIO_CONTROL_TYPE_INTERMCU"/>
+    </test>
+  </makefile>
+</module>
+

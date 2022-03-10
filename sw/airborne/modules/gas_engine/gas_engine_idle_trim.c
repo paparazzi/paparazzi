@@ -25,12 +25,12 @@
 int gas_engine_idle_trim_left = 0;
 int gas_engine_idle_trim_right = 0;
 
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 
 
 void periodic_gas_engine_idle_trim(void)
 {
-  imcu_set_command(COMMAND_IDLE1, imcu_get_radio(RADIO_GAIN1));
-  imcu_set_command(COMMAND_IDLE2, imcu_get_radio(RADIO_GAIN2));
+  command_set(COMMAND_IDLE1, radio_control_get(RADIO_GAIN1));
+  command_set(COMMAND_IDLE2, radio_control_get(RADIO_GAIN2));
 }
 

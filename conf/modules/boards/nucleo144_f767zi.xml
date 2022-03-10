@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="nucleo144_f767zi" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Nucleo144 F767zi dev board
+    </description>
+  </doc>
+  <dep>
+    <depends>hard_fault_recovery</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

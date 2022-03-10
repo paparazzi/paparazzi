@@ -64,6 +64,10 @@ struct periodic_telemetry {
   struct telemetry_cb_slots *cbs; ///< array of callbacks defined through TELEMETRY_MSG
 };
 
+/** Periodic task
+ */
+extern void telemetry_reporting_task(void);
+
 /** Register a telemetry callback function.
  * empty implementation is provided if PERIODIC_TELEMETRY is not set or set to FALSE
  * @param _pt periodic telemetry structure to register

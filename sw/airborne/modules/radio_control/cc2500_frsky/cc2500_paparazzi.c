@@ -22,6 +22,7 @@
 #include "cc2500_paparazzi.h"
 
 #include "modules/radio_control/radio_control.h"
+#include "modules/core/abi.h"
 #include "peripherals/cc2500.h"
 #include "cc2500_common.h"
 #include "cc2500_frsky_common.h"
@@ -47,18 +48,19 @@ static void send_cc2500_ppm(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 
-void radio_control_impl_init(void) {
+void radio_control_cc2500_init(void) {
   cc2500_settings_init();
   cc2500_init();
   cc2500Reset();
   rxInit();
+  radio_control.nb_channel = RADIO_CTL_NB;
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPM, send_cc2500_ppm);
 #endif
 }
 
 
-void radio_control_impl_event(void (* _received_frame_handler)(void)) {
+void radio_control_cc2500_event(void) {
   if (rxRuntimeConfig.rcFrameStatusFn(&rxRuntimeConfig) & RX_FRAME_COMPLETE) {
     rxRuntimeConfig.rcProcessFrameFn(&rxRuntimeConfig);
     radio_control.frame_cpt++;
@@ -67,11 +69,12 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
       radio_control.radio_ok_cpt--;
     } else {
       radio_control.status = RC_OK;
-      for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; ++i) {
+      for (int i = 0; i < RADIO_CTL_NB; ++i) {
         frsky_raw[i] = rxRuntimeConfig.rcReadRawFn(&rxRuntimeConfig, i);
       }
       NormalizePpmIIR(frsky_raw, radio_control);
-      _received_frame_handler();
+      AbiSendMsgRADIO_CONTROL(RADIO_CONTROL_FRSKY_ID, &radio_control);
     }
   }
 }
+

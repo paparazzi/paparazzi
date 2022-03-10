@@ -31,4 +31,15 @@
 
 extern struct SHott hott;
 
+/**
+ * RC init function.
+ */
+extern void hott_init(void);
+
+/**
+ * RC event function.
+ */
+extern void hott_event(void);
+
+
 #endif /* RC_HOTT_H */

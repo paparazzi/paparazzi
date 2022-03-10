@@ -21,28 +21,11 @@
     <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)" cond="ifdef AHRS_CORRECT_FREQUENCY"/>
     <define name="AHRS_MAG_CORRECT_FREQUENCY" value="$(AHRS_MAG_CORRECT_FREQUENCY)" cond="ifdef AHRS_MAG_CORRECT_FREQUENCY"/>
     <include name="$(SRC_FIRMWARE)"/>
-    <define name="INTER_MCU"/>
-    <file name="inter_mcu.c" dir="modules/intermcu"/>
-  </makefile>
-  <makefile target="ap">
-    <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>
-    <file name="main_chibios.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(RTOS), chibios)"/>
+    <file name="main_bare.c" dir="." cond="ifneq ($(RTOS), chibios)"/>
+    <file name="main_chibios.c" dir="." cond="ifeq ($(RTOS), chibios)"/>
   </makefile>
   <makefile target="!fbw">
-    <file name="main_ap.c" dir="$(SRC_FIRMWARE)"/>
-  </makefile>
-  <makefile target="ap|nps|hitl">
-    <define name="FBW" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))"/>
-    <file name="main_fbw.c" dir="$(SRC_FIRMWARE)" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))"/>
-  </makefile>
-  <makefile target="fbw|sim">
-    <file name="main.c" dir="$(SRC_FIRMWARE)" cond="ifneq ($(RTOS), chibios)"/>
-    <file name="main_chibios.c" dir="$(SRC_FIRMWARE)" cond="ifeq ($(RTOS), chibios)"/>
-    <file name="main_fbw.c" dir="$(SRC_FIRMWARE)"/>
- </makefile>
-  <makefile target="nps|hitl">
-    <define name="AP"/>
-    <file name="nps_autopilot_fixedwing.c" dir="nps"/>
+    <file name="main_ap.c" dir="."/>
   </makefile>
   <makefile target="nps|hitl">
     <define name="AP"/>

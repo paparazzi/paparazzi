@@ -16,7 +16,7 @@
   <init fun="gec_dl_init()"/>
   <event fun="gec_dl_event()"/>
 
-  <makefile target="!fbw|sim">
+  <makefile target="!sim">
     <define name="DOWNLINK_TRANSPORT" value="gec_tp"/>
     <file name="gec_dl.c"/>
     <file name="gec.c" dir="modules/datalink/gec"/>

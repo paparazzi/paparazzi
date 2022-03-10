@@ -33,11 +33,11 @@
 
 // Include Servo and airframe servo channels
 #include "std.h"
-#include "modules/intermcu/inter_mcu.h"
+#include "modules/core/commands.h"
 #include "generated/airframe.h"
 
-#define DC_PUSH(X)    imcu_set_command(X, -MAX_PPRZ);
-#define DC_RELEASE(X) imcu_set_command(X,  MAX_PPRZ);
+#define DC_PUSH(X)    command_set(X, -MAX_PPRZ);
+#define DC_RELEASE(X) command_set(X,  MAX_PPRZ);
 
 /** how long to push shutter in seconds */
 #ifndef DC_SHUTTER_DELAY
