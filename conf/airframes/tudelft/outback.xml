@@ -19,6 +19,7 @@
       </target-->
 
       <module name="telemetry"     type="xbee_api"/>
+      <module name="telemetry" type="intermcu"/>
       <module name="imu"           type="mpu6000"/>
       <module name="gps"           type="ublox">
         <define name="GPS_TIMEOUT" value="2"/>
@@ -72,6 +73,11 @@
       </module>
       <module name="intermcu"      type="uart"/>
       <module name="telemetry"     type="intermcu"/>
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="$(INTERMCU_PORT)"/>
+        <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
+        <define name="TELEMETRY_DISABLE_RX"/>
+      </module>
       <module name="opa_controller"/>
       <module name="heli_swashplate_mixing"/>
       <module name="gps" type="ublox"/>

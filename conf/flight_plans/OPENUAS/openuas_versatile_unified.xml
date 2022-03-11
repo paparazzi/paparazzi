@@ -131,11 +131,11 @@ Should be unified for Hybrid, FW and rotorcraft
       <!--<while cond="!GpsFixValid() || gps.pacc @GT 1500 || stateIsAttitudeValid()"/>-->
       <while cond="!GpsFixValid()"/>
       <!-- Wiggle Wiggle when we have GPS , time to fly...-->
-      <!--<set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>
+      <!--<set var="commands[COMMAND_YAW]" value="-MAX_PPRZ"/>
       <while cond="LessThan(NavBlockTime(), 2)"/>
-      <set var="ap_state->commands[COMMAND_YAW]" value="MAX_PPRZ"/>
+      <set var="commands[COMMAND_YAW]" value="MAX_PPRZ"/>
       <while cond="LessThan(NavBlockTime(), 3)"/>
-      <set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>-->
+      <set var="commands[COMMAND_YAW]" value="-MAX_PPRZ"/>-->
     </block>
 
 <!-- *********** Set the ground reference height and the home position *********** -->
@@ -165,8 +165,8 @@ Should be unified for Hybrid, FW and rotorcraft
     -->
 
     <block name="ReadyForDeparture" >
-      <!-- <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/> -->
-      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <!-- <set value="0" var="commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="0" var="commands[COMMAND_BRAKE]"/> -->
       <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED" /><!-- set the preferred flight mode -->
       <!-- Must have an RC for this flightplan and on at least for the start, we wait till the throttle is high -->
       <exception cond="ThrottleHigh()" deroute="Takeoff"/>
@@ -174,7 +174,7 @@ Should be unified for Hybrid, FW and rotorcraft
     </block>
 
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="Ops">
-      <!-- <set var="ap_state->commands[COMMAND_LIGHT]" value="PPRZ_MAX"/> -->
+      <!-- <set var="commands[COMMAND_LIGHT]" value="PPRZ_MAX"/> -->
       <set var="autopilot.kill_throttle" value="0"/>
       <!--<var="autopilot.launch" set value="1"  />-->
       <while cond="1 @GT autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->

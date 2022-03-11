@@ -87,6 +87,7 @@ void actuators_init(void)
  */
 void actuators_periodic(void)
 {
+#if USE_COMMANDS
   pprz_t trimmed_commands[COMMANDS_NB];
   int i;
   for (i = 0; i < COMMANDS_NB; i++) {trimmed_commands[i] = commands[i];}
@@ -113,6 +114,7 @@ void actuators_periodic(void)
   SetActuatorsFromCommands(trimmed_commands, autopilot_get_mode());
   // TODO SetApOnlyActuatorsFromCommands(ap_commands, autopilot_get_mode());
 #endif
+#endif // USE_COMMANDS
 }
 
 #else // No command_laws section or no actuators

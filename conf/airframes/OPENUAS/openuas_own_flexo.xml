@@ -483,11 +483,11 @@ NOTES:
     <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ"/>
     <define name="SERVO_HATCH_OPEN" value="0"/>
     <define name="SERVO_HATCH_CLOSED" value="-9600"/>
-    <define name="AirbrakesOff()" value="(ap_state->commands[COMMAND_BRAKE]=0)"/>
-    <define name="AirbrakesOn()" value="(ap_state->commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)"/>
-    <!--<define name="Fly()" value="(ap_state->commands[COMMAND_FORCECRASH]=0)" />-->
-    <!--<define name="ForceCrash()" value="(ap_state->commands[COMMAND_FORCECRASH]=9600)" />-->
-    <define name="ThrottleHigh()" value="(ap_state->commands[COMMAND_THROTTLE]>9600/2)"/>
+    <define name="AirbrakesOff()" value="(commands[COMMAND_BRAKE]=0)"/>
+    <define name="AirbrakesOn()" value="(commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)"/>
+    <!--<define name="Fly()" value="(commands[COMMAND_FORCECRASH]=0)" />-->
+    <!--<define name="ForceCrash()" value="(commands[COMMAND_FORCECRASH]=9600)" />-->
+    <define name="ThrottleHigh()" value="(commands[COMMAND_THROTTLE]>9600/2)"/>
     <define name="SPOILERON_BRAKE_FULL" value="-MAX_PPRZ"/>
     <define name="FLAPERON_BRAKE_FULL" value="MAX_PPRZ"/>
   </section>

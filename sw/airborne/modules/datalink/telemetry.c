@@ -30,7 +30,9 @@
 #include "modules/datalink/telemetry_common.h"
 #include "modules/datalink/telemetry.h"
 #include "generated/periodic_telemetry.h"
+#if FIXEDWING_FIRMWARE || ROTORCRAFT_FIRMWARE || ROVER_FIRMWARE
 #include "autopilot.h"
+#endif
 
 
 /* Implement global structures from generated header.
@@ -74,6 +76,7 @@ int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, 
  */
 void telemetry_reporting_task(void)
 {
+#if FIXEDWING_FIRMWARE || ROTORCRAFT_FIRMWARE || ROVER_FIRMWARE
   static uint8_t boot = true;
 
   /* initialisation phase during boot */
@@ -96,6 +99,7 @@ void telemetry_reporting_task(void)
     periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
   }
+#endif
 }
 
 

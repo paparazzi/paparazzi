@@ -9,7 +9,6 @@
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="fixedwing">
-    <define name="RADIO_CONTROL_NB_CHANNEL" value="8" />
     <target name="ap" board="lisa_l_1.0">
       <configure name="SEPARATE_FBW" value="1"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
@@ -20,10 +19,10 @@
       <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
       </module>
-      <module name="radio_control" type="sbus_dual">
-        <configure name="SBUS1_PORT" value="UART3"/>
-        <configure name="SBUS2_PORT" value="UART5"/>
-      </module>
+      <!-- mapping with intermcu channel -->
+      <define name="RADIO_FLAPS" value="RADIO_AUX1"/>
+      <define name="RADIO_GAIN1" value="RADIO_AUX2"/>
+      <define name="RADIO_GAIN2" value="RADIO_AUX3"/>
       <!-- AP -->
       <module name="control"/>
       <module name="navigation"/>
@@ -32,6 +31,7 @@
         <configure name="MODEM_BAUD" value="B9600"/>
         <configure name="MODEM_PORT" value="UART3"/>
       </module>
+      <module name="telemetry" type="intermcu"/>
       <module name="ins" type="xsens700">
         <configure name="XSENS_PORT" value="uart1"/>
         <configure name="XSENS_BAUD" value="B230400"/>
@@ -59,6 +59,11 @@
       <!-- FBW <-> AP -->
       <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART1"/>
+      </module>
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="$(INTERMCU_PORT)"/>
+        <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
+        <define name="TELEMETRY_DISABLE_RX"/>
       </module>
       <!-- SERVO'S -->
       <module name="actuators" type="pwm"/>

@@ -214,7 +214,7 @@
   </servos>
 
   <section name="ServoPositions">
-    <define name="ThrottleHigh()" value="(imcu_get_command(COMMAND_THROTTLE)>9600/2)" />
+    <define name="ThrottleHigh()" value="(command_get(COMMAND_THROTTLE)>9600/2)" />
   </section>
 
 <!-- ********************* SERVO MIXER *************************** -->

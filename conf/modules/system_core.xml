@@ -28,6 +28,7 @@
     <include name="$(SRC_MODULES)"/>
     <file name="sys_time.c" dir="mcu_periph"/>
     <file name="commands.c"/>
+    <define name="USE_COMMANDS"/>
     <file_arch name="sys_time_arch.c" dir="mcu_periph"/>
     <file_arch name="led_hw.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
     <file_arch name="led_hw.c" dir="." cond="ifeq ($(TARGET), sim)"/>

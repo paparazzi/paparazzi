@@ -1089,6 +1089,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
     List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
   (* print sectors *)
+  lprintf out "\n#ifndef FBW\n\n"; (* workaround to hide sector functions on FBW side *)
   let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
   let sectors = List.filter (fun x -> String.lowercase_ascii (Xml.tag x) = "sector") (Xml.children sectors_element) in
   List.iter (fun x -> match ExtXml.attrib_opt x "type" with
@@ -1106,6 +1107,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
     with
         _ -> ()
   end;
+  lprintf out "\n#endif\n"; (* workaround to hide sector functions on FBW side *)
 
   (* start "C" part *)
   lprintf out "\n#ifdef NAV_C\n\n";

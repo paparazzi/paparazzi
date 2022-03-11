@@ -19,6 +19,7 @@
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <!-- in seconds-->
     <module name="telemetry" type="transparent" />
+    <module name="telemetry" type="intermcu"/>
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B57600"/>
@@ -90,6 +91,11 @@
     <module name="intermcu" type="uart">
       <configure name="INTERMCU_PORT" value="UART2" />
       <configure name="INTERMCU_BAUD" value="B1500000" />
+    </module>
+    <module name="telemetry" type="transparent">
+      <configure name="MODEM_PORT" value="$(INTERMCU_PORT)"/>
+      <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
+      <define name="TELEMETRY_DISABLE_RX"/>
     </module>
   </firmware>
 

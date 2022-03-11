@@ -21,22 +21,18 @@
     </includes>
 
     <control_block name="actuators_ap">
-      <call fun="PPRZ_MUTEX_LOCK(ap_state_mtx)"/>
       <call fun="AP_COMMAND_SET_THROTTLE(v_ctl_throttle_slewed)"/>
       <call fun="AP_COMMAND_SET_ROLL(-h_ctl_aileron_setpoint)"/>
       <call fun="AP_COMMAND_SET_PITCH(h_ctl_elevator_setpoint)"/>
       <call fun="AP_COMMAND_SET_YAW(h_ctl_rudder_setpoint)"/>
       <call fun="AP_COMMAND_SET_CL(h_ctl_flaps_setpoint)"/>
-      <call fun="PPRZ_MUTEX_UNLOCK(ap_state_mtx)"/>
     </control_block>
 
     <control_block name="set_attitude_from_rc">
-      <call fun="PPRZ_MUTEX_LOCK(fbw_state_mtx)"/>
       <call fun="AP_SETPOINT_ROLL(h_ctl_roll_setpoint, AUTO1_MAX_ROLL)"/>
       <call fun="AP_SETPOINT_PITCH(h_ctl_pitch_setpoint, AUTO1_MAX_PITCH)"/>
       <call fun="AP_SETPOINT_YAW_RATE(h_ctl_yaw_rate_setpoint, AUTO1_MAX_YAW_RATE)"/>
       <call fun="AP_SETPOINT_THROTTLE(v_ctl_throttle_setpoint)"/>
-      <call fun="PPRZ_MUTEX_UNLOCK(fbw_state_mtx)"/>
     </control_block>
 
     <control_block name="attitude">
@@ -60,7 +56,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control> <!-- only for display -->
-        <call fun="v_ctl_throttle_slewed = imcu_get_radio(RADIO_THROTTLE)"/>
+        <call fun="v_ctl_throttle_slewed = radio_control_get(RADIO_THROTTLE)"/>
       </control>
       <exception cond="RCLost() && autopilot_in_flight()" deroute="HOME"/>
     </mode>

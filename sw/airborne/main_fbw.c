@@ -37,15 +37,6 @@
 #include "modules/datalink/datalink.h"
 #include "modules/datalink/telemetry.h"
 
-/* So one can use these in command_laws section */
-#define And(x, y) ((x) && (y))
-#define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-#define LessThan(_x, _y) ((_x) < (_y))
-#define MoreThan(_x, _y) ((_x) > (_y))
-
-
 /** Fly by wire modes */
 uint8_t fbw_mode;
 bool fbw_motors_on = false;
