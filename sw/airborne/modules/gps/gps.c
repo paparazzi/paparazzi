@@ -467,7 +467,7 @@ static const uint16_t month_days[2][13] = {
   { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
 };
 
-// Count the days since start of 1980
+// Count the days since start of 1980, 6th of January
 // Counts year * 356 days + leap days + month lengths + days in month
 // The leap days counting needs the "+ 1" because GPS year 0 (i.e. 1980) was a leap year
 uint16_t gps_day_number(uint16_t year, uint8_t month, uint8_t day)
@@ -477,7 +477,7 @@ uint16_t gps_day_number(uint16_t year, uint8_t month, uint8_t day)
   uint16_t day_of_year = month_days[leap_year][month - 1] + day;
   if (gps_years == 0)
     return day_of_year;
-  return gps_years * 365 + ((gps_years - 1) / 4) + 1 + day_of_year;
+  return gps_years * 365 + ((gps_years - 1) / 4) + 1 + day_of_year - 6;
 }
 
 uint16_t gps_week_number(uint16_t year, uint8_t month, uint8_t day)
