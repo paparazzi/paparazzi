@@ -27,6 +27,9 @@
 
 #include "modules/core/settings.h"
 #include "generated/settings.h"
+#include "generated/airframe.h"
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
 
 struct PersistentSettings pers_settings;
 
@@ -88,3 +91,49 @@ int32_t settings_clear(void)
   settings_clear_flag = false;
   return -1;
 }
+
+void settings_parse_msg_SETTING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
+{
+#ifndef INTERMCU_FBW
+  if (DL_SETTING_ac_id(buf) != AC_ID) { return; }
+  uint8_t sender_id = pprzlink_get_msg_sender_id(buf);
+  uint8_t i = DL_SETTING_index(buf);
+  float var = DL_SETTING_value(buf);
+  DlSetting(i, var);
+  // Reply to the sender of the message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = sender_id;
+  msg.component_id = 0;
+  pprzlink_msg_send_DL_VALUE(&msg, &i, &var);
+#else
+  (void)dev;
+  (void)trans;
+  (void)buf;
+#endif
+}
+
+void settings_parse_msg_GET_SETTING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
+{
+#ifndef INTERMCU_FBW
+  if (DL_GET_SETTING_ac_id(buf) != AC_ID) { return; }
+  uint8_t sender_id = pprzlink_get_msg_sender_id(buf);
+  uint8_t i = DL_GET_SETTING_index(buf);
+  float val = settings_get_value(i);
+  // Reply to the sender of the message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = sender_id;
+  msg.component_id = 0;
+  pprzlink_msg_send_DL_VALUE(&msg, &i, &val);
+#else
+  (void)dev;
+  (void)trans;
+  (void)buf;
+#endif
+}
+

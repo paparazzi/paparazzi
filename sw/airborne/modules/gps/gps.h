@@ -171,6 +171,9 @@ extern void gps_init(void);
 /** GPS packet injection (default empty) */
 extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);
 
+extern void gps_parse_GPS_INJECT(uint8_t *buf);
+extern void gps_parse_RTCM_INJECT(uint8_t *buf);
+
 /** GPS timeout in seconds */
 #ifndef GPS_TIMEOUT
 #define GPS_TIMEOUT 2

@@ -383,6 +383,27 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 
 }
 
+void gps_parse_GPS_INJECT(uint8_t *buf)
+{
+  // Check if the GPS is for this AC
+  if (DL_GPS_INJECT_ac_id(buf) != AC_ID) { return; }
+
+  // GPS parse data
+  gps_inject_data(
+      DL_GPS_INJECT_packet_id(buf),
+      DL_GPS_INJECT_data_length(buf),
+      DL_GPS_INJECT_data(buf)
+      );
+}
+
+void gps_parse_RTCM_INJECT(uint8_t *buf)
+{
+  // GPS parse data
+  gps_inject_data(DL_RTCM_INJECT_packet_id(buf),
+      DL_RTCM_INJECT_data_length(buf),
+      DL_RTCM_INJECT_data(buf));
+}
+
 /**
  * Convenience functions to get utm position from GPS state
  */

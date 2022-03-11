@@ -32,6 +32,8 @@
 #define AIR_DATA_H
 
 #include "std.h"
+#include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprzlink_transport.h"
 
 /** Air Data strucute */
 struct AirData {
@@ -67,6 +69,10 @@ extern void air_data_init(void);
 /** Check health. Needs to be called periodically.
  */
 extern void air_data_periodic(void);
+
+/** Parse datalink wind info message
+ */
+extern void air_data_parse_WIND_INFO(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 /** Return AMSL (altitude AboveSeaLevel).
  * If AMSL from baro is valid, return that, otherwise from gps.

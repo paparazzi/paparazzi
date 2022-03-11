@@ -30,6 +30,7 @@
 #include "autopilot.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "state.h"
+#include "pprzlink/dl_protocol.h"
 
 
 bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
@@ -149,5 +150,18 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
     }
     guidance_h_set_guided_heading(yaw);
   }
+}
+
+/** Parse GUIDED_SETPOINT_NED messages from datalink
+ */
+void autopilot_guided_parse_GUIDED(uint8_t *buf) {
+  if (DL_GUIDED_SETPOINT_NED_ac_id(buf) != AC_ID) { return; }
+
+  autopilot_guided_update(
+      DL_GUIDED_SETPOINT_NED_flags(buf),
+      DL_GUIDED_SETPOINT_NED_x(buf),
+      DL_GUIDED_SETPOINT_NED_y(buf),
+      DL_GUIDED_SETPOINT_NED_z(buf),
+      DL_GUIDED_SETPOINT_NED_yaw(buf));
 }
 

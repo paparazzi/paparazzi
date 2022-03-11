@@ -16,6 +16,8 @@
   </header>
   <init fun="rc_datalink_init()"/>
   <event fun="rc_datalink_event()"/>
+  <datalink message="RC_3CH" fun="rc_datalink_parse_RC_3CH(buf)"/>
+  <datalink message="RC_4CH" fun="rc_datalink_parse_RC_4CH(buf)"/>
   <makefile target="ap|fbw|sim|nps">
     <configure name="RADIO_CONTROL_DATALINK_LED" default="none"/>
     <define name="RADIO_CONTROL_DATALINK_LED" value="$(RADIO_CONTROL_DATALINK_LED)" cond="ifneq ($(RADIO_CONTROL_DATALINK_LED),none)"/>

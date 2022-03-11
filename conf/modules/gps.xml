@@ -28,6 +28,8 @@
     <file name="gps.h"/>
   </header>
   <init fun="gps_init()"/>
+  <datalink message="GPS_INJECT" fun="gps_parse_GPS_INJECT(buf)"/>
+  <datalink message="RTCM_INJECT" fun="gps_parse_RTCM_INJECT(buf)"/>
 
   <makefile target="fbw|ap|sim|nps|hitl">
     <configure name="GPS_LED" default="none"/>

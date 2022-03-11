@@ -33,6 +33,7 @@
 #include "math/pprz_isa.h"
 #include "state.h"
 #include "generated/airframe.h"
+#include "pprzlink/dl_protocol.h"
 
 /** global AirData state
  */
@@ -274,6 +275,35 @@ void air_data_periodic(void)
   }
 }
 
+void air_data_parse_WIND_INFO(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
+{
+  if (DL_WIND_INFO_ac_id(buf) != AC_ID) { return; }
+  uint8_t flags = DL_WIND_INFO_flags(buf);
+  struct FloatVect2 wind = { 0.f, 0.f };
+  float upwind = 0.f;
+  if (bit_is_set(flags, 0)) {
+    wind.x = DL_WIND_INFO_north(buf);
+    wind.y = DL_WIND_INFO_east(buf);
+    stateSetHorizontalWindspeed_f(&wind);
+    air_data.wind_speed = float_vect2_norm(&wind);
+    air_data.wind_dir = atan2f(wind.y, wind.x);
+  }
+  if (bit_is_set(flags, 1)) {
+    upwind = DL_WIND_INFO_up(buf);
+    stateSetVerticalWindspeed_f(upwind);
+  }
+#if !USE_AIRSPEED
+  if (bit_is_set(flags, 2)) {
+    air_data.tas = DL_WIND_INFO_airspeed(buf);
+    air_data.airspeed = eas_from_tas(air_data.tas);
+    stateSetAirspeed_f(air_data.airspeed);
+  }
+#endif
+#ifdef WIND_INFO_RET
+  float airspeed = stateGetAirspeed_f();
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind.y, &wind.x, &upwind, &airspeed);
+#endif
+}
 
 /**
  * Calculate equivalent airspeed from dynamic pressure.

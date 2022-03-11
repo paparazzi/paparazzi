@@ -27,6 +27,7 @@
 #include "modules/radio_control/rc_datalink.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/core/abi.h"
+#include "pprzlink/dl_protocol.h"
 
 int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 volatile bool rc_dl_frame_available;
@@ -38,6 +39,28 @@ void rc_datalink_init(void)
   rc_dl_frame_available = false;
 }
 
+void rc_datalink_parse_RC_3CH(uint8_t *buf)
+{
+#ifdef RADIO_CONTROL_DATALINK_LED
+  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+  parse_rc_3ch_datalink(
+      DL_RC_3CH_throttle_mode(buf),
+      DL_RC_3CH_roll(buf),
+      DL_RC_3CH_pitch(buf));
+}
+
+void rc_datalink_parse_RC_4CH(uint8_t *buf)
+{
+#ifdef RADIO_CONTROL_DATALINK_LED
+  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+  parse_rc_4ch_datalink(DL_RC_4CH_mode(buf),
+      DL_RC_4CH_throttle(buf),
+      DL_RC_4CH_roll(buf),
+      DL_RC_4CH_pitch(buf),
+      DL_RC_4CH_yaw(buf));
+}
 
 void parse_rc_3ch_datalink(uint8_t throttle_mode,
                            int8_t roll,

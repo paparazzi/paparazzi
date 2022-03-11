@@ -24,6 +24,8 @@
     <file name="navigation.h" dir="firmwares/rotorcraft"/>
   </header>
   <init fun="nav_init()"/>
+  <datalink message="BLOCK" fun="nav_parse_BLOCK(buf)"/>
+  <datalink message="MOVE_WP" fun="nav_parse_MOVE_WP(buf)"/>
   <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="navigation.c" dir="$(SRC_FIRMWARE)"/>
     <file name="common_flight_plan.c"/>

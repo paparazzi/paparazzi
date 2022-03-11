@@ -36,6 +36,7 @@
   </header>
   <init fun="air_data_init()"/>
   <periodic fun="air_data_periodic()" freq="10"/>
+  <datalink message="WIND_INFO" fun="air_data_parse_WIND_INFO(dev,trans,buf)"/>
   <makefile target="!fbw">
     <file name="air_data.c"/>
   </makefile>

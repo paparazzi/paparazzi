@@ -22,6 +22,7 @@
 
 #include "modules/gps/gps_ubx.h"
 #include "modules/core/abi.h"
+#include "pprzlink/dl_protocol.h"
 #include "led.h"
 
 #ifndef USE_GPS_UBX_RTCM
@@ -114,6 +115,22 @@ void gps_ubx_event(void)
     if (gps_ubx.msg_available) {
       gps_ubx_msg();
     }
+  }
+}
+
+void gps_ubx_parse_HITL_UBX(uint8_t *buf)
+{
+  /** This code simulates gps_ubx.c:parse_ubx() */
+  if (gps_ubx.msg_available) {
+    gps_ubx.error_cnt++;
+    gps_ubx.error_last = GPS_UBX_ERR_OVERRUN;
+  } else {
+    gps_ubx.msg_class = DL_HITL_UBX_class(buf);
+    gps_ubx.msg_id = DL_HITL_UBX_id(buf);
+    uint8_t l = DL_HITL_UBX_ubx_payload_length(buf);
+    uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(buf);
+    memcpy(gps_ubx.msg_buf, ubx_payload, l);
+    gps_ubx.msg_available = true;
   }
 }
 

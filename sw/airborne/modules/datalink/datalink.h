@@ -58,9 +58,6 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 /** Should be called when chars are available in dl_buffer */
 EXTERN void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
-/** Firmware specfic msg handler */
-EXTERN void firmware_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
-
 #if USE_NPS
 EXTERN bool datalink_enabled;
 #endif
@@ -77,6 +74,8 @@ EXTERN bool datalink_enabled;
 
 /** periodic function, should be called at 1Hz */
 extern void datalink_periodic(void);
+
+extern void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 /** Check for new message and parse */
 static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx *trans, uint8_t *buf, bool *msg_available, bool update_dl)
