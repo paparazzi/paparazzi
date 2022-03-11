@@ -54,9 +54,7 @@ extern float gh_max_speed;
 #define GH_FREQ_FRAC 9
 #define GH_FREQ (1<<GH_FREQ_FRAC)
 
-#define GH_ACCEL_REF_FRAC 8
-#define GH_SPEED_REF_FRAC (GH_ACCEL_REF_FRAC + GH_FREQ_FRAC)
-#define GH_POS_REF_FRAC (GH_SPEED_REF_FRAC + GH_FREQ_FRAC)
+#define GH_POS_REF_FRAC 26
 
 struct GuidanceHRef {
   /** Reference model acceleration.
@@ -91,18 +89,6 @@ struct GuidanceHRef {
   float zeta_omega;
   float omega_2;
   float inv_tau;
-
-  struct FloatVect2 max_vel;
-  struct FloatVect2 max_accel;
-
-  /** gh_max_speed in fixed point representation with #GH_MAX_SPEED_REF_FRAC
-   * must be limited to 2^14 to avoid overflow
-   */
-  int32_t max_speed_int;
-
-  int32_t route_ref;
-  int32_t s_route_ref;
-  int32_t c_route_ref;
 
   /** Integration timestep
    */

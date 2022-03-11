@@ -45,12 +45,6 @@ static const float gh_max_accel = GUIDANCE_H_REF_MAX_ACCEL;
 #define GUIDANCE_H_REF_TAU 0.5
 #endif
 
-static void gh_compute_route_ref(struct FloatVect2 *ref_vector);
-static void gh_compute_ref_max(struct FloatVect2 *ref_vector);
-static void gh_compute_ref_max_accel(struct FloatVect2 *ref_vector);
-static void gh_compute_ref_max_speed(struct FloatVect2 *ref_vector);
-static void gh_saturate_ref_accel(void);
-static void gh_saturate_ref_speed(void);
 static void gh_saturate_speed(struct FloatVect2 *speed_sp);
 static void gh_saturate_accel(struct FloatVect2 *accel_sp);
 
@@ -108,8 +102,6 @@ void gh_set_ref(struct Int32Vect2 pos, struct FloatVect2 speed, struct FloatVect
   VECT2_COPY(gh_ref.accel, accel);
 }
 
-// #include <stdio.h>
-
 void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp)
 {
   struct FloatVect2 pos_step, speed_step;
@@ -146,20 +138,7 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp)
 
   // copy accel
   VECT2_COPY(gh_ref.accel, accel_sp);
-
-  /* Compute max ref accel/speed along route before saturation */
-  // gh_compute_ref_max(&pos_err);
-
-  // RunOnceEvery(200, {printf("pos_step: %f\n", pos_step.x);});
-  // RunOnceEvery(200, {printf("pos_sp.x: %d\n", pos_sp.x);});
-  // RunOnceEvery(200, {printf("gh_ref_pos.x: %jd\n", gh_ref.pos.x);});
-  // RunOnceEvery(200, {printf("pos_err.x: %f\n", pos_err.x);});
-  // RunOnceEvery(200, {printf("vel_sp.x: %f\n", vel_sp.x);});
-  // RunOnceEvery(200, {printf("speed_err.x: %f\n", speed_err.x);});
-  // RunOnceEvery(200, {printf("gh_ref.speed.x: %f\n", gh_ref.speed.x);});
-  // RunOnceEvery(200, {printf("accel_sp.x: %f\n", accel_sp.x);});
 }
-
 
 void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp)
 {
@@ -186,11 +165,6 @@ void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp)
 
   // copy accel
   VECT2_COPY(gh_ref.accel, accel_sp);
-
-  /* Compute max ref accel/speed along route before saturation */
-  // gh_compute_ref_max_speed(&speed_sp);
-  // gh_compute_ref_max_accel(&speed_err);
-
 }
 
 static void gh_saturate_speed(struct FloatVect2 *speed_sp)
