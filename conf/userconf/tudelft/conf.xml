@@ -387,7 +387,7 @@
    radio="radios/CDW/cdw_t8fg_sbus.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/versatile.xml"
-   settings="settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml"
+   settings="settings/fixedwing_basic.xml"
    settings_modules="modules/gps.xml modules/guidance_basic_fw.xml modules/light.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="blue"
    release="679fcad03bab95b2982cb6d8e3537486da45d306"
