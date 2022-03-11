@@ -10,7 +10,7 @@
   <blocks>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <call fun="Fly()"/>
-        <!--   <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+        <!--   <set value="0" var="commands[COMMAND_BRAKE]"/> -->
       <circle alt="WaypointAlt(WP_STDBY)" radius="nav_radius" wp="STDBY"/>
     </block>
 <!--Below routes that are handy for testing only when in the field and performing several tests -->

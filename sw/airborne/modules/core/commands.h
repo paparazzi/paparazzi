@@ -31,6 +31,8 @@
 #include "paparazzi.h"
 #include "generated/airframe.h"
 
+#if COMMANDS_NB // commands are defined and nb is > 0
+
 /** Storage of intermediate command values.
  *  These values come from the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
  *  They are asyncronisly used to set the servos
@@ -73,6 +75,8 @@ static inline pprz_t command_get(uint8_t idx)
   }
   return 0; // is it the best value ???
 }
+
+#endif
 
 extern void commands_init(void);
 

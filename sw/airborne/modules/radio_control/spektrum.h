@@ -67,4 +67,8 @@ extern void spektrum_init(void);
 extern void spektrum_event(void);
 extern void spektrum_try_bind(void);
 
+#if USE_NPS
+extern void radio_control_feed(void);
+#endif
+
 #endif /* RADIO_CONTROL_SPEKTRUM_H */

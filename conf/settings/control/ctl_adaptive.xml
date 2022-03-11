@@ -6,11 +6,6 @@
   <dl_settings>
 
     <dl_settings NAME="control">
-      <dl_settings NAME="trim">
-        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_roll_trim" shortname="roll_trim" module="modules/intermcu/inter_mcu" param="COMMAND_ROLL_TRIM"/>
-        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
-      </dl_settings>
-
       <dl_settings NAME="attitude">
         <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll_pgain" param="H_CTL_ROLL_ATTITUDE_GAIN" module="stabilization/stabilization_attitude"/>
         <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll_dgain" param="H_CTL_ROLL_RATE_GAIN" module="stabilization/stabilization_attitude"/>

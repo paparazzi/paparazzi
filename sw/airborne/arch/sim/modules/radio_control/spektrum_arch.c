@@ -27,7 +27,6 @@
  */
 
 #include "modules/radio_control/radio_control.h"
-#include "modules/radio_control/spektrum_arch.h"
 #include "modules/radio_control/spektrum.h"
 #include "modules/core/abi.h"
 #include "std.h"

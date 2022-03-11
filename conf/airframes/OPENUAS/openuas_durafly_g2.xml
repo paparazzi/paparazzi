@@ -290,11 +290,11 @@
     <define name="ROTORSTARTER_OFF" value="MIN_PPRZ" />
    <!-- <define name="AGR_CLIMB_PITCH" value="35" unit="deg" />-->
 
-    <define name="AirbrakesOff()" value="(ap_state->commands[COMMAND_BRAKE]=0)" />
-    <define name="AirbrakesOn()" value="(ap_state->commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)" />
-    <!--<define name="Fly()" value="(ap_state->commands[COMMAND_FORCECRASH]=0)" />-->
-    <!--<define name="ForceCrash()" value="(ap_state->commands[COMMAND_FORCECRASH]=9600)" />-->
-    <define name="ThrottleHigh()" value="(ap_state->commands[COMMAND_THROTTLE]>9600/2)" />
+    <define name="AirbrakesOff()" value="(commands[COMMAND_BRAKE]=0)" />
+    <define name="AirbrakesOn()" value="(commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)" />
+    <!--<define name="Fly()" value="(commands[COMMAND_FORCECRASH]=0)" />-->
+    <!--<define name="ForceCrash()" value="(commands[COMMAND_FORCECRASH]=9600)" />-->
+    <define name="ThrottleHigh()" value="(commands[COMMAND_THROTTLE]>9600/2)" />
   </section>
 
   <servos>

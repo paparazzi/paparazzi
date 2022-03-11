@@ -235,8 +235,8 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
       <!--  TODO: make some movements on all defelctros as a sign we are in holding and to see if all works Maybe a separate testblock-->
       <!-- <set var="waypoints[WP_START].x" value="WaypointX(WP_EL2) + 50"/> -->
       <!-- <set var="waypoints[WP_START].y" value="WaypointY(WP_EL2) + 50"/> -->
-      <!-- <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/> -->
-      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <!-- <set value="0" var="commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="0" var="commands[COMMAND_BRAKE]"/> -->
       <call_once fun="AirbrakesOff()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/><!-- maybe not moving the plane would still make a test of defelction possible -->
     </block>
@@ -265,7 +265,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     </block>
 
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <!-- <set value="3000" var="ap_state->commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="3000" var="commands[COMMAND_CAMBER]"/> -->
       <set value="0" var="autopilot.kill_throttle"/>
       <set value="1" var="autopilot.launch"/>
       <set value="0" var="autopilot.flight_time"/>
@@ -317,7 +317,7 @@ to “Airfield Home” and orbit for either a landing or regain of Data Link.
      ***************************************************** -->
 
 <!-- maybe a HelperWaypoint to gettart n return from a mission Tracking to EL1
-      <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/>-->
+      <set value="0" var="commands[COMMAND_CAMBER]"/>-->
 
 <!-- *********** Track to EL-1 *********** -->
     <block name="EntryLane1" strip_button="Joe" strip_icon="lookdown.png" group="Mission">
@@ -441,7 +441,7 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
 #define NavDropComputeApproach(_target, _start, _radius) nav_drop_compute_approach(_target, _start, _radius)
 #define NavDropUpdateRelease(_wp) nav_drop_update_release(_wp)
 #define NavDropShoot() nav_drop_shoot()
-#define NavDropCloseHatch() ({ ap_state->commands[COMMAND_HATCH] = MIN_PPRZ; })
+#define NavDropCloseHatch() ({ commands[COMMAND_HATCH] = MIN_PPRZ; })
 #define NavDropAligned() Qdr(DegOfRad(nav_drop_qdr_aligned)) -->
 
 
@@ -468,7 +468,7 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
 <!-- *********** Release Payload *********** -->
     <block name="shoot">
       <!-- TODO maybe extend crowbreak 80%? for slowes possible speed? -->
-      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <!-- <set value="0" var="commands[COMMAND_BRAKE]"/> -->
       <!-- TODO is electrcal plane and almost there maybe stop proppelor from spinning for a few seconds -->
       <call_once fun="NavDropShoot()"/>
       <!-- TODO add maxspeed again -->

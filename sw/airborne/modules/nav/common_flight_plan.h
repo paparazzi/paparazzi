@@ -56,13 +56,6 @@ void nav_goto_block(uint8_t block_id);
 #define Goto(x) { goto label_ ## x; }
 #define Return(x) { nav_block=last_block; if (x==1) {nav_stage=0;} else {nav_stage=last_stage;} block_time=0;}
 
-#define And(x, y) ((x) && (y))
-#define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-#define LessThan(_x, _y) ((_x) < (_y))
-#define MoreThan(_x, _y) ((_x) > (_y))
-
 /** Time in s since the entrance in the current block */
 #define NavBlockTime() (block_time)
 

@@ -24,6 +24,7 @@
 #include "generated/airframe.h"
 #include "autopilot.h"
 #include "modules/core/commands.h"
+#include "generated/modules.h" // for radio_control channels
 
 void periodic_auto1_commands(void)
 {

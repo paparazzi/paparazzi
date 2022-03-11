@@ -136,7 +136,7 @@ extern float baseleg_out_qdr;
 extern void nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
 extern void nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
 
-#define RCLost() bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST)
+#define RCLost() RadioControlIsLost()
 
 extern void nav_follow(uint8_t _ac_id, float _distance, float _height);
 #define NavFollow(_ac_id, _distance, _height) nav_follow(_ac_id, _distance, _height)
