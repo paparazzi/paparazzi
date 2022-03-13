@@ -32,12 +32,20 @@ def load_set(set_path, color_format):
     return images
 
 
-# Function to filter the entire data set given as a dict (WIP)
+# Function to filter
 def filter_YUV(images, y_low, y_high, u_low, u_high, v_low, v_high):
     if type(images) is dict:
         return {k: img_filter(v, y_low, y_high, u_low, u_high, v_low, v_high) for k, v in images.items()}
     else:
         return img_filter(images, y_low, y_high, u_low, u_high, v_low, v_high)
+
+
+# Function to filter the entire data set given as a dict (WIP)
+def RGB_to_BGR(images):
+    if type(images) is dict:
+        return {k: cv2.cvtColor(v, cv2.COLOR_RGB2BGR) for k, v in images.items()}
+    else:
+        return cv2.cvtColor(images, cv2.COLOR_RGB2BGR)
 
 
 # Defines the filter to be used in filter_YUV
@@ -62,27 +70,23 @@ if __name__ == "__main__":
     from determine_optic_flow import determine_optic_flow
     import time
 
-    plt.plot([1, 2, 3], [1, 2, 3])
-    plt.show()
-
-    path = "cyberzoo_manual_flight_data_set/flight_test/Obstacles/orange/"
-    set = load_set(path, "BGR")
-
+    path = "cyberzoo_manual_flight_data_set/flight_test/random_flying/"
+    dataset = load_set(path, "RGB")
+    dataset = RGB_to_BGR(dataset)
     index = 0
     prev = 0
 
-    for key, value in set.items():
+    for key, value in tqdm(dataset.items()):
 
         new = value
 
+        # print(new, prev)
+
         if index >= 1:
-            print(new, prev)
             determine_optic_flow(new, prev)
-            time.sleep(20)
 
         prev = value
         index += 1
-
 
     # cap = cv2.VideoCapture(0)
     #
@@ -106,3 +110,6 @@ if __name__ == "__main__":
     #
     # cap.release()
     # cv2.destroyAllWindows()
+    #
+
+
