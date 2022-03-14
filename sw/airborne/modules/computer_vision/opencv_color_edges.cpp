@@ -23,7 +23,7 @@
  * A simple module showing what you can do with opencv on the bebop.
  */
 
-
+// CHANGES IN INPUTS AND FUNCTION NAMES result in changes in the conf files and function files "opencv_color_edges"
 #include "opencv_color_edges.h"
 #include <stdio.h>
 #include <time.h>
@@ -41,9 +41,17 @@ using namespace cv;
 
 RNG rng(12345);
 
-struct obstacle opencv_color_edges(struct image_t *img,int lum_min, int lum_max,
-        int cb_min, int cb_max,
-        int cr_min, int cr_max,int downsize_factor,bool draw, double min_obs_size)
+struct obstacle opencv_color_edges(struct image_t *img,
+		bool GRAY_SCALE,
+		bool BLUR_IMAGE,int BLUR_SIZE_IMAGE,
+		bool BLUR_EDGES,int BLUR_SIZE_EDGES,
+		bool BORDERS,int BORDER_MARGIN,
+		bool Y_UP_filter,int y_up_del,
+		bool Y_DOWN_filter,int y_down_del,
+		bool draw,
+		int downsize_factor,
+		int APS,
+		double min_obs_size,double max_obs_size)
 {
 	struct obstacle new_obstacle;
 
@@ -56,19 +64,29 @@ struct obstacle opencv_color_edges(struct image_t *img,int lum_min, int lum_max,
 	image_create(&img_small,img->w/downsize_factor,img->h/downsize_factor,IMAGE_YUV422);
 	image_yuv422_downsample(img,&img_small,downsize_factor);
 
+	// ADD IF statements to gray scale and blur
+	// ----------------------------------------------
 	// Create a new image, using the original bebop image.
 	Mat M(img_small.h, img_small.w, CV_8UC2, img_small.buf); // original
-	Mat image, contour_image, thresh_image,blur_image,edge_image;
+	Mat image, contour_image, thresh_image,blur_image,edge_image,store_image;
 
 	// convert UYVY in paparazzi to YUV in opencv
-	cvtColor(M, M, CV_YUV2RGB_Y422);
-	cvtColor(M, M, CV_RGB2YUV);
+	cvtColor(M, store_image, CV_YUV2RGB_Y422);
 
-	// Threshold all values within the indicted YUV values.
+	if (GRAY_SCALE == true) {
+		cvtColor(store_image, store_image, CV_RGB2GRAY);
+	}
+	else {
+		cvtColor(store_image, store_image, CV_RGB2YUV);
+	}
+
+
+	// Threshold all values within the indicted YUV values. (Change to CANNY edge detection)
 	inRange(M, Scalar(lum_min,cb_min,cr_min), Scalar(lum_max,cb_max,cr_max), thresh_image);
 
 	// Blur image
 	blur(thresh_image, blur_image, Size(2, 2));
+	// ----------------------------------------------
 
 	// Find contours
 	contour_image = blur_image;
