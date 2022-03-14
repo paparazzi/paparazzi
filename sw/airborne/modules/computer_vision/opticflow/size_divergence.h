@@ -35,6 +35,7 @@
 #define SIZE_DIVERGENCE
 
 float get_size_divergence(struct flow_t *vectors, int count, int n_samples);
+void get_size_divergence_split(struct flow_t *vectors, struct image_t *img, int count, int n_samples, float divs[]);
 float get_mean(float *numbers, int n_elements);
 
 #endif

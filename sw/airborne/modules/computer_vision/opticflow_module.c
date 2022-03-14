@@ -160,7 +160,8 @@ void opticflow_module_run(void)
 
   // Printing info for fun
   printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
-}
+  printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+};
 
 /**
  * The main optical flow calculation thread
