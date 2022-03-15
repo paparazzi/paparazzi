@@ -2,6 +2,7 @@ import cv2
 import os
 from tqdm import tqdm as tqdm
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 # This function loads one image from a specified directory
@@ -12,6 +13,8 @@ def load_img(img_path, color_format):
         return cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
     elif color_format.upper() == "RGB":
         return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    elif color_format.upper() == "BGR":
+        return img
     else:
         raise Exception("Invalid color format, supported types are RGB and YUV")
 
@@ -29,12 +32,20 @@ def load_set(set_path, color_format):
     return images
 
 
-# Function to filter the entire data set given as a dict (WIP)
+# Function to filter
 def filter_YUV(images, y_low, y_high, u_low, u_high, v_low, v_high):
     if type(images) is dict:
         return {k: img_filter(v, y_low, y_high, u_low, u_high, v_low, v_high) for k, v in images.items()}
     else:
         return img_filter(images, y_low, y_high, u_low, u_high, v_low, v_high)
+
+
+# Function to filter the entire data set given as a dict (WIP)
+def RGB_to_BGR(images):
+    if type(images) is dict:
+        return {k: cv2.cvtColor(v, cv2.COLOR_RGB2BGR) for k, v in images.items()}
+    else:
+        return cv2.cvtColor(images, cv2.COLOR_RGB2BGR)
 
 
 # Defines the filter to be used in filter_YUV
@@ -54,30 +65,51 @@ def img_rescale(img, resize_factor):
         return cv2.resize(img, (int(img.shape[1] / resize_factor), int(img.shape[0] / resize_factor)))
 
 
-# This function will load images from the webcam
-def cam_feed():
-    pass
-
-
 if __name__ == "__main__":
 
-    import matplotlib.pyplot as plt
+    from determine_optic_flow import determine_optic_flow
+    import time
 
-    path = "./AE4317_2019_datasets/AE4317_2019_datasets/cyberzoo_aggressive_flight/20190121-144646/"
-    imgs = os.listdir(path)
-    test = load_set(path, "YUV")
+    path = "cyberzoo_manual_flight_data_set/flight_test/random_flying/"
+    dataset = load_set(path, "RGB")
+    dataset = RGB_to_BGR(dataset)
+    index = 0
+    prev = 0
 
-    # print(test.items())
+    for key, value in tqdm(dataset.items()):
 
-    # print(len(test[imgs[0]]))
+        new = value
 
-    rescale = img_rescale(test, 4)
-    # print(rescale[imgs[0]].shape[0])
+        # print(new, prev)
 
-    res_filt = filter_YUV(rescale, 50, 200, 120, 130, 120, 130)
-    # print(testFilter)
+        if index >= 1:
+            determine_optic_flow(new, prev)
 
-    print(res_filt[imgs[0]])
+        prev = value
+        index += 1
 
-    plt.imshow(res_filt[imgs[0]])
-    plt.show()
+    # cap = cv2.VideoCapture(0)
+    #
+    # if not cap.isOpened():
+    #     raise IOError("Cannot open webcam")
+    #
+    # ret, frame = 0, 0
+    #
+    # while True:
+    #     ret_prev, frame_prev = ret, frame
+    #     ret, frame = cap.read()
+    #     # frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+    #     # cv2.imshow('Input', frame)
+    #
+    #     if not ret_prev == 0:
+    #         determine_optic_flow(frame, frame_prev)
+    #
+    #     c = cv2.waitKey(1)
+    #     if c == 27:
+    #         break
+    #
+    # cap.release()
+    # cv2.destroyAllWindows()
+    #
+
+

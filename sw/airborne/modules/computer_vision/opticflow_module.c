@@ -105,6 +105,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
  */
 void opticflow_module_init(void)
 {
+  printf("Optic flow init\n");
   // Initialize the opticflow calculation
   for (int idx_camera = 0; idx_camera < ACTIVE_CAMERAS; idx_camera++) {
     opticflow_got_result[idx_camera] = false;
@@ -128,6 +129,7 @@ void opticflow_module_init(void)
  */
 void opticflow_module_run(void)
 {
+
   pthread_mutex_lock(&opticflow_mutex);
   // Update the stabilization loops on the current calculation
   for (int idx_camera = 0; idx_camera < ACTIVE_CAMERAS; idx_camera++) {
@@ -155,7 +157,11 @@ void opticflow_module_run(void)
     }
   }
   pthread_mutex_unlock(&opticflow_mutex);
-}
+
+  // Printing info for fun
+  printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
+  printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+};
 
 /**
  * The main optical flow calculation thread
