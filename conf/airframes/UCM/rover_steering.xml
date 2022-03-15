@@ -21,14 +21,23 @@
     <module name="telemetry" type="xbee_api"/>
     
     <module name="board" type="matek_f765_car"/> <!-- IMU included -->
-    <define name="USE_MAGNETOMETER" value="FALSE"/>
 
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
 
     <module name="ins"/>
-    <module name="ahrs" type="float_dcm"/>
+
+    <!--module name="ahrs" type="float_dcm">
+      <define name="AHRS_FLOAT_MIN_SPEED_GPS_COURSE" value="0.1"/>
+    </module-->
+
+    <module name="ahrs" type="float_cmpl_quat">
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0.1"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+    </module>
+
     <module name="nav"  type="rover_base"/>
     <module name="gvf"  type="module"/>
 
@@ -83,7 +92,6 @@
     <define name="H_Y" value="-0.00242783"/>
     <define name="H_Z" value="0.858336"/>
     <define name="USE_GPS" value="TRUE"/>
-    <define name="AHRS_FLOAT_MIN_SPEED_GPS_COURSE" value="0"/>
   </section>
 
   <section name="AUTOPILOT">
