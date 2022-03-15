@@ -17,8 +17,7 @@
  * so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
  */
 
-#include "modules/computer_vision/obstacle_message.h"
-
+#include "modules/computer_vision/opticflow/inter_thread_data.h"
 #include "modules/orange_avoider/orange_avoider.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/airframe.h"
@@ -30,7 +29,7 @@
 #define NAV_C // needed to get the nav functions like Inside...
 #include "generated/flight_plan.h"
 
-#define ORANGE_AVOIDER_VERBOSE TRUE
+#define ORANGE_AVOIDER_VERBOSE FALSE
 
 #define PRINT(string,...) fprintf(stderr, "[orange_avoider->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #if ORANGE_AVOIDER_VERBOSE
@@ -61,7 +60,7 @@ int32_t color_count = 0;                // orange color count from color filter 
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
 float heading_increment = 5.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
-struct ObstacleMessage *obstacle_message;
+struct opticflow_result_t *result;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -84,12 +83,12 @@ static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
   color_count = quality;
 }
 
-static abi_event obstical_message_ev;
-static void obstacle_message_cb(uint8_t __attribute__((unused)) sender_id,
+static abi_event optical_flow_result;
+static void optical_flow_cb(uint8_t __attribute__((unused)) sender_id,
                                uint32_t __attribute__((unused)) stamp, int32_t __attribute__((unused)) datatype,
                                uint32_t __attribute__((unused)) size, uint8_t *data)
 {
-  memcpy(obstacle_message, data, sizeof(*obstacle_message)); // Makes a copy of the struct, Removes the issue of memory problems. Not as efficient as pointers
+  memcpy(result, data, sizeof(*result)); // Makes a copy of the struct, Removes the issue of memory problems. Not as efficient as pointers
 }
 
 /*
@@ -104,9 +103,9 @@ void orange_avoider_init(void)
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
 
-  AbiBindMsgPAYLOAD_DATA(2, &obstical_message_ev, obstacle_message_cb);
+  AbiBindMsgPAYLOAD_DATA(2, &optical_flow_result, optical_flow_cb);
 
-  obstacle_message = malloc(sizeof(struct ObstacleMessage));
+  result = malloc(sizeof(struct opticflow_result_t));
 }
 
 /*
@@ -119,8 +118,11 @@ void orange_avoider_periodic(void)
     return;
   }
 
-  printf("Here");
-  printf("%u \n", obstacle_message->obs_height);
+  printf("Left: ");
+  printf("%f \n", result->div_size_left);
+
+    printf("Right: ");
+    printf("%f \n", result->div_size_right);
 
 
   // compute current color thresholds

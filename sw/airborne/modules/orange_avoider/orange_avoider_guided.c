@@ -122,6 +122,8 @@ void orange_avoider_guided_periodic(void)
     return;
   }
 
+  printf("Here");
+
   // compute current color thresholds
   int32_t color_count_threshold = oag_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
   int32_t floor_count_threshold = oag_floor_count_frac * front_camera.output_size.w * front_camera.output_size.h;

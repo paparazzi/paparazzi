@@ -159,8 +159,13 @@ void opticflow_module_run(void)
   pthread_mutex_unlock(&opticflow_mutex);
 
   // Printing info for fun
-  printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
-  printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+  //printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
+  //printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+
+
+  // Sending the Data ove the abi messaging protocol
+  uint32_t stamp = get_sys_time_usec();
+  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(opticflow_result), opticflow_result);
 };
 
 /**
