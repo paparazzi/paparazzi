@@ -25,6 +25,8 @@
 #include "modules/core/abi.h"
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #define NAV_C // needed to get the nav functions like Inside...
 #include "generated/flight_plan.h"
@@ -48,7 +50,10 @@ enum navigation_state_t {
   SAFE,
   OBSTACLE_FOUND,
   SEARCH_FOR_SAFE_HEADING,
-  OUT_OF_BOUNDS
+  OUT_OF_BOUNDS,
+  AVOID_RIGHT_OBJECT,
+  AVOID_LEFT_OBJECT
+
 };
 
 // define settings
@@ -58,9 +63,11 @@ float oa_color_count_frac = 0.18f;
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
 int32_t color_count = 0;                // orange color count from color filter for obstacle detection
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
-float heading_increment = 5.f;          // heading angle increment [deg]
+float heading_increment = 45.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
 struct opticflow_result_t *result;
+float flow_threshold = 0.005;
+float absdiff;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -118,11 +125,16 @@ void orange_avoider_periodic(void)
     return;
   }
 
-  printf("Left: ");
-  printf("%f \n", result->div_size_left);
+  absdiff = fabs(result->div_size_left - result->div_size_right);
 
-    printf("Right: ");
-    printf("%f \n", result->div_size_right);
+  printf("Left: ");
+  printf("%f  ,", result->div_size_left);
+
+  printf("Right: ");
+  printf("%f \n", result->div_size_right);
+
+  printf("Difference:");
+  printf("%f \n", fabs(result->div_size_left - result->div_size_right));
 
 
   // compute current color thresholds
@@ -142,16 +154,20 @@ void orange_avoider_periodic(void)
 
   float moveDistance = fminf(maxDistance, 0.2f * obstacle_free_confidence);
 
-  switch (navigation_state){
-    case SAFE:
-      // Move waypoint forward
-      moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-      if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-        navigation_state = OUT_OF_BOUNDS;
-      } else if (obstacle_free_confidence == 0){
-        navigation_state = OBSTACLE_FOUND;
-      } else {
-        moveWaypointForward(WP_GOAL, moveDistance);
+  switch (navigation_state) {
+      case SAFE:
+          // Move waypoint forward
+          moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
+          if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
+              navigation_state = OUT_OF_BOUNDS;
+          } //else if (obstacle_free_confidence == 0) {
+              //navigation_state = OBSTACLE_FOUND;
+          if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
+              navigation_state = AVOID_LEFT_OBJECT;
+          } else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
+              navigation_state = AVOID_RIGHT_OBJECT;
+          }else {
+              moveWaypointForward(WP_GOAL, moveDistance);
       }
 
       break;
@@ -186,9 +202,39 @@ void orange_avoider_periodic(void)
         obstacle_free_confidence = 0;
 
         // ensure direction is safe before continuing
-        navigation_state = SEARCH_FOR_SAFE_HEADING;
+        navigation_state = SAFE; //SEARCH_FOR_SAFE_HEADING;
       }
       break;
+    case AVOID_RIGHT_OBJECT:
+        // stop
+        waypoint_move_here_2d(WP_GOAL);
+        waypoint_move_here_2d(WP_TRAJECTORY);
+
+        // turn left
+        increase_nav_heading(-1 * heading_increment);
+
+        // is new path safe
+        if (absdiff <= 2 * flow_threshold){
+            navigation_state = SAFE;
+        }
+
+        break;
+
+    case AVOID_LEFT_OBJECT:
+        // stop
+        waypoint_move_here_2d(WP_GOAL);
+        waypoint_move_here_2d(WP_TRAJECTORY);
+
+        // turn right
+        increase_nav_heading(1 * heading_increment);
+
+        // is new path safe
+        if (absdiff <= 2 * flow_threshold){
+            navigation_state = SAFE;
+        }
+
+        break;
+
     default:
       break;
   }

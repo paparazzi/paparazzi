@@ -58,6 +58,9 @@ struct opticflow_result_t {
   uint8_t camera_id;      ///< Camera id as passed to cv_add_to_device
 
   float noise_measurement;  ///< noise of measurement, for state filter
+
+  float focus_of_expansion_x;
+  float focus_of_expansion_y;
 };
 
 #endif

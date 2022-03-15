@@ -32,6 +32,7 @@
 #include "state.h"
 #include "modules/core/abi.h"
 #include "modules/pose_history/pose_history.h"
+#include <math.h>
 
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"
@@ -160,7 +161,8 @@ void opticflow_module_run(void)
 
   // Printing info for fun
   //printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
-  //printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+  printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+  printf("Absolute Diff: %f\n", fabs(opticflow_result->div_size_left - opticflow_result->div_size_right));
 
 
   // Sending the Data ove the abi messaging protocol
