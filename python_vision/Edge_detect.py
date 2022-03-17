@@ -41,7 +41,7 @@ def edge_detect_Harris(image, image_gray, blockSize, ksize, k, threshold_factor)
     return corners, inds
 
 
-def edge_detect_FAST(image, image_gray, threshold,  max_points , nonmaxSuppression=True):
+def edge_detect_FAST(image, image_gray, threshold, max_points, nonmaxSuppression=True):
 
     # Initiate FAST object with default values
     # https://docs.opencv.org/3.4/df/d74/classcv_1_1FastFeatureDetector.html
@@ -51,15 +51,14 @@ def edge_detect_FAST(image, image_gray, threshold,  max_points , nonmaxSuppressi
     # find and draw the keypoints
     kp = fast.detect(image_gray, None)
     img2 = cv2.drawKeypoints(image, kp, None, color=(255, 0, 0))
-    cv2.imshow('dst', img2)
+    # cv2.imshow('dst', img2)
     # print("Total Keypoints with nonmaxSuppression: {}".format(len(kp)))
     # downselect the points:
     kp = np.random.choice(kp, size=max_points)
-    n_points = len(kp)
 
     # convert the points to a 2D numpy array:
-    corners = np.stack((kp.pt[0].T, kp.pt[1].T), axis=1)
-    corners = corners[0:99]
+    corners = np.asarray([[kp.pt[0], kp.pt[1]] for kp in kp])
+    # corners = corners[0:len(corners)-1]
 
     return corners
 
