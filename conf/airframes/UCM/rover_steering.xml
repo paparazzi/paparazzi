@@ -7,7 +7,9 @@
 
     <target name="ap" board="matek_f765_wing">
       <configure name="PERIODIC_FREQUENCY" value="100"/>
-      <module name="radio_control" type="sbus"/>
+      <module name="radio_control" type="sbus">
+        <!--configure name="SBUS_PORT" value="UART6"/-->
+      </module>
     </target>
     
     <target name="nps" board="pc">
@@ -20,23 +22,27 @@
     <module name="actuators" type="pwm"/>
     <module name="telemetry" type="xbee_api"/>
     
+    <!-- Same board module as matek_f765_wind but without OSD -->
     <module name="board" type="matek_f765_car"/> <!-- IMU included -->
 
+    <!-- GPS_BAUD can be manually configured, but gps_ubx_ucenter automatically do that -->
     <module name="gps" type="ublox">
-      <configure name="GPS_BAUD" value="B115200"/>
+      <!--configure name="GPS_BAUD" value="B115200"/-->
     </module>
+    <module name="gps_ubx_ucenter"/>
 
     <module name="ins"/>
 
-    <!--module name="ahrs" type="float_dcm">
+    <!-- Either of this AHRS works fine with our rover -->
+    <module name="ahrs" type="float_dcm">
       <define name="AHRS_FLOAT_MIN_SPEED_GPS_COURSE" value="0.1"/>
-    </module-->
+    </module>
 
-    <module name="ahrs" type="float_cmpl_quat">
+    <!--module name="ahrs" type="float_cmpl_quat">
       <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0.1"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
       <configure name="USE_MAGNETOMETER" value="0"/>
-    </module>
+    </module-->
 
     <module name="nav"  type="rover_base"/>
     <module name="gvf"  type="module"/>
