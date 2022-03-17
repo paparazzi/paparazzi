@@ -107,7 +107,7 @@ static void file_logger_write_row(FILE *file) {
     fprintf(file, "%f,%f,%f,", vel->x, vel->y, vel->z);
     fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
     fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
-    fprintf(file, "%f.5,%f.5", result->div_size_left, result->div_size_right);
+    fprintf(file, "%f,%f", result->div_size_left, result->div_size_right);
 #ifdef COMMAND_THRUST
     fprintf(file, "%d,%d,%d,%d\n",
       stabilization_cmd[COMMAND_THRUST], stabilization_cmd[COMMAND_ROLL],
