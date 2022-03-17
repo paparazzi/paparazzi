@@ -48,6 +48,14 @@ def RGB_to_BGR(images):
         return cv2.cvtColor(images, cv2.COLOR_RGB2BGR)
 
 
+# Function to filter the entire data set given as a dict (WIP)
+def BGR_to_GRAY(images):
+    if type(images) is dict:
+        return {k: cv2.cvtColor(v, cv2.COLOR_BGR2GRAY) for k, v in images.items()}
+    else:
+        return cv2.cvtColor(images, cv2.COLOR_BGR2GRAY)
+
+
 # Defines the filter to be used in filter_YUV
 def img_filter(img, y_low, y_high, u_low, u_high, v_low, v_high):
     Filtered = np.zeros([img.shape[0], img.shape[1]])
