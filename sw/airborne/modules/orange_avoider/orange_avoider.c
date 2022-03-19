@@ -63,7 +63,7 @@ float oa_color_count_frac = 0.18f;
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
 int32_t color_count = 0;                // orange color count from color filter for obstacle detection
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
-float heading_increment = 45.f;          // heading angle increment [deg]
+float heading_increment = 135.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
 struct opticflow_result_t *result;
 float flow_threshold = 0.005;
@@ -158,30 +158,54 @@ void orange_avoider_periodic(void)
       case SAFE:
           // Move waypoint forward
           moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
+          guidance_h.sp.speed.x = 5;
+          guidance_h.sp.speed.y = 5;
           if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
               navigation_state = OUT_OF_BOUNDS;
-          } //else if (obstacle_free_confidence == 0) {
+              //else if (obstacle_free_confidence == 0) {
               //navigation_state = OBSTACLE_FOUND;
-          if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
+          }
+          else if (result->focus_of_expansion_x == 0 && result->focus_of_expansion_y == 0) {
+              navigation_state = OBSTACLE_FOUND;
+          }
+          else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
               navigation_state = AVOID_LEFT_OBJECT;
-          } else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
+          }
+          else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
               navigation_state = AVOID_RIGHT_OBJECT;
-          }else {
+          }
+
+          else {
               moveWaypointForward(WP_GOAL, moveDistance);
+
       }
 
       break;
     case OBSTACLE_FOUND:
-      // stop
-      waypoint_move_here_2d(WP_GOAL);
-      waypoint_move_here_2d(WP_TRAJECTORY);
+        if (result->div_size_left < result->div_size_left){
+            // turn left
+            increase_nav_heading(-1 * 3 * heading_increment);
+            navigation_state = SAFE;
+        }
 
-      // randomly select new search direction
-      chooseRandomIncrementAvoidance();
-
-      navigation_state = SEARCH_FOR_SAFE_HEADING;
+        else {
+            // turn right
+            increase_nav_heading(1 * 3 * heading_increment);
+            navigation_state = SAFE;
+        }
 
       break;
+//      case OBSTACLE_FOUND:
+//          // stop
+//          waypoint_move_here_2d(WP_GOAL);
+//          waypoint_move_here_2d(WP_TRAJECTORY);
+//
+//          // randomly select new search direction
+//          chooseRandomIncrementAvoidance();
+//
+//          navigation_state = SEARCH_FOR_SAFE_HEADING;
+//
+//          break;
     case SEARCH_FOR_SAFE_HEADING:
       increase_nav_heading(heading_increment);
 
@@ -191,7 +215,7 @@ void orange_avoider_periodic(void)
       }
       break;
     case OUT_OF_BOUNDS:
-      increase_nav_heading(heading_increment);
+      increase_nav_heading(5 * heading_increment);
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
@@ -214,12 +238,13 @@ void orange_avoider_periodic(void)
         increase_nav_heading(-1 * heading_increment);
 
         // is new path safe
-        if (absdiff <= 2 * flow_threshold){
-            navigation_state = SAFE;
-        }
+//        if (absdiff <= 2 * flow_threshold){
+//            navigation_state = SAFE;
+//        }
+
+        navigation_state = SAFE;
 
         break;
-
     case AVOID_LEFT_OBJECT:
         // stop
         waypoint_move_here_2d(WP_GOAL);
@@ -229,9 +254,10 @@ void orange_avoider_periodic(void)
         increase_nav_heading(1 * heading_increment);
 
         // is new path safe
-        if (absdiff <= 2 * flow_threshold){
-            navigation_state = SAFE;
-        }
+//        if (absdiff <= 2 * flow_threshold){
+//            navigation_state = SAFE;
+//        }
+        navigation_state = SAFE;
 
         break;
 

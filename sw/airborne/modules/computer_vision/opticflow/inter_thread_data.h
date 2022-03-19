@@ -61,6 +61,8 @@ struct opticflow_result_t {
 
   float focus_of_expansion_x;
   float focus_of_expansion_y;
+
+  float time_to_contact;
 };
 
 #endif

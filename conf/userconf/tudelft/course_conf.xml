@@ -12,16 +12,16 @@
    release="951019e34be0464cee1171a083947981c4b8c55d"
   />
   <aircraft
-  name="bebop_optical_flow_guided"
-  ac_id="45"
-  airframe="airframes/tudelft/bebop_course_opticflow.xml"
-  radio="radios/dummy.xml"
-  telemetry="telemetry/default_rotorcraft.xml"
-  flight_plan="flight_plans/tudelft/course_orangeavoid_cyberzoo.xml"
-  settings="settings/rotorcraft_basic.xml"
-  settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_detect_color_object.xml modules/cv_opticflow.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/orange_avoider_guided.xml modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
-  gui_color="blue"
-  release="951019e34be0464cee1171a083947981c4b8c55d"
+   name="bebop_optical_flow_guided"
+   ac_id="45"
+   airframe="airframes/tudelft/bebop_course_opticflow.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/tudelft/course_orangeavoid_cyberzoo.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_detect_color_object.xml modules/cv_opticflow.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/orange_avoider.xml modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
+   gui_color="blue"
+   release="951019e34be0464cee1171a083947981c4b8c55d"
   />
   <aircraft
    name="bebop_orange_avoid"
