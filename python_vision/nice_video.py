@@ -9,7 +9,7 @@ import moviepy.editor as mpe
 from moviepy.video.VideoClip import TextClip
 import moviepy.video.fx as fx
 
-trial = 2
+trial = 0
 
 folder = 'cyberzoo_autonomous_flight_data_set_16032022/'
 
@@ -56,7 +56,7 @@ concat_clip_text = mpe.concatenate_videoclips(clips_text, method='compose')
 
 video = mpe.CompositeVideoClip([concat_clip_video, concat_clip_text])
 
-video.write_videofile("test.mp4", fps=24, threads=8)
+video.write_videofile("test_f0.mp4", fps=24, threads=8)
 
 
 
