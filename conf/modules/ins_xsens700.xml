@@ -8,6 +8,14 @@
     <configure name="XSENS_PORT" value="uart1" description="The (uart) port the XSens is connected to"/>
     <configure name="XSENS_BAUD" value="B115200" description="UART baud rate"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="xsens700">
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="ins_roll_neutral" shortname="roll_neutral" module="modules/ahrs/ahrs" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" type="float" persistent="true"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" type="float" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>uart,gps</depends>
     <provides>ins,ahrs,gps</provides>
