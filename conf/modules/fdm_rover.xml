@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_rover" dir="fdm">
+  <doc>
+    <description>
+      Rover FDM for NPS simulator
+
+      This module introduces the foundations to construct any rover physics for the NPS simulator.
+      If you have a non designed rover physiscs, in nps_fdm_rover.c you can find the instructions 
+      to build it.
+    </description>
+  </doc>
+  <header/>
+  <makefile target="nps|hitl">
+    <file name="nps_fdm_rover.c" dir="nps"/>
+  </makefile>
+</module>
+

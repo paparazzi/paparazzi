@@ -174,6 +174,7 @@ extern void nav_home(void);
 extern void nav_set_manual(float speed, float turn);
 
 extern void nav_reset_reference(void) __attribute__((unused));
+extern void nav_reset_alt(void) __attribute__((unused));
 extern void nav_periodic_task(void);
 
 extern bool nav_is_in_flight(void);
