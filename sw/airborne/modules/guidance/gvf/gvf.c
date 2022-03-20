@@ -24,7 +24,6 @@
 #include "std.h"
 
 #include "modules/guidance/gvf/gvf.h"
-#include "modules/guidance/gvf/gvf_low_level_control.h"
 #include "modules/guidance/gvf/trajectories/gvf_ellipse.h"
 #include "modules/guidance/gvf/trajectories/gvf_line.h"
 #include "modules/guidance/gvf/trajectories/gvf_sin.h"
@@ -228,7 +227,28 @@ void gvf_control_2D(float ke, float kn, float e,
 
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
 
-  gvf_low_level_control(omega);
+  #if defined(FIXEDWING_FIRMWARE)
+  if (autopilot_get_mode() == AP_MODE_AUTO2) {
+
+    // Coordinated turn
+    struct FloatEulers *att = stateGetNedToBodyEulers_f();
+    float ground_speed = stateGetHorizontalSpeedNorm_f();
+
+    lateral_mode = LATERAL_MODE_ROLL;
+
+    h_ctl_roll_setpoint =
+      -atanf(omega * ground_speed / GVF_GRAVITY / cosf(att->theta));
+    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
+  }
+
+  #elif defined(ROVER_FIRMWARE) 
+  if (autopilot_get_mode() != AP_MODE_DIRECT) {
+    guidance_control.gvf_omega = omega; //TODO: set omega into external GVF variable
+  }
+
+  #else
+  #error GVF does not support your firmware yet
+  #endif
 }
 
 void gvf_set_direction(int8_t s)
