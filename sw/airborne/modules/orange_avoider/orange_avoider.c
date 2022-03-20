@@ -158,14 +158,12 @@ void orange_avoider_periodic(void)
       case SAFE:
           // Move waypoint forward
           moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-          guidance_h.sp.speed.x = 5;
-          guidance_h.sp.speed.y = 5;
           if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
               navigation_state = OUT_OF_BOUNDS;
               //else if (obstacle_free_confidence == 0) {
               //navigation_state = OBSTACLE_FOUND;
           }
-          else if (result->focus_of_expansion_x == 0 && result->focus_of_expansion_y == 0) {
+          else if (result->focus_of_expansion_x == 0 && guidance_h.sp.speed.x == 0 || result->focus_of_expansion_x == 0 && guidance_h.sp.speed.x == 0) {
               navigation_state = OBSTACLE_FOUND;
           }
           else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
@@ -182,15 +180,17 @@ void orange_avoider_periodic(void)
 
       break;
     case OBSTACLE_FOUND:
-        if (result->div_size_left < result->div_size_left){
+        if (result->div_size_left > result->div_size_left){
             // turn left
-            increase_nav_heading(-1 * 3 * heading_increment);
+            increase_nav_heading(-1 * 4 * heading_increment);
+            moveWaypointForward(WP_TRAJECTORY, 1.5f);
             navigation_state = SAFE;
         }
 
         else {
             // turn right
-            increase_nav_heading(1 * 3 * heading_increment);
+            increase_nav_heading(1 * 4 * heading_increment);
+            moveWaypointForward(WP_TRAJECTORY, 1.5f);
             navigation_state = SAFE;
         }
 
