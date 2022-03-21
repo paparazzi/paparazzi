@@ -117,30 +117,3 @@ void rover_guidance_steering_kill(void)
   guidance_control.cmd.delta = 0.0;
   guidance_control.cmd.speed = 0.0;
 }
-
-
-/** PERIODIC function 
-void rover_guidance_steering_periodic(void)
-{ 
-  // ASSISTED guidance .....................................................
-  else if (autopilot_get_mode() == AP_MODE_ASSISTED) 
-  {
-    // Active cruiser mode at state speed
-    if (last_ap_mode != AP_MODE_ASSISTED) {
-      guidance_control.cmd.speed = guidance_control.state_speed;
-    }
-  }
-
-  // NAV guidance ...........................................................
-  else if (autopilot_get_mode() == AP_MODE_NAV) 
-  {
-    // Keep your previous state speed
-    if (last_ap_mode != AP_MODE_NAV) {
-      guidance_control.cmd.speed = guidance_control.state_speed;
-    }
-}
-**/ // A ver cómo hago esto....
-
-
-
-

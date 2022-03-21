@@ -45,7 +45,7 @@
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
 
-    <!-- Cruiser -->
+    <!-- Cruiser: Speed ctrl (from state speed on enter )+ Heading from RC -->
     <mode name="CRUISER" shortname="AUTO1">
       <select cond="RCMode1()"/>
       <on_enter>
@@ -55,7 +55,6 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
         <call fun="rover_guidance_steering_speed_ctrl()"/>
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
 
@@ -67,7 +66,7 @@
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
     
-    <!-- Navigation -->
+    <!-- Navigation: Speed crtl (from state speed on enter) + heading ctrl (from GCS & flight plans) -->
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
       <on_enter>
