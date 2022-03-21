@@ -11,8 +11,9 @@
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
       <include name="navigation.h"/>
-      <include name="guidance/rover_guidance_steering.h"/>
       <include name="modules/radio_control/radio_control.h"/>
+      <include name="guidance/rover_guidance_steering.h"/>
+      <include name="state.h"/>
       <define  name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
     </includes>
 
@@ -29,6 +30,9 @@
     <!-- RC Manual -->
     <mode name="DIRECT" shortname="MANUAL">
       <select cond="RCMode0()"/>
+      <on_enter>
+        <call fun="rover_guidance_steering_pid_reset()"/>
+      </on_enter>
       <control freq="NAVIGATION_FREQUENCY"> <!-- Only for display -->
         <call fun="nav_periodic_task()"/>
       </control>
@@ -36,23 +40,24 @@
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
 
-        <call fun="rover_guidance_steering_periodic()"/> <!-- Just for Steering Rover telemetry-->
         <call fun="SetAPThrottleFromCommands(commands[COMMAND_THROTTLE])"/>
       </control>
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
 
-    <!-- RC Assisted (High level cmds) -->
-    <!-- RC commands the throttle but GVF controls the steering (flight plan) -->
-    <mode name="ASSISTED">
+    <!-- Cruiser -->
+    <mode name="CRUISER" shortname="AUTO1">
       <select cond="RCMode1()"/>
+      <on_enter>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+      </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
         <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
-        
-        <call fun="rover_guidance_steering_periodic()"/>
 
         <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
@@ -62,14 +67,18 @@
       <exception cond="RCLost()" deroute="KILL"/>
     </mode>
     
-    <!-- Navigation (we have to work in this state because NAV is not yet implemented) -->
+    <!-- Navigation -->
     <mode name="NAV">
       <select cond="RCMode2()" exception="HOME"/>
+      <on_enter>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+      </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="rover_guidance_steering_periodic()"/>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="rover_guidance_steering_heading_ctrl()"/>
 
         <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
         <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
@@ -80,7 +89,7 @@
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
     </mode>
     
-    <!-- Come home (not yet implemented because we don't have NAV) -->
+    <!-- HOME (not yet implemented) -->
     <mode name="HOME">
       <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_home()"/>
@@ -88,7 +97,6 @@
       <control>
         <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
         
-        <call fun="rover_guidance_steering_periodic()"/>
         <call fun="SetAPThrottleFromCommands()"/>
       </control>
       <exception cond="GpsIsLost()" deroute="KILL"/>
@@ -103,6 +111,8 @@
         <call fun="autopilot_set_motors_on(false)"/>
       </on_enter>
       <control>
+        <call fun="rover_guidance_steering_kill()"/>
+
         <call fun="SetCommands(commands_failsafe)"/>
         <call fun="SetAPThrottleFromCommands()"/>
       </control>

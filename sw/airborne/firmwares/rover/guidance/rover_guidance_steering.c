@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 Jesús Bautista <jesusbautistavillar@gmail.com> 
- *                    Hector García <noeth3r@gmail.com>
+ *                    Hector García  <noeth3r@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -45,7 +45,7 @@ static float time_step;
 static float last_speed_cmd;
 static uint8_t last_ap_mode;
 
-/** INIT function**/
+/** INIT function **/
 void rover_guidance_steering_init(void)
 {
   guidance_control.cmd.delta = 0.0;
@@ -66,16 +66,15 @@ void rover_guidance_steering_init(void)
   time_step = 1.f/PERIODIC_FREQUENCY;
 }
 
-/** Controler functions **/
-
-/* Steering control (GVF) */
-static void delta_ctrl(void)
+/** CTRL functions **/
+// Steering control (GVF)
+void rover_guidance_steering_heading_ctrl(void)
 {
   float delta = 0.0;
   float omega = guidance_control.gvf_omega; //GVF give us this omega
 
   // Speed is bounded to avoid GPS noise while driving at small velocity
-  float speed = BoundSpeed(guidance_control.state_speed); 
+  float speed = BoundSpeed(stateGetHorizontalSpeedNorm_f()); 
 
   if (fabs(omega)>0.0) {
       delta = DegOfRad(-atanf(omega*DRIVE_SHAFT_DISTANCE/speed));
@@ -84,8 +83,8 @@ static void delta_ctrl(void)
   guidance_control.cmd.delta = BoundDelta(delta);
 }
 
-/* Speed control (feed feed forward + propotional + integral controler) (PID)*/
-static void speed_ctrl(void) 
+// Speed control (feed feed forward + propotional + integral controler) (PID)
+void rover_guidance_steering_speed_ctrl(void) 
 {
   // - Looking for setting update
   if (guidance_control.kp != rover_pid.g[0] || guidance_control.ki != rover_pid.g[2]) {
@@ -97,31 +96,32 @@ static void speed_ctrl(void)
   }
 
   // - Updating PID
-  guidance_control.speed_error = (guidance_control.cmd.speed - guidance_control.state_speed);
+  guidance_control.speed_error = (guidance_control.cmd.speed - stateGetHorizontalSpeedNorm_f());
   update_pid_f(&rover_pid, guidance_control.speed_error, time_step);
 
   guidance_control.throttle = BoundThrottle(guidance_control.kf*guidance_control.cmd.speed + get_pid_f(&rover_pid));
 }
 
 
-/** PERIODIC function **/
-void rover_guidance_steering_periodic(void)
-{ 
-  guidance_control.state_speed = stateGetHorizontalSpeedNorm_f();
-
-  // MANUAL guidance .......................................................
-  if (autopilot_get_mode() == AP_MODE_DIRECT) 
-  {
+/** PID RESET function**/
+void rover_guidance_steering_pid_reset(void)
+{
     // Reset speed PID
     if (rover_pid.sum != 0) {
       reset_pid_f(&rover_pid);
     }
+}
 
-    // Do nothing
+void rover_guidance_steering_kill(void)
+{
+  guidance_control.cmd.delta = 0.0;
+  guidance_control.cmd.speed = 0.0;
+}
 
-    last_ap_mode = AP_MODE_DIRECT;
-  }
 
+/** PERIODIC function 
+void rover_guidance_steering_periodic(void)
+{ 
   // ASSISTED guidance .....................................................
   else if (autopilot_get_mode() == AP_MODE_ASSISTED) 
   {
@@ -129,11 +129,6 @@ void rover_guidance_steering_periodic(void)
     if (last_ap_mode != AP_MODE_ASSISTED) {
       guidance_control.cmd.speed = guidance_control.state_speed;
     }
-
-    // Speed control
-    speed_ctrl();
-
-    last_ap_mode = AP_MODE_ASSISTED;
   }
 
   // NAV guidance ...........................................................
@@ -143,33 +138,8 @@ void rover_guidance_steering_periodic(void)
     if (last_ap_mode != AP_MODE_NAV) {
       guidance_control.cmd.speed = guidance_control.state_speed;
     }
-
-    // GVF delta control
-    delta_ctrl();
-
-    // Speed control
-    speed_ctrl();
-
-    last_ap_mode = AP_MODE_NAV;
-  } 
-
-  // HOME guidance ..........................................................
-  else if (autopilot_get_mode() == AP_MODE_HOME) 
-  {
-    // Do nothing
-
-    last_ap_mode = AP_MODE_HOME;
-  }
-
-  // KILL guidance ..........................................................
-  else 
-  {
-    guidance_control.cmd.delta = 0.0;
-    guidance_control.cmd.speed = 0.0;
-
-    last_ap_mode = AP_MODE_KILL;
-  }
 }
+**/ // A ver cómo hago esto....
 
 
 

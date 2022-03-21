@@ -102,7 +102,7 @@
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> 
-    <define name="MODE_AUTO1"  value="AP_MODE_ASSISTED"/> 
+    <define name="MODE_AUTO1"  value="AP_MODE_CRUISER"/> 
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/> <!-- Ignoring radio_control.values -->
   </section>
 
