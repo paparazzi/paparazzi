@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2021 Jesús Bautista <jesusbautistavillar@gmail.com> 
- *                    Hector García <noeth3r@gmail.com>
+ *                    Hector García  <noeth3r@gmail.com>
  *
  * This file is part of paparazzi.
  *
