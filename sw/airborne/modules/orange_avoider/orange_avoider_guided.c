@@ -60,7 +60,7 @@ enum navigation_state_t {
 // define settings
 float oag_color_count_frac = 0.18f;       // obstacle detection threshold as a fraction of total of image
 float oag_floor_count_frac = 0.05f;       // floor detection threshold as a fraction of total of image
-float oag_max_speed = 5.f;               // max flight speed [m/s]
+float oag_max_speed = 15.f;               // max flight speed [m/s]
 float oag_heading_rate = RadOfDeg(20.f);  // heading change setpoint for avoidance [rad/s]
 struct opticflow_result_t *result;
 float flow_threshold = 0.005;
@@ -193,15 +193,15 @@ void orange_avoider_guided_periodic(void)
 //            navigation_state = SEARCH_FOR_SAFE_HEADING;
 //
 //            break;
-        case SEARCH_FOR_SAFE_HEADING:
-            guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
-
-      // make sure we have a couple of good readings before declaring the way safe
-            if (obstacle_free_confidence >= 2){
-              guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
-              navigation_state = SAFE;
-            }
-      break;
+//        case SEARCH_FOR_SAFE_HEADING:
+//            guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
+//
+//      // make sure we have a couple of good readings before declaring the way safe
+//            if (obstacle_free_confidence >= 2){
+//              guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
+//              navigation_state = SAFE;
+//            }
+//      break;
     case OUT_OF_BOUNDS:
       // stop
       guidance_h_set_guided_body_vel(0, 0);
