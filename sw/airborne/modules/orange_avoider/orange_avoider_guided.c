@@ -169,9 +169,9 @@ void orange_avoider_guided_periodic(void)
             if (floor_count < floor_count_threshold || fabsf(floor_centroid_frac) > 0.12){
                 navigation_state = OUT_OF_BOUNDS;
             }
-//            else if (result->focus_of_expansion_x == 0 && result->focus_of_expansion_y == 0) {
-//                navigation_state = OBSTACLE_FOUND;
-//            }
+            else if (result->focus_of_expansion_x == 0) {
+                navigation_state = OBSTACLE_FOUND;
+            }
             else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold) {
                 navigation_state = AVOID_LEFT_OBJECT;
             }
@@ -183,25 +183,32 @@ void orange_avoider_guided_periodic(void)
             }
 
             break;
-//        case OBSTACLE_FOUND:
-//            // stop
-//            guidance_h_set_guided_body_vel(0, 0);
-//
-//            // randomly select new search direction
-//            chooseRandomIncrementAvoidance();
-//
-//            navigation_state = SEARCH_FOR_SAFE_HEADING;
-//
-//            break;
-//        case SEARCH_FOR_SAFE_HEADING:
-//            guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
-//
-//      // make sure we have a couple of good readings before declaring the way safe
-//            if (obstacle_free_confidence >= 2){
-//              guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
-//              navigation_state = SAFE;
-//            }
-//      break;
+        case OBSTACLE_FOUND:
+            // stop
+            guidance_h_set_guided_body_vel(0, 0);
+
+            if (result->div_size_left > result->div_size_left){
+                // turn left
+                guidance_h_set_guided_heading_rate(-oag_heading_rate);
+                navigation_state = SAFE;
+            }
+
+            else {
+                // turn right
+                guidance_h_set_guided_heading_rate(oag_heading_rate)
+                navigation_state = SAFE;
+            }
+
+            break;
+        case SEARCH_FOR_SAFE_HEADING:
+            guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
+
+      // make sure we have a couple of good readings before declaring the way safe
+            if (obstacle_free_confidence >= 2){
+              guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
+              navigation_state = SAFE;
+            }
+      break;
     case OUT_OF_BOUNDS:
       // stop
       guidance_h_set_guided_body_vel(0, 0);

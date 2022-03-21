@@ -163,7 +163,7 @@ void orange_avoider_periodic(void)
               //else if (obstacle_free_confidence == 0) {
               //navigation_state = OBSTACLE_FOUND;
           }
-          else if (result->focus_of_expansion_x == 0 && guidance_h.sp.speed.x == 0 || result->focus_of_expansion_x == 0 && guidance_h.sp.speed.x == 0) {
+          else if (result->focus_of_expansion_x == 0 && guidance_h.sp.speed.x == 0 ) {
               navigation_state = OBSTACLE_FOUND;
           }
           else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
