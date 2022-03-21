@@ -31,7 +31,7 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 GENACCMO = gen_airframe.cmo gen_flight_plan.cmo gen_autopilot.cmo gen_periodic.cmo gen_makefile.cmo gen_radio.cmo gen_modules.cmo gen_settings.cmo gen_aircraft.cmo
 GENACCMX = $(GENACCMO:.cmo=.cmx)
 
-all: gen_aircraft.out gen_ubx.out gen_mtk.out gen_xsens.out gen_abi.out gen_srtm.out dump_flight_plan.out
+all: gen_aircraft.out gen_ubx.out gen_mtk.out gen_xsens.out gen_abi.out gen_srtm.out dump_flight_plan.out dump_modules_list.out
 
 gen_aircraft.out : $(GENACCMO) $(LIBPPRZCMA)
 	@echo OL $@
