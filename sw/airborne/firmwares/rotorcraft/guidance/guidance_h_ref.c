@@ -37,12 +37,12 @@ static const float gh_max_accel = GUIDANCE_H_REF_MAX_ACCEL;
 #endif
 /** default second order model damping */
 #ifndef GUIDANCE_H_REF_ZETA
-#define GUIDANCE_H_REF_ZETA  0.85
+#define GUIDANCE_H_REF_ZETA  0.85f
 #endif
 
 /** first order time constant */
 #ifndef GUIDANCE_H_REF_TAU
-#define GUIDANCE_H_REF_TAU 0.5
+#define GUIDANCE_H_REF_TAU 0.5f
 #endif
 
 static void gh_saturate_speed(struct FloatVect2 *speed_sp);
@@ -56,14 +56,14 @@ void gh_ref_init(void)
   gh_ref.omega_2 = GUIDANCE_H_REF_OMEGA * GUIDANCE_H_REF_OMEGA;
   gh_set_tau(GUIDANCE_H_REF_TAU);
   gh_set_max_speed(GUIDANCE_H_REF_MAX_SPEED);
-  gh_ref.dt = (1.0/PERIODIC_FREQUENCY);
+  gh_ref.dt = (1.0f/PERIODIC_FREQUENCY);
 }
 
 
 float gh_set_max_speed(float max_speed)
 {
   /* limit to 100m/s as int version would overflow at  2^14 = 128 m/s */
-  gh_ref.max_speed = Min(fabs(max_speed), 100.0f);
+  gh_ref.max_speed = Min(fabsf(max_speed), 100.0f);
   return gh_ref.max_speed;
 }
 
@@ -71,7 +71,7 @@ float gh_set_tau(float tau)
 {
   gh_ref.tau = tau;
   Bound(gh_ref.tau, 0.01f, 2.0f);
-  gh_ref.inv_tau = (1. / gh_ref.tau);
+  gh_ref.inv_tau = (1.f / gh_ref.tau);
   return gh_ref.tau;
 }
 

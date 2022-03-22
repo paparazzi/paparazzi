@@ -31,6 +31,7 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
 #include "generated/airframe.h"
+#include "math/pprz_algebra_float.h"
 
 /** Default speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED
@@ -49,10 +50,6 @@ extern float gh_max_speed;
 #define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
 
-/** Update frequency
- */
-#define GH_FREQ_FRAC 9
-#define GH_FREQ (1<<GH_FREQ_FRAC)
 
 #define GH_POS_REF_FRAC 26
 
