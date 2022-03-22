@@ -50,11 +50,11 @@ extern float gh_max_speed;
 #define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
 
-/** fixedpoint representation: Q37.26 will give a range of
- * 1.3e8 km and a resolution of 1.5e-8 m. At a rate of 500Hz,
- * a ref speed of 7.5e-6 m/s could still update the position.
+/** fixedpoint representation: Q26.37 will give a range of
+ * 67e3 km and a resolution of 1.5e-11 m. At a rate of 500Hz,
+ * a ref speed of 7.3e-9 m/s could still update the position.
  * /
-#define GH_POS_REF_FRAC 26
+#define GH_POS_REF_FRAC 37
 
 struct GuidanceHRef {
   /** Reference model acceleration.
