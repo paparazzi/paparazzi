@@ -63,7 +63,8 @@ float oag_floor_count_frac = 0.05f;       // floor detection threshold as a frac
 float oag_max_speed = 5.f;               // max flight speed [m/s]
 float oag_heading_rate = RadOfDeg(20.f);  // heading change setpoint for avoidance [rad/s]
 struct opticflow_result_t *result;
-float flow_threshold = 0.005;
+float flow_threshold;
+float flow_threshold_const= 1
 float absdiff;
 
 // define and initialise global variables
@@ -132,16 +133,18 @@ void orange_avoider_guided_periodic(void)
 
     absdiff = fabs(result->div_size_left - result->div_size_right);
 
-    printf("Left: ");
-    printf("%f  ,", result->div_size_left);
+//    printf("Left: ");
+//    printf("%f  ,", result->div_size_left);
+//
+//    printf("Right: ");
+//    printf("%f \n", result->div_size_right);
+//
+//    printf("Difference:");
+//    printf("%f \n", fabs(result->div_size_left - result->div_size_right));
 
-    printf("Right: ");
-    printf("%f \n", result->div_size_right);
+    printf("Airspeed");
+    printf("%f \n", airspeed_f);
 
-    printf("Difference:");
-    printf("%f \n", fabs(result->div_size_left - result->div_size_right));
-
-    printf("Here");
 
     // compute current color thresholds
     int32_t color_count_threshold = oag_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
@@ -163,6 +166,7 @@ void orange_avoider_guided_periodic(void)
     Bound(obstacle_free_confidence, 0, max_trajectory_confidence);
 
     float speed_sp = fminf(oag_max_speed, oag_max_speed);
+    flow_threshold= flow_threshold_const * airspeed_f();
 
     switch (navigation_state){
         case SAFE:
