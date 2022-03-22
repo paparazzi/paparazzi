@@ -49,9 +49,11 @@ void gps_sim_hitl_event(void)
     gps.last_msg_time = sys_time.nb_sec;
     if (state.ned_initialized_i) {
       if (!autopilot_in_flight()) {
-        struct Int32Vect2 zero_vector;
-        INT_VECT2_ZERO(zero_vector);
-        gh_set_ref(zero_vector, zero_vector, zero_vector);
+        struct Int32Vect2 zero_vector_i;
+        struct FloatVect2 zero_vector_f;
+        INT_VECT2_ZERO(zero_vector_i);
+        FLOAT_VECT2_ZERO(zero_vector_f);
+        gh_set_ref(zero_vector_i, zero_vector_f, zero_vector_f);
         INT_VECT2_ZERO(guidance_h.ref.pos);
         INT_VECT2_ZERO(guidance_h.ref.speed);
         INT_VECT2_ZERO(guidance_h.ref.accel);
@@ -77,9 +79,11 @@ void gps_sim_hitl_event(void)
       gps_available = true;
     }
     else {
-      struct Int32Vect2 zero_vector;
-      INT_VECT2_ZERO(zero_vector);
-      gh_set_ref(zero_vector, zero_vector, zero_vector);
+      struct Int32Vect2 zero_vector_i;
+      struct FloatVect2 zero_vector_f;
+      INT_VECT2_ZERO(zero_vector_i);
+      FLOAT_VECT2_ZERO(zero_vector_f);
+      gh_set_ref(zero_vector_i, zero_vector_f, zero_vector_f);
       gv_set_ref(0, 0, 0);
     }
 
