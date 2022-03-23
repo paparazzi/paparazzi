@@ -176,7 +176,7 @@ void orange_avoider_periodic(void)
           }
 
           else {
-              moveWaypointForward(WP_GOAL, moveDistance);
+              moveWaypointForward(WP_GOAL, 1.25f * moveDistance);
 
       }
 
@@ -217,6 +217,7 @@ void orange_avoider_periodic(void)
       }
       break;
     case OUT_OF_BOUNDS:
+      moveWaypointForward(WP_GOAL, moveDistance);
       increase_nav_heading(5 * heading_increment);
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
