@@ -165,7 +165,7 @@ void orange_avoider_guided_periodic(void)
     // bound obstacle_free_confidence
     Bound(obstacle_free_confidence, 0, max_trajectory_confidence);
 
-    float speed_sp = fminf(oag_max_speed, oag_max_speed);
+    float speed_sp = fminf(oag_max_speed, oag_max_speed);//0.2f * obstacle_free_confidence);
     flow_threshold= flow_threshold_const * airspeed_f();
 
     switch (navigation_state){
