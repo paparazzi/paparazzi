@@ -25,26 +25,41 @@ let conf_dir = Env.paparazzi_home // "conf"
 let conf_xml_file = conf_dir // "conf.xml"
 
 let () =
+  let ac_name = ref None
+  and af_xml = ref None
+  and fp_xml = ref None
+  and output = ref None in
 
-  let ac_name, dump_out =
-    if Array.length Sys.argv = 2 then
-      Sys.argv.(1), None
-    else if Array.length Sys.argv = 3 then
-      Sys.argv.(1), Some Sys.argv.(2)
-    else
-      failwith "Dump modules: provide aircraft name and output file (or nothing for stdout)"
+  let options = [
+    "-ac", Arg.String (fun x -> ac_name := Some x), "Aircraft name (mandatory)";
+    "-af", Arg.String (fun x -> af_xml := Some x), "Airframe XML file (optinal)";
+    "-fp", Arg.String (fun x -> fp_xml := Some x), "Flight_plan XML file (optional)";
+    "-o", Arg.String (fun x -> output := Some x), "Output file name (stdout if not specified)"
+  ] in
+  Arg.parse options (fun _ -> ()) "Usage:";
+
+  let ac_name, xml_files = match !ac_name, !af_xml, !fp_xml with
+  | None, _, _ -> failwith "Dump modules: provide aircraft name"
+  | Some n, None, None -> n, None
+  | Some n, Some af, Some fp -> n, Some (af, fp)
+  | Some _, _, _ -> failwith "Dump modules: provide both airframe and flight plan or nothing"
   in
 
-  let conf_xml = ExtXml.parse_file conf_xml_file in
-  let aircraft_xml = try
-    List.find (fun a -> ExtXml.attrib a "name" = ac_name) (Xml.children conf_xml)
-  with Not_found -> failwith ("Dump modules: aircraft name not found in conf.xml") in
+  let aircraft_xml = match xml_files with
+  | None ->
+      let conf_xml = ExtXml.parse_file conf_xml_file in
+      begin try
+        List.find (fun a -> ExtXml.attrib a "name" = ac_name) (Xml.children conf_xml)
+      with Not_found -> failwith ("Dump modules: aircraft name not found in conf.xml") end
+  | Some (airframe_xml, flight_plan_xml) ->
+      Xml.Element("aircraft", ["name", ac_name; "airframe", airframe_xml; "flight_plan", flight_plan_xml], [])
+  in
 
   let ac = Aircraft.parse_aircraft ~parse_af:true ~parse_ap:true ~parse_fp:true "" aircraft_xml in
   let modules_filenames = List.map (fun m -> m.Module.xml_filename) ac.Aircraft.all_modules in
   let modules_filenames = String.concat "\n" modules_filenames in
 
-  match dump_out with
+  match !output with
   | None -> Printf.printf "%s\n" modules_filenames
   | Some f ->
       let out = open_out f in
