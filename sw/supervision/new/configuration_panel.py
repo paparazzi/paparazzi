@@ -1,16 +1,15 @@
+import conf, os, sys, copy
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from generated.ui_configuration_panel import Ui_ConfigurationPanel
 from generated.ui_new_ac_dialog import Ui_Dialog
-import conf
-import os
-import sys
+from program_widget import ProgramWidget
+
 PAPARAZZI_SRC = os.getenv("PAPARAZZI_SRC")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 lib_path = os.path.normpath(os.path.join(PAPARAZZI_SRC, 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
 import paparazzi
-import copy
 
 
 class ConfigurationPanel(QWidget):
@@ -38,6 +37,7 @@ class ConfigurationPanel(QWidget):
         self.ui.header.ui.new_ac_action.triggered.connect(self.new_ac)
         self.ui.header.ui.duplicate_action.triggered.connect(self.duplicate_ac)
         self.ui.header.ui.remove_ac_action.triggered.connect(self.remove_ac)
+        self.ui.build_widget.spawn_program.connect(self.launch_program)
 
     def handle_set_changed(self, conf_file):
         self.conf = conf.Conf(conf_file)
@@ -56,14 +56,12 @@ class ConfigurationPanel(QWidget):
                 self.msg_error.emit(stderr.decode().strip())
             else:
                 self.clear_error.emit()
-            # print("ac:", ac)
             self.ui.header.set_ac(ac)
             self.ui.conf_widget.set_ac(ac)
+            self.ui.build_widget.update_targets(self.conf[ac_name])
         else:
             # self.ui.conf_widget.reset()
             self.ui.conf_widget.setDisabled(True)
-            return
-
 
     def refresh_ac(self):
         self.update_ac(self.currentAC)
@@ -221,3 +219,7 @@ class ConfigurationPanel(QWidget):
             color_name = color.name()
             ac.set_color(color_name)
             self.ui.header.set_color(color_name)
+
+    def launch_program(self, shortname, cmd):
+        pw = ProgramWidget(shortname, cmd, self.ui.programs_groupbox)
+        self.ui.programs_groupbox.layout().addWidget(pw)

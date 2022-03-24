@@ -40,35 +40,19 @@
      <widget class="QWidget" name="widget_2" native="true">
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
        <item>
-        <widget class="QWidget" name="widget" native="true">
+        <widget class="BuildWidget" name="build_widget" native="true">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="BuildWidget" name="build_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="UploadWidget" name="upload_widget" native="true">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
         </widget>
        </item>
        <item>
@@ -76,6 +60,7 @@
          <property name="title">
           <string>Programs</string>
          </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4"/>
         </widget>
        </item>
        <item>
@@ -92,12 +77,6 @@
    <class>ConfWidget</class>
    <extends>QWidget</extends>
    <header>conf_widget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>UploadWidget</class>
-   <extends>QWidget</extends>
-   <header>upload_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
