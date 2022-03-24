@@ -52,7 +52,8 @@ enum navigation_state_t {
   SEARCH_FOR_SAFE_HEADING,
   OUT_OF_BOUNDS,
   AVOID_RIGHT_OBJECT,
-  AVOID_LEFT_OBJECT
+  AVOID_LEFT_OBJECT,
+  AVOID_CORNERS
 
 };
 
@@ -174,24 +175,28 @@ void orange_avoider_periodic(void)
           else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
               navigation_state = AVOID_RIGHT_OBJECT;
           }
-
+          else if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_left > 1 || !InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_right > 1){
+        	  navigation_state = AVOID_CORNERS;
+          }
           else {
-              moveWaypointForward(WP_GOAL, 1.25f * moveDistance);
+              moveWaypointForward(WP_GOAL, 1.0f * moveDistance);
 
       }
 
       break;
     case OBSTACLE_FOUND:
         if (result->div_size_left < result->div_size_left){
+        	waypoint_move_here_2d(WP_GOAL);
+		    waypoint_move_here_2d(WP_TRAJECTORY);
             // turn left
-            increase_nav_heading(-1 * 3 * heading_increment);
+            increase_nav_heading(-1 * 5 * heading_increment);
             //moveWaypointForward(WP_TRAJECTORY, 1.5f);
             navigation_state = SAFE;
         }
 
         else {
             // turn right
-            increase_nav_heading(1 * 3 * heading_increment);
+            increase_nav_heading(1 * 5 * heading_increment);
             //moveWaypointForward(WP_TRAJECTORY, 1.5f);
             navigation_state = SAFE;
         }
@@ -208,6 +213,33 @@ void orange_avoider_periodic(void)
 //          navigation_state = SEARCH_FOR_SAFE_HEADING;
 //
 //          break;
+    case AVOID_CORNERS:
+    	if (result->div_size_left > result->div_size_right && absdiff > 1){
+    		waypoint_move_here_2d(WP_GOAL);
+    		waypoint_move_here_2d(WP_TRAJECTORY);
+    		increase_nav_heading(-6 * heading_increment);
+    		moveWaypointForward(WP_TRAJECTORY, 1.5f);
+    	}
+
+    	if (result->div_size_left > result->div_size_right && absdiff > 1){
+    		waypoint_move_here_2d(WP_GOAL);
+			waypoint_move_here_2d(WP_TRAJECTORY);
+			increase_nav_heading(6 * heading_increment);
+			moveWaypointForward(WP_TRAJECTORY, 1.5f);
+    	}
+
+    	if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+			// add offset to head back into arena
+			increase_nav_heading(heading_increment);
+
+			// reset safe counter
+			obstacle_free_confidence = 0;
+
+			// ensure direction is safe before continuing
+			navigation_state = SAFE; //SEARCH_FOR_SAFE_HEADING;
+    	}
+
+    	break;
     case SEARCH_FOR_SAFE_HEADING:
       increase_nav_heading(heading_increment);
 
@@ -220,7 +252,7 @@ void orange_avoider_periodic(void)
       moveWaypointForward(WP_GOAL, .25 * moveDistance);	//new
       waypoint_move_here_2d(WP_GOAL);
       waypoint_move_here_2d(WP_TRAJECTORY);
-      increase_nav_heading(5 * heading_increment);
+      increase_nav_heading(7 * heading_increment);
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
@@ -240,7 +272,7 @@ void orange_avoider_periodic(void)
         waypoint_move_here_2d(WP_TRAJECTORY);
 
         // turn left
-        increase_nav_heading(-1 * heading_increment);
+        increase_nav_heading(-1.5 * heading_increment);
 
         // is new path safe
 //        if (absdiff <= 2 * flow_threshold){
@@ -256,7 +288,7 @@ void orange_avoider_periodic(void)
         waypoint_move_here_2d(WP_TRAJECTORY);
 
         // turn right
-        increase_nav_heading(1 * heading_increment);
+        increase_nav_heading(1.5 * heading_increment);
 
         // is new path safe
 //        if (absdiff <= 2 * flow_threshold){
