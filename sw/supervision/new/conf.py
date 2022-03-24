@@ -148,6 +148,12 @@ class Conf:
                 acs.append(ac)
         return acs
 
+    def get_free_id(self):
+        ids = [ac.ac_id for ac in self.aircrafts]
+        for i in range(1, 256):
+            if i not in ids:
+                return i
+
     def save(self):
         conf_xml = ET.Element("conf")
         for ac in self.aircrafts:

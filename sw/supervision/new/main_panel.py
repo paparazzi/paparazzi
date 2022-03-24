@@ -155,6 +155,7 @@ class MainPanel(QWidget):
                 self.add_ac(new_ac)
                 self.ui.header.set_current(name)
 
+        ui_dialog.id_spinbox.setValue(self.conf.get_free_id())
         ui_dialog.buttonBox.accepted.connect(accept)
         ui_dialog.buttonBox.rejected.connect(reject)
         ui_dialog.id_spinbox.valueChanged.connect(verify)
