@@ -28,9 +28,19 @@
 #include "modules/guidance/gvf/trajectories/gvf_line.h"
 #include "modules/guidance/gvf/trajectories/gvf_sin.h"
 
+#ifdef FIXEDWING_FIRMWARE
 #include "firmwares/fixedwing/nav.h"
 #include "modules/nav/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
+#elif defined(ROVER_FIRMWARE)
+#include "state.h"
+#include "modules/nav/nav_rover_base.h"
+#include "firmwares/rover/navigation.h"
+struct EnuCoor_f gvf_draw_wp;
+#else
+#error "Firmware not supported by GVF!"
+#endif
+
 #include "autopilot.h"
 
 // Control
@@ -83,7 +93,7 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
 
   if (delta_T < 200)
     if (gvf_trajectory.type == ELLIPSE &&
-        (gvf_trajectory.p[2] == gvf_trajectory.p[3])) {
+        ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3])) {
       pprz_msg_send_CIRCLE(trans, dev, AC_ID,
                            &gvf_trajectory.p[0], &gvf_trajectory.p[1],
                            &gvf_trajectory.p[2]);
@@ -156,11 +166,19 @@ void gvf_control_2D(float ke, float kn, float e,
 {
   gvf_t0 = get_sys_time_msec();
 
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  float ground_speed = stateGetHorizontalSpeedNorm_f();
-  float course = stateGetHorizontalSpeedDir_f();
-  float px_dot = ground_speed * sinf(course);
-  float py_dot = ground_speed * cosf(course);
+  #if defined(FIXEDWING_FIRMWARE)
+    float ground_speed = stateGetHorizontalSpeedNorm_f();
+    float course = stateGetHorizontalSpeedDir_f();
+    float px_dot = ground_speed * sinf(course);
+    float py_dot = ground_speed * cosf(course);
+  #elif defined(ROVER_FIRMWARE)
+    // We assume that the course and psi
+    // of the rover (steering wheel) are the same
+    float course = stateGetNedToBodyEulers_f()->psi;
+    float px_dot = stateGetSpeedEnu_f()->x;
+    float py_dot = stateGetSpeedEnu_f()->y;
+  #endif
+
   int s = gvf_control.s;
 
   // gradient Phi
@@ -209,20 +227,38 @@ void gvf_control_2D(float ke, float kn, float e,
 
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
 
-  // Coordinated turn
+  #if defined(FIXEDWING_FIRMWARE)
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
+
+    // Coordinated turn
+    struct FloatEulers *att = stateGetNedToBodyEulers_f();
+    float ground_speed = stateGetHorizontalSpeedNorm_f();
+
+    lateral_mode = LATERAL_MODE_ROLL;
+
     h_ctl_roll_setpoint =
       -atanf(omega * ground_speed / GVF_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
-
-    lateral_mode = LATERAL_MODE_ROLL;
   }
+
+  #elif defined(ROVER_FIRMWARE) 
+  if (autopilot_get_mode() != AP_MODE_DIRECT) {
+    guidance_control.gvf_omega = omega; //TODO: set omega into external GVF variable
+  }
+
+  #else
+  #error GVF does not support your firmware yet
+  #endif
 }
 
 void gvf_set_direction(int8_t s)
 {
   gvf_control.s = s;
 }
+
+
+
+#ifdef FIXEDWING_FIRMWARE // FIXEDWING TRAJECTORIES
 
 // STRAIGHT LINE
 
@@ -242,8 +278,9 @@ static void gvf_line(float a, float b, float heading)
   gvf_control_2D(1e-2 * gvf_line_par.ke, gvf_line_par.kn, e, &grad_line, &Hess_line);
 
   gvf_control.error = e;
-
+  
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  
   gvf_segment.seg = 0;
 }
 
@@ -260,7 +297,7 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   float zy = y2 - y1;
 
   gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
-
+  
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
   gvf_segment.x1 = x1;
@@ -295,6 +332,7 @@ bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, 
   gvf_line(x1, y1, alpha);
 
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
+  
   gvf_segment.seg = 1;
   gvf_segment.x1 = x1;
   gvf_segment.y1 = y1;
@@ -348,7 +386,7 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
-  heading = heading * M_PI / 180;
+  heading = RadOfDeg(heading);
 
   float a = waypoints[wp].x;
   float b = waypoints[wp].y;
@@ -370,15 +408,16 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
   gvf_trajectory.p[2] = a;
   gvf_trajectory.p[3] = b;
   gvf_trajectory.p[4] = alpha;
-
+  
   // SAFE MODE
   if (a < 1 || b < 1) {
     gvf_trajectory.p[2] = 60;
     gvf_trajectory.p[3] = 60;
   }
 
-  if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
+  if ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3]) {
     horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+
   } else {
     horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   }
@@ -447,7 +486,7 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
-  alpha = alpha * M_PI / 180;
+  alpha = RadOfDeg(alpha);
 
   float x = waypoints[wp].x;
   float y = waypoints[wp].y;
@@ -456,4 +495,260 @@ bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 
   return true;
 }
+
+
+#elif defined(ROVER_FIRMWARE) // ROVER TRAJECTORIES
+
+// STRAIGHT LINE
+
+static void gvf_line(float a, float b, float heading)
+{
+  float e;
+  struct gvf_grad grad_line;
+  struct gvf_Hess Hess_line;
+
+  gvf_trajectory.type = 0;
+  gvf_trajectory.p[0] = a;
+  gvf_trajectory.p[1] = b;
+  gvf_trajectory.p[2] = heading;
+
+  gvf_line_info(&e, &grad_line, &Hess_line);
+  gvf_control.ke = gvf_line_par.ke;
+  gvf_control_2D(1e-2 * gvf_line_par.ke, gvf_line_par.kn, e, &grad_line, &Hess_line);
+
+  gvf_control.error = e;
+  
+  nav.mode = NAV_MODE_WAYPOINT;
+  
+  gvf_segment.seg = 0;
+}
+
+bool gvf_line_XY_heading(float a, float b, float heading)
+{
+  gvf_set_direction(1);
+  gvf_line(a, b, heading);
+  return true;
+}
+
+bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
+{
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+
+  gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
+  
+  nav.mode = NAV_MODE_ROUTE;
+  
+  gvf_segment.seg = 1;
+  gvf_segment.x1 = x1;
+  gvf_segment.y1 = y1;
+  gvf_segment.x2 = x2;
+  gvf_segment.y2 = y2;
+
+  // Send rover_base navigation data to draw segment (ROUTE)
+  nav_rover_base.goto_wp.from.x = x1;
+  nav_rover_base.goto_wp.from.y = y1;
+  nav_rover_base.goto_wp.to.x = x2;
+  nav_rover_base.goto_wp.to.y = y2;
+
+  return true;
+}
+
+bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
+{
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
+
+  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+}
+
+bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
+{
+  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
+  if (s != 0) {
+    gvf_control.s = s;
+  }
+
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+  float alpha = atanf(zx / zy);
+
+  gvf_line(x1, y1, alpha);
+
+  nav.mode = NAV_MODE_ROUTE;
+  
+  gvf_segment.seg = 1;
+  gvf_segment.x1 = x1;
+  gvf_segment.y1 = y1;
+  gvf_segment.x2 = x2;
+  gvf_segment.y2 = y2;
+
+  // Send rover_base navigation data to draw segment (ROUTE)
+  nav_rover_base.goto_wp.from.x = x1;
+  nav_rover_base.goto_wp.from.y = y1;
+  nav_rover_base.goto_wp.to.x = x2;
+  nav_rover_base.goto_wp.to.y = y2;
+
+  return true;
+}
+
+bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
+{
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
+
+  return gvf_segment_loop_XY1_XY2(x1, y1, x2, y2, d1, d2);
+}
+
+bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
+{
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x - x1;
+  float py = p->y - y1;
+
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+
+  float beta = atan2f(zy, zx);
+  float cosb = cosf(-beta);
+  float sinb = sinf(-beta);
+  float zxr = zx * cosb - zy * sinb;
+  float pxr = px * cosb - py * sinb;
+
+  if ((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
+    return false;
+  }
+
+  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+}
+
+bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
+{
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
+
+  return gvf_segment_XY1_XY2(x1, y1, x2, y2);
+}
+
+bool gvf_line_wp_heading(uint8_t wp, float heading)
+{
+  heading = RadOfDeg(heading);
+
+  float a = waypoint_get_x(wp);
+  float b = waypoint_get_y(wp);
+
+  return gvf_line_XY_heading(a, b, heading);
+}
+
+// ELLIPSE
+
+bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
+{
+  float e;
+  struct gvf_grad grad_ellipse;
+  struct gvf_Hess Hess_ellipse;
+
+  gvf_trajectory.type = 1;
+  gvf_trajectory.p[0] = x;
+  gvf_trajectory.p[1] = y;
+  gvf_trajectory.p[2] = a;
+  gvf_trajectory.p[3] = b;
+  gvf_trajectory.p[4] = alpha;
+
+  // SAFE MODE
+  if (a < 1 || b < 1) {
+    gvf_trajectory.p[2] = 60;
+    gvf_trajectory.p[3] = 60;
+  }
+
+  // Send rover_base navigation data to draw circle (CIRCLE)
+  if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
+    nav.mode = NAV_MODE_CIRCLE;
+    nav_rover_base.circle.center.x = x;
+    nav_rover_base.circle.center.y = y;
+    nav_rover_base.circle.radius = a;
+  } else {
+    nav.mode = NAV_MODE_WAYPOINT;
+  }
+
+  gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
+  gvf_control.ke = gvf_ellipse_par.ke;
+  gvf_control_2D(gvf_ellipse_par.ke, gvf_ellipse_par.kn,
+                 e, &grad_ellipse, &Hess_ellipse);
+
+  gvf_control.error = e;
+
+  return true;
+}
+
+
+bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
+{
+  gvf_ellipse_XY(waypoint_get_x(wp),  waypoint_get_y(wp), a, b, alpha);
+  return true;
+}
+
+// SINUSOIDAL (if w = 0 and off = 0, then we just have the straight line case)
+
+bool gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A)
+{
+  float e;
+  struct gvf_grad grad_line;
+  struct gvf_Hess Hess_line;
+
+  gvf_trajectory.type = 2;
+  gvf_trajectory.p[0] = a;
+  gvf_trajectory.p[1] = b;
+  gvf_trajectory.p[2] = alpha;
+  gvf_trajectory.p[3] = w;
+  gvf_trajectory.p[4] = off;
+  gvf_trajectory.p[5] = A;
+
+  gvf_sin_info(&e, &grad_line, &Hess_line);
+  gvf_control.ke = gvf_sin_par.ke;
+  gvf_control_2D(1e-2 * gvf_sin_par.ke, gvf_sin_par.kn, e, &grad_line, &Hess_line);
+
+  gvf_control.error = e;
+
+  return true;
+}
+
+bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
+{
+  w = 2 * M_PI * w;
+
+  float x1 = waypoint_get_x(wp1);
+  float y1 = waypoint_get_y(wp1);
+  float x2 = waypoint_get_x(wp2);
+  float y2 = waypoint_get_y(wp2);
+
+  float zx = x1 - x2;
+  float zy = y1 - y2;
+
+  float alpha = atanf(zy / zx);
+
+  gvf_sin_XY_alpha(x1, y1, alpha, w, off, A);
+
+  return true;
+}
+
+bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
+{
+  w = 2 * M_PI * w;
+  alpha = RadOfDeg(alpha);
+
+  float x = waypoint_get_x(wp);
+  float y = waypoint_get_y(wp);
+
+  gvf_sin_XY_alpha(x, y, alpha, w, off, A);
+
+  return true;
+}
+#endif
 

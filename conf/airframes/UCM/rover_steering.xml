@@ -1,0 +1,127 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="Rover Steering">
+
+  <firmware name="rover">
+    <autopilot name="rover_steering.xml"/>
+
+    <target name="ap" board="matek_f765_wing">
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+      <module name="radio_control" type="sbus">
+        <!--configure name="SBUS_PORT" value="UART6"/-->
+      </module>
+    </target>
+    
+    <target name="nps" board="pc">
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm"           type="rover"/> <!-- NPS_FDM rover physics!! -->
+      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+      <define name="NPS_BYPASS_INS"  value="TRUE"/>
+    </target>    
+    
+    <module name="actuators" type="pwm"/>
+    <module name="telemetry" type="xbee_api"/>
+    
+    <!-- Same board module as matek_f765_wind but without OSD -->
+    <module name="board" type="matek_f765_car"/> <!-- IMU included -->
+
+    <!-- GPS_BAUD can be manually configured, but gps_ubx_ucenter automatically do that -->
+    <module name="gps" type="ublox">
+      <!--configure name="GPS_BAUD" value="B115200"/-->
+    </module>
+    <module name="gps_ubx_ucenter"/>
+
+    <module name="ins"/>
+
+    <!-- Either of this AHRS works fine with our rover -->
+    <module name="ahrs" type="float_dcm">
+      <define name="AHRS_FLOAT_MIN_SPEED_GPS_COURSE" value="0.1"/>
+    </module>
+
+    <!--module name="ahrs" type="float_cmpl_quat">
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0.1"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+    </module-->
+
+    <module name="nav"  type="rover_base"/>
+    <module name="gvf"  type="module"/>
+
+    <module name="guidance" type="rover_steering">
+      <define name="MAX_DELTA"            value="15.0"/>
+      <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
+      <define name="SR_MEASURED_KF"       value="1400.0"/>
+      <define name="MIN_CMD_SHUT"         value="3800"/>
+      <define name="MAX_CMD_SHUT"         value="1350"/>
+    </module>
+
+  </firmware>
+
+
+  <!-- COMMANDS SECTION ..................................................................... -->
+  <servos> 
+    <!-- "no" 1 and 2 but no 0 because our board don't have S0 actuator entry... -->
+    <servo name="MOTOR_THROTTLE" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_STEERING" no="2" min="1000" neutral="1500" max="2000"/>
+  </servos> 
+  
+  <!-- Low level commands (PWM signal) -->
+  <commands>
+    <axis name="THROTTLE"    failsafe_value="0"/>
+    <axis name="STEERING" failsafe_value="0"/>
+  </commands>
+
+  <!-- When SetCommandsFromRC -->
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="STEERING" value="@ROLL"/>
+  </rc_commands>
+
+  <!-- When SetActuatorsFromCommands-->
+  <command_laws>
+    <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
+    <set servo="MOTOR_STEERING" value="@STEERING"/>
+  </command_laws>
+
+
+  <!-- SECTIONS: General config ............................................................. -->
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix (i.e NPS), on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <define name="USE_GPS" value="TRUE"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> 
+    <define name="MODE_AUTO1"  value="AP_MODE_CRUISER"/> 
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/> <!-- Ignoring radio_control.values -->
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+  
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="7.35" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="7.40" unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="7.45" unit="V"/>
+    <define name="MAX_BAT_LEVEL"             value="8.44" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="1800" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
+    <!--define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/-->
+  </section>
+
+  <section name="GCS">
+    <define name="AC_ICON" value="rover"/>
+  </section>
+
+</airframe>

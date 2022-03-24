@@ -27,5 +27,9 @@ $(error "Rover firmware should use generated autopilot")
 endif
     </raw>
   </makefile>
+  <makefile target="nps|hitl">
+    <define name="AP"/>
+    <file name="nps_autopilot_rover.c" dir="nps"/>
+  </makefile>
 </module>
 

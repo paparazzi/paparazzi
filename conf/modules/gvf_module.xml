@@ -78,5 +78,13 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
      <file name="nav/nav_survey_polygon_gvf.c"/>
    </makefile>
 
+   <makefile firmware="rover">
+     <file name="gvf.c"/>
+     <file name="trajectories/gvf_line.c"/>
+     <file name="trajectories/gvf_sin.c"/>
+     <file name="trajectories/gvf_ellipse.c"/>
+     <!--file name="nav/nav_survey_polygon_gvf.c"/-->
+   </makefile>
+
 </module>
 
