@@ -4,8 +4,10 @@ all:
 	pyuic5 ui/conf_item.ui -o generated/ui_conf_item.py
 	pyuic5 ui/build.ui -o generated/ui_build.py
 	pyuic5 ui/upload.ui -o generated/ui_upload.py
-	pyuic5 ui/main_panel.ui -o generated/ui_main_panel.py
+	pyuic5 ui/configuration_panel.ui -o generated/ui_configuration_panel.py
 	pyuic5 ui/new_ac_dialog.ui -o generated/ui_new_ac_dialog.py
 	pyuic5 ui/session.ui -o generated/ui_session.py
 	pyuic5 ui/program.ui -o generated/ui_program.py
+	pyuic5 ui/operation_panel.ui -o generated/ui_operation_panel.py
+	pyuic5 ui/console.ui -o generated/ui_console.py
 

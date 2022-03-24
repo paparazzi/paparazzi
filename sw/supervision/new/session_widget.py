@@ -8,8 +8,6 @@ import utils
 
 class SessionWidget(QWidget):
 
-    file_changed = QtCore.pyqtSignal()
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.ui = Ui_Session()

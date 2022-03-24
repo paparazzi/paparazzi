@@ -2,7 +2,8 @@
 import conf
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
-from main_panel import MainPanel
+from configuration_panel import ConfigurationPanel
+from operation_panel import  OperationPanel
 import utils
 
 
@@ -11,14 +12,16 @@ class PprzCenter(QMainWindow):
         QMainWindow.__init__(self, parent=parent)
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
-        self.main_panel = MainPanel()
-        self.tabwidget.addTab(self.main_panel, "test")
+        self.configuration_panel = ConfigurationPanel(self.tabwidget)
+        self.operation_panel = OperationPanel(self.tabwidget)
+        self.tabwidget.addTab(self.configuration_panel, "Configuration")
+        self.tabwidget.addTab(self.operation_panel, "Operation")
         self.status_msg = QLabel()
         self.statusBar().addWidget(self.status_msg)
         self.fill_status_bar()
         self.statusBar().show()
-        self.main_panel.msg_error.connect(self.handle_error)
-        self.main_panel.clear_error.connect(self.clear_error)
+        self.configuration_panel.msg_error.connect(self.handle_error)
+        self.configuration_panel.clear_error.connect(self.clear_error)
 
     def quit(self):
         pass

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainPanel</class>
- <widget class="QWidget" name="MainPanel">
+ <class>ConfigurationPanel</class>
+ <widget class="QWidget" name="ConfigurationPanel">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -38,7 +38,7 @@
      </property>
      <widget class="ConfWidget" name="conf_widget" native="true"/>
      <widget class="QWidget" name="widget_2" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
        <item>
         <widget class="QWidget" name="widget" native="true">
          <property name="sizePolicy">
@@ -72,14 +72,14 @@
         </widget>
        </item>
        <item>
-        <widget class="SessionWidget" name="session_widget" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <widget class="QGroupBox" name="programs_groupbox">
+         <property name="title">
+          <string>Programs</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="ConsoleWidget" name="console_widget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -113,9 +113,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SessionWidget</class>
+   <class>ConsoleWidget</class>
    <extends>QWidget</extends>
-   <header>session_widget.h</header>
+   <header>console_widget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -53,7 +53,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset theme="emblem-system">
+      <iconset theme="format-justify-fill">
        <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
@@ -81,7 +81,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="document-save"/>
+      <iconset theme="document-save">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -138,7 +139,8 @@
   </action>
   <action name="rename_action">
    <property name="icon">
-    <iconset theme="format-text-italic"/>
+    <iconset theme="format-text-italic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Rename</string>

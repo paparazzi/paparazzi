@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
-from generated.ui_main_panel import Ui_MainPanel
+from generated.ui_configuration_panel import Ui_ConfigurationPanel
 from generated.ui_new_ac_dialog import Ui_Dialog
 import conf
 import os
@@ -12,14 +12,15 @@ sys.path.append(lib_path)
 import paparazzi
 import copy
 
-class MainPanel(QWidget):
+
+class ConfigurationPanel(QWidget):
 
     msg_error = QtCore.pyqtSignal(str)
     clear_error = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, *args, **kwargs):
         QWidget.__init__(self, parent=parent, *args, **kwargs)
-        self.ui = Ui_MainPanel()
+        self.ui = Ui_ConfigurationPanel()
         self.ui.setupUi(self)
         self.conf = None        # type: conf.Conf
         self.currentAC = None   # type: str
