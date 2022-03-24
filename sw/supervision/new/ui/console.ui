@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>523</height>
+    <width>709</width>
+    <height>647</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,12 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTextBrowser" name="textBrowser"/>
-     <widget class="QWidget" name="">
+     <widget class="QTextEdit" name="console_textedit">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label">

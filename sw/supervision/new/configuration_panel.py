@@ -11,6 +11,9 @@ lib_path = os.path.normpath(os.path.join(PAPARAZZI_SRC, 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
 import paparazzi
 
+# TODO make a setting ?
+REMOVE_PROGRAMS_FINISHED = True
+
 
 class ConfigurationPanel(QWidget):
 
@@ -223,3 +226,14 @@ class ConfigurationPanel(QWidget):
     def launch_program(self, shortname, cmd):
         pw = ProgramWidget(shortname, cmd, self.ui.programs_groupbox)
         self.ui.programs_groupbox.layout().addWidget(pw)
+        pw.ready_read_stderr.connect(lambda: self.ui.console_widget.handle_stderr(pw))
+        pw.ready_read_stdout.connect(lambda: self.ui.console_widget.handle_stdout(pw))
+        pw.finished.connect(lambda c, s: self.ui.console_widget.handle_program_finished(pw, c, s))
+        pw.remove.connect(lambda: self.remove_program(pw))
+        if REMOVE_PROGRAMS_FINISHED:
+            pw.finished.connect(lambda: self.remove_program(pw))
+        pw.start_program()
+
+    def remove_program(self, pw: ProgramWidget):
+        self.ui.programs_groupbox.layout().removeWidget(pw)
+        pw.deleteLater()
