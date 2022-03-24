@@ -31,6 +31,7 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
 #include "generated/airframe.h"
+#include "math/pprz_algebra_float.h"
 
 /** Default speed saturation */
 #ifndef GUIDANCE_H_REF_MAX_SPEED
@@ -49,29 +50,23 @@ extern float gh_max_speed;
 #define GUIDANCE_H_REF_MAX_ACCEL 5.66
 #endif
 
-/** Update frequency
+/** fixedpoint representation: Q26.37 will give a range of
+ * 67e3 km and a resolution of 1.5e-11 m. At a rate of 500Hz,
+ * a ref speed of 7.3e-9 m/s could still update the position.
  */
-#define GH_FREQ_FRAC 9
-#define GH_FREQ (1<<GH_FREQ_FRAC)
-
-#define GH_ACCEL_REF_FRAC 8
-#define GH_SPEED_REF_FRAC (GH_ACCEL_REF_FRAC + GH_FREQ_FRAC)
-#define GH_POS_REF_FRAC (GH_SPEED_REF_FRAC + GH_FREQ_FRAC)
+#define GH_POS_REF_FRAC 37
 
 struct GuidanceHRef {
   /** Reference model acceleration.
    * in meters/sec2 (output)
-   * fixed point representation: Q23.8
-   * accuracy 0.0039, range 8388km/s2
    */
-  struct Int32Vect2 accel;
+  struct FloatVect2 accel;
 
   /** Reference model speed.
    * in meters/sec
-   * with fixedpoint representation: Q14.17
    * accuracy 0.0000076 , range 16384m/s
    */
-  struct Int32Vect2 speed;
+  struct FloatVect2 speed;
 
   /** Reference model position.
    * in meters
@@ -91,29 +86,21 @@ struct GuidanceHRef {
   /*
    * internal variables
    */
-  int32_t zeta_omega;
-  int32_t omega_2;
-  int32_t inv_tau;
+  float zeta_omega;
+  float omega_2;
+  float inv_tau;
 
-  struct Int32Vect2 max_vel;
-  struct Int32Vect2 max_accel;
-
-  /** gh_max_speed in fixed point representation with #GH_MAX_SPEED_REF_FRAC
-   * must be limited to 2^14 to avoid overflow
+  /** Integration timestep
    */
-  int32_t max_speed_int;
-
-  int32_t route_ref;
-  int32_t s_route_ref;
-  int32_t c_route_ref;
+  float dt;
 };
 
 extern struct GuidanceHRef gh_ref;
 
 extern void gh_ref_init(void);
-extern void gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel);
+extern void gh_set_ref(struct Int32Vect2 pos, struct FloatVect2 speed, struct FloatVect2 accel);
 extern void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp);
-extern void gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp);
+extern void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp);
 
 /**
  * Set a new maximum speed for waypoint navigation.

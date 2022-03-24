@@ -159,6 +159,7 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED" value="2.5"/>
     <define name="DESCEND_VSPEED" value="-1.0"/>
+    <define name="CARROT_DIST" value="100"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

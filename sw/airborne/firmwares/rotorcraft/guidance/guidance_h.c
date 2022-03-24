@@ -213,8 +213,14 @@ static inline void reset_guidance_reference_from_current_position(void)
 {
   VECT2_COPY(guidance_h.ref.pos, *stateGetPositionNed_i());
   VECT2_COPY(guidance_h.ref.speed, *stateGetSpeedNed_i());
+  struct FloatVect2 ref_speed;
+  ref_speed.x = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.x);
+  ref_speed.y = SPEED_FLOAT_OF_BFP(guidance_h.ref.speed.y);
+
   INT_VECT2_ZERO(guidance_h.ref.accel);
-  gh_set_ref(guidance_h.ref.pos, guidance_h.ref.speed, guidance_h.ref.accel);
+  struct FloatVect2 ref_accel;
+  FLOAT_VECT2_ZERO(ref_accel);
+  gh_set_ref(guidance_h.ref.pos, ref_speed, ref_accel);
 
   INT_VECT2_ZERO(guidance_h_trim_att_integrator);
 }
@@ -426,7 +432,10 @@ static void guidance_h_update_reference(void)
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
   if (bit_is_set(guidance_h.sp.mask, 5)) {
-    gh_update_ref_from_speed_sp(guidance_h.sp.speed);
+    struct FloatVect2 sp_speed;
+    sp_speed.x = SPEED_FLOAT_OF_BFP(guidance_h.sp.speed.x);
+    sp_speed.y = SPEED_FLOAT_OF_BFP(guidance_h.sp.speed.y);
+    gh_update_ref_from_speed_sp(sp_speed);
   } else {
     gh_update_ref_from_pos_sp(guidance_h.sp.pos);
   }
@@ -436,8 +445,10 @@ static void guidance_h_update_reference(void)
   if (guidance_h.use_ref) {
     /* convert our reference to generic representation */
     INT32_VECT2_RSHIFT(guidance_h.ref.pos,   gh_ref.pos, (GH_POS_REF_FRAC - INT32_POS_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h.ref.speed, gh_ref.speed, (INT32_SPEED_FRAC - GH_SPEED_REF_FRAC));
-    INT32_VECT2_LSHIFT(guidance_h.ref.accel, gh_ref.accel, (INT32_ACCEL_FRAC - GH_ACCEL_REF_FRAC));
+    guidance_h.ref.speed.x = SPEED_BFP_OF_REAL(gh_ref.speed.x);
+    guidance_h.ref.speed.y = SPEED_BFP_OF_REAL(gh_ref.speed.y);
+    guidance_h.ref.accel.x = ACCEL_BFP_OF_REAL(gh_ref.accel.x);
+    guidance_h.ref.accel.y = ACCEL_BFP_OF_REAL(gh_ref.accel.y);
   } else {
     VECT2_COPY(guidance_h.ref.pos, guidance_h.sp.pos);
     INT_VECT2_ZERO(guidance_h.ref.speed);
