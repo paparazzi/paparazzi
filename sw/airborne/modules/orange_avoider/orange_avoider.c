@@ -158,8 +158,8 @@ void orange_avoider_periodic(void)
       case SAFE:
           // Move waypoint forward
           moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-          guidance_h.sp.speed.x = 5;
-          guidance_h.sp.speed.y = 5;
+//          guidance_h.sp.speed.x = 5;
+//          guidance_h.sp.speed.y = 5;
           if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
               navigation_state = OUT_OF_BOUNDS;
               //else if (obstacle_free_confidence == 0) {
@@ -217,7 +217,9 @@ void orange_avoider_periodic(void)
       }
       break;
     case OUT_OF_BOUNDS:
-      moveWaypointForward(WP_GOAL, moveDistance);
+      moveWaypointForward(WP_GOAL, .25 * moveDistance);	//new
+      waypoint_move_here_2d(WP_GOAL);
+      waypoint_move_here_2d(WP_TRAJECTORY);
       increase_nav_heading(5 * heading_increment);
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
 
