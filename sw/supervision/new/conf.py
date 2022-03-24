@@ -62,7 +62,6 @@ class Aircraft:
                     return s[len(utils.CONF_DIR):]
                 else:
                     return s
-            modules = map(remove_prefix, completed.stdout.decode().strip().split())
 
             def make_setting(m):
                 setting = Setting(m, True)
@@ -70,7 +69,20 @@ class Aircraft:
                     if m == s.name and not s.enabled:
                         setting.enabled = False
                 return setting
-            self.settings_modules = list(map(make_setting, modules))
+
+            self.settings_modules = []
+            for module_path in completed.stdout.decode().strip().split():
+                module = remove_prefix(module_path)
+                xml = ET.parse(module_path)
+                for xml_setting in xml.getroot().findall("settings"):
+                    name = xml_setting.get("name")
+                    if name is None:
+                        txt = module
+                    else:
+                        txt = "{}~{}~".format(module, name)
+                    setting = make_setting(txt)
+                    self.settings_modules.append(setting)
+
         return completed.returncode, completed.stderr
 
     def to_xml(self) -> ET.Element:
