@@ -1,0 +1,39 @@
+import os.path
+
+from generated.ui_conf_item import Ui_FileConf
+from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
+import utils
+
+
+class ConfFileWidget(QWidget):
+
+    file_changed = QtCore.pyqtSignal()
+
+    def __init__(self, title: str, parent=None):
+        QWidget.__init__(self, parent=parent)
+        self.ui = Ui_FileConf()
+        self.nature = title.lower().replace(" ", "_") + "s"
+        self.path = None
+        self.ui.setupUi(self)
+        self.ui.title_label.setText(title)
+        self.ui.edit_button.clicked.connect(self.edit)
+        self.ui.select_button.clicked.connect(self.select_file)
+
+    def set_path(self, path):
+        self.path = path
+        self.ui.path_label.setText(path)
+
+    def edit(self):
+        if self.path != "":
+            utils.edit_file(self.path)
+
+    def select_file(self):
+        base_path = os.path.join(utils.CONF_DIR, self.nature)
+        print(base_path)
+        (path, _) = QFileDialog().getOpenFileName(self, "Select {} file".format(self.nature),
+                                                  base_path, "Xml (*.xml)")
+        if path != "":
+            self.path = os.path.relpath(path, utils.CONF_DIR)
+            self.ui.path_label.setText(self.path)
+            self.file_changed.emit()

@@ -1,0 +1,221 @@
+from PyQt5.QtWidgets import *
+from PyQt5 import QtCore, QtGui, QtWidgets
+from generated.ui_main_panel import Ui_MainPanel
+from generated.ui_new_ac_dialog import Ui_Dialog
+import conf
+import os
+import sys
+PAPARAZZI_SRC = os.getenv("PAPARAZZI_SRC")
+PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
+lib_path = os.path.normpath(os.path.join(PAPARAZZI_SRC, 'sw', 'lib', 'python'))
+sys.path.append(lib_path)
+import paparazzi
+import copy
+
+class MainPanel(QWidget):
+
+    msg_error = QtCore.pyqtSignal(str)
+    clear_error = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None, *args, **kwargs):
+        QWidget.__init__(self, parent=parent, *args, **kwargs)
+        self.ui = Ui_MainPanel()
+        self.ui.setupUi(self)
+        self.conf = None        # type: conf.Conf
+        self.currentAC = None   # type: str
+        self.ui.header.set_changed.connect(self.handle_set_changed)
+        self.ui.header.ac_changed.connect(self.update_ac)
+        self.ui.header.id_changed.connect(self.handle_id_changed)
+        self.ui.header.ui.refresh_button.clicked.connect(self.refresh_ac)
+        self.ui.header.ui.color_button.clicked.connect(self.change_color)
+        self.ui.header.ui.save_button.clicked.connect(lambda: self.conf.save())
+        sets = paparazzi.get_list_of_conf_files()
+        self.ui.header.set_sets(sets, conf_init=conf.Conf.get_current_conf())
+        self.ui.conf_widget.conf_changed.connect(self.handle_conf_changed)
+        self.ui.conf_widget.setting_changed.connect(self.handle_setting_changed)
+        self.ui.header.ui.rename_action.triggered.connect(self.rename_ac)
+        self.ui.header.ui.new_ac_action.triggered.connect(self.new_ac)
+        self.ui.header.ui.duplicate_action.triggered.connect(self.duplicate_ac)
+        self.ui.header.ui.remove_ac_action.triggered.connect(self.remove_ac)
+
+    def handle_set_changed(self, conf_file):
+        self.conf = conf.Conf(conf_file)
+        conf.Conf.set_current_conf(conf_file)
+        #print(conf_file)
+        acs = [ac.name for ac in self.conf.aircrafts]
+        self.ui.header.set_acs(acs)
+
+    def update_ac(self, ac_name):
+        ac = self.conf[ac_name]
+        if ac_name != "" and ac is not None:
+            self.ui.conf_widget.setDisabled(False)
+            self.currentAC = ac_name
+            status, stderr = ac.update_settings_modules()
+            if status != 0:
+                self.msg_error.emit(stderr.decode().strip())
+            else:
+                self.clear_error.emit()
+            # print("ac:", ac)
+            self.ui.header.set_ac(ac)
+            self.ui.conf_widget.set_ac(ac)
+        else:
+            # self.ui.conf_widget.reset()
+            self.ui.conf_widget.setDisabled(True)
+            return
+
+
+    def refresh_ac(self):
+        self.update_ac(self.currentAC)
+
+    def handle_id_changed(self, id):
+        self.conf[self.currentAC].ac_id = id
+        if len(self.conf.get_all(id)) > 1:
+            self.ui.header.ui.id_spinBox.setStyleSheet("background-color: red;")
+        else:
+            self.ui.header.ui.id_spinBox.setStyleSheet("background-color: white;")
+
+    def handle_setting_changed(self):
+        def make_setting(item: QListWidgetItem):
+            name = item.text()
+            state = True if item.checkState() == QtCore.Qt.Checked else False
+            return conf.Setting(name, state)
+        items = [self.ui.conf_widget.settings.item(i) for i in range(self.ui.conf_widget.settings.count())]
+        modules_items = filter(lambda i: i.text().startswith("module"), items)
+        setting_items = filter(lambda i: i not in modules_items, items)
+        modules = map(make_setting, modules_items)
+        settings = map(make_setting, setting_items)
+        self.conf[self.currentAC].settings_modules = list(modules)
+        self.conf[self.currentAC].settings = list(settings)
+        # should we save each time a tiny change is made ? very inefficient !
+        # self.conf.save()
+
+    def handle_conf_changed(self):
+        self.conf[self.currentAC].airframe = self.ui.conf_widget.airframe.path
+        self.conf[self.currentAC].flight_plan = self.ui.conf_widget.flight_plan.path
+        self.conf[self.currentAC].radio = self.ui.conf_widget.radio.path
+        self.conf[self.currentAC].telemetry = self.ui.conf_widget.telemetry.path
+        # reload settings modules, and update UI
+        self.update_ac(self.currentAC)
+
+    def add_ac(self, ac: conf.Aircraft):
+        self.conf.append(ac)
+        self.ui.header.add_ac(ac.name)
+
+    def new_ac(self):
+        orig = conf.Aircraft()
+        self.create_ac(orig)
+
+    def remove_ac(self):
+        button = QMessageBox.question(self, "Remove AC", "Remove AC <strong>{}</strong>?".format(self.currentAC))
+        if button == QMessageBox.Yes:
+            self.conf.remove(self.conf[self.currentAC])
+            self.ui.header.remove_current()
+
+    def duplicate_ac(self):
+        orig = self.conf[self.currentAC]
+        self.create_ac(orig)
+
+    def create_ac(self, orig):
+        ui_dialog = Ui_Dialog()
+        dialog = QDialog(parent=self)
+        ui_dialog.setupUi(dialog)
+
+        def verify():
+            ok = True
+            id = ui_dialog.id_spinbox.value()
+            name = ui_dialog.name_edit.text()
+            if self.conf[id] is not None or id == 0:
+                ui_dialog.id_spinbox.setStyleSheet("background-color: red;")
+                ok = False
+            else:
+                ui_dialog.id_spinbox.setStyleSheet("")
+
+            if self.conf[name] is not None or name == "":
+                ui_dialog.name_edit.setStyleSheet("background-color: red;")
+                ok = False
+            else:
+                ui_dialog.name_edit.setStyleSheet("")
+
+            return ok
+
+        def accept():
+            if verify():
+                dialog.accept()
+
+        def reject():
+            dialog.reject()
+
+        def duplicate(result):
+            if result:
+                new_ac = copy.deepcopy(orig)
+                name = ui_dialog.name_edit.text()
+                ac_id = ui_dialog.id_spinbox.value()
+                new_ac.name = name
+                new_ac.ac_id = ac_id
+                self.add_ac(new_ac)
+                self.ui.header.set_current(name)
+
+        ui_dialog.buttonBox.accepted.connect(accept)
+        ui_dialog.buttonBox.rejected.connect(reject)
+        ui_dialog.id_spinbox.valueChanged.connect(verify)
+        ui_dialog.name_edit.textChanged.connect(verify)
+        dialog.finished.connect(duplicate)
+        dialog.open()
+
+    def rename_ac(self):
+        orig = self.conf[self.currentAC]
+        ui_dialog = Ui_Dialog()
+        dialog = QDialog(parent=self)
+        ui_dialog.setupUi(dialog)
+        ui_dialog.name_edit.setText(orig.name)
+        ui_dialog.id_spinbox.setValue(orig.ac_id)
+
+        def verify():
+            ok = True
+            id = ui_dialog.id_spinbox.value()
+            name = ui_dialog.name_edit.text()
+
+            acs_name = self.conf.get_all(name)
+            if len(acs_name) > 1 or (len(acs_name) == 1 and acs_name[0] != orig):
+                ui_dialog.name_edit.setStyleSheet("background-color: red;")
+                ok = False
+            else:
+                ui_dialog.name_edit.setStyleSheet("")
+
+            acs_id = self.conf.get_all(id)
+            if len(acs_id) > 1 or (len(acs_id) == 1 and acs_id[0] != orig):
+                ui_dialog.id_spinbox.setStyleSheet("background-color: red;")
+                ok = False
+            else:
+                ui_dialog.id_spinbox.setStyleSheet("")
+
+            return ok
+
+        def accept():
+            if verify():
+                dialog.accept()
+
+        def reject():
+            dialog.reject()
+
+        def rename(result):
+            if result:
+                orig.name = ui_dialog.name_edit.text()
+                orig.ac_id = ui_dialog.id_spinbox.value()
+                self.ui.header.rename_ac(orig.name)
+
+        ui_dialog.buttonBox.accepted.connect(accept)
+        ui_dialog.buttonBox.rejected.connect(reject)
+        ui_dialog.id_spinbox.valueChanged.connect(verify)
+        ui_dialog.name_edit.textChanged.connect(verify)
+        dialog.finished.connect(rename)
+        dialog.open()
+
+    def change_color(self):
+        ac = self.conf[self.currentAC]
+        initial = QtGui.QColor(ac.get_color())
+        color = QColorDialog.getColor(initial, self, "AC color")
+        if color.isValid():
+            color_name = color.name()
+            ac.set_color(color_name)
+            self.ui.header.set_color(color_name)
