@@ -24,6 +24,7 @@ class ConfigurationPanel(QWidget):
         QWidget.__init__(self, parent=parent, *args, **kwargs)
         self.ui = Ui_ConfigurationPanel()
         self.ui.setupUi(self)
+        self.ui.console_widget.ui.filter_widget.hide()
         self.conf = None        # type: conf.Conf
         self.currentAC = None   # type: str
         self.ui.header.set_changed.connect(self.handle_set_changed)
@@ -236,4 +237,5 @@ class ConfigurationPanel(QWidget):
 
     def remove_program(self, pw: ProgramWidget):
         self.ui.programs_groupbox.layout().removeWidget(pw)
+        self.ui.console_widget.remove_program(pw)
         pw.deleteLater()

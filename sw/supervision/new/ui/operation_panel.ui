@@ -13,12 +13,15 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="SessionWidget" name="session" native="true"/>
-   </item>
-   <item>
-    <widget class="ConsoleWidget" name="console" native="true"/>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <widget class="SessionWidget" name="session" native="true"/>
+     <widget class="ConsoleWidget" name="console" native="true"/>
+    </widget>
    </item>
   </layout>
  </widget>

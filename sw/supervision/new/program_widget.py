@@ -21,6 +21,7 @@ class ProgramWidget(QWidget):
         self.ui = Ui_Program()
         self.ui.setupUi(self)
         self.cmd = cmd
+        self.shortname = shortname
         self.process = QProcess(self)
         self.ui.program_label.setText(shortname)
         self.ui.program_lineedit.setText(" ".join(cmd))
@@ -75,3 +76,7 @@ class ProgramWidget(QWidget):
 
     def handle_error(self, error: QProcess.ProcessError):
         print("error: ", error)
+
+    def terminate(self):
+        if self.process.state() == QProcess.Running:
+            self.process.terminate()
