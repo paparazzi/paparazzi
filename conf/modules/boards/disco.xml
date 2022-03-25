@@ -10,6 +10,7 @@
     <depends>baro_ms5611_i2c</depends>
   </dep>
   <makefile target="!sim|nps|fbw">
+    <define name="MS5611_TYPE_MS5607" value="TRUE"/>
   </makefile>
 </module>
 
