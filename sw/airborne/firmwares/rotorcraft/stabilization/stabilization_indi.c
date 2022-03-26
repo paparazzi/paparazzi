@@ -679,9 +679,17 @@ void lms_estimation(void)
   float indi_accel_d = (acceleration_lowpass_filter.o[0]
                         - acceleration_lowpass_filter.o[1]) * PERIODIC_FREQUENCY;
 
+  // Use xml setting for adaptive mu for lms
+  // Set default value if not defined
+  #ifndef STABILIZATION_INDI_ADAPTIVE_MU
+    float adaptive_mu_lr = 0.001;
+  #else
+    float adaptive_mu_lr = STABILIZATION_INDI_ADAPTIVE_MU;
+  #endif
+
   // scale the inputs to avoid numerical errors
-  float_vect_smul(du_estimation, actuator_state_filt_vectd, 0.001, INDI_NUM_ACT);
-  float_vect_smul(ddu_estimation, actuator_state_filt_vectdd, 0.001 / PERIODIC_FREQUENCY, INDI_NUM_ACT);
+  float_vect_smul(du_estimation, actuator_state_filt_vectd, adaptive_mu_lr, INDI_NUM_ACT);
+  float_vect_smul(ddu_estimation, actuator_state_filt_vectdd, adaptive_mu_lr / PERIODIC_FREQUENCY, INDI_NUM_ACT);
 
   float ddx_estimation[INDI_OUTPUTS] = {estimation_rate_dd[0], estimation_rate_dd[1], estimation_rate_dd[2], indi_accel_d};
 
