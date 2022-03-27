@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 from Edge_detect import *
 
 
-def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, method="ShiTomasi", max_points=100, graphics=True):
+def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, method="FAST", max_points=100, graphics=True):
     if type(filename_1) is str:
         BGR_1 = cv2.imread(filename_1)
     else:
@@ -39,12 +39,13 @@ def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, me
 
         elif method == 'FAST':
 
-            corners = edge_detect_FAST(image=BGR_1, image_gray=gray_1, threshold=70, max_points=max_points)
+            corners = edge_detect_FAST(image=BGR_1, image_gray=gray_1, threshold=max_points, max_points=max_points)
+            corners = corners.astype("float32")
 
         elif method == 'ShiTomasi':
 
-            corners = edge_detect_ShiTomasi(image=BGR_1, image_gray=gray_1, maxCorners=100, qualityLevel=0.01,
-                                            minDistance=10)
+            corners = edge_detect_ShiTomasi(image=BGR_1, image_gray=gray_1, maxCorners=max_points, qualityLevel=0.01,
+                                            minDistance=2)
 
         elif method == "Tomasso":
             edges = find_edge_OF(BGR_1)
@@ -53,6 +54,7 @@ def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, me
             corners = corners.astype("float32")
 
     # (2) Track the features to the next frame:
+
 
     # Parameters for lucas kanade optical flow
     lk_params = dict(winSize=(window_x, window_y),
@@ -95,4 +97,4 @@ def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, me
 
 if __name__ == "__main__":
     # Determine optic flow on the images provided on the repository:
-    determine_optic_flow('bebop_flowers_1.jpg', 'bebop_flowers_2.jpg')
+    determine_optic_flow('bebop_flowers_1.jpg', 'bebop_flowers_2.jpg', corners=None, window_x=18, window_y=18)
