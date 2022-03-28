@@ -110,8 +110,8 @@ void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp)
   VECT2_SMUL(speed_step, gh_ref.accel, gh_ref.dt);
 
   struct Int64Vect2 pos_update;
-  pos_update.x = BFP_OF_REAL(pos_step.x, GH_POS_REF_FRAC);
-  pos_update.y = BFP_OF_REAL(pos_step.y, GH_POS_REF_FRAC);
+  pos_update.x = LBFP_OF_REAL(pos_step.x, GH_POS_REF_FRAC);
+  pos_update.y = LBFP_OF_REAL(pos_step.y, GH_POS_REF_FRAC);
 
   VECT2_ADD(gh_ref.pos, pos_update);
   VECT2_ADD(gh_ref.speed, speed_step);
@@ -148,8 +148,8 @@ void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp)
   VECT2_SMUL(speed_step, gh_ref.accel, gh_ref.dt);
 
   struct Int64Vect2 pos_update;
-  pos_update.x = BFP_OF_REAL(pos_step.x, GH_POS_REF_FRAC);
-  pos_update.y = BFP_OF_REAL(pos_step.y, GH_POS_REF_FRAC);
+  pos_update.x = LBFP_OF_REAL(pos_step.x, GH_POS_REF_FRAC);
+  pos_update.y = LBFP_OF_REAL(pos_step.y, GH_POS_REF_FRAC);
 
   VECT2_ADD(gh_ref.pos, pos_update);
   VECT2_ADD(gh_ref.speed, speed_step);
