@@ -261,6 +261,59 @@ struct ekf2_parameters_t ekf2_params;
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
+static void send_ins(struct transport_tx *trans, struct link_device *dev)
+{
+  struct NedCoor_i pos, speed, accel;
+  float pos_f[3] = {};
+  float speed_f[3] = {};
+  float accel_f[3] = {};
+
+  // Get it from the EKF
+  ekf.get_position(pos_f);
+  ekf.get_velocity(speed_f);
+  ekf.get_vel_deriv_ned(accel_f);
+
+  // Convert to integer
+  pos.x = POS_BFP_OF_REAL(pos_f[0]);
+  pos.y = POS_BFP_OF_REAL(pos_f[1]);
+  pos.z = POS_BFP_OF_REAL(pos_f[2]);
+  speed.x = SPEED_BFP_OF_REAL(speed_f[0]);
+  speed.y = SPEED_BFP_OF_REAL(speed_f[1]);
+  speed.z = SPEED_BFP_OF_REAL(speed_f[2]);
+  accel.x = ACCEL_BFP_OF_REAL(accel_f[0]);
+  accel.y = ACCEL_BFP_OF_REAL(accel_f[1]);
+  accel.z = ACCEL_BFP_OF_REAL(accel_f[2]);
+
+  // Send the message
+  pprz_msg_send_INS(trans, dev, AC_ID,
+                    &pos.x, &pos.y, &pos.z,
+                    &speed.x, &speed.y, &speed.z,
+                    &accel.x, &accel.y, &accel.z);
+}
+
+static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
+{
+  float baro_z = 0.0f;
+  int32_t pos_z, speed_z, accel_z;
+  float pos_f[3] = {};
+  float speed_f[3] = {};
+  float accel_f[3] = {};
+
+  // Get it from the EKF
+  ekf.get_position(pos_f);
+  ekf.get_velocity(speed_f);
+  ekf.get_vel_deriv_ned(accel_f);
+
+  // Convert to integer
+  pos_z = POS_BFP_OF_REAL(pos_f[2]);
+  speed_z = SPEED_BFP_OF_REAL(speed_f[2]);
+  accel_z = ACCEL_BFP_OF_REAL(accel_f[2]);
+
+  // Send the message
+  pprz_msg_send_INS_Z(trans, dev, AC_ID,
+                      &baro_z, &pos_z, &speed_z, &accel_z);
+}
+
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
   float qfe = 101325.0; //TODO: this is qnh not qfe?
@@ -415,6 +468,8 @@ void ins_ekf2_init(void)
   ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
 
 #if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2, send_ins_ekf2);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2_EXT, send_ins_ekf2_ext);
