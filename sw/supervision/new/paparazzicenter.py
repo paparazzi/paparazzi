@@ -23,10 +23,15 @@ class PprzCenter(QMainWindow):
         self.configuration_panel.msg_error.connect(self.handle_error)
         self.configuration_panel.clear_error.connect(self.clear_error)
 
-    def quit(self):
-        pass
-        # TODO ask to save conf if it has been edited.
-        #self.main_panel.conf.save()
+    def closeEvent(self, e: QtGui.QCloseEvent) -> None:
+        if len(self.operation_panel.ui.session.program_widgets) > 0:
+            self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
+            self.operation_panel.ui.session.remove_all()
+            e.ignore()
+        else:
+            # TODO ask to save conf if it has been edited.
+            # self.main_panel.conf.save()
+            e.accept()
 
     def fill_status_bar(self):
         home_widget = QWidget()
@@ -58,6 +63,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_window = PprzCenter()
     main_window.show()
-    qApp.aboutToQuit.connect(main_window.quit)
+    # qApp.aboutToQuit.connect(main_window.quit)
     sys.exit(app.exec_())
 

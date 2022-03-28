@@ -38,7 +38,8 @@ class ProgramWidget(QWidget):
         self.process.errorOccurred.connect(self.handle_error)
 
     def start_program(self):
-        self.process.start(self.cmd[0], self.cmd[1:])
+        if self.process.state() == QProcess.NotRunning:
+            self.process.start(self.cmd[0], self.cmd[1:])
 
     def toggle_view(self, long_view):
         self.ui.program_label.setVisible(long_view)
@@ -60,7 +61,7 @@ class ProgramWidget(QWidget):
         if self.process.state() == QProcess.NotRunning:
             self.remove.emit()
         elif self.process.state() == QProcess.Running:
-            self.process.finished.connect(lambda: self.remove.emit())
+            self.process.finished.connect(self.remove)
             self.process.terminate()
 
     def handle_started(self):
@@ -78,5 +79,8 @@ class ProgramWidget(QWidget):
         print("error: ", error)
 
     def terminate(self):
-        if self.process.state() == QProcess.Running:
+        if self.process.state() != QProcess.NotRunning:
             self.process.terminate()
+
+    def state(self):
+        return self.process.state()

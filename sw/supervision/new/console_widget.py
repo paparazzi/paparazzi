@@ -18,11 +18,18 @@ class Level(Enum):
     ALL = 3
 
 
+class Channel(Enum):
+    STDOUT = 0
+    STDERR = 1
+    MANAGEMENT = 2
+
+
 @dataclass
 class Record:
     level: Level
     data: str
-    emitter: object
+    emitter: ProgramWidget
+    channel: Channel
 
 
 class ConsoleWidget(QWidget):
@@ -39,16 +46,25 @@ class ConsoleWidget(QWidget):
 
     def display_record(self, record):
         if record.level == Level.ERROR:
-            data = "<span style=\"background-color:red\">{}</span>".format(record.data)
+            bg = "background-color:red;"
         elif record.level == Level.WARNING:
-            data = "<span style=\"background-color:orange\">{}</span>".format(record.data)
+            bg = "background-color:orange;"
         elif record.level == Level.INFO:
-            data = "<span style=\"background-color:green\">{}</span>".format(record.data)
+            bg = "background-color:green;"
         else:
-            data = record.data
+            bg = ""
+
+        if record.channel == Channel.STDOUT:
+            ch = ""
+        elif record.channel == Channel.STDERR:
+            ch = "font-style: italic;"
+        else:
+            ch = "font-weight: bold;"
+
+        data = "<span style=\"{}{}\">{}</span>".format(bg, ch, record.data)
         self.ui.console_textedit.append(data)
 
-    def handle_data(self, pw: ProgramWidget, data: QByteArray):
+    def handle_data(self, pw: ProgramWidget, data: QByteArray, channel: Channel):
         if pw not in self.p_checkboxes:
             self.new_program(pw)
         if data.endsWith(b'\n'):
@@ -61,22 +77,27 @@ class ConsoleWidget(QWidget):
                 level = Level.INFO
             if lower.contains(b"warning"):
                 level = Level.WARNING
-            if lower.contains(b"error"):
+            if lower.contains(b"error") or lower.contains(b"fail"):
                 level = Level.ERROR
-            r = Record(level, line.data().decode(), pw)
+            r = Record(level, line.data().decode(), pw, channel)
             self.records.append(r)
             self.display_record(r)
 
     def handle_stdout(self, pw: ProgramWidget):
         data = pw.process.readAllStandardOutput()
-        self.handle_data(pw, data)
+        self.handle_data(pw, data, Channel.STDOUT)
 
     def handle_stderr(self, pw: ProgramWidget):
         data = pw.process.readAllStandardError()
-        self.handle_data(pw, data)
+        self.handle_data(pw, data, Channel.STDERR)
 
     def handle_program_finished(self, pw: ProgramWidget, exit_code: int, exit_status: QProcess.ExitStatus):
-        self.ui.console_textedit.append("Program terminated with code {}".format(exit_code))
+        self.post_message(pw, "Program terminated with code {}".format(exit_code))
+
+    def post_message(self, pw: ProgramWidget, msg):
+        r = Record(Level.ALL, msg, pw, Channel.MANAGEMENT)
+        self.records.append(r)
+        self.display_record(r)
 
     def new_program(self, pw: ProgramWidget):
         chk = QCheckBox(pw.shortname, self.ui.programs_widget)
@@ -87,17 +108,14 @@ class ConsoleWidget(QWidget):
         lay.insertWidget(index, chk)
         chk.stateChanged.connect(self.handle_program_checked)
         self.handle_program_checked()
-        # self.ui.programs_groupbox.layout().addWidget(chk)
 
-    def remove_program(self, pw):
-        print("remove")
+    def remove_program(self, pw: ProgramWidget):
         chk = self.p_checkboxes.pop(pw)
         if chk is not None:
             for r in self.records:
                 if r.emitter == pw:
                     r.emitter = None
             self.ui.programs_widget.layout().removeWidget(chk)
-            # self.ui.programs_groupbox.layout().removeWidget(chk)
             chk.deleteLater()
             self.update_content()
 

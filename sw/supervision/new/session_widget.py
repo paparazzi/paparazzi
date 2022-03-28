@@ -74,6 +74,7 @@ class Tool:
 class SessionWidget(QWidget):
 
     spawn_program = QtCore.pyqtSignal(str, list)
+    programs_all_stopped = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -89,6 +90,8 @@ class SessionWidget(QWidget):
         sessions_names = [session.name for session in self.sessions]
         self.ui.sessions_combo.addItems(sessions_names)
         self.ui.start_session_button.clicked.connect(self.start_session)
+        self.ui.startall_button.clicked.connect(self.start_all)
+        self.ui.removeall_button.clicked.connect(self.remove_all)
         self.ui.stopall_button.clicked.connect(self.stop_all)
 
     def set_console(self, console: console_widget.ConsoleWidget):
@@ -143,7 +146,6 @@ class SessionWidget(QWidget):
         else:
             cmd = [os.path.join(utils.PAPARAZZI_SRC, tool.command)] + flat_args
         self.spawn_program.emit(tool.name, cmd)
-        print(tool.name, cmd)
 
         pw = ProgramWidget(tool.name, cmd, self.ui.programs_widget)
         self.program_widgets.append(pw)
@@ -153,18 +155,29 @@ class SessionWidget(QWidget):
         pw.ready_read_stdout.connect(lambda: self.console.handle_stdout(pw))
         pw.finished.connect(lambda c, s: self.console.handle_program_finished(pw, c, s))
         pw.remove.connect(lambda: self.remove_program(pw))
-        pw.destroyed.connect(lambda : self.console.remove_program(pw))
         # if REMOVE_PROGRAMS_FINISHED:
         #     pw.finished.connect(lambda: self.remove_program(pw))
         pw.start_program()
+        self.console.new_program(pw)
 
     def remove_program(self, pw: ProgramWidget):
-        pw.disconnect()
-        print("ye")
-        self.ui.programs_widget.layout().removeWidget(pw)
+        self.console.remove_program(pw)
+        pw.setParent(None)
+        # self.ui.programs_widget.layout().removeWidget(pw)
         self.program_widgets.remove(pw)
-        pw.deleteLater()
+        if len(self.program_widgets) == 0:
+            self.programs_all_stopped.emit()
+        # pw.deleteLater()
 
     def stop_all(self):
         for pw in self.program_widgets:
             pw.terminate()
+
+    def start_all(self):
+        for pw in self.program_widgets:
+            pw.start_program()
+
+    def remove_all(self):
+        for pw in list(self.program_widgets):
+            print("remove {}".format(pw.shortname))
+            pw.handle_remove()
