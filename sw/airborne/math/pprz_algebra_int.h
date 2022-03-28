@@ -202,6 +202,7 @@ struct Int64Vect3 {
 
 
 // Real (floating point) ->  Binary Fixed Point  (int)
+#define LBFP_OF_REAL(_vr, _frac)   ((_vr)*(1LL<<(_frac)))
 #define BFP_OF_REAL(_vr, _frac)    ((_vr)*(1<<(_frac)))
 #define FLOAT_OF_BFP(_vbfp, _frac) ((float)(_vbfp)/(1<<(_frac)))
 #define DOUBLE_OF_BFP(_vbfp, _frac) ((double)(_vbfp)/(1<<(_frac)))
