@@ -78,7 +78,14 @@ class ProgramWidget(QWidget):
         self.finished.emit(exit_code, exit_status)
 
     def handle_error(self, error: QProcess.ProcessError):
-        print("error: ", error)
+        if error == QProcess.FailedToStart:
+            self.handle_finished(-1, QProcess.CrashExit)
+        # FailedToStart
+        # Crashed
+        # Timedout
+        # ReadError
+        # WriteError
+        # UnknownError
 
     def terminate(self):
         if self.process.state() != QProcess.NotRunning:
