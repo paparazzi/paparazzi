@@ -188,22 +188,24 @@
     <string>Save session</string>
    </property>
   </action>
-  <action name="duplicate_session_action">
+  <action name="save_as_action">
    <property name="icon">
     <iconset theme="edit-copy">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Duplicate session</string>
+    <string>Save as...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save session as...</string>
    </property>
   </action>
-  <action name="new_session_action">
+  <action name="rename_session_action">
    <property name="icon">
-    <iconset theme="document-new">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset theme="format-text-italic"/>
    </property>
    <property name="text">
-    <string>New session</string>
+    <string>Rename session</string>
    </property>
   </action>
  </widget>

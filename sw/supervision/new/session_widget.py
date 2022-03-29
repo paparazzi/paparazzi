@@ -25,8 +25,8 @@ class SessionWidget(QWidget):
         self.program_widgets: List[ProgramWidget] = []
         self.console = None
         self.ui.menu_button.addAction(self.ui.save_session_action)
-        self.ui.menu_button.addAction(self.ui.duplicate_session_action)
-        self.ui.menu_button.addAction(self.ui.new_session_action)
+        self.ui.menu_button.addAction(self.ui.save_as_action)
+        self.ui.menu_button.addAction(self.ui.rename_session_action)
         self.sessions = self.parse_session()
         self.tools = self.parse_tools()
         self.tools_menu = ToolMenu()
@@ -39,6 +39,9 @@ class SessionWidget(QWidget):
         self.ui.removeall_button.clicked.connect(self.remove_all)
         self.ui.stopall_button.clicked.connect(self.stop_all)
         self.ui.add_tool_button.clicked.connect(self.open_tools)
+        self.ui.save_session_action.triggered.connect(self.handle_save)
+        self.ui.save_as_action.triggered.connect(self.handle_save_as)
+        self.ui.rename_session_action.triggered.connect(self.handle_rename)
 
     def set_console(self, console: console_widget.ConsoleWidget):
         self.console = console
@@ -143,3 +146,86 @@ class SessionWidget(QWidget):
             self.tools_menu.move(bottomLeft)
             self.tools_menu.show()
             self.tools_menu.setFocus(QtCore.Qt.PopupFocusReason)
+
+    def handle_save(self):
+        session_name = self.ui.sessions_combo.currentText()
+        programs = self.get_programs()
+        session = Session(session_name, programs)
+        self.replace_session(session)
+        self.save_sessions()
+
+    def handle_save_as(self):
+        print("yo")
+        session_name, ok = QInputDialog.getText(self, "Session name", "enter the session name:")
+        if not ok:
+            return
+        for session in self.sessions:
+            if session.name == session_name:
+                QMessageBox.warning(self, "Error", "A session with this name already exits.\nTry again with a new name.")
+                return
+        programs = self.get_programs()
+        session = Session(session_name, programs)
+        self.sessions.append(session)
+        self.save_sessions()
+
+    def handle_rename(self):
+        for session_orig in self.sessions:
+            if session_orig.name == self.ui.sessions_combo.currentText():
+                break
+        else:
+            print("session not found")
+            return
+        session_name, ok = QInputDialog.getText(self, "Session name", "enter the session name:")
+        if not ok:
+            return
+        for session in self.sessions:
+            if session.name == session_name:
+                QMessageBox.warning(self, "Error", "A session with this name already exits.\nTry again with a new name.")
+                return
+        session_orig.name = session_name
+        self.save_sessions()
+
+    def replace_session(self, session):
+        for i, s in enumerate(self.sessions):
+            if s.name == session.name:
+                self.sessions[i] = session
+                break
+
+    def save_sessions(self):
+        ctrl_panel_path = os.path.join(utils.CONF_DIR, "control_panel.xml")
+        parser = ET.XMLParser(remove_blank_text=True)
+        control_panel = ET.parse(ctrl_panel_path, parser)
+        xml_sessions = ET.Element("section")
+        xml_sessions.set("name", "sessions")
+        for session in self.sessions:
+            xml_sessions.append(session.to_xml())
+        for xml_section in control_panel.getroot().findall("section"):
+            if xml_section.get("name") == "sessions":
+                control_panel.getroot().replace(xml_section, xml_sessions)
+                break
+        control_panel.write(ctrl_panel_path, pretty_print=True)
+        print("sessions saved saved to {}".format(ctrl_panel_path))
+
+    def get_programs(self):
+        programs = []
+        for p in self.program_widgets:
+            name = p.shortname
+            args = []
+            if len(p.cmd) > 0:
+                arg = None
+                for param in p.cmd[1:]:
+                    if param.startswith("-"):
+                        # if it start with "-", make a new arg
+                        arg = Arg(param, None)
+                        args.append(arg)
+                    else:
+                        if arg is not None and arg.flag.startswith("-"):
+                            # if it don't starts with -, but the previous did, fill the constant
+                            arg.constant = param
+                        else:
+                            # if it don't starts with -, nor the previous, its probably a mandatory argument
+                            arg = Arg(param, None)
+                            args.append(arg)
+            program = Program(name, args)
+            programs.append(program)
+        return programs

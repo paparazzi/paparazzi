@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict
+from lxml import etree as ET
 
 
 @dataclass
@@ -20,6 +21,13 @@ class Arg:
         else:
             return [self.flag]
 
+    def to_xml(self) -> ET.Element:
+        xml = ET.Element("arg")
+        xml.set("flag", self.flag)
+        if self.constant is not None:
+            xml.set("constant", self.constant)
+        return xml
+
 
 @dataclass
 class Program:
@@ -36,6 +44,13 @@ class Program:
     def from_tool(t: Tool):
         return Program(t.name, t.args)
 
+    def to_xml(self) -> ET.Element:
+        xml: ET._Element = ET.Element("program")
+        xml.set("name", self.name)
+        for arg in self.args:
+            xml.append(arg.to_xml())
+        return xml
+
 
 @dataclass
 class Session:
@@ -47,6 +62,13 @@ class Session:
         name = xml_session.get("name")
         programs = [Program.parse(xml_program) for xml_program in xml_session.findall("program")]
         return Session(name, programs)
+
+    def to_xml(self) -> ET.Element:
+        xml = ET.Element("session")
+        xml.set("name", self.name)
+        for p in self.programs:
+            xml.append(p.to_xml())
+        return xml
 
 
 @dataclass
