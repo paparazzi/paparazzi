@@ -70,7 +70,7 @@ class Aircraft:
                         setting.enabled = False
                 return setting
 
-            self.settings_modules = []
+            new_settings_modules = []
             for module_path in completed.stdout.decode().strip().split():
                 module = remove_prefix(module_path)
                 xml = ET.parse(module_path)
@@ -81,7 +81,9 @@ class Aircraft:
                     else:
                         txt = "{}~{}~".format(module, name)
                     setting = make_setting(txt)
-                    self.settings_modules.append(setting)
+                    new_settings_modules.append(setting)
+
+            self.settings_modules = new_settings_modules
 
         return completed.returncode, completed.stderr
 
