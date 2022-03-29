@@ -26,10 +26,11 @@ class PprzCenter(QMainWindow):
         self.operation_panel.ui.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
-        if len(self.operation_panel.ui.session.program_widgets) > 0:
+        if self.operation_panel.ui.session.any_program_running():
             self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
-            self.operation_panel.ui.session.remove_all()
+            self.operation_panel.ui.session.stop_all()
             e.ignore()
+            self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
         else:
             # TODO ask to save conf if it has been edited.
             # self.main_panel.conf.save()
