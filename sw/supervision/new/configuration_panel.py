@@ -1,9 +1,10 @@
-import conf, os, sys, copy
+import os, sys, copy
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from generated.ui_configuration_panel import Ui_ConfigurationPanel
 from generated.ui_new_ac_dialog import Ui_Dialog
 from program_widget import ProgramWidget
+from conf import *
 
 PAPARAZZI_SRC = os.getenv("PAPARAZZI_SRC")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
@@ -34,7 +35,7 @@ class ConfigurationPanel(QWidget):
         self.ui.header.ui.color_button.clicked.connect(self.change_color)
         self.ui.header.ui.save_button.clicked.connect(lambda: self.conf.save())
         sets = paparazzi.get_list_of_conf_files()
-        self.ui.header.set_sets(sets, conf_init=conf.Conf.get_current_conf())
+        self.ui.header.set_sets(sets, conf_init=Conf.get_current_conf())
         self.ui.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.ui.conf_widget.setting_changed.connect(self.handle_setting_changed)
         self.ui.header.ui.rename_action.triggered.connect(self.rename_ac)
@@ -44,8 +45,8 @@ class ConfigurationPanel(QWidget):
         self.ui.build_widget.spawn_program.connect(self.launch_program)
 
     def handle_set_changed(self, conf_file):
-        self.conf = conf.Conf(conf_file)
-        conf.Conf.set_current_conf(conf_file)
+        self.conf = Conf(conf_file)
+        Conf.set_current_conf(conf_file)
         self.ui.build_widget.set_conf(self.conf)
         acs = [ac.name for ac in self.conf.aircrafts]
         self.ui.header.set_acs(acs)
@@ -87,7 +88,7 @@ class ConfigurationPanel(QWidget):
         def make_setting(item: QListWidgetItem):
             name = item.text()
             state = True if item.checkState() == QtCore.Qt.Checked else False
-            return conf.Setting(name, state)
+            return Setting(name, state)
         items = [self.ui.conf_widget.settings.item(i) for i in range(self.ui.conf_widget.settings.count())]
         modules_items = filter(lambda i: i.text().startswith("module"), items)
         setting_items = filter(lambda i: i not in modules_items, items)
@@ -106,12 +107,12 @@ class ConfigurationPanel(QWidget):
         # reload settings modules, and update UI
         self.update_ac(self.currentAC)
 
-    def add_ac(self, ac: conf.Aircraft):
+    def add_ac(self, ac: Aircraft):
         self.conf.append(ac)
         self.ui.header.add_ac(ac.name)
 
     def new_ac(self):
-        orig = conf.Aircraft()
+        orig = Aircraft()
         self.create_ac(orig)
 
     def remove_ac(self):
