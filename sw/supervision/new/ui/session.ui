@@ -202,10 +202,19 @@
   </action>
   <action name="rename_session_action">
    <property name="icon">
-    <iconset theme="format-text-italic"/>
+    <iconset theme="format-text-italic">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Rename session</string>
+   </property>
+  </action>
+  <action name="remove_session_action">
+   <property name="icon">
+    <iconset theme="edit-delete"/>
+   </property>
+   <property name="text">
+    <string>Remove session</string>
    </property>
   </action>
  </widget>

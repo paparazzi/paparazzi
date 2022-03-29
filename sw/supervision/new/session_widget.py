@@ -27,6 +27,7 @@ class SessionWidget(QWidget):
         self.ui.menu_button.addAction(self.ui.save_session_action)
         self.ui.menu_button.addAction(self.ui.save_as_action)
         self.ui.menu_button.addAction(self.ui.rename_session_action)
+        self.ui.menu_button.addAction(self.ui.remove_session_action)
         self.sessions = self.parse_session()
         self.tools = self.parse_tools()
         self.tools_menu = ToolMenu()
@@ -42,6 +43,7 @@ class SessionWidget(QWidget):
         self.ui.save_session_action.triggered.connect(self.handle_save)
         self.ui.save_as_action.triggered.connect(self.handle_save_as)
         self.ui.rename_session_action.triggered.connect(self.handle_rename)
+        self.ui.remove_session_action.triggered.connect(self.remove_session)
 
     def set_console(self, console: console_widget.ConsoleWidget):
         self.console = console
@@ -184,6 +186,16 @@ class SessionWidget(QWidget):
                 return
         session_orig.name = session_name
         self.save_sessions()
+
+    def remove_session(self):
+        for session in self.sessions:
+            if session.name == self.ui.sessions_combo.currentText():
+                self.sessions.remove(session)
+                i = self.ui.sessions_combo.currentIndex()
+                self.ui.sessions_combo.removeItem(i)
+                self.save_sessions()
+                break
+        print("session {} not found".format(self.ui.sessions_combo.currentText()))
 
     def replace_session(self, session):
         for i, s in enumerate(self.sessions):
