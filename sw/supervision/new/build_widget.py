@@ -4,7 +4,7 @@ from generated.ui_build import Ui_Build
 import lxml.etree as ET
 import os
 import utils
-from conf import Aircraft
+from conf import Aircraft, Conf
 from typing import List, Dict
 from dataclasses import dataclass, field
 import re
@@ -31,13 +31,17 @@ class BuildWidget(QWidget):
         QWidget.__init__(self, parent=parent)
         self.ui = Ui_Build()
         self.ui.setupUi(self)
-        self.ac = None      # type: Aircraft
+        self.ac: Aircraft = None
+        self.conf: Conf = None      # to save conf before building
         self.flash_modes: List[FlashMode] = self.parse_flash_modes()
         self.boards: Dict[str, str] = {}  # {target: board}
         self.ui.build_button.clicked.connect(self.build)
         self.ui.clean_button.clicked.connect(self.clean)
         self.ui.flash_button.clicked.connect(self.flash)
         self.ui.target_combo.currentTextChanged.connect(self.update_flash_mode)
+
+    def set_conf(self, conf: Conf):
+        self.conf = conf
 
     @staticmethod
     def parse_flash_modes() -> List[FlashMode]:
@@ -94,6 +98,7 @@ class BuildWidget(QWidget):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
         shortname = "Build {}".format(self.ac.name)
+        self.conf.save()
         self.spawn_program.emit(shortname, cmd, None)
 
     def clean(self):

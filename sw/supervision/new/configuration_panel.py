@@ -46,7 +46,7 @@ class ConfigurationPanel(QWidget):
     def handle_set_changed(self, conf_file):
         self.conf = conf.Conf(conf_file)
         conf.Conf.set_current_conf(conf_file)
-        #print(conf_file)
+        self.ui.build_widget.set_conf(self.conf)
         acs = [ac.name for ac in self.conf.aircrafts]
         self.ui.header.set_acs(acs)
 
