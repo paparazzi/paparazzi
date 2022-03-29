@@ -204,7 +204,7 @@ class SessionWidget(QWidget):
                 i = self.ui.sessions_combo.currentIndex()
                 self.ui.sessions_combo.removeItem(i)
                 self.save_sessions()
-                break
+                return
         print("session {} not found".format(self.ui.sessions_combo.currentText()))
 
     def replace_session(self, session):
