@@ -1,0 +1,56 @@
+from PyQt5 import QtCore, QtGui
+from pprz_conf import *
+import os
+import utils
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
+from generated.ui_tools_list import Ui_ToolsList
+
+POPUP_GRID_WIDTH = 4
+ICON_SIZE = (60, 60)
+POPUP_SIZE = (1000, 400)
+
+
+class ToolMenu(QWidget):
+
+    tool_clicked = QtCore.pyqtSignal(str)
+
+    def __init__(self):
+        super(ToolMenu, self).__init__()
+        self.ui = Ui_ToolsList()
+        self.ui.setupUi(self)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Popup)
+        self.tools_buttons: Dict[str, QToolButton] = {}
+        self.ui.filter_lineedit.textChanged.connect(self.filter)
+        self.setFocusProxy(self.ui.filter_lineedit)
+        # self.gridLayout.setContentsMargins(10, 10, 24, 10)
+        # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.setWidgetResizable(True)
+        # self.setMinimumSize(*POPUP_SIZE)
+
+    def add_tool(self, t: Tool):
+        button = QToolButton()
+        button.setText(t.name)
+        icon = QtGui.QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", t.icon))
+        button.setIcon(icon)
+        button.setIconSize(QtCore.QSize(*ICON_SIZE))
+        # button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        button.clicked.connect(lambda: self.tool_clicked.emit(button.text()))
+        self.tools_buttons[t.name] = button
+        self.ui.content_widget.layout().addWidget(button)
+
+    def filter(self, txt: str):
+        for name, button in self.tools_buttons.items():
+            show = txt.lower() in name.lower()
+            button.setVisible(show)
+
+    def keyPressEvent(self, e: QtGui.QKeyEvent) -> None:
+        if e.key() == Qt.Key_Escape:
+            self.releaseMouse()
+            self.close()
+
+    def show(self) -> None:
+        super(ToolMenu, self).show()
+        self.ui.filter_lineedit.clear()

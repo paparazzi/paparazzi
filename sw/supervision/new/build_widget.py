@@ -25,7 +25,7 @@ class FlashMode:
 
 class BuildWidget(QWidget):
 
-    spawn_program = QtCore.pyqtSignal(str, list)
+    spawn_program = QtCore.pyqtSignal(str, list, str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -94,13 +94,13 @@ class BuildWidget(QWidget):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
         shortname = "Build {}".format(self.ac.name)
-        self.spawn_program.emit(shortname, cmd)
+        self.spawn_program.emit(shortname, cmd, None)
 
     def clean(self):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "clean_ac"]
         shortname = "Clean {}".format(self.ac.name)
-        self.spawn_program.emit(shortname, cmd)
+        self.spawn_program.emit(shortname, cmd, None)
 
     def flash(self):
         target = self.ui.target_combo.currentText()
@@ -116,5 +116,5 @@ class BuildWidget(QWidget):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name)] + vars + ["{}.upload".format(target)]
         shortname = "Flash {}".format(self.ac.name)
-        self.spawn_program.emit(shortname, cmd)
+        self.spawn_program.emit(shortname, cmd, None)
 

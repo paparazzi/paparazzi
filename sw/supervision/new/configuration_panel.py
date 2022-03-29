@@ -224,8 +224,8 @@ class ConfigurationPanel(QWidget):
             ac.set_color(color_name)
             self.ui.header.set_color(color_name)
 
-    def launch_program(self, shortname, cmd):
-        pw = ProgramWidget(shortname, cmd, self.ui.programs_groupbox)
+    def launch_program(self, shortname, cmd, icon):
+        pw = ProgramWidget(shortname, cmd, icon, self.ui.programs_groupbox)
         self.ui.programs_groupbox.layout().addWidget(pw)
         pw.ready_read_stderr.connect(lambda: self.ui.console_widget.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.ui.console_widget.handle_stdout(pw))

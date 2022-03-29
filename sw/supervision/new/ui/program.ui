@@ -6,14 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
-    <height>43</height>
+    <width>374</width>
+    <height>25</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="icon_label">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QLabel" name="program_label">
      <property name="sizePolicy">
@@ -50,7 +63,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="media-playback-stop"/>
+      <iconset theme="media-playback-stop">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -60,7 +74,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="list-remove"/>
+      <iconset theme="list-remove">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>

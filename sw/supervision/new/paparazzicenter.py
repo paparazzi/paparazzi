@@ -1,4 +1,4 @@
-
+#!/usr/bin/python3
 import conf
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui

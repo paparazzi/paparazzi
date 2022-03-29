@@ -16,7 +16,7 @@ class ProgramWidget(QWidget):
     finished = QtCore.pyqtSignal(int, QProcess.ExitStatus)
     remove = QtCore.pyqtSignal()
 
-    def __init__(self, shortname: str, cmd: List[str], parent=None):
+    def __init__(self, shortname: str, cmd: List[str], icon=None, parent=None):
         QWidget.__init__(self, parent=parent)
         self.ui = Ui_Program()
         self.ui.setupUi(self)
@@ -36,6 +36,8 @@ class ProgramWidget(QWidget):
         self.process.finished.connect(self.handle_finished)
         self.process.started.connect(self.handle_started)
         self.process.errorOccurred.connect(self.handle_error)
+        i = QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", icon))
+        self.ui.icon_label.setPixmap(i.pixmap(20, 20))
 
     def start_program(self):
         if self.process.state() == QProcess.NotRunning:

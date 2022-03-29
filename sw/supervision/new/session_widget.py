@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 import os.path
 
 import console_widget
@@ -7,73 +7,15 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 import utils
 import lxml.etree as ET
-from dataclasses import dataclass, field
+
 from typing import List, Optional, Tuple, Dict
 from program_widget import ProgramWidget
-
-@dataclass
-class Arg:
-    flag: str
-    constant: Optional[str]
-
-    @staticmethod
-    def parse(xml_arg):
-        flag = xml_arg.get("flag")
-        constant = xml_arg.get("constant")
-        return Arg(flag, constant)
-
-    def args(self) -> List[str]:
-        if self.constant is not None:
-            return [self.flag, self.constant]
-        else:
-            return [self.flag]
-
-
-@dataclass
-class Program:
-    name: str
-    args: List[Arg] = field(default_factory=list)
-
-    @staticmethod
-    def parse(xml_program):
-        name = xml_program.get("name")
-        args = [Arg.parse(xml_arg) for xml_arg in xml_program.findall("arg")]
-        return Program(name, args)
-
-
-@dataclass
-class Session:
-    name: str
-    programs: List[Program] = field(default_factory=list)
-
-    @staticmethod
-    def parse(xml_session):
-        name = xml_session.get("name")
-        programs = [Program.parse(xml_program) for xml_program in xml_session.findall("program")]
-        return Session(name, programs)
-
-
-@dataclass
-class Tool:
-    name: str
-    command: str
-    icon: Optional[str]
-    args: List[Arg]
-    favorite: bool
-
-    @staticmethod
-    def parse(xml_program) -> Tuple[str, Tool]:
-        name = xml_program.get("name")
-        command = xml_program.get("command")
-        icon = xml_program.get("icon")
-        favorite = True if xml_program.get("favorite") is not None else False
-        args = [Arg.parse(xml_arg) for xml_arg in xml_program.findall("arg")]
-        return name, Tool(name, command, icon, args, favorite)
+from tools_menu import ToolMenu
+from pprz_conf import *
 
 
 class SessionWidget(QWidget):
 
-    spawn_program = QtCore.pyqtSignal(str, list)
     programs_all_stopped = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -87,12 +29,16 @@ class SessionWidget(QWidget):
         self.ui.menu_button.addAction(self.ui.new_session_action)
         self.sessions = self.parse_session()
         self.tools = self.parse_tools()
+        self.tools_menu = ToolMenu()
+        self.tools_menu.tool_clicked.connect(self.handle_new_tool)
+        self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
         self.ui.sessions_combo.addItems(sessions_names)
         self.ui.start_session_button.clicked.connect(self.start_session)
         self.ui.startall_button.clicked.connect(self.start_all)
         self.ui.removeall_button.clicked.connect(self.remove_all)
         self.ui.stopall_button.clicked.connect(self.stop_all)
+        self.ui.add_tool_button.clicked.connect(self.open_tools)
 
     def set_console(self, console: console_widget.ConsoleWidget):
         self.console = console
@@ -142,12 +88,11 @@ class SessionWidget(QWidget):
         args = [arg.args() for arg in program.args]
         flat_args = [item for sublist in args for item in sublist]
         if tool.command.startswith("$"):
-            cmd = [tool.command] + flat_args
+            cmd = [tool.command[1:]] + flat_args
         else:
             cmd = [os.path.join(utils.PAPARAZZI_SRC, tool.command)] + flat_args
-        self.spawn_program.emit(tool.name, cmd)
 
-        pw = ProgramWidget(tool.name, cmd, self.ui.programs_widget)
+        pw = ProgramWidget(tool.name, cmd, tool.icon, self.ui.programs_widget)
         self.program_widgets.append(pw)
         lay: QVBoxLayout = self.ui.programs_widget.layout()
         lay.insertWidget(lay.count()-1, pw)
@@ -181,3 +126,20 @@ class SessionWidget(QWidget):
         for pw in list(self.program_widgets):
             print("remove {}".format(pw.shortname))
             pw.handle_remove()
+
+    def init_tools_menu(self):
+        for t in self.tools.values():
+            self.tools_menu.add_tool(t)
+
+    def handle_new_tool(self, name):
+        p = Program.from_tool(self.tools[name])
+        self.launch_program(p)
+
+    def open_tools(self):
+        if self.tools_menu.isVisible():
+            self.tools_menu.close()
+        else:
+            bottomLeft = self.mapToGlobal(self.ui.add_tool_button.geometry().bottomLeft())
+            self.tools_menu.move(bottomLeft)
+            self.tools_menu.show()
+            self.tools_menu.setFocus(QtCore.Qt.PopupFocusReason)
