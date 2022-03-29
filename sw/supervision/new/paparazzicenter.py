@@ -22,6 +22,8 @@ class PprzCenter(QMainWindow):
         self.statusBar().show()
         self.configuration_panel.msg_error.connect(self.handle_error)
         self.configuration_panel.clear_error.connect(self.clear_error)
+        self.operation_panel.ui.session.program_spawned.connect(self.configuration_panel.disable_sets)
+        self.operation_panel.ui.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
         if len(self.operation_panel.ui.session.program_widgets) > 0:

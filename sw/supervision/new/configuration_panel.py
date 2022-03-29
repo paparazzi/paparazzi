@@ -50,6 +50,12 @@ class ConfigurationPanel(QWidget):
         acs = [ac.name for ac in self.conf.aircrafts]
         self.ui.header.set_acs(acs)
 
+    def disable_sets(self):
+        self.ui.header.ui.set_combo.setDisabled(True)
+
+    def enable_sets(self):
+        self.ui.header.ui.set_combo.setDisabled(False)
+
     def update_ac(self, ac_name):
         ac = self.conf[ac_name]
         if ac_name != "" and ac is not None:

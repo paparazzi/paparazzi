@@ -17,6 +17,7 @@ from pprz_conf import *
 class SessionWidget(QWidget):
 
     programs_all_stopped = QtCore.pyqtSignal()
+    program_spawned = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -103,12 +104,13 @@ class SessionWidget(QWidget):
         lay.insertWidget(lay.count()-1, pw)
         pw.ready_read_stderr.connect(lambda: self.console.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console.handle_stdout(pw))
-        pw.finished.connect(lambda c, s: self.console.handle_program_finished(pw, c, s))
+        pw.finished.connect(lambda c, s: self.handle_program_finished(pw, c, s))
         pw.remove.connect(lambda: self.remove_program(pw))
         # if REMOVE_PROGRAMS_FINISHED:
         #     pw.finished.connect(lambda: self.remove_program(pw))
         pw.start_program()
         self.console.new_program(pw)
+        self.program_spawned.emit()
 
     def remove_program(self, pw: ProgramWidget):
         self.console.remove_program(pw)
@@ -118,6 +120,14 @@ class SessionWidget(QWidget):
         if len(self.program_widgets) == 0:
             self.programs_all_stopped.emit()
         # pw.deleteLater()
+
+    def any_program_running(self):
+        return any([pw.state() == QtCore.QProcess.Running for pw in self.program_widgets])
+
+    def handle_program_finished(self, pw, c, s):
+        self.console.handle_program_finished(pw, c, s)
+        if not self.any_program_running():
+            self.programs_all_stopped.emit()
 
     def stop_all(self):
         for pw in self.program_widgets:
