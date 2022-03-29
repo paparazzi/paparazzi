@@ -102,6 +102,20 @@ class Aircraft:
         xml.set("gui_color", self.gui_color)
         return xml
 
+    def to_string(self):
+        xml = "  <aircraft\n"
+        xml += "   name=\"{}\"\n".format(self.name)
+        xml += "   ac_id=\"{}\"\n".format(self.ac_id)
+        xml += "   airframe=\"{}\"\n".format(self.airframe)
+        xml += "   radio=\"{}\"\n".format(self.radio)
+        xml += "   telemetry=\"{}\"\n".format(self.telemetry)
+        xml += "   flight_plan=\"{}\"\n".format(self.flight_plan)
+        xml += "   settings=\"{}\"\n".format(" ".join(str(setting) for setting in self.settings))
+        xml += "   settings_modules=\"{}\"\n".format(" ".join(str(setting) for setting in self.settings_modules))
+        xml += "   gui_color=\"{}\"\n".format(self.gui_color)
+        xml += "  />"
+        return xml
+
 
 class Conf:
     def __init__(self, file: str):
@@ -128,6 +142,7 @@ class Conf:
             ac = Aircraft(name, ac_id, airframe, radio, telemetry, flight_plan,
                           gui_color, settings, settings_modules)
             self.aircrafts.append(ac)
+        self.tree_orig = self.to_xml_tree()
 
     def __getitem__(self, item):
         for ac in self.aircrafts:
@@ -156,15 +171,27 @@ class Conf:
             if i not in ids:
                 return i
 
-    def save(self):
+    def to_xml_tree(self):
         conf_xml = ET.Element("conf")
         for ac in self.aircrafts:
             ac_xml = ac.to_xml()
             conf_xml.append(ac_xml)
-        conf_path = os.path.join(utils.CONF_DIR, self.file)
         tree = ET.ElementTree(conf_xml)
-        tree.write(conf_path, pretty_print=True)
+        return tree
+
+    def save(self):
+        #tree = self.to_xml_tree()
+        conf_path = os.path.join(utils.CONF_DIR, self.file)
+        #tree.write(conf_path, pretty_print=True)
+        with open(conf_path, "w") as fic:
+            fic.write(self.to_string())
         print("conf saved to {}".format(conf_path))
+
+    def to_string(self):
+        xml = "<conf>\n"
+        xml += "\n".join([ac.to_string() for ac in self.aircrafts])
+        xml += "\n</conf>"
+        return xml
 
     @staticmethod
     def get_current_conf():
