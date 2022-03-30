@@ -71,6 +71,14 @@
     </widget>
    </item>
   </layout>
+  <action name="save_conf_action">
+   <property name="text">
+    <string>Save configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

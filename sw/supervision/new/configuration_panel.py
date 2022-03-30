@@ -34,6 +34,8 @@ class ConfigurationPanel(QWidget):
         self.ui.header.ui.refresh_button.clicked.connect(self.refresh_ac)
         self.ui.header.ui.color_button.clicked.connect(self.change_color)
         self.ui.header.ui.save_button.clicked.connect(lambda: self.conf.save())
+        self.addAction(self.ui.save_conf_action)
+        self.ui.save_conf_action.triggered.connect(lambda: self.conf.save())
         sets = paparazzi.get_list_of_conf_files()
         self.ui.header.set_sets(sets, conf_init=Conf.get_current_conf())
         self.ui.conf_widget.conf_changed.connect(self.handle_conf_changed)
