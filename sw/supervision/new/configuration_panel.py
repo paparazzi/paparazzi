@@ -89,13 +89,18 @@ class ConfigurationPanel(QWidget):
             name = item.text()
             state = True if item.checkState() == QtCore.Qt.Checked else False
             return Setting(name, state)
-        items = [self.ui.conf_widget.settings.item(i) for i in range(self.ui.conf_widget.settings.count())]
-        modules_items = filter(lambda i: i.text().startswith("module"), items)
-        setting_items = filter(lambda i: i not in modules_items, items)
-        modules = map(make_setting, modules_items)
-        settings = map(make_setting, setting_items)
-        self.conf[self.currentAC].settings_modules = list(modules)
-        self.conf[self.currentAC].settings = list(settings)
+
+        modules, settings = [], []
+        for i in range(self.ui.conf_widget.settings.count()):
+            item = self.ui.conf_widget.settings.item(i)
+            s = make_setting(item)
+            if item.text().startswith("module"):
+                modules.append(s)
+            else:
+                settings.append(s)
+
+        self.conf[self.currentAC].settings_modules = modules
+        self.conf[self.currentAC].settings = settings
         # should we save each time a tiny change is made ? very inefficient !
         # self.conf.save()
 
