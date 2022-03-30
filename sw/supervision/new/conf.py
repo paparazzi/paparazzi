@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Dict
 import lxml.etree as ET
 import os
 import subprocess
@@ -32,6 +32,10 @@ class Aircraft:
     gui_color: str = "red"
     settings: List[Setting] = field(default_factory=list)
     settings_modules: List[Setting] = field(default_factory=list)
+    boards: Dict[str, str] = field(default_factory=dict, init=False)    # {target: board}
+
+    def __post_init__(self):
+        self.update_targets()
 
     def get_color(self) -> str:
         if self.gui_color.startswith("#"):
@@ -53,7 +57,11 @@ class Aircraft:
         else:
             self.gui_color = color
 
-    def update_settings_modules(self):
+    def update(self):
+        self.update_targets()
+        return self.update_settings()
+
+    def update_settings(self):
         completed = subprocess.run([MOD_DEP, "-ac", self.name, "-af", self.airframe, "-fp", self.flight_plan],
                                    capture_output=True)
         if completed.returncode == 0:
@@ -115,6 +123,15 @@ class Aircraft:
         xml += "   gui_color=\"{}\"\n".format(self.gui_color)
         xml += "  />"
         return xml
+
+    def update_targets(self):
+        self.boards = {}
+        airframe_xml = ET.parse(os.path.join(utils.CONF_DIR, self.airframe))
+        for firmware_xml in airframe_xml.getroot().findall("firmware"):
+            for target_xml in firmware_xml.findall("target"):
+                target = target_xml.get("name")
+                board = target_xml.get("board")
+                self.boards[target] = board
 
 
 class Conf:

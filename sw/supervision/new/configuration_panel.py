@@ -64,7 +64,7 @@ class ConfigurationPanel(QWidget):
         if ac_name != "" and ac is not None:
             self.ui.conf_widget.setDisabled(False)
             self.currentAC = ac_name
-            status, stderr = ac.update_settings_modules()
+            status, stderr = ac.update()
             if status != 0:
                 self.msg_error.emit(stderr.decode().strip())
             else:

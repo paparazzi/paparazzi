@@ -34,7 +34,6 @@ class BuildWidget(QWidget):
         self.ac: Aircraft = None
         self.conf: Conf = None      # to save conf before building
         self.flash_modes: List[FlashMode] = self.parse_flash_modes()
-        self.boards: Dict[str, str] = {}  # {target: board}
         self.ui.build_button.clicked.connect(self.build)
         self.ui.clean_button.clicked.connect(self.clean)
         self.ui.flash_button.clicked.connect(self.flash)
@@ -69,27 +68,15 @@ class BuildWidget(QWidget):
     def update_targets(self, ac: Aircraft):
         self.ac = ac
         self.ui.target_combo.clear()
-        self.boards.clear()
 
-        airframe_xml = ET.parse(os.path.join(utils.CONF_DIR, ac.airframe))
-        # for firmware_xml in airframe_xml.getroot().findall("firmware"):
-        #     firmware = firmware_xml.get("name")
-        #     for target_xml in firmware_xml.findall("target"):
-        #         target = target_xml.get("name")
-        #         txt = "{} {}".format(firmware, target)
-        #         self.ui.target_combo.addItem(txt)
-        for firmware_xml in airframe_xml.getroot().findall("firmware"):
-            for target_xml in firmware_xml.findall("target"):
-                target = target_xml.get("name")
-                board = target_xml.get("board")
-                self.boards[target] = board
-                self.ui.target_combo.addItem(target)
+        for target in ac.boards.keys():
+            self.ui.target_combo.addItem(target)
 
     def update_flash_mode(self, target):
         self.ui.device_combo.clear()
         if target != "":
             self.ui.device_combo.addItem("Default")
-            board = self.boards[target]
+            board = self.ac.boards[target]
             flash_modes = self.get_flash_modes(board)
             self.ui.device_combo.addItems(flash_modes)
 
