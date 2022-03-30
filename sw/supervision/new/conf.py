@@ -122,7 +122,12 @@ class Conf:
         self.file = file        # type: str
         self.aircrafts = []     # type: List[Aircraft]
         xml = ET.parse(os.path.join(utils.CONF_DIR, file))
-        for ac_xml in xml.getroot().findall("aircraft"):
+        self.parse(xml)
+        self.tree_orig = self.to_xml_tree()
+
+    def parse(self, conf_tree):
+        self.aircrafts.clear()
+        for ac_xml in conf_tree.getroot().findall("aircraft"):
             name = ac_xml.attrib["name"]
             ac_id = int(ac_xml.attrib["ac_id"])
             airframe = ac_xml.attrib["airframe"]
@@ -138,11 +143,9 @@ class Conf:
 
             settings = list(map(make_setting, ac_xml.attrib["settings"].split()))
             settings_modules = list(map(make_setting, ac_xml.attrib["settings_modules"].split()))
-
             ac = Aircraft(name, ac_id, airframe, radio, telemetry, flight_plan,
                           gui_color, settings, settings_modules)
             self.aircrafts.append(ac)
-        self.tree_orig = self.to_xml_tree()
 
     def __getitem__(self, item):
         for ac in self.aircrafts:
@@ -179,13 +182,16 @@ class Conf:
         tree = ET.ElementTree(conf_xml)
         return tree
 
-    def save(self):
-        #tree = self.to_xml_tree()
+    def save(self, refresh_orig=True):
         conf_path = os.path.join(utils.CONF_DIR, self.file)
-        #tree.write(conf_path, pretty_print=True)
         with open(conf_path, "w") as fic:
             fic.write(self.to_string())
         print("conf saved to {}".format(conf_path))
+        if refresh_orig:
+            self.tree_orig = self.to_xml_tree()
+
+    def restore_conf(self):
+        self.parse(self.tree_orig)
 
     def to_string(self):
         xml = "<conf>\n"

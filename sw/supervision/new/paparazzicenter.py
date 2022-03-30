@@ -5,6 +5,7 @@ from PyQt5 import QtCore, QtGui
 from configuration_panel import ConfigurationPanel
 from operation_panel import  OperationPanel
 import utils
+from lxml import etree as ET
 
 
 class PprzCenter(QMainWindow):
@@ -32,8 +33,16 @@ class PprzCenter(QMainWindow):
             e.ignore()
             self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
         else:
-            # TODO ask to save conf if it has been edited.
-            # self.main_panel.conf.save()
+            conf_tree_orig = self.configuration_panel.conf.tree_orig
+            conf_tree = self.configuration_panel.conf.to_xml_tree()
+            if ET.tostring(conf_tree) != ET.tostring(conf_tree_orig):
+                buttons = QMessageBox.question(self, "Save configuration?",
+                                               "The configuration has changed, do you want to save it?")
+                if buttons == QMessageBox.Yes:
+                    self.configuration_panel.conf.save()
+                else:
+                    self.configuration_panel.conf.restore_conf()
+                    self.configuration_panel.conf.save()
             e.accept()
 
     def fill_status_bar(self):

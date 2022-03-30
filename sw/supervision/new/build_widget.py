@@ -98,7 +98,7 @@ class BuildWidget(QWidget):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
         shortname = "Build {}".format(self.ac.name)
-        self.conf.save()
+        self.conf.save(False)
         self.spawn_program.emit(shortname, cmd, None)
 
     def clean(self):
