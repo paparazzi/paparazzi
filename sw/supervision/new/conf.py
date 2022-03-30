@@ -213,7 +213,7 @@ class Conf:
     def to_string(self):
         xml = "<conf>\n"
         xml += "\n".join([ac.to_string() for ac in self.aircrafts])
-        xml += "\n</conf>"
+        xml += "\n</conf>\n"
         return xml
 
     @staticmethod
