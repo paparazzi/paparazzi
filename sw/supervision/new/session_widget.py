@@ -13,6 +13,7 @@ from program_widget import ProgramWidget
 from tools_menu import ToolMenu
 from pprz_conf import *
 from conf import *
+from console_widget import ConsoleWidget
 
 
 class SessionWidget(QWidget):
@@ -36,8 +37,10 @@ class SessionWidget(QWidget):
         self.tools_menu = ToolMenu()
         self.tools_menu.tool_clicked.connect(self.handle_new_tool)
         self.init_tools_menu()
+        self.ui.sessions_combo.addItems(["Simulation", "Replay"])
         sessions_names = [session.name for session in self.sessions]
         self.ui.sessions_combo.addItems(sessions_names)
+        self.ui.sessions_combo.insertSeparator(2)
         self.ui.start_session_button.clicked.connect(self.start_session)
         self.ui.startall_button.clicked.connect(self.start_all)
         self.ui.removeall_button.clicked.connect(self.remove_all)
@@ -87,10 +90,62 @@ class SessionWidget(QWidget):
         return tools
 
     def start_session(self):
-        for session in self.sessions:
-            if session.name == self.ui.sessions_combo.currentText():
-                for program in session.programs:
-                    self.launch_program(program)
+        combo_text = self.ui.sessions_combo.currentText()
+        if combo_text == "Simulation":
+            self.start_simulation()
+        elif combo_text == "Replay":
+            self.start_replay()
+        else:
+            for session in self.sessions:
+                if session.name == combo_text:
+                    for program in session.programs:
+                        self.launch_program(program)
+
+    def start_replay(self):
+        lfp = Program.from_tool(self.tools["Log File Player"])
+        server = Program.from_tool(self.tools["Server"])
+        server.args.append(Arg("-n", None))
+        gcs = Program.from_tool(self.tools["GCS"])
+        self.launch_program(lfp)
+        self.launch_program(server)
+        self.launch_program(gcs)
+
+    def start_simulation(self):
+        print(self.ac)
+        if "nps" not in self.ac.boards and "sim" not in self.ac.boards:
+            self.console.post_message(None, "No simulation target for {}.".format(self.ac.name))
+            return
+
+        elif "nps" in self.ac.boards and "sim" in self.ac.boards:
+            simulator, ok = QInputDialog.getItem(self, "Simulator", "Please choose the simulator:",
+                                         ["nps", "sim"], editable=False)
+            if not ok:
+                return
+        elif "nps" in self.ac.boards:
+            simulator = "nps"
+        else:
+            # simulator is "sim"
+            simulator = "sim"
+
+        if simulator == "nps":
+            t = self.tools["Simulator"]
+            simu = Program.from_tool(t)
+            simu.args.append(Arg("-t", "nps"))
+            self.launch_program(simu)
+            datalink = Program.from_tool(self.tools["Data Link"])
+            datalink.args = [Arg("-udp", None), Arg("-udp_broadcast", None)]
+            self.launch_program(datalink)
+        else:
+            # simulator is "sim"
+            sim = Program.from_tool(self.tools["Simulator"])
+            sim.args.extend([Arg("-t", "sim"), Arg("--boot", None), Arg("--norc", None)])
+            self.launch_program(sim)
+
+        server = Program.from_tool(self.tools["Server"])
+        server.args.append(Arg("-n", None))
+        gcs = Program.from_tool(self.tools["GCS"])
+        self.launch_program(server)
+        self.launch_program(gcs)
 
     def launch_program(self, program: Program):
         if self.console is None:
