@@ -20,6 +20,7 @@ class ConfigurationPanel(QWidget):
 
     msg_error = QtCore.pyqtSignal(str)
     clear_error = QtCore.pyqtSignal()
+    ac_changed = QtCore.pyqtSignal(Aircraft)
 
     def __init__(self, parent=None, *args, **kwargs):
         QWidget.__init__(self, parent=parent, *args, **kwargs)
@@ -36,8 +37,6 @@ class ConfigurationPanel(QWidget):
         self.ui.header.ui.save_button.clicked.connect(lambda: self.conf.save())
         self.addAction(self.ui.save_conf_action)
         self.ui.save_conf_action.triggered.connect(lambda: self.conf.save())
-        sets = paparazzi.get_list_of_conf_files()
-        self.ui.header.set_sets(sets, conf_init=Conf.get_current_conf())
         self.ui.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.ui.conf_widget.setting_changed.connect(self.handle_setting_changed)
         self.ui.header.ui.rename_action.triggered.connect(self.rename_ac)
@@ -45,6 +44,10 @@ class ConfigurationPanel(QWidget):
         self.ui.header.ui.duplicate_action.triggered.connect(self.duplicate_ac)
         self.ui.header.ui.remove_ac_action.triggered.connect(self.remove_ac)
         self.ui.build_widget.spawn_program.connect(self.launch_program)
+
+    def init(self):
+        sets = paparazzi.get_list_of_conf_files()
+        self.ui.header.set_sets(sets, conf_init=Conf.get_current_conf())
 
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)
@@ -72,6 +75,7 @@ class ConfigurationPanel(QWidget):
             self.ui.header.set_ac(ac)
             self.ui.conf_widget.set_ac(ac)
             self.ui.build_widget.update_targets(self.conf[ac_name])
+            self.ac_changed.emit(self.conf[ac_name])
         else:
             # self.ui.conf_widget.reset()
             self.ui.conf_widget.setDisabled(True)

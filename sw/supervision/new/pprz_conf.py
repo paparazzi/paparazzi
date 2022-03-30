@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict
 from lxml import etree as ET
+from conf import *
 
 
 @dataclass
@@ -15,9 +16,14 @@ class Arg:
         constant = xml_arg.get("constant")
         return Arg(flag, constant)
 
-    def args(self) -> List[str]:
+    def args(self, ac: Aircraft = None) -> List[str]:
         if self.constant is not None:
-            return [self.flag, self.constant]
+            constant = self.constant
+            if "@AIRCRAFT" in self.constant:
+                constant = self.constant.replace("@AIRCRAFT", ac.name)
+            if "@AC_ID" in self.constant:
+                constant = constant.replace("@AC_ID", str(ac.ac_id))
+            return [self.flag, constant]
         else:
             return [self.flag]
 

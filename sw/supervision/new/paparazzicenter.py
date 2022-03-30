@@ -25,6 +25,8 @@ class PprzCenter(QMainWindow):
         self.configuration_panel.clear_error.connect(self.clear_error)
         self.operation_panel.ui.session.program_spawned.connect(self.configuration_panel.disable_sets)
         self.operation_panel.ui.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
+        self.configuration_panel.ac_changed.connect(self.operation_panel.ui.session.set_aircraft)
+        self.configuration_panel.init()
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
         if self.operation_panel.ui.session.any_program_running():

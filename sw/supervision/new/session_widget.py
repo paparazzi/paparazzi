@@ -12,6 +12,7 @@ from typing import List, Optional, Tuple, Dict
 from program_widget import ProgramWidget
 from tools_menu import ToolMenu
 from pprz_conf import *
+from conf import *
 
 
 class SessionWidget(QWidget):
@@ -24,7 +25,8 @@ class SessionWidget(QWidget):
         self.ui = Ui_Session()
         self.ui.setupUi(self)
         self.program_widgets: List[ProgramWidget] = []
-        self.console = None
+        self.console: ConsoleWidget = None
+        self.ac: Aircraft = None
         self.ui.menu_button.addAction(self.ui.save_session_action)
         self.ui.menu_button.addAction(self.ui.save_as_action)
         self.ui.menu_button.addAction(self.ui.rename_session_action)
@@ -48,6 +50,9 @@ class SessionWidget(QWidget):
 
     def set_console(self, console: console_widget.ConsoleWidget):
         self.console = console
+
+    def set_aircraft(self, ac: Aircraft):
+        self.ac = ac
 
     @staticmethod
     def parse_session() -> List[Session]:
@@ -91,7 +96,7 @@ class SessionWidget(QWidget):
         if self.console is None:
             raise Exception("Console not set!")
         tool = self.tools[program.name]
-        args = [arg.args() for arg in program.args]
+        args = [arg.args(self.ac) for arg in program.args]
         flat_args = [item for sublist in args for item in sublist]
         if tool.command.startswith("$"):
             cmd = [tool.command[1:]] + flat_args
