@@ -34,7 +34,7 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux-toolchain
 
 ifdef HARD_FLOAT
 # e.g. for BBB or gumstix with armhf distribution
-FLOAT_ABI ?= -mfloat-abi=hard -mfpu=neon -ffast-math
+FLOAT_ABI ?= -mfloat-abi=hard -mfpu=neon
 else
 FLOAT_ABI ?= -mfloat-abi=softfp -mfpu=vfp
 endif
