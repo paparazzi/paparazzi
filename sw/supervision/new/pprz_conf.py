@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict
 from lxml import etree as ET
 from conf import *
+from copy import deepcopy
 
 
 @dataclass
@@ -48,7 +49,7 @@ class Program:
 
     @staticmethod
     def from_tool(t: Tool):
-        return Program(t.name, t.args)
+        return Program(t.name, deepcopy(t.args))
 
     def to_xml(self) -> ET.Element:
         xml: ET._Element = ET.Element("program")
