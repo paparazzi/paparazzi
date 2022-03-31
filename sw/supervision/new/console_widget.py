@@ -43,6 +43,7 @@ class ConsoleWidget(QWidget):
         self.ui.programs_checkbox.stateChanged.connect(self.handle_check_all)
         self.ui.log_level_slider.valueChanged.connect(self.log_level_changed)
         self.ui.clear_button.clicked.connect(self.clear)
+        self.ui.splitter.setSizes([500, 100])
 
     def display_record(self, record):
         if record.level == Level.ERROR:
@@ -92,7 +93,7 @@ class ConsoleWidget(QWidget):
         self.handle_data(pw, data, Channel.STDERR)
 
     def handle_program_finished(self, pw: ProgramWidget, exit_code: int, exit_status: QProcess.ExitStatus):
-        self.post_message(pw, "Program terminated with code {}".format(exit_code))
+        self.post_message(pw, "{} terminated with code {}".format(pw.shortname, exit_code))
 
     def post_message(self, pw: ProgramWidget, msg):
         r = Record(Level.ALL, msg, pw, Channel.MANAGEMENT)
