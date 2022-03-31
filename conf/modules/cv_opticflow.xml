@@ -26,7 +26,7 @@
 
       <!-- General optical flow calculation parameters -->
       <define name="METHOD" value="0" description="Method used to calculate optical flow"/>
-      <define name="WINDOW_SIZE" value="10" description="Window size used for block matching (pixels)"/>
+      <define name="WINDOW_SIZE" value="18" description="Window size used for block matching (pixels)"/>
       <define name="SEARCH_DISTANCE" value="10" description="Maximum search distance for blockmatching (pixels)"/>
       <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
       <define name="RESOLUTION_FACTOR" value="1000" description="The resolution factor needed to calculate the divergence without floats"/>
@@ -38,7 +38,7 @@
       <define name="SHOW_FLOW" value="TRUE" description="Whether to draw the flow vectors in the image."/>
 
       <!-- Lucas Kanade optical flow calculation parameters -->
-      <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
+      <define name="MAX_TRACK_CORNERS" value="50" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
       <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
       <define name="THRESHOLD_VEC" value="2" description="Threshold in subpixels when the iterations of Lucas Kanade should stop"/>
 

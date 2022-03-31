@@ -273,8 +273,8 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.7" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>

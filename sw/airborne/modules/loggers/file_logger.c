@@ -27,6 +27,9 @@
 
 #include "file_logger.h"
 
+#include "modules/computer_vision/opticflow/inter_thread_data.h"
+#include "modules/core/abi.h"
+
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -52,6 +55,7 @@
 /** The file pointer */
 static FILE *file_logger = NULL;
 
+struct opticflow_result_t *result;
 
 /** Logging functions */
 
@@ -61,16 +65,28 @@ static FILE *file_logger = NULL;
  * line.
  * @param file Log file pointer
  */
+
+static abi_event optical_flow_result;
+static void optical_flow_cb(uint8_t __attribute__((unused)) sender_id,
+                            uint32_t __attribute__((unused)) stamp, int32_t __attribute__((unused)) datatype,
+                            uint32_t __attribute__((unused)) size, uint8_t *data)
+{
+    memcpy(result, data, sizeof(*result)); // Makes a copy of the struct, Removes the issue of memory problems. Not as efficient as pointers
+}
+
+
 static void file_logger_write_header(FILE *file) {
-  fprintf(file, "time,");
-  fprintf(file, "pos_x,pos_y,pos_z,");
-  fprintf(file, "vel_x,vel_y,vel_z,");
-  fprintf(file, "att_phi,att_theta,att_psi,");
-  fprintf(file, "rate_p,rate_q,rate_r,");
+
+    fprintf(file, "time,");
+    fprintf(file, "pos_x,pos_y,pos_z,");
+    fprintf(file, "vel_x,vel_y,vel_z,");
+    fprintf(file, "att_phi,att_theta,att_psi,");
+    fprintf(file, "rate_p,rate_q,rate_r,");
+    fprintf(file, " L_divergence, R_divergence,");
 #ifdef COMMAND_THRUST
-  fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
+    fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
 #else
-  fprintf(file, "h_ctl_aileron_setpoint,h_ctl_elevator_setpoint\n");
+    fprintf(file, "h_ctl_aileron_setpoint,h_ctl_elevator_setpoint\n");
 #endif
 }
 
@@ -81,22 +97,23 @@ static void file_logger_write_header(FILE *file) {
  * @param file Log file pointer
  */
 static void file_logger_write_row(FILE *file) {
-  struct NedCoor_f *pos = stateGetPositionNed_f();
-  struct NedCoor_f *vel = stateGetSpeedNed_f();
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  struct FloatRates *rates = stateGetBodyRates_f();
+    struct NedCoor_f *pos = stateGetPositionNed_f();
+    struct NedCoor_f *vel = stateGetSpeedNed_f();
+    struct FloatEulers *att = stateGetNedToBodyEulers_f();
+    struct FloatRates *rates = stateGetBodyRates_f();
 
-  fprintf(file, "%f,", get_sys_time_float());
-  fprintf(file, "%f,%f,%f,", pos->x, pos->y, pos->z);
-  fprintf(file, "%f,%f,%f,", vel->x, vel->y, vel->z);
-  fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
-  fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
+    fprintf(file, "%f,", get_sys_time_float());
+    fprintf(file, "%f,%f,%f,", pos->x, pos->y, pos->z);
+    fprintf(file, "%f,%f,%f,", vel->x, vel->y, vel->z);
+    fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
+    fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
+    fprintf(file, "%f,%f", result->div_size_left, result->div_size_right);
 #ifdef COMMAND_THRUST
-  fprintf(file, "%d,%d,%d,%d\n",
+    fprintf(file, "%d,%d,%d,%d\n",
       stabilization_cmd[COMMAND_THRUST], stabilization_cmd[COMMAND_ROLL],
       stabilization_cmd[COMMAND_PITCH], stabilization_cmd[COMMAND_YAW]);
 #else
-  fprintf(file, "%d,%d\n", h_ctl_aileron_setpoint, h_ctl_elevator_setpoint);
+    fprintf(file, "%d,%d\n", h_ctl_aileron_setpoint, h_ctl_elevator_setpoint);
 #endif
 }
 
@@ -104,60 +121,65 @@ static void file_logger_write_row(FILE *file) {
 /** Start the file logger and open a new file */
 void file_logger_start(void)
 {
-  // Create output folder if necessary
-  if (access(STRINGIFY(FILE_LOGGER_PATH), F_OK)) {
-    char save_dir_cmd[256];
-    sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(FILE_LOGGER_PATH));
-    if (system(save_dir_cmd) != 0) {
-      printf("[file_logger] Could not create log file directory %s.\n", STRINGIFY(FILE_LOGGER_PATH));
-      return;
+    // Create output folder if necessary
+    if (access(STRINGIFY(FILE_LOGGER_PATH), F_OK)) {
+        char save_dir_cmd[256];
+        sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(FILE_LOGGER_PATH));
+        if (system(save_dir_cmd) != 0) {
+            printf("[file_logger] Could not create log file directory %s.\n", STRINGIFY(FILE_LOGGER_PATH));
+            return;
+        }
     }
-  }
 
-  // Get current date/time for filename
-  char date_time[80];
-  time_t now = time(0);
-  struct tm  tstruct;
-  tstruct = *localtime(&now);
-  strftime(date_time, sizeof(date_time), "%Y%m%d-%H%M%S", &tstruct);
+    // Get current date/time for filename
+    char date_time[80];
+    time_t now = time(0);
+    struct tm  tstruct;
+    tstruct = *localtime(&now);
+    strftime(date_time, sizeof(date_time), "%Y%m%d-%H%M%S", &tstruct);
 
-  uint32_t counter = 0;
-  char filename[512];
+    uint32_t counter = 0;
+    char filename[512];
 
-  // Check for available files
-  sprintf(filename, "%s/%s.csv", STRINGIFY(FILE_LOGGER_PATH), date_time);
-  while ((file_logger = fopen(filename, "r"))) {
-    fclose(file_logger);
+    // Check for available files
+    sprintf(filename, "%s/%s.csv", STRINGIFY(FILE_LOGGER_PATH), date_time);
+    while ((file_logger = fopen(filename, "r"))) {
+        fclose(file_logger);
 
-    sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(FILE_LOGGER_PATH), date_time, counter);
-    counter++;
-  }
+        sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(FILE_LOGGER_PATH), date_time, counter);
+        counter++;
+    }
 
-  file_logger = fopen(filename, "w");
-  if(!file_logger) {
-    printf("[file_logger] ERROR opening log file %s!\n", filename);
-    return;
-  }
+    file_logger = fopen(filename, "w");
+    if(!file_logger) {
+        printf("[file_logger] ERROR opening log file %s!\n", filename);
+        return;
+    }
 
-  printf("[file_logger] Start logging to %s...\n", filename);
+    printf("[file_logger] Start logging to %s...\n", filename);
 
-  file_logger_write_header(file_logger);
+    file_logger_write_header(file_logger);
+
+
+    AbiBindMsgPAYLOAD_DATA(2, &optical_flow_result, optical_flow_cb);
+
+    result = malloc(sizeof(struct opticflow_result_t));
 }
 
 /** Stop the logger an nicely close the file */
 void file_logger_stop(void)
 {
-  if (file_logger != NULL) {
-    fclose(file_logger);
-    file_logger = NULL;
-  }
+    if (file_logger != NULL) {
+        fclose(file_logger);
+        file_logger = NULL;
+    }
 }
 
 /** Log the values to a csv file    */
 void file_logger_periodic(void)
 {
-  if (file_logger == NULL) {
-    return;
-  }
-  file_logger_write_row(file_logger);
+    if (file_logger == NULL) {
+        return;
+    }
+    file_logger_write_row(file_logger);
 }

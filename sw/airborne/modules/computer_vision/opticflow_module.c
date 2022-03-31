@@ -32,6 +32,7 @@
 #include "state.h"
 #include "modules/core/abi.h"
 #include "modules/pose_history/pose_history.h"
+#include <math.h>
 
 #include "lib/v4l/v4l2.h"
 #include "lib/encoding/jpeg.h"
@@ -159,8 +160,16 @@ void opticflow_module_run(void)
   pthread_mutex_unlock(&opticflow_mutex);
 
   // Printing info for fun
-  printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
-}
+  //printf("OPTIC FLOW: Div %f Div (lin_flow) %f Tracked corner %i\n",opticflow_result->div_size,opticflow_result->divergence,opticflow_result->tracked_cnt);
+  printf("OPTIC FLOW: Div left %f Div right %f\n",opticflow_result->div_size_left, opticflow_result->div_size_right);
+  printf("Absolute Diff: %f\n", fabs(opticflow_result->div_size_left - opticflow_result->div_size_right));
+  printf("FOE: FOE_X %f FOE_Y %f\n", opticflow_result->focus_of_expansion_x, opticflow_result -> focus_of_expansion_y);
+  printf("TIME_TO_CONTACT %f\n", opticflow_result->time_to_contact);
+
+  // Sending the Data ove the abi messaging protocol
+  uint32_t stamp = get_sys_time_usec();
+  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(opticflow_result), opticflow_result);
+};
 
 /**
  * The main optical flow calculation thread

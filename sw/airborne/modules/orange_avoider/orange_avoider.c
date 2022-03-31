@@ -17,8 +17,7 @@
  * so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
  */
 
-#include "modules/computer_vision/obstacle_message.h"
-
+#include "modules/computer_vision/opticflow/inter_thread_data.h"
 #include "modules/orange_avoider/orange_avoider.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/airframe.h"
@@ -26,11 +25,13 @@
 #include "modules/core/abi.h"
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #define NAV_C // needed to get the nav functions like Inside...
 #include "generated/flight_plan.h"
 
-#define ORANGE_AVOIDER_VERBOSE TRUE
+#define ORANGE_AVOIDER_VERBOSE FALSE
 
 #define PRINT(string,...) fprintf(stderr, "[orange_avoider->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #if ORANGE_AVOIDER_VERBOSE
@@ -48,8 +49,11 @@ static uint8_t chooseRandomIncrementAvoidance(void);
 enum navigation_state_t {
   SAFE,
   OBSTACLE_FOUND,
-  SEARCH_FOR_SAFE_HEADING,
-  OUT_OF_BOUNDS
+  OUT_OF_BOUNDS,
+  AVOID_RIGHT_OBJECT,
+  AVOID_LEFT_OBJECT,
+  AVOID_CORNERS
+
 };
 
 // define settings
@@ -59,9 +63,11 @@ float oa_color_count_frac = 0.18f;
 enum navigation_state_t navigation_state = SEARCH_FOR_SAFE_HEADING;
 int32_t color_count = 0;                // orange color count from color filter for obstacle detection
 int16_t obstacle_free_confidence = 0;   // a measure of how certain we are that the way ahead is safe.
-float heading_increment = 5.f;          // heading angle increment [deg]
+float heading_increment = 135.f;          // heading angle increment [deg]
 float maxDistance = 2.25;               // max waypoint displacement [m]
-struct ObstacleMessage *obstacle_message;
+struct opticflow_result_t *result;
+float flow_threshold = 0.005;
+float absdiff;
 
 const int16_t max_trajectory_confidence = 5; // number of consecutive negative object detections to be sure we are obstacle free
 
@@ -84,12 +90,12 @@ static void color_detection_cb(uint8_t __attribute__((unused)) sender_id,
   color_count = quality;
 }
 
-static abi_event obstical_message_ev;
-static void obstacle_message_cb(uint8_t __attribute__((unused)) sender_id,
+static abi_event optical_flow_result;
+static void optical_flow_cb(uint8_t __attribute__((unused)) sender_id,
                                uint32_t __attribute__((unused)) stamp, int32_t __attribute__((unused)) datatype,
                                uint32_t __attribute__((unused)) size, uint8_t *data)
 {
-  memcpy(obstacle_message, data, sizeof(*obstacle_message)); // Makes a copy of the struct, Removes the issue of memory problems. Not as efficient as pointers
+  memcpy(result, data, sizeof(*result)); // Makes a copy of the struct, Removes the issue of memory problems. Not as efficient as pointers
 }
 
 /*
@@ -104,9 +110,9 @@ void orange_avoider_init(void)
   // bind our colorfilter callbacks to receive the color filter outputs
   AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
 
-  AbiBindMsgPAYLOAD_DATA(2, &obstical_message_ev, obstacle_message_cb);
+  AbiBindMsgPAYLOAD_DATA(2, &optical_flow_result, optical_flow_cb);
 
-  obstacle_message = malloc(sizeof(struct ObstacleMessage));
+  result = malloc(sizeof(struct opticflow_result_t));
 }
 
 /*
@@ -119,8 +125,16 @@ void orange_avoider_periodic(void)
     return;
   }
 
-  printf("Here");
-  printf("%u \n", obstacle_message->obs_height);
+  absdiff = fabs(result->div_size_left - result->div_size_right);
+
+  printf("Left: ");
+  printf("%f  ,", result->div_size_left);
+
+  printf("Right: ");
+  printf("%f \n", result->div_size_right);
+
+  printf("Difference:");
+  printf("%f \n", fabs(result->div_size_left - result->div_size_right));
 
 
   // compute current color thresholds
@@ -140,53 +154,127 @@ void orange_avoider_periodic(void)
 
   float moveDistance = fminf(maxDistance, 0.2f * obstacle_free_confidence);
 
-  switch (navigation_state){
-    case SAFE:
-      // Move waypoint forward
-      moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-      if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-        navigation_state = OUT_OF_BOUNDS;
-      } else if (obstacle_free_confidence == 0){
-        navigation_state = OBSTACLE_FOUND;
-      } else {
-        moveWaypointForward(WP_GOAL, moveDistance);
-      }
-
+  switch (navigation_state) {
+      case SAFE:
+          // Move waypoint forward
+          moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
+	  // Detects if waypoint is out of bounds
+          if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
+              navigation_state = OUT_OF_BOUNDS;
+          }
+	  // Detects if FOE is in the center of the camera
+          else if (result->focus_of_expansion_x == 0 && result->focus_of_expansion_y == 0 ) {
+              navigation_state = OBSTACLE_FOUND;
+          }
+	  // Detects if there is more divergence on the left hand side
+          else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
+              navigation_state = AVOID_LEFT_OBJECT;
+          }
+	  // Detects if there is more divergence on the right hand side
+          else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
+              navigation_state = AVOID_RIGHT_OBJECT;
+          }
+	  // Detects if waypoint is out of bounds and there is divergence on either side of the drone
+          else if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_left > 1 || !InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_right > 1){
+        	  navigation_state = AVOID_CORNERS;
+          }
+	  // Move towards waypoint
+          else {
+              moveWaypointForward(WP_GOAL, 1.0f * moveDistance);
+	  }
       break;
     case OBSTACLE_FOUND:
-      // stop
-      waypoint_move_here_2d(WP_GOAL);
-      waypoint_move_here_2d(WP_TRAJECTORY);
-
-      // randomly select new search direction
-      chooseRandomIncrementAvoidance();
-
-      navigation_state = SEARCH_FOR_SAFE_HEADING;
+  	
+        // stops the drone
+	waypoint_move_here_2d(WP_GOAL);
+	waypoint_move_here_2d(WP_TRAJECTORY);	  
+	 
+	// determines if there is more divergence to the left
+        if (result->div_size_left < result->div_size_right){
+            // turn left
+            increase_nav_heading(-1 * 5 * heading_increment);
+	    // return to default state
+            navigation_state = SAFE;
+        }
+	
+	// determines if there is more divergence to the right
+        else {
+            // turn right
+            increase_nav_heading(1 * 5 * heading_increment);
+            // return to default state
+            navigation_state = SAFE;
+        }
 
       break;
-    case SEARCH_FOR_SAFE_HEADING:
-      increase_nav_heading(heading_increment);
-
-      // make sure we have a couple of good readings before declaring the way safe
-      if (obstacle_free_confidence >= 2){
+    case AVOID_CORNERS:
+       
+       // stop
+	waypoint_move_here_2d(WP_GOAL);
+	waypoint_move_here_2d(WP_TRAJECTORY);
+		  
+	// determines if there is more divergence to the left
+    	if (result->div_size_left > result->div_size_right && absdiff > 1){
+		
+		// turn left by a huge angle
+		increase_nav_heading(-6 * heading_increment);
+    		// return to default state
+            	navigation_state = SAFE;
+    	}
+	
+	// determines if there is more divergence to the right
+    	else if (result->div_size_left > result->div_size_right && absdiff > 1){
+			
+		// turn right by a huge angle
+		increase_nav_heading(6 * heading_increment);
+		// return to default state
+            	navigation_state = SAFE;
+    	}
+    	break;
+    case OUT_OF_BOUNDS:
+		  
+      // slow down
+      moveWaypointForward(WP_GOAL, .25 * moveDistance);
+		  
+      // turn away from out of bounds
+      increase_nav_heading(7 * heading_increment);
+		  
+      // project a waypoint in front of the drone
+      moveWaypointForward(WP_TRAJECTORY, 1.5f);
+      
+      // determines if the new path is indeed within bounds
+      if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+	      
+        // add offset to head back into arena
+        increase_nav_heading(heading_increment);
+	      
         navigation_state = SAFE;
       }
       break;
-    case OUT_OF_BOUNDS:
-      increase_nav_heading(heading_increment);
-      moveWaypointForward(WP_TRAJECTORY, 1.5f);
+    case AVOID_RIGHT_OBJECT:
+        // stop
+        waypoint_move_here_2d(WP_GOAL);
+        waypoint_move_here_2d(WP_TRAJECTORY);
 
-      if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-        // add offset to head back into arena
-        increase_nav_heading(heading_increment);
+        // turn left
+        increase_nav_heading(-1.5 * heading_increment);
+		  
+	// return to default state
+        navigation_state = SAFE;
 
-        // reset safe counter
-        obstacle_free_confidence = 0;
+        break;
+    case AVOID_LEFT_OBJECT:
+        // stop
+        waypoint_move_here_2d(WP_GOAL);
+        waypoint_move_here_2d(WP_TRAJECTORY);
 
-        // ensure direction is safe before continuing
-        navigation_state = SEARCH_FOR_SAFE_HEADING;
-      }
-      break;
+        // turn right
+        increase_nav_heading(1.5 * heading_increment);
+
+        // return to default state
+        navigation_state = SAFE;
+
+        break;
+
     default:
       break;
   }

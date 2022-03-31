@@ -50,11 +50,19 @@ struct opticflow_result_t {
 
   float div_size;         ///< Divergence as determined with the size_divergence script
 
+  float div_size_left;
+  float div_size_right;
+
   float surface_roughness; ///< Surface roughness as determined with a linear optical flow fit
   float divergence;       ///< Divergence as determined with a linear flow fit
   uint8_t camera_id;      ///< Camera id as passed to cv_add_to_device
 
   float noise_measurement;  ///< noise of measurement, for state filter
+
+  float focus_of_expansion_x;
+  float focus_of_expansion_y;
+
+  float time_to_contact;
 };
 
 #endif
