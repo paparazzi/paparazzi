@@ -16,6 +16,14 @@ PAPARAZZI_SRC = os.getenv("PAPARAZZI_HOME")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 CONF_DIR = os.path.join(PAPARAZZI_HOME, "conf/")
 
+GCONF = \
+"""<gconf>
+  <entry name="always keep changes" value="false" application="paparazzi center"/>
+  <entry name="last target" value="nps" application="paparazzi center"/>
+  <entry name="last session" value="GCSTests" application="paparazzi center"/>
+  <entry name="last A/C" value="bebop2" application="paparazzi center"/>
+</gconf>"""
+
 
 # TODO: make it work with shell program such as vim.
 def edit_file(file_path, prefix=CONF_DIR):
@@ -60,9 +68,12 @@ def open_terminal(wd, command=None):
 
 
 def get_gconf() -> Dict[str, GConfEntry]:
-    xml = ET.parse(os.path.join(CONF_DIR, "%gconf.xml"))
+    try:
+        xml = ET.parse(os.path.join(CONF_DIR, "%gconf.xml")).getroot()
+    except OSError:
+        xml = ET.fromstring(GCONF)
     entries = {}
-    for entry in xml.getroot().findall("entry"):
+    for entry in xml.findall("entry"):
         name = entry.get("name")
         value = entry.get("value")
         application = entry.get("application")
