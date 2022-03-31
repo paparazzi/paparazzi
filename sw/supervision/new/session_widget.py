@@ -121,7 +121,6 @@ class SessionWidget(QWidget, Ui_Session):
         self.launch_program(gcs)
 
     def start_simulation(self):
-        print(self.ac)
         if "nps" not in self.ac.boards and "sim" not in self.ac.boards:
             self.console.post_message(None, "No simulation target for {}.".format(self.ac.name))
             return
@@ -237,7 +236,6 @@ class SessionWidget(QWidget, Ui_Session):
         self.save_sessions()
 
     def handle_save_as(self):
-        print("yo")
         session_name, ok = QInputDialog.getText(self, "Session name", "enter the session name:")
         if not ok:
             return

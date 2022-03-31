@@ -227,7 +227,7 @@ class Conf:
     @staticmethod
     def set_current_conf(conf: str):
         if not os.path.islink(CONF):
-            raise Exception("your conf.xml is not a link, it will be crushed to ashes, and you will be cursed for 6 generations!")
+            print("your conf.xml is not a link, it will be overwritten.")
         try:
             os.symlink(conf, CONF)
         except OSError as e:
