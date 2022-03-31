@@ -41,9 +41,19 @@ struct obstacle{
 	bool updated;
 };
 
-struct obstacle opencv_color_edges(struct image_t *img,int lum_min, int lum_max,
-        int cb_min, int cb_max,
-        int cr_min, int cr_max,int downsize_factor,bool draw,double min_obs_size);
+void opencv_color_edges(struct obstacle *new_obstacle, struct image_t *img,
+		bool GRAY_SCALE,
+		bool BLUR_IMAGE,int BLUR_SIZE_IMAGE,
+		bool BLUR_EDGES,int BLUR_SIZE_EDGES,
+		bool BORDERS,int BORDER_MARGIN,
+		bool Y_UP_filter,int y_up_del,
+		bool Y_DOWN_filter,int y_down_del,
+		int thresholdmin,int thresholdmax,
+		int kernal_size,
+		int max_number_obsticals,
+		bool draw,
+		int downsize_factor,
+		double min_obs_size,double max_obs_size);
 
 #ifdef __cplusplus
 }

@@ -8,22 +8,42 @@
     </description>
     <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera|bottom_camera" description="Video device to use"/>
     <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0" description="Desired FPS (0: camera rate)"/>
-    <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="0" description="Filter 1 min luminance"/>
-    <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="0" description="Filter 1 max luminance"/>
-    <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="0" description="Filter 1 min blue chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="0" description="Filter 1 max blue chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="0" description="Filter 1 min red chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="0" description="Filter 1 max red chroma"/>
+    <define name="COLOR_OBJECT_DETECTOR_GRAY_SCALE1" value="FALSE|TRUE" description="Filter grayscale image"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_IMAGE1" value="FALSE|TRUE" description="Filter blur image"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_SIZE_IMAGE1" value="3" description="Filter blur image (kernal size)"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_EDGES1" value="FALSE|TRUE" description="Filter blur edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_SIZE_EDGES1" value="3" description="Filter blur edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BORDERS1" value="FALSE|TRUE" description="Add borders to edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BORDER_MARGIN1" value="3" description="Add borders to edges (pixel margin for complete window"/>
+    <define name="COLOR_OBJECT_DETECTOR_Y_UP_filter1" value="FALSE|TRUE" description="Filter UP detect object"/>
+    <define name="COLOR_OBJECT_DETECTOR_y_up_del1" value="40" description="Filter UP detect object margin"/>
+    <define name="COLOR_OBJECT_DETECTOR_Y_DOWN_filter1" value="FALSE|TRUE" description="Filter DOWN detect object"/>
+    <define name="COLOR_OBJECT_DETECTOR_y_down_del1" value="200" description="Filter DOWN detect object margin"/>
+    <define name="COLOR_OBJECT_DETECTOR_thresholdmin1" value="100" description="Filter pixel thresshold for connecting edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_thresholdmax1" value="200" description="Filter pixel thresshold for main edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_kernal_size1" value="3" description="Filter kernal size for edge detection"/>
+    <define name="COLOR_OBJECT_DETECTOR_min_obs_size1" value="0.04" description="Filter min size"/>
+    <define name="COLOR_OBJECT_DETECTOR_max_obs_size1" value="0.4" description="Filter max size"/>
     <define name="COLOR_OBJECT_DETECTOR_DRAW1" value="FALSE|TRUE" description="Whether or not to draw on image"/>
 
     <define name="COLOR_OBJECT_DETECTOR_CAMERA2" value="front_camera|bottom_camera" description="Video device to use"/>
     <define name="COLOR_OBJECT_DETECTOR_FPS2" value="0" description="Desired FPS (0: camera rate)"/>
-    <define name="COLOR_OBJECT_DETECTOR_LUM_MIN2" value="0" description="Filter 1 min luminance"/>
-    <define name="COLOR_OBJECT_DETECTOR_LUM_MAX2" value="0" description="Filter 2 max luminance"/>
-    <define name="COLOR_OBJECT_DETECTOR_CB_MIN2" value="0" description="Filter 2 min blue chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="0" description="Filter 2 max blue chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="0" description="Filter 2 min red chroma"/>
-    <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="0" description="Filter 2 max red chroma"/>
+    <define name="COLOR_OBJECT_DETECTOR_GRAY_SCALE2" value="FALSE|TRUE" description="Filter grayscale image"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_IMAGE2" value="FALSE|TRUE" description="Filter blur image"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_SIZE_IMAGE2" value="3" description="Filter blur image (kernal size)"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_EDGES2" value="FALSE|TRUE" description="Filter blur edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BLUR_SIZE_EDGES2" value="3" description="Filter blur edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BORDERS2" value="FALSE|TRUE" description="Add borders to edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_BORDER_MARGIN2" value="3" description="Add borders to edges (pixel margin for complete window"/>
+    <define name="COLOR_OBJECT_DETECTOR_Y_UP_filter2" value="FALSE|TRUE" description="Filter UP detect object"/>
+    <define name="COLOR_OBJECT_DETECTOR_y_up_del2" value="40" description="Filter UP detect object margin"/>
+    <define name="COLOR_OBJECT_DETECTOR_Y_DOWN_filter2" value="FALSE|TRUE" description="Filter DOWN detect object"/>
+    <define name="COLOR_OBJECT_DETECTOR_y_down_del2" value="200" description="Filter DOWN detect object margin"/>
+    <define name="COLOR_OBJECT_DETECTOR_thresholdmin2" value="100" description="Filter pixel thresshold for connecting edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_thresholdmax2" value="200" description="Filter pixel thresshold for main edges"/>
+    <define name="COLOR_OBJECT_DETECTOR_kernal_size2" value="3" description="Filter kernal size for edge detection"/>
+    <define name="COLOR_OBJECT_DETECTOR_min_obs_size2" value="0.04" description="Filter min size"/>
+    <define name="COLOR_OBJECT_DETECTOR_max_obs_size2" value="0.4" description="Filter max size"/>
     <define name="COLOR_OBJECT_DETECTOR_DRAW2" value="FALSE|TRUE" description="Whether or not to draw on image"/>
     <define name="MIN_OBS_SIZE" value="0" description="Minimum obstacle size to detect"/>
   </doc>
@@ -31,19 +51,39 @@
   <settings>
     <dl_settings>
       <dl_settings name="ColorObjectDetector">
-         <dl_setting var="cod_lum_min1" min="0" step="1" max="255" shortname="y_min1"/>
-         <dl_setting var="cod_lum_max1" min="0" step="1" max="255" shortname="y_max1"/>
-         <dl_setting var="cod_cb_min1"   min="0" step="1" max="255" shortname="u_min1"/>
-         <dl_setting var="cod_cb_max1"   min="0" step="1" max="255" shortname="u_max1"/>
-         <dl_setting var="cod_cr_min1"   min="0" step="1" max="255" shortname="v_min1"/>
-         <dl_setting var="cod_cr_max1"   min="0" step="1" max="255" shortname="v_max1"/>
+    	 <dl_setting var="GRAY_SCALE1" min="0" step="1" max="1" values="False|True" shortname="GRAY_SCALE1" />
+    	 <dl_setting var="BLUR_IMAGE1" min="0" step="1" max="1" values="False|True" shortname="BLUR_IMAGE1" />
+    	 <dl_setting var="BLUR_SIZE_IMAGE1" min="0" step="1" max="255" shortname="BLUR_SIZE_IMAGE1"/>
+    	 <dl_setting var="BLUR_EDGES1" min="0" step="1" max="1" values="False|True" shortname="BLUR_EDGES1" />
+    	 <dl_setting var="BLUR_SIZE_EDGES1" min="0" step="1" max="255" shortname="BLUR_SIZE_EDGES1" />
+    	 <dl_setting var="BORDERS1" min="0" step="1" max="1" values="False|True" shortname="BORDERS1" />
+    	 <dl_setting var="BORDER_MARGIN1" min="0" step="1" max="255" shortname="BORDER_MARGIN1" />
+    	 <dl_setting var="Y_UP_filter1" min="0" step="1" max="1" values="False|True" shortname="Y_UP_filter1" />
+    	 <dl_setting var="y_up_del1" min="0" step="1" max="255" shortname="y_up_del1" />
+    	 <dl_setting var="Y_DOWN_filter1" min="0" step="1" max="1" values="False|True" shortname="Y_DOWN_filter1" />
+    	 <dl_setting var="y_down_del1" min="0" step="1" max="260" shortname="y_down_del1" />
+    	 <dl_setting var="thresholdmin1" min="0" step="1" max="255" shortname="thresholdmin1" />
+    	 <dl_setting var="thresholdmax1" min="0" step="1" max="255" shortname="thresholdmax1" />
+    	 <dl_setting var="kernal_size1" min="3" step="2" max="7" shortname="kernal_size1" />
+    	 <dl_setting var="min_obs_size1" min="0" step="0.001" max="1" shortname="min_obs_size1" />
+    	 <dl_setting var="max_obs_size1" min="0" step="0.001" max="1" shortname="max_obs_size1" />
          <dl_setting var="cod_draw1"  min="0" step="1" max="1" values="False|True" shortname="draw 1" />
-         <dl_setting var="cod_lum_min2" min="0" step="1" max="255" shortname="y_min2"/>
-         <dl_setting var="cod_lum_max2" min="0" step="1" max="255" shortname="y_max2"/>
-         <dl_setting var="cod_cb_min2"   min="0" step="1" max="255" shortname="u_min2"/>
-         <dl_setting var="cod_cb_max2"   min="0" step="1" max="255" shortname="u_max2"/>
-         <dl_setting var="cod_cr_min2"   min="0" step="1" max="255" shortname="v_min2"/>
-         <dl_setting var="cod_cr_max2"   min="0" step="1" max="255" shortname="v_max2"/>
+         <dl_setting var="GRAY_SCALE2" min="0" step="1" max="1" values="False|True" shortname="GRAY_SCALE2" />
+    	 <dl_setting var="BLUR_IMAGE2" min="0" step="1" max="1" values="False|True" shortname="BLUR_IMAGE2" />
+    	 <dl_setting var="BLUR_SIZE_IMAGE2" min="0" step="1" max="255" shortname="BLUR_SIZE_IMAGE2"/>
+    	 <dl_setting var="BLUR_EDGES2" min="0" step="1" max="1" values="False|True" shortname="BLUR_EDGES2" />
+    	 <dl_setting var="BLUR_SIZE_EDGES2" min="0" step="1" max="255" shortname="BLUR_SIZE_EDGES2" />
+    	 <dl_setting var="BORDERS2" min="0" step="1" max="1" values="False|True" shortname="BORDERS2" />
+    	 <dl_setting var="BORDER_MARGIN2" min="0" step="1" max="255" shortname="BORDER_MARGIN2" />
+    	 <dl_setting var="Y_UP_filter2" min="0" step="1" max="1" values="False|True" shortname="Y_UP_filter2" />
+    	 <dl_setting var="y_up_del2" min="0" step="1" max="255" shortname="y_up_del2" />
+    	 <dl_setting var="Y_DOWN_filter2" min="0" step="1" max="1" values="False|True" shortname="Y_DOWN_filter2" />
+    	 <dl_setting var="y_down_del2" min="0" step="1" max="260" shortname="y_down_del2" />
+    	 <dl_setting var="thresholdmin2" min="0" step="1" max="255" shortname="thresholdmin2" />
+    	 <dl_setting var="thresholdmax2" min="0" step="1" max="255" shortname="thresholdmax2" />
+    	 <dl_setting var="kernal_size2" min="3" step="2" max="7" shortname="kernal_size2" />
+    	 <dl_setting var="min_obs_size2" min="0" step="0.001" max="1" shortname="min_obs_size2" />
+    	 <dl_setting var="max_obs_size2" min="0" step="0.001" max="1" shortname="max_obs_size2" />
          <dl_setting var="cod_draw2"  min="0" step="1" max="1" values="False|True" shortname="draw 2" />
       </dl_settings>
     </dl_settings>

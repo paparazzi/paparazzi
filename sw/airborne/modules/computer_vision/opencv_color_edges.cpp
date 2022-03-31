@@ -24,10 +24,10 @@
  */
 
 // CHANGES IN INPUTS AND FUNCTION NAMES result in changes in the conf files and function files "opencv_color_edges"
-#include "opencv_color_edges.h"
+#include <opencv_color_edges.h>
 #include <stdio.h>
 #include <time.h>
-
+#include <iostream>
 extern "C" {
 #include "modules/computer_vision/lib/vision/image.h"
 }
@@ -41,20 +41,20 @@ using namespace cv;
 
 RNG rng(12345);
 
-struct obstacle opencv_color_edges(struct image_t *img,
+void opencv_color_edges(struct obstacle *new_obstacle,struct image_t *img,
 		bool GRAY_SCALE,
 		bool BLUR_IMAGE,int BLUR_SIZE_IMAGE,
 		bool BLUR_EDGES,int BLUR_SIZE_EDGES,
 		bool BORDERS,int BORDER_MARGIN,
 		bool Y_UP_filter,int y_up_del,
 		bool Y_DOWN_filter,int y_down_del,
+		int thresholdmin,int thresholdmax,
+		int kernal_size,
+		int max_number_obsticals,
 		bool draw,
 		int downsize_factor,
-		int APS,
 		double min_obs_size,double max_obs_size)
 {
-	struct obstacle new_obstacle;
-
 	// Time process
 	clock_t t;
 	t = clock();
@@ -68,114 +68,156 @@ struct obstacle opencv_color_edges(struct image_t *img,
 	// ----------------------------------------------
 	// Create a new image, using the original bebop image.
 	Mat M(img_small.h, img_small.w, CV_8UC2, img_small.buf); // original
-	Mat image, contour_image, thresh_image,blur_image,edge_image,store_image;
+	Mat image, contour_image,store_image,thresh_image,blur_image,edge_image; //, thresh_image,blur_image,edge_image
 
 	// convert UYVY in paparazzi to YUV in opencv
 	cvtColor(M, store_image, CV_YUV2RGB_Y422);
 
+	// Gray scale image
 	if (GRAY_SCALE == true) {
-		cvtColor(store_image, store_image, CV_RGB2GRAY);
+		cvtColor(store_image, thresh_image, CV_RGB2GRAY);
 	}
 	else {
-		cvtColor(store_image, store_image, CV_RGB2YUV);
-	}
-
-
-	// Threshold all values within the indicted YUV values. (Change to CANNY edge detection)
-	inRange(M, Scalar(lum_min,cb_min,cr_min), Scalar(lum_max,cb_max,cr_max), thresh_image);
+		cvtColor(store_image,thresh_image, CV_RGB2YUV);
+	};
 
 	// Blur image
-	blur(thresh_image, blur_image, Size(2, 2));
-	// ----------------------------------------------
+	if (BLUR_IMAGE == true) {
+		blur(thresh_image, blur_image, Size(BLUR_SIZE_IMAGE, BLUR_SIZE_IMAGE));
+		thresh_image = blur_image;
+	};
+
+	// edge detect (output 0 or 255 image)
+	Canny(thresh_image, edge_image, thresholdmin,thresholdmax,kernal_size);
+
+	// Add borders to edge image with margin to avoid detection of entire image
+	if (BORDERS == true) {
+		for (int i = (0 + BORDER_MARGIN); i < (edge_image.rows  - BORDER_MARGIN); i++){
+			edge_image.at<uchar>(i,0) = i;
+			edge_image.at<uchar>(i,edge_image.cols-1) = i;
+		};
+
+		for (int i = (0 + BORDER_MARGIN); i < (edge_image.cols - BORDER_MARGIN); i++){
+			edge_image.at<uchar>(0,i) = 1;
+			edge_image.at<uchar>(edge_image.rows-1,i) = 1;
+		};
+
+	}
+
+	// blur edges for better contour detection
+	if (BLUR_EDGES == true) {
+		blur(edge_image, edge_image, Size(BLUR_SIZE_EDGES, BLUR_SIZE_EDGES));
+	};
 
 	// Find contours
-	contour_image = blur_image;
-	vector<vector<Point> > contours;
+	contour_image = edge_image;
+	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(contour_image, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
-	//drawContours(M, contours, -1, Scalar(0, 255, 0), 2);
-
 
 	if (contours.size()>0)
 	{
 
 		// Find Largest Contour
-		int largest_contour_index = 0;
-		int largest_area = 0;
+		int largest_contour_index[max_number_obsticals] ;
+		int largest_area[max_number_obsticals] ;
+		double a;
+		int Change;
 		Rect rect;
 
+		for (int i = 0; i < max_number_obsticals; i++) {
+			largest_area[i] = 0;
+		}
+
 		// iterate through each contour.
-		for (unsigned int i = 0; i < contours.size(); i++) {
+		for (int i = 0; i < contours.size(); i++) {
 		//  Find the area of contour
-		double a = contourArea(contours[i], false);
-		if (a > min_obs_size*contour_image.cols*contour_image.rows){
-			if (a > largest_area) {
-			  largest_area = a;
-			  // Store the index of largest contour
-			  largest_contour_index = i;
+		a = contourArea(contours[i], false);
+		if (a > min_obs_size*contour_image.cols*contour_image.rows && a < min_obs_size*contour_image.cols*contour_image.rows){
+			Change = 0;
+			for (int j = 0; j < max_number_obsticals; j++) {
+				if (a>largest_area[j] && Change == 0) {
+					largest_area[j] = (int)a;
+					largest_contour_index[j] = i;
+					Change = 1;
+				}
 			}
 		}
 		}
 
-		/*
-		// Get the moments and mass centers
-		vector<Moments> mu(contours.size());
-		vector<Point2f> mc(contours.size());
-		for (unsigned int i = 0; i < contours.size(); i++) {
-		mu[i] = moments(contours[i],true);
-		mc[i] = Point2f(mu[i].m10 / mu[i].m00 , mu[i].m01 / mu[i].m00);
+
+		for (int i = 0; i < max_number_obsticals; i++) {
+			if (largest_area[i] == 0){
+
+				// Save in output variable
+				new_obstacle[i].pos_x = 0;
+				new_obstacle[i].pos_y = 0;
+				new_obstacle[i].width = 0;
+				new_obstacle[i].height = 0;
+				new_obstacle[i].area = 0;
+			}
+			else {
+				// Find the bounding rectangle for biggest contour
+				rect = boundingRect(contours[largest_contour_index[i]]);
+
+				// Save in output variable
+				new_obstacle[i].pos_x = (rect.x+rect.width/2)*downsize_factor;
+				new_obstacle[i].pos_y = (rect.y+rect.height/2)*downsize_factor;
+				new_obstacle[i].width = rect.width*downsize_factor;
+				new_obstacle[i].height =rect.height*downsize_factor;
+				new_obstacle[i].area = largest_area[i]*downsize_factor*downsize_factor;
+				if (Y_UP_filter == true && new_obstacle[i].pos_x < y_up_del*downsize_factor){
+					new_obstacle[i].pos_x = 0;
+					new_obstacle[i].pos_y = 0;
+					new_obstacle[i].width = 0;
+					new_obstacle[i].height = 0;
+					new_obstacle[i].area = 0;
+				}
+				if (Y_DOWN_filter == true && new_obstacle[i].pos_x > y_down_del*downsize_factor){
+					new_obstacle[i].pos_x = 0;
+					new_obstacle[i].pos_y = 0;
+					new_obstacle[i].width = 0;
+					new_obstacle[i].height = 0;
+					new_obstacle[i].area = 0;
+				}
+
+			}
 		}
-		//new_obstacle.pos_x = mc[largest_contour_index].x*downsize_factor;
-		//new_obstacle.pos_y = mc[largest_contour_index].y*downsize_factor;
-		*/
 
-		//printf("Moments %f %f %f\n",mu[largest_contour_index].m10,mu[largest_contour_index].m01,mu[largest_contour_index].m00);
-
-		// Find the bounding rectangle for biggest contour
-		rect = boundingRect(contours[largest_contour_index]);
-
-		// Save in output variable
-		new_obstacle.pos_x = (rect.x+rect.width/2)*downsize_factor;
-		new_obstacle.pos_y = (rect.y+rect.height/2)*downsize_factor;
-		new_obstacle.width = rect.width*downsize_factor;
-		new_obstacle.height =rect.height*downsize_factor;
-		new_obstacle.area = largest_area*downsize_factor*downsize_factor;
-
-		//printf("Rect x %d y %d w %d h %d\n",rect.x+rect.width/2,rect.y+rect.height/2,rect.width,rect.height);
-		//printf("Total x %d Total y %d\n",img->w,img->h);
 		t = clock() - t;
-		printf("VISION OBSTACLE x pos %d y pos %d width %d height %d area %d Time elapsed (s) %f\n",new_obstacle.pos_x,new_obstacle.pos_y,new_obstacle.width,new_obstacle.height,new_obstacle.area,((float)t/CLOCKS_PER_SEC));
-
+		for (int i = 0; i < max_number_obsticals; i++) {
+			if (largest_area[i] =! 0){
+				printf("VISION OBSTACLE x pos %d y pos %d width %d height %d area %d Time elapsed (s) %f\n",new_obstacle[i].pos_x,new_obstacle[i].pos_y,new_obstacle[i].width,new_obstacle[i].height,new_obstacle[i].area,((float)t/CLOCKS_PER_SEC));
+			}
+		}
 
 		if (draw){
+			for (int i = 0; i < max_number_obsticals; i++) {
+				if (largest_area[i] != 0){
+					// Draw center of obstacle (crosshair)
+					struct point_t center;
+					center.x = new_obstacle[i].pos_x;
+					center.y = new_obstacle[i].pos_y;
+					uint8_t color[4] = {255, 255, 255, 255};
 
-			// Draw center of obstacle (crosshair)
-			struct point_t center;
-			center.x = new_obstacle.pos_x;
-			center.y = new_obstacle.pos_y;
-			uint8_t color[4] = {255, 255, 255, 255};
-
-			//Crosshair
-			image_draw_crosshair(img, &center, color, 10);
-			// Obstacle rectangle
-			image_draw_rectangle(img,new_obstacle.pos_x,new_obstacle.pos_x+new_obstacle.width,new_obstacle.pos_y,new_obstacle.pos_y+new_obstacle.height,color);
-
+					//Crosshair
+					image_draw_crosshair(img, &center, color, 10);
+					// Obstacle rectangle
+					image_draw_rectangle(img,new_obstacle[i].pos_x,new_obstacle[i].pos_x+new_obstacle[i].width,new_obstacle[i].pos_y,new_obstacle[i].pos_y+new_obstacle[i].height,color);
+				}
+			}
 		}
-
 	} else{
 		t = clock() - t;
 
 		printf("VISION NO OBSTACLE Time elapsed (s) %f\n",((float)t/CLOCKS_PER_SEC));
 
-		new_obstacle.pos_x = 0;
-		new_obstacle.pos_y = 0;
-		new_obstacle.width = 0;
-		new_obstacle.height = 0;
-		new_obstacle.area = 0;
+		new_obstacle[0].pos_x = 0;
+		new_obstacle[0].pos_y = 0;
+		new_obstacle[0].width = 0;
+		new_obstacle[0].height = 0;
+		new_obstacle[0].area = 0;
 
 	};
-
-
-	return new_obstacle;
 
 }
