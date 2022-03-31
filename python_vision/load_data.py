@@ -8,7 +8,7 @@ from tqdm import tqdm as tqdm
 import numpy as np
 
 
-# This function loads one image from a specified directory
+# This function loads one image from a specified directory and returns it with a specific color format
 def load_img(img_path, color_format):
 
     """
@@ -41,16 +41,20 @@ def load_set(set_path, color_format):
     """
 
     list_img = os.listdir(set_path)
-    # images = {"img": "img_data"}
     images = {}
 
     for dirs in tqdm(list_img):
-        images[dirs] = load_img(set_path+dirs, color_format)
+
+        # Check if the file is an image
+        if dirs.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp')):
+            images[dirs] = load_img(set_path+dirs, color_format)
+        else:
+            continue
 
     return images
 
 
-# Function to filter YUV type images
+# Function to filter YUV type images from the data set
 def filter_YUV(images, y_low, y_high, u_low, u_high, v_low, v_high):
 
     """
@@ -148,18 +152,6 @@ if __name__ == "__main__":
     dataset = RGB_to_BGR(dataset)
     index = 0
     prev = 0
-
-    for key, value in tqdm(dataset.items()):
-
-        new = value
-
-        # print(new, prev)
-
-        if index >= 1:
-            determine_optic_flow(new, prev)
-
-        prev = value
-        index += 1
 
     # cap = cv2.VideoCapture(0)
     #

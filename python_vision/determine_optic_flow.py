@@ -62,7 +62,7 @@ def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, me
                      criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, 0.03))
 
     # calculate optical flow
-    start = time.time()
+    start = time.clock()
 
     corners_new, status, error_match = cv2.calcOpticalFlowPyrLK(gray_1, gray_2, corners, None, **lk_params)
 
@@ -72,7 +72,7 @@ def determine_optic_flow(filename_1, filename_2, window_x, window_y, corners, me
 
     flow_vectors = corners_new - corners
 
-    end = time.time()
+    end = time.clock()
 
     # print("Optic Flow took: {} s".format(round(end - start, 5)))
 
