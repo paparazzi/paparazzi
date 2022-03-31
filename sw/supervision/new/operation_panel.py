@@ -14,3 +14,6 @@ class OperationPanel(QWidget):
         self.ui = Ui_OperationPanel()
         self.ui.setupUi(self)
         self.ui.session.set_console(self.ui.console)
+
+    def init(self, gconf):
+        self.ui.session.init(gconf)

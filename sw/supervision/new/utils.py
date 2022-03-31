@@ -2,6 +2,15 @@
 import os
 import subprocess
 from PyQt5.QtWidgets import *
+import lxml.etree as ET
+from typing import NamedTuple, Dict
+
+
+class GConfEntry(NamedTuple):
+    name: str
+    value: str
+    application: str
+
 
 PAPARAZZI_SRC = os.getenv("PAPARAZZI_HOME")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
@@ -48,3 +57,24 @@ def open_terminal(wd, command=None):
     if command is not None:
         cmd = " -- {}".format(command)
     os.system("gnome-terminal --working-directory {}{}".format(wd, cmd))
+
+
+def get_gconf() -> Dict[str, GConfEntry]:
+    xml = ET.parse(os.path.join(CONF_DIR, "%gconf.xml"))
+    entries = {}
+    for entry in xml.getroot().findall("entry"):
+        name = entry.get("name")
+        value = entry.get("value")
+        application = entry.get("application")
+        entry = GConfEntry(name, value, application)
+        entries[name] = entry
+    return entries
+
+
+def save_gconf(gconf: Dict[str, GConfEntry]):
+    xml = ET.Element("gconf")
+    for entry in gconf.values():
+        xe = ET.Element("entry", entry._asdict())
+        xml.append(xe)
+    tree = ET.ElementTree(xml)
+    tree.write(os.path.join(CONF_DIR, "%gconf.xml"), pretty_print=True)

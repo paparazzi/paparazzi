@@ -28,19 +28,16 @@ class SessionWidget(QWidget):
         self.program_widgets: List[ProgramWidget] = []
         self.console: ConsoleWidget = None
         self.ac: Aircraft = None
+        self.sessions = []
+        self.tools = []
+        self.tools_menu = ToolMenu()
+        self.ui.sessions_combo.addItems(["Simulation", "Replay"])
+        self.ui.sessions_combo.insertSeparator(2)
         self.ui.menu_button.addAction(self.ui.save_session_action)
         self.ui.menu_button.addAction(self.ui.save_as_action)
         self.ui.menu_button.addAction(self.ui.rename_session_action)
         self.ui.menu_button.addAction(self.ui.remove_session_action)
-        self.sessions = self.parse_session()
-        self.tools = self.parse_tools()
-        self.tools_menu = ToolMenu()
         self.tools_menu.tool_clicked.connect(self.handle_new_tool)
-        self.init_tools_menu()
-        self.ui.sessions_combo.addItems(["Simulation", "Replay"])
-        sessions_names = [session.name for session in self.sessions]
-        self.ui.sessions_combo.addItems(sessions_names)
-        self.ui.sessions_combo.insertSeparator(2)
         self.ui.start_session_button.clicked.connect(self.start_session)
         self.ui.startall_button.clicked.connect(self.start_all)
         self.ui.removeall_button.clicked.connect(self.remove_all)
@@ -56,6 +53,14 @@ class SessionWidget(QWidget):
 
     def set_aircraft(self, ac: Aircraft):
         self.ac = ac
+
+    def init(self, gconf: Dict[str, utils.GConfEntry]):
+        self.sessions = self.parse_session()
+        self.tools = self.parse_tools()
+        self.init_tools_menu()
+        sessions_names = [session.name for session in self.sessions]
+        self.ui.sessions_combo.addItems(sessions_names)
+        self.ui.sessions_combo.setCurrentText(gconf["last session"].value)
 
     @staticmethod
     def parse_session() -> List[Session]:
@@ -88,6 +93,12 @@ class SessionWidget(QWidget):
                     tools[name] = tool
 
         return tools
+
+    def get_current_session(self) -> str:
+        """
+        :return: current session name in comboBox.
+        """
+        return self.ui.sessions_combo.currentText()
 
     def start_session(self):
         combo_text = self.ui.sessions_combo.currentText()

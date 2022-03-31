@@ -5,12 +5,14 @@ from PyQt5 import QtCore, QtGui
 from configuration_panel import ConfigurationPanel
 from operation_panel import  OperationPanel
 import utils
+from typing import Dict
 from lxml import etree as ET
 
 
 class PprzCenter(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent=parent)
+        self.gconf: Dict[str, utils.GConfEntry]= utils.get_gconf()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
         self.configuration_panel = ConfigurationPanel(self.tabwidget)
@@ -26,7 +28,8 @@ class PprzCenter(QMainWindow):
         self.operation_panel.ui.session.program_spawned.connect(self.configuration_panel.disable_sets)
         self.operation_panel.ui.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
         self.configuration_panel.ac_changed.connect(self.operation_panel.ui.session.set_aircraft)
-        self.configuration_panel.init()
+        self.configuration_panel.init(self.gconf)
+        self.operation_panel.init(self.gconf)
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
         if self.operation_panel.ui.session.any_program_running():
@@ -35,16 +38,26 @@ class PprzCenter(QMainWindow):
             e.ignore()
             self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
         else:
-            conf_tree_orig = self.configuration_panel.conf.tree_orig
-            conf_tree = self.configuration_panel.conf.to_xml_tree()
-            if ET.tostring(conf_tree) != ET.tostring(conf_tree_orig):
-                buttons = QMessageBox.question(self, "Save configuration?",
-                                               "The configuration has changed, do you want to save it?")
-                if buttons == QMessageBox.Yes:
-                    self.configuration_panel.conf.save()
-                else:
-                    self.configuration_panel.conf.restore_conf()
-                    self.configuration_panel.conf.save()
+            if self.gconf["always keep changes"].value == "true":
+                self.configuration_panel.conf.save()
+            else:
+                conf_tree_orig = self.configuration_panel.conf.tree_orig
+                conf_tree = self.configuration_panel.conf.to_xml_tree()
+                if ET.tostring(conf_tree) != ET.tostring(conf_tree_orig):
+                    buttons = QMessageBox.question(self, "Save configuration?",
+                                                   "The configuration has changed, do you want to save it?")
+                    if buttons == QMessageBox.Yes:
+                        self.configuration_panel.conf.save()
+                    else:
+                        self.configuration_panel.conf.restore_conf()
+                        self.configuration_panel.conf.save()
+            self.gconf["last A/C"] = self.gconf["last A/C"]._replace(
+                value=self.configuration_panel.get_current_ac())
+            self.gconf["last target"] = self.gconf["last target"]._replace(
+                value=self.configuration_panel.ui.build_widget.get_current_target())
+            self.gconf["last session"] = self.gconf["last session"]._replace(
+                value=self.operation_panel.ui.session.get_current_session())
+            utils.save_gconf(self.gconf)
             e.accept()
 
     def fill_status_bar(self):

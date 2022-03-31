@@ -80,6 +80,9 @@ class BuildWidget(QWidget):
             flash_modes = self.get_flash_modes(board)
             self.ui.device_combo.addItems(flash_modes)
 
+    def get_current_target(self) -> str:
+        return self.ui.target_combo.currentText()
+
     def build(self):
         target = self.ui.target_combo.currentText()
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
