@@ -11,18 +11,17 @@ ICON_SIZE = (60, 60)
 POPUP_SIZE = (1000, 400)
 
 
-class ToolMenu(QWidget):
+class ToolMenu(QWidget, Ui_ToolsList):
 
     tool_clicked = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super(ToolMenu, self).__init__()
-        self.ui = Ui_ToolsList()
-        self.ui.setupUi(self)
+        self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Popup)
         self.tools_buttons: Dict[str, QToolButton] = {}
-        self.ui.filter_lineedit.textChanged.connect(self.filter)
-        self.setFocusProxy(self.ui.filter_lineedit)
+        self.filter_lineedit.textChanged.connect(self.filter)
+        self.setFocusProxy(self.filter_lineedit)
         # self.gridLayout.setContentsMargins(10, 10, 24, 10)
         # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # self.setWidgetResizable(True)
@@ -39,7 +38,7 @@ class ToolMenu(QWidget):
         button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         button.clicked.connect(lambda: self.tool_clicked.emit(button.text()))
         self.tools_buttons[t.name] = button
-        self.ui.content_widget.layout().addWidget(button)
+        self.content_widget.layout().addWidget(button)
 
     def filter(self, txt: str):
         for name, button in self.tools_buttons.items():
@@ -53,4 +52,4 @@ class ToolMenu(QWidget):
 
     def show(self) -> None:
         super(ToolMenu, self).show()
-        self.ui.filter_lineedit.clear()
+        self.filter_lineedit.clear()

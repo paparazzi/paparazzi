@@ -25,18 +25,18 @@ class PprzCenter(QMainWindow):
         self.statusBar().show()
         self.configuration_panel.msg_error.connect(self.handle_error)
         self.configuration_panel.clear_error.connect(self.clear_error)
-        self.operation_panel.ui.session.program_spawned.connect(self.configuration_panel.disable_sets)
-        self.operation_panel.ui.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
-        self.configuration_panel.ac_changed.connect(self.operation_panel.ui.session.set_aircraft)
+        self.operation_panel.session.program_spawned.connect(self.configuration_panel.disable_sets)
+        self.operation_panel.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
+        self.configuration_panel.ac_changed.connect(self.operation_panel.session.set_aircraft)
         self.configuration_panel.init(self.gconf)
         self.operation_panel.init(self.gconf)
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
-        if self.operation_panel.ui.session.any_program_running():
-            self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
-            self.operation_panel.ui.session.stop_all()
+        if self.operation_panel.session.any_program_running():
+            self.operation_panel.session.programs_all_stopped.connect(self.close)
+            self.operation_panel.session.stop_all()
             e.ignore()
-            self.operation_panel.ui.session.programs_all_stopped.connect(self.close)
+            self.operation_panel.session.programs_all_stopped.connect(self.close)
         else:
             if self.gconf["always keep changes"].value == "true":
                 self.configuration_panel.conf.save()
@@ -54,9 +54,9 @@ class PprzCenter(QMainWindow):
             self.gconf["last A/C"] = self.gconf["last A/C"]._replace(
                 value=self.configuration_panel.get_current_ac())
             self.gconf["last target"] = self.gconf["last target"]._replace(
-                value=self.configuration_panel.ui.build_widget.get_current_target())
+                value=self.configuration_panel.build_widget.get_current_target())
             self.gconf["last session"] = self.gconf["last session"]._replace(
-                value=self.operation_panel.ui.session.get_current_session())
+                value=self.operation_panel.session.get_current_session())
             utils.save_gconf(self.gconf)
             e.accept()
 

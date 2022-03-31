@@ -9,7 +9,7 @@ import utils
 from typing import List
 
 
-class ProgramWidget(QWidget):
+class ProgramWidget(QWidget, Ui_Program):
 
     ready_read_stdout = QtCore.pyqtSignal()
     ready_read_stderr = QtCore.pyqtSignal()
@@ -18,43 +18,42 @@ class ProgramWidget(QWidget):
 
     def __init__(self, shortname: str, cmd: List[str], icon=None, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_Program()
-        self.ui.setupUi(self)
+        self.setupUi(self)
         self.cmd = cmd
         self.shortname = shortname
         self.process = QProcess(self)
-        self.ui.program_label.setText(shortname)
-        self.ui.program_lineedit.setText(" ".join(cmd))
-        # self.ui.program_lineedit.hide()
-        self.ui.program_label.hide()
-        self.ui.shortview_checkbox.toggled.connect(self.toggle_view)
-        self.ui.program_lineedit.returnPressed.connect(self.handle_cmd_return)
-        self.ui.run_button.clicked.connect(self.handle_run)
-        self.ui.remove_button.clicked.connect(self.handle_remove)
+        self.program_label.setText(shortname)
+        self.program_lineedit.setText(" ".join(cmd))
+        # self.program_lineedit.hide()
+        self.program_label.hide()
+        self.shortview_checkbox.toggled.connect(self.toggle_view)
+        self.program_lineedit.returnPressed.connect(self.handle_cmd_return)
+        self.run_button.clicked.connect(self.handle_run)
+        self.remove_button.clicked.connect(self.handle_remove)
         self.process.readyReadStandardOutput.connect(self.ready_read_stdout)
         self.process.readyReadStandardError.connect(self.ready_read_stderr)
         self.process.finished.connect(self.handle_finished)
         self.process.started.connect(self.handle_started)
         self.process.errorOccurred.connect(self.handle_error)
         i = QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", icon))
-        self.ui.icon_label.setPixmap(i.pixmap(20, 20))
+        self.icon_label.setPixmap(i.pixmap(20, 20))
 
     def start_program(self):
         if self.process.state() == QProcess.NotRunning:
             self.process.start(self.cmd[0], self.cmd[1:])
 
     def toggle_view(self, long_view):
-        self.ui.program_label.setVisible(long_view)
-        self.ui.program_lineedit.setVisible(not long_view)
+        self.program_label.setVisible(long_view)
+        self.program_lineedit.setVisible(not long_view)
 
     def handle_cmd_return(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.ui.program_lineedit.text().split(" ")
+            self.cmd = self.program_lineedit.text().split(" ")
             self.start_program()
 
     def handle_run(self):
         if self.process.state() == QProcess.NotRunning:
-            self.cmd = self.ui.program_lineedit.text().split(" ")
+            self.cmd = self.program_lineedit.text().split(" ")
             self.start_program()
         elif self.process.state() == QProcess.Running:
             self.process.terminate()
@@ -68,13 +67,13 @@ class ProgramWidget(QWidget):
 
     def handle_started(self):
         icon = QIcon.fromTheme("media-playback-stop")
-        self.ui.run_button.setIcon(icon)
-        self.ui.program_lineedit.setReadOnly(True)
+        self.run_button.setIcon(icon)
+        self.program_lineedit.setReadOnly(True)
 
     def handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus):
         icon = QIcon.fromTheme("media-playback-start")
-        self.ui.run_button.setIcon(icon)
-        self.ui.program_lineedit.setReadOnly(False)
+        self.run_button.setIcon(icon)
+        self.program_lineedit.setReadOnly(False)
         self.finished.emit(exit_code, exit_status)
 
     def handle_error(self, error: QProcess.ProcessError):

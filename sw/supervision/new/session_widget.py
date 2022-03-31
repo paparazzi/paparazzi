@@ -16,37 +16,36 @@ from conf import *
 from console_widget import ConsoleWidget
 
 
-class SessionWidget(QWidget):
+class SessionWidget(QWidget, Ui_Session):
 
     programs_all_stopped = QtCore.pyqtSignal()
     program_spawned = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_Session()
-        self.ui.setupUi(self)
+        self.setupUi(self)
         self.program_widgets: List[ProgramWidget] = []
         self.console: ConsoleWidget = None
         self.ac: Aircraft = None
         self.sessions = []
         self.tools = []
         self.tools_menu = ToolMenu()
-        self.ui.sessions_combo.addItems(["Simulation", "Replay"])
-        self.ui.sessions_combo.insertSeparator(2)
-        self.ui.menu_button.addAction(self.ui.save_session_action)
-        self.ui.menu_button.addAction(self.ui.save_as_action)
-        self.ui.menu_button.addAction(self.ui.rename_session_action)
-        self.ui.menu_button.addAction(self.ui.remove_session_action)
+        self.sessions_combo.addItems(["Simulation", "Replay"])
+        self.sessions_combo.insertSeparator(2)
+        self.menu_button.addAction(self.save_session_action)
+        self.menu_button.addAction(self.save_as_action)
+        self.menu_button.addAction(self.rename_session_action)
+        self.menu_button.addAction(self.remove_session_action)
         self.tools_menu.tool_clicked.connect(self.handle_new_tool)
-        self.ui.start_session_button.clicked.connect(self.start_session)
-        self.ui.startall_button.clicked.connect(self.start_all)
-        self.ui.removeall_button.clicked.connect(self.remove_all)
-        self.ui.stopall_button.clicked.connect(self.stop_all)
-        self.ui.add_tool_button.clicked.connect(self.open_tools)
-        self.ui.save_session_action.triggered.connect(self.handle_save)
-        self.ui.save_as_action.triggered.connect(self.handle_save_as)
-        self.ui.rename_session_action.triggered.connect(self.handle_rename)
-        self.ui.remove_session_action.triggered.connect(self.remove_session)
+        self.start_session_button.clicked.connect(self.start_session)
+        self.startall_button.clicked.connect(self.start_all)
+        self.removeall_button.clicked.connect(self.remove_all)
+        self.stopall_button.clicked.connect(self.stop_all)
+        self.add_tool_button.clicked.connect(self.open_tools)
+        self.save_session_action.triggered.connect(self.handle_save)
+        self.save_as_action.triggered.connect(self.handle_save_as)
+        self.rename_session_action.triggered.connect(self.handle_rename)
+        self.remove_session_action.triggered.connect(self.remove_session)
 
     def set_console(self, console: console_widget.ConsoleWidget):
         self.console = console
@@ -59,8 +58,8 @@ class SessionWidget(QWidget):
         self.tools = self.parse_tools()
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
-        self.ui.sessions_combo.addItems(sessions_names)
-        self.ui.sessions_combo.setCurrentText(gconf["last session"].value)
+        self.sessions_combo.addItems(sessions_names)
+        self.sessions_combo.setCurrentText(gconf["last session"].value)
 
     @staticmethod
     def parse_session() -> List[Session]:
@@ -98,10 +97,10 @@ class SessionWidget(QWidget):
         """
         :return: current session name in comboBox.
         """
-        return self.ui.sessions_combo.currentText()
+        return self.sessions_combo.currentText()
 
     def start_session(self):
-        combo_text = self.ui.sessions_combo.currentText()
+        combo_text = self.sessions_combo.currentText()
         if combo_text == "Simulation":
             self.start_simulation()
         elif combo_text == "Replay":
@@ -169,9 +168,9 @@ class SessionWidget(QWidget):
         else:
             cmd = [os.path.join(utils.PAPARAZZI_SRC, tool.command)] + flat_args
 
-        pw = ProgramWidget(tool.name, cmd, tool.icon, self.ui.programs_widget)
+        pw = ProgramWidget(tool.name, cmd, tool.icon, self.programs_widget)
         self.program_widgets.append(pw)
-        lay: QVBoxLayout = self.ui.programs_widget.layout()
+        lay: QVBoxLayout = self.programs_widget.layout()
         lay.insertWidget(lay.count()-1, pw)
         pw.ready_read_stderr.connect(lambda: self.console.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console.handle_stdout(pw))
@@ -186,7 +185,7 @@ class SessionWidget(QWidget):
     def remove_program(self, pw: ProgramWidget):
         self.console.remove_program(pw)
         pw.setParent(None)
-        # self.ui.programs_widget.layout().removeWidget(pw)
+        # self.programs_widget.layout().removeWidget(pw)
         self.program_widgets.remove(pw)
         if len(self.program_widgets) == 0:
             self.programs_all_stopped.emit()
@@ -225,13 +224,13 @@ class SessionWidget(QWidget):
         if self.tools_menu.isVisible():
             self.tools_menu.close()
         else:
-            bottomLeft = self.mapToGlobal(self.ui.add_tool_button.geometry().bottomLeft())
+            bottomLeft = self.mapToGlobal(self.add_tool_button.geometry().bottomLeft())
             self.tools_menu.move(bottomLeft)
             self.tools_menu.show()
             self.tools_menu.setFocus(QtCore.Qt.PopupFocusReason)
 
     def handle_save(self):
-        session_name = self.ui.sessions_combo.currentText()
+        session_name = self.sessions_combo.currentText()
         programs = self.get_programs()
         session = Session(session_name, programs)
         self.replace_session(session)
@@ -253,7 +252,7 @@ class SessionWidget(QWidget):
 
     def handle_rename(self):
         for session_orig in self.sessions:
-            if session_orig.name == self.ui.sessions_combo.currentText():
+            if session_orig.name == self.sessions_combo.currentText():
                 break
         else:
             print("session not found")
@@ -270,13 +269,13 @@ class SessionWidget(QWidget):
 
     def remove_session(self):
         for session in self.sessions:
-            if session.name == self.ui.sessions_combo.currentText():
+            if session.name == self.sessions_combo.currentText():
                 self.sessions.remove(session)
-                i = self.ui.sessions_combo.currentIndex()
-                self.ui.sessions_combo.removeItem(i)
+                i = self.sessions_combo.currentIndex()
+                self.sessions_combo.removeItem(i)
                 self.save_sessions()
                 return
-        print("session {} not found".format(self.ui.sessions_combo.currentText()))
+        print("session {} not found".format(self.sessions_combo.currentText()))
 
     def replace_session(self, session):
         for i, s in enumerate(self.sessions):

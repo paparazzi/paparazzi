@@ -32,18 +32,17 @@ class Record:
     channel: Channel
 
 
-class ConsoleWidget(QWidget):
+class ConsoleWidget(QWidget, Ui_Console):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_Console()
-        self.ui.setupUi(self)
+        self.setupUi(self)
         self.records: List[Record] = []
         self.p_checkboxes: Dict[ProgramWidget, QCheckBox] = {}
-        self.ui.programs_checkbox.stateChanged.connect(self.handle_check_all)
-        self.ui.log_level_slider.valueChanged.connect(self.log_level_changed)
-        self.ui.clear_button.clicked.connect(self.clear)
-        self.ui.splitter.setSizes([500, 100])
+        self.programs_checkbox.stateChanged.connect(self.handle_check_all)
+        self.log_level_slider.valueChanged.connect(self.log_level_changed)
+        self.clear_button.clicked.connect(self.clear)
+        self.splitter.setSizes([500, 100])
 
     def display_record(self, record):
         if record.level == Level.ERROR:
@@ -63,7 +62,7 @@ class ConsoleWidget(QWidget):
             ch = "font-weight: bold;"
 
         data = "<span style=\"{}{}\">{}</span>".format(bg, ch, record.data)
-        self.ui.console_textedit.append(data)
+        self.console_textedit.append(data)
 
     def handle_data(self, pw: ProgramWidget, data: QByteArray, channel: Channel):
         if pw not in self.p_checkboxes:
@@ -101,11 +100,11 @@ class ConsoleWidget(QWidget):
         self.display_record(r)
 
     def new_program(self, pw: ProgramWidget):
-        chk = QCheckBox(pw.shortname, self.ui.programs_widget)
+        chk = QCheckBox(pw.shortname, self.programs_widget)
         chk.setToolTip(" ".join(pw.cmd))
         self.p_checkboxes[pw] = chk
-        index = self.ui.programs_widget.layout().count() - 1
-        lay: QVBoxLayout = self.ui.programs_widget.layout()
+        index = self.programs_widget.layout().count() - 1
+        lay: QVBoxLayout = self.programs_widget.layout()
         lay.insertWidget(index, chk)
         chk.stateChanged.connect(self.handle_program_checked)
         self.handle_program_checked()
@@ -116,7 +115,7 @@ class ConsoleWidget(QWidget):
             for r in self.records:
                 if r.emitter == pw:
                     r.emitter = None
-            self.ui.programs_widget.layout().removeWidget(chk)
+            self.programs_widget.layout().removeWidget(chk)
             chk.deleteLater()
             self.update_content()
 
@@ -135,33 +134,33 @@ class ConsoleWidget(QWidget):
             state = chks[0].checkState()
             for s in chks[1:]:
                 if s.checkState() != state:
-                    self.ui.programs_checkbox.blockSignals(True)
-                    self.ui.programs_checkbox.setCheckState(Qt.PartiallyChecked)
-                    self.ui.programs_checkbox.blockSignals(False)
+                    self.programs_checkbox.blockSignals(True)
+                    self.programs_checkbox.setCheckState(Qt.PartiallyChecked)
+                    self.programs_checkbox.blockSignals(False)
                     break
             else:
-                self.ui.programs_checkbox.blockSignals(True)
-                self.ui.programs_checkbox.setCheckState(state)
-                self.ui.programs_checkbox.blockSignals(False)
+                self.programs_checkbox.blockSignals(True)
+                self.programs_checkbox.setCheckState(state)
+                self.programs_checkbox.blockSignals(False)
         self.update_content()
 
     def log_level_changed(self, value):
         if value == Level.ERROR.value:
-            self.ui.log_level_label.setText("Errors")
+            self.log_level_label.setText("Errors")
         elif value == Level.WARNING.value:
-            self.ui.log_level_label.setText("Warnings")
+            self.log_level_label.setText("Warnings")
         elif value == Level.INFO.value:
-            self.ui.log_level_label.setText("Info")
+            self.log_level_label.setText("Info")
         elif value == Level.ALL.value:
-            self.ui.log_level_label.setText("All")
+            self.log_level_label.setText("All")
         self.update_content()
 
     def filter(self, r: Record):
-        log_level = self.ui.log_level_slider.value()
+        log_level = self.log_level_slider.value()
         if r.level.value > log_level:
             return False
         # if any program is checked, display only those that are checked
-        if self.ui.programs_checkbox.checkState() != Qt.Unchecked:
+        if self.programs_checkbox.checkState() != Qt.Unchecked:
             if r.emitter is None:
                 return False
             if self.p_checkboxes[r.emitter].checkState() != Qt.Checked:
@@ -169,7 +168,7 @@ class ConsoleWidget(QWidget):
         return True
 
     def update_content(self):
-        self.ui.console_textedit.clear()
+        self.console_textedit.clear()
         for r in self.records:
             if self.filter(r):
                 self.display_record(r)

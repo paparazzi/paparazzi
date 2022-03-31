@@ -7,13 +7,12 @@ import utils
 from program_widget import ProgramWidget
 
 
-class OperationPanel(QWidget):
+class OperationPanel(QWidget, Ui_OperationPanel):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_OperationPanel()
-        self.ui.setupUi(self)
-        self.ui.session.set_console(self.ui.console)
+        self.setupUi(self)
+        self.session.set_console(self.console)
 
     def init(self, gconf):
-        self.ui.session.init(gconf)
+        self.session.init(gconf)

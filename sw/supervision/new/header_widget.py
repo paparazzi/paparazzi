@@ -4,7 +4,7 @@ from generated.ui_conf_header import Ui_ConfHeader
 import conf
 
 
-class HeaderWidget(QWidget):
+class HeaderWidget(QWidget, Ui_ConfHeader):
 
     set_changed = QtCore.pyqtSignal(str)
     ac_changed = QtCore.pyqtSignal(str)
@@ -12,43 +12,42 @@ class HeaderWidget(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_ConfHeader()
-        self.ui.setupUi(self)
-        self.ui.set_combo.currentTextChanged.connect(self.set_changed)
-        self.ui.ac_combo.currentTextChanged.connect(self.ac_changed)
-        self.ui.id_spinBox.valueChanged.connect(self.id_changed)
-        self.ui.menu_button.addAction(self.ui.rename_action)
-        self.ui.menu_button.addAction(self.ui.new_ac_action)
-        self.ui.menu_button.addAction(self.ui.duplicate_action)
-        self.ui.menu_button.addAction(self.ui.remove_ac_action)
+        self.setupUi(self)
+        self.set_combo.currentTextChanged.connect(self.set_changed)
+        self.ac_combo.currentTextChanged.connect(self.ac_changed)
+        self.id_spinBox.valueChanged.connect(self.id_changed)
+        self.menu_button.addAction(self.rename_action)
+        self.menu_button.addAction(self.new_ac_action)
+        self.menu_button.addAction(self.duplicate_action)
+        self.menu_button.addAction(self.remove_ac_action)
 
     def set_sets(self, sets, conf_init: str = None):
-        self.ui.set_combo.addItems(sets)
+        self.set_combo.addItems(sets)
         if conf_init in sets:
-            self.ui.set_combo.setCurrentText(conf_init)
+            self.set_combo.setCurrentText(conf_init)
 
     def set_acs(self, acs):
-        self.ui.ac_combo.clear()
-        self.ui.ac_combo.addItems(acs)
+        self.ac_combo.clear()
+        self.ac_combo.addItems(acs)
 
     def set_ac(self, ac: conf.Aircraft):
-        self.ui.id_spinBox.setValue(ac.ac_id)
+        self.id_spinBox.setValue(ac.ac_id)
         self.set_color(ac.get_color())
 
     def remove_current(self):
-        i = self.ui.ac_combo.currentIndex()
-        self.ui.ac_combo.removeItem(i)
+        i = self.ac_combo.currentIndex()
+        self.ac_combo.removeItem(i)
 
     def set_current(self, ac_name):
-        self.ui.ac_combo.setCurrentText(ac_name)
+        self.ac_combo.setCurrentText(ac_name)
 
     def add_ac(self, ac_name):
-        self.ui.ac_combo.addItem(ac_name)
+        self.ac_combo.addItem(ac_name)
         self.set_current(ac_name)
 
     def rename_ac(self, new_name):
-        i = self.ui.ac_combo.currentIndex()
-        self.ui.ac_combo.setItemText(i, new_name)
+        i = self.ac_combo.currentIndex()
+        self.ac_combo.setItemText(i, new_name)
 
     def set_color(self, color: str):
-        self.ui.color_button.setStyleSheet("background-color: {};".format(color))
+        self.color_button.setStyleSheet("background-color: {};".format(color))

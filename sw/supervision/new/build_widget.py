@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from generated.ui_build import Ui_Build
 import lxml.etree as ET
@@ -23,21 +23,21 @@ class FlashMode:
         return False
 
 
-class BuildWidget(QWidget):
+class BuildWidget(Ui_Build, QWidget):
 
     spawn_program = QtCore.pyqtSignal(str, list, str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
-        self.ui = Ui_Build()
-        self.ui.setupUi(self)
+        self.setupUi(self)
+        # uic.loadUi("ui/build.ui", self)
         self.ac: Aircraft = None
         self.conf: Conf = None      # to save conf before building
         self.flash_modes: List[FlashMode] = self.parse_flash_modes()
-        self.ui.build_button.clicked.connect(self.build)
-        self.ui.clean_button.clicked.connect(self.clean)
-        self.ui.flash_button.clicked.connect(self.flash)
-        self.ui.target_combo.currentTextChanged.connect(self.update_flash_mode)
+        self.build_button.clicked.connect(self.build)
+        self.clean_button.clicked.connect(self.clean)
+        self.flash_button.clicked.connect(self.flash)
+        self.target_combo.currentTextChanged.connect(self.update_flash_mode)
 
     def set_conf(self, conf: Conf):
         self.conf = conf
@@ -67,24 +67,24 @@ class BuildWidget(QWidget):
 
     def update_targets(self, ac: Aircraft):
         self.ac = ac
-        self.ui.target_combo.clear()
+        self.target_combo.clear()
 
         for target in ac.boards.keys():
-            self.ui.target_combo.addItem(target)
+            self.target_combo.addItem(target)
 
     def update_flash_mode(self, target):
-        self.ui.device_combo.clear()
+        self.device_combo.clear()
         if target != "":
-            self.ui.device_combo.addItem("Default")
+            self.device_combo.addItem("Default")
             board = self.ac.boards[target]
             flash_modes = self.get_flash_modes(board)
-            self.ui.device_combo.addItems(flash_modes)
+            self.device_combo.addItems(flash_modes)
 
     def get_current_target(self) -> str:
-        return self.ui.target_combo.currentText()
+        return self.target_combo.currentText()
 
     def build(self):
-        target = self.ui.target_combo.currentText()
+        target = self.target_combo.currentText()
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
         shortname = "Build {}".format(self.ac.name)
@@ -98,9 +98,9 @@ class BuildWidget(QWidget):
         self.spawn_program.emit(shortname, cmd, None)
 
     def flash(self):
-        target = self.ui.target_combo.currentText()
+        target = self.target_combo.currentText()
         vars = []
-        flash_mode = self.ui.device_combo.currentText()
+        flash_mode = self.device_combo.currentText()
         if flash_mode != "Default":
             for mode in self.flash_modes:
                 if mode.name == flash_mode:
