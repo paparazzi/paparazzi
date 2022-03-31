@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from pprz_conf import *
+from programs_conf import *
 import os
 import utils
 from PyQt5.QtWidgets import *

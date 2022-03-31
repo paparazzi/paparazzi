@@ -11,7 +11,7 @@ import lxml.etree as ET
 from typing import List, Optional, Tuple, Dict
 from program_widget import ProgramWidget
 from tools_menu import ToolMenu
-from pprz_conf import *
+from programs_conf import *
 from conf import *
 from console_widget import ConsoleWidget
 
