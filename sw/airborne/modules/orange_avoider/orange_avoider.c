@@ -49,7 +49,6 @@ static uint8_t chooseRandomIncrementAvoidance(void);
 enum navigation_state_t {
   SAFE,
   OBSTACLE_FOUND,
-  SEARCH_FOR_SAFE_HEADING,
   OUT_OF_BOUNDS,
   AVOID_RIGHT_OBJECT,
   AVOID_LEFT_OBJECT,
@@ -159,111 +158,96 @@ void orange_avoider_periodic(void)
       case SAFE:
           // Move waypoint forward
           moveWaypointForward(WP_TRAJECTORY, 1.5f * moveDistance);
-//          guidance_h.sp.speed.x = 5;
-//          guidance_h.sp.speed.y = 5;
+	  // Detects if waypoint is out of bounds
           if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY))) {
               navigation_state = OUT_OF_BOUNDS;
-              //else if (obstacle_free_confidence == 0) {
-              //navigation_state = OBSTACLE_FOUND;
           }
+	  // Detects if FOE is in the center of the camera
           else if (result->focus_of_expansion_x == 0 && result->focus_of_expansion_y == 0 ) {
               navigation_state = OBSTACLE_FOUND;
           }
+	  // Detects if there is more divergence on the left hand side
           else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold){
               navigation_state = AVOID_LEFT_OBJECT;
           }
+	  // Detects if there is more divergence on the right hand side
           else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
               navigation_state = AVOID_RIGHT_OBJECT;
           }
+	  // Detects if waypoint is out of bounds and there is divergence on either side of the drone
           else if (!InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_left > 1 || !InsideObstacleZone(WaypointX(WP_TRAJECTORY), WaypointY(WP_TRAJECTORY)) && result->div_size_right > 1){
         	  navigation_state = AVOID_CORNERS;
           }
+	  // Move towards waypoint
           else {
               moveWaypointForward(WP_GOAL, 1.0f * moveDistance);
-
-      }
-
+	  }
       break;
     case OBSTACLE_FOUND:
-        if (result->div_size_left < result->div_size_left){
-        	waypoint_move_here_2d(WP_GOAL);
-		    waypoint_move_here_2d(WP_TRAJECTORY);
+  	
+        // stops the drone
+	waypoint_move_here_2d(WP_GOAL);
+	waypoint_move_here_2d(WP_TRAJECTORY);	  
+	 
+	// determines if there is more divergence to the left
+        if (result->div_size_left < result->div_size_right){
             // turn left
             increase_nav_heading(-1 * 5 * heading_increment);
-            //moveWaypointForward(WP_TRAJECTORY, 1.5f);
+	    // return to default state
             navigation_state = SAFE;
         }
-
+	
+	// determines if there is more divergence to the right
         else {
             // turn right
             increase_nav_heading(1 * 5 * heading_increment);
-            //moveWaypointForward(WP_TRAJECTORY, 1.5f);
+            // return to default state
             navigation_state = SAFE;
         }
 
       break;
-//      case OBSTACLE_FOUND:
-//          // stop
-//          waypoint_move_here_2d(WP_GOAL);
-//          waypoint_move_here_2d(WP_TRAJECTORY);
-//
-//          // randomly select new search direction
-//          chooseRandomIncrementAvoidance();
-//
-//          navigation_state = SEARCH_FOR_SAFE_HEADING;
-//
-//          break;
     case AVOID_CORNERS:
+       
+       // stop
+	waypoint_move_here_2d(WP_GOAL);
+	waypoint_move_here_2d(WP_TRAJECTORY);
+		  
+	// determines if there is more divergence to the left
     	if (result->div_size_left > result->div_size_right && absdiff > 1){
-    		waypoint_move_here_2d(WP_GOAL);
-    		waypoint_move_here_2d(WP_TRAJECTORY);
-    		increase_nav_heading(-6 * heading_increment);
-    		moveWaypointForward(WP_TRAJECTORY, 1.5f);
+		
+		// turn left by a huge angle
+		increase_nav_heading(-6 * heading_increment);
+    		// return to default state
+            	navigation_state = SAFE;
     	}
-
-    	if (result->div_size_left > result->div_size_right && absdiff > 1){
-    		waypoint_move_here_2d(WP_GOAL);
-			waypoint_move_here_2d(WP_TRAJECTORY);
-			increase_nav_heading(6 * heading_increment);
-			moveWaypointForward(WP_TRAJECTORY, 1.5f);
+	
+	// determines if there is more divergence to the right
+    	else if (result->div_size_left > result->div_size_right && absdiff > 1){
+			
+		// turn right by a huge angle
+		increase_nav_heading(6 * heading_increment);
+		// return to default state
+            	navigation_state = SAFE;
     	}
-
-    	if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
-			// add offset to head back into arena
-			increase_nav_heading(heading_increment);
-
-			// reset safe counter
-			obstacle_free_confidence = 0;
-
-			// ensure direction is safe before continuing
-			navigation_state = SAFE; //SEARCH_FOR_SAFE_HEADING;
-    	}
-
     	break;
-    case SEARCH_FOR_SAFE_HEADING:
-      increase_nav_heading(heading_increment);
-
-      // make sure we have a couple of good readings before declaring the way safe
-      if (obstacle_free_confidence >= 2){
-        navigation_state = SAFE;
-      }
-      break;
     case OUT_OF_BOUNDS:
-      moveWaypointForward(WP_GOAL, .25 * moveDistance);	//new
-      waypoint_move_here_2d(WP_GOAL);
-      waypoint_move_here_2d(WP_TRAJECTORY);
+		  
+      // slow down
+      moveWaypointForward(WP_GOAL, .25 * moveDistance);
+		  
+      // turn away from out of bounds
       increase_nav_heading(7 * heading_increment);
+		  
+      // project a waypoint in front of the drone
       moveWaypointForward(WP_TRAJECTORY, 1.5f);
-
+      
+      // determines if the new path is indeed within bounds
       if (InsideObstacleZone(WaypointX(WP_TRAJECTORY),WaypointY(WP_TRAJECTORY))){
+	      
         // add offset to head back into arena
         increase_nav_heading(heading_increment);
-
-        // reset safe counter
-        obstacle_free_confidence = 0;
-
-        // ensure direction is safe before continuing
-        navigation_state = SAFE; //SEARCH_FOR_SAFE_HEADING;
+	      
+        navigation_state = SAFE;
       }
       break;
     case AVOID_RIGHT_OBJECT:
@@ -273,12 +257,8 @@ void orange_avoider_periodic(void)
 
         // turn left
         increase_nav_heading(-1.5 * heading_increment);
-
-        // is new path safe
-//        if (absdiff <= 2 * flow_threshold){
-//            navigation_state = SAFE;
-//        }
-
+		  
+	// return to default state
         navigation_state = SAFE;
 
         break;
@@ -290,10 +270,7 @@ void orange_avoider_periodic(void)
         // turn right
         increase_nav_heading(1.5 * heading_increment);
 
-        // is new path safe
-//        if (absdiff <= 2 * flow_threshold){
-//            navigation_state = SAFE;
-//        }
+        // return to default state
         navigation_state = SAFE;
 
         break;
