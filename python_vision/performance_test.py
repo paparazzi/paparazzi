@@ -2,6 +2,7 @@
 Computational effort and RMSE determination for optical flow calculations based on varying window size
 """
 
+import os
 from determine_optic_flow import determine_optic_flow
 from load_data import load_set, RGB_to_BGR
 from tqdm import tqdm as tqdm
@@ -91,23 +92,22 @@ error_vec = np.array(error_vec)
 time_vec_square = np.array(time_vec_square)
 error_vec_square = np.array(error_vec_square)
 
-# Plotting for square windows only
-plt.plot([i for i in range(lower_bound, upper_bound)], error_vec_square[:, 0], label="X", linewidth=3)
-plt.plot([i for i in range(lower_bound, upper_bound)], error_vec_square[:, 1], label="Y", linewidth=3)
-plt.legend()
-plt.xlabel("Window size")
-plt.ylabel("RMSE")
-plt.title("RMSE of optical flow as a function of window size")
-plt.tight_layout()
-plt.savefig("Plots/window_error.pdf")
-plt.close()
+if not os.path.isdir("Plots"):
+    os.makedirs("Plots")
 
-plt.plot([i for i in range(lower_bound, upper_bound)], time_vec_square/time_base_max, linewidth=3)
-plt.xlabel("Window size")
-plt.ylabel("Relative time")
-plt.title("Computational time as a function of window size")
+# Plotting for square windows only
+fig1, ax = plt.subplots(2, 1)
+ax[0].plot([i for i in range(lower_bound, upper_bound)], error_vec_square[:, 0], label="X", linewidth=3)
+ax[0].plot([i for i in range(lower_bound, upper_bound)], error_vec_square[:, 1], label="Y", linewidth=3)
+ax[0].legend()
+ax[0].set_xlabel("Window size")
+ax[0].set_ylabel("RMSE")
+
+ax[1].plot([i for i in range(lower_bound, upper_bound)], time_vec_square/time_base_max, linewidth=3)
+ax[1].set_xlabel("Window size")
+ax[1].set_ylabel("Relative time")
 plt.tight_layout()
-plt.savefig("Plots/window_comptime.pdf")
+plt.savefig("Plots/window_comptime_subplots.pdf")
 plt.close()
 
 # Plotting also for asymmetric windows
