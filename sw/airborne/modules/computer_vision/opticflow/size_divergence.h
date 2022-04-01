@@ -25,7 +25,7 @@
 /**
  * @file modules/computer_vision/opticflow/size_divergence.h
  * @brief Calculate divergence from flow vectors by looking at line sizes beteween the points.
- *
+ * @brief Calculate divergence from flow vectors by looking at line sizes between the points of the left and right hand side of the image
  * Uses optical flow vectors as determined with a corner tracker and Lucas Kanade to estimate divergence.
  */
 

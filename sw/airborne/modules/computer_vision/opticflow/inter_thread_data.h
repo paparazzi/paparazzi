@@ -50,8 +50,8 @@ struct opticflow_result_t {
 
   float div_size;         ///< Divergence as determined with the size_divergence script
 
-  float div_size_left;
-  float div_size_right;
+  float div_size_left;   ///<Left side divergence as determined with the size_divergence script
+  float div_size_right;  ///<Right side divergence as determined with the size_divergence script
 
   float surface_roughness; ///< Surface roughness as determined with a linear optical flow fit
   float divergence;       ///< Divergence as determined with a linear flow fit

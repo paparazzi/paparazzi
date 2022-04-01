@@ -28,6 +28,9 @@
  *  sizes between the points.
  *
  * Uses optical flow vectors as determined with a corner tracker and Lucas Kanade to estimate divergence.
+ *
+ * MAV COURSE ADDITION:
+ * Extra function added, based on existing get_size_divergence to split divergence into left and half
  */
 
 #include "size_divergence.h"
@@ -122,7 +125,9 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
  * @param[in] img        The paramaters of the image on which optical flow was computed
  * @param[in] count      The number of optical flow vectors
  * @param[in] n_samples  The number of line segments that will be taken into account. 0 means all line segments will be considered.
- * @return divergence for left and right hand side
+ * @param[in] divs[]	 Empty array that is passed into the function and can be used to access left and right divergence.
+ * @return void
+ *
  */
 
 
@@ -198,12 +203,14 @@ void get_size_divergence_split(struct flow_t *vectors, struct image_t *img,  int
       dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
       distance_2 = sqrtf(dx * dx + dy * dy);
 
+      //check whether point that is analysed is in the left or right hand side of the image
       if ((float)vectors[i].pos.y <= img->h/2) {
-
+    	  //if left, add divergence to divergence sum of left image
       	divs_sum_left += (distance_2 - distance_1) / distance_1;
 
       	used_samples_left++;
       } else {
+    	  //if right, add divergence to divergence sum of right image
       	divs_sum_right += (distance_2 - distance_1) / distance_1;
 
       	        	used_samples_right++;}
