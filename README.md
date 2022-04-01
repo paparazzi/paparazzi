@@ -5,7 +5,7 @@ Competition Code
 
 This is the final code used for the competition for the MAV course in 2022. This code uses the principle of divergence on the left and right side of the camera to avoid obstacles
 
-The group that produced this code is group 7. The group memebers are: 
+The group that produced this code is group 7. The group members are: 
 - T. Capra
 - F. Larocque
 - Y.D. Li
