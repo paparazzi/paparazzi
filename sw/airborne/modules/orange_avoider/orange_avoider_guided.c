@@ -45,7 +45,7 @@
 #define VERBOSE_PRINT(...)
 #endif
 
-uint8_t chooseRandomIncrementAvoidance(void);
+
 
 enum navigation_state_t {
     SAFE,
@@ -64,7 +64,8 @@ float oag_max_speed = 5.f;               // max flight speed [m/s]
 float oag_heading_rate = RadOfDeg(20.f);  // heading change setpoint for avoidance [rad/s]
 struct opticflow_result_t *result;
 float flow_threshold;
-float flow_threshold_const= 1
+float flow_threshold_const= 0.01;
+float flow_threshold_min = 0.05 ;
 float absdiff;
 
 // define and initialise global variables
@@ -84,11 +85,11 @@ const int16_t max_trajectory_confidence = 5;  // number of consecutive negative 
 #endif
 static abi_event color_detection_ev;
 static void color_detection_cb(uint8_t _attribute_((unused)) sender_id,
-                               int16_t _attribute((unused)) pixel_x, int16_t __attribute_((unused)) pixel_y,
-                               int16_t _attribute((unused)) pixel_width, int16_t __attribute_((unused)) pixel_height,
-                               int32_t quality, int16_t _attribute_((unused)) extra)
+int16_t _attribute((unused)) pixel_x, int16_t __attribute_((unused)) pixel_y,
+int16_t _attribute((unused)) pixel_width, int16_t __attribute_((unused)) pixel_height,
+int32_t quality, int16_t _attribute_((unused)) extra)
 {
-    color_count = quality;
+color_count = quality;
 }
 
 #ifndef FLOOR_VISUAL_DETECTION_ID
@@ -97,12 +98,12 @@ static void color_detection_cb(uint8_t _attribute_((unused)) sender_id,
 #endif
 static abi_event floor_detection_ev;
 static void floor_detection_cb(uint8_t _attribute_((unused)) sender_id,
-                               int16_t _attribute_((unused)) pixel_x, int16_t pixel_y,
-                               int16_t _attribute((unused)) pixel_width, int16_t __attribute_((unused)) pixel_height,
-                               int32_t quality, int16_t _attribute_((unused)) extra)
+int16_t _attribute_((unused)) pixel_x, int16_t pixel_y,
+        int16_t _attribute((unused)) pixel_width, int16_t __attribute_((unused)) pixel_height,
+int32_t quality, int16_t _attribute_((unused)) extra)
 {
-    floor_count = quality;
-    floor_centroid = pixel_y;
+floor_count = quality;
+floor_centroid = pixel_y;
 }
 
 /*
@@ -110,9 +111,6 @@ static void floor_detection_cb(uint8_t _attribute_((unused)) sender_id,
  */
 void orange_avoider_guided_init(void)
 {
-    // Initialise random values
-    srand(time(NULL));
-    chooseRandomIncrementAvoidance();
 
     // bind our colorfilter callbacks to receive the color filter outputs
     AbiBindMsgVISUAL_DETECTION(ORANGE_AVOIDER_VISUAL_DETECTION_ID, &color_detection_ev, color_detection_cb);
@@ -131,20 +129,8 @@ void orange_avoider_guided_periodic(void)
         return;
     }
 
+    // Take the absolute difference between left divergence and right divergence
     absdiff = fabs(result->div_size_left - result->div_size_right);
-
-//    printf("Left: ");
-//    printf("%f  ,", result->div_size_left);
-//
-//    printf("Right: ");
-//    printf("%f \n", result->div_size_right);
-//
-//    printf("Difference:");
-//    printf("%f \n", fabs(result->div_size_left - result->div_size_right));
-
-    printf("Airspeed");
-    printf("%f \n", airspeed_f);
-
 
     // compute current color thresholds
     int32_t color_count_threshold = oag_color_count_frac * front_camera.output_size.w * front_camera.output_size.h;
@@ -165,23 +151,32 @@ void orange_avoider_guided_periodic(void)
     // bound obstacle_free_confidence
     Bound(obstacle_free_confidence, 0, max_trajectory_confidence);
 
-    float speed_sp = fminf(oag_max_speed, oag_max_speed);//0.2f * obstacle_free_confidence);
-    flow_threshold= flow_threshold_const * airspeed_f();
+    float speed_sp = oag_max_speeds
+
+    //Flow threshold is a function of speed. The flow constant is multiplied by the airspeed of the drone + a minimum flow threshold for when the airspeed is zero
+    flow_threshold= flow_threshold_const * airspeed_f()+flow_threshold_min;
 
     switch (navigation_state){
         case SAFE:
+            // Condition for out of bounds detection
             if (floor_count < floor_count_threshold || fabsf(floor_centroid_frac) > 0.12){
                 navigation_state = OUT_OF_BOUNDS;
             }
+                //Condition for near obstacle detection using focus of Expansion
             else if (result->focus_of_expansion_x == 0) {
                 navigation_state = OBSTACLE_FOUND;
             }
+                // Conditions for turning left: left divergence is higher than right divergence and the absolute value
+                // of the difference between left divergence and right divergence is bigger than the flow threshold
             else if (result->div_size_left > result->div_size_right && absdiff > flow_threshold) {
                 navigation_state = AVOID_LEFT_OBJECT;
             }
+                // Conditions for turning right: right divergence is higher than left divergence and the absolute value
+                // of the difference between left divergence and right divergence is bigger than the flow threshold
             else if (result->div_size_left < result->div_size_right && absdiff > flow_threshold){
                 navigation_state = AVOID_RIGHT_OBJECT;
             }
+                // If there are no obstacles in the way and it is not out of bounds the drone is given a forward velocity
             else {
                 guidance_h_set_guided_body_vel(speed_sp, 0);
             }
@@ -191,31 +186,34 @@ void orange_avoider_guided_periodic(void)
             // stop
             guidance_h_set_guided_body_vel(0, 0);
 
-            if (result->div_size_left > result->div_size_left){
-                // turn left
+            //Check on which side the divergence is bigger so we know which direction we should turn to
+            if (result->div_size_left > result->div_size_right){
+                // Change heading rate to turn left
                 guidance_h_set_guided_heading_rate(-oag_heading_rate);
                 navigation_state = SAFE;
             }
 
             else {
-                // turn right
+                // Change heading rate to turn right
                 guidance_h_set_guided_heading_rate(oag_heading_rate)
                 navigation_state = SAFE;
             }
 
             break;
+
         case SEARCH_FOR_SAFE_HEADING:
             guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
 
-      // make sure we have a couple of good readings before declaring the way safe
+            // make sure we have a couple of good readings before declaring the way safe
             if (obstacle_free_confidence >= 2){
-              guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
-              navigation_state = SAFE;
+                guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
+                navigation_state = SAFE;
             }
-      break;
-    case OUT_OF_BOUNDS:
-      // stop
-      guidance_h_set_guided_body_vel(0, 0);
+            break;
+
+        case OUT_OF_BOUNDS:
+            // stop
+            guidance_h_set_guided_body_vel(0, 0);
 
             // start turn back into arena
             guidance_h_set_guided_heading_rate(avoidance_heading_direction * RadOfDeg(15));
@@ -241,11 +239,9 @@ void orange_avoider_guided_periodic(void)
             // stop
             guidance_h_set_guided_body_vel(0, 0);
 
+            // Positive heading rate to make a clockwise turn
             guidance_h_set_guided_heading_rate(oag_heading_rate);
 
-//        if (absdiff <= 2 * flow_threshold){
-//            navigation_state = SAFE;
-//        }
             navigation_state = SAFE;
 
             break;
@@ -253,11 +249,9 @@ void orange_avoider_guided_periodic(void)
             // stop
             guidance_h_set_guided_body_vel(0, 0);
 
+            // Negative heading rate to make a counter-clockwise turn
             guidance_h_set_guided_heading_rate(-oag_heading_rate);
 
-//        if (absdiff <= 2 * flow_threshold){
-//            navigation_state = SAFE;
-//        }
             navigation_state = SAFE;
 
             break;
@@ -267,18 +261,3 @@ void orange_avoider_guided_periodic(void)
     return;
 }
 
-/*
- * Sets the variable 'incrementForAvoidance' randomly positive/negative
- */
-uint8_t chooseRandomIncrementAvoidance(void)
-{
-    // Randomly choose CW or CCW avoiding direction
-    if (rand() % 2 == 0) {
-        avoidance_heading_direction = 1.f;
-        VERBOSE_PRINT("Set avoidance increment to: %f\n", avoidance_heading_direction * oag_heading_rate);
-    } else {
-        avoidance_heading_direction = -1.f;
-        VERBOSE_PRINT("Set avoidance increment to: %f\n", avoidance_heading_direction * oag_heading_rate);
-    }
-    return false;
-}
