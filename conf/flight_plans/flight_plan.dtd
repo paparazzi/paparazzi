@@ -28,14 +28,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|please_call|please_call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|please_call|please_call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|please_call|please_call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -45,6 +45,8 @@
 <!ELEMENT set EMPTY>
 <!ELEMENT call EMPTY>
 <!ELEMENT call_once EMPTY>
+<!ELEMENT please_call EMPTY>
+<!ELEMENT please_call_once EMPTY>
 <!ELEMENT circle EMPTY>
 <!ELEMENT home EMPTY>
 <!ELEMENT eight EMPTY>
@@ -245,6 +247,16 @@ loop CDATA #IMPLIED
 break CDATA #IMPLIED>
 
 <!ATTLIST call_once
+fun CDATA #REQUIRED
+break CDATA #IMPLIED>
+
+<!ATTLIST please_call
+fun CDATA #REQUIRED
+until CDATA #IMPLIED
+loop CDATA #IMPLIED
+break CDATA #IMPLIED>
+
+<!ATTLIST please_call_once
 fun CDATA #REQUIRED
 break CDATA #IMPLIED>
 

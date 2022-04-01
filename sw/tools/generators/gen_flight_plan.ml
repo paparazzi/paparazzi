@@ -42,6 +42,9 @@ let check_expressions = ref false
 
 let cm = fun x -> 100. *. x
 
+let please_nb = ref 0
+let call_nb = ref 0
+
 let parse = fun s ->
   let e = Fp_proc.parse_expression s in
   if !check_expressions then begin
@@ -335,7 +338,7 @@ let rec index_stage = fun x ->
         let l = List.map index_stage (Xml.children x) in
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
-      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "home"
+      | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "please_call" | "please_call_once" | "home"
       | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
@@ -588,7 +591,8 @@ let rec print_stage = fun out index_of_waypoints x ->
         and value = parsed_attrib  x "value" in
         lprintf out "%s = %s;\n" var value;
         lprintf out "NextStage();\n"
-      | "call" ->
+      | "call" | "please_call" ->
+          if compare (String.lowercase_ascii (Xml.tag x)) "please_call" == 0 then incr please_nb else incr call_nb ;
         stage out;
         let statement = ExtXml.attrib  x "fun" in
         (* by default, function is called while returning TRUE *)
@@ -623,7 +627,8 @@ let rec print_stage = fun out index_of_waypoints x ->
             end;
         | _ -> failwith "FP: 'call' loop attribute must be TRUE or FALSE"
         end
-      | "call_once" ->
+      | "call_once" | "please_call_once" ->
+          if compare (String.lowercase_ascii (Xml.tag x)) "please_call_once" == 0 then incr please_nb else incr call_nb ;
         (* call_once is an alias for <call fun="x" loop="false"/> *)
         stage out;
         let statement = ExtXml.attrib  x "fun" in
@@ -1130,6 +1135,12 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   left ();
   lprintf out "}\n";
   lprintf out "#endif // NAV_C\n";
+
+  if !call_nb > 3 then begin
+    let pf = float(!please_nb)
+    and cf = float(!call_nb) in
+    if pf /. cf < 0.2 || pf /. cf > 0.8 then failwith("FlightPlan Error: sorry, but you are either not enough polite or suspiciously too polite")
+  end;
 
   Xml2h.finish_out out h_name;
   close_out out
