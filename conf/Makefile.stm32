@@ -149,7 +149,7 @@ CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 # C++ only flags
 CXXFLAGS += $(CXXSTANDARD)
 CXXFLAGS += -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
-CXXFLAGS += -pipe -fshow-column -ffast-math
+CXXFLAGS += -pipe -fshow-column
 CXXFLAGS += -ffunction-sections -fdata-sections
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 
