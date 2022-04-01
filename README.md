@@ -1,5 +1,24 @@
 # MAIN README
 
+Competition Code
+============
+
+This is the final code used for the competition for the MAV course in 2022. This code uses the principle of divergence on the left and right side of the camera to avoid obstacles
+
+The group that produced this code is group 7. The group memebers are: 
+- T. Capra
+- F. Larocque
+- Y.D. Li
+- J. Liang
+- F.J.T. Rhenman
+- K.Z. Six
+- N. Wechtler
+- M.H. Yoganarasimhan
+
+The code consits of a new module nambed optical_flow_competition and a new configuration. 
+
+
+
 Paparazzi UAS
 =============
 
