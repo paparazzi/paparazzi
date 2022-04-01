@@ -32,22 +32,44 @@
 #include <stdbool.h>
 
 // Module settings
-extern uint8_t cod_lum_min1;
-extern uint8_t cod_lum_max1;
-extern uint8_t cod_cb_min1;
-extern uint8_t cod_cb_max1;
-extern uint8_t cod_cr_min1;
-extern uint8_t cod_cr_max1;
+extern bool GRAY_SCALE1;
+extern bool BLUR_IMAGE1;
+extern uint8_t  BLUR_SIZE_IMAGE1;
+extern bool BLUR_EDGES1;
+extern uint8_t  BLUR_SIZE_EDGES1;
+extern bool BORDERS1;
+extern uint8_t  BORDER_MARGIN1;
+extern bool Y_UP_filter1;
+extern int  y_up_del1;
+extern bool Y_DOWN_filter1;
+extern int  y_down_del1;
+extern uint8_t  thresholdmin1;
+extern uint8_t  thresholdmax1;
+extern uint8_t  kernal_size1;
+extern double min_obs_size1;
+extern double max_obs_size1;
 
-extern uint8_t cod_lum_min2;
-extern uint8_t cod_lum_max2;
-extern uint8_t cod_cb_min2;
-extern uint8_t cod_cb_max2;
-extern uint8_t cod_cr_min2;
-extern uint8_t cod_cr_max2;
+extern bool GRAY_SCALE2;
+extern bool BLUR_IMAGE2;
+extern uint8_t  BLUR_SIZE_IMAGE2;
+extern bool BLUR_EDGES2;
+extern uint8_t  BLUR_SIZE_EDGES2;
+extern bool BORDERS2;
+extern uint8_t  BORDER_MARGIN2;
+extern bool Y_UP_filter2;
+extern int  y_up_del2;
+extern bool Y_DOWN_filter2;
+extern int  y_down_del2;
+extern uint8_t  thresholdmin2;
+extern uint8_t  thresholdmax2;
+extern uint8_t  kernal_size2;
+extern double min_obs_size2;
+extern double max_obs_size2;
 
 extern bool cod_draw1;
 extern bool cod_draw2;
+
+extern const uint8_t max_number_obsticals;
 
 // Module functions
 extern void color_object_detector_init(void);

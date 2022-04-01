@@ -26,17 +26,20 @@
  */
 
 // Own header
+#include "opencv_color_edges.h"
 #include "modules/computer_vision/obstacle_message.h"
 
 #include "modules/computer_vision/cv_detect_color_object.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/core/abi.h"
 #include "std.h"
+#include "modules/computer_vision/lib/vision/image.h"
 
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 #include "pthread.h"
+
 
 #define PRINT(string,...) fprintf(stderr, "[object_detector->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #if OBJECT_DETECTOR_VERBOSE
@@ -54,23 +57,46 @@ static pthread_mutex_t mutex;
 #define COLOR_OBJECT_DETECTOR_FPS2 0 ///< Default FPS (zero means run at camera fps)
 #endif
 
-// Filter Settings
-uint8_t cod_lum_min1 = 0;
-uint8_t cod_lum_max1 = 0;
-uint8_t cod_cb_min1 = 0;
-uint8_t cod_cb_max1 = 0;
-uint8_t cod_cr_min1 = 0;
-uint8_t cod_cr_max1 = 0;
 
-uint8_t cod_lum_min2 = 0;
-uint8_t cod_lum_max2 = 0;
-uint8_t cod_cb_min2 = 0;
-uint8_t cod_cb_max2 = 0;
-uint8_t cod_cr_min2 = 0;
-uint8_t cod_cr_max2 = 0;
+// Filter Settings
+bool GRAY_SCALE1 = true;
+bool BLUR_IMAGE1 = true;
+uint8_t  BLUR_SIZE_IMAGE1 = 3;
+bool BLUR_EDGES1 = true;
+uint8_t  BLUR_SIZE_EDGES1 = 3;
+bool BORDERS1 = true;
+uint8_t  BORDER_MARGIN1 = 3;
+bool Y_UP_filter1 = true;
+int  y_up_del1 = 40;
+bool Y_DOWN_filter1 = true;
+int  y_down_del1 = 200;
+uint8_t  thresholdmin1 = 100;
+uint8_t  thresholdmax1 = 200;
+uint8_t  kernal_size1 = 3;
+double min_obs_size1 = 0.04;
+double max_obs_size1 = 0.4;
+
+bool GRAY_SCALE2 = true;
+bool BLUR_IMAGE2 = true;
+uint8_t  BLUR_SIZE_IMAGE2 = 3;
+bool BLUR_EDGES2 = true;
+uint8_t  BLUR_SIZE_EDGES2 = 3;
+bool BORDERS2 = true;
+uint8_t  BORDER_MARGIN2 = 3;
+bool Y_UP_filter2 = true;
+int  y_up_del2 = 40;
+bool Y_DOWN_filter2 = true;
+int  y_down_del2 = 40;
+uint8_t  thresholdmin2 = 100;
+uint8_t  thresholdmax2 = 200;
+uint8_t  kernal_size2 = 3;
+double min_obs_size2 = 0.04;
+double max_obs_size2 = 0.4;
 
 bool cod_draw1 = false;
 bool cod_draw2 = false;
+
+const uint8_t  max_number_obsticals = 5;
 
 // define global variables
 struct color_object_t {
@@ -80,6 +106,9 @@ struct color_object_t {
   bool updated;
 };
 struct color_object_t global_filters[2];
+
+// Added global obstacle
+struct obstacle global_obstacles[5]; // = max_number_obsticals = 5
 
 // Function
 uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc, bool draw,
@@ -95,47 +124,91 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
  */
 static struct image_t *object_detector(struct image_t *img, uint8_t filter)
 {
-  uint8_t lum_min, lum_max;
-  uint8_t cb_min, cb_max;
-  uint8_t cr_min, cr_max;
-  bool draw;
+	bool GRAY_SCALE;
+	bool BLUR_IMAGE;
+	uint8_t  BLUR_SIZE_IMAGE;
+	bool BLUR_EDGES;
+	uint8_t  BLUR_SIZE_EDGES;
+	bool BORDERS;
+	uint8_t  BORDER_MARGIN;
+	bool Y_UP_filter;
+	int  y_up_del;
+	bool Y_DOWN_filter;
+	int  y_down_del;
+	uint8_t  thresholdmin;
+	uint8_t  thresholdmax;
+	uint8_t  kernal_size;
+	double min_obs_size;
+	double max_obs_size;
+	bool draw;
 
   switch (filter){
-    case 1:
-      lum_min = cod_lum_min1;
-      lum_max = cod_lum_max1;
-      cb_min = cod_cb_min1;
-      cb_max = cod_cb_max1;
-      cr_min = cod_cr_min1;
-      cr_max = cod_cr_max1;
-      draw = cod_draw1;
+  	  case 1:
+		GRAY_SCALE = GRAY_SCALE1;
+		BLUR_IMAGE = BLUR_IMAGE1;
+		BLUR_SIZE_IMAGE = BLUR_SIZE_IMAGE1;
+		BLUR_EDGES = BLUR_EDGES1;
+		BLUR_SIZE_EDGES = BLUR_SIZE_EDGES1;
+		BORDERS = BORDERS1;
+		BORDER_MARGIN = BORDER_MARGIN1;
+		Y_UP_filter = Y_UP_filter1;
+		y_up_del = y_up_del1;
+		Y_DOWN_filter = Y_DOWN_filter1;
+		y_down_del = y_down_del1;
+		thresholdmin = thresholdmin1;
+		thresholdmax = thresholdmax1;
+		kernal_size = kernal_size1;
+		min_obs_size = min_obs_size1;
+		max_obs_size = max_obs_size1;
       break;
-    case 2:
-      lum_min = cod_lum_min2;
-      lum_max = cod_lum_max2;
-      cb_min = cod_cb_min2;
-      cb_max = cod_cb_max2;
-      cr_min = cod_cr_min2;
-      cr_max = cod_cr_max2;
-      draw = cod_draw2;
+      case 2:
+    	GRAY_SCALE = GRAY_SCALE2;
+		BLUR_IMAGE = BLUR_IMAGE2;
+		BLUR_SIZE_IMAGE = BLUR_SIZE_IMAGE2;
+		BLUR_EDGES = BLUR_EDGES2;
+		BLUR_SIZE_EDGES = BLUR_SIZE_EDGES2;
+		BORDERS = BORDERS2;
+		BORDER_MARGIN = BORDER_MARGIN2;
+		Y_UP_filter = Y_UP_filter2;
+		y_up_del = y_up_del2;
+		Y_DOWN_filter = Y_DOWN_filter2;
+		y_down_del = y_down_del2;
+		thresholdmin = thresholdmin2;
+		thresholdmax = thresholdmax2;
+		kernal_size1 = kernal_size2;
+		min_obs_size = min_obs_size2;
+		max_obs_size = max_obs_size2;
       break;
     default:
       return img;
   };
 
-  int32_t x_c, y_c;
+  int downsize = 1;
 
-  // Filter and find centroid
-  uint32_t count = find_object_centroid(img, &x_c, &y_c, draw, lum_min, lum_max, cb_min, cb_max, cr_min, cr_max);
-  VERBOSE_PRINT("Color count %d: %u, threshold %u, x_c %d, y_c %d\n", camera, object_count, count_threshold, x_c, y_c);
-  VERBOSE_PRINT("centroid %d: (%d, %d) r: %4.2f a: %4.2f\n", camera, x_c, y_c,
-        hypotf(x_c, y_c) / hypotf(img->w * 0.5, img->h * 0.5), RadOfDeg(atan2f(y_c, x_c)));
+  struct obstacle new_obstacle[max_number_obsticals];
+
+  opencv_color_edges(new_obstacle,img,GRAY_SCALE,
+			BLUR_IMAGE,BLUR_SIZE_IMAGE,
+			BLUR_EDGES,BLUR_SIZE_EDGES,
+			BORDERS,BORDER_MARGIN,
+			Y_UP_filter,y_up_del,
+			Y_DOWN_filter,y_down_del,
+			thresholdmin,thresholdmax,
+			kernal_size,
+			max_number_obsticals,
+			draw,
+			downsize,
+			min_obs_size,max_obs_size);
 
   pthread_mutex_lock(&mutex);
-  global_filters[filter-1].color_count = count;
-  global_filters[filter-1].x_c = x_c;
-  global_filters[filter-1].y_c = y_c;
-  global_filters[filter-1].updated = true;
+
+  for (int i = 0; i < max_number_obsticals; i++) {
+	  global_obstacles[i].pos_x = new_obstacle[i].pos_x;
+	  global_obstacles[i].pos_y = new_obstacle[i].pos_y;
+	  global_obstacles[i].width = new_obstacle[i].width;
+	  global_obstacles[i].height = new_obstacle[i].height;
+	  global_obstacles[i].updated = true;
+  }
   pthread_mutex_unlock(&mutex);
 
   return img;
@@ -158,13 +231,23 @@ void color_object_detector_init(void)
   memset(global_filters, 0, 2*sizeof(struct color_object_t));
   pthread_mutex_init(&mutex, NULL);
 #ifdef COLOR_OBJECT_DETECTOR_CAMERA1
-#ifdef COLOR_OBJECT_DETECTOR_LUM_MIN1
-  cod_lum_min1 = COLOR_OBJECT_DETECTOR_LUM_MIN1;
-  cod_lum_max1 = COLOR_OBJECT_DETECTOR_LUM_MAX1;
-  cod_cb_min1 = COLOR_OBJECT_DETECTOR_CB_MIN1;
-  cod_cb_max1 = COLOR_OBJECT_DETECTOR_CB_MAX1;
-  cod_cr_min1 = COLOR_OBJECT_DETECTOR_CR_MIN1;
-  cod_cr_max1 = COLOR_OBJECT_DETECTOR_CR_MAX1;
+#ifdef COLOR_OBJECT_DETECTOR_GRAY_SCALE1
+  	GRAY_SCALE1 = COLOR_OBJECT_DETECTOR_GRAY_SCALE1;
+	BLUR_IMAGE1 = COLOR_OBJECT_DETECTOR_BLUR_IMAGE1;
+	BLUR_SIZE_IMAGE1 = COLOR_OBJECT_DETECTOR_BLUR_SIZE_IMAGE1;
+	BLUR_EDGES1 = COLOR_OBJECT_DETECTOR_BLUR_EDGES1;
+	BLUR_SIZE_EDGES1 = COLOR_OBJECT_DETECTOR_BLUR_SIZE_EDGES1;
+	BORDERS1 = COLOR_OBJECT_DETECTOR_BORDERS1;
+	BORDER_MARGIN1 = COLOR_OBJECT_DETECTOR_BORDER_MARGIN1;
+	Y_UP_filter1 = COLOR_OBJECT_DETECTOR_Y_UP_filter1;
+	y_up_del1 = COLOR_OBJECT_DETECTOR_y_up_del1;
+	Y_DOWN_filter1 = COLOR_OBJECT_DETECTOR_Y_DOWN_filter1;
+	y_down_del1 = COLOR_OBJECT_DETECTOR_y_down_del1;
+	thresholdmin1 = COLOR_OBJECT_DETECTOR_thresholdmin1;
+	thresholdmax1 = COLOR_OBJECT_DETECTOR_thresholdmax1;
+	kernal_size1 = COLOR_OBJECT_DETECTOR_kernal_size1;
+	min_obs_size1 = COLOR_OBJECT_DETECTOR_min_obs_size1;
+	max_obs_size1 = COLOR_OBJECT_DETECTOR_max_obs_size1;
 #endif
 #ifdef COLOR_OBJECT_DETECTOR_DRAW1
   cod_draw1 = COLOR_OBJECT_DETECTOR_DRAW1;
@@ -174,13 +257,23 @@ void color_object_detector_init(void)
 #endif
 
 #ifdef COLOR_OBJECT_DETECTOR_CAMERA2
-#ifdef COLOR_OBJECT_DETECTOR_LUM_MIN2
-  cod_lum_min2 = COLOR_OBJECT_DETECTOR_LUM_MIN2;
-  cod_lum_max2 = COLOR_OBJECT_DETECTOR_LUM_MAX2;
-  cod_cb_min2 = COLOR_OBJECT_DETECTOR_CB_MIN2;
-  cod_cb_max2 = COLOR_OBJECT_DETECTOR_CB_MAX2;
-  cod_cr_min2 = COLOR_OBJECT_DETECTOR_CR_MIN2;
-  cod_cr_max2 = COLOR_OBJECT_DETECTOR_CR_MAX2;
+#ifdef COLOR_OBJECT_DETECTOR_GRAY_SCALE2
+  	GRAY_SCALE2 = COLOR_OBJECT_DETECTOR_GRAY_SCALE2;
+  	BLUR_IMAGE2 = COLOR_OBJECT_DETECTOR_BLUR_IMAGE2;
+  	BLUR_SIZE_IMAGE2 = COLOR_OBJECT_DETECTOR_BLUR_SIZE_IMAGE2;
+  	BLUR_EDGES2 = COLOR_OBJECT_DETECTOR_BLUR_EDGES2;
+  	BLUR_SIZE_EDGES2 = COLOR_OBJECT_DETECTOR_BLUR_SIZE_EDGES2;
+  	BORDERS2 = COLOR_OBJECT_DETECTOR_BORDERS2;
+  	BORDER_MARGIN2 = COLOR_OBJECT_DETECTOR_BORDER_MARGIN2;
+  	Y_UP_filter2 = COLOR_OBJECT_DETECTOR_Y_UP_filter2;
+  	y_up_del2 = COLOR_OBJECT_DETECTOR_y_up_del2;
+  	Y_DOWN_filter2 = COLOR_OBJECT_DETECTOR_Y_DOWN_filter2;
+  	y_down_del2 = COLOR_OBJECT_DETECTOR_y_down_del2;
+  	thresholdmin2 = COLOR_OBJECT_DETECTOR_thresholdmin2;
+  	thresholdmax2 = COLOR_OBJECT_DETECTOR_thresholdmax2;
+  	kernal_size2 = COLOR_OBJECT_DETECTOR_kernal_size2;
+  	min_obs_size2 = COLOR_OBJECT_DETECTOR_min_obs_size2;
+  	max_obs_size2 = COLOR_OBJECT_DETECTOR_max_obs_size2;
 #endif
 #ifdef COLOR_OBJECT_DETECTOR_DRAW2
   cod_draw2 = COLOR_OBJECT_DETECTOR_DRAW2;
@@ -245,6 +338,10 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
         if (draw){
           *yp = 255;  // make pixel brighter in image
         }
+      } else {
+    	  if (draw){
+    	   *yp = 0;
+    	  }
       }
     }
   }
@@ -261,16 +358,27 @@ uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc,
 void color_object_detector_periodic(void)
 {
 
-  struct ObstacleMessage testMessage;
-  testMessage.obs_height = 10;
-
-  uint32_t stamp = get_sys_time_usec();
-  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(testMessage), &testMessage);
+  struct ObstacleMessage obstacleMessage[max_number_obsticals];
 
   static struct color_object_t local_filters[2];
+  static struct obstacle local_obstacles[5]; // max_number_obsticals = 5;
   pthread_mutex_lock(&mutex);
   memcpy(local_filters, global_filters, 2*sizeof(struct color_object_t));
+  memcpy(local_obstacles, global_obstacles, max_number_obsticals*sizeof(struct color_object_t));
   pthread_mutex_unlock(&mutex);
+
+  if(global_filters[0].updated){
+	  for (unsigned int i = 0; i < max_number_obsticals; i++) {
+		  obstacleMessage[i].pos_x = local_obstacles[i].pos_x;
+		  obstacleMessage[i].pos_y = local_obstacles[i].pos_y;
+		  obstacleMessage[i].obs_width = local_obstacles[i].width;
+		  obstacleMessage[i].obs_height = local_obstacles[i].height;
+		  obstacleMessage[i].quality = local_obstacles[i].area;
+		  obstacleMessage[i].time2impact = -1;
+	  }
+	  uint32_t stamp = get_sys_time_usec();
+	  AbiSendMsgPAYLOAD_DATA(2, stamp, 1, sizeof(obstacleMessage), &obstacleMessage);
+  }
 
   if(local_filters[0].updated){
     AbiSendMsgVISUAL_DETECTION(COLOR_OBJECT_DETECTION1_ID, local_filters[0].x_c, local_filters[0].y_c,
