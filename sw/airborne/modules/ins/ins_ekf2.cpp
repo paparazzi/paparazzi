@@ -34,6 +34,7 @@
 #include "generated/flight_plan.h"
 #include "EKF/ekf.h"
 #include "math/pprz_isa.h"
+#include "math/pprz_geodetic_wgs84.h"
 #include "mcu_periph/sys_time.h"
 #include "autopilot.h"
 
@@ -51,7 +52,7 @@
 /** Special configuration for Optitrack */
 #if INS_EKF2_OPTITRACK
 #ifndef INS_EKF2_FUSION_MODE
-#define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVYAW)
+#define INS_EKF2_FUSION_MODE (MASK_USE_EVPOS | MASK_USE_EVVEL | MASK_USE_EVYAW)
 #endif
 #ifndef INS_EKF2_VDIST_SENSOR_TYPE
 #define INS_EKF2_VDIST_SENSOR_TYPE VDIST_SENSOR_EV
@@ -78,12 +79,6 @@ PRINT_CONFIG_VAR(INS_EKF2_VDIST_SENSOR_TYPE)
 #define INS_EKF2_GPS_CHECK_MASK 21 // (MASK_GPS_NSATS | MASK_GPS_HACC | MASK_GPS_SACC)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_CHECK_MASK)
-
-/** default AGL sensor to use in INS */
-#ifndef INS_EKF2_AGL_ID
-#define INS_EKF2_AGL_ID ABI_BROADCAST
-#endif
-PRINT_CONFIG_VAR(INS_EKF2_AGL_ID)
 
 /** Default AGL sensor minimum range */
 #ifndef INS_EKF2_SONAR_MIN_RANGE
@@ -112,6 +107,18 @@ PRINT_CONFIG_VAR(INS_EKF2_RANGE_MAIN_AGL)
 #endif
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_ID)
+
+/** default temperature sensor to use in INS */
+#ifndef INS_EKF2_TEMPERATURE_ID
+#define INS_EKF2_TEMPERATURE_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_TEMPERATURE_ID)
+
+/** default AGL sensor to use in INS */
+#ifndef INS_EKF2_AGL_ID
+#define INS_EKF2_AGL_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_AGL_ID)
 
 /* default Gyro to use in INS */
 #ifndef INS_EKF2_GYRO_ID
@@ -143,6 +150,42 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_OF_ID)
 
+/* IMU X offset from CoG position in meters */
+#ifndef INS_EKF2_IMU_POS_X
+#define INS_EKF2_IMU_POS_X 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_X)
+
+/* IMU Y offset from CoG position in meters */
+#ifndef INS_EKF2_IMU_POS_Y
+#define INS_EKF2_IMU_POS_Y 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Y)
+
+/* IMU Z offset from CoG position in meters */
+#ifndef INS_EKF2_IMU_POS_Z
+#define INS_EKF2_IMU_POS_Z 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_IMU_POS_Z)
+
+/* GPS X offset from CoG position in meters */
+#ifndef INS_EKF2_GPS_POS_X
+#define INS_EKF2_GPS_POS_X 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_X)
+
+/* GPS Y offset from CoG position in meters */
+#ifndef INS_EKF2_GPS_POS_Y
+#define INS_EKF2_GPS_POS_Y 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Y)
+
+/* GPS Z offset from CoG position in meters */
+#ifndef INS_EKF2_GPS_POS_Z
+#define INS_EKF2_GPS_POS_Z 0
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_GPS_POS_Z)
+
 /* Default flow/radar message delay (in ms) */
 #ifndef INS_EKF2_FLOW_SENSOR_DELAY
 #define INS_EKF2_FLOW_SENSOR_DELAY 15
@@ -161,23 +204,23 @@ PRINT_CONFIG_VAR(INS_EKF2_MIN_FLOW_QUALITY)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_MAX_FLOW_RATE)
 
-/* Flow sensor X offset from IMU position in meters */
-#ifndef INS_EKF2_FLOW_OFFSET_X
-#define INS_EKF2_FLOW_OFFSET_X 0
+/* Flow sensor X offset from CoG position in meters */
+#ifndef INS_EKF2_FLOW_POS_X
+#define INS_EKF2_FLOW_POS_X 0
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_X)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_X)
 
-/* Flow sensor Y offset from IMU position in meters */
-#ifndef INS_EKF2_FLOW_OFFSET_Y
-#define INS_EKF2_FLOW_OFFSET_Y 0
+/* Flow sensor Y offset from CoG position in meters */
+#ifndef INS_EKF2_FLOW_POS_Y
+#define INS_EKF2_FLOW_POS_Y 0
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_Y)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Y)
 
-/* Flow sensor Z offset from IMU position in meters */
-#ifndef INS_EKF2_FLOW_OFFSET_Z
-#define INS_EKF2_FLOW_OFFSET_Z 0
+/* Flow sensor Z offset from CoG position in meters */
+#ifndef INS_EKF2_FLOW_POS_Z
+#define INS_EKF2_FLOW_POS_Z 0
 #endif
-PRINT_CONFIG_VAR(INS_EKF2_FLOW_OFFSET_Z)
+PRINT_CONFIG_VAR(INS_EKF2_FLOW_POS_Z)
 
 /* Flow sensor noise in rad/sec */
 #ifndef INS_EKF2_FLOW_NOISE
@@ -199,13 +242,13 @@ PRINT_CONFIG_VAR(INS_EKF2_FLOW_INNOV_GATE)
 
 /* External vision position noise (m) */
 #ifndef INS_EKF2_EVP_NOISE
-#define INS_EKF2_EVP_NOISE 0.1f
+#define INS_EKF2_EVP_NOISE 0.02f
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_EVP_NOISE)
 
 /* External vision velocity noise (m/s) */
 #ifndef INS_EKF2_EVV_NOISE
-#define INS_EKF2_EVV_NOISE 1.0f
+#define INS_EKF2_EVV_NOISE 0.1f
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_EVV_NOISE)
 
@@ -234,8 +277,9 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
 PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
 /* All registered ABI events */
-static abi_event agl_ev;
 static abi_event baro_ev;
+static abi_event temperature_ev;
+static abi_event agl_ev;
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
@@ -244,8 +288,9 @@ static abi_event body_to_imu_ev;
 static abi_event optical_flow_ev;
 
 /* All ABI callbacks */
-static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
+static void temperature_cb(uint8_t sender_id, float temp);
+static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro);
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
@@ -254,26 +299,6 @@ static void body_to_imu_cb(uint8_t sender_id, struct FloatQuat *q_b2i_f);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x,
                             int32_t flow_der_y, float quality, float size_divergence);
 
-/* Main EKF2 structure for keeping track of the status and use cross messaging */
-struct ekf2_t {
-  uint32_t gyro_stamp;        ///< Gyroscope last abi message timestamp
-  uint32_t gyro_dt;           ///< Gyroscope delta timestamp between abi messages
-  uint32_t accel_stamp;       ///< Accelerometer last abi message timestamp
-  uint32_t accel_dt;          ///< Accelerometer delta timestamp between abi messages
-  uint32_t flow_stamp;        ///< Optic flow last abi message timestamp
-
-  FloatRates gyro;            ///< Last gyroscope measurements
-  FloatVect3 accel;           ///< Last accelerometer measurements
-  bool gyro_valid;            ///< If we received a gyroscope measurement
-  bool accel_valid;           ///< If we received a acceleration measurement
-
-  uint8_t quat_reset_counter;           ///< Amount of quaternion resets from the EKF2
-  uint64_t ltp_stamp;                   ///< Last LTP change timestamp from the EKF2
-  struct LtpDef_i ltp_def;              ///< Latest LTP definition from the EKF2
-  struct OrientationReps body_to_imu;   ///< Body to IMU rotation
-  bool got_imu_data;                    ///< If we received valid IMU data (any sensor)
-};
-
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
 
@@ -281,7 +306,6 @@ static void ins_ekf2_publish_attitude(uint32_t stamp);
 static Ekf ekf;                                   ///< EKF class itself
 static parameters *ekf_params;                    ///< The EKF parameters
 struct ekf2_t ekf2;                               ///< Local EKF2 status structure
-struct ekf2_parameters_t ekf2_params;             ///< EKF2 parameters interface
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -289,25 +313,22 @@ struct ekf2_parameters_t ekf2_params;             ///< EKF2 parameters interface
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
   struct NedCoor_i pos, speed, accel;
-  float pos_f[3] = {};
-  float speed_f[3] = {};
-  float accel_f[3] = {};
 
   // Get it from the EKF
-  ekf.get_position(pos_f);
-  ekf.get_velocity(speed_f);
-  ekf.get_vel_deriv_ned(accel_f);
+  const Vector3f pos_f{ekf.getPosition()};
+  const Vector3f speed_f{ekf.getVelocity()};
+  const Vector3f accel_f{ekf.getVelocityDerivative()};
 
   // Convert to integer
-  pos.x = POS_BFP_OF_REAL(pos_f[0]);
-  pos.y = POS_BFP_OF_REAL(pos_f[1]);
-  pos.z = POS_BFP_OF_REAL(pos_f[2]);
-  speed.x = SPEED_BFP_OF_REAL(speed_f[0]);
-  speed.y = SPEED_BFP_OF_REAL(speed_f[1]);
-  speed.z = SPEED_BFP_OF_REAL(speed_f[2]);
-  accel.x = ACCEL_BFP_OF_REAL(accel_f[0]);
-  accel.y = ACCEL_BFP_OF_REAL(accel_f[1]);
-  accel.z = ACCEL_BFP_OF_REAL(accel_f[2]);
+  pos.x = POS_BFP_OF_REAL(pos_f(0));
+  pos.y = POS_BFP_OF_REAL(pos_f(1));
+  pos.z = POS_BFP_OF_REAL(pos_f(2));
+  speed.x = SPEED_BFP_OF_REAL(speed_f(0));
+  speed.y = SPEED_BFP_OF_REAL(speed_f(1));
+  speed.z = SPEED_BFP_OF_REAL(speed_f(2));
+  accel.x = ACCEL_BFP_OF_REAL(accel_f(0));
+  accel.y = ACCEL_BFP_OF_REAL(accel_f(1));
+  accel.z = ACCEL_BFP_OF_REAL(accel_f(2));
 
   // Send the message
   pprz_msg_send_INS(trans, dev, AC_ID,
@@ -320,19 +341,16 @@ static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
   float baro_z = 0.0f;
   int32_t pos_z, speed_z, accel_z;
-  float pos_f[3] = {};
-  float speed_f[3] = {};
-  float accel_f[3] = {};
 
   // Get it from the EKF
-  ekf.get_position(pos_f);
-  ekf.get_velocity(speed_f);
-  ekf.get_vel_deriv_ned(accel_f);
+  const Vector3f pos_f{ekf.getPosition()};
+  const Vector3f speed_f{ekf.getVelocity()};
+  const Vector3f accel_f{ekf.getVelocityDerivative()};
 
   // Convert to integer
-  pos_z = POS_BFP_OF_REAL(pos_f[2]);
-  speed_z = SPEED_BFP_OF_REAL(speed_f[2]);
-  accel_z = ACCEL_BFP_OF_REAL(accel_f[2]);
+  pos_z = POS_BFP_OF_REAL(pos_f(2));
+  speed_z = SPEED_BFP_OF_REAL(speed_f(2));
+  accel_z = ACCEL_BFP_OF_REAL(accel_f(2));
 
   // Send the message
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
@@ -357,11 +375,11 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_gps_check_status(&gps_check_status);
   ekf.get_ekf_soln_status(&soln_status);
 
-  uint16_t innov_test_status = ekf.innov_check_fail_status().value;
+  uint16_t innov_test_status;
   float mag, vel, pos, hgt, tas, hagl, flow, beta, mag_decl;
   uint8_t terrain_valid, dead_reckoning;
-  // ekf.get_innovation_test_status(&innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
-  // ekf.get_flow_innov(&flow);
+  ekf.get_innovation_test_status(innov_test_status, mag, vel, pos, hgt, tas, hagl, beta);
+  //ekf.get_flow_innov(&flow);
   ekf.get_mag_decl_deg(&mag_decl);
 
   if (ekf.isTerrainEstimateValid()) {
@@ -467,11 +485,25 @@ void ins_ekf2_init(void)
   ekf_params->flow_noise_qual_min = INS_EKF2_FLOW_NOISE_QMIN;
   ekf_params->flow_innov_gate = INS_EKF2_FLOW_INNOV_GATE;
 
-  /* Set flow sensor offset from IMU position in xyz (m) */
+  /* Set the IMU position relative from the CoG in xyz (m) */
+  ekf_params->imu_pos_body = {
+    INS_EKF2_IMU_POS_X,
+    INS_EKF2_IMU_POS_Y,
+    INS_EKF2_IMU_POS_Z
+  };
+
+  /* Set the GPS position relative from the CoG in xyz (m) */
+  ekf_params->gps_pos_body = {
+    INS_EKF2_GPS_POS_X,
+    INS_EKF2_GPS_POS_Y,
+    INS_EKF2_GPS_POS_Z
+  };
+
+  /* Set flow sensor offset from CoG position in xyz (m) */
   ekf_params->flow_pos_body = {
-    INS_EKF2_FLOW_OFFSET_X,
-    INS_EKF2_FLOW_OFFSET_Y,
-    INS_EKF2_FLOW_OFFSET_Z
+    INS_EKF2_FLOW_POS_X,
+    INS_EKF2_FLOW_POS_Y,
+    INS_EKF2_FLOW_POS_Z
   };
 
   /* Set range as default AGL measurement if possible */
@@ -486,6 +518,8 @@ void ins_ekf2_init(void)
   ekf2.accel_valid = false;
   ekf2.got_imu_data = false;
   ekf2.quat_reset_counter = 0;
+  ekf2.temp = 20.0f; // Default temperature of 20 degrees celcius
+  ekf2.qnh = 1013.25f; // Default atmosphere
 
   /* Initialize the range sensor limits */
   ekf.set_rangefinder_limits(INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
@@ -508,8 +542,8 @@ void ins_ekf2_init(void)
     stateSetLocalOrigin_i(&ekf2.ltp_def);
 
     /* update local ENU coordinates of global waypoints */
-+   waypoints_localize_all();
-    
+    waypoints_localize_all();
+
     ekf2.ltp_stamp = 1;
   }
 #endif
@@ -529,6 +563,7 @@ void ins_ekf2_init(void)
    * Subscribe to scaled IMU measurements and attach callbacks
    */
   AbiBindMsgBARO_ABS(INS_EKF2_BARO_ID, &baro_ev, baro_cb);
+  AbiBindMsgTEMPERATURE(INS_EKF2_TEMPERATURE_ID, &temperature_ev, temperature_cb);
   AbiBindMsgAGL(INS_EKF2_AGL_ID, &agl_ev, agl_cb);
   AbiBindMsgIMU_GYRO_INT32(INS_EKF2_GYRO_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL_INT32(INS_EKF2_ACCEL_ID, &accel_ev, accel_cb);
@@ -572,7 +607,7 @@ void ins_ekf2_update(void)
       // Publish to state
       stateSetSpeedNed_f(&speed);
 
-      /* Get the accelrations in NED frame */
+      /* Get the accelerations in NED frame */
       const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
       struct NedCoor_f accel;
       accel.x = vel_deriv_f(0);
@@ -594,8 +629,9 @@ void ins_ekf2_update(void)
       if (ekf_origin_valid && (origin_time > ekf2.ltp_stamp)) {
         lla_ref.lat = ekf_origin_lat * 1e7; // WGS-84 lat
         lla_ref.lon = ekf_origin_lon * 1e7; // WGS-84 lon
-        lla_ref.alt = ref_alt * 1e3; // WGS-84 height
+        lla_ref.alt = ref_alt * 1e3 + wgs84_ellipsoid_to_geoid_i(lla_ref.lat, lla_ref.lon); // WGS-84 height
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
+        ekf2.ltp_def.hmsl = ref_alt * 1e3;
         stateSetLocalOrigin_i(&ekf2.ltp_def);
 
         /* update local ENU coordinates of global waypoints */
@@ -617,15 +653,15 @@ void ins_ekf2_update(void)
 
 void ins_ekf2_change_param(int32_t unk)
 {
-  ekf_params->mag_fusion_type = ekf2_params.mag_fusion_type = unk;
+  ekf_params->mag_fusion_type = ekf2.mag_fusion_type = unk;
 }
 
 void ins_ekf2_remove_gps(int32_t mode)
 {
   if (mode) {
-    ekf_params->fusion_mode = ekf2_params.fusion_mode = (MASK_USE_OF | MASK_USE_GPSYAW);
+    ekf_params->fusion_mode = ekf2.fusion_mode = (MASK_USE_OF | MASK_USE_GPSYAW);
   } else {
-    ekf_params->fusion_mode = ekf2_params.fusion_mode = INS_EKF2_FUSION_MODE;
+    ekf_params->fusion_mode = ekf2.fusion_mode = INS_EKF2_FUSION_MODE;
   }
 }
 
@@ -737,14 +773,18 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
   sample.time_us = stamp;
 
   // Calculate the air density
-  float rho = pprz_isa_density_of_pressure(pressure,
-              20.0f); // TODO: add temperature compensation now set to 20 degree celcius
+  float rho = pprz_isa_density_of_pressure(pressure, ekf2.temp);
   ekf.set_air_density(rho);
 
   // Calculate the height above mean sea level based on pressure
-  sample.hgt = pprz_isa_height_of_pressure_full(pressure,
-                        101325.0); //101325.0 defined as PPRZ_ISA_SEA_LEVEL_PRESSURE in pprz_isa.h
+  sample.hgt = pprz_isa_height_of_pressure_full(pressure, ekf2.qnh * 100.0f); 
   ekf.setBaroData(sample);
+}
+
+/* Save the latest temperature measurement for air density calculations */
+static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp)
+{
+  ekf2.temp = temp;
 }
 
 /* Update INS based on AGL information */

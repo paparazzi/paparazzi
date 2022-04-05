@@ -71,28 +71,21 @@
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
-    <!--module name="ahrs" type="int_cmpl_quat" >
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+    <module name="ahrs" type="int_cmpl_quat" >
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
-    <module name="ins" type="extended" /-->
+    <module name="ins" type="extended" />
 
-    <module name="ins"           type="ekf2">
-      <!--define name="INS_EKF2_OPTITRACK" value="true"/-->
-      <!-- Lower noise bounds for GPS due to RTK -->
-      <define name="INS_EKF2_GPS_V_NOISE" value="0.1"/>
-      <define name="INS_EKF2_GPS_P_NOISE" value="0.1"/>
-      <!--define name="INS_EKF2_VDIST_SENSOR_TYPE" value="VDIST_SENSOR_GPS"/-->
-    </module>
     <module name="actuators"     type="pwm">
         <define name="SERVO_HZ" value="400" />
     </module>
     <module name="imu"           type="mpu6000"/>
-    <!--module name="gps"           type="datalink"/-->
-    <module name="gps"           type="ublox">
+    <module name="gps"           type="datalink"/>
+    <!-- <module name="gps"           type="ublox">
       <configure name="UBX_GPS_BAUD" value="B460800"/>
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
-    </module>
+    </module> -->
     <module name="stabilization" type="indi">
       <!--define name="TILT_TWIST_CTRL" value="TRUE"/-->
     </module>
@@ -306,12 +299,25 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="REF_MAX_SPEED" value="10"/>
+
     <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="60"/>
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="0"/>
     <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- Needed to use optitrack heading at any speed -->
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="USE_GPS_ALT" value="1"/>
+    <define name="USE_GPS_ALT_SPEED" value="1"/>
+    <define name="VFF_R_GPS" value="0.01"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
