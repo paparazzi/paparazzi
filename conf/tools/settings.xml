@@ -1,4 +1,0 @@
-<program command="sw/ground_segment/tmtc/settings" name="Settings">
-  <arg constant="@AIRCRAFT" flag="-ac" />
-</program>
-

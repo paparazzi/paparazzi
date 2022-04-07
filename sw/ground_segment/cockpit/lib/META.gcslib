@@ -1,0 +1,8 @@
+description = "Paparazzi GCS lib"
+requires = "pprz.xlib,pprzlink,lablgtk2-gnome.gnomecanvas,lablgtk2.glade"
+version = "1.0"
+directory = ""
+
+archive(byte) = "gcslib-pprz.cma"
+archive(native) = "gcslib-pprz.cmxa"
+
