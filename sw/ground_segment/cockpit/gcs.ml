@@ -670,13 +670,7 @@ let () =
           (window:>GWindow.window_skel),switch_fullscreen
 
       | Some xid ->
-        let window =
-          IFDEF GDK_NATIVE_WINDOW THEN
-            Gdk.Window.native_of_xid xid
-          ELSE
-            xid
-          END
-        in
+        let window = Gdk.Window.native_of_xid xid in
         (GWindow.plug ~window ~width ~height ():>GWindow.window_skel), fun _ -> () in
 
   (* Editor frame *)
