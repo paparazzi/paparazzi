@@ -257,8 +257,8 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   in
 
   let run_gcs = fun () ->
-    let args = get_program_args (Hashtbl.find programs "GCS") in
-    run_and_monitor ?file gui log "GCS" args in
+    let args = get_program_args (Hashtbl.find programs "PprzGCS") in
+    run_and_monitor ?file gui log "PprzGCS" args in
   let run_server = fun args -> run_and_monitor ?file gui log "Server" args in
   let choose_and_run_sitl = fun ac_name ->
     let get_args = fun simtype ac_name ->
