@@ -77,6 +77,7 @@
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
       <board name="holybro_.*"/>
+      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
@@ -86,6 +87,7 @@
       <board name="li[s]?a_s_.*"/>
       <board name="px4fmu_.*"/>
       <board name="px4io_.*"/>
+      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
@@ -103,6 +105,7 @@
     <boards>
       <board name="px4fmu_.*"/>
       <board name="px4io_.*"/>
+      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="JTAG (OpenOCD)">

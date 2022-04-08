@@ -51,7 +51,7 @@
 // private SPI init structure
 struct spi_init {
   semaphore_t *sem;
-#ifdef STM32F7
+#if defined(STM32F7) || defined(STM32H7)
   uint8_t *dma_buf_out;
   uint8_t *dma_buf_in;
 #endif
@@ -153,7 +153,7 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
 }
 
 /**
- * Resolve CR1
+ * Resolve CR1 (or CFG1)
  *
  * Given the transaction settings, returns the right configuration of
  * SPIx_CR1 register.
@@ -164,12 +164,12 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
  *
  * @param[in] t pointer to a @p spi_transaction struct
  */
-static inline uint16_t spi_resolve_CR1(struct spi_transaction *t __attribute__((unused)))
+static inline uint32_t spi_resolve_CR1(struct spi_transaction *t __attribute__((unused)))
 {
-  uint16_t CR1 = 0;
+  uint32_t CR1 = 0;
 #if defined(STM32F1) || defined(STM32F4)
   if (t->dss == SPIDss16bit) {
-    CR1 |= SPI_CR1_DFF; // FIXME for F7
+    CR1 |= SPI_CR1_DFF;
   }
 #endif
 #if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
@@ -211,11 +211,20 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t __attribute__((
       break;
   }
 #endif /* STM32F1 || STM32F4 || STM32F7 */
+#if defined(STM32H7)
+  if (t->dss == SPIDss16bit) {
+    CR1 |= SPI_CFG1_DSIZE_VALUE(15); // 16 bit transfer
+  }
+  else {
+    CR1 |= SPI_CFG1_DSIZE_VALUE(7); // 8 bit transfer
+  }
+  CR1 |= SPI_CFG1_MBR_VALUE(t->cdiv);
+#endif /* STM32H7 */
   return CR1;
 }
 
 /**
- * Resolve CR2
+ * Resolve CR2 (or CFG2)
  *
  * Given the transaction settings, returns the right configuration of
  * SPIx_CR2 register.
@@ -226,9 +235,9 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t __attribute__((
  *
  * @param[in] t pointer to a @p spi_transaction struct
  */
-static inline uint16_t spi_resolve_CR2(struct spi_transaction *t __attribute__((unused)))
+static inline uint32_t spi_resolve_CR2(struct spi_transaction *t __attribute__((unused)))
 {
-  uint16_t CR2 = 0;
+  uint32_t CR2 = 0;
 #if defined(STM32F7)
   if (t->dss == SPIDss16bit) {
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 | SPI_CR2_DS_3;
@@ -236,6 +245,17 @@ static inline uint16_t spi_resolve_CR2(struct spi_transaction *t __attribute__((
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2;
   }
 #endif /* STM32F7 */
+#if defined(STM32H7)
+  if (t->bitorder == SPILSBFirst) {
+    CR2 |= SPI_CFG2_LSBFRST;
+  }
+  if (t->cpha == SPICphaEdge2) {
+    CR2 |= SPI_CFG2_CPHA;
+  }
+  if (t->cpol == SPICpolIdleHigh) {
+    CR2 |= SPI_CFG2_CPOL;
+  }
+#endif /* STM32H7 */
   return CR2;
 }
 
@@ -268,7 +288,7 @@ static void handle_spi_thd(struct spi_periph *p)
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),
     spi_resolve_CR1(t),
-    spi_resolve_CR2(t)
+    spi_resolve_CR2(t),
   };
 
   // find max transaction length
@@ -293,8 +313,8 @@ static void handle_spi_thd(struct spi_periph *p)
   }
 
   // Start synchronous data transfer
-#if defined STM32F7
-  // we do stupid mem copy because F7 needs a special RAM for DMA operation
+#if defined(STM32F7) || defined(STM32H7)
+  // we do stupid mem copy because F7/H7 needs a special RAM for DMA operation
   memcpy(i->dma_buf_out, (void *)t->output_buf, (size_t)t->output_length);
   spiExchange((SPIDriver *)p->reg_addr, t_length, i->dma_buf_out, i->dma_buf_in);
   memcpy((void *)t->input_buf, i->dma_buf_in, (size_t)t->input_length);
@@ -336,7 +356,7 @@ static void handle_spi_thd(struct spi_periph *p)
 
 #if USE_SPI1
 static SEMAPHORE_DECL(spi1_sem, 0);
-#if defined STM32F7
+#if defined(STM32F7) || defined(STM32H7)
 // We need a special buffer for DMA operations
 static IN_DMA_SECTION(uint8_t spi1_dma_buf_out[SPI_DMA_BUF_LEN]);
 static IN_DMA_SECTION(uint8_t spi1_dma_buf_in[SPI_DMA_BUF_LEN]);
@@ -375,7 +395,7 @@ void spi1_arch_init(void)
 
 #if USE_SPI2
 static SEMAPHORE_DECL(spi2_sem, 0);
-#if defined STM32F7
+#if defined(STM32F7) || defined(STM32H7)
 // We need a special buffer for DMA operations
 static IN_DMA_SECTION(uint8_t spi2_dma_buf_out[SPI_DMA_BUF_LEN]);
 static IN_DMA_SECTION(uint8_t spi2_dma_buf_in[SPI_DMA_BUF_LEN]);
@@ -414,7 +434,7 @@ void spi2_arch_init(void)
 
 #if USE_SPI3
 static SEMAPHORE_DECL(spi3_sem, 0);
-#if defined STM32F7
+#if defined(STM32F7) || defined(STM32H7)
 // We need a special buffer for DMA operations
 static IN_DMA_SECTION(uint8_t spi3_dma_buf_out[SPI_DMA_BUF_LEN]);
 static IN_DMA_SECTION(uint8_t spi3_dma_buf_in[SPI_DMA_BUF_LEN]);
@@ -453,7 +473,7 @@ void spi3_arch_init(void)
 
 #if USE_SPI4
 static SEMAPHORE_DECL(spi4_sem, 0);
-#if defined STM32F7
+#if defined(STM32F7) || defined(STM32H7)
 // We need a special buffer for DMA operations
 static IN_DMA_SECTION(uint8_t spi4_dma_buf_out[SPI_DMA_BUF_LEN]);
 static IN_DMA_SECTION(uint8_t spi4_dma_buf_in[SPI_DMA_BUF_LEN]);

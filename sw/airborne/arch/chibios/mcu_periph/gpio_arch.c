@@ -68,8 +68,8 @@ void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output
   (void)pin;
   (void)af;
   (void)is_output;
-#elif defined(STM32F4) || defined(STM32F3) || defined(STM32F7)
-// STM32F4xx, STM32F3xx and STM32F7xx
+#elif defined(STM32F4) || defined(STM32F3) || defined(STM32F7) || defined(STM32H7)
+// STM32F4xx, STM32F3xx, STM32F7xx and STM32H7xx
   if (af) {
     palSetPadMode(port, pin, PAL_MODE_ALTERNATE(af));
   } else {

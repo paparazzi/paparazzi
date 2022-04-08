@@ -300,7 +300,7 @@
   <aircraft
    name="Nederdrone5"
    ac_id="27"
-   airframe="airframes/tudelft/nederdrone5.xml"
+   airframe="airframes/tudelft/cube_test.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/nederdrone_valkenburg.xml"

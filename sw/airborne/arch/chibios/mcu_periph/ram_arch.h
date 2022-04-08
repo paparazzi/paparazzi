@@ -59,8 +59,12 @@
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram3"
+#elif defined STM32H7
+#define STD_SECTION   ".ram0"
+#define FAST_SECTION  ".ram0"
+#define DMA_SECTION   ".ram3"
 #else
-#error "section defined only for STM32F1, STM32F4 and STM32F7"
+#error "section defined only for STM32F1, STM32F4, STM32F7 and STM32H7"
 #endif
 
 #define IN_STD_SECTION_NOINIT(var) var __attribute__ ((section(STD_SECTION), aligned(8)))

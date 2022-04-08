@@ -762,6 +762,8 @@
 #define CORTEX_VTOR_INIT                    0x00004000U
 #elif defined(STM32F7)
 #define CORTEX_VTOR_INIT                    0x08008000U
+#elif defined(STM32H7)
+#define CORTEX_VTOR_INIT                    0x08020000U
 #else
 #define CORTEX_VTOR_INIT                    0x00002000U
 #endif
