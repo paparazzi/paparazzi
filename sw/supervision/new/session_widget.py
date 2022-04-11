@@ -54,44 +54,12 @@ class SessionWidget(QWidget, Ui_Session):
         self.ac = ac
 
     def init(self, gconf: Dict[str, utils.GConfEntry]):
-        self.sessions = self.parse_session()
-        self.tools = self.parse_tools()
+        self.sessions = parse_sessions()
+        self.tools = parse_tools()
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
         self.sessions_combo.addItems(sessions_names)
         self.sessions_combo.setCurrentText(gconf["last session"].value)
-
-    @staticmethod
-    def parse_session() -> List[Session]:
-        control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
-        for xml_section in control_panel.getroot().findall("section"):
-            if xml_section.get("name") == "sessions":
-                return [Session.parse(xml_session) for xml_session in xml_section.findall("session")]
-
-    @staticmethod
-    def parse_tools() -> Dict[str, Tool]:
-        tools = {}
-        tools_dir = os.path.join(utils.CONF_DIR, "tools")
-        for file in os.listdir(tools_dir):
-            if file.endswith(".xml"):
-                path = os.path.join(utils.CONF_DIR, "tools", file)
-                xml = ET.parse(path).getroot()
-                if xml.tag == "program":
-                    name, tool = Tool.parse(xml)
-                    tools[name] = tool
-                else:
-                    print("unexpected tag ", xml.tag)
-
-        # programs from control_panel.xml
-        # override programs from conf/tools/*.xml
-        control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
-        for xml_section in control_panel.getroot().findall("section"):
-            if xml_section.get("name") == "programs":
-                for xml_program in xml_section.findall("program"):
-                    name, tool = Tool.parse(xml_program)
-                    tools[name] = tool
-
-        return tools
 
     def get_current_session(self) -> str:
         """

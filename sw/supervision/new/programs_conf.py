@@ -96,3 +96,35 @@ class Tool:
         favorite = True if xml_program.get("favorite") is not None else False
         args = [Arg.parse(xml_arg) for xml_arg in xml_program.findall("arg")]
         return name, Tool(name, command, icon, args, favorite)
+
+
+def parse_tools() -> Dict[str, Tool]:
+    tools = {}
+    tools_dir = os.path.join(utils.CONF_DIR, "tools")
+    for file in os.listdir(tools_dir):
+        if file.endswith(".xml"):
+            path = os.path.join(utils.CONF_DIR, "tools", file)
+            xml = ET.parse(path).getroot()
+            if xml.tag == "program":
+                name, tool = Tool.parse(xml)
+                tools[name] = tool
+            else:
+                print("unexpected tag ", xml.tag)
+
+    # programs from control_panel.xml
+    # override programs from conf/tools/*.xml
+    control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
+    for xml_section in control_panel.getroot().findall("section"):
+        if xml_section.get("name") == "programs":
+            for xml_program in xml_section.findall("program"):
+                name, tool = Tool.parse(xml_program)
+                tools[name] = tool
+
+    return tools
+
+
+def parse_sessions() -> List[Session]:
+    control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
+    for xml_section in control_panel.getroot().findall("section"):
+        if xml_section.get("name") == "sessions":
+            return [Session.parse(xml_session) for xml_session in xml_section.findall("session")]
