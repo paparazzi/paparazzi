@@ -54,7 +54,8 @@ def make_line(parent: QWidget = None, vertical=False) -> QWidget:
 
 def get_version() -> str:
     run_version_exe = os.path.join(PAPARAZZI_HOME, "paparazzi_version")
-    return os.popen(run_version_exe).readline().strip()
+    proc = subprocess.run(run_version_exe, cwd=PAPARAZZI_HOME, capture_output=True)
+    return proc.stdout.decode().strip()
 
 
 def get_build_version() -> str:
