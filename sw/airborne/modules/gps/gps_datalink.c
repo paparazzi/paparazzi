@@ -99,7 +99,7 @@ static void gps_datalink_publish(uint32_t tow, struct EnuCoor_f *enu_pos, struct
   gps_datalink.hmsl = ltp_def.hmsl + enu_pos_i.z * 10;
   SetBit(gps_datalink.valid_fields, GPS_VALID_HMSL_BIT);
 
-  gps_datalink.course = (int32_t)(RadOfDeg(course)*1e7);
+  gps_datalink.course = (int32_t)(course*1e7);
   SetBit(gps_datalink.valid_fields, GPS_VALID_COURSE_BIT);
 
   gps_datalink.num_sv = 7;
@@ -134,11 +134,11 @@ void gps_datalink_parse_EXTERNAL_POSE(uint8_t *buf)
   enu_speed.y = DL_EXTERNAL_POSE_enu_yd(buf);
   enu_speed.z = DL_EXTERNAL_POSE_enu_zd(buf);
 
-  struct FloatQuat body_q;
+  struct FloatQuat body_q; // Converted to NED for heading calculation
   body_q.qi = DL_EXTERNAL_POSE_body_qi(buf);
-  body_q.qx = DL_EXTERNAL_POSE_body_qx(buf);
-  body_q.qy = DL_EXTERNAL_POSE_body_qy(buf);
-  body_q.qz = DL_EXTERNAL_POSE_body_qz(buf);
+  body_q.qx = DL_EXTERNAL_POSE_body_qy(buf);
+  body_q.qy = DL_EXTERNAL_POSE_body_qx(buf);
+  body_q.qz = -DL_EXTERNAL_POSE_body_qz(buf);
 
   struct FloatEulers body_e;
   float_eulers_of_quat(&body_e, &body_q);
@@ -215,7 +215,7 @@ void gps_datalink_parse_REMOTE_GPS_LOCAL(uint8_t *buf)
   enu_speed.y = DL_REMOTE_GPS_LOCAL_enu_yd(buf);
   enu_speed.z = DL_REMOTE_GPS_LOCAL_enu_zd(buf);
 
-  float course = DL_REMOTE_GPS_LOCAL_course(buf);
+  float course = RadOfDeg(DL_REMOTE_GPS_LOCAL_course(buf));
 
   gps_datalink_publish(tow, &enu_pos, &enu_speed, course);
 }
