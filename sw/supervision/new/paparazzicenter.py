@@ -3,7 +3,7 @@ import conf
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 from configuration_panel import ConfigurationPanel
-from operation_panel import  OperationPanel
+from operation_panel import OperationPanel
 import utils
 from typing import Dict
 from lxml import etree as ET
@@ -12,7 +12,7 @@ from lxml import etree as ET
 class PprzCenter(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent=parent)
-        self.gconf: Dict[str, utils.GConfEntry]= utils.get_gconf()
+        self.gconf: Dict[str, utils.GConfEntry] = utils.get_gconf()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
         self.configuration_panel = ConfigurationPanel(self.tabwidget)
@@ -28,6 +28,10 @@ class PprzCenter(QMainWindow):
         self.operation_panel.session.program_spawned.connect(self.configuration_panel.disable_sets)
         self.operation_panel.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
         self.configuration_panel.ac_changed.connect(self.operation_panel.session.set_aircraft)
+        self.configuration_panel.splitter.splitterMoved.connect(self.update_left_pane_width)
+        w = int(self.gconf["width"].value)
+        h = int(self.gconf["height"].value)
+        self.resize(w, h)
         self.configuration_panel.init(self.gconf)
         self.operation_panel.init(self.gconf)
 
@@ -51,14 +55,25 @@ class PprzCenter(QMainWindow):
                     else:
                         self.configuration_panel.conf.restore_conf()
                         self.configuration_panel.conf.save()
-            self.gconf["last A/C"] = self.gconf["last A/C"]._replace(
-                value=self.configuration_panel.get_current_ac())
-            self.gconf["last target"] = self.gconf["last target"]._replace(
-                value=self.configuration_panel.build_widget.get_current_target())
-            self.gconf["last session"] = self.gconf["last session"]._replace(
-                value=self.operation_panel.session.get_current_session())
-            utils.save_gconf(self.gconf)
+            self.save_gconf()
             e.accept()
+
+    def save_gconf(self):
+        self.gconf["last A/C"] = self.gconf["last A/C"]._replace(
+            value=self.configuration_panel.get_current_ac())
+        self.gconf["last target"] = self.gconf["last target"]._replace(
+            value=self.configuration_panel.build_widget.get_current_target())
+        self.gconf["last session"] = self.gconf["last session"]._replace(
+            value=self.operation_panel.session.get_current_session())
+        self.gconf["width"] = self.gconf["width"]._replace(
+            value=str(self.width()))
+        self.gconf["height"] = self.gconf["height"]._replace(
+            value=str(self.height()))
+        utils.save_gconf(self.gconf)
+
+    def update_left_pane_width(self, pos, index):
+        self.gconf["left_pane_width"] = self.gconf["left_pane_width"]._replace(
+            value=str(pos))
 
     def fill_status_bar(self):
         home_widget = QWidget()

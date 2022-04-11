@@ -50,6 +50,9 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.header.set_sets(sets, conf_init=Conf.get_current_conf())
         self.header.ac_combo.setCurrentText(gconf["last A/C"].value)
         self.build_widget.target_combo.setCurrentText(gconf["last target"].value)
+        mww = int(gconf["width"].value)
+        lpw = int(gconf["left_pane_width"].value)
+        self.splitter.setSizes([lpw, mww-lpw])
 
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)
