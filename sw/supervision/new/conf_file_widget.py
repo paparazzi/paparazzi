@@ -9,15 +9,18 @@ import utils
 class ConfFileWidget(QWidget, Ui_FileConf):
 
     file_changed = QtCore.pyqtSignal()
+    edit_alt = QtCore.pyqtSignal(str)
 
     def __init__(self, title: str, parent=None):
         QWidget.__init__(self, parent=parent)
         self.nature = title.lower().replace(" ", "_") + "s"
         self.path = None
         self.setupUi(self)
+        self.edit_alt_button.hide()
         self.title_label.setText(title)
         self.edit_button.clicked.connect(self.edit)
         self.select_button.clicked.connect(self.select_file)
+        self.edit_alt_button.clicked.connect(lambda: self.edit_alt.emit(self.path_label.text()))
 
     def set_path(self, path):
         self.path = path

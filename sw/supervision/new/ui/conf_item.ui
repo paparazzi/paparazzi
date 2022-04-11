@@ -18,8 +18,18 @@
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QLabel" name="title_label">
+       <property name="styleSheet">
+        <string notr="true">font-weight: bold;</string>
+       </property>
        <property name="text">
         <string>Flight Plan</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="edit_alt_button">
+       <property name="text">
+        <string>Edit alt</string>
        </property>
       </widget>
      </item>

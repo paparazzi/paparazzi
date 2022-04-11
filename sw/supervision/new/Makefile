@@ -1,5 +1,6 @@
 
 all:
+	mkdir -p generated
 	pyuic5 ui/conf_header.ui -o generated/ui_conf_header.py
 	pyuic5 ui/conf_item.ui -o generated/ui_conf_item.py
 	pyuic5 ui/build.ui -o generated/ui_build.py
