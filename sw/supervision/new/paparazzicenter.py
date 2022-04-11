@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 import conf
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
@@ -13,6 +14,8 @@ class PprzCenter(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent=parent)
         self.setWindowTitle("Paparazzi Center")
+        icon = QtGui.QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "penguin_logo.svg"))
+        self.setWindowIcon(icon)
         self.gconf: Dict[str, utils.GConfEntry] = utils.get_gconf()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
