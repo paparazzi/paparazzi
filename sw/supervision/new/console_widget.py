@@ -34,6 +34,12 @@ class Record:
 
 class ConsoleWidget(QWidget, Ui_Console):
 
+    LEVELS_REG = {
+        Level.ERROR: ["error:", "error ", "no such file", "undefined reference", "failure", "multiple definition"],
+        Level.WARNING: ["warning", "no srtm data found"],
+        Level.INFO: ["pragma message", "info:", "paparazzi version", "build aircraft"]
+    }
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
@@ -64,6 +70,13 @@ class ConsoleWidget(QWidget, Ui_Console):
         data = "<span style=\"{}{}\">{}</span>".format(bg, ch, record.data)
         self.console_textedit.append(data)
 
+    def classify(self, line: str):
+        for level, regs in self.LEVELS_REG.items():
+            for reg in regs:
+                if reg in line.lower():
+                    return level
+        return Level.ALL
+
     def handle_data(self, pw: ProgramWidget, data: QByteArray, channel: Channel):
         if pw not in self.p_checkboxes:
             self.new_program(pw)
@@ -71,15 +84,9 @@ class ConsoleWidget(QWidget, Ui_Console):
             data = data[:-1]
         lines = data.split(b'\n')
         for line in lines:
-            lower = line.toLower()
-            level = Level.ALL
-            if lower.contains(b"info"):
-                level = Level.INFO
-            if lower.contains(b"warning"):
-                level = Level.WARNING
-            if lower.contains(b"error") or lower.contains(b"fail"):
-                level = Level.ERROR
-            r = Record(level, line.data().decode(), pw, channel)
+            line = line.data().decode()
+            level = self.classify(line)
+            r = Record(level, line, pw, channel)
             self.records.append(r)
             self.display_record(r)
 
