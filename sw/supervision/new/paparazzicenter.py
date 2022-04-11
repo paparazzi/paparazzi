@@ -12,6 +12,7 @@ from lxml import etree as ET
 class PprzCenter(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self, parent=parent)
+        self.setWindowTitle("Paparazzi Center")
         self.gconf: Dict[str, utils.GConfEntry] = utils.get_gconf()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)

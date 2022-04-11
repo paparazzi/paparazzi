@@ -126,12 +126,19 @@ class Aircraft:
 
     def update_targets(self):
         self.boards = {}
-        airframe_xml = ET.parse(os.path.join(utils.CONF_DIR, self.airframe))
-        for firmware_xml in airframe_xml.getroot().findall("firmware"):
-            for target_xml in firmware_xml.findall("target"):
-                target = target_xml.get("name")
-                board = target_xml.get("board")
-                self.boards[target] = board
+        try:
+            airframe_xml = ET.parse(os.path.join(utils.CONF_DIR, self.airframe))
+            for firmware_xml in airframe_xml.getroot().findall("firmware"):
+                for target_xml in firmware_xml.findall("target"):
+                    target = target_xml.get("name")
+                    board = target_xml.get("board")
+                    self.boards[target] = board
+        except OSError as e:
+            print("OSError, file {} probably not found!".format(self.airframe))
+            print(e)
+        except ET.XMLSyntaxError as e:
+            print("XMLSyntaxError, file {} is illformed !".format(self.airframe))
+            print(e)
 
 
 class Conf:
