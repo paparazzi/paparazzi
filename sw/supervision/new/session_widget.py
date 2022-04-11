@@ -176,7 +176,6 @@ class SessionWidget(QWidget, Ui_Session):
 
     def remove_all(self):
         for pw in list(self.program_widgets):
-            print("remove {}".format(pw.shortname))
             pw.handle_remove()
 
     def init_tools_menu(self):
@@ -262,7 +261,7 @@ class SessionWidget(QWidget, Ui_Session):
                 control_panel.getroot().replace(xml_section, xml_sessions)
                 break
         control_panel.write(ctrl_panel_path, pretty_print=True)
-        print("sessions saved saved to {}".format(ctrl_panel_path))
+        print("sessions saved to {}".format(ctrl_panel_path))
 
     def get_programs(self):
         programs = []
