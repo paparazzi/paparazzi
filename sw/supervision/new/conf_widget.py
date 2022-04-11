@@ -18,6 +18,8 @@ class ConfWidget(QWidget):
         self.airframe.file_changed.connect(self.conf_changed)
         self.flight_plan = ConfFileWidget("Flight Plan", self)
         self.flight_plan.file_changed.connect(self.conf_changed)
+        self.flight_plan.edit_alt_button.show()
+        self.flight_plan.edit_alt_button.setText("Edit GCS")
         self.settings = QListWidget(self)
         self.radio = ConfFileWidget("Radio", self)
         self.radio.file_changed.connect(self.conf_changed)

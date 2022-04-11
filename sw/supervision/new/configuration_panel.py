@@ -6,6 +6,8 @@ from generated.ui_configuration_panel import Ui_ConfigurationPanel
 from generated.ui_new_ac_dialog import Ui_Dialog
 from program_widget import ProgramWidget
 from conf import *
+from programs_conf import parse_tools
+import subprocess
 
 PAPARAZZI_SRC = os.getenv("PAPARAZZI_SRC")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
@@ -29,6 +31,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.console_widget.filter_widget.hide()
         self.conf = None        # type: conf.Conf
         self.currentAC = None   # type: str
+        self.flight_plan_editor = None
         self.header.set_changed.connect(self.handle_set_changed)
         self.header.ac_changed.connect(self.update_ac)
         self.header.id_changed.connect(self.handle_id_changed)
@@ -39,6 +42,7 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.save_conf_action.triggered.connect(lambda: self.conf.save())
         self.conf_widget.conf_changed.connect(self.handle_conf_changed)
         self.conf_widget.setting_changed.connect(self.handle_setting_changed)
+        self.conf_widget.flight_plan.edit_alt.connect(self.edit_flightplan_gcs)
         self.header.rename_action.triggered.connect(self.rename_ac)
         self.header.new_ac_action.triggered.connect(self.new_ac)
         self.header.duplicate_action.triggered.connect(self.duplicate_ac)
@@ -252,6 +256,20 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             color_name = color.name()
             ac.set_color(color_name)
             self.header.set_color(color_name)
+
+    def edit_flightplan_gcs(self, path):
+        if self.flight_plan_editor is None:
+            tools = parse_tools()
+            if "Flight Plan Editor" in tools:
+                self.flight_plan_editor = tools["Flight Plan Editor"]
+
+        if self.flight_plan_editor is not None:
+            cmd = [os.path.join(utils.PAPARAZZI_SRC, self.flight_plan_editor.command)]
+            for arg in self.flight_plan_editor.args:
+                cmd += arg.args()
+            cmd.append(os.path.join(utils.CONF_DIR, path))
+            subprocess.Popen(cmd)
+            # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
 
     def launch_program(self, shortname, cmd, icon):
         pw = ProgramWidget(shortname, cmd, icon, self.programs_groupbox)
