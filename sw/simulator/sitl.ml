@@ -171,14 +171,14 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   external set_message : string -> unit = "set_datalink_message"
   let get_message = fun name link_mode _sender vs ->
-    let set = fun () ->
+    let set = fun rcv_id ->
       let msg_id, _ = Dl_Pprz.message_of_name name in
-      let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
+      let s = Dl_Pprz.payload_of_values msg_id ground_id rcv_id vs in
       set_message (Protocol.string_of_payload s) in
     let ac_id = try Some (PprzLink.int_assoc "ac_id" vs) with _ -> None in
     match link_mode, ac_id with
-      PprzLink.Forwarded, Some x when x = !my_id -> if dl_button#active then set ()
-    | PprzLink.Broadcasted, _ -> if dl_button#active then set ()
+      PprzLink.Forwarded, Some x when x = !my_id -> if dl_button#active then set x
+    | PprzLink.Broadcasted, _ -> if dl_button#active then set PprzLink.broadcast_id
     | _ -> ()
 
   let message_bind = fun name link_mode ->
