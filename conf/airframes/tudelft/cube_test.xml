@@ -17,6 +17,7 @@
     <target name="ap" board="cube_orange">
       <configure name="PERIODIC_FREQUENCY"  value="500"/>
       <configure name="FLASH_MODE" value="SWD"/>
+      <!--configure name="RTOS_DEBUG" value="1"/-->
 
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART3"/>
@@ -29,14 +30,16 @@
 
       <module name="scheduling_indi_simple"/>
 
+      <module name="sys_mon"/>
+
       <!-- Forward FuelCell data back to the GCS -->
       <!--module name="generic_uart_sensor"/-->
 
       <!-- Logger -->
-      <!--module name="tlsf"/>
+      <module name="tlsf"/>
       <module name="pprzlog"/>
       <module name="logger" type="sd_chibios"/>
-      <module name="flight_recorder"/-->
+      <module name="flight_recorder"/>
 
       <!--define name="ADC_CURRENT_DISABLE" value="TRUE"/-->
       <module name="adc_generic">
@@ -74,6 +77,10 @@
       <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
+    <module name="actuators"     type="uavcan">
+      <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
+      <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
+    </module>
     <module name="actuators"     type="pwm"/>
     <module name="imu"           type="mpu6000"/>
     <module name="gps"           type="ublox"/>
@@ -134,6 +141,33 @@
     <servo name="MOTOR_5" no="4" min="1000" neutral="1100" max="2000"/>
     <servo name="MOTOR_6" no="5" min="1000" neutral="1100" max="2000"/>
     <servo name="MOTOR_7" no="6" min="1000" neutral="1100" max="2000"/>
+  </servos>
+
+    <!-- CAN BUS 1 (Front Wing) -->
+  <servos driver="Uavcan1">
+    <!--servo name="MOTOR_1" no="0" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_2" no="1" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_3" no="2" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_4" no="3" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_5" no="4" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_6" no="5" min="-8191" neutral="1500" max="8191"/-->
+    <servo name="AIL_1" no="6" min="6000" neutral="0" max="-6000"/>
+    <servo name="FLAP_1" no="7" min="6000" neutral="0" max="-6000"/>
+    <servo name="FLAP_2" no="8" min="-6000" neutral="0" max="6000"/>
+    <servo name="AIL_2" no="9" min="-6000" neutral="0" max="6000"/>
+  </servos>
+
+  <servos driver="Uavcan2">
+    <!--servo name="MOTOR_1" no="0" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_2" no="1" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_3" no="2" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_4" no="3" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_5" no="4" min="-8191" neutral="1500" max="8191"/>
+    <servo name="MOTOR_6" no="5" min="-8191" neutral="1500" max="8191"/-->
+    <servo name="AIL1_1" no="6" min="6000" neutral="0" max="-6000"/>
+    <servo name="FLAP1_1" no="7" min="6000" neutral="0" max="-6000"/>
+    <servo name="FLAP1_2" no="8" min="-6000" neutral="0" max="6000"/>
+    <servo name="AIL1_2" no="9" min="-6000" neutral="0" max="6000"/>
   </servos>
 
   <commands>

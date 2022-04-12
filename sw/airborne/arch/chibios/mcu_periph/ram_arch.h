@@ -43,26 +43,31 @@
 #ifndef RAM_ARCH_H
 #define RAM_ARCH_H
 
-#if defined STM32F1
+#if defined(STM32F1)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram0"
-#elif defined STM32F3
+#define DMA_ALIGN     8
+#elif defined(STM32F3)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
-#elif defined STM32F4
+#define DMA_ALIGN     8
+#elif defined(STM32F4)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
-#elif defined STM32F7
+#define DMA_ALIGN     8
+#elif defined(STM32F)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram3"
-#elif defined STM32H7
-#define STD_SECTION   ".ram0"
-#define FAST_SECTION  ".ram0"
-#define DMA_SECTION   ".ram3"
+#define DMA_ALIGN     8
+#elif defined(STM32H7)
+#define STD_SECTION   ".ram1"
+#define FAST_SECTION  ".ram5"
+#define DMA_SECTION   ".ram0"
+#define DMA_ALIGN     32
 #else
 #error "section defined only for STM32F1, STM32F4, STM32F7 and STM32H7"
 #endif
@@ -75,9 +80,9 @@
 #define IN_FAST_SECTION_CLEAR(var) var __attribute__ ((section(FAST_SECTION "_clear"), aligned(8)))
 #define IN_FAST_SECTION(var) var __attribute__ ((section(FAST_SECTION "_init"), aligned(8)))
 
-#define IN_DMA_SECTION_NOINIT(var) var __attribute__ ((section(DMA_SECTION), aligned(8)))
-#define IN_DMA_SECTION_CLEAR(var) var __attribute__ ((section(DMA_SECTION "_clear"), aligned(8)))
-#define IN_DMA_SECTION(var) var __attribute__ ((section(DMA_SECTION "_init"), aligned(8)))
+#define IN_DMA_SECTION_NOINIT(var) var __attribute__ ((section(DMA_SECTION), aligned(DMA_ALIGN)))
+#define IN_DMA_SECTION_CLEAR(var) var __attribute__ ((section(DMA_SECTION "_clear"), aligned(DMA_ALIGN)))
+#define IN_DMA_SECTION(var) var __attribute__ ((section(DMA_SECTION "_init"), aligned(DMA_ALIGN)))
 
 #endif
 

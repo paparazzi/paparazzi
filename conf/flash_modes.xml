@@ -87,7 +87,6 @@
       <board name="li[s]?a_s_.*"/>
       <board name="px4fmu_.*"/>
       <board name="px4io_.*"/>
-      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">

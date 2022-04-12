@@ -35,9 +35,6 @@
 #include "mcu_periph/sdio.h"
 #include <ctype.h>
 
-#define likely(x)      __builtin_expect(!!(x), 1)
-#define unlikely(x)    __builtin_expect(!!(x), 0)
-
 #ifndef MIN
 #define MIN(x , y)  (((x) < (y)) ? (x) : (y))
 #endif

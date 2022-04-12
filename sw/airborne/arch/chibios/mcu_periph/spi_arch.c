@@ -35,8 +35,9 @@
 #include <string.h>
 #include "mcu_periph/ram_arch.h"
 
+
 #if SPI_SLAVE
-#error "ChibiOS operates only in SPI_MASTER mode"
+#error "ChibiOS operates only in SPI_MASTER mode (Slave is TODO)"
 #endif
 
 #if USE_SPI0
@@ -99,6 +100,21 @@ static inline ioportid_t spi_resolve_slave_port(uint8_t slave)
       return SPI_SELECT_SLAVE5_PORT;
       break;
 #endif //USE_SPI_SLAVE5
+#if USE_SPI_SLAVE6
+    case 6:
+      return SPI_SELECT_SLAVE6_PORT;
+      break;
+#endif //USE_SPI_SLAVE6
+#if USE_SPI_SLAVE7
+    case 7:
+      return SPI_SELECT_SLAVE7_PORT;
+      break;
+#endif //USE_SPI_SLAVE7
+#if USE_SPI_SLAVE8
+    case 8:
+      return SPI_SELECT_SLAVE8_PORT;
+      break;
+#endif //USE_SPI_SLAVE8
     default:
       return 0;
       break;
@@ -146,6 +162,21 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
       return SPI_SELECT_SLAVE5_PIN;
       break;
 #endif //USE_SPI_SLAVE5
+#if USE_SPI_SLAVE6
+    case 6:
+      return SPI_SELECT_SLAVE6_PIN;
+      break;
+#endif //USE_SPI_SLAVE6
+#if USE_SPI_SLAVE7
+    case 7:
+      return SPI_SELECT_SLAVE7_PIN;
+      break;
+#endif //USE_SPI_SLAVE7
+#if USE_SPI_SLAVE8
+    case 8:
+      return SPI_SELECT_SLAVE8_PIN;
+      break;
+#endif //USE_SPI_SLAVE8
     default:
       return 0;
       break;
@@ -284,6 +315,10 @@ static void handle_spi_thd(struct spi_periph *p)
 
   SPIConfig spi_cfg = {
     false, // no circular buffer
+#if defined(HAL_LLD_SELECT_SPI_V2) 
+    false, // no slave mode
+    NULL, // no callback
+#endif
     NULL, // no callback
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),
@@ -316,7 +351,9 @@ static void handle_spi_thd(struct spi_periph *p)
 #if defined(STM32F7) || defined(STM32H7)
   // we do stupid mem copy because F7/H7 needs a special RAM for DMA operation
   memcpy(i->dma_buf_out, (void *)t->output_buf, (size_t)t->output_length);
+  //cacheBufferFlush(i->dma_buf_out, t->output_length);
   spiExchange((SPIDriver *)p->reg_addr, t_length, i->dma_buf_out, i->dma_buf_in);
+  cacheBufferInvalidate(i->dma_buf_in, t->input_length);
   memcpy((void *)t->input_buf, i->dma_buf_in, (size_t)t->input_length);
 #else
   spiExchange((SPIDriver *)p->reg_addr, t_length, (uint8_t *)t->output_buf, (uint8_t *)t->input_buf);
@@ -594,6 +631,21 @@ void spi_slave_select(uint8_t slave)
       gpio_clear(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
+#if USE_SPI_SLAVE6
+    case 6:
+      gpio_clear(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+      break;
+#endif //USE_SPI_SLAVE6
+#if USE_SPI_SLAVE7
+    case 7:
+      gpio_clear(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+      break;
+#endif //USE_SPI_SLAVE7
+#if USE_SPI_SLAVE8
+    case 8:
+      gpio_clear(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+      break;
+#endif //USE_SPI_SLAVE8
     default:
       break;
   }
@@ -636,6 +688,21 @@ void spi_slave_unselect(uint8_t slave)
       gpio_set(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
       break;
 #endif //USE_SPI_SLAVE5
+#if USE_SPI_SLAVE6
+    case 6:
+      gpio_set(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+      break;
+#endif //USE_SPI_SLAVE6
+#if USE_SPI_SLAVE7
+    case 7:
+      gpio_set(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+      break;
+#endif //USE_SPI_SLAVE7
+#if USE_SPI_SLAVE8
+    case 8:
+      gpio_set(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+      break;
+#endif //USE_SPI_SLAVE8
     default:
       break;
   }
@@ -705,5 +772,19 @@ void spi_init_slaves(void)
   gpio_setup_output(SPI_SELECT_SLAVE5_PORT, SPI_SELECT_SLAVE5_PIN);
   spi_slave_unselect(5);
 #endif
-}
 
+#if USE_SPI_SLAVE6
+  gpio_setup_output(SPI_SELECT_SLAVE6_PORT, SPI_SELECT_SLAVE6_PIN);
+  spi_slave_unselect(6);
+#endif
+
+#if USE_SPI_SLAVE7
+  gpio_setup_output(SPI_SELECT_SLAVE7_PORT, SPI_SELECT_SLAVE7_PIN);
+  spi_slave_unselect(7);
+#endif
+
+#if USE_SPI_SLAVE8
+  gpio_setup_output(SPI_SELECT_SLAVE8_PORT, SPI_SELECT_SLAVE8_PIN);
+  spi_slave_unselect(8);
+#endif
+}

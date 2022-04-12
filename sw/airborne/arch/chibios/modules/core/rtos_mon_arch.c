@@ -61,7 +61,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
     tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < RTOS_MON_MAX_THREADS));
-  ti->totalISRTicks = ch.kernel_stats.m_crit_isr.cumulative;
+  ti->totalISRTicks = ch0.kernel_stats.m_crit_isr.cumulative;
   ti->totalTicks += ti->totalISRTicks;
   tp =  chRegFirstThread();
   idx=0;
@@ -121,7 +121,7 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const 
     idx++;
   } while (tp != NULL);
 
-  totalTicks += ch.kernel_stats.m_crit_isr.cumulative;
+  totalTicks += ch0.kernel_stats.m_crit_isr.cumulative;
   const float idlePercent = (idleTicks*100.f)/totalTicks;
   const float cpuPercent = 100.f - idlePercent;
   chprintf (lchp, "Interrupt Service Routine \t\t     %9lu   %.2f%%    \tISR\r\n",
@@ -167,9 +167,11 @@ void rtos_mon_periodic_arch(void)
 {
   int i;
   size_t total_fragments, total_fragmented_free_space, largest_free_block;
+  memory_area_t area;
   total_fragments = chHeapStatus(NULL, &total_fragmented_free_space, &largest_free_block);
+  chCoreGetStatusX(&area);
 
-  rtos_mon.core_free_memory = chCoreGetStatusX();
+  rtos_mon.core_free_memory = area.size;
   rtos_mon.heap_fragments = total_fragments;
   rtos_mon.heap_largest = largest_free_block;
   rtos_mon.heap_free_memory = total_fragmented_free_space;
@@ -206,7 +208,7 @@ void rtos_mon_periodic_arch(void)
     rtos_mon.thread_counter++;
   } while (tp != NULL && rtos_mon.thread_counter < RTOS_MON_MAX_THREADS);
   // sum the time spent in ISR
-  sum += ch.kernel_stats.m_crit_isr.cumulative;
+  sum += ch0.kernel_stats.m_crit_isr.cumulative;
   // store individual thread load (as centi-percent integer, i.e. (th_time/sum)*10*100)
   for (i = 0; i < rtos_mon.thread_counter; i ++) {
     rtos_mon.thread_load[i] = (uint16_t)(1000.f * (float)thread_p_time[i] / sum);

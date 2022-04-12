@@ -73,14 +73,18 @@ bool sdio_connect(void)
 
   chThdSleepMilliseconds(100);
 
-
-  sdcStart(&SDCD1, NULL);
-  while (sdcConnect(&SDCD1) != HAL_SUCCESS) {
+  // Try only 3 times to prevent hanging
+  for(uint8_t i = 0; i < 3; i++) {
+    sdcStart(&SDCD1, NULL);
+    if(sdcConnect(&SDCD1) == HAL_SUCCESS) {
+      cnxState = CONNECT;
+      return TRUE;
+    }
+    sdcStop(&SDCD1);
     chThdSleepMilliseconds(100);
   }
 
-  cnxState = CONNECT;
-  return TRUE;
+  return FALSE;
 }
 
 

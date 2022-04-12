@@ -36,18 +36,6 @@ CHIBIOS_BOARD_PLATFORM = STM32H7xx/platform.mk
 CHIBIOS_BOARD_LINKER = STM32H743xI.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
 
-# ITCM flash is a special flash that allow faster operations
-# At the moment it is not possible to flash the code in this mode using dfu-util
-# but it should work with the BlackMagicProbe or STLINK
-# By default, normal flash is used
-ifeq ($(USE_ITCM),1)
-$(TARGET).CFLAGS += -DUSE_ITCM=1
-DFU_ADDR = 0x00200000
-else
-$(TARGET).CFLAGS += -DUSE_ITCM=0
-DFU_ADDR = 0x08000000
-endif
-
 # In this case we dont have LUFTBOOT but PX4_BOOTLOADER, but in order
 # to correctly initialize the interrupt vector we have to define that
 # the board has LUFTBOOT
@@ -65,8 +53,7 @@ endif
 FLASH_MODE ?= PX4_BOOTLOADER
 PX4_TARGET = "ap"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/cube_orange.prototype"
-PX4_BL_PORT ?= "/dev/serial/by-id/usb-Hex_ProfiCNC_CubeOrangeRevB-BL_460049001851303230373534-if00"
-
+PX4_BL_PORT ?= "/dev/serial/by-id/usb-Hex_ProfiCNC_CubeOrange*-BL*"
 
 #
 # default LED configuration
@@ -79,27 +66,21 @@ GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
 
 #
-# default IMU configuration
-#
-IMU_MPU_SPI_DEV ?= spi4
-IMU_MPU_SPI_SLAVE_IDX ?= SPI_SLAVE3
-
-#
 # default UART configuration (modem, gps, spektrum)
-#
-SBUS_PORT ?= UART6
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART6
+# The TELEM2 port
+SBUS_PORT ?= UART3
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART3
 
-#The modem serial on px4 is called serial 1, but connected to uart2 on the f4
+# The TELEM1 port (UART3 is TELEM2)
 MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
-#The GPS serial on px4 is called serial 3, but connected to uart4 on the f4
+# The GPS1 port (UART8 is GPS2)
 GPS_PORT ?= UART1
 GPS_BAUD ?= B57600
 
-#InterMCU port connected to the IO processor
-INTERMCU_PORT ?= UART8
+# InterMCU port connected to the IO processor
+INTERMCU_PORT ?= UART6
 INTERMCU_BAUD ?= B230400
 
 #

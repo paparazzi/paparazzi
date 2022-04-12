@@ -35,14 +35,20 @@
 
 static void cmd_mem(BaseSequentialStream *lchp, int argc, const char * const argv[])
 {
+  size_t n, total, largest;
+  memory_area_t area;
+
   (void)argv;
   if (argc > 0) {
     chprintf(lchp, "Usage: mem\r\n");
     return;
   }
-
-  chprintf (lchp, "core free memory : %u bytes\r\n", chCoreGetStatusX());
-  //chprintf (lchp, "heap free memory : %u bytes\r\n", getHeapFree());
+  n = chHeapStatus(NULL, &total, &largest);
+  chCoreGetStatusX(&area);
+  chprintf(lchp, "core free memory : %u bytes\r\n", area.size);
+  chprintf(lchp, "heap fragments   : %u\r\n", n);
+  chprintf(lchp, "heap free total  : %u bytes\r\n", total);
+  chprintf(lchp, "heap free largest: %u bytes\r\n", largest);
 }
 
 static void cmd_abi(BaseSequentialStream *lchp, int argc, const char * const argv[])

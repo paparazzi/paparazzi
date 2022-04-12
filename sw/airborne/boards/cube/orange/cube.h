@@ -301,7 +301,8 @@
     { PWM_SERVO_1_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 #ifdef STM32_PWM_USE_TIM4
@@ -320,7 +321,8 @@
     { PWM_OUTPUT_DISABLED, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 /**
@@ -669,6 +671,16 @@
 #if defined(LINE_SPI_SLAVE6)
 #define SPI_SELECT_SLAVE6_PORT  PAL_PORT(LINE_SPI_SLAVE6)
 #define SPI_SELECT_SLAVE6_PIN   PAL_PAD(LINE_SPI_SLAVE6)
+#endif
+
+#if defined(LINE_SPI_SLAVE7)
+#define SPI_SELECT_SLAVE7_PORT  PAL_PORT(LINE_SPI_SLAVE7)
+#define SPI_SELECT_SLAVE7_PIN   PAL_PAD(LINE_SPI_SLAVE7)
+#endif
+
+#if defined(LINE_SPI_SLAVE8)
+#define SPI_SELECT_SLAVE8_PORT  PAL_PORT(LINE_SPI_SLAVE8)
+#define SPI_SELECT_SLAVE8_PIN   PAL_PAD(LINE_SPI_SLAVE8)
 #endif
 
 /**

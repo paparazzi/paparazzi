@@ -137,7 +137,7 @@ ADCDriver *adcp_err = NULL;
 #ifndef ADC_BUF_DEPTH
 #define ADC_BUF_DEPTH (MAX_AV_NB_SAMPLE/2)
 #endif
-static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH]);
+static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * MAX_AV_NB_SAMPLE]);
 
 #if USE_AD1
 static ADCConversionGroup adc1_group;
@@ -254,6 +254,7 @@ void adc1callback(ADCDriver *adcp)
     // beginiing of buffer
     const adcsample_t *buffer = adc_samples + (adcIsBufferComplete(adcp) ?
 					   n * ADC_NUM_CHANNELS : 0U);
+    cacheBufferInvalidate(adc_samples, sizeof(adc_samples));
 
     for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
       if (adc1_buffers[channel] != NULL) {

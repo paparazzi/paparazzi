@@ -35,8 +35,8 @@ MEMORY
     flash5 (rx) : org = 0x00000000, len = 0
     flash6 (rx) : org = 0x00000000, len = 0
     flash7 (rx) : org = 0x00000000, len = 0
-    ram0   (wx) : org = 0x24000000, len = 512k      /* AXI SRAM */
-    ram1   (wx) : org = 0x30000000, len = 256k      /* AHB SRAM1+SRAM2 */
+    ram0   (wx) : org = 0x24000000, len = 64k       /* AXI SRAM no-cache*/
+    ram1   (wx) : org = 0x24010000, len = 448k      /* AXI SRAM cached */
     ram2   (wx) : org = 0x30000000, len = 288k      /* AHB SRAM1+SRAM2+SRAM3 */
     ram3   (wx) : org = 0x30040000, len = 32k       /* AHB SRAM3 */
     ram4   (wx) : org = 0x38000000, len = 64k       /* AHB SRAM4 */
@@ -80,14 +80,14 @@ REGION_ALIAS("MAIN_STACK_RAM", ram5);
 REGION_ALIAS("PROCESS_STACK_RAM", ram5);
 
 /* RAM region to be used for data segment.*/
-REGION_ALIAS("DATA_RAM", ram0);
+REGION_ALIAS("DATA_RAM", ram1);
 REGION_ALIAS("DATA_RAM_LMA", flash0);
 
 /* RAM region to be used for BSS segment.*/
-REGION_ALIAS("BSS_RAM", ram0);
+REGION_ALIAS("BSS_RAM", ram1);
 
 /* RAM region to be used for the default heap.*/
-REGION_ALIAS("HEAP_RAM", ram0);
+REGION_ALIAS("HEAP_RAM", ram1);
 
 /* Stack rules inclusion.*/
 INCLUDE rules_stacks.ld
@@ -98,7 +98,7 @@ INCLUDE rules_stacks.ld
 /*===========================================================================*/
 
 /* RAM region to be used for nocache segment.*/
-REGION_ALIAS("NOCACHE_RAM", ram3);
+REGION_ALIAS("NOCACHE_RAM", ram0);
 
 /* RAM region to be used for eth segment.*/
 REGION_ALIAS("ETH_RAM", ram3);
