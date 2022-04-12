@@ -26,7 +26,7 @@
       <arg flag="sm600.xml"/>
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
-    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="NatNet3" command="sw/ground_segment/python/natnet3.x/natnet2ivy.py"/>
     <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
     <program name="Real-time Distance Counter" command="sw/ground_segment/python/distance_counter/dist.py"/>
   </section>
@@ -95,8 +95,10 @@
         <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
-      <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
+      <program name="NatNet3">
         <arg flag="-ac 9999" constant="@AC_ID"/>
+        <arg flag="-o"/>
+        <arg flag="-zf"/>
       </program>
     </session>
     <session name="Distance Counter">

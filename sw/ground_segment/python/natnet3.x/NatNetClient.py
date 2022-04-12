@@ -13,7 +13,7 @@ FloatValue = struct.Struct( '<f' )
 DoubleValue = struct.Struct( '<d' )
 
 class NatNetClient:
-    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, rigidBodyListListener=None, verbose=False ):
+    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, rigidBodyListListener=None, verbose=False, version=(3,0,0,0) ):
         # IP address of the NatNet server.
         self.serverIPAddress = server
 
@@ -37,7 +37,7 @@ class NatNetClient:
         self.rigidBodyList = []
 
         # NatNet stream version. This will be updated to the actual version the server is using during initialization.
-        self.__natNetStreamVersion = (3,0,0,0)
+        self.__natNetStreamVersion = version
 
         # Trace verbose level
         self.verbose = verbose
@@ -114,16 +114,16 @@ class NatNetClient:
 
             # Marker positions
             for i in markerCountRange:
-                pos = Vector3.unpack( data[offset:offset+12] )
+                mpos = Vector3.unpack( data[offset:offset+12] )
                 offset += 12
-                self.__trace( "\tMarker", i, ":", pos[0],",", pos[1],",", pos[2] )
+                self.__trace( "\tMarker", i, ":", mpos[0],",", mpos[1],",", mpos[2] )
 
             if( self.__natNetStreamVersion[0] >= 2 ):
                 # Marker ID's
                 for i in markerCountRange:
-                    id = int.from_bytes( data[offset:offset+4], byteorder='little' )
+                    mid = int.from_bytes( data[offset:offset+4], byteorder='little' )
                     offset += 4
-                    self.__trace( "\tMarker ID", i, ":", id )
+                    self.__trace( "\tMarker ID", i, ":", mid )
 
                 # Marker sizes
                 for i in markerCountRange:

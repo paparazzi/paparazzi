@@ -44,8 +44,8 @@ extern void gps_datalink_init(void);
 
 #define gps_datalink_periodic_check() gps_periodic_check(&gps_datalink)
 
-extern void gps_datalink_parse_REMOTE_GPS(uint8_t *buf);
-extern void gps_datalink_parse_REMOTE_GPS_SMALL(uint8_t *buf);
+extern void gps_datalink_parse_EXTERNAL_POSE(uint8_t *buf);
+extern void gps_datalink_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);
 extern void gps_datalink_parse_REMOTE_GPS_LOCAL(uint8_t *buf);
 
 #endif /* GPS_DATALINK_H */
