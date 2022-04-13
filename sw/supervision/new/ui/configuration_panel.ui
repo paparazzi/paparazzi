@@ -56,11 +56,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="programs_groupbox">
-         <property name="title">
-          <string>Programs</string>
+        <widget class="QFrame" name="programs_widget">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4"/>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3"/>
         </widget>
        </item>
        <item>

@@ -272,8 +272,8 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
 
     def launch_program(self, shortname, cmd, icon):
-        pw = ProgramWidget(shortname, cmd, icon, self.programs_groupbox)
-        self.programs_groupbox.layout().addWidget(pw)
+        pw = ProgramWidget(shortname, cmd, icon, self.programs_widget)
+        self.programs_widget.layout().addWidget(pw)
         pw.ready_read_stderr.connect(lambda: self.console_widget.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console_widget.handle_stdout(pw))
         pw.finished.connect(lambda c, s: self.console_widget.handle_program_finished(pw, c, s))
@@ -283,6 +283,6 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         pw.start_program()
 
     def remove_program(self, pw: ProgramWidget):
-        self.programs_groupbox.layout().removeWidget(pw)
+        self.programs_widget.layout().removeWidget(pw)
         self.console_widget.remove_program(pw)
         pw.deleteLater()
