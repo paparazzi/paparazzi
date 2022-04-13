@@ -28,27 +28,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="program_label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>program name</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLineEdit" name="program_lineedit"/>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="shortview_checkbox">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="Line" name="line">

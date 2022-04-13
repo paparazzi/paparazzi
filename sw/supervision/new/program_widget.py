@@ -22,11 +22,7 @@ class ProgramWidget(QWidget, Ui_Program):
         self.cmd = cmd
         self.shortname = shortname
         self.process = QProcess(self)
-        self.program_label.setText(shortname)
         self.program_lineedit.setText(" ".join(cmd))
-        # self.program_lineedit.hide()
-        self.program_label.hide()
-        self.shortview_checkbox.toggled.connect(self.toggle_view)
         self.program_lineedit.returnPressed.connect(self.handle_cmd_return)
         self.run_button.clicked.connect(self.handle_run)
         self.remove_button.clicked.connect(self.handle_remove)
@@ -37,14 +33,11 @@ class ProgramWidget(QWidget, Ui_Program):
         self.process.errorOccurred.connect(self.handle_error)
         i = QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "tools_icons", icon))
         self.icon_label.setPixmap(i.pixmap(20, 20))
+        self.icon_label.setToolTip(shortname)
 
     def start_program(self):
         if self.process.state() == QProcess.NotRunning:
             self.process.start(self.cmd[0], self.cmd[1:])
-
-    def toggle_view(self, long_view):
-        self.program_label.setVisible(long_view)
-        self.program_lineedit.setVisible(not long_view)
 
     def handle_cmd_return(self):
         if self.process.state() == QProcess.NotRunning:
