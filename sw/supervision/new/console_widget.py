@@ -56,7 +56,7 @@ class ConsoleWidget(QWidget, Ui_Console):
         elif record.level == Level.WARNING:
             bg = "background-color:orange;"
         elif record.level == Level.INFO:
-            bg = "background-color:green;"
+            bg = "background-color:lime;"
         else:
             bg = ""
 
@@ -99,7 +99,10 @@ class ConsoleWidget(QWidget, Ui_Console):
         self.handle_data(pw, data, Channel.STDERR)
 
     def handle_program_finished(self, pw: ProgramWidget, exit_code: int, exit_status: QProcess.ExitStatus):
-        self.post_message(pw, "{} terminated with code {}".format(pw.shortname, exit_code))
+        if exit_code == 0:
+            self.post_message(pw, "{} Done".format(pw.shortname))
+        else:
+            self.post_message(pw, "{} terminated with code {}".format(pw.shortname, exit_code))
 
     def post_message(self, pw: ProgramWidget, msg):
         r = Record(Level.ALL, msg, pw, Channel.MANAGEMENT)
