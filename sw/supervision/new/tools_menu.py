@@ -6,9 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from generated.ui_tools_list import Ui_ToolsList
 
-POPUP_GRID_WIDTH = 4
-ICON_SIZE = (60, 60)
-POPUP_SIZE = (1000, 400)
+ICON_SIZE = (40, 40)
 
 
 class ToolMenu(QWidget, Ui_ToolsList):
@@ -25,7 +23,6 @@ class ToolMenu(QWidget, Ui_ToolsList):
         # self.gridLayout.setContentsMargins(10, 10, 24, 10)
         # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # self.setWidgetResizable(True)
-        # self.setMinimumSize(*POPUP_SIZE)
 
     def add_tool(self, t: Tool):
         button = QToolButton()

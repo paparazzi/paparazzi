@@ -87,13 +87,35 @@
         <string>Add Tool</string>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>Add tool</string>
        </property>
        <property name="icon">
         <iconset theme="list-add">
          <normaloff>.</normaloff>.</iconset>
        </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextBesideIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="Line" name="line">
@@ -157,7 +179,7 @@
         <x>0</x>
         <y>0</y>
         <width>380</width>
-        <height>177</height>
+        <height>176</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -211,7 +233,8 @@
   </action>
   <action name="remove_session_action">
    <property name="icon">
-    <iconset theme="edit-delete"/>
+    <iconset theme="edit-delete">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Remove session</string>
