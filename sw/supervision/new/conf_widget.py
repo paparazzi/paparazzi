@@ -29,7 +29,9 @@ class ConfWidget(QWidget):
         self.settings.itemChanged.connect(self.setting_changed)
 
         vb = QVBoxLayout()
-        vb.addWidget(QLabel("Settings", self))
+        settings_label = QLabel("Settings", self)
+        settings_label.setStyleSheet("font-weight: bold;")
+        vb.addWidget(settings_label)
         vb.addWidget(self.settings)
         lay.addWidget(self.airframe)
         lay.addWidget(self.flight_plan)
