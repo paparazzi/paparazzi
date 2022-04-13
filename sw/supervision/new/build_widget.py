@@ -87,6 +87,8 @@ class BuildWidget(Ui_Build, QWidget):
         target = self.target_combo.currentText()
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name), "{}.compile".format(target)]
+        if self.print_config_checkbox.isChecked():
+            cmd.append("PRINT_CONFIG=1")
         shortname = "Build {}".format(self.ac.name)
         self.conf.save(False)
         self.spawn_program.emit(shortname, cmd, None)
