@@ -16,7 +16,6 @@ class PprzCenter(QMainWindow):
         self.setWindowTitle("Paparazzi Center")
         icon = QtGui.QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "penguin_logo.svg"))
         self.setWindowIcon(icon)
-        self.gconf: Dict[str, utils.GConfEntry] = utils.get_gconf()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
         self.configuration_panel = ConfigurationPanel(self.tabwidget)
@@ -33,11 +32,12 @@ class PprzCenter(QMainWindow):
         self.operation_panel.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
         self.configuration_panel.ac_changed.connect(self.operation_panel.session.set_aircraft)
         self.configuration_panel.splitter.splitterMoved.connect(self.update_left_pane_width)
-        w = int(self.gconf["width"].value)
-        h = int(self.gconf["height"].value)
-        self.resize(w, h)
-        self.configuration_panel.init(self.gconf)
-        self.operation_panel.init(self.gconf)
+        settings = utils.get_settings()
+        window_size = settings.value("ui/window_size", None, QtCore.QSize)
+        if window_size is not None:
+            self.resize(window_size)
+        self.configuration_panel.init()
+        self.operation_panel.session.init()
 
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
         if self.operation_panel.session.any_program_running():
@@ -46,7 +46,7 @@ class PprzCenter(QMainWindow):
             e.ignore()
             self.operation_panel.session.programs_all_stopped.connect(self.close)
         else:
-            if self.gconf["always keep changes"].value == "true":
+            if utils.get_settings().value("ui/always_keep_changes", False, bool):
                 self.configuration_panel.conf.save()
             else:
                 conf_tree_orig = self.configuration_panel.conf.tree_orig
@@ -63,21 +63,13 @@ class PprzCenter(QMainWindow):
             e.accept()
 
     def save_gconf(self):
-        self.gconf["last A/C"] = self.gconf["last A/C"]._replace(
-            value=self.configuration_panel.get_current_ac())
-        self.gconf["last target"] = self.gconf["last target"]._replace(
-            value=self.configuration_panel.build_widget.get_current_target())
-        self.gconf["last session"] = self.gconf["last session"]._replace(
-            value=self.operation_panel.session.get_current_session())
-        self.gconf["width"] = self.gconf["width"]._replace(
-            value=str(self.width()))
-        self.gconf["height"] = self.gconf["height"]._replace(
-            value=str(self.height()))
-        utils.save_gconf(self.gconf)
+        settings = utils.get_settings()
+        settings.setValue("ui/window_size", self.size())
+        settings.setValue("ui/last_AC", self.configuration_panel.get_current_ac())
+        settings.setValue("ui/last_session", self.operation_panel.session.get_current_session())
 
     def update_left_pane_width(self, pos, index):
-        self.gconf["left_pane_width"] = self.gconf["left_pane_width"]._replace(
-            value=str(pos))
+        utils.get_settings().setValue("ui/left_pane_width", pos)
 
     def fill_status_bar(self):
         home_widget = QWidget()

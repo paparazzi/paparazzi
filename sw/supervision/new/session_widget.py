@@ -53,13 +53,15 @@ class SessionWidget(QWidget, Ui_Session):
     def set_aircraft(self, ac: Aircraft):
         self.ac = ac
 
-    def init(self, gconf: Dict[str, utils.GConfEntry]):
+    def init(self):
         self.sessions = parse_sessions()
         self.tools = parse_tools()
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
         self.sessions_combo.addItems(sessions_names)
-        self.sessions_combo.setCurrentText(gconf["last session"].value)
+        last_session = utils.get_settings().value("ui/last_session", None, str)
+        if last_session is not None:
+            self.sessions_combo.setCurrentText(last_session)
 
     def get_current_session(self) -> str:
         """

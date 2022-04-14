@@ -2,8 +2,8 @@
 import os
 import subprocess
 from PyQt5.QtWidgets import *
-import lxml.etree as ET
-from typing import NamedTuple, Dict
+from typing import NamedTuple
+from PyQt5.QtCore import QSettings
 
 
 class GConfEntry(NamedTuple):
@@ -15,19 +15,6 @@ class GConfEntry(NamedTuple):
 PAPARAZZI_SRC = os.getenv("PAPARAZZI_HOME")
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 CONF_DIR = os.path.join(PAPARAZZI_HOME, "conf/")
-
-GCONF = \
-    """
-    <gconf>
-      <entry name="left_pane_width" value="446" application="paparazzi center"/>
-      <entry name="height" value="986" application="paparazzi center"/>
-      <entry name="width" value="1608" application="paparazzi center"/>
-      <entry name="always keep changes" value="false" application="paparazzi center"/>
-      <entry name="last target" value="nps" application="paparazzi center"/>
-      <entry name="last session" value="GCSTests" application="paparazzi center"/>
-      <entry name="last A/C" value="bebop2" application="paparazzi center"/>
-    </gconf>
-    """
 
 
 # TODO: make it work with shell program such as vim.
@@ -73,25 +60,5 @@ def open_terminal(wd, command=None):
     os.system("gnome-terminal --working-directory {}{}".format(wd, cmd))
 
 
-def get_gconf() -> Dict[str, GConfEntry]:
-    try:
-        xml = ET.parse(os.path.join(CONF_DIR, "%gconf.xml")).getroot()
-    except OSError:
-        xml = ET.fromstring(GCONF)
-    entries = {}
-    for entry in xml.findall("entry"):
-        name = entry.get("name")
-        value = entry.get("value")
-        application = entry.get("application")
-        entry = GConfEntry(name, value, application)
-        entries[name] = entry
-    return entries
-
-
-def save_gconf(gconf: Dict[str, GConfEntry]):
-    xml = ET.Element("gconf")
-    for entry in gconf.values():
-        xe = ET.Element("entry", entry._asdict())
-        xml.append(xe)
-    tree = ET.ElementTree(xml)
-    tree.write(os.path.join(CONF_DIR, "%gconf.xml"), pretty_print=True)
+def get_settings() -> QSettings:
+    return QSettings(os.path.join(CONF_DIR, "pprz_center_settings.ini"), QSettings.IniFormat)

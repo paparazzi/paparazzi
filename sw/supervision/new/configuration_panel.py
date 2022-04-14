@@ -49,14 +49,20 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.header.remove_ac_action.triggered.connect(self.remove_ac)
         self.build_widget.spawn_program.connect(self.launch_program)
 
-    def init(self, gconf: Dict[str, utils.GConfEntry]):
+    def init(self):
         sets = paparazzi.get_list_of_conf_files()
+        settings = utils.get_settings()
         self.header.set_sets(sets, conf_init=Conf.get_current_conf())
-        self.header.ac_combo.setCurrentText(gconf["last A/C"].value)
-        self.build_widget.target_combo.setCurrentText(gconf["last target"].value)
-        mww = int(gconf["width"].value)
-        lpw = int(gconf["left_pane_width"].value)
-        self.splitter.setSizes([lpw, mww-lpw])
+        last_ac: QtCore.QVariant = settings.value("ui/last_AC", None, str)
+        last_target: QtCore.QVariant = settings.value("ui/last_target", None, str)
+        if last_ac is not None:
+            self.header.ac_combo.setCurrentText(last_ac)
+        if last_target is not None:
+            self.build_widget.target_combo.setCurrentText(last_target)
+        window_size: QtCore.QSize = settings.value("ui/window_size", None, QtCore.QSize)
+        lpw = settings.value("ui/left_pane_width", 100, int)
+        if window_size is not None:
+            self.splitter.setSizes([lpw, window_size.width() - lpw])
 
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)

@@ -13,6 +13,3 @@ class OperationPanel(QWidget, Ui_OperationPanel):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
         self.session.set_console(self.console)
-
-    def init(self, gconf):
-        self.session.init(gconf)
