@@ -8,6 +8,7 @@ from operation_panel import OperationPanel
 import utils
 from typing import Dict
 from lxml import etree as ET
+from app_settings import AppSettings
 
 
 class PprzCenter(QMainWindow):
@@ -16,6 +17,7 @@ class PprzCenter(QMainWindow):
         self.setWindowTitle("Paparazzi Center")
         icon = QtGui.QIcon(os.path.join(utils.PAPARAZZI_HOME, "data", "pictures", "penguin_logo.svg"))
         self.setWindowIcon(icon)
+        self.addMenu()
         self.tabwidget = QTabWidget(parent=self)
         self.setCentralWidget(self.tabwidget)
         self.configuration_panel = ConfigurationPanel(self.tabwidget)
@@ -39,6 +41,24 @@ class PprzCenter(QMainWindow):
         self.configuration_panel.init()
         self.operation_panel.session.init()
 
+    def addMenu(self):
+        menubar = QMenuBar()
+        file_menu = QMenu("File", menubar)
+        help_menu = QMenu("Help", menubar)
+        menubar.addMenu(file_menu)
+        menubar.addMenu(help_menu)
+        settings_action = QAction("Edit Settings", file_menu)
+        file_menu.addAction(settings_action)
+        about_action = QAction("About", help_menu)
+        help_menu.addAction(about_action)
+
+        def edit_settings():
+            settings_dialog = AppSettings(self)
+            settings_dialog.show()
+        settings_action.triggered.connect(edit_settings)
+
+        self.setMenuBar(menubar)
+
     def closeEvent(self, e: QtGui.QCloseEvent) -> None:
         if self.operation_panel.session.any_program_running():
             self.operation_panel.session.programs_all_stopped.connect(self.close)
@@ -46,7 +66,7 @@ class PprzCenter(QMainWindow):
             e.ignore()
             self.operation_panel.session.programs_all_stopped.connect(self.close)
         else:
-            if utils.get_settings().value("ui/always_keep_changes", False, bool):
+            if utils.get_settings().value("always_keep_changes", False, bool):
                 self.configuration_panel.conf.save()
             else:
                 conf_tree_orig = self.configuration_panel.conf.tree_orig

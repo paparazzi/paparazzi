@@ -20,8 +20,8 @@ CONF_DIR = os.path.join(PAPARAZZI_HOME, "conf/")
 # TODO: make it work with shell program such as vim.
 def edit_file(file_path, prefix=CONF_DIR):
     path = prefix + file_path
-    editor = os.getenv("EDITOR")
-    if editor is None:
+    editor = get_settings().value("text_editor", "", str)
+    if editor == "":
         editor = "gedit"
     try:
         subprocess.Popen([editor, path])
@@ -53,11 +53,13 @@ def get_build_version() -> str:
 
 
 def open_terminal(wd, command=None):
-    # TODO open konsole, or other terminal emulator if needed.
     cmd = ""
     if command is not None:
         cmd = " -- {}".format(command)
-    os.system("gnome-terminal --working-directory {}{}".format(wd, cmd))
+    terminal_emulator = get_settings().value("terminal_emulator", "", str)
+    if terminal_emulator == "":
+        terminal_emulator = "gnome-terminal"
+    os.system("{} --working-directory {}{}".format(terminal_emulator, wd, cmd))
 
 
 def get_settings() -> QSettings:

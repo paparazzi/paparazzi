@@ -11,4 +11,5 @@ all:
 	pyuic5 ui/operation_panel.ui -o generated/ui_operation_panel.py
 	pyuic5 ui/console.ui -o generated/ui_console.py
 	pyuic5 ui/tools_list.ui -o generated/ui_tools_list.py
+	pyuic5 ui/app_settings.ui -o generated/ui_app_settings.py
 
