@@ -42,10 +42,10 @@ predefined Makefiles. The most common ``firmware`` types are ``rotorcraft`` and 
 all located in the ``conf/firmware`` folder.
 
 A module will consist of a ``module`` node that specifies the name of the module that should be included (in this case
-``name="my_module``.
+``name="my_module"``).
 The children ``define`` and ``configure`` are optional and module specific. They can be used to specify the value of
 certain variables used in the module. A ``define`` will generate compilation defines for all the targets of a module
-and can be used with or without an associated value. For more information on ``define`` and ``configure` have a look at
+and can be used with or without an associated value. For more information on ``define`` and ``configure`` have a look at
 the section :ref:`Airframe Defines and GCS Settings <label-defines-and-settings>`.
 
 
