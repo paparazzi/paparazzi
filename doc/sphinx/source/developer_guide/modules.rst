@@ -4,30 +4,50 @@
 Modules
 ========
 
-TBD
+Modules use code generation in order to allow people to use them by only editing the vehicle's XML configuration
+as opposed to changing/adding to the code of the autopilot. This makes the paparazzi build process highly configurable.
+Typically, function calls are generated for initialization and in the main loop for timers
+(``periodic`` in Paparazzi slang) and events. The event and periodic functions of the Modules get called at the end of
+``event_task_ap`` and ``periodic_task_ap respectively``.
+
+Modules are used to configure all parts of Paparazzi other than the ``firmware`` sections.
+The build configuration for each module is described using XML description language and the located in the
+``conf/modules`` subfolder. These modules implement not only the user implemented mission specific code but also the
+low level drivers and subsystems.
+
+``sw/airborne/modules`` contains the mission specific software such as image processing, video recording or relay or
+guidance commands.
+
 
 Using existing modules
 --------------------------
-To add a module to an aircraft, add a section modules in his airframe xml file :
+To add a module to an aircraft, add a section modules in his airframe XML file :
 
 Arbitrary airframe file: conf/airframes/myplane.xml
 
 .. code-block:: xml
 
- <modules main_freq="60">
-   <define name="BLA" value="1"/>
-   <define name="BLUB"/>
-   <configure name="FOO" value="BAR"/>
- </modules>
+ <firmware name="rotorcraft">
 
-The main_freq parameter (in Hz) is optional. If present, it allows to specify the frequency of the main loop.
-Default is the main periodic frequency of the autopilot. If the frequency does not needed to be specified,
-then the first line is just: ``<modules>``.
+    <module name="my_module">
+       <define name="BLA" value="1"/>
+       <define name="BLUB"/>
+       <configure name="FOO" value="BAR"/>
+    </module>
 
-The children ``define`` generate compilation defines for all the targets of a module and can be used with or without an
-associated value.
-It allows to keep the module description more generic add to place the airframe dependent parameters in the airframe xml file.
-The child ``configure`` generates a makefile variable.
+</firmware>
+
+All modules must be included within firmware sections. The firmware implements some vehicle specific code using
+predefined Makefiles. The most common ``firmware`` types are ``rotorcraft`` and ``fixedwing``, but more exist and are
+all located in the ``conf/firmware`` folder.
+
+A module will consist of a ``module`` node that specifies the name of the module that should be included (in this case
+``name="my_module``.
+The children ``define`` and ``configure`` are optional and module specific. They can be used to specify the value of
+certain variables used in the module. A ``define`` will generate compilation defines for all the targets of a module
+and can be used with or without an associated value. For more information on ``define`` and ``configure` have a look at
+the section :ref:`Airframe Defines and GCS Settings <label-defines-and-settings>`.
+
 
 Make Your Own
 ---------------
@@ -41,16 +61,18 @@ few Python packages that can be installed by running
     pip install -r requirements.txt  # You may need pip3 if your system has Python 2 also installed
     python3 create_mod_qt.py
 
+This program can also be launched directly from the Paparazzi Center, by selecting ``Tools -> Module Creator`` from the
+Menu bar.
 Try it, you'll be surprised how easy it is to start your own module with the help of this tool.
 
-Another way to go about creating your module is by copying another module's files and editing the relevant parts. In order
-to do this, it is necessary to understand a bit more about how modules work in Paparazzi, starting with where all the files of
-a module are located.
+Another way to go about creating your module is by copying another module's files and editing the relevant parts.
+In order to do this, it is necessary to understand a bit more about how modules work in Paparazzi, starting with where
+all the files of a module are located.
 
-Module File Location
+
+Module Files Location
 -----------------------
 Modules consist of the following files: a module XML file, source and header files.
-
 
 .. code-block:: text
 
@@ -69,6 +91,7 @@ Modules consist of the following files: a module XML file, source and header fil
     │   ...
     ...
 
+
 .. _label-module-xml:
 
 Module XML
@@ -76,6 +99,8 @@ Module XML
 The module description files are located in ``conf/modules/``. They contain information such as a description of the module,
 module settings that can be controlled from the GCS, which source files are needed to compile the module, and additional
 module specific compiler flags.
+
+.. image:: module_architecture_overview.png
 
 Here is an example of a module XML file. Not all of the XML nodes that are shown are actually required, as will be explained
 in this section.
@@ -99,8 +124,11 @@ in this section.
         </dl_settings>
       <settings>
 
-      <depends>foo.xml,bar|baz</depends>
-      <conficts>boo</conflicts>
+      <dep>
+        <depends>module1,module2|module3,@func1</depends>
+        <provides>func2</provides>
+        <conflicts>module4,@func3</conflicts>
+      </dep>
 
       <header>
         <file name="demo_module.h"/>
@@ -127,13 +155,13 @@ in this section.
     </module>
 
 
-The xml file starts with a ``module`` element that sets the name of the module (in this case ``demo_module``).
+The XML file starts with a ``module`` element that sets the name of the module (in this case ``demo_module``).
 Optionally, this element can contain a ``dir`` attribute as well, to specify the location of the source files relative to
 ``sw/airborne/modules/``.
 In this case the directory is not provided since the source files are located in a directory inside ``sw/airborne/modules/``
 that has the same name as the module name (``sw/airborne/modules/demo_module/``).
 
-After a documentation and dependency section, the xml contains a `header` element, where the header files of the
+After a documentation and dependency section, the XML contains a `header` element, where the header files of the
 module are listed.
 Typically, you will only see one header file here that provides an easy-to-use access point for other modules.
 
@@ -142,7 +170,7 @@ These specify what functions in your module code should be called by the autopil
 it also specifies its frequency in Hz. The other two function types that can be specified consist of ``event`` and
 ``datalink`` functions.
 
-At the end of the xml file is the `makefile` element. This section describes how your source files should be compiled.
+At the end of the XML file is the `makefile` element. This section describes how your source files should be compiled.
 Simple modules such as the demo_module only list one or more source files. More complicated modules such as
 ``cv_opencvdemo`` can specify additional compiler flags (to link OpenCV, for example) and can have different
 makefile sections depending on whether the autopilot is compiled for use on the drone (``target="ap"``) or in
@@ -193,18 +221,22 @@ Here is an overview of all possible Module XML nodes:
 |               |               |                                                                         |
 +---------------+---------------+-------------------------------------------------------------------------+
 |               |               | Comma separated list of required modules                                |
-|               |               |                                                                         |
+| | dep         |               |                                                                         |
+| | (0 or 1)    | depends       |                                                                         |
 |               |               | Allows to specify OR dependencies with pipe                             |
-|               |               | (\|) similar to Debian depends, ex: foo,bar|baz would make it depend on |
-| | depends     |               | foo AND (bar OR baz)                                                    |
-| | (0 or 1)    |               |                                                                         |
-|               |               | The elements can be a xml file (in conf/modules) or a module name       |
-|               |               | (as set in the module xml `name` node)                                  |
-+---------------+---------------+-------------------------------------------------------------------------+
-|               |               | Comma separated list of conflicting modules                             |
-| | conflicts   |               |                                                                         |
-| | (0 or 1)    |               | The elements can be a xml file (in conf/modules) or a module name       |
-|               |               | (as set in the module xml `name` node)                                  |
+|               |               | (\|) similar to Debian depends, ex: module1,module2|module3             |
+|               |               | would make it depend on | module1 AND (module2 OR module3)              |
+|               |               |                                                                         |
+|               |               | The elements can be a module name (as set in the module XML ``name``    |
+|               |               | node) or a functionality, which has to be preceded by @                 |
+|               +---------------+-------------------------------------------------------------------------+
+|               | provides      | Advertises the functionality that the module provides (e.g. actuators,  |
+|               |               | imu)                                                                    |
+|               +---------------+-------------------------------------------------------------------------+
+|               | conflicts      | Comma separated list of conflicting modules                            |
+|               |               |                                                                         |
+|               |               | The elements can be a module name (as set in the module XML ``name``    |
+|               |               | node) or a functionality, which has to be preceded by @                 |
 +---------------+---------------+-------------------------------------------------------------------------+
 | | autoload    | name          | The name of the module which should also be automatically loaded        |
 | | (0 or 1)    |               |                                                                         |
@@ -226,7 +258,7 @@ Here is an overview of all possible Module XML nodes:
 |               |               | the maximum frequency is used by default)                               |
 |               +---------------+-------------------------------------------------------------------------+
 |               | delay         | Integer that can be used to impose a sequence in the periodic functions |
-|               |               | (use values between 0 and main_freq/function_freq)                      |
+|               |               | (use values between 0. and 1.)                                          |
 |               +---------------+-------------------------------------------------------------------------+
 |               | start         | Function to be executed before the periodic function starts             |
 |               +---------------+-------------------------------------------------------------------------+
@@ -250,7 +282,7 @@ Here is an overview of all possible Module XML nodes:
 |               +---------------+-------------------------------------------------------------------------+
 |               | define        | Each define node specifies a CFLAGS for the current targets             |
 |               |               |                                                                         |
-|               |               | - | name : name of the define (ex: name="USE_MODULE_LED" ->             |
+|               |               | - | name : name of the define (ex: ``name="USE_MODULE_LED"`` ->         |
 |               |               |   | ``target.CFLAGS += -DUSE_MODULE_LED``) (required)                   |
 |               |               |                                                                         |
 |               |               | - | value : the value to associate                                      |
@@ -268,6 +300,14 @@ Here is an overview of all possible Module XML nodes:
 |               |               |                                                                         |
 |               |               | - | dir : select a directory for this file only                         |
 |               |               |   | (overrides thedefault directory)                                    |
+|               |               |                                                                         |
+|               |               | - | cond : allows for the conditional compilation of file depending     |
+|               |               |   | on the condition specified (ex. ``cond="ifdef FOO"`` ->             |
+|               |               |   | ``ifdef FOO``                                                       |
+|               |               |   | ``...``                                                             |
+|               |               |   | ``endif``                                                           |
+|               |               |   | As the ``file`` node refers to compilation elements, ``ifdef``,     |
+|               |               |   | ``ifeq`` etc. must be specified in value of the ``cond`` attribute  |
 |               +---------------+-------------------------------------------------------------------------+
 |               | file_arch     | - | name : the name of the c file (located in                           |
 |               |               |   | ``sw/airborne/arch/<ARCH>/modules/<dir_name>``) add in the Makefile |
@@ -276,6 +316,14 @@ Here is an overview of all possible Module XML nodes:
 |               |               |                                                                         |
 |               |               | - | dir : select a directory for this file only                         |
 |               |               |   | (overrides the default directory)                                   |
+|               |               |                                                                         |
+|               |               | - | cond : allows for the conditional compilation of file depending     |
+|               |               |   | on the condition specified (ex. ``cond="ifdef FOO"`` ->             |
+|               |               |   | ``ifdef FOO``                                                       |
+|               |               |   | ``...``                                                             |
+|               |               |   | ``endif``                                                           |
+|               |               |   | As the ``file`` node refers to compilation elements, ``ifdef``,     |
+|               |               |   | ``ifeq`` etc. must be specified in value of the ``cond`` attribute  |
 |               +---------------+-------------------------------------------------------------------------+
 |               | raw           | Allows to define a raw makefile section                                 |
 +---------------+---------------+-------------------------------------------------------------------------+
@@ -284,8 +332,8 @@ Here is an overview of all possible Module XML nodes:
 Starting and Stopping a module
 ---------------------------------
 
-Together with the periodic function, the module xml can specify a ``START`` and ``STOP`` function. These are called when
-the module is started or stopped, respectively. The ``autorun`` attribute in the module xml's ``periodic`` element
+Together with the periodic function, the module XML can specify a ``START`` and ``STOP`` function. These are called when
+the module is started or stopped, respectively. The ``autorun`` attribute in the module XML's ``periodic`` element
 controls whether your module is started automatically or manually; you can manually start and stop modules from the GCS
 by going to `Settings -> System -> Modules', selecting ``START`` or ``STOP`` and clicking the green checkmark.
 You can find an example of start and stop functions functions in ``sw/airborne/modules/loggers/file\_logger.c``,
@@ -316,18 +364,17 @@ collision.
 Module Source File
 --------------------
 
-Modules are stand-alone programs, and hence do not have a `main` function in their source code.
-Instead, the autopilot will regularly call other functions that are part of your module, such as a module periodic
-function. Which functions are called is defined by the module xml file described earlier.
+The autopilot will regularly call functions that are part of your module, such as a module periodic
+function. Which functions are called is defined by the module XML file described earlier.
 
-The section `Module XML`_ lists the types of functions you can register in the module xml: ``init``, ``periodic``,
+The section `Module XML`_ lists the types of functions you can register in the module XML: ``init``, ``periodic``,
 ``event`` and ``datalink``, of which init and periodic are the most common.
 The ``init`` function is called once at startup. You can use this function to initialize important variables of your
 module, or memory intensive structures such as large arrays, or for instance to subscribe to new video frames.
 Once the autopilot is fully initialized, it will enter an infinite loop in which it will continuously read new sensor
-data, feed this to the guidance and stabilization controllers, and send new commands to the Bebop's motors.
+data, feed this to the guidance and stabilization controllers, and send new commands to the actuators.
 From this loop, the autopilot can also call your module's ``periodic`` function at a frequency specified in the
-module xml.
+module XML.
 Within this function, you can for instance get the drone's state and use this to calculate new setpoints for the
 guidance controller.
 
@@ -401,7 +448,7 @@ During compilation, these defines are turned into preprocessor macros and can be
 
 Airframe defines allow you to set constant parameters at compile-time, but in some cases it would be easier if you
 could change these values during the flight. This is possible with the
-`settings <https://wiki.paparazziuav.org/wiki/Settings>`_ mechanism. Settings are defined in the module xml file.
+`settings <https://wiki.paparazziuav.org/wiki/Settings>`_ mechanism. Settings are defined in the module XML file.
 Take for example ``conf/modules/cv_detect_color_orange.xml``:
 
 .. code-block:: xml
@@ -416,14 +463,15 @@ Take for example ``conf/modules/cv_detect_color_orange.xml``:
   </settings>
   </module>
 
-`Settings <https://wiki.paparazziuav.org/wiki/Settings>`_ listed in the module xml can be tuned from the Ground Control Station by going to the `Settings` tab and then selecting the tab belonging
+`Settings <https://wiki.paparazziuav.org/wiki/Settings>`_ listed in the module XML can be tuned from the
+Ground Control Station by going to the `Settings` tab and then selecting the tab belonging
 to your module, as defined in the ``dl_settings`` element (here ``ColorObjectDetector``). To read the current value of
 a parameter from the drone, click its value (the number) in the GCS. Te set a value on the drone, adjust the slider,
 *then click the green checkmark* to upload this new value to the drone . Click the value number again to make sure the
 setting was updated if a question mark appears to the left of the slider. The updated value should appear to the left
 of the slider.
 
-Use the ``dl_setting`` element in your module xml to add a setting to your module. The ``var`` attribute
+Use the ``dl_setting`` element in your module XML to add a setting to your module. The ``var`` attribute
 specifies the variable this setting should be written to; this variable should be globally accessible (defined as
 ``extern`` in the h file).
 The ``min``, ``step`` and ``max`` attributes let you specify a range of possible values for this setting.
@@ -463,5 +511,28 @@ adjusted later using settings. This often uses the following pattern:
 
 In this example, ``MY_DEFINE`` provides the initial value of ``my_setting``. ``MY_DEFINE`` can be set from
 the airframe file, but if it is not defined there this code will give it a default value of 0. The actual parameter
-is stored in ``my\_setting``, for which a ``<dl_setting>`` element is included in the module's xml file.
+is stored in ``my\_setting``, for which a ``<dl_setting>`` element is included in the module's XML file.
 
+
+Third Party Modules
+---------------------
+It is possible to include third party modules in an airframe, or modules that are not located within the Paparazzi
+folder itself. The extra directories can be added with ``PAPARAZZI_MODULES_PATH`` where items are   ``:`` separated
+and modules are in subfolders of a `modules` folder. Ex. ``PAPARAZZI_MODULES_PATH=/home/me/pprz_modules``. This
+directory should look like this:
+
+.. code-block:: text
+
+    ├── pprz_modules
+    │  ├── modules
+    │  │  ├── module1
+    │  │  │  ├── module1.xml
+    │  │  │  ├── module1.h
+    │  │  │  └── module1.c
+    │  │  ├── module2
+    │  │  │  ├── module2.xml
+    │  │  │  ├── module2.h
+    │  │  │  └── module2.c
+
+.. warning::
+  TODO Where should ``PAPARAZZI_MODULES_PATH`` be specified?
