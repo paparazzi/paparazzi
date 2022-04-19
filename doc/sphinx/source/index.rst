@@ -28,8 +28,8 @@ Contents:
     :maxdepth: 2
 
     quickstart/index_quick_start
-    user_guide/index_user_guide
     installation/index_installation
+    user_guide/index_user_guide
     developer_guide/index_developer
     tutorials/index_tutorials
     support/index_support
