@@ -35,9 +35,8 @@ class PprzCenter(QMainWindow):
         self.configuration_panel.ac_changed.connect(self.operation_panel.session.set_aircraft)
         self.configuration_panel.splitter.splitterMoved.connect(self.update_left_pane_width)
         settings = utils.get_settings()
-        window_size = settings.value("ui/window_size", None, QtCore.QSize)
-        if window_size is not None:
-            self.resize(window_size)
+        window_size = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
+        self.resize(window_size)
         self.configuration_panel.init()
         self.operation_panel.session.init()
 

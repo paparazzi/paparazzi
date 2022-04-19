@@ -59,10 +59,9 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             self.header.ac_combo.setCurrentText(last_ac)
         if last_target is not None:
             self.build_widget.target_combo.setCurrentText(last_target)
-        window_size: QtCore.QSize = settings.value("ui/window_size", None, QtCore.QSize)
+        window_size: QtCore.QSize = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
         lpw = settings.value("ui/left_pane_width", 100, int)
-        if window_size is not None:
-            self.splitter.setSizes([lpw, window_size.width() - lpw])
+        self.splitter.setSizes([lpw, window_size.width() - lpw])
 
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)
