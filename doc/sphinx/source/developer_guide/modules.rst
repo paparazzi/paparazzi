@@ -265,7 +265,7 @@ Here is an overview of all possible Module XML nodes:
 |               | start         | Function to be executed before the periodic function starts             |
 |               +---------------+-------------------------------------------------------------------------+
 |               | stop          | Function to be executed after the periodic function stops (never called |
-|               |               | if autorun=LOCK)                                                        |
+|               |               | if ``autorun=LOCK``)                                                    |
 |               +---------------+-------------------------------------------------------------------------+
 |               | autorun       | TRUE to make the periodic function starts automatically after init,     |
 |               |               | FALSE to make it way for a user command to start, LOCK to make it       |
@@ -279,7 +279,7 @@ Here is an overview of all possible Module XML nodes:
 |               | fun           | Name of the function called when a message arrived                      |
 +---------------+---------------+-------------------------------------------------------------------------+
 | | makefile    | target        | A list of build targets separated with pipes                            |
-| | (0 or more) |               | (ex: ``<makefile target="tunnel\|foo">``)                               |
+| | (0 or more) |               | (ex: ``<makefile target="tunnel|foo">``)                                |
 |               |               | (default is ``ap|sim|nps``)                                             |
 |               +---------------+-------------------------------------------------------------------------+
 |               | define        | Each define node specifies a CFLAGS for the current targets             |
