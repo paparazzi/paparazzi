@@ -27,7 +27,7 @@ Arbitrary airframe file: conf/airframes/myplane.xml
 
 .. code-block:: xml
 
- <firmware name="rotorcraft">
+ <firmware name="fixedwing">
 
     <module name="my_module">
        <define name="BLA" value="1"/>
@@ -35,7 +35,7 @@ Arbitrary airframe file: conf/airframes/myplane.xml
        <configure name="FOO" value="BAR"/>
     </module>
 
-</firmware>
+  </firmware>
 
 All modules must be included within firmware sections. The firmware implements some vehicle specific code using
 predefined Makefiles. The most common ``firmware`` types are ``rotorcraft`` and ``fixedwing``, but more exist and are
@@ -53,12 +53,12 @@ Make Your Own
 ---------------
 It is very possible to make your own module and to share it with the world. To make it even easier there is a helper tool
 called ``create_mod_qt.py`` that can be found in ``sw/tools/create_module/``. To run it you will need Python 3 and a
-few Python packages that can be installed by running
+few Python packages that can be installed by running in your terminal:
 
 .. code-block:: bash
 
     cd paparazzi/sw/tools/create_module
-    pip install -r requirements.txt  # You may need pip3 if your system has Python 2 also installed
+    python3 -m pip install -r requirements.txt
     python3 create_mod_qt.py
 
 This program can also be launched directly from the Paparazzi Center, by selecting ``Tools -> Module Creator`` from the
@@ -125,9 +125,9 @@ in this section.
       <settings>
 
       <dep>
-        <depends>module1,module2|module3,@func1</depends>
-        <provides>func2</provides>
-        <conflicts>module4,@func3</conflicts>
+        <depends>module1,module2|module3,@functionality1</depends>
+        <provides>functionality2</provides>
+        <conflicts>module4,@functionality3</conflicts>
       </dep>
 
       <header>
@@ -224,19 +224,21 @@ Here is an overview of all possible Module XML nodes:
 | | dep         |               |                                                                         |
 | | (0 or 1)    | depends       |                                                                         |
 |               |               | Allows to specify OR dependencies with pipe                             |
-|               |               | (\|) similar to Debian depends, ex: module1,module2|module3             |
-|               |               | would make it depend on | module1 AND (module2 OR module3)              |
+|               |               | (\|) similar to Debian depends, ex: ``module1,module2|module3``         |
+|               |               | would make it depend on ``module1 AND (module2 OR module3)``            |
 |               |               |                                                                         |
 |               |               | The elements can be a module name (as set in the module XML ``name``    |
-|               |               | node) or a functionality, which has to be preceded by @                 |
+|               |               | node) or a functionality (a keyword specified in a ``provides`` node),  |
+|               |               | which has to be preceded by @                                           |
 |               +---------------+-------------------------------------------------------------------------+
 |               | provides      | Advertises the functionality that the module provides (e.g. actuators,  |
 |               |               | imu)                                                                    |
 |               +---------------+-------------------------------------------------------------------------+
-|               | conflicts      | Comma separated list of conflicting modules                            |
+|               | conflicts     | Comma separated list of conflicting modules                             |
 |               |               |                                                                         |
 |               |               | The elements can be a module name (as set in the module XML ``name``    |
-|               |               | node) or a functionality, which has to be preceded by @                 |
+|               |               | node) or a functionality (a keyword specified in a ``provides`` node),  |
+|               |               | which has to be preceded by @                                           |
 +---------------+---------------+-------------------------------------------------------------------------+
 | | autoload    | name          | The name of the module which should also be automatically loaded        |
 | | (0 or 1)    |               |                                                                         |
@@ -278,30 +280,30 @@ Here is an overview of all possible Module XML nodes:
 +---------------+---------------+-------------------------------------------------------------------------+
 | | makefile    | target        | A list of build targets separated with pipes                            |
 | | (0 or more) |               | (ex: ``<makefile target="tunnel\|foo">``)                               |
-|               |               | (default is ``ap\|sim\|nps``)                                           |
+|               |               | (default is ``ap|sim|nps``)                                             |
 |               +---------------+-------------------------------------------------------------------------+
 |               | define        | Each define node specifies a CFLAGS for the current targets             |
 |               |               |                                                                         |
-|               |               | - | name : name of the define (ex: ``name="USE_MODULE_LED"`` ->         |
+|               |               | - | `name` : name of the define (ex: ``name="USE_MODULE_LED"`` ->       |
 |               |               |   | ``target.CFLAGS += -DUSE_MODULE_LED``) (required)                   |
 |               |               |                                                                         |
-|               |               | - | value : the value to associate                                      |
+|               |               | - | `value` : the value to associate                                    |
 |               |               |   | (ex: ``name="DEMO_MODULE_LED" value="2"`` ->                        |
 |               |               |   | ``target.CFLAGS += -DDEMO_MODULE_LED=2``)                           |
 |               |               |                                                                         |
-|               |               | - | type : the type of define, possible values are "define" or "D",     |
+|               |               | - | `type` : the type of define, possible values are "define" or "D",   |
 |               |               |   | "include" or "I" (ex: ``name="$(ARCH_SRC)" type="include"`` ->      |
 |               |               |   | ``target.CFLAGS += -I$(ARCH_SRC)`` default is "define"              |
 |               +---------------+-------------------------------------------------------------------------+
-|               | file          | - | name : the name of the c file (located in                           |
+|               | file          | - | `name` : the name of the c file (located in                         |
 |               |               |   | ``sw/airborne/modules/<dir_name>``) to add in the Makefile          |
 |               |               |   | (ex: ``name="demo_module.c"`` ->                                    |
 |               |               |   | ``target.srcs += modules/<dir_name>/demo_module.c)``                |
 |               |               |                                                                         |
-|               |               | - | dir : select a directory for this file only                         |
+|               |               | - | `dir` : select a directory for this file only                       |
 |               |               |   | (overrides thedefault directory)                                    |
 |               |               |                                                                         |
-|               |               | - | cond : allows for the conditional compilation of file depending     |
+|               |               | - | `cond` : allows for the conditional compilation of file depending   |
 |               |               |   | on the condition specified (ex. ``cond="ifdef FOO"`` ->             |
 |               |               |   | ``ifdef FOO``                                                       |
 |               |               |   | ``...``                                                             |
@@ -309,15 +311,15 @@ Here is an overview of all possible Module XML nodes:
 |               |               |   | As the ``file`` node refers to compilation elements, ``ifdef``,     |
 |               |               |   | ``ifeq`` etc. must be specified in value of the ``cond`` attribute  |
 |               +---------------+-------------------------------------------------------------------------+
-|               | file_arch     | - | name : the name of the c file (located in                           |
+|               | file_arch     | - | `name` : the name of the c file (located in                         |
 |               |               |   | ``sw/airborne/arch/<ARCH>/modules/<dir_name>``) add in the Makefile |
 |               |               |   | (ex: ``name="demo_module_hw.c"`` ->                                 |
 |               |               |   | ``target.srcs += arch/<ARCH>/modules/<dir_name>/demo_module_hw.c``) |
 |               |               |                                                                         |
-|               |               | - | dir : select a directory for this file only                         |
+|               |               | - | `dir` : select a directory for this file only                       |
 |               |               |   | (overrides the default directory)                                   |
 |               |               |                                                                         |
-|               |               | - | cond : allows for the conditional compilation of file depending     |
+|               |               | - | `cond` : allows for the conditional compilation of file depending   |
 |               |               |   | on the condition specified (ex. ``cond="ifdef FOO"`` ->             |
 |               |               |   | ``ifdef FOO``                                                       |
 |               |               |   | ``...``                                                             |
@@ -335,8 +337,8 @@ Starting and Stopping a module
 Together with the periodic function, the module XML can specify a ``START`` and ``STOP`` function. These are called when
 the module is started or stopped, respectively. The ``autorun`` attribute in the module XML's ``periodic`` element
 controls whether your module is started automatically or manually; you can manually start and stop modules from the GCS
-by going to `Settings -> System -> Modules', selecting ``START`` or ``STOP`` and clicking the green checkmark.
-You can find an example of start and stop functions functions in ``sw/airborne/modules/loggers/file\_logger.c``,
+by going to ``Settings -> System -> Modules``, selecting ``START`` or ``STOP`` and clicking the green checkmark.
+You can find an example of start and stop functions functions in ``sw/airborne/modules/loggers/file_logger.c``,
 where they are used to open and close the log file.
 
 If modules are loaded with periodical functions that are not locked, a new tab will automatically appear in the setting
@@ -481,8 +483,8 @@ A corresponding #include "m.h" will be auto-generated in the corresponding C cod
 
 In case of more complicated logic that needs to be triggered any time that a GCS variable is changed (like resetting
 certain variables, or changing the value of more variables at once) a ``handler`` attribute can be added to specify
-a macro to be called whenever the setting is changed. This macro is associated with a module and **must be named**
-``module-name_handler-name()``.
+a function (or a macro) to be called whenever the setting is changed. This macro is associated with a module and
+**must be named** ``<module-name>_<handler-name>()``.
 
 As an example, take a look at an excerpt from ``conf/modules/digital_cam.xml``:
 
@@ -490,6 +492,7 @@ As an example, take a look at an excerpt from ``conf/modules/digital_cam.xml``:
 
   <dl_settings name="dc">
     <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
+  </dl_settings>
 
 The ``module`` attribute is specified as ``module="digital_cam/dc"``. While in the XML the handler
 function is specified as ``send_command``, in the source code the module name must be added in front of the function
@@ -511,15 +514,15 @@ adjusted later using settings. This often uses the following pattern:
 
 In this example, ``MY_DEFINE`` provides the initial value of ``my_setting``. ``MY_DEFINE`` can be set from
 the airframe file, but if it is not defined there this code will give it a default value of 0. The actual parameter
-is stored in ``my\_setting``, for which a ``<dl_setting>`` element is included in the module's XML file.
+is stored in ``my_setting``, for which a ``<dl_setting>`` element is included in the module's XML file.
 
 
 Third Party Modules
 ---------------------
 It is possible to include third party modules in an airframe, or modules that are not located within the Paparazzi
-folder itself. The extra directories can be added with ``PAPARAZZI_MODULES_PATH`` where items are   ``:`` separated
-and modules are in subfolders of a `modules` folder. Ex. ``PAPARAZZI_MODULES_PATH=/home/me/pprz_modules``. This
-directory should look like this:
+folder itself. The extra directories can be added with the environment variable ``PAPARAZZI_MODULES_PATH``, where
+items are ``:`` separated and modules are in subfolders of a `modules` folder.
+Ex. ``PAPARAZZI_MODULES_PATH=/home/me/pprz_modules``. This directory should look like this:
 
 .. code-block:: text
 
@@ -533,6 +536,6 @@ directory should look like this:
     │  │  │  ├── module2.xml
     │  │  │  ├── module2.h
     │  │  │  └── module2.c
-
-.. warning::
-  TODO Where should ``PAPARAZZI_MODULES_PATH`` be specified?
+    |  │  ...
+    |  ...
+    ...
