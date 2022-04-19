@@ -42,19 +42,20 @@ class PprzCenter(QMainWindow):
 
     def addMenu(self):
         menubar = QMenuBar()
-        file_menu = QMenu("File", menubar)
-        help_menu = QMenu("Help", menubar)
+        file_menu = QMenu("&File", menubar)
+        help_menu = QMenu("&Help", menubar)
         menubar.addMenu(file_menu)
         menubar.addMenu(help_menu)
-        settings_action = QAction("Edit Settings", file_menu)
+        settings_action = QAction("&Edit Settings", file_menu)
         file_menu.addAction(settings_action)
-        about_action = QAction("About", help_menu)
+        about_action = QAction("&About", help_menu)
         help_menu.addAction(about_action)
 
         def edit_settings():
             settings_dialog = AppSettings(self)
             settings_dialog.show()
         settings_action.triggered.connect(edit_settings)
+        about_action.triggered.connect(lambda: QMessageBox.about(self, "About Paparazzi", utils.ABOUT_TEXT))
 
         self.setMenuBar(menubar)
 
