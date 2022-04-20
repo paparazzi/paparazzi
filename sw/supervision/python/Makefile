@@ -1,4 +1,5 @@
-
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 all:
 	mkdir -p generated
 	pyuic5 ui/conf_header.ui -o generated/ui_conf_header.py

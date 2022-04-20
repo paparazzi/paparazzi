@@ -1,4 +1,5 @@
-
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 import os
 import subprocess
 from PyQt5.QtWidgets import *

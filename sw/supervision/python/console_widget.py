@@ -1,5 +1,5 @@
-import os.path
-
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from generated.ui_console import Ui_Console
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QProcess, QByteArray, Qt

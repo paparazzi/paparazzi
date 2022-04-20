@@ -1,3 +1,5 @@
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from PyQt5 import QtCore, QtGui
 from programs_conf import *
 import os

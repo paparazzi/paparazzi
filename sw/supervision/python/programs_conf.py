@@ -1,3 +1,5 @@
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Dict

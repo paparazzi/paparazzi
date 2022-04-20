@@ -1,10 +1,8 @@
-import os.path
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 
 from generated.ui_operation_panel import Ui_OperationPanel
 from PyQt5.QtWidgets import *
-from PyQt5 import QtCore
-import utils
-from program_widget import ProgramWidget
 
 
 class OperationPanel(QWidget, Ui_OperationPanel):
