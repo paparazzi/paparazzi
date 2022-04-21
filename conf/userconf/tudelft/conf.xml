@@ -517,12 +517,12 @@
   <aircraft
    name="bebop_opticflow_indoor"
    ac_id="97"
-   airframe="airframes/tudelft/bebop_opticflow_indoor.xml"
+   airframe="airframes/tudelft/bebop_opticflow_indoor_2x_30hz.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/rotorcraft_cyberzoo_no_gps.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml modules/video_capture.xml modules/video_rtp_stream.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_ae_awb.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml modules/video_capture.xml modules/video_rtp_stream.xml"
    gui_color="blue"
    release="398071ca8f7c8dc24becbe76bc5628b6ea604248"
   />
