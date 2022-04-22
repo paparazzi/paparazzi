@@ -86,7 +86,7 @@ class SessionWidget(QWidget, Ui_Session):
         lfp = Program.from_tool(self.tools["Log File Player"])
         server = Program.from_tool(self.tools["Server"])
         server.args.append(Arg("-n", None))
-        gcs = Program.from_tool(self.tools["GCS"])
+        gcs = Program.from_tool(self.tools["PprzGCS"])
         self.launch_program(lfp)
         self.launch_program(server)
         self.launch_program(gcs)
@@ -123,7 +123,7 @@ class SessionWidget(QWidget, Ui_Session):
 
         server = Program.from_tool(self.tools["Server"])
         server.args.append(Arg("-n", None))
-        gcs = Program.from_tool(self.tools["GCS"])
+        gcs = Program.from_tool(self.tools["PprzGCS"])
         self.launch_program(server)
         self.launch_program(gcs)
 
