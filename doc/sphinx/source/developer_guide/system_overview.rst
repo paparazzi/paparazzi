@@ -16,7 +16,7 @@ In the case of the Paparazzi UAV system, the ground segment is composed by a col
 Ground architecture
 -------------------
 
-The Gound Control Station (GCS) constits of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_, as seen on the general architecture diagram above.
+The Ground Control Station (GCS) consits of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_ (see the `documentation <https://ivybus.gitlab.io/>`_ for details), as seen on the general architecture diagram above.
 
 .. note::
 
@@ -26,7 +26,7 @@ The core Paparazzi programs are Link, which handle the communication with the dr
 
 Many other tools have been developed for various use cases, they are available in the *Tools* menu of the paparazzi center. But more interesting: you can write your own tools that will interact with Paparazzi via the Ivy bus.
 
-The ground segment useually runs on a single laptop, but thanks to its distributed nature, it is also possible to split the tools on different computers connected to the same network or VPN.
+The ground segment usually runs on a single laptop, but thanks to its distributed nature, it is also possible to split the tools on different computers connected to the same network or VPN.
 
 Airborne architecture
 ---------------------
@@ -52,7 +52,7 @@ In details:
   - The state is then used by the control loops for navigation, guidance and stabilization. The final commands array is stored in a normalized control vector.
     These commands are ultimately applied to the physical actuators with a mixing defined in an airframe configuration file.
 
-  - Some other services are present, including the communication services allow to send and receive messages from the ground, from an other aircraft
+  - Some other services are present, including the communication services that allow to send and receive messages from the ground, from an other aircraft
     or from an embedded companion computer. Data logging on SD card is also possible on supported hardware.
     Electrical and safety monitoring are checking the energy source to apply appropriate actions in case of voltage drop.
 
@@ -71,7 +71,8 @@ The aircraft is configured by various XML configuration files: *airframe*, *flig
 Airborne autopilot timing
 -------------------------
 
-The picture below explain the temporal sequence of the autopilot. Each module is declared with a *task* (or nothing for default group) that is called in a predefined order.
+The picture below explain the temporal sequence of the autopilot. Each module belongs to a **task**, specified in its configuration file (or nothing for default group),
+that is called in a predefined order.
 The order respects the general principals of a closed loop system, but also take into account some constraints due to the use of digital sensors and performances of the microcontrollers.
 
 .. image:: PPRZ_Main_ap_loop.png
