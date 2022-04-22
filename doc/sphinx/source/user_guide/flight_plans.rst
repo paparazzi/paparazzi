@@ -48,8 +48,8 @@ lat0, lon0
     
 max_dist_from_home
     A radius representing the maximum allowed distance (in meters) from the HOME waypoint.
-    Exceeding this value (ie flying outside the circle with this radius) will trigger an exception.
-    It is up to you to define the block to be executed (ie what to do) for the exception.
+    Flying outside this circle point will trigger the *home* mode.
+    This behavior is overrided by the *geofence_sector* optional attribute.
     
 ground_alt
     The ground altitude (in meters), Above Sea Level where you are flying.
@@ -84,7 +84,7 @@ geofence_max_height
     Flying above this height will trigger the *home* mode.
 
 geofence_sector
-    Flying outside this sector will trigger the *home* mode
+    Flying outside this sector will trigger the *home* mode.
 
 
 Here is an example of such a line in the top of a flight plan:
@@ -587,22 +587,6 @@ The UAV will try to stay at the waypoint as best as it can. For an aircraft capa
     <stay wp="HOME" alt="10"/>
 
 
-XYZ
-___
-
-xyz is a special mode where the UAS circles around a user moveable waypoint. This waypoint is moved with the RC sticks:
-
-+ YAW channel controls the point over the west-east axis;
-+ PITCH channel controls the point over the south-north axis;
-+ ROLL channel controls the altitude.
-
-Example (default radius is 100):
-
-.. code-block::
-
-    <xyz radius="40"/>
-
-
 Set
 ___
 
@@ -645,7 +629,7 @@ Internal Variables in Flight Plans
 The flight plan can use several internal variables, macros and functions coming from the rest of the system or the flight plan API itself.
 The following list present some of the most commonly used variables, but much more are actually available:
 
-+ **autopilot_flight_time**: time in seconds since autopilot was booted (integer)
++ **autopilot.flight_time**: time in seconds since autopilot was booted (integer)
 + **datalink_time**: time in seconds since last connection of telemetry to ground control station (including modules/datalink/datalink.h in the header section is required) (integer)
 + **GetPosAlt()**: returns the current altitude above ground level in meter (float)
 + **GetPosX()**: returns x (easting) of current position relative to reference in meter (float)
