@@ -16,7 +16,7 @@ In the case of the Paparazzi UAV system, the ground segment is composed by a col
 Ground architecture
 -------------------
 
-The Ground Control Station (GCS) consits of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_ (see the `documentation <https://ivybus.gitlab.io/>`_ for details), as seen on the general architecture diagram above.
+The Ground Control Station (GCS) consists of multiples programs, communicating with each other by the software bus `Ivy <https://www.eei.cena.fr/products/ivy/>`_ (see the `documentation <https://ivybus.gitlab.io/>`_ for details), as seen on the general architecture diagram above.
 
 .. note::
 
