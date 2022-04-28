@@ -9,7 +9,7 @@ GCS map can be enriched with intruders and shapes.
 Intruders
 ---------
 
-Intruders represents vehicules that are not managed by paparazzi. They are updated with the `INTRUDER` message.
+Intruders represents vehicles that are not managed by paparazzi. They are updated with the `INTRUDER` message.
 
 Intruders positions are transmitted by the server to the ACs with ACINFO messages.
 
