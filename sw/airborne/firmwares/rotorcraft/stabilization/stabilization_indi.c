@@ -448,60 +448,61 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   indi_v[2] = (angular_accel_ref.r - angular_acceleration[2] + g2_times_du);
   indi_v[3] = v_thrust;
 
+  if (in_flight) {
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
-  // Calculate the increment for each actuator
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
-                 + (g1g2_pseudo_inv[i][1] * indi_v[1])
-                 + (g1g2_pseudo_inv[i][2] * indi_v[2])
-                 + (g1g2_pseudo_inv[i][3] * indi_v[3]);
-  }
+    // Calculate the increment for each actuator
+    for (i = 0; i < INDI_NUM_ACT; i++) {
+      indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
+        + (g1g2_pseudo_inv[i][1] * indi_v[1])
+        + (g1g2_pseudo_inv[i][2] * indi_v[2])
+        + (g1g2_pseudo_inv[i][3] * indi_v[3]);
+    }
 #else
-  // Calculate the min and max increments
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
-    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
-    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
+    // Calculate the min and max increments
+    for (i = 0; i < INDI_NUM_ACT; i++) {
+      du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
+      du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+      du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
-    float airspeed = stateGetAirspeed_f();
-    //limit minimum thrust ap can give
-    if (!act_is_servo[i]) {
-      if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
-        if (airspeed < 8.0) {
-          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - actuator_state_filt_vect[i];
-        } else {
-          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - actuator_state_filt_vect[i];
+      float airspeed = stateGetAirspeed_f();
+      //limit minimum thrust ap can give
+      if (!act_is_servo[i]) {
+        if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
+          if (airspeed < 8.0) {
+            du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - actuator_state_filt_vect[i];
+          } else {
+            du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - actuator_state_filt_vect[i];
+          }
+        }
+      }
+#endif
+    }
+
+    // WLS Control Allocator
+    num_iter =
+      wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, du_pref, 10000, 10);
+#endif
+
+    // Add the increments to the actuators
+    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
+
+    // Bound the inputs to the actuators
+    for (i = 0; i < INDI_NUM_ACT; i++) {
+      if (act_is_servo[i]) {
+        BoundAbs(indi_u[i], MAX_PPRZ);
+      } else {
+        if (autopilot_get_motors_on()) {
+          Bound(indi_u[i], 0, MAX_PPRZ);
+        }
+        else {
+          indi_u[i] = -MAX_PPRZ;
         }
       }
     }
-#endif
-  }
 
-  // WLS Control Allocator
-  num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, du_pref, 10000, 10);
-#endif
-
-  // Add the increments to the actuators
-  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
-
-  // Bound the inputs to the actuators
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    if (act_is_servo[i]) {
-      BoundAbs(indi_u[i], MAX_PPRZ);
-    } else {
-      if (autopilot_get_motors_on()) {
-        Bound(indi_u[i], 0, MAX_PPRZ);
-      }
-      else {
-        indi_u[i] = -MAX_PPRZ;
-      }
-    }
-  }
-
+  } else {
   //Don't increment if not flying (not armed)
-  if (!in_flight) {
     float_vect_zero(indi_u, INDI_NUM_ACT);
     float_vect_zero(indi_du, INDI_NUM_ACT);
   }
