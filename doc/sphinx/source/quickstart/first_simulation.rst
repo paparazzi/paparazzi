@@ -7,7 +7,7 @@ Flight Simulation
 Launch the simulation
 =====================
 
-- In the paparazzi center, select the **Microjet** aircraft in the *A/C* combobox of the configuration panel.
+- In the paparazzi center, select the **Microjet** or **Bixler** aircraft in the *A/C* combobox of the configuration panel.
 - Select the **sim** target, and click *Build*. This should build without errors in the console panel, and finish with "DONE".
 - Select the **Simulation** session in the execution panel, and click *Execute*.
 
