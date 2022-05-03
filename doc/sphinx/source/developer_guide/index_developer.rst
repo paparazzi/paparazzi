@@ -13,4 +13,5 @@ TBD
     communication
     modules
     abi
+    logging
 
