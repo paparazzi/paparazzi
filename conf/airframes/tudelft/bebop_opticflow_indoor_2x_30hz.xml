@@ -6,9 +6,9 @@
 
 Frame size: 2 cams with 240x240
     
-pyramid level 0 -> 30 fps average, min=29fps lowest)
-pyramid level 1 -> 26 fps average, min=15fps
-pyramid level 2 -> 21 fps average, min=11fps
+pyramid level 0: 30 fps average, min=29fps lowest)
+pyramid level 1: 26 fps average, min=15fps
+pyramid level 2: 21 fps average, min=11fps
   </description>
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
