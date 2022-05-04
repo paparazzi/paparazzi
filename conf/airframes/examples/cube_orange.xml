@@ -79,7 +79,7 @@
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>
     <module name="actuators"     type="pwm"/>
-    <module name="imu"           type="mpu6000"/>
+    <module name="imu"           type="cube"/>
     <module name="gps"           type="ublox"/>
     <module name="gps"           type="ubx_ucenter"/>
     <module name="stabilization" type="indi_simple"/>

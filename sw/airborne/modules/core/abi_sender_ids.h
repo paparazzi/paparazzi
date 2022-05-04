@@ -363,6 +363,18 @@
 #define IMU_BMI088_ID 19
 #endif
 
+#ifndef IMU_CUBE1_ID
+#define IMU_CUBE1_ID 20
+#endif
+
+#ifndef IMU_CUBE2_ID
+#define IMU_CUBE2_ID 21
+#endif
+
+#ifndef IMU_CUBE3_ID
+#define IMU_CUBE4_ID 22
+#endif
+
 // prefiltering with OneEuro filter
 #ifndef IMU_F1E_ID
 #define IMU_F1E_ID 30
