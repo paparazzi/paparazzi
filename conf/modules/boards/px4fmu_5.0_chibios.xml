@@ -9,6 +9,8 @@
   <dep>
     <depends>spi_master,baro_board</depends>
   </dep>
-  <makefile target="!sim|nps|fbw"/>
+  <makefile target="!sim|nps|fbw">
+    <configure name="SDLOG_USE_RTC" value="FALSE"/>
+  </makefile>
 </module>
 

@@ -36,9 +36,6 @@
       <!--module name="generic_uart_sensor"/-->
 
       <!-- Logger -->
-      <module name="tlsf"/>
-      <module name="pprzlog"/>
-      <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
 
       <!--define name="ADC_CURRENT_DISABLE" value="TRUE"/-->
