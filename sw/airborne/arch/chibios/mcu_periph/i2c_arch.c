@@ -56,13 +56,13 @@ static void i2c_chibios_setbitrate(struct i2c_periph *p, int bitrate) __attribut
 
 // private I2C init structure
 struct i2c_init {
+#if defined(STM32F7XX) || defined(STM32H7XX)
+  uint8_t dma_buf[I2C_BUF_LEN];
+#endif
   char *name;
   semaphore_t sem;
   I2CConfig cfg;
   struct i2c_errors errors;
-#if defined(STM32F7XX) || defined(STM32H7XX)
-  uint8_t dma_buf[I2C_BUF_LEN];
-#endif
 };
 
 

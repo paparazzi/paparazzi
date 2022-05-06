@@ -56,12 +56,12 @@
 
 // private SPI init structure
 struct spi_init {
-  char *name;
-  semaphore_t sem;
 #if defined(STM32F7XX) || defined(STM32H7XX)
   uint8_t dma_buf_out[SPI_DMA_BUF_LEN];
   uint8_t dma_buf_in[SPI_DMA_BUF_LEN];
 #endif
+  char *name;
+  semaphore_t sem;
 };
 
 /**
@@ -356,7 +356,7 @@ static void handle_spi_thd(struct spi_periph *p)
 #if defined(STM32F7XX) || defined(STM32H7XX)
   // we do stupid mem copy because F7/H7 needs a special RAM for DMA operation
   memcpy(i->dma_buf_out, (void *)t->output_buf, (size_t)t->output_length);
-  //cacheBufferFlush(i->dma_buf_out, t->output_length);
+  cacheBufferFlush(i->dma_buf_out, t->output_length);
   spiExchange((SPIDriver *)p->reg_addr, t_length, i->dma_buf_out, i->dma_buf_in);
   cacheBufferInvalidate(i->dma_buf_in, t->input_length);
   memcpy((void *)t->input_buf, i->dma_buf_in, (size_t)t->input_length);
