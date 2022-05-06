@@ -1299,7 +1299,8 @@
                    {PWM_SERVO_3_ACTIVE, NULL}  \
                },       \
                0,       \
-               0        \
+               0,       \
+               0,       \
                }
     #define PWM_CONF4_DEF {  \
                PWM_FREQUENCY, \
@@ -1312,7 +1313,8 @@
                    {PWM_OUTPUT_DISABLED, NULL}  \
                },       \
                0,       \
-               0        \
+               0,       \
+               0,       \
                }
     #define PWM_CONF5_DEF {  \
                PWM_FREQUENCY, \
@@ -1325,7 +1327,8 @@
                    {PWM_OUTPUT_DISABLED, NULL}  \
                },       \
                0,       \
-               0        \
+               0,       \
+               0,       \
                }
   #endif /* USE_I2C1 */
 #else /* !USE_SERVOS_7AND8 */
@@ -1342,7 +1345,8 @@
                    {PWM_SERVO_3_ACTIVE, NULL}  \
                },       \
                0,       \
-               0        \
+               0,       \
+               0,       \
                }
     #define PWM_CONF5_DEF {  \
                PWM_FREQUENCY, \
@@ -1355,7 +1359,8 @@
                    {PWM_OUTPUT_DISABLED, NULL}  \
                },       \
                0,       \
-               0        \
+               0,       \
+               0,       \
                }
 #endif /* USE_SERVOS_7AND8 */
 

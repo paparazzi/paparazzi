@@ -423,7 +423,8 @@
     { PWM_SERVO_4_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 #ifdef STM32_PWM_USE_TIM3
@@ -442,7 +443,8 @@
     { PWM_SERVO_16_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 #ifdef STM32_PWM_USE_TIM4
@@ -461,7 +463,8 @@
     { PWM_SERVO_8_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 #ifdef STM32_PWM_USE_TIM5
@@ -480,7 +483,8 @@
     { PWM_SERVO_13_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 /**

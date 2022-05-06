@@ -4,6 +4,6 @@
 # documentation is here :
 # https://github.com/alex31/chibios_enac_various_common/blob/master/TOOLS/DOC/boardGen.pdf
 
-board.h: tawaki_1.1.cfg Makefile
-	boardGen.pl --no-pp-pin --no-pp-line 	$<  $@
+board.h: board.cfg Makefile
+	boardGen.pl --no-pp-pin --no-pp-line  	$<  $@
 

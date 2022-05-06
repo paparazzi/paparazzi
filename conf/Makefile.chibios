@@ -206,7 +206,6 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STA
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)
-include $(CHIBIOS_BOARD_DIR)/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
@@ -224,7 +223,7 @@ LDSCRIPT= $(CHIBIOS_LINKER_DIR)/$(CHIBIOS_BOARD_LINKER)
 # setting.
 CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS_BOARD_MAIN)
+       $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/board.c
 
 ECSRC = $(filter %.c, $($(TARGET).srcs))
 ECPPSRC = $(filter %.cpp, $($(TARGET).srcs))

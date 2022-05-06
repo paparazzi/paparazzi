@@ -207,7 +207,8 @@
     { PWM_SERVO_0_ACTIVE, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 #ifdef STM32_PWM_USE_TIM4
@@ -226,7 +227,8 @@
     { PWM_OUTPUT_DISABLED, NULL }, \
   }, \
   0, \
-  0 \
+  0, \
+  0, \
 }
 
 /**

@@ -34,6 +34,22 @@
 /* Driver local variables and types.                                         */
 /*===========================================================================*/
 
+#if defined(STM32F1XX)
+
+/**
+ * @brief   STM32 GPIO static initialization data.
+ */
+const PALConfig pal_default_config =
+{
+  {VAL_GPIOA_ODR, VAL_GPIOA_CRL, VAL_GPIOA_CRH},
+  {VAL_GPIOB_ODR, VAL_GPIOB_CRL, VAL_GPIOB_CRH},
+  {VAL_GPIOC_ODR, VAL_GPIOC_CRL, VAL_GPIOC_CRH},
+  {VAL_GPIOD_ODR, VAL_GPIOD_CRL, VAL_GPIOD_CRH},
+  {VAL_GPIOE_ODR, VAL_GPIOE_CRL, VAL_GPIOE_CRH},
+};
+
+#else /* STM32F1XX */
+
 /**
  * @brief   Type of STM32 GPIO port setup.
  */
@@ -155,8 +171,16 @@ static void stm32_gpio_init(void) {
 
   /* Enabling GPIO-related clocks, the mask comes from the
      registry header file.*/
+#if defined(STM32H7XX)
+  rccResetAHB4(STM32_GPIO_EN_MASK);
+  rccEnableAHB4(STM32_GPIO_EN_MASK, true);
+#elif defined(STM32F3XX)
+  rccResetAHB(STM32_GPIO_EN_MASK);
+  rccEnableAHB(STM32_GPIO_EN_MASK, true);
+#else
   rccResetAHB1(STM32_GPIO_EN_MASK);
   rccEnableAHB1(STM32_GPIO_EN_MASK, true);
+#endif
 
   /* Initializing all the defined GPIO ports.*/
 #if STM32_HAS_GPIOA
@@ -194,6 +218,8 @@ static void stm32_gpio_init(void) {
 #endif
 }
 
+#endif /* not STM32F1XX */
+
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
@@ -208,7 +234,6 @@ static void stm32_gpio_init(void) {
  *          else.
  */
 void __early_init(void) {
-
   stm32_gpio_init();
   stm32_clock_init();
 }
@@ -219,7 +244,7 @@ void __early_init(void) {
  */
 bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
   (void)sdcp;
-  return !palReadLine(LINE_SDIO_DETECT);
+  return true;
 }
 
 /**
@@ -259,5 +284,7 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  * @todo    Add your board-specific code, if any.
  */
 void boardInit(void) {
+#if defined(AFIO_MAPR_VAL)
+  AFIO->MAPR |= AFIO_MAPR_VAL;
+#endif
 }
-

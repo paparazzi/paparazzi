@@ -179,6 +179,10 @@
 #define VAL_GPIOECRH            0x88888888      /* PE15...PE8 */
 #define VAL_GPIOEODR            0xFFFFFFFF
 
+/**
+ * Remap several IO pins
+ */
+#define AFIO_MAPR_VAL (AFIO_MAPR_USART3_REMAP_PARTIALREMAP | AFIO_MAPR_SWJ_CFG_NOJNTRST | AFIO_MAPR_TIM3_REMAP_FULLREMAP)
 
 /*
  * AHB_CLK

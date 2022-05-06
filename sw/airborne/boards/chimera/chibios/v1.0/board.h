@@ -1534,6 +1534,38 @@
 #define AF_LINE_OSC_OUT                  0U
 
 
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define ENERGY_SAVE_INPUT \
+	LINE_AUX3, \
+	LINE_AUX2, \
+	LINE_AUX1, \
+	LINE_AUX0, \
+	LINE_SPI1_CS, \
+	LINE_LED1, \
+	LINE_LED2, \
+	LINE_AUX5, \
+	LINE_AUX4, \
+	LINE_AUX6, \
+	LINE_AUX7, \
+	LINE_LED3, \
+	LINE_LED4
+#define ENERGY_SAVE_INPUT_SIZE 	 13
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

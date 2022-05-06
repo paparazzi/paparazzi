@@ -1573,6 +1573,48 @@
 #define AF_LINE_OSC_OUT                  0U
 
 
+#define ADC1_ADC	 1
+#define ADC1_ADC_FN	 INP
+#define ADC1_ADC_INP	 14
+#define ADC2_ADC	 1
+#define ADC2_ADC_FN	 INP
+#define ADC2_ADC_INP	 15
+#define ADC3_ADC	 1
+#define ADC3_ADC_FN	 INP
+#define ADC3_ADC_INP	 18
+#define ADC6_ADC	 3
+#define ADC6_ADC_FN	 INP
+#define ADC6_ADC_INP	 1
+#define ADC4_ADC	 1
+#define ADC4_ADC_FN	 INP
+#define ADC4_ADC_INP	 4
+#define ADC5_ADC	 1
+#define ADC5_ADC_FN	 INP
+#define ADC5_ADC_INP	 8
+#define SERVO5_TIM	 4
+#define SERVO5_TIM_FN	 CH
+#define SERVO5_TIM_CH	 2
+#define SERVO5_TIM_AF	 2
+#define SERVO6_TIM	 4
+#define SERVO6_TIM_FN	 CH
+#define SERVO6_TIM_CH	 3
+#define SERVO6_TIM_AF	 2
+#define SERVO4_TIM	 1
+#define SERVO4_TIM_FN	 CH
+#define SERVO4_TIM_CH	 1
+#define SERVO4_TIM_AF	 1
+#define SERVO3_TIM	 1
+#define SERVO3_TIM_FN	 CH
+#define SERVO3_TIM_CH	 2
+#define SERVO3_TIM_AF	 1
+#define SERVO2_TIM	 1
+#define SERVO2_TIM_FN	 CH
+#define SERVO2_TIM_CH	 3
+#define SERVO2_TIM_AF	 1
+#define SERVO1_TIM	 1
+#define SERVO1_TIM_FN	 CH
+#define SERVO1_TIM_CH	 4
+#define SERVO1_TIM_AF	 1
 
 #define BOARD_GROUP_DECLFOREACH(line, group) \
   static const ioline_t group ## _ARRAY[] = {group}; \
@@ -1588,6 +1630,31 @@
 
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define ENERGY_SAVE_INPUTS \
+	LINE_SPI_SLAVE0, \
+	LINE_SPI_SLAVE1, \
+	LINE_SPI_SLAVE2, \
+	LINE_SPI_SLAVE3, \
+	LINE_SPI_SLAVE4, \
+	LINE_SPI_SLAVE5, \
+	LINE_SPI_SLAVE6, \
+	LINE_SPI_SLAVE7, \
+	LINE_SERVO5, \
+	LINE_SERVO6, \
+	LINE_SPI_SLAVE8, \
+	LINE_SERVO4, \
+	LINE_SERVO3, \
+	LINE_LED1, \
+	LINE_SERVO2, \
+	LINE_SERVO1
+#define ENERGY_SAVE_INPUTS_SIZE 	 16
+
+#define ENERGY_SAVE_LOWS \
+	LINE_VDD_5V_PERIPH_EN, \
+	LINE_PWM_VOLT_SEL, \
+	LINE_VDD_3V3_SENSORS_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 3
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
