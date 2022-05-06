@@ -68,9 +68,9 @@
 
 /* Set the default sample rate */
 #if !defined(ADC_SAMPLE_RATE)
-#if defined(STM32H7)
+#if defined(STM32H7XX)
 #define ADC_SAMPLE_RATE ADC_SMPR_SMP_384P5
-#elif defined(STM32F3)
+#elif defined(STM32F3XX)
 #define ADC_SAMPLE_RATE ADC_SMPR_SMP_601P5
 #else
 #define ADC_SAMPLE_RATE ADC_SAMPLE_480
@@ -197,7 +197,7 @@ static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const u
   for(uint8_t i = 0; i < num_channels; i++) {
     uint8_t chan = channels[i];
 
-#if defined(STM32H7) || defined(STM32F3) || defined(STM32G4) || defined(STM32L4)
+#if defined(STM32H7XX) || defined(STM32F3XX) || defined(STM32G4XX) || defined(STM32L4XX)
     cfg->pcsel |= (1 << chan);
     cfg->smpr[chan/10] |= sample_rate << (3 << (chan%10));
 

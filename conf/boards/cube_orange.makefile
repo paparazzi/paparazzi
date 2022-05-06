@@ -33,16 +33,9 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32H7xx/platform.mk
+CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
 CHIBIOS_BOARD_LINKER = STM32H743xI.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
-
-# In this case we dont have LUFTBOOT but PX4_BOOTLOADER, but in order
-# to correctly initialize the interrupt vector we have to define that
-# the board has LUFTBOOT
-HAS_LUFTBOOT ?= 1
-ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
-$(TARGET).CFLAGS+=-DLUFTBOOT
-endif
 
 ##############################################################################
 # Compiler settings

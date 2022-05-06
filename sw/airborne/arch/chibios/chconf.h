@@ -835,26 +835,6 @@
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
 
-
-
-#ifndef CORTEX_VTOR_INIT // try to find the correct init address if not defined
-
-#if LUFTBOOT // using LUFTBOOT bootloader
-
-#if defined(STM32F4)
-#define CORTEX_VTOR_INIT                    0x00004000U
-#elif defined(STM32F7)
-#define CORTEX_VTOR_INIT                    0x08008000U
-#elif defined(STM32H7)
-#define CORTEX_VTOR_INIT                    0x08020000U
-#else
-#define CORTEX_VTOR_INIT                    0x00002000U
-#endif
-
-#endif // LUFTBOOT
-
-#endif // CORTEX_VTOR_INIT
-
 // allow float for the ChibiOS print function (used with logger)
 #define CHPRINTF_USE_FLOAT 1
 

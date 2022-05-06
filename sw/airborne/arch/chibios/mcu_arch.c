@@ -108,11 +108,6 @@ bool recovering_from_hard_fault;
  */
 void mcu_arch_init(void)
 {
-#if LUFTBOOT
-  PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
-  SCB->VTOR = CORTEX_VTOR_INIT;
-#endif
-
   /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
