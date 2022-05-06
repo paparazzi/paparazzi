@@ -87,7 +87,7 @@ void gps_i2c_msg_ready(struct GpsUbxI2C *p, long fd);
 /** check if a new character is available
  * @param p unused
  */
-uint8_t gps_i2c_char_available(struct GpsUbxI2C *p);
+int gps_i2c_char_available(struct GpsUbxI2C *p);
 
 /** get a new char
  * @param p unused
@@ -147,7 +147,7 @@ void gps_i2c_msg_ready(struct GpsUbxI2C *p __attribute__((unused)), long fd __at
   gps_i2c.tx_rdy = FALSE;
 }
 
-uint8_t gps_i2c_char_available(struct GpsUbxI2C *p __attribute__((unused)))
+int gps_i2c_char_available(struct GpsUbxI2C *p __attribute__((unused)))
 {
   return (((int)gps_i2c.rx_buf_avail - (int)gps_i2c.rx_buf_idx) > 0);
 }
