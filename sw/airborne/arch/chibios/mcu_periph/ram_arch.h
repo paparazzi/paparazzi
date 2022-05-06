@@ -43,33 +43,33 @@
 #ifndef RAM_ARCH_H
 #define RAM_ARCH_H
 
-#if defined(STM32F1)
+#if defined(STM32F1XX)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram0"
 #define DMA_ALIGN     8
-#elif defined(STM32F3)
+#elif defined(STM32F3XX)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
 #define DMA_ALIGN     8
-#elif defined(STM32F4)
+#elif defined(STM32F4XX)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
 #define DMA_ALIGN     8
-#elif defined(STM32F)
+#elif defined(STM32F7XX)
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram3"
 #define DMA_ALIGN     8
-#elif defined(STM32H7)
+#elif defined(STM32H7XX)
 #define STD_SECTION   ".ram1"
 #define FAST_SECTION  ".ram5"
 #define DMA_SECTION   ".ram0"
 #define DMA_ALIGN     32
 #else
-#error "section defined only for STM32F1, STM32F4, STM32F7 and STM32H7"
+#error "section defined only for STM32F1, STM32F3, STM32F4, STM32F7 and STM32H7"
 #endif
 
 #define IN_STD_SECTION_NOINIT(var) var __attribute__ ((section(STD_SECTION), aligned(8)))

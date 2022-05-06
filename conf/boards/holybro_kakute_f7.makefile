@@ -23,7 +23,7 @@ USE_FPU_OPT= -mfpu=fpv5-sp-d16
 
 USE_LTO ?= yes
 
-$(TARGET).CFLAGS += -DSTM32F7 -DPPRZLINK_ENABLE_FD -DDSHOT_CHANNEL_FIRST_INDEX=1U
+$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD -DDSHOT_CHANNEL_FIRST_INDEX=1U
 
 ##############################################################################
 # Architecture or project specific options

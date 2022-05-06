@@ -34,7 +34,7 @@
 
 #define HEAP_CCM          ccmHeap
 // F7/H7 has more than twice RAM than others families
-#if defined(STM32F7) || defined(STM32H7)
+#if defined(STM32F7XX) || defined(STM32H7XX)
 #define HEAP_CCM_SIZE     65536
 #else 
 #define HEAP_CCM_SIZE     16384
