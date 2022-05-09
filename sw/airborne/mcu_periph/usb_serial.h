@@ -32,7 +32,16 @@
 #include "std.h"
 #include "pprzlink/pprzlink_device.h"
 
+// we really need just 1 byte
+#define USB_RX_BUFFER_SIZE 10
+
 struct usb_serial_periph {
+  /** Receive buffer */
+  uint8_t rx_buf[USB_RX_BUFFER_SIZE];
+  uint16_t rx_read_idx;
+  uint16_t nb_bytes;
+  void *reg_addr;
+
   /** Generic device interface */
   struct link_device device;
 };
