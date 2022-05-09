@@ -31,9 +31,9 @@
 #include <inttypes.h>
 #include "std.h"
 #include "pprzlink/pprzlink_device.h"
+#include "mcu_periph/uart.h"
 
-// we really need just 1 byte
-#define USB_RX_BUFFER_SIZE 10
+#define USB_RX_BUFFER_SIZE UART_RX_BUFFER_SIZE
 
 struct usb_serial_periph {
   /** Receive buffer */
