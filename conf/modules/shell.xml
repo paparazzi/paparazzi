@@ -28,5 +28,6 @@
     <define name="$(SHELL_PORT_UPPER)_BAUD" value="$(SHELL_BAUD)"/>
     <define name="SHELL_DEV" value="$(SHELL_PORT_LOWER)"/>
     <define name="SHELL_DYNAMIC_ENTRIES_NUMBER" value="$(SHELL_DYNAMIC_ENTRIES_NUMBER)"/>
+    <file_arch name="usb_ser_hw.c" dir="."/>
   </makefile>
 </module>
