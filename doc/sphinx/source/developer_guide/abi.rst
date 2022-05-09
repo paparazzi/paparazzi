@@ -82,7 +82,8 @@ function should be ``sender_id``, followed by all the fields defined in the mess
      // do something here
     }
 
-.. warning:: Make sure the callback doesn't take too much time (process the received data elsewhere), as ABI callbacks are not thread safe.
+.. warning:: Make sure the callback doesn't take too much time (better to process the received data elsewhere), to avoid
+  delaying the execution of the main loop.
 
 In the initialization function (or later) call the binding function for the message you want to receive.
 
@@ -92,6 +93,12 @@ In the initialization function (or later) call the binding function for the mess
 
 The first parameter is the sender ID you want to receive the message from.
 Senders IDs can be found in the file ``sw/airborne/modules/core/abi_sender_ids.h``
+
+.. warning::
+
+    The values 0 and 255 are reserved for ``ABI_DISABLE`` and ``ABI_BROADCAST`` and thus shall not be used.
+
+    You must also avoid using an ID already used to send the same message type.
 
 The second parameter is a pointer to the global ``abi_event`` you declared. This variable **can't** be reused for another bind.
 You must declare one abi_event per bind.
@@ -130,10 +137,14 @@ Creating a new message requires multiple files to be edited. Here are all the st
 #. Run ``make clean`` and ``make`` in the ``paparazzi`` folder
 
 #. In your module .c file where the new message should be sent, include the header ``"modules/core/abi.h"``, and call
-the function ``AbiSendMsg<YOUR_MESSAGE_NAME>(<YOUR_SENDER_ID>, ...)`` with the appropriate function parameters corresponding
-to the message fields, as shown in `Airborne code for publisher`_.
+   the function ``AbiSendMsg<YOUR_MESSAGE_NAME>(<YOUR_SENDER_ID>, ...)`` with the appropriate function parameters corresponding
+   to the message fields, as shown in `Airborne code for publisher`_.
 
 #. To receive this message in another module .c file, follow the steps described in `Airborne code for subscriber`_
+
+.. note::
+  It is also possible to automatically generate the necessary ABI bindings and callbacks when creating a new module via the
+  GUI tool Module Creator (accessible from the Paparazzi Center in the menu Tools -> Module Creator).
 
 
 Code generation
