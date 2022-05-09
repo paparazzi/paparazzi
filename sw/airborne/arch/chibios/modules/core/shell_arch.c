@@ -28,6 +28,7 @@
 #include "mcu_periph/uart.h"
 #include "printf.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/usb_serial.h"
 
 /*************************
  * Basic static commands *
