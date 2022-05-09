@@ -75,11 +75,6 @@
 #define IMU_BODY_TO_IMU_PSI 0
 
 
-#define SECTION_AHRS 1
-#define AHRS_H_X 0.3892503
-#define AHRS_H_Y 0.0017972
-#define AHRS_H_Z 0.9211303
-
 #define SECTION_INS 1
 #define INS_H_X 0.3892503
 #define INS_H_Y 0.0017972

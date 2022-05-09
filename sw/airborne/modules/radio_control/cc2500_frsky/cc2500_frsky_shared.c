@@ -73,7 +73,7 @@ uint8_t listLength;
 static uint8_t bindIdx;
 static int8_t bindOffset;
 
-typedef uint8_t handlePacketFn(uint8_t * const packet, uint8_t * const protocolState);
+typedef rx_spi_received_e handlePacketFn(uint8_t * const packet, uint8_t * const protocolState);
 typedef rx_spi_received_e processFrameFn(uint8_t * const packet);
 typedef void setRcDataFn(uint16_t *rcData, const uint8_t *payload);
 

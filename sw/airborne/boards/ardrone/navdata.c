@@ -133,6 +133,7 @@ ssize_t full_read(int fd, uint8_t *buf, size_t count)
 static void send_navdata(struct transport_tx *trans, struct link_device *dev)
 {
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
   pprz_msg_send_ARDRONE_NAVDATA(trans, dev, AC_ID,
                                 &navdata.measure.taille,
