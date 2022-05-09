@@ -14,6 +14,7 @@
     <configure name="SHELL_PORT" case="upper|lower"/>
     <configure name="SHELL_BAUD" default="B115200"/>
     <configure name="SHELL_DYNAMIC_ENTRIES_NUMBER" default="5"/>
+    <configure name="SHELL_DEV" value="$(SHELL_PORT_LOWER)"/>
     <file name="shell.c"/>
     <file_arch name="shell_arch.c"/>
     <file_arch name="microrl/microrl.c"/>
@@ -26,8 +27,8 @@
     <define name="USE_$(SHELL_PORT_UPPER)_TX" value="FALSE"/>
     <define name="USE_$(SHELL_PORT_UPPER)_RX" value="FALSE"/>
     <define name="$(SHELL_PORT_UPPER)_BAUD" value="$(SHELL_BAUD)"/>
-    <define name="SHELL_DEV" value="$(SHELL_PORT_LOWER)"/>
+    <define name="SHELL_DEV" value="$(SHELL_DEV)"/>
     <define name="SHELL_DYNAMIC_ENTRIES_NUMBER" value="$(SHELL_DYNAMIC_ENTRIES_NUMBER)"/>
-    <file_arch name="usb_ser_hw.c" dir="."/>
+    <file_arch name="usb_ser_hw.c" dir="." cond="ifeq ($(SHELL_DEV),usb_serial)"/>
   </makefile>
 </module>
