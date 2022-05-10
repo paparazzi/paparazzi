@@ -16,8 +16,8 @@
   </doc>
    <settings>
     <dl_settings>
-    <dl_settings name="usb_storage">
-        <dl_setting max="1" min="0" step="1" var="usb_storage_status" handler="enable_usb_storage" header="loggers/sdlog_chibios/usbStorage" values="OFF|ON"/>
+    <dl_settings name="USB storage">
+        <dl_setting max="1" min="0" step="1" var="usb_storage_status" shortname="USB Storage" handler="enable_usb_storage" header="loggers/sdlog_chibios/usbStorage" values="OFF|ON"/>
     </dl_settings>
     </dl_settings>
   </settings>
