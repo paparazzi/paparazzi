@@ -32,3 +32,5 @@ void usbStorageStop(void);
 void usbStorageWaitForDeconnexion(void);
 bool usbStorageIsItRunning(void);
 
+extern float usb_storage_status;
+extern void usbStorage_enable_usb_storage(float e);
