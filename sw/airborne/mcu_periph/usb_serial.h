@@ -33,7 +33,9 @@
 #include "pprzlink/pprzlink_device.h"
 #include "mcu_periph/uart.h"
 
+#ifndef USB_RX_BUFFER_SIZE
 #define USB_RX_BUFFER_SIZE UART_RX_BUFFER_SIZE
+#endif 
 
 struct usb_serial_periph {
   /** Receive buffer */
