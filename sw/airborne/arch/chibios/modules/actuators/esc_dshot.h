@@ -130,11 +130,21 @@ typedef struct {
       uint16_t current;
       uint16_t consumption;
       uint16_t rpm;
-    } __attribute__((__packed__, scalar_storage_order("big-endian")));
+    }
+      __attribute__ ((__packed__));
     uint8_t rawData[9];
   };
   uint8_t  crc8;
-}  __attribute__((__packed__)) DshotTelemetry ;
+}  __attribute__ ((__packed__)) DshotTelemetryFrame ;
+
+
+  /**
+ * @brief   telemetry with timestamp
+ */
+typedef struct {
+  DshotTelemetryFrame frame;
+  systime_t	      ts; // timestamp of last succesfull received frame
+}  DshotTelemetry ;
 
 typedef union {
 #if DSHOT_AT_LEAST_ONE_32B_TIMER
@@ -178,22 +188,27 @@ typedef struct  {
    */
   DshotDmaBuffer *dma_buf;
 
+#if DSHOT_SPEED == 0
+  uint16_t speed_khz;
+#endif
 #if __DCACHE_PRESENT
   /**
-   * @brief   DMA memory is in a cached section and beed to be flushed
+   * @brief   DMA memory is in a cached section and need to be flushed
    */
   bool		 dcache_memory_in_use;
 #endif
 } DSHOTConfig;
 
 void     dshotStart(DSHOTDriver *driver, const DSHOTConfig *config);
+void     dshotStop(DSHOTDriver *driver);
 void     dshotSetThrottle(DSHOTDriver *driver, const uint8_t index, const uint16_t throttle);
 void     dshotSendFrame(DSHOTDriver *driver);
 void     dshotSendThrottles(DSHOTDriver *driver, const uint16_t throttles[DSHOT_CHANNELS]);
 void     dshotSendSpecialCommand(DSHOTDriver *driver, const uint8_t index, const dshot_special_commands_t specmd);
 
-uint32_t dshotGetCrcErrorsCount(DSHOTDriver *driver);
-const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_t index);
+uint32_t dshotGetCrcErrorCount(const DSHOTDriver *driver);
+uint32_t dshotGetTelemetryFrameCount(const DSHOTDriver *driver);
+DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, const uint32_t index);
 
 
 /*
@@ -217,8 +232,9 @@ typedef union {
 typedef struct {
   DshotPacket       dp[DSHOT_CHANNELS];
   DshotTelemetry    dt[DSHOT_CHANNELS];
-  volatile uint8_t  currentTlmQry;
+  mutex_t           tlmMtx[DSHOT_CHANNELS];
   volatile bool     onGoingQry;
+  uint8_t           currentTlmQry;
 } DshotPackets;
 
 
@@ -261,6 +277,15 @@ struct  DSHOTDriver {
    */
   uint32_t crc_errors;
 
+  /**
+   * @brief number of sucessful telemetry frame received
+   */
+  uint32_t tlm_frame_nb;
+  
+#if DSHOT_SPEED == 0
+  uint16_t bit0Duty;
+  uint16_t bit1Duty;
+#endif
   /**
    * @brief stack working area for dshot telemetry thread
    */
