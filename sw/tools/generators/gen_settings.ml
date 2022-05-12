@@ -90,13 +90,16 @@ let print_dl_settings = fun out settings settings_xml ->
         try
           let h = ExtXml.attrib s "handler" in
           begin
+            let t = ExtXml.attrib_or_default s "type" "" in
             let m1 = ExtXml.attrib_or_default s "module" "" in
             let m2 = ExtXml.attrib_or_default s "header" "" in
-            match m1, m2 with
-            | "", "" -> prerr_endline (sprintf "Error: You need to specify the header (or module for legacy) attribute for setting %s to use the handler %s" v h); exit 1
-            | "", _ -> lprintf out "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m2) h v
-            | _, "" -> lprintf out "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m1) h v
-            | _, _ -> prerr_endline (sprintf "Error: You can't specify both module and header attributes for setting %s to use the handler %s" v h); exit 1
+            match m1, m2, t with
+            | "", "", _ -> prerr_endline (sprintf "Error: You need to specify the header (or module for legacy) attribute for setting %s to use the handler %s" v h); exit 1
+            | "", _, "fun" -> lprintf out "case %d: %s_%s( _value ); break;\\\n" !idx (Filename.basename m2) h
+            | _, "", "fun" -> lprintf out "case %d: %s_%s( _value ); break;\\\n" !idx (Filename.basename m1) h
+            | "", _, _ -> lprintf out "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m2) h v
+            | _, "", _ -> lprintf out "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m1) h v
+            | _, _, _ -> prerr_endline (sprintf "Error: You can't specify both module and header attributes for setting %s to use the handler %s" v h); exit 1
           end;
         with
             ExtXml.Error e -> lprintf out "case %d: %s = _value; break;\\\n" !idx v
@@ -123,8 +126,12 @@ let print_dl_settings = fun out settings settings_xml ->
     right ();
     List.iter
       (fun s ->
+        let t = ExtXml.attrib_or_default s "type" "" in
         let v = ExtXml.attrib s "var" in
-        lprintf out "case %d: var = %s; break;\\\n" !idx v; incr idx)
+        match t with
+        | "fun" -> lprintf out "case %d: var = 0; break;\\\n" !idx; incr idx
+        | _ -> lprintf out "case %d: var = %s; break;\\\n" !idx v; incr idx
+      )
       settings_xml;
     lprintf out "default: var = 0.; break;\\\n";
     left ();
@@ -143,8 +150,12 @@ let print_dl_settings = fun out settings settings_xml ->
   right ();
   List.iter
     (fun s ->
+      let t = ExtXml.attrib_or_default s "type" "" in
       let v = ExtXml.attrib s "var" in
-      lprintf out "case %d: return %s;\n" !idx v; incr idx)
+      match t with
+      | "fun" -> lprintf out "case %d: return 0;\n" !idx; incr idx
+      | _ -> lprintf out "case %d: return %s;\n" !idx v; incr idx
+    )
     settings_xml;
   lprintf out "default: return 0.;\n";
   left ();
