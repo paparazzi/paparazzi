@@ -32,10 +32,10 @@
  */
 
 #define STM32F4xx_MCUCONF
-#define STM32F405_MCUCONF
-#define STM32F415_MCUCONF
-#define STM32F407_MCUCONF
-#define STM32F417_MCUCONF
+#define STM32F427_MCUCONF
+#define STM32F429_MCUCONF
+#define STM32F437_MCUCONF
+#define STM32F439_MCUCONF
 
 /*
  * HAL driver system settings.
@@ -107,6 +107,8 @@
 #define STM32_IRQ_UART4_PRIORITY            12
 #define STM32_IRQ_UART5_PRIORITY            12
 #define STM32_IRQ_USART6_PRIORITY           12
+#define STM32_IRQ_UART7_PRIORITY            12
+#define STM32_IRQ_UART8_PRIORITY            12
 
 /*
  * ADC driver system settings.

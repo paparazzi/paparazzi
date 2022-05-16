@@ -67,11 +67,11 @@
  */
 
 
-
 /*
- * AHB_CLK
+ * Concat macro
  */
-#define AHB_CLK STM32_HCLK
+#define _CONCAT_BOARD_PARAM(_s1, _s2) _s1 ## _s2
+#define CONCAT_BOARD_PARAM(_s1, _s2) _CONCAT_BOARD_PARAM(_s1, _s2)
 
 
 /*
@@ -202,148 +202,107 @@
 /*
  * PWM defines
  */
+#if defined(LINE_SERVO0)
 #ifndef USE_PWM0
 #define USE_PWM0 1
 #endif
 #if USE_PWM0
 #define PWM_SERVO_0 0
-#define PWM_SERVO_0_GPIO GPIOB
-#define PWM_SERVO_0_PIN GPIO0
-#define PWM_SERVO_0_AF GPIO_AF2
-#define PWM_SERVO_0_DRIVER PWMD3
-#define PWM_SERVO_0_CHANNEL 2
-#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_0_GPIO    PAL_PORT(LINE_SERVO0)
+#define PWM_SERVO_0_PIN     PAL_PAD(LINE_SERVO0)
+#define PWM_SERVO_0_AF      AF_LINE_SERVO0
+#define PWM_SERVO_0_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO0_TIM)
+#define PWM_SERVO_0_CHANNEL (SERVO0_TIM_CH-1)
+#define PWM_SERVO_0_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO0_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO1)
 #ifndef USE_PWM1
 #define USE_PWM1 1
 #endif
 #if USE_PWM1
 #define PWM_SERVO_1 1
-#define PWM_SERVO_1_GPIO GPIOA
-#define PWM_SERVO_1_PIN GPIO2
-#define PWM_SERVO_1_AF GPIO_AF1
-#define PWM_SERVO_1_DRIVER PWMD2
-#define PWM_SERVO_1_CHANNEL 2
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_1_GPIO    PAL_PORT(LINE_SERVO1)
+#define PWM_SERVO_1_PIN     PAL_PAD(LINE_SERVO1)
+#define PWM_SERVO_1_AF      AF_LINE_SERVO1
+#define PWM_SERVO_1_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO1_TIM)
+#define PWM_SERVO_1_CHANNEL (SERVO1_TIM_CH-1)
+#define PWM_SERVO_1_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO1_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO2)
 #ifndef USE_PWM2
 #define USE_PWM2 1
 #endif
 #if USE_PWM2
 #define PWM_SERVO_2 2
-#define PWM_SERVO_2_GPIO GPIOB
-#define PWM_SERVO_2_PIN GPIO5
-#define PWM_SERVO_2_AF GPIO_AF2
-#define PWM_SERVO_2_DRIVER PWMD3
-#define PWM_SERVO_2_CHANNEL 1
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_2_GPIO    PAL_PORT(LINE_SERVO2)
+#define PWM_SERVO_2_PIN     PAL_PAD(LINE_SERVO2)
+#define PWM_SERVO_2_AF      AF_LINE_SERVO2
+#define PWM_SERVO_2_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO2_TIM)
+#define PWM_SERVO_2_CHANNEL (SERVO2_TIM_CH-1)
+#define PWM_SERVO_2_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO2_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO3)
 #ifndef USE_PWM3
 #define USE_PWM3 1
 #endif
 #if USE_PWM3
 #define PWM_SERVO_3 3
-#define PWM_SERVO_3_GPIO GPIOB
-#define PWM_SERVO_3_PIN GPIO4
-#define PWM_SERVO_3_AF GPIO_AF2
-#define PWM_SERVO_3_DRIVER PWMD3
-#define PWM_SERVO_3_CHANNEL 0
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_3_GPIO    PAL_PORT(LINE_SERVO3)
+#define PWM_SERVO_3_PIN     PAL_PAD(LINE_SERVO3)
+#define PWM_SERVO_3_AF      AF_LINE_SERVO3
+#define PWM_SERVO_3_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO3_TIM)
+#define PWM_SERVO_3_CHANNEL (SERVO3_TIM_CH-1)
+#define PWM_SERVO_3_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO3_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO4)
 #ifndef USE_PWM4
 #define USE_PWM4 1
 #endif
 #if USE_PWM4
 #define PWM_SERVO_4 4
-#define PWM_SERVO_4_GPIO GPIOB
-#define PWM_SERVO_4_PIN GPIO3
-#define PWM_SERVO_4_AF GPIO_AF1
-#define PWM_SERVO_4_DRIVER PWMD2
-#define PWM_SERVO_4_CHANNEL 1
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_4_GPIO    PAL_PORT(LINE_SERVO4)
+#define PWM_SERVO_4_PIN     PAL_PAD(LINE_SERVO4)
+#define PWM_SERVO_4_AF      AF_LINE_SERVO4
+#define PWM_SERVO_4_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO4_TIM)
+#define PWM_SERVO_4_CHANNEL (SERVO4_TIM_CH-1)
+#define PWM_SERVO_4_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO4_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO5)
 #ifndef USE_PWM5
 #define USE_PWM5 1
 #endif
 #if USE_PWM5
 #define PWM_SERVO_5 5
-#define PWM_SERVO_5_GPIO GPIOA
-#define PWM_SERVO_5_PIN GPIO15
-#define PWM_SERVO_5_AF GPIO_AF1
-#define PWM_SERVO_5_DRIVER PWMD2
-#define PWM_SERVO_5_CHANNEL 0
-#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_5_GPIO    PAL_PORT(LINE_SERVO5)
+#define PWM_SERVO_5_PIN     PAL_PAD(LINE_SERVO5)
+#define PWM_SERVO_5_AF      AF_LINE_SERVO5
+#define PWM_SERVO_5_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO5_TIM)
+#define PWM_SERVO_5_CHANNEL (SERVO5_TIM_CH-1)
+#define PWM_SERVO_5_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO5_TIM)
+#endif
 #endif
 
+#if defined(LINE_SERVO6)
 #if USE_PWM6
 #define PWM_SERVO_6 6
-#define PWM_SERVO_6_GPIO GPIOB
-#define PWM_SERVO_6_PIN GPIO1
-#define PWM_SERVO_6_AF GPIO_AF2
-#define PWM_SERVO_6_DRIVER PWMD3
-#define PWM_SERVO_6_CHANNEL 3
-#define PWM_SERVO_6_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_6_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_6_GPIO    PAL_PORT(LINE_SERVO6)
+#define PWM_SERVO_6_PIN     PAL_PAD(LINE_SERVO6)
+#define PWM_SERVO_6_AF      AF_LINE_SERVO6
+#define PWM_SERVO_6_DRIVER  CONCAT_BOARD_PARAM(PWMD, SERVO6_TIM)
+#define PWM_SERVO_6_CHANNEL (SERVO6_TIM_CH-1)
+#define PWM_SERVO_6_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO6_TIM)
 #endif
-
-
-#ifdef STM32_PWM_USE_TIM2
-#define PWM_CONF_TIM2 STM32_PWM_USE_TIM2
-#else
-#define PWM_CONF_TIM2 1
 #endif
-#define PWM_CONF2_DEF { \
-  PWM_FREQUENCY, \
-  PWM_FREQUENCY/TIM2_SERVO_HZ, \
-  NULL, \
-  { \
-    { PWM_SERVO_5_ACTIVE, NULL }, \
-    { PWM_SERVO_4_ACTIVE, NULL }, \
-    { PWM_SERVO_1_ACTIVE, NULL }, \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-  }, \
-  0, \
-  0, \
-  0, \
-}
-
-#ifdef STM32_PWM_USE_TIM3
-#define PWM_CONF_TIM3 STM32_PWM_USE_TIM3
-#else
-#define PWM_CONF_TIM3 1
-#endif
-#define PWM_CONF3_DEF { \
-  PWM_FREQUENCY, \
-  PWM_FREQUENCY/TIM3_SERVO_HZ, \
-  NULL, \
-  { \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-    { PWM_SERVO_2_ACTIVE, NULL }, \
-    { PWM_SERVO_0_ACTIVE, NULL }, \
-    { PWM_SERVO_6_ACTIVE, NULL }, \
-  }, \
-  0, \
-  0, \
-  0, \
-}
 
 /**
  * PPM radio defines
@@ -503,6 +462,19 @@
 #define SDLOG_USB_VBUS_PIN GPIO9
 
 
+/**
+ * For WS2812PWM
+ */
+#define WS2812D1_GPIO GPIOA
+#define WS2812D1_PIN GPIO8
+#define WS2812D1_AF 1
+#define WS2812D1_CFG_DEF { \
+  .dma_stream = STM32_PWM1_UP_DMA_STREAM, \
+  .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \
+  .dma_priority = STM32_PWM1_UP_DMA_PRIORITY, \
+  .pwm_channel = 0, \
+  .pwmp = &PWMD1 \
+}
 
 
 /*
@@ -513,7 +485,7 @@
  */
 #define	UART4_TX                       0U
 #define	UART4_RX                       1U
-#define	PWM2_CH3                       2U
+#define	SERVO1                         2U
 #define	UART2_RX                       3U
 #define	ADC1_IN4                       4U
 #define	SPI1_SCK                       5U
@@ -526,14 +498,14 @@
 #define	OTG_FS_DP                      12U
 #define	SWDIO                          13U
 #define	SWCLK                          14U
-#define	PWM2_CH1                       15U
+#define	SERVO5                         15U
 
-#define	PWM3_CH3                       0U
-#define	AUX1                           1U
+#define	SERVO0                         0U
+#define	SERVO6                         1U
 #define	BOOT1                          2U
-#define	PWM2_CH2                       3U
-#define	PWM3_CH1                       4U
-#define	PWM3_CH2                       5U
+#define	SERVO4                         3U
+#define	SERVO3                         4U
+#define	SERVO2                         5U
 #define	USART1_TX                      6U
 #define	I2C1_SDA                       7U
 #define	I2C1_SCL                       8U
@@ -703,7 +675,7 @@
  */
 #define	LINE_UART4_TX                  PAL_LINE(GPIOA, 0U)
 #define	LINE_UART4_RX                  PAL_LINE(GPIOA, 1U)
-#define	LINE_PWM2_CH3                  PAL_LINE(GPIOA, 2U)
+#define	LINE_SERVO1                    PAL_LINE(GPIOA, 2U)
 #define	LINE_UART2_RX                  PAL_LINE(GPIOA, 3U)
 #define	LINE_ADC1_IN4                  PAL_LINE(GPIOA, 4U)
 #define	LINE_SPI1_SCK                  PAL_LINE(GPIOA, 5U)
@@ -716,14 +688,14 @@
 #define	LINE_OTG_FS_DP                 PAL_LINE(GPIOA, 12U)
 #define	LINE_SWDIO                     PAL_LINE(GPIOA, 13U)
 #define	LINE_SWCLK                     PAL_LINE(GPIOA, 14U)
-#define	LINE_PWM2_CH1                  PAL_LINE(GPIOA, 15U)
+#define	LINE_SERVO5                    PAL_LINE(GPIOA, 15U)
 
-#define	LINE_PWM3_CH3                  PAL_LINE(GPIOB, 0U)
-#define	LINE_AUX1                      PAL_LINE(GPIOB, 1U)
+#define	LINE_SERVO0                    PAL_LINE(GPIOB, 0U)
+#define	LINE_SERVO6                    PAL_LINE(GPIOB, 1U)
 #define	LINE_BOOT1                     PAL_LINE(GPIOB, 2U)
-#define	LINE_PWM2_CH2                  PAL_LINE(GPIOB, 3U)
-#define	LINE_PWM3_CH1                  PAL_LINE(GPIOB, 4U)
-#define	LINE_PWM3_CH2                  PAL_LINE(GPIOB, 5U)
+#define	LINE_SERVO4                    PAL_LINE(GPIOB, 3U)
+#define	LINE_SERVO3                    PAL_LINE(GPIOB, 4U)
+#define	LINE_SERVO2                    PAL_LINE(GPIOB, 5U)
 #define	LINE_USART1_TX                 PAL_LINE(GPIOB, 6U)
 #define	LINE_I2C1_SDA                  PAL_LINE(GPIOB, 7U)
 #define	LINE_I2C1_SCL                  PAL_LINE(GPIOB, 8U)
@@ -781,7 +753,7 @@
 
 #define VAL_GPIOA_MODER                 (PIN_MODE_ALTERNATE(UART4_TX) | \
 					 PIN_MODE_ALTERNATE(UART4_RX) | \
-					 PIN_MODE_INPUT(PWM2_CH3) | \
+					 PIN_MODE_ALTERNATE(SERVO1) | \
 					 PIN_MODE_ALTERNATE(UART2_RX) | \
 					 PIN_MODE_ANALOG(ADC1_IN4) | \
 					 PIN_MODE_ALTERNATE(SPI1_SCK) | \
@@ -794,11 +766,11 @@
 					 PIN_MODE_ALTERNATE(OTG_FS_DP) | \
 					 PIN_MODE_ALTERNATE(SWDIO) | \
 					 PIN_MODE_ALTERNATE(SWCLK) | \
-					 PIN_MODE_INPUT(PWM2_CH1))
+					 PIN_MODE_ALTERNATE(SERVO5))
 
 #define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(UART4_TX) | \
 					 PIN_OTYPE_PUSHPULL(UART4_RX) | \
-					 PIN_OTYPE_OPENDRAIN(PWM2_CH3) | \
+					 PIN_OTYPE_PUSHPULL(SERVO1) | \
 					 PIN_OTYPE_PUSHPULL(UART2_RX) | \
 					 PIN_OTYPE_PUSHPULL(ADC1_IN4) | \
 					 PIN_OTYPE_PUSHPULL(SPI1_SCK) | \
@@ -811,11 +783,11 @@
 					 PIN_OTYPE_PUSHPULL(OTG_FS_DP) | \
 					 PIN_OTYPE_PUSHPULL(SWDIO) | \
 					 PIN_OTYPE_PUSHPULL(SWCLK) | \
-					 PIN_OTYPE_OPENDRAIN(PWM2_CH1))
+					 PIN_OTYPE_PUSHPULL(SERVO5))
 
 #define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(UART4_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(UART4_RX) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PWM2_CH3) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO1) | \
 					 PIN_OSPEED_SPEED_HIGH(UART2_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(ADC1_IN4) | \
 					 PIN_OSPEED_SPEED_HIGH(SPI1_SCK) | \
@@ -828,11 +800,11 @@
 					 PIN_OSPEED_SPEED_HIGH(OTG_FS_DP) | \
 					 PIN_OSPEED_SPEED_HIGH(SWDIO) | \
 					 PIN_OSPEED_SPEED_HIGH(SWCLK) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PWM2_CH1))
+					 PIN_OSPEED_SPEED_HIGH(SERVO5))
 
 #define VAL_GPIOA_PUPDR                 (PIN_PUPDR_FLOATING(UART4_TX) | \
 					 PIN_PUPDR_FLOATING(UART4_RX) | \
-					 PIN_PUPDR_FLOATING(PWM2_CH3) | \
+					 PIN_PUPDR_FLOATING(SERVO1) | \
 					 PIN_PUPDR_FLOATING(UART2_RX) | \
 					 PIN_PUPDR_FLOATING(ADC1_IN4) | \
 					 PIN_PUPDR_FLOATING(SPI1_SCK) | \
@@ -845,11 +817,11 @@
 					 PIN_PUPDR_FLOATING(OTG_FS_DP) | \
 					 PIN_PUPDR_FLOATING(SWDIO) | \
 					 PIN_PUPDR_FLOATING(SWCLK) | \
-					 PIN_PUPDR_FLOATING(PWM2_CH1))
+					 PIN_PUPDR_FLOATING(SERVO5))
 
 #define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_HIGH(UART4_TX) | \
 					 PIN_ODR_LEVEL_HIGH(UART4_RX) | \
-					 PIN_ODR_LEVEL_LOW(PWM2_CH3) | \
+					 PIN_ODR_LEVEL_LOW(SERVO1) | \
 					 PIN_ODR_LEVEL_HIGH(UART2_RX) | \
 					 PIN_ODR_LEVEL_LOW(ADC1_IN4) | \
 					 PIN_ODR_LEVEL_HIGH(SPI1_SCK) | \
@@ -862,11 +834,11 @@
 					 PIN_ODR_LEVEL_HIGH(OTG_FS_DP) | \
 					 PIN_ODR_LEVEL_HIGH(SWDIO) | \
 					 PIN_ODR_LEVEL_HIGH(SWCLK) | \
-					 PIN_ODR_LEVEL_LOW(PWM2_CH1))
+					 PIN_ODR_LEVEL_LOW(SERVO5))
 
 #define VAL_GPIOA_AFRL			(PIN_AFIO_AF(UART4_TX, 8) | \
 					 PIN_AFIO_AF(UART4_RX, 8) | \
-					 PIN_AFIO_AF(PWM2_CH3, 0) | \
+					 PIN_AFIO_AF(SERVO1, 1) | \
 					 PIN_AFIO_AF(UART2_RX, 7) | \
 					 PIN_AFIO_AF(ADC1_IN4, 0) | \
 					 PIN_AFIO_AF(SPI1_SCK, 5) | \
@@ -880,14 +852,14 @@
 					 PIN_AFIO_AF(OTG_FS_DP, 10) | \
 					 PIN_AFIO_AF(SWDIO, 0) | \
 					 PIN_AFIO_AF(SWCLK, 0) | \
-					 PIN_AFIO_AF(PWM2_CH1, 0))
+					 PIN_AFIO_AF(SERVO5, 1))
 
-#define VAL_GPIOB_MODER                 (PIN_MODE_INPUT(PWM3_CH3) | \
-					 PIN_MODE_INPUT(AUX1) | \
+#define VAL_GPIOB_MODER                 (PIN_MODE_ALTERNATE(SERVO0) | \
+					 PIN_MODE_ALTERNATE(SERVO6) | \
 					 PIN_MODE_INPUT(BOOT1) | \
-					 PIN_MODE_INPUT(PWM2_CH2) | \
-					 PIN_MODE_INPUT(PWM3_CH1) | \
-					 PIN_MODE_INPUT(PWM3_CH2) | \
+					 PIN_MODE_ALTERNATE(SERVO4) | \
+					 PIN_MODE_ALTERNATE(SERVO3) | \
+					 PIN_MODE_ALTERNATE(SERVO2) | \
 					 PIN_MODE_ALTERNATE(USART1_TX) | \
 					 PIN_MODE_ALTERNATE(I2C1_SDA) | \
 					 PIN_MODE_ALTERNATE(I2C1_SCL) | \
@@ -899,12 +871,12 @@
 					 PIN_MODE_INPUT(SDIO_DETECT) | \
 					 PIN_MODE_INPUT(AUX4))
 
-#define VAL_GPIOB_OTYPER                (PIN_OTYPE_OPENDRAIN(PWM3_CH3) | \
-					 PIN_OTYPE_OPENDRAIN(AUX1) | \
+#define VAL_GPIOB_OTYPER                (PIN_OTYPE_PUSHPULL(SERVO0) | \
+					 PIN_OTYPE_PUSHPULL(SERVO6) | \
 					 PIN_OTYPE_OPENDRAIN(BOOT1) | \
-					 PIN_OTYPE_OPENDRAIN(PWM2_CH2) | \
-					 PIN_OTYPE_OPENDRAIN(PWM3_CH1) | \
-					 PIN_OTYPE_OPENDRAIN(PWM3_CH2) | \
+					 PIN_OTYPE_PUSHPULL(SERVO4) | \
+					 PIN_OTYPE_PUSHPULL(SERVO3) | \
+					 PIN_OTYPE_PUSHPULL(SERVO2) | \
 					 PIN_OTYPE_PUSHPULL(USART1_TX) | \
 					 PIN_OTYPE_OPENDRAIN(I2C1_SDA) | \
 					 PIN_OTYPE_OPENDRAIN(I2C1_SCL) | \
@@ -916,12 +888,12 @@
 					 PIN_OTYPE_OPENDRAIN(SDIO_DETECT) | \
 					 PIN_OTYPE_OPENDRAIN(AUX4))
 
-#define VAL_GPIOB_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PWM3_CH3) | \
-					 PIN_OSPEED_SPEED_VERYLOW(AUX1) | \
+#define VAL_GPIOB_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(SERVO0) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO6) | \
 					 PIN_OSPEED_SPEED_VERYLOW(BOOT1) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PWM2_CH2) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PWM3_CH1) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PWM3_CH2) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO4) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO3) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO2) | \
 					 PIN_OSPEED_SPEED_HIGH(USART1_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(I2C1_SDA) | \
 					 PIN_OSPEED_SPEED_HIGH(I2C1_SCL) | \
@@ -933,12 +905,12 @@
 					 PIN_OSPEED_SPEED_VERYLOW(SDIO_DETECT) | \
 					 PIN_OSPEED_SPEED_VERYLOW(AUX4))
 
-#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_FLOATING(PWM3_CH3) | \
-					 PIN_PUPDR_FLOATING(AUX1) | \
+#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_FLOATING(SERVO0) | \
+					 PIN_PUPDR_FLOATING(SERVO6) | \
 					 PIN_PUPDR_FLOATING(BOOT1) | \
-					 PIN_PUPDR_FLOATING(PWM2_CH2) | \
-					 PIN_PUPDR_FLOATING(PWM3_CH1) | \
-					 PIN_PUPDR_FLOATING(PWM3_CH2) | \
+					 PIN_PUPDR_FLOATING(SERVO4) | \
+					 PIN_PUPDR_FLOATING(SERVO3) | \
+					 PIN_PUPDR_FLOATING(SERVO2) | \
 					 PIN_PUPDR_FLOATING(USART1_TX) | \
 					 PIN_PUPDR_PULLUP(I2C1_SDA) | \
 					 PIN_PUPDR_PULLUP(I2C1_SCL) | \
@@ -950,12 +922,12 @@
 					 PIN_PUPDR_PULLUP(SDIO_DETECT) | \
 					 PIN_PUPDR_FLOATING(AUX4))
 
-#define VAL_GPIOB_ODR                   (PIN_ODR_LEVEL_LOW(PWM3_CH3) | \
-					 PIN_ODR_LEVEL_LOW(AUX1) | \
+#define VAL_GPIOB_ODR                   (PIN_ODR_LEVEL_LOW(SERVO0) | \
+					 PIN_ODR_LEVEL_LOW(SERVO6) | \
 					 PIN_ODR_LEVEL_LOW(BOOT1) | \
-					 PIN_ODR_LEVEL_LOW(PWM2_CH2) | \
-					 PIN_ODR_LEVEL_LOW(PWM3_CH1) | \
-					 PIN_ODR_LEVEL_LOW(PWM3_CH2) | \
+					 PIN_ODR_LEVEL_LOW(SERVO4) | \
+					 PIN_ODR_LEVEL_LOW(SERVO3) | \
+					 PIN_ODR_LEVEL_LOW(SERVO2) | \
 					 PIN_ODR_LEVEL_HIGH(USART1_TX) | \
 					 PIN_ODR_LEVEL_HIGH(I2C1_SDA) | \
 					 PIN_ODR_LEVEL_HIGH(I2C1_SCL) | \
@@ -967,12 +939,12 @@
 					 PIN_ODR_LEVEL_LOW(SDIO_DETECT) | \
 					 PIN_ODR_LEVEL_LOW(AUX4))
 
-#define VAL_GPIOB_AFRL			(PIN_AFIO_AF(PWM3_CH3, 0) | \
-					 PIN_AFIO_AF(AUX1, 0) | \
+#define VAL_GPIOB_AFRL			(PIN_AFIO_AF(SERVO0, 2) | \
+					 PIN_AFIO_AF(SERVO6, 2) | \
 					 PIN_AFIO_AF(BOOT1, 0) | \
-					 PIN_AFIO_AF(PWM2_CH2, 0) | \
-					 PIN_AFIO_AF(PWM3_CH1, 0) | \
-					 PIN_AFIO_AF(PWM3_CH2, 0) | \
+					 PIN_AFIO_AF(SERVO4, 1) | \
+					 PIN_AFIO_AF(SERVO3, 2) | \
+					 PIN_AFIO_AF(SERVO2, 2) | \
 					 PIN_AFIO_AF(USART1_TX, 7) | \
 					 PIN_AFIO_AF(I2C1_SDA, 4))
 
@@ -1916,6 +1888,8 @@
 #define AF_LINE_UART4_TX                 8U
 #define AF_UART4_RX                      8U
 #define AF_LINE_UART4_RX                 8U
+#define AF_SERVO1                        1U
+#define AF_LINE_SERVO1                   1U
 #define AF_UART2_RX                      7U
 #define AF_LINE_UART2_RX                 7U
 #define AF_SPI1_SCK                      5U
@@ -1936,6 +1910,18 @@
 #define AF_LINE_SWDIO                    0U
 #define AF_SWCLK                         0U
 #define AF_LINE_SWCLK                    0U
+#define AF_SERVO5                        1U
+#define AF_LINE_SERVO5                   1U
+#define AF_SERVO0                        2U
+#define AF_LINE_SERVO0                   2U
+#define AF_SERVO6                        2U
+#define AF_LINE_SERVO6                   2U
+#define AF_SERVO4                        1U
+#define AF_LINE_SERVO4                   1U
+#define AF_SERVO3                        2U
+#define AF_LINE_SERVO3                   2U
+#define AF_SERVO2                        2U
+#define AF_LINE_SERVO2                   2U
 #define AF_USART1_TX                     7U
 #define AF_LINE_USART1_TX                7U
 #define AF_I2C1_SDA                      4U
@@ -1972,6 +1958,34 @@
 #define AF_LINE_OSC_OUT                  0U
 
 
+#define SERVO1_TIM	 2
+#define SERVO1_TIM_FN	 CH
+#define SERVO1_TIM_CH	 3
+#define SERVO1_TIM_AF	 1
+#define SERVO5_TIM	 2
+#define SERVO5_TIM_FN	 CH
+#define SERVO5_TIM_CH	 1
+#define SERVO5_TIM_AF	 1
+#define SERVO0_TIM	 3
+#define SERVO0_TIM_FN	 CH
+#define SERVO0_TIM_CH	 3
+#define SERVO0_TIM_AF	 2
+#define SERVO6_TIM	 3
+#define SERVO6_TIM_FN	 CH
+#define SERVO6_TIM_CH	 4
+#define SERVO6_TIM_AF	 2
+#define SERVO4_TIM	 2
+#define SERVO4_TIM_FN	 CH
+#define SERVO4_TIM_CH	 2
+#define SERVO4_TIM_AF	 1
+#define SERVO3_TIM	 3
+#define SERVO3_TIM_FN	 CH
+#define SERVO3_TIM_CH	 1
+#define SERVO3_TIM_AF	 2
+#define SERVO2_TIM	 3
+#define SERVO2_TIM_FN	 CH
+#define SERVO2_TIM_CH	 2
+#define SERVO2_TIM_AF	 2
 
 #define BOARD_GROUP_DECLFOREACH(line, group) \
   static const ioline_t group ## _ARRAY[] = {group}; \
@@ -1989,7 +2003,13 @@
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #define ENERGY_SAVE_INPUT \
-	LINE_AUX1, \
+	LINE_SERVO1, \
+	LINE_SERVO5, \
+	LINE_SERVO0, \
+	LINE_SERVO6, \
+	LINE_SERVO4, \
+	LINE_SERVO3, \
+	LINE_SERVO2, \
 	LINE_SPI1_CS, \
 	LINE_AUX4, \
 	LINE_LED1, \
@@ -1998,7 +2018,7 @@
 	LINE_AUX3, \
 	LINE_AUX2, \
 	LINE_LED2
-#define ENERGY_SAVE_INPUT_SIZE 	 9
+#define ENERGY_SAVE_INPUT_SIZE 	 15
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

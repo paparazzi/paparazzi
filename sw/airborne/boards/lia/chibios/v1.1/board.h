@@ -310,9 +310,7 @@
 #define PWM_SERVO_0_AF GPIO_AF2
 #define PWM_SERVO_0_DRIVER PWMD3
 #define PWM_SERVO_0_CHANNEL 0
-#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_0_CONF pwmcfg3
 #endif
 
 #ifndef USE_PWM1
@@ -325,9 +323,7 @@
 #define PWM_SERVO_1_AF GPIO_AF1
 #define PWM_SERVO_1_DRIVER PWMD3
 #define PWM_SERVO_1_CHANNEL 1
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_1_CONF pwmcfg3
 #endif
 
 #ifndef USE_PWM2
@@ -340,9 +336,7 @@
 #define PWM_SERVO_2_AF GPIO_AF2
 #define PWM_SERVO_2_DRIVER PWMD3
 #define PWM_SERVO_2_CHANNEL 2
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_2_CONF pwmcfg3
 #endif
 
 #ifndef USE_PWM3
@@ -355,9 +349,7 @@
 #define PWM_SERVO_3_AF GPIO_AF2
 #define PWM_SERVO_3_DRIVER PWMD3
 #define PWM_SERVO_3_CHANNEL 3
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_3_CONF pwmcfg3
 #endif
 
 #ifndef USE_PWM4
@@ -370,9 +362,7 @@
 #define PWM_SERVO_4_AF GPIO_AF2
 #define PWM_SERVO_4_DRIVER PWMD5
 #define PWM_SERVO_4_CHANNEL 0
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO4_CONF pwmcfg5
 #endif
 
 #ifndef USE_PWM5
@@ -385,9 +375,7 @@
 #define PWM_SERVO_5_AF GPIO_AF2
 #define PWM_SERVO_5_DRIVER PWMD5
 #define PWM_SERVO_5_CHANNEL 1
-#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_5_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_5_CONF pwmcfg5
 #endif
 
 
@@ -402,9 +390,7 @@
     #define PWM_SERVO_6_AF GPIO_AF2
     #define PWM_SERVO_6_DRIVER PWMD4
     #define PWM_SERVO_6_CHANNEL 0
-    #define PWM_SERVO_6_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-    #else
-    #define PWM_SERVO_6_ACTIVE PWM_OUTPUT_DISABLED
+    #define PWM_SERVO_6_CONF pwmcfg4
     #endif
 
     #if USE_PWM7
@@ -414,83 +400,9 @@
     #define PWM_SERVO_7_AF GPIO_AF2
     #define PWM_SERVO_7_DRIVER PWMD4
     #define PWM_SERVO_7_CHANNEL 1
-    #define PWM_SERVO_7_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-    #else
-    #define PWM_SERVO_7_ACTIVE PWM_OUTPUT_DISABLED
+    #define PWM_SERVO_7_CONF pwmcfg4
     #endif
-
-    #define PWM_CONF_TIM3 1
-    #define PWM_CONF_TIM4 1
-    #define PWM_CONF_TIM5 1
-    #define PWM_CONF3_DEF {  \
-               PWM_FREQUENCY, \
-               PWM_FREQUENCY/TIM3_SERVO_HZ, \
-               NULL,  \
-               {        \
-                   {PWM_SERVO_0_ACTIVE, NULL},  \
-                   {PWM_SERVO_1_ACTIVE, NULL},  \
-                   {PWM_SERVO_2_ACTIVE, NULL},  \
-                   {PWM_SERVO_3_ACTIVE, NULL}  \
-               },       \
-               0,       \
-               0        \
-               }
-    #define PWM_CONF4_DEF {  \
-               PWM_FREQUENCY, \
-               PWM_FREQUENCY/TIM4_SERVO_HZ, \
-               NULL,  \
-               {        \
-                   {PWM_SERVO_6_ACTIVE, NULL},  \
-                   {PWM_SERVO_7_ACTIVE, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL}  \
-               },       \
-               0,       \
-               0        \
-               }
-    #define PWM_CONF5_DEF {  \
-               PWM_FREQUENCY, \
-               PWM_FREQUENCY/TIM5_SERVO_HZ, \
-               NULL,  \
-               {        \
-                   {PWM_SERVO_4_ACTIVE, NULL},  \
-                   {PWM_SERVO_5_ACTIVE, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL}  \
-               },       \
-               0,       \
-               0        \
-               }
   #endif /* USE_I2C1 */
-#else /* !USE_SERVOS_7AND8 */
-  #define PWM_CONF_TIM3 1
-  #define PWM_CONF_TIM5 1
-    #define PWM_CONF3_DEF {  \
-               PWM_FREQUENCY, \
-               PWM_FREQUENCY/TIM3_SERVO_HZ, \
-               NULL,  \
-               {        \
-                   {PWM_SERVO_0_ACTIVE, NULL},  \
-                   {PWM_SERVO_1_ACTIVE, NULL},  \
-                   {PWM_SERVO_2_ACTIVE, NULL},  \
-                   {PWM_SERVO_3_ACTIVE, NULL}  \
-               },       \
-               0,       \
-               0        \
-               }
-    #define PWM_CONF5_DEF {  \
-               PWM_FREQUENCY, \
-               PWM_FREQUENCY/TIM5_SERVO_HZ, \
-               NULL,  \
-               {        \
-                   {PWM_SERVO_4_ACTIVE, NULL},  \
-                   {PWM_SERVO_5_ACTIVE, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL},  \
-                   {PWM_OUTPUT_DISABLED, NULL}  \
-               },       \
-               0,       \
-               0        \
-               }
 #endif /* USE_SERVOS_7AND8 */
 
 

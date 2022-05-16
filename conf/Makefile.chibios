@@ -26,7 +26,9 @@
 CHIBIOS = $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
+BOARD_COMMON ?=
 BOARD_DIR ?= $(BOARD)/chibios
+CHIBIOS_BOARD_COMMON_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_COMMON)
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
 # chibos linker scripts directory
@@ -255,7 +257,7 @@ TCPPSRC =
 # List ASM source files here
 ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS_BOARD_DIR)
+INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS_BOARD_DIR) $(CHIBIOS_BOARD_COMMON_DIR)
 
 # Output directory and files
 BUILDDIR := $(AIRCRAFT_BUILD_DIR)/$(TARGET)

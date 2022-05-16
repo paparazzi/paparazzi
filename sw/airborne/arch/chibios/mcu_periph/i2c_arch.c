@@ -259,7 +259,7 @@ void i2c2_hw_init(void)
   i2c2.init_struct = &i2c2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c2, sizeof(wa_thd_i2c2),
-                    NORMALPRIO + 1, thd_i2c, (void *)&i2c2));
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c2);
 }
 #endif /* USE_I2C2 */
 

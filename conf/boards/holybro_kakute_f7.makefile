@@ -33,7 +33,6 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F7xx/platform.mk
-CHIBIOS_BOARD_PORT = ARMCMx/STM32F7xx/port.mk
 #CHIBIOS_BOARD_LINKER = STM32F76xxI.ld
 CHIBIOS_BOARD_LINKER = STM32F746xG.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f7xx.mk

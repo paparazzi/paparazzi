@@ -1677,6 +1677,38 @@
 #define AF_LINE_CAN1_RX                  9U
 
 
+#define SERVO2_TIM	 1
+#define SERVO2_TIM_FN	 CH
+#define SERVO2_TIM_CH	 3
+#define SERVO2_TIM_AF	 1
+#define SERVO5_TIM	 4
+#define SERVO5_TIM_FN	 CH
+#define SERVO5_TIM_CH	 2
+#define SERVO5_TIM_AF	 2
+#define SERVO6_TIM	 4
+#define SERVO6_TIM_FN	 CH
+#define SERVO6_TIM_CH	 3
+#define SERVO6_TIM_AF	 2
+#define SERVO4_TIM	 1
+#define SERVO4_TIM_FN	 CH
+#define SERVO4_TIM_CH	 1
+#define SERVO4_TIM_AF	 1
+#define SERVO3_TIM	 1
+#define SERVO3_TIM_FN	 CH
+#define SERVO3_TIM_CH	 2
+#define SERVO3_TIM_AF	 1
+#define SERVO1_TIM	 1
+#define SERVO1_TIM_FN	 CH
+#define SERVO1_TIM_CH	 4
+#define SERVO1_TIM_AF	 1
+#define SERVO7_TIM	 12
+#define SERVO7_TIM_FN	 CH
+#define SERVO7_TIM_CH	 1
+#define SERVO7_TIM_AF	 9
+#define SERVO8_TIM	 12
+#define SERVO8_TIM_FN	 CH
+#define SERVO8_TIM_CH	 2
+#define SERVO8_TIM_AF	 9
 
 #define BOARD_GROUP_DECLFOREACH(line, group) \
   static const ioline_t group ## _ARRAY[] = {group}; \
@@ -1692,6 +1724,15 @@
 
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define ENERGY_SAVE_LOWS \
+	LINE_V3V3_SENSORS_EN, \
+	LINE_V3V3_SPEKTRUM_EN, \
+	LINE_V5V_HIPOWER_EN, \
+	LINE_V5V_PERIPH_EN, \
+	LINE_V5V_RC_EN, \
+	LINE_V5V_WIFI_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 6
 
 #define ENERGY_SAVE_INPUTS \
 	LINE_SERVO2, \
@@ -1724,15 +1765,6 @@
 	LINE_SPI_SLAVE12, \
 	LINE_SPI_SLAVE13
 #define ENERGY_SAVE_INPUTS_SIZE 	 29
-
-#define ENERGY_SAVE_LOWS \
-	LINE_V3V3_SENSORS_EN, \
-	LINE_V3V3_SPEKTRUM_EN, \
-	LINE_V5V_HIPOWER_EN, \
-	LINE_V5V_PERIPH_EN, \
-	LINE_V5V_RC_EN, \
-	LINE_V5V_WIFI_EN
-#define ENERGY_SAVE_LOWS_SIZE 	 6
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
