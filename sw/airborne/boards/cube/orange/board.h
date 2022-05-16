@@ -1631,6 +1631,12 @@
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
+#define ENERGY_SAVE_LOWS \
+	LINE_VDD_5V_PERIPH_EN, \
+	LINE_PWM_VOLT_SEL, \
+	LINE_VDD_3V3_SENSORS_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 3
+
 #define ENERGY_SAVE_INPUTS \
 	LINE_SPI_SLAVE0, \
 	LINE_SPI_SLAVE1, \
@@ -1649,12 +1655,6 @@
 	LINE_SERVO2, \
 	LINE_SERVO1
 #define ENERGY_SAVE_INPUTS_SIZE 	 16
-
-#define ENERGY_SAVE_LOWS \
-	LINE_VDD_5V_PERIPH_EN, \
-	LINE_PWM_VOLT_SEL, \
-	LINE_VDD_3V3_SENSORS_EN
-#define ENERGY_SAVE_LOWS_SIZE 	 3
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

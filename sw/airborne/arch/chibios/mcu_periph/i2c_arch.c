@@ -190,7 +190,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
 
 /**
  * @brief I2C thead
- * 
+ *
  * @param arg The i2c peripheral (i2c_periph)
  */
 static void thd_i2c(void *arg)
@@ -230,7 +230,7 @@ void i2c1_hw_init(void)
   i2c1.init_struct = &i2c1_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c1, sizeof(wa_thd_i2c1),
-                    NORMALPRIO + 1, thd_i2c, (void*)&i2c1);
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c1);
 }
 #endif /* USE_I2C1 */
 
@@ -259,7 +259,7 @@ void i2c2_hw_init(void)
   i2c2.init_struct = &i2c2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c2, sizeof(wa_thd_i2c2),
-                    NORMALPRIO + 1, thd_i2c, (void*)&i2c2));
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c2));
 }
 #endif /* USE_I2C2 */
 
@@ -288,7 +288,7 @@ void i2c3_hw_init(void)
   i2c3.init_struct = &i2c3_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c3, sizeof(wa_thd_i2c3),
-                    NORMALPRIO + 1, thd_i2c, (void*)&i2c3);
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c3);
 }
 #endif /* USE_I2C3 */
 
@@ -317,7 +317,7 @@ void i2c4_hw_init(void)
   i2c4.init_struct = &i2c4_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c4, sizeof(wa_thd_i2c4),
-                    NORMALPRIO + 1, thd_i2c, (void*)&i2c4);
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c4);
 }
 #endif /* USE_I2C4 */
 

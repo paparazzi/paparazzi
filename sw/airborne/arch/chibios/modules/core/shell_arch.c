@@ -33,7 +33,7 @@
  * Basic static commands *
  *************************/
 
-static void cmd_mem(BaseSequentialStream *lchp, int argc, const char * const argv[])
+static void cmd_mem(BaseSequentialStream *lchp, int argc, const char *const argv[])
 {
   size_t n, total, largest;
   memory_area_t area;
@@ -51,7 +51,7 @@ static void cmd_mem(BaseSequentialStream *lchp, int argc, const char * const arg
   chprintf(lchp, "heap free largest: %u bytes\r\n", largest);
 }
 
-static void cmd_abi(BaseSequentialStream *lchp, int argc, const char * const argv[])
+static void cmd_abi(BaseSequentialStream *lchp, int argc, const char *const argv[])
 {
   (void)argv;
   if (argc > 0) {
@@ -99,10 +99,10 @@ void shell_add_entry(char *cmd_name, shell_cmd_t *cmd)
 void shell_init_arch(void)
 {
   // This should be called after mcu periph init
-  shell_cfg.sc_channel = (BaseSequentialStream *) (SHELL_DEV.reg_addr);
+  shell_cfg.sc_channel = (BaseSequentialStream *)(SHELL_DEV.reg_addr);
 
   shellInit();
-  thread_t * shelltp = shellCreateFromHeap(&shell_cfg, 2048U, NORMALPRIO);
+  thread_t *shelltp = shellCreateFromHeap(&shell_cfg, 2048U, NORMALPRIO);
   if (shelltp == NULL) {
     chSysHalt("fail starting shell");
   }

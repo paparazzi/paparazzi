@@ -250,8 +250,7 @@ static inline uint32_t spi_resolve_CR1(struct spi_transaction *t __attribute__((
 #if defined(STM32H7XX)
   if (t->dss == SPIDss16bit) {
     CR1 |= SPI_CFG1_DSIZE_VALUE(15); // 16 bit transfer
-  }
-  else {
+  } else {
     CR1 |= SPI_CFG1_DSIZE_VALUE(7); // 8 bit transfer
   }
   CR1 |= SPI_CFG1_MBR_VALUE(t->cdiv);
@@ -320,7 +319,7 @@ static void handle_spi_thd(struct spi_periph *p)
 
   SPIConfig spi_cfg = {
     false, // no circular buffer
-#if defined(HAL_LLD_SELECT_SPI_V2) 
+#if defined(HAL_LLD_SELECT_SPI_V2)
     false, // no slave mode
     NULL, // no callback
 #endif
@@ -394,7 +393,7 @@ static void handle_spi_thd(struct spi_periph *p)
 
 /**
  * @brief Default spi thread
- * 
+ *
  * @param arg The SPI perpheral (struct spi_periph)
  */
 static __attribute__((noreturn)) void thd_spi(void *arg)
@@ -427,7 +426,7 @@ void spi1_arch_init(void)
   spi1.init_struct = &spi1_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi1, sizeof(wa_thd_spi1),
-                    NORMALPRIO + 1, thd_spi, (void*)&spi1);
+                    NORMALPRIO + 1, thd_spi, (void *)&spi1);
 }
 #endif
 
@@ -446,7 +445,7 @@ void spi2_arch_init(void)
   spi2.init_struct = &spi2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi2, sizeof(wa_thd_spi2),
-                    NORMALPRIO + 1, thd_spi, (void*)&spi2);
+                    NORMALPRIO + 1, thd_spi, (void *)&spi2);
 }
 #endif
 
@@ -465,7 +464,7 @@ void spi3_arch_init(void)
   spi3.init_struct = &spi3_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi3, sizeof(wa_thd_spi3),
-                    NORMALPRIO + 1, thd_spi, (void*)&spi3);
+                    NORMALPRIO + 1, thd_spi, (void *)&spi3);
 }
 #endif
 
@@ -484,7 +483,7 @@ void spi4_arch_init(void)
   spi4.init_struct = &spi4_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi4, sizeof(wa_thd_spi4),
-                    NORMALPRIO + 1, thd_spi, (void*)&spi4);
+                    NORMALPRIO + 1, thd_spi, (void *)&spi4);
 }
 #endif
 

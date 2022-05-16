@@ -49,88 +49,91 @@ typedef struct _ThreadCpuInfo {
 } ThreadCpuInfo ;
 
 
-static void stampThreadCpuInfo (ThreadCpuInfo *ti)
+static void stampThreadCpuInfo(ThreadCpuInfo *ti)
 {
   const thread_t *tp =  chRegFirstThread();
-  uint32_t idx=0;
+  uint32_t idx = 0;
 
-  ti->totalTicks =0;
+  ti->totalTicks = 0;
   do {
     ti->ticks[idx] = (float) tp->stats.cumulative;
     ti->totalTicks += ti->ticks[idx];
-    tp = chRegNextThread ((thread_t *)tp);
+    tp = chRegNextThread((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < RTOS_MON_MAX_THREADS));
   ti->totalISRTicks = ch0.kernel_stats.m_crit_isr.cumulative;
   ti->totalTicks += ti->totalISRTicks;
   tp =  chRegFirstThread();
-  idx=0;
+  idx = 0;
   do {
-    ti->cpu[idx] =  (ti->ticks[idx]*100.f) / ti->totalTicks;
-    tp = chRegNextThread ((thread_t *)tp);
+    ti->cpu[idx] = (ti->ticks[idx] * 100.f) / ti->totalTicks;
+    tp = chRegNextThread((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < RTOS_MON_MAX_THREADS));
 }
 
-static float stampThreadGetCpuPercent (const ThreadCpuInfo *ti, const uint32_t idx)
+static float stampThreadGetCpuPercent(const ThreadCpuInfo *ti, const uint32_t idx)
 {
-  if (idx >= RTOS_MON_MAX_THREADS)
+  if (idx >= RTOS_MON_MAX_THREADS) {
     return -1.f;
+  }
 
   return ti->cpu[idx];
 }
 
-static float stampISRGetCpuPercent (const ThreadCpuInfo *ti)
+static float stampISRGetCpuPercent(const ThreadCpuInfo *ti)
 {
   return ti->totalISRTicks * 100.0f / ti->totalTicks;
 }
 
-static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const argv[]) {
+static void cmd_threads(BaseSequentialStream *lchp, int argc, const char *const argv[])
+{
   static const char *states[] = {CH_STATE_NAMES};
   thread_t *tp = chRegFirstThread();
   (void)argv;
   (void)argc;
-  float totalTicks=0;
-  float idleTicks=0;
+  float totalTicks = 0;
+  float idleTicks = 0;
 
   static ThreadCpuInfo threadCpuInfo = {
-    .ticks = {[0 ... RTOS_MON_MAX_THREADS-1] = 0.f},
-    .cpu =   {[0 ... RTOS_MON_MAX_THREADS-1] =-1.f},
+    .ticks = {[0 ... RTOS_MON_MAX_THREADS - 1] = 0.f},
+    .cpu =   {[0 ... RTOS_MON_MAX_THREADS - 1] = -1.f},
     .totalTicks = 0.f,
     .totalISRTicks = 0.f
   };
 
-  stampThreadCpuInfo (&threadCpuInfo);
+  stampThreadCpuInfo(&threadCpuInfo);
 
-  chprintf (lchp, "    addr    stack  frestk prio refs  state        time \t percent        name\r\n");
-  uint32_t idx=0;
+  chprintf(lchp, "    addr    stack  frestk prio refs  state        time \t percent        name\r\n");
+  uint32_t idx = 0;
   do {
-    chprintf (lchp, "%.8lx %.8lx %6lu %4lu %4lu %9s %9lu   %.2f%%    \t%s\r\n",
-	      (uint32_t)tp, (uint32_t)tp->ctx.sp,
-	      get_stack_free (tp),
-	      (uint32_t)tp->hdr.pqueue.prio, (uint32_t)(tp->refs - 1),
-	      states[tp->state],
-	      (uint32_t)RTC2MS(STM32_SYSCLK, tp->stats.cumulative),
-	      stampThreadGetCpuPercent (&threadCpuInfo, idx),
-	      chRegGetThreadNameX(tp));
+    chprintf(lchp, "%.8lx %.8lx %6lu %4lu %4lu %9s %9lu   %.2f%%    \t%s\r\n",
+             (uint32_t)tp, (uint32_t)tp->ctx.sp,
+             get_stack_free(tp),
+             (uint32_t)tp->hdr.pqueue.prio, (uint32_t)(tp->refs - 1),
+             states[tp->state],
+             (uint32_t)RTC2MS(STM32_SYSCLK, tp->stats.cumulative),
+             stampThreadGetCpuPercent(&threadCpuInfo, idx),
+             chRegGetThreadNameX(tp));
 
-    totalTicks+= (float)tp->stats.cumulative;
-    if (strcmp(chRegGetThreadNameX(tp), "idle") == 0)
+    totalTicks += (float)tp->stats.cumulative;
+    if (strcmp(chRegGetThreadNameX(tp), "idle") == 0) {
       idleTicks = (float)tp->stats.cumulative;
-    tp = chRegNextThread ((thread_t *)tp);
+    }
+    tp = chRegNextThread((thread_t *)tp);
     idx++;
   } while (tp != NULL);
 
   totalTicks += ch0.kernel_stats.m_crit_isr.cumulative;
-  const float idlePercent = (idleTicks*100.f)/totalTicks;
+  const float idlePercent = (idleTicks * 100.f) / totalTicks;
   const float cpuPercent = 100.f - idlePercent;
-  chprintf (lchp, "Interrupt Service Routine \t\t     %9lu   %.2f%%    \tISR\r\n",
-	    (uint32_t)RTC2MS(STM32_SYSCLK,threadCpuInfo.totalISRTicks),
-	    stampISRGetCpuPercent(&threadCpuInfo));
-  chprintf (lchp, "\r\ncpu load = %.2f%%\r\n", cpuPercent);
+  chprintf(lchp, "Interrupt Service Routine \t\t     %9lu   %.2f%%    \tISR\r\n",
+           (uint32_t)RTC2MS(STM32_SYSCLK, threadCpuInfo.totalISRTicks),
+           stampISRGetCpuPercent(&threadCpuInfo));
+  chprintf(lchp, "\r\ncpu load = %.2f%%\r\n", cpuPercent);
 }
 
-static void cmd_rtos_mon(shell_stream_t *sh, int argc, const char * const argv[])
+static void cmd_rtos_mon(shell_stream_t *sh, int argc, const char *const argv[])
 {
   (void) argv;
   if (argc > 0) {
@@ -148,7 +151,7 @@ static void cmd_rtos_mon(shell_stream_t *sh, int argc, const char * const argv[]
   chprintf(sh, " thread names: %s\r\n", rtos_mon.thread_names);
   for (int i = 0; i < rtos_mon.thread_counter; i++) {
     chprintf(sh, " thread %d load: %0.1f, free stack: %d\r\n", i,
-        (float)rtos_mon.thread_load[i] / 10.f, rtos_mon.thread_free_stack[i]);
+             (float)rtos_mon.thread_load[i] / 10.f, rtos_mon.thread_free_stack[i]);
   }
   chprintf(sh, " CPU time: %.2f\r\n", rtos_mon.cpu_time);
 }
@@ -186,7 +189,7 @@ void rtos_mon_periodic_arch(void)
   tp = chRegFirstThread();
   do {
     // add beginning of thread name to buffer
-    for (i = 0; i < RTOS_MON_NAME_LEN-1 && tp->name[i] != '\0'; i++) {
+    for (i = 0; i < RTOS_MON_NAME_LEN - 1 && tp->name[i] != '\0'; i++) {
       rtos_mon.thread_names[rtos_mon.thread_name_idx++] = tp->name[i];
     }
     rtos_mon.thread_names[rtos_mon.thread_name_idx++] = ';';
@@ -224,9 +227,10 @@ static uint16_t get_stack_free(const thread_t *tp)
 {
   int32_t index = 0;
   extern const uint8_t __ram0_end__;
-  unsigned long long *stkAdr =  (unsigned long long *) ((uint8_t *) tp->wabase);
-  while ((stkAdr[index] == 0x5555555555555555) && ( ((uint8_t *) &(stkAdr[index])) < &__ram0_end__))
+  unsigned long long *stkAdr = (unsigned long long *)((uint8_t *) tp->wabase);
+  while ((stkAdr[index] == 0x5555555555555555) && (((uint8_t *) & (stkAdr[index])) < &__ram0_end__)) {
     index++;
+  }
   const int32_t freeBytes =  index * (int32_t) sizeof(long long);
   return (uint16_t)freeBytes;
 }

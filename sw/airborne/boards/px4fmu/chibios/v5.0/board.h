@@ -1693,15 +1693,6 @@
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
-#define ENERGY_SAVE_LOWS \
-	LINE_V3V3_SENSORS_EN, \
-	LINE_V3V3_SPEKTRUM_EN, \
-	LINE_V5V_HIPOWER_EN, \
-	LINE_V5V_PERIPH_EN, \
-	LINE_V5V_RC_EN, \
-	LINE_V5V_WIFI_EN
-#define ENERGY_SAVE_LOWS_SIZE 	 6
-
 #define ENERGY_SAVE_INPUTS \
 	LINE_SERVO2, \
 	LINE_LED1, \
@@ -1733,6 +1724,15 @@
 	LINE_SPI_SLAVE12, \
 	LINE_SPI_SLAVE13
 #define ENERGY_SAVE_INPUTS_SIZE 	 29
+
+#define ENERGY_SAVE_LOWS \
+	LINE_V3V3_SENSORS_EN, \
+	LINE_V3V3_SPEKTRUM_EN, \
+	LINE_V5V_HIPOWER_EN, \
+	LINE_V5V_PERIPH_EN, \
+	LINE_V5V_RC_EN, \
+	LINE_V5V_WIFI_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 6
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

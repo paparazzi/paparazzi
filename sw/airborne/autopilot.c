@@ -98,9 +98,9 @@ static void send_minimal_com(struct transport_tx *trans, struct link_device *dev
   uint8_t gps_fix = 0;
 #endif
   pprz_msg_send_MINIMAL_COM(trans, dev, AC_ID,
-      &lat, &lon, &hmsl, &gspeed, &course, &climb,
-      &electrical.vsupply, &throttle, &autopilot.mode,
-      &nav_block, &gps_fix, &autopilot.flight_time);
+                            &lat, &lon, &hmsl, &gspeed, &course, &climb,
+                            &electrical.vsupply, &throttle, &autopilot.mode,
+                            &nav_block, &gps_fix, &autopilot.flight_time);
 }
 
 void autopilot_init(void)

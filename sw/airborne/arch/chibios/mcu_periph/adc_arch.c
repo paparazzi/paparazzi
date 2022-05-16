@@ -164,7 +164,7 @@ static struct {
 
 /**
  * @brief Configure the ADC conversion group depending on the architecture
- * 
+ *
  * @param cfg The configuration to be set
  * @param num_channels The number of channels in the ADC
  * @param channels The channel mapping to real channels
@@ -172,7 +172,9 @@ static struct {
  * @param end_cb The callback function at the end of conversion
  * @param error_cb The callback function whenever an error occurs
  */
-static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const uint8_t channels[], uint32_t sample_rate, adccallback_t end_cb, adcerrorcallback_t error_cb) {
+static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const uint8_t channels[], uint32_t sample_rate,
+                          adccallback_t end_cb, adcerrorcallback_t error_cb)
+{
   // Set the general configuration
   cfg->circular = true;
   cfg->num_channels = num_channels;
@@ -194,37 +196,32 @@ static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const u
 #endif
 
   // Go through all the channels
-  for(uint8_t i = 0; i < num_channels; i++) {
+  for (uint8_t i = 0; i < num_channels; i++) {
     uint8_t chan = channels[i];
 
 #if defined(STM32H7XX) || defined(STM32F3XX) || defined(STM32G4XX) || defined(STM32L4XX)
     cfg->pcsel |= (1 << chan);
-    cfg->smpr[chan/10] |= sample_rate << (3 << (chan%10));
+    cfg->smpr[chan / 10] |= sample_rate << (3 << (chan % 10));
 
-    if(i < 4) {
+    if (i < 4) {
       cfg->sqr[0] |= chan << (6 * (i + 1));
-    }
-    else if(i < 9) {
+    } else if (i < 9) {
       cfg->sqr[1] |= chan << (6 * (i - 4));
-    }
-    else {
+    } else {
       cfg->sqr[2] |= chan << (6 * (i - 9));
     }
-#else 
-    if(chan < 10) {
+#else
+    if (chan < 10) {
       cfg->smpr2 |= sample_rate << (3 * chan);
-    }
-    else {
+    } else {
       cfg->smpr1 |= sample_rate << (3 * (chan - 10));
     }
 
-    if(i < 6) {
+    if (i < 6) {
       cfg->sqr3 |= chan << (5 * i);
-    }
-    else if(i < 12) {
+    } else if (i < 12) {
       cfg->sqr2 |= chan << (5 * (i - 6));
-    }
-    else {
+    } else {
       cfg->sqr3 |= chan << (5 * (i - 12));
     }
 #endif
@@ -253,7 +250,7 @@ void adc1callback(ADCDriver *adcp)
     // half buffer start in the middle of buffer, else, is start at
     // beginiing of buffer
     const adcsample_t *buffer = adc_samples + (adcIsBufferComplete(adcp) ?
-					   n * ADC_NUM_CHANNELS : 0U);
+                                n *ADC_NUM_CHANNELS : 0U);
     cacheBufferInvalidate(adc_samples, sizeof(adc_samples));
 
     for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
