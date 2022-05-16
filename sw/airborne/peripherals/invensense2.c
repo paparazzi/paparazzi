@@ -221,7 +221,7 @@ void invensense2_event(struct invensense2_t *inv) {
           invensense2_parse_data(inv, &rx_buffer[3], valid_bytes, (inv->timer != 0));
           inv->timer -= valid_bytes;
         } else {
-          fifo_bytes -= fifo_bytes%14;
+          fifo_bytes -= fifo_bytes%INVENSENSE2_SAMPLE_SIZE;
           inv->timer = fifo_bytes;
         }
 
@@ -276,9 +276,12 @@ void invensense2_event(struct invensense2_t *inv) {
  * @param last If the data was the last available data in the FIFO buffer or if we are expecting more
  */
 static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len, bool last) {
-  uint8_t samples = len  / 14;
-  static struct Int32Vect3 accel = {0};
-  static struct Int32Rates gyro = {0};
+  uint8_t samples = len  / INVENSENSE2_SAMPLE_SIZE;
+  static struct Int32Vect3 accel[INVENSENSE2_SAMPLE_CNT] = {0};
+  static struct Int32Rates gyro[INVENSENSE2_SAMPLE_CNT] = {0};
+
+  if(samples > INVENSENSE2_SAMPLE_CNT)
+    samples = INVENSENSE2_SAMPLE_CNT;
 
   uint16_t gyro_samplerate = 9000;
   if(inv->gyro_dlpf != INVENSENSE2_GYRO_DLPF_OFF)

@@ -30,7 +30,8 @@
 #include "peripherals/invensense2.h"
 
 
-struct invensense2_t imu1;
+static struct invensense2_t imu2;
+static struct invensense2_t imu3;
 
 void imu_cube_init(void)
 {
@@ -78,10 +79,12 @@ void imu_cube_init(void)
 
 void imu_cube_periodic(void)
 {
-  invensense2_periodic(&imu1);
+  invensense2_periodic(&imu2);
+  invensense2_periodic(&imu3);
 }
 
 void imu_cube_event(void)
 {
-  invensense2_event(&imu1);
+  invensense2_event(&imu2);
+  invensense2_event(&imu3);
 }

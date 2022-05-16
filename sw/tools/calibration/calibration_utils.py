@@ -47,11 +47,25 @@ def get_ids_in_log(filename):
                 ids.append(ac_id)
     return ids
 
+def get_sensor_ids(ac_id, filename, sensor):
+    f = open(filename, 'r')
+    ids = []
+    pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+")
+    while True:
+        line = f.readline().strip()
+        if line == '':
+            break
+        m = re.match(pattern, line)
+        if m:
+            sensor_id = m.group(1)
+            if not sensor_id in ids:
+                ids.append(sensor_id)
+    return ids
 
-def read_log(ac_id, filename, sensor):
+def read_log(ac_id, filename, sensor, sensor_id):
     """Extracts raw sensor measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW (\S+) (\S+) (\S+)")
+    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
@@ -63,10 +77,10 @@ def read_log(ac_id, filename, sensor):
     return np.array(list_meas)
 
 
-def read_log_scaled(ac_id, filename, sensor, t_start, t_end):
+def read_log_scaled(ac_id, filename, sensor, sensor_id, t_start, t_end):
     """Extracts scaled sensor measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED (\S+) (\S+) (\S+)")
+    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED "+sensor_id+" (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()

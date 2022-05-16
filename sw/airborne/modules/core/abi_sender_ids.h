@@ -372,7 +372,7 @@
 #endif
 
 #ifndef IMU_CUBE3_ID
-#define IMU_CUBE4_ID 22
+#define IMU_CUBE3_ID 22
 #endif
 
 // prefiltering with OneEuro filter

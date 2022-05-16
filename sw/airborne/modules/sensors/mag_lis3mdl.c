@@ -52,13 +52,6 @@
 #if MODULE_LIS3MDL_UPDATE_AHRS
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
-
-#if defined LIS3MDL_MAG_TO_IMU_PHI && defined LIS3MDL_MAG_TO_IMU_THETA && defined LIS3MDL_MAG_TO_IMU_PSI
-#define USE_MAG_TO_IMU 1
-static struct Int32RMat mag_to_imu; ///< rotation from mag to imu frame
-#else
-#define USE_MAG_TO_IMU 0
-#endif
 #endif
 
 struct Lis3mdl mag_lis3mdl;
@@ -70,15 +63,6 @@ void mag_lis3mdl_module_init(void)
      LIS3MDL_SCALE_4_GAUSS,
      LIS3MDL_MODE_CONTINUOUS,
      LIS3MDL_PERFORMANCE_ULTRA_HIGH);
-
-#if MODULE_LIS3MDL_UPDATE_AHRS && USE_MAG_TO_IMU
-  struct Int32Eulers mag_to_imu_eulers = {
-    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_PHI),
-    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_THETA),
-    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_PSI)
-  };
-  int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
-#endif
 }
 
 void mag_lis3mdl_module_periodic(void)
@@ -101,21 +85,8 @@ void mag_lis3mdl_module_event(void)
       LIS3MDL_CHAN_Y_SIGN(int32_t)(mag_lis3mdl.data.value[LIS3MDL_CHAN_Y]),
       LIS3MDL_CHAN_Z_SIGN(int32_t)(mag_lis3mdl.data.value[LIS3MDL_CHAN_Z])
     };
-    // only rotate if needed
-#if USE_MAG_TO_IMU
-    struct Int32Vect3 imu_mag;
-    // rotate data from mag frame to imu frame
-    int32_rmat_vmult(&imu_mag, &mag_to_imu, &mag);
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, imu_mag);
-#else
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, mag);
-#endif
-    // scale vector
-    imu_scale_mag(&imu);
 
-    AbiSendMsgIMU_MAG_INT32(MAG_LIS3MDL_SENDER_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(MAG_LIS3MDL_SENDER_ID, now_ts, &mag);
 #endif
 #if MODULE_LIS3MDL_SYNC_SEND
     mag_lis3mdl_report();
@@ -128,10 +99,11 @@ void mag_lis3mdl_module_event(void)
 
 void mag_lis3mdl_report(void)
 {
+  uint8_t id = MAG_LIS3MDL_SENDER_ID;
   struct Int32Vect3 mag = {
     LIS3MDL_CHAN_X_SIGN(int32_t)(mag_lis3mdl.data.value[LIS3MDL_CHAN_X]),
     LIS3MDL_CHAN_Y_SIGN(int32_t)(mag_lis3mdl.data.value[LIS3MDL_CHAN_Y]),
     LIS3MDL_CHAN_Z_SIGN(int32_t)(mag_lis3mdl.data.value[LIS3MDL_CHAN_Z])
   };
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &id, &mag.x, &mag.y, &mag.z);
 }
