@@ -34,7 +34,9 @@
 #include "mcu_periph/i2c.h"
 
 // Hold 22 measurements and 3 for the register address and length
-#define INVENSENSE2_BUFFER_SIZE ((14*22) + 3)
+#define INVENSENSE2_SAMPLE_CNT    22
+#define INVENSENSE2_SAMPLE_SIZE   14
+#define INVENSENSE2_BUFFER_SIZE   ((INVENSENSE2_SAMPLE_SIZE*INVENSENSE2_SAMPLE_CNT) + 3)
 
 /* Invensense v2 SPI peripheral */
 struct invensense2_spi_t {

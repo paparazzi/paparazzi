@@ -565,9 +565,9 @@ void ins_ekf2_init(void)
   AbiBindMsgBARO_ABS(INS_EKF2_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgTEMPERATURE(INS_EKF2_TEMPERATURE_ID, &temperature_ev, temperature_cb);
   AbiBindMsgAGL(INS_EKF2_AGL_ID, &agl_ev, agl_cb);
-  AbiBindMsgIMU_GYRO_INT32(INS_EKF2_GYRO_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_EKF2_ACCEL_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(INS_EKF2_GYRO_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(INS_EKF2_ACCEL_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
