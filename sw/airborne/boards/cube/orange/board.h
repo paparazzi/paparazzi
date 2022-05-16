@@ -40,6 +40,29 @@
  */
 #define STM32H743xx
 
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_1
+#endif
+
+/* allow to define ADC_CHANNEL_CURRENT in the airframe file*/
+#if !defined(ADC_CHANNEL_CURRENT) && !ADC_CURRENT_DISABLE
+#define ADC_CHANNEL_CURRENT ADC_2
+#endif
+
+/* Default powerbrick values */
+#define DefaultVoltageOfAdc(adc) ((3.3f/65536.0f) * 13.38f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/65536.0f) * 39.877f * adc)
+
+/* Battery monitoring for file closing */
+#define SDLOG_BAT_ADC ADCD1
+#define SDLOG_BAT_CHAN AD1_1_CHANNEL
+
+/*
+ * Include generic board file
+ */
+//#include "arch/chibios/board.h"
+
 /*
  * IO pins assignments.
  */
@@ -1631,12 +1654,6 @@
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
-#define ENERGY_SAVE_LOWS \
-	LINE_VDD_5V_PERIPH_EN, \
-	LINE_PWM_VOLT_SEL, \
-	LINE_VDD_3V3_SENSORS_EN
-#define ENERGY_SAVE_LOWS_SIZE 	 3
-
 #define ENERGY_SAVE_INPUTS \
 	LINE_SPI_SLAVE0, \
 	LINE_SPI_SLAVE1, \
@@ -1655,6 +1672,12 @@
 	LINE_SERVO2, \
 	LINE_SERVO1
 #define ENERGY_SAVE_INPUTS_SIZE 	 16
+
+#define ENERGY_SAVE_LOWS \
+	LINE_VDD_5V_PERIPH_EN, \
+	LINE_PWM_VOLT_SEL, \
+	LINE_VDD_3V3_SENSORS_EN
+#define ENERGY_SAVE_LOWS_SIZE 	 3
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

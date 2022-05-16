@@ -9,7 +9,7 @@
 BOARD=cube
 BOARD_VERSION=orange
 BOARD_DIR=$(BOARD)/$(BOARD_VERSION)
-BOARD_CFG=\"boards/$(BOARD_DIR)/$(BOARD).h\"
+BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)

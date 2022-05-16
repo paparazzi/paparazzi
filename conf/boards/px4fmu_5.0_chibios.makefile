@@ -9,7 +9,7 @@
 BOARD=px4fmu
 BOARD_VERSION=5.0
 BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
-BOARD_CFG=\"boards/$(BOARD_DIR)/$(BOARD).h\"
+BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)

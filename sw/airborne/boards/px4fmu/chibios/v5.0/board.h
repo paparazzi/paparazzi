@@ -46,6 +46,25 @@
  */
 #define STM32F767xx
 
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_1
+#endif
+
+/* allow to define ADC_CHANNEL_CURRENT in the airframe file*/
+#if !defined(ADC_CHANNEL_CURRENT) && !ADC_CURRENT_DISABLE
+#define ADC_CHANNEL_CURRENT ADC_2
+#endif
+
+/* Default powerbrick values */
+#define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.3208191126f * adc)
+#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 24000.0f * adc)
+
+/* Battery monitoring for file closing */
+#define SDLOG_BAT_ADC ADCD1
+#define SDLOG_BAT_CHAN AD1_1_CHANNEL
+#define SDLOG_USB_LED 3
+
 /*
  * IO pins assignments.
  */
@@ -1677,10 +1696,43 @@
 #define AF_LINE_CAN1_RX                  9U
 
 
+#define ADC1_ADC	 1
+#define ADC1_ADC_FN	 IN
+#define ADC1_ADC_IN	 0
+#define ADC2_ADC	 1
+#define ADC2_ADC_FN	 IN
+#define ADC2_ADC_IN	 1
+#define ADC3_ADC	 1
+#define ADC3_ADC_FN	 IN
+#define ADC3_ADC_IN	 2
+#define ADC4_ADC	 1
+#define ADC4_ADC_FN	 IN
+#define ADC4_ADC_IN	 3
+#define ADC5_ADC	 1
+#define ADC5_ADC_FN	 IN
+#define ADC5_ADC_IN	 4
 #define SERVO2_TIM	 1
 #define SERVO2_TIM_FN	 CH
 #define SERVO2_TIM_CH	 3
 #define SERVO2_TIM_AF	 1
+#define RSSI_IN_ADC	 1
+#define RSSI_IN_ADC_FN	 IN
+#define RSSI_IN_ADC_IN	 8
+#define SCALED_V5_ADC	 1
+#define SCALED_V5_ADC_FN	 IN
+#define SCALED_V5_ADC_IN	 10
+#define SCALED_3V3_SENSORS_ADC	 1
+#define SCALED_3V3_SENSORS_ADC_FN	 IN
+#define SCALED_3V3_SENSORS_ADC_IN	 11
+#define HW_VER_SENSE_ADC	 1
+#define HW_VER_SENSE_ADC_FN	 IN
+#define HW_VER_SENSE_ADC_IN	 12
+#define HW_REV_SENSE_ADC	 1
+#define HW_REV_SENSE_ADC_FN	 IN
+#define HW_REV_SENSE_ADC_IN	 13
+#define ADC6_ADC	 1
+#define ADC6_ADC_FN	 IN
+#define ADC6_ADC_IN	 14
 #define SERVO5_TIM	 4
 #define SERVO5_TIM_FN	 CH
 #define SERVO5_TIM_CH	 2
