@@ -27,7 +27,6 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="li[s]?a_mx_.*"/>
-      <board name="navstik_.*"/>
       <board name="elle*"/>
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
@@ -112,7 +111,6 @@
     <boards>
       <board name="krooz_sd"/>
       <board name="li[s]?a_[lm]?_.*"/>
-      <board name="navstik_.*"/>
       <board name="elle*"/>
     </boards>
   </mode>

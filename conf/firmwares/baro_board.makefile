@@ -14,13 +14,6 @@ ifeq ($(BOARD), lisa_l)
   BARO_BOARD_CFLAGS += -DUSE_I2C2
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
 
-# Navstik baro
-else ifeq ($(BOARD), navstik)
-  BARO_BOARD_CFLAGS += -DUSE_I2C3
-  BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
-  BARO_BOARD_SRCS += peripherals/bmp085.c
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # Ardrone baro
 else ifeq ($(BOARD), ardrone)
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
