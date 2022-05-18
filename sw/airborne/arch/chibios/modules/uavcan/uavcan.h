@@ -33,6 +33,7 @@
 /** uavcan interface structure */
 struct uavcan_iface_t {
   CANDriver *can_driver;
+  uint32_t can_baudrate;
   CANConfig can_cfg;
 
   event_source_t tx_request;

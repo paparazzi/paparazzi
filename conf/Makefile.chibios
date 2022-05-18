@@ -26,7 +26,9 @@
 CHIBIOS = $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
+BOARD_COMMON ?=
 BOARD_DIR ?= $(BOARD)/chibios
+CHIBIOS_BOARD_COMMON_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_COMMON)
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
 # chibos linker scripts directory
@@ -206,11 +208,10 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STA
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)
-include $(CHIBIOS_BOARD_DIR)/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
 # Other files (optional).
 #
 ifeq ($(USE_FATFS), TRUE)
@@ -224,7 +225,7 @@ LDSCRIPT= $(CHIBIOS_LINKER_DIR)/$(CHIBIOS_BOARD_LINKER)
 # setting.
 CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
-       $(CHIBIOS_BOARD_MAIN)
+       $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/board.c
 
 ECSRC = $(filter %.c, $($(TARGET).srcs))
 ECPPSRC = $(filter %.cpp, $($(TARGET).srcs))
@@ -256,7 +257,7 @@ TCPPSRC =
 # List ASM source files here
 ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS_BOARD_DIR)
+INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS_BOARD_DIR) $(CHIBIOS_BOARD_COMMON_DIR)
 
 # Output directory and files
 BUILDDIR := $(AIRCRAFT_BUILD_DIR)/$(TARGET)

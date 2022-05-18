@@ -1572,6 +1572,34 @@
 #define S3_TIM_CH	 2
 #define S3_TIM_AF	 1
 
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define ENERGY_SAVE_INPUT \
+	LINE_LED1, \
+	LINE_S6, \
+	LINE_SDCARD_CS, \
+	LINE_S4, \
+	LINE_S1, \
+	LINE_OSD_CS, \
+	LINE_S5, \
+	LINE_IMU_CS, \
+	LINE_S2, \
+	LINE_S3
+#define ENERGY_SAVE_INPUT_SIZE 	 10
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

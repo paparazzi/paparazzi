@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="cube_orange" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Cube Orange with ChibiOS
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_ms5611_spi</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <configure name="SDLOG_USE_RTC" value="FALSE"/>
+    <configure name="MS5611_SPI_DEV" value="spi1"/> <!-- spi4 -->
+    <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE6"/> <!-- SPI_SLAVE4 -->
+  </makefile>
+</module>

@@ -9,9 +9,7 @@
         "editor.tabSize": 4,
     },
     "files.associations": {
-        "mateksys_3901_l0x.h": "c",
-        "stdlib.h": "c",
-        "iterator": "cpp",
-        "tensor": "cpp"
+        "Makefile.*": "makefile"
     },
+    "C_Cpp.dimInactiveRegions": false,
 }

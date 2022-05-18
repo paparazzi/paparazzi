@@ -48,7 +48,7 @@
  * Then only every second channel is really read. Might be fixed in next version
  * of ChibiOS
  *
- * V_ref is 3.3V, ADC has 12bit resolution.
+ * V_ref is 3.3V, ADC has 12bit or 16bit resolution.
  */
 #include "mcu_periph/adc.h"
 #include "mcu_periph/gpio.h"
@@ -66,22 +66,16 @@
 ///#endif
 
 
-// architecture dependent settings
-#if defined(__STM32F10x_H) || defined(__STM32F105xC_H) || defined (__STM32F107xC_H)
-// STM32F1xx
-#define ADC_SAMPLE_RATE ADC_SAMPLE_41P5
-#define ADC_CR2_CFG ADC_CR2_TSVREFE
-#elif defined(__STM32F4xx_H) || defined(__STM32F7xx_H)
-// STM32F4xx | STM32F7xx
-#define ADC_SAMPLE_RATE ADC_SAMPLE_480
-#define ADC_CR2_CFG ADC_CR2_SWSTART
-#elif defined(__STM32F373xC_H)
-#define ADC_SAMPLE_RATE ADC_SAMPLE_239P5
-#define ADC_CR2_CFG ADC_CR2_SWSTART
-#elif defined(__STM32F3xx_H)
+/* Set the default sample rate */
+#if !defined(ADC_SAMPLE_RATE)
+#if defined(STM32H7XX)
+#define ADC_SAMPLE_RATE ADC_SMPR_SMP_384P5
+#elif defined(STM32F3XX)
 #define ADC_SAMPLE_RATE ADC_SMPR_SMP_601P5
+#else
+#define ADC_SAMPLE_RATE ADC_SAMPLE_480
 #endif
-
+#endif
 
 // Create channel map
 static const uint8_t adc_channel_map[ADC_NUM_CHANNELS] = {
@@ -143,9 +137,10 @@ ADCDriver *adcp_err = NULL;
 #ifndef ADC_BUF_DEPTH
 #define ADC_BUF_DEPTH (MAX_AV_NB_SAMPLE/2)
 #endif
-static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH]);
+static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * MAX_AV_NB_SAMPLE]);
 
 #if USE_AD1
+static ADCConversionGroup adc1_group;
 static struct adc_buf *adc1_buffers[ADC_NUM_CHANNELS];
 static uint32_t adc1_sum_tmp[ADC_NUM_CHANNELS];
 static uint8_t adc1_samples_tmp[ADC_NUM_CHANNELS];
@@ -167,46 +162,70 @@ static struct {
 } adc_watchdog;
 #endif
 
-// From libopencm3
-static void adc_regular_sequence(uint32_t *sqr1, uint32_t *sqr2, uint32_t *sqr3, uint8_t length, const uint8_t channel[])
+/**
+ * @brief Configure the ADC conversion group depending on the architecture
+ *
+ * @param cfg The configuration to be set
+ * @param num_channels The number of channels in the ADC
+ * @param channels The channel mapping to real channels
+ * @param sample_rate The sample rate for all channels
+ * @param end_cb The callback function at the end of conversion
+ * @param error_cb The callback function whenever an error occurs
+ */
+static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const uint8_t channels[], uint32_t sample_rate,
+                          adccallback_t end_cb, adcerrorcallback_t error_cb)
 {
-  uint32_t first6 = 0;
-  uint32_t second6 = 0;
-  uint32_t third6 = ADC_SQR1_NUM_CH(length);
-  uint8_t i = 0;
+  // Set the general configuration
+  cfg->circular = true;
+  cfg->num_channels = num_channels;
+  cfg->end_cb = end_cb;
+  cfg->error_cb = error_cb;
 
-  for (i = 1; i <= length; i++) {
-    if (i <= 6) {
-      first6 |= (channel[i - 1] << ((i - 1) * 5));
+  // Set to 16bits by default else try 12bit
+#if defined(ADC_CFGR_RES_16BITS)
+  cfg->cfgr = ADC_CFGR_CONT | ADC_CFGR_RES_16BITS;
+#elif defined(ADC_CFGR_RES_12BITS)
+  cfg->cfgr = ADC_CFGR_CONT | ADC_CFGR_RES_12BITS;
+#else
+  cfg->sqr1 = ADC_SQR1_NUM_CH(num_channels);
+  cfg->cr2 = ADC_CR2_SWSTART;
+
+#if defined(ADC_CR2_TSVREFE)
+  cfg->cr2 |= ADC_CR2_TSVREFE;
+#endif
+#endif
+
+  // Go through all the channels
+  for (uint8_t i = 0; i < num_channels; i++) {
+    uint8_t chan = channels[i];
+
+#if defined(STM32H7XX) || defined(STM32F3XX) || defined(STM32G4XX) || defined(STM32L4XX)
+    cfg->pcsel |= (1 << chan);
+    cfg->smpr[chan / 10] |= sample_rate << (3 << (chan % 10));
+
+    if (i < 4) {
+      cfg->sqr[0] |= chan << (6 * (i + 1));
+    } else if (i < 9) {
+      cfg->sqr[1] |= chan << (6 * (i - 4));
+    } else {
+      cfg->sqr[2] |= chan << (6 * (i - 9));
     }
-    if ((i > 6) && (i <= 12)) {
-      second6 |= (channel[i - 1] << ((i - 6 - 1) * 5));
+#else
+    if (chan < 10) {
+      cfg->smpr2 |= sample_rate << (3 * chan);
+    } else {
+      cfg->smpr1 |= sample_rate << (3 * (chan - 10));
     }
-    if ((i > 12) && (i <= 18)) {
-      third6 |= (channel[i - 1] << ((i - 12 - 1) * 5));
+
+    if (i < 6) {
+      cfg->sqr3 |= chan << (5 * i);
+    } else if (i < 12) {
+      cfg->sqr2 |= chan << (5 * (i - 6));
+    } else {
+      cfg->sqr3 |= chan << (5 * (i - 12));
     }
+#endif
   }
-  *sqr3 = first6;
-  *sqr2 = second6;
-  *sqr1 = third6;
-}
-
-// From libopencm3
-static void adc_sample_time_on_all_channels(uint32_t *smpr1, uint32_t *smpr2, uint8_t time)
-{
-  uint8_t i;
-  uint32_t reg32 = 0;
-
-  for (i = 0; i <= 9; i++) {
-    reg32 |= (time << (i * 3));
-  }
-  *smpr2 = reg32;
-
-  reg32 = 0;
-  for (i = 10; i <= 17; i++) {
-    reg32 |= (time << ((i - 10) * 3));
-  }
-  *smpr1 = reg32;
 }
 
 /**
@@ -231,7 +250,8 @@ void adc1callback(ADCDriver *adcp)
     // half buffer start in the middle of buffer, else, is start at
     // beginiing of buffer
     const adcsample_t *buffer = adc_samples + (adcIsBufferComplete(adcp) ?
-					   n * ADC_NUM_CHANNELS : 0U);
+                                n *ADC_NUM_CHANNELS : 0U);
+    cacheBufferInvalidate(adc_samples, sizeof(adc_samples));
 
     for (int channel = 0; channel < ADC_NUM_CHANNELS; channel++) {
       if (adc1_buffers[channel] != NULL) {
@@ -305,12 +325,6 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sampl
 }
 
 /**
- * Configuration structure
- * must be global
- */
-static  ADCConversionGroup adcgrpcfg;
-
-/**
  * Adc init
  *
  * Initialize ADC drivers, buffers and start conversion in the background
@@ -356,13 +370,6 @@ void adc_init(void)
   gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
 #endif
 
-  // Configuration register
-  uint32_t sqr1, sqr2, sqr3;
-  adc_regular_sequence(&sqr1, &sqr2, &sqr3, ADC_NUM_CHANNELS, adc_channel_map);
-
-  uint32_t smpr1, smpr2;
-  adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_RATE);
-
 #if USE_ADC_WATCHDOG
   adc_watchdog.adc = NULL;
   adc_watchdog.cb = NULL;
@@ -370,42 +377,12 @@ void adc_init(void)
   adc_watchdog.vmin = (1 << 12) - 1; // max adc
 #endif
 
-  adcgrpcfg.circular = TRUE;
-  adcgrpcfg.num_channels = ADC_NUM_CHANNELS;
-  adcgrpcfg.end_cb = adc1callback;
-  adcgrpcfg.error_cb = adcerrorcallback;
-#if defined(__STM32F373xC_H)
-  adcgrpcfg.u.adc.smpr[0] = smpr1;
-  adcgrpcfg.u.adc.smpr[1] = smpr2;
-  adcgrpcfg.u.adc.sqr[0] = sqr1;
-  adcgrpcfg.u.adc.sqr[1] = sqr2;
-  adcgrpcfg.u.adc.sqr[2] = sqr3;
-  adcgrpcfg.u.adc.cr1 = 0;
-  adcgrpcfg.u.adc.cr2 = ADC_CR2_CFG;
-#elif defined(__STM32F3xx_H)
-  //TODO: check if something needs to be done with the other regs (can be found in ~/paparazzi/sw/ext/chibios/os/hal/ports/STM32/LLD/ADCv3)
-#warning ADCs not tested with stm32f30
-  // cfgr
-  // tr1
-
-  adcgrpcfg.smpr[0] = smpr1; // is this even correct?
-  adcgrpcfg.smpr[1] = smpr2;
-  adcgrpcfg.sqr[0]  = sqr1;
-  adcgrpcfg.sqr[1]  = sqr2;
-  adcgrpcfg.sqr[2]  = sqr3;
-#else
-  adcgrpcfg.cr2 = ADC_CR2_CFG;
-  adcgrpcfg.cr1 = 0;
-  adcgrpcfg.smpr1 = smpr1;
-  adcgrpcfg.smpr2 = smpr2;
-  adcgrpcfg.sqr1 = sqr1;
-  adcgrpcfg.sqr2 = sqr2;
-  adcgrpcfg.sqr3 = sqr3;
-#endif
+  // Configure the ADC structure
+  adc_configure(&adc1_group, ADC_NUM_CHANNELS, adc_channel_map, ADC_SAMPLE_RATE, adc1callback, adcerrorcallback);
 
   // Start ADC in continious conversion mode
   adcStart(&ADCD1, NULL);
-  adcStartConversion(&ADCD1, &adcgrpcfg, adc_samples, ADC_BUF_DEPTH);
+  adcStartConversion(&ADCD1, &adc1_group, adc_samples, ADC_BUF_DEPTH);
 }
 
 #if USE_ADC_WATCHDOG

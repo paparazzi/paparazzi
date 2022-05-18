@@ -110,7 +110,7 @@ typedef void (*adc_watchdog_callback)(void);
  * @param cb callback function call within ISR locked zone
  */
 extern void register_adc_watchdog(ADCDriver *adc, adc_channels_num_t channel, adcsample_t vmin,
-				  adc_watchdog_callback cb);
+                                  adc_watchdog_callback cb);
 
 #endif
 

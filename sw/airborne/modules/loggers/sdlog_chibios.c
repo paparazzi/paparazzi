@@ -246,16 +246,16 @@ static void thd_startlog(void *arg)
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
     if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
-		     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-		     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
+                     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
       sdOk = false;
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s", tmpFilename);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
     if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
-		     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-		      SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
+                     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+                     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
       sdOk = false;
     }
     chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s,%s", chibios_sdlog_filenames, tmpFilename);
@@ -326,8 +326,9 @@ static void thd_bat_survey(void *arg)
   chThdExit(0);
 
   // Only put to deep sleep in case there is no power on the USB
-  if(palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW)
+  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
     mcu_deep_sleep();
+  }
   chThdSleep(TIME_INFINITE);
   while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }

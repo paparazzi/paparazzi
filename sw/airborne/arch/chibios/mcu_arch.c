@@ -41,7 +41,7 @@
 
 #if USE_HARD_FAULT_RECOVERY
 
-#if defined STM32F4 || defined STM32F7
+#if defined(STM32F4XX) || defined (STM32F7XX)
 #define BCKP_SECTION ".ram5"
 #define IN_BCKP_SECTION(var) var __attribute__ ((section(BCKP_SECTION), aligned(8)))
 #else
@@ -87,11 +87,11 @@ CH_IRQ_HANDLER(UsageFault_Handler)
 bool recovering_from_hard_fault;
 
 // select correct register
-#if defined STM32F4
+#if defined(STM32F4XX)
 #define __PWR_CSR PWR->CSR
 #define __PWR_CSR_BRE PWR_CSR_BRE
 #define __PWR_CSR_BRR PWR_CSR_BRR
-#elif defined STM32F7
+#elif defined(STM32F7XX)
 #define __PWR_CSR PWR->CSR1
 #define __PWR_CSR_BRE PWR_CSR1_BRE
 #define __PWR_CSR_BRR PWR_CSR1_BRR
@@ -108,11 +108,6 @@ bool recovering_from_hard_fault;
  */
 void mcu_arch_init(void)
 {
-#if LUFTBOOT
-  PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
-  SCB->VTOR = CORTEX_VTOR_INIT;
-#endif
-
   /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
@@ -125,11 +120,11 @@ void mcu_arch_init(void)
 
 #if USE_HARD_FAULT_RECOVERY
   /* Backup domain SRAM enable, and with it, the regulator */
-#if defined STM32F4  || defined STM32F7
+#if defined(STM32F4XX) || defined(STM32F7XX)
   RCC->AHB1ENR |= RCC_AHB1ENR_BKPSRAMEN;
   __PWR_CSR |= __PWR_CSR_BRE;
   while ((__PWR_CSR & __PWR_CSR_BRR) == 0) ; /* Waits until the regulator is stable */
-#endif /* STM32F4 | STM32F7*/
+#endif /* STM32F4 | STM32F7 */
 
   // test if last reset was a 'real' hard fault
   recovering_from_hard_fault = false;
@@ -151,9 +146,21 @@ void mcu_arch_init(void)
 
 }
 
-void WEAK mcu_periph_energy_save(void)
+/**
+ * @brief Save energy for performing operations on shutdown
+ * Used for example to shutdown SD-card logging
+ */
+void mcu_periph_energy_save(void)
 {
-  // Default empty implementation
-  // see board.c file
+#if defined(ENERGY_SAVE_INPUTS)
+  BOARD_GROUP_DECLFOREACH(input_line, ENERGY_SAVE_INPUTS) {
+    palSetLineMode(input_line, PAL_MODE_INPUT);
+  }
+#endif
+#if defined(ENERGY_SAVE_LOWS)
+  BOARD_GROUP_DECLFOREACH(input_low, ENERGY_SAVE_LOWS) {
+    palClearLine(input_low);
+  }
+#endif
 }
 

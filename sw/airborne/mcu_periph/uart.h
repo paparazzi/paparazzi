@@ -33,18 +33,20 @@
 #include "std.h"
 
 #ifndef UART_RX_BUFFER_SIZE
-#if defined STM32F4 || defined STM32F7 //the F4 and F7 have enough memory
-#define UART_RX_BUFFER_SIZE 256
-#else
+// Only for the STM32F1 less buffer
+#if defined(STM32F1)
 #define UART_RX_BUFFER_SIZE 128
+#else
+#define UART_RX_BUFFER_SIZE 256
 #endif
 #endif
 
 #ifndef UART_TX_BUFFER_SIZE
-#if defined STM32F4 || defined STM32F7 //the F4 and F7 have enough memory, and the PX4 bootloader needs more then 128
-#define UART_TX_BUFFER_SIZE 256
-#else
+// Only for the STM32F1 less buffer
+#if defined(STM32F1)
 #define UART_TX_BUFFER_SIZE 128
+#else
+#define UART_TX_BUFFER_SIZE 256
 #endif
 #endif
 

@@ -6,10 +6,10 @@
 	url = https://github.com/paparazzi/luftboot.git
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
-	url = https://github.com/enacuavlab/fatfs.git
+	url = https://github.com/paparazzi/fatfs.git
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
-	url = https://github.com/ChibiOS/ChibiOS.git
+	url = https://github.com/paparazzi/ChibiOS.git
 [submodule "sw/ext/libzbar"]
 	path = sw/ext/libzbar
 	url = https://github.com/paparazzi/libzbar

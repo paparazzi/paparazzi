@@ -27,7 +27,6 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="li[s]?a_mx_.*"/>
-      <board name="navstik_.*"/>
       <board name="elle*"/>
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
@@ -77,6 +76,7 @@
       <board name="nucleo.*"/>
       <board name="matek_.*"/>
       <board name="holybro_.*"/>
+      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
@@ -103,6 +103,7 @@
     <boards>
       <board name="px4fmu_.*"/>
       <board name="px4io_.*"/>
+      <board name="cube_.*"/>
     </boards>
   </mode>
   <mode name="JTAG (OpenOCD)">
@@ -110,7 +111,6 @@
     <boards>
       <board name="krooz_sd"/>
       <board name="li[s]?a_[lm]?_.*"/>
-      <board name="navstik_.*"/>
       <board name="elle*"/>
     </boards>
   </mode>

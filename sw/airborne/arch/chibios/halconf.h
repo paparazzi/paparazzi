@@ -1,13 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
-
-    modified by: AggieAir, A Remote Sensing Unmanned Aerial System for Scientific Applications
-    Utah State University, http://aggieair.usu.edu/
-
-    Michal Podhradsky (michal.podhradsky@aggiemail.usu.edu)
-    Calvin Coopmans (c.r.coopmans@ieee.org)
-
-    modified by Gautier Hattenberger for STM32F7 support
+    ChibiOS - Copyright (C) 2006..2020 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -37,7 +29,7 @@
 #define HALCONF_H
 
 #define _CHIBIOS_HAL_CONF_
-#define _CHIBIOS_HAL_CONF_VER_7_1_
+#define _CHIBIOS_HAL_CONF_VER_8_0_
 
 #include "mcuconf.h"
 
@@ -45,7 +37,7 @@
  * @brief   Enables the PAL subsystem.
  */
 #if !defined(HAL_USE_PAL) || defined(__DOXYGEN__)
-#define HAL_USE_PAL                 TRUE
+#define HAL_USE_PAL                         TRUE
 #endif
 
 /**
@@ -53,9 +45,9 @@
  */
 #if !defined(HAL_USE_ADC) || defined(__DOXYGEN__)
 #if USE_ADC
-#define HAL_USE_ADC                 TRUE
+#define HAL_USE_ADC                         TRUE
 #else
-#define HAL_USE_ADC                 FALSE
+#define HAL_USE_ADC                         FALSE
 #endif
 #endif
 
@@ -64,9 +56,9 @@
  */
 #if !defined(HAL_USE_CAN) || defined(__DOXYGEN__)
 #if USE_CAN1 || USE_CAN2
-#define HAL_USE_CAN                 TRUE
+#define HAL_USE_CAN                         TRUE
 #else
-#define HAL_USE_CAN                 FALSE
+#define HAL_USE_CAN                         FALSE
 #endif
 #endif
 
@@ -82,9 +74,9 @@
  */
 #if !defined(HAL_USE_DAC) || defined(__DOXYGEN__)
 #if USE_DAC1 || USE_DAC2
-#define HAL_USE_DAC                 TRUE
+#define HAL_USE_DAC                         TRUE
 #else
-#define HAL_USE_DAC                 FALSE
+#define HAL_USE_DAC                         FALSE
 #endif
 #endif
 
@@ -107,9 +99,9 @@
  */
 #if !defined(HAL_USE_I2C) || defined(__DOXYGEN__)
 #if USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4
-#define HAL_USE_I2C                 TRUE
+#define HAL_USE_I2C                         TRUE
 #else
-#define HAL_USE_I2C                 FALSE
+#define HAL_USE_I2C                         FALSE
 #endif
 #endif
 
@@ -122,16 +114,12 @@
 
 /**
  * @brief   Enables the ICU subsystem.
- * NOTE: ICU is needed form PPM and Spektrum radio
- * Maybe also for Superbit. Leave default TRUE for now
- * Might have to be changed to
- * ifdef RADIO_CONTROL_TYPE_PPM then TRUE, otherwise FALSE
  */
 #if !defined(HAL_USE_ICU) || defined(__DOXYGEN__)
-#if RADIO_CONTROL_TYPE_PPM || USE_PWM_INPUT || defined USE_PWM_INPUT1 || defined USE_PWM_INPUT2
-#define HAL_USE_ICU                 TRUE
+#if RADIO_CONTROL_TYPE_PPM || USE_PWM_INPUT || defined(USE_PWM_INPUT1) || defined(USE_PWM_INPUT2)
+#define HAL_USE_ICU                         TRUE
 #else
-#define HAL_USE_ICU                 FALSE
+#define HAL_USE_ICU                         FALSE
 #endif
 #endif
 
@@ -175,9 +163,9 @@
  */
 #if !defined(HAL_USE_SERIAL) || defined(__DOXYGEN__)
 #if USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6 || USE_UART7 || USE_UART8
-#define HAL_USE_SERIAL              TRUE
+#define HAL_USE_SERIAL                      TRUE
 #else
-#define HAL_USE_SERIAL              FALSE
+#define HAL_USE_SERIAL                      FALSE
 #endif
 #endif
 
@@ -186,9 +174,9 @@
  */
 #if !defined(HAL_USE_SERIAL_USB) || defined(__DOXYGEN__)
 #if USE_USB_SERIAL
-#define HAL_USE_SERIAL_USB          TRUE
+#define HAL_USE_SERIAL_USB                  TRUE
 #else
-#define HAL_USE_SERIAL_USB          FALSE
+#define HAL_USE_SERIAL_USB                  FALSE
 #endif
 #endif
 
@@ -204,9 +192,9 @@
  */
 #if !defined(HAL_USE_SPI) || defined(__DOXYGEN__)
 #if USE_SPI
-#define HAL_USE_SPI                 TRUE
+#define HAL_USE_SPI                         TRUE
 #else
-#define HAL_USE_SPI                 FALSE
+#define HAL_USE_SPI                         FALSE
 #endif
 #endif
 
@@ -229,9 +217,9 @@
  */
 #if !defined(HAL_USE_USB) || defined(__DOXYGEN__)
 #if USE_USB_SERIAL
-#define HAL_USE_USB          TRUE
+#define HAL_USE_USB                         TRUE
 #else
-#define HAL_USE_USB          FALSE
+#define HAL_USE_USB                         FALSE
 #endif
 #endif
 
@@ -464,6 +452,26 @@
 #endif
 
 /*===========================================================================*/
+/* SIO driver related settings.                                              */
+/*===========================================================================*/
+
+/**
+ * @brief   Default bit rate.
+ * @details Configuration parameter, this is the baud rate selected for the
+ *          default configuration.
+ */
+#if !defined(SIO_DEFAULT_BITRATE) || defined(__DOXYGEN__)
+#define SIO_DEFAULT_BITRATE                 38400
+#endif
+
+/**
+ * @brief   Support for thread synchronization API.
+ */
+#if !defined(SIO_USE_SYNCHRONIZATION) || defined(__DOXYGEN__)
+#define SIO_USE_SYNCHRONIZATION             TRUE
+#endif
+
+/*===========================================================================*/
 /* SERIAL_USB driver related setting.                                        */
 /*===========================================================================*/
 
@@ -499,11 +507,10 @@
 #endif
 
 /**
- * @brief   Enables circular transfers APIs.
- * @note    Disabling this option saves both code and data space.
+ * @brief   Inserts an assertion on function errors before returning.
  */
-#if !defined(SPI_USE_CIRCULAR) || defined(__DOXYGEN__)
-#define SPI_USE_CIRCULAR                    FALSE
+#if !defined(SPI_USE_ASSERT_ON_ERROR) || defined(__DOXYGEN__)
+#define SPI_USE_ASSERT_ON_ERROR             TRUE
 #endif
 
 /**

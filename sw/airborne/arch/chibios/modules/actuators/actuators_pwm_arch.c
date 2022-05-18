@@ -34,6 +34,48 @@
 #include "modules/actuators/actuators_pwm.h"
 #include "mcu_periph/gpio.h"
 
+/* Default timer base frequency is 1MHz */
+#ifndef PWM_FREQUENCY
+#define PWM_FREQUENCY 1000000
+#endif
+
+/* Default servo update rate in Hz */
+#ifndef SERVO_HZ
+#define SERVO_HZ 40
+#endif
+
+/* For each timer the period van be configured differently */
+#ifndef TIM1_SERVO_HZ
+#define TIM1_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM2_SERVO_HZ
+#define TIM2_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM3_SERVO_HZ
+#define TIM3_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM4_SERVO_HZ
+#define TIM4_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM5_SERVO_HZ
+#define TIM5_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM8_SERVO_HZ
+#define TIM8_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM9_SERVO_HZ
+#define TIM9_SERVO_HZ SERVO_HZ
+#endif
+#ifndef TIM12_SERVO_HZ
+#define TIM12_SERVO_HZ SERVO_HZ
+#endif
+
+/**
+ * Print the configuration variables from the header
+ */
+PRINT_CONFIG_VAR(ACTUATORS_PWM_NB)
+PRINT_CONFIG_VAR(PWM_FREQUENCY)
+PRINT_CONFIG_VAR(SERVO_HZ)
 
 /**
  * CMD_TO_US() is depending on architecture
@@ -60,35 +102,165 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
  */
  __attribute__((unused)) static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {}
 
-#if PWM_CONF_TIM1
-static PWMConfig pwmcfg1 = PWM_CONF1_DEF;
+#if STM32_PWM_USE_TIM1
+static PWMConfig pwmcfg1 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM1_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM2
-static PWMConfig pwmcfg2 = PWM_CONF2_DEF;
+#if STM32_PWM_USE_TIM2
+static PWMConfig pwmcfg2 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM2_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM3
-static PWMConfig pwmcfg3 = PWM_CONF3_DEF;
+#if STM32_PWM_USE_TIM3
+static PWMConfig pwmcfg3 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM3_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM4
-static PWMConfig pwmcfg4 = PWM_CONF4_DEF;
+#if STM32_PWM_USE_TIM4
+static PWMConfig pwmcfg4 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM4_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM5
-static PWMConfig pwmcfg5 = PWM_CONF5_DEF;
+#if STM32_PWM_USE_TIM5
+static PWMConfig pwmcfg5 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM5_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM8
-static PWMConfig pwmcfg8 = PWM_CONF8_DEF;
+#if STM32_PWM_USE_TIM8
+static PWMConfig pwmcfg8 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM8_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM9
-static PWMConfig pwmcfg9 = PWM_CONF9_DEF;
+#if STM32_PWM_USE_TIM9
+static PWMConfig pwmcfg9 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM9_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM10
-static PWMConfig pwmcfg10 = PWM_CONF10_DEF;
+#if STM32_PWM_USE_TIM10
+static PWMConfig pwmcfg10 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM10_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM11
-static PWMConfig pwmcfg11 = PWM_CONF11_DEF;
+#if STM32_PWM_USE_TIM11
+static PWMConfig pwmcfg11 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM11_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
-#if PWM_CONF_TIM12
-static PWMConfig pwmcfg12 = PWM_CONF12_DEF;
+#if STM32_PWM_USE_TIM12
+static PWMConfig pwmcfg12 = {
+  .frequency = PWM_FREQUENCY,
+  .period = PWM_FREQUENCY/TIM12_SERVO_HZ,
+  .callback = NULL,
+  .channels = {
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL },
+    { PWM_OUTPUT_DISABLED, NULL }, 
+  },
+  .cr2 = 0,
+  .bdtr = 0,
+  .dier = 0
+};
 #endif
 
 
@@ -99,87 +271,104 @@ void actuators_pwm_arch_init(void)
    *----------------*/
 #ifdef PWM_SERVO_0
   gpio_setup_pin_af(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, true);
+  PWM_SERVO_0_CONF.channels[PWM_SERVO_0_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_1
   gpio_setup_pin_af(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, true);
+  PWM_SERVO_1_CONF.channels[PWM_SERVO_1_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_2
   gpio_setup_pin_af(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, true);
+  PWM_SERVO_2_CONF.channels[PWM_SERVO_2_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_3
   gpio_setup_pin_af(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, true);
+  PWM_SERVO_3_CONF.channels[PWM_SERVO_3_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_4
   gpio_setup_pin_af(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, true);
+  PWM_SERVO_4_CONF.channels[PWM_SERVO_4_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_5
   gpio_setup_pin_af(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, true);
+  PWM_SERVO_5_CONF.channels[PWM_SERVO_5_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_6
   gpio_setup_pin_af(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, true);
+  PWM_SERVO_6_CONF.channels[PWM_SERVO_6_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_7
   gpio_setup_pin_af(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, true);
+  PWM_SERVO_7_CONF.channels[PWM_SERVO_7_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_8
   gpio_setup_pin_af(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, true);
+  PWM_SERVO_8_CONF.channels[PWM_SERVO_8_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_9
   gpio_setup_pin_af(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, true);
+  PWM_SERVO_9_CONF.channels[PWM_SERVO_9_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_10
   gpio_setup_pin_af(PWM_SERVO_10_GPIO, PWM_SERVO_10_PIN, PWM_SERVO_10_AF, true);
+  PWM_SERVO_10_CONF.channels[PWM_SERVO_10_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_11
   gpio_setup_pin_af(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, true);
+  PWM_SERVO_11_CONF.channels[PWM_SERVO_11_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_12
   gpio_setup_pin_af(PWM_SERVO_12_GPIO, PWM_SERVO_12_PIN, PWM_SERVO_12_AF, true);
+  PWM_SERVO_12_CONF.channels[PWM_SERVO_12_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_13
   gpio_setup_pin_af(PWM_SERVO_13_GPIO, PWM_SERVO_13_PIN, PWM_SERVO_13_AF, true);
+  PWM_SERVO_13_CONF.channels[PWM_SERVO_13_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_14
   gpio_setup_pin_af(PWM_SERVO_14_GPIO, PWM_SERVO_14_PIN, PWM_SERVO_14_AF, true);
+  PWM_SERVO_14_CONF.channels[PWM_SERVO_14_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_15
   gpio_setup_pin_af(PWM_SERVO_15_GPIO, PWM_SERVO_15_PIN, PWM_SERVO_15_AF, true);
+  PWM_SERVO_15_CONF.channels[PWM_SERVO_15_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 #ifdef PWM_SERVO_16
   gpio_setup_pin_af(PWM_SERVO_16_GPIO, PWM_SERVO_16_PIN, PWM_SERVO_16_AF, true);
+  PWM_SERVO_16_CONF.channels[PWM_SERVO_16_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 
   /*---------------
    * Configure PWM
    *---------------*/
-#if PWM_CONF_TIM1
+#if STM32_PWM_USE_TIM1
   pwmStart(&PWMD1, &pwmcfg1);
 #endif
-#if PWM_CONF_TIM2
+#if STM32_PWM_USE_TIM2
   pwmStart(&PWMD2, &pwmcfg2);
 #endif
-#if PWM_CONF_TIM3
+#if STM32_PWM_USE_TIM3
   pwmStart(&PWMD3, &pwmcfg3);
 #endif
-#if PWM_CONF_TIM4
+#if STM32_PWM_USE_TIM4
   pwmStart(&PWMD4, &pwmcfg4);
 #endif
-#if PWM_CONF_TIM5
+#if STM32_PWM_USE_TIM5
   pwmStart(&PWMD5, &pwmcfg5);
 #endif
-#if PWM_CONF_TIM8
+#if STM32_PWM_USE_TIM8
   pwmStart(&PWMD8, &pwmcfg8);
 #endif
-#if PWM_CONF_TIM9
+#if STM32_PWM_USE_TIM9
   pwmStart(&PWMD9, &pwmcfg9);
 #endif
-#if PWM_CONF_TIM10
+#if STM32_PWM_USE_TIM10
   pwmStart(&PWMD10, &pwmcfg10);
 #endif
-#if PWM_CONF_TIM11
+#if STM32_PWM_USE_TIM11
   pwmStart(&PWMD11, &pwmcfg11);
 #endif
-#if PWM_CONF_TIM12
+#if STM32_PWM_USE_TIM12
   pwmStart(&PWMD12, &pwmcfg12);
 #endif
 }

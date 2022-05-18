@@ -23,7 +23,7 @@ USE_FPU_OPT= -mfpu=fpv5-sp-d16
 
 USE_LTO ?= yes
 
-$(TARGET).CFLAGS += -DSTM32F7 -DPPRZLINK_ENABLE_FD -DDSHOT_CHANNEL_FIRST_INDEX=1U
+$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD -DDSHOT_CHANNEL_FIRST_INDEX=1U
 
 ##############################################################################
 # Architecture or project specific options
@@ -33,7 +33,6 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F7xx/platform.mk
-CHIBIOS_BOARD_PORT = ARMCMx/STM32F7xx/port.mk
 #CHIBIOS_BOARD_LINKER = STM32F76xxI.ld
 CHIBIOS_BOARD_LINKER = STM32F746xG.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f7xx.mk

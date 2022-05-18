@@ -1,11 +1,12 @@
 /* CHIBIOS FIX */
 #include "ch.h"
+#define FATFS_CHIBIOS_EXTENSIONS
 
 /*---------------------------------------------------------------------------/
-/  FatFs - FAT file system module configuration file
+/  FatFs Functional Configurations
 /---------------------------------------------------------------------------*/
 
-#define FFCONF_DEF	86606	/* Revision ID */
+#define FFCONF_DEF	86631	/* Revision ID */
 
 /*---------------------------------------------------------------------------/
 / Function Configurations
@@ -28,55 +29,69 @@
 /   3: f_lseek() function is removed in addition to 2. */
 
 
-#define FF_USE_STRFUNC    0
-/* This option switches string functions, f_gets(), f_putc(), f_puts() and
-/  f_printf().
-/
-/  0: Disable string functions.
-/  1: Enable without LF-CRLF conversion.
-/  2: Enable with LF-CRLF conversion. */
-
-
-#define FF_USE_FIND       1
+#define FF_USE_FIND		1
 /* This option switches filtered directory read functions, f_findfirst() and
 /  f_findnext(). (0:Disable, 1:Enable 2:Enable with matching altname[] too) */
 
 
-#define FF_USE_MKFS       1
+#define FF_USE_MKFS		1
 /* This option switches f_mkfs() function. (0:Disable or 1:Enable) */
 
 
-#define FF_USE_FASTSEEK   1
+#define FF_USE_FASTSEEK	1
 /* This option switches fast seek function. (0:Disable or 1:Enable) */
 
 
-#define FF_USE_EXPAND     1
+#define FF_USE_EXPAND	1
 /* This option switches f_expand function. (0:Disable or 1:Enable) */
 
 
-#define FF_USE_CHMOD      1
+#define FF_USE_CHMOD	1
 /* This option switches attribute manipulation functions, f_chmod() and f_utime().
 /  (0:Disable or 1:Enable) Also FF_FS_READONLY needs to be 0 to enable this option. */
 
 
-#define FF_USE_LABEL      1
+#define FF_USE_LABEL	1
 /* This option switches volume label functions, f_getlabel() and f_setlabel().
 /  (0:Disable or 1:Enable) */
 
 
-#define FF_USE_FORWARD    1
+#define FF_USE_FORWARD	1
 /* This option switches f_forward() function. (0:Disable or 1:Enable) */
+
+
+#define FF_USE_STRFUNC	0
+#define FF_PRINT_LLI	0
+#define FF_PRINT_FLOAT	0
+#define FF_STRF_ENCODE	0
+/* FF_USE_STRFUNC switches string functions, f_gets(), f_putc(), f_puts() and
+/  f_printf().
+/
+/   0: Disable. FF_PRINT_LLI, FF_PRINT_FLOAT and FF_STRF_ENCODE have no effect.
+/   1: Enable without LF-CRLF conversion.
+/   2: Enable with LF-CRLF conversion.
+/
+/  FF_PRINT_LLI = 1 makes f_printf() support long long argument and FF_PRINT_FLOAT = 1/2
+   makes f_printf() support floating point argument. These features want C99 or later.
+/  When FF_LFN_UNICODE >= 1 with LFN enabled, string functions convert the character
+/  encoding in it. FF_STRF_ENCODE selects assumption of character encoding ON THE FILE
+/  to be read/written via those functions.
+/
+/   0: ANSI/OEM in current CP
+/   1: Unicode in UTF-16LE
+/   2: Unicode in UTF-16BE
+/   3: Unicode in UTF-8
+*/
 
 
 /*---------------------------------------------------------------------------/
 / Locale and Namespace Configurations
 /---------------------------------------------------------------------------*/
 
-#define FF_CODE_PAGE      850
+#define FF_CODE_PAGE    850
 /* This option specifies the OEM code page to be used on the target system.
-/  Incorrect setting of the code page can cause a file open failure.
+/  Incorrect code page setting can cause a file open failure.
 /
-/   1   - ASCII (No extended character. Non-LFN cfg. only)
 /   437 - U.S.
 /   720 - Arabic
 /   737 - Greek
@@ -98,31 +113,40 @@
 /   936 - Simplified Chinese (DBCS)
 /   949 - Korean (DBCS)
 /   950 - Traditional Chinese (DBCS)
+/     0 - Include all code pages above and configured by f_setcp()
 */
 
 
-#define    FF_USE_LFN    2
-#define    FF_MAX_LFN    255
-/* The FF_USE_LFN switches the support of long file name (LFN).
+#define FF_USE_LFN		2
+#define FF_MAX_LFN		255
+/* The FF_USE_LFN switches the support for LFN (long file name).
 /
-/   0: Disable support of LFN. _MAX_LFN has no effect.
-/   1: Enable LFN with static working buffer on the BSS. Always NOT thread-safe.
+/   0: Disable LFN. FF_MAX_LFN has no effect.
+/   1: Enable LFN with static  working buffer on the BSS. Always NOT thread-safe.
 /   2: Enable LFN with dynamic working buffer on the STACK.
 /   3: Enable LFN with dynamic working buffer on the HEAP.
 /
-/  To enable the LFN, Unicode handling functions (option/unicode.c) must be added
-/  to the project. The working buffer occupies (_MAX_LFN + 1) * 2 bytes and
-/  additional 608 bytes at exFAT enabled. _MAX_LFN can be in range from 12 to 255.
-/  It should be set 255 to support full featured LFN operations.
+/  To enable the LFN, ffunicode.c needs to be added to the project. The LFN function
+/  requiers certain internal working buffer occupies (FF_MAX_LFN + 1) * 2 bytes and
+/  additional (FF_MAX_LFN + 44) / 15 * 32 bytes when exFAT is enabled.
+/  The FF_MAX_LFN defines size of the working buffer in UTF-16 code unit and it can
+/  be in range of 12 to 255. It is recommended to be set it 255 to fully support LFN
+/  specification.
 /  When use stack for the working buffer, take care on stack overflow. When use heap
 /  memory for the working buffer, memory management functions, ff_memalloc() and
-/  ff_memfree(), must be added to the project. */
+/  ff_memfree() exemplified in ffsystem.c, need to be added to the project. */
 
 
-#define FF_LFN_UNICODE    0
-/* This option switches character encoding on the API. (0:ANSI/OEM or 1:UTF-16)
-/  To use Unicode string for the path name, enable LFN and set _LFN_UNICODE = 1.
-/  This option also affects behavior of string I/O functions. */
+#define FF_LFN_UNICODE	0
+/* This option switches the character encoding on the API when LFN is enabled.
+/
+/   0: ANSI/OEM in current CP (TCHAR = char)
+/   1: Unicode in UTF-16 (TCHAR = WCHAR)
+/   2: Unicode in UTF-8 (TCHAR = char)
+/   3: Unicode in UTF-32 (TCHAR = DWORD)
+/
+/  Also behavior of string I/O functions will be affected by this option.
+/  When LFN is not enabled, this option has no effect. */
 
 
 #define FF_LFN_BUF		255
@@ -133,22 +157,8 @@
 /  on character encoding. When LFN is not enabled, these options have no effect. */
 
 
-#define FF_STRF_ENCODE	3
-/* When FF_LFN_UNICODE >= 1 with LFN enabled, string I/O functions, f_gets(),
-/  f_putc(), f_puts and f_printf() convert the character encoding in it.
-/  This option selects assumption of character encoding ON THE FILE to be
-/  read/written via those functions.
-/
-/  0: ANSI/OEM
-/  1: UTF-16LE
-/  2: UTF-16BE
-/  3: UTF-8
-/
-/  This option has no effect when _LFN_UNICODE == 0. */
-
-
-#define FF_FS_RPATH       1
-/* This option configures support of relative path.
+#define FF_FS_RPATH		1
+/* This option configures support for relative path.
 /
 /   0: Disable relative path and remove related functions.
 /   1: Enable relative path. f_chdir() and f_chdrive() are available.
@@ -160,8 +170,8 @@
 / Drive/Volume Configurations
 /---------------------------------------------------------------------------*/
 
-#define FF_VOLUMES        1
-/* Number of volumes (logical drives) to be used. */
+#define FF_VOLUMES		1
+/* Number of volumes (logical drives) to be used. (1-10) */
 
 
 #define FF_STR_VOLUME_ID	0
@@ -191,7 +201,7 @@
 #define FF_MAX_SS		512
 /* This set of options configures the range of sector size to be supported. (512,
 /  1024, 2048 or 4096) Always set both 512 for most systems, generic memory card and
-/  harddisk. But a larger value may be required for on-board flash memory and some
+/  harddisk, but a larger value may be required for on-board flash memory and some
 /  type of optical media. When FF_MAX_SS is larger than FF_MIN_SS, FatFs is configured
 /  for variable sector size mode and disk_ioctl() function needs to implement
 /  GET_SECTOR_SIZE command. */
@@ -203,7 +213,7 @@
 
 
 #define FF_MIN_GPT		0x100000000
-/* Minimum number of sectors to switch GPT format to create partition in f_mkfs and
+/* Minimum number of sectors to switch GPT as partitioning format in f_mkfs and
 /  f_fdisk function. 0x100000000 max. This option has no effect when FF_LBA64 == 0. */
 
 
@@ -234,7 +244,7 @@
 #define FF_FS_NORTC		0
 #define FF_NORTC_MON	1
 #define FF_NORTC_MDAY	1
-#define FF_NORTC_YEAR	2019
+#define FF_NORTC_YEAR	2020
 /* The option FF_FS_NORTC switches timestamp functiton. If the system does not have
 /  any RTC function or valid timestamp is not needed, set FF_FS_NORTC = 1 to disable
 /  the timestamp function. Every object modified by FatFs will have a fixed timestamp
@@ -278,18 +288,17 @@
 /  and f_fdisk() function, are always not re-entrant. Only file/directory access
 /  to the same volume is under control of this function.
 /
-/   0: Disable re-entrancy. FF_FS_TIMEOUT and _SYNC_t have no effect.
+/   0: Disable re-entrancy. FF_FS_TIMEOUT and FF_SYNC_t have no effect.
 /   1: Enable re-entrancy. Also user provided synchronization handlers,
 /      ff_req_grant(), ff_rel_grant(), ff_del_syncobj() and ff_cre_syncobj()
 /      function, must be added to the project. Samples are available in
 /      option/syscall.c.
 /
 /  The FF_FS_TIMEOUT defines timeout period in unit of time tick.
-/  The _SYNC_t defines O/S dependent sync object type. e.g. HANDLE, ID, OS_EVENT*,
-/  SemaphoreHandle_t and etc.. A header file for O/S definitions needs to be
+/  The FF_SYNC_t defines O/S dependent sync object type. e.g. HANDLE, ID, OS_EVENT*,
+/  SemaphoreHandle_t and etc. A header file for O/S definitions needs to be
 /  included somewhere in the scope of ff.h. */
 
-/* #include <windows.h>	// O/S definitions  */
 
 
 /*--- End of configuration options ---*/

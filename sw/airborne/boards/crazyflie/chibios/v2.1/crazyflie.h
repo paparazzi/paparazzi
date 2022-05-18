@@ -82,9 +82,7 @@
 #define PWM_SERVO_1_AF AF_MOTOR1
 #define PWM_SERVO_1_DRIVER PWMD2
 #define PWM_SERVO_1_CHANNEL 1
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_1_CONF pwmcfg2
 #endif
 
 #ifndef USE_PWM2
@@ -97,9 +95,7 @@
 #define PWM_SERVO_2_AF AF_MOTOR2
 #define PWM_SERVO_2_DRIVER PWMD2
 #define PWM_SERVO_2_CHANNEL 3
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_2_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_2_CONF pwmcfg2
 #endif
 
 #ifndef USE_PWM3
@@ -112,9 +108,7 @@
 #define PWM_SERVO_3_AF AF_MOTOR3
 #define PWM_SERVO_3_DRIVER PWMD2
 #define PWM_SERVO_3_CHANNEL 0
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_3_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_3_CONF pwmcfg2
 #endif
 
 #ifndef USE_PWM4
@@ -127,9 +121,7 @@
 #define PWM_SERVO_4_AF AF_MOTOR4
 #define PWM_SERVO_4_DRIVER PWMD4
 #define PWM_SERVO_4_CHANNEL 3
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-#else
-#define PWM_SERVO_4_ACTIVE PWM_OUTPUT_DISABLED
+#define PWM_SERVO_4_CONF pwmcfg4
 #endif
 
 // servo index starting at 1 + regular servos + aux servos
@@ -144,46 +136,9 @@
 // than 128 kHz
 // It is also needed to redefined PWM_CMD_TO_US to get the proper converstion
 // from command to clock pulses number
-
 #define PWM_CMD_TO_US(_t) (_t)
-
-#ifdef STM32_PWM_USE_TIM2
-#define PWM_CONF_TIM2 STM32_PWM_USE_TIM2
-#else
-#define PWM_CONF_TIM2 1
-#endif
-#define PWM_CONF2_DEF { \
-  84000000, \
-  256, \
-  NULL, \
-  { \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-    { PWM_SERVO_1_ACTIVE, NULL }, \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-    { PWM_SERVO_2_ACTIVE, NULL }, \
-  }, \
-  0, \
-  0 \
-}
-
-#ifdef STM32_PWM_USE_TIM4
-#define PWM_CONF_TIM4 STM32_PWM_USE_TIM4
-#else
-#define PWM_CONF_TIM4 1
-#endif
-#define PWM_CONF4_DEF { \
-  84000000, \
-  256, \
-  NULL, \
-  { \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-    { PWM_SERVO_4_ACTIVE, NULL }, \
-  }, \
-  0, \
-  0 \
-}
+#define PWM_FREQUENCY 84000000
+#define SERVO_HZ (PWM_FREQUENCY / 256) // 328125
 
 /**
  * UART2 E_TX2

@@ -1681,6 +1681,42 @@
 #define S12_TIM_CH	 2
 #define S12_TIM_AF	 3
 
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define ENERGY_SAVE_INPUT \
+	LINE_S1, \
+	LINE_S2, \
+	LINE_S3, \
+	LINE_S4, \
+	LINE_S5, \
+	LINE_S6, \
+	LINE_OSD_CS, \
+	LINE_IMU1_CS, \
+	LINE_IMU2_CS, \
+	LINE_LED1, \
+	LINE_LED2, \
+	LINE_S7, \
+	LINE_S8, \
+	LINE_S9, \
+	LINE_S10, \
+	LINE_S11, \
+	LINE_S12, \
+	LINE_SPI4_CS
+#define ENERGY_SAVE_INPUT_SIZE 	 18
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {
