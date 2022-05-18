@@ -37,6 +37,18 @@
 #define IMU_INTEGRATION true
 #endif
 
+#ifndef IMU_GYRO_CALIB
+#define IMU_GYRO_CALIB {}
+#endif
+
+#ifndef IMU_ACCEL_CALIB
+#define IMU_ACCEL_CALIB {}
+#endif
+
+#ifndef IMU_MAG_CALIB
+#define IMU_MAG_CALIB {}
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -56,7 +68,7 @@ static void send_accel_scaled(struct transport_tx *trans, struct link_device *de
   pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID, &imu.accels[id].abi_id,
                                  &imu.accels[id].scaled.x, &imu.accels[id].scaled.y, &imu.accels[id].scaled.z);
   id++;
-  if(id >= IMU_MAX_SENSORS)
+  if(id >= IMU_MAX_SENSORS || imu.accels[id].abi_id == ABI_DISABLE)
     id = 0;
 }
 
@@ -143,9 +155,6 @@ static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples);
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
-static struct imu_gyro_t *imu_get_gyro(uint8_t sender_id);
-static struct imu_accel_t *imu_get_accel(uint8_t sender_id);
-static struct imu_mag_t *imu_get_mag(uint8_t sender_id);
 
 void imu_init(void)
 {
@@ -158,31 +167,60 @@ void imu_init(void)
   {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
 
-  // Initialize the non-initialized sensors to default values
+  // Set the calibrated sensors
+  const struct imu_gyro_t gyro_calib[] = IMU_GYRO_CALIB;
+  const struct imu_accel_t accel_calib[] = IMU_ACCEL_CALIB;
+  const struct imu_mag_t mag_calib[] = IMU_MAG_CALIB;
+  const uint8_t gyro_calib_len = sizeof(gyro_calib) / sizeof(struct imu_gyro_t);
+  const uint8_t accel_calib_len = sizeof(accel_calib) / sizeof(struct imu_accel_t);
+  const uint8_t mag_calib_len = sizeof(mag_calib) / sizeof(struct imu_mag_t);
+
+  // Initialize the sensors to default values
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.gyros[i].abi_id == ABI_DISABLE) {
-      imu.gyros[i].last_stamp = 0;
+    // Gyro initialization calibrated/non-calibrated
+    if(i >= gyro_calib_len) {
+      imu.gyros[i].abi_id = ABI_DISABLE;
+      imu.gyros[i].calibrated = false;
       INT_RATES_ZERO(imu.gyros[i].neutral);
       RATES_ASSIGN(imu.gyros[i].scale[0], 1, 1, 1);
       RATES_ASSIGN(imu.gyros[i].scale[1], 1, 1, 1);
-      int32_rmat_identity(&imu.gyros[i].imu_to_sensor);
     }
+    else {
+      imu.gyros[i] = gyro_calib[i];
+      imu.gyros[i].calibrated = true;
+    }
+    imu.gyros[i].last_stamp = 0;
+    int32_rmat_identity(&imu.gyros[i].imu_to_sensor);
 
-    if(imu.accels[i].abi_id == ABI_DISABLE) {
-      imu.accels[i].last_stamp = 0;
+    // Accel initialization calibrated/non-calibrated
+    if(i >= accel_calib_len) {
+      imu.accels[i].abi_id = ABI_DISABLE;
+      imu.accels[i].calibrated = false;
       INT_VECT3_ZERO(imu.accels[i].neutral);
       VECT3_ASSIGN(imu.accels[i].scale[0], 1, 1, 1);
       VECT3_ASSIGN(imu.accels[i].scale[1], 1, 1, 1);
-      int32_rmat_identity(&imu.accels[i].imu_to_sensor);
     }
+    else {
+      imu.accels[i] = accel_calib[i];
+      imu.accels[i].calibrated = true;
+    }
+    imu.accels[i].last_stamp = 0;
+    int32_rmat_identity(&imu.accels[i].imu_to_sensor);
 
-    if(imu.mags[i].abi_id == ABI_DISABLE) {
+    // Mag initialization calibrated/non-calibrated
+    if(i >= mag_calib_len) {
+      imu.mags[i].abi_id = ABI_DISABLE;
+      imu.mags[i].calibrated = false;
       INT_VECT3_ZERO(imu.mags[i].neutral);
       VECT3_ASSIGN(imu.mags[i].scale[0], 1, 1, 1);
       VECT3_ASSIGN(imu.mags[i].scale[1], 1, 1, 1);
       INT_VECT3_ZERO(imu.mags[i].current_scale);
-      int32_rmat_identity(&imu.mags[i].imu_to_sensor);
     }
+    else {
+      imu.mags[i] = mag_calib[i];
+      imu.mags[i].calibrated = true;
+    }
+    int32_rmat_identity(&imu.mags[i].imu_to_sensor);
   }
 
   // Bind to raw measurements
@@ -206,47 +244,96 @@ void imu_init(void)
 }
 
 /**
- * @brief Set the sensor rotation
- * 
- * @param abi_id 
- * @param imu_to_sensor 
+ * @brief Set the defaults for a gyro sensor
+ * WARNING: Should be called before sensor is publishing messages to ensure correct values
+ * @param abi_id The ABI sender id to set the defaults for
+ * @param imu_to_sensor Imu to sensor rotation matrix
+ * @param neutral Neutral values
+ * @param scale Scale values, 0 index is multiply and 1 index is divide
  */
-void imu_set_gyro_rmat(uint8_t abi_id, struct Int32RMat *imu_to_sensor)
+void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale)
 {
   // Could be that we are not initialized
   imu_init();
 
   // Find the correct gyro
-  struct imu_gyro_t *gyro = imu_get_gyro(abi_id);
+  struct imu_gyro_t *gyro = imu_get_gyro(abi_id, true);
   if(gyro == NULL)
     return;
 
-  RMAT_COPY(gyro->imu_to_sensor, *imu_to_sensor);
+  // Copy the defaults
+  if(imu_to_sensor != NULL)
+    RMAT_COPY(gyro->imu_to_sensor, *imu_to_sensor);
+  if(neutral != NULL && !gyro->calibrated)
+    RATES_COPY(gyro->neutral, *neutral);
+  if(scale != NULL && !gyro->calibrated) {
+    RATES_COPY(gyro->scale[0], scale[0]);
+    RATES_COPY(gyro->scale[1], scale[1]);
+  }
 }
 
 /**
- * @brief Set the sensor rotation
- * 
- * @param abi_id 
- * @param imu_to_sensor 
+ * @brief Set the defaults for a accel sensor
+ * WARNING: Should be called before sensor is publishing messages to ensure correct values
+ * @param abi_id The ABI sender id to set the defaults for
+ * @param imu_to_sensor Imu to sensor rotation matrix
+ * @param neutral Neutral values
+ * @param scale Scale values, 0 index is multiply and 1 index is divide
  */
-void imu_set_accel_rmat(uint8_t abi_id, struct Int32RMat *imu_to_sensor)
+void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
 {
   // Could be that we are not initialized
   imu_init();
 
   // Find the correct accel
-  struct imu_accel_t *accel = imu_get_accel(abi_id);
+  struct imu_accel_t *accel = imu_get_accel(abi_id, true);
   if(accel == NULL)
     return;
 
-  RMAT_COPY(accel->imu_to_sensor, *imu_to_sensor);
+  // Copy the defaults
+  if(imu_to_sensor != NULL)
+    RMAT_COPY(accel->imu_to_sensor, *imu_to_sensor);
+  if(neutral != NULL && !accel->calibrated)
+    VECT3_COPY(accel->neutral, *neutral);
+  if(scale != NULL && !accel->calibrated) {
+    VECT3_COPY(accel->scale[0], scale[0]);
+    VECT3_COPY(accel->scale[1], scale[1]);
+  }
+}
+
+/**
+ * @brief Set the defaults for a mag sensor
+ * WARNING: Should be called before sensor is publishing messages to ensure correct values
+ * @param abi_id The ABI sender id to set the defaults for
+ * @param imu_to_sensor Imu to sensor rotation matrix
+ * @param neutral Neutral values
+ * @param scale Scale values, 0 index is multiply and 1 index is divide
+ */
+void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
+{
+  // Could be that we are not initialized
+  imu_init();
+
+  // Find the correct mag
+  struct imu_mag_t *mag = imu_get_mag(abi_id, true);
+  if(mag == NULL)
+    return;
+
+  // Copy the defaults
+  if(imu_to_sensor != NULL)
+    RMAT_COPY(mag->imu_to_sensor, *imu_to_sensor);
+  if(neutral != NULL && !mag->calibrated)
+    VECT3_COPY(mag->neutral, *neutral);
+  if(scale != NULL && !mag->calibrated) {
+    VECT3_COPY(mag->scale[0], scale[0]);
+    VECT3_COPY(mag->scale[1], scale[1]);
+  }
 }
 
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples)
 {
   // Find the correct gyro
-  struct imu_gyro_t *gyro = imu_get_gyro(sender_id);
+  struct imu_gyro_t *gyro = imu_get_gyro(sender_id, true);
   if(gyro == NULL || samples < 1)
     return;
 
@@ -297,7 +384,7 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples)
 {
   // Find the correct accel
-  struct imu_accel_t *accel = imu_get_accel(sender_id);
+  struct imu_accel_t *accel = imu_get_accel(sender_id, true);
   if(accel == NULL || samples < 1)
     return;
 
@@ -348,7 +435,7 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data)
 {
   // Find the correct mag
-  struct imu_mag_t *mag = imu_get_mag(sender_id);
+  struct imu_mag_t *mag = imu_get_mag(sender_id, true);
   if(mag == NULL)
     return;
 
@@ -376,16 +463,19 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
  * @brief Find or create the gyro in the imu structure
  * 
  * @param sender_id The ABI sender id to search for
+ * @param create Create a new index if not found
  * @return struct imu_gyro_t* The gyro structure if found/created else NULL
  */
-static struct imu_gyro_t *imu_get_gyro(uint8_t sender_id) {
+struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create) {
   // Find the correct gyro or create index
   struct imu_gyro_t *gyro = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.gyros[i].abi_id == sender_id || imu.gyros[i].abi_id == ABI_DISABLE) {
+    if(imu.gyros[i].abi_id == sender_id || (create && imu.gyros[i].abi_id == ABI_DISABLE)) {
       gyro = &imu.gyros[i];
       gyro->abi_id = sender_id;
       break;
+    } else if(sender_id == ABI_BROADCAST && imu.gyros[i].abi_id != ABI_DISABLE) {
+      gyro = &imu.gyros[i];
     }
   }
 
@@ -396,16 +486,19 @@ static struct imu_gyro_t *imu_get_gyro(uint8_t sender_id) {
  * @brief Find or create the accel in the imu structure
  * 
  * @param sender_id The ABI sender id to search for
+ * @param create Create a new index if not found
  * @return struct imu_accel_t* The accel structure if found/created else NULL
  */
-static struct imu_accel_t *imu_get_accel(uint8_t sender_id) {
+struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create) {
   // Find the correct accel
   struct imu_accel_t *accel = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.accels[i].abi_id == sender_id || imu.accels[i].abi_id == ABI_DISABLE) {
+    if(imu.accels[i].abi_id == sender_id || (create && imu.accels[i].abi_id == ABI_DISABLE)) {
       accel = &imu.accels[i];
       accel->abi_id = sender_id;
       break;
+    } else if(sender_id == ABI_BROADCAST && imu.accels[i].abi_id != ABI_DISABLE) {
+      accel = &imu.accels[i];
     }
   }
 
@@ -416,16 +509,19 @@ static struct imu_accel_t *imu_get_accel(uint8_t sender_id) {
  * @brief Find or create the mag in the imu structure
  * 
  * @param sender_id The ABI sender id to search for
+ * @param create Create a new index if not found
  * @return struct imu_mag_t* The mag structure if found/created else NULL
  */
-static struct imu_mag_t *imu_get_mag(uint8_t sender_id) {
+struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create) {
   // Find the correct mag
   struct imu_mag_t *mag = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.mags[i].abi_id == sender_id || imu.mags[i].abi_id == ABI_DISABLE) {
+    if(imu.mags[i].abi_id == sender_id || (create && imu.mags[i].abi_id == ABI_DISABLE)) {
       mag = &imu.mags[i];
       mag->abi_id = sender_id;
       break;
+    } else if(sender_id == ABI_BROADCAST && imu.mags[i].abi_id != ABI_DISABLE) {
+      mag = &imu.mags[i];
     }
   }
 

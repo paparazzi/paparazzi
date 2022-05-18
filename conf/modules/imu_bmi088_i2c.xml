@@ -36,13 +36,10 @@
     <define name="IMU_BMI088_I2C_DEV" value="$(IMU_BMI088_I2C_DEV_LOWER)"/>
     <define name="USE_$(IMU_BMI088_I2C_DEV_UPPER)"/>
 
-    <define name="IMU_TYPE_H" value="modules/imu/imu_bmi088_i2c.h" type="string"/>
-
     <file name="bmi088.c" dir="peripherals"/>
     <file name="bmi088_i2c.c" dir="peripherals"/>
     <file name="imu_bmi088_i2c.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="modules/imu/imu_bmi088_i2c.h" type="string"/>
       <define name="USE_I2C1"/>
       <define name="IMU_BMI088_I2C_DEV" value="i2c1"/>
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>

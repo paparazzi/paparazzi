@@ -26,8 +26,6 @@
 #include "modules/gps/gps.h"
 #endif
 
-#include NPS_SENSORS_PARAMS
-
 pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;

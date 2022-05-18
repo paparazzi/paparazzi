@@ -25,6 +25,7 @@
  */
 
 #include <math.h>
+#include "modules/imu/imu_mpu60x0_i2c.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
@@ -70,6 +71,10 @@ void imu_mpu_i2c_init(void)
   imu_mpu_i2c.mpu.config.dlpf_cfg = IMU_MPU60X0_LOWPASS_FILTER;
   imu_mpu_i2c.mpu.config.gyro_range = IMU_MPU60X0_GYRO_RANGE;
   imu_mpu_i2c.mpu.config.accel_range = IMU_MPU60X0_ACCEL_RANGE;
+
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU60X0_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU60X0_ACCEL_RANGE]);
 }
 
 void imu_mpu_i2c_periodic(void)
@@ -84,12 +89,8 @@ void imu_mpu_i2c_event(void)
   // If the MPU60X0 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_mpu_i2c.mpu);
   if (imu_mpu_i2c.mpu.data_available) {
-    RATES_COPY(imu.gyro_unscaled, imu_mpu_i2c.mpu.data_rates.rates);
-    VECT3_COPY(imu.accel_unscaled, imu_mpu_i2c.mpu.data_accel.vect);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_rates.rates, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_accel.vect, 1);
     imu_mpu_i2c.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_MPU60X0_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU60X0_ID, now_ts, &imu.accel);
   }
 }

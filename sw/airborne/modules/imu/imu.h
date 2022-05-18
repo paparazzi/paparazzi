@@ -39,6 +39,7 @@
 struct imu_gyro_t {
   uint8_t abi_id;
   uint32_t last_stamp;
+  bool calibrated;
   struct Int32Rates scaled;
   struct Int32Rates unscaled;
   struct Int32Rates neutral;
@@ -49,6 +50,7 @@ struct imu_gyro_t {
 struct imu_accel_t {
   uint8_t abi_id;
   uint32_t last_stamp;
+  bool calibrated;
   struct Int32Vect3 scaled;
   struct Int32Vect3 unscaled;
   struct Int32Vect3 neutral;
@@ -58,6 +60,7 @@ struct imu_accel_t {
 
 struct imu_mag_t {
   uint8_t abi_id;
+  bool calibrated;
   struct Int32Vect3 scaled;
   struct Int32Vect3 unscaled;
   struct Int32Vect3 neutral;
@@ -86,8 +89,13 @@ extern struct Imu imu;
 
 /** External functions */
 extern void imu_init(void);
-extern void imu_set_gyro_rmat(uint8_t abi_id, struct Int32RMat *imu_to_sensor);
-extern void imu_set_accel_rmat(uint8_t abi_id, struct Int32RMat *imu_to_sensor);
+extern void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale);
+extern void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
+extern void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
+
+extern struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create);
+extern struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create);
+extern struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create);
 
 extern void imu_SetBodyToImuPhi(float phi);
 extern void imu_SetBodyToImuTheta(float theta);

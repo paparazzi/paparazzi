@@ -314,11 +314,10 @@ void wind_estimator_periodic(void)
 //    float_rmat_vmult(&accel_body, ned_to_body, &accel_ned);
 
     ///// IMU test
-    struct FloatVect3 accel_body = {
-      .x = ACCEL_FLOAT_OF_BFP(imu.accel.x),
-      .y = ACCEL_FLOAT_OF_BFP(imu.accel.y),
-      .z = ACCEL_FLOAT_OF_BFP(imu.accel.z)
-    };
+    struct Int32Vect3 *accel_body_i = stateGetAccelBody_i();
+    struct FloatVect3 accel_body;
+    ACCELS_FLOAT_OF_BFP(accel_body, *accel_body_i);
+
     struct FloatVect3 tmp = accel_body;
     //struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&body_to_imu);
     //int32_rmat_transp_vmult(&accel_body, body_to_imu_rmat, accel);

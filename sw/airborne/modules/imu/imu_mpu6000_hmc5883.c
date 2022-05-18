@@ -24,6 +24,7 @@
  * Driver for IMU with MPU6000 via SPI and HMC5883 via I2c.
  */
 
+#include "modules/imu/imu_mpu6000_hmc5883.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
@@ -128,6 +129,10 @@ void imu_mpu_hmc_init(void)
   imu_mpu_hmc.mpu.config.gyro_range = IMU_MPU_GYRO_RANGE;
   imu_mpu_hmc.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_MPU6000_HMC_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU6000_HMC_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU_ACCEL_RANGE]);
+
   /* initialize mag and set default options */
   hmc58xx_init(&imu_mpu_hmc.hmc, &IMU_HMC_I2C_DEV, HMC58XX_ADDR);
 }
@@ -160,26 +165,22 @@ void imu_mpu_hmc_event(void)
       IMU_MPU_Y_SIGN * (int32_t)(imu_mpu_hmc.mpu.data_rates.value[IMU_MPU_CHAN_Y]),
       IMU_MPU_Z_SIGN * (int32_t)(imu_mpu_hmc.mpu.data_rates.value[IMU_MPU_CHAN_Z])
     };
-    // unscaled vector
-    VECT3_COPY(imu.accel_unscaled, accel);
-    RATES_COPY(imu.gyro_unscaled, rates);
 
     imu_mpu_hmc.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU6000_HMC_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU6000_HMC_ID, now_ts, &accel, 1);
   }
 
   /* HMC58XX event task */
   hmc58xx_event(&imu_mpu_hmc.hmc);
   if (imu_mpu_hmc.hmc.data_available) {
     /* mag by default rotated by 90deg around z axis relative to MPU */
-    imu.mag_unscaled.x = IMU_HMC_X_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_X];
-    imu.mag_unscaled.y = IMU_HMC_Y_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_Y];
-    imu.mag_unscaled.z = IMU_HMC_Z_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_Z];
+    struct Int32Vect3 mag = {
+      IMU_HMC_X_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_X],
+      IMU_HMC_Y_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_Y],
+      IMU_HMC_Z_SIGN * imu_mpu_hmc.hmc.data.value[IMU_HMC_CHAN_Z]
+    };
     imu_mpu_hmc.hmc.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_MPU6000_HMC_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_MPU6000_HMC_ID, now_ts, &mag);
   }
 }

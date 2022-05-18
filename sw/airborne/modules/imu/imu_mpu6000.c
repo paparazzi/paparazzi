@@ -25,6 +25,7 @@
  * Driver for IMU with only MPU6000 via SPI.
  */
 
+#include "modules/imu/imu_mpu6000.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
@@ -126,6 +127,10 @@ void imu_mpu_spi_init(void)
   imu_mpu_spi.mpu.config.dlpf_cfg_acc = IMU_MPU_ACCEL_LOWPASS_FILTER; // only for ICM sensors
   imu_mpu_spi.mpu.config.gyro_range = IMU_MPU_GYRO_RANGE;
   imu_mpu_spi.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
+
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_MPU6000_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU6000_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU_ACCEL_RANGE]);
 }
 
 void imu_mpu_spi_periodic(void)
@@ -156,18 +161,11 @@ void imu_mpu_spi_event(void)
     UpdateMedianFilterVect3Int(medianfilter_accel, accel);
     UpdateMedianFilterRatesInt(medianfilter_rates, rates);
 #endif
-    // unscaled vector
-    VECT3_COPY(imu.accel_unscaled, accel);
-    RATES_COPY(imu.gyro_unscaled, rates);
 
     imu_mpu_spi.mpu.data_available = false;
 
-    // Scale the gyro and accelerometer
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-
     // Send the scaled values over ABI
-    AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU6000_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU6000_ID, now_ts, &rates, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU6000_ID, now_ts, &accel, 1);
   }
 }

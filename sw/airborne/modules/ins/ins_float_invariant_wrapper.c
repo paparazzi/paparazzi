@@ -229,12 +229,12 @@ void ins_float_invariant_wrapper_init(void)
 
  // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);
-  AbiBindMsgIMU_GYRO_INT32(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_FINV_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_GYRO(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(INS_FINV_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 #if USE_MAGNETOMETER
-  AbiBindMsgIMU_MAG_INT32(INS_FINV_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_MAG(INS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 #endif
   AbiBindMsgGPS(INS_FINV_GPS_ID, &gps_ev, gps_cb);

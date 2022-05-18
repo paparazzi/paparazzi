@@ -74,7 +74,7 @@ if mode == -1:  # no pprz cdc was found, look for PX4
     if mode == -1:
         print("No original PX4 CDC firmware found either.")
         print("Error: no compatible usb device found...")
-        sys.exit(1)
+        #sys.exit(1)
 
     if target == "fbw":
         print("Error: original firmware cannot be used to upload the fbw code. Wait for the PX4 bootloader to exit (takes 5 seconds), or in case this is the first upload; first upload the Paparazzi ap target.")

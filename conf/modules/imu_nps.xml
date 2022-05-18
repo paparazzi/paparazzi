@@ -17,7 +17,6 @@
   <event fun="imu_nps_event()"/>
 
   <makefile target="nps|hitl">
-    <define name="IMU_TYPE_H" value="modules/imu/imu_nps.h" type="string"/>
     <file name="imu_nps.c"/>
   </makefile>
 </module>

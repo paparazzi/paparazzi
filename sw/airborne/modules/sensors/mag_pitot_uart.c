@@ -40,17 +40,6 @@ static struct mag_pitot_t mag_pitot = {
 };
 static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buffer for the Magneto and pitot
 
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-
-static void mag_pitot_raw_downlink(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_IMU_MAG_RAW(trans, dev, AC_ID, &imu.mag_unscaled.x, &imu.mag_unscaled.y,
-                             &imu.mag_unscaled.z);
-}
-#endif
-
 /* Initialize the magneto and pitot */
 void mag_pitot_init() {
   // Initialize transport protocol
@@ -60,10 +49,6 @@ void mag_pitot_init() {
   struct FloatEulers imu_to_mag_eulers =
     {IMU_TO_MAG_PHI, IMU_TO_MAG_THETA, IMU_TO_MAG_PSI};
   orientationSetEulers_f(&mag_pitot.imu_to_mag, &imu_to_mag_eulers);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_RAW, mag_pitot_raw_downlink);
-#endif
 }
 
 /* Parse the InterMCU message */
@@ -81,7 +66,7 @@ static inline void mag_pitot_parse_msg(void)
   switch (msg_id) {
   /* Got a magneto message */
   case DL_IMCU_REMOTE_MAG: {
-    struct Int32Vect3 raw_mag;
+    struct Int32Vect3 raw_mag, mag;
 
     // Read the raw magneto information
     raw_mag.x = DL_IMCU_REMOTE_MAG_mag_x(mp_msg_buf);
@@ -90,11 +75,10 @@ static inline void mag_pitot_parse_msg(void)
 
     // Rotate the magneto
     struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&mag_pitot.imu_to_mag);
-    int32_rmat_vmult(&imu.mag_unscaled, imu_to_mag_rmat, &raw_mag);
+    int32_rmat_vmult(&mag, imu_to_mag_rmat, &raw_mag);
 
     // Send and set the magneto IMU data
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_MAG_PITOT_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_MAG_PITOT_ID, now_ts, &mag);
     break;
   }
 

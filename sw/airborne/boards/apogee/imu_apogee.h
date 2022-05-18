@@ -39,60 +39,12 @@
 
 #include "peripherals/mpu60x0_i2c.h"
 
-// Default configuration
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-
+/* Default range configurations */
 #ifndef APOGEE_GYRO_RANGE
 #define APOGEE_GYRO_RANGE MPU60X0_GYRO_RANGE_1000
 #endif
 #ifndef APOGEE_ACCEL_RANGE
 #define APOGEE_ACCEL_RANGE MPU60X0_ACCEL_RANGE_8G
-#endif
-
-// Set default sensitivity based on range if needed
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS MPU60X0_GYRO_SENS[APOGEE_GYRO_RANGE]
-#define IMU_GYRO_P_SENS_NUM MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][0]
-#define IMU_GYRO_P_SENS_DEN MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][1]
-#define IMU_GYRO_Q_SENS MPU60X0_GYRO_SENS[APOGEE_GYRO_RANGE]
-#define IMU_GYRO_Q_SENS_NUM MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][0]
-#define IMU_GYRO_Q_SENS_DEN MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][1]
-#define IMU_GYRO_R_SENS MPU60X0_GYRO_SENS[APOGEE_GYRO_RANGE]
-#define IMU_GYRO_R_SENS_NUM MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][0]
-#define IMU_GYRO_R_SENS_DEN MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE][1]
-#endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
-#endif
-
-
-// Set default sensitivity based on range if needed
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS MPU60X0_ACCEL_SENS[APOGEE_ACCEL_RANGE]
-#define IMU_ACCEL_X_SENS_NUM MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][0]
-#define IMU_ACCEL_X_SENS_DEN MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][1]
-#define IMU_ACCEL_Y_SENS MPU60X0_ACCEL_SENS[APOGEE_ACCEL_RANGE]
-#define IMU_ACCEL_Y_SENS_NUM MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][0]
-#define IMU_ACCEL_Y_SENS_DEN MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][1]
-#define IMU_ACCEL_Z_SENS MPU60X0_ACCEL_SENS[APOGEE_ACCEL_RANGE]
-#define IMU_ACCEL_Z_SENS_NUM MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][0]
-#define IMU_ACCEL_Z_SENS_DEN MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE][1]
-#endif
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
 struct ImuApogee {
@@ -107,6 +59,5 @@ extern struct ImuApogee imu_apogee;
 extern void imu_apogee_init(void);
 extern void imu_apogee_periodic(void);
 extern void imu_apogee_event(void);
-extern void imu_apogee_downlink_raw(void);
 
 #endif // IMU_APOGEE_H

@@ -2,7 +2,7 @@
 
 #include "generated/airframe.h"
 #include "nps_fdm.h"
-#include NPS_SENSORS_PARAMS
+#include "nps_sensors.h"
 #include "math/pprz_algebra_int.h"
 #include "nps_random.h"
 

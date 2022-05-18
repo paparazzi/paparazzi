@@ -87,6 +87,33 @@ static pthread_cond_t  navdata_cond  = PTHREAD_COND_INITIALIZER;
 #endif
 
 /**
+ * Default gyro scale
+ */
+static const struct Int32Rates gyro_scale[2] = {
+  {4359, 4359, 4359},
+  {1000, 1000, 1000}
+};
+
+/**
+ * Default accel scale/neutral
+ */
+static const struct Int32Vect3 accel_scale[2] = {
+  {195, 195, 195},
+  {10,  10,  10}
+};
+static const struct Int32Vect3 accel_neutral = {
+  2048, 2048, 2048
+};
+
+/**
+ * Default mag scale
+ */
+static const struct Int32Vect3 mag_scale[2] = {
+  {16, 16, 16},
+  {1,  1,  1}
+};
+
+/**
  * Write to fd even while being interrupted
  */
 ssize_t full_write(int fd, const uint8_t *buf, size_t count)
@@ -227,6 +254,11 @@ bool navdata_init()
   }
   navdata.baro_calibrated = true;
 
+  /* Set the default scalings/neutrals */
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, gyro_scale);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, &accel_neutral, accel_scale);
+  imu_set_defaults_mag(IMU_BOARD_ID, NULL, NULL, mag_scale);
+
   /* Start acquisition */
   navdata_cmd_send(NAVDATA_CMD_START);
 
@@ -329,16 +361,27 @@ static void *navdata_read(void *data __attribute__((unused)))
 #include "modules/imu/imu.h"
 static void navdata_publish_imu(void)
 {
-  RATES_ASSIGN(imu.gyro_unscaled, navdata.measure.vx, -navdata.measure.vy, -navdata.measure.vz);
-  VECT3_ASSIGN(imu.accel_unscaled, navdata.measure.ax, 4096 - navdata.measure.ay, 4096 - navdata.measure.az);
-  VECT3_ASSIGN(imu.mag_unscaled, -navdata.measure.mx, -navdata.measure.my, -navdata.measure.mz);
-  imu_scale_gyro(&imu);
-  imu_scale_accel(&imu);
-  imu_scale_mag(&imu);
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
-  AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
-  AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+  struct Int32Rates gyro = {
+    navdata.measure.vx,
+    -navdata.measure.vy,
+    -navdata.measure.vz
+  };
+  AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
+
+  struct Int32Vect3 accel = {
+    navdata.measure.ax,
+    4096 - navdata.measure.ay,
+    4096 - navdata.measure.az
+  };
+  AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
+
+  struct Int32Vect3 mag = {
+    -navdata.measure.mx,
+    -navdata.measure.my,
+    -navdata.measure.mz
+  };
+  AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &mag);
 }
 
 /**

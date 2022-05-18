@@ -26,53 +26,14 @@
 
 #include "generated/airframe.h"
 
-/** we just define some defaults for aspirin v1.5 for now
- */
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 4.359
-#define IMU_GYRO_P_SENS_NUM 4359
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.359
-#define IMU_GYRO_Q_SENS_NUM 4359
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.359
-#define IMU_GYRO_R_SENS_NUM 4359
-#define IMU_GYRO_R_SENS_DEN 1000
-#endif
-
-
-/** we just define some defaults for aspirin v1.5 for now
- */
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 37.91
-#define IMU_ACCEL_X_SENS_NUM 3791
-#define IMU_ACCEL_X_SENS_DEN 100
-#define IMU_ACCEL_Y_SENS 37.91
-#define IMU_ACCEL_Y_SENS_NUM 3791
-#define IMU_ACCEL_Y_SENS_DEN 100
-#define IMU_ACCEL_Z_SENS 39.24
-#define IMU_ACCEL_Z_SENS_NUM 3924
-#define IMU_ACCEL_Z_SENS_DEN 100
-#endif
-
-
-#if !defined IMU_MAG_X_SENS & !defined IMU_MAG_Y_SENS & !defined IMU_MAG_Z_SENS
-#define IMU_MAG_X_SENS 3.5
-#define IMU_MAG_X_SENS_NUM 7
-#define IMU_MAG_X_SENS_DEN 2
-#define IMU_MAG_Y_SENS 3.5
-#define IMU_MAG_Y_SENS_NUM 7
-#define IMU_MAG_Y_SENS_DEN 2
-#define IMU_MAG_Z_SENS 3.5
-#define IMU_MAG_Z_SENS_NUM 7
-#define IMU_MAG_Z_SENS_DEN 2
-#endif
-
-
 struct ImuNps {
   uint8_t mag_available;
   uint8_t accel_available;
   uint8_t gyro_available;
+
+  struct Int32Rates gyro;
+  struct Int32Vect3 accel;
+  struct Int32Vect3 mag;
 };
 
 extern struct ImuNps imu_nps;

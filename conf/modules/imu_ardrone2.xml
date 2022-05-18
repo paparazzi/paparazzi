@@ -26,8 +26,6 @@
     <configure name="AHRS_CORRECT_FREQUENCY" default="200"/>
     <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)"/>
 
-    <define name="IMU_TYPE_H" value="modules/imu/imu_ardrone2.h" type="string"/>
-
     <file name="imu_ardrone2.c"/>
     <file name="navdata.c" dir="boards/ardrone"/>
     <test>

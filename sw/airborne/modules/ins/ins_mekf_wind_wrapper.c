@@ -589,9 +589,9 @@ void ins_mekf_wind_wrapper_init(void)
   AbiBindMsgBARO_DIFF(INS_MEKF_WIND_AIRSPEED_ID, &pressure_diff_ev, pressure_diff_cb);
   AbiBindMsgAIRSPEED(INS_MEKF_WIND_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
   AbiBindMsgINCIDENCE(INS_MEKF_WIND_INCIDENCE_ID, &incidence_ev, incidence_cb);
-  AbiBindMsgIMU_MAG_INT32(INS_MEKF_WIND_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_GYRO_INT32(INS_MEKF_WIND_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_MEKF_WIND_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(INS_MEKF_WIND_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(INS_MEKF_WIND_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(INS_MEKF_WIND_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(INS_MEKF_WIND_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_MEKF_WIND_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);

@@ -234,7 +234,7 @@ void ins_int_init(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(INS_INT_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
   AbiBindMsgPOSITION_ESTIMATE(INS_INT_POS_ID, &pos_est_ev, pos_est_cb);

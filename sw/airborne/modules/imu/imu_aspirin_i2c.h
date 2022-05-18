@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/imu/imu_aspirin.h
+ * @file modules/imu/imu_aspirin_i2c.h
  * Interface for the Aspirin v1.x IMU using I2C for the accelerometer.
  */
 
@@ -35,9 +35,6 @@
 #include "peripherals/itg3200.h"
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345_i2c.h"
-
-/* include default aspirin sensitivity/channel definitions */
-#include "modules/imu/imu_aspirin_defaults.h"
 
 
 struct ImuAspirinI2c {

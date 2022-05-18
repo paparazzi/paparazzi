@@ -24,6 +24,7 @@
  * Driver for the Aspirin v2.x IMU using SPI for the MPU6000.
  */
 
+#include "modules/imu/imu_aspirin_2_spi.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/sys_time.h"
@@ -105,6 +106,10 @@ void imu_aspirin2_init(void)
   imu_aspirin2.mpu.config.gyro_range = ASPIRIN_2_GYRO_RANGE;
   imu_aspirin2.mpu.config.accel_range = ASPIRIN_2_ACCEL_RANGE;
 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_ASPIRIN2_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[ASPIRIN_2_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_ASPIRIN2_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[ASPIRIN_2_ACCEL_RANGE]);
+
   /* read 15 bytes for status, accel, gyro + 6 bytes for mag slave */
   imu_aspirin2.mpu.config.nb_bytes = 21;
 
@@ -159,31 +164,33 @@ void imu_aspirin2_event(void)
   if (imu_aspirin2.mpu.data_available) {
 #if !ASPIRIN_2_DISABLE_MAG
     /* HMC5883 has xzy order of axes in returned data */
-    struct Int32Vect3 mag;
+    struct Int32Vect3 mag, mag_rot;
     mag.x = Int16FromBuf(imu_aspirin2.mpu.data_ext, 0);
     mag.z = Int16FromBuf(imu_aspirin2.mpu.data_ext, 2);
     mag.y = Int16FromBuf(imu_aspirin2.mpu.data_ext, 4);
 #endif
 
     /* Handle axis assignement for Lisa/S integrated Aspirin like IMU. */
+    struct Int32Rates gyro;
+    struct Int32Vect3 accel;
 #ifdef LISA_S
 #ifdef LISA_S_UPSIDE_DOWN
-    RATES_ASSIGN(imu.gyro_unscaled,
+    RATES_ASSIGN(gyro,
                  imu_aspirin2.mpu.data_rates.rates.p,
                  -imu_aspirin2.mpu.data_rates.rates.q,
                  -imu_aspirin2.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
+    VECT3_ASSIGN(accel,
                  imu_aspirin2.mpu.data_accel.vect.x,
                  -imu_aspirin2.mpu.data_accel.vect.y,
                  -imu_aspirin2.mpu.data_accel.vect.z);
 #if !ASPIRIN_2_DISABLE_MAG
-    VECT3_ASSIGN(imu.mag_unscaled, mag.x, -mag.y, -mag.z);
+    VECT3_ASSIGN(mag_rot, mag.x, -mag.y, -mag.z);
 #endif
 #else
-    RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
-    VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+    RATES_COPY(gyro, imu_aspirin2.mpu.data_rates.rates);
+    VECT3_COPY(accel, imu_aspirin2.mpu.data_accel.vect);
 #if !ASPIRIN_2_DISABLE_MAG
-    VECT3_COPY(imu.mag_unscaled, mag);
+    VECT3_COPY(mag_rot, mag);
 #endif
 #endif
 #else
@@ -192,37 +199,37 @@ void imu_aspirin2_event(void)
      * IMU.
      */
 #ifdef LISA_M_OR_MX_21
-    RATES_ASSIGN(imu.gyro_unscaled,
+    RATES_ASSIGN(gyro,
                  -imu_aspirin2.mpu.data_rates.rates.q,
                  imu_aspirin2.mpu.data_rates.rates.p,
                  imu_aspirin2.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
+    VECT3_ASSIGN(accel,
                  -imu_aspirin2.mpu.data_accel.vect.y,
                  imu_aspirin2.mpu.data_accel.vect.x,
                  imu_aspirin2.mpu.data_accel.vect.z);
 #if !ASPIRIN_2_DISABLE_MAG
-    VECT3_ASSIGN(imu.mag_unscaled, -mag.y, mag.x, mag.z);
+    VECT3_ASSIGN(mag_rot, -mag.y, mag.x, mag.z);
 #endif
 #else
 
     /* Handle real Aspirin IMU axis assignement. */
 #ifdef LISA_M_LONGITUDINAL_X
-    RATES_ASSIGN(imu.gyro_unscaled,
+    RATES_ASSIGN(gyro,
                  imu_aspirin2.mpu.data_rates.rates.q,
                  -imu_aspirin2.mpu.data_rates.rates.p,
                  imu_aspirin2.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
+    VECT3_ASSIGN(accel,
                  imu_aspirin2.mpu.data_accel.vect.y,
                  -imu_aspirin2.mpu.data_accel.vect.x,
                  imu_aspirin2.mpu.data_accel.vect.z);
 #if !ASPIRIN_2_DISABLE_MAG
-    VECT3_ASSIGN(imu.mag_unscaled, -mag.x, -mag.y, mag.z);
+    VECT3_ASSIGN(mag_rot, -mag.x, -mag.y, mag.z);
 #endif
 #else
-    RATES_COPY(imu.gyro_unscaled, imu_aspirin2.mpu.data_rates.rates);
-    VECT3_COPY(imu.accel_unscaled, imu_aspirin2.mpu.data_accel.vect);
+    RATES_COPY(gyro, imu_aspirin2.mpu.data_rates.rates);
+    VECT3_COPY(accel, imu_aspirin2.mpu.data_accel.vect);
 #if !ASPIRIN_2_DISABLE_MAG
-    VECT3_ASSIGN(imu.mag_unscaled, mag.y, -mag.x, mag.z)
+    VECT3_ASSIGN(mag_rot, mag.y, -mag.x, mag.z)
 #endif
 #endif
 #endif
@@ -230,13 +237,10 @@ void imu_aspirin2_event(void)
 
     imu_aspirin2.mpu.data_available = false;
 
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1);
 #if !ASPIRIN_2_DISABLE_MAG
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN2_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN2_ID, now_ts, &mag);
 #endif
   }
 }

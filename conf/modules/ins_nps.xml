@@ -19,7 +19,6 @@
     <file name="imu.c" dir="modules/imu"/>
     <file name="imu_nps.c" dir="modules/imu"/>
     <define name="USE_IMU"/>
-    <define name="IMU_TYPE_H" value="modules/imu/imu_nps.h" type="string"/>
 
     <!-- use attitude from nps sim -->
     <define name="NPS_BYPASS_AHRS" value="TRUE"/>

@@ -237,7 +237,7 @@ void ins_module_wrapper_init(void)
 
    // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_MODULE_BARO_ID, &baro_ev, baro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(INS_MODULE_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_MODULE_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }

@@ -24,6 +24,7 @@
  * Driver for the Disco magnetometer, accelerometer and gyroscope
  */
 
+#include "modules/imu/imu_disco.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
@@ -78,6 +79,10 @@ void imu_disco_init(void)
   imu_disco.mpu.config.gyro_range = DISCO_GYRO_RANGE;
   imu_disco.mpu.config.accel_range = DISCO_ACCEL_RANGE;
 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[DISCO_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[DISCO_ACCEL_RANGE]);
+
   /* AKM8963 */
   ak8963_init(&imu_disco.ak, &(DISCO_MAG_I2C_DEV), AK8963_ADDR);
 }
@@ -114,33 +119,27 @@ void imu_disco_event(void)
 
   if (imu_disco.mpu.data_available) {
     /* set correct orientation here */
-    RATES_ASSIGN(imu.gyro_unscaled,
+    struct Int32Rates gyro;
+    struct Int32Vect3 accel;
+    RATES_ASSIGN(gyro,
         -imu_disco.mpu.data_rates.rates.p,
         -imu_disco.mpu.data_rates.rates.q,
         imu_disco.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
+    VECT3_ASSIGN(accel,
         -imu_disco.mpu.data_accel.vect.x,
         -imu_disco.mpu.data_accel.vect.y,
         imu_disco.mpu.data_accel.vect.z);
 
     imu_disco.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
   }
 
   /* AKM8963 event task */
   ak8963_event(&imu_disco.ak);
 
   if (imu_disco.ak.data_available) {
-    VECT3_ASSIGN(imu.mag_unscaled,
-        imu_disco.ak.data.vect.x,
-        imu_disco.ak.data.vect.y,
-        imu_disco.ak.data.vect.z);
-
-    imu_disco.ak.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &imu_disco.ak.data.vect);
+    imu_disco.ak.data_available = false; 
   }
 }

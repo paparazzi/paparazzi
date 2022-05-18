@@ -29,32 +29,6 @@
 
 #include "std.h"
 
-// Set default sensitivity based on range if needed
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 1
-#define IMU_GYRO_P_SENS_NUM 1
-#define IMU_GYRO_P_SENS_DEN 1
-#define IMU_GYRO_Q_SENS 1
-#define IMU_GYRO_Q_SENS_NUM 1
-#define IMU_GYRO_Q_SENS_DEN 1
-#define IMU_GYRO_R_SENS 1
-#define IMU_GYRO_R_SENS_NUM 1
-#define IMU_GYRO_R_SENS_DEN 1
-#endif
-
-// Set default sensitivity based on range if needed
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 1
-#define IMU_ACCEL_X_SENS_NUM 1
-#define IMU_ACCEL_X_SENS_DEN 1
-#define IMU_ACCEL_Y_SENS 1
-#define IMU_ACCEL_Y_SENS_NUM 1
-#define IMU_ACCEL_Y_SENS_DEN 1
-#define IMU_ACCEL_Z_SENS 1
-#define IMU_ACCEL_Z_SENS_NUM 1
-#define IMU_ACCEL_Z_SENS_DEN 1
-#endif
-
 extern void imu_cube_init(void);
 extern void imu_cube_periodic(void);
 extern void imu_cube_event(void);

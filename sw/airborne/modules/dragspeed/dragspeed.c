@@ -99,7 +99,7 @@ void dragspeed_init(void)
   // Register callbacks
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
       send_dragspeed);
-  AbiBindMsgIMU_ACCEL_INT32(DRAGSPEED_ACCEL_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(DRAGSPEED_ACCEL_ID, &accel_ev, accel_cb);
 }
 
 bool dragspeed_calibrate_coeff(void)

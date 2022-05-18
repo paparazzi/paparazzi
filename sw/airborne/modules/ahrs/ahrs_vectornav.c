@@ -83,9 +83,9 @@ void ahrs_vectornav_event(void)
     uint32_t now_ts = get_sys_time_usec();
     // in fixed point for sending as ABI and telemetry msgs
     RATES_BFP_OF_REAL(ahrs_vn.gyro_i, ahrs_vn.vn_data.gyro);
-    AbiSendMsgIMU_GYRO_INT32(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.gyro_i);
+    AbiSendMsgIMU_GYRO_RAW(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.gyro_i, 1);
     ACCELS_BFP_OF_REAL(ahrs_vn.accel_i, ahrs_vn.vn_data.accel);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.accel_i);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.accel_i, 1);
   }
 }
 

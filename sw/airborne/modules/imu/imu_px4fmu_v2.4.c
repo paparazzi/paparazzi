@@ -25,12 +25,10 @@
  * Driver for pixhawk IMU's.
  * L3GD20H + LSM303D (both on spi)
  */
+#include "modules/imu/imu_px4fmu_v2.4.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
-#include "peripherals/l3gd20_regs.h"
-#include "peripherals/lsm303d_regs.h"
-//#include "peripherals/lsm303d_spi.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_LSM_SPI_SLAVE_IDX)
@@ -44,9 +42,23 @@ void imu_px4_init(void) {
   /* initialize gyro and set default options */
   l3gd20_spi_init(&imu_px4.l3g, &IMU_PX4FMU_SPI_DEV, IMU_L3G_SPI_SLAVE_IDX);
 
-  /* LSM303d acc + magneto init */
+  /* LSM303d acc init */
   lsm303d_spi_init(&imu_px4.lsm_acc, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM303D_TARGET_ACC);
+
+  // Set the default scaling
+  const struct Int32Rates gyro_scale[2] = {
+    {L3GD20_SENS_2000_NUM, L3GD20_SENS_2000_NUM, L3GD20_SENS_2000_NUM},
+    {L3GD20_SENS_2000_DEN, L3GD20_SENS_2000_DEN, L3GD20_SENS_2000_DEN}
+  };
+  const struct Int32Vect3 accel_scale[2] = {
+    {LSM303D_ACCEL_SENS_16G_NUM, LSM303D_ACCEL_SENS_16G_NUM, LSM303D_ACCEL_SENS_16G_NUM},
+    {LSM303D_ACCEL_SENS_16G_DEN, LSM303D_ACCEL_SENS_16G_DEN, LSM303D_ACCEL_SENS_16G_DEN}
+  };
+  imu_set_defaults_gyro(IMU_PX4_ID, NULL, NULL, gyro_scale);
+  imu_set_defaults_accel(IMU_PX4_ID, NULL, NULL, accel_scale);
+
 #if !IMU_PX4_DISABLE_MAG
+  /* LSM303d mag init */
   lsm303d_spi_init(&imu_px4.lsm_mag, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM303D_TARGET_MAG);
 #endif
 
@@ -72,29 +84,28 @@ void imu_px4_event(void) {
   l3gd20_spi_event(&imu_px4.l3g);
   if (imu_px4.l3g.data_available) {
     //the p and q seem to be swapped on the Pixhawk board compared to the acc
-    imu.gyro_unscaled.p = imu_px4.l3g.data_rates.rates.q;
-    imu.gyro_unscaled.q = -imu_px4.l3g.data_rates.rates.p;
-    imu.gyro_unscaled.r = imu_px4.l3g.data_rates.rates.r;
+    struct Int32Rates gyro = {
+      imu_px4.l3g.data_rates.rates.q,
+      -imu_px4.l3g.data_rates.rates.p,
+      imu_px4.l3g.data_rates.rates.r
+    };
     imu_px4.l3g.data_available = FALSE;
-    imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_PX4_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_RAW(IMU_PX4_ID, now_ts, &gyro, 1);
   }
 
   /* LSM303d event task */
   lsm303d_spi_event(&imu_px4.lsm_acc);
   if (imu_px4.lsm_acc.data_available_acc) {
-    VECT3_COPY(imu.accel_unscaled, imu_px4.lsm_acc.data_accel.vect);
+    struct Int32Vect3 accel;
+    VECT3_COPY(accel, imu_px4.lsm_acc.data_accel.vect);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_PX4_ID, now_ts, &accel, 1);
     imu_px4.lsm_acc.data_available_acc = FALSE;
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_PX4_ID, now_ts, &imu.accel);
   }
 #if !IMU_PX4_DISABLE_MAG
   lsm303d_spi_event(&imu_px4.lsm_mag);
   if (imu_px4.lsm_mag.data_available_mag) {
-    VECT3_COPY(imu.mag_unscaled, imu_px4.lsm_mag.data_mag.vect);
+    AbiSendMsgIMU_MAG_RAW(IMU_PX4_ID, now_ts, &imu_px4.lsm_mag.data_mag.vect);
     imu_px4.lsm_mag.data_available_mag = FALSE;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_PX4_ID, now_ts, &imu.mag);
   }
 #endif
 

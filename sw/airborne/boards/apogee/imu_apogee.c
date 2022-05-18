@@ -105,6 +105,10 @@ void imu_apogee_init(void)
   imu_apogee.mpu.config.nb_slaves = 1;
   imu_apogee.mpu.config.slaves[0].configure = &configure_baro_slave;
   imu_apogee.mpu.config.i2c_bypass = true;
+  // set the default values
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[APOGEE_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[APOGEE_ACCEL_RANGE]);
+  
 #if APOGEE_USE_MPU9150
   // if using MPU9150, internal mag needs to be configured
   ak8975_init(&imu_apogee.ak, &(IMU_APOGEE_I2C_DEV), AK8975_I2C_SLV_ADDR);
@@ -122,18 +126,7 @@ void imu_apogee_periodic(void)
   // Start reading internal mag if available
   RunOnceEvery(MAG_PRESCALER, ak8975_periodic(&imu_apogee.ak));
 #endif
-
-  //RunOnceEvery(10,imu_apogee_downlink_raw());
 }
-
-void imu_apogee_downlink_raw(void)
-{
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q,
-                             &imu.gyro_unscaled.r);
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &imu.accel_unscaled.x, &imu.accel_unscaled.y,
-                              &imu.accel_unscaled.z);
-}
-
 
 void imu_apogee_event(void)
 {
@@ -147,18 +140,14 @@ void imu_apogee_event(void)
         (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Y]),
         (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Z])
     };
-    RATES_COPY(imu.gyro_unscaled, rates);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &rates, 1);
     struct Int32Vect3 accel = {
         (int32_t)( imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_X]),
         (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Y]),
         (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Z])
     };
-    VECT3_COPY(imu.accel_unscaled, accel);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
     imu_apogee.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
 #if APOGEE_USE_MPU9150
@@ -169,10 +158,8 @@ void imu_apogee_event(void)
         (int32_t)(-imu_apogee.ak.data.value[IMU_APOGEE_CHAN_X]),
         (int32_t)( imu_apogee.ak.data.value[IMU_APOGEE_CHAN_Z])
     };
-    VECT3_COPY(imu.mag_unscaled, mag);
-    imu_apogee.ak.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &mag);
+    imu_apogee.ak.data_available = false;    
   }
 #endif
 }
