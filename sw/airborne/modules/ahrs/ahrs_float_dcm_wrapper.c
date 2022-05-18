@@ -204,9 +204,9 @@ void ahrs_dcm_register(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_DCM_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_DCM_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(AHRS_DCM_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(AHRS_DCM_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(AHRS_DCM_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(AHRS_DCM_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGPS(AHRS_DCM_GPS_ID, &gps_ev, gps_cb);

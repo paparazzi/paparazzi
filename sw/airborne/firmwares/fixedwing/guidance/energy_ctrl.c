@@ -283,7 +283,7 @@ void v_ctl_init(void)
 
   float_quat_identity(&imu_to_body_quat);
 
-  AbiBindMsgIMU_ACCEL_INT32(V_CTL_ENERGY_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(V_CTL_ENERGY_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(V_CTL_ENERGY_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 

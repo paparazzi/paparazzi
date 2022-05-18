@@ -36,13 +36,8 @@
 #include "peripherals/hmc58xx.h"
 #include "peripherals/adxl345_spi.h"
 
-/* include default aspirin sensitivity definitions */
-#include "modules/imu/imu_aspirin_defaults.h"
 
 struct ImuAspirin {
-  volatile uint8_t accel_valid;
-  volatile uint8_t gyro_valid;
-  volatile uint8_t mag_valid;
   struct Adxl345_Spi acc_adxl;
   struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;

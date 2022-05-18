@@ -1,8 +1,5 @@
 #include "nps_sensors.h"
 
-#include "generated/airframe.h"
-#include NPS_SENSORS_PARAMS
-
 struct NpsSensors sensors;
 
 void nps_sensors_init(double time)

@@ -5,7 +5,7 @@
 #include "std.h"
 #include "nps_fdm.h"
 #include "nps_random.h"
-#include NPS_SENSORS_PARAMS
+#include "nps_sensors.h"
 
 #ifndef NPS_BARO_NOISE_STD_DEV
 #define NPS_BARO_NOISE_STD_DEV 0.

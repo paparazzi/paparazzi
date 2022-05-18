@@ -141,7 +141,7 @@ void mag_calib_ukf_init(void)
   float initial_state[12] = MAG_CALIB_UKF_INITIAL_STATE;
   memcpy(&mag_calib.state, &initial_state, 12 * sizeof(float));
 #endif
-  AbiBindMsgIMU_MAG_INT32(MAG_CALIB_UKF_ABI_BIND_ID, &mag_ev, mag_calib_ukf_run);
+  AbiBindMsgIMU_MAG(MAG_CALIB_UKF_ABI_BIND_ID, &mag_ev, mag_calib_ukf_run);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
 }
 
@@ -189,7 +189,7 @@ void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag
       VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
       VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
       /** Forward calibrated data */
-      AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
+      AbiSendMsgIMU_MAG_RAW(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
     }
   }
 }

@@ -4,6 +4,8 @@
   <doc>
     <description>
       Common part for all IMUs.
+
+      This takes the IMU_GYRO_RAW, IMU_ACCEL_RAW and IMU_MAG_RAW ABI messages as input.
     </description>
   </doc>
   <settings>

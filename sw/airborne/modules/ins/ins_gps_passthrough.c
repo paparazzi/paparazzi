@@ -170,7 +170,7 @@ void ins_gps_passthrough_init(void)
 #endif
 
   AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_PT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(INS_PT_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_PT_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 

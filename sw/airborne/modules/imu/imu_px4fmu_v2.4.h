@@ -32,7 +32,6 @@
 #include "generated/airframe.h"
 #include "modules/imu/imu.h"
 
-#include "modules/imu/imu_px4_defaults.h"
 #include "peripherals/l3gd20_spi.h"
 #include "peripherals/lsm303d_spi.h"
 

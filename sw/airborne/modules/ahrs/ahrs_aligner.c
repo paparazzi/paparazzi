@@ -65,16 +65,19 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
 
 static void send_aligner(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_FILTER_ALIGNER(trans, dev, AC_ID,
-                               &ahrs_aligner.lp_gyro.p,
-                               &ahrs_aligner.lp_gyro.q,
-                               &ahrs_aligner.lp_gyro.r,
-                               &imu.gyro.p,
-                               &imu.gyro.q,
-                               &imu.gyro.r,
-                               &ahrs_aligner.noise,
-                               &ahrs_aligner.low_noise_cnt,
-                               &ahrs_aligner.status);
+  struct imu_gyro_t *gyro = imu_get_gyro(AHRS_ALIGNER_IMU_ID, false);
+  if(gyro != NULL) {
+    pprz_msg_send_FILTER_ALIGNER(trans, dev, AC_ID,
+                                &ahrs_aligner.lp_gyro.p,
+                                &ahrs_aligner.lp_gyro.q,
+                                &ahrs_aligner.lp_gyro.r,
+                                &gyro->scaled.p,
+                                &gyro->scaled.q,
+                                &gyro->scaled.r,
+                                &ahrs_aligner.noise,
+                                &ahrs_aligner.low_noise_cnt,
+                                &ahrs_aligner.status);
+  }
 }
 #endif
 
@@ -83,7 +86,7 @@ void ahrs_aligner_init(void)
   ahrs_aligner_restart();
 
   // for now: only bind to gyro message and still read from global imu struct
-  AbiBindMsgIMU_GYRO_INT32(AHRS_ALIGNER_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_GYRO(AHRS_ALIGNER_IMU_ID, &gyro_ev, gyro_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FILTER_ALIGNER, send_aligner);
@@ -111,12 +114,19 @@ void ahrs_aligner_restart(void)
 
 void ahrs_aligner_run(void)
 {
+  struct imu_gyro_t *gyro = imu_get_gyro(AHRS_ALIGNER_IMU_ID, false);
+  struct imu_accel_t *accel = imu_get_accel(AHRS_ALIGNER_IMU_ID, false);
+  struct imu_mag_t *mag = imu_get_mag(AHRS_ALIGNER_IMU_ID, false);
 
-  RATES_ADD(gyro_sum,  imu.gyro);
-  VECT3_ADD(accel_sum, imu.accel);
-  VECT3_ADD(mag_sum,   imu.mag);
+  // Could not find all sensors
+  if(gyro == NULL || accel == NULL || mag == NULL)
+    return;
+  
+  RATES_ADD(gyro_sum, gyro->scaled);
+  VECT3_ADD(accel_sum, accel->scaled);
+  VECT3_ADD(mag_sum, mag->scaled);
 
-  ref_sensor_samples[samples_idx] = imu.accel.z;
+  ref_sensor_samples[samples_idx] = accel->scaled.z;
   samples_idx++;
 
 #ifdef AHRS_ALIGNER_LED

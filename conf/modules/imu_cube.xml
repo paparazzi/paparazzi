@@ -19,8 +19,6 @@
   <periodic fun="imu_cube_periodic()"/>
   <event fun="imu_cube_event()"/>
   <makefile target="!sim|nps|fbw">
-    <define name="IMU_TYPE_H" value="modules/imu/imu_cube.h" type="string"/>
-    
     <!-- ICM20602 (isolated) -->
     <configure name="CUBE_IMU1_SPI_DEV" default="spi4" case="lower|upper"/>
     <configure name="CUBE_IMU1_SPI_SLAVE_IDX" default="SPI_SLAVE3"/>

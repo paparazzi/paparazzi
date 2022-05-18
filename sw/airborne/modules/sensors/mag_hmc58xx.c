@@ -104,15 +104,10 @@ void mag_hmc58xx_module_event(void)
     // rotate data from mag frame to imu frame
     int32_rmat_vmult(&imu_mag, &mag_to_imu, &mag);
     // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, imu_mag);
-#else
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, mag);
+    VECT3_COPY(mag, imu_mag);
 #endif
-    // scale vector
-    imu_scale_mag(&imu);
-
-    AbiSendMsgIMU_MAG_INT32(MAG_HMC58XX_SENDER_ID, now_ts, &imu.mag);
+  
+    AbiSendMsgIMU_MAG_RAW(MAG_HMC58XX_SENDER_ID, now_ts, &mag);
 #endif
 #if MODULE_HMC58XX_SYNC_SEND
     mag_hmc58xx_report();
@@ -125,10 +120,11 @@ void mag_hmc58xx_module_event(void)
 
 void mag_hmc58xx_report(void)
 {
+  uint8_t id = MAG_HMC58XX_SENDER_ID;
   struct Int32Vect3 mag = {
     HMC58XX_CHAN_X_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
     HMC58XX_CHAN_Y_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
     HMC58XX_CHAN_Z_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
   };
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &id, &mag.x, &mag.y, &mag.z);
 }

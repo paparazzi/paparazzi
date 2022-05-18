@@ -37,14 +37,11 @@
     <define name="USE_$(IMU_LSM_SPI_SLAVE_IDX)"/>
     <define name="IMU_LSM_SPI_SLAVE_IDX" value="$(IMU_LSM_SPI_SLAVE_IDX)"/>
 
-    <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
-
     <file name="l3gd20_spi.c" dir="peripherals"/>
     <file name="lsm303d_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_px4fmu_v2.4.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
       <define name="IMU_PX4FMU_SPI_DEV" value="spi1"/>
       <define name="IMU_L3G_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
       <define name="IMU_LSM_SPI_SLAVE_IDX" value="SPI_SLAVE1"/>

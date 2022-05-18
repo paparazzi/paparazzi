@@ -33,7 +33,7 @@
 #include "std.h"
 #include "nps_fdm.h"
 #include "nps_random.h"
-#include NPS_SENSORS_PARAMS
+#include "nps_sensors.h"
 
 /// 10Hz default
 #ifndef NPS_SONAR_DT

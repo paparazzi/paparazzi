@@ -22,9 +22,11 @@
 from __future__ import print_function, division
 
 import re
+from telnetlib import theNULL
 import numpy as np
 from numpy import sin, cos
 from scipy import linalg, stats
+from fractions import Fraction
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -155,9 +157,43 @@ def estimate_mag_current_relation(meas):
         offset.append(intercept)
     return coefficient, offset
 
+def continious_frac(v):
+    max_val = 2**16
+    if v > 0:
+        s = 1
+    else:
+        v = -v
+        s = -1
+    return _continious_frac(v, max_val, int(v), v, (1, int(v)), (0,1), s)
 
-def print_xml(p, sensor, res):
+def _continious_frac(v, max_val, a, x, num, den, s):
+    x1 = 1 / (x - a)
+    a1 = int(x1)
+    (num1, num2) = num
+    num3 = a1 * num2 + num1
+    (den1, den2) = den
+    den3 = a1 * den2 + den1
+    if num3 > max_val or den3 > max_val:
+        return (num2, s*den2)
+    elif (num3 / den3) == v:
+        return (num3, s*den3)
+    else:
+        return _continious_frac(v, max_val, a1, x1, (num2, num3), (den2, den3), s)
+
+def print_xml(p, sensor, sensor_id, res):
     """Print xml for airframe file."""
+    x_sens = continious_frac(p[3]*2**res)
+    y_sens = continious_frac(p[4]*2**res)
+    z_sens = continious_frac(p[5]*2**res)
+
+    struct = "{{.abi_id="+sensor_id+", "
+    struct += ".neutral={"+str(int(round(p[0])))+","+str(int(round(p[1])))+","+str(int(round(p[2])))+"}, "
+    struct += ".scale={{"+str(x_sens[0])+","+str(y_sens[0])+","+str(z_sens[0])+"},"
+    struct += "{"+str(x_sens[1])+","+str(y_sens[1])+","+str(z_sens[1])+"}}"
+    struct += "}}"
+
+    print("")
+    print("<define name=\"IMU_"+sensor+"_CALIB\" value=\""+struct+"\"/>")
     print("")
     print("<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>")
     print("<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>")
@@ -165,7 +201,6 @@ def print_xml(p, sensor, res):
     print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
-    print("")
 
 
 def print_imu_scaled(sensor, measurements, attrs):

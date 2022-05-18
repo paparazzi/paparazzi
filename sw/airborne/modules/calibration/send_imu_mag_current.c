@@ -25,6 +25,7 @@
  */
 
 #include "modules/imu/imu.h"
+#include "modules/core/abi.h"
 #include "modules/energy/electrical.h"
 
 #include "pprzlink/messages.h"
@@ -33,10 +34,14 @@
 
 void send_imu_mag_current(void)
 {
+  static uint8_t id = 0;
   DOWNLINK_SEND_IMU_MAG_CURRENT_CALIBRATION(DefaultChannel, DefaultDevice,
-      &imu.mag_unscaled.x,
-      &imu.mag_unscaled.y,
-      &imu.mag_unscaled.z,
+      &imu.mags[id].unscaled.x,
+      &imu.mags[id].unscaled.y,
+      &imu.mags[id].unscaled.z,
       &electrical.current);
+  id++;
+  if(id >= IMU_MAX_SENSORS || imu.mags[id].abi_id == ABI_DISABLE)
+    id = 0;
 }
 

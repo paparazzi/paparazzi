@@ -53,6 +53,14 @@
 #define LSM303D_DEFAULT_MD (LSM303D_MAG_MODE_CONTINOUS_CONVERSION << 0) // Magneto continious conversion mode
 #endif
 
+/** default accel sensitivy from the datasheet
+ * LSM303DLHC has 732 LSB/g
+ * fixed point sens: 9.81 [m/s^2] / 732 [LSB/g] * 2^INT32_ACCEL_FRAC
+ * sens = 9.81 / 732 * 1024 = 13.72
+ */
+#define LSM303D_ACCEL_SENS_16G_NUM 13723
+#define LSM303D_ACCEL_SENS_16G_DEN 1000
+
 struct Lsm303dConfig {
   uint8_t acc_rate;    ///< Data Output Rate (Hz)
   uint8_t acc_scale;   ///< full scale selection (m/s²)

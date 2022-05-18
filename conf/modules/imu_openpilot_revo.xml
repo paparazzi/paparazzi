@@ -57,8 +57,6 @@
     <define name="IMU_HMC_Y_SIGN" value="1"/>
     <define name="IMU_HMC_Z_SIGN" value="-1"/>
 
-    <define name="IMU_TYPE_H" value="modules/imu/imu_mpu6000_hmc5883.h" type="string"/>
-
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>

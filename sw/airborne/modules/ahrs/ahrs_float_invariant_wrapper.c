@@ -243,9 +243,9 @@ void ahrs_float_invariant_register(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_MAG_INT32(AHRS_FINV_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_GYRO_INT32(AHRS_FINV_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_FINV_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(AHRS_FINV_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(AHRS_FINV_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(AHRS_FINV_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(AHRS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(AHRS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);

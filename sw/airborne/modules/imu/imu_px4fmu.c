@@ -24,6 +24,7 @@
  * Driver for the PX4FMU SPI1 for the MPU6000 and I2C2 for the HMC5883.
  */
 
+#include "modules/imu/imu_px4fmu.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
@@ -68,6 +69,10 @@ void imu_px4fmu_init(void)
   imu_px4fmu.mpu.config.gyro_range = PX4FMU_GYRO_RANGE;
   imu_px4fmu.mpu.config.accel_range = PX4FMU_ACCEL_RANGE;
 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[PX4FMU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[PX4FMU_ACCEL_RANGE]);
+
   /* initialize mag on i2c2 and set default options */
   hmc58xx_init(&imu_px4fmu.hmc, &i2c2, HMC58XX_ADDR);
 }
@@ -87,30 +92,31 @@ void imu_px4fmu_event(void)
 
   mpu60x0_spi_event(&imu_px4fmu.mpu);
   if (imu_px4fmu.mpu.data_available) {
-    RATES_ASSIGN(imu.gyro_unscaled,
-                 imu_px4fmu.mpu.data_rates.rates.q,
-                 imu_px4fmu.mpu.data_rates.rates.p,
-                 -imu_px4fmu.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled,
-                 imu_px4fmu.mpu.data_accel.vect.y,
-                 imu_px4fmu.mpu.data_accel.vect.x,
-                 -imu_px4fmu.mpu.data_accel.vect.z);
+    struct Int32Rates gyro = {
+      imu_px4fmu.mpu.data_rates.rates.q,
+      imu_px4fmu.mpu.data_rates.rates.p,
+      -imu_px4fmu.mpu.data_rates.rates.r
+    };
+    struct Int32Vect3 accel = {
+      imu_px4fmu.mpu.data_accel.vect.y,
+      imu_px4fmu.mpu.data_accel.vect.x,
+      -imu_px4fmu.mpu.data_accel.vect.z
+    };
     imu_px4fmu.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
   }
 
   /* HMC58XX event task */
   hmc58xx_event(&imu_px4fmu.hmc);
   if (imu_px4fmu.hmc.data_available) {
-    imu.mag_unscaled.x =  imu_px4fmu.hmc.data.vect.y;
-    imu.mag_unscaled.y =  imu_px4fmu.hmc.data.vect.x;
-    imu.mag_unscaled.z = -imu_px4fmu.hmc.data.vect.z;
+    struct Int32Vect3 mag = {
+      imu_px4fmu.hmc.data.vect.y,
+      imu_px4fmu.hmc.data.vect.x,
+      -imu_px4fmu.hmc.data.vect.z
+    };
     imu_px4fmu.hmc.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &mag);
   }
 }
 

@@ -78,7 +78,7 @@ def main():
     if options.verbose:
         print("Using aircraft id "+options.ac_id)
 
-    sensor_ids = calibration_utils.get_ids_in_log(options.ac_id, filename, options.sensor)
+    sensor_ids = calibration_utils.get_sensor_ids(options.ac_id, filename, options.sensor)
     if options.sensor_id is None:
         if len(sensor_ids) == 1:
             options.sensor_id = sensor_ids[0]
@@ -167,7 +167,7 @@ def main():
         print("optimized guess : avg "+str(np1.mean())+" std "+str(np1.std()))
 
     if not optimze_failed:
-        calibration_utils.print_xml(p1, options.sensor, sensor_res)
+        calibration_utils.print_xml(p1, options.sensor, options.sensor_id, sensor_res)
 
     if options.plot:
         # if we are calibrating a mag, just draw first plot (non-blocking), then show the second

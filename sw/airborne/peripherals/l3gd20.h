@@ -31,6 +31,15 @@
 /* Include address and register definition */
 #include "peripherals/l3gd20_regs.h"
 
+
+/** default gyro sensitivy and neutral from the datasheet
+ * L3GD20 has 70e-3 LSB/(deg/s) at 2000deg/s range
+ * sens = 70e-3 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = (70e-3 / 180.0f) * pi * 4096
+  */
+#define L3GD20_SENS_2000_NUM 5004
+#define L3GD20_SENS_2000_DEN 1000
+
 enum L3gd20ConfStatus {
   L3G_CONF_UNINIT = 0,
   L3G_CONF_WHO_AM_I = 1,

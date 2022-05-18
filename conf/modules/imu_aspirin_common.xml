@@ -45,7 +45,6 @@
     <define name="ASPIRIN_SPI_SLAVE_IDX" value="$(ASPIRIN_SPI_SLAVE_IDX)"/>
     <define name="USE_$(ASPIRIN_SPI_SLAVE_IDX)"/>
 
-    <define name="IMU_TYPE_H" value="imu/imu_aspirin.h" type="string"/>
     <define name="ASPIRIN_ARCH_INDEP"/>
 
     <file name="adxl345_spi.c" dir="peripherals"/>

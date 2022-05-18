@@ -29,6 +29,7 @@
 #define MPU60X0_H
 
 #include "std.h"
+#include "math/pprz_algebra_int.h"
 
 /* Include address and register definition */
 #include "peripherals/mpu60x0_regs.h"
@@ -74,7 +75,7 @@
 // Get default sensitivity from a table
 extern const float MPU60X0_GYRO_SENS[4];
 // Get default sensitivity numerator and denominator from a table
-extern const int32_t MPU60X0_GYRO_SENS_FRAC[4][2];
+extern const struct Int32Rates MPU60X0_GYRO_SENS_FRAC[4][2];
 
 /** default accel sensitivy from the datasheet
  * sens = 9.81 [m/s^2] / [LSB/g] * 2^INT32_ACCEL_FRAC
@@ -97,7 +98,7 @@ extern const int32_t MPU60X0_GYRO_SENS_FRAC[4][2];
 // Get default sensitivity from a table
 extern const float MPU60X0_ACCEL_SENS[4];
 // Get default sensitivity numerator and denominator from a table
-extern const int32_t MPU60X0_ACCEL_SENS_FRAC[4][2];
+extern const struct Int32Vect3 MPU60X0_ACCEL_SENS_FRAC[4][2];
 
 /** MPU60x0 sensor type
  */

@@ -131,7 +131,7 @@ void ins_alt_float_init(void)
   AbiBindMsgBARO_ABS(INS_ALT_BARO_ID, &baro_ev, baro_cb);
 #endif
   AbiBindMsgGPS(INS_ALT_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_ALT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_ACCEL(INS_ALT_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_ALT_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 

@@ -52,13 +52,6 @@
 #if MODULE_IST8310_UPDATE_AHRS
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
-
-#if defined IST8310_MAG_TO_IMU_PHI && defined IST8310_MAG_TO_IMU_THETA && defined IST8310_MAG_TO_IMU_PSI
-#define USE_MAG_TO_IMU 1
-static struct Int32RMat mag_to_imu; ///< rotation from mag to imu frame
-#else
-#define USE_MAG_TO_IMU 0
-#endif
 #endif
 
 struct IST8310 mag_ist8310;
@@ -67,13 +60,16 @@ void mag_ist8310_module_init(void)
 {
   ist8310_init(&mag_ist8310, &(MAG_IST8310_I2C_DEV), IST8310_ADDR);
 
-#if MODULE_IST8310_UPDATE_AHRS && USE_MAG_TO_IMU
+#if MODULE_IST8310_UPDATE_AHRS && defined(IST8310_MAG_TO_IMU_PHI) && defined(IST8310_MAG_TO_IMU_THETA) && defined(IST8310_MAG_TO_IMU_PSI)
+  struct Int32RMat mag_to_imu;
   struct Int32Eulers mag_to_imu_eulers = {
     ANGLE_BFP_OF_REAL(IST8310_MAG_TO_IMU_PHI),
     ANGLE_BFP_OF_REAL(IST8310_MAG_TO_IMU_THETA),
     ANGLE_BFP_OF_REAL(IST8310_MAG_TO_IMU_PSI)
   };
   int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
+
+  imu_set_defaults_mag(MAG_IST8310_SENDER_ID, &mag_to_imu, NULL, NULL)
 #endif
 }
 
@@ -97,21 +93,8 @@ void mag_ist8310_module_event(void)
       IST8310_CHAN_Y_SIGN(int32_t)(mag_ist8310.data.value[IST8310_CHAN_Y]),
       IST8310_CHAN_Z_SIGN(int32_t)(mag_ist8310.data.value[IST8310_CHAN_Z])
     };
-    // only rotate if needed
-#if USE_MAG_TO_IMU
-    struct Int32Vect3 imu_mag;
-    // rotate data from mag frame to imu frame
-    int32_rmat_vmult(&imu_mag, &mag_to_imu, &mag);
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, imu_mag);
-#else
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, mag);
-#endif
-    // scale vector
-    imu_scale_mag(&imu);
 
-    AbiSendMsgIMU_MAG_INT32(MAG_IST8310_SENDER_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(MAG_IST8310_SENDER_ID, now_ts, &mag);
 #endif
 #if MODULE_IST8310_SYNC_SEND
     mag_ist8310_report();
@@ -124,10 +107,11 @@ void mag_ist8310_module_event(void)
 
 void mag_ist8310_report(void)
 {
+  uint8_t id = MAG_IST8310_SENDER_ID;
   struct Int32Vect3 mag = {
     IST8310_CHAN_X_SIGN(int32_t)(mag_ist8310.data.value[IST8310_CHAN_X]),
     IST8310_CHAN_Y_SIGN(int32_t)(mag_ist8310.data.value[IST8310_CHAN_Y]),
     IST8310_CHAN_Z_SIGN(int32_t)(mag_ist8310.data.value[IST8310_CHAN_Z])
   };
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &id, &mag.x, &mag.y, &mag.z);
 }

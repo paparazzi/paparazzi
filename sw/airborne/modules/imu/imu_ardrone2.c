@@ -24,10 +24,8 @@
  * IMU implementation for ardrone2.
  */
 
-#include "modules/imu/imu.h"
 #include "navdata.h"
 #include "imu_ardrone2.h"
-#include "mcu_periph/uart.h"
 
 void imu_ardrone2_init(void)
 {

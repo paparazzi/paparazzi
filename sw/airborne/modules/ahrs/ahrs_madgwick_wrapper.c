@@ -209,8 +209,8 @@ void ahrs_madgwick_register(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_MADGWICK_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_MADGWICK_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_GYRO(AHRS_MADGWICK_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(AHRS_MADGWICK_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(AHRS_MADGWICK_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(AHRS_MADGWICK_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 
