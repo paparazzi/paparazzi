@@ -93,3 +93,137 @@ Copy the files to your computer for analysis.
 
 Logging on ChibiOS based OS
 -----------------------------
+
+Logging on ChibiOS systems can be achieved using the ``flight_recorder`` module, which depends on a
+few other modules that also need to be included in your airframe.
+
+.. code-block:: xml
+
+  <firmware name="rotorcraft">
+    <module name="tlsf"/>
+    <module name="pprzlog"/>
+    <module name="logger" type="sd_chibios"/>
+    <module name="flight_recorder"/>
+  </firmware>
+
+Data is stored on an SD card using the ``pprzlog`` format, discussed in more detail in the next section.
+The logging starts automatically soon after the drone is connected to power. The logger status is reported
+on the ``LOGGER_STATUS`` message, which can be viewed using the GCS by opening Tools -> Messages.
+
+The ``flight_recorder`` will record all messages that are specified within a ``FlightRecorder`` process
+that should be included in your airframe's telemetry file.
+
+.. code-block:: xml
+
+  <telemetry>
+    <process name="FlightRecorder">
+      <mode name="default">
+        <message name="ATTITUDE"    period="0.05"/>
+        <message name="IMU_ACCEL"   period="0.02"/>
+        <message name="IMU_GYRO"    period="0.02"/>
+        <message name="IMU_MAG"     period="0.02"/>
+        <!-- etc. -->
+      </mode>
+    </process>
+  </telemetry>
+
+These telemetry files are located within the ``conf/telemetry/`` folder, and are associated to a specific
+airframe in the ``conf.xml``. For example, ``conf/userconf/tudelft/conf.xml`` specifies for a default Bebop:
+
+.. code-block:: xml
+
+  <conf>
+    <aircraft
+     name="Bebop_default"
+     ac_id="20"
+     airframe="airframes/examples/bebop.xml"
+     radio="radios/dummy.xml"
+     telemetry="telemetry/default_rotorcraft.xml"  <!-- The telemetry file -->
+     flight_plan="flight_plans/rotorcraft_basic.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
+     settings_modules="modules/ahrs_float_mlkf.xml modules/air_data.xml modules/bebop_ae_awb.xml modules/bebop_cam.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
+     gui_color="#ffffbc3bce5b"
+    />
+  </conf>
+
+Decoding FlightRecorder logs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To download and convert the data, you need to first connect the SD card to your laptop, navigate to the
+FLIGHT_RECORDER folder and transfer to your computer the relevant logs, named ``fr_XXXX.LOG``. To convert
+this binary file into Pprzlog format files the program ``sw/logalizer/sd2log`` has to be used.
+Make sure the environment variables are set before running Paparazzi executables from the commandline.
+They can be set in your Terminal by using
+
+.. code-block:: bash
+
+  export PAPARAZZI_HOME=~/paparazzi
+  export PAPARAZZI_SRC=~/paparazzi
+
+.. tip::
+
+  You can add the ``export`` lines above to your ``.bashrc`` file to automatically set the environment variables
+  every time a new Terminal is opened.
+
+Once the environment variables are set you can run ``sd2log`` in your terminal:
+
+.. code-block:: bash
+
+  ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG
+
+This will produce the Paparazzi .log, .data, and .tlm files that are stored in ``var/logs``. It creates a timestamp from the .tlm and changes the filename
+to the take-off time if a GPS mesage with correct time was available in the file, or the current local PC time if no
+GPS was available. The .log file will be recreated either from the current configuration or the MD5-labeled files that
+are stored in ``var/conf`` each time you build an aircraft.
+
+.. note::
+
+  For the decoding process to work properly you must run ``sd2log`` from the same folder that contains the
+  ``messages.xml`` file used during compilation of the aircraft. This is often not an issue, but you may run into
+  problems if you work with multiple branches within your paparazzi repository.
+
+Pprzlog format
+-----------------
+
+The Pprzlog format creates multiple files that can be used to analyse flight data and replay the flight. A log is
+split into the following files:
+
+- A ``.log`` file, an XML file, which contains a copy of the whole configuration (airframes, flight plans, ...)
+- A ``.data`` file, an ascii file, which contains the list of the received messages. Each message is time-stamped in
+  milliseconds since the creation of the file and marked with the ID of the sending aircraft
+- A ``.tlm`` file, ???
+
+The name of the files associated to a specific log is the same, and is generated from the date and time of creation.
+The lines of the ``data`` file are formatted according to the message description listed in the ``conf/messages.xml``
+file. For example:
+
+.. code-block::
+
+  30.5941 186 ATTITUDE 0.036228 0.018550 0.021443
+
+contains an ``ATTITUDE`` message received at time 30.5941s, from aircraft 6. According to the ATTITUDE message
+description:
+
+.. code-block:: xml
+
+  <message name="ATTITUDE" id="6">
+    <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
+    <field name="theta" type="float" unit="rad" alt_unit="deg"/>
+  </message>
+
+In this case, at the time the message was logged, the attitude of the drone corresponded to :math:`{\phi} = 0.036228`,
+:math:`{\theta} = 0.018550`, and :math:`{\psi} = 0.021443` radians. Note that the appropriate ``messages.xml``
+description, i.e. the one which has been used while th elog was created, is itself stored in the associated ``.log``
+file. It may differ from the current one in your ``conf/`` folder.
+
+.. note::
+
+  The ``.data`` files may be huge. They can be efficiently compressed, with the ``bzip2`` compression format seemingly
+  performing better than others on these files.
+
+Data Plotting
+----------------
+
+
+
+
