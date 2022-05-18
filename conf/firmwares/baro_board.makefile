@@ -36,10 +36,6 @@ else ifeq ($(BOARD), disco)
   BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
   BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
 
-# Swing baro
-else ifeq ($(BOARD), swing)
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
   ifeq ($(BOARD_VERSION), 1.0)
