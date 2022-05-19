@@ -138,7 +138,7 @@ airframe in the ``conf.xml``. For example, ``conf/userconf/tudelft/conf.xml`` sp
      ac_id="20"
      airframe="airframes/examples/bebop.xml"
      radio="radios/dummy.xml"
-     telemetry="telemetry/default_rotorcraft.xml"  <!-- The telemetry file -->
+     telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/rotorcraft_basic.xml"
      settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
      settings_modules="modules/ahrs_float_mlkf.xml modules/air_data.xml modules/bebop_ae_awb.xml modules/bebop_cam.xml modules/geo_mag.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
@@ -196,7 +196,7 @@ The name of the files associated to a specific log is the same, and is generated
 The lines of the ``data`` file are formatted according to the message description listed in the ``conf/messages.xml``
 file. For example:
 
-.. code-block::
+.. code-block:: text
 
   30.5941 186 ATTITUDE 0.036228 0.018550 0.021443
 
@@ -221,9 +221,44 @@ file. It may differ from the current one in your ``conf/`` folder.
   The ``.data`` files may be huge. They can be efficiently compressed, with the ``bzip2`` compression format seemingly
   performing better than others on these files.
 
-Data Plotting
+Data plotting
 ----------------
 
+There are different methods to visualize and process the data stored in log files.
 
+Log Plotter
+^^^^^^^^^^^^^^^
+If no post-processing of the data is required, log data can be visualized using the Log Plotter, located in
+``sw/logalizer/logplotter``. It can be launched either from the command line, or through the Paparazzi Center by
+navigating to Tools -> Log Plotter. This tool can plot data from the same or different logs in the same window, as
+well as offering the option to export the track as a KML file for Google Earth, or to a CSV file for further data
+processing.
+
+Log File Player
+^^^^^^^^^^^^^^^^^^^
+A flight can be replayed with the Log File Player (``sw/logalizer/play``), which can be started either from the
+command line, or from the Paparazzi Center by navigating to Tools -> Log File Player, or even from the Session selection
+box to start a complete replay session with the GCS, server, and player tool. In this last case, this agent then
+acts as a substitute for the Data Link agent and will send onver the bus the messages that had been sent by the aircraft
+while the log was recorded.
+
+.. note::
+
+  While replaying a log through the GCS, it is a good idea to disable a new log creation from the Server. This can
+  be achieved by launching the Server process with the ``-n`` option.
+
+While doing a log replay it can be very valuable to launch a Messages process (Tools -> Messages). This allows for the
+use of the Tools -> Real Time Plotter and also displays all the data received from the aircraft.
+
+If the Log File Player is launched with the ``-o`` option, the player will send to a serial port all the  binary
+messages as they had been received through the modem during the flight. Additional options include ``-s`` to set
+the baudrate (default 9600), and ``-d`` to set the device (default ``/dev/ttyUSB0``).
+
+Paparazzi Log Parsing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The Github repository `tudelft/paparazzi_log_parsing <https://github.com/tudelft/paparazzi_log_parsing>`_ provides
+handy Matlab and Python tools to convert the log data into a dictionary-like structure for easy post-processing.
+The Matlab and Python scripts are very similar and function in almost the same way except for certain language-specific
+functionality, and contain an example file that illustrates how to use the functionalities provided by the repositories.
 
 
