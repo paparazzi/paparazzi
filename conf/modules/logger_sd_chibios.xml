@@ -14,6 +14,13 @@
     <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
     <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
   </doc>
+   <settings>
+    <dl_settings>
+    <dl_settings name="USB storage">
+        <dl_setting max="1" min="0" step="1" var="usb_storage_status" shortname="USB Storage" handler="enable_usb_storage" header="loggers/sdlog_chibios/usbStorage" values="OFF|ON"/>
+    </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>tlsf</depends>
   </dep>
