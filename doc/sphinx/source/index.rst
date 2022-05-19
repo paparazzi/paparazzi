@@ -32,7 +32,6 @@ Contents:
     user_guide/index_user_guide
     developer_guide/index_developer
     tutorials/index_tutorials
-    library/index_library
     support/index_support
 
 --------------
