@@ -64,7 +64,7 @@ extern void mcu_event(void);
  * Should not be called during flight or ciritcal operations
  * @param state The state to reboot towards
  */
-extern void mcu_reboot(enum reboot_state_t state);
+extern void mcu_reboot(enum reboot_state_t reboot_state);
 
 /**
  * Puts the MCU in energy save mode

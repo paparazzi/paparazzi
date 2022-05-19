@@ -166,21 +166,21 @@ void mcu_arch_init(void)
  * - NORMAL will do a normal reboot (also to bootloader)
  * - FAST will try to skip the bootloader
  * - BOOTLOADER will try to keep the MCU in bootloader
- * @param state The sate to reboot to
+ * @param reboot_state The sate to reboot to
  */
-void mcu_reboot(enum reboot_state_t state)
+void mcu_reboot(enum reboot_state_t reboot_state)
 {
   // Powering off/deep sleep instead
-  if(state == MCU_REBOOT_POWEROFF) {
+  if(reboot_state == MCU_REBOOT_POWEROFF) {
     mcu_deep_sleep();
     return;
   }
 
 #if defined(USE_RTC_BACKUP)
   // Set the RTC backup register if possible
-  if(state == MCU_REBOOT_FAST)
+  if(reboot_state == MCU_REBOOT_FAST)
     mcu_set_rtcbackup(RTC_BOOT_FAST);
-  else if(state == MCU_REBOOT_BOOTLOADER)
+  else if(reboot_state == MCU_REBOOT_BOOTLOADER)
     mcu_set_rtcbackup(RTC_BOOT_HOLD);
 #endif
 

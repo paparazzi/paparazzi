@@ -84,7 +84,7 @@ void WEAK board_init2(void)
   /* default board init function does nothing... */
 }
 
-void WEAK mcu_reboot(enum reboot_state_t state __attribute__((unused)))
+void WEAK mcu_reboot(enum reboot_state_t reboot_state __attribute__((unused)))
 {
   /* default reboot function does nothing... */
 }
