@@ -157,7 +157,7 @@ static void thdUsbStorage(void *arg)
 
   chThdSleepMilliseconds(500);
 
-  mcu_reset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 bool usbStorageIsItRunning(void)

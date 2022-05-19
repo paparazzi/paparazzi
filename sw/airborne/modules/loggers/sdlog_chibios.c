@@ -198,7 +198,7 @@ void sdlog_chibios_finish(const bool flush)
   if (pprzLogFile != -1) {
     // disable all required periph to save energy and maximize chance to flush files
     // to mass storage and avoid infamous dirty bit on filesystem
-    mcu_periph_energy_save();
+    mcu_energy_save();
 
     // if a FF_FS_REENTRANT is true, we can umount fs without closing
     // file, fatfs lock will assure that umount is done after a write,
@@ -327,7 +327,7 @@ static void thd_bat_survey(void *arg)
 
   // Only put to deep sleep in case there is no power on the USB
   if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
-    mcu_deep_sleep();
+    mcu_reboot(MCU_REBOOT_POWEROFF);
   }
   chThdSleep(TIME_INFINITE);
   while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return

@@ -57,31 +57,31 @@ IN_BCKP_SECTION(volatile bool hard_fault);
 CH_IRQ_HANDLER(HardFault_Handler)
 {
   hard_fault = true;
-  NVIC_SystemReset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 CH_IRQ_HANDLER(NMI_Handler)
 {
   hard_fault = true;
-  NVIC_SystemReset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 CH_IRQ_HANDLER(MemManage_Handler)
 {
   hard_fault = true;
-  NVIC_SystemReset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 CH_IRQ_HANDLER(BusFault_Handler)
 {
   hard_fault = true;
-  NVIC_SystemReset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 CH_IRQ_HANDLER(UsageFault_Handler)
 {
   hard_fault = true;
-  NVIC_SystemReset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 bool recovering_from_hard_fault;
@@ -99,12 +99,27 @@ bool recovering_from_hard_fault;
 #error Hard fault recovery not supported
 #endif
 
+#endif /* USE_HARD_FAULT_RECOVERY */
+
+/**
+ * @brief RTC backup register values
+ */
+enum rtc_boot_magic {
+  RTC_BOOT_OFF  = 0,            ///< Normal boot
+  RTC_BOOT_HOLD = 0xb0070001,   ///< Hold in bootloader, do not boot application
+  RTC_BOOT_FAST = 0xb0070002,   ///< No timeout in bootloader
+  RTC_BOOT_CANBL = 0xb0080000,  ///< CAN bootloader, ORd with 8 bit local node ID
+  RTC_BOOT_FWOK = 0xb0093a26    ///< indicates FW ran for 30s
+};
+
+/* Local functions */
+static void mcu_deep_sleep(void);
+#if defined(USE_RTC_BACKUP)
+static void mcu_set_rtcbackup(uint32_t val);
 #endif
 
-
-/*
- * SCB_VTOR has to be relocated if Luftboot is used
- * The new SCB_VTOR location is defined in the board makefile
+/**
+ * @brief Initialize the specific archittecture functions
  */
 void mcu_arch_init(void)
 {
@@ -143,14 +158,41 @@ void mcu_arch_init(void)
   RCC->CSR = RCC_CSR_RMVF;
   // end of reset bit probing
 #endif /* USE_HARD_FAULT_RECOVERY */
+}
 
+/**
+ * @brief Reboot the MCU
+ * - POWEROFF will go the deep sleep
+ * - NORMAL will do a normal reboot (also to bootloader)
+ * - FAST will try to skip the bootloader
+ * - BOOTLOADER will try to keep the MCU in bootloader
+ * @param reboot_state The sate to reboot to
+ */
+void mcu_reboot(enum reboot_state_t reboot_state)
+{
+  // Powering off/deep sleep instead
+  if(reboot_state == MCU_REBOOT_POWEROFF) {
+    mcu_deep_sleep();
+    return;
+  }
+
+#if defined(USE_RTC_BACKUP)
+  // Set the RTC backup register if possible
+  if(reboot_state == MCU_REBOOT_FAST)
+    mcu_set_rtcbackup(RTC_BOOT_FAST);
+  else if(reboot_state == MCU_REBOOT_BOOTLOADER)
+    mcu_set_rtcbackup(RTC_BOOT_HOLD);
+#endif
+
+  // Restart the MCU
+  NVIC_SystemReset();
 }
 
 /**
  * @brief Save energy for performing operations on shutdown
  * Used for example to shutdown SD-card logging
  */
-void mcu_periph_energy_save(void)
+void mcu_energy_save(void)
 {
 #if defined(ENERGY_SAVE_INPUTS)
   BOARD_GROUP_DECLFOREACH(input_line, ENERGY_SAVE_INPUTS) {
@@ -164,3 +206,75 @@ void mcu_periph_energy_save(void)
 #endif
 }
 
+/** Put MCU into deep sleep mode
+ *
+ *  This can be used when closing the SD log files
+ *  right after a power down to save the remaining
+ *  energy for the SD card internal MCU
+ *
+ *  Never call this during flight!
+ */
+static void mcu_deep_sleep(void)
+{
+#if defined(STM32F4XX)
+  /* clear PDDS and LPDS bits */
+  PWR->CR &= ~(PWR_CR_PDDS | PWR_CR_LPDS);
+  /* set LPDS and clear  */
+  PWR->CR |= (PWR_CR_LPDS | PWR_CR_CSBF | PWR_CR_CWUF);
+#elif defined(STM32F7XX)
+  /* clear PDDS and LPDS bits */
+  PWR->CR1 &= ~(PWR_CR1_PDDS | PWR_CR1_LPDS);
+  /* set LPDS and clear  */
+  PWR->CR1 |= (PWR_CR1_LPDS | PWR_CR1_CSBF);
+#elif defined(STM32H7XX)
+  /* clear LPDS */
+  PWR->CR1 &= ~PWR_CR1_LPDS;
+  /* set LPDS */
+  PWR->CR1 |= PWR_CR1_LPDS;
+#endif
+
+  /* Setup the deepsleep mask */
+  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+
+  __disable_irq();
+
+  __SEV();
+  __WFE();
+  __WFE();
+
+  __enable_irq();
+
+  /* clear the deepsleep mask */
+  SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+}
+
+#if defined(USE_RTC_BACKUP)
+/**
+ * @brief Set the RTC backup register
+ * This sets the first register in the RTC backup register, used for bootloader
+ * @param val The value to set in the register
+ */
+static void mcu_set_rtcbackup(uint32_t val) {
+#if !defined(STM32F1)
+  if ((RCC->BDCR & RCC_BDCR_RTCEN) == 0) {
+    RCC->BDCR |= STM32_RTCSEL;
+    RCC->BDCR |= RCC_BDCR_RTCEN;
+  }
+#ifdef PWR_CR_DBP
+  PWR->CR |= PWR_CR_DBP;
+#else
+  PWR->CR1 |= PWR_CR1_DBP;
+#endif
+#endif
+
+#if defined(STM32F1)
+  volatile uint32_t *dr = (volatile uint32_t *)&BKP->DR1;
+  dr[0] = (val) & 0xFFFF;
+  dr[1] = (val) >> 16;
+#elif defined(STM32G4)
+  ((volatile uint32_t *)&TAMP->BKP0R)[0] = val;
+#else
+  ((volatile uint32_t *)&RTC->BKP0R)[0] = val;
+#endif
+}
+#endif /* USE_RTC_BACKUP */

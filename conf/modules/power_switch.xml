@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="power_switch" dir="boards">
+  <doc>
+    <description>Simple power switch module to set a specific GPIO pin</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Board">
+         <dl_setting var="power_switch_status" min="0" step="1" max="1" shortname="pwr_switch" values="OFF|ON" handler="set" module="boards/power_switch"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="power_switch.h"/>
+  </header>
+  <init fun="power_switch_init()"/>
+  <makefile>
+    <file name="power_switch.c"/>
+  </makefile>
+</module>
+
