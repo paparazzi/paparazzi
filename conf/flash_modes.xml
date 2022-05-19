@@ -4,7 +4,6 @@
   <mode name="SERIAL (stm32)">
     <variable name="FLASH_MODE" value="SERIAL"/>
     <boards>
-      <board name="krooz_sd"/>
       <board name="lia_.*"/>
       <board name="lisa_[ms]_.*"/>
       <board name="elle*"/>
@@ -14,7 +13,6 @@
   <mode name="USB DFU (stm32_mem)">
     <variable name="FLASH_MODE" value="DFU"/>
     <boards>
-      <board name="krooz_sd"/>
       <board name="li[s]?a_[m]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
@@ -109,7 +107,6 @@
   <mode name="JTAG (OpenOCD)">
     <variable name="FLASH_MODE" value="JTAG"/>
     <boards>
-      <board name="krooz_sd"/>
       <board name="li[s]?a_[lm]?_.*"/>
       <board name="elle*"/>
     </boards>

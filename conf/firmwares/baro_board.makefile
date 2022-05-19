@@ -36,10 +36,6 @@ else ifeq ($(BOARD), disco)
   BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
   BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
 
-# Swing baro
-else ifeq ($(BOARD), swing)
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
 # Lisa/M baro
 else ifeq ($(BOARD), lisa_m)
   ifeq ($(BOARD_VERSION), 1.0)
@@ -171,14 +167,6 @@ LIA_BARO ?= BARO_MS5611_SPI
     BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
     BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
   endif
-
-# krooz baro
-else ifeq ($(BOARD), krooz)
-  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_ADDR=0xEC
-  BARO_BOARD_SRCS += peripherals/ms5611.c
-  BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
-  BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
 
 # PX4FMU
 else ifeq ($(BOARD),$(filter $(BOARD),px4fmu))
