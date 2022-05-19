@@ -40,7 +40,6 @@
 
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
     <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
-    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
     <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
       <arg flag="--port" constant="/dev/ttyUSB1"/>
       <arg flag="--id" constant="1"/>

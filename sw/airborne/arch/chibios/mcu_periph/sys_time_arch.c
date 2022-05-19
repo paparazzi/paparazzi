@@ -39,6 +39,10 @@
 
 static MUTEX_DECL(sys_time_mtx);
 
+#ifndef STM32_SYSCLK
+#define STM32_SYSCLK  STM32_SYS_CK
+#endif
+
 /*
  * Sys_tick handler thread
  */
@@ -59,7 +63,7 @@ void sys_time_arch_init(void)
 
   // Create thread (PRIO should be higher than AP threads
   chThdCreateStatic(wa_thd_sys_tick, sizeof(wa_thd_sys_tick),
-      NORMALPRIO+2, thd_sys_tick, NULL);
+                    NORMALPRIO + 2, thd_sys_tick, NULL);
 
 }
 
@@ -73,8 +77,8 @@ uint32_t get_sys_time_usec(void)
   chMtxLock(&sys_time_mtx);
   uint32_t current = chSysGetRealtimeCounterX();
   uint32_t t = sys_time.nb_sec * 1000000 +
-    TIME_I2US(sys_time.nb_sec_rem) +
-    RTC2US(STM32_SYSCLK, current - cpu_counter);
+               TIME_I2US(sys_time.nb_sec_rem) +
+               RTC2US(STM32_SYSCLK, current - cpu_counter);
   chMtxUnlock(&sys_time_mtx);
   return t;
 }
@@ -84,8 +88,8 @@ uint32_t get_sys_time_msec(void)
   chMtxLock(&sys_time_mtx);
   uint32_t current = chSysGetRealtimeCounterX();
   uint32_t t = sys_time.nb_sec * 1000 +
-    TIME_I2MS(sys_time.nb_sec_rem) +
-    RTC2MS(STM32_SYSCLK, current - cpu_counter);
+               TIME_I2MS(sys_time.nb_sec_rem) +
+               RTC2MS(STM32_SYSCLK, current - cpu_counter);
   chMtxUnlock(&sys_time_mtx);
   return t;
 }
@@ -131,7 +135,7 @@ static __attribute__((noreturn)) void thd_sys_tick(void *arg)
   while (TRUE) {
     systime_t t = chVTGetSystemTime();
     sys_tick_handler();
-    chThdSleepUntilWindowed(t, t + TIME_US2I(USEC_OF_SEC(1.f/(SYS_TIME_FREQUENCY))));
+    chThdSleepUntilWindowed(t, t + TIME_US2I(USEC_OF_SEC(1.f / (SYS_TIME_FREQUENCY))));
   }
 }
 

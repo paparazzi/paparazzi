@@ -70,7 +70,6 @@ struct pprz_autopilot {
   bool in_flight;           ///< in flight status
   bool launch;              ///< request launch
   bool use_rc;              ///< enable/disable RC input
-  bool power_switch;        ///< enable/disable power from power switch (if any)
   bool ground_detected;     ///< automatic detection of landing
   bool detect_ground_once;  ///< enable automatic detection of ground (one shot)
 };
@@ -172,15 +171,6 @@ extern bool autopilot_in_flight(void);
  *  actual implementation is firmware dependent
  */
 extern void autopilot_reset_in_flight_counter(void);
-
-/** Set power switch state
- *  This will actually enable the switch if POWER_SWITCH_GPIO is defined
- *  Also provide macro for dl_setting backward compatibility
- *
- * @param[in] power_switch true to enable, false to disable
- */
-extern void autopilot_set_power_switch(bool power_switch);
-#define autopilot_SetPowerSwitch(_ps) autopilot_set_power_switch(_ps)
 
 /** Store marked settings in flash
  *  Try to make sure that we don't write to flash while flying

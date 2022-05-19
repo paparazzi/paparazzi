@@ -111,8 +111,8 @@
 #define	FRAM_CS                        10U
 #define	USART3_CTS                     11U
 #define	USART3_RTS                     12U
-#define	SRV5_TIM4_CH2                  13U
-#define	SRV6_TIM4_CH3                  14U
+#define	SERVO5                         13U
+#define	SERVO6                         14U
 #define	MPU9250_DRDY                   15U
 
 #define	UART8_RX                       0U
@@ -124,12 +124,12 @@
 #define	_8266_RST                      6U
 #define	UART7_RX                       7U
 #define	UART7_TX                       8U
-#define	SRV4_TIM1_CH1                  9U
+#define	SERVO4                         9U
 #define	_8266_CTS                      10U
-#define	SRV3_TIM1_CH2                  11U
+#define	SERVO3                         11U
 #define	HMC5983_DRDY                   12U
-#define	SRV2_TIM1_CH3                  13U
-#define	SRV1_TIM1_CH4                  14U
+#define	SERVO2                         13U
+#define	SERVO1                         14U
 #define	HMC_5983                       15U
 
 #define	PF00                           0U
@@ -301,8 +301,8 @@
 #define	LINE_FRAM_CS                   PAL_LINE(GPIOD, 10U)
 #define	LINE_USART3_CTS                PAL_LINE(GPIOD, 11U)
 #define	LINE_USART3_RTS                PAL_LINE(GPIOD, 12U)
-#define	LINE_SRV5_TIM4_CH2             PAL_LINE(GPIOD, 13U)
-#define	LINE_SRV6_TIM4_CH3             PAL_LINE(GPIOD, 14U)
+#define	LINE_SERVO5                    PAL_LINE(GPIOD, 13U)
+#define	LINE_SERVO6                    PAL_LINE(GPIOD, 14U)
 #define	LINE_MPU9250_DRDY              PAL_LINE(GPIOD, 15U)
 
 #define	LINE_UART8_RX                  PAL_LINE(GPIOE, 0U)
@@ -314,12 +314,12 @@
 #define	LINE__8266_RST                 PAL_LINE(GPIOE, 6U)
 #define	LINE_UART7_RX                  PAL_LINE(GPIOE, 7U)
 #define	LINE_UART7_TX                  PAL_LINE(GPIOE, 8U)
-#define	LINE_SRV4_TIM1_CH1             PAL_LINE(GPIOE, 9U)
+#define	LINE_SERVO4                    PAL_LINE(GPIOE, 9U)
 #define	LINE__8266_CTS                 PAL_LINE(GPIOE, 10U)
-#define	LINE_SRV3_TIM1_CH2             PAL_LINE(GPIOE, 11U)
+#define	LINE_SERVO3                    PAL_LINE(GPIOE, 11U)
 #define	LINE_HMC5983_DRDY              PAL_LINE(GPIOE, 12U)
-#define	LINE_SRV2_TIM1_CH3             PAL_LINE(GPIOE, 13U)
-#define	LINE_SRV1_TIM1_CH4             PAL_LINE(GPIOE, 14U)
+#define	LINE_SERVO2                    PAL_LINE(GPIOE, 13U)
+#define	LINE_SERVO1                    PAL_LINE(GPIOE, 14U)
 #define	LINE_HMC_5983                  PAL_LINE(GPIOE, 15U)
 
 #define	LINE_OSC_IN                    PAL_LINE(GPIOH, 0U)
@@ -670,8 +670,8 @@
 					 PIN_MODE_OUTPUT(FRAM_CS) | \
 					 PIN_MODE_INPUT(USART3_CTS) | \
 					 PIN_MODE_INPUT(USART3_RTS) | \
-					 PIN_MODE_INPUT(SRV5_TIM4_CH2) | \
-					 PIN_MODE_INPUT(SRV6_TIM4_CH3) | \
+					 PIN_MODE_ALTERNATE(SERVO5) | \
+					 PIN_MODE_ALTERNATE(SERVO6) | \
 					 PIN_MODE_INPUT(MPU9250_DRDY))
 
 #define VAL_GPIOD_OTYPER                (PIN_OTYPE_PUSHPULL(CAN1_RX) | \
@@ -687,8 +687,8 @@
 					 PIN_OTYPE_PUSHPULL(FRAM_CS) | \
 					 PIN_OTYPE_OPENDRAIN(USART3_CTS) | \
 					 PIN_OTYPE_OPENDRAIN(USART3_RTS) | \
-					 PIN_OTYPE_OPENDRAIN(SRV5_TIM4_CH2) | \
-					 PIN_OTYPE_OPENDRAIN(SRV6_TIM4_CH3) | \
+					 PIN_OTYPE_PUSHPULL(SERVO5) | \
+					 PIN_OTYPE_PUSHPULL(SERVO6) | \
 					 PIN_OTYPE_OPENDRAIN(MPU9250_DRDY))
 
 #define VAL_GPIOD_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(CAN1_RX) | \
@@ -704,8 +704,8 @@
 					 PIN_OSPEED_SPEED_HIGH(FRAM_CS) | \
 					 PIN_OSPEED_SPEED_VERYLOW(USART3_CTS) | \
 					 PIN_OSPEED_SPEED_VERYLOW(USART3_RTS) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV5_TIM4_CH2) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV6_TIM4_CH3) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO5) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO6) | \
 					 PIN_OSPEED_SPEED_VERYLOW(MPU9250_DRDY))
 
 #define VAL_GPIOD_PUPDR                 (PIN_PUPDR_FLOATING(CAN1_RX) | \
@@ -721,8 +721,8 @@
 					 PIN_PUPDR_FLOATING(FRAM_CS) | \
 					 PIN_PUPDR_PULLDOWN(USART3_CTS) | \
 					 PIN_PUPDR_PULLDOWN(USART3_RTS) | \
-					 PIN_PUPDR_PULLDOWN(SRV5_TIM4_CH2) | \
-					 PIN_PUPDR_PULLDOWN(SRV6_TIM4_CH3) | \
+					 PIN_PUPDR_FLOATING(SERVO5) | \
+					 PIN_PUPDR_FLOATING(SERVO6) | \
 					 PIN_PUPDR_FLOATING(MPU9250_DRDY))
 
 #define VAL_GPIOD_ODR                   (PIN_ODR_LEVEL_HIGH(CAN1_RX) | \
@@ -738,8 +738,8 @@
 					 PIN_ODR_LEVEL_HIGH(FRAM_CS) | \
 					 PIN_ODR_LEVEL_HIGH(USART3_CTS) | \
 					 PIN_ODR_LEVEL_HIGH(USART3_RTS) | \
-					 PIN_ODR_LEVEL_HIGH(SRV5_TIM4_CH2) | \
-					 PIN_ODR_LEVEL_HIGH(SRV6_TIM4_CH3) | \
+					 PIN_ODR_LEVEL_LOW(SERVO5) | \
+					 PIN_ODR_LEVEL_LOW(SERVO6) | \
 					 PIN_ODR_LEVEL_LOW(MPU9250_DRDY))
 
 #define VAL_GPIOD_AFRL			(PIN_AFIO_AF(CAN1_RX, 9) | \
@@ -756,8 +756,8 @@
 					 PIN_AFIO_AF(FRAM_CS, 0) | \
 					 PIN_AFIO_AF(USART3_CTS, 0) | \
 					 PIN_AFIO_AF(USART3_RTS, 0) | \
-					 PIN_AFIO_AF(SRV5_TIM4_CH2, 0) | \
-					 PIN_AFIO_AF(SRV6_TIM4_CH3, 0) | \
+					 PIN_AFIO_AF(SERVO5, 2) | \
+					 PIN_AFIO_AF(SERVO6, 2) | \
 					 PIN_AFIO_AF(MPU9250_DRDY, 0))
 
 #define VAL_GPIOE_MODER                 (PIN_MODE_ALTERNATE(UART8_RX) | \
@@ -769,12 +769,12 @@
 					 PIN_MODE_INPUT(_8266_RST) | \
 					 PIN_MODE_ALTERNATE(UART7_RX) | \
 					 PIN_MODE_ALTERNATE(UART7_TX) | \
-					 PIN_MODE_INPUT(SRV4_TIM1_CH1) | \
+					 PIN_MODE_ALTERNATE(SERVO4) | \
 					 PIN_MODE_INPUT(_8266_CTS) | \
-					 PIN_MODE_INPUT(SRV3_TIM1_CH2) | \
+					 PIN_MODE_ALTERNATE(SERVO3) | \
 					 PIN_MODE_INPUT(HMC5983_DRDY) | \
-					 PIN_MODE_INPUT(SRV2_TIM1_CH3) | \
-					 PIN_MODE_INPUT(SRV1_TIM1_CH4) | \
+					 PIN_MODE_ALTERNATE(SERVO2) | \
+					 PIN_MODE_ALTERNATE(SERVO1) | \
 					 PIN_MODE_OUTPUT(HMC_5983))
 
 #define VAL_GPIOE_OTYPER                (PIN_OTYPE_PUSHPULL(UART8_RX) | \
@@ -786,12 +786,12 @@
 					 PIN_OTYPE_OPENDRAIN(_8266_RST) | \
 					 PIN_OTYPE_PUSHPULL(UART7_RX) | \
 					 PIN_OTYPE_PUSHPULL(UART7_TX) | \
-					 PIN_OTYPE_OPENDRAIN(SRV4_TIM1_CH1) | \
+					 PIN_OTYPE_PUSHPULL(SERVO4) | \
 					 PIN_OTYPE_OPENDRAIN(_8266_CTS) | \
-					 PIN_OTYPE_OPENDRAIN(SRV3_TIM1_CH2) | \
+					 PIN_OTYPE_PUSHPULL(SERVO3) | \
 					 PIN_OTYPE_OPENDRAIN(HMC5983_DRDY) | \
-					 PIN_OTYPE_OPENDRAIN(SRV2_TIM1_CH3) | \
-					 PIN_OTYPE_OPENDRAIN(SRV1_TIM1_CH4) | \
+					 PIN_OTYPE_PUSHPULL(SERVO2) | \
+					 PIN_OTYPE_PUSHPULL(SERVO1) | \
 					 PIN_OTYPE_PUSHPULL(HMC_5983))
 
 #define VAL_GPIOE_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(UART8_RX) | \
@@ -803,12 +803,12 @@
 					 PIN_OSPEED_SPEED_VERYLOW(_8266_RST) | \
 					 PIN_OSPEED_SPEED_HIGH(UART7_RX) | \
 					 PIN_OSPEED_SPEED_HIGH(UART7_TX) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV4_TIM1_CH1) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO4) | \
 					 PIN_OSPEED_SPEED_VERYLOW(_8266_CTS) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV3_TIM1_CH2) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO3) | \
 					 PIN_OSPEED_SPEED_VERYLOW(HMC5983_DRDY) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV2_TIM1_CH3) | \
-					 PIN_OSPEED_SPEED_VERYLOW(SRV1_TIM1_CH4) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO2) | \
+					 PIN_OSPEED_SPEED_HIGH(SERVO1) | \
 					 PIN_OSPEED_SPEED_HIGH(HMC_5983))
 
 #define VAL_GPIOE_PUPDR                 (PIN_PUPDR_FLOATING(UART8_RX) | \
@@ -820,12 +820,12 @@
 					 PIN_PUPDR_PULLDOWN(_8266_RST) | \
 					 PIN_PUPDR_FLOATING(UART7_RX) | \
 					 PIN_PUPDR_FLOATING(UART7_TX) | \
-					 PIN_PUPDR_PULLDOWN(SRV4_TIM1_CH1) | \
+					 PIN_PUPDR_FLOATING(SERVO4) | \
 					 PIN_PUPDR_PULLDOWN(_8266_CTS) | \
-					 PIN_PUPDR_PULLDOWN(SRV3_TIM1_CH2) | \
+					 PIN_PUPDR_FLOATING(SERVO3) | \
 					 PIN_PUPDR_FLOATING(HMC5983_DRDY) | \
-					 PIN_PUPDR_PULLDOWN(SRV2_TIM1_CH3) | \
-					 PIN_PUPDR_PULLDOWN(SRV1_TIM1_CH4) | \
+					 PIN_PUPDR_FLOATING(SERVO2) | \
+					 PIN_PUPDR_FLOATING(SERVO1) | \
 					 PIN_PUPDR_FLOATING(HMC_5983))
 
 #define VAL_GPIOE_ODR                   (PIN_ODR_LEVEL_HIGH(UART8_RX) | \
@@ -837,12 +837,12 @@
 					 PIN_ODR_LEVEL_HIGH(_8266_RST) | \
 					 PIN_ODR_LEVEL_HIGH(UART7_RX) | \
 					 PIN_ODR_LEVEL_HIGH(UART7_TX) | \
-					 PIN_ODR_LEVEL_HIGH(SRV4_TIM1_CH1) | \
+					 PIN_ODR_LEVEL_LOW(SERVO4) | \
 					 PIN_ODR_LEVEL_HIGH(_8266_CTS) | \
-					 PIN_ODR_LEVEL_HIGH(SRV3_TIM1_CH2) | \
+					 PIN_ODR_LEVEL_LOW(SERVO3) | \
 					 PIN_ODR_LEVEL_LOW(HMC5983_DRDY) | \
-					 PIN_ODR_LEVEL_HIGH(SRV2_TIM1_CH3) | \
-					 PIN_ODR_LEVEL_HIGH(SRV1_TIM1_CH4) | \
+					 PIN_ODR_LEVEL_LOW(SERVO2) | \
+					 PIN_ODR_LEVEL_LOW(SERVO1) | \
 					 PIN_ODR_LEVEL_HIGH(HMC_5983))
 
 #define VAL_GPIOE_AFRL			(PIN_AFIO_AF(UART8_RX, 8) | \
@@ -855,12 +855,12 @@
 					 PIN_AFIO_AF(UART7_RX, 8))
 
 #define VAL_GPIOE_AFRH			(PIN_AFIO_AF(UART7_TX, 8) | \
-					 PIN_AFIO_AF(SRV4_TIM1_CH1, 0) | \
+					 PIN_AFIO_AF(SERVO4, 1) | \
 					 PIN_AFIO_AF(_8266_CTS, 0) | \
-					 PIN_AFIO_AF(SRV3_TIM1_CH2, 0) | \
+					 PIN_AFIO_AF(SERVO3, 1) | \
 					 PIN_AFIO_AF(HMC5983_DRDY, 0) | \
-					 PIN_AFIO_AF(SRV2_TIM1_CH3, 0) | \
-					 PIN_AFIO_AF(SRV1_TIM1_CH4, 0) | \
+					 PIN_AFIO_AF(SERVO2, 1) | \
+					 PIN_AFIO_AF(SERVO1, 1) | \
 					 PIN_AFIO_AF(HMC_5983, 0))
 
 #define VAL_GPIOF_MODER                 (PIN_MODE_INPUT(PF00) | \
@@ -1543,6 +1543,10 @@
 #define AF_LINE_USART3_TX                7U
 #define AF_USART3_RX                     7U
 #define AF_LINE_USART3_RX                7U
+#define AF_SERVO5                        2U
+#define AF_LINE_SERVO5                   2U
+#define AF_SERVO6                        2U
+#define AF_LINE_SERVO6                   2U
 #define AF_UART8_RX                      8U
 #define AF_LINE_UART8_RX                 8U
 #define AF_UART8_TX                      8U
@@ -1551,11 +1555,59 @@
 #define AF_LINE_UART7_RX                 8U
 #define AF_UART7_TX                      8U
 #define AF_LINE_UART7_TX                 8U
+#define AF_SERVO4                        1U
+#define AF_LINE_SERVO4                   1U
+#define AF_SERVO3                        1U
+#define AF_LINE_SERVO3                   1U
+#define AF_SERVO2                        1U
+#define AF_LINE_SERVO2                   1U
+#define AF_SERVO1                        1U
+#define AF_LINE_SERVO1                   1U
 #define AF_OSC_IN                        0U
 #define AF_LINE_OSC_IN                   0U
 #define AF_OSC_OUT                       0U
 #define AF_LINE_OSC_OUT                  0U
 
+
+#define SERVO5_TIM	 4
+#define SERVO5_TIM_FN	 CH
+#define SERVO5_TIM_CH	 2
+#define SERVO5_TIM_AF	 2
+#define SERVO6_TIM	 4
+#define SERVO6_TIM_FN	 CH
+#define SERVO6_TIM_CH	 3
+#define SERVO6_TIM_AF	 2
+#define SERVO4_TIM	 1
+#define SERVO4_TIM_FN	 CH
+#define SERVO4_TIM_CH	 1
+#define SERVO4_TIM_AF	 1
+#define SERVO3_TIM	 1
+#define SERVO3_TIM_FN	 CH
+#define SERVO3_TIM_CH	 2
+#define SERVO3_TIM_AF	 1
+#define SERVO2_TIM	 1
+#define SERVO2_TIM_FN	 CH
+#define SERVO2_TIM_CH	 3
+#define SERVO2_TIM_AF	 1
+#define SERVO1_TIM	 1
+#define SERVO1_TIM_FN	 CH
+#define SERVO1_TIM_CH	 4
+#define SERVO1_TIM_AF	 1
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

@@ -57,10 +57,10 @@ GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-co
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
 INCLUDES += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/ -I$(PAPARAZZI_SRC)/sw/airborne/modules/gps/librtcm3/ -I$(PAPARAZZI_SRC)/sw/airborne/arch/linux/
 
-all: davis2ivy kestrel2ivy natnet2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
+all: davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
 
 clean:
-	$(Q)rm -f *.o davis2ivy kestrel2ivy natnet2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
+	$(Q)rm -f *.o davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
 
 davis2ivy: davis2ivy.o
 	@echo CC $@
@@ -69,10 +69,6 @@ davis2ivy: davis2ivy.o
 kestrel2ivy: kestrel2ivy.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(IVY_LDFLAGS)
-
-natnet2ivy: natnet2ivy.o pprz_geodetic_double.o pprz_algebra_double.o udp_socket.o
-	@echo CC $@
-	$(Q)$(CC) $(CFLAGS) -o $@ $^ $(LIBRARYS) $(GLIB_LDFLAGS) $(IVY_LDFLAGS)
 
 sbp2ivy: sbp2ivy.o serial_port.o sbp.o edc.o
 	@echo CC $@
@@ -94,16 +90,10 @@ sbs2ivy: sbs2ivy.o pprz_geodetic_double.o pprz_geodetic_float.o sbs_parser.o
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) $(GTK_CFLAGS) -o $@ $^ $(LIBRARYS) $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS) -lm
 
-pprz_algebra_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_algebra_double.c
-	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
-
 pprz_geodetic_double.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_double.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 pprz_geodetic_float.o : $(PAPARAZZI_SRC)/sw/airborne/math/pprz_geodetic_float.c
-	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
-
-udp_socket.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/udp_socket.c
 	$(Q)$(CC) $(CFLAGS) -c -O2 -Wall $(INCLUDES) $<
 
 serial_port.o : $(PAPARAZZI_SRC)/sw/airborne/arch/linux/serial_port.c

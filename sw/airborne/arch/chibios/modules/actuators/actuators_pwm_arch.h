@@ -42,42 +42,6 @@
 #define ACTUATORS_PWM_NB 8
 #endif
 
-/* Default timer base frequency is 1MHz */
-#ifndef PWM_FREQUENCY
-#define PWM_FREQUENCY 1000000
-#endif
-
-/** Default servo update rate in Hz */
-#ifndef SERVO_HZ
-#define SERVO_HZ 40
-#endif
-
-// Update rate can be adapted for each timer
-#ifndef TIM1_SERVO_HZ
-#define TIM1_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM2_SERVO_HZ
-#define TIM2_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM3_SERVO_HZ
-#define TIM3_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM4_SERVO_HZ
-#define TIM4_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM5_SERVO_HZ
-#define TIM5_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM8_SERVO_HZ
-#define TIM8_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM9_SERVO_HZ
-#define TIM9_SERVO_HZ SERVO_HZ
-#endif
-#ifndef TIM12_SERVO_HZ
-#define TIM12_SERVO_HZ SERVO_HZ
-#endif
-
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 extern void actuators_pwm_commit(void);

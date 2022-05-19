@@ -17,16 +17,8 @@
     <raw>
 ifeq ($(USE_BARO_BOARD), TRUE)
 
-# Navstik baro
-ifeq ($(BOARD), navstik)
-  BARO_BOARD_CFLAGS += -DUSE_I2C3
-  BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_BOARD_BMP085
-  BARO_BOARD_SRCS += peripherals/bmp085.c
-  BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-
-
 # Lisa/M baro
-else ifeq ($(BOARD), lisa_m)
+ifeq ($(BOARD), lisa_m)
   ifeq ($(BOARD_VERSION), 1.0)
     # on lisa_m_1.0: defaults to i2c baro bmp085 on the board
     LISA_M_BARO ?= BARO_BOARD_BMP085
@@ -157,14 +149,6 @@ LIA_BARO ?= BARO_MS5611_SPI
     BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
   endif
 
-
-# krooz baro
-else ifeq ($(BOARD), krooz)
-  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c2
-  BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_ADDR=0xEC
-  BARO_BOARD_SRCS += peripherals/ms5611.c
-  BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
-  BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
 
 # PX4FMU
 else ifeq ($(BOARD),$(filter $(BOARD),px4fmu))

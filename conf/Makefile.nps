@@ -34,21 +34,23 @@ Q=@
 
 # flags for warnings (C and C++)
 WARN_FLAGS += -W -Wall -Wextra
-WARN_FLAGS += -Wunused -Wcast-align -Wpointer-arith -Wswitch-default -Wmissing-declarations
+WARN_FLAGS += -Wunused -Wcast-align -Wpointer-arith -Wmissing-declarations
 #WARN_FLAGS += -Wcast-qual
 #WARN_FLAGS += -Wredundant-decls
 #WARN_FLAGS += -Wshadow
 
+CSTANDARD ?= -std=gnu99
 CFLAGS  = $(WARN_FLAGS)
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CFLAGS += -O$(OPT) -fPIC
 CFLAGS += $(DEBUG_FLAGS)
-CFLAGS += -std=gnu99
+CFLAGS += $(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CFLAGS += -D_GNU_SOURCE
 
+CXXSTANDARD ?= -std=c++0x
 CXXFLAGS  = $(WARN_FLAGS)
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
@@ -56,7 +58,7 @@ CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += -O$(OPT)
 CXXFLAGS += $(DEBUG_FLAGS)
-CXXFLAGS += -std=c++0x
+CXXFLAGS += $(CXXSTANDARD)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CXXFLAGS += -D_GNU_SOURCE
 

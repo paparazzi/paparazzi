@@ -56,11 +56,13 @@ static void i2c_chibios_setbitrate(struct i2c_periph *p, int bitrate) __attribut
 
 // private I2C init structure
 struct i2c_init {
-  semaphore_t *sem;
-  I2CConfig *cfg;
-#ifdef STM32F7
-  uint8_t *dma_buf;
+#if defined(STM32F7XX) || defined(STM32H7XX)
+  uint8_t dma_buf[I2C_BUF_LEN];
 #endif
+  char *name;
+  semaphore_t sem;
+  I2CConfig cfg;
+  struct i2c_errors errors;
 };
 
 
@@ -79,7 +81,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
   struct i2c_init *i = (struct i2c_init *) p->init_struct;
 
   // wait for a transaction to be pushed in the queue
-  chSemWait(i->sem);
+  chSemWait(&i->sem);
 
   if (p->trans_insert_idx == p->trans_extract_idx) {
     p->status = I2CIdle;
@@ -94,15 +96,17 @@ static void handle_i2c_thd(struct i2c_periph *p)
   msg_t status;
   // submit i2c transaction (R/W or R only depending of len_w)
   if (t->len_w > 0) {
-#if defined STM32F7
+#if defined(STM32F7XX) || defined(STM32H7XX)
     // we do stupid mem copy because F7 needs a special RAM for DMA operation
     memcpy(i->dma_buf, (void *)t->buf, (size_t)(t->len_w));
+    cacheBufferFlush(i->dma_buf, t->len_w);
     status = i2cMasterTransmitTimeout(
                (I2CDriver *)p->reg_addr,
                (i2caddr_t)((t->slave_addr) >> 1),
                (uint8_t *)i->dma_buf, (size_t)(t->len_w),
                (uint8_t *)i->dma_buf, (size_t)(t->len_r),
                tmo);
+    cacheBufferInvalidate(i->dma_buf, t->len_r);
     memcpy((void *)t->buf, i->dma_buf, (size_t)(t->len_r));
 #else
     status = i2cMasterTransmitTimeout(
@@ -113,7 +117,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
                tmo);
 #endif
   } else {
-#if defined STM32F7
+#if defined(STM32F7XX) || defined(STM32H7XX)
     // we do stupid mem copy because F7 needs a special RAM for DMA operation
     memcpy(i->dma_buf, (void *)t->buf, (size_t)(t->len_w));
     status = i2cMasterReceiveTimeout(
@@ -150,7 +154,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
       //if a timeout occurred before operation end
       // mark as failed and restart
       t->status = I2CTransFailed;
-      i2cStart((I2CDriver *)p->reg_addr, i->cfg);
+      i2cStart((I2CDriver *)p->reg_addr, &i->cfg);
       break;
     case MSG_RESET:
       //if one or more I2C errors occurred, the errors can
@@ -183,31 +187,32 @@ static void handle_i2c_thd(struct i2c_periph *p)
       break;
   }
 }
+
+/**
+ * @brief I2C thead
+ *
+ * @param arg The i2c peripheral (i2c_periph)
+ */
+static void thd_i2c(void *arg)
+{
+  struct i2c_periph *i2cp = (struct i2c_periph *)arg;
+  struct i2c_init *init_s = (struct i2c_init *)i2cp->init_struct;
+  chRegSetThreadName(init_s->name);
+
+  while (TRUE) {
+    handle_i2c_thd(i2cp);
+  }
+}
 #endif /* USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4 */
 
 #if USE_I2C1
-// I2C1 config
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
-static SEMAPHORE_DECL(i2c1_sem, 0);
-static I2CConfig i2cfg1 = I2C1_CFG_DEF;
-#if defined STM32F7
-// We need a special buffer for DMA operations
-static IN_DMA_SECTION(uint8_t i2c1_dma_buf[I2C_BUF_LEN]);
-static struct i2c_init i2c1_init_s = {
-  .sem = &i2c1_sem,
-  .cfg = &i2cfg1,
-  .dma_buf = i2c1_dma_buf
+// Local variables (in DMA safe memory)
+static IN_DMA_SECTION(struct i2c_init i2c1_init_s) = {
+  .name = "i2c1",
+  .sem = __SEMAPHORE_DATA(i2c1_init_s.sem, 0),
+  .cfg = I2C1_CFG_DEF
 };
-#else
-static struct i2c_init i2c1_init_s = {
-  .sem = &i2c1_sem,
-  .cfg = &i2cfg1
-};
-#endif
-// Errors
-struct i2c_errors i2c1_errors;
-// Thread
-static __attribute__((noreturn)) void thd_i2c1(void *arg);
 static THD_WORKING_AREA(wa_thd_i2c1, I2C_THREAD_STACK_SIZE);
 
 /*
@@ -219,53 +224,24 @@ void i2c1_hw_init(void)
   i2c1.submit = i2c_chibios_submit;
   i2c1.setbitrate = i2c_chibios_setbitrate;
 
-  i2cStart(&I2CD1, &i2cfg1);
+  i2cStart(&I2CD1, &i2c1_init_s.cfg);
   i2c1.reg_addr = &I2CD1;
-  i2c1.errors = &i2c1_errors;
+  i2c1.errors = &i2c1_init_s.errors;
   i2c1.init_struct = &i2c1_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c1, sizeof(wa_thd_i2c1),
-                    NORMALPRIO + 1, thd_i2c1, NULL);
-}
-
-/*
- * I2C1 thread
- *
- */
-static void thd_i2c1(void *arg)
-{
-  (void) arg;
-  chRegSetThreadName("i2c1");
-
-  while (TRUE) {
-    handle_i2c_thd(&i2c1);
-  }
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c1);
 }
 #endif /* USE_I2C1 */
 
 #if USE_I2C2
-// I2C2 config
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
-static SEMAPHORE_DECL(i2c2_sem, 0);
-static I2CConfig i2cfg2 = I2C2_CFG_DEF;
-#if defined STM32F7
-// We need a special buffer for DMA operations
-static IN_DMA_SECTION(uint8_t i2c2_dma_buf[I2C_BUF_LEN]);
-static struct i2c_init i2c2_init_s = {
-  .sem = &i2c2_sem,
-  .cfg = &i2cfg2,
-  .dma_buf = i2c2_dma_buf
+// Local variables (in DMA safe memory)
+static IN_DMA_SECTION(struct i2c_init i2c2_init_s) = {
+  .name = "i2c2",
+  .sem = __SEMAPHORE_DATA(i2c2_init_s.sem, 0),
+  .cfg = I2C2_CFG_DEF
 };
-#else
-static struct i2c_init i2c2_init_s = {
-  .sem = &i2c2_sem,
-  .cfg = &i2cfg2
-};
-#endif
-// Errors
-struct i2c_errors i2c2_errors;
-// Thread
-static __attribute__((noreturn)) void thd_i2c2(void *arg);
 static THD_WORKING_AREA(wa_thd_i2c2, I2C_THREAD_STACK_SIZE);
 
 /*
@@ -277,53 +253,24 @@ void i2c2_hw_init(void)
   i2c2.submit = i2c_chibios_submit;
   i2c2.setbitrate = i2c_chibios_setbitrate;
 
-  i2cStart(&I2CD2, &i2cfg2);
+  i2cStart(&I2CD2, &i2c2_init_s.cfg);
   i2c2.reg_addr = &I2CD2;
-  i2c2.errors = &i2c2_errors;
+  i2c2.errors = &i2c2_init_s.errors;
   i2c2.init_struct = &i2c2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c2, sizeof(wa_thd_i2c2),
-                    NORMALPRIO + 1, thd_i2c2, NULL);
-}
-
-/*
- * I2C2 thread
- *
- */
-static void thd_i2c2(void *arg)
-{
-  (void) arg;
-  chRegSetThreadName("i2c2");
-
-  while (TRUE) {
-    handle_i2c_thd(&i2c2);
-  }
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c2);
 }
 #endif /* USE_I2C2 */
 
 #if USE_I2C3
-// I2C3 config
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
-static SEMAPHORE_DECL(i2c3_sem, 0);
-static I2CConfig i2cfg3 = I2C3_CFG_DEF;
-#if defined STM32F7
-// We need a special buffer for DMA operations
-static IN_DMA_SECTION(uint8_t i2c3_dma_buf[I2C_BUF_LEN]);
-static struct i2c_init i2c3_init_s = {
-  .sem = &i2c3_sem,
-  .cfg = &i2cfg3,
-  .dma_buf = i2c3_dma_buf
+// Local variables (in DMA safe memory)
+static IN_DMA_SECTION(struct i2c_init i2c3_init_s) = {
+  .name = "i2c3",
+  .sem = __SEMAPHORE_DATA(i2c3_init_s.sem, 0),
+  .cfg = I2C3_CFG_DEF
 };
-#else
-static struct i2c_init i2c3_init_s = {
-  .sem = &i2c3_sem,
-  .cfg = &i2cfg3
-};
-#endif
-// Errors
-struct i2c_errors i2c3_errors;
-// Thread
-static __attribute__((noreturn)) void thd_i2c3(void *arg);
 static THD_WORKING_AREA(wa_thd_i2c3, I2C_THREAD_STACK_SIZE);
 
 /*
@@ -335,54 +282,24 @@ void i2c3_hw_init(void)
   i2c3.submit = i2c_chibios_submit;
   i2c3.setbitrate = i2c_chibios_setbitrate;
 
-  i2cStart(&I2CD3, &i2cfg3);
+  i2cStart(&I2CD3, &i2c3_init_s.cfg);
   i2c3.reg_addr = &I2CD3;
-  i2c3.init_struct = NULL;
-  i2c3.errors = &i2c3_errors;
+  i2c3.errors = &i2c3_init_s.errors;
   i2c3.init_struct = &i2c3_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c3, sizeof(wa_thd_i2c3),
-                    NORMALPRIO + 1, thd_i2c3, NULL);
-}
-
-/*
- * I2C3 thread
- *
- */
-static void thd_i2c3(void *arg)
-{
-  (void) arg;
-  chRegSetThreadName("i2c3");
-
-  while (TRUE) {
-    handle_i2c_thd(&i2c3);
-  }
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c3);
 }
 #endif /* USE_I2C3 */
 
 #if USE_I2C4
-// I2C4 config
 PRINT_CONFIG_VAR(I2C4_CLOCK_SPEED)
-static SEMAPHORE_DECL(i2c4_sem, 0);
-static I2CConfig i2cfg4 = I2C4_CFG_DEF;
-#if defined STM32F7
-// We need a special buffer for DMA operations
-static IN_DMA_SECTION(uint8_t i2c4_dma_buf[I2C_BUF_LEN]);
-static struct i2c_init i2c4_init_s = {
-  .sem = &i2c4_sem,
-  .cfg = &i2cfg4,
-  .dma_buf = i2c4_dma_buf
+// Local variables (in DMA safe memory)
+static IN_DMA_SECTION(struct i2c_init i2c4_init_s) = {
+  .name = "i2c4",
+  .sem = __SEMAPHORE_DATA(i2c4_init_s.sem, 0),
+  .cfg = I2C4_CFG_DEF
 };
-#else
-static struct i2c_init i2c4_init_s = {
-  .sem = &i2c4_sem,
-  .cfg = &i2cfg4
-};
-#endif
-// Errors
-struct i2c_errors i2c4_errors;
-// Thread
-static __attribute__((noreturn)) void thd_i2c4(void *arg);
 static THD_WORKING_AREA(wa_thd_i2c4, I2C_THREAD_STACK_SIZE);
 
 /*
@@ -394,28 +311,13 @@ void i2c4_hw_init(void)
   i2c4.submit = i2c_chibios_submit;
   i2c4.setbitrate = i2c_chibios_setbitrate;
 
-  i2cStart(&I2CD4, &i2cfg4);
+  i2cStart(&I2CD4, &i2c4_init_s.cfg);
   i2c4.reg_addr = &I2CD4;
-  i2c4.init_struct = NULL;
-  i2c4.errors = &i2c4_errors;
+  i2c4.errors = &i2c4_init_s.errors;
   i2c4.init_struct = &i2c4_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c4, sizeof(wa_thd_i2c4),
-                    NORMALPRIO + 1, thd_i2c4, NULL);
-}
-
-/*
- * I2C4 thread
- *
- */
-static void thd_i2c4(void *arg)
-{
-  (void) arg;
-  chRegSetThreadName("i2c4");
-
-  while (TRUE) {
-    handle_i2c_thd(&i2c4);
-  }
+                    NORMALPRIO + 1, thd_i2c, (void *)&i2c4);
 }
 #endif /* USE_I2C4 */
 
@@ -475,7 +377,7 @@ static bool i2c_chibios_submit(struct i2c_periph *p, struct i2c_transaction *t)
   p->trans_insert_idx = temp;
 
   chSysUnlock();
-  chSemSignal(((struct i2c_init *)p->init_struct)->sem);
+  chSemSignal(&((struct i2c_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;
 #else

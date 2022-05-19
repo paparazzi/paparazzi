@@ -19,15 +19,12 @@
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
-    <module name="imu" type="bebop">
-      <define name="BEBOP_LOWPASS_FILTER" value="MPU60X0_DLPF_42HZ"/>
-      <define name="BEBOP_SMPLRT_DIV" value="0"/>
-      <define name="BEBOP_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
-      <define name="BEBOP_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
-    </module>
+    <module name="imu" type="bebop"/>
     <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi_simple"/>
-    <module name="ins" type="ekf2"/>
+    <module name="ins" type="ekf2">
+      <define name="INS_EKF2_OPTITRACK" value="true"/>
+    </module>
     
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -81,13 +78,6 @@
     <define name="MAG_X_SENS" value="7.21201776785" integer="16"/>
     <define name="MAG_Y_SENS" value="7.20541442846" integer="16"/>
     <define name="MAG_Z_SENS" value="7.55306977197" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="-1"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-16"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-102"/>
-    <define name="ACCEL_X_SENS" value="4.90615997669" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.8601827035" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.85967415403" integer="16"/>
   </section>
 
   <section name="INS" prefix="INS_">

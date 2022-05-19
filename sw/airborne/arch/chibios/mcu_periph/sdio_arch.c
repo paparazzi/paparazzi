@@ -47,7 +47,7 @@ static enum {STOP, CONNECT} cnxState = STOP;
 
 bool sdio_connect(void)
 {
-  if (!sdc_lld_is_card_inserted (NULL)) {
+  if (!sdc_lld_is_card_inserted(NULL)) {
     return FALSE;
   }
 
@@ -55,49 +55,36 @@ bool sdio_connect(void)
     return TRUE;
   }
 
-  /*
-   * Initializes the SDIO drivers.
-   *
-   * FIXME This could be hardcoded in board file ?
-   */
-  const uint32_t mode = PAL_MODE_ALTERNATE(SDIO_AF) | PAL_STM32_OTYPE_PUSHPULL |
-    PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING | PAL_STM32_MODE_ALTERNATE;
-
-  palSetPadMode (SDIO_D0_PORT, SDIO_D0_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D1_PORT, SDIO_D1_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D2_PORT, SDIO_D2_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_D3_PORT, SDIO_D3_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  palSetPadMode (SDIO_CK_PORT, SDIO_CK_PIN, mode);
-  palSetPadMode (SDIO_CMD_PORT, SDIO_CMD_PIN, mode | PAL_STM32_PUPDR_PULLUP);
-  // palSetPadMode (GPIOD, GPIOD_SDIO_CMD, mode);
-
-  chThdSleepMilliseconds(100);
-
-
-  sdcStart(&SDCD1, NULL);
-  while (sdcConnect(&SDCD1) != HAL_SUCCESS) {
+  // Try only 3 times to prevent hanging
+  for (uint8_t i = 0; i < 3; i++) {
+    sdcStart(&SDCD1, NULL);
+    if (sdcConnect(&SDCD1) == HAL_SUCCESS) {
+      cnxState = CONNECT;
+      return TRUE;
+    }
+    sdcStop(&SDCD1);
     chThdSleepMilliseconds(100);
   }
 
-  cnxState = CONNECT;
-  return TRUE;
+  return FALSE;
 }
 
 
 bool sdio_disconnect(void)
 {
-  if (cnxState == STOP)
+  if (cnxState == STOP) {
     return TRUE;
+  }
   if (sdcDisconnect(&SDCD1)) {
     return FALSE;
   }
-  sdcStop (&SDCD1);
+  sdcStop(&SDCD1);
   cnxState = STOP;
   return TRUE;
 }
 
 bool is_card_inserted(void)
 {
-  return sdc_lld_is_card_inserted (NULL);
+  return sdc_lld_is_card_inserted(NULL);
 }
 

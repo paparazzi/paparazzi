@@ -58,11 +58,14 @@ if mode == 1:
 if mode == -1:  # no pprz cdc was found, look for PX4
     ports = glob.glob("/dev/serial/by-id/usb-3D_Robotics*")
     ports.append(glob.glob("/dev/serial/by-id/pci-3D_Robotics*"))
+    ports.append(glob.glob("/dev/serial/by-id/usb-Hex_ProfiCNC_Cube*"))
     for p in ports:
-        if len(p) > 0:
+        port = p
+        if isinstance(p, list) and len(port) > 0:
+            port = p[0]
+        if len(port) > 0:
             try:
-                ser = serial.Serial(p, timeout=0.5)
-                port = p
+                ser = serial.Serial(port, timeout=0.5)
                 mode = 2
                 print("Original PX4 firmware CDC device found at port: " + port)
             except serial.serialutil.SerialException:

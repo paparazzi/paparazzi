@@ -37,6 +37,16 @@
  */
 
 /**
+ * The requested reboot states
+ */
+enum reboot_state_t {
+  MCU_REBOOT_NORMAL,      ///< Normal reboot
+  MCU_REBOOT_POWEROFF,    ///< Poweroff the device
+  MCU_REBOOT_FAST,        ///< Fast reboot (skip bootloader)
+  MCU_REBOOT_BOOTLOADER   ///< Go to bootloader
+};
+
+/**
  * Microcontroller peripherals initialization.
  * This function is responisble for setting up the microcontroller
  * after Reset.
@@ -48,6 +58,20 @@ extern void mcu_init(void);
  * Calls the event functions of used peripherals like i2c, uart, etc.
  */
 extern void mcu_event(void);
+
+/**
+ * Reboot the MCU
+ * Should not be called during flight or ciritcal operations
+ * @param state The state to reboot towards
+ */
+extern void mcu_reboot(enum reboot_state_t reboot_state);
+
+/**
+ * Puts the MCU in energy save mode
+ * This disables features of the MCU to save energy. This is used for
+ * example to quickly write to the SD card while powering off.
+ */
+extern void mcu_energy_save(void);
 
 /**
  * Optional board init function called at the start of mcu_init().

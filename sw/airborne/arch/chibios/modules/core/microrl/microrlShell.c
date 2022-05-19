@@ -351,20 +351,16 @@ static THD_FUNCTION(shell_thread, p) {
   msg_t msg = MSG_OK;
   chpg = ((ShellConfig *)p)->sc_channel;
   staticCommands = ((ShellConfig *)p)->sc_commands;
-  bool readOk=TRUE;
-
   
   chRegSetThreadName("Enhanced_shell");
   printScreen ("ChibiOS/RT Enhanced Shell");
-  while (!chThdShouldTerminateX() && readOk) {
+  while (!chThdShouldTerminateX()) {
     uint8_t c;
-    if (streamRead(chpg, &c, 1) == 0) {
-       readOk=FALSE;
-    } else {
+    if (streamRead(chpg, &c, 1) > 0) {
       if (altCbParam.altFunc == NULL) {
-	microrl_insert_char (&rl, c);
+	      microrl_insert_char (&rl, c);
       } else {
-	(*altCbParam.altFunc) (c, altCbParam.param);
+	      (*altCbParam.altFunc) (c, altCbParam.param);
       }
     }
   }

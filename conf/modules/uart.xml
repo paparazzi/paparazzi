@@ -17,6 +17,7 @@
     <file name="uart.c" dir="mcu_periph"/>
     <file_arch name="uart_arch.c" dir="mcu_periph"/>
     <file name="serial_port.c" dir="arch/linux" cond="ifeq ($(ARCH), linux)"/>
+    <file_arch name="usb_ser_hw.c" dir="." cond="ifneq ($(filter $(ARCH),chibios stm32),)"/>
   </makefile>
   <makefile target="sim|nps|hitl">
     <include name="arch/linux"/>

@@ -98,9 +98,9 @@ static void send_minimal_com(struct transport_tx *trans, struct link_device *dev
   uint8_t gps_fix = 0;
 #endif
   pprz_msg_send_MINIMAL_COM(trans, dev, AC_ID,
-      &lat, &lon, &hmsl, &gspeed, &course, &climb,
-      &electrical.vsupply, &throttle, &autopilot.mode,
-      &nav_block, &gps_fix, &autopilot.flight_time);
+                            &lat, &lon, &hmsl, &gspeed, &course, &climb,
+                            &electrical.vsupply, &throttle, &autopilot.mode,
+                            &nav_block, &gps_fix, &autopilot.flight_time);
 }
 
 void autopilot_init(void)
@@ -116,15 +116,6 @@ void autopilot_init(void)
   autopilot.ground_detected = false;
   autopilot.detect_ground_once = false;
   autopilot.use_rc = true;
-  autopilot.power_switch = false;
-#ifdef POWER_SWITCH_GPIO
-  gpio_setup_output(POWER_SWITCH_GPIO);
-#ifdef POWER_SWITCH_ENABLE
-  autopilot_set_power_switch(POWER_SWITCH_ENABLE); // set initial status
-#else
-  gpio_clear(POWER_SWITCH_GPIO); // by default POWER OFF
-#endif
-#endif
 
   // call firmware specific init
   autopilot_firmware_init();
@@ -298,20 +289,6 @@ void autopilot_set_in_flight(bool in_flight)
 bool autopilot_in_flight(void)
 {
   return autopilot.in_flight;
-}
-
-/** set power switch
- */
-void autopilot_set_power_switch(bool power_switch)
-{
-#ifdef POWER_SWITCH_GPIO
-  if (power_switch) {
-    gpio_set(POWER_SWITCH_GPIO);
-  } else {
-    gpio_clear(POWER_SWITCH_GPIO);
-  }
-#endif
-  autopilot.power_switch = power_switch;
 }
 
 /** store settings

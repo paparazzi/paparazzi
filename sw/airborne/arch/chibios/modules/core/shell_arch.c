@@ -28,24 +28,31 @@
 #include "mcu_periph/uart.h"
 #include "printf.h"
 #include "modules/core/abi.h"
+#include "mcu_periph/usb_serial.h"
 
 /*************************
  * Basic static commands *
  *************************/
 
-static void cmd_mem(BaseSequentialStream *lchp, int argc, const char * const argv[])
+static void cmd_mem(BaseSequentialStream *lchp, int argc, const char *const argv[])
 {
+  size_t n, total, largest;
+  memory_area_t area;
+
   (void)argv;
   if (argc > 0) {
     chprintf(lchp, "Usage: mem\r\n");
     return;
   }
-
-  chprintf (lchp, "core free memory : %u bytes\r\n", chCoreGetStatusX());
-  //chprintf (lchp, "heap free memory : %u bytes\r\n", getHeapFree());
+  n = chHeapStatus(NULL, &total, &largest);
+  chCoreGetStatusX(&area);
+  chprintf(lchp, "core free memory : %u bytes\r\n", area.size);
+  chprintf(lchp, "heap fragments   : %u\r\n", n);
+  chprintf(lchp, "heap free total  : %u bytes\r\n", total);
+  chprintf(lchp, "heap free largest: %u bytes\r\n", largest);
 }
 
-static void cmd_abi(BaseSequentialStream *lchp, int argc, const char * const argv[])
+static void cmd_abi(BaseSequentialStream *lchp, int argc, const char *const argv[])
 {
   (void)argv;
   if (argc > 0) {
@@ -93,10 +100,10 @@ void shell_add_entry(char *cmd_name, shell_cmd_t *cmd)
 void shell_init_arch(void)
 {
   // This should be called after mcu periph init
-  shell_cfg.sc_channel = (BaseSequentialStream *) (SHELL_DEV.reg_addr);
+  shell_cfg.sc_channel = (BaseSequentialStream *)(SHELL_DEV.reg_addr);
 
   shellInit();
-  thread_t * shelltp = shellCreateFromHeap(&shell_cfg, 2048U, NORMALPRIO);
+  thread_t *shelltp = shellCreateFromHeap(&shell_cfg, 2048U, NORMALPRIO);
   if (shelltp == NULL) {
     chSysHalt("fail starting shell");
   }

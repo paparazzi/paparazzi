@@ -9,7 +9,7 @@
 BOARD=px4fmu
 BOARD_VERSION=5.0
 BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
-BOARD_CFG=\"boards/$(BOARD_DIR)/$(BOARD).h\"
+BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)
@@ -19,11 +19,11 @@ MCU=cortex-m7
 
 # FPU on F7
 USE_FPU=hard
-#USE_FPU_OPT= -mfpu=fpv5-d16
+USE_FPU_OPT= -mfpu=fpv5-d16
 
 #USE_LTO=yes
 
-$(TARGET).CFLAGS += -DSTM32F7 -DPPRZLINK_ENABLE_FD
+$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD
 
 ##############################################################################
 # Architecture or project specific options
@@ -33,29 +33,9 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F7xx/platform.mk
-CHIBIOS_BOARD_PORT = ARMCMx/STM32F7xx/port.mk
+CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
 CHIBIOS_BOARD_LINKER = STM32F76xxI.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f7xx.mk
-
-# ITCM flash is a special flash that allow faster operations
-# At the moment it is not possible to flash the code in this mode using dfu-util
-# but it should work with the BlackMagicProbe or STLINK
-# By default, normal flash is used
-ifeq ($(USE_ITCM),1)
-$(TARGET).CFLAGS += -DUSE_ITCM=1
-DFU_ADDR = 0x00200000
-else
-$(TARGET).CFLAGS += -DUSE_ITCM=0
-DFU_ADDR = 0x08000000
-endif
-
-# In this case we dont have LUFTBOOT but PX4_BOOTLOADER, but in order
-# to correctly initialize the interrupt vector we have to define that
-# the board has LUFTBOOT
-HAS_LUFTBOOT ?= 1
-ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
-$(TARGET).CFLAGS+=-DLUFTBOOT
-endif
 
 ##############################################################################
 # Compiler settings

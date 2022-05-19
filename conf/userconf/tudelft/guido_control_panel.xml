@@ -38,7 +38,7 @@
     </program>
     <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
     <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
-    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
+    <program name="NatNet3" command="sw/ground_segment/python/natnet3.x/natnet2ivy.py"/>
     <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
       <arg flag="--port" constant="/dev/ttyUSB1"/>
       <arg flag="--id" constant="1"/>
@@ -67,11 +67,13 @@
       <program name="GCS">
         <arg flag="-speech" />
       </program>
-      <program name="NatNet">
+      <program name="NatNet3">
         <arg flag="-ac" constant="1"/>
         <arg flag="12"/>
-        <arg flag="-small"/>
-        <arg flag="-tf" constant="5"/>
+        <arg flag="-sm"/>
+        <arg flag="-f" constant="5"/>
+        <arg flag="-zf"/>
+        <arg flag="-o"/>
       </program>
       <program name="Joystick">
         <arg flag="-d" constant="2"/>
@@ -92,9 +94,11 @@
         <arg flag="hobbyking.xml"/>
         <arg flag="-d" constant="1"/>
       </program>
-      <program name="NatNet">
+      <program name="NatNet3">
         <arg flag="-ac" constant="2"/>
         <arg flag="11"/>
+        <arg flag="-zf"/>
+        <arg flag="-o"/>
       </program>
     </session>
     <session name="Flight USB0 @57600">

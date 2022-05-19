@@ -497,8 +497,8 @@
   sdlog message buffer and queue configuration
  */
 #define SDLOG_QUEUE_BUCKETS  1024
-#define SDLOG_MAX_MESSAGE_LEN 252
+#define SDLOG_MAX_MESSAGE_LEN 300
 #define SDLOG_NUM_FILES 2
-#define SDLOG_ALL_BUFFERS_SIZE (SDLOG_NUM_FILES*4096*2)
+#define SDLOG_ALL_BUFFERS_SIZE (SDLOG_NUM_FILES*16*1024)
 
 #endif /* MCUCONF_H */

@@ -998,13 +998,14 @@ void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud)
  */
 void uart_periph_set_mode(struct uart_periph *p __attribute__((unused)), bool tx_enabled __attribute__((unused)),
                           bool rx_enabled __attribute__((unused)), bool hw_flow_control __attribute__((unused))) {}
-
-#if defined STM32F7
+#if defined(STM32H7XX)
+#define __USART_CR1_M USART_CR1_M0
+#elif defined(STM32F7XX)
 #define __USART_CR1_M USART_CR1_M_0
-#elif defined STM32F1 || defined STM32F4 || defined STM32F3
+#elif defined(STM32F1XX) || defined (STM32F3XX) || defined(STM32F4XX)
 #define __USART_CR1_M USART_CR1_M
 #else
-#error unsupported board
+#error Unsupported board
 #endif
 
 /**
@@ -1049,7 +1050,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p,
   sdStart((SerialDriver *)(p->reg_addr), conf);
 }
 
-#ifdef STM32F7
+#if defined(STM32F7XX) || defined(STM32H7XX)
 /**
  * Invert data logic
  */
@@ -1159,4 +1160,3 @@ void uart_send_message(struct uart_periph *p, long fd)
   // send signal to start transmission
   chSemSignal(init_struct->tx_sem);
 }
-

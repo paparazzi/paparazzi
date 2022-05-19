@@ -1,0 +1,241 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="bebop_optitrack">
+  <description>
+    Airframe file to fly a Bebop1 drone, in stable smooth flight, through waypoints using opticflow. As this airframe does not use a magnetometer nor GPS for heading determination, all positions and angles are relative to its starting position. Therefore; the drone should be facing north when started. The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
+
+Frame size: 2 cams with 240x240
+    
+pyramid level 0: 30 fps average, min=29fps lowest)
+pyramid level 1: 26 fps average, min=15fps
+pyramid level 2: 21 fps average, min=11fps
+  </description>
+  <firmware name="rotorcraft">
+    <target name="ap" board="bebop"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+      <define name="USE_SONAR"/>
+    <!--target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
+    </target-->
+
+    <!-- Subsystem section -->
+    <module name="telemetry" type="transparent_udp"/>
+    <module name="radio_control" type="datalink"/>
+    <module name="actuators" type="bebop"/>
+    <module name="imu" type="bebop"/>
+    <module name="stabilization" type="indi">
+      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+    </module>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </module>
+    <module name="ins" type="hff_extended"/>
+    <define name="USE_SONAR"/>
+    <module name="pose_history"/>
+
+    <module name="bebop_cam">
+      <!-- IMPORTANT to limit these or FPS drops significantly -->
+      <define name="MT9F002_TARGET_FPS" value="30"/> <!-- Front cam -->
+      <define name="MT9V117_TARGET_FPS" value="30"/> <!-- Bottom cam -->
+    </module>
+    <module name="bebop_ae_awb"/>
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_FPS" value="5"/>
+    </module>
+    <module name="cv_opticflow">
+      <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit-->
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS" value="20"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="0"/>
+      <define name="OPTICFLOW_FPS" value="0"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW" value="1"/>
+
+      <define name="OPTICFLOW_CAMERA2" value="front_camera"/>
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="0.8"/> <!--Obtained from a linefit-->
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="0.85"/> <!--Obtained from a linefit-->
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="20"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_FPS_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW_CAMERA2" value="1"/>
+    </module>
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
+      <define name="VIEWVIDEO_FPS" value="5"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="50"/>
+    </module>
+  </firmware>
+
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="6000"/>
+  </commands>
+
+  <servos driver="Default">
+    <servo name="TOP_LEFT" no="0" min="1000" neutral="1000" max="9800"/>
+    <servo name="TOP_RIGHT" no="1" min="1000" neutral="1000" max="9800"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="1000" neutral="1000" max="9800"/>
+    <servo name="BOTTOM_LEFT" no="3" min="1000" neutral="1000" max="9800"/>
+  </servos>
+
+  <command_laws>
+    <set servo="TOP_LEFT"     value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
+    <set servo="TOP_RIGHT"    value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
+  </command_laws>
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="240" />
+    <define name="OUTPUT_WIDTH" value="240" />
+    <define name="OFFSET_X" value="0.09" />
+    <define name="ZOOM" value="1.0"/>
+    <!--define name="GAIN_GREEN1" value="10.0"/>
+    <define name="GAIN_GREEN2" value="10.0"/>
+    <define name="GAIN_BLUE" value="12.5"/>
+    <define name="GAIN_RED" value="9.0"/>
+    <define name="TARGET_EXPOSURE" value="20" /-->
+  </section>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+    <!-- Magneto calibration -->
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="SONAR_MAX_RANGE" value="2.2"/>
+  </section>
+
+  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="120" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+  </section>
+
+  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- attitude reference generation model -->
+    <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.9"/>
+    <define name="REF_MAX_P" value="600." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="450" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.9"/>
+    <define name="REF_MAX_Q" value="600." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="200" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.9"/>
+    <define name="REF_MAX_R" value="200." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1000.)"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- Control effectiveness, have been determined by flying test flights with adaptive turned on./-->
+    <define name="G1_ROLL" value="{11.0, -11.0, -11.0 , 11.0 }"/>
+    <define name="G1_PITCH" value="{8.5 , 8.5, -8.5 , -8.5}"/>
+    <define name="G1_YAW" value="{-0.50, 0.50, -0.50, 0.50}"/>
+    <define name="G1_THRUST" value="{-.40, -.40, -.40, -.40}"/>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2" value="{-48.0,   48.0,  -48.0,   48.0}"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="400.0"/>
+    <define name="REF_ERR_Q" value="400.0"/>
+    <define name="REF_ERR_R" value="400.0"/>
+    <define name="REF_RATE_P" value="20.0"/>
+    <define name="REF_RATE_Q" value="20.0"/>
+    <define name="REF_RATE_R" value="20.0"/>
+
+    <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF" value="5.0"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.00001"/>
+
+    <!--Priority for each axis (roll, pitch, yaw and thrust)-->
+    <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="500"/>
+    <define name="HOVER_KD" value="100"/>
+    <define name="HOVER_KI" value="30"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.68"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="REF_MAX_SPEED" value="0.7" unit="m/s"/>
+    <define name="PGAIN" value="120"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
+    <define name="REF_ZETA" value="1.0"/>
+  </section>
+
+  <section name="MISC">
+    <define name="ARRIVED_AT_WAYPOINT" value="0.4" unit="m"/> <!-- how far away it declares that the waypoint is reached -->
+    <define name="THRESHOLD_GROUND_DETECT" value="40.0"/> <!-- to prevent false ground detections-->
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="0.5" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="MT9F002_SENSOR_RES_DIVIDER" value="4"/>
+  </section>
+  <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
+
+  <section name="AUTOPILOT">
+    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/> <!-- needed to be able to fly the drone in NAV mode without a GPS fix -->
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.4" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+</airframe>

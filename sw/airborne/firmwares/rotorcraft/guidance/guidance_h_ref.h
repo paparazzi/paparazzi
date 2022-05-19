@@ -30,6 +30,7 @@
 #include "inttypes.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 

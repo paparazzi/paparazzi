@@ -47,6 +47,12 @@ update_submodules:
 		cd $(PAPARAZZI_SRC) && git submodule update --init --recursive sw/ext/$*; \
 	fi
 
+# sync a specific submodule
+%.sync:
+	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
+		cd $(PAPARAZZI_SRC) && git submodule sync --recursive sw/ext/$*; \
+	fi
+
 # only build currentl checkout of libopencm3
 libopencm3.build:
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f1"
@@ -71,11 +77,11 @@ key_generator: key_generator.update
 
 rustlink: rustlink.update
 
-chibios: chibios.update
+chibios: chibios.sync chibios.update
 
 TRICAL: TRICAL.update
 
-fatfs: fatfs.update
+fatfs: fatfs.sync fatfs.update
 
 ecl: ecl.update
 

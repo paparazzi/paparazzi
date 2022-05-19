@@ -15,7 +15,7 @@ RTOS=chibios
 USE_FPU=no
 HARD_FLOAT=no
 
-$(TARGET).CFLAGS += -DSTM32F1 -DPPRZLINK_ENABLE_FD
+$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD
 
 ##############################################################################
 # Architecture or project specific options

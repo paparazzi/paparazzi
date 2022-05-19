@@ -124,9 +124,6 @@ ifeq ($(BOARD_VERSION), 2.0)
 LED_DEFINES = -DLED_BLUE=3 -DLED_RED=4 -DLED_GREEN=5
 endif
 endif
-ifeq ($(BOARD), navstik)
-LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
-endif
 ifeq ($(BOARD), cc3d)
 LED_DEFINES = -DLED_BLUE=1
 endif

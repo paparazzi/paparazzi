@@ -55,6 +55,9 @@
        </item>
        <item>
         <widget class="QDoubleSpinBox" name="freq_spinbox">
+         <property name="maximum">
+          <double>10000.000000000000000</double>
+         </property>
          <property name="value">
           <double>1.000000000000000</double>
          </property>

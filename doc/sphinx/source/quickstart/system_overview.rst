@@ -10,7 +10,9 @@ The typical configuration constitute of a standard laptop as ground station and 
 
 The Gound Control Station (GCS) constitute of multiples programs, communicating with each other by a software bus.
 
-.. image:: agents_arch.png
+.. image:: PPRZ_System_architecture.png
+  :width: 80%
+  :align: center
 
 The core Paparazzi ground programs are Link, which handle the communication with the drones, the Server, which maintain the state of all aircrafts, and the GCS, the user facing application to control the drones.
 

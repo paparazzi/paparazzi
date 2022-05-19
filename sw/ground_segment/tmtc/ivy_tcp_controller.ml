@@ -39,9 +39,9 @@ let () =
 
         let use_tele_message = fun payload ->
           Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
-          let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
-          let msg = Tm_Pprz.message_of_id msg_id in
-          Tm_Pprz.message_send (string_of_int ac_id) msg.PprzLink.name values in
+          let (header, values) = Tm_Pprz.values_of_payload payload in
+          let msg = Tm_Pprz.message_of_id header.message_id in
+          Tm_Pprz.message_send (string_of_int header.sender_id) msg.PprzLink.name values in
 
         ignore (PprzTransport.parse use_tele_message (Bytes.to_string b))
       with
@@ -58,7 +58,8 @@ let () =
     try
       let (msg_id, vs) = Dl_Pprz.values_of_string args.(0) in
       let ac_id = PprzLink.int_assoc "ac_id" vs in
-      let payload = Dl_Pprz.payload_of_values msg_id ac_id vs in
+      (* receiver_id unknow, using 0 instead... *)
+      let payload = Dl_Pprz.payload_of_values msg_id ac_id 0 vs in
       let buf = Pprz_transport.Transport.packet payload in
       fprintf o "%s%!" buf
     with exc -> prerr_endline (Printexc.to_string exc) in

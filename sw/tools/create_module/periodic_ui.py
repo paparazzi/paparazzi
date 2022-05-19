@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'periodic_ui.ui'
 #
-# Created by: PyQt5 UI code generator 5.10.1
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_Periodic(object):
     def setupUi(self, Periodic):
@@ -36,6 +38,7 @@ class Ui_Periodic(object):
         self.label_6.setObjectName("label_6")
         self.horizontalLayout_5.addWidget(self.label_6)
         self.freq_spinbox = QtWidgets.QDoubleSpinBox(Periodic)
+        self.freq_spinbox.setMaximum(10000.0)
         self.freq_spinbox.setProperty("value", 1.0)
         self.freq_spinbox.setObjectName("freq_spinbox")
         self.horizontalLayout_5.addWidget(self.freq_spinbox)
@@ -100,4 +103,3 @@ class Ui_Periodic(object):
         self.autorun_comboBox.setItemText(2, _translate("Periodic", "FALSE"))
         self.label_8.setText(_translate("Periodic", "Stop"))
         self.label_7.setText(_translate("Periodic", "Start"))
-

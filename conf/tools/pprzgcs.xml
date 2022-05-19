@@ -1,2 +1,2 @@
-<program command="$pprzgcs" name="PprzGCS" />
+<program command="sw/tools/gcs_launch.py" name="PprzGCS" />
 

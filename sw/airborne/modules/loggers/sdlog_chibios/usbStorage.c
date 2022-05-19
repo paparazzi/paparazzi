@@ -45,7 +45,8 @@ static void thdUsbStorage(void *arg);
 static thread_t *usbStorageThreadPtr = NULL;
 /* USB mass storage driver */
 static bool isRunning = false;
-
+float usb_storage_status = 0;
+static BSEMAPHORE_DECL(bs_start_msd, true);
 
 /* Turns on a LED when there is I/O activity on the USB port */
 static void usbActivity(bool active __attribute__((unused)))
@@ -96,8 +97,6 @@ void usbStorageStop(void)
 }
 
 
-
-
 static void thdUsbStorage(void *arg)
 {
   (void) arg;
@@ -109,16 +108,24 @@ static void thdUsbStorage(void *arg)
   // Enable usb power with boot
   if(palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW)
 #endif
+
   {
+#if HAL_USE_SERIAL_USB
+    // serial usb is used, so the usb vbus detection can't be used
+    chBSemWait(&bs_start_msd);
+#else
     palEnablePadEvent(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, PAL_EVENT_MODE_BOTH_EDGES);
     // wait transition to HIGH with rebound management
     do {
       palWaitPadTimeout(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, TIME_INFINITE);
       chThdSleepMilliseconds(10);
     } while (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW);
+  
+#endif
   }
 
   isRunning = true;
+  usb_storage_status = 1;
   chRegSetThreadName("UsbStorage:connected");
 
   /* Stop the logs*/
@@ -150,7 +157,7 @@ static void thdUsbStorage(void *arg)
 
   chThdSleepMilliseconds(500);
 
-  mcu_reset();
+  mcu_reboot(MCU_REBOOT_FAST);
 }
 
 bool usbStorageIsItRunning(void)
@@ -158,3 +165,8 @@ bool usbStorageIsItRunning(void)
   return isRunning;
 }
 
+void usbStorage_enable_usb_storage(float e) {
+  if(e > 0.5) {
+    chBSemSignal(&bs_start_msd);
+  }
+}

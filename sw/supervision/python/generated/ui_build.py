@@ -1,0 +1,95 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'ui/build.ui'
+#
+# Created by: PyQt5 UI code generator 5.14.1
+#
+# WARNING! All changes made in this file will be lost!
+
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+class Ui_Build(object):
+    def setupUi(self, Build):
+        Build.setObjectName("Build")
+        Build.resize(437, 87)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(Build)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.groupBox = QtWidgets.QGroupBox(Build)
+        self.groupBox.setObjectName("groupBox")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.groupBox)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_14 = QtWidgets.QLabel(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_14.sizePolicy().hasHeightForWidth())
+        self.label_14.setSizePolicy(sizePolicy)
+        self.label_14.setObjectName("label_14")
+        self.horizontalLayout_2.addWidget(self.label_14)
+        self.target_combo = QtWidgets.QComboBox(self.groupBox)
+        self.target_combo.setCurrentText("")
+        self.target_combo.setDuplicatesEnabled(False)
+        self.target_combo.setObjectName("target_combo")
+        self.horizontalLayout_2.addWidget(self.target_combo)
+        self.clean_button = QtWidgets.QToolButton(self.groupBox)
+        icon = QtGui.QIcon.fromTheme("edit-clear")
+        self.clean_button.setIcon(icon)
+        self.clean_button.setObjectName("clean_button")
+        self.horizontalLayout_2.addWidget(self.clean_button)
+        self.build_button = QtWidgets.QToolButton(self.groupBox)
+        icon = QtGui.QIcon.fromTheme("system-run")
+        self.build_button.setIcon(icon)
+        self.build_button.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        self.build_button.setObjectName("build_button")
+        self.horizontalLayout_2.addWidget(self.build_button)
+        self.print_config_checkbox = QtWidgets.QCheckBox(self.groupBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.print_config_checkbox.sizePolicy().hasHeightForWidth())
+        self.print_config_checkbox.setSizePolicy(sizePolicy)
+        self.print_config_checkbox.setText("")
+        self.print_config_checkbox.setObjectName("print_config_checkbox")
+        self.horizontalLayout_2.addWidget(self.print_config_checkbox)
+        self.horizontalLayout.addWidget(self.groupBox)
+        self.groupBox_2 = QtWidgets.QGroupBox(Build)
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_15 = QtWidgets.QLabel(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
+        self.label_15.setSizePolicy(sizePolicy)
+        self.label_15.setObjectName("label_15")
+        self.horizontalLayout_3.addWidget(self.label_15)
+        self.device_combo = QtWidgets.QComboBox(self.groupBox_2)
+        self.device_combo.setObjectName("device_combo")
+        self.horizontalLayout_3.addWidget(self.device_combo)
+        self.flash_button = QtWidgets.QToolButton(self.groupBox_2)
+        icon = QtGui.QIcon.fromTheme("emblem-downloads")
+        self.flash_button.setIcon(icon)
+        self.flash_button.setObjectName("flash_button")
+        self.horizontalLayout_3.addWidget(self.flash_button)
+        self.horizontalLayout.addWidget(self.groupBox_2)
+
+        self.retranslateUi(Build)
+        QtCore.QMetaObject.connectSlotsByName(Build)
+
+    def retranslateUi(self, Build):
+        _translate = QtCore.QCoreApplication.translate
+        Build.setWindowTitle(_translate("Build", "Form"))
+        self.groupBox.setTitle(_translate("Build", "Build"))
+        self.label_14.setText(_translate("Build", "Target"))
+        self.clean_button.setToolTip(_translate("Build", "Clean"))
+        self.clean_button.setText(_translate("Build", "..."))
+        self.build_button.setToolTip(_translate("Build", "Build"))
+        self.build_button.setText(_translate("Build", "..."))
+        self.print_config_checkbox.setToolTip(_translate("Build", "print config at build time"))
+        self.groupBox_2.setTitle(_translate("Build", "Flash"))
+        self.label_15.setText(_translate("Build", "Device"))
+        self.flash_button.setToolTip(_translate("Build", "Upload"))
+        self.flash_button.setText(_translate("Build", "Flash"))

@@ -43,7 +43,7 @@ OTHER_PARAMS: List[str] = [
     "-I../../var/include",
     "-I../../tests/modules",
     "-Imodules", "-DPERIODIC_TELEMETRY",
-    "-DDOWNLINK",
+    "-DPPRZ_TESTS", "-DDOWNLINK",
     "-DBOARD_CONFIG=\"../../tests/modules/dummy.h\""]
 
 
