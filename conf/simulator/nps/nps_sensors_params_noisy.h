@@ -38,7 +38,8 @@
 #elif defined PERIODIC_FREQUENCY
 #define NPS_PROPAGATE PERIODIC_FREQUENCY
 #else
-#define 512. // historical magic number
+#warning "NPS_PROPAGATE not defined, using default 512Hz"
+#define NPS_PROPAGATE 512.
 #endif
 
 /*

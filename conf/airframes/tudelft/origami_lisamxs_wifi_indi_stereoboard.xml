@@ -287,7 +287,6 @@
     <define name="ACTUATOR_TORQUES" value="0.155, 0.155, 0.155, 0.155" type="float[]"/>
     
     <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
   </section>
 

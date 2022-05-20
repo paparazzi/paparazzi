@@ -524,7 +524,6 @@ The most crucial part for the magnetometer calibration:
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
     <define name="JSBSIM_INIT" value="reset00" type="string"/>
     <define name="WEIGHT" value="0.4"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
   </section>
 
 </airframe>

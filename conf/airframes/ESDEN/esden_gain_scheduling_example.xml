@@ -170,7 +170,6 @@
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="front_motor, back_motor, right_motor, left_motor" type="string[]"/>
-   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
   <firmware name="rotorcraft">
