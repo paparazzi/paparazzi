@@ -228,7 +228,6 @@
     <define name="CRRCSIM_COMMAND_THROTTLE" value="0"/>
     <define name="CRRCSIM_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="CRRCSIM_PITCH_NEUTRAL" value="12." unit="deg"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
 </airframe>
