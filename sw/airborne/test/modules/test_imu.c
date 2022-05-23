@@ -39,6 +39,7 @@
 
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
+#include "modules/energy/electrical.h"
 
 #include "generated/modules.h"
 
@@ -58,6 +59,9 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
+
+// Bypass electrical
+struct Electrical electrical;
 
 int main(void)
 {
@@ -173,7 +177,7 @@ static inline void main_event_task(void)
   modules_event_task();
 }
 
-static void accel_cb(uint8_t sender_id __attribute__((unused)),
+static void accel_cb(uint8_t sender_id,
                      uint32_t stamp __attribute__((unused)),
                      struct Int32Vect3 *accel)
 {
@@ -181,12 +185,13 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   RunOnceEvery(50, LED_TOGGLE(3));
 #endif
   DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
+                                  &sender_id,
                                   &accel->x,
                                   &accel->y,
                                   &accel->z);
 }
 
-static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+static void gyro_cb(uint8_t sender_id,
                     uint32_t stamp __attribute__((unused)),
                     struct Int32Rates *gyro)
 {
@@ -194,17 +199,19 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
   RunOnceEvery(50, LED_TOGGLE(2));
 #endif
   DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
+                                &sender_id,
                                 &gyro->p,
                                 &gyro->q,
                                 &gyro->r);
 }
 
 
-static void mag_cb(uint8_t sender_id __attribute__((unused)),
+static void mag_cb(uint8_t sender_id,
                    uint32_t stamp __attribute__((unused)),
                    struct Int32Vect3 *mag)
 {
   DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
+                                &sender_id,
                                 &mag->x,
                                 &mag->y,
                                 &mag->z);
