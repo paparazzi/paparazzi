@@ -148,6 +148,20 @@ static void send_mag(struct transport_tx *trans, struct link_device *dev)
     id = 0;
 }
 
+static void send_mag_current(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint8_t id = 0;
+  pprz_msg_send_IMU_MAG_CURRENT_CALIBRATION(trans, dev, AC_ID,
+      &id,
+      &imu.mags[id].unscaled.x,
+      &imu.mags[id].unscaled.y,
+      &imu.mags[id].unscaled.z,
+      &electrical.current);
+  id++;
+  if(id >= IMU_MAX_SENSORS || imu.mags[id].abi_id == ABI_DISABLE)
+    id = 0;
+}
+
 #endif /* PERIODIC_TELEMETRY */
 
 struct Imu imu = {0};
@@ -238,6 +252,7 @@ void imu_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_RAW, send_mag_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_SCALED, send_mag_scaled);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_CURRENT_CALIBRATION, send_mag_current);
 #endif // DOWNLINK
 
   imu.initialized = true;

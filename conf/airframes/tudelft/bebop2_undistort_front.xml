@@ -21,7 +21,6 @@
 
     <module name="geo_mag"/>
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>

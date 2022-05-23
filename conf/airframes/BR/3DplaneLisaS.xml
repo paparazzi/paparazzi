@@ -197,6 +197,5 @@ Pin 6 on lisa/s is number 3 in airframefile = ELEVATOR
     </module>
     <module name="ins"/>
     <module name="gps" type="ubx_ucenter"/>
-    <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

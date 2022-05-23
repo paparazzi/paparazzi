@@ -79,7 +79,6 @@
     <module name="ins"           type="ekf2" />
     
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
 
     <!-- Internal MAG -->
     <!--module name="mag_ist8310">

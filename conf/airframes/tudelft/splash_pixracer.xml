@@ -54,7 +54,6 @@
 
     <module name="lidar" type="tfmini"/>
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
   </firmware>
 
   <servos driver="Pwm">

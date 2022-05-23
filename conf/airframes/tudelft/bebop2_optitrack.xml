@@ -30,7 +30,6 @@
     <module name="ins" type="extended"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
   </firmware>
   
   <commands>

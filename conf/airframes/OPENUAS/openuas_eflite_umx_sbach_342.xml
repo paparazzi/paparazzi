@@ -168,7 +168,6 @@
     </module>
     -->
 
-    <module name="send_imu_mag_current"/> <!-- disable after one time calibration when all components are at final spot in airframe -->
     <module name="air_data">
       <define name="CALC_AIRSPEED" value="TRUE" />
       <define name="CALC_TAS_FACTOR" value="FALSE" />

@@ -69,7 +69,6 @@
     </module>
 
     <!--Modules -->
-    <module name="send_imu_mag_current"/>
     <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
     </module>

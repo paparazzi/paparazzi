@@ -158,7 +158,6 @@
 
     <module name="geo_mag"/>
 
-    <module name="send_imu_mag_current"/> <!-- enable if airframe has added electronic or other devices, recalibrate and stuffcalibration in this airframefile-->
 
     <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>

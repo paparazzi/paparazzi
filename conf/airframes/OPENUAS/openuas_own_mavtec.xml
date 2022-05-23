@@ -32,7 +32,6 @@
     <!--   <module name="logger_spi_link"/>
     <module name="imu_quality_assessment"/> -->
     <module name="switch" type="servo"/>
-    <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter" />
     <module name="nav" type="survey_rectangle_rotorcraft"/>
     <module name="nav" type="survey_poly_rotorcraft"/>

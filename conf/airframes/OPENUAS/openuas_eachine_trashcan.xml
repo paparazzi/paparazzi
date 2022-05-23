@@ -156,7 +156,6 @@
         <<module name="air_data"/>-->
 
         <!-- below temporary until measuerd and values set then disable it -->
-        <!-- <module name="send_imu_mag_current"/> -->
 
 <!--
         <target name="nps" board="pc">

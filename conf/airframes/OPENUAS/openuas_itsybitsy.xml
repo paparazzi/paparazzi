@@ -241,6 +241,5 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>-->
     <module name="ins"/>
     <!-- below temporary until tsted then remove it-->
-    <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

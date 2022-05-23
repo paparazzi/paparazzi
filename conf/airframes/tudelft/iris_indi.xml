@@ -51,7 +51,6 @@
     <module name="px4_gimbal" />
     <module name="geo_mag" />
     <module name="air_data" />
-    <module name="send_imu_mag_current" />
     <module name="mag" type="hmc58xx">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
