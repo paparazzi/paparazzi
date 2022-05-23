@@ -62,7 +62,6 @@
 	 current to magnetic field distortion curve.
 	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
       -->
-    <!--module name="send_imu_mag_current"/-->
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>

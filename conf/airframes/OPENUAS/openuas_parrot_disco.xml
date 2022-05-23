@@ -319,7 +319,6 @@
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
-    <!-- <module name="send_imu_mag_current"/>--> <!-- Can be Disabled after one time callibration, quite the same for all Discos -->
 
     <!-- Also used if QNH needed -->
     <module name="air_data">

@@ -26,7 +26,6 @@
     </module> -->
     
     <!-- <module name="geo_mag"/>
-    <module name="send_imu_mag_current"/> -->
     <module name="air_data"/>
     <!-- <module name="gps" type="ubx_ucenter"/> -->
     <module name="logger_file">

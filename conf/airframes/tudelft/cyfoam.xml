@@ -265,13 +265,13 @@
       <define name="HMC58XX_MAG_TO_IMU_PHI" value="RadOfDeg\(6.5\)"/>
       <define name="HMC58XX_MAG_TO_IMU_THETA" value="RadOfDeg\(28.5\)"/>
       <define name="HMC58XX_MAG_TO_IMU_PSI" value="RadOfDeg\(181.0\)"/>
-    </module>
 
-    <module name="send_imu_mag_current">
+      <!-- Current calibration -->
       <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000"/>
       <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
       <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.5"/>
     </module>
+
     <module name="sys_mon"/>
 
     <module name="telemetry"     type="xbee_api"/>

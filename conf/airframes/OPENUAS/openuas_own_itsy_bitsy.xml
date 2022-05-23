@@ -79,7 +79,6 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <!-- below temporary until tsted then remove it-->
-    <module name="send_imu_mag_current"/>
 
   </firmware>
 

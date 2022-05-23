@@ -189,7 +189,6 @@
       <define name="SENSOR_SYNC_SEND"/>
     </module>
 
-    <module name="send_imu_mag_current"/> <!-- disable after one time callibration -->
     <!-- QNH -->
     <module name="air_data">
       <define name="CALC_AIRSPEED" value="TRUE" />

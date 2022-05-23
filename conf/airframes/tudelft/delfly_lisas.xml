@@ -64,7 +64,6 @@
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
 
-    <module name="send_imu_mag_current"/>
 
     <!-- When sd logger is used, then radio should be DelTang (PPM) and telemetry should
       be transparent (cable/WiFi) -->

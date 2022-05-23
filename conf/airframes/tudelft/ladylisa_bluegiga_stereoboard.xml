@@ -234,7 +234,6 @@
        <define name="INS_INT_GPS_ID" value="ABI_DISABLE"/>
     </module>
 
-    <module name="send_imu_mag_current"/>
     <module name="stereocam">
       <configure name="STEREO_UART" value="UART1"/>
       <configure name="STEREO_BAUD" value="B115200"/>

@@ -62,9 +62,8 @@
 
       <!--run the chimera mag once every 64 seconds to avoid message spam-->
       <define name="MPU9250_MAG_PRESCALER" value="32768"/>
-    </module>
 
-    <module name="send_imu_mag_current">
+      <!-- Current calibration -->
       <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000"/>
       <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
       <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.5"/>

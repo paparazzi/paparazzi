@@ -30,7 +30,6 @@
     
     <module name="geo_mag"/>
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
     <module name="pose_history"/>
     <module name="bebop_cam"/>
 

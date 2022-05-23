@@ -135,7 +135,6 @@ NOTES:
 
     <module name="control" type="new"/>
     <module name="navigation"/>
-    <module name="send_imu_mag_current"/>
 
     <module name="baro_ms5611_spi">
       <configure name="MS5611_SPI_DEV" value="spi1"/>

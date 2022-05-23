@@ -290,7 +290,6 @@ NOTES:
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
-    <!--<module name="send_imu_mag_current"/>--> <!-- Can be Disabled after one time callibration -->
 
     <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="spi1"/>

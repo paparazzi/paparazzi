@@ -26,7 +26,6 @@
 
     <module name="bat_voltage_ardrone2"/>
     <module name="gps" type="ubx_ucenter"/>
-    <module name="send_imu_mag_current"/>
     <module name="logger_file"/>
 
     <module name="video_thread"/>

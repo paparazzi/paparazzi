@@ -26,7 +26,6 @@
     <module name="bat_voltage_ardrone2"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <module name="gps" type="ubx_ucenter"/>
-    <module name="send_imu_mag_current"/>
     <module name="air_data"/>
     <module name="geo_mag"/>
     <!--module name="logger_file"/-->
