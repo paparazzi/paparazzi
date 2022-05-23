@@ -240,7 +240,7 @@ void imu_aspirin2_event(void)
     AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1);
     AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1);
 #if !ASPIRIN_2_DISABLE_MAG
-    AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN2_ID, now_ts, &mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN2_ID, now_ts, &mag_rot);
 #endif
   }
 }

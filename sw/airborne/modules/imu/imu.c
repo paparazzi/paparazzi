@@ -152,7 +152,7 @@ static void send_mag_current(struct transport_tx *trans, struct link_device *dev
 {
   static uint8_t id = 0;
   pprz_msg_send_IMU_MAG_CURRENT_CALIBRATION(trans, dev, AC_ID,
-      &id,
+      &imu.mags[id].abi_id,
       &imu.mags[id].unscaled.x,
       &imu.mags[id].unscaled.y,
       &imu.mags[id].unscaled.z,

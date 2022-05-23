@@ -18,6 +18,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>electrical</depends>
+  </dep>
   <header>
     <file name="imu.h"/>
   </header>

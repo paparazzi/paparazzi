@@ -36,7 +36,7 @@
 
 
 /* Local functions */
-static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len, bool last);
+static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len);
 static void invensense2_fix_config(struct invensense2_t *inv);
 static bool invensense2_register_write(struct invensense2_t *inv, uint16_t bank_reg, uint8_t value);
 static bool invensense2_register_read(struct invensense2_t *inv, uint16_t bank_reg, uint16_t size);
@@ -218,7 +218,7 @@ void invensense2_event(struct invensense2_t *inv) {
         // Parse the data
         if((rx_length - 3) > 0) {
           uint16_t valid_bytes = ((rx_length - 3) < fifo_bytes)? (rx_length - 3) : fifo_bytes;
-          invensense2_parse_data(inv, &rx_buffer[3], valid_bytes, (inv->timer != 0));
+          invensense2_parse_data(inv, &rx_buffer[3], valid_bytes);
           inv->timer -= valid_bytes;
         } else {
           fifo_bytes -= fifo_bytes%INVENSENSE2_SAMPLE_SIZE;
@@ -273,9 +273,8 @@ void invensense2_event(struct invensense2_t *inv) {
  * @param inv The invensense v2 instance
  * @param data The FIFO buffer data to parse
  * @param len The length of the FIFO buffer
- * @param last If the data was the last available data in the FIFO buffer or if we are expecting more
  */
-static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len, bool last) {
+static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len) {
   uint8_t samples = len  / INVENSENSE2_SAMPLE_SIZE;
   static struct Int32Vect3 accel[INVENSENSE2_SAMPLE_CNT] = {0};
   static struct Int32Rates gyro[INVENSENSE2_SAMPLE_CNT] = {0};

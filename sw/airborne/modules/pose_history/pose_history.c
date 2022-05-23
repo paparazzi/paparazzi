@@ -56,12 +56,12 @@ struct pose_t get_rotation_at_timestamp(uint32_t timestamp)
   pthread_mutex_lock(&pose_mutex);
 #endif
   uint32_t index_history = 0;
-  uint32_t closestTimeDiff = abs(timestamp - location_history.ring_data[0].timestamp);
+  uint32_t closestTimeDiff = timestamp - location_history.ring_data[0].timestamp;
   uint32_t closestIndex = 0;
 
   // Seach for the timestamp closes to the timestamp argument of this function.
   for (index_history = 0; index_history < location_history.ring_size; index_history++) {
-    uint32_t diff = abs(timestamp - location_history.ring_data[index_history].timestamp);
+    uint32_t diff = timestamp - location_history.ring_data[index_history].timestamp;
     if (diff < closestTimeDiff) {
       closestIndex = index_history;
       closestTimeDiff = diff;
