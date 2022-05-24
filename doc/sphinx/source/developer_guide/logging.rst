@@ -230,6 +230,7 @@ that should trigger the log writing).
     custom_log_function_ascii();
     // If logging in binary
     custom_log_function_binary();
+  }
 
 Decoding FlightRecorder logs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
