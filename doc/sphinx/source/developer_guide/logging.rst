@@ -94,15 +94,15 @@ Copy the files to your computer for analysis.
 Logging on ChibiOS based OS
 -----------------------------
 
+FlightRecorder
+^^^^^^^^^^^^^^^^^
+
 Logging on ChibiOS systems can be achieved using the ``flight_recorder`` module, which depends on a
 few other modules that also need to be included in your airframe.
 
 .. code-block:: xml
 
   <firmware name="rotorcraft">
-    <module name="tlsf"/>
-    <module name="pprzlog"/>
-    <module name="logger" type="sd_chibios"/>
     <module name="flight_recorder"/>
   </firmware>
 
@@ -146,6 +146,91 @@ airframe in the ``conf.xml``. For example, ``conf/userconf/tudelft/conf.xml`` sp
     />
   </conf>
 
+Logger SD ChibiOS
+^^^^^^^^^^^^^^^^^^^^
+
+The ``flight_recorder`` module is essentially a wrapper for another logger module called ``logger_sd_chibios``,
+which handles the log file creation/closing. The ``flight_recorder`` uses these functions to open a log file and
+outputs to it a telemetry message (in binary) that by defaults contains all the messages specified in the telemetry XML
+as discussed in `FlightRecorder`_. However, if more control over what actually goes into the log file is necessary
+or desired, it is possible to directly use ``logger_sd_chibios`` to create custom log functions. First, the module
+must be included in your airframe.
+
+.. code-block:: xml
+
+  <firmware name="rotorcraft">
+    <module name="logger" type="sd_chibios"/>
+  </firmware>
+
+Then, in the .c file where you want the data to be logged from, you can create custom log functions that will write
+to the log either in binary format, or directly in ASCII format. To write directly in ASCII:
+
+.. code-block:: C
+
+  #include "modules/loggers/sdlog_chibios.h"
+  static inline void custom_log_function_ascii(void) {
+    // Check that log file has been created correctly
+    if (pprzLogFile != -1) {
+      // Write whatever you want to this file using sdLogWriteLog()
+      sdLogWriteLog(pprzLogFile, "<Your log message %f %f>", foo, bar);
+    }
+  }
+
+To write in binary instead, you need to create a function that behaves in a similar way as the FlightRecorder, which
+sends telemetry data directly to the log file instead of over the air.
+
+.. code-block:: C
+
+  #include "modules/loggers/sdlog_chibios.h"
+  #include "modules/loggers/pprzlog_tp.h"
+
+  // Any log file could be specified from the airframe
+  // Set the default to the one created by logger_sd_chibios
+  #ifndef MY_LOG_FILE
+  #def MY_LOG_FILE flightrecorder_sdlog
+  #endif
+
+  // Create a function that sends all your desired messaged to the log
+  static void custom_telemetry_send(struct transport_tx *trans, struct link_device *device) {
+    // There can be more than one pprz_send function
+    pprz_send_msg_YOUR_MSG(trans, device, AC_ID, &foo, &bar);
+  }
+
+  static bool log_tagged;
+  static inline void custom_log_function_binary(void) {
+    if (MY_LOG_FILE.file != NULL && *(MY_LOG_FILE.file) != -1) {
+      if (log_tagged == false && GpsFixValid()) {
+      // Write at least once ALIVE and GPS messages
+      // to log for correct extraction of binary data
+      DOWNLINK_SEND_ALIVE(pprzlog_tp, MY_LOG_FILE, 16, MD5SUM);
+      // Log GPS for time reference
+      uint8_t foo_u8 = 0;
+      int16_t foo_16 = 0;
+      uint16_t foo_u16 = 0;
+      struct UtmCoor_f utm = *stateGetPositionUtm_f();
+      int32_t east = utm.east * 100;
+      int32_t north = utm.north * 100;
+      DOWNLINK_SEND_GPS(pprzlog_tp, MY_LOG_FILE, &gps.fix,
+          &east, &north, &foo_16, &gps.hmsl, &foo_u16, &foo_16,
+          &gps.week, &gps.tow, &utm.zone, &foo_u8);
+      log_tagged = true;
+      }
+    // Send custom telemetry function directly to log
+    custom_telemetry_send(&pprzlog_tp.trans_tx, &(MY_LOG_FILE).device);
+    }
+  }
+
+And finally, include your custom log function in your module periodic function (or whatever other place
+that should trigger the log writing).
+
+.. code-block:: C
+
+  void your_module_periodic(void) {
+    // If logging in ASCII
+    custom_log_function_ascii();
+    // If logging in binary
+    custom_log_function_binary();
+
 Decoding FlightRecorder logs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 To download and convert the data, you need to first connect the SD card to your laptop, navigate to the
@@ -168,7 +253,8 @@ Once the environment variables are set you can run ``sd2log`` in your terminal:
 
 .. code-block:: bash
 
-  ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG
+  ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG  # Output stored in var/logs
+  ~/paparazzi/sw/logalizer/sd2log fr_XXXX.LOG <output_dir_path>  # Output stored in <output_dir_path>
 
 This will produce the Paparazzi .log, .data, and .tlm files that are stored in ``var/logs``. It creates a timestamp from the .tlm and changes the filename
 to the take-off time if a GPS mesage with correct time was available in the file, or the current local PC time if no
@@ -189,8 +275,13 @@ split into the following files:
 
 - A ``.log`` file, an XML file, which contains a copy of the whole configuration (airframes, flight plans, ...)
 - A ``.data`` file, an ascii file, which contains the list of the received messages. Each message is time-stamped in
-  milliseconds since the creation of the file and marked with the ID of the sending aircraft
-- A ``.tlm`` file, ???
+  seconds since the creation of the file and marked with the ID of the sending aircraft
+- A ``.tlm`` file, a copy of the original ``.LOG`` file renamed with the same name as the ``.log`` and ``.data``
+  file to make it easier to associate the original log with the decoded files
+
+.. tip::
+  Because ``sd2log`` outputs a copy of the original ``.LOG`` file, the decoding process can be called directly
+  on the file still on the SD card while it's mounted on your computer.
 
 The name of the files associated to a specific log is the same, and is generated from the date and time of creation.
 The lines of the ``data`` file are formatted according to the message description listed in the ``conf/messages.xml``
@@ -213,7 +304,7 @@ description:
 
 In this case, at the time the message was logged, the attitude of the drone corresponded to :math:`{\phi} = 0.036228`,
 :math:`{\theta} = 0.018550`, and :math:`{\psi} = 0.021443` radians. Note that the appropriate ``messages.xml``
-description, i.e. the one which has been used while th elog was created, is itself stored in the associated ``.log``
+description, i.e. the one which has been used while the log was created, is itself stored in the associated ``.log``
 file. It may differ from the current one in your ``conf/`` folder.
 
 .. note::
