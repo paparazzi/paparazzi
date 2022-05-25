@@ -33,20 +33,49 @@
 #include "modules/core/abi.h"
 #include "modules/energy/electrical.h"
 
+/** By default disable IMU integration calculations */
 #ifndef IMU_INTEGRATION
-#define IMU_INTEGRATION true
+#define IMU_INTEGRATION false
 #endif
 
+/** Default gyro calibration is empty */
 #ifndef IMU_GYRO_CALIB
 #define IMU_GYRO_CALIB {}
 #endif
 
+/** Default accel calibration is empty */
 #ifndef IMU_ACCEL_CALIB
 #define IMU_ACCEL_CALIB {}
 #endif
 
+/** Default mag calibration is empty */
 #ifndef IMU_MAG_CALIB
 #define IMU_MAG_CALIB {}
+#endif
+
+/** Default body to imu is 0 (radians) */
+#if !defined(IMU_BODY_TO_IMU_PHI) && !defined(IMU_BODY_TO_IMU_THETA) && !defined(IMU_BODY_TO_IMU_PSI)
+#define IMU_BODY_TO_IMU_PHI   0
+#define IMU_BODY_TO_IMU_THETA 0
+#define IMU_BODY_TO_IMU_PSI   0
+#endif
+PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_PHI)
+PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_THETA)
+PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_PSI)
+
+/* Detect depricated gyro configurations */
+#if defined(IMU_GYRO_P_NEUTRAL) || defined(IMU_GYRO_Q_NEUTRAL) || defined(IMU_GYRO_R_NEUTRAL) || defined(IMU_GYRO_P_SENS) ||  defined(IMU_GYRO_Q_SENS) || defined(IMU_GYRO_R_SENS)
+#error "Using older gyro calibration `IMU_GYRO_*` defines please replace with `IMU_GYRO_CALIB`!"
+#endif
+
+/* Detect depricated accel configurations */
+#if defined(IMU_ACCEL_X_NEUTRAL) || defined(IMU_ACCEL_Y_NEUTRAL) || defined(IMU_ACCEL_Z_NEUTRAL) || defined(IMU_ACCEL_X_SENS) ||  defined(IMU_ACCEL_Y_SENS) || defined(IMU_ACCEL_Z_SENS)
+#error "Using older accel calibration `IMU_ACCEL_*` defines please replace with `IMU_ACCEL_CALIB`!"
+#endif
+
+/* Detect depricated mag configurations */
+#if defined(IMU_MAG_X_NEUTRAL) || defined(IMU_MAG_Y_NEUTRAL) || defined(IMU_MAG_Z_NEUTRAL) || defined(IMU_MAG_X_SENS) ||  defined(IMU_MAG_Y_SENS) || defined(IMU_MAG_Z_SENS)
+#error "Using older mag calibration `IMU_MAG_*` defines please replace with `IMU_MAG_CALIB`!"
 #endif
 
 #if PERIODIC_TELEMETRY
@@ -169,6 +198,7 @@ static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples);
 static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
+static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
 void imu_init(void)
 {
@@ -177,9 +207,10 @@ void imu_init(void)
     return;
   
   // Set the Body to IMU rotation
-  struct FloatEulers body_to_imu_eulers =
-  {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+  struct FloatEulers body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+
 
   // Set the calibrated sensors
   const struct imu_gyro_t gyro_calib[] = IMU_GYRO_CALIB;
@@ -204,7 +235,7 @@ void imu_init(void)
       imu.gyros[i].calibrated = true;
     }
     imu.gyros[i].last_stamp = 0;
-    int32_rmat_identity(&imu.gyros[i].imu_to_sensor);
+    RMAT_COPY(imu.gyros[i].body_to_sensor, *body_to_imu_rmat);
 
     // Accel initialization calibrated/non-calibrated
     if(i >= accel_calib_len) {
@@ -219,7 +250,7 @@ void imu_init(void)
       imu.accels[i].calibrated = true;
     }
     imu.accels[i].last_stamp = 0;
-    int32_rmat_identity(&imu.accels[i].imu_to_sensor);
+    RMAT_COPY(imu.accels[i].body_to_sensor, *body_to_imu_rmat);
 
     // Mag initialization calibrated/non-calibrated
     if(i >= mag_calib_len) {
@@ -234,7 +265,7 @@ void imu_init(void)
       imu.mags[i] = mag_calib[i];
       imu.mags[i].calibrated = true;
     }
-    int32_rmat_identity(&imu.mags[i].imu_to_sensor);
+    RMAT_COPY(imu.mags[i].body_to_sensor, *body_to_imu_rmat);
   }
 
   // Bind to raw measurements
@@ -277,8 +308,12 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL)
-    RMAT_COPY(gyro->imu_to_sensor, *imu_to_sensor);
+  if(imu_to_sensor != NULL) {
+    struct Int32RMat body_to_sensor;
+    struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
+    int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
+    RMAT_COPY(gyro->body_to_sensor, body_to_sensor);
+  }
   if(neutral != NULL && !gyro->calibrated)
     RATES_COPY(gyro->neutral, *neutral);
   if(scale != NULL && !gyro->calibrated) {
@@ -306,8 +341,12 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL)
-    RMAT_COPY(accel->imu_to_sensor, *imu_to_sensor);
+  if(imu_to_sensor != NULL) {
+    struct Int32RMat body_to_sensor;
+    struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
+    int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
+    RMAT_COPY(accel->body_to_sensor, body_to_sensor);
+  }
   if(neutral != NULL && !accel->calibrated)
     VECT3_COPY(accel->neutral, *neutral);
   if(scale != NULL && !accel->calibrated) {
@@ -335,8 +374,12 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL)
-    RMAT_COPY(mag->imu_to_sensor, *imu_to_sensor);
+  if(imu_to_sensor != NULL) {
+    struct Int32RMat body_to_sensor;
+    struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
+    int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
+    RMAT_COPY(mag->body_to_sensor, body_to_sensor);
+  }
   if(neutral != NULL && !mag->calibrated)
     VECT3_COPY(mag->neutral, *neutral);
   if(scale != NULL && !mag->calibrated) {
@@ -362,7 +405,7 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   scaled.r = (gyro->unscaled.r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r;
 
   // Rotate the sensor
-  int32_rmat_ratemult(&scaled_rot, &gyro->imu_to_sensor, &scaled);
+  int32_rmat_transp_ratemult(&scaled_rot, &gyro->body_to_sensor, &scaled);
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
@@ -413,7 +456,7 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   scaled.z = (accel->unscaled.z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z;
 
   // Rotate the sensor
-  int32_rmat_transp_vmult(&scaled_rot, &accel->imu_to_sensor, &scaled);
+  int32_rmat_transp_vmult(&scaled_rot, &accel->body_to_sensor, &scaled);
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
@@ -470,7 +513,7 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
   scaled.z = (mag->unscaled.z - mag_correction.z - mag->neutral.z) * mag->scale[0].z / mag->scale[1].z;
 
   // Rotate the sensor
-  int32_rmat_transp_vmult(&mag->scaled, &mag->imu_to_sensor, &scaled);
+  int32_rmat_transp_vmult(&mag->scaled, &mag->body_to_sensor, &scaled);
   AbiSendMsgIMU_MAG(sender_id, stamp, &mag->scaled);
 }
 
@@ -543,13 +586,46 @@ struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create) {
   return mag;
 }
 
+/**
+ * @brief Set the body to IMU rotation in eulers
+ * This will update all the sensor values
+ * @param body_to_imu_eulers 321 Euler angles in radians
+ */
+static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers)
+{
+  struct Int32RMat new_body_to_imu, diff_body_to_imu;
+  struct Int32Eulers body_to_imu_eulers_i;
+  // Convert to RMat
+  struct Int32RMat *old_body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
+  EULERS_BFP_OF_REAL(body_to_imu_eulers_i, *body_to_imu_eulers);
+  int32_rmat_of_eulers(&new_body_to_imu, &body_to_imu_eulers_i);
+
+  // Calculate the difference between old and new
+  int32_rmat_comp_inv(&diff_body_to_imu, &new_body_to_imu, old_body_to_imu);
+
+  // Apply the difference to all sensors
+  struct Int32RMat old_rmat;
+  for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
+    old_rmat = imu.gyros[i].body_to_sensor;
+    int32_rmat_comp(&imu.gyros[i].body_to_sensor, &diff_body_to_imu, &old_rmat);
+
+    old_rmat = imu.accels[i].body_to_sensor;
+    int32_rmat_comp(&imu.accels[i].body_to_sensor, &diff_body_to_imu, &old_rmat);
+
+    old_rmat = imu.mags[i].body_to_sensor;
+    int32_rmat_comp(&imu.mags[i].body_to_sensor, &diff_body_to_imu, &old_rmat);
+  }
+
+  // Set the current body to imu
+  orientationSetEulers_f(&imu.body_to_imu, body_to_imu_eulers);
+}
+
 void imu_SetBodyToImuPhi(float phi)
 {
   struct FloatEulers body_to_imu_eulers;
   body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.phi = phi;
-  orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+  imu_set_body_to_imu_eulers(&body_to_imu_eulers);
 }
 
 void imu_SetBodyToImuTheta(float theta)
@@ -557,8 +633,7 @@ void imu_SetBodyToImuTheta(float theta)
   struct FloatEulers body_to_imu_eulers;
   body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.theta = theta;
-  orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+  imu_set_body_to_imu_eulers(&body_to_imu_eulers);
 }
 
 void imu_SetBodyToImuPsi(float psi)
@@ -566,8 +641,7 @@ void imu_SetBodyToImuPsi(float psi)
   struct FloatEulers body_to_imu_eulers;
   body_to_imu_eulers = *orientationGetEulers_f(&imu.body_to_imu);
   body_to_imu_eulers.psi = psi;
-  orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+  imu_set_body_to_imu_eulers(&body_to_imu_eulers);
 }
 
 void imu_SetBodyToImuCurrent(float set)
@@ -582,17 +656,14 @@ void imu_SetBodyToImuCurrent(float set)
       // adjust imu_to_body roll and pitch by current NedToBody roll and pitch
       body_to_imu_eulers.phi += stateGetNedToBodyEulers_f()->phi;
       body_to_imu_eulers.theta += stateGetNedToBodyEulers_f()->theta;
-      orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-      AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+      imu_set_body_to_imu_eulers(&body_to_imu_eulers);
     } else {
       // indicate that we couldn't set to current roll/pitch
       imu.b2i_set_current = false;
     }
   } else {
     // reset to BODY_TO_IMU as defined in airframe file
-    struct FloatEulers body_to_imu_eulers =
-    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
-    orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
-    AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+    struct FloatEulers body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+    imu_set_body_to_imu_eulers(&body_to_imu_eulers);
   }
 }

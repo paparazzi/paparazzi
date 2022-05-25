@@ -284,7 +284,6 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
-static abi_event body_to_imu_ev;
 static abi_event optical_flow_ev;
 
 /* All ABI callbacks */
@@ -295,7 +294,6 @@ static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro);
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
-static void body_to_imu_cb(uint8_t sender_id, struct FloatQuat *q_b2i_f);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x,
                             int32_t flow_der_y, float quality, float size_divergence);
 
@@ -569,7 +567,6 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_ACCEL(INS_EKF2_ACCEL_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
 }
 
@@ -802,14 +799,8 @@ static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, fl
 static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
                     uint32_t stamp, struct Int32Rates *gyro)
 {
-  FloatRates imu_rate;
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ekf2.body_to_imu);
-
   // Convert Gyro information to float
-  RATES_FLOAT_OF_BFP(imu_rate, *gyro);
-
-  // Rotate with respect to Body To IMU
-  float_rmat_transp_ratemult(&ekf2.gyro, body_to_imu_rmat, &imu_rate);
+  RATES_FLOAT_OF_BFP(ekf2.gyro, *gyro);
 
   // Calculate the Gyro interval
   if (ekf2.gyro_stamp > 0) {
@@ -828,14 +819,8 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
                      uint32_t stamp, struct Int32Vect3 *accel)
 {
-  struct FloatVect3 accel_imu;
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ekf2.body_to_imu);
-
   // Convert Accelerometer information to float
-  ACCELS_FLOAT_OF_BFP(accel_imu, *accel);
-
-  // Rotate with respect to Body To IMU
-  float_rmat_transp_vmult(&ekf2.accel, body_to_imu_rmat, &accel_imu);
+  ACCELS_FLOAT_OF_BFP(ekf2.accel, *accel);
 
   // Calculate the Accelerometer interval
   if (ekf2.accel_stamp > 0) {
@@ -855,8 +840,7 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
                    uint32_t stamp,
                    struct Int32Vect3 *mag)
 {
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ekf2.body_to_imu);
-  struct FloatVect3 mag_gauss, mag_body;
+  struct FloatVect3 mag_gauss;
   magSample sample;
   sample.time_us = stamp;
 
@@ -866,13 +850,10 @@ static void mag_cb(uint8_t __attribute__((unused)) sender_id,
   mag_gauss.y *= 0.4f;
   mag_gauss.z *= 0.4f;
 
-  // Rotate with respect to Body To IMU
-  float_rmat_transp_vmult(&mag_body, body_to_imu_rmat, &mag_gauss);
-
   // Publish information to the EKF
-  sample.mag(0) = mag_body.x;
-  sample.mag(1) = mag_body.y;
-  sample.mag(2) = mag_body.z;
+  sample.mag(0) = mag_gauss.x;
+  sample.mag(1) = mag_gauss.y;
+  sample.mag(2) = mag_gauss.z;
 
   ekf.setMagData(sample);
   ekf2.got_imu_data = true;
@@ -908,13 +889,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.pdop = gps_s->pdop;
 
   ekf.setGpsData(gps_msg);
-}
-
-/* Save the Body to IMU information */
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  orientationSetQuat_f(&ekf2.body_to_imu, q_b2i_f);
 }
 
 /* Update INS based on Optical Flow information */

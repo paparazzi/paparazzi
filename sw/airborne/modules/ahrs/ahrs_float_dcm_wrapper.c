@@ -82,7 +82,6 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event gps_ev;
 
 
@@ -156,12 +155,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  ahrs_dcm_set_body_to_imu_quat(q_b2i_f);
-}
-
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
@@ -181,16 +174,12 @@ static bool ahrs_dcm_enable_output(bool enable)
 static void set_body_orientation_and_rates(void)
 {
   if (ahrs_dcm_output_enabled) {
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_dcm.body_to_imu);
+    /* Set the state */
+    stateSetBodyRates_f(&ahrs_dcm.body_rate);
 
-    struct FloatRates body_rate;
-    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_dcm.imu_rate);
-    stateSetBodyRates_f(&body_rate);
-
-    struct FloatRMat ltp_to_imu_rmat, ltp_to_body_rmat;
-    float_rmat_of_eulers(&ltp_to_imu_rmat, &ahrs_dcm.ltp_to_imu_euler);
-    float_rmat_comp_inv(&ltp_to_body_rmat, &ltp_to_imu_rmat, body_to_imu_rmat);
-
+    /* Convert eulers to RMaat and set state */
+    struct FloatRMat ltp_to_body_rmat;
+    float_rmat_of_eulers(&ltp_to_body_rmat, &ahrs_dcm.ltp_to_body_euler);
     stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
   }
 }
@@ -207,8 +196,7 @@ void ahrs_dcm_register(void)
   AbiBindMsgIMU_GYRO(AHRS_DCM_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_DCM_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(AHRS_DCM_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgIMU_LOWPASSED(AHRS_DCM_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgGPS(AHRS_DCM_GPS_ID, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY

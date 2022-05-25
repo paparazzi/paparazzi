@@ -41,9 +41,8 @@ enum AhrsMlkfStatus {
 };
 
 struct AhrsMlkf {
-  struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as unit quaternion
   struct FloatQuat   ltp_to_body_quat; ///< Rotation from LocalTangentPlane to body frame as unit quaternion
-  struct FloatRates  imu_rate;         ///< Rotational velocity in IMU frame
+  struct FloatRates  body_rate;         ///< Rotational velocity in body frame
   struct FloatRates  gyro_bias;
 
   struct FloatVect3  mag_h;
@@ -54,9 +53,6 @@ struct AhrsMlkf {
   float P[6][6];
   float lp_accel;
 
-  /** body_to_imu rotation */
-  struct OrientationReps body_to_imu;
-
   enum AhrsMlkfStatus status;
   bool is_aligned;
 };
@@ -64,8 +60,6 @@ struct AhrsMlkf {
 extern struct AhrsMlkf ahrs_mlkf;
 
 extern void ahrs_mlkf_init(void);
-extern void ahrs_mlkf_set_body_to_imu(struct OrientationReps *body_to_imu);
-extern void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i);
 extern bool ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                               struct FloatVect3 *lp_mag);
 extern void ahrs_mlkf_propagate(struct FloatRates *gyro, float dt);

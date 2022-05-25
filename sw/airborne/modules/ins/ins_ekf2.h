@@ -53,8 +53,7 @@ struct ekf2_t {
   float qnh;                  ///< QNH value in hPa
   uint8_t quat_reset_counter;           ///< Amount of quaternion resets from the EKF2
   uint64_t ltp_stamp;                   ///< Last LTP change timestamp from the EKF2
-  struct LtpDef_i ltp_def;              ///< Latest LTP definition from the quat_reset_counterEKF2
-  struct OrientationReps body_to_imu;   ///< Body to IMU rotation
+  struct LtpDef_i ltp_def;              ///< Latest LTP definition from the quat_reset_counter EKF2
   bool got_imu_data;                    ///< If we received valid IMU data (any sensor)
 
   int32_t mag_fusion_type;

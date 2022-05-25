@@ -44,7 +44,7 @@ struct imu_gyro_t {
   struct Int32Rates unscaled;
   struct Int32Rates neutral;
   struct Int32Rates scale[2];
-  struct Int32RMat imu_to_sensor;   ///< Rotation from imu to sensor frame
+  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
 };
 
 struct imu_accel_t {
@@ -55,7 +55,7 @@ struct imu_accel_t {
   struct Int32Vect3 unscaled;
   struct Int32Vect3 neutral;
   struct Int32Vect3 scale[2];
-  struct Int32RMat imu_to_sensor;   ///< Rotation from imu to sensor frame
+  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
 };
 
 struct imu_mag_t {
@@ -66,7 +66,7 @@ struct imu_mag_t {
   struct Int32Vect3 neutral;
   struct Int32Vect3 scale[2];
   struct FloatVect3 current_scale;
-  struct Int32RMat imu_to_sensor;   ///< Rotation from imu to sensor frame
+  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
 };
 
 
@@ -89,6 +89,7 @@ extern struct Imu imu;
 
 /** External functions */
 extern void imu_init(void);
+
 extern void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale);
 extern void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
 extern void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
@@ -102,12 +103,5 @@ extern void imu_SetBodyToImuTheta(float theta);
 extern void imu_SetBodyToImuPsi(float psi);
 extern void imu_SetBodyToImuCurrent(float set);
 extern void imu_ResetBodyToImu(float reset);
-
-#if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
-#define IMU_BODY_TO_IMU_PHI   0
-#define IMU_BODY_TO_IMU_THETA 0
-#define IMU_BODY_TO_IMU_PSI   0
-#endif
-
 
 #endif /* IMU_H */

@@ -51,10 +51,10 @@ static void send_quat(struct transport_tx *trans, struct link_device *dev)
   struct Int32Quat *quat = stateGetNedToBodyQuat_i();
   pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
                               &ahrs_icq.weight,
-                              &ahrs_icq.ltp_to_imu_quat.qi,
-                              &ahrs_icq.ltp_to_imu_quat.qx,
-                              &ahrs_icq.ltp_to_imu_quat.qy,
-                              &ahrs_icq.ltp_to_imu_quat.qz,
+                              &ahrs_icq.ltp_to_body_quat.qi,
+                              &ahrs_icq.ltp_to_body_quat.qx,
+                              &ahrs_icq.ltp_to_body_quat.qy,
+                              &ahrs_icq.ltp_to_body_quat.qz,
                               &(quat->qi),
                               &(quat->qx),
                               &(quat->qy),
@@ -64,13 +64,13 @@ static void send_quat(struct transport_tx *trans, struct link_device *dev)
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
 {
-  struct Int32Eulers ltp_to_imu_euler;
-  int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_icq.ltp_to_imu_quat);
+  struct Int32Eulers ltp_to_body_euler;
+  int32_eulers_of_quat(&ltp_to_body_euler, &ahrs_icq.ltp_to_body_quat);
   struct Int32Eulers *eulers = stateGetNedToBodyEulers_i();
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-                               &ltp_to_imu_euler.phi,
-                               &ltp_to_imu_euler.theta,
-                               &ltp_to_imu_euler.psi,
+                               &ltp_to_body_euler.phi,
+                               &ltp_to_body_euler.theta,
+                               &ltp_to_body_euler.psi,
                                &(eulers->phi),
                                &(eulers->theta),
                                &(eulers->psi),
@@ -132,7 +132,6 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
 static abi_event gps_ev;
 
@@ -223,12 +222,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  ahrs_icq_set_body_to_imu_quat(q_b2i_f);
-}
-
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
   VECT3_ASSIGN(ahrs_icq.mag_h, MAG_BFP_OF_REAL(h->x), MAG_BFP_OF_REAL(h->y),
@@ -252,19 +245,9 @@ static bool ahrs_icq_enable_output(bool enable)
 static void set_body_state_from_quat(void)
 {
   if (ahrs_icq_output_enabled) {
-    /* Compute LTP to BODY quaternion */
-    struct Int32Quat ltp_to_body_quat;
-    struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
-    int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
     /* Set state */
-    stateSetNedToBodyQuat_i(&ltp_to_body_quat);
-
-    /* compute body rates */
-    struct Int32Rates body_rate;
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
-    int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
-    /* Set state */
-    stateSetBodyRates_i(&body_rate);
+    stateSetNedToBodyQuat_i(&ahrs_icq.ltp_to_body_quat);
+    stateSetBodyRates_i(&ahrs_icq.body_rate);
   }
 }
 
@@ -280,8 +263,7 @@ void ahrs_icq_register(void)
   AbiBindMsgIMU_GYRO(AHRS_ICQ_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_ICQ_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(AHRS_ICQ_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgIMU_LOWPASSED(AHRS_ICQ_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(AHRS_ICQ_GPS_ID, &gps_ev, gps_cb);
 

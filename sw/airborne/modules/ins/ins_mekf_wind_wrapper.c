@@ -206,7 +206,6 @@ static abi_event mag_ev;
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
 static abi_event gps_ev;
 
@@ -303,10 +302,7 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
 {
   if (ins_mekf_wind.is_aligned) {
     struct FloatRates gyro_f, gyro_body;
-    RATES_FLOAT_OF_BFP(gyro_f, *gyro);
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_mekf_wind.body_to_imu);
-    // new values in body frame
-    float_rmat_transp_ratemult(&gyro_body, body_to_imu_rmat, &gyro_f);
+    RATES_FLOAT_OF_BFP(gyro_body, *gyro);
 
 #if USE_AUTO_INS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)
     PRINT_CONFIG_MSG("Calculating dt for INS MEKF_WIND propagation.")
@@ -383,11 +379,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
                      uint32_t stamp __attribute__((unused)),
                      struct Int32Vect3 *accel)
 {
-  struct FloatVect3 accel_f;
-  ACCELS_FLOAT_OF_BFP(accel_f, *accel);
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_mekf_wind.body_to_imu);
-  // new values in body frame
-  float_rmat_transp_vmult(&ins_mekf_wind_accel, body_to_imu_rmat, &accel_f);
+  ACCELS_FLOAT_OF_BFP(ins_mekf_wind_accel, *accel);
 }
 
 static void mag_cb(uint8_t sender_id __attribute__((unused)),
@@ -395,11 +387,9 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
                    struct Int32Vect3 *mag)
 {
   if (ins_mekf_wind.is_aligned) {
-    struct FloatVect3 mag_f, mag_body;
-    MAGS_FLOAT_OF_BFP(mag_f, *mag);
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_mekf_wind.body_to_imu);
-    // new values in body frame
-    float_rmat_transp_vmult(&mag_body, body_to_imu_rmat, &mag_f);
+    struct FloatVect3 mag_body;
+    MAGS_FLOAT_OF_BFP(mag_body, *mag);
+
     // only correct attitude if GPS is not initialized
     ins_mekf_wind_update_mag(&mag_body, !ins_mekf_wind.gps_initialized);
 
@@ -420,19 +410,14 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        struct Int32Vect3 *lp_mag)
 {
   if (!ins_mekf_wind.is_aligned) {
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ins_mekf_wind.body_to_imu);
+    struct FloatRates gyro_body;
+    RATES_FLOAT_OF_BFP(gyro_body, *lp_gyro);
 
-    struct FloatRates gyro_f, gyro_body;
-    RATES_FLOAT_OF_BFP(gyro_f, *lp_gyro);
-    float_rmat_transp_ratemult(&gyro_body, body_to_imu_rmat, &gyro_f);
+    struct FloatVect3 accel_body;
+    ACCELS_FLOAT_OF_BFP(accel_body, *lp_accel);
 
-    struct FloatVect3 accel_f, accel_body;
-    ACCELS_FLOAT_OF_BFP(accel_f, *lp_accel);
-    float_rmat_transp_vmult(&accel_body, body_to_imu_rmat, &accel_f);
-
-    struct FloatVect3 mag_f, mag_body;
-    MAGS_FLOAT_OF_BFP(mag_f, *lp_mag);
-    float_rmat_transp_vmult(&mag_body, body_to_imu_rmat, &mag_f);
+    struct FloatVect3 mag_body;
+    MAGS_FLOAT_OF_BFP(mag_body, *lp_mag);
 
     struct FloatQuat quat;
     ahrs_float_get_quat_from_accel_mag(&quat, &accel_body, &mag_body);
@@ -442,16 +427,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
 
     // ins and ahrs are now running
     ins_mekf_wind.is_aligned = true;
-  }
-}
-
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ins_mekf_wind.body_to_imu, q_b2i);
-  if (!ins_mekf_wind.is_aligned) {
-    // set ltp_to_imu so that body is zero
-    ins_mekf_wind_set_quat(q_b2i);
   }
 }
 
@@ -593,7 +568,6 @@ void ins_mekf_wind_wrapper_init(void)
   AbiBindMsgIMU_GYRO(INS_MEKF_WIND_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(INS_MEKF_WIND_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(INS_MEKF_WIND_IMU_ID, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(INS_MEKF_WIND_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(INS_MEKF_WIND_GPS_ID, &gps_ev, gps_cb);
 
