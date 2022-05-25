@@ -101,13 +101,14 @@ void ahrs_dcm_init(void)
   ahrs_dcm.status = AHRS_DCM_UNINIT;
   ahrs_dcm.is_aligned = false;
 
-  /* init ltp_to_imu euler with zero */
-  FLOAT_EULERS_ZERO(ahrs_dcm.ltp_to_imu_euler);
-
-  FLOAT_RATES_ZERO(ahrs_dcm.imu_rate);
+  /* init ltp_to_body euler with zero */
+  FLOAT_EULERS_ZERO(ahrs_dcm.ltp_to_body_euler);
+  FLOAT_RATES_ZERO(ahrs_dcm.body_rate);
 
   /* set inital filter dcm */
-  set_dcm_matrix_from_rmat(orientationGetRMat_f(&ahrs_dcm.body_to_imu));
+  struct FloatRMat init_rmat;
+  float_rmat_identity(&init_rmat);
+  set_dcm_matrix_from_rmat(&init_rmat);
 
   ahrs_dcm.gps_speed = 0;
   ahrs_dcm.gps_acceleration = 0;
@@ -126,14 +127,14 @@ bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
 #else
   ahrs_float_get_quat_from_accel(&quat, lp_accel);
 #endif
-  float_eulers_of_quat(&ahrs_dcm.ltp_to_imu_euler, &quat);
+  float_eulers_of_quat(&ahrs_dcm.ltp_to_body_euler, &quat);
 
   /* Convert initial orientation from quaternion to rotation matrix representations. */
-  struct FloatRMat ltp_to_imu_rmat;
-  float_rmat_of_quat(&ltp_to_imu_rmat, &quat);
+  struct FloatRMat ltp_to_body_rmat;
+  float_rmat_of_quat(&ltp_to_body_rmat, &quat);
 
   /* set filter dcm */
-  set_dcm_matrix_from_rmat(&ltp_to_imu_rmat);
+  set_dcm_matrix_from_rmat(&ltp_to_body_rmat);
 
   /* use averaged gyro as initial value for bias */
   ahrs_dcm.gyro_bias = *lp_gyro;
@@ -148,21 +149,21 @@ bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
 void ahrs_dcm_propagate(struct FloatRates *gyro, float dt)
 {
   /* unbias rate measurement */
-  RATES_DIFF(ahrs_dcm.imu_rate, *gyro, ahrs_dcm.gyro_bias);
+  RATES_DIFF(ahrs_dcm.body_rate, *gyro, ahrs_dcm.gyro_bias);
 
   /* Uncouple Motions */
 #ifdef IMU_GYRO_P_Q
   float dp = 0, dq = 0, dr = 0;
-  dp += ahrs_dcm.imu_rate.q * IMU_GYRO_P_Q;
-  dp += ahrs_dcm.imu_rate.r * IMU_GYRO_P_R;
-  dq += ahrs_dcm.imu_rate.p * IMU_GYRO_Q_P;
-  dq += ahrs_dcm.imu_rate.r * IMU_GYRO_Q_R;
-  dr += ahrs_dcm.imu_rate.p * IMU_GYRO_R_P;
-  dr += ahrs_dcm.imu_rate.q * IMU_GYRO_R_Q;
+  dp += ahrs_dcm.body_rate.q * IMU_GYRO_P_Q;
+  dp += ahrs_dcm.body_rate.r * IMU_GYRO_P_R;
+  dq += ahrs_dcm.body_rate.p * IMU_GYRO_Q_P;
+  dq += ahrs_dcm.body_rate.r * IMU_GYRO_Q_R;
+  dr += ahrs_dcm.body_rate.p * IMU_GYRO_R_P;
+  dr += ahrs_dcm.body_rate.q * IMU_GYRO_R_Q;
 
-  ahrs_dcm.imu_rate.p += dp;
-  ahrs_dcm.imu_rate.q += dq;
-  ahrs_dcm.imu_rate.r += dr;
+  ahrs_dcm.body_rate.p += dp;
+  ahrs_dcm.body_rate.q += dq;
+  ahrs_dcm.body_rate.r += dr;
 #endif
 
   Matrix_update(dt);
@@ -234,10 +235,10 @@ MESSAGE("MAGNETOMETER FEEDBACK NOT TESTED YET")
   float cos_pitch;
   float sin_pitch;
 
-  cos_roll = cosf(ahrs_dcm.ltp_to_imu_euler.phi);
-  sin_roll = sinf(ahrs_dcm.ltp_to_imu_euler.phi);
-  cos_pitch = cosf(ahrs_dcm.ltp_to_imu_euler.theta);
-  sin_pitch = sinf(ahrs_dcm.ltp_to_imu_euler.theta);
+  cos_roll = cosf(ahrs_dcm.ltp_to_body_euler.phi);
+  sin_roll = sinf(ahrs_dcm.ltp_to_body_euler.phi);
+  cos_pitch = cosf(ahrs_dcm.ltp_to_body_euler.theta);
+  sin_pitch = sinf(ahrs_dcm.ltp_to_body_euler.theta);
 
 
   // Pitch&Roll Compensation:
@@ -358,7 +359,9 @@ void Normalize(void)
 
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
-    set_dcm_matrix_from_rmat(orientationGetRMat_f(&ahrs_dcm.body_to_imu));
+    struct FloatRMat init_rmat;
+    float_rmat_identity(&init_rmat);
+    set_dcm_matrix_from_rmat(&init_rmat);
     problem = false;
   }
 }
@@ -485,7 +488,7 @@ void Drift_correction()
 
 void Matrix_update(float dt)
 {
-  Vector_Add(&Omega[0], &ahrs_dcm.imu_rate.p, &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], &ahrs_dcm.body_rate.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
 #if OUTPUTMODE==1    // With corrected data (drift correction)
@@ -500,13 +503,13 @@ void Matrix_update(float dt)
   Update_Matrix[2][2] = 0;
 #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0] = 0;
-  Update_Matrix[0][1] = -dt * ahrs_dcm.imu_rate.r; //-z
-  Update_Matrix[0][2] = dt * ahrs_dcm.imu_rate.q; //y
-  Update_Matrix[1][0] = dt * ahrs_dcm.imu_rate.r; //z
+  Update_Matrix[0][1] = -dt * ahrs_dcm.body_rate.r; //-z
+  Update_Matrix[0][2] = dt * ahrs_dcm.body_rate.q; //y
+  Update_Matrix[1][0] = dt * ahrs_dcm.body_rate.r; //z
   Update_Matrix[1][1] = 0;
-  Update_Matrix[1][2] = -dt * ahrs_dcm.imu_rate.p;
-  Update_Matrix[2][0] = -dt * ahrs_dcm.imu_rate.q;
-  Update_Matrix[2][1] = dt * ahrs_dcm.imu_rate.p;
+  Update_Matrix[1][2] = -dt * ahrs_dcm.body_rate.p;
+  Update_Matrix[2][0] = -dt * ahrs_dcm.body_rate.q;
+  Update_Matrix[2][1] = dt * ahrs_dcm.body_rate.p;
   Update_Matrix[2][2] = 0;
 #endif
 
@@ -522,28 +525,13 @@ void Matrix_update(float dt)
 static void compute_ahrs_representations(void)
 {
 #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_dcm.ltp_to_imu_euler.phi = atan2(accel_float.y, accel_float.z);   // atan2(acc_y,acc_z)
-  ahrs_dcm.ltp_to_imu_euler.theta = -asin((accel_float.x) / GRAVITY); // asin(acc_x)
-  ahrs_dcm.ltp_to_imu_euler.psi = 0;
+  ahrs_dcm.ltp_to_body_euler.phi = atan2(accel_float.y, accel_float.z);   // atan2(acc_y,acc_z)
+  ahrs_dcm.ltp_to_body_euler.theta = -asin((accel_float.x) / GRAVITY); // asin(acc_x)
+  ahrs_dcm.ltp_to_body_euler.psi = 0;
 #else
-  ahrs_dcm.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1], DCM_Matrix[2][2]);
-  ahrs_dcm.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_dcm.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0], DCM_Matrix[0][0]);
-  ahrs_dcm.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+  ahrs_dcm.ltp_to_body_euler.phi = atan2(DCM_Matrix[2][1], DCM_Matrix[2][2]);
+  ahrs_dcm.ltp_to_body_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_dcm.ltp_to_body_euler.psi = atan2(DCM_Matrix[1][0], DCM_Matrix[0][0]);
+  ahrs_dcm.ltp_to_body_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
-}
-
-void ahrs_dcm_set_body_to_imu(struct OrientationReps *body_to_imu)
-{
-  ahrs_dcm_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
-}
-
-void ahrs_dcm_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_dcm.body_to_imu, q_b2i);
-
-  if (!ahrs_dcm.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_dcm.ltp_to_imu_euler = *orientationGetEulers_f(&ahrs_dcm.body_to_imu);
-  }
 }

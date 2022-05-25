@@ -108,11 +108,6 @@ void main_ap_init(void)
   modules_radio_control_tid = sys_time_register_timer((1. / 60.), NULL); // FIXME
   modules_datalink_tid = sys_time_register_timer(DATALINK_PERIOD, NULL);
 
-#if USE_IMU
-  // send body_to_imu from here for now
-  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
-#endif
-
   // Do a failsafe check first
   autopilot_failsafe_checks();
 

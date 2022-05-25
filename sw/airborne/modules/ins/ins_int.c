@@ -120,12 +120,14 @@ static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
 #ifndef INS_INT_IMU_ID
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
+PRINT_CONFIG_VAR(INS_INT_IMU_ID)
 static abi_event accel_ev;
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
 
 #ifndef INS_INT_GPS_ID
 #define INS_INT_GPS_ID GPS_MULTI_ID
 #endif
+PRINT_CONFIG_VAR(INS_INT_GPS_ID)
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 
@@ -135,6 +137,7 @@ static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 #ifndef INS_INT_VEL_ID
 #define INS_INT_VEL_ID ABI_BROADCAST
 #endif
+PRINT_CONFIG_VAR(INS_INT_VEL_ID)
 static abi_event vel_est_ev;
 static void vel_est_cb(uint8_t sender_id,
                        uint32_t stamp,
@@ -143,6 +146,7 @@ static void vel_est_cb(uint8_t sender_id,
 #ifndef INS_INT_POS_ID
 #define INS_INT_POS_ID ABI_BROADCAST
 #endif
+PRINT_CONFIG_VAR(INS_INT_POS_ID)
 static abi_event pos_est_ev;
 static void pos_est_cb(uint8_t sender_id,
                        uint32_t stamp,
@@ -155,6 +159,7 @@ static void pos_est_cb(uint8_t sender_id,
 #ifndef INS_INT_AGL_ID
 #define INS_INT_AGL_ID ABI_BROADCAST
 #endif
+PRINT_CONFIG_VAR(INS_INT_AGL_ID)
 static abi_event agl_ev;                 ///< The agl ABI event
 static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 
@@ -283,12 +288,8 @@ void ins_reset_altitude_ref(void)
 void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 {
   /* untilt accels */
-  struct Int32Vect3 accel_meas_body;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
-  stateSetAccelBody_i(&accel_meas_body);
   struct Int32Vect3 accel_meas_ltp;
-  int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
+  int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), accel);
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
 

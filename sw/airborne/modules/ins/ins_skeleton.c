@@ -49,7 +49,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 PRINT_CONFIG_VAR(INS_MODULE_BARO_ID)
 
-/** IMU (accel, body_to_imu) */
+/** IMU (accel) */
 #ifndef INS_MODULE_IMU_ID
 #define INS_MODULE_IMU_ID ABI_BROADCAST
 #endif
@@ -66,7 +66,6 @@ PRINT_CONFIG_VAR(INS_MODULE_GPS_ID)
 static abi_event baro_ev;
 static abi_event accel_ev;
 static abi_event gps_ev;
-static abi_event body_to_imu_ev;
 
 struct InsModuleInt ins_module;
 
@@ -137,11 +136,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   last_stamp = stamp;
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  orientationSetQuat_f(&ins_module.body_to_imu, q_b2i_f);
-}
 /*********************************************************************
  * weak functions that are used if not implemented in a module
  ********************************************************************/
@@ -185,12 +179,9 @@ void WEAK ins_module_update_gps(struct GpsState *gps_s, float dt __attribute__((
 void WEAK ins_module_propagate(struct Int32Vect3 *accel, float dt __attribute__((unused)))
 {
   /* untilt accels */
-  struct Int32Vect3 accel_meas_body;
-  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_module.body_to_imu);
-  int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
-  stateSetAccelBody_i(&accel_meas_body);
+  stateSetAccelBody_i(accel);
   struct Int32Vect3 accel_meas_ltp;
-  int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
+  int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), accel);
 
   VECT3_COPY(ins_module.ltp_accel, accel_meas_ltp);
 }
@@ -239,6 +230,5 @@ void ins_module_wrapper_init(void)
   AbiBindMsgBARO_ABS(INS_MODULE_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgIMU_ACCEL(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(INS_MODULE_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(INS_MODULE_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 

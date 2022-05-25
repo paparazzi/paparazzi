@@ -40,7 +40,6 @@ struct AhrsMadgwick {
   struct FloatRates rates;            ///< Measured gyro rates
   struct FloatRates bias;             ///< Gyro bias (from alignment)
   struct FloatVect3 accel;            ///< Measured accelerometers
-  struct OrientationReps body_to_imu; ///< body_to_imu rotation
   bool reset;                         ///< flag to request reset/reinit the filter
   bool is_aligned;                    ///< aligned flag
 };
@@ -48,7 +47,6 @@ struct AhrsMadgwick {
 extern struct AhrsMadgwick ahrs_madgwick;
 
 extern void ahrs_madgwick_init(void);
-extern void ahrs_madgwick_set_body_to_imu_quat(struct FloatQuat *q_b2i);
 extern void ahrs_madgwick_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel);
 extern void ahrs_madgwick_propagate(struct FloatRates* gyro, float dt);
 extern void ahrs_madgwick_update_accel(struct FloatVect3* accel);

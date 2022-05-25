@@ -44,10 +44,6 @@
       <field name="mag" type="struct Int32Vect3 *"/>
     </message>
 
-    <message name="BODY_TO_IMU_QUAT" id="8">
-      <field name="q_b2i_f" type="struct FloatQuat *"/>
-    </message>
-
     <message name="GEO_MAG" id="9">
       <field name="h" type="struct FloatVect3 *" unit="1.0"/>
     </message>

@@ -119,12 +119,13 @@ void ahrs_aligner_run(void)
   struct imu_mag_t *mag = imu_get_mag(AHRS_ALIGNER_IMU_ID, false);
 
   // Could not find all sensors
-  if(gyro == NULL || accel == NULL || mag == NULL)
+  if(gyro == NULL || accel == NULL)
     return;
   
   RATES_ADD(gyro_sum, gyro->scaled);
   VECT3_ADD(accel_sum, accel->scaled);
-  VECT3_ADD(mag_sum, mag->scaled);
+  if(mag != NULL)
+    VECT3_ADD(mag_sum, mag->scaled);
 
   ref_sensor_samples[samples_idx] = accel->scaled.z;
   samples_idx++;
@@ -170,7 +171,7 @@ void ahrs_aligner_run(void)
       LED_ON(AHRS_ALIGNER_LED);
 #endif
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgIMU_LOWPASSED(ABI_BROADCAST, now_ts, &ahrs_aligner.lp_gyro,
+      AbiSendMsgIMU_LOWPASSED(AHRS_ALIGNER_IMU_ID, now_ts, &ahrs_aligner.lp_gyro,
                               &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
     }
   }

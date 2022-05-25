@@ -96,10 +96,7 @@ struct AhrsFloatInv {
   struct inv_correction_gains corr;   ///< correction gains
   struct inv_gains gains;             ///< tuning gains
 
-  bool reset;                       ///< flag to request reset/reinit the filter
-
-  /** body_to_imu rotation */
-  struct OrientationReps body_to_imu;
+  bool reset;                       ///< flag to request reset/reinit the filte
 
   struct FloatVect3 mag_h;
   bool is_aligned;
@@ -108,7 +105,6 @@ struct AhrsFloatInv {
 extern struct AhrsFloatInv ahrs_float_inv;
 
 extern void ahrs_float_invariant_init(void);
-extern void ahrs_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i);
 extern void ahrs_float_invariant_align(struct FloatRates *lp_gyro,
                                        struct FloatVect3 *lp_accel,
                                        struct FloatVect3 *lp_mag);

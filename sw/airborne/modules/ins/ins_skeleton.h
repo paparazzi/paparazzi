@@ -48,9 +48,6 @@ struct InsModuleInt {
 
   /** internal copy of last GPS message */
   struct GpsState gps;
-
-  /** body_to_imu rotation */
-  struct OrientationReps body_to_imu;
 };
 
 /** global INS state */

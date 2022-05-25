@@ -48,12 +48,12 @@ static void compute_body_orientation_and_rates(void);
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
 {
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
+  struct FloatEulers ltp_to_body_euler;
+  float_eulers_of_quat(&ltp_to_body_euler, &ahrs_fc.ltp_to_body_quat);
   pprz_msg_send_AHRS_EULER(trans, dev, AC_ID,
-                           &ltp_to_imu_euler.phi,
-                           &ltp_to_imu_euler.theta,
-                           &ltp_to_imu_euler.psi,
+                           &ltp_to_body_euler.phi,
+                           &ltp_to_body_euler.theta,
+                           &ltp_to_body_euler.psi,
                            &ahrs_fc_id);
 }
 
@@ -68,22 +68,18 @@ static void send_bias(struct transport_tx *trans, struct link_device *dev)
 static void send_euler_int(struct transport_tx *trans, struct link_device *dev)
 {
   /* compute eulers in int (IMU frame) */
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_quat);
-  struct Int32Eulers eulers_imu;
-  EULERS_BFP_OF_REAL(eulers_imu, ltp_to_imu_euler);
-
-  /* get Eulers in int (body frame) */
-  ahrs_fc_recompute_ltp_to_body();
-  struct Int32Eulers *eulers_body = orientationGetEulers_i(&ahrs_fc.ltp_to_body);
+  struct FloatEulers ltp_to_body_euler;
+  float_eulers_of_quat(&ltp_to_body_euler, &ahrs_fc.ltp_to_body_quat);
+  struct Int32Eulers eulers_body;
+  EULERS_BFP_OF_REAL(eulers_body, ltp_to_body_euler);
 
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-                               &eulers_imu.phi,
-                               &eulers_imu.theta,
-                               &eulers_imu.psi,
-                               &eulers_body->phi,
-                               &eulers_body->theta,
-                               &eulers_body->psi,
+                               &eulers_body.phi,
+                               &eulers_body.theta,
+                               &eulers_body.psi,
+                               &eulers_body.phi,
+                               &eulers_body.theta,
+                               &eulers_body.psi,
                                &ahrs_fc_id);
 }
 
@@ -131,7 +127,6 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
 static abi_event gps_ev;
 
@@ -235,12 +230,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  ahrs_fc_set_body_to_imu_quat(q_b2i_f);
-}
-
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
   ahrs_fc.mag_h = *h;
@@ -266,17 +255,9 @@ static bool ahrs_fc_enable_output(bool enable)
 static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_fc_output_enabled) {
-    /* recompute LTP to BODY quaternion */
-    ahrs_fc_recompute_ltp_to_body();
-    struct FloatQuat *ltp_to_body_quat = orientationGetQuat_f(&ahrs_fc.ltp_to_body);
     /* Set state */
-    stateSetNedToBodyQuat_f(ltp_to_body_quat);
-
-    /* compute body rates */
-    struct FloatRates body_rate;
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
-    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
-    stateSetBodyRates_f(&body_rate);
+    stateSetNedToBodyQuat_f(&ahrs_fc.ltp_to_body_quat);
+    stateSetBodyRates_f(&ahrs_fc.body_rate);
   }
 }
 
@@ -292,8 +273,7 @@ void ahrs_fc_register(void)
   AbiBindMsgIMU_GYRO(AHRS_FC_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_FC_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(AHRS_FC_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgIMU_LOWPASSED(AHRS_FC_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(AHRS_FC_GPS_ID, &gps_ev, gps_cb);
 

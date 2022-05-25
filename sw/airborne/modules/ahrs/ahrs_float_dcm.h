@@ -38,16 +38,14 @@ struct AhrsFloatDCM {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
 
-  struct FloatEulers ltp_to_imu_euler;
-  struct FloatRates imu_rate;
+  struct FloatEulers ltp_to_body_euler;
+  struct FloatRates body_rate;
 
   float gps_speed;
   float gps_acceleration;
   float gps_course;
   bool gps_course_valid;
   uint8_t gps_age;
-
-  struct OrientationReps body_to_imu;
 
   enum AhrsDCMStatus status;
   bool is_aligned;
@@ -84,8 +82,6 @@ extern float imu_health;
 #endif
 
 extern void ahrs_dcm_init(void);
-extern void ahrs_dcm_set_body_to_imu(struct OrientationReps *body_to_imu);
-extern void ahrs_dcm_set_body_to_imu_quat(struct FloatQuat *q_b2i);
 extern bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                              struct FloatVect3 *lp_mag);
 extern void ahrs_dcm_propagate(struct FloatRates *gyro, float dt);
