@@ -13,5 +13,6 @@ TBD
     communication
     modules
     abi
+    guidance_stabilization
     logging
 
