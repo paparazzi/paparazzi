@@ -62,6 +62,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
 
    <header>
      <file name="gvf.h"/>
+     <file name="gvf_low_level_control.h"/>
      <file name="trajectories/gvf_line.h"/>
      <file name="trajectories/gvf_sin.h"/>
      <file name="trajectories/gvf_ellipse.h"/>
@@ -72,6 +73,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
 
    <makefile firmware="fixedwing">
      <file name="gvf.c"/>
+     <file name="gvf_low_level_control.c"/>
      <file name="trajectories/gvf_line.c"/>
      <file name="trajectories/gvf_sin.c"/>
      <file name="trajectories/gvf_ellipse.c"/>
@@ -80,6 +82,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
 
    <makefile firmware="rover">
      <file name="gvf.c"/>
+     <file name="gvf_low_level_control.c"/>
      <file name="trajectories/gvf_line.c"/>
      <file name="trajectories/gvf_sin.c"/>
      <file name="trajectories/gvf_ellipse.c"/>
