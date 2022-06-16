@@ -14,7 +14,6 @@ TBD
     modules
     abi
     guidance_stabilization
-    navigation
-    camera
+    simulation
     logging
 
