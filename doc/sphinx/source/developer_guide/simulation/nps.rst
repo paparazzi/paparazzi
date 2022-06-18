@@ -1,7 +1,7 @@
-.. developer_guide simulation
+.. developer_guide simulation nps
 
 ===========================
-Simulation
+NPS
 ===========================
 
 NPS (New Paparazzi Simulator) is a simulator with sensor and vehicle models that can use different FDM backends. 
@@ -62,7 +62,7 @@ Running the Simulation
 The most convenient way to start the simulation is via the Simulation session from the Paparazzi Center. 
 Just select e.g. the Quad_LisaM_2 example airframe and start the Simulation session with the simulator, GCS and server.
 
-If you have added PAPARAZZI_HOME AND PAPARAZZI_SRC to the environmental variables of your terminal (See Setting up environment variables), 
+If you have added ``PAPARAZZI_HOME`` AND ``PAPARAZZI_SRC`` to the environmental variables of your terminal (See Setting up environment variables), 
 you can also start it via the generic simulation launcher:
 
 .. code-block:: C
@@ -289,4 +289,73 @@ or to e.g. use the mikrokopter quadrotor model:
 .. code-block:: C
 
     fgfs --fdm=null --native-gui=socket,in,30,,5501,udp --prop:/sim/model/path=Models/Aircraft/paparazzi/mikrokopter.xml
+
+JSBSim
+-----------
+
+JSBSim_ is an open source flight dynamics model (FDM) used in NPS.
+
+.. _JSBSim: http://jsbsim.sourceforge.net/
+
+Installation
+^^^^^^^^^^^^^^
+
+Debian Package
+~~~~~~~~~~~~~~~~~~~~~
+
+On Debian/Ubuntu you can install the ``paparazzi-jsbsim`` package.
+
+.. code-block:: php
+
+    sudo apt-get install paparazzi-jsbsim
+
+If you don't have that in your sources, see Installation/Linux#Adding_the_APT_repository.
+
+From Source
+~~~~~~~~~~~~~~~
+
+Compile JSBSIM from source (with specified date to make sure it works and API hasn't changed)
+
+.. code-block:: php
+
+    cvs -z3 -d:pserver:anonymous@jsbsim.cvs.sourceforge.net:/cvsroot/jsbsim co -D "23 Feb 2015" -P JSBSim 
+    cd JSBSim
+    ./autogen.sh
+    ./configure --enable-libraries --enable-shared --prefix=/opt/jsbsim
+    make
+    sudo make install
+
+When building a NPS simulator target, the build system will first try to find JSBSim via ``pkg-config`` and fall back to ``/opt/jsbsim``.
+
+If you want to install to a different location, change the prefix to your liking. And you need to add a ``<makefile>`` 
+section to your airframe file and add the correct flags to point to the include files and libraries, depending on where it is installed.
+
+With the default installation to /usr/local/, this would look like
+
+.. code-block:: php
+
+    <makefile location="after">
+        nps.CFLAGS += -I/usr/local/include/JSBSim
+        nps.LDFLAGS += -L/usr/local/lib
+    </makefile>
+
+On OSX
+~~~~~~~~~~~~~~~
+
+Install the JSBSim libraries onto your system. This should already be installed with paparazzi-tools, but if it isn't:
+
+.. code-block:: php
+
+    sudo port install jsbsim
+
+It uses code from the cvs repo, so it should be the most up-to-date source.
+
+Troubleshooting
+^^^^^^^^^^^^^^^^^^
+
+If you get an error like "undefined reference to ``pcre_compile``, edit file ``conf/Makefile.jsbsim``, look for the line that begins with ``LDFLAGS`` and add ``-lpcre``, e.g.:
+
+.. code-block:: php
+        
+    LDFLAGS += $($(TARGET).LDFLAGS) -lpcre
 

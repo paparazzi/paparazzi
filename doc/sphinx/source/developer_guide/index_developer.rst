@@ -14,6 +14,6 @@ TBD
     modules
     abi
     guidance_stabilization
-    simulation
+    simulation_main
     logging
 
