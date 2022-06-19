@@ -1,13 +1,15 @@
 .. developer_guide simulation nps
 
+.. _nps:
+
 ===========================
 NPS
 ===========================
 
 NPS (New Paparazzi Simulator) is a simulator with sensor and vehicle models that can use different FDM backends. 
 
-By default, JSBSim is used as FDM (FlightDynamicModel), which allows for fairly complex airframes. JSBSim can be replaced by the FDM of your choice, 
-such as Gazebo, for better visualization.
+By default, :ref:`jsbsim` is used as FDM (FlightDynamicModel), which allows for fairly complex airframes. JSBSim can be replaced by the FDM of your choice, 
+such as :ref:`gazebo`, for better visualization.
 
 NPS is capable of simulating rotorcraft and fixedwing airframes, with the possibility to add more complex aircrafts/hybrids if a proper model 
 is built using one of the FDM backends.
@@ -40,26 +42,26 @@ E.g for a simple quadrotor:
 
 The full list of available parameters for the simulator is:
 
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| PARAMETER               | DESCRIPTION                                                                                                                                                                                                                                                                                             |
-+=========================+=========================================================================================================================================================================================================================================================================================================+
-| NPS_ACTUATOR_NAMES      | mapping of the motors defined in the MOTOR_MIXING section to the actuators in the JSBSim model (the order is important, also make sure that your motors in JSBSim spin in the same direction as your real ones)                                                                                         |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| NPS_SENSORS_PARAMS      | the parameter file for the sensor simulation (noise/delay) under conf/simulator/nps/                                                                                                                                                                                                                    |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| NPS_JSBSIM_MODEL        | name of the JSBSim model in conf/simulator/jsbsim/aircraft/ (e.g. simple_quad), if not defined it defaults to AIRCRAFT_NAME                                                                                                                                                                             |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| NPS_JSBSIM_INIT         | the xml file containing the initial conditions (location, attitude, wind) for JSBSim in conf/simulator/jsbsim/aircraft/. This define is optional and if not specified the initial position of the aircraft will be set to the flight plan location. Prior to v5.1 this was called INITIAL_CONDITITONS.  |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| NPS_JSBSIM_LAUNCHSPEED  | if defined this sets an initial launchspeed in m/s for fixedwings, available since v5.1.0_testing-54-g2ac094f                                                                                                                                                                                           |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| NPS_JS_*                | Joystick mappings, see                                                                                                                                                                                                                                                                                  |
-+-------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| PARAMETER              | DESCRIPTION                                                                                                                                                                                                                                                                                                    |
++========================+================================================================================================================================================================================================================================================================================================================+
+| NPS_ACTUATOR_NAMES     | mapping of the motors defined in the ``MOTOR_MIXING`` section to the actuators in the JSBSim model (the order is important, also make sure that your motors in JSBSim spin in the same direction as your real ones)                                                                                            |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NPS_SENSORS_PARAMS     | the parameter file for the sensor simulation (noise/delay) under ``conf/simulator/nps/``                                                                                                                                                                                                                       |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NPS_JSBSIM_MODEL       | name of the JSBSim model in ``conf/simulator/jsbsim/aircraft/`` (e.g. simple_quad), if not defined it defaults to AIRCRAFT_NAME                                                                                                                                                                                |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NPS_JSBSIM_INIT        | the xml file containing the initial conditions (location, attitude, wind) for JSBSim in ``conf/simulator/jsbsim/aircraft/``. This define is optional and if not specified the initial position of the aircraft will be set to the flight plan location. Prior to v5.1 this was called ``INITIAL_CONDITITONS``. |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NPS_JSBSIM_LAUNCHSPEED | if defined this sets an initial launchspeed in m/s for fixedwings, available since ``v5.1.0_testing-54-g2ac094f``.                                                                                                                                                                                             |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NPS_JS_*               | Joystick mappings                                                                                                                                                                                                                                                                                              |
++------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 Running the Simulation
 --------------------------
 
-The most convenient way to start the simulation is via the Simulation session from the Paparazzi Center. 
+The most convenient way to start the simulation is via the Simulation session from the :ref:`paparazzicenter`. 
 Just select e.g. the Quad_LisaM_2 example airframe and start the Simulation session with the simulator, GCS and server.
 
 If you have added ``PAPARAZZI_HOME`` AND ``PAPARAZZI_SRC`` to the environmental variables of your terminal (See Setting up environment variables), 
@@ -83,7 +85,7 @@ Start the simulator with the *--help* option to list them all.
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``--js_dev``       | Use joystick for radio control (specify index, normally 0),                                                                                                                                                     |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``--spektrum_dev`` | Spektrum device to use for radio control (e.g. /dev/ttyUSB0)                                                                                                                                                    |
+| ``--spektrum_dev`` | Spektrum device to use for radio control (e.g. ``/dev/ttyUSB0``)                                                                                                                                                    |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``--fg_host``      | Host for FlightGear visualization (e.g. 127.0.0.1)                                                                                                                                                              |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -198,6 +200,8 @@ Based on the above sample output, the invocation would look like the following:
 
     $PAPARAZZI_HOME/sw/ground_segment/tmtc/link -udp -udp_broadcast -udp_broadcast_addr 192.168.1.255
 
+.. _flightgear:
+
 FlightGear
 --------------------------
 
@@ -290,12 +294,12 @@ or to e.g. use the mikrokopter quadrotor model:
 
     fgfs --fdm=null --native-gui=socket,in,30,,5501,udp --prop:/sim/model/path=Models/Aircraft/paparazzi/mikrokopter.xml
 
+.. _jsbsim:
+
 JSBSim
 -----------
 
-JSBSim_ is an open source flight dynamics model (FDM) used in NPS.
-
-.. _JSBSim: http://jsbsim.sourceforge.net/
+`JSBSim FDM <http://jsbsim.sourceforge.net/>`_ is an open source flight dynamics model (FDM) used in NPS.
 
 Installation
 ^^^^^^^^^^^^^^

@@ -1,5 +1,7 @@
 .. user_guide flight_plan
 
+.. _flightplans:
+
 ============
 Flight Plans
 ============

@@ -1,5 +1,7 @@
 .. quickstart gcs_tour
 
+.. _gcs:
+
 ====
 GCS
 ====

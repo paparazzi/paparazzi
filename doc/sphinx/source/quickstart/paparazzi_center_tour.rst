@@ -1,5 +1,7 @@
 .. quickstart paparazzi_center_tour
 
+.. _paparazzicenter:
+
 =================
 Paparazzi Center
 =================

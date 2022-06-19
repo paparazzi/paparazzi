@@ -1,5 +1,7 @@
 .. developer_guide simulation gazebo
 
+.. _gazebo:
+
 ===========================
 Gazebo
 ===========================

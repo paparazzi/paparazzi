@@ -1,5 +1,7 @@
 .. developer_guide simulation sim
 
+.. _sim:
+
 ===========================
 SIM
 ===========================
@@ -9,13 +11,13 @@ This describes the basic fixedwing sim, for rotorcraft or advanced fixedwing sim
 Configure and Build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-From the Paparazzi Center select the Microjet aircraft (from the A/C combo box) which is configured with the ``basic.xml`` flight plan. 
+From the :ref:`paparazzicenter` select the Microjet aircraft (from the A/C combo box) which is configured with the ``basic.xml`` flight plan. 
 From the **Target** combo box, select **sim** and click the **Build** button to compile the airborne code to be run on your Linux box. 
 From the **Session** combo box, select **Simulation** entry and click **Execute** to start the simulation. It will start three processes which are listed in the window below:
 
 - **Microjet** is the interface of a simulator program. It runs the same code as the one for the autopilot processor plus a rudimentary flight dynamic model. 
   It allows you to test the interactions with the UAV and the flight plan execution.
-- **GCS** (Ground Control Station) is the main window. It displays the track of the aircraft, as well as information about the execution of its flight plans. 
+- **GCS** (:ref:`gcs`) is the main window. It displays the track of the aircraft, as well as information about the execution of its flight plans. 
   This program provide menus for the datalink functions and is able to edit a flight plan.
 - **Server** is a hidden process which won't be described here (see the architecture of the system).
 
