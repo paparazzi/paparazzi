@@ -12,4 +12,5 @@
         "Makefile.*": "makefile"
     },
     "C_Cpp.dimInactiveRegions": false,
+    "esbonio.sphinx.confDir": "",
 }
