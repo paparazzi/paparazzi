@@ -1,4 +1,4 @@
-.. developer_guide simulation gazebo
+.. user_guide simulation gazebo
 
 .. _gazebo:
 

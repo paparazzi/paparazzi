@@ -1,4 +1,4 @@
-.. developer_guide simulation sim
+.. user_guide simulation sim
 
 .. _sim:
 

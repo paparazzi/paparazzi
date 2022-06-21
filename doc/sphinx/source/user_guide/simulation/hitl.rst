@@ -1,4 +1,4 @@
-.. developer_guide simulation hitl
+.. user_guide simulation hitl
 
 .. _hitl:
 
@@ -38,7 +38,9 @@ Commands computed by the autopilot are sent to the flight model which sends back
 Limitations
 -----------------
 
-**Update March 2018: HITL currently works only with Pprzlink 1.0, please recompile paparazzi with PPRZLINK_LIB_VERSION=1.0. We are working on a fix.**
+.. warning::
+
+  HITL currently works only with Pprzlink 1.0, which is not supported anymore. The code might not work as desired yet.
 
 For practical reasons (it is very difficult to simulate SPI/I2C devices such as accelerometer, gyroscope etc.), 
 Paparazzi HITL simulates only sensors that connect to the autopilot via serial port (for example GPS unit, or an external AHRS/INS). 

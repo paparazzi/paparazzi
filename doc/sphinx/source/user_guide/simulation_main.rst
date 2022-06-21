@@ -1,4 +1,4 @@
-.. developer_guide simulation_main
+.. user_guide simulation_main
 
 ===========================
 Simulation

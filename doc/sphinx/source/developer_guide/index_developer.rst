@@ -13,7 +13,5 @@ TBD
     communication
     modules
     abi
-    guidance_stabilization
-    simulation_main
     logging
 

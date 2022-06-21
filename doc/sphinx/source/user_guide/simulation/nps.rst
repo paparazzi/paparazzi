@@ -1,4 +1,4 @@
-.. developer_guide simulation nps
+.. user_guide simulation nps
 
 .. _nps:
 
@@ -28,7 +28,7 @@ Add the nps target to your airframe with the fdm you want to use:
     ...
   </firmware>
 
-hen depending on the aircraft you want to simulate add a NPS simulator section which defines the model, actuators and sensor parameters used:
+Then depending on the aircraft you want to simulate add a NPS simulator section which defines the model, actuators and sensor parameters used:
 
 E.g for a simple quadrotor:
 
@@ -85,7 +85,7 @@ Start the simulator with the *--help* option to list them all.
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``--js_dev``       | Use joystick for radio control (specify index, normally 0),                                                                                                                                                     |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``--spektrum_dev`` | Spektrum device to use for radio control (e.g. ``/dev/ttyUSB0``)                                                                                                                                                    |
+| ``--spektrum_dev`` | Spektrum device to use for radio control (e.g. ``/dev/ttyUSB0``)                                                                                                                                                |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``--fg_host``      | Host for FlightGear visualization (e.g. 127.0.0.1)                                                                                                                                                              |
 +--------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
