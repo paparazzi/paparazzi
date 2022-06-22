@@ -38,20 +38,63 @@
 #define IMU_INTEGRATION false
 #endif
 
-/** Default gyro calibration is empty */
+/** Default gyro calibration is for single IMU with old format */
+#if defined(IMU_GYRO_P_NEUTRAL) || defined(IMU_GYRO_Q_NEUTRAL) || defined(IMU_GYRO_R_NEUTRAL)
+#define GYRO_NEUTRAL {IMU_GYRO_P_NEUTRAL, IMU_GYRO_Q_NEUTRAL, IMU_GYRO_R_NEUTRAL}
+PRINT_CONFIG_MSG("Using single IMU gyro neutral calibration")
+#else
+#define GYRO_NEUTRAL {}
+#endif
+
+#if defined(IMU_GYRO_P_SENS) ||  defined(IMU_GYRO_Q_SENS) || defined(IMU_GYRO_R_SENS)
+#define GYRO_SCALE {{IMU_GYRO_P_SENS_NUM, IMU_GYRO_Q_SENS_NUM, IMU_GYRO_R_SENS_NUM}, {IMU_GYRO_P_SENS_DEN, IMU_GYRO_Q_SENS_DEN, IMU_GYRO_R_SENS_DEN}}
+PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
+#else
+#define GYRO_SCALE {{1,1,1},{1,1,1}}
+#endif
+
 #ifndef IMU_GYRO_CALIB
-#define IMU_GYRO_CALIB {}
+#define IMU_GYRO_CALIB {{.abi_id=ABI_BROADCAST, .neutral=GYRO_NEUTRAL, .scale=GYRO_SCALE}}
 #endif
 
-/** Default accel calibration is empty */
+/** Default accel calibration is for single IMU with old format */
+#if defined(IMU_ACCEL_X_NEUTRAL) || defined(IMU_ACCEL_Y_NEUTRAL) || defined(IMU_ACCEL_Z_NEUTRAL)
+#define ACCEL_NEUTRAL {IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL}
+PRINT_CONFIG_MSG("Using single IMU accel neutral calibration")
+#else
+#define ACCEL_NEUTRAL {}
+#endif
+
+#if defined(IMU_ACCEL_X_SENS) ||  defined(IMU_ACCEL_Y_SENS) || defined(IMU_ACCEL_Z_SENS)
+#define ACCEL_SCALE {{IMU_ACCEL_X_SENS_NUM, IMU_ACCEL_Y_SENS_NUM, IMU_ACCEL_Z_SENS_NUM}, {IMU_ACCEL_X_SENS_DEN, IMU_ACCEL_Y_SENS_DEN, IMU_ACCEL_Z_SENS_DEN}}
+PRINT_CONFIG_MSG("Using single IMU accel sensitivity calibration")
+#else
+#define ACCEL_SCALE {{1,1,1},{1,1,1}}
+#endif
+
 #ifndef IMU_ACCEL_CALIB
-#define IMU_ACCEL_CALIB {}
+#define IMU_ACCEL_CALIB {{.abi_id=ABI_BROADCAST, .neutral=ACCEL_NEUTRAL, .scale=ACCEL_SCALE}}
 #endif
 
-/** Default mag calibration is empty */
-#ifndef IMU_MAG_CALIB
-#define IMU_MAG_CALIB {}
+/** Default mag calibration is for single IMU with old format */
+#if defined(IMU_MAG_X_NEUTRAL) || defined(IMU_MAG_Y_NEUTRAL) || defined(IMU_MAG_Z_NEUTRAL)
+#define MAG_NEUTRAL {IMU_MAG_X_NEUTRAL, IMU_MAG_Y_NEUTRAL, IMU_MAG_Z_NEUTRAL}
+PRINT_CONFIG_MSG("Using single IMU mag neutral calibration")
+#else
+#define MAG_NEUTRAL {}
 #endif
+
+#if defined(IMU_MAG_X_SENS) ||  defined(IMU_MAG_Y_SENS) || defined(IMU_MAG_Z_SENS)
+#define MAG_SCALE {{IMU_MAG_X_SENS_NUM, IMU_MAG_Y_SENS_NUM, IMU_MAG_Z_SENS_NUM}, {IMU_MAG_X_SENS_DEN, IMU_MAG_Y_SENS_DEN, IMU_MAG_Z_SENS_DEN}}
+PRINT_CONFIG_MSG("Using single IMU mag sensitivity calibration")
+#else
+#define MAG_SCALE {{1,1,1},{1,1,1}}
+#endif
+
+#ifndef IMU_MAG_CALIB
+#define IMU_MAG_CALIB {{.abi_id=ABI_BROADCAST, .neutral=MAG_NEUTRAL, .scale=MAG_SCALE}}
+#endif
+
 
 /** Default body to imu is 0 (radians) */
 #if !defined(IMU_BODY_TO_IMU_PHI) && !defined(IMU_BODY_TO_IMU_THETA) && !defined(IMU_BODY_TO_IMU_PSI)
@@ -63,20 +106,6 @@ PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_PHI)
 PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_THETA)
 PRINT_CONFIG_VAR(IMU_BODY_TO_IMU_PSI)
 
-/* Detect depricated gyro configurations */
-#if defined(IMU_GYRO_P_NEUTRAL) || defined(IMU_GYRO_Q_NEUTRAL) || defined(IMU_GYRO_R_NEUTRAL) || defined(IMU_GYRO_P_SENS) ||  defined(IMU_GYRO_Q_SENS) || defined(IMU_GYRO_R_SENS)
-#error "Using older gyro calibration `IMU_GYRO_*` defines please replace with `IMU_GYRO_CALIB`!"
-#endif
-
-/* Detect depricated accel configurations */
-#if defined(IMU_ACCEL_X_NEUTRAL) || defined(IMU_ACCEL_Y_NEUTRAL) || defined(IMU_ACCEL_Z_NEUTRAL) || defined(IMU_ACCEL_X_SENS) ||  defined(IMU_ACCEL_Y_SENS) || defined(IMU_ACCEL_Z_SENS)
-#error "Using older accel calibration `IMU_ACCEL_*` defines please replace with `IMU_ACCEL_CALIB`!"
-#endif
-
-/* Detect depricated mag configurations */
-#if defined(IMU_MAG_X_NEUTRAL) || defined(IMU_MAG_Y_NEUTRAL) || defined(IMU_MAG_Z_NEUTRAL) || defined(IMU_MAG_X_SENS) ||  defined(IMU_MAG_Y_SENS) || defined(IMU_MAG_Z_SENS)
-#error "Using older mag calibration `IMU_MAG_*` defines please replace with `IMU_MAG_CALIB`!"
-#endif
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -202,10 +231,6 @@ static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
 void imu_init(void)
 {
-  // Do not initialize twice
-  if(imu.initialized)
-    return;
-  
   // Set the Body to IMU rotation
   struct FloatEulers body_to_imu_eulers = {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   orientationSetEulers_f(&imu.body_to_imu, &body_to_imu_eulers);
@@ -299,9 +324,6 @@ void imu_init(void)
  */
 void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale)
 {
-  // Could be that we are not initialized
-  imu_init();
-
   // Find the correct gyro
   struct imu_gyro_t *gyro = imu_get_gyro(abi_id, true);
   if(gyro == NULL)
@@ -314,9 +336,9 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(gyro->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL && !gyro->calibrated)
+  if(neutral != NULL)
     RATES_COPY(gyro->neutral, *neutral);
-  if(scale != NULL && !gyro->calibrated) {
+  if(scale != NULL) {
     RATES_COPY(gyro->scale[0], scale[0]);
     RATES_COPY(gyro->scale[1], scale[1]);
   }
@@ -332,9 +354,6 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
  */
 void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
 {
-  // Could be that we are not initialized
-  imu_init();
-
   // Find the correct accel
   struct imu_accel_t *accel = imu_get_accel(abi_id, true);
   if(accel == NULL)
@@ -347,9 +366,9 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(accel->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL && !accel->calibrated)
+  if(neutral != NULL)
     VECT3_COPY(accel->neutral, *neutral);
-  if(scale != NULL && !accel->calibrated) {
+  if(scale != NULL) {
     VECT3_COPY(accel->scale[0], scale[0]);
     VECT3_COPY(accel->scale[1], scale[1]);
   }
@@ -365,9 +384,6 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
  */
 void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
 {
-  // Could be that we are not initialized
-  imu_init();
-
   // Find the correct mag
   struct imu_mag_t *mag = imu_get_mag(abi_id, true);
   if(mag == NULL)
@@ -380,9 +396,9 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(mag->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL && !mag->calibrated)
+  if(neutral != NULL)
     VECT3_COPY(mag->neutral, *neutral);
-  if(scale != NULL && !mag->calibrated) {
+  if(scale != NULL) {
     VECT3_COPY(mag->scale[0], scale[0]);
     VECT3_COPY(mag->scale[1], scale[1]);
   }
@@ -526,9 +542,10 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
  */
 struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create) {
   // Find the correct gyro or create index
+  // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_gyro_t *gyro = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.gyros[i].abi_id == sender_id || (create && imu.gyros[i].abi_id == ABI_DISABLE)) {
+    if(imu.gyros[i].abi_id == sender_id || imu.gyros[i].abi_id == ABI_BROADCAST || (create && imu.gyros[i].abi_id == ABI_DISABLE)) {
       gyro = &imu.gyros[i];
       gyro->abi_id = sender_id;
       break;
@@ -536,7 +553,6 @@ struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create) {
       gyro = &imu.gyros[i];
     }
   }
-
   return gyro;
 }
 
@@ -549,9 +565,10 @@ struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create) {
  */
 struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create) {
   // Find the correct accel
+  // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_accel_t *accel = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.accels[i].abi_id == sender_id || (create && imu.accels[i].abi_id == ABI_DISABLE)) {
+    if(imu.accels[i].abi_id == sender_id || imu.accels[i].abi_id == ABI_BROADCAST  || (create && imu.accels[i].abi_id == ABI_DISABLE)) {
       accel = &imu.accels[i];
       accel->abi_id = sender_id;
       break;
@@ -572,9 +589,10 @@ struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create) {
  */
 struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create) {
   // Find the correct mag
+  // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_mag_t *mag = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.mags[i].abi_id == sender_id || (create && imu.mags[i].abi_id == ABI_DISABLE)) {
+    if(imu.mags[i].abi_id == sender_id || imu.mags[i].abi_id == ABI_BROADCAST  || (create && imu.mags[i].abi_id == ABI_DISABLE)) {
       mag = &imu.mags[i];
       mag->abi_id = sender_id;
       break;

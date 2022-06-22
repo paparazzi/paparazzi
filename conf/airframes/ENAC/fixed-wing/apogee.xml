@@ -102,6 +102,9 @@
     <define name="ACCEL_X_NEUTRAL" value="0"/>
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
+    <define name="ACCEL_X_SENS" value="2.45166329295" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.45072320868" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.44974997157" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
