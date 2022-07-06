@@ -53,13 +53,13 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
 
   switch (gvf_trajectory.type) {
     case LINE:
-      plen = 3;
-      break;
-    case ELLIPSE:
       plen = 5;
       break;
-    case SIN:
+    case ELLIPSE:
       plen = 6;
+      break;
+    case SIN:
+      plen = 8;
       break;
     default:
       plen = 1;
@@ -71,36 +71,23 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_t0;
 
-  if (delta_T < 200)
+  if (delta_T < 200) {
     pprz_msg_send_GVF(trans, dev, AC_ID, &gvf_control.error, &traj_type,
                       &gvf_control.s, &gvf_control.ke, plen, gvf_trajectory.p);
-}
 
-static void send_circle(struct transport_tx *trans, struct link_device *dev)
-{
-  uint32_t now = get_sys_time_msec();
-  uint32_t delta_T = now - gvf_t0;
-
-  if (delta_T < 200)
     if (gvf_trajectory.type == ELLIPSE &&
         ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3])) {
       pprz_msg_send_CIRCLE(trans, dev, AC_ID,
                            &gvf_trajectory.p[0], &gvf_trajectory.p[1],
                            &gvf_trajectory.p[2]);
     }
-}
 
-static void send_segment(struct transport_tx *trans, struct link_device *dev)
-{
-  uint32_t now = get_sys_time_msec();
-  uint32_t delta_T = now - gvf_t0;
-
-  if (delta_T < 200)
     if (gvf_trajectory.type == LINE && gvf_segment.seg == 1) {
       pprz_msg_send_SEGMENT(trans, dev, AC_ID,
                             &gvf_segment.x1, &gvf_segment.y1,
                             &gvf_segment.x2, &gvf_segment.y2);
     }
+  }
 }
 
 #endif
@@ -145,8 +132,6 @@ void gvf_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF, send_gvf);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SEGMENT, send_segment);
 #endif
 }
 
@@ -268,6 +253,9 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
 
 bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
+  gvf_trajectory.p[3] = wp1;
+  gvf_trajectory.p[4] = wp2;
+  
   float x1 = WaypointX(wp1);
   float y1 = WaypointY(wp1);
   float x2 = WaypointX(wp2);
@@ -366,7 +354,7 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
   gvf_trajectory.p[2] = a;
   gvf_trajectory.p[3] = b;
   gvf_trajectory.p[4] = alpha;
-  
+
   // SAFE MODE
   if (a < 1 || b < 1) {
     gvf_trajectory.p[2] = 60;
@@ -393,6 +381,7 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
 
 bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
 {  
+  gvf_trajectory.p[5] = (float)wp;
   gvf_ellipse_XY(WaypointX(wp),  WaypointY(wp), a, b, alpha);
   return true;
 }
@@ -426,6 +415,9 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 {
   w = 2 * M_PI * w;
 
+  gvf_trajectory.p[6] = wp1;
+  gvf_trajectory.p[7] = wp2;
+
   float x1 = WaypointX(wp1);
   float y1 = WaypointY(wp1);
   float x2 = WaypointX(wp2);
@@ -445,6 +437,8 @@ bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
   alpha = RadOfDeg(alpha);
+
+  gvf_trajectory.p[6] = wp;
 
   float x = WaypointX(wp);
   float y = WaypointY(wp);
