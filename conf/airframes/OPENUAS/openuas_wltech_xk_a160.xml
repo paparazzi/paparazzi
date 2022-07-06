@@ -110,14 +110,13 @@ NOTES:
 
       <!--<module name="gps" type="ubx_ucenter"/>--><!-- Not used ATM, GNSS setup manually for max perfromance-->
 
-      <configure name="USE_PWM5" value="0"/>
-
       <module name="radio_control" type="ppm">
         <!-- for debugging PPM values as default setting, enable the one below but use with correct telemetry XML document-->
         <!--<define name="TELEMETRY_MODE_DEBUG_RC" value="TRUE"/>-->
 	      <define name="RC_OK_CPT" value="25"/><!-- Switch back slower when entering RC range again to prevent flip flopping-->
         <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
         <configure name="RADIO_CONTROL_PPM_PIN" value="SERVO6"/>
+        <define name="USE_PWM6" value="0"/>
         <!-- Mode set one a three way switch -->
         <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
         <define name="RADIO_GEAR" value="RADIO_AUX2"/>
