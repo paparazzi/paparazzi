@@ -292,7 +292,12 @@ bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, 
 }
 
 bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
-{
+{ 
+  gvf_trajectory.p[3] = wp1;
+  gvf_trajectory.p[4] = wp2;
+  gvf_trajectory.p[5] = d1;
+  gvf_trajectory.p[6] = d2;
+
   float x1 = WaypointX(wp1);
   float y1 = WaypointY(wp1);
   float x2 = WaypointX(wp2);
@@ -325,6 +330,9 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
 
 bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
+  gvf_trajectory.p[3] = wp1;
+  gvf_trajectory.p[4] = wp2;
+
   float x1 = WaypointX(wp1);
   float y1 = WaypointY(wp1);
   float x2 = WaypointX(wp2);
@@ -335,6 +343,8 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
+  gvf_trajectory.p[3] = wp;
+
   heading = RadOfDeg(heading);
 
   float a = WaypointX(wp);
@@ -384,7 +394,7 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
 
 bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
 {  
-  gvf_trajectory.p[5] = (float)wp;
+  gvf_trajectory.p[5] = wp;
   gvf_ellipse_XY(WaypointX(wp),  WaypointY(wp), a, b, alpha);
   return true;
 }
