@@ -67,5 +67,6 @@ void gvf_low_level_control_2D(float omega)
   }
 #endif
 
+  (void)(omega); // Avoid unused parameter warning
 }
 

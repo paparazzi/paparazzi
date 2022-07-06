@@ -28,6 +28,10 @@
 #ifndef GVF_H
 #define GVF_H
 
+#ifndef GVF_OCAML_GCS
+#define GVF_OCAML_GCS true
+#endif // GVF_OCAML_GCS
+
 #define GVF_GRAVITY 9.806
 
 #include "std.h"

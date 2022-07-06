@@ -75,6 +75,7 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
     pprz_msg_send_GVF(trans, dev, AC_ID, &gvf_control.error, &traj_type,
                       &gvf_control.s, &gvf_control.ke, plen, gvf_trajectory.p);
 
+#if GVF_OCAML_GCS
     if (gvf_trajectory.type == ELLIPSE &&
         ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3])) {
       pprz_msg_send_CIRCLE(trans, dev, AC_ID,
@@ -87,6 +88,8 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
                             &gvf_segment.x1, &gvf_segment.y1,
                             &gvf_segment.x2, &gvf_segment.y2);
     }
+#endif
+
   }
 }
 
