@@ -105,7 +105,6 @@ typedef struct {
 // Main structure
 typedef struct {
   sr_cmd_t cmd;
-  float gvf_omega;
   float throttle;
 
   float speed_error;
