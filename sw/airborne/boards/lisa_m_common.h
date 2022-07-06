@@ -256,7 +256,7 @@
 #endif
 
 #if PPM_CONFIG == 2 && USE_PWM6 == 1
-#error "You cannot USE_PWM6 and SERVO6 (or equivalent) at the same time"
+#warning "You cannot USE_PWM6 and SERVO6 (or equivalent) at the same time"
 #endif
 
 #if USE_SERVOS_7AND8
