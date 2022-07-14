@@ -28,11 +28,12 @@
 #ifndef GVF_H
 #define GVF_H
 
+#define GVF_GRAVITY 9.806
+
+/*! Default GCS trajectory painter */
 #ifndef GVF_OCAML_GCS
 #define GVF_OCAML_GCS true
-#endif // GVF_OCAML_GCS
-
-#define GVF_GRAVITY 9.806
+#endif
 
 #include "std.h"
 
