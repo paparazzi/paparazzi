@@ -28,7 +28,7 @@
 #include "modules/sensors/mag_qmc5883.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
 
 #ifndef QMC5883_CHAN_X
@@ -51,8 +51,8 @@
 #endif
 
 #if MODULE_QMC5883_UPDATE_AHRS
-#include "subsystems/imu.h"
-#include "subsystems/abi.h"
+#include "modules/imu/imu.h"
+#include "modules/core/abi.h"
 
 #if defined QMC5883_MAG_TO_IMU_PHI && defined QMC5883_MAG_TO_IMU_THETA && defined QMC5883_MAG_TO_IMU_PSI
 #define USE_MAG_TO_IMU 1
@@ -63,19 +63,46 @@ static struct Int32RMat mag_to_imu; ///< rotation from mag to imu frame
 #endif
 
 struct Qmc5883 mag_qmc5883;
+struct Int32Vect3 mag;
+
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+
+static void mag_qmc5883_send_imu_mag_raw(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_IMU_MAG_RAW(trans, dev, AC_ID,
+                            &mag.x,
+                            &mag.y,
+                            &mag.z);
+}
+
+static void mag_qmc5883_send_debug(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_QMC5883_DEBUG(trans, dev, AC_ID,
+                              &debug.initialized,
+                              &mag.y,
+                              &mag.z);
+}
+
+#endif
 
 void mag_qmc5883_module_init(void)
 {
   qmc5883_init(&mag_qmc5883, &(MAG_QMC5883_I2C_DEV), QMC5883_ADDR);
 
-#if MODULE_QMC5883_UPDATE_AHRS && USE_MAG_TO_IMU
-  struct Int32Eulers mag_to_imu_eulers = {
-    ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_PHI),
-    ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_THETA),
-    ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_PSI)
-  };
-  int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
-#endif
+  #if MODULE_QMC5883_UPDATE_AHRS && USE_MAG_TO_IMU
+    struct Int32Eulers mag_to_imu_eulers = {
+      ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_PHI),
+      ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_THETA),
+      ANGLE_BFP_OF_REAL(QMC5883_MAG_TO_IMU_PSI)
+    };
+    int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
+  #endif
+
+  #if PERIODIC_TELEMETRY
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_RAW, mag_qmc5883_send_imu_mag_raw);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_QMC5883_DEBUG, mag_qmc5883_send_debug);
+  #endif
 }
 
 void mag_qmc5883_module_periodic(void)
@@ -86,6 +113,10 @@ void mag_qmc5883_module_periodic(void)
 void mag_qmc5883_module_event(void)
 {
   qmc5883_event(&mag_qmc5883);
+  debug.initialized = 31;
+  mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
+  mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
+  mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
 
   if (mag_qmc5883.data_available) {
 #if MODULE_QMC5883_UPDATE_AHRS
@@ -93,11 +124,10 @@ void mag_qmc5883_module_event(void)
     uint32_t now_ts = get_sys_time_usec();
 
     // set channel order
-    struct Int32Vect3 mag = {
-      QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]),
-      QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]),
-      QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z])
-    };
+    // mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
+    // mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
+    // mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
+
     // only rotate if needed
 #if USE_MAG_TO_IMU
     struct Int32Vect3 imu_mag;
@@ -125,12 +155,9 @@ void mag_qmc5883_module_event(void)
 
 void mag_qmc5883_report(void)
 {
-  //debuggy = (int32_t)(mag_qmc5883.init_status);
-  //debuggy = 250 + rand() % 10;
-  struct Int32Vect3 mag = {
-    QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]),
-    QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]),
-    QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z])
-  };
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &debuggy);
+  // struct Int32Vect3 mag = {
+  //   QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]),
+  //   QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]),
+  //   QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z])
+  // };
 }

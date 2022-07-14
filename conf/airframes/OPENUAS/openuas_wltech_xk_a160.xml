@@ -87,8 +87,8 @@ NOTES:
       </module>
 
       <!-- enable when driver is available in master -->
-      <!--
-      <module name="sensors" type="mag_qmc5883">
+      
+      <module name="mag_qmc5883">
         <configure name="MAG_QMC5883_I2C_DEV" value="i2c1"/>
         <define name="MODULE_QMC5883_SYNC_SEND" value="TRUE"/>
         <define name="MODULE_QMC5883_UPDATE_AHRS" value="TRUE"/>
@@ -99,7 +99,7 @@ NOTES:
         <define name="QMC5883_CHAN_Y_SIGN" value="+"/>
         <define name="QMC5883_CHAN_Z_SIGN" value="+"/>
       </module> 
-      -->
+     
 
       <module name="actuators" type="pwm"/>
 

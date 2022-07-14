@@ -11,7 +11,7 @@
 <airframe name="Quadrotor LisaMX_2.1 pwm">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_mx_2.1">
+    <target name="ap" board="lisa_m_2.0">
       <!-- MPU6000 is configured to output data at 2kHz, but polled at 512Hz PERIODIC_FREQUENCY -->
     </target>
 
@@ -19,8 +19,9 @@
       <module name="fdm" type="jsbsim"/>
     </target>
 
-    <module name="radio_control" type="spektrum">
-      <define name="RADIO_MODE" value="RADIO_AUX1"/>
+    <module name="radio_control" type="ppm">
+      <configure name="RADIO_CONTROL_PPM_PIN" value="SERVO6"/>
+      <define name="USE_PWM6" value="0"/>
     </module>
 
     <module name="motor_mixing"/>
@@ -48,6 +49,18 @@
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
+
+    <module name="mag_qmc5883">
+      <configure name="MAG_QMC5883_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_QMC5883_SYNC_SEND" value="TRUE"/>
+      <define name="MODULE_QMC5883_UPDATE_AHRS" value="TRUE"/>
+      <define name="QMC5883_CHAN_X" value="1"/>
+      <define name="QMC5883_CHAN_Y" value="0"/>
+      <define name="QMC5883_CHAN_Z" value="2"/>
+      <define name="QMC5883_CHAN_X_SIGN" value="-"/>
+      <define name="QMC5883_CHAN_Y_SIGN" value="+"/>
+      <define name="QMC5883_CHAN_Z_SIGN" value="+"/>
+    </module> 
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sensors">
+<module name="mag_qmc5883" dir="sensors" task="sensors">
   <doc>
     <description>
       QMC5883 magnetometer
@@ -41,7 +41,6 @@
   </header>
   <init fun="mag_qmc5883_module_init()"/>
   <periodic fun="mag_qmc5883_module_periodic()" freq="60"/>
-  <periodic fun="mag_qmc5883_report()" freq="10" autorun="TRUE"/>
   <event fun="mag_qmc5883_module_event()"/>
   <makefile target="ap">
     <file name="mag_qmc5883.c"/>

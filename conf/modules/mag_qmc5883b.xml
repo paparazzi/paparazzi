@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_qmc5883" dir="mag" task="sensors">
+  <doc>
+    <description>
+      Megnetometer
+    </description>
+    <configure name="MAG_QMC5883_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
+  </doc>
+  <dep>
+    <depends>i2c</depends>
+    <provides>mag</provides>
+  </dep>
+  <header>
+    <file name="mag_qmc5883b.h"/>
+  </header>
+  <init fun="mag_qmc5883_module_init()"/>
+  <periodic fun="mag_qmc5883_module_periodic()" freq="60"/>
+  <periodic fun="mag_qmc5883_report()" freq="10" autorun="TRUE"/>
+  <event fun="mag_qmc5883_module_event()"/>
+  <makefile target="ap">
+    <file name="mag_qmc5883b.c"/>
+    <file name="qmc5883b.c" dir="peripherals"/>
+    <raw>
+      ifeq ($(MAG_QMC5883_I2C_DEV),)
+        $(error mag_qmc5883 module error: please configure MAG_QMC5883_I2C_DEV)
+      endif
+    </raw>
+    <configure name="MAG_QMC5883_I2C_DEV" default="TRUE" case="upper|lower"/>
+    <define name="USE_$(MAG_QMC5883_I2C_DEV_UPPER)"/>
+    <define name="MAG_QMC5883_I2C_DEV" value="$(MAG_QMC5883_I2C_DEV_LOWER)"/>
+    <test>
+      <define name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>

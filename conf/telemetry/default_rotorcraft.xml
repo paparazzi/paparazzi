@@ -36,6 +36,8 @@
       <message name="LIDAR"                    period="1.2"/>
       <message name="INS_EKF2"                 period=".25"/>
       <message name="WIND_INFO_RET"            period="1."/>
+      <message name="IMU_MAG_RAW"              period=".05"/>
+      <message name="QMC5883_DEBUG"            period=".05"/>
     </mode>
 
     <mode name="ppm">

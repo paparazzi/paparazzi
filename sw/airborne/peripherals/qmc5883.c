@@ -30,11 +30,7 @@
 #include "mcu_periph/sys_time.h"
 #include "std.h"
 
-#include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
 #include "generated/airframe.h"
-
-int32_t debuggy;
 
 /* QMC5883 default conf */
 
@@ -56,7 +52,7 @@ int32_t debuggy;
  /* Control Register 1 */
  #define QMC5883_MODE_REG_STANDBY        (0 << 0)
  #define QMC5883_MODE_REG_CONTINOUS_MODE (1 << 0)
- #define QMC5883_OUTPUT_DATA_RATE_10     (0 << 2) /* Hz */
+ #define QMC5883_OUTPUT_DATA_RATE_10     (0 << 2)  /* Hz */
  #define QMC5883_OUTPUT_DATA_RATE_50     (1 << 2)
  #define QMC5883_OUTPUT_DATA_RATE_100    (2 << 2)
  #define QMC5883_OUTPUT_DATA_RATE_200    (3 << 2)
@@ -83,11 +79,13 @@ int32_t debuggy;
  *  Trying to configure the mode register before the end of this conversion
  *  seems to void the configuration.
  *  Default conversion rate is 15 Hz (66ms) and worst case is O.75Hz (1.3s).
- *  Therefore we set the default delay to 1.5s afer boot time.
+ *  Therefore we set the default delay to 1.5s after boot time.
  */
 #ifndef QMC5883_STARTUP_DELAY
 #define QMC5883_STARTUP_DELAY 1.7
 #endif
+
+struct Qmc5883Debug debug;
 
 static void qmc5883_set_default_config(struct Qmc5883Config *c)
 {
@@ -117,6 +115,7 @@ void qmc5883_init(struct Qmc5883 *qmc, struct i2c_periph *i2c_p, uint8_t addr)
   /* set default config options */
   qmc5883_set_default_config(&(qmc->config));//Only the values not the device
   qmc->adc_overflow_cnt = 0;
+  debug.initialized = 1;
 }
 
 static void qmc5883_i2c_tx_reg(struct Qmc5883 *qmc, uint8_t reg, uint8_t val)
@@ -130,17 +129,17 @@ static void qmc5883_i2c_tx_reg(struct Qmc5883 *qmc, uint8_t reg, uint8_t val)
 }
 
 /*
-     uint8_t data_bits_in = 0;
-     read_reg(QMC5883_ADDR_DATA_OUT_X_LSB, data_bits_in);
-     write_reg(QMC5883_ADDR_CONTROL_2, QMC5883_SOFT_RESET);
-     write_reg(QMC5883_ADDR_SET_RESET, QMC5883_SET_DEFAULT);
-     _range_scale = 1.0f / 12000.0f;   // 12000 LSB/Gauss at +/- 2G range
-     _range_ga = 2.00f;
-     _range_bits = 0x00;
- 
-     _conf_reg = QMC5883_MODE_REG_CONTINOUS_MODE |
+  uint8_t data_bits_in = 0;
+  read_reg(QMC5883_ADDR_DATA_OUT_X_LSB, data_bits_in);
+  write_reg(QMC5883_ADDR_CONTROL_2, QMC5883_SOFT_RESET);
+  write_reg(QMC5883_ADDR_SET_RESET, QMC5883_SET_DEFAULT);
+  _range_scale = 1.0f / 12000.0f;   // 12000 LSB/Gauss at +/- 2G range
+  _range_ga = 2.00f;
+  _range_bits = 0x00;
+
+  _conf_reg = QMC5883_MODE_REG_CONTINOUS_MODE |
   int32_t debuggy;   write_reg(QMC5883_ADDR_CONTROL_1, _conf_reg);
-     */
+*/
 
 /// Configuration function called once before normal use
 static void qmc5883_send_config(struct Qmc5883 *qmc)
@@ -154,10 +153,8 @@ static void qmc5883_send_config(struct Qmc5883 *qmc)
       //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D);
       //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D);
        qmc->init_status++;
-       debuggy = 3;
        break;
      case QMC_CONF_DONE:
-      debuggy = 6;
       qmc->initialized = true;
       qmc->i2c_trans.status = I2CTransDone;
       break;
@@ -183,13 +180,15 @@ void qmc5883_start_configure(struct Qmc5883 *qmc)
 // Normal reading
 void qmc5883_read(struct Qmc5883 *qmc)
 {
-  if (qmc->initialized && qmc->i2c_trans.status == I2CTransDone) {
-    debuggy = 0 + rand() % 10; //stuffed in Z as debug to see if we get here every time 
+  if (qmc->initialized && qmc->i2c_trans.status == I2CTransDone) { 
     qmc->i2c_trans.buf[0] = QMC5883_REG_DATXL;
     qmc->i2c_trans.type = I2CTransRx;
     qmc->i2c_trans.len_r = 6;
     qmc->i2c_trans.len_w = 0;
     i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
+    debug.initialized = 21;
+  } else {
+    debug.initialized = 22;
   }
 }
 
@@ -199,24 +198,14 @@ void qmc5883_read(struct Qmc5883 *qmc)
 
 void qmc5883_event(struct Qmc5883 *qmc)
 {
-  debuggy = 50+rand() % 10;
   if (qmc->initialized) {
-    debuggy = 100 + rand() % 10;
+    debug.initialized = 11;
     if (qmc->i2c_trans.status == I2CTransFailed) {
       qmc->i2c_trans.status = I2CTransDone;
     } else if (qmc->i2c_trans.status == I2CTransSuccess) {
-      debuggy = 150 + rand() % 10;
-      //if (qmc->type == QMC_TYPE_DB5883) {
-        qmc->data.vect.x = Int16FromBuf(qmc->i2c_trans.buf, 0);
-        qmc->data.vect.y = Int16FromBuf(qmc->i2c_trans.buf, 2);
-        qmc->data.vect.z = 44;//Int16FromBuf(qmc->i2c_trans.buf, 4);
-      //}
-      /* QMC_DA_5883 has xzy order of axes in returned data */
-      //else {
-      //  qmc->data.vect.x = Int16FromBuf(qmc->i2c_trans.buf, 0);
-      //  qmc->data.vect.y = Int16FromBuf(qmc->i2c_trans.buf, 4); //Mind the difference with DB version
-      //  qmc->data.vect.z = Int16FromBuf(qmc->i2c_trans.buf, 2); //Mind the difference with DB version
-      //}
+      qmc->data.vect.x = Int16FromBuf(qmc->i2c_trans.buf, 0);
+      qmc->data.vect.y = Int16FromBuf(qmc->i2c_trans.buf, 2);
+      qmc->data.vect.z = 44;
       /* only set available if measurements valid: -4096 if ADC under/overflow in sensor */
       if (qmc->data.vect.x != -4096 && qmc->data.vect.y != -4096 && qmc->data.vect.z != -4096) { //Todo datsheet stated 32xxx
         qmc->data_available = true;

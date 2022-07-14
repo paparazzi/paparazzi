@@ -1,13 +1,24 @@
 <conf>
   <aircraft
-   name="Minimag"
-   ac_id="233"
-   airframe="airframes/OPENUAS/openuas_multiplex_minimag.xml"
-   radio="radios/OPENUAS/openuas_openrxsr_sbus_16_out.xml"
-   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu_rc.xml"
-   flight_plan="flight_plans/OPENUAS/openuas_versatile_unified.xml"
-   settings="settings/fixedwing_basic.xml [settings/estimation/ac_char.xml] [settings/control/ctl_energy.xml] [settings/control/tune_agr_climb.xml] [settings/control/ctl_energyadaptive.xml] settings/control/ctl_new.xml"
-   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/photogrammetry_calculator.xml modules/geo_mag.xml modules/gps.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/tune_airspeed.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/stabilization_adaptive_fw.xml"
-   gui_color="white"
+   name="Lisa"
+   ac_id="2"
+   airframe="airframes/examples/quadrotor_lisa_mx.xml"
+   radio="radios/flysky_fsi6x.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/nps.xml"
+   settings_modules="modules/ahrs_float_mlkf.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="Mag"
+   ac_id="1"
+   airframe="airframes/OPENUAS/openuas_wltech_xk_a160.xml"
+   radio="radios/OPENUAS/openuas_rxsr_cppm_8ch.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/geo_mag.xml modules/gps.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/photogrammetry_calculator.xml modules/stabilization_adaptive_fw.xml"
+   gui_color="blue"
   />
 </conf>

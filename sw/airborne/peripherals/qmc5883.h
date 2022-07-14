@@ -23,9 +23,9 @@
  * @file peripherals/qmc5883.c
  *
  * Driver for QMC5883 magnetometer. 
- * This chip is often used as a replacemane of the HMC5883L and not comunicated in the device documentation.
+ * This chip is often used as a replacement of the HMC5883L and not communicated in the device documentation.
  * 
- * If your "HMC5883L" magnetometer does somehow not work, you likly have a QMC5883, try this driver instead.
+ * If your "HMC5883L" magnetometer does somehow not work, you likely have a QMC5883, try this driver instead.
  * 
  * Only i2c support
  */
@@ -40,7 +40,12 @@
 /* Address and register definitions */
 #include "peripherals/qmc5883_regs.h"
 
-extern int32_t debuggy;
+extern struct Qmc5883Debug debug;
+
+struct Qmc5883Debug {
+  int32_t initialized;
+};
+
 struct Qmc5883Config {
   uint8_t allconfigbits;
   /*
@@ -76,6 +81,7 @@ struct Qmc5883 {
   struct Qmc5883Config config;
   enum Qmc5883Type type;
   uint16_t adc_overflow_cnt;          ///< counts number of ADC measurement under/overflows
+  int32_t dummy;
 };
 
 //Add IRQ handling if needed, see datasheet for DRDY pin
@@ -91,9 +97,11 @@ static inline void qmc5883_periodic(struct Qmc5883 *qmc)
 {
   if (qmc->initialized) {
     qmc5883_read(qmc);
+    debug.initialized = 51;
   } else {
     qmc5883_read(qmc);
     qmc5883_start_configure(qmc);
+    debug.initialized = 52;
   }
 }
 
