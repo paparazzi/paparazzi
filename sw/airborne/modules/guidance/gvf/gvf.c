@@ -334,6 +334,7 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
   gvf_trajectory.p[3] = wp;
+  gvf_plen_wps = 1;
 
   heading = RadOfDeg(heading);
 
