@@ -335,7 +335,7 @@ bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float 
 
 bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha)
 { 
-  gvf_parametric_trajectory.p_parametric[6] = wp;
+  gvf_parametric_trajectory.p_parametric[7] = wp;
   gvf_parametric_plen_wps = 1;
 
   gvf_parametric_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r, alpha);
