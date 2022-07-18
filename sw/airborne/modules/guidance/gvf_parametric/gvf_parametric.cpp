@@ -127,6 +127,10 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
     return;
   }
 
+  // Carrot position
+  desired_x = f1;
+  desired_y = f2;
+
   float L = gvf_parametric_control.L;
   float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
 
@@ -216,6 +220,10 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
     gvf_parametric_control.w = 0; // Reset w since we assume the algorithm starts
     return;
   }
+
+  // Carrot position
+  desired_x = f1;
+  desired_y = f2;
 
   float L = gvf_parametric_control.L;
   float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
