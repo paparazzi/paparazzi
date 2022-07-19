@@ -32,10 +32,6 @@
 
 #include "generated/airframe.h"
 
-/* QMC5883 default conf */
-
-// When all correctly shifted outcome should be 0x1D
-// only reason for lower ODR and OSR is for a few mA of power saving, not really relevant for UAS IMU to be honest
 #ifndef QMC5883_DEFAULT_OSR 
 #define QMC5883_DEFAULT_OSR  0x00 ///< 0b00000000 512 Over Sample Ratio
 #endif
@@ -48,25 +44,6 @@
 #ifndef QMC5883_DEFAULT_MODE
 #define QMC5883_DEFAULT_MODE 0x01 ///< 0b00000001 Continuous Measurement mode
 #endif
-
- /* Control Register 1 */
- #define QMC5883_MODE_REG_STANDBY        (0 << 0)
- #define QMC5883_MODE_REG_CONTINOUS_MODE (1 << 0)
- #define QMC5883_OUTPUT_DATA_RATE_10     (0 << 2)  /* Hz */
- #define QMC5883_OUTPUT_DATA_RATE_50     (1 << 2)
- #define QMC5883_OUTPUT_DATA_RATE_100    (2 << 2)
- #define QMC5883_OUTPUT_DATA_RATE_200    (3 << 2)
- #define QMC5883_OUTPUT_RANGE_2G         (0 << 4)  /* +/- 2 gauss */
- #define QMC5883_OUTPUT_RANGE_8G         (1 << 4)  /* +/- 8 gauss */
- #define QMC5883_OVERSAMPLE_512          (0 << 6)  /* controls digital filter bw - larger OSR -> smaller bw */
- #define QMC5883_OVERSAMPLE_256          (1 << 6)
- #define QMC5883_OVERSAMPLE_128          (2 << 6)
- #define QMC5883_OVERSAMPLE_64           (3 << 6)
-
- //QMC5883_MODE_REG_CONTINOUS_MODE
- //QMC5883_OUTPUT_DATA_RATE_200
- //QMC5883_OVERSAMPLE_512
- //QMC5883_OUTPUT_RANGE_2G
 
 /* Control Register 2 */
  #define QMC5883_INT_ENB    (1 << 0)
@@ -85,16 +62,10 @@
 #define QMC5883_STARTUP_DELAY 1.7
 #endif
 
-struct Qmc5883Debug debug;
-
-static void qmc5883_set_default_config(struct Qmc5883Config *c)
-{
-  c->allconfigbits=0x1D;
-  /*c->osr  = QMC5883_DEFAULT_OSR;
-  c->rng  = QMC5883_DEFAULT_RNG;
-  c->odr  = QMC5883_DEFAULT_ODR;
-  c->mode = QMC5883_DEFAULT_MODE;*/
-}
+/* Declare functions used not externally */
+static void qmc5883_write_reg(struct Qmc5883 *qmc, uint8_t addr, uint8_t reg, uint8_t val);
+static void qmc5883_set_mode(struct Qmc5883 *qmc, uint8_t addr, uint8_t mode, uint8_t odr, uint8_t rng, uint8_t osr);
+static void qmc5883_write(struct Qmc5883 *qmc, uint8_t addr, uint8_t reg);
 
 /**
  * Initialize Qmc5883 struct and set default config options.
@@ -104,22 +75,26 @@ static void qmc5883_set_default_config(struct Qmc5883Config *c)
  */
 void qmc5883_init(struct Qmc5883 *qmc, struct i2c_periph *i2c_p, uint8_t addr)
 {
-  qmc->type = QMC_TYPE_DB5883;//No other support for DA
-  qmc->init_status = QMC_CONF_UNINIT;
   /* set i2c_peripheral */
   qmc->i2c_p = i2c_p;
-  /* set i2c address */
-  qmc->i2c_trans.slave_addr = addr;
-  qmc->initialized = false;
+  /* set i2c address to read address by default */
+  qmc->i2c_trans.slave_addr = (addr << 1 | 0);
+  qmc->type = QMC_TYPE_DB5883;
+  qmc->init_status = QMC_CONF_UNINIT;
+  qmc->initialized = true;
   qmc->i2c_trans.status = I2CTransDone;
-  /* set default config options */
-  qmc5883_set_default_config(&(qmc->config));//Only the values not the device
   qmc->adc_overflow_cnt = 0;
-  debug.initialized = 1;
+  qmc5883_write_reg(qmc, addr, 0x0B, 0x01);
+  qmc5883_set_mode(qmc, addr, 0x01, 0x0C, 0x10, 0X00);
+
 }
 
-static void qmc5883_i2c_tx_reg(struct Qmc5883 *qmc, uint8_t reg, uint8_t val)
+/**
+ * Write register to magneto chip
+ */
+static void qmc5883_write_reg(struct Qmc5883 *qmc, uint8_t addr, uint8_t reg, uint8_t val)
 {
+  qmc->i2c_trans.slave_addr = (addr << 1 | 0);
   qmc->i2c_trans.type = I2CTransTx;
   qmc->i2c_trans.buf[0] = reg;
   qmc->i2c_trans.buf[1] = val;
@@ -128,78 +103,104 @@ static void qmc5883_i2c_tx_reg(struct Qmc5883 *qmc, uint8_t reg, uint8_t val)
   i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
 }
 
-/*
-  uint8_t data_bits_in = 0;
-  read_reg(QMC5883_ADDR_DATA_OUT_X_LSB, data_bits_in);
-  write_reg(QMC5883_ADDR_CONTROL_2, QMC5883_SOFT_RESET);
-  write_reg(QMC5883_ADDR_SET_RESET, QMC5883_SET_DEFAULT);
-  _range_scale = 1.0f / 12000.0f;   // 12000 LSB/Gauss at +/- 2G range
-  _range_ga = 2.00f;
-  _range_bits = 0x00;
-
-  _conf_reg = QMC5883_MODE_REG_CONTINOUS_MODE |
-  int32_t debuggy;   write_reg(QMC5883_ADDR_CONTROL_1, _conf_reg);
-*/
-
-/// Configuration function called once before normal use
-static void qmc5883_send_config(struct Qmc5883 *qmc)
+/**
+ * Write register to magneto chip
+ */
+static void qmc5883_write(struct Qmc5883 *qmc, uint8_t addr, uint8_t reg)
 {
-  switch (qmc->init_status) {
-    case QMC_CONF_1:  
-      //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_RESET_PERIOD, 0x01); //Set Reset period
-      //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_2, 0x80);//QMC5883_SOFT_RESET); //No Soft reset, Disable Pointer roll-over, Enable interrupt PIN
-      qmc5883_i2c_tx_reg(qmc, QMC5883_REG_RESET_PERIOD, 0x01); //Set Reset period
-      qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D);//(qmc->config.osr | qmc->config.rng | qmc->config.odr | qmc->config.mode));
-      //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D);
-      //qmc5883_i2c_tx_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D);
-       qmc->init_status++;
-       break;
-     case QMC_CONF_DONE:
-      qmc->initialized = true;
-      qmc->i2c_trans.status = I2CTransDone;
-      break;
-    default:
-      break;
-  }
+  qmc->i2c_trans.slave_addr = (addr << 1 | 0);
+  qmc->i2c_trans.type = I2CTransTx;
+  qmc->i2c_trans.buf[0] = reg;
+  qmc->i2c_trans.len_r = 0;
+  qmc->i2c_trans.len_w = 1;
+  i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
 }
 
-// Configure
-void qmc5883_start_configure(struct Qmc5883 *qmc)
+/**
+ * Set mode to magneto chip
+ * 
+ * MODE CONTROL (MODE)
+ * 	Standby			  0x00
+ * 	Continuous		0x01
+ * 
+ * OUTPUT DATA RATE (ODR)
+ * 	10Hz        	0x00
+ * 	50Hz        	0x04
+ * 	100Hz       	0x08
+ * 	200Hz       	0x0C
+ * 
+ * FULL SCALE (RNG)
+ * 	2G          	0x00
+ * 	8G          	0x10
+ * 
+ * OVER SAMPLE RATIO (OSR)
+ * 	512         	0x00
+ * 	256         	0x40
+ * 	128         	0x80
+ * 	64          	0xC0 
+ */
+static void qmc5883_set_mode(struct Qmc5883 *qmc, uint8_t addr, uint8_t mode, uint8_t odr, uint8_t rng, uint8_t osr)
 {
-  // wait before starting the configuration
-  // doing to early may void the mode configuration
+  qmc5883_write_reg(qmc,addr,0x09,mode|odr|rng|osr);
+}
+
+// /// Configuration function called once before normal use
+// static void qmc5883_send_config(struct Qmc5883 *qmc)
+// {
+//   switch (qmc->init_status) {
+//     case QMC_CONF_1:  
+//       qmc5883_write_reg(qmc, QMC5883_REG_RESET_PERIOD, 0x01); //Set Reset period
+//       qmc5883_write_reg(qmc, QMC5883_REG_CONTROL_1, 0x1D); //(qmc->config.osr | qmc->config.rng | qmc->config.odr | qmc->config.mode));
+//        qmc->init_status++;
+//        break;
+//      case QMC_CONF_DONE:
+//       qmc->initialized = true;
+//       qmc->i2c_trans.status = I2CTransDone;
+//       break;
+//     default:
+//       break;
+//   }
+// }
+
+// // Configure
+// void qmc5883_start_configure(struct Qmc5883 *qmc)
+// {
+//   // wait before starting the configuration
+//   // doing to early may void the mode configuration
   
-  if (qmc->init_status == QMC_CONF_UNINIT && get_sys_time_float() > QMC5883_STARTUP_DELAY) {
-    qmc->init_status++;
-    if ((qmc->i2c_trans.status == I2CTransSuccess) || (qmc->i2c_trans.status == I2CTransDone)) {
-      qmc5883_send_config(qmc);
-    }
-  }
-}
+//   if (qmc->init_status == QMC_CONF_UNINIT && get_sys_time_float() > QMC5883_STARTUP_DELAY) {
+//     qmc->init_status++;
+//     if ((qmc->i2c_trans.status == I2CTransSuccess) || (qmc->i2c_trans.status == I2CTransDone)) {
+//       qmc5883_send_config(qmc);
+//     }
+//   }
+// }
 
 // Normal reading
-void qmc5883_read(struct Qmc5883 *qmc)
+void qmc5883_read(struct Qmc5883 *qmc, uint8_t addr)
 {
-  if (qmc->initialized && qmc->i2c_trans.status == I2CTransDone) { 
-    qmc->i2c_trans.buf[0] = QMC5883_REG_DATXL;
-    qmc->i2c_trans.type = I2CTransRx;
-    qmc->i2c_trans.len_r = 6;
-    qmc->i2c_trans.len_w = 0;
-    i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
-    debug.initialized = 21;
-  } else {
-    debug.initialized = 22;
-  }
+  // if (qmc->initialized && qmc->i2c_trans.status == I2CTransDone) { 
+  //   // qmc->i2c_trans.buf[0] = QMC5883_REG_DATXL;
+  //   qmc->i2c_trans.type = I2CTransRx;
+  //   qmc->i2c_trans.len_r = 6;
+  //   qmc->i2c_trans.len_w = 0;
+  //   i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
+  // }
+  // change address to write address
+  qmc->i2c_trans.slave_addr = (addr << 1 | 1);
+  qmc->i2c_trans.type = I2CTransRx;
+  qmc->i2c_trans.len_r = 6;
+  qmc->i2c_trans.len_w = 0;
+  i2c_submit(qmc->i2c_p, &(qmc->i2c_trans));
 }
 
-//Use One of them feel free to debug ;)
 #define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx]<<8) | _buf[_idx+1]))
-//#define Int16FromBuf(_buf,_idx) ((int16_t)((_buf[_idx+1]<<8) | _buf[_idx]))
 
-void qmc5883_event(struct Qmc5883 *qmc)
+void qmc5883_periodic(struct Qmc5883 *qmc)
 {
+  qmc5883_write(qmc, QMC5883_ADDR, 0x00);
+  qmc5883_read(qmc, QMC5883_ADDR);
   if (qmc->initialized) {
-    debug.initialized = 11;
     if (qmc->i2c_trans.status == I2CTransFailed) {
       qmc->i2c_trans.status = I2CTransDone;
     } else if (qmc->i2c_trans.status == I2CTransSuccess) {
@@ -215,15 +216,23 @@ void qmc5883_event(struct Qmc5883 *qmc)
       }
       qmc->i2c_trans.status = I2CTransDone;
     }
-  } else if (qmc->init_status != QMC_CONF_UNINIT) { // Configuring but not yet initialized
-    if (qmc->i2c_trans.status == I2CTransSuccess || qmc->i2c_trans.status == I2CTransDone) {
-      qmc->i2c_trans.status = I2CTransDone;
-      qmc5883_send_config(qmc);
-    }
-    if (qmc->i2c_trans.status == I2CTransFailed) {
-      qmc->init_status--;
-      qmc->i2c_trans.status = I2CTransDone;
-      qmc5883_send_config(qmc); // Retry config (TODO: add max retry code)
-    }
-  }
+
+  } 
+  
+  // else if (qmc->init_status != QMC_CONF_UNINIT) 
+  
+  // { // Configuring but not yet initialized
+
+  //   if (qmc->i2c_trans.status == I2CTransSuccess || qmc->i2c_trans.status == I2CTransDone) {
+  //     qmc->i2c_trans.status = I2CTransDone;
+  //     qmc5883_send_config(qmc);
+  //   }
+
+  //   if (qmc->i2c_trans.status == I2CTransFailed) {
+  //     qmc->init_status--;
+  //     qmc->i2c_trans.status = I2CTransDone;
+  //     qmc5883_send_config(qmc); // Retry config (TODO: add max retry code)
+  //   }
+
+  // }
 }

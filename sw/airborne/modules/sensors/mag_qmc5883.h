@@ -34,7 +34,7 @@ extern struct Qmc5883 mag_qmc5883;
 
 extern void mag_qmc5883_module_init(void);
 extern void mag_qmc5883_module_periodic(void);
-extern void mag_qmc5883_module_event(void);
+// extern void mag_qmc5883_module_event(void);
 extern void mag_qmc5883_report(void);
 
 #endif // MAG_QMC5883_H

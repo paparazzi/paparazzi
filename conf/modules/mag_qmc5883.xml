@@ -3,10 +3,10 @@
 <module name="mag_qmc5883" dir="sensors" task="sensors">
   <doc>
     <description>
-      QMC5883 magnetometer
       Module for using an QMC DB5883 magnetometer.
+
       Honeywell discontinued the HMC5983/HMC5883L in 2016 and licensed the technology to QST Corporation, who now manufacture the replacement QMC5883L.
-      However, while the QMC5883L is pin compatible with HMC, it''s registers are not the same as the Honeywell device. It's essentially a different chip.
+      However, while the QMC5883L is pin compatible with HMC, it's registers are not the same as the Honeywell device. It's essentially a different chip.
 
       QST Corporation have produced two versions of the QMC5883L:
       A completely undocumented 'A' version with "DA 5883" on the QFN package that responds to the I2C address 0x1E.
@@ -15,7 +15,8 @@
 
       A documented 'B' version with "DB 5833" on the QFN package that responds to I2C address 0x0D. This works as per the QMC5883L datasheet.
 
-      An arbitrary rotation between the sensor frame and the IMU frame can be compensated with a MAG_TO_IMU rotation (defined by three euler angles). The three angles must be defined to enable this correction. Otherwise it is assumed that the axis are aligned.
+      An arbitrary rotation between the sensor frame and the IMU frame can be compensated with a MAG_TO_IMU rotation (defined by three euler angles). 
+      The three angles must be defined to enable this correction. Otherwise it is assumed that the axis are aligned.
     </description>
     <configure name="MAG_QMC5883_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
     <define name="MODULE_QMC5883_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
@@ -39,9 +40,9 @@
   <header>
     <file name="mag_qmc5883.h"/>
   </header>
-  <init fun="mag_qmc5883_module_init()"/>
-  <periodic fun="mag_qmc5883_module_periodic()" freq="60"/>
-  <event fun="mag_qmc5883_module_event()"/>
+  <init fun="mag_qmc5883_init()"/>
+  <periodic fun="mag_qmc5883_periodic()" freq="100"/>
+  <event fun="mag_qmc5883_event()"/>
   <makefile target="ap">
     <file name="mag_qmc5883.c"/>
     <file name="qmc5883.c" dir="peripherals"/>
@@ -53,12 +54,5 @@
     <configure name="MAG_QMC5883_I2C_DEV" default="TRUE" case="upper|lower"/>
     <define name="USE_$(MAG_QMC5883_I2C_DEV_UPPER)"/>
     <define name="MAG_QMC5883_I2C_DEV" value="$(MAG_QMC5883_I2C_DEV_LOWER)"/>
-    <test>
-      <define name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
-      <define name="USE_I2C1"/>
-      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
-      <define name="DOWNLINK_DEVICE" value="uart0"/>
-      <define name="USE_UART0"/>
-    </test>
   </makefile>
 </module>

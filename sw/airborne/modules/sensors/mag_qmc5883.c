@@ -79,7 +79,7 @@ static void mag_qmc5883_send_imu_mag_raw(struct transport_tx *trans, struct link
 static void mag_qmc5883_send_debug(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_QMC5883_DEBUG(trans, dev, AC_ID,
-                              &debug.initialized,
+                              &mag.x,
                               &mag.y,
                               &mag.z);
 }
@@ -108,50 +108,53 @@ void mag_qmc5883_module_init(void)
 void mag_qmc5883_module_periodic(void)
 {
   qmc5883_periodic(&mag_qmc5883);
-}
-
-void mag_qmc5883_module_event(void)
-{
-  qmc5883_event(&mag_qmc5883);
-  debug.initialized = 31;
   mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
   mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
   mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
-
-  if (mag_qmc5883.data_available) {
-#if MODULE_QMC5883_UPDATE_AHRS
-    // current timestamp
-    uint32_t now_ts = get_sys_time_usec();
-
-    // set channel order
-    // mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
-    // mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
-    // mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
-
-    // only rotate if needed
-#if USE_MAG_TO_IMU
-    struct Int32Vect3 imu_mag;
-    // rotate data from mag frame to imu frame
-    int32_rmat_vmult(&imu_mag, &mag_to_imu, &mag);
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, imu_mag);
-#else
-    // unscaled vector
-    VECT3_COPY(imu.mag_unscaled, mag);
-#endif
-    // scale vector
-    imu_scale_mag(&imu);
-
-    AbiSendMsgIMU_MAG_INT32(MAG_QMC5883_SENDER_ID, now_ts, &imu.mag);
-#endif
-#if MODULE_QMC5883_SYNC_SEND
-    mag_qmc5883_report();
-#endif
-#if MODULE_QMC5883_UPDATE_AHRS ||  MODULE_QMC5883_SYNC_SEND
-    mag_qmc5883.data_available = false;
-#endif
-  }
 }
+
+// void mag_qmc5883_module_event(void)
+// {
+//   qmc5883_event(&mag_qmc5883);
+//   debug.initialized = 31;
+//   mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
+//   mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
+//   mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
+
+//   if (mag_qmc5883.data_available) {
+// #if MODULE_QMC5883_UPDATE_AHRS
+//     // current timestamp
+//     uint32_t now_ts = get_sys_time_usec();
+
+//     // set channel order
+//     // mag.x = QMC5883_CHAN_X_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_X]);
+//     // mag.y = QMC5883_CHAN_Y_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Y]);
+//     // mag.z = QMC5883_CHAN_Z_SIGN(int32_t)(mag_qmc5883.data.value[QMC5883_CHAN_Z]);
+
+//     // only rotate if needed
+// #if USE_MAG_TO_IMU
+//     struct Int32Vect3 imu_mag;
+//     // rotate data from mag frame to imu frame
+//     int32_rmat_vmult(&imu_mag, &mag_to_imu, &mag);
+//     // unscaled vector
+//     VECT3_COPY(imu.mag_unscaled, imu_mag);
+// #else
+//     // unscaled vector
+//     VECT3_COPY(imu.mag_unscaled, mag);
+// #endif
+//     // scale vector
+//     imu_scale_mag(&imu);
+
+//     AbiSendMsgIMU_MAG_INT32(MAG_QMC5883_SENDER_ID, now_ts, &imu.mag);
+// #endif
+// #if MODULE_QMC5883_SYNC_SEND
+//     mag_qmc5883_report();
+// #endif
+// #if MODULE_QMC5883_UPDATE_AHRS ||  MODULE_QMC5883_SYNC_SEND
+//     mag_qmc5883.data_available = false;
+// #endif
+//   }
+// }
 
 void mag_qmc5883_report(void)
 {

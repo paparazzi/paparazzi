@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_qmc5883" dir="mag" task="sensors">
+<module name="mag_qmc5883b" dir="mag" task="sensors">
   <doc>
     <description>
       Megnetometer
@@ -12,14 +12,13 @@
     <provides>mag</provides>
   </dep>
   <header>
-    <file name="mag_qmc5883b.h"/>
+    <file name="qmc5883b.h" dir="peripherals"/>
   </header>
-  <init fun="mag_qmc5883_module_init()"/>
-  <periodic fun="mag_qmc5883_module_periodic()" freq="60"/>
-  <periodic fun="mag_qmc5883_report()" freq="10" autorun="TRUE"/>
-  <event fun="mag_qmc5883_module_event()"/>
+  <init fun="qmc5883b_init()"/>
+  <periodic fun="qmc5883b_periodic()" freq="150"/>
+  <event fun="qmc5883b_event()"/>
   <makefile target="ap">
-    <file name="mag_qmc5883b.c"/>
+    <!-- <file name="mag_qmc5883b.c"/> -->
     <file name="qmc5883b.c" dir="peripherals"/>
     <raw>
       ifeq ($(MAG_QMC5883_I2C_DEV),)

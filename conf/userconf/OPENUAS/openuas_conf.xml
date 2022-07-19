@@ -7,7 +7,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/ahrs_float_mlkf.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
+   settings_modules="modules/ahrs_float_mlkf.xml modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
    gui_color="blue"
   />
   <aircraft

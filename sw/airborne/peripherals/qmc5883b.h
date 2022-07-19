@@ -37,18 +37,26 @@
 #include "mcu_periph/i2c.h"
 
 enum Qmc5883B_Status {
-  QMC5883B_AQUIRE,
+  QMC5883B_INIT,
+  QMC5883B_SET_MODE,
+  QMC5883B_REQUEST,
+  QMC5883B_ACQUIRE,
   QMC5883B_PARSE
 };
 
 struct Qmc5883B {
   struct i2c_transaction trans;
-  uint8_t addr;
+  uint8_t waddr;
+  uint8_t raddr;
   enum Qmc5883B_Status status;
-  struct Int16Vect3 mag_data_vect;
+  // struct Int16Vect3 mag_data_vect;
+  uint8_t raw_mag_data[6];
   int16_t mag_data[3];
   uint8_t mode; // mode setting bit for the chip
-}
+  bool set_mode;
+  uint8_t status_debug;
+  uint8_t trans_status;
+};
 
 extern struct Qmc5883B qmc;
 

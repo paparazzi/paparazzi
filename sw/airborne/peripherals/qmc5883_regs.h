@@ -28,6 +28,7 @@
 #define QMC5883_REGS_H
 
 /* default I2C address */
+// #define QMC5883_ADDR 0x1B
 #define QMC5883_ADDR 0x0D
 
 /* Registers Axis X,Y,Z */

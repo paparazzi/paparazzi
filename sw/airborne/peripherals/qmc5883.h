@@ -84,25 +84,10 @@ struct Qmc5883 {
   int32_t dummy;
 };
 
-//Add IRQ handling if needed, see datasheet for DRDY pin
-
 // Functions
 extern void qmc5883_init(struct Qmc5883 *qmc, struct i2c_periph *i2c_p, uint8_t addr);
-extern void qmc5883_start_configure(struct Qmc5883 *qmc);
-extern void qmc5883_read(struct Qmc5883 *qmc);
-extern void qmc5883_event(struct Qmc5883 *qmc);
-
-/// convenience function: read or start configuration if not already initialized
-static inline void qmc5883_periodic(struct Qmc5883 *qmc)
-{
-  if (qmc->initialized) {
-    qmc5883_read(qmc);
-    debug.initialized = 51;
-  } else {
-    qmc5883_read(qmc);
-    qmc5883_start_configure(qmc);
-    debug.initialized = 52;
-  }
-}
+extern void qmc5883_read(struct Qmc5883 *qmc, uint8_t addr);
+extern void qmc5883_periodic(struct Qmc5883 *qmc);
+// extern void qmc5883_start_configure(struct Qmc5883 *qmc);
 
 #endif /* QMC5883_H */
