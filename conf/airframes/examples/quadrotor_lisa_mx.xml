@@ -49,16 +49,16 @@
     <module name="gps" type="ubx_ucenter"/>
     <module name="air_data"/>
 
-    <module name="mag_qmc5883b">
+    <module name="mag_qmc5883">
       <configure name="MAG_QMC5883_I2C_DEV" value="i2c2"/>
-      <!-- <define name="MODULE_QMC5883_SYNC_SEND" value="TRUE"/>
-      <define name="MODULE_QMC5883_UPDATE_AHRS" value="TRUE"/>
+      <define name="MODULE_QMC5883_SYNC_SEND" value="FALSE"/>
+      <define name="MODULE_QMC5883_UPDATE_AHRS" value="FALSE"/>
       <define name="QMC5883_CHAN_X" value="1"/>
       <define name="QMC5883_CHAN_Y" value="0"/>
       <define name="QMC5883_CHAN_Z" value="2"/>
       <define name="QMC5883_CHAN_X_SIGN" value="-"/>
       <define name="QMC5883_CHAN_Y_SIGN" value="+"/>
-      <define name="QMC5883_CHAN_Z_SIGN" value="+"/> -->
+      <define name="QMC5883_CHAN_Z_SIGN" value="+"/>
     </module> 
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->

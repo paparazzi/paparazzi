@@ -45,7 +45,6 @@
   <event fun="mag_qmc5883_event()"/>
   <makefile target="ap">
     <file name="mag_qmc5883.c"/>
-    <file name="qmc5883.c" dir="peripherals"/>
     <raw>
       ifeq ($(MAG_QMC5883_I2C_DEV),)
         $(error mag_qmc5883 module error: please configure MAG_QMC5883_I2C_DEV)

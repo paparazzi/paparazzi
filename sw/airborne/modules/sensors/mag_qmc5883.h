@@ -25,16 +25,38 @@
  * Module for QMC5883 magnetometer.
  */
 
-#ifndef MAG_QMC5883_H
-#define MAG_QMC5883_H
+#ifndef QMC5883_H
+#define QMC5883_H
 
-#include "peripherals/qmc5883.h"
+#include "std.h"
+#include "mcu_periph/i2c.h"
 
-extern struct Qmc5883 mag_qmc5883;
+enum Qmc5883_Status {
+  QMC5883_INIT,
+  QMC5883_SET_MODE,
+  QMC5883_REQUEST,
+  QMC5883_ACQUIRE,
+  QMC5883_PARSE
+};
 
-extern void mag_qmc5883_module_init(void);
-extern void mag_qmc5883_module_periodic(void);
-// extern void mag_qmc5883_module_event(void);
-extern void mag_qmc5883_report(void);
+struct Qmc5883 {
+  struct i2c_transaction trans;
+  uint8_t waddr;
+  uint8_t raddr;
+  enum Qmc5883_Status status;
+  // struct Int16Vect3 mag_data_vect;
+  uint8_t raw_mag_data[6];
+  int16_t mag_data[3];
+  uint8_t mode; // mode setting bit for the chip
+  bool set_mode;
+  uint8_t status_debug;
+  uint8_t trans_status;
+};
 
-#endif // MAG_QMC5883_H
+extern struct Qmc5883 qmc;
+
+extern void mag_qmc5883_init(void);
+extern void mag_qmc5883_event(void);
+extern void mag_qmc5883_periodic(void);
+
+#endif /* QMC5883_H */
