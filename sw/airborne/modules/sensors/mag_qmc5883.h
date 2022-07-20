@@ -39,16 +39,23 @@ enum Qmc5883_Status {
   QMC5883_PARSE
 };
 
+struct Qmc5883_Status_Register {
+  uint8_t DRDY;  // data ready
+  uint8_t OVL;   // overflow
+  uint8_t DOR;   // data skip
+};
+
 struct Qmc5883 {
   struct i2c_transaction trans;
   uint8_t waddr;
   uint8_t raddr;
   enum Qmc5883_Status status;
-  // struct Int16Vect3 mag_data_vect;
   uint8_t raw_mag_data[6];
+  struct Qmc5883_Status_Register status_register;
   int16_t mag_data[3];
   uint8_t mode; // mode setting bit for the chip
   bool set_mode;
+  bool initialized;
   uint8_t status_debug;
   uint8_t trans_status;
 };

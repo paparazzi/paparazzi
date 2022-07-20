@@ -1190,6 +1190,9 @@
       <field name="XOUT" type="int16"/>
       <field name="YOUT" type="int16"/>
       <field name="ZOUT" type="int16"/>
+      <field name="DRDY" type="uint8" values="NO|YES"/>
+      <field name="OVL" type="uint8" values="NO|YES"/>
+      <field name="DOR" type="uint8" values="NO|YES"/>
     </message>
 
     <message name="RATE_LOOP" id="136">
