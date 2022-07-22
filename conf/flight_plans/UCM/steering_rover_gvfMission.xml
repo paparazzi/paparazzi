@@ -17,10 +17,10 @@
     <waypoint name="_S2" x="3" y="-4"/>
     <waypoint name="_S3" x="-3" y="-4"/>
     <waypoint name="_S4" x="-3" y="4"/>
-    <waypoint name="_N1" x="40" y="40"/>
-    <waypoint name="_N2" x="40" y="-40"/>
-    <waypoint name="_N3" x="-40" y="-40"/>
-    <waypoint name="_N4" x="-40" y="40"/>
+    <waypoint name="_N1" x="100" y="100"/>
+    <waypoint name="_N2" x="100" y="-100"/>
+    <waypoint name="_N3" x="-100" y="-100"/>
+    <waypoint name="_N4" x="-100" y="100"/>
   </waypoints>
   
   <sectors>
@@ -79,7 +79,7 @@
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
-    <block name="segment_P1_P2"> 
+    <block name="segment_turn_P1_P2"> 
       <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
@@ -93,8 +93,6 @@
       <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
-    
-    
     
   </blocks>
 </flight_plan>
