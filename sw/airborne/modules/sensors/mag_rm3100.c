@@ -29,6 +29,7 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
+#include "modules/core/abi.h"
 
 #ifndef RM3100_CHAN_X
 #define RM3100_CHAN_X 0
@@ -58,8 +59,6 @@
 #endif
 
 #if MODULE_RM3100_UPDATE_AHRS
-#include "modules/imu/imu.h"
-#include "modules/core/abi.h"
 
 #if defined RM3100_MAG_TO_IMU_PHI && defined RM3100_MAG_TO_IMU_THETA && defined RM3100_MAG_TO_IMU_PSI
 #define USE_MAG_TO_IMU 1

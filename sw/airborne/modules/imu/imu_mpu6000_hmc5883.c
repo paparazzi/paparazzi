@@ -167,7 +167,7 @@ void imu_mpu_hmc_event(void)
     };
 
     imu_mpu_hmc.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU6000_HMC_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU6000_HMC_ID, now_ts, &rates, 1);
     AbiSendMsgIMU_ACCEL_RAW(IMU_MPU6000_HMC_ID, now_ts, &accel, 1);
   }
 

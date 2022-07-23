@@ -301,7 +301,7 @@ static void gyro_cb(uint8_t sender_id __attribute__((unused)),
                     uint32_t stamp, struct Int32Rates *gyro)
 {
   if (ins_mekf_wind.is_aligned) {
-    struct FloatRates gyro_f, gyro_body;
+    struct FloatRates gyro_body;
     RATES_FLOAT_OF_BFP(gyro_body, *gyro);
 
 #if USE_AUTO_INS_FREQ || !defined(INS_PROPAGATE_FREQUENCY)

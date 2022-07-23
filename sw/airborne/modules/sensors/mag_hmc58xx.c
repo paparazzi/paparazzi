@@ -30,6 +30,7 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
+#include "modules/core/abi.h"
 
 #ifndef HMC58XX_CHAN_X
 #define HMC58XX_CHAN_X 0
@@ -51,8 +52,6 @@
 #endif
 
 #if MODULE_HMC58XX_UPDATE_AHRS
-#include "modules/imu/imu.h"
-#include "modules/core/abi.h"
 
 #if defined HMC58XX_MAG_TO_IMU_PHI && defined HMC58XX_MAG_TO_IMU_THETA && defined HMC58XX_MAG_TO_IMU_PSI
 #define USE_MAG_TO_IMU 1
@@ -106,7 +105,7 @@ void mag_hmc58xx_module_event(void)
     // unscaled vector
     VECT3_COPY(mag, imu_mag);
 #endif
-  
+
     AbiSendMsgIMU_MAG_RAW(MAG_HMC58XX_SENDER_ID, now_ts, &mag);
 #endif
 #if MODULE_HMC58XX_SYNC_SEND

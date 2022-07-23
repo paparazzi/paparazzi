@@ -30,6 +30,6 @@
     <define name="$(VN_PORT_UPPER)_BAUD" value="$(VN_BAUD)"/>
 
     <file name="vn200_serial.c" dir="peripherals"/>
-    <file name="imu_vectornav.c"/
+    <file name="imu_vectornav.c"/>
   </makefile>
 </module>

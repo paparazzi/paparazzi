@@ -28,6 +28,7 @@
 #define BMI088_H
 
 #include "std.h"
+#include "math/pprz_algebra_int.h"
 
 /* Include address and register definition */
 #include "peripherals/bmi088_regs.h"

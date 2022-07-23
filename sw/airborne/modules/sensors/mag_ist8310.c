@@ -29,6 +29,7 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
+#include "modules/core/abi.h"
 
 #ifndef IST8310_CHAN_X
 #define IST8310_CHAN_X 1
@@ -47,11 +48,6 @@
 #endif
 #ifndef IST8310_CHAN_Z_SIGN
 #define IST8310_CHAN_Z_SIGN +
-#endif
-
-#if MODULE_IST8310_UPDATE_AHRS
-#include "modules/imu/imu.h"
-#include "modules/core/abi.h"
 #endif
 
 struct IST8310 mag_ist8310;

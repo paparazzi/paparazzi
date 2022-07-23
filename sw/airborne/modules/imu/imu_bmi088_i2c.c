@@ -102,7 +102,7 @@ void imu_bmi088_init(void)
 
   // Set the default scaling
   imu_set_defaults_gyro(IMU_BMI088_ID, NULL, NULL, BMI088_GYRO_SENS_FRAC[IMU_BMI088_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_BMI088_ID, NULL, NULL, MI088_ACCEL_SENS_FRAC[IMU_BMI088_ACCEL_RANGE]);
+  imu_set_defaults_accel(IMU_BMI088_ID, NULL, NULL, BMI088_ACCEL_SENS_FRAC[IMU_BMI088_ACCEL_RANGE]);
 }
 
 void imu_bmi088_periodic(void)

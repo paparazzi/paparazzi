@@ -29,6 +29,7 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 #include "generated/airframe.h"
+#include "modules/core/abi.h"
 
 #ifndef LIS3MDL_CHAN_X
 #define LIS3MDL_CHAN_X 0
@@ -47,11 +48,6 @@
 #endif
 #ifndef LIS3MDL_CHAN_Z_SIGN
 #define LIS3MDL_CHAN_Z_SIGN +
-#endif
-
-#if MODULE_LIS3MDL_UPDATE_AHRS
-#include "modules/imu/imu.h"
-#include "modules/core/abi.h"
 #endif
 
 struct Lis3mdl mag_lis3mdl;

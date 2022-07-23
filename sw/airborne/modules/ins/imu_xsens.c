@@ -65,33 +65,48 @@ static void handle_ins_msg(void)
   }
   if (xsens.accel_available) {
     struct Int32Vect3 accel = {
-      -ACCEL_BFP_OF_REAL(xsens.accel.ax),
-      -ACCEL_BFP_OF_REAL(xsens.accel.ay),
-      ACCEL_BFP_OF_REAL(xsens.accel.az)
+      -ACCEL_BFP_OF_REAL(xsens.accel.x),
+      -ACCEL_BFP_OF_REAL(xsens.accel.y),
+      ACCEL_BFP_OF_REAL(xsens.accel.z)
     };
     xsens.accel_available = FALSE;
     AbiSendMsgIMU_ACCEL_RAW(IMU_XSENS_ID, now_ts, &accel, 1);
   }
   if (xsens.mag_available) {
     struct Int32Vect3 mag = {
-      -MAG_BFP_OF_REAL(xsens.mag.mx),
-      -MAG_BFP_OF_REAL(xsens.mag.my),
-      MAG_BFP_OF_REAL(xsens.mag.mz)
+      -MAG_BFP_OF_REAL(xsens.mag.x),
+      -MAG_BFP_OF_REAL(xsens.mag.y),
+      MAG_BFP_OF_REAL(xsens.mag.z)
     };
     xsens.mag_available = FALSE;
     AbiSendMsgIMU_MAG_RAW(IMU_XSENS_ID, now_ts, &mag);
   }
 #else
   if (xsens.gyro_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_XSENS_ID, now_ts, &xsens.gyro, 1);
+    struct Int32Rates gyro = {
+      RATE_BFP_OF_REAL(xsens.gyro.p),
+      RATE_BFP_OF_REAL(xsens.gyro.q),
+      RATE_BFP_OF_REAL(xsens.gyro.r)
+    };
+    AbiSendMsgIMU_GYRO_RAW(IMU_XSENS_ID, now_ts, &gyro, 1);
     xsens.gyro_available = FALSE;
   }
   if (xsens.accel_available) {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_XSENS_ID, now_ts, &xsens.accel, 1);
+    struct Int32Vect3 accel = {
+      ACCEL_BFP_OF_REAL(xsens.accel.x),
+      ACCEL_BFP_OF_REAL(xsens.accel.y),
+      ACCEL_BFP_OF_REAL(xsens.accel.z)
+    };
+    AbiSendMsgIMU_ACCEL_RAW(IMU_XSENS_ID, now_ts, &accel, 1);
     xsens.accel_available = FALSE;
   }
   if (xsens.mag_available) {
-    AbiSendMsgIMU_MAG_RAW(IMU_XSENS_ID, now_ts, &xsens.mag);
+    struct Int32Vect3 mag = {
+      MAG_BFP_OF_REAL(xsens.mag.x),
+      MAG_BFP_OF_REAL(xsens.mag.y),
+      MAG_BFP_OF_REAL(xsens.mag.z)
+    };
+    AbiSendMsgIMU_MAG_RAW(IMU_XSENS_ID, now_ts, &mag);
     xsens.mag_available = FALSE;
   }
 #endif /* XSENS_BACKWARDS */

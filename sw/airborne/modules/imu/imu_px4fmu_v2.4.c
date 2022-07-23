@@ -104,7 +104,12 @@ void imu_px4_event(void) {
 #if !IMU_PX4_DISABLE_MAG
   lsm303d_spi_event(&imu_px4.lsm_mag);
   if (imu_px4.lsm_mag.data_available_mag) {
-    AbiSendMsgIMU_MAG_RAW(IMU_PX4_ID, now_ts, &imu_px4.lsm_mag.data_mag.vect);
+    struct Int32Vect3 mag;
+    VECT3_ASSIGN(mag,
+        imu_px4.lsm_mag.data_mag.vect.x,
+        imu_px4.lsm_mag.data_mag.vect.y,
+        imu_px4.lsm_mag.data_mag.vect.z);
+    AbiSendMsgIMU_MAG_RAW(IMU_PX4_ID, now_ts, &mag);
     imu_px4.lsm_mag.data_available_mag = FALSE;
   }
 #endif

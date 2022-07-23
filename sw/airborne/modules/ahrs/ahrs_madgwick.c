@@ -79,7 +79,6 @@ void ahrs_madgwick_propagate(struct FloatRates* gyro, float dt)
   }
 
   // unbias gyro
-  struct FloatRates gyro_unbiased;
   RATES_DIFF(ahrs_madgwick.rates, *gyro, ahrs_madgwick.bias);
 
   // Rate of change of quaternion from gyroscope

@@ -139,7 +139,13 @@ void imu_disco_event(void)
   ak8963_event(&imu_disco.ak);
 
   if (imu_disco.ak.data_available) {
-    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &imu_disco.ak.data.vect);
-    imu_disco.ak.data_available = false; 
+    struct Int32Vect3 mag;
+    VECT3_ASSIGN(mag,
+        imu_disco.ak.data.vect.x,
+        imu_disco.ak.data.vect.y,
+        imu_disco.ak.data.vect.z);
+
+    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &mag);
+    imu_disco.ak.data_available = false;
   }
 }
