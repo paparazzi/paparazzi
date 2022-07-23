@@ -107,8 +107,8 @@
       <call fun="gvf_parametric_2D_trefoil_wp(WP_P1, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
     </block>
 
-    <block name="3D_ellipse_wp"> 
-
+    <block name="3D_ellipse_wp">
+	<call fun="gvf_parametric_3D_ellipse_wp(WP_ELLIPSE, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
     </block>
 
     <block name="3D_lissajous_wp"> 
