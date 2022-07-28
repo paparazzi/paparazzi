@@ -137,7 +137,7 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .stream = config->dma_stream,
     .channel = config->dma_channel,
     .dma_priority = 3,
-    .irq_priority = 2,
+    .irq_priority = CORTEX_MAX_KERNEL_PRIORITY + 1,
     .direction = DMA_DIR_M2P,
     .psize = timerWidthInBytes,
     .msize = timerWidthInBytes,
