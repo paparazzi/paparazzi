@@ -40,8 +40,8 @@
   </sectors>
   
   <variables>
-    <variable var="a_stb" init="5.0" min="1.0" max="20.0" step="1.0"/>
-    <variable var="b_stb" init="5.0" min="1.0" max="20.0" step="1.0"/>
+    <variable var="a_stb" init="60.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="b_stb" init="60.0" min="1.0" max="150.0" step="1.0"/>
   </variables>
   
   <modules>
@@ -52,12 +52,12 @@
   </modules>
   
   <blocks>
-    <block name="Wait GPS">
+    <block name="Wait GPS" strip_icon="gps.png">
       <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     
-    <block name="Geo init">
+    <block name="Geo init" strip_icon="googleearth.png">
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     
@@ -79,39 +79,39 @@
       <call fun="gvf_ellipse_wp(WP_ELLIPSE, a_stb, b_stb, gvf_ellipse_par.alpha)"/>
     </block>
     
-    <block name="ellipse_wp">
-      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
-    </block>
-
-    <block name="gvf_ellipse_XY">
-      <call fun="gvf_ellipse_XY(10.1, 10.1, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
-    </block>
-
-    <block name="line_P1_P2"> 
-      <call fun="gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
-    </block>
-    
-    <block name="segment_turn_P1_P2"> 
-      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
-    </block>
-    
-    <block name="line_to_HOME"> 
+    <block name="line_to_HOME" strip_icon="home_drop.png"> 
       <call fun="gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
     </block>
     
-    <block name="sin_p1_p2"> 
+    <block name="ellipse_wp" strip_icon="oval.png">
+      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="gvf_ellipse_XY" strip_icon="oval.png">
+      <call fun="gvf_ellipse_XY(10.1, 10.1, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="line_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
+    </block>
+    
+    <block name="segment_turn_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+    </block>
+    
+    <block name="sin_p1_p2" strip_icon="line_drop.png"> 
       <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
     </block>
 
-    <block name="2D_trefoil_wp"> 
+    <block name="2D_trefoil_wp" strip_icon="eight.png"> 
       <call fun="gvf_parametric_2D_trefoil_wp(WP_P1, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
     </block>
 
-    <block name="3D_ellipse_wp">
+    <block name="3D_ellipse_wp" strip_icon="oval.png">
 	<call fun="gvf_parametric_3D_ellipse_wp(WP_ELLIPSE, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
     </block>
 
-    <block name="3D_lissajous_wp"> 
+    <block name="3D_lissajous_wp" strip_icon="eight.png"> 
       <call fun="gvf_parametric_3D_lissajous_wp_center(WP_P2, 100, gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
     </block>
 
