@@ -225,7 +225,12 @@ bool gvf_line_XY_heading(float a, float b, float heading)
 }
 
 bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
-{
+{ 
+  gvf_trajectory.p[3] = x2;
+  gvf_trajectory.p[4] = y2;
+  gvf_trajectory.p[5] = 0;
+  gvf_plen_wps = 3;
+
   float zx = x2 - x1;
   float zy = y2 - y1;
 
@@ -296,7 +301,7 @@ bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 }
 
 bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
-{
+{ 
   struct EnuCoor_f *p = stateGetPositionEnu_f();
   float px = p->x - x1;
   float py = p->y - y1;
