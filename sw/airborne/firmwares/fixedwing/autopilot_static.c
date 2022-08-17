@@ -124,6 +124,7 @@ void autopilot_static_on_rc_frame(void)
   } else if (autopilot_get_mode() == AP_MODE_MANUAL) {
     // Set commands from RC in MANUAL mode
     SetCommandsFromRC(commands, radio_control.values);
+    autopilot.throttle = radio_control_get(RADIO_THROTTLE);
   }
   /** Else asynchronously set by \a h_ctl_course_loop() */
 

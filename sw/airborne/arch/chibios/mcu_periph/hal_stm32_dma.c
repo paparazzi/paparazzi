@@ -690,6 +690,8 @@ forbiddenCombination:
  */
 bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
 {
+  const DMAConfig *cfg = dmap->config;
+  osalDbgAssert(PORT_IRQ_IS_VALID_KERNEL_PRIORITY(cfg->irq_priority), "illegal IRQ priority");
 #if __DCACHE_PRESENT
   if (dmap->config->dcache_memory_in_use &&
       (dmap->config->direction != DMA_DIR_P2M)) {
