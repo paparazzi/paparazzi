@@ -117,7 +117,7 @@ extern rover_ctrl guidance_control;
 
 /** Steering rover guidance EXT FUNCTIONS **/
 extern void rover_guidance_steering_init(void);
-extern void rover_guidance_steering_heading_ctrl(void);
+extern void rover_guidance_steering_heading_ctrl(float omega);
 extern void rover_guidance_steering_speed_ctrl(void);
 extern void rover_guidance_steering_pid_reset(void);
 extern void rover_guidance_steering_kill(void);

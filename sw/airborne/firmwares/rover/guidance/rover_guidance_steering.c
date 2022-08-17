@@ -28,7 +28,6 @@
 
 #include "modules/actuators/actuators_default.h"
 #include "modules/radio_control/radio_control.h"
-#include "modules/guidance/gvf/gvf.h"
 #include "autopilot.h"
 #include "navigation.h"
 #include "state.h"
@@ -69,10 +68,9 @@ void rover_guidance_steering_init(void)
 
 /** CTRL functions **/
 // Steering control (GVF)
-void rover_guidance_steering_heading_ctrl(void)
+void rover_guidance_steering_heading_ctrl(float omega) //GVF give us this omega
 {
   float delta = 0.0;
-  float omega = gvf_control.omega; //GVF give us this omega
 
   // Speed is bounded to avoid GPS noise while driving at small velocity
   float speed = BoundSpeed(stateGetHorizontalSpeedNorm_f()); 
