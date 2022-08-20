@@ -11,7 +11,6 @@
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
       <include name="modules/radio_control/radio_control.h"/>
-      <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/guidance/gvf/gvf.h"/>
       <include name="navigation.h"/>
       <include name="state.h"/>

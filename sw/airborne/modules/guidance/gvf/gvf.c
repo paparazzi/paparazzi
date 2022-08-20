@@ -226,10 +226,12 @@ bool gvf_line_XY_heading(float a, float b, float heading)
 
 bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
 { 
-  gvf_trajectory.p[3] = x2;
-  gvf_trajectory.p[4] = y2;
-  gvf_trajectory.p[5] = 0;
-  gvf_plen_wps = 3;
+  if (gvf_plen_wps != 2) {
+    gvf_trajectory.p[3] = x2;
+    gvf_trajectory.p[4] = y2;
+    gvf_trajectory.p[5] = 0;
+    gvf_plen_wps = 3;
+  }
 
   float zx = x2 - x1;
   float zy = y2 - y1;
