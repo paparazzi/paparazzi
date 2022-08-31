@@ -29,6 +29,10 @@
 
 #include "firmwares/rover/navigation.h"
 
+#ifndef ROVER_BASE_SEND_TRAJECTORY
+#define ROVER_BASE_SEND_TRAJECTORY TRUE
+#endif
+
 /** Waypoint and route pattern
  */
 struct RoverNavGoto {

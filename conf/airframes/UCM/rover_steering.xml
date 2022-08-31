@@ -44,8 +44,12 @@
       <configure name="USE_MAGNETOMETER" value="0"/>
     </module-->
 
-    <module name="nav"  type="rover_base"/>
-    <module name="gvf"  type="module"/>
+    <module name="nav"  type="rover_base">
+      <define name="ROVER_BASE_SEND_TRAJECTORY" value="FALSE"/>
+    </module>
+    <module name="gvf"  type="module">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+    </module>
 
     <module name="guidance" type="rover_steering">
       <define name="MAX_DELTA"            value="15.0"/>

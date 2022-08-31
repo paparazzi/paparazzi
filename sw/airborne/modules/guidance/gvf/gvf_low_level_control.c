@@ -37,8 +37,8 @@ void gvf_low_level_getState(void)
   #if defined(FIXEDWING_FIRMWARE)
     float ground_speed = stateGetHorizontalSpeedNorm_f();
     gvf_state.course = stateGetHorizontalSpeedDir_f();
-    gvf_state.px_dot = ground_speed * sinf(course);
-    gvf_state.py_dot = ground_speed * cosf(course);
+    gvf_state.px_dot = ground_speed * sinf(gvf_state.course);
+    gvf_state.py_dot = ground_speed * cosf(gvf_state.course);
     
   #elif defined(ROVER_FIRMWARE)
     // We assume that the course and psi
@@ -67,5 +67,6 @@ void gvf_low_level_control_2D(float omega)
   }
 #endif
 
+  (void)(omega); // Avoid unused parameter warning
 }
 

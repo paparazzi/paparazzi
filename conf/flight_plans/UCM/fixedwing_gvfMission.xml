@@ -1,0 +1,119 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="750" ground_alt="650" lat0="40.450631" lon0="-3.726058" max_dist_from_home="1500" name="Rover Steering" security_height="25" home_mode_height="200" qfu="90" geofence_sector="FlightArea" geofence_max_alt="3000" geofence_max_height="1000">
+  <header>
+
+</header>
+  <waypoints>
+    <waypoint alt="700.0" name="HOME"    x="0.0" y="0.0"/>
+    <waypoint alt="700.0" name="STDBY"   x="0" y="-4"/>
+    <waypoint alt="700.0" name="ELLIPSE" x="-30" y="-30"/>
+    <waypoint alt="700.0" name="CLIMB"   x="-30" y="-40"/>
+    <waypoint alt="700.0" name="P1"      x="-20" y="-40"/>
+    <waypoint alt="700.0" name="P2"      x="20" y="-40"/>
+
+    <!-- Sectors waypoints -->
+    <waypoint name="_S1" x="3" y="4"/>
+    <waypoint name="_S2" x="3" y="-4"/>
+    <waypoint name="_S3" x="-3" y="-4"/>
+    <waypoint name="_S4" x="-3" y="4"/>
+    <waypoint name="_N1" x="1000" y="1000"/>
+    <waypoint name="_N2" x="1000" y="-1000"/>
+    <waypoint name="_N3" x="-1000" y="-1000"/>
+    <waypoint name="_N4" x="-1000" y="1000"/>
+  </waypoints>
+  
+  <sectors>
+    <sector name="FlightArea" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    
+    <!--sector name="Survey" color="green">
+      <corner name="_S1"/>
+      <corner name="_S2"/>
+      <corner name="_S3"/>
+      <corner name="_S4"/>
+    </sector-->
+  </sectors>
+  
+  <variables>
+    <variable var="a_stb" init="60.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="b_stb" init="60.0" min="1.0" max="150.0" step="1.0"/>
+  </variables>
+  
+  <modules>
+    <module name="gvf_module">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+    </module>
+    <module name="gvf_parametric"/> 
+  </modules>
+  
+  <blocks>
+    <block name="Wait GPS" strip_icon="gps.png">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    
+    <block name="Geo init" strip_icon="googleearth.png">
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    
+    <block name="Holding point">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+
+    <!-- need this for simulation, manual takeoff for real testing -->
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosAlt() @GT (ground_alt+100)" deroute="Standby"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="1" var="autopilot.launch"/>
+      <set value="0" var="autopilot.flight_time"/>
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
+    </block>
+
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <call fun="gvf_ellipse_wp(WP_ELLIPSE, a_stb, b_stb, gvf_ellipse_par.alpha)"/>
+    </block>
+    
+    <block name="line_to_HOME" strip_icon="home_drop.png"> 
+      <call fun="gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
+    </block>
+    
+    <block name="ellipse_wp" strip_icon="oval.png">
+      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="gvf_ellipse_XY" strip_icon="oval.png">
+      <call fun="gvf_ellipse_XY(10.1, 10.1, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="line_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
+    </block>
+    
+    <block name="segment_turn_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+    </block>
+    
+    <block name="sin_p1_p2" strip_icon="line_drop.png"> 
+      <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    </block>
+
+    <block name="2D_trefoil_wp" strip_icon="eight.png"> 
+      <call fun="gvf_parametric_2D_trefoil_wp(WP_P1, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+    </block>
+
+    <block name="3D_ellipse_wp" strip_icon="oval.png">
+	<call fun="gvf_parametric_3D_ellipse_wp(WP_ELLIPSE, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="3D_lissajous_wp" strip_icon="eight.png"> 
+      <call fun="gvf_parametric_3D_lissajous_wp_center(WP_P2, 100, gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+    </block>
+
+  </blocks>
+</flight_plan>

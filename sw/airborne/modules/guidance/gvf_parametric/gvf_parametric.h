@@ -54,6 +54,10 @@
 #define GVF_PARAMETRIC_CONTROL_KPSI 1
 #endif
 
+/*! Default GCS trajectory painter */
+#ifndef GVF_OCAML_GCS
+#define GVF_OCAML_GCS true
+#endif
 
 #ifdef __cplusplus
 extern "C" {

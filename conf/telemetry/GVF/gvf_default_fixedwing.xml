@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<!DOCTYPE telemetry SYSTEM "../telemetry.dtd">
 <telemetry>
   <process name="Ap">
     <mode name="default">
@@ -12,9 +12,7 @@
       <message name="ESTIMATOR"           period="0.5"/>
       <message name="ENERGY"              period="1.1"/>
       <message name="WP_MOVED"            period="0.5"/>
-      <message name="CIRCLE"              period="1.05"/>
       <message name="DESIRED"             period="1.05"/>
-      <message name="SEGMENT"             period="1.2"/>
       <message name="CALIBRATION"         period="2.1"/>
       <message name="NAVIGATION_REF"      period="9."/>
       <message name="PPRZ_MODE"           period="5."/>
@@ -31,8 +29,8 @@
       <message name="FBW_STATUS"          period="2"/>
       <message name="AIR_DATA"            period="1.3"/>
       <message name="VECTORNAV_INFO"      period="0.5"/>
-      <message name="GVF"                 period="1"/>
-      <message name="GVF_PARAMETRIC"      period="1"/>
+      <message name="GVF"                 period="3."/>
+      <message name="GVF_PARAMETRIC"      period="3."/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

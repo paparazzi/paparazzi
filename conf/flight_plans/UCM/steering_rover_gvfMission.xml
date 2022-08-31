@@ -17,10 +17,10 @@
     <waypoint name="_S2" x="3" y="-4"/>
     <waypoint name="_S3" x="-3" y="-4"/>
     <waypoint name="_S4" x="-3" y="4"/>
-    <waypoint name="_N1" x="40" y="40"/>
-    <waypoint name="_N2" x="40" y="-40"/>
-    <waypoint name="_N3" x="-40" y="-40"/>
-    <waypoint name="_N4" x="-40" y="40"/>
+    <waypoint name="_N1" x="100" y="100"/>
+    <waypoint name="_N2" x="100" y="-100"/>
+    <waypoint name="_N3" x="-100" y="-100"/>
+    <waypoint name="_N4" x="-100" y="100"/>
   </waypoints>
   
   <sectors>
@@ -40,56 +40,55 @@
   </sectors>
   
   <variables>
-    <variable var="a" init="5.0" min="1.0" max="10.0" step="1.0"/>
-    <variable var="b" init="5.0" min="1.0" max="10.0" step="1.0"/>
+    <variable var="a_stb" init="5.0" min="1.0" max="20.0" step="1.0"/>
+    <variable var="b_stb" init="5.0" min="1.0" max="20.0" step="1.0"/>
   </variables>
   
-  <modules>
-    <module name="gvf_module"/> 
-  </modules>
-  
   <blocks>
-    <block name="Wait GPS">
+    <block name="Wait GPS" strip_icon="gps.png">
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
 
-    <block name="Geo init">
+    <block name="Geo init" strip_icon="googleearth.png">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     
-    <block name="Start Engine">
+    <block name="Start Engine" strip_icon="on.png">
       <while cond="LessThan(NavBlockTime(), 1)"/>
       <call_once fun="autopilot_set_motors_on(TRUE)"/>
     </block>
     
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call fun="gvf_ellipse_wp(WP_STDBY, 3, 3, 0)"/>
+      <call fun="gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, 0)"/>
     </block>
     
-    <block name="ellipse_wp">
-      <call fun="gvf_ellipse_wp(WP_ELLIPSE, a, b, gvf_ellipse_par.alpha)"/>
-      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
-    </block>
-    
-    <block name="line_P1_P2_turn"> 
-      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
-      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
-    </block>
-    
-    <block name="line_to_HOME"> 
+    <block name="line_to_HOME" strip_icon="home_drop.png"> 
       <call fun="gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
-    <block name="sin_p1_p2"> 
-      <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, 10*gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    <block name="ellipse_wp" strip_icon="oval.png">
+      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
+    </block>
+
+    <block name="line_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_line_wp1_wp2(WP_P1, WP_P2)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
+    <block name="segment_turn_P1_P2" strip_icon="line.png"> 
+      <call fun="gvf_segment_loop_wp1_wp2(WP_P1, WP_P2, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
+    </block>
     
+    <block name="sin_p1_p2" strip_icon="line_drop.png"> 
+      <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
+    </block>
     
   </blocks>
 </flight_plan>
