@@ -1,0 +1,24 @@
+<conf>
+  <aircraft
+   name="gvf_sonic2"
+   ac_id="5"
+   airframe="airframes/UCM/sonic2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/GVF/gvf_default_fixedwing.xml"
+   flight_plan="flight_plans/UCM/fixedwing_gvfMission.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/ahrs_float_dcm.xml modules/gps.xml modules/guidance_full_pid_fw.xml modules/gvf_module.xml~GVF~ modules/gvf_parametric.xml~GVF_PARAMETRIC~ modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
+   gui_color="blue"
+  />
+  <aircraft
+   name="gvf_steering_rover"
+   ac_id="8"
+   airframe="airframes/UCM/rover_steering.xml"
+   radio="radios/UCM/T16SZ_SBUS_rover.xml"
+   telemetry="telemetry/GVF/gvf_rover.xml"
+   flight_plan="flight_plans/UCM/steering_rover_gvfMission.xml"
+   settings=""
+   settings_modules="modules/ahrs_float_dcm.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rover_steering.xml modules/gvf_module.xml~GVF~ modules/imu_common.xml modules/nav_rover_base.xml"
+   gui_color="blue"
+  />
+</conf>

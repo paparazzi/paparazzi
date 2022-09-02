@@ -316,6 +316,11 @@ test_openuas: all
 test_tudelft: all
 	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/
 
+# test GVF conf
+test_gvf: all
+	CONF_XML=conf/userconf/GVF/gvf_conf.xml prove tests/aircrafts/
+
+
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
