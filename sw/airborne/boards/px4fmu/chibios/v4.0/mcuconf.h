@@ -203,7 +203,8 @@
 #else
 #define STM32_I2C_USE_I2C3                  FALSE
 #endif
-#define STM32_I2C_BUSY_TIMEOUT              50
+#define STM32_I2C_ISR_LIMIT                 6
+#define STM32_I2C_BUSY_TIMEOUT              0
 #define STM32_I2C_I2C1_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 0)
 #define STM32_I2C_I2C1_TX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 6)
 #define STM32_I2C_I2C2_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 2)

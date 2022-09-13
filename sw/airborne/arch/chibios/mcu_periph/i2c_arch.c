@@ -63,6 +63,8 @@ struct i2c_init {
   semaphore_t sem;
   I2CConfig cfg;
   struct i2c_errors errors;
+  ioline_t line_sda;
+  ioline_t line_scl;
 };
 
 
@@ -70,6 +72,44 @@ static void handle_i2c_thd(struct i2c_periph *p);
 
 // Timeout for I2C transaction
 static const systime_t tmo = TIME_US2I(10000000 / PERIODIC_FREQUENCY);
+
+static iomode_t palReadLineMode(ioline_t line)
+{
+    ioportid_t port = PAL_PORT(line);
+    uint8_t pad = PAL_PAD(line);
+    iomode_t ret = 0;
+    ret |= (port->MODER >> (pad*2)) & 0x3;
+    ret |= ((port->OTYPER >> pad)&1) << 2;
+    ret |= ((port->OSPEEDR >> (pad*2))&3) << 3;
+    ret |= ((port->PUPDR >> (pad*2))&3) << 5;
+    if (pad < 8) {
+        ret |= ((port->AFRL >> (pad*4))&0xF) << 7;
+    } else {
+        ret |= ((port->AFRH >> ((pad-8)*4))&0xF) << 7;
+    }
+    return ret;
+}
+
+/* Clear a stuck bus */
+static void i2c_clear_bus(struct i2c_init *i)
+{
+  const iomode_t mode_saved = palReadLineMode(i->line_scl);
+  palSetLineMode(i->line_scl, PAL_MODE_OUTPUT_PUSHPULL);
+  for(uint8_t j = 0; j < 20; j++) {
+    palToggleLine(i->line_scl);
+    chThdSleepMicroseconds(10);
+  }
+  palSetLineMode(i->line_scl, mode_saved);
+}
+
+static uint8_t i2c_read_sda(struct i2c_init *i)
+{
+  const iomode_t mode_saved = palReadLineMode(i->line_sda);
+  palSetLineMode(i->line_sda, PAL_MODE_INPUT);
+  uint8_t ret = palReadLine(i->line_sda);
+  palSetLineMode(i->line_sda, mode_saved);
+  return ret;
+}
 
 /**
  * main thread function
@@ -152,8 +192,13 @@ static void handle_i2c_thd(struct i2c_periph *p)
       break;
     case MSG_TIMEOUT:
       //if a timeout occurred before operation end
-      // mark as failed and restart
+      // mark as failed
       t->status = I2CTransFailed;
+      p->errors->unexpected_event_cnt++;
+      // Clear the bus if kept busy
+      if(i2c_read_sda(i) == 0) {
+        i2c_clear_bus(i);
+      }
       i2cStart((I2CDriver *)p->reg_addr, &i->cfg);
       break;
     case MSG_RESET:
@@ -211,7 +256,9 @@ PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 static IN_DMA_SECTION(struct i2c_init i2c1_init_s) = {
   .name = "i2c1",
   .sem = __SEMAPHORE_DATA(i2c1_init_s.sem, 0),
-  .cfg = I2C1_CFG_DEF
+  .cfg = I2C1_CFG_DEF,
+  .line_sda = LINE_I2C1_SDA,
+  .line_scl = LINE_I2C1_SCL
 };
 static THD_WORKING_AREA(wa_thd_i2c1, I2C_THREAD_STACK_SIZE);
 
@@ -240,7 +287,9 @@ PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 static IN_DMA_SECTION(struct i2c_init i2c2_init_s) = {
   .name = "i2c2",
   .sem = __SEMAPHORE_DATA(i2c2_init_s.sem, 0),
-  .cfg = I2C2_CFG_DEF
+  .cfg = I2C2_CFG_DEF,
+  .line_sda = LINE_I2C2_SDA,
+  .line_scl = LINE_I2C2_SCL
 };
 static THD_WORKING_AREA(wa_thd_i2c2, I2C_THREAD_STACK_SIZE);
 
@@ -269,7 +318,9 @@ PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 static IN_DMA_SECTION(struct i2c_init i2c3_init_s) = {
   .name = "i2c3",
   .sem = __SEMAPHORE_DATA(i2c3_init_s.sem, 0),
-  .cfg = I2C3_CFG_DEF
+  .cfg = I2C3_CFG_DEF,
+  .line_sda = LINE_I2C3_SDA,
+  .line_scl = LINE_I2C3_SCL
 };
 static THD_WORKING_AREA(wa_thd_i2c3, I2C_THREAD_STACK_SIZE);
 
@@ -298,7 +349,9 @@ PRINT_CONFIG_VAR(I2C4_CLOCK_SPEED)
 static IN_DMA_SECTION(struct i2c_init i2c4_init_s) = {
   .name = "i2c4",
   .sem = __SEMAPHORE_DATA(i2c4_init_s.sem, 0),
-  .cfg = I2C4_CFG_DEF
+  .cfg = I2C4_CFG_DEF,
+  .line_sda = LINE_I2C4_SDA,
+  .line_scl = LINE_I2C4_SCL
 };
 static THD_WORKING_AREA(wa_thd_i2c4, I2C_THREAD_STACK_SIZE);
 

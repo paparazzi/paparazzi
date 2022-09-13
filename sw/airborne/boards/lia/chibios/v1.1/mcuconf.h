@@ -121,7 +121,8 @@
 #else
 #define STM32_I2C_USE_I2C2                  FALSE
 #endif
-#define STM32_I2C_BUSY_TIMEOUT              50
+#define STM32_I2C_ISR_LIMIT                 6
+#define STM32_I2C_BUSY_TIMEOUT              0
 #define STM32_I2C_I2C1_IRQ_PRIORITY         5
 #define STM32_I2C_I2C2_IRQ_PRIORITY         5
 #define STM32_I2C_I2C1_DMA_PRIORITY         3
