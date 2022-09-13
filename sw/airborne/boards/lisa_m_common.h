@@ -1,6 +1,8 @@
 #ifndef CONFIG_LISA_M_COMMON_H
 #define CONFIG_LISA_M_COMMON_H
 
+#include "std.h"
+
 /* SPI slave mapping */
 
 #define SPI_SELECT_SLAVE0_PORT GPIOA
