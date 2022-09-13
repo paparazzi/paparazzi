@@ -22,6 +22,7 @@
   <init fun="ppm_init()"/>
   <event fun="ppm_event()"/>
   <makefile target="ap|fbw|sim|nps|hitl">
+    <define name="USE_PPM" value="TRUE"/>
     <define name="PPM_CONFIG" value="$(PPM_CONFIG)" cond="ifdef PPM_CONFIG"/>
     <define name="RADIO_CONTROL_TYPE_PPM"/>
     <file name="ppm.c"/>
