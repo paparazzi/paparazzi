@@ -45,6 +45,7 @@
     <configure name="MAG_RM3100_I2C_DEV" case="upper|lower"/>
     <define name="USE_$(MAG_RM3100_I2C_DEV_UPPER)"/>
     <define name="MAG_RM3100_I2C_DEV" value="$(MAG_RM3100_I2C_DEV_LOWER)"/>
+    <define name="MODULE_RM3100_RATE" value="60"/>
     <test>
       <define name="MAG_RM3100_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
