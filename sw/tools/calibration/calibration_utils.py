@@ -186,7 +186,7 @@ def print_xml(p, sensor, sensor_id, res):
     y_sens = continious_frac(p[4]*2**res)
     z_sens = continious_frac(p[5]*2**res)
 
-    struct = "{{.abi_id="+sensor_id+", "
+    struct = "{{.abi_id="+sensor_id+", .calibrated={.neutral=true, .scale=true},"
     struct += ".neutral={"+str(int(round(p[0])))+","+str(int(round(p[1])))+","+str(int(round(p[2])))+"}, "
     struct += ".scale={{"+str(x_sens[0])+","+str(y_sens[0])+","+str(z_sens[0])+"},"
     struct += "{"+str(x_sens[1])+","+str(y_sens[1])+","+str(z_sens[1])+"}}"

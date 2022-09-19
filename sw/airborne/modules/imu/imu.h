@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2022 The Paparazzi Team
+ *                         Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -36,21 +37,28 @@
 #define IMU_MAX_SENSORS 3
 #endif
 
+struct imu_calib_t {
+  bool neutral: 1;    ///< Neutral values calibrated
+  bool scale: 1;      ///< Scale calibrated
+  bool rotation: 1;   ///< Rotation calibrated
+  bool current: 1;    ///< Current calibrated
+};
+
 struct imu_gyro_t {
-  uint8_t abi_id;
-  uint32_t last_stamp;
-  bool calibrated;
-  struct Int32Rates scaled;
-  struct Int32Rates unscaled;
-  struct Int32Rates neutral;
-  struct Int32Rates scale[2];
-  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
+  uint8_t abi_id;                     ///< ABI sensor ID
+  uint32_t last_stamp;                ///< Last measurement timestamp
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
+  struct Int32Rates scaled;           ///< Last scaled values in body frame
+  struct Int32Rates unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Rates neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame
 };
 
 struct imu_accel_t {
   uint8_t abi_id;
   uint32_t last_stamp;
-  bool calibrated;
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
   struct Int32Vect3 scaled;
   struct Int32Vect3 unscaled;
   struct Int32Vect3 neutral;
@@ -60,13 +68,13 @@ struct imu_accel_t {
 
 struct imu_mag_t {
   uint8_t abi_id;
-  bool calibrated;
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
   struct Int32Vect3 scaled;
   struct Int32Vect3 unscaled;
   struct Int32Vect3 neutral;
   struct Int32Vect3 scale[2];
   struct FloatVect3 current_scale;
-  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame
 };
 
 

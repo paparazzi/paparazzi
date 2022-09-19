@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2022 The Paparazzi Team
+ *                         Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -42,57 +43,63 @@
 #if defined(IMU_GYRO_P_NEUTRAL) || defined(IMU_GYRO_Q_NEUTRAL) || defined(IMU_GYRO_R_NEUTRAL)
 #define GYRO_NEUTRAL {IMU_GYRO_P_NEUTRAL, IMU_GYRO_Q_NEUTRAL, IMU_GYRO_R_NEUTRAL}
 PRINT_CONFIG_MSG("Using single IMU gyro neutral calibration")
-#else
-#define GYRO_NEUTRAL {}
 #endif
 
 #if defined(IMU_GYRO_P_SENS) ||  defined(IMU_GYRO_Q_SENS) || defined(IMU_GYRO_R_SENS)
 #define GYRO_SCALE {{IMU_GYRO_P_SENS_NUM, IMU_GYRO_Q_SENS_NUM, IMU_GYRO_R_SENS_NUM}, {IMU_GYRO_P_SENS_DEN, IMU_GYRO_Q_SENS_DEN, IMU_GYRO_R_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
-#else
-#define GYRO_SCALE {{1,1,1},{1,1,1}}
 #endif
 
-#ifndef IMU_GYRO_CALIB
-#define IMU_GYRO_CALIB {{.abi_id=ABI_BROADCAST, .neutral=GYRO_NEUTRAL, .scale=GYRO_SCALE}}
+#if defined(GYRO_NEUTRAL) && defined(GYRO_SCALE)
+#define IMU_GYRO_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true, .scale=true}, .neutral=GYRO_NEUTRAL, .scale=GYRO_SCALE}}
+#elif defined(GYRO_NEUTRAL)
+#define IMU_GYRO_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true}, .neutral=GYRO_NEUTRAL}}
+#elif defined(GYRO_SCALE)
+#define IMU_GYRO_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.scale=true}, .scale=GYRO_SCALE}}
+#elif !defined(IMU_GYRO_CALIB)
+#define IMU_GYRO_CALIB {}
 #endif
 
 /** Default accel calibration is for single IMU with old format */
 #if defined(IMU_ACCEL_X_NEUTRAL) || defined(IMU_ACCEL_Y_NEUTRAL) || defined(IMU_ACCEL_Z_NEUTRAL)
 #define ACCEL_NEUTRAL {IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL}
 PRINT_CONFIG_MSG("Using single IMU accel neutral calibration")
-#else
-#define ACCEL_NEUTRAL {}
 #endif
 
 #if defined(IMU_ACCEL_X_SENS) ||  defined(IMU_ACCEL_Y_SENS) || defined(IMU_ACCEL_Z_SENS)
 #define ACCEL_SCALE {{IMU_ACCEL_X_SENS_NUM, IMU_ACCEL_Y_SENS_NUM, IMU_ACCEL_Z_SENS_NUM}, {IMU_ACCEL_X_SENS_DEN, IMU_ACCEL_Y_SENS_DEN, IMU_ACCEL_Z_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU accel sensitivity calibration")
-#else
-#define ACCEL_SCALE {{1,1,1},{1,1,1}}
 #endif
 
-#ifndef IMU_ACCEL_CALIB
-#define IMU_ACCEL_CALIB {{.abi_id=ABI_BROADCAST, .neutral=ACCEL_NEUTRAL, .scale=ACCEL_SCALE}}
+#if defined(ACCEL_NEUTRAL) && defined(ACCEL_SCALE)
+#define IMU_ACCEL_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true, .scale=true}, .neutral=ACCEL_NEUTRAL, .scale=ACCEL_SCALE}}
+#elif defined(ACCEL_NEUTRAL)
+#define IMU_ACCEL_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true}, .neutral=ACCEL_NEUTRAL}}
+#elif defined(ACCEL_SCALE)
+#define IMU_ACCEL_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.scale=true}, .scale=ACCEL_SCALE}}
+#elif !defined(IMU_ACCEL_CALIB)
+#define IMU_ACCEL_CALIB {}
 #endif
 
 /** Default mag calibration is for single IMU with old format */
 #if defined(IMU_MAG_X_NEUTRAL) || defined(IMU_MAG_Y_NEUTRAL) || defined(IMU_MAG_Z_NEUTRAL)
 #define MAG_NEUTRAL {IMU_MAG_X_NEUTRAL, IMU_MAG_Y_NEUTRAL, IMU_MAG_Z_NEUTRAL}
 PRINT_CONFIG_MSG("Using single IMU mag neutral calibration")
-#else
-#define MAG_NEUTRAL {}
 #endif
 
 #if defined(IMU_MAG_X_SENS) ||  defined(IMU_MAG_Y_SENS) || defined(IMU_MAG_Z_SENS)
 #define MAG_SCALE {{IMU_MAG_X_SENS_NUM, IMU_MAG_Y_SENS_NUM, IMU_MAG_Z_SENS_NUM}, {IMU_MAG_X_SENS_DEN, IMU_MAG_Y_SENS_DEN, IMU_MAG_Z_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU mag sensitivity calibration")
-#else
-#define MAG_SCALE {{1,1,1},{1,1,1}}
 #endif
 
-#ifndef IMU_MAG_CALIB
-#define IMU_MAG_CALIB {{.abi_id=ABI_BROADCAST, .neutral=MAG_NEUTRAL, .scale=MAG_SCALE}}
+#if defined(MAG_NEUTRAL) && defined(MAG_SCALE)
+#define IMU_MAG_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true, .scale=true}, .neutral=MAG_NEUTRAL, .scale=MAG_SCALE}}
+#elif defined(MAG_NEUTRAL)
+#define IMU_MAG_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.neutral=true}, .neutral=MAG_NEUTRAL}}
+#elif defined(MAG_SCALE)
+#define IMU_MAG_CALIB {{.abi_id=ABI_BROADCAST, .calibrated={.scale=true}, .scale=MAG_SCALE}}
+#elif !defined(IMU_MAG_CALIB)
+#define IMU_MAG_CALIB {}
 #endif
 
 
@@ -238,6 +245,7 @@ void imu_init(void)
 
 
   // Set the calibrated sensors
+  struct Int32RMat body_to_sensor;
   const struct imu_gyro_t gyro_calib[] = IMU_GYRO_CALIB;
   const struct imu_accel_t accel_calib[] = IMU_ACCEL_CALIB;
   const struct imu_mag_t mag_calib[] = IMU_MAG_CALIB;
@@ -247,50 +255,85 @@ void imu_init(void)
 
   // Initialize the sensors to default values
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    // Gyro initialization calibrated/non-calibrated
+    /* Copy gyro calibration if needed */
     if(i >= gyro_calib_len) {
       imu.gyros[i].abi_id = ABI_DISABLE;
-      imu.gyros[i].calibrated = false;
+      imu.gyros[i].calibrated.neutral = false;
+      imu.gyros[i].calibrated.scale = false;
+      imu.gyros[i].calibrated.rotation = false;
+    } else {
+      imu.gyros[i] = gyro_calib[i];
+    }
+
+    // Set the default safe values if not calibrated
+    if(!imu.gyros[i].calibrated.neutral) {
       INT_RATES_ZERO(imu.gyros[i].neutral);
+    }
+    if(!imu.gyros[i].calibrated.scale) {
       RATES_ASSIGN(imu.gyros[i].scale[0], 1, 1, 1);
       RATES_ASSIGN(imu.gyros[i].scale[1], 1, 1, 1);
     }
-    else {
-      imu.gyros[i] = gyro_calib[i];
-      imu.gyros[i].calibrated = true;
+    if(!imu.gyros[i].calibrated.rotation) {
+      int32_rmat_identity(&imu.gyros[i].body_to_sensor);
     }
     imu.gyros[i].last_stamp = 0;
-    RMAT_COPY(imu.gyros[i].body_to_sensor, *body_to_imu_rmat);
+    int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.gyros[i].body_to_sensor);
+    RMAT_COPY(imu.gyros[i].body_to_sensor, body_to_sensor);
 
-    // Accel initialization calibrated/non-calibrated
+
+    /* Copy accel calibration if needed */
     if(i >= accel_calib_len) {
       imu.accels[i].abi_id = ABI_DISABLE;
-      imu.accels[i].calibrated = false;
+      imu.accels[i].calibrated.neutral = false;
+      imu.accels[i].calibrated.scale = false;
+      imu.accels[i].calibrated.rotation = false;
+    } else {
+      imu.accels[i] = accel_calib[i];
+    }
+
+    // Set the default safe values if not calibrated
+    if(!imu.accels[i].calibrated.neutral) {
       INT_VECT3_ZERO(imu.accels[i].neutral);
+    }
+    if(!imu.accels[i].calibrated.scale) {
       VECT3_ASSIGN(imu.accels[i].scale[0], 1, 1, 1);
       VECT3_ASSIGN(imu.accels[i].scale[1], 1, 1, 1);
     }
-    else {
-      imu.accels[i] = accel_calib[i];
-      imu.accels[i].calibrated = true;
+    if(!imu.accels[i].calibrated.rotation) {
+      int32_rmat_identity(&imu.accels[i].body_to_sensor);
     }
     imu.accels[i].last_stamp = 0;
-    RMAT_COPY(imu.accels[i].body_to_sensor, *body_to_imu_rmat);
+    int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.accels[i].body_to_sensor);
+    RMAT_COPY(imu.accels[i].body_to_sensor, body_to_sensor);
 
-    // Mag initialization calibrated/non-calibrated
+
+    /* Copy mag calibrated if needed */
     if(i >= mag_calib_len) {
       imu.mags[i].abi_id = ABI_DISABLE;
-      imu.mags[i].calibrated = false;
+      imu.mags[i].calibrated.neutral = false;
+      imu.mags[i].calibrated.scale = false;
+      imu.mags[i].calibrated.rotation = false;
+      imu.mags[i].calibrated.current = false;
+    } else {
+      imu.mags[i] = mag_calib[i];
+    }
+
+    // Set the default safe values if not calibrated
+    if(!imu.mags[i].calibrated.neutral) {
       INT_VECT3_ZERO(imu.mags[i].neutral);
+    }
+    if(!imu.mags[i].calibrated.scale) {
       VECT3_ASSIGN(imu.mags[i].scale[0], 1, 1, 1);
       VECT3_ASSIGN(imu.mags[i].scale[1], 1, 1, 1);
+    }
+    if(!imu.mags[i].calibrated.rotation) {
+      int32_rmat_identity(&imu.mags[i].body_to_sensor);
+    }
+    if(!imu.mags[i].calibrated.current) {
       INT_VECT3_ZERO(imu.mags[i].current_scale);
     }
-    else {
-      imu.mags[i] = mag_calib[i];
-      imu.mags[i].calibrated = true;
-    }
-    RMAT_COPY(imu.mags[i].body_to_sensor, *body_to_imu_rmat);
+    int32_rmat_comp(&body_to_sensor, body_to_imu_rmat, &imu.mags[i].body_to_sensor);
+    RMAT_COPY(imu.mags[i].body_to_sensor, body_to_sensor);
   }
 
   // Bind to raw measurements
@@ -330,15 +373,15 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL) {
+  if(imu_to_sensor != NULL && !gyro->calibrated.rotation) {
     struct Int32RMat body_to_sensor;
     struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(gyro->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL)
+  if(neutral != NULL && !gyro->calibrated.neutral)
     RATES_COPY(gyro->neutral, *neutral);
-  if(scale != NULL) {
+  if(scale != NULL && !gyro->calibrated.scale) {
     RATES_COPY(gyro->scale[0], scale[0]);
     RATES_COPY(gyro->scale[1], scale[1]);
   }
@@ -360,15 +403,15 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL) {
+  if(imu_to_sensor != NULL && !accel->calibrated.rotation) {
     struct Int32RMat body_to_sensor;
     struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(accel->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL)
+  if(neutral != NULL && !accel->calibrated.neutral)
     VECT3_COPY(accel->neutral, *neutral);
-  if(scale != NULL) {
+  if(scale != NULL && !accel->calibrated.scale) {
     VECT3_COPY(accel->scale[0], scale[0]);
     VECT3_COPY(accel->scale[1], scale[1]);
   }
@@ -390,15 +433,15 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
     return;
 
   // Copy the defaults
-  if(imu_to_sensor != NULL) {
+  if(imu_to_sensor != NULL && !mag->calibrated.rotation) {
     struct Int32RMat body_to_sensor;
     struct Int32RMat *body_to_imu = orientationGetRMat_i(&imu.body_to_imu);
     int32_rmat_comp(&body_to_sensor, body_to_imu, imu_to_sensor);
     RMAT_COPY(mag->body_to_sensor, body_to_sensor);
   }
-  if(neutral != NULL)
+  if(neutral != NULL && !mag->calibrated.neutral)
     VECT3_COPY(mag->neutral, *neutral);
-  if(scale != NULL) {
+  if(scale != NULL && !mag->calibrated.scale) {
     VECT3_COPY(mag->scale[0], scale[0]);
     VECT3_COPY(mag->scale[1], scale[1]);
   }
@@ -545,7 +588,7 @@ struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create) {
   // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_gyro_t *gyro = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.gyros[i].abi_id == sender_id || imu.gyros[i].abi_id == ABI_BROADCAST || (create && imu.gyros[i].abi_id == ABI_DISABLE)) {
+    if(imu.gyros[i].abi_id == sender_id || (create && (imu.gyros[i].abi_id == ABI_BROADCAST || imu.gyros[i].abi_id == ABI_DISABLE))) {
       gyro = &imu.gyros[i];
       gyro->abi_id = sender_id;
       break;
@@ -568,7 +611,7 @@ struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create) {
   // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_accel_t *accel = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.accels[i].abi_id == sender_id || imu.accels[i].abi_id == ABI_BROADCAST  || (create && imu.accels[i].abi_id == ABI_DISABLE)) {
+    if(imu.accels[i].abi_id == sender_id || (create && (imu.accels[i].abi_id == ABI_BROADCAST || imu.accels[i].abi_id == ABI_DISABLE))) {
       accel = &imu.accels[i];
       accel->abi_id = sender_id;
       break;
@@ -592,7 +635,7 @@ struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create) {
   // If abi_id was set to broadcast (assuming a single IMU case), the first request takes the index for himself
   struct imu_mag_t *mag = NULL;
   for(uint8_t i = 0; i < IMU_MAX_SENSORS; i++) {
-    if(imu.mags[i].abi_id == sender_id || imu.mags[i].abi_id == ABI_BROADCAST  || (create && imu.mags[i].abi_id == ABI_DISABLE)) {
+    if(imu.mags[i].abi_id == sender_id || (create && (imu.mags[i].abi_id == ABI_BROADCAST || imu.mags[i].abi_id == ABI_DISABLE))) {
       mag = &imu.mags[i];
       mag->abi_id = sender_id;
       break;
