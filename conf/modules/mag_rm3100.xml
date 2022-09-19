@@ -7,7 +7,7 @@
       I2C interface.
     </description>
     <configure name="MAG_RM3100_I2C_DEV" value="i2cX" description="I2C device to use"/>
-    <define name="MODULE_RM3100_RATE" value="60" description="Sensor polling rate (module frequency in Hz)"/>
+    <configure name="MODULE_RM3100_RATE" value="60" description="Sensor polling rate (module frequency in Hz)"/>
     <define name="MODULE_RM3100_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
     <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
     <define name="RM3100_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
@@ -45,7 +45,7 @@
     <configure name="MAG_RM3100_I2C_DEV" case="upper|lower"/>
     <define name="USE_$(MAG_RM3100_I2C_DEV_UPPER)"/>
     <define name="MAG_RM3100_I2C_DEV" value="$(MAG_RM3100_I2C_DEV_LOWER)"/>
-    <define name="MODULE_RM3100_RATE" value="60"/>
+    <define name="MODULE_RM3100_RATE"/>
     <test>
       <define name="MAG_RM3100_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
