@@ -7,6 +7,7 @@
       I2C interface.
     </description>
     <configure name="MAG_RM3100_I2C_DEV" value="i2cX" description="I2C device to use"/>
+    <define name="MODULE_RM3100_RATE" value="60" description="Sensor polling rate (module frequency in Hz)"/>
     <define name="MODULE_RM3100_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
     <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
     <define name="RM3100_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
@@ -30,7 +31,7 @@
     <file name="mag_rm3100.h"/>
   </header>
   <init fun="mag_rm3100_module_init()"/>
-  <periodic fun="mag_rm3100_module_periodic()" freq="60"/>
+  <periodic fun="mag_rm3100_module_periodic()" freq="MODULE_RM3100_RATE"/>
   <periodic fun="mag_rm3100_report()" freq="10" autorun="FALSE"/>
   <event fun="mag_rm3100_module_event()"/>
   <makefile target="ap">
