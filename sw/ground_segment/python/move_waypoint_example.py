@@ -41,7 +41,7 @@ class WaypointMover(object):
 if __name__ == '__main__':
     try:
         wm = WaypointMover()
-        # sleep shortly in oder to make sure Ivy is up, then message sent before shutting down again
+        # sleep shortly in order to make sure Ivy is up, then message sent before shutting down again
         sleep(0.1)
         wm.move_waypoint(ac_id=202, wp_id=3, lat=43.563, lon=1.481, alt=172.0)
         sleep(0.1)

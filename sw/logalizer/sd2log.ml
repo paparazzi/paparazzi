@@ -166,6 +166,11 @@ let convert_file = fun ?(output_dir=None) file ->
                      and week = PprzLink.int_assoc "week" vs in
                      let unix_time = Latlong.unix_time_of_tow ~week itow in
                      start_unix_time := Some (unix_time -. timestamp)
+        | "GPS_INT" when !start_unix_time = None
+              && ( PprzLink.int_assoc "fix" vs >= 3) ->
+                     let itow = PprzLink.int_assoc "tow" vs / 1000 in
+                     let unix_time = Latlong.unix_time_of_tow itow in
+                     start_unix_time := Some (unix_time -. timestamp)
         | "ALIVE" when !md5 = "" ->
             md5 := PprzLink.hex_of_int_array (PprzLink.assoc "md5sum" vs)
         | _ -> ()

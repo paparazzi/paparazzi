@@ -438,7 +438,7 @@ let send_aircraft_msg = fun ac ->
                              "lat", deg7_of_rad a.pos.posn_lat;
                              "lon", deg7_of_rad a.pos.posn_long;
                              "course", PprzLink.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
-                             "alt", cm_of_m_32 a.alt;
+                             "alt", cm_of_m_32 (a.alt -. a.d_hmsl); (* alt over ellipsoid *)
                              "speed", cm_of_m a.gspeed;
                              "climb", cm_of_m a.climb;
                              "itow", PprzLink.Int64 a.itow] in
