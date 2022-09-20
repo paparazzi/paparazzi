@@ -311,7 +311,7 @@ object
     let v = if value < 0.1 then "UNK" else (string_of_float value) in
     match nb_cell_bat with
     | None -> bat#set value [0.5, v]
-    | Some nb -> bat#set value [0.3, v; 0.7, sprintf "%.1f /c" (value /. nb)]
+    | Some nb -> bat#set value [0.3, v; 0.7, sprintf "%.2f /c" (value /. nb)]
   method set_throttle ?(kill=false) value =
     let background = if kill then "red" else "orange" in
     throttle#set ~background value (sprintf "%.0f%%" value)
