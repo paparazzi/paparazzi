@@ -27,6 +27,9 @@
 #ifndef GPS_H
 #define GPS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
@@ -208,6 +211,70 @@ extern struct GpsTimeSync gps_time_sync;
 extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);
 
 /**
+ * Get GPS lla (float)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return lla position in float (rad), altitude ellipsoid (m)
+ */
+extern struct LlaCoor_f lla_float_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS lla (integer)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return lla position (lat,lon: deg*1e7; alt: mm over ellipsoid)
+ */
+extern struct LlaCoor_i lla_int_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ecef pos (float)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ecef position in float (m)
+ */
+extern struct EcefCoor_f ecef_float_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ecef pos (integer)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ecef position in cm
+ */
+extern struct EcefCoor_i ecef_int_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ecef velocity (float)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ecef velocity in float (m/s)
+ */
+extern struct EcefCoor_f ecef_vel_float_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ecef velocity (integer)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ecef velocity in cm/s
+ */
+extern struct EcefCoor_i ecef_vel_int_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ned velocity (float)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ned velocity in float (m/s)
+ */
+extern struct NedCoor_f ned_vel_float_from_gps(struct GpsState *gps_s);
+
+/**
+ * Get GPS ned velocity (integer)
+ * Converted on the fly if not available
+ * @param[in] gps_s pointer to the gps structure
+ * @return ned velocity in cm/s
+ */
+extern struct NedCoor_i ned_vel_int_from_gps(struct GpsState *gps_s);
+
+/**
  * Convenience function to get utm position in float from GPS structure.
  * Beware that altitude is initialized to zero but not set to the correct value
  * @param[in] gps_s pointer to the gps structure
@@ -242,5 +309,9 @@ extern uint16_t gps_day_number(uint16_t year, uint8_t month, uint8_t day);
  * @return number of weeks since navigation epoch
  */
 extern uint16_t gps_week_number(uint16_t year, uint8_t month, uint8_t day);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GPS_H */

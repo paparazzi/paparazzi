@@ -142,32 +142,37 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
 #define HIGH_RES_TRIG_FRAC  20
 
 #define VECT3_ENU_OF_NED(_o, _i) {    \
-    (_o).x = (_i).y;                    \
-    (_o).y = (_i).x;                    \
-    (_o).z = -(_i).z;                   \
+    (_o).x = (_i).y;                  \
+    (_o).y = (_i).x;                  \
+    (_o).z = -(_i).z;                 \
   }
 
 #define VECT3_NED_OF_ENU(_o, _i) VECT3_ENU_OF_NED(_o,_i)
 #define INT32_VECT3_NED_OF_ENU(_o, _i) VECT3_ENU_OF_NED(_o,_i)
 #define INT32_VECT3_ENU_OF_NED(_o, _i) VECT3_ENU_OF_NED(_o,_i)
 
-#define ECEF_BFP_OF_REAL(_o, _i) {          \
+#define VECT3_CM_OF_REAL(_o, _i) {          \
     (_o).x = (int32_t)CM_OF_M((_i).x);      \
     (_o).y = (int32_t)CM_OF_M((_i).y);      \
     (_o).z = (int32_t)CM_OF_M((_i).z);      \
   }
 
-#define ECEF_FLOAT_OF_BFP(_o, _i) {           \
-    (_o).x = M_OF_CM((float)(_i).x);          \
-    (_o).y = M_OF_CM((float)(_i).y);          \
-    (_o).z = M_OF_CM((float)(_i).z);          \
+#define VECT3_FLOAT_OF_CM(_o, _i) {         \
+    (_o).x = M_OF_CM((float)(_i).x);        \
+    (_o).y = M_OF_CM((float)(_i).y);        \
+    (_o).z = M_OF_CM((float)(_i).z);        \
   }
 
-#define ECEF_DOUBLE_OF_BFP(_o, _i) {          \
-    (_o).x = M_OF_CM((double)(_i).x);         \
-    (_o).y = M_OF_CM((double)(_i).y);         \
-    (_o).z = M_OF_CM((double)(_i).z);         \
+#define VECT3_DOUBLE_OF_CM(_o, _i) {        \
+    (_o).x = M_OF_CM((double)(_i).x);       \
+    (_o).y = M_OF_CM((double)(_i).y);       \
+    (_o).z = M_OF_CM((double)(_i).z);       \
   }
+
+#define ECEF_BFP_OF_REAL(_o, _i) VECT3_CM_OF_REAL(_o, _i)
+#define ECEF_FLOAT_OF_BFP(_o, _i) VECT3_FLOAT_OF_CM(_o, _i)
+#define ECEF_DOUBLE_OF_BFP(_o, _i) VECT3_DOUBLE_OF_CM(_o, _i)
+
 #define LLA_BFP_OF_REAL(_o, _i) {                \
     (_o).lat = (int32_t)EM7DEG_OF_RAD((_i).lat); \
     (_o).lon = (int32_t)EM7DEG_OF_RAD((_i).lon); \

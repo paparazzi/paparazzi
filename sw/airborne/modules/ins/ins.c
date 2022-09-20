@@ -64,6 +64,8 @@ void WEAK ins_reset_local_origin(void)
 
 void WEAK ins_reset_altitude_ref(void) {}
 
+void WEAK ins_reset_vertical_pos(void) {}
+
 #if USE_GPS
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 {
