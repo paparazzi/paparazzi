@@ -527,10 +527,12 @@ let () =
     begin
       ignore (Glib.Timeout.add !status_msg_period (fun () -> send_status_msg (); true));
       ignore (Glib.Timeout.add (!status_msg_period / 3) (fun () -> update_ms_since_last_msg (); true));
-      let start_ping = fun () ->
-        ignore (Glib.Timeout.add !ping_msg_period (fun () -> send_ping_msg device; true));
-        false in
-      ignore (Glib.Timeout.add status_ping_diff start_ping);
+      if !uplink then begin
+        let start_ping = fun () ->
+          ignore (Glib.Timeout.add !ping_msg_period (fun () -> send_ping_msg device; true));
+          false in
+        ignore (Glib.Timeout.add status_ping_diff start_ping);
+      end;
       match transport with
         | XBee ->
             XB.init device
