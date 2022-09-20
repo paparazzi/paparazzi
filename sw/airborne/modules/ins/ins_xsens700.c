@@ -96,11 +96,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   // set position
   stateSetPositionUtm_f(&utm);
 
-  struct NedCoor_f ned_vel = {
-    gps_s->ned_vel.x / 100.,
-    gps_s->ned_vel.y / 100.,
-    gps_s->ned_vel.z / 100.
-  };
+  struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
 }

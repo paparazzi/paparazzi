@@ -50,6 +50,9 @@
     <define name="USE_AHRS_ALIGNER"/>
     <define name="INS_TYPE_H" value="modules/ins/ins_float_invariant_wrapper.h" type="string"/>
     <test firmware="rotorcraft"/>
+    <test firmware="fixedwing">
+      <define name="FIXEDWING_FIRMWARE"/>
+    </test>
   </makefile>
   <makefile target="sim">
     <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>

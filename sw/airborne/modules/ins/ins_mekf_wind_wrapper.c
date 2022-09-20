@@ -39,8 +39,7 @@
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
 
-#define MEKF_WIND_USE_UTM TRUE
-#if MEKF_WIND_USE_UTM
+#if FIXEDWING_FIRMWARE
 #include "firmwares/fixedwing/nav.h"
 #endif
 
@@ -441,24 +440,22 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 {
 	if (ins_mekf_wind.is_aligned && gps_s->fix >= GPS_FIX_3D) {
 
-#if MEKF_WIND_USE_UTM
+#if FIXEDWING_FIRMWARE
 		if (state.utm_initialized_f) {
 			struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
-      struct FloatVect3 pos, speed;
+      struct NedCoor_f pos, speed;
 			// position (local ned)
 			pos.x = utm.north - state.utm_origin_f.north;
 			pos.y = utm.east - state.utm_origin_f.east;
 			pos.z = state.utm_origin_f.alt - utm.alt;
 			// speed
-			speed.x = gps_s->ned_vel.x / 100.0f;
-			speed.y = gps_s->ned_vel.y / 100.0f;
-			speed.z = gps_s->ned_vel.z / 100.0f;
+			speed = ned_vel_float_from_gps(gps_s);
       if (!ins_mekf_wind.gps_initialized) {
-        ins_mekf_wind_set_pos_ned((struct NedCoor_f*)(&pos));
-        ins_mekf_wind_set_speed_ned((struct NedCoor_f*)(&speed));
+        ins_mekf_wind_set_pos_ned(&pos);
+        ins_mekf_wind_set_speed_ned(&speed);
         ins_mekf_wind.gps_initialized = true;
       }
-      ins_mekf_wind_update_pos_speed(&pos, &speed);
+      ins_mekf_wind_update_pos_speed((struct FloatVect3*)(&pos), (struct FloatVect3*)(&speed));
 
 #if LOG_MEKFW_FILTER
       if (LogFileIsOpen()) {
@@ -472,15 +469,15 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 #else
 		if (state.ned_initialized_f) {
-      struct FloatVect3 pos, speed;
+      struct NedCoor_f pos, speed;
 			struct NedCoor_i gps_pos_cm_ned, ned_pos;
-			ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &gps_s->ecef_pos);
+      struct EcefCoor_i ecef_pos_i = ecef_int_from_gps(gps_s);
+			ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &ecef_pos_i);
 			INT32_VECT3_SCALE_2(ned_pos, gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 			NED_FLOAT_OF_BFP(pos, ned_pos);
-			struct EcefCoor_f ecef_vel;
-			ECEF_FLOAT_OF_BFP(ecef_vel, gps_s->ecef_vel);
+      struct EcefCoor_f ecef_vel = ecef_vel_float_from_gps(gps_s);
 			ned_of_ecef_vect_f(&speed, &state.ned_origin_f, &ecef_vel);
-      ins_mekf_wind_update_pos_speed(&pos, &speed);
+      ins_mekf_wind_update_pos_speed((struct FloatVect3*)(&pos), (struct FloatVect3*)(&speed));
 
 #if LOG_MEKFW_FILTER
       if (LogFileIsOpen()) {
@@ -522,7 +519,7 @@ static void set_state_from_ins(void)
 void ins_mekf_wind_wrapper_init(void)
 {
   // init position
-#if MEKF_WIND_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm0;
   utm0.north = (float)nav_utm_north0;
   utm0.east = (float)nav_utm_east0;
@@ -606,13 +603,16 @@ void ins_mekf_wind_wrapper_init(void)
 
 void ins_reset_local_origin(void)
 {
-#if MEKF_WIND_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 #else
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+  struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
   struct LtpDef_i ltp_def;
-  ltp_def_from_ecef_i(&ltp_def, &gps.ecef_pos);
+  ltp_def_from_ecef_i(&ltp_def, &ecef_pos);
+  ltp_def.lla.alt = lla_pos.alt;
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
@@ -622,7 +622,7 @@ void ins_reset_local_origin(void)
 
 void ins_reset_altitude_ref(void)
 {
-#if MEKF_WIND_USE_UTM
+#if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = state.utm_origin_f;
   utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);

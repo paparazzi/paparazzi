@@ -82,6 +82,12 @@
     <define name="USE_AHRS_ALIGNER"/>
     <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
     <test firmware="fixedwing">
+      <define name="FIXEDWING_FIRMWARE"/>
+      <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
+      <include name="../ext/eigen"/>
+    </test>
+    <test firmware="rotorcraft">
+      <define name="ROTORCRAFT_FIRMWARE"/>
       <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
       <include name="../ext/eigen"/>
     </test>

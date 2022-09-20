@@ -89,13 +89,15 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
   /* simply scale and copy pos/speed from gps */
   struct NedCoor_i gps_pos_cm_ned;
-  ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_gp.ltp_def, &gps_s->ecef_pos);
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(gps_s);
+  ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_gp.ltp_def, &ecef_pos);
   INT32_VECT3_SCALE_2(ins_gp.ltp_pos, gps_pos_cm_ned,
                       INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
   stateSetPositionNed_i(&ins_gp.ltp_pos);
 
   struct NedCoor_i gps_speed_cm_s_ned;
-  ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_gp.ltp_def, &gps_s->ecef_vel);
+  struct EcefCoor_i ecef_vel = ecef_vel_int_from_gps(gps_s);
+  ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_gp.ltp_def, &ecef_vel);
   INT32_VECT3_SCALE_2(ins_gp.ltp_speed, gps_speed_cm_s_ned,
                       INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
   stateSetSpeedNed_i(&ins_gp.ltp_speed);
@@ -171,8 +173,10 @@ void ins_gps_passthrough_init(void)
 
 void ins_reset_local_origin(void)
 {
-  ltp_def_from_ecef_i(&ins_gp.ltp_def, &gps.ecef_pos);
-  ins_gp.ltp_def.lla.alt = gps.lla_pos.alt;
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+  struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+  ltp_def_from_ecef_i(&ins_gp.ltp_def, &ecef_pos);
+  ins_gp.ltp_def.lla.alt = lla_pos.alt;
   ins_gp.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_gp.ltp_def);
   ins_gp.ltp_initialized = true;

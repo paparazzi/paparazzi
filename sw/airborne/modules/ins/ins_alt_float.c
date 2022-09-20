@@ -210,6 +210,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
   }
 
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
+  struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
 
 #if !USE_BAROMETER
 #ifdef GPS_DT
@@ -234,18 +235,15 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
     alt_kalman_reset();
   } else {
     alt_kalman(utm.alt, dt);
-    ins_altf.alt_dot = -gps_s->ned_vel.z / 100.0f;
+    ins_altf.alt_dot = -ned_vel.z;
   }
-#endif
+#endif // !USE_BAROMETER
+
   utm.alt = ins_altf.alt;
   // set position
   stateSetPositionUtm_f(&utm);
 
-  struct NedCoor_f ned_vel = {
-    gps_s->ned_vel.x / 100.0f,
-    gps_s->ned_vel.y / 100.0f,
-    -ins_altf.alt_dot
-  };
+  ned_vel.z = -ins_altf.alt_dot; // vz (down) from filter
   // set velocity
   stateSetSpeedNed_f(&ned_vel);
 

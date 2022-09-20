@@ -50,6 +50,12 @@ extern void ins_reset_local_origin(void);
  */
 extern void ins_reset_altitude_ref(void);
 
+/** INS vertical position reset.
+ *  Reset only vertical position to zero.
+ *  Does nothing if not implemented by specific INS algorithm.
+ */
+extern void ins_reset_vertical_pos(void);
+
 /** INS utm zone reset.
  *  Reset UTM zone according the the actual position.
  *  Only used with fixedwing firmware.

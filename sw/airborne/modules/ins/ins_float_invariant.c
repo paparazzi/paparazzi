@@ -286,8 +286,11 @@ void ins_reset_local_origin(void)
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
 #else
+  struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+  struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
   struct LtpDef_i ltp_def;
-  ltp_def_from_ecef_i(&ltp_def, &gps.ecef_pos);
+  ltp_def_from_ecef_i(&ltp_def, &ecef_pos);
+  ltp_def.lla.alt = lla_pos.alt;
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ltp_def);
 #endif
@@ -453,18 +456,18 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
       ins_float_inv.meas.pos_gps.y = utm.east - state.utm_origin_f.east;
       ins_float_inv.meas.pos_gps.z = state.utm_origin_f.alt - utm.alt;
       // speed
-      ins_float_inv.meas.speed_gps.x = gps_s->ned_vel.x / 100.0f;
-      ins_float_inv.meas.speed_gps.y = gps_s->ned_vel.y / 100.0f;
-      ins_float_inv.meas.speed_gps.z = gps_s->ned_vel.z / 100.0f;
+      ins_float_inv.meas.speed_gps = ned_vel_float_from_gps(gps_s);
     }
 #else
     if (state.ned_initialized_f) {
+      // position
       struct NedCoor_i gps_pos_cm_ned, ned_pos;
-      ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &gps_s->ecef_pos);
+      struct EcefCoor_i ecef_pos_i = ecef_int_from_gps(gps_s);
+      ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &ecef_pos_i);
       INT32_VECT3_SCALE_2(ned_pos, gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
       NED_FLOAT_OF_BFP(ins_float_inv.meas.pos_gps, ned_pos);
-      struct EcefCoor_f ecef_vel;
-      ECEF_FLOAT_OF_BFP(ecef_vel, gps_s->ecef_vel);
+      // speed
+      struct EcefCoor_f ecef_vel = ecef_vel_float_from_gps(gps_s);
       ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
     }
 #endif

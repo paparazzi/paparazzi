@@ -250,8 +250,10 @@ void ins_reset_local_origin(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
-    ltp_def_from_ecef_i(&ins_int.ltp_def, &gps.ecef_pos);
-    ins_int.ltp_def.lla.alt = gps.lla_pos.alt;
+    struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    ltp_def_from_ecef_i(&ins_int.ltp_def, &ecef_pos);
+    ins_int.ltp_def.lla.alt = lla_pos.alt;
     ins_int.ltp_def.hmsl = gps.hmsl;
     ins_int.ltp_initialized = true;
     stateSetLocalOrigin_i(&ins_int.ltp_def);
@@ -272,16 +274,22 @@ void ins_reset_altitude_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
     struct LlaCoor_i lla = {
       .lat = state.ned_origin_i.lla.lat,
       .lon = state.ned_origin_i.lla.lon,
-      .alt = gps.lla_pos.alt
+      .alt = lla_pos.alt
     };
     ltp_def_from_lla_i(&ins_int.ltp_def, &lla);
     ins_int.ltp_def.hmsl = gps.hmsl;
     stateSetLocalOrigin_i(&ins_int.ltp_def);
   }
 #endif
+  ins_int.vf_reset = true;
+}
+
+void ins_reset_vertical_pos(void)
+{
   ins_int.vf_reset = true;
 }
 
@@ -396,7 +404,8 @@ void ins_int_update_gps(struct GpsState *gps_s)
   }
 
   struct NedCoor_i gps_pos_cm_ned;
-  ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &gps_s->ecef_pos);
+  struct EcefCoor_i ecef_pos_i = ecef_int_from_gps(gps_s);
+  ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_int.ltp_def, &ecef_pos_i);
 
   /* calculate body frame position taking BODY_TO_GPS translation (in cm) into account */
 #ifdef INS_BODY_TO_GPS_X
@@ -417,7 +426,8 @@ void ins_int_update_gps(struct GpsState *gps_s)
 
   /// @todo maybe use gps_s->ned_vel directly??
   struct NedCoor_i gps_speed_cm_s_ned;
-  ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps_s->ecef_vel);
+  struct EcefCoor_i ecef_vel_i = ecef_vel_int_from_gps(gps_s);
+  ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &ecef_vel_i);
 
 #if INS_USE_GPS_ALT
   vff_update_z_conf(((float)gps_pos_cm_ned.z) / 100.0, INS_VFF_R_GPS);

@@ -26,7 +26,7 @@
     <file name="ins.c"/>
     <file name="ins_gps_passthrough_utm.c"/>
   </makefile>
-  <makefile target="ap" firmware="rover">
+  <makefile target="ap|nps" firmware="rover">
     <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
     <file name="ins.c"/>
     <file name="ins_gps_passthrough.c"/>

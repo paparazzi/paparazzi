@@ -854,8 +854,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 {
   gps_message gps_msg = {};
   gps_msg.time_usec = stamp;
-  gps_msg.lat = gps_s->lla_pos.lat;
-  gps_msg.lon = gps_s->lla_pos.lon;
+  struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);
+  gps_msg.lat = lla_pos.lat;
+  gps_msg.lon = lla_pos.lon;
   gps_msg.alt = gps_s->hmsl;
 #if INS_EKF2_GPS_COURSE_YAW
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
@@ -869,9 +870,10 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.epv = gps_s->vacc / 100.0;
   gps_msg.sacc = gps_s->sacc / 100.0;
   gps_msg.vel_m_s = gps_s->gspeed / 100.0;
-  gps_msg.vel_ned(0) = (gps_s->ned_vel.x) / 100.0;
-  gps_msg.vel_ned(1) = (gps_s->ned_vel.y) / 100.0;
-  gps_msg.vel_ned(2) = (gps_s->ned_vel.z) / 100.0;
+  struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
+  gps_msg.vel_ned(0) = ned_vel.x;
+  gps_msg.vel_ned(1) = ned_vel.y;
+  gps_msg.vel_ned(2) = ned_vel.z;
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
   gps_msg.pdop = gps_s->pdop;
