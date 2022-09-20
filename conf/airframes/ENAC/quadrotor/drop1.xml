@@ -58,9 +58,10 @@
       <configure name="JEVOIS_UART" value="UART3"/>
       <define name="JEVOIS_SEND_VISUAL_DETECTION"/>
     </module>
-    <module name="cv" type="target_localization">
+    <!--module name="cv" type="target_localization">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="20"/>
-    </module>
+    </module-->
+    <module name="tag_tracking"/>
 
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
@@ -141,23 +142,9 @@
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
-  <!-- Magnetic Field Calculator
-      http://www.ngdc.noaa.gov/geomag-web/#igrfwmm
-      http://www.wolframalpha.com
-
-      Enac : Lat 43.564080°N, Lon 1.481289°E
-      Normalize[{23759.6, 138.7, 39666.4}]
-      Result(0.51385, 0.00299, 0.85787)
-
-      Madrid : 40.1579607° N, 3.3813882° W
-      Normalize[{25795.7, -123.5, 36600.6}]
-      Result(0.576084, -0.00275807, 0.817385)
-  -->
+  <include href="conf/mag/toulouse_muret.xml"/>
 
   <section name="INS" prefix="INS_">
-    <define name="H_X" value="0.576084"/>
-    <define name="H_Y" value="-0.00275807"/>
-    <define name="H_Z" value="0.817385"/>
     <define name="INV_NXZ" value="0.25"/>
     <define name="INV_NH" value="2.0"/>
     <define name="INV_MVZ" value="8."/>
@@ -279,7 +266,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="front_motor, right_motor, back_motor, left_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
+    <define name="JSBSIM_MODEL" value="simple_quad_wind" type="string"/>
   </section>
 
 </airframe>

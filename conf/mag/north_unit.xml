@@ -1,0 +1,14 @@
+<!DOCTYPE airframe SYSTEM "../airframes/airframe.dtd">
+
+<airframe>
+  <description>
+    North unit model
+    For fake mag with indoor motion tracking
+  </description>
+  <section name="MAG_MODEL" prefix="INS_">
+    <define name="H_X" value="1."/>
+    <define name="H_Y" value="0."/>
+    <define name="H_Z" value="0."/>
+  </section>
+</airframe>
+
