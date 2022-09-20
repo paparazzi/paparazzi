@@ -46,45 +46,45 @@ struct imu_calib_t {
 
 struct imu_gyro_t {
   uint8_t abi_id;                     ///< ABI sensor ID
-  uint32_t last_stamp;                ///< Last measurement timestamp
+  uint32_t last_stamp;                ///< Last measurement timestamp for integration
   struct imu_calib_t calibrated;      ///< Calibration bitmask
   struct Int32Rates scaled;           ///< Last scaled values in body frame
   struct Int32Rates unscaled;         ///< Last unscaled values in sensor frame
   struct Int32Rates neutral;          ///< Neutral values, compensation on unscaled->scaled
   struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
-  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
 };
 
 struct imu_accel_t {
-  uint8_t abi_id;
-  uint32_t last_stamp;
+  uint8_t abi_id;                     ///< ABI sensor ID
+  uint32_t last_stamp;                ///< Last measurement timestamp for integration
   struct imu_calib_t calibrated;      ///< Calibration bitmask
-  struct Int32Vect3 scaled;
-  struct Int32Vect3 unscaled;
-  struct Int32Vect3 neutral;
-  struct Int32Vect3 scale[2];
-  struct Int32RMat body_to_sensor;   ///< Rotation from body to sensor frame
+  struct Int32Vect3 scaled;           ///< Last scaled values in body frame
+  struct Int32Vect3 unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Vect3 neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
 };
 
 struct imu_mag_t {
-  uint8_t abi_id;
+  uint8_t abi_id;                     ///< ABI sensor ID
   struct imu_calib_t calibrated;      ///< Calibration bitmask
-  struct Int32Vect3 scaled;
-  struct Int32Vect3 unscaled;
-  struct Int32Vect3 neutral;
-  struct Int32Vect3 scale[2];
-  struct FloatVect3 current_scale;
-  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame
+  struct Int32Vect3 scaled;           ///< Last scaled values in body frame
+  struct Int32Vect3 unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Vect3 neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
+  struct FloatVect3 current_scale;    ///< Current scaling multiplying
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
 };
 
 
 /** abstract IMU interface providing fixed point interface  */
 struct Imu {
-  bool initialized;
-  struct imu_gyro_t gyros[IMU_MAX_SENSORS];
-  struct imu_accel_t accels[IMU_MAX_SENSORS];
-  struct imu_mag_t mags[IMU_MAX_SENSORS];
-  struct OrientationReps body_to_imu; ///< rotation from body to imu frame
+  bool initialized;                           ///< Check if the IMU is initialized
+  struct imu_gyro_t gyros[IMU_MAX_SENSORS];   ///< The gyro sensors
+  struct imu_accel_t accels[IMU_MAX_SENSORS]; ///< The accelerometer sensors
+  struct imu_mag_t mags[IMU_MAX_SENSORS];     ///< The magnetometer sensors
+  struct OrientationReps body_to_imu;         ///< Rotation from body to imu (all sensors) frame
 
   /** flag for adjusting body_to_imu via settings.
    * if FALSE, reset to airframe values, if TRUE set current roll/pitch

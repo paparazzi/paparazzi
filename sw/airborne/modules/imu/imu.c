@@ -470,25 +470,39 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
   if(gyro->last_stamp > 0 && stamp > gyro->last_stamp) {
     struct FloatRates integrated;
-    uint16_t delta_dt = stamp - gyro->last_stamp;
+    uint16_t dt = stamp - gyro->last_stamp;
 
     // Trapezoidal integration (TODO: coning correction)
     integrated.p = RATE_FLOAT_OF_BFP(gyro->scaled.p + scaled_rot.p) * 0.5f;
     integrated.q = RATE_FLOAT_OF_BFP(gyro->scaled.q + scaled_rot.q) * 0.5f;
     integrated.r = RATE_FLOAT_OF_BFP(gyro->scaled.r + scaled_rot.r) * 0.5f;
 
-    for(uint8_t i = 0; i < samples-1; i++) {
-      integrated.p += data[i].p;
-      integrated.q += data[i].q;
-      integrated.r += data[i].r;
+    // Only perform multiple integrations in sensor frame if needed
+    if(samples > 1) {
+      struct FloatRates integrated_sensor;
+      struct FloatRMat body_to_sensor;
+      // Rotate back to sensor frame
+      RMAT_FLOAT_OF_BFP(body_to_sensor, gyro->body_to_sensor);
+      float_rmat_ratemult(&integrated_sensor, &body_to_sensor, &integrated);
+
+      // Add all the other samples
+      for(uint8_t i = 0; i < samples-1; i++) {
+        integrated_sensor.p += RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale[0].p / gyro->scale[1].p);
+        integrated_sensor.q += RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale[0].q / gyro->scale[1].q);
+        integrated_sensor.r += RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r);
+      }
+
+      // Rotate to body frame
+      float_rmat_transp_ratemult(&integrated, &body_to_sensor, &integrated_sensor);
     }
 
-    integrated.p = integrated.p / samples * ((float)delta_dt * 1e-6f);
-    integrated.q = integrated.q / samples * ((float)delta_dt * 1e-6f);
-    integrated.r = integrated.r / samples * ((float)delta_dt * 1e-6f);
+    // Divide by the amount of samples and multiply by the delta time
+    integrated.p = integrated.p / samples * ((float)dt * 1e-6f);
+    integrated.q = integrated.q / samples * ((float)dt * 1e-6f);
+    integrated.r = integrated.r / samples * ((float)dt * 1e-6f);
 
     // Send the integrated values
-    AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, delta_dt);
+    AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, dt);
   }
 #endif
 
@@ -521,25 +535,39 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
   if(accel->last_stamp > 0 && stamp > accel->last_stamp) {
     struct FloatVect3 integrated;
-    uint16_t delta_dt = stamp - accel->last_stamp;
+    uint16_t dt = stamp - accel->last_stamp;
 
     // Trapezoidal integration
-    integrated.x = RATE_FLOAT_OF_BFP(accel->scaled.x + scaled_rot.x) * 0.5f;
-    integrated.y = RATE_FLOAT_OF_BFP(accel->scaled.y + scaled_rot.y) * 0.5f;
-    integrated.z = RATE_FLOAT_OF_BFP(accel->scaled.z + scaled_rot.z) * 0.5f;
+    integrated.x = ACCEL_FLOAT_OF_BFP(accel->scaled.x + scaled_rot.x) * 0.5f;
+    integrated.y = ACCEL_FLOAT_OF_BFP(accel->scaled.y + scaled_rot.y) * 0.5f;
+    integrated.z = ACCEL_FLOAT_OF_BFP(accel->scaled.z + scaled_rot.z) * 0.5f;
 
-    for(uint8_t i = 0; i < samples-1; i++) {
-      integrated.x += data[i].x;
-      integrated.y += data[i].y;
-      integrated.z += data[i].z;
+    // Only perform multiple integrations in sensor frame if needed
+    if(samples > 1) {
+      struct FloatVect3 integrated_sensor;
+      struct FloatRMat body_to_sensor;
+      // Rotate back to sensor frame
+      RMAT_FLOAT_OF_BFP(body_to_sensor, accel->body_to_sensor);
+      float_rmat_vmult(&integrated_sensor, &body_to_sensor, &integrated);
+
+      // Add all the other samples
+      for(uint8_t i = 0; i < samples-1; i++) {
+        integrated_sensor.x += ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x);
+        integrated_sensor.y += ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale[0].y / accel->scale[1].y);
+        integrated_sensor.z += ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z);
+      }
+
+      // Rotate to body frame
+      float_rmat_transp_vmult(&integrated, &body_to_sensor, &integrated_sensor);
     }
 
-    integrated.x = integrated.x / samples * ((float)delta_dt * 1e-6f);
-    integrated.y = integrated.y / samples * ((float)delta_dt * 1e-6f);
-    integrated.z = integrated.z / samples * ((float)delta_dt * 1e-6f);
+    // Divide by the amount of samples and multiply by the delta time
+    integrated.x = integrated.x / samples * ((float)dt * 1e-6f);
+    integrated.y = integrated.y / samples * ((float)dt * 1e-6f);
+    integrated.z = integrated.z / samples * ((float)dt * 1e-6f);
 
     // Send the integrated values
-    AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, delta_dt);
+    AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, dt);
   }
 #endif
 

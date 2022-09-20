@@ -231,13 +231,13 @@
     <message name="IMU_GYRO_INT" id="34">
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="delta_gyro" type="struct FloatRates *"/>
-      <field name="delta_dt" type="uint16_t" unit="us"/>
+      <field name="dt" type="uint16_t" unit="us"/>
     </message>
 
     <message name="IMU_ACCEL_INT" id="35">
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="delta_accel" type="struct FloatVect3 *"/>
-      <field name="delta_dt" type="uint16_t" unit="us"/>
+      <field name="dt" type="uint16_t" unit="us"/>
     </message>
 
   </msg_class>

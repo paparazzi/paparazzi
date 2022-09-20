@@ -25,10 +25,15 @@
 #include "generated/airframe.h"
 #include "modules/imu/imu.h"
 
-
+#if !defined(IMU_BODY_TO_IMU_PHI) && !defined(IMU_BODY_TO_IMU_THETA) && !defined(IMU_BODY_TO_IMU_PSI)
+#define NPS_BODY_TO_IMU_PHI   0
+#define NPS_BODY_TO_IMU_THETA 0
+#define NPS_BODY_TO_IMU_PSI   0
+#else
 #define NPS_BODY_TO_IMU_PHI    IMU_BODY_TO_IMU_PHI
 #define NPS_BODY_TO_IMU_THETA  IMU_BODY_TO_IMU_THETA
 #define NPS_BODY_TO_IMU_PSI    IMU_BODY_TO_IMU_PSI
+#endif
 
 // try to determine propagate frequency
 #if defined AHRS_PROPAGATE_FREQUENCY

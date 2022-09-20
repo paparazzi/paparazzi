@@ -280,8 +280,8 @@ PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 static abi_event baro_ev;
 static abi_event temperature_ev;
 static abi_event agl_ev;
-static abi_event gyro_ev;
-static abi_event accel_ev;
+static abi_event gyro_int_ev;
+static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event optical_flow_ev;
@@ -290,8 +290,8 @@ static abi_event optical_flow_ev;
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
 static void temperature_cb(uint8_t sender_id, float temp);
 static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
-static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro);
-static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
+static void gyro_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatRates *delta_gyro, uint16_t dt);
+static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x,
@@ -509,8 +509,6 @@ void ins_ekf2_init(void)
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;
-  ekf2.accel_stamp = 0;
-  ekf2.gyro_stamp = 0;
   ekf2.flow_stamp = 0;
   ekf2.gyro_valid = false;
   ekf2.accel_valid = false;
@@ -563,8 +561,8 @@ void ins_ekf2_init(void)
   AbiBindMsgBARO_ABS(INS_EKF2_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgTEMPERATURE(INS_EKF2_TEMPERATURE_ID, &temperature_ev, temperature_cb);
   AbiBindMsgAGL(INS_EKF2_AGL_ID, &agl_ev, agl_cb);
-  AbiBindMsgIMU_GYRO(INS_EKF2_GYRO_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL(INS_EKF2_ACCEL_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_GYRO_INT(INS_EKF2_GYRO_ID, &gyro_int_ev, gyro_int_cb);
+  AbiBindMsgIMU_ACCEL_INT(INS_EKF2_ACCEL_ID, &accel_int_ev, accel_int_cb);
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
@@ -697,9 +695,9 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
   imuSample imu_sample = {};
   imu_sample.time_us = stamp;
   imu_sample.delta_ang_dt = ekf2.gyro_dt * 1.e-6f;
-  imu_sample.delta_ang = Vector3f{ekf2.gyro.p, ekf2.gyro.q, ekf2.gyro.r} * imu_sample.delta_ang_dt;
+  imu_sample.delta_ang = Vector3f{ekf2.delta_gyro.p, ekf2.delta_gyro.q, ekf2.delta_gyro.r};
   imu_sample.delta_vel_dt = ekf2.accel_dt * 1.e-6f;
-  imu_sample.delta_vel = Vector3f{ekf2.accel.x, ekf2.accel.y, ekf2.accel.z} * imu_sample.delta_vel_dt;
+  imu_sample.delta_vel = Vector3f{ekf2.delta_accel.x, ekf2.delta_accel.y, ekf2.delta_accel.z};
   ekf.setIMUData(imu_sample);
 
   if (ekf.attitude_valid()) {
@@ -740,9 +738,9 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     /* Get in-run gyro bias */
     struct FloatRates body_rates;
     Vector3f gyro_bias{ekf.getGyroBias()};
-    body_rates.p = ekf2.gyro.p - gyro_bias(0);
-    body_rates.q = ekf2.gyro.q - gyro_bias(1);
-    body_rates.r = ekf2.gyro.r - gyro_bias(2);
+    body_rates.p = (ekf2.delta_gyro.p / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(0);
+    body_rates.q = (ekf2.delta_gyro.q / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(1);
+    body_rates.r = (ekf2.delta_gyro.r / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(2);
 
     // Publish it to the state
     stateSetBodyRates_f(&body_rates);
@@ -750,9 +748,9 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     /* Get the in-run acceleration bias */
     struct Int32Vect3 accel;
     Vector3f accel_bias{ekf.getAccelBias()};
-    accel.x = ACCEL_BFP_OF_REAL(ekf2.accel.x - accel_bias(0));
-    accel.y = ACCEL_BFP_OF_REAL(ekf2.accel.y - accel_bias(1));
-    accel.z = ACCEL_BFP_OF_REAL(ekf2.accel.z - accel_bias(2));
+    accel.x = ACCEL_BFP_OF_REAL((ekf2.delta_accel.x / (ekf2.accel_dt * 1e-6f)) - accel_bias(0));
+    accel.y = ACCEL_BFP_OF_REAL((ekf2.delta_accel.y / (ekf2.accel_dt * 1e-6f)) - accel_bias(1));
+    accel.z = ACCEL_BFP_OF_REAL((ekf2.delta_accel.z / (ekf2.accel_dt * 1e-6f)) - accel_bias(2));
 
     // Publish it to the state
     stateSetAccelBody_i(&accel);
@@ -796,18 +794,13 @@ static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, fl
 }
 
 /* Update INS based on Gyro information */
-static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
-                    uint32_t stamp, struct Int32Rates *gyro)
+static void gyro_int_cb(uint8_t __attribute__((unused)) sender_id,
+                    uint32_t stamp, struct FloatRates *delta_gyro, uint16_t dt)
 {
-  // Convert Gyro information to float
-  RATES_FLOAT_OF_BFP(ekf2.gyro, *gyro);
-
-  // Calculate the Gyro interval
-  if (ekf2.gyro_stamp > 0) {
-    ekf2.gyro_dt = stamp - ekf2.gyro_stamp;
-    ekf2.gyro_valid = true;
-  }
-  ekf2.gyro_stamp = stamp;
+  // Copy and save the gyro data
+  RATES_COPY(ekf2.delta_gyro, *delta_gyro);
+  ekf2.gyro_dt = dt;
+  ekf2.gyro_valid = true;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
   if (ekf2.gyro_valid && ekf2.accel_valid) {
@@ -816,18 +809,13 @@ static void gyro_cb(uint8_t __attribute__((unused)) sender_id,
 }
 
 /* Update INS based on Accelerometer information */
-static void accel_cb(uint8_t sender_id __attribute__((unused)),
-                     uint32_t stamp, struct Int32Vect3 *accel)
+static void accel_int_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt)
 {
-  // Convert Accelerometer information to float
-  ACCELS_FLOAT_OF_BFP(ekf2.accel, *accel);
-
-  // Calculate the Accelerometer interval
-  if (ekf2.accel_stamp > 0) {
-    ekf2.accel_dt = stamp - ekf2.accel_stamp;
-    ekf2.accel_valid = true;
-  }
-  ekf2.accel_stamp = stamp;
+  // Copy and save the gyro data
+  VECT3_COPY(ekf2.delta_accel, *delta_accel);
+  ekf2.accel_dt = dt;
+  ekf2.accel_valid = true;
 
   /* When Gyro and accelerometer are valid enter it into the EKF */
   if (ekf2.gyro_valid && ekf2.accel_valid) {
