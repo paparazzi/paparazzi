@@ -30,7 +30,7 @@
     <file name="mag_rm3100.h"/>
   </header>
   <init fun="mag_rm3100_module_init()"/>
-  <periodic fun="mag_rm3100_module_periodic()" freq="60"/>
+  <periodic fun="mag_rm3100_module_periodic()" freq="MAG_RM3100_PERIODIC_FREQUENCY"/>
   <periodic fun="mag_rm3100_report()" freq="10" autorun="FALSE"/>
   <event fun="mag_rm3100_module_event()"/>
   <makefile target="ap">
@@ -41,7 +41,9 @@
         $(error mag_rm3100 module error: please configure MAG_RM3100_I2C_DEV)
       endif
     </raw>
+    <configure name="MAG_RM3100_PERIODIC_FREQUENCY" default="60"/>
     <configure name="MAG_RM3100_I2C_DEV" case="upper|lower"/>
+    <define name="MAG_RM3100_PERIODIC_FREQUENCY" value="$(MAG_RM3100_PERIODIC_FREQUENCY)"/>
     <define name="USE_$(MAG_RM3100_I2C_DEV_UPPER)"/>
     <define name="MAG_RM3100_I2C_DEV" value="$(MAG_RM3100_I2C_DEV_LOWER)"/>
     <test>
