@@ -102,6 +102,7 @@ void gps_ubx_init(void)
   gps_ubx.msg_available = false;
   gps_ubx.error_cnt = 0;
   gps_ubx.error_last = GPS_UBX_ERR_NONE;
+  gps_ubx.pacc_valid = false;
 
   gps_ubx.state.comp_id = GPS_UBX_ID;
 }
@@ -195,8 +196,10 @@ static void gps_ubx_parse_nav_pvt(void)
   gps_ubx.state.vacc        = UBX_NAV_PVT_vAcc(gps_ubx.msg_buf) / 10;
   gps_ubx.state.sacc        = UBX_NAV_PVT_sAcc(gps_ubx.msg_buf) / 10;
 
-  //FIXME stupid workaround for PVT only
-  gps_ubx.state.pacc = gps_ubx.state.hacc; // report horizontal accuracy
+  if (!gps_ubx.pacc_valid) {
+    // workaround for PVT only
+    gps_ubx.state.pacc = gps_ubx.state.hacc; // report horizontal accuracy
+  }
 }
 
 static void gps_ubx_parse_nav_sol(void)
@@ -228,6 +231,7 @@ static void gps_ubx_parse_nav_sol(void)
   gps_ubx.state.pacc       = UBX_NAV_SOL_pAcc(gps_ubx.msg_buf);
   gps_ubx.state.sacc       = UBX_NAV_SOL_sAcc(gps_ubx.msg_buf);
   gps_ubx.state.pdop       = UBX_NAV_SOL_pDOP(gps_ubx.msg_buf);
+  gps_ubx.pacc_valid = true;
 }
 
 static void gps_ubx_parse_nav_posecef(void)
@@ -242,6 +246,7 @@ static void gps_ubx_parse_nav_posecef(void)
 
   // Copy accuracy information
   gps_ubx.state.pacc        = UBX_NAV_POSECEF_pAcc(gps_ubx.msg_buf);
+  gps_ubx.pacc_valid = true;
 }
 
 static void gps_ubx_parse_nav_posllh(void)
@@ -379,6 +384,7 @@ static void gps_ubx_parse_nav_relposned(void)
     uint8_t gnssFixOK   = RTCMgetbitu(&flags, 7, 1);
 
     /* Only save the latest valid relative position */
+    if(relPosValid) {
       if (diffSoln && carrSoln == 2) {
         gps_ubx.state.fix = 5; // rtk
       } else if(diffSoln && carrSoln == 1) {
@@ -388,7 +394,6 @@ static void gps_ubx_parse_nav_relposned(void)
       } else{
         gps_ubx.state.fix = 0;
       }
-    if(relPosValid) {
 
       gps_relposned.iTOW          = UBX_NAV_RELPOSNED_iTOW(gps_ubx.msg_buf);
       gps_relposned.refStationId  = UBX_NAV_RELPOSNED_refStationId(gps_ubx.msg_buf);

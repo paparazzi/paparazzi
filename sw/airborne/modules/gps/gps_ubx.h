@@ -68,6 +68,7 @@ struct GpsUbx {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+  bool pacc_valid;
 
   struct GpsState state;
 };
