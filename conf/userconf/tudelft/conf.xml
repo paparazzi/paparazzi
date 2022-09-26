@@ -9,7 +9,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/cv_opticflow.xml] modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/optical_flow_hover.xml modules/stabilization_indi_simple.xml"
    gui_color="red"
-   release="ac5eaa8da36b999a135f979e598930a9d40f6401"
   />
   <aircraft
    name="ARDrone2_default"
@@ -19,8 +18,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
-   gui_color="#ffffd633d633"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/video_rtp_stream.xml"
+   gui_color="#ffffd633d633"
   />
   <aircraft
    name="ARDrone2_indi"
@@ -85,7 +84,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/rotorcraft_optitrack_path.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml"
+   settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="#ffffcccaccca"
   />
   <aircraft
@@ -120,7 +119,6 @@
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="#ffffbc3bce5b"
-   release="934f0e14c09da0a3bfe199b7685abd2f4b6badbe"
   />
   <aircraft
    name="CX10"
@@ -165,7 +163,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/heli_throttle_curve.xml modules/imu_common.xml modules/logger_sd_spi_direct.xml modules/nav_basic_rotorcraft.xml modules/opa_controller.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml modules/temp_adc.xml"
    gui_color="#ffffdffac31f"
-   release="7c6064c5c3522e3286af8ecbc7498773b421ba7d"
   />
   <aircraft
    name="Disco"
@@ -177,7 +174,6 @@
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="blue"
-   release="dfba3220f5b3500611231d02fca8799f9f045cb8"
   />
   <aircraft
    name="Disco_FlatSpin"
@@ -189,7 +185,6 @@
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/ahrs_float_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="blue"
-   release="57fa5506ad03c85215b0ff7659d9f2a26131db1f"
   />
   <aircraft
    name="Flappy"
@@ -201,7 +196,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
    gui_color="white"
-   release="65aa9a711dc4a66ed2d7cf73c0f5872bbeeb821d"
   />
   <aircraft
    name="Heli450"
@@ -224,7 +218,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/air_data.xml] modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="#ffffcccaccca"
-   release="433c2150022275f26fb4619e536903676d7e2c9e"
   />
   <aircraft
    name="LadyLisaBluegiga"
@@ -236,7 +229,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
    gui_color="blue"
-   release="4f95168b07005474c8fedf3be5c2f2b4f4c7c393"
   />
   <aircraft
    name="LadybirdMXS"
@@ -259,7 +251,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/heli_throttle_curve.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
    gui_color="#ffffdffac31f"
-   release="0fba1ce80a46d8dce23c570e6547595c89988fad"
   />
   <aircraft
    name="MAVTec1_Kirk"
@@ -271,7 +262,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="#ffff00000000"
-   release="e688107d8a1f9c933cb0931eebb0e7b009ccc445"
   />
   <aircraft
    name="Mentor"
@@ -283,7 +273,6 @@
    settings="settings/fixedwing_basic.xml settings/estimation/ac_char.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_energy.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="white"
-   release="997fa535902c4d8f73bc34c02c862652cd47cae5"
   />
   <aircraft
    name="Nederdrone4"
@@ -293,9 +282,8 @@
    telemetry="telemetry/highspeed_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/nederdrone_valkenburg.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/scheduling_indi_simple.xml modules/stabilization_indi_simple.xml"
+   settings_modules="modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/logger_sd_chibios.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/scheduling_indi_simple.xml modules/stabilization_indi_simple.xml"
    gui_color="blue"
-   release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
   />
   <aircraft
    name="Nederdrone5"
@@ -307,7 +295,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/scheduling_indi_simple.xml modules/stabilization_indi_simple.xml"
    gui_color="blue"
-   release="c52a0b7e581c74b42ecc9f9d712324e3ab1fcc5e"
   />
   <aircraft
    name="Nederquad"
@@ -330,7 +317,6 @@
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/range_forcefield.xml modules/stabilization_indi_simple.xml modules/stabilization_int_quat.xml"
    gui_color="blue"
-   release="c11f888de1eba08d751f1ff0b03bf4a5bec8e8fa"
   />
   <aircraft
    name="Quadplane"
@@ -342,7 +328,6 @@
    settings="settings/nps.xml settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/sys_id_chirp.xml"
    gui_color="blue"
-   release="f739a81cfa2c633e33f31ab5f095d8f617276974"
   />
   <aircraft
    name="Robird"
@@ -354,7 +339,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/air_data.xml] modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="#ffffcccaccca"
-   release="677c4c77398cfbabffae3efdcafdacfd04a0b9ab"
   />
   <aircraft
    name="Splash"
@@ -366,7 +350,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml [modules/air_data.xml] modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/spektrum_soft_bind.xml modules/stabilization_indi_simple.xml"
    gui_color="#fff0cccaccca"
-   release="234e898f7fd1483806808313d3086f12a1b5730a"
   />
   <aircraft
    name="Splash3"
@@ -378,7 +361,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/lidar_tfmini.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml modules/stabilization_rate.xml"
    gui_color="blue"
-   release="009b121cfd12be8d3e236e0cbd5b564f2639d54f"
   />
   <aircraft
    name="Splash4"
@@ -401,7 +383,6 @@
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/gps.xml modules/guidance_basic_fw.xml modules/light.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="blue"
-   release="679fcad03bab95b2982cb6d8e3537486da45d306"
   />
   <aircraft
    name="Walkera_GeniusV1"
@@ -457,7 +438,6 @@
    settings="settings/rotorcraft_basic.xml [settings/estimation/ahrs_secondary.xml]"
    settings_modules="modules/air_data.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="#baa3d698b729"
-   release="cde043338785efbaa7aac97e90cb272099a0c7ec"
   />
   <aircraft
    name="bebop2_no_dampers"
@@ -517,14 +497,13 @@
   <aircraft
    name="bebop_opticflow_indoor"
    ac_id="97"
-   airframe="airframes/tudelft/bebop_opticflow_indoor_2x_30hz.xml"
+   airframe="airframes/tudelft/bebop_opticflow_indoor.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/rotorcraft_cyberzoo_no_gps.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_ae_awb.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml modules/video_capture.xml modules/video_rtp_stream.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_opticflow.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_hff_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml modules/video_capture.xml modules/video_rtp_stream.xml"
    gui_color="blue"
-   release="398071ca8f7c8dc24becbe76bc5628b6ea604248"
   />
   <aircraft
    name="fan_demo"
@@ -536,7 +515,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml [modules/geo_mag.xml] modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi.xml"
    gui_color="#ffffcccaccca"
-   release="f580c07814aa1068bf3f6960318b2417fc069cbe"
   />
   <aircraft
    name="frog1"
@@ -559,7 +537,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/guidance_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="blue"
-   release="93a9608c3bc34eca6a0dcde4123d55dac7d7b448"
   />
   <aircraft
    name="quadshot_pylons"

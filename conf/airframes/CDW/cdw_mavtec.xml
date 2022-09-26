@@ -34,7 +34,6 @@
     <!--   <module name="logger_spi_link"/>
     <module name="imu_quality_assessment"/> -->
     <module name="switch" type="servo"/>
-    <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter" />
     <module name="nav" type="survey_rectangle_rotorcraft"/>
     <module name="nav" type="survey_poly_rotorcraft"/>
@@ -194,7 +193,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
 </airframe>

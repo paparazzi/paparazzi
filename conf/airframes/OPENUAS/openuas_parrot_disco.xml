@@ -319,7 +319,6 @@
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
-    <!-- <module name="send_imu_mag_current"/>--> <!-- Can be Disabled after one time callibration, quite the same for all Discos -->
 
     <!-- Also used if QNH needed -->
     <module name="air_data">
@@ -928,8 +927,6 @@ The most crucial part for the magnetometer calibration:
     <!--<define name="JSBSIM_MODEL" value="OPENUAS/simple_fixedwing" type="string"/>-->
     <define name="COMMANDS_NB" value="4"/>
     <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
-    <!-- <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>-->
     <define name="JS_AXIS_MODE" value="4"/>
     <define name="BYPASS_AHRS" value="TRUE"/>
     <define name="BYPASS_INS" value="TRUE"/>

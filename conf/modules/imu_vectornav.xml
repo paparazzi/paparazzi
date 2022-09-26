@@ -31,7 +31,5 @@
 
     <file name="vn200_serial.c" dir="peripherals"/>
     <file name="imu_vectornav.c"/>
-
-    <define name="IMU_TYPE_H" value="modules/imu/imu_vectornav.h" type="string"/>
   </makefile>
 </module>

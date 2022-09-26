@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2022 The Paparazzi Team
+ *                         Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -32,21 +33,58 @@
 #include "math/pprz_orientation_conversion.h"
 #include "generated/airframe.h"
 
+#ifndef IMU_MAX_SENSORS
+#define IMU_MAX_SENSORS 3
+#endif
+
+struct imu_calib_t {
+  bool neutral: 1;    ///< Neutral values calibrated
+  bool scale: 1;      ///< Scale calibrated
+  bool rotation: 1;   ///< Rotation calibrated
+  bool current: 1;    ///< Current calibrated
+};
+
+struct imu_gyro_t {
+  uint8_t abi_id;                     ///< ABI sensor ID
+  uint32_t last_stamp;                ///< Last measurement timestamp for integration
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
+  struct Int32Rates scaled;           ///< Last scaled values in body frame
+  struct Int32Rates unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Rates neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+};
+
+struct imu_accel_t {
+  uint8_t abi_id;                     ///< ABI sensor ID
+  uint32_t last_stamp;                ///< Last measurement timestamp for integration
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
+  struct Int32Vect3 scaled;           ///< Last scaled values in body frame
+  struct Int32Vect3 unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Vect3 neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+};
+
+struct imu_mag_t {
+  uint8_t abi_id;                     ///< ABI sensor ID
+  struct imu_calib_t calibrated;      ///< Calibration bitmask
+  struct Int32Vect3 scaled;           ///< Last scaled values in body frame
+  struct Int32Vect3 unscaled;         ///< Last unscaled values in sensor frame
+  struct Int32Vect3 neutral;          ///< Neutral values, compensation on unscaled->scaled
+  struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
+  struct FloatVect3 current_scale;    ///< Current scaling multiplying
+  struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
+};
+
 
 /** abstract IMU interface providing fixed point interface  */
 struct Imu {
-  struct Int32Rates gyro;             ///< gyroscope measurements in rad/s in BFP with #INT32_RATE_FRAC
-  struct Int32Vect3 accel;            ///< accelerometer measurements in m/s^2 in BFP with #INT32_ACCEL_FRAC
-  struct Int32Vect3 mag;              ///< magnetometer measurements scaled to 1 in BFP with #INT32_MAG_FRAC
-  struct Int32Rates gyro_prev;        ///< previous gyroscope measurements
-  struct Int32Vect3 accel_prev;       ///< previous accelerometer measurements
-  struct Int32Rates gyro_neutral;     ///< static gyroscope bias from calibration in raw/unscaled units
-  struct Int32Vect3 accel_neutral;    ///< static accelerometer bias from calibration in raw/unscaled units
-  struct Int32Vect3 mag_neutral;      ///< magnetometer neutral readings (bias) in raw/unscaled units
-  struct Int32Rates gyro_unscaled;    ///< unscaled gyroscope measurements
-  struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
-  struct Int32Vect3 mag_unscaled;     ///< unscaled magnetometer measurements
-  struct OrientationReps body_to_imu; ///< rotation from body to imu frame
+  bool initialized;                           ///< Check if the IMU is initialized
+  struct imu_gyro_t gyros[IMU_MAX_SENSORS];   ///< The gyro sensors
+  struct imu_accel_t accels[IMU_MAX_SENSORS]; ///< The accelerometer sensors
+  struct imu_mag_t mags[IMU_MAX_SENSORS];     ///< The magnetometer sensors
+  struct OrientationReps body_to_imu;         ///< Rotation from body to imu (all sensors) frame
 
   /** flag for adjusting body_to_imu via settings.
    * if FALSE, reset to airframe values, if TRUE set current roll/pitch
@@ -57,62 +95,21 @@ struct Imu {
 /** global IMU state */
 extern struct Imu imu;
 
-/* underlying hardware */
-#ifdef IMU_TYPE_H
-#include IMU_TYPE_H
-#endif
-
+/** External functions */
 extern void imu_init(void);
+
+extern void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale);
+extern void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
+extern void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale);
+
+extern struct imu_gyro_t *imu_get_gyro(uint8_t sender_id, bool create);
+extern struct imu_accel_t *imu_get_accel(uint8_t sender_id, bool create);
+extern struct imu_mag_t *imu_get_mag(uint8_t sender_id, bool create);
+
 extern void imu_SetBodyToImuPhi(float phi);
 extern void imu_SetBodyToImuTheta(float theta);
 extern void imu_SetBodyToImuPsi(float psi);
 extern void imu_SetBodyToImuCurrent(float set);
 extern void imu_ResetBodyToImu(float reset);
-
-/* can be provided implementation */
-extern void imu_scale_gyro(struct Imu *_imu);
-extern void imu_scale_accel(struct Imu *_imu);
-extern void imu_scale_mag(struct Imu *_imu);
-
-#if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
-#define IMU_BODY_TO_IMU_PHI   0
-#define IMU_BODY_TO_IMU_THETA 0
-#define IMU_BODY_TO_IMU_PSI   0
-#endif
-
-#if !defined IMU_GYRO_P_NEUTRAL && !defined IMU_GYRO_Q_NEUTRAL && !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
-#endif
-
-#if !defined IMU_ACCEL_X_NEUTRAL && !defined IMU_ACCEL_Y_NEUTRAL && !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
-#endif
-
-#if !defined IMU_MAG_X_NEUTRAL && !defined IMU_MAG_Y_NEUTRAL && !defined IMU_MAG_Z_NEUTRAL
-#define IMU_MAG_X_NEUTRAL 0
-#define IMU_MAG_Y_NEUTRAL 0
-#define IMU_MAG_Z_NEUTRAL 0
-#endif
-
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN 1
-#define IMU_MAG_Y_SIGN 1
-#define IMU_MAG_Z_SIGN 1
-#endif
-
 
 #endif /* IMU_H */

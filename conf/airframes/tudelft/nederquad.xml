@@ -81,7 +81,6 @@
 
       <module name="geo_mag" />
       <module name="air_data" />
-      <module name="send_imu_mag_current" />
   
       <module name="mag" type="hmc58xx">
         <define name="HMC58XX_STARTUP_DELAY" value="1.4"/>

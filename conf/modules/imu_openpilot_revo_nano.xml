@@ -42,8 +42,6 @@
     <define name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
     <define name="USE_SPI_SLAVE0"/>
 
-    <define name="IMU_TYPE_H" value="imu/imu_mpu9250_spi.h" type="string"/>
-
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_spi.c" dir="peripherals"/>
     <file name="imu_mpu9250_spi.c"/>

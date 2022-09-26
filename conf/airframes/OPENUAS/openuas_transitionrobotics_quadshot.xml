@@ -209,7 +209,6 @@
 
     <module name="geo_mag"/>
 
-    <module name="send_imu_mag_current"/><!-- enable if airframe has added electronic or other devices, recalibrate and stuffcalibration in this airframefile-->
 
     <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
@@ -742,7 +741,6 @@ The most crucial part for the magnetometer calibration:
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="WEIGHT" value="0.7"/><!-- unit Kg -->
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!--<define name="COMMANDS_NB" value="4"/>
     <define name="JS_AXIS_MODE" value="4"/>-->
     <!--<define name="BYPASS_AHRS" value="TRUE"/>

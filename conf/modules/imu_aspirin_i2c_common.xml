@@ -37,8 +37,6 @@
     <define name="ASPIRIN_I2C_DEV" value="$(ASPIRIN_I2C_DEV_LOWER)"/>
     <define name="USE_$(ASPIRIN_I2C_DEV_UPPER)"/>
 
-    <define name="IMU_TYPE_H" value="imu/imu_aspirin_i2c.h" type="string"/>
-
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="itg3200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>

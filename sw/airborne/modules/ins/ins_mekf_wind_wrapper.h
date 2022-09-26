@@ -33,7 +33,6 @@
 /** filter structure
  */
 struct InsMekfWind {
-  struct OrientationReps body_to_imu;
   bool is_aligned;
   bool baro_initialized;
   bool gps_initialized;

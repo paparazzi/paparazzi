@@ -5,7 +5,7 @@
 #include "nps_fdm.h"
 #include "nps_random.h"
 #include "nps_sensors_utils.h"
-#include NPS_SENSORS_PARAMS
+#include "nps_sensors.h"
 
 void nps_sensor_gps_init(struct NpsSensorGps *gps, double time)
 {

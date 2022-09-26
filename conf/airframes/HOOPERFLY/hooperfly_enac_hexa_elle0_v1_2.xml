@@ -42,7 +42,6 @@
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
 
-    <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
@@ -198,7 +197,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="fl_motor, fr_motor, r_motor, br_motor, bl_motor, l_motor" type="string[]"/>
     <define name="JSBSIM_MODEL"    value="HOOPERFLY/hooperfly_enac_hexa" type="string"/>
-    <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE"    value="4"/>
   </section>

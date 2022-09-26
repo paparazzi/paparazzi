@@ -44,13 +44,10 @@
     <define name="IMU_MPU9250_SPI_SLAVE_IDX" value="$(IMU_MPU9250_SPI_SLAVE_IDX)"/>
     <define name="USE_$(IMU_MPU9250_SPI_SLAVE_IDX)"/>
 
-    <define name="IMU_TYPE_H" value="imu/imu_mpu9250_spi.h" type="string"/>
-
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_spi.c" dir="peripherals"/>
     <file name="imu_mpu9250_spi.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="imu/imu_mpu9250_spi.h" type="string"/>
       <define name="SPI_MASTER"/>
       <define name="IMU_MPU9250_SPI_DEV" value="spi1"/>
       <define name="USE_SPI1"/>

@@ -39,10 +39,6 @@
 
 struct ImuVectornav imu_vn;
 
-/* no scaling */
-void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
-void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
-
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -151,12 +147,8 @@ void imu_vectornav_propagate(void)
   uint64_t tmp = imu_vn.vn_data.nanostamp / 1000;
   uint32_t now_ts = (uint32_t) tmp;
 
-  // Rates and accel
-  RATES_BFP_OF_REAL(imu.gyro, imu_vn.vn_data.gyro);
-  ACCELS_BFP_OF_REAL(imu.accel, imu_vn.vn_data.accel);
-
   // Send accel and gyro data separate for other AHRS algorithms
-  AbiSendMsgIMU_GYRO_INT32(IMU_VECTORNAV_ID, now_ts, &imu.gyro);
-  AbiSendMsgIMU_ACCEL_INT32(IMU_VECTORNAV_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_GYRO_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.gyro, 1);
+  AbiSendMsgIMU_ACCEL_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.accel, 1);
 }
 

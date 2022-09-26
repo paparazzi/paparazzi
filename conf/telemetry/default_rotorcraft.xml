@@ -50,14 +50,15 @@
     </mode>
 
     <mode name="raw_sensors">
-      <message name="ROTORCRAFT_STATUS" period="1.2"/>
-      <message name="DL_VALUE"          period="0.5"/>
-      <message name="ALIVE"             period="2.1"/>
-      <message name="IMU_ACCEL_RAW"     period=".05"/>
-      <message name="IMU_GYRO_RAW"      period=".05"/>
-      <message name="IMU_MAG_RAW"       period=".05"/>
-      <message name="BARO_RAW"          period=".1"/>
-      <message name="ARDRONE_NAVDATA" period=".05"/>
+      <message name="ROTORCRAFT_STATUS"           period="1.2"/>
+      <message name="DL_VALUE"                    period="0.5"/>
+      <message name="ALIVE"                       period="2.1"/>
+      <message name="IMU_ACCEL_RAW"               period=".05"/>
+      <message name="IMU_GYRO_RAW"                period=".05"/>
+      <message name="IMU_MAG_RAW"                 period=".05"/>
+      <message name="BARO_RAW"                    period=".1"/>
+      <message name="IMU_MAG_CURRENT_CALIBRATION" period=".05"/>
+      <message name="ARDRONE_NAVDATA"             period=".05"/>
     </mode>
 
     <mode name="scaled_sensors">

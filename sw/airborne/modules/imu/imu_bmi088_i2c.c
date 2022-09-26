@@ -25,6 +25,7 @@
  *
  */
 
+#include "modules/imu/imu_bmi088_i2c.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
@@ -98,6 +99,10 @@ void imu_bmi088_init(void)
   imu_bmi088.bmi.config.accel_range = IMU_BMI088_ACCEL_RANGE;
   imu_bmi088.bmi.config.accel_odr = IMU_BMI088_ACCEL_ODR;
   imu_bmi088.bmi.config.accel_bw = IMU_BMI088_ACCEL_BW;
+
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_BMI088_ID, NULL, NULL, BMI088_GYRO_SENS_FRAC[IMU_BMI088_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BMI088_ID, NULL, NULL, BMI088_ACCEL_SENS_FRAC[IMU_BMI088_ACCEL_RANGE]);
 }
 
 void imu_bmi088_periodic(void)
@@ -118,13 +123,9 @@ void imu_bmi088_event(void)
       IMU_BMI088_Y_SIGN *(int32_t)(imu_bmi088.bmi.data_rates.value[IMU_BMI088_CHAN_Y]),
       IMU_BMI088_Z_SIGN *(int32_t)(imu_bmi088.bmi.data_rates.value[IMU_BMI088_CHAN_Z])
     };
-    // unscaled vector
-    RATES_COPY(imu.gyro_unscaled, rates);
 
     imu_bmi088.bmi.gyro_available = false;
-
-    imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BMI088_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BMI088_ID, now_ts, &rates, 1);
   }
   if (imu_bmi088.bmi.accel_available) {
     // set channel order
@@ -133,13 +134,9 @@ void imu_bmi088_event(void)
       IMU_BMI088_Y_SIGN *(int32_t)(imu_bmi088.bmi.data_accel.value[IMU_BMI088_CHAN_Y]),
       IMU_BMI088_Z_SIGN *(int32_t)(imu_bmi088.bmi.data_accel.value[IMU_BMI088_CHAN_Z])
     };
-    // unscaled vector
-    VECT3_COPY(imu.accel_unscaled, accel);
 
     imu_bmi088.bmi.accel_available = false;
-
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BMI088_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BMI088_ID, now_ts, &accel, 1);
   }
 }
 

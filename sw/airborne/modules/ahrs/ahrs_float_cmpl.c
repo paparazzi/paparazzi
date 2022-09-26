@@ -87,13 +87,10 @@ void ahrs_fc_init(void)
   ahrs_fc.ltp_vel_norm_valid = false;
   ahrs_fc.heading_aligned = false;
 
-  /* init ltp_to_imu quaternion as zero/identity rotation */
-  float_quat_identity(&ahrs_fc.ltp_to_imu_quat);
-
-  orientationSetIdentity(&ahrs_fc.body_to_imu);
-  orientationSetIdentity(&ahrs_fc.ltp_to_body);
-
-  FLOAT_RATES_ZERO(ahrs_fc.imu_rate);
+  /* init ltp_to_body quaternion as zero/identity rotation */
+  float_quat_identity(&ahrs_fc.ltp_to_body_quat);
+  float_rmat_identity(&ahrs_fc.ltp_to_body_rmat);
+  FLOAT_RATES_ZERO(ahrs_fc.body_rate);
 
   /* set default filter cut-off frequency and damping */
   ahrs_fc.accel_omega = AHRS_ACCEL_OMEGA;
@@ -121,16 +118,16 @@ bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
 
 #if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_float_get_quat_from_accel_mag(&ahrs_fc.ltp_to_imu_quat, lp_accel, lp_mag);
+  ahrs_float_get_quat_from_accel_mag(&ahrs_fc.ltp_to_body_quat, lp_accel, lp_mag);
   ahrs_fc.heading_aligned = true;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
-  ahrs_float_get_quat_from_accel(&ahrs_fc.ltp_to_imu_quat, lp_accel);
+  ahrs_float_get_quat_from_accel(&ahrs_fc.ltp_to_body_quat, lp_accel);
   ahrs_fc.heading_aligned = false;
 #endif
 
   /* Convert initial orientation from quat to rotation matrix representations. */
-  float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
+  float_rmat_of_quat(&ahrs_fc.ltp_to_body_rmat, &ahrs_fc.ltp_to_body_quat);
 
   /* used averaged gyro as initial value for bias */
   ahrs_fc.gyro_bias = *lp_gyro;
@@ -151,9 +148,9 @@ void ahrs_fc_propagate(struct FloatRates *gyro, float dt)
 
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   const float alpha = 0.1;
-  FLOAT_RATES_LIN_CMB(ahrs_fc.imu_rate, ahrs_fc.imu_rate, (1. - alpha), rates, alpha);
+  FLOAT_RATES_LIN_CMB(ahrs_fc.body_rate, ahrs_fc.body_rate, (1. - alpha), rates, alpha);
 #else
-  RATES_COPY(ahrs_fc.imu_rate, rates);
+  RATES_COPY(ahrs_fc.body_rate, rates);
 #endif
 
   /* add correction     */
@@ -163,14 +160,14 @@ void ahrs_fc_propagate(struct FloatRates *gyro, float dt)
   FLOAT_RATES_ZERO(ahrs_fc.rate_correction);
 
 #if AHRS_PROPAGATE_RMAT
-  float_rmat_integrate_fi(&ahrs_fc.ltp_to_imu_rmat, &omega, dt);
-  float_rmat_reorthogonalize(&ahrs_fc.ltp_to_imu_rmat);
-  float_quat_of_rmat(&ahrs_fc.ltp_to_imu_quat, &ahrs_fc.ltp_to_imu_rmat);
+  float_rmat_integrate_fi(&ahrs_fc.ltp_to_body_rmat, &omega, dt);
+  float_rmat_reorthogonalize(&ahrs_fc.ltp_to_body_rmat);
+  float_quat_of_rmat(&ahrs_fc.ltp_to_body_quat, &ahrs_fc.ltp_to_body_rmat);
 #endif
 #if AHRS_PROPAGATE_QUAT
-  float_quat_integrate(&ahrs_fc.ltp_to_imu_quat, &omega, dt);
-  float_quat_normalize(&ahrs_fc.ltp_to_imu_quat);
-  float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
+  float_quat_integrate(&ahrs_fc.ltp_to_body_quat, &omega, dt);
+  float_quat_normalize(&ahrs_fc.ltp_to_body_quat);
+  float_rmat_of_quat(&ahrs_fc.ltp_to_body_rmat, &ahrs_fc.ltp_to_body_quat);
 #endif
 
   // increase accel and mag propagation counters
@@ -185,10 +182,10 @@ void ahrs_fc_update_accel(struct FloatVect3 *accel, float dt)
     return;
   }
 
-  /* last column of roation matrix = ltp z-axis in imu-frame */
-  struct FloatVect3  c2 = { RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 0, 2),
-           RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 1, 2),
-           RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 2, 2)
+  /* last column of roation matrix = ltp z-axis in body-frame */
+  struct FloatVect3  c2 = { RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 0, 2),
+           RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 1, 2),
+           RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 2, 2)
   };
 
   struct FloatVect3 imu_accel = *accel;
@@ -213,18 +210,11 @@ void ahrs_fc_update_accel(struct FloatVect3 *accel, float dt)
     /* assume tangential velocity along body x-axis */
       {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
 #endif
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
-    struct FloatRates body_rate;
-    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);
     struct FloatVect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, body_rate, vel_tangential_body);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_fc.body_rate, vel_tangential_body);
 
-    /* convert centrifugal acceleration from body to imu frame */
-    struct FloatVect3 acc_c_imu;
-    float_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
-
-    /* and subtract it from imu measurement to get a corrected measurement of the gravity vector */
-    VECT3_DIFF(pseudo_gravity_measurement, imu_accel, acc_c_imu);
+    /* centrifugal acceleration subtract it from imu measurement to get a corrected measurement of the gravity vector */
+    VECT3_DIFF(pseudo_gravity_measurement, imu_accel, acc_c_body);
 
   } else {
     VECT3_COPY(pseudo_gravity_measurement, imu_accel);
@@ -297,7 +287,7 @@ void ahrs_fc_update_mag_full(struct FloatVect3 *mag, float dt)
 {
 
   struct FloatVect3 expected_imu;
-  float_rmat_vmult(&expected_imu, &ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.mag_h);
+  float_rmat_vmult(&expected_imu, &ahrs_fc.ltp_to_body_rmat, &ahrs_fc.mag_h);
 
   struct FloatVect3 measured_imu = *mag;
   struct FloatVect3 residual_imu;
@@ -333,7 +323,7 @@ void ahrs_fc_update_mag_2d(struct FloatVect3 *mag, float dt)
 
   struct FloatVect3 measured_imu = *mag;
   struct FloatVect3 measured_ltp;
-  float_rmat_transp_vmult(&measured_ltp, &ahrs_fc.ltp_to_imu_rmat, &measured_imu);
+  float_rmat_transp_vmult(&measured_ltp, &ahrs_fc.ltp_to_body_rmat, &measured_imu);
 
   struct FloatVect2 measured_ltp_2d = {measured_ltp.x, measured_ltp.y};
 
@@ -349,7 +339,7 @@ void ahrs_fc_update_mag_2d(struct FloatVect3 *mag, float dt)
   //  printf("res : %f\n", residual_ltp.z);
 
   struct FloatVect3 residual_imu;
-  float_rmat_vmult(&residual_imu, &ahrs_fc.ltp_to_imu_rmat, &residual_ltp);
+  float_rmat_vmult(&residual_imu, &ahrs_fc.ltp_to_body_rmat, &residual_ltp);
 
 
   /* Complementary filter proportional gain.
@@ -372,21 +362,21 @@ void ahrs_fc_update_mag_2d_dumb(struct FloatVect3 *mag)
 {
 
   /* project mag on local tangeant plane */
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_rmat(&ltp_to_imu_euler, &ahrs_fc.ltp_to_imu_rmat);
+  struct FloatEulers ltp_to_body_euler;
+  float_eulers_of_rmat(&ltp_to_body_euler, &ahrs_fc.ltp_to_body_rmat);
 
-  const float cphi   = cosf(ltp_to_imu_euler.phi);
-  const float sphi   = sinf(ltp_to_imu_euler.phi);
-  const float ctheta = cosf(ltp_to_imu_euler.theta);
-  const float stheta = sinf(ltp_to_imu_euler.theta);
+  const float cphi   = cosf(ltp_to_body_euler.phi);
+  const float sphi   = sinf(ltp_to_body_euler.phi);
+  const float ctheta = cosf(ltp_to_body_euler.theta);
+  const float stheta = sinf(ltp_to_body_euler.theta);
   const float mn = ctheta * mag->x + sphi * stheta * mag->y + cphi * stheta * mag->z;
   const float me =     0. * mag->x + cphi          * mag->y - sphi          * mag->z;
 
-  const float res_norm = -RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 0, 0) * me +
-                         RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 1, 0) * mn;
-  const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 2, 0),
-          RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 2, 1),
-          RMAT_ELMT(ahrs_fc.ltp_to_imu_rmat, 2, 2)
+  const float res_norm = -RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 0, 0) * me +
+                         RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 1, 0) * mn;
+  const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 2, 0),
+          RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 2, 1),
+          RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 2, 2)
   };
   const float mag_rate_update_gain = 2.5;
   RATES_ADD_SCALED_VECT(ahrs_fc.rate_correction, r2, (mag_rate_update_gain * res_norm));
@@ -431,14 +421,11 @@ void ahrs_fc_update_heading(float heading)
 
   FLOAT_ANGLE_NORMALIZE(heading);
 
-  ahrs_fc_recompute_ltp_to_body();
-  struct FloatRMat *ltp_to_body_rmat = orientationGetRMat_f(&ahrs_fc.ltp_to_body);
-
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
   struct FloatVect2 expected_ltp = {
-    RMAT_ELMT(*ltp_to_body_rmat, 0, 0),
-    RMAT_ELMT(*ltp_to_body_rmat, 0, 1)
+    RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 0, 0),
+    RMAT_ELMT(ahrs_fc.ltp_to_body_rmat, 0, 1)
   };
 
   // expected_heading cross measured_heading
@@ -449,7 +436,7 @@ void ahrs_fc_update_heading(float heading)
   };
 
   struct FloatVect3 residual_imu;
-  float_rmat_vmult(&residual_imu, &ahrs_fc.ltp_to_imu_rmat, &residual_ltp);
+  float_rmat_vmult(&residual_imu, &ahrs_fc.ltp_to_body_rmat, &residual_ltp);
 
   const float heading_rate_update_gain = 2.5;
   RATES_ADD_SCALED_VECT(ahrs_fc.rate_correction, residual_imu, heading_rate_update_gain);
@@ -481,11 +468,11 @@ void ahrs_fc_realign_heading(float heading)
   q_h_new.qz = sinf(heading / 2.0);
   q_h_new.qi = cosf(heading / 2.0);
 
-  ahrs_fc_recompute_ltp_to_body();
-  struct FloatQuat *ltp_to_body_quat = orientationGetQuat_f(&ahrs_fc.ltp_to_body);
+  struct FloatQuat ltp_to_body_quat;
+  QUAT_COPY(ltp_to_body_quat, ahrs_fc.ltp_to_body_quat);
 
   /* quaternion representing current heading only */
-  struct FloatQuat q_h = *ltp_to_body_quat;
+  struct FloatQuat q_h = ltp_to_body_quat;
   q_h.qx = 0.;
   q_h.qy = 0.;
   float_quat_normalize(&q_h);
@@ -495,37 +482,10 @@ void ahrs_fc_realign_heading(float heading)
   float_quat_inv_comp_norm_shortest(&q_c, &q_h, &q_h_new);
 
   /* correct current heading in body frame */
-  struct FloatQuat q;
-  float_quat_comp_norm_shortest(&q, &q_c, ltp_to_body_quat);
+  float_quat_comp_norm_shortest(&ahrs_fc.ltp_to_body_quat, &q_c, &ltp_to_body_quat);
 
   /* compute ltp to imu rotation quaternion and matrix */
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  float_quat_comp(&ahrs_fc.ltp_to_imu_quat, &q, body_to_imu_quat);
-  float_rmat_of_quat(&ahrs_fc.ltp_to_imu_rmat, &ahrs_fc.ltp_to_imu_quat);
+  float_rmat_of_quat(&ahrs_fc.ltp_to_body_rmat, &ahrs_fc.ltp_to_body_quat);
 
   ahrs_fc.heading_aligned = true;
-}
-
-void ahrs_fc_set_body_to_imu(struct OrientationReps *body_to_imu)
-{
-  ahrs_fc_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
-}
-
-void ahrs_fc_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_fc.body_to_imu, q_b2i);
-
-  if (!ahrs_fc.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_fc.ltp_to_imu_quat = *orientationGetQuat_f(&ahrs_fc.body_to_imu);
-    ahrs_fc.ltp_to_imu_rmat = *orientationGetRMat_f(&ahrs_fc.body_to_imu);
-  }
-}
-
-void ahrs_fc_recompute_ltp_to_body(void)
-{
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_fc.body_to_imu);
-  struct FloatQuat ltp_to_body_quat;
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_fc.ltp_to_imu_quat, body_to_imu_quat);
-  orientationSetQuat_f(&ahrs_fc.ltp_to_body, &ltp_to_body_quat);
 }

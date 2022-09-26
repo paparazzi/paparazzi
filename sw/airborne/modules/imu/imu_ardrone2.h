@@ -27,62 +27,8 @@
 #ifndef IMU_ARDRONE2_H_
 #define IMU_ARDRONE2_H_
 
-#include "generated/airframe.h"
+#include "std.h"
 #include "boards/ardrone/navdata.h"
-
-
-/** default gyro sensitivy and neutral from the datasheet
- * MPU with 2000 deg/s
- */
-#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-#define IMU_GYRO_P_SENS 4.359
-#define IMU_GYRO_P_SENS_NUM 4359
-#define IMU_GYRO_P_SENS_DEN 1000
-#define IMU_GYRO_Q_SENS 4.359
-#define IMU_GYRO_Q_SENS_NUM 4359
-#define IMU_GYRO_Q_SENS_DEN 1000
-#define IMU_GYRO_R_SENS 4.359
-#define IMU_GYRO_R_SENS_NUM 4359
-#define IMU_GYRO_R_SENS_DEN 1000
-#endif
-
-/** default accel sensitivy from the datasheet
- * 512 LSB/g
- */
-#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 19.5
-#define IMU_ACCEL_X_SENS_NUM 195
-#define IMU_ACCEL_X_SENS_DEN 10
-#define IMU_ACCEL_Y_SENS 19.5
-#define IMU_ACCEL_Y_SENS_NUM 195
-#define IMU_ACCEL_Y_SENS_DEN 10
-#define IMU_ACCEL_Z_SENS 19.5
-#define IMU_ACCEL_Z_SENS_NUM 195
-#define IMU_ACCEL_Z_SENS_DEN 10
-#endif
-
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 2048
-#define IMU_ACCEL_Y_NEUTRAL 2048
-#define IMU_ACCEL_Z_NEUTRAL 2048
-#endif
-
-#if !defined IMU_MAG_X_SENS & !defined IMU_MAG_Y_SENS & !defined IMU_MAG_Z_SENS
-#define IMU_MAG_X_SENS 16.0
-#define IMU_MAG_X_SENS_NUM 16
-#define IMU_MAG_X_SENS_DEN 1
-#define IMU_MAG_Y_SENS 16.0
-#define IMU_MAG_Y_SENS_NUM 16
-#define IMU_MAG_Y_SENS_DEN 1
-#define IMU_MAG_Z_SENS 16.0
-#define IMU_MAG_Z_SENS_NUM 16
-#define IMU_MAG_Z_SENS_DEN 1
-#endif
-
-/*
- * we include imh.h after the definitions of the neutrals
- */
-#include "modules/imu/imu.h"
 
 extern void imu_ardrone2_init(void);
 

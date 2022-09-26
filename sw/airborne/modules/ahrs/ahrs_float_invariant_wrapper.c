@@ -35,7 +35,7 @@
 #ifndef AHRS_FINV_OUTPUT_ENABLED
 #define AHRS_FINV_OUTPUT_ENABLED TRUE
 #endif
-PRINT_CONFIG_VAR(AHRS_INV_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_FINV_OUTPUT_ENABLED)
 
 /** if TRUE with push the estimation results to the state interface */
 static bool ahrs_finv_output_enabled;
@@ -50,25 +50,16 @@ static void compute_body_orientation_and_rates(void);
 
 static void send_att(struct transport_tx *trans, struct link_device *dev)
 {
-  /* compute eulers in int (IMU frame) */
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_float_inv.state.quat);
-  struct Int32Eulers eulers_imu;
-  EULERS_BFP_OF_REAL(eulers_imu, ltp_to_imu_euler);
-
   /* compute Eulers in int (body frame) */
-  struct FloatQuat ltp_to_body_quat;
-  struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_float_inv.body_to_imu);
-  float_quat_comp_inv(&ltp_to_body_quat, &ahrs_float_inv.state.quat, body_to_imu_quat);
   struct FloatEulers ltp_to_body_euler;
-  float_eulers_of_quat(&ltp_to_body_euler, &ltp_to_body_quat);
+  float_eulers_of_quat(&ltp_to_body_euler, &ahrs_float_inv.state.quat);
   struct Int32Eulers eulers_body;
   EULERS_BFP_OF_REAL(eulers_body, ltp_to_body_euler);
 
   pprz_msg_send_AHRS_EULER_INT(trans, dev, AC_ID,
-                               &eulers_imu.phi,
-                               &eulers_imu.theta,
-                               &eulers_imu.psi,
+                               &eulers_body.phi,
+                               &eulers_body.theta,
+                               &eulers_body.psi,
                                &eulers_body.phi,
                                &eulers_body.theta,
                                &eulers_body.psi,
@@ -115,7 +106,6 @@ static abi_event mag_ev;
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
 
 /**
@@ -193,12 +183,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  ahrs_float_inv_set_body_to_imu_quat(q_b2i_f);
-}
-
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
   ahrs_float_inv.mag_h = *h;
@@ -216,20 +200,13 @@ static bool ahrs_float_invariant_enable_output(bool enable)
 static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_finv_output_enabled) {
-    /* Compute LTP to BODY quaternion */
-    struct FloatQuat ltp_to_body_quat;
-    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_float_inv.body_to_imu);
-    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_float_inv.state.quat, body_to_imu_quat);
     /* Set state */
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(&ahrs_float_inv.state.quat);
 
     /* compute body rates */
     struct FloatRates body_rate;
     RATES_DIFF(body_rate, ahrs_float_inv.cmd.rates, ahrs_float_inv.state.bias);
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_float_inv.body_to_imu);
-    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &body_rate);
     stateSetBodyRates_f(&body_rate);
-
   }
 }
 
@@ -243,11 +220,10 @@ void ahrs_float_invariant_register(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_MAG_INT32(AHRS_FINV_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_GYRO_INT32(AHRS_FINV_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_FINV_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(AHRS_FINV_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(AHRS_FINV_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(AHRS_FINV_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(AHRS_FINV_IMU_ID, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(AHRS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 
 #if PERIODIC_TELEMETRY

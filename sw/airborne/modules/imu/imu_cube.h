@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2022 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,13 +20,17 @@
  */
 
 /**
- * @file modules/calibration/send_imu_mag_current.h
- * Enables sending of IMU_MAG_CURRENT_CALIBRATION message.
+ * @file modules/imu/imu_cube.h
+ * Driver for the IMU's in the Cube autopilots.
  */
 
-#ifndef SEND_IMU_MAG_CURRENT_H
-#define SEND_IMU_MAG_CURRENT_H
+#ifndef IMU_CUBE_H
+#define IMU_CUBE_H
 
-extern void send_imu_mag_current(void);
+#include "std.h"
 
-#endif
+extern void imu_cube_init(void);
+extern void imu_cube_periodic(void);
+extern void imu_cube_event(void);
+
+#endif /* IMU_CUBE_H */

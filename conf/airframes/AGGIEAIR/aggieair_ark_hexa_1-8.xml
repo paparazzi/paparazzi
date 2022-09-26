@@ -248,7 +248,6 @@ Aggie Air ARK
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="f_motor, fr_motor, br_motor, b_motor, bl_motor, fl_motor" type="string[]"/>
     <define name="JSBSIM_MODEL"    value="AGGIEAIR/aggieair_ark_hexa" type="string"/>
-    <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
 
     <define name="JS_AXIS_THROTTLE" value="0"/>
     <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>

@@ -79,7 +79,7 @@
     <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
     <define name="__PAPARAZZI" value="TRUE"/>
     <define name="ECL_STANDALONE" value="TRUE"/>
-    <define name="USE_MAGNETOMETER" value="TRUE"/> <!-- Needed for IMU to get scaled version -->
+    <define name="IMU_INTEGRATION" value="TRUE"/> <!-- Needed to enable IMU integration -->
 
     <!-- Compile needed ecl files -->
     <file name="geo.cpp" dir="ecl/geo"/>

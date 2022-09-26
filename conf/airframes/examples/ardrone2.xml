@@ -26,7 +26,6 @@
     <module name="bat_voltage_ardrone2"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <module name="gps" type="ubx_ucenter"/>
-    <module name="send_imu_mag_current"/>
     <module name="air_data"/>
     <module name="geo_mag"/>
     <!--module name="logger_file"/-->
@@ -179,7 +178,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

@@ -49,7 +49,7 @@
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
 
       <!-- Use the external mag (not in NPS target as then it needs to listen to all) -->
-      <define name="INS_EKF2_MAG_ID" value="MAG_LIS3MDL_SENDER_ID"/>
+      <!--define name="INS_EKF2_MAG_ID" value="MAG_LIS3MDL_SENDER_ID"/-->
     </target>
 
     <target name="nps" board="pc">
@@ -85,20 +85,19 @@
     <module name="ins"           type="ekf2" />
     
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
 
     <!-- Internal MAG -->
-    <!--module name="mag_ist8310">
+    <module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
-    </module-->
+    </module>
     <!-- External MAG on GPS -->
-    <module name="mag_lis3mdl">
+    <!--module name="mag_lis3mdl">
       <define name="MODULE_LIS3MDL_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_LIS3MDL_I2C_DEV" value="I2C1"/>
       <define name="LIS3MDL_CHAN_X_SIGN" value="-"/>
       <define name="LIS3MDL_CHAN_Y_SIGN" value="-"/>
-    </module>
+    </module-->
     <!--module name="lidar" type="tfmini">
       <configure name="TFMINI_PORT" value="UART4"/>
       <configure name="USE_TFMINI_AGL" value="FALSE"/>
@@ -246,20 +245,23 @@
     <define name="MPU_Z_SIGN" value="-1"/>
 
     <!-- Calibrated in the MAVLab 14-05-2020 -->
-    <define name="ACCEL_X_NEUTRAL" value="-337"/>
-    <define name="ACCEL_Y_NEUTRAL" value="64"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
-    <define name="ACCEL_X_SENS" value="4.670307671109528" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.9016250738902425" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.846689188075245" integer="16"/>
+    <define name="ACCEL_CALIB" value="{{.abi_id=9, .neutral={-423,18,-28}, .scale={{28111,6328,61706},{6151,1291,12775}}}}"/>
+    <define name="ACCEL_X_NEUTRAL" value="-423"/>
+    <define name="ACCEL_Y_NEUTRAL" value="18"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-28"/>
+    <define name="ACCEL_X_SENS" value="4.570151198384357" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.901626625187466" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.830215267421878" integer="16"/>
 
     <!-- Calibrated at valkenburg 20-05-2020 (external magnetometer) -->
-    <define name="MAG_X_NEUTRAL" value="866"/>
-    <define name="MAG_Y_NEUTRAL" value="-1530"/>
-    <define name="MAG_Z_NEUTRAL" value="-3313"/>
-    <define name="MAG_X_SENS" value="0.6067461130451115" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6544292255627779" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6352539557433349" integer="16"/>
+    <define name="MAG_CALIB" value="{{.abi_id=4, .neutral={12,113,49}, .scale={{42598,47669,16336},{3039,3365,1153}}}}"/>
+    <define name="MAG_X_NEUTRAL" value="12"/>
+    <define name="MAG_Y_NEUTRAL" value="113"/>
+    <define name="MAG_Z_NEUTRAL" value="49"/>
+    <define name="MAG_X_SENS" value="14.017110902869321" integer="16"/>
+    <define name="MAG_Y_SENS" value="14.166121879366417" integer="16"/>
+    <define name="MAG_Z_SENS" value="14.168256847606495" integer="16"/>
+
 
     <!-- Define axis in hover frame -->
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
@@ -338,7 +340,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,ail1,ail2,ail3,ail4,flap1,flap2,flap3,flap4" type="string[]"/>
     <define name="JSBSIM_MODEL" value="nederdrone" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

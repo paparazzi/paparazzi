@@ -21,7 +21,7 @@
     </section>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,@imu</depends>
     <provides>mag</provides>
   </dep>
   <header>

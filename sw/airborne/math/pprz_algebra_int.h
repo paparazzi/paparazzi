@@ -352,14 +352,14 @@ static inline void int32_rmat_identity(struct Int32RMat *rm)
 /** Composition (multiplication) of two rotation matrices.
  * m_a2c = m_a2b comp m_b2c , aka  m_a2c = m_b2c * m_a2b
  */
-extern void int32_rmat_comp(struct Int32RMat *m_a2c, struct Int32RMat *m_a2b,
-                            struct Int32RMat *m_b2c);
+extern void int32_rmat_comp(struct Int32RMat *m_a2c, const struct Int32RMat *m_a2b,
+                            const struct Int32RMat *m_b2c);
 
 /** Composition (multiplication) of two rotation matrices.
  * m_a2b = m_a2c comp_inv m_b2c , aka  m_a2b = inv(_m_b2c) * m_a2c
  */
-extern void int32_rmat_comp_inv(struct Int32RMat *m_a2b, struct Int32RMat *m_a2c,
-                                struct Int32RMat *m_b2c);
+extern void int32_rmat_comp_inv(struct Int32RMat *m_a2b, const struct Int32RMat *m_a2c,
+                                const struct Int32RMat *m_b2c);
 
 /** rotate 3D vector by rotation matrix.
  * vb = m_a2b * va

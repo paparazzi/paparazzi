@@ -64,9 +64,9 @@ void ahrs_mlkf_init(void)
 
   ahrs_mlkf.is_aligned = false;
 
-  /* init ltp_to_imu quaternion as zero/identity rotation */
-  float_quat_identity(&ahrs_mlkf.ltp_to_imu_quat);
-  FLOAT_RATES_ZERO(ahrs_mlkf.imu_rate);
+  /* init ltp_to_body quaternion as zero/identity rotation */
+  float_quat_identity(&ahrs_mlkf.ltp_to_body_quat);
+  FLOAT_RATES_ZERO(ahrs_mlkf.body_rate);
 
   VECT3_ASSIGN(ahrs_mlkf.mag_h, AHRS_H_X, AHRS_H_Y, AHRS_H_Z);
 
@@ -88,28 +88,12 @@ void ahrs_mlkf_init(void)
   VECT3_ASSIGN(ahrs_mlkf.mag_noise, AHRS_MAG_NOISE_X, AHRS_MAG_NOISE_Y, AHRS_MAG_NOISE_Z);
 }
 
-void ahrs_mlkf_set_body_to_imu(struct OrientationReps *body_to_imu)
-{
-  ahrs_mlkf_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
-}
-
-void ahrs_mlkf_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_mlkf.body_to_imu, q_b2i);
-
-  if (!ahrs_mlkf.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_mlkf.ltp_to_imu_quat = *orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
-  }
-}
-
-
 bool ahrs_mlkf_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                        struct FloatVect3 *lp_mag)
 {
 
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_float_get_quat_from_accel_mag(&ahrs_mlkf.ltp_to_imu_quat, lp_accel, lp_mag);
+  ahrs_float_get_quat_from_accel_mag(&ahrs_mlkf.ltp_to_body_quat, lp_accel, lp_mag);
 
   /* used averaged gyro as initial value for bias */
   ahrs_mlkf.gyro_bias = *lp_gyro;
@@ -170,14 +154,14 @@ static inline void propagate_ref(struct FloatRates *gyro, float dt)
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   /* lowpass angular rates */
   const float alpha = 0.1;
-  FLOAT_RATES_LIN_CMB(ahrs_mlkf.imu_rate, ahrs_mlkf.imu_rate,
+  FLOAT_RATES_LIN_CMB(ahrs_mlkf.body_rate, ahrs_mlkf.body_rate,
                       (1. - alpha), rates, alpha);
 #else
-  RATES_COPY(ahrs_mlkf.imu_rate, rates);
+  RATES_COPY(ahrs_mlkf.body_rate, rates);
 #endif
 
   /* propagate reference quaternion */
-  float_quat_integrate(&ahrs_mlkf.ltp_to_imu_quat, &ahrs_mlkf.imu_rate, dt);
+  float_quat_integrate(&ahrs_mlkf.ltp_to_body_quat, &ahrs_mlkf.body_rate, dt);
 
 }
 
@@ -189,9 +173,9 @@ static inline void propagate_state(float dt)
 {
 
   /* predict covariance */
-  const float dp = ahrs_mlkf.imu_rate.p * dt;
-  const float dq = ahrs_mlkf.imu_rate.q * dt;
-  const float dr = ahrs_mlkf.imu_rate.r * dt;
+  const float dp = ahrs_mlkf.body_rate.p * dt;
+  const float dq = ahrs_mlkf.body_rate.q * dt;
+  const float dr = ahrs_mlkf.body_rate.r * dt;
 
   float F[6][6] = {{  1.,   dr,  -dq,  -dt,   0.,   0.  },
     { -dr,   1.,   dp,   0.,  -dt,   0.  },
@@ -225,7 +209,7 @@ static inline void update_state(const struct FloatVect3 *i_expected, struct Floa
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, i_expected);
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_body_quat, i_expected);
 
   // S = HPH' + JRJ
   float H[3][6] = {{           0., -b_expected.z,  b_expected.y, 0., 0., 0.},
@@ -294,12 +278,12 @@ static inline void update_state_heading(const struct FloatVect3 *i_expected,
 
   /* converted expected measurement from inertial to body frame */
   struct FloatVect3 b_expected;
-  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_imu_quat, i_expected);
+  float_quat_vmult(&b_expected, &ahrs_mlkf.ltp_to_body_quat, i_expected);
 
   /* set roll/pitch errors to zero to only correct heading */
   struct FloatVect3 i_h_2d = {i_expected->y, -i_expected->x, 0.f};
   struct FloatVect3 b_yaw;
-  float_quat_vmult(&b_yaw, &ahrs_mlkf.ltp_to_imu_quat, &i_h_2d);
+  float_quat_vmult(&b_yaw, &ahrs_mlkf.ltp_to_body_quat, &i_h_2d);
   // S = HPH' + JRJ
   float H[3][6] = {{ 0., 0., b_yaw.x, 0., 0., 0.},
                    { 0., 0., b_yaw.y, 0., 0., 0.},
@@ -359,9 +343,9 @@ static inline void reset_state(void)
 
   ahrs_mlkf.gibbs_cor.qi = 2.;
   struct FloatQuat q_tmp;
-  float_quat_comp(&q_tmp, &ahrs_mlkf.ltp_to_imu_quat, &ahrs_mlkf.gibbs_cor);
+  float_quat_comp(&q_tmp, &ahrs_mlkf.ltp_to_body_quat, &ahrs_mlkf.gibbs_cor);
   float_quat_normalize(&q_tmp);
-  ahrs_mlkf.ltp_to_imu_quat = q_tmp;
+  ahrs_mlkf.ltp_to_body_quat = q_tmp;
   float_quat_identity(&ahrs_mlkf.gibbs_cor);
 
 }

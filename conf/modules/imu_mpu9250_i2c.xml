@@ -37,14 +37,11 @@
     <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV_LOWER)"/>
     <define name="USE_$(IMU_MPU9250_I2C_DEV_UPPER)"/>
 
-    <define name="IMU_TYPE_H" value="modules/imu/imu_mpu9250_i2c.h" type="string"/>
-
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
     <file name="imu_mpu9250_i2c.c"/>
     <test>
-      <define name="IMU_TYPE_H" value="modules/imu/imu_mpu9250_i2c.h" type="string"/>
       <define name="IMU_MPU9250_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
     </test>

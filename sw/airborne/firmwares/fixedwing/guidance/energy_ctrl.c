@@ -134,12 +134,9 @@ float v_ctl_pitch_setpoint;
 
 uint8_t v_ctl_speed_mode; //To be compatible with universal flightplan, not used for etecs
 
-static struct FloatQuat imu_to_body_quat;
 static struct Int32Vect3 accel_imu_meas;
 
 static abi_event accel_ev;
-static abi_event body_to_imu_ev;
-
 
 ///////////// DEFAULT SETTINGS ////////////////
 #ifndef V_CTL_ALTITUDE_MAX_CLIMB
@@ -206,12 +203,6 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
                      struct Int32Vect3 *accel)
 {
   accel_imu_meas = *accel;
-}
-
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  float_quat_invert(&imu_to_body_quat, q_b2i_f);
 }
 
 void v_ctl_init(void)
@@ -281,10 +272,7 @@ void v_ctl_init(void)
 
   v_ctl_throttle_setpoint = 0;
 
-  float_quat_identity(&imu_to_body_quat);
-
-  AbiBindMsgIMU_ACCEL_INT32(V_CTL_ENERGY_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(V_CTL_ENERGY_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgIMU_ACCEL(V_CTL_ENERGY_IMU_ID, &accel_ev, accel_cb);
 }
 
 static const float dt_attidude = 1.0 / ((float)CONTROL_FREQUENCY);
@@ -370,11 +358,8 @@ void v_ctl_climb_loop(void)
   // Actual Acceleration from IMU: attempt to reconstruct the actual kinematic acceleration
 #ifndef SITL
   /* convert last imu accel measurement to float */
-  struct FloatVect3 accel_imu_f;
-  ACCELS_FLOAT_OF_BFP(accel_imu_f, accel_imu_meas);
-  /* rotate from imu to body frame */
   struct FloatVect3 accel_meas_body;
-  float_quat_vmult(&accel_meas_body, &imu_to_body_quat, &accel_imu_f);
+  ACCELS_FLOAT_OF_BFP(accel_meas_body, accel_imu_meas);
   float vdot = accel_meas_body.x / 9.81f - sinf(stateGetNedToBodyEulers_f()->theta);
 #else
   float vdot = 0;

@@ -22,17 +22,17 @@
       <field name="temp" type="float" unit="deg Celcius"/>
     </message>
 
-    <message name="IMU_GYRO_INT32" id="4">
+    <message name="IMU_GYRO" id="4">
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="gyro" type="struct Int32Rates *"/>
     </message>
 
-    <message name="IMU_ACCEL_INT32" id="5">
+    <message name="IMU_ACCEL" id="5">
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="accel" type="struct Int32Vect3 *"/>
     </message>
 
-    <message name="IMU_MAG_INT32" id="6">
+    <message name="IMU_MAG" id="6">
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="mag" type="struct Int32Vect3 *"/>
     </message>
@@ -42,10 +42,6 @@
       <field name="gyro" type="struct Int32Rates *"/>
       <field name="accel" type="struct Int32Vect3 *"/>
       <field name="mag" type="struct Int32Vect3 *"/>
-    </message>
-
-    <message name="BODY_TO_IMU_QUAT" id="8">
-      <field name="q_b2i_f" type="struct FloatQuat *"/>
     </message>
 
     <message name="GEO_MAG" id="9">
@@ -213,6 +209,35 @@
 
     <message name="RADIO_CONTROL" id="30">
       <field name="rc" type="struct RadioControl *">Pointer to a radio control structure</field>
+    </message>
+
+    <message name="IMU_GYRO_RAW" id="31">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates *"/>
+      <field name="samples" type="uint8_t"/>
+    </message>
+
+    <message name="IMU_ACCEL_RAW" id="32">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="accel" type="struct Int32Vect3 *"/>
+      <field name="samples" type="uint8_t"/>
+    </message>
+
+    <message name="IMU_MAG_RAW" id="33">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="mag" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="IMU_GYRO_INT" id="34">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="delta_gyro" type="struct FloatRates *"/>
+      <field name="dt" type="uint16_t" unit="us"/>
+    </message>
+
+    <message name="IMU_ACCEL_INT" id="35">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="delta_accel" type="struct FloatVect3 *"/>
+      <field name="dt" type="uint16_t" unit="us"/>
     </message>
 
   </msg_class>

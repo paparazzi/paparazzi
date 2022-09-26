@@ -78,11 +78,8 @@ void ahrs_madgwick_propagate(struct FloatRates* gyro, float dt)
     init_state();
   }
 
-  // unbias and rotate gyro
-  struct FloatRates gyro_unbiased;
-  RATES_DIFF(gyro_unbiased, *gyro, ahrs_madgwick.bias);
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_madgwick.body_to_imu);
-  float_rmat_transp_ratemult(&ahrs_madgwick.rates, body_to_imu_rmat, &gyro_unbiased);
+  // unbias gyro
+  RATES_DIFF(ahrs_madgwick.rates, *gyro, ahrs_madgwick.bias);
 
   // Rate of change of quaternion from gyroscope
   float_quat_derivative(&qdot, &ahrs_madgwick.rates, &ahrs_madgwick.quat);
@@ -143,14 +140,3 @@ void ahrs_madgwick_update_accel(struct FloatVect3* accel)
 {
   ahrs_madgwick.accel = *accel;
 }
-
-void ahrs_madgwick_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_madgwick.body_to_imu, q_b2i);
-
-  if (!ahrs_madgwick.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_madgwick.quat = *q_b2i;
-  }
-}
-

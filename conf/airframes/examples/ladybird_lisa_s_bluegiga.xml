@@ -181,7 +181,6 @@
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
-   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
   <firmware name="rotorcraft">
@@ -231,6 +230,5 @@
     <module name="ins"/>
     
    <module name="gps" type="ubx_ucenter"/>
-   <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

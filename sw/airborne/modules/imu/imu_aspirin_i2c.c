@@ -21,10 +21,11 @@
  */
 
 /**
- * @file modules/imu/imu_aspirin.c
+ * @file modules/imu/imu_aspirin_i2c.c
  * Driver for the Aspirin v1.x IMU using I2C for the accelerometer.
  */
 
+#include "modules/imu/imu_aspirin_i2c.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
@@ -107,6 +108,27 @@ void imu_aspirin_i2c_init(void)
   /* interrupt on data ready, idle high, latch until read any register */
   //itg_conf.int_cfg = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
 
+  // Default scaling values
+#ifdef IMU_ASPIRIN_VERSION_1_5
+  const struct Int32Rates gyro_scale[2] = {
+    {4359, 4359, 4359},
+    {1000, 1000, 1000}
+  };
+#else
+  const struct Int32Rates gyro_scale[2] = {
+    {4973, 4973, 4973},
+    {1000, 1000, 1000}
+  };
+#endif
+  const struct Int32Vect3 accel_scale[2] = {
+    {3791, 3791, 3791},
+    {100,  100,  100}
+  };
+ 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_ASPIRIN_ID, NULL, NULL, gyro_scale);
+  imu_set_defaults_accel(IMU_ASPIRIN_ID, NULL, NULL, accel_scale);
+
   /* initialize mag and set default options */
   hmc58xx_init(&imu_aspirin.mag_hmc, &(ASPIRIN_I2C_DEV), HMC58XX_ADDR);
 #ifdef IMU_ASPIRIN_VERSION_1_0
@@ -132,33 +154,29 @@ void imu_aspirin_i2c_event(void)
 
   adxl345_i2c_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
-    VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1);
     imu_aspirin.acc_adxl.data_available = false;
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &imu.accel);
   }
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
-    RATES_COPY(imu.gyro_unscaled, imu_aspirin.gyro_itg.data.rates);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.gyro_itg.data.rates, 1);
     imu_aspirin.gyro_itg.data_available = false;
-    imu_scale_gyro(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &imu.gyro);
   }
 
   /* HMC58XX event task */
   hmc58xx_event(&imu_aspirin.mag_hmc);
   if (imu_aspirin.mag_hmc.data_available) {
+    struct Int32Vect3 mag;
 #ifdef IMU_ASPIRIN_VERSION_1_0
-    VECT3_COPY(imu.mag_unscaled, imu_aspirin.mag_hmc.data.vect);
+    VECT3_COPY(mag, imu_aspirin.mag_hmc.data.vect);
 #else // aspirin 1.5 with hmc5883
-    imu.mag_unscaled.x =  imu_aspirin.mag_hmc.data.vect.y;
-    imu.mag_unscaled.y = -imu_aspirin.mag_hmc.data.vect.x;
-    imu.mag_unscaled.z =  imu_aspirin.mag_hmc.data.vect.z;
+    mag.x =  imu_aspirin.mag_hmc.data.vect.y;
+    mag.y = -imu_aspirin.mag_hmc.data.vect.x;
+    mag.z =  imu_aspirin.mag_hmc.data.vect.z;
 #endif
     imu_aspirin.mag_hmc.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN_ID, now_ts, &mag);
   }
 }

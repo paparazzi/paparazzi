@@ -85,7 +85,7 @@ void autopilot_static_init(void)
 
   ///@todo: properly implement/fix a triggered attitude loop
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &new_att_ev, &new_att_cb);
+  AbiBindMsgIMU_GYRO(ABI_BROADCAST, &new_att_ev, &new_att_cb);
 #endif
 
 }

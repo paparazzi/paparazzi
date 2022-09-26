@@ -1,10 +1,8 @@
 #include "nps_sensor_accel.h"
 
-#include "generated/airframe.h" /* to get NPS_SENSORS_PARAMS */
-
 #include "nps_fdm.h"
 #include "nps_random.h"
-#include NPS_SENSORS_PARAMS
+#include "nps_sensors.h"
 #include "math/pprz_algebra_int.h"
 
 void nps_sensor_accel_init(struct NpsSensorAccel *accel, double time)

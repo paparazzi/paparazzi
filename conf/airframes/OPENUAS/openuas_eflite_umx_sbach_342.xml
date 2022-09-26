@@ -90,7 +90,6 @@
       <module name="udp"/>
       <define name="JSBSIM_MODEL" value="easystar" type="string"/>
       <define name="JSBSIM_LAUNCHSPEED" value="6" unit="m/s"/>
-      <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
       -->
     <!-- </target>-->
 
@@ -168,7 +167,6 @@
     </module>
     -->
 
-    <module name="send_imu_mag_current"/> <!-- disable after one time calibration when all components are at final spot in airframe -->
     <module name="air_data">
       <define name="CALC_AIRSPEED" value="TRUE" />
       <define name="CALC_TAS_FACTOR" value="FALSE" />

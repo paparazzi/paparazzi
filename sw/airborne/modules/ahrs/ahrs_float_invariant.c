@@ -178,10 +178,7 @@ void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
   }
 
   // fill command vector
-  struct FloatRates gyro_meas_body;
-  struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_float_inv.body_to_imu);
-  float_rmat_transp_ratemult(&gyro_meas_body, body_to_imu_rmat, gyro);
-  ahrs_float_inv.cmd.rates = gyro_meas_body;
+  RATES_COPY(ahrs_float_inv.cmd.rates, *gyro);
 
   // update correction gains
   error_output(&ahrs_float_inv);
@@ -249,10 +246,8 @@ void ahrs_float_invariant_update_mag(struct FloatVect3* mag)
       mag_frozen_count = MAG_FROZEN_COUNT;
     }
   } else {
-    // values are moving
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_float_inv.body_to_imu);
     // new values in body frame
-    float_rmat_transp_vmult(&ahrs_float_inv.meas.mag, body_to_imu_rmat, mag);
+    VECT3_COPY(ahrs_float_inv.meas.mag, *mag);
     // reset counter
     mag_frozen_count = MAG_FROZEN_COUNT;
   }
@@ -380,14 +375,3 @@ void float_quat_vmul_right(struct FloatQuat *mright, const struct FloatQuat *q,
   VECT3_ADD(v2, v1);
   QUAT_ASSIGN(*mright, qi, v2.x, v2.y, v2.z);
 }
-
-void ahrs_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_float_inv.body_to_imu, q_b2i);
-
-  if (!ahrs_float_inv.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_float_inv.state.quat = *q_b2i;
-  }
-}
-

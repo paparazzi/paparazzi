@@ -62,9 +62,8 @@
 
       <!--run the chimera mag once every 64 seconds to avoid message spam-->
       <define name="MPU9250_MAG_PRESCALER" value="32768"/>
-    </module>
 
-    <module name="send_imu_mag_current">
+      <!-- Current calibration -->
       <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000"/>
       <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
       <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.5"/>
@@ -300,7 +299,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="ele_left, ele_right, mot_right, mot_left" type="string[]"/>
     <define name="JSBSIM_MODEL" value="cyclone" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 

@@ -25,6 +25,7 @@
  *
  */
 
+#include "modules/imu/imu_mpu9250_i2c.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
@@ -109,6 +110,10 @@ void imu_mpu9250_init(void)
   imu_mpu9250.mpu.config.dlpf_accel_cfg = IMU_MPU9250_ACCEL_LOWPASS_FILTER;
   imu_mpu9250.mpu.config.gyro_range = IMU_MPU9250_GYRO_RANGE;
   imu_mpu9250.mpu.config.accel_range = IMU_MPU9250_ACCEL_RANGE;
+
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_MPU9250_ID, NULL, NULL, MPU9250_GYRO_SENS_FRAC[IMU_MPU9250_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU9250_ID, NULL, NULL, MPU9250_ACCEL_SENS_FRAC[IMU_MPU9250_ACCEL_RANGE]);
 }
 
 void imu_mpu9250_periodic(void)
@@ -135,16 +140,10 @@ void imu_mpu9250_event(void)
       IMU_MPU9250_Y_SIGN *(int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Y]),
       IMU_MPU9250_Z_SIGN *(int32_t)(imu_mpu9250.mpu.data_rates.value[IMU_MPU9250_CHAN_Z])
     };
-    // unscaled vector
-    VECT3_COPY(imu.accel_unscaled, accel);
-    RATES_COPY(imu.gyro_unscaled, rates);
 
     imu_mpu9250.mpu.data_available = false;
-
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_MPU9250_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU9250_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1);
   }
 #if IMU_MPU9250_READ_MAG
   // Test if mag data are updated
@@ -154,10 +153,8 @@ void imu_mpu9250_event(void)
       IMU_MPU9250_Y_SIGN *(int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_X]),
       -IMU_MPU9250_Z_SIGN *(int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_Z])
     };
-    VECT3_COPY(imu.mag_unscaled, mag);
     imu_mpu9250.mpu.akm.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_MPU9250_ID, now_ts, &mag);
 
   }
 #endif

@@ -121,10 +121,9 @@ void ahrs_icq_init(void)
   ahrs_icq.ltp_vel_norm_valid = false;
   ahrs_icq.heading_aligned = false;
 
-  /* init ltp_to_imu quaternion as zero/identity rotation */
-  int32_quat_identity(&ahrs_icq.ltp_to_imu_quat);
-
-  INT_RATES_ZERO(ahrs_icq.imu_rate);
+  /* init ltp_to_body quaternion as zero/identity rotation */
+  int32_quat_identity(&ahrs_icq.ltp_to_body_quat);
+  INT_RATES_ZERO(ahrs_icq.body_rate);
 
   INT_RATES_ZERO(ahrs_icq.gyro_bias);
   INT_RATES_ZERO(ahrs_icq.rate_correction);
@@ -161,12 +160,12 @@ bool ahrs_icq_align(struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
 
 #if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
-  ahrs_int_get_quat_from_accel_mag(&ahrs_icq.ltp_to_imu_quat,
+  ahrs_int_get_quat_from_accel_mag(&ahrs_icq.ltp_to_body_quat,
                                    lp_accel, lp_mag);
   ahrs_icq.heading_aligned = true;
 #else
   /* Compute an initial orientation from accel and just set heading to zero */
-  ahrs_int_get_quat_from_accel(&ahrs_icq.ltp_to_imu_quat, lp_accel);
+  ahrs_int_get_quat_from_accel(&ahrs_icq.ltp_to_body_quat, lp_accel);
   ahrs_icq.heading_aligned = false;
   // supress unused arg warning
   lp_mag = lp_mag;
@@ -194,11 +193,11 @@ void ahrs_icq_propagate(struct Int32Rates *gyro, float dt)
 
   /* low pass rate */
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
-  RATES_SMUL(ahrs_icq.imu_rate, ahrs_icq.imu_rate, AHRS_PROPAGATE_LOW_PASS_RATES_MUL);
-  RATES_ADD(ahrs_icq.imu_rate, omega);
-  RATES_SDIV(ahrs_icq.imu_rate, ahrs_icq.imu_rate, AHRS_PROPAGATE_LOW_PASS_RATES_DIV);
+  RATES_SMUL(ahrs_icq.body_rate, ahrs_icq.body_rate, AHRS_PROPAGATE_LOW_PASS_RATES_MUL);
+  RATES_ADD(ahrs_icq.body_rate, omega);
+  RATES_SDIV(ahrs_icq.body_rate, ahrs_icq.body_rate, AHRS_PROPAGATE_LOW_PASS_RATES_DIV);
 #else
-  RATES_COPY(ahrs_icq.imu_rate, omega);
+  RATES_COPY(ahrs_icq.body_rate, omega);
 #endif
 
   /* add correction */
@@ -207,9 +206,9 @@ void ahrs_icq_propagate(struct Int32Rates *gyro, float dt)
   INT_RATES_ZERO(ahrs_icq.rate_correction);
 
   /* integrate quaternion */
-  int32_quat_integrate_fi(&ahrs_icq.ltp_to_imu_quat, &ahrs_icq.high_rez_quat,
+  int32_quat_integrate_fi(&ahrs_icq.ltp_to_body_quat, &ahrs_icq.high_rez_quat,
                           &omega, freq);
-  int32_quat_normalize(&ahrs_icq.ltp_to_imu_quat);
+  int32_quat_normalize(&ahrs_icq.ltp_to_body_quat);
 
   // increase accel and mag propagation counters
   ahrs_icq.accel_cnt++;
@@ -246,11 +245,11 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
   }
 
   // c2 = ltp z-axis in imu-frame
-  struct Int32RMat ltp_to_imu_rmat;
-  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_icq.ltp_to_imu_quat);
-  struct Int32Vect3 c2 = { RMAT_ELMT(ltp_to_imu_rmat, 0, 2),
-           RMAT_ELMT(ltp_to_imu_rmat, 1, 2),
-           RMAT_ELMT(ltp_to_imu_rmat, 2, 2)
+  struct Int32RMat ltp_to_body_rmat;
+  int32_rmat_of_quat(&ltp_to_body_rmat, &ahrs_icq.ltp_to_body_quat);
+  struct Int32Vect3 c2 = { RMAT_ELMT(ltp_to_body_rmat, 0, 2),
+           RMAT_ELMT(ltp_to_body_rmat, 1, 2),
+           RMAT_ELMT(ltp_to_body_rmat, 2, 2)
   };
   struct Int32Vect3 residual;
 
@@ -279,20 +278,13 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
     /* assume tangential velocity along body x-axis */
       {ahrs_icq.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
 #endif
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
-    struct Int32Rates body_rate;
-    int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
     struct Int32Vect3 acc_c_body;
-    VECT3_RATES_CROSS_VECT3(acc_c_body, body_rate, vel_tangential_body);
+    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_icq.body_rate, vel_tangential_body);
     INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, ACC_FROM_CROSS_FRAC);
 
-    /* convert centrifucal acceleration from body to imu frame */
-    struct Int32Vect3 acc_c_imu;
-    int32_rmat_vmult(&acc_c_imu, body_to_imu_rmat, &acc_c_body);
-
-    /* and subtract it from imu measurement to get a corrected measurement
+    /* centrifucal acceleration subtract it from imu measurement to get a corrected measurement
      * of the gravity vector */
-    VECT3_DIFF(pseudo_gravity_measurement, *accel, acc_c_imu);
+    VECT3_DIFF(pseudo_gravity_measurement, *accel, acc_c_body);
   } else {
     VECT3_COPY(pseudo_gravity_measurement, *accel);
   }
@@ -410,11 +402,11 @@ void ahrs_icq_set_mag_gains(void)
 static inline void ahrs_icq_update_mag_full(struct Int32Vect3 *mag, float dt)
 {
 
-  struct Int32RMat ltp_to_imu_rmat;
-  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_icq.ltp_to_imu_quat);
+  struct Int32RMat ltp_to_body_rmat;
+  int32_rmat_of_quat(&ltp_to_body_rmat, &ahrs_icq.ltp_to_body_quat);
 
   struct Int32Vect3 expected_imu;
-  int32_rmat_vmult(&expected_imu, &ltp_to_imu_rmat, &ahrs_icq.mag_h);
+  int32_rmat_vmult(&expected_imu, &ltp_to_body_rmat, &ahrs_icq.mag_h);
 
   struct Int32Vect3 residual;
   VECT3_CROSS_PRODUCT(residual, *mag, expected_imu);
@@ -467,11 +459,11 @@ static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt)
   /* normalize expected ltp in 2D (x,y) */
   int32_vect2_normalize(&expected_ltp, INT32_MAG_FRAC);
 
-  struct Int32RMat ltp_to_imu_rmat;
-  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_icq.ltp_to_imu_quat);
+  struct Int32RMat ltp_to_body_rmat;
+  int32_rmat_of_quat(&ltp_to_body_rmat, &ahrs_icq.ltp_to_body_quat);
 
   struct Int32Vect3 measured_ltp;
-  int32_rmat_transp_vmult(&measured_ltp, &ltp_to_imu_rmat, mag);
+  int32_rmat_transp_vmult(&measured_ltp, &ltp_to_body_rmat, mag);
 
   /* normalize measured ltp in 2D (x,y) */
   struct Int32Vect2 measured_ltp_2d = {measured_ltp.x, measured_ltp.y};
@@ -485,15 +477,15 @@ static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt)
   };
 
 
-  struct Int32Vect3 residual_imu;
-  int32_rmat_vmult(&residual_imu, &ltp_to_imu_rmat, &residual_ltp);
+  struct Int32Vect3 residual_body;
+  int32_rmat_vmult(&residual_body, &ltp_to_body_rmat, &residual_ltp);
 
   /* Complementary filter proportionnal gain.
    * Kp = 2 * mag_zeta * mag_omega
    * final Kp with frequency correction = Kp * ahrs_icq.mag_cnt
    * with ahrs_icq.mag_cnt beeing the number of propagations since last update
    *
-   * residual_imu FRAC = residual_ltp FRAC = 17
+   * residual_body FRAC = residual_ltp FRAC = 17
    * rate_correction FRAC: RATE_FRAC = 12
    * FRAC conversion: 2^12 / 2^17 = 1/32
    *
@@ -502,15 +494,15 @@ static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt)
    */
   int32_t inv_rate_gain = (int32_t)(32.0 / (ahrs_icq.mag_kp * ahrs_icq.mag_cnt));
 
-  ahrs_icq.rate_correction.p += (residual_imu.x / inv_rate_gain);
-  ahrs_icq.rate_correction.q += (residual_imu.y / inv_rate_gain);
-  ahrs_icq.rate_correction.r += (residual_imu.z / inv_rate_gain);
+  ahrs_icq.rate_correction.p += (residual_body.x / inv_rate_gain);
+  ahrs_icq.rate_correction.q += (residual_body.y / inv_rate_gain);
+  ahrs_icq.rate_correction.r += (residual_body.z / inv_rate_gain);
 
   /* Complementary filter integral gain
    * Correct the gyro bias.
    * Ki = omega^2 * dt
    *
-   * residual_imu FRAC = residual_ltp FRAC = 17
+   * residual_body FRAC = residual_ltp FRAC = 17
    * high_rez_bias FRAC: RATE_FRAC+28 = 40
    * FRAC conversion: 2^40 / 2^17 = 2^23
    *
@@ -518,9 +510,9 @@ static inline void ahrs_icq_update_mag_2d(struct Int32Vect3 *mag, float dt)
    */
   int32_t bias_gain = (int32_t)(ahrs_icq.mag_ki * dt * (1 << 23));
 
-  ahrs_icq.high_rez_bias.p -= (residual_imu.x * bias_gain);
-  ahrs_icq.high_rez_bias.q -= (residual_imu.y * bias_gain);
-  ahrs_icq.high_rez_bias.r -= (residual_imu.z * bias_gain);
+  ahrs_icq.high_rez_bias.p -= (residual_body.x * bias_gain);
+  ahrs_icq.high_rez_bias.q -= (residual_body.y * bias_gain);
+  ahrs_icq.high_rez_bias.r -= (residual_body.z * bias_gain);
 
   INT_RATES_RSHIFT(ahrs_icq.gyro_bias, ahrs_icq.high_rez_bias, 28);
 
@@ -569,11 +561,8 @@ void ahrs_icq_update_heading(int32_t heading)
 
   // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
   // we only consider x and y
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
-  struct Int32Quat ltp_to_body_quat;
-  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
   struct Int32RMat ltp_to_body_rmat;
-  int32_rmat_of_quat(&ltp_to_body_rmat, &ltp_to_body_quat);
+  int32_rmat_of_quat(&ltp_to_body_rmat, &ahrs_icq.ltp_to_body_quat);
   struct Int32Vect2 expected_ltp = {
     RMAT_ELMT(ltp_to_body_rmat, 0, 0),
     RMAT_ELMT(ltp_to_body_rmat, 0, 1)
@@ -590,18 +579,16 @@ void ahrs_icq_update_heading(int32_t heading)
     (expected_ltp.x * heading_y - expected_ltp.y * heading_x) / (1 << INT32_ANGLE_FRAC)
   };
 
-  struct Int32Vect3 residual_imu;
-  struct Int32RMat ltp_to_imu_rmat;
-  int32_rmat_of_quat(&ltp_to_imu_rmat, &ahrs_icq.ltp_to_imu_quat);
-  int32_rmat_vmult(&residual_imu, &ltp_to_imu_rmat, &residual_ltp);
+  struct Int32Vect3 residual_body;
+  int32_rmat_vmult(&residual_body, &ltp_to_body_rmat, &residual_ltp);
 
   // residual FRAC = TRIG_FRAC + TRIG_FRAC = 14 + 14 = 28
   // rate_correction FRAC = RATE_FRAC = 12
   // 2^12 / 2^28 * 4.0 = 1/2^14
   // (1<<INT32_ANGLE_FRAC)/2^14 = 1/4
-  ahrs_icq.rate_correction.p += residual_imu.x / 4;
-  ahrs_icq.rate_correction.q += residual_imu.y / 4;
-  ahrs_icq.rate_correction.r += residual_imu.z / 4;
+  ahrs_icq.rate_correction.p += residual_body.x / 4;
+  ahrs_icq.rate_correction.q += residual_body.y / 4;
+  ahrs_icq.rate_correction.r += residual_body.z / 4;
 
 
   /* crude attempt to only update bias if deviation is small
@@ -616,9 +603,9 @@ void ahrs_icq_update_heading(int32_t heading)
     // residual_ltp FRAC = 2 * TRIG_FRAC = 28
     // high_rez_bias = RATE_FRAC+28 = 40
     // 2^40 / 2^28 * 2.5e-4 = 1
-    ahrs_icq.high_rez_bias.p -= residual_imu.x * (1 << INT32_ANGLE_FRAC);
-    ahrs_icq.high_rez_bias.q -= residual_imu.y * (1 << INT32_ANGLE_FRAC);
-    ahrs_icq.high_rez_bias.r -= residual_imu.z * (1 << INT32_ANGLE_FRAC);
+    ahrs_icq.high_rez_bias.p -= residual_body.x * (1 << INT32_ANGLE_FRAC);
+    ahrs_icq.high_rez_bias.q -= residual_body.y * (1 << INT32_ANGLE_FRAC);
+    ahrs_icq.high_rez_bias.r -= residual_body.z * (1 << INT32_ANGLE_FRAC);
 
     INT_RATES_RSHIFT(ahrs_icq.gyro_bias, ahrs_icq.high_rez_bias, 28);
   }
@@ -626,10 +613,6 @@ void ahrs_icq_update_heading(int32_t heading)
 
 void ahrs_icq_realign_heading(int32_t heading)
 {
-  struct Int32Quat *body_to_imu_quat = orientationGetQuat_i(&ahrs_icq.body_to_imu);
-  struct Int32Quat ltp_to_body_quat;
-  int32_quat_comp_inv(&ltp_to_body_quat, &ahrs_icq.ltp_to_imu_quat, body_to_imu_quat);
-
   /* quaternion representing only the heading rotation from ltp to body */
   struct Int32Quat q_h_new;
   q_h_new.qx = 0;
@@ -639,7 +622,7 @@ void ahrs_icq_realign_heading(int32_t heading)
 
   /* quaternion representing current heading only */
   struct Int32Quat q_h;
-  QUAT_COPY(q_h, ltp_to_body_quat);
+  QUAT_COPY(q_h, ahrs_icq.ltp_to_body_quat);
   q_h.qx = 0;
   q_h.qy = 0;
   int32_quat_normalize(&q_h);
@@ -650,26 +633,8 @@ void ahrs_icq_realign_heading(int32_t heading)
 
   /* correct current heading in body frame */
   struct Int32Quat q;
-  int32_quat_comp_norm_shortest(&q, &q_c, &ltp_to_body_quat);
-  QUAT_COPY(ltp_to_body_quat, q);
-
-  /* compute ltp to imu rotations */
-  int32_quat_comp(&ahrs_icq.ltp_to_imu_quat, &ltp_to_body_quat, body_to_imu_quat);
+  int32_quat_comp_norm_shortest(&q, &q_c, &ahrs_icq.ltp_to_body_quat);
+  QUAT_COPY(ahrs_icq.ltp_to_body_quat, q);
 
   ahrs_icq.heading_aligned = true;
-}
-
-void ahrs_icq_set_body_to_imu(struct OrientationReps *body_to_imu)
-{
-  ahrs_icq_set_body_to_imu_quat(orientationGetQuat_f(body_to_imu));
-}
-
-void ahrs_icq_set_body_to_imu_quat(struct FloatQuat *q_b2i)
-{
-  orientationSetQuat_f(&ahrs_icq.body_to_imu, q_b2i);
-
-  if (!ahrs_icq.is_aligned) {
-    /* Set ltp_to_imu so that body is zero */
-    ahrs_icq.ltp_to_imu_quat = *orientationGetQuat_i(&ahrs_icq.body_to_imu);
-  }
 }

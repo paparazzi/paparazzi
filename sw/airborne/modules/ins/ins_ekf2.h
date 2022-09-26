@@ -38,24 +38,20 @@ extern "C" {
 
 /* Main EKF2 structure for keeping track of the status and use cross messaging */
 struct ekf2_t {
-  uint32_t gyro_stamp;        ///< Gyroscope last abi message timestamp
-  uint32_t gyro_dt;           ///< Gyroscope delta timestamp between abi messages
-  uint32_t accel_stamp;       ///< Accelerometer last abi message timestamp
-  uint32_t accel_dt;          ///< Accelerometer delta timestamp between abi messages
-  uint32_t flow_stamp;        ///< Optic flow last abi message timestamp
+  struct FloatRates delta_gyro;   ///< Last gyroscope measurements
+  struct FloatVect3 delta_accel;  ///< Last accelerometer measurements
+  uint32_t gyro_dt;               ///< Gyroscope delta timestamp between abi messages (us)
+  uint32_t accel_dt;              ///< Accelerometer delta timestamp between abi messages (us)
+  bool gyro_valid;                ///< If we received a gyroscope measurement
+  bool accel_valid;               ///< If we received a acceleration measurement
+  uint32_t flow_stamp;            ///< Optic flow last abi message timestamp
 
-  struct FloatRates gyro;     ///< Last gyroscope measurements
-  struct FloatVect3 accel;    ///< Last accelerometer measurements
-  bool gyro_valid;            ///< If we received a gyroscope measurement
-  bool accel_valid;           ///< If we received a acceleration measurement
-
-  float temp;                 ///< Latest temperature measurement in degrees celcius
-  float qnh;                  ///< QNH value in hPa
-  uint8_t quat_reset_counter;           ///< Amount of quaternion resets from the EKF2
-  uint64_t ltp_stamp;                   ///< Last LTP change timestamp from the EKF2
-  struct LtpDef_i ltp_def;              ///< Latest LTP definition from the quat_reset_counterEKF2
-  struct OrientationReps body_to_imu;   ///< Body to IMU rotation
-  bool got_imu_data;                    ///< If we received valid IMU data (any sensor)
+  float temp;                     ///< Latest temperature measurement in degrees celcius
+  float qnh;                      ///< QNH value in hPa
+  uint8_t quat_reset_counter;     ///< Amount of quaternion resets from the EKF2
+  uint64_t ltp_stamp;             ///< Last LTP change timestamp from the EKF2
+  struct LtpDef_i ltp_def;        ///< Latest LTP definition from the quat_reset_counter EKF2
+  bool got_imu_data;              ///< If we received valid IMU data (any sensor)
 
   int32_t mag_fusion_type;
   int32_t fusion_mode;

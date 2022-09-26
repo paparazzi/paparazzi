@@ -82,7 +82,6 @@
     <module name="ins"           type="ekf2" />
     
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
 
     <!-- Internal MAG -->
     <!--module name="mag_ist8310">
@@ -343,7 +342,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,ail1,ail2,ail3,ail4,flap1,flap2,flap3,flap4" type="string[]"/>
     <define name="JSBSIM_MODEL" value="nederdrone" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

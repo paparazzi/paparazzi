@@ -48,12 +48,12 @@ static void set_body_state_from_quat(void);
 
 static void send_euler(struct transport_tx *trans, struct link_device *dev)
 {
-  struct FloatEulers ltp_to_imu_euler;
-  float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_mlkf.ltp_to_imu_quat);
+  struct FloatEulers ltp_to_body_euler;
+  float_eulers_of_quat(&ltp_to_body_euler, &ahrs_mlkf.ltp_to_body_quat);
   pprz_msg_send_AHRS_EULER(trans, dev, AC_ID,
-                           &ltp_to_imu_euler.phi,
-                           &ltp_to_imu_euler.theta,
-                           &ltp_to_imu_euler.psi,
+                           &ltp_to_body_euler.phi,
+                           &ltp_to_body_euler.theta,
+                           &ltp_to_body_euler.psi,
                            &ahrs_mlkf_id);
 }
 
@@ -102,7 +102,6 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event aligner_ev;
-static abi_event body_to_imu_ev;
 static abi_event geo_mag_ev;
 
 
@@ -179,12 +178,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
-static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
-                           struct FloatQuat *q_b2i_f)
-{
-  ahrs_mlkf_set_body_to_imu_quat(q_b2i_f);
-}
-
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
   ahrs_mlkf.mag_h = *h;
@@ -202,20 +195,9 @@ static bool ahrs_mlkf_enable_output(bool enable)
 static void set_body_state_from_quat(void)
 {
   if (ahrs_mlkf_output_enabled) {
-    struct FloatQuat *body_to_imu_quat = orientationGetQuat_f(&ahrs_mlkf.body_to_imu);
-    struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_mlkf.body_to_imu);
-
-    /* Compute LTP to BODY quaternion */
-    struct FloatQuat ltp_to_body_quat;
-    float_quat_comp_inv(&ltp_to_body_quat, &ahrs_mlkf.ltp_to_imu_quat, body_to_imu_quat);
     /* Set in state interface */
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
-
-    /* compute body rates */
-    struct FloatRates body_rate;
-    float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_mlkf.imu_rate);
-    /* Set state */
-    stateSetBodyRates_f(&body_rate);
+    stateSetNedToBodyQuat_f(&ahrs_mlkf.ltp_to_body_quat);
+    stateSetBodyRates_f(&ahrs_mlkf.body_rate);
   }
 }
 
@@ -228,11 +210,10 @@ void ahrs_mlkf_register(void)
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
    */
-  AbiBindMsgIMU_GYRO_INT32(AHRS_MLKF_IMU_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(AHRS_MLKF_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_INT32(AHRS_MLKF_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
+  AbiBindMsgIMU_GYRO(AHRS_MLKF_IMU_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(AHRS_MLKF_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(AHRS_MLKF_MAG_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_LOWPASSED(AHRS_MLKF_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 
 #if PERIODIC_TELEMETRY

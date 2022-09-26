@@ -26,8 +26,6 @@
     <define name="IMU_APOGEE_I2C_DEV" value="i2c1"/>
     <define name="USE_I2C1"/>
 
-    <define name="IMU_TYPE_H" value="boards/apogee/imu_apogee.h" type="string"/>
-
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="imu_apogee.c" dir="boards/apogee"/>

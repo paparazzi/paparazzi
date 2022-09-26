@@ -189,7 +189,6 @@
     <module name="control" type="new"/>
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!--needs fixing for FW fix test then disable after initial tuning-->
-    <module name="send_imu_mag_current"/> <!-- Can be Disabled after one time calibration, quite the same for all Discos -->
 
     <!-- Also used if QNH needed -->
     <module name="air_data">

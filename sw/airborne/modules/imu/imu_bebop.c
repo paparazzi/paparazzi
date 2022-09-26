@@ -24,6 +24,7 @@
  * Driver for the Bebop (2) magnetometer, accelerometer and gyroscope
  */
 
+#include "modules/imu/imu_bebop.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
@@ -80,6 +81,10 @@ void imu_bebop_init(void)
   imu_bebop.mpu.config.gyro_range = BEBOP_GYRO_RANGE;
   imu_bebop.mpu.config.accel_range = BEBOP_ACCEL_RANGE;
 
+  // Set the default scaling
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[BEBOP_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[BEBOP_ACCEL_RANGE]);
+
   /* AKM8963 */
   ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR);
 
@@ -118,35 +123,35 @@ void imu_bebop_event(void)
 
   if (imu_bebop.mpu.data_available) {
     /* default orientation of the MPU is upside down sor corrigate this here */
-    RATES_ASSIGN(imu.gyro_unscaled, imu_bebop.mpu.data_rates.rates.p, -imu_bebop.mpu.data_rates.rates.q,
+    struct Int32Rates gyro;
+    struct Int32Vect3 accel;
+    RATES_ASSIGN(gyro, imu_bebop.mpu.data_rates.rates.p, -imu_bebop.mpu.data_rates.rates.q,
                  -imu_bebop.mpu.data_rates.rates.r);
-    VECT3_ASSIGN(imu.accel_unscaled, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y,
+    VECT3_ASSIGN(accel, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y,
                  -imu_bebop.mpu.data_accel.vect.z);
 
     imu_bebop.mpu.data_available = false;
-    imu_scale_gyro(&imu);
-    imu_scale_accel(&imu);
-    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
-    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
   }
 
   /* AKM8963 event task */
   ak8963_event(&imu_bebop.ak);
 
   if (imu_bebop.ak.data_available) {
+    struct Int32Vect3 mag;
 #if BEBOP_VERSION2
     struct Int32Vect3 mag_temp;
     // In the second bebop version the magneto is turned 90 degrees
     VECT3_ASSIGN(mag_temp, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
     // Rotate the magneto
     struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&imu_to_mag_bebop);
-    int32_rmat_vmult(&imu.mag_unscaled, imu_to_mag_rmat, &mag_temp);
+    int32_rmat_vmult(&mag, imu_to_mag_rmat, &mag_temp);
 #else //BEBOP regular first verion
-    VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
+    VECT3_ASSIGN(mag, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
 #endif
 
     imu_bebop.ak.data_available = false;
-    imu_scale_mag(&imu);
-    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
+    AbiSendMsgIMU_MAG_RAW(IMU_BOARD_ID, now_ts, &mag);
   }
 }

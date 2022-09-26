@@ -52,29 +52,4 @@ void imu_vectornav_event(void);
 void imu_vectornav_periodic(void);
 void imu_vectornav_propagate(void);
 
-/* no scaling (the WEAK attribute has no effect */
-#ifndef IMU_GYRO_P_SENS_NUM
-#define IMU_GYRO_P_SENS_NUM 1
-#endif
-
-#ifndef IMU_GYRO_P_SENS_DEN
-#define IMU_GYRO_P_SENS_DEN 1
-#endif
-
-#ifndef IMU_GYRO_Q_SENS_NUM
-#define IMU_GYRO_Q_SENS_NUM 1
-#endif
-
-#ifndef IMU_GYRO_Q_SENS_DEN
-#define IMU_GYRO_Q_SENS_DEN 1
-#endif
-
-#ifndef IMU_GYRO_R_SENS_NUM
-#define IMU_GYRO_R_SENS_NUM 1
-#endif
-
-#ifndef IMU_GYRO_R_SENS_DEN
-#define IMU_GYRO_R_SENS_DEN 1
-#endif
-
 #endif /* IMU_VECTORNAV_H */

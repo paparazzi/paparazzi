@@ -160,7 +160,6 @@
 
     <module name="geo_mag"/>
 
-    <module name="send_imu_mag_current"/> <!-- enable if airframe has added electronic or other devices, recalibrate and stuffcalibration in this airframefile-->
 
     <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/><!-- in deg -->
@@ -578,7 +577,6 @@ second order filter parameters -->
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="bebop" type="string"/>
     <define name="WEIGHT" value="0.4"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 

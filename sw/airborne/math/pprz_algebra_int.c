@@ -72,7 +72,7 @@ uint32_t int32_gcd(uint32_t a, uint32_t b)
 /** Composition (multiplication) of two rotation matrices.
  * _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b
  */
-void int32_rmat_comp(struct Int32RMat *m_a2c, struct Int32RMat *m_a2b, struct Int32RMat *m_b2c)
+void int32_rmat_comp(struct Int32RMat *m_a2c, const struct Int32RMat *m_a2b, const struct Int32RMat *m_b2c)
 {
   m_a2c->m[0] = (m_b2c->m[0] * m_a2b->m[0] + m_b2c->m[1] * m_a2b->m[3] + m_b2c->m[2] * m_a2b->m[6]) >> INT32_TRIG_FRAC;
   m_a2c->m[1] = (m_b2c->m[0] * m_a2b->m[1] + m_b2c->m[1] * m_a2b->m[4] + m_b2c->m[2] * m_a2b->m[7]) >> INT32_TRIG_FRAC;
@@ -88,7 +88,7 @@ void int32_rmat_comp(struct Int32RMat *m_a2c, struct Int32RMat *m_a2b, struct In
 /** Composition (multiplication) of two rotation matrices.
  * _m_a2b = _m_a2c comp_inv _m_b2c , aka  _m_a2b = inv(_m_b2c) * _m_a2c
  */
-void int32_rmat_comp_inv(struct Int32RMat *m_a2b, struct Int32RMat *m_a2c, struct Int32RMat *m_b2c)
+void int32_rmat_comp_inv(struct Int32RMat *m_a2b, const struct Int32RMat *m_a2c, const struct Int32RMat *m_b2c)
 {
   m_a2b->m[0] = (m_b2c->m[0] * m_a2c->m[0] + m_b2c->m[3] * m_a2c->m[3] + m_b2c->m[6] * m_a2c->m[6]) >> INT32_TRIG_FRAC;
   m_a2b->m[1] = (m_b2c->m[0] * m_a2c->m[1] + m_b2c->m[3] * m_a2c->m[4] + m_b2c->m[6] * m_a2c->m[7]) >> INT32_TRIG_FRAC;

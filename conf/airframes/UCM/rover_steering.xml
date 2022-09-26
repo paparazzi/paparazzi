@@ -111,7 +111,6 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
   
   <section name="BAT">

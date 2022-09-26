@@ -1,0 +1,54 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_cube" dir="imu" task="sensors">
+  <doc>
+    <description>
+      IMU driver for the sensors inside the cube autopilots
+      - IMU1: ICM20948 (non-isolated)
+      - IMU2: ICM20602 (isolated)
+      - IMU3: ICM20649 (isolated)
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,imu_common</depends>
+    <provides>imu</provides>
+  </dep>
+  <autoload name="imu_nps"/>
+  <autoload name="imu_sim"/>
+  <header>
+    <file name="imu_cube.h"/>
+  </header>
+  <init fun="imu_cube_init()"/>
+  <periodic fun="imu_cube_periodic()"/>
+  <event fun="imu_cube_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <!-- ICM20948 (non-isolated) -->
+    <configure name="CUBE_IMU1_SPI_DEV" default="spi1" case="lower|upper"/>
+    <configure name="CUBE_IMU1_SPI_SLAVE_IDX" default="SPI_SLAVE2"/>
+    <define name="CUBE_IMU1_SPI_DEV" value="$(CUBE_IMU1_SPI_DEV_LOWER)"/>
+    <define name="USE_$(CUBE_IMU1_SPI_DEV_UPPER)"/>
+    <define name="CUBE_IMU1_SPI_SLAVE_IDX" value="$(CUBE_IMU1_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(CUBE_IMU1_SPI_SLAVE_IDX)"/>
+
+    <!-- ICM20602 (isolated) -->
+    <configure name="CUBE_IMU2_SPI_DEV" default="spi4" case="lower|upper"/>
+    <configure name="CUBE_IMU2_SPI_SLAVE_IDX" default="SPI_SLAVE3"/>
+    <define name="CUBE_IMU2_SPI_DEV" value="$(CUBE_IMU2_SPI_DEV_LOWER)"/>
+    <define name="USE_$(CUBE_IMU2_SPI_DEV_UPPER)"/>
+    <define name="CUBE_IMU2_SPI_SLAVE_IDX" value="$(CUBE_IMU2_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(CUBE_IMU2_SPI_SLAVE_IDX)"/>
+
+    <!-- ICM20649 (isolated) -->
+    <configure name="CUBE_IMU3_SPI_DEV" default="spi4" case="lower|upper"/>
+    <configure name="CUBE_IMU3_SPI_SLAVE_IDX" default="SPI_SLAVE8"/>
+    <define name="CUBE_IMU3_SPI_DEV" value="$(CUBE_IMU3_SPI_DEV_LOWER)"/>
+    <define name="USE_$(CUBE_IMU3_SPI_DEV_UPPER)"/>
+    <define name="CUBE_IMU3_SPI_SLAVE_IDX" value="$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
+
+    <file name="invensense2.c" dir="peripherals"/>
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_spi.c" dir="peripherals"/>
+    <file name="imu_cube.c"/>
+  </makefile>
+</module>

@@ -74,25 +74,29 @@ static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 
 static void send_accel(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID,
+  uint8_t id = IMU_VECTORNAV_ID;
+  pprz_msg_send_IMU_ACCEL(trans, dev, AC_ID, &id,
                           &ins_vn.vn_data.accel.x, &ins_vn.vn_data.accel.y, &ins_vn.vn_data.accel.z);
 }
 
 static void send_gyro(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID,
+  uint8_t id = IMU_VECTORNAV_ID;
+  pprz_msg_send_IMU_GYRO(trans, dev, AC_ID, &id,
                          &ins_vn.vn_data.gyro.p, &ins_vn.vn_data.gyro.q, &ins_vn.vn_data.gyro.r);
 }
 
 static void send_accel_scaled(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID,
+  uint8_t id = IMU_VECTORNAV_ID;
+  pprz_msg_send_IMU_ACCEL_SCALED(trans, dev, AC_ID, &id,
                                  &ins_vn.accel_i.x, &ins_vn.accel_i.y, &ins_vn.accel_i.z);
 }
 
 static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID,
+  uint8_t id = IMU_VECTORNAV_ID;
+  pprz_msg_send_IMU_GYRO_SCALED(trans, dev, AC_ID, &id,
                                  &ins_vn.gyro_i.p, &ins_vn.gyro_i.q, &ins_vn.gyro_i.r);
 }
 #endif

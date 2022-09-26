@@ -62,7 +62,6 @@
 	 current to magnetic field distortion curve.
 	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
       -->
-    <!--module name="send_imu_mag_current"/-->
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -209,7 +208,6 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="se_motor, sw_motor, nw_motor, ne_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

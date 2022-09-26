@@ -43,9 +43,9 @@ enum AhrsFCStatus {
 struct AhrsFloatCmpl {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
-  struct FloatRates imu_rate;
-  struct FloatQuat ltp_to_imu_quat;
-  struct FloatRMat ltp_to_imu_rmat;
+  struct FloatRates body_rate;
+  struct FloatQuat ltp_to_body_quat;
+  struct FloatRMat ltp_to_body_rmat;
 
   bool correct_gravity; ///< enable gravity correction during coordinated turns
   float ltp_vel_norm; ///< velocity norm for gravity correction during coordinated turns
@@ -69,9 +69,6 @@ struct AhrsFloatCmpl {
   uint16_t accel_cnt; ///< number of propagations since last accel update
   uint16_t mag_cnt;   ///< number of propagations since last mag update
 
-  struct OrientationReps body_to_imu;
-  struct OrientationReps ltp_to_body;
-
   enum AhrsFCStatus status;
   bool is_aligned;
 };
@@ -79,9 +76,6 @@ struct AhrsFloatCmpl {
 extern struct AhrsFloatCmpl ahrs_fc;
 
 extern void ahrs_fc_init(void);
-extern void ahrs_fc_set_body_to_imu(struct OrientationReps *body_to_imu);
-extern void ahrs_fc_set_body_to_imu_quat(struct FloatQuat *q_b2i);
-extern void ahrs_fc_recompute_ltp_to_body(void);
 extern bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
                             struct FloatVect3 *lp_mag);
 extern void ahrs_fc_propagate(struct FloatRates *gyro, float dt);

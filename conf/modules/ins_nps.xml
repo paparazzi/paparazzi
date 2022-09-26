@@ -19,12 +19,13 @@
     <file name="imu.c" dir="modules/imu"/>
     <file name="imu_nps.c" dir="modules/imu"/>
     <define name="USE_IMU"/>
-    <define name="IMU_TYPE_H" value="modules/imu/imu_nps.h" type="string"/>
 
     <!-- use attitude from nps sim -->
     <define name="NPS_BYPASS_AHRS" value="TRUE"/>
     <test>
+      <define name="PERIODIC_FREQUENCY" value="500"/>
       <include name="../simulator/nps"/>
+      <include name="../../conf/simulator/nps"/>
       <shell cmd="pkg-config glib-2.0 --cflags"/>
     </test>
   </makefile>
