@@ -89,5 +89,9 @@ extern int jevois_mapping_setting;
  */
 extern void jevois_send_state(void);
 
+/** Extract a number from jevoid ID field
+ */
+extern int jevois_extract_nb(char *in);
+
 #endif
 

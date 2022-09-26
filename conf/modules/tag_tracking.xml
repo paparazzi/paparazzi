@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="tag_tracking" dir="computer_vision">
+  <doc>
+    <description>
+      Track poistion of a tag (ArUco, QRcode, ...) detected by an onboard camera
+      The tag detection and pose computation is done outside of the module, only the estimation by fusion of AHRS and visual detection with a Kalman filter is performed in this module
+    </description>
+    <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
+      <define name="WP" value="WP_TAG" description="if defined, update the position of the waypoint at the location of the tag; if TAG waypoint exists in flight plan, it is used by default"/>
+      <define name="SIM_WP" value="WP_TARGET" description="designate a waypoint to be used as virtual tag in simulation; if TARGET waypoint exists in flight plan, it is used by default"/>
+      <define name="BODY_TO_CAM_PHI" value="0." description="rotation from body to cam frame (phi)"/>
+      <define name="BODY_TO_CAM_THETA" value="0." description="rotation from body to cam frame (theta)"/>
+      <define name="BODY_TO_CAM_PSI" value="0." description="rotation from body to cam frame (psi)"/>
+      <define name="CAM_POS_X" value="0." description="camera position in meter in body frame (X axis)"/>
+      <define name="CAM_POS_Y" value="0." description="camera position in meter in body frame (Y axis)"/>
+      <define name="CAM_POS_Z" value="0." description="camera position in meter in body frame (Z axis)"/>
+      <define name="COORD_TO_M" value="1e-3" description="transformation from camera coordinates to meters (default: mm to m)"/>
+      <define name="R" value="1" description="process noise in kalman filter"/>
+      <define name="Q_SIGMA2" value="1." description="measurement noise in kalman filter"/>
+      <define name="P0_POS" value="10." description="initial covariance on position"/>
+      <define name="P0_SPEED" value="10." description="initial covariance on speed"/>
+      <define name="TIMEOUT" value="5." description="timeout for lost tracking in seconds"/>
+      <define name="PREDICT_TIME" value="1." description="position prediction time when moving waypoint"/>
+      <define name="MAX_OFFSET" value="2." description="maximum position offset for predicted positin compared to estimated position"/>
+    </section>
+  </doc>
+  <settings target="ap|nps">
+    <dl_settings>
+      <dl_settings NAME="Tag Tracking">
+        <dl_setting var="tag_tracking.motion_type" min="0" step="1" max="1" shortname="motion" values="FIXED|MOVING" module="modules/computer_vision/tag_tracking"/>
+        <dl_setting var="tag_tracking.predict_time" min="0." step="0.1" max="5." shortname="pred_time"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>jevois</depends>
+  </dep>
+  <header>
+    <file name="tag_tracking.h"/>
+  </header>
+  <init fun="tag_tracking_init()"/>
+  <periodic fun="tag_tracking_propagate()" freq="10.0" start="tag_tracking_propagate_start()" autorun="TRUE"/>
+  <periodic fun="tag_tracking_report()" freq="1.0" autorun="TRUE"/>
+  <datalink message="TARGET_POS" fun="tag_tracking_parse_target_pos(buf)"/>
+  <makefile>
+    <file name="tag_tracking.c"/>
+    <file name="simple_kinematic_kalman.c" dir="filters"/>
+  </makefile>
+</module>
