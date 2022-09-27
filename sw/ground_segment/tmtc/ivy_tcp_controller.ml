@@ -40,8 +40,8 @@ let () =
         let use_tele_message = fun payload ->
           Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
           let (header, values) = Tm_Pprz.values_of_payload payload in
-          let msg = Tm_Pprz.message_of_id header.message_id in
-          Tm_Pprz.message_send (string_of_int header.sender_id) msg.PprzLink.name values in
+          let msg = Tm_Pprz.message_of_id header.PprzLink.message_id in
+          Tm_Pprz.message_send (string_of_int header.PprzLink.sender_id) msg.PprzLink.name values in
 
         ignore (PprzTransport.parse use_tele_message (Bytes.to_string b))
       with
