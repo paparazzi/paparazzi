@@ -200,8 +200,8 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   Debug.call 'l' (fun f ->  fprintf f "pprz receiving: %s\n" (Debug.xprint buf));
   try
     let (header, values) = Tm_Pprz.values_of_payload payload in
-    let ac_id = header.sender_id in
-    let msg = Tm_Pprz.message_of_id header.message_id in
+    let ac_id = header.PprzLink.sender_id in
+    let msg = Tm_Pprz.message_of_id header.PprzLink.message_id in
     send_message_over_ivy (string_of_int ac_id) msg.PprzLink.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.PprzLink.name = "PONG")
   with

@@ -93,7 +93,7 @@ let () =
         let use_dl_message = fun payload ->
           Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
           let (header, values) = Dl_Pprz.values_of_payload payload in
-          let msg = Dl_Pprz.message_of_id header.message_id in
+          let msg = Dl_Pprz.message_of_id header.PprzLink.message_id in
           Dl_Pprz.message_send "ground_dl" msg.PprzLink.name values in
 
         assert (PprzTransport.parse use_dl_message (Bytes.to_string b) = n)

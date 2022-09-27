@@ -143,8 +143,8 @@ let convert_file = fun ?(output_dir=None) file ->
       fprintf stderr "Invalid source (%d), skipping message\n" log_msg.Pprzlog_transport.source
     else
     let (header, vs) = values_of_payload log_msg log_msg.Pprzlog_transport.pprz_data in
-    let msg_id = header.message_id in
-    let ac_id = header.sender_id in
+    let msg_id = header.PprzLink.message_id in
+    let ac_id = header.PprzLink.sender_id in
 
     if log_msg.Pprzlog_transport.source = 0 && !single_ac_id < 0 then
       single_ac_id := ac_id;
