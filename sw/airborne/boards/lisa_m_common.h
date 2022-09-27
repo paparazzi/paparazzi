@@ -250,7 +250,7 @@
 #define USE_DUAL_PWM6 1
 #else
 #define USE_PWM5 1
-#ifndef USE_PWM6 // this allows to disable servo 6 on Lisa M
+#if (!defined USE_PWM6) && (PPM_CONFIG != 2) // PWM6 only activated by default if PPM_CONFIG is not 2
 #define USE_PWM6 1
 #endif
 #endif
