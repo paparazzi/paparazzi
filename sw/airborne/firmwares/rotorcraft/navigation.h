@@ -305,7 +305,7 @@ static inline void NavGlide(uint8_t start_wp, uint8_t wp)
 {
   int32_t start_alt = waypoints[start_wp].enu_i.z;
   int32_t diff_alt = waypoints[wp].enu_i.z - start_alt;
-  int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / nav_leg_length);
+  int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / (int32_t)nav_leg_length);
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt), 0);
 }
 
