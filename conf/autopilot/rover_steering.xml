@@ -68,6 +68,7 @@
     
     <!-- Navigation: Speed crtl (from state speed on enter) + heading ctrl (from GCS & flight plans) -->
     <mode name="NAV">
+      <select cond="$DEFAULT_MODE"/>
       <select cond="RCMode2()" exception="HOME"/>
       <on_enter>
         <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
@@ -103,7 +104,6 @@
 
     <!-- Kill throttle -->
     <mode name="KILL">
-      <select cond="$DEFAULT_MODE"/>
       <select cond="kill_switch_is_on()"/>
       <on_enter>
         <call fun="autopilot_set_in_flight(false)"/>

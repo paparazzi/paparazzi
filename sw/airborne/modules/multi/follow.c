@@ -66,10 +66,10 @@ void follow_wp(void)
   struct EnuCoor_i *ac = acInfoGetPositionEnu_i(FOLLOW_AC_ID);
 
   struct EnuCoor_i enu = *stateGetPositionEnu_i();
-  enu.x += ac->x + POS_BFP_OF_REAL(FOLLOW_OFFSET_X);
-  enu.y += ac->y + POS_BFP_OF_REAL(FOLLOW_OFFSET_Y);
-  enu.z += ac->z + POS_BFP_OF_REAL(FOLLOW_OFFSET_Z);
+  enu.x = ac->x + POS_BFP_OF_REAL(FOLLOW_OFFSET_X);
+  enu.y = ac->y + POS_BFP_OF_REAL(FOLLOW_OFFSET_Y);
+  enu.z = ac->z + POS_BFP_OF_REAL(FOLLOW_OFFSET_Z);
 
   // Move the waypoint
-  waypoint_set_enu_i(FOLLOW_WAYPOINT_ID, &enu);
+  waypoint_move_enu_i(FOLLOW_WAYPOINT_ID, &enu);
 }

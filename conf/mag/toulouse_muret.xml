@@ -1,0 +1,19 @@
+<!DOCTYPE airframe SYSTEM "../airframes/airframe.dtd">
+
+<airframe>
+  <description>
+    Toulouse / Muret
+    Model Used: 	WMM-2020
+    Latitude: 	43.46223° N
+    Longitude: 	1.27289° E
+    Elevation: 	185.0 m Mean Sea Level
+    Date 	Declination (+E|-W) 	Inclination (+D|-U) 	Horizontal Intensity 	North Comp (+N|-S) 	East Comp (+E|-W) 	Vertical Comp (+D|-U) 	Total Field
+    2022-09-15 	1.3998° 	58.9843° 	23,950.6 nT 	23,943.4 nT 	585.1 nT 	39,835.8 nT 	46,481.4 nT
+  </description>
+  <section name="MAG_MODEL" prefix="INS_">
+    <define name="H_X" value="0.515118"/>
+    <define name="H_Y" value="0.0125878"/>
+    <define name="H_Z" value="0.0125878"/>
+  </section>
+</airframe>
+

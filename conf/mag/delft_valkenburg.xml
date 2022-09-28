@@ -1,0 +1,16 @@
+<!DOCTYPE airframe SYSTEM "../airframes/airframe.dtd">
+
+<airframe>
+  <description>
+    Delft / Valkenburg
+    52.171490 N, 4.417461, E
+    Date 	Declination (+E|-W) 	Inclination (+D|-U) 	Horizontal Intensity 	North Comp (+N|-S) 	East Comp (+E|-W) 	Vertical Comp (+ D|- U) 	Total Field
+    2022-09-15 	2.0129° 	67.2631° 	19,074.6 nT 	19,062.8 nT 	670.0 nT 	45,516.9 nT 	49,352.1 nT
+  </description>
+  <section name="MAG_MODEL" prefix="INS_">
+    <define name="H_X" value="0.386261"/>
+    <define name="H_Y" value="0.0135759"/>
+    <define name="H_Z" value="0.922289"/>
+  </section>
+</airframe>
+

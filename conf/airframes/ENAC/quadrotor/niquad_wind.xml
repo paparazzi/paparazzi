@@ -138,19 +138,9 @@
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
-  <!-- Magnetic Field Calculator
-      http://www.ngdc.noaa.gov/geomag-web/#igrfwmm
-      http://www.wolframalpha.com
-
-      Enac : Lat 43.564080°N, Lon 1.481289°E
-      Normalize[{23759.6, 138.7, 39666.4}]
-      Result(0.51385, 0.00299, 0.85787)
-  -->
+  <include href="conf/mag/toulouse_muret.xml"/>
 
   <section name="INS" prefix="INS_">
-    <define name="H_X" value="0.51385"/>
-    <define name="H_Y" value="0.00299"/>
-    <define name="H_Z" value="0.85787"/>
     <define name="INV_NXZ" value="0.25"/>
     <define name="INV_NH" value="2.0"/>
     <define name="INV_MVZ" value="8."/>
@@ -255,7 +245,7 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
-    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" value="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
   </section>
 

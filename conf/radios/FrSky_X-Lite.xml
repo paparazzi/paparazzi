@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE radio SYSTEM "radio.dtd">
+<radio name="FrSky X-Lite with XM+ SBUS receiver" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
+ <channel function="ROLL"     min="990" neutral="1500" max="2011" average="0"/>
+ <channel function="PITCH"    min="990" neutral="1500" max="2011" average="0" reverse="1"/>
+ <channel function="THROTTLE" min="990" neutral="990"  max="2011" average="0"/>
+ <channel function="YAW"      min="990" neutral="1500" max="2011" average="0"/>
+ <channel function="MODE"     min="990" neutral="1500" max="2011" average="1" reverse="1"/>
+ <channel function="GAIN1"    min="990" neutral="1500" max="2011" average="1" reverse="1"/>
+ <channel function="GAIN2"    min="990" neutral="1500" max="2011" average="1"/>
+ <channel function="GAIN3"    min="990" neutral="1500" max="2011" average="1"/>
+</radio>
+

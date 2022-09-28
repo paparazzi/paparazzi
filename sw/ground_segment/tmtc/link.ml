@@ -219,6 +219,7 @@ module XB = struct (** XBee module *)
   let at_init_period = 2000 (* ms *)
 
   let my_addr = ref 0x100
+  let init_done = ref false
 
   let switch_to_api = fun device ->
     let o = Unix.out_channel_of_descr device.fd in
@@ -231,6 +232,7 @@ module XB = struct (** XBee module *)
     end;
     fprintf o "%s%!" Xbee_transport.at_api_enable;
     fprintf o "%s%!" Xbee_transport.at_exit;
+    init_done := true;
     Debug.trace 'x' "end init xbee"
 
   let init = fun device ->
@@ -289,22 +291,26 @@ module XB = struct (** XBee module *)
 
 
   let send = fun ?ac_id device rf_data ->
-    let ac_id = match ac_id with None -> 0xffff | Some a -> a in
-    let rf_data = Protocol.bytes_of_payload rf_data in
-    let frame_id = gen_frame_id () in
-    let frame_data =
-      if !Xbee_transport.mode868 then
-        Xbee_transport.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
-      else
-        Xbee_transport.api_tx16 ~frame_id ac_id rf_data in
-    let packet = Xbee_transport.Transport.packet (Protocol.payload_of_string frame_data) in
+    if !init_done then begin
+      let ac_id = match ac_id with None -> 0xffff | Some a -> a in
+      let rf_data = Protocol.bytes_of_payload rf_data in
+      let frame_id = gen_frame_id () in
+      let frame_data =
+        if !Xbee_transport.mode868 then
+          Xbee_transport.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
+        else
+          Xbee_transport.api_tx16 ~frame_id ac_id rf_data in
+      let packet = Xbee_transport.Transport.packet (Protocol.payload_of_string frame_data) in
 
-    (* Store the packet for further retry *)
-    packets.(frame_id) <- (packet, 1);
+      (* Store the packet for further retry *)
+      packets.(frame_id) <- (packet, 1);
 
-    let o = Unix.out_channel_of_descr device.fd in
-    fprintf o "%s%!" packet;
-    Debug.call 'y' (fun f -> fprintf f "link sending (%d): (%s) %s\n" frame_id (Debug.xprint (Bytes.to_string rf_data)) (Debug.xprint packet));
+      let o = Unix.out_channel_of_descr device.fd in
+      fprintf o "%s%!" packet;
+      Debug.call 'y' (fun f -> fprintf f "link sending (%d): (%s) %s\n" frame_id (Debug.xprint (Bytes.to_string rf_data)) (Debug.xprint packet))
+    end
+    else
+      Debug.call 'y' (fun f -> fprintf f "xbee init not done")
 end (** XBee module *)
 
 

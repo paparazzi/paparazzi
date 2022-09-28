@@ -122,9 +122,10 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
 #if GUIDANCE_INDI_HYBRID
   struct FloatEulers eulers_zxy;
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
-  int32_t state_psi = ANGLE_BFP_OF_REAL(eulers_zxy.psi);
+  struct Int32Eulers att;
+  EULERS_BFP_OF_REAL(att, eulers_zxy);
 #else
-  int32_t state_psi = stateGetNedToBodyEulers_i()->psi;
+  struct Int32Eulers att = *stateGetNedToBodyEulers_i();
 #endif
   pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
                               &(stateGetPositionEnu_i()->x),
@@ -133,9 +134,9 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &(stateGetSpeedEnu_i()->x),
                               &(stateGetSpeedEnu_i()->y),
                               &(stateGetSpeedEnu_i()->z),
-                              &(stateGetNedToBodyEulers_i()->phi),
-                              &(stateGetNedToBodyEulers_i()->theta),
-                              &state_psi,
+                              &att.phi,
+                              &att.theta,
+                              &att.psi,
                               &guidance_h.sp.pos.y,
                               &guidance_h.sp.pos.x,
                               &carrot_up,
