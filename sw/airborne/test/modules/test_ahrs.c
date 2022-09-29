@@ -50,11 +50,14 @@
 
 #include "modules/imu/imu.h"
 #include "modules/ahrs/ahrs.h"
+#include "modules/energy/electrical.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
 static inline void main_report(void);
+
+struct Electrical electrical;
 
 int main(void)
 {
