@@ -78,10 +78,11 @@ static inline void main_event_task(void)
   ms2100_event(&ms2100);
   if (ms2100.status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {
+      uint8_t abi_id = 0;
       int32_t mag_x = ms2100.data.vect.x;
       int32_t mag_y = ms2100.data.vect.y;
       int32_t mag_z = ms2100.data.vect.z;
-      DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
+      DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &abi_id,
       &mag_x, &mag_y, &mag_z);
     });
     ms2100.status = MS2100_IDLE;

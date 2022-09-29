@@ -22,6 +22,7 @@
 
 #include "imu_quality_assessment.h"
 
+#include "modules/core/abi.h"
 #include "modules/imu/imu.h"
 #include "generated/airframe.h"
 
@@ -51,10 +52,13 @@ void imu_quality_assessment_periodic(void)
   const int32_t B[IMU_QUALITY_ASSESSMENT_FILTER_ORDER + 1] = {13117, -26234, 13117};
 
   // Peak tracking
+  struct imu_accel_t *accel = imu_get_accel(ABI_BROADCAST, false);
+  if(accel == NULL)
+    return;
 
-  PEAK_TRACKER(imu.accel.x, imu_quality_assessment_data.q_ax);
-  PEAK_TRACKER(imu.accel.y, imu_quality_assessment_data.q_ay);
-  PEAK_TRACKER(imu.accel.z, imu_quality_assessment_data.q_az);
+  PEAK_TRACKER(accel->scaled.x, imu_quality_assessment_data.q_ax);
+  PEAK_TRACKER(accel->scaled.y, imu_quality_assessment_data.q_ay);
+  PEAK_TRACKER(accel->scaled.z, imu_quality_assessment_data.q_az);
 
   // High frequency high-pass filter
 
@@ -64,14 +68,14 @@ void imu_quality_assessment_periodic(void)
   // Buffer of last measurement
   lx[2] = lx[1];
   lx[1] = lx[0];
-  lx[0] = imu.accel_unscaled.x;
+  lx[0] = accel->unscaled.x;
   // Buffer of last filter values
   fx[2] = fx[1];
   fx[1] = fx[0];
   fx[0] = B[0] * lx[0] + B[1] * lx[1] + B[2] * lx[2] - A[1] * fx[1] - A[2] * fx[2];
   fx[0] = fx[0] >> 14;
 
-  int32_t filt_x = ((fx[0]) * IMU_ACCEL_X_SENS_NUM) / IMU_ACCEL_X_SENS_DEN;
+  int32_t filt_x = (fx[0] - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x;
   PEAK_TRACKER(filt_x, imu_quality_assessment_data.q);
 }
 

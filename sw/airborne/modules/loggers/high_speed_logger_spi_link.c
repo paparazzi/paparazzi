@@ -22,6 +22,7 @@
 
 #include "high_speed_logger_spi_link.h"
 
+#include "modules/core/abi.h"
 #include "modules/imu/imu.h"
 #include "mcu_periph/spi.h"
 
@@ -30,6 +31,9 @@ struct high_speed_logger_spi_link_data high_speed_logger_spi_link_data;
 struct spi_transaction high_speed_logger_spi_link_transaction;
 
 static volatile bool high_speed_logger_spi_link_ready = true;
+static struct imu_gyro_t *hsl_gyro;
+static struct imu_accel_t *hsl_accel;
+static struct imu_mag_t *hsl_mag;
 
 static void high_speed_logger_spi_link_trans_cb(struct spi_transaction *trans);
 
@@ -65,16 +69,26 @@ void high_speed_logger_spi_link_periodic(void)
     // copy the counter into the SPI datablock
     high_speed_logger_spi_link_data.id = counter;
 
+    if(hsl_gyro == NULL)
+      hsl_gyro = imu_get_gyro(ABI_BROADCAST, false);
+    if(hsl_accel == NULL)
+      hsl_accel = imu_get_accel(ABI_BROADCAST, false);
+    if(hsl_mag == NULL)
+      hsl_mag = imu_get_mag(ABI_BROADCAST, false);
+  
+    if(hsl_gyro == NULL || hsl_accel == NULL || hsl_mag == NULL)
+      return;
+
     high_speed_logger_spi_link_ready = false;
-    high_speed_logger_spi_link_data.gyro_p     = imu.gyro_unscaled.p;
-    high_speed_logger_spi_link_data.gyro_q     = imu.gyro_unscaled.q;
-    high_speed_logger_spi_link_data.gyro_r     = imu.gyro_unscaled.r;
-    high_speed_logger_spi_link_data.acc_x      = imu.accel_unscaled.x;
-    high_speed_logger_spi_link_data.acc_y      = imu.accel_unscaled.y;
-    high_speed_logger_spi_link_data.acc_z      = imu.accel_unscaled.z;
-    high_speed_logger_spi_link_data.mag_x      = imu.mag_unscaled.x;
-    high_speed_logger_spi_link_data.mag_y      = imu.mag_unscaled.y;
-    high_speed_logger_spi_link_data.mag_z      = imu.mag_unscaled.z;
+    high_speed_logger_spi_link_data.gyro_p     = hsl_gyro->unscaled.p;
+    high_speed_logger_spi_link_data.gyro_q     = hsl_gyro->unscaled.q;
+    high_speed_logger_spi_link_data.gyro_r     = hsl_gyro->unscaled.r;
+    high_speed_logger_spi_link_data.acc_x      = hsl_accel->unscaled.x;
+    high_speed_logger_spi_link_data.acc_y      = hsl_accel->unscaled.y;
+    high_speed_logger_spi_link_data.acc_z      = hsl_accel->unscaled.z;
+    high_speed_logger_spi_link_data.mag_x      = hsl_mag->unscaled.x;
+    high_speed_logger_spi_link_data.mag_y      = hsl_mag->unscaled.y;
+    high_speed_logger_spi_link_data.mag_z      = hsl_mag->unscaled.z;
 
     spi_submit(&(HIGH_SPEED_LOGGER_SPI_LINK_DEVICE), &high_speed_logger_spi_link_transaction);
   }
