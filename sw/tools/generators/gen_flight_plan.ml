@@ -336,7 +336,7 @@ let rec index_stage = fun x ->
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
       | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "home"
-      | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
+      | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" | "guided" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
       | "survey_rectangle" | "eight" | "oval"->
@@ -549,6 +549,17 @@ let rec print_stage = fun out index_of_waypoints x ->
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
         lprintf out "%sCircleWaypoint(%s, %s%s);\n" t wp r p;
+        stage_until out x;
+        fp_post_call out x;
+        lprintf out "break;\n"
+      | "guided" ->
+        stage out;
+        fp_pre_call out x;
+        let cmds = ExtXml.attrib x "commands" in
+        let flags = ExtXml.attrib_or_default x "flags" "0" in
+        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
+        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
+        lprintf out "%sGuided(%s, %s%s);\n" t flags cmds p;
         stage_until out x;
         fp_post_call out x;
         lprintf out "break;\n"

@@ -488,6 +488,8 @@ void guidance_v_from_nav(bool in_flight)
     GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
     guidance_v_z_sum_err = 0;
     guidance_v_delta_t = nav_throttle;
+  } else if (vertical_mode == VERTICAL_MODE_GUIDED) {
+    guidance_v_guided_run(in_flight);
   }
 #if HYBRID_NAVIGATION
   guidance_hybrid_vertical();
@@ -550,7 +552,7 @@ void guidance_v_guided_run(bool in_flight)
 
 bool guidance_v_set_guided_z(float z)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED || guidance_v_mode == GUIDANCE_V_MODE_NAV) {
     /* disable vertical velocity setpoints */
     guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
 
@@ -567,10 +569,9 @@ bool guidance_v_set_guided_z(float z)
 
 bool guidance_v_set_guided_vz(float vz)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED || guidance_v_mode == GUIDANCE_V_MODE_NAV) {
     /* enable vertical velocity setpoints */
     guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_CLIMB;
-
     /* set speed setting */
     guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
 
@@ -581,7 +582,7 @@ bool guidance_v_set_guided_vz(float vz)
 
 bool guidance_v_set_guided_th(float th)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED || guidance_v_mode == GUIDANCE_V_MODE_NAV) {
     /* enable vertical velocity setpoints */
     guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_THROTTLE;
 
