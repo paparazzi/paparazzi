@@ -30,6 +30,10 @@
 #include <stdbool.h>
 #include <math.h>
 
+#ifdef SITL
+#include <stdio.h> // for debuging in simulation
+#endif
+
 /* some convenience macros to print debug/config messages at compile time */
 #include "message_pragmas.h"
 

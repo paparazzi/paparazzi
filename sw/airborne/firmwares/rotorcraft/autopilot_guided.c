@@ -95,8 +95,10 @@ bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
  */
 void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw)
 {
-  /* only update setpoints when in guided mode */
-  if (autopilot_get_mode() != AP_MODE_GUIDED) {
+  /* only update setpoints when in guided mode
+   * or in nav mode when using the 'guided' instruction of the fligh plan
+   */
+  if (autopilot_get_mode() != AP_MODE_GUIDED && autopilot_get_mode() != AP_MODE_NAV) {
     return;
   }
 

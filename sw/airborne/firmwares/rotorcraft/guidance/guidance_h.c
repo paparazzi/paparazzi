@@ -609,6 +609,8 @@ void guidance_h_from_nav(bool in_flight)
     //make sure the heading is right before leaving horizontal_mode attitude
     guidance_hybrid_reset_heading(&sp_cmd_i);
 #endif
+  } else if (horizontal_mode == HORIZONTAL_MODE_GUIDED) {
+    guidance_h_guided_run(in_flight);
   } else {
 
 #if HYBRID_NAVIGATION
@@ -719,7 +721,7 @@ void guidance_h_guided_run(bool in_flight)
 
 bool guidance_h_set_guided_pos(float x, float y)
 {
-  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED || guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     ClearBit(guidance_h.sp.mask, 5);
     guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
     guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
@@ -730,7 +732,7 @@ bool guidance_h_set_guided_pos(float x, float y)
 
 bool guidance_h_set_guided_heading(float heading)
 {
-  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED || guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     ClearBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading = heading;
     FLOAT_ANGLE_NORMALIZE(guidance_h.sp.heading);
@@ -749,7 +751,7 @@ bool guidance_h_set_guided_body_vel(float vx, float vy)
 
 bool guidance_h_set_guided_vel(float vx, float vy)
 {
-  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED || guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     SetBit(guidance_h.sp.mask, 5);
     guidance_h.sp.speed.x = SPEED_BFP_OF_REAL(vx);
     guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
@@ -760,7 +762,7 @@ bool guidance_h_set_guided_vel(float vx, float vy)
 
 bool guidance_h_set_guided_heading_rate(float rate)
 {
-  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
+  if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED || guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     SetBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading_rate = rate;
     return true;
