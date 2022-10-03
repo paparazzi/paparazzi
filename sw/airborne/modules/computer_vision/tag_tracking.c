@@ -127,11 +127,27 @@ float speed_circle = 0.03;
 #endif
 
 #ifndef TAG_TRACKING_PREDICT_TIME
-#define TAG_TRACKING_PREDICT_TIME 1.5f
+#define TAG_TRACKING_PREDICT_TIME 1.f
 #endif
 
 #ifndef TAG_TRACKING_MAX_OFFSET
 #define TAG_TRACKING_MAX_OFFSET 2.0f
+#endif
+
+#ifndef TAG_TRACKING_KP
+#define TAG_TRACKING_KP 0.5f
+#endif
+
+#ifndef TAG_TRACKING_KPZ
+#define TAG_TRACKING_KPZ 0.2f
+#endif
+
+#ifndef TAG_TRACKING_MAX_SPEED
+#define TAG_TRACKING_MAX_SPEED 4.f
+#endif
+
+#ifndef TAG_TRACKING_MAX_VZ
+#define TAG_TRACKING_MAX_VZ 2.f
 #endif
 
 // generated in modules.h
@@ -233,7 +249,7 @@ void tag_tracking_parse_target_pos(uint8_t *buf)
 }
 
 // Update and display tracking WP
-static void update_wp(bool report)
+static void update_wp(bool report UNUSED)
 {
 #ifdef TAG_TRACKING_WP
   struct FloatVect3 target_pos_enu, target_pos_pred;
@@ -263,6 +279,7 @@ void tag_tracking_init()
   FLOAT_VECT3_ZERO(tag_track_private.meas);
   FLOAT_VECT3_ZERO(tag_tracking.pos);
   FLOAT_VECT3_ZERO(tag_tracking.speed);
+  FLOAT_VECT3_ZERO(tag_tracking.speed_cmd);
   struct FloatEulers euler = {
     TAG_TRACKING_BODY_TO_CAM_PHI,
     TAG_TRACKING_BODY_TO_CAM_THETA,
@@ -273,6 +290,8 @@ void tag_tracking_init()
       TAG_TRACKING_CAM_POS_X,
       TAG_TRACKING_CAM_POS_Y,
       TAG_TRACKING_CAM_POS_Z);
+  tag_tracking.kp = TAG_TRACKING_KP;
+  tag_tracking.kpz = TAG_TRACKING_KPZ;
 
   // Bind to ABI message
   AbiBindMsgJEVOIS_MSG(TAG_TRACKING_ID, &tag_track_ev, tag_track_cb);
@@ -365,6 +384,28 @@ void tag_tracking_report()
   }
 }
 
+/** Control function
+ *
+ * calling this function only updates the command vector
+ * it can be applied to the guidance control using the guided mode
+ * or from the flight plan with 'guided' instruction
+ */
+void tag_tracking_compute_speed(void)
+{
+  if (tag_tracking.status == TAG_TRACKING_RUNNING) {
+    // compute speed command as estimated tag speed + gain * position error
+    struct NedCoor_f pos = *stateGetPositionNed_f();
+    tag_tracking.speed_cmd.x = tag_tracking.speed.x + tag_tracking.kp * (tag_tracking.pos.x - pos.x);
+    tag_tracking.speed_cmd.y = tag_tracking.speed.y + tag_tracking.kp * (tag_tracking.pos.y - pos.y);
+    tag_tracking.speed_cmd.z = tag_tracking.speed.z + tag_tracking.kpz * (tag_tracking.pos.z - pos.z);
+    VECT2_STRIM(tag_tracking.speed_cmd, -TAG_TRACKING_MAX_SPEED, TAG_TRACKING_MAX_SPEED); // trim max horizontal speed
+    BoundAbs(tag_tracking.speed_cmd.z, TAG_TRACKING_MAX_VZ); // tim max vertical speed
+  }
+  else {
+    // filter is not runing, set speed command to zero
+    FLOAT_VECT3_ZERO(tag_tracking.speed_cmd);
+  }
+}
 
 // Simulate detection using a WP coordinate
 #if defined SITL && defined TAG_TRACKING_SIM_WP
