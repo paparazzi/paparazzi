@@ -39,6 +39,17 @@
 #define IMU_INTEGRATION false
 #endif
 
+/** By default gyro signs are positive for single IMU with old format */
+#ifndef IMU_GYRO_P_SIGN
+#define IMU_GYRO_P_SIGN 1
+#endif
+#ifndef IMU_GYRO_Q_SIGN
+#define IMU_GYRO_Q_SIGN 1
+#endif
+#ifndef IMU_GYRO_R_SIGN
+#define IMU_GYRO_R_SIGN 1
+#endif
+
 /** Default gyro calibration is for single IMU with old format */
 #if defined(IMU_GYRO_P_NEUTRAL) || defined(IMU_GYRO_Q_NEUTRAL) || defined(IMU_GYRO_R_NEUTRAL)
 #define GYRO_NEUTRAL {IMU_GYRO_P_NEUTRAL, IMU_GYRO_Q_NEUTRAL, IMU_GYRO_R_NEUTRAL}
@@ -46,7 +57,7 @@ PRINT_CONFIG_MSG("Using single IMU gyro neutral calibration")
 #endif
 
 #if defined(IMU_GYRO_P_SENS) ||  defined(IMU_GYRO_Q_SENS) || defined(IMU_GYRO_R_SENS)
-#define GYRO_SCALE {{IMU_GYRO_P_SENS_NUM, IMU_GYRO_Q_SENS_NUM, IMU_GYRO_R_SENS_NUM}, {IMU_GYRO_P_SENS_DEN, IMU_GYRO_Q_SENS_DEN, IMU_GYRO_R_SENS_DEN}}
+#define GYRO_SCALE {{IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM, IMU_GYRO_Q_SIGN*IMU_GYRO_Q_SENS_NUM, IMU_GYRO_R_SIGN*IMU_GYRO_R_SENS_NUM}, {IMU_GYRO_P_SENS_DEN, IMU_GYRO_Q_SENS_DEN, IMU_GYRO_R_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
 #endif
 
@@ -60,6 +71,17 @@ PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
 #define IMU_GYRO_CALIB {}
 #endif
 
+/** By default accel signs are positive for single IMU with old format */
+#ifndef IMU_ACCEL_X_SIGN
+#define IMU_ACCEL_X_SIGN 1
+#endif
+#ifndef IMU_ACCEL_Y_SIGN
+#define IMU_ACCEL_Y_SIGN 1
+#endif
+#ifndef IMU_ACCEL_Z_SIGN
+#define IMU_ACCEL_Z_SIGN 1
+#endif
+
 /** Default accel calibration is for single IMU with old format */
 #if defined(IMU_ACCEL_X_NEUTRAL) || defined(IMU_ACCEL_Y_NEUTRAL) || defined(IMU_ACCEL_Z_NEUTRAL)
 #define ACCEL_NEUTRAL {IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL}
@@ -67,7 +89,7 @@ PRINT_CONFIG_MSG("Using single IMU accel neutral calibration")
 #endif
 
 #if defined(IMU_ACCEL_X_SENS) ||  defined(IMU_ACCEL_Y_SENS) || defined(IMU_ACCEL_Z_SENS)
-#define ACCEL_SCALE {{IMU_ACCEL_X_SENS_NUM, IMU_ACCEL_Y_SENS_NUM, IMU_ACCEL_Z_SENS_NUM}, {IMU_ACCEL_X_SENS_DEN, IMU_ACCEL_Y_SENS_DEN, IMU_ACCEL_Z_SENS_DEN}}
+#define ACCEL_SCALE {{IMU_ACCEL_X_SIGN*IMU_ACCEL_X_SENS_NUM, IMU_ACCEL_Y_SIGN*IMU_ACCEL_Y_SENS_NUM, IMU_ACCEL_Z_SIGN*IMU_ACCEL_Z_SENS_NUM}, {IMU_ACCEL_X_SENS_DEN, IMU_ACCEL_Y_SENS_DEN, IMU_ACCEL_Z_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU accel sensitivity calibration")
 #endif
 
@@ -81,6 +103,17 @@ PRINT_CONFIG_MSG("Using single IMU accel sensitivity calibration")
 #define IMU_ACCEL_CALIB {}
 #endif
 
+/** By default mag signs are positive for single IMU with old format */
+#ifndef IMU_MAG_X_SIGN
+#define IMU_MAG_X_SIGN 1
+#endif
+#ifndef IMU_MAG_Y_SIGN
+#define IMU_MAG_Y_SIGN 1
+#endif
+#ifndef IMU_MAG_Z_SIGN
+#define IMU_MAG_Z_SIGN 1
+#endif
+
 /** Default mag calibration is for single IMU with old format */
 #if defined(IMU_MAG_X_NEUTRAL) || defined(IMU_MAG_Y_NEUTRAL) || defined(IMU_MAG_Z_NEUTRAL)
 #define MAG_NEUTRAL {IMU_MAG_X_NEUTRAL, IMU_MAG_Y_NEUTRAL, IMU_MAG_Z_NEUTRAL}
@@ -88,7 +121,7 @@ PRINT_CONFIG_MSG("Using single IMU mag neutral calibration")
 #endif
 
 #if defined(IMU_MAG_X_SENS) ||  defined(IMU_MAG_Y_SENS) || defined(IMU_MAG_Z_SENS)
-#define MAG_SCALE {{IMU_MAG_X_SENS_NUM, IMU_MAG_Y_SENS_NUM, IMU_MAG_Z_SENS_NUM}, {IMU_MAG_X_SENS_DEN, IMU_MAG_Y_SENS_DEN, IMU_MAG_Z_SENS_DEN}}
+#define MAG_SCALE {{IMU_MAG_X_SIGN*IMU_MAG_X_SENS_NUM, IMU_MAG_Y_SIGN*IMU_MAG_Y_SENS_NUM, IMU_MAG_Z_SIGN*IMU_MAG_Z_SENS_NUM}, {IMU_MAG_X_SENS_DEN, IMU_MAG_Y_SENS_DEN, IMU_MAG_Z_SENS_DEN}}
 PRINT_CONFIG_MSG("Using single IMU mag sensitivity calibration")
 #endif
 
