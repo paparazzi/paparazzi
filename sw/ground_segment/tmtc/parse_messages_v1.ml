@@ -240,6 +240,8 @@ let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
         a.agl     <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt)
     | "AIRSPEED" ->
       a.airspeed <- fvalue "airspeed"
+    | "AIR_DATA" ->
+      a.airspeed <- fvalue "airspeed"
     | "DESIRED" ->
       (* Trying to be compatible with old logs ... *)
       begin match a.nav_ref with
