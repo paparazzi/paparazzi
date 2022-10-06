@@ -133,19 +133,20 @@ extern void guidance_v_guided_enter(void);
  */
 extern void guidance_v_guided_run(bool in_flight);
 
-/** Set z setpoint in GUIDED mode.
+/** Set z position setpoint.
  * @param z Setpoint (down is positive) in meters.
- * @return TRUE if setpoint was set (currently in GUIDANCE_V_MODE_GUIDED)
  */
-extern bool guidance_v_set_guided_z(float z);
+extern void guidance_v_set_z(float z);
 
-/** Set z velocity setpoint in GUIDED mode.
+/** Set z velocity setpoint.
  * @param vz Setpoint (down is positive) in meters/second.
- * @return TRUE if setpoint was set (currently in GUIDANCE_V_MODE_GUIDED)
  */
-extern bool guidance_v_set_guided_vz(float vz);
+extern void guidance_v_set_vz(float vz);
 
-extern bool guidance_v_set_guided_th(float th);
+/** Set throttle setpoint.
+ * @param th Throttle setpoint between 0. and 1.
+ */
+extern void guidance_v_set_th(float th);
 
 #define guidance_v_SetKi(_val) {      \
     guidance_v_ki = _val;       \

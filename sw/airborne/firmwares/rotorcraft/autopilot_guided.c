@@ -36,9 +36,9 @@
 bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 {
   if (autopilot_get_mode() == AP_MODE_GUIDED) {
-    guidance_h_set_guided_pos(x, y);
-    guidance_h_set_guided_heading(heading);
-    guidance_v_set_guided_z(z);
+    guidance_h_set_pos(x, y);
+    guidance_h_set_heading(heading);
+    guidance_v_set_z(z);
     return true;
   }
   return false;
@@ -72,9 +72,9 @@ bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dya
 bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
 {
   if (autopilot_get_mode() == AP_MODE_GUIDED) {
-    guidance_h_set_guided_vel(vx, vy);
-    guidance_h_set_guided_heading(heading);
-    guidance_v_set_guided_vz(vz);
+    guidance_h_set_vel(vx, vy);
+    guidance_h_set_heading(heading);
+    guidance_v_set_vz(vz);
     return true;
   }
   return false;
@@ -95,24 +95,17 @@ bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
  */
 void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw)
 {
-  /* only update setpoints when in guided mode
-   * or in nav mode when using the 'guided' instruction of the fligh plan
-   */
-  if (autopilot_get_mode() != AP_MODE_GUIDED && autopilot_get_mode() != AP_MODE_NAV) {
-    return;
-  }
-
   // handle x,y
   struct FloatVect2 setpoint = {.x = x, .y = y};
   if (bit_is_set(flags, 5)) { // velocity setpoint
     if (bit_is_set(flags, 1)) { // set velocity in body frame
-      guidance_h_set_guided_body_vel(setpoint.x, setpoint.y);
+      guidance_h_set_body_vel(setpoint.x, setpoint.y);
     } else {
-      guidance_h_set_guided_vel(setpoint.x, setpoint.y);
+      guidance_h_set_vel(setpoint.x, setpoint.y);
     }
   } else {  // position setpoint
     if (!bit_is_set(flags, 0) && !bit_is_set(flags, 1)) {   // set absolute position setpoint
-      guidance_h_set_guided_pos(setpoint.x, setpoint.y);
+      guidance_h_set_pos(setpoint.x, setpoint.y);
     } else {
       if (stateIsLocalCoordinateValid()) {
         if (bit_is_set(flags, 1)) {  // set position as offset in body frame
@@ -124,40 +117,42 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
           setpoint.x += stateGetPositionNed_f()->x;
           setpoint.y += stateGetPositionNed_f()->y;
         }
-        guidance_h_set_guided_pos(setpoint.x, setpoint.y);
+        guidance_h_set_pos(setpoint.x, setpoint.y);
       }
     }
   }
 
   //handle z
   if (bit_is_set(flags, 6)) { // speed set-point
-    guidance_v_set_guided_vz(z);
+    guidance_v_set_vz(z);
   } else {    // position set-point
     if (bit_is_set(flags, 2)) { // set position as offset in NED frame
       if (stateIsLocalCoordinateValid()) {
         z += stateGetPositionNed_f()->z;
-        guidance_v_set_guided_z(z);
+        guidance_v_set_z(z);
       }
     } else {
-      guidance_v_set_guided_z(z);
+      guidance_v_set_z(z);
     }
   }
 
   //handle yaw
   if (bit_is_set(flags, 7)) { // speed set-point
-    guidance_h_set_guided_heading_rate(yaw);
+    guidance_h_set_heading_rate(yaw);
   } else {    // position set-point
     if (bit_is_set(flags, 3)) { // set yaw as offset
       yaw += stateGetNedToBodyEulers_f()->psi;  // will be wrapped to [-pi,pi] later
     }
-    guidance_h_set_guided_heading(yaw);
+    guidance_h_set_heading(yaw);
   }
 }
 
 /** Parse GUIDED_SETPOINT_NED messages from datalink
  */
 void autopilot_guided_parse_GUIDED(uint8_t *buf) {
-  if (DL_GUIDED_SETPOINT_NED_ac_id(buf) != AC_ID) { return; }
+  if (DL_GUIDED_SETPOINT_NED_ac_id(buf) != AC_ID || autopilot_get_mode() != AP_MODE_GUIDED) {
+    return;
+  }
 
   autopilot_guided_update(
       DL_GUIDED_SETPOINT_NED_flags(buf),
