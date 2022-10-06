@@ -303,7 +303,7 @@ void imu_init(void)
       INT_RATES_ZERO(imu.gyros[i].neutral);
     }
     if(!imu.gyros[i].calibrated.scale) {
-      RATES_ASSIGN(imu.gyros[i].scale[0], 1, 1, 1);
+      RATES_ASSIGN(imu.gyros[i].scale[0], IMU_GYRO_P_SIGN, IMU_GYRO_Q_SIGN, IMU_GYRO_R_SIGN);
       RATES_ASSIGN(imu.gyros[i].scale[1], 1, 1, 1);
     }
     if(!imu.gyros[i].calibrated.rotation) {
@@ -329,7 +329,7 @@ void imu_init(void)
       INT_VECT3_ZERO(imu.accels[i].neutral);
     }
     if(!imu.accels[i].calibrated.scale) {
-      VECT3_ASSIGN(imu.accels[i].scale[0], 1, 1, 1);
+      VECT3_ASSIGN(imu.accels[i].scale[0], IMU_ACCEL_X_SIGN, IMU_ACCEL_Y_SIGN, IMU_ACCEL_Z_SIGN);
       VECT3_ASSIGN(imu.accels[i].scale[1], 1, 1, 1);
     }
     if(!imu.accels[i].calibrated.rotation) {
@@ -356,7 +356,7 @@ void imu_init(void)
       INT_VECT3_ZERO(imu.mags[i].neutral);
     }
     if(!imu.mags[i].calibrated.scale) {
-      VECT3_ASSIGN(imu.mags[i].scale[0], 1, 1, 1);
+      VECT3_ASSIGN(imu.mags[i].scale[0], IMU_MAG_X_SIGN, IMU_MAG_Y_SIGN, IMU_MAG_Z_SIGN);
       VECT3_ASSIGN(imu.mags[i].scale[1], 1, 1, 1);
     }
     if(!imu.mags[i].calibrated.rotation) {
@@ -415,7 +415,7 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
   if(neutral != NULL && !gyro->calibrated.neutral)
     RATES_COPY(gyro->neutral, *neutral);
   if(scale != NULL && !gyro->calibrated.scale) {
-    RATES_COPY(gyro->scale[0], scale[0]);
+    RATES_ASSIGN(gyro->scale[0], IMU_GYRO_P_SIGN*scale[0].p, IMU_GYRO_Q_SIGN*scale[0].q, IMU_GYRO_R_SIGN*scale[0].r);
     RATES_COPY(gyro->scale[1], scale[1]);
   }
 }
@@ -445,7 +445,7 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
   if(neutral != NULL && !accel->calibrated.neutral)
     VECT3_COPY(accel->neutral, *neutral);
   if(scale != NULL && !accel->calibrated.scale) {
-    VECT3_COPY(accel->scale[0], scale[0]);
+    VECT3_ASSIGN(accel->scale[0], IMU_ACCEL_X_SIGN*scale[0].x, IMU_ACCEL_Y_SIGN*scale[0].y, IMU_ACCEL_Z_SIGN*scale[0].z);
     VECT3_COPY(accel->scale[1], scale[1]);
   }
 }
@@ -475,7 +475,7 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
   if(neutral != NULL && !mag->calibrated.neutral)
     VECT3_COPY(mag->neutral, *neutral);
   if(scale != NULL && !mag->calibrated.scale) {
-    VECT3_COPY(mag->scale[0], scale[0]);
+    VECT3_ASSIGN(mag->scale[0], IMU_MAG_X_SIGN*scale[0].x, IMU_MAG_Y_SIGN*scale[0].y, IMU_MAG_Z_SIGN*scale[0].z);
     VECT3_COPY(mag->scale[1], scale[1]);
   }
 }
