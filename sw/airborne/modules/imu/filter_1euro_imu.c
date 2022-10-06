@@ -111,15 +111,15 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event mag_ev; // only passthrough
 
-static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro, uint8_t samples)
+static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro)
 {
   if (sender_id == IMU_F1E_ID) {
     return; // don't process own data
   }
 
-  if (filter_1e_imu.enabled && samples > 0) {
+  if (filter_1e_imu.enabled) {
     struct FloatRates gyro_f;
-    RATES_FLOAT_OF_BFP(gyro_f, gyro[samples-1]); // For now only filter last value
+    RATES_FLOAT_OF_BFP(gyro_f, *gyro);
     // compute filters
 #ifdef FILTER_1EURO_FREQ
     gyro_f.p = update_1e_filter(&gyro_1e[0], gyro_f.p);
@@ -134,19 +134,19 @@ static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro, 
     // send filtered data
     struct Int32Rates gyro_i;
     RATES_BFP_OF_REAL(gyro_i, gyro_f);
-    AbiSendMsgIMU_GYRO_RAW(IMU_F1E_ID, stamp, &gyro_i, 1);
+    AbiSendMsgIMU_GYRO(IMU_F1E_ID, stamp, &gyro_i);
   } else {
-    AbiSendMsgIMU_GYRO_RAW(IMU_F1E_ID, stamp, gyro, samples);
+    AbiSendMsgIMU_GYRO(IMU_F1E_ID, stamp, gyro);
   }
 }
 
-static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel, uint8_t samples)
+static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel)
 {
   if (sender_id == IMU_F1E_ID) {
     return; // don't process own data
   }
 
-  if (filter_1e_imu.enabled && samples > 0) {
+  if (filter_1e_imu.enabled) {
     struct FloatVect3 accel_f;
     ACCELS_FLOAT_OF_BFP(accel_f, *accel);
     // compute filters
@@ -163,9 +163,9 @@ static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel
     // send filtered data
     struct Int32Vect3 accel_i;
     ACCELS_BFP_OF_REAL(accel_i, accel_f);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_F1E_ID, stamp, &accel_i, 1);
+    AbiSendMsgIMU_ACCEL(IMU_F1E_ID, stamp, &accel_i);
   } else {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_F1E_ID, stamp, accel, samples);
+    AbiSendMsgIMU_ACCEL(IMU_F1E_ID, stamp, accel);
   }
 }
 
@@ -176,7 +176,7 @@ static void mag_cb(uint8_t sender_id __attribute__((unused)),
     return; // don't process own data
   }
 
-  AbiSendMsgIMU_MAG_RAW(IMU_F1E_ID, stamp, mag);
+  AbiSendMsgIMU_MAG(IMU_F1E_ID, stamp, mag);
 }
 
 /**
@@ -205,9 +205,9 @@ void filter_1euro_imu_init(void)
         filter_1e_imu.accel_dcutoff);
   }
 
-  AbiBindMsgIMU_GYRO_RAW(IMU_F1E_BIND_ID, &gyro_ev, gyro_cb);
-  AbiBindMsgIMU_ACCEL_RAW(IMU_F1E_BIND_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_MAG_RAW(IMU_F1E_BIND_ID, &mag_ev, mag_cb);
+  AbiBindMsgIMU_GYRO(IMU_F1E_BIND_ID, &gyro_ev, gyro_cb);
+  AbiBindMsgIMU_ACCEL(IMU_F1E_BIND_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_MAG(IMU_F1E_BIND_ID, &mag_ev, mag_cb);
 }
 
 /**

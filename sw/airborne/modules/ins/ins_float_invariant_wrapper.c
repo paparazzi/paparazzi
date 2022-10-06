@@ -224,7 +224,7 @@ void ins_float_invariant_wrapper_init(void)
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgIMU_GYRO(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(INS_FINV_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
 #if USE_MAGNETOMETER
   AbiBindMsgIMU_MAG(INS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);

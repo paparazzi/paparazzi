@@ -223,7 +223,7 @@ void ahrs_float_invariant_register(void)
   AbiBindMsgIMU_MAG(AHRS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_GYRO(AHRS_FINV_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_FINV_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_LOWPASSED(AHRS_FINV_IMU_ID, &aligner_ev, aligner_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 
 #if PERIODIC_TELEMETRY

@@ -385,6 +385,13 @@
 #endif
 
 /*
+ * ID for AHRS aligner
+ */
+#ifndef AHRS_ALIGNER_ID
+#define AHRS_ALIGNER_ID 1
+#endif
+
+/*
  * IDs of OPTICFLOW estimates (message 11)
  */
 #ifndef FLOW_OPTICFLOW_ID

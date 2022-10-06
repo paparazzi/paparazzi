@@ -197,7 +197,7 @@ void ahrs_madgwick_register(void)
    */
   AbiBindMsgIMU_GYRO(AHRS_MADGWICK_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_MADGWICK_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_LOWPASSED(AHRS_MADGWICK_IMU_ID, &aligner_ev, aligner_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER_INT, send_att);

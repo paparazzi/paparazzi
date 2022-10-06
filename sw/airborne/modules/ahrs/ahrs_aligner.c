@@ -121,7 +121,7 @@ void ahrs_aligner_run(void)
   // Could not find all sensors
   if(gyro == NULL || accel == NULL)
     return;
-  
+
   RATES_ADD(gyro_sum, gyro->scaled);
   VECT3_ADD(accel_sum, accel->scaled);
   if(mag != NULL)
@@ -171,7 +171,7 @@ void ahrs_aligner_run(void)
       LED_ON(AHRS_ALIGNER_LED);
 #endif
       uint32_t now_ts = get_sys_time_usec();
-      AbiSendMsgIMU_LOWPASSED(AHRS_ALIGNER_IMU_ID, now_ts, &ahrs_aligner.lp_gyro,
+      AbiSendMsgIMU_LOWPASSED(AHRS_ALIGNER_ID, now_ts, &ahrs_aligner.lp_gyro,
                               &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
     }
   }
