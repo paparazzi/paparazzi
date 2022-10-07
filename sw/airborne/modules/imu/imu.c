@@ -39,7 +39,10 @@
 #define IMU_INTEGRATION false
 #endif
 
-/** By default gyro signs are positive for single IMU with old format */
+/** By default gyro signs are positive for single IMU with old format or defaults */
+#if defined(IMU_GYRO_CALIB) && (defined(IMU_GYRO_P_SIGN) || defined(IMU_GYRO_Q_SIGN) || defined(IMU_GYRO_R_SIGN))
+#warning "The IMU_GYRO_?_SIGN's aren't compatible with the IMU_GYRO_CALIB define in the airframe"
+#endif
 #ifndef IMU_GYRO_P_SIGN
 #define IMU_GYRO_P_SIGN 1
 #endif
@@ -71,7 +74,10 @@ PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
 #define IMU_GYRO_CALIB {}
 #endif
 
-/** By default accel signs are positive for single IMU with old format */
+/** By default accel signs are positive for single IMU with old format and defaults */
+#if defined(IMU_ACCEL_CALIB) && (defined(IMU_ACCEL_X_SIGN) || defined(IMU_ACCEL_Y_SIGN) || defined(IMU_ACCEL_Z_SIGN))
+#warning "The IMU_ACCEL_?_SIGN's aren't compatible with the IMU_ACCEL_CALIB define in the airframe"
+#endif
 #ifndef IMU_ACCEL_X_SIGN
 #define IMU_ACCEL_X_SIGN 1
 #endif
@@ -103,7 +109,10 @@ PRINT_CONFIG_MSG("Using single IMU accel sensitivity calibration")
 #define IMU_ACCEL_CALIB {}
 #endif
 
-/** By default mag signs are positive for single IMU with old format */
+/** By default mag signs are positive for single IMU with old format and defaults */
+#if defined(IMU_MAG_CALIB) && (defined(IMU_MAG_X_SIGN) || defined(IMU_MAG_Y_SIGN) || defined(IMU_MAG_Z_SIGN))
+#warning "The IMU_MAG_?_SIGN's aren't compatible with the IMU_MAG_CALIB define in the airframe"
+#endif
 #ifndef IMU_MAG_X_SIGN
 #define IMU_MAG_X_SIGN 1
 #endif
