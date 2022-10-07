@@ -1,6 +1,8 @@
 #ifndef CONFIG_LISA_M_COMMON_H
 #define CONFIG_LISA_M_COMMON_H
 
+#include "std.h"
+
 /* SPI slave mapping */
 
 #define SPI_SELECT_SLAVE0_PORT GPIOA
@@ -105,7 +107,7 @@
  *
  * Default is PPM config 2, input on GPIO01 (Servo pin 6)
  */
-
+#if USE_PPM
 #ifndef PPM_CONFIG
 #define PPM_CONFIG 2
 #endif
@@ -147,6 +149,7 @@
 #error "Unknown PPM config"
 
 #endif // PPM_CONFIG
+#endif // USE_PPM
 
 /*
  * ADC
@@ -255,7 +258,7 @@
 #endif
 #endif
 
-#if PPM_CONFIG == 2 && USE_PWM6 == 1
+#if (USE_PPM && PPM_CONFIG == 2) && USE_PWM6 == 1
 #warning "You cannot USE_PWM6 and SERVO6 (or equivalent) at the same time"
 #endif
 

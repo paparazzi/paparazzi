@@ -229,6 +229,18 @@ void ms45xx_i2c_event(void)
       /* 14bit raw pressure */
       uint16_t p_raw = 0x3FFF & (((uint16_t)(ms45xx_trans.buf[0]) << 8) | (uint16_t)(ms45xx_trans.buf[1]));
 
+      /* 11bit raw temperature, 5 LSB bits not used */
+      uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |
+                                    (uint16_t)(ms45xx_trans.buf[3]));
+      temp_raw = temp_raw >> 5;
+
+      /* Reject any values that are the absolute minimum or maximums these
+         can happen due to gnd lifts or communication errors on the bus */
+      if(p_raw == 0x3FFF || p_raw == 0 || temp_raw == 0x7FF || temp_raw == 0) {
+        ms45xx_trans.status = I2CTransDone;
+        return;
+      }
+
       /* For type Diff
        * Output is proportional to the difference between Port 1 and Port 2. Output
        * swings positive when Port 1> Port 2. Output is 50% of total counts
@@ -256,10 +268,6 @@ void ms45xx_i2c_event(void)
         }
       }
 
-      /* 11bit raw temperature, 5 LSB bits not used */
-      uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |
-                                    (uint16_t)(ms45xx_trans.buf[3]));
-      temp_raw = temp_raw >> 5;
       /* 0 = -50degC, 20147 = 150degC
        * ms45xx_temperature in 0.1 deg Celcius
        */

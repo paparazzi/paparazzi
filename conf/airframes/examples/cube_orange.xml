@@ -24,8 +24,8 @@
       </module>
 
       <module name="airspeed" type="ms45xx_i2c">
-        <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
+        <define name="USE_I2C2"/>
+        <define name="MS45XX_I2C_DEV" value="i2c2"/>
       </module>
 
       <module name="scheduling_indi_simple"/>

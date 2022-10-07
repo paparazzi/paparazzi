@@ -15,7 +15,9 @@
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <module name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm">
+      <define name="USE_PWM6" value="FALSE"/> <!-- Disable PWM6 to enable PPM on PWM6 -->
+    </module>
 
     <!-- Communication -->
     <module name="telemetry" 	type="transparent"/>

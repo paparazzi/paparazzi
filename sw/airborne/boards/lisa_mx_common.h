@@ -23,6 +23,8 @@
 #ifndef CONFIG_LISA_MX_COMMON_H
 #define CONFIG_LISA_MX_COMMON_H
 
+#include "std.h"
+
 #define BOARD_LISA_MX
 
 /* Lisa/M has a 12MHz external clock and 168MHz internal. */
@@ -218,7 +220,7 @@
  *
  * Default is PPM config 2, input on GPIOA1 (Servo pin 6)
  */
-
+#if USE_PPM
 #ifndef PPM_CONFIG
 #define PPM_CONFIG 2
 #endif
@@ -260,6 +262,7 @@
 #error "Unknown PPM config"
 
 #endif // PPM_CONFIG
+#endif // USE_PPM
 
 /* SPI */
 #define SPI1_GPIO_AF GPIO_AF5
@@ -424,7 +427,7 @@
 #define USE_PWM6 1
 #endif
 
-#if PPM_CONFIG == 2 && USE_PWM6 == 1
+#if (USE_PPM && PPM_CONFIG == 2) && USE_PWM6 == 1
 #warning "You cannot USE_PWM6 and SERVO6 (or equivalent) at the same time"
 #endif
 
