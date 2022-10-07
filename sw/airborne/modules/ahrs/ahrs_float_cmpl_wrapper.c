@@ -273,7 +273,7 @@ void ahrs_fc_register(void)
   AbiBindMsgIMU_GYRO(AHRS_FC_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(AHRS_FC_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(AHRS_FC_MAG_ID, &mag_ev, mag_cb);
-  AbiBindMsgIMU_LOWPASSED(AHRS_FC_IMU_ID, &aligner_ev, aligner_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(AHRS_FC_GPS_ID, &gps_ev, gps_cb);
 

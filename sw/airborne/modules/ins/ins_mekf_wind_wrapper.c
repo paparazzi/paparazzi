@@ -564,7 +564,7 @@ void ins_mekf_wind_wrapper_init(void)
   AbiBindMsgIMU_MAG(INS_MEKF_WIND_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_GYRO(INS_MEKF_WIND_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(INS_MEKF_WIND_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgIMU_LOWPASSED(INS_MEKF_WIND_IMU_ID, &aligner_ev, aligner_cb);
+  AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(INS_MEKF_WIND_GPS_ID, &gps_ev, gps_cb);
 
