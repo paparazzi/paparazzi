@@ -25,10 +25,15 @@
 #include "generated/airframe.h"
 #include "modules/imu/imu.h"
 
-
+#if !defined(IMU_BODY_TO_IMU_PHI) && !defined(IMU_BODY_TO_IMU_THETA) && !defined(IMU_BODY_TO_IMU_PSI)
+#define NPS_BODY_TO_IMU_PHI   0
+#define NPS_BODY_TO_IMU_THETA 0
+#define NPS_BODY_TO_IMU_PSI   0
+#else
 #define NPS_BODY_TO_IMU_PHI    IMU_BODY_TO_IMU_PHI
 #define NPS_BODY_TO_IMU_THETA  IMU_BODY_TO_IMU_THETA
 #define NPS_BODY_TO_IMU_PSI    IMU_BODY_TO_IMU_PSI
+#endif
 
 // try to determine propagate frequency
 #if defined AHRS_PROPAGATE_FREQUENCY
@@ -61,9 +66,22 @@
 #define NPS_ACCEL_SENSITIVITY_YY  ACCEL_BFP_OF_REAL(1./NPS_ACCEL_SENSITIVITY)
 #define NPS_ACCEL_SENSITIVITY_ZZ  ACCEL_BFP_OF_REAL(1./NPS_ACCEL_SENSITIVITY)
 
+#ifdef IMU_ACCEL_X_NEUTRAL
+#define NPS_ACCEL_NEUTRAL_X       IMU_ACCEL_X_NEUTRAL
+#else
 #define NPS_ACCEL_NEUTRAL_X       0
+#endif
+#ifdef IMU_ACCEL_Y_NEUTRAL
+#define NPS_ACCEL_NEUTRAL_Y       IMU_ACCEL_Y_NEUTRAL
+#else
 #define NPS_ACCEL_NEUTRAL_Y       0
+#endif
+#ifdef IMU_ACCEL_Z_NEUTRAL
+#define NPS_ACCEL_NEUTRAL_Z       IMU_ACCEL_Z_NEUTRAL
+#else
 #define NPS_ACCEL_NEUTRAL_Z       0
+#endif
+
 /* m2s-4 */
 #define NPS_ACCEL_NOISE_STD_DEV_X .5
 #define NPS_ACCEL_NOISE_STD_DEV_Y .5
@@ -90,7 +108,7 @@
 #define NPS_GYRO_MAX  65536
 #endif
 
-/* 2^12/GYRO_X_SENS */      
+/* 2^12/GYRO_X_SENS */
 #define NPS_GYRO_SENSITIVITY_NUM  36542
 #define NPS_GYRO_SENSITIVITY_DEN  8383
 #define NPS_GYRO_SENSITIVITY      ((float)NPS_GYRO_SENSITIVITY_NUM / (float)NPS_GYRO_SENSITIVITY_DEN)
@@ -98,9 +116,21 @@
 #define NPS_GYRO_SENSITIVITY_QQ   RATE_BFP_OF_REAL(1./NPS_GYRO_SENSITIVITY)
 #define NPS_GYRO_SENSITIVITY_RR   RATE_BFP_OF_REAL(1./NPS_GYRO_SENSITIVITY)
 
+#ifdef IMU_GYRO_P_NEUTRAL
+#define NPS_GYRO_NEUTRAL_P        IMU_GYRO_P_NEUTRAL
+#else
 #define NPS_GYRO_NEUTRAL_P        0
+#endif
+#ifdef IMU_GYRO_Q_NEUTRAL
+#define NPS_GYRO_NEUTRAL_Q        IMU_GYRO_Q_NEUTRAL
+#else
 #define NPS_GYRO_NEUTRAL_Q        0
+#endif
+#ifdef IMU_GYRO_R_NEUTRAL
+#define NPS_GYRO_NEUTRAL_R        IMU_GYRO_R_NEUTRAL
+#else
 #define NPS_GYRO_NEUTRAL_R        0
+#endif
 
 #define NPS_GYRO_NOISE_STD_DEV_P  RadOfDeg(9.)
 #define NPS_GYRO_NOISE_STD_DEV_Q  RadOfDeg(9.)
@@ -142,9 +172,21 @@
 #define NPS_MAG_SENSITIVITY_YY   MAG_BFP_OF_REAL(1./NPS_MAG_SENSITIVITY)
 #define NPS_MAG_SENSITIVITY_ZZ   MAG_BFP_OF_REAL(1./NPS_MAG_SENSITIVITY)
 
+#ifdef IMU_MAG_X_NEUTRAL
+#define NPS_MAG_NEUTRAL_X  IMU_MAG_X_NEUTRAL
+#else
 #define NPS_MAG_NEUTRAL_X  0
+#endif
+#ifdef IMU_MAG_Y_NEUTRAL
+#define NPS_MAG_NEUTRAL_Y  IMU_MAG_Y_NEUTRAL
+#else
 #define NPS_MAG_NEUTRAL_Y  0
+#endif
+#ifdef IMU_MAG_Z_NEUTRAL
+#define NPS_MAG_NEUTRAL_Z  IMU_MAG_Z_NEUTRAL
+#else
 #define NPS_MAG_NEUTRAL_Z  0
+#endif
 
 #define NPS_MAG_NOISE_STD_DEV_X  2e-1
 #define NPS_MAG_NOISE_STD_DEV_Y  2e-1
