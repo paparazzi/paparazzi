@@ -79,6 +79,30 @@
 #define UBX_NAV_PVT_magDec(_ubx_payload) (int16_t)(*((uint8_t*)_ubx_payload+88)|(int16_t)(*((uint8_t*)_ubx_payload+1+88))<<8)
 #define UBX_NAV_PVT_magAcc(_ubx_payload) (uint16_t)(*((uint8_t*)_ubx_payload+90)|(uint16_t)(*((uint8_t*)_ubx_payload+1+90))<<8)
 
+/* UBX RELPOSNED message */
+#define UBX_NAV_RELPOSNED_ID 0x3C
+#define UBX_NAV_RELPOSNED_version(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+0))
+#define UBX_NAV_RELPOSNED_reserved1(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+1))
+#define UBX_NAV_RELPOSNED_refStationId(_ubx_payload) (uint16_t)(*((uint8_t*)_ubx_payload+2)|(uint16_t)(*((uint8_t*)_ubx_payload+1+2))<<8)
+#define UBX_NAV_RELPOSNED_iTOW(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+4)|(uint32_t)(*((uint8_t*)_ubx_payload+1+4))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+4))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+4))<<24)
+#define UBX_NAV_RELPOSNED_relPosN(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+8)|(int32_t)(*((uint8_t*)_ubx_payload+1+8))<<8|((int32_t)*((uint8_t*)_ubx_payload+2+8))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+8))<<24)
+#define UBX_NAV_RELPOSNED_relPosE(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+12)|(int32_t)(*((uint8_t*)_ubx_payload+1+12))<<8|((int32_t)*((uint8_t*)_ubx_payload+2+12))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+12))<<24)
+#define UBX_NAV_RELPOSNED_relPosD(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+16)|(int32_t)(*((uint8_t*)_ubx_payload+1+16))<<8|((int32_t)*((uint8_t*)_ubx_payload+2+16))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+16))<<24)
+#define UBX_NAV_RELPOSNED_relPosLength(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+20)|(int32_t)(*((uint8_t*)_ubx_payload+1+20))<<8|((int32_t)*((uint8_t*)_ubx_payload+2+20))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+20))<<24)
+#define UBX_NAV_RELPOSNED_relPosHeading(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+24)|(int32_t)(*((uint8_t*)_ubx_payload+1+24))<<8|((int32_t)*((uint8_t*)_ubx_payload+2+24))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+24))<<24)
+#define UBX_NAV_RELPOSNED_reserved2(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+28)|(uint32_t)(*((uint8_t*)_ubx_payload+1+28))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+28))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+28))<<24)
+#define UBX_NAV_RELPOSNED_relPosHPN(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+32))
+#define UBX_NAV_RELPOSNED_relPosHPE(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+33))
+#define UBX_NAV_RELPOSNED_relPosHPD(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+34))
+#define UBX_NAV_RELPOSNED_relPosHPLength(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+35))
+#define UBX_NAV_RELPOSNED_accN(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+36)|(uint32_t)(*((uint8_t*)_ubx_payload+1+36))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+36))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+36))<<24)
+#define UBX_NAV_RELPOSNED_accE(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+40)|(uint32_t)(*((uint8_t*)_ubx_payload+1+40))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+40))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+40))<<24)
+#define UBX_NAV_RELPOSNED_accD(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+44)|(uint32_t)(*((uint8_t*)_ubx_payload+1+44))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+44))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+44))<<24)
+#define UBX_NAV_RELPOSNED_accLength(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+48)|(uint32_t)(*((uint8_t*)_ubx_payload+1+48))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+48))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+48))<<24)
+#define UBX_NAV_RELPOSNED_accHeading(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+52)|(uint32_t)(*((uint8_t*)_ubx_payload+1+52))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+52))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+52))<<24)
+#define UBX_NAV_RELPOSNED_reserved3(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+56)|(uint32_t)(*((uint8_t*)_ubx_payload+1+56))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+56))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+56))<<24)
+#define UBX_NAV_RELPOSNED_flags(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+60)|(uint32_t)(*((uint8_t*)_ubx_payload+1+60))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+60))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+60))<<24)
+
 struct gps_ubx_t {
   bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
