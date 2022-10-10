@@ -240,7 +240,7 @@ void mcu_arch_init(void)
 #elif EXT_CLK == 12000000
 #if defined(STM32F1)
   PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 72MHz.")
-  rcc_clock_setup_in_hse_12mhz_out_72mhz();
+  rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE12_72MHZ]);
 #elif defined(STM32F4)
   PRINT_CONFIG_MSG("Using 12MHz external clock to PLL it to 168MHz.")
   rcc_clock_setup_hse_3v3(&rcc_hse_12mhz_3v3[RCC_CLOCK_3V3_168MHZ]);

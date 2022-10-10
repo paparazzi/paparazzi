@@ -7,25 +7,25 @@
 # This is the common Makefile for finding the arm compiler
 # for bare metal systems like on the ARM7TDMI, cortex M3/4
 
-PREFIX ?= arm-none-eabi
+PREFIX ?= arm-none-eabi-
 
-ifeq ($(shell which $(PREFIX)-gcc),)
+ifeq ($(shell which $(PREFIX)gcc),)
   ifneq ($(MAKECMDGOALS),clean)
     $(warning Warning: arm-none-eabi-gcc cross-compiler not found! Some tools might not be able to build correctly)
   endif
 endif
 
-CC    = $(PREFIX)-gcc
-CXX   = $(PREFIX)-g++
-LD    = $(PREFIX)-g++
-AR    = $(PREFIX)-ar
-CP    = $(PREFIX)-objcopy
-DMP   = $(PREFIX)-objdump
-NM    = $(PREFIX)-nm
-SIZE  = $(PREFIX)-size
-STRIP = $(PREFIX)-strip
+CC    = $(PREFIX)gcc
+CXX   = $(PREFIX)g++
+LD    = $(PREFIX)g++
+AR    = $(PREFIX)ar
+CP    = $(PREFIX)objcopy
+DMP   = $(PREFIX)objdump
+NM    = $(PREFIX)nm
+SIZE  = $(PREFIX)size
+STRIP = $(PREFIX)strip
 
-GDB = $(shell which $(PREFIX)-gdb)
+GDB = $(shell which $(PREFIX)gdb)
 ifeq ($(GDB),)
 GDB = $(shell which gdb-multiarch)
 endif
