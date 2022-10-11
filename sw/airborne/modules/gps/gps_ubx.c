@@ -104,6 +104,12 @@ void gps_ubx_init(void)
   gps_ubx.error_last = GPS_UBX_ERR_NONE;
 
   gps_ubx.state.comp_id = GPS_UBX_ID;
+  
+#if GPS_UBX_COLDSTART
+  gps_ubx.reset = CFG_RST_BBR_Coldstart;
+#else
+  gps_ubx.reset = CFG_RST_BBR_Hotstart;
+#endif /* GPS_UBX_COLDSTART */
 }
 
 void gps_ubx_event(void)
@@ -115,6 +121,11 @@ void gps_ubx_event(void)
     if (gps_ubx.msg_available) {
       gps_ubx_msg();
     }
+  }
+
+  if (gps_ubx.reset > CFG_RST_BBR_Hotstart) {
+    ubx_send_cfg_rst(&(UBX_GPS_LINK).device, gps_ubx.reset, CFG_RST_Reset_Controlled);
+    gps_ubx.reset = CFG_RST_BBR_Hotstart;
   }
 }
 
