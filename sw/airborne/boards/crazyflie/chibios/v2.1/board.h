@@ -55,367 +55,191 @@
  * IO pins assignments.
  */
 #define	PA00                           0U
-#define	PA00_PORT                      GPIOA
 #define	MOTOR1                         1U
-#define	MOTOR1_PORT                    GPIOA
 #define	E_TX2                          2U
-#define	E_TX2_PORT                     GPIOA
 #define	E_RX2                          3U
-#define	E_RX2_PORT                     GPIOA
 #define	NRF_FLOW_CTRL                  4U
-#define	NRF_FLOW_CTRL_PORT             GPIOA
 #define	E_SCK                          5U
-#define	E_SCK_PORT                     GPIOA
 #define	E_MISO                         6U
-#define	E_MISO_PORT                    GPIOA
 #define	E_MOSI                         7U
-#define	E_MOSI_PORT                    GPIOA
-#define	IMU_SCL                        8U
-#define	IMU_SCL_PORT                   GPIOA
+#define	I2C3_SCL                       8U
 #define	PA09                           9U
-#define	PA09_PORT                      GPIOA
 #define	USB_ID                         10U
-#define	USB_ID_PORT                    GPIOA
 #define	USB_DM                         11U
-#define	USB_DM_PORT                    GPIOA
 #define	USB_DP                         12U
-#define	USB_DP_PORT                    GPIOA
 #define	STM_SWIO                       13U
-#define	STM_SWIO_PORT                  GPIOA
 #define	STM_SWCLK                      14U
-#define	STM_SWCLK_PORT                 GPIOA
 #define	MOTOR3                         15U
-#define	MOTOR3_PORT                    GPIOA
 
 #define	PB00                           0U
-#define	PB00_PORT                      GPIOB
 #define	PB01                           1U
-#define	PB01_PORT                      GPIOB
 #define	BOOT1                          2U
-#define	BOOT1_PORT                     GPIOB
 #define	PB03                           3U
-#define	PB03_PORT                      GPIOB
 #define	E_CS1                          4U
-#define	E_CS1_PORT                     GPIOB
 #define	E_CS2                          5U
-#define	E_CS2_PORT                     GPIOB
-#define	E_SCL                          6U
-#define	E_SCL_PORT                     GPIOB
-#define	E_SDA                          7U
-#define	E_SDA_PORT                     GPIOB
+#define	I2C1_SCL                       6U
+#define	I2C1_SDA                       7U
 #define	E_CS3                          8U
-#define	E_CS3_PORT                     GPIOB
 #define	MOTOR4                         9U
-#define	MOTOR4_PORT                    GPIOB
 #define	PB10                           10U
-#define	PB10_PORT                      GPIOB
 #define	MOTOR2                         11U
-#define	MOTOR2_PORT                    GPIOB
 #define	PB12                           12U
-#define	PB12_PORT                      GPIOB
 #define	NRF_SWCLK                      13U
-#define	NRF_SWCLK_PORT                 GPIOB
 #define	PB14                           14U
-#define	PB14_PORT                      GPIOB
 #define	NRF_SWIO                       15U
-#define	NRF_SWIO_PORT                  GPIOB
 
 #define	LED_RED_L                      0U
-#define	LED_RED_L_PORT                 GPIOC
 #define	LED_GREEN_L                    1U
-#define	LED_GREEN_L_PORT               GPIOC
 #define	LED_GREEN_R                    2U
-#define	LED_GREEN_R_PORT               GPIOC
 #define	LED_RED_R                      3U
-#define	LED_RED_R_PORT                 GPIOC
 #define	PC04                           4U
-#define	PC04_PORT                      GPIOC
 #define	PC05                           5U
-#define	PC05_PORT                      GPIOC
 #define	NRF_TX                         6U
-#define	NRF_TX_PORT                    GPIOC
 #define	NRF_RX                         7U
-#define	NRF_RX_PORT                    GPIOC
 #define	PC08                           8U
-#define	PC08_PORT                      GPIOC
-#define	IMU_SDA                        9U
-#define	IMU_SDA_PORT                   GPIOC
+#define	I2C3_SDA                       9U
 #define	E_TX1                          10U
-#define	E_TX1_PORT                     GPIOC
 #define	E_RX1                          11U
-#define	E_RX1_PORT                     GPIOC
 #define	E_CS0                          12U
-#define	E_CS0_PORT                     GPIOC
 #define	PC13                           13U
-#define	PC13_PORT                      GPIOC
 #define	PC14                           14U
-#define	PC14_PORT                      GPIOC
 #define	PC15                           15U
-#define	PC15_PORT                      GPIOC
 
 #define	PD00                           0U
-#define	PD00_PORT                      GPIOD
 #define	PD01                           1U
-#define	PD01_PORT                      GPIOD
 #define	LED_BLUE_L                     2U
-#define	LED_BLUE_L_PORT                GPIOD
 #define	PD03                           3U
-#define	PD03_PORT                      GPIOD
 #define	PD04                           4U
-#define	PD04_PORT                      GPIOD
 #define	PD05                           5U
-#define	PD05_PORT                      GPIOD
 #define	PD06                           6U
-#define	PD06_PORT                      GPIOD
 #define	PD07                           7U
-#define	PD07_PORT                      GPIOD
 #define	PD08                           8U
-#define	PD08_PORT                      GPIOD
 #define	PD09                           9U
-#define	PD09_PORT                      GPIOD
 #define	PD10                           10U
-#define	PD10_PORT                      GPIOD
 #define	PD11                           11U
-#define	PD11_PORT                      GPIOD
 #define	PD12                           12U
-#define	PD12_PORT                      GPIOD
 #define	PD13                           13U
-#define	PD13_PORT                      GPIOD
 #define	PD14                           14U
-#define	PD14_PORT                      GPIOD
 #define	PD15                           15U
-#define	PD15_PORT                      GPIOD
 
 #define	PE00                           0U
-#define	PE00_PORT                      GPIOE
 #define	PE01                           1U
-#define	PE01_PORT                      GPIOE
 #define	PE02                           2U
-#define	PE02_PORT                      GPIOE
 #define	PE03                           3U
-#define	PE03_PORT                      GPIOE
 #define	PE04                           4U
-#define	PE04_PORT                      GPIOE
 #define	PE05                           5U
-#define	PE05_PORT                      GPIOE
 #define	PE06                           6U
-#define	PE06_PORT                      GPIOE
 #define	PE07                           7U
-#define	PE07_PORT                      GPIOE
 #define	PE08                           8U
-#define	PE08_PORT                      GPIOE
 #define	PE09                           9U
-#define	PE09_PORT                      GPIOE
 #define	PE10                           10U
-#define	PE10_PORT                      GPIOE
 #define	PE11                           11U
-#define	PE11_PORT                      GPIOE
 #define	PE12                           12U
-#define	PE12_PORT                      GPIOE
 #define	PE13                           13U
-#define	PE13_PORT                      GPIOE
 #define	PE14                           14U
-#define	PE14_PORT                      GPIOE
 #define	PE15                           15U
-#define	PE15_PORT                      GPIOE
 
 #define	PF00                           0U
-#define	PF00_PORT                      GPIOF
 #define	PF01                           1U
-#define	PF01_PORT                      GPIOF
 #define	PF02                           2U
-#define	PF02_PORT                      GPIOF
 #define	PF03                           3U
-#define	PF03_PORT                      GPIOF
 #define	PF04                           4U
-#define	PF04_PORT                      GPIOF
 #define	PF05                           5U
-#define	PF05_PORT                      GPIOF
 #define	PF06                           6U
-#define	PF06_PORT                      GPIOF
 #define	PF07                           7U
-#define	PF07_PORT                      GPIOF
 #define	PF08                           8U
-#define	PF08_PORT                      GPIOF
 #define	PF09                           9U
-#define	PF09_PORT                      GPIOF
 #define	PF10                           10U
-#define	PF10_PORT                      GPIOF
 #define	PF11                           11U
-#define	PF11_PORT                      GPIOF
 #define	PF12                           12U
-#define	PF12_PORT                      GPIOF
 #define	PF13                           13U
-#define	PF13_PORT                      GPIOF
 #define	PF14                           14U
-#define	PF14_PORT                      GPIOF
 #define	PF15                           15U
-#define	PF15_PORT                      GPIOF
 
 #define	PG00                           0U
-#define	PG00_PORT                      GPIOG
 #define	PG01                           1U
-#define	PG01_PORT                      GPIOG
 #define	PG02                           2U
-#define	PG02_PORT                      GPIOG
 #define	PG03                           3U
-#define	PG03_PORT                      GPIOG
 #define	PG04                           4U
-#define	PG04_PORT                      GPIOG
 #define	PG05                           5U
-#define	PG05_PORT                      GPIOG
 #define	PG06                           6U
-#define	PG06_PORT                      GPIOG
 #define	PG07                           7U
-#define	PG07_PORT                      GPIOG
 #define	PG08                           8U
-#define	PG08_PORT                      GPIOG
 #define	PG09                           9U
-#define	PG09_PORT                      GPIOG
 #define	PG10                           10U
-#define	PG10_PORT                      GPIOG
 #define	PG11                           11U
-#define	PG11_PORT                      GPIOG
 #define	PG12                           12U
-#define	PG12_PORT                      GPIOG
 #define	PG13                           13U
-#define	PG13_PORT                      GPIOG
 #define	PG14                           14U
-#define	PG14_PORT                      GPIOG
 #define	PG15                           15U
-#define	PG15_PORT                      GPIOG
 
 #define	OSC_IN                         0U
-#define	OSC_IN_PORT                    GPIOH
 #define	OSC_OUT                        1U
-#define	OSC_OUT_PORT                   GPIOH
 #define	PH02                           2U
-#define	PH02_PORT                      GPIOH
 #define	PH03                           3U
-#define	PH03_PORT                      GPIOH
 #define	PH04                           4U
-#define	PH04_PORT                      GPIOH
 #define	PH05                           5U
-#define	PH05_PORT                      GPIOH
 #define	PH06                           6U
-#define	PH06_PORT                      GPIOH
 #define	PH07                           7U
-#define	PH07_PORT                      GPIOH
 #define	PH08                           8U
-#define	PH08_PORT                      GPIOH
 #define	PH09                           9U
-#define	PH09_PORT                      GPIOH
 #define	PH10                           10U
-#define	PH10_PORT                      GPIOH
 #define	PH11                           11U
-#define	PH11_PORT                      GPIOH
 #define	PH12                           12U
-#define	PH12_PORT                      GPIOH
 #define	PH13                           13U
-#define	PH13_PORT                      GPIOH
 #define	PH14                           14U
-#define	PH14_PORT                      GPIOH
 #define	PH15                           15U
-#define	PH15_PORT                      GPIOH
 
 #define	PI00                           0U
-#define	PI00_PORT                      GPIOI
 #define	PI01                           1U
-#define	PI01_PORT                      GPIOI
 #define	PI02                           2U
-#define	PI02_PORT                      GPIOI
 #define	PI03                           3U
-#define	PI03_PORT                      GPIOI
 #define	PI04                           4U
-#define	PI04_PORT                      GPIOI
 #define	PI05                           5U
-#define	PI05_PORT                      GPIOI
 #define	PI06                           6U
-#define	PI06_PORT                      GPIOI
 #define	PI07                           7U
-#define	PI07_PORT                      GPIOI
 #define	PI08                           8U
-#define	PI08_PORT                      GPIOI
 #define	PI09                           9U
-#define	PI09_PORT                      GPIOI
 #define	PI10                           10U
-#define	PI10_PORT                      GPIOI
 #define	PI11                           11U
-#define	PI11_PORT                      GPIOI
 #define	PI12                           12U
-#define	PI12_PORT                      GPIOI
 #define	PI13                           13U
-#define	PI13_PORT                      GPIOI
 #define	PI14                           14U
-#define	PI14_PORT                      GPIOI
 #define	PI15                           15U
-#define	PI15_PORT                      GPIOI
 
 #define	PJ00                           0U
-#define	PJ00_PORT                      GPIOJ
 #define	PJ01                           1U
-#define	PJ01_PORT                      GPIOJ
 #define	PJ02                           2U
-#define	PJ02_PORT                      GPIOJ
 #define	PJ03                           3U
-#define	PJ03_PORT                      GPIOJ
 #define	PJ04                           4U
-#define	PJ04_PORT                      GPIOJ
 #define	PJ05                           5U
-#define	PJ05_PORT                      GPIOJ
 #define	PJ06                           6U
-#define	PJ06_PORT                      GPIOJ
 #define	PJ07                           7U
-#define	PJ07_PORT                      GPIOJ
 #define	PJ08                           8U
-#define	PJ08_PORT                      GPIOJ
 #define	PJ09                           9U
-#define	PJ09_PORT                      GPIOJ
 #define	PJ10                           10U
-#define	PJ10_PORT                      GPIOJ
 #define	PJ11                           11U
-#define	PJ11_PORT                      GPIOJ
 #define	PJ12                           12U
-#define	PJ12_PORT                      GPIOJ
 #define	PJ13                           13U
-#define	PJ13_PORT                      GPIOJ
 #define	PJ14                           14U
-#define	PJ14_PORT                      GPIOJ
 #define	PJ15                           15U
-#define	PJ15_PORT                      GPIOJ
 
 #define	PK00                           0U
-#define	PK00_PORT                      GPIOK
 #define	PK01                           1U
-#define	PK01_PORT                      GPIOK
 #define	PK02                           2U
-#define	PK02_PORT                      GPIOK
 #define	PK03                           3U
-#define	PK03_PORT                      GPIOK
 #define	PK04                           4U
-#define	PK04_PORT                      GPIOK
 #define	PK05                           5U
-#define	PK05_PORT                      GPIOK
 #define	PK06                           6U
-#define	PK06_PORT                      GPIOK
 #define	PK07                           7U
-#define	PK07_PORT                      GPIOK
 #define	PK08                           8U
-#define	PK08_PORT                      GPIOK
 #define	PK09                           9U
-#define	PK09_PORT                      GPIOK
 #define	PK10                           10U
-#define	PK10_PORT                      GPIOK
 #define	PK11                           11U
-#define	PK11_PORT                      GPIOK
 #define	PK12                           12U
-#define	PK12_PORT                      GPIOK
 #define	PK13                           13U
-#define	PK13_PORT                      GPIOK
 #define	PK14                           14U
-#define	PK14_PORT                      GPIOK
 #define	PK15                           15U
-#define	PK15_PORT                      GPIOK
 
 /*
  * IO lines assignments.
@@ -427,7 +251,7 @@
 #define	LINE_E_SCK                     PAL_LINE(GPIOA, 5U)
 #define	LINE_E_MISO                    PAL_LINE(GPIOA, 6U)
 #define	LINE_E_MOSI                    PAL_LINE(GPIOA, 7U)
-#define	LINE_IMU_SCL                   PAL_LINE(GPIOA, 8U)
+#define	LINE_I2C3_SCL                  PAL_LINE(GPIOA, 8U)
 #define	LINE_USB_ID                    PAL_LINE(GPIOA, 10U)
 #define	LINE_USB_DM                    PAL_LINE(GPIOA, 11U)
 #define	LINE_USB_DP                    PAL_LINE(GPIOA, 12U)
@@ -438,8 +262,8 @@
 #define	LINE_BOOT1                     PAL_LINE(GPIOB, 2U)
 #define	LINE_E_CS1                     PAL_LINE(GPIOB, 4U)
 #define	LINE_E_CS2                     PAL_LINE(GPIOB, 5U)
-#define	LINE_E_SCL                     PAL_LINE(GPIOB, 6U)
-#define	LINE_E_SDA                     PAL_LINE(GPIOB, 7U)
+#define	LINE_I2C1_SCL                  PAL_LINE(GPIOB, 6U)
+#define	LINE_I2C1_SDA                  PAL_LINE(GPIOB, 7U)
 #define	LINE_E_CS3                     PAL_LINE(GPIOB, 8U)
 #define	LINE_MOTOR4                    PAL_LINE(GPIOB, 9U)
 #define	LINE_MOTOR2                    PAL_LINE(GPIOB, 11U)
@@ -452,7 +276,7 @@
 #define	LINE_LED_RED_R                 PAL_LINE(GPIOC, 3U)
 #define	LINE_NRF_TX                    PAL_LINE(GPIOC, 6U)
 #define	LINE_NRF_RX                    PAL_LINE(GPIOC, 7U)
-#define	LINE_IMU_SDA                   PAL_LINE(GPIOC, 9U)
+#define	LINE_I2C3_SDA                  PAL_LINE(GPIOC, 9U)
 #define	LINE_E_TX1                     PAL_LINE(GPIOC, 10U)
 #define	LINE_E_RX1                     PAL_LINE(GPIOC, 11U)
 #define	LINE_E_CS0                     PAL_LINE(GPIOC, 12U)
@@ -493,7 +317,7 @@
 					 PIN_MODE_ALTERNATE(E_SCK) | \
 					 PIN_MODE_ALTERNATE(E_MISO) | \
 					 PIN_MODE_ALTERNATE(E_MOSI) | \
-					 PIN_MODE_ALTERNATE(IMU_SCL) | \
+					 PIN_MODE_ALTERNATE(I2C3_SCL) | \
 					 PIN_MODE_INPUT(PA09) | \
 					 PIN_MODE_ALTERNATE(USB_ID) | \
 					 PIN_MODE_ALTERNATE(USB_DM) | \
@@ -510,7 +334,7 @@
 					 PIN_OTYPE_PUSHPULL(E_SCK) | \
 					 PIN_OTYPE_PUSHPULL(E_MISO) | \
 					 PIN_OTYPE_PUSHPULL(E_MOSI) | \
-					 PIN_OTYPE_OPENDRAIN(IMU_SCL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C3_SCL) | \
 					 PIN_OTYPE_PUSHPULL(PA09) | \
 					 PIN_OTYPE_PUSHPULL(USB_ID) | \
 					 PIN_OTYPE_PUSHPULL(USB_DM) | \
@@ -527,7 +351,7 @@
 					 PIN_OSPEED_SPEED_HIGH(E_SCK) | \
 					 PIN_OSPEED_SPEED_HIGH(E_MISO) | \
 					 PIN_OSPEED_SPEED_HIGH(E_MOSI) | \
-					 PIN_OSPEED_SPEED_HIGH(IMU_SCL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C3_SCL) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA09) | \
 					 PIN_OSPEED_SPEED_HIGH(USB_ID) | \
 					 PIN_OSPEED_SPEED_HIGH(USB_DM) | \
@@ -544,7 +368,7 @@
 					 PIN_PUPDR_FLOATING(E_SCK) | \
 					 PIN_PUPDR_FLOATING(E_MISO) | \
 					 PIN_PUPDR_FLOATING(E_MOSI) | \
-					 PIN_PUPDR_PULLUP(IMU_SCL) | \
+					 PIN_PUPDR_PULLUP(I2C3_SCL) | \
 					 PIN_PUPDR_PULLDOWN(PA09) | \
 					 PIN_PUPDR_FLOATING(USB_ID) | \
 					 PIN_PUPDR_FLOATING(USB_DM) | \
@@ -561,7 +385,7 @@
 					 PIN_ODR_LEVEL_HIGH(E_SCK) | \
 					 PIN_ODR_LEVEL_HIGH(E_MISO) | \
 					 PIN_ODR_LEVEL_HIGH(E_MOSI) | \
-					 PIN_ODR_LEVEL_HIGH(IMU_SCL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C3_SCL) | \
 					 PIN_ODR_LEVEL_LOW(PA09) | \
 					 PIN_ODR_LEVEL_HIGH(USB_ID) | \
 					 PIN_ODR_LEVEL_HIGH(USB_DM) | \
@@ -579,7 +403,7 @@
 					 PIN_AFIO_AF(E_MISO, 5) | \
 					 PIN_AFIO_AF(E_MOSI, 5))
 
-#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(IMU_SCL, 4) | \
+#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(I2C3_SCL, 4) | \
 					 PIN_AFIO_AF(PA09, 0) | \
 					 PIN_AFIO_AF(USB_ID, 10) | \
 					 PIN_AFIO_AF(USB_DM, 10) | \
@@ -594,8 +418,8 @@
 					 PIN_MODE_INPUT(PB03) | \
 					 PIN_MODE_INPUT(E_CS1) | \
 					 PIN_MODE_INPUT(E_CS2) | \
-					 PIN_MODE_ALTERNATE(E_SCL) | \
-					 PIN_MODE_ALTERNATE(E_SDA) | \
+					 PIN_MODE_ALTERNATE(I2C1_SCL) | \
+					 PIN_MODE_ALTERNATE(I2C1_SDA) | \
 					 PIN_MODE_INPUT(E_CS3) | \
 					 PIN_MODE_ALTERNATE(MOTOR4) | \
 					 PIN_MODE_INPUT(PB10) | \
@@ -611,8 +435,8 @@
 					 PIN_OTYPE_PUSHPULL(PB03) | \
 					 PIN_OTYPE_OPENDRAIN(E_CS1) | \
 					 PIN_OTYPE_OPENDRAIN(E_CS2) | \
-					 PIN_OTYPE_OPENDRAIN(E_SCL) | \
-					 PIN_OTYPE_OPENDRAIN(E_SDA) | \
+					 PIN_OTYPE_OPENDRAIN(I2C1_SCL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C1_SDA) | \
 					 PIN_OTYPE_OPENDRAIN(E_CS3) | \
 					 PIN_OTYPE_PUSHPULL(MOTOR4) | \
 					 PIN_OTYPE_PUSHPULL(PB10) | \
@@ -628,8 +452,8 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PB03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(E_CS1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(E_CS2) | \
-					 PIN_OSPEED_SPEED_HIGH(E_SCL) | \
-					 PIN_OSPEED_SPEED_HIGH(E_SDA) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C1_SCL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C1_SDA) | \
 					 PIN_OSPEED_SPEED_VERYLOW(E_CS3) | \
 					 PIN_OSPEED_SPEED_HIGH(MOTOR4) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB10) | \
@@ -645,8 +469,8 @@
 					 PIN_PUPDR_PULLDOWN(PB03) | \
 					 PIN_PUPDR_FLOATING(E_CS1) | \
 					 PIN_PUPDR_FLOATING(E_CS2) | \
-					 PIN_PUPDR_PULLUP(E_SCL) | \
-					 PIN_PUPDR_PULLUP(E_SDA) | \
+					 PIN_PUPDR_PULLUP(I2C1_SCL) | \
+					 PIN_PUPDR_PULLUP(I2C1_SDA) | \
 					 PIN_PUPDR_FLOATING(E_CS3) | \
 					 PIN_PUPDR_FLOATING(MOTOR4) | \
 					 PIN_PUPDR_PULLDOWN(PB10) | \
@@ -662,8 +486,8 @@
 					 PIN_ODR_LEVEL_LOW(PB03) | \
 					 PIN_ODR_LEVEL_LOW(E_CS1) | \
 					 PIN_ODR_LEVEL_LOW(E_CS2) | \
-					 PIN_ODR_LEVEL_HIGH(E_SCL) | \
-					 PIN_ODR_LEVEL_HIGH(E_SDA) | \
+					 PIN_ODR_LEVEL_HIGH(I2C1_SCL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C1_SDA) | \
 					 PIN_ODR_LEVEL_LOW(E_CS3) | \
 					 PIN_ODR_LEVEL_LOW(MOTOR4) | \
 					 PIN_ODR_LEVEL_LOW(PB10) | \
@@ -679,8 +503,8 @@
 					 PIN_AFIO_AF(PB03, 0) | \
 					 PIN_AFIO_AF(E_CS1, 0) | \
 					 PIN_AFIO_AF(E_CS2, 0) | \
-					 PIN_AFIO_AF(E_SCL, 4) | \
-					 PIN_AFIO_AF(E_SDA, 4))
+					 PIN_AFIO_AF(I2C1_SCL, 4) | \
+					 PIN_AFIO_AF(I2C1_SDA, 4))
 
 #define VAL_GPIOB_AFRH			(PIN_AFIO_AF(E_CS3, 0) | \
 					 PIN_AFIO_AF(MOTOR4, 2) | \
@@ -700,7 +524,7 @@
 					 PIN_MODE_ALTERNATE(NRF_TX) | \
 					 PIN_MODE_ALTERNATE(NRF_RX) | \
 					 PIN_MODE_INPUT(PC08) | \
-					 PIN_MODE_ALTERNATE(IMU_SDA) | \
+					 PIN_MODE_ALTERNATE(I2C3_SDA) | \
 					 PIN_MODE_ALTERNATE(E_TX1) | \
 					 PIN_MODE_ALTERNATE(E_RX1) | \
 					 PIN_MODE_INPUT(E_CS0) | \
@@ -717,7 +541,7 @@
 					 PIN_OTYPE_PUSHPULL(NRF_TX) | \
 					 PIN_OTYPE_PUSHPULL(NRF_RX) | \
 					 PIN_OTYPE_PUSHPULL(PC08) | \
-					 PIN_OTYPE_OPENDRAIN(IMU_SDA) | \
+					 PIN_OTYPE_OPENDRAIN(I2C3_SDA) | \
 					 PIN_OTYPE_PUSHPULL(E_TX1) | \
 					 PIN_OTYPE_PUSHPULL(E_RX1) | \
 					 PIN_OTYPE_OPENDRAIN(E_CS0) | \
@@ -734,7 +558,7 @@
 					 PIN_OSPEED_SPEED_HIGH(NRF_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(NRF_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC08) | \
-					 PIN_OSPEED_SPEED_HIGH(IMU_SDA) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C3_SDA) | \
 					 PIN_OSPEED_SPEED_HIGH(E_TX1) | \
 					 PIN_OSPEED_SPEED_HIGH(E_RX1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(E_CS0) | \
@@ -751,7 +575,7 @@
 					 PIN_PUPDR_FLOATING(NRF_TX) | \
 					 PIN_PUPDR_FLOATING(NRF_RX) | \
 					 PIN_PUPDR_PULLDOWN(PC08) | \
-					 PIN_PUPDR_PULLUP(IMU_SDA) | \
+					 PIN_PUPDR_PULLUP(I2C3_SDA) | \
 					 PIN_PUPDR_FLOATING(E_TX1) | \
 					 PIN_PUPDR_FLOATING(E_RX1) | \
 					 PIN_PUPDR_FLOATING(E_CS0) | \
@@ -768,7 +592,7 @@
 					 PIN_ODR_LEVEL_HIGH(NRF_TX) | \
 					 PIN_ODR_LEVEL_HIGH(NRF_RX) | \
 					 PIN_ODR_LEVEL_LOW(PC08) | \
-					 PIN_ODR_LEVEL_HIGH(IMU_SDA) | \
+					 PIN_ODR_LEVEL_HIGH(I2C3_SDA) | \
 					 PIN_ODR_LEVEL_HIGH(E_TX1) | \
 					 PIN_ODR_LEVEL_HIGH(E_RX1) | \
 					 PIN_ODR_LEVEL_LOW(E_CS0) | \
@@ -786,7 +610,7 @@
 					 PIN_AFIO_AF(NRF_RX, 8))
 
 #define VAL_GPIOC_AFRH			(PIN_AFIO_AF(PC08, 0) | \
-					 PIN_AFIO_AF(IMU_SDA, 4) | \
+					 PIN_AFIO_AF(I2C3_SDA, 4) | \
 					 PIN_AFIO_AF(E_TX1, 7) | \
 					 PIN_AFIO_AF(E_RX1, 7) | \
 					 PIN_AFIO_AF(E_CS0, 0) | \
@@ -1630,8 +1454,8 @@
 #define AF_LINE_E_MISO                   5U
 #define AF_E_MOSI                        5U
 #define AF_LINE_E_MOSI                   5U
-#define AF_IMU_SCL                       4U
-#define AF_LINE_IMU_SCL                  4U
+#define AF_I2C3_SCL                      4U
+#define AF_LINE_I2C3_SCL                 4U
 #define AF_USB_ID                        10U
 #define AF_LINE_USB_ID                   10U
 #define AF_USB_DM                        10U
@@ -1644,10 +1468,10 @@
 #define AF_LINE_STM_SWCLK                0U
 #define AF_MOTOR3                        1U
 #define AF_LINE_MOTOR3                   1U
-#define AF_E_SCL                         4U
-#define AF_LINE_E_SCL                    4U
-#define AF_E_SDA                         4U
-#define AF_LINE_E_SDA                    4U
+#define AF_I2C1_SCL                      4U
+#define AF_LINE_I2C1_SCL                 4U
+#define AF_I2C1_SDA                      4U
+#define AF_LINE_I2C1_SDA                 4U
 #define AF_MOTOR4                        2U
 #define AF_LINE_MOTOR4                   2U
 #define AF_MOTOR2                        1U
@@ -1656,8 +1480,8 @@
 #define AF_LINE_NRF_TX                   8U
 #define AF_NRF_RX                        8U
 #define AF_LINE_NRF_RX                   8U
-#define AF_IMU_SDA                       4U
-#define AF_LINE_IMU_SDA                  4U
+#define AF_I2C3_SDA                      4U
+#define AF_LINE_I2C3_SDA                 4U
 #define AF_E_TX1                         7U
 #define AF_LINE_E_TX1                    7U
 #define AF_E_RX1                         7U
@@ -1667,6 +1491,22 @@
 #define AF_OSC_OUT                       0U
 #define AF_LINE_OSC_OUT                  0U
 
+
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
