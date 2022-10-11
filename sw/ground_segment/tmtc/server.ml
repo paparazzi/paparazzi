@@ -601,7 +601,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
     done in
 
   ignore (ac.ap_modes <- try
-    let ac = Aircraft.parse_aircraft "" airframe_xml in
+    let ac = Aircraft.parse_aircraft ~parse_af:true ~parse_ap:true "" conf in
     match ac.Aircraft.autopilots with
     | None -> None
     | Some [(_, ap)] -> Some (modes_from_autopilot ap.Autopilot.xml)
