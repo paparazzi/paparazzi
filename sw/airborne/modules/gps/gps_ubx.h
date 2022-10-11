@@ -43,6 +43,10 @@
 #define PRIMARY_GPS GPS_UBX
 #endif
 
+#ifndef GPS_UBX_COLDSTART
+#define GPS_UBX_COLDSTART false
+#endif
+
 extern void gps_ubx_init(void);
 extern void gps_ubx_event(void);
 extern void gps_ubx_parse_HITL_UBX(uint8_t *buf);
