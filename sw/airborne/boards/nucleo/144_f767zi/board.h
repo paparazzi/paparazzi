@@ -113,8 +113,8 @@
 #define	UART3_RX                       9U
 #define	PD10                           10U
 #define	PD11                           11U
-#define	I2C4_SCL_EXTERNAL              12U
-#define	I2C4_SDA_EXTERNAL              13U
+#define	I2C4_SCL                       12U
+#define	I2C4_SDA                       13U
 #define	PD14                           14U
 #define	PD15                           15U
 
@@ -287,8 +287,8 @@
 #define	LINE_UART2_RX                  PAL_LINE(GPIOD, 6U)
 #define	LINE_UART3_TX                  PAL_LINE(GPIOD, 8U)
 #define	LINE_UART3_RX                  PAL_LINE(GPIOD, 9U)
-#define	LINE_I2C4_SCL_EXTERNAL         PAL_LINE(GPIOD, 12U)
-#define	LINE_I2C4_SDA_EXTERNAL         PAL_LINE(GPIOD, 13U)
+#define	LINE_I2C4_SCL                  PAL_LINE(GPIOD, 12U)
+#define	LINE_I2C4_SDA                  PAL_LINE(GPIOD, 13U)
 
 #define	LINE_RC1                       PAL_LINE(GPIOE, 0U)
 #define	LINE_SPI4_INTERNAL_CLK         PAL_LINE(GPIOE, 2U)
@@ -647,8 +647,8 @@
 					 PIN_MODE_ALTERNATE(UART3_RX) | \
 					 PIN_MODE_INPUT(PD10) | \
 					 PIN_MODE_INPUT(PD11) | \
-					 PIN_MODE_ALTERNATE(I2C4_SCL_EXTERNAL) | \
-					 PIN_MODE_ALTERNATE(I2C4_SDA_EXTERNAL) | \
+					 PIN_MODE_ALTERNATE(I2C4_SCL) | \
+					 PIN_MODE_ALTERNATE(I2C4_SDA) | \
 					 PIN_MODE_INPUT(PD14) | \
 					 PIN_MODE_INPUT(PD15))
 
@@ -664,8 +664,8 @@
 					 PIN_OTYPE_PUSHPULL(UART3_RX) | \
 					 PIN_OTYPE_PUSHPULL(PD10) | \
 					 PIN_OTYPE_PUSHPULL(PD11) | \
-					 PIN_OTYPE_OPENDRAIN(I2C4_SCL_EXTERNAL) | \
-					 PIN_OTYPE_OPENDRAIN(I2C4_SDA_EXTERNAL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C4_SCL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C4_SDA) | \
 					 PIN_OTYPE_PUSHPULL(PD14) | \
 					 PIN_OTYPE_PUSHPULL(PD15))
 
@@ -681,8 +681,8 @@
 					 PIN_OSPEED_SPEED_HIGH(UART3_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD10) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD11) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C4_SCL_EXTERNAL) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C4_SDA_EXTERNAL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C4_SCL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C4_SDA) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD14) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD15))
 
@@ -698,8 +698,8 @@
 					 PIN_PUPDR_FLOATING(UART3_RX) | \
 					 PIN_PUPDR_PULLDOWN(PD10) | \
 					 PIN_PUPDR_PULLDOWN(PD11) | \
-					 PIN_PUPDR_PULLUP(I2C4_SCL_EXTERNAL) | \
-					 PIN_PUPDR_PULLUP(I2C4_SDA_EXTERNAL) | \
+					 PIN_PUPDR_PULLUP(I2C4_SCL) | \
+					 PIN_PUPDR_PULLUP(I2C4_SDA) | \
 					 PIN_PUPDR_PULLDOWN(PD14) | \
 					 PIN_PUPDR_PULLDOWN(PD15))
 
@@ -715,8 +715,8 @@
 					 PIN_ODR_LEVEL_HIGH(UART3_RX) | \
 					 PIN_ODR_LEVEL_LOW(PD10) | \
 					 PIN_ODR_LEVEL_LOW(PD11) | \
-					 PIN_ODR_LEVEL_HIGH(I2C4_SCL_EXTERNAL) | \
-					 PIN_ODR_LEVEL_HIGH(I2C4_SDA_EXTERNAL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C4_SCL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C4_SDA) | \
 					 PIN_ODR_LEVEL_LOW(PD14) | \
 					 PIN_ODR_LEVEL_LOW(PD15))
 
@@ -733,8 +733,8 @@
 					 PIN_AFIO_AF(UART3_RX, 7) | \
 					 PIN_AFIO_AF(PD10, 0) | \
 					 PIN_AFIO_AF(PD11, 0) | \
-					 PIN_AFIO_AF(I2C4_SCL_EXTERNAL, 4) | \
-					 PIN_AFIO_AF(I2C4_SDA_EXTERNAL, 4) | \
+					 PIN_AFIO_AF(I2C4_SCL, 4) | \
+					 PIN_AFIO_AF(I2C4_SDA, 4) | \
 					 PIN_AFIO_AF(PD14, 0) | \
 					 PIN_AFIO_AF(PD15, 0))
 
@@ -1517,10 +1517,10 @@
 #define AF_LINE_UART3_TX                 7U
 #define AF_UART3_RX                      7U
 #define AF_LINE_UART3_RX                 7U
-#define AF_I2C4_SCL_EXTERNAL             4U
-#define AF_LINE_I2C4_SCL_EXTERNAL        4U
-#define AF_I2C4_SDA_EXTERNAL             4U
-#define AF_LINE_I2C4_SDA_EXTERNAL        4U
+#define AF_I2C4_SCL                      4U
+#define AF_LINE_I2C4_SCL                 4U
+#define AF_I2C4_SDA                      4U
+#define AF_LINE_I2C4_SDA                 4U
 #define AF_RC1                           8U
 #define AF_LINE_RC1                      8U
 #define AF_SPI4_INTERNAL_CLK             5U
