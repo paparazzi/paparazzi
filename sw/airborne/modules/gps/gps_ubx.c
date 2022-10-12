@@ -87,8 +87,8 @@ extern struct RtcmMan rtcm_man;
 #define INJECT_BUFF_SIZE 1024 + 6
 #endif
 
-#ifndef GPS_UBX_COLDSTART
-#define GPS_UBX_COLDSTART false
+#ifndef GPS_UBX_BOOTRESET
+#define GPS_UBX_BOOTRESET 0
 #endif
 
 /* RTCM control struct type */
@@ -109,12 +109,8 @@ void gps_ubx_init(void)
   gps_ubx.error_last = GPS_UBX_ERR_NONE;
 
   gps_ubx.state.comp_id = GPS_UBX_ID;
-  
-#if GPS_UBX_COLDSTART
-  gps_ubx.reset = 3;
-#else
-  gps_ubx.reset = 0;
-#endif /* GPS_UBX_COLDSTART */
+
+  gps_ubx.reset = GPS_UBX_BOOTRESET;
 }
 
 void gps_ubx_event(void)
