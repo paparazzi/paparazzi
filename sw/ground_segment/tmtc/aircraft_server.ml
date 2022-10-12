@@ -252,6 +252,5 @@ let modes_of_aircraft = fun ac ->
   | Some m, _ -> m
   | None, FixedWing -> Server_globals.fixedwing_ap_modes
   | None, Rotorcraft -> Server_globals.rotorcraft_ap_modes
-  | None, Rover -> Server_globals.rover_ap_modes
   | None, _ -> [| "UKN" |]
 

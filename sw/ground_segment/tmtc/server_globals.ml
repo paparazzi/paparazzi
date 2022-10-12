@@ -8,7 +8,6 @@ let port = ref 8889
 (** FIXME: Should be read from messages.xml *)
 let fixedwing_ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME";"NOGPS"|]
 let rotorcraft_ap_modes = [|"KILL";"SAFE";"HOME";"RATE";"ATT";"R_RCC";"A_RCC";"ATT_C";"R_ZH";"A_ZH";"HOVER";"HOV_C";"H_ZH";"NAV";"RC_D";"CF";"FWD";"MODULE";"FLIP";"GUIDED"|]
-let rover_ap_modes = [|"MANUAL";"AUTO1";"AUTO2";"HOME";"KILL"|]
 let _AUTO2 = 2
 let gaz_modes = [|"MANUAL";"THROTTLE";"CLIMB";"ALT"|]
 let lat_modes = [|"MANUAL";"ROLL_RATE";"ROLL";"COURSE"|]

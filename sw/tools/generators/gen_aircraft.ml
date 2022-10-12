@@ -282,7 +282,7 @@ let () =
       | Some autopilots ->
           List.iter (fun (freq, autopilot) ->
             let dep = List.map (fun sm ->
-              let h_name = paparazzi_conf // ("autopilot_core_"^(Xml.attrib sm "name")^".h") in
+              let h_name = aircraft_gen_dir // ("autopilot_core_"^(Xml.attrib sm "name")^".h") in
               (h_name, [autopilot.Autopilot.filename])
             ) (Xml.children autopilot.Autopilot.xml) in
             generate_config_element autopilot
