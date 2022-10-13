@@ -53,12 +53,17 @@ let get_sys_ap_settings = fun autopilots ->
   | None -> None
   | Some autopilots ->
       let dl_settings = List.fold_left (fun sl (_, autopilot) ->
+        let settings = List.fold_left (fun l sm ->
+          try
+            let xml_settings = ExtXml.child sm "settings" in
+            let settings = Xml.children xml_settings in
+            l @ settings
+          with _ -> l
+          ) [] (Xml.children autopilot.xml) in
         (* Filter state machines that need to be displayed *)
         let sm_filtered = List.filter (fun sm ->
           try (String.lowercase_ascii (Xml.attrib sm "settings_mode")) = "true" with _ -> false
           ) (Xml.children autopilot.xml) in
-        if List.length sm_filtered = 0 then sl
-        else
           (* Create node if there is at least one to display *)
           let dl_set = List.fold_left (fun l sm ->
             let modes = List.filter (fun m -> (Xml.tag m) = "mode") (Xml.children sm) in
@@ -102,7 +107,7 @@ let get_sys_ap_settings = fun autopilots ->
               | _, _ -> l
             end
           ) [] sm_filtered in
-          dl_set @ sl
+          dl_set @ settings @ sl
       ) [] autopilots in
       let xml = Xml.Element ("dl_settings", [("name","Autopilot")], dl_settings) in
       Some (Settings.from_xml (Xml.Element("settings",[],[xml])))
