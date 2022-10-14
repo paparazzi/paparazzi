@@ -78,6 +78,7 @@
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>
     <module name="imu"           type="mpu6000"/>
+    <module name="imu"           type="heater"/>
     <module name="gps"           type="ublox"/>
     <module name="gps"           type="ubx_ucenter"/>
     <module name="stabilization" type="indi_simple"/>
@@ -246,21 +247,9 @@
 
     <!-- Calibrated in the MAVLab 14-05-2020 -->
     <define name="ACCEL_CALIB" value="{{.abi_id=9, .neutral={-423,18,-28}, .scale={{28111,6328,61706},{6151,1291,12775}}}}"/>
-    <define name="ACCEL_X_NEUTRAL" value="-423"/>
-    <define name="ACCEL_Y_NEUTRAL" value="18"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-28"/>
-    <define name="ACCEL_X_SENS" value="4.570151198384357" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.901626625187466" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.830215267421878" integer="16"/>
 
     <!-- Calibrated at valkenburg 20-05-2020 (external magnetometer) -->
     <define name="MAG_CALIB" value="{{.abi_id=4, .neutral={12,113,49}, .scale={{42598,47669,16336},{3039,3365,1153}}}}"/>
-    <define name="MAG_X_NEUTRAL" value="12"/>
-    <define name="MAG_Y_NEUTRAL" value="113"/>
-    <define name="MAG_Z_NEUTRAL" value="49"/>
-    <define name="MAG_X_SENS" value="14.017110902869321" integer="16"/>
-    <define name="MAG_Y_SENS" value="14.166121879366417" integer="16"/>
-    <define name="MAG_Z_SENS" value="14.168256847606495" integer="16"/>
 
 
     <!-- Define axis in hover frame -->

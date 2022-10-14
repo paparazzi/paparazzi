@@ -310,13 +310,12 @@ static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *
     data += INVENSENSE2_SAMPLE_SIZE;
   }
 
-  float temp_f = ((float)temp / samples) / 333.87f - 21.f;
+  float temp_f = ((float)temp / samples) / 333.87f + 21.f;
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples);
-  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j);
-  AbiSendMsgTEMPERATURE(inv->abi_id, temp_f);
+  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples, temp_f);
+  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, temp_f);
 }
 
 /**

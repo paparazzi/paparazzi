@@ -88,11 +88,11 @@ void imu_nps_event(void)
 {
   uint32_t now_ts = get_sys_time_usec();
   if (imu_nps.gyro_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_NPS_ID, now_ts, &imu_nps.gyro, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_NPS_ID, now_ts, &imu_nps.gyro, 1, NAN);
     imu_nps.gyro_available = false;
   }
   if (imu_nps.accel_available) {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_NPS_ID, now_ts, &imu_nps.accel, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_NPS_ID, now_ts, &imu_nps.accel, 1, NAN);
     imu_nps.accel_available = false;
   }
   if (imu_nps.mag_available) {

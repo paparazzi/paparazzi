@@ -125,7 +125,7 @@ void imu_bmi088_event(void)
     };
 
     imu_bmi088.bmi.gyro_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_BMI088_ID, now_ts, &rates, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BMI088_ID, now_ts, &rates, 1, NAN);
   }
   if (imu_bmi088.bmi.accel_available) {
     // set channel order
@@ -136,7 +136,7 @@ void imu_bmi088_event(void)
     };
 
     imu_bmi088.bmi.accel_available = false;
-    AbiSendMsgIMU_ACCEL_RAW(IMU_BMI088_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BMI088_ID, now_ts, &accel, 1, NAN);
   }
 }
 

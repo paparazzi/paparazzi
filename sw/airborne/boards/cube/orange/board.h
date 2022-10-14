@@ -59,11 +59,6 @@
 #define SDLOG_BAT_CHAN AD1_1_CHANNEL
 
 /*
- * Include generic board file
- */
-//#include "arch/chibios/board.h"
-
-/*
  * IO pins assignments.
  */
 #define	PA00_UART4_TX                  0U
@@ -448,7 +443,7 @@
 					 PIN_ODR_LEVEL_HIGH(PA12_USB_DP) | \
 					 PIN_ODR_LEVEL_HIGH(PA13_SWDIO) | \
 					 PIN_ODR_LEVEL_HIGH(PA14_SWCLK) | \
-					 PIN_ODR_LEVEL_HIGH(PA15_ALARM))
+					 PIN_ODR_LEVEL_LOW(PA15_ALARM))
 
 #define VAL_GPIOA_AFRL			(PIN_AFIO_AF(PA00_UART4_TX, 8) | \
 					 PIN_AFIO_AF(PA01_UART4_RX, 8) | \
@@ -1675,9 +1670,10 @@
 
 #define ENERGY_SAVE_LOWS \
 	LINE_VDD_5V_PERIPH_EN, \
+	LINE_ALARM, \
 	LINE_PWM_VOLT_SEL, \
 	LINE_VDD_3V3_SENSORS_EN
-#define ENERGY_SAVE_LOWS_SIZE 	 3
+#define ENERGY_SAVE_LOWS_SIZE 	 4
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

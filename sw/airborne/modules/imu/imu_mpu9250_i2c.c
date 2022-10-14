@@ -142,8 +142,8 @@ void imu_mpu9250_event(void)
     };
 
     imu_mpu9250.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1, NAN);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1, NAN);
   }
 #if IMU_MPU9250_READ_MAG
   // Test if mag data are updated

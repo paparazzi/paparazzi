@@ -16,7 +16,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="cube_orange">
       <configure name="PERIODIC_FREQUENCY"  value="500"/>
-      <configure name="FLASH_MODE" value="SWD"/>
       <!--configure name="RTOS_DEBUG" value="1"/-->
 
       <module name="radio_control" type="sbus">

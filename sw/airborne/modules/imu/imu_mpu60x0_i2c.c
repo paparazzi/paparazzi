@@ -89,8 +89,8 @@ void imu_mpu_i2c_event(void)
   // If the MPU60X0 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_mpu_i2c.mpu);
   if (imu_mpu_i2c.mpu.data_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_rates.rates, 1);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_accel.vect, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_rates.rates, 1, imu_mpu_i2c.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_accel.vect, 1, imu_mpu_i2c.mpu.temp);
     imu_mpu_i2c.mpu.data_available = false;
   }
 }

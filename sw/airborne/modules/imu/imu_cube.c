@@ -126,8 +126,8 @@ void imu_cube_event(void)
     imu2.data_available = false;
 
     // Send the scaled values over ABI
-    AbiSendMsgIMU_GYRO_RAW(IMU_CUBE2_ID, now_ts, &rates, 1);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_CUBE2_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_CUBE2_ID, now_ts, &rates, 1, imu2.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_CUBE2_ID, now_ts, &accel, 1, imu2.temp);
   }
 
   invensense2_event(&imu3);

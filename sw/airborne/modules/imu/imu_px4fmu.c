@@ -103,8 +103,8 @@ void imu_px4fmu_event(void)
       -imu_px4fmu.mpu.data_accel.vect.z
     };
     imu_px4fmu.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, imu_px4fmu.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, imu_px4fmu.mpu.temp);
   }
 
   /* HMC58XX event task */

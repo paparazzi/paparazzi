@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="intermcu_iomcu" dir="intermcu">
+  <doc>
+    <description>
+      InterMCU communication with the ardupilot IO co-processor
+    </description>
+    <configure name="INTERMCU_PORT" value="UART6" description="UART used for IO mcu communication"/>
+    <configure name="INTERMCU_BAUD" value="B1500000" description="UART baud rate"/>
+  </doc>
+  <dep>
+    <depends>uart</depends>
+  </dep>
+  <header>
+    <file name="iomcu.h"/>
+  </header>
+  <makefile target="!sim|nps|fbw">
+    <configure name="INTERMCU_PORT" default="UART6" case="upper|lower"/>
+    <configure name="INTERMCU_BAUD" default="B1500000"/>
+    <define name="INTERMCU_LINK" value="$(INTERMCU_PORT_LOWER)"/>
+    <define name="USE_$(INTERMCU_PORT_UPPER)"/>
+    <define name="$(INTERMCU_PORT_UPPER)_BAUD" value="$(INTERMCU_BAUD)"/>
+    <define name="INTERMCU_IOMCU" value="true"/>
+
+    <file name="iomcu.c"/>
+  </makefile>
+</module>

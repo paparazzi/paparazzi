@@ -50,6 +50,7 @@ struct imu_gyro_t {
   struct imu_calib_t calibrated;      ///< Calibration bitmask
   struct Int32Rates scaled;           ///< Last scaled values in body frame
   struct Int32Rates unscaled;         ///< Last unscaled values in sensor frame
+  float temperature;                  ///< Temperature in degrees celcius
   struct Int32Rates neutral;          ///< Neutral values, compensation on unscaled->scaled
   struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
@@ -61,6 +62,7 @@ struct imu_accel_t {
   struct imu_calib_t calibrated;      ///< Calibration bitmask
   struct Int32Vect3 scaled;           ///< Last scaled values in body frame
   struct Int32Vect3 unscaled;         ///< Last unscaled values in sensor frame
+  float temperature;                  ///< Temperature in degrees celcius
   struct Int32Vect3 neutral;          ///< Neutral values, compensation on unscaled->scaled
   struct Int32Vect3 scale[2];         ///< Scaling, first is numerator and second denominator
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
