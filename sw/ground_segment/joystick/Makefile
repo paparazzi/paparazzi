@@ -28,7 +28,7 @@ include ../../Makefile.ocaml
 
 CC = gcc
 
-export CAML_LD_LIBRARY_PATH = /usr/lib/$(shell uname -m)-linux-gnu/
+export CAML_LD_LIBRARY_PATH = /usr/lib/$(shell uname -m)-linux-gnu/:$(CAML_LD_LIBRARY_PATH)
 
 PKG = -package pprz,glibivy
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
