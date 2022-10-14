@@ -41,5 +41,7 @@ extern void flight_recorder_init(void);
  */
 extern void flight_recorder_periodic(void);
 
+extern void flight_recorder_log_msg_up(uint8_t *buf);
+
 #endif
 

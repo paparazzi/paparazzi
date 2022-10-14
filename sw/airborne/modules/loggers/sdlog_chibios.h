@@ -39,6 +39,10 @@
  * when power failure event occurs, close all logs
  */
 
+#define DEST_INFO_MSG_ALL             0
+#define DEST_INFO_MSG_FLIGHT_RECORDER 1
+#define DEST_INFO_MSG_PPRZLOG         2
+
 extern FileDes pprzLogFile;
 
 #if FLIGHTRECORDER_SDLOG
@@ -63,4 +67,5 @@ extern struct chibios_sdlog chibios_sdlog;
  */
 extern void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file);
 
+extern void logger_log_msg_up(uint8_t* buf);
 #endif

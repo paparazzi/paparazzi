@@ -68,4 +68,16 @@ void flight_recorder_periodic()
 #endif
 }
 
+void flight_recorder_log_msg_up(uint8_t *buf) {
+  uint8_t ac_id = pprzlink_get_DL_INFO_MSG_UP_ac_id(buf);
+  if(ac_id != AC_ID && ac_id != 0xFF) {
+    return;
+  }
+  uint8_t fd = pprzlink_get_DL_INFO_MSG_UP_fd(buf);
+  if(fd == DEST_INFO_MSG_ALL || fd == DEST_INFO_MSG_FLIGHT_RECORDER) {
+    uint8_t len = pprzlink_get_INFO_MSG_UP_msg_length(buf);
+    char* msg = pprzlink_get_DL_INFO_MSG_UP_msg(buf);
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &(FLIGHTRECORDER_DEVICE).device, AC_ID, len, msg);
+  }
+}
 

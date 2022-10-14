@@ -342,3 +342,17 @@ static void powerOutageIsr(void)
   chEvtBroadcastI(&powerOutageSource);
 }
 
+void logger_log_msg_up(uint8_t* buf) {
+  uint8_t ac_id = pprzlink_get_DL_INFO_MSG_UP_ac_id(buf);
+  if(ac_id != AC_ID && ac_id != 0xFF) {
+    return;
+  }
+  uint8_t fd = pprzlink_get_DL_INFO_MSG_UP_fd(buf);
+  if(pprzLogFile != -1 && (fd == DEST_INFO_MSG_ALL || fd == DEST_INFO_MSG_PPRZLOG)) {
+    uint8_t len = pprzlink_get_INFO_MSG_UP_msg_length(buf);
+    uint8_t* msg = (uint8_t*) pprzlink_get_DL_INFO_MSG_UP_msg(buf);
+    sdLogWriteRaw(pprzLogFile, msg, len);
+    sdLogWriteByte(pprzLogFile, '\n');
+  }
+}
+

@@ -831,6 +831,27 @@ let move_wp = fun logging _sender vs ->
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
+(** Got a INFO_MSG_GROUND, and send an INFO_MSG_UP *)
+let info_msg_ground = fun logging _sender vs ->
+  let dest = PprzLink.string_assoc "dest" vs in
+
+  let name, fd = match (Str.split (Str.regexp ":") dest) with
+    | [name; fd] -> (name, int_of_string fd)
+    | [name] -> (name, 0)
+    | _ -> failwith "invalid dest"
+  in
+
+  try
+    let ac_id = int_of_string name in
+    let msg = PprzLink.string_assoc "msg" vs in
+    let vs = [  "ac_id", PprzLink.Int ac_id;
+                "fd", PprzLink.Int fd;
+                "msg", PprzLink.String msg] in
+    Dl_Pprz.message_send dl_id "INFO_MSG_UP" vs;
+    log logging name "INFO_MSG_UP" vs
+  with _ -> ()
+
+
 (** Got a DL_EMERGENCY_CMD, and send an EMERGENCY_CMD *)
 let emergency_cmd = fun logging _sender vs ->
   let ac_id = PprzLink.string_assoc "ac_id" vs in
@@ -919,6 +940,7 @@ let ground_to_uplink = fun logging ->
   bind_log_and_send "GET_DL_SETTING" get_setting;
   bind_log_and_send "JUMP_TO_BLOCK" jump_block;
   bind_log_and_send "RAW_DATALINK" raw_datalink;
+  bind_log_and_send "INFO_MSG_GROUND" info_msg_ground;
   bind_log_and_send "LINK_REPORT" link_report
 
 

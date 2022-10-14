@@ -20,6 +20,7 @@
   </header>
   <init fun="flight_recorder_init()"/>
   <periodic fun="flight_recorder_periodic()" autorun="TRUE"/>
+  <datalink message="INFO_MSG_UP" fun="flight_recorder_log_msg_up(buf)"/>
   <makefile target="ap">
     <file name="flight_recorder.c"/>
     <define name="FLIGHTRECORDER_SDLOG" cond="ifneq (FALSE,$(findstring $(FLIGHTRECORDER_SDLOG),FALSE))"/>
