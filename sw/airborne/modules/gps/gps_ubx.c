@@ -87,10 +87,6 @@ extern struct RtcmMan rtcm_man;
 #define INJECT_BUFF_SIZE 1024 + 6
 #endif
 
-#ifndef GPS_UBX_BOOTRESET
-#define GPS_UBX_BOOTRESET 0
-#endif
-
 /* RTCM control struct type */
 struct rtcm_t {
   uint32_t nbyte;                     ///< number of bytes in message buffer
@@ -99,6 +95,10 @@ struct rtcm_t {
 };
 struct rtcm_t rtcm = { 0 };
 
+#endif
+
+#ifndef GPS_UBX_BOOTRESET
+#define GPS_UBX_BOOTRESET 0
 #endif
 
 void gps_ubx_init(void)
