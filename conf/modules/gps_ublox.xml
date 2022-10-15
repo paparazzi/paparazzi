@@ -5,10 +5,25 @@
     <description>
       U-blox GPS (UART)
       Driver for u-blox GPS modules parsing the binary UBX protocol.
+      
+      The reset variable allows us to manually restart the u-blox GPS. There are three modes:
+        - Hotstart  (GPS_UBX_BOOTRESET = 1)
+        - Warmstart (GPS_UBX_BOOTRESET = 2)
+        - Coldstart (GPS_UBX_BOOTRESET = 3) 
     </description>
     <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
     <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
+    <configure name="GPS_UBX_BOOTRESET" value="0" description="Force a hot, warm or cold reset when the system boot up"/>
   </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="gps_ublox">
+        <dl_setting MIN="1" MAX="3" STEP="1" values="Hotstart|Warmstart|Coldstart" module="gps/gps_ubx" VAR="gps_ubx.reset" shortname="reset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <dep>
     <depends>uart,gps</depends>
     <provides>gps</provides>

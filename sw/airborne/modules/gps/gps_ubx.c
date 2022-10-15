@@ -86,6 +86,7 @@ extern struct RtcmMan rtcm_man;
 #ifndef INJECT_BUFF_SIZE
 #define INJECT_BUFF_SIZE 1024 + 6
 #endif
+
 /* RTCM control struct type */
 struct rtcm_t {
   uint32_t nbyte;                     ///< number of bytes in message buffer
@@ -94,6 +95,10 @@ struct rtcm_t {
 };
 struct rtcm_t rtcm = { 0 };
 
+#endif
+
+#ifndef GPS_UBX_BOOTRESET
+#define GPS_UBX_BOOTRESET 0
 #endif
 
 void gps_ubx_init(void)
@@ -105,6 +110,8 @@ void gps_ubx_init(void)
   gps_ubx.pacc_valid = false;
 
   gps_ubx.state.comp_id = GPS_UBX_ID;
+
+  gps_ubx.reset = GPS_UBX_BOOTRESET;
 }
 
 void gps_ubx_event(void)
@@ -116,6 +123,16 @@ void gps_ubx_event(void)
     if (gps_ubx.msg_available) {
       gps_ubx_msg();
     }
+  }
+
+  if (gps_ubx.reset > 0) {    
+    switch (gps_ubx.reset) {
+      case 1 : ubx_send_cfg_rst(&(UBX_GPS_LINK).device, CFG_RST_BBR_Hotstart, CFG_RST_Reset_Controlled); break;
+      case 2 : ubx_send_cfg_rst(&(UBX_GPS_LINK).device, CFG_RST_BBR_Warmstart, CFG_RST_Reset_Controlled); break;
+      case 3 : ubx_send_cfg_rst(&(UBX_GPS_LINK).device, CFG_RST_BBR_Coldstart, CFG_RST_Reset_Controlled); break;
+      default: DEBUG_PRINT("Unknown reset id: %i", gps_ubx.reset); break;
+    }
+    gps_ubx.reset = 0;
   }
 }
 
