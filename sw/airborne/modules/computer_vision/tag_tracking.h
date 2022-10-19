@@ -31,6 +31,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_float.h"
 
 // Searching status
 #define TAG_TRACKING_SEARCHING  0
@@ -49,6 +50,9 @@ struct tag_tracking_public {
   uint8_t status;               ///< tracking status flag
   uint8_t motion_type;          ///< type of tag motion
   float predict_time;           ///< prediction time for WP tag
+  struct NedCoor_f speed_cmd;   ///< speed command to track the tag position
+  float kp;                     ///< horizontal tracking command gain
+  float kpz;                    ///< vertical tracking command gain
 };
 
 extern struct tag_tracking_public tag_tracking;
@@ -58,6 +62,7 @@ extern void tag_tracking_propagate(void);
 extern void tag_tracking_propagate_start(void);
 extern void tag_tracking_report(void);
 extern void tag_tracking_parse_target_pos(uint8_t *buf);
+extern void tag_tracking_compute_speed(void);
 
 #endif  // TAG_TRACKING_H
 

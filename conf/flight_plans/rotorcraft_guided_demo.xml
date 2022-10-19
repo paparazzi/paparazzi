@@ -1,0 +1,52 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="148" ground_alt="146" lat0="43.5640917" lon0="1.4829201" max_dist_from_home="20" name="Rotorcraft Optitrack (ENAC)" security_height="0.3">
+  <header>
+    // Useful Combination of the flags fir the autopilot_guided_update
+    #define GUIDED_FLAG_XY_VEL_BODY GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL
+    #define GUIDED_FLAG_XY_VEL_BODY_YAW_RATE GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_RATE
+    #define GUIDED_FLAG_XY_OFFSET_Z_VEL GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_Z_VEL
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="0.0" y="0.0"/>
+  </waypoints>
+  <variables>
+	  <variable var="desired_heading" init="0.0f" type="float" min="0." max="10." step="0.1"/>
+    <variable var="climb_descent_vel" init="0.3f" type="float" min="0." max="1" step="0.1"/>
+	  <variable var="nominal_alt" init="2." type="float" min="0." max="8." step="0.1"/>
+	</variables>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Take off">
+      <set var="desired_heading" value="stateGetNedToBodyEulers_f()->psi"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time @GT 1"/>
+      <guided flags="GUIDED_FLAG_XY_OFFSET_Z_VEL" commands="0.,0.,-climb_descent_vel,desired_heading" until="GetPosHeight() @GT 1."/>
+      <guided commands="0.,0.,-nominal_alt,desired_heading" until="FALSE"/>
+    </block>
+    <block name="Square">
+      <guided commands="2.,2.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+      <guided commands="-2.,2.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+      <guided commands="-2.,-2.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+      <guided commands="2.,-2.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+      <guided commands="2.,2.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+      <guided commands="0.,0.,-nominal_alt,desired_heading" until="stage_time @GT 5"/>
+    </block>
+    <block name="Land">
+      <guided flags="GUIDED_FLAG_XY_OFFSET_Z_VEL" commands="0.,0.,climb_descent_vel,desired_heading" until="GetPosHeight() @LT 0.1"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time @GT 1"/>
+    </block>
+    <block name="Kill Engines">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>

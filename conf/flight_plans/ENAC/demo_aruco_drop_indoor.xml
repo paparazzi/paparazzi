@@ -1,0 +1,182 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="148" ground_alt="146" lat0="43.5640917" lon0="1.4829201" wp_frame="ltp" max_dist_from_home="20" name="Drop on Tag (ENAC indoor)" security_height="0.3">
+  <header>
+    #ifndef SwitchServoOn
+    #define SwitchServoOn(_x) {}
+    #endif
+    #ifndef SwitchServoOff
+    #define SwitchServoOff(_x) {}
+    #endif
+    #define DropOpen SwitchServoOff
+    #define DropClose SwitchServoOn
+
+    #ifdef NAV_C
+    #ifndef TAG_TRACKING_COORD_TO_M
+    #define TAG_TRACKING_COORD_TO_M (1.f / 1000.f)
+    #endif
+
+    static void fp_tag_cb(uint8_t sender_id UNUSED,
+        uint8_t type, char * id UNUSED,
+        uint8_t nb UNUSED, int16_t * coord, uint16_t * dim UNUSED,
+        struct FloatQuat quat UNUSED, char * extra UNUSED)
+    {
+      if (type == JEVOIS_MSG_D3) {
+        tag_distance = coord[2] * TAG_TRACKING_COORD_TO_M;
+        tag_valid = true;
+      }
+    }
+    #endif
+
+    #define Neq(a,b) (a!=b)
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="-0.7" y="-0.8"/>
+    <waypoint name="TAG" x="-1.0" y="-1.0"/>
+    <waypoint name="TARGET" x="2.0" y="1.0"/>
+    <waypoint name="ROVER" x="-2.0" y="2.0"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint name="S1" x="2" y="3."/>
+    <waypoint name="S2" x="2" y="-3."/>
+    <waypoint name="S3" x="-3" y="-3."/>
+    <waypoint name="S4" x="-3" y="3."/>
+    <waypoint name="_N1" x="4.5" y="5.2"/>
+    <waypoint name="_N2" x="4.5" y="-5.2"/>
+    <waypoint name="_N3" x="-4.5" y="-5.2"/>
+    <waypoint name="_N4" x="-4.5" y="5.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector name="Survey" color="green">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0.1" var="fp_throttle"/>
+    <variable init="1." var="drop_height" min="0.2" max="5." step="0.1"/>
+    <variable init="2." var="search_height" min="0.5" max="8." step="0.1"/>
+    <variable init="42." var="tag_distance"/>
+    <variable init="false" type="bool" var="tag_valid"/>
+    <abi_binding name="JEVOIS_MSG" handler="fp_tag_cb"/>
+  </variables>
+  <modules>
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
+    <module name="tag_tracking"/>
+    <module name="follow">
+      <define name="FOLLOW_AC_ID" value="51"/>
+      <define name="FOLLOW_WAYPOINT_ID" value="WP_ROVER"/>
+      <define name="FOLLOW_OFFSET_Z" value="3"/>
+    </module>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="DropOpen()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="stateGetPositionEnu_f() @DEREF z @GT 1.0" deroute="Standby"/>
+      <call_once fun="DropClose()"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle" until="stage_time @GT 2"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <call_once fun="jevois_stream(false)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block name="Search Tag" strip_button="Search Target" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, 1, NS)"/>
+      <deroute block="Search run"/>
+    </block>
+    <block name="Search run">
+      <exception cond="tag_tracking.status == TAG_TRACKING_RUNNING" deroute="Drop Package"/>
+      <exception cond="rectangle_survey_sweep_num == 1" deroute="Standby"/>
+      <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S3)"/>
+    </block>
+
+    <block name="Follow Tag" strip_button="Follow Tag" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <stay wp="TAG" height="search_height"/>
+    </block>
+    <block name="Follow Guided" strip_button="Follow Guided" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <go wp="TAG" height="search_height"/>
+      <guided flags="GUIDED_FLAG_XY_VEL" commands="tag_tracking.speed_cmd.x, tag_tracking.speed_cmd.y, -search_height, 0." until="Neq(tag_tracking.status, TAG_TRACKING_RUNNING)" pre_call="tag_tracking_compute_speed()"/>
+      <deroute block="Standby"/>
+    </block>
+
+    <block name="Drop Package" strip_button="Drop Package" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <go wp="TAG" height="search_height"/>
+      <stay wp="TAG" until="(stage_time @GT 3 @AND tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="TAG" climb="nav_descend_vspeed" vmode="climb" until="((tag_distance @LT drop_height) @AND tag_valid) @OR (GetPosHeight() @LT drop_height/2.)" post_call="tag_valid = false"/>
+      <call_once fun="DropOpen()"/>
+      <stay wp="TAG" until="stage_time @GT 3" alt="search_height"/>
+      <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
+      <set var="follow_follow_wp_status" value="MODULES_STOP"/>
+      <deroute block="Land"/>
+    </block>
+
+    <block name="Goto Rover" strip_button="Goto Rover" group="tag">
+      <set var="follow_follow_wp_status" value="MODULES_START"/>
+      <go wp="ROVER"/>
+      <call_once fun="jevois_stream(true)"/>
+      <stay wp="ROVER" until="stage_time @GT 2"/>
+      <deroute block="Drop Package"/>
+    </block>
+
+    <block name="Land Tag" strip_button="Land Tag" group="tag">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <exception cond="stateGetPositionEnu_f()->z @LT 0.2" deroute="Ramp down"/>
+      <call_once fun="jevois_stream(true)"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TAG"/>
+    </block>
+
+    <block name="Land Here" strip_button="Land Here" group="home">
+     <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="Land" strip_button="Land" strip_icon="land-right.png" group="home">
+      <call_once fun="jevois_stream(false)"/>
+      <go wp="TD"/>
+    </block>
+    <block name="Flare">
+      <!--exception cond="NavDetectGround()" deroute="Holding point"/-->
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <!--call_once fun="NavStartDetectGround()"/-->
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Ramp down">
+      <exception cond="guidance_v_delta_t @LT 0.05*9600." deroute="Kill landed"/>
+      <set var="fp_throttle" value="guidance_v_delta_t/9600."/>
+      <stay throttle="fp_throttle-0.02*stage_time" vmode="throttle" wp="TAG"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

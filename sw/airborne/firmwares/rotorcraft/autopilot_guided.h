@@ -103,5 +103,13 @@ extern void autopilot_guided_parse_GUIDED(uint8_t *buf);
 #define GUIDED_FLAG_Z_VEL       (1<<6)
 #define GUIDED_FLAG_YAW_RATE    (1<<7)
 
+/** Macro for the flight plan insctructions
+ */
+#define NavGuided(_flags, _x, _y, _z, _yaw) {         \
+  horizontal_mode = HORIZONTAL_MODE_GUIDED;           \
+  vertical_mode = VERTICAL_MODE_GUIDED;               \
+  autopilot_guided_update(_flags, _x, _y, _z, _yaw);  \
+}
+
 #endif /* AUTOPILOT_GUIDED_H */
 

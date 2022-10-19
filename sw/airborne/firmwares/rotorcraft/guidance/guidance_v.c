@@ -488,6 +488,8 @@ void guidance_v_from_nav(bool in_flight)
     GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
     guidance_v_z_sum_err = 0;
     guidance_v_delta_t = nav_throttle;
+  } else if (vertical_mode == VERTICAL_MODE_GUIDED) {
+    guidance_v_guided_run(in_flight);
   }
 #if HYBRID_NAVIGATION
   guidance_hybrid_vertical();
@@ -504,12 +506,8 @@ void guidance_v_from_nav(bool in_flight)
 
 void guidance_v_guided_enter(void)
 {
-  /* disable vertical velocity setpoints */
-  guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
-
-  /* set current altitude as setpoint and reset speed setpoint */
-  guidance_v_z_sp = stateGetPositionNed_i()->z;
-  guidance_v_zd_sp = 0;
+  /* set current altitude as setpoint */
+  guidance_v_set_z(stateGetPositionNed_f()->z);
 
   /* reset guidance reference */
   guidance_v_z_sum_err = 0;
@@ -548,50 +546,33 @@ void guidance_v_guided_run(bool in_flight)
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 }
 
-bool guidance_v_set_guided_z(float z)
+void guidance_v_set_z(float z)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
-    /* disable vertical velocity setpoints */
-    guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
-
-    /* set altitude setpoint */
-    guidance_v_z_sp = POS_BFP_OF_REAL(z);
-
-    /* reset speed setting */
-    guidance_v_zd_sp = 0;
-
-    return true;
-  }
-  return false;
+  /* disable vertical velocity setpoints */
+  guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
+  /* set altitude setpoint */
+  guidance_v_z_sp = POS_BFP_OF_REAL(z);
+  /* reset speed setting */
+  guidance_v_zd_sp = 0;
 }
 
-bool guidance_v_set_guided_vz(float vz)
+void guidance_v_set_vz(float vz)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
-    /* enable vertical velocity setpoints */
-    guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_CLIMB;
-
-    /* set speed setting */
-    guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
-
-    return true;
-  }
-  return false;
+  /* enable vertical velocity setpoints */
+  guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_CLIMB;
+  /* set speed setting */
+  guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
 }
 
-bool guidance_v_set_guided_th(float th)
+void guidance_v_set_th(float th)
 {
-  if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
-    /* enable vertical velocity setpoints */
-    guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_THROTTLE;
+  /* enable vertical velocity setpoints */
+  guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_THROTTLE;
 
-    /* reset guidance reference */
-    GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
-    guidance_v_th_sp = (int32_t)(MAX_PPRZ * th);
-    Bound(guidance_v_th_sp, 0, MAX_PPRZ);
-    return true;
-  }
-  return false;
+  /* reset guidance reference */
+  GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
+  guidance_v_th_sp = (int32_t)(MAX_PPRZ * th);
+  Bound(guidance_v_th_sp, 0, MAX_PPRZ);
 }
 
 

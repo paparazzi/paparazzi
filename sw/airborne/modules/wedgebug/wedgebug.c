@@ -50,7 +50,7 @@
 #include "math/pprz_algebra.h"// Needed for vector operations (simple subtraction)
 #include "math/pprz_geodetic_float.h"// Needed for NedCoor_f
 #include "generated/flight_plan.h" // Needed for WP (waypoint) functions and WP IDs (as defined in "ralphthesis2020_stereo_cyberzoo.xml")
-#include "firmwares/rotorcraft/autopilot_guided.h" // Needed for guidance functions such as "autopilot_guided_goto_ned" and "guidance_h_set_guided_heading"
+#include "firmwares/rotorcraft/autopilot_guided.h" // Needed for guidance functions such as "autopilot_guided_goto_ned" and "guidance_h_set_heading"
 #include <math.h> // needed for basic math functions
 #include "autopilot.h" // Needed to set states (GUIDED vs NAV)
 #include <time.h> // Needed to measure time
@@ -2357,7 +2357,7 @@ void wedgebug_periodic()
           // Else, adjust heading and check confidence that heading is reached
           else { // This happens continuously, as long as the state is active. It stops when the flag has been set below
             // Set desired heading
-            guidance_h_set_guided_heading(heading_towards_setpoint_WNED(
+            guidance_h_set_heading(heading_towards_setpoint_WNED(
                                             &VPBESTEDGECOORDINATESwned));//   heading_towards_waypoint(WP_GOAL));
 
             // If heading appears to be reached increase confidence
@@ -2388,8 +2388,8 @@ void wedgebug_periodic()
             else { // This happens continuously, as long as the state is active. It stops when the flag has been set below.
 
               // Sets setpoint to edge position and orientates robot towards it as well
-              guidance_h_set_guided_pos(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y);
-              guidance_v_set_guided_z(VPBESTEDGECOORDINATESwned.z);
+              guidance_h_set_pos(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y);
+              guidance_v_set_z(VPBESTEDGECOORDINATESwned.z);
 
               // If edge appears to be reached increase confidence
               if (is_setpoint_reached(&VPBESTEDGECOORDINATESwned, &VRwned,
@@ -2425,19 +2425,19 @@ void wedgebug_periodic()
           printf("POSITION_EDGE = %d\n", POSITION_EDGE);
 
           // This ensures that the robot stay on the edge at all times
-          guidance_h_set_guided_pos(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y);
-          guidance_v_set_guided_z(VPBESTEDGECOORDINATESwned.z);
+          guidance_h_set_pos(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y);
+          guidance_v_set_z(VPBESTEDGECOORDINATESwned.z);
 
           //  1. Orientates robot towards the final goal
           // If robot faces goal, robot stays on current edge
           if (is_heading_reached_flag) {
             printf("Heading is reached\n");
-            guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL));
+            guidance_h_set_heading(heading_towards_waypoint(WP_GOAL));
           }
           // Else, adjust heading and check confidence that heading is reached
           else { // This happens continuously, as long as the state is active. It stops when the flag has been set.
             // Set desired heading
-            guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL));
+            guidance_h_set_heading(heading_towards_waypoint(WP_GOAL));
 
             // If heading appears to be reached increase confidence
             if (is_heading_reached(heading_towards_waypoint(WP_GOAL), heading, threshold_distance_to_angle)) {
@@ -2523,7 +2523,7 @@ void wedgebug_periodic()
 
           // 1. The robot is tasked to stay at the holding point for the entire duration of this state
           // Making drone hover, so that it does not drift from its current position
-          guidance_h_set_guided_pos(VHOLDINGPOINTwned.x, VHOLDINGPOINTwned.y); guidance_v_set_guided_z(VHOLDINGPOINTwned.z);
+          guidance_h_set_pos(VHOLDINGPOINTwned.x, VHOLDINGPOINTwned.y); guidance_v_set_z(VHOLDINGPOINTwned.z);
 
           // 2. Checking if edges are located
           // Running function to detect and save edge
@@ -2594,7 +2594,7 @@ void wedgebug_periodic()
           // Else,  adjust angle to to face more left and check confidence that left heading has been reached
           else { // This happens continuously, as long as the state is active. It stops when the flag has been set below
             // Set heading to maximum left heading
-            guidance_h_set_guided_heading(initial_heading.heading_max_left);
+            guidance_h_set_heading(initial_heading.heading_max_left);
 
             // If heading appears to be reached increase confidence
             if (is_heading_reached(initial_heading.heading_max_left, heading, threshold_distance_to_angle)) {
@@ -2620,7 +2620,7 @@ void wedgebug_periodic()
             // Else,  adjust angle to to face more right and check confidence that right heading has been reached
             else {
               // Set heading to maximum left heading
-              guidance_h_set_guided_heading(initial_heading.heading_max_right);
+              guidance_h_set_heading(initial_heading.heading_max_right);
 
               // If heading appears to be reached increase confidence
               if (is_heading_reached(initial_heading.heading_max_right, heading, threshold_distance_to_angle)) {

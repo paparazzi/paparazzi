@@ -28,14 +28,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path|guided)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -56,6 +56,7 @@
 <!ELEMENT param EMPTY>
 <!ELEMENT return EMPTY>
 <!ELEMENT path EMPTY>
+<!ELEMENT guided EMPTY>
 
 
 <!ATTLIST flight_plan
@@ -329,6 +330,15 @@ post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
 height CDATA #IMPLIED>
+
+<!ATTLIST guided
+commands CDATA #REQUIRED
+flags CDATA #IMPLIED
+until CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
+nav_type CDATA #IMPLIED
+nav_params CDATA #IMPLIED>
 
 <!ATTLIST deroute
 block CDATA #REQUIRED>

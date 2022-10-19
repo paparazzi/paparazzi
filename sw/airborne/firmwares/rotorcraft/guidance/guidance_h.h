@@ -128,38 +128,33 @@ extern void guidance_h_set_igain(uint32_t igain);
  */
 extern void guidance_h_guided_run(bool in_flight);
 
-/** Set horizontal position setpoint in GUIDED mode.
+/** Set horizontal position setpoint.
  * @param x North position (local NED frame) in meters.
  * @param y East position (local NED frame) in meters.
- * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool guidance_h_set_guided_pos(float x, float y);
+extern void guidance_h_set_pos(float x, float y);
 
-/** Set heading setpoint in GUIDED mode.
+/** Set heading setpoint.
  * @param heading Setpoint in radians.
- * @return TRUE if setpoint was set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool guidance_h_set_guided_heading(float heading);
+extern void guidance_h_set_heading(float heading);
 
-/** Set body relative horizontal velocity setpoint in GUIDED mode.
+/** Set body relative horizontal velocity setpoint.
  * @param vx forward velocity (body frame) in meters/sec.
  * @param vy right velocity (body frame) in meters/sec.
- * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool guidance_h_set_guided_body_vel(float vx, float vy);
+extern void guidance_h_set_body_vel(float vx, float vy);
 
-/** Set horizontal velocity setpoint in GUIDED mode.
+/** Set horizontal velocity setpoint.
  * @param vx North velocity (local NED frame) in meters/sec.
  * @param vy East velocity (local NED frame) in meters/sec.
- * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool guidance_h_set_guided_vel(float vx, float vy);
+extern void guidance_h_set_vel(float vx, float vy);
 
-/** Set heading rate setpoint in GUIDED mode.
+/** Set heading rate setpoint.
  * @param rate Heading rate in radians.
- * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
-extern bool guidance_h_set_guided_heading_rate(float rate);
+extern void guidance_h_set_heading_rate(float rate);
 
 /** Gets the position error
  * @param none.

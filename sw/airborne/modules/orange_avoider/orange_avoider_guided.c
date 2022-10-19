@@ -150,13 +150,13 @@ void orange_avoider_guided_periodic(void)
       } else if (obstacle_free_confidence == 0){
         navigation_state = OBSTACLE_FOUND;
       } else {
-        guidance_h_set_guided_body_vel(speed_sp, 0);
+        guidance_h_set_body_vel(speed_sp, 0);
       }
 
       break;
     case OBSTACLE_FOUND:
       // stop
-      guidance_h_set_guided_body_vel(0, 0);
+      guidance_h_set_body_vel(0, 0);
 
       // randomly select new search direction
       chooseRandomIncrementAvoidance();
@@ -165,20 +165,20 @@ void orange_avoider_guided_periodic(void)
 
       break;
     case SEARCH_FOR_SAFE_HEADING:
-      guidance_h_set_guided_heading_rate(avoidance_heading_direction * oag_heading_rate);
+      guidance_h_set_heading_rate(avoidance_heading_direction * oag_heading_rate);
 
       // make sure we have a couple of good readings before declaring the way safe
       if (obstacle_free_confidence >= 2){
-        guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
+        guidance_h_set_heading(stateGetNedToBodyEulers_f()->psi);
         navigation_state = SAFE;
       }
       break;
     case OUT_OF_BOUNDS:
       // stop
-      guidance_h_set_guided_body_vel(0, 0);
+      guidance_h_set_body_vel(0, 0);
 
       // start turn back into arena
-      guidance_h_set_guided_heading_rate(avoidance_heading_direction * RadOfDeg(15));
+      guidance_h_set_heading_rate(avoidance_heading_direction * RadOfDeg(15));
 
       navigation_state = REENTER_ARENA;
 
@@ -187,7 +187,7 @@ void orange_avoider_guided_periodic(void)
       // force floor center to opposite side of turn to head back into arena
       if (floor_count >= floor_count_threshold && avoidance_heading_direction * floor_centroid_frac >= 0.f){
         // return to heading mode
-        guidance_h_set_guided_heading(stateGetNedToBodyEulers_f()->psi);
+        guidance_h_set_heading(stateGetNedToBodyEulers_f()->psi);
 
         // reset safe counter
         obstacle_free_confidence = 0;
