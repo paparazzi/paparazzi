@@ -74,7 +74,7 @@ static const struct Int32Vect3 invensense2_accel_scale[5][2] = {
 /**
  * @brief Initialize the invensense v2 sensor instance
  * 
- * @param inv The structure containing the configuratio of the invensense v2 instance
+ * @param inv The structure containing the configuration of the invensense v2 instance
  */
 void invensense2_init(struct invensense2_t *inv) {
   /* General setup */
