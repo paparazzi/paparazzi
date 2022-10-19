@@ -387,6 +387,10 @@
 #define IMU_NPS_ID 23
 #endif
 
+#ifndef IMU_ICM42688_ID
+#define IMU_ICM42688_ID 24
+#endif
+
 // prefiltering with OneEuro filter
 #ifndef IMU_F1E_ID
 #define IMU_F1E_ID 30
