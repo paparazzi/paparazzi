@@ -21,30 +21,30 @@ void clock_get_current_time(struct timespec *ts);
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 
-pthread_t th_flight_gear; // sends/receives flight gear packets
-pthread_t th_display_ivy; // sends Ivy messages
-pthread_t th_main_loop; // handles simulation
+extern pthread_t th_flight_gear; // sends/receives flight gear packets
+extern pthread_t th_display_ivy; // sends Ivy messages
+extern pthread_t th_main_loop; // handles simulation
 
-pthread_mutex_t fdm_mutex; // mutex for fdm data
+extern pthread_mutex_t fdm_mutex; // mutex for fdm data
 
-int pauseSignal; // for catching SIGTSTP
+extern int pauseSignal; // for catching SIGTSTP
 
-bool nps_main_parse_options(int argc, char **argv);
+extern bool nps_main_parse_options(int argc, char **argv);
 
-int nps_main_init(int argc, char **argv);
-void nps_radio_and_autopilot_init(void);
-void nps_main_run_sim_step(void);
-void nps_set_time_factor(float time_factor);
+extern int nps_main_init(int argc, char **argv);
+extern void nps_radio_and_autopilot_init(void);
+extern void nps_main_run_sim_step(void);
+extern void nps_set_time_factor(float time_factor);
 
-void* nps_main_loop(void* data __attribute__((unused)));
-void* nps_flight_gear_loop(void* data __attribute__((unused)));
-void* nps_main_display(void* data __attribute__((unused)));
+extern void* nps_main_loop(void* data __attribute__((unused)));
+extern void* nps_flight_gear_loop(void* data __attribute__((unused)));
+extern void* nps_main_display(void* data __attribute__((unused)));
 
-void tstp_hdl(int n __attribute__((unused)));
-void cont_hdl(int n __attribute__((unused)));
+extern void tstp_hdl(int n __attribute__((unused)));
+extern void cont_hdl(int n __attribute__((unused)));
 
-double time_to_double(struct timeval *t);
-double ntime_to_double(struct timespec *t);
+extern double time_to_double(struct timeval *t);
+extern double ntime_to_double(struct timespec *t);
 
 void nps_update_launch_from_dl(uint8_t value);
 
@@ -67,6 +67,6 @@ struct NpsMain {
   bool nodisplay;
 };
 
-struct NpsMain nps_main;
+extern struct NpsMain nps_main;
 
 #endif /* NPS_MAIN_H */

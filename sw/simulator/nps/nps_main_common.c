@@ -30,6 +30,13 @@
 
 #include "nps_ivy.h"
 
+pthread_t th_flight_gear;
+pthread_t th_display_ivy;
+pthread_t th_main_loop;
+pthread_mutex_t fdm_mutex;
+int pauseSignal;
+struct NpsMain nps_main;
+
 #ifdef __MACH__
 pthread_mutex_t clock_mutex; // mutex for clock
 void clock_get_current_time(struct timespec *ts)
