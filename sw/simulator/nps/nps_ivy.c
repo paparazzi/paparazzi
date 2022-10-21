@@ -26,6 +26,7 @@
 #include "modules/gps/gps.h"
 #endif
 
+bool nps_ivy_send_world_env = false;
 pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
