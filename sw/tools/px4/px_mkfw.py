@@ -39,7 +39,6 @@
 # metadata fields and a zlib-compressed base64-encoded firmware image.
 #
 
-import sys
 import argparse
 import json
 import base64
@@ -58,7 +57,8 @@ def mkdesc():
 	proto['version']	= ""
 	proto['summary']	= ""
 	proto['description']	= ""
-	proto['git_identity']	= ""
+	proto['git_identity']	= "" # git tag
+	proto['git_hash']	= "" # git commit hash
 	proto['build_time']	= 0
 	proto['image']		= bytes()
 	proto['image_size']	= 0
@@ -99,15 +99,20 @@ if args.summary != None:
 if args.description != None:
 	desc['description']	= str(args.description)
 if args.git_identity != None:
-	cmd = " ".join(["git", "--git-dir", args.git_identity + "/.git", "describe", "--always", "--dirty"])
+	cmd = "git --git-dir '{:}/.git' describe --exclude ext/* --always --tags".format(args.git_identity)
 	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout
-	desc['git_identity']	= str(p.read().strip())
+	desc['git_identity']	= p.read().strip().decode('utf-8')
+	p.close()
+	cmd = "git --git-dir '{:}/.git' rev-parse --verify HEAD".format(args.git_identity)
+	p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout
+	desc['git_hash']	= p.read().strip().decode('utf-8')
 	p.close()
 if args.parameter_xml != None:
 	f = open(args.parameter_xml, "rb")
 	bytes = f.read()
 	desc['parameter_xml_size'] = len(bytes)
 	desc['parameter_xml'] = base64.b64encode(zlib.compress(bytes,9)).decode('utf-8')
+	desc['mav_autopilot'] = 12 # 12 = MAV_AUTOPILOT_PX4
 if args.airframe_xml != None:
 	f = open(args.airframe_xml, "rb")
 	bytes = f.read()
