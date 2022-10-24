@@ -34,8 +34,7 @@
 #include "mcu_periph/usb_serial.h"
 
 #include "led.h"
-
-#include "libopencm3/cm3/scb.h"
+#include "mcu_arch.h"
 
 #include "mcu_periph/sys_time.h"
 #ifdef INTER_MCU_AP
@@ -130,8 +129,11 @@ void px4flash_event(void)
     unsigned char target = FLASH_PORT->get_byte(FLASH_PORT->periph);
     if (target == '1') { //target ap
       //the target is the ap, so reboot to PX4 bootloader
+#if defined(CHIBIOS_MCU_ARCH_H)
+      NVIC_SystemReset();
+#elif defined(STM32_MCU_ARCH_H) 
       scb_reset_system();
-
+#endif
     } else { // target fbw
 #ifdef INTER_MCU_AP
       //the target is the fbw, so reboot the fbw and switch to relay mode
