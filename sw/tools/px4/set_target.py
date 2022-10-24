@@ -35,16 +35,23 @@ if mode == 1:
 
     print ("Sending target command to Paparazzi firmware...")
     ser.flush()
-    ser.write(line)
-
+    ser.write(line.encode())
+    time.sleep(1)
     if target == "fbw":
         try:
             c = ser.read(7)
-            print("AP responded with: " + c)
-            if c == "TIMEOUT":
+            print("AP responded with: ")
+            print(c)
+            if c.decode() == "TIMEOUT":
                 print("Error: FBW bootloader TIMEOUT. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
-            elif c != "FBWOKOK":
+            elif c.decode() == "ERROR:1":
+                print("Error: FBW firmware handshake failed. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
+                sys.exit(1)
+            elif c.decode() == "ERROR:2":
+                print("Error: FBW bootloader sync failed. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
+                sys.exit(1)    
+            elif c.decode() != "FBWOKOK":
                 print("Error: unknown error. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
         except serial.serialutil.SerialException:
@@ -53,12 +60,13 @@ if mode == 1:
     print("Uploading using Paparazzi firmware...")
     if target == "ap":
         print("If the uploading does not start within a few seconds, please replug the usb (power cycle the board).")
-    sys.exit(0)
+    # sys.exit(0)
 
 if mode == -1:  # no pprz cdc was found, look for PX4
     ports = glob.glob("/dev/serial/by-id/usb-3D_Robotics*")
     ports.append(glob.glob("/dev/serial/by-id/pci-3D_Robotics*"))
     ports.append(glob.glob("/dev/serial/by-id/usb-Hex_ProfiCNC_Cube*"))
+    ports.append(glob.glob("/dev/serial/by-id/usb-ArduPilot*"))
     for p in ports:
         port = p
         if isinstance(p, list) and len(port) > 0:
@@ -74,7 +82,7 @@ if mode == -1:  # no pprz cdc was found, look for PX4
     if mode == -1:
         print("No original PX4 CDC firmware found either.")
         print("Error: no compatible usb device found...")
-        #sys.exit(1)
+        sys.exit(1)
 
     if target == "fbw":
         print("Error: original firmware cannot be used to upload the fbw code. Wait for the PX4 bootloader to exit (takes 5 seconds), or in case this is the first upload; first upload the Paparazzi ap target.")
