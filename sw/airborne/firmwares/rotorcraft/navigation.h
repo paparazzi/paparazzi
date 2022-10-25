@@ -56,7 +56,8 @@ extern uint8_t last_wp __attribute__((unused));
 
 extern uint8_t horizontal_mode;
 
-extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
+extern int32_t nav_circle_radius;
+extern float nav_circle_qdr, nav_circle_radians;
 #define HORIZONTAL_MODE_WAYPOINT  0
 #define HORIZONTAL_MODE_ROUTE     1
 #define HORIZONTAL_MODE_CIRCLE    2

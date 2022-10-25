@@ -122,7 +122,8 @@ float flight_altitude;
 
 /* nav_circle variables */
 struct EnuCoor_i nav_circle_center;
-int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
+float nav_circle_qdr, nav_circle_radians;
+int32_t nav_circle_radius;
 
 /* nav_route variables */
 struct EnuCoor_i nav_segment_start, nav_segment_end;
@@ -551,39 +552,38 @@ void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
     VECT2_COPY(navigation_target, *wp_center);
     dist2_to_wp = get_dist2_to_point(wp_center);
   } else {
-    struct Int32Vect2 pos_diff;
-    VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_center);
+    struct FloatVect2 pos_diff;
+    struct Int32Vect2 pos_diff_i;
+    VECT2_DIFF(pos_diff_i, *stateGetPositionEnu_i(), *wp_center);
+    pos_diff.x = POS_FLOAT_OF_BFP(pos_diff_i.x);
+    pos_diff.y = POS_FLOAT_OF_BFP(pos_diff_i.y);
     // go back to half metric precision or values are too large
     //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
     // store last qdr
-    int32_t last_qdr = nav_circle_qdr;
+    float last_qdr = nav_circle_qdr;
     // compute qdr
-    nav_circle_qdr = int32_atan2(pos_diff.y, pos_diff.x);
+    nav_circle_qdr = atan2f(pos_diff.x, pos_diff.y);
     // increment circle radians
-    if (nav_circle_radians != 0) {
-      int32_t angle_diff = nav_circle_qdr - last_qdr;
-      INT32_ANGLE_NORMALIZE(angle_diff);
-      nav_circle_radians += angle_diff;
-    } else {
-      // Smallest angle to increment at next step
-      nav_circle_radians = 1;
-    }
+    float angle_diff = nav_circle_qdr - last_qdr;
+    FLOAT_ANGLE_NORMALIZE(angle_diff);
+    nav_circle_radians += angle_diff;
 
     // direction of rotation
     int8_t sign_radius = radius > 0 ? 1 : -1;
     // absolute radius
-    int32_t abs_radius = abs(radius);
-    // carrot_angle
-    int32_t carrot_angle = ((CARROT_DIST << INT32_ANGLE_FRAC) / abs_radius);
-    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
-    carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
-    int32_t s_carrot, c_carrot;
-    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);
-    PPRZ_ITRIG_COS(c_carrot, carrot_angle);
+    float abs_radius = abs(radius);
+    // carrot_angle, approximating arcsin
+    float carrot_angle = ANGLE_FLOAT_OF_BFP((CARROT_DIST << INT32_ANGLE_FRAC) / abs_radius);
+    Bound(carrot_angle, (M_PI / 16.0), M_PI_4);
+    carrot_angle = nav_circle_qdr + sign_radius * carrot_angle;
+    float s_carrot, c_carrot;
+    s_carrot = sinf(carrot_angle);
+    c_carrot = cosf(carrot_angle);
     // compute setpoint
-    VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
-    INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
-    VECT2_SUM(navigation_target, *wp_center, pos_diff);
+    VECT2_ASSIGN(pos_diff, POS_FLOAT_OF_BFP(abs_radius) * s_carrot, POS_FLOAT_OF_BFP(abs_radius) * c_carrot);
+    pos_diff_i.x = POS_BFP_OF_REAL(pos_diff.x);
+    pos_diff_i.y = POS_BFP_OF_REAL(pos_diff.y);
+    VECT2_SUM(navigation_target, *wp_center, pos_diff_i);
   }
   nav_circle_center = *wp_center;
   nav_circle_radius = radius;
