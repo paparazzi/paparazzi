@@ -66,8 +66,8 @@ void imu_nps_init(void)
 void imu_feed_gyro_accel(void)
 {
 
-  RATES_ASSIGN(imu_nps.gyro, sensors.gyro.value.x, sensors.gyro.value.y, sensors.gyro.value.z);
-  VECT3_ASSIGN(imu_nps.accel, sensors.accel.value.x, sensors.accel.value.y, sensors.accel.value.z);
+  RATES_ASSIGN(imu_nps.gyro, NPS_GYRO_SIGN_P * sensors.gyro.value.x, NPS_GYRO_SIGN_Q * sensors.gyro.value.y, NPS_GYRO_SIGN_R * sensors.gyro.value.z);
+  VECT3_ASSIGN(imu_nps.accel, NPS_ACCEL_SIGN_X * sensors.accel.value.x, NPS_ACCEL_SIGN_Y * sensors.accel.value.y, NPS_ACCEL_SIGN_Z * sensors.accel.value.z);
 
   // set availability flags...
   imu_nps.accel_available = true;
@@ -79,7 +79,7 @@ void imu_feed_gyro_accel(void)
 void imu_feed_mag(void)
 {
 
-  VECT3_ASSIGN(imu_nps.mag, sensors.mag.value.x, sensors.mag.value.y, sensors.mag.value.z);
+  VECT3_ASSIGN(imu_nps.mag, NPS_MAG_SIGN_X * sensors.mag.value.x, NPS_MAG_SIGN_Y * sensors.mag.value.y, NPS_MAG_SIGN_Z * sensors.mag.value.z);
   imu_nps.mag_available = true;
 
 }
