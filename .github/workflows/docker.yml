@@ -7,7 +7,7 @@ on:
         paths:
         - 'docker/**'
     schedule:
-        - cron: '0 3 5 * *'
+        - cron: '0 3 27 * *'  # build the 27 of each month (for no particular reasons)
 
 jobs:
   build_docker_image:
