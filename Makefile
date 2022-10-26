@@ -106,9 +106,11 @@ ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 MAVLINK_DIR=$(STATICINCLUDE)/mavlink/
 MAVLINK_PROTOCOL_H=$(MAVLINK_DIR)protocol.h
 
-GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H) $(MAVLINK_PROTOCOL_H)
+GEN_HEADERS = $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(ABI_MESSAGES_H)
 
-all: ground_segment ext subdirs_extra
+core: ground_segment ext subdirs_extra
+
+all: ground_segment ext subdirs_extra $(MAVLINK_PROTOCOL_H)
 
 _print_building:
 	@echo "------------------------------------------------------------"
