@@ -22,6 +22,8 @@
 #ifndef NPS_SENSORS_PARAMS_NOISY_H
 #define NPS_SENSORS_PARAMS_NOISY_H
 
+#include "nps_sensors_params_common.h"
+
 /* m2s-4 */
 #define NPS_ACCEL_NOISE_STD_DEV_X .5
 #define NPS_ACCEL_NOISE_STD_DEV_Y .5
@@ -37,9 +39,16 @@
 
 #define NPS_BARO_NOISE_STD_DEV   2
 
-#define GPS_PERFECT 0
-
-#include "nps_sensors_params_common.h"
+#define NPS_GPS_SPEED_NOISE_STD_DEV            0.5
+#define NPS_GPS_SPEED_LATENCY                  0.2
+#define NPS_GPS_POS_NOISE_STD_DEV              2
+#define NPS_GPS_POS_BIAS_INITIAL_X             0e-1
+#define NPS_GPS_POS_BIAS_INITIAL_Y            -0e-1
+#define NPS_GPS_POS_BIAS_INITIAL_Z            -0e-1
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3
+#define NPS_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3
+#define NPS_GPS_POS_LATENCY                    0.2
 
 #endif
 
