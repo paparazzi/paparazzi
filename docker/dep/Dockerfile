@@ -30,6 +30,8 @@ RUN apt-get update && apt-get install -y \
     paparazzi-jsbsim \
     x11-apps \
     gedit \
+    gcc-arm-none-eabi \
+    python3-future \
     && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/tini", "--"]
