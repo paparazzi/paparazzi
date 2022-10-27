@@ -56,20 +56,21 @@ void imu_mpu9250_event(void)
 void imu_mpu9250_report(void)
 {
   uint8_t id = IMU_MPU9250_ID;
+  float temp = NAN;
 
   struct Int32Vect3 accel = {
     (int32_t)(mpu9250.data_accel.vect.x),
     (int32_t)(mpu9250.data_accel.vect.y),
     (int32_t)(mpu9250.data_accel.vect.z)
   };
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &id, &accel.x, &accel.y, &accel.z);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &id, &accel.x, &accel.y, &accel.z, &temp);
 
   struct Int32Rates rates = {
     (int32_t)(mpu9250.data_rates.rates.p),
     (int32_t)(mpu9250.data_rates.rates.q),
     (int32_t)(mpu9250.data_rates.rates.r)
   };
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &id, &rates.p, &rates.q, &rates.r);
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &id, &rates.p, &rates.q, &rates.r, &temp);
 
   struct Int32Vect3 mag = {
     (int32_t)(mpu9250.akm.data.vect.x),

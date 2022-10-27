@@ -90,7 +90,7 @@ void imu_px4_event(void) {
       imu_px4.l3g.data_rates.rates.r
     };
     imu_px4.l3g.data_available = FALSE;
-    AbiSendMsgIMU_GYRO_RAW(IMU_PX4_ID, now_ts, &gyro, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_PX4_ID, now_ts, &gyro, 1, NAN);
   }
 
   /* LSM303d event task */
@@ -98,7 +98,7 @@ void imu_px4_event(void) {
   if (imu_px4.lsm_acc.data_available_acc) {
     struct Int32Vect3 accel;
     VECT3_COPY(accel, imu_px4.lsm_acc.data_accel.vect);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_PX4_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_PX4_ID, now_ts, &accel, 1, NAN);
     imu_px4.lsm_acc.data_available_acc = FALSE;
   }
 #if !IMU_PX4_DISABLE_MAG

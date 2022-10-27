@@ -139,14 +139,14 @@ void imu_aspirin_event(void)
 
   adxl345_spi_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1, NAN);
     imu_aspirin.acc_adxl.data_available = false;
   }
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.gyro_itg.data.rates, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.gyro_itg.data.rates, 1, NAN);
     imu_aspirin.gyro_itg.data_available = false;
   }
 

@@ -148,7 +148,6 @@ void imu_vectornav_propagate(void)
   uint32_t now_ts = (uint32_t) tmp;
 
   // Send accel and gyro data separate for other AHRS algorithms
-  AbiSendMsgIMU_GYRO_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.gyro, 1);
-  AbiSendMsgIMU_ACCEL_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.accel, 1);
+  AbiSendMsgIMU_GYRO_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.gyro, 1, NAN);
+  AbiSendMsgIMU_ACCEL_RAW(IMU_VECTORNAV_ID, now_ts, &imu_vn.vn_data.accel, 1, NAN);
 }
-

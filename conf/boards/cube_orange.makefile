@@ -74,7 +74,7 @@ GPS_BAUD ?= B57600
 
 # InterMCU port connected to the IO processor
 INTERMCU_PORT ?= UART6
-INTERMCU_BAUD ?= B230400
+INTERMCU_BAUD ?= B1500000
 
 #
 # default actuator configuration

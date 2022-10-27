@@ -367,14 +367,14 @@ static void navdata_publish_imu(void)
     -navdata.measure.vy,
     -navdata.measure.vz
   };
-  AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1);
+  AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, navdata.measure.temperature_gyro);
 
   struct Int32Vect3 accel = {
     navdata.measure.ax,
     4096 - navdata.measure.ay,
     4096 - navdata.measure.az
   };
-  AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
+  AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, navdata.measure.temperature_acc);
 
   struct Int32Vect3 mag = {
     -navdata.measure.mx,

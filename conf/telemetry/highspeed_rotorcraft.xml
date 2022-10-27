@@ -58,6 +58,7 @@
       <message name="IMU_MAG_CURRENT_CALIBRATION" period=".05"/>
       <message name="BARO_RAW"                    period=".1"/>
       <message name="GPS_INT"                     period=".2"/>
+      <message name="IMU_HEATER"                  period="0.1"/>
     </mode>
 
     <mode name="ppm">
@@ -239,7 +240,7 @@
       <message name="INDI_G"                   period="0.1"/>
       <message name="ACTUATORS"                period="0.002"/>
       <message name="GPS_RTK"                  period="0.1"/>
-      <!--<message name="WINDTUNNEL_MEAS"          period="0.005"/>-->
+      <message name="IMU_HEATER"               period="1.0"/>
     </mode>
   </process>
 

@@ -10,7 +10,7 @@
     </description>
   </doc>
   <dep>
-    <depends>spi_master,imu_common</depends>
+    <depends>spi_master,imu_common,intermcu_iomcu,imu_heater</depends>
     <provides>imu</provides>
   </dep>
   <autoload name="imu_nps"/>
@@ -45,6 +45,12 @@
     <define name="USE_$(CUBE_IMU3_SPI_DEV_UPPER)"/>
     <define name="CUBE_IMU3_SPI_SLAVE_IDX" value="$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
     <define name="USE_$(CUBE_IMU3_SPI_SLAVE_IDX)"/>
+
+     <!-- Configure the heater (ICM20602) -->
+    <define name="IMU_HEATER_GYRO_ID" value="IMU_CUBE2_ID"/>
+    <define name="IMU_HEATER_TARGET_TEMP" value="55.0"/>
+    <define name="IMU_HEATER_P_GAIN" value="50.0"/>
+    <define name="IMU_HEATER_I_GAIN" value="0.07"/>
 
     <file name="invensense2.c" dir="peripherals"/>
     <file name="mpu60x0.c" dir="peripherals"/>

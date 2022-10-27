@@ -140,13 +140,13 @@ void imu_apogee_event(void)
         (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Y]),
         (int32_t)(-imu_apogee.mpu.data_rates.value[IMU_APOGEE_CHAN_Z])
     };
-    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &rates, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &rates, 1, imu_apogee.mpu.temp);
     struct Int32Vect3 accel = {
         (int32_t)( imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_X]),
         (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Y]),
         (int32_t)(-imu_apogee.mpu.data_accel.value[IMU_APOGEE_CHAN_Z])
     };
-    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, imu_apogee.mpu.temp);
     imu_apogee.mpu.data_available = false;
   }
 

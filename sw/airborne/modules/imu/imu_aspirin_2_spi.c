@@ -237,8 +237,8 @@ void imu_aspirin2_event(void)
 
     imu_aspirin2.mpu.data_available = false;
 
-    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1, imu_aspirin2.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1, imu_aspirin2.mpu.temp);
 #if !ASPIRIN_2_DISABLE_MAG
     AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN2_ID, now_ts, &mag_rot);
 #endif
