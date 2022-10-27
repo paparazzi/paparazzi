@@ -10,10 +10,11 @@ env = os.environ
 env['PAPARAZZI_HOME'] = PAPARAZZI_HOME
 env['PAPARAZZI_SRC'] = PAPARAZZI_SRC
 
-if len(sys.argv) > 1 and sys.argv[1] == "-python":
-    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'python', 'paparazzicenter.py'))
+if len(sys.argv) > 1 and sys.argv[1] == "-legacy":
+    del sys.argv[1]
+    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'paparazzicenter'))
     os.execve(path, sys.argv, env)
 else:
-    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'paparazzicenter'))
+    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'python', 'paparazzicenter.py'))
     os.execve(path, sys.argv, env)
 
