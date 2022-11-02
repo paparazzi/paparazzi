@@ -56,8 +56,7 @@ extern uint8_t last_wp __attribute__((unused));
 
 extern uint8_t horizontal_mode;
 
-extern int32_t nav_circle_radius;
-extern float nav_circle_qdr, nav_circle_radians;
+extern float nav_circle_qdr, nav_circle_radians, nav_circle_radius;
 #define HORIZONTAL_MODE_WAYPOINT  0
 #define HORIZONTAL_MODE_ROUTE     1
 #define HORIZONTAL_MODE_CIRCLE    2
@@ -262,11 +261,11 @@ static inline void NavGotoWaypoint(uint8_t wp)
 }
 
 /*********** Navigation on a circle **************************************/
-extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
+extern void nav_circle(struct EnuCoor_i *wp_center, float radius);
 static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-  nav_circle(&waypoints[wp_center].enu_i, POS_BFP_OF_REAL(radius));
+  nav_circle(&waypoints[wp_center].enu_i, radius);
 }
 
 #define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)

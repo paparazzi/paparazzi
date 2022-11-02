@@ -123,7 +123,7 @@ float flight_altitude;
 /* nav_circle variables */
 struct EnuCoor_i nav_circle_center;
 float nav_circle_qdr, nav_circle_radians;
-int32_t nav_circle_radius;
+float nav_circle_radius;
 
 /* nav_route variables */
 struct EnuCoor_i nav_segment_start, nav_segment_end;
@@ -151,7 +151,7 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
 {
   float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
   float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
-  float r = POS_FLOAT_OF_BFP(nav_circle_radius);
+  float r = nav_circle_radius;
   pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
 }
 
@@ -546,7 +546,7 @@ void nav_set_failsafe(void)
  * built in navigation routines
  **********************************************************/
 
-void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
+void nav_circle(struct EnuCoor_i *wp_center, float radius)
 {
   if (radius == 0) {
     VECT2_COPY(navigation_target, *wp_center);
@@ -557,11 +557,10 @@ void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
     VECT2_DIFF(pos_diff_i, *stateGetPositionEnu_i(), *wp_center);
     pos_diff.x = POS_FLOAT_OF_BFP(pos_diff_i.x);
     pos_diff.y = POS_FLOAT_OF_BFP(pos_diff_i.y);
-    // go back to half metric precision or values are too large
-    //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
-    // store last qdr
+
+    // store last QDR
     float last_qdr = nav_circle_qdr;
-    // compute qdr
+    // compute QDR
     nav_circle_qdr = atan2f(pos_diff.x, pos_diff.y);
     // increment circle radians
     float angle_diff = nav_circle_qdr - last_qdr;
@@ -571,16 +570,20 @@ void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
     // direction of rotation
     int8_t sign_radius = radius > 0 ? 1 : -1;
     // absolute radius
-    float abs_radius = abs(radius);
+    float abs_radius = fabs(radius);
+    // protect the division below
+    if (abs_radius < 0.1) {
+      abs_radius = 0.1;
+    }
     // carrot_angle, approximating arcsin
-    float carrot_angle = ANGLE_FLOAT_OF_BFP((CARROT_DIST << INT32_ANGLE_FRAC) / abs_radius);
+    float carrot_angle = NAV_CARROT_DIST / abs_radius;
     Bound(carrot_angle, (M_PI / 16.0), M_PI_4);
     carrot_angle = nav_circle_qdr + sign_radius * carrot_angle;
     float s_carrot, c_carrot;
     s_carrot = sinf(carrot_angle);
     c_carrot = cosf(carrot_angle);
     // compute setpoint
-    VECT2_ASSIGN(pos_diff, POS_FLOAT_OF_BFP(abs_radius) * s_carrot, POS_FLOAT_OF_BFP(abs_radius) * c_carrot);
+    VECT2_ASSIGN(pos_diff, abs_radius * s_carrot, abs_radius * c_carrot);
     pos_diff_i.x = POS_BFP_OF_REAL(pos_diff.x);
     pos_diff_i.y = POS_BFP_OF_REAL(pos_diff.y);
     VECT2_SUM(navigation_target, *wp_center, pos_diff_i);
@@ -687,7 +690,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
 
   switch (oval_status) {
     case OC1 :
-      nav_circle(&p1_center, POS_BFP_OF_REAL(-radius));
+      nav_circle(&p1_center, -radius);
       if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_1) - qdr_anticipation)) {
         oval_status = OR12;
         InitStage();
@@ -706,7 +709,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       return;
 
     case OC2 :
-      nav_circle(&p2_center, POS_BFP_OF_REAL(-radius));
+      nav_circle(&p2_center, -radius);
       if (NavQdrCloseTo(INT32_DEG_OF_RAD(qdr_out_2) - qdr_anticipation)) {
         oval_status = OR21;
         InitStage();
