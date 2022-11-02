@@ -112,6 +112,9 @@ foreach my $aircraft (sort keys%{$conf->{'aircraft'}})
                     warn "\nAIRCRAFT=$aircraft target=$target compiled sucessfully but had warnings.\n\n";
                 }
             }
+            # clean files
+            run_program("Cleaning files for aircraft $aircraft",
+              $ENV{'PAPARAZZI_SRC'}, "make AIRCRAFT=$aircraft clean_ac", $ENV{'TEST_VERBOSE'});
             ok($exit_status == 0, "Compile aircraft: $aircraft, target: $target");
         }
     }
