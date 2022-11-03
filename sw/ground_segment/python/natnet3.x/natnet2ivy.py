@@ -35,6 +35,90 @@ Manual installation of Ivy:
 Otherwise, you can use PYTHONPATH if you don't want to install the code
 in your system
 
+
+
+##########################
+###### Axes systems ######
+##########################
+
+The following assumes you calibrated the Optitrack ground plane as shown below,
+with the long edge of the ground plane calibration triangle towards the right 
+wall.
+For correct heading information, define your rigid body in Motive with the nose
+of the vehicle (body-x) pointing away from you and towards the far edge.
++──────────────────────────+
+│                          │
+│                          │
+│            .             │
+│            |             │
+│            .────.        │
+│                          │
+│                          │
+│                          │
++──────────────────────────+
+│        Observers         │
+└──────────────────────────┘
+
+
+1. Optitrack axis system
+   Without making changes in Motive, this should be transmitted via NatNet
++──────────────────────────+
+│                          │
+│                          │
+│             x            │
+│             ▲            │
+│             │            │
+│             ⊙──►z        │
+│           y              │
+│                          │
+│                          │
++──────────────────────────+
+│        Observers         │
+└──────────────────────────┘
+
+
+2. Cyberzoo axis system: DEFAULT OUTPUT
+   Per default, this program will rotate the axis to match the system below. The
+   advantage is that gps_datalink.c will understand the axes such that the North
+   of the ENU axes is pointed away from the observer, which is intuitive.
+   Rotation can be represented by a 2pi/3 rotation around the axis [1, 1, 1]
+   in the Optitrack system.
++──────────────────────────+
+│                          │
+│                          │
+│             y            │
+│             ▲            │
+│             │            │
+│             ⊙──►x        │
+│           z              │
+│                          │
+│                          │
++──────────────────────────+
+│        Observers         │
+└──────────────────────────┘
+
+
+3. Geographic system: 
+   Here, y points towards the geographic North, making the resulting ENU system 
+   in the drone correspond to the true magnetic directions.
+   The argument --north_angle <angle> should be used to specifcy the right-hand
+   rotation around z from the Cyberzoo axis system to the Geographic system, if
+   the user wants to use it.
++──────────────────────────+
+│                          │
+│               y          │
+│              ▲           │
+│             /            │
+│            /             │
+│         z ⊙ \            │
+│              \► x        │
+│                          │
+│                          │
+│                          │
++──────────────────────────+
+│        Observers         │
+└──────────────────────────┘
+
 '''
 
 
@@ -44,6 +128,7 @@ import sys
 from os import path, getenv
 from time import time, sleep
 import numpy as np
+from pyquaternion import Quaternion as Quat
 from collections import deque
 import argparse
 
@@ -73,7 +158,8 @@ parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=
 parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
 parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
 parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
-parser.add_argument('-zf', '--z_forward', dest='z_forward', action='store_true', help="Z-axis as forward")
+# parser.add_argument('-zf', '--z_forward', dest='z_forward', action='store_true', help="Z-axis as forward")
+parser.add_argument('-na', '--north_angle', dest='north_angle', help="Angle in degrees to rotate the ENU system around the z-axis (can be used to achieve true north)")
 
 args = parser.parse_args()
 
@@ -90,6 +176,11 @@ period = 1. / args.freq
 
 # initial track per AC
 track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
+
+# axes rotation definitions
+q_axes = Quat(axis=[1., 1., 1.], angle=2.*np.pi/3.)
+q_north = Quat(axis=[0., 0., 1.], angle=np.deg2rad(-args.north_angle))
+q_total = q_north * q_axes
 
 # start ivy interface
 if args.ivy_bus is not None:
@@ -130,18 +221,6 @@ def compute_velocity(ac_id):
             vel[2] /= nb
     return vel
 
-# Rotate the Z-forward to X-forward frame
-def rotZtoX(in_vec3, quat = False):
-    out_vec3 = {}
-    out_vec3[0] = -in_vec3[0]
-    out_vec3[1] = in_vec3[2]
-    out_vec3[2] = in_vec3[1]
-
-    # Copy the qi
-    if quat:
-        out_vec3[3] = in_vec3[3]
-    return out_vec3
-
 def receiveRigidBodyList( rigidBodyList, stamp ):
     for (ac_id, pos, quat, valid) in rigidBodyList:
         if not valid:
@@ -161,11 +240,14 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
         vel = compute_velocity(i)
 
-        # Rotate everything if Z-forward
-        if args.z_forward:
-            pos = rotZtoX(pos)
-            vel = rotZtoX(vel)
-            quat = rotZtoX(quat, True)
+        # Rotate position and velocity according to the quaternions found above
+        pos = q_total.rotate([pos[0], pos[1], pos[2]]).tolist()
+        vel = q_total.rotate([vel[0], vel[1], vel[2]]).tolist()
+
+        # Rotate the attitude delta to the new frame
+        quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
+        quat = q_north * (q_axes * quat * q_axes.inverse)
+        quat = quat.elements[[3, 0, 1, 2]].tolist()
 
         # Check which message to send
         if args.rgl_msg:
