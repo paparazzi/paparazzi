@@ -139,7 +139,9 @@ void imu_aspirin_event(void)
 
   adxl345_spi_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1, NAN);
+    struct Int32Vect3 accel;
+    VECT3_COPY(accel, imu_aspirin.acc_adxl.data.vect);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &accel, 1, NAN);
     imu_aspirin.acc_adxl.data_available = false;
   }
 
