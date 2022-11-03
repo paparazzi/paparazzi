@@ -43,13 +43,6 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #endif
 
-#include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "firmwares/rotorcraft/guidance/guidance_v.h"
-
-#include "subsystems/actuators.h"
-
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#include "firmwares/rotorcraft/navigation.h"
 
 /** Set the default File logger path to the USB drive */
 #ifndef FILE_LOGGER_PATH
@@ -74,13 +67,11 @@ static void file_logger_write_header(FILE *file) {
   fprintf(file, "vel_x,vel_y,vel_z,");
   fprintf(file, "att_phi,att_theta,att_psi,");
   fprintf(file, "rate_p,rate_q,rate_r,");
-  fprintf(file, "accel_x,accel_y,accel_z,");
-  fprintf(file, "airspeed,");
-  fprintf(file, "m_cmd1,m_cmd2,m_cmd3,m_cmd4,");
-  fprintf(file, "refpos_x, refpos_y, refpos_z,");
-  fprintf(file, "speed_sp_x,speed_sp_y,speed_sp_z,");
-  fprintf(file, "nav_targetx,nav_targety,nav_targetz,");
-  fprintf(file, "\n");
+#ifdef COMMAND_THRUST
+  fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
+#else
+  fprintf(file, "h_ctl_aileron_setpoint,h_ctl_elevator_setpoint\n");
+#endif
 }
 
 /** Write CSV row
@@ -94,20 +85,19 @@ static void file_logger_write_row(FILE *file) {
   struct NedCoor_f *vel = stateGetSpeedNed_f();
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct FloatRates *rates = stateGetBodyRates_f();
-  struct NedCoor_f *accel = stateGetAccelNed_f();
 
   fprintf(file, "%f,", get_sys_time_float());
   fprintf(file, "%f,%f,%f,", pos->x, pos->y, pos->z);
   fprintf(file, "%f,%f,%f,", vel->x, vel->y, vel->z);
   fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
   fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
-  fprintf(file, "%f,%f,%f,", accel->x, accel->y, accel->z);
-  fprintf(file, "%f,", stateGetAirspeed_f());
-  fprintf(file, "%f,%f,%f,", sp_accel.x, sp_accel.y, sp_accel.z);
-  fprintf(file, "%d,%d,%d,%d,", actuators[0], actuators[1], actuators[2], actuators[3]);
-  fprintf(file, "%d,%d,%d,", guidance_h.ref.pos.x,guidance_h.ref.pos.y,guidance_v_z_ref);
-  fprintf(file, "%f,%f,%f,", gi_speed_sp.x,gi_speed_sp.y,gi_speed_sp.z);
-  fprintf(file, "%d,%d,%d\n", navigation_target.x, navigation_target.y, navigation_target.z);
+#ifdef COMMAND_THRUST
+  fprintf(file, "%d,%d,%d,%d\n",
+      stabilization_cmd[COMMAND_THRUST], stabilization_cmd[COMMAND_ROLL],
+      stabilization_cmd[COMMAND_PITCH], stabilization_cmd[COMMAND_YAW]);
+#else
+  fprintf(file, "%d,%d\n", h_ctl_aileron_setpoint, h_ctl_elevator_setpoint);
+#endif
 }
 
 

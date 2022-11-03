@@ -81,7 +81,8 @@ struct guidance_indi_hybrid_params gih_params = {
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
-// Tell the guidance that the airspeed needs to be zero'd. recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case
+// Tell the guidance that the airspeed needs to be zeroed. 
+// Recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case.
 #ifndef GUIDANCE_INDI_ZERO_AIRSPEED
 #define GUIDANCE_INDI_ZERO_AIRSPEED FALSE
 #endif
@@ -139,7 +140,7 @@ float inv_eff[4];
 float lift_pitch_eff = GUIDANCE_INDI_PITCH_LIFT_EFF;
 
 // Max bank angle in radians
-float guidance_indi_max_bank = DegOfRad(GUIDANCE_H_MAX_BANK);
+float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
 
 /** state eulers in zxy order */
 struct FloatEulers eulers_zxy;
@@ -274,10 +275,10 @@ void guidance_indi_run(float *heading_sp) {
 
   // Get airspeed or zero it
   float airspeed;
-  if (!GUIDANCE_INDI_ZERO_AIRSPEED) {
-    airspeed = stateGetAirspeed_f();
-  } else {
+  if (GUIDANCE_INDI_ZERO_AIRSPEED) {
     airspeed = 0.0;
+  } else {
+    airspeed = stateGetAirspeed_f();
   }
 
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
@@ -424,7 +425,7 @@ void guidance_indi_run(float *heading_sp) {
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
 
   //Bound euler angles to prevent flipping
-  Bound(guidance_euler_cmd.phi, -RadOfDeg(guidance_indi_max_bank), RadOfDeg(guidance_indi_max_bank));
+  Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
   Bound(guidance_euler_cmd.theta, RadOfDeg(GUIDANCE_INDI_MIN_PITCH), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
@@ -453,6 +454,7 @@ void guidance_indi_run(float *heading_sp) {
   } else {
     *heading_sp += omega / PERIODIC_FREQUENCY;
     FLOAT_ANGLE_NORMALIZE(*heading_sp);
+    // limit heading setpoint to be within bounds of current heading
     #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
       float delta_limit = STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
       float heading = stabilization_attitude_get_heading_f();

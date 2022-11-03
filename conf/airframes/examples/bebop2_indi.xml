@@ -25,14 +25,7 @@
     <module name="ins" type="ekf2">
       <define name="INS_EKF2_OPTITRACK" value="true"/>
     </module>
-
-    <module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
-      <!--<define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.0"/>-->
-    </module>
-
+    
     <module name="air_data"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="logger_file">
@@ -61,20 +54,6 @@
     <define name="REVERSE" value="TRUE"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
-
-
-  <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
-    <define name="POS_GAIN" value="0.2"/>
-    <define name="POS_GAINZ" value="0.2"/>
-    <define name="SPEED_GAIN" value="1.0"/>
-    <define name="SPEED_GAINZ" value="1.0"/>
-    <define name="HEADING_BANK_GAIN" value="15."/>
-    <define name="MAX_AIRSPEED" value="10."/>
-    <define name="PITCH_LIFT_EFF" value="0.0"/>
-    <define name="HEADING_BANK_GAIN" value="15."/>
-    <define name="MIN_THROTTLE" value="0."/>
-  </section>
-    
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
@@ -140,20 +119,20 @@
     <define name="G1_R" value="0.00122"/>
 
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="600.0"/>
+    <define name="REF_ERR_P" value="170.0"/>
     <define name="REF_ERR_Q" value="600.0"/>
-    <define name="REF_ERR_R" value="170.0"/>
-    <define name="REF_RATE_P" value="28.0"/>
+    <define name="REF_ERR_R" value="600.0"/>
+    <define name="REF_RATE_P" value="14.3"/>
     <define name="REF_RATE_Q" value="28.0"/>
-    <define name="REF_RATE_R" value="14.3"/>
+    <define name="REF_RATE_R" value="28.0"/>
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.1"/>
-    <define name="ACT_DYN_Q" value="0.1"/>
-    <define name="ACT_DYN_R" value="0.1"/>
+    <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
@@ -197,8 +176,6 @@
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
 
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-
-    <define name="TRANSITION_MAX_OFFSET" value="0."/>
   </section>
 
   <section name="BAT">
