@@ -52,7 +52,10 @@ def get_ids_in_log(filename):
 def get_sensor_ids(ac_id, filename, sensor):
     f = open(filename, 'r')
     ids = []
-    pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+")
+    if sensor == 'MAG':
+        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+")
+    else:
+        pattern = re.compile("\S+ "+ac_id+" IMU_"+sensor+"_RAW (\S+) \S+ \S+ \S+ \S+")
     while True:
         line = f.readline().strip()
         if line == '':
@@ -67,7 +70,10 @@ def get_sensor_ids(ac_id, filename, sensor):
 def read_log(ac_id, filename, sensor, sensor_id):
     """Extracts raw sensor measurements from a log."""
     f = open(filename, 'r')
-    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" (\S+) (\S+) (\S+)")
+    if sensor == 'MAG':
+        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" (\S+) (\S+) (\S+)")
+    else:
+        pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_RAW "+sensor_id+" \S+ (\S+) (\S+) (\S+)")
     list_meas = []
     while True:
         line = f.readline().strip()
