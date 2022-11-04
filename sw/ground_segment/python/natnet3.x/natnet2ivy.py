@@ -144,8 +144,14 @@ from pprzlink.message import PprzMessage
 
 # parse args
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
+group.add_argument('-xa', '--x_angle_from_left', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the left")
+parser.add_argument('-an', '--ac_nose', required=True, dest='ac_nose', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the nose of the drone was pointing at when definition the rigid body")
 parser.add_argument('-ac', action='append', nargs=2,
-                    metavar=('rigid_id','ac_id'), help='pair of rigid body and A/C id (multiple possible)')
+                    metavar=('rigid_id','ac_id'), required=True, help='pair of rigid body and A/C id (multiple possible)')
+
 parser.add_argument('-b', '--ivy_bus', dest='ivy_bus', help="Ivy bus address and port")
 parser.add_argument('-s', '--server', dest='server', default="127.0.0.1", help="NatNet server IP address")
 parser.add_argument('-m', '--multicast_addr', dest='multicast', default="239.255.42.99", help="NatNet server multicast address")
@@ -158,8 +164,6 @@ parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=
 parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
 parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
 parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
-# parser.add_argument('-zf', '--z_forward', dest='z_forward', action='store_true', help="Z-axis as forward")
-parser.add_argument('-na', '--north_angle', dest='north_angle', help="Angle in degrees to rotate the ENU system around the z-axis (can be used to achieve true north)")
 
 args = parser.parse_args()
 
@@ -178,9 +182,29 @@ period = 1. / args.freq
 track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
 
 # axes rotation definitions
-q_axes = Quat(axis=[1., 1., 1.], angle=2.*np.pi/3.)
-q_north = Quat(axis=[0., 0., 1.], angle=np.deg2rad(-args.north_angle))
-q_total = q_north * q_axes
+edge_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
+q_edge_correction = Quat(
+    axis=[0., 1., 0.],
+    angle=np.deg2rad(edge_correction[args.long_edge]))
+
+if args.x_side is not None:
+    x_correction = {'left': 0., 'far': -90., 'right': 180., 'near': 90.}
+    x_angle = x_correction[args.x_side]
+else:
+    x_angle = args.x_angle
+
+q_x_correction = Quat(
+    axis=[0., 0., 1.],
+    angle=np.deg2rad(x_angle)
+)
+q_edge_near_to_x_left = Quat(axis=[0., 1., 1.], angle=np.pi)
+    
+q_total = q_x_correction * q_edge_near_to_x_left * q_edge_correction
+nose_correction = {'left': 0., 'far': -90., 'right': 180., 'near': 90.}
+q_nose_correction = Quat(
+    axis=[0., 0., 1.],
+    angle=np.deg2rad(nose_correction[args.ac_nose] - x_angle)
+)
 
 # start ivy interface
 if args.ivy_bus is not None:
@@ -246,7 +270,7 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
         # Rotate the attitude delta to the new frame
         quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
-        quat = q_north * (q_axes * quat * q_axes.inverse)
+        quat = q_nose_correction * (q_total * quat * q_total.inverse)
         quat = quat.elements[[3, 0, 1, 2]].tolist()
 
         # Check which message to send
