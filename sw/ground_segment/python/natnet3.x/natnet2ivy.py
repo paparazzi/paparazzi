@@ -195,12 +195,12 @@ else:
 
 q_x_correction = Quat(
     axis=[0., 0., 1.],
-    angle=np.deg2rad(x_angle)
+    angle=np.deg2rad(-x_angle)
 )
 q_edge_near_to_x_left = Quat(axis=[0., 1., 1.], angle=np.pi)
     
 q_total = q_x_correction * q_edge_near_to_x_left * q_edge_correction
-nose_correction = {'left': 0., 'far': -90., 'right': 180., 'near': 90.}
+nose_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
 q_nose_correction = Quat(
     axis=[0., 0., 1.],
     angle=np.deg2rad(nose_correction[args.ac_nose] - x_angle)
@@ -265,13 +265,13 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
         vel = compute_velocity(i)
 
         # Rotate position and velocity according to the quaternions found above
-        pos = q_total.rotate([pos[0], pos[1], pos[2]]).tolist()
-        vel = q_total.rotate([vel[0], vel[1], vel[2]]).tolist()
+        pos = q_total.rotate([pos[0], pos[1], pos[2]])
+        vel = q_total.rotate([vel[0], vel[1], vel[2]])
 
         # Rotate the attitude delta to the new frame
         quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
         quat = q_nose_correction * (q_total * quat * q_total.inverse)
-        quat = quat.elements[[3, 0, 1, 2]].tolist()
+        quat = quat.elements[[1, 2, 3, 0]]
 
         # Check which message to send
         if args.rgl_msg:
