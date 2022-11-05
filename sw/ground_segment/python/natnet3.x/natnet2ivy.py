@@ -34,95 +34,130 @@ Manual installation of Ivy:
     3. sudo python3 setup.py install
 Otherwise, you can use PYTHONPATH if you don't want to install the code
 in your system
+''' 
+
+from __future__ import print_function
+
+ADDITIONAL_HELP='''
+###### Overview ######
+
+The edges of the indoor test areas are denoted like as in this diagram:
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │        ⊙ ⊙               │
+     │       ⊙ + ⊙              │
+     │        ⊙ ⊙               │
+left │                          │ right
+     │                          │
+     │                          │
+     │                          │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
+
+To forward correct East-North-Up (ENU) and Attitude Quaternion data to the 
+drone, we need to know:
+1. The orientation of the long edge of the Optitrack ground-plane tool during 
+   calibration. For ENAC, "near" is customary, for TU Delft it's "right".
+   Specify with:
+     --long_edge {left,far,right,near}
+2. The desired orientation of the resulting x/East axis. For ENAC, "left" is 
+   customary (?), for TU Delft it's "right", or -117.0 degrees
+   Specify with either:
+     --x_side {left,far,right,near}
+     --x_angle_from_left X_ANGLE_DEGREES
+3. For correct heading information, we need to know where the nose of the drone
+   (body-x) was pointing when the Motive rigid-body was created.
+   Specify with:
+    --ac_nose {left,far,right,near}
+
+Examples:
+- ENAC default (?):
+./natnet2ivy.py --long_edge near --x_side left --ac_nose near -ac 0 0  
+
+- New default for TU Delft:
+./natnet2ivy.py --long_edge right --x_side right --ac_nose far -ac 0 0  
+
+- True ENU at TU Delft:
+./natnet2ivy.py --long_edge right --x_angle -117.0 --ac_nose far -ac 0 0  
+'''
+
+'''
+##### Technical details #####
+
+       q_ground_plane           q_z_up             q_x_correction
+Optitrack ──────► y-up, x-right ──────► z-up, x-left ───+────► ENU
+   Axes                                                 │               Correct
+                                                        └─────────────► Attitude
+                                                  q_nose_correction     Quat
+
+After ground plane calibration, the optitrack axes are given below. The
+triangular template is symbolized below. It could be pointed in any direction,
+as long as the --long_edge argument is set correspondingly.
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │                          │
+     │           y              │
+     │            ⊙──· x        │
+left │            │ /           │ right
+     │            │/            │
+     │            ·             │
+     │           z              │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
 
 
+The y-up, x-right intermediate frame can be achieved with a simple rotation 
+around y:
 
-##########################
-###### Axes systems ######
-##########################
-
-The following assumes you calibrated the Optitrack ground plane as shown below,
-with the long edge of the ground plane calibration triangle towards the right 
-wall.
-For correct heading information, define your rigid body in Motive with the nose
-of the vehicle (body-x) pointing away from you and towards the far edge.
-+──────────────────────────+
-│                          │
-│                          │
-│            .             │
-│            |             │
-│            .────.        │
-│                          │
-│                          │
-│                          │
-+──────────────────────────+
-│        Observers         │
-└──────────────────────────┘
+                 far
+     +──────────────────────────+
+     │                          │
+     │                          │
+     │          y               │
+     │           ⊙──►x          │
+left │           │              │ right
+     │           ▼              │
+     │           z              │
+     │                          │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
 
 
-1. Optitrack axis system
-   Without making changes in Motive, this should be transmitted via NatNet
-+──────────────────────────+
-│                          │
-│                          │
-│             x            │
-│             ▲            │
-│             │            │
-│             ⊙──►z        │
-│           y              │
-│                          │
-│                          │
-+──────────────────────────+
-│        Observers         │
-└──────────────────────────┘
+The z-up, x-left intermediate frame is the customary resulting ENU system for
+ENAC (?). It can be achieved with a rotation around [0., 1., 1.] though π rad.
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │                          │
+     │               z          │
+     │         x ◄──⊙           │
+left │              │           │ right
+     │              ▼           │
+     │              y           │
+     │                          │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
 
 
-2. Cyberzoo axis system: DEFAULT OUTPUT
-   Per default, this program will rotate the axis to match the system below. The
-   advantage is that gps_datalink.c will understand the axes such that the North
-   of the ENU axes is pointed away from the observer, which is intuitive.
-   Rotation can be represented by a 2pi/3 rotation around the axis [1, 1, 1]
-   in the Optitrack system.
-+──────────────────────────+
-│                          │
-│                          │
-│             y            │
-│             ▲            │
-│             │            │
-│             ⊙──►x        │
-│           z              │
-│                          │
-│                          │
-+──────────────────────────+
-│        Observers         │
-└──────────────────────────┘
+The final ENU frame is another rotation around the z-axis to decide the
+direction of the resulting x-axis (East in the ENU terminology).
 
-
-3. Geographic system: 
-   Here, y points towards the geographic North, making the resulting ENU system 
-   in the drone correspond to the true magnetic directions.
-   The argument --north_angle <angle> should be used to specifcy the right-hand
-   rotation around z from the Cyberzoo axis system to the Geographic system, if
-   the user wants to use it.
-+──────────────────────────+
-│                          │
-│               y          │
-│              ▲           │
-│             /            │
-│            /             │
-│         z ⊙ \            │
-│              \► x        │
-│                          │
-│                          │
-│                          │
-+──────────────────────────+
-│        Observers         │
-└──────────────────────────┘
+To fully define the attitude quaternion, the nose orientation at creation of the
+rigid-body in motive must be known (that's when the quaternion is initialized to
+[1., 0, 0, 0])
 
 '''
 
 
-from __future__ import print_function
 
 import sys
 from os import path, getenv
@@ -143,7 +178,10 @@ from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 # parse args
-parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    epilog=ADDITIONAL_HELP,
+)
 parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
@@ -181,12 +219,18 @@ period = 1. / args.freq
 # initial track per AC
 track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
 
-# axes rotation definitions
-edge_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
-q_edge_correction = Quat(
-    axis=[0., 1., 0.],
-    angle=np.deg2rad(edge_correction[args.long_edge]))
 
+### axes rotation definitions ###
+# Ground plane calibration correction
+ground_plane_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
+q_ground_plane = Quat(
+    axis=[0., 1., 0.],
+    angle=np.deg2rad(ground_plane_correction[args.long_edge]))
+
+# Rotation between the two intermediate frames (y-up x-right --> z-up x-left)
+q_z_up = Quat(axis=[0., 1., 1.], angle=np.pi)
+
+# Desired x/East axis orientation
 if args.x_side is not None:
     x_correction = {'left': 0., 'far': -90., 'right': 180., 'near': 90.}
     x_angle = x_correction[args.x_side]
@@ -197,14 +241,17 @@ q_x_correction = Quat(
     axis=[0., 0., 1.],
     angle=np.deg2rad(-x_angle)
 )
-q_edge_near_to_x_left = Quat(axis=[0., 1., 1.], angle=np.pi)
-    
-q_total = q_x_correction * q_edge_near_to_x_left * q_edge_correction
+
+# Total axis system rotation
+q_total = q_x_correction * q_z_up * q_ground_plane
+
+# Attitude Quaternion correction    
 nose_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
 q_nose_correction = Quat(
     axis=[0., 0., 1.],
     angle=np.deg2rad(nose_correction[args.ac_nose] - x_angle)
 )
+
 
 # start ivy interface
 if args.ivy_bus is not None:
@@ -271,7 +318,7 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
         # Rotate the attitude delta to the new frame
         quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
         quat = q_nose_correction * (q_total * quat * q_total.inverse)
-        quat = quat.elements[[1, 2, 3, 0]]
+        quat = quat.elements[[1, 2, 3, 0]].tolist()
 
         # Check which message to send
         if args.rgl_msg:
