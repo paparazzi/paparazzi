@@ -37,7 +37,7 @@ NOTES:
 
   </description>
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mxs_1.0">
+    <target name="ap" board="lisa_mxs_1.0_chibios">
       <define name="REMAP_UART3" value="TRUE" />
       <!--<configure name="FLASH_MODE" value="SWD_NOPWR"/>--> <!-- Enable if flashing with black magic probe v2.0 or newer -->
       <configure name="FLASH_MODE" value="SWD"/> <!--If flashing with black magic probe v1.0-->
@@ -108,7 +108,7 @@ NOTES:
         <configure name="GPS_PORT" value="UART3"/>
       </module>-->
 
-      <!--<module name="gps" type="ubx_ucenter"/>--><!-- Not used ATM, GNSS setup manually for max perfromance-->
+      <!--<module name="gps" type="ubx_ucenter"/>--><!-- Not used ATM, GNSS setup manually for max performance-->
 
       <module name="radio_control" type="ppm">
         <!-- for debugging PPM values as default setting, enable the one below but use with correct telemetry XML document-->
@@ -142,6 +142,11 @@ NOTES:
       <module name="telemetry" type="transparent">
         <configure name="MODEM_PORT" value="UART1"/>
         <configure name="MODEM_BAUD" value="B57600"/>
+      </module>
+      
+      <module name="baro_ms5611_spi">
+        <configure name="MS5611_SPI_DEV" value="spi1"/>
+        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
       </module>
 
     </target>
@@ -234,11 +239,6 @@ NOTES:
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
-
-    <module name="baro_ms5611_spi">
-      <configure name="MS5611_SPI_DEV" value="spi1"/>
-      <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-    </module>
 
     <module name="geo_mag"/>
 
