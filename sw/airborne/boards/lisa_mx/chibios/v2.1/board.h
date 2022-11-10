@@ -1283,6 +1283,8 @@
 /**
  * I2C defines
  */
+#define	LINE_I2C1_SCL                  PAL_LINE(GPIOB, 6U)
+#define	LINE_I2C1_SDA                  PAL_LINE(GPIOB, 7U)
 #define I2C1_CLOCK_SPEED 400000
 #define I2C1_CFG_DEF {       \
            OPMODE_I2C,        \
@@ -1290,6 +1292,8 @@
            FAST_DUTY_CYCLE_2, \
            }
 
+#define	LINE_I2C2_SCL                  PAL_LINE(GPIOB, 10U)
+#define	LINE_I2C2_SDA                  PAL_LINE(GPIOB, 11U)
 #define I2C2_CLOCK_SPEED 400000
 #define I2C2_CFG_DEF {       \
            OPMODE_I2C,        \
