@@ -27,7 +27,6 @@
 #define BOARD_ST_STM32F4_LISA
 #define BOARD_NAME                  "STMicroelectronics STM32F4-Lisa MXS"
 
-
 /*
  * Board oscillators-related settings.
  * NOTE: LSE not fitted.
@@ -50,8 +49,7 @@
 /*
  * MCU type as defined in the ST header file stm32f4xx.h.
  */
-#define STM32F407xx
-
+#define STM32F405xx
 
 /*
  * I/O ports initial setup, this configuration is established soon after reset
@@ -87,7 +85,7 @@
  * PA6  - Digital input.                   (EXTSPI1_MISO)
  * PA7  - Alternate Push Pull output 50MHz (EXTSPI1_MOSI)
  * PA8  - Open Drain output 50MHz          (LED1)
- * PA9  - Digital input.                   (USB_VBUS)
+ * PA9  - Alternate Push Pull output 50MHz (USB_VBUS / (UART1_Tx )
  * PA10 - Digital input.                   (UART1_Rx / PPM_IN Timer1Ch3)
  * PA11 - Alternate input                  (USB_DM)
  * PA12 - Alternate input                  (USB_DP)
@@ -95,6 +93,8 @@
  * PA14 - Digital input                    (JTAG_TCK/SWCLCK)
  * PA15 - Digital input                    (JTAG_TDI)
  */
+
+
 #define VAL_GPIOA_MODER             (PIN_MODE_ALTERNATE(0)| \
                                      PIN_MODE_ALTERNATE(1) | \
                                      PIN_MODE_ALTERNATE(2) | \
@@ -104,7 +104,7 @@
                                      PIN_MODE_ALTERNATE(6)     | \
                                      PIN_MODE_ALTERNATE(7) | \
                                      PIN_MODE_OUTPUT(8)    | \
-                                     PIN_MODE_INPUT(9)     | \
+                                     PIN_MODE_ALTERNATE(9)     | \
                                      PIN_MODE_ALTERNATE(10)    | \
                                      PIN_MODE_ALTERNATE(11)    | \
                                      PIN_MODE_ALTERNATE(12)    | \
@@ -184,7 +184,7 @@
                                      PIN_AFIO_AF(6, 5)  | \
                                      PIN_AFIO_AF(7, 5))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(8, 0)  | \
-                                     PIN_AFIO_AF(9, 0)   | \
+                                     PIN_AFIO_AF(9, 7)   | \
                                      PIN_AFIO_AF(10, 1) | \
                                      PIN_AFIO_AF(11, 10) | \
                                      PIN_AFIO_AF(12, 10) | \

@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Lisa_MX_2.1_chibios.makefile
+# Lisa_MXS_1.0_chibios.makefile
 #
 #
 
@@ -30,20 +30,59 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
-CHIBIOS_BOARD_LINKER = STM32F407xG.ld
+CHIBIOS_BOARD_LINKER = STM32F405xG.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f4xx.mk
 
-# bootloader for Lisa MX is available from https://github.com/podhrmic/aggieair-bootloader
-HAS_LUFTBOOT ?= 0
-ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
-$(TARGET).CFLAGS+=-DLUFTBOOT
-DFU_ADDR = 0x8004000
-DFU_PRODUCT = Lisa/Lia
-endif
+HAS_LUFTBOOT = FALSE
 
 ##############################################################################
 # Compiler settings
 #
-MCU  = cortex-m4
+MCU = cortex-m4
 
-include $(PAPARAZZI_SRC)/conf/boards/lisa_mx_defaults.makefile
+FLASH_MODE ?= SWD_NOPWR
+
+#
+# default LED configuration
+#
+RADIO_CONTROL_LED  ?= none
+BARO_LED           ?= none
+AHRS_ALIGNER_LED   ?= none
+GPS_LED            ?= none
+SYS_TIME_LED       ?= 1
+LOGGER_LED         ?= none
+
+#
+# default uart configuration
+#
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
+
+SBUS_PORT ?= UART2
+
+MODEM_PORT ?= UART1
+MODEM_BAUD ?= B57600
+
+GPS_PORT ?= UART3
+GPS_BAUD ?= B38400
+
+#
+# default PPM input is on PA01 (SERVO6)
+#
+RADIO_CONTROL_PPM_PIN ?= PA01
+ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 PA10 UART1_RX))
+  PPM_CONFIG=1
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01 PA1 SERVO6))
+  PPM_CONFIG=2
+else
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01 or PA10)
+endif
+
+#
+# default actuator configuration
+#
+# you can use different actuators by adding a configure option to your firmware section
+# e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+# and by setting the correct "driver" attribute in servo section
+# e.g. <servo driver="Ppm">
+#
+ACTUATORS ?= actuators_pwm
