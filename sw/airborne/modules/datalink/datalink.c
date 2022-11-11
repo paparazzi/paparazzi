@@ -68,7 +68,7 @@ void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, ui
   pprzlink_msg_send_PONG(&msg);
 }
 
-void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
+void WEAK dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
 {
   uint8_t msg_id = pprzlink_get_msg_id(buf);
   uint8_t class_id = pprzlink_get_msg_class_id(buf);
