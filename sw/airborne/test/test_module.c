@@ -27,7 +27,6 @@
 
 #include BOARD_CONFIG
 
-#define DATALINK_C
 #define MODULES_C
 #define ABI_C
 
@@ -71,6 +70,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  datalink_init();
   downlink_init();
 
   modules_init();

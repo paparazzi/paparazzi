@@ -37,8 +37,6 @@ bool rc_event_1, rc_event_2;
 uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
-uint16_t datalink_time = 0;
-uint16_t datalink_nb_msgs = 0;
 
 #ifndef SIM_UPDATE_DL
 #define SIM_UPDATE_DL TRUE

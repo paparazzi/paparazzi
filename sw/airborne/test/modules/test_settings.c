@@ -25,8 +25,6 @@
  * Test persistent settings, use together with conf/settings/test_settings.xml
  */
 
-#define DATALINK_C
-
 #include BOARD_CONFIG
 
 #include "std.h"
@@ -72,7 +70,7 @@ static inline void main_init(void)
   settings_init();
   pprz_dl_init();
 
-
+  datalink_init();
 #if DOWNLINK
   downlink_init();
 #endif

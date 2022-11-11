@@ -21,8 +21,6 @@
 
 #include <inttypes.h>
 
-#define DATALINK_C
-
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Main_*
  */
@@ -79,6 +77,7 @@ static inline void main_init(void)
   modules_init();
   ahrs_init();
   pprz_dl_init();
+  datalink_init();
   downlink_init();
 
 }

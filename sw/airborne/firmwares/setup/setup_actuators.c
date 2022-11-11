@@ -22,7 +22,6 @@
  *
  */
 
-#define DATALINK_C
 #define MODULES_C
 
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
@@ -71,7 +70,7 @@ int main(void)
 static inline void main_init(void)
 {
   mcu_init();
-
+  datalink_init();
   downlink_init();
   pprz_dl_init();
 
