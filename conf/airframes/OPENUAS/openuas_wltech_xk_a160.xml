@@ -25,8 +25,7 @@ NOTES:
      + Uses PAPARAZZI "standard" radio channel settings
      + A 650mAh battery, expect flighttimes of ~15 minutes at 10m/s
 
- WIP:
-     + The driver for the Magnetometer is not working well and thus code is not in this branch
+
 
  Launching
      + 1) Set TX to AUTO2, or if no TX it is AUTO2
@@ -37,11 +36,10 @@ NOTES:
 
   </description>
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mxs_1.0">
-      <define name="REMAP_UART3" value="TRUE" />
-      <!--<configure name="FLASH_MODE" value="SWD_NOPWR"/>--> <!-- Enable if flashing with black magic probe v2.0 or newer -->
-      <configure name="FLASH_MODE" value="SWD"/> <!--If flashing with black magic probe v1.0-->
-      <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
+    <target name="ap" board="lisa_mxs_1.0_chibios">
+      <define name="REMAP_UART3" value="TRUE" />     
+      <!--<configure name="FLASH_MODE" value="SWD"/>--> <!--Enable when flashing with black magic probe v1.0-->
+      <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>-->
 
       <!--<define name="AHRS_ALIGNER_SAMPLES_NB" value="600"/>-->
       <!--<define name="LOW_NOISE_THRESHOLD" value="30000"/>-->
@@ -50,7 +48,7 @@ NOTES:
       <configure name="CPU_LED" value="1"/> <!-- Change to whatever you like -->
 
       <!-- Note that PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
-      <configure name="PERIODIC_FREQUENCY" value="512"/>
+      <configure name="PERIODIC_FREQUENCY" value="500"/>
 
       <define name="MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
       <define name="MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
@@ -64,7 +62,7 @@ NOTES:
       <configure name="NAVIGATION_FREQUENCY" value="16"/>
       <configure name="CONTROL_FREQUENCY" value="120"/>
       <configure name="TELEMETRY_FREQUENCY" value="60"/>
-      <configure name="MODULES_FREQUENCY" value="512"/>
+      <configure name="MODULES_FREQUENCY" value="500"/>
       
       <!-- <module name="filter_1euro_imu">
         <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
@@ -72,7 +70,7 @@ NOTES:
       </module>-->
 
       <module name="imu" type="mpu6000">
-        <define name="USE_SPI2"/>
+       <define name="USE_SPI2"/>
         <define name="USE_SPI_SLAVE2"/>
         <configure name="IMU_MPU_SPI_DEV" value="spi2"/>
         <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
@@ -102,13 +100,18 @@ NOTES:
       -->
 
       <module name="actuators" type="pwm"/>
+      
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="UART1"/>
+        <configure name="MODEM_BAUD" value="B57600"/>
+      </module>
 
-<!--      <module name="gps" type="ublox">
-        <configure name="GPS_BAUD" value="B460800"/>
+      <module name="gps" type="ublox">
         <configure name="GPS_PORT" value="UART3"/>
-      </module>-->
+        <configure name="GPS_BAUD" value="B460800"/>
+      </module>
 
-      <!--<module name="gps" type="ubx_ucenter"/>--><!-- Not used ATM, GNSS setup manually for max perfromance-->
+      <!--<module name="gps" type="ubx_ucenter"/>--><!-- Not used ATM, GNSS setup manually for max performance-->
 
       <module name="radio_control" type="ppm">
         <!-- for debugging PPM values as default setting, enable the one below but use with correct telemetry XML document-->
@@ -139,11 +142,11 @@ NOTES:
 
       <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
 
-      <module name="telemetry" type="transparent">
-        <configure name="MODEM_PORT" value="UART1"/>
-        <configure name="MODEM_BAUD" value="B57600"/>
+      <module name="baro_ms5611_spi">
+        <configure name="MS5611_SPI_DEV" value="spi1"/>
+        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
       </module>
-
+      
     </target>
 
     <target name="sim" board="pc">
@@ -181,7 +184,7 @@ NOTES:
       <!--<module name="radio_control" type="datalink"/>-->
       <module name="udp"/><!--FIXME-->
     </target>
-
+    
     <define name="RADIO_CONTROL_AUTO1"/><!--FIXME: not working in JSBSim target-->
 
     <define name="AGR_CLIMB"/> 
@@ -204,11 +207,6 @@ NOTES:
     <!--<define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/>--> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
    <!-- If AHRS_MAG_CORRECT_FREQUENCY is set outside of target no need USE_MAGNETOMETER it is assumed TRUE -->
     <!--<configure name="USE_MAGNETOMETER" value="FALSE"/>--><!-- should be as in USE the device-->
-
-    <module name="gps" type="ublox">
-      <configure name="GPS_BAUD" value="B460800"/>
-      <configure name="GPS_PORT" value="UART3"/>
-    </module>
 
     <module name="ahrs" type="float_cmpl_quat"> <!-- Compare e.g. float_dcm, float_cmpl_quat -->
       <!--<define name="AHRS_ACCEL_ZETA" value="2.1"/>--><!-- default 0.063, see ahrs_float_cmpl.c -->
@@ -234,11 +232,6 @@ NOTES:
     <module name="navigation"/>
     <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
-
-    <module name="baro_ms5611_spi">
-      <configure name="MS5611_SPI_DEV" value="spi1"/>
-      <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
-    </module>
 
     <module name="geo_mag"/>
 
