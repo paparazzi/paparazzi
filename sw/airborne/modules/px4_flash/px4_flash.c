@@ -33,6 +33,7 @@
 #include "mcu_periph/uart.h"
 #include "mcu_periph/usb_serial.h"
 
+#include "mcu.h"
 #include "led.h"
 #include "mcu_arch.h"
 
@@ -135,7 +136,7 @@ void px4flash_event(void)
     if (target == '1') { //target ap
       //the target is the ap, so reboot to PX4 bootloader
 #if defined(CHIBIOS_MCU_ARCH_H)
-      NVIC_SystemReset();
+      mcu_reboot(MCU_REBOOT_BOOTLOADER);
 #elif defined(STM32_MCU_ARCH_H) 
       scb_reset_system();
 #endif
