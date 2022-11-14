@@ -122,8 +122,17 @@ extern uint8_t autopilot_get_mode(void);
 extern void autopilot_reset_flight_time(void);
 #define autopilot_ResetFlightTimeAndLaunch(_) autopilot_reset_flight_time()
 
+/**
+ * @brief Force start/stop the motors
+ * WARNING This will skip he preflight checks
+ * 
+ * @param motors_on Wheter the motors should be forced on/off
+ */
+extern void autopilot_force_motors_on(bool motors_on);
+
 /** Start or stop motors
  *  May have no effect if motors has auto-start based on throttle setpoint
+ *  or when the preflight checks are failing.
  *
  * @param[in] motors_on true to start motors, false to stop
  */
