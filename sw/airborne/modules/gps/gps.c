@@ -77,6 +77,20 @@ static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 
 uint8_t multi_gps_mode;
 
+#if PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t gps_pfc;
+
+static void gps_preflight(struct preflight_result_t *result) {
+  if(!gps_fix_valid()) {
+    preflight_error(result, "No valid GPS fix");
+  } else {
+    preflight_success(result, "GPS fix ok");
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -351,6 +365,11 @@ void gps_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SVINFO, send_svinfo);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RTK, send_gps_rtk);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RXMRTCM, send_gps_rxmrtcm);
+#endif
+
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&gps_pfc, gps_preflight);
 #endif
 
   // Initializing counter variables to count the number of Rtcm msgs in the input stream(for each msg type)

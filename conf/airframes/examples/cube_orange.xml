@@ -73,6 +73,7 @@
       <define name="RADIO_KILL_SWITCH" value="0"/>
     </target>
 
+    <module name="preflight_checks"/>
     <module name="telemetry"     type="transparent">
       <configure name="MODEM_BAUD" value="B115200"/>
       <configure name="MODEM_PORT" value="usb_serial"/>
