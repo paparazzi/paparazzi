@@ -65,7 +65,6 @@
       <define name="USE_SONAR"/>
       <define name="SENSOR_SYNC_SEND_SONAR"/>
     </module>-->
-    <module name="send_imu_mag_current"/>
     <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
 
     <!--Switch advanced INDI scheduling functions on or off-->
@@ -252,6 +251,7 @@
   </section>
 
   <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
     <define name="MODE_AUTO1"  value="AP_MODE_FORWARD"/>
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
@@ -267,10 +267,11 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="ele_left, ele_right, mot, none1, none2, none3, none4, ele_right" type="string[]"/>
+    <define name="ACTUATOR_NAMES" value="ele_left, ele_right, mot" type="string[]"/>
     <define name="JSBSIM_MODEL" value="disco_rotorcraft" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
+    <define name="COMMANDS_NB" value="3"/>
   </section>
 
 </airframe>

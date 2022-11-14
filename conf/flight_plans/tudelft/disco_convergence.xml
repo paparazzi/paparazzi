@@ -3,8 +3,8 @@
 <flight_plan alt="70" ground_alt="0" lat0="52.1682089" lon0="4.4128499" max_dist_from_home="500" name="Altura fp Valkenburg" security_height="30">
   <header>
     #include "autopilot.h"
-    #include "subsystems/datalink/datalink.h"
-    #include "subsystems/radio_control.h"
+    #include "modules/datalink/datalink.h"
+    #include "modules/radio_control/radio_control.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -33,9 +33,14 @@
     </sector>
   </sectors>
   <exceptions>
-    <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 1500) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point'))" deroute="ReturnStbyNoThrottle"/>
-    <exception cond="datalink_time > 25 && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
-    <exception cond="radio_control.status == RC_REALLY_LOST && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
+    <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 1500) &&
+    !(nav_block @LEQ IndexOfBlock('Holding point'))" deroute="ReturnStbyNoThrottle"/>
+    <exception cond="datalink_time @GT 25 &&
+    !(nav_block @LEQ IndexOfBlock('Holding point')) &&
+    !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
+    <exception cond="radio_control.status == RC_REALLY_LOST &&
+    !(nav_block @LEQ IndexOfBlock('Holding point')) &&
+    !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -73,28 +78,14 @@
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <while cond="true">
-        <go from="p1" hmode="route" wp="p2"/>
-        <go from="p2" hmode="route" wp="p3"/>
-        <go from="p3" hmode="route" wp="p4"/>
-        <go from="p4" hmode="route" wp="p1"/>
+        <path wpts="p1,p2,p3,p4"/>
       </while>
     </block>
     <block name="route_run">
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <while cond="true">
-        <go from="p1" hmode="route" wp="p2"/>
-        <go from="p2" hmode="route" wp="p3"/>
-        <go from="p3" hmode="route" wp="p4"/>
-        <go from="p4" hmode="route" wp="p5"/>
-        <go from="p5" hmode="route" wp="p6"/>
-        <go from="p6" hmode="route" wp="p7"/>
-        <go from="p7" hmode="route" wp="p8"/>
-        <go from="p8" hmode="route" wp="p5"/>
-        <go from="p5" hmode="route" wp="p6"/>
-        <go from="p6" hmode="route" wp="p7"/>
-        <go from="p7" hmode="route" wp="p8"/>
-        <go from="p8" hmode="route" wp="p1"/>
+        <path wpts="p1,p2,p3,p4,p5,p6,p7,p8,p5,p6,p7,p8"/>
       </while>
     </block>
     <block name="ReturnStbyNoThrottle">
