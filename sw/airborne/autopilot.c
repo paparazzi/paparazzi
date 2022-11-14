@@ -39,6 +39,7 @@
 #include "modules/core/commands.h"
 #include "modules/datalink/telemetry.h"
 #include "modules/core/abi.h"
+#include "modules/checks/preflight_checks.h"
 
 #include "modules/core/settings.h"
 #include "generated/settings.h"
@@ -226,10 +227,9 @@ void autopilot_reset_flight_time(void)
   autopilot.launch = false;
 }
 
-/** turn motors on/off, eventually depending of the current mode
- *  set kill_throttle accordingly FIXME is it true for FW firmware ?
+/** Force the motors on/off skipping preflight checks
  */
-void autopilot_set_motors_on(bool motors_on)
+void autopilot_force_motors_on(bool motors_on)
 {
 #if USE_GENERATED_AUTOPILOT
   autopilot_generated_set_motors_on(motors_on);
@@ -237,6 +237,20 @@ void autopilot_set_motors_on(bool motors_on)
   autopilot_static_set_motors_on(motors_on);
 #endif
   autopilot.kill_throttle = ! autopilot.motors_on;
+}
+
+/** turn motors on/off, eventually depending of the current mode
+ *  set kill_throttle accordingly FIXME is it true for FW firmware ?
+ */
+void autopilot_set_motors_on(bool motors_on)
+{
+#if PREFLIGHT_CHECKS
+  // When we fail the preflight checks abort
+  if(motors_on && !preflight_check()) {
+    return;
+  }
+#endif
+  autopilot_force_motors_on(motors_on);
 }
 
 /** get motors status

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2022 Freek van Tienen <freek.v.tienen@gmail.com>
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +18,25 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file firmwares/rover/autopilot_utils.h
- *
- * Utility functions and includes for autopilots
- *
+/** 
+ * @file "modules/checks/preflight_checks.h"
+ * @author Freek van Tienen <freek.v.tienen@gmail.com>
+ * Adds preflight checks for takeoff
  */
 
-#ifndef AUTOPILOT_UTILS_H
-#define AUTOPILOT_UTILS_H
+#ifndef PREFLIGHT_CHECKS_H
+#define PREFLIGHT_CHECKS_H
 
 #include "std.h"
-#include "modules/core/commands.h"
 
-extern uint8_t ap_mode_of_3way_switch(void);
+typedef bool (*preflight_check_f)(char *error_msg);
 
-extern void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight, bool motors_on);
+struct preflight_check_t {
+  preflight_check_f func;
+  struct preflight_check_t *next;
+};
 
-// in case, backward compatibility macro
-#define SetRotorcraftCommands(_cmd, _in_flight, _motors_on) set_rotorcraft_commands(commands, _cmd, _in_flight, _motors_on)
+extern void preflight_check_register(struct preflight_check_t *check, preflight_check_f func);
+extern bool preflight_check(void);
 
-#endif // AUTOPILOT_UTILS_H
-
+#endif /* PREFLIGHT_CHECKS_H */

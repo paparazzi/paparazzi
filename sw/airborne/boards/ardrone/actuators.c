@@ -192,7 +192,7 @@ void actuators_ardrone_motor_status(void)
     if (autopilot_get_motors_on()) {
       if (last_motor_on) {
         // Tell paparazzi that one motor has stalled
-        autopilot_set_motors_on(FALSE);
+        autopilot_set_motors_on(false);
       } else {
         // Toggle Flipflop reset so motors can be re-enabled
         reset_flipflop_counter = 20;

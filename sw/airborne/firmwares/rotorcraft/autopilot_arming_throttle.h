@@ -103,12 +103,12 @@ static inline void autopilot_arming_check_motors_on(void)
 
     switch (autopilot_arming_state) {
       case STATE_UNINIT:
-        autopilot.motors_on = false;
+        autopilot_set_motors_on(false);
         autopilot_arming_delay_counter = 0;
         autopilot_arming_state = STATE_WAITING;
         break;
       case STATE_WAITING: // after startup wait until throttle is down before attempting to arm
-        autopilot.motors_on = false;
+        autopilot_set_motors_on(false);
         autopilot_arming_delay_counter = 0;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
@@ -117,14 +117,14 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_MOTORS_OFF_READY:
-        autopilot.motors_on = false;
+        autopilot_set_motors_on(false, false);
         autopilot_arming_delay_counter = 0;
         if (autopilot_arming_check_valid()) {
           autopilot_arming_state = STATE_ARMING;
         }
         break;
       case STATE_ARMING:
-        autopilot.motors_on = false;
+        autopilot_set_motors_on(false);
         autopilot_arming_delay_counter++;
         if (!autopilot_arming_check_valid()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
@@ -135,7 +135,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_MOTORS_ON:
-        autopilot.motors_on = true;
+        autopilot_set_motors_on(true);
         autopilot.arming_status = AP_ARMING_STATUS_ARMED;
         autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN()) {
@@ -143,7 +143,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_UNARMING:
-        autopilot.motors_on = true;
+        autopilot_set_motors_on(true);
         autopilot.arming_status = AP_ARMING_STATUS_DISARMING;
         autopilot_arming_delay_counter--;
         if (!THROTTLE_STICK_DOWN()) {
