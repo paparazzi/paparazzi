@@ -33,6 +33,9 @@
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
             <define name="USE_I2C1"/>
+
+            <!-- Log in high speed (Remove for outdoor flights) -->
+            <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/>
         </target>
 
         <target name="nps" board="pc">
@@ -261,9 +264,6 @@
         <define name="BODY_TO_IMU_PHI"      value="180." unit="deg"/>
         <define name="BODY_TO_IMU_THETA"    value="0." unit="deg"/>
         <define name="BODY_TO_IMU_PSI"      value="0." unit="deg"/>
-
-        <!-- Log in high speed -->
-        <define name="LOG_HIGHSPEED"        value="TRUE"/>
     </section>
 
     <section name="MAG_RM3100" prefix="RM3100_">
