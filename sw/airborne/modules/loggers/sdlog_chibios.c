@@ -106,6 +106,20 @@ static enum {
 static char chibios_sdlog_filenames[68];
 static char NO_FILE_NAME[] = "none";
 
+#if PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t sdlog_pfc;
+
+static void sdlog_preflight(struct preflight_result_t *result) {
+  if(chibios_sdlog_status != SDLOG_RUNNING) {
+    preflight_error(result, "SDLogger is not running [%d: %d]", chibios_sdlog_status, sdLogGetStorageStatus());
+  } else {
+    preflight_success(result, "SDLogger running");
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
@@ -182,6 +196,10 @@ void sdlog_chibios_init(void)
   chibios_sdlog_status = SDLOG_STOPPED;
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LOGGER_STATUS, send_sdlog_status);
+#endif
+
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&sdlog_pfc, sdlog_preflight);
 #endif
 
   // Start polling on USB
