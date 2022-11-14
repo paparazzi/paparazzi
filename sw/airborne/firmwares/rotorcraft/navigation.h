@@ -231,11 +231,11 @@ extern bool nav_detect_ground(void);
 /* switching motors on/off */
 static inline void NavKillThrottle(void)
 {
-  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); }
+  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(false); }
 }
 static inline void NavResurrect(void)
 {
-  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); }
+  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(true); }
 }
 
 
