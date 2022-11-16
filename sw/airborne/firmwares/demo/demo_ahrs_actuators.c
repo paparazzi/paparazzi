@@ -124,7 +124,7 @@ static inline void main_periodic_task(void)
     modules_periodic_task();
   }
   RunOnceEvery(10, { LED_PERIODIC();});
-  RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
+  RunOnceEvery(PERIODIC_FREQUENCY, { datalink_periodic(); });
   periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
 
   modules_periodic_task();

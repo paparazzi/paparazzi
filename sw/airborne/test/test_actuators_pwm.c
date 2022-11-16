@@ -25,8 +25,6 @@
  */
 
 
-#define DATALINK_C
-
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Main_*
  */
@@ -72,6 +70,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  datalink_init();
   downlink_init();
   pprz_dl_init();
   ActuatorsPwmInit();

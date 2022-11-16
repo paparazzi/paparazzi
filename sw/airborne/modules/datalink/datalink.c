@@ -25,7 +25,6 @@
  *
  */
 
-#define DATALINK_C
 #define MODULES_DATALINK_C
 
 #include "datalink.h"
@@ -36,21 +35,21 @@
 
 #include "pprzlink/messages.h"
 
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
-#include "modules/radio_control/radio_control.h"
-#endif
-
-#if USE_GPS
-#include "modules/gps/gps.h"
-#endif
-
-#ifdef RADIO_CONTROL_DATALINK_LED
-#include "led.h"
-#endif
+bool dl_msg_available;
+uint16_t datalink_time;
+uint16_t datalink_nb_msgs;
+uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 #if USE_NPS
 bool datalink_enabled = true;
 #endif
+
+void datalink_init(void)
+{
+  dl_msg_available = false;
+  datalink_time = 0;
+  datalink_nb_msgs = 0;
+}
 
 void datalink_periodic(void)
 {
@@ -69,7 +68,7 @@ void datalink_parse_PING(struct link_device *dev, struct transport_tx *trans, ui
   pprzlink_msg_send_PONG(&msg);
 }
 
-void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
+void WEAK dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
 {
   uint8_t msg_id = pprzlink_get_msg_id(buf);
   uint8_t class_id = pprzlink_get_msg_class_id(buf);

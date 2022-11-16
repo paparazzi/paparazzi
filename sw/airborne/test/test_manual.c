@@ -24,9 +24,6 @@
  * Test the manual control via RC including command_laws.
  */
 
-
-#define DATALINK_C
-
 #include "generated/airframe.h"
 #include "generated/settings.h"
 
@@ -76,6 +73,7 @@ int main(void)
 static inline void main_init(void)
 {
   mcu_init();
+  datalink_init();
   downlink_init();
   pprz_dl_init();
 

@@ -21,7 +21,6 @@
 
 #include <inttypes.h>
 
-#define DATALINK_C
 #define ABI_C
 #define MODULES_C
 
@@ -83,8 +82,7 @@ static inline void main_init(void)
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 
   modules_init();
-
-
+  datalink_init();
   downlink_init();
   pprz_dl_init();
 

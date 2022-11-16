@@ -11,6 +11,7 @@
     <file name="datalink.h"/>
     <file name="downlink.h"/>
   </header>
+  <init fun="datalink_init()"/>
   <init fun="downlink_init()"/>
   <periodic fun="telemetry_reporting_task()"/>
   <periodic fun="datalink_periodic()" freq="1"/>

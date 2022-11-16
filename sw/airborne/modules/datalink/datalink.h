@@ -27,12 +27,6 @@
 #ifndef DATALINK_H
 #define DATALINK_H
 
-#ifdef DATALINK_C
-#define EXTERN
-#else
-#define EXTERN extern
-#endif
-
 #include "std.h"
 #include "pprzlink/dl_protocol.h"
 
@@ -44,22 +38,22 @@
 #define BLUEGIGA 5
 
 /** Flag provided to control calls to ::dl_parse_msg. NOT used in this module*/
-EXTERN bool dl_msg_available;
+extern bool dl_msg_available;
 
 /** time in seconds since last datalink message was received */
-EXTERN uint16_t datalink_time;
+extern uint16_t datalink_time;
 
 /** number of datalink/uplink messages received */
-EXTERN uint16_t datalink_nb_msgs;
+extern uint16_t datalink_nb_msgs;
 
 #define MSG_SIZE 256
-EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
+extern uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 /** Should be called when chars are available in dl_buffer */
-EXTERN void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
+extern void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 #if USE_NPS
-EXTERN bool datalink_enabled;
+extern bool datalink_enabled;
 #endif
 
 /** Convenience macro to fill dl_buffer */
@@ -71,6 +65,9 @@ EXTERN bool datalink_enabled;
   } \
   dl_msg_available = true; \
 }
+
+/** init function */
+extern void datalink_init(void);
 
 /** periodic function, should be called at 1Hz */
 extern void datalink_periodic(void);

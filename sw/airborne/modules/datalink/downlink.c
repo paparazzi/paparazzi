@@ -71,10 +71,6 @@ void downlink_init(void)
   (DefaultDevice).device.nb_bytes = 0;
   (DefaultDevice).device.nb_msgs = 0;
 
-#if defined DATALINK
-  datalink_nb_msgs = 0;
-#endif
-
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DATALINK_REPORT, send_downlink);
 #endif

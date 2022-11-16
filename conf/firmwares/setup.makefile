@@ -101,7 +101,7 @@ setup_actuators.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 SETUP_ACTUATORS_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_PORT_LOWER) -DPPRZ_UART=$(SETUP_ACTUATORS_MODEM_PORT_LOWER)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-setup_actuators.srcs += modules/datalink/downlink.c pprzlink/src/pprz_transport.c modules/datalink/pprz_dl.c
+setup_actuators.srcs += modules/datalink/downlink.c modules/datalink/datalink.c pprzlink/src/pprz_transport.c modules/datalink/pprz_dl.c
 
 setup_actuators.srcs   += modules/actuators/actuators.c
 setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c
