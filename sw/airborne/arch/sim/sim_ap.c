@@ -1,8 +1,6 @@
 /* Definitions and declarations required to compile autopilot code on a
    i386 architecture. Bindings for OCaml. */
 
-#define MODULES_C
-
 #include <stdio.h>
 #include <assert.h>
 #include <sys/time.h>
