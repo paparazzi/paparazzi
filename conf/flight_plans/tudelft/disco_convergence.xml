@@ -1,11 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="70" ground_alt="0" lat0="52.1682089" lon0="4.4128499" max_dist_from_home="500" name="Altura fp Valkenburg" security_height="30">
-  <header>
-    #include "autopilot.h"
-    #include "modules/datalink/datalink.h"
-    #include "modules/radio_control/radio_control.h"
-</header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="26.6" y="23.2"/>

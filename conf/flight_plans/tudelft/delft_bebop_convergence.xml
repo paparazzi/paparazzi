@@ -1,12 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="5" ground_alt="0" lat0="51 59 27.6" lon0="4 22 42.0" max_dist_from_home="200" name="Delft Basic" security_height="2">
-  <header>
-    #include "autopilot.h"
-    #include "modules/datalink/datalink.h"
-    #include "modules/energy/electrical.h"
-    #include "modules/radio_control/radio_control.h"
-</header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
@@ -41,34 +35,34 @@
     </sector>
   </sectors>
   <exceptions>
-    <exception cond="Or(!InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 20) &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
+    <exception cond="Or(!InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 20) @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
       !(nav_block @GEQ IndexOfBlock('landed'))" deroute="descend att 0"/>
-    <exception cond="!InsideSoft_Geo(GetPosX(), GetPosY()) &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
+    <exception cond="!InsideSoft_Geo(GetPosX(), GetPosY()) @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
       !(nav_block @GEQ IndexOfBlock('landed'))" deroute="ComeBackAndLand"/>
-    <exception cond="GetPosAlt() @GT GetAltRef() + 15 &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
+    <exception cond="GetPosAlt() @GT GetAltRef() + 15 @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
       !(nav_block @GEQ IndexOfBlock('land here'))" deroute="land here"/>
-    <exception cond="((radio_control.status == RC_REALLY_LOST) &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
-      !(nav_block @GEQ IndexOfBlock('land here')) &&
+    <exception cond="((radio_control.status == RC_REALLY_LOST) @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
-    <exception cond="(datalink_time @GT 20 &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
-      !(nav_block @GEQ IndexOfBlock('land here')) &&
+    <exception cond="(datalink_time @GT 20 @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="descend att 0"/>
-    <exception cond="(datalink_time @GT 10 &&
-      !(IndexOfBlock('Takeoff') @GEQ nav_block) &&
-      !(nav_block @GEQ IndexOfBlock('land here')) &&
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GEQ nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
-    <exception cond="(electrical.bat_low &&
-      !(IndexOfBlock('Holding point') @GEQ nav_block) &&
-      !(nav_block @GEQ IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_low @AND
+      !(IndexOfBlock('Holding point') @GEQ nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="ComeBackAndLand"/>
-    <exception cond="(electrical.bat_critical &&
-      !(IndexOfBlock('Holding point') @GEQ nav_block) &&
-      !(nav_block @GEQ IndexOfBlock('land here')) &&
+    <exception cond="(electrical.bat_critical @AND
+      !(IndexOfBlock('Holding point') @GEQ nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
   <blocks>
