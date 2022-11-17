@@ -34,16 +34,123 @@ Manual installation of Ivy:
     3. sudo python3 setup.py install
 Otherwise, you can use PYTHONPATH if you don't want to install the code
 in your system
+''' 
+
+from __future__ import print_function
+
+ADDITIONAL_HELP='''
+###### Overview ######
+
+The edges of the indoor test areas are denoted like as in this diagram:
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │        ⊙ ⊙               │
+     │       ⊙ + ⊙              │
+     │        ⊙ ⊙               │
+left │                          │ right
+     │                          │
+     │                          │
+     │                          │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
+
+To forward correct East-North-Up (ENU) and Attitude Quaternion data to the 
+drone, we need to know:
+1. The Optitrack Up axis streaming option. The native axis gives Y-Up, but
+   it is possible to set it to Z-Up in Motive
+   Specify with:
+     --up_axis {y_up,z_up}
+     no parameter is equal to y_up
+2. The orientation of the long edge of the Optitrack ground-plane tool during 
+   calibration. For ENAC, "near" is customary, for TU Delft it's "right".
+   Specify with:
+     --long_edge {left,far,right,near}
+3. The desired orientation of the resulting x/East axis. For ENAC, "right" is 
+   customary, for TU Delft it's "right", or -23.0 degrees
+   Specify with either:
+     --x_side {left,far,right,near}
+     --x_angle_from_right X_ANGLE_DEGREES
+4. For correct heading information, we need to know where the nose of the drone
+   (body-x) was pointing when the Motive rigid-body was created.
+   Specify with:
+    --ac_nose {left,far,right,near}
+
+Examples:
+- ENAC default:
+./natnet2ivy.py --up_axis z_up --long_edge near --x_side right --ac_nose far -ac 0 0  
+
+- New default for TU Delft:
+./natnet2ivy.py --long_edge right --x_side right --ac_nose far -ac 0 0  
+
+- True ENU at TU Delft:
+./natnet2ivy.py --long_edge right --x_angle_from_right -23.0 --ac_nose far -ac 0 0  
+'''
+
+'''
+##### Technical details #####
+
+           q_z_up             q_ground_plane     q_x_correction
+Optitrack ──────► z-up ──────► z-up, x-left ───+────► ENU
+   Axes                                                 │               Correct
+                                                        └─────────────► Attitude
+                                                  q_nose_correction     Quat
+
+After ground plane calibration, the optitrack axes are given below. The
+triangular template is symbolized below. It could be pointed in any direction,
+as long as the --long_edge argument is set correspondingly.
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │                          │
+     │           y              │
+     │            ⊙──· x        │
+left │            │ /           │ right
+     │            │/            │
+     │            ·             │
+     │           z              │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
+
+
+The z-up intermediate frame can be achieved with a simple rotation 
+around x:
+
+                 far
+     +──────────────────────────+
+     │                          │
+     │          y^              │
+     │           |              │
+     │          z⊙──►x          │
+left │                          │ right
+     │                          │
+     │                          │
+     │                          │
+     +──────────────────────────+
+     │    Observers  (near)     │
+     └──────────────────────────┘
+
+
+The final ENU frame is another rotation around the z-axis to decide the
+direction of the resulting x-axis (East in the ENU terminology).
+
+To fully define the attitude quaternion, the nose orientation at creation of the
+rigid-body in motive must be known (that's when the quaternion is initialized to
+[1., 0, 0, 0])
 
 '''
 
 
-from __future__ import print_function
 
 import sys
 from os import path, getenv
 from time import time, sleep
 import numpy as np
+from pyquaternion import Quaternion as Quat
 from collections import deque
 import argparse
 
@@ -58,9 +165,19 @@ from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 # parse args
-parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    epilog=ADDITIONAL_HELP,
+)
+parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
+group.add_argument('-xa', '--x_angle_from_right', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the right")
+parser.add_argument('-up', '--up_axis', dest='up_axis', choices=['y_up', 'z_up'], default='y_up', help="Optitrack Up axis: y_up or z_up.")
+parser.add_argument('-an', '--ac_nose', required=True, dest='ac_nose', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the nose of the drone was pointing at when definition the rigid body")
 parser.add_argument('-ac', action='append', nargs=2,
-                    metavar=('rigid_id','ac_id'), help='pair of rigid body and A/C id (multiple possible)')
+                    metavar=('rigid_id','ac_id'), required=True, help='pair of rigid body and A/C id (multiple possible)')
+
 parser.add_argument('-b', '--ivy_bus', dest='ivy_bus', help="Ivy bus address and port")
 parser.add_argument('-s', '--server', dest='server', default="127.0.0.1", help="NatNet server IP address")
 parser.add_argument('-m', '--multicast_addr', dest='multicast', default="239.255.42.99", help="NatNet server multicast address")
@@ -73,7 +190,6 @@ parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=
 parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', help="use the old REMOTE_GPS_LOCAL message")
 parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
 parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
-parser.add_argument('-zf', '--z_forward', dest='z_forward', action='store_true', help="Z-axis as forward")
 
 args = parser.parse_args()
 
@@ -90,6 +206,43 @@ period = 1. / args.freq
 
 # initial track per AC
 track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
+
+# Rotation for Z up if needed
+if args.up_axis == 'y_up':
+    # x right, y up, z, near -> x right, y far, z up
+    q_z_up = Quat(axis=[1., 0., 0.], angle=np.pi/2.)
+else:
+    q_z_up = Quat(axis=[1., 0., 0.], angle=0.)
+
+### axes rotation definitions ###
+# Ground plane calibration correction
+ground_plane_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
+q_ground_plane = Quat(
+    axis=[0., 0., 1.],
+    angle=np.deg2rad(ground_plane_correction[args.long_edge]))
+
+# Desired x/East axis orientation
+if args.x_side is not None:
+    x_correction = {'left': 180., 'far': -90., 'right': 0., 'near': 90.}
+    x_angle = x_correction[args.x_side]
+else:
+    x_angle = -args.x_angle # angle from right side, right-hand rotation
+
+q_x_correction = Quat(
+    axis=[0., 0., 1.],
+    angle=np.deg2rad(x_angle)
+)
+
+# Total axis system rotation
+q_total = q_x_correction * q_ground_plane * q_z_up
+
+# Attitude Quaternion correction    
+nose_correction = {'left': 90., 'far': 0., 'right': -90., 'near': 180.}
+q_nose_correction = Quat(
+    axis=[0., 0., 1.],
+    angle=np.deg2rad(nose_correction[args.ac_nose] + x_angle)
+)
+
 
 # start ivy interface
 if args.ivy_bus is not None:
@@ -130,18 +283,6 @@ def compute_velocity(ac_id):
             vel[2] /= nb
     return vel
 
-# Rotate the Z-forward to X-forward frame
-def rotZtoX(in_vec3, quat = False):
-    out_vec3 = {}
-    out_vec3[0] = -in_vec3[0]
-    out_vec3[1] = in_vec3[2]
-    out_vec3[2] = in_vec3[1]
-
-    # Copy the qi
-    if quat:
-        out_vec3[3] = in_vec3[3]
-    return out_vec3
-
 def receiveRigidBodyList( rigidBodyList, stamp ):
     for (ac_id, pos, quat, valid) in rigidBodyList:
         if not valid:
@@ -161,11 +302,14 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
         vel = compute_velocity(i)
 
-        # Rotate everything if Z-forward
-        if args.z_forward:
-            pos = rotZtoX(pos)
-            vel = rotZtoX(vel)
-            quat = rotZtoX(quat, True)
+        # Rotate position and velocity according to the quaternions found above
+        pos = q_total.rotate([pos[0], pos[1], pos[2]])
+        vel = q_total.rotate([vel[0], vel[1], vel[2]])
+
+        # Rotate the attitude delta to the new frame
+        quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
+        quat = q_nose_correction * (q_total * quat * q_total.inverse)
+        quat = quat.elements[[1, 2, 3, 0]].tolist()
 
         # Check which message to send
         if args.rgl_msg:
