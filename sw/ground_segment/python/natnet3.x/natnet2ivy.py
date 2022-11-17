@@ -59,36 +59,41 @@ left │                          │ right
 
 To forward correct East-North-Up (ENU) and Attitude Quaternion data to the 
 drone, we need to know:
-1. The orientation of the long edge of the Optitrack ground-plane tool during 
+1. The Optitrack Up axis streaming option. The native axis gives Y-Up, but
+   it is possible to set it to Z-Up in Motive
+   Specify with:
+     --up_axis {y_up,z_up}
+     no parameter is equal to y_up
+2. The orientation of the long edge of the Optitrack ground-plane tool during 
    calibration. For ENAC, "near" is customary, for TU Delft it's "right".
    Specify with:
      --long_edge {left,far,right,near}
-2. The desired orientation of the resulting x/East axis. For ENAC, "left" is 
-   customary (?), for TU Delft it's "right", or -117.0 degrees
+3. The desired orientation of the resulting x/East axis. For ENAC, "right" is 
+   customary, for TU Delft it's "right", or -23.0 degrees
    Specify with either:
      --x_side {left,far,right,near}
-     --x_angle_from_left X_ANGLE_DEGREES
-3. For correct heading information, we need to know where the nose of the drone
+     --x_angle_from_right X_ANGLE_DEGREES
+4. For correct heading information, we need to know where the nose of the drone
    (body-x) was pointing when the Motive rigid-body was created.
    Specify with:
     --ac_nose {left,far,right,near}
 
 Examples:
-- ENAC default (?):
-./natnet2ivy.py --long_edge near --x_side left --ac_nose near -ac 0 0  
+- ENAC default:
+./natnet2ivy.py --up_axis z_up --long_edge near --x_side right --ac_nose far -ac 0 0  
 
 - New default for TU Delft:
 ./natnet2ivy.py --long_edge right --x_side right --ac_nose far -ac 0 0  
 
 - True ENU at TU Delft:
-./natnet2ivy.py --long_edge right --x_angle -117.0 --ac_nose far -ac 0 0  
+./natnet2ivy.py --long_edge right --x_angle_from_right -23.0 --ac_nose far -ac 0 0  
 '''
 
 '''
 ##### Technical details #####
 
-       q_ground_plane           q_z_up             q_x_correction
-Optitrack ──────► y-up, x-right ──────► z-up, x-left ───+────► ENU
+           q_z_up             q_ground_plane     q_x_correction
+Optitrack ──────► z-up ──────► z-up, x-left ───+────► ENU
    Axes                                                 │               Correct
                                                         └─────────────► Attitude
                                                   q_nose_correction     Quat
@@ -112,36 +117,18 @@ left │            │ /           │ right
      └──────────────────────────┘
 
 
-The y-up, x-right intermediate frame can be achieved with a simple rotation 
-around y:
+The z-up intermediate frame can be achieved with a simple rotation 
+around x:
 
                  far
      +──────────────────────────+
      │                          │
-     │                          │
-     │          y               │
-     │           ⊙──►x          │
-left │           │              │ right
-     │           ▼              │
-     │           z              │
-     │                          │
-     +──────────────────────────+
-     │    Observers  (near)     │
-     └──────────────────────────┘
-
-
-The z-up, x-left intermediate frame is the customary resulting ENU system for
-ENAC (?). It can be achieved with a rotation around [0., 1., 1.] though π rad.
-
-                 far
-     +──────────────────────────+
+     │          y^              │
+     │           |              │
+     │          z⊙──►x          │
+left │                          │ right
      │                          │
      │                          │
-     │               z          │
-     │         x ◄──⊙           │
-left │              │           │ right
-     │              ▼           │
-     │              y           │
      │                          │
      +──────────────────────────+
      │    Observers  (near)     │
@@ -185,7 +172,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-le', '--long_edge', required=True, dest='long_edge', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the long edge of the calibration tool was pointing at")
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('-xs', '--x_side', dest='x_side', choices=['left', 'far', 'right', 'near'], help="Side that the x/east axis of the resulting ENU frame should point to.")
-group.add_argument('-xa', '--x_angle_from_left', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the left")
+group.add_argument('-xa', '--x_angle_from_right', dest='x_angle', type=float, help="Right-hand rotation in degrees of the x/east-axis around the up-axis, where 0.0 means x/east is pointing to the right")
+parser.add_argument('-up', '--up_axis', dest='up_axis', choices=['y_up', 'z_up'], default='y_up', help="Optitrack Up axis: y_up or z_up.")
 parser.add_argument('-an', '--ac_nose', required=True, dest='ac_nose', choices=['left', 'far', 'right', 'near'], help="Side of the test area that the nose of the drone was pointing at when definition the rigid body")
 parser.add_argument('-ac', action='append', nargs=2,
                     metavar=('rigid_id','ac_id'), required=True, help='pair of rigid body and A/C id (multiple possible)')
@@ -219,37 +207,40 @@ period = 1. / args.freq
 # initial track per AC
 track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
 
+# Rotation for Z up if needed
+if args.up_axis == 'y_up':
+    # x right, y up, z, near -> x right, y far, z up
+    q_z_up = Quat(axis=[1., 0., 0.], angle=np.pi/2.)
+else:
+    q_z_up = Quat(axis=[1., 0., 0.], angle=0.)
 
 ### axes rotation definitions ###
 # Ground plane calibration correction
 ground_plane_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
 q_ground_plane = Quat(
-    axis=[0., 1., 0.],
+    axis=[0., 0., 1.],
     angle=np.deg2rad(ground_plane_correction[args.long_edge]))
-
-# Rotation between the two intermediate frames (y-up x-right --> z-up x-left)
-q_z_up = Quat(axis=[0., 1., 1.], angle=np.pi)
 
 # Desired x/East axis orientation
 if args.x_side is not None:
-    x_correction = {'left': 0., 'far': -90., 'right': 180., 'near': 90.}
+    x_correction = {'left': 180., 'far': -90., 'right': 0., 'near': 90.}
     x_angle = x_correction[args.x_side]
 else:
-    x_angle = args.x_angle
+    x_angle = -args.x_angle # angle from right side, right-hand rotation
 
 q_x_correction = Quat(
     axis=[0., 0., 1.],
-    angle=np.deg2rad(-x_angle)
+    angle=np.deg2rad(x_angle)
 )
 
 # Total axis system rotation
-q_total = q_x_correction * q_z_up * q_ground_plane
+q_total = q_x_correction * q_ground_plane * q_z_up
 
 # Attitude Quaternion correction    
-nose_correction = {'left': -90., 'far': 180., 'right': 90., 'near': 0.}
+nose_correction = {'left': 90., 'far': 0., 'right': -90., 'near': 180.}
 q_nose_correction = Quat(
     axis=[0., 0., 1.],
-    angle=np.deg2rad(nose_correction[args.ac_nose] - x_angle)
+    angle=np.deg2rad(nose_correction[args.ac_nose] + x_angle)
 )
 
 
