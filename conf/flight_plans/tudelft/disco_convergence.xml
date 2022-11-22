@@ -28,13 +28,13 @@
     </sector>
   </sectors>
   <exceptions>
-    <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 1500) &&
+    <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 1500) @AND
     !(nav_block @LEQ IndexOfBlock('Holding point'))" deroute="ReturnStbyNoThrottle"/>
-    <exception cond="datalink_time @GT 25 &&
-    !(nav_block @LEQ IndexOfBlock('Holding point')) &&
+    <exception cond="datalink_time @GT 25 @AND
+    !(nav_block @LEQ IndexOfBlock('Holding point')) @AND
     !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
-    <exception cond="radio_control.status == RC_REALLY_LOST &&
-    !(nav_block @LEQ IndexOfBlock('Holding point')) &&
+    <exception cond="radio_control.status == RC_REALLY_LOST @AND
+    !(nav_block @LEQ IndexOfBlock('Holding point')) @AND
     !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
   </exceptions>
   <blocks>
