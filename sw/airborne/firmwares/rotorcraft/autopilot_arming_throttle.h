@@ -117,7 +117,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_MOTORS_OFF_READY:
-        autopilot_set_motors_on(false, false);
+        autopilot_set_motors_on(false);
         autopilot_arming_delay_counter = 0;
         if (autopilot_arming_check_valid()) {
           autopilot_arming_state = STATE_ARMING;

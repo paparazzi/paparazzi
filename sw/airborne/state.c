@@ -40,13 +40,12 @@ struct State state;
 #include "modules/checks/preflight_checks.h"
 static struct preflight_check_t state_pfc;
 
-static bool state_preflight(char *error_msg) {
-  if(!stateIsAttitudeValid()) {
-    snprintf(error_msg, 240, "State attitude is invalid");
-    return false;
+static void state_preflight(struct preflight_error_t *error) {
+  if(true || !stateIsAttitudeValid()) {
+    preflight_error(error, "State attitude is invalid\n");
+  } else {
+    preflight_success(error, "State attitude is valid\n");
   }
-
-  return true;
 }
 #endif // PREFLIGHT_CHECKS
 
