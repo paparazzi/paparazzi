@@ -26,6 +26,10 @@
 
 #include "preflight_checks.h"
 
+#ifndef PREFLIGHT_MAX_MSG_BUF
+#define PREFLIGHT_MAX_MSG_BUF 512
+#endif
+
 static struct preflight_check_t *preflight_head = NULL;
 
 void preflight_check_register(struct preflight_check_t *check, preflight_check_f func) {
@@ -36,27 +40,32 @@ void preflight_check_register(struct preflight_check_t *check, preflight_check_f
   check->next = next;
 }
 
+#include "modules/datalink/telemetry.h"
 bool preflight_check(void) {
-  char error_msg[240];
-  uint16_t checks_cnt = 0;
-  uint16_t checks_fail_cnt = 0;
-  bool success = true;
+  char error_msg[PREFLIGHT_MAX_MSG_BUF];
+  struct preflight_error_t error = {
+    .message = error_msg,
+    .max_len = PREFLIGHT_MAX_MSG_BUF,
+    .fail_cnt = 0,
+    .success_cnt = 0
+  };
 
   // Go through all the checks
   struct preflight_check_t *check = preflight_head;
   while(check != NULL) {
-    checks_cnt++;
-
-    // Peform the check and register fails
-    if(!check->func(error_msg)) {
-      printf("Preflight fail: %s", error_msg);
-      success = false;
-      checks_fail_cnt++;
-    }
-
+    // Peform the check and register errors
+    check->func(&error);
     check = check->next;
   }
 
-  // Return the result if a single check fails
-  return success;
+  // We failed a check
+  if(error.fail_cnt > 0) {
+    printf("Preflight fail [%d/%d]:\n%s\n", error.fail_cnt, (error.fail_cnt+error.success_cnt), error_msg);
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, PREFLIGHT_MAX_MSG_BUF-error.max_len, error_msg);
+    return false;
+  }
+
+  // Return success if we didn't fail a preflight check
+  printf("Preflight success [%d]\n", error.success_cnt);
+  return true;
 }

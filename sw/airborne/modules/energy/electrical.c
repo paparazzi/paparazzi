@@ -107,13 +107,12 @@ static struct {
 #include "modules/checks/preflight_checks.h"
 static struct preflight_check_t electrical_pfc;
 
-static bool electrical_preflight(char *error_msg) {
+static void electrical_preflight(struct preflight_error_t *error) {
   if(electrical.vsupply < TAKEOFF_BAT_LEVEL) {
-    snprintf(error_msg, 240, "Battery level %.2fV below minimum takeoff level %.2fV", electrical.vsupply, TAKEOFF_BAT_LEVEL);
-    return false;
+    preflight_error(error, "Battery level %.2fV below minimum takeoff level %.2fV\n", electrical.vsupply, TAKEOFF_BAT_LEVEL);
+  } else {
+    preflight_success(error, "Battery level %.2fV above takeoff level %.2fV\n", electrical.vsupply, TAKEOFF_BAT_LEVEL);
   }
-
-  return true;
 }
 #endif // PREFLIGHT_CHECKS
 
