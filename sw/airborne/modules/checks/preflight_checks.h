@@ -30,41 +30,14 @@
 #include "std.h"
 #include <stdarg.h>
 
-struct preflight_error_t {
+struct preflight_result_t {
   char *message;
   uint16_t max_len;
   uint16_t fail_cnt;
   uint16_t success_cnt;
 };
 
-typedef void (*preflight_check_f)(struct preflight_error_t *error);
-
-static inline void preflight_error(struct preflight_error_t *error, const char *fmt, ...) {
-  // Record the error count
-  error->fail_cnt++;
-
-  // No more space in the message
-  if(error->max_len <= 0) {
-    return;
-  }
-
-  // Add the error
-  va_list args;
-  va_start(args, fmt);
-  int rc = vsnprintf(error->message, error->max_len, fmt, args);
-  va_end(args);
-
-  // Remove the length (minus \0 character) from the buffer
-  if(rc > 0) {
-    error->max_len -= (rc - 1);
-    error->message += (rc - 1);
-  }
-}
-
-static inline void preflight_success(struct preflight_error_t *error, const char *fmt __attribute__((unused)), ...) {
-  // Record the success count
-  error->success_cnt++;
-}
+typedef void (*preflight_check_f)(struct preflight_result_t *result);
 
 struct preflight_check_t {
   preflight_check_f func;
@@ -73,5 +46,7 @@ struct preflight_check_t {
 
 extern void preflight_check_register(struct preflight_check_t *check, preflight_check_f func);
 extern bool preflight_check(void);
+extern void preflight_error(struct preflight_result_t *result, const char *fmt, ...);
+extern void preflight_success(struct preflight_result_t *result, const char *fmt, ...);
 
 #endif /* PREFLIGHT_CHECKS_H */
