@@ -282,6 +282,9 @@ void guidance_h_mode_changed(uint8_t new_mode)
 #endif
 
     case GUIDANCE_H_MODE_NAV:
+#if GUIDANCE_INDI
+      guidance_indi_enter();
+#endif
       guidance_h_nav_enter();
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
       /* reset attitude stabilization if previous mode was not using it */

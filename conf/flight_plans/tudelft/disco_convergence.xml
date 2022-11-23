@@ -1,0 +1,94 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="70" ground_alt="0" lat0="52.1682089" lon0="4.4128499" max_dist_from_home="500" name="Altura fp Valkenburg" security_height="30">
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="26.6" y="23.2"/>
+    <waypoint name="STDBY" x="49.5" y="15.8"/>
+    <waypoint name="p1" x="34.3" y="80.7"/>
+    <waypoint name="p2" x="141.1" y="129.5"/>
+    <waypoint name="p3" x="237.6" y="-38.1"/>
+    <waypoint name="p4" x="135.8" y="-91.8"/>
+    <waypoint name="p5" x="34.3" y="80.7"   alt="90"/>
+    <waypoint name="p6" x="141.1" y="129.5" alt="90"/>
+    <waypoint name="p7" x="237.6" y="-38.1" alt="90"/>
+    <waypoint name="p8" x="135.8" y="-91.8" alt="90"/>
+    <waypoint name="TD" x="36.3" y="-4.0"/>
+    <waypoint name="GF1" x="-224.1" y="136.6"/>
+    <waypoint name="GF2" x="-89.4" y="-289.8"/>
+    <waypoint name="GF3" x="442.6" y="-139.6"/>
+    <waypoint name="GF4" x="219.7" y="301.2"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Geofence">
+      <corner name="GF1"/>
+      <corner name="GF2"/>
+      <corner name="GF3"/>
+      <corner name="GF4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="Or(!InsideGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 1500) @AND
+    !(nav_block @LEQ IndexOfBlock('Holding point'))" deroute="ReturnStbyNoThrottle"/>
+    <exception cond="datalink_time @GT 25 @AND
+    !(nav_block @LEQ IndexOfBlock('Holding point')) @AND
+    !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
+    <exception cond="radio_control.status == RC_REALLY_LOST @AND
+    !(nav_block @LEQ IndexOfBlock('Holding point')) @AND
+    !(nav_block == IndexOfBlock('Standby'))" deroute="route"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <set value="true" var="force_forward"/>
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <!--<block name="Takeoff1" strip_button="Takeoff" strip_icon="takeoff.png">
+      <set value="true" var="force_forward"/>
+      <exception cond="stateGetPositionEnu_f()->z > 50.0" deroute="route"/>
+      <call_once fun="nav_set_heading_current()"/>
+      <attitude pitch="-10." roll="0" throttle="1.0" vmode="throttle"/>
+    </block>-->
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavResurrect()"/>
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="route">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavResurrect()"/>
+      <while cond="true">
+        <path wpts="p1,p2,p3,p4"/>
+      </while>
+    </block>
+    <block name="route_run">
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavResurrect()"/>
+      <while cond="true">
+        <path wpts="p1,p2,p3,p4,p5,p6,p7,p8,p5,p6,p7,p8"/>
+      </while>
+    </block>
+    <block name="ReturnStbyNoThrottle">
+      <exception cond="And(!(radio_control.status == RC_REALLY_LOST), And(InsideGeofence(GetPosX(), GetPosY()), And(MoreThan(GetPosAlt(), GetAltRef() + 20), LessThan(GetPosAlt(), GetAltRef() + 70))))" deroute="Standby"/>
+      <set value="1" var="autopilot.kill_throttle"/>
+      <set value="true" var="force_forward"/>
+      <call_once fun="NavKillThrottle()"/>
+      <circle radius="nav_radius" throttle="0.0" wp="STDBY"/>
+    </block>
+  </blocks>
+</flight_plan>

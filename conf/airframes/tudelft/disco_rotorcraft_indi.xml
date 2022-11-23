@@ -1,0 +1,277 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!--
+     Parrot Disco
+-->
+
+<airframe name="Disco">
+
+  <firmware name="rotorcraft">
+    <configure name="PERIODIC_FREQUENCY" value="512"/>
+    <configure name="USE_MAGNETOMETER" value="TRUE"/>
+
+    <target name="ap" board="disco">
+      
+      <module name="radio_control" type="sbus"/>
+      <module name="logger_file">
+        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+      </module>
+      <module name="airspeed" type="ms45xx_i2c">
+        <define name="MS45XX_I2C_DEV" value="i2c1"/>
+        <define name="MS45XX_PRESSURE_RANVE" value="0.05"/>
+        <define name="USE_AIRSPEED_MS45XX" value="TRUE"/>
+      </module>
+
+      <define name="RADIO_TH_HOLD"     value="RADIO_AUX1"/> <!-- Throttle hold in command laws -->
+      <define name="RADIO_FMODE"       value="RADIO_AUX2"/> <!-- Throttle curve select -->
+      <define name="RADIO_FBW_MODE"    value="RADIO_AUX3"/> <!-- Switch between AP and FBW control -->
+      <define name="RADIO_FLAPS"       value="RADIO_AUX4"/> <!-- Flaps control -->
+      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+      <define name="RADIO_BACK_THOLD"  value="RADIO_AUX5"/>
+
+    </target>
+
+    <target name="nps"          board="pc">
+      <define name="USE_AIRSPEED" value="TRUE"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
+      <module name="radio_control" type="datalink"/>
+      
+
+      <!--Not dealing with these in the simulation-->
+      <define name="RADIO_TH_HOLD"     value="0"/> <!-- Throttle hold in command laws -->
+      <define name="RADIO_FMODE"       value="0"/> <!-- Throttle curve select -->
+      <define name="RADIO_FBW_MODE"    value="0"/> <!-- Switch between AP and FBW control -->
+      <define name="RADIO_FLAPS"       value="0"/> <!-- Flaps control -->
+      <define name="RADIO_KILL_SWITCH" value="0"/>
+    </target>
+
+    <module name="telemetry" type="transparent_udp"/>
+
+    <module name="imu" type="disco"/>
+    <!--<module name="ahrs" type="float_dcm"/>-->
+    <module name="gps" type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="ins" type="ekf2"/>
+    
+    <module name="air_data"/>
+    <module name="actuators" type="disco"/>
+    <!--<module name="control" type="new"/>-->
+    <module name="stabilization" type="indi">
+      <configure name="INDI_NUM_ACT" value="3"/>
+    </module>
+    <module name="guidance" type="indi_hybrid"/>
+    <!--<module name="sonar_bebop">
+      <define name="USE_SONAR"/>
+      <define name="SENSOR_SYNC_SEND_SONAR"/>
+    </module>-->
+    <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
+
+    <!--Switch advanced INDI scheduling functions on or off-->
+    <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
+  </firmware>
+
+  <servos>
+    <servo name="MOTOR" no="0" min="1000" neutral="1000" max="12500"/> <!-- 12500 max -->
+    <servo name="AILEVON_RIGHT" no="6" min="1850" neutral="1450" max="1050"/>
+    <servo name="AILEVON_LEFT" no="1" min="1050" neutral="1450" max="1850"/>
+  </servos>
+
+  <commands>
+    <axis name="THRUST"   failsafe_value="0"/>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"      failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="THRUST"   value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"      value="@YAW"/>
+  </rc_commands>
+
+  <section name="MIXER">
+    <define name="AILEVON_AILERON_RATE" value="0.75"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="0.75"/>
+  </section>
+
+  <command_laws>
+    <let var="th_hold"     value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+    <let var="manual"     value="LessThan(RadioControlValues(RADIO_MODE), -4800)"/>
+    <let var="autopil"     value="(1-($manual))"/>
+
+    <let var="aileron" value="@ROLL * AILEVON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+
+    <let var="motor_thrust" value="$manual? @THRUST : actuators_pprz[2]"/>
+
+    <set servo="MOTOR" value="$th_hold? -9600 : $motor_thrust"/>
+    <set servo="AILEVON_LEFT" value="($elevator - $aileron) * $manual - actuators_pprz[0] * $autopil"/>
+    <set servo="AILEVON_RIGHT" value="($elevator + $aileron) * $manual + actuators_pprz[1] * $autopil"/>
+  </command_laws>
+
+  <section name="MISC">
+    <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>
+    <define name="NAV_CLIMB_VSPEED" value="3.5"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+    <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
+    <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 12.0877510901 * adc)"/>
+    <!--<define name="USE_AIRSPEED" value="TRUE"/>-->
+    <define name="ARRIVED_AT_WAYPOINT" value="50.0"/>
+  </section>
+
+  <section name="FORWARD">
+    <!--The Quadshot uses a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
+    <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
+    <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
+    <define name="TRANSITION_MAX_OFFSET" value="-90.0" unit="deg"/>
+    <!-- For hybrid guidance by default set to 15-->
+    <!--<define name="MAX_AIRSPEED" value="20.0"/>-->
+  </section>
+
+  <!--<section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.85"/>
+    <define name="MAX_PITCH" value="0.6"/>
+  </section>-->
+
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_X_NEUTRAL" value="-164"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-19"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-302"/>
+    <define name="ACCEL_X_SENS" value="2.4353263325616896" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.430457186142149" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.4083032197503895" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="-195"/>
+    <define name="MAG_Y_NEUTRAL" value="-266"/>
+    <define name="MAG_Z_NEUTRAL" value="-806"/>
+    <define name="MAG_X_SENS" value="7.239846705729754" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.037092768037254" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.583294047780469" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"    value="0"   unit="deg"/>
+    <define name="BODY_TO_IMU_THETA"  value="90." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"    value="0"   unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- Delft -->
+    <define name="H_X" value="0.3892503"/>
+    <define name="H_Y" value="0.0017972"/>
+    <define name="H_Z" value="0.9211303"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
+    <define name="G1_ROLL"   value="{   0,    0,       0}"/>
+    <define name="G1_PITCH"  value="{-8.79,   8.79,    0}"/>
+    <define name="G1_YAW"    value="{-15.97,  -15.97,    0}"/>
+    <define name="G1_THRUST" value="{    0,   0,    -1.8}"/>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2" value="{0, 0, 0}"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="100.0"/>
+    <define name="REF_ERR_Q" value="100.0"/>
+    <define name="REF_ERR_R" value="100.0"/>
+    <define name="REF_RATE_P" value="14.0"/>
+    <define name="REF_RATE_Q" value="15.0"/>
+    <define name="REF_RATE_R" value="15.0"/>
+
+    <!--Maxium yaw rate, to avoid instability-->
+    <define name="MAX_R" value="100.0" unit="deg/s"/>
+
+    <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF" value="5.0"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN" value="{0.1, 0.1, 0.045}"/>
+    <define name="ACT_RATE_LIMIT" value="{170, 170, 9600}"/>
+    <define name="ACT_IS_SERVO" value="{1, 1, 0}"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="40." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="25." unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
+    <define name="SP_PSI_DELTA_LIMIT" value="0.001" unit="deg"/>
+  </section>
+
+  <section name="ctrl_eff_scheduling" prefix="FWD_">
+    <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
+    <define name="G1_ROLL"   value="{    0,     0,    0}"/>
+    <define name="G1_PITCH"  value="{-8.79,  8.79,    0}"/>
+    <define name="G1_YAW"    value="{-15.97,  -15.97,    0}"/>
+    <define name="G1_THRUST" value="{    0,     0, -0.7}"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP"    value="310"/>
+    <define name="HOVER_KD"    value="130"/>
+    <define name="HOVER_KI"    value="10"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="45" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="60"/>
+    <define name="DGAIN" value="100"/>
+    <define name="AGAIN" value="0"/>
+    <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
+    <define name="POS_GAIN" value="0.2"/>
+    <define name="POS_GAINZ" value="0.2"/>
+    <define name="SPEED_GAIN" value="1.0"/>
+    <define name="SPEED_GAINZ" value="1.0"/>
+    <define name="MAX_AIRSPEED" value="12."/>
+    <define name="ZERO_AIRSPEED" value="FALSE"/>
+    <define name="NAV_SPEED_MARGIN" value="10.0"/>
+    <define name="PITCH_EFF_SCALING" value="1.0"/>
+    <define name="PITCH_LIFT_EFF" value="0.12"/>
+    <define name="HEADING_BANK_GAIN" value="15."/>
+    <!--define name="SPECIFIC_FORCE_GAIN" value="-1300."/-->
+    <!--define name="THRUST_DYNAMICS" value="0.04"/-->
+    <define name="MIN_THROTTLE" value="0.0"/>
+    <define name="MIN_THROTTLE_FWD" value="0.0"/>
+    <define name="MIN_PITCH" value="-115."/>
+    <define name="MAX_PITCH" value="-75."/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_FORWARD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/>
+
+    <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="ele_left, ele_right, mot" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="disco_rotorcraft" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
+    <define name="COMMANDS_NB" value="3"/>
+  </section>
+
+</airframe>

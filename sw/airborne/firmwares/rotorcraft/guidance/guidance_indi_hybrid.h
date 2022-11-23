@@ -39,7 +39,6 @@ extern void guidance_indi_enter(void);
 extern void guidance_indi_run(float *heading_sp);
 extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, int32_t heading);
 extern void guidance_indi_init(void);
-extern void guidance_indi_propagate_filters(void);
 
 struct guidance_indi_hybrid_params {
   float pos_gain;
@@ -48,6 +47,9 @@ struct guidance_indi_hybrid_params {
   float speed_gainz;
   float heading_bank_gain;
 };
+
+extern struct FloatVect3 sp_accel;
+extern struct FloatVect3 gi_speed_sp;
 
 extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;

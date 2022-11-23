@@ -36,6 +36,7 @@
       <message name="LIDAR"                    period="1.2"/>
       <message name="INS_EKF2"                 period=".25"/>
       <message name="WIND_INFO_RET"            period="1."/>
+      <message name="AHRS_REF_QUAT"            period="0.5"/>
     </mode>
 
     <mode name="ppm">
@@ -126,6 +127,7 @@
     <mode name="vel_guidance" key_press="q">
       <message name="ALIVE" period="0.9"/>
       <message name="HYBRID_GUIDANCE" period="0.062"/>
+      <message name="GUIDANCE_INDI_HYBRID"     period="0.1"/>
       <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
       <message name="ROTORCRAFT_FP" period="0.8"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>

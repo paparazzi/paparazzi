@@ -7,13 +7,16 @@
       (only for linux)
     </description>
     <define name="FILE_LOGGER_PATH" value="/data/video/usb" description="path where csv file is saved."/>
+    <configure name="FILE_LOGGER_FREQUENCY" value="PERIODIC_FREQUENCY" description="frequency of logging, defaults to PERIODIC_FREQUENCY."/>
   </doc>
   <header>
-	<file name="file_logger.h" />
+	<file name="file_logger.h"/>
   </header>
   <periodic fun="file_logger_periodic()" start="file_logger_start()"
-		    stop="file_logger_stop()" autorun="FALSE" period="0.01" />
+		    stop="file_logger_stop()" autorun="FALSE" freq="FILE_LOGGER_FREQUENCY" />
   <makefile>
-	<file name="file_logger.c"/>
+    <file name="file_logger.c"/>
+    <configure name="FILE_LOGGER_FREQUENCY" default="PERIODIC_FREQUENCY"/>
+    <define name="FILE_LOGGER_FREQUENCY" value="$(FILE_LOGGER_FREQUENCY)"/>
   </makefile>
 </module>

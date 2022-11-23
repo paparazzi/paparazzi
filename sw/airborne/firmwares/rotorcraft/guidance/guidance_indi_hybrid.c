@@ -61,6 +61,11 @@
 #define GUIDANCE_INDI_POS_GAINZ 0.5
 #endif
 
+#ifndef GUIDANCE_INDI_MIN_PITCH
+#define GUIDANCE_INDI_MIN_PITCH -120
+#define GUIDANCE_INDI_MAX_PITCH 25
+#endif
+
 struct guidance_indi_hybrid_params gih_params = {
   .pos_gain = GUIDANCE_INDI_POS_GAIN,
   .pos_gainz = GUIDANCE_INDI_POS_GAINZ,
@@ -76,12 +81,26 @@ struct guidance_indi_hybrid_params gih_params = {
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
+// Tell the guidance that the airspeed needs to be zeroed. 
+// Recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case.
+#ifndef GUIDANCE_INDI_ZERO_AIRSPEED
+#define GUIDANCE_INDI_ZERO_AIRSPEED FALSE
+#endif
+
 // Max ground speed that will be commanded
-#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
+#ifndef GUIDANCE_INDI_NAV_SPEED_MARGIN
+#define GUIDANCE_INDI_NAV_SPEED_MARGIN 10.0
+#endif
+#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
 float nav_max_speed = NAV_MAX_SPEED;
 
 #ifndef MAX_DECELERATION
 #define MAX_DECELERATION 1.
+#endif
+
+/*Airspeed threshold where making a turn is "worth it"*/
+#ifndef TURN_AIRSPEED_TH
+#define TURN_AIRSPEED_TH 10.0
 #endif
 
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
@@ -144,7 +163,7 @@ float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
 
-struct FloatVect3 speed_sp = {0.0, 0.0, 0.0};
+struct FloatVect3 gi_speed_sp = {0.0, 0.0, 0.0};
 
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
@@ -167,9 +186,9 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
                               &filt_accel_ned[0].o[0],
                               &filt_accel_ned[1].o[0],
                               &filt_accel_ned[2].o[0],
-                              &speed_sp.x,
-                              &speed_sp.y,
-                              &speed_sp.z);
+                              &gi_speed_sp.x,
+                              &gi_speed_sp.y,
+                              &gi_speed_sp.z);
 }
 #endif
 
@@ -241,31 +260,37 @@ void guidance_indi_run(float *heading_sp) {
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
   if(autopilot.mode == AP_MODE_NAV) {
-    speed_sp = nav_get_speed_setpoint(gih_params.pos_gain);
+    gi_speed_sp = nav_get_speed_setpoint(gih_params.pos_gain);
   } else{
-    speed_sp.x = pos_x_err * gih_params.pos_gain;
-    speed_sp.y = pos_y_err * gih_params.pos_gain;
-    speed_sp.z = pos_z_err * gih_params.pos_gainz;
+    gi_speed_sp.x = pos_x_err * gih_params.pos_gain;
+    gi_speed_sp.y = pos_y_err * gih_params.pos_gain;
+    gi_speed_sp.z = pos_z_err * gih_params.pos_gainz;
   }
 
   //for rc control horizontal, rotate from body axes to NED
   float psi = eulers_zxy.psi;
   /*NAV mode*/
-  float speed_sp_b_x = cosf(psi) * speed_sp.x + sinf(psi) * speed_sp.y;
-  float speed_sp_b_y =-sinf(psi) * speed_sp.x + cosf(psi) * speed_sp.y;
+  float speed_sp_b_x = cosf(psi) * gi_speed_sp.x + sinf(psi) * gi_speed_sp.y;
+  float speed_sp_b_y =-sinf(psi) * gi_speed_sp.x + cosf(psi) * gi_speed_sp.y;
 
-  float airspeed = stateGetAirspeed_f();
+  // Get airspeed or zero it
+  float airspeed;
+  if (GUIDANCE_INDI_ZERO_AIRSPEED) {
+    airspeed = 0.0;
+  } else {
+    airspeed = stateGetAirspeed_f();
+  }
 
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
   struct FloatVect2 airspeed_v = {cos(psi)*airspeed, sin(psi)*airspeed};
   struct FloatVect2 windspeed;
   VECT2_DIFF(windspeed, *groundspeed, airspeed_v);
 
-  VECT2_DIFF(desired_airspeed, speed_sp, windspeed); // Use 2d part of speed_sp
+  VECT2_DIFF(desired_airspeed, gi_speed_sp, windspeed); // Use 2d part of gi_speed_sp
   float norm_des_as = FLOAT_VECT2_NORM(desired_airspeed);
 
   // Make turn instead of straight line
-  if((airspeed > 10.0) && (norm_des_as > 12.0)) {
+  if((airspeed > TURN_AIRSPEED_TH) && (norm_des_as > (TURN_AIRSPEED_TH+2.0) )) {
 
   // Give the wind cancellation priority.
     if (norm_des_as > guidance_indi_max_airspeed) {
@@ -273,8 +298,8 @@ void guidance_indi_run(float *heading_sp) {
 
       // if the wind is faster than we can fly, just fly in the wind direction
       if(FLOAT_VECT2_NORM(windspeed) < guidance_indi_max_airspeed) {
-        float av = speed_sp.x * speed_sp.x + speed_sp.y * speed_sp.y;
-        float bv = -2 * (windspeed.x * speed_sp.x + windspeed.y * speed_sp.y);
+        float av = gi_speed_sp.x * gi_speed_sp.x + gi_speed_sp.y * gi_speed_sp.y;
+        float bv = -2 * (windspeed.x * gi_speed_sp.x + windspeed.y * gi_speed_sp.y);
         float cv = windspeed.x * windspeed.x + windspeed.y * windspeed.y - guidance_indi_max_airspeed * guidance_indi_max_airspeed;
 
         float dv = bv * bv - 4.0 * av * cv;
@@ -288,8 +313,8 @@ void guidance_indi_run(float *heading_sp) {
         groundspeed_factor = (-bv + d_sqrt)  / (2.0 * av);
       }
 
-      desired_airspeed.x = groundspeed_factor * speed_sp.x - windspeed.x;
-      desired_airspeed.y = groundspeed_factor * speed_sp.y - windspeed.y;
+      desired_airspeed.x = groundspeed_factor * gi_speed_sp.x - windspeed.x;
+      desired_airspeed.y = groundspeed_factor * gi_speed_sp.y - windspeed.y;
 
       speed_sp_b_x = guidance_indi_max_airspeed;
     }
@@ -314,7 +339,7 @@ void guidance_indi_run(float *heading_sp) {
     sp_accel.x = cosf(psi) * sp_accel_b.x - sinf(psi) * sp_accel_b.y;
     sp_accel.y = sinf(psi) * sp_accel_b.x + cosf(psi) * sp_accel_b.y;
 
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    sp_accel.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   } else { // Go somewhere in the shortest way
 
     if(airspeed > 10.0) {
@@ -327,12 +352,12 @@ void guidance_indi_run(float *heading_sp) {
         speed_sp_b_x = guidance_indi_max_airspeed + groundspeed_x - airspeed;
       }
     }
-    speed_sp.x = cosf(psi) * speed_sp_b_x - sinf(psi) * speed_sp_b_y;
-    speed_sp.y = sinf(psi) * speed_sp_b_x + cosf(psi) * speed_sp_b_y;
+    gi_speed_sp.x = cosf(psi) * speed_sp_b_x - sinf(psi) * speed_sp_b_y;
+    gi_speed_sp.y = sinf(psi) * speed_sp_b_x + cosf(psi) * speed_sp_b_y;
 
-    sp_accel.x = (speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
-    sp_accel.y = (speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
+    sp_accel.x = (gi_speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
+    sp_accel.y = (gi_speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
+    sp_accel.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   }
 
   // Bound the acceleration setpoint
@@ -401,7 +426,7 @@ void guidance_indi_run(float *heading_sp) {
 
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
-  Bound(guidance_euler_cmd.theta, -RadOfDeg(120.0), RadOfDeg(25.0));
+  Bound(guidance_euler_cmd.theta, RadOfDeg(GUIDANCE_INDI_MIN_PITCH), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
   float coordinated_turn_roll = eulers_zxy.phi;
@@ -429,6 +454,20 @@ void guidance_indi_run(float *heading_sp) {
   } else {
     *heading_sp += omega / PERIODIC_FREQUENCY;
     FLOAT_ANGLE_NORMALIZE(*heading_sp);
+    // limit heading setpoint to be within bounds of current heading
+    #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+      float delta_limit = STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
+      float heading = stabilization_attitude_get_heading_f();
+
+      float delta_psi = *heading_sp - heading;
+      FLOAT_ANGLE_NORMALIZE(delta_psi);
+      if (delta_psi > delta_limit) {
+        *heading_sp = heading + delta_limit;
+      } else if (delta_psi < -delta_limit) {
+        *heading_sp = heading - delta_limit;
+      }
+      FLOAT_ANGLE_NORMALIZE(*heading_sp);
+    #endif
   }
 #endif
 
