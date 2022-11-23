@@ -135,8 +135,10 @@ extern void autopilot_force_motors_on(bool motors_on);
  *  or when the preflight checks are failing.
  *
  * @param[in] motors_on true to start motors, false to stop
+ * @return true The preflight checks are successful and motors are started/stopped
+ * @return false The preflight checks are failed
  */
-extern void autopilot_set_motors_on(bool motors_on);
+extern bool autopilot_set_motors_on(bool motors_on);
 
 /** Get motor status
  *

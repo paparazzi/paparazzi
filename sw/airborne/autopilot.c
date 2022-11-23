@@ -242,15 +242,16 @@ void autopilot_force_motors_on(bool motors_on)
 /** turn motors on/off, eventually depending of the current mode
  *  set kill_throttle accordingly FIXME is it true for FW firmware ?
  */
-void autopilot_set_motors_on(bool motors_on)
+bool autopilot_set_motors_on(bool motors_on)
 {
 #if PREFLIGHT_CHECKS
   // When we fail the preflight checks abort
   if(motors_on && !preflight_check()) {
-    return;
+    return false;
   }
 #endif
   autopilot_force_motors_on(motors_on);
+  return true;
 }
 
 /** get motors status

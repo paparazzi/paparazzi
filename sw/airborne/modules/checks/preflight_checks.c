@@ -30,8 +30,18 @@
 #define PREFLIGHT_MAX_MSG_BUF 512
 #endif
 
+#ifndef PREFLIGHT_CHECK_SEPERATOR
+#define PREFLIGHT_CHECK_SEPERATOR ';'
+#endif
+
 static struct preflight_check_t *preflight_head = NULL;
 
+/**
+ * @brief Register a preflight check and add it to the linked list
+ * 
+ * @param check The check to add containing a linked list
+ * @param func The function to register for the check
+ */
 void preflight_check_register(struct preflight_check_t *check, preflight_check_f func) {
   // Prepend the preflight check
   struct preflight_check_t *next = preflight_head;
@@ -41,9 +51,15 @@ void preflight_check_register(struct preflight_check_t *check, preflight_check_f
 }
 
 #include "modules/datalink/telemetry.h"
+/**
+ * @brief Perform all the preflight checks
+ * 
+ * @return true When all preflight checks are successful
+ * @return false When one or more preflight checks fail
+ */
 bool preflight_check(void) {
   char error_msg[PREFLIGHT_MAX_MSG_BUF];
-  struct preflight_error_t error = {
+  struct preflight_result_t result = {
     .message = error_msg,
     .max_len = PREFLIGHT_MAX_MSG_BUF,
     .fail_cnt = 0,
@@ -54,18 +70,70 @@ bool preflight_check(void) {
   struct preflight_check_t *check = preflight_head;
   while(check != NULL) {
     // Peform the check and register errors
-    check->func(&error);
+    check->func(&result);
     check = check->next;
   }
 
   // We failed a check
-  if(error.fail_cnt > 0) {
-    printf("Preflight fail [%d/%d]:\n%s\n", error.fail_cnt, (error.fail_cnt+error.success_cnt), error_msg);
-    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, PREFLIGHT_MAX_MSG_BUF-error.max_len, error_msg);
+  if(result.fail_cnt > 0) {
+    printf("Preflight fail [%d/%d]:\n%s\n", result.fail_cnt, (result.fail_cnt+result.success_cnt), error_msg);
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, PREFLIGHT_MAX_MSG_BUF-result.max_len, error_msg);
     return false;
   }
 
   // Return success if we didn't fail a preflight check
-  printf("Preflight success [%d]\n", error.success_cnt);
+  printf("Preflight success [%d]\n", result.success_cnt);
   return true;
+}
+
+/**
+ * @brief Register a preflight error used inside the preflight checking functions 
+ * 
+ * @param result Where the error gets registered
+ * @param fmt A formatted string describing the error used in a vsnprintf
+ * @param ... The arguments for the vsnprintf
+ */
+void preflight_error(struct preflight_result_t *result, const char *fmt, ...) {
+  // Record the error count
+  result->fail_cnt++;
+
+  // No more space in the message
+  if(result->max_len <= 0) {
+    return;
+  }
+
+  // Add the error
+  va_list args;
+  va_start(args, fmt);
+  int rc = vsnprintf(result->message, result->max_len, fmt, args);
+  va_end(args);
+
+  // Remove the length from the buffer if it was successfull
+  if(rc > 0) {
+    result->max_len -= rc;
+    result->message += rc;
+
+    // Add seperator if it fits
+    if(result->max_len > 0) {
+      result->message[0] = PREFLIGHT_CHECK_SEPERATOR;
+      result->max_len--;
+      result->message++;
+
+      // Add the '\0' character
+      if(result->max_len > 0)
+        result->message[0] = 0;
+    }
+  }
+}
+
+/**
+ * @brief Register a preflight success used inside the preflight checking functions
+ * 
+ * @param result 
+ * @param __attribute__ 
+ * @param ... 
+ */
+void preflight_success(struct preflight_result_t *result, const char *fmt __attribute__((unused)), ...) {
+  // Record the success count
+  result->success_cnt++;
 }
