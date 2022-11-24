@@ -24,7 +24,7 @@
  * Module for QST QMC5883L magnetometer, the DB version
  */
 
-#include "modules/sensors/mag_rm3100.h"
+#include "modules/sensors/mag_qmc5883l.h"
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"

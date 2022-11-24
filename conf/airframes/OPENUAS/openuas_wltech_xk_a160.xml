@@ -85,7 +85,7 @@ NOTES:
       </module>
 
       <module name="mag" type="qmc5883l">
-	<define name="USE_I2C1" value="TRUE"/>
+        <configure name="MAG_QMC5883L_PERIODIC_FREQUENCY" value="200"/>
         <configure name="MAG_QMC5883L_I2C_DEV" value="I2C1"/>
         <define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE"/>
         <define name="MODULE_QMC5883L_UPDATE_AHRS" value="TRUE"/>
