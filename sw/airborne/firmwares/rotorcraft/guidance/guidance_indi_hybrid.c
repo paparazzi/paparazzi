@@ -65,6 +65,9 @@
 #define GUIDANCE_INDI_MIN_PITCH -120
 #define GUIDANCE_INDI_MAX_PITCH 25
 
+#ifndef
+#define GUIDANCE_INDI_LIFTD_ASQ 0.20
+#endif
 
 /* If lift effectiveness at low airspeed not defined,
  * just make one interpolation segment that connects to
@@ -216,6 +219,7 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
 void guidance_indi_init(void)
 {
   /*AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);*/
+  AbiBindMsgVEL_SP(GUIDANCE_INDI_VEL_SP_ID, &vel_sp_ev, vel_sp_cb);
 
   float tau = 1.0/(2.0*M_PI*filter_cutoff);
   float sample_time = 1.0/PERIODIC_FREQUENCY;
@@ -226,8 +230,6 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
-
-  AbiBindMsgVEL_SP(GUIDANCE_INDI_VEL_SP_ID, &vel_sp_ev, vel_sp_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
