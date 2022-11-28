@@ -200,8 +200,8 @@
  * PB3  - Digital input                    (JTAG_TDO/SWD)
  * PB4  - Open Drain output 50MHz          (LED2)
  * PB5  - Digital input                    (IMU_MAG_DRDY)
- * PB6  - Alternate Push Pull output 50MHz (SERVO7-Timer4Ch1)/USART1_TX
- * PB7  - Alternate Push Pull output 50MHz (SERVO8-Timer4Ch2)/USART1_RX
+ * PB6  - Alternate Open Drain output 2MHz (SERVO7-Timer4Ch1)/USART1_TX
+ * PB7  - Alternate Open Drain output 2MHz (SERVO8-Timer4Ch2)/USART1_RX
  * PB8  - Digital input.                   (CAN_RX)
  * PB9  - Open Drain output 50MHz.         (CAN_TX)
  * PB10 - Alternate Open Drain output 2MHz.(I2C2_SCL)
@@ -233,8 +233,8 @@
                                      PIN_OTYPE_PUSHPULL(3) |        \
                                      PIN_OTYPE_OPENDRAIN(4) |       \
                                      PIN_OTYPE_PUSHPULL(5) |       \
-                                     PIN_OTYPE_PUSHPULL(6) |       \
-                                     PIN_OTYPE_PUSHPULL(7) |       \
+                                     PIN_OTYPE_OPENDRAIN(6) |       \
+                                     PIN_OTYPE_OPENDRAIN(7) |       \
                                      PIN_OTYPE_PUSHPULL(8) |       \
                                      PIN_OTYPE_OPENDRAIN(9) |       \
                                      PIN_OTYPE_OPENDRAIN(10) |     \
@@ -297,8 +297,8 @@
                                      PIN_AFIO_AF(3, 0) |            \
                                      PIN_AFIO_AF(4, 0) |           \
                                      PIN_AFIO_AF(5, 0) |           \
-                                     PIN_AFIO_AF(6, 7) |            \
-                                     PIN_AFIO_AF(7, 7))
+                                     PIN_AFIO_AF(6, 4) |            \
+                                     PIN_AFIO_AF(7, 4))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(8, 9) |           \
                                      PIN_AFIO_AF(9, 9) |            \
                                      PIN_AFIO_AF(10, 4) |         \

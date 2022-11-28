@@ -1,0 +1,70 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_qmc5883l" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Module to be able to use an QMC5883L magnetometer.
+
+      Intorduction: Honeywell discontinued the HMC5983/HMC5883L in 2016 and licensed the technology to QST Corporation, who now manufacture the replacement QMC5883L.
+      However, while the QMC5883L is pin compatible with HMC, it's registers are not the same as the Honeywell device. It's essentially a different chip.
+
+      QST Corporation have produced two versions of the QMC5883L:
+      A completely undocumented 'A' version with "DA 5883" on the QFN package that responds to the I2C address 0x1E.
+      It's identical to the HMC5983/HMC5883L, except that the status register doesn't work.
+      The DA 5883 is not supported by this driver since we have not seen any samples of this DA version in the wild
+
+      A documented 'B' version with "DB 5833" on the QFN package that responds to I2C address 0x0D. This works as per the QMC5883L datasheet.
+      
+      TIP:
+      An arbitrary rotation between the sensor frame and the IMU frame can be compensated with a MAG_TO_IMU rotation, defined by three euler angles. 
+      The three angles must be defined to enable this correction. Otherwise it is assumed that the IMU and MAG axis are aligned.
+    </description>
+    <configure name="MAG_QMC5883L_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c2)"/>
+    <define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement for debugging purposes (default: FALSE)"/>
+    <define name="MODULE_QMC5883L_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to IMU and send as ABI message (default: FALSE)"/>
+    <define name="QMC5883L_CHAN_X_SIGN" value="+|-" description="Set the polarity of x axis (default: +)"/>
+    <define name="QMC5883L_CHAN_Y_SIGN" value="+|-" description="Set the polarity of y axis (default: +)"/>
+    <define name="QMC5883L_CHAN_Z_SIGN" value="+|-" description="Set the polarity of z axis (default: +)"/>
+    <define name="QMC5883L_CHAN_X" value="0|1|2" description="Channel id of x axis (default: 0)"/>
+    <define name="QMC5883L_CHAN_Y" value="0|1|2" description="Channel id of y axis (default: 1)"/>
+    <define name="QMC5883L_CHAN_Z" value="0|1|2" description="Channel id of z axis (default: 2)"/>
+    <section name="MAG_QMC" prefix="QMC5883L_">
+      <define name="MAG_TO_IMU_PHI" value="0.0" description="Rotation between sensor frame and IMU frame (phi angle)"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
+      <define name="DATA_RATE" value="QMC5883L_ODR_200" description="Continuous conversion data rate"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>i2c,@imu</depends>
+    <provides>mag</provides>
+  </dep>
+  <header>
+    <file name="mag_qmc5883l.h"/>
+  </header>
+  <init fun="mag_qmc5883l_module_init()"/>
+  <periodic fun="mag_qmc5883l_module_periodic()" freq="MAG_QMC5883L_PERIODIC_FREQUENCY"/>
+  <periodic fun="mag_qmc5883l_report()" freq="10" autorun="FALSE"/>
+  <event fun="mag_qmc5883l_module_event()"/>
+  <makefile target="ap">
+    <file name="mag_qmc5883l.c"/>
+    <file name="qmc5883l.c" dir="peripherals"/>
+    <raw>
+      ifeq ($(MAG_QMC5883L_I2C_DEV),)
+        $(error mag_qmc5883l module error: please configure MAG_QMC5883L_I2C_DEV)
+      endif
+    </raw>
+    <configure name="MAG_QMC5883L_PERIODIC_FREQUENCY" default="50"/>
+    <configure name="MAG_QMC5883L_I2C_DEV" case="upper|lower"/>
+    <define name="MAG_QMC5883L_PERIODIC_FREQUENCY" value="$(MAG_QMC5883L_PERIODIC_FREQUENCY)"/>
+    <define name="USE_$(MAG_QMC5883L_I2C_DEV_UPPER)"/>
+    <define name="MAG_QMC5883L_I2C_DEV" value="$(MAG_QMC5883L_I2C_DEV_LOWER)"/>
+    <test>
+      <define name="MAG_QMC5883L_I2C_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+</module>

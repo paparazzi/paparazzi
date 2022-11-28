@@ -37,7 +37,7 @@ NOTES:
   </description>
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mxs_1.0_chibios">
-      <define name="REMAP_UART3" value="TRUE" />     
+      <define name="REMAP_UART3" value="TRUE"/>  
       <!--<configure name="FLASH_MODE" value="SWD"/>--> <!--Enable when flashing with black magic probe v1.0-->
       <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>-->
 
@@ -58,11 +58,11 @@ NOTES:
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="500"/>
-      <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/>
+      <!--<configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/>
       <configure name="NAVIGATION_FREQUENCY" value="16"/>
       <configure name="CONTROL_FREQUENCY" value="120"/>
       <configure name="TELEMETRY_FREQUENCY" value="60"/>
-      <configure name="MODULES_FREQUENCY" value="500"/>
+      <configure name="MODULES_FREQUENCY" value="500"/>-->
       
       <!-- <module name="filter_1euro_imu">
         <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
@@ -84,20 +84,18 @@ NOTES:
         <define name="IMU_MPU_USE_MEDIAN_FILTER" value="TRUE"/>
       </module>
 
-      <!-- enable when driver is available in master -->
-      <!-- 
-        <module name="mag" type="qmc58xx">
-        <configure name="MAG_QMC58XX_I2C_DEV" value="i2c1"/>
-        <define name="MODULE_QMC58XX_SYNC_SEND" value="TRUE"/>
-        <define name="MODULE_QMC58XX_UPDATE_AHRS" value="TRUE"/>
-        <define name="QMC58XX_CHAN_X" value="1"/>
-        <define name="QMC58XX_CHAN_Y" value="0"/>
-        <define name="QMC58XX_CHAN_Z" value="2"/>
-        <define name="QMC58XX_CHAN_X_SIGN" value="-"/>
-        <define name="QMC58XX_CHAN_Y_SIGN" value="+"/>
-        <define name="QMC58XX_CHAN_Z_SIGN" value="+"/>
+      <module name="mag" type="qmc5883l">
+        <configure name="MAG_QMC5883L_PERIODIC_FREQUENCY" value="200"/>
+        <configure name="MAG_QMC5883L_I2C_DEV" value="I2C1"/>
+        <define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE"/>
+        <define name="MODULE_QMC5883L_UPDATE_AHRS" value="TRUE"/>
+        <define name="QMC5883L_CHAN_X" value="1"/>
+        <define name="QMC5883L_CHAN_Y" value="0"/>
+        <define name="QMC5883L_CHAN_Z" value="2"/>
+        <define name="QMC5883L_CHAN_X_SIGN" value="+"/>
+        <define name="QMC5883L_CHAN_Y_SIGN" value="+"/>
+        <define name="QMC5883L_CHAN_Z_SIGN" value="+"/>
       </module> 
-      -->
 
       <module name="actuators" type="pwm"/>
       
