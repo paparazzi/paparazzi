@@ -21,11 +21,11 @@
  *
  */
 
-/** @file modules/loggers/file_logger.c
+/** @file modules/loggers/logger_file.c
  *  @brief File logger for Linux based autopilots
  */
 
-#include "file_logger.h"
+#include "logger_file.h"
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -45,23 +45,23 @@
 
 
 /** Set the default File logger path to the USB drive */
-#ifndef FILE_LOGGER_PATH
-#define FILE_LOGGER_PATH /data/video/usb
+#ifndef LOGGER_FILE_PATH
+#define LOGGER_FILE_PATH /data/video/usb
 #endif
 
 /** The file pointer */
-static FILE *file_logger = NULL;
+static FILE *logger_file = NULL;
 
 
 /** Logging functions */
 
 /** Write CSV header
  * Write column names at the top of the CSV file. Make sure that the columns
- * match those in file_logger_write_row! Don't forget the \n at the end of the
+ * match those in logger_file_write_row! Don't forget the \n at the end of the
  * line.
  * @param file Log file pointer
  */
-static void file_logger_write_header(FILE *file) {
+static void logger_file_write_header(FILE *file) {
   fprintf(file, "time,");
   fprintf(file, "pos_x,pos_y,pos_z,");
   fprintf(file, "vel_x,vel_y,vel_z,");
@@ -76,11 +76,11 @@ static void file_logger_write_header(FILE *file) {
 
 /** Write CSV row
  * Write values at this timestamp to log file. Make sure that the printf's match
- * the column headers of file_logger_write_header! Don't forget the \n at the
+ * the column headers of logger_file_write_header! Don't forget the \n at the
  * end of the line.
  * @param file Log file pointer
  */
-static void file_logger_write_row(FILE *file) {
+static void logger_file_write_row(FILE *file) {
   struct NedCoor_f *pos = stateGetPositionNed_f();
   struct NedCoor_f *vel = stateGetSpeedNed_f();
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
@@ -102,14 +102,14 @@ static void file_logger_write_row(FILE *file) {
 
 
 /** Start the file logger and open a new file */
-void file_logger_start(void)
+void logger_file_start(void)
 {
   // Create output folder if necessary
-  if (access(STRINGIFY(FILE_LOGGER_PATH), F_OK)) {
+  if (access(STRINGIFY(LOGGER_FILE_PATH), F_OK)) {
     char save_dir_cmd[256];
-    sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(FILE_LOGGER_PATH));
+    sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(LOGGER_FILE_PATH));
     if (system(save_dir_cmd) != 0) {
-      printf("[file_logger] Could not create log file directory %s.\n", STRINGIFY(FILE_LOGGER_PATH));
+      printf("[logger_file] Could not create log file directory %s.\n", STRINGIFY(LOGGER_FILE_PATH));
       return;
     }
   }
@@ -125,39 +125,39 @@ void file_logger_start(void)
   char filename[512];
 
   // Check for available files
-  sprintf(filename, "%s/%s.csv", STRINGIFY(FILE_LOGGER_PATH), date_time);
-  while ((file_logger = fopen(filename, "r"))) {
-    fclose(file_logger);
+  sprintf(filename, "%s/%s.csv", STRINGIFY(LOGGER_FILE_PATH), date_time);
+  while ((logger_file = fopen(filename, "r"))) {
+    fclose(logger_file);
 
-    sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(FILE_LOGGER_PATH), date_time, counter);
+    sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(LOGGER_FILE_PATH), date_time, counter);
     counter++;
   }
 
-  file_logger = fopen(filename, "w");
-  if(!file_logger) {
-    printf("[file_logger] ERROR opening log file %s!\n", filename);
+  logger_file = fopen(filename, "w");
+  if(!logger_file) {
+    printf("[logger_file] ERROR opening log file %s!\n", filename);
     return;
   }
 
-  printf("[file_logger] Start logging to %s...\n", filename);
+  printf("[logger_file] Start logging to %s...\n", filename);
 
-  file_logger_write_header(file_logger);
+  logger_file_write_header(logger_file);
 }
 
 /** Stop the logger an nicely close the file */
-void file_logger_stop(void)
+void logger_file_stop(void)
 {
-  if (file_logger != NULL) {
-    fclose(file_logger);
-    file_logger = NULL;
+  if (logger_file != NULL) {
+    fclose(logger_file);
+    logger_file = NULL;
   }
 }
 
 /** Log the values to a csv file    */
-void file_logger_periodic(void)
+void logger_file_periodic(void)
 {
-  if (file_logger == NULL) {
+  if (logger_file == NULL) {
     return;
   }
-  file_logger_write_row(file_logger);
+  logger_file_write_row(logger_file);
 }
