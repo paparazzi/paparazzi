@@ -165,7 +165,7 @@
 
       <!-- Used for writing e.g highspeed accelometer and gyro values for needed tuning can be disabled when all is done -->
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/Disco/logger"/>
+        <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000/Disco/logger"/>
       </module>
 
       <!-- For easier on desk testing transparent_usb, else transparent -->

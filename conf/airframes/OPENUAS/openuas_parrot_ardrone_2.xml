@@ -167,7 +167,7 @@
     </module>
 
     <module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/video"/>
+      <define name="LOGGER_FILE_PATH" value="/data/video"/>
     </module>
 
     <module name="video_thread"/>

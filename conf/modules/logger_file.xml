@@ -6,17 +6,17 @@
       Logs to a csv file.
       (only for linux)
     </description>
-    <define name="FILE_LOGGER_PATH" value="/data/video/usb" description="path where csv file is saved."/>
-    <configure name="FILE_LOGGER_FREQUENCY" value="PERIODIC_FREQUENCY" description="frequency of logging, defaults to PERIODIC_FREQUENCY."/>
+    <define name="LOGGER_FILE_PATH" value="/data/video/usb" description="path where csv file is saved."/>
+    <configure name="LOGGER_FILE_FREQUENCY" value="PERIODIC_FREQUENCY" description="frequency of logging, defaults to PERIODIC_FREQUENCY."/>
   </doc>
   <header>
-	<file name="file_logger.h"/>
+	<file name="logger_file.h"/>
   </header>
-  <periodic fun="file_logger_periodic()" start="file_logger_start()"
-		    stop="file_logger_stop()" autorun="FALSE" freq="FILE_LOGGER_FREQUENCY" />
+  <periodic fun="logger_file_periodic()" start="logger_file_start()"
+		    stop="logger_file_stop()" autorun="FALSE" freq="LOGGER_FILE_FREQUENCY" />
   <makefile>
-    <file name="file_logger.c"/>
-    <configure name="FILE_LOGGER_FREQUENCY" default="PERIODIC_FREQUENCY"/>
-    <define name="FILE_LOGGER_FREQUENCY" value="$(FILE_LOGGER_FREQUENCY)"/>
+    <file name="logger_file.c"/>
+    <configure name="LOGGER_FILE_FREQUENCY" default="PERIODIC_FREQUENCY"/>
+    <define name="LOGGER_FILE_FREQUENCY" value="$(LOGGER_FILE_FREQUENCY)"/>
   </makefile>
 </module>

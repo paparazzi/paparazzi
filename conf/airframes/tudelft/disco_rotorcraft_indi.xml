@@ -14,7 +14,7 @@
       
       <module name="radio_control" type="sbus"/>
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+        <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
       </module>
       <module name="airspeed" type="ms45xx_i2c">
         <define name="MS45XX_I2C_DEV" value="i2c1"/>

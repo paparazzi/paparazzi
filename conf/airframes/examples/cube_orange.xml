@@ -61,7 +61,7 @@
       <module name="scheduling_indi_simple"/>
 
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
+        <define name="LOGGER_FILE_PATH" value="/home/ewoud/Documents"/>
       </module>
 
       <!--Not dealing with these in the simulation-->

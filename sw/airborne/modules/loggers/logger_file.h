@@ -20,15 +20,15 @@
  *
  */
 
-/** @file modules/loggers/file_logger.h
+/** @file modules/loggers/logger_file.h
  *  @brief File logger for Linux based autopilots
  */
 
-#ifndef FILE_LOGGER_H_
-#define FILE_LOGGER_H_
+#ifndef LOGGER_FILE_H_
+#define LOGGER_FILE_H_
 
-extern void file_logger_start(void);
-extern void file_logger_stop(void);
-extern void file_logger_periodic(void);
+extern void logger_file_start(void);
+extern void logger_file_stop(void);
+extern void logger_file_periodic(void);
 
-#endif /* FILE_LOGGER_H_ */
+#endif /* LOGGER_FILE_H_ */

@@ -8,7 +8,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+      <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000/log"/>
       <define name="MT9V117_TARGET_FPS" value="20"/>
       
       <!-- Detect orange -->
@@ -22,7 +22,7 @@
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
-      <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
+      <define name="LOGGER_FILE_PATH" value="/tmp/paparazzi/log"/>
       
       <!-- Detect orange -->
       <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="41"/>
