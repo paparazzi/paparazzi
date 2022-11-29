@@ -295,6 +295,9 @@ void ins_reset_vertical_pos(void)
 
 void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 {
+  // Set body acceleration in the state
+  stateSetAccelBody_i(accel);
+
   /* untilt accels */
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), accel);
@@ -639,7 +642,7 @@ static void pos_est_cb(uint8_t sender_id __attribute__((unused)),
                        float x, float y, float z,
                        float noise_x, float noise_y, float noise_z)
 {
-  
+
 #if USE_HFF
   struct FloatVect2 pos = {x, y};
   struct FloatVect2 Rpos = {noise_x, noise_y};
