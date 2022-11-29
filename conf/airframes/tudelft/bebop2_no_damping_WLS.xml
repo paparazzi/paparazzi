@@ -16,12 +16,11 @@
 
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
-    <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="ublox"/>
 
-    <module name="stabilization" type="indi_simple"/>
+    <module name="stabilization" type="indi"/>
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.5"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.8"/>
@@ -56,20 +55,11 @@
     <servo name="BOTTOM_LEFT" no="3" min="2500" neutral="2500" max="12000"/>
   </servos>
 
-  <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="REVERSE" value="TRUE"/>
-    <define name="TYPE" value="QUAD_X"/>
-  </section>
-
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
-    <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
-    <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
-    <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
-    <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+    <set servo="TOP_LEFT"     value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
+    <set servo="TOP_RIGHT"    value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
   </command_laws>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
@@ -132,10 +122,12 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.05"/>
-    <define name="G1_Q" value="0.04"/>
-    <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.20"/>
+    <define name="G1_ROLL" value="{16 ,  -16, -16,  16}"/>
+    <define name="G1_PITCH" value="{12,   12, -12,  -12}"/>
+    <define name="G1_YAW" value="{ 0.8, -0.8, 0.8, -0.8}"/>
+    <define name="G1_THRUST" value="{-.6, -.6, -.6, -.6}"/>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2" value="{112, -112, 112, -112}"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="320.0"/>
@@ -145,18 +137,18 @@
     <define name="REF_RATE_Q" value="16.0"/>
     <define name="REF_RATE_R" value="16.0"/>
 
-    <!-- second order filter parameters -->
+    <define name="ESTIMATION_FILT_CUTOFF" value="3.2"/>
     <define name="FILT_CUTOFF" value="3.2"/>
-    <define name="FILT_CUTOFF_RDOT" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.06"/>
-    <define name="ACT_DYN_Q" value="0.06"/>
-    <define name="ACT_DYN_R" value="0.06"/>
+    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
+
+    <!--Priority for each axis (roll, pitch, yaw and thrust)-->
+    <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -182,7 +174,8 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="JSBSIM_MODEL" value="bebop2" type="string"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 
   <section name="AUTOPILOT">
