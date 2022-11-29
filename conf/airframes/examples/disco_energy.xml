@@ -18,7 +18,7 @@
       </module>
       
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+        <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000/log"/>
       </module>
 
       <!-- Type of telemetry -->

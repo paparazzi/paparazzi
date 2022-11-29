@@ -13,7 +13,7 @@ pyramid level 2: 21 fps average, min=11fps
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+      <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000/log"/>
       <define name="USE_SONAR"/>
     <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>

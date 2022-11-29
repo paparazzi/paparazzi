@@ -35,7 +35,7 @@
       <module name="udp"/>
       <module name="radio_control" type="datalink"/>
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
+        <define name="LOGGER_FILE_PATH" value="/home/ewoud/Documents"/>
       </module>
 
       <!--Switch advanced INDI scheduling functions on or off-->

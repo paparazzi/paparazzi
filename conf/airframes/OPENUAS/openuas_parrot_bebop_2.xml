@@ -181,7 +181,7 @@
     </module>
 
     <!--<module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+      <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
     </module>-->
 
     <!-- can be used in flightplan during takeoff/landing or lowflyby with default sonar -->

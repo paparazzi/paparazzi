@@ -50,7 +50,7 @@
     <module name="air_data"/>
     <!--module name="guidance_loop_velocity_autonomous_race"/-->
     <module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+      <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
     </module>
 
     <module name="ctrl_module_outerloop_demo"/>
