@@ -33,9 +33,9 @@
 #include "mcu_periph/uart.h"
 #include "mcu_periph/usb_serial.h"
 
+#include "mcu.h"
 #include "led.h"
-
-#include "libopencm3/cm3/scb.h"
+#include "mcu_arch.h"
 
 #include "mcu_periph/sys_time.h"
 #ifdef INTER_MCU_AP
@@ -46,6 +46,11 @@ tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
 
 #define FLASH_PORT   (&((FLASH_UART).device))
 
+#ifndef PX4_IO_FORCE_PROG
+#define PX4_IO_FORCE_PROG FALSE
+#elif (PX4_IO_FORCE_PROG == TRUE)
+PRINT_CONFIG_MSG("Using PX4_IO force program. Don't forget to re-program AP with this option off!");
+#endif
 
 // weird that these below are not in protocol.h, which is from the firmware px4 repo
 // below is copied from qgroundcontrol:
@@ -59,7 +64,7 @@ tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
 #define PROTO_GET_SYNC          0x21 ///< NOP for re-establishing sync
 #define PROTO_GET_DEVICE        0x22 ///< get device ID bytes
 #define PROTO_CHIP_ERASE        0x23 ///< erase program area and reset program address
-#define PROTO_LOAD_ADDRESS      0x24 ///< set next programming address
+#define PROTO_CHIP_VERIFY       0x24 ///< set next programming address
 #define PROTO_PROG_MULTI        0x27 ///< write bytes at program address and increment
 #define PROTO_GET_CRC           0x29 ///< compute & return a CRC
 #define PROTO_BOOT              0x30 ///< boot the application
@@ -130,8 +135,11 @@ void px4flash_event(void)
     unsigned char target = FLASH_PORT->get_byte(FLASH_PORT->periph);
     if (target == '1') { //target ap
       //the target is the ap, so reboot to PX4 bootloader
+#if defined(CHIBIOS_MCU_ARCH_H)
+      mcu_reboot(MCU_REBOOT_BOOTLOADER);
+#elif defined(STM32_MCU_ARCH_H) 
       scb_reset_system();
-
+#endif
     } else { // target fbw
 #ifdef INTER_MCU_AP
       //the target is the fbw, so reboot the fbw and switch to relay mode
@@ -146,24 +154,15 @@ void px4flash_event(void)
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'U');
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'T'); // use 7 chars as answer
         return;
-      }  { // FBW OK OK hollay hollay :)
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'F');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'B');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'W');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K'); // use 7 chars as answer
       }
-
 
       //stop all intermcu communication:
       intermcu_set_enabled(FALSE);
 
-      px4iobl_tid = sys_time_register_timer(5.0, NULL); //10 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
+      sys_time_cancel_timer(px4iobl_tid);
 
       /*
-      * The forceprog define is very usefull, if for whatever reason the (normal, not bootloader) firmware on the IO chip became disfunct.
+      * The PX4_IO_FORCE_PROG define is very usefull, if for whatever reason the (normal, not bootloader) firmware on the IO chip became disfunct.
       * In that case:
       * 1. enable this define
       * 2. build and upload  the fmu f4 chip (ap target in pprz center)
@@ -177,9 +176,8 @@ void px4flash_event(void)
       * 6. Watch the output of the command of step 4, it should recognize the IO bootloader and start flashing. If not try repeating step 5a.
       * 7. Don forget to disable the define and upload the ap again :)
       */
-      //#define forceprog
 
-#ifndef forceprog
+#if !PX4_IO_FORCE_PROG
       //send the reboot to bootloader command:
       static struct IOPacket  dma_packet;
       dma_packet.count_code = 0x40 + 0x01;
@@ -229,7 +227,7 @@ void px4flash_event(void)
         }
       }
 #else
-      int state = 4;
+      state = 4;
 #endif
       if (state == 4) {
         uart_periph_set_baudrate(PX4IO_PORT->periph, B115200);
@@ -249,15 +247,38 @@ void px4flash_event(void)
             unsigned char b = PX4IO_PORT->get_byte(PX4IO_PORT->periph);
 
             if (b == PROTO_INSYNC) {
-              setToBootloaderMode = true;
-              ret = 1;
-              break;
+              sys_time_usleep(10000);
+              if(PX4IO_PORT->char_available(PX4IO_PORT->periph)){
+                b = PX4IO_PORT->get_byte(PX4IO_PORT->periph);
+                if (b == PROTO_OK)
+                {
+                  setToBootloaderMode = true;
+                  ret = 1;
+                  break;
+                }
+              }
             }
           }
         }
         if (setToBootloaderMode) {
           //if successfully entered bootloader mode, clear any remaining bytes (which may have a function, but I did not check)
           while (PX4IO_PORT->char_available(PX4IO_PORT->periph)) {PX4IO_PORT->get_byte(PX4IO_PORT->periph);}
+          // FBW OK OK hollay hollay :)
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'F');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'B');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'W');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'K'); // use 7 chars as answer
+        } else {
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, ':');
+          FLASH_PORT->put_byte(FLASH_PORT->periph, 0, '2'); // use 7 chars as answer
         }
       } else {
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'E'); //TODO: find out what the PX4 protocol for error feedback is...
@@ -265,9 +286,8 @@ void px4flash_event(void)
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'O');
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, 'R');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, '!');
-        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, ' '); // use 7 chars as answer
-
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, ':');
+        FLASH_PORT->put_byte(FLASH_PORT->periph, 0, '1'); // use 7 chars as answer
       }
 #endif
     }

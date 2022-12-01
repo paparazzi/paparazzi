@@ -17,7 +17,7 @@
   <event fun="px4flash_event()"/>
   <makefile target="ap">
     <file name="px4_flash.c"/>
-    <file name="usb_ser_hw.c"  dir="arch/stm32"/>        
+    <file_arch name="usb_ser_hw.c" dir="."/>      
     <configure name="PX4IO_UART" default="uart6" case="upper|lower" />
     <configure name="PX4IO_BAUD" default="B1500000"/>
     <define name="USE_$(PX4IO_UART_UPPER)" cond="ifdef INTERMCU_PORT"/>
