@@ -46,6 +46,9 @@ struct guidance_indi_hybrid_params {
   float speed_gain;
   float speed_gainz;
   float heading_bank_gain;
+  float liftd_asq;
+  float liftd_p80;
+  float liftd_p50;
 };
 
 extern struct FloatVect3 sp_accel;

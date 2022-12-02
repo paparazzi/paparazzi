@@ -604,4 +604,12 @@
 #define RADIO_CONTROL_INTERMCU_ID 9
 #endif
 
+/*
+ * IDs of VEL_SP senders
+ */
+
+#ifndef VEL_SP_FCR_ID
+#define VEL_SP_FCR_ID 1 // Approach Moving Target
+#endif
+
 #endif /* ABI_SENDER_IDS_H */

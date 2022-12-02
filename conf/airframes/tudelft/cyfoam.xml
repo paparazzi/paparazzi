@@ -1,6 +1,6 @@
 <!--Mini-Cyclone EPP Airframe
   Chimera AP
-	Xbee API 
+	Xbee API
 	Ublox M8T
 	SBUS Futaba -->
 
@@ -296,7 +296,7 @@
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
       <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>
       <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.8"/>
-      <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
+      <define name="GUIDANCE_INDI_LIFTD_ASQ" value="0.20"/>
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
       <define name="GUIDANCE_INDI_MIN_THROTTLE" value="3000"/>

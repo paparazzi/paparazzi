@@ -86,7 +86,7 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ins"           type="ekf2"/>
-    
+
     <module name="air_data"/>
 
     <!-- Internal MAG -->
@@ -112,7 +112,7 @@
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
       <define name="GUIDANCE_INDI_POS_GAINZ" value="0.2"/>
       <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.0"/>
-      <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
+      <define name="GUIDANCE_INDI_LIFTD_ASQ" value="0.20"/>
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
