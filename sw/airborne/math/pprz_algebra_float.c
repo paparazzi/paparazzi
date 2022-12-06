@@ -620,11 +620,11 @@ void float_quat_of_rmat(struct FloatQuat *q, struct FloatRMat *rm)
 
 /**
  * @brief Tilt twist decomposition of a quaternion (z axis)
- * 
+ *
  * Decomposes a quaternion rotation in two rotations:
  * 1. A rotation that aligns the z axis.
  * 2. A rotation around the z axis.
- * 
+ *
  * Useful for control of vehicles that are slow in rotation around the z axis.
  *
  * @param tilt Tilt output
@@ -643,7 +643,7 @@ void float_quat_tilt_twist(struct FloatQuat *tilt, struct FloatQuat *twist, stru
 
   // The cross product gives the axis around which to rotate to match the Z vectors.
   struct FloatVect3 axis;
-  VECT3_CROSS_PRODUCT(axis, z, z_rot); 
+  VECT3_CROSS_PRODUCT(axis, z, z_rot);
 
   tilt->qi = 1 + z_rot.z;
   tilt->qx = axis.x;
@@ -1018,6 +1018,17 @@ void vect_bound_in_2d(struct FloatVect3 *vect3, float bound) {
     float scale = bound/norm;
     vect3->x *= scale;
     vect3->y *= scale;
+  }
+}
+
+/* Scale a 3D vector to within a 3D bound */
+void vect_bound_in_3d(struct FloatVect3 *vect3, float bound) {
+  float norm = FLOAT_VECT3_NORM(*vect3);
+  if(norm>bound) {
+    float scale = bound/norm;
+    vect3->x *= scale;
+    vect3->y *= scale;
+    vect3->z *= scale;
   }
 }
 
