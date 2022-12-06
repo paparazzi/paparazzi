@@ -146,7 +146,7 @@
     <block name="Takeoff">
       <exception cond="GetPosHeight() @GT 70.0" deroute="GO NORTH"/>
       <call_once fun="nav_set_heading_current()"/>
-      <call_once fun="waypoint_set_xy_i(WP_CLIMB,POS_BFP_OF_REAL(GetPosX()+20.0*sinf(stateGetNedToBodyEulers_f()@DEREFpsi)),POS_BFP_OF_REAL(GetPosY()+20.0*cosf(stateGetNedToBodyEulers_f()@DEREFpsi)))"/>
+      <call_once fun="waypoint_set_xy_i(WP_CLIMB,POS_BFP_OF_REAL(GetPosX()+20.0*sinf(stateGetNedToBodyEulers_f()->psi)),POS_BFP_OF_REAL(GetPosY()+20.0*cosf(stateGetNedToBodyEulers_f()->psi)))"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="GO SOUTH">

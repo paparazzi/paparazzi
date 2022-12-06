@@ -26,5 +26,6 @@ not use this module at the same time!</description>
   <periodic fun="ctrl_eff_scheduling_periodic()" freq="20.0"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="eff_scheduling_nederdrone.c"/>
+    <test/>
   </makefile>
 </module>
