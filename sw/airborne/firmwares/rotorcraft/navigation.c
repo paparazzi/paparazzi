@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -48,84 +48,24 @@
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 
-
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 
-/** default nav_circle_radius in meters */
-#ifndef DEFAULT_CIRCLE_RADIUS
-#define DEFAULT_CIRCLE_RADIUS 5.
-#endif
-
-#ifndef NAV_CLIMB_VSPEED
-#define NAV_CLIMB_VSPEED 0.5
-#endif
-
-#ifndef NAV_DESCEND_VSPEED
-#define NAV_DESCEND_VSPEED -0.8
-#endif
-
-/** minimum horizontal distance to waypoint to mark as arrived */
-#ifndef ARRIVED_AT_WAYPOINT
-#define ARRIVED_AT_WAYPOINT 3.0
-#endif
-
-/** Maximum distance from HOME waypoint before going into failsafe mode */
-#ifndef FAILSAFE_MODE_DISTANCE
-#define FAILSAFE_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
-#endif
-
-#ifndef NAV_CARROT_DIST
-#define NAV_CARROT_DIST 12
-#endif
-
-#define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
-#define CARROT_DIST ((int32_t) POS_BFP_OF_REAL(NAV_CARROT_DIST))
+struct RotorcraftNavition nav;
 
 bool force_forward = false;
 
-struct FloatVect2 line_vect, to_end_vect;
-
 const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
-float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
-float dist2_to_home;
-bool too_far_from_home;
-
-float dist2_to_wp;
-
-struct EnuCoor_i navigation_target;
-struct EnuCoor_i navigation_carrot;
-
-struct EnuCoor_i nav_last_point;
 
 uint8_t last_wp UNUSED;
 
-bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
-
-uint8_t horizontal_mode;
-
-int32_t nav_leg_progress;
-uint32_t nav_leg_length;
+//bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
 
 bool nav_survey_active;
 
-int32_t nav_roll, nav_pitch;
-int32_t nav_heading;
-int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
-float nav_radius;
 float nav_climb_vspeed, nav_descend_vspeed;
 
-uint8_t vertical_mode;
-uint32_t nav_throttle;
-int32_t nav_climb, nav_altitude, nav_flight_altitude;
 float flight_altitude;
-
-/* nav_circle variables */
-struct EnuCoor_i nav_circle_center;
-int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
-
-/* nav_route variables */
-struct EnuCoor_i nav_segment_start, nav_segment_end;
 
 static inline void nav_set_altitude(void);
 
@@ -189,38 +129,40 @@ void nav_init(void)
 
   nav_block = 0;
   nav_stage = 0;
-  nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
-  nav_flight_altitude = nav_altitude;
+
+  VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
+  VECT3_COPY(nav.carrot, waypoints[WP_HOME].enu_f);
+
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
+  nav.vertical_mode = NAV_VERTICAL_MODE_ALT;
+
+  nav.throttle = 0;
+  nav.cmd_roll = 0;
+  nav.cmd_pitch = 0;
+  nav.cmd_yaw = 0;
+  nav.roll = 0.f;
+  nav.pitch = 0.f;
+  nav.heading = 0.f;
+  nav.radius = DEFAULT_CIRCLE_RADIUS;
+  nav.climb = 0.f;
+  nav.altitude = SECURITY_HEIGHT;
   flight_altitude = SECURITY_ALT;
-  VECT3_COPY(navigation_target, waypoints[WP_HOME].enu_i);
-  VECT3_COPY(navigation_carrot, waypoints[WP_HOME].enu_i);
 
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  vertical_mode = VERTICAL_MODE_ALT;
+  nav.too_far_from_home = false;
+  nav.failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
+  nav.dist2_to_home = 0.f;
+  nav.dist2_to_wp = 0.f;
+  nav.leg_progress = 0.f;
+  nav.leg_length = 1.f;
+  nav.climb_vspeed = NAV_CLIMB_VSPEED;
+  nav.descend_vspeed = NAV_DESCEND_VSPEED;
 
-  nav_roll = 0;
-  nav_pitch = 0;
-  nav_heading = 0;
-  nav_cmd_roll = 0;
-  nav_cmd_pitch = 0;
-  nav_cmd_yaw = 0;
-  nav_radius = DEFAULT_CIRCLE_RADIUS;
-  nav_climb_vspeed = NAV_CLIMB_VSPEED;
-  nav_descend_vspeed = NAV_DESCEND_VSPEED;
-  nav_throttle = 0;
-  nav_climb = 0;
-  nav_leg_progress = 0;
-  nav_leg_length = 1;
-
-  too_far_from_home = false;
-  dist2_to_home = 0;
-  dist2_to_wp = 0;
-
-  FLOAT_VECT2_ZERO(line_vect);
-  FLOAT_VECT2_ZERO(to_end_vect);
+  for (int i = 0; i < 10; i++) {
+    nav.exception_flag[i] = false;
+  }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_NAV_STATUS, send_nav_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_NAV_STATUS, send_nav_status); // TODO move to base nav
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);
 #endif
 
@@ -279,7 +221,7 @@ void nav_run(void)
 
 #if GUIDANCE_H_USE_REF
   // if GUIDANCE_H_USE_REF, CARROT_DIST is not used
-  VECT2_COPY(navigation_carrot, navigation_target);
+  VECT2_COPY(nav.carrot, nav.target);
 #else
   nav_advance_carrot();
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi
  *
@@ -19,23 +19,23 @@
  */
 
 /**
- * @file "modules/nav/nav_rover_base.c"
+ * @file "modules/nav/nav_rotorcraft_base.c"
  * @author 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
- * Basic navigation functions for Rovers
+ * Basic navigation functions for Rotorcraft
  */
 
 #include "modules/nav/nav_rover_base.h"
 
-struct RoverNavBase nav_rover_base;
+struct NavBase_t nav_rotorcraft_base;
 
 /** Implement basic nav function
  */
 
 static void nav_goto(struct EnuCoor_f *wp)
 {
-  nav_rover_base.goto_wp.to = *wp;
-  nav_rover_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
-  nav.mode = NAV_MODE_WAYPOINT;
+  nav_rotorcraft_base.goto_wp.to = *wp;
+  nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
+  nav.mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 }
 
 static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -45,19 +45,19 @@ static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_start);
   // leg length
   float leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y), 0.1f);
-  nav_rover_base.goto_wp.leg_length = sqrtf(leg_length2);
+  nav_rotorcraft_base.goto_wp.leg_length = sqrtf(leg_length2);
   // leg progress
-  nav_rover_base.goto_wp.leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_rover_base.goto_wp.leg_length;
-  nav_rover_base.goto_wp.leg_progress += Max(CARROT_DIST, 0.f);
+  nav_rotorcraft_base.goto_wp.leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_rotorcraft_base.goto_wp.leg_length;
+  nav_rotorcraft_base.goto_wp.leg_progress += Max(CARROT_DIST, 0.f);
   // next pos on leg
   struct FloatVect2 progress_pos;
-  VECT2_SMUL(progress_pos, wp_diff, nav_rover_base.goto_wp.leg_progress / nav_rover_base.goto_wp.leg_length);
+  VECT2_SMUL(progress_pos, wp_diff, nav_rotorcraft_base.goto_wp.leg_progress / nav_rotorcraft_base.goto_wp.leg_length);
   VECT2_SUM(nav.target, *wp_start, progress_pos);
 
-  nav_rover_base.goto_wp.from = *wp_start;
-  nav_rover_base.goto_wp.to = *wp_end;
-  nav_rover_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
-  nav.mode = NAV_MODE_ROUTE;
+  nav_rotorcraft_base.goto_wp.from = *wp_start;
+  nav_rotorcraft_base.goto_wp.to = *wp_end;
+  nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
+  nav.mode = NAV_HORIZONTAL_MODE_ROUTE;
 }
 
 static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
@@ -105,13 +105,13 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
   struct FloatVect2 pos_diff;
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
   // store last qdr
-  float last_qdr = nav_rover_base.circle.qdr;
+  float last_qdr = nav_rotorcraft_base.circle.qdr;
   // compute qdr
-  nav_rover_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
+  nav_rotorcraft_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
   // increment circle radians
-  float trigo_diff = nav_rover_base.circle.qdr - last_qdr;
+  float trigo_diff = nav_rotorcraft_base.circle.qdr - last_qdr;
   NormRadAngle(trigo_diff);
-  nav_rover_base.circle.radians += trigo_diff;
+  nav_rotorcraft_base.circle.radians += trigo_diff;
 
   // direction of rotation
   float sign_radius = radius > 0.f ? 1.f : -1.f;
@@ -122,7 +122,7 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
     float carrot_angle = CARROT_DIST / abs_radius;
     carrot_angle = Min(carrot_angle, M_PI / 4);
     carrot_angle = Max(carrot_angle, M_PI / 16);
-    carrot_angle = nav_rover_base.circle.qdr - sign_radius * carrot_angle;
+    carrot_angle = nav_rotorcraft_base.circle.qdr - sign_radius * carrot_angle;
     // compute setpoint
     VECT2_ASSIGN(pos_diff, abs_radius * cosf(carrot_angle), abs_radius * sinf(carrot_angle));
     VECT2_SUM(nav.target, *wp_center, pos_diff);
@@ -132,9 +132,9 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
     VECT2_COPY(nav.target, *wp_center);
   }
 
-  nav_rover_base.circle.center = *wp_center;
-  nav_rover_base.circle.radius = radius;
-  nav.mode = NAV_MODE_CIRCLE;
+  nav_rotorcraft_base.circle.center = *wp_center;
+  nav_rotorcraft_base.circle.radius = radius;
+  nav.mode = NAV_HORIZONTAL_MODE_CIRCLE;
 }
 
 /**
@@ -152,8 +152,8 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 
 static void _nav_oval_init(void)
 {
-  nav_rover_base.oval.status = OC2;
-  nav_rover_base.oval.count = 0;
+  nav_rotorcraft_base.oval.status = OC2;
+  nav_rotorcraft_base.oval.count = 0;
 }
 
 static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
@@ -252,34 +252,34 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 static void send_segment(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_SEGMENT(trans, dev, AC_ID,
-      &nav_rover_base.goto_wp.from.x,
-      &nav_rover_base.goto_wp.from.y,
-      &nav_rover_base.goto_wp.to.x,
-      &nav_rover_base.goto_wp.to.y);
+      &nav_rotorcraft_base.goto_wp.from.x,
+      &nav_rotorcraft_base.goto_wp.from.y,
+      &nav_rotorcraft_base.goto_wp.to.x,
+      &nav_rotorcraft_base.goto_wp.to.y);
 }
 
 static void send_circle(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_CIRCLE(trans, dev, AC_ID,
-      &nav_rover_base.circle.center.x,
-      &nav_rover_base.circle.center.y,
-      &nav_rover_base.circle.radius);
+      &nav_rotorcraft_base.circle.center.x,
+      &nav_rotorcraft_base.circle.center.y,
+      &nav_rotorcraft_base.circle.radius);
 }
 #endif // ROVER_BASE_SEND_TRAJECTORY
 
 static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
 {
   float dist_home = sqrtf(nav.dist2_to_home);
-  float dist_wp = sqrtf(nav_rover_base.goto_wp.dist2_to_wp);
+  float dist_wp = sqrtf(nav_rotorcraft_base.goto_wp.dist2_to_wp);
   pprz_msg_send_ROTORCRAFT_NAV_STATUS(trans, dev, AC_ID,
                                       &block_time, &stage_time,
                                       &dist_home, &dist_wp,
                                       &nav_block, &nav_stage,
                                       &nav.mode);
 #if ROVER_BASE_SEND_TRAJECTORY
-  if (nav.mode == NAV_MODE_ROUTE) {
+  if (nav.mode == NAV_HORIZONTAL_MODE_ROUTE) {
     send_segment(trans, dev);
-  } else if (nav.mode == NAV_MODE_CIRCLE) {
+  } else if (nav.mode == NAV_HORIZONTAL_MODE_CIRCLE) {
     send_circle(trans, dev);
   }
 #endif // ROVER_BASE_SEND_TRAJECTORY
@@ -288,11 +288,11 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
 
 /** Init and register nav functions
  */
-void nav_rover_init(void)
+void nav_rotorcraft_init(void)
 {
-  nav_rover_base.circle.radius = DEFAULT_CIRCLE_RADIUS;
-  nav_rover_base.goto_wp.leg_progress = 0.f;
-  nav_rover_base.goto_wp.leg_length = 1.f;
+  nav_rotorcraft_base.circle.radius = DEFAULT_CIRCLE_RADIUS;
+  nav_rotorcraft_base.goto_wp.leg_progress = 0.f;
+  nav_rotorcraft_base.goto_wp.leg_length = 1.f;
 
   // register nav functions
   nav_register_goto_wp(nav_goto, nav_route, nav_approaching);
