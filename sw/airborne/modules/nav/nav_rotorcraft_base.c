@@ -102,16 +102,22 @@ static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float 
 
 static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 {
-  struct FloatVect2 pos_diff;
-  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
-  // store last qdr
-  float last_qdr = nav_rotorcraft_base.circle.qdr;
-  // compute qdr
-  nav_rotorcraft_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
-  // increment circle radians
-  float trigo_diff = nav_rotorcraft_base.circle.qdr - last_qdr;
-  NormRadAngle(trigo_diff);
-  nav_rotorcraft_base.circle.radians += trigo_diff;
+  if (fabsf(radius) < 0.001f) {
+    VECT2_COPY(nav.target, *wp_center);
+    nav.dist2_to_wp = get_dist2_to_point(wp_center);
+  } else {
+    // TODO continue from here
+    struct FloatVect2 pos_diff;
+    VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
+    // store last qdr
+    float last_qdr = nav_rotorcraft_base.circle.qdr;
+    // compute qdr
+    nav_rotorcraft_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
+    // increment circle radians
+    float trigo_diff = nav_rotorcraft_base.circle.qdr - last_qdr;
+    NormRadAngle(trigo_diff);
+    nav_rotorcraft_base.circle.radians += trigo_diff;
+  }
 
   // direction of rotation
   float sign_radius = radius > 0.f ? 1.f : -1.f;
