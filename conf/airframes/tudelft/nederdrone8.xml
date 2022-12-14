@@ -23,7 +23,7 @@
       </module>
 
       <!-- Forward FuelCell data back to the GCS -->
-      <module name="generic_uart_sensor"/>
+      <!--module name="generic_uart_sensor"/-->
 
       <!-- Logger -->
       <module name="tlsf"/>
@@ -36,11 +36,11 @@
         <define name="USE_I2C4"/>
         <define name="MS45XX_I2C_DEV" value="i2c4"/>
       </module>
-      <module name="airspeed" type="uavcan"/>
+      <!--module name="airspeed" type="uavcan"/-->
 
       <!-- Monitoring -->
       <module name="sys_mon"/>
-      <module name="status_nederdrone"/>
+      <!--module name="status_nederdrone"/-->
 
       <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
 
@@ -109,8 +109,6 @@
       <define name="AIR_DATA_BARO_DIFF_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
     </module>
-
-    <module name="send_imu_mag_current"/>
 
     <!-- Internal MAG -->
     <!--module name="mag_ist8310">
@@ -391,12 +389,6 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="18.0" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="18.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="19.2" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="25.2" unit="V"/>
-    <define name="BAT_NB_CELLS" value="6"/>
-  </section>
-
-</airframe>
-lue="19.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="25.2" unit="V"/>
     <define name="BAT_NB_CELLS" value="6"/>
   </section>

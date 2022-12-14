@@ -36,11 +36,11 @@
         <define name="USE_I2C4"/>
         <define name="MS45XX_I2C_DEV" value="i2c4"/>
       </module>
-      <module name="airspeed" type="uavcan"/>
+      <!--module name="airspeed" type="uavcan"/-->
 
       <!-- Monitoring -->
       <module name="sys_mon"/>
-      <module name="status_nederdrone"/>
+      <!--module name="status_nederdrone"/-->
 
       <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
 
