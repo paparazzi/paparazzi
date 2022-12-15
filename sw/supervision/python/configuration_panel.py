@@ -117,8 +117,8 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             return Setting(name, state)
 
         modules, settings = [], []
-        for i in range(self.conf_widget.settings.count()):
-            item = self.conf_widget.settings.item(i)
+        for i in range(self.conf_widget.settings.settings.count()):
+            item = self.conf_widget.settings.settings.item(i)
             s = make_setting(item)
             if item.text().startswith("module"):
                 modules.append(s)
