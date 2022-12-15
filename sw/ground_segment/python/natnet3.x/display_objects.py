@@ -62,6 +62,7 @@ parser.add_argument('-cp', '--command_port', dest='command_port', type=int, defa
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help="display debug messages")
 parser.add_argument('-vv', '--very_verbose', dest='very_verbose', action='store_true', help="display debug messages and optitrack debug messages")
 parser.add_argument('-f', '--freq', dest='freq', default=1., type=float, help="transmit frequency")
+parser.add_argument('-rp', '--refresh_period', dest='refresh_period', default=4., type=float, help="refresh period at which message is sent event if the object is not moving")
 parser.add_argument('-up', '--up_axis', dest='up_axis', choices=['y_up', 'z_up'], default='y_up', help="Optitrack Up axis: y_up or z_up.")
 parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
 
@@ -122,16 +123,20 @@ def receiveMarkerSet(name, posList):
         now = time()
         if name in markerset:
             dt = now - markerset[name]['time']
+            dt_refresh = now - markerset[name]['time_refresh']
             if dt >= period:
-                markerset[name]['time'] = now
                 # period elapsed, check if moved
+                markerset[name]['time'] = now
                 moved = is_moving(markerset[name]['pos'], posList)
                 if moved:
                     send = True
                     markerset[name]['pos'] = posList
+            if dt_refresh >= args.refresh_period:
+                # refresh period elapsed, send anyway
+                send = True
         else:
             send = True
-            markerset[name] = { 'time': now, 'id': current_index, 'pos': posList }
+            markerset[name] = {'time_refresh': now, 'time': now, 'id': current_index, 'pos': posList }
             current_index += 1
 
         if args.very_verbose:
@@ -164,6 +169,7 @@ def receiveMarkerSet(name, posList):
             else:
                 shape['text'] = '" "'
             ivy.send(shape)
+            markerset[name]['time_refresh'] = now
             sleep(0.01)
 
 def check_timeout():
