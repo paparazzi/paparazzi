@@ -74,9 +74,6 @@ struct target_t target = {
   .integrate_z = TARGET_INTEGRATE_Z
 };
 
-/* Get the Relative postion from the RTK */
-extern struct GpsRelposNED gps_relposned;
-
 /* GPS abi callback */
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
@@ -144,16 +141,6 @@ void target_parse_target_pos(uint8_t *buf)
  */
 bool target_get_pos(struct NedCoor_f *pos, float *heading) {
   float time_diff = 0;
-
-  // /* When we have a valid relative position from the RTK GPS and no timeout update the position */
-  // if((gps_relposned.relPosValid != 0) && (gps_relposned.iTOW+target.rtk_timeout) > gps_tow_from_sys_ticks(sys_time.nb_tick)) {
-  //   struct NedCoor_f cur_pos = *stateGetPositionNed_f();
-
-  //   // Convert the relative postion to a postion in the NED frame of the UAV
-  //   pos->x = cur_pos.x - gps_relposned.relPosN / 100.0f;
-  //   pos->y = cur_pos.y - gps_relposned.relPosE / 100.0f;
-  //   pos->z = cur_pos.z - gps_relposned.relPosD / 100.0f;
-  // }
 
   /* When we have a valid target_pos message, state ned is initialized and no timeout */
   if(target.pos.valid && state.ned_initialized_i && (target.pos.recv_time+target.target_pos_timeout) > get_sys_time_msec()) {
