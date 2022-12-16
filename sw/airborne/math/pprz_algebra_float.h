@@ -886,6 +886,7 @@ extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct Fl
 extern bool float_mat_inv_4d(float invOut[16], float mat_in[16]);
 
 extern void vect_bound_in_2d(struct FloatVect3 *vect3, float bound);
+extern void vect_bound_in_3d(struct FloatVect3 *vect3, float bound);
 extern void vect_scale(struct FloatVect3 *vect3, float norm_des);
 
 #ifdef __cplusplus

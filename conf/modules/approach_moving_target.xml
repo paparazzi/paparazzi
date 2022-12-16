@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="approach_moving_target" dir="ctrl">
+  <doc>
+    <description>
+      Approach a moving target (e.g. ship) along a diagonal.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Approach">
+        <dl_setting var="amt.psi_ref" min="-180." max="180." step="1.0" shortname="psi_app" unit="degrees"/>
+        <dl_setting var="amt.slope_ref" min="0." max="80." step="1.0" shortname="slope_app" unit="degrees"/>
+        <dl_setting var="amt.speed" min="-5.0" max="5." step="0.1" shortname="speed" unit="m/s"/>
+        <dl_setting var="amt.distance" min="0.0" max="200." step="1.0" shortname="dist" unit="m"/>
+        <dl_setting var="amt_err_slowdown_gain" min="0.0" max="4." step="0.01" shortname="slwdn_gain"/>
+        <dl_setting var="amt.pos_gain" min="0.05" max="3.0" step="0.01" shortname="pos_gain"/>
+        <dl_setting var="amt.speed_gain" min="0.0" max="1.0" step="0.01" shortname="speed_gain"/>
+        <dl_setting var="amt.relvel_gain" min="0.0" max="1.0" step="0.01" shortname="relvel_gain"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>target_pos</depends>
+  </dep>
+  <header>
+    <file name="approach_moving_target.h"/>
+  </header>
+  <init fun="approach_moving_target_init()"/>
+  <periodic fun="follow_diagonal_approach()" freq="100.0"/>
+  <makefile>
+    <file name="approach_moving_target.c"/>
+  </makefile>
+</module>
