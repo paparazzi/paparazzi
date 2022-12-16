@@ -15,6 +15,7 @@ class ConfSettingsWidget(QWidget, Ui_SettingsConf):
         self.setupUi(self)
         self.add_setting_button.clicked.connect(self.open_setting)
         self.remove_setting_button.clicked.connect(self.remove_setting)
+        self.settings.currentItemChanged.connect(self.set_remove_button_state)
 
     def open_setting(self):
         base_settings_path = os.path.join(utils.CONF_DIR, "settings")
@@ -31,4 +32,10 @@ class ConfSettingsWidget(QWidget, Ui_SettingsConf):
         row = self.settings.currentRow()
         self.settings.takeItem(row)
         self.settings_changed.emit()
+
+    def set_remove_button_state(self, item: QListWidgetItem, _):
+        if item.text().startswith("modules/"):
+            self.remove_setting_button.setDisabled(True)
+        else:
+            self.remove_setting_button.setDisabled(False)
 
