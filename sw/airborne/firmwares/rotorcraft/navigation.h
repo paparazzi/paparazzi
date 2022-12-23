@@ -355,9 +355,10 @@ static inline void NavGlide(uint8_t start_wp, uint8_t wp)
   NavVerticalAltitudeMode(alt, 0);
 }
 
-/* follow another aircraft FIXME */
-#define NavFollow nav_follow
-extern void nav_follow(uint8_t _ac_id, float distance, float height);
+/* follow another aircraft not implemented with this function
+ * see dedicated nav modules
+ */
+#define NavFollow(_i, _d, _h) {}
 
 
 

@@ -59,69 +59,12 @@ const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 
 uint8_t last_wp UNUSED;
 
-//bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
-
 //bool nav_survey_active;
 
 float nav_climb_vspeed, nav_descend_vspeed;
-
 float flight_altitude;
 
 static inline void nav_set_altitude(void);
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-
-void set_exception_flag(uint8_t flag_num)
-{
-  exception_flag[flag_num] = 1;
-}
-
-static void send_segment(struct transport_tx *trans, struct link_device *dev)
-{
-  float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
-  float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
-  float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
-  float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
-  pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
-}
-
-static void send_circle(struct transport_tx *trans, struct link_device *dev)
-{
-  float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
-  float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
-  float r = POS_FLOAT_OF_BFP(nav_circle_radius);
-  pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
-}
-
-static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
-{
-  float dist_home = sqrtf(dist2_to_home);
-  float dist_wp = sqrtf(dist2_to_wp);
-  pprz_msg_send_ROTORCRAFT_NAV_STATUS(trans, dev, AC_ID,
-                                      &block_time, &stage_time,
-                                      &dist_home, &dist_wp,
-                                      &nav_block, &nav_stage,
-                                      &horizontal_mode);
-  if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
-    send_segment(trans, dev);
-  } else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
-    send_circle(trans, dev);
-  }
-}
-
-static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
-{
-  static uint8_t i;
-  i++;
-  if (i >= nb_waypoint) { i = 0; }
-  pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
-                             &i,
-                             &(waypoints[i].enu_i.x),
-                             &(waypoints[i].enu_i.y),
-                             &(waypoints[i].enu_i.z));
-}
-#endif
 
 void nav_init(void)
 {
@@ -160,11 +103,6 @@ void nav_init(void)
   for (int i = 0; i < 10; i++) {
     nav.exception_flag[i] = false;
   }
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_NAV_STATUS, send_nav_status); // TODO move to base nav
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);
-#endif
 
   // generated init function
   auto_nav_init();
@@ -303,7 +241,7 @@ void nav_periodic_task(void)
 
   //nav.survey_active = false; FIXME should be all done in survey rotorcraft
 
-  dist2_to_wp = 0;
+  dist2_to_wp = 0.f;
 
   /* from flight_plan.h */
   auto_nav();
@@ -406,7 +344,7 @@ void nav_set_heading_towards(float x, float y)
   struct FloatVect2 pos_diff;
   VECT2_DIFF(pos_diff, target, *stateGetPositionEnu_f());
   // don't change heading if closer than 0.5m to target
-  if (VECT2_NORM2(pos_diff) > 0.25) {
+  if (VECT2_NORM2(pos_diff) > 0.25f) {
     float heading_f = atan2f(pos_diff.x, pos_diff.y);
     nav.heading = heading_f;
   }
@@ -435,6 +373,11 @@ void nav_set_failsafe(void)
   autopilot_set_mode(AP_MODE_FAILSAFE);
 }
 
+void set_exception_flag(uint8_t flag_num)
+{
+  nav.exception_flag[flag_num] = 1;
+}
+
 
 /** Register functions
  */
@@ -457,43 +400,3 @@ void nav_register_oval(navigation_oval_init nav_oval_init, navigation_oval nav_o
   nav.nav_oval = nav_oval;
 }
 
-
-
-/***********************************************************
- * built in navigation routines
- **********************************************************/
-
-/************** Oval Navigation **********************************************/
-
-#ifndef LINE_START_FUNCTION
-#define LINE_START_FUNCTION {}
-#endif
-#ifndef LINE_STOP_FUNCTION
-#define LINE_STOP_FUNCTION {}
-#endif
-
-enum oval_status { OR12, OC2, OR21, OC1 };
-enum oval_status oval_status;
-uint8_t nav_oval_count;
-
-/*
-#ifdef TRAFFIC_INFO
-#include "modules/multi/traffic_info.h"
-
-void nav_follow(uint8_t ac_id, uint32_t distance, uint32_t height)
-{
-    struct EnuCoor_i* target = acInfoGetPositionEnu_i(ac_id);
-
-
-    float alpha = M_PI / 2 - acInfoGetCourse(ac_id);
-    float ca = cosf(alpha), sa = sinf(alpha);
-    target->x += - distance * ca;
-    target->y += - distance * sa;
-    target->z = (Max(target->z + height, SECURITY_HEIGHT)); // todo add ground height to check
-
-    ENU_OF_TO_NED(navigation_target, *target);
-}
-#else*/
-void nav_follow(uint8_t  __attribute__((unused)) _ac_id, uint32_t  __attribute__((unused)) distance,
-                uint32_t  __attribute__((unused)) height) {}
-//#endif

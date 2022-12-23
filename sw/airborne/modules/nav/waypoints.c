@@ -31,6 +31,22 @@
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct Waypoint waypoints[NB_WAYPOINT];
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+
+static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
+{
+  static uint8_t i;
+  i++;
+  if (i >= nb_waypoint) { i = 0; }
+  pprz_msg_send_WP_MOVED_ENU(trans, dev, AC_ID,
+                             &i,
+                             &(waypoints[i].enu_i.x),
+                             &(waypoints[i].enu_i.y),
+                             &(waypoints[i].enu_i.z));
+}
+#endif
+
 /** initialize global and local waypoints */
 void waypoints_init(void)
 {
@@ -50,6 +66,10 @@ void waypoints_init(void)
       waypoint_set_enu(i, &wp_tmp_float[i]);
     }
   }
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);
+#endif
 }
 
 bool waypoint_is_global(uint8_t wp_id)
