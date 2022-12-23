@@ -16,6 +16,8 @@ not use this module at the same time!</description>
         <dl_setting shortname="sched_ratio_tip_props" var="sched_ratio_tip_props" min="0" step="0.1" max="1"/>
         <dl_setting shortname="thrust_eff_scaling" var="thrust_eff_scaling" min="0.6" step="0.01" max="1.4"/>
         <dl_setting shortname="all_act_fwd_sched" var="all_act_fwd_sched" min="0" step="1" max="1" values="OFF|ON"/>
+        <dl_setting shortname="trim_elevator" var="trim_elevator" min="-5000" step="1" max="5000"/>
+        <dl_setting shortname="trim_flaps" var="trim_flaps" min="-5000" step="1" max="5000"/>
       </dl_settings>
     </dl_settings>
   </settings>
