@@ -50,18 +50,13 @@
 
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 
-struct RotorcraftNavition nav;
-
-bool force_forward = false;
+struct RotorcraftNavigation nav;
 
 const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 
-uint8_t last_wp UNUSED;
-
 //bool nav_survey_active;
 
-float nav_climb_vspeed, nav_descend_vspeed;
 float flight_altitude;
 
 static inline void nav_set_altitude(void);
@@ -88,21 +83,25 @@ void nav_init(void)
   nav.heading = 0.f;
   nav.radius = DEFAULT_CIRCLE_RADIUS;
   nav.climb = 0.f;
-  nav.altitude = SECURITY_HEIGHT;
+  nav.fp_altitude = SECURITY_HEIGHT;
+  nav.nav_altitude = SECURITY_HEIGHT;
   flight_altitude = SECURITY_ALT;
+
+  nav.force_forward = false;
 
   nav.too_far_from_home = false;
   nav.failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
   nav.dist2_to_home = 0.f;
-  nav.dist2_to_wp = 0.f;
-  nav.leg_progress = 0.f;
-  nav.leg_length = 1.f;
   nav.climb_vspeed = NAV_CLIMB_VSPEED;
   nav.descend_vspeed = NAV_DESCEND_VSPEED;
 
-  for (int i = 0; i < 10; i++) {
-    nav.exception_flag[i] = false;
-  }
+  nav.nav_stage_init = NULL;
+  nav.nav_goto = NULL;
+  nav.nav_route = NULL;
+  nav.nav_approaching = NULL;
+  nav.nav_circle = NULL;
+  nav.nav_oval_init = NULL;
+  nav.nav_oval = NULL;
 
   // generated init function
   auto_nav_init();
@@ -132,25 +131,29 @@ void nav_parse_MOVE_WP(uint8_t *buf)
   }
 }
 
+#ifndef CLOSE_TO_WAYPOINT
+#define CLOSE_TO_WAYPOINT 15.f
+#endif
+
 static inline void UNUSED nav_advance_carrot(void)
 {
-  struct EnuCoor_i *pos = stateGetPositionEnu_i();
+  struct EnuCoor_f *pos = stateGetPositionEnu_f();
   /* compute a vector to the waypoint */
-  struct Int32Vect2 path_to_waypoint;
-  VECT2_DIFF(path_to_waypoint, navigation_target, *pos);
+  struct FloatVect2 path_to_waypoint;
+  VECT2_DIFF(path_to_waypoint, nav.target, *pos);
 
   /* saturate it */
-  VECT2_STRIM(path_to_waypoint, -(1 << 15), (1 << 15));
+  VECT2_STRIM(path_to_waypoint, -150.f, 150.f);
 
-  int32_t dist_to_waypoint = int32_vect2_norm(&path_to_waypoint);
+  float dist_to_waypoint = float_vect2_norm(&path_to_waypoint);
 
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
-    VECT2_COPY(navigation_carrot, navigation_target);
+    VECT2_COPY(nav.carrot, nav.target);
   } else {
     struct Int32Vect2 path_to_carrot;
-    VECT2_SMUL(path_to_carrot, path_to_waypoint, CARROT_DIST);
+    VECT2_SMUL(path_to_carrot, path_to_waypoint, NAV_CARROT_DIST);
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
-    VECT2_SUM(navigation_carrot, path_to_carrot, *pos);
+    VECT2_SUM(nav.carrot, path_to_carrot, *pos);
   }
 }
 
@@ -164,6 +167,7 @@ void nav_run(void)
   nav_advance_carrot();
 #endif
 
+  // update altitude setpoint if needed
   nav_set_altitude();
 }
 
@@ -206,10 +210,16 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
 
 static inline void nav_set_altitude(void)
 {
-  static int32_t last_nav_alt = 0;
-  if (abs(nav_altitude - last_nav_alt) > (POS_BFP_OF_REAL(0.2))) {
-    nav_flight_altitude = nav_altitude;
-    last_nav_alt = nav_altitude;
+  static float last_alt = 0.f;
+  // if the fp_altitude setpoint change is large enough, set this alt as the new reference
+  // otherwise, don't change nav_altitude (whose value can be changed by the operator
+  // through the flight_altitude setting)
+  // nav_altitude is the value that is used by guidance as a setpoint when flying in
+  // altitude mode
+  if (fabsf(nav.fp_altitude - last_alt) > 0.2f) {
+    nav.nav_altitude = nav.fp_altitude;
+    flight_altitude = nav.nav_altitude + state.ned_origin_f.hmsl;
+    last_alt = nav.fp_altitude;
   }
 }
 
@@ -231,7 +241,9 @@ void nav_reset_alt(void)
 void nav_init_stage(void)
 {
   stage_time = 0;
-  nav.circle_radians = 0.f;
+  if (nav.nav_stage_init) {
+    nav.nav_stage_init();
+  }
 }
 
 #include <stdio.h>
@@ -240,8 +252,6 @@ void nav_periodic_task(void)
   RunOnceEvery(NAVIGATION_FREQUENCY, { stage_time++;  block_time++; });
 
   //nav.survey_active = false; FIXME should be all done in survey rotorcraft
-
-  dist2_to_wp = 0.f;
 
   /* from flight_plan.h */
   auto_nav();
@@ -269,9 +279,7 @@ void nav_home(void)
   VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
 
   nav.vertical_mode = NAV_VERTICAL_MODE_ALT;
-  nav.altitude = waypoints[WP_HOME].enu_f.z; //FIXME
-
-  nav.dist2_to_wp = nav.dist2_to_home;
+  nav.nav_altitude = waypoint_get_alt(WP_HOME);
 
   /* run carrot loop */
   nav_run();
@@ -373,14 +381,12 @@ void nav_set_failsafe(void)
   autopilot_set_mode(AP_MODE_FAILSAFE);
 }
 
-void set_exception_flag(uint8_t flag_num)
-{
-  nav.exception_flag[flag_num] = 1;
-}
-
-
 /** Register functions
  */
+void nav_register_stage_init(navigation_stage_init nav_stage_init)
+{
+  nav.nav_stage_init = nav_stage_init;
+}
 
 void nav_register_goto_wp(navigation_goto nav_goto, navigation_route nav_route, navigation_approaching nav_approaching)
 {

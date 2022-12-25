@@ -335,7 +335,7 @@ bool nav_survey_poly_run(void)
       RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
       ENU_BFP_OF_REAL(survey_from_i, C);
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
+      nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
       VECT3_COPY(navigation_target, survey_from_i);
 
       if (((nav_approaching_from(&survey_from_i, NULL, 0))
@@ -361,7 +361,7 @@ bool nav_survey_poly_run(void)
       ENU_BFP_OF_REAL(survey_to_i, ToP);
       ENU_BFP_OF_REAL(survey_from_i, FromP);
 
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
+      nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
       nav_route(&survey_from_i, &survey_to_i);
 
       if (nav_approaching_from(&survey_to_i, NULL, 0)) {
@@ -470,7 +470,7 @@ bool nav_survey_poly_run(void)
       ENU_BFP_OF_REAL(survey_to_i, ToP);
       ENU_BFP_OF_REAL(survey_from_i, FromP);
 
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
+      nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
       nav_route(&survey_from_i, &survey_to_i);
 
       if (nav_approaching_from(&survey_to_i, NULL, 0)) {

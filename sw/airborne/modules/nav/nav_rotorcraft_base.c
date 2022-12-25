@@ -30,12 +30,18 @@ struct NavBase_t nav_rotorcraft_base;
 
 /** Implement basic nav function
  */
+static void nav_stage_init(void)
+{
+  nav_rotorcraft_base.circle.radians = 0.f;
+  nav_rotorcraft_base.goto_wp.leg_progress = 0.f;
+  nav_rotorcraft_base.oval.count = 0;
+}
 
 static void nav_goto(struct EnuCoor_f *wp)
 {
   nav_rotorcraft_base.goto_wp.to = *wp;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
-  nav.mode = NAV_HORIZONTAL_MODE_WAYPOINT;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 }
 
 static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -57,7 +63,7 @@ static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
   nav_rotorcraft_base.goto_wp.from = *wp_start;
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
-  nav.mode = NAV_HORIZONTAL_MODE_ROUTE;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
 }
 
 static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
@@ -102,11 +108,11 @@ static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float 
 
 static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 {
+  struct FloatVect2 pos_diff;
+
   if (fabsf(radius) < 0.001f) {
     VECT2_COPY(nav.target, *wp_center);
-    nav.dist2_to_wp = get_dist2_to_point(wp_center);
   } else {
-    struct FloatVect2 pos_diff;
     VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
     // store last qdr
     float last_qdr = nav_rotorcraft_base.circle.qdr;
@@ -139,7 +145,7 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 
   nav_rotorcraft_base.circle.center = *wp_center;
   nav_rotorcraft_base.circle.radius = radius;
-  nav.mode = NAV_HORIZONTAL_MODE_CIRCLE;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
 }
 
 /**
@@ -163,37 +169,37 @@ static void _nav_oval_init(void)
 
 static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 {
-  float alt = waypoints[p1].enu_f.z;
-  waypoints[p2].enu_f.z = alt;
+  float alt = wp1->z;
+  wp2->z = alt;
 
   /* Unit vector from p1 to p2 */
   struct FloatVect2 dir;
-  VECT2_DIFF(dir, waypoints[p1].enu_f, waypoints[p2].enu_f);
+  VECT2_DIFF(dir, *wp1, *wp2);
   float_vect2_normalize(&dir);
 
   /* The half circle centers and the other leg */
   struct EnuCoor_f p1_center = {
-    waypoints[p1].enu_f.x + radius * dir.y,
-    waypoints[p1].enu_f.y - radius * dir.x,
+    wp1->x + radius * dir.y,
+    wp1->y - radius * dir.x,
     alt
   };
   struct EnuCoor_f p1_out = {
-    waypoints[p1].enu_f.x + 2.f * radius * dir.y,
-    waypoints[p1].enu_f.y - 2.f * radius * dirx,
+    wp1->x + 2.f * radius * dir.y,
+    wp1->y - 2.f * radius * dir.x,
     alt
   };
   struct EnuCoor_f p2_in = {
-    waypoints[p2].enu_f.x + 2.f * radius * dir.y,
-    waypoints[p2].enu_f.y - 2.f * radius * dir.x,
+    wp2->x + 2.f * radius * dir.y,
+    wp2->y - 2.f * radius * dir.x,
     alt
   };
   struct EnuCoor_f p2_center = {
-    waypoints[p2].enu_f.x + radius * dir.y,
-    waypoints[p2].enu_f.y - radius * dir.x,
+    wp2->x + radius * dir.y,
+    wp2->y - radius * dir.x,
     alt
   };
 
-  float qdr_out_2 = M_PI - atan2f(u_y, u_x);
+  float qdr_out_2 = M_PI - atan2f(dir.y, dir.x);
   float qdr_out_1 = qdr_out_2 + M_PI;
   if (radius > 0.f) {
     qdr_out_2 += M_PI;
@@ -213,7 +219,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 
     case OR12:
       nav_route(&p1_out, &p2_in);
-      if (nav_approaching_from(&p2_in, &p1_out, NAV_CARROT_DIST)) {
+      if (nav_approaching(&p2_in, &p1_out, NAV_CARROT_DIST)) {
         nav_rotorcraft_base.oval.status = OC2;
         nav_rotorcraft_base.oval.count++;
         InitStage();
@@ -231,8 +237,8 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
       return;
 
     case OR21:
-      nav_route(&waypoints[p2].enu_f, &waypoints[p1].enu_f);
-      if (nav_approaching_from(&waypoints[p1].enu_f, &waypoints[p2].enu_f, NAV_CARROT_DIST)) {
+      nav_route(wp2, wp1);
+      if (nav_approaching(wp1, wp2, NAV_CARROT_DIST)) {
         nav_rotorcraft_base.oval.status = OC1;
         InitStage();
         LINE_STOP_FUNCTION;
@@ -272,10 +278,10 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &block_time, &stage_time,
                                       &dist_home, &dist_wp,
                                       &nav_block, &nav_stage,
-                                      &nav.mode);
-  if (nav.mode == NAV_HORIZONTAL_MODE_ROUTE) {
+                                      &nav.horizontal_mode);
+  if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ROUTE) {
     send_segment(trans, dev);
-  } else if (nav.mode == NAV_HORIZONTAL_MODE_CIRCLE) {
+  } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_CIRCLE) {
     send_circle(trans, dev);
   }
 }
@@ -290,6 +296,7 @@ void nav_rotorcraft_init(void)
   nav_rotorcraft_base.goto_wp.leg_length = 1.f;
 
   // register nav functions
+  nav_register_stage_init(nav_stage_init);
   nav_register_goto_wp(nav_goto, nav_route, nav_approaching);
   nav_register_circle(nav_circle);
   nav_register_oval(_nav_oval_init, nav_oval);

@@ -151,7 +151,7 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
 
   //go to start position
   ENU_BFP_OF_REAL(survey_from_i, survey_from);
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
   VECT3_COPY(navigation_target, survey_from_i);
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(waypoints[wp1].enu_f.z, 0.);
@@ -214,7 +214,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
       if (!nav_approaching_from(&survey_to_i, NULL, 0)) {
         ENU_BFP_OF_REAL(survey_from_i, survey_from);
 
-        horizontal_mode = HORIZONTAL_MODE_ROUTE;
+        nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
         nav_route(&survey_from_i, &survey_to_i);
 
       } else {
@@ -374,7 +374,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
           ENU_BFP_OF_REAL(survey_to_i, waypoints[0].enu_f);
         }
 
-        horizontal_mode = HORIZONTAL_MODE_ROUTE;
+        nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
         nav_route(&survey_from_i, &survey_to_i);
       }
     } /* END turn */

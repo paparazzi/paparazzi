@@ -574,13 +574,11 @@ void guidance_h_hover_enter(void)
 void guidance_h_nav_enter(void)
 {
   /* horizontal position setpoint from navigation/flightplan */
-  guidance_h_set_pos(
-      POS_FLOAT_OF_BFP(navigation_carrot.y),
-      POS_FLOAT_OF_BFP(navigation_carrot.x));
+  guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
   reset_guidance_reference_from_current_position();
   /* set nav_heading to current heading */
-  nav_heading = stateGetNedToBodyEulers_i()->psi;
-  guidance_h_set_heading(stateGetNedToBodyEulers_f()->psi);
+  nav.heading = stateGetNedToBodyEulers_f()->psi;
+  guidance_h_set_heading(nav.heading);
 }
 
 void guidance_h_from_nav(bool in_flight)
@@ -589,39 +587,39 @@ void guidance_h_from_nav(bool in_flight)
     guidance_h_nav_enter();
   }
 
-  if (horizontal_mode == HORIZONTAL_MODE_MANUAL) {
-    stabilization_cmd[COMMAND_ROLL]  = nav_cmd_roll;
-    stabilization_cmd[COMMAND_PITCH] = nav_cmd_pitch;
-    stabilization_cmd[COMMAND_YAW]   = nav_cmd_yaw;
-  } else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+  if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_MANUAL) {
+    stabilization_cmd[COMMAND_ROLL]  = nav.cmd_roll;
+    stabilization_cmd[COMMAND_PITCH] = nav.cmd_pitch;
+    stabilization_cmd[COMMAND_YAW]   = nav.cmd_yaw;
+  } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     struct Int32Eulers sp_cmd_i;
-    sp_cmd_i.phi = nav_roll;
-    sp_cmd_i.theta = nav_pitch;
-    sp_cmd_i.psi = nav_heading;
+    sp_cmd_i.phi = ANGLE_BFP_OF_REAL(nav.roll);
+    sp_cmd_i.theta = ANGLE_BFP_OF_REAL(nav.pitch);
+    sp_cmd_i.psi = ANGLE_BFP_OF_REAL(nav.heading);
     stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
     stabilization_attitude_run(in_flight);
 
 #if HYBRID_NAVIGATION
-    //make sure the heading is right before leaving horizontal_mode attitude
+    //make sure the heading is right before leaving nav.horizontal_mode attitude
     guidance_hybrid_reset_heading(&sp_cmd_i);
 #endif
-  } else if (horizontal_mode == HORIZONTAL_MODE_GUIDED) {
+  } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_GUIDED) {
     guidance_h_guided_run(in_flight);
   } else {
 
 #if HYBRID_NAVIGATION
-    INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_target);
+    // from float ENU to BFP NED
+    guidance_h.sp.pos.x = POS_BFP_OF_REAL(nav.target.y);
+    guidance_h.sp.pos.y = POS_BFP_OF_REAL(nav.target.x);
     guidance_hybrid_run();
 #else
     // set guidance in NED
-    guidance_h_set_pos(
-        POS_FLOAT_OF_BFP(navigation_carrot.y),
-        POS_FLOAT_OF_BFP(navigation_carrot.x));
+    guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
     guidance_h_update_reference();
 
 #if GUIDANCE_HEADING_IS_FREE
     /* set psi command */
-    guidance_h_set_heading(ANGLE_FLOAT_OF_BFP(nav_heading));
+    guidance_h_set_heading(nav.heading);
 #endif
 
 #if GUIDANCE_INDI

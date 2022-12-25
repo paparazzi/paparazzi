@@ -106,8 +106,8 @@ extern void autopilot_guided_parse_GUIDED(uint8_t *buf);
 /** Macro for the flight plan insctructions
  */
 #define NavGuided(_flags, _x, _y, _z, _yaw) {         \
-  horizontal_mode = HORIZONTAL_MODE_GUIDED;           \
-  vertical_mode = VERTICAL_MODE_GUIDED;               \
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_GUIDED;           \
+  nav.vertical_mode = NAV_VERTICAL_MODE_GUIDED;               \
   autopilot_guided_update(_flags, _x, _y, _z, _yaw);  \
 }
 

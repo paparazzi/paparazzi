@@ -651,7 +651,7 @@ float guidance_indi_get_liftd(float airspeed, float theta) {
  */
 struct FloatVect3 nav_get_speed_setpoint(float pos_gain) {
   struct FloatVect3 speed_sp;
-  if(horizontal_mode == HORIZONTAL_MODE_ROUTE) {
+  if(nav.horizontal_mode == NAV_HORIZONTAL_MODE_ROUTE) {
     speed_sp = nav_get_speed_sp_from_line(line_vect, to_end_vect, navigation_target, pos_gain);
   } else {
     speed_sp = nav_get_speed_sp_from_go(navigation_target, pos_gain);
@@ -733,7 +733,7 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
   VECT2_SMUL(final_vector, direction, desired_speed/length_direction);
 
   struct FloatVect3 speed_sp_return = {final_vector.x, final_vector.y, gih_params.pos_gainz*(ned_target.z - stateGetPositionNed_f()->z)};
-  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (vertical_mode == VERTICAL_MODE_CLIMB)) {
+  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
     speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
   }
 
@@ -769,7 +769,7 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
   VECT3_SMUL(speed_sp_return, pos_error, pos_gain);
   speed_sp_return.z = gih_params.pos_gainz*pos_error.z;
 
-  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (vertical_mode == VERTICAL_MODE_CLIMB)) {
+  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
     speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
   }
 

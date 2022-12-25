@@ -128,7 +128,7 @@ static inline bool mission_nav_wp(struct _mission_element *el)
 
   }
   //Go to Mission Waypoint
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
   VECT3_COPY(navigation_target, *target_wp);
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(target_wp->z), 0.);
@@ -144,7 +144,7 @@ static inline bool mission_nav_circle(struct _mission_element *el)
   int32_t radius = el->element.mission_circle.radius;
 
   //Draw the desired circle for a 'duration' time
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
   nav_circle(center_wp, POS_BFP_OF_REAL(radius));
   NavVerticalAutoThrottleMode(RadOfDeg(0.0));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(center_wp->z), 0.);
@@ -173,7 +173,7 @@ static inline bool mission_nav_segment(struct _mission_element *el)
   }
 
   //Route Between from-to
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
   nav_route(from_wp, to_wp);
   NavVerticalAutoThrottleMode(RadOfDeg(0.0));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(to_wp->z), 0.);
@@ -211,7 +211,7 @@ static inline bool mission_nav_path(struct _mission_element *el)
       } else { el->element.mission_path.path_idx++; }
     }
     //Route Between from-to
-    horizontal_mode = HORIZONTAL_MODE_ROUTE;
+    nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
     nav_route(from_wp, to_wp);
     NavVerticalAutoThrottleMode(RadOfDeg(0.0));
     NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(from_wp->z), 0.);

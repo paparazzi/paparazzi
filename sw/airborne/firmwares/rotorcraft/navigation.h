@@ -63,6 +63,7 @@
 #define NAV_VERTICAL_MODE_ALT         2
 #define NAV_VERTICAL_MODE_GUIDED      3
 
+typedef void (*navigation_stage_init)(void);
 typedef void (*navigation_goto)(struct EnuCoor_f *wp);
 typedef void (*navigation_route)(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end);
 typedef bool (*navigation_approaching)(struct EnuCoor_f *wp_to, struct EnuCoor_f *wp_from, float approaching_time);
@@ -90,7 +91,8 @@ struct RotorcraftNavigation {
   float heading;            ///< heading setpoint (in radians)
   float radius;             ///< radius setpoint (in meters)
   float climb;              ///< climb setpoint (in m/s)
-  float altitude;           ///< altitude setpoint above reference ellipsoid (in meters)
+  float fp_altitude;        ///< altitude setpoint from flight plan (in meters)
+  float nav_altitude;       ///< current altitude setpoint (in meters): might differ from fp_altitude depending on altitude shift from operator
 
   bool force_forward;       ///< forward flight for hybrid nav (TODO really needed here ?)
 
@@ -98,15 +100,11 @@ struct RotorcraftNavigation {
   float dist2_to_home;        ///< squared distance to home waypoint
   bool too_far_from_home;     ///< too_far flag
   float failsafe_mode_dist2;  ///< maximum squared distance to home wp before going to failsafe mode
-  float dist2_to_wp;          ///< squared distance to next waypoint
-  bool exception_flag[10];    ///< array of flags that might be used in flight plans
-  struct EnuCoor_f last_pos;  ///< last stage position
-  float leg_progress;         ///< current leg progression [0..leg_length]
-  float leg_length;           ///< current leg length (in meters)
   float climb_vspeed;         ///< climb speed setting, mostly used in flight plans
   float descend_vspeed;       ///< descend speed setting, mostly used in flight plans
 
   // pointers to basic nav functions
+  navigation_stage_init nav_stage_init;
   navigation_goto nav_goto;
   navigation_route nav_route;
   navigation_approaching nav_approaching;
@@ -119,16 +117,14 @@ extern struct RotorcraftNavigation nav;
 
 /** Registering functions
  */
+extern void nav_register_stage_init(navigation_stage_init nav_stage_init);
 extern void nav_register_goto_wp(navigation_goto nav_goto, navigation_route nav_route, navigation_approaching nav_approaching);
 extern void nav_register_circle(navigation_circle nav_circle);
 extern void nav_register_oval(navigation_oval_init nav_oval_init, navigation_oval nav_oval);
 // TODO: eight, survey
 
 
-// needed in common_flight_plan FIXME
-extern uint8_t last_wp __attribute__((unused));
-
-// FIXME compat ? really needed ?
+// flight altitude setting
 extern float flight_altitude; // hmsl flight altitude in meters
 
 //extern bool nav_survey_active; FIXME move to module
@@ -159,8 +155,6 @@ extern void nav_init(void);
 extern void nav_run(void);
 extern void nav_parse_BLOCK(uint8_t *buf);
 extern void nav_parse_MOVE_WP(uint8_t *buf);
-
-extern void set_exception_flag(uint8_t flag_num);
 
 extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_f *p);
@@ -211,8 +205,8 @@ static inline void NavResurrect(void)
 #define NavCopyWaypointPositionOnly waypoint_position_copy
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
-#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_f, time)
+bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
+#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
 
 
 /***********************************************************
@@ -224,19 +218,17 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
     nav.roll = _roll;                                   \
   }
 
-
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
 #define NavVerticalAutoThrottleMode(_pitch) {   \
     nav.pitch = _pitch;                         \
   }
 
-
 /** Set the vertical mode to altitude control with the specified altitude
     setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
     nav.vertical_mode = NAV_VERTICAL_MODE_ALT;      \
-    nav.altitude = _alt;                            \
+    nav.fp_altitude = _alt;                         \
   }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */
@@ -255,7 +247,6 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
 #define NavHeading nav_set_heading_rad
 
 
-
 /***********************************************************
  * built in navigation routines
  **********************************************************/
@@ -263,15 +254,14 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
 /*********** Navigation to  waypoint *************************************/
 static inline void NavGotoWaypoint(uint8_t wp)
 {
-  nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
-  VECT3_COPY(nav.target, waypoints[wp].enu_f);
-  dist2_to_wp = get_dist2_to_waypoint(wp);
+  if (nav.nav_goto) {
+    nav.nav_goto(&waypoints[wp].enu_f);
+  }
 }
 
 /*********** Navigation along a line *************************************/
 static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
 {
-  nav.mode = NAV_HORIZONTAL_MODE_ROUTE;
   if (nav.nav_route) {
     nav.nav_route(&waypoints[wp_start].enu_f, &waypoints[wp_end].enu_f);
   }
@@ -300,7 +290,6 @@ static inline bool NavApproachingFrom(uint8_t to, uint8_t from, float approachin
 /*********** Navigation on a circle **************************************/
 static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 {
-  nav.mode = NAV_HORIZONTAL_MODE_CIRCLE;
   if (nav.nav_circle) {
     nav.nav_circle(&waypoints[wp_center].enu_f, radius);
   }
@@ -315,18 +304,15 @@ static inline void nav_oval_init(void)
   }
 }
 
-static inline void nav_oval(uint8_t wp1, uint8_t wp2, float radius)
+static inline void Oval(uint8_t wp1, uint8_t wp2, float radius)
 {
   if (nav.nav_oval) {
     nav.nav_oval(&waypoints[wp1].enu_f, &waypoints[wp2].enu_f, radius);
   }
 }
-#define Oval(a, b, c) nav_oval((b), (a), (c))
-
-// TODO move in nav_module
-extern uint8_t nav_oval_count;
 
 /*********** Navigation along a line *************************************/
+// FIXME make a proper hybrid nav routine
 //extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
 //extern struct FloatVect2 line_vect, to_end_vect;
 //#ifdef GUIDANCE_INDI_HYBRID
@@ -349,16 +335,16 @@ extern uint8_t nav_oval_count;
 /** Nav glide routine */
 static inline void NavGlide(uint8_t start_wp, uint8_t wp)
 {
+  struct FloatVect2 wp_diff, pos_diff;
+  VECT2_DIFF(wp_diff, waypoints[wp].enu_f, waypoints[start_wp].enu_f);
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), waypoints[start_wp].enu_f);
   float start_alt = waypoint_get_alt(start_wp);
   float diff_alt = waypoint_get_alt(wp) - start_alt;
-  float alt = start_alt + ((diff_alt * nav.leg_progress) / nav.leg_length);
+  float length2 = Max(float_vect2_norm2(&wp_diff), 0.1f);
+  float progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / length2;
+  float alt = start_alt + diff_alt * progress;
   NavVerticalAltitudeMode(alt, 0);
 }
-
-/* follow another aircraft not implemented with this function
- * see dedicated nav modules
- */
-#define NavFollow(_i, _d, _h) {}
 
 
 
@@ -367,14 +353,19 @@ static inline void NavGlide(uint8_t start_wp, uint8_t wp)
  **********************************************************/
 #define nav_IncreaseShift(x) {}
 #define nav_SetNavRadius(x) {}
-#define navigation_SetFlightAltitude(x) {                     \
-    flight_altitude = x;                                      \
-    nav.altitude = flight_altitude - state.ned_origin_f.hmsl; \
+#define navigation_SetFlightAltitude(x) {                         \
+    flight_altitude = x;                                          \
+    nav.nav_altitude = flight_altitude - state.ned_origin_f.hmsl; \
   }
 
 /** Unused compat macros
  */
 
 #define NavVerticalAutoPitchMode(_throttle) {}
+
+/* follow another aircraft not implemented with this function
+ * see dedicated nav modules
+ */
+#define NavFollow(_i, _d, _h) {}
 
 #endif /* NAVIGATION_H */

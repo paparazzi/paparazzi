@@ -114,8 +114,8 @@ void autopilot_static_periodic(void)
   RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
 
   if (autopilot_in_flight() && autopilot.mode == AP_MODE_NAV) {
-    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
-      if (dist2_to_home > failsafe_mode_dist2) {
+    if (nav.too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
+      if (nav.dist2_to_home > nav.failsafe_mode_dist2) {
         autopilot_static_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);
       } else {
         autopilot_static_set_mode(AP_MODE_HOME);
@@ -353,7 +353,7 @@ void autopilot_static_on_rc_frame(void)
 
 #if UNLOCKED_HOME_MODE
                /* Allowed to leave home mode when UNLOCKED_HOME_MODE */
-               || !too_far_from_home
+               || !nav.too_far_from_home
 #endif
               ) {
         autopilot_static_set_mode(new_autopilot_mode);

@@ -57,14 +57,6 @@
 #define NAV_CARROT_DIST 12
 #endif
 
-#ifndef ROTORCRAFT_BASE_SEND_TRAJECTORY
-#define ROTORCRAFT_BASE_SEND_TRAJECTORY TRUE
-#endif
-
-// FIXME
-#define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
-#define CARROT_DIST ((int32_t) POS_BFP_OF_REAL(NAV_CARROT_DIST))
-
 /** Basic Nav struct
  */
 extern struct NavBase_t nav_rotorcraft_base;
