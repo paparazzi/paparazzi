@@ -473,13 +473,13 @@ void run_hover_loop(bool in_flight)
 void guidance_v_from_nav(bool in_flight)
 {
   if (nav.vertical_mode == NAV_VERTICAL_MODE_ALT) {
-    guidance_v_z_sp = -nav.nav_altitude;
+    guidance_v_z_sp = -POS_BFP_OF_REAL(nav.nav_altitude);
     guidance_v_zd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v_z_sp);
     run_hover_loop(in_flight);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB) {
     guidance_v_z_sp = stateGetPositionNed_i()->z;
-    guidance_v_zd_sp = -nav.climb;
+    guidance_v_zd_sp = -SPEED_BFP_OF_REAL(nav.climb);
     gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
     run_hover_loop(in_flight);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_MANUAL) {
