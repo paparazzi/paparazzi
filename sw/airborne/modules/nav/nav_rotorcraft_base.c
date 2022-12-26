@@ -41,6 +41,7 @@ static void nav_goto(struct EnuCoor_f *wp)
 {
   nav_rotorcraft_base.goto_wp.to = *wp;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
+  VECT2_COPY(nav.target, *wp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 }
 
@@ -87,7 +88,6 @@ static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float 
   }
   /* compute distance of estimated/current pos to target wp
    */
-  //nav.dist_to_point = float_vect2_norm(&diff); FIXME
   dist_to_point = float_vect2_norm(&diff);
 
   /* return TRUE if we have arrived */
@@ -219,7 +219,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 
     case OR12:
       nav_route(&p1_out, &p2_in);
-      if (nav_approaching(&p2_in, &p1_out, NAV_CARROT_DIST)) {
+      if (nav_approaching(&p2_in, &p1_out, CARROT)) {
         nav_rotorcraft_base.oval.status = OC2;
         nav_rotorcraft_base.oval.count++;
         InitStage();
@@ -238,7 +238,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 
     case OR21:
       nav_route(wp2, wp1);
-      if (nav_approaching(wp1, wp2, NAV_CARROT_DIST)) {
+      if (nav_approaching(wp1, wp2, CARROT)) {
         nav_rotorcraft_base.oval.status = OC1;
         InitStage();
         LINE_STOP_FUNCTION;
