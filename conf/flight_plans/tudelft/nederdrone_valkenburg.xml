@@ -78,7 +78,7 @@
       <exception cond="GetPosHeight() @GT 40.0" deroute="Standby"/>
       <call_once fun="nav_set_heading_current()"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <!--block name="follow_module">
       <set value="FALSE" var="force_forward"/>
@@ -90,7 +90,7 @@
     </block>
     <block name="follow_module_land">
       <set value="FALSE" var="force_forward"/>
-      <stay climb="nav_descend_vspeed * 0.5" pre_call="follow_me_set_wp(WP_FOLLOW, follow_me_diag_speed*0.5)" vmode="climb" wp="FOLLOW"/>
+      <stay climb="nav.descend_vspeed * 0.5" pre_call="follow_me_set_wp(WP_FOLLOW, follow_me_diag_speed*0.5)" vmode="climb" wp="FOLLOW"/>
     </block>
     <block name="follow_landed">
       <set value="FALSE" var="force_forward"/>
@@ -148,7 +148,7 @@
 
     <block name="Oval">
       <set value="TRUE" var="force_forward"/>
-      <oval p1="p1" p2="p2" radius="nav_radius"/>
+      <oval p1="p1" p2="p2" radius="nav.radius"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <set value="FALSE" var="force_forward"/>
@@ -161,7 +161,7 @@
     <block name="descend">
       <set value="FALSE" var="force_forward"/>
       <exception cond="LessThan(GetPosHeight(), 15.0)" deroute="flare"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
       <set value="FALSE" var="force_forward"/>

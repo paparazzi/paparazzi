@@ -127,8 +127,6 @@ extern void nav_register_oval(navigation_oval_init nav_oval_init, navigation_ova
 // flight altitude setting
 extern float flight_altitude; // hmsl flight altitude in meters
 
-//extern bool nav_survey_active; FIXME move to module
-
 
 /*****************************************************************
  * macros to ensure compatibility between fixedwing and rotorcraft

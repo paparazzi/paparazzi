@@ -164,7 +164,7 @@ static inline bool mission_nav_segment(struct _mission_element *el)
   struct EnuCoor_i *to_wp   = &(el->element.mission_segment.to.to_i);
 
   //Check proximity and wait for 'duration' seconds in proximity circle if desired
-  if (nav_approaching_from(to_wp, from_wp, CARROT)) {
+  if (nav.nav_approaching(to_wp, from_wp, CARROT)) {
     last_mission_wp = *to_wp;
 
     if (el->duration > 0.) {
@@ -174,7 +174,7 @@ static inline bool mission_nav_segment(struct _mission_element *el)
 
   //Route Between from-to
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
-  nav_route(from_wp, to_wp);
+  nav.nav_route(from_wp, to_wp);
   NavVerticalAutoThrottleMode(RadOfDeg(0.0));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(to_wp->z), 0.);
 

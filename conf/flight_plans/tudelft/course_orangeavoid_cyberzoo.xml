@@ -96,7 +96,7 @@
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
@@ -124,7 +124,7 @@
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
       <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Landed">
       <call_once fun="NavKillThrottle()"/>

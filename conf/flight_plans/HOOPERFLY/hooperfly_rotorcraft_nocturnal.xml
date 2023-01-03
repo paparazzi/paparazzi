@@ -38,7 +38,7 @@
     <block group="init_control" name="Takeoff" strip_button="Takeoff" strip_icon="launch.png">
       <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB"/>
     </block>
     <block group="waypoint_control_col1" name="Standby" strip_button="Standby" strip_icon="standby.png">
       <stay wp="STDBY"/>
@@ -165,7 +165,7 @@
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
+      <circle radius="nav.radius" wp="CAM"/>
     </block>
     <block group="land_pattern" name="land here" strip_button="Land Here" strip_icon="land_here.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
@@ -177,7 +177,7 @@
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

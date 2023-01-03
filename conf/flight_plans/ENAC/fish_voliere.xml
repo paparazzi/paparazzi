@@ -60,7 +60,7 @@
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="STDBY"/> 
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="STDBY"/> 
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <call_once fun="autopilot_set_mode(AP_MODE_NAV)"/>
@@ -80,7 +80,7 @@
     <block name="flare">
       <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
       <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Landed"/>

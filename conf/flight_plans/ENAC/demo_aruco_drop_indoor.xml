@@ -98,7 +98,7 @@
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" vmode="throttle" until="stage_time @GT 2"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="STDBY"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <call_once fun="jevois_stream(false)"/>
@@ -133,7 +133,7 @@
       <call_once fun="jevois_stream(true)"/>
       <go wp="TAG" height="search_height"/>
       <stay wp="TAG" until="(stage_time @GT 3 @AND tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
-      <stay wp="TAG" climb="nav_descend_vspeed" vmode="climb" until="((tag_distance @LT drop_height) @AND tag_valid) @OR (GetPosHeight() @LT drop_height/2.)" post_call="tag_valid = false"/>
+      <stay wp="TAG" climb="nav.descend_vspeed" vmode="climb" until="((tag_distance @LT drop_height) @AND tag_valid) @OR (GetPosHeight() @LT drop_height/2.)" post_call="tag_valid = false"/>
       <call_once fun="DropOpen()"/>
       <stay wp="TAG" until="stage_time @GT 3" alt="search_height"/>
       <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
@@ -153,7 +153,7 @@
       <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
       <exception cond="stateGetPositionEnu_f()->z @LT 0.2" deroute="Ramp down"/>
       <call_once fun="jevois_stream(true)"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TAG"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TAG"/>
     </block>
 
     <block name="Land Here" strip_button="Land Here" group="home">
@@ -167,7 +167,7 @@
       <!--exception cond="NavDetectGround()" deroute="Holding point"/-->
       <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
       <!--call_once fun="NavStartDetectGround()"/-->
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
       <exception cond="guidance_v_delta_t @LT 0.05*9600." deroute="Kill landed"/>

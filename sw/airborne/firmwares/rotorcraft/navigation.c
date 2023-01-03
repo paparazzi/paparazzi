@@ -55,8 +55,6 @@ struct RotorcraftNavigation nav;
 const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 
-//bool nav_survey_active;
-
 float flight_altitude;
 
 static inline void nav_set_altitude(void);
