@@ -147,13 +147,6 @@ extern void nav_glide(uint8_t start_wp, uint8_t wp);
 #define NavCircleWaypoint(wp, radius) \
   nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
 
-/** Normalize a degree angle between 0 and 359 */
-#define NormCourse(x) { \
-    uint8_t dont_loop_forever = 0;  \
-    while (x < 0 && ++dont_loop_forever) x += 360; \
-    while (x >= 360 && ++dont_loop_forever) x -= 360; \
-  }
-
 #define NavCircleCountNoRewind() (nav_circle_radians_no_rewind / (2*M_PI))
 #define NavCircleCount() (fabs(nav_circle_radians) / (2*M_PI))
 #define NavCircleQdr() ({ float qdr = DegOfRad(M_PI_2 - nav_circle_trigo_qdr); NormCourse(qdr); qdr; })

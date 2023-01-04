@@ -170,23 +170,24 @@ void nav_run(void)
 }
 
 
-bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
+bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time)
 {
   uint16_t time_at_wp;
   float dist_to_point;
   static uint16_t wp_entry_time = 0;
   static bool wp_reached = false;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
+  struct EnuCoor_i wp_i;
   struct Int32Vect2 diff;
 
-  if ((wp_last.x != wp->x) || (wp_last.y != wp->y)) {
+  ENU_BFP_OF_REAL(wp_i, wp);
+  if ((wp_last.x != wp_i->x) || (wp_last.y != wp_i->y)) {
     wp_reached = false;
-    wp_last = *wp;
+    wp_last = *wp_i;
   }
 
-  VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
-  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
-  dist_to_point = float_vect2_norm(&diff_f);
+  VECT2_DIFF(diff, *wp, *stateGetPositionEnu_f());
+  dist_to_point = float_vect2_norm(&diff);
   if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     if (!wp_reached) {
       wp_reached = true;

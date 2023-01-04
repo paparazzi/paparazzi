@@ -101,6 +101,16 @@ typedef uint8_t unit_t;
     while (x >= 2*M_PI) x -= 2*M_PI; \
   }
 
+/** Normalize a degree angle between 0 and 359 */
+// FIXME should we use a protected version ? of NormXxx ?
+/*
+#define NormCourse(x) { \
+    uint8_t dont_loop_forever = 0;  \
+    while (x < 0 && ++dont_loop_forever) x += 360; \
+    while (x >= 360 && ++dont_loop_forever) x -= 360; \
+  }
+*/
+
 #define CloseDegAngles(_c1, _c2) ({ float _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
 #define CloseRadAngles(_c1, _c2) ({ float _diff = _c1 - _c2; NormRadAngle(_diff); fabsf(_diff) < 0.0177; })
 

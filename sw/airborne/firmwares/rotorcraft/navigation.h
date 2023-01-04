@@ -203,8 +203,8 @@ static inline void NavResurrect(void)
 #define NavCopyWaypointPositionOnly waypoint_position_copy
 
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
-#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
+bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
+#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_f, time)
 
 
 /***********************************************************
