@@ -31,13 +31,11 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "modules/gps/gps.h" // needed by auto_nav from the flight plan
-#include "modules/ins/ins.h"
 #include "state.h"
-
 #include "autopilot.h"
 #include "generated/modules.h"
 #include "generated/flight_plan.h"
+#include "modules/ins/ins.h"
 
 /* for default GUIDANCE_H_USE_REF */
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
@@ -178,12 +176,12 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time)
   static bool wp_reached = false;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
   struct EnuCoor_i wp_i;
-  struct Int32Vect2 diff;
+  struct FloatVect2 diff;
 
-  ENU_BFP_OF_REAL(wp_i, wp);
-  if ((wp_last.x != wp_i->x) || (wp_last.y != wp_i->y)) {
+  ENU_BFP_OF_REAL(wp_i, *wp);
+  if ((wp_last.x != wp_i.x) || (wp_last.y != wp_i.y)) {
     wp_reached = false;
-    wp_last = *wp_i;
+    wp_last = wp_i;
   }
 
   VECT2_DIFF(diff, *wp, *stateGetPositionEnu_f());
@@ -249,8 +247,6 @@ void nav_init_stage(void)
 void nav_periodic_task(void)
 {
   RunOnceEvery(NAVIGATION_FREQUENCY, { stage_time++;  block_time++; });
-
-  //nav.survey_active = false; FIXME should be all done in survey rotorcraft
 
   /* from flight_plan.h */
   auto_nav();
@@ -399,9 +395,9 @@ void nav_register_circle(navigation_circle nav_circle)
   nav.nav_circle = nav_circle;
 }
 
-void nav_register_oval(navigation_oval_init nav_oval_init, navigation_oval nav_oval)
+void nav_register_oval(navigation_oval_init _nav_oval_init, navigation_oval nav_oval)
 {
-  nav.nav_oval_init = nav_oval_init;
+  nav.nav_oval_init = _nav_oval_init;
   nav.nav_oval = nav_oval;
 }
 

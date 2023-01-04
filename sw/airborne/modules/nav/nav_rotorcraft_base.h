@@ -27,35 +27,7 @@
 #ifndef NAV_ROTORCRAFT_BASE_H
 #define NAV_ROTORCRAFT_BASE_H
 
-#include "firmwares/rotorcraft/navigation.h"
 #include "modules/nav/nav_base.h"
-
-/** default nav_circle_radius in meters */
-#ifndef DEFAULT_CIRCLE_RADIUS
-#define DEFAULT_CIRCLE_RADIUS 5.f
-#endif
-
-#ifndef NAV_CLIMB_VSPEED
-#define NAV_CLIMB_VSPEED 0.5f
-#endif
-
-#ifndef NAV_DESCEND_VSPEED
-#define NAV_DESCEND_VSPEED -0.8f
-#endif
-
-/** minimum horizontal distance to waypoint to mark as arrived */
-#ifndef ARRIVED_AT_WAYPOINT
-#define ARRIVED_AT_WAYPOINT 3.0f
-#endif
-
-/** Maximum distance from HOME waypoint before going into failsafe mode */
-#ifndef FAILSAFE_MODE_DISTANCE
-#define FAILSAFE_MODE_DISTANCE (1.2*MAX_DIST_FROM_HOME)
-#endif
-
-#ifndef NAV_CARROT_DIST
-#define NAV_CARROT_DIST 12
-#endif
 
 /** Basic Nav struct
  */

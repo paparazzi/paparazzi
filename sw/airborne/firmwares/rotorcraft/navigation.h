@@ -35,6 +35,35 @@
 #include "modules/nav/waypoints.h"
 #include "modules/nav/common_flight_plan.h"
 #include "autopilot.h"
+#include "generated/airframe.h"
+
+/** default nav_circle_radius in meters */
+#ifndef DEFAULT_CIRCLE_RADIUS
+#define DEFAULT_CIRCLE_RADIUS 5.f
+#endif
+
+#ifndef NAV_CLIMB_VSPEED
+#define NAV_CLIMB_VSPEED 0.5f
+#endif
+
+#ifndef NAV_DESCEND_VSPEED
+#define NAV_DESCEND_VSPEED -0.8f
+#endif
+
+/** minimum horizontal distance to waypoint to mark as arrived */
+#ifndef ARRIVED_AT_WAYPOINT
+#define ARRIVED_AT_WAYPOINT 3.0f
+#endif
+
+/** Maximum distance from HOME waypoint before going into failsafe mode */
+#ifndef FAILSAFE_MODE_DISTANCE
+#define FAILSAFE_MODE_DISTANCE (1.2*MAX_DIST_FROM_HOME)
+#endif
+
+/** Carrot distance during navigation */
+#ifndef NAV_CARROT_DIST
+#define NAV_CARROT_DIST 12
+#endif
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -120,7 +149,7 @@ extern struct RotorcraftNavigation nav;
 extern void nav_register_stage_init(navigation_stage_init nav_stage_init);
 extern void nav_register_goto_wp(navigation_goto nav_goto, navigation_route nav_route, navigation_approaching nav_approaching);
 extern void nav_register_circle(navigation_circle nav_circle);
-extern void nav_register_oval(navigation_oval_init nav_oval_init, navigation_oval nav_oval);
+extern void nav_register_oval(navigation_oval_init _nav_oval_init, navigation_oval nav_oval);
 // TODO: eight, survey
 
 

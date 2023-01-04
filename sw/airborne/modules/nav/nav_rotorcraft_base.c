@@ -25,6 +25,7 @@
  */
 
 #include "modules/nav/nav_rotorcraft_base.h"
+#include "firmwares/rotorcraft/navigation.h"
 
 struct NavBase_t nav_rotorcraft_base;
 

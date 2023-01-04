@@ -46,7 +46,7 @@ void nav_heli_spinup_setup(uint16_t duration, float throttle)
   nav.cmd_pitch = 0;
   nav.cmd_yaw = 0;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ATTITUDE;
-  vertical_mode = VERTICAL_MODE_MANUAL;
+  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
 }
 
 /**
@@ -63,7 +63,7 @@ bool nav_heli_spinup_run(void)
   nav.cmd_pitch = 0;
   nav.cmd_yaw = 0;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_MANUAL;
-  vertical_mode = VERTICAL_MODE_MANUAL;
+  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
   nav.throttle = stage_time * nav_heli_spinup.throttle / nav_heli_spinup.duration;
   return true;
 }
