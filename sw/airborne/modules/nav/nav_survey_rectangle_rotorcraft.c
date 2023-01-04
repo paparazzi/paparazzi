@@ -215,7 +215,6 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
       */
       /* Continue ... */
       if (!nav.nav_approaching(&survey_to, NULL, 0)) {
-        nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
         nav.nav_route(&survey_from, &survey_to);
 
       } else {
@@ -359,7 +358,6 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
         nav_in_circle = false;
         LINE_START_FUNCTION;
       } else {
-        nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
         nav.nav_route(&turn_from, &waypoints[0].enu_f);
       }
     } /* END turn */
