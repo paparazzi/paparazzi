@@ -114,6 +114,9 @@ extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool in_flight);
 extern void guidance_h_run(bool in_flight);
+extern void guidance_h_run_pos(bool in_flight);
+extern void guidance_h_run_speed(bool in_flight);
+extern void guidance_h_run_accel(bool in_flight);
 
 extern void guidance_h_hover_enter(void);
 extern void guidance_h_nav_enter(void);

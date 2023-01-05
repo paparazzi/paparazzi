@@ -79,7 +79,9 @@
 #endif
 #endif
 
-/** Nav modes */
+/** Nav modes
+ *  these modes correspond to the flight plan instructions used
+ *  to set the high level navigation */
 #define NAV_HORIZONTAL_MODE_WAYPOINT  0
 #define NAV_HORIZONTAL_MODE_ROUTE     1
 #define NAV_HORIZONTAL_MODE_CIRCLE    2
@@ -91,6 +93,17 @@
 #define NAV_VERTICAL_MODE_CLIMB       1
 #define NAV_VERTICAL_MODE_ALT         2
 #define NAV_VERTICAL_MODE_GUIDED      3
+
+/** Nav setpoint modes
+ *  these modes correspond to submodes defined by navigation routines
+ *  to tell which setpoint should be considered */
+#define NAV_SETPOINT_MODE_POS         0
+#define NAV_SETPOINT_MODE_SPEED       1
+#define NAV_SETPOINT_MODE_ACCEL       2
+#define NAV_SETPOINT_MODE_ATTITUDE    3 // attitude defined by roll, pitch and heading
+#define NAV_SETPOINT_MODE_QUAT        4 // attitude defined by unit quaternion
+#define NAV_SETPOINT_MODE_RATE        5
+#define NAV_SETPOINT_MODE_MANUAL      6
 
 typedef void (*navigation_stage_init)(void);
 typedef void (*navigation_goto)(struct EnuCoor_f *wp);
@@ -107,10 +120,13 @@ struct RotorcraftNavigation {
   // mode
   uint8_t horizontal_mode;  // nav horizontal mode
   uint8_t vertical_mode;    // nav vertical mode
+  uint8_t setpoint_mode;    // nav setpoint mode
 
   // commands
-  struct EnuCoor_f target;  ///< final target
-  struct EnuCoor_f carrot;  ///< carrot position
+  struct EnuCoor_f target;  ///< final target position (in meters)
+  struct EnuCoor_f carrot;  ///< carrot position (also used for GCS display)
+  struct EnuCoor_f speed;   ///< speed setpoint (in m/s)
+  struct EnuCoor_f accel;   ///< accel setpoint (in m/s)
   uint32_t throttle;        ///< throttle command (in pprz_t)
   int32_t cmd_roll;         ///< roll command (in pprz_t)
   int32_t cmd_pitch;        ///< pitch command (in pprz_t)
@@ -118,6 +134,8 @@ struct RotorcraftNavigation {
   float roll;               ///< roll angle (in radians)
   float pitch;              ///< pitch angle (in radians)
   float heading;            ///< heading setpoint (in radians)
+  struct FloatQuat quat;    ///< quaternion setpoint
+  struct FloatRates rates;  ///< rates setpoint (in rad/s)
   float radius;             ///< radius setpoint (in meters)
   float climb;              ///< climb setpoint (in m/s)
   float fp_altitude;        ///< altitude setpoint from flight plan (in meters)
@@ -242,6 +260,7 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 
 #define NavAttitude(_roll) {                            \
     nav.horizontal_mode = NAV_HORIZONTAL_MODE_ATTITUDE; \
+    nav.setpoint_mode = NAV_SETPOINT_MODE_ATTITUDE;     \
     nav.roll = _roll;                                   \
   }
 

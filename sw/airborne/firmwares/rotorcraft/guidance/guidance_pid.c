@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2023 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,40 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/** @file firmwares/rotorcraft/guidance/guidance_h.c
- *  Horizontal guidance for rotorcrafts.
+/** @file firmwares/rotorcraft/guidance/guidance_pid.c
+ *  Guidance controller with PID for rotorcrafts.
  *
  */
 
-#include "generated/airframe.h"
-
-#include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
+#include "firmwares/rotorcrafts/guidance/guidance_pid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "firmwares/rotorcraft/guidance/guidance_flip.h"
-#include "firmwares/rotorcraft/guidance/guidance_module.h"
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
-#include "firmwares/rotorcraft/navigation.h"
-#include "modules/radio_control/radio_control.h"
-#if GUIDANCE_INDI_HYBRID
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#else
-#include "firmwares/rotorcraft/guidance/guidance_indi.h"
-#endif
-
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-
-/* for guidance_v_thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-
+#include "generated/airframe.h"
 #include "state.h"
+
+#include "firmwares/rotorcraft/stabilization.h" // ?
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h" // ?
 
 #ifndef GUIDANCE_H_AGAIN
 #define GUIDANCE_H_AGAIN 0
@@ -70,30 +53,16 @@
 #define GUIDANCE_H_MAX_BANK RadOfDeg(20)
 #endif
 
-PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
-PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
-
 #ifndef GUIDANCE_H_APPROX_FORCE_BY_THRUST
 #define GUIDANCE_H_APPROX_FORCE_BY_THRUST FALSE
 #endif
 
-#ifndef GUIDANCE_INDI
-#define GUIDANCE_INDI FALSE
-#endif
-
-// Navigation can set heading freely
-// This is false if sideslip is a problem
-#ifndef GUIDANCE_HEADING_IS_FREE
-#define GUIDANCE_HEADING_IS_FREE TRUE
-#endif
-
-struct HorizontalGuidance guidance_h;
-
-int32_t transition_percentage;
+struct GuidancePIDGains guidance_pid_gains;
 
 /*
  * internal variables
  */
+
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_trim_att_integrator;

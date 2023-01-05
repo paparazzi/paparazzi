@@ -64,11 +64,16 @@ void nav_init(void)
   nav_block = 0;
   nav_stage = 0;
 
-  VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
-  VECT3_COPY(nav.carrot, waypoints[WP_HOME].enu_f);
-
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
   nav.vertical_mode = NAV_VERTICAL_MODE_ALT;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
+
+  VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
+  VECT3_COPY(nav.carrot, waypoints[WP_HOME].enu_f);
+  FLOAT_VECT3_ZERO(nav.speed);
+  FLOAT_VECT3_ZERO(nav.accel);
+  FLOAT_QUAT_ZERO(nav.quat);
+  FLOAT_RATES_ZERO(nav.rates);
 
   nav.throttle = 0;
   nav.cmd_roll = 0;
@@ -271,6 +276,7 @@ bool nav_is_in_flight(void)
 void nav_home(void)
 {
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
   VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
 
   nav.vertical_mode = NAV_VERTICAL_MODE_ALT;
@@ -293,6 +299,7 @@ void nav_home(void)
 void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw)
 {
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_MANUAL;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_MANUAL;
   nav.cmd_roll = roll;
   nav.cmd_pitch = pitch;
   nav.cmd_yaw = yaw;

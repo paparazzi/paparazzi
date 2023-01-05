@@ -44,6 +44,7 @@ static void nav_goto(struct EnuCoor_f *wp)
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
   VECT2_COPY(nav.target, *wp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 }
 
 static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -66,6 +67,7 @@ static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 }
 
 static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
@@ -147,6 +149,7 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
   nav_rotorcraft_base.circle.center = *wp_center;
   nav_rotorcraft_base.circle.radius = radius;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 }
 
 /**
