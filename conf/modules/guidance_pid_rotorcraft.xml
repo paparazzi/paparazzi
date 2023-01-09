@@ -1,0 +1,53 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_pid_rotorcraft" dir="guidance" task="control">
+  <doc>
+    <description>
+      Basic guidance code for rotorcraft with PID control
+    </description>
+    <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+      <define name="MAX_BANK" value="20" description="maximum commanded bank angle" unit="deg"/>
+      <define name="PGAIN" value="79" description="feedback horizontal control P gain"/>
+      <define name="DGAIN" value="100" description="feedback horizontal control D gain"/>
+      <define name="IGAIN" value="30" description="feedback horizontal control I gain"/>
+    </section>
+    <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+      <define name="HOVER_KP" value="283" description="feedback vertical control P gain"/>
+      <define name="HOVER_KD" value="82" description="feedback vertical control D gain"/>
+      <define name="HOVER_KI" value="13" description="feedback vertical control I gain"/>
+      <define name="NOMINAL_HOVER_THROTTLE" value="0.655" description="nominal throttle at hover (between 0 and 1)"/>
+      <define name="ADAPT_THROTTLE_ENABLED" value="FALSE|TRUE" description="enable adaptive control by default"/>
+    </section>
+  </doc>
+  <settings target="ap|nps">
+    <dl_settings>
+      <dl_settings NAME="Vert PID">
+        <dl_setting var="guidance_v_kp" min="0" step="1" max="600" shortname="kp" param="GUIDANCE_V_HOVER_KP" persistent="true" module="guidance/guidance_v"/>
+        <dl_setting var="guidance_v_kd" min="0" step="1" max="600" shortname="kd" param="GUIDANCE_V_HOVER_KD" persistent="true"/>
+        <dl_setting var="guidance_v_ki" min="0" step="1" max="300" shortname="ki" handler="SetKi" param="GUIDANCE_V_HOVER_KI" persistent="true" module="guidance/guidance_v"/>
+        <dl_setting var="guidance_v_nominal_throttle" min="0.2" step="0.01" max="0.8" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" persistent="true"/>
+        <dl_setting var="guidance_v_adapt_throttle_enabled" min="0" step="1" max="1" shortname="adapt_throttle" param="GUIDANCE_V_ADAPT_THROTTLE_ENABLED" values="FALSE|TRUE" persistent="true"/>
+        <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      </dl_settings>
+      <dl_settings NAME="Horiz PID">
+        <dl_setting var="guidance_pid_approx_force_by_thrust" min="0" step="1" max="1" shortname="approx_force" values="FALSE|TRUE" param="GUIDANCE_H_APPROX_FORCE_BY_THRUST" type="uint8" persistent="true"/>
+        <dl_setting var="guidance_pid_gains.p" min="0" step="1" max="400" shortname="kp" param="GUIDANCE_H_PGAIN" type="int32" persistent="true"/>
+        <dl_setting var="guidance_pid_gains.d" min="0" step="1" max="400" shortname="kd" param="GUIDANCE_H_DGAIN" type="int32" persistent="true"/>
+        <dl_setting var="guidance_pid_gains.i" min="0" step="1" max="400" shortname="ki" handler="set_igain" param="GUIDANCE_H_IGAIN" type="int32" persistent="true" module="guidance/guidance_pid"/>
+        <dl_setting var="guidance_pid_gains.v" min="0" step="1" max="400" shortname="kv" param="GUIDANCE_H_VGAIN" type="int32" persistent="true"/>
+        <dl_setting var="guidance_pid_gains.a" min="0" step="1" max="400" shortname="ka" param="GUIDANCE_H_AGAIN" type="int32" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@stabilization</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
+  <header>
+    <file name="guidance_pid.h"/>
+  </header>
+  <init fun="guidance_pid_init()"/>
+  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+    <file name="guidance_pid.c" dir="$(SRC_FIRMWARE)/guidance"/>
+  </makefile>
+</module>
