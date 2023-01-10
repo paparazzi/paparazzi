@@ -73,10 +73,6 @@ extern int32_t guidance_v_zd_ref;
  */
 extern int32_t guidance_v_zdd_ref;
 
-extern int32_t guidance_v_z_sum_err; ///< accumulator for I-gain
-extern int32_t guidance_v_ff_cmd;    ///< feed-forward command
-extern int32_t guidance_v_fb_cmd;    ///< feed-back command
-
 /** Direct throttle from radio control.
  *  range 0:#MAX_PPRZ
  */
@@ -94,31 +90,25 @@ extern int32_t guidance_v_delta_t;
  */
 extern float guidance_v_nominal_throttle;
 
-/** Use adaptive throttle command estimation.
- */
-extern bool guidance_v_adapt_throttle_enabled;
-
-extern int32_t guidance_v_thrust_coeff;
-
-extern int32_t guidance_v_kp; ///< vertical control P-gain
-extern int32_t guidance_v_kd; ///< vertical control D-gain
-extern int32_t guidance_v_ki; ///< vertical control I-gain
+extern int32_t guidance_v_thrust_coeff; // TODO move to PID ?
 
 extern void guidance_v_init(void);
 extern void guidance_v_read_rc(void);
 extern void guidance_v_mode_changed(uint8_t new_mode);
-extern void guidance_v_thrust_adapt(bool in_flight);
 extern void guidance_v_notify_in_flight(bool in_flight);
 extern void guidance_v_run(bool in_flight);
 extern void guidance_v_z_enter(void);
+
+// implementation dependent guidance functions // TODO pass setpoint and ref as a struct
+extern int32_t guidance_v_run_pos(bool in_flight);
+extern int32_t guidance_v_run_speed(bool in_flight);
+extern int32_t guidance_v_run_accel(bool in_flight);
 
 /** Set guidance ref parameters
  */
 extern void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel);
 // macro for backward compatibility
 #define GuidanceVSetRef guidance_v_set_ref
-
-extern void run_hover_loop(bool in_flight);
 
 /** Set guidance setpoint from NAV and run hover loop
  */
@@ -146,10 +136,5 @@ extern void guidance_v_set_vz(float vz);
  * @param th Throttle setpoint between 0. and 1.
  */
 extern void guidance_v_set_th(float th);
-
-#define guidance_v_SetKi(_val) {      \
-    guidance_v_ki = _val;       \
-    guidance_v_z_sum_err = 0;     \
-  }
 
 #endif /* GUIDANCE_V_H */

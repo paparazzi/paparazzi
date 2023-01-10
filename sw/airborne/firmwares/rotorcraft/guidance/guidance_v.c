@@ -38,30 +38,10 @@
 #include "math/pprz_algebra_int.h"
 
 
-/* error if some gains are negative */
-#if (GUIDANCE_V_HOVER_KP < 0) ||                   \
-  (GUIDANCE_V_HOVER_KD < 0)   ||                   \
-  (GUIDANCE_V_HOVER_KI < 0)
-#error "ALL control gains must be positive!!!"
-#endif
-
-
-/* If only GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined,
- * disable the adaptive throttle estimation by default.
- * Otherwise enable adaptive estimation by default.
- */
-#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-#  ifndef GUIDANCE_V_ADAPT_THROTTLE_ENABLED
-#    define GUIDANCE_V_ADAPT_THROTTLE_ENABLED FALSE
-#  endif
-#else
-#  define GUIDANCE_V_NOMINAL_HOVER_THROTTLE 0.4
-#  ifndef GUIDANCE_V_ADAPT_THROTTLE_ENABLED
-#    define GUIDANCE_V_ADAPT_THROTTLE_ENABLED TRUE
-#  endif
+#ifndef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+#define GUIDANCE_V_NOMINAL_HOVER_THROTTLE 0.4
 #endif
 PRINT_CONFIG_VAR(GUIDANCE_V_NOMINAL_HOVER_THROTTLE)
-PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
 
 
 #ifndef GUIDANCE_V_CLIMB_RC_DEADBAND
@@ -76,37 +56,10 @@ PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
 #define GUIDANCE_V_MAX_RC_DESCENT_SPEED GUIDANCE_V_REF_MAX_ZD
 #endif
 
-#ifndef GUIDANCE_V_MIN_ERR_Z
-#define GUIDANCE_V_MIN_ERR_Z POS_BFP_OF_REAL(-10.)
-#endif
-
-#ifndef GUIDANCE_V_MAX_ERR_Z
-#define GUIDANCE_V_MAX_ERR_Z POS_BFP_OF_REAL(10.)
-#endif
-
-#ifndef GUIDANCE_V_MIN_ERR_ZD
-#define GUIDANCE_V_MIN_ERR_ZD SPEED_BFP_OF_REAL(-10.)
-#endif
-
-#ifndef GUIDANCE_V_MAX_ERR_ZD
-#define GUIDANCE_V_MAX_ERR_ZD SPEED_BFP_OF_REAL(10.)
-#endif
-
-#ifndef GUIDANCE_V_MAX_SUM_ERR
-#define GUIDANCE_V_MAX_SUM_ERR 2000000
-#endif
-
-#ifndef GUIDANCE_V_MAX_CMD
-#define GUIDANCE_V_MAX_CMD 0.9*MAX_PPRZ
-#endif
-
 uint8_t guidance_v_mode;
-int32_t guidance_v_ff_cmd;
-int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
 
 float guidance_v_nominal_throttle;
-bool guidance_v_adapt_throttle_enabled;
 static bool desired_zd_updated;
 
 #define GUIDANCE_V_GUIDED_MODE_ZHOLD      0
@@ -133,12 +86,6 @@ int32_t guidance_v_z_ref;
 int32_t guidance_v_zd_ref;
 int32_t guidance_v_zdd_ref;
 
-int32_t guidance_v_kp;
-int32_t guidance_v_kd;
-int32_t guidance_v_ki;
-
-int32_t guidance_v_z_sum_err;
-
 int32_t guidance_v_thrust_coeff;
 
 
@@ -146,24 +93,6 @@ static int32_t get_vertical_thrust_coeff(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
-
-static void send_vert_loop(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_VERT_LOOP(trans, dev, AC_ID,
-                          &guidance_v_z_sp, &guidance_v_zd_sp,
-                          &(stateGetPositionNed_i()->z),
-                          &(stateGetSpeedNed_i()->z),
-                          &(stateGetAccelNed_i()->z),
-                          &guidance_v_z_ref, &guidance_v_zd_ref,
-                          &guidance_v_zdd_ref,
-                          &gv_adapt_X,
-                          &gv_adapt_P,
-                          &gv_adapt_Xmeas,
-                          &guidance_v_z_sum_err,
-                          &guidance_v_ff_cmd,
-                          &guidance_v_fb_cmd,
-                          &guidance_v_delta_t);
-}
 
 static void send_tune_vert(struct transport_tx *trans, struct link_device *dev)
 {
@@ -179,19 +108,10 @@ void guidance_v_init(void)
 {
 
   guidance_v_mode = GUIDANCE_V_MODE_KILL;
-
-  guidance_v_kp = GUIDANCE_V_HOVER_KP;
-  guidance_v_kd = GUIDANCE_V_HOVER_KD;
-  guidance_v_ki = GUIDANCE_V_HOVER_KI;
-
-  guidance_v_z_sum_err = 0;
-
-  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
-  guidance_v_adapt_throttle_enabled = GUIDANCE_V_ADAPT_THROTTLE_ENABLED;
-  desired_zd_updated = false;
   guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
 
   guidance_v_thrust_coeff = BFP_OF_REAL(1.f, INT32_TRIG_FRAC);
+  desired_zd_updated = false;
 
   gv_adapt_init();
 
@@ -200,7 +120,6 @@ void guidance_v_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VERT_LOOP, send_vert_loop);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_TUNE_VERT, send_tune_vert);
 #endif
 }
@@ -246,7 +165,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
       guidance_v_zd_sp = 0;
       /* Falls through. */
     case GUIDANCE_V_MODE_NAV:
-      guidance_v_z_sum_err = 0;
+      //guidance_v_z_sum_err = 0; // FIXME
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
       break;
 
@@ -313,13 +232,13 @@ void guidance_v_run(bool in_flight)
     case GUIDANCE_V_MODE_RC_CLIMB:
       guidance_v_zd_sp = guidance_v_rc_zd_sp;
       gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-      run_hover_loop(in_flight);
+      guidance_v_delta_t = guidance_v_run_speed(in_flight);
       stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
       break;
 
     case GUIDANCE_V_MODE_CLIMB:
       gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-      run_hover_loop(in_flight);
+      guidance_v_delta_t = guidance_v_run_speed(in_flight);
 #if !NO_RC_THRUST_LIMIT
       /* use rc limitation if available */
       if (radio_control.status == RC_OK) {
@@ -362,7 +281,7 @@ void guidance_v_z_enter(void)
   guidance_v_z_sp = stateGetPositionNed_i()->z;
 
   /* reset guidance reference */
-  guidance_v_z_sum_err = 0;
+  // guidance_v_z_sum_err = 0; // FIXME
   GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
 
   /* reset speed setting */
@@ -407,11 +326,8 @@ static int32_t get_vertical_thrust_coeff(void)
 }
 
 
-#define FF_CMD_FRAC 18
-
-void run_hover_loop(bool in_flight)
+static void guidance_v_update_ref(void)
 {
-
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref >> (GV_Z_REF_FRAC - INT32_POS_FRAC);
   guidance_v_z_ref = (int32_t)tmp;
@@ -419,55 +335,6 @@ void run_hover_loop(bool in_flight)
   guidance_v_zdd_ref = gv_zdd_ref << (INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* set flag to indicate that desired zd was updated */
   desired_zd_updated = true;
-  /* compute the error to our reference */
-  int32_t err_z  = guidance_v_z_ref - stateGetPositionNed_i()->z;
-  Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd = guidance_v_zd_ref - stateGetSpeedNed_i()->z;
-  Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
-
-  if (in_flight) {
-    guidance_v_z_sum_err += err_z;
-    Bound(guidance_v_z_sum_err, -GUIDANCE_V_MAX_SUM_ERR, GUIDANCE_V_MAX_SUM_ERR);
-  } else {
-    guidance_v_z_sum_err = 0;
-  }
-
-  /* our nominal command : (g + zdd)*m   */
-  int32_t inv_m;
-  if (guidance_v_adapt_throttle_enabled) {
-    inv_m =  gv_adapt_X >> (GV_ADAPT_X_FRAC - FF_CMD_FRAC);
-  } else {
-    /* use the fixed nominal throttle */
-    inv_m = BFP_OF_REAL(9.81 / (guidance_v_nominal_throttle * MAX_PPRZ), FF_CMD_FRAC);
-  }
-
-  const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
-                          (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
-
-  guidance_v_ff_cmd = g_m_zdd / inv_m;
-  /* feed forward command */
-  guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
-
-#if HYBRID_NAVIGATION
-  //FIXME: NOT USING FEEDFORWARD COMMAND BECAUSE OF QUADSHOT NAVIGATION
-  guidance_v_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
-#endif
-
-  /* bound the nominal command to GUIDANCE_V_MAX_CMD */
-  Bound(guidance_v_ff_cmd, 0, GUIDANCE_V_MAX_CMD);
-
-
-  /* our error feed back command                   */
-  /* z-axis pointing down -> positive error means we need less thrust */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 7) +
-                      ((-guidance_v_kd * err_zd) >> 16) +
-                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 16);
-
-  guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
-
-  /* bound the result */
-  Bound(guidance_v_delta_t, 0, MAX_PPRZ);
-
 }
 
 void guidance_v_from_nav(bool in_flight)
@@ -476,17 +343,20 @@ void guidance_v_from_nav(bool in_flight)
     guidance_v_z_sp = -POS_BFP_OF_REAL(nav.nav_altitude);
     guidance_v_zd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v_z_sp);
+    guidance_v_update_ref();
+    guidance_v_delta_t = guidance_v_run_pos(in_flight);
     run_hover_loop(in_flight);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB) {
     guidance_v_z_sp = stateGetPositionNed_i()->z;
     guidance_v_zd_sp = -SPEED_BFP_OF_REAL(nav.climb);
     gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-    run_hover_loop(in_flight);
+    guidance_v_update_ref();
+    guidance_v_delta_t = guidance_v_run_speed(in_flight);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_MANUAL) {
     guidance_v_z_sp = stateGetPositionNed_i()->z;
     guidance_v_zd_sp = stateGetSpeedNed_i()->z;
     GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
-    guidance_v_z_sum_err = 0;
+    // guidance_v_z_sum_err = 0; // FIXME
     guidance_v_delta_t = nav.throttle;
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_GUIDED) {
     guidance_v_guided_run(in_flight);

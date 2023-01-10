@@ -32,47 +32,48 @@ extern "C" {
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
+#include "firmwares/rotorcrafts/guidance/guidance_h.h"
+#include "firmwares/rotorcrafts/guidance/guidance_v.h"
 
-struct GuidancePIDGains {
+struct GuidancePID {
   // horizontal gains
-  int32_t p;
-  int32_t d;
-  int32_t i;
-  int32_t v;
-  int32_t a;
+  int32_t kp;
+  int32_t kd;
+  int32_t ki;
+  int32_t kv;
+  int32_t ka;
   // vertical gains
-  int32_t v_p;
-  int32_t v_d;
-  int32_t v_i;
+  int32_t v_kp;
+  int32_t v_kd;
+  int32_t v_ki;
+  // outputs
+  struct Int32Vect2 cmd_earth;  // Horizontal guidance command (north/east with #INT32_ANGLE_FRAC)
+  int32_t cmd_thrust;           // Vertical guidance command (in pprz_t)
+  // options
+  bool approx_force_by_thrust;  // Correction of force commands from thrust
+  bool adapt_throttle_enabled;  // Use adaptive throttle command estimation
 };
 
-/** Control gains
+/** Guidance PID structyre
  */
-extern struct GuidancePIDGains guidance_pid_gains;
-
-/** horizontal guidance command.
- * In north/east with #INT32_ANGLE_FRAC
- * @todo convert to real force command
- */
-extern struct Int32Vect2  guidance_pid_cmd_earth;
-
-/** Correction of force commands from thrust
- */
-extern bool guidance_pid_approx_force_by_thrust;
-
+extern struct GuidancePID guidance_pid;
 
 extern void guidance_pid_init(void);
-extern struct Int32Vect2 guidance_pid_run_pos(bool in_flight);
-extern struct Int32Vect2 guidance_pid_run_speed(bool in_flight);
-extern struct Int32Vect2 guidance_pid_run_accel(bool in_flight);
+extern struct Int32Vect2 guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
+extern struct Int32Vect2 guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
+extern struct Int32Vect2 guidance_pid_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);
+extern int32_t guidance_pid_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
+extern int32_t guidance_pid_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
+extern int32_t guidance_pid_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
 
-extern void guidance_pid_set_igain(uint32_t igain);
+extern void guidance_pid_set_h_igain(uint32_t igain);
+extern void guidance_pid_set_v_igain(uint32_t igain);
 
 /** Gets the position error
  * @param none.
  * @return Pointer to a structure containing x and y position errors
  */
-extern const struct Int32Vect2 *guidance_pid_get_pos_err(void);
+extern const struct Int32Vect2 *guidance_pid_get_h_pos_err(void);
 
 #ifdef __cplusplus
 }
