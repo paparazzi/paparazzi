@@ -438,6 +438,8 @@ void guidance_h_nav_enter(void)
   /* set nav_heading to current heading */
   nav.heading = stateGetNedToBodyEulers_f()->psi;
   guidance_h_set_heading(nav.heading);
+  /* call specific implementation */
+  guidance_h_run_enter();
 }
 
 void guidance_h_from_nav(bool in_flight)
@@ -484,7 +486,7 @@ void guidance_h_from_nav(bool in_flight)
         guidance_h.sp.pos.x = POS_BFP_OF_REAL(nav.target.y);
         guidance_h.sp.pos.y = POS_BFP_OF_REAL(nav.target.x);
         guidance_hybrid_run();
-#else
+#else // !HYBRID_NAVIGATION
         // set guidance in NED
         guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
         guidance_h_update_reference();
@@ -504,7 +506,7 @@ void guidance_h_from_nav(bool in_flight)
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
 #endif // GUIDANCE_INDI
 
-#endif // HYBRID_NAVIGATION
+#endif // END HYBRID_NAVIGATION
         stabilization_attitude_run(in_flight);
         break;
 
