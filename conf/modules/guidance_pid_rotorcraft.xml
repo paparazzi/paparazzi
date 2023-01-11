@@ -26,7 +26,6 @@
         <dl_setting var="guidance_pid.v_kd" min="0" step="1" max="600" shortname="kd" param="GUIDANCE_V_HOVER_KD" persistent="true"/>
         <dl_setting var="guidance_pid.v_ki" min="0" step="1" max="300" shortname="ki" handler="set_v_igain" param="GUIDANCE_V_HOVER_KI" persistent="true" module="guidance/guidance_pid"/>
         <dl_setting var="guidance_pid.adapt_throttle_enabled" min="0" step="1" max="1" shortname="adapt_throttle" param="GUIDANCE_V_ADAPT_THROTTLE_ENABLED" values="FALSE|TRUE" persistent="true"/>
-        <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       </dl_settings>
       <dl_settings NAME="Horiz PID">
         <dl_setting var="guidance_pid.approx_force_by_thrust" min="0" step="1" max="1" shortname="approx_force" values="FALSE|TRUE" param="GUIDANCE_H_APPROX_FORCE_BY_THRUST" type="uint8" persistent="true"/>

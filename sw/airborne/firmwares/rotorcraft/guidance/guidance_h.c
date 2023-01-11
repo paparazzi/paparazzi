@@ -44,7 +44,7 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
-/* for guidance_v_thrust_coeff */
+/* for guidance_v.thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 #include "state.h"

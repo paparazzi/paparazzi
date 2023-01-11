@@ -13,8 +13,8 @@
   <settings target="ap|nps">
     <dl_settings>
       <dl_settings NAME="Vert Loop">
-        <dl_setting var="guidance_v_nominal_throttle" min="0.2" step="0.01" max="0.8" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" persistent="true"/>
-        <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+        <dl_setting var="guidance_v.nominal_throttle" min="0.2" step="0.01" max="0.8" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" persistent="true"/>
+        <dl_setting var="guidance_v.z_sp" min="-5" step="0.5" max="3" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       </dl_settings>
       <dl_settings NAME="Horiz ref">
         <dl_setting var="guidance_h.use_ref" min="0" step="1" max="1" shortname="use_ref" values="FALSE|TRUE" handler="SetUseRef" param="GUIDANCE_H_USE_REF" persistent="true" module="guidance/guidance_h"/>

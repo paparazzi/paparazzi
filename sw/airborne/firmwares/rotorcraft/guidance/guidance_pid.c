@@ -168,12 +168,12 @@ static void send_hover_loop(struct transport_tx *trans, struct link_device *dev)
 static void send_vert_loop(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_VERT_LOOP(trans, dev, AC_ID,
-                          &guidance_v_z_sp, &guidance_v_zd_sp,
+                          &guidance_v.z_sp, &guidance_v.zd_sp,
                           &(stateGetPositionNed_i()->z),
                           &(stateGetSpeedNed_i()->z),
                           &(stateGetAccelNed_i()->z),
-                          &guidance_v_z_ref, &guidance_v_zd_ref,
-                          &guidance_v_zdd_ref,
+                          &guidance_v.z_ref, &guidance_v.zd_ref,
+                          &guidance_v.zdd_ref,
                           &gv_adapt_X,
                           &gv_adapt_P,
                           &gv_adapt_Xmeas,
@@ -264,7 +264,8 @@ static struct Int32Vect2 guidance_pid_h_run(bool in_flight, struct HorizontalGui
   /* compute a better approximation of force commands by taking thrust into account */
   if (guidance_pid.approx_force_by_thrust && in_flight) {
     static int32_t thrust_cmd_filt;
-    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
+    // FIXME strong coupling with guidance_v here !!!
+    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v.thrust_coeff) >> INT32_TRIG_FRAC;
     thrust_cmd_filt = (thrust_cmd_filt * GUIDANCE_H_THRUST_CMD_FILTER + vertical_thrust) /
                       (GUIDANCE_H_THRUST_CMD_FILTER + 1);
     guidance_pid.cmd_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_pid.cmd_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2),
@@ -325,9 +326,9 @@ static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv UN
   // FIXME make and use a VerticalGuidance structure
 
   /* compute the error to our reference */
-  int32_t err_z  = guidance_v_z_ref - stateGetPositionNed_i()->z;
+  int32_t err_z  = gv->z_ref - stateGetPositionNed_i()->z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd = guidance_v_zd_ref - stateGetSpeedNed_i()->z;
+  int32_t err_zd = gv->zd_ref - stateGetSpeedNed_i()->z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -343,20 +344,20 @@ static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv UN
     inv_m = gv_adapt_X >> (GV_ADAPT_X_FRAC - FF_CMD_FRAC);
   } else {
     /* use the fixed nominal throttle */
-    inv_m = BFP_OF_REAL(9.81 / (guidance_v_nominal_throttle * MAX_PPRZ), FF_CMD_FRAC);
+    inv_m = BFP_OF_REAL(9.81 / (gv->nominal_throttle * MAX_PPRZ), FF_CMD_FRAC);
   }
 
   const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
-                          (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
+                          (gv->zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
   guidance_pid_v_ff_cmd = g_m_zdd / inv_m;
   /* feed forward command */
-  guidance_pid_v_ff_cmd = (guidance_pid_v_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
+  guidance_pid_v_ff_cmd = (guidance_pid_v_ff_cmd << INT32_TRIG_FRAC) / gv->thrust_coeff;
 
 #if HYBRID_NAVIGATION
   //FIXME: NOT USING FEEDFORWARD COMMAND BECAUSE OF QUADSHOT NAVIGATION
   // FIXME keep this or remove ?
-  guidance_pid_v_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
+  guidance_pid_v_ff_cmd = gv->nominal_throttle * MAX_PPRZ;
 #endif
 
   /* bound the nominal command to GUIDANCE_V_MAX_CMD */
@@ -453,19 +454,19 @@ struct Int32Vect2 guidance_h_run_accel(bool in_flight, struct HorizontalGuidance
   return guidance_pid_h_run_accel(in_flight, gh);
 }
 
-int32_t guidance_v_run_pos(bool in_flight)
+int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
 {
-  return guidance_pid_v_run_pos(in_flight, NULL);
+  return guidance_pid_v_run_pos(in_flight, gv);
 }
 
-int32_t guidance_v_run_speed(bool in_flight)
+int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
 {
-  return guidance_pid_v_run_speed(in_flight, NULL);
+  return guidance_pid_v_run_speed(in_flight, gv);
 }
 
-int32_t guidance_v_run_accel(bool in_flight)
+int32_t guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
 {
-  return guidance_pid_v_run_accel(in_flight, NULL);
+  return guidance_pid_v_run_accel(in_flight, gv);
 }
 
 #endif

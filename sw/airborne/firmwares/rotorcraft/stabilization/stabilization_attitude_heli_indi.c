@@ -493,8 +493,8 @@ void stabilization_attitude_run(bool in_flight)
   }
 
   /* RADIO throttle stick value, for 4dof mode */
-  //int32_t accel_z_sp = (-1)*3*((guidance_v_rc_delta_t - MAX_PPRZ/2) << INT32_ACCEL_FRAC) / (MAX_PPRZ/2);
-  //accel_z_sp = ((accel_z_sp << INT32_TRIG_FRAC) / guidance_v_thrust_coeff);
+  //int32_t accel_z_sp = (-1)*3*((guidance_v.rc_delta_t - MAX_PPRZ/2) << INT32_ACCEL_FRAC) / (MAX_PPRZ/2);
+  //accel_z_sp = ((accel_z_sp << INT32_TRIG_FRAC) / guidance_v.thrust_coeff);
 
   /* Transform yaw into a delta yaw while keeping filtered yawrate (kinda hacky) */
   int32_t filtered_measurement_vector[INDI_DOF];

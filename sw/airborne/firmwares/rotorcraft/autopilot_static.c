@@ -262,7 +262,7 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
         guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-        guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED);
+        guidance_v_set_vz(FAILSAFE_DESCENT_SPEED);
         break;
 #endif
       case AP_MODE_KILL:

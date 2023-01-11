@@ -102,7 +102,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
                                   &imu_nb_err, &_motor_nb_err,
                                   &radio_control.status, &radio_control.frame_rate,
                                   &fix, &autopilot.mode, &in_flight, &motors_on,
-                                  &autopilot.arming_status, &guidance_h.mode, &guidance_v_mode,
+                                  &autopilot.arming_status, &guidance_h.mode, &guidance_v.mode,
                                   &time_sec, &electrical.vsupply);
 }
 
@@ -116,7 +116,7 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
 
 static void send_fp(struct transport_tx *trans, struct link_device *dev)
 {
-  int32_t carrot_up = -guidance_v_z_sp;
+  int32_t carrot_up = -guidance_v.z_sp;
   int32_t carrot_heading = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
   int32_t thrust = (int32_t)autopilot.throttle;
 #if GUIDANCE_INDI_HYBRID

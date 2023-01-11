@@ -37,8 +37,10 @@
 #include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
-/* for guidance_v_thrust_coeff */
+/* for guidance_v.thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
+
+#include "firmwares/rotorcraft/guidance/guidance_pid.h" // FIXME is it really what we want ?
 
 // max airspeed for quadshot guidance
 #define MAX_AIRSPEED 15
@@ -379,32 +381,32 @@ void guidance_hybrid_vertical(void)
 {
   if (guidance_hybrid_norm_ref_airspeed < (4 << 8)) {
     //if airspeed ref < 4 only thrust
-    stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+    stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
     v_control_pitch = 0;
-    guidance_v_kp = GUIDANCE_V_HOVER_KP;
-    guidance_v_kd = GUIDANCE_V_HOVER_KD;
-    guidance_v_ki = GUIDANCE_V_HOVER_KI;
+    guidance_pid.kp = GUIDANCE_V_HOVER_KP;
+    guidance_pid.kd = GUIDANCE_V_HOVER_KD;
+    guidance_pid.ki = GUIDANCE_V_HOVER_KI;
   } else if (guidance_hybrid_norm_ref_airspeed > (8 << 8)) { //if airspeed ref > 8 only pitch,
     //at 15 m/s the thrust has to be 33%
     stabilization_cmd[COMMAND_THRUST] = MAX_PPRZ / 5 + (((guidance_hybrid_norm_ref_airspeed - (8 << 8)) / 7 *
-                                        (MAX_PPRZ / 3 - MAX_PPRZ / 5)) >> 8) + (guidance_v_delta_t - MAX_PPRZ / 2) / 10;
+                                        (MAX_PPRZ / 3 - MAX_PPRZ / 5)) >> 8) + (guidance_v.delta_t - MAX_PPRZ / 2) / 10;
     //stabilization_cmd[COMMAND_THRUST] = MAX_PPRZ/5;
     // stabilization_cmd[COMMAND_THRUST] = ((guidance_hybrid_norm_ref_airspeed - (8<<8)) / 7 * (MAX_PPRZ/3 - MAX_PPRZ/5))>>8 + 9600/5;
     //Control altitude with pitch, now only proportional control
-    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ * guidance_v_nominal_throttle) * alt_pitch_gain;
-    v_control_pitch = ANGLE_BFP_OF_REAL(alt_control_pitch / (MAX_PPRZ * guidance_v_nominal_throttle));
-    guidance_v_kp = GUIDANCE_V_HOVER_KP / 2;
-    guidance_v_kd = GUIDANCE_V_HOVER_KD / 2;
-    guidance_v_ki = GUIDANCE_V_HOVER_KI / 2;
+    float alt_control_pitch = (guidance_v.delta_t - MAX_PPRZ * guidance_v.nominal_throttle) * alt_pitch_gain;
+    v_control_pitch = ANGLE_BFP_OF_REAL(alt_control_pitch / (MAX_PPRZ * guidance_v.nominal_throttle));
+    guidance_pid.kp = GUIDANCE_V_HOVER_KP / 2;
+    guidance_pid.kd = GUIDANCE_V_HOVER_KD / 2;
+    guidance_pid.ki = GUIDANCE_V_HOVER_KI / 2;
   } else { //if airspeed ref > 4 && < 8 both
     int32_t airspeed_transition = (guidance_hybrid_norm_ref_airspeed - (4 << 8)) / 4; //divide by 4 to scale it to 0-1 (<<8)
-    stabilization_cmd[COMMAND_THRUST] = ((MAX_PPRZ / 5 + (guidance_v_delta_t - MAX_PPRZ / 2) / 10) * airspeed_transition +
-                                         guidance_v_delta_t * ((1 << 8) - airspeed_transition)) >> 8;
-    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ * guidance_v_nominal_throttle) * alt_pitch_gain;
+    stabilization_cmd[COMMAND_THRUST] = ((MAX_PPRZ / 5 + (guidance_v.delta_t - MAX_PPRZ / 2) / 10) * airspeed_transition +
+                                         guidance_v.delta_t * ((1 << 8) - airspeed_transition)) >> 8;
+    float alt_control_pitch = (guidance_v.delta_t - MAX_PPRZ * guidance_v.nominal_throttle) * alt_pitch_gain;
     v_control_pitch = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(alt_control_pitch / (MAX_PPRZ *
-                                      guidance_v_nominal_throttle)), airspeed_transition, 8);
-    guidance_v_kp = GUIDANCE_V_HOVER_KP;
-    guidance_v_kd = GUIDANCE_V_HOVER_KD;
-    guidance_v_ki = GUIDANCE_V_HOVER_KI;
+                                      guidance_v.nominal_throttle)), airspeed_transition, 8);
+    guidance_pid.kp = GUIDANCE_V_HOVER_KP;
+    guidance_pid.kd = GUIDANCE_V_HOVER_KD;
+    guidance_pid.ki = GUIDANCE_V_HOVER_KI;
   }
 }
