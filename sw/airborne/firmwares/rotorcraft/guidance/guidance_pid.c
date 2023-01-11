@@ -23,7 +23,7 @@
  *
  */
 
-#include "firmwares/rotorcrafts/guidance/guidance_pid.h"
+#include "firmwares/rotorcraft/guidance/guidance_pid.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "generated/airframe.h"
@@ -178,8 +178,8 @@ static void send_vert_loop(struct transport_tx *trans, struct link_device *dev)
                           &gv_adapt_P,
                           &gv_adapt_Xmeas,
                           &guidance_pid_z_sum_err,
-                          &guidance_pid_ff_cmd,
-                          &guidance_pid_fb_cmd,
+                          &guidance_pid_v_ff_cmd,
+                          &guidance_pid_v_fb_cmd,
                           &guidance_pid.cmd_thrust);
 }
 
@@ -349,28 +349,28 @@ static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv UN
   const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
                           (guidance_v_zdd_ref << (FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
-  guidance_pid_ff_cmd = g_m_zdd / inv_m;
+  guidance_pid_v_ff_cmd = g_m_zdd / inv_m;
   /* feed forward command */
-  guidance_pid_ff_cmd = (guidance_pid_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
+  guidance_pid_v_ff_cmd = (guidance_pid_v_ff_cmd << INT32_TRIG_FRAC) / guidance_v_thrust_coeff;
 
 #if HYBRID_NAVIGATION
   //FIXME: NOT USING FEEDFORWARD COMMAND BECAUSE OF QUADSHOT NAVIGATION
   // FIXME keep this or remove ?
-  guidance_pid_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
+  guidance_pid_v_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
 #endif
 
   /* bound the nominal command to GUIDANCE_V_MAX_CMD */
-  Bound(guidance_pid_ff_cmd, 0, GUIDANCE_V_MAX_CMD);
+  Bound(guidance_pid_v_ff_cmd, 0, GUIDANCE_V_MAX_CMD);
 
 
   /* our error feed back command                   */
   /* z-axis pointing down -> positive error means we need less thrust */
-  guidance_pid_fb_cmd =
+  guidance_pid_v_fb_cmd =
     ((-guidance_pid.v_kp * err_z)  >> 7) +
     ((-guidance_pid.v_kd * err_zd) >> 16) +
     ((-guidance_pid.v_ki * guidance_pid_z_sum_err) >> 16);
 
-  guidance_pid.cmd_thrust = guidance_pid_ff_cmd + guidance_pid_fb_cmd;
+  guidance_pid.cmd_thrust = guidance_pid_v_ff_cmd + guidance_pid_v_fb_cmd;
 
   /* bound the result */
   Bound(guidance_pid.cmd_thrust, 0, MAX_PPRZ);
@@ -394,6 +394,14 @@ int32_t guidance_pid_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance 
   return 0;
 }
 
+void guidance_pid_h_enter(void)
+{
+}
+
+void guidance_pid_v_enter(void)
+{
+  guidance_pid_z_sum_err = 0;
+}
 
 /**
  * settings handler
@@ -419,6 +427,16 @@ const struct Int32Vect2 *guidance_pid_get_h_pos_err(void)
 
 #if GUIDANCE_PID_USE_AS_DEFAULT
 // guidance pid control function is implementing the default functions of guidance
+
+void guidance_h_run_enter(void)
+{
+  guidance_pid_h_enter();
+}
+
+void guidance_v_run_enter(void)
+{
+  guidance_pid_v_enter();
+}
 
 struct Int32Vect2 guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
 {

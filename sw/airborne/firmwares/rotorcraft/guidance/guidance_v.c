@@ -89,8 +89,6 @@ int32_t guidance_v_zdd_ref;
 int32_t guidance_v_thrust_coeff;
 
 
-static int32_t get_vertical_thrust_coeff(void);
-
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -165,7 +163,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
       guidance_v_zd_sp = 0;
       /* Falls through. */
     case GUIDANCE_V_MODE_NAV:
-      //guidance_v_z_sum_err = 0; // FIXME
+      guidance_v_run_enter();
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
       break;
 
@@ -194,7 +192,36 @@ void guidance_v_notify_in_flight(bool in_flight)
   }
 }
 
-void guidance_v_thrust_adapt(bool in_flight)
+/// get the cosine of the angle between thrust vector and gravity vector
+static int32_t get_vertical_thrust_coeff(void)
+{
+  // cos(30°) = 0.8660254
+  static const int32_t max_bank_coef = BFP_OF_REAL(0.8660254f, INT32_TRIG_FRAC);
+
+  struct Int32RMat *att = stateGetNedToBodyRMat_i();
+  /* thrust vector:
+   *  int32_rmat_vmult(&thrust_vect, &att, &zaxis)
+   * same as last colum of rmat with INT32_TRIG_FRAC
+   * struct Int32Vect thrust_vect = {att.m[2], att.m[5], att.m[8]};
+   *
+   * Angle between two vectors v1 and v2:
+   *  angle = acos(dot(v1, v2) / (norm(v1) * norm(v2)))
+   * since here both are already of unit length:
+   *  angle = acos(dot(v1, v2))
+   * since we we want the cosine of the angle we simply need
+   *  thrust_coeff = dot(v1, v2)
+   * also can be simplified considering: v1 is zaxis with (0,0,1)
+   *  dot(v1, v2) = v1.z * v2.z = v2.z
+   */
+  int32_t coef = att->m[8];
+  if (coef < max_bank_coef) {
+    coef = max_bank_coef;
+  }
+  return coef;
+}
+
+
+static void guidance_v_thrust_adapt(bool in_flight)
 {
   guidance_v_thrust_coeff = get_vertical_thrust_coeff();
 
@@ -281,7 +308,7 @@ void guidance_v_z_enter(void)
   guidance_v_z_sp = stateGetPositionNed_i()->z;
 
   /* reset guidance reference */
-  // guidance_v_z_sum_err = 0; // FIXME
+  guidance_v_run_enter();
   GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
 
   /* reset speed setting */
@@ -294,35 +321,6 @@ void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel)
   guidance_v_z_ref = pos;
   guidance_v_zd_ref = speed;
   guidance_v_zdd_ref = accel;
-}
-
-
-/// get the cosine of the angle between thrust vector and gravity vector
-static int32_t get_vertical_thrust_coeff(void)
-{
-  // cos(30°) = 0.8660254
-  static const int32_t max_bank_coef = BFP_OF_REAL(0.8660254f, INT32_TRIG_FRAC);
-
-  struct Int32RMat *att = stateGetNedToBodyRMat_i();
-  /* thrust vector:
-   *  int32_rmat_vmult(&thrust_vect, &att, &zaxis)
-   * same as last colum of rmat with INT32_TRIG_FRAC
-   * struct Int32Vect thrust_vect = {att.m[2], att.m[5], att.m[8]};
-   *
-   * Angle between two vectors v1 and v2:
-   *  angle = acos(dot(v1, v2) / (norm(v1) * norm(v2)))
-   * since here both are already of unit length:
-   *  angle = acos(dot(v1, v2))
-   * since we we want the cosine of the angle we simply need
-   *  thrust_coeff = dot(v1, v2)
-   * also can be simplified considering: v1 is zaxis with (0,0,1)
-   *  dot(v1, v2) = v1.z * v2.z = v2.z
-   */
-  int32_t coef = att->m[8];
-  if (coef < max_bank_coef) {
-    coef = max_bank_coef;
-  }
-  return coef;
 }
 
 
@@ -345,7 +343,6 @@ void guidance_v_from_nav(bool in_flight)
     gv_update_ref_from_z_sp(guidance_v_z_sp);
     guidance_v_update_ref();
     guidance_v_delta_t = guidance_v_run_pos(in_flight);
-    run_hover_loop(in_flight);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB) {
     guidance_v_z_sp = stateGetPositionNed_i()->z;
     guidance_v_zd_sp = -SPEED_BFP_OF_REAL(nav.climb);
@@ -356,7 +353,7 @@ void guidance_v_from_nav(bool in_flight)
     guidance_v_z_sp = stateGetPositionNed_i()->z;
     guidance_v_zd_sp = stateGetSpeedNed_i()->z;
     GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
-    // guidance_v_z_sum_err = 0; // FIXME
+    guidance_v_run_enter();
     guidance_v_delta_t = nav.throttle;
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_GUIDED) {
     guidance_v_guided_run(in_flight);
@@ -380,7 +377,7 @@ void guidance_v_guided_enter(void)
   guidance_v_set_z(stateGetPositionNed_f()->z);
 
   /* reset guidance reference */
-  guidance_v_z_sum_err = 0;
+  guidance_v_run_enter();
   GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
 }
 
@@ -392,12 +389,14 @@ void guidance_v_guided_run(bool in_flight)
       // Altitude Hold
       guidance_v_zd_sp = 0;
       gv_update_ref_from_z_sp(guidance_v_z_sp);
-      run_hover_loop(in_flight);
+      guidance_v_update_ref();
+      guidance_v_delta_t = guidance_v_run_pos(in_flight);
       break;
     case GUIDANCE_V_GUIDED_MODE_CLIMB:
       // Climb
       gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-      run_hover_loop(in_flight);
+      guidance_v_update_ref();
+      guidance_v_delta_t = guidance_v_run_speed(in_flight);
       break;
     case GUIDANCE_V_GUIDED_MODE_THROTTLE:
       // Throttle

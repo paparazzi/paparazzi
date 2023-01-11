@@ -131,11 +131,6 @@ void guidance_h_init(void)
   FLOAT_EULERS_ZERO(guidance_h.rc_sp);
   guidance_h.sp.heading = 0.0;
   guidance_h.sp.heading_rate = 0.0;
-  guidance_h.gains.p = GUIDANCE_H_PGAIN;
-  guidance_h.gains.i = GUIDANCE_H_IGAIN;
-  guidance_h.gains.d = GUIDANCE_H_DGAIN;
-  guidance_h.gains.a = GUIDANCE_H_AGAIN;
-  guidance_h.gains.v = GUIDANCE_H_VGAIN;
   transition_percentage = 0;
   transition_theta_offset = 0;
 
@@ -430,6 +425,9 @@ void guidance_h_hover_enter(void)
   /* set guidance to current heading and position */
   guidance_h.rc_sp.psi = stateGetNedToBodyEulers_f()->psi;
   guidance_h_set_heading(stateGetNedToBodyEulers_f()->psi);
+
+  /* call specific implementation */
+  guidance_h_run_enter();
 }
 
 void guidance_h_nav_enter(void)
@@ -477,6 +475,8 @@ void guidance_h_from_nav(bool in_flight)
     guidance_h_guided_run(in_flight);
   } else {
 
+    int32_t heading_sp_i = 0;
+
     switch (nav.setpoint_mode) {
       case NAV_SETPOINT_MODE_POS:
 #if HYBRID_NAVIGATION
@@ -498,9 +498,9 @@ void guidance_h_from_nav(bool in_flight)
         guidance_indi_run(&guidance_h.sp.heading);
 #else
         /* compute x,y earth commands */
-        guidance_h_cmd_earth = guidance_pid_run_pos(in_flight, &guidance_h);
+        guidance_h_cmd_earth = guidance_h_run_pos(in_flight, &guidance_h);
         /* set final attitude setpoint */
-        int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
+        heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
 #endif // GUIDANCE_INDI
 
@@ -514,7 +514,7 @@ void guidance_h_from_nav(bool in_flight)
         guidance_h_set_heading(nav.heading);
         guidance_h_cmd_earth = guidance_h_run_speed(in_flight, &guidance_h);
         /* set final attitude setpoint */
-        int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
+        heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
         stabilization_attitude_run(in_flight);
         break;
@@ -523,7 +523,7 @@ void guidance_h_from_nav(bool in_flight)
         // TODO set_accel ref
         guidance_h_set_heading(nav.heading);
         guidance_h_cmd_earth = guidance_h_run_accel(in_flight, &guidance_h);
-        int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
+        heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
         stabilization_attitude_run(in_flight);
         break;
@@ -597,7 +597,7 @@ void guidance_h_guided_run(bool in_flight)
   guidance_indi_run(&guidance_h.sp.heading);
 #else
   /* compute x,y earth commands */
-  guidance_h_cmd_earth = guidance_h_traj_run(in_flight, &guidance_h);
+  guidance_h_cmd_earth = guidance_h_run_pos(in_flight, &guidance_h);
   /* set final attitude setpoint */
   int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
   stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);

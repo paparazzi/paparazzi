@@ -102,6 +102,7 @@ extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool in_flight);
 extern void guidance_h_run(bool in_flight);
+extern void guidance_h_run_enter(void);
 extern struct Int32Vect2 guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
 extern struct Int32Vect2 guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
 extern struct Int32Vect2 guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);

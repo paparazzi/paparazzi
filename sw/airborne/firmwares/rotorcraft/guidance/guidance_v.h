@@ -90,7 +90,11 @@ extern int32_t guidance_v_delta_t;
  */
 extern float guidance_v_nominal_throttle;
 
-extern int32_t guidance_v_thrust_coeff; // TODO move to PID ?
+extern int32_t guidance_v_thrust_coeff;
+
+// TODO use a structure for setpoint and ref
+struct VerticalGuidance {
+};
 
 extern void guidance_v_init(void);
 extern void guidance_v_read_rc(void);
@@ -100,6 +104,7 @@ extern void guidance_v_run(bool in_flight);
 extern void guidance_v_z_enter(void);
 
 // implementation dependent guidance functions // TODO pass setpoint and ref as a struct
+extern void guidance_v_run_enter(void);
 extern int32_t guidance_v_run_pos(bool in_flight);
 extern int32_t guidance_v_run_speed(bool in_flight);
 extern int32_t guidance_v_run_accel(bool in_flight);

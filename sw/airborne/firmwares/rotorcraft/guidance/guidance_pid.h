@@ -32,8 +32,8 @@ extern "C" {
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
-#include "firmwares/rotorcrafts/guidance/guidance_h.h"
-#include "firmwares/rotorcrafts/guidance/guidance_v.h"
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 struct GuidancePID {
   // horizontal gains
@@ -59,6 +59,8 @@ struct GuidancePID {
 extern struct GuidancePID guidance_pid;
 
 extern void guidance_pid_init(void);
+extern void guidance_pid_h_enter(void);
+extern void guidance_pid_v_enter(void);
 extern struct Int32Vect2 guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
 extern struct Int32Vect2 guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
 extern struct Int32Vect2 guidance_pid_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);

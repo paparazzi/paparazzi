@@ -72,7 +72,7 @@ void nav_init(void)
   VECT3_COPY(nav.carrot, waypoints[WP_HOME].enu_f);
   FLOAT_VECT3_ZERO(nav.speed);
   FLOAT_VECT3_ZERO(nav.accel);
-  FLOAT_QUAT_ZERO(nav.quat);
+  float_quat_identity(&nav.quat);
   FLOAT_RATES_ZERO(nav.rates);
 
   nav.throttle = 0;

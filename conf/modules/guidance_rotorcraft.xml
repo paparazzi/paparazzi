@@ -13,11 +13,7 @@
   <settings target="ap|nps">
     <dl_settings>
       <dl_settings NAME="Vert Loop">
-        <dl_setting var="guidance_v_kp" min="0" step="1" max="600" shortname="kp" param="GUIDANCE_V_HOVER_KP" persistent="true" module="guidance/guidance_v"/>
-        <dl_setting var="guidance_v_kd" min="0" step="1" max="600" shortname="kd" param="GUIDANCE_V_HOVER_KD" persistent="true"/>
-        <dl_setting var="guidance_v_ki" min="0" step="1" max="300" shortname="ki" handler="SetKi" param="GUIDANCE_V_HOVER_KI" persistent="true" module="guidance/guidance_v"/>
         <dl_setting var="guidance_v_nominal_throttle" min="0.2" step="0.01" max="0.8" shortname="nominal_throttle" param="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" persistent="true"/>
-        <dl_setting var="guidance_v_adapt_throttle_enabled" min="0" step="1" max="1" shortname="adapt_throttle" param="GUIDANCE_V_ADAPT_THROTTLE_ENABLED" values="FALSE|TRUE" persistent="true"/>
         <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       </dl_settings>
       <dl_settings NAME="Horiz ref">
@@ -33,7 +29,7 @@
   </settings>
   <dep>
     <!--depends>@navigation</depends-->
-    <depends>nav_basic_rotorcraft,@stabilization</depends>
+    <depends>nav_basic_rotorcraft,guidance_pid_rotorcraft,@stabilization</depends>
     <provides>guidance,attitude_command</provides>
   </dep>
   <header>
