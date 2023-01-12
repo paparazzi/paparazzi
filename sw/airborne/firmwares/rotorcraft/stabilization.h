@@ -29,9 +29,39 @@
 #include "std.h"
 
 #include "generated/airframe.h"
+#include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 extern void stabilization_init(void);
 extern void stabilization_filter_commands(void);
+
+/** Stabilization setpoint.
+ *  Struture to store the desired attitude with different
+ *  frames and representations
+ */
+struct StabilizationSetpoint {
+  enum {
+    STAB_SP_QUAT,
+    STAB_SP_EULERS,
+    STAB_SP_RATS
+  } type;
+  enum {
+    STAB_SP_LTP,
+    STAB_SP_BODY
+  } frame;
+  enum {
+    STAB_SP_INT,
+    STAB_SP_FLOAT
+  } format;
+  union {
+    struct Int32Quat quat_i;
+    struct FloatQuat quat_f;
+    struct Int32Eulers eulers_i;
+    struct FloatEulers eulers_f;
+    struct Int32Rates rates_i;
+    struct FloatRates rates_f;
+  } sp;
+};
 
 /** Stabilization commands.
  *  Contains the resulting stabilization commands,
