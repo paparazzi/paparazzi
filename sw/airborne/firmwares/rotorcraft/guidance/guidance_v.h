@@ -114,7 +114,6 @@ extern void guidance_v_notify_in_flight(bool in_flight);
 extern void guidance_v_run(bool in_flight);
 extern void guidance_v_z_enter(void);
 
-// implementation dependent guidance functions // TODO pass setpoint and ref as a struct
 extern void guidance_v_run_enter(void);
 extern int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
 extern int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv);

@@ -280,7 +280,7 @@ void guidance_indi_run(float *heading_sp) {
   //Linear controller to find the acceleration setpoint from position and velocity
   float pos_x_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x) - stateGetPositionNed_f()->x;
   float pos_y_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.y) - stateGetPositionNed_f()->y;
-  float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
+  float pos_z_err = POS_FLOAT_OF_BFP(guidance_v.z_ref - stateGetPositionNed_i()->z);
 
   // First check for velocity setpoint from module
   float dt = get_sys_time_float() - time_of_vel_sp;
@@ -733,8 +733,8 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
   VECT2_SMUL(final_vector, direction, desired_speed/length_direction);
 
   struct FloatVect3 speed_sp_return = {final_vector.x, final_vector.y, gih_params.pos_gainz*(ned_target.z - stateGetPositionNed_f()->z)};
-  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
-    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
+  if((guidance_v.mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
+    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v.zd_sp);
   }
 
   // Bound vertical speed setpoint
@@ -769,8 +769,8 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
   VECT3_SMUL(speed_sp_return, pos_error, pos_gain);
   speed_sp_return.z = gih_params.pos_gainz*pos_error.z;
 
-  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
-    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
+  if((guidance_v.mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
+    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v.zd_sp);
   }
 
   if(force_forward) {

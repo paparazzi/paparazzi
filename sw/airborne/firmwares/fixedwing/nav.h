@@ -81,8 +81,6 @@ extern bool nav_in_segment;
 extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
 extern float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2; /* m */
 
-extern uint8_t last_wp __attribute__((unused));
-
 extern int nav_mode;
 #define NAV_MODE_ROLL 1
 #define NAV_MODE_COURSE 2

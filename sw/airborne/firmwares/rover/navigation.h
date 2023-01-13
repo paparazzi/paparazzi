@@ -158,8 +158,6 @@ extern void nav_register_oval(nav_rover_oval_init nav_oval_init, nav_rover_oval 
     while (x >= 2*M_PI) x -= 2*M_PI; \
   }
 
-extern uint8_t last_wp __attribute__((unused));
-
 extern void nav_init(void);
 extern void nav_run(void);
 extern void nav_parse_BLOCK(uint8_t *buf);
