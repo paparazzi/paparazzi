@@ -41,14 +41,11 @@ extern void stabilization_filter_commands(void);
  */
 struct StabilizationSetpoint {
   enum {
-    STAB_SP_QUAT,
-    STAB_SP_EULERS,
-    STAB_SP_RATES
+    STAB_SP_QUAT,     ///< LTP to Body orientation in unit quaternion
+    STAB_SP_EULERS,   ///< LTP to Body orientation in euler angles
+    STAB_SP_LTP,      ///< banking and heading in LTP (NED) frame
+    STAB_SP_RATES     ///< body rates
   } type;
-  enum {
-    STAB_SP_LTP,
-    STAB_SP_BODY
-  } frame;
   enum {
     STAB_SP_INT,
     STAB_SP_FLOAT
@@ -58,6 +55,8 @@ struct StabilizationSetpoint {
     struct FloatQuat quat_f;
     struct Int32Eulers eulers_i;
     struct FloatEulers eulers_f;
+    struct { struct Int32Vect2 vect; int32_t heading; } ltp_i;
+    struct { struct FloatVect2 vect; float heading; } ltp_f;
     struct Int32Rates rates_i;
     struct FloatRates rates_f;
   } sp;
@@ -72,12 +71,14 @@ extern struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp);
 extern struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp);
 
 // helper make functions
-extern struct StabilizationSetpoint stab_sp_from_quat_i(uint8_t frame, struct Int32Quat *quat);
-extern struct StabilizationSetpoint stab_sp_from_quat_f(uint8_t frame, struct FloatQuat *quat);
-extern struct StabilizationSetpoint stab_sp_from_eulers_i(uint8_t frame, struct Int32Eulers *eulers);
-extern struct StabilizationSetpoint stab_sp_from_eulers_f(uint8_t frame, struct FloatEulers *eulers);
-extern struct StabilizationSetpoint stab_sp_from_rates_i(uint8_t frame, struct Int32Rates *rates);
-extern struct StabilizationSetpoint stab_sp_from_rates_f(uint8_t frame, struct FloatRates *rates);
+extern struct StabilizationSetpoint stab_sp_from_quat_i(struct Int32Quat *quat);
+extern struct StabilizationSetpoint stab_sp_from_quat_f(struct FloatQuat *quat);
+extern struct StabilizationSetpoint stab_sp_from_eulers_i(struct Int32Eulers *eulers);
+extern struct StabilizationSetpoint stab_sp_from_eulers_f(struct FloatEulers *eulers);
+extern struct StabilizationSetpoint stab_sp_from_ltp_i(struct Int32Vect2 *vect, int32_t heading);
+extern struct StabilizationSetpoint stab_sp_from_ltp_f(struct FloatVect2 *vect, float heading);
+extern struct StabilizationSetpoint stab_sp_from_rates_i(struct Int32Rates *rates);
+extern struct StabilizationSetpoint stab_sp_from_rates_f(struct FloatRates *rates);
 
 /** Stabilization commands.
  *  Contains the resulting stabilization commands,

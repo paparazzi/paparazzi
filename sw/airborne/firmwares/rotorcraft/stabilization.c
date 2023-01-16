@@ -24,6 +24,8 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
+#include "state.h"
 
 #if (STABILIZATION_FILTER_COMMANDS_ROLL_PITCH || STABILIZATION_FILTER_COMMANDS_YAW)
 #include "filters/low_pass_filter.h"
@@ -72,6 +74,34 @@ void stabilization_init(void)
 
 }
 
+// compute sp_euler phi/theta for debugging/telemetry FIXME really needed ?
+/* Rotate horizontal commands to body frame by psi */
+static struct Int32Eulers stab_sp_rotate_i(struct Int32Vect2 *vect, int32_t heading)
+{
+  struct Int32Eulers sp;
+  int32_t psi = stateGetNedToBodyEulers_i()->psi;
+  int32_t s_psi, c_psi;
+  PPRZ_ITRIG_SIN(s_psi, psi);
+  PPRZ_ITRIG_COS(c_psi, psi);
+  sp.phi = (-s_psi * vect->x + c_psi * vect->y) >> INT32_TRIG_FRAC;
+  sp.theta = -(c_psi * vect->x + s_psi * vect->y) >> INT32_TRIG_FRAC;
+  sp.psi = heading;
+  return sp;
+}
+
+static struct FloatEulers stab_sp_rotate_f(struct FloatVect2 *vect, float heading)
+{
+  struct FloatEulers sp;
+  float psi = stateGetNedToBodyEulers_f()->psi;
+  float s_psi = sinf(psi);
+  float c_psi = cosf(psi);
+  sp.phi = -s_psi * vect->x + c_psi * vect->y;
+  sp.theta = -c_psi * vect->x + s_psi * vect->y;
+  sp.psi = heading;
+  return sp;
+}
+
+
 void stabilization_filter_commands(void)
 {
   /* Filter the commands & bound the result */
@@ -88,8 +118,6 @@ void stabilization_filter_commands(void)
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 #endif
 }
-
-// TODO rotations from LTP to Body or reverse
 
 struct Int32Quat stab_sp_to_quat_i(struct StabilizationSetpoint *sp)
 {
@@ -112,6 +140,18 @@ struct Int32Quat stab_sp_to_quat_i(struct StabilizationSetpoint *sp)
       EULERS_BFP_OF_REAL(eulers, sp->sp.eulers_f);
       int32_quat_of_eulers(&quat, &eulers);
       return quat;
+    }
+  } else if (sp->type == STAB_SP_LTP) {
+    if (sp->format == STAB_SP_INT) {
+      struct Int32Quat quat;
+      quat_from_earth_cmd_i(&quat, &sp->sp.ltp_i.vect, sp->sp.ltp_i.heading);
+      return quat;
+    } else {
+      struct FloatQuat quat_f;
+      struct Int32Quat quat_i;
+      quat_from_earth_cmd_f(&quat_f, &sp->sp.ltp_f.vect, sp->sp.ltp_f.heading);
+      QUAT_BFP_OF_REAL(quat_i, quat_f);
+      return quat_i;
     }
   } else {
     // error, rates setpoint
@@ -143,6 +183,18 @@ struct FloatQuat stab_sp_to_quat_f(struct StabilizationSetpoint *sp)
       float_quat_of_eulers(&quat, &eulers);
       return quat;
     }
+  } else if (sp->type == STAB_SP_LTP) {
+    if (sp->format == STAB_SP_FLOAT) {
+      struct FloatQuat quat;
+      quat_from_earth_cmd_f(&quat, &sp->sp.ltp_f.vect, sp->sp.ltp_f.heading);
+      return quat;
+    } else {
+      struct FloatQuat quat_f;
+      struct Int32Quat quat_i;
+      quat_from_earth_cmd_i(&quat_i, &sp->sp.ltp_i.vect, sp->sp.ltp_i.heading);
+      QUAT_FLOAT_OF_BFP(quat_f, quat_i);
+      return quat_f;
+    }
   } else {
     // error, rates setpoint
     struct FloatQuat quat;
@@ -173,6 +225,16 @@ struct Int32Eulers stab_sp_to_eulers_i(struct StabilizationSetpoint *sp)
       int32_eulers_of_quat(&eulers, &quat);
       return eulers;
     }
+  } else if (sp->type == STAB_SP_LTP) {
+    if (sp->format == STAB_SP_INT) {
+      struct Int32Eulers eulers = stab_sp_rotate_i(&sp->sp.ltp_i.vect, sp->sp.ltp_i.heading);
+      return eulers;
+    } else {
+      struct FloatEulers eulers_f = stab_sp_rotate_f(&sp->sp.ltp_f.vect, sp->sp.ltp_f.heading);
+      struct Int32Eulers eulers_i;
+      EULERS_BFP_OF_REAL(eulers_i, eulers_f);
+      return eulers_i;
+    }
   } else {
     // error, rates setpoint
     struct Int32Eulers eulers = {0};
@@ -202,6 +264,16 @@ struct FloatEulers stab_sp_to_eulers_f(struct StabilizationSetpoint *sp)
       float_eulers_of_quat(&eulers, &quat);
       return eulers;
     }
+  } else if (sp->type == STAB_SP_LTP) {
+    if (sp->format == STAB_SP_FLOAT) {
+      struct FloatEulers eulers = stab_sp_rotate_f(&sp->sp.ltp_f.vect, sp->sp.ltp_f.heading);
+      return eulers;
+    } else {
+      struct Int32Eulers eulers_i = stab_sp_rotate_i(&sp->sp.ltp_i.vect, sp->sp.ltp_i.heading);
+      struct FloatEulers eulers_f;
+      EULERS_FLOAT_OF_BFP(eulers_f, eulers_i);
+      return eulers_f;
+    }
   } else {
     // error, rates setpoint
     struct FloatEulers eulers = {0};
@@ -221,66 +293,82 @@ struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp)
   return sp->sp.rates_f;
 }
 
-struct StabilizationSetpoint stab_sp_from_quat_i(uint8_t frame, struct Int32Quat *quat)
+struct StabilizationSetpoint stab_sp_from_quat_i(struct Int32Quat *quat)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_QUAT,
-    .frame = frame,
     .format = STAB_SP_INT,
     .sp.quat_i = *quat
   };
   return sp;
 }
 
-struct StabilizationSetpoint stab_sp_from_quat_f(uint8_t frame, struct FloatQuat *quat)
+struct StabilizationSetpoint stab_sp_from_quat_f(struct FloatQuat *quat)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_QUAT,
-    .frame = frame,
     .format = STAB_SP_FLOAT,
     .sp.quat_f = *quat
   };
   return sp;
 }
 
-struct StabilizationSetpoint stab_sp_from_eulers_i(uint8_t frame, struct Int32Eulers *eulers)
+struct StabilizationSetpoint stab_sp_from_eulers_i(struct Int32Eulers *eulers)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_EULERS,
-    .frame = frame,
     .format = STAB_SP_INT,
     .sp.eulers_i = *eulers
   };
   return sp;
 }
 
-struct StabilizationSetpoint stab_sp_from_eulers_f(uint8_t frame, struct FloatEulers *eulers)
+struct StabilizationSetpoint stab_sp_from_eulers_f(struct FloatEulers *eulers)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_EULERS,
-    .frame = frame,
     .format = STAB_SP_FLOAT,
     .sp.eulers_f = *eulers
   };
   return sp;
 }
 
-struct StabilizationSetpoint stab_sp_from_rates_i(uint8_t frame, struct Int32Rates *rates)
+struct StabilizationSetpoint stab_sp_from_ltp_i(struct Int32Vect2 *vect, int32_t heading)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_LTP,
+    .format = STAB_SP_INT,
+    .sp.ltp_i.vect = *vect,
+    .sp.ltp_i.heading = heading
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_ltp_f(struct FloatVect2 *vect, float heading)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_LTP,
+    .format = STAB_SP_FLOAT,
+    .sp.ltp_f.vect = *vect,
+    .sp.ltp_f.heading = heading
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_rates_i(struct Int32Rates *rates)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_RATES,
-    .frame = frame,
     .format = STAB_SP_INT,
     .sp.rates_i = *rates
   };
   return sp;
 }
 
-struct StabilizationSetpoint stab_sp_from_rates_f(uint8_t frame, struct FloatRates *rates)
+struct StabilizationSetpoint stab_sp_from_rates_f(struct FloatRates *rates)
 {
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_RATES,
-    .frame = frame,
     .format = STAB_SP_FLOAT,
     .sp.rates_f = *rates
   };

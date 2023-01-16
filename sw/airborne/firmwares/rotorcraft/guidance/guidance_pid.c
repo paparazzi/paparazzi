@@ -275,22 +275,8 @@ static struct StabilizationSetpoint guidance_pid_h_run(bool in_flight, struct Ho
   }
 
   VECT2_STRIM(guidance_pid.cmd_earth, -total_max_bank, total_max_bank);
-  //struct StabilizationSetpoint stab_sp = {
-  //  .type = STAB_SP_EULERS,
-  //  .frame = STAB_SP_LTP,
-  //  .format = STAB_SP_INT,
-  //  .sp.eulers_i = {
-  //    .phi = guidance_pid.cmd_earth.x,
-  //    .theta = guidance_pid.cmd_earth.y,
-  //    .psi = ANGLE_BFP_OF_REAL(guidance_h.sp.heading)
-  //  }
-  //};
-  struct Int32Eulers esp = {
-    .phi = guidance_pid.cmd_earth.x,
-    .theta = guidance_pid.cmd_earth.y,
-    .psi = ANGLE_BFP_OF_REAL(guidance_h.sp.heading)
-  };
-  return stab_sp_from_eulers_i(STAB_SP_LTP, &esp);
+
+  return stab_sp_from_ltp_i(&guidance_pid.cmd_earth, ANGLE_BFP_OF_REAL(guidance_h.sp.heading));
 }
 
 struct StabilizationSetpoint guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
