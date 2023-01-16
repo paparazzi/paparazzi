@@ -88,3 +88,202 @@ void stabilization_filter_commands(void)
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 #endif
 }
+
+// TODO rotations from LTP to Body or reverse
+
+struct Int32Quat stab_sp_to_quat_i(struct StabilizationSetpoint *sp)
+{
+  if (sp->type == STAB_SP_QUAT) {
+    if (sp->format == STAB_SP_INT) {
+      return sp->sp.quat_i;
+    } else {
+      struct Int32Quat quat;
+      QUAT_BFP_OF_REAL(quat, sp->sp.quat_f);
+      return quat;
+    }
+  } else if (sp->type == STAB_SP_EULERS) {
+    if (sp->format == STAB_SP_INT) {
+      struct Int32Quat quat;
+      int32_quat_of_eulers(&quat, &sp->sp.eulers_i);
+      return quat;
+    } else {
+      struct Int32Quat quat;
+      struct Int32Eulers eulers;
+      EULERS_BFP_OF_REAL(eulers, sp->sp.eulers_f);
+      int32_quat_of_eulers(&quat, &eulers);
+      return quat;
+    }
+  } else {
+    // error, rates setpoint
+    struct Int32Quat quat;
+    int32_quat_identity(&quat);
+    return quat;
+  }
+}
+
+struct FloatQuat stab_sp_to_quat_f(struct StabilizationSetpoint *sp)
+{
+  if (sp->type == STAB_SP_QUAT) {
+    if (sp->format == STAB_SP_FLOAT) {
+      return sp->sp.quat_f;
+    } else {
+      struct FloatQuat quat;
+      QUAT_FLOAT_OF_BFP(quat, sp->sp.quat_i);
+      return quat;
+    }
+  } else if (sp->type == STAB_SP_EULERS) {
+    if (sp->format == STAB_SP_FLOAT) {
+      struct FloatQuat quat;
+      float_quat_of_eulers(&quat, &sp->sp.eulers_f);
+      return quat;
+    } else {
+      struct FloatQuat quat;
+      struct FloatEulers eulers;
+      EULERS_FLOAT_OF_BFP(eulers, sp->sp.eulers_i);
+      float_quat_of_eulers(&quat, &eulers);
+      return quat;
+    }
+  } else {
+    // error, rates setpoint
+    struct FloatQuat quat;
+    float_quat_identity(&quat);
+    return quat;
+  }
+}
+
+struct Int32Eulers stab_sp_to_eulers_i(struct StabilizationSetpoint *sp)
+{
+  if (sp->type == STAB_SP_EULERS) {
+    if (sp->format == STAB_SP_INT) {
+      return sp->sp.eulers_i;
+    } else {
+      struct Int32Eulers eulers;
+      EULERS_BFP_OF_REAL(eulers, sp->sp.eulers_f);
+      return eulers;
+    }
+  } else if (sp->type == STAB_SP_QUAT) {
+    if (sp->format == STAB_SP_INT) {
+      struct Int32Eulers eulers;
+      int32_eulers_of_quat(&eulers, &sp->sp.quat_i);
+      return eulers;
+    } else {
+      struct Int32Eulers eulers;
+      struct Int32Quat quat;
+      QUAT_BFP_OF_REAL(quat, sp->sp.quat_f);
+      int32_eulers_of_quat(&eulers, &quat);
+      return eulers;
+    }
+  } else {
+    // error, rates setpoint
+    struct Int32Eulers eulers = {0};
+    return eulers;
+  }
+}
+
+struct FloatEulers stab_sp_to_eulers_f(struct StabilizationSetpoint *sp)
+{
+  if (sp->type == STAB_SP_EULERS) {
+    if (sp->format == STAB_SP_FLOAT) {
+      return sp->sp.eulers_f;
+    } else {
+      struct FloatEulers eulers;
+      EULERS_FLOAT_OF_BFP(eulers, sp->sp.eulers_i);
+      return eulers;
+    }
+  } else if (sp->type == STAB_SP_QUAT) {
+    if (sp->format == STAB_SP_FLOAT) {
+      struct FloatEulers eulers;
+      float_eulers_of_quat(&eulers, &sp->sp.quat_f);
+      return eulers;
+    } else {
+      struct FloatEulers eulers;
+      struct FloatQuat quat;
+      QUAT_FLOAT_OF_BFP(quat, sp->sp.quat_i);
+      float_eulers_of_quat(&eulers, &quat);
+      return eulers;
+    }
+  } else {
+    // error, rates setpoint
+    struct FloatEulers eulers = {0};
+    return eulers;
+  }
+}
+
+struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp)
+{
+  // TODO
+  return sp->sp.rates_i;
+}
+
+struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp)
+{
+  // TODO
+  return sp->sp.rates_f;
+}
+
+struct StabilizationSetpoint stab_sp_from_quat_i(uint8_t frame, struct Int32Quat *quat)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_QUAT,
+    .frame = frame,
+    .format = STAB_SP_INT,
+    .sp.quat_i = *quat
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_quat_f(uint8_t frame, struct FloatQuat *quat)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_QUAT,
+    .frame = frame,
+    .format = STAB_SP_FLOAT,
+    .sp.quat_f = *quat
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_eulers_i(uint8_t frame, struct Int32Eulers *eulers)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_EULERS,
+    .frame = frame,
+    .format = STAB_SP_INT,
+    .sp.eulers_i = *eulers
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_eulers_f(uint8_t frame, struct FloatEulers *eulers)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_EULERS,
+    .frame = frame,
+    .format = STAB_SP_FLOAT,
+    .sp.eulers_f = *eulers
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_rates_i(uint8_t frame, struct Int32Rates *rates)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_RATES,
+    .frame = frame,
+    .format = STAB_SP_INT,
+    .sp.rates_i = *rates
+  };
+  return sp;
+}
+
+struct StabilizationSetpoint stab_sp_from_rates_f(uint8_t frame, struct FloatRates *rates)
+{
+  struct StabilizationSetpoint sp = {
+    .type = STAB_SP_RATES,
+    .frame = frame,
+    .format = STAB_SP_FLOAT,
+    .sp.rates_f = *rates
+  };
+  return sp;
+}
+

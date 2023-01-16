@@ -219,7 +219,7 @@ void guidance_pid_init(void)
 /**
  * run horizontal control loop for position and speed control
  */
-static struct Int32Vect2 guidance_pid_h_run(bool in_flight, struct HorizontalGuidance *gh)
+static struct StabilizationSetpoint guidance_pid_h_run(bool in_flight, struct HorizontalGuidance *gh)
 {
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
@@ -275,10 +275,25 @@ static struct Int32Vect2 guidance_pid_h_run(bool in_flight, struct HorizontalGui
   }
 
   VECT2_STRIM(guidance_pid.cmd_earth, -total_max_bank, total_max_bank);
-  return guidance_pid.cmd_earth;
+  //struct StabilizationSetpoint stab_sp = {
+  //  .type = STAB_SP_EULERS,
+  //  .frame = STAB_SP_LTP,
+  //  .format = STAB_SP_INT,
+  //  .sp.eulers_i = {
+  //    .phi = guidance_pid.cmd_earth.x,
+  //    .theta = guidance_pid.cmd_earth.y,
+  //    .psi = ANGLE_BFP_OF_REAL(guidance_h.sp.heading)
+  //  }
+  //};
+  struct Int32Eulers esp = {
+    .phi = guidance_pid.cmd_earth.x,
+    .theta = guidance_pid.cmd_earth.y,
+    .psi = ANGLE_BFP_OF_REAL(guidance_h.sp.heading)
+  };
+  return stab_sp_from_eulers_i(STAB_SP_LTP, &esp);
 }
 
-struct Int32Vect2 guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
+struct StabilizationSetpoint guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
 {
   /* compute position error    */
   VECT2_DIFF(guidance_pid_pos_err, gh->ref.pos, *stateGetPositionNed_i());
@@ -294,7 +309,7 @@ struct Int32Vect2 guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidan
   return guidance_pid_h_run(in_flight, gh);
 }
 
-struct Int32Vect2 guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
+struct StabilizationSetpoint guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
 {
   /* cancel position error */
   INT_VECT2_ZERO(guidance_pid_pos_err);
@@ -308,11 +323,11 @@ struct Int32Vect2 guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuid
   return guidance_pid_h_run(in_flight, gh);
 }
 
-struct Int32Vect2 guidance_pid_h_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh UNUSED)
+struct StabilizationSetpoint guidance_pid_h_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh UNUSED)
 {
-  struct Int32Vect2 cmd = { 0, 0 };
+  struct StabilizationSetpoint sp = { 0 };
   // TODO
-  return cmd;
+  return sp;
 }
 
 /**
@@ -439,17 +454,17 @@ void guidance_v_run_enter(void)
   guidance_pid_v_enter();
 }
 
-struct Int32Vect2 guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
+struct StabilizationSetpoint guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
 {
   return guidance_pid_h_run_pos(in_flight, gh);
 }
 
-struct Int32Vect2 guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
+struct StabilizationSetpoint guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
 {
   return guidance_pid_h_run_speed(in_flight, gh);
 }
 
-struct Int32Vect2 guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh)
+struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh)
 {
   return guidance_pid_h_run_accel(in_flight, gh);
 }

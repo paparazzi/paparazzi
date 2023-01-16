@@ -43,7 +43,7 @@ struct StabilizationSetpoint {
   enum {
     STAB_SP_QUAT,
     STAB_SP_EULERS,
-    STAB_SP_RATS
+    STAB_SP_RATES
   } type;
   enum {
     STAB_SP_LTP,
@@ -62,6 +62,22 @@ struct StabilizationSetpoint {
     struct FloatRates rates_f;
   } sp;
 };
+
+// helper convert functions
+extern struct Int32Quat stab_sp_to_quat_i(struct StabilizationSetpoint *sp);
+extern struct FloatQuat stab_sp_to_quat_f(struct StabilizationSetpoint *sp);
+extern struct Int32Eulers stab_sp_to_eulers_i(struct StabilizationSetpoint *sp);
+extern struct FloatEulers stab_sp_to_eulers_f(struct StabilizationSetpoint *sp);
+extern struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp);
+extern struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp);
+
+// helper make functions
+extern struct StabilizationSetpoint stab_sp_from_quat_i(uint8_t frame, struct Int32Quat *quat);
+extern struct StabilizationSetpoint stab_sp_from_quat_f(uint8_t frame, struct FloatQuat *quat);
+extern struct StabilizationSetpoint stab_sp_from_eulers_i(uint8_t frame, struct Int32Eulers *eulers);
+extern struct StabilizationSetpoint stab_sp_from_eulers_f(uint8_t frame, struct FloatEulers *eulers);
+extern struct StabilizationSetpoint stab_sp_from_rates_i(uint8_t frame, struct Int32Rates *rates);
+extern struct StabilizationSetpoint stab_sp_from_rates_f(uint8_t frame, struct FloatRates *rates);
 
 /** Stabilization commands.
  *  Contains the resulting stabilization commands,
