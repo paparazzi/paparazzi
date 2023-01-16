@@ -171,6 +171,11 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stab_att_sp_euler.psi = ANGLE_FLOAT_OF_BFP(heading);
 }
 
+void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stab_att_sp_euler = stab_sp_to_eulers_f(sp);
+}
+
 #define MAX_SUM_ERR 200
 
 void stabilization_attitude_run(bool  in_flight)

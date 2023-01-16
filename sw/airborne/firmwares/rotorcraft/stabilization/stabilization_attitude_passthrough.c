@@ -99,3 +99,9 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
   stab_att_sp_euler.psi = heading;
 }
+
+void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
+}
+
