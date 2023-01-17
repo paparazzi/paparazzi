@@ -57,10 +57,6 @@
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 
-#ifndef GUIDANCE_INDI
-#define GUIDANCE_INDI FALSE
-#endif
-
 // Navigation can set heading freely
 // This is false if sideslip is a problem
 #ifndef GUIDANCE_HEADING_IS_FREE
@@ -74,7 +70,7 @@ int32_t transition_percentage;
 /** horizontal guidance command.
  * In north/east with #INT32_ANGLE_FRAC
  */
-struct StabilizationSetpoint guidance_h_cmd_earth;
+struct StabilizationSetpoint guidance_h_cmd;
 
 static void guidance_h_update_reference(void);
 static inline void transition_run(bool to_forward);
@@ -199,9 +195,6 @@ void guidance_h_mode_changed(uint8_t new_mode)
 
     case GUIDANCE_H_MODE_GUIDED:
     case GUIDANCE_H_MODE_HOVER:
-#if GUIDANCE_INDI
-      guidance_indi_enter();
-#endif
       guidance_h_hover_enter();
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
       /* reset attitude stabilization if previous mode was not using it */
@@ -219,9 +212,6 @@ void guidance_h_mode_changed(uint8_t new_mode)
 #endif
 
     case GUIDANCE_H_MODE_NAV:
-#if GUIDANCE_INDI
-      guidance_indi_enter();
-#endif
       guidance_h_nav_enter();
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
       /* reset attitude stabilization if previous mode was not using it */
@@ -495,15 +485,9 @@ void guidance_h_from_nav(bool in_flight)
         guidance_h_set_heading(nav.heading);
 #endif
 
-#if GUIDANCE_INDI
-        guidance_indi_run(&guidance_h.sp.heading);
-#else
-        /* compute x,y earth commands */
-        guidance_h_cmd_earth = guidance_h_run_pos(in_flight, &guidance_h);
+        guidance_h_cmd = guidance_h_run_pos(in_flight, &guidance_h);
         /* set final attitude setpoint */
-        //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd_earth);
-#endif // GUIDANCE_INDI
+        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
 
 #endif // END HYBRID_NAVIGATION
         stabilization_attitude_run(in_flight);
@@ -513,21 +497,17 @@ void guidance_h_from_nav(bool in_flight)
         guidance_h_set_vel(nav.speed.y, nav.speed.x); // nav speed is in ENU frame, convert to NED
         guidance_h_update_reference();
         guidance_h_set_heading(nav.heading);
-        guidance_h_cmd_earth = guidance_h_run_speed(in_flight, &guidance_h);
+        guidance_h_cmd = guidance_h_run_speed(in_flight, &guidance_h);
         /* set final attitude setpoint */
-        //heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
-        //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd_earth);
+        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
         stabilization_attitude_run(in_flight);
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
         // TODO set_accel ref
         guidance_h_set_heading(nav.heading);
-        guidance_h_cmd_earth = guidance_h_run_accel(in_flight, &guidance_h);
-        //heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
-        //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd_earth);
+        guidance_h_cmd = guidance_h_run_accel(in_flight, &guidance_h);
+        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
         stabilization_attitude_run(in_flight);
         break;
 
@@ -596,16 +576,9 @@ void guidance_h_guided_run(bool in_flight)
 
   guidance_h_update_reference();
 
-#if GUIDANCE_INDI
-  guidance_indi_run(&guidance_h.sp.heading);
-#else
-  /* compute x,y earth commands */
-  guidance_h_cmd_earth = guidance_h_run_pos(in_flight, &guidance_h);
+  guidance_h_cmd = guidance_h_run_pos(in_flight, &guidance_h);
   /* set final attitude setpoint */
-  //int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
-  //stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth, heading_sp_i);
-  stabilization_attitude_set_stab_sp(&guidance_h_cmd_earth);
-#endif
+  stabilization_attitude_set_stab_sp(&guidance_h_cmd);
   stabilization_attitude_run(in_flight);
 }
 
