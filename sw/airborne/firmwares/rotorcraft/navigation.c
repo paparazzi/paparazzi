@@ -88,8 +88,6 @@ void nav_init(void)
   nav.nav_altitude = SECURITY_HEIGHT;
   flight_altitude = SECURITY_ALT;
 
-  nav.force_forward = false;
-
   nav.too_far_from_home = false;
   nav.failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
   nav.dist2_to_home = 0.f;

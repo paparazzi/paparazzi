@@ -325,7 +325,7 @@ struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, stru
   return guidance_indi_run(&accel_sp, &gh->sp.heading);
 }
 
-struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv UNUSED)
+struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
 {
   struct FloatVect3 accel_sp;
 
@@ -337,7 +337,6 @@ struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, stru
   accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
   accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
 
-  // else don't change setpoint and run indi guidance
   return guidance_indi_run(&accel_sp, &gh->sp.heading);
 }
 

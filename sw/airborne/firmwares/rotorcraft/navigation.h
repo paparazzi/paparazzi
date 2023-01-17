@@ -141,8 +141,6 @@ struct RotorcraftNavigation {
   float fp_altitude;        ///< altitude setpoint from flight plan (in meters)
   float nav_altitude;       ///< current altitude setpoint (in meters): might differ from fp_altitude depending on altitude shift from operator
 
-  bool force_forward;       ///< forward flight for hybrid nav (TODO really needed here ?)
-
   // misc
   float dist2_to_home;        ///< squared distance to home waypoint
   bool too_far_from_home;     ///< too_far flag

@@ -34,9 +34,8 @@
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
-extern void guidance_indi_enter(void);
-extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, float heading);
 extern void guidance_indi_init(void);
+extern void guidance_indi_enter(void);
 
 extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float *heading_sp);
 extern struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
