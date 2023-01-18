@@ -279,6 +279,7 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 #define NavVerticalClimbMode(_climb) {            \
     nav.vertical_mode = NAV_VERTICAL_MODE_CLIMB;  \
     nav.climb = _climb;                           \
+    nav.speed.z = _climb;                         \
   }
 
 /** Set the vertical mode to fixed throttle with the specified setpoint */

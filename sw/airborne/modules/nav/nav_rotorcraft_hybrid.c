@@ -23,9 +23,26 @@
  * Specific navigation functions for hybrid aircraft
  */
 
-#include "modules/nav/nav_rotorcraft_base.h"
+#include "modules/nav/nav_rotorcraft_hybrid.h"
 #include "firmwares/rotorcraft/navigation.h"
-#include "generated/modules.h" // for force_forward
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h" // strong dependency for now
+
+// Max ground speed that will be commanded
+#ifndef GUIDANCE_INDI_NAV_SPEED_MARGIN
+#define GUIDANCE_INDI_NAV_SPEED_MARGIN 10.0f
+#endif
+#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
+float nav_max_speed = NAV_MAX_SPEED;
+
+#ifndef MAX_DECELERATION
+#define MAX_DECELERATION 1.f
+#endif
+
+#ifdef GUIDANCE_INDI_LINE_GAIN
+static float guidance_indi_line_gain = GUIDANCE_INDI_LINE_GAIN;
+#else
+static float guidance_indi_line_gain = 1.0f;
+#endif
 
 /** Implement basic nav function for the hybrid case
  */
@@ -37,41 +54,94 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   VECT2_COPY(nav.target, *wp);
 
   // Calculate position error
-  struct FloatVect3 pos_error;
+  struct FloatVect2 pos_error;
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-  VECT3_DIFF(pos_error, nav.target, *pos);
+  VECT2_DIFF(pos_error, nav.target, *pos);
 
-  // TODO continue from here
+  struct FloatVect2 speed_sp;
+  VECT2_SMUL(speed_sp, pos_error, gih_params.pos_gain);
 
+  // FIXME is it the right place to set the vertical setpoint ?
+  //speed_sp_return.z = gih_params.pos_gainz * pos_error.z;
+  //if ((guidance_v.mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
+  //  speed_sp_return.z = SPEED_FLOAT_OF_BFP(-guidance_v.zd_sp); // from NED
+  //}
 
+  if (force_forward) {
+    float_vect2_scale_in_2d(&speed_sp, nav_max_speed);
+  } else {
+    // Calculate distance to waypoint
+    float dist_to_wp = float_vect2_norm(&pos_error);
+    // Calculate max speed to decelerate from
+    float max_speed_decel2 = fabsf(2.f * dist_to_wp * MAX_DECELERATION); // dist_to_wp can only be positive, but just in case
+    float max_speed_decel = sqrtf(max_speed_decel2);
+    // Bound the setpoint velocity vector
+    float max_h_speed = Min(nav_max_speed, max_speed_decel);
+    float_vect2_bound_in_2d(&speed_sp, max_h_speed);
+  }
+
+  // Bound vertical speed setpoint // TODO move to guidance
+  //if (stateGetAirspeed_f() > 13.f) {
+  //  Bound(speed_sp_return.z, -4.0f, 4.0f);
+  //} else {
+  //  Bound(speed_sp_return.z, nav.descend_vspeed, nav.climb_vspeed);
+  //}
+
+  VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
 
-static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
+static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
 {
   struct FloatVect2 wp_diff, pos_diff;
   VECT2_DIFF(wp_diff, *wp_end, *wp_start);
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_start);
-  // leg length
-  float leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y), 0.1f);
-  nav_rotorcraft_base.goto_wp.leg_length = sqrtf(leg_length2);
-  // leg progress
-  nav_rotorcraft_base.goto_wp.leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_rotorcraft_base.goto_wp.leg_length;
-  nav_rotorcraft_base.goto_wp.leg_progress += Max(NAV_CARROT_DIST, 0.f);
-  // next pos on leg
-  struct FloatVect2 progress_pos;
-  VECT2_SMUL(progress_pos, wp_diff, nav_rotorcraft_base.goto_wp.leg_progress / nav_rotorcraft_base.goto_wp.leg_length);
-  VECT2_SUM(nav.target, *wp_start, progress_pos);
+
+  // Calculate magnitude of the desired speed vector based on distance to waypoint
+  float dist_to_target = float_vect2_norm(&pos_diff);
+  float desired_speed;
+  if (force_forward) {
+    desired_speed = nav_max_speed;
+  } else {
+    desired_speed = dist_to_target * gih_params.pos_gain;
+    Bound(desired_speed, 0.0f, nav_max_speed);
+  }
+
+  // Calculate length of line segment
+  float length_line = Max(float_vect2_norm(&wp_diff), 0.01f);
+  //Normal vector to the line, with length of the line
+  struct FloatVect2 normalv;
+  VECT2_ASSIGN(normalv, -wp_diff.y, wp_diff.x);
+  // Length of normal vector is the same as of the line segment
+  float length_normalv = length_line; // >= 0.01
+  // Distance along the normal vector
+  float dist_to_line = (pos_diff.x * normalv.x + pos_diff.y * normalv.y) / length_normalv;
+  // Normal vector scaled to be the distance to the line
+  struct FloatVect2 v_to_line, v_along_line;
+  v_to_line.x = dist_to_line * normalv.x / length_normalv * guidance_indi_line_gain;
+  v_to_line.y = dist_to_line * normalv.y / length_normalv * guidance_indi_line_gain;
+  // The distance that needs to be traveled along the line FIXME remove hardcoded 50 ???
+  v_along_line.x = wp_diff.x / length_line * 50.0f;
+  v_along_line.y = wp_diff.y / length_line * 50.0f;
+  // Calculate the desired direction to converge to the line
+  struct FloatVect2 direction;
+  VECT2_SMUL(direction, v_along_line, (1.f / (1.f + fabsf(dist_to_line) * 0.05f)));
+  VECT2_ADD(direction, v_to_line);
+  float length_direction = Max(float_vect2_norm(&direction), 0.01f);
+  // Scale to have the desired speed
+  VECT2_SMUL(nav.speed, direction, desired_speed / length_direction);
+  // final target position, should be on the line, for display
+  VECT2_SUM(nav.target, *stateGetPositionEnu_f(), direction);
 
   nav_rotorcraft_base.goto_wp.from = *wp_start;
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
-  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
 
-static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
+static bool nav_hybrid_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
 {
   float dist_to_point;
   struct FloatVect2 diff;
@@ -109,6 +179,8 @@ static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float 
 
   return false;
 }
+
+#if 0 // TODO reuse existing patterns for now
 
 static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 {
@@ -153,122 +225,24 @@ static void nav_circle(struct EnuCoor_f *wp_center, float radius)
   nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 }
 
-/**
- * Navigation along a figure O. One side leg is defined by waypoints [p1] and [p2].
- * The navigation goes through 4 states: OC1 (half circle next to [p1]),
- * OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12 (opposite leg).
- * Initial state is the route along the desired segment (OC2).
- */
-#ifndef LINE_START_FUNCTION
-#define LINE_START_FUNCTION {}
+
 #endif
-#ifndef LINE_STOP_FUNCTION
-#define LINE_STOP_FUNCTION {}
-#endif
-
-static void _nav_oval_init(void)
-{
-  nav_rotorcraft_base.oval.status = OC2;
-  nav_rotorcraft_base.oval.count = 0;
-}
-
-static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
-{
-  float alt = wp1->z;
-  wp2->z = alt;
-
-  /* Unit vector from p1 to p2 */
-  struct FloatVect2 dir;
-  VECT2_DIFF(dir, *wp1, *wp2);
-  float_vect2_normalize(&dir);
-
-  /* The half circle centers and the other leg */
-  struct EnuCoor_f p1_center = {
-    wp1->x + radius * dir.y,
-    wp1->y - radius * dir.x,
-    alt
-  };
-  struct EnuCoor_f p1_out = {
-    wp1->x + 2.f * radius * dir.y,
-    wp1->y - 2.f * radius * dir.x,
-    alt
-  };
-  struct EnuCoor_f p2_in = {
-    wp2->x + 2.f * radius * dir.y,
-    wp2->y - 2.f * radius * dir.x,
-    alt
-  };
-  struct EnuCoor_f p2_center = {
-    wp2->x + radius * dir.y,
-    wp2->y - radius * dir.x,
-    alt
-  };
-
-  float qdr_out_2 = M_PI - atan2f(dir.y, dir.x);
-  float qdr_out_1 = qdr_out_2 + M_PI;
-  if (radius > 0.f) {
-    qdr_out_2 += M_PI;
-    qdr_out_1 += M_PI;
-  }
-  float qdr_anticipation = (radius > 0.f ? 15.f : -15.f);
-
-  switch (nav_rotorcraft_base.oval.status) {
-    case OC1 :
-      nav_circle(&p1_center, radius);
-      if (NavQdrCloseTo(DegOfRad(qdr_out_1) - qdr_anticipation)) {
-        nav_rotorcraft_base.oval.status = OR12;
-        InitStage();
-        LINE_START_FUNCTION;
-      }
-      return;
-
-    case OR12:
-      nav_route(&p1_out, &p2_in);
-      if (nav_approaching(&p2_in, &p1_out, CARROT)) {
-        nav_rotorcraft_base.oval.status = OC2;
-        nav_rotorcraft_base.oval.count++;
-        InitStage();
-        LINE_STOP_FUNCTION;
-      }
-      return;
-
-    case OC2 :
-      nav_circle(&p2_center, radius);
-      if (NavQdrCloseTo(DegOfRad(qdr_out_2) - qdr_anticipation)) {
-        nav_rotorcraft_base.oval.status = OR21;
-        InitStage();
-        LINE_START_FUNCTION;
-      }
-      return;
-
-    case OR21:
-      nav_route(wp2, wp1);
-      if (nav_approaching(wp1, wp2, CARROT)) {
-        nav_rotorcraft_base.oval.status = OC1;
-        InitStage();
-        LINE_STOP_FUNCTION;
-      }
-      return;
-
-    default: /* Should not occur !!! Doing nothing */
-      return;
-  }
-}
 
 /** Init and register nav functions
+ *
+ * For hybrid vehicle nav
+ * Init should be called after the normal rotorcraft nav_init
+ * as we are reusing some of the functions and overwritting others
  */
-void nav_rotorcraft_init(void)
+void nav_rotorcraft_hybrid_init(void)
 {
   nav_rotorcraft_base.circle.radius = DEFAULT_CIRCLE_RADIUS;
   nav_rotorcraft_base.goto_wp.leg_progress = 0.f;
   nav_rotorcraft_base.goto_wp.leg_length = 1.f;
 
   // register nav functions
-  nav_register_stage_init(nav_stage_init);
-  nav_register_goto_wp(nav_goto, nav_route, nav_approaching);
-  nav_register_circle(nav_circle);
-  nav_register_oval(_nav_oval_init, nav_oval);
-
+  nav_register_goto_wp(nav_hybrid_goto, nav_hybrid_route, nav_hybrid_approaching);
+  //nav_register_circle(nav_circle);
 }
 
 
