@@ -306,6 +306,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
+  //printf("abi thrust %f\n", euler_cmd.z);
   AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
 
   // Coordinated turn
@@ -504,6 +505,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   /*BoundAbs(sp_accel.y, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   BoundAbs(accel_sp.z, 3.0);
 
+  //printf("accel_sp %f %f %f\n", accel_sp.x, accel_sp.y, accel_sp.z);
   return accel_sp;
 }
 
@@ -530,6 +532,13 @@ struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight UNUSED, struct
     gi_speed_sp.z = pos_err.z * gih_params.pos_gainz + SPEED_FLOAT_OF_BFP(gv->zd_ref);
   }
 
+  // Bound vertical speed setpoint
+  if (stateGetAirspeed_f() > 13.f) {
+    Bound(gi_speed_sp.z, -4.0f, 4.0f); // FIXME no harcoded values
+  } else {
+    Bound(gi_speed_sp.z, nav.descend_vspeed, nav.climb_vspeed); // FIXME don't use nav settings
+  }
+
   accel_sp = compute_accel_from_speed_sp(); // compute accel sp
 
   return guidance_indi_run(&accel_sp, &gh->sp.heading);
@@ -552,8 +561,16 @@ struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, stru
     gi_speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
   }
 
+  // Bound vertical speed setpoint
+  if (stateGetAirspeed_f() > 13.f) {
+    Bound(gi_speed_sp.z, -4.0f, 4.0f); // FIXME no harcoded values
+  } else {
+    Bound(gi_speed_sp.z, nav.descend_vspeed, nav.climb_vspeed); // FIXME don't use nav settings
+  }
+
   accel_sp = compute_accel_from_speed_sp(); // compute accel sp
 
+  //printf("run_speed %f\n", gi_speed_sp.z);
   return guidance_indi_run(&accel_sp, &gh->sp.heading);
 }
 
@@ -889,17 +906,17 @@ struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct Horizon
 
 int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
 {
-  return 0; // nothing to do
+  return (int32_t)thrust_in; // nothing to do
 }
 
 int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
 {
-  return 0; // nothing to do
+  return (int32_t)thrust_in; // nothing to do
 }
 
 int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
 {
-  return 0; // nothing to do
+  return (int32_t)thrust_in; // nothing to do
 }
 
 #endif

@@ -164,10 +164,6 @@ void guidance_h_mode_changed(uint8_t new_mode)
     return;
   }
 
-#if HYBRID_NAVIGATION
-  guidance_hybrid_norm_ref_airspeed = 0;
-#endif
-
   switch (new_mode) {
     case GUIDANCE_H_MODE_RC_DIRECT:
       stabilization_none_enter();
@@ -456,65 +452,46 @@ void guidance_h_from_nav(bool in_flight)
       sp_cmd_i.psi = ANGLE_BFP_OF_REAL(nav.heading);
       stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
       stabilization_attitude_run(in_flight);
-
-#if HYBRID_NAVIGATION
-      //make sure the heading is right before leaving nav.horizontal_mode attitude
-      guidance_hybrid_reset_heading(&sp_cmd_i);
-#endif
     }
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_GUIDED) {
     guidance_h_guided_run(in_flight);
   } else {
 
-    //int32_t heading_sp_i = 0;
-
     switch (nav.setpoint_mode) {
       case NAV_SETPOINT_MODE_POS:
-#if HYBRID_NAVIGATION
-        // from float ENU to BFP NED
-        guidance_h.sp.pos.x = POS_BFP_OF_REAL(nav.target.y);
-        guidance_h.sp.pos.y = POS_BFP_OF_REAL(nav.target.x);
-        guidance_hybrid_run();
-#else // !HYBRID_NAVIGATION
         // set guidance in NED
         guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
         guidance_h_update_reference();
-
 #if GUIDANCE_HEADING_IS_FREE
-        /* set psi command */
         guidance_h_set_heading(nav.heading);
 #endif
-
         guidance_h_cmd = guidance_h_run_pos(in_flight, &guidance_h);
-        /* set final attitude setpoint */
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
-
-#endif // END HYBRID_NAVIGATION
-        stabilization_attitude_run(in_flight);
         break;
 
       case NAV_SETPOINT_MODE_SPEED:
         guidance_h_set_vel(nav.speed.y, nav.speed.x); // nav speed is in ENU frame, convert to NED
         guidance_h_update_reference();
+#if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);
+#endif
         guidance_h_cmd = guidance_h_run_speed(in_flight, &guidance_h);
-        /* set final attitude setpoint */
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
-        stabilization_attitude_run(in_flight);
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
         // TODO set_accel ref
+#if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);
+#endif
         guidance_h_cmd = guidance_h_run_accel(in_flight, &guidance_h);
-        stabilization_attitude_set_stab_sp(&guidance_h_cmd);
-        stabilization_attitude_run(in_flight);
         break;
 
       default:
         // nothing to do for other cases at the moment
         break;
     }
+    /* set final attitude setpoint */
+    stabilization_attitude_set_stab_sp(&guidance_h_cmd);
+    stabilization_attitude_run(in_flight);
 
   }
 }

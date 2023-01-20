@@ -336,9 +336,6 @@ void guidance_v_from_nav(bool in_flight)
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_GUIDED) {
     guidance_v_guided_run(in_flight);
   }
-#if HYBRID_NAVIGATION
-  guidance_hybrid_vertical();
-#else
 #if !NO_RC_THRUST_LIMIT
   /* use rc limitation if available */
   if (radio_control.status == RC_OK) {
@@ -346,7 +343,7 @@ void guidance_v_from_nav(bool in_flight)
   } else
 #endif
     stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
-#endif
+  //printf("from nav %d\n", stabilization_cmd[COMMAND_THRUST]);
 }
 
 void guidance_v_guided_enter(void)

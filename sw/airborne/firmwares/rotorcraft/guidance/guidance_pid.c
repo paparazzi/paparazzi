@@ -322,10 +322,8 @@ struct StabilizationSetpoint guidance_pid_h_run_accel(bool in_flight UNUSED, str
 
 #define FF_CMD_FRAC 18
 
-static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv UNUSED)
+static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv)
 {
-  // FIXME make and use a VerticalGuidance structure
-
   /* compute the error to our reference */
   int32_t err_z  = gv->z_ref - stateGetPositionNed_i()->z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
@@ -354,12 +352,6 @@ static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv UN
   guidance_pid_v_ff_cmd = g_m_zdd / inv_m;
   /* feed forward command */
   guidance_pid_v_ff_cmd = (guidance_pid_v_ff_cmd << INT32_TRIG_FRAC) / gv->thrust_coeff;
-
-#if HYBRID_NAVIGATION
-  //FIXME: NOT USING FEEDFORWARD COMMAND BECAUSE OF QUADSHOT NAVIGATION
-  // FIXME keep this or remove ?
-  guidance_pid_v_ff_cmd = gv->nominal_throttle * MAX_PPRZ;
-#endif
 
   /* bound the nominal command to GUIDANCE_V_MAX_CMD */
   Bound(guidance_pid_v_ff_cmd, 0, GUIDANCE_V_MAX_CMD);

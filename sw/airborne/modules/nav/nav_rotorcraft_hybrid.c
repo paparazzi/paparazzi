@@ -61,12 +61,6 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   struct FloatVect2 speed_sp;
   VECT2_SMUL(speed_sp, pos_error, gih_params.pos_gain);
 
-  // FIXME is it the right place to set the vertical setpoint ?
-  //speed_sp_return.z = gih_params.pos_gainz * pos_error.z;
-  //if ((guidance_v.mode == GUIDANCE_V_MODE_NAV) && (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB)) {
-  //  speed_sp_return.z = SPEED_FLOAT_OF_BFP(-guidance_v.zd_sp); // from NED
-  //}
-
   if (force_forward) {
     float_vect2_scale_in_2d(&speed_sp, nav_max_speed);
   } else {
@@ -79,13 +73,6 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     float max_h_speed = Min(nav_max_speed, max_speed_decel);
     float_vect2_bound_in_2d(&speed_sp, max_h_speed);
   }
-
-  // Bound vertical speed setpoint // TODO move to guidance
-  //if (stateGetAirspeed_f() > 13.f) {
-  //  Bound(speed_sp_return.z, -4.0f, 4.0f);
-  //} else {
-  //  Bound(speed_sp_return.z, nav.descend_vspeed, nav.climb_vspeed);
-  //}
 
   VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
