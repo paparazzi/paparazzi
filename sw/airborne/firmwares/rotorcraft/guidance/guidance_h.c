@@ -456,11 +456,11 @@ void guidance_h_from_nav(bool in_flight)
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_GUIDED) {
     guidance_h_guided_run(in_flight);
   } else {
-
+    // update carrot for display, even if sp is changed in speed mode
+    guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
     switch (nav.setpoint_mode) {
       case NAV_SETPOINT_MODE_POS:
         // set guidance in NED
-        guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
         guidance_h_update_reference();
 #if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);

@@ -125,6 +125,7 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
+  printf("calling hybrid route\n");
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
 
