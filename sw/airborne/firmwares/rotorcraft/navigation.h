@@ -356,26 +356,6 @@ static inline void Oval(uint8_t wp1, uint8_t wp2, float radius)
   }
 }
 
-/*********** Navigation along a line *************************************/
-// FIXME make a proper hybrid nav routine
-//extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
-//extern struct FloatVect2 line_vect, to_end_vect;
-//#ifdef GUIDANCE_INDI_HYBRID
-//static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
-//{
-//  VECT2_DIFF(line_vect, waypoints[wp_end].enu_f, waypoints[wp_start].enu_f);
-//  VECT2_DIFF(to_end_vect, waypoints[wp_end].enu_f, *stateGetPositionEnu_f());
-//  VECT3_COPY(navigation_target, waypoints[wp_end].enu_i);
-//  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-//}
-//#else
-//static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
-//{
-//  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-//  nav_route(&waypoints[wp_start].enu_i, &waypoints[wp_end].enu_i);
-//}
-//#endif
-
 
 /** Nav glide routine */
 static inline void NavGlide(uint8_t start_wp, uint8_t wp)

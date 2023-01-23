@@ -283,14 +283,36 @@ struct FloatEulers stab_sp_to_eulers_f(struct StabilizationSetpoint *sp)
 
 struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp)
 {
-  // TODO
-  return sp->sp.rates_i;
+  if (sp->type == STAB_SP_RATES) {
+    if (sp->format == STAB_SP_INT) {
+      return sp->sp.rates_i;
+    } else {
+      struct Int32Rates rates;
+      RATES_BFP_OF_REAL(rates, sp->sp.rates_f);
+      return rates;
+    }
+  } else {
+    // error, attitude setpoint
+    struct Int32Rates rates = {0};
+    return rates;
+  }
 }
 
 struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp)
 {
-  // TODO
-  return sp->sp.rates_f;
+  if (sp->type == STAB_SP_RATES) {
+    if (sp->format == STAB_SP_FLOAT) {
+      return sp->sp.rates_f;
+    } else {
+      struct FloatRates rates;
+      RATES_FLOAT_OF_BFP(rates, sp->sp.rates_i);
+      return rates;
+    }
+  } else {
+    // error, attitude setpoint
+    struct FloatRates rates = {0};
+    return rates;
+  }
 }
 
 struct StabilizationSetpoint stab_sp_from_quat_i(struct Int32Quat *quat)

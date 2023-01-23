@@ -44,6 +44,10 @@ static float guidance_indi_line_gain = GUIDANCE_INDI_LINE_GAIN;
 static float guidance_indi_line_gain = 1.0f;
 #endif
 
+#ifndef GUIDANCE_INDI_NAV_LINE_DIST
+#define GUIDANCE_INDI_NAV_LINE_DIST 50.f
+#endif
+
 /** Implement basic nav function for the hybrid case
  */
 
@@ -108,9 +112,9 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   struct FloatVect2 v_to_line, v_along_line;
   v_to_line.x = dist_to_line * normalv.x / length_normalv * guidance_indi_line_gain;
   v_to_line.y = dist_to_line * normalv.y / length_normalv * guidance_indi_line_gain;
-  // The distance that needs to be traveled along the line FIXME remove hardcoded 50 ???
-  v_along_line.x = wp_diff.x / length_line * 50.0f;
-  v_along_line.y = wp_diff.y / length_line * 50.0f;
+  // The distance that needs to be traveled along the line
+  v_along_line.x = wp_diff.x / length_line * GUIDANCE_INDI_NAV_LINE_DIST;
+  v_along_line.y = wp_diff.y / length_line * GUIDANCE_INDI_NAV_LINE_DIST;
   // Calculate the desired direction to converge to the line
   struct FloatVect2 direction;
   VECT2_SMUL(direction, v_along_line, (1.f / (1.f + fabsf(dist_to_line) * 0.05f)));
@@ -171,47 +175,14 @@ static bool nav_hybrid_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from,
 
 static void nav_circle(struct EnuCoor_f *wp_center, float radius)
 {
-  struct FloatVect2 pos_diff;
 
-  if (fabsf(radius) < 0.001f) {
-    VECT2_COPY(nav.target, *wp_center);
-  } else {
-    VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
-    // store last qdr
-    float last_qdr = nav_rotorcraft_base.circle.qdr;
-    // compute qdr
-    nav_rotorcraft_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
-    // increment circle radians
-    float trigo_diff = nav_rotorcraft_base.circle.qdr - last_qdr;
-    NormRadAngle(trigo_diff);
-    nav_rotorcraft_base.circle.radians += trigo_diff;
-  }
-
-  // direction of rotation
-  float sign_radius = radius > 0.f ? 1.f : -1.f;
-  // absolute radius
-  float abs_radius = fabsf(radius);
-  if (abs_radius > 0.1f) {
-    // carrot_angle
-    float carrot_angle = NAV_CARROT_DIST / abs_radius;
-    carrot_angle = Min(carrot_angle, M_PI / 4);
-    carrot_angle = Max(carrot_angle, M_PI / 16);
-    carrot_angle = nav_rotorcraft_base.circle.qdr - sign_radius * carrot_angle;
-    // compute setpoint
-    VECT2_ASSIGN(pos_diff, abs_radius * cosf(carrot_angle), abs_radius * sinf(carrot_angle));
-    VECT2_SUM(nav.target, *wp_center, pos_diff);
-  }
-  else {
-    // radius is too small, direct to center
-    VECT2_COPY(nav.target, *wp_center);
-  }
+  // implement nav hybrid circle
 
   nav_rotorcraft_base.circle.center = *wp_center;
   nav_rotorcraft_base.circle.radius = radius;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
-  nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
+  nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
-
 
 #endif
 

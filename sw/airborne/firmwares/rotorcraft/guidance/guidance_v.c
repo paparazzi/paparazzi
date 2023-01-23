@@ -343,7 +343,6 @@ void guidance_v_from_nav(bool in_flight)
   } else
 #endif
     stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
-  //printf("from nav %d\n", stabilization_cmd[COMMAND_THRUST]);
 }
 
 void guidance_v_guided_enter(void)
