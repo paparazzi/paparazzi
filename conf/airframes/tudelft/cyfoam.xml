@@ -66,6 +66,7 @@
   <section name="BAT">
     <define name="LOW_BAT_LEVEL" value="13.9" units="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="13.2" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="14.8" units="V"/>
   </section>
 
   <section name="ctrl_eff_scheduling" prefix="FWD_">

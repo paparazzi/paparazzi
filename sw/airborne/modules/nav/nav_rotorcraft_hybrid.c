@@ -83,7 +83,7 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
 {
   struct FloatVect2 wp_diff, pos_diff;
   VECT2_DIFF(wp_diff, *wp_end, *wp_start);
-  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_start);
+  VECT2_DIFF(pos_diff, *wp_end, *stateGetPositionEnu_f());
 
   // Calculate magnitude of the desired speed vector based on distance to waypoint
   float dist_to_target = float_vect2_norm(&pos_diff);
@@ -125,7 +125,6 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
-  printf("calling hybrid route\n");
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
 

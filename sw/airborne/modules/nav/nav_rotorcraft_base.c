@@ -67,7 +67,6 @@ static void nav_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
   nav_rotorcraft_base.goto_wp.to = *wp_end;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
-  printf("calling normal route\n");
   nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 }
 
@@ -286,7 +285,6 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &nav.horizontal_mode);
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ROUTE) {
     send_segment(trans, dev);
-    printf("send route\n");
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_CIRCLE) {
     send_circle(trans, dev);
   }
