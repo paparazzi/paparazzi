@@ -12,6 +12,13 @@
   <header>
     <file name="nav_rotorcraft_hybrid.h"/>
   </header>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="nav_hybrid">
+        <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0" shortname="nav_max_speed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <init fun="nav_rotorcraft_hybrid_init()"/>
   <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="nav_rotorcraft_hybrid.c"/>

@@ -31,6 +31,9 @@
 #include "modules/nav/nav_base.h"
 #include "modules/nav/nav_rotorcraft_base.h"
 
+// settings
+extern float nav_max_speed;
+
 extern void nav_rotorcraft_hybrid_init(void);
 
 #endif
