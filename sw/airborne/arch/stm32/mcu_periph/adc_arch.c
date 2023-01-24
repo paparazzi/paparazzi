@@ -132,6 +132,10 @@
 #endif
 #endif
 
+#define RST_ADC1 RST_ADC
+#define RST_ADC2 RST_ADC
+#define RST_ADC3 RST_ADC
+
 #else // !STM32F4
 // ADC 3 not supported on STM32F1
 #undef USE_AD3
