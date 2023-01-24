@@ -49,6 +49,7 @@ struct usb_serial_periph {
 };
 
 extern struct usb_serial_periph usb_serial;
+extern struct usb_serial_periph usb_serial_debug;
 
 void VCOM_init(void);
 int  VCOM_putchar(int c);
