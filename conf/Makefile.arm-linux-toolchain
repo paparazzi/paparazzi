@@ -9,15 +9,15 @@
 # If HARD_FLOAT is defined try to find armhf cross compiler, otherwise default to softfloat
 
 ifdef HARD_FLOAT
-PREFIX ?= arm-linux-gnueabihf
+PREFIX ?= arm-linux-gnueabihf-
 else
-PREFIX ?= arm-linux-gnueabi
+PREFIX ?= arm-linux-gnueabi-
 endif
 
 #
 # if gcc can't be found in path, try the codesourcery toolchain in /usr/local/codesourcery
 #
-ifeq ($(shell which $(PREFIX)-gcc),)
+ifeq ($(shell which $(PREFIX)gcc),)
 ifndef HARD_FLOAT
   TOOLCHAIN=$(shell find -L /usr/local/codesourcery -maxdepth 2 -type d -name arm-none-linux-gnueabi 2>/dev/null | head -n 1)
   ifneq ($(TOOLCHAIN),)
@@ -27,7 +27,7 @@ endif
 endif
 
 # if toolchain could not be found, print some useful info
-ifeq ($(shell which $(PREFIX)-gcc),)
+ifeq ($(shell which $(PREFIX)gcc),)
   # no suitable toolchain found...
   ifdef HARD_FLOAT
     $(error Error: arm-linux-gnueabihf-gcc cross-compiler not found! Please install the gcc-arm-linux-gnueabihf package.)
@@ -36,17 +36,17 @@ ifeq ($(shell which $(PREFIX)-gcc),)
   endif
 endif
 
-CC    = $(PREFIX)-gcc
-CXX   = $(PREFIX)-g++
-LD    = $(PREFIX)-g++
-AR    = $(PREFIX)-ar
-CP    = $(PREFIX)-objcopy
-DMP   = $(PREFIX)-objdump
-NM    = $(PREFIX)-nm
-SIZE  = $(PREFIX)-size
-STRIP = $(PREFIX)-strip
+CC    = $(PREFIX)gcc
+CXX   = $(PREFIX)g++
+LD    = $(PREFIX)g++
+AR    = $(PREFIX)ar
+CP    = $(PREFIX)objcopy
+DMP   = $(PREFIX)objdump
+NM    = $(PREFIX)nm
+SIZE  = $(PREFIX)size
+STRIP = $(PREFIX)strip
 
-GDB = $(shell which $(PREFIX)-gdb)
+GDB = $(shell which $(PREFIX)gdb)
 ifeq ($(GDB),)
 GDB = $(shell which gdb-multiarch)
 endif

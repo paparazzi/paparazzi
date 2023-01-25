@@ -1134,9 +1134,9 @@ static void i2c_stm32_setbitrate(struct i2c_periph *periph, int bitrate)
 
     // 1)
 #ifdef STM32F1
-    i2c_set_clock_frequency(i2c, I2C_CR2_FREQ_36MHZ);
+    i2c_set_clock_frequency(i2c, 36);
 #else // STM32F4
-    i2c_set_clock_frequency(i2c, I2C_CR2_FREQ_42MHZ);
+    i2c_set_clock_frequency(i2c, 42);
 #endif
     // 2)
     //i2c_set_fast_mode(i2c);

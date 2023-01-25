@@ -61,48 +61,56 @@ static uint32_t timer_rollover_cnt;
 PRINT_CONFIG_MSG("Using TIM1 for PPM input.")
 #define PPM_TIMER           TIM1
 #define RCC_TIM_PPM         RCC_TIM1
+#define RST_TIM_PPM         RST_TIM1
 
 #elif USE_PPM_TIM2
 
 PRINT_CONFIG_MSG("Using TIM2 for PPM input.")
 #define PPM_TIMER           TIM2
 #define RCC_TIM_PPM         RCC_TIM2
+#define RST_TIM_PPM         RST_TIM2
 
 #elif USE_PPM_TIM3
 
 PRINT_CONFIG_MSG("Using TIM3 for PPM input.")
 #define PPM_TIMER           TIM3
 #define RCC_TIM_PPM         RCC_TIM3
+#define RST_TIM_PPM         RST_TIM3
 
 #elif USE_PPM_TIM4
 
 PRINT_CONFIG_MSG("Using TIM4 for PPM input.")
 #define PPM_TIMER           TIM4
 #define RCC_TIM_PPM         RCC_TIM4
+#define RST_TIM_PPM         RST_TIM4
 
 #elif USE_PPM_TIM5
 
 PRINT_CONFIG_MSG("Using TIM5 for PPM input.")
 #define PPM_TIMER           TIM5
 #define RCC_TIM_PPM         RCC_TIM5
+#define RST_TIM_PPM         RST_TIM5
 
 #elif USE_PPM_TIM8
 
 PRINT_CONFIG_MSG("Using TIM8 for PPM input.")
 #define PPM_TIMER           TIM8
 #define RCC_TIM_PPM         RCC_TIM8
+#define RST_TIM_PPM         RST_TIM8
 
 #elif USE_PPM_TIM9
 
 PRINT_CONFIG_MSG("Using TIM9 for PPM input.")
 #define PPM_TIMER           TIM9
 #define RCC_TIM_PPM         RCC_TIM9
+#define RST_TIM_PPM         RST_TIM9
 
 #elif USE_PPM_TIM12
 
 PRINT_CONFIG_MSG("Using TIM12 for PPM input.")
 #define PPM_TIMER           TIM12
 #define RCC_TIM_PPM         RCC_TIM12
+#define RST_TIM_PPM         RST_TIM12
 
 #else
 #error Unknown PPM input timer configuration.
@@ -117,7 +125,7 @@ void ppm_arch_init(void)
   gpio_setup_pin_af(PPM_GPIO_PORT, PPM_GPIO_PIN, PPM_GPIO_AF, FALSE);
 
   /* Time Base configuration */
-  timer_reset(PPM_TIMER);
+  rcc_periph_reset_pulse(RST_TIM_PPM);
   timer_set_mode(PPM_TIMER, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(PPM_TIMER, 0xFFFF);
