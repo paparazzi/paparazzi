@@ -6,12 +6,6 @@
       Navigation patterns and flight plan handling for hybrid airframes
     </description>
   </doc>
-  <dep>
-    <depends>nav_basic_rotorcraft,guidance_indi_hybrid</depends>
-  </dep>
-  <header>
-    <file name="nav_rotorcraft_hybrid.h"/>
-  </header>
   <settings>
     <dl_settings>
       <dl_settings NAME="nav_hybrid">
@@ -19,6 +13,12 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>nav_basic_rotorcraft,guidance_indi_hybrid</depends>
+  </dep>
+  <header>
+    <file name="nav_rotorcraft_hybrid.h"/>
+  </header>
   <init fun="nav_rotorcraft_hybrid_init()"/>
   <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="nav_rotorcraft_hybrid.c"/>
