@@ -46,6 +46,16 @@
 #define USBD1_INTERRUPT_REQUEST_EP      2
 #endif
 
+/**
+ * Interfaces
+*/
+#define USB_NUM_INTERFACES              2
+#define USB_CDC_CIF_NUM0                0
+#define USB_CDC_DIF_NUM0                1
+
+
+//------------------------------ 2 serial USB --------------------------
+#if USBD_NUMBER >= 2
 #ifndef USBD2_DATA_REQUEST_EP
 #define USBD2_DATA_REQUEST_EP           3
 #endif
@@ -55,18 +65,15 @@
 #ifndef USBD2_INTERRUPT_REQUEST_EP
 #define USBD2_INTERRUPT_REQUEST_EP      4
 #endif
+#undef  USB_NUM_INTERFACES
+#define USB_NUM_INTERFACES              4
+#define USB_CDC_CIF_NUM1                2
+#define USB_CDC_DIF_NUM1                3
+#endif
+
 
 #define USB_INTERRUPT_REQUEST_SIZE      0x10
 #define USB_DATA_SIZE                   0x40
-
-/**
- * Interfaces
-*/
-#define USB_NUM_INTERFACES              4
-#define USB_CDC_CIF_NUM0                0
-#define USB_CDC_DIF_NUM0                1
-#define USB_CDC_CIF_NUM1                2
-#define USB_CDC_DIF_NUM1                3
 
 
 
@@ -115,7 +122,7 @@ static const USBDescriptor vcom_device_descriptor = {
 #define IAD_CDC_IF_DESC_SET_SIZE                                            \
   (USB_DESC_INTERFACE_ASSOCIATION_SIZE + CDC_IF_DESC_SET_SIZE)
 
-#define CONFIG_DESC_DATA_SIZE (USB_DESC_CONFIGURATION_SIZE + (IAD_CDC_IF_DESC_SET_SIZE*2))
+#define CONFIG_DESC_DATA_SIZE (USB_DESC_CONFIGURATION_SIZE + (IAD_CDC_IF_DESC_SET_SIZE*USBD_NUMBER))
 
 /* Configuration Descriptor tree for a CDC.*/
 static const uint8_t vcom_configuration_descriptor_data[CONFIG_DESC_DATA_SIZE] = {
@@ -190,7 +197,7 @@ static const uint8_t vcom_configuration_descriptor_data[CONFIG_DESC_DATA_SIZE] =
 
 
 
-
+#if USBD_NUMBER >= 2
   /* Interface Descriptor. USB serial 2.*/
   USB_DESC_INTERFACE(
       USB_CDC_CIF_NUM1,                     /* bInterfaceNumber.                */
@@ -249,6 +256,7 @@ static const uint8_t vcom_configuration_descriptor_data[CONFIG_DESC_DATA_SIZE] =
       USB_EP_MODE_TYPE_BULK,                /* bmAttributes (Bulk).             */
       USB_DATA_SIZE,                        /* wMaxPacketSize.                  */
       0x00)                                 /* bInterval.                       */
+#endif
 };
 
 /*
@@ -311,6 +319,7 @@ static const uint8_t vcom_string4[] = {
   'P', 0, 'o', 0, 'r', 0, 't', 0
 };
 
+#if USBD_NUMBER >= 2
 /**
  * interface ID ?
 */
@@ -321,6 +330,7 @@ static const uint8_t vcom_string5[] = {
   'i', 0, ' ', 0, 'U', 0, 'A', 0, 'V', 0, ' ', 0, 'd', 0, 'e', 0,
   'b', 0, 'u', 0, 'g', 0, ' ', 0, 'P', 0, 'o', 0, 'r', 0, 't', 0
 };
+#endif
 
 /*
  * Strings wrappers array.
@@ -331,12 +341,16 @@ static const USBDescriptor vcom_strings[] = {
   {sizeof vcom_string2, vcom_string2},
   {sizeof vcom_string3, vcom_string3},
   {sizeof vcom_string4, vcom_string4},
+#if USBD_NUMBER >= 2
   {sizeof vcom_string5, vcom_string5}
+#endif
 };
 
 
 static SerialUSBDriver SDU1;
+#if USBD_NUMBER >= 2
 static SerialUSBDriver SDU2;
+#endif
 
 /*
  * Handles the GET_DESCRIPTOR callback. All required descriptors must be
@@ -409,9 +423,7 @@ static const USBEndpointConfig ep2config = {
   NULL
 };
 
-
-
-
+#if USBD_NUMBER >= 2
 /**
  * @brief   IN EP3 state.
  */
@@ -458,7 +470,7 @@ static const USBEndpointConfig ep4config = {
   1,
   NULL
 };
-
+#endif
 
 
 
@@ -482,12 +494,15 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
          must be used.*/
       usbInitEndpointI(usbp, USBD1_DATA_REQUEST_EP, &ep1config);
       usbInitEndpointI(usbp, USBD1_INTERRUPT_REQUEST_EP, &ep2config);
+#if USBD_NUMBER >= 2
       usbInitEndpointI(usbp, USBD2_DATA_REQUEST_EP, &ep3config);
       usbInitEndpointI(usbp, USBD2_INTERRUPT_REQUEST_EP, &ep4config);
-
+#endif
       /* Resetting the state of the CDC subsystem.*/
       sduConfigureHookI(&SDU1);
+#if USBD_NUMBER >= 2
       sduConfigureHookI(&SDU2);
+#endif
     }
     else if (usbp->state == USB_SELECTED) {
       usbDisableEndpointsI(usbp);
@@ -502,8 +517,9 @@ static void usb_event(USBDriver *usbp, usbevent_t event) {
     
     /* Disconnection event on suspend.*/
     sduSuspendHookI(&SDU1);
+#if USBD_NUMBER >= 2
     sduSuspendHookI(&SDU2);
-    
+#endif
     chSysUnlockFromISR();
     return;
  case USB_EVENT_WAKEUP:
@@ -523,7 +539,9 @@ static void sof_handler(USBDriver *usbp)
 
   chSysLockFromISR();
   sduSOFHookI(&SDU1);
+#if USBD_NUMBER >= 2
   sduSOFHookI(&SDU2);
+#endif
   chSysUnlockFromISR();
 }
 
@@ -538,7 +556,9 @@ static const USBConfig usbcfg = {
 };
 
 static SerialUSBConfig serusbcfg1;
+#if USBD_NUMBER >= 2
 static SerialUSBConfig serusbcfg2;
+#endif
 
 USBDriver *usbGetDriver (void)
 {
@@ -569,7 +589,6 @@ bool isUsbConnected(void)
 
 void usbSerialReset(SerialUSBDriver *sdu) 
 {
-  //chSysHalt("je suis passe par ici");
   usbStop(serusbcfg1.usbp);
   usbDisconnectBus(serusbcfg1.usbp);
   sduStop (sdu);
@@ -664,24 +683,26 @@ void VCOM_init()
   serusbcfg1.bulk_in = USBD1_DATA_REQUEST_EP;
   serusbcfg1.bulk_out = USBD1_DATA_AVAILABLE_EP;
   serusbcfg1.int_in = USBD1_INTERRUPT_REQUEST_EP;
-
+#if USBD_NUMBER >= 2
   serusbcfg2.usbp = &SERIAL_USB;
   serusbcfg2.bulk_in = USBD2_DATA_REQUEST_EP;
   serusbcfg2.bulk_out = USBD2_DATA_AVAILABLE_EP;
   serusbcfg2.int_in = USBD2_INTERRUPT_REQUEST_EP;
+#endif
 
   sduObjectInit(&SDU1);
   sduStart(&SDU1, &serusbcfg1);
-
+#if USBD_NUMBER >= 2
   sduObjectInit(&SDU2);
   sduStart(&SDU2, &serusbcfg2);
+#endif
 
   usbDisconnectBus(serusbcfg1.usbp);
   chThdSleepMilliseconds(1000);
   usbStart(serusbcfg1.usbp, &usbcfg);
   usbConnectBus(serusbcfg1.usbp);
 
-  chEvtRegisterMask(chnGetEventSource(&SDU2), &inputAvailEL, CHN_INPUT_AVAILABLE);
+  chEvtRegisterMask(chnGetEventSource(&SDU1), &inputAvailEL, CHN_INPUT_AVAILABLE);
 
 
 
@@ -698,7 +719,7 @@ void VCOM_init()
   usb_serial.device.get_byte = (get_byte_t) usb_serial_getch;
 
 
-
+#if USBD_NUMBER >= 2
   usb_serial_debug.nb_bytes = 0;
   usb_serial_debug.rx_read_idx = 0;
   usb_serial_debug.reg_addr = &SDU2;
@@ -710,7 +731,7 @@ void VCOM_init()
   usb_serial_debug.device.send_message = (send_message_t) usb_serial_send;
   usb_serial_debug.device.char_available = (char_available_t) usb_serial_char_available;
   usb_serial_debug.device.get_byte = (get_byte_t) usb_serial_getch;
-
+#endif
 }
 
 

@@ -37,6 +37,12 @@
 #define USB_RX_BUFFER_SIZE UART_RX_BUFFER_SIZE
 #endif 
 
+#if USB_MAX_ENDPOINTS < 4
+#define USBD_NUMBER 1
+#else
+#define USBD_NUMBER 2
+#endif
+
 struct usb_serial_periph {
   /** Receive buffer */
   uint8_t rx_buf[USB_RX_BUFFER_SIZE];
@@ -49,7 +55,9 @@ struct usb_serial_periph {
 };
 
 extern struct usb_serial_periph usb_serial;
+#if USBD_NUMBER >= 2
 extern struct usb_serial_periph usb_serial_debug;
+#endif
 
 void VCOM_init(void);
 int  VCOM_putchar(int c);
