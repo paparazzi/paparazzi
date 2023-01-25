@@ -603,14 +603,14 @@ static void usb_serial_transmit(struct usb_serial_periph *p __attribute__((unuse
                                 long fd __attribute__((unused)),
                                 uint8_t byte)
 {
-  streamPut((SerialUSBDriver*)(p->reg_addr), byte);
+  obqPutTimeout(&((SerialUSBDriver *)p->reg_addr)->obqueue, byte, TIME_IMMEDIATE);
 }
 
 static void usb_serial_transmit_buffer(struct usb_serial_periph *p __attribute__((unused)),
                                        long fd __attribute__((unused)),
                                        uint8_t *data, uint16_t len)
 {
-  streamWrite((SerialUSBDriver*)(p->reg_addr), data, len);
+  obqWriteTimeout(&((SerialUSBDriver *)p->reg_addr)->obqueue, data, len, TIME_IMMEDIATE);
 }
 
 static void usb_serial_send(struct usb_serial_periph *p __attribute__((unused)), long fd __attribute__((unused)))
@@ -648,9 +648,7 @@ static uint8_t usb_serial_getch(struct usb_serial_periph *p __attribute__((unuse
     p->nb_bytes--;
     return ret;
   } else {
-    // blocking get
-    //return streamGet(&SDU);
-    return streamGet((SerialUSBDriver*)(p->reg_addr));
+    return ibqGetTimeout(&((SerialUSBDriver *)p->reg_addr)->ibqueue, TIME_IMMEDIATE);
   }
 }
 
