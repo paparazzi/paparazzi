@@ -720,7 +720,7 @@ int  VCOM_putchar(int c) {
   if(!isUsbConnected()) {
     return -1;
   }
-  streamPut((SerialUSBDriver*)(usb_serial->reg_addr), c);
+  streamPut((SerialUSBDriver*)(usb_serial.reg_addr), c);
   return c;
   
 }
