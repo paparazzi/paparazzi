@@ -1,5 +1,7 @@
 .. developer_guide logging
 
+.. _logging:
+
 =============
 Logging
 =============
