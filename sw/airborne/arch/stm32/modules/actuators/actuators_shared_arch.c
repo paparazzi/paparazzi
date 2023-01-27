@@ -58,10 +58,6 @@ void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
  */
 void set_servo_timer(uint32_t timer, uint32_t freq, uint8_t channels_mask)
 {
-  // WARNING, this reset is only implemented for TIM1-8 in libopencm3!!
-  
-  //FIXME removed deprecated timer_reset(timer), should it be replaced by rcc_periph_reset_pulse(RST_TIMx) ?
-
   /* Timer global mode:
    * - No divider.
    * - Alignement edge.
