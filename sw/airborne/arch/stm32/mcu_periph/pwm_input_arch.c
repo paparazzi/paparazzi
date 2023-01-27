@@ -50,7 +50,6 @@
 
 static inline void pwm_input_set_timer(uint32_t tim, uint32_t ticks_per_usec)
 {
-  timer_reset(tim);
   timer_set_mode(tim, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   timer_set_period(tim, 0xFFFF);
   uint32_t timer_clk = timer_get_frequency(tim);
@@ -76,30 +75,37 @@ void pwm_input_init(void)
    */
 #if USE_PWM_INPUT_TIM1
   rcc_periph_clock_enable(RCC_TIM1);
+  rcc_periph_reset_pulse(RST_TIM1);
   pwm_input_set_timer(TIM1, TIM1_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM2
   rcc_periph_clock_enable(RCC_TIM2);
+  rcc_periph_reset_pulse(RST_TIM2);
   pwm_input_set_timer(TIM2, TIM2_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM3
   rcc_periph_clock_enable(RCC_TIM3);
+  rcc_periph_reset_pulse(RST_TIM3);
   pwm_input_set_timer(TIM3, TIM3_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM4
   rcc_periph_clock_enable(RCC_TIM4);
+  rcc_periph_reset_pulse(RST_TIM4);
   pwm_input_set_timer(TIM4, TIM4_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM5
   rcc_periph_clock_enable(RCC_TIM5);
+  rcc_periph_reset_pulse(RST_TIM5);
   pwm_input_set_timer(TIM5, TIM5_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM8
   rcc_periph_clock_enable(RCC_TIM8);
+  rcc_periph_reset_pulse(RST_TIM8);
   pwm_input_set_timer(TIM8, TIM8_TICKS_PER_USEC);
 #endif
 #if USE_PWM_INPUT_TIM9
   rcc_periph_clock_enable(RCC_TIM9);
+  rcc_periph_reset_pulse(RST_TIM9);
   pwm_input_set_timer(TIM9, TIM9_TICKS_PER_USEC);
 #endif
 
