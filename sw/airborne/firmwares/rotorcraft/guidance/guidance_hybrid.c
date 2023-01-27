@@ -150,13 +150,56 @@ void guidance_hybrid_init(void)
     while ((_a) < -(INT32_ANGLE_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC))) (_a) += (INT32_ANGLE_2_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC));    \
   }
 
-void guidance_hybrid_run(void)
+struct StabilizationSetpoint guidance_hybrid_run(void)
 {
   guidance_hybrid_determine_wind_estimate();
-  guidance_hybrid_position_to_airspeed();
+  guidance_hybrid_groundspeed_to_airspeed();
   guidance_hybrid_airspeed_to_attitude(&guidance_hybrid_ypr_sp);
-  guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
+  return guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
 }
+
+struct StabilizationSetpoint guidance_hybrid_h_run_pos(bool in_flight UNUSED, struct HorizontalGuidance *gh)
+{
+  // compute position error
+  VECT2_DIFF(guidance_h_pos_err, gh->sp.pos, *stateGetPositionNed_i());
+  // Compute ground speed setpoint
+  struct Int32Vect2 guidance_hybrid_groundspeed_sp;
+  VECT2_SDIV(guidance_hybrid_groundspeed_sp, guidance_h_pos_err, horizontal_speed_gain);
+  return guidance_hybrid_run();
+}
+
+struct StabilizationSetpoint guidance_hybrid_h_run_speed(bool in_flight UNUSED, struct HorizontalGuidance *gh)
+{
+  // directly set ground speed setpoint
+  VECT2_COPY(guidance_hybrid_groundspeed_sp, gh->sp.speed);
+  return guidance_hybrid_run();
+}
+
+struct StabilizationSetpoint guidance_hybrid_h_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh UNUSED)
+{
+  struct StabilizationSetpoint sp = { 0 };
+  // TODO
+  return sp;
+}
+
+int32_t guidance_hybrid_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+{
+  int32_t delta_t = guidance_pid_v_run_pos(in_flight, gv);
+  return guidance_hybrid_vertical(delta_t);
+}
+
+int32_t guidance_hybrid_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+{
+  int32_t delta_t = guidance_pid_v_run_speed(in_flight, gv);
+  return guidance_hybrid_vertical(delta_t);
+}
+
+int32_t guidance_hybrid_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
+{
+  int32_t delta_t = guidance_pid_v_run_accel(in_flight, gv);
+  return guidance_hybrid_vertical(delta_t);
+}
+
 
 void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd)
 {
@@ -284,7 +327,7 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp)
   ypr_sp->theta = ypr_sp->theta + v_control_pitch;
 }
 
-void guidance_hybrid_position_to_airspeed(void)
+void guidance_hybrid_groundspeed_to_airspeed(void)
 {
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h.sp.pos, *stateGetPositionNed_i());
@@ -370,7 +413,7 @@ void guidance_hybrid_determine_wind_estimate(void)
   wind_estimate.y = ((wind_estimate_high_res.y) >> 8);
 }
 
-void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
+struct StabilizationSetpoint guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
 {
   /// @todo calc sp_quat in fixed-point
 
@@ -393,13 +436,16 @@ void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
   int32_quat_of_axis_angle(&q_yaw_sp, &zaxis, sp_cmd->psi);
 
   //   first apply the roll/pitch setpoint and then the yaw
-  int32_quat_comp(&stab_att_sp_quat, &q_yaw_sp, &q_rp_i);
+  struct Int32Quat quat_sp;
+  int32_quat_comp(&quat_sp, &q_yaw_sp, &q_rp_i);
 
-  int32_eulers_of_quat(&stab_att_sp_euler, &stab_att_sp_quat);
+  return stab_sp_from_quat_i(&quat_sp);
 }
 
-void guidance_hybrid_vertical(void)
+int32_t guidance_hybrid_vertical(int32_t delta_t)
 {
+  int32_t hybrid_delta_t = 0;
+
   float fwd_speed_err = guidance_hybrid_norm_ref_airspeed_f - AIRSPEED_FORWARD;
   float fwd_thrust = cruise_throttle
                       + (fwd_speed_err * fwd_speed_p_gain)
@@ -411,7 +457,7 @@ void guidance_hybrid_vertical(void)
 
   /* Hover regime */
   if (guidance_hybrid_norm_ref_airspeed_f < AIRSPEED_HOVER) {
-    stabilization_cmd[COMMAND_THRUST] = hover_thrust;
+    hybrid_delta_t = hover_thrust;
 
     // Do not control pitch and only PID for hover
     v_control_pitch = 0;
@@ -421,7 +467,7 @@ void guidance_hybrid_vertical(void)
   }
   /* Forward regime */
   else if (guidance_hybrid_norm_ref_airspeed_f > AIRSPEED_FORWARD) {
-    stabilization_cmd[COMMAND_THRUST] = fwd_thrust;
+    hybrid_delta_t  = fwd_thrust;
 
     //Control altitude with pitch, now only proportional control
     v_control_pitch = fwd_pitch;
@@ -432,8 +478,8 @@ void guidance_hybrid_vertical(void)
   /* Transition regime */
   else {
     float airspeed_transition = (guidance_hybrid_norm_ref_airspeed_f - AIRSPEED_HOVER) / (AIRSPEED_FORWARD - AIRSPEED_HOVER); // scaled to 0-1
-    stabilization_cmd[COMMAND_THRUST] = (fwd_thrust * airspeed_transition
-                                         + hover_thrust * (1 - airspeed_transition));
+    hybrid_delta_t = (fwd_thrust * airspeed_transition
+        + hover_thrust * (1 - airspeed_transition));
 
     // Control by both thrust and pitch
     v_control_pitch = fwd_pitch * airspeed_transition;
@@ -441,4 +487,6 @@ void guidance_hybrid_vertical(void)
     guidance_pid.kd = GUIDANCE_V_HOVER_KD;
     guidance_pid.ki = GUIDANCE_V_HOVER_KI;
   }
+
+  return hybrid_delta_t;
 }
