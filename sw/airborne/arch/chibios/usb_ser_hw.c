@@ -607,8 +607,9 @@ void usbSerialReset(SerialUSBDriver *sdu)
  */
 // Periph with generic device API
 struct usb_serial_periph usb_serial;
-
+#if USBD_NUMBER >= 2
 struct usb_serial_periph usb_serial_debug;
+#endif
 
 // Functions for the generic device API
 static int usb_serial_check_free_space(struct usb_serial_periph *p __attribute__((unused)),

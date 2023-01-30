@@ -32,15 +32,20 @@
 #include "std.h"
 #include "pprzlink/pprzlink_device.h"
 #include "mcu_periph/uart.h"
+#include "mcu_arch.h"
 
 #ifndef USB_RX_BUFFER_SIZE
 #define USB_RX_BUFFER_SIZE UART_RX_BUFFER_SIZE
 #endif 
 
+#ifdef USB_MAX_ENDPOINTS
 #if USB_MAX_ENDPOINTS < 4
 #define USBD_NUMBER 1
 #else
 #define USBD_NUMBER 2
+#endif
+#else
+#define USBD_NUMBER 1
 #endif
 
 struct usb_serial_periph {
