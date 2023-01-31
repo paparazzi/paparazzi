@@ -1022,7 +1022,7 @@ void float_vect3_bound_in_2d(struct FloatVect3 *vect3, float bound) {
 }
 
 /* Scale a 3D vector to within a 3D bound */
-void vect_bound_in_3d(struct FloatVect3 *vect3, float bound) {
+void float_vect3_bound_in_3d(struct FloatVect3 *vect3, float bound) {
   float norm = FLOAT_VECT3_NORM(*vect3);
   if(norm>bound) {
     float scale = bound/norm;
