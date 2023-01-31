@@ -34,11 +34,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "modules/radio_control/radio_control.h"
-#if GUIDANCE_INDI_HYBRID
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#else
-#include "firmwares/rotorcraft/guidance/guidance_indi.h"
-#endif
 
 #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"

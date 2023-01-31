@@ -31,6 +31,7 @@
 #define GUIDANCE_HYBRID_H
 
 #include "math/pprz_algebra_int.h"
+#include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
 extern int32_t guidance_hybrid_norm_ref_airspeed;

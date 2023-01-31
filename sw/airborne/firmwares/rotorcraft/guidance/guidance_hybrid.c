@@ -78,6 +78,7 @@ float fwd_pitch_gain = FWD_PITCH_GAIN;
 int32_t hover_p_gain = HOVER_P_GAIN;
 
 // Private variables
+static struct Int32Vect2 guidance_hybrid_groundspeed_sp;
 static struct Int32Eulers guidance_hybrid_ypr_sp;
 static struct Int32Vect2 guidance_hybrid_airspeed_sp;
 static struct Int32Vect2 guidance_h_pos_err;
@@ -125,6 +126,7 @@ void guidance_hybrid_init(void)
   INT_EULERS_ZERO(guidance_hybrid_ypr_sp);
   INT_VECT2_ZERO(guidance_hybrid_airspeed_sp);
   INT_VECT2_ZERO(guidance_hybrid_airspeed_ref);
+  INT_VECT2_ZERO(guidance_hybrid_groundspeed_sp);
 
   high_res_psi = 0;
   guidance_hovering = true;
@@ -163,7 +165,6 @@ struct StabilizationSetpoint guidance_hybrid_h_run_pos(bool in_flight UNUSED, st
   // compute position error
   VECT2_DIFF(guidance_h_pos_err, gh->sp.pos, *stateGetPositionNed_i());
   // Compute ground speed setpoint
-  struct Int32Vect2 guidance_hybrid_groundspeed_sp;
   VECT2_SDIV(guidance_hybrid_groundspeed_sp, guidance_h_pos_err, horizontal_speed_gain);
   return guidance_hybrid_run();
 }
@@ -329,13 +330,6 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp)
 
 void guidance_hybrid_groundspeed_to_airspeed(void)
 {
-  /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, guidance_h.sp.pos, *stateGetPositionNed_i());
-
-  // Compute ground speed setpoint
-  struct Int32Vect2 guidance_hybrid_groundspeed_sp;
-  VECT2_SDIV(guidance_hybrid_groundspeed_sp, guidance_h_pos_err, horizontal_speed_gain);
-
   int32_t norm_groundspeed_sp;
   norm_groundspeed_sp = int32_vect2_norm(&guidance_hybrid_groundspeed_sp);
 
@@ -442,6 +436,10 @@ struct StabilizationSetpoint guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cm
   return stab_sp_from_quat_i(&quat_sp);
 }
 
+/**
+ * Take a thrust command as input and returns the modified value
+ * according to the current flight regime
+ */
 int32_t guidance_hybrid_vertical(int32_t delta_t)
 {
   int32_t hybrid_delta_t = 0;
@@ -449,10 +447,10 @@ int32_t guidance_hybrid_vertical(int32_t delta_t)
   float fwd_speed_err = guidance_hybrid_norm_ref_airspeed_f - AIRSPEED_FORWARD;
   float fwd_thrust = cruise_throttle
                       + (fwd_speed_err * fwd_speed_p_gain)
-                      + (guidance_v.delta_t - (MAX_PPRZ * guidance_v.nominal_throttle)) * fwd_alt_thrust_gain;
-  int32_t hover_thrust = guidance_v.delta_t;
+                      + (delta_t - (MAX_PPRZ * guidance_v.nominal_throttle)) * fwd_alt_thrust_gain;
+  int32_t hover_thrust = delta_t;
 
-  float alt_control_pitch = (guidance_v.delta_t - MAX_PPRZ * guidance_v.nominal_throttle) * fwd_pitch_gain;
+  float alt_control_pitch = (delta_t - MAX_PPRZ * guidance_v.nominal_throttle) * fwd_pitch_gain;
   int32_t fwd_pitch = ANGLE_BFP_OF_REAL(alt_control_pitch / MAX_PPRZ);
 
   /* Hover regime */
@@ -490,3 +488,50 @@ int32_t guidance_hybrid_vertical(int32_t delta_t)
 
   return hybrid_delta_t;
 }
+
+
+#if GUIDANCE_HYBRID_USE_AS_DEFAULT
+// guidance hybrid is implementing the default functions of guidance
+
+void guidance_h_run_enter(void)
+{
+  // nothing to do
+}
+
+void guidance_v_run_enter(void)
+{
+  // nothing to do
+}
+
+struct StabilizationSetpoint guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
+{
+  return guidance_hybrid_h_run_pos(in_flight, gh);
+}
+
+struct StabilizationSetpoint guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
+{
+  return guidance_hybrid_h_run_speed(in_flight, gh);
+}
+
+struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh)
+{
+  return guidance_hybrid_h_run_accel(in_flight, gh);
+}
+
+int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+{
+  return guidance_hybrid_v_run_pos(in_flight, gv);
+}
+
+int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+{
+  return guidance_hybrid_v_run_speed(in_flight, gv);
+}
+
+int32_t guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
+{
+  return guidance_hybrid_v_run_accel(in_flight, gv);
+}
+
+#endif
+

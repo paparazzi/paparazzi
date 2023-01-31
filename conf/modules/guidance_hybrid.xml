@@ -35,6 +35,7 @@
   <init fun="guidance_hybrid_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_hybrid.c" dir="$(SRC_FIRMWARE)/guidance"/>
-    <define name="HYBRID_NAVIGATION" value="TRUE"/>
+    <define name="GUIDANCE_PID_USE_AS_DEFAULT" value="FALSE"/>
+    <define name="GUIDANCE_HYBRID_USE_AS_DEFAULT" value="TRUE"/>
   </makefile>
 </module>
