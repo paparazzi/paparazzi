@@ -13,7 +13,7 @@ FloatValue = struct.Struct( '<f' )
 DoubleValue = struct.Struct( '<d' )
 
 class NatNetClient:
-    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, rigidBodyListListener=None, verbose=False, version=(3,0,0,0) ):
+    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, rigidBodyListListener=None, markerSetListener=None, verbose=False, version=(3,0,0,0) ):
         # IP address of the NatNet server.
         self.serverIPAddress = server
 
@@ -35,6 +35,9 @@ class NatNetClient:
         # Set this to a callback method of your choice to receive rigid-body data list and timestamp at each frame.
         self.rigidBodyListListener = rigidBodyListListener
         self.rigidBodyList = []
+
+        # Set this to a callback method of your choice to receive markerset data at each frame
+        self.markerSetListener = markerSetListener
 
         # NatNet stream version. This will be updated to the actual version the server is using during initialization.
         self.__natNetStreamVersion = version
@@ -194,10 +197,15 @@ class NatNetClient:
             offset += 4
             self.__trace( "Marker Count:", markerCount )
 
+            posList = []
             for j in range( 0, markerCount ):
                 pos = Vector3.unpack( data[offset:offset+12] )
+                posList.append(pos)
                 offset += 12
-                #self.__trace( "\tMarker", j, ":", pos[0],",", pos[1],",", pos[2] )
+                self.__trace( "\tMarker", j, ":", pos[0],",", pos[1],",", pos[2] )
+
+            if self.markerSetListener is not None:
+                self.markerSetListener(modelName, posList)
                  
         # Unlabeled markers count (4 bytes)
         unlabeledMarkersCount = int.from_bytes( data[offset:offset+4], byteorder='little' )

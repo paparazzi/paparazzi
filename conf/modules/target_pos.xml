@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="target_pos" dir="ctrl">
+  <doc>
+    <description>
+      Target position calculation
+    </description>
+    <section name="TARGET_POS" prefix="TARGET_">
+      <define name="POS_TIMEOUT" value="5000" description="timeout of the ground target position message in msec"/>
+      <define name="OFFSET_HEADING" value="180." description="target offset heading in degrees"/>
+      <define name="OFFSET_DISTANCE" value="10." description="target offset distance in meters"/>
+      <define name="OFFSET_HEIGHT" value="10." description="target offset height in meters"/>
+      <define name="TARGET_INTEGRATE_XY" value="true" description="enable target position xy (North/East) integration"/>
+      <define name="TARGET_INTEGRATE_Z" value="true" description="enable target position z (North/East) integration"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="TargetPos">
+        <dl_setting var="target.offset.distance" min="0." max="100." step="0.1" shortname="distance" unit="m"/>
+        <dl_setting var="target.offset.height" min="-10." max="200." step="0.1" shortname="height" unit="m"/>
+        <!-- Heading relative wrt. the ship!! -->
+        <dl_setting var="target.offset.heading" min="0." max="360." step="1.0" shortname="heading_wrt_ship"/>
+        <dl_setting var="target.integrate_xy" min="0" max="1" step="1" shortname="integrate_xy" values="OFF|ON"/>
+        <dl_setting var="target.target_pos_timeout" min="0" max="30000" step="100" shortname="target_pos_timeout"/>
+        <dl_setting var="target.rtk_timeout" min="0" max="30000" step="100" shortname="rtk_timeout"/>
+        <dl_setting var="target.offset.heading" min="0." max="360." step="1.0" type="float" shortname ="set_current" module="modules/ctrl/target_pos" handler="set_current_offset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="target_pos.h"/>
+  </header>
+  <init fun="target_pos_init()"/>
+  <datalink message="TARGET_POS" fun="target_parse_target_pos(buf)"/>
+  <makefile>
+    <file name="target_pos.c"/>
+  </makefile>
+</module>

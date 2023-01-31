@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="eff_scheduling_nederdrone" dir="ctrl">
+  <doc>
+    <description>Interpolation of control effectivenss matrix
+of the Nederdrone.
+
+If instead using online adaptation is an option, be sure to
+not use this module at the same time!</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="eff_scheduling">
+        <dl_setting shortname="tip_prop_always_on" var="sched_tip_props_always_on" min="0" step="1" max="1"/>
+        <dl_setting shortname="tip_prop_lower_pitch" var="sched_tip_prop_lower_pitch_limit_deg" min="-90" step="1" max="0"/>
+        <dl_setting shortname="tip_prop_upper_pitch" var="sched_tip_prop_upper_pitch_limit_deg" min="-90" step="1" max="0"/>
+        <dl_setting shortname="sched_ratio_tip_props" var="sched_ratio_tip_props" min="0" step="0.1" max="1"/>
+        <dl_setting shortname="thrust_eff_scaling" var="thrust_eff_scaling" min="0.6" step="0.01" max="1.4"/>
+        <dl_setting shortname="all_act_fwd_sched" var="all_act_fwd_sched" min="0" step="1" max="1" values="OFF|ON"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="eff_scheduling_nederdrone.h"/>
+  </header>
+  <init fun="ctrl_eff_scheduling_init()"/>
+  <periodic fun="ctrl_eff_scheduling_periodic()" freq="20.0"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="eff_scheduling_nederdrone.c"/>
+  </makefile>
+</module>

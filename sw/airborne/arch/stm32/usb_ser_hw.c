@@ -36,7 +36,7 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/desig.h>
-#include <libopencm3/stm32/otg_fs.h>
+#include <libopencm3/usb/dwc/otg_fs.h>
 
 #include "mcu_periph/usb_serial.h"
 
@@ -230,7 +230,7 @@ uint8_t usbd_control_buffer[128];
  * CDC device control request
  * (from libopencm3 examples)
  */
-static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
+static enum usbd_request_return_codes cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *req, uint8_t **buf,
                                   uint16_t *len, void (**complete)(usbd_device *usbd_dev, struct usb_setup_data *req))
 {
   (void)complete;
@@ -256,16 +256,16 @@ static int cdcacm_control_request(usbd_device *usbd_dev, struct usb_setup_data *
       local_buf[8] = req->wValue & 3;
       local_buf[9] = 0;
       usbd_ep_write_packet(usbd_dev, 0x83, local_buf, 10);
-      return 1;
+      return USBD_REQ_HANDLED;
     }
     case USB_CDC_REQ_SET_LINE_CODING:
       if (*len < sizeof(struct usb_cdc_line_coding)) {
-        return 0;
+        return USBD_REQ_NOTSUPP;
       }
 
-      return 1;
+      return USBD_REQ_HANDLED;
     default:
-      return 0;
+      return USBD_REQ_NOTSUPP;
   }
 }
 

@@ -132,6 +132,10 @@
 #endif
 #endif
 
+#define RST_ADC1 RST_ADC
+#define RST_ADC2 RST_ADC
+#define RST_ADC3 RST_ADC
+
 #else // !STM32F4
 // ADC 3 not supported on STM32F1
 #undef USE_AD3
@@ -435,16 +439,18 @@ static inline void adc_init_rcc(void)
   /* Enable ADC peripheral clocks. */
 #if USE_AD1
   rcc_periph_clock_enable(RCC_ADC1);
+  rcc_periph_reset_pulse(RST_ADC1);
 #endif
 #if USE_AD2
   rcc_periph_clock_enable(RCC_ADC2);
+  rcc_periph_reset_pulse(RST_ADC2);
 #endif
 #if USE_AD3
   rcc_periph_clock_enable(RCC_ADC3);
+  rcc_periph_reset_pulse(RST_ADC3);
 #endif
 
   /* Time Base configuration */
-  timer_reset(TIM_ADC);
   timer_set_mode(TIM_ADC, TIM_CR1_CKD_CK_INT,
                  TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
   /* timer counts with ADC_TIMER_FREQUENCY */

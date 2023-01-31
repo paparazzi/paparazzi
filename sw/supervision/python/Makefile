@@ -13,6 +13,7 @@ all:
 	pyuic5 ui/console.ui -o generated/ui_console.py
 	pyuic5 ui/tools_list.ui -o generated/ui_tools_list.py
 	pyuic5 ui/app_settings.ui -o generated/ui_app_settings.py
+	pyuic5 ui/conf_settings.ui -o generated/ui_conf_settings.py
 
 clean_ui:
 	rm -r generated

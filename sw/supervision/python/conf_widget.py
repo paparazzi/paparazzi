@@ -4,6 +4,7 @@ from PyQt5 import QtCore
 import conf
 import utils
 from conf_file_widget import ConfFileWidget
+from conf_settings_widget import ConfSettingsWidget
 
 
 class ConfWidget(QWidget):
@@ -20,18 +21,17 @@ class ConfWidget(QWidget):
         self.flight_plan.file_changed.connect(self.conf_changed)
         self.flight_plan.edit_alt_button.show()
         self.flight_plan.edit_alt_button.setText("Edit GCS")
-        self.settings = QListWidget(self)
+        self.settings = ConfSettingsWidget(self)
+        self.settings.settings_changed.connect(self.setting_changed)
         self.radio = ConfFileWidget("Radio", self)
         self.radio.file_changed.connect(self.conf_changed)
         self.telemetry = ConfFileWidget("Telemetry", self)
         self.telemetry.file_changed.connect(self.conf_changed)
-        self.settings.itemDoubleClicked.connect(self.edit_setting)
-        self.settings.itemChanged.connect(self.setting_changed)
+
+        self.settings.settings.itemDoubleClicked.connect(self.edit_setting)
+        self.settings.settings.itemChanged.connect(self.setting_changed)
 
         vb = QVBoxLayout()
-        settings_label = QLabel("Settings", self)
-        settings_label.setStyleSheet("font-weight: bold;")
-        vb.addWidget(settings_label)
         vb.addWidget(self.settings)
         lay.addWidget(self.airframe)
         lay.addWidget(self.flight_plan)
@@ -44,11 +44,11 @@ class ConfWidget(QWidget):
         self.telemetry.set_path(ac.telemetry)
         self.radio.set_path(ac.radio)
         self.flight_plan.set_path(ac.flight_plan)
-        self.settings.clear()
+        self.settings.settings.clear()
         for setting in ac.settings + ac.settings_modules:
             item = QListWidgetItem(setting.name)
             item.setCheckState(QtCore.Qt.Checked if setting.enabled else QtCore.Qt.Unchecked)
-            self.settings.addItem(item)
+            self.settings.settings.addItem(item)
 
     def edit_setting(self, item: QListWidgetItem):
         utils.edit_file(item.text())
@@ -58,5 +58,5 @@ class ConfWidget(QWidget):
         self.flight_plan.set_path("")
         self.telemetry.set_path("")
         self.radio.set_path("")
-        self.settings.clear()
+        self.settings.settings.clear()
 
