@@ -28,6 +28,7 @@ class DocPanel(QWidget, Ui_DocPanel):
         self.modules_list.currentTextChanged.connect(self.handle_select_module)
         self.depends_modules_list.currentTextChanged.connect(self.handle_select_module)
         self.unloaded_modules_list.currentTextChanged.connect(self.handle_select_module)
+        self.searchLineEdit.textChanged.connect(self.filter_modules)
         self.target_combo.currentTextChanged.connect(self.target_changed)
         self.backButton.clicked.connect(self.webView.back)
         self.webView.urlChanged.connect(lambda u: self.urlLineEdit.setText(u.toString()))
@@ -67,6 +68,19 @@ class DocPanel(QWidget, Ui_DocPanel):
                     self.unloaded_modules_list.addItem(module_path)
                 else:
                     self.depends_modules_list.addItem(module_path)
+        self.filter_modules(self.searchLineEdit.text())
+
+    def filter_modules(self, filter_txt):
+        def filter_list(list):
+            for i in range(list.count()):
+                if filter_txt != "":
+                    txt = list.item(i).text()
+                    list.item(i).setHidden(filter_txt not in txt)
+                else:
+                    list.item(i).setHidden(False)
+        filter_list(self.modules_list)
+        filter_list(self.depends_modules_list)
+        filter_list(self.unloaded_modules_list)
 
     def make_url(self, doc):
         if self.doc_source_combo.currentText() == "Local":

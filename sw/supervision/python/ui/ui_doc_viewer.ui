@@ -52,6 +52,9 @@
          </item>
          <item>
           <widget class="QLineEdit" name="searchLineEdit">
+           <property name="placeholderText">
+            <string>search...</string>
+           </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
            </property>
@@ -95,7 +98,7 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
                <widget class="QLabel" name="label_3">
