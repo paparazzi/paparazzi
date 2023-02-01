@@ -18,11 +18,19 @@ PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 CONF_DIR = os.path.join(PAPARAZZI_HOME, "conf/")
 
 
-def removeprefix(string: str, prefix: str, /) -> str:
+def remove_prefix(string: str, prefix: str, /) -> str:
     if string.startswith(prefix):
         return string[len(prefix):]
     else:
         return string[:]
+
+
+def remove_suffix(s: str, suffix: str, /) -> str:
+    if s.endswith(suffix):
+        return s[:-len(suffix)]
+    else:
+        return s
+
 
 # TODO: make it work with shell program such as vim.
 def edit_file(file_path, prefix=CONF_DIR):

@@ -65,11 +65,6 @@ class Aircraft:
         completed = subprocess.run([MOD_DEP, "-ac", self.name, "-af", self.airframe, "-fp", self.flight_plan],
                                    capture_output=True)
         if completed.returncode == 0:
-            def remove_prefix(s):
-                if s.startswith(utils.CONF_DIR):
-                    return s[len(utils.CONF_DIR):]
-                else:
-                    return s
 
             def make_setting(m):
                 setting = Setting(m, True)
@@ -80,7 +75,7 @@ class Aircraft:
 
             new_settings_modules = []
             for module_path in completed.stdout.decode().strip().split():
-                module = remove_prefix(module_path)
+                module = utils.remove_prefix(module_path, utils.CONF_DIR)
                 xml = ET.parse(module_path)
                 for xml_setting in xml.getroot().findall("settings"):
                     name = xml_setting.get("name")

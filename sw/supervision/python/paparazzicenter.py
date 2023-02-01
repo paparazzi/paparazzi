@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
 from configuration_panel import ConfigurationPanel
 from operation_panel import OperationPanel
+from doc_panel import DocPanel
 import utils
 from typing import Dict
 from lxml import etree as ET
@@ -24,8 +25,10 @@ class PprzCenter(QMainWindow):
         self.setCentralWidget(self.tabwidget)
         self.configuration_panel = ConfigurationPanel(self.tabwidget)
         self.operation_panel = OperationPanel(self.tabwidget)
+        self.doc_panel = DocPanel(self.tabwidget)
         self.tabwidget.addTab(self.configuration_panel, "Configuration")
         self.tabwidget.addTab(self.operation_panel, "Operation")
+        self.tabwidget.addTab(self.doc_panel, "Documentation")
         self.status_msg = QLabel()
         self.statusBar().addWidget(self.status_msg)
         self.fill_status_bar()
@@ -35,6 +38,7 @@ class PprzCenter(QMainWindow):
         self.operation_panel.session.program_spawned.connect(self.configuration_panel.disable_sets)
         self.operation_panel.session.programs_all_stopped.connect(self.configuration_panel.enable_sets)
         self.configuration_panel.ac_changed.connect(self.operation_panel.session.set_aircraft)
+        self.configuration_panel.ac_changed.connect(self.doc_panel.set_aircraft)
         self.configuration_panel.splitter.splitterMoved.connect(self.update_left_pane_width)
         settings = utils.get_settings()
         window_size = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
