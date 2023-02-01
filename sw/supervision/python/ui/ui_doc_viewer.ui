@@ -161,12 +161,12 @@
            </property>
            <item>
             <property name="text">
-             <string>Local</string>
+             <string>Internet</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Internet</string>
+             <string>Local</string>
             </property>
            </item>
           </widget>

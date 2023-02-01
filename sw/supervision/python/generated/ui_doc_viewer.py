@@ -137,6 +137,6 @@ class Ui_DocPanel(object):
         self.open_browser_button.setToolTip(_translate("DocPanel", "Open in Browser"))
         self.open_browser_button.setText(_translate("DocPanel", "..."))
         self.doc_source_combo.setToolTip(_translate("DocPanel", "source"))
-        self.doc_source_combo.setItemText(0, _translate("DocPanel", "Local"))
-        self.doc_source_combo.setItemText(1, _translate("DocPanel", "Internet"))
+        self.doc_source_combo.setItemText(0, _translate("DocPanel", "Internet"))
+        self.doc_source_combo.setItemText(1, _translate("DocPanel", "Local"))
 from PyQt5 import QtWebKitWidgets
