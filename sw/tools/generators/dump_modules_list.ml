@@ -24,16 +24,24 @@ let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
 let conf_xml_file = conf_dir // "conf.xml"
 
+let letter_of_load_tyoe = function
+  | Aircraft.UserLoad -> "U"
+  | Aircraft.Depend -> "D"
+  | Aircraft.AutoLoad -> "A"
+  | Aircraft.Unloaded -> "N"
+
 let () =
   let ac_name = ref None
   and af_xml = ref None
   and fp_xml = ref None
+  and target = ref None
   and output = ref None in
 
   let options = [
     "-ac", Arg.String (fun x -> ac_name := Some x), "Aircraft name (mandatory)";
     "-af", Arg.String (fun x -> af_xml := Some x), "Airframe XML file (optinal)";
     "-fp", Arg.String (fun x -> fp_xml := Some x), "Flight_plan XML file (optional)";
+    "-t", Arg.String (fun x -> target := Some x), "Target name (optional)";
     "-o", Arg.String (fun x -> output := Some x), "Output file name (stdout if not specified)"
   ] in
   Arg.parse options (fun _ -> ()) "Usage:";
@@ -56,7 +64,15 @@ let () =
   in
 
   let ac = Aircraft.parse_aircraft ~parse_af:true ~parse_ap:true ~parse_fp:true "" aircraft_xml in
-  let modules_filenames = List.map (fun m -> m.Module.xml_filename) ac.Aircraft.all_modules in
+  let modules_filenames = match !target with
+  | None -> List.map (fun m -> m.Module.xml_filename) ac.Aircraft.all_modules
+  | Some t ->
+      try
+        let selected = Hashtbl.find ac.Aircraft.config_by_target t in
+        List.map (fun (load_type, m) -> Printf.sprintf "%s %s" m.Module.xml_filename (letter_of_load_tyoe load_type))
+        selected.Aircraft.modules
+      with Not_found -> failwith "Dump modules: unknown target"
+  in
   let modules_filenames = String.concat "\n" modules_filenames in
 
   match !output with
