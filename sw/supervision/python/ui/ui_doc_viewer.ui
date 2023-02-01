@@ -61,13 +61,13 @@
        </item>
        <item>
         <widget class="QWidget" name="momo" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_7">
+         <layout class="QVBoxLayout" name="verticalLayout_8">
           <item>
            <widget class="QSplitter" name="splitter">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
                <widget class="QLabel" name="label">
@@ -81,7 +81,7 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="">
+            <widget class="QWidget" name="layoutWidget">
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <item>
                <widget class="QLabel" name="label_2">
@@ -95,6 +95,20 @@
               </item>
              </layout>
             </widget>
+            <widget class="QWidget" name="">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Modules Unloaded</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="unloaded_modules_list"/>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -102,7 +116,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -132,7 +146,8 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset theme="applications-internet"/>
+            <iconset theme="applications-internet">
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>

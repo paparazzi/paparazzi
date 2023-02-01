@@ -26,6 +26,8 @@ class DocPanel(QWidget, Ui_DocPanel):
         self.webView.loadFinished.connect(self.load_finished)
         self.webView.loadProgress.connect(self.load_progress)
         self.modules_list.currentTextChanged.connect(self.handle_select_module)
+        self.depends_modules_list.currentTextChanged.connect(self.handle_select_module)
+        self.unloaded_modules_list.currentTextChanged.connect(self.handle_select_module)
         self.target_combo.currentTextChanged.connect(self.target_changed)
         self.backButton.clicked.connect(self.webView.back)
         self.webView.urlChanged.connect(lambda u: self.urlLineEdit.setText(u.toString()))
@@ -54,11 +56,15 @@ class DocPanel(QWidget, Ui_DocPanel):
 
     def target_changed(self, target):
         self.modules_list.clear()
+        self.depends_modules_list.clear()
+        self.unloaded_modules_list.clear()
         if target != "":
             modules = self.get_all_modules(self.current_ac, target)
             for module_path, module_type in modules:
                 if module_type == "U" or module_type == "_":
                     self.modules_list.addItem(module_path)
+                elif module_type == "N":
+                    self.unloaded_modules_list.addItem(module_path)
                 else:
                     self.depends_modules_list.addItem(module_path)
 
@@ -82,13 +88,15 @@ class DocPanel(QWidget, Ui_DocPanel):
         self.webView.load(url)
 
     def handle_select_module(self, txt):
+        if txt == "":
+            return
         url = self.make_url("modules/{}.html".format(txt))
         self.webView.load(url)
 
     def get_all_modules(self, ac: conf.Aircraft, target: str):
         args = [conf.MOD_DEP, "-ac", ac.name, "-af", ac.airframe, "-fp", ac.flight_plan]
         if target != "all":
-            args.extend(["-target", target])
+            args.extend(["-t", target])
         completed = subprocess.run(args, capture_output=True)
         if completed.returncode != 0:
             return completed.returncode, completed.stderr
