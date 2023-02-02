@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SupervisionWindow</class>
+ <widget class="QMainWindow" name="SupervisionWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Paparazzi Center</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="HeaderWidget" name="header" native="true"/>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabwidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="ConfigurationPanel" name="configuration_panel">
+       <attribute name="title">
+        <string>Configuration</string>
+       </attribute>
+      </widget>
+      <widget class="OperationPanel" name="operation_panel">
+       <attribute name="title">
+        <string>Operation</string>
+       </attribute>
+      </widget>
+      <widget class="DocPanel" name="doc_panel">
+       <attribute name="title">
+        <string>Documentation</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="settings_action"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="about_action"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="settings_action">
+   <property name="text">
+    <string>Edit Settings</string>
+   </property>
+  </action>
+  <action name="about_action">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HeaderWidget</class>
+   <extends>QWidget</extends>
+   <header>header_widget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ConfigurationPanel</class>
+   <extends>QWidget</extends>
+   <header>configuration_panel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>OperationPanel</class>
+   <extends>QWidget</extends>
+   <header>operation_panel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DocPanel</class>
+   <extends>QWidget</extends>
+   <header>doc_panel.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

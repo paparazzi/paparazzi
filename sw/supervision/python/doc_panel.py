@@ -48,8 +48,6 @@ class DocPanel(QWidget, Ui_DocPanel):
 
     def set_aircraft(self, ac: conf.Aircraft):
         self.current_ac = ac
-        self.ac_name_label.setText("{}".format(ac.name))
-        self.color_tool_button.setStyleSheet("background-color: {};".format(ac.get_color()))
         targets = ac.boards.keys()
         self.target_combo.clear()
         self.target_combo.addItem("all")

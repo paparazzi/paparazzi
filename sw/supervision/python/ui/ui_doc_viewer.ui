@@ -27,27 +27,6 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLabel" name="ac_name_label">
-             <property name="styleSheet">
-              <string notr="true">font-weight: bold;</string>
-             </property>
-             <property name="text">
-              <string>ACname</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QToolButton" name="color_tool_button">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
           <widget class="QComboBox" name="target_combo"/>
          </item>
          <item>
