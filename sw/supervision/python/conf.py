@@ -1,3 +1,5 @@
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from dataclasses import dataclass, field
 from typing import List, Dict
 import lxml.etree as ET

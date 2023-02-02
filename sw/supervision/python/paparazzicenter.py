@@ -10,7 +10,7 @@ from lxml import etree as ET
 from conf import Conf, Aircraft
 from app_settings import AppSettings
 from generated.ui_supervision_window import Ui_SupervisionWindow
-from generated.ui_new_ac_dialog import Ui_Dialog
+from generated.ui_new_ac_dialog import Ui_NewACDialog
 
 
 class PprzCenter(QMainWindow, Ui_SupervisionWindow):
@@ -96,7 +96,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         if orig is None:
             orig = Aircraft()
 
-        ui_dialog = Ui_Dialog()
+        ui_dialog = Ui_NewACDialog()
         dialog = QDialog(parent=self)
         ui_dialog.setupUi(dialog)
 
@@ -152,7 +152,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.doc_panel.set_aircraft(ac)
 
     def handle_rename_ac(self, orig: Aircraft):
-        ui_dialog = Ui_Dialog()
+        ui_dialog = Ui_NewACDialog()
         dialog = QDialog(parent=self)
         ui_dialog.setupUi(dialog)
         ui_dialog.name_edit.setText(orig.name)
