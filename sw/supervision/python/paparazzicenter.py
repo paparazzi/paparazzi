@@ -2,6 +2,8 @@
 # Copyright (C) 2008-2022 The Paparazzi Team
 # released under GNU GPLv2 or later. See COPYING file.
 import os
+import sys
+import signal
 import copy
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
@@ -35,7 +37,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.header.ac_rename.connect(self.handle_rename_ac)
         self.header.ac_delete.connect(self.handle_remove_ac)
         self.header.ac_duplicate.connect(self.handle_new_ac)
-        self.header.ac_save.connect(lambda: self.conf.save)
+        self.header.ac_save.connect(lambda _: self.conf.save())
         self.header.ac_new.connect(self.handle_new_ac)
 
         self.operation_panel.session.program_spawned.connect(self.header.disable_sets)
@@ -203,28 +205,36 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings_dialog = AppSettings(self)
         settings_dialog.show()
 
-    def closeEvent(self, e: QtGui.QCloseEvent) -> None:
+    def quit(self, interactive=True):
+        quit_accepted = True
         if self.operation_panel.session.any_program_running():
+            quit_accepted = False
             self.operation_panel.session.programs_all_stopped.connect(self.close)
             self.operation_panel.session.stop_all()
-            e.ignore()
             self.operation_panel.session.programs_all_stopped.connect(self.close)
         else:
+            restore_conf = True
             if utils.get_settings().value("always_keep_changes", False, bool):
-                self.configuration_panel.conf.save()
+                restore_conf = False
             else:
                 conf_tree_orig = self.conf.tree_orig
                 conf_tree = self.conf.to_xml_tree()
-                if ET.tostring(conf_tree) != ET.tostring(conf_tree_orig):
+                if ET.tostring(conf_tree) != ET.tostring(conf_tree_orig) and interactive:
                     buttons = QMessageBox.question(self, "Save configuration?",
                                                    "The configuration has changed, do you want to save it?")
                     if buttons == QMessageBox.Yes:
-                        self.conf.save()
-                    else:
-                        self.conf.restore_conf()
-                        self.conf.save()
+                        restore_conf = False
+            if restore_conf:
+                self.conf.restore_conf()
+            self.conf.save()
             self.save_gconf()
+        return quit_accepted
+
+    def closeEvent(self, e: QtGui.QCloseEvent) -> None:
+        if self.quit():
             e.accept()
+        else:
+            e.ignore()
 
     def save_gconf(self):
         settings = utils.get_settings()
@@ -261,10 +271,24 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
 
 
 if __name__ == "__main__":
-    import sys
+
     app = QApplication(sys.argv)
+
+    timer = QtCore.QTimer()
+    timer.start(100)
+    timer.timeout.connect(lambda: None)  # Let the interpreter run each 100 ms.
+
     main_window = PprzCenter()
     main_window.show()
     # qApp.aboutToQuit.connect(main_window.quit)
-    sys.exit(app.exec_())
 
+    def sigint_handler(*args):
+        """Handler for the SIGINT signal."""
+        print("catched SIGINT")
+        sys.stderr.write('\r')
+        if main_window.quit(False):
+            QApplication.quit()
+
+    signal.signal(signal.SIGINT, sigint_handler)
+
+    sys.exit(app.exec_())

@@ -212,6 +212,7 @@ class Conf:
             self.tree_orig = self.to_xml_tree()
 
     def restore_conf(self):
+        print("conf restored.")
         self.parse(self.tree_orig)
 
     def to_string(self):
