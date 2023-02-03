@@ -11,7 +11,9 @@ import utils
 from typing import Dict
 from lxml import etree as ET
 from app_settings import AppSettings
-
+import signal
+ 
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 class PprzCenter(QMainWindow):
     def __init__(self, parent=None):
