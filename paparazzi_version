@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEF_VER=v6.2.0_stable
+DEF_VER=v6.3_unstable
 
 # First try git describe (if running on a git repo),
 # then use default version from above (for release tarballs).
