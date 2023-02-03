@@ -53,7 +53,7 @@ Clone the repository:
 
 .. code-block:: bash
 
-    git checkout -b v6.1 upstream/v6.1
+    git checkout -b v6.2 upstream/v6.2
 
 Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
 

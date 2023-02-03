@@ -1,3 +1,34 @@
+Paparazzi v6.2.0_stable
+=======================
+
+Stable version release v6.2.
+The biggest change is the reorganization of the airborne code for AP and FBW.
+FBW is now merged with AP in normal operation (so single thread) and the
+main_ap code is common for all firmwares.
+
+General
+-------
+- Improve documentation for sphinx
+- fix Ivy for mutex (#2835)
+- support for rover with steering wheel (#2845)
+- use new PprzGCS as default
+- use Python PPRZ center as default
+- cleaning outdated confs (#2881)
+- update docker, mavlink, libopencm3, hacl-c, bmp_swd scripts
+- display object from natnet tool (#2958)
+
+Airborne
+--------
+- merge AP/FBW in normal operation (#2828)
+- improve EKF2 support (#2833) (#2835) (#2850) (#2829)
+- small bug fixes
+- support for H7 with ChibiOS (#2859)
+- usb serial for ChibiOS (#2878)
+- multi IMU support (#2890)
+- add new modules: tag_tracking (#2931), QMC5883L mag driver
+- fix PVT message support for UBlox (#2939)
+
+
 Paparazzi v6.1.0_stable
 =====================
 
