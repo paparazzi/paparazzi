@@ -397,17 +397,6 @@
    gui_color="blue"
   />
   <aircraft
-   name="StaticTest_Ned8"
-   ac_id="19"
-   airframe="airframes/tudelft/nederdrone8_statictest.xml"
-   radio="radios/crossfire_sbus.xml"
-   telemetry="telemetry/highspeed_rotorcraft.xml"
-   flight_plan="flight_plans/tudelft/nederdrone_troia_big_airspace.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="[modules/air_data.xml] modules/airspeed_ms45xx_i2c.xml modules/approach_moving_target.xml modules/eff_scheduling_nederdrone.xml modules/eff_scheduling_nederdrone_dummy.xml modules/follow_me.xml modules/gps.xml modules/guidance_indi_hybrid.xml modules/guidance_rotorcraft.xml [modules/imu_common.xml] modules/ins_ekf2.xml modules/logger_sd_chibios.xml modules/nav_basic_rotorcraft.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/stabilization_indi.xml modules/target_pos.xml"
-   gui_color="#ffff00000000"
-  />
-  <aircraft
    name="TwoSeasTwenty"
    ac_id="200"
    airframe="airframes/tudelft/twoseastwenty.xml"
