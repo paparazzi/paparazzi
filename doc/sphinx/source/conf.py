@@ -17,7 +17,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 # import os
-# import sys
+import sys
+sys.path.insert(0, "../../sw/tools/modules_doc")
+
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
@@ -35,6 +37,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'modules_parser',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
