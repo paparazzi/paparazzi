@@ -16,9 +16,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 import sys
-sys.path.insert(0, "../../sw/tools/modules_doc")
+
+parser_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../sw/tools/modules_doc'))
+print(parser_path)
+sys.path.insert(0, parser_path)
 
 # sys.path.insert(0, os.path.abspath('.'))
 
