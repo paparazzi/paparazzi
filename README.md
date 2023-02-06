@@ -2,9 +2,7 @@
 
 Paparazzi UAS
 =============
-
-[![Build Status](https://travis-ci.org/paparazzi/paparazzi.png?branch=master)](https://travis-ci.org/paparazzi/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/811c4398588f435fa8bc926f53d40e9f)](https://app.codacy.com/app/gautierhattenberger/paparazzi?utm_source=github.com&utm_medium=referral&utm_content=paparazzi/paparazzi&utm_campaign=Badge_Grade_Dashboard)
+[![Build Status](https://semaphoreci.com/api/v1/paparazziuav/paparazzi/branches/master/shields_badge.svg)](https://semaphoreci.com/paparazziuav/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
 <a href="https://scan.coverity.com/projects/paparazzi-paparazzi">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/4928/badge.svg"/>
@@ -14,7 +12,9 @@ Paparazzi is a free open source software package for Unmanned (Air) Vehicle Syst
 For many years, the system has been used successfuly by hobbyists, universities and companies all over the world, on vehicles of various sizes (11.9g to 25kg).
 Paparazzi supports fixed wing, rotorcraft, hybrids, flapping vehicles and it is even possible to use it for boats and surface vehicles.
 
-Up to date information is available on the wiki http://wiki.paparazziuav.org
+Documentation is available here https://paparazzi-uav.readthedocs.io/en/latest/
+
+More docs is also available on the wiki http://wiki.paparazziuav.org
 
 To get in touch, subscribe to the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi), the IRC channel (freenode, #paparazzi) and Gitter (https://gitter.im/paparazzi/discuss).
 
@@ -54,10 +54,9 @@ Compilation and demo simulation
 
 2. "./paparazzi" to run the Paparazzi Center
 
-3. Select the "Microjet" aircraft in the upper-left A/C combo box.
+3. Select the "Bixler" aircraft in the upper-left A/C combo box.
   Select "sim" from upper-middle "target" combo box. Click "Build".
-  When the compilation is finished, select "Simulation" from
-  the upper-right session combo box and click "Execute".
+  When the compilation is finished, select "Simulation" in Operation tab and click "Start Session".
 
 4. In the GCS, wait about 10s for the aircraft to be in the "Holding point" navigation block.
   Switch to the "Takeoff" block (lower-left blue airway button in the strip).
