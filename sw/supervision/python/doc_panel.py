@@ -1,9 +1,20 @@
 # Copyright (C) 2008-2022 The Paparazzi Team
 # released under GNU GPLv2 or later. See COPYING file.
-
-from generated.ui_doc_viewer import Ui_DocPanel
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt
+
+try:
+    from generated.ui_doc_viewer import Ui_DocPanel
+except ImportError:
+    class Ui_DocPanel:
+        def setupUi(self, DocPanel):
+            self.deactivated = True
+            self.lay = QVBoxLayout(DocPanel)
+            label = QLabel("Please install 'python3-pyqt5.qtwebkit' to view the doc.", DocPanel)
+            label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+            self.lay.addWidget(label)
+
+
 from PyQt5.QtGui import QDesktopServices
 import utils
 import os
@@ -19,6 +30,8 @@ class DocPanel(QWidget, Ui_DocPanel):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
+        if self.deactivated is not None:
+            return
         self.current_ac = None
         self.doc_source_combo.currentTextChanged.connect(self.change_doc_source)
         self.open_browser_button.clicked.connect(lambda: QDesktopServices.openUrl(self.webView.url()))
@@ -47,6 +60,8 @@ class DocPanel(QWidget, Ui_DocPanel):
         ...
 
     def set_aircraft(self, ac: conf.Aircraft):
+        if self.deactivated is not None:
+            return
         self.current_ac = ac
         targets = ac.boards.keys()
         self.target_combo.clear()
