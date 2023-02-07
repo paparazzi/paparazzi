@@ -132,7 +132,7 @@ class DocPanel(QWidget, Ui_DocPanel):
             args.extend(["-t", target])
         completed = subprocess.run(args, capture_output=True)
         if completed.returncode != 0:
-            return completed.returncode, completed.stderr
+            return []   # completed.returncode, completed.stderr
 
         modules_list = []
         module_lines = completed.stdout.decode().strip().split("\n")
