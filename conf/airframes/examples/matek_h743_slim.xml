@@ -1,0 +1,280 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+
+<airframe name="Matek_H743">
+  
+  <description>
+    Mateksys FC H743 SLIM test board
+  </description>
+
+  <firmware name="rotorcraft">
+    <configure name="RTOS_DEBUG" value="0"/>
+    <configure name="PERIODIC_FREQUENCY" value="500"/>
+
+    <target name="ap" board="matek_h743_slim">
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
+    <module name="radio_control" type="sbus"/>
+
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+    </module>
+
+    <module name="telemetry" type="transparent">
+      <configure name="MODEM_PORT" value="usb_serial"/>
+    </module>
+    <module name="imu" type="matek_h743_slim">
+      <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+    </module>
+    <module name="gps" type="optitrack"/>
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
+
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
+
+    <module name="air_data"/>
+
+    <module name="sys_mon"/>
+    <module name="shell">
+      <configure name="SHELL_PORT" value="usb_serial_debug"/>
+    </module>
+  </firmware>
+
+  <servos driver="Pwm">
+    <servo name="FL" no="4" min="1000" neutral="1200" max="2000"/>
+    <servo name="FR" no="2" min="1000" neutral="1200" max="2000"/>
+    <servo name="BR" no="1" min="1000" neutral="1200" max="2000"/>
+    <servo name="BL" no="3" min="1000" neutral="1200" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
+    <define name="TYPE" value="QUAD_X"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+  </command_laws>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
+
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+    <define name="ACCEL_X_NEUTRAL" value="-42"/>
+    <define name="ACCEL_Y_NEUTRAL" value="64"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-155"/>
+    <define name="ACCEL_X_SENS" value="2.43600300517" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.43442233815" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.46007236396" integer="16"/>
+
+    <!-- MPU MAG -->
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_Z_SIGN" value="-1"/>
+    <define name="MAG_X_NEUTRAL" value="-53"/>
+    <define name="MAG_Y_NEUTRAL" value="-17"/>
+    <define name="MAG_Z_NEUTRAL" value="-29"/>
+    <define name="MAG_X_SENS" value="14.1339051912" integer="16"/>
+    <define name="MAG_Y_SENS" value="15.9334896814" integer="16"/>
+    <define name="MAG_Z_SENS" value="15.9429325263" integer="16"/>
+
+    <!--define name= "MAG_X_CURRENT_COEF" value="0.0350248861409"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="-0.0118884242797"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.0176235525201"/-->
+
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+    <define name="USE_GPS_HEADING" value="TRUE"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" value="300" unit="deg/s"/>
+    <define name="SP_MAX_Q" value="300" unit="deg/s"/>
+    <define name="SP_MAX_R" value="240" unit="deg/s"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="1000"/>
+    <define name="GAIN_Q" value="1000"/>
+    <define name="GAIN_R" value="800"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
+  </section>
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="200." unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="400" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="400" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="250" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="250." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="500"/>
+    <define name="PHI_DGAIN" value="260"/>
+    <define name="PHI_IGAIN" value="100"/>
+
+    <define name="THETA_PGAIN" value="500"/>
+    <define name="THETA_DGAIN" value="260"/>
+    <define name="THETA_IGAIN" value="100"/>
+
+    <define name="PSI_PGAIN" value="1279"/>
+    <define name="PSI_DGAIN" value="802"/>
+    <define name="PSI_IGAIN" value="31"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN" value="300"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <!--define name="G1_P" value="0.018284"/>
+    <define name="G1_Q" value="0.017385"/>
+    <define name="G1_R" value="0.0024217"/>
+    <define name="G2_R" value="-0.30628"/-->
+    <define name="G1_P" value="0.025483"/>
+    <define name="G1_Q" value="0.022144"/>
+    <define name="G1_R" value="0.0023438"/>
+    <define name="G2_R" value="-0.23538"/>
+
+    <define name="FILTER_ROLL_RATE" value="TRUE"/>
+    <define name="FILTER_PITCH_RATE" value="TRUE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="170.0"/>
+    <define name="REF_ERR_Q" value="600.0"/>
+    <define name="REF_ERR_R" value="600.0"/>
+    <define name="REF_RATE_P" value="14.3"/>
+    <define name="REF_RATE_Q" value="28.0"/>
+    <define name="REF_RATE_R" value="28.0"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="150"/>
+    <define name="HOVER_KD" value="80"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.35"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="180"/>
+    <define name="DGAIN" value="180"/>
+    <define name="AGAIN" value="0"/>
+    <define name="IGAIN" value="30"/>
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="DESCEND_VSPEED" value="-0.4"/>
+    <define name="CLIMB_VSPEED" value="0.25"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="HOOPERFLY/hooperfly_teensyfly_quad" type="string"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE" value="4"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+    <define name="ARRIVED_AT_WAYPOINT" value="0.5"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.8" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+    <define name="AC_ICON" value="quadrotor_x"/>
+  </section>
+
+</airframe>

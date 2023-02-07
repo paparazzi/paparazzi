@@ -38,6 +38,7 @@ static uint16_t get_stack_free(const thread_t *tp);
 
 #if USE_SHELL
 #include "modules/core/shell.h"
+#include "mcu_periph/sys_time.h"
 #include "printf.h"
 #include "string.h"
 

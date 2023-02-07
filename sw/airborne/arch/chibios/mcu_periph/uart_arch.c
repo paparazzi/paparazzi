@@ -60,7 +60,7 @@ struct SerialInit {
 /**
  * RX handler
  */
-static void handle_uart_rx(struct uart_periph *p)
+UNUSED static void handle_uart_rx(struct uart_periph *p)
 {
   // wait for next incoming byte
   uint8_t c = sdGet((SerialDriver *)(p->reg_addr));
@@ -81,7 +81,7 @@ static void handle_uart_rx(struct uart_periph *p)
 /**
  * TX handler
  */
-static void handle_uart_tx(struct uart_periph *p)
+UNUSED static void handle_uart_tx(struct uart_periph *p)
 {
   // check if more data to send
   // TODO send by block with sdWrite (be careful with circular buffer)

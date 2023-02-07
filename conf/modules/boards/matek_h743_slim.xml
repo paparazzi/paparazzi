@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="matek_h743_slim" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Mateksys H743 SLIM
+    </description>
+  </doc>
+  <dep>
+    <depends>hard_fault_recovery</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

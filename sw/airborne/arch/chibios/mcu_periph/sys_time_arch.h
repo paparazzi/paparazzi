@@ -36,6 +36,10 @@
 #include "mcu_periph/sys_time.h"
 #include <ch.h>
 
+#if (defined STM32H7XX) && !(defined STM32_SYSCLK)
+#define STM32_SYSCLK  STM32_SYS_CK
+#endif
+
 extern uint32_t get_sys_time_usec(void);
 extern uint32_t get_sys_time_msec(void);
 extern void sys_time_usleep(uint32_t us);
