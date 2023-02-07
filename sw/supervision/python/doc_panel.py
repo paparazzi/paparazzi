@@ -30,8 +30,11 @@ class DocPanel(QWidget, Ui_DocPanel):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
-        if self.deactivated is not None:
+        try:
+            self.deactivated
             return
+        except AttributeError:
+            ...
         self.current_ac = None
         self.doc_source_combo.currentTextChanged.connect(self.change_doc_source)
         self.open_browser_button.clicked.connect(lambda: QDesktopServices.openUrl(self.webView.url()))
@@ -60,8 +63,11 @@ class DocPanel(QWidget, Ui_DocPanel):
         ...
 
     def set_aircraft(self, ac: conf.Aircraft):
-        if self.deactivated is not None:
+        try:
+            self.deactivated
             return
+        except AttributeError:
+            ...
         self.current_ac = ac
         targets = ac.boards.keys()
         self.target_combo.clear()
