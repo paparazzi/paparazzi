@@ -215,6 +215,8 @@ class SessionWidget(QWidget, Ui_Session):
                 return
         programs = self.get_programs()
         session = Session(session_name, programs)
+        self.sessions_combo.addItem(session_name)
+        self.sessions_combo.setCurrentText(session_name)
         self.sessions.append(session)
         self.save_sessions()
 

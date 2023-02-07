@@ -1,3 +1,5 @@
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from dataclasses import dataclass, field
 from typing import List, Dict
 import lxml.etree as ET
@@ -65,11 +67,6 @@ class Aircraft:
         completed = subprocess.run([MOD_DEP, "-ac", self.name, "-af", self.airframe, "-fp", self.flight_plan],
                                    capture_output=True)
         if completed.returncode == 0:
-            def remove_prefix(s):
-                if s.startswith(utils.CONF_DIR):
-                    return s[len(utils.CONF_DIR):]
-                else:
-                    return s
 
             def make_setting(m):
                 setting = Setting(m, True)
@@ -80,7 +77,7 @@ class Aircraft:
 
             new_settings_modules = []
             for module_path in completed.stdout.decode().strip().split():
-                module = remove_prefix(module_path)
+                module = utils.remove_prefix(module_path, utils.CONF_DIR)
                 xml = ET.parse(module_path)
                 for xml_setting in xml.getroot().findall("settings"):
                     name = xml_setting.get("name")
@@ -215,6 +212,7 @@ class Conf:
             self.tree_orig = self.to_xml_tree()
 
     def restore_conf(self):
+        print("conf restored.")
         self.parse(self.tree_orig)
 
     def to_string(self):

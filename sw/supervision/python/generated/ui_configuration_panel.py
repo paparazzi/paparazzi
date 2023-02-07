@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/configuration_panel.ui'
+# Form implementation generated from reading ui file 'ui/ui_configuration_panel.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -16,19 +16,6 @@ class Ui_ConfigurationPanel(object):
         ConfigurationPanel.resize(562, 480)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(ConfigurationPanel)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.header = HeaderWidget(ConfigurationPanel)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.header.sizePolicy().hasHeightForWidth())
-        self.header.setSizePolicy(sizePolicy)
-        self.header.setObjectName("header")
-        self.verticalLayout_2.addWidget(self.header)
-        self.line = QtWidgets.QFrame(ConfigurationPanel)
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line.setObjectName("line")
-        self.verticalLayout_2.addWidget(self.line)
         self.splitter = QtWidgets.QSplitter(ConfigurationPanel)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
@@ -74,4 +61,3 @@ class Ui_ConfigurationPanel(object):
 from build_widget import BuildWidget
 from conf_widget import ConfWidget
 from console_widget import ConsoleWidget
-from header_widget import HeaderWidget
