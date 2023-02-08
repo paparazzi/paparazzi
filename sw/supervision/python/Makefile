@@ -18,8 +18,8 @@ $(OBJECTS): $(BUILDDIR)/%.py : $(SOURCEDIR)/%.ui
 $(BUILDDIR):
 	mkdir -p $@
 
-clean:
+clean_generated:
 	rm -r generated
 
 
-.PHONY: build_dir
+.PHONY: build_dir clean_generated
