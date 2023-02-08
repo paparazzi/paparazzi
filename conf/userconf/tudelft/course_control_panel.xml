@@ -98,7 +98,9 @@
       <program name="NatNet3">
         <arg flag="-ac 9999" constant="@AC_ID"/>
         <arg flag="-o"/>
-        <arg flag="-zf"/>
+        <arg flag="-xa" constant="57"/>
+        <arg flag="-an" constant="far"/>
+        <arg flag="-le" constant="far"/>
       </program>
     </session>
     <session name="Distance Counter">
