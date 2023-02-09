@@ -322,11 +322,11 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
                   None -> geomap#canvas#coerce
                 | Some pf -> pf#coerce in
             let width, height = Gdk.Drawable.get_size frame#misc#window in
-            let dest = GdkPixbuf.create width height() in
+            let dest = GdkPixbuf.create ~width ~height() in
             GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
             let name = sprintf "Snapshot-%s-%d_%f_%f_%f.png" ac_id !i lat long (track#last_heading) in
             let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
-            GdkPixbuf.save png "png" dest;
+            GdkPixbuf.save ~filename:png ~typ:"png" dest;
             incr i;
 
       (* Computing the footprint: front_left and back_right *)
@@ -340,7 +340,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
             and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
             let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
             and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
-            ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
+            ignore (point#connect#event ~callback:(show_snapshot geomap geo_FL geo_BR point dest name))
           end
       | None -> ()
 
@@ -489,7 +489,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   ac_mi#set_submenu ac_menu;
   let ac_menu_fact = new GMenu.factory ac_menu in
   let fp_show = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
-  ignore (fp_show#connect#toggled (fun () -> show_mission ac_id fp_show#active));
+  ignore (fp_show#connect#toggled ~callback:(fun () -> show_mission ac_id fp_show#active));
 
   let (icon, size) = get_icon_and_track_size af_xml in
   let track = new MapTrack.track ~size ~icon ~name ~color:color ac_id geomap in
@@ -515,9 +515,9 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   GToolbox.build_menu sm ~entries:dl_menu;
 
   let cam = ac_menu_fact#add_check_item "Cam footprint" ~active:false in
-  ignore (cam#connect#toggled (fun () -> track#set_cam_state cam#active));
+  ignore (cam#connect#toggled ~callback:(fun () -> track#set_cam_state cam#active));
   let params = ac_menu_fact#add_check_item "A/C label" ~active:false in
-  ignore (params#connect#toggled (fun () -> track#set_params_state params#active));
+  ignore (params#connect#toggled ~callback:(fun () -> track#set_params_state params#active));
 
   (** Add a new tab in the A/Cs notebook, with a colored label *)
   let eb = GBin.event_box () in
@@ -554,7 +554,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
       let block = XmlEdit.attrib node "name" in
       let id = list_casso block blocks in
       jump_to_block ac_id id);
-  ignore (reset_wp_menu#connect#activate (reset_waypoints fp));
+  ignore (reset_wp_menu#connect#activate ~callback:(reset_waypoints fp));
 
    (** Monitor waypoints changes *)
   List.iter
@@ -611,7 +611,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
             GButton.button ~label ()
       in
       strip#add_widget b#coerce ~group;
-      ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
+      ignore (b#connect#clicked ~callback:(fun _ -> jump_to_block ac_id id))
     with
         _ -> ())
     (Xml.children (ExtXml.child (ExtXml.child fp_xml_dump "flight_plan") "blocks"));
@@ -619,7 +619,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
 
   (** Handle key shortcuts for block selection *)
   let key_press = key_press_event !keys (fun block_id -> jump_to_block ac_id block_id) in
-  ignore (geomap#canvas#event#connect#after#key_press key_press);
+  ignore (geomap#canvas#event#connect#after#key_press ~callback:key_press);
 
 
   (** Insert the flight plan tab *)
@@ -678,14 +678,14 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
       (** Connect key shortcuts *)
       let key_press = fun ev ->
         key_press_event settings_tab#keys (fun commit -> commit ()) ev in
-      ignore (geomap#canvas#event#connect#after#key_press key_press);
+      ignore (geomap#canvas#event#connect#after#key_press ~callback:key_press);
 
       let tab_label = GPack.hbox () in
       let _label = (GMisc.label ~text:"Settings" ~packing:tab_label#pack ()) in
       let button_save_settings = GButton.button ~packing:tab_label#pack () in
       ignore (GMisc.image ~stock:`SAVE ~packing:button_save_settings#add ());
       button_save_settings#set_border_width 0;
-      ignore (button_save_settings#connect#clicked (fun () -> settings_tab#save af_file));
+      ignore (button_save_settings#connect#clicked ~callback:(fun () -> settings_tab#save af_file));
       ignore (ac_notebook#append_page ~tab_label:tab_label#coerce settings_tab#widget);
       Some settings_tab
     with exc ->
@@ -771,7 +771,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   in
 
   if is_int ac_id then
-    ignore (Glib.Timeout.add 10000 send_wind);
+    ignore (Glib.Timeout.add ~ms:10000 ~callback:send_wind);
 
   begin
     match dl_settings_page with
@@ -815,7 +815,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
                   with _ -> () end;
                 true
               in
-              ignore (Glib.Timeout.add 1000 set_appointment)
+              ignore (Glib.Timeout.add ~ms:1000 ~callback:set_appointment)
             with Not_found -> ()
           end;
 
@@ -836,7 +836,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     if ac.got_track_status_timer > 5 then
       ac.track#delete_desired_track ();
     true in
-  ignore (Glib.Timeout.add 1000 monitor_track_status);;
+  ignore (Glib.Timeout.add ~ms:1000 ~callback:monitor_track_status);;
 
 
 (* since tcl8.6 "green" refers to "darkgreen" and the former "green" is now "lime", but that is not available in older versions, so hardcode the color to #00ff00*)
@@ -1016,8 +1016,8 @@ let draw_altgraph = fun (da_object:Gtk_tools.pixmap_in_drawin_area) (geomap:MapC
   (** First estimate the coverage of the window *)
   let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window in
   let (xc0, yc0) = geomap#canvas#get_scroll_offsets in
-  let (east, _y0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
-  and (west, _y1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
+  let (east, _y0) = geomap#window_to_world ~winx:(float xc0) ~winy:(float (yc0+height_c))
+  and (west, _y1) = geomap#window_to_world ~winx:(float (xc0+width_c)) ~winy:(float yc0) in
 
   let da = da_object#drawing_area in
   let width, height = Gdk.Drawable.get_size da#misc#window in
@@ -1137,7 +1137,7 @@ module GCS_icon = struct
               ~x1: ~-.radius ~y1:  ~-.radius ~x2:radius ~y2:radius
               geomap#canvas#root in
             (* connect callback on zoom change *)
-            ignore(geomap#zoom_adj#connect#value_changed (fun () ->
+            ignore(geomap#zoom_adj#connect#value_changed ~callback:(fun () ->
               match !status with
               | None -> ()
               | Some (item, _, wgs84) -> geomap#move_item ~z:geomap#current_zoom item wgs84
@@ -1149,7 +1149,7 @@ module GCS_icon = struct
 
     item#set [`OUTLINE_COLOR color];
     let change_color_if_not_updated =
-      Glib.Timeout.add 10000 (fun ()  -> item#set [`OUTLINE_COLOR outdated_color]; false) in
+      Glib.Timeout.add ~ms:10000 ~callback:(fun ()  -> item#set [`OUTLINE_COLOR outdated_color]; false) in
 
     (* Store the object, the position and the timeout to change its color *)
     status := Some (item, change_color_if_not_updated, wgs84);
@@ -1549,7 +1549,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   (** Probe live A/Cs *)
   let probe = fun () ->
     ignore(message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> _req_aircrafts := false; aircrafts_msg confirm_kill my_alert geomap ac_notebook strips vs)) in
-  let _ = GMain.Timeout.add 1000 (fun () -> probe (); !_req_aircrafts) in
+  let _ = GMain.Timeout.add ~ms:1000 ~callback:(fun () -> probe (); !_req_aircrafts) in
 
   (** New aircraft message *)
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac confirm_kill my_alert geomap ac_notebook  strips (PprzLink.string_assoc "ac_id" vs));
@@ -1591,7 +1591,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
     match GdkEvent.Key.keyval ev with
       | k when (k = GdkKeysyms._c) || (k = GdkKeysyms._C) -> center_active () ; true
       | _ -> false in
-  ignore (geomap#canvas#event#connect#after#key_press key_press);
+  ignore (geomap#canvas#event#connect#after#key_press ~callback:key_press);
 
   (* call periodic_handle_intruders every second *)
-  ignore (Glib.Timeout.add 1000 (fun () -> Intruders.remove_old_intruders (); true));
+  ignore (Glib.Timeout.add ~ms:1000 ~callback:(fun () -> Intruders.remove_old_intruders (); true));

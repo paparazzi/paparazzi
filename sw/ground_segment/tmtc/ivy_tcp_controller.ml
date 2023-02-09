@@ -51,7 +51,7 @@ let () =
     true in
 
   let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in
-  ignore (Glib.Io.add_watch [`IN] get_message ginput);
+  ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:get_message ginput);
 
   (* Forward datalink messages *)
   let get_ivy_message = fun _ args ->
@@ -66,7 +66,7 @@ let () =
   let _b = Ivy.bind get_ivy_message "^ground_dl (.*)" in
 
   let hangup = fun _ -> prerr_endline "hangup"; exit 1 in
-  ignore (Glib.Io.add_watch [`HUP] hangup ginput);
+  ignore (Glib.Io.add_watch ~cond:[`HUP] ~callback:hangup ginput);
 
   (* Main Loop *)
   GMain.main ()

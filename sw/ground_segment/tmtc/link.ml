@@ -238,9 +238,9 @@ module XB = struct (** XBee module *)
   let init = fun device ->
     Debug.trace 'x' "init xbee";
     let o = Unix.out_channel_of_descr device.fd in
-    ignore (Glib.Timeout.add at_init_period (fun () ->
+    ignore (Glib.Timeout.add ~ms:at_init_period ~callback:(fun () ->
       fprintf o "%s%!" Xbee_transport.at_command_sequence;
-      ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false));
+      ignore (Glib.Timeout.add ~ms:at_init_period ~callback:(fun () -> switch_to_api device; false));
       false))
 
   (* Array of sent packets for retry: (packet, nb of retries) *)
@@ -272,8 +272,8 @@ module XB = struct (** XBee module *)
           if nb_prev_retries < !nb_retries then begin
             packets.(frame_id) <- (packet, nb_prev_retries+1);
             let o = Unix.out_channel_of_descr device.fd in
-            ignore (GMain.Timeout.add (10 + Random.int retry_delay)
-                      (fun _ ->
+            ignore (GMain.Timeout.add ~ms:(10 + Random.int retry_delay)
+                      ~callback:(fun _ ->
                         fprintf o "%s%!" packet;
                         Debug.call 'y' (fun f -> fprintf f "Resending (%d) %s\n" (nb_prev_retries+1) (Debug.xprint packet));
                         false));
@@ -522,8 +522,8 @@ let () =
       end;
       true (* Returns true to be called again *)
     in
-    ignore (Glib.Io.add_watch [`HUP] hangup (GMain.Io.channel_of_descr fd));
-    ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
+    ignore (Glib.Io.add_watch ~cond:[`HUP] ~callback:hangup (GMain.Io.channel_of_descr fd));
+    ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:read_fd (GMain.Io.channel_of_descr fd));
 
     if !uplink then begin
       message_uplink device
@@ -531,13 +531,13 @@ let () =
 
     (** Init and Periodic tasks *)
     begin
-      ignore (Glib.Timeout.add !status_msg_period (fun () -> send_status_msg (); true));
-      ignore (Glib.Timeout.add (!status_msg_period / 3) (fun () -> update_ms_since_last_msg (); true));
+      ignore (Glib.Timeout.add ~ms:!status_msg_period ~callback:(fun () -> send_status_msg (); true));
+      ignore (Glib.Timeout.add ~ms:(!status_msg_period / 3) ~callback:(fun () -> update_ms_since_last_msg (); true));
       if !uplink then begin
         let start_ping = fun () ->
-          ignore (Glib.Timeout.add !ping_msg_period (fun () -> send_ping_msg device; true));
+          ignore (Glib.Timeout.add ~ms:!ping_msg_period ~callback:(fun () -> send_ping_msg device; true));
           false in
-        ignore (Glib.Timeout.add status_ping_diff start_ping);
+        ignore (Glib.Timeout.add ~ms:status_ping_diff ~callback:start_ping);
       end;
       match transport with
         | XBee ->

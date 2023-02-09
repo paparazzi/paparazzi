@@ -320,14 +320,14 @@ object (self)
         | _ -> ()
     end;
     true
-  initializer ignore(aircraft#connect#event self#event)
+  initializer ignore(aircraft#connect#event ~callback:self#event)
 
   method set_event_cb = fun (cb: string -> unit) -> event_cb <- Some cb
 
   initializer
     (* could not properly disconnect adjustment signal, so only calling zoom method if group is still displayed *)
-    ignore(geomap#zoom_adj#connect#value_changed (fun () -> if not destroyed then self#zoom geomap#zoom_adj#value));
-    ignore(group#connect#destroy (fun () -> destroyed <- true))
+    ignore(geomap#zoom_adj#connect#value_changed ~callback:(fun () -> if not destroyed then self#zoom geomap#zoom_adj#value));
+    ignore(group#connect#destroy ~callback:(fun () -> destroyed <- true))
 
   (* destroy method *)
   method destroy = fun () -> group#destroy ()

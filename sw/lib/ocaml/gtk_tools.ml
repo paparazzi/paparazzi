@@ -106,7 +106,7 @@ let select_in_combo = fun  (combo : combo) string ->
 
 let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
   ignore (combo#connect#changed
-            (fun () ->
+            ~callback:(fun () ->
               match combo#active_iter with
                 | None -> ()
                 | Some row ->

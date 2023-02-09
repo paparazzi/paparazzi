@@ -303,7 +303,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
 
   (* Connect the timestamp chooser to the period entry *)
   ignore (combo#connect#changed
-	    (fun () ->
+	    ~callback:(fun () ->
 	      let data = get_timestamp () in
 	      w#entry_period#misc#set_sensitive (data = "Periodic")));
 
@@ -319,7 +319,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
     | Some row ->
 	combo#model#get ~row ~column in
 
-  ignore (w#button_cancel#connect#clicked (fun () -> w#export#destroy ()));
+  ignore (w#button_cancel#connect#clicked ~callback:(fun () -> w#export#destroy ()));
 
   (** Connect the Save button to the write action *)
   let callback = fun () ->
@@ -339,7 +339,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
       do_export default_filename
     else
       save_values w default_filename do_export in
-  ignore (w#button_save#connect#clicked callback);
+  ignore (w#button_save#connect#clicked ~callback);
 
   (** Call automatic export or show the popup window *)
   if no_gui then begin

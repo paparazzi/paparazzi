@@ -114,8 +114,8 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
   (** First estimate the coverage of the window *)
   let width_c, height_c = Gdk.Drawable.get_size geomap#canvas#misc#window
   and (xc0, yc0) = geomap#canvas#get_scroll_offsets in
-  let (xw0, yw0) = geomap#window_to_world (float xc0) (float (yc0+height_c))
-  and (xw1, yw1) = geomap#window_to_world (float (xc0+width_c)) (float yc0) in
+  let (xw0, yw0) = geomap#window_to_world ~winx:(float xc0) ~winy:(float (yc0+height_c))
+  and (xw1, yw1) = geomap#window_to_world ~winx:(float (xc0+width_c)) ~winy:(float yc0) in
   let sw = geomap#of_world (xw0, yw0)
   and ne = geomap#of_world (xw1, yw1) in
   let west = sw.LL.posn_long /. LL.pi

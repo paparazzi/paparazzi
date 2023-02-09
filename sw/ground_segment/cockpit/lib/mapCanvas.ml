@@ -281,16 +281,16 @@ object (self)
     (** callback bindings *)
 
     canvas#coerce#misc#modify_bg [`NORMAL, `BLACK];
-    ignore (background#connect#event self#background_event);
+    ignore (background#connect#event ~callback:self#background_event);
 
-    ignore (canvas#event#connect#motion_notify self#mouse_motion);
-    ignore (canvas#event#connect#after#key_press self#key_press) ;
-    ignore (canvas#event#connect#enter_notify (fun _ -> self#canvas#misc#grab_focus () ; false));
-    ignore (canvas#event#connect#any self#any_event);
-    ignore (adj#connect#value_changed (fun () -> if abs_float (adj#value -. zoom_level) >= 0.01 then self#zoom_in_center adj#value));
+    ignore (canvas#event#connect#motion_notify ~callback:self#mouse_motion);
+    ignore (canvas#event#connect#after#key_press ~callback:self#key_press) ;
+    ignore (canvas#event#connect#enter_notify ~callback:(fun _ -> self#canvas#misc#grab_focus () ; false));
+    ignore (canvas#event#connect#any ~callback:self#any_event);
+    ignore (adj#connect#value_changed ~callback:(fun () -> if abs_float (adj#value -. zoom_level) >= 0.01 then self#zoom_in_center adj#value));
 
     canvas#set_center_scroll_region false ;
-    canvas#set_scroll_region (-25000000.) (-25000000.) 25000000. 25000000.;
+    canvas#set_scroll_region ~x1:(-25000000.) ~y1:(-25000000.) ~x2:25000000. ~y2:25000000.;
 
   )
 
@@ -387,21 +387,21 @@ object (self)
 
   method moveto = fun wgs84 ->
     let (xw, yw) = self#world_of wgs84 in
-    let (xc, yc) = canvas#world_to_window xw yw in
-    canvas#scroll_to (truncate xc) (truncate yc)
+    let (xc, yc) = canvas#world_to_window ~wox:xw ~woy:yw in
+    canvas#scroll_to ~x:(truncate xc) ~y:(truncate yc)
 
   method center = fun wgs84 ->
     let (xw, yw) = self#world_of wgs84 in
-    let (xc, yc) = canvas#world_to_window xw yw in
+    let (xc, yc) = canvas#world_to_window ~wox:xw ~woy:yw in
     let (xt, yt) = ((truncate xc), (truncate yc)) in
     let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window in
-    canvas#scroll_to (xt-sx_w/2) (yt-sy_w/2)
+    canvas#scroll_to ~x:(xt-sx_w/2) ~y:(yt-sy_w/2)
 
   method get_center = fun () ->
     let (x, y) = canvas#get_scroll_offsets
     and (sx_w, sy_w) = Gdk.Drawable.get_size canvas#misc#window in
     let xc = x + sx_w/2 and yc = y + sy_w/2 in
-    let (xw, yw) = canvas#window_to_world  (float xc) (float yc) in
+    let (xw, yw) = canvas#window_to_world  ~winx:(float xc) ~winy:(float yc) in
     self#of_world (xw, yw)
 
 
@@ -428,7 +428,7 @@ object (self)
     let scale = distance (xw1, yw1) (xw2, yw2) /. distance (x1,y1) (x2,y2) in
     let a = atan2 (yw2-.yw1) (xw2-.xw1) -. atan2 (y2-.y1) (x2-.x1) in
     let cos_a = cos a *. scale and sin_a = sin a *. scale in
-    pix#move xw1 yw1;
+    pix#move ~x:xw1 ~y:yw1;
     pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
     pix
 
@@ -449,7 +449,7 @@ object (self)
           let xc = GdkEvent.Button.x ev
           and yc = GdkEvent.Button.y ev
           and state = GdkEvent.Button.state ev in
-          let (xw,yw) = self#window_to_world xc yc in
+          let (xw,yw) = self#window_to_world ~winx:xc ~winy:yc in
           let (xw, yw) = self#fix_bg_coords (xw, yw) in
           if Gdk.Convert.test_modifier `SHIFT state then begin
             drawing <- Rectangle (xw,yw);
@@ -467,7 +467,7 @@ object (self)
         begin
           let xc = GdkEvent.Motion.x ev
           and yc = GdkEvent.Motion.y ev in
-          let (xw, yw) = self#window_to_world xc yc in
+          let (xw, yw) = self#window_to_world ~winx:xc ~winy:yc in
           let (xw, yw) = self#fix_bg_coords (xw, yw) in
           match drawing with
               Rectangle (x1,y1) ->
@@ -483,7 +483,7 @@ object (self)
               let dx = zoom_level *. (xc -. x0)
               and dy = zoom_level *. (yc -. y0) in
               let (x, y) = canvas#get_scroll_offsets in
-              canvas#scroll_to (x-truncate dx) (y-truncate dy)
+              canvas#scroll_to ~x:(x-truncate dx) ~y:(y-truncate dy)
             | _ -> ()
         end;
         false
@@ -491,7 +491,7 @@ object (self)
         begin
           let xc = GdkEvent.Button.x ev in
           let yc = GdkEvent.Button.y ev in
-          let current_point = self#window_to_world xc yc in
+          let current_point = self#window_to_world ~winx:xc ~winy:yc in
           let current_point = self#fix_bg_coords  current_point in
           match drawing with
               Rectangle (x1,y1) ->
@@ -512,7 +512,7 @@ object (self)
     if georef <> None then begin
       let xc = GdkEvent.Motion.x ev
       and yc = GdkEvent.Motion.y ev in
-      let (xw, yw) = self#window_to_world xc yc in
+      let (xw, yw) = self#window_to_world ~winx:xc ~winy:yc in
       self#display_geo (self#of_world (xw,yw));
       self#display_alt (self#of_world (xw,yw));
       let (x, y) = canvas#get_scroll_offsets in
@@ -527,10 +527,10 @@ object (self)
   method key_press = fun ev ->
     let (x, y) = canvas#get_scroll_offsets in
     match GdkEvent.Key.keyval ev with
-      | k when k = GdkKeysyms._Up -> canvas#scroll_to x (y-pan_step) ; true
-      | k when k = GdkKeysyms._Down -> canvas#scroll_to x (y+pan_step) ; true
-      | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
-      | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
+      | k when k = GdkKeysyms._Up -> canvas#scroll_to ~x ~y:(y-pan_step) ; true
+      | k when k = GdkKeysyms._Down -> canvas#scroll_to ~x ~y:(y+pan_step) ; true
+      | k when k = GdkKeysyms._Left -> canvas#scroll_to ~x:(x-pan_step) ~y ; true
+      | k when k = GdkKeysyms._Right -> canvas#scroll_to ~x:(x+pan_step) ~y ; true
       | k when k = GdkKeysyms._f -> self#fit_to_window () ; true
       | k when k = GdkKeysyms._Page_Up ->
         self#zoom_up ();
@@ -552,12 +552,12 @@ object (self)
   (* zoom keeping the area under the mouse pointer *)
   method zoom_in_place = fun z ->
     let (x, y) = canvas#get_scroll_offsets in
-    canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
+    canvas#scroll_to ~x:(x+last_mouse_x) ~y:(y+last_mouse_y);
 
     self#zoom z;
 
     let (x, y) = canvas#get_scroll_offsets in
-    canvas#scroll_to (x-last_mouse_x) (y-last_mouse_y)
+    canvas#scroll_to ~x:(x-last_mouse_x) ~y:(y-last_mouse_y)
 
 
 
@@ -656,18 +656,18 @@ object (self)
   initializer
   let replace_still = fun _ ->
     let (x, y) = canvas#get_scroll_offsets in
-    let (xc, yc) = canvas#window_to_world (float x) (float y) in
+    let (xc, yc) = canvas#window_to_world ~winx:(float x) ~winy:(float y) in
     let z = 1./.zoom_level in
     still#affine_absolute [|z;0.;0.;z;xc;yc|]
   in
   self#connect_view replace_still;
-  let move_timer = ref (Glib.Timeout.add 0 (fun _ -> false)) in
+  let move_timer = ref (Glib.Timeout.add ~ms:0 ~callback:(fun _ -> false)) in
   let move dx dy = function
   `BUTTON_PRESS _ ->
     let scroll = fun _ ->
       let (x, y) = canvas#get_scroll_offsets in
-      canvas#scroll_to (x+dx) (y+dy) ; true in
-    move_timer := Glib.Timeout.add 50 scroll;
+      canvas#scroll_to ~x:(x+dx) ~y:(y+dy) ; true in
+    move_timer := Glib.Timeout.add ~ms:50 ~callback:scroll;
     true
     | `BUTTON_RELEASE _ ->
       Glib.Timeout.remove !move_timer;
@@ -677,10 +677,10 @@ object (self)
   and down = move 0 pan_step
       and left = move (-pan_step) 0
       and right = move pan_step 0 in
-      ignore (north_arrow#connect#event up);
-      ignore (south_arrow#connect#event down);
-      ignore (west_arrow#connect#event left);
-      ignore (east_arrow#connect#event right)
+      ignore (north_arrow#connect#event ~callback:up);
+      ignore (south_arrow#connect#event ~callback:down);
+      ignore (west_arrow#connect#event ~callback:left);
+      ignore (east_arrow#connect#event ~callback:right)
   end
 
 
@@ -725,7 +725,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       tooltips#set_tip srtm#coerce ~text:"Display SRTM alt at pointer position (will request for download if not available)";
 
       let b = GButton.button ~packing:toolbar#add () in
-      ignore (b#connect#clicked (fun _ -> bg_menu#activate ()));
+      ignore (b#connect#clicked ~callback:(fun _ -> bg_menu#activate ()));
       let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "switch_background.png") in
       ignore (GMisc.image ~pixbuf ~packing:b#add ());
       tooltips#set_tip b#coerce ~text:"Toggle background";
@@ -735,7 +735,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       let callback = self#fit_to_window in
       my_menu_item "Fit to window (f)" ~callback ~packing:self#file_menu#append ();
       let b = GButton.button ~packing:toolbar#add () in
-      ignore (b#connect#clicked callback);
+      ignore (b#connect#clicked ~callback);
       ignore (GMisc.image ~stock:(`STOCK "gtk-zoom-fit") ~packing:b#add ());
       tooltips#set_tip b#coerce ~text:"Fit to window";
 
@@ -791,7 +791,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
           srtm#set_active false;
           (*GToolbox.message_box "SRTM" (sprintf "SRTM tile %s not found: %s ?" x (Srtm.error x));*)
           let msg = (sprintf "Oups, I can't find SRTM tile %s.\nCan I try to donwload it ?\n(%s)" x (Srtm.error x)) in
-          match GToolbox.question_box "SRTM" ["Download"; "Cancel"] msg with
+          match GToolbox.question_box ~title:"SRTM" ~buttons:["Download"; "Cancel"] msg with
           | 1 ->
               begin try
                 let tile_zip = x^".SRTMGL1.hgt.zip" in
@@ -804,7 +804,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
                 self#altitude wgs84
               with
               | Http.Failure _ | Srtm.Tile_not_found _ ->
-                  GToolbox.message_box "SRTM" ("Sorry, tile "^x^" couldn't be downloaded");
+                  GToolbox.message_box ~title:"SRTM" ("Sorry, tile "^x^" couldn't be downloaded");
                   0
               end
           | _ -> 0
