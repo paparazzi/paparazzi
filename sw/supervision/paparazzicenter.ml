@@ -61,7 +61,7 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (
   (*********** Window Size *)
   read_one "width"
     (fun width ->
-      read_one "height" (fun height -> gui#window#resize (ios width) (ios height)));
+      read_one "height" (fun height -> gui#window#resize ~width:(ios width) ~height:(ios height)));
 
   (*********** Left pane size *)
   read_one "left_pane_width"
@@ -154,7 +154,7 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo ?(confirm
     dialog#add_button "Cancel" `CANCEL;
     let _ = GMisc.label ~text:"Configuration has been changed since startup.\nIf you want to undo the changes choose [Revert]" ~packing:dialog#vbox#pack () in
     let checkbox = GButton.check_button ~label:"Always keep changes" ~active:!always_keep_changes ~packing:dialog#vbox#pack () in
-    ignore (checkbox#connect#toggled (fun () ->
+    ignore (checkbox#connect#toggled ~callback:(fun () ->
       always_keep_changes := checkbox#active;
       gui#menu_item_always_keep_changes#set_active checkbox#active;));
 
@@ -219,7 +219,7 @@ let () =
       s
     with _ -> "UNKNOWN" in
 
-  let s = gui#statusbar#new_context "env" in
+  let s = gui#statusbar#new_context ~name:"env" in
   ignore (s#push (sprintf "HOME=%s SRC=%s \tVersion=%s \tBuild=%s" Env.paparazzi_home Env.paparazzi_src version_str build_str));
 
   if Sys.file_exists Utils.backup_xml_file then begin

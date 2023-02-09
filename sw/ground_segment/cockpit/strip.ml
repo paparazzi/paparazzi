@@ -276,7 +276,7 @@ let add = fun config strip_param (strips:GPack.box) ->
 
   let connect_buttons = fun callback ->
     List.iter (fun ((button:GButton.button), value) ->
-      ignore (button#connect#clicked (fun () -> callback value));
+      ignore (button#connect#clicked ~callback:(fun () -> callback value));
       button#misc#set_sensitive true) in
 
   (* Buttons : setting the icons (the path of the icon is not saved by glade) *)
@@ -323,7 +323,7 @@ object
     tooltips#set_tip strip#eventbox_speed#coerce ~text
 
   method connect_mark callback =
-    ignore (strip#button_mark#connect#clicked callback)
+    ignore (strip#button_mark#connect#clicked ~callback)
 
   method set_label name value = set_label !strip_labels name value
   method set_color name value = set_color !strip_labels name value
@@ -404,7 +404,7 @@ object
       let utc = Unix.gmtime (get_ac_unix_time () +. 60.) in
       w#spinbutton_hour#set_value (float utc.Unix.tm_hour);
       w#spinbutton_min#set_value (float utc.Unix.tm_min);
-      ignore (w#button_cancel#connect#clicked (fun () -> w#setting_time#destroy ()));
+      ignore (w#button_cancel#connect#clicked ~callback:(fun () -> w#setting_time#destroy ()));
       let callback = fun () ->
         let hour = truncate w#spinbutton_hour#value
         and min = truncate w#spinbutton_min#value
@@ -412,7 +412,7 @@ object
         w#setting_time#destroy ();
         let tow = Latlong.gps_tow_of_utc hour min sec in
         send_value (float tow) in
-      ignore (w#button_ok#connect#clicked callback);
+      ignore (w#button_ok#connect#clicked ~callback);
       true
     in
     ignore(strip#eventbox_RDV#event#connect#button_press ~callback)

@@ -131,9 +131,9 @@ object
 
   method connect_reset = fun (callback:int -> unit) ->
     hbox#misc#show ();
-    ignore (hot#connect#clicked (fun () -> callback 0));
-    ignore (warm#connect#clicked (fun () -> callback 1));
-    ignore (cold#connect#clicked (fun () -> callback 2))
+    ignore (hot#connect#clicked ~callback:(fun () -> callback 0));
+    ignore (warm#connect#clicked ~callback:(fun () -> callback 1));
+    ignore (cold#connect#clicked ~callback:(fun () -> callback 2))
 
   method svsinfo pacc a =
     if visible widget then

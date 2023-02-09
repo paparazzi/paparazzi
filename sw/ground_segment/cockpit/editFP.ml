@@ -24,7 +24,7 @@ let current_fp = ref None
 let if_none = fun f ->
   match !current_fp with
       Some _ ->
-        GToolbox.message_box "Error" "Only one editable flight plan at a time"
+        GToolbox.message_box ~title:"Error" "Only one editable flight plan at a time"
     | None ->
       f ()
 
@@ -134,7 +134,7 @@ let new_fp = fun geomap editor_frame accel_group () ->
 
 let loading_error = fun xml_file e ->
   let m = sprintf "Error while loading %s:\n%s" xml_file e in
-  GToolbox.message_box "Error" m
+  GToolbox.message_box ~title:"Error" m
 
 
 
@@ -161,7 +161,7 @@ let load_fp = fun geomap editor_frame accel_group () ->
 let create_wp = fun geomap geo ->
   match !current_fp with
       None ->
-        GToolbox.message_box "Error" "Load a flight plan first";
+        GToolbox.message_box ~title:"Error" "Load a flight plan first";
         failwith "create_wp"
     | Some (fp,_) ->
       let w = fp#add_waypoint geo in
@@ -179,7 +179,7 @@ let ref_point_of_waypoint = fun xml ->
 (** Calibration of chosen image (requires a dummy flight plan) *)
 let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
   match !current_fp with
-    | Some (_fp,_) ->  GToolbox.message_box "Error" "Close current flight plan before calibration"
+    | Some (_fp,_) ->  GToolbox.message_box ~title:"Error" "Close current flight plan before calibration"
     | None ->
       match GToolbox.select_file ~filename:(default_path_maps // "") ~title:"Open Image" () with
           None -> ()
@@ -188,8 +188,8 @@ let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
           let pixbuf = GdkPixbuf.from_file image in
           let pix = GnoCanvas.pixbuf ~pixbuf ~props:[`ANCHOR `NW] geomap#canvas#root in
           let (x0, y0) = geomap#canvas#get_scroll_offsets in
-          let (x,y) = geomap#canvas#window_to_world (float x0) (float y0) in
-          pix#move x y;
+          let (x,y) = geomap#canvas#window_to_world ~winx:(float x0) ~winy:(float y0) in
+          pix#move ~x ~y;
 
       (** Open a dummy flight plan *)
           let dummy_georef =

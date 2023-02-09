@@ -312,7 +312,7 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
     method set_update_time = fun delay ->
       self#stop_timer ();
       dt <- delay;
-      timer <- Some (GMain.Timeout.add (truncate (dt*.1000.)) (fun () ->self#update_curves (); true))
+      timer <- Some (GMain.Timeout.add ~ms:(truncate (dt*.1000.)) ~callback:(fun () ->self#update_curves (); true))
 
     method button_press = fun ev ->
       match GdkEvent.Button.button ev with
@@ -400,8 +400,8 @@ let rec plot_window = fun window ->
   let _, max_entry= labelled_entry ~width_chars:5 "Max" "" h in
   min_entry#misc#set_sensitive false;
   max_entry#misc#set_sensitive false;
-  ignore (auto_scale#connect#toggled (fun () -> let b = auto_scale#active in plot#set_auto_scale b; min_entry#misc#set_sensitive (not b); max_entry#misc#set_sensitive (not b)));
-  ignore (GMain.Timeout.add 1000 (fun () -> if plot#auto_scale then begin min_entry#set_text (string_of_float plot#min);  max_entry#set_text (string_of_float plot#max) end; true));
+  ignore (auto_scale#connect#toggled ~callback:(fun () -> let b = auto_scale#active in plot#set_auto_scale b; min_entry#misc#set_sensitive (not b); max_entry#misc#set_sensitive (not b)));
+  ignore (GMain.Timeout.add ~ms:1000 ~callback:(fun () -> if plot#auto_scale then begin min_entry#set_text (string_of_float plot#min);  max_entry#set_text (string_of_float plot#max) end; true));
   ignore (min_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_min (float_of_string min_entry#text)));
   ignore (max_entry#connect#activate ~callback:(fun () -> if not plot#auto_scale then plot#set_max (float_of_string max_entry#text)));
 

@@ -107,8 +107,8 @@ let () =
   let hangup = fun _ ->
     prerr_endline "Serial link disconnected";
     exit 1 in
-  ignore (Glib.Io.add_watch [`HUP] hangup (GMain.Io.channel_of_descr fd));
-  ignore (Glib.Io.add_watch [`IN] get_datalink_message (GMain.Io.channel_of_descr fd));
+  ignore (Glib.Io.add_watch ~cond:[`HUP] ~callback:hangup (GMain.Io.channel_of_descr fd));
+  ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:get_datalink_message (GMain.Io.channel_of_descr fd));
 
   (* Main Loop *)
   GMain.main ()

@@ -83,11 +83,11 @@ let _ =
     Ground_Pprz.message_send my_id "WORLD_ENV" (world_values []) in
 
   List.iter
-    (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
+    (fun (a:GData.adjustment) -> ignore (a#connect#value_changed ~callback:world_send))
     [time_scale_adj; wind_dir_adj; wind_speed_adj; wind_up_adj; infrared_contrast_adj];
-  ignore (gps_sa#connect#toggled world_send);
+  ignore (gps_sa#connect#toggled ~callback:world_send);
 
-  ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
+  ignore (Glib.Timeout.add ~ms:sending_period ~callback:(fun () -> world_send (); true));
 
   let vbox = GPack.vbox ~packing:window#add () in
 

@@ -98,7 +98,7 @@ let () =
     true in
 
   let ginput = GMain.Io.channel_of_descr socket in
-  ignore (Glib.Io.add_watch [`IN] get_datalink_message ginput);
+  ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:get_datalink_message ginput);
 
   (* Main Loop *)
   GMain.main ()

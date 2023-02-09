@@ -608,7 +608,7 @@ let new_aircraft = fun get_alive_md5sum real_id ->
     | _ -> None (* more than one *)
   with _ -> None);
 
-  ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
+  ignore (Glib.Timeout.add ~ms:1000 ~callback:(fun _ -> update (); true));
 
   let messages_xml = ExtXml.parse_file (Env.paparazzi_home // root_dir // "var" // "messages.xml") in
   ac, messages_xml
@@ -636,7 +636,7 @@ let wind_clear = fun _sender vs ->
   Wind.clear (PprzLink.string_assoc "ac_id" vs)
 
 let periodic = fun period cb ->
-  Glib.Timeout.add period (fun () -> cb (); true)
+  Glib.Timeout.add ~ms:period ~callback:(fun () -> cb (); true)
 
 
 let register_periodic = fun ac x ->
@@ -973,7 +973,7 @@ let () =
   ground_to_uplink logging;
 
   (* call periodic_handle_intruders every second *)
-  ignore (Glib.Timeout.add 1000 (fun () -> periodic_handle_intruders (); true));
+  ignore (Glib.Timeout.add ~ms:1000 ~callback:(fun () -> periodic_handle_intruders (); true));
 
   (* Waits for client configurations requests on the Ivy bus *)
   ivy_server !http;

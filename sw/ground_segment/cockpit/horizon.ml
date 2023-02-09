@@ -211,7 +211,7 @@ object
     mi#set [`TEXT (sprintf "%.1f" min_speed)];
     mx#set [`TEXT (sprintf "%.1f" max_speed)]
   initializer
-    ignore (speed#connect#event (function
+    ignore (speed#connect#event ~callback:(function
     `BUTTON_PRESS _ev ->
       max_speed <- 0.; min_speed <- max_float; true
       | _ -> false))

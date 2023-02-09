@@ -175,7 +175,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
             let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
 
             (* Connect the event *)
-            ignore (b#connect#pressed (fun () -> update_value (ilower + j)));
+            ignore (b#connect#pressed ~callback:(fun () -> update_value (ilower + j)));
             b) in
         (callback, fun j -> try buttons.(truncate j - ilower)#set_active true with _ -> ())
     else (* no values given, slider or spin button *)
@@ -244,7 +244,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   tooltips#set_tip undo_but#coerce ~text:"Undo";
 
   ignore (auto_but#connect#toggled
-            (fun () ->
+            ~callback:(fun () ->
               commit_but#misc#set_sensitive (not auto_but#active);
               undo_but#misc#set_sensitive (not auto_but#active)));
 
@@ -279,7 +279,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
                 prerr_endline (Printexc.to_string exc);
                 GButton.button ~label () in
           (strip group b#coerce: unit);
-          ignore (b#connect#clicked (fun _ -> do_change i sp_value))
+          ignore (b#connect#clicked ~callback:(fun _ -> do_change i sp_value))
       | "key_press" -> add_key x (do_change i) keys
       | t -> failwith (sprintf "Page_settings.one_setting, Unexpected tag: '%s'" t))
     (Xml.children dl_setting);

@@ -39,9 +39,9 @@ let () =
       true in
 
     let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in
-    ignore (Glib.Io.add_watch [`IN] get_tcp ginput);
+    ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:get_tcp ginput);
     let hangup = fun _ -> prerr_endline "hangup"; exit 1 in
-    ignore (Glib.Io.add_watch [`HUP] hangup ginput);
+    ignore (Glib.Io.add_watch ~cond:[`HUP] ~callback:hangup ginput);
 
     (* Forward datalink on Tcp *)
     let get_ivy = fun _ args ->

@@ -348,7 +348,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     | _ -> compare x y in
   let menu = GMenu.menu ()
   and sorted_entries = List.sort compare !entries in
-  GToolbox.build_menu menu sorted_entries;
+  GToolbox.build_menu menu ~entries:sorted_entries;
   gui#programs_menu_item#set_submenu menu;
 
   (* New session *)
