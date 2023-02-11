@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_ext_pose" dir="ins">
+  <doc>
+    <description>
+    extended kalman filter made by robin.
+    </description>
+  </doc>
+  <dep>
+    <depends>@gps,@datalink,@imu</depends>
+    <provides>ahrs,ins</provides>
+  </dep>
+  <autoload name="ins_sim"/>
+  <autoload name="ins_nps"/>
+  <header>
+    <file name="ins_ext_pose.h"/>
+  </header>
+  <init fun="ekf_init()"/>
+  <periodic fun="ekf_run()" freq="512" />
+  <datalink message="EXTERNAL_POSE" fun="external_pose_update(buf)"/>
+
+  <makefile target="ap">
+    <define name="INS_TYPE_H" value="modules/ins/ins_ext_pose.h" type="string"/>
+    <file name="ins_ext_pose.c"/>
+    <file name="ins.c"/>
+  </makefile>
+</module>
