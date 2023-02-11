@@ -84,7 +84,12 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
     def handle_ac_changed(self, ac_name):
         ac = self.conf[ac_name]
         if ac is not None:
-            self.handle_ac_edited(ac)     # update AC
+            # self.handle_ac_edited(ac)     # update AC ?
+            try:
+                ac.update_targets()
+                self.clear_error()
+            except ConfError as e:
+                self.handle_error(e.__str__())
             self.change_ac(ac)
 
     def handle_remove_ac(self, ac: Aircraft):
