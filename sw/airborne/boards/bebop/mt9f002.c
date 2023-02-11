@@ -900,6 +900,12 @@ static uint16_t mt9f002_calc_gain(float gain)
   return (analog_gain2 & 0x7F) | ((analog_gain3 & 0x7) << 7) | ((colamp_gain & 0x3) << 10) | ((digital_gain & 0xF) << 12);
 }
 
+// settings to update resolution, color and exposure
+float mt9f002_send_resolution;
+float mt9f002_send_color;
+float mt9f002_send_exposure;
+
+
 /**
  * Sets the GreenR, Blue, Red and GreenB gains
  */

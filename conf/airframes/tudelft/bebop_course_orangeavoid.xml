@@ -13,7 +13,7 @@
       
       <!-- Detect orange -->
       <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="30"/>
-      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="170"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="190"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="70"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="130"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="150"/>
