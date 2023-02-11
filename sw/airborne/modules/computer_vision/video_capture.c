@@ -115,7 +115,7 @@ void video_capture_save(struct image_t *img)
 {
   // Create output folder if necessary
   if (access(save_dir, F_OK)) {
-    char save_dir_cmd[264];
+    char save_dir_cmd[266]; // write 10b + [0:256]
     sprintf(save_dir_cmd, "mkdir -p %s", save_dir);
     if (system(save_dir_cmd) != 0) {
       printf("[video_capture] Could not create images directory %s.\n", save_dir);
@@ -124,7 +124,7 @@ void video_capture_save(struct image_t *img)
   }
 
   // Declare storage for image location
-  char save_name[256];
+  char save_name[266]; // write 10b + [0-256]
 
   // Generate image filename from image timestamp
   sprintf(save_name, "%s/%u.jpg", save_dir, img->pprz_ts);
