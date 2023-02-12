@@ -1,2 +1,2 @@
-<program command="sw/ground_segment/python/real_time_plot/realtimeplotapp.py" name="Real-time Plotter (Python)" icon="plotter_python.svg"/>
+<program command="sw/logalizer/rt_plotter.py" name="Real-time Plotter (Python)" icon="plotter_python.svg"/>
 
