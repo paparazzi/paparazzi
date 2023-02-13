@@ -12,6 +12,7 @@ import shutil
 import datetime
 import subprocess
 import sys
+import lsb_release
 
 lib_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
@@ -20,6 +21,12 @@ import paparazzi
 from paparazzi_health import PaparazziOverview
 
 import xml.etree.ElementTree
+
+release = lsb_release.get_distro_information()
+isLegacy = False
+if release['ID'] == 'Ubuntu':
+    if release['RELEASE'] == '18.04' or release['RELEASE'] == '16.04':
+        isLegacy = True
 
 
 class ConfChooser(object):
@@ -153,6 +160,9 @@ class ConfChooser(object):
 
         if self.btnPythonGUI.get_active():
             args += ["-python"]
+
+        if isLegacy:
+            args += ["-legacy"]
 
         self.pp = subprocess.Popen(args)
         self.window.destroy()

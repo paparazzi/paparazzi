@@ -20,7 +20,7 @@ If you don't want to work with the latest master branch (it may contain some uns
 ::
 
     cd paparazzi
-    git checkout v5.16
+    git checkout v6.2
 
 
 OS-specific instructions
