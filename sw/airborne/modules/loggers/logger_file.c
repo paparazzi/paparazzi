@@ -43,14 +43,6 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #endif
 
-// INS
-#include INS_TYPE_H
-
-// RPM
-#ifdef BOARD_BEBOP
-#include "boards/bebop/actuators.h"
-#endif
-
 #include "generated/modules.h"
 
 /** Set the default File logger path to the USB drive */

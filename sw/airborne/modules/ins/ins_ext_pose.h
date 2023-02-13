@@ -36,7 +36,7 @@ Section 5.3: Non-additive noise formulation and equations
 #define EKF_NUM_INPUTS 6
 #define EKF_NUM_OUTPUTS 6
 
-#include "std.h" 
+#include "std.h"
 
 #include <stdio.h>
 
