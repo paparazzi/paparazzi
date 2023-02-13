@@ -3,7 +3,15 @@
 <module name="ins_ext_pose" dir="ins">
   <doc>
     <description>
-    extended kalman filter made by robin.
+      Extened Kalman filter based on https://en.wikipedia.org/wiki/Extended_Kalman_filter
+      
+      Designed to merge only IMU and OptiTrack/VICON (no baro, sonar, GPS, ...)
+      
+       - predict attitude and path with gyroscopes and accelerometers
+       - correct attitude and path with external pose and position message
+       - estimate gyro and accelerometer biases
+       
+      Bypassed when simulating.
     </description>
   </doc>
   <dep>
