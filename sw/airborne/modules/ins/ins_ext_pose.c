@@ -44,9 +44,22 @@
 #endif
 
 
+/** Data for telemetry and LTP origin.
+ */
 
 
 struct InsExtPose {
+	/* Inputs */
+	struct FloatRates gyros_f;
+	struct FloatVect3 accels_f;
+	bool has_new_gyro;
+	bool has_new_acc;
+
+	struct FloatVect3 ev_pos;
+	struct FloatEulers ev_att;
+	bool has_new_ext_pose;
+
+	/* Origin */
   struct LtpDef_i  ltp_def;
 
   /* output LTP NED */
@@ -55,7 +68,7 @@ struct InsExtPose {
   struct NedCoor_i ltp_accel;
 };
 
-struct InsExtPose ins_expo;
+struct InsExtPose ins_ext_pos;
 
 
 static void ins_ext_pose_init_from_flightplan(void) {
@@ -69,10 +82,14 @@ static void ins_ext_pose_init_from_flightplan(void) {
   struct EcefCoor_i ecef_nav0;
   ecef_of_lla_i(&ecef_nav0, &llh_nav0);
 
-  ltp_def_from_ecef_i(&ins_expo.ltp_def, &ecef_nav0);
-  ins_expo.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_expo.ltp_def);
+  ltp_def_from_ecef_i(&ins_ext_pos.ltp_def, &ecef_nav0);
+  ins_ext_pos.ltp_def.hmsl = NAV_ALT0;
+  stateSetLocalOrigin_i(&ins_ext_pos.ltp_def);
 }
+
+
+/** Provide telemetry.
+ */
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -80,29 +97,176 @@ static void ins_ext_pose_init_from_flightplan(void) {
 static void send_ins(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INS(trans, dev, AC_ID,
-                    &ins_expo.ltp_pos.x, &ins_expo.ltp_pos.y, &ins_expo.ltp_pos.z,
-                    &ins_expo.ltp_speed.x, &ins_expo.ltp_speed.y, &ins_expo.ltp_speed.z,
-                    &ins_expo.ltp_accel.x, &ins_expo.ltp_accel.y, &ins_expo.ltp_accel.z);
+                    &ins_ext_pos.ltp_pos.x, &ins_ext_pos.ltp_pos.y, &ins_ext_pos.ltp_pos.z,
+                    &ins_ext_pos.ltp_speed.x, &ins_ext_pos.ltp_speed.y, &ins_ext_pos.ltp_speed.z,
+                    &ins_ext_pos.ltp_accel.x, &ins_ext_pos.ltp_accel.y, &ins_ext_pos.ltp_accel.z);
 }
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
   static float fake_baro_z = 0.0;
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
-                      (float *)&fake_baro_z, &ins_expo.ltp_pos.z,
-                      &ins_expo.ltp_speed.z, &ins_expo.ltp_accel.z);
+                      (float *)&fake_baro_z, &ins_ext_pos.ltp_pos.z,
+                      &ins_ext_pos.ltp_speed.z, &ins_ext_pos.ltp_accel.z);
 }
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
   static float fake_qfe = 0.0;
   pprz_msg_send_INS_REF(trans, dev, AC_ID,
-                          &ins_expo.ltp_def.ecef.x, &ins_expo.ltp_def.ecef.y, &ins_expo.ltp_def.ecef.z,
-                          &ins_expo.ltp_def.lla.lat, &ins_expo.ltp_def.lla.lon, &ins_expo.ltp_def.lla.alt,
-                          &ins_expo.ltp_def.hmsl, (float *)&fake_qfe);
+                          &ins_ext_pos.ltp_def.ecef.x, &ins_ext_pos.ltp_def.ecef.y, &ins_ext_pos.ltp_def.ecef.z,
+                          &ins_ext_pos.ltp_def.lla.lat, &ins_ext_pos.ltp_def.lla.lon, &ins_ext_pos.ltp_def.lla.alt,
+                          &ins_ext_pos.ltp_def.hmsl, (float *)&fake_qfe);
 }
 #endif
 
+
+/**
+ * Import Gyro and Acc from ABI.
+ */
+
+#ifndef INS_EXT_POSE_IMU_ID
+#define INS_EXT_POSE_IMU_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EXT_POSE_IMU_ID)
+
+static abi_event accel_ev;
+static abi_event gyro_ev;
+
+static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
+static void gyro_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *gyro );
+
+
+
+static void gyro_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+									 struct Int32Rates *gyro)
+{
+  RATES_FLOAT_OF_BFP(ins_ext_pos.gyros_f, *gyro);
+	ins_ext_pos.has_new_gyro = true;
+}
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
+{
+  ACCELS_FLOAT_OF_BFP(ins_ext_pos.accels_f, *accel);
+	ins_ext_pos.has_new_acc = true;
+}
+
+
+/**
+ * Import External Pose Message
+ */
+
+void ins_ext_pose_msg_update(uint8_t *buf)
+{
+  if (DL_EXTERNAL_POSE_ac_id(buf) != AC_ID) { return; } // not for this aircraft
+  
+  float enu_x = DL_EXTERNAL_POSE_enu_x(buf);
+  float enu_y = DL_EXTERNAL_POSE_enu_y(buf);
+  float enu_z = DL_EXTERNAL_POSE_enu_z(buf);
+
+  float quat_i = DL_EXTERNAL_POSE_body_qi(buf);
+  float quat_x = DL_EXTERNAL_POSE_body_qx(buf);
+  float quat_y = DL_EXTERNAL_POSE_body_qy(buf);
+  float quat_z = DL_EXTERNAL_POSE_body_qz(buf);
+
+	DEBUG_PRINT("EXT_UPDATE\n");
+
+  struct FloatQuat orient;
+  struct FloatEulers orient_eulers;
+
+  orient.qi = quat_i;
+  orient.qx = quat_y;   //north
+  orient.qy = -quat_x;  //east
+  orient.qz = -quat_z;  //down
+
+  float_eulers_of_quat(&orient_eulers, &orient);
+	orient_eulers.theta = -orient_eulers.theta;
+
+  ins_ext_pos.ev_pos.x = enu_y;
+  ins_ext_pos.ev_pos.y = enu_x;
+  ins_ext_pos.ev_pos.z = -enu_z;
+  ins_ext_pos.ev_att.phi = orient_eulers.phi;
+  ins_ext_pos.ev_att.theta = orient_eulers.theta;
+  ins_ext_pos.ev_att.psi = orient_eulers.psi;
+
+	ins_ext_pos.has_new_ext_pose = true;
+
+	DEBUG_PRINT("Att = %f %f %f \n", ins_ext_pos.ev_att.phi, ins_ext_pos.ev_att.theta, ins_ext_pos.ev_att.psi);
+}
+
+void ins_reset_local_origin(void)
+{
+	// Ext pos does not allow geoinit: FP origin only
+}
+
+void ins_reset_altitude_ref(void)
+{
+	// Ext pos does not allow geoinit: FP origin only
+}
+
+
+/** EKF protos
+ */
+
+static inline void ekf_init(void);
+static inline void ekf_run(void);
+
+/** Module
+ */
+
+
+void ins_ext_pose_init(void) {
+
+	// Initialize inputs
+	ins_ext_pos.has_new_acc = false;
+	ins_ext_pos.has_new_gyro = false;
+	ins_ext_pos.has_new_ext_pose = false;
+
+	// Get External Pose Origin From Flightplan
+	ins_ext_pose_init_from_flightplan();
+
+	// Provide telemetry
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
+#endif
+
+	// Get IMU through ABI
+  AbiBindMsgIMU_ACCEL(INS_EXT_POSE_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgIMU_GYRO(INS_EXT_POSE_IMU_ID, &gyro_ev, gyro_cb);
+
+	// Get External Pose through datalink message: setup in xml
+
+	// Initialize EKF
+	ekf_init();
+}
+
+void ins_ext_pose_run(void) {
+	ekf_run();
+}
+
+
+
+
+/***************************************************
+ * Kalman Filter.
+ */
+
+
+
+static inline void ekf_f(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES]);
+static inline void ekf_F(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_STATES]);
+static inline void ekf_L(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_INPUTS]);
+
+static inline void ekf_f_rk4(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], const float dt, float out[EKF_NUM_STATES]);
+
+static inline void ekf_step(const float U[EKF_NUM_INPUTS], const float Z[EKF_NUM_OUTPUTS], const float dt);
+static inline void ekf_prediction_step(const float U[EKF_NUM_INPUTS], const float dt);
+static inline void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS]);
 
 
 
@@ -115,15 +279,11 @@ float ekf_R[EKF_NUM_OUTPUTS][EKF_NUM_OUTPUTS];
 
 float ekf_H[EKF_NUM_OUTPUTS][EKF_NUM_STATES] = {{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},{0,1,0,0,0,0,0,0,0,0,0,0,0,0,0},{0,0,1,0,0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,1,0,0,0,0,0,0}};
 
-float ev_pos[3] = {0.f,0.f,0.f};
-float ev_att[3] = {0.f,0.f,0.f};
-
-bool start = false;
-bool measurement_update = false;
 
 float t0;
 float t1;
 
+void ekf_set_diag(float **a, float *b, int n);
 void ekf_set_diag(float **a, float *b, int n)
 {
 	int i, j;
@@ -138,12 +298,16 @@ void ekf_set_diag(float **a, float *b, int n)
 	}
 }
 
-void ekf_init(void)
+
+
+static inline void ekf_init(void)
 {
-	ins_ext_pose_init_from_flightplan();
 
 	DEBUG_PRINT("ekf init");
 	float X0[EKF_NUM_STATES] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	float U0[EKF_NUM_INPUTS] = {0,0,0,0,0,0};
+	float Z0[EKF_NUM_OUTPUTS] = {0,0,0,0,0,0};
+
 	float Pdiag[EKF_NUM_STATES] = {1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
 	float Qdiag[EKF_NUM_INPUTS] = {0.5, 0.5, 0.5, 0.01, 0.01, 0.01};
 
@@ -157,21 +321,11 @@ void ekf_init(void)
 	ekf_set_diag(ekf_Q_, Qdiag, EKF_NUM_INPUTS);
 	ekf_set_diag(ekf_R_, Rdiag, EKF_NUM_OUTPUTS);
 	float_vect_copy(ekf_X, X0, EKF_NUM_STATES);
-
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
-#endif
-
-	// Todo: get IMU through ABI
-  //AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
-  //AbiBindMsgIMU_ACCEL(INS_PT_IMU_ID, &accel_ev, accel_cb);
-
+	float_vect_copy(ekf_U, U0, EKF_NUM_INPUTS);
+	float_vect_copy(ekf_Z, Z0, EKF_NUM_OUTPUTS);
 }
 
-void ekf_f(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES])
+static inline void ekf_f(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES])
 {
 	float x0=cos(X[8]);
 	float x1=U[0] - X[9];
@@ -210,7 +364,7 @@ void ekf_f(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float o
 	out[14]=0;
 }
 
-void ekf_F(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_STATES])
+static inline void ekf_F(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_STATES])
 {
 	float x0=U[1] - X[10];
 	float x1=sin(X[6]);
@@ -478,7 +632,7 @@ void ekf_F(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float o
 	out[14][14]=0;
 }
 
-void ekf_L(const float X[EKF_NUM_STATES],__attribute__((unused))  const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_INPUTS])
+static inline void ekf_L(const float X[EKF_NUM_STATES],__attribute__((unused))  const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_INPUTS])
 {
 	float x0=cos(X[7]);
 	float x1=cos(X[8]);
@@ -586,7 +740,7 @@ void ekf_L(const float X[EKF_NUM_STATES],__attribute__((unused))  const float U[
 
 
 
-void ekf_f_rk4(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], const float dt, float out[EKF_NUM_STATES])
+static inline void ekf_f_rk4(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], const float dt, float out[EKF_NUM_STATES])
 {
 	float k1[EKF_NUM_STATES];
 	float k2[EKF_NUM_STATES];
@@ -634,7 +788,7 @@ void ekf_f_rk4(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], con
 }
 
 
-void ekf_step(const float U[EKF_NUM_INPUTS], const float Z[EKF_NUM_OUTPUTS], const float dt)
+static inline void ekf_step(const float U[EKF_NUM_INPUTS], const float Z[EKF_NUM_OUTPUTS], const float dt)
 {
 	// [1] Predicted (a priori) state estimate:
 	float Xkk_1[EKF_NUM_STATES];
@@ -786,7 +940,7 @@ void ekf_step(const float U[EKF_NUM_INPUTS], const float Z[EKF_NUM_OUTPUTS], con
 	float_mat_mul(ekf_P_, tmp_, Pkk_1_, EKF_NUM_STATES, EKF_NUM_STATES, EKF_NUM_STATES);
 }
 
-void ekf_prediction_step(const float U[EKF_NUM_INPUTS], const float dt) {
+static inline void ekf_prediction_step(const float U[EKF_NUM_INPUTS], const float dt) {
 	// [1] Predicted (a priori) state estimate:
 	float Xkk_1[EKF_NUM_STATES];
 	// Xkk_1 = f(X,U)
@@ -866,7 +1020,7 @@ void ekf_prediction_step(const float U[EKF_NUM_INPUTS], const float dt) {
 	float_mat_copy(ekf_P_, Pkk_1_, EKF_NUM_STATES, EKF_NUM_STATES);	
 }
 
-void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS]) {
+static inline void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS]) {
 	// Xkk_1 = X
 	float Xkk_1[EKF_NUM_STATES];
 	float_vect_copy(Xkk_1, ekf_X, EKF_NUM_STATES);
@@ -950,45 +1104,88 @@ void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS]) {
 }
 
 
-void ekf_run(void)
+
+
+
+static inline void ekf_run(void)
 {
-	static bool initialized = false;
+	static bool start = false;
 
 
+	// Time
 	t1 = get_sys_time_float();
 	float dt = t1-t0;
 	t0 = t1;
-
-#define ROBIN_IMU	0
 	
+	// Only Start If External Pose is Available
+	if (!start) {
+		// ekf starts at the first ev update
+		if (ins_ext_pos.has_new_ext_pose) {
+			start = true;
+
+			// initial guess
+			ekf_X[0] = ins_ext_pos.ev_pos.x;
+			ekf_X[1] = ins_ext_pos.ev_pos.y;
+			ekf_X[2] = ins_ext_pos.ev_pos.z;
+			ekf_X[6] = ins_ext_pos.ev_att.phi;
+			ekf_X[7] = ins_ext_pos.ev_att.theta;
+			ekf_X[8] = ins_ext_pos.ev_att.psi;
+		}
+	}
+
 	// set input values
-	ekf_U[0] = ACCEL_FLOAT_OF_BFP(imu.accels[ROBIN_IMU].scaled.x);
-	ekf_U[1] = ACCEL_FLOAT_OF_BFP(imu.accels[ROBIN_IMU].scaled.y);
-	ekf_U[2] = ACCEL_FLOAT_OF_BFP(imu.accels[ROBIN_IMU].scaled.z);
-	ekf_U[3] = RATE_FLOAT_OF_BFP(imu.gyros[ROBIN_IMU].scaled.p);
-	ekf_U[4] = RATE_FLOAT_OF_BFP(imu.gyros[ROBIN_IMU].scaled.q);
-	ekf_U[5] = RATE_FLOAT_OF_BFP(imu.gyros[ROBIN_IMU].scaled.r);
+	if (ins_ext_pos.has_new_acc) {
+		ekf_U[0] = ins_ext_pos.accels_f.x;
+		ekf_U[1] = ins_ext_pos.accels_f.y;
+		ekf_U[2] = ins_ext_pos.accels_f.z;
+		ins_ext_pos.has_new_acc = false;
+	} else {
+				DEBUG_PRINT("ekf missing acc\n");
+	}
+	if (ins_ext_pos.has_new_gyro) {
+		ekf_U[3] = ins_ext_pos.gyros_f.p;
+		ekf_U[4] = ins_ext_pos.gyros_f.q;
+		ekf_U[5] = ins_ext_pos.gyros_f.r;
+		ins_ext_pos.has_new_gyro = false;
+	} else {
+				DEBUG_PRINT("ekf missing gyro\n");
+	}
 
 	if (start) {
-
-		if (!initialized) {
-			ins_reset_local_origin();
-			initialized = true;
-		}
 
 		// prediction step
 		DEBUG_PRINT("ekf prediction step U = %f, %f, %f, %f, %f, %f dt = %f \n", ekf_U[0], ekf_U[1], ekf_U[2], ekf_U[3], ekf_U[4], ekf_U[5], dt);
 		ekf_prediction_step(ekf_U, dt);
 
 		// measurement step
-		if (measurement_update) {
+		if (ins_ext_pos.has_new_ext_pose) {
+
+			//fix psi
+			static float last_psi = 0;
+			float delta_psi = ins_ext_pos.ev_att.psi - last_psi;
+			last_psi = ins_ext_pos.ev_att.psi;
+
+			if (delta_psi > M_PI) {
+				delta_psi -= 2*M_PI;
+			} else if (delta_psi < -M_PI) {
+				delta_psi += 2*M_PI;
+			}
+
+
+			ekf_Z[0] = ins_ext_pos.ev_pos.x;
+			ekf_Z[1] = ins_ext_pos.ev_pos.y;
+			ekf_Z[2] = ins_ext_pos.ev_pos.z;
+			ekf_Z[3] = ins_ext_pos.ev_att.phi;
+			ekf_Z[4] = ins_ext_pos.ev_att.theta;
+			ekf_Z[5] += delta_psi;  
+			ins_ext_pos.has_new_ext_pose = false;
+
 			DEBUG_PRINT("ekf measurement step Z = %f, %f, %f, %f \n", ekf_Z[0], ekf_Z[1], ekf_Z[2], ekf_Z[3]);
 			ekf_measurement_step(ekf_Z);
-			measurement_update = false;
 		}
 	}
 
-	// initial guess
+	// Export Results
 	struct NedCoor_f ned_pos;
 	ned_pos.x = ekf_X[0];
 	ned_pos.y = ekf_X[1];
@@ -1006,16 +1203,18 @@ void ekf_run(void)
 
   struct FloatRates rates = { ekf_U[3]-ekf_X[12], ekf_U[4]-ekf_X[13], ekf_U[5]-ekf_X[14] };
 
-
-  // Export RAW IMU
-	stateSetAccelBody_i(&imu.accels[ROBIN_IMU].scaled);
-
-
   struct FloatVect3 accel;
   struct FloatVect3 accel_ned_f;
 	accel.x = ekf_U[0]-ekf_X[9];
 	accel.y = ekf_U[1]-ekf_X[10];
 	accel.z = ekf_U[2]-ekf_X[11];
+
+  // Export Body Accelerations (without bias)
+  struct Int32Vect3 accel_i;
+	ACCELS_BFP_OF_REAL(accel_i, accel);
+	stateSetAccelBody_i(&accel_i);
+
+
   struct FloatRMat *ned_to_body_rmat_f = stateGetNedToBodyRMat_f();
 	float_rmat_transp_vmult(&accel_ned_f, ned_to_body_rmat_f, &accel);
 	accel_ned_f.z += 9.81;
@@ -1029,96 +1228,11 @@ void ekf_run(void)
 }
 
 
-void external_pose_update(uint8_t *buf)
-{
-  if (DL_EXTERNAL_POSE_ac_id(buf) != AC_ID) { return; } // not for this aircraft
-  
-  float enu_x = DL_EXTERNAL_POSE_enu_x(buf);
-  float enu_y = DL_EXTERNAL_POSE_enu_y(buf);
-  float enu_z = DL_EXTERNAL_POSE_enu_z(buf);
 
-  float quat_i = DL_EXTERNAL_POSE_body_qi(buf);
-  float quat_x = DL_EXTERNAL_POSE_body_qx(buf);
-  float quat_y = DL_EXTERNAL_POSE_body_qy(buf);
-  float quat_z = DL_EXTERNAL_POSE_body_qz(buf);
+/**
+ * Logging
+ */
 
-	printf("EXT_UPDATE\n");
-
-  struct FloatQuat orient;
-  struct FloatEulers orient_eulers;
-
-  orient.qi = quat_i;
-  orient.qx = quat_y;   //north
-  orient.qy = -quat_x;  //east
-  orient.qz = -quat_z;  //down
-
-  float_eulers_of_quat(&orient_eulers, &orient);
-  //orient_eulers.psi -= 90.0/57.6;
-	orient_eulers.theta = -orient_eulers.theta;
-
-/*
-  orient.qi = quat_i;
-  orient.qx = quat_x;   //north
-  orient.qy = quat_y;  //east
-  orient.qz = quat_z;  //down
-
-  float_eulers_of_quat(&orient_eulers, &orient);
-*/
-
-//  struct FloatEulers body_e;
-//  float_eulers_of_quat(&body_e, &body_q);
-
-  //fix psi
-  float delta_psi = orient_eulers.psi - ev_att[2];
-  if (delta_psi > M_PI) {
-  	delta_psi -= 2*M_PI;
-  } else if (delta_psi < -M_PI) {
-  	delta_psi += 2*M_PI;
-  }
-
-  ev_pos[0] = enu_y;
-  ev_pos[1] = enu_x;
-  ev_pos[2] = -enu_z;
-  ev_att[0] = orient_eulers.phi;
-  ev_att[1] = orient_eulers.theta;
-  ev_att[2] = orient_eulers.psi;
-
-
-	DEBUG_PRINT("Att = %f %f %f \n", ev_att[0], ev_att[1], ev_att[2]);
-
-  // ekf starts at the first ev update
-  if (start == false) {
-  	start = true;
-
-	// initial guess
-	ekf_X[0] = ev_pos[0];
-	ekf_X[1] = ev_pos[1];
-	ekf_X[2] = ev_pos[2];
-	ekf_X[6] = ev_att[0];
-	ekf_X[7] = ev_att[1];
-	ekf_X[8] = ev_att[2];
-  }
-  
-  measurement_update = true;
-  ekf_Z[0] = ev_pos[0];
-  ekf_Z[1] = ev_pos[1];
-  ekf_Z[2] = ev_pos[2];
-  ekf_Z[3] = ev_att[0];
-  ekf_Z[4] = ev_att[1];
-  ekf_Z[5] += delta_psi;  
-}
-
-void ins_reset_local_origin(void)
-{
-	// Ext pos does not allow geoinit: FP origin only
-}
-
-void ins_reset_altitude_ref(void)
-{
-	// Ext pos does not allow geoinit: FP origin only
-}
-
-// Logging
 void ins_ext_pos_log_header(FILE *file) {
   fprintf(file, "ekf_X1,ekf_X2,ekf_X3,ekf_X4,ekf_X5,ekf_X6,ekf_X7,ekf_X8,ekf_X9,ekf_X10,ekf_X11,ekf_X12,ekf_X13,ekf_X14,ekf_X15,");
   fprintf(file, "ekf_U1,ekf_U2,ekf_U3,ekf_U4,ekf_U5,ekf_U6,");

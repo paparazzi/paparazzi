@@ -43,23 +43,10 @@ Section 5.3: Non-additive noise formulation and equations
 
 extern float ekf_X[EKF_NUM_STATES];
 
-void ekf_set_diag(float **a, float *b, int n);
+extern void ins_ext_pose_init(void);
+extern void ins_ext_pose_run(void);
 
-extern void ekf_init(void);
-
-void ekf_f(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES]);
-void ekf_F(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_STATES]);
-void ekf_L(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], float out[EKF_NUM_STATES][EKF_NUM_INPUTS]);
-
-void ekf_f_rk4(const float X[EKF_NUM_STATES], const float U[EKF_NUM_INPUTS], const float dt, float out[EKF_NUM_STATES]);
-
-extern void ekf_step(const float U[EKF_NUM_INPUTS], const float Z[EKF_NUM_OUTPUTS], const float dt);
-extern void ekf_prediction_step(const float U[EKF_NUM_INPUTS], const float dt);
-extern void ekf_measurement_step(const float Z[EKF_NUM_OUTPUTS]);
-
-extern void ekf_run(void);
-
-extern void external_pose_update(uint8_t *buf);
+extern void ins_ext_pose_msg_update(uint8_t *buf);
 
 // Logging
 extern void ins_ext_pos_log_header(FILE *file);
