@@ -4,7 +4,7 @@
 Installation
 =================
 
-Paparazzi is very easily installed on any laptop or workstation running the Ubuntu Linux OS or virtually any Debian based Linux. Apple Macintosh running Mac OS X system are also fairly well supported. Windows is supported through the WSL2 module (running a Linux kernel inside Windows10).
+Paparazzi is easily installed on any laptop or workstation running the Ubuntu Linux OS or virtually any Debian based Linux. Apple Macintosh running Mac OS X system are also fairly well supported. Windows is supported through the WSL2 module (running a Linux kernel inside Windows10).
 
 The steps required to install the software needed to be able to let your UAS fly are:
 
@@ -15,7 +15,7 @@ The steps required to install the software needed to be able to let your UAS fly
 
 .. note::
 
-    If you run **Ubuntu** 16.04 or higher LTS (18.04, 20.04), go to the :doc:`../quickstart/install` page to get quickly running !
+    If you run **Ubuntu** 18.04 or higher LTS (20.04, 22.04), go to the :doc:`../quickstart/install` page to get quickly running !
 
 .. toctree::
     :maxdepth: 2
