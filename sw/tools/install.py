@@ -19,8 +19,16 @@ class InstallWindow(QWidget):
         self.buttonlist.setEnabled(False)
         print(cmd)
         p = subprocess.Popen(cmd, shell=True)
-        QApplication.processEvents()
-        p.communicate() # wait until ready
+        busy = True
+        while busy:
+            try:
+                QApplication.processEvents()
+                p.communicate(timeout=1) # wait until ready
+                busy = False
+                #print('finished!')
+            except subprocess.TimeoutExpired:
+                busy = True
+                #print('Tick')
         print('================================================================================')
         print(cmd)
         print('READY (verify above)')
