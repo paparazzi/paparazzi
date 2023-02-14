@@ -74,10 +74,7 @@ class InstallWindow(QWidget):
     def cmd_vlc(self):
         self.execute('sudo apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
         self.execute('sudo apt-get install python3-pip')
-        if float(release['RELEASE']) <= 20.04:
-            self.execute('pip3 install pyquaternion ivy-python') # Required for NatNat
-        else:
-            self.execute('pip3 install pyquaternion ivy') # Required for NatNat
+        self.execute('pip3 install pyquaternion ivy-python') # Required for NatNat
 
     def cmd_doc(self):
         self.view('https://paparazzi-uav.readthedocs.io')
