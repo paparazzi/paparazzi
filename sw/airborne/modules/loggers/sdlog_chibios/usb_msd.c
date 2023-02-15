@@ -1125,6 +1125,9 @@ void deinit_msd_driver(void)
 
 void init_msd_driver(void *dbgThreadPtr, USBMassStorageConfig *msdConfig)
 {
+  usbStop(&USBD);
+  usbDisconnectBus(&USBD);
+
   msdInit(&UMSD);
   /* start the USB mass storage service */
   msdStart(&UMSD, msdConfig);
@@ -1134,7 +1137,6 @@ void init_msd_driver(void *dbgThreadPtr, USBMassStorageConfig *msdConfig)
   /* start the USB driver */
   usbDisconnectBus(&USBD);
   chThdSleepMilliseconds(1000);
-  usbStop(&USBD);
   usbStart(&USBD, &usbConfig);
   usbConnectBus(&USBD);
 }
