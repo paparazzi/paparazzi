@@ -23,6 +23,16 @@ Required software
 
 Instructions for installation can be found on the wiki (http://wiki.paparazziuav.org/wiki/Installation).
 
+Quick start:
+
+```
+git clone https://github.com/paparazzi/paparazzi.git
+cd ./paparazzi
+./install.sh
+```
+
+
+
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
 Debian users can use the [OpenSUSE Build Service repository] (http://download.opensuse.org/repositories/home:/flixr:/paparazzi-uav/Debian_7.0/)
 
