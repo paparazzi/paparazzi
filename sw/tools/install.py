@@ -41,47 +41,47 @@ class InstallWindow(QWidget):
         webbrowser.open(link)
 
     def cmd_repo(self):
-        self.execute('sudo add-apt-repository -y ppa:paparazzi-uav/ppa && sudo apt-get update')
+        self.execute('sudo -E add-apt-repository -y ppa:paparazzi-uav/ppa && sudo -E apt-get update')
 
 
     def cmd_dev(self):
-        self.execute('sudo apt-get -f -y install paparazzi-dev')
+        self.execute('sudo -E apt-get -f -y install paparazzi-dev')
         # Missing
         if float(release['RELEASE']) <= 20.04:
-            self.execute('sudo apt-get install python3-lxml python3-numpy')
+            self.execute('sudo -E apt-get install python3-lxml python3-numpy')
 
     def cmd_arm(self):
-        self.execute('sudo apt-get -f -y install paparazzi-dev')
+        self.execute('sudo -E apt-get -f -y install paparazzi-dev')
         if float(release['RELEASE']) >= 20.04:
-            self.execute('sudo apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch')
+            self.execute('sudo -E apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch')
             # python3-serial?
         else:
-            self.execute('sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa')
-            self.execute('sudo apt-get update')
-            self.execute('sudo apt-get -f -y install gcc-arm-embedded')
+            self.execute('sudo -E add-apt-repository -y ppa:team-gcc-arm-embedded/ppa')
+            self.execute('sudo -E apt-get update')
+            self.execute('sudo -E apt-get -f -y install gcc-arm-embedded')
 
     def cmd_jsb(self):
-        self.execute('sudo apt-get -f -y install paparazzi-jsbsim')
+        self.execute('sudo -E apt-get -f -y install paparazzi-jsbsim')
 
     def cmd_gcs(self):
-        self.execute('sudo apt-get -f -y install pprzgcs')
+        self.execute('sudo -E apt-get -f -y install pprzgcs')
 
     def cmd_mcu(self):
-        self.execute('sudo apt-get -f -y install dfu-util')
-        self.execute('sudo cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules')
+        self.execute('sudo -E apt-get -f -y install dfu-util')
+        self.execute('sudo -E cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo -E udevadm control --reload-rules')
 
     def cmd_gazebo(self):
-        self.execute('sudo apt-get -f -y install gazebo9 libgazebo9-dev')
+        self.execute('sudo -E apt-get -f -y install gazebo9 libgazebo9-dev')
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/tudelft_gazebo_models')
 
 
     def cmd_bebopcv(self):
         self.execute('git submodule init && git submodule sync && git submodule update ./sw/ext/opencv_bebop')
-        self.execute('sudo apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
+        self.execute('sudo -E apt-get -f -y install cmake libjpeg-turbo8-dev libpng-dev libtiff-dev zlib1g-dev libdc1394-22-dev')
 
     def cmd_vlc(self):
-        self.execute('sudo apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
-        self.execute('sudo apt-get install python3-pip')
+        self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
+        self.execute('sudo -E apt-get install python3-pip')
         self.execute('pip3 install pyquaternion ivy-python') # Required for NatNat
 
     def cmd_doc(self):
