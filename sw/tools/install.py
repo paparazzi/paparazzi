@@ -48,12 +48,12 @@ class InstallWindow(QWidget):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
         # Missing
         if float(release['RELEASE']) <= 20.04:
-            self.execute('sudo -E apt-get install python3-lxml python3-numpy')
+            self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
 
     def cmd_arm(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
         if float(release['RELEASE']) >= 20.04:
-            self.execute('sudo -E apt-get install python-is-python3 gcc-arm-none-eabi gdb-multiarch')
+            self.execute('sudo -E apt-get install -y python-is-python3 gcc-arm-none-eabi gdb-multiarch')
             # python3-serial?
         else:
             self.execute('sudo -E add-apt-repository -y ppa:team-gcc-arm-embedded/ppa')
@@ -81,7 +81,7 @@ class InstallWindow(QWidget):
 
     def cmd_vlc(self):
         self.execute('sudo -E apt-get -f -y install ffmpeg vlc jstest-gtk default-jre')
-        self.execute('sudo -E apt-get install python3-pip')
+        self.execute('sudo -E apt-get install -y python3-pip')
         self.execute('pip3 install pyquaternion ivy-python') # Required for NatNat
 
     def cmd_doc(self):
