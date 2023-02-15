@@ -130,7 +130,7 @@ static void thdUsbStorage(void *arg)
 
   /* Stop the logs*/
   // it's not a powerloss, wa have time to flush the ram buffer
-  sdlog_chibios_finish(false);
+  sdlog_chibios_finish(true);
 
 
   /* connect sdcard sdc interface sdio */
