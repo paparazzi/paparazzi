@@ -1,3 +1,5 @@
 PyQt5
 pyqtgraph
+numpy
+ivy-python
 
