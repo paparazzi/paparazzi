@@ -28,6 +28,7 @@
     <file name="sdlog_chibios.h" />
   </header>
   <init fun="sdlog_chibios_init()"/>
+  <datalink message="INFO_MSG_UP" fun="logger_log_msg_up(buf)"/>
   <makefile target="ap">
     <configure name="SDLOG_LED" default="none"/>
     <define name="SDLOG_LED" value="$(SDLOG_LED)" cond="ifneq ($(SDLOG_LED),none)"/>
