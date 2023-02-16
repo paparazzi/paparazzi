@@ -17,15 +17,17 @@ PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.a
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
-sys.path.append(PPRZ_HOME + "/var/lib/python") # pprzlink
+sys.path.append(PPRZ_HOME + "/var/lib/python")  # pprzlink
 
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
-class Plotter(QWidget,Ui_RT_Plotter):
+
+class Plotter(QWidget, Ui_RT_Plotter):
     '''
     Main plotter class
     '''
+
     def __init__(self, parent, ivy):
         QWidget.__init__(self, parent=parent)
         self.setupUi(self)
@@ -35,13 +37,13 @@ class Plotter(QWidget,Ui_RT_Plotter):
         self.plot.dragEnterEvent = self.dragEnterEvent
         self.plot.dragLeaveEvent = self.dragLeaveEvent
         self.plot.dropEvent = self.dropEvent
-        self.plot.setRange(xRange=(-30.0,0.))
+        self.plot.setRange(xRange=(-30.0, 0.))
         self.plot.disableAutoRange(pg.ViewBox.XAxis)
         self.plot.setMouseEnabled(x=False, y=True)
-        self.plot.addLegend(offset=(1,1))
+        self.plot.addLegend(offset=(1, 1))
         self.plot.showGrid(x=True, y=True)
         self.plot.setBackground('w')
-        #self.plot.setLabel('bottom','time (s)')
+        # self.plot.setLabel('bottom','time (s)')
         self.gridLayout.addWidget(self.plot, 1, 0, 1, 14)
         self.menu_button.setPopupMode(QToolButton.InstantPopup)
         self.menu = QMenu(self.menu_button)
@@ -69,28 +71,28 @@ class Plotter(QWidget,Ui_RT_Plotter):
         self.constants = {}
         self.dt_slider.valueChanged.connect(self.set_dt)
         self.size_slider.valueChanged.connect(self.set_size)
-        self.autoscale.clicked.connect(lambda:self.plot.enableAutoRange(x=False, y=True))
+        self.autoscale.clicked.connect(lambda: self.plot.enableAutoRange(x=False, y=True))
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(self.dt_slider.value()*10)
+        self.timer.setInterval(self.dt_slider.value() * 10)
         self.timer.timeout.connect(self.update_plot_data)
         self.timer.start()
         self.suspended = False
         self.nb_color = 8
         self.idx_color = 0
         # max display size (s) / min update time (s) (with rounding)
-        self.max_size = int(self.size_slider.maximum() / (self.dt_slider.minimum()/100) + 0.5)
+        self.max_size = int(self.size_slider.maximum() / (self.dt_slider.minimum() / 100) + 0.5)
 
     def get_dt(self):
         return self.dt_slider.value() / 100.
 
     def set_dt(self):
         self.dt_label.setText("{:1.2f} s".format(self.get_dt()))
-        self.timer.setInterval(int(self.dt_slider.value()*10))
+        self.timer.setInterval(int(self.dt_slider.value() * 10))
 
     def set_size(self):
         size = self.size_slider.value()
         self.size_label.setText("{} s".format(size))
-        self.plot.setRange(xRange=(-size,0.))
+        self.plot.setRange(xRange=(-size, 0.))
 
     def update_plot_data(self):
         for ac_id in self.data:
@@ -98,14 +100,14 @@ class Plotter(QWidget,Ui_RT_Plotter):
                 for key in self.data[ac_id][msg_name]:
                     curve = self.data[ac_id][msg_name][key]
                     value = curve['last_data']
-                    x = curve['time']-self.get_dt()
+                    x = curve['time'] - self.get_dt()
                     y = curve['data']
                     if value is not None:
                         x = np.roll(x, -1)
                         x[-1] = 0.
                         y = np.roll(y, -1)
-                        y[-1] = curve['scale']*value + curve['offset']
-                        curve['nb'] = min(curve['nb']+1, self.max_size)
+                        y[-1] = curve['scale'] * value + curve['offset']
+                        curve['nb'] = min(curve['nb'] + 1, self.max_size)
                         curve['last_data'] = None
                         curve['data'] = y
                     curve['time'] = x
@@ -132,28 +134,29 @@ class Plotter(QWidget,Ui_RT_Plotter):
         event.accept()
         match = self.pattern.fullmatch(event.mimeData().text())
         if match is not None:
-            ac_id, class_name, msg_name, field, scale = match.group(1,2,3,4,5)
+            ac_id, class_name, msg_name, field, scale = match.group(1, 2, 3, 4, 5)
             menu_item = QAction("remove {}".format(match.group(0)))
-            entry = { 'field': field, 'last_data': None,
-                    'data': np.zeros(self.max_size),
-                    'time': np.zeros(self.max_size),
-                    'scale': float(scale)*self.scale_spin.value(),
-                    'offset': self.offset_spin.value(),
-                    'nb': 0, 'action': menu_item }
+            entry = {'field': field, 'last_data': None,
+                     'data': np.zeros(self.max_size),
+                     'time': np.zeros(self.max_size),
+                     'scale': float(scale) * self.scale_spin.value(),
+                     'offset': self.offset_spin.value(),
+                     'nb': 0, 'action': menu_item}
             key = '{}:{}+{}'.format(field, entry['scale'], entry['offset'])
             if ac_id in self.data:
                 if msg_name in self.data[ac_id]:
                     if not key in self.data[ac_id][msg_name]:
                         self.data[ac_id][msg_name][key] = entry
                     else:
-                        return # already displayed, don't add a new curve
+                        return  # already displayed, don't add a new curve
                 else:
-                    self.data[ac_id][msg_name] = { key: entry }
+                    self.data[ac_id][msg_name] = {key: entry}
             else:
-                self.data[ac_id] = { msg_name: { key: entry } }
-            self.data[ac_id][msg_name][key]['plot'] = self.plot.plot([],[],
-                    pen=(self.idx_color,self.nb_color),
-                    name='{}:{}:{}:{}'.format(ac_id,class_name,msg_name,key))
+                self.data[ac_id] = {msg_name: {key: entry}}
+            self.data[ac_id][msg_name][key]['plot'] = self.plot.plot([], [],
+                    pen=(self.idx_color, self.nb_color),
+                    name='{}:{}:{}:{}'.format(ac_id, class_name,
+                                           msg_name, key))
             self.idx_color = (self.idx_color + 1) % self.nb_color
             self.data[ac_id][msg_name][key]['bind'] = ivy.subscribe(self.msg_callback, '^({} {} .*)'.format(ac_id, msg_name))
             self.menu.addAction(menu_item)
@@ -222,13 +225,14 @@ class Plotter(QWidget,Ui_RT_Plotter):
         del self.constants[value]
         self.plot.removeItem(plot_id)
 
+
 class MainWindow(QMainWindow):
 
     def __init__(self, ivy, new_window):
         super().__init__()
         icon = QtGui.QIcon(path.join(PPRZ_HOME, "data", "pictures", "penguin_icon_rtp.png"))
         self.setWindowIcon(icon)
-        self.setGeometry(0,0,900,300)
+        self.setGeometry(0, 0, 900, 300)
         self.setMinimumSize(600, 200)
         self.ivy = ivy
         self.new_window = new_window
@@ -240,6 +244,7 @@ class MainWindow(QMainWindow):
 
     def open_new_window(self):
         self.new_window()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Real-time plotter")
@@ -258,18 +263,17 @@ if __name__ == '__main__':
             ivy.shutdown()
             for w in windows:
                 w.close_plotter()
-        app.aboutToQuit.connect(closing)
 
         def sigint_handler(*args):
             """Handler for the SIGINT signal."""
             app.quit()
+
+
+        app.aboutToQuit.connect(closing)
         signal.signal(signal.SIGINT, sigint_handler)
-
         make_new_window()
-
         sys.exit(app.exec_())
 
     except Exception as e:
-        print('exit on exception:',e)
+        print('exit on exception:', e)
         ivy.shutdown()
-
