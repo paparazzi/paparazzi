@@ -10,6 +10,8 @@ from ui_rt_plotter import Ui_RT_Plotter
 from time import sleep
 import numpy as np
 import pyqtgraph as pg
+from dataclasses import dataclass, Field, field
+from typing import List, Dict, Optional
 
 # if PAPARAZZI_SRC or PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
@@ -23,10 +25,67 @@ from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
 
+@dataclass()
+class Curve:
+    field: str
+    scale: float
+    offset: float
+    nb: int
+    action: QAction
+    time: np.ndarray = field(default=None)
+    data: np.ndarray = field(default=None)
+    last_data: Optional[float] = field(default=None)
+    plot: pg.PlotDataItem = field(default=None)
+    bind: Field = field(default=None)
+
+
+@dataclass()
+class Constant:
+    value: float
+    action: QAction
+    plot: pg.PlotDataItem
+
+
+class CurvesCollection:
+    def __init__(self):
+        self.data = {}  # type: Dict[str, Dict[str, Dict[str, Curve]]]  ## {ac_id:{ msg_name:{key:Curve}}}
+
+    def curve_exists(self, ac_id, msg_name, key) -> bool:
+        try:
+            c = self.get_curve(ac_id, msg_name, key)
+            return True
+        except KeyError:
+            return False
+
+    def get_curve(self, ac_id, msg_name, key) -> Curve:
+        """Throw KeyError if this curve does not exists"""
+        return self.data[ac_id][msg_name][key]
+
+    def remove_curve(self, ac_id, msg_name, key):
+        """Throw KeyError if this curve does not exists"""
+        del self.data[ac_id][msg_name][key]
+
+    def add_curve(self, ac_id, msg_name, key, c):
+        dam = self.data.setdefault(ac_id, {}).setdefault(msg_name, {})
+        dam[key] = c
+
+    def get_all_curves(self) -> List[Curve]:
+        all_curves = []
+        for ac_id in self.data:
+            for msg_name in self.data[ac_id]:
+                for key in self.data[ac_id][msg_name]:
+                    c = self.data[ac_id][msg_name][key]
+                    all_curves.append(c)
+        return all_curves
+
+    def curves(self, ac_id, msg_name) -> List[Curve]:
+        return list(self.data.get(ac_id, {}).get(msg_name, {}).values())
+
+
 class Plotter(QWidget, Ui_RT_Plotter):
-    '''
+    """
     Main plotter class
-    '''
+    """
 
     def __init__(self, parent, ivy):
         QWidget.__init__(self, parent=parent)
@@ -67,8 +126,8 @@ class Plotter(QWidget, Ui_RT_Plotter):
         self.constant_input.returnPressed.connect(self.draw_constant)
         self.ivy = ivy
         self.pattern = re.compile("^([0-9]+):(\\w+):(\\w+):(\\w+):([0-9]+.[0-9]*).*$")
-        self.data = {}
-        self.constants = {}
+        self.data = CurvesCollection()
+        self.constants = {}             # type: Dict[float, Constant]
         self.dt_slider.valueChanged.connect(self.set_dt)
         self.size_slider.valueChanged.connect(self.set_size)
         self.autoscale.clicked.connect(lambda: self.plot.enableAutoRange(x=False, y=True))
@@ -95,27 +154,23 @@ class Plotter(QWidget, Ui_RT_Plotter):
         self.plot.setRange(xRange=(-size, 0.))
 
     def update_plot_data(self):
-        for ac_id in self.data:
-            for msg_name in self.data[ac_id]:
-                for key in self.data[ac_id][msg_name]:
-                    curve = self.data[ac_id][msg_name][key]
-                    value = curve['last_data']
-                    x = curve['time'] - self.get_dt()
-                    y = curve['data']
-                    if value is not None:
-                        x = np.roll(x, -1)
-                        x[-1] = 0.
-                        y = np.roll(y, -1)
-                        y[-1] = curve['scale'] * value + curve['offset']
-                        curve['nb'] = min(curve['nb'] + 1, self.max_size)
-                        curve['last_data'] = None
-                        curve['data'] = y
-                    curve['time'] = x
-                    if not self.suspended:
-                        curve['plot'].setData(x[-curve['nb']:], y[-curve['nb']:])
+        for curve in self.data.get_all_curves():
+            x = curve.time - self.get_dt()
+            y = curve.data
+            if curve.last_data is not None:
+                x = np.roll(x, -1)
+                x[-1] = 0.
+                y = np.roll(y, -1)
+                y[-1] = curve.scale * curve.last_data + curve.offset
+                curve.nb = min(curve.nb + 1, self.max_size)
+                curve.last_data = None
+                curve.data = y
+            curve.time = x
+            if not self.suspended:
+                curve.plot.setData(x[-curve.nb:], y[-curve.nb:])
 
     def closing(self):
-        ''' shutdown Ivy and window '''
+        """ shutdown Ivy and window """
         pass
 
     def dragLeaveEvent(self, e):
@@ -133,59 +188,55 @@ class Plotter(QWidget, Ui_RT_Plotter):
     def dropEvent(self, event):
         event.accept()
         match = self.pattern.fullmatch(event.mimeData().text())
-        if match is not None:
-            ac_id, class_name, msg_name, field, scale = match.group(1, 2, 3, 4, 5)
-            menu_item = QAction("remove {}".format(match.group(0)))
-            entry = {'field': field, 'last_data': None,
-                     'data': np.zeros(self.max_size),
-                     'time': np.zeros(self.max_size),
-                     'scale': float(scale) * self.scale_spin.value(),
-                     'offset': self.offset_spin.value(),
-                     'nb': 0, 'action': menu_item}
-            key = '{}:{}+{}'.format(field, entry['scale'], entry['offset'])
-            if ac_id in self.data:
-                if msg_name in self.data[ac_id]:
-                    if not key in self.data[ac_id][msg_name]:
-                        self.data[ac_id][msg_name][key] = entry
-                    else:
-                        return  # already displayed, don't add a new curve
-                else:
-                    self.data[ac_id][msg_name] = {key: entry}
-            else:
-                self.data[ac_id] = {msg_name: {key: entry}}
-            self.data[ac_id][msg_name][key]['plot'] = self.plot.plot([], [],
-                    pen=(self.idx_color, self.nb_color),
-                    name='{}:{}:{}:{}'.format(ac_id, class_name,
-                                           msg_name, key))
-            self.idx_color = (self.idx_color + 1) % self.nb_color
-            self.data[ac_id][msg_name][key]['bind'] = ivy.subscribe(self.msg_callback, '^({} {} .*)'.format(ac_id, msg_name))
-            self.menu.addAction(menu_item)
-            menu_item.triggered.connect(lambda: self.remove_curve(ac_id, msg_name, key))
+        if match is None:
+            return
+        ac_id, class_name, msg_name, field, sc = match.group(1, 2, 3, 4, 5)
+        scale = float(sc) * self.scale_spin.value()
+        offset = self.offset_spin.value()
+        key = '{}:{}+{}'.format(field, scale, offset)
+
+        if self.data.curve_exists(ac_id, msg_name, key):
+            return
+
+        menu_item = QAction("remove {}".format(match.group(0)))
+        plot = self.plot.plot([], [], pen=(self.idx_color, self.nb_color),
+                              name='{}:{}:{}:{}'.format(ac_id, class_name, msg_name, key))
+        bind = ivy.subscribe(self.msg_callback, '^({} {} .*)'.format(ac_id, msg_name))
+
+        c = Curve(field=field,
+                  data=np.zeros(self.max_size),
+                  last_data=None,
+                  time=np.zeros(self.max_size),
+                  scale=scale,
+                  offset=offset,
+                  nb=0,
+                  action=menu_item,
+                  plot=plot,
+                  bind=bind)
+
+        self.data.add_curve(ac_id, msg_name, key, c)
+
+        self.idx_color = (self.idx_color + 1) % self.nb_color
+        self.menu.addAction(menu_item)
+        menu_item.triggered.connect(lambda: self.remove_curve(ac_id, msg_name, key))
 
     def msg_callback(self, ac_id, msg):
-        ac_id = str(ac_id)
-        if ac_id in self.data:
-            if msg.name in self.data[ac_id]:
-                for key in self.data[ac_id][msg.name]:
-                    field = self.data[ac_id][msg.name][key]['field']
-                    value = msg[field]
-                    self.data[ac_id][msg.name][key]['last_data'] = float(value)
+        for c in self.data.curves(str(ac_id), msg.name):
+            c.last_data = float(msg[c.field])
 
     def remove_curve(self, ac_id, msg_name, key):
-        curve = self.data[ac_id][msg_name][key]
-        self.ivy.unbind(curve['bind'])
-        plot_id = curve['plot']
-        del self.data[ac_id][msg_name][key]
+        curve = self.data.get_curve(ac_id, msg_name, key)
+        self.ivy.unbind(curve.bind)
+        plot_id = curve.plot
+        self.data.remove_curve(ac_id, msg_name, key)
         self.plot.removeItem(plot_id)
 
     def open_new_plotter(self):
         self.parent().open_new_window()
 
     def reset_plotter(self):
-        for ac_id in self.data:
-            for name in self.data[ac_id]:
-                for key in self.data[ac_id][name]:
-                    self.data[ac_id][name][key]['nb'] = 0
+        for c in self.data.get_all_curves():
+            c.nb = 0
 
     def suspend_plotter(self):
         self.suspended = True
@@ -208,22 +259,23 @@ class Plotter(QWidget, Ui_RT_Plotter):
     def draw_constant(self):
         try:
             value = float(self.constant_input.text())
-            if not value in self.constants:
-                self.constants[value] = {}
-                menu_item = QAction('remove {}'.format(value))
-                self.menu.addAction(menu_item)
-                menu_item.triggered.connect(lambda: self.remove_constant(value))
-                self.constants[value]['action'] = menu_item
-                self.constants[value]['plot'] = self.plot.plot(
-                        [-self.size_slider.maximum(), 0], [value, value],
-                        name='constant {}'.format(value), pen='b')
-        except:
+            if value not in self.constants:
+                action = QAction('remove {}'.format(value))
+                self.menu.addAction(action)
+                plot = self.plot.plot([-self.size_slider.maximum(), 0], [value, value],
+                                      name='constant {}'.format(value), pen='b')
+                c = Constant(value=value, action=action, plot=plot)
+                action.triggered.connect(lambda: self.remove_constant(c))
+                self.constants[value] = c
+
+        except ValueError:
             print("Input constant value is not a number")
 
-    def remove_constant(self, value):
-        plot_id = self.constants[value]['plot']
-        del self.constants[value]
-        self.plot.removeItem(plot_id)
+    def remove_constant(self, c: Constant):
+        self.plot.removeItem(c.plot)
+        self.menu.removeAction(c.action)
+        del self.constants[c.value]
+
 
 
 class MainWindow(QMainWindow):
@@ -254,15 +306,18 @@ if __name__ == '__main__':
         ivy = IvyMessagesInterface("natnet2ivy")
         windows = []
 
+
         def make_new_window():
             w = MainWindow(ivy, make_new_window)
             windows.append(w)
             w.show()
 
+
         def closing():
             ivy.shutdown()
             for w in windows:
                 w.close_plotter()
+
 
         def sigint_handler(*args):
             """Handler for the SIGINT signal."""
