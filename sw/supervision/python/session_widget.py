@@ -281,8 +281,8 @@ class SessionWidget(QWidget, Ui_Session):
                         arg = Arg(param, None)
                         args.append(arg)
                     else:
-                        if arg is not None and arg.flag.startswith("-"):
-                            # if it don't starts with -, but the previous did, fill the constant
+                        if arg is not None and arg.flag.startswith("-") and arg.constant is None:
+                            # if it don't starts with -, but the previous did, and the constant is not yet filled, fill the constant
                             arg.constant = param
                         else:
                             # if it don't starts with -, nor the previous, its probably a mandatory argument
