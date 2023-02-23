@@ -7,9 +7,6 @@ from conf import *
 from programs_conf import parse_tools
 import subprocess
 
-# TODO make a setting ?
-REMOVE_PROGRAMS_FINISHED = True
-
 
 class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
 
@@ -91,7 +88,8 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         if cb is not None:
             pw.finished.connect(cb)
         pw.remove.connect(lambda: self.remove_program(pw))
-        if REMOVE_PROGRAMS_FINISHED:
+        settings = utils.get_settings()
+        if not settings.value("keep_build_programs", False, bool):
             pw.finished.connect(lambda: self.remove_program(pw))
         pw.start_program()
 

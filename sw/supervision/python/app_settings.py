@@ -15,6 +15,7 @@ class AppSettings(QDialog, Ui_AppSettingsDialog):
         self.text_editor_edit.setText(settings.value("text_editor", "", str))
         self.terminal_emulator_edit.setText(settings.value("terminal_emulator", "", str))
         self.keep_changes_checkbox.setChecked(settings.value("always_keep_changes", False, bool))
+        self.keep_build_programs_checkbox.setChecked(settings.value("keep_build_programs", False, bool))
         self.finished.connect(self.handle_finished)
 
     def handle_finished(self, result):
@@ -26,3 +27,5 @@ class AppSettings(QDialog, Ui_AppSettingsDialog):
             settings.setValue("terminal_emulator", terminal_emulator)
             keep_changes = self.keep_changes_checkbox.isChecked()
             settings.setValue("always_keep_changes", keep_changes)
+            keep_build_programs = self.keep_build_programs_checkbox.isChecked()
+            settings.setValue("keep_build_programs", keep_build_programs)
