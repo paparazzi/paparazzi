@@ -15,19 +15,19 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QSpinBox" name="id_spinBox">
-     <property name="maximum">
-      <number>255</number>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QToolButton" name="color_button">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
      <property name="text">
       <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSpinBox" name="id_spinBox">
+     <property name="maximum">
+      <number>255</number>
      </property>
     </widget>
    </item>
