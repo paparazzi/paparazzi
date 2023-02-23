@@ -55,6 +55,9 @@
          <iconset theme="edit-clear">
           <normaloff>.</normaloff>.</iconset>
         </property>
+        <property name="shortcut">
+         <string>Ctrl+C</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -68,6 +71,9 @@
         <property name="icon">
          <iconset theme="system-run">
           <normaloff>.</normaloff>.</iconset>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+B</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonIconOnly</enum>
@@ -96,7 +102,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Flash</string>
+      <string>Upload</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
@@ -126,6 +132,9 @@
         <property name="icon">
          <iconset theme="emblem-downloads">
           <normaloff>.</normaloff>.</iconset>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+U</string>
         </property>
        </widget>
       </item>

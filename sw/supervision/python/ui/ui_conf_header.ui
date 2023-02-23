@@ -70,6 +70,9 @@
       <iconset theme="view-refresh">
        <normaloff>.</normaloff>.</iconset>
      </property>
+     <property name="shortcut">
+      <string>Ctrl+R</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -83,6 +86,9 @@
      <property name="icon">
       <iconset theme="document-save">
        <normaloff>.</normaloff>.</iconset>
+     </property>
+     <property name="shortcut">
+      <string>Ctrl+S</string>
      </property>
     </widget>
    </item>
