@@ -186,7 +186,7 @@ let run = fun serial_port log adj i0 speed no_gui ->
     adj#set_value t;
     if i + 1 < Array.length log then begin
       let dt = time_of log.(i+1) -. t in
-      timer := Some (GMain.Timeout.add (truncate (1000. *. dt /. speed#value)) (fun () -> loop (i+1);false))
+      timer := Some (GMain.Timeout.add ~ms:(truncate (1000. *. dt /. speed#value)) ~callback:(fun () -> loop (i+1);false))
     end else if no_gui then
       exit 0
   in

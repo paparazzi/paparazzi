@@ -179,12 +179,12 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
                       "alt", float gps_sol.Gps.alt ] in
         let (b, flag) = Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update in
         (* unbind manually after 1s if no message received *)
-        ignore (GMain.Timeout.add 1000 (fun () -> if !flag then Ivy.unbind b; false))
+        ignore (GMain.Timeout.add ~ms:1000 ~callback:(fun () -> if !flag then Ivy.unbind b; false))
       with
           exc -> fprintf stderr "Error in sim: %s\n%!" (Printexc.to_string exc)
     in
 
-    ignore (GMain.Timeout.add 1000 (fun () -> ask_for_world_env (); true));
+    ignore (GMain.Timeout.add ~ms:1000 ~callback:(fun () -> ask_for_world_env (); true));
 
 
     let fm_task = fun () ->
@@ -308,7 +308,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
           false
         end else
           true in
-      ignore (GMain.Timeout.add 1000 monitor)
+      ignore (GMain.Timeout.add ~ms:1000 ~callback:monitor)
     end else
       take_off ();
 

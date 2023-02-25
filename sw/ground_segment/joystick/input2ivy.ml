@@ -642,7 +642,7 @@ let () =
       ignore (Unix.select [] [] [] 0.1)
     done;
 
-  ignore (Glib.Timeout.add actions.period_ms (fun () -> execute_actions actions ac_id; true));
+  ignore (Glib.Timeout.add ~ms:actions.period_ms ~callback:(fun () -> execute_actions actions ac_id; true));
   (*ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:(fun x -> execute_kb_action actions x) (Glib.Io.channel_of_descr Unix.stdin));*)
 
   (** Start the main loop *)

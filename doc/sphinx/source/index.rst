@@ -33,6 +33,7 @@ Contents:
     developer_guide/index_developer
     tutorials/index_tutorials
     support/index_support
+    modules/index.rst
 
 --------------
 

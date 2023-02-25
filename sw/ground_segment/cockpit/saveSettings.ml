@@ -229,10 +229,10 @@ let popup = fun airframe_filename settings send_value ->
   fill_data model settings airframe_xml;
 
   (** The Cancel button *)
-  ignore (w#button_cancel#connect#clicked (fun () -> w#save_settings#destroy ()));
+  ignore (w#button_cancel#connect#clicked ~callback:(fun () -> w#save_settings#destroy ()));
 
   (** Connect the Save button to the write action *)
-  ignore (w#button_upload#connect#clicked (fun ()-> send_airframe_values model send_value));
+  ignore (w#button_upload#connect#clicked ~callback:(fun ()-> send_airframe_values model send_value));
 
   (** Connect the Save button to the write action *)
-  ignore (w#button_save#connect#clicked (fun () -> save_airframe w airframe_filename (write_xml model airframe_filename airframe_xml)))
+  ignore (w#button_save#connect#clicked ~callback:(fun () -> save_airframe w airframe_filename (write_xml model airframe_filename airframe_xml)))

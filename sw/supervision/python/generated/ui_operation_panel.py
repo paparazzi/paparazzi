@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/operation_panel.ui'
+# Form implementation generated from reading ui file 'ui/ui_operation_panel.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #

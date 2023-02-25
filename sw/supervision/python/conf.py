@@ -1,3 +1,5 @@
+# Copyright (C) 2008-2022 The Paparazzi Team
+# released under GNU GPLv2 or later. See COPYING file.
 from dataclasses import dataclass, field
 from typing import List, Dict
 import lxml.etree as ET
@@ -7,6 +9,10 @@ import utils
 
 MOD_DEP = os.path.join(utils.PAPARAZZI_SRC, "sw", "tools", "generators", "dump_modules_list.out")
 CONF = os.path.join(utils.PAPARAZZI_HOME, "conf", "conf.xml")
+
+
+class ConfError(Exception):
+    ...
 
 
 @dataclass
@@ -34,9 +40,6 @@ class Aircraft:
     settings_modules: List[Setting] = field(default_factory=list)
     boards: Dict[str, str] = field(default_factory=dict, init=False)    # {target: board}
 
-    def __post_init__(self):
-        self.update_targets()
-
     def get_color(self) -> str:
         if self.gui_color.startswith("#"):
             r = self.gui_color[1:3]
@@ -59,41 +62,35 @@ class Aircraft:
 
     def update(self):
         self.update_targets()
-        return self.update_settings()
+        self.update_settings()
 
     def update_settings(self):
         completed = subprocess.run([MOD_DEP, "-ac", self.name, "-af", self.airframe, "-fp", self.flight_plan],
                                    capture_output=True)
-        if completed.returncode == 0:
-            def remove_prefix(s):
-                if s.startswith(utils.CONF_DIR):
-                    return s[len(utils.CONF_DIR):]
+        if completed.returncode != 0:
+            raise ConfError(completed.stderr.decode().strip())
+
+        def make_setting(m):
+            setting = Setting(m, True)
+            for s in self.settings_modules:
+                if m == s.name and not s.enabled:
+                    setting.enabled = False
+            return setting
+
+        new_settings_modules = []
+        for module_path in completed.stdout.decode().strip().split():
+            module = utils.remove_prefix(module_path, utils.CONF_DIR)
+            xml = ET.parse(module_path)
+            for xml_setting in xml.getroot().findall("settings"):
+                name = xml_setting.get("name")
+                if name is None:
+                    txt = module
                 else:
-                    return s
+                    txt = "{}~{}~".format(module, name)
+                setting = make_setting(txt)
+                new_settings_modules.append(setting)
 
-            def make_setting(m):
-                setting = Setting(m, True)
-                for s in self.settings_modules:
-                    if m == s.name and not s.enabled:
-                        setting.enabled = False
-                return setting
-
-            new_settings_modules = []
-            for module_path in completed.stdout.decode().strip().split():
-                module = remove_prefix(module_path)
-                xml = ET.parse(module_path)
-                for xml_setting in xml.getroot().findall("settings"):
-                    name = xml_setting.get("name")
-                    if name is None:
-                        txt = module
-                    else:
-                        txt = "{}~{}~".format(module, name)
-                    setting = make_setting(txt)
-                    new_settings_modules.append(setting)
-
-            self.settings_modules = new_settings_modules
-
-        return completed.returncode, completed.stderr
+        self.settings_modules = new_settings_modules
 
     def to_xml(self) -> ET.Element:
         xml = ET.Element("aircraft")
@@ -134,11 +131,9 @@ class Aircraft:
                     board = target_xml.get("board")
                     self.boards[target] = board
         except OSError as e:
-            print("OSError, file {} probably not found!".format(self.airframe))
-            print(e)
+            raise ConfError("OSError, file {} probably not found!".format(self.airframe))
         except ET.XMLSyntaxError as e:
-            print("XMLSyntaxError, file {} is illformed !".format(self.airframe))
-            print(e)
+            raise ConfError("XMLSyntaxError, file {} is illformed !".format(self.airframe))
 
 
 class Conf:
@@ -215,6 +210,7 @@ class Conf:
             self.tree_orig = self.to_xml_tree()
 
     def restore_conf(self):
+        print("conf restored.")
         self.parse(self.tree_orig)
 
     def to_string(self):

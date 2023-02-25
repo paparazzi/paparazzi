@@ -16,8 +16,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
+import os
+import sys
+
+parser_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../sw/tools/modules_doc'))
+print(parser_path)
+sys.path.insert(0, parser_path)
+
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
@@ -35,6 +40,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'modules_parser',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

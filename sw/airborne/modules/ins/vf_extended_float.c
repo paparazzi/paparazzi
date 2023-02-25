@@ -182,7 +182,7 @@ void vff_propagate(float accel, float dt)
 {
   /* update state */
   vff.zdotdot = accel + 9.81f - vff.bias;
-  vff.z += (vff.zdot + vff.zdotdot * dt) * dt / 2.f;  // trapizium integration
+  vff.z += (vff.zdot + vff.zdotdot * dt / 2.f) * dt;
   vff.zdot += vff.zdotdot * dt;
 
   /* update covariance */

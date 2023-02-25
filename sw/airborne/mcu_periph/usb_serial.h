@@ -32,10 +32,21 @@
 #include "std.h"
 #include "pprzlink/pprzlink_device.h"
 #include "mcu_periph/uart.h"
+#include "mcu_arch.h"
 
 #ifndef USB_RX_BUFFER_SIZE
 #define USB_RX_BUFFER_SIZE UART_RX_BUFFER_SIZE
 #endif 
+
+#ifdef USB_MAX_ENDPOINTS
+#if USB_MAX_ENDPOINTS < 4
+#define USBD_NUMBER 1
+#else
+#define USBD_NUMBER 2
+#endif
+#else
+#define USBD_NUMBER 1
+#endif
 
 struct usb_serial_periph {
   /** Receive buffer */
@@ -49,6 +60,9 @@ struct usb_serial_periph {
 };
 
 extern struct usb_serial_periph usb_serial;
+#if USBD_NUMBER >= 2
+extern struct usb_serial_periph usb_serial_debug;
+#endif
 
 void VCOM_init(void);
 int  VCOM_putchar(int c);

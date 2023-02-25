@@ -57,7 +57,7 @@ let run_and_log = fun log exit_cb com ->
       if count = 0 then exit_cb true;
       true
     in
-  let io_watch_out = Glib.Io.add_watch [`IN] cb channel_out in
+  let io_watch_out = Glib.Io.add_watch ~cond:[`IN] ~callback:cb channel_out in
   pid, channel_out, com_stdout, io_watch_out
 
 let strip_prefix = fun dir file subdir ->
@@ -116,7 +116,7 @@ let run_and_monitor = fun ?(once = false) ?file ?(finished_callback = fun () -> 
     let io_watch' = Glib.Io.add_watch ~cond:[`HUP] ~callback:
       (fun _ ->
          (* call with a delay of 200ms, not strictly needed anymore, but seems more pleasing to the eye *)
-         ignore (Glib.Timeout.add 200 (fun () -> callback true; false));
+         ignore (Glib.Timeout.add ~ms:200 ~callback:(fun () -> callback true; false));
         (* return true to not automatically remove event source,
            otherwise will try to remove non existent source in callback, resulting in:
            GLib-CRITICAL **: Source ID xxx was not found when attempting to remove it *)

@@ -43,6 +43,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #endif
 
+#include "generated/modules.h"
 
 /** Set the default File logger path to the USB drive */
 #ifndef LOGGER_FILE_PATH
@@ -67,6 +68,13 @@ static void logger_file_write_header(FILE *file) {
   fprintf(file, "vel_x,vel_y,vel_z,");
   fprintf(file, "att_phi,att_theta,att_psi,");
   fprintf(file, "rate_p,rate_q,rate_r,");
+#ifdef BOARD_BEBOP
+  fprintf(file, "rpm_obs_1,rpm_obs_2,rpm_obs_3,rpm_obs_4,");
+  fprintf(file, "rpm_ref_1,rpm_ref_2,rpm_ref_3,rpm_ref_4,");
+#endif
+#ifdef INS_EXT_POSE_H
+  ins_ext_pos_log_header(file);
+#endif
 #ifdef COMMAND_THRUST
   fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
 #else
@@ -91,6 +99,13 @@ static void logger_file_write_row(FILE *file) {
   fprintf(file, "%f,%f,%f,", vel->x, vel->y, vel->z);
   fprintf(file, "%f,%f,%f,", att->phi, att->theta, att->psi);
   fprintf(file, "%f,%f,%f,", rates->p, rates->q, rates->r);
+#ifdef BOARD_BEBOP
+  fprintf(file, "%d,%d,%d,%d,",actuators_bebop.rpm_obs[0],actuators_bebop.rpm_obs[1],actuators_bebop.rpm_obs[2],actuators_bebop.rpm_obs[3]);
+  fprintf(file, "%d,%d,%d,%d,",actuators_bebop.rpm_ref[0],actuators_bebop.rpm_ref[1],actuators_bebop.rpm_ref[2],actuators_bebop.rpm_ref[3]);
+#endif
+#ifdef INS_EXT_POSE_H
+  ins_ext_pos_log_data(file);
+#endif
 #ifdef COMMAND_THRUST
   fprintf(file, "%d,%d,%d,%d\n",
       stabilization_cmd[COMMAND_THRUST], stabilization_cmd[COMMAND_ROLL],
@@ -104,6 +119,9 @@ static void logger_file_write_row(FILE *file) {
 /** Start the file logger and open a new file */
 void logger_file_start(void)
 {
+  // Ensure that the module is running when started with this function
+  logger_file_logger_file_periodic_status = MODULES_RUN;
+  
   // Create output folder if necessary
   if (access(STRINGIFY(LOGGER_FILE_PATH), F_OK)) {
     char save_dir_cmd[256];

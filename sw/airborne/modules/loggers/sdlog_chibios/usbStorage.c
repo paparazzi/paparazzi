@@ -130,7 +130,7 @@ static void thdUsbStorage(void *arg)
 
   /* Stop the logs*/
   // it's not a powerloss, wa have time to flush the ram buffer
-  sdlog_chibios_finish(false);
+  sdlog_chibios_finish(true);
 
 
   /* connect sdcard sdc interface sdio */
@@ -165,8 +165,13 @@ bool usbStorageIsItRunning(void)
   return isRunning;
 }
 
+/*
+ *  Enable USB storage only if USB is plugged.
+ */
 void usbStorage_enable_usb_storage(float e) {
-  if(e > 0.5) {
+  if(e > 0.5 && palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_HIGH) {
     chBSemSignal(&bs_start_msd);
+  } else {
+    usb_storage_status = 0;
   }
 }

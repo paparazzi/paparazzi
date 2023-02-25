@@ -3,11 +3,13 @@
 <module name="telemetry_transparent" dir="datalink" task="datalink">
   <doc>
     <description>
-      Telemetry using PPRZ protocol over UART
+      Telemetry using PPRZ protocol over UART or USB serial.
+      Can be used with a UART (uart1, uart2 ...), or a serial over USB: usb_serial, usb_serial_debug.
+      usb_serial_debug is available only for some MCUs (STM32F7, STM32H7)
 
       Currently used as a makefile wrapper over the telemetry_transparent modules
     </description>
-    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
+    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, usb_serial, etc)"/>
     <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>
     <define name="TELEMETRY_DISABLE_RX" value="FALSE|TRUE" description="disable incoming message parsing"/>
   </doc>

@@ -11,7 +11,7 @@ Open a terminal and execute each lines below. If one fails, ask for help on gitt
 Version specific prerequisites
 ------------------------------
 
-**If you have Ubuntu 20.04:**
+**If you have Ubuntu 20.04 or 22.04:**
 
 .. code-block:: bash
 
@@ -23,6 +23,7 @@ Version specific prerequisites
 
     sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
     sudo apt-get install gcc-arm-embedded
+    sudo apt-get install python3-lxml python3-numpy
     sudo apt-get update
 
 Install Paparazzi
@@ -36,7 +37,7 @@ Add paparazzi apt-repository and install dependencies:
     sudo apt-get update
     sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim dfu-util pprzgcs
 
-.. note:: If you are on Ubuntu 18.04, ``pprzgcs`` is not available, just remove it from the last line.
+.. note:: If you are on Ubuntu 18.04, ``pprzgcs`` is not available, just remove it from the last line. Also launch using ``paparazzi -legacy`` mode
 
 Clone the repository: 
 
@@ -53,7 +54,7 @@ Clone the repository:
 
 .. code-block:: bash
 
-    git checkout -b v6.1 upstream/v6.1
+    git checkout -b v6.2 upstream/v6.2
 
 Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
 

@@ -188,8 +188,8 @@ object (self)
   method renderer = renderer
 
   method xy =
-    let (x0, y0) = renderer#item#i2w 0. 0. in
-    renderer#item#parent#w2i x0 y0
+    let (x0, y0) = renderer#item#i2w ~x:0. ~y:0. in
+    renderer#item#parent#w2i ~x:x0 ~y:y0
 
   method deleted = deleted
 
@@ -208,9 +208,9 @@ object (self)
               | 1 ->
                 motion <- false;
                 let x = GdkEvent.Button.x ev and y = GdkEvent.Button.y ev in
-                let (xm, ym) = renderer#item#parent#w2i x y in
-                let (x0, y0) = renderer#item#i2w 0. 0. in
-                let (xi, yi) = renderer#item#parent#w2i x0 y0 in
+                let (xm, ym) = renderer#item#parent#w2i ~x ~y in
+                let (x0, y0) = renderer#item#i2w ~x:0. ~y:0. in
+                let (xi, yi) = renderer#item#parent#w2i ~x:x0 ~y:y0 in
                 x_press <- xm -. xi; y_press <- ym -. yi;
                 let curs = Gdk.Cursor.create `FLEUR in
                 item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
@@ -224,7 +224,7 @@ object (self)
           motion <- true;
           let x = GdkEvent.Motion.x ev
           and y = GdkEvent.Motion.y ev in
-          let (xw, yw) = renderer#item#parent#w2i x y in
+          let (xw, yw) = renderer#item#parent#w2i ~x ~y in
           item#set [`X (xw-.x_press); `Y (yw-.y_press)];
           renderer#item#parent#affine_relative [|1.;0.;0.;1.;0.;0.|]
         end;
@@ -281,7 +281,7 @@ object (self)
 
       (* Connect the renderer chooser *)
     ignore (combo#connect#changed
-              (fun () ->
+              ~callback:(fun () ->
                 match combo#active_iter with
                   | None -> ()
                   | Some row ->
@@ -289,8 +289,8 @@ object (self)
                     if data <> renderer#tag then
                       let new_renderer = List.assoc data tagged_renderers in
                       let group = renderer#item#parent in
-                      let (x, y) = renderer#item#i2w 0. 0. in
-                      let (x, y) = group#w2i x y in
+                      let (x, y) = renderer#item#i2w ~x:0. ~y:0. in
+                      let (x, y) = group#w2i ~x ~y in
                       renderer#item#destroy ();
                       renderer <- new_renderer group x y;
                       self#connect ();
@@ -298,20 +298,20 @@ object (self)
 
       (* Connect the buttons *)
     ignore (dialog#button_delete#connect#clicked
-              (fun () ->
+              ~callback:(fun () ->
                 dialog#papget_editor#destroy ();
                 renderer#item#destroy ();
                 deleted <- true));
-    ignore (dialog#button_ok#connect#clicked (fun () -> dialog#papget_editor#destroy ()));
+    ignore (dialog#button_ok#connect#clicked ~callback:(fun () -> dialog#papget_editor#destroy ()));
 
     dialog_widget <- Some dialog
 
   val mutable connection =
-    canvas_renderer#item#connect#event (fun _ -> false)
+    canvas_renderer#item#connect#event ~callback:(fun _ -> false)
   method connect = fun () ->
     if PC.get_prop "locked" config "false" = "false" then
       let item = (renderer#item :> PR.movable_item) in
-      connection <- item#connect#event self#event
+      connection <- item#connect#event ~callback:self#event
 
   initializer
     self#connect ()
@@ -419,5 +419,5 @@ object (self)
         "display", String.lowercase_ascii item#renderer#tag;
         "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
     Xml.Element ("papget", attrs, properties@props)
-  initializer ignore(adj#connect#value_changed (fun () -> self#update_zoom (string_of_float adj#value)))
+  initializer ignore(adj#connect#value_changed ~callback:(fun () -> self#update_zoom (string_of_float adj#value)))
 end

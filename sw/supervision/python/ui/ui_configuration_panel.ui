@@ -15,23 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="HeaderWidget" name="header" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -94,12 +77,6 @@
    <class>BuildWidget</class>
    <extends>QWidget</extends>
    <header>build_widget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>HeaderWidget</class>
-   <extends>QWidget</extends>
-   <header>header_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

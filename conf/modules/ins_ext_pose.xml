@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_ext_pose" dir="ins">
+  <doc>
+    <description>
+      Extened Kalman filter based on https://en.wikipedia.org/wiki/Extended_Kalman_filter
+      
+      Designed to merge only IMU and OptiTrack/VICON (no baro, sonar, GPS, ...)
+      
+       - predict attitude and path with gyroscopes and accelerometers
+       - correct attitude and path with external pose and position message
+       - estimate gyro and accelerometer biases
+       
+      Bypassed when simulating.
+    </description>
+  </doc>
+  <dep>
+    <depends>@gps,@datalink,@imu</depends>
+    <provides>ahrs,ins</provides>
+  </dep>
+  <autoload name="ins_sim"/>
+  <autoload name="ins_nps"/>
+  <header>
+    <file name="ins_ext_pose.h"/>
+  </header>
+  <init fun="ins_ext_pose_init()"/>
+  <periodic fun="ins_ext_pose_run()" freq="512" />
+  <datalink message="EXTERNAL_POSE" fun="ins_ext_pose_msg_update(buf)"/>
+
+  <makefile target="ap">
+    <define name="INS_TYPE_H" value="modules/ins/ins_ext_pose.h" type="string"/>
+    <file name="ins_ext_pose.c"/>
+    <file name="ins.c"/>
+  </makefile>
+</module>

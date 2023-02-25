@@ -54,7 +54,8 @@
 #if USE_ADC
 #include "mcu_periph/adc.h"
 #endif
-#if USE_USB_SERIAL
+#if USE_USB_SERIAL || USE_USB_SERIAL_DEBUG
+#define USING_USB_SERIAL 1
 #include "mcu_periph/usb_serial.h"
 #endif
 #ifdef USE_UDP
@@ -197,7 +198,7 @@ void mcu_init(void)
 #if USE_ADC
   adc_init();
 #endif
-#if USE_USB_SERIAL
+#if USING_USB_SERIAL
   VCOM_init();
 #endif
 
@@ -272,7 +273,7 @@ void mcu_event(void)
   softi2c_event();
 #endif
 
-#if USE_USB_SERIAL
+#if USING_USB_SERIAL
   VCOM_event();
 #endif
 }

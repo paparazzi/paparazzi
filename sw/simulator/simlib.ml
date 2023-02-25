@@ -57,8 +57,8 @@ let timer ?scale p f =
       f (); loop next
     end else
       GMain.Timeout.add
-	dt
-	(fun () ->
+	~ms:dt
+	~callback:(fun () ->
 	  ignore (loop next);
 	  f ();
 	  false) in

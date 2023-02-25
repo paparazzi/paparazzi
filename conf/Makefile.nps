@@ -50,7 +50,7 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CFLAGS += -D_GNU_SOURCE
 
-CXXSTANDARD ?= -std=c++0x
+CXXSTANDARD ?= -std=c++17
 CXXFLAGS  = $(WARN_FLAGS)
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)

@@ -11,6 +11,9 @@ SUBSYSTEM=="tty", ATTRS{interface}=="FLOSS-JTAG", ATTRS{bInterfaceNumber}=="01",
 SUBSYSTEM=="tty", ATTRS{interface}=="Black Magic GDB Server", SYMLINK+="bmp-gdb"
 SUBSYSTEM=="tty", ATTRS{interface}=="Black Magic UART Port", SYMLINK+="bmp-serial"
 
+SUBSYSTEM=="tty", ATTRS{interface}=="Paparazzi UAV debug Port", SYMLINK+="pprz-dbg"
+SUBSYSTEM=="tty", ATTRS{interface}=="Paparazzi UAV telemetry Port", SYMLINK+="pprz-tlm"
+
 # FTDI 3.3V serial cable
 SUBSYSTEM=="tty", ATTRS{interface}=="TTL232R-3V3", SYMLINK+="ftdi-serial"
 

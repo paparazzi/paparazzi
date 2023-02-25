@@ -1,2 +1,4 @@
-sphinx_rtd_theme
+Sphinx==4.2
+sphinx_rtd_theme==1.1.1
+lxml
 

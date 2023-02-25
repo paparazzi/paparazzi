@@ -9,7 +9,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_detect_color_object.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/orange_avoider.xml modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
    gui_color="white"
-   release="951019e34be0464cee1171a083947981c4b8c55d"
   />
   <aircraft
    name="bebop_orange_avoid_guided"
@@ -21,6 +20,5 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/bebop_cam.xml modules/cv_detect_color_object.xml modules/gps.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/orange_avoider_guided.xml modules/stabilization_indi_simple.xml modules/video_capture.xml modules/video_rtp_stream.xml"
    gui_color="white"
-   release="951019e34be0464cee1171a083947981c4b8c55d"
   />
 </conf>

@@ -63,7 +63,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 
   let anim = function
   None ->
-    Some (Glib.Timeout.add 500 (fun () -> Gdk.X.beep (); item#affine_relative rotation_45; true))
+    Some (Glib.Timeout.add ~ms:500 ~callback:(fun () -> Gdk.X.beep (); item#affine_relative rotation_45; true))
     | Some x -> Some x in
 
 
@@ -97,7 +97,7 @@ object (self)
   method label = label
   method xy = let a = wpt_group#i2w_affine in (a.(4), a.(5))
   method move dx dy =
-    wpt_group#move dx dy;
+    wpt_group#move ~x:dx ~y:dy;
     wpt_group#raise_to_top ()
   method edit =
     let dialog = GWindow.window ~type_hint:`DIALOG ~modal:true ~position:`MOUSE ~border_width:10 ~title:"Waypoint Edit" () in
@@ -152,8 +152,8 @@ object (self)
     let plus10= GButton.button ~label:"+10" ~packing:ha#add () in
     let change_alt = fun x ->
       ea#set_value (ea#value +. x) in
-    ignore(minus10#connect#pressed (fun _ -> change_alt (-10.)));
-    ignore(plus10#connect#pressed (fun _ -> change_alt (10.)));
+    ignore(minus10#connect#pressed ~callback:(fun _ -> change_alt (-10.)));
+    ignore(plus10#connect#pressed ~callback:(fun _ -> change_alt (10.)));
 
     (* called when ok button is clicked in WP Edit dialog *)
     let callback = fun _ ->
@@ -254,7 +254,7 @@ object (self)
         | _ -> ()
     end;
     true
-  initializer ignore(item#connect#event self#event)
+  initializer ignore(item#connect#event ~callback:self#event)
   method moved = moved <> None
   method reset_moved () =
     match moved with
@@ -299,7 +299,7 @@ object (self)
       wpt_group#affine_absolute a
   initializer wpt_group#raise_to_top ()
   initializer self#zoom geomap#zoom_adj#value
-  initializer ignore(geomap#zoom_adj#connect#value_changed (fun () -> self#zoom geomap#zoom_adj#value))
+  initializer ignore(geomap#zoom_adj#connect#value_changed ~callback:(fun () -> self#zoom geomap#zoom_adj#value))
 end
 
 let gensym = let n = ref 0 in fun prefix -> incr n; prefix ^ string_of_int !n

@@ -134,10 +134,10 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
       time#set_text t
     end;
     true in
-  ignore (GMain.Timeout.add 1000 update_time);
+  ignore (GMain.Timeout.add ~ms:1000 ~callback:update_time);
   let display_values = fun () ->
     List.iter (fun f -> f ()) display_values in
-  ignore (GMain.Timeout.add display_delay (fun () -> display_values (); true));
+  ignore (GMain.Timeout.add ~ms:display_delay ~callback:(fun () -> display_values (); true));
 
   (** The message is shown only on its first arrival *)
   let display = fun _sender values ->
@@ -162,7 +162,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
       List.iter2 (fun f x -> f x) update_values (List.rev values);
 
       eb#coerce#misc#set_state `SELECTED;
-      ignore (GMain.Timeout.add led_delay (fun () -> eb#coerce#misc#set_state `NORMAL; false))
+      ignore (GMain.Timeout.add ~ms:led_delay ~callback:(fun () -> eb#coerce#misc#set_state `NORMAL; false))
     with
         Invalid_argument _ ->
           Printf.fprintf stderr "%s: expected %d args, got %d\n" id n (List.length values); flush stderr

@@ -594,6 +594,8 @@ static void jpeg_DCT(int16_t *data)
   }
 }
 
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
+
 #define PUTBITS    \
   {    \
     bits_in_next_word = (int16_t) (jpeg_encoder_structure->bitindex + numbits - 32);    \
@@ -713,6 +715,8 @@ static uint8_t *jpeg_huffman(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uin
   }
   return output_ptr;
 }
+
+#pragma GCC diagnostic pop
 
 /* For bit Stuffing and EOI marker */
 static uint8_t *jpeg_close_bitstream(JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure, uint8_t *output_ptr)

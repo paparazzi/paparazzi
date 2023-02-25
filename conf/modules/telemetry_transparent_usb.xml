@@ -3,29 +3,18 @@
 <module name="telemetry_transparent_usb" dir="datalink" task="datalink">
   <doc>
     <description>
+      DEPRECATED: Use telemetry_transparent with configure MODEM_PORT=usb_serial instead. 
       Telemetry using PPRZ protocol over serial USB (e.g. /dev/ttyACM0)
     </description>
   </doc>
   <dep>
-    <depends>datalink_common</depends>
-    <provides>datalink,telemetry</provides>
+    <depends>telemetry_transparent</depends>
   </dep>
-  <autoload name="telemetry" type="nps"/>
-  <autoload name="telemetry" type="sim"/>
-  <header>
-    <file name="pprz_dl.h"/>
-  </header>
-  <init fun="pprz_dl_init()"/>
-  <event fun="pprz_dl_event()"/>
   <makefile target="!sim|nps|hitl">
-    <define name="USE_USB_SERIAL"/>
-    <define name="DOWNLINK_DEVICE" value="usb_serial"/>
-    <define name="PPRZ_UART" value="usb_serial"/>
-    <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
-    <define name="DATALINK" value="PPRZ"/>
-    <file name="pprz_dl.c"/>
-    <file name="pprz_transport.c" dir="pprzlink/src"/>
-    <file_arch name="usb_ser_hw.c" dir="."/>
+    <configure name="MODEM_PORT" value="usb_serial"/>
+    <raw>
+    $(warning Warning: telemetry_transparent_usb is deprecated. Use telemetry_transparent with configure MODEM_PORT=usb_serial instead.)
+    </raw>
   </makefile>
 </module>
 

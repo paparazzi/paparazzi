@@ -38,7 +38,7 @@ let load = fun geomap () ->
       with
           Dtd.Prove_error(e) ->
             let m = sprintf "Error while loading %s:\n%s" f (Dtd.prove_error e) in
-            GToolbox.message_box "Error" m
+            GToolbox.message_box ~title:"Error" m
 
 let load_kml = fun geomap () ->
   match GToolbox.select_file ~title:"Load KML" ~filename:(Env.flight_plans_path // "*.kml") () with
@@ -50,4 +50,4 @@ let load_kml = fun geomap () ->
       with
       | Dtd.Prove_error(e) ->
           let m = sprintf "Error while loading KML %s:\n%s" f (Dtd.prove_error e) in
-          GToolbox.message_box "Error" m
+          GToolbox.message_box ~title:"Error" m

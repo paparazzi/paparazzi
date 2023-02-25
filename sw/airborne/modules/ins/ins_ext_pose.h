@@ -1,5 +1,5 @@
-(*
- * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
+/*
+ * Copyright (C) 2023 MAVLab
  *
  * This file is part of paparazzi.
  *
@@ -17,14 +17,40 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- *)
+ */
 
-(** Renvoie le nom de la plateforme : Unix ou Win32 *)
-val platform_name : string
+/**
+ * @file modules/ins/ins_ext_pose.h
+ * Integrated Navigation System interface.
+ */
 
-(** Teste si la plateforme courante est Unix *)
-val platform_is_unix : bool
+/*
+Extened kalman filter based on https://en.wikipedia.org/wiki/Extended_Kalman_filter
+Section 5.3: Non-additive noise formulation and equations
+*/
 
-(** Teste si la plateforme courante est Windows (Win32) *)
-val platform_is_win32 : bool
+#ifndef INS_EXT_POSE_H
+#define INS_EXT_POSE_H
+
+#define EKF_NUM_STATES 15
+#define EKF_NUM_INPUTS 6
+#define EKF_NUM_OUTPUTS 6
+
+#include "std.h"
+
+#include <stdio.h>
+
+
+extern float ekf_X[EKF_NUM_STATES];
+
+extern void ins_ext_pose_init(void);
+extern void ins_ext_pose_run(void);
+
+extern void ins_ext_pose_msg_update(uint8_t *buf);
+
+// Logging
+extern void ins_ext_pos_log_header(FILE *file);
+extern void ins_ext_pos_log_data(FILE *file);
+
+
+#endif

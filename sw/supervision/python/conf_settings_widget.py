@@ -21,7 +21,7 @@ class ConfSettingsWidget(QWidget, Ui_SettingsConf):
         base_settings_path = os.path.join(utils.CONF_DIR, "settings")
         filenames, _ = QFileDialog.getOpenFileNames(self, "Add settings", base_settings_path, "Settings (*.xml)")
         for filename in filenames:
-            name = utils.removeprefix(filename, utils.CONF_DIR)
+            name = utils.remove_prefix(filename, utils.CONF_DIR)
             print(name)
             item = QListWidgetItem(name)
             item.setCheckState(QtCore.Qt.Checked)
