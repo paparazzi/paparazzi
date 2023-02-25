@@ -437,7 +437,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   g2_times_du = g2_times_du / INDI_G_SCALING;
 
   float v_thrust = 0.0;
-  //printf("stab thrust %d %d %f\n\n", in_flight, indi_thrust_increment_set, indi_thrust_increment);
   if (indi_thrust_increment_set && in_flight) {
     v_thrust = indi_thrust_increment;
 
@@ -447,7 +446,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
       stabilization_cmd[COMMAND_THRUST] += actuator_state[i] * -((int32_t) act_is_servo[i] - 1);
     }
     stabilization_cmd[COMMAND_THRUST] /= num_thrusters;
-    //printf("cmd thrust %d\n", stabilization_cmd[COMMAND_THRUST]);
 
   } else {
     // incremental thrust
@@ -542,12 +540,9 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   }
 
   /*Commit the actuator command*/
-    //printf("actuators ");
   for (i = 0; i < INDI_NUM_ACT; i++) {
     actuators_pprz[i] = (int16_t) indi_u[i];
-    //printf("%d ", actuators_pprz[i]);
   }
-  //printf("\n");
 
   // Set the stab_cmd to 42 to indicate that it is not used
   stabilization_cmd[COMMAND_ROLL] = 42;

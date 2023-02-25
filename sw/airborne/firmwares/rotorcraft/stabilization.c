@@ -89,6 +89,7 @@ static struct Int32Eulers stab_sp_rotate_i(struct Int32Vect2 *vect, int32_t head
   return sp;
 }
 
+/* Rotate horizontal commands to body frame by psi */
 static struct FloatEulers stab_sp_rotate_f(struct FloatVect2 *vect, float heading)
 {
   struct FloatEulers sp;
