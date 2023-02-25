@@ -30,7 +30,6 @@
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
 #include "modules/radio_control/radio_control.h"
-#include "firmwares/rotorcraft/navigation.h"
 #include "state.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "mcu_periph/sys_time.h"
@@ -170,9 +169,6 @@ float time_of_vel_sp = 0.0;
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
 static float guidance_indi_get_liftd(float pitch, float theta);
-struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain);
-struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain);
-struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -349,9 +345,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 // For a hybrid it is important to reduce the sideslip, which is done by changing the heading.
 // For experiments, it is possible to fix the heading to a different value.
 #ifndef KNIFE_EDGE_TEST
-  if (take_heading_control) {
-    *heading_sp = ANGLE_FLOAT_OF_BFP(nav.heading); // FIXME remove dependency to nav, take from guidance sp ?
-  } else {
+  if (!take_heading_control) {
     *heading_sp += omega / PERIODIC_FREQUENCY;
     FLOAT_ANGLE_NORMALIZE(*heading_sp);
     // limit heading setpoint to be within bounds of current heading
