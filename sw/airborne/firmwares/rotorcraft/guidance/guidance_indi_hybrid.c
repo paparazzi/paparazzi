@@ -153,6 +153,7 @@ struct FloatVect3 euler_cmd;
 
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 
+float guidance_indi_hybrid_heading_sp = 0.f;
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
 
@@ -220,6 +221,7 @@ void guidance_indi_init(void)
 void guidance_indi_enter(void) {
   thrust_in = stabilization_cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
+  guidance_indi_hybrid_heading_sp = stateGetNedToBodyEulers_f()->psi;
 
   float tau = 1.0 / (2.0 * M_PI * filter_cutoff);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
@@ -240,7 +242,7 @@ void guidance_indi_enter(void) {
  *
  * main indi guidance function
  */
-struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, float *heading_sp)
+struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, float heading_sp)
 {
   // set global accel sp variable FIXME clean this
   sp_accel = *accel_sp;
@@ -342,30 +344,31 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   omega -= accely_filt.o[0]*FWD_SIDESLIP_GAIN;
 #endif
 
-// For a hybrid it is important to reduce the sideslip, which is done by changing the heading.
-// For experiments, it is possible to fix the heading to a different value.
-#ifndef KNIFE_EDGE_TEST
-  if (!take_heading_control) {
-    *heading_sp += omega / PERIODIC_FREQUENCY;
-    FLOAT_ANGLE_NORMALIZE(*heading_sp);
-    // limit heading setpoint to be within bounds of current heading
-    #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
-      float delta_limit = STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
-      float heading = stabilization_attitude_get_heading_f();
-
-      float delta_psi = *heading_sp - heading;
-      FLOAT_ANGLE_NORMALIZE(delta_psi);
-      if (delta_psi > delta_limit) {
-        *heading_sp = heading + delta_limit;
-      } else if (delta_psi < -delta_limit) {
-        *heading_sp = heading - delta_limit;
-      }
-      FLOAT_ANGLE_NORMALIZE(*heading_sp);
-    #endif
+  // For a hybrid it is important to reduce the sideslip, which is done by changing the heading.
+  // For experiments, it is possible to fix the heading to a different value.
+  if (take_heading_control) {
+    // heading is fixed by nav
+    guidance_euler_cmd.psi = heading_sp;
   }
+  else {
+    // heading is free and controlled by guidance
+    guidance_indi_hybrid_heading_sp += omega / PERIODIC_FREQUENCY;
+    FLOAT_ANGLE_NORMALIZE(guidance_indi_hybrid_heading_sp);
+    // limit heading setpoint to be within bounds of current heading
+#ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
+    float delta_limit = STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT;
+    float heading = stabilization_attitude_get_heading_f();
+    float delta_psi = guidance_indi_hybrid_heading_sp - heading;
+    FLOAT_ANGLE_NORMALIZE(delta_psi);
+    if (delta_psi > delta_limit) {
+      guidance_indi_hybrid_heading_sp = heading + delta_limit;
+    } else if (delta_psi < -delta_limit) {
+      guidance_indi_hybrid_heading_sp = heading - delta_limit;
+    }
+    FLOAT_ANGLE_NORMALIZE(guidance_indi_hybrid_heading_sp);
 #endif
-
-  guidance_euler_cmd.psi = *heading_sp;
+    guidance_euler_cmd.psi = guidance_indi_hybrid_heading_sp;
+  }
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
   guidance_indi_filter_thrust();
@@ -535,7 +538,7 @@ struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight UNUSED, struct
 
   accel_sp = compute_accel_from_speed_sp(); // compute accel sp
 
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
@@ -564,8 +567,7 @@ struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, stru
 
   accel_sp = compute_accel_from_speed_sp(); // compute accel sp
 
-  //printf("run_speed %f\n", gi_speed_sp.z);
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
@@ -580,7 +582,7 @@ struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, stru
   accel_sp.y = (gi_speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
   accel_sp.z = (gi_speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
 
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN

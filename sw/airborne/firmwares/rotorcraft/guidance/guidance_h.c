@@ -52,12 +52,6 @@
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 
-// Navigation can set heading freely
-// This is false if sideslip is a problem
-#ifndef GUIDANCE_HEADING_IS_FREE
-#define GUIDANCE_HEADING_IS_FREE TRUE
-#endif
-
 struct HorizontalGuidance guidance_h;
 
 int32_t transition_percentage;
@@ -457,26 +451,20 @@ void guidance_h_from_nav(bool in_flight)
       case NAV_SETPOINT_MODE_POS:
         // set guidance in NED
         guidance_h_update_reference();
-#if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);
-#endif
         guidance_h_cmd = guidance_h_run_pos(in_flight, &guidance_h);
         break;
 
       case NAV_SETPOINT_MODE_SPEED:
         guidance_h_set_vel(nav.speed.y, nav.speed.x); // nav speed is in ENU frame, convert to NED
         guidance_h_update_reference();
-#if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);
-#endif
         guidance_h_cmd = guidance_h_run_speed(in_flight, &guidance_h);
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
         // TODO set_accel ref
-#if GUIDANCE_HEADING_IS_FREE
         guidance_h_set_heading(nav.heading);
-#endif
         guidance_h_cmd = guidance_h_run_accel(in_flight, &guidance_h);
         break;
 

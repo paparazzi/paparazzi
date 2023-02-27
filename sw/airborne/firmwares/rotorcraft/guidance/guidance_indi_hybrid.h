@@ -42,7 +42,7 @@
 extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
 
-extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float *heading_sp);
+extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
 extern struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
 extern struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
 extern struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);

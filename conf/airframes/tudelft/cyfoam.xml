@@ -303,7 +303,6 @@
       <define name="GUIDANCE_INDI_MIN_THROTTLE" value="3000"/>
       <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="15.0"/>
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.045"/>

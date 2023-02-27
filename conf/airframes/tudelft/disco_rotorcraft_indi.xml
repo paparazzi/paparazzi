@@ -65,7 +65,6 @@
       <define name="USE_SONAR"/>
       <define name="SENSOR_SYNC_SEND_SONAR"/>
     </module>-->
-    <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
 
     <!--Switch advanced INDI scheduling functions on or off-->
     <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>

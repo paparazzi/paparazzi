@@ -179,7 +179,7 @@ void guidance_indi_enter(void)
  *
  * main indi guidance function
  */
-struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, float *heading_sp)
+struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, float heading_sp)
 {
   struct FloatEulers eulers_yxz;
   struct FloatQuat * statequat = stateGetNedToBodyQuat_f();
@@ -257,7 +257,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 
   guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
   guidance_euler_cmd.phi = roll_filt.o[0] + control_increment.y;
-  guidance_euler_cmd.psi = *heading_sp;
+  guidance_euler_cmd.psi = heading_sp;
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
   guidance_indi_filter_thrust();
@@ -306,7 +306,7 @@ struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight UNUSED, struct
   accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
   accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
 
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
@@ -322,7 +322,7 @@ struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, stru
   accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
   accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
 
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
@@ -337,7 +337,7 @@ struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, stru
   accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
   accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
 
-  return guidance_indi_run(&accel_sp, &gh->sp.heading);
+  return guidance_indi_run(&accel_sp, gh->sp.heading);
 }
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
