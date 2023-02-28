@@ -175,8 +175,8 @@
                                      PIN_ODR_HIGH(13) | \
                                      PIN_ODR_HIGH(14) | \
                                      PIN_ODR_HIGH(15))
-#define VAL_GPIOA_AFRL              (PIN_AFIO_AF(0, 2) | \
-                                     PIN_AFIO_AF(1, 2)  | \
+#define VAL_GPIOA_AFRL              (PIN_AFIO_AF(0, 0) | \
+                                     PIN_AFIO_AF(1, 1)  | \
                                      PIN_AFIO_AF(2, 7)  | \
                                      PIN_AFIO_AF(3, 7)  | \
                                      PIN_AFIO_AF(4, 5)  | \
@@ -185,7 +185,7 @@
                                      PIN_AFIO_AF(7, 5))
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(8, 0)  | \
                                      PIN_AFIO_AF(9, 7)   | \
-                                     PIN_AFIO_AF(10, 1) | \
+                                     PIN_AFIO_AF(10, 7) | \
                                      PIN_AFIO_AF(11, 10) | \
                                      PIN_AFIO_AF(12, 10) | \
                                      PIN_AFIO_AF(13, 0)  | \
@@ -200,8 +200,8 @@
  * PB3  - Digital input                    (JTAG_TDO/SWD)
  * PB4  - Open Drain output 50MHz          (LED2)
  * PB5  - Digital input                    (IMU_MAG_DRDY)
- * PB6  - Alternate Open Drain output 2MHz (SERVO7-Timer4Ch1)/USART1_TX
- * PB7  - Alternate Open Drain output 2MHz (SERVO8-Timer4Ch2)/USART1_RX
+ * PB6  - Alternate Push Pull output 50MHz (SERVO7-Timer4Ch1)/USART1_TX/I2C1_SCL
+ * PB7  - Alternate Push Pull output 50MHz (SERVO8-Timer4Ch2)/USART1_RX/I2C1_SDA
  * PB8  - Digital input.                   (CAN_RX)
  * PB9  - Open Drain output 50MHz.         (CAN_TX)
  * PB10 - Alternate Open Drain output 2MHz.(I2C2_SCL)
@@ -237,8 +237,8 @@
                                      PIN_OTYPE_OPENDRAIN(7) |       \
                                      PIN_OTYPE_PUSHPULL(8) |       \
                                      PIN_OTYPE_OPENDRAIN(9) |       \
-                                     PIN_OTYPE_OPENDRAIN(10) |     \
-                                     PIN_OTYPE_OPENDRAIN(11) |      \
+                                     PIN_OTYPE_PUSHPULL(10) |     \
+                                     PIN_OTYPE_PUSHPULL(11) |      \
                                      PIN_OTYPE_PUSHPULL(12) |      \
                                      PIN_OTYPE_PUSHPULL(13) |      \
                                      PIN_OTYPE_PUSHPULL(14) |      \
@@ -253,8 +253,8 @@
                                      PIN_OSPEED_50M(7) |          \
                                      PIN_OSPEED_50M(8) |          \
                                      PIN_OSPEED_50M(9) |           \
-                                     PIN_OSPEED_2M(10) |        \
-                                     PIN_OSPEED_2M(11) |         \
+                                     PIN_OSPEED_50M(10) |        \
+                                     PIN_OSPEED_50M(11) |         \
                                      PIN_OSPEED_50M(12) |         \
                                      PIN_OSPEED_50M(13) |         \
                                      PIN_OSPEED_50M(14) |         \
@@ -265,8 +265,8 @@
                                      PIN_PUPDR_FLOATING(3) |        \
                                      PIN_PUPDR_FLOATING(4) |         \
                                      PIN_PUPDR_FLOATING(5) |         \
-                                     PIN_PUPDR_FLOATING(6) |        \
-                                     PIN_PUPDR_FLOATING(7) |         \
+                                     PIN_PUPDR_PULLUP(6) |        \
+                                     PIN_PUPDR_PULLUP(7) |         \
                                      PIN_PUPDR_FLOATING(8) |         \
                                      PIN_PUPDR_FLOATING(9) |        \
                                      PIN_PUPDR_FLOATING(10) |       \
@@ -301,8 +301,8 @@
                                      PIN_AFIO_AF(7, 4))
 #define VAL_GPIOB_AFRH              (PIN_AFIO_AF(8, 9) |           \
                                      PIN_AFIO_AF(9, 9) |            \
-                                     PIN_AFIO_AF(10, 4) |         \
-                                     PIN_AFIO_AF(11, 4) |          \
+                                     PIN_AFIO_AF(10, 7) |         \
+                                     PIN_AFIO_AF(11, 7) |          \
                                      PIN_AFIO_AF(12, 0) |          \
                                      PIN_AFIO_AF(13, 5) |          \
                                      PIN_AFIO_AF(14, 5) |          \
@@ -312,7 +312,7 @@
  * Port C setup:
  * PC0  - Analog input                     (ADC2)
  * PC1  - Analog input                     (ADC3)
- * PC2  - Open Drain output 50MHz           (LED3)
+ * PC2  - Open Drain output 50MHz          (LED3)
  * PC3  - Analog input                     (ADC1)
  * PC4  - Analog input                     (VBAT_MEAS)
  * PC5  - Open Drain output 50MHz           (LED4)
@@ -417,8 +417,8 @@
                                      PIN_AFIO_AF(7, 2))
 #define VAL_GPIOC_AFRH              (PIN_AFIO_AF(8, 2) |           \
                                      PIN_AFIO_AF(9, 2) |           \
-                                     PIN_AFIO_AF(10, 7) |           \
-                                     PIN_AFIO_AF(11, 7) |          \
+                                     PIN_AFIO_AF(10, 8) |           \
+                                     PIN_AFIO_AF(11, 8) |          \
                                      PIN_AFIO_AF(12, 8) |           \
                                      PIN_AFIO_AF(13, 0) |          \
                                      PIN_AFIO_AF(14, 0) |          \
@@ -1277,8 +1277,8 @@
  */
 #define RC_PPM_TICKS_PER_USEC 6
 #define PPM_TIMER_FREQUENCY 6000000
-#define PPM_CHANNEL ICU_CHANNEL_1
-#define PPM_TIMER ICUD1
+#define PPM_CHANNEL ICU_CHANNEL_2
+#define PPM_TIMER ICUD2
 
 /**
  * I2C defines

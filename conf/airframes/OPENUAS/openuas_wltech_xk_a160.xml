@@ -10,24 +10,22 @@
     + ESC:         FTV LittleBee 20A Opto Pro with custom firmware
     + BEC:         2.5A small BEC
     + RCRX:        OpenRXSR Receiver
-    + AIRSPEED:    No airspeed (Yet)
+    + AIRSPEED:    No airspeed
     + TELEMETRY:   Si10xx Chip based with firmware enabeling PPRZ RSSI message
-    + RANGER:      None ATM
+    + RANGER:      None
     + MOTOR:       Default
     + PROP:        Default
 
 NOTES:
-     + Default CoG is wrong and WAY off, tail heavy, we've modified AC body so that the battery can fit fully in front
+     + With original airframe the default CoG is wrong and WAY off, tail heavy, we've modified AC body so that the battery can fit fully in front
      + AP is rotated on Z 45 degrees counterclockwise and flipped 180 degrees
      + Telemetry powered via BEC on flightcontrollen (100mAh max + MCU 60mAh is less than 250mAh, the max the DC converter can handle )
-     + Flashing the firmware done with Black Magic Probe (BMP) adapter
-     + A GNSS device with magneto on it is used
+     + Flashing the firmware performed with Black Magic Probe (BMP) adapter
+     + A GNSS device with magneto on same PCB is used
      + Uses PAPARAZZI "standard" radio channel settings
      + A 650mAh battery, expect flighttimes of ~15 minutes at 10m/s
 
-
-
- Launching
+   Launching
      + 1) Set TX to AUTO2, or if no TX it is AUTO2
        2) Move nose to ground
        3) wait until prop spins after a second or so,
@@ -37,8 +35,8 @@ NOTES:
   </description>
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mxs_1.0_chibios">
-      <define name="REMAP_UART3" value="TRUE"/>  
-      <!--<configure name="FLASH_MODE" value="SWD"/>--> <!--Enable when flashing with black magic probe v1.0-->
+      <define name="REMAP_UART3" value="TRUE"/>
+      <!--<configure name="FLASH_MODE" value="SWD"/>--> <!--Enable when flashing with black magic probe HWv1.0-->
       <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>-->
 
       <!--<define name="AHRS_ALIGNER_SAMPLES_NB" value="600"/>-->
@@ -58,11 +56,11 @@ NOTES:
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="500"/>
-      <!--<configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/>
-      <configure name="NAVIGATION_FREQUENCY" value="16"/>
-      <configure name="CONTROL_FREQUENCY" value="120"/>
-      <configure name="TELEMETRY_FREQUENCY" value="60"/>
-      <configure name="MODULES_FREQUENCY" value="500"/>-->
+      <configure name="AHRS_MAG_CORRECT_FREQUENCY" value="50"/>
+      <configure name="NAVIGATION_FREQUENCY" value="20"/>
+      <configure name="CONTROL_FREQUENCY" value="100"/>
+      <configure name="TELEMETRY_FREQUENCY" value="50"/>
+      <configure name="MODULES_FREQUENCY" value="500"/>
       
       <!-- <module name="filter_1euro_imu">
         <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
@@ -87,7 +85,7 @@ NOTES:
       <module name="mag" type="qmc5883l">
         <configure name="MAG_QMC5883L_PERIODIC_FREQUENCY" value="200"/>
         <configure name="MAG_QMC5883L_I2C_DEV" value="I2C1"/>
-        <define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE"/>
+        <!--<define name="MODULE_QMC5883L_SYNC_SEND" value="TRUE"/>-->
         <define name="MODULE_QMC5883L_UPDATE_AHRS" value="TRUE"/>
         <define name="QMC5883L_CHAN_X" value="1"/>
         <define name="QMC5883L_CHAN_Y" value="0"/>
@@ -114,10 +112,11 @@ NOTES:
       <module name="radio_control" type="ppm">
         <!-- for debugging PPM values as default setting, enable the one below but use with correct telemetry XML document-->
         <!--<define name="TELEMETRY_MODE_DEBUG_RC" value="TRUE"/>-->
-	      <define name="RC_OK_CPT" value="25"/><!-- Switch back slower when entering RC range again to prevent flip flopping-->
+	<define name="RC_OK_CPT" value="25"/><!-- Switch back slower when entering RC range again to prevent flip flopping-->
         <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
         <configure name="RADIO_CONTROL_PPM_PIN" value="SERVO6"/>
-        <define name="USE_PWM6" value="0"/>
+        <define name="USE_PWM5" value="0"/> <!-- to enable PPM input disable PWM5-->
+	<define name="USE_PWM6" value="0"/>
         <!-- Mode set one a three way switch -->
         <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
         <define name="RADIO_GEAR" value="RADIO_AUX2"/>
@@ -128,17 +127,19 @@ NOTES:
       <!--<module name="radio_control" type="datalink"/>-->
 
       <!--<module name="flight_benchmark">
-        <define name="BENCHMARK_AIRSPEED value="TRUE"/>
+        <define name="BENCHMARK_AIRSPEED value="FALSE"/>
         <define name="BENCHMARK_ALTITUDE value="TRUE"/>
         <define name="BENCHMARK_POSITION value="TRUE"/>
         <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="1" unit="m/s"/>
-        <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="4" unit="m"/>
-        <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
+        <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="3" unit="m"/>
+        <define name="BENCHMARK_TOLERANCE_POSITION" value="4" unit="m"/>
       </module>-->
 
-      <!--<module name="sys_mon"/>--><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
+      <module name="sys_mon"/><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
 
       <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
+
+      <module name="air_data"/>
 
       <module name="baro_ms5611_spi">
         <configure name="MS5611_SPI_DEV" value="spi1"/>
@@ -162,7 +163,7 @@ NOTES:
    </target>
 
     <target name="nps" board="pc">
-      <configure name="PERIODIC_FREQUENCY" value="512"/> <!--  unit="Hz" -->
+      <configure name="PERIODIC_FREQUENCY" value="500"/> <!--  unit="Hz" -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/><!--  unit="Hz" -->
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
@@ -202,33 +203,33 @@ NOTES:
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="410"/><!--unit="s/10" in tenth of seconds for engine kill or in ELECTRICAL_PERIODIC_FREQ-->
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->
-    <!--<define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/>--> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
+    <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
    <!-- If AHRS_MAG_CORRECT_FREQUENCY is set outside of target no need USE_MAGNETOMETER it is assumed TRUE -->
-    <!--<configure name="USE_MAGNETOMETER" value="FALSE"/>--><!-- should be as in USE the device-->
+    <configure name="USE_MAGNETOMETER" value="TRUE"/><!-- should be as in USE the device-->
 
     <module name="ahrs" type="float_cmpl_quat"> <!-- Compare e.g. float_dcm, float_cmpl_quat -->
       <!--<define name="AHRS_ACCEL_ZETA" value="2.1"/>--><!-- default 0.063, see ahrs_float_cmpl.c -->
       <!--<define name="AHRS_ACCEL_OMEGA" value="0.1"/>--><!-- default 0.9, see ahrs_float_cmpl.c -->
 
-      <configure name="AHRS_USE_MAGNETOMETER" value="FALSE"/>
+      <configure name="AHRS_USE_MAGNETOMETER" value="TRUE"/>
       <!--<configure name="AHRS_ALIGNER_LED" value="2"/>-->
-      <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE"/>
-      <!--<define name="AHRS_USE_GPS_HEADING" value="FALSE"/>-->
-      <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE"/>-->
+      <define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/>
+      <!--<define name="AHRS_USE_GPS_HEADING" value="FALSE"/>--><!-- TRUE per default -->
+      <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE"/>--><!-- TRUE per default -->
       <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/>
       <!--<define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="FALSE"/>-->
       <!--<define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="0.174533"/>--><!--unit="rad"/-->
       <!--<define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0.0"/--> <!--unit="m/s"-->
       <!-- Some insights https://lists.nongnu.org/archive/html/paparazzi-devel/2013-10/msg00126.html -->
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0.0"/>
-      <!--<define name="AHRS_FC_MAG_ID" value="MAG_QMC5883_SENDER_ID" />--><!--TODO: When QMC driver works enable it -->
+      <define name="AHRS_FC_MAG_ID" value="MAG_QMC5883L_SENDER_ID" />
     </module>
 
     <module name="ins" type="alt_float"/>
 
     <module name="control" type="new"/>
     <module name="navigation"/>
-    <!--<module name="imu_quality_assessment"/>--><!-- disable after initial tuning-->
+    <module name="imu_quality_assessment"/><!-- disable after initial tuning-->
     <module name="auto1_commands"/> <!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
 
     <module name="geo_mag"/>
@@ -237,7 +238,7 @@ NOTES:
     <module name="nav" type="line_border"/>
     <module name="nav" type="line_osam"/>
     <module name="nav" type="survey_polygon">
-      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="40"/>
+    <define name="POLYSURVEY_DEFAULT_DISTANCE" value="30"/>
     </module>
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="smooth"/>
@@ -259,14 +260,14 @@ NOTES:
 
   </firmware>
 
-    <!-- Rotation between sensor frame and IMU frame of this airframe external magnetometer -->
+  <!-- Rotation between sensor frame and IMU frame of this airframe external magnetometer -->
   <!--If you build in your GPS where the MAGNETOMETER resides on the board
-      not alligned with the Accelo/Gyro axis or the main IMU on flight controller then set these values-->
-  <!--<section name="MAG_QMC" prefix="QMC5883_">
+  not alligned with the Accelo/Gyro axis or the main IMU on flight controller then set these values-->
+  <section name="MAG_QMC" prefix="QMC5883L_">
     <define name="MAG_TO_IMU_PHI" value="0.0"/>
     <define name="MAG_TO_IMU_THETA" value="0.0"/>
     <define name="MAG_TO_IMU_PSI" value="0.0"/>
-  </section>-->
+  </section>
 
   <servos>
     <servo name="S_THROTTLE" no="0" min="1040" neutral="1070" max="1900"/>
@@ -320,7 +321,7 @@ NOTES:
     <set command="FLAP" value="@AUX3"/>
   </rc_commands>
 
-  <auto_rc_commands><!-- TODO: Diable later now used if tiny plane turn radius is not yet correcly tuned to keep it in sight -->
+  <auto_rc_commands><!-- TODO: Disable later, now used to correct manually if tiny aircraft turn radius is not yet correcly tuned to be able keep it in sight -->
       <set command="YAW" value="@YAW*0.8"/>  
   </auto_rc_commands>
 
@@ -427,7 +428,6 @@ NOTES:
     <define name="USE_GPS_ALT" value="TRUE"/>
     <define name="VFF_R_GPS" value="0.2"/>
     <!-- <define name="USE_GPS_ALT_SPEED" value="FALSE"/>--><!-- TODO: Check -->
-
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -452,7 +452,6 @@ NOTES:
     <define name="ROLL_KFFD" value="0."/>
     <!--<define name="PITCH_OF_ROLL" value="2." unit="deg"/>--><!-- TODO: Tune -->
     <!--<define name="AILERON_OF_THROTTLE" value="0.0"/>--><!-- TODO: Dangrous if set wrongly -->
-
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -505,7 +504,6 @@ NOTES:
     <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.01"/> 
     <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.003"/> 
     <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.03"/> 
-
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -528,16 +526,15 @@ NOTES:
     Or place a reistor on top. We only had a 7k0 lying around at the time, so our multiplication factor is now ~0.0023872f
     -->
     <define name="VoltageOfAdc(adc)" value="(adc)*0.0023872f" />
-
     <define name="MAX_BAT_CAPACITY" value="650" unit="mAh"/>
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="260" unit="mA"/><!-- The amps by AP+RX+ESC+Telemetry+Servos is not MOTOR power this substracted-->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="4000" unit="mA"/><!-- Motor amp draw at full Power static test at 7.7v -->
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/><!--TODO: validate and set-->
     <define name="MAX_BAT_LEVEL" value="8.4" unit="V"/> <!-- 2S lipo 2x4.2 = 8.4 -->
     <!--<define name="BAT_NB_CELLS" value="2"/> -->
-    <define name="LOW_BAT_LEVEL" value="7.4" unit="V"/> <!-- conservative since quick voltage dropoff at end of battery voltag-->
+    <define name="LOW_BAT_LEVEL" value="7.4" unit="V"/> <!-- conservative since quick voltage dropoff at end of battery voltage -->
     <define name="CRITIC_BAT_LEVEL" value="6.6" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="6.2" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="6.0" unit="V"/>
   </section>
 
   <section name="MISC">
@@ -563,7 +560,7 @@ NOTES:
     <define name="CARROT" value="4." unit="s"/>
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
     <define name="RC_LOST_MODE" value="AP_MODE_AUTO2"/>
- </section>
+  </section>
 
   <section name="PHOTOGRAMMETRY" prefix="PHOTOGRAMMETRY_">
     <define name="FOCAL_LENGTH" value="2.5" unit="mm"/>
@@ -580,6 +577,12 @@ NOTES:
     <define name="HEIGHT_MIN" value="50." unit="m"/>
     <define name="HEIGHT_MAX" value="120." unit="m"/>
     <define name="RADIUS_MIN" value="70." unit="m"/>
+  </section>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED" value="FALSE"/>
+    <define name="CALC_TAS_FACTOR" value="FALSE"/>
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
   <!--  Can as well be your handlaunch, a.k.a. the human catapult ;) -->
