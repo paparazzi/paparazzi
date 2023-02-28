@@ -4,10 +4,12 @@
 <!ELEMENT doc (description,(define|configure|section)*)>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
-<!ELEMENT dep (depends?,conflicts?,provides?)>
+<!ELEMENT dep (depends?,conflicts?,provides?,recommends?,suggests?)>
 <!ELEMENT depends (#PCDATA)>
 <!ELEMENT conflicts (#PCDATA)>
 <!ELEMENT provides (#PCDATA)>
+<!ELEMENT recommends (#PCDATA)>
+<!ELEMENT suggests (#PCDATA)>
 <!ELEMENT autoload EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>

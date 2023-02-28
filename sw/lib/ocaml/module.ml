@@ -217,6 +217,8 @@ type dependencies = {
     requires: GC.bool_expr list;
     conflicts: string list;
     provides: string list;
+    recommends: string list;
+    suggests: string list;
   }
 
 (* comma separated values *)
@@ -226,7 +228,7 @@ let parse_func_list = fun l -> List.map (fun x -> "@"^x) (Str.split (Str.regexp 
 (* pipe separated values *)
 let parse_module_options = Str.split (Str.regexp "[ \t]*|[ \t]*")
 
-let empty_dep = { requires = []; conflicts = []; provides = [] }
+let empty_dep = { requires = []; conflicts = []; provides = []; recommends = []; suggests = [] }
 
 let rec parse_dependencies dep = function
   | Xml.Element ("dep", _, children) ->
@@ -237,6 +239,10 @@ let rec parse_dependencies dep = function
     { dep with conflicts = parse_comma_list conflicts }
   | Xml.Element ("provides", _, [Xml.PCData provides]) ->
     { dep with provides = parse_func_list provides }
+  | Xml.Element ("recommends", _, [Xml.PCData recommends]) ->
+    { dep with recommends = parse_comma_list recommends }
+  | Xml.Element ("suggests", _, [Xml.PCData suggests]) ->
+    { dep with suggests = parse_func_list suggests }
   | _ -> failwith "Module.parse_dependencies: unreachable"
 
 type autoload = {
