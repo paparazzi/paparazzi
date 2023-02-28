@@ -45,6 +45,8 @@ class ProgramWidget(QWidget, Ui_Program):
         if self.process.state() == QProcess.NotRunning:
             self.cmd = self.program_lineedit.text().split(" ")
             self.start_program()
+        elif self.process.state() == QProcess.Running:
+            self.terminate()
 
     def handle_run(self):
         if self.process.state() == QProcess.NotRunning:

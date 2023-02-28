@@ -7,9 +7,6 @@ from conf import *
 from programs_conf import parse_tools
 import subprocess
 
-# TODO make a setting ?
-REMOVE_PROGRAMS_FINISHED = True
-
 
 class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
 
@@ -82,14 +79,17 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
             subprocess.Popen(cmd)
             # self.launch_program(self.flight_plan_editor.name, cmd, self.flight_plan_editor.icon)
 
-    def launch_program(self, shortname, cmd, icon):
+    def launch_program(self, shortname, cmd, icon, cb):
         pw = ProgramWidget(shortname, cmd, icon, self.programs_widget)
         self.programs_widget.layout().addWidget(pw)
         pw.ready_read_stderr.connect(lambda: self.console_widget.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console_widget.handle_stdout(pw))
         pw.finished.connect(lambda c, s: self.console_widget.handle_program_finished(pw, c, s))
+        if cb is not None:
+            pw.finished.connect(cb)
         pw.remove.connect(lambda: self.remove_program(pw))
-        if REMOVE_PROGRAMS_FINISHED:
+        settings = utils.get_settings()
+        if not settings.value("keep_build_programs", False, bool):
             pw.finished.connect(lambda: self.remove_program(pw))
         pw.start_program()
 
