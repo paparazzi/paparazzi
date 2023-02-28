@@ -203,7 +203,7 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
               s :: l (* return normal module name *)
       in
       let depend_names = match m.Module.dependencies with
-        | Some d -> GC.singletonize (List.fold_left extract_dep [] d.Module.requires)
+        | Some d -> GC.singletonize (List.fold_left extract_dep [] (d.Module.requires @ d.Module.recommends))
         | None -> []
       in
       n, depend_names

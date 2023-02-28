@@ -217,7 +217,7 @@ type dependencies = {
     requires: GC.bool_expr list;
     conflicts: string list;
     provides: string list;
-    recommends: string list;
+    recommends: GC.bool_expr list;
     suggests: string list;
   }
 
@@ -240,7 +240,7 @@ let rec parse_dependencies dep = function
   | Xml.Element ("provides", _, [Xml.PCData provides]) ->
     { dep with provides = parse_func_list provides }
   | Xml.Element ("recommends", _, [Xml.PCData recommends]) ->
-    { dep with recommends = parse_comma_list recommends }
+    { dep with recommends = List.map (fun x -> GC.bool_expr_of_string (Some x)) (parse_comma_list recommends) }
   | Xml.Element ("suggests", _, [Xml.PCData suggests]) ->
     { dep with suggests = parse_func_list suggests }
   | _ -> failwith "Module.parse_dependencies: unreachable"
