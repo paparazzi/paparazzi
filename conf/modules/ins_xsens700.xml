@@ -20,8 +20,6 @@
     <depends>uart,gps</depends>
     <provides>ins,ahrs,gps</provides>
   </dep>
-  <autoload name="ins_sim"/>
-  <autoload name="ins_nps"/>
   <header>
     <file name="ins_xsens700.h"/>
   </header>

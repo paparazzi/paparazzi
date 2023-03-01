@@ -10,8 +10,6 @@
     <depends>uart,imu_common</depends>
     <provides>imu,mag,sonar</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <header>
     <file name="imu_ardrone2.h"/>
   </header>

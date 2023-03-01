@@ -21,9 +21,6 @@
     <depends>i2c,imu_common</depends>
     <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
-  <autoload name="sonar_bebop"/>
   <header>
     <file name="imu_bebop.h"/>
   </header>

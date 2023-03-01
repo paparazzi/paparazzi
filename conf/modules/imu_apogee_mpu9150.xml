@@ -17,11 +17,9 @@
     </section>
   </doc>
   <dep>
-    <depends>i2c</depends>
+    <depends>i2c,imu_apogee</depends>
     <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_apogee"/>
   <header>
     <file name="imu_apogee.h" dir="boards/apogee"/>
   </header>

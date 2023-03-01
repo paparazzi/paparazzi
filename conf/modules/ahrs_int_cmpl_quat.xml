@@ -51,7 +51,6 @@
     <depends>ahrs_common,@imu,@mag|@gps</depends>
     <provides>ahrs</provides>
   </dep>
-  <autoload name="ahrs_sim"/>
 
   <makefile target="!sim|fbw" firmware="fixedwing">
     <configure name="USE_MAGNETOMETER" default="0"/>

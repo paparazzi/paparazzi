@@ -10,7 +10,10 @@
       For configuration see the imu_aspirin_common module
     </description>
   </doc>
-  <autoload name="imu_aspirin_common"/>
+  <dep>
+    <depends>imu_aspirin_common</depends>
+    <provides>imu</provides>
+  </dep>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_ASPIRIN_VERSION_1_5"/>
   </makefile>

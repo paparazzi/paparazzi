@@ -24,8 +24,6 @@
     <depends>spi_master,imu_common</depends>
     <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <header>
     <file name="imu_aspirin_2_spi.h"/>
   </header>

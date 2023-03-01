@@ -39,7 +39,6 @@
     <depends>ahrs_common,@imu,@gps|@mag</depends>
     <provides>ahrs</provides>
   </dep>
-  <autoload name="ahrs_sim"/>
   <makefile target="!sim|fbw" firmware="fixedwing">
     <configure name="USE_MAGNETOMETER" default="0"/>
     <define name="AHRS_USE_GPS_HEADING" cond="ifneq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>

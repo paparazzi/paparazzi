@@ -26,8 +26,6 @@
     <depends>spi_master,datalink_common</depends>
     <provides>datalink,telemetry</provides>
   </dep>
-  <autoload name="telemetry" type="nps"/>
-  <autoload name="telemetry" type="sim"/>
   <header>
     <file name="bluegiga_dl.h"/>
   </header>

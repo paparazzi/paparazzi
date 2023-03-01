@@ -13,9 +13,8 @@
     </description>
   </doc>
   <dep>
-    <depends>spi_master,osd_max7456,baro_bmp280_i2c</depends>
+    <depends>spi_master,osd_max7456,baro_bmp280_i2c,imu_mpu6000</depends>
   </dep>
-  <autoload name="imu" type="mpu6000"/>
 
   <makefile target="!sim|nps|fbw">
     <!-- IMU CONFIGURATION -->

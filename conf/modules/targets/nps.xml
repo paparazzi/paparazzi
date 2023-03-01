@@ -13,6 +13,7 @@
   <dep>
     <depends>system_core,electrical,settings</depends>
     <provides>baro,airspeed,sonar,incidence,temperature</provides>
+    <suggests>gps_nps,imu_nps,ins_nps,actuators_nps,telemetry_nps</suggests>
   </dep>
   <makefile target="nps|hitl">
     <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>

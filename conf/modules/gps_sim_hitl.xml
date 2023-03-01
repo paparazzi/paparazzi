@@ -11,7 +11,6 @@
     <depends>gps</depends>
     <provides>gps</provides>
   </dep>
-  <autoload name="gps_nps"/>
   <header>
     <file name="gps.h"/>
   </header>

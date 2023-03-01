@@ -17,8 +17,6 @@
     <depends>uart,datalink_common</depends>
     <provides>datalink,telemetry</provides>
   </dep>
-  <autoload name="telemetry" type="nps"/>
-  <autoload name="telemetry" type="sim"/>
   <header>
     <file name="pprz_dl.h"/>
   </header>

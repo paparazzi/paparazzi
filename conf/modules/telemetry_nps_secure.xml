@@ -4,7 +4,7 @@
   <doc>
     <description>
       Telemetry module for NPS simulation
-      Common parts of comms, not to be used as a stadalone module. Instead, this module
+      Common parts of comms, not to be used as a standalone module. Instead, this module
       is autoloaded where appropriate.
     </description>
     <configure name="MODEM_DEV" value="UDPx" description="UDP port used for communication"/>

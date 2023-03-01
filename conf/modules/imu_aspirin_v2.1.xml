@@ -13,8 +13,6 @@
     <depends>imu_aspirin_v2_common</depends>
     <provides>imu</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <makefile target="!sim|nps|fbw">
   </makefile>
 </module>

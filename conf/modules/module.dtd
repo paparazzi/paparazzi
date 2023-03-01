@@ -1,6 +1,6 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc,settings_file*,settings*,dep?,autoload*,header?,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc,settings_file*,settings*,dep?,header?,init*,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT doc (description,(define|configure|section)*)>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
@@ -10,7 +10,6 @@
 <!ELEMENT provides (#PCDATA)>
 <!ELEMENT recommends (#PCDATA)>
 <!ELEMENT suggests (#PCDATA)>
-<!ELEMENT autoload EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
 <!ELEMENT periodic EMPTY>
@@ -38,10 +37,6 @@
 name CDATA #REQUIRED
 dir CDATA #IMPLIED
 task CDATA #IMPLIED>
-
-<!ATTLIST autoload
-name CDATA #REQUIRED
-type CDATA #IMPLIED>
 
 <!ATTLIST header>
 

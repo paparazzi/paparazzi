@@ -8,8 +8,6 @@
     <configure name="SYSLINK_PORT" value="UARTX" description="Select syslink port"/>
     <configure name="SYSLINK_BAUD" value="B1000000" description="Syslink baudrate"/>
   </doc>
-  <autoload name="telemetry" type="nps"/>
-  <autoload name="telemetry" type="sim"/>
   <header>
     <file name="syslink_dl.h"/>
   </header>

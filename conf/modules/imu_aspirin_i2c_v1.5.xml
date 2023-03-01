@@ -14,8 +14,6 @@
     <depends>imu_aspirin_i2c_common</depends>
     <provides>imu</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_ASPIRIN_VERSION_1_5"/>
   </makefile>

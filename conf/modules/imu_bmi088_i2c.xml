@@ -20,8 +20,6 @@
     <depends>i2c,imu_common</depends>
     <provides>imu</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <header>
     <file name="imu_bmi088_i2c.h"/>
   </header>
