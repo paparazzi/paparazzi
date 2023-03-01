@@ -31,7 +31,7 @@ let (//) = Filename.concat
 let get_string_opt = fun x -> match x with Some s -> s | None -> ""
 
 (* type of loading (user, auto) *)
-type load_type = UserLoad | AutoLoad | Unloaded | Depend
+type load_type = UserLoad | Unloaded | Depend | Suggested
 
 (* configuration sorted by target *)
 type target_conf = {
@@ -156,11 +156,12 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
                     test_module s _m (if name = "root" then UserLoad else Depend)
               | _ -> { s with required = s.required @ [(dep_expr, name)] } (* expression of required modules or functionalities *)
             ) sol dep.Module.requires in
-            (* iter over autoload modules *)
-            let sol = List.fold_left (fun s autoload ->
-              let _m = Module.from_module_name autoload.Module.atype autoload.Module.aname in
-              test_module s _m AutoLoad
-            ) sol m.Module.autoloads in
+            (* add suggests from root as normal modules with correct load type *)
+            let sol =
+              if name = "root" then
+                List.fold_left (fun s suggested -> test_module s (Module.from_module_name None suggested) Suggested) sol dep.Module.suggests
+              else sol
+            in
             (* add conflicts to list *)
             let sol = { sol with conflicts = sol.conflicts @ (List.map (fun c -> (c, name)) dep.Module.conflicts) } in
             (* add provides to list *)
@@ -172,26 +173,27 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
               | Some dep_suggested -> List.iter (fun p -> Hashtbl.add sol.suggested p suggested_module) dep_suggested.Module.provides
               | None -> ()
             ) dep.Module.suggests;
-            (*let sol = { sol with suggested = (List.map (fun s -> (Module.from_module_name None) s) dep.Module.suggests, m) :: sol.suggested } in*)
-            (* all dep and autoload resolved, add to list *)
+            (* all dep resolved, add to list *)
             if not (name = "root") then (* don't add root module *)
               { sol with resolved = sol.resolved @ [(name, (load_type, m))] } (* add to list and return solution *)
             else sol (* return current solution *)
         | None ->
-            (* no dep, only check autoload *)
-            let sol = List.fold_left (fun s autoload ->
-              let _m = Module.from_module_name autoload.Module.atype autoload.Module.aname in
-              test_module s _m AutoLoad
-            ) sol m.Module.autoloads in
+            (* no dep, add to list *)
             if not (name = "root") then (* don't add root module *)
               { sol with resolved = sol.resolved @ [(name, (load_type, m))] } (* add to list and return solution *)
             else sol (* return current solution *)
       end else begin
-        (* not adding module, but still add autoloads if target is valid *)
-        let sol = List.fold_left (fun s autoload ->
-          let _m = Module.from_module_name autoload.Module.atype autoload.Module.aname in
-          test_module s _m AutoLoad
-        ) sol m.Module.autoloads in
+        (* not adding module, but still add suggested *)
+        let _ = match m.Module.dependencies with
+          | Some dep ->
+              List.iter (fun s ->
+                let suggested_module = Module.from_module_name None s in
+                match suggested_module.Module.dependencies with
+                | Some dep_suggested -> List.iter (fun p -> Hashtbl.add sol.suggested p suggested_module) dep_suggested.Module.provides
+                | None -> ()
+              ) dep.Module.suggests
+          | None -> ()
+        in
         (* return resolved but not adding module *)
         { sol with unloaded = sol.unloaded @ [(Unloaded, m)] }
       end
@@ -289,13 +291,13 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
         if List.length select = 0 then
           failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
         else
-          select (* return selection *)
+          s @ select (* return selection *)
     ) [] solution.required in
     let solution = match selection with
     | [] -> solution (* nothing to change *)
     | _ ->
         (* add selection to root dep *)
-        let root_dep = { root_dep with Module.requires = (List.map (fun m -> GC.Var m.Module.name) selection) @ root_dep.Module.requires } in
+        let root_dep = { root_dep with Module.suggests = (List.map (fun m -> m.Module.name) selection) } in
         let root_module = { root_module with Module.dependencies = Some root_dep } in
         dep_resolve (init_sort_result ()) root_module target UserLoad
     in
@@ -588,7 +590,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
 
   if verbose then begin
     let letter_of_load_tyoe = function
-      | UserLoad -> "U" | Depend -> "D" | AutoLoad -> "A" | Unloaded -> "N"
+      | UserLoad -> "U" | Depend -> "D" | Unloaded -> "N" | Suggested -> "S"
     in
     Printf.printf "Loading modules:\n";
   List.iter2 (fun lt m ->

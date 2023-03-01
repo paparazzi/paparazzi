@@ -27,7 +27,7 @@ let conf_xml_file = conf_dir // "conf.xml"
 let letter_of_load_tyoe = function
   | Aircraft.UserLoad -> "U"
   | Aircraft.Depend -> "D"
-  | Aircraft.AutoLoad -> "A"
+  | Aircraft.Suggested -> "S"
   | Aircraft.Unloaded -> "N"
 
 let () =

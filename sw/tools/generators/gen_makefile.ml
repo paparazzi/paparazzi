@@ -147,7 +147,7 @@ let dump_target_conf = fun out target conf ->
   List.iter (define2mk out) conf.AC.defines;
   fprintf out "\n";
   List.iter (fun (l, m) -> match l with
-              | AC.UserLoad | AC.AutoLoad | AC.Depend -> module2mk out target conf.AC.firmware_name m
+              | AC.UserLoad | AC.Depend | AC.Suggested -> module2mk out target conf.AC.firmware_name m
               | _ -> ()
   ) conf.AC.modules;
   fprintf out "\nendif # end of target '%s'\n\n" target

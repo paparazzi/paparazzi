@@ -9,7 +9,7 @@
     </description>
   </doc>
   <dep>
-    <depends>mcu,math,state_interface,@actuators|@intermcu,settings|@no_settings</depends>
+    <depends>mcu,math,state_interface,@actuators|@intermcu,settings|@no_settings,@datalink,@telemetry</depends>
     <provides>core</provides>
   </dep>
   <header>
