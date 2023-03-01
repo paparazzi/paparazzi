@@ -16,7 +16,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@navigation</depends>
+    <depends>@navigation,guidance_rotorcraft</depends>
     <provides>guidance,attitude_command</provides>
   </dep>
   <header>
