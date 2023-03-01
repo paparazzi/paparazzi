@@ -242,7 +242,7 @@ let rec parse_dependencies dep = function
   | Xml.Element ("recommends", _, [Xml.PCData recommends]) ->
     { dep with recommends = List.map (fun x -> GC.bool_expr_of_string (Some x)) (parse_comma_list recommends) }
   | Xml.Element ("suggests", _, [Xml.PCData suggests]) ->
-    { dep with suggests = parse_func_list suggests }
+    { dep with suggests = parse_comma_list suggests }
   | _ -> failwith "Module.parse_dependencies: unreachable"
 
 type autoload = {
@@ -347,7 +347,7 @@ let from_file = fun filename -> from_xml (Xml.parse_file filename)
 (** search and parse a module xml file and return a Module.t *)
 (* FIXME search folder path: <PPRZ_PATH>/*/<module_name[_type]>.xml *)
 exception Module_not_found of string
-let from_module_name = fun name mtype ->
+let from_module_name = fun mtype name ->
   (* concat module type if needed *)
   let name = match mtype with Some t -> name ^ "_" ^ t | None -> name in
   (* determine if name already have an extension *)
