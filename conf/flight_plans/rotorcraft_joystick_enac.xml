@@ -7,10 +7,10 @@
 #include "autopilot.h"
 static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle) {
   if (And(autopilot_get_mode() == AP_MODE_NAV, nav_block == joystick_block)) {
-    nav_roll = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI * roll / MAX_PPRZ);
-    nav_pitch = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA * pitch / MAX_PPRZ);
-    nav_heading = ANGLE_BFP_OF_REAL(3.1416f * yaw / MAX_PPRZ);
-    nav_throttle = throttle;
+    nav.roll = (STABILIZATION_ATTITUDE_SP_MAX_PHI * (float)roll / MAX_PPRZ);
+    nav.pitch = (STABILIZATION_ATTITUDE_SP_MAX_THETA * (float)pitch / MAX_PPRZ);
+    nav.heading = (3.1416f * (float)yaw / MAX_PPRZ);
+    nav.throttle = throttle;
   }
 }
 #endif
@@ -67,7 +67,7 @@ static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), i
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT 1.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
@@ -106,7 +106,7 @@ static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), i
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <call_once fun="NavKillThrottle()"/>

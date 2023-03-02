@@ -35,7 +35,7 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
@@ -65,9 +65,9 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <set value="25" var="nav_radius"/>
+      <set value="25" var="nav.radius"/>
       <call_once fun="dc_Circle(30)"/>
-      <circle radius="nav_radius" until="NavCircleCount() @GT 1.0" wp="CAM"/>
+      <circle radius="nav.radius" until="NavCircleCount() @GT 1.0" wp="CAM"/>
       <call_once fun="dc_stop()"/>
       <deroute block="Standby"/>
     </block>
@@ -81,7 +81,7 @@
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>

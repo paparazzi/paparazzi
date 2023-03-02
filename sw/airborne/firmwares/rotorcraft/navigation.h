@@ -1,23 +1,23 @@
 /*
-* Copyright (C) 2008-2011  The Paparazzi Team
-*
-* This file is part of paparazzi.
-*
-* paparazzi is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2, or (at your option)
-* any later version.
-*
-* paparazzi is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with paparazzi; see the file COPYING.  If not, write to
-* the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA.
-*/
+ * Copyright (C) 2008-2011  The Paparazzi Team
+ * Copyright (C) 2022 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * @file firmwares/rotorcraft/navigation.h
@@ -30,10 +30,40 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
-
+#include "math/pprz_geodetic_float.h"
+#include "state.h"
 #include "modules/nav/waypoints.h"
 #include "modules/nav/common_flight_plan.h"
 #include "autopilot.h"
+#include "generated/airframe.h"
+
+/** default nav_circle_radius in meters */
+#ifndef DEFAULT_CIRCLE_RADIUS
+#define DEFAULT_CIRCLE_RADIUS 5.f
+#endif
+
+#ifndef NAV_CLIMB_VSPEED
+#define NAV_CLIMB_VSPEED 0.5f
+#endif
+
+#ifndef NAV_DESCEND_VSPEED
+#define NAV_DESCEND_VSPEED -0.8f
+#endif
+
+/** minimum horizontal distance to waypoint to mark as arrived */
+#ifndef ARRIVED_AT_WAYPOINT
+#define ARRIVED_AT_WAYPOINT 3.0f
+#endif
+
+/** Maximum distance from HOME waypoint before going into failsafe mode */
+#ifndef FAILSAFE_MODE_DISTANCE
+#define FAILSAFE_MODE_DISTANCE (1.2*MAX_DIST_FROM_HOME)
+#endif
+
+/** Carrot distance during navigation */
+#ifndef NAV_CARROT_DIST
+#define NAV_CARROT_DIST 12
+#endif
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -49,47 +79,98 @@
 #endif
 #endif
 
-extern struct EnuCoor_i navigation_target;
-extern struct EnuCoor_i navigation_carrot;
+/** Nav modes
+ *  these modes correspond to the flight plan instructions used
+ *  to set the high level navigation */
+#define NAV_HORIZONTAL_MODE_WAYPOINT  0
+#define NAV_HORIZONTAL_MODE_ROUTE     1
+#define NAV_HORIZONTAL_MODE_CIRCLE    2
+#define NAV_HORIZONTAL_MODE_ATTITUDE  3
+#define NAV_HORIZONTAL_MODE_MANUAL    4
+#define NAV_HORIZONTAL_MODE_GUIDED    5
 
-extern uint8_t last_wp __attribute__((unused));
+#define NAV_VERTICAL_MODE_MANUAL      0
+#define NAV_VERTICAL_MODE_CLIMB       1
+#define NAV_VERTICAL_MODE_ALT         2
+#define NAV_VERTICAL_MODE_GUIDED      3
 
-extern uint8_t horizontal_mode;
+/** Nav setpoint modes
+ *  these modes correspond to submodes defined by navigation routines
+ *  to tell which setpoint should be considered */
+#define NAV_SETPOINT_MODE_POS         0
+#define NAV_SETPOINT_MODE_SPEED       1
+#define NAV_SETPOINT_MODE_ACCEL       2
+#define NAV_SETPOINT_MODE_ATTITUDE    3 // attitude defined by roll, pitch and heading
+#define NAV_SETPOINT_MODE_QUAT        4 // attitude defined by unit quaternion
+#define NAV_SETPOINT_MODE_RATE        5
+#define NAV_SETPOINT_MODE_MANUAL      6
 
-extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
-#define HORIZONTAL_MODE_WAYPOINT  0
-#define HORIZONTAL_MODE_ROUTE     1
-#define HORIZONTAL_MODE_CIRCLE    2
-#define HORIZONTAL_MODE_ATTITUDE  3
-#define HORIZONTAL_MODE_MANUAL    4
-#define HORIZONTAL_MODE_GUIDED    5
-extern int32_t nav_roll, nav_pitch;     ///< with #INT32_ANGLE_FRAC
-extern int32_t nav_heading; ///< with #INT32_ANGLE_FRAC
-extern int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
-extern float nav_radius;
-extern float nav_climb_vspeed, nav_descend_vspeed;
+typedef void (*navigation_stage_init)(void);
+typedef void (*navigation_goto)(struct EnuCoor_f *wp);
+typedef void (*navigation_route)(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end);
+typedef bool (*navigation_approaching)(struct EnuCoor_f *wp_to, struct EnuCoor_f *wp_from, float approaching_time);
+typedef void (*navigation_circle)(struct EnuCoor_f *wp_center, float radius);
+typedef void (*navigation_oval_init)(void);
+typedef void (*navigation_oval)(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius);
 
-extern int32_t nav_leg_progress;
-extern uint32_t nav_leg_length;
 
-extern bool nav_survey_active;
+/** General Navigation structure
+ */
+struct RotorcraftNavigation {
+  // mode
+  uint8_t horizontal_mode;  // nav horizontal mode
+  uint8_t vertical_mode;    // nav vertical mode
+  uint8_t setpoint_mode;    // nav setpoint mode
 
-extern uint8_t vertical_mode;
-extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
-extern int32_t nav_climb, nav_altitude, nav_flight_altitude;
-extern float flight_altitude;
-#define VERTICAL_MODE_MANUAL      0
-#define VERTICAL_MODE_CLIMB       1
-#define VERTICAL_MODE_ALT         2
-#define VERTICAL_MODE_GUIDED      3
+  // commands
+  struct EnuCoor_f target;  ///< final target position (in meters)
+  struct EnuCoor_f carrot;  ///< carrot position (also used for GCS display)
+  struct EnuCoor_f speed;   ///< speed setpoint (in m/s)
+  struct EnuCoor_f accel;   ///< accel setpoint (in m/s)
+  uint32_t throttle;        ///< throttle command (in pprz_t)
+  int32_t cmd_roll;         ///< roll command (in pprz_t)
+  int32_t cmd_pitch;        ///< pitch command (in pprz_t)
+  int32_t cmd_yaw;          ///< yaw command (in pprz_t)
+  float roll;               ///< roll angle (in radians)
+  float pitch;              ///< pitch angle (in radians)
+  float heading;            ///< heading setpoint (in radians)
+  struct FloatQuat quat;    ///< quaternion setpoint
+  struct FloatRates rates;  ///< rates setpoint (in rad/s)
+  float radius;             ///< radius setpoint (in meters)
+  float climb;              ///< climb setpoint (in m/s)
+  float fp_altitude;        ///< altitude setpoint from flight plan (in meters)
+  float nav_altitude;       ///< current altitude setpoint (in meters): might differ from fp_altitude depending on altitude shift from operator
 
-extern float dist2_to_home;      ///< squared distance to home waypoint
-extern bool too_far_from_home;
-extern float failsafe_mode_dist2; ///< maximum squared distance to home wp before going to failsafe mode
+  // misc
+  float dist2_to_home;        ///< squared distance to home waypoint
+  bool too_far_from_home;     ///< too_far flag
+  float failsafe_mode_dist2;  ///< maximum squared distance to home wp before going to failsafe mode
+  float climb_vspeed;         ///< climb speed setting, mostly used in flight plans
+  float descend_vspeed;       ///< descend speed setting, mostly used in flight plans
 
-extern float dist2_to_wp;       ///< squared distance to next waypoint
+  // pointers to basic nav functions
+  navigation_stage_init nav_stage_init;
+  navigation_goto nav_goto;
+  navigation_route nav_route;
+  navigation_approaching nav_approaching;
+  navigation_circle nav_circle;
+  navigation_oval_init nav_oval_init;
+  navigation_oval nav_oval;
+};
 
-extern bool exception_flag[10];
+extern struct RotorcraftNavigation nav;
+
+/** Registering functions
+ */
+extern void nav_register_stage_init(navigation_stage_init nav_stage_init);
+extern void nav_register_goto_wp(navigation_goto nav_goto, navigation_route nav_route, navigation_approaching nav_approaching);
+extern void nav_register_circle(navigation_circle nav_circle);
+extern void nav_register_oval(navigation_oval_init _nav_oval_init, navigation_oval nav_oval);
+// TODO: eight, survey
+
+
+// flight altitude setting
+extern float flight_altitude; // hmsl flight altitude in meters
 
 
 /*****************************************************************
@@ -113,23 +194,13 @@ extern bool exception_flag[10];
 #define GetAltRef() (state.ned_origin_f.hmsl)
 
 
-/** Normalize a degree angle between 0 and 359 */
-#define NormCourse(x) { \
-    while (x < 0) x += 360; \
-    while (x >= 360) x -= 360; \
-  }
-
 extern void nav_init(void);
 extern void nav_run(void);
 extern void nav_parse_BLOCK(uint8_t *buf);
 extern void nav_parse_MOVE_WP(uint8_t *buf);
 
-extern void set_exception_flag(uint8_t flag_num);
-
-extern bool force_forward;
-
 extern float get_dist2_to_waypoint(uint8_t wp_id);
-extern float get_dist2_to_point(struct EnuCoor_i *p);
+extern float get_dist2_to_point(struct EnuCoor_f *p);
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
 extern void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw);
@@ -140,12 +211,14 @@ extern void nav_periodic_task(void);
 
 extern bool nav_is_in_flight(void);
 
+/** heading utility functions */
 extern void nav_set_heading_rad(float rad);
 extern void nav_set_heading_deg(float deg);
 extern void nav_set_heading_towards(float x, float y);
 extern void nav_set_heading_towards_waypoint(uint8_t wp);
 extern void nav_set_heading_towards_target(void);
 extern void nav_set_heading_current(void);
+
 extern void nav_set_failsafe(void);
 
 /* ground detection */
@@ -167,7 +240,6 @@ static inline void NavResurrect(void)
 #define NavSetManual nav_set_manual
 #define NavSetFailsafe nav_set_failsafe
 
-
 #define NavSetGroundReferenceHere nav_reset_reference
 #define NavSetAltitudeReferenceHere nav_reset_alt
 
@@ -175,73 +247,49 @@ static inline void NavResurrect(void)
 #define NavCopyWaypoint waypoint_copy
 #define NavCopyWaypointPositionOnly waypoint_position_copy
 
-
-/** Proximity tests on approaching a wp */
-bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time);
-#define NavApproaching(wp, time) nav_approaching_from(&waypoints[wp].enu_i, NULL, time)
-#define NavApproachingFrom(wp, from, time) nav_approaching_from(&waypoints[wp].enu_i, &waypoints[from].enu_i, time)
-
 /** Check the time spent in a radius of 'ARRIVED_AT_WAYPOINT' around a wp  */
-bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
-#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_i, time)
-
-
-/* should we really keep this one ??
- * maybe better to use the `goto` flight plan primitive and
- * add a `pre_call` or `call_once` to set the heading?
- */
-static inline void NavGotoWaypointHeading(uint8_t wp)
-{
-  vertical_mode = VERTICAL_MODE_ALT;
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  VECT3_COPY(navigation_target, waypoints[wp].enu_i);
-  dist2_to_wp = get_dist2_to_waypoint(wp);
-  nav_set_heading_towards_waypoint(wp);
-}
-
+bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
+#define NavCheckWaypointTime(wp, time) nav_check_wp_time(&waypoints[wp].enu_f, time)
 
 
 /***********************************************************
  * macros used by flight plan to set different modes
  **********************************************************/
 
+#define NavAttitude(_roll) {                            \
+    nav.horizontal_mode = NAV_HORIZONTAL_MODE_ATTITUDE; \
+    nav.setpoint_mode = NAV_SETPOINT_MODE_ATTITUDE;     \
+    nav.roll = _roll;                                   \
+  }
+
 /** Set the climb control to auto-throttle with the specified pitch
     pre-command */
 #define NavVerticalAutoThrottleMode(_pitch) {   \
-    nav_pitch = ANGLE_BFP_OF_REAL(_pitch);      \
+    nav.pitch = _pitch;                         \
   }
-
-/** Set the climb control to auto-pitch with the specified throttle
-    pre-command */
-#define NavVerticalAutoPitchMode(_throttle) {}
 
 /** Set the vertical mode to altitude control with the specified altitude
     setpoint and climb pre-command. */
 #define NavVerticalAltitudeMode(_alt, _pre_climb) { \
-    vertical_mode = VERTICAL_MODE_ALT;              \
-    nav_altitude = POS_BFP_OF_REAL(_alt);           \
+    nav.vertical_mode = NAV_VERTICAL_MODE_ALT;      \
+    nav.fp_altitude = _alt;                         \
   }
 
 /** Set the vertical mode to climb control with the specified climb setpoint */
-#define NavVerticalClimbMode(_climb) {          \
-    vertical_mode = VERTICAL_MODE_CLIMB;        \
-    nav_climb = SPEED_BFP_OF_REAL(_climb);      \
+#define NavVerticalClimbMode(_climb) {            \
+    nav.vertical_mode = NAV_VERTICAL_MODE_CLIMB;  \
+    nav.climb = _climb;                           \
+    nav.speed.z = _climb;                         \
   }
 
 /** Set the vertical mode to fixed throttle with the specified setpoint */
-#define NavVerticalThrottleMode(_throttle) {    \
-    vertical_mode = VERTICAL_MODE_MANUAL;       \
-    nav_throttle = _throttle;                   \
+#define NavVerticalThrottleMode(_throttle) {      \
+    nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL; \
+    nav.throttle = _throttle;                     \
   }
 
 /** Set the heading of the rotorcraft, nothing else */
 #define NavHeading nav_set_heading_rad
-
-#define NavAttitude(_roll) {                    \
-    horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
-    nav_roll = ANGLE_BFP_OF_REAL(_roll);        \
-  }
-
 
 
 /***********************************************************
@@ -251,65 +299,77 @@ static inline void NavGotoWaypointHeading(uint8_t wp)
 /*********** Navigation to  waypoint *************************************/
 static inline void NavGotoWaypoint(uint8_t wp)
 {
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  VECT3_COPY(navigation_target, waypoints[wp].enu_i);
-  dist2_to_wp = get_dist2_to_waypoint(wp);
+  if (nav.nav_goto) {
+    nav.nav_goto(&waypoints[wp].enu_f);
+  }
+}
+
+/*********** Navigation along a line *************************************/
+static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
+{
+  if (nav.nav_route) {
+    nav.nav_route(&waypoints[wp_start].enu_f, &waypoints[wp_end].enu_f);
+  }
+}
+
+static inline bool NavApproaching(uint8_t wp, float approaching_time)
+{
+  if (nav.nav_approaching) {
+    return nav.nav_approaching(&waypoints[wp].enu_f, NULL, approaching_time);
+  }
+  else {
+    return true;
+  }
+}
+
+static inline bool NavApproachingFrom(uint8_t to, uint8_t from, float approaching_time)
+{
+  if (nav.nav_approaching) {
+    return nav.nav_approaching(&waypoints[to].enu_f, &waypoints[from].enu_f, approaching_time);
+  }
+  else {
+    return true;
+  }
 }
 
 /*********** Navigation on a circle **************************************/
-extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
 static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 {
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-  nav_circle(&waypoints[wp_center].enu_i, POS_BFP_OF_REAL(radius));
+  if (nav.nav_circle) {
+    nav.nav_circle(&waypoints[wp_center].enu_f, radius);
+  }
 }
 
-#define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)
-#define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
-
-#define CloseDegAngles(_c1, _c2) ({ int32_t _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
-#define CloseRadAngles(_c1, _c2) ({ float _diff = _c1 - _c2; NormRadAngle(_diff); fabsf(_diff) < 0.0177; })
-/** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
-#define NavQdrCloseTo(x) CloseDegAngles(((x) >> INT32_ANGLE_FRAC), NavCircleQdr())
-#define NavCourseCloseTo(x) {}
 
 /*********** Navigation along an oval *************************************/
-extern void nav_oval_init(void);
-extern void nav_oval(uint8_t, uint8_t, float);
-extern uint8_t nav_oval_count;
-#define Oval(a, b, c) nav_oval((b), (a), (c))
+static inline void nav_oval_init(void)
+{
+  if (nav.nav_oval_init) {
+    nav.nav_oval_init();
+  }
+}
 
-/*********** Navigation along a line *************************************/
-extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
-extern struct FloatVect2 line_vect, to_end_vect;
-#ifdef GUIDANCE_INDI_HYBRID
-static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
+static inline void Oval(uint8_t wp1, uint8_t wp2, float radius)
 {
-  VECT2_DIFF(line_vect, waypoints[wp_end].enu_f, waypoints[wp_start].enu_f);
-  VECT2_DIFF(to_end_vect, waypoints[wp_end].enu_f, *stateGetPositionEnu_f());
-  VECT3_COPY(navigation_target, waypoints[wp_end].enu_i);
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+  if (nav.nav_oval) {
+    nav.nav_oval(&waypoints[wp1].enu_f, &waypoints[wp2].enu_f, radius);
+  }
 }
-#else
-static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
-{
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-  nav_route(&waypoints[wp_start].enu_i, &waypoints[wp_end].enu_i);
-}
-#endif
+
 
 /** Nav glide routine */
 static inline void NavGlide(uint8_t start_wp, uint8_t wp)
 {
-  int32_t start_alt = waypoints[start_wp].enu_i.z;
-  int32_t diff_alt = waypoints[wp].enu_i.z - start_alt;
-  int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / (int32_t)nav_leg_length);
-  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt), 0);
+  struct FloatVect2 wp_diff, pos_diff;
+  VECT2_DIFF(wp_diff, waypoints[wp].enu_f, waypoints[start_wp].enu_f);
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), waypoints[start_wp].enu_f);
+  float start_alt = waypoint_get_alt(start_wp);
+  float diff_alt = waypoint_get_alt(wp) - start_alt;
+  float length2 = Max(float_vect2_norm2(&wp_diff), 0.1f);
+  float progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / length2;
+  float alt = start_alt + diff_alt * progress;
+  NavVerticalAltitudeMode(alt, 0);
 }
-
-/* follow another aircraft */
-#define NavFollow nav_follow
-extern void nav_follow(uint8_t _ac_id, uint32_t distance, uint32_t height);
 
 
 
@@ -318,9 +378,19 @@ extern void nav_follow(uint8_t _ac_id, uint32_t distance, uint32_t height);
  **********************************************************/
 #define nav_IncreaseShift(x) {}
 #define nav_SetNavRadius(x) {}
-#define navigation_SetFlightAltitude(x) { \
-    flight_altitude = x; \
-    nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude - state.ned_origin_f.hmsl); \
+#define navigation_SetFlightAltitude(x) {                         \
+    flight_altitude = x;                                          \
+    nav.nav_altitude = flight_altitude - state.ned_origin_f.hmsl; \
   }
+
+/** Unused compat macros
+ */
+
+#define NavVerticalAutoPitchMode(_throttle) {}
+
+/* follow another aircraft not implemented with this function
+ * see dedicated nav modules
+ */
+#define NavFollow(_i, _d, _h) {}
 
 #endif /* NAVIGATION_H */

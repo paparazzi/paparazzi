@@ -1012,17 +1012,17 @@ float float_mat_norm_li(float **a, int m, int n)
 }
 
 /* Scale a 3D vector to within a 2D bound */
-void vect_bound_in_2d(struct FloatVect3 *vect3, float bound) {
+void float_vect3_bound_in_2d(struct FloatVect3 *vect3, float bound) {
   float norm = FLOAT_VECT2_NORM(*vect3);
-  if(norm>bound) {
-    float scale = bound/norm;
+  if (norm > bound) {
+    float scale = bound / norm;
     vect3->x *= scale;
     vect3->y *= scale;
   }
 }
 
 /* Scale a 3D vector to within a 3D bound */
-void vect_bound_in_3d(struct FloatVect3 *vect3, float bound) {
+void float_vect3_bound_in_3d(struct FloatVect3 *vect3, float bound) {
   float norm = FLOAT_VECT3_NORM(*vect3);
   if(norm>bound) {
     float scale = bound/norm;
@@ -1033,11 +1033,32 @@ void vect_bound_in_3d(struct FloatVect3 *vect3, float bound) {
 }
 
 /* Scale a 3D vector to a certain length in 2D */
-void vect_scale(struct FloatVect3 *vect3, float norm_des) {
+void float_vect3_scale_in_2d(struct FloatVect3 *vect3, float norm_des) {
   float norm = FLOAT_VECT2_NORM(*vect3);
-  if(norm>0.1) {
-    float scale = norm_des/norm;
+  if (norm > 0.01f) {
+    float scale = norm_des / norm;
     vect3->x *= scale;
     vect3->y *= scale;
   }
 }
+
+/* Scale a 2D vector to within a 2D bound */
+void float_vect2_bound_in_2d(struct FloatVect2 *vect2, float bound) {
+  float norm = FLOAT_VECT2_NORM(*vect2);
+  if (norm > bound) {
+    float scale = bound / norm;
+    vect2->x *= scale;
+    vect2->y *= scale;
+  }
+}
+
+/* Scale a 2D vector to a certain length in 2D */
+void float_vect2_scale_in_2d(struct FloatVect2 *vect2, float norm_des) {
+  float norm = FLOAT_VECT2_NORM(*vect2);
+  if (norm > 0.01f) {
+    float scale = norm_des / norm;
+    vect2->x *= scale;
+    vect2->y *= scale;
+  }
+}
+

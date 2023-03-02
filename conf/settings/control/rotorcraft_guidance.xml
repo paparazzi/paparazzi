@@ -30,10 +30,10 @@
 
     <dl_settings NAME="NAV">
       <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="navigation" unit="m" handler="SetFlightAltitude"/>
-      <dl_setting var="nav_heading" MIN="0" STEP="1" MAX="360" module="navigation" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
-      <dl_setting var="nav_radius" MIN="-50" STEP="0.1" MAX="50" module="navigation" unit="m"/>
-      <dl_setting var="nav_climb_vspeed" MIN="0" STEP="0.1" MAX="10.0" module="navigation" unit="m/s" param="NAV_CLIMB_VSPEED"/>
-      <dl_setting var="nav_descend_vspeed" MIN="-10.0" STEP="0.1" MAX="0.0" module="navigation" unit="m/s" param="NAV_DESCEND_VSPEED"/>
+      <dl_setting var="nav.heading" MIN="0" STEP="0.1" MAX="360" module="navigation" unit="rad" alt_unit="deg"/>
+      <dl_setting var="nav.radius" MIN="-50" STEP="0.1" MAX="50" module="navigation" unit="m"/>
+      <dl_setting var="nav.climb_vspeed" MIN="0" STEP="0.1" MAX="10.0" module="navigation" unit="m/s" param="NAV_CLIMB_VSPEED"/>
+      <dl_setting var="nav.descend_vspeed" MIN="-10.0" STEP="0.1" MAX="0.0" module="navigation" unit="m/s" param="NAV_DESCEND_VSPEED"/>
     </dl_settings>
 
   </dl_settings>

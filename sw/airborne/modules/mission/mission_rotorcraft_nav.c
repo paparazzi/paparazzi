@@ -75,63 +75,31 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   return true;
 }
 
-//Function that converts target wp from float point versions to int
-bool mission_element_convert(struct _mission_element *el)
-{
-  struct _mission_element tmp_element = *el;
-  uint8_t i = 0;
-
-  switch (tmp_element.type) {
-    case MissionWP:
-      ENU_BFP_OF_REAL(el->element.mission_wp.wp.wp_i, tmp_element.element.mission_wp.wp.wp_f);
-      break;
-    case MissionCircle:
-      ENU_BFP_OF_REAL(el->element.mission_circle.center.center_i, tmp_element.element.mission_circle.center.center_f);
-      break;
-    case MissionSegment:
-      ENU_BFP_OF_REAL(el->element.mission_segment.from.from_i, tmp_element.element.mission_segment.from.from_f);
-      ENU_BFP_OF_REAL(el->element.mission_segment.to.to_i, tmp_element.element.mission_segment.to.to_f);
-      break;
-    case MissionPath:
-      for (i = 0; i < 5; i++) {
-        ENU_BFP_OF_REAL(el->element.mission_path.path.path_i[i], tmp_element.element.mission_path.path.path_f[i]);
-      }
-      break;
-    default:
-      // invalid element type
-      return false;
-      break;
-  }
-
-  return true;
-}
-
 // navigation time step
-static const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
+static const float dt_navigation = 1.0f / ((float)NAVIGATION_FREQUENCY);
 
 //  last_mission_wp, last target wp from mission elements, not used actively and kept for future implementations
-struct EnuCoor_i last_mission_wp = { 0., 0., 0. };
+struct EnuCoor_f last_mission_wp = { 0.f, 0.f, 0.f };
 
 /** Navigation function to a single waypoint
 */
 static inline bool mission_nav_wp(struct _mission_element *el)
 {
-  struct EnuCoor_i *target_wp = &(el->element.mission_wp.wp.wp_i);
+  struct EnuCoor_f *target_wp = &(el->element.mission_wp.wp);
 
   //Check proximity and wait for 'duration' seconds in proximity circle if desired
-  if (nav_approaching_from(target_wp, NULL, CARROT)) {
+  if (nav.nav_approaching(target_wp, NULL, CARROT)) {
     last_mission_wp = *target_wp;
 
-    if (el->duration > 0.) {
+    if (el->duration > 0.f) {
       if (nav_check_wp_time(target_wp, el->duration)) { return false; }
     } else { return false; }
 
   }
   //Go to Mission Waypoint
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-  VECT3_COPY(navigation_target, *target_wp);
-  NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
-  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(target_wp->z), 0.);
+  nav.nav_goto(target_wp);
+  NavVerticalAutoThrottleMode(RadOfDeg(0.f));
+  NavVerticalAltitudeMode(target_wp->z, 0.f);
 
   return true;
 }
@@ -140,16 +108,15 @@ static inline bool mission_nav_wp(struct _mission_element *el)
 */
 static inline bool mission_nav_circle(struct _mission_element *el)
 {
-  struct EnuCoor_i *center_wp = &(el->element.mission_circle.center.center_i);
-  int32_t radius = el->element.mission_circle.radius;
+  struct EnuCoor_f *center_wp = &(el->element.mission_circle.center);
+  float radius = el->element.mission_circle.radius;
 
   //Draw the desired circle for a 'duration' time
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-  nav_circle(center_wp, POS_BFP_OF_REAL(radius));
-  NavVerticalAutoThrottleMode(RadOfDeg(0.0));
-  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(center_wp->z), 0.);
+  nav.nav_circle(center_wp, radius);
+  NavVerticalAutoThrottleMode(RadOfDeg(0.f));
+  NavVerticalAltitudeMode(center_wp->z, 0.f);
 
-  if (el->duration > 0. && mission.element_time >= el->duration) {
+  if (el->duration > 0.f && mission.element_time >= el->duration) {
     return false;
   }
 
@@ -160,23 +127,22 @@ static inline bool mission_nav_circle(struct _mission_element *el)
 */
 static inline bool mission_nav_segment(struct _mission_element *el)
 {
-  struct EnuCoor_i *from_wp = &(el->element.mission_segment.from.from_i);
-  struct EnuCoor_i *to_wp   = &(el->element.mission_segment.to.to_i);
+  struct EnuCoor_f *from_wp = &(el->element.mission_segment.from);
+  struct EnuCoor_f *to_wp   = &(el->element.mission_segment.to);
 
   //Check proximity and wait for 'duration' seconds in proximity circle if desired
-  if (nav_approaching_from(to_wp, from_wp, CARROT)) {
+  if (nav.nav_approaching(to_wp, from_wp, CARROT)) {
     last_mission_wp = *to_wp;
 
-    if (el->duration > 0.) {
+    if (el->duration > 0.f) {
       if (nav_check_wp_time(to_wp, el->duration)) { return false; }
     } else { return false; }
   }
 
   //Route Between from-to
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-  nav_route(from_wp, to_wp);
-  NavVerticalAutoThrottleMode(RadOfDeg(0.0));
-  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(to_wp->z), 0.);
+  nav.nav_route(from_wp, to_wp);
+  NavVerticalAutoThrottleMode(RadOfDeg(0.f));
+  NavVerticalAltitudeMode(to_wp->z, 0.f);
 
   return true;
 }
@@ -191,30 +157,29 @@ static inline bool mission_nav_path(struct _mission_element *el)
   }
 
   if (el->element.mission_path.path_idx == 0) { //first wp of path
-    el->element.mission_wp.wp.wp_i = el->element.mission_path.path.path_i[0];
+    el->element.mission_wp.wp = el->element.mission_path.path[0];
     if (!mission_nav_wp(el)) { el->element.mission_path.path_idx++; }
   }
 
   else if (el->element.mission_path.path_idx < el->element.mission_path.nb) { //standart wp of path
 
-    struct EnuCoor_i *from_wp = &(el->element.mission_path.path.path_i[(el->element.mission_path.path_idx) - 1]);
-    struct EnuCoor_i *to_wp   = &(el->element.mission_path.path.path_i[el->element.mission_path.path_idx]);
+    struct EnuCoor_f *from_wp = &(el->element.mission_path.path[(el->element.mission_path.path_idx) - 1]);
+    struct EnuCoor_f *to_wp   = &(el->element.mission_path.path[el->element.mission_path.path_idx]);
 
     //Check proximity and wait for t seconds in proximity circle if desired
-    if (nav_approaching_from(to_wp, from_wp, CARROT)) {
+    if (nav.nav_approaching(to_wp, from_wp, CARROT)) {
       last_mission_wp = *to_wp;
 
-      if (el->duration > 0.) {
+      if (el->duration > 0.f) {
         if (nav_check_wp_time(to_wp, el->duration)) {
           el->element.mission_path.path_idx++;
         }
       } else { el->element.mission_path.path_idx++; }
     }
     //Route Between from-to
-    horizontal_mode = HORIZONTAL_MODE_ROUTE;
-    nav_route(from_wp, to_wp);
-    NavVerticalAutoThrottleMode(RadOfDeg(0.0));
-    NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(from_wp->z), 0.);
+    nav.nav_route(from_wp, to_wp);
+    NavVerticalAutoThrottleMode(RadOfDeg(0.f));
+    NavVerticalAltitudeMode(from_wp->z, 0.f);
   } else { return false; } //end of path
 
   return true;
@@ -244,7 +209,7 @@ static float mission_wait_time = 0.f;
 static struct _mission_element mission_wait_wp;
 static bool mission_wait_pattern(void) {
   if (!mission_wait_started) {
-    mission_wait_wp.element.mission_wp.wp.wp_i = *stateGetPositionEnu_i();
+    mission_wait_wp.element.mission_wp.wp = *stateGetPositionEnu_f();
     mission_wait_time = 0.f;
     mission_wait_started = true;
   }

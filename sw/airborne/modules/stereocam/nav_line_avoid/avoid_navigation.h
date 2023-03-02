@@ -51,7 +51,7 @@ extern bool obstacle_detected;
 
 void init_avoid_navigation(void);
 void run_avoid_navigation_onvision(void);
-extern void increase_nav_heading(int32_t *heading, int32_t increment);
+extern void increase_nav_heading(float *heading, float increment);
 
 
 #endif /* AVOID_NAVIGATION_H */

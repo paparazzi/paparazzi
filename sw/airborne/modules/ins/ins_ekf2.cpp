@@ -725,7 +725,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
 #endif
       guidance_h.sp.heading += psi;
       guidance_h.rc_sp.psi += psi;
-      nav_heading += ANGLE_BFP_OF_REAL(psi);
+      nav.heading += psi;
       guidance_h_read_rc(autopilot_in_flight());
       stabilization_attitude_enter();
       ekf2.quat_reset_counter = quat_reset_counter;

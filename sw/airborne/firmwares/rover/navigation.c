@@ -49,8 +49,6 @@ PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
 
 struct RoverNavigation nav;
 
-uint8_t last_wp __attribute__((unused));
-
 const float max_dist_from_home = MAX_DIST_FROM_HOME;
 const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;

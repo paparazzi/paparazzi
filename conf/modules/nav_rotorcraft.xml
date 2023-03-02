@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_rotorcraft" dir="nav" task="control">
+  <doc>
+    <description>
+      Standard navigation API for rotorcraft
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="NAV">
+        <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="navigation" unit="m" handler="SetFlightAltitude"/>
+        <dl_setting var="nav.heading" MIN="0" STEP="0.1" MAX="360" unit="rad" alt_unit="deg"/>
+        <dl_setting var="nav.radius" MIN="-50" STEP="0.1" MAX="50" unit="m"/>
+        <dl_setting var="nav.climb_vspeed" MIN="0" STEP="0.1" MAX="10.0" unit="m/s" param="NAV_CLIMB_VSPEED"/>
+        <dl_setting var="nav.descend_vspeed" MIN="-10.0" STEP="0.1" MAX="0.0" unit="m/s" param="NAV_DESCEND_VSPEED"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <provides>navigation</provides>
+  </dep>
+  <header>
+    <file name="navigation.h" dir="firmwares/rotorcraft"/>
+  </header>
+  <init fun="nav_init()"/>
+  <datalink message="BLOCK" fun="nav_parse_BLOCK(buf)"/>
+  <datalink message="MOVE_WP" fun="nav_parse_MOVE_WP(buf)"/>
+  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+    <file name="navigation.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="common_flight_plan.c"/>
+    <file name="waypoints.c"/>
+    <define name="USE_NAVIGATION"/>
+    <test firmware="rotorcraft">
+      <configure name="SRC_FIRMWARE" value="firmwares/rotorcraft"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>

@@ -60,6 +60,11 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stabilization_indi_set_earth_cmd_i(cmd, heading);
 }
 
+void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stabilization_indi_set_stab_sp(sp);
+}
+
 void stabilization_attitude_run(bool in_flight)
 {
   stabilization_indi_attitude_run(stab_att_sp_quat, in_flight);

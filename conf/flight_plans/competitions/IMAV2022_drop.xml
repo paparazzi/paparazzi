@@ -214,7 +214,7 @@
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
       <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="LANDPAD"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <set var="mission_nb" value="DROP_NONE"/>
@@ -458,7 +458,7 @@
     </block>
     <block name="Flare">
       <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="LANDPAD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
     </block>
     <block name="Kill landed">
       <call_once fun="NavKillThrottle()"/>

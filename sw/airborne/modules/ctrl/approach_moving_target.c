@@ -160,7 +160,7 @@ void follow_diagonal_approach(void) {
     ref_relvel.z + target_vel.z + ec_vel.z,
   };
 
-  vect_bound_in_3d(&des_vel, 10.0);
+  float_vect3_bound_in_3d(&des_vel, 10.0);
 
   // Bound vertical speed setpoint
   if(stateGetAirspeed_f() > 13.0) {

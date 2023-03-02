@@ -44,13 +44,13 @@
     </block>
     <block name="Start Engine" strip_button="Start" strip_icon="takeoff.png">
       <call_once fun="NavResurrect()"/>
-      <set value="stateGetNedToBodyEulers_i()->psi" var="nav_heading"/>
+      <set value="stateGetNedToBodyEulers_f()->psi" var="nav.heading"/>
       <attitude pitch="0" roll="0" throttle="0" until="stage_time @GT 1" vmode="throttle"/>
     </block>
     <block name="Takeoff">
       <exception cond="GetPosHeight() @GT 0.5" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
@@ -74,7 +74,7 @@
       <call_once fun="NavCopyWaypoint(WP_last_wp,WP_GOAL)"/>
       <deroute block="land here"/>
     </block>
-    <block name="stay_W0" pre_call="increase_nav_heading(&nav_heading, 30)">
+    <block name="stay_W0" pre_call="increase_nav_heading(&nav.heading, RadOfDeg(0.5))">
       <exception cond="obstacle_detected==0" deroute="route_to_W1"/>
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>
@@ -107,7 +107,7 @@
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" until="stage_time @GT 4" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" until="stage_time @GT 4" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <call_once fun="NavKillThrottle()"/>

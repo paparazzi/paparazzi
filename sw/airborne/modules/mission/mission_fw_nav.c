@@ -64,23 +64,23 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
 }
 
 // navigation time step
-static const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
+static const float dt_navigation = 1.0f / ((float)NAVIGATION_FREQUENCY);
 
 // dirty hack to comply with nav_approaching_xy function
-struct EnuCoor_f last_wp_f = { 0., 0., 0. };
+struct EnuCoor_f last_wp_f = { 0.f, 0.f, 0.f };
 
 /** Navigation function to a single waypoint
  */
 static inline bool mission_nav_wp(struct _mission_wp *wp)
 {
-  if (nav_approaching_xy(wp->wp.wp_f.x, wp->wp.wp_f.y, last_wp_f.x, last_wp_f.y, CARROT)) {
-    last_wp_f = wp->wp.wp_f; // store last wp
+  if (nav_approaching_xy(wp->wp.x, wp->wp.y, last_wp_f.x, last_wp_f.y, CARROT)) {
+    last_wp_f = wp->wp; // store last wp
     return false; // end of mission element
   }
   // set navigation command
-  fly_to_xy(wp->wp.wp_f.x, wp->wp.wp_f.y);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(wp->wp.wp_f.z, 0.);
+  fly_to_xy(wp->wp.x, wp->wp.y);
+  NavVerticalAutoThrottleMode(0.f);
+  NavVerticalAltitudeMode(wp->wp.z, 0.f);
   return true;
 }
 
@@ -88,9 +88,9 @@ static inline bool mission_nav_wp(struct _mission_wp *wp)
  */
 static inline bool mission_nav_circle(struct _mission_circle *circle)
 {
-  nav_circle_XY(circle->center.center_f.x, circle->center.center_f.y, circle->radius);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(circle->center.center_f.z, 0.);
+  nav_circle_XY(circle->center.x, circle->center.y, circle->radius);
+  NavVerticalAutoThrottleMode(0.f);
+  NavVerticalAltitudeMode(circle->center.z, 0.f);
   return true;
 }
 
@@ -98,14 +98,13 @@ static inline bool mission_nav_circle(struct _mission_circle *circle)
  */
 static inline bool mission_nav_segment(struct _mission_segment *segment)
 {
-  if (nav_approaching_xy(segment->to.to_f.x, segment->to.to_f.y, segment->from.from_f.x, segment->from.from_f.y,
-                         CARROT)) {
-    last_wp_f = segment->to.to_f;
+  if (nav_approaching_xy(segment->to.x, segment->to.y, segment->from.x, segment->from.y, CARROT)) {
+    last_wp_f = segment->to;
     return false; // end of mission element
   }
-  nav_route_xy(segment->from.from_f.x, segment->from.from_f.y, segment->to.to_f.x, segment->to.to_f.y);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(segment->to.to_f.z, 0.); // both altitude should be the same anyway
+  nav_route_xy(segment->from.x, segment->from.y, segment->to.x, segment->to.y);
+  NavVerticalAutoThrottleMode(0.f);
+  NavVerticalAltitudeMode(segment->to.z, 0.f); // both altitude should be the same anyway
   return true;
 }
 
@@ -119,20 +118,20 @@ static inline bool mission_nav_path(struct _mission_path *path)
   if (path->nb == 1) {
     // handle as a single waypoint
     struct _mission_wp wp;
-    wp.wp.wp_f = path->path.path_f[0];
+    wp.wp = path->path[0];
     return mission_nav_wp(&wp);
   }
   if (path->path_idx == path->nb - 1) {
-    last_wp_f = path->path.path_f[path->path_idx]; // store last wp
+    last_wp_f = path->path[path->path_idx]; // store last wp
     return false; // end of path
   }
   // normal case
-  struct EnuCoor_f from_f = path->path.path_f[path->path_idx];
-  struct EnuCoor_f to_f = path->path.path_f[path->path_idx + 1];
-  nav_route_xy(from_f.x, from_f.y, to_f.x, to_f.y);
-  NavVerticalAutoThrottleMode(0.);
-  NavVerticalAltitudeMode(to_f.z, 0.); // both altitude should be the same anyway
-  if (nav_approaching_xy(to_f.x, to_f.y, from_f.x, from_f.y, CARROT)) {
+  struct EnuCoor_f from = path->path[path->path_idx];
+  struct EnuCoor_f to = path->path[path->path_idx + 1];
+  nav_route_xy(from.x, from.y, to.x, to.y);
+  NavVerticalAutoThrottleMode(0.f);
+  NavVerticalAltitudeMode(to.z, 0.f); // both altitude should be the same anyway
+  if (nav_approaching_xy(to.x, to.y, from.x, from.y, CARROT)) {
     path->path_idx++; // go to next segment
   }
   return true;
@@ -162,8 +161,8 @@ static float mission_wait_time = 0.f;
 static struct _mission_circle mission_wait_circle;
 static bool mission_wait_pattern(void) {
   if (!mission_wait_started) {
-    mission_wait_circle.center.center_f = *stateGetPositionEnu_f();
-    mission_wait_circle.center.center_f.z += GetAltRef();
+    mission_wait_circle.center = *stateGetPositionEnu_f();
+    mission_wait_circle.center.z += GetAltRef();
     mission_wait_circle.radius = DEFAULT_CIRCLE_RADIUS;
     mission_wait_time = 0.f;
     mission_wait_started = true;
@@ -213,12 +212,13 @@ int mission_run()
   mission.element_time += dt_navigation;
 
   // test if element is finished or element time is elapsed
-  if (!el_running || (el->duration > 0. && mission.element_time >= el->duration)) {
+  if (!el_running || (el->duration > 0.f && mission.element_time >= el->duration)) {
     // reset timer
-    mission.element_time = 0.;
+    mission.element_time = 0.f;
     // go to next element
     mission.current_idx = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
   }
 
   return true;
 }
+

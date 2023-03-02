@@ -66,6 +66,7 @@
   <section name="BAT">
     <define name="LOW_BAT_LEVEL" value="13.9" units="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="13.2" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="14.8" units="V"/>
   </section>
 
   <section name="ctrl_eff_scheduling" prefix="FWD_">
@@ -302,8 +303,9 @@
       <define name="GUIDANCE_INDI_MIN_THROTTLE" value="3000"/>
       <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="15.0"/>
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.045"/>
       <!--<define name="KNIFE_EDGE_TEST" value="TRUE"/>-->
       <!--Flap effectiveness on lift-->
       <define name="FE_LIFT_A_PITCH" value="0.00018"/>
@@ -311,6 +313,7 @@
       <define name="FE_LIFT_A_AS" value="0.0008"/>
       <define name="FE_LIFT_B_AS" value="0.00009"/>
     </module>
+    <module name="nav" type="hybrid"/>
 
     <!--<module name="ahrs"          type="int_cmpl_quat">-->
       <!--<configure name="USE_MAGNETOMETER" value="TRUE"/>-->
@@ -319,11 +322,11 @@
       <!--<define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="TRUE"/>-->
     <!--</module>-->
 
-    <!--<module name="ins"/>-->
-    <!-- <module name="ins" type="ekf2"/> -->
-    <module name="ins" type="float_invariant">
+    <!--module name="ins"/-->
+    <module name="ins" type="ekf2"/>
+    <!--module name="ins" type="float_invariant">
       <define name="INS_PROPAGATE_FREQUENCY" value="500"/>
-    </module>
+    </module-->
 
   </firmware>
 </airframe>

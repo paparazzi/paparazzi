@@ -276,7 +276,7 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &dist_home, &dist_wp,
                                       &nav_block, &nav_stage,
                                       &nav.mode);
-#if ROVER_BASE_SEND_TRAJECTORY                                   
+#if ROVER_BASE_SEND_TRAJECTORY
   if (nav.mode == NAV_MODE_ROUTE) {
     send_segment(trans, dev);
   } else if (nav.mode == NAV_MODE_CIRCLE) {

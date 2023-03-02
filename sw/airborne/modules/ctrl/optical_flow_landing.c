@@ -210,7 +210,7 @@ void vertical_ctrl_module_init(void)
   of_landing_ctrl.previous_err = 0.;
   of_landing_ctrl.sum_err = 0.0f;
   of_landing_ctrl.d_err = 0.0f;
-  of_landing_ctrl.nominal_thrust = (float)guidance_v_nominal_throttle / MAX_PPRZ; // copy this value from guidance
+  of_landing_ctrl.nominal_thrust = (float)guidance_v.nominal_throttle / MAX_PPRZ; // copy this value from guidance
   of_landing_ctrl.VISION_METHOD = OFL_VISION_METHOD;
   of_landing_ctrl.CONTROL_METHOD = OFL_CONTROL_METHOD;
   of_landing_ctrl.COV_METHOD = OFL_COV_METHOD;

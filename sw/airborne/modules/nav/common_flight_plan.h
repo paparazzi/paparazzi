@@ -34,6 +34,7 @@ extern uint16_t stage_time, block_time;
 
 extern uint8_t nav_stage, nav_block;
 extern uint8_t last_block, last_stage;
+extern uint8_t last_wp __attribute__((unused));
 
 /** needs to be implemented by fixedwing and rotorcraft seperately */
 void nav_init_stage(void);

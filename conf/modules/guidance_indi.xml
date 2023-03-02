@@ -26,6 +26,7 @@
   <init fun="guidance_indi_enter()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi.c" dir="$(SRC_FIRMWARE)/guidance"/>
-    <define name="GUIDANCE_INDI" value="TRUE"/>
+    <define name="GUIDANCE_PID_USE_AS_DEFAULT" value="FALSE"/>
+    <define name="GUIDANCE_INDI_USE_AS_DEFAULT" value="TRUE"/>
   </makefile>
 </module>

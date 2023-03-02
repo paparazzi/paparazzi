@@ -280,6 +280,17 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 }
 
 /**
+ * @brief Set attitude setpoint from stabilization setpoint struct
+ *
+ * @param sp Stabilization setpoint structure
+ */
+void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
+  stab_att_sp_quat = stab_sp_to_quat_i(sp);
+}
+
+/**
  * @brief Update butterworth filter for p, q and r of a FloatRates struct
  *
  * @param filter The filter array to use

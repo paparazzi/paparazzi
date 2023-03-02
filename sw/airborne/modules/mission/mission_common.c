@@ -45,14 +45,10 @@ void mission_init(void)
   mission.current_idx = 0;
   mission.element_time = 0.;
 
-  // FIXME
-  // we have no guarantee that nav modules init are called after mission_init
-  // this would erase the already registered elements
-  // for now, rely on the static initialization
-  //for (int i = 0; i < MISSION_REGISTER_NB; i++) {
-  //  mission.registered[i].cb = NULL;
-  //  memset(mission.registered[i].type, '\0', MISSION_TYPE_SIZE);
-  //}
+  for (int i = 0; i < MISSION_REGISTER_NB; i++) {
+    mission.registered[i].cb = NULL;
+    memset(mission.registered[i].type, '\0', MISSION_TYPE_SIZE);
+  }
 }
 
 
@@ -67,9 +63,6 @@ bool mission_insert(enum MissionInsertMode insert, struct _mission_element *elem
     return false;
   }
 #endif
-
-  // convert element if needed, return FALSE if failed
-  if (!mission_element_convert(element)) { return false; }
 
   switch (insert) {
     case Append:
@@ -154,10 +147,6 @@ struct _mission_element *mission_get_from_index(uint8_t index)
   return NULL; // not found
 }
 
-// Weak implementation of mission_element_convert (leave element unchanged)
-bool __attribute__((weak)) mission_element_convert(struct _mission_element *el __attribute__((unused))) { return true; }
-
-
 // Get element
 struct _mission_element *mission_get(void)
 {
@@ -200,9 +189,9 @@ int mission_parse_GOTO_WP(uint8_t *buf)
 
   struct _mission_element me;
   me.type = MissionWP;
-  me.element.mission_wp.wp.wp_f.x = DL_MISSION_GOTO_WP_wp_east(buf);
-  me.element.mission_wp.wp.wp_f.y = DL_MISSION_GOTO_WP_wp_north(buf);
-  me.element.mission_wp.wp.wp_f.z = DL_MISSION_GOTO_WP_wp_alt(buf);
+  me.element.mission_wp.wp.x = DL_MISSION_GOTO_WP_wp_east(buf);
+  me.element.mission_wp.wp.y = DL_MISSION_GOTO_WP_wp_north(buf);
+  me.element.mission_wp.wp.z = DL_MISSION_GOTO_WP_wp_alt(buf);
   me.duration = DL_MISSION_GOTO_WP_duration(buf);
   me.index = DL_MISSION_GOTO_WP_index(buf);
 
@@ -223,7 +212,7 @@ int mission_parse_GOTO_WP_LLA(uint8_t *buf)
   struct _mission_element me;
   me.type = MissionWP;
   // if there is no valid local coordinate, do not insert mission element
-  if (!mission_point_of_lla(&me.element.mission_wp.wp.wp_f, &lla)) { return false; }
+  if (!mission_point_of_lla(&me.element.mission_wp.wp, &lla)) { return false; }
   me.duration = DL_MISSION_GOTO_WP_LLA_duration(buf);
   me.index = DL_MISSION_GOTO_WP_LLA_index(buf);
 
@@ -238,9 +227,9 @@ int mission_parse_CIRCLE(uint8_t *buf)
 
   struct _mission_element me;
   me.type = MissionCircle;
-  me.element.mission_circle.center.center_f.x = DL_MISSION_CIRCLE_center_east(buf);
-  me.element.mission_circle.center.center_f.y = DL_MISSION_CIRCLE_center_north(buf);
-  me.element.mission_circle.center.center_f.z = DL_MISSION_CIRCLE_center_alt(buf);
+  me.element.mission_circle.center.x = DL_MISSION_CIRCLE_center_east(buf);
+  me.element.mission_circle.center.y = DL_MISSION_CIRCLE_center_north(buf);
+  me.element.mission_circle.center.z = DL_MISSION_CIRCLE_center_alt(buf);
   me.element.mission_circle.radius = DL_MISSION_CIRCLE_radius(buf);
   me.duration = DL_MISSION_CIRCLE_duration(buf);
   me.index = DL_MISSION_CIRCLE_index(buf);
@@ -262,7 +251,7 @@ int mission_parse_CIRCLE_LLA(uint8_t *buf)
   struct _mission_element me;
   me.type = MissionCircle;
   // if there is no valid local coordinate, do not insert mission element
-  if (!mission_point_of_lla(&me.element.mission_circle.center.center_f, &lla)) { return false; }
+  if (!mission_point_of_lla(&me.element.mission_circle.center, &lla)) { return false; }
   me.element.mission_circle.radius = DL_MISSION_CIRCLE_LLA_radius(buf);
   me.duration = DL_MISSION_CIRCLE_LLA_duration(buf);
   me.index = DL_MISSION_CIRCLE_LLA_index(buf);
@@ -278,12 +267,12 @@ int mission_parse_SEGMENT(uint8_t *buf)
 
   struct _mission_element me;
   me.type = MissionSegment;
-  me.element.mission_segment.from.from_f.x = DL_MISSION_SEGMENT_segment_east_1(buf);
-  me.element.mission_segment.from.from_f.y = DL_MISSION_SEGMENT_segment_north_1(buf);
-  me.element.mission_segment.from.from_f.z = DL_MISSION_SEGMENT_segment_alt(buf);
-  me.element.mission_segment.to.to_f.x = DL_MISSION_SEGMENT_segment_east_2(buf);
-  me.element.mission_segment.to.to_f.y = DL_MISSION_SEGMENT_segment_north_2(buf);
-  me.element.mission_segment.to.to_f.z = DL_MISSION_SEGMENT_segment_alt(buf);
+  me.element.mission_segment.from.x = DL_MISSION_SEGMENT_segment_east_1(buf);
+  me.element.mission_segment.from.y = DL_MISSION_SEGMENT_segment_north_1(buf);
+  me.element.mission_segment.from.z = DL_MISSION_SEGMENT_segment_alt(buf);
+  me.element.mission_segment.to.x = DL_MISSION_SEGMENT_segment_east_2(buf);
+  me.element.mission_segment.to.y = DL_MISSION_SEGMENT_segment_north_2(buf);
+  me.element.mission_segment.to.z = DL_MISSION_SEGMENT_segment_alt(buf);
   me.duration = DL_MISSION_SEGMENT_duration(buf);
   me.index = DL_MISSION_SEGMENT_index(buf);
 
@@ -307,8 +296,8 @@ int mission_parse_SEGMENT_LLA(uint8_t *buf)
   struct _mission_element me;
   me.type = MissionSegment;
   // if there is no valid local coordinate, do not insert mission element
-  if (!mission_point_of_lla(&me.element.mission_segment.from.from_f, &from_lla)) { return false; }
-  if (!mission_point_of_lla(&me.element.mission_segment.to.to_f, &to_lla)) { return false; }
+  if (!mission_point_of_lla(&me.element.mission_segment.from, &from_lla)) { return false; }
+  if (!mission_point_of_lla(&me.element.mission_segment.to, &to_lla)) { return false; }
   me.duration = DL_MISSION_SEGMENT_LLA_duration(buf);
   me.index = DL_MISSION_SEGMENT_LLA_index(buf);
 
@@ -323,21 +312,21 @@ int mission_parse_PATH(uint8_t *buf)
 
   struct _mission_element me;
   me.type = MissionPath;
-  me.element.mission_path.path.path_f[0].x = DL_MISSION_PATH_point_east_1(buf);
-  me.element.mission_path.path.path_f[0].y = DL_MISSION_PATH_point_north_1(buf);
-  me.element.mission_path.path.path_f[0].z = DL_MISSION_PATH_path_alt(buf);
-  me.element.mission_path.path.path_f[1].x = DL_MISSION_PATH_point_east_2(buf);
-  me.element.mission_path.path.path_f[1].y = DL_MISSION_PATH_point_north_2(buf);
-  me.element.mission_path.path.path_f[1].z = DL_MISSION_PATH_path_alt(buf);
-  me.element.mission_path.path.path_f[2].x = DL_MISSION_PATH_point_east_3(buf);
-  me.element.mission_path.path.path_f[2].y = DL_MISSION_PATH_point_north_3(buf);
-  me.element.mission_path.path.path_f[2].z = DL_MISSION_PATH_path_alt(buf);
-  me.element.mission_path.path.path_f[3].x = DL_MISSION_PATH_point_east_4(buf);
-  me.element.mission_path.path.path_f[3].y = DL_MISSION_PATH_point_north_4(buf);
-  me.element.mission_path.path.path_f[3].z = DL_MISSION_PATH_path_alt(buf);
-  me.element.mission_path.path.path_f[4].x = DL_MISSION_PATH_point_east_5(buf);
-  me.element.mission_path.path.path_f[4].y = DL_MISSION_PATH_point_north_5(buf);
-  me.element.mission_path.path.path_f[4].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path[0].x = DL_MISSION_PATH_point_east_1(buf);
+  me.element.mission_path.path[0].y = DL_MISSION_PATH_point_north_1(buf);
+  me.element.mission_path.path[0].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path[1].x = DL_MISSION_PATH_point_east_2(buf);
+  me.element.mission_path.path[1].y = DL_MISSION_PATH_point_north_2(buf);
+  me.element.mission_path.path[1].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path[2].x = DL_MISSION_PATH_point_east_3(buf);
+  me.element.mission_path.path[2].y = DL_MISSION_PATH_point_north_3(buf);
+  me.element.mission_path.path[2].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path[3].x = DL_MISSION_PATH_point_east_4(buf);
+  me.element.mission_path.path[3].y = DL_MISSION_PATH_point_north_4(buf);
+  me.element.mission_path.path[3].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path[4].x = DL_MISSION_PATH_point_east_5(buf);
+  me.element.mission_path.path[4].y = DL_MISSION_PATH_point_north_5(buf);
+  me.element.mission_path.path[4].z = DL_MISSION_PATH_path_alt(buf);
   me.element.mission_path.nb = DL_MISSION_PATH_nb(buf);
   if (me.element.mission_path.nb > MISSION_PATH_NB) { me.element.mission_path.nb = MISSION_PATH_NB; }
   me.element.mission_path.path_idx = 0;
@@ -377,7 +366,7 @@ int mission_parse_PATH_LLA(uint8_t *buf)
   if (me.element.mission_path.nb > MISSION_PATH_NB) { me.element.mission_path.nb = MISSION_PATH_NB; }
   for (i = 0; i < me.element.mission_path.nb; i++) {
     // if there is no valid local coordinate, do not insert mission element
-    if (!mission_point_of_lla(&me.element.mission_path.path.path_f[i], &lla[i])) { return false; }
+    if (!mission_point_of_lla(&me.element.mission_path.path[i], &lla[i])) { return false; }
   }
   me.element.mission_path.path_idx = 0;
   me.duration = DL_MISSION_PATH_LLA_duration(buf);

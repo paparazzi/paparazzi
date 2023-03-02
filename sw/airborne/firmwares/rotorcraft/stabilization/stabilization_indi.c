@@ -366,6 +366,17 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 }
 
 /**
+ * @brief Set attitude setpoint from stabilization setpoint struct
+ *
+ * @param sp Stabilization setpoint structure
+ */
+void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
+  stab_att_sp_quat = stab_sp_to_quat_i(sp);
+}
+
+/**
  * @param att_err attitude error
  * @param rate_control boolean that states if we are in rate control or attitude control
  * @param in_flight boolean that states if the UAV is in flight or not

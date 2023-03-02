@@ -9,12 +9,19 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="Hybrid Guidance">
-        <dl_setting var="max_airspeed" MIN="4" STEP="1" MAX="15" module="guidance/guidance_hybrid"/>
+        <dl_setting var="max_airspeed" MIN="4" STEP="1" MAX="160" module="guidance/guidance_hybrid"/>
         <dl_setting var="wind_gain" MIN="1" STEP="1" MAX="256"/>
         <dl_setting var="horizontal_speed_gain" MIN="1" STEP="1" MAX="15" shortname="hor_speed_div"/>
-        <dl_setting var="alt_pitch_gain" MIN="0" STEP="0.01" MAX="5.0" shortname="alt_pitch_gain"/>
-        <dl_setting var="max_turn_bank" MIN="10.0" STEP="1.0" MAX="60.0" shortname="max_turn_bank"/>
-        <dl_setting var="turn_bank_gain" MIN="0.1" STEP="0.01" MAX="3.0" shortname="turn_bank_gain"/>
+        <dl_setting var="max_turn_bank" MIN="10.0" STEP="1.0" MAX="60.0"/>
+        <dl_setting var="turn_bank_gain" MIN="0.1" STEP="0.01" MAX="3.0"/>
+
+        <dl_setting var="cruise_throttle" MIN="0" STEP="1" MAX="9600"/>
+        <dl_setting var="fwd_speed_p_gain" MIN="0" STEP="1" MAX="9600"/>
+        <dl_setting var="fwd_alt_thrust_gain" MIN="0.0" STEP="0.01" MAX="4.0"/>
+        <dl_setting var="fwd_pid_div" MIN="0.01" STEP="0.01" MAX="10.0"/>
+        <dl_setting var="fwd_nominal_pitch" MIN=".0" STEP="0.01" MAX="120.0"/>
+        <dl_setting var="fwd_pitch_gain" MIN=".0" STEP="0.01" MAX="120.0"/>
+        <dl_setting var="hover_p_gain" MIN="0" STEP="1" MAX="150"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -28,6 +35,7 @@
   <init fun="guidance_hybrid_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_hybrid.c" dir="$(SRC_FIRMWARE)/guidance"/>
-    <define name="HYBRID_NAVIGATION" value="TRUE"/>
+    <define name="GUIDANCE_PID_USE_AS_DEFAULT" value="FALSE"/>
+    <define name="GUIDANCE_HYBRID_USE_AS_DEFAULT" value="TRUE"/>
   </makefile>
 </module>

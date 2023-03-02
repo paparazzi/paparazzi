@@ -109,7 +109,7 @@ static struct EnuCoor_f SurveyToWP;
 static struct EnuCoor_f SurveyFromWP;
 static struct EnuCoor_f SurveyEntry;
 
-static struct EnuCoor_i survey_from_i, survey_to_i;
+static struct EnuCoor_f survey_from, survey_to;
 
 static uint8_t SurveyEntryWP;
 static uint8_t SurveySize;
@@ -306,6 +306,10 @@ void nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orient
 //=========================================================================================================================
 bool nav_survey_poly_run(void)
 {
+  // check if nav route is available
+  if (nav.nav_goto == NULL || nav.nav_route == NULL || nav.nav_approaching == NULL) {
+    return false;
+  }
 
   #ifdef NAV_SURVEY_POLY_DYNAMIC
   dSweep = (nav_survey_shift > 0 ? Poly_Distance : -Poly_Distance);
@@ -334,11 +338,10 @@ bool nav_survey_poly_run(void)
       RotateAndTranslateToWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
       RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
-      ENU_BFP_OF_REAL(survey_from_i, C);
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
-      VECT3_COPY(navigation_target, survey_from_i);
+      VECT3_COPY(survey_from, C);
+      nav.nav_goto(&survey_from);
 
-      if (((nav_approaching_from(&survey_from_i, NULL, 0))
+      if (((nav.nav_approaching(&survey_from, NULL, 0))
            && (fabsf(stateGetPositionEnu_f()->z - waypoints[SurveyEntryWP].enu_f.z)) < 1.)) {
         CSurveyStatus = Sweep;
         nav_init_stage();
@@ -358,13 +361,11 @@ bool nav_survey_poly_run(void)
       RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
 
       //follow the line
-      ENU_BFP_OF_REAL(survey_to_i, ToP);
-      ENU_BFP_OF_REAL(survey_from_i, FromP);
+      VECT3_COPY(survey_to, ToP);
+      VECT3_COPY(survey_from, FromP);
+      nav.nav_route(&survey_from, &survey_to);
 
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
-      nav_route(&survey_from_i, &survey_to_i);
-
-      if (nav_approaching_from(&survey_to_i, NULL, 0)) {
+      if (nav.nav_approaching(&survey_to, NULL, 0)) {
         LastPoint = SurveyToWP;
 
 #ifdef DIGITAL_CAM
@@ -467,13 +468,11 @@ bool nav_survey_poly_run(void)
       RotateAndTranslateToWorld(&FromP, SurveyTheta, 0, 0);
 
       //follow the line
-      ENU_BFP_OF_REAL(survey_to_i, ToP);
-      ENU_BFP_OF_REAL(survey_from_i, FromP);
+      VECT3_COPY(survey_to, ToP);
+      VECT3_COPY(survey_from, FromP);
+      nav.nav_route(&survey_from, &survey_to);
 
-      horizontal_mode = HORIZONTAL_MODE_ROUTE;
-      nav_route(&survey_from_i, &survey_to_i);
-
-      if (nav_approaching_from(&survey_to_i, NULL, 0)) {
+      if (nav.nav_approaching(&survey_to, NULL, 0)) {
         CSurveyStatus = Sweep;
         nav_init_stage();
         LINE_START_FUNCTION;

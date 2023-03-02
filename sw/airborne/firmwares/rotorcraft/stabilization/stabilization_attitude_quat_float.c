@@ -245,6 +245,12 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   quat_from_earth_cmd_f(&stab_att_sp_quat, &cmd_f, heading_f);
 }
 
+void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
+{
+  stab_att_sp_euler = stab_sp_to_eulers_f(sp);
+  stab_att_sp_quat = stab_sp_to_quat_f(sp);
+}
+
 #ifndef GAIN_PRESCALER_FF
 #define GAIN_PRESCALER_FF 1
 #endif
