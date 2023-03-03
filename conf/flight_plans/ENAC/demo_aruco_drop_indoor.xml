@@ -170,8 +170,8 @@
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
-      <exception cond="guidance_v_delta_t @LT 0.05*9600." deroute="Kill landed"/>
-      <set var="fp_throttle" value="guidance_v_delta_t/9600."/>
+      <exception cond="guidance_v.delta_t @LT 0.05*9600." deroute="Kill landed"/>
+      <set var="fp_throttle" value="guidance_v.delta_t/9600."/>
       <stay throttle="fp_throttle-0.02*stage_time" vmode="throttle" wp="TAG"/>
     </block>
     <block name="Kill landed">
