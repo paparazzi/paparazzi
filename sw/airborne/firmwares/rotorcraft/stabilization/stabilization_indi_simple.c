@@ -257,6 +257,15 @@ void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 }
 
 /**
+ * @param quat quaternion setpoint
+ */
+void stabilization_indi_set_quat_setpoint_i(struct Int32Quat *quat)
+{
+  stab_att_sp_quat = *quat;
+  int32_eulers_of_quat(&stab_att_sp_euler, quat);
+}
+
+/**
  * @brief Set attitude setpoint from command in earth axes
  *
  * @param cmd The command in earth axes (North East)

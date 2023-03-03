@@ -156,6 +156,13 @@ void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
   EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *rpy);
 }
 
+void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
+{
+  struct FloatQuat quat_f,
+  QUAT_FLOAT_OF_BFP(quat_f, *quat);
+  float_eulers_of_quat(&stab_att_sp_euler, &quat_f);
+}
+
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 {
   struct FloatVect2 cmd_f;

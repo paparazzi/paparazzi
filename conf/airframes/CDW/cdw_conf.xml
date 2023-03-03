@@ -9,6 +9,5 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/imu_quality_assessment.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_euler.xml"
    gui_color="white"
-   release="33e02c9f1e831cb30ba9dc442e055b6e28c72a52"
   />
 </conf>
