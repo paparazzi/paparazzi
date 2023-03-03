@@ -110,7 +110,7 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
-      <circle radius="nav_radius" wp="CAM"/>
+      <circle radius="nav.radius" wp="CAM"/>
     </block>
     <block group="land_pattern" name="land here" strip_button="Land Here" strip_icon="land_here.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
