@@ -22,6 +22,7 @@
 #define StopVision() FALSE
 #endif
 #define WpAlt(X) (30)
+#define SetValue(_a, _b) { _a = _b; }
   </header>
   <variables>
     <variable var="exception_flag_0" type="bool" init="false"/>
@@ -29,8 +30,8 @@
   </variables>
 
   <exceptions>
-      <exception cond="electrical.bat_low @AND (exception_flag_0 == false)" deroute="ComeBackAndLand" exec="exception_flag_0 = true"/>
-      <exception cond="electrical.bat_critical @AND (exception_flag_1 == false)" deroute="land_here" exec="exception_flag_1 = true"/>
+      <exception cond="electrical.bat_low @AND (exception_flag_0 == false)" deroute="ComeBackAndLand" exec="SetValue(exception_flag_0, true)"/>
+      <exception cond="electrical.bat_critical @AND (exception_flag_1 == false)" deroute="land_here" exec="SetValue(exception_flag_1, true)"/>
     <exception cond="(!InsideRED(GetPosX(), GetPosY()) @AND !(nav_block == IndexOfBlock('flare')) @AND !(nav_block == IndexOfBlock('landed')) @AND !(nav_block == IndexOfBlock('WaitGPS')) @AND !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
   </exceptions>
 

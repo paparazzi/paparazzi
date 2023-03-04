@@ -235,7 +235,8 @@ let parse_include = fun dir flight_plan include_xml ->
     and modules = get_children "modules" proc
     and blocks = get_children "blocks" proc
     and sectors = get_children "sectors" proc
-    and header = get_pc_data "header" proc in
+    and header = get_pc_data "header" proc
+    and variables = get_children "variables" proc in
 
     let exceptions = List.map (transform_exception prefix reroutes (proc_name, env)) exceptions
     and blocks = List.map (transform_block prefix reroutes (proc_name, env)) blocks in
@@ -245,6 +246,7 @@ let parse_include = fun dir flight_plan include_xml ->
       ["waypoints", waypoints;
        "blocks", blocks;
        "modules", modules;
+       "variables", variables;
        "exceptions", exceptions;
        "sectors", sectors]
       (append_pc_data "header" header flight_plan)
