@@ -166,7 +166,7 @@ void follow_diagonal_approach(void) {
   if(stateGetAirspeed_f() > 13.0) {
     Bound(des_vel.z, -4.0, 5.0);
   } else {
-    Bound(des_vel.z, -nav_climb_vspeed, -nav.descend_vspeed);
+    Bound(des_vel.z, -nav.climb_vspeed, -nav.descend_vspeed);
   }
 
   AbiSendMsgVEL_SP(VEL_SP_FCR_ID, &des_vel);
