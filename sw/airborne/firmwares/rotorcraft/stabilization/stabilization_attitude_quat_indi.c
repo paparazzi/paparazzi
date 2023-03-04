@@ -55,7 +55,7 @@ void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
   stabilization_indi_set_rpy_setpoint_i(rpy);
 }
 
-void stabilization_indi_set_quat_setpoint_i(struct Int32Quat *quat)
+void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
 {
   stabilization_indi_set_quat_setpoint_i(quat);
 }
