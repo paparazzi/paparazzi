@@ -67,10 +67,10 @@ bool nav_in_circle = false;
 bool interleave = USE_INTERLEAVE;
 
 static struct EnuCoor_f survey_from, survey_to;
-static struct EnuCoor_i survey_from_i, survey_to_i;
 
 static bool survey_uturn __attribute__((unused)) = false;
 static survey_orientation_t survey_orientation = NS;
+static bool nav_survey_send = false;
 
 float nav_survey_shift;
 float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
@@ -91,9 +91,10 @@ float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
 
 static void send_survey(struct transport_tx *trans, struct link_device *dev)
 {
-  if (nav_survey_active) {
+  if (nav_survey_send) {
     pprz_msg_send_SURVEY(trans, dev, AC_ID,
                          &nav_survey_east, &nav_survey_north, &nav_survey_west, &nav_survey_south);
+    nav_survey_send= false; // stop sending when run function is not called anymore
   }
 }
 
@@ -150,9 +151,8 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
   nav_survey_rectangle_active = false;
 
   //go to start position
-  ENU_BFP_OF_REAL(survey_from_i, survey_from);
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-  VECT3_COPY(navigation_target, survey_from_i);
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
+  VECT3_COPY(nav.target, survey_from);
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(waypoints[wp1].enu_f.z, 0.);
   if (survey_orientation == NS) {
@@ -164,16 +164,21 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
 
 bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
+  // check if nav route is available
+  if (nav.nav_route == NULL || nav.nav_approaching == NULL) {
+    return false;
+  }
+
   #ifdef NAV_SURVEY_RECTANGLE_DYNAMIC
   nav_survey_shift = (nav_survey_shift > 0 ? sweep : -sweep);
-  #endif  
+  #endif
 
   static bool is_last_half = false;
   static float survey_radius;
-  nav_survey_active = true;
+  nav_survey_send = true;
 
   /* entry scan */ // wait for start position and altitude be reached
-  if (!nav_survey_rectangle_active && ((!nav_approaching_from(&survey_from_i, NULL, 0))
+  if (!nav_survey_rectangle_active && ((!nav.nav_approaching(&survey_from, NULL, 0))
                                      || (fabsf(stateGetPositionEnu_f()->z - waypoints[wp1].enu_f.z)) > 1.)) {
   } else {
     if (!nav_survey_rectangle_active) {
@@ -202,20 +207,15 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
     }
 
     if (!survey_uturn) { /* S-N, N-S, W-E or E-W straight route */
-      /*  if you like to use position croos instead of approaching uncoment this line
+      /*  if you like to use position cross instead of approaching uncoment this line
           if ((stateGetPositionEnu_f()->y < nav_survey_north && SurveyGoingNorth()) ||
               (stateGetPositionEnu_f()->y > nav_survey_south && SurveyGoingSouth()) ||
               (stateGetPositionEnu_f()->x < nav_survey_east && SurveyGoingEast()) ||
               (stateGetPositionEnu_f()->x > nav_survey_west && SurveyGoingWest())) {
       */
       /* Continue ... */
-      ENU_BFP_OF_REAL(survey_to_i, survey_to);
-
-      if (!nav_approaching_from(&survey_to_i, NULL, 0)) {
-        ENU_BFP_OF_REAL(survey_from_i, survey_from);
-
-        horizontal_mode = HORIZONTAL_MODE_ROUTE;
-        nav_route(&survey_from_i, &survey_to_i);
+      if (!nav.nav_approaching(&survey_to, NULL, 0)) {
+        nav.nav_route(&survey_from, &survey_to);
 
       } else {
         if (survey_orientation == NS) {
@@ -225,11 +225,11 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
               || (x0 + nav_survey_shift > nav_survey_east)) {   // not room for full sweep
             if (((x0 + (nav_survey_shift / 2)) < nav_survey_west)
                 || ((x0 + (nav_survey_shift / 2)) > nav_survey_east)) { //not room for half sweep
-              if (is_last_half) {// was last sweep half?
+              if (is_last_half) { // was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
                 if (interleave) {
                   survey_radius = nav_survey_shift;
-                }else {
+                } else {
                   survey_radius = nav_survey_shift /2.;
                 }
                 is_last_half = false;
@@ -237,7 +237,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
                 nav_survey_shift = -nav_survey_shift;
                 if (interleave) {
                   survey_radius = nav_survey_shift /2.;
-                }else{
+                } else {
                   survey_radius = nav_survey_shift ;
                 }
               }
@@ -274,11 +274,11 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
               || my_y0 + nav_survey_shift > nav_survey_north) { // not room for full sweep
             if (((my_y0 + (nav_survey_shift / 2)) < nav_survey_south)
                 || ((my_y0 + (nav_survey_shift / 2)) > nav_survey_north)) { //not room for half sweep
-              if (is_last_half) {// was last sweep half?
+              if (is_last_half) { // was last sweep half?
                 nav_survey_shift = -nav_survey_shift;
                 if (interleave) {
                   survey_radius = nav_survey_shift;
-                }else {
+                } else {
                   survey_radius = nav_survey_shift /2.;
                 }
                 is_last_half = false;
@@ -286,7 +286,7 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
                 nav_survey_shift = -nav_survey_shift;
                 if (interleave) {
                   survey_radius = nav_survey_shift /2.;
-                }else{
+                } else {
                   survey_radius = nav_survey_shift ;
                 }
               }
@@ -336,46 +336,29 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
       }
     } else { /* START turn */
 
-      static struct EnuCoor_f temp_f;
+      static struct EnuCoor_f turn_from;
       if (survey_orientation == WE) {
-        temp_f.x = waypoints[0].enu_f.x;
-        temp_f.y = waypoints[0].enu_f.y - survey_radius;
+        turn_from.x = waypoints[0].enu_f.x;
+        turn_from.y = waypoints[0].enu_f.y - survey_radius;
       } else {
-        temp_f.y = waypoints[0].enu_f.y;
-        temp_f.x = waypoints[0].enu_f.x - survey_radius;
+        turn_from.y = waypoints[0].enu_f.y;
+        turn_from.x = waypoints[0].enu_f.x - survey_radius;
       }
 
       //detect when segment has done
       /*  if you like to use position croos instead of approaching uncoment this line
-          if ( (stateGetPositionEnu_f()->y > waypoints[0].enu_f.y && ((survey_orientation == WE) && (temp_f.y < waypoints[0].enu_f.y)) )||
-               (stateGetPositionEnu_f()->y < waypoints[0].enu_f.y && ((survey_orientation == WE) && (temp_f.y > waypoints[0].enu_f.y)) )||
-               (stateGetPositionEnu_f()->x < waypoints[0].enu_f.x && ((survey_orientation == NS) && (temp_f.x > waypoints[0].enu_f.x)) )||
-               (stateGetPositionEnu_f()->x > waypoints[0].enu_f.x && ((survey_orientation == NS) && (temp_f.x < waypoints[0].enu_f.x)) ) ) {
+          if ( (stateGetPositionEnu_f()->y > waypoints[0].enu_f.y && ((survey_orientation == WE) && (turn_from.y < waypoints[0].enu_f.y)) )||
+               (stateGetPositionEnu_f()->y < waypoints[0].enu_f.y && ((survey_orientation == WE) && (turn_from.y > waypoints[0].enu_f.y)) )||
+               (stateGetPositionEnu_f()->x < waypoints[0].enu_f.x && ((survey_orientation == NS) && (turn_from.x > waypoints[0].enu_f.x)) )||
+               (stateGetPositionEnu_f()->x > waypoints[0].enu_f.x && ((survey_orientation == NS) && (turn_from.x < waypoints[0].enu_f.x)) ) ) {
       */
 
-      if (survey_orientation == WE) {
-        ENU_BFP_OF_REAL(survey_from_i, temp_f);
-        ENU_BFP_OF_REAL(survey_to_i, waypoints[0].enu_f);
-      } else {
-        ENU_BFP_OF_REAL(survey_from_i, temp_f);
-        ENU_BFP_OF_REAL(survey_to_i, waypoints[0].enu_f);
-      }
-      if (nav_approaching_from(&survey_to_i, NULL, 0)) {
+      if (nav.nav_approaching(&waypoints[0].enu_f, NULL, 0)) {
         survey_uturn = false;
         nav_in_circle = false;
         LINE_START_FUNCTION;
       } else {
-
-        if (survey_orientation == WE) {
-          ENU_BFP_OF_REAL(survey_from_i, temp_f);
-          ENU_BFP_OF_REAL(survey_to_i, waypoints[0].enu_f);
-        } else {
-          ENU_BFP_OF_REAL(survey_from_i, temp_f);
-          ENU_BFP_OF_REAL(survey_to_i, waypoints[0].enu_f);
-        }
-
-        horizontal_mode = HORIZONTAL_MODE_ROUTE;
-        nav_route(&survey_from_i, &survey_to_i);
+        nav.nav_route(&turn_from, &waypoints[0].enu_f);
       }
     } /* END turn */
 

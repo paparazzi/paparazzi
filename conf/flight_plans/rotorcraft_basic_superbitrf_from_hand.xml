@@ -82,7 +82,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
      <!-- To make sure that takoff is straight up -->
     <attitude pitch="0" roll="0" throttle="0.90" until="stage_time @GT 1" vmode="throttle"/>
 <!--Alternative <exception cond="WaypointAlt(WP_A) @GT GetPosHeight()" deroute="A_to_B_and_back"/>-->
-     <stay vmode="climb" climb="nav_climb_vspeed" until="WaypointAlt(WP_STDBY) @GT GetPosHeight()" wp="CLIMB"/>
+     <stay vmode="climb" climb="nav.climb_vspeed" until="WaypointAlt(WP_STDBY) @GT GetPosHeight()" wp="CLIMB"/>
      </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle()">
       <exception cond="block_time @GT 60" deroute="land"/>
@@ -109,7 +109,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <deroute block="stay_p1"/>
     </block>
     <block name="circle">
-      <circle radius="nav_radius" wp="p1"/>
+      <circle radius="nav.radius" wp="p1"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
@@ -118,7 +118,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <go wp="TD"/>
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="landed"/>

@@ -85,7 +85,7 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="circle">
-      <circle radius="nav_radius" wp="p1"/>
+      <circle radius="nav.radius" wp="p1"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>

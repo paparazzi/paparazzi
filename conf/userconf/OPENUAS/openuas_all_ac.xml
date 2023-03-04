@@ -221,28 +221,6 @@
    gui_color="#ffffed9b40f2"
   />
   <aircraft
-   name="Quadshot_W_Negative"
-   ac_id="245"
-   airframe="airframes/OPENUAS/openuas_transitionrobotics_quadshot.xml"
-   radio="radios/OPENUAS/openuas_openrxsr_sbus_16_out.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi_simple.xml"
-   gui_color="#ffff36c42e8d"
-  />
-  <aircraft
-   name="Quadshot_W_Positive"
-   ac_id="244"
-   airframe="airframes/OPENUAS/openuas_transitionrobotics_quadshot.xml"
-   radio="radios/OPENUAS/openuas_openrxsr_sbus_16_out.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/geo_mag.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_extended.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/stabilization_indi_simple.xml"
-   gui_color="#224fffff36c4"
-  />
-  <aircraft
    name="Sumo_II"
    ac_id="189"
    airframe="airframes/OPENUAS/openuas_own_sumo_ii.xml"

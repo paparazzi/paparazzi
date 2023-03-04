@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_hybrid" dir="nav" task="control">
+  <doc>
+    <description>
+      Navigation patterns and flight plan handling for hybrid airframes
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="nav_hybrid">
+        <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0" shortname="nav_max_speed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>nav_basic_rotorcraft,guidance_indi_hybrid</depends>
+  </dep>
+  <header>
+    <file name="nav_rotorcraft_hybrid.h"/>
+  </header>
+  <init fun="nav_rotorcraft_hybrid_init()"/>
+  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+    <file name="nav_rotorcraft_hybrid.c"/>
+    <test firmware="rotorcraft">
+      <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="15."/>
+      <configure name="SRC_FIRMWARE" value="firmwares/rotorcraft"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>

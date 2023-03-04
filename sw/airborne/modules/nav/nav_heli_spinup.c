@@ -41,12 +41,12 @@ void nav_heli_spinup_setup(uint16_t duration, float throttle)
   nav_heli_spinup.duration = (duration > 0) ? duration : 1;
   nav_heli_spinup.throttle = throttle * MAX_PPRZ;
 
-  nav_throttle = 0;
-  nav_cmd_roll = 0;
-  nav_cmd_pitch = 0;
-  nav_cmd_yaw = 0;
-  horizontal_mode = HORIZONTAL_MODE_ATTITUDE;
-  vertical_mode = VERTICAL_MODE_MANUAL;
+  nav.throttle = 0;
+  nav.cmd_roll = 0;
+  nav.cmd_pitch = 0;
+  nav.cmd_yaw = 0;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ATTITUDE;
+  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
 }
 
 /**
@@ -59,11 +59,11 @@ bool nav_heli_spinup_run(void)
     return false;
   }
 
-  nav_cmd_roll = 0;
-  nav_cmd_pitch = 0;
-  nav_cmd_yaw = 0;
-  horizontal_mode = HORIZONTAL_MODE_MANUAL;
-  vertical_mode = VERTICAL_MODE_MANUAL;
-  nav_throttle = stage_time * nav_heli_spinup.throttle / nav_heli_spinup.duration;
+  nav.cmd_roll = 0;
+  nav.cmd_pitch = 0;
+  nav.cmd_yaw = 0;
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_MANUAL;
+  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
+  nav.throttle = stage_time * nav_heli_spinup.throttle / nav_heli_spinup.duration;
   return true;
 }

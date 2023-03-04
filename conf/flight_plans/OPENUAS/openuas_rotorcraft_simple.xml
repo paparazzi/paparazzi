@@ -81,7 +81,7 @@ Your safe aircraft operation is *your* responsibility
        If the aircraft is later moved to a takeoff spot and the heading is changed it will try to rotate to the original heading as it is taking off which can make some motors spin too fast and cause a flip or other unwanted manovering.
 Altough Switching the mode to auto2/NAV from any other mode will reset nav_heading to the current heading this is not enough therefore just befor takeo we set the nav heading to the current heading-->
 
-    <!--  old way  <set var="nav_heading" value="stateGetNedToBodyEulers_i()->psi">--> <!-- make sure the current heading is set just befor takeoff as far as possible, MAGNETO anyone?-->
+    <!--  old way  <set var="nav.heading" value="stateGetNedToBodyEulers_f()->psi">--> <!-- make sure the current heading is set just befor takeoff as far as possible, MAGNETO anyone?-->
       <call_once fun="nav_set_heading_current()"/> <!-- make sure the current heading is set just befor takeoff as far as possible -->
       <call_once fun="NavResurrect()"/>
       <set value="0" var="autopilot.kill_throttle"/>

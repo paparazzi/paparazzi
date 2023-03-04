@@ -97,8 +97,6 @@
       <define name="GUIDANCE_INDI_MIN_THROTTLE" value="4000"/>
       <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
-      <!--<define name="KNIFE_EDGE_TEST" value="TRUE"/>-->
       <!--Flap effectiveness on lift-->
       <define name="FE_LIFT_A_PITCH" value="0.00018"/>
       <define name="FE_LIFT_B_PITCH" value="0.00072"/>

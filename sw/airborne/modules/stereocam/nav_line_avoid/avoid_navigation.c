@@ -114,7 +114,7 @@ void run_avoid_navigation_onvision(void)
   avoid_navigation_data.stereo_bin[4] = counter;
 }
 
-void increase_nav_heading(int32_t *heading, int32_t increment)
+void increase_nav_heading(float *heading, float increment)
 {
   *heading = *heading + increment;
 }

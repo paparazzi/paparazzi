@@ -78,7 +78,7 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
     <block name="Take off" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
       <exception cond="GetPosHeight() @GT 0.6" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <stay wp="STDBY"/>
@@ -103,7 +103,7 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
     <block name="Land Target" strip_button="Land Target" group="target">
       <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Kill Engine"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
       <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Kill Engine"/>

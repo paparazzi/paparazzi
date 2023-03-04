@@ -116,7 +116,7 @@ static inline bool delay_test_gf(bool test, int delay) {
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
       <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <call_once fun="jevois_stream(false)"/>
@@ -127,7 +127,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
       <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Survey-WE SET" strip_button="Survey-WE" strip_icon="survey_we.png" group="survey">
@@ -157,7 +157,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
       <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop RED" strip_button="RED" group="drop">
@@ -189,7 +189,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
       <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop BLUE" strip_button="BLUE" group="drop">
@@ -221,7 +221,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
       <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop YELLOW" strip_button="YELLOW" group="drop">
@@ -253,7 +253,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time>2"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB" until="GetPosHeight() @GT 2.0"/>
       <stay wp="CLIMB" until="GetPosAlt() @GT GetAltRef() + WaypointAlt(WP_CLIMB) - 5.0"/>
     </block>
     <block name="Drop HOUSE" strip_button="HOUSE" group="drop">
@@ -287,7 +287,7 @@ static inline bool delay_test_gf(bool test, int delay) {
       <!--exception cond="NavDetectGround()" deroute="Holding point"/-->
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <!--call_once fun="NavStartDetectGround()"/-->
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

@@ -38,7 +38,7 @@
     <block group="init_control" name="Takeoff" strip_button="Takeoff" strip_icon="launch.png">
       <exception cond="GetPosHeight() @GT 2.0" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+      <stay vmode="climb" climb="nav.climb_vspeed" wp="CLIMB"/>
     </block>
     <block group="waypoint_control_col1" name="Standby" strip_button="Standby" strip_icon="standby.png">
       <stay wp="STDBY"/>
@@ -122,7 +122,7 @@
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>

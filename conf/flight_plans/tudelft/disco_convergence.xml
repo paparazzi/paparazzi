@@ -67,7 +67,7 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
-      <circle radius="nav_radius" wp="STDBY"/>
+      <circle radius="nav.radius" wp="STDBY"/>
     </block>
     <block name="route">
       <set value="true" var="force_forward"/>
@@ -88,7 +88,7 @@
       <set value="1" var="autopilot.kill_throttle"/>
       <set value="true" var="force_forward"/>
       <call_once fun="NavKillThrottle()"/>
-      <circle radius="nav_radius" throttle="0.0" wp="STDBY"/>
+      <circle radius="nav.radius" throttle="0.0" wp="STDBY"/>
     </block>
   </blocks>
 </flight_plan>

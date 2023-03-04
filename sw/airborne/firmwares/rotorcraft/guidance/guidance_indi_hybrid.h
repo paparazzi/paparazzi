@@ -34,11 +34,18 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 #include "filters/high_pass_filter.h"
+#include "firmwares/rotorcraft/guidance.h"
+#include "firmwares/rotorcraft/stabilization.h"
 
-extern void guidance_indi_enter(void);
-extern void guidance_indi_run(float *heading_sp);
-extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, int32_t heading);
+// TODO change names for _indi_hybrid_
+
 extern void guidance_indi_init(void);
+extern void guidance_indi_enter(void);
+
+extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
+extern struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
+extern struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
+extern struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
 
 struct guidance_indi_hybrid_params {
   float pos_gain;
@@ -57,8 +64,9 @@ extern struct FloatVect3 gi_speed_sp;
 extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
 extern float guidance_indi_max_airspeed;
-extern float nav_max_speed;
 extern bool take_heading_control;
 extern float guidance_indi_max_bank;
+extern bool force_forward;       ///< forward flight for hybrid nav
+
 
 #endif /* GUIDANCE_INDI_HYBRID_H */

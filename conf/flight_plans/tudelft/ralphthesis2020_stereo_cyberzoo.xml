@@ -132,7 +132,7 @@ inline void setGuided(void){
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP__CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="_CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="_CLIMB"/>
     </block>
     
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -187,7 +187,7 @@ inline void setGuided(void){
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
       <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="_TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="_TD"/>
     </block>
     <block name="Landed">
       <call_once fun="NavKillThrottle()"/>

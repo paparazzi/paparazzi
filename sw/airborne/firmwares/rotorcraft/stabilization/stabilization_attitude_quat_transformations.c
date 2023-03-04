@@ -102,10 +102,10 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
    * dot(b,n) = 0
    */
   float dot = VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
-  
+
   struct FloatVect3 b;
   VECT3_ASSIGN(b, psi_vect.x, psi_vect.y, -dot/thrust_vect.z);
-  
+
   dot = VECT3_DOT_PRODUCT(b_x, b);
   struct FloatVect3 cross;
   VECT3_CROSS_PRODUCT(cross, b_x, b);

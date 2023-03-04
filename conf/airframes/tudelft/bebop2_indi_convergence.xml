@@ -203,7 +203,6 @@
   <section name="FORWARD">
     <!-- This is the pitch angle that the drone will have in forward flight, where 0 degrees is hover-->
     <define name="TRANSITION_MAX_OFFSET" value="0.0" unit="deg"/>
-    <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">

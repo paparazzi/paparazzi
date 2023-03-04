@@ -560,15 +560,4 @@
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/guidance_hybrid.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_indi_simple.xml"
    gui_color="blue"
   />
-  <aircraft
-   name="quadshot_pylons"
-   ac_id="178"
-   airframe="airframes/examples/quadshot_pylons.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_basic_rotorcraft.xml modules/stabilization_int_quat.xml"
-   gui_color="#b29eb22cffff"
-  />
 </conf>

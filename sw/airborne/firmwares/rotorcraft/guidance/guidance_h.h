@@ -14,9 +14,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /** @file firmwares/rotorcraft/guidance/guidance_h.h
@@ -35,6 +34,7 @@ extern "C" {
 #include "math/pprz_algebra_float.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_h_ref.h"
+#include "firmwares/rotorcraft/stabilization.h"
 #include "generated/airframe.h"
 #include "std.h"
 
@@ -84,26 +84,15 @@ struct HorizontalGuidanceReference {
   struct Int32Vect2 accel;   ///< with #INT32_ACCEL_FRAC
 };
 
-struct HorizontalGuidanceGains {
-  int32_t p;
-  int32_t d;
-  int32_t i;
-  int32_t v;
-  int32_t a;
-};
-
 struct HorizontalGuidance {
   uint8_t mode;
   /* configuration options */
   bool use_ref;
-  bool approx_force_by_thrust;
-  /* gains */
-  struct HorizontalGuidanceGains gains;
 
-  struct HorizontalGuidanceSetpoint sp; ///< setpoints
+  struct HorizontalGuidanceSetpoint sp;   ///< setpoints
   struct HorizontalGuidanceReference ref; ///< reference calculated from setpoints
 
-  struct FloatEulers rc_sp;
+  struct FloatEulers rc_sp;               ///< remote control setpoint
 };
 
 extern struct HorizontalGuidance guidance_h;
@@ -114,6 +103,10 @@ extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool in_flight);
 extern void guidance_h_run(bool in_flight);
+extern void guidance_h_run_enter(void);
+extern struct StabilizationSetpoint guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
+extern struct StabilizationSetpoint guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
+extern struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);
 
 extern void guidance_h_hover_enter(void);
 extern void guidance_h_nav_enter(void);
@@ -121,8 +114,6 @@ extern void guidance_h_nav_enter(void);
 /** Set horizontal guidance from NAV and run control loop
  */
 extern void guidance_h_from_nav(bool in_flight);
-
-extern void guidance_h_set_igain(uint32_t igain);
 
 /** Run GUIDED mode control
  */
@@ -155,12 +146,6 @@ extern void guidance_h_set_vel(float vx, float vy);
  * @param rate Heading rate in radians.
  */
 extern void guidance_h_set_heading_rate(float rate);
-
-/** Gets the position error
- * @param none.
- * @return Pointer to a structure containing x and y position errors
- */
-extern const struct Int32Vect2 *guidance_h_get_pos_err(void);
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.
