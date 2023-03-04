@@ -38,7 +38,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@stabilization</depends>
+    <depends>@stabilization,guidance_rotorcraft</depends>
     <provides>guidance,attitude_command</provides>
   </dep>
   <header>
