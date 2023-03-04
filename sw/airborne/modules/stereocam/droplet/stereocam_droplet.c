@@ -124,8 +124,8 @@ void stereocam_droplet_periodic(void)
     enu.x = waypoint_get_x(WP_GOAL);
     enu.y = waypoint_get_y(WP_GOAL);
     enu.z = waypoint_get_alt(WP_GOAL);
-    float sin_heading = sinf(ANGLE_FLOAT_OF_BFP(nav_heading));
-    float cos_heading = cosf(ANGLE_FLOAT_OF_BFP(nav_heading));
+    float sin_heading = sinf(nav.heading);
+    float cos_heading = cosf(nav.heading);
     enu.x += (sin_heading * 1.3 / 20);
     enu.y += (cos_heading * 1.3 / 20);
     waypoint_set_enu(WP_GOAL, &enu);

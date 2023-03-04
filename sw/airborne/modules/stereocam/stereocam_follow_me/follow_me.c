@@ -23,7 +23,7 @@
 #define STEREOCAM_FOLLOW_ME_USE_OPTITRACK FALSE
 #endif
 
-#define HEADING_CHANGE_PER_MEASUREMENT 260
+#define HEADING_CHANGE_PER_MEASUREMENT 0.063f
 #define CENTER_IMAGE_HOR 65
 #define MAXIMUM_ALTITUDE_FOLLOWING 3.0
 #define MINIMUM_ALTITUDE_FOLLOWING 1.0
@@ -54,7 +54,7 @@ static void changeRollYawPhase(int *phaseCounterArg, int *isRollPhaseArg, int *i
   }
 }
 
-static void increase_nav_heading(int32_t *heading, int32_t increment)
+static void increase_nav_heading(float *heading, float increment)
 {
   *heading = *heading + increment;
 }
@@ -70,17 +70,17 @@ void follow_me(uint8_t headingToFollow, uint8_t heightObject, uint8_t distanceTo
 
   // Change our heading if the user is starting to get out of sight.
   float heading_change = 0.0;
-  int headingChangePerIt = HEADING_CHANGE_PER_MEASUREMENT;
+  float headingChangePerIt = HEADING_CHANGE_PER_MEASUREMENT;
   if (abs(headingToFollow - CENTER_IMAGE_HOR) > 10) {
     if (headingToFollow > CENTER_IMAGE_HOR) {
       heading_change = 0.25;
       if (isYawPhase || STEREOCAM_FOLLOW_ME_USE_OPTITRACK) {
-        increase_nav_heading(&nav_heading, headingChangePerIt);
+        increase_nav_heading(&nav.heading, headingChangePerIt);
       }
     } else if (headingToFollow < CENTER_IMAGE_HOR) {
       heading_change = -0.25;
       if (isYawPhase || STEREOCAM_FOLLOW_ME_USE_OPTITRACK) {
-        increase_nav_heading(&nav_heading, -1 * headingChangePerIt);
+        increase_nav_heading(&nav.heading, -1 * headingChangePerIt);
       }
     } else {
       heading_change = 0.0;
