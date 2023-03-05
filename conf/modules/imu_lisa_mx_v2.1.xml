@@ -10,4 +10,5 @@
   <dep>
     <depends>imu_lisa_m_v2.1</depends>
   </dep>
+  <makefile target="!sim|nps|fbw"/>
 </module>

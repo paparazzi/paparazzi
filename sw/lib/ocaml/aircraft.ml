@@ -288,7 +288,7 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
       if (List.exists (fun p -> GC.eval_bool p r) modules_and_func) then s (* functionality is provided *)
       else
         let select = Hashtbl.fold (fun p m l -> if GC.eval_bool p r then m :: l else l) solution.suggested [] in
-        if List.length select = 0 then
+        if List.length select = 0 && (not (user_target = "")) && (target = user_target) then
           failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
         else
           s @ select (* return selection *)
