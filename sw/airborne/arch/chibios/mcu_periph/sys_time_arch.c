@@ -39,10 +39,6 @@
 
 static MUTEX_DECL(sys_time_mtx);
 
-#ifndef STM32_SYSCLK
-#define STM32_SYSCLK  STM32_SYS_CK
-#endif
-
 /*
  * Sys_tick handler thread
  */

@@ -90,7 +90,7 @@
 #endif
 
 /*
- * ADCs 
+ * ADCs
  */
 #if defined(LINE_ADC1)
 #ifndef USE_ADC_1
