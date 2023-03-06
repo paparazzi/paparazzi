@@ -75,7 +75,6 @@
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="blue"
-   release="3c20b30a61bf15a55fdf6d909c82615364e75751"
   />
   <aircraft
    name="DreamCatcher"

@@ -108,7 +108,7 @@ void object_tracking_run(void)
     if (!bit_is_set(object_frame, 0)) {
       target_heading += stateGetNedToBodyEulers_f()->psi; // relative frame
     }
-    float diff = target_heading - ANGLE_FLOAT_OF_BFP(nav_heading);
+    float diff = target_heading - nav.heading;
     FLOAT_ANGLE_NORMALIZE(diff);
     BoundAbs(diff, object_tracking_rate * nav_dt)
     nav_heading += ANGLE_BFP_OF_REAL(diff);

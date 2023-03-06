@@ -429,7 +429,9 @@ void guidance_h_from_nav(bool in_flight)
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     if (nav.setpoint_mode == NAV_SETPOINT_MODE_QUAT) {
       // directly apply quat setpoint
-      QUAT_BFP_OF_REAL(stab_att_sp_quat, nav.quat);
+      struct Int32Quat quat_i;
+      QUAT_BFP_OF_REAL(quat_i, nav.quat);
+      stabilization_attitude_set_quat_setpoint_i(&quat_i);
       stabilization_attitude_run(in_flight);
     }
     else {

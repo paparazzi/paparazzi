@@ -147,7 +147,7 @@ void rotorcraft_cam_periodic(void)
 #endif
 #if ROTORCRAFT_CAM_USE_PAN
       INT32_COURSE_NORMALIZE(rotorcraft_cam_pan);
-      nav_heading = rotorcraft_cam_pan;
+      nav.heading = ANGLE_FLOAT_OF_BFP(rotorcraft_cam_pan);
 #endif
       break;
     case ROTORCRAFT_CAM_MODE_WP:
@@ -157,7 +157,7 @@ void rotorcraft_cam_periodic(void)
         VECT2_DIFF(diff, waypoints[ROTORCRAFT_CAM_TRACK_WP], *stateGetPositionEnu_i());
         INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC);
         rotorcraft_cam_pan = int32_atan2(diff.x, diff.y);
-        nav_heading = rotorcraft_cam_pan;
+        nav.heading = ANGLE_FLOAT_OF_BFP(rotorcraft_cam_pan);
 #if ROTORCRAFT_CAM_USE_TILT_ANGLES
         int32_t dist, height;
         dist = INT32_VECT2_NORM(diff);

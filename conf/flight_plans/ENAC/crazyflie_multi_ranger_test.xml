@@ -106,8 +106,8 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
-      <exception cond="guidance_v_delta_t @LT 0.1*9600." deroute="Kill Engine"/>
-      <set var="fp_throttle" value="guidance_v_delta_t/9600."/>
+      <exception cond="guidance_v.delta_t @LT 0.1*9600." deroute="Kill Engine"/>
+      <set var="fp_throttle" value="guidance_v.delta_t/9600."/>
       <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
     </block>
     <block name="Kill Engine">

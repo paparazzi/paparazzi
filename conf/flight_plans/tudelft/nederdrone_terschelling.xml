@@ -77,7 +77,7 @@
       <exception cond="GetPosHeight() @GT 40.0" deroute="Standby"/>
       <call_once fun="nav_set_heading_current()"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <set value="FALSE" var="force_forward"/>
@@ -129,7 +129,7 @@
     </block>
     <block name="Oval">
       <set value="TRUE" var="force_forward"/>
-      <oval p1="p1" p2="p2" radius="nav_radius"/>
+      <oval p1="p1" p2="p2" radius="nav.radius"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <set value="FALSE" var="force_forward"/>
@@ -142,7 +142,7 @@
     <block name="descend">
       <set value="FALSE" var="force_forward"/>
       <exception cond="LessThan(GetPosHeight(), 15.0)" deroute="flare"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
       <set value="FALSE" var="force_forward"/>

@@ -140,7 +140,7 @@ uint8_t increase_nav_heading(float incrementDegrees) {
   FLOAT_ANGLE_NORMALIZE(new_heading);
 
   // set heading
-  nav_heading = ANGLE_BFP_OF_REAL(new_heading);
+  nav.heading = new_heading;
 
   return false;
 }

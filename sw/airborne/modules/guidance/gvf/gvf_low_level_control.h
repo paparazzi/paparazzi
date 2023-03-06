@@ -33,8 +33,8 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #define gvf_setNavMode(_navMode) (nav.horizontal_mode = _navMode)
 #define GVF_MODE_ROUTE NAV_HORIZONTAL_MODE_ROUTE
-#define GVF_MODE_WAYPOINT NAV_HORIZONTAL_MODE_WAYPOINT
-#define GVF_MODE_CIRCLE NAV_HORIZONTAL_MODE_CIRCLE
+#define GVF_MODE_WAYPOINT HORIZONTAL_MODE_WAYPOINT
+#define GVF_MODE_CIRCLE HORIZONTAL_MODE_CIRCLE
 
 #elif defined(ROVER_FIRMWARE)
 #include "state.h"
