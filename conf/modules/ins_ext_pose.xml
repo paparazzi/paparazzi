@@ -18,8 +18,6 @@
     <depends>@gps,@datalink,@imu</depends>
     <provides>ahrs,ins</provides>
   </dep>
-  <autoload name="ins_sim"/>
-  <autoload name="ins_nps"/>
   <header>
     <file name="ins_ext_pose.h"/>
   </header>

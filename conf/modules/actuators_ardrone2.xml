@@ -10,7 +10,6 @@
     <depends>actuators</depends>
     <provides>actuators</provides>
   </dep>
-  <autoload name="actuators" type="nps"/>
   <header>
     <file name="actuators.h" dir="boards/ardrone"/>
   </header>

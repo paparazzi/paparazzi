@@ -9,7 +9,6 @@
     <depends>spi_slave_hs</depends>
     <provides>ahrs,imu</provides>
   </dep>
-  <autoload name="ahrs_sim"/>
   <header>
     <file name="ins_module.h" dir="modules/ins"/>
   </header>

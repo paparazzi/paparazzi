@@ -3,11 +3,14 @@
 <module name="imu_chimera" dir="imu" task="sensors">
   <doc>
     <description>
-      MPU9250 IMU via SPI.
-      Basically the same as imu_mpu9250_spi, only changed axes assignment for Chimera.
+      MPU9250 IMU via I2C.
+      Basically the same as imu_mpu9250_i2c, only changed axes assignment for Chimera.
     </description>
   </doc>
-  <autoload name="imu_mpu9250_i2c"/>
+  <dep>
+    <depends>imu_mpu9250_i2c</depends>
+    <provides>imu</provides>
+  </dep>
   <makefile target="!sim|nps|fbw">
     <configure name="IMU_MPU9250_I2C_DEV" value="i2c1" case="upper|lower"/>
     <define name="IMU_MPU9250_CHAN_X" value="1"/>

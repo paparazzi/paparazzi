@@ -22,6 +22,10 @@
       <define name="MIN_CIRCLE_RADIUS" value="60." description="minium circle radius in meters"/>
     </section>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+    <recommends>@mission</recommends>
+  </dep>
   <header>
     <file name="nav_spiral_3D.h"/>
   </header>

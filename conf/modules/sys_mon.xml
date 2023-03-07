@@ -34,6 +34,9 @@ For systems with RTOS, RTOS_MON message is sent instead and the following inform
 Again, the sys_mon module has to run at the full main frequency (so the reports are generated at 1 second intervals).
     </description>
   </doc>
+  <dep>
+    <recommends>shell</recommends>
+  </dep>
   <header>
     <file name="sys_mon.h"/>
   </header>

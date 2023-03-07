@@ -13,8 +13,6 @@
     <depends>spi_master,imu_common,intermcu_iomcu,imu_heater</depends>
     <provides>imu</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <header>
     <file name="imu_cube.h"/>
   </header>

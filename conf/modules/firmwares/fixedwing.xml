@@ -9,6 +9,7 @@
   </doc>
   <dep>
     <depends>system_core,autopilot_gnc_fw,actuators_pwm</depends>
+    <suggests>nav_basic_fw</suggests>
   </dep>
   <makefile>
     <configure name="PERIODIC_FREQUENCY" default="60"/>

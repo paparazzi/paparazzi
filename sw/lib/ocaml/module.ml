@@ -217,6 +217,8 @@ type dependencies = {
     requires: GC.bool_expr list;
     conflicts: string list;
     provides: string list;
+    recommends: GC.bool_expr list;
+    suggests: string list;
   }
 
 (* comma separated values *)
@@ -226,7 +228,7 @@ let parse_func_list = fun l -> List.map (fun x -> "@"^x) (Str.split (Str.regexp 
 (* pipe separated values *)
 let parse_module_options = Str.split (Str.regexp "[ \t]*|[ \t]*")
 
-let empty_dep = { requires = []; conflicts = []; provides = [] }
+let empty_dep = { requires = []; conflicts = []; provides = []; recommends = []; suggests = [] }
 
 let rec parse_dependencies dep = function
   | Xml.Element ("dep", _, children) ->
@@ -237,12 +239,11 @@ let rec parse_dependencies dep = function
     { dep with conflicts = parse_comma_list conflicts }
   | Xml.Element ("provides", _, [Xml.PCData provides]) ->
     { dep with provides = parse_func_list provides }
+  | Xml.Element ("recommends", _, [Xml.PCData recommends]) ->
+    { dep with recommends = List.map (fun x -> GC.bool_expr_of_string (Some x)) (parse_comma_list recommends) }
+  | Xml.Element ("suggests", _, [Xml.PCData suggests]) ->
+    { dep with suggests = parse_comma_list suggests }
   | _ -> failwith "Module.parse_dependencies: unreachable"
-
-type autoload = {
-    aname: string;
-    atype: string option
-  }
 
 type config = { name: string;
                 mtype: string option;
@@ -269,7 +270,6 @@ type t = {
   path: string;
   doc: Xml.xml;
   dependencies: dependencies option;
-  autoloads: autoload list;
   settings: Settings.t list;
   headers: file list;
   inits: init list;
@@ -283,7 +283,7 @@ type t = {
 let empty =
   { xml_filename = ""; name = ""; dir = None;
     task = None; path = ""; doc = Xml.Element ("doc", [], []);
-    dependencies = None; autoloads = []; settings = [];
+    dependencies = None; settings = [];
     headers = []; inits = []; periodics = []; events = []; datalinks = [];
     makefiles = []; xml = Xml.Element ("module", [], []) }
 
@@ -299,10 +299,6 @@ let rec parse_xml m = function
     { m with settings = Settings.from_xml xml :: m.settings }
   | Xml.Element ("dep", _, _) as xml ->
     { m with dependencies = Some (parse_dependencies empty_dep xml) }
-  | Xml.Element ("autoload", _, []) as xml ->
-    let aname = find_name xml
-    and atype = ExtXml.attrib_opt xml "type" in
-    { m with autoloads = { aname; atype } :: m.autoloads }
   | Xml.Element ("header", [], files) ->
     { m with headers =
                List.fold_left (fun acc f -> parse_file f :: acc) m.headers files
@@ -341,7 +337,7 @@ let from_file = fun filename -> from_xml (Xml.parse_file filename)
 (** search and parse a module xml file and return a Module.t *)
 (* FIXME search folder path: <PPRZ_PATH>/*/<module_name[_type]>.xml *)
 exception Module_not_found of string
-let from_module_name = fun name mtype ->
+let from_module_name = fun mtype name ->
   (* concat module type if needed *)
   let name = match mtype with Some t -> name ^ "_" ^ t | None -> name in
   (* determine if name already have an extension *)

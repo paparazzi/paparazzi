@@ -21,8 +21,6 @@
     <depends>i2c,imu_common</depends>
     <provides>imu,mag</provides>
   </dep>
-  <autoload name="imu_nps"/>
-  <autoload name="imu_sim"/>
   <header>
     <file name="imu_mpu9250_i2c.h"/>
   </header>

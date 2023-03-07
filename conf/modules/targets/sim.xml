@@ -11,7 +11,8 @@
     </description>
   </doc>
   <dep>
-    <depends>system_core,electrical,settings,actuators_dummy</depends>
+    <depends>system_core,electrical,settings,actuators_dummy,@gps,@ins</depends>
+    <suggests>gps_sim,imu_sim,ins_sim,ahrs_sim,baro_sim,telemetry_sim</suggests>
   </dep>
   <makefile target="sim">
     <define name="SITL"/>

@@ -11,9 +11,8 @@
   <dep>
     <depends>uart,datalink_common</depends>
     <provides>datalink,telemetry</provides>
+    <suggests>telemetry_nps_secure</suggests>
   </dep>
-  <autoload name="telemetry" type="nps_secure"/>
-  <autoload name="telemetry" type="sim"/>
 
   <makefile target="!sim|nps|hitl">
     <configure name="MODEM_PORT" case="upper|lower"/>

@@ -7,7 +7,7 @@
     <configure name="SHELL_DYNAMIC_ENTRIES_NUMBER" value="5" description="maximum number of dynamic commands to register"/>
   </doc>
   <dep>
-      <depends>uart</depends>
+    <depends>uart</depends>
   </dep>
   <header>
     <file name="shell.h"/>

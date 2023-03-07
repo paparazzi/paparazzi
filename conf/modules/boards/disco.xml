@@ -7,7 +7,7 @@
     </description>
   </doc>
   <dep>
-    <depends>baro_ms5611_i2c</depends>
+    <depends>baro_ms5611_i2c,sonar_bebop</depends>
   </dep>
   <makefile target="!sim|nps|fbw">
     <define name="MS5611_TYPE_MS5607" value="TRUE"/>

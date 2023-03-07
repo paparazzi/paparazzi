@@ -28,8 +28,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <!--depends>@navigation</depends-->
-    <depends>nav_basic_rotorcraft,guidance_pid_rotorcraft,@stabilization</depends>
+    <depends>@navigation,@stabilization</depends>
     <provides>guidance,attitude_command</provides>
   </dep>
   <header>

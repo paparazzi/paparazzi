@@ -7,7 +7,10 @@
       Basically the same as imu_mpu9250_spi, only changed axes assignment for Elle0.
     </description>
   </doc>
-  <autoload name="imu_mpu9250_spi"/>
+  <dep>
+    <depends>imu_mpu9250_spi</depends>
+    <provides>imu</provides>
+  </dep>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_MPU9250_CHAN_X" value="1"/>
     <define name="IMU_MPU9250_CHAN_Y" value="0"/>

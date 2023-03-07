@@ -29,7 +29,6 @@
     <depends>ahrs_common,@imu,@mag</depends>
     <provides>ahrs</provides>
   </dep>
-  <autoload name="ahrs_sim"/>
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>

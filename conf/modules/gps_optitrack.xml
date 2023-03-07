@@ -13,8 +13,6 @@
     <depends>gps_datalink</depends>
     <provides>gps</provides>
   </dep>
-  <autoload name="gps_nps"/>
-  <autoload name="gps_sim"/>
   <makefile target="ap">
     <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
     <test/>

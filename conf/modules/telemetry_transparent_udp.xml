@@ -15,7 +15,6 @@
     <depends>udp,datalink_common</depends>
     <provides>datalink,telemetry</provides>
   </dep>
-  <autoload name="telemetry" type="sim"/>
   <header>
     <file name="pprz_dl.h"/>
   </header>

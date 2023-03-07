@@ -20,7 +20,6 @@
     <depends>spi_master,datalink_common</depends>
     <provides>datalink,telemetry</provides>
   </dep>
-  <autoload name="telemetry" type="sim"/>
   <header>
     <file name="w5100.h"/>
   </header>

@@ -11,6 +11,10 @@
       https://hal-enac.archives-ouvertes.fr/hal-02137839
     </description>
   </doc>
+  <dep>
+    <depends>@navigation</depends>
+    <recommends>@mission</recommends>
+  </dep>
   <header>
     <file name="nav_rosette.h"/>
   </header>

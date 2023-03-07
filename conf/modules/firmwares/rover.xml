@@ -8,6 +8,7 @@
   </doc>
   <dep>
     <depends>system_core,autopilot_gnc</depends>
+    <suggests>nav_rover_base</suggests>
   </dep>
   <makefile>
     <configure name="PERIODIC_FREQUENCY" default="100"/>

@@ -34,7 +34,6 @@
     <depends>ahrs_common,@imu,@gps</depends>
     <provides>ahrs</provides>
   </dep>
-  <autoload name="ahrs_sim"/>
 
   <makefile target="!sim|fbw">
     <configure name="USE_MAGNETOMETER" default="0"/>

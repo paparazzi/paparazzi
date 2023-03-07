@@ -13,9 +13,8 @@
     <configure name="BOARD_TAWAKI_ROTATED" value="FALSE|TRUE" description="if TRUE, the board is not using is default orientation and axis can be redefined by hand"/>
   </doc>
   <dep>
-    <depends>baro_bmp3,mag_lis3mdl</depends>
+    <depends>baro_bmp3,mag_lis3mdl,imu_mpu6000</depends>
   </dep>
-  <autoload name="imu" type="mpu6000"/>
   <makefile target="!sim|nps|fbw">
     <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
     <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>

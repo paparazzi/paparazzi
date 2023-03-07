@@ -14,9 +14,8 @@
     <configure name="BOARD_MATEK_ROTATED" value="FALSE|TRUE" description="if TRUE, the board is not using is default orientation and axis can be redefined by hand"/>
   </doc>
   <dep>
-    <depends>spi_master,baro_bmp280_i2c,current_sensor</depends>
+    <depends>spi_master,baro_bmp280_i2c,current_sensor,imu_mpu6000</depends>
   </dep>
-  <autoload name="imu" type="mpu6000"/>
 
   <makefile target="!sim|nps|fbw">
     <!-- IMU CONFIGURATION -->

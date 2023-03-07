@@ -13,6 +13,7 @@
   </doc>
   <dep>
     <depends>@navigation</depends>
+    <recommends>@mission</recommends>
   </dep>
   <header>
     <file name="nav_line.h"/>
