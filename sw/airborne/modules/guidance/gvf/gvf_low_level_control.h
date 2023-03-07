@@ -31,8 +31,8 @@
 #include "firmwares/fixedwing/nav.h"
 #include "modules/nav/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#define gvf_setNavMode(_navMode) (nav.horizontal_mode = _navMode)
-#define GVF_MODE_ROUTE NAV_HORIZONTAL_MODE_ROUTE
+#define gvf_setNavMode(_navMode) (horizontal_mode = _navMode)
+#define GVF_MODE_ROUTE HORIZONTAL_MODE_ROUTE
 #define GVF_MODE_WAYPOINT HORIZONTAL_MODE_WAYPOINT
 #define GVF_MODE_CIRCLE HORIZONTAL_MODE_CIRCLE
 

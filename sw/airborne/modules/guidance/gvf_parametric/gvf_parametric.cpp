@@ -355,7 +355,7 @@ bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, f
 
 bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha)
 {
-  nav_horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
   // Safety first! If the asked altitude is low
   if (zl > zh) {
