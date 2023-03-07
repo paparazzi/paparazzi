@@ -66,7 +66,6 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_attitude_euler_int.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_ref_euler_int.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization_attitude_euler_int.h" type="string"/>
   </makefile>

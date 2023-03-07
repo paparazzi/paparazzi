@@ -27,5 +27,7 @@
   <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="stabilization.c" dir="$(SRC_FIRMWARE)"/>
     <file name="stabilization_none.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
   </makefile>
 </module>

@@ -56,8 +56,6 @@
   <init fun="stabilization_attitude_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_attitude_heli_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_heli_indi.h" type="string"/>
   </makefile>

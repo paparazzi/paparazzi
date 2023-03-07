@@ -65,8 +65,6 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
     <file name="qr_solve.c" dir="math/qr_solve"/>
     <file name="r8lib_min.c" dir="math/qr_solve"/>
