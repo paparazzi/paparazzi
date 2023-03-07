@@ -66,7 +66,11 @@
 #define STABILIZATION_INDI_FILT_CUTOFF_R 20.0
 #endif
 
-PRINT_CONFIG_VAR(INDI_NUM_ACT)
+// Airspeed [m/s] at which the forward flight throttle limit is used instead of
+// the hover throttle limit.
+#ifndef INDI_HROTTLE_LIMIT_AIRSPEED_FWD
+#define INDI_HROTTLE_LIMIT_AIRSPEED_FWD 8.0
+#endif
 
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
@@ -506,7 +510,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     //limit minimum thrust ap can give
     if (!act_is_servo[i]) {
       if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
-        if (airspeed < 8.0) {
+        if (airspeed < INDI_HROTTLE_LIMIT_AIRSPEED_FWD) {
           du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment*actuator_state_filt_vect[i];
         } else {
           du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment*actuator_state_filt_vect[i];
