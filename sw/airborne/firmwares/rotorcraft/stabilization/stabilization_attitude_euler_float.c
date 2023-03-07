@@ -158,7 +158,7 @@ void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 
 void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
 {
-  struct FloatQuat quat_f,
+  struct FloatQuat quat_f;
   QUAT_FLOAT_OF_BFP(quat_f, *quat);
   float_eulers_of_quat(&stab_att_sp_euler, &quat_f);
 }
