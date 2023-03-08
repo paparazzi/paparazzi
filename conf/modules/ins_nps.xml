@@ -8,7 +8,7 @@
   </doc>
   <dep>
     <depends>@imu,@gps</depends>
-    <provides>ins</provides>
+    <provides>ins,ahrs</provides>
   </dep>
   <header>
     <file name="ins_gps_passthrough.h"/>

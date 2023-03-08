@@ -265,42 +265,52 @@ let resolve_modules_dep = fun config_by_target firmware user_target ->
       Module.dependencies = Some root_dep;
       Module.makefiles = [Module.empty_makefile]
     } in
+    (* found initial solution *)
     let solution = dep_resolve (init_sort_result ()) root_module target UserLoad in
-    (* test for conflicts functionalities and option if requested *)
-    if (not (user_target = "")) && (target = user_target) then begin
-      (* check conflicts for resolved modules *)
-      List.iter (fun (c, cname) ->
-        List.iter (fun (name, _) ->
-          if name = c then
-            failwith (Printf.sprintf "Error [Aircraft]: find conflict with module '%s' while loading '%s' in target '%s'" cname name target)
-        ) solution.resolved;
-        List.iter (fun (name, _) ->
-          if name = c then
-            failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for '%s' in target '%s'" name cname target)
-        ) solution.provided
-      ) solution.conflicts;
-    end;
-    (* chek that all required functionalities or modules are provided
-     * if not, search suggested list of modules, fail if nothing found
-     *)
-    let modules_and_func = (fst (List.split solution.provided)) @ (fst (List.split solution.resolved)) in
-    let selection = List.fold_left (fun s (r, name) ->
-      if (List.exists (fun p -> GC.eval_bool p r) modules_and_func) then s (* functionality is provided *)
-      else
-        let select = Hashtbl.fold (fun p m l -> if GC.eval_bool p r then m :: l else l) solution.suggested [] in
-        if List.length select = 0 && (not (user_target = "")) && (target = user_target) then
-          failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
+
+    (** function to recursively solve suggested modules and check solution *)
+    let rec resolve_suggested = fun sol suggested ->
+      (* test for conflicts functionalities and option if requested *)
+      if (not (user_target = "")) && (target = user_target) then begin
+        (* check conflicts for resolved modules *)
+        List.iter (fun (c, cname) ->
+          List.iter (fun (name, _) ->
+            if name = c then
+              failwith (Printf.sprintf "Error [Aircraft]: find conflict with module '%s' while loading '%s' in target '%s'" cname name target)
+          ) sol.resolved;
+          List.iter (fun (name, _) ->
+            if name = c then
+              failwith (Printf.sprintf "Error [Aircraft]: find conflict with funcionality while loading '%s' for '%s' in target '%s'" name cname target)
+          ) sol.provided
+        ) sol.conflicts;
+      end;
+      (* chek that all required functionalities or modules are provided
+       * if not, search suggested list of modules, fail if nothing found
+       *)
+      let modules_and_func = (fst (List.split sol.provided)) @ (fst (List.split sol.resolved)) in
+      let selection = List.fold_left (fun s (r, name) ->
+        if (List.exists (fun p -> GC.eval_bool p r) modules_and_func) then s (* functionality is provided *)
         else
-          s @ select (* return selection *)
-    ) [] solution.required in
-    let solution = match selection with
-    | [] -> solution (* nothing to change *)
-    | _ ->
-        (* add selection to root dep *)
-        let root_dep = { root_dep with Module.suggests = (List.map (fun m -> m.Module.name) selection) } in
-        let root_module = { root_module with Module.dependencies = Some root_dep } in
-        dep_resolve (init_sort_result ()) root_module target UserLoad
-    in
+          let select = Hashtbl.fold (fun p m l -> if GC.eval_bool p r then m :: l else l) sol.suggested [] in
+          if List.length select = 0 && (not (user_target = "")) && (target = user_target) then
+            failwith (Printf.sprintf "Error [Aircraft]: functionality '%s' is not provided for '%s' in target '%s'" (GC.sprint_expr r) name target)
+          else
+            s @ select (* return selection *)
+      ) suggested sol.required in
+      let selection = GC.singletonize ~compare:(fun a b -> compare a.Module.name b.Module.name) selection in
+      let sol = match selection with
+      | [] -> sol (* nothing to change *)
+      | _ ->
+          (* add selection to root dep *)
+          let root_dep = { root_dep with Module.suggests = (List.map (fun m -> m.Module.name) selection) } in
+          let root_module = { root_module with Module.dependencies = Some root_dep } in
+          dep_resolve (init_sort_result ()) root_module target UserLoad
+      in
+      if (List.length suggested) = (List.length selection) then sol
+      else resolve_suggested sol selection
+    in 
+    let solution = resolve_suggested solution [] in
+
     (* find final order *)
     let solution = dep_order solution in
     (* add configure, defines and modules to conf for all resolved modules *)
