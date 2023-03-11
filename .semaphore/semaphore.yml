@@ -10,7 +10,9 @@ blocks:
       jobs:
         - name: test
           commands:
-            - docker/run.sh -it paparazziuav/pprz-ci make test
+            - echo "git config --global --add safe.directory '*'" > test.sh
+            - echo "make test" >> test.sh
+            - docker/run.sh -it paparazziuav/pprz-ci bash test.sh
       prologue:
         commands:
           - docker pull paparazziuav/pprz-ci
