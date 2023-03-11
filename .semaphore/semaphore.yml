@@ -8,15 +8,10 @@ blocks:
   - name: Checkout
     task:
       jobs:
-        - name: get pprz
+        - name: get CI env
           commands:
             - checkout
-  - name: Docker
-    task:
-      jobs:
-        - name: get docker
-          commands:
-            - docker pull paparazziuav/pprz-ci
+    dependencies: []
   - name: Setup
     task:
       jobs:
@@ -35,9 +30,5 @@ blocks:
             - git submodule deinit --force .
             - rm -rf .git/modules
             - git submodule update --init --force --recursive
-  - name: Run
-    task:
-      jobs:
-        - name: run basic tests
-          commands:
-            - docker/run.sh -it paparazziuav/pprz-ci bash test.sh
+    dependencies:
+      - Checkout
