@@ -11,7 +11,7 @@ blocks:
         - name: test
           commands:
             - echo "git config --global --add safe.directory '*'" > test.sh
-            - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test_all.sh
+            - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test.sh
             - echo "make test" >> test.sh
             - docker/run.sh -it paparazziuav/pprz-ci bash test.sh
       prologue:
