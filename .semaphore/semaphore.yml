@@ -5,6 +5,12 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
+  - name: Checkout
+    task:
+      jobs:
+        - name: get pprz
+          commands:
+            - checkout
   - name: Docker
     task:
       jobs:
