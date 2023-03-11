@@ -10,18 +10,10 @@ blocks:
       jobs:
         - name: test
           commands:
-            - docker/run.sh -it paparazziuav/pprz-ci bash test.sh
+            - docker/run.sh -it paparazziuav/pprz-ci make test
       prologue:
         commands:
           - docker pull paparazziuav/pprz-ci
-          - echo "git config --global --add safe.directory '*'" > test.sh
-          - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test.sh
-          - echo "make test" >> test.sh
-          - echo "git config --global --add safe.directory '*'" > test_all.sh
-          - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test_all.sh
-          - echo "make test_all_confs" >> test_all.sh
-          - git config --global user.email "paparazzi-devel@nongnu.org"
-          - git config --global user.name "Paparazzi UAV"
           - checkout
           - git submodule update --init --force --recursive
     dependencies: []
