@@ -5,9 +5,33 @@ agent:
     type: e1-standard-2
     os_image: ubuntu2004
 blocks:
-  - name: 'Block #1'
+  - name: Docker
     task:
       jobs:
-        - name: 'Job #1'
+        - name: get docker
           commands:
-            - checkout
+            - docker pull paparazziuav/pprz-ci
+  - name: Setup
+    task:
+      jobs:
+        - name: scripts
+          commands:
+            - echo "git config --global --add safe.directory '*'" > test.sh
+            - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test.sh
+            - echo "make test" >> test.sh
+            - echo "git config --global --add safe.directory '*'" > test_all.sh
+            - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test_all.sh
+            - echo "make test_all_confs" >> test_all.sh
+        - name: git
+          commands:
+            - git config --global user.email "paparazzi-devel@nongnu.org"
+            - git config --global user.name "Paparazzi UAV"
+            - git submodule deinit --force .
+            - rm -rf .git/modules
+            - git submodule update --init --force --recursive
+  - name: Run
+    task:
+      jobs:
+        - name: run basic tests
+          commands:
+            - docker/run.sh -it paparazziuav/pprz-ci bash test.sh
