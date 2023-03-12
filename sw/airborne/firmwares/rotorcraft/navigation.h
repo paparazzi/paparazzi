@@ -211,6 +211,8 @@ extern void nav_periodic_task(void);
 
 extern bool nav_is_in_flight(void);
 
+extern void nav_glide_points(struct EnuCoor_f *start_point, struct EnuCoor_f *end_point);
+
 /** heading utility functions */
 extern void nav_set_heading_rad(float rad);
 extern void nav_set_heading_deg(float deg);
@@ -299,44 +301,47 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 /*********** Navigation to  waypoint *************************************/
 static inline void NavGotoWaypoint(uint8_t wp)
 {
-  if (nav.nav_goto) {
-    nav.nav_goto(&waypoints[wp].enu_f);
+  struct EnuCoor_f * _wp = waypoint_get_enu_f(wp);
+  if (_wp != NULL) {
+    nav.nav_goto(_wp);
   }
 }
 
 /*********** Navigation along a line *************************************/
 static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
 {
-  if (nav.nav_route) {
-    nav.nav_route(&waypoints[wp_start].enu_f, &waypoints[wp_end].enu_f);
+  struct EnuCoor_f * _wp_start = waypoint_get_enu_f(wp_start);
+  struct EnuCoor_f * _wp_end = waypoint_get_enu_f(wp_end);
+  if (_wp_start != NULL && _wp_end != NULL) {
+    nav.nav_route(_wp_start, _wp_end);
   }
 }
 
 static inline bool NavApproaching(uint8_t wp, float approaching_time)
 {
-  if (nav.nav_approaching) {
-    return nav.nav_approaching(&waypoints[wp].enu_f, NULL, approaching_time);
+  struct EnuCoor_f * _wp = waypoint_get_enu_f(wp);
+  if (_wp != NULL) {
+    return nav.nav_approaching(_wp, NULL, approaching_time);
   }
-  else {
-    return true;
-  }
+  return true; // not valid, end now
 }
 
 static inline bool NavApproachingFrom(uint8_t to, uint8_t from, float approaching_time)
 {
-  if (nav.nav_approaching) {
-    return nav.nav_approaching(&waypoints[to].enu_f, &waypoints[from].enu_f, approaching_time);
+  struct EnuCoor_f * _to = waypoint_get_enu_f(to);
+  struct EnuCoor_f * _from = waypoint_get_enu_f(from);
+  if (_to != NULL && _from != NULL) {
+    return nav.nav_approaching(_to, _from, approaching_time);
   }
-  else {
-    return true;
-  }
+  return true; // not valid, end now
 }
 
 /*********** Navigation on a circle **************************************/
 static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 {
-  if (nav.nav_circle) {
-    nav.nav_circle(&waypoints[wp_center].enu_f, radius);
+  struct EnuCoor_f * _wp_center = waypoint_get_enu_f(wp_center);
+  if (_wp_center != NULL) {
+    nav.nav_circle(_wp_center, radius);
   }
 }
 
@@ -344,33 +349,29 @@ static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 /*********** Navigation along an oval *************************************/
 static inline void nav_oval_init(void)
 {
-  if (nav.nav_oval_init) {
-    nav.nav_oval_init();
-  }
+  nav.nav_oval_init();
 }
 
 static inline void Oval(uint8_t wp1, uint8_t wp2, float radius)
 {
-  if (nav.nav_oval) {
-    nav.nav_oval(&waypoints[wp1].enu_f, &waypoints[wp2].enu_f, radius);
+  struct EnuCoor_f * _wp1 = waypoint_get_enu_f(wp1);
+  struct EnuCoor_f * _wp2 = waypoint_get_enu_f(wp2);
+  if (_wp1 != NULL && _wp2 != NULL) {
+    nav.nav_oval(_wp1, _wp2, radius);
   }
 }
 
 
 /** Nav glide routine */
-static inline void NavGlide(uint8_t start_wp, uint8_t wp)
-{
-  struct FloatVect2 wp_diff, pos_diff;
-  VECT2_DIFF(wp_diff, waypoints[wp].enu_f, waypoints[start_wp].enu_f);
-  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), waypoints[start_wp].enu_f);
-  float start_alt = waypoint_get_alt(start_wp);
-  float diff_alt = waypoint_get_alt(wp) - start_alt;
-  float length2 = Max(float_vect2_norm2(&wp_diff), 0.1f);
-  float progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / length2;
-  float alt = start_alt + diff_alt * progress;
-  NavVerticalAltitudeMode(alt, 0);
-}
 
+static inline void NavGlide(uint8_t wp_start, uint8_t wp_end)
+{
+  struct EnuCoor_f * _wp_start = waypoint_get_enu_f(wp_start);
+  struct EnuCoor_f * _wp_end = waypoint_get_enu_f(wp_end);
+  if (_wp_start != NULL && _wp_end != NULL) {
+    nav_glide_points(_wp_start, _wp_end);
+  }
+}
 
 
 /***********************************************************

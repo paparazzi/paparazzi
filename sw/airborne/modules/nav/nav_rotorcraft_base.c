@@ -100,10 +100,12 @@ static bool nav_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float 
 
   /* if coming from a valid waypoint */
   if (from != NULL) {
-    /* return TRUE if normal line at the end of the segment is crossed */
+    /* return TRUE if normal line at the end of the segment is crossed 
+     * if 'from' and 'to' WP are the same, diff is zero and function should
+     * return false (only distance to waypoint will be considered) */
     struct FloatVect2 from_diff;
     VECT2_DIFF(from_diff, *wp, *from);
-    return (diff.x * from_diff.x + diff.y * from_diff.y < 0.f);
+    return (diff.x * from_diff.x + diff.y * from_diff.y < -0.01f);
   }
 
   return false;

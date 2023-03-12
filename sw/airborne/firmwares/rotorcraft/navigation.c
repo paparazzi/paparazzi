@@ -55,6 +55,16 @@ const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
 
 float flight_altitude;
 
+/** Empty navigation functions set at init
+ */
+static void empty_stage_init(void) {}
+static void empty_goto(struct EnuCoor_f *wp UNUSED) {}
+static void empty_route(struct EnuCoor_f *wp_start UNUSED, struct EnuCoor_f *wp_end UNUSED) {}
+static bool empty_approaching(struct EnuCoor_f *wp_to UNUSED, struct EnuCoor_f *wp_from UNUSED, float approaching_time UNUSED) { return true; }
+static void empty_circle(struct EnuCoor_f *wp_center UNUSED, float radius UNUSED) {}
+static void empty_oval_init(void) {}
+static void empty_oval(struct EnuCoor_f *wp1 UNUSED, struct EnuCoor_f *wp2 UNUSED, float radius UNUSED) {};
+
 static inline void nav_set_altitude(void);
 
 void nav_init(void)
@@ -94,13 +104,13 @@ void nav_init(void)
   nav.climb_vspeed = NAV_CLIMB_VSPEED;
   nav.descend_vspeed = NAV_DESCEND_VSPEED;
 
-  nav.nav_stage_init = NULL;
-  nav.nav_goto = NULL;
-  nav.nav_route = NULL;
-  nav.nav_approaching = NULL;
-  nav.nav_circle = NULL;
-  nav.nav_oval_init = NULL;
-  nav.nav_oval = NULL;
+  nav.nav_stage_init = empty_stage_init;
+  nav.nav_goto = empty_goto;
+  nav.nav_route = empty_route;
+  nav.nav_approaching = empty_approaching;
+  nav.nav_circle = empty_circle;
+  nav.nav_oval_init = empty_oval_init;
+  nav.nav_oval = empty_oval;
 
   // generated init function
   auto_nav_init();
@@ -268,6 +278,17 @@ bool nav_detect_ground(void)
 bool nav_is_in_flight(void)
 {
   return autopilot_in_flight();
+}
+
+void nav_glide_points(struct EnuCoor_f *start_point, struct EnuCoor_f *end_point)
+{
+  struct FloatVect2 wp_diff, pos_diff;
+  VECT2_DIFF(wp_diff, *end_point, *start_point);
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *start_point);
+  float length2 = Max(float_vect2_norm2(&wp_diff), 0.1f);
+  float progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / length2;
+  float alt = start_point->z + (end_point->z - start_point->z) * progress;
+  NavVerticalAltitudeMode(alt, 0);
 }
 
 /** Home mode navigation */
