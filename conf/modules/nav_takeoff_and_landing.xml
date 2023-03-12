@@ -1,0 +1,48 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="nav_takeoff_and_landing" dir="nav" task="control">
+  <doc>
+    <description>
+      Navigation routines for takeoff and landing
+      Basic procedures for rotorcraft and fixed-wing:
+      - Takeoff rotorcraft: from current location, can move a WP to takeoff point or not
+      - Takeoff fixedwing: in direction of a WP, flight plan QFU, or specified location
+      - Landing rotorcraft: land at current location, to a specified WP or location, with a glide or not
+      - Landing fixedwing: land with a glide between two WPs or from a direction/distance, or land with a circle
+      Functions can be called from flight plan or from the mission module if loaded.
+    </description>
+    <section name="NAV_TAKEOFF" prefix="NAV_TAKEOFF_">
+      <define name="CLIMB_SPEED" value="1.0" description="Takeoff climb speed (rotorcraft, default: NAV_CLIMB_VSPEED)"/>
+      <define name="PITCH" value="15." unit="deg" description="Takeoff pitch angle (fixedwing)"/>
+      <define name="THROTTLE" value="1.0" unit="[0-1]" description="Takeoff throttle (fixedwing, normalized [0-1])"/>
+      <define name="HEIGHT" value="2./20." unit="m" description="Takeoff end height (default: rotorcraft=2., fixedwing=20."/>
+      <define name="DIST" value="200." unit="m" description="Takeoff end distance (fixedwing)"/>
+      <define name="AUTO_LAUNCH" value="FALSE|TRUE" description="Set 'launch' setting automatically (fixedwing, default: TRUE)"/>
+    </section>
+    <section name="NAV_LANDING" prefix="NAV_LANDING_">
+      <define name="DESCEND_SPEED" value="-1." description="Landing descent speed (default: rotorcraft=NAV_DESCEND_VSPEED, fixedwing=-1.0)"/>
+      <define name="AF_HEIGHT" value="5./30." description="Landing start of descent height (default: rotorcraft=5., fixedwing=30.)"/>
+      <define name="FLARE_HEIGHT" value="2./10." description="Landing flare height (default: rotorcraft=2., fixedwing=10.)"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>@navigation</depends>
+    <recommends>@mission</recommends>
+  </dep>
+  <header>
+    <file name="nav_takeoff_and_landing.h"/>
+  </header>
+  <init fun="nav_takeoff_and_landing_init()"/>
+  <periodic fun="nav_takeoff_and_landing_periodic()" freq="1."/>
+  <makefile firmware="fixedwing">
+    <file name="nav_takeoff_and_landing_fw.c"/>
+    <test firmware="fixedwing">
+      <define name="USE_MISSION"/>
+    </test>
+  </makefile>
+  <makefile firmware="rotorcraft">
+    <file name="nav_takeoff_and_landing_rotorcraft.c"/>
+    <test firmware="rotorcraft">
+      <define name="USE_MISSION"/>
+    </test>
+  </makefile>
+</module>
