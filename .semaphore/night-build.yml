@@ -16,6 +16,7 @@ blocks:
             - docker/run.sh -it paparazziuav/pprz-ci bash test_all.sh
       prologue:
         commands:
+          - 'sudo rm -rf /home/semaphore/{.phpbrew,.phpunit,.kerl,.kiex,.lein,.nvm,.npm,.rbenv}'
           - docker pull paparazziuav/pprz-ci
           - checkout
           - git submodule update --init --force --recursive
