@@ -72,6 +72,14 @@ extern float waypoint_get_x(uint8_t wp_id);
 extern float waypoint_get_y(uint8_t wp_id);
 /** Get altitude of waypoint in meters (above reference) */
 extern float waypoint_get_alt(uint8_t wp_id);
+/** Get latitude of waypoint in deg */
+extern float waypoint_get_lat_deg(uint8_t wp_id);
+/** Get latitude of waypoint in rad */
+extern float waypoint_get_lat_rad(uint8_t wp_id);
+/** Get longitude of waypoint in deg */
+extern float waypoint_get_lon_deg(uint8_t wp_id);
+/** Get longitude of waypoint in rad */
+extern float waypoint_get_lon_rad(uint8_t wp_id);
 
 /** Get LLA coordinates of waypoint.
  * If the waypoint does not have its global coordinates set,
@@ -82,6 +90,17 @@ extern float waypoint_get_alt(uint8_t wp_id);
  */
 extern struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id);
 
+/** Get ENU coordinates (float)
+ * @param wp_id waypoint id
+ * @return pointer to waypoint ENU (float) coordinates, NULL if invalid
+ */
+extern struct EnuCoor_f *waypoint_get_enu_f(uint8_t wp_id);
+
+/** Get ENU coordinates (integer)
+ * @param wp_id waypoint id
+ * @return pointer to waypoint ENU (integer) coordinates, NULL if invalid
+ */
+extern struct EnuCoor_i *waypoint_get_enu_i(uint8_t wp_id);
 
 /*
  * Set waypoint coordinates.
