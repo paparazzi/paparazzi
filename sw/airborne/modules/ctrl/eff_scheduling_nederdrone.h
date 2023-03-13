@@ -50,4 +50,8 @@ extern float thrust_eff_scaling;
 // Schedule all forward actuators with airspeed instead of only the flaps
 extern bool all_act_fwd_sched;
 
+// trim aerodynamic surfaces with settings
+extern float trim_elevator;
+extern float trim_flaps;
+
 #endif  // EFF_SCHEDULING_NEDERDRONE_H

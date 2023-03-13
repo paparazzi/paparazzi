@@ -41,6 +41,21 @@ not use this module at the same time!
 #define INDI_SCHEDULING_LOW_AIRSPEED 12.0
 #endif
 
+#if INDI_NUM_ACT < 8
+#error "This module works with a Nederdrone with 8 (grouped) actuators"
+#endif
+
+#ifndef INDI_SCHEDULING_TRIM_ELEVATOR
+#define INDI_SCHEDULING_TRIM_ELEVATOR 0.0
+#endif
+
+#ifndef INDI_SCHEDULING_TRIM_FLAPS
+#define INDI_SCHEDULING_TRIM_FLAPS 0.0
+#endif
+
+float trim_elevator = INDI_SCHEDULING_TRIM_ELEVATOR;
+float trim_flaps = INDI_SCHEDULING_TRIM_FLAPS;
+
 bool all_act_fwd_sched = false;
 
 int32_t use_scheduling = 1;
@@ -85,6 +100,16 @@ void ctrl_eff_scheduling_periodic(void)
 #else
   schdule_control_effectiveness();
 #endif
+
+  act_pref[0] = 0.0;
+  act_pref[1] = 0.0;
+  act_pref[2] = 0.0;
+  act_pref[3] = 0.0;
+  // read settings and trim the aerodynamic surfaces
+  act_pref[4] = -trim_elevator - trim_flaps;
+  act_pref[5] = -trim_elevator - trim_flaps;
+  act_pref[6] = -trim_elevator + trim_flaps;
+  act_pref[7] = -trim_elevator + trim_flaps;
 }
 
 /**

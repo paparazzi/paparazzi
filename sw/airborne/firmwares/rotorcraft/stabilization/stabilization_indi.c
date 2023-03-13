@@ -66,6 +66,12 @@
 #define STABILIZATION_INDI_FILT_CUTOFF_R 20.0
 #endif
 
+// Airspeed [m/s] at which the forward flight throttle limit is used instead of
+// the hover throttle limit.
+#ifndef INDI_HROTTLE_LIMIT_AIRSPEED_FWD
+#define INDI_HROTTLE_LIMIT_AIRSPEED_FWD 8.0
+#endif
+
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
 float du_pref[INDI_NUM_ACT];
@@ -125,6 +131,15 @@ static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
 #else
 //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
 static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+#endif
+
+/**
+ * Weighting of different actuators in the cost function
+ */
+#ifdef STABILIZATION_INDI_WLS_WU
+float indi_Wu[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
+#else
+float indi_Wu[INDI_NUM_ACT] = {1.0};
 #endif
 
 // variables needed for control
@@ -241,8 +256,8 @@ void stabilization_indi_init(void)
   sum_g1_g2();
   calc_g1g2_pseudo_inv();
 
+  int8_t i;
   // Initialize the array of pointers to the rows of g1g2
-  uint8_t i;
   for (i = 0; i < INDI_OUTPUTS; i++) {
     Bwls[i] = g1g2[i];
   }
@@ -445,8 +460,13 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   //G2 is scaled by INDI_G_SCALING to make it readable
   g2_times_du = g2_times_du / INDI_G_SCALING;
 
+  float use_increment = 0.0;
+  if(in_flight) {
+    use_increment = 1.0;
+  }
+
   float v_thrust = 0.0;
-  if (indi_thrust_increment_set && in_flight) {
+  if (indi_thrust_increment_set) {
     v_thrust = indi_thrust_increment;
 
     //update thrust command such that the current is correctly estimated
@@ -460,73 +480,71 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     // incremental thrust
     for (i = 0; i < INDI_NUM_ACT; i++) {
       v_thrust +=
-        (stabilization_cmd[COMMAND_THRUST] - actuator_state_filt_vect[i]) * Bwls[3][i];
+        (stabilization_cmd[COMMAND_THRUST] - use_increment*actuator_state_filt_vect[i]) * Bwls[3][i];
     }
   }
 
   // The control objective in array format
-  indi_v[0] = (angular_accel_ref.p - angular_acceleration[0]);
-  indi_v[1] = (angular_accel_ref.q - angular_acceleration[1]);
-  indi_v[2] = (angular_accel_ref.r - angular_acceleration[2] + g2_times_du);
+  indi_v[0] = (angular_accel_ref.p - use_increment*angular_acceleration[0]);
+  indi_v[1] = (angular_accel_ref.q - use_increment*angular_acceleration[1]);
+  indi_v[2] = (angular_accel_ref.r - use_increment*angular_acceleration[2] + g2_times_du);
   indi_v[3] = v_thrust;
 
-  if (in_flight) {
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
-    // Calculate the increment for each actuator
-    for (i = 0; i < INDI_NUM_ACT; i++) {
-      indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
-        + (g1g2_pseudo_inv[i][1] * indi_v[1])
-        + (g1g2_pseudo_inv[i][2] * indi_v[2])
-        + (g1g2_pseudo_inv[i][3] * indi_v[3]);
-    }
+  // Calculate the increment for each actuator
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
+      + (g1g2_pseudo_inv[i][1] * indi_v[1])
+      + (g1g2_pseudo_inv[i][2] * indi_v[2])
+      + (g1g2_pseudo_inv[i][3] * indi_v[3]);
+  }
 #else
-    // Calculate the min and max increments
-    for (i = 0; i < INDI_NUM_ACT; i++) {
-      du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
-      du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
-      du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
+  // Calculate the min and max increments
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    du_min[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
+    du_max[i] = MAX_PPRZ - use_increment*actuator_state_filt_vect[i];
+    du_pref[i] = act_pref[i] - use_increment*actuator_state_filt_vect[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
-      float airspeed = stateGetAirspeed_f();
-      //limit minimum thrust ap can give
-      if (!act_is_servo[i]) {
-        if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
-          if (airspeed < 8.0) {
-            du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - actuator_state_filt_vect[i];
-          } else {
-            du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - actuator_state_filt_vect[i];
-          }
+    float airspeed = stateGetAirspeed_f();
+    //limit minimum thrust ap can give
+    if (!act_is_servo[i]) {
+      if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
+        if (airspeed < INDI_HROTTLE_LIMIT_AIRSPEED_FWD) {
+          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment*actuator_state_filt_vect[i];
+        } else {
+          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment*actuator_state_filt_vect[i];
         }
       }
-#endif
     }
+#endif
+  }
 
-    // WLS Control Allocator
-    num_iter =
-      wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, du_pref, 10000, 10);
+  // WLS Control Allocator
+  num_iter =
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, du_pref, 10000, 10);
 #endif
 
+  if (in_flight) {
     // Add the increments to the actuators
     float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
+  } else {
+    // Not in flight, so don't increment
+    float_vect_copy(indi_u, indi_du, INDI_NUM_ACT);
+  }
 
-    // Bound the inputs to the actuators
-    for (i = 0; i < INDI_NUM_ACT; i++) {
-      if (act_is_servo[i]) {
-        BoundAbs(indi_u[i], MAX_PPRZ);
-      } else {
-        if (autopilot_get_motors_on()) {
-          Bound(indi_u[i], 0, MAX_PPRZ);
-        }
-        else {
-          indi_u[i] = -MAX_PPRZ;
-        }
+  // Bound the inputs to the actuators
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    if (act_is_servo[i]) {
+      BoundAbs(indi_u[i], MAX_PPRZ);
+    } else {
+      if (autopilot_get_motors_on()) {
+        Bound(indi_u[i], 0, MAX_PPRZ);
+      }
+      else {
+        indi_u[i] = -MAX_PPRZ;
       }
     }
-
-  } else {
-  //Don't increment if not flying (not armed)
-    float_vect_zero(indi_u, INDI_NUM_ACT);
-    float_vect_zero(indi_du, INDI_NUM_ACT);
   }
 
   // Propagate actuator filters
