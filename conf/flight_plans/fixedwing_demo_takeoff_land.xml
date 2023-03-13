@@ -1,0 +1,65 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Fixedwing demo takeoff and land" security_height="25">
+  <header/>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="49.5" y="100.1"/>
+    <waypoint alt="215.0" name="AF" x="177.4" y="45.1"/>
+    <waypoint alt="185.0" name="TD" x="28.8" y="57.0"/>
+    <waypoint name="CLIMB" x="-114.5" y="162.3"/>
+  </waypoints>
+  <variables>
+    <variable var="land_dir" init="45." min="0." max="360." step="0.1"/>
+    <variable var="land_distance" init="200." min="0." max="300." step="0.1"/>
+  </variables>
+  <modules>
+    <module name="nav" type="takeoff_and_landing"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="autopilot_set_kill_throttle(true)"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff (WP)" strip_button="Takeoff (WP)" group="takeoff">
+      <set value="0" var="autopilot.flight_time"/>
+      <call fun="nav_takeoff_from_wp(WP_CLIMB)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Takeoff (Here)" strip_button="Takeoff (Here)" group="takeoff">
+      <set value="0" var="autopilot.flight_time"/>
+      <call fun="nav_takeoff_from_here()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Land (WP)" strip_button="Land (WP)" group="land">
+      <call fun="nav_land_at_wp(WP_TD, WP_TD, nav_radius)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (WP-glide)" strip_button="Land (WP-glide)" group="land">
+      <call fun="nav_land_at_wp(WP_TD, WP_AF, nav_radius)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (Here)" strip_button="Land (Here)" group="land">
+      <call fun="nav_land_here(0., nav_radius)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (Loc)" strip_button="Land (Loc)" group="land">
+      <call fun="nav_land_at_loc(0., 43.4625, 1.27329, land_dir, land_distance, nav_radius)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>
