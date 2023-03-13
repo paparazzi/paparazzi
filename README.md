@@ -2,7 +2,7 @@
 
 Paparazzi UAS
 =============
-[![Build Status](https://semaphoreci.com/api/v1/paparazziuav/paparazzi/branches/master/shields_badge.svg)](https://semaphoreci.com/paparazziuav/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
+[![Build Status](https://paparazziuav.semaphoreci.com/badges/paparazzi/branches/master.svg?style=shields&key=d3a59143-a357-434e-89b8-057f15ed8dd2)](https://paparazziuav.semaphoreci.com/projects/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
 <a href="https://scan.coverity.com/projects/paparazzi-paparazzi">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/4928/badge.svg"/>
