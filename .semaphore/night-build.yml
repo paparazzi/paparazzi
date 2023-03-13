@@ -1,0 +1,23 @@
+version: v1.0
+name: Night build
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Run test
+    task:
+      jobs:
+        - name: test
+          commands:
+            - echo "git config --global --add safe.directory '*'" > test_all.sh
+            - echo "ln -s /usr/bin/python3 /usr/bin/python" >> test_all.sh
+            - echo "make test_all_confs" >> test_all.sh
+            - docker/run.sh -it paparazziuav/pprz-ci bash test_all.sh
+      prologue:
+        commands:
+          - 'sudo rm -rf /home/semaphore/{.phpbrew,.phpunit,.kerl,.kiex,.lein,.nvm,.npm,.rbenv}'
+          - docker pull paparazziuav/pprz-ci
+          - checkout
+          - git submodule update --init --force --recursive
+    dependencies: []
