@@ -364,7 +364,7 @@ bool nav_land_here(float td_alt, float radius)
     landing.td_id = 0;
     landing.af_id = 0;
     landing.td_pos = *stateGetPositionEnu_f();
-    landing.td_pos.z = GetAltRef() + td_alt;
+    landing.td_pos.z = td_alt;
     landing.af_pos = landing.td_pos;
     landing.af_pos.z = landing.td_pos.z + NAV_LANDING_AF_HEIGHT;
     landing.radius = radius;
