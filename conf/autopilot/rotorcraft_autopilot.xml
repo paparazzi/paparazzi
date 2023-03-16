@@ -39,18 +39,19 @@
 
     <control_block name="throttle_direct">
       <call fun="guidance_v_read_rc()"/>
-      <call fun="guidance_v_z_sp = stateGetPositionNed_i()->z"/>
-      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t"/>
+      <call fun="guidance_v_set_z(stateGetPositionNed_i()->z)"/>
+      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
     </control_block>
 
     <control_block name="altitude_loop">
-      <call fun="gv_update_ref_from_z_sp(guidance_v_z_sp)"/>
-      <call fun="run_hover_loop(autopilot_in_flight())"/>
+      <call fun="gv_update_ref_from_z_sp(guidance_v.z_sp)"/>
+      <call fun="guidance_v.delta_t = guidance_v_run_pos(autopilot_in_flight(), &guidance_v)"/>
+      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
       <!--call fun="SaturateThrottle(rc_values)"/-->
     </control_block>
 
     <exceptions>
-      <exception cond="too_far_from_home" deroute="HOME"/>
+      <exception cond="nav.too_far_from_home" deroute="HOME"/>
       <exception cond="kill_switch_is_on()" deroute="KILL"/>
     </exceptions>
 
@@ -112,7 +113,7 @@
       <on_enter>
         <call fun="guidance_h_hover_enter()"/>
         <call fun="stabilization_attitude_enter()"/>
-        <call fun="guidance_v_mode = GUIDANCE_V_MODE_GUIDED"/>
+        <call fun="guidance_v.mode = GUIDANCE_V_MODE_GUIDED"/>
         <call fun="guidance_v_guided_enter()"/>
       </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
@@ -152,13 +153,15 @@
       <on_enter>
         <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)"/>
-        <call fun="guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED)"/>
+        <call fun="guidance_v_set_z(SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED))"/>
       </on_enter>
       <control>
         <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
         <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
-        <call fun="gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z)"/>
-        <call fun="run_hover_loop(autopilot_in_flight())"/>
+        <call fun="gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z)"/>
+        <call fun="guidance_v_update_ref()"/>
+        <call fun="guidance_v.delta_t = guidance_v_run_speed(autopilot_in_flight(), &guidance_v)"/>
+        <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
         <call_block name="set_commands"/>
       </control>
       <exception cond="!GpsIsLost()" deroute="$LAST_MODE"/>
