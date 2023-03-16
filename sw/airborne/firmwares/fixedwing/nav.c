@@ -157,13 +157,15 @@ void nav_circle_XY(float x, float y, float radius)
 
 void nav_glide(uint8_t start_wp, uint8_t wp)
 {
-  float start_alt = waypoints[start_wp].a;
-  float diff_alt = waypoints[wp].a - start_alt;
+  nav_glide_alt(waypoints[start_wp].a, waypoints[wp].a);
+}
+
+void nav_glide_alt(float start_alt, float final_alt) {
+  float diff_alt = final_alt - start_alt;
   float alt = start_alt + nav_leg_progress * diff_alt;
   float pre_climb = stateGetHorizontalSpeedNorm_f() * diff_alt / nav_leg_length;
   NavVerticalAltitudeMode(alt, pre_climb);
 }
-
 
 #define MAX_DIST_CARROT 250.
 #define MIN_HEIGHT_CARROT 50.
