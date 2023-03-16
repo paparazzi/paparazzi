@@ -1,0 +1,64 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="157" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="150" name="Rotorcraft demo takeoff and land" security_height="1">
+  <header/>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
+    <waypoint name="P1" x="3.6" y="-13.9"/>
+    <waypoint name="TD" x="5.6" y="-10.9" height="2."/>
+  </waypoints>
+  <variables>
+    <variable var="land_dir" init="45." min="0." max="360." step="0.1"/>
+    <variable var="land_distance" init="10." min="0." max="20." step="0.1"/>
+  </variables>
+  <modules>
+    <module name="nav" type="takeoff_and_landing"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff (WP)" strip_button="Takeoff (WP)" group="takeoff">
+      <call fun="nav_takeoff_from_wp(WP_CLIMB)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Takeoff (Here)" strip_button="Takeoff (Here)" group="takeoff">
+      <call fun="nav_takeoff_from_here()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Land (WP)" strip_button="Land (WP)" group="land">
+      <call fun="nav_land_at_wp(WP_TD, WP_TD, 0.)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (WP-glide)" strip_button="Land (WP-glide)" group="land">
+      <call fun="nav_land_at_wp(WP_TD, WP_STDBY, 0.)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (Here)" strip_button="Land (Here)" group="land">
+      <call fun="nav_land_here(0., 0.)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Land (Loc)" strip_button="Land (Loc)" group="land">
+      <call fun="nav_land_at_loc(0., waypoint_get_lat_deg(WP_P1), waypoint_get_lon_deg(WP_P1), land_dir, land_distance, 0.)"/>
+      <deroute block="Landed"/>
+    </block>
+    <block name="Landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>

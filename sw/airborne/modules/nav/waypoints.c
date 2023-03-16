@@ -118,6 +118,42 @@ float waypoint_get_alt(uint8_t wp_id)
   return 0.f;
 }
 
+float waypoint_get_lat_deg(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    if (!waypoint_is_global(wp_id) && !bit_is_set(waypoints[wp_id].flags, WP_FLAG_LLA_I)) {
+      waypoint_globalize(wp_id);
+    }
+    return DEG_OF_EM7DEG(waypoints[wp_id].lla.lat);
+  }
+  else {
+    return 0.f;
+  }
+}
+
+float waypoint_get_lat_rad(uint8_t wp_id)
+{
+  return RadOfDeg(waypoint_get_lat_deg(wp_id));
+}
+
+float waypoint_get_lon_deg(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    if (!waypoint_is_global(wp_id) && !bit_is_set(waypoints[wp_id].flags, WP_FLAG_LLA_I)) {
+      waypoint_globalize(wp_id);
+    }
+    return DEG_OF_EM7DEG(waypoints[wp_id].lla.lon);
+  }
+  else {
+    return 0.f;
+  }
+}
+
+float waypoint_get_lon_rad(uint8_t wp_id)
+{
+  return RadOfDeg(waypoint_get_lon_deg(wp_id));
+}
+
 void waypoint_set_enu_i(uint8_t wp_id, struct EnuCoor_i *enu)
 {
   if (wp_id < nb_waypoint) {
@@ -334,6 +370,32 @@ struct LlaCoor_i *waypoint_get_lla(uint8_t wp_id)
       waypoint_globalize(wp_id);
     }
     return &waypoints[wp_id].lla;
+  }
+  else {
+    return NULL;
+  }
+}
+
+struct EnuCoor_f *waypoint_get_enu_f(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    if (waypoint_is_global(wp_id) && !bit_is_set(waypoints[wp_id].flags, WP_FLAG_ENU_F)) {
+      waypoint_localize(wp_id);
+    }
+    return &waypoints[wp_id].enu_f;
+  }
+  else {
+    return NULL;
+  }
+}
+
+struct EnuCoor_i *waypoint_get_enu_i(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    if (waypoint_is_global(wp_id) && !bit_is_set(waypoints[wp_id].flags, WP_FLAG_ENU_I)) {
+      waypoint_localize(wp_id);
+    }
+    return &waypoints[wp_id].enu_i;
   }
   else {
     return NULL;
