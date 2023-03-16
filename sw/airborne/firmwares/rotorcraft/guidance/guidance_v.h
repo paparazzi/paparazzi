@@ -111,6 +111,8 @@ extern void guidance_v_init(void);
 extern void guidance_v_read_rc(void);
 extern void guidance_v_mode_changed(uint8_t new_mode);
 extern void guidance_v_notify_in_flight(bool in_flight);
+extern void guidance_v_thrust_adapt(bool in_flight);
+extern void guidance_v_update_ref(void);
 extern void guidance_v_run(bool in_flight);
 extern void guidance_v_z_enter(void);
 
