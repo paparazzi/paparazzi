@@ -199,7 +199,7 @@ static int32_t get_vertical_thrust_coeff(void)
 }
 
 
-static void guidance_v_thrust_adapt(bool in_flight)
+void guidance_v_thrust_adapt(bool in_flight)
 {
   guidance_v.thrust_coeff = get_vertical_thrust_coeff();
 
@@ -302,7 +302,7 @@ void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel)
 }
 
 
-static void guidance_v_update_ref(void)
+void guidance_v_update_ref(void)
 {
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref >> (GV_Z_REF_FRAC - INT32_POS_FRAC);
