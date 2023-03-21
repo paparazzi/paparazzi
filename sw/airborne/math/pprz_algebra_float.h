@@ -145,7 +145,7 @@ static inline float float_vect2_norm(struct FloatVect2 *v)
 static inline void float_vect2_normalize(struct FloatVect2 *v)
 {
   const float n = float_vect2_norm(v);
-  if (n > 0) {
+  if (n > 1e-4f) {
     v->x /= n;
     v->y /= n;
   }
@@ -177,7 +177,7 @@ static inline float float_vect3_norm(struct FloatVect3 *v)
 static inline void float_vect3_normalize(struct FloatVect3 *v)
 {
   const float n = float_vect3_norm(v);
-  if (n > 0) {
+  if (n > 1e-4f) {
     v->x /= n;
     v->y /= n;
     v->z /= n;
