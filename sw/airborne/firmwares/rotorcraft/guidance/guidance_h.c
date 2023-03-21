@@ -44,11 +44,6 @@
 
 #include "state.h"
 
-// FIXME check again here ?
-#ifndef GUIDANCE_H_MAX_BANK
-#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
-#endif
-
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_REF)
 PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 

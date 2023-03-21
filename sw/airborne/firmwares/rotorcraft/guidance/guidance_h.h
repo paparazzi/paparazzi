@@ -65,6 +65,12 @@ extern "C" {
 #define GUIDANCE_H_MODE_FLIP        9
 #define GUIDANCE_H_MODE_GUIDED      10
 
+/** Max bank controlled by guidance
+ */
+#ifndef GUIDANCE_H_MAX_BANK
+#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
+#endif
+
 
 struct HorizontalGuidanceSetpoint {
   /** horizontal position setpoint in NED.
