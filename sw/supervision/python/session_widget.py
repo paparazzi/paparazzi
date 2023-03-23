@@ -10,7 +10,7 @@ import utils
 import lxml.etree as ET
 
 from typing import List, Optional, Tuple, Dict
-from program_widget import ProgramWidget
+from program_widget import ProgramWidget, TabProgramsState
 from tools_menu import ToolMenu
 from programs_conf import *
 from conf import *
@@ -21,6 +21,7 @@ class SessionWidget(QWidget, Ui_Session):
 
     programs_all_stopped = QtCore.pyqtSignal()
     program_spawned = QtCore.pyqtSignal()
+    program_state_changed = QtCore.pyqtSignal(TabProgramsState)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -33,6 +34,7 @@ class SessionWidget(QWidget, Ui_Session):
         self.tools_menu = ToolMenu()
         self.sessions_combo.addItems(["Simulation", "Replay"])
         self.sessions_combo.insertSeparator(2)
+        self.programs_state: TabProgramsState = TabProgramsState.IDLE
         self.menu_button.addAction(self.save_session_action)
         self.menu_button.addAction(self.save_as_action)
         self.menu_button.addAction(self.rename_session_action)
@@ -71,6 +73,7 @@ class SessionWidget(QWidget, Ui_Session):
         return self.sessions_combo.currentText()
 
     def start_session(self):
+        self.reset_programs_status()
         combo_text = self.sessions_combo.currentText()
         if combo_text == "Simulation":
             self.start_simulation()
@@ -145,6 +148,7 @@ class SessionWidget(QWidget, Ui_Session):
         pw.ready_read_stderr.connect(lambda: self.console.handle_stderr(pw))
         pw.ready_read_stdout.connect(lambda: self.console.handle_stdout(pw))
         pw.finished.connect(lambda c, s: self.handle_program_finished(pw, c, s))
+        pw.started.connect(self.handle_program_started)
         pw.remove.connect(lambda: self.remove_program(pw))
         # if REMOVE_PROGRAMS_FINISHED:
         #     pw.finished.connect(lambda: self.remove_program(pw))
@@ -169,17 +173,34 @@ class SessionWidget(QWidget, Ui_Session):
         if not self.any_program_running():
             self.programs_all_stopped.emit()
 
+        if c != 0 and c != 15:
+            self.programs_state = TabProgramsState.ERROR
+        else:
+            if not self.any_program_running() and self.programs_state != TabProgramsState.ERROR:
+                self.programs_state = TabProgramsState.IDLE
+        self.program_state_changed.emit(self.programs_state)
+
+    def handle_program_started(self):
+        self.programs_state = TabProgramsState.RUNNING
+        self.program_state_changed.emit(self.programs_state)
+    def reset_programs_status(self):
+        self.programs_state = TabProgramsState.IDLE
+        self.program_state_changed.emit(self.programs_state)
+
     def stop_all(self):
         for pw in self.program_widgets:
             pw.terminate()
+        self.reset_programs_status()
 
     def start_all(self):
         for pw in self.program_widgets:
             pw.start_program()
+        self.reset_programs_status()
 
     def remove_all(self):
         for pw in list(self.program_widgets):
             pw.handle_remove()
+        self.reset_programs_status()
 
     def init_tools_menu(self):
         for t in self.tools.values():

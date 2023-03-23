@@ -13,6 +13,14 @@ from conf import Conf, Aircraft, ConfError
 from app_settings import AppSettings
 from generated.ui_supervision_window import Ui_SupervisionWindow
 from generated.ui_new_ac_dialog import Ui_NewACDialog
+from program_widget import TabProgramsState
+
+dirname = os.path.dirname(os.path.abspath(__file__))
+
+
+TAB_ICONS = {TabProgramsState.IDLE: QtGui.QIcon(),
+             TabProgramsState.RUNNING: QtGui.QIcon(os.path.join(dirname, "running.svg")),
+             TabProgramsState.ERROR: QtGui.QIcon(os.path.join(dirname, "error.svg"))}
 
 
 class PprzCenter(QMainWindow, Ui_SupervisionWindow):
@@ -40,6 +48,9 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.header.ac_save.connect(lambda _: self.conf.save())
         self.header.ac_new.connect(self.handle_new_ac)
 
+        self.configuration_panel.program_state_changed.connect(lambda state: self.programs_state_changed(state, 0))
+        self.operation_panel.session.program_state_changed.connect(lambda state: self.programs_state_changed(state, 1))
+
         self.operation_panel.session.program_spawned.connect(self.header.disable_sets)
         self.operation_panel.session.programs_all_stopped.connect(self.header.enable_sets)
 
@@ -50,6 +61,9 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.configuration_panel.init()
         self.operation_panel.session.init()
         self.header.update_sets()
+
+    def programs_state_changed(self, state: TabProgramsState, tab_index):
+        self.tabwidget.setTabIcon(tab_index, TAB_ICONS[state])
 
     def handle_set_changed(self, conf_file):
         self.conf = Conf(conf_file)
