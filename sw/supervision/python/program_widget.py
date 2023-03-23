@@ -9,12 +9,20 @@ from PyQt5.QtCore import QProcess
 from PyQt5.QtGui import QIcon
 import utils
 from typing import List
+from enum import Enum
+
+
+class TabProgramsState(Enum):
+    IDLE = 0
+    RUNNING = 1
+    ERROR = 2
 
 
 class ProgramWidget(QWidget, Ui_Program):
 
     ready_read_stdout = QtCore.pyqtSignal()
     ready_read_stderr = QtCore.pyqtSignal()
+    started = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal(int, QProcess.ExitStatus)
     remove = QtCore.pyqtSignal()
 
@@ -40,6 +48,7 @@ class ProgramWidget(QWidget, Ui_Program):
     def start_program(self):
         if self.process.state() == QProcess.NotRunning:
             self.process.start(self.cmd[0], self.cmd[1:])
+            self.started.emit()
 
     def handle_cmd_return(self):
         if self.process.state() == QProcess.NotRunning:
