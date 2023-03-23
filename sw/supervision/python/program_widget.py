@@ -46,6 +46,7 @@ class ProgramWidget(QWidget, Ui_Program):
         self.icon_label.setToolTip(shortname)
 
     def start_program(self):
+        self.program_lineedit.setStyleSheet("")
         if self.process.state() == QProcess.NotRunning:
             self.process.start(self.cmd[0], self.cmd[1:])
             self.started.emit()
@@ -77,6 +78,8 @@ class ProgramWidget(QWidget, Ui_Program):
         self.program_lineedit.setReadOnly(True)
 
     def handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus):
+        if exit_code not in (0, 15):
+            self.program_lineedit.setStyleSheet("background: #f56464")
         icon = QIcon.fromTheme("media-playback-start")
         self.run_button.setIcon(icon)
         self.program_lineedit.setReadOnly(False)
