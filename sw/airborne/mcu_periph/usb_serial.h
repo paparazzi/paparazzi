@@ -39,10 +39,10 @@
 #endif 
 
 #ifdef USB_MAX_ENDPOINTS
-#if USB_MAX_ENDPOINTS < 4
-#define USBD_NUMBER 1
-#else
+#if USB_MAX_ENDPOINTS >= 4 && USE_USB_SERIAL_DEBUG
 #define USBD_NUMBER 2
+#else
+#define USBD_NUMBER 1
 #endif
 #else
 #define USBD_NUMBER 1
