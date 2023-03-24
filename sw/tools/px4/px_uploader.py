@@ -582,7 +582,35 @@ class uploader(object):
         self.fw_maxsize = self.__getInfo(uploader.INFO_FLASH_SIZE)
 
     # upload the firmware
-    def upload(self, fw, force=False, boot_delay=None):
+    def upload(self, fw_list, force=False, boot_delay=None, boot_check=False):
+        # select correct binary
+        found_suitable_firmware = False
+        for file in fw_list:
+            fw = firmware(file)
+            if self.board_type == fw.property('board_id'):
+                if len(fw_list) > 1: print("using firmware binary {}".format(file))
+                found_suitable_firmware = True
+                break
+
+        if not found_suitable_firmware:
+            msg = "Firmware not suitable for this board (Firmware board_type=%u board_id=%u)" % (
+                self.board_type, fw.property('board_id'))
+            print("WARNING: %s" % msg)
+            if force:
+                if len(fw_list) > 1:
+                    raise FirmwareNotSuitableException("force flashing failed, more than one file provided, none suitable")
+                print("FORCED WRITE, FLASHING ANYWAY!")
+            else:
+                raise FirmwareNotSuitableException(msg)
+
+        percent = fw.property('image_size') / fw.property('image_maxsize')
+        binary_size = float(fw.property('image_size'))
+        binary_max_size = float(fw.property('image_maxsize'))
+        percent = (binary_size / binary_max_size) * 100
+
+        print("Loaded firmware for board id: %s,%s size: %d bytes (%.2f%%) " % (fw.property('board_id'), fw.property('board_revision'), fw.property('image_size'), percent))
+        print()
+
         # Make sure we are doing the right thing
         start = _time()
         if self.board_type != fw.property('board_id'):
@@ -598,74 +626,74 @@ class uploader(object):
         if self.fw_maxsize < fw.property('image_size'):
             raise RuntimeError("Firmware image is too large for this board")
 
-        # # OTP added in v4:
-        # if self.bl_rev >= 4:
-        #     for byte in range(0, 32*6, 4):
-        #         x = self.__getOTP(byte)
-        #         self.otp = self.otp + x
-        #         # print(binascii.hexlify(x).decode('Latin-1') + ' ', end='')
-        #     # see src/modules/systemlib/otp.h in px4 code:
-        #     self.otp_id = self.otp[0:4]
-        #     self.otp_idtype = self.otp[4:5]
-        #     self.otp_vid = self.otp[8:4:-1]
-        #     self.otp_pid = self.otp[12:8:-1]
-        #     self.otp_coa = self.otp[32:160]
-        #     # show user:
-        #     try:
-        #         print("sn: ", end='')
-        #         for byte in range(0, 12, 4):
-        #             x = self.__getSN(byte)
-        #             x = x[::-1]  # reverse the bytes
-        #             self.sn = self.sn + x
-        #             print(binascii.hexlify(x).decode('Latin-1'), end='')  # show user
-        #         print('')
-        #         print("chip: %08x" % self.__getCHIP())
+        # OTP added in v4:
+        if self.bl_rev >= 4:
+            for byte in range(0, 32*6, 4):
+                x = self.__getOTP(byte)
+                self.otp = self.otp + x
+                # print(binascii.hexlify(x).decode('Latin-1') + ' ', end='')
+            # see src/modules/systemlib/otp.h in px4 code:
+            self.otp_id = self.otp[0:4]
+            self.otp_idtype = self.otp[4:5]
+            self.otp_vid = self.otp[8:4:-1]
+            self.otp_pid = self.otp[12:8:-1]
+            self.otp_coa = self.otp[32:160]
+            # show user:
+            try:
+                print("sn: ", end='')
+                for byte in range(0, 12, 4):
+                    x = self.__getSN(byte)
+                    x = x[::-1]  # reverse the bytes
+                    self.sn = self.sn + x
+                    print(binascii.hexlify(x).decode('Latin-1'), end='')  # show user
+                print('')
+                print("chip: %08x" % self.__getCHIP())
 
-        #         otp_id = self.otp_id.decode('Latin-1')
-        #         if ("PX4" in otp_id):
-        #             print("OTP id: " + otp_id)
-        #             print("OTP idtype: " + binascii.b2a_qp(self.otp_idtype).decode('Latin-1'))
-        #             print("OTP vid: " + binascii.hexlify(self.otp_vid).decode('Latin-1'))
-        #             print("OTP pid: " + binascii.hexlify(self.otp_pid).decode('Latin-1'))
-        #             print("OTP coa: " + binascii.b2a_base64(self.otp_coa).decode('Latin-1'))
+                otp_id = self.otp_id.decode('Latin-1')
+                if ("PX4" in otp_id):
+                    print("OTP id: " + otp_id)
+                    print("OTP idtype: " + binascii.b2a_qp(self.otp_idtype).decode('Latin-1'))
+                    print("OTP vid: " + binascii.hexlify(self.otp_vid).decode('Latin-1'))
+                    print("OTP pid: " + binascii.hexlify(self.otp_pid).decode('Latin-1'))
+                    print("OTP coa: " + binascii.b2a_base64(self.otp_coa).decode('Latin-1'))
 
-        #     except Exception:
-        #         # ignore bad character encodings
-        #         pass
+            except Exception:
+                # ignore bad character encodings
+                pass
 
-        # # Silicon errata check was added in v5
-        # if (self.bl_rev >= 5):
-        #     des = self.__getCHIPDes()
-        #     if (len(des) == 2):
-        #         print("family: %s" % des[0])
-        #         print("revision: %s" % des[1])
-        #         print("flash: %d bytes" % self.fw_maxsize)
+        # Silicon errata check was added in v5
+        if (self.bl_rev >= 5):
+            des = self.__getCHIPDes()
+            if (len(des) == 2):
+                print("family: %s" % des[0])
+                print("revision: %s" % des[1])
+                print("flash: %d bytes" % self.fw_maxsize)
 
-        #         # Prevent uploads where the maximum image size of the board config is smaller than the flash
-        #         # of the board. This is a hint the user chose the wrong config and will lack features
-        #         # for this particular board.
+                # Prevent uploads where the maximum image size of the board config is smaller than the flash
+                # of the board. This is a hint the user chose the wrong config and will lack features
+                # for this particular board.
 
-        #         # This check should also check if the revision is an unaffected revision
-        #         # and thus can support the full flash, see
-        #         # https://github.com/PX4/Firmware/blob/master/src/drivers/boards/common/stm32/board_mcu_version.c#L125-L144
+                # This check should also check if the revision is an unaffected revision
+                # and thus can support the full flash, see
+                # https://github.com/PX4/Firmware/blob/master/src/drivers/boards/common/stm32/board_mcu_version.c#L125-L144
 
-        #         if self.fw_maxsize > fw.property('image_maxsize') and not force:
-        #             raise RuntimeError("Board can accept larger flash images (%u bytes) than board config (%u bytes). Please use the correct board configuration to avoid lacking critical functionality."
-        #                                % (self.fw_maxsize, fw.property('image_maxsize')))
-        # else:
-        #     # If we're still on bootloader v4 on a Pixhawk, we don't know if we
-        #     # have the silicon errata and therefore need to flash px4_fmu-v2
-        #     # with 1MB flash or if it supports px4_fmu-v3 with 2MB flash.
-        #     if fw.property('board_id') == 9 \
-        #             and fw.property('image_size') > 1032192 \
-        #             and not force:
-        #         raise RuntimeError("\nThe Board uses bootloader revision 4 and can therefore not determine\n"
-        #                            "if flashing more than 1 MB (px4_fmu-v3_default) is safe, chances are\n"
-        #                            "high that it is not safe! If unsure, use px4_fmu-v2_default.\n"
-        #                            "\n"
-        #                            "If you know you that the board does not have the silicon errata, use\n"
-        #                            "this script with --force, or update the bootloader. If you are invoking\n"
-        #                            "upload using make, you can use force-upload target to force the upload.\n")
+                if self.fw_maxsize > fw.property('image_maxsize') and not force:
+                    raise RuntimeError("Board can accept larger flash images (%u bytes) than board config (%u bytes). Please use the correct board configuration to avoid lacking critical functionality."
+                                       % (self.fw_maxsize, fw.property('image_maxsize')))
+        else:
+            # If we're still on bootloader v4 on a Pixhawk, we don't know if we
+            # have the silicon errata and therefore need to flash px4_fmu-v2
+            # with 1MB flash or if it supports px4_fmu-v3 with 2MB flash.
+            if fw.property('board_id') == 9 \
+                    and fw.property('image_size') > 1032192 \
+                    and not force:
+                raise RuntimeError("\nThe Board uses bootloader revision 4 and can therefore not determine\n"
+                                   "if flashing more than 1 MB (px4_fmu-v3_default) is safe, chances are\n"
+                                   "high that it is not safe! If unsure, use px4_fmu-v2_default.\n"
+                                   "\n"
+                                   "If you know you that the board does not have the silicon errata, use\n"
+                                   "this script with --force, or update the bootloader. If you are invoking\n"
+                                   "upload using make, you can use force-upload target to force the upload.\n")
         self.__erase("Erase  ")
         self.__program("Program", fw)
 
@@ -764,7 +792,7 @@ def main():
     parser.add_argument('--force', action='store_true', default=False, help='Override board type check, or silicon errata checks and continue loading')
     parser.add_argument('--boot-delay', type=int, default=None, help='minimum boot delay to store in flash')
     parser.add_argument('--use-protocol-splitter-format', action='store_true', help='use protocol splitter format for reboot')
-    parser.add_argument('firmware', action="store", help="Firmware file to be uploaded")
+    parser.add_argument('firmware', action="store", nargs='+', help="Firmware file(s)")
     args = parser.parse_args()
 
     if args.use_protocol_splitter_format:
@@ -776,17 +804,7 @@ def main():
         print("WARNING: You should uninstall ModemManager as it conflicts with any non-modem serial device (like Pixhawk)")
         print("==========================================================================================================")
 
-    # Load the firmware file
-    fw = firmware(args.firmware)
-
-    percent = fw.property('image_size') / fw.property('image_maxsize')
-    binary_size = float(fw.property('image_size'))
-    binary_max_size = float(fw.property('image_maxsize'))
-    percent = (binary_size / binary_max_size) * 100
-
-    print("Loaded firmware for board id: %s,%s size: %d bytes (%.2f%%), waiting for the bootloader..." % (fw.property('board_id'), fw.property('board_revision'), fw.property('image_size'), percent))
-    print()
-
+    print("Waiting for bootloader...")
     # tell any GCS that might be connected to the autopilot to give up
     # control of the serial port
 
@@ -835,7 +853,7 @@ def main():
                 try:
                     if "linux" in _platform:
                         # Linux, don't open Mac OS and Win ports
-                        if "tty.usb" not in port:
+                        if "COM" not in port and "tty.usb" not in port:
                             up = uploader(port, args.baud_bootloader, baud_flightstack)
                     elif "darwin" in _platform:
                         # OS X, don't open Windows and Linux ports
@@ -889,7 +907,7 @@ def main():
 
                 try:
                     # ok, we have a bootloader, try flashing it
-                    up.upload(fw, force=args.force, boot_delay=args.boot_delay)
+                    up.upload(args.firmware, force=args.force, boot_delay=args.boot_delay)
 
                     # if we made this far without raising exceptions, the upload was successful
                     successful = True

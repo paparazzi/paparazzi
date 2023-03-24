@@ -293,6 +293,7 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
   sde = getFileName(prefix, directoryName, fileName, nameLength, +1);
   if (sde != SDLOG_OK) {
     // sd card is not inserted, so logging task can be deleted
+    fileDes[ldf].inUse = false;
     return storageStatus = SDLOG_FATFS_ERROR;
   }
 

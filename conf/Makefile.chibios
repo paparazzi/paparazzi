@@ -107,7 +107,7 @@ ifeq ($(USE_OPT),)
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
   CH_OPT ?= 0 -g -ggdb3 -fno-inline
 else
-  CH_OPT ?= 2 -ggdb
+  CH_OPT ?= 2
 endif
   USE_OPT = -O$(CH_OPT) \
 	-falign-functions=16 -fomit-frame-pointer \
