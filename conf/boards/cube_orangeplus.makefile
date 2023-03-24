@@ -1,14 +1,14 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# cube_orange.makefile
+# cube_orange_plus.makefile
 #
 # This is for the main MCU (STM32F767) on the PX4 board
 # See https://pixhawk.org/modules/pixhawk for details
 #
 
 BOARD=cube
-BOARD_VERSION=orange
-BOARD_DIR=$(BOARD)/$(BOARD_VERSION)
+BOARD_VERSION=orange_plus
+BOARD_DIR=$(BOARD)/orange
 BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
@@ -45,7 +45,7 @@ CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
 # possibilities: DFU, SWD, PX4 bootloader
 FLASH_MODE ?= PX4_BOOTLOADER
 PX4_TARGET = "ap"
-PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/cube_orange.prototype"
+PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/cube_orangeplus.prototype"
 PX4_BL_PORT ?= "/dev/serial/by-id/*-BL_*,/dev/serial/by-id/*_BL_*"
 
 #
@@ -75,6 +75,9 @@ GPS_BAUD ?= B57600
 # InterMCU port connected to the IO processor
 INTERMCU_PORT ?= UART6
 INTERMCU_BAUD ?= B1500000
+
+# Overwrite default Cube IMU slave ID
+CUBE_IMU2_SPI_SLAVE_IDX ?= SPI_SLAVE5
 
 #
 # default actuator configuration
