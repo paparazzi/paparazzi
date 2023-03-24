@@ -196,10 +196,6 @@ void sdlog_chibios_init(void)
 void sdlog_chibios_finish(const bool flush)
 {
   if (pprzLogFile != -1) {
-    // disable all required periph to save energy and maximize chance to flush files
-    // to mass storage and avoid infamous dirty bit on filesystem
-    mcu_energy_save();
-
     // if a FF_FS_REENTRANT is true, we can umount fs without closing
     // file, fatfs lock will assure that umount is done after a write,
     // and umount will close all open files cleanly. Thats the fatest
@@ -214,9 +210,9 @@ void sdlog_chibios_finish(const bool flush)
 #endif
 
     sdLogFinish();
-    pprzLogFile = 0;
+    pprzLogFile = -1;
 #if FLIGHTRECORDER_SDLOG
-    flightRecorderLogFile = 0;
+    flightRecorderLogFile = -1;
 #endif
   }
   chibios_sdlog_status = SDLOG_STOPPED;
@@ -321,15 +317,21 @@ static void thd_bat_survey(void *arg)
   register_adc_watchdog(&SDLOG_BAT_ADC, SDLOG_BAT_CHAN, V_ALERT, &powerOutageIsr);
 
   chEvtWaitOne(EVENT_MASK(1));
+  // Only try to energy save is it is really a problem and not powered through USB
+  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
+    // disable all required periph to save energy and maximize chance to flush files
+    // to mass storage and avoid infamous dirty bit on filesystem
+    mcu_energy_save();
+  }
+
   // in case of powerloss, we should go fast and avoid to flush ram buffer
   sdlog_chibios_finish(false);
-  chThdExit(0);
 
   // Only put to deep sleep in case there is no power on the USB
   if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
     mcu_reboot(MCU_REBOOT_POWEROFF);
   }
-  chThdSleep(TIME_INFINITE);
+  chThdExit(0);
   while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }
 
