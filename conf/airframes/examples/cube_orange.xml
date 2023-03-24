@@ -160,8 +160,16 @@
     <servo name="MOTOR_10" no="2" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_11" no="3" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_12" no="4" min="-8191" neutral="1500" max="8191"/>
+  </servos>
+
+  <!-- CAN BUS 1 command outputs-->
+  <servos driver="Uavcan1Cmd">
     <servo name="AIL_3" no="6" min="6000" neutral="0" max="-6000"/>
     <servo name="FLAP_3" no="7" min="6000" neutral="0" max="-6000"/>
+  </servos>
+
+  <!-- CAN BUS 1 command outputs-->
+  <servos driver="Uavcan2Cmd">
     <servo name="FLAP_4" no="8" min="-6000" neutral="0" max="6000"/>
     <servo name="AIL_4" no="9" min="-6000" neutral="0" max="6000"/>
   </servos>

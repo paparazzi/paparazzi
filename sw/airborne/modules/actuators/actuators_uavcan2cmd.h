@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,15 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN_H
-#define ACTUATORS_UAVCAN_H
+#ifndef ACTUATORS_UAVCAN2_CMD_H
+#define ACTUATORS_UAVCAN2_CMD_H
 
-#include "modules/uavcan/uavcan.h"
-#include BOARD_CONFIG
+#include "actuators_uavcan.h"
 
-/* External functions */
-extern void actuators_uavcan_init(struct uavcan_iface_t *iface);
-extern void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);
-extern void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);
+/** Stub file needed per uavcan interface because of generator */
+extern int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 
-#endif /* ACTUATORS_UAVCAN_H */
+#if USE_NPS
+#define ActuatorsUavcan2CmdInit() {}
+#define ActuatorUavcan2CmdSet(_i, _v) {}
+#define ActuatorsUavcan2CmdCommit()  {}
+#else
+#define ActuatorsUavcan2CmdInit() actuators_uavcan_init(&uavcan2)
+#define ActuatorUavcan2CmdSet(_i, _v) { actuators_uavcan2cmd_values[_i] = _v; }
+#define ActuatorsUavcan2CmdCommit()  actuators_uavcan_cmd_commit(&uavcan2, actuators_uavcan2cmd_values, SERVOS_UAVCAN2CMD_NB)
+#endif
+
+#endif /* ACTUATORS_UAVCAN2_CMD_H */
