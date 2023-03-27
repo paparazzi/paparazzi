@@ -42,10 +42,20 @@
 extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
 
+enum GuidanceIndiHybrid_HMode {
+  GUIDANCE_INDI_HYBRID_H_POS,
+  GUIDANCE_INDI_HYBRID_H_SPEED,
+  GUIDANCE_INDI_HYBRID_H_ACCEL
+};
+
+enum GuidanceIndiHybrid_VMode {
+  GUIDANCE_INDI_HYBRID_V_POS,
+  GUIDANCE_INDI_HYBRID_V_SPEED,
+  GUIDANCE_INDI_HYBRID_V_ACCEL
+};
+
 extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
-extern struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
-extern struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
-extern struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv);
+extern struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndiHybrid_HMode h_mode, enum GuidanceIndiHybrid_VMode v_mode);
 
 struct guidance_indi_hybrid_params {
   float pos_gain;
