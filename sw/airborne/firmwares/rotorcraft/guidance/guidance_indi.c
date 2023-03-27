@@ -287,51 +287,34 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   return stab_sp_from_quat_f(&q_sp);
 }
 
-struct StabilizationSetpoint guidance_indi_run_pos(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
+struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndi_HMode h_mode, enum GuidanceIndi_VMode v_mode)
 {
-  struct FloatVect3 pos_err;
-  struct FloatVect3 accel_sp;
+  struct FloatVect3 pos_err = { 0 };
+  struct FloatVect3 accel_sp = { 0 };
 
-  //Linear controller to find the acceleration setpoint from position and velocity
-  pos_err.x = POS_FLOAT_OF_BFP(gh->ref.pos.x) - stateGetPositionNed_f()->x;
-  pos_err.y = POS_FLOAT_OF_BFP(gh->ref.pos.y) - stateGetPositionNed_f()->y;
-  pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+  if (h_mode == GUIDANCE_INDI_H_POS) {
+    pos_err.x = POS_FLOAT_OF_BFP(gh->ref.pos.x) - stateGetPositionNed_f()->x;
+    pos_err.y = POS_FLOAT_OF_BFP(gh->ref.pos.y) - stateGetPositionNed_f()->y;
+    speed_sp.x = pos_err.x * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
+    speed_sp.y = pos_err.y * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
+  }
+  else if (h_mode == GUIDANCE_INDI_H_SPEED) {
+    speed_sp.x = SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
+    speed_sp.y = SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
+  }
+  else { // H_ACCEL
+    speed_sp.x = 0.f;
+    speed_sp.y = 0.f;
+  }
 
-  // Use feed forward part from reference model
-  speed_sp.x = pos_err.x * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
-  speed_sp.y = pos_err.y * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
-  speed_sp.z = pos_err.z * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gv->zd_ref);
-
-  accel_sp.x = (speed_sp.x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.x);
-  accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
-  accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
-
-  return guidance_indi_run(&accel_sp, gh->sp.heading);
-}
-
-struct StabilizationSetpoint guidance_indi_run_speed(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
-{
-  struct FloatVect3 accel_sp;
-
-  // Use feed forward part from reference model
-  speed_sp.x = SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
-  speed_sp.y = SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
-  speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
-
-  accel_sp.x = (speed_sp.x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.x);
-  accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
-  accel_sp.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gv->zdd_ref);
-
-  return guidance_indi_run(&accel_sp, gh->sp.heading);
-}
-
-struct StabilizationSetpoint guidance_indi_run_accel(bool in_flight UNUSED, struct HorizontalGuidance *gh, struct VerticalGuidance *gv)
-{
-  struct FloatVect3 accel_sp;
-
-  speed_sp.x = 0.f;
-  speed_sp.y = 0.f;
-  speed_sp.z = 0.f;
+  if (v_mode == GUIDANCE_INDI_V_POS) {
+    pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+    speed_sp.z = pos_err.z * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gv->zd_ref);
+  } else if (v_mode == GUIDANCE_INDI_V_SPEED) {
+    speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
+  } else { // V_ACCEL
+    speed_sp.z = 0.f;
+  }
 
   accel_sp.x = (speed_sp.x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.x);
   accel_sp.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain + ACCEL_FLOAT_OF_BFP(gh->ref.accel.y);
@@ -463,34 +446,44 @@ void guidance_v_run_enter(void)
   // nothing to do
 }
 
+static struct VerticalGuidance *_gv = &guidance_v;
+static enum GuidanceIndi_VMode _v_mode = GUIDANCE_INDI_V_POS;
+
 struct StabilizationSetpoint guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh)
 {
-  return guidance_indi_run_pos(in_flight, gh, &guidance_v);
+  return guidance_indi_run_mode(in_flight, gh, _gv, GUIDANCE_INDI_H_POS, _v_mode);
 }
 
 struct StabilizationSetpoint guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh)
 {
-  return guidance_indi_run_speed(in_flight, gh, &guidance_v);
+  return guidance_indi_run_mode(in_flight, gh, _gv, GUIDANCE_INDI_H_SPEED, _v_mode);
 }
 
 struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh)
 {
-  return guidance_indi_run_accel(in_flight, gh, &guidance_v);
+  return guidance_indi_run_mode(in_flight, gh, _gv, GUIDANCE_INDI_H_ACCEL, _v_mode);
 }
 
-int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
+int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
+  _gv = gv;
+  _v_mode = GUIDANCE_INDI_V_POS;
   return 0; // nothing to do
 }
 
-int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
+int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
+  _gv = gv;
+  _v_mode = GUIDANCE_INDI_V_SPEED;
   return 0; // nothing to do
 }
 
-int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
+int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
+  _gv = gv;
+  _v_mode = GUIDANCE_INDI_V_ACCEL;
   return 0; // nothing to do
 }
 
 #endif
+
