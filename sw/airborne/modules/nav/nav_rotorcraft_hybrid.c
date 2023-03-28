@@ -197,9 +197,9 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     NormRadAngle(trigo_diff);
     nav_rotorcraft_base.circle.radians += trigo_diff;
     // progress angle
-    float progess_angle = GUIDANCE_INDI_NAV_CIRCLE_DIST / abs_radius;
-    Bound(progess_angle, M_PI / 16.f, M_PI / 4.f);
-    float alpha = nav_rotorcraft_base.circle.qdr - sign_radius * progess_angle;
+    float progress_angle = GUIDANCE_INDI_NAV_CIRCLE_DIST / abs_radius;
+    Bound(progress_angle, M_PI / 16.f, M_PI / 4.f);
+    float alpha = nav_rotorcraft_base.circle.qdr - sign_radius * progress_angle;
     // final target position, should be on the circle, for display
     nav.target.x = wp_center->x + cosf(alpha) * abs_radius;
     nav.target.y = wp_center->y + sinf(alpha) * abs_radius;
