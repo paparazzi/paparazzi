@@ -26,6 +26,7 @@
 #include "modules/nav/nav_rotorcraft_hybrid.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h" // strong dependency for now
+#include "math/pprz_isa.h"
 
 // Max ground speed that will be commanded
 #ifndef GUIDANCE_INDI_NAV_SPEED_MARGIN
@@ -46,6 +47,10 @@ static float guidance_indi_line_gain = 1.0f;
 
 #ifndef GUIDANCE_INDI_NAV_LINE_DIST
 #define GUIDANCE_INDI_NAV_LINE_DIST 50.f
+#endif
+
+#ifndef GUIDANCE_INDI_NAV_CIRCLE_DIST
+#define GUIDANCE_INDI_NAV_CIRCLE_DIST 40.f
 #endif
 
 /** Implement basic nav function for the hybrid case
@@ -101,7 +106,7 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
 
   // Calculate length of line segment
   float length_line = Max(float_vect2_norm(&wp_diff), 0.01f);
-  //Normal vector to the line, with length of the line
+  // Normal vector to the line, with length of the line
   struct FloatVect2 normalv;
   VECT2_ASSIGN(normalv, -wp_diff.y, wp_diff.x);
   // Length of normal vector is the same as of the line segment
@@ -171,20 +176,64 @@ static bool nav_hybrid_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from,
   return false;
 }
 
-#if 0 // TODO reuse existing patterns for now
-
-static void nav_circle(struct EnuCoor_f *wp_center, float radius)
+static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
 {
+  struct FloatVect2 pos_diff;
+  float desired_speed;
 
-  // implement nav hybrid circle
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
+  // direction of rotation
+  float sign_radius = radius > 0.f ? 1.f : -1.f;
+  // absolute radius
+  float abs_radius = fabsf(radius);
+
+  if (abs_radius > 0.1f) {
+    // store last qdr
+    float last_qdr = nav_rotorcraft_base.circle.qdr;
+    // compute qdr
+    nav_rotorcraft_base.circle.qdr = atan2f(pos_diff.y, pos_diff.x);
+    // increment circle radians
+    float trigo_diff = nav_rotorcraft_base.circle.qdr - last_qdr;
+    NormRadAngle(trigo_diff);
+    nav_rotorcraft_base.circle.radians += trigo_diff;
+    // progress angle
+    float progress_angle = GUIDANCE_INDI_NAV_CIRCLE_DIST / abs_radius;
+    Bound(progress_angle, M_PI / 16.f, M_PI / 4.f);
+    float alpha = nav_rotorcraft_base.circle.qdr - sign_radius * progress_angle;
+    // final target position, should be on the circle, for display
+    nav.target.x = wp_center->x + cosf(alpha) * abs_radius;
+    nav.target.y = wp_center->y + sinf(alpha) * abs_radius;
+  }
+  else {
+    // radius is too small, direct to center
+    VECT2_COPY(nav.target, *wp_center);
+  }
+  // compute desired speed
+  if (force_forward) {
+    desired_speed = nav_max_speed;
+  } else {
+    float radius_diff = fabsf(float_vect2_norm(&pos_diff) - abs_radius);
+    if (radius_diff > GUIDANCE_INDI_NAV_CIRCLE_DIST) {
+      // far from circle, speed proportional to diff
+      desired_speed = radius_diff * gih_params.pos_gain;
+    } else {
+      // close to circle, speed function of radius for a feasible turn
+      // MAX_BANK / 2 gives some margins for the turns
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(GUIDANCE_H_MAX_BANK / 2.f));
+    }
+    Bound(desired_speed, 0.0f, nav_max_speed);
+  }
+  // compute speed vector from target position
+  struct FloatVect2 speed_unit;
+  VECT2_DIFF(speed_unit, nav.target, *stateGetPositionEnu_f());
+  float_vect2_normalize(&speed_unit);
+  VECT2_SMUL(nav.speed, speed_unit, desired_speed);
 
   nav_rotorcraft_base.circle.center = *wp_center;
   nav_rotorcraft_base.circle.radius = radius;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
-
-#endif
 
 /** Init and register nav functions
  *
@@ -200,7 +249,7 @@ void nav_rotorcraft_hybrid_init(void)
 
   // register nav functions
   nav_register_goto_wp(nav_hybrid_goto, nav_hybrid_route, nav_hybrid_approaching);
-  //nav_register_circle(nav_circle);
+  nav_register_circle(nav_hybrid_circle);
 }
 
 

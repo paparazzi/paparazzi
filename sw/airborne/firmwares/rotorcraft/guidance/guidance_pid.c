@@ -49,10 +49,6 @@
 #error "ALL PID_H control gains have to be positive!!!"
 #endif
 
-#ifndef GUIDANCE_H_MAX_BANK
-#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
-#endif
-
 #ifndef GUIDANCE_H_THRUST_CMD_FILTER
 #define GUIDANCE_H_THRUST_CMD_FILTER 10
 #endif

@@ -215,7 +215,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 
   switch (nav_rotorcraft_base.oval.status) {
     case OC1 :
-      nav_circle(&p1_center, radius);
+      nav.nav_circle(&p1_center, radius);
       if (NavQdrCloseTo(DegOfRad(qdr_out_1) - qdr_anticipation)) {
         nav_rotorcraft_base.oval.status = OR12;
         InitStage();
@@ -224,8 +224,8 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
       return;
 
     case OR12:
-      nav_route(&p1_out, &p2_in);
-      if (nav_approaching(&p2_in, &p1_out, CARROT)) {
+      nav.nav_route(&p1_out, &p2_in);
+      if (nav.nav_approaching(&p2_in, &p1_out, CARROT)) {
         nav_rotorcraft_base.oval.status = OC2;
         nav_rotorcraft_base.oval.count++;
         InitStage();
@@ -234,7 +234,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
       return;
 
     case OC2 :
-      nav_circle(&p2_center, radius);
+      nav.nav_circle(&p2_center, radius);
       if (NavQdrCloseTo(DegOfRad(qdr_out_2) - qdr_anticipation)) {
         nav_rotorcraft_base.oval.status = OR21;
         InitStage();
@@ -243,8 +243,8 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
       return;
 
     case OR21:
-      nav_route(wp2, wp1);
-      if (nav_approaching(wp1, wp2, CARROT)) {
+      nav.nav_route(wp2, wp1);
+      if (nav.nav_approaching(wp1, wp2, CARROT)) {
         nav_rotorcraft_base.oval.status = OC1;
         InitStage();
         LINE_STOP_FUNCTION;
