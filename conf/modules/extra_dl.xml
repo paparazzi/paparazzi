@@ -21,7 +21,7 @@
   -->
   <event fun="extra_pprz_dl_event()"/>
 
-  <makefile target="ap">
+  <makefile>
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
     <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
