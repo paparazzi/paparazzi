@@ -512,7 +512,7 @@ static float bound_vz_sp(float vz_sp)
   if (stateGetAirspeed_f() > 13.f) {
     Bound(vz_sp, -4.0f, 4.0f); // FIXME no harcoded values
   } else {
-    Bound(vz_sp, nav.descend_vspeed, nav.climb_vspeed); // FIXME don't use nav settings
+    Bound(vz_sp, -nav.climb_vspeed, -nav.descend_vspeed); // FIXME don't use nav settings
   }
   return vz_sp;
 }
