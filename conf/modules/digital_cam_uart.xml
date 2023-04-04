@@ -55,6 +55,7 @@
   </settings>
   <dep>
     <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c</conflicts>
+    <provides>digital_cam</provides>
   </dep>
   <header>
     <file name="uart_cam_ctrl.h"/>
