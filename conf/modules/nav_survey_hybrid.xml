@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_survey_hybrid" dir="nav" task="control">
+  <doc>
+    <description>
+      Polygon survey for hybrid aircraft.
+
+      Based on poly_osam algorithm.
+      Compatible with generic rotorcraft.
+
+      Support mission mode with custom elements:
+      - points in local NED: SRVHL orientation sweep_distance radius height p1x p1y p2x p2y p3x p3y [p4x p4y]
+      - points in global LLA: SRVHG orientation sweep_distance radius height p1lat p1lon p2lat p2lon p3lat p3lon [p4lat p4lon]
+      - orientation is in degrees
+      - sweep_distance in meters
+      - radius can be: negative, automatically set to sweep/2; zero, not turning on circles; positive, fixed radius
+      - height in meters above reference point
+      - the polygon in mission mode can have either 3 or 4 points.
+    </description>
+    <section name="SURVEY_HYBRID" prefix="SURVEY_HYBRID_">
+      <define name="MAX_POLYGON_SIZE" value="20" description="max waypoints usable in polygon survey"/>
+      <define name="HALF_SWEEP_ENABLED" value="TRUE|FALSE" description="interleave sweep lines when sweeping back"/>
+      <define name="APPROACHING_TIME" value="3." description="end of segment anticipation time"/>
+      <define name="MAX_SWEEP" value="0" description="max number of sweep lines (0 for unlimited)"/>
+      <define name="MAX_SWEEP_BACK" value="0" description="max number of sweep back, e.g. changing direction (0 for unlimited)"/>
+      <define name="ENTRY_DISTANCE" value="10." description="distance from entry point (default: half sweep distance)"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Survey Hybrid">
+        <dl_setting min="0" max="1" step="1" var="survey_hybrid.half_sweep_enabled" type="uint8" shortname="half_sweep" values="FALSE|TRUE"/>
+        <dl_setting min="0" max="50" step="1" var="survey_hybrid.sweep_nb_max" type="uint16" shortname="nb_max"/>
+        <dl_setting min="0" max="50" step="1" var="survey_hybrid.sweep_back_nb_max" type="uint16" shortname="back_nb_max"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@navigation</depends>
+    <recommends>@mission,@digital_cam</recommends>
+  </dep>
+  <header>
+    <file name="nav_survey_hybrid.h"/>
+  </header>
+  <makefile target="ap|nps">
+    <file name="nav_survey_hybrid.c"/>
+    <test firmware="rotorcraft">
+      <define name="USE_MISSION"/>
+    </test>
+  </makefile>
+</module>
