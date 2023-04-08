@@ -84,5 +84,5 @@ let from_xml = function
   | _ -> failwith "Radio.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let r = from_xml (Xml.parse_file filename) in
+  let r = from_xml (ExtXml.parse_file filename) in
   { r with filename }

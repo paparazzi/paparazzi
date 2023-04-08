@@ -135,7 +135,7 @@ let from_xml = function
   | _ -> failwith "Airframe.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let af = from_xml (Xml.parse_file filename) in
+  let af = from_xml (ExtXml.parse_file filename) in
   { af with filename }
 
 
