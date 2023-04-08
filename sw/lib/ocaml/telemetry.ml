@@ -102,7 +102,7 @@ let from_xml = function
   | _ -> failwith "Telemetry.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let t = from_xml (Xml.parse_file filename) in
+  let t = from_xml (ExtXml.parse_file filename) in
   { t with filename }
 
 
