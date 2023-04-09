@@ -98,7 +98,7 @@ let from_xml = function
   | _ -> failwith "Settings.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let s = from_xml (Xml.parse_file filename) in
+  let s = from_xml (ExtXml.parse_file filename) in
   { s with filename }
 
 (**

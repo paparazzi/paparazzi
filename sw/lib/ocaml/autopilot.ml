@@ -43,7 +43,7 @@ let from_xml = function
   | _ -> failwith "Autopilot.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let ap = from_xml (Xml.parse_file filename) in
+  let ap = from_xml (ExtXml.parse_file filename) in
   { ap with filename }
 
 

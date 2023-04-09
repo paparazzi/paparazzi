@@ -332,7 +332,7 @@ let from_xml = fun xml ->
     makefiles = List.rev m.makefiles
   }
 
-let from_file = fun filename -> from_xml (Xml.parse_file filename)
+let from_file = fun filename -> from_xml (ExtXml.parse_file filename)
 
 (** search and parse a module xml file and return a Module.t *)
 (* FIXME search folder path: <PPRZ_PATH>/*/<module_name[_type]>.xml *)

@@ -64,7 +64,7 @@ let from_xml = function
   | _ -> failwith "Flight_plan.from_xml: unreachable"
 
 let from_file = fun filename ->
-  let fp = from_xml (Xml.parse_file filename) in
+  let fp = from_xml (ExtXml.parse_file filename) in
   { fp with filename }
 
 
