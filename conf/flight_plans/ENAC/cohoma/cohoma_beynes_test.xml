@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../../flight_plan.dtd">
+<flight_plan alt="150" ground_alt="120" lat0="48.86109526727752" lon0="1.89331388756463" max_dist_from_home="1200" name="COHOMA2" security_height="20">
+  <header>
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+  </header>
+  <waypoints>
+    <waypoint x="-98" y="73.011" name="HOME"/>
+    <waypoint x="-139.361" y="47.417" name="STDBY"/>
+    <waypoint x="-93.226" y="42.781" name="LANDPAD"/>
+    <waypoint x="93.226" y="-42.781" name="_HERE"/>
+    <waypoint name="_KILL1" x="47.917" y="-37.593"/>
+    <waypoint name="_KILL2" x="-444.405" y="-136.959"/>
+    <waypoint name="_KILL3" x="-618.969" y="-47.834"/>
+    <waypoint name="_KILL4" x="-747.452" y="677.627"/>
+    <waypoint name="_KILL5" x="-460.644" y="883.153"/>
+    <waypoint name="_KILL6" x="38.257" y="140.12"/>
+    <waypoint name="P1" x="-159.884" y="188.401"/>
+    <waypoint name="P2" x="-417.871" y="91.719"/>
+    <waypoint name="P3" x="-466.969" y="178.76"/>
+    <waypoint name="P4" x="-374.812" y="345.346"/>
+    <waypoint name="S1" x="-450.557" y="-3.048"/>
+    <waypoint name="S2" x="-547.445" y="221.444"/>
+    <waypoint name="S3" x="-233.694" y="365.568"/>
+    <waypoint name="S4" x="-77.606" y="154.653"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlyZone" color="red">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+      <corner name="_KILL5"/>
+      <corner name="_KILL6"/>
+    </sector>
+    <sector name="Survey" color="lime">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="fp_survey_dir" init="0." min="0." max="360." step="0.2"/>
+    <variable var="fp_survey_sweep" init="30." min="1." max="100." step="1."/>
+    <variable var="fp_survey_radius" init="-1." min="-1." max="150." step="0.1"/>
+  </variables>
+  <modules>
+    <module name="mission" type="rotorcraft"/>
+    <module name="nav" type="survey_poly_rotorcraft">
+      <define name="POLYSURVEY_CIRCLE_TURNS" value="true"/>
+    </module>
+    <module name="nav" type="takeoff_and_landing"/>
+    <module name="nav" type="survey_hybrid"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosHeight() @GT 10." deroute="Standby"/>
+      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0." until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Takeoff (Here)" strip_button="Takeoff (Here)" group="takeoff">
+      <call fun="nav_takeoff_from_here()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Mission" strip_button="Mission">
+      <call fun="mission_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Path">
+      <path wpts="STDBY,P1,P2,P3,P4,STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Goto">
+      <go wp="P1"/>
+      <go wp="P2" approaching_time="0" from="P1"/>
+      <stay wp="P2" until="stage_time @GT 5"/>
+      <go wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Circle">
+      <circle wp="P1" radius="nav.radius"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Oval">
+      <oval p1="P1" p2="P2" radius="nav.radius"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey Hybrid">
+      <call_once fun="nav_survey_hybrid_setup_orientation(WP_S1, fp_survey_dir, 4, fp_survey_sweep, fp_survey_radius)"/>
+      <call fun="nav_survey_hybrid_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey Hybrid (WP)">
+      <call_once fun="nav_survey_hybrid_setup_towards(WP_S1, WP_S2, 4, fp_survey_sweep, fp_survey_radius)"/>
+      <call fun="nav_survey_hybrid_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey">
+      <call_once fun="nav_survey_poly_setup(WP_S1, 4, fp_survey_sweep, fp_survey_dir)"/>
+      <call fun="nav_survey_poly_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land (WP)" strip_button="Land (WP)" group="land">
+      <call fun="nav_land_at_wp(WP_LANDPAD, WP_STDBY, 0.)"/>
+      <deroute block="Kill landed"/>
+    </block>
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+    </block>
+    <block name="Land" strip_button="Land on pad" group="land">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go wp="LANDPAD" from="_HERE" hmode="route"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
