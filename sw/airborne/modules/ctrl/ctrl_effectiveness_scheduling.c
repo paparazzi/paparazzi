@@ -69,11 +69,11 @@ void ctrl_eff_scheduling_init(void)
 
 void ctrl_eff_scheduling_periodic(void)
 {
-  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
-    ctrl_eff_scheduling_periodic_b();
-  } else {
+  //if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
+  //  ctrl_eff_scheduling_periodic_b();
+  //} else {
     ctrl_eff_scheduling_periodic_a();
-  }
+  //}
 
 #ifdef INDI_THRUST_ON_PITCH_EFF
   //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
