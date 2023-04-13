@@ -73,6 +73,10 @@
 #define GUIDANCE_INDI_LIFTD_P50 (GUIDANCE_INDI_LIFTD_P80/2)
 #endif
 
+#ifndef GUIDANCE_INDI_DRAG_OVER_LIFT
+#define GUIDANCE_INDI_DRAG_OVER_LIFT 0.1f
+#endif
+
 struct guidance_indi_hybrid_params gih_params = {
   .pos_gain = GUIDANCE_INDI_POS_GAIN,
   .pos_gainz = GUIDANCE_INDI_POS_GAINZ,
@@ -651,17 +655,18 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
   /*Amount of lift produced by the wing*/
   float pitch_lift = eulers_zxy.theta;
   Bound(pitch_lift,-M_PI_2,0);
-  float lift = sinf(pitch_lift)*9.81;
-  float T = cosf(pitch_lift)*-9.81;
+  float lift = sinf(pitch_lift)*9.81f;
+  float T = cosf(pitch_lift)*-9.81f;
 
   // get the derivative of the lift wrt to theta
   float liftd = guidance_indi_get_liftd(stateGetAirspeed_f(), eulers_zxy.theta);
+  float dragd = liftd * GUIDANCE_INDI_DRAG_OVER_LIFT;
 
   RMAT_ELMT(*Gmat, 0, 0) =  cphi*ctheta*spsi*T + cphi*spsi*lift;
   RMAT_ELMT(*Gmat, 1, 0) = -cphi*ctheta*cpsi*T - cphi*cpsi*lift;
   RMAT_ELMT(*Gmat, 2, 0) = -sphi*ctheta*T -sphi*lift;
-  RMAT_ELMT(*Gmat, 0, 1) = (ctheta*cpsi - sphi*stheta*spsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING + sphi*spsi*liftd;
-  RMAT_ELMT(*Gmat, 1, 1) = (ctheta*spsi + sphi*stheta*cpsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING - sphi*cpsi*liftd;
+  RMAT_ELMT(*Gmat, 0, 1) = (ctheta*cpsi - sphi*stheta*spsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING + sphi*spsi*liftd + cpsi*dragd;
+  RMAT_ELMT(*Gmat, 1, 1) = (ctheta*spsi + sphi*stheta*cpsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING - sphi*cpsi*liftd + spsi*dragd;
   RMAT_ELMT(*Gmat, 2, 1) = -cphi*stheta*T*GUIDANCE_INDI_PITCH_EFF_SCALING + cphi*liftd;
   RMAT_ELMT(*Gmat, 0, 2) = stheta*cpsi + sphi*ctheta*spsi;
   RMAT_ELMT(*Gmat, 1, 2) = stheta*spsi - sphi*ctheta*cpsi;
@@ -676,17 +681,17 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
  * @return The derivative of lift w.r.t. pitch
  */
 float guidance_indi_get_liftd(float airspeed, float theta) {
-  float liftd = 0.0;
+  float liftd = 0.0f;
 
-  if(airspeed < 12) {
+  if(airspeed < 12.f) {
   /* Assume the airspeed is too low to be measured accurately
     * Use scheduling based on pitch angle instead.
     * You can define two interpolation segments
     */
     float pitch_interp = DegOfRad(theta);
-    const float min_pitch = -80.0;
-    const float middle_pitch = -50.0;
-    const float max_pitch = -20.0;
+    const float min_pitch = -80.0f;
+    const float middle_pitch = -50.0f;
+    const float max_pitch = -20.0f;
 
     Bound(pitch_interp, min_pitch, max_pitch);
     if (pitch_interp > middle_pitch) {
