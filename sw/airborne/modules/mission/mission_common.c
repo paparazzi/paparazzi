@@ -56,7 +56,7 @@ static void send_mission_status(struct transport_tx *trans, struct link_device *
   }
 
   // send status
-  pprz_ms_send_MISSIONT_STATUS(trans, device, AC_ID, &remaining_time, j, index_list);
+  pprz_msg_send_MISSION_STATUS(trans, device, AC_ID, &remaining_time, j, index_list);
 }
 
 void mission_init(void)
