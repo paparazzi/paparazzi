@@ -1,8 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="COHOMA_1">
+<airframe name="COHOMA_TEST">
 
   <description>
+    !!!! Testing with APOGEE !!!!
     Falcon Airframe H-Configuration
     Tawaki v1.0 Chibios
     Xbee API
@@ -14,7 +15,7 @@
     <configure name="PERIODIC_FREQUENCY" value="500"/>
     <configure name="INDI_NUM_ACT" value="6"/>
 
-    <target name="ap" board="tawaki_1.1">
+    <target name="ap" board="apogee_1.0_chibios">
       <module name="radio_control" type="sbus">
         <!-- Put the mode on channel AUX1-->
         <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
@@ -88,38 +89,9 @@
       <define name="USE_AIRSPEED_SDP3X" value="TRUE"/>
     </module>
 
-    <!--module name="board" type="tawaki">
-      <configure name="BOARD_TAWAKI_ROTATED" value="TRUE"/>
-    </module-->
-
-    <module name="baro" type="bmp3">
-      <configure name="BMP3_I2C_DEV" value="i2c4"/>
-      <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
-    </module>
-
-    <module name="imu" type="mpu6000"> 
-      <!-- <define name="APOGEE_USE_MPU9150" value="TRUE"/> -->
-      <configure name="IMU_MPU_SPI_DEV" value="spi4"/>
-      <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE5"/>
-      <define name="IMU_MPU_CHAN_X" value="2"/>      
-      <define name="IMU_MPU_CHAN_Y" value="1"/>
-      <define name="IMU_MPU_CHAN_Z" value="0"/> 
-      <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
-      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
-      <!--Set the frequency to 2000 hz with 256 Hz internal low pass-->
-      <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
-      <define name="IMU_MPU_SMPLRT_DIV" value="3"/>
-      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
-    </module>
-
-    <module name="mag" type="lis3mdl">
-      <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c4"/>
-      <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
-      <define name="LIS3MDL_CHAN_X" value="2" />
-      <define name="LIS3MDL_CHAN_Z" value="0" />
-      <define name="LIS3MDL_CHAN_X_SIGN" value="+" />
-      <define name="LIS3MDL_CHAN_Y_SIGN" value="-" />
-      <define name="LIS3MDL_CHAN_Z_SIGN" value="+" />
+    <module name="imu" type="apogee_mpu9150">
+      <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="APOGEE_SMPLRT_DIV" value="1"/>
     </module>
 
     <module name="air_data">
@@ -143,7 +115,7 @@
 
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
-      <configure name="GPS_PORT" value="UART7"/>
+      <configure name="GPS_PORT" value="UART4"/>
     </module>
 
     <module name="extra_dl">
@@ -152,7 +124,7 @@
     </module>
 
     <module name="digital_cam">
-      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO4"/>
       <define name="DC_SHOT_EXTRA_DL" value="TRUE"/>
     </module>
 
