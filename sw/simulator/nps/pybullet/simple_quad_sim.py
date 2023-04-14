@@ -10,7 +10,7 @@ PYBULLET_CONF_PATH = os.path.join(PPRZ_HOME, "conf/simulator/pybullet")
 
 
 class BulletFDM():
-    def __init__(self, dt=0.02, GUI=True, debug=False, urdf="LLLLLrobobee.urdf"):
+    def __init__(self, dt=0.02, GUI=True, debug=False, urdf="robobee.urdf"):
         print(f"Hello from PyBullet ! dt={dt}, GUI={GUI} debug={debug}")
 
         pprz_src = os.getenv("PAPARAZZI_SRC")
