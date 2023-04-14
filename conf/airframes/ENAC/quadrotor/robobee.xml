@@ -1,0 +1,277 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Robo_Bee_3">
+
+  <description>
+    * Autopilot:   Tawaki
+    * Actuators:   4 in 1  
+    * Telemetry:   XBee
+    * GPS:         datalink
+    * RC:          SBUS
+  </description>
+
+  <firmware name="rotorcraft">
+    <configure name="PERIODIC_FREQUENCY" value="512"/>
+    <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+
+    <target name="ap" board="tawaki_1.1">
+    <module name="radio_control" type="sbus"/>
+      <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
+    <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <!--module name="fdm" type="jsbsim"/-->
+      <module name="fdm" type="pybullet">
+        <define name="PYBULLET_GUI" value="TRUE"/>
+        <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+        <define name="NPS_BYPASS_INS" value="TRUE"/>
+      </module>
+      <module name="radio_control" type="datalink"/>
+    </target>
+
+    <module name="telemetry" type="xbee_api"/>
+
+    <module name="actuators" type="dshot">
+      <!--define name="DSHOT_SPEED" value="300"/-->
+    </module>
+    <module name="board" type="tawaki">
+      <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
+      <define name="IMU_MPU_SMPLRT_DIV" value="0"/>
+    </module>
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B115200"/>
+    </module>
+
+    <module name="stabilization" type="indi"/>
+    <module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPEED_GAIN" value="3.0"/>
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.03"/>
+      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+    </module>
+
+    <module name="ins"/>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <!-- <define name="AHRS_USE_GPS_HEADING" value="FALSE"/> -->
+    </module>
+    <module name="air_data"/>
+
+    <module name="filter" type="1euro_imu">
+      <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
+      <define name="AHRS_ALIGNER_IMU_ID" value="IMU_F1E_ID"/>
+    </module>
+
+    <module name="tag_tracking">
+      <configure name="JEVOIS_UART" value="UART4" description="dummy uart in this config"/>
+    </module>
+    <module name="extra_dl">
+      <configure name="EXTRA_DL_PORT" value="UART3"/>
+      <configure name="EXTRA_DL_BAUD" value="B115200"/>
+    </module>
+
+    <module name="motor_mixing"/>
+
+    <module name="flight_recorder"/>
+    <!--module name="logger" type="tune_indi"/-->
+  </firmware>
+
+  <servos driver="DShot">
+    <servo name="FR" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="2" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="4" min="0" neutral="100" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TYPE" value="QUAD_X"/>
+    <define name="REVERSE" value="TRUE"/>
+  </section>
+
+  <!--command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+  </command_laws-->
+  <command_laws>
+    <set servo="FR" value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
+    <set servo="BR" value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
+    <set servo="BL" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
+    <set servo="FL" value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
+  </command_laws>
+
+
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
+
+
+    <define name="ACCEL_X_SIGN" value="-1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="-52"/>
+    <define name="ACCEL_Y_NEUTRAL" value="63"/>
+    <define name="ACCEL_Z_NEUTRAL" value="78"/>
+    <define name="ACCEL_X_SENS" value="2.5604087853414104" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.448144955015108" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.4642689651242438" integer="16"/>
+
+    <define name="MAG_X_SIGN" value="-1"/>
+    <define name="MAG_Y_SIGN" value="-1"/>
+    <define name="MAG_Z_SIGN" value="1"/>
+
+    <define name="MAG_X_NEUTRAL" value="-3389"/>
+    <define name="MAG_Y_NEUTRAL" value="-9655"/>
+    <define name="MAG_Z_NEUTRAL" value="1277"/>
+    <define name="MAG_X_SENS" value="0.725111506132357" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.7213630968776462" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6528914510154457" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+  </section>
+
+  <include href="conf/mag/delft_valkenburg.xml"/>
+
+  <section name="INS" prefix="INS_">
+    <define name="INV_NXZ" value="0.25"/>
+    <define name="INV_NH" value="2.0"/>
+    <define name="INV_MVZ" value="8."/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- Use GPS heading instead of magneto -->
+    <define name="USE_GPS_HEADING" value="0"/>
+    <!-- <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/> -->
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoint limits for attitude stabilization rc flight -->
+    <define name="SP_MAX_PHI" value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R" value="120" unit="deg/s"/>
+    <define name="DEADBAND_A" value="0"/>
+    <define name="DEADBAND_E" value="0"/>
+    <define name="DEADBAND_R" value="50"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <define name="NUM_ACT" value="4"/>
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="111"/>
+    <define name="REF_ERR_Q" value="111"/>
+    <define name="REF_ERR_R" value="136"/>
+    <define name="REF_RATE_P" value="20.0"/>
+    <define name="REF_RATE_Q" value="20.0"/>
+    <define name="REF_RATE_R" value="11.0"/>
+
+    <define name="MAX_R" value="120" unit="deg/s"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF_R" value="4.0"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+
+
+    <!-- Full INDI -->
+    <!-- control effectiveness -->
+    <define name="G1_ROLL"   value="{  -20.0,  -20.0,  20.0,  20.0 }"/>
+    <define name="G1_PITCH"  value="{   20.0,  -20.0, -20.0,  20.0 }"/>
+    <define name="G1_YAW"    value="{   3,    -3,    3,   -3 }"/>
+    <define name="G1_THRUST" value="{  -0.5, -0.5, -0.5, -0.5}"/>
+    <!--Counter torque effect of spinning up a rotor-->
+    <define name="G2"        value="{100, -100, 100, -100.0 }"/>
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN" value="{0.02, 0.02, 0.02, 0.02}"/>
+    <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
+
+    <!--Priority for each axis (roll, pitch, yaw and thrust)-->
+    <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="REF_MIN_ZDD" value="-0.4*9.81"/>
+   <define name="REF_MAX_ZDD" value=" 0.4*9.81"/>
+   <define name="REF_MIN_ZD" value="-1.5"/>
+   <define name="REF_MAX_ZD" value=" 1."/>
+   <define name="HOVER_KP" value="90"/>
+   <define name="HOVER_KD" value="110"/>
+   <define name="HOVER_KI" value="10"/>
+   <define name="NOMINAL_HOVER_THROTTLE" value="0.35"/>
+   <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+   <define name="ADAPT_NOISE_FACTOR" value="1."/>
+   <define name="ADAPT_INITIAL_HOVER_THROTTLE" value="0.3"/>
+  </section>
+
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="MAX_BANK" value="20" unit="deg"/>
+   <define name="PGAIN" value="41"/>
+   <define name="DGAIN" value="108"/>
+   <define name="IGAIN" value="20"/>
+   <define name="NGAIN" value="0"/>
+   <!-- feedforward -->
+   <define name="AGAIN" value="0"/>
+   <define name="REF_MAX_SPEED" value="4."/>
+   <define name="REF_MAX_ACCEL" value="2."/>
+  </section>
+
+  <section name="NAV">
+    <define name="ARRIVED_AT_WAYPOINT" value="2.0"/>
+    <define name="NAV_DESCEND_VSPEED" value="-0.5"/>
+    <define name="NAV_CLIMB_VSPEED" value="0.5"/>
+  </section>
+
+  <section name="BAT">
+    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
+    <define name="BODY_TO_CAM_PSI" value="M_PI"/>
+    <define name="CAM_POS_X" value="0.1"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATORS_ORDER" value="{3, 2, 1, 0}"/>
+    <define name="PYBULLET_MODULE" value="simple_quad_sim" type="string"/>
+    <define name="PYBULLET_URDF" value="robobee.urdf" type="string"/>
+    <!--define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/-->
+    
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
+  </section>
+
+
+</airframe>
