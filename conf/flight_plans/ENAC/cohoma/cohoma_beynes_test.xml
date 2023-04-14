@@ -23,8 +23,8 @@
     <waypoint x="-93.226" y="42.781" name="LANDPAD"/>
     <waypoint x="93.226" y="-42.781" name="_HERE"/>
     <waypoint name="_KILL1" x="47.917" y="-37.593"/>
-    <waypoint name="_KILL2" x="-444.405" y="-136.959"/>
-    <waypoint name="_KILL3" x="-618.969" y="-47.834"/>
+    <waypoint name="_KILL2" x="-266.788" y="-101.1"/>
+    <waypoint name="_KILL3" x="-648.029" y="117.394"/>
     <waypoint name="_KILL4" x="-747.452" y="677.627"/>
     <waypoint name="_KILL5" x="-460.644" y="883.153"/>
     <waypoint name="_KILL6" x="38.257" y="140.12"/>
@@ -32,10 +32,10 @@
     <waypoint name="P2" x="-417.871" y="91.719"/>
     <waypoint name="P3" x="-466.969" y="178.76"/>
     <waypoint name="P4" x="-374.812" y="345.346"/>
-    <waypoint name="S1" x="-450.557" y="-3.048"/>
-    <waypoint name="S2" x="-547.445" y="221.444"/>
-    <waypoint name="S3" x="-233.694" y="365.568"/>
-    <waypoint name="S4" x="-77.606" y="154.653"/>
+    <waypoint name="S1" x="-347.084" y="22.121"/>
+    <waypoint name="S2" x="-536.469" y="164.781"/>
+    <waypoint name="S3" x="-181.513" y="327.925"/>
+    <waypoint name="S4" x="-63.408" y="156.801"/>
   </waypoints>
   <sectors>
     <sector name="FlyZone" color="red">

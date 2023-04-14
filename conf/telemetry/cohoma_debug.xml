@@ -219,8 +219,6 @@
   <process name="Extra">
     <mode name="default">
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
-      <message name="ENERGY"            period="1."/>
-      <message name="GPS_LLA"           period=".25"/>
       <message name="GPS_INT"           period=".25"/>
       <message name="MISSION_STATUS"    period="0.5"/>
       <message name="ROTORCRAFT_FP"     period="0.25"/>
