@@ -157,6 +157,11 @@ extern void double_quat_of_eulers(struct DoubleQuat *q, struct DoubleEulers *e);
 extern void double_eulers_of_quat(struct DoubleEulers *e, struct DoubleQuat *q);
 extern void double_quat_vmult(struct DoubleVect3 *v_out, struct DoubleQuat *q, struct DoubleVect3 *v_in);
 
+/** Composition (multiplication) of two quaternions.
+ * a2c = a2b comp b2c , aka  a2c = a2b * b2c
+ */
+extern void double_quat_comp(struct DoubleQuat *a2c, struct DoubleQuat *a2b, struct DoubleQuat *b2c);
+
 /** initialises a rotation matrix to identity */
 static inline void double_rmat_identity(struct DoubleRMat *rm)
 {
