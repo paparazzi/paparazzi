@@ -1,0 +1,170 @@
+<?xml version="1.0" ?>
+
+<robot name="RoboBee">
+
+  <material name="white">
+    <color rgba="1. 1. 1. 1.0"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0. 0. 0. 1.0"/>
+  </material>
+
+  <material name="blue0">
+    <color rgba="15./255. 141./255. 238./255. 1.0"/>
+  </material>
+
+  <material name="darkgrey">
+    <color rgba="0.4 0.4 0.4 1.0"/>
+  </material>
+
+  <material name="blue1">
+    <color rgba="0.06 0.46 0.9 0.6"/>
+  </material>
+
+  <material name="orange_red">
+    <color rgba="1 0.25 0 0.4"/>
+  </material>
+
+  <configuration type="quad"/>
+
+  <properties arm="0.0635" kf="2.0e-8" km="2.74e-10" thrust2weight="2" max_speed_kmh="30" gnd_eff_coeff="11.36859" prop_radius="3.31348e-2" drag_coeff_xy="9.1785e-7" drag_coeff_z="10.311e-7" dw_coeff_1="2267.18" dw_coeff_2=".16" dw_coeff_3="-.11"/>
+
+  <control>
+    <indi actuator_nr="4" output_nr="4" />
+    <indi_1 roll="  50.0  50.0 -50.0  -50.0" />
+    <indi_2 pitch="-50.0  50.0  50.0  -50.0" />
+    <indi_3 yaw="   -7.0   7.0  -7.0    7.0" />
+    <indi_4 thrust=" 1.7   1.7   1.7    1.7" />
+
+    <indi_guidance_gains>
+      <pos kp="1.0" kd="2.2"/>
+    </indi_guidance_gains>
+    
+    <indi_att_gains>
+      <att  p="7." q="7." r="5." />
+      <rate p="18." q="18." r="10." />
+    </indi_att_gains>
+
+    <pwm>
+      <pwm2rpm scale="20000. 20000. 20000. 20000." const="0. 0. 0. 0." />
+      <limit min="0  0  0  0" max="1  1  1  1" />
+    </pwm>
+  </control>
+
+
+  <link name="base_link"> 
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="6.2e-4" ixy="0.0" ixz="0.0" iyy="6.2e-4" iyz="0.0" izz="1.1e-3"/>
+    </inertial>
+
+    <visual>
+      <origin rpy="1.5708 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="./robobee.obj" scale="1. 1. 1."/>
+      </geometry> 
+      <material name="darkgrey"/>
+    </visual>
+
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.15" length=".1"/>
+      </geometry>
+    </collision>  
+
+  </link>
+
+  <link name="prop0_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.11 0.11 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.11 0.11 0.01"/>
+      <geometry>
+        <cylinder radius="0.0635" length=".001"/>
+      </geometry>
+      <material name="orange_red"/>
+    </visual> 
+  </link>
+  <joint name="prop0_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="prop0_link"/>
+  </joint>
+
+  <link name="prop1_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.11 0.11 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.11 0.11 0.02"/>
+      <geometry>
+        <cylinder radius="0.0635" length=".001"/>
+      </geometry>
+      <material name="blue1"/>
+    </visual> 
+  </link>
+  <joint name="prop1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="prop1_link"/>
+  </joint>
+
+  <link name="prop2_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.11 -0.11 0.03"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.11 -0.11 0.01"/>
+      <geometry>
+        <cylinder radius="0.0635" length=".001"/>
+      </geometry>
+      <material name="blue1"/>
+    </visual> 
+  </link>
+  <joint name="prop2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="prop2_link"/>
+  </joint>
+
+  <link name="prop3_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.11 -0.11 0.04"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.11 -0.11 0.01"/>
+      <geometry>
+        <cylinder radius="0.0635" length=".001"/>
+      </geometry>
+      <material name="orange_red"/>
+    </visual> 
+  </link>
+  <joint name="prop3_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="prop3_link"/>
+  </joint>
+
+  <link name="center_of_mass_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="center_of_mass_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="center_of_mass_link"/>
+  </joint>
+
+</robot>
+
