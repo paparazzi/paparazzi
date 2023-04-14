@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_pybullet" dir="fdm">
+  <doc>
+    <description>
+      PyBullet based FDM for NPS simulator
+    </description>
+    <define name="PYTHON_EXEC" value="python3" type="string" description="python executable to use. Can be a /path/to/venv/python3"/>
+    <define name="PYBULLET_GUI" value="TRUE" description="start pybullet Gui"/>
+    <define name="NPS_ACTUATORS_ORDER" value="{3, 2, 1, 0}" description="set actuators URDF indexes"/>
+    <define name="NPS_PYBULLET_MODULE" value="simple_quad_sim" type="string" description="python module for your pybullet model"/>
+    <define name="NPS_PYBULLET_URDF" value="robobee.urdf" type="string" description="URDF vehicle model"/>
+  </doc>
+  <header/>
+  <makefile target="nps|hitl">
+    <raw>
+      nps.CFLAGS += $(shell python3-config --cflags) -fPIE
+      nps.LDFLAGS += $(shell python3-config --ldflags) -lpython3.8
+      nps.CFLAGS += -DPAPARAZZI_SRC=\"$(PAPARAZZI_SRC)\"
+    </raw>
+    <file name="nps_fdm_pybullet.c" dir="nps"/>
+  </makefile>
+</module>
+
