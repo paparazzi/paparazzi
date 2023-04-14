@@ -308,6 +308,7 @@
     <define name="NAV_LANDING_FLARE_HEIGHT" value="10."/>
     <define name="NAV_LANDING_DESCEND_SPEED" value="-1.0"/>
     <define name="SURVEY_HYBRID_MAX_SWEEP_BACK" value="1"/>
+    <define name="MISSION_ALT_PROXIMITY" value="4."/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
