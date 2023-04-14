@@ -13,6 +13,7 @@
   </doc>
   <dep>
     <depends>digital_cam|digital_cam_servo|digital_cam_uart|digital_cam_i2c|digital_cam_video</depends>
+    <provides>digital_cam</provides>
   </dep>
   <header>
     <file name="dc_shoot_rc.h"/>

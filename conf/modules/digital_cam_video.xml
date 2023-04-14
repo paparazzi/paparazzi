@@ -37,6 +37,7 @@
   <dep>
     <depends>video_capture</depends>
     <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c,digital_cam_uart</conflicts>
+    <provides>digital_cam</provides>
   </dep>
 
   <header>
