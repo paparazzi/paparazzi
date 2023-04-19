@@ -353,6 +353,7 @@ static void nav_survey_hybrid_setup(float orientation, float sweep, float radius
 
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(survey_private.entry.z, 0.f);
+  survey_private.valid = true;
 }
 
 void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, uint8_t size, float sweep, float radius)
@@ -370,7 +371,6 @@ void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, ui
   }
   survey_private.size = size;
 
-  survey_private.valid = true;
   nav_survey_hybrid_setup(orientation, sweep, radius);
 }
 
@@ -382,7 +382,6 @@ void nav_survey_hybrid_setup_towards(uint8_t start_wp, uint8_t second_wp, uint8_
   if (start == NULL || second == NULL) {
     return;
   }
-  survey_private.valid = true;
 
   float dx = second->x - start->x;
   float dy = second->y - start->y;

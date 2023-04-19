@@ -42,6 +42,7 @@
   <header>
     <file name="nav_survey_hybrid.h"/>
   </header>
+  <init fun="nav_survey_hybrid_init()"/>
   <makefile target="ap|nps">
     <file name="nav_survey_hybrid.c"/>
     <test firmware="rotorcraft">
