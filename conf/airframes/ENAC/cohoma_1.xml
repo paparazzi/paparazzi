@@ -33,6 +33,17 @@
 
       <!--Switch advanced INDI scheduling functions on or off-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
+
+      <module name="extra_dl">
+        <configure name="EXTRA_DL_PORT" value="uart6"/>
+        <configure name="EXTRA_DL_BAUD" value="B57600"/>
+      </module>
+
+      <module name="digital_cam">
+        <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
+        <define name="DC_SHOT_EXTRA_DL" value="TRUE"/>
+      </module>
+
     </target>
 
     <target name="nps" board="pc">
@@ -146,16 +157,6 @@
       <configure name="GPS_PORT" value="UART7"/>
     </module>
 
-    <module name="extra_dl">
-      <configure name="EXTRA_DL_PORT" value="uart6"/>
-      <configure name="EXTRA_DL_BAUD" value="B57600"/>
-    </module>
-
-    <module name="digital_cam">
-      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
-      <define name="DC_SHOT_EXTRA_DL" value="TRUE"/>
-    </module>
-
   </firmware>
 
 
@@ -256,7 +257,7 @@
     <!-- <define name="G1_THRUST" value="{  -0.6,  -0.6,   -0.6,  -0.6,   0.0,   0.0}"/> -->
 
     <define name="G1_ROLL"   value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
-    <define name="G1_PITCH"  value="{ -20.0,  20.0,   20.0, -20.0,  12.0, -12.0}"/> <!-- 12 , -12 -->
+    <define name="G1_PITCH"  value="{ -20.0,  20.0,   20.0, -20.0,  15.0, -15.0}"/> <!-- 12 , -12 -->
     <define name="G1_YAW"    value="{   -3.0,   3.0,    -3.0,   3.0,  -3.0,  -3.0}"/> <!-- -20  -20 -->
     <define name="G1_THRUST" value="{  -0.6,  -0.6,   -0.6,  -0.6,   0.0,   0.0}"/>
   </section>
@@ -304,10 +305,10 @@
     <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.0"/>
     <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
     <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
-    <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
+    <define name="GUIDANCE_H_REF_MAX_SPEED" value="15.0"/> <!--not used-->
     <define name="GUIDANCE_INDI_MIN_THROTTLE" value="2000"/>
-    <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="10"/>
-    <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="18.0"/>
+    <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1000"/>
+    <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="15.0"/>
     <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation -->
     <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="18.0"/>
     <define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.5"/>
