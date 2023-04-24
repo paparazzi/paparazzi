@@ -301,10 +301,10 @@
     <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
     <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
-    <define name="GUIDANCE_INDI_POS_GAINZ" value="0.3"/>
-    <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.0"/>
+    <define name="GUIDANCE_INDI_POS_GAINZ" value="0.6"/>
+    <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.5"/>
     <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
-    <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
+    <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="0.6"/>
     <define name="GUIDANCE_H_REF_MAX_SPEED" value="15.0"/> <!--not used-->
     <define name="GUIDANCE_INDI_MIN_THROTTLE" value="2000"/>
     <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1000"/>
