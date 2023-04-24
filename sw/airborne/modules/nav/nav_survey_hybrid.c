@@ -130,7 +130,7 @@ static bool nav_survey_hybrid_mission_local(uint8_t nb, float *params, enum Miss
       else { survey_private.size = 4; }
       for (int i = 0; i < survey_private.size; i++) {
         survey_private.corners[i].x = params[4+2*i];
-        survey_private.corners[i].y = params[5+2*i];
+        survey_private.corners[i].y = params[5+2*i+1];
         survey_private.corners[i].z = height;
       }
       nav_survey_hybrid_setup(orientation, sweep, radius);
@@ -155,8 +155,8 @@ static bool nav_survey_hybrid_mission_global(uint8_t nb, float *params, enum Mis
       else { survey_private.size = 4; }
       for (int i = 0; i < survey_private.size; i++) {
         struct LlaCoor_f lla = {
-          .lat = params[4+2*i],
-          .lon = params[4+2*i],
+          .lat = RadOfDeg(params[4+2*i]),
+          .lon = RadOfDeg(params[4+2*i+1]),
           .alt = state.ned_origin_f.lla.alt + height
         };
         struct EnuCoor_f corner;
@@ -353,6 +353,7 @@ static void nav_survey_hybrid_setup(float orientation, float sweep, float radius
 
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(survey_private.entry.z, 0.f);
+  survey_private.valid = true;
 }
 
 void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, uint8_t size, float sweep, float radius)
@@ -370,7 +371,6 @@ void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, ui
   }
   survey_private.size = size;
 
-  survey_private.valid = true;
   nav_survey_hybrid_setup(orientation, sweep, radius);
 }
 
@@ -382,7 +382,6 @@ void nav_survey_hybrid_setup_towards(uint8_t start_wp, uint8_t second_wp, uint8_
   if (start == NULL || second == NULL) {
     return;
   }
-  survey_private.valid = true;
 
   float dx = second->x - start->x;
   float dy = second->y - start->y;

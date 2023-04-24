@@ -11,11 +11,11 @@
       Support mission mode with custom elements:
       - points in local NED: SRVHL orientation sweep_distance radius height p1x p1y p2x p2y p3x p3y [p4x p4y]
       - points in global LLA: SRVHG orientation sweep_distance radius height p1lat p1lon p2lat p2lon p3lat p3lon [p4lat p4lon]
-      - orientation is in degrees
+      - orientation is in degrees, 0 pointing at east, positive counter clockwise
       - sweep_distance in meters
       - radius can be: negative, automatically set to sweep/2; zero, not turning on circles; positive, fixed radius
       - height in meters above reference point
-      - the polygon in mission mode can have either 3 or 4 points.
+      - the polygon in mission mode can have either 3 or 4 points, with positions in meters (local) or degrees (global).
     </description>
     <section name="SURVEY_HYBRID" prefix="SURVEY_HYBRID_">
       <define name="MAX_POLYGON_SIZE" value="20" description="max waypoints usable in polygon survey"/>
@@ -42,6 +42,7 @@
   <header>
     <file name="nav_survey_hybrid.h"/>
   </header>
+  <init fun="nav_survey_hybrid_init()"/>
   <makefile target="ap|nps">
     <file name="nav_survey_hybrid.c"/>
     <test firmware="rotorcraft">
