@@ -733,10 +733,10 @@ void stateCalcSpeedEnu_i(void)
       INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
     }
     if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
-      ENU_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+      SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
     } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
-      SetBit(state.pos_status, SPEED_NED_I);
+      SetBit(state.speed_status, SPEED_NED_I);
       INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
     } else if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
       enu_of_ecef_vect_i(&state.enu_speed_i, &state.ned_origin_i, &state.ecef_speed_i);
@@ -753,10 +753,10 @@ void stateCalcSpeedEnu_i(void)
       INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
     }
     if (bit_is_set(state.speed_status, SPEED_ENU_F)) {
-      ENU_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
+      SPEEDS_BFP_OF_REAL(state.enu_speed_i, state.enu_speed_f);
     } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       SPEEDS_BFP_OF_REAL(state.ned_speed_i, state.ned_speed_f);
-      SetBit(state.pos_status, SPEED_NED_I);
+      SetBit(state.speed_status, SPEED_NED_I);
       INT32_VECT3_ENU_OF_NED(state.enu_speed_i, state.ned_speed_i);
     } else { /* could not get this representation,  set errno */
       errno = 2;
@@ -936,10 +936,10 @@ void stateCalcSpeedEnu_f(void)
     if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
     } else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-      ENU_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+      SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
       SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
-      SetBit(state.pos_status, SPEED_NED_F);
+      SetBit(state.speed_status, SPEED_NED_F);
       VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
     } else if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {
       enu_of_ecef_vect_f(&state.enu_speed_f, &state.ned_origin_f, &state.ecef_speed_f);
@@ -955,10 +955,10 @@ void stateCalcSpeedEnu_f(void)
     if (bit_is_set(state.speed_status, SPEED_NED_F)) {
       VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
     } else if (bit_is_set(state.speed_status, SPEED_ENU_I)) {
-      ENU_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
+      SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
       SPEEDS_FLOAT_OF_BFP(state.ned_speed_f, state.ned_speed_i);
-      SetBit(state.pos_status, SPEED_NED_F);
+      SetBit(state.speed_status, SPEED_NED_F);
       VECT3_ENU_OF_NED(state.enu_speed_f, state.ned_speed_f);
     } else { /* could not get this representation,  set errno */
       errno = 2;
