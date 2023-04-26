@@ -32,6 +32,10 @@
       }
     }
 
+    #if DIGITAL_CAM
+    #define LINE_START_FUNCTION dc_Survey(20);
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
   </header>
   <waypoints>
     <waypoint name="HOME" lat="48.8659" lon="1.89958"/>

@@ -39,11 +39,7 @@
         <configure name="EXTRA_DL_BAUD" value="B57600"/>
       </module>
 
-      <module name="digital_cam">
-        <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
-        <define name="DC_SHOT_EXTRA_DL" value="TRUE"/>
-      </module>
-
+      <define name="DC_SHOT_EXTRA_DL" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
@@ -56,6 +52,10 @@
       <!--Take the mode channel for simulation-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="4"/>
     </target>
+
+    <module name="digital_cam">
+      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
+    </module>
 
     <!-- <module name="actuators" type="pwm"> -->
       <!-- <define name="TIM1_SERVO_HZ" value="500"/> -->
