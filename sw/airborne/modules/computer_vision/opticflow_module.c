@@ -40,6 +40,8 @@
 
 #include "cv.h"
 
+uint16_t fps_OF;
+
 /* ABI messages sender ID */
 #ifndef OPTICFLOW_AGL_ID
 #define OPTICFLOW_AGL_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
@@ -70,7 +72,8 @@ static bool opticflow_got_result[ACTIVE_CAMERAS];       ///< When we have an opt
 static pthread_mutex_t opticflow_mutex;                  ///< Mutex lock fo thread safety
 
 /* Static functions */
-struct image_t *opticflow_module_calc(struct image_t *img, uint8_t camera_id);     ///< The main optical flow calculation thread
+struct image_t *opticflow_module_calc(struct image_t *img,
+                                      uint8_t camera_id);     ///< The main optical flow calculation thread
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -149,7 +152,7 @@ void opticflow_module_run(void)
                                     opticflow_result[idx_camera].noise_measurement,
                                     opticflow_result[idx_camera].noise_measurement,
                                     -1.0f //opticflow_result.noise_measurement // negative value disables filter updates with OF-based vertical velocity.
-        );
+                                   );
       }
       opticflow_got_result[idx_camera] = false;
     }
@@ -174,8 +177,9 @@ struct image_t *opticflow_module_calc(struct image_t *img, uint8_t camera_id)
   img->eulers = pose.eulers;
 
   // Do the optical flow calculation
-  static struct opticflow_result_t temp_result[ACTIVE_CAMERAS]; // static so that the number of corners is kept between frames
-  if(opticflow_calc_frame(&opticflow[camera_id], img, &temp_result[camera_id])){
+  static struct opticflow_result_t
+    temp_result[ACTIVE_CAMERAS]; // static so that the number of corners is kept between frames
+  if (opticflow_calc_frame(&opticflow[camera_id], img, &temp_result[camera_id])) {
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
     opticflow_result[camera_id] = temp_result[camera_id];

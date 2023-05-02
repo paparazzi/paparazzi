@@ -43,6 +43,7 @@
 #define AHRS_COMP_ID_VECTORNAV 11
 #define AHRS_COMP_ID_EKF2      12
 #define AHRS_COMP_ID_MADGWICK  13
+#define AHRS_COMP_ID_FLOW      14
 
 /* include actual (primary) implementation header */
 #ifdef AHRS_TYPE_H
