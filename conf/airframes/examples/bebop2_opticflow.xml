@@ -7,12 +7,12 @@
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/> <!-- we did not include log before -->
     </target>
-    <target name="nps" board="pc">
+ <!--   <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
       <define name="VIDEO_CAPTURE_PATH" value="/home/guido/paparazzi/images/"/>
       <define name="FILE_LOGGER_PATH" value="/home/guido/paparazzi/log/"/>
     </target>
-
+-->
     <define name="USE_SONAR"/>
 
     <module name="telemetry" type="transparent_udp"/>
