@@ -13,7 +13,7 @@
   <aircraft
    name="Bebop2_opticflow"
    ac_id="5"
-   airframe="airframes/tudelft/bebop2_opticflow.xml"
+   airframe="airframes/examples/bebop2_opticflow.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_guido_optitrack.xml"
