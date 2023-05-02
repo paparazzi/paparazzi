@@ -1,0 +1,47 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_flow" dir="ins">
+  <doc>
+    <description>
+      simple INS and AHRS using flow
+    </description>
+  </doc>
+
+
+  <settings>
+    <dl_settings NAME="INS">
+      <dl_settings name="flow">
+        <dl_setting var="reset_filter" min="0" step="1" max="1" values="NO|YES" shortname="reset_filter" module="modules/ins/ins_flow"/> 
+        <dl_setting var="run_filter" min="0" step="1" max="1" values="NO|YES" shortname="run_filter" module="modules/ins/ins_flow"/> 
+        <dl_setting var="use_filter" min="0" step="1" max="3" values="NO|ANGLE|VELOCITY|HEIGHT" shortname="use_filter" module="modules/ins/ins_flow"/> 
+        <dl_setting var="thrust_factor" min="0.01" step="0.01" max="1.50" shortname="thrust_factor" module="modules/ins/ins_flow"/> 
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@imu</depends>
+    <provides>ins</provides>
+  </dep>
+  <header>
+    <file name="ins_flow.h" dir="modules/ins"/>
+  </header>
+  <init fun="ins_flow_init()"/>
+  <periodic fun="ins_flow_update()" autorun="TRUE"/>
+  <makefile target="ap|nps">
+    <!-- FLOW files -->
+    <!-- <define name="USE_AHRS"/> -->
+    <define name="USE_AHRS_ALIGNER"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_flow.h" type="string"/>
+    <file name="ins.c" dir="modules/ins/"/>
+    <file name="ins_flow.c" dir="modules/ins"/>
+    <file name="ahrs_int_cmpl_quat.c" dir="modules/ahrs"/>	
+    <!-- <file name="ahrs.c" dir="subsystems"/> -->
+    <file name="ahrs_aligner.c" dir="modules/ahrs"/>
+    <!-- <file name="pprz_algebra_float.c" dir="math"/> -->
+	<raw>
+	$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_flow.h\"
+	$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_icq
+	</raw>
+  </makefile>
+
+</module>

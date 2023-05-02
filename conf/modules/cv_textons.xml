@@ -5,16 +5,21 @@
     <description>Represent the appearance (texture, color) of an image by means of a texton histogram.</description>
 
     <section name="TEXTONS" prefix="TEXTONS_">
+      <define name="FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
+      <define name="CAMERA" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations"/>
+      <define name="RUN" value="YES" description="Whether the texton function is running (YES) or not (NO)."/>  
       <define name="LOAD_DICTIONARY" value="YES" description="Whether a dictionary is loaded (YES) or learned (NO)."/>
-      <define name="N_TEXTONS" value="20" description="The number of textons (words) in the dictionary."/>
+      <define name="REINITIALIZE_DICTIONARY" value="NO" description="If set to YES, the dictionary will be reinitialized with the current image."/>
+      <define name="N_TEXTONS" value="10" description="The number of textons (words) in the dictionary."/>
       <define name="PATCH_SIZE" value="6" description="Size of the image patches extracted from the image - even numbers."/>
       <define name="FULL_SAMPLING" value="NO" description="If YES, the entire image is covered with samples, if NO sub-sampling is used (faster)."/>
       <define name="DICTIONARY_NUMBER" value="0" description="Number of the dictionary (so that different environments can each have their specific dictionary)."/>
+      <define name="N_SAMPLES" value="50" description="Number of samples extracted form the image when not doing full sampling."/>
+      <define name="N_LEARNING_SAMPLES" value="5000" description="Number of samples used for learning the dictionary."/>
       <define name="ALPHA" value="10" description="Learning rate when creating the dictionary: 0 = no learning, 255 = the texton becomes equal to the new patch."/>
-      <define name="N_SAMPLES_IMAGE" value="50" description="Number of samples extracted form the image when not doing full sampling."/>
-      <define name="N_LEARNING_SAMPLES" value="10000" description="Number of samples used for learning the dictionary."/>
       <define name="BORDER_WIDTH" value="0" description="Width of the image border from which no samples are taken."/>
       <define name="BORDER_HEIGHT" value="0" description="Height of the border from which no samples are taken."/>
+      <define name="DICTIONARY_PATH" value="/data/ftp/internal_000" description="Path to which the textons dictionary is saved."/>
     </section>
 
   </doc>
@@ -22,14 +27,16 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="Textons">
+        <dl_setting var="running" min="0" step="1" max="1" module="computer_vision/textons" shortname="running" values="NO|YES" param="TEXTONS_RUN"/>
         <dl_setting var="load_dictionary" min="0" step="1" max="1" module="computer_vision/textons" shortname="load dict." values="NO|YES" param="TEXTONS_LOAD_DICTIONARY"/>
+        <dl_setting var="reinitialize_dictionary" min="0" step="1" max="1" module="computer_vision/textons" shortname="reinit dict." values="NO|YES" param="TEXTONS_REINITIALIZE_DICTIONARY"/>
         <dl_setting var="n_textons" min="1" step="1" max="255" shortname="n_textons" param="TEXTONS_N_TEXTONS"/>
         <dl_setting var="patch_size" min="2" step="2" max="40" shortname="p_size" param="TEXTONS_PATCH_SIZE" />
         <dl_setting var="FULL_SAMPLING"  min="0" step="1" max="1" shortname="full_sam" values="NO|YES" param="TEXTONS_FULL_SAMPLING" />
         <dl_setting var="dictionary_number"  min="0" step="1" max="20" shortname="dict_num" param="TEXTONS_DICTIONARY_NUMBER" />
-        <dl_setting var="n_samples_image"  min="0" step="10" max="1000" shortname="n_samples" param="TEXTONS_ALPHA" />
+        <dl_setting var="n_samples_image"  min="0" step="10" max="1000" shortname="n_samples" param="TEXTONS_N_SAMPLES" />
         <dl_setting var="n_learning_samples"  min="1" step="100" max="250000" shortname="n_l_samples" param="TEXTONS_N_LEARNING_SAMPLES" />
-        <dl_setting var="alpha" min="0" step="1" max="255" shortname="alpha" param="TEXTONS_ALPHA"/>
+        <dl_setting var="alpha_uint" min="0" step="1" max="255" shortname="alpha" param="TEXTONS_ALPHA"/>
         <dl_setting var="border_width"  min="0" step="1" max="200" shortname="b_w" param="TEXTONS_BORDER_WIDTH"/>
         <dl_setting var="border_height"  min="0" step="1" max="200" shortname="b_h" param="TEXTONS_BORDER_HEIGHT"/>
       </dl_settings>
@@ -41,7 +48,7 @@
   </header>
   <init fun="textons_init()"/>
 
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <file name="textons.c"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
   </makefile>

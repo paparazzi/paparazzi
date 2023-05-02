@@ -63,7 +63,7 @@ uint16_t n_agents[2] = {25, 25};
 #define SIZE_DIV 1
 // LINEAR_FIT makes a linear optical flow field fit and extracts a lot of information:
 // relative velocities in x, y, z (divergence / time to contact), the slope of the surface, and the surface roughness.
-#define LINEAR_FIT 1
+#define LINEAR_FIT 0
 
 #ifndef OPTICFLOW_CORNER_METHOD
 #define OPTICFLOW_CORNER_METHOD ACT_FAST
@@ -477,7 +477,8 @@ void opticflow_calc_init(struct opticflow_t opticflow[])
   opticflow[1].id = 1;
 
   struct FloatEulers euler_cam2 = {OPTICFLOW_BODY_TO_CAM_PHI_CAMERA2, OPTICFLOW_BODY_TO_CAM_THETA_CAMERA2,
-      OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2};
+           OPTICFLOW_BODY_TO_CAM_PSI_CAMERA2
+  };
   float_rmat_of_eulers(&body_to_cam[1], &euler_cam2);
 #endif
 }
@@ -682,6 +683,14 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
     result->divergence = fit_info.divergence;
     result->surface_roughness = fit_info.surface_roughness;
+
+    // Flow fit with rotations:
+    error_threshold = 10.0f;
+    n_iterations_RANSAC = 20;
+    n_samples_RANSAC = 5;
+    success_fit = analyze_flow_field(vectors, result->tracked_cnt, error_threshold, n_iterations_RANSAC,
+                                     n_samples_RANSAC, img->w, img->h, OPTICFLOW_CAMERA.camera_intrinsics.focal_x, &fit_info);
+
   } else {
     result->divergence = 0.0f;
     result->surface_roughness = 0.0f;
@@ -728,14 +737,15 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
     } else {
 
-      // determine the roll, pitch, yaw differencces between the images.
+      // determine the roll, pitch, yaw differences between the images.
       float phi_diff = opticflow->img_gray.eulers.phi - opticflow->prev_img_gray.eulers.phi;
       float theta_diff = opticflow->img_gray.eulers.theta - opticflow->prev_img_gray.eulers.theta;
       float psi_diff = opticflow->img_gray.eulers.psi - opticflow->prev_img_gray.eulers.psi;
 
       if (strcmp(opticflow->camera->dev_name, bottom_camera.dev_name) == 0) {
         // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
-        diff_flow_x = phi_diff * opticflow->camera->camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
+        diff_flow_x = phi_diff *
+                      opticflow->camera->camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
         diff_flow_y = theta_diff * opticflow->camera->camera_intrinsics.focal_y;
         result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
                              opticflow->derotation_correction_factor_x;
@@ -1113,7 +1123,8 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   result->tracked_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
   result->divergence = -1.0 * (float)edgeflow.div_x /
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
-  result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
+  result->div_size =
+    result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
   result->camera_id = opticflow->id;
   result->surface_roughness = 0.0f;
   //......................Calculating VELOCITY ..................... //

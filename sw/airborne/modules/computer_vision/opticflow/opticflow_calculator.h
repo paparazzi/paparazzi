@@ -79,6 +79,8 @@ struct opticflow_t {
   int actfast_min_gradient;       ///< Threshold that decides when there is sufficient texture for edge following
   int actfast_gradient_method;    ///< Whether to use a simple or Sobel filter
 
+  uint16_t fps;
+
   const struct video_config_t *camera;
   uint8_t id;
 };
@@ -87,15 +89,16 @@ struct opticflow_t {
 
 extern void opticflow_calc_init(struct opticflow_t opticflow[]);
 extern bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
-                          struct opticflow_result_t *result);
+                                 struct opticflow_result_t *result);
 
 extern bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
-                             struct opticflow_result_t *result);
+                                    struct opticflow_result_t *result);
 extern bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
-                       struct opticflow_result_t *result);
+                              struct opticflow_result_t *result);
 
-extern void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
-                                      float *measurement_noise, float process_noise, bool reinitialize_kalman);
+extern void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement,
+    float fps,
+    float *measurement_noise, float process_noise, bool reinitialize_kalman);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
 
