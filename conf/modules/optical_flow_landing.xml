@@ -11,17 +11,27 @@
     </description>
     <define name="OFL_AGL_ID" value="ABI_BROADCAST" description="Sender id of the AGL (sonar) ABI message"/>
     <section name="OFL" prefix="OFL_">
-      <define name="PGAIN" value="0.50" description="P gain on height error"/>
-      <define name="IGAIN" value="0.10" description="I gain on summed height error"/>
-      <define name="DGAIN" value="0.0" description="D gain on summed height error"/>
+      <define name="PGAIN" value="0.50" description="P gain on divergence error"/>
+      <define name="IGAIN" value="0.10" description="I gain on summed divergence error"/>
+      <define name="DGAIN" value="0.0" description="D gain on differential of divergence error"/>
       <define name="VISION_METHOD" value="1" description="0 = fake vision, 1 = real vision"/>
-      <define name="CONTROL_METHOD" value="2" description="0 = fixed gain control, 1 = adaptive gain control, 2 = exponential control"/>
+      <define name="CONTROL_METHOD" value="0" description="0 = fixed gain control, 1 = adaptive gain control, 2 = exponential control, 3 = learning-based control."/>
       <define name="COV_METHOD" value="0" description="0 = cov(uz, div), 1 = cov(div_past, div)"/>
       <define name="COV_WINDOW_SIZE" value="30" description="Number of time steps for window size for getting the covariance over time."/>
       <define name="COV_LANDING_LIMIT" value="2.2" description="Covariance where the vehicle engages final landing procedure."/>
-      <define name="COV_SETPOINT" value="-0.0075" description="Target Covariance for adaptive gain increment."/>
-      <define name="LP_CONST" value="0.75" description="Low pass filter constant for divergence input."/>
+      <define name="COV_SETPOINT" value="-0.10" description="Target Covariance for adaptive gain increment."/>
+      <define name="LP_CONST" value="0.05" description="Low pass filter constant for divergence input."/>
       <define name="ELC_OSCILLATE" value="true" description="Oscillate to find optimum gain before initiating landing."/>
+      <define name="CLOSE_TO_EDGE" value="0.025" description="When the cov_div value gets this close to the setpoint, we consider the drone to oscillate"/>
+      <define name="PGAIN_ADAPTIVE" value="0.50" description="P gain on cov error"/>
+      <define name="IGAIN_ADAPTIVE" value="0.10" description="I gain on summed cov error"/>
+      <define name="DGAIN_ADAPTIVE" value="0.0" description="D gain on differential cov error"/>
+      <define name="P_LAND_THRESHOLD" value="0.15" description="P-value at which the drone will initiate a final landing procedure, for adaptive control"/>
+      <define name="PGAIN_HORIZONTAL_FACTOR" value="0.0625" description="Factor multiplied with P gain for horizontal control"/>
+      <define name="IGAIN_HORIZONTAL_FACTOR" value="0.0001" description="Factor multiplied with I gain for horizontal control"/>
+      <define name="ROLL_TRIM" value="0.0" description="Roll trim in degrees"/>
+      <define name="PITCH_TRIM" value="0.0" description="Pitch trim in degrees"/>
+      <!-- TODO: add more explanations of settings below -->
     </section>
   </doc>
   <settings>
@@ -36,14 +46,32 @@
         <dl_setting var="of_landing_ctrl.igain" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="igain" param="OFL_IGAIN"/>
         <dl_setting var="of_landing_ctrl.dgain" min="0" step="0.1" max="6" module="ctrl/optical_flow_landing" shortname="dgain" param="OFL_DGAIN"/>
         <dl_setting var="of_landing_ctrl.VISION_METHOD" min="0" step="1" max="1" values="Ground truth|Online" module="ctrl/optical_flow_landing" shortname="VISION_METHOD" param="OFL_VISION_METHOD"/>
-        <dl_setting var="of_landing_ctrl.CONTROL_METHOD" min="0" step="1" max="2" values="Simple|Adaptive|Exp" module="ctrl/optical_flow_landing" shortname="CONTROL_METHOD" param="OFL_CONTROL_METHOD"/>
+        <dl_setting var="of_landing_ctrl.CONTROL_METHOD" min="0" step="1" max="5" values="Simple|Adaptive|Exp|Pred|Mixed|HoverPred" module="ctrl/optical_flow_landing" shortname="CONTROL_METHOD" param="OFL_CONTROL_METHOD"/>
         <dl_setting var="of_landing_ctrl.COV_METHOD" min="0" step="1" max="1" values="Div-Thrust|Div-Shift div" module="ctrl/optical_flow_landing" shortname="COV_METHOD" param="OFL_COV_METHOD"/>
         <dl_setting var="of_landing_ctrl.delay_steps" min="0" step="1" max="60" module="ctrl/optical_flow_landing" shortname="delay_steps"/>
+        <dl_setting var="of_landing_ctrl.window_size" min="5" step="5" max="100" module="ctrl/optical_flow_landing" shortname="window_size"/>
         <dl_setting var="of_landing_ctrl.pgain_adaptive" min="0" step="0.1" max="20.0" module="ctrl/optical_flow_landing" shortname="pgain_adaptive"/>
         <dl_setting var="of_landing_ctrl.igain_adaptive" min="0" step="0.01" max="1.0" module="ctrl/optical_flow_landing" shortname="igain_adaptive"/>
         <dl_setting var="of_landing_ctrl.dgain_adaptive" min="0" step="0.01" max="5.0" module="ctrl/optical_flow_landing" shortname="dgain_adaptive"/>
         <dl_setting var="of_landing_ctrl.reduction_factor_elc" min="0.1" step="0.01" max="3.0" module="ctrl/optical_flow_landing" shortname="reduction_factor_elc"/>
         <dl_setting var="of_landing_ctrl.elc_oscillate" min="0" step="1" max="1" values="FALSE|TRUE" module="ctrl/optical_flow_landing" shortname="oscillate" param="OFL_ELC_OSCILLATE"/>
+        <!-- TODO: check if all these new settings now have corresponding code: -->
+        <dl_setting var="of_landing_ctrl.learn_gains" min="0" step="1" max="1" shortname="learn_gains" module="ctrl/optical_flow_landing"> 
+          <strip_button name="Learn gains from file" icon="learn.png" value="1"/> <!-- group="cv" -->
+        </dl_setting>
+        <dl_setting var="of_landing_ctrl.close_to_edge" min="0" step="0.001" max="1.0" module="ctrl/optical_flow_landing" shortname="close_to_edge"/>
+        <dl_setting var="of_landing_ctrl.use_bias" min="0" step="1" max="1" shortname="use_bias" module="ctrl/optical_flow_landing"/>
+        <dl_setting var="of_landing_ctrl.snapshot" min="0" step="1" max="1" shortname="snapshot" module="ctrl/optical_flow_landing"/>
+        <dl_setting var="of_landing_ctrl.lp_factor_prediction" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="lp_factor_prediction"/>
+        <dl_setting var="of_landing_ctrl.p_land_threshold" min="0" step="0.01" max="2.0" module="ctrl/optical_flow_landing" shortname="p_land_threshold"/>
+        <dl_setting var="of_landing_ctrl.ramp_duration" min="0" step="0.01" max="2.0" module="ctrl/optical_flow_landing" shortname="ramp_duration"/>        
+	<dl_setting var="of_landing_ctrl.pgain_horizontal_factor" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="pgain_hfact" param="OFL_PGAIN_HORIZONTAL_FACTOR"/>
+        <dl_setting var="of_landing_ctrl.igain_horizontal_factor" min="0" step="0.0001" max="1" module="ctrl/optical_flow_landing" shortname="igain_hfact" param="OFL_IGAIN_HORIZONTAL_FACTOR"/>
+        <dl_setting var="of_landing_ctrl.roll_trim" min="-60.0" step="0.1" max="60.0" module="ctrl/optical_flow_landing" shortname="roll_trim" param="OFL_ROLL_TRIM"/>
+        <dl_setting var="of_landing_ctrl.pitch_trim" min="-60.0" step="0.1" max="60.0" module="ctrl/optical_flow_landing" shortname="pitch_trim" param="OFL_PITCH_TRIM"/>
+        <dl_setting var="of_landing_ctrl.omega_LR" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_LR" param="OFL_OMEGA_LR"/>
+        <dl_setting var="of_landing_ctrl.omega_FB" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_FB" param="OFL_OMEGA_FB"/>
+	<dl_setting var="of_landing_ctrl.active_motion" min="0" step="1" max="2" values="none|flow|angle" module="ctrl/optical_flow_landing" shortname="active_motion" param="OFL_ACTIVE_MOTION"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -52,8 +80,10 @@
     <file name="optical_flow_landing.h"/>
   </header>
 
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <file name="optical_flow_landing.c"/>
+    <file name="pprz_algebra_float.c" dir="math"/>
+    <file name="pprz_matrix_decomp_float.c" dir="math"/>
   </makefile>
 
 </module>
