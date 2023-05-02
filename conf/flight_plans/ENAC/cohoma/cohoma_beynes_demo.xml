@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../../flight_plan.dtd">
+<flight_plan alt="185" ground_alt="115" lat0="48.8614" lon0="1.89647" max_dist_from_home="300" name="COHOMA2" security_height="30">
+  <header>
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    static inline bool delay_test_gf(bool test, int delay) {
+      static int nb = 0;
+      if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    #if DIGITAL_CAM
+    #define LINE_START_FUNCTION dc_Survey(20);
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" lat="48.8615" lon="1.89836"/>
+    <waypoint name="STDBY" lat="48.8615" lon="1.89686"/>
+    <waypoint name="LANDPAD" lat="48.8614" lon="1.89647"/>
+    <waypoint name="L1_START" lat="48.8616" lon="1.8973"/>
+    <waypoint name="L1_END" lat="48.8612" lon="1.89934"/>
+    <waypoint name="L2_START" lat="48.8619" lon="1.89761"/>
+    <waypoint name="L2_END" lat="48.8615" lon="1.89956"/>
+    <waypoint name="VAB" lat="48.8622" lon="1.89884"/>
+    <waypoint name="_FLY1" lat="48.8601" lon="1.90036"/>
+    <waypoint name="_FLY2" lat="48.8613" lon="1.89552"/>
+    <waypoint name="_FLY3" lat="48.8635" lon="1.89704"/>
+    <waypoint name="_FLY4" lat="48.8625" lon="1.90163"/>
+    <!--waypoint name="_KILL1" lat="48.8583" lon="1.89994"/>
+    <waypoint name="_KILL2" lat="48.8602" lon="1.8933"/>
+    <waypoint name="_KILL3" lat="48.8647" lon="1.89634"/>
+    <waypoint name="_KILL4" lat="48.8632" lon="1.90243"/-->
+  </waypoints>
+  <sectors>
+    <!--sector name="KillZone" color="red">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+    </sector-->
+    <sector name="FlyZone" color="green">
+      <corner name="_FLY1"/>
+      <corner name="_FLY2"/>
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="fp_max_height" init="110." min="10." max="120." step="1."/>
+    <variable var="fp_oval_radius" init="-40." min="-80." max="80." step="1."/>
+  </variables>
+  <modules>
+    <module name="mission" type="rotorcraft">
+      <define name="MISSION_WAIT_TIMEOUT" value="240"/>
+    </module>
+    <module name="nav" type="takeoff_and_landing"/>
+    <module name="nav" type="survey_hybrid"/>
+  </modules>
+  <exceptions>
+    <!-- RC-Loss -->
+    <!--exception cond="(delay_test_rc(RadioControlIsLost(),20) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/-->
+
+    <!-- Datalink loss -->
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
+
+    <!-- Geofence -->
+    <exception cond="((!InsideFlyZone(GetPosX(), GetPosY()) @OR GetPosHeight() @GT fp_max_height) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="Standby"/>
+
+    <!--exception cond="((delay_test_gf(!InsideKillZone(GetPosX(), GetPosY()),10) @OR GetPosHeight() @GT fp_max_height+10) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="Kill landed"/-->
+
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <!--block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosHeight() @GT 10." deroute="Standby"/>
+      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0." until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block-->
+    <block name="Takeoff" strip_button="Takeoff (Here)" group="takeoff">
+      <call fun="nav_takeoff_from_here()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Goto VAB" strip_button="Goto VAB" group="mission">
+      <exception cond="!(mission_get() == NULL)" deroute="Mission"/>
+      <stay wp="VAB"/>
+    </block>
+    <block name="Circle VAB" strip_button="Circle VAB" group="mission">
+      <exception cond="!(mission_get() == NULL)" deroute="Mission"/>
+      <circle wp="VAB" radius="nav.radius"/>
+    </block>
+    <block name="Mission" strip_button="Mission">
+      <call fun="mission_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Carto Oval" strip_button="Carto Oval">
+      <oval p1="L1_END" p2="L1_START" radius="fp_oval_radius" until="NavOvalCount @GEQ 2"/>
+      <oval p1="L2_END" p2="L2_START" radius="fp_oval_radius" until="NavOvalCount @GEQ 2"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land (WP)" strip_button="Land (WP)" group="land">
+      <call fun="nav_land_at_wp(WP_LANDPAD, WP_LANDPAD, 0.)"/>
+      <deroute block="Kill landed"/>
+    </block>
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+    </block>
+    <block name="Land" strip_button="Land on pad" group="land">
+      <go wp="LANDPAD"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="EmergencyLanding">
+      <stay wp="HOME" vmode="throttle" throttle="0."/>
+    </block>
+  </blocks>
+</flight_plan>
