@@ -14,6 +14,7 @@
     </target>
 
     <define name="USE_SONAR"/>
+
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
@@ -121,7 +122,6 @@
     
   </firmware>
 
-
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
@@ -192,6 +192,7 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
 <!--
   <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/> 
     <define name="H_X" value="0.3892503"/>

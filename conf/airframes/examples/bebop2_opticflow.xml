@@ -3,7 +3,15 @@
 <airframe name="bebop2_opticflow">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop2"/>
+    <target name="ap" board="bebop">
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/> <!-- we did not include log before -->
+    </target>
+    <target name="nps" board="pc">
+      <module name="fdm" type="gazebo"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/home/guido/paparazzi/images/"/>
+      <define name="FILE_LOGGER_PATH" value="/home/guido/paparazzi/log/"/>
+    </target>
 
     <define name="USE_SONAR"/>
 
@@ -14,30 +22,104 @@
     <module name="imu" type="bebop"/>
     <module name="gps" type="datalink"/>
     <module name="stabilization" type="indi_simple"/>
+
+<!--
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
       <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
     </module>
-    <module name="ins" type="extended"/>
+    <module name="ins" type="extended"/> 
+-->
+
+    <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+    <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+
+    <module name="ins" type="flow"/>
+
     <!-- Disable use of GPS: -->
     <!--    <define name="INS_INT_GPS_ID" value="ABI_DISABLE"/>
     </module> -->
 
-    <module name="bebop_cam"/>
+    <!-- <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="gps" type="ubx_ucenter"/> -->
+
+    <module name="bebop_cam">
+      <!-- IMPORTANT to limit these or FPS drops significantly -->
+      <!-- <define name="MT9F002_TARGET_FPS" value="30"/> --> <!-- Front cam -->
+      <define name="MT9V117_TARGET_FPS" value="90"/> <!-- Bottom cam -->
+    </module>
+    <module name="pose_history"/>
+
+    <module name="logger_file">
+      <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
+	  <!-- <define name="LOGGER_FILE_PATH" value="/home/guido/paparazzi/log"/> -->
+    </module>
+
 
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
+
       <define name="MAX_HORIZON" value="10"/>
+      <define name="OPTICFLOW_FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
+      <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
+      <define name="OPTICFLOW_FOV_W" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
+      <define name="OPTICFLOW_FOV_H" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
+
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit--> 
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS" value="20"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="0"/>
+      <define name="OPTICFLOW_FPS" value="0"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW" value="1"/>
+
+	<!--
+      <define name="OPTICFLOW_CAMERA2" value="front_camera"/>
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="0.8"/>
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="0.85"/>
+      <configure name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="20"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_FPS_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL_CAMERA2" value="0"/>
+      <define name="OPTICFLOW_SHOW_FLOW_CAMERA2" value="1"/> -->
     </module>
 
-    <!-- <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
+      <define name="VIEWVIDEO_FPS" value="5"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
-    </module> -->    
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+    </module>
+
+
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+    </module>
+
+    <!-- TODO: perhaps grey because of placement after optical flow?     -->
+    <module name="cv_textons.xml">
+      <define name="TEXTONS_FPS" value="1"/>
+      <define name="TEXTONS_CAMERA" value="bottom_camera"/>
+      <define name="TEXTONS_N_TEXTONS" value="20"/>
+      <define name="TEXTONS_DICTIONARY_PATH" value="/data/ftp/internal_000"/>
+    </module>
+
+
+    <module name="optical_flow_landing.xml">
+	<define name="OFL_COV_SETPOINT" value="-0.075"/>
+	<define name="OFL_PGAIN" value="0.15"/>
+	<define name="OFL_IGAIN" value="0.005"/>
+	<define name="OFL_LP_CONST" value="0.033"/>
+	<define name="OFL_CLOSE_TO_EDGE" value="0.025"/>
+	<define name="OFL_IGAIN_ADAPTIVE" value="0.10"/>
+	<define name="OFL_CONTROL_METHOD" value="0"/> <!-- 1 is adaptive gain -->
+	<define name="OFL_P_LAND_THRESHOLD" value="0.25"/> 
+	<define name="OFL_COV_LANDING_LIMIT" value="10.0"/>
+    </module>
+    
   </firmware>
 
   <commands>
@@ -70,6 +152,19 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="240" />
+    <define name="OUTPUT_WIDTH" value="240" />
+    <define name="OFFSET_X" value="0.14" />
+    <define name="ZOOM" value="3.2"/>
+    <!--define name="GAIN_GREEN1" value="10.0"/>
+    <define name="GAIN_GREEN2" value="10.0"/>
+    <define name="GAIN_BLUE" value="12.5"/>
+    <define name="GAIN_RED" value="9.0"/-->
+    <define name="TARGET_EXPOSURE" value="10" />
+  </section>
+
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>
     <define name="CALC_TAS_FACTOR" value="FALSE"/>
@@ -84,30 +179,36 @@
     <define name="MAG_X_SENS" value="7.28514789391" integer="16"/>
     <define name="MAG_Y_SENS" value="7.33022132691" integer="16"/>
     <define name="MAG_Z_SENS" value="7.57102035692" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="62"/>
+    <define name="ACCEL_Y_NEUTRAL" value="1"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-35"/>
+    <define name="ACCEL_X_SENS" value="2.43379017884412" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44705938467942" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.4327471718063234" integer="16"/>
   </section>
 
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
+<!--
   <section name="AHRS" prefix="AHRS_">
-    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/> 
-    <!-- Delft -->
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
   </section>
-
+-->
+<!--
   <section name="INS" prefix="INS_">
     <define name="USE_GPS_ALT" value="1"/>
-    <!-- trust GPS a lot: -->
     <define name="VFF_R_GPS" value="0.01"/> 
     <define name="VFF_VZ_R_GPS" value="0.01"/>     
     <define name="SONAR_MIN_RANGE" value="0.0"/>
-    <define name="SONAR_MAX_RANGE" value="3.5"/>
-
+    <define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="FALSE"/>
   </section>
-
+-->
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
@@ -118,6 +219,14 @@
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
   </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <!--define name="JSBSIM_MODEL" value="bebop" type="string"/-->
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="MT9F002_SENSOR_RES_DIVIDER" value="4"/>
+  </section>
+  <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 
   <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
     <!-- attitude reference generation model -->
@@ -141,8 +250,17 @@
     <!-- control effectiveness, can be obtained by switching on "adaptive" in the indi settings -->
     <define name="G1_P" value="0.100"/>
     <define name="G1_Q" value="0.050"/>
-    <define name="G1_R" value="0.0010"/>
+    <define name="G1_R" value="0.0075"/>
     <define name="G2_R" value="0.236"/>
+
+
+
+    <!-- Here it is assumed that your removed the damping from your bebop2!
+         The dampers do not really damp, but cause oscillation. By removing/
+         fixing them, the bebop2 will fly much better-->
+    <define name="FILTER_ROLL_RATE" value="FALSE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <!--define name="FILTER_YAW_RATE" value="FALSE"/-->
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -152,7 +270,16 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
-	  <define name="FILT_CUTOFF" value="3.2"/>
+    <!-- second order filter parameters -->
+    <!-- old?
+	<define name="FILT_OMEGA" value="20.0"/>
+    <define name="FILT_ZETA" value="0.7"/>
+    <define name="FILT_OMEGA_R" value="20.0"/>
+    <define name="FILT_ZETA_R" value="0.7"/>
+	-->
+
+	<define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>
@@ -182,13 +309,13 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <define name="MAX_BANK" value="35" unit="deg"/>
     <define name="PGAIN" value="82"/> <!-- GPS: 120 no GPS: 0--> 
-    <define name="DGAIN" value="68"/> <!-- GPS: 80 no GPS: 302-->
+    <define name="DGAIN" value="102"/> <!-- GPS: 80 no GPS: 302-->
     <define name="IGAIN" value="10"/> <!-- GPS: 30 no GPS: 0-->
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define name="CLIMB_VSPEED" value="0.5"/>
-    <define name="DESCEND_VSPEED" value="-0.5"/>
+    <define name="CLIMB_VSPEED" value="1.0"/>
+    <define name="DESCEND_VSPEED" value="-0.75"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -197,18 +324,41 @@
   </section>
 
   <section name="AUTOPILOT">
+
+<!--
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO1" value="AP_MODE_NAV"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+-->
 
-    <!--
+<!--
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_MODULE"/>
+    <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+-->
+
+<!--
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+-->
+
+
+
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_MANUAL" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
     <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT"/>
-    -->
+
+
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+  <section name="GCS">
+    <define name="AC_ICON"             value="quadrotor_x"/>
   </section>
 
   <section name="BAT">
