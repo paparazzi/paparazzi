@@ -297,7 +297,7 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 void vertical_ctrl_agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 // Callback function of the optical flow estimate:
 void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x,
-                                   int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence, uint8_t camera_id);
+                                   int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
 
 // common functions for different landing strategies:
 static void set_cov_div(int32_t thrust);
@@ -1096,14 +1096,13 @@ void vertical_ctrl_agl_cb(uint8_t sender_id UNUSED, __attribute__((unused)) uint
   of_landing_ctrl.agl = distance;
 }
 
-void vertical_ctrl_optical_flow_cb(uint8_t sender_id UNUSED, uint32_t stamp,
+void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
                                    int32_t flow_x UNUSED, int32_t flow_y UNUSED,
                                    int32_t flow_der_x UNUSED, int32_t flow_der_y UNUSED,
-                                   float quality UNUSED, float size_divergence,
-                                   uint8_t camera_id)
+                                   float quality UNUSED, float size_divergence)
 {
 
-  if (camera_id == 0) {
+  if (sender_id == FLOW_OPTICFLOW_ID + 0) { // 0 = bottom 1 = front
     optical_flow_x = ((float)flow_der_x) / 10.0;
     optical_flow_y = ((float)flow_der_y) / 10.0;
     divergence_vision = size_divergence;

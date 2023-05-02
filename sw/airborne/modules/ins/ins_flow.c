@@ -103,7 +103,6 @@ PRINT_CONFIG_VAR(INS_RPM_ID)
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event gps_ev;
-static abi_event body_to_imu_ev;
 static abi_event ins_optical_flow_ev;
 static abi_event ins_RPM_ev;
 static abi_event aligner_ev;
