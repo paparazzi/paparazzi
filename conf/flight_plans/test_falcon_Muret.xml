@@ -2,8 +2,11 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 <flight_plan alt="215" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="400" name="Muret test wind quad" security_height="1" wp_frame="ltp">
   <header>
-#include "autopilot.h"
-</header>
+    #if DIGITAL_CAM
+    #define LINE_START_FUNCTION dc_Survey(20);
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
+  </header>
   <waypoints>
     <waypoint name="HOME" x="-8.1" y="9.8"/>
     <waypoint name="CLIMB" x="-28.0" y="29.0"/>
@@ -95,7 +98,7 @@
     </block>
     <block name="Carto Oval" strip_button="Carto Oval">
       <oval p1="p2" p2="p1" radius="nav.radius" until="NavOvalCount @GEQ 2"/>
-      <oval p1="p4" p2="p4" radius="nav.radius" until="NavOvalCount @GEQ 2"/>
+      <oval p1="p3" p2="p4" radius="nav.radius" until="NavOvalCount @GEQ 2"/>
       <deroute block="Standby"/>
     </block>
     <block name="Land (module)" strip_button="Land (module)" group="module">
