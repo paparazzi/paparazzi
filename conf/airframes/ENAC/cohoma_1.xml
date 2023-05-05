@@ -35,7 +35,7 @@
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
 
       <module name="extra_dl">
-        <configure name="EXTRA_DL_PORT" value="uart6"/>
+        <configure name="EXTRA_DL_PORT" value="uart3"/>
         <configure name="EXTRA_DL_BAUD" value="B57600"/>
       </module>
 
@@ -195,12 +195,12 @@
     <define name= "MAG_Y_CURRENT_COEF" value="-32.4484676944"/>
     <define name= "MAG_Z_CURRENT_COEF" value="-1421.95651899"/>
 
-    <define name="MAG_X_NEUTRAL" value="4152"/>
-    <define name="MAG_Y_NEUTRAL" value="2373"/>
-    <define name="MAG_Z_NEUTRAL" value="-2024"/>
-    <define name="MAG_X_SENS" value="0.6692789834997918" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6634684243757104" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6746258706464897" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="462"/>
+    <define name="MAG_Y_NEUTRAL" value="328"/>
+    <define name="MAG_Z_NEUTRAL" value="-967"/>
+    <define name="MAG_X_SENS" value="0.6419609542200897" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.646263518106704" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6330853494804739" integer="16"/>
 
     <define name="ACCEL_X_SIGN" value="1"/>
     <define name="ACCEL_Y_SIGN" value="1"/>
