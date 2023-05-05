@@ -33,7 +33,6 @@ let soi = string_of_int
 
 let home = Env.paparazzi_home
 let (//) = Filename.concat
-let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps"
 let layout_path = home // "conf" // "gcs"
 let var_maps_path = home // "var" // "maps"
@@ -628,7 +627,6 @@ let () =
     Ivy.start !ivy_bus
   end;
 
-  Srtm.add_path default_path_srtm;
   Gm.cache_path := var_maps_path;
   IGN.cache_path := var_maps_path;
 

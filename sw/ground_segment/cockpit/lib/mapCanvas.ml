@@ -45,8 +45,6 @@ type meter = float
 
 let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
 
-let _ = Srtm.add_path "SRTM"
-
 let affine_pos_and_angle ?(z = 1.) xw yw angle =
   let cos_a = cos angle in
   let sin_a = sin angle in

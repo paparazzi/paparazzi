@@ -46,6 +46,9 @@ let paparazzi_conf = paparazzi_home // "conf"
 let flight_plans_path = paparazzi_conf // "flight_plans"
 let flight_plan_dtd = flight_plans_path // "flight_plan.dtd"
 
+let srtm_path = paparazzi_home // "data" // "srtm"
+let srtm_pprzgcs_path = (Sys.getenv "HOME") // ".local" // "share" // "pprzgcs" // "srtm"
+
 (** Returns the list of directories where to look for modules
  * Default PAPARAZZI_HOME/conf/modules is always returned
  * Extra directories can be added with PAPARAZZI_MODULES_PATH
