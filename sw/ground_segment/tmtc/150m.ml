@@ -6,8 +6,6 @@
 
 let (//) = Filename.concat
 
-let srtm_path = Env.paparazzi_home // "data" // "srtm"
-
 (* Hard coded id of the A/C *)
 let ac_id = "1"
 
@@ -77,9 +75,6 @@ let () =
 
   (* And a button *)
   let button = GButton.button ~label:"HOME" ~packing:hbox#add () in
-
-  (* Add the appriopriate path to the SRTM tiles *)
-  Srtm.add_path srtm_path;
 
   (* Listen GPS message *)
   ignore (Tele_Pprz.message_bind "GPS" (get_gps_message label));

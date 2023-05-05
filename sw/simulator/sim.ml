@@ -115,7 +115,6 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
   let alt0 =
     let ground_alt =
-      Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
       try
         float (Srtm.of_wgs84 !pos0)
       with Srtm.Tile_not_found x ->

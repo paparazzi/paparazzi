@@ -51,7 +51,6 @@ let dl_id = "ground_dl" (* Hack, should be [my_id] *)
 let (//) = Filename.concat
 let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
-let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
 let get_indexed_value = fun ?(text="UNK") t i ->
   if i >= 0 then t.(i) else text
@@ -972,7 +971,6 @@ let () =
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";
 
-  Srtm.add_path srtm_path;
   Ivy.init "Paparazzi server" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 

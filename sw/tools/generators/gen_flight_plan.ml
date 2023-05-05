@@ -101,7 +101,6 @@ let security_height = ref 0.
 let fp_wgs84 = ref { posn_lat = 0.; posn_long = 0.}
 
 let check_altitude_srtm = fun a x wgs84 ->
-  Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
   try
     let srtm_alt = float (Srtm.of_wgs84 wgs84) in
     if a < srtm_alt then begin (* Not fully correct, Flightplan "alt" is not alt as we know it *)
