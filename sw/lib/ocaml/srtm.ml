@@ -43,7 +43,7 @@ let tile_size_gl1 = 3601
 let htiles = Hashtbl.create 13
 
 (* Path to data files *)
-let path = ref ["."]
+let path = ref ["."; Env.srtm_pprzgcs_path; Env.srtm_path]
 
 let add_path = fun p -> path := p :: !path
 
