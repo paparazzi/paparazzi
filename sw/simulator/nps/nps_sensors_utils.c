@@ -8,7 +8,7 @@ void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history, do
   /* add new reading */
   struct BoozDatedSensor *cur_read = g_new(struct BoozDatedSensor, 1);
   cur_read->time = time;
-  cur_read->value = (struct DoubleVect3 *) g_memdup(cur_reading, sizeof(struct DoubleVect3));
+  cur_read->value = (struct DoubleVect3 *) g_memdup2(cur_reading, sizeof(struct DoubleVect3));
   *history = g_slist_prepend(*history, cur_read);
   /* remove old readings */
   GSList *last =  g_slist_last(*history);
@@ -30,7 +30,7 @@ void UpdateSensorLatency_Single(double time, gpointer cur_reading, GSList **hist
   /* add new reading */
   struct BoozDatedSensor_Single *cur_read = g_new(struct BoozDatedSensor_Single, 1);
   cur_read->time = time;
-  cur_read->value = (double *) g_memdup(cur_reading, sizeof(double));
+  cur_read->value = (double *) g_memdup2(cur_reading, sizeof(double));
   *history = g_slist_prepend(*history, cur_read);
   /* remove old readings */
   GSList *last =  g_slist_last(*history);
