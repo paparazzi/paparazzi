@@ -34,7 +34,7 @@ Q=@
 
 # flags for warnings (C and C++)
 WARN_FLAGS += -W -Wall -Wextra
-WARN_FLAGS += -Wunused -Wcast-align -Wpointer-arith -Wmissing-declarations
+WARN_FLAGS += -Wunused -Wcast-align -Wpointer-arith -Wmissing-declarations -Wno-stringop-overflow
 #WARN_FLAGS += -Wcast-qual
 #WARN_FLAGS += -Wredundant-decls
 #WARN_FLAGS += -Wshadow
