@@ -818,40 +818,40 @@ void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect
  * obtained from: http://rodolphe-vaillant.fr/?e=7
  */
 
-static float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
+static float float_mat_minor_4d(float m[4][4], int r0, int r1, int r2, int c0, int c1, int c2)
 {
-  return m[4 * r0 + c0] * (m[4 * r1 + c1] * m[4 * r2 + c2] - m[4 * r2 + c1] * m[4 * r1 + c2]) -
-         m[4 * r0 + c1] * (m[4 * r1 + c0] * m[4 * r2 + c2] - m[4 * r2 + c0] * m[4 * r1 + c2]) +
-         m[4 * r0 + c2] * (m[4 * r1 + c0] * m[4 * r2 + c1] - m[4 * r2 + c0] * m[4 * r1 + c1]);
+  return m[r0][c0] * (m[r1][c1] * m[r2][c2] - m[r2][c1] * m[r1][c2]) -
+         m[r0][c1] * (m[r1][c0] * m[r2][c2] - m[r2][c0] * m[r1][c2]) +
+         m[r0][c2] * (m[r1][c0] * m[r2][c1] - m[r2][c0] * m[r1][c1]);
 }
 
 
-static void float_mat_adjoint_4d(float adjOut[16], float m[16])
+static void float_mat_adjoint_4d(float adjOut[4][4], float m[4][4])
 {
-  adjOut[ 0] =  float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3);
-  adjOut[ 1] = -float_mat_minor_4d(m, 0, 2, 3, 1, 2, 3);
-  adjOut[ 2] =  float_mat_minor_4d(m, 0, 1, 3, 1, 2, 3);
-  adjOut[ 3] = -float_mat_minor_4d(m, 0, 1, 2, 1, 2, 3);
-  adjOut[ 4] = -float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3);
-  adjOut[ 5] =  float_mat_minor_4d(m, 0, 2, 3, 0, 2, 3);
-  adjOut[ 6] = -float_mat_minor_4d(m, 0, 1, 3, 0, 2, 3);
-  adjOut[ 7] =  float_mat_minor_4d(m, 0, 1, 2, 0, 2, 3);
-  adjOut[ 8] =  float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3);
-  adjOut[ 9] = -float_mat_minor_4d(m, 0, 2, 3, 0, 1, 3);
-  adjOut[10] =  float_mat_minor_4d(m, 0, 1, 3, 0, 1, 3);
-  adjOut[11] = -float_mat_minor_4d(m, 0, 1, 2, 0, 1, 3);
-  adjOut[12] = -float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
-  adjOut[13] =  float_mat_minor_4d(m, 0, 2, 3, 0, 1, 2);
-  adjOut[14] = -float_mat_minor_4d(m, 0, 1, 3, 0, 1, 2);
-  adjOut[15] =  float_mat_minor_4d(m, 0, 1, 2, 0, 1, 2);
+  adjOut[0][0] =  float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3);
+  adjOut[0][1] = -float_mat_minor_4d(m, 0, 2, 3, 1, 2, 3);
+  adjOut[0][2] =  float_mat_minor_4d(m, 0, 1, 3, 1, 2, 3);
+  adjOut[0][3] = -float_mat_minor_4d(m, 0, 1, 2, 1, 2, 3);
+  adjOut[1][0] = -float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3);
+  adjOut[1][1] =  float_mat_minor_4d(m, 0, 2, 3, 0, 2, 3);
+  adjOut[1][2] = -float_mat_minor_4d(m, 0, 1, 3, 0, 2, 3);
+  adjOut[1][3] =  float_mat_minor_4d(m, 0, 1, 2, 0, 2, 3);
+  adjOut[2][0] =  float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3);
+  adjOut[2][1] = -float_mat_minor_4d(m, 0, 2, 3, 0, 1, 3);
+  adjOut[2][2] =  float_mat_minor_4d(m, 0, 1, 3, 0, 1, 3);
+  adjOut[2][3] = -float_mat_minor_4d(m, 0, 1, 2, 0, 1, 3);
+  adjOut[3][0] = -float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
+  adjOut[3][1] =  float_mat_minor_4d(m, 0, 2, 3, 0, 1, 2);
+  adjOut[3][2] = -float_mat_minor_4d(m, 0, 1, 3, 0, 1, 2);
+  adjOut[3][3] =  float_mat_minor_4d(m, 0, 1, 2, 0, 1, 2);
 }
 
-static float float_mat_det_4d(float m[16])
+static float float_mat_det_4d(float m[4][4])
 {
-  return m[0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
-         m[1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
-         m[2] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3) -
-         m[3] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
+  return m[0][0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
+         m[0][1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
+         m[0][2] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3) -
+         m[0][3] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
 }
 
 /**
@@ -860,7 +860,7 @@ static float float_mat_det_4d(float m[16])
  * @param invOut output array, inverse of mat_in
  * @param mat_in input array
  */
-bool float_mat_inv_4d(float invOut[16], float mat_in[16])
+bool float_mat_inv_4d(float invOut[4][4], float mat_in[4][4])
 {
   float_mat_adjoint_4d(invOut, mat_in);
 
@@ -869,8 +869,11 @@ bool float_mat_inv_4d(float invOut[16], float mat_in[16])
 
   float inv_det = 1.0f / det;
   int i;
-  for (i = 0; i < 16; ++i) {
-    invOut[i] = invOut[i] * inv_det;
+  for (i = 0; i < 4; ++i) {
+    invOut[0][i] = invOut[0][i] * inv_det;
+    invOut[1][i] = invOut[1][i] * inv_det;
+    invOut[2][i] = invOut[2][i] * inv_det;
+    invOut[3][i] = invOut[3][i] * inv_det;
   }
 
   return 0; //success
