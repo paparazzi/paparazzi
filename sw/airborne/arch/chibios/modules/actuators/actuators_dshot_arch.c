@@ -27,6 +27,7 @@
 
 #include "modules/actuators/actuators_dshot.h"
 #include "modules/actuators/esc_dshot.h"
+#include "modules/core/abi.h"
 #include "mcu_periph/ram_arch.h"
 #include "mcu_periph/gpio.h"
 #include BOARD_CONFIG
@@ -320,4 +321,13 @@ void actuators_dshot_arch_commit(void)
 #if DSHOT_CONF_TIM9
   dshotSendFrame(&DSHOTD9);
 #endif
+
+  uint16_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
+  for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
+    if (actuators_dshot_values[i].activated) {
+      const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
+      rpm_list[i] = dtelem->rpm;
+    }
+  }
+  AbiSendMsgRPM(RPM_DSHOT_ID, rpm_list, ACTUATORS_DSHOT_NB);
 }
