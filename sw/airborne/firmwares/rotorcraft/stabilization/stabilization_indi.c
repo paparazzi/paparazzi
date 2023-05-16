@@ -139,7 +139,7 @@ static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
 #ifdef STABILIZATION_INDI_WLS_WU
 float indi_Wu[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
 #else
-float indi_Wu[INDI_NUM_ACT] = {1.0};
+float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT-1] = 1.0};
 #endif
 
 // variables needed for control
