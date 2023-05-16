@@ -364,45 +364,64 @@
 /*
  * SERIAL driver system settings.
  */
+#ifndef STM32_SERIAL_USE_USART1
 #if USE_UART1
 #define STM32_SERIAL_USE_USART1             TRUE
 #else
 #define STM32_SERIAL_USE_USART1             FALSE
 #endif
+#endif
+
+#ifndef STM32_SERIAL_USE_USART2
 #if USE_UART2
 #define STM32_SERIAL_USE_USART2             TRUE
 #else
 #define STM32_SERIAL_USE_USART2             FALSE
 #endif
+#endif
+
+#ifndef STM32_SERIAL_USE_USART3
 #if USE_UART3
 #define STM32_SERIAL_USE_USART3             TRUE
 #else
 #define STM32_SERIAL_USE_USART3             FALSE
 #endif
+#endif
+
+#ifndef STM32_SERIAL_USE_UART4
 #if USE_UART4
 #define STM32_SERIAL_USE_UART4              TRUE
 #else
 #define STM32_SERIAL_USE_UART4              FALSE
 #endif
-#if USE_UART5
-#define STM32_SERIAL_USE_UART5              TRUE
-#else
-#define STM32_SERIAL_USE_UART5              FALSE
 #endif
+
+#ifndef STM32_SERIAL_USE_UART5
+#define STM32_SERIAL_USE_UART5              TRUE // enabled by default for dshot telemetry
+#endif
+
+#ifndef STM32_SERIAL_USE_USART6
 #if USE_UART6
 #define STM32_SERIAL_USE_USART6             TRUE
 #else
 #define STM32_SERIAL_USE_USART6             FALSE
 #endif
+#endif
+
+#ifndef STM32_SERIAL_USE_UART7
 #if USE_UART7
 #define STM32_SERIAL_USE_UART7              TRUE
 #else
 #define STM32_SERIAL_USE_UART7              FALSE
 #endif
+#endif
+
+#ifndef STM32_SERIAL_USE_UART8
 #if USE_UART8
 #define STM32_SERIAL_USE_UART8              TRUE
 #else
 #define STM32_SERIAL_USE_UART8              FALSE
+#endif
 #endif
 
 /*

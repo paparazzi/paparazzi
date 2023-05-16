@@ -46,7 +46,15 @@
 #define ACTUATORS_DSHOT_NB (8+1)
 #endif
 
-extern uint16_t actuators_dshot_values[ACTUATORS_DSHOT_NB];
+struct dshot {
+  float cmd;      ///< command
+  float rpm;      ///< rpm
+  float current;  ///< current
+  float voltage;  ///< motor current
+  bool activated; ///< current dshot channel is activated
+};
+
+extern struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
 
 /** Arch dependent init
  */
@@ -55,8 +63,8 @@ extern void actuators_dshot_arch_commit(void);
 
 /* Actuator macros */
 #define ActuatorDShotSet(_i, _v) { \
- if (_v == 0) { actuators_dshot_values[_i] = 0; } \
- else { actuators_dshot_values[_i] = _v + ACTUATORS_DSHOT_OFFSET; } \
+ if (_v == 0) { actuators_dshot_values[_i].cmd  = 0; } \
+ else { actuators_dshot_values[_i].cmd = _v + ACTUATORS_DSHOT_OFFSET; } \
 }
 #define ActuatorsDShotInit() actuators_dshot_arch_init()
 #define ActuatorsDShotCommit() actuators_dshot_arch_commit()
