@@ -35,12 +35,18 @@
 #define INDI_OUTPUTS 4
 
 void test_overdetermined(void);
+void test_overdetermined2(void);
 void calc_nu_out(float** Bwls, float* du, float* nu_out);
 
 int main(int argc, char **argv)
 {
-#define INDI_NUM_ACT 6
-  test_overdetermined();
+// #define INDI_NUM_ACT 6
+  // test_overdetermined();
+
+  // Make sure to set CA_N_U to 8 in the test makefile!
+  #define INDI_NUM_ACT 8
+  test_overdetermined2();
+
 /*#define INDI_NUM_ACT 4*/
   /*test_four_by_four();*/
 }
@@ -154,11 +160,78 @@ void test_overdetermined(void)
 }
 
 /*
+ * function to test wls for an overdetermined 4x6 (outputs x inputs) system
+ */
+void test_overdetermined2(void)
+{
+  float u_min[INDI_NUM_ACT] = {0};
+  float u_max[INDI_NUM_ACT] = {0};
+  float du_min[INDI_NUM_ACT] = {1500.0, 1500.0, 1500.0, 1500.0, -9600.0, -9600.0, -9600.0, -9600.0};
+  float du_max[INDI_NUM_ACT] = {9600.0, 9600.0, 9600.0, 9600.0, 9600.0, 9600.0, 9600.0, 9600.0};
+
+  float u_p[INDI_NUM_ACT] = {0};
+
+  printf("lower and upper bounds for du:\n");
+
+  uint8_t k;
+  for(k=0; k<INDI_NUM_ACT; k++) {
+    printf("%f ", du_min[k]);
+    printf("%f \n", du_max[k]);
+  }
+
+  printf("\n");
+
+float g1g2[INDI_OUTPUTS][INDI_NUM_ACT] = {
+   { 0.3310,   -0.3310,    0.8930,   -0.8930,         0,         0,         0,         0},
+   { 0.4650,    0.4650,   -0.9300,   -0.9300,   -0.2240,   -0.2240,   -0.2240,   -0.2240},
+   {      0,         0,         0,         0,    0.2150,   -0.2150,   -0.2150,    0.2150},
+   {-0.3700,   -0.3700,   -0.5500,   -0.5500,         0,         0,         0,         0}
+};
+uint8_t i,j;
+for (i=0; i< INDI_OUTPUTS;i++) {
+  for (j=0; j< INDI_NUM_ACT;j++) {
+    g1g2[i][j] = g1g2[i][j]/1000.0f;
+  }
+}
+
+  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+  static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+
+  // The control objective in array format
+  float indi_v[INDI_OUTPUTS] = {0.0712,    0.5877,    0.1185,   -0.2238};
+  // float indi_v[INDI_OUTPUTS] = {0.0738,    0.5876,    0.1187,   -0.2237};
+  float indi_du[INDI_NUM_ACT];
+
+  // Initialize the array of pointers to the rows of g1g2
+  float *Bwls[INDI_OUTPUTS];
+  for (i = 0; i < INDI_OUTPUTS; i++) {
+    Bwls[i] = g1g2[i];
+  }
+
+  float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT-1] = 1.0};
+
+  // WLS Control Allocator
+  int num_iter =
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, u_p, 0, 15);
+
+  printf("finished in %d iterations\n", num_iter);
+
+  float nu_out[4] = {0.0f};
+  calc_nu_out(Bwls, indi_du, nu_out);
+
+  printf("du                 = %f, %f, %f, %f, %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3], indi_du[4], indi_du[5], indi_du[6], indi_du[7]);
+  // Precomputed solution' in Matlab for this problem using lsqlin:
+  // printf("du (matlab_lsqlin) = %f, %f, %f, %f, %f, %f\n", -4614.0, 426.064612091305, 5390.0, -4614.0, -4210.0, 5390.0);
+    printf("nu_in = %f, %f, %f, %f\n", indi_v[0], indi_v[1], indi_v[2], indi_v[3]);
+  printf("nu_out = %f, %f, %f, %f\n", nu_out[0], nu_out[1], nu_out[2], nu_out[3]);
+}
+
+/*
  * Calculate the achieved control objective for some calculated control input
  */
 void calc_nu_out(float** Bwls, float* du, float* nu_out) {
 
-  for(int i=0; i<4; i++) {
+  for(int i=0; i<INDI_OUTPUTS; i++) {
     nu_out[i] = 0;
     for(int j=0; j<INDI_NUM_ACT; j++) {
       nu_out[i] += Bwls[i][j] * du[j];
