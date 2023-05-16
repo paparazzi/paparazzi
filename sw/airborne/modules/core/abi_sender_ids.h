@@ -463,6 +463,10 @@
 #define RPM_SENSOR_ID 1
 #endif
 
+#ifndef RPM_DSHOT_ID
+#define RPM_DSHOT_ID 2
+#endif
+
 /*
  * IDs of THRUST increment calculation (message 16)
  */
