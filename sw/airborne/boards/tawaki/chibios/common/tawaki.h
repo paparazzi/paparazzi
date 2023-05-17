@@ -378,9 +378,21 @@
 /**
  * DSHOT
  */
-#ifndef DSHOT_TELEMETRY_DEV
-#define DSHOT_TELEMETRY_DEV NULL
+#ifdef DSHOT_TIM4_TELEMETRY_NUM
+#define DSHOT_TIM4_TELEMETRY_DEV CONCAT_BOARD_PARAM(&SD, DSHOT_TIM4_TELEMETRY_NUM)
+#else
+#define DSHOT_TIM4_TELEMETRY_DEV NULL
 #endif
+
+#ifdef DSHOT_TIM1_TELEMETRY_NUM
+#define DSHOT_TIM1_TELEMETRY_DEV CONCAT_BOARD_PARAM(&SD, DSHOT_TIM1_TELEMETRY_NUM)
+#else
+#define DSHOT_TIM1_TELEMETRY_DEV NULL
+#endif
+
+// macros for possible dshot telemetry
+#define DSHOT_TLM_RX 5
+#define DSHOT_TLM_AUX_RX 4
 
 #ifndef USE_DSHOT_TIM4
 #define USE_DSHOT_TIM4 1 // use SRVb for DShot by default
@@ -422,7 +434,7 @@
   .dma_stream = STM32_PWM4_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM4_UP_DMA_CHANNEL, \
   .pwmp = &PWMD4,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .tlm_sd = DSHOT_TIM4_TELEMETRY_DEV,       \
   .dma_buf = &dshot4DmaBuffer,              \
   .dcache_memory_in_use = false             \
 }
@@ -464,7 +476,7 @@
   .dma_stream = STM32_PWM1_UP_DMA_STREAM,   \
   .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \
   .pwmp = &PWMD1,                           \
-  .tlm_sd = DSHOT_TELEMETRY_DEV,            \
+  .tlm_sd = DSHOT_TIM1_TELEMETRY_DEV,       \
   .dma_buf = &dshot1DmaBuffer,              \
   .dcache_memory_in_use = false             \
 }
@@ -509,6 +521,14 @@
 #define UART4_GPIO_PORT_RX  PAL_PORT(LINE_AUX_A2)
 #define UART4_GPIO_RX       PAL_PAD(LINE_AUX_A2)
 #define UART4_GPIO_AF       AUX_A1_UART_AF
+
+/**
+ * UART5 on SRVB (DSHOT telemetry)
+ */
+
+#define UART5_GPIO_PORT_RX  PAL_PORT(LINE_DSHOT_RX)
+#define UART5_GPIO_RX       PAL_PAD(LINE_DSHOT_RX)
+#define UART5_GPIO_AF       AF_DSHOT_RX
 
 /**
  * SBUS / Spektrum port
