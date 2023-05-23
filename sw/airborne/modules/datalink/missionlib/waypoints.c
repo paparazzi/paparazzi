@@ -33,6 +33,7 @@
 
 // include mavlink headers, but ignore some warnings
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #include "mavlink/paparazzi/mavlink.h"
 #pragma GCC diagnostic pop
@@ -61,7 +62,8 @@ static void mavlink_send_wp(uint8_t sysid, uint8_t compid, uint16_t seq)
                                   0, 0, 0, 0, // params
                                   WaypointX(seq),
                                   WaypointY(seq),
-                                  WaypointAlt(seq));
+                                  WaypointAlt(seq),
+                                  MAV_MISSION_TYPE_MISSION);
 #else
     /* for rotorcraft firmware use waypoint API and send as lat/lon */
     /* sending lat/lon as float is actually a bad idea,
@@ -79,7 +81,8 @@ static void mavlink_send_wp(uint8_t sysid, uint8_t compid, uint16_t seq)
                                   0, 0, 0, 0, // params
                                   (float)lla->lat / 1e7,
                                   (float)lla->lon / 1e7,
-                                  (float)lla->alt / 1e3);
+                                  (float)lla->alt / 1e3,
+                                  MAV_MISSION_TYPE_MISSION);
 #endif
     MAVLinkSendMessage();
     MAVLINK_DEBUG("Sent MISSION_ITEM message with seq %i\n", seq);
@@ -106,7 +109,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
             mission_mgr.rem_sysid = msg->sysid;
             mission_mgr.rem_compid = msg->compid;
           }
-          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT);
+          mavlink_msg_mission_count_send(MAVLINK_COMM_0, msg->sysid, msg->compid, NB_WAYPOINT, MAV_MISSION_TYPE_MISSION);
           MAVLinkSendMessage();
 
           // Register the timeout timer (it is continuous so it needs to be cancelled after triggering)
@@ -178,7 +181,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       }
       /* valid initiation of waypoint write transaction, ask for first waypoint */
       MAVLINK_DEBUG("MISSION_COUNT: Requesting first waypoint\n");
-      mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid, 0);
+      mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid, 0, MAV_MISSION_TYPE_MISSION);
       MAVLinkSendMessage();
 
       mission_mgr.seq = 0;
@@ -256,7 +259,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       if (mission_mgr.state == STATE_IDLE) {
         MAVLINK_DEBUG("Acknowledge single waypoint update\n");
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
         MAVLinkSendMessage();
         mavlink_mission_cancel_timer();
       }
@@ -264,7 +267,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       else if (mission_item.seq == NB_WAYPOINT -1) {
         MAVLINK_DEBUG("Acknowledging end of waypoint write transaction\n");
         mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
         MAVLinkSendMessage();
         mavlink_mission_cancel_timer();
         mission_mgr.state = STATE_IDLE;
@@ -273,7 +276,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
       else {
         MAVLINK_DEBUG("Requesting waypoint %i\n", mission_item.seq + 1);
         mavlink_msg_mission_request_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                         mission_item.seq + 1);
+                                         mission_item.seq + 1, MAV_MISSION_TYPE_MISSION);
         MAVLinkSendMessage();
         mission_mgr.seq = mission_item.seq + 1;
         mavlink_mission_set_timer();
@@ -300,7 +303,7 @@ void mavlink_wp_message_handler(const mavlink_message_t *msg)
           lla.alt = mission_item.z * 1e3; // altitude in millimeters
           waypoint_set_lla(mission_item.seq, &lla);
           mavlink_msg_mission_ack_send(MAVLINK_COMM_0, msg->sysid, msg->compid,
-                                     MAV_MISSION_ACCEPTED);
+                                     MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
           MAVLinkSendMessage();
         }
         else {
