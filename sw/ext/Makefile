@@ -91,7 +91,7 @@ mavlink: mavlink.update mavlink.build
 
 mavlink.build:
 	@echo GENERATE $(PAPARAZZI_SRC)/var/include/mavlink
-	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink python $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --no-validate > /dev/null
+	$(Q)PYTHONPATH=$(EXT_DIR)/mavlink python $(EXT_DIR)/mavlink/pymavlink/tools/mavgen.py --output $(PAPARAZZI_SRC)/var/include/mavlink --lang C $(EXT_DIR)/mavlink/message_definitions/v1.0/paparazzi.xml --wire-protocol 2.0 --no-validate > /dev/null
 
 libsbp: libsbp.update
 
