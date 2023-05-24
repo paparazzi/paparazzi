@@ -94,7 +94,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
  */
 void stabilization_rate_init(void)
 {
-  stabilization_indi_init();
+  // indi init is already done through module init
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RATE_LOOP, send_rate);

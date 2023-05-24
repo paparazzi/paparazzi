@@ -34,10 +34,7 @@
 
 void stabilization_attitude_init(void)
 {
-  // Check if the indi init is already done for rate control
-#ifndef USE_STABILIZATION_RATE_INDI
-  stabilization_indi_init();
-#endif
+  // indi init is already done through module init
 }
 
 void stabilization_attitude_enter(void)
