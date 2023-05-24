@@ -17,6 +17,5 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_rate_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <define name="USE_STABILIZATION_RATE"/>
-    <define name="USE_STABILIZATION_RATE_INDI" value="true"/>
   </makefile>
 </module>
