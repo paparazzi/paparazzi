@@ -20,16 +20,15 @@
         <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
       </module>
 
-      <module name="ctrl_effectiveness_scheduling">
+      <!--module name="ctrl_effectiveness_scheduling">
         <define name="SQUARED_ROLL_EFF" value="0.0018"/>
         <define name="PITCH_EFF_AT_60" value="8.0"/>
         <define name="YAW_EFF_AT_60" value="6.5"/>
-        <!--function of the form: A + B*airspeed^2-->
         <define name="CE_PITCH_A" value="2.4169"/>
         <define name="CE_PITCH_B" value="0.0307"/>
         <define name="CE_YAW_A" value="5.631"/>
         <define name="CE_YAW_B" value="0.0515"/>
-      </module>
+      </module-->
 
       <!--Switch advanced INDI scheduling functions on or off-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
@@ -52,6 +51,11 @@
       <!--Take the mode channel for simulation-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="4"/>
     </target>
+
+    <module name="eff_scheduling_falcon">
+      <define name="EFF_PITCH_A" value="0.35"/>
+      <define name="EFF_YAW_A" value="0.045"/>
+    </module>
 
     <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>

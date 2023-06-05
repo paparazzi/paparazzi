@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2023 Florian Sansou <florian.sansou@enac.fr>
+ * Copyright (C) 2023 Gautier Hattenberger <gautier.hattenberger.fr>
  *
  * This file is part of paparazzi
  *
@@ -18,18 +19,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file "modules/actuators/actuators_dshot_arch.c"
- * @author Gautier Hattenberger
- * Simulation driver for DSHOT speed controller protocol
- * Arch dependent part
+/** @file "modules/ctrl/eff_scheduling_falcon.h"
+ * Interpolation of control effectivenss matrix of the Falcon hybrid plane
  */
 
-#include "modules/actuators/actuators_dshot.h"
+#ifndef EFF_SCHEDULING_FALCON_H
+#define EFF_SCHEDULING_FALCON_H
 
-struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
+extern void ctrl_eff_scheduling_init(void);
+extern void ctrl_eff_scheduling_periodic(void);
+extern void ctrl_eff_scheduling_report(void);
 
-void actuators_dshot_arch_init(void) {}
-
-void actuators_dshot_arch_commit(void) {}
-
+#endif  // EFF_SCHEDULING_FALCON_H

@@ -35,6 +35,10 @@
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
     </module>
 
+    <module name="tag_tracking">
+      <configure name="JEVOIS_UART" value="UART3" description="UART on which Jevois camera is connected"/>
+    </module>
+
 
     <module name="geo_mag"/>
     <module name="air_data"/>
