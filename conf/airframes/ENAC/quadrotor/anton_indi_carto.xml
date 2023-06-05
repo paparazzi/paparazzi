@@ -189,9 +189,9 @@
 
     <!-- Full INDI -->
     <!-- control effectiveness -->
-    <define name="G1_ROLL" value="{-40 , -40, 40 , 40 }"/>
-    <define name="G1_PITCH" value="{40 , -40, -40 , 40 }"/>
-    <define name="G1_YAW" value="{5, -5, 5, -5}"/>
+    <define name="G1_ROLL" value="{-40. , -40., 40. , 40. }"/>
+    <define name="G1_PITCH" value="{40. , -40., -40. , 40. }"/>
+    <define name="G1_YAW" value="{5., -5., 5., -5.}"/>
     <define name="G1_THRUST" value="{-1.5, -1.5, -1.5, -1.5}"/>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{150.0,   -150.0,  150.0,   -150.0 }"/>
@@ -273,7 +273,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw_wind" type="string"/>
+    <define name="JSBSIM_MODEL" value="anton" type="string"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 
