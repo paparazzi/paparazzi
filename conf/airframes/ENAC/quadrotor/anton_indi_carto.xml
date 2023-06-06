@@ -78,7 +78,7 @@
     <module name="agl_dist"/-->
 
     <module name="digital_cam">
-      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO0"/>
+      <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO2"/>
     </module>
 
     <module name="tag_tracking">
