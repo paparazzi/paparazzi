@@ -39,6 +39,9 @@
       <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred (low energy) actuator value. Important when the system is over-determined!"/>
       <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
+      <define name="CTL_ALLOC_ALGO" value="1" description="Algorithm for quadratic allocation: 0 QR_NAIVE, 1 QR, 2 CHOL"/>
+      <define name="CTL_ALLOC_WARMSTART" value="FALSE|TRUE" description="Use warmstarting"/>
+      <define name="CTL_ALLOC_IMAX" description="Max iterations for solving control allocation problem"/>
     </section>
   </doc>
   <settings>
@@ -51,6 +54,11 @@
         <dl_setting var="indi_gains.att.r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R"/>
         <dl_setting var="indi_gains.rate.r" min="0.1" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P"/>
         <dl_setting var="indi_use_adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8"/>
+        <dl_setting var="indi_ctl_alloc_algo" min="0" step="1" max="2" shortname="alloc_algo" param="STABILIZATION_INDI_CTL_ALLOC_ALGO" type="activeSetAlgoChoice"/>
+        <dl_setting var="indi_ctl_alloc_warmstart" min="0" step="1" max="1" shortname="warmstart" values="FALSE|TRUE" param="STABILIZATION_INDI_CTL_ALLOC_WARMSTART" type="uint8"/>
+        <dl_setting var="indi_ctl_alloc_imax" min="1" step="1" max="10" shortname="iter_max" param="STABILIZATION_INDI_CTL_ALLOC_IMAX" type="int"/>
+        <dl_setting var="indi_ctl_alloc_cond_bound" min="1e4" step="1e4" max="1e8" shortname="cond_bound" param="STABILIZATION_INDI_CTL_ALLOC_COND_BOUND" type="float"/>
+        <dl_setting var="indi_ctl_alloc_theta" min="1e-5" step="1e-5" max="1" shortname="theta" param="STABILIZATION_INDI_CTL_ALLOC_THETA" type="float"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -63,6 +71,9 @@
   </header>
   <init fun="stabilization_indi_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
+    <include name="math/ActiveSetCtlAlloc/src/"/>
+    <include name="math/ActiveSetCtlAlloc/src/lib"/>
+    <include name="math/ActiveSetCtlAlloc/src/common"/>
     <file name="stabilization_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
@@ -72,8 +83,8 @@
     <configure name="INDI_NUM_ACT" default="4"/>
     <define name="INDI_OUTPUTS" value="$(INDI_OUTPUTS)"/>
     <define name="INDI_NUM_ACT" value="$(INDI_NUM_ACT)"/>
-    <define name="CA_N_V" value="$(INDI_OUTPUTS)"/>
-    <define name="CA_N_U" value="$(INDI_NUM_ACT)"/>
+    <define name="AS_N_V" value="$(INDI_OUTPUTS)"/>
+    <define name="AS_N_U" value="$(INDI_NUM_ACT)"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
