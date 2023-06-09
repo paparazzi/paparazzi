@@ -84,7 +84,10 @@
       <define name="DEBUG_GPS_UBX_UCENTER" value="TRUE" />
     </module>
     -->
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi">
+      <configure name="INDI_OUTPUTS" value="4"/>
+      <configure name="INDI_NUM_ACTUATOTS" value="4"/>
+    </module>
     <!--
     <module name="stabilization" type="indi"/>
     <module name="stabilization" type="rate_indi"/>
@@ -294,8 +297,8 @@
   <section name="actuator_sizes">
     <define name="INDI_OUTPUTS" value="4"/>
     <define name="INDI_NUM_ACT" value="6"/>
-    <define name="CA_N_V" value="4"/>
-    <define name="CA_N_U" value="6"/>
+    <define name="AS_N_V" value="4"/>
+    <define name="AS_N_U" value="6"/>
   </section>
 
   <section name="CONTROL_EFFECTIVENESS" prefix="LOGGER_CONTROL_EFFECTIVENESS_">

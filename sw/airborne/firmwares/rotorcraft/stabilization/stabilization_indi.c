@@ -609,9 +609,9 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     // scale such that u is between 0 and 1
     bool scale = true;
 
-    num_t B_as[CA_N_V*CA_N_U];
-    int n_v = CA_N_V;
-    int n_u = CA_N_U;
+    num_t B_as[AS_N_V*AS_N_U];
+    int n_v = INDI_OUTPUTS;
+    int n_u = INDI_NUM_ACTUATORS;
     for (int i=0; i<n_v; i++) {
       for (int j=0; j<n_u; j++) {
         if (scale) {
@@ -622,15 +622,15 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
       }
     }
 
-    num_t Wu_as[CA_N_U];
+    num_t Wu_as[AS_N_U];
     for (int i=0; i<n_u; i++)
       Wu_as[i] = sqrtf(indi_Wu[i]);
 
     num_t theta = indi_ctl_alloc_theta;
     num_t cond_bound = indi_ctl_alloc_cond_bound;
 
-    num_t A_as[CA_N_C*CA_N_U];
-    num_t b_as[CA_N_C];
+    num_t A_as[AS_N_C*AS_N_U];
+    num_t b_as[AS_N_C];
 
     // WLS Control Allocator
     // num_iter =
