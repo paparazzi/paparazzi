@@ -23,21 +23,26 @@
 #ifndef STABILIZATION_INDI
 #define STABILIZATION_INDI
 
-#include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
-#include "math/ActiveSetCtlAlloc/src/common/solveActiveSet.h"
+#include "math/lsq_package/common/solveActiveSet.h"
+#include <stdint.h>
+
 #ifdef USE_CHIBIOS_RTOS
 #include <ch.h>
 #endif
 
 // Scaling for the control effectiveness to make it readible
+//#define INDI_G_SCALING (1000.0/9600.0)
 #define INDI_G_SCALING 1000.0
 
 extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 extern float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
 extern float actuator_state_filt_vect[INDI_NUM_ACT];
+extern float indi_v[INDI_OUTPUTS];
+extern float indi_u[INDI_NUM_ACT];
+extern float indi_du[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 extern activeSetAlgoChoice indi_ctl_alloc_algo;
@@ -49,22 +54,21 @@ extern uint16_t indi_ctl_alloc_imax;
 
 extern float *Bwls[INDI_OUTPUTS];
 
-extern float act_pref[INDI_NUM_ACT];
-
 struct Indi_gains {
   struct FloatRates att;
   struct FloatRates rate;
 };
+extern struct FloatRates rate_sp;
+extern struct FloatRates rates_current;
 
 extern struct Indi_gains indi_gains;
 
+float inverse_thrust_transform(float T);
 extern void stabilization_indi_init(void);
 extern void stabilization_indi_enter(void);
 extern void stabilization_indi_set_failsafe_setpoint(void);
 extern void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy);
-extern void stabilization_indi_set_quat_setpoint_i(struct Int32Quat *quat);
 extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-extern void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp);
 extern void stabilization_indi_rate_run(struct FloatRates rate_ref, bool in_flight);
 extern void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight);
 extern void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
