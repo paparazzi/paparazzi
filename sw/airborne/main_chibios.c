@@ -133,6 +133,7 @@ static void thd_ap(void *arg)
     // "Windowed" sleep function, the execution is not blocked until
     // a complet roll-over.
     chThdSleepUntilWindowed(t, t + TIME_US2I(1000000 / CH_CFG_ST_FREQUENCY));
+    //chThdSleepUntilWindowed(t, t + TIME_US2I(10));
   }
 
   chThdExit(0);
@@ -158,6 +159,7 @@ static void thd_recovery(void *arg)
     // "Windowed" sleep function, the execution is not blocked until
     // a complet roll-over.
     chThdSleepUntilWindowed(t, t + TIME_US2I(1000000 / CH_CFG_ST_FREQUENCY));
+    //chThdSleepUntilWindowed(t, t + TIME_US2I(10));
   }
 
   chThdExit(0);
