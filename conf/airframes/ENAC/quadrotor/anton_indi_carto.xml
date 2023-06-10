@@ -139,12 +139,13 @@
     <define name="MAG_X_SIGN" value="1"/>
     <define name="MAG_Y_SIGN" value="1"/>
     <define name="MAG_Z_SIGN" value="1"/>
-    <define name="MAG_X_NEUTRAL" value="-3868"/>
-    <define name="MAG_Y_NEUTRAL" value="2013"/>
-    <define name="MAG_Z_NEUTRAL" value="-101"/>
-    <define name="MAG_X_SENS" value="0.6497766229092939" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6352026516080006" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6627284899394246" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-1541"/>
+    <define name="MAG_Y_NEUTRAL" value="-3324"/>
+    <define name="MAG_Z_NEUTRAL" value="-201"/>
+    <define name="MAG_X_SENS" value="0.6485105436180622" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.6643132864808198" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6675278851185307" integer="16"/>
+
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>

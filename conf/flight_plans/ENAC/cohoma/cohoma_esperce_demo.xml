@@ -40,7 +40,8 @@
   <waypoints>
     <waypoint name="HOME" x="13.191" y="18.494"/>
     <waypoint name="STDBY" x="-38.432" y="-8.551"/>
-    <waypoint name="LANDPAD" x="-48.432" y="-8.551"/>
+    <waypoint name="LANDPAD" x="-48.432" y="2.551"/>
+    <waypoint name="TAG" x="28.432" y="2.551"/>
     <waypoint name="L1_START" x="-66.328" y="23.885"/>
     <waypoint name="L1_END" x="68.051" y="51.579"/>
     <waypoint name="L2_START" x="-70.593" y="50.925"/>
@@ -111,7 +112,7 @@
     </module>
     <module name="tag_tracking">
       <define name="TAG_TRACKING_WP" value="WP_LANDPAD"/>
-      <define name="TAG_TRACKING_SIM_WP" value="WP_LANDPAD"/>
+      <define name="TAG_TRACKING_SIM_WP" value="WP_TAG"/>
     </module>
   </modules>
   <exceptions>
@@ -152,6 +153,7 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT 10." deroute="Standby"/>
       <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0." until="stage_time @GT 2" vmode="throttle"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
