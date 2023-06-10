@@ -154,6 +154,7 @@ static bool nav_takeoff_run(void) {
       break;
     case NAV_TAKEOFF_CLIMB:
       // call vertical climb from nav/guidance
+      autopilot_set_in_flight(true);
       NavGotoWaypoint(takeoff.climb_id);
       NavVerticalClimbMode(NAV_TAKEOFF_CLIMB_SPEED);
       if (stateGetPositionEnu_f()->z - takeoff.start_pos.z > NAV_TAKEOFF_HEIGHT) {
