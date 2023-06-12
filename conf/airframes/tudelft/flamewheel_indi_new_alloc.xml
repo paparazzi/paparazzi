@@ -22,7 +22,11 @@
       <module name="pprzlog"/>
       <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
-      <module name="logger" type="control_effectiveness"/>
+      <module name="logger" type="control_effectiveness">
+       <define name="LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS" value="TRUE"/>
+      </module>
+
+      <define name="STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME" value="true"/>
 
       <define name="SDLOG_AUTO_FLUSH_PERIOD" value="1" unit="s"/>
       <define name="SDLOG_START_DELAY" value="5" unit="s"/>
@@ -86,7 +90,7 @@
     -->
     <module name="stabilization" type="indi">
       <configure name="INDI_OUTPUTS" value="4"/>
-      <configure name="INDI_NUM_ACTUATOTS" value="4"/>
+      <configure name="INDI_NUM_ACT" value="6"/>
     </module>
     <!--
     <module name="stabilization" type="indi"/>
@@ -294,16 +298,14 @@
     <define name="CTL_ALLOC_COND_BOUND" value="1e5"/>
   </section>
 
+<!--
   <section name="actuator_sizes">
     <define name="INDI_OUTPUTS" value="4"/>
     <define name="INDI_NUM_ACT" value="6"/>
     <define name="AS_N_V" value="4"/>
     <define name="AS_N_U" value="6"/>
   </section>
-
-  <section name="CONTROL_EFFECTIVENESS" prefix="LOGGER_CONTROL_EFFECTIVENESS_">
-    <define name="ACTUATORS" value="TRUE"/>
-  </section>
+-->
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="283"/>

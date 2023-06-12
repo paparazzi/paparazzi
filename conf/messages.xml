@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE protocol SYSTEM "../sw/ext/pprzlink/message_definitions/v1.0/messages.dtd">
+<!DOCTYPE protocol SYSTEM "messages.dtd">
 <protocol>
  <!-- messages from modem or sim to server -->
  <msg_class name="telemetry" id="1">
@@ -845,7 +845,7 @@
       </description>
       <field name="status" type="uint8" values="STOPPED|RUNNING|ERROR">General status of the logger</field>
       <field name="errno" type="uint8">Error number, depend of the logging system, provides detailed information</field>
-      <field name="used" type="uint32" unit="bytes">Accumulated number of bytes written by the logger</field>
+      <field name="used" type="uint32" unit="bytes" alt_unit="MB" alt_unit_coef="0.000000953674316">Accumulated number of bytes written by the logger</field>
       <field name="filenames" type="char[]">The filenames currently in use by the logger (First sdlog, second Flight recorder for chibios)</field>
     </message>
 
@@ -878,7 +878,21 @@
       <field name="mode" type="uint8"/>
     </message>
 
-    <!-- 95 is free -->
+    <message name="TARGET_POS_INFO" id="95">
+      <description>
+        Global position, speed and ID of a target for functions like 'Follow Me'
+      </description>
+      <field name="lat" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+      <field name="lon" type="int32" unit="1e7deg" alt_unit="deg" alt_unit_coef="0.0000001"/>
+      <field name="alt" type="int32" unit="mm" alt_unit="m">Height above Mean Sea Level (geoid)</field>
+      <field name="speed" type="float" unit="m/s">Ground speed</field>
+      <field name="climb" type="float" unit="m/s">Climb speed</field>
+      <field name="course" type="float" unit="deg" format="%.1f"/>
+      <field name="heading" type="float" unit="deg" format="%.1f"/>
+      <field name="off_heading" type="float" unit="deg">Offset heading</field>
+      <field name="off_distance" type="float" unit="m">Offset distance</field>
+      <field name="off_height" type="float" unit="m">Offset height</field>
+    </message>
 
     <message name="HIH_STATUS" id="96">
       <field name="humid" type="uint16"/>
@@ -1152,18 +1166,21 @@
     </message>
 
     <message name="IMU_GYRO_SCALED" id="131">
+      <field name="id"    type="uint8"/>
       <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
       <field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
       <field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     </message>
 
     <message name="IMU_ACCEL_SCALED" id="132">
+      <field name="id"    type="uint8"/>
       <field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
       <field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
       <field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     </message>
 
     <message name="IMU_MAG_SCALED" id="133">
+      <field name="id"    type="uint8"/>
       <field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
       <field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
       <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
@@ -1188,7 +1205,11 @@
       <field name="comp_id"          type="uint8" values="NONE|GENERIC|IR|ICQ|ICE|FC|DCM|FINV|MLKF|GX3|CHIMU|VN"/>
     </message>
 
-    <!-- 135 is free -->
+    <message name="IMU_HEATER" id="135">
+      <field name="meas_temp"   type="float" unit="Celcius"/>
+      <field name="target_temp" type="float" unit="Celcius"/>
+      <field name="heat_cmd"    type="uint8" unit="%"/>
+    </message>
 
     <message name="RATE_LOOP" id="136">
       <description>Rotorcraft rate control loop.</description>
@@ -1222,7 +1243,15 @@
       <field name="airspeed" type="float" unit="m/s"/>
     </message>
 
-    <!-- 139 is free -->
+    <message name="APPROACH_MOVING_TARGET" id="139">
+      <field name="ref_pos_x" type="float" unit="m"/>
+      <field name="ref_pos_y" type="float" unit="m"/>
+      <field name="ref_pos_z" type="float" unit="m"/>
+      <field name="ref_vel_x" type="float" unit="m/s"/>
+      <field name="ref_vel_y" type="float" unit="m/s"/>
+      <field name="ref_vel_z" type="float" unit="m/s"/>
+      <field name="distance" type="float" unit="m"/>
+    </message>
 
     <message name="STAB_ATTITUDE_INT" id="140">
       <field name="est_p"         type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
@@ -1723,36 +1752,44 @@
     <!-- 199 is free -->
 
     <message name="IMU_GYRO" id="200">
+      <field name="id" type="uint8"/>
       <field name="gp" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
       <field name="gq" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
       <field name="gr" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
     </message>
 
     <message name="IMU_MAG" id="201">
+      <field name="id" type="uint8"/>
       <field name="mx" type="float" />
       <field name="my" type="float" />
       <field name="mz" type="float" />
     </message>
 
     <message name="IMU_ACCEL" id="202">
+      <field name="id" type="uint8"/>
       <field name="ax" type="float" unit="m/s-2"/>
       <field name="ay" type="float" unit="m/s-2"/>
       <field name="az" type="float" unit="m/s-2"/>
     </message>
 
     <message name="IMU_GYRO_RAW" id="203">
-      <field name="gp" type="int32" unit="adc"/>
-      <field name="gq" type="int32" unit="adc"/>
-      <field name="gr" type="int32" unit="adc"/>
+      <field name="id"    type="uint8"/>
+      <field name="temp"  type="float" unit="Celcius"/>
+      <field name="gp"    type="int32" unit="adc"/>
+      <field name="gq"    type="int32" unit="adc"/>
+      <field name="gr"    type="int32" unit="adc"/>
     </message>
 
     <message name="IMU_ACCEL_RAW" id="204">
-      <field name="ax" type="int32" unit="adc"/>
-      <field name="ay" type="int32" unit="adc"/>
-      <field name="az" type="int32" unit="adc"/>
+      <field name="id"    type="uint8"/>
+      <field name="temp"  type="float" unit="Celcius"/>
+      <field name="ax"    type="int32" unit="adc"/>
+      <field name="ay"    type="int32" unit="adc"/>
+      <field name="az"    type="int32" unit="adc"/>
     </message>
 
     <message name="IMU_MAG_RAW" id="205">
+      <field name="id" type="uint8"/>
       <field name="mx" type="int32" unit="adc"/>
       <field name="my" type="int32" unit="adc"/>
       <field name="mz" type="int32" unit="adc"/>
@@ -1767,6 +1804,7 @@
     </message>
 
     <message name="IMU_MAG_CURRENT_CALIBRATION" id="207">
+      <field name="id" type="uint8"/>
       <field name="mx" type="int32" unit="adc"/>
       <field name="my" type="int32" unit="adc"/>
       <field name="mz" type="int32" unit="adc"/>
@@ -1801,14 +1839,10 @@
       <field name="commands" type="int32[]">Commands send to actuators</field>
     </message>
 
-    <!-- 212 is free -->
     <message name="CTL_ALLOC_PERF" id="212">
       <field name="algo" type="uint8" unit="-">Algorithm ID</field>
       <field name="cond" type="float" unit="-">Condition number upper bound</field>
       <field name="gamma" type="float" unit="-">Resulting Wu scaler</field>
-      <!--
-      <field name="rpm_max" type="float" unit="-">Artificial reduction in max u</field>
-      -->
       <field name="warmstart" type="uint8" unit="bool">use warmstart</field>
       <field name="iter_max" type="uint16" unit="-">Max iterations</field>
       <field name="iter" type="uint16" unit="-">Iterations taken</field>
@@ -2656,6 +2690,7 @@
       <field name="speed" type="float" unit="m/s">Ground speed</field>
       <field name="climb" type="float" unit="m/s">Climb speed</field>
       <field name="course" type="float" unit="deg" format="%.1f"/>
+      <field name="heading" type="float" unit="deg" format="%.1f">Ground heading</field>
     </message>
 
     <message name="SMARTPROBE" id="60" link="forwarded">
@@ -2782,6 +2817,13 @@
       <field name="msg_data" type="uint8[]"/>
     </message>
 
+    <message name="INFO_MSG_UP" id="160" link="broadcasted">
+      <description>Message from ground to be logged on the drone</description>
+      <field name="ac_id" type="uint8"/>
+      <field name="fd" type="uint8" values="ALL|FLIGHT_RECORDER|PPRZLOG">where the message will be logged</field>
+      <field name="msg" type="char[]"/>
+    </message>
+    
   </msg_class>
 
 
@@ -3164,6 +3206,13 @@
       <field name="lats" type="string" format="csv"/>
       <field name="longs" type="string" format="csv"/>
       <field name="values" type="string" format="csv"/>
+    </message>
+
+    <message name="INFO_MSG_GROUND" id="101">
+      <description>Message from ground to be logged on the drone or send to other ground agents</description>
+      <field name="dest" type="string">ac_id:file_descriptor | ground_name | 0 (ground broadcast) | 0xFF (broadcast)</field>
+      <field name="source" type="string">ground_name of the agent sending the message</field>
+      <field name="msg" type="string"/>
     </message>
   </msg_class>
 

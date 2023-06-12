@@ -42,6 +42,7 @@
       <define name="CTL_ALLOC_ALGO" value="1" description="Algorithm for quadratic allocation: 0 QR_NAIVE, 1 QR, 2 CHOL"/>
       <define name="CTL_ALLOC_WARMSTART" value="FALSE|TRUE" description="Use warmstarting"/>
       <define name="CTL_ALLOC_IMAX" description="Max iterations for solving control allocation problem"/>
+      <define name="LOG_ALLOC_EXEC_TIME" value="FALSE|TRUE" description="Chibios only. Count HW timer ticks for solution of WLS allocation."/>
     </section>
   </doc>
   <settings>
@@ -71,20 +72,32 @@
   </header>
   <init fun="stabilization_indi_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
-    <include name="math/ActiveSetCtlAlloc/src/"/>
+    <include name="math/ActiveSetCtlAlloc/src"/>
     <include name="math/ActiveSetCtlAlloc/src/lib"/>
     <include name="math/ActiveSetCtlAlloc/src/common"/>
+    <!-- todo: include makefile of ctlalloc package somehow?
+    otherwise just the defines and the files must be here -->
+    <file name="solveActiveSet_chol.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="solveActiveSet_qr.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="solveActiveSet_qr_naive.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="common/solveActiveSet.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="common/setupWLS.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/sparse_math.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/chol_math.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/qr_updates.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/qr_wrapper.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/qr_solve/qr_solve.c" dir="math/ActiveSetCtlAlloc/src"/>
+    <file name="lib/qr_solve/r8lib_min.c" dir="math/ActiveSetCtlAlloc/src"/>
     <file name="stabilization_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
-    <file name="qr_solve.c" dir="math/qr_solve"/>
-    <file name="r8lib_min.c" dir="math/qr_solve"/>
     <configure name="INDI_OUTPUTS" default="4"/>
     <configure name="INDI_NUM_ACT" default="4"/>
     <define name="INDI_OUTPUTS" value="$(INDI_OUTPUTS)"/>
     <define name="INDI_NUM_ACT" value="$(INDI_NUM_ACT)"/>
     <define name="AS_N_V" value="$(INDI_OUTPUTS)"/>
     <define name="AS_N_U" value="$(INDI_NUM_ACT)"/>
+    <define name="AS_SINGLE_FLOAT"/>
+    <define name="AS_COST_TRUNCATE"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
