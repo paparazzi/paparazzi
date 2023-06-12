@@ -9,7 +9,11 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
-                "${workspaceFolder}"
+                "${workspaceFolder}",
+                "${workspaceFolder}/sw/airborne",
+                "${workspaceFolder}/sw/include",
+                "${workspaceFolder}/sw/airborne/arch/chibios",
+                "${workspaceFolder}/sw/airborne/math/ActiveSetCtlAlloc/src/common"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
