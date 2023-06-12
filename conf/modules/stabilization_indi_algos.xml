@@ -1,0 +1,96 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabilization_indi_algos" dir="stabilization" task="control">
+  <doc>
+    <description>
+      Full INDI stabilization controller for rotorcraft
+    </description>
+
+    <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+      <define name="SP_MAX_PHI"   value="45." description="max setpoint for roll angle" unit="deg"/>
+      <define name="SP_MAX_THETA" value="45." description="max setpoint for pitch angle" unit="deg"/>
+      <define name="SP_MAX_R"     value="90." description="max setpoint for yaw rate" unit="deg/s"/>
+      <define name="DEADBAND_R"   value="250" description="deadband on yaw rate input"/>
+    </section>
+    <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+      <define name="G1_ROLL" value="{20 , -20, -20 , 20 }" description="control effectiveness of every actuator on the roll axis"/>
+      <define name="G1_PITCH" value="{14 , 14, -14 , -14 }" description="control effectiveness of every actuator on the pitch axis"/>
+      <define name="G1_YAW" value="{-1, 1, -1, 1}" description="control effectiveness of every actuator on the yaw axis"/>
+      <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}" description="control effectiveness of every actuator on the thrust axis"/>
+      <define name="G2" value="{-60.0,   60.0,  -60.0,  60.0}" description="control effectiveness of every actuator derivative on the yaw axis (important for propellers with strong torque changes)"/>
+      <define name="REF_ERR_P" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_ERR_Q" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_ERR_R" value="600.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_P" value="28.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_Q" value="28.0" description="INDI gains linear controller"/>
+      <define name="REF_RATE_R" value="28.0" description="INDI gains linear controller"/>
+      <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
+      <define name="FILT_CUTOFF" value="8.0" description="second order cutoff frequency for angular accelerations in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_Q" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
+      <define name="STABILIZATION_INDI_FILT_CUTOFF_R" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
+      <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
+      <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}" description="actuator dynamics"/>
+      <define name="ACT_IS_SERVO" value="{0,0,0,0}" description="1 for every actuator that is a servo"/>
+      <define name="ACT_RATE_LIMIT" value="{9600,9600,9600,9600}" description="rate limit in PPRZ units per timestep (depends on control frequency)"/>
+      <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred (low energy) actuator value. Important when the system is over-determined!"/>
+      <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
+      <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
+      <define name="CTL_ALLOC_ALGO" value="2" description="Algorithm for quadratic allocation: 0 native, 1 QR, 2 CHOL"/>
+      <define name="CTL_ALLOC_WARMSTART" value="FALSE|TRUE" description="Use warmstarting"/>
+      <define name="CTL_ALLOC_IMAX" description="Max iterations for solving control allocation problem"/>
+      <define name="MAX_RPM_SCALER" value="1.0" description="Reduce max output of all motors"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="indi">
+        <dl_setting var="indi_gains.att.p" min="0" step="1" max="2500" shortname="kp_p" param="STABILIZATION_INDI_REF_ERR_P"/>
+        <dl_setting var="indi_gains.rate.p" min="0" step="0.1" max="100" shortname="kd_p" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_gains.att.q" min="0" step="1" max="2500" shortname="kp_q" param="STABILIZATION_INDI_REF_ERR_Q"/>
+        <dl_setting var="indi_gains.rate.q" min="0" step="0.1" max="100" shortname="kd_q" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_gains.att.r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R"/>
+        <dl_setting var="indi_gains.rate.r" min="0" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P"/>
+        <dl_setting var="indi_use_adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8"/>
+        <dl_setting var="indi_ctl_alloc_algo" min="0" step="1" max="2" shortname="alloc_algo" param="STABILIZATION_INDI_CTL_ALLOC_ALGO" type="activeSetAlgoChoice"/>
+        <dl_setting var="indi_ctl_alloc_warmstart" min="0" step="1" max="1" shortname="warmstart" values="FALSE|TRUE" param="STABILIZATION_INDI_CTL_ALLOC_WARMSTART" type="uint8"/>
+        <dl_setting var="indi_ctl_alloc_imax" min="1" step="1" max="10" shortname="iter_max" param="STABILIZATION_INDI_CTL_ALLOC_IMAX" type="int"/>
+        <dl_setting var="indi_ctl_alloc_cond_bound" min="1e4" step="1e4" max="1e8" shortname="cond_bound" param="STABILIZATION_INDI_CTL_ALLOC_COND_BOUND" type="float"/>
+        <dl_setting var="indi_ctl_alloc_theta" min="1e-5" step="1e-5" max="1" shortname="theta" param="STABILIZATION_INDI_CTL_ALLOC_THETA" type="float"/>
+        <dl_setting var="indi_max_cmd_scaler" min="0" step="1e-3" max="1" shortname="max_cmd_scaler" param="STABILIZATION_INDI_MAX_CMD_SCALER" type="float"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>stabilization_rotorcraft,@attitude_command</depends>
+    <provides>commands</provides>
+  </dep>
+  <header>
+    <file name="stabilization_indi_algos.h"/>
+  </header>
+  <init fun="stabilization_indi_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <include name="math/lsq_package/"/>
+    <include name="math/lsq_package/lib"/>
+    <include name="math/lsq_package/common"/>
+    <file name="stabilization_indi_algos.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
+    <file name="qr_solve.c" dir="math/qr_solve"/>
+    <file name="r8lib_min.c" dir="math/qr_solve"/>
+    <file name="solveActiveSet.c" dir="math/lsq_package"/>
+    <file name="solveActiveSet_chol.c" dir="math/lsq_package"/>
+    <file name="solveActiveSet_pprz.c" dir="math/lsq_package"/>
+    <file name="solveActiveSet_qr.c" dir="math/lsq_package"/>
+    <file name="setup_wls.c" dir="math/lsq_package/common"/>
+    <file name="chol_math.c" dir="math/lsq_package/lib"/>
+    <file name="qr_updates.c" dir="math/lsq_package/lib"/>
+    <file name="qr_wrapper.c" dir="math/lsq_package/lib"/>
+    <file name="sparse_math.c" dir="math/lsq_package/lib"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
+    <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
+  </makefile>
+</module>
