@@ -43,7 +43,6 @@ extern bool indi_use_adaptive;
 extern activeSetAlgoChoice indi_ctl_alloc_algo;
 extern float indi_ctl_alloc_cond_bound;
 extern float indi_ctl_alloc_theta;
-extern float indi_max_cmd_scaler;
 extern bool indi_ctl_alloc_warmstart;
 extern uint16_t indi_ctl_alloc_imax;
 

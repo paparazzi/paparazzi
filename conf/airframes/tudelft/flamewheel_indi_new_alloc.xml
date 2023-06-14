@@ -294,8 +294,10 @@
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
     <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
 
-    <define name="CTL_ALLOC_ALGO" value="2"/>
+    <define name="CTL_ALLOC_ALGO" value="1"/>
+    <!--
     <define name="CTL_ALLOC_COND_BOUND" value="1e5"/>
+    -->
   </section>
 
 <!--

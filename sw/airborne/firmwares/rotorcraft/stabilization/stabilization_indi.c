@@ -48,7 +48,11 @@
 #include <stdio.h>
 
 // if using CHIBIOs, record allocation algorithm execution time
-#if defined(STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME) && !defined(USE_CHIBIOS_RTOS)
+#ifndef STABILIZATION_INDI_LOG_ALLOC_EXEC_TIME
+#define STABILIZATION_INDI_LOG_ALLOC_EXEC_TIME false
+#endif
+
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME && !defined(USE_CHIBIOS_RTOS)
 #error "STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME currently only implemented with chibios"
 #endif
 
@@ -86,11 +90,11 @@
 #endif
 
 #ifndef STABILIZATION_INDI_CTL_ALLOC_IMAX
-#define STABILIZATION_INDI_CTL_ALLOC_IMAX 100
+#define STABILIZATION_INDI_CTL_ALLOC_IMAX 10
 #endif
 
 #ifndef STABILIZATION_INDI_CTL_ALLOC_WARMSTART
-#define STABILIZATION_INDI_CTL_ALLOC_WARMSTART FALSE
+#define STABILIZATION_INDI_CTL_ALLOC_WARMSTART TRUE
 #endif
 
 #ifndef STABILIZATION_INDI_CTL_ALLOC_ALGO
@@ -102,7 +106,7 @@
 #endif
 
 #ifndef STABILIZATION_INDI_CTL_ALLOC_THETA
-#define STABILIZATION_INDI_CTL_ALLOC_THETA 0.0002
+#define STABILIZATION_INDI_CTL_ALLOC_THETA 0.0001
 #endif
 
 float du_min[INDI_NUM_ACT];
@@ -257,7 +261,7 @@ int iterations = 0;
 int n_free = INDI_NUM_ACT;
 int n_satch = 0;
 int8_t as_exit_code = 1;
-#ifdef STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
 systime_t t_ctl_alloc_before;
 sysinterval_t t_ctl_alloc_exec;
 time_usecs_t t_ctl_alloc_exec_us;
@@ -585,7 +589,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   }
 #else
 
-#ifdef STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
   t_ctl_alloc_before = chSysGetRealtimeCounterX();
 #endif
 
@@ -659,40 +663,9 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     setupWLS_b(indi_v, du_pref, Wv_as, Wu_as, n_v, n_u, gamma_used, b_as);
     //setup_wls(n_v, n_u, JG, Wv_ins, Wu, du_pref, indi_v, theta, cond_bound, A, b, &gamma_used);
 
-    // verify condition number and gamma
-    /*
-    float min_diag2 = 1e100;
-    float A2[CA_N_V][CA_N_V];
-    float * A2_ptr[CA_N_V];
-    for (int i=0; i<n_v; i++)
-      A2_ptr[i] = A2[i];
-
-    int n_c = n_u + n_v;
-    for (int i=0; i<n_v; i++) {
-      for (int j=i; j<n_v; j++) {
-        A2_ptr[i][j] = 0;
-        for (int k=0; k<n_u; k++) {
-          A2_ptr[i][j] += A[i+k*n_c]*A[j+k*n_c];
-        }
-        if (i != j)
-          A2_ptr[j][i] = A2_ptr[i][j];
-      }
-    }
-
-    for (int i=0; i<n_u; i++) {
-      float comp_val = A[i+n_v+i*n_c]*A[i+n_v+i*n_c];
-      if (min_diag2 > comp_val) {
-        min_diag2 = comp_val;
-      }
-    }
-
-    float max_sig;
-    cond_estimator(n_v, A2_ptr, min_diag2, &cond_est, &max_sig);
-    */
-
     for (i=0; i<n_u; i++) {
       indi_du[i] = (du_min[i] + du_max[i]) * 0.5;
-      // Reset working set Ws, if NAN errors
+      // Reset working set Ws, if NAN errors or warmstart not requested
       if ((!indi_ctl_alloc_warmstart) || (as_exit_code >= AS_NAN_FOUND_Q))
         Ws[i] = 0;
     }
@@ -707,7 +680,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
         indi_du[i] *= MAX_PPRZ;
     }
 
-#ifdef STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
   t_ctl_alloc_exec = chSysGetRealtimeCounterX() - t_ctl_alloc_before;
   t_ctl_alloc_exec_us = RTC2US(STM32_SYSCLK, t_ctl_alloc_exec);
 #endif
