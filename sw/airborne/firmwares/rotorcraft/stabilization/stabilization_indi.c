@@ -36,6 +36,8 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
 #include "math/pprz_algebra_float.h"
+#include "math/ActiveSetCtlAlloc/src/common/solveActiveSet.h"
+#include "math/ActiveSetCtlAlloc/src/common/setupWLS.h"
 #include "state.h"
 #include "generated/airframe.h"
 #include "modules/radio_control/radio_control.h"
@@ -44,6 +46,21 @@
 #include "filters/low_pass_filter.h"
 #include "wls/wls_alloc.h"
 #include <stdio.h>
+
+// if using CHIBIOs, record allocation algorithm execution time
+#ifndef STABILIZATION_INDI_LOG_ALLOC_EXEC_TIME
+#define STABILIZATION_INDI_LOG_ALLOC_EXEC_TIME false
+#endif
+
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME && !defined(USE_CHIBIOS_RTOS)
+#error "STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME currently only implemented with chibios"
+#endif
+
+#ifdef STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+#include <ch.h>
+#include "mcu_periph/sys_time.h"
+#include "mcu.h"
+#endif
 
 // Factor that the estimated G matrix is allowed to deviate from initial one
 #define INDI_ALLOWED_G_FACTOR 2.0
@@ -72,12 +89,32 @@
 #define INDI_HROTTLE_LIMIT_AIRSPEED_FWD 8.0
 #endif
 
+#ifndef STABILIZATION_INDI_CTL_ALLOC_IMAX
+#define STABILIZATION_INDI_CTL_ALLOC_IMAX 10
+#endif
+
+#ifndef STABILIZATION_INDI_CTL_ALLOC_WARMSTART
+#define STABILIZATION_INDI_CTL_ALLOC_WARMSTART TRUE
+#endif
+
+#ifndef STABILIZATION_INDI_CTL_ALLOC_ALGO
+#define STABILIZATION_INDI_CTL_ALLOC_ALGO AS_QR
+#endif
+
+#ifndef STABILIZATION_INDI_CTL_ALLOC_COND_BOUND
+#define STABILIZATION_INDI_CTL_ALLOC_COND_BOUND 1e9
+#endif
+
+#ifndef STABILIZATION_INDI_CTL_ALLOC_THETA
+#define STABILIZATION_INDI_CTL_ALLOC_THETA 0.0001
+#endif
+
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
 float du_pref[INDI_NUM_ACT];
+int8_t Ws[INDI_NUM_ACT];
 float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
-int num_iter = 0;
 
 static void lms_estimation(void);
 static void get_actuator_state(void);
@@ -104,6 +141,18 @@ struct Indi_gains indi_gains = {
 bool indi_use_adaptive = true;
 #else
 bool indi_use_adaptive = false;
+#endif
+
+activeSetAlgoChoice indi_ctl_alloc_algo = STABILIZATION_INDI_CTL_ALLOC_ALGO;
+float indi_ctl_alloc_cond_bound = STABILIZATION_INDI_CTL_ALLOC_COND_BOUND;
+float indi_ctl_alloc_theta = STABILIZATION_INDI_CTL_ALLOC_THETA;
+bool indi_ctl_alloc_warmstart = STABILIZATION_INDI_CTL_ALLOC_WARMSTART;
+uint16_t indi_ctl_alloc_imax = STABILIZATION_INDI_CTL_ALLOC_IMAX;
+
+#ifdef AS_RECORD_COST
+float alloc_costs[RECORD_COST_N];
+#else
+float alloc_costs[] = {0};
 #endif
 
 #ifdef STABILIZATION_INDI_ACT_RATE_LIMIT
@@ -206,11 +255,45 @@ static struct FirstOrderLowPass rates_filt_fo[3];
 
 struct FloatVect3 body_accel_f;
 
+float gamma_used = 0;
+float cond_est = 0;
+int iterations = 0;
+int n_free = INDI_NUM_ACT;
+int n_satch = 0;
+int8_t as_exit_code = 1;
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+systime_t t_ctl_alloc_before;
+sysinterval_t t_ctl_alloc_exec;
+time_usecs_t t_ctl_alloc_exec_us;
+#else
+uint32_t t_ctl_alloc_exec_us = 42;
+#endif
+
 void init_filters(void);
 void sum_g1_g2(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+static void send_ctl_alloc_perf(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_CTL_ALLOC_PERF(trans, dev, AC_ID,
+    (uint8_t*)&indi_ctl_alloc_algo,
+    &cond_est,
+    &gamma_used,
+    (uint8_t*) &indi_ctl_alloc_warmstart,
+    (uint16_t*) &indi_ctl_alloc_imax,
+    (uint16_t*) &iterations,
+    (int8_t*) &as_exit_code,
+    (uint8_t*) &n_satch,
+    (uint32_t*) &t_ctl_alloc_exec_us,
+#ifdef AS_RECORD_COST
+    RECORD_COST_N,
+#else
+    1,
+#endif
+    alloc_costs);
+}
+
 static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, g1_est[0],
@@ -276,8 +359,14 @@ void stabilization_indi_init(void)
   }
 
 #if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CTL_ALLOC_PERF, send_ctl_alloc_perf);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
+#endif
+#ifdef AS_RECORD_COST
+  for (int i=0; i<RECORD_COST_N; i++) {
+    alloc_costs[i] = 0.;
+  }
 #endif
 }
 
@@ -499,6 +588,11 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
       + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
+
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+  t_ctl_alloc_before = chSysGetRealtimeCounterX();
+#endif
+
   // Calculate the min and max increments
   for (i = 0; i < INDI_NUM_ACT; i++) {
     du_min[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
@@ -520,10 +614,82 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 #endif
   }
 
-  // WLS Control Allocator
-  num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, du_pref, 10000, 10);
+    // scale such that u is between 0 and 1
+    bool scale = true;
+
+    num_t B_as[AS_N_V*AS_N_U];
+    int n_v = INDI_OUTPUTS;
+    int n_u = INDI_NUM_ACT;
+    int8_t j;
+    for (i=0; i<n_v; i++) {
+      for (j=0; j<n_u; j++) {
+        if (scale) {
+          B_as[n_v*j + i] = Bwls[i][j] * MAX_PPRZ;
+        } else {
+          B_as[n_v*j + i] = Bwls[i][j];
+        }
+      }
+    }
+
+    num_t Wu_as[AS_N_U];
+    for (i=0; i<n_u; i++)
+      Wu_as[i] = sqrtf(indi_Wu[i]);
+
+    num_t theta = indi_ctl_alloc_theta;
+    num_t cond_bound = indi_ctl_alloc_cond_bound;
+
+    num_t A_as[AS_N_C*AS_N_U];
+    num_t b_as[AS_N_C];
+
+    // WLS Control Allocator
+    // num_iter =
+    //   wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, du_pref, 10000, 10);
+
+    // transform PPRZ units to 0-1 units
+    if (scale) {
+      for (i=0; i<n_u; i++) {
+        du_min[i] /= MAX_PPRZ;
+        du_max[i] /= MAX_PPRZ;
+        du_pref[i] /= MAX_PPRZ;
+      }
+    }
+
+    float Wv_as[INDI_OUTPUTS];
+    for (i=0; i<n_v; i++)
+      Wv_as[i] = sqrtf(Wv[i]);
+
+    // setup problem
+    setupWLS_A(B_as, Wv_as, Wu_as, n_v, n_u, theta, cond_bound, A_as, &gamma_used);
+    setupWLS_b(indi_v, du_pref, Wv_as, Wu_as, n_v, n_u, gamma_used, b_as);
+    //setup_wls(n_v, n_u, JG, Wv_ins, Wu, du_pref, indi_v, theta, cond_bound, A, b, &gamma_used);
+
+    for (i=0; i<n_u; i++) {
+      indi_du[i] = (du_min[i] + du_max[i]) * 0.5;
+      // Reset working set Ws, if NAN errors or warmstart not requested
+      if ((!indi_ctl_alloc_warmstart) || (as_exit_code >= AS_NAN_FOUND_Q))
+        Ws[i] = 0;
+    }
+    // solve problem
+    as_exit_code = solveActiveSet(indi_ctl_alloc_algo)(
+      A_as, b_as, du_min, du_max, indi_du, Ws, indi_ctl_alloc_imax, n_u, n_v,
+      &iterations, &n_free, alloc_costs);
+    n_satch = INDI_NUM_ACT - n_free;
+
+    if (scale) {
+      for (i=0; i<n_u; i++)
+        indi_du[i] *= MAX_PPRZ;
+    }
+
+#if STABILIZATION_ATTITUDE_INDI_LOG_ALLOC_EXEC_TIME
+  t_ctl_alloc_exec = chSysGetRealtimeCounterX() - t_ctl_alloc_before;
+  t_ctl_alloc_exec_us = RTC2US(STM32_SYSCLK, t_ctl_alloc_exec);
 #endif
+
+#endif
+
+  // if nans --> make increment zero. (TODO: make previous du instead?)
+  if ((as_exit_code == AS_NAN_FOUND_Q) || (as_exit_code == AS_NAN_FOUND_Q))
+    float_vect_zero(indi_du, INDI_NUM_ACT);
 
   if (in_flight) {
     // Add the increments to the actuators
