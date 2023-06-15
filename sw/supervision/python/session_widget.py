@@ -57,7 +57,7 @@ class SessionWidget(QWidget, Ui_Session):
         self.ac = ac
 
     def init(self):
-        self.sessions = parse_sessions()
+        self.sessions = sorted(parse_sessions(), key=lambda session: session.name)
         self.tools = parse_tools()
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
