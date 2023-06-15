@@ -44,7 +44,7 @@
       <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
       <define name="IMU_MPU_SMPLRT_DIV" value="0"/>
       <!--configure name="BOARD_TAWAKI_ROTATED" value="TRUE"/-->
-      <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c2"/>
+      <!--configure name="MAG_LIS3MDL_I2C_DEV" value="i2c2"/-->
     </module>
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
@@ -136,16 +136,15 @@
     <define name="ACCEL_Y_SENS" value="2.450207588413862" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.4560049628471914" integer="16"/>
 
-    <define name="MAG_X_SIGN" value="1"/>
-    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_X_SIGN" value="-1"/>
+    <define name="MAG_Y_SIGN" value="-1"/>
     <define name="MAG_Z_SIGN" value="1"/>
-    <define name="MAG_X_NEUTRAL" value="-1541"/>
-    <define name="MAG_Y_NEUTRAL" value="-3324"/>
-    <define name="MAG_Z_NEUTRAL" value="-201"/>
-    <define name="MAG_X_SENS" value="0.6485105436180622" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6643132864808198" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6675278851185307" integer="16"/>
-
+    <define name="MAG_X_NEUTRAL" value="156"/>
+    <define name="MAG_Y_NEUTRAL" value="-2401"/>
+    <define name="MAG_Z_NEUTRAL" value="1655"/>
+    <define name="MAG_X_SENS" value="0.6661220068138097" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.6668353119336426" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6535838875513321" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
