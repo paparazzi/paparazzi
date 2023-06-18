@@ -50,8 +50,9 @@ extern void nav_survey_hybrid_init(void);
  * @param size         number of waypoints/corners used to define the polygon
  * @param sweep        distance between scan lines
  * @param radius       turn radius (<0: automatic, radius = sweep/2; 0: no turns, use straight lines only; >0: fixed radius)
+ * @param height       starting height in meters
  */
-extern void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, uint8_t size, float sweep, float radius);
+extern void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientation, uint8_t size, float sweep, float radius, float height);
 
 /**
  * Setup "dynamic" polygon survey with sweep orientation towards a waypoint.
@@ -60,9 +61,10 @@ extern void nav_survey_hybrid_setup_orientation(uint8_t start_wp, float orientat
  * @param second_wp second waypoint towards which the sweep orientation is computed
  * @param size      number of waypoints/corners used to define the polygon
  * @param sweep     distance between scan lines, if zero uses Poly_Distance
- * @param radius       turn radius (<0: automatic, radius = sweep/2; 0: no turns, use straight lines only; >0: fixed radius)
+ * @param radius    turn radius (<0: automatic, radius = sweep/2; 0: no turns, use straight lines only; >0: fixed radius)
+ * @param height    starting height in meters
  */
-extern void nav_survey_hybrid_setup_towards(uint8_t start_wp, uint8_t second_wp, uint8_t size, float sweep, float radius);
+extern void nav_survey_hybrid_setup_towards(uint8_t start_wp, uint8_t second_wp, uint8_t size, float sweep, float radius, float height);
 
 /** Run polygon hybrid survey */
 extern bool nav_survey_hybrid_run(void);
