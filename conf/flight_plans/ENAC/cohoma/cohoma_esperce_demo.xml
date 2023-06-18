@@ -33,7 +33,7 @@
     }
 
     #if DIGITAL_CAM
-    #define LINE_START_FUNCTION dc_Survey(20);
+    #define LINE_START_FUNCTION dc_Survey(fp_shot_distance);
     #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
     #endif
   </header>
@@ -51,31 +51,19 @@
     <waypoint name="S2" x="86.256" y="42.334"/>
     <waypoint name="S3" x="69.963" y="123.803"/>
     <waypoint name="S4" x="-95.574" y="89.046"/>
-    <waypoint name="_FLY1" x="-144.205" y="151.464"/>
-    <waypoint name="_FLY2" x="295.967" y="165.753"/>
-    <waypoint name="_FLY3" x="107.033" y="-81.28"/>
-    <waypoint name="_FLY4" x="-145.189" y="-105.905"/>
-    <waypoint name="_KILL1" x="-169.335" y="176.244"/>
-    <waypoint name="_KILL2" x="333.888" y="185.691"/>
-    <waypoint name="_KILL3" x="138.07" y="-95.409"/>
-    <waypoint name="_KILL4" x="-168.123" y="-128.374"/>
+    <waypoint name="_FLY1" x="-245.001" y="162.772"/>
+    <waypoint name="_FLY2" x="265.551" y="256.131"/>
+    <waypoint name="_FLY3" x="304.288" y="48.646"/>
+    <waypoint name="_FLY4" x="-199.932" y="-71.57"/>
+    <waypoint name="_KILL1" x="-284.903" y="186.684"/>
+    <waypoint name="_KILL2" x="291.307" y="289.971"/>
+    <waypoint name="_KILL3" x="334.021" y="33.215"/>
+    <waypoint name="_KILL4" x="-227.212" y="-104.467"/>
+    <waypoint name="I1" x="-158.331" y="-32.886"/>
+    <waypoint name="I2" x="262.249" y="62.704"/>
+    <waypoint name="I3" x="225.748" y="204.342"/>
+    <waypoint name="I4" x="-193.955" y="111.363"/>
   </waypoints>
-    <!--waypoint name="HOME" lat="48.8615" lon="1.89836"/>
-    <waypoint name="STDBY" lat="48.8615" lon="1.89686"/>
-    <waypoint name="LANDPAD" lat="48.8614" lon="1.89647"/>
-    <waypoint name="L1_START" lat="48.8616" lon="1.8973"/>
-    <waypoint name="L1_END" lat="48.8612" lon="1.89934"/>
-    <waypoint name="L2_START" lat="48.8619" lon="1.89761"/>
-    <waypoint name="L2_END" lat="48.8615" lon="1.89956"/>
-    <waypoint name="VAB" lat="48.8622" lon="1.89884"/>
-    <waypoint name="_FLY1" lat="48.8601" lon="1.90036"/>
-    <waypoint name="_FLY2" lat="48.8613" lon="1.89552"/>
-    <waypoint name="_FLY3" lat="48.8635" lon="1.89704"/>
-    <waypoint name="_FLY4" lat="48.8625" lon="1.90163"/-->
-    <!--waypoint name="_KILL1" lat="48.8583" lon="1.89994"/>
-    <waypoint name="_KILL2" lat="48.8602" lon="1.8933"/>
-    <waypoint name="_KILL3" lat="48.8647" lon="1.89634"/>
-    <waypoint name="_KILL4" lat="48.8632" lon="1.90243"/-->
   <sectors>
     <sector name="KillZone" color="red">
       <corner name="_KILL1"/>
@@ -95,11 +83,21 @@
       <corner name="S3"/>
       <corner name="S4"/>
     </sector>
+    <sector name="SurveyIMAV" color="orange">
+      <corner name="I1"/>
+      <corner name="I2"/>
+      <corner name="I3"/>
+      <corner name="I4"/>
+    </sector>
   </sectors>
   <variables>
     <variable var="fp_max_height" init="110." min="10." max="120." step="1."/>
     <variable var="fp_oval_radius" init="-20." min="-80." max="80." step="1."/>
+    <variable var="fp_speed" init="4." min="1." max="15." step="0.1"/>
     <variable var="fp_survey_sweep" init="20." min="1." max="100." step="1."/>
+    <variable var="fp_survey_speed" init="6." min="1." max="15." step="0.1"/>
+    <variable var="fp_survey_height" init="40." min="10." max="120." step="1."/>
+    <variable var="fp_shot_distance" init="20." min="5." max="60." step="0.1"/>
   </variables>
   <modules>
     <module name="mission" type="rotorcraft">
@@ -123,10 +121,16 @@
       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/-->
 
     <!-- Datalink loss -->
-    <exception cond="(datalink_time @GT 10 @AND       !(IndexOfBlock('Takeoff') @GT nav_block) @AND       !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
+    <exception cond="(datalink_time @GT 10 @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
 
     <!-- Geofence -->
-    <exception cond="((!InsideFlyZone(GetPosX(), GetPosY()) @OR GetPosHeight() @GT fp_max_height) @AND       !(IndexOfBlock('Takeoff') @GT nav_block) @AND       !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND       (autopilot_in_flight() == true) )" deroute="Standby"/>
+    <exception cond="((!InsideFlyZone(GetPosX(), GetPosY()) @OR GetPosHeight() @GT fp_max_height) @AND
+      !(IndexOfBlock('Takeoff') @GT nav_block) @AND
+      !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND
+      (autopilot_in_flight() == true) )" deroute="Standby"/>
 
     <!--exception cond="((delay_test_gf(!InsideKillZone(GetPosX(), GetPosY()),10) @OR GetPosHeight() @GT fp_max_height+10) @AND
       !(IndexOfBlock('Takeoff') @GT nav_block) @AND
@@ -163,6 +167,7 @@
       <deroute block="Standby"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <call_once fun="guidance_h_SetMaxSpeed(fp_speed)"/>
       <call_once fun="jevois_stream(false)"/>
       <stay wp="STDBY"/>
     </block>
@@ -179,8 +184,19 @@
       <deroute block="Standby"/>
     </block>
     <block name="Survey Hybrid (WP)">
-      <call_once fun="nav_survey_hybrid_setup_towards(WP_S1, WP_S2, 4, fp_survey_sweep, 0)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(fp_survey_speed)"/>
+      <call_once fun="nav_survey_hybrid_setup_towards(WP_S1, WP_S2, 4, fp_survey_sweep, 0, fp_survey_height)"/>
       <call fun="nav_survey_hybrid_run()"/>
+      <go wp="STDBY"/>
+      <call_once fun="guidance_h_SetMaxSpeed(fp_speed)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey Hybrid (IMAV)">
+      <call_once fun="guidance_h_SetMaxSpeed(fp_survey_speed)"/>
+      <call_once fun="nav_survey_hybrid_setup_towards(WP_I1, WP_I2, 4, fp_survey_sweep, 0, fp_survey_height)"/>
+      <call fun="nav_survey_hybrid_run()"/>
+      <go wp="STDBY"/>
+      <call_once fun="guidance_h_SetMaxSpeed(fp_speed)"/>
       <deroute block="Standby"/>
     </block>
     <block name="Carto Oval" strip_button="Carto Oval">
