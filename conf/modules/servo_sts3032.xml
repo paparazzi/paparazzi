@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="servo_sts3032" dir="actuators" task="actuators">
+  <doc>
+    <description>feetech sts3032 servo </description>
+    <configure name="STS3032_UART" value="UARTX" description="UART on which STS3032 is connected"/>
+    <configure name="STS3032_BAUD" value="B1000000" description="UART Baudrate, default to 1000000"/>
+  </doc>
+  <dep>
+    <depends>uart</depends>
+  </dep>
+  <header>
+    <file name="servo_sts3032.h"/>
+  </header>
+  <init fun="servo_sts3032_init()"/>
+  <periodic fun="servo_sts3032_test()" freq="1.0" autorun="TRUE"/>
+  <event fun="servo_sts3032_event()"/>
+  <makefile>
+    <configure name="STS3032_UART" case="upper|lower"/>
+    <configure name="STS3032_BAUD" default="B1000000"/>
+    <define name="USE_$(STS3032_UART_UPPER)"/>
+    <define name="STS3032_DEV" value="$(STS3032_UART_LOWER)"/>
+    <define name="$(STS3032_UART_UPPER)_BAUD" value="$(STS3032_BAUD)"/>
+    <file name="servo_sts3032.c"/>
+    <file name="sts3032.c" dir="peripherals"/>
+    <test/>
+  </makefile>
+</module>
