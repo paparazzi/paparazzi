@@ -10,15 +10,42 @@
 
 #include <stdint.h>
 #include "mcu_periph/uart.h"
+#include "circular_buffer.h"
 
 #ifndef STS3032_NB_SERVO
   #define STS3032_NB_SERVO 1
 #endif
 
+enum sts3032_rx_state {
+  STS3032_RX_IDLE,
+  STS3032_RX_HEAD_OK,
+  STS3032_RX_GOT_LENGTH,
+};
+
 struct sts3032 {
   struct uart_periph *periph;
+
+  
   uint8_t ids[STS3032_NB_SERVO];
+  uint8_t states[STS3032_NB_SERVO];
+  uint16_t pos[STS3032_NB_SERVO];
+
+  uint32_t time_last_msg; // last send msg time
+
+
+  enum sts3032_rx_state rx_state;
+  uint8_t nb_bytes_expected;
+  uint8_t buf_header[2];
+  uint8_t rx_id;
+  uint8_t rx_checksum;
+  bool echo; // wait for sended message
+  uint8_t read_addr;
+  uint16_t nb_failed_checksum;
+
+  struct cir_buf msg_buf;
 };
+
+
 
 #define INST_PING 0x01
 #define INST_READ 0x02
@@ -81,6 +108,11 @@ struct sts3032 {
 #define SMS_STS_PRESENT_CURRENT_H 70
 
 void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
+void sts3032_event(struct sts3032 *sts);
+void sts3032_read_mem(struct sts3032 *sts, uint8_t id, uint8_t addr, uint8_t len);
+void sts3032_init(struct sts3032 *sts, struct uart_periph *periph, uint8_t* cbuf, size_t cbuf_len);
+void sts3032_read_pos(struct sts3032 *sts, uint8_t id);
+void sts3032_enable_torque(struct sts3032 *sts, uint8_t id, uint8_t enable);
 
 extern int WritePosEx(uint8_t ID, int16_t Position, uint16_t Speed, uint8_t ACC); //General write position command
 extern int RegWritePosEx(uint8_t ID, int16_t Position, uint16_t Speed, uint8_t ACC); //Asynchronous write position command

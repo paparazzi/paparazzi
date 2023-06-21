@@ -20,7 +20,9 @@
     <define name="USE_$(STS3032_UART_UPPER)"/>
     <define name="STS3032_DEV" value="$(STS3032_UART_LOWER)"/>
     <define name="$(STS3032_UART_UPPER)_BAUD" value="$(STS3032_BAUD)"/>
+    <define name="$(STS3032_UART_UPPER)_CR3" value="USART_CR3_HDSEL"/>
     <file name="servo_sts3032.c"/>
+    <file name="circular_buffer.c" dir="."/>
     <file name="sts3032.c" dir="peripherals"/>
     <test/>
   </makefile>

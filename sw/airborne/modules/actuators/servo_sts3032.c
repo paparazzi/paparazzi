@@ -25,29 +25,49 @@
 
 #include "modules/actuators/servo_sts3032.h"
 #include "peripherals/sts3032.h"
+//#include "pprzlink/messages.h"
+#include "modules/datalink/telemetry.h"
 
 struct sts3032 sts;
 uint16_t val = 0;
+uint8_t cbuf[100];
 
 
 void servo_sts3032_init(void)
 {
-  sts.periph = &(STS3032_DEV);
+  sts3032_init(&sts, &(STS3032_DEV), cbuf, sizeof(cbuf));
+
+  sts.ids[0] = 1;
+
+  //sts3032_enable_torque(&sts, 1, 0);
+
   // your init code here
 }
 
 void servo_sts3032_event(void)
 {
-  // your event code here
+  sts3032_event(&sts);
 }
 
+
+int inc = 10;
 
 void servo_sts3032_test(void)
 {
   // your periodic code here.
   // freq = 1.0 Hz
-  sts3032_write_pos(&sts, 254, val);
-  val = (val + 200)%4095;
+  sts3032_write_pos(&sts, 1, val);
+
+  sts3032_read_pos(&sts, 1);
+
+  val = (val + inc)%4095;
+  // if(val > 4090 || val < 5) {
+  //   inc = -inc;
+  // }
+
+  float data[2] = {sts.pos[0], sts.nb_failed_checksum};
+
+  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 2, data);
 }
 
 
