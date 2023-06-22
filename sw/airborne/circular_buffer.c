@@ -28,7 +28,7 @@ int cir_buf_get(struct cir_buf* rg, uint8_t* buf, size_t len) {
 		size_t len1 = rg->_buf_len - (rg->read_offset + 1);
 		size_t len2 = len - len1;
 		memcpy(buf, start, len1);
-		memcpy(buf, rg->_buf, len2);
+		memcpy(buf+len1, rg->_buf, len2);
 	}
 	
 	int nb_bytes = msg_len;
@@ -64,7 +64,7 @@ int cir_buf_put(struct cir_buf* rg, uint8_t* buf, size_t len) {
 		size_t len1 = rg->_buf_len-(rg->write_offset+1);
 		size_t len2 = len - len1;
 		memcpy(rg->_buf+rg->write_offset+1, buf, len1);
-		memcpy(rg->_buf, buf-len1, len2);
+		memcpy(rg->_buf, buf+len1, len2);
 	}
 	
 	rg->write_offset = end_offset;
@@ -72,8 +72,8 @@ int cir_buf_put(struct cir_buf* rg, uint8_t* buf, size_t len) {
 }
 
 void cir_buf_init(struct cir_buf* rg, uint8_t* buffer, size_t len) {
-    rg->_buf = buffer;
-    rg->_buf_len = len;
+	rg->_buf = buffer;
+	rg->_buf_len = len;
 	rg->read_offset = 0;
 	rg->write_offset = 0;
 }

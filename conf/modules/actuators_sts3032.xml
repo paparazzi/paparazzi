@@ -1,19 +1,25 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="servo_sts3032" dir="actuators" task="actuators">
+<module name="actuators_sts3032" dir="actuators" task="actuators">
   <doc>
     <description>feetech sts3032 servo </description>
     <configure name="STS3032_UART" value="UARTX" description="UART on which STS3032 is connected"/>
     <configure name="STS3032_BAUD" value="B1000000" description="UART Baudrate, default to 1000000"/>
+    <section name="STS3032" prefix="STS3032_">
+      <define name="IDS" value="{1, 2}" description="Ids of the servos (in the actuators order)"/>
+      <define name="DELAY_MSG" value="1000" description="Delay to wait before sending an other message when a response is expected"/>
+      <define name="DELAY_MSG_MIN" value="0" description="Delay when no response is expected"/>
+      <define name="STS3032_RESPONSE_LEVEL" value="0" description="The response level of the servos"/>
+    </section>
   </doc>
   <dep>
     <depends>uart</depends>
   </dep>
   <header>
-    <file name="servo_sts3032.h"/>
+    <file name="actuators_sts3032.h"/>
   </header>
-  <init fun="servo_sts3032_init()"/>
-  <periodic fun="servo_sts3032_test()" freq="1.0" autorun="TRUE"/>
-  <event fun="servo_sts3032_event()"/>
+  <!--init fun="actuators_sts3032_init()"/-->
+  <periodic fun="actuators_sts3032_test()" freq="20" autorun="TRUE"/>
+  <event fun="actuators_sts3032_event()"/>
   <makefile>
     <configure name="STS3032_UART" case="upper|lower"/>
     <configure name="STS3032_BAUD" default="B1000000"/>
@@ -21,9 +27,8 @@
     <define name="STS3032_DEV" value="$(STS3032_UART_LOWER)"/>
     <define name="$(STS3032_UART_UPPER)_BAUD" value="$(STS3032_BAUD)"/>
     <define name="$(STS3032_UART_UPPER)_CR3" value="USART_CR3_HDSEL"/>
-    <file name="servo_sts3032.c"/>
+    <file name="actuators_sts3032.c"/>
     <file name="circular_buffer.c" dir="."/>
-    <file name="sts3032.c" dir="peripherals"/>
     <test/>
   </makefile>
 </module>
