@@ -27,6 +27,7 @@ endif
 
 test:
 	$(Q)make -C math test
+	$(Q)make -C utils test
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
 
 test_modules:
