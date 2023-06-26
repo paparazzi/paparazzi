@@ -50,7 +50,6 @@ build_tests: $(TESTS)
 test: build_tests
 	prove $(VERBOSE) --exec '' ./*.run
 
-# test_state_interface also depends on state.c
 test_circular_buffer.run: $(PAPARAZZI_SRC)/sw/airborne/utils/circular_buffer.c
 
 %.run: %.c
