@@ -36,12 +36,16 @@
 #error "STS3032_IDS must be defined"
 #endif
 
+#ifndef STS3032_DEBUG
+#define STS3032_DEBUG FALSE
+#endif
+
 #ifndef STS3032_RESPONSE_LEVEL
 #define STS3032_RESPONSE_LEVEL 0
 #endif
 
 struct sts3032 sts;
-uint8_t cbuf[100];
+uint8_t cbuf[20*SERVOS_STS3032_NB];		// buffer large enough to queue a command to each servo
 
 #ifndef STS3032_DELAY_MSG
 #define STS3032_DELAY_MSG 1000
@@ -61,8 +65,6 @@ uint8_t buf_rx_param[255];
 static void sts3032_event(struct sts3032 *sts);
 static void write_buf(struct sts3032 *sts, uint8_t id, uint8_t *data, uint8_t len, uint8_t fun, uint8_t reply);
 static void handle_reply(struct sts3032 *sts, uint8_t id, uint8_t state, uint8_t* buf_param, uint8_t length);
-static void flush_input(struct sts3032 *sts);
-
 
 void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
 void sts3032_event(struct sts3032 *sts);
@@ -81,17 +83,15 @@ void actuators_sts3032_init(void)
 	sts.rx_state = STS3032_RX_IDLE;
 	sts.nb_bytes_expected = 1;
 	sts.nb_failed_checksum = 0;
-	cir_buf_init(&sts.msg_buf, cbuf, sizeof(cbuf));
+	circular_buffer_init(&sts.msg_buf, cbuf, sizeof(cbuf));
 
   static const uint8_t tmp_ids[SERVOS_STS3032_NB] = STS3032_IDS;
   memcpy(sts.ids, tmp_ids, sizeof(tmp_ids));
 
-	//sts3032_lock_eeprom(&sts, 2, 0);
-	//sts3032_set_id(&sts, 1, 2);
-	//sts3032_set_response_level(&sts, 2, 0);
-	//sts3032_lock_eeprom(&sts, 2, 1);
-
-  //sts3032_enable_torque(&sts, 1, 0);
+	//sts3032_lock_eeprom(&sts, 254, 0);
+	//sts3032_set_id(&sts, 254, 2);
+	//sts3032_set_response_level(&sts, 254, 0);
+	//sts3032_lock_eeprom(&sts, 254, 1);
 
 }
 
@@ -100,27 +100,22 @@ void actuators_sts3032_event(void)
   sts3032_event(&sts);
 }
 
-
-int inc = 10;
-
-void actuators_sts3032_test(void)
+void actuators_sts3032_periodic(void)
 {
-  // your periodic code here.
-  // freq = 1.0 Hz
-  //sts3032_write_pos(&sts, 1, val);
 
-	float data[3] = {sts.pos[0], sts.pos[1],  sts.nb_failed_checksum};
+	for(int i=0; i<SERVOS_STS3032_NB; i++) {
+		sts3032_read_pos(&sts, sts.ids[i]);
+	}
 
-  sts3032_read_pos(&sts, sts.ids[0]);
-	sts3032_read_pos(&sts, sts.ids[1]);
+#if STS3032_DEBUG
+	float data[SERVOS_STS3032_NB + 1];
+	data[0] = sts.nb_failed_checksum;
+	for(int i=0; i<SERVOS_STS3032_NB; i++) {
+		data[i+1] = sts.pos[i];
+	}
+  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, SERVOS_STS3032_NB + 1, data);
+#endif
 
-  //val = (val + inc)%4095;
-  // if(val > 4090 || val < 5) {
-  //   inc = -inc;
-  // }
-
-
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 3, data);
 }
 
 
@@ -131,9 +126,9 @@ static void sts3032_event(struct sts3032 *sts) {
 	uint32_t dt = now - sts->time_last_msg;
 	if((!sts->wait_reply && dt > STS3032_DELAY_MSG_MIN) || dt > STS3032_DELAY_MSG) {
 		uint8_t buf[BUF_MAX_LENGHT];
-		int size = cir_buf_get(&sts->msg_buf, buf, BUF_MAX_LENGHT);
+		int size = circular_buffer_get(&sts->msg_buf, buf, BUF_MAX_LENGHT);
 		if(size > 0) {
-			// first byte of the buffer indicate wether or not a replay is expected
+			// first byte of the buffer indicate whether or not a replay is expected
 			// the rest is the message itself
 			uart_put_buffer(sts->periph, 0, buf+1, size-1);
 			sts->wait_reply = buf[0];
@@ -303,7 +298,7 @@ static void write_buf(struct sts3032 *sts, uint8_t id, uint8_t *data, uint8_t le
 	}
   buf[len + 6] = ~checksum;
 
-	int ret = cir_buf_put(&sts->msg_buf, buf, len + 7);
+	int ret = circular_buffer_put(&sts->msg_buf, buf, len + 7);
 	if(ret != 0) {
 		asm("NOP");
 	}

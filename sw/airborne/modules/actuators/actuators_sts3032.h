@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 #include "mcu_periph/uart.h"
-#include "circular_buffer.h"
+#include "utils/circular_buffer.h"
 #include "generated/airframe.h"
 
 
@@ -59,14 +59,14 @@ struct sts3032 {
   bool wait_reply;
   uint16_t nb_failed_checksum;
 
-  struct cir_buf msg_buf;
+  struct circular_buffer msg_buf;
 };
 
 
 extern struct sts3032 sts;
 
 extern void actuators_sts3032_init(void);
-extern void actuators_sts3032_test(void);
+extern void actuators_sts3032_periodic(void);
 extern void actuators_sts3032_event(void);
 uint8_t id_idx(struct sts3032 *sts, uint8_t id);
 void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
