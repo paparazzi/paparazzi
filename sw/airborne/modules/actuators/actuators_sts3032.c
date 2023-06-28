@@ -45,7 +45,7 @@
 #endif
 
 struct sts3032 sts;
-uint8_t cbuf[20*SERVOS_STS3032_NB];		// buffer large enough to queue a command to each servo
+uint8_t cbuf[50*SERVOS_STS3032_NB];		// buffer large enough to queue a command to each servo
 
 #ifndef STS3032_DELAY_MSG
 #define STS3032_DELAY_MSG 1000
