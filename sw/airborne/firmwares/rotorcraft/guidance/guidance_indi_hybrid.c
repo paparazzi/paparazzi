@@ -77,6 +77,10 @@
 #define GUIDANCE_INDI_DRAG_OVER_LIFT 0.2f
 #endif
 
+#ifndef GUIDANCE_INDI_PITCH_OFFSET_GAIN
+#define GUIDANCE_INDI_PITCH_OFFSET_GAIN 0.f
+#endif
+
 struct guidance_indi_hybrid_params gih_params = {
   .pos_gain = GUIDANCE_INDI_POS_GAIN,
   .pos_gainz = GUIDANCE_INDI_POS_GAINZ,
@@ -88,6 +92,8 @@ struct guidance_indi_hybrid_params gih_params = {
   .liftd_asq = GUIDANCE_INDI_LIFTD_ASQ, // coefficient of airspeed squared
   .liftd_p80 = GUIDANCE_INDI_LIFTD_P80,
   .liftd_p50 = GUIDANCE_INDI_LIFTD_P50,
+
+  .pitch_offset_gain = GUIDANCE_INDI_PITCH_OFFSET_GAIN,
 };
 
 #ifndef GUIDANCE_INDI_MAX_AIRSPEED
@@ -261,6 +267,15 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   transition_theta_offset = INT_MULT_RSHIFT((transition_percentage <<
         (INT32_ANGLE_FRAC - INT32_PERCENTAGE_FRAC)) / 100, max_offset, INT32_ANGLE_FRAC);
 
+  /* Compute guidance pitch offset based on desired ground speed
+   * TODO check if this is really what we want
+   */
+  float desired_speed = VECT2_NORM2(gi_speed_sp);
+  float guidance_pitch_offset = TRANSITION_MAX_OFFSET * desired_speed / guidance_indi_max_airspeed; // FIXME mix ground and airspeed ?
+  Bound(guidance_pitch_offset, TRANSITION_MAX_OFFSET, 0.f);
+  float guidance_pitch_incr = gih_params.pitch_offset_gain * (guidance_pitch_offset - eulers_zxy.theta);
+  //printf("pitch offset %f\n", DegOfRad(guidance_pitch_offset));
+
   // filter accel to get rid of noise and filter attitude to synchronize with accel
   guidance_indi_propagate_filters();
 
@@ -324,7 +339,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   Bound(airspeed_turn, 10.0f, 30.0f);
 
   guidance_euler_cmd.phi = roll_filt.o[0] + euler_cmd.x;
-  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
+  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y + guidance_pitch_incr;
 
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);

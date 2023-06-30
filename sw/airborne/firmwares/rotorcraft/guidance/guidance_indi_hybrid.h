@@ -66,6 +66,7 @@ struct guidance_indi_hybrid_params {
   float liftd_asq;
   float liftd_p80;
   float liftd_p50;
+  float pitch_offset_gain;
 };
 
 extern struct FloatVect3 sp_accel;
