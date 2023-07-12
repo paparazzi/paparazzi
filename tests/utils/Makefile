@@ -31,12 +31,9 @@ endif
 export PAPARAZZI_SRC
 export PAPARAZZI_HOME
 
-MATHSRC_PATH=$(PAPARAZZI_SRC)/sw/airborne/math
-MATHLIB_PATH=$(PAPARAZZI_SRC)/var/build/math
-
 #####################################################
 # If you add more test files you add their names here
-TESTS = test_pprz_math.run test_pprz_geodetic.run test_state_interface.run
+TESTS = test_circular_buffer.run
 
 ###################################################
 # You should not need to touch the rest of the file
@@ -48,24 +45,19 @@ endif
 
 all: test
 
-math_shlib:
-	$(Q)cd $(MATHSRC_PATH); make shared_lib
-
-build_tests: math_shlib $(TESTS)
+build_tests: $(TESTS)
 
 test: build_tests
-	LD_LIBRARY_PATH=$(MATHLIB_PATH):$LD_LIBRARY_PATH prove $(VERBOSE) --exec '' ./*.run
+	prove $(VERBOSE) --exec '' ./*.run
 
-# test_state_interface also depends on state.c
-test_state_interface.run: $(PAPARAZZI_SRC)/sw/airborne/state.c
+test_circular_buffer.run: $(PAPARAZZI_SRC)/sw/airborne/utils/circular_buffer.c
 
-%.run: %.c | math_shlib
+%.run: %.c
 	@echo BUILD $@
-	$(Q)$(CC) -L$(MATHLIB_PATH) -I$(PAPARAZZI_SRC)/sw/airborne -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/tests/common $(USER_CFLAGS) $(PAPARAZZI_SRC)/tests/common/tap.c $^ -lpprzmath -lm -o $@
+	$(Q)$(CC) -I$(PAPARAZZI_SRC)/sw/airborne/utils -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/tests/common $(USER_CFLAGS) $(PAPARAZZI_SRC)/tests/common/tap.c $^ -o $@
 
 clean:
-	$(Q)rm -f $(MATHLIB_PATH)/*.o $(MATHLIB_PATH)/libpprzmath.so
 	$(Q)rm -f $(TESTS)
 
 
-.PHONY: math_shlib build_tests test clean all
+.PHONY: build_tests test clean all
