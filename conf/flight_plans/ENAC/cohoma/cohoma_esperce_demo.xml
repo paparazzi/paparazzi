@@ -126,7 +126,7 @@
       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/-->
 
     <!-- Datalink loss -->
-    <exception cond="(datalink_time @GT 10 @AND       !(IndexOfBlock('Takeoff') @GT nav_block) @AND       !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
+    <exception cond="(datalink_time @GT 30 @AND       !(IndexOfBlock('Takeoff') @GT nav_block) @AND       !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND       (autopilot_in_flight() == true) )" deroute="EmergencyLanding"/>
 
     <!-- Geofence -->
     <exception cond="((!InsideFlyZone(GetPosX(), GetPosY()) @OR GetPosHeight() @GT fp_max_height) @AND       !(IndexOfBlock('Takeoff') @GT nav_block) @AND       !(nav_block @GEQ IndexOfBlock('Kill landed')) @AND       (autopilot_in_flight() == true) )" deroute="Standby"/>
@@ -162,6 +162,7 @@
       <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
     </block>
     <block name="Takeoff auto" strip_button="Takeoff (Here)" group="takeoff">
+      <call_once fun="jevois_stream(true)"/>
       <call fun="nav_takeoff_from_here()"/>
       <deroute block="Standby"/>
     </block>

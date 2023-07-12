@@ -226,7 +226,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     } else {
       // close to circle, speed function of radius for a feasible turn
       // MAX_BANK / 2 gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(GUIDANCE_H_MAX_BANK / 2.f));
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * GUIDANCE_H_MAX_BANK));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
   }

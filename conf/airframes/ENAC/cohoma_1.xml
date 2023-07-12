@@ -84,6 +84,13 @@
     <module name="telemetry" type="xbee_api"/>
     <module name="sys_mon"/>
     <module name="flight_recorder"/>
+    <module name="logger" type="control_effectiveness">
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_COMMANDS" value="FALSE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS" value="TRUE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_POS" value="TRUE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_SPEED" value="TRUE"/>
+      <define name="LOGGER_CONTROL_EFFECTIVENESS_AIRSPEED" value="TRUE"/>
+    </module>
     <!--module name="logger_tune_indi_2" /-->
 
     <module name="actuators" type="pwm"/>
@@ -173,8 +180,8 @@
 
   <servos driver="Pwm">
     <!--servo name="SWITCH" no="1" min="1300" neutral="1300" max="1700"/-->
-    <servo name="ELEVON_RIGHT" no="1" min="1300" neutral="1570" max="1700"/> <!--positive up-->
-    <servo name="ELEVON_LEFT"  no="2" min="1300" neutral="1470" max="1700"/> <!--positive down-->
+    <servo name="ELEVON_RIGHT" no="1" min="1270" neutral="1570" max="1870"/> <!--positive up-->
+    <servo name="ELEVON_LEFT"  no="2" min="1170" neutral="1470" max="1770"/> <!--positive down-->
   </servos>
 
   <commands>
@@ -262,7 +269,7 @@
 
     <define name="G1_ROLL"   value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
     <define name="G1_PITCH"  value="{ -20.0,  20.0,   20.0, -20.0,  15.0, -15.0}"/> <!-- 12 , -12 -->
-    <define name="G1_YAW"    value="{   -3.0,   3.0,    -3.0,   3.0,  -3.0,  -3.0}"/> <!-- -20  -20 -->
+    <define name="G1_YAW"    value="{   -3.0,   3.0,    -3.0,   3.0,  -10.0,  -10.0}"/> <!-- -20  -20 -->
     <define name="G1_THRUST" value="{  -0.6,  -0.6,   -0.6,  -0.6,   0.0,   0.0}"/>
   </section>
 
@@ -304,18 +311,18 @@
   <section name="GUIDANCE_INDI">
     <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
-    <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
+    <define name="GUIDANCE_INDI_SPEED_GAIN" value="0.8"/>
     <define name="GUIDANCE_INDI_POS_GAINZ" value="0.6"/>
     <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.5"/>
     <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
     <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="0.6"/>
-    <define name="GUIDANCE_H_REF_MAX_SPEED" value="15.0"/> <!--not used-->
+    <define name="GUIDANCE_H_REF_MAX_SPEED" value="16.0"/> <!--not used-->
     <define name="GUIDANCE_INDI_MIN_THROTTLE" value="2000"/>
     <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1000"/>
-    <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="15.0"/>
+    <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
     <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation -->
     <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="18.0"/>
-    <define name="GUIDANCE_INDI_PITCH_OFFSET_GAIN" value="0.01"/>
+    <define name="GUIDANCE_INDI_PITCH_OFFSET_GAIN" value="0.06"/>
     <define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.5"/>
     <define name="GUIDANCE_INDI_LINE_GAIN" value="0.7"/>
     <!--Flap effectiveness on lift-->
