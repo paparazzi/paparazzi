@@ -26,20 +26,8 @@ float g = -9.81f;
 
 struct FloatVect2 crash_pos;
 
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-static void send_ballistic_touchdown(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_BALLISTIC_TOUCHDOWN(trans, dev, AC_ID,
-                                &crash_pos.x,
-                                &crash_pos.y);
-}
-#endif
-
 void ballistic_touchdown_init(void) {
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BALLISTIC_TOUCHDOWN, send_ballistic_touchdown);
-#endif
+  // nothing to be done here
 }
 
 /**
@@ -55,7 +43,7 @@ void ballistic_touchdown_run(void) {
   struct FloatVect2 vh;
   VECT2_ASSIGN(vh, v->x, v->y);
 
-  float h = fabsf(stateGetPositionEnu_f()->z); // Should be height above ground... CHECK!
+  float h = fabsf(stateGetPositionEnu_f()->z); // Should be height above ground, make sure to initialize local frame on ground
 
   // With h always larger than 0, the sqrt can never give nan
   float time_fall = (-vz - sqrtf(vz*vz -2.f*h*g))/g;
@@ -68,14 +56,6 @@ void ballistic_touchdown_run(void) {
   pos.x = stateGetPositionEnu_f()->x;
   pos.y = stateGetPositionEnu_f()->y;
 
+  // The predicted crash position is the current drone position + fall distance
   VECT2_SUM(crash_pos, pos, crash_offset);
-
-  // TODO: remove, just for testing!
-  struct Int32Vect3 pos_i;
-  pos_i.x = POS_BFP_OF_REAL(crash_pos.x);
-  pos_i.y = POS_BFP_OF_REAL(crash_pos.y);
-  pos_i.z = 0;
-  uint8_t wp_id = 6;
-  RunOnceEvery(100, DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice,
-                                &wp_id, &pos_i.x, &pos_i.y, &pos_i.z));
 }
