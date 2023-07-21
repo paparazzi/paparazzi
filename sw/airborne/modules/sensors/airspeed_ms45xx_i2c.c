@@ -279,7 +279,7 @@ void ms45xx_i2c_event(void)
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure * ms45xx.airspeed_scale, 0));
+      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure * ms45xx.airspeed_scale, 0)*2.f/1.225f);
 
 #if USE_AIRSPEED_MS45XX
       stateSetAirspeed_f(ms45xx.airspeed);
