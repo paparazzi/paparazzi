@@ -769,7 +769,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, uint32_t stamp, f
   ekf.set_air_density(rho);
 
   // Calculate the height above mean sea level based on pressure
-  sample.hgt = pprz_isa_height_of_pressure_full(pressure, ekf2.qnh * 100.0f); 
+  sample.hgt = pprz_isa_height_of_pressure_full(pressure, ekf2.qnh * 100.0f);
   ekf.setBaroData(sample);
 }
 
@@ -854,7 +854,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   struct LlaCoor_i lla_pos = lla_int_from_gps(gps_s);
   gps_msg.lat = lla_pos.lat;
   gps_msg.lon = lla_pos.lon;
-  gps_msg.alt = gps_s->hmsl;
+  gps_msg.alt = lla_pos.alt;
 #if INS_EKF2_GPS_COURSE_YAW
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
   gps_msg.yaw_offset = 0;
