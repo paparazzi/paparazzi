@@ -44,6 +44,7 @@ static bool invensense3_register_read(struct invensense3_t *inv, uint16_t bank_r
 static bool invensense3_select_bank(struct invensense3_t *inv, uint8_t bank);
 static bool invensense3_config(struct invensense3_t *inv);
 static bool invensense3_reset_fifo(struct invensense3_t *inv);
+static int samples_from_odr(int odr);
 
 /* Default gyro scalings */
 static const struct Int32Rates invensense3_gyro_scale[8][2] = {
@@ -259,6 +260,8 @@ void invensense3_init(struct invensense3_t *inv) {
   }
 
   inv->sample_size = INVENSENSE3_SAMPLE_SIZE_PK3;
+
+  inv->sample_numbers = samples_from_odr(Min((int)inv->gyro_odr, (int)inv->accel_odr));
 }
 
 /**
@@ -872,4 +875,20 @@ static bool invensense3_config(struct invensense3_t *inv) {
       return true;
   }
   return false;
+}
+
+static int samples_from_odr(int odr) {
+   float freq;
+   if(odr < INVENSENSE3_GYRO_ODR_200HZ) {
+    freq = 32000 / pow(2, odr-INVENSENSE3_GYRO_ODR_32KHZ);
+   }
+   else if(odr < INVENSENSE3_GYRO_ODR_500HZ) {
+    freq = 200 / pow(2, odr-INVENSENSE3_GYRO_ODR_200HZ);
+   }
+   else if(odr == INVENSENSE3_GYRO_ODR_500HZ) {
+    freq = 500;
+   } else {
+    // error
+   }
+  return ceilf(freq/PERIODIC_FREQUENCY);
 }
