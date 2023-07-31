@@ -455,7 +455,7 @@ void invensense3_event(struct invensense3_t *inv) {
  * @param data The FIFO buffer data to parse
  * @param len The length of the FIFO buffer
  */
-static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data, uint16_t samples) { //TODO: test changes
+static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data, uint16_t samples) {
   static struct Int32Vect3 accel[INVENSENSE3_FIFO_BUFFER_LEN] = {0};
   static struct Int32Rates gyro[INVENSENSE3_FIFO_BUFFER_LEN] = {0};
 
