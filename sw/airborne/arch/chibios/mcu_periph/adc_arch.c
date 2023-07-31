@@ -201,7 +201,7 @@ static void adc_configure(ADCConversionGroup *cfg, uint8_t num_channels, const u
 
 #if defined(STM32H7XX) || defined(STM32F3XX) || defined(STM32G4XX) || defined(STM32L4XX)
     cfg->pcsel |= (1 << chan);
-    cfg->smpr[chan / 10] |= sample_rate << (3 << (chan % 10));
+    cfg->smpr[chan / 10] |= sample_rate << (3 * (chan % 10));
 
     if (i < 4) {
       cfg->sqr[0] |= chan << (6 * (i + 1));
