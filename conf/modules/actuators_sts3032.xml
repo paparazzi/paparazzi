@@ -1,7 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="actuators_sts3032" dir="actuators" task="actuators">
   <doc>
-    <description>feetech sts3032 servo </description>
+    <description>
+      Feetech sts3032 servo.
+      Their range is 0-&gt;4095. Configure min, neutral and max accordingly.
+    </description>
     <configure name="STS3032_UART" value="UARTX" description="UART on which STS3032 is connected"/>
     <configure name="STS3032_BAUD" value="B1000000" description="UART Baudrate, default to 1000000"/>
     <section name="STS3032" prefix="STS3032_">
@@ -29,7 +32,6 @@
   <header>
     <file name="actuators_sts3032.h"/>
   </header>
-  <!--init fun="actuators_sts3032_init()"/-->
   <periodic fun="actuators_sts3032_periodic()" freq="20" autorun="TRUE"/>
   <event fun="actuators_sts3032_event()"/>
   <makefile>
