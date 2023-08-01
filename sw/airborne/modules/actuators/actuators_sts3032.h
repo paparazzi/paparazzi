@@ -72,8 +72,20 @@ uint8_t id_idx(struct sts3032 *sts, uint8_t id);
 void sts3032_write_pos(struct sts3032 *sts, uint8_t id, int16_t position);
 
 /* Actuator macros */
-#define ActuatorSTS3032Set(_i, _v) { sts3032_write_pos(&sts, sts.ids[_i], _v); }
+#define ActuatorSTS3032Set(_i, _v) { if(sts3032_enabled) {sts3032_write_pos(&sts, sts.ids[_i], _v);} }
 #define ActuatorsSTS3032Init() actuators_sts3032_init()
 #define ActuatorsSTS3032Commit() {}
+
+extern int sts3032_enabled;
+extern int sts3032_current_id;
+extern int sts3032_future_id;
+extern int sts3032_lock_eprom;
+extern int sts3032_move;
+extern int sts3032_response_level;
+
+extern void actuators_sts3032_set_id(float future_id);
+extern void actuators_sts3032_lock_eprom(float lock);
+extern void actuators_sts3032_move(float pos);
+extern void actuators_sts3032_set_response_level(float level);
 
 #endif  // SERVO_STS3032_H

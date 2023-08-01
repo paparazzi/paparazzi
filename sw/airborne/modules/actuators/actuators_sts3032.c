@@ -60,6 +60,13 @@ uint8_t buf_rx_param[255];
 
 
 
+/****** settings globals *********/
+int sts3032_enabled = 1;
+int sts3032_current_id = 1;
+int sts3032_future_id = 1;
+int sts3032_lock_eprom = 1;
+int sts3032_move = 1024;
+/**********************************/
 
 
 static void sts3032_event(struct sts3032 *sts);
@@ -303,3 +310,27 @@ static void write_buf(struct sts3032 *sts, uint8_t id, uint8_t *data, uint8_t le
 		asm("NOP");
 	}
 }
+
+
+/******************** settings handlers **********************/
+void actuators_sts3032_set_id(float future_id) {
+	sts3032_future_id = (int)(future_id+0.5);
+	sts3032_set_id(&sts, (uint8_t)sts3032_current_id, sts3032_future_id);
+}
+
+void actuators_sts3032_lock_eprom(float lock) {
+	sts3032_lock_eprom = (int)(lock+0.5);
+	sts3032_lock_eeprom(&sts, (uint8_t)sts3032_current_id, sts3032_lock_eprom);
+}
+
+void actuators_sts3032_move(float pos) {
+	sts3032_move = pos;
+	sts3032_write_pos(&sts, sts3032_current_id, sts3032_move);
+}
+
+void actuators_sts3032_set_response_level(float level) {
+	sts3032_response_level = (int)(level+0.5);
+	sts3032_set_response_level(&sts, sts3032_current_id, sts3032_response_level);
+}
+
+/************************************************************/

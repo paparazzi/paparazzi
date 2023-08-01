@@ -11,6 +11,18 @@
       <define name="STS3032_RESPONSE_LEVEL" value="0" description="The response level of the servos"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="STS3032">
+        <dl_setting var="sts3032_enabled" min="0" max="1" step="1" shortname="enable"/>
+        <dl_setting var="sts3032_current_id" min="1" max="253" step="1" shortname="ID"/>
+        <dl_setting var="sts3032_future_id" min="1" max="252" step="1" shortname="set id" handler="set_id" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_lock_eprom" min="0" max="1" step="1" shortname="lock EPROM" handler="lock_eprom" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_move" min="0" max="4094" step="1" shortname="move" handler="move" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_response_level" min="0" max="1" step="1" shortname="set response level" handler="set_response_level" header="actuators/actuators_sts3032"></dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>uart</depends>
   </dep>
