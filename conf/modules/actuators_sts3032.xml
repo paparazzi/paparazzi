@@ -1,0 +1,53 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="actuators_sts3032" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Feetech sts3032 servo.
+      Their range is 0-&gt;4095. Configure min, neutral and max accordingly.
+    </description>
+    <configure name="STS3032_UART" value="UARTX" description="UART on which STS3032 is connected"/>
+    <configure name="STS3032_BAUD" value="B1000000" description="UART Baudrate, default to 1000000"/>
+    <section name="STS3032" prefix="STS3032_">
+      <define name="IDS" value="{1, 2}" description="Ids of the servos (in the actuators order)"/>
+      <define name="DELAY_MSG" value="1000" description="Delay to wait before sending an other message when a response is expected"/>
+      <define name="DELAY_MSG_MIN" value="0" description="Delay when no response is expected"/>
+      <define name="STS3032_RESPONSE_LEVEL" value="0" description="The response level of the servos"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="STS3032">
+        <dl_setting var="sts3032_enabled" min="0" max="1" step="1" shortname="enable"/>
+        <dl_setting var="sts3032_current_id" min="1" max="253" step="1" shortname="ID"/>
+        <dl_setting var="sts3032_future_id" min="1" max="252" step="1" shortname="set id" handler="set_id" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_lock_eprom" min="0" max="1" step="1" shortname="lock EPROM" handler="lock_eprom" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_move" min="0" max="4094" step="1" shortname="move" handler="move" header="actuators/actuators_sts3032"></dl_setting>
+        <dl_setting var="sts3032_response_level" min="0" max="1" step="1" shortname="set response level" handler="set_response_level" header="actuators/actuators_sts3032"></dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>uart</depends>
+  </dep>
+  <header>
+    <file name="actuators_sts3032.h"/>
+  </header>
+  <periodic fun="actuators_sts3032_periodic()" freq="20" autorun="TRUE"/>
+  <event fun="actuators_sts3032_event()"/>
+  <makefile>
+    <configure name="STS3032_UART" case="upper|lower"/>
+    <configure name="STS3032_BAUD" default="B1000000"/>
+    <define name="USE_$(STS3032_UART_UPPER)"/>
+    <define name="STS3032_DEV" value="$(STS3032_UART_LOWER)"/>
+    <define name="$(STS3032_UART_UPPER)_BAUD" value="$(STS3032_BAUD)"/>
+    <define name="$(STS3032_UART_UPPER)_CR3" value="USART_CR3_HDSEL"/>
+    <file name="actuators_sts3032.c"/>
+    <file name="circular_buffer.c" dir="utils"/>
+    <test>
+      <define name="SERVOS_STS3032_NB" value="2" />
+      <define name="STS3032_IDS" value="{1,2}" />
+      <define name="STS3032_DEV" value="uart1"/>
+      <define name="USE_UART1" />
+    </test>
+  </makefile>
+</module>
