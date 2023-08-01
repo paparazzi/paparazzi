@@ -94,12 +94,6 @@ void actuators_sts3032_init(void)
 
   static const uint8_t tmp_ids[SERVOS_STS3032_NB] = STS3032_IDS;
   memcpy(sts.ids, tmp_ids, sizeof(tmp_ids));
-
-	//sts3032_lock_eeprom(&sts, 254, 0);
-	//sts3032_set_id(&sts, 254, 2);
-	//sts3032_set_response_level(&sts, 254, 0);
-	//sts3032_lock_eeprom(&sts, 254, 1);
-
 }
 
 void actuators_sts3032_event(void)
@@ -305,10 +299,7 @@ static void write_buf(struct sts3032 *sts, uint8_t id, uint8_t *data, uint8_t le
 	}
   buf[len + 6] = ~checksum;
 
-	int ret = circular_buffer_put(&sts->msg_buf, buf, len + 7);
-	if(ret != 0) {
-		asm("NOP");
-	}
+	circular_buffer_put(&sts->msg_buf, buf, len + 7);
 }
 
 
