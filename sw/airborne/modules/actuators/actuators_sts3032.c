@@ -66,6 +66,7 @@ int sts3032_current_id = 1;
 int sts3032_future_id = 1;
 int sts3032_lock_eprom = 1;
 int sts3032_move = 1024;
+int sts3032_response_level = 0;
 /**********************************/
 
 
