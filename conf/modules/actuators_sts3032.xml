@@ -27,7 +27,8 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>uart</depends>
+    <depends>uart,actuators</depends>
+    <provides>actuators</provides>
   </dep>
   <header>
     <file name="actuators_sts3032.h"/>

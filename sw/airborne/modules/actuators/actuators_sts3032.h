@@ -20,7 +20,7 @@
 
 /** @file "modules/actuators/servo_sts3032.h"
  * @author Flo&Fab <surname.name@enac.fr>
- * feetech sts3032 servo 
+ * feetech sts3032 servo
  */
 
 #ifndef SERVO_STS3032_H
@@ -40,8 +40,8 @@ enum sts3032_rx_state {
 
 struct sts3032 {
   struct uart_periph *periph;
-  
-  
+
+
   uint8_t ids[SERVOS_STS3032_NB];
   uint8_t states[SERVOS_STS3032_NB];
   uint16_t pos[SERVOS_STS3032_NB];
