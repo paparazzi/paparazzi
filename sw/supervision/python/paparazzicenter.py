@@ -19,8 +19,8 @@ dirname = os.path.dirname(os.path.abspath(__file__))
 
 
 TAB_ICONS = {TabProgramsState.IDLE: QtGui.QIcon(),
-             TabProgramsState.RUNNING: QtGui.QIcon(os.path.join(dirname, "running.svg")),
-             TabProgramsState.ERROR: QtGui.QIcon(os.path.join(dirname, "error.svg"))}
+             TabProgramsState.RUNNING: QtGui.QIcon(":/icons/icons/running.svg"),
+             TabProgramsState.ERROR: QtGui.QIcon(":/icons/icons/error.svg")}
 
 
 class PprzCenter(QMainWindow, Ui_SupervisionWindow):

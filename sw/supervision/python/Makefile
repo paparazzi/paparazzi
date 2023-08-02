@@ -9,11 +9,14 @@ OBJECTS = $(patsubst $(SOURCEDIR)/%.ui,$(BUILDDIR)/%.py,$(SOURCES))
 
 CC = pyuic5
 
-all: $(BUILDDIR) $(OBJECTS)
+all: $(BUILDDIR) $(OBJECTS) resources
 
 
 $(OBJECTS): $(BUILDDIR)/%.py : $(SOURCEDIR)/%.ui
-	$(CC) -o $@ $<;
+	$(CC) --import-from=generated -o $@ $<;
+
+resources:
+	pyrcc5 $(SOURCEDIR)/resources.qrc -o $(BUILDDIR)/resources_rc.py
 
 $(BUILDDIR):
 	mkdir -p $@
