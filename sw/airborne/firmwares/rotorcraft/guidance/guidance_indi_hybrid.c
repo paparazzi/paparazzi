@@ -393,7 +393,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   Bound(airspeed_turn, 10.0f, 30.0f);
 
   guidance_euler_cmd.phi = roll_filt.o[0] + euler_cmd.x;
-  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y + guidance_pitch_incr;
+  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y; // + guidance_pitch_incr;
 
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
