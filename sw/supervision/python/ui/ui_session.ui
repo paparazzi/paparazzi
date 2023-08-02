@@ -35,8 +35,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-start">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/play.png</normaloff>:/icons/icons/play.png</iconset>
        </property>
       </widget>
      </item>
@@ -49,8 +49,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="format-justify-fill">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/menu.png</normaloff>:/icons/icons/menu.png</iconset>
        </property>
       </widget>
      </item>
@@ -90,8 +90,8 @@
         <string>Add tool</string>
        </property>
        <property name="icon">
-        <iconset theme="list-add">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/add.png</normaloff>:/icons/icons/add.png</iconset>
        </property>
        <property name="toolButtonStyle">
         <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -133,8 +133,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-start">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/play.png</normaloff>:/icons/icons/play.png</iconset>
        </property>
       </widget>
      </item>
@@ -147,8 +147,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="media-playback-stop">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/stop.png</normaloff>:/icons/icons/stop.png</iconset>
        </property>
       </widget>
      </item>
@@ -161,8 +161,8 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset theme="list-remove">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/remove.png</normaloff>:/icons/icons/remove.png</iconset>
        </property>
       </widget>
      </item>
@@ -178,8 +178,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>380</width>
-        <height>176</height>
+        <width>384</width>
+        <height>162</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -203,8 +203,8 @@
   </layout>
   <action name="save_session_action">
    <property name="icon">
-    <iconset theme="document-save">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/save.png</normaloff>:/icons/icons/save.png</iconset>
    </property>
    <property name="text">
     <string>Save session</string>
@@ -224,8 +224,8 @@
   </action>
   <action name="rename_session_action">
    <property name="icon">
-    <iconset theme="format-text-italic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/copy.png</normaloff>:/icons/icons/copy.png</iconset>
    </property>
    <property name="text">
     <string>Rename session</string>
@@ -233,15 +233,17 @@
   </action>
   <action name="remove_session_action">
    <property name="icon">
-    <iconset theme="edit-delete">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
    </property>
    <property name="text">
     <string>Remove session</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>menu_button</sender>

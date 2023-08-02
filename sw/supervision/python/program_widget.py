@@ -73,15 +73,13 @@ class ProgramWidget(QWidget, Ui_Program):
             self.process.terminate()
 
     def handle_started(self):
-        icon = QIcon.fromTheme("media-playback-stop")
-        self.run_button.setIcon(icon)
+        self.run_button.setIcon(QIcon(":/icons/icons/stop.png"))
         self.program_lineedit.setReadOnly(True)
 
     def handle_finished(self, exit_code: int, exit_status: QProcess.ExitStatus):
         if exit_code not in (0, 15):
             self.program_lineedit.setStyleSheet("background: #f56464")
-        icon = QIcon.fromTheme("media-playback-start")
-        self.run_button.setIcon(icon)
+        self.run_button.setIcon(QIcon(":/icons/icons/play.png"))
         self.program_lineedit.setReadOnly(False)
         self.finished.emit(exit_code, exit_status)
 

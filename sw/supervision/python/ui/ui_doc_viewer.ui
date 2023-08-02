@@ -145,8 +145,8 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset theme="applications-internet">
-             <normaloff>.</normaloff>.</iconset>
+            <iconset resource="resources.qrc">
+             <normaloff>:/icons/icons/browser.png</normaloff>:/icons/icons/browser.png</iconset>
            </property>
           </widget>
          </item>
@@ -191,6 +191,8 @@
    <header location="global">QtWebKitWidgets/QWebView</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
