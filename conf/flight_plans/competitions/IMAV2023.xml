@@ -55,12 +55,12 @@
     <waypoint lat="50.9097" lon="6.22773" name="STDBY"/>
     <waypoint lat="50.9097" lon="6.22823" name="LANDPAD"/>
     <waypoint lat="50.908377" lon="6.222250" name="TAG"/>
-    <waypoint lat="50.910595" lon="6.227356" name="START_DYN"/>
     <waypoint lat="50.909228" lon="6.226700" name="HICKERS"/>
     <waypoint lat="50.9110" lon="6.22635" name="S1"/>
     <waypoint lat="50.9071" lon="6.22589" name="S2"/>
     <waypoint lat="50.9072" lon="6.22426" name="S3"/>
     <waypoint lat="50.9111" lon="6.22465" name="S4"/>
+    <waypoint lat="50.910595" lon="6.227356" name="START_DYN"/>
     <waypoint lat="50.9113" lon="6.22717" name="D1"/>
     <waypoint lat="50.9120" lon="6.22760" name="D2"/>
     <waypoint lat="50.9120" lon="6.22883" name="D3"/>
@@ -168,6 +168,7 @@
       <define name="TAG_TRACKING_WP" value="WP_LANDPAD"/>
       <define name="TAG_TRACKING_SIM_WP" value="WP_TAG"/>
     </module>
+    <module name="dynamic_inspection_imav2023"/>
   </modules>
   <exceptions>
     <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR GetPosAlt() @GT GetAltRef() + 100)       @AND (nav_block @GT IndexOfBlock('Standby')) @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Standby"/>
@@ -259,10 +260,12 @@
       <call_once fun="guidance_h_SetMaxSpeed(endurance_speed)"/>
       <stay wp="_HERE" until="stage_time @GT 3" height="goto_height"/>
       <go from="_HERE" hmode="route" wp="START_DYN" height="goto_height"/>
+      <call_once fun="dynamic_inspection_setup(WP_START_DYN, 4, endurance_speed)"/>
       <deroute block="Run Dynamic"/>
     </block>
     <block name="Run Dynamic">
-      <path wpts="START_DYN,D1,D2,D3,D4,START_DYN"/>
+      <!--path wpts="START_DYN,D1,D2,D3,D4,START_DYN"/-->
+      <call fun="dynamic_inspection_run()"/>
       <deroute block="Landing"/>
     </block>
 
