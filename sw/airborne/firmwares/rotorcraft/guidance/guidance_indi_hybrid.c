@@ -145,6 +145,7 @@ float inv_eff[4];
 
 // Max bank angle in radians
 float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
+float guidance_indi_min_pitch = GUIDANCE_INDI_MIN_PITCH;
 
 /** state eulers in zxy order */
 struct FloatEulers eulers_zxy;
@@ -301,7 +302,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   float desired_speed = VECT2_NORM2(gi_speed_sp);
   float guidance_pitch_offset = TRANSITION_MAX_OFFSET * desired_speed / guidance_indi_max_airspeed; // FIXME mix ground and airspeed ?
   Bound(guidance_pitch_offset, TRANSITION_MAX_OFFSET, 0.f);
-  float guidance_pitch_incr = gih_params.pitch_offset_gain * (guidance_pitch_offset - eulers_zxy.theta);
+  //float guidance_pitch_incr = gih_params.pitch_offset_gain * (guidance_pitch_offset - eulers_zxy.theta);
   //printf("pitch offset %f\n", DegOfRad(guidance_pitch_offset));
 
   // filter accel to get rid of noise and filter attitude to synchronize with accel
@@ -348,7 +349,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #if GUIDANCE_INDI_HYBRID_USE_WLS
     // Set lower limits
   du_min_gih[0] = -guidance_indi_max_bank - roll_filt.o[0]; // roll
-  du_min_gih[1] = RadOfDeg(GUIDANCE_INDI_MIN_PITCH) - pitch_filt.o[0]; // pitch
+  du_min_gih[1] = RadOfDeg(guidance_indi_min_pitch) - pitch_filt.o[0]; // pitch
   du_min_gih[2] = (MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ - actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] + (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3];
 
   // Set upper limits limits
@@ -397,7 +398,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
-  Bound(guidance_euler_cmd.theta, RadOfDeg(GUIDANCE_INDI_MIN_PITCH), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
+  Bound(guidance_euler_cmd.theta, RadOfDeg(guidance_indi_min_pitch), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
   float coordinated_turn_roll = eulers_zxy.phi;

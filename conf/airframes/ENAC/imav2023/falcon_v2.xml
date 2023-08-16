@@ -323,6 +323,8 @@
     <define name="GUIDANCE_H_REF_MAX_SPEED" value="16.0"/> <!--not used-->
     <define name="GUIDANCE_INDI_MIN_THROTTLE" value="2000"/>
     <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1000"/>
+    <define name="GUIDANCE_INDI_MIN_PITCH" value="-80."/>
+    <define name="GUIDANCE_INDI_MAX_PITCH" value="25."/>
     <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
     <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation -->
     <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="18.0"/>
