@@ -29,6 +29,7 @@
 #include "math/pprz_algebra_float.h"
 #include "modules/core/abi.h"
 #include "generated/airframe.h"
+#include "modules/imu/imu.h"
 
 /** Enable by default */
 #ifndef FILTER_1EURO_ENABLED
@@ -208,6 +209,11 @@ void filter_1euro_imu_init(void)
   AbiBindMsgIMU_GYRO(IMU_F1E_BIND_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL(IMU_F1E_BIND_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_MAG(IMU_F1E_BIND_ID, &mag_ev, mag_cb);
+
+  // force the creation of 1euro_imu in the imu structure
+  imu_get_gyro(IMU_F1E_ID, true);
+  imu_get_accel(IMU_F1E_ID, true);
+  imu_get_mag(IMU_F1E_ID, true);
 }
 
 /**
