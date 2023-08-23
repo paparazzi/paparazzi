@@ -313,7 +313,9 @@
       <define name="FE_LIFT_A_AS" value="0.0008"/>
       <define name="FE_LIFT_B_AS" value="0.00009"/>
     </module>
-    <module name="nav" type="hybrid"/>
+    <module name="nav" type="hybrid">
+      <define name="GUIDANCE_H_USE_REF" value="FALSE"/>
+    </module>
 
     <!--<module name="ahrs"          type="int_cmpl_quat">-->
       <!--<configure name="USE_MAGNETOMETER" value="TRUE"/>-->
