@@ -36,7 +36,7 @@
           <strip_button name="ZoomOut" icon="zoom.png" value="119" group="dczoom"/>
         </dl_setting>
 
-        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
+        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG|SURVEY|CIRCLE">
           <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dcauto"/>
           <strip_button name="Stop Autoshoot" icon="dcstart.png" value="0" group="dcauto"/>
         </dl_setting>

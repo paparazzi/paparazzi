@@ -35,6 +35,12 @@
 #define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
 float nav_max_speed = NAV_MAX_SPEED;
 
+// Max ground speed in hover mode (goto/stay)
+#ifndef GUIDANCE_INDI_HOVER_SPEED
+#define GUIDANCE_INDI_HOVER_SPEED 5.f
+#endif
+float nav_hover_speed = GUIDANCE_INDI_HOVER_SPEED;
+
 #ifndef MAX_DECELERATION
 #define MAX_DECELERATION 1.f
 #endif
@@ -70,18 +76,19 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   struct FloatVect2 speed_sp;
   VECT2_SMUL(speed_sp, pos_error, gih_params.pos_gain);
 
+  // Calculate distance to waypoint
+  float dist_to_wp = float_vect2_norm(&pos_error);
+  // Calculate max speed to decelerate from
+  float max_speed_decel2 = fabsf(2.f * dist_to_wp * MAX_DECELERATION); // dist_to_wp can only be positive, but just in case
+  float max_speed_decel = sqrtf(max_speed_decel2);
+  // Bound the setpoint velocity vector
+  float max_h_speed;
   if (force_forward) {
-    float_vect2_scale_in_2d(&speed_sp, nav_max_speed);
+    max_h_speed = Min(nav_max_speed, max_speed_decel); // allow fast forward flight
   } else {
-    // Calculate distance to waypoint
-    float dist_to_wp = float_vect2_norm(&pos_error);
-    // Calculate max speed to decelerate from
-    float max_speed_decel2 = fabsf(2.f * dist_to_wp * MAX_DECELERATION); // dist_to_wp can only be positive, but just in case
-    float max_speed_decel = sqrtf(max_speed_decel2);
-    // Bound the setpoint velocity vector
-    float max_h_speed = Min(nav_max_speed, max_speed_decel);
-    float_vect2_bound_in_2d(&speed_sp, max_h_speed);
+    max_h_speed = Min(nav_hover_speed, max_speed_decel); // use hover max speed
   }
+  float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 
   VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
@@ -219,7 +226,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     } else {
       // close to circle, speed function of radius for a feasible turn
       // MAX_BANK / 2 gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(GUIDANCE_H_MAX_BANK / 2.f));
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * GUIDANCE_H_MAX_BANK));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
   }

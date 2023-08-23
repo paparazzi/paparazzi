@@ -129,7 +129,7 @@ void logger_control_effectiveness_periodic(void)
   // log actuators
 #if LOGGER_CONTROL_EFFECTIVENESS_ACTUATORS
   for (unsigned int i = 0; i < ACTUATORS_NB; i++) {
-    sdLogWriteLog(pprzLogFile, ",%d", actuators[i]);
+    sdLogWriteLog(pprzLogFile, ",%d", actuators_pprz[i]);
   }
 #endif
 

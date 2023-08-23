@@ -26,6 +26,7 @@
 
 #include "modules/nav/nav_rotorcraft_base.h"
 #include "firmwares/rotorcraft/navigation.h"
+#include "generated/flight_plan.h"
 
 struct NavBase_t nav_rotorcraft_base;
 
@@ -35,7 +36,6 @@ static void nav_stage_init(void)
 {
   nav_rotorcraft_base.circle.radians = 0.f;
   nav_rotorcraft_base.goto_wp.leg_progress = 0.f;
-  nav_rotorcraft_base.oval.count = 0;
 }
 
 static void nav_goto(struct EnuCoor_f *wp)

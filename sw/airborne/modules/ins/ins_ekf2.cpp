@@ -522,7 +522,7 @@ void ins_ekf2_init(void)
 
   /* Initialize the origin from flight plan */
 #if USE_INS_NAV_INIT
-  if(ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0 + NAV_MSL0)*1e-3))
+  if (ekf.setEkfGlobalOrigin(NAV_LAT0*1e-7, NAV_LON0*1e-7, (NAV_ALT0 + NAV_MSL0)*1e-3))
   {
     struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
     llh_nav0.lat = NAV_LAT0;
@@ -563,6 +563,20 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+}
+
+void ins_reset_local_origin(void)
+{
+#if USE_GPS
+  if (GpsFixValid()) {
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
+      ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
+      ekf2.ltp_def.hmsl = gps.hmsl;
+      stateSetLocalOrigin_i(&ekf2.ltp_def);
+    }
+  }
+#endif
 }
 
 /* Update the INS state */

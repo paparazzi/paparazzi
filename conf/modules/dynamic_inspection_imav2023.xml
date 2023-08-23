@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="dynamic_inspection_imav2023" dir="nav" task="control">
+  <doc>
+    <description>
+      Compute and fly sequence of waypoints to maximize the score at IMAV2023, task 3
+    </description>
+  </doc>
+  <dep>
+    <depends>math</depends>
+  </dep>
+  <header>
+    <file name="dynamic_inspection_imav2023.h"/>
+  </header>
+  <init fun="dynamic_inspection_init()"/>
+  <makefile>
+    <file name="dynamic_inspection_imav2023.c"/>
+    <test firmware="rotorcraft"/>
+  </makefile>
+</module>

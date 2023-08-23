@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="eff_scheduling_falcon" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectivenss matrix of the Falcon hybride plane
+    </description>
+  </doc>
+ 
+  <header>
+    <file name="eff_scheduling_falcon.h"/>
+  </header>
+  <init fun="ctrl_eff_scheduling_init()"/>
+  <periodic fun="ctrl_eff_scheduling_periodic()" freq="20.0"/>
+  <periodic fun="ctrl_eff_scheduling_report()" freq="0.5" autorun="FALSE"/> <!-- TRUE  FALSE-->
+  <makefile target="ap|nps" firmware="rotorcraft" >
+    <file name="eff_scheduling_falcon.c"/>
+  </makefile>
+</module>
