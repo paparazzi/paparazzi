@@ -77,7 +77,7 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ins"           type="ekf2" />
-    
+
     <module name="air_data"/>
 
     <!-- Internal MAG -->
@@ -96,6 +96,8 @@
       <configure name="TFMINI_PORT" value="UART4"/>
       <configure name="USE_TFMINI_AGL" value="FALSE"/>
     </module-->
+
+    <module name="nav_hybrid"/>
 
     <module name="guidance" type="indi_hybrid">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>

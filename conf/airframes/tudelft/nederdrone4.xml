@@ -108,6 +108,8 @@
       <configure name="USE_TFMINI_AGL" value="FALSE"/>
     </module-->
 
+    <module name="nav_hybrid"/>
+
     <module name="guidance" type="indi_hybrid">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
