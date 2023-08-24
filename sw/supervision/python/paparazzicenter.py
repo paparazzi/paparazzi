@@ -3,17 +3,23 @@
 # released under GNU GPLv2 or later. See COPYING file.
 import os
 import sys
+import utils
+
+lib_path = os.path.normpath(os.path.join(utils.PAPARAZZI_SRC, 'sw', 'lib', 'python'))
+sys.path.append(lib_path)
+
+
 import signal
 import copy
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui
-import utils
 from lxml import etree as ET
 from conf import Conf, Aircraft, ConfError
 from app_settings import AppSettings
 from generated.ui_supervision_window import Ui_SupervisionWindow
 from generated.ui_new_ac_dialog import Ui_NewACDialog
 from program_widget import TabProgramsState
+
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 
@@ -259,6 +265,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings.setValue("ui/window_size", self.size())
         settings.setValue("ui/last_AC", self.currentAc.name)
         settings.setValue("ui/last_session", self.operation_panel.session.get_current_session())
+        settings.setValue("ui/last_control_panel", self.operation_panel.session.get_current_control_panel())
 
     def update_left_pane_width(self, pos, index):
         utils.get_settings().setValue("ui/left_pane_width", pos)

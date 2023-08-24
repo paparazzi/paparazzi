@@ -15,18 +15,8 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Session</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QComboBox" name="sessions_combo"/>
-     </item>
-     <item>
+    <layout class="QGridLayout" name="gridLayout" columnstretch="2,3,0,0">
+     <item row="1" column="2">
       <widget class="QToolButton" name="start_session_button">
        <property name="toolTip">
         <string>Start Session</string>
@@ -40,7 +30,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="3">
       <widget class="QToolButton" name="menu_button">
        <property name="contextMenuPolicy">
         <enum>Qt::ActionsContextMenu</enum>
@@ -54,7 +44,30 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="control_panel_combo"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>control panel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Session</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="sessions_combo"/>
+     </item>
     </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </item>
    <item>
     <widget class="QWidget" name="favorite_tools" native="true"/>
@@ -179,7 +192,7 @@
         <x>0</x>
         <y>0</y>
         <width>384</width>
-        <height>162</height>
+        <height>154</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

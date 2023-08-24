@@ -7,8 +7,6 @@ from conf import Aircraft, Conf
 import utils
 import os
 import sys
-lib_path = os.path.normpath(os.path.join(utils.PAPARAZZI_SRC, 'sw', 'lib', 'python'))
-sys.path.append(lib_path)
 import paparazzi
 from typing import List
 
