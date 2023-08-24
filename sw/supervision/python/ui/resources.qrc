@@ -1,0 +1,21 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/error.svg</file>
+    <file>icons/running.svg</file>
+    <file>icons/edit.png</file>
+    <file>icons/delete.png</file>
+    <file>icons/copy.png</file>
+    <file>icons/browser.png</file>
+    <file>icons/clear.png</file>
+    <file>icons/menu.png</file>
+    <file>icons/refresh.png</file>
+    <file>icons/save.png</file>
+    <file>icons/add.png</file>
+    <file>icons/remove.png</file>
+    <file>icons/stop.png</file>
+    <file>icons/play.png</file>
+    <file>icons/flash.png</file>
+    <file>icons/build.png</file>
+    <file>icons/clean.png</file>
+  </qresource>
+</RCC>

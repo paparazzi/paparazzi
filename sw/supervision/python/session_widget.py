@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 import utils
 import lxml.etree as ET
-
+import paparazzi
 from typing import List, Optional, Tuple, Dict
 from program_widget import ProgramWidget, TabProgramsState
 from tools_menu import ToolMenu
@@ -30,11 +30,10 @@ class SessionWidget(QWidget, Ui_Session):
         self.console: ConsoleWidget = None
         self.ac: Aircraft = None
         self.sessions = []
-        self.tools = []
+        self.tools: Dict[str, Tool] = {}
         self.tools_menu = ToolMenu()
-        self.sessions_combo.addItems(["Simulation", "Replay"])
-        self.sessions_combo.insertSeparator(2)
         self.programs_state: TabProgramsState = TabProgramsState.IDLE
+        self.control_panel_combo.currentTextChanged.connect(self.on_control_panel_changed)
         self.menu_button.addAction(self.save_session_action)
         self.menu_button.addAction(self.save_as_action)
         self.menu_button.addAction(self.rename_session_action)
@@ -57,20 +56,40 @@ class SessionWidget(QWidget, Ui_Session):
         self.ac = ac
 
     def init(self):
-        self.sessions = parse_sessions()
-        self.tools = parse_tools()
+        self.update_control_panels()
+        self.on_control_panel_changed()
+
+    def on_control_panel_changed(self):
+        current_cp = self.control_panel_combo.currentText()
+        self.sessions = parse_sessions(current_cp)
+        self.tools = parse_tools(current_cp)
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
+        self.sessions_combo.clear()
+        self.sessions_combo.addItems(["Simulation", "Replay"])
+        self.sessions_combo.insertSeparator(2)
         self.sessions_combo.addItems(sessions_names)
         last_session = utils.get_settings().value("ui/last_session", None, str)
-        if last_session is not None:
+        if last_session is not None and last_session in sessions_names:
             self.sessions_combo.setCurrentText(last_session)
+        else:
+            self.sessions_combo.setCurrentIndex(0)
+
+    def update_control_panels(self):
+        cpfs = paparazzi.get_list_of_controlpanel_files()
+        self.control_panel_combo.addItems(cpfs)
+        last_cp = utils.get_settings().value("ui/last_control_panel", None, str)
+        if last_cp is not None and last_cp in cpfs:
+            self.control_panel_combo.setCurrentText(last_cp)
 
     def get_current_session(self) -> str:
         """
         :return: current session name in comboBox.
         """
         return self.sessions_combo.currentText()
+
+    def get_current_control_panel(self) -> str:
+        return self.control_panel_combo.currentText()
 
     def start_session(self):
         self.reset_programs_status()
@@ -203,6 +222,7 @@ class SessionWidget(QWidget, Ui_Session):
         self.reset_programs_status()
 
     def init_tools_menu(self):
+        self.tools_menu.clear()
         for t in self.tools.values():
             self.tools_menu.add_tool(t)
 

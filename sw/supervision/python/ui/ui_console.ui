@@ -59,8 +59,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>382</width>
-            <height>524</height>
+            <width>180</width>
+            <height>525</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -154,8 +154,8 @@
         <string>Clear console</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-clear">
-         <normaloff>.</normaloff>.</iconset>
+        <iconset resource="resources.qrc">
+         <normaloff>:/icons/icons/clear.png</normaloff>:/icons/icons/clear.png</iconset>
        </property>
       </widget>
      </item>
@@ -163,6 +163,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

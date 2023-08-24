@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>374</width>
-    <height>25</height>
+    <height>32</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,8 +43,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="media-playback-stop">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/stop.png</normaloff>:/icons/icons/stop.png</iconset>
      </property>
     </widget>
    </item>
@@ -54,13 +54,15 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="list-remove">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/remove.png</normaloff>:/icons/icons/remove.png</iconset>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

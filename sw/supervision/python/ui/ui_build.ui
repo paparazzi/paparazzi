@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
+    <width>464</width>
     <height>87</height>
    </rect>
   </property>
@@ -52,11 +52,11 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset theme="edit-clear">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset resource="resources.qrc">
+          <normaloff>:/icons/icons/clean.png</normaloff>:/icons/icons/clean.png</iconset>
         </property>
         <property name="shortcut">
-         <string>Ctrl+C</string>
+         <string>Ctrl+Shift+B</string>
         </property>
        </widget>
       </item>
@@ -69,8 +69,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset theme="system-run">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset resource="resources.qrc">
+          <normaloff>:/icons/icons/build.png</normaloff>:/icons/icons/build.png</iconset>
         </property>
         <property name="shortcut">
          <string>Ctrl+B</string>
@@ -130,8 +130,8 @@
          <string>Flash</string>
         </property>
         <property name="icon">
-         <iconset theme="emblem-downloads">
-          <normaloff>.</normaloff>.</iconset>
+         <iconset resource="resources.qrc">
+          <normaloff>:/icons/icons/flash.png</normaloff>:/icons/icons/flash.png</iconset>
         </property>
         <property name="shortcut">
          <string>Ctrl+U</string>
@@ -143,6 +143,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
