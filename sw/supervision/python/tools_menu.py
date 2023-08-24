@@ -39,6 +39,11 @@ class ToolMenu(QWidget, Ui_ToolsList):
         self.tools_buttons[t.name] = button
         self.content_widget.layout().addWidget(button)
 
+    def clear(self):
+        for _name, widget in self.tools_buttons.items():
+            self.content_widget.layout().removeWidget(widget)
+        self.tools_buttons.clear()
+
     def filter(self, txt: str):
         for name, button in self.tools_buttons.items():
             show = txt.lower() in name.lower()

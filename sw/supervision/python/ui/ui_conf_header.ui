@@ -53,8 +53,8 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset theme="format-justify-fill">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/menu.png</normaloff>:/icons/icons/menu.png</iconset>
      </property>
     </widget>
    </item>
@@ -67,8 +67,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="view-refresh">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/refresh.png</normaloff>:/icons/icons/refresh.png</iconset>
      </property>
      <property name="shortcut">
       <string>Ctrl+R</string>
@@ -84,8 +84,8 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset theme="document-save">
-       <normaloff>.</normaloff>.</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/save.png</normaloff>:/icons/icons/save.png</iconset>
      </property>
      <property name="shortcut">
       <string>Ctrl+S</string>
@@ -127,8 +127,8 @@
   </action>
   <action name="remove_ac_action">
    <property name="icon">
-    <iconset theme="edit-delete">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
    </property>
    <property name="text">
     <string>Remove</string>
@@ -136,8 +136,8 @@
   </action>
   <action name="duplicate_action">
    <property name="icon">
-    <iconset theme="edit-copy">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/copy.png</normaloff>:/icons/icons/copy.png</iconset>
    </property>
    <property name="text">
     <string>Duplicate</string>
@@ -145,15 +145,17 @@
   </action>
   <action name="rename_action">
    <property name="icon">
-    <iconset theme="format-text-italic">
-     <normaloff>.</normaloff>.</iconset>
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/edit.png</normaloff>:/icons/icons/edit.png</iconset>
    </property>
    <property name="text">
     <string>Rename</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>menu_button</sender>
