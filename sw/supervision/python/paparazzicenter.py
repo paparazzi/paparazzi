@@ -54,6 +54,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.header.ac_save.connect(lambda _: self.conf.save())
         self.header.ac_new.connect(self.handle_new_ac)
 
+        self.configuration_panel.build_widget.refresh_ac.connect(self.handle_ac_edited)
         self.configuration_panel.program_state_changed.connect(lambda state: self.programs_state_changed(state, 0))
         self.operation_panel.session.program_state_changed.connect(lambda state: self.programs_state_changed(state, 1))
 

@@ -28,6 +28,7 @@ class FlashMode:
 class BuildWidget(Ui_Build, QWidget):
 
     spawn_program = QtCore.pyqtSignal(str, list, str, object)
+    refresh_ac = QtCore.pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -95,7 +96,9 @@ class BuildWidget(Ui_Build, QWidget):
         if self.print_config_checkbox.isChecked():
             cmd.append("PRINT_CONFIG=1")
         shortname = "Build {}".format(self.ac.name)
+        self.refresh_ac.emit(self.ac)
         self.conf.save(False)
+        self.target_combo.setCurrentText(target)
         self.enable_buttons(False)
         utils.get_settings().setValue("ui/last_target", target)
         self.spawn_program.emit(shortname, cmd, None, lambda: self.enable_buttons(True))
