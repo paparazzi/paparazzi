@@ -41,6 +41,9 @@
 #include "modules/radio_control/radio_control.h"
 #include "filters/low_pass_filter.h"
 
+// For feed forward rates
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+
 #if !defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
 #error You have to define the first order time constant of the actuator dynamics!
 #endif
@@ -477,6 +480,11 @@ void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight __
   rate_sp.p = indi.gains.att.p * att_fb.x / indi.gains.rate.p;
   rate_sp.q = indi.gains.att.q * att_fb.y / indi.gains.rate.q;
   rate_sp.r = indi.gains.att.r * att_fb.z / indi.gains.rate.r;
+
+  if (ff_rates_set) {
+    RATES_ADD(rate_sp, ff_rates);
+    ff_rates_set = false;
+  }
 
   /* compute the INDI command */
   stabilization_indi_rate_run(rate_sp, in_flight);
