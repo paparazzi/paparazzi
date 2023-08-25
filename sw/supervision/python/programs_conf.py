@@ -100,7 +100,7 @@ class Tool:
         return name, Tool(name, command, icon, args, favorite)
 
 
-def parse_tools() -> Dict[str, Tool]:
+def parse_tools(cp) -> Dict[str, Tool]:
     tools = {}
     tools_dir = os.path.join(utils.CONF_DIR, "tools")
     for file in os.listdir(tools_dir):
@@ -115,7 +115,7 @@ def parse_tools() -> Dict[str, Tool]:
 
     # programs from control_panel.xml
     # override programs from conf/tools/*.xml
-    control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
+    control_panel = ET.parse(os.path.join(utils.CONF_DIR, cp))
     for xml_section in control_panel.getroot().findall("section"):
         if xml_section.get("name") == "programs":
             for xml_program in xml_section.findall("program"):
@@ -125,8 +125,8 @@ def parse_tools() -> Dict[str, Tool]:
     return tools
 
 
-def parse_sessions() -> List[Session]:
-    control_panel = ET.parse(os.path.join(utils.CONF_DIR, "control_panel.xml"))
+def parse_sessions(cp) -> List[Session]:
+    control_panel = ET.parse(os.path.join(utils.CONF_DIR, cp))
     for xml_section in control_panel.getroot().findall("section"):
         if xml_section.get("name") == "sessions":
             return [Session.parse(xml_session) for xml_session in xml_section.findall("session")]
