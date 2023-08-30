@@ -68,6 +68,9 @@ struct guidance_indi_hybrid_params {
   float liftd_p50;
 };
 
+extern struct FloatRates ff_rates;
+extern bool ff_rates_set;
+
 extern struct FloatVect3 sp_accel;
 extern struct FloatVect3 gi_speed_sp;
 
