@@ -79,6 +79,22 @@ uint32_t get_sys_time_usec(void)
   return t;
 }
 
+/**
+ * Get the time in microseconds divided by 100 since startup.
+ * WARNING: overflows after 7000min!
+ * @return 100microseconds since startup as uint32_t
+ */
+uint32_t get_sys_time_usec100(void)
+{
+  chMtxLock(&sys_time_mtx);
+  uint32_t current = chSysGetRealtimeCounterX();
+  uint32_t t = sys_time.nb_sec * 10000 +
+               TIME_I2US(sys_time.nb_sec_rem)/100 +
+               RTC2US(STM32_SYSCLK, current - cpu_counter)/100;
+  chMtxUnlock(&sys_time_mtx);
+  return t;
+}
+
 uint32_t get_sys_time_msec(void)
 {
   chMtxLock(&sys_time_mtx);
