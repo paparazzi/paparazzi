@@ -41,6 +41,7 @@
 #endif
 
 extern uint32_t get_sys_time_usec(void);
+extern uint32_t get_sys_time_usec100(void);
 extern uint32_t get_sys_time_msec(void);
 extern void sys_time_usleep(uint32_t us);
 extern void sys_time_msleep(uint16_t ms);

@@ -52,6 +52,18 @@ static inline uint32_t get_sys_time_usec(void)
 }
 
 /**
+ * Get the time in 100microseconds since startup.
+ * WARNING: overflows after 7000min!
+ * @return 100microseconds since startup as uint32_t
+ */
+static inline uint32_t get_sys_time_usec100(void)
+{
+  return sys_time.nb_sec * 10000 +
+         usec_of_cpu_ticks(sys_time.nb_sec_rem)/100 +
+         usec_of_cpu_ticks(systick_get_reload() - systick_get_value())/100;
+}
+
+/**
  * Get the time in milliseconds since startup.
  * @return milliseconds since startup as uint32_t
  */
