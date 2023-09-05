@@ -39,6 +39,13 @@
 extern uint32_t get_sys_time_usec(void);
 
 /**
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 7000 minutes!
+ * @return current system time as uint32_t
+ */
+extern uint32_t get_sys_time_usec100(void);
+
+/**
  * Get the time in milliseconds since startup.
  * @return milliseconds since startup as uint32_t
  */
