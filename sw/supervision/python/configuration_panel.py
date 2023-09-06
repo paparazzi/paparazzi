@@ -5,8 +5,9 @@ import utils
 from generated.ui_configuration_panel import Ui_ConfigurationPanel
 from program_widget import ProgramWidget, TabProgramsState
 from conf import *
-from programs_conf import parse_tools
+from programs_conf import Tool
 import subprocess
+
 
 
 class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
@@ -67,13 +68,12 @@ class ConfigurationPanel(QWidget, Ui_ConfigurationPanel):
         self.currentAC.radio = self.conf_widget.radio.path
         self.currentAC.telemetry = self.conf_widget.telemetry.path
         self.ac_edited.emit(self.currentAC)
+    
+    def handle_tools_changed(self, tools: Dict[str, Tool]):
+        if "Flight Plan Editor" in tools:
+            self.flight_plan_editor = tools["Flight Plan Editor"]
 
     def edit_flightplan_gcs(self, path):
-        if self.flight_plan_editor is None:
-            tools = parse_tools()
-            if "Flight Plan Editor" in tools:
-                self.flight_plan_editor = tools["Flight Plan Editor"]
-
         if self.flight_plan_editor is not None:
             cmd = [os.path.join(utils.PAPARAZZI_SRC, self.flight_plan_editor.command)]
             for arg in self.flight_plan_editor.args:

@@ -22,6 +22,7 @@ class SessionWidget(QWidget, Ui_Session):
     programs_all_stopped = QtCore.pyqtSignal()
     program_spawned = QtCore.pyqtSignal()
     program_state_changed = QtCore.pyqtSignal(TabProgramsState)
+    tools_changed = QtCore.pyqtSignal(dict) # Dict[str, Tool]
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
@@ -63,6 +64,7 @@ class SessionWidget(QWidget, Ui_Session):
         current_cp = self.control_panel_combo.currentText()
         self.sessions = parse_sessions(current_cp)
         self.tools = parse_tools(current_cp)
+        self.tools_changed.emit(self.tools)
         self.init_tools_menu()
         sessions_names = [session.name for session in self.sessions]
         self.sessions_combo.clear()
