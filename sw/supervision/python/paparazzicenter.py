@@ -61,6 +61,8 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.operation_panel.session.program_spawned.connect(self.header.disable_sets)
         self.operation_panel.session.programs_all_stopped.connect(self.header.enable_sets)
 
+        self.operation_panel.session.tools_changed.connect(self.configuration_panel.handle_tools_changed)
+
         self.configuration_panel.splitter.splitterMoved.connect(self.update_left_pane_width)
         settings = utils.get_settings()
         window_size = settings.value("ui/window_size", QtCore.QSize(1000, 600), QtCore.QSize)
