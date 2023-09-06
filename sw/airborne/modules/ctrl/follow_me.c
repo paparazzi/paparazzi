@@ -27,20 +27,16 @@
 
 #include "modules/datalink/telemetry.h"
 #include "generated/modules.h"
+#include "generated/flight_plan.h"
 
-// Distance to the target to hover from is by default 15 meters
+// Distance to the target to hover from is by default 45 meters
 #ifndef FOLLOW_ME_DISTANCE
 #define FOLLOW_ME_DISTANCE 45
 #endif
 
-// Height difference between te target be default 18 meters
+// Height difference between te target be default 60 meters
 #ifndef FOLLOW_ME_HEIGHT
-#define FOLLOW_ME_HEIGHT 75
-#endif
-
-// Minimum speed in m/s which the ground needs to have in order to update the heading
-#ifndef FOLLOW_ME_MIN_SPEED
-#define FOLLOW_ME_MIN_SPEED 1.0f
+#define FOLLOW_ME_HEIGHT 60
 #endif
 
 // The relative position GPS timeout in ms
@@ -53,15 +49,19 @@
 #define FOLLOW_ME_GROUND_TIMEOUT 5000
 #endif
 
-// The default course sin/cos filter value (higher is harder filtering)
+// The default heading sin/cos filter value (higher is harder filtering)
 #ifndef FOLLOW_ME_FILT
 #define FOLLOW_ME_FILT 0.9
 #endif
 
+// By default no moving waypoints
+#ifndef FOLLOW_ME_MOVING_WPS
+#define FOLLOW_ME_MOVING_WPS
+#endif
+
 float follow_me_distance = FOLLOW_ME_DISTANCE;
 float follow_me_height = FOLLOW_ME_HEIGHT;
-float follow_me_heading = 0.;
-float follow_me_min_speed = FOLLOW_ME_MIN_SPEED;
+float follow_me_heading = 180.;
 float follow_me_filt = FOLLOW_ME_FILT;
 float follow_me_diag_speed = 1.0;
 float follow_me_gps_delay = 200;
@@ -76,11 +76,72 @@ static struct LlaCoor_i ground_lla;
 static float ground_speed;
 static float ground_climb;
 static float ground_course;
+static float ground_heading;
+
+static uint8_t moving_wps[] = {FOLLOW_ME_MOVING_WPS};
+static uint8_t moving_wps_cnt = 0;
+static struct EnuCoor_f last_targetpos;
+static float last_targetpos_heading;
+static bool last_targetpos_valid = false;
 
 void follow_me_init(void)
 {
   ground_set = false;
   ground_time_msec = 0;
+  last_targetpos_valid = false;
+  moving_wps_cnt = sizeof(moving_wps) / sizeof(uint8_t);
+}
+
+void follow_me_periodic(void)
+{
+  if(!ground_set) {
+    return;
+  }
+
+  // Calculate the difference to move the waypoints
+  struct EnuCoor_i target_pos_cm;
+  struct EnuCoor_f cur_targetpos, diff_targetpos;
+  float cur_targetpos_heading, diff_targetpos_heading;
+
+  enu_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &ground_lla);
+  VECT3_FLOAT_OF_CM(cur_targetpos, target_pos_cm);
+  VECT3_DIFF(diff_targetpos, cur_targetpos, last_targetpos);
+
+  cur_targetpos_heading = ground_heading;
+  diff_targetpos_heading = cur_targetpos_heading - last_targetpos_heading;
+
+  // Only move if we had a previous location
+  VECT3_COPY(last_targetpos, cur_targetpos);
+  last_targetpos_heading = cur_targetpos_heading;
+  if(!last_targetpos_valid) {
+    last_targetpos_valid = true;
+    return;
+  }
+
+  // Go through all waypoints
+  for(uint8_t i = 0; i < moving_wps_cnt; i++) {
+    uint8_t wp_id = moving_wps[i];
+    struct EnuCoor_f *wp_enu = waypoint_get_enu_f(wp_id);
+    struct EnuCoor_f wp_new_enu;
+    wp_new_enu.x = wp_enu->x + diff_targetpos.x;
+    wp_new_enu.y = wp_enu->y + diff_targetpos.y;
+    wp_new_enu.z = wp_enu->z;
+
+    // Rotate the waypoint
+    float cos_heading = cosf(diff_targetpos_heading/180.*M_PI);
+    float sin_heading = sinf(diff_targetpos_heading/180.*M_PI);
+    wp_new_enu.x = ((wp_new_enu.x - cur_targetpos.x) * cos_heading) + ((wp_new_enu.y - cur_targetpos.y) * sin_heading) +  + cur_targetpos.x;
+    wp_new_enu.y = (-(wp_new_enu.y - cur_targetpos.y) * sin_heading) + ((wp_new_enu.y - cur_targetpos.y) * cos_heading) + cur_targetpos.y;
+
+    // Update the waypoint
+    waypoint_set_enu(wp_id, &wp_new_enu);
+
+    // Send to the GCS that the waypoint has been moved
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
+                               &waypoints[wp_id].enu_i.x,
+                               &waypoints[wp_id].enu_i.y,
+                               &waypoints[wp_id].enu_i.z);
+  }
 }
 
 void follow_me_parse_target_pos(uint8_t *buf)
@@ -96,12 +157,13 @@ void follow_me_parse_target_pos(uint8_t *buf)
   ground_speed = DL_TARGET_POS_speed(buf);
   ground_climb = DL_TARGET_POS_climb(buf);
   ground_course = DL_TARGET_POS_course(buf);
-
-  // Update the heading based on the course
-  if(ground_speed > follow_me_min_speed) {
-    follow_me_heading = ground_course + 180.f;
-    if(follow_me_heading > 360.f) follow_me_heading -= 360.f;
+  ground_heading = DL_TARGET_POS_heading(buf);
+  if(ground_heading > 360.f) {
+    // Ground heading is invalid
+    ground_set = false;
+    return;
   }
+
   ground_set = true;
 }
 
@@ -111,8 +173,8 @@ void follow_me_set_wp(uint8_t wp_id, float speed)
   struct NedCoor_f target_pos;
   float diff_time_ms = 0;
 
-  // Check if we got a valid relative position which didn't timeout
-  if(bit_is_set(gps.valid_fields, GPS_VALID_RELPOS_BIT) && gps.relpos_tow+FOLLOW_ME_GPS_TIMEOUT > gps_tow_from_sys_ticks(sys_time.nb_tick)) {
+  // Check if we got a valid relative position which didn't timeout (FIXME)
+  /*if(bit_is_set(gps.valid_fields, GPS_VALID_RELPOS_BIT) && gps.relpos_tow+FOLLOW_ME_GPS_TIMEOUT > gps_tow_from_sys_ticks(sys_time.nb_tick)) {
     static struct NedCoor_f cur_pos;
     static uint32_t last_relpos_tow = 0;
 
@@ -132,7 +194,7 @@ void follow_me_set_wp(uint8_t wp_id, float speed)
     if(diff_time_ms < 0) diff_time_ms += (1000*60*60*24*7); //msec of a week
   }
   // Check if we got a position from the ground which didn't timeout and local NED is initialized
-  else if(ground_set && state.ned_initialized_i && ground_time_msec+FOLLOW_ME_GROUND_TIMEOUT > get_sys_time_msec()) {
+  else*/ if(ground_set && state.ned_initialized_i && ground_time_msec+FOLLOW_ME_GROUND_TIMEOUT > get_sys_time_msec()) {
     struct NedCoor_i target_pos_cm;
     ned_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &ground_lla);
     target_pos.x = target_pos_cm.x / 100.;
@@ -184,8 +246,8 @@ void follow_me_set_wp(uint8_t wp_id, float speed)
     }
 
     // Filter the cosine and sine of the follow me heading to avoid wrapping
-    fmh_cos_filt = fmh_cos_filt * follow_me_filt + cosf(follow_me_heading/180.*M_PI) * (1 - follow_me_filt);
-    fmh_sin_filt = fmh_sin_filt * follow_me_filt + sinf(follow_me_heading/180.*M_PI) * (1 - follow_me_filt);
+    fmh_cos_filt = fmh_cos_filt * follow_me_filt + cosf((ground_heading+follow_me_heading)/180.*M_PI) * (1 - follow_me_filt);
+    fmh_sin_filt = fmh_sin_filt * follow_me_filt + sinf((ground_heading+follow_me_heading)/180.*M_PI) * (1 - follow_me_filt);
 
     // Add the target distance in the direction of the follow me heading
     target_pos.x += dist * fmh_cos_filt;
@@ -207,4 +269,3 @@ void follow_me_set_wp(uint8_t wp_id, float speed)
   // Allways update the time to avoid big jumps in distance and height
   last_time_ms = get_sys_time_msec();
 }
-

@@ -122,6 +122,10 @@ void follow_diagonal_approach(void) {
     // TODO: What to do? Same can be checked for the velocity
     return;
   }
+  if(target_heading > 360.f) {
+    // TODO: We got an invalid heading and need to do something with it
+    return;
+  }
   target_get_vel(&target_vel);
   VECT3_SMUL(target_vel, target_vel, amt.speed_gain);
 
