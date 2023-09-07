@@ -30,7 +30,7 @@ struct pprzlog_transport pprzlog_tp;
 
 void pprzlog_tp_init(void)
 {
-  pprzlog_transport_init(&pprzlog_tp, get_sys_time_usec);
+  pprzlog_transport_init(&pprzlog_tp, get_sys_time_usec100);
 }
 
 
