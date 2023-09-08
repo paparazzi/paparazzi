@@ -56,6 +56,10 @@ not use this module at the same time!
 float trim_elevator = INDI_SCHEDULING_TRIM_ELEVATOR;
 float trim_flaps = INDI_SCHEDULING_TRIM_FLAPS;
 
+float pref_flaps_factor = INDI_SCHEDULING_PREF_FLAPS_FACTOR;
+
+float indi_Wu_original[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
+
 bool all_act_fwd_sched = false;
 
 int32_t use_scheduling = 1;
@@ -206,4 +210,19 @@ void schdule_control_effectiveness(void) {
     sched_ratio_tip_props = pitch_offset / pitch_range_deg;
   }
   Bound(sched_ratio_tip_props, 0.0, 1.0);
+
+  if(airspeed > 15.0) {
+    uint8_t i;
+    for (i = 0; i < 4; i++) {
+      indi_Wu[i] = indi_Wu_original*pref_flaps_factor;
+    }
+    for (i = 4; i < 8; i++) {
+      indi_Wu[i] = indi_Wu_original/pref_flaps_factor;
+    }
+  } else {
+    uint8_t i;
+    for (i = 0; i < 8; i++) {
+      indi_Wu[i] = indi_Wu_original;
+    }
+  }
 }
