@@ -222,15 +222,15 @@ void schdule_control_effectiveness(void) {
   if(airspeed > 15.0) {
     uint8_t i;
     for (i = 0; i < 4; i++) {
-      indi_Wu[i] = indi_Wu_original*pref_flaps_factor;
+      indi_Wu[i] = indi_Wu_original[i]*pref_flaps_factor;
     }
     for (i = 4; i < 8; i++) {
-      indi_Wu[i] = indi_Wu_original/pref_flaps_factor;
+      indi_Wu[i] = indi_Wu_original[i]/pref_flaps_factor;
     }
   } else {
     uint8_t i;
     for (i = 0; i < 8; i++) {
-      indi_Wu[i] = indi_Wu_original;
+      indi_Wu[i] = indi_Wu_original[i];
     }
   }
 }
