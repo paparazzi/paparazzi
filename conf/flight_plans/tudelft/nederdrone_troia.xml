@@ -9,6 +9,7 @@
     <waypoint lat="38.474472222222225" lon="-8.871222222222222" name="HOME"/>
     <waypoint lat="38.476515" lon="-8.868380" name="CLIMB"/>
     <waypoint lat="38.476331" lon="-8.869787" name="STDBY"/>
+    <waypoint lat="38.476331" lon="-8.865787" name="CIRCLE"/>
     <waypoint lat="38.476940" lon="-8.867501" name="p1"/>
     <waypoint lat="38.481886" lon="-8.856215" name="p2"/>
     <!-- <waypoint lat="38.478809" lon="-8.851799" name="p3"/> -->
@@ -136,12 +137,13 @@
       <set value="FALSE" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <call_once fun="nav_set_heading_current()"/>
-      <attitude pitch="-50" roll="0" throttle="0.8" until="stage_time>0" vmode="throttle"/>
+      <attitude pitch="-45" roll="0" throttle="0.0" until="stage_time>1" vmode="throttle"/>
     </block>
     <block name="TakeoffLow">
       <exception cond="GetPosHeight() @GT 18.0" deroute="Takeoff"/>
+      <call_once fun="autopilot_set_in_flight(true)"/>
       <call_once fun="nav_set_heading_current()"/>
-      <attitude pitch="-45." roll="0" throttle="0.9" vmode="throttle"/>
+      <attitude pitch="-45." roll="0" throttle="0.8" vmode="throttle"/>
     </block>
     <block name="Takeoff">
       <exception cond="GetPosHeight() @GT 70.0" deroute="GO NORTH"/>
@@ -178,7 +180,6 @@
     </block>
     <block name="go_p2">
       <set value="TRUE" var="force_forward"/>
-      <call_once fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
@@ -192,9 +193,9 @@
       <exception cond="GpsFixValid()" deroute="GO NORTH"/>
       <attitude pitch="0" roll="0" climb="-1.0" vmode="climb"/>
     </block>
-    <block name="Oval">
+    <block name="Circle">
       <set value="TRUE" var="force_forward"/>
-      <oval p1="p1" p2="p2" radius="nav.radius"/>
+      <circle radius="nav.radius" wp="CIRCLE"/>
     </block>
     <block name="land here">
       <set value="FALSE" var="force_forward"/>
