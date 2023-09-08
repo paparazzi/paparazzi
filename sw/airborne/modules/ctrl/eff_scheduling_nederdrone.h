@@ -54,4 +54,6 @@ extern bool all_act_fwd_sched;
 extern float trim_elevator;
 extern float trim_flaps;
 
+extern float pref_flaps_factor;
+
 #endif  // EFF_SCHEDULING_NEDERDRONE_H
