@@ -42,17 +42,21 @@
 #endif
 
 struct Electrical {
-  float vsupply;       ///< supply voltage in V
-  float current;       ///< current in A
-  float charge;        ///< consumed electric charge in Ah
-  float energy;        ///< consumed energy in Wh
-  bool  bat_low;       ///< battery low status
-  bool  bat_critical;  ///< battery critical status
+  float vsupply;        ///< supply voltage in V
+  float current;        ///< current in A
+  float charge;         ///< consumed electric charge in Ah
+  float energy;         ///< consumed energy in Wh
+  bool  bat_low;        ///< battery low status
+  bool  bat_critical;   ///< battery critical status
+
+  uint32_t avg_power;   ///< average power sum
+  uint16_t avg_cnt;     ///< acerage power counter
 };
 
 extern struct Electrical electrical;
 
 extern void electrical_init(void);
 extern void electrical_periodic(void);
+extern void electrical_avg_reset(float var);
 
 #endif /* ELECTRICAL_H */
