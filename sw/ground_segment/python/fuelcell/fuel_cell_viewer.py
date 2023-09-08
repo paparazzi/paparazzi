@@ -53,7 +53,7 @@ class EnergyMessage(object):
         self.current = float(msg['current'])
         self.power = float(msg['power'])
         self.energy = float(msg['energy'])
-        self.averagepower = float(msg['charge'])
+        self.averagepower = float(msg['avg_power'])
 
 class TempMessage(object):
     def __init__(self, msg):
