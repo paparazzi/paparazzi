@@ -66,6 +66,7 @@ int32_t use_scheduling = 1;
 
 float thrust_eff_scaling = 1.0;
 float backwing_thrust_eff_scaling = 1.0;
+float backwing_pitch_eff_scaling = 1.0;
 
 static float g_forward[4][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL_FWD, STABILIZATION_INDI_G1_PITCH_FWD, STABILIZATION_INDI_G1_YAW_FWD, STABILIZATION_INDI_G1_THRUST_FWD};
 
