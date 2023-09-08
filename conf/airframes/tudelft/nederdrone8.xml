@@ -92,7 +92,9 @@
       <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
     </module>
 
-    <module name="ins"           type="ekf2" />
+    <module name="ins"           type="ekf2">
+      <define name="USE_INS_NAV_INIT" value="FALSE"/>
+    </module>
 
     <module name="actuators"     type="uavcan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
