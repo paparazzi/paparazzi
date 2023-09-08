@@ -40,10 +40,6 @@ extern float follow_me_height;
  */
 extern float follow_me_heading;
 
-/** minimum speed in m/s which the ground needs to have in order to update the heading
- */
-extern float follow_me_min_speed;
-
 /** Follow me course sin/cos filter value (higher is harder filter)
  */
 extern float follow_me_filt;
