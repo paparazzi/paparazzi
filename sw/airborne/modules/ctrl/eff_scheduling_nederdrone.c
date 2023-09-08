@@ -169,6 +169,9 @@ void schdule_control_effectiveness(void) {
     } else {
       g1g2[1][i] = g_hover[1][i] * (1.0 - pitch_ratio) + g_forward[1][i] * pitch_ratio * airspeed_pitch_eff * airspeed_pitch_eff / (16.0*16.0);
     }
+    if( (i ==2) || (i==3)) {
+      g1g2[1][i] *= backwing_pitch_eff_scaling;
+    }
     //Yaw
     g1g2[2][i] = g_hover[2][i] * (1.0 - ratio) + g_forward[2][i] * ratio;
 
