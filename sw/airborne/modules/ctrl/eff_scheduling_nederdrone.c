@@ -65,6 +65,7 @@ bool all_act_fwd_sched = false;
 int32_t use_scheduling = 1;
 
 float thrust_eff_scaling = 1.0;
+float backwing_thrust_eff_scaling = 1.0;
 
 static float g_forward[4][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL_FWD, STABILIZATION_INDI_G1_PITCH_FWD, STABILIZATION_INDI_G1_YAW_FWD, STABILIZATION_INDI_G1_THRUST_FWD};
 
@@ -196,6 +197,9 @@ void schdule_control_effectiveness(void) {
     // Thrust
     g1g2[3][i] = g_hover[3][i] * (1.0 - ratio_spec_force) + g_forward[3][i] * ratio_spec_force;
     g1g2[3][i] *= thrust_eff_scaling;
+    if( (i ==2) || (i==3)) {
+      g1g2[3][i] *= backwing_thrust_eff_scaling;
+    }
   }
 
   bool low_airspeed = stateGetAirspeed_f() < INDI_SCHEDULING_LOW_AIRSPEED;
