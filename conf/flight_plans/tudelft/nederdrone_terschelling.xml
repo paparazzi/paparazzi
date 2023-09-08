@@ -66,12 +66,13 @@
       <set value="FALSE" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <call_once fun="nav_set_heading_current()"/>
-      <attitude pitch="-60" roll="0" throttle="0" until="stage_time>1" vmode="throttle"/>
+      <attitude pitch="-45" roll="0" throttle="0" until="stage_time>1" vmode="throttle"/>
     </block>
     <block name="TakeoffLow" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT 18.0" deroute="Takeoff"/>
       <call_once fun="nav_set_heading_current()"/>
-      <attitude pitch="-40." roll="0" throttle="0.8" vmode="throttle"/>
+      <call_once fun="autopilot_set_in_flight(true)"/>
+      <attitude pitch="-45." roll="0" throttle="0.8" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosHeight() @GT 40.0" deroute="Standby"/>
@@ -89,7 +90,6 @@
     </block>
     <block name="go_p2">
       <set value="TRUE" var="force_forward"/>
-      <call_once fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
