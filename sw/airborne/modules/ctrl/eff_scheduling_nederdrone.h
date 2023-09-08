@@ -46,6 +46,7 @@ extern float sched_tip_prop_lower_pitch_limit_deg;
 extern bool sched_tip_props_always_on;
 // Setting to scale the thrust effectiveness
 extern float thrust_eff_scaling;
+extern float backwing_thrust_eff_scaling;
 
 // Schedule all forward actuators with airspeed instead of only the flaps
 extern bool all_act_fwd_sched;
