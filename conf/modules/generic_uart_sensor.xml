@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="generic_uart_sensor" dir="sensors">
+  <doc>
+    <description>Generic UART sesnsor where the data is forwarded tot the GCS</description>
+    <configure name="GENERIC_UART_PORT" value="UART4" description="select which uart it is connected to"/>
+    <configure name="GENERIC_UART_BAUD" value="B9600" description="set the baudrate of the uart"/>
+    <define name="GENERIC_UART_ENDCHAR" value="&gt;" description="ending character for receiving"/>
+  </doc>
+  <header>
+    <file name="generic_uart.h"/>
+  </header>
+  <event fun="generic_uart_event()"/>
+  <makefile>
+    <!-- Configure default UART port and baudrate -->
+    <configure name="GENERIC_UART_PORT" default="UART4" case="upper|lower"/>
+    <configure name="GENERIC_UART_BAUD" default="B9600"/>
+
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(GENERIC_UART_PORT_UPPER)"/>
+    <define name="USE_$(GENERIC_UART_PORT_UPPER)_TX" value="FALSE"/>
+    <define name="$(GENERIC_UART_PORT_UPPER)_BAUD" value="$(GENERIC_UART_BAUD)"/>
+    <define name="GENERIC_UART_PORT" value="$(GENERIC_UART_PORT_LOWER)"/>
+
+    <!-- Sources -->
+    <file name="generic_uart.c"/>
+  </makefile>
+</module>
