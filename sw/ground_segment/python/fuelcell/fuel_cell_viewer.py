@@ -22,7 +22,7 @@ import wx
 import sys
 import os
 import math
-import datetime
+from datetime import datetime
 
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -53,6 +53,7 @@ class EnergyMessage(object):
         self.current = float(msg['current'])
         self.power = float(msg['power'])
         self.energy = float(msg['energy'])
+        self.averagepower = float(msg['avg_power'])
 
 class TempMessage(object):
     def __init__(self, msg):
@@ -61,13 +62,15 @@ class TempMessage(object):
 
 class EscMessage(object):
     def __init__(self, msg):
-        self.id = int(msg['motor_id'])
+        self.id = int(msg['node_id']) # motor_id
         self.amp = float(msg['amps'])
         self.rpm = float(msg['rpm'])
         self.volt_b = float(msg['bat_volts'])
         self.volt_m = float(msg['motor_volts'])
-        self.temperature = float(msg['power']) - 273.15
-        self.energy = float(msg['energy'])
+        self.temperature = float(msg['temperature']) - 273.5
+        self.energy = float(msg['amps']) * float(msg['motor_volts'])
+        self.errors = float(msg['energy'])
+        self.msgtime = datetime.now()
     
     def get_current(self):
         return str(round(self.amp ,1)) + "A"
@@ -77,18 +80,28 @@ class EscMessage(object):
     def get_rpm(self):
         return str(round(self.rpm ,0)) + " rpm"
     def get_rpm_perc(self):
-        return self.rpm / 4000
+        return self.rpm / 7000
     def get_rpm_color(self):
-        if self.rpm < 2500:
+        if self.rpm < 4800:
             return 1
         return 0.5
 
+    def get_err(self):
+        return str(self.errors) + " errs"
+    def get_err_perc(self):
+        return 0
+    def get_err_color(self):
+        return 0.5
 
     def get_volt(self):
-        if (self.id in [6,7,8,9,16,17,18,19]):
+        if (self.id in [10,17]):
             return "Servo " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
+        elif (self.id in [1,6]):
+            return "Old " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
+        elif (self.id in [2,3,4,5,11,12,13,14,15,16]):
+            return "New " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
         else:
-            return "Mot " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
+            return "? " + str(self.id) + " " +str(round(self.volt_m ,1)) + "V"
     def get_volt_perc(self):
         return self.volt_b / (6*4.2)
 
@@ -104,8 +117,20 @@ class EscMessage(object):
             return 0
         elif self.temperature < 60:
             return 1
-        else:
+        elif self.temperature < 90:
             return 0.5
+        else:
+            return -1
+
+    def get_timestamp(self, CPUTIME):
+        now = datetime.now()
+        return 'Age: '+str(round((now - self.msgtime).total_seconds(),1))+'s'
+
+    def get_timestamp_color(self, CPUTIME):
+        now = datetime.now()
+        if ((now - self.msgtime).total_seconds()) > 30:
+            return 0
+        return 1
 
 class MotorList(object):
     def __init__(self):
@@ -127,6 +152,7 @@ class BatteryCell(object):
         self.voltage = 0
         self.current = 0
         self.power = 0
+        self.averagepower = 0
         self.energy = 0
         self.model = 0
         self.temperature = 0
@@ -135,6 +161,7 @@ class BatteryCell(object):
         self.current = energy.current
         self.power = energy.power
         self.energy  = energy.energy
+        self.averagepower = energy.averagepower
         self.model = 0
     def fill_from_temp_msg(self, temp):
         self.temperature = temp.battery
@@ -150,6 +177,8 @@ class BatteryCell(object):
         return "Cell Temp = "+str(round(self.temperature ,2))
     def get_power_text(self):
         return "Battery Power: {:.0f}W".format(self.get_power())
+    def get_averagepower_text(self):
+        return "Average Power: {:.0f}W".format(self.get_averagepower())
     def get_power2_text(self):
         return "Battery Power: {:.0f}W".format(self.get_power2())
     def get_volt_perc(self):
@@ -159,6 +188,8 @@ class BatteryCell(object):
 
     def get_power(self):
         return self.power
+    def get_averagepower(self):
+        return self.averagepower
     def get_power2(self):
         return self.voltage * self.current
 
@@ -171,6 +202,8 @@ class BatteryCell(object):
 
     def get_power_perc(self):
         return (self.get_power()) / (2500)
+    def get_averagepower_perc(self):
+        return (self.get_averagepower()) / (2500)
 
     def get_volt_color(self):
         if self.voltage < 3.2:
@@ -192,7 +225,14 @@ class BatteryCell(object):
         elif self.energy < 2000:
             return 1
         return 0.5
-  
+
+    def get_averagepower_color(self):
+        if self.energy > 3000:
+            return 0.1
+        elif self.energy < 2000:
+            return 1
+        return 0.5
+
     def get_temp_color(self):
         if (self.temperature > 20) & (self.temperature < 40):
             return 1
@@ -215,9 +255,11 @@ class PayloadMessage(object):
 class FuelCellStatus(object):
     def _init_(self):
         self.blink = 0
+        self.msgtime = 0
 
     def update(self,msg):
         self.msg = msg
+        self.msgtime = datetime.now()
         if hasattr(self, 'blink'):
             self.blink = 1 - self.blink
         else:
@@ -239,6 +281,9 @@ class FuelCellStatus(object):
         #else:
         #    print('ERROR: ' + msg)
 
+    def get_age(self):
+        now = datetime.now()
+        return 'Age: '+str(round((now - self.msgtime).total_seconds(),1))+'s'
     def get_raw(self):
         return self.msg
     def get_raw_color(self):
@@ -248,7 +293,7 @@ class FuelCellStatus(object):
 
     def get_tank(self):
         bar = round(5 + self.tank / 100 * 295,1)
-        return 'Cylinder ' + str(bar) + ' Bar'
+        return 'Cylinder ' + str(bar) + ' Bar ('+str(self.tank)+'%)'
     def get_tank_perc(self):
         return (self.tank) / 100.0
     def get_tank_color(self):
@@ -261,7 +306,7 @@ class FuelCellStatus(object):
                 
     def get_battery(self):
         volt = round( self.battery / 100.0 * (24.0-19.6) + 19.6, 2)
-        return str(volt) + ' V'
+        return str(volt) + ' V ('+str(self.battery)+'%)'
     def get_battery_perc(self):
         return (self.battery) / 100.0
     def get_battery_color(self):
@@ -346,6 +391,10 @@ class FuelCellFrame(wx.Frame):
             self.fuelcell.update(self.payload.values)
             #print("Payload: " + self.payload.values)
 
+        elif msg.name == "ROTORCRAFT_STATUS":
+            self.CPUTIME = float(msg['cpu_time'])
+
+
 
     def update(self):
         self.Refresh()
@@ -372,9 +421,9 @@ class FuelCellFrame(wx.Frame):
         boxw = self.stat
         tdx = int(boxw * 10.0 / 300.0)
         tdy = int(boxw * 6.0 / 300.0)
-        boxh = int(boxw * 40.0 / 300.0)
+        boxh = int(boxw * 45.0 / 300.0)
         boxw = self.stat - 2*tdx
-        spacing = boxh+10
+        spacing = boxh+3
 
         dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
         dc.SetBrush(wx.Brush(wx.Colour(220,220,220))) 
@@ -443,6 +492,7 @@ class FuelCellFrame(wx.Frame):
         self.StatusBox(dc, dx, dy, 1, 0, self.cell.get_current(), self.cell.get_current_perc(), self.cell.get_current_color() )
         self.StatusBox(dc, dx, dy, 2, 0, self.cell.get_power_text(), self.cell.get_power_perc(), self.cell.get_power_color())
         self.StatusBox(dc, dx, dy, 3, 0, self.cell.get_energy(), self.cell.get_energy_perc(), self.cell.get_energy_color() )
+        self.StatusBox(dc, dx, dy, 4, 0, self.cell.get_averagepower_text(), self.cell.get_averagepower_perc(), self.cell.get_averagepower_color() )
 
         dx = int(0.43*w)
         dy = int(0.15*h)
@@ -451,6 +501,7 @@ class FuelCellFrame(wx.Frame):
         self.StatusBox(dc, dx, dy, 2, 0, self.fuelcell.get_battery(), self.fuelcell.get_battery_perc(), self.fuelcell.get_battery_color())
         self.StatusBox(dc, dx, dy, 3, 0, self.fuelcell.get_status(), self.fuelcell.get_status_perc(), self.fuelcell.get_status_color())
         self.StatusBox(dc, dx, dy, 4, 0, self.fuelcell.get_error(), self.fuelcell.get_error_perc(), self.fuelcell.get_error_color())
+        self.StatusBox(dc, dx, dy, 5, 0, self.fuelcell.get_age(), 0, 1)
 
         # Warnings
         self.stat = int(0.14*w)
@@ -470,13 +521,13 @@ class FuelCellFrame(wx.Frame):
         w2 = 0.60
         dw = 0.11
         mw = 0.1
-        mm = [(0.03,w1), (0.03+dw,w1), (0.03+2*dw,w1), (0.97-mw-2*dw,w1), (0.97-mw-dw,w1), (0.97-mw,w1), (0.03,w1+0.17), (0.03+dw,w1+0.17), (0.97-mw-dw,w1+0.17), (0.97-mw,w1+0.17),
-              (0.03,w2), (0.03+dw,w2), (0.03+2*dw,w2), (0.97-mw-2*dw,w2), (0.97-mw-dw,w2), (0.97-mw,w2), (0.03,w2+0.17), (0.03+dw,w2+0.17), (0.97-mw-dw,w2+0.17), (0.97-mw,w2+0.17)]
+        mm = [(0.03,w1), (0.03+dw,w1), (0.03+2*dw,w1), (0.97-mw-2*dw,w1), (0.97-mw-dw,w1), (0.97-mw,w1), (-100,0), (-100,0), (-100,0), (0.03,w2+0.19),
+              (0.03,w2), (0.03+dw,w2), (0.03+2*dw,w2), (0.97-mw-2*dw,w2), (0.97-mw-dw,w2), (0.97-mw,w2), (0.97-mw,w2+0.19), (-100,0), (-100,0), (-100,0)]
         for m in mm:
             dc.DrawRectangle(int(m[0]*w), int(m[1]*h),int(mw*w), int(0.15*h))
 
         for m in self.motors.mot:
-            mo_co = mm[m.id]
+            mo_co = mm[m.id-1]
             #print(m.id, mo_co)
             dx = int(mo_co[0]*w)
             dy = int(mo_co[1]*h)
@@ -484,6 +535,8 @@ class FuelCellFrame(wx.Frame):
             self.StatusBox(dc, dx, dy, 1, 0, m.get_current(), m.get_current_perc(), 1)
             self.StatusBox(dc, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color())
             self.StatusBox(dc, dx, dy, 3, 0, m.get_temp(), m.get_temp_perc(), m.get_temp_color())
+            self.StatusBox(dc, dx, dy, 4, 0, m.get_err(), m.get_err_perc(), m.get_err_color())
+            self.StatusBox(dc, dx, dy, 5, 0, m.get_timestamp(self.CPUTIME), m.get_err_perc(), m.get_timestamp_color(self.CPUTIME))
 
 
 
@@ -513,6 +566,7 @@ class FuelCellFrame(wx.Frame):
         ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/energy_mon/energy_mon.ico", wx.BITMAP_TYPE_ICO)
         self.SetIcon(ico)
 
+        self.CPUTIME = 0
         self.bat = {}
         self.temp = {}
         self.cell = BatteryCell()
@@ -546,3 +600,4 @@ if __name__ == '__main__':
     #
     # plt.plot(energies, seconds_left)
     # plt.show()
+    

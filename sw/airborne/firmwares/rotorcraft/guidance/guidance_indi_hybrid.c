@@ -107,6 +107,9 @@ bool take_heading_control = false;
 
 bool force_forward = false;
 
+struct FloatRates ff_rates;
+bool ff_rates_set = false;
+
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
@@ -343,6 +346,14 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   // Add sideslip correction
   omega -= accely_filt.o[0]*FWD_SIDESLIP_GAIN;
 #endif
+
+  // We can pre-compute the required rates to achieve this turn rate:
+  // NOTE: there *should* not be any problems possible with Euler singularities here
+  struct FloatEulers *euler_zyx = stateGetNedToBodyEulers_f();
+  ff_rates.p = -sinf(euler_zyx->theta) * omega;
+  ff_rates.q =  cosf(euler_zyx->theta) * sinf(euler_zyx->phi) * omega;
+  ff_rates.r =  cosf(euler_zyx->theta) * cosf(euler_zyx->phi) * omega;
+  ff_rates_set = true;
 
   // For a hybrid it is important to reduce the sideslip, which is done by changing the heading.
   // For experiments, it is possible to fix the heading to a different value.

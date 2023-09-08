@@ -1,31 +1,27 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="60" ground_alt="0" lat0="53.398848" lon0="5.258644" max_dist_from_home="5000" name="Nederdrone Valkenburg" security_height="2">
+<flight_plan alt="180" ground_alt="60" lat0="52.3931434" lon0="5.9205099" max_dist_from_home="9000" name="Nederdrone Harde" security_height="2">
   <header>
     #include "autopilot.h"
     #include "modules/datalink/datalink.h"
 </header>
   <waypoints>
-    <waypoint name="HOME" x="-657.7" y="-25.2"/>
-    <waypoint name="CLIMB" x="-476.9" y="77.1"/>
-    <waypoint alt="80.0" name="STDBY" x="-688.0" y="13.9"/>
-    <waypoint alt="100.0" name="p1" x="-1047.6" y="27.2"/>
-    <waypoint alt="100.0" name="p2" x="-1091.2" y="272.9"/>
-    <waypoint alt="100.0" name="p3" x="-718.0" y="345.1"/>
-    <waypoint alt="100.0" name="p4" x="-641.6" y="127.3"/>
-    <waypoint name="TD" x="-472.8" y="169.5"/>
-    <waypoint name="FOLLOW" x="-593.9" y="379.7"/>
-    <waypoint lat="53.409169" lon="5.243295" name="S1"/>
-    <waypoint lat="53.410073" lon="5.248888" name="S2"/>
-    <waypoint lat="53.403590" lon="5.214102" name="C1"/>
-    <waypoint lat="53.399129" lon="5.219031" name="C2"/>
-    <waypoint lat="53.391752" lon="5.234877" name="C3"/>
-    <waypoint lat="53.399786" lon="5.273960" name="C4"/>
-    <waypoint lat="53.416200" lon="5.265441" name="C5"/>
-    <waypoint lat="53.424575" lon="5.252654" name="C6"/>
-    <waypoint lat="53.422246" lon="5.233265" name="C7"/>
-    <waypoint lat="53.418859" lon="5.216361" name="C8"/>
-    <waypoint lat="53.411762" lon="5.208801" name="C9"/>
+    <waypoint name="HOME" x="12.6" y="-48.7"/>
+    <waypoint name="CLIMB" x="62.6" y="-80.4"/>
+    <waypoint name="STDBY" lat="52.3940343" lon="5.9229692"/>
+    <waypoint name="p1" lat="52.3963465" lon="5.9267684"/>
+    <waypoint name="p2" lat="52.3994182" lon="5.9333586"/>
+    <waypoint name="p3" lat="52.4033999" lon="5.9292886"/>
+    <waypoint name="p4" lat="52.3999490" lon="5.9231485"/>
+     <waypoint name="TD" lat="52.39306725044085" lon="5.92060993591204"/>
+    <waypoint name="FOLLOW" x="123.2" y="-87.8"/>
+    <waypoint name="S1" lat="52.3963465" lon="5.9333586"/>
+    <waypoint name="S2" lat="52.4033999" lon="5.9231485"/>
+    <waypoint lat="52.4034734" lon="5.9067552" name="C1"/>
+    <waypoint lat="52.3878517" lon="5.9212118" name="C2"/>
+    <waypoint lat="52.4054122" lon="5.9581765" name="C3"/>
+    <waypoint lat="52.4179727" lon="6.0083051" name="C4"/>
+    <waypoint lat="52.442091206182084" lon="5.987117813607398" name="C5"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
@@ -34,13 +30,10 @@
       <corner name="C3"/>
       <corner name="C4"/>
       <corner name="C5"/>
-      <corner name="C6"/>
-      <corner name="C7"/>
-      <corner name="C8"/>
-      <corner name="C9"/>
     </sector>
   </sectors>
   <modules>
+    <!--module name="follow_me"/-->
     <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="100"/>
     </module>
@@ -80,6 +73,22 @@
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
+    <!--block name="follow_module">
+      <set value="FALSE" var="force_forward"/>
+      <stay pre_call="follow_me_set_wp(WP_FOLLOW, 0)" wp="FOLLOW"/>
+    </block>
+    <block name="follow_module_diag">
+      <set value="FALSE" var="force_forward"/>
+      <stay pre_call="follow_me_set_wp(WP_FOLLOW, follow_me_diag_speed)" wp="FOLLOW"/>
+    </block>
+    <block name="follow_module_land">
+      <set value="FALSE" var="force_forward"/>
+      <stay climb="nav.descend_vspeed * 0.5" pre_call="follow_me_set_wp(WP_FOLLOW, follow_me_diag_speed*0.5)" vmode="climb" wp="FOLLOW"/>
+    </block>
+    <block name="follow_landed">
+      <set value="FALSE" var="force_forward"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block-->
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <set value="FALSE" var="force_forward"/>
       <stay wp="STDBY"/>
@@ -108,6 +117,7 @@
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="route"/>
     </block>
+
     <block group="extra_pattern" name="Survey S1-S2 25m NS" strip_button="Svy25-NS-PRIMITIVE">
       <set value="FALSE" var="force_forward"/>
       <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
@@ -127,9 +137,10 @@
       <exception cond="rectangle_survey_sweep_num @GT 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
-    <block name="Oval">
+
+    <block name="Circle">
       <set value="TRUE" var="force_forward"/>
-      <oval p1="p1" p2="p2" radius="nav.radius"/>
+      <circle p1="p1" radius="nav.radius"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <set value="FALSE" var="force_forward"/>

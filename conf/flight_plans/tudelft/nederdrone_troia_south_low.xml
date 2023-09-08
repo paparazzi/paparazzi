@@ -10,10 +10,9 @@
     <waypoint lat="38.476515" lon="-8.868380" name="CLIMB"/>
     <waypoint lat="38.476331" lon="-8.869787" name="STDBY"/>
     <waypoint lat="38.476331" lon="-8.865787" name="CIRCLE"/>
+    <waypoint lat="38.475813" lon="-8.864913" name="FOLLOW_SHIP"/>
     <waypoint lat="38.476940" lon="-8.867501" name="p1"/>
     <waypoint lat="38.481886" lon="-8.856215" name="p2"/>
-    <!-- <waypoint lat="38.478809" lon="-8.851799" name="p3"/> -->
-    <!-- <waypoint lat="38.480182" lon="-8.853301" name="p4"/> -->
     <waypoint lat="38.475523" lon="-8.867495" name="s1"/>
     <waypoint lat="38.478711" lon="-8.860859" name="s2"/>
     <waypoint lat="38.476479" lon="-8.859367" name="s3"/>
@@ -25,22 +24,26 @@
     <waypoint lat="38.475002" lon="-8.870565" name="TD"/>
     <waypoint lat="38.474497" lon="-8.870086" name="APP"/>
     <waypoint lat="38.499227" lon="-8.858617" name="1-1"/>
-    <waypoint lat="38.476154" lon="-8.833249" name="1-2"/>
-    <waypoint lat="38.469040" lon="-8.861433" name="1-3"/>
-    <waypoint lat="38.467811" lon="-8.879136" name="1-4"/>
-    <waypoint lat="38.464900" lon="-8.884918" name="1-5"/>
-    <waypoint lat="38.471784" lon="-8.899161" name="1-6"/>
-    <waypoint lat="38.478446" lon="-8.885780" name="1-7"/>
-    <waypoint lat="38.480130" lon="-8.886261" name="1-8"/>
+    <waypoint lat="38.479065" lon="-8.828952" name="1-2"/>
+    <waypoint lat="38.469601" lon="-8.819675" name="1-3"/>
+    <waypoint lat="38.456660" lon="-8.838406" name="1-4"/>
+    <waypoint lat="38.469040" lon="-8.861433" name="1-5"/>
+    <waypoint lat="38.467811" lon="-8.879136" name="1-6"/>
+    <waypoint lat="38.464900" lon="-8.884918" name="1-7"/>
+    <waypoint lat="38.471784" lon="-8.899161" name="1-8"/>
+    <waypoint lat="38.478446" lon="-8.885780" name="1-9"/>
+    <waypoint lat="38.480130" lon="-8.886261" name="1-10"/>
     <waypoint lat="38.467526" lon="-8.888318" name="_2-1"/>
     <waypoint lat="38.466563" lon="-8.887256" name="_2-2"/>
     <waypoint lat="38.470725" lon="-8.881204" name="_2-4"/>
     <waypoint lat="38.469633" lon="-8.880184" name="_2-3"/>
     <waypoint lat="38.493038" lon="-8.858636" name="1-1_soft"/>
-    <waypoint lat="38.478620" lon="-8.845008" name="1-2_soft"/>
-    <waypoint lat="38.470562" lon="-8.867834" name="1-3_soft"/>
-    <waypoint lat="38.476390" lon="-8.887219" name="1-5_soft"/>
-    <waypoint lat="38.468803" lon="-8.880064" name="1-4_soft"/>
+    <waypoint lat="38.475127" lon="-8.830134" name="1-2_soft"/>
+    <waypoint lat="38.470386" lon="-8.824630" name="1-3_soft"/>
+    <waypoint lat="38.461469" lon="-8.839766" name="1-4_soft"/>
+    <waypoint lat="38.471726" lon="-8.862298" name="1-5_soft"/>
+    <waypoint lat="38.468803" lon="-8.880064" name="1-6_soft"/>
+    <waypoint lat="38.476390" lon="-8.887219" name="1-7_soft"/>
     <waypoint lat="38.468493" lon="-8.886115" name="2-1_soft"/>
     <waypoint lat="38.467498" lon="-8.884860" name="2-2_soft"/>
     <waypoint lat="38.475621" lon="-8.874463" name="2-4_soft"/>
@@ -70,6 +73,8 @@
       <corner name="1-6"/>
       <corner name="1-7"/>
       <corner name="1-8"/>
+      <corner name="1-9"/>
+      <corner name="1-10"/>
     </sector>
     <sector color="orange" name="A1_soft">
       <corner name="1-1_soft"/>
@@ -77,6 +82,8 @@
       <corner name="1-3_soft"/>
       <corner name="1-4_soft"/>
       <corner name="1-5_soft"/>
+      <corner name="1-6_soft"/>
+      <corner name="1-7_soft"/>
     </sector>
     <sector color="red" name="Corridor">
       <corner name="_2-1"/>
@@ -110,15 +117,15 @@
     <!-- GPS Loss (8 seconds -> gps_loss) -->
     <exception cond="!GpsFixValid() @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('gps_lost'))" deroute="gps_lost"/>
     <!-- Hard geofence (red -> Holding point) -->
-    <exception cond="And( Or(!InsideA1(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 152.4),
+    <exception cond="And( Or(!InsideA1(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 200.0),
                          Or(!InsideA3(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 304.8))
                      @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
-    <!-- Soft geofence (orange -> GO NORTH) -->
+    <!-- Soft geofence (orange -> GO SOUTH) -->
     <exception cond="And( Or(!InsideA1_soft(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 152.4),
                          Or(!InsideA3(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 304.8))
-                     @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('GO NORTH'))" deroute="GO NORTH"/>
-    <!-- Datalink loss (25 seconds -> GO NORTH) -->
-    <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('GO NORTH'))" deroute="GO NORTH"/>
+                     @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('GO SOUTH'))" deroute="GO SOUTH"/>
+    <!-- Datalink loss (25 seconds -> GO SOUTH) -->
+    <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('GO SOUTH'))" deroute="GO SOUTH"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -131,7 +138,7 @@
     </block>
     <block name="Holding point">
       <call_once fun="NavKillThrottle()"/>
-      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+      <attitude pitch="-50" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Takeoff" strip_icon="takeoff.png">
       <set value="FALSE" var="force_forward"/>
@@ -146,13 +153,14 @@
       <attitude pitch="-45." roll="0" throttle="0.8" vmode="throttle"/>
     </block>
     <block name="Takeoff">
-      <exception cond="GetPosHeight() @GT 70.0" deroute="GO NORTH"/>
+      <exception cond="GetPosHeight() @GT 65.0" deroute="GO SOUTH"/>
       <call_once fun="nav_set_heading_current()"/>
       <call_once fun="waypoint_set_xy_i(WP_CLIMB,POS_BFP_OF_REAL(GetPosX()+20.0*sinf(stateGetNedToBodyEulers_f()->psi)),POS_BFP_OF_REAL(GetPosY()+20.0*cosf(stateGetNedToBodyEulers_f()->psi)))"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="GO SOUTH">
       <set value="TRUE" var="force_forward"/>
+      <go wp="s1"/>
       <go from="s1" hmode="route" wp="s2"/>
       <go from="s2" hmode="route" wp="s3"/>
       <go from="s3" hmode="route" wp="s4"/>
@@ -161,6 +169,7 @@
     </block>
     <block name="GO NORTH">
       <set value="TRUE" var="force_forward"/>
+      <go wp="n1"/>
       <go from="n1" hmode="route" wp="n2"/>
       <go from="n2" hmode="route" wp="n3"/>
       <go from="n3" hmode="route" wp="n4"/>
@@ -191,7 +200,7 @@
     </block>
     <block name="gps_lost">
       <exception cond="GpsFixValid()" deroute="GO NORTH"/>
-      <attitude pitch="0" roll="0" climb="-1.0" vmode="climb"/>
+      <attitude climb="-1.0" pitch="0" roll="0" vmode="climb"/>
     </block>
     <block name="Circle">
       <set value="TRUE" var="force_forward"/>
