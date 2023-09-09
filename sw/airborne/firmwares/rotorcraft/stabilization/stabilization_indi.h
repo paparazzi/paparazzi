@@ -41,6 +41,8 @@ extern float *Bwls[INDI_OUTPUTS];
 
 extern float act_pref[INDI_NUM_ACT];
 
+extern float indi_Wu[INDI_NUM_ACT];
+
 struct Indi_gains {
   struct FloatRates att;
   struct FloatRates rate;
