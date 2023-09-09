@@ -27,6 +27,8 @@
 #include "actuators_uavcan.h"
 #include "modules/energy/electrical.h"
 #include "math/pprz_random.h"
+#include "modules/core/abi.h"
+#include "modules/actuators/actuators.h"
 
 /* By default enable the usage of the current sensing in the ESC telemetry */
 #ifndef UAVCAN_ACTUATORS_USE_CURRENT
@@ -35,6 +37,9 @@
 
 /* uavcan ESC status telemetry structure */
 struct actuators_uavcan_telem_t {
+  bool set;
+  uint8_t node_id;
+  float timestamp;
   float voltage;
   float current;
   float temperature;
@@ -44,11 +49,11 @@ struct actuators_uavcan_telem_t {
 
 #ifdef SERVOS_UAVCAN1_NB
 int16_t actuators_uavcan1_values[SERVOS_UAVCAN1_NB];
-static struct actuators_uavcan_telem_t uavcan1_telem[SERVOS_UAVCAN1_NB];
+static struct actuators_uavcan_telem_t uavcan1_telem[SERVOS_UAVCAN1_NB] = {0};
 #endif
 #ifdef SERVOS_UAVCAN2_NB
 int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
-static struct actuators_uavcan_telem_t uavcan2_telem[SERVOS_UAVCAN2_NB];
+static struct actuators_uavcan_telem_t uavcan2_telem[SERVOS_UAVCAN2_NB] = {0};
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
 int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
@@ -87,50 +92,65 @@ static uavcan_event esc_status_ev;
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_device *dev)
-{
-  static uint8_t esc_idx = 0;
-
-  // Find the correct telemetry
-  uint8_t max_id = 0;
-  uint8_t offset = 0;
-  struct actuators_uavcan_telem_t *telem = NULL;
-#ifdef SERVOS_UAVCAN1_NB
-  if (esc_idx >= max_id && esc_idx < max_id + SERVOS_UAVCAN1_NB) {
-    offset = max_id;
-    telem = uavcan1_telem;
+static uint8_t old_idx = 0;
+static uint8_t esc_idx = 0;
+static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
+  // Randomness added for multiple  transport devices
+  uint8_t add_idx = 0;
+  if (rand_uniform() > 0.02) {
+    add_idx = 1;
   }
-  max_id += SERVOS_UAVCAN1_NB;
+
+  // Find the next set telemetry
+  uint8_t offset = 0;
+#ifdef SERVOS_UAVCAN1_NB
+  for(uint8_t i = esc_idx - offset; i < SERVOS_UAVCAN1_NB; i++) {
+    if(uavcan1_telem[i].set) {
+      old_idx = i + offset;
+      esc_idx = i + offset + add_idx;
+      return &uavcan1_telem[i];
+    } else {
+      esc_idx = i + offset + 1;
+    }
+  }
+  offset += SERVOS_UAVCAN1_NB;
 #endif
 #ifdef SERVOS_UAVCAN2_NB
-  if (esc_idx >= max_id && esc_idx < max_id + SERVOS_UAVCAN2_NB) {
-    offset = max_id;
-    telem = uavcan2_telem;
+  for(uint8_t i = esc_idx - offset; i < SERVOS_UAVCAN2_NB; i++) {
+    if(uavcan2_telem[i].set) {
+      old_idx = i + offset;
+      esc_idx = i + offset + add_idx;
+      return &uavcan2_telem[i];
+    } else {
+      esc_idx = i + offset + 1;
+    }
   }
-  max_id += SERVOS_UAVCAN2_NB;
+  offset += SERVOS_UAVCAN2_NB;
 #endif
 
-  // Safety check
+  // Going round or no telemetry found
+  esc_idx = 0;
+  return NULL;
+}
+
+static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_device *dev)
+{
+  // Find the correct telemetry (Try twice if going round)
+  struct actuators_uavcan_telem_t *telem = actuators_uavcan_next_telem();
+  if(telem == NULL) {
+    telem = actuators_uavcan_next_telem();
+  }
+
+  // Safety check (no telemetry received 2 times)
   if (telem == NULL) {
-    esc_idx = 0;
     return;
   }
 
-  uint8_t i = esc_idx - offset;
-  float power = telem[i].current * telem[i].voltage;
-  float rpm = telem[i].rpm;
-  float energy = telem[i].energy;
-  pprz_msg_send_ESC(trans, dev, AC_ID, &telem[i].current, &electrical.vsupply, &power,
-                    &rpm, &telem[i].voltage, &energy, &esc_idx);
-  
-  // Randomness added for multiple  transport devices
-  if (rand_uniform() > 0.05) {
-    esc_idx++;
-  }
-
-  if (esc_idx >= max_id) {
-    esc_idx = 0;
-  }
+  float power = telem->current * telem->voltage;
+  float rpm = telem->rpm;
+  float energy = telem->energy;
+  pprz_msg_send_ESC(trans, dev, AC_ID, &telem->current, &electrical.vsupply, &power,
+                    &rpm, &telem->voltage, &energy, &telem->temperature, &telem->node_id, &old_idx);
 }
 #endif
 
@@ -159,9 +179,12 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 
   canardDecodeScalar(transfer, 105, 5, false, (void *)&esc_idx);
   //Could not find the right interface
-  if (esc_idx > max_id || telem == NULL || max_id == 0) {
+  if (esc_idx >= max_id || telem == NULL || max_id == 0) {
     return;
   }
+  telem[esc_idx].set = true;
+  telem[esc_idx].node_id = transfer->source_node_id;
+  telem[esc_idx].timestamp = get_sys_time_float();
   canardDecodeScalar(transfer, 0, 32, false, (void *)&telem[esc_idx].energy);
   canardDecodeScalar(transfer, 32, 16, true, (void *)&tmp_float);
   telem[esc_idx].voltage = canardConvertFloat16ToNativeFloat(tmp_float);
@@ -171,7 +194,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   telem[esc_idx].temperature = canardConvertFloat16ToNativeFloat(tmp_float);
   canardDecodeScalar(transfer, 80, 18, true, (void *)&telem[esc_idx].rpm);
 
-#ifdef UAVCAN_ACTUATORS_USE_CURRENT
+#if UAVCAN_ACTUATORS_USE_CURRENT
   // Update total current
   electrical.current = 0;
 #ifdef SERVOS_UAVCAN1_NB
