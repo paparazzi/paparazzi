@@ -405,15 +405,6 @@ void guidance_h_nav_enter(void)
   guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
   reset_guidance_reference_from_current_position();
 
-#if HYBRID_NAVIGATION
-  /*Obtain eulers with zxy rotation order*/
-  struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
-  nav_heading = eulers_zxy.psi;
-#else
-  /* set nav_heading to current heading */
-  nav.heading = stateGetNedToBodyEulers_f()->psi;
-#endif
   guidance_h_set_heading(nav.heading);
   /* call specific implementation */
   guidance_h_run_enter();

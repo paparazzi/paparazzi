@@ -219,6 +219,11 @@ void guidance_indi_init(void)
  * Call upon entering indi guidance
  */
 void guidance_indi_enter(void) {
+  /*Obtain eulers with zxy rotation order*/
+  struct FloatEulers eulers_zxy;
+  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  nav.heading = eulers_zxy.psi;
+
   thrust_in = stabilization_cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
   guidance_indi_hybrid_heading_sp = stateGetNedToBodyEulers_f()->psi;
