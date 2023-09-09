@@ -56,11 +56,19 @@ not use this module at the same time!
 float trim_elevator = INDI_SCHEDULING_TRIM_ELEVATOR;
 float trim_flaps = INDI_SCHEDULING_TRIM_FLAPS;
 
+// Factor that changes cost of the flaps and motors if v>15.0 m/s
+// Higher factor means prefer using the flaps
+float pref_flaps_factor = INDI_SCHEDULING_PREF_FLAPS_FACTOR;
+
+float indi_Wu_original[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
+
 bool all_act_fwd_sched = false;
 
 int32_t use_scheduling = 1;
 
 float thrust_eff_scaling = 1.0;
+float backwing_thrust_eff_scaling = 1.0;
+float backwing_pitch_eff_scaling = 1.0;
 
 static float g_forward[4][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL_FWD, STABILIZATION_INDI_G1_PITCH_FWD, STABILIZATION_INDI_G1_YAW_FWD, STABILIZATION_INDI_G1_THRUST_FWD};
 
@@ -163,6 +171,10 @@ void schdule_control_effectiveness(void) {
     } else {
       g1g2[1][i] = g_hover[1][i] * (1.0 - pitch_ratio) + g_forward[1][i] * pitch_ratio * airspeed_pitch_eff * airspeed_pitch_eff / (16.0*16.0);
     }
+    // With this factor the pitch effectiveness of the back wing can be scaled
+    if( (i ==2) || (i==3)) {
+      g1g2[1][i] *= backwing_pitch_eff_scaling;
+    }
     //Yaw
     g1g2[2][i] = g_hover[2][i] * (1.0 - ratio) + g_forward[2][i] * ratio;
 
@@ -192,6 +204,10 @@ void schdule_control_effectiveness(void) {
     // Thrust
     g1g2[3][i] = g_hover[3][i] * (1.0 - ratio_spec_force) + g_forward[3][i] * ratio_spec_force;
     g1g2[3][i] *= thrust_eff_scaling;
+    // With this factor the thrust effectiveness of the back wing can be scaled
+    if( (i ==2) || (i==3)) {
+      g1g2[3][i] *= backwing_thrust_eff_scaling;
+    }
   }
 
   bool low_airspeed = stateGetAirspeed_f() < INDI_SCHEDULING_LOW_AIRSPEED;
@@ -206,4 +222,20 @@ void schdule_control_effectiveness(void) {
     sched_ratio_tip_props = pitch_offset / pitch_range_deg;
   }
   Bound(sched_ratio_tip_props, 0.0, 1.0);
+
+  // Blance the cost of using motors and aerodynamic surfaces
+  if(airspeed > 15.0) {
+    uint8_t i;
+    for (i = 0; i < 4; i++) {
+      indi_Wu[i] = indi_Wu_original[i]*pref_flaps_factor;
+    }
+    for (i = 4; i < 8; i++) {
+      indi_Wu[i] = indi_Wu_original[i]/pref_flaps_factor;
+    }
+  } else {
+    uint8_t i;
+    for (i = 0; i < 8; i++) {
+      indi_Wu[i] = indi_Wu_original[i];
+    }
+  }
 }
