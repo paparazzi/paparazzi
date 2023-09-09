@@ -17,6 +17,7 @@
         <dl_setting var="amt.pos_gain" min="0.05" max="3.0" step="0.01" shortname="pos_gain"/>
         <dl_setting var="amt.speed_gain" min="0.0" max="1.0" step="0.01" shortname="speed_gain"/>
         <dl_setting var="amt.relvel_gain" min="0.0" max="1.0" step="0.01" shortname="relvel_gain"/>
+        <dl_setting var="cutoff_freq_filters_hz" min="0.3" max="2.0" step="0.01" shortname="filter_freq" module="ctrl/approach_moving_target" handler="set_low_pass_freq"/>
       </dl_settings>
     </dl_settings>
   </settings>
