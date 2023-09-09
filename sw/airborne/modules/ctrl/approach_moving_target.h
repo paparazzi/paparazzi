@@ -47,9 +47,11 @@ struct Amt {
 
 extern struct Amt amt;
 extern float amt_err_slowdown_gain;
+extern float cutoff_freq_filters_hz;
 
 extern void approach_moving_target_init(void);
 extern void follow_diagonal_approach(void);
 extern void approach_moving_target_enable(uint8_t wp_id);
+extern void approach_moving_target_set_low_pass_freq(float filter_freq);
 
 #endif // APPROACH_MOVING_TARGET_H
