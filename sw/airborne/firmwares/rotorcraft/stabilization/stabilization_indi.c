@@ -178,6 +178,7 @@ int32_t num_thrusters;
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
+struct Int32Rates  stab_att_ff_rates;
 
 abi_event rpm_ev;
 static void rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act);
@@ -428,6 +429,7 @@ void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp)
 {
   stab_att_sp_euler = stab_sp_to_eulers_i(sp);
   stab_att_sp_quat = stab_sp_to_quat_i(sp);
+  stab_att_ff_rates = stab_sp_to_rates_i(sp);
 }
 
 /**
@@ -645,6 +647,9 @@ void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight)
   rate_sp.p = indi_gains.att.p * att_fb.x / indi_gains.rate.p;
   rate_sp.q = indi_gains.att.q * att_fb.y / indi_gains.rate.q;
   rate_sp.r = indi_gains.att.r * att_fb.z / indi_gains.rate.r;
+
+  // Add feed-forward rates to the attitude feedback part
+  RATES_ADD(rate_sp, stab_att_ff_rates);
 
   // Store for telemetry
   angular_rate_ref.p = rate_sp.p;
