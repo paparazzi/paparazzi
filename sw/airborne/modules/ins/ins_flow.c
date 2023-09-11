@@ -908,9 +908,9 @@ void ins_flow_update(void)
                 (ins_flow.lp_gyro_roll - ins_flow.lp_gyro_bias_roll) * (M_PI / 180.0f) / 74.0f);
   } else {
     // make sure that the right hand state terms appear before they change:
-    OF_X[OF_V_IND] += dt * (thrust * sin(OF_X[OF_ANGLE_IND]) / mass);
+    OF_X[OF_V_IND] += dt * (thrust * sinf(OF_X[OF_ANGLE_IND]) / mass);
     OF_X[OF_Z_IND] += dt * OF_X[OF_Z_DOT_IND];
-    OF_X[OF_Z_DOT_IND] += dt * (thrust * cos(OF_X[OF_ANGLE_IND]) / mass - g);
+    OF_X[OF_Z_DOT_IND] += dt * (thrust * cosf(OF_X[OF_ANGLE_IND]) / mass - g);
     OF_X[OF_ANGLE_IND] += dt * OF_X[OF_ANGLE_DOT_IND];
     /*
      * // TODO: We now only keep this here because it worked on the real drone. It also worked without it. So to be deleted if it works as is.
@@ -945,27 +945,22 @@ void ins_flow_update(void)
   for (int i = 0; i < N_STATES_OF_KF; i++) {
     F[i][i] = 1.0f;
   }
-  if (CONSTANT_ALT_FILTER) {
-    F[OF_V_IND][OF_ANGLE_IND] = dt * (g / (cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND])));
-    F[OF_ANGLE_IND][OF_ANGLE_DOT_IND] = dt * 1.0f;
-    if (OF_TWO_DIM) {
-      F[OF_VX_IND][OF_THETA_IND] = dt * (g / (cos(OF_X[OF_THETA_IND]) * cos(OF_X[OF_THETA_IND])));
-    }
-  } else {
-    F[OF_V_IND][OF_ANGLE_IND] = dt * (thrust * cos(OF_X[OF_ANGLE_IND]) / mass);
-    F[OF_ANGLE_IND][OF_ANGLE_DOT_IND] = dt * 1.0f;
-    F[OF_Z_IND][OF_Z_DOT_IND] = dt * 1.0f;
-    F[OF_Z_DOT_IND][OF_ANGLE_IND] = dt * (-thrust * sin(OF_X[OF_ANGLE_IND]) / mass);
-    if (OF_THRUST_BIAS) {
-      F[OF_V_IND][OF_THRUST_BIAS_IND] =  -dt * sin(OF_X[OF_ANGLE_IND]) / mass;
-      F[OF_Z_DOT_IND][OF_THRUST_BIAS_IND] = -dt * cos(OF_X[OF_ANGLE_IND]) / mass;
+
+  if(CONSTANT_ALT_FILTER) {
+    F[OF_V_IND][OF_ANGLE_IND] = dt*(g/(cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])));
+    F[OF_ANGLE_IND][OF_ANGLE_DOT_IND] = dt*1.0f;
+    if(OF_TWO_DIM) {
+	F[OF_VX_IND][OF_THETA_IND] = dt*(g/(cosf(OF_X[OF_THETA_IND])*cosf(OF_X[OF_THETA_IND])));
     }
   }
-  if (OF_DRAG) {
-    // In MATLAB: -sign(v)*2*kd*v/m (always minus, whether v is positive or negative):
-    F[OF_V_IND][OF_V_IND] -=  dt * 2 * kd * abs(OF_X[OF_V_IND]) / mass;
-    if (OF_TWO_DIM) {
-      F[OF_VX_IND][OF_VX_IND] -=  dt * 2 * kd * abs(OF_X[OF_VX_IND]) / mass;
+  else {
+    F[OF_V_IND][OF_ANGLE_IND] = dt*(thrust*cosf(OF_X[OF_ANGLE_IND])/mass);
+    F[OF_ANGLE_IND][OF_ANGLE_DOT_IND] = dt*1.0f;
+    F[OF_Z_IND][OF_Z_DOT_IND] = dt*1.0f;
+    F[OF_Z_DOT_IND][OF_ANGLE_IND] = dt*(-thrust*sinf(OF_X[OF_ANGLE_IND])/mass);
+    if(OF_THRUST_BIAS) {
+	F[OF_V_IND][OF_THRUST_BIAS_IND] =  -dt*sinf(OF_X[OF_ANGLE_IND]) / mass;
+	F[OF_Z_DOT_IND][OF_THRUST_BIAS_IND] = -dt*cosf(OF_X[OF_ANGLE_IND]) / mass;
     }
   }
 
@@ -979,49 +974,46 @@ void ins_flow_update(void)
   // Jacobian observation matrix H:
   float H[N_MEAS_OF_KF][N_STATES_OF_KF] = {{0.}};
 
-  if (CONSTANT_ALT_FILTER) {
-    // Hx = [-cos(theta)^2/z, (v*sin(theta))/ z, (v* cos(theta)^2)/z^2];
+  if(CONSTANT_ALT_FILTER) {
+      // Hx = [-cosf(theta)^2/z, (v*sinf(theta))/ z, (v* cosf(theta)^2)/z^2];
     // lateral flow:
-    H[OF_LAT_FLOW_IND][OF_V_IND] = -cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
-    H[OF_LAT_FLOW_IND][OF_ANGLE_IND] = OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
-    H[OF_LAT_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) /
-                                   (OF_X[OF_Z_IND] * OF_X[OF_Z_IND]);
+    H[OF_LAT_FLOW_IND][OF_V_IND] = -cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/ OF_X[OF_Z_IND];
+    H[OF_LAT_FLOW_IND][OF_ANGLE_IND] = OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
+    H[OF_LAT_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/(OF_X[OF_Z_IND]*OF_X[OF_Z_IND]);
     H[OF_LAT_FLOW_IND][OF_ANGLE_DOT_IND] = 1.0f;
     // divergence:
-    H[OF_DIV_FLOW_IND][OF_V_IND] = -sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND]);
-    H[OF_DIV_FLOW_IND][OF_ANGLE_IND] = -OF_X[OF_V_IND] * cos(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
-    H[OF_DIV_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND] * OF_X[OF_Z_IND]);
+    H[OF_DIV_FLOW_IND][OF_V_IND] = -sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
+    H[OF_DIV_FLOW_IND][OF_ANGLE_IND] = -OF_X[OF_V_IND]*cosf(2*OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
+    H[OF_DIV_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]*OF_X[OF_Z_IND]);
     H[OF_DIV_FLOW_IND][OF_ANGLE_DOT_IND] = 0.0f;
 
-    if (OF_TWO_DIM) {
-      // divergence measurement couples the two axes actually...:
-      H[OF_DIV_FLOW_IND][OF_VX_IND] = -sin(2 * OF_X[OF_THETA_IND]) / (2 * OF_X[OF_Z_IND]);
-      H[OF_DIV_FLOW_IND][OF_THETA_IND] = -OF_X[OF_VX_IND] * cos(2 * OF_X[OF_THETA_IND]) / OF_X[OF_Z_IND];
+    if(OF_TWO_DIM) {
+	// divergence measurement couples the two axes actually...:
+	H[OF_DIV_FLOW_IND][OF_VX_IND] = -sinf(2*OF_X[OF_THETA_IND])/(2*OF_X[OF_Z_IND]);
+	H[OF_DIV_FLOW_IND][OF_THETA_IND] = -OF_X[OF_VX_IND]*cosf(2*OF_X[OF_THETA_IND])/OF_X[OF_Z_IND];
 
-      // lateral flow in x direction:
-      H[OF_LAT_FLOW_X_IND][OF_VX_IND] = -cos(OF_X[OF_THETA_IND]) * cos(OF_X[OF_THETA_IND]) / OF_X[OF_Z_IND];
-      H[OF_LAT_FLOW_X_IND][OF_THETA_IND] = OF_X[OF_VX_IND] * sin(2 * OF_X[OF_THETA_IND]) / OF_X[OF_Z_IND];
-      H[OF_LAT_FLOW_X_IND][OF_Z_IND] = OF_X[OF_VX_IND] * cos(OF_X[OF_THETA_IND]) * cos(OF_X[OF_THETA_IND]) /
-                                       (OF_X[OF_Z_IND] * OF_X[OF_Z_IND]);
+	// lateral flow in x direction:
+	H[OF_LAT_FLOW_X_IND][OF_VX_IND] = -cosf(OF_X[OF_THETA_IND])*cosf(OF_X[OF_THETA_IND])/ OF_X[OF_Z_IND];
+	H[OF_LAT_FLOW_X_IND][OF_THETA_IND] = OF_X[OF_VX_IND]*sinf(2*OF_X[OF_THETA_IND])/OF_X[OF_Z_IND];
+	H[OF_LAT_FLOW_X_IND][OF_Z_IND] = OF_X[OF_VX_IND]*cosf(OF_X[OF_THETA_IND])*cosf(OF_X[OF_THETA_IND])/(OF_X[OF_Z_IND]*OF_X[OF_Z_IND]);
     }
   } else {
     // lateral flow:
-    H[OF_LAT_FLOW_IND][OF_V_IND] = -cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
-    H[OF_LAT_FLOW_IND][OF_ANGLE_IND] = OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND]
-                                       + OF_X[OF_Z_DOT_IND] * cos(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
+    H[OF_LAT_FLOW_IND][OF_V_IND] = -cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/ OF_X[OF_Z_IND];
+    H[OF_LAT_FLOW_IND][OF_ANGLE_IND] = OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+					  + OF_X[OF_Z_DOT_IND]*cosf(2*OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
     H[OF_LAT_FLOW_IND][OF_ANGLE_DOT_IND] = 1.0f;
-    H[OF_LAT_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) /
-                                   (OF_X[OF_Z_IND] * OF_X[OF_Z_IND])
-                                   - OF_X[OF_Z_DOT_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND] * OF_X[OF_Z_IND]);
-    H[OF_LAT_FLOW_IND][OF_Z_DOT_IND] = sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND]);
+    H[OF_LAT_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/(OF_X[OF_Z_IND]*OF_X[OF_Z_IND])
+				    - OF_X[OF_Z_DOT_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]*OF_X[OF_Z_IND]);
+    H[OF_LAT_FLOW_IND][OF_Z_DOT_IND] = sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
     // divergence:
-    H[OF_DIV_FLOW_IND][OF_V_IND] = -sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND]);
-    H[OF_DIV_FLOW_IND][OF_ANGLE_IND] = -OF_X[OF_V_IND] * cos(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND]
-                                       + OF_X[OF_Z_DOT_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
+    H[OF_DIV_FLOW_IND][OF_V_IND] = -sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
+    H[OF_DIV_FLOW_IND][OF_ANGLE_IND] = -OF_X[OF_V_IND]*cosf(2*OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+					  + OF_X[OF_Z_DOT_IND]*sinf(2*OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
     H[OF_DIV_FLOW_IND][OF_ANGLE_DOT_IND] = 0.0f;
-    H[OF_DIV_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND] * OF_X[OF_Z_IND])
-                                   + OF_X[OF_Z_DOT_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / (OF_X[OF_Z_IND] * OF_X[OF_Z_IND]);
-    H[OF_DIV_FLOW_IND][OF_Z_DOT_IND] = -cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
+    H[OF_DIV_FLOW_IND][OF_Z_IND] = OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]*OF_X[OF_Z_IND])
+				    + OF_X[OF_Z_DOT_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/(OF_X[OF_Z_IND]*OF_X[OF_Z_IND]);
+    H[OF_DIV_FLOW_IND][OF_Z_DOT_IND] = -cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
   }
 
   // rate measurement:
@@ -1150,20 +1142,22 @@ void ins_flow_update(void)
 
     // Correct the state:
     // MATLAB:
-    // Z_expected = [-v*cos(theta)*cos(theta)/z + zd*sin(2*theta)/(2*z) + thetad;
-    //      (-v*sin(2*theta)/(2*z)) - zd*cos(theta)*cos(theta)/z];
+    // Z_expected = [-v*cosf(theta)*cosf(theta)/z + zd*sinf(2*theta)/(2*z) + thetad;
+    //			(-v*sinf(2*theta)/(2*z)) - zd*cosf(theta)*cosf(theta)/z];
+
     float Z_expected[N_MEAS_OF_KF];
 
     // TODO: take this var out? It was meant for debugging...
     //float Z_expect_GT_angle;
 
-    if (CONSTANT_ALT_FILTER) {
-      Z_expected[OF_LAT_FLOW_IND] = -OF_X[OF_V_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND]
-                                    + OF_X[OF_ANGLE_DOT_IND]; // TODO: Currently, no p works better than using p here. Analyze!
+    if(CONSTANT_ALT_FILTER) {
+      Z_expected[OF_LAT_FLOW_IND] = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+				+OF_X[OF_ANGLE_DOT_IND]; // TODO: Currently, no p works better than using p here. Analyze!
+
 
       /* TODO: remove later, just for debugging:
-      float Z_exp_no_rate = -OF_X[OF_V_IND]*cos(OF_X[OF_ANGLE_IND])*cos(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
-      float Z_exp_with_rate = -OF_X[OF_V_IND]*cos(OF_X[OF_ANGLE_IND])*cos(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]+OF_X[OF_ANGLE_DOT_IND];
+      float Z_exp_no_rate = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
+      float Z_exp_with_rate = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]+OF_X[OF_ANGLE_DOT_IND];
       printf("Z_exp_no_rate = %f, Z_exp_with_rate = %f, measured = %f, angle dot = %f, p = %f: ", Z_exp_no_rate, Z_exp_with_rate,
        ins_flow.optical_flow_x, OF_X[OF_ANGLE_DOT_IND], dt * (ins_flow.lp_gyro_roll - ins_flow.lp_gyro_bias_roll) * (M_PI/180.0f) / 74.0f);
       if(fabs(ins_flow.optical_flow_x - Z_exp_no_rate) < fabs(ins_flow.optical_flow_x - Z_exp_with_rate)) {
@@ -1171,41 +1165,41 @@ void ins_flow_update(void)
       }
       printf("\n");*/
 
-      Z_expected[OF_DIV_FLOW_IND] = -OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND]);
+      Z_expected[OF_DIV_FLOW_IND] = -OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
 
-      if (OF_TWO_DIM) {
-        Z_expected[OF_LAT_FLOW_X_IND] = -OF_X[OF_VX_IND] * cos(OF_X[OF_THETA_IND]) * cos(OF_X[OF_THETA_IND]) /
-                                        OF_X[OF_Z_IND]; // TODO: no q?
+      if(OF_TWO_DIM) {
+	  Z_expected[OF_LAT_FLOW_X_IND] = -OF_X[OF_VX_IND]*cosf(OF_X[OF_THETA_IND])*cosf(OF_X[OF_THETA_IND])/OF_X[OF_Z_IND]; // TODO: no q?
       }
 
-      //Z_expect_GT_angle = -OF_X[OF_V_IND]*cos(eulers->phi)*cos(eulers->phi)/OF_X[OF_Z_IND];
+      //Z_expect_GT_angle = -OF_X[OF_V_IND]*cosf(eulers->phi)*cosf(eulers->phi)/OF_X[OF_Z_IND];
 
       if (OF_USE_GYROS) {
         Z_expected[OF_RATE_IND] = OF_X[OF_ANGLE_DOT_IND]; // TODO: is this even in the right direction?
       }
-    } else {
-      Z_expected[OF_LAT_FLOW_IND] = -OF_X[OF_V_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND]
-                                    + OF_X[OF_Z_DOT_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND])
-                                    + OF_X[OF_ANGLE_DOT_IND]; // TODO: We first had this rate term but not for the constant alt filter.
-      // Simulation and data analysis from real flights shows that including it is better. CHECK IN REALITY!
+    }
+    else {
+      Z_expected[OF_LAT_FLOW_IND] = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+				     + OF_X[OF_Z_DOT_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND])
+				     + OF_X[OF_ANGLE_DOT_IND]; // TODO: We first had this rate term but not for the constant alt filter.
+							       // Simulation and data analysis from real flights shows that including it is better. CHECK IN REALITY!
 
-      Z_expected[OF_DIV_FLOW_IND] = -OF_X[OF_V_IND] * sin(2 * OF_X[OF_ANGLE_IND]) / (2 * OF_X[OF_Z_IND])
-                                    - OF_X[OF_Z_DOT_IND] * cos(OF_X[OF_ANGLE_IND]) * cos(OF_X[OF_ANGLE_IND]) / OF_X[OF_Z_IND];
+      Z_expected[OF_DIV_FLOW_IND] = -OF_X[OF_V_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND])
+				    -OF_X[OF_Z_DOT_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND];
 
-      //Z_expect_GT_angle = -OF_X[OF_V_IND]*cos(eulers->phi)*cos(eulers->phi)/OF_X[OF_Z_IND]
-      //             + OF_X[OF_Z_DOT_IND]*sin(2*eulers->phi)/(2*OF_X[OF_Z_IND]);
-      //+ OF_X[OF_ANGLE_DOT_IND];
-      if (N_MEAS_OF_KF == 3) {
-        Z_expected[OF_RATE_IND] = OF_X[OF_ANGLE_DOT_IND]; // TODO: is this even in the right direction?
+      //Z_expect_GT_angle = -OF_X[OF_V_IND]*cosf(eulers->phi)*cosf(eulers->phi)/OF_X[OF_Z_IND]
+	//				     + OF_X[OF_Z_DOT_IND]*sinf(2*eulers->phi)/(2*OF_X[OF_Z_IND]);
+					     //+ OF_X[OF_ANGLE_DOT_IND];
+      if(N_MEAS_OF_KF == 3) {
+      	Z_expected[OF_RATE_IND] = OF_X[OF_ANGLE_DOT_IND]; // TODO: is this even in the right direction?
       }
 
-      /*
-            float Z_exp_no_rate = -OF_X[OF_V_IND]*cos(OF_X[OF_ANGLE_IND])*cos(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
-                + OF_X[OF_Z_DOT_IND]*sin(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
-            float Z_exp_with_rate = -OF_X[OF_V_IND]*cos(OF_X[OF_ANGLE_IND])*cos(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
-                  + OF_X[OF_Z_DOT_IND]*sin(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND])
-                  + OF_X[OF_ANGLE_DOT_IND];
-      */
+/*
+      float Z_exp_no_rate = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+			    + OF_X[OF_Z_DOT_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND]);
+      float Z_exp_with_rate = -OF_X[OF_V_IND]*cosf(OF_X[OF_ANGLE_IND])*cosf(OF_X[OF_ANGLE_IND])/OF_X[OF_Z_IND]
+			      + OF_X[OF_Z_DOT_IND]*sinf(2*OF_X[OF_ANGLE_IND])/(2*OF_X[OF_Z_IND])
+			      + OF_X[OF_ANGLE_DOT_IND];
+*/
       /*
       printf("Z_exp_no_rate = %f, Z_exp_with_rate = %f, measured = %f, angle dot = %f, p = %f: ", Z_exp_no_rate, Z_exp_with_rate,
        ins_flow.optical_flow_x, OF_X[OF_ANGLE_DOT_IND], dt * (ins_flow.lp_gyro_roll - ins_flow.lp_gyro_bias_roll) * (M_PI/180.0f) / 74.0f);

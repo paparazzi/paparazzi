@@ -98,18 +98,6 @@ struct OpticalFlowLanding {
 
 extern struct OpticalFlowLanding of_landing_ctrl;
 
-//// SSL:
-//float *text_dists[MAX_SAMPLES_LEARNING];
-//float sonar_OF[MAX_SAMPLES_LEARNING];
-//float gains[MAX_SAMPLES_LEARNING];
-//float cov_divs_log[MAX_SAMPLES_LEARNING];
-//float *weights;
-//
-//// for "communication" with file logger:
-//float cov_div;
-//float pstate;
-//float divergence_vision;
-
 
 // Without optitrack set to: GUIDANCE_H_MODE_ATTITUDE
 // With optitrack set to: GUIDANCE_H_MODE_HOVER / NAV (NAV is the common option in the experiments.)

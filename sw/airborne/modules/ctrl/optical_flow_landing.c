@@ -59,6 +59,7 @@
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi_simple.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 #include "optical_flow_landing.h"
 
@@ -1310,27 +1311,6 @@ void recursive_least_squares_batch(float *targets, float **samples, uint8_t D, u
   }
   (*fit_error) = sum_abs_err / count;
 }
-
-static inline void float_mat_div_scalar(float **o, float **a, float scalar, int m, int n)
-{
-  int i, j;
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-      o[i][j] = a[i][j] / scalar;
-    }
-  }
-}
-
-static inline void float_mat_mul_scalar(float **o, float **a, float scalar, int m, int n)
-{
-  int i, j;
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-      o[i][j] = a[i][j] * scalar;
-    }
-  }
-}
-
 
 void recursive_least_squares(float target, float *sample, uint8_t length_sample, float *params)
 {

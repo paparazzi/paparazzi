@@ -11,16 +11,17 @@
   <settings>
     <dl_settings NAME="INS">
       <dl_settings name="flow">
-        <dl_setting var="reset_filter" min="0" step="1" max="1" values="NO|YES" shortname="reset_filter" module="modules/ins/ins_flow"/> 
-        <dl_setting var="run_filter" min="0" step="1" max="1" values="NO|YES" shortname="run_filter" module="modules/ins/ins_flow"/> 
-        <dl_setting var="use_filter" min="0" step="1" max="3" values="NO|ANGLE|VELOCITY|HEIGHT" shortname="use_filter" module="modules/ins/ins_flow"/> 
-        <dl_setting var="thrust_factor" min="0.01" step="0.01" max="1.50" shortname="thrust_factor" module="modules/ins/ins_flow"/> 
+        <dl_setting var="reset_filter" min="0" step="1" max="1" values="NO|YES" module="modules/ins/ins_flow"/> 
+        <dl_setting var="run_filter" min="0" step="1" max="1" values="NO|YES" module="modules/ins/ins_flow"/> 
+        <dl_setting var="use_filter" min="0" step="1" max="3" values="NO|ANGLE|VELOCITY|HEIGHT" module="modules/ins/ins_flow"/> 
+        <dl_setting var="thrust_factor" min="0.01" step="0.01" max="1.50" module="modules/ins/ins_flow"/> 
       </dl_settings>
     </dl_settings>
   </settings>
   <dep>
     <depends>@imu</depends>
     <provides>ins</provides>
+    <provides>ahrs</provides>
   </dep>
   <header>
     <file name="ins_flow.h" dir="modules/ins"/>
