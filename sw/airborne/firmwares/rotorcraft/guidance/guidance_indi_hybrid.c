@@ -219,6 +219,11 @@ void guidance_indi_init(void)
  * Call upon entering indi guidance
  */
 void guidance_indi_enter(void) {
+  /*Obtain eulers with zxy rotation order*/
+  struct FloatEulers eulers_zxy;
+  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  nav.heading = eulers_zxy.psi;
+
   thrust_in = stabilization_cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
   guidance_indi_hybrid_heading_sp = stateGetNedToBodyEulers_f()->psi;
@@ -228,8 +233,12 @@ void guidance_indi_enter(void) {
   for (int8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&filt_accel_ned[i], tau, sample_time, 0.0);
   }
-  init_butterworth_2_low_pass(&roll_filt, tau, sample_time, stateGetNedToBodyEulers_f()->phi);
-  init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, stateGetNedToBodyEulers_f()->theta);
+
+  /*Obtain eulers with zxy rotation order*/
+  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+
+  init_butterworth_2_low_pass(&roll_filt, tau, sample_time, eulers_zxy.phi);
+  init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, eulers_zxy.theta);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 }
