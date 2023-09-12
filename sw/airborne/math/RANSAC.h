@@ -50,11 +50,12 @@ extern "C" {
  * @param[in] samples The samples / feature vectors
  * @param[in] D The dimensionality of the samples
  * @param[in] count The number of samples
+ * @param[in] use_bias Whether the RANSAC procedure should add a bias. If 0 it does not.
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
 void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float *targets, int D,
-                         float (*samples)[D], uint16_t count, float *params, float *fit_error);
+                         float (*samples)[D], uint16_t count, bool use_bias, float *params, float *fit_error);
 
 /** Get indices without replacement.
  *
