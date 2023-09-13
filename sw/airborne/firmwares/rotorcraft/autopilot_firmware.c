@@ -110,8 +110,9 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t throttle = 100 * autopilot.throttle / MAX_PPRZ;
   float power = electrical.vsupply * electrical.current;
+  static float avg_power += (power - avg_power) * 0.01;
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
-                       &throttle, &electrical.vsupply, &electrical.current, &power, &electrical.charge, &electrical.energy);
+                       &throttle, &electrical.vsupply, &electrical.current, &power, &avg_power, &electrical.charge, &electrical.energy);
 }
 
 static void send_fp(struct transport_tx *trans, struct link_device *dev)

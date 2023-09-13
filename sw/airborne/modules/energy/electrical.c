@@ -103,6 +103,7 @@ void electrical_init(void)
   electrical.current = 0.f;
   electrical.charge  = 0.f;
   electrical.energy  = 0.f;
+  electrical.avg_power = 0;
 
   electrical.bat_low = false;
   electrical.bat_critical = false;
