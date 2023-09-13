@@ -1064,4 +1064,3 @@ void float_vect2_scale_in_2d(struct FloatVect2 *vect2, float norm_des) {
     vect2->y *= scale;
   }
 }
-
