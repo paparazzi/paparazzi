@@ -20,8 +20,7 @@
   </settings>
   <dep>
     <depends>@imu</depends>
-    <provides>ins</provides>
-    <provides>ahrs</provides>
+    <provides>ahrs,ins</provides>
   </dep>
   <header>
     <file name="ins_flow.h" dir="modules/ins"/>
