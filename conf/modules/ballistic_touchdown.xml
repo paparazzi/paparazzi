@@ -3,7 +3,10 @@
 <module name="ballistic_touchdown" dir="nav">
   <doc>
     <description>
-      Module that predicts the crash location if the motors would be turned off, assuming a ballistic trajectory based on the current velocity.
+      Module that predicts the crash location if the motors would be
+      turned off, assuming a ballistic trajectory based on the current
+      velocity. Suggested use: trigger exceptions in the flight plan with
+      the ballistic_pos variable.
     </description>
   </doc>
   <dep>
