@@ -30,6 +30,9 @@
       <module name="pprzlog"/>
       <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
+      <module name="shell"/>
+      <configure name="SHELL_PORT" value="UART7"/>
+      <module name="generic_uart_sensor"/>
 
       <!-- Airspeed sensors -->
       <module name="airspeed" type="ms45xx_i2c">

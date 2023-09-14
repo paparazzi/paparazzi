@@ -46,6 +46,33 @@
 /* Main variables */
 static struct link_device *gen_uart_dev = (&((GENERIC_UART_PORT).device));   ///< UART device for communication
 
+#if USE_SHELL
+#include "modules/core/shell.h"
+#include "mcu_periph/sys_time.h"
+#include "printf.h"
+#include "string.h"
+
+static void generic_uart_send(shell_stream_t *sh, int argc, const char *const argv[])
+{
+  (void) argv;
+  if (argc != 1) {
+    chprintf(sh, "Usage: generic_uart \"Messsage\"\r\n");
+    return;
+  }
+
+  chprintf(sh, "Sending: \"%s\"\r\n", argv[0]);
+  gen_uart_dev->put_buffer(gen_uart_dev->periph, 0, argv[0], len(argv[0]));
+}
+
+#endif
+
+void generic_uart_init(void) {
+#if USE_SHELL
+  shell_add_entry("generic_uart", generic_uart_send);
+#endif
+}
+
+
 /* Event function to read UART message and forward to downlink */
 void generic_uart_event(void) {
   // Receive buffer

@@ -9,6 +9,9 @@
     <define name="GENERIC_UART_MAX_SENDLEN" value="64" description="length to start sending without waiting for the endchar (should be smaller than the buffer size)"/>
     <define name="GENERIC_UART_MAX_BUFSIZE" value="128" description="maxmimum buffer size"/>
   </doc>
+  <dep>
+    <recommends>shell</recommends>
+  </dep>
   <header>
     <file name="generic_uart.h"/>
   </header>
