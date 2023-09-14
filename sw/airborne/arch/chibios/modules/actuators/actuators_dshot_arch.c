@@ -93,6 +93,7 @@ static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
       float bat_voltage = electrical.vsupply;
       float power = actuators_dshot_values[i].current * bat_voltage;
       float energy = (float)dtelem->consumption;
+      float temp = dtelem->temp + 273.15;
       pprz_msg_send_ESC(trans, dev, AC_ID,
           &actuators_dshot_values[i].current,
           &bat_voltage,
@@ -100,6 +101,8 @@ static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
           &actuators_dshot_values[i].rpm,
           &actuators_dshot_values[i].voltage,
           &energy,
+          &temp,
+          &i,
           &i);
     }
   }
