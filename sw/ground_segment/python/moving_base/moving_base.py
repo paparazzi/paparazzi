@@ -62,6 +62,7 @@ class Base:
         self.time = time.mktime(time.gmtime())
         self.speed = 1 # m/s
         self.course = -90 # deg
+        self.heading = -90 # deg
         self.lat = 38.08000040764657 #deg
         self.lon = -9.1 #deg
         self.altitude = 2.0 # starts from 1 m high
@@ -149,6 +150,7 @@ class Base:
             msg['speed'] = self.speed
             msg['climb'] = 0
             msg['course'] = self.course
+            msg['heading'] = self.heading
             self._interface.send(msg)
 
     def run(self):
