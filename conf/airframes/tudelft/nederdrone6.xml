@@ -63,7 +63,6 @@
     </target>
 
     <target name="nps" board="pc">
-      <!-- <module name="eff_scheduling_nederdrone_dummy"/> -->
       <module name="radio_control" type="datalink"/>
       <module name="fdm" type="jsbsim"/>
 
@@ -78,10 +77,13 @@
       <define name="RADIO_KILL_SWITCH" value="0"/>
     </target>
 
-    <module name="eff_scheduling_nederdrone"/>
+    <module name="eff_scheduling_nederdrone">
+      <!-- Trims -->
+      <define name="INDI_SCHEDULING_TRIM_ELEVATOR" value="0"/>
+    </module>
 
     <module name="telemetry"     type="transparent">
-      <configure name="MODEM_BAUD" value="B115200"/>
+      <configure name="MODEM_BAUD" value="B460800"/>
     </module>
 
     <module name="approach_moving_target">
@@ -138,9 +140,11 @@
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="0.5"/>
       <define name="GUIDANCE_INDI_POS_GAINZ" value="0.3"/>
       <define name="GUIDANCE_INDI_SPEED_GAINZ" value="0.5"/>
+      <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="17.0"/>
+      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="5"/>
       <!--define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-943.0"/>
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN_45" value="-500.0"/>
@@ -337,9 +341,9 @@
     <define name="FILT_CUTOFF" value="1.5"/>
     <define name="FILT_CUTOFF_RDOT" value="0.5"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="5.0"/>
-    <define name="FILT_CUTOFF_R" value="4."/>
     <define name="FILT_CUTOFF_P" value="20."/>
     <define name="FILT_CUTOFF_Q" value="20."/>
+    <define name="FILT_CUTOFF_R" value="4."/>
     <!-- first order actuator dynamics -->
     <!--define name="ACT_DYN" value="{0.009, 0.009, 0.009, 0.009, 0.05, 0.05, 0.05, 0.05}"/-->
     <define name="ACT_DYN" value="{0.028, 0.028, 0.028, 0.028, 0.05, 0.05, 0.05, 0.05}"/>
