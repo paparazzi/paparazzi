@@ -24,7 +24,7 @@
 
 float g = -9.81f;
 
-struct FloatVect2 crash_pos;
+struct FloatVect2 ballistic_pos;
 
 void ballistic_touchdown_init(void) {
   // nothing to be done here
@@ -57,5 +57,5 @@ void ballistic_touchdown_run(void) {
   pos.y = stateGetPositionEnu_f()->y;
 
   // The predicted crash position is the current drone position + fall distance
-  VECT2_SUM(crash_pos, pos, crash_offset);
+  VECT2_SUM(ballistic_pos, pos, crash_offset);
 }

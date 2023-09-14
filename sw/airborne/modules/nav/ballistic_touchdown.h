@@ -20,6 +20,7 @@
  *
  */
 
-
 void ballistic_touchdown_init(void);
 void ballistic_touchdown_run(void);
+
+extern struct FloatVect2 ballistic_pos;
