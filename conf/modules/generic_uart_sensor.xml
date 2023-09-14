@@ -2,10 +2,12 @@
 
 <module name="generic_uart_sensor" dir="sensors">
   <doc>
-    <description>Generic UART sesnsor where the data is forwarded tot the GCS</description>
+    <description>Generic UART sesnsor where the data is forwarded to the GCS</description>
     <configure name="GENERIC_UART_PORT" value="UART4" description="select which uart it is connected to"/>
     <configure name="GENERIC_UART_BAUD" value="B9600" description="set the baudrate of the uart"/>
     <define name="GENERIC_UART_ENDCHAR" value="&gt;" description="ending character for receiving"/>
+    <define name="GENERIC_UART_MAX_SENDLEN" value="64" description="length to start sending without waiting for the endchar (should be smaller than the buffer size)"/>
+    <define name="GENERIC_UART_MAX_BUFSIZE" value="128" description="maxmimum buffer size"/>
   </doc>
   <header>
     <file name="generic_uart.h"/>
