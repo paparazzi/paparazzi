@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ballistic_touchdown" dir="nav">
+  <doc>
+    <description>
+      Module that predicts the crash location if the motors would be
+      turned off, assuming a ballistic trajectory based on the current
+      velocity. Suggested use: trigger exceptions in the flight plan with
+      the ballistic_pos variable.
+    </description>
+  </doc>
+  <dep>
+    <depends>@navigation</depends>
+  </dep>
+  <header>
+    <file name="ballistic_touchdown.h"/>
+  </header>
+  <init fun="ballistic_touchdown_init()"/>
+  <periodic fun="ballistic_touchdown_run()" autorun="TRUE"/>
+  <makefile target="ap|nps">
+    <file name="ballistic_touchdown.c"/>
+  </makefile>
+</module>
+
