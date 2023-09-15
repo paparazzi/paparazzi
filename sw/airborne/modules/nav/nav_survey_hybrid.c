@@ -29,6 +29,7 @@
 #include "modules/nav/nav_survey_hybrid.h"
 
 #include "firmwares/rotorcraft/navigation.h"
+#include "modules/nav/nav_rotorcraft_base.h"
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "autopilot.h"

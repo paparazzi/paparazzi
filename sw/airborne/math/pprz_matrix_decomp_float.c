@@ -167,7 +167,7 @@ static int imin(int num1, int num2) {
 int pprz_svd_float(float **a, float *w, float **v, int m, int n)
 {
   /* Householder reduction to bidiagonal form. */
-  int flag, i, its, j, jj, k, l, NM;
+  int flag, i, its, j, jj, k, l, NM = 0;
   float C, F, H, S, X, Y, Z, tmp;
   float G = 0.0;
   float Scale = 0.0;
