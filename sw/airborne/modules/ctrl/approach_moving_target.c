@@ -44,7 +44,7 @@ float amt_err_slowdown_gain = AMT_ERR_SLOWDOWN_GAIN;
 
 float approach_moving_target_angle_deg;
 
-float cutoff_freq_filters_hz = CUTOFF_FREQ_FILTERS_HZ
+float cutoff_freq_filters_hz = CUTOFF_FREQ_FILTERS_HZ;
 
 Butterworth2LowPass target_pos_filt[3];
 Butterworth2LowPass target_vel_filt[3];
@@ -103,7 +103,7 @@ void approach_moving_target_set_low_pass_freq(float filter_freq) {
   cutoff_freq_filters_hz = filter_freq;
   // tau = 1/(2*pi*Fc)
   float tau = 1.0 / (2.0 * M_PI * cutoff_freq_filters_hz);
-  float sample_time = 1.0 / PERIODIC_FREQUENCY;
+  float sample_time = 1.0 / FOLLOW_DIAGONAL_APPROACH_FREQ;
   for (uint8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&target_pos_filt[i], tau, sample_time, 0.0);
     init_butterworth_2_low_pass(&target_vel_filt[i], tau, sample_time, 0.0);

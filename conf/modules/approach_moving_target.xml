@@ -6,7 +6,7 @@
       Approach a moving target (e.g. ship) along a diagonal.
     </description>
     <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25" description="slowing down when arriving"/>
-    <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25" description="low pass filter on WP position"/>
+    <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.5" description="low pass filter on WP position"/>
   </doc>
   <settings>
     <dl_settings>
