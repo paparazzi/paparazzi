@@ -90,6 +90,7 @@
 
     <module name="approach_moving_target">
       <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
+      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
     </module>
 
     <module name="ins"           type="ekf2">

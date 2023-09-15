@@ -27,10 +27,28 @@
 
 #include "generated/modules.h"
 #include "modules/core/abi.h"
+#include "filters/low_pass_filter.h"
+
+
+#ifndef AMT_ERR_SLOWDOWN_GAIN
+#define AMT_ERR_SLOWDOWN_GAIN 0.25
+#endif
+
+// Filter value in Hz
+#ifndef CUTOFF_FREQ_FILTERS_HZ
+#define CUTOFF_FREQ_FILTERS_HZ 0.5
+#endif 
+
 
 float amt_err_slowdown_gain = AMT_ERR_SLOWDOWN_GAIN;
 
 float approach_moving_target_angle_deg;
+
+float cutoff_freq_filters_hz = CUTOFF_FREQ_FILTERS_HZ;
+
+Butterworth2LowPass target_pos_filt[3];
+Butterworth2LowPass target_vel_filt[3];
+Butterworth2LowPass target_heading_filt;
 
 #define DEBUG_AMT TRUE
 #include <stdio.h>
@@ -75,9 +93,23 @@ static void send_approach_moving_target(struct transport_tx *trans, struct link_
 
 void approach_moving_target_init(void)
 {
+  approach_moving_target_set_low_pass_freq(cutoff_freq_filters_hz);
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_APPROACH_MOVING_TARGET, send_approach_moving_target);
 #endif
+}
+
+void approach_moving_target_set_low_pass_freq(float filter_freq) {
+  cutoff_freq_filters_hz = filter_freq;
+  // tau = 1/(2*pi*Fc)
+  float tau = 1.0 / (2.0 * M_PI * cutoff_freq_filters_hz);
+  float sample_time = 1.0 / FOLLOW_DIAGONAL_APPROACH_FREQ;
+  for (uint8_t i = 0; i < 3; i++) {
+    init_butterworth_2_low_pass(&target_pos_filt[i], tau, sample_time, 0.0);
+    init_butterworth_2_low_pass(&target_vel_filt[i], tau, sample_time, 0.0);
+  }
+  init_butterworth_2_low_pass(&target_heading_filt, tau, sample_time, 0.0);
+
 }
 
 // Update a waypoint such that you can see on the GCS where the drone wants to go
@@ -127,11 +159,39 @@ void follow_diagonal_approach(void) {
     return;
   }
   target_get_vel(&target_vel);
+
+  // filter target values
+  update_butterworth_2_low_pass(&target_pos_filt[0], target_pos.x);
+  update_butterworth_2_low_pass(&target_pos_filt[1], target_pos.y);
+  update_butterworth_2_low_pass(&target_pos_filt[2], target_pos.z);
+
+  update_butterworth_2_low_pass(&target_vel_filt[0], target_vel.x);
+  update_butterworth_2_low_pass(&target_vel_filt[1], target_vel.y);
+  update_butterworth_2_low_pass(&target_vel_filt[2], target_vel.z);
+
+  // just filtering the heading will go wrong if it wraps, instead do:
+  // take the diff with current heading_filtered, wrap that, add to current, insert in filter and wrap again?
+  // example: target_heading - target_heading_filt (170 - -170 = 340), -> -20 -> -190 -> into filter -> wrap
+  float heading_diff = target_heading - target_heading_filt.o[0];
+  FLOAT_ANGLE_NORMALIZE(heading_diff);
+  float target_heading_input = target_heading_filt.o[0] + heading_diff;
+  update_butterworth_2_low_pass(&target_heading_filt, target_heading_input);
+  float target_heading_filt_wrapped = target_heading_filt.o[0];
+  FLOAT_ANGLE_NORMALIZE(target_heading_filt_wrapped);
+
+  target_pos.x = target_pos_filt[0].o[0];
+  target_pos.y = target_pos_filt[1].o[0];
+  target_pos.z = target_pos_filt[2].o[0];
+
+  target_vel.x = target_vel_filt[0].o[0];
+  target_vel.y = target_vel_filt[1].o[0];
+  target_vel.z = target_vel_filt[2].o[0];
+
   VECT3_SMUL(target_vel, target_vel, amt.speed_gain);
 
   // Reference model
   float gamma_ref = RadOfDeg(amt.slope_ref);
-  float psi_ref = RadOfDeg(target_heading + amt.psi_ref);
+  float psi_ref = RadOfDeg(target_heading_filt_wrapped + amt.psi_ref);
 
   amt.rel_unit_vec.x = cosf(gamma_ref) * cosf(psi_ref);
   amt.rel_unit_vec.y = cosf(gamma_ref) * sinf(psi_ref);
