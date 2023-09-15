@@ -396,8 +396,8 @@ void extract_information_from_parameters(float *parameters_u, float *parameters_
  * @param[in] focal_length Focal length in pixels
  * @param[out] info Contains all info extracted from the linear flow fit.
  */
-bool analyze_flow_field(struct flow_t *vectors, int count, float error_threshold, int n_iterations, int n_samples,
-                        int im_width, int im_height, float focal_length, struct linear_flow_fit_info *info)
+bool analyze_flow_field(struct flow_t *vectors __attribute__((unused)), int count, float error_threshold __attribute__((unused)), int n_iterations __attribute__((unused)), int n_samples __attribute__((unused)),
+                        int im_width __attribute__((unused)), int im_height __attribute__((unused)), float focal_length __attribute__((unused)), struct linear_flow_fit_info *info __attribute__((unused)))
 {
   // Are there enough flow vectors to perform a fit?
   if (count < N_PAR_TR_FIT) {
