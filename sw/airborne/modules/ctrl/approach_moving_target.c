@@ -29,11 +29,22 @@
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 
+
+#ifndef AMT_ERR_SLOWDOWN_GAIN
+#define AMT_ERR_SLOWDOWN_GAIN 0.25
+#endif
+
+// Filter value in Hz
+#ifndef CUTOFF_FREQ_FILTERS_HZ
+#define CUTOFF_FREQ_FILTERS_HZ 0.5
+#endif 
+
+
 float amt_err_slowdown_gain = AMT_ERR_SLOWDOWN_GAIN;
 
 float approach_moving_target_angle_deg;
 
-float cutoff_freq_filters_hz = 0.5; // Hz
+float cutoff_freq_filters_hz = CUTOFF_FREQ_FILTERS_HZ
 
 Butterworth2LowPass target_pos_filt[3];
 Butterworth2LowPass target_vel_filt[3];
