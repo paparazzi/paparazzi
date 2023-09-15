@@ -33,21 +33,27 @@
 #define GENERIC_UART_ENDCHAR '>'
 #endif
 
+/* Default max sending message */
+#ifndef GENERIC_UART_MAX_SENDLEN
+#define GENERIC_UART_MAX_SENDLEN 64
+#endif
+
+/* Default max buffer size */
+#ifndef GENERIC_UART_MAX_BUFSIZE
+#define GENERIC_UART_MAX_BUFSIZE 128
+#endif
+
 /* Main variables */
 static struct link_device *gen_uart_dev = (&((GENERIC_UART_PORT).device));   ///< UART device for communication
 
 /* Event function to read UART message and forward to downlink */
 void generic_uart_event(void) {
   // Receive buffer
-  static uint8_t gen_msg_buf[128];
+  static uint8_t gen_msg_buf[GENERIC_UART_MAX_BUFSIZE];
   static uint8_t gen_msg_cnt = 0;
 
-  // Transmit buffer
-  static uint8_t msg_buf_snd[128];
-  static uint8_t msg_cnt_snd = 0;
-
   // Look for data on serial port and save it in the buffer
-  while (gen_uart_dev->char_available(gen_uart_dev->periph)) { 
+  while (gen_msg_cnt < GENERIC_UART_MAX_BUFSIZE && gen_uart_dev->char_available(gen_uart_dev->periph)) { 
     gen_msg_buf[gen_msg_cnt++] = gen_uart_dev->get_byte(gen_uart_dev->periph);
     
     if(gen_msg_buf[gen_msg_cnt-1] == GENERIC_UART_ENDCHAR)
@@ -55,12 +61,8 @@ void generic_uart_event(void) {
   }
 
   // Forward the message to the GCS
-  if(gen_msg_buf[gen_msg_cnt-1] == GENERIC_UART_ENDCHAR || gen_msg_cnt > 50) {   
-    msg_cnt_snd = gen_msg_cnt;
-    for(uint8_t i = 0; i < msg_cnt_snd; ++i)
-      msg_buf_snd[i] = gen_msg_buf[i];
-
-    DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, msg_cnt_snd, msg_buf_snd);
+  if(gen_msg_buf[gen_msg_cnt-1] == GENERIC_UART_ENDCHAR || gen_msg_cnt > GENERIC_UART_MAX_SENDLEN) {   
+    DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, gen_msg_cnt, gen_msg_buf);
     
     gen_msg_buf[0] = 0;
     gen_msg_cnt = 0;
