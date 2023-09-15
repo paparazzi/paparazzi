@@ -245,5 +245,23 @@
     </mode>
   </process>
 
+  <process name="Mavlink" type="mavlink">
+    <mode name="default">
+      <message name="HEARTBEAT"           period="0.5"/> <!-- For the camera 10Hz -->
+      <message name="AUTOPILOT_VERSION"   period="11.1"/>
+      <message name="SYS_STATUS"          period="1.2"/>
+      <message name="SYSTEM_TIME"         period="2.0"/>
+      <message name="ATTITUDE"            period="0.1"/> <!-- For the camera 10Hz -->
+      <message name="ATTITUDE_QUATERNION" period="1.5"/>
+      <message name="LOCAL_POSITION_NED"  period="0.8"/>
+      <message name="GLOBAL_POSITION_INT" period="0.1"/> <!-- For the camera 10Hz -->
+      <message name="GPS_RAW_INT"         period="0.5"/> <!-- For the camera 2Hz -->
+      <message name="BATTERY_STATUS"      period="4.0"/>
+      <message name="GPS_GLOBAL_ORIGIN"   period="5.1"/>
+      <message name="VFR_HUD"             period="0.5"/>
+      <message name="RC_CHANNELS"         period="0.2"/>
+    </mode>
+  </process>
+
 </telemetry>
 
