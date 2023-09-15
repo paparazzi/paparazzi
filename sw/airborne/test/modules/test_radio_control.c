@@ -30,7 +30,7 @@
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
-static        void main_on_radio_control_frame(void);
+//static        void main_on_radio_control_frame(void);
 
 int main(void)
 {
@@ -91,9 +91,9 @@ static inline void main_event_task(void)
   //RadioControlEvent(main_on_radio_control_frame); FIXME
 }
 
-static void main_on_radio_control_frame(void)
+/*static void main_on_radio_control_frame(void)
 {
 
-  //  RunOnceEvery(10, {DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
+  RunOnceEvery(10, {DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
 
-}
+}*/
