@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018 TUDelft
+# Copyright (C) 2023 TUDelft
 #
 # This file is part of paparazzi.
 #
