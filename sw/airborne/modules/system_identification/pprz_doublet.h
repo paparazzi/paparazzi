@@ -65,11 +65,11 @@ struct doublet_t{
     float current_value;
     float current_time_s;
 
-    bool mod3211;
+    uint8_t mod;
 };
 
 extern void doublet_init(struct doublet_t *doublet, float length_s, 
-                  float extra_waiting_time_s, float current_time_s, bool mod3211);
+                  float extra_waiting_time_s, float current_time_s, uint8_t mod3211);
 
 extern void doublet_reset(struct doublet_t *doublet, float current_time_s);
 
