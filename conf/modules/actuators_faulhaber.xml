@@ -1,0 +1,38 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_faulhaber" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver for the Faulhaber controller
+    </description>
+    <configure name="FAULHABER_DEV" value="UARTX" description="UART port (default UART8)"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Faulhaber">
+        <dl_setting var="faulhaber.mode" min="0" step="1" max="3" shortname="mode" module="modules/actuators/actuators_faulhaber" handler="SetMode"/>
+        <dl_setting var="faulhaber.target_position" min="0" step="1000" max="3260000"/>
+        <dl_setting var="faulhaber.real_position" min="0" step="1000" max="3300000"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <dep>
+    <depends>uart</depends>
+    <provides></provides>
+  </dep>
+  <header>
+    <file name="actuators_faulhaber.h"/>
+  </header>
+  <init fun="actuators_faulhaber_init()"/>
+  <periodic fun="actuators_faulhaber_periodic()" freq="50"/>
+  <event fun="actuators_faulhaber_event()" />
+  <makefile target="!sim">
+    <configure name="FAULHABER_DEV" default="UART8" case="upper|lower"/>
+    <define name="FAULHABER_DEV" value="$(FAULHABER_DEV_LOWER)"/>
+    <define name="USE_$(FAULHABER_DEV_UPPER)"/>
+    <define name="$(FAULHABER_DEV_UPPER)_BAUD" value="B115200"/>
+    <file name="actuators_faulhaber.c"/>
+  </makefile>
+</module>
+
