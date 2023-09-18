@@ -10,6 +10,10 @@
   <periodic fun="ground_detect_periodic()" freq="50"/>
   <makefile>
     <file name="ground_detect_ship.c"/>
-    <test/>
+    <test>
+      <define name="INDI_OUTPUTS" value="4"/>
+      <define name="INDI_NUM_ACT" value="4"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+    </test>
   </makefile>
 </module>
