@@ -18,41 +18,45 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/nav/ground_detect_ship.c"
+/** @file "modules/nav/ground_detect_sensor.c"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
- * Ground detection module relying on lidar to detect ground on a ship
+ * Ground detection module relying on lidar to detect ground
  */
 
-#include "modules/nav/ground_detect_ship.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#include "modules/nav/ground_detect_sensor.h"
 #include "filters/low_pass_filter.h"
-#include "modules/sonar/agl_dist.h"
 #include "state.h"
+
+#if USE_GROUND_DETECT_INDI_THRUST
+#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#endif
+
+#if USE_GROUND_DETECT_AGL_DIST
+#include "modules/sonar/agl_dist.h"
+#define GROUND_DETECT_SENSOR_AGL_MIN_VALUE 0.1
+#define GROUND_DETECT_SENSOR_AGL_MAX_VALUE 0.3
+#endif
 
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
 int32_t counter = 0;
-bool ground_detection_ship = false;
 bool ground_detected = false;
 float agl_vert_speed = 0.0;
 bool agl_vert_speed_valid = false;
-float agl_distance = 0.0;
 
-#define GROUND_DETECT_SHIP_AGL_MIN_VALUE 0.1
-#define GROUND_DETECT_SHIP_AGL_MAX_VALUE 0.3
 
-#define GROUND_DETECT_SHIP_COUNTER_TRIGGER 10
+#define GROUND_DETECT_SENSOR_COUNTER_TRIGGER 10
 
 // Cutoff frequency of the vertical speed calculated from the lidar
-#define GROUND_DETECT_SHIP_VERT_SPEED_FILT_FREQ 5.0
+#define GROUND_DETECT_SENSOR_VERT_SPEED_FILT_FREQ 5.0
 
 Butterworth2LowPass vert_speed_filter;
 
-void ground_detect_ship_init(void)
+void ground_detect_sensor_init(void)
 {
   // init filters
-  float tau_vert_speed = 1.0 / (2.0 * M_PI * GROUND_DETECT_SHIP_VERT_SPEED_FILT_FREQ);
+  float tau_vert_speed = 1.0 / (2.0 * M_PI * GROUND_DETECT_SENSOR_VERT_SPEED_FILT_FREQ);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&vert_speed_filter, tau_vert_speed, sample_time, 0.0);
 }
@@ -63,6 +67,8 @@ bool ground_detect(void) {
 
 void ground_detect_periodic(void)
 {
+
+#if USE_GROUND_DETECT_INDI_THRUST
   // Evaluate thrust given (less than hover thrust)
   // Use the control effectiveness in thrust in order to estimate the thrust delivered (only works for multicopters)
   float specific_thrust = 0.0; // m/s2
@@ -73,7 +79,7 @@ void ground_detect_periodic(void)
 
   if (specific_thrust > -5.) {
     counter += 1;
-    if (counter > GROUND_DETECT_SHIP_COUNTER_TRIGGER) {
+    if (counter > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
       ground_detected = true;
     }
   } else {
@@ -89,4 +95,21 @@ void ground_detect_periodic(void)
 
     RunOnceEvery(10, {DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, &test_gd); DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, payload);} );
   #endif
+
+#elif USE_GROUND_DETECT_AGL_DIST
+  if (agl_value && (agl_dist_value_filtered < GROUND_DETECT_SENSOR_AGL_MIN_VALUE)) {
+    counter += 1;
+  } else {
+    counter = 0;
+  }
+  if (counter > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
+    ground_detected = true;
+  } else {
+    ground_detected = false;
+  }
+#else
+  ground_detected = false;
+#endif
+
+
 }

@@ -18,15 +18,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/nav/ground_detect_ship.h"
+/** @file "modules/nav/ground_detect_sensor.h"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
- * Ground detection module relying on lidar to detect ground on a ship
+ * Ground detection module
  */
 
-#ifndef GROUND_DETECT_SHIP_H
-#define GROUND_DETECT_SHIP_H
+#ifndef GROUND_DETECT_SENSOR_H
+#define GROUND_DETECT_SENSOR_H
 
-extern void ground_detect_ship_init(void);
-extern void ground_detect_periodic(void);
+extern void ground_detect_sensor_init(void);
+extern void ground_detect_sensor_periodic(void);
 
-#endif  // GROUND_DETECT_SHIP_H
+extern bool ground_detect(void);
+
+#endif  // GROUND_DETECT_SENSOR_H
