@@ -83,6 +83,8 @@
       <define name="RADIO_KILL_SWITCH" value="0"/>
     </target>
 
+    <module name="preflight_checks"/>
+
     <!--module name="follow_me">
       <define name="FOLLOW_ME_DISTANCE" value="60"/>
       <define name="FOLLOW_ME_HEIGHT" value="40"/>

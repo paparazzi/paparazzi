@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="preflight_checks" dir="checks" task="core">
+  <doc>
+    <description>
+      Preform preflight checks before arming the motors.
+    </description>
+  </doc>
+  <header>
+    <file name="preflight_checks.h"/>
+  </header>
+  <!--init fun="electrical_init()"/-->
+  <!--periodic fun="electrical_periodic()" freq="10"/-->
+  <makefile>
+    <define name="PREFLIGHT_CHECKS" value="true"/>
+    <file name="preflight_checks.c"/>
+  </makefile>
+</module>
+

@@ -33,6 +33,7 @@
 #include "autopilot.h"
 
 #include "generated/airframe.h"
+#include "generated/modules.h"
 #include BOARD_CONFIG
 
 #ifdef MILLIAMP_PER_PERCENT
@@ -52,17 +53,39 @@
 #define BAT_CHECKER_DELAY 5
 #endif
 
-#define ELECTRICAL_PERIODIC_FREQ 10
-static float period_to_hour = 1 / 3600.f / ELECTRICAL_PERIODIC_FREQ;
-
 #ifndef MIN_BAT_LEVEL
 #define MIN_BAT_LEVEL 3
 #endif
+
+#ifndef TAKEOFF_BAT_LEVEL
+#define TAKEOFF_BAT_LEVEL LOW_BAT_LEVEL
+#endif
+PRINT_CONFIG_VAR(TAKEOFF_BAT_LEVEL)
 
 PRINT_CONFIG_VAR(LOW_BAT_LEVEL)
 PRINT_CONFIG_VAR(CRITIC_BAT_LEVEL)
 PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
 
+#ifndef VoltageOfAdc
+#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
+#endif
+#ifndef MilliAmpereOfAdc
+#define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
+#endif
+
+#ifndef CURRENT_ESTIMATION_NONLINEARITY
+#define CURRENT_ESTIMATION_NONLINEARITY 1.2
+#endif
+PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
+
+#if defined MILLIAMP_AT_FULL_THROTTLE && !defined MILLIAMP_AT_IDLE_THROTTLE
+  PRINT_CONFIG_MSG("Assuming 0 mA at idle throttle")
+  #define MILLIAMP_AT_IDLE_THROTTLE 0
+#endif
+
+PRINT_CONFIG_VAR(MILLIAMP_AT_IDLE_THROTTLE)
+
+/* Main external structure */
 struct Electrical electrical;
 
 #if defined ADC_CHANNEL_VSUPPLY || (defined ADC_CHANNEL_CURRENT && !defined SITL) || defined MILLIAMP_AT_FULL_THROTTLE
@@ -79,23 +102,19 @@ static struct {
 } electrical_priv;
 #endif
 
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
-#endif
-#ifndef MilliAmpereOfAdc
-#define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
-#endif
+#ifdef PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t electrical_pfc;
 
-#ifndef CURRENT_ESTIMATION_NONLINEARITY
-#define CURRENT_ESTIMATION_NONLINEARITY 1.2
-#endif
-
-#if defined MILLIAMP_AT_FULL_THROTTLE && !defined MILLIAMP_AT_IDLE_THROTTLE
-  PRINT_CONFIG_MSG("Assuming 0 mA at idle throttle")
-  #define MILLIAMP_AT_IDLE_THROTTLE 0
-#endif
-
-PRINT_CONFIG_VAR(MILLIAMP_AT_IDLE_THROTTLE)
+static void electrical_preflight(struct preflight_result_t *result) {
+  if(electrical.vsupply < TAKEOFF_BAT_LEVEL) {
+    preflight_error(result, "Battery level %.2fV below minimum takeoff level %.2fV", electrical.vsupply, TAKEOFF_BAT_LEVEL);
+  } else {
+    preflight_success(result, "Battery level %.2fV above takeoff level %.2fV", electrical.vsupply, TAKEOFF_BAT_LEVEL);
+  }
+}
+#endif // PREFLIGHT_CHECKS
 
 void electrical_init(void)
 {
@@ -117,8 +136,12 @@ void electrical_init(void)
 #if defined ADC_CHANNEL_CURRENT && !defined SITL
   adc_buf_channel(ADC_CHANNEL_CURRENT, &electrical_priv.current_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #elif defined MILLIAMP_AT_FULL_THROTTLE
-  PRINT_CONFIG_VAR(CURRENT_ESTIMATION_NONLINEARITY)
   electrical_priv.nonlin_factor = CURRENT_ESTIMATION_NONLINEARITY;
+#endif
+
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&electrical_pfc, electrical_preflight);
 #endif
 }
 
@@ -176,6 +199,7 @@ void electrical_periodic(void)
 #endif
 #endif /* ADC_CHANNEL_CURRENT */
 
+  static const float period_to_hour = 1 / 3600.f / ELECTRICAL_PERIODIC_FREQ;
   float consumed_since_last = electrical.current * period_to_hour;
 
   electrical.charge += consumed_since_last;
