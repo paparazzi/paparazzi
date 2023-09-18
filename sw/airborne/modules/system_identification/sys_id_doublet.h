@@ -46,7 +46,7 @@ extern float doublet_extra_waiting_time_s;
 // Index of doublet axis in ACTIVE_DOUBLET_AXES
 extern uint8_t doublet_axis;
 
-extern uint8_t doublet_mode_3211;
+extern uint8_t doublet_mode;
 
 extern void sys_id_doublet_init(void);
 
@@ -56,7 +56,7 @@ extern void sys_id_doublet_run(void);
 // Handlers for changing gcs variables
 extern void sys_id_doublet_activate_handler(uint8_t activate); // Activate the doublet
 extern void sys_id_doublet_axis_handler(uint8_t axis); // Check if new axis
-extern void sys_id_doublet_mod3211_handler(uint8_t mode);
+extern void sys_id_doublet_mod_handler(uint8_t mode);
 extern uint8_t sys_id_doublet_running(void);
 // Add the current doublet values to the in_cmd values if motors_on is true
 extern void sys_id_doublet_add_values(bool motors_on, bool override_on, pprz_t in_cmd[]);

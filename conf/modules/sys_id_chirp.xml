@@ -43,7 +43,7 @@
         <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Chirp" var="chirp_active" type="uint8_t" module="system_identification/sys_id_chirp" handler="activate_handler"/>
         <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Fade in" var="chirp_fade_in" type="uint8_t" module="system_identification/sys_id_chirp" handler="fade_in_activate_handler"/>
         <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Exponential" var="chirp_exponential" type="uint8_t" module="system_identification/sys_id_chirp" handler="exponential_activate_handler"/>
-        <dl_setting min="0"    max="5"    step="1"    shortname="Chirp axis"     var="chirp_axis"                    type="uint8_t" module="system_identification/sys_id_chirp" handler="axis_handler"/>
+        <dl_setting min="0"    max="7"    step="1"    shortname="Chirp axis"     var="chirp_axis"                    type="uint8_t" module="system_identification/sys_id_chirp" handler="axis_handler"/>
         <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="chirp_amplitude"               type="int32_t" module="system_identification/sys_id_chirp"/>
         <dl_setting min="0"    max="0.5"    step="0.01" shortname="on-axis noise"  var="chirp_noise_stdv_onaxis_ratio" type="float"   module="system_identification/sys_id_chirp"/>
         <dl_setting min="0"    max="9600" step="50"   shortname="off-axis noise" var="chirp_noise_stdv_offaxis"      type="float"   module="system_identification/sys_id_chirp"/>

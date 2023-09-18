@@ -41,16 +41,16 @@
         </description>
         <define name="DOUBLET_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the doublet is applied to (specify as array with {})"/>
         <define name="DOUBLET_ENABLED"     value="TRUE|FALSE"  description="If false, the doublet does not run and values are not added"/>
-        <define name="DOUBLET_MOD3211"   value="TRUE|FALSE"  description="If true, the 3-2-1-1 doublet will be executed instead of the normal doublet"/>
+        <define name="DOUBLET_MOD"   value="TRUE|FALSE"  description="If true, the 3-2-1-1 doublet will be executed instead of the normal doublet"/>
         </doc>
 
     <settings>
         <dl_settings name="System identification">
             <dl_settings name="Doublet input">
                 <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="Doublet" var="doublet_active" type="uint8_t" module="system_identification/sys_id_doublet" handler="activate_handler"/>
-                <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="3-2-1-1 mode" var="doublet_mode_3211" type="uint8_t" module="system_identification/sys_id_doublet" handler="mod3211_handler"/>
-                <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="doublet_amplitude"               type="int32_t" module="system_identification/sys_id_doublet"/>
-                <dl_setting min="0"    max="5"    step="1"    shortname="Doublet axis"     var="doublet_axis"                    type="uint8_t" module="system_identification/sys_id_doublet" handler="axis_handler"/>
+                <dl_setting min="0"    max="2"    step="1"    shortname="mode" var="doublet_mode" type="uint8_t" module="system_identification/sys_id_doublet" handler="mod_handler"/>
+                <dl_setting min="-9600"    max="9600" step="100"  shortname="Amplitude"      var="doublet_amplitude"               type="int32_t" module="system_identification/sys_id_doublet"/>
+                <dl_setting min="0"    max="7"    step="1"    shortname="Doublet axis"     var="doublet_axis"                    type="uint8_t" module="system_identification/sys_id_doublet" handler="axis_handler"/>
                 <dl_setting min="0"    max="100"  step="0.5"  shortname="Length_s"       var="doublet_length_s"                type="float"   module="system_identification/sys_id_doublet"/>
                 <dl_setting min="0"    max="100"  step="0.5"  shortname="Extra_waiting_s"   var="doublet_extra_waiting_time_s"              type="float"   module="system_identification/sys_id_doublet"/>
             </dl_settings>
