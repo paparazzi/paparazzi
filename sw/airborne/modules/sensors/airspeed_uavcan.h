@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
