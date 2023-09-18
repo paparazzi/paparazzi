@@ -39,6 +39,14 @@
 #define AIRSPEED_UAVCAN_LOWPASS_TAU 0.15
 #endif
 
+#ifndef AIRSPEED_UAVCAN_LOWPASS_PERIOD
+#define AIRSPEED_UAVCAN_LOWPASS_PERIOD 0.1
+#endif
+
+#ifndef AIRSPEED_UAVCAN_SEND_ABI
+#define AIRSPEED_UAVCAN_SEND_ABI 1
+#endif
+
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
 static Butterworth2LowPass airspeed_filter;
 #endif
@@ -78,24 +86,29 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
   if(!isnan(diff_p)) {
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
     float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
-    airspeed_uavcan.diff_p = diff_p;
-    //AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, diff_p_filt);
+    airspeed_uavcan.diff_p = diff_p_filt;
 #else
-    //AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, diff_p);
     airspeed_uavcan.diff_p = diff_p;
+#endif
+
+#if AIRSPEED_UAVCAN_SEND_ABI
+    AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, airspeed_uavcan.diff_p);
 #endif
   }
 
-  if(!isnan(static_air_temp))
-    //AbiSendMsgTEMPERATURE(UAVCAN_SENDER_ID, static_air_temp);
+  if(!isnan(static_air_temp)) {
     airspeed_uavcan.temperature = static_air_temp;
+#if AIRSPEED_UAVCAN_SEND_ABI
+    AbiSendMsgTEMPERATURE(UAVCAN_SENDER_ID, airspeed_uavcan.temperature);
+#endif
+  }
 }
 
 void airspeed_uavcan_init(void)
 {
   // Setup low pass filter with time constant and 100Hz sampling freq
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_PERIODIC_PERIOD, 0);
+  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
 #endif
 
   airspeed_uavcan.diff_p = 0;

@@ -7,6 +7,8 @@
     </description>
     <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER" value="TRUE|FALSE" description="Enable the lowpass filter for the airspeed"/>
     <define name="AIRSPEED_UAVCAN_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
+    <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD" value="0.1" description="Period at which the sensor is sending airspeed"/>
+    <define name="AIRSPEED_UAVCAN_SEND_ABI" value="1" description="1 = Send ABI message, 0 = Log only"/>
   </doc>
 
   <dep>
