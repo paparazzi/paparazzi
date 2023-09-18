@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="wind_tunnel_rot_wing" dir="wind_tunnel">
+  <doc>
+    <description>This module allows the user to control seperate actuators for example during wind tunnel experiments.</description>
+  </doc>
+  <settings>
+    <dl_settings name="Wind tunnel">
+      <dl_settings name="Wt act control">
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="motors_on" var="motors_on_wt"   type="bool"/>
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="front_on"  var="motor_on_wt[0]" type="bool"/>
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="right_on"  var="motor_on_wt[1]" type="bool"/>
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="back_on"   var="motor_on_wt[2]" type="bool"/>
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="left_on"   var="motor_on_wt[3]" type="bool"/>
+        <dl_setting min="0" max="1" step="1" values="Off|On" shortname="push_on"   var="motor_on_wt[4]" type="bool"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="front_cmd"     var="actuators_slider_wt[0]"  type="int16_t"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="right_cmd"     var="actuators_slider_wt[1]"  type="int16_t"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="back_cmd"      var="actuators_slider_wt[2]"  type="int16_t"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="left_cmd"      var="actuators_slider_wt[3]"  type="int16_t"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="push_cmd"      var="actuators_slider_wt[4]"  type="int16_t"/>
+        <dl_setting min="-9600" max="9600" step="1" shortname="elevator_cmd"  var="actuators_slider_wt[9]"  type="int16_t"/>
+        <dl_setting min="-9600" max="9600" step="1" shortname="rudder_cmd"    var="actuators_slider_wt[10]" type="int16_t"/>
+        <dl_setting min="0"     max="9600" step="1" shortname="motors_cmd"    var="motors_slider_wt"        type="int16_t"/>
+        <dl_setting min="0"     max="11"    step="1" shortname="sweep_idx"  var="wt_actuator_sweep_index" type="uint8_t"/>
+        <dl_setting min="-9600" max="9600"  step="1" shortname="min_sweep"  var="wt_input_min_cmd"        type="int16_t"/>
+        <dl_setting min="-9600" max="9600"  step="1" shortname="max_sweep"  var="wt_input_max_cmd"        type="int16_t"/>
+        <dl_setting min="0"     max="20"    step="0.1" shortname="steptime"   var="wt_input_steptime"       type="float"/>
+        <dl_setting min="0" max="1" step="1" values="Inactive|Active" var="wt_sweep_running" shortname="Sweep" type="bool" module="wind_tunnel/wind_tunnel_rot_wing" handler="sweep_handler"/>
+        <dl_setting min="0" max="1" step="1" values="Inactive|Active" var="wt_sweep_motors_running" shortname="Motors_sweep" type="bool" module="wind_tunnel/wind_tunnel_rot_wing" handler="sweep_motors_handler"/>
+        <!--<dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Chirp" var="chirp_active" type="uint8_t" module="system_identification/sys_id_chirp" handler="activate_handler"/>
+        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Fade in" var="chirp_fade_in" type="uint8_t" module="system_identification/sys_id_chirp" handler="fade_in_activate_handler"/>
+        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Exponential" var="chirp_exponential" type="uint8_t" module="system_identification/sys_id_chirp" handler="exponential_activate_handler"/>
+        <dl_setting min="0"    max="7"    step="1"    shortname="Chirp axis"     var="chirp_axis"                    type="uint8_t" module="system_identification/sys_id_chirp" handler="axis_handler"/>
+        <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="chirp_amplitude"               type="int32_t" module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0"    max="0.5"    step="0.01" shortname="on-axis noise"  var="chirp_noise_stdv_onaxis_ratio" type="float"   module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0"    max="9600" step="50"   shortname="off-axis noise" var="chirp_noise_stdv_offaxis"      type="float"   module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0.05" max="20"    step="0.05" shortname="Fstart_hz"      var="chirp_fstart_hz"                   type="float"   module="system_identification/sys_id_chirp" handler="fstart_handler"/>
+        <dl_setting min="0.1"  max="20"   step="0.1"  shortname="Fend_hz"        var="chirp_fstop_hz"                   type="float"   module="system_identification/sys_id_chirp" handler="fstop_handler"/>
+        <dl_setting min="0"    max="100"  step="0.5"  shortname="Length_s"       var="chirp_length_s"                type="float"   module="system_identification/sys_id_chirp"/>-->
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="wind_tunnel_rot_wing.h"/>
+  </header>
+  <init fun="init_wt_rot_wing()"/>
+  <event fun="event_wt_rot_wing()"/>
+  <makefile>
+    <file name="wind_tunnel_rot_wing.c"/>
+    <test/>
+  </makefile>
+</module>
