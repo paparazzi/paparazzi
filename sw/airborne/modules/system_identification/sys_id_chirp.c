@@ -47,6 +47,11 @@
 #define CHIRP_USE_NOISE TRUE
 #endif
 
+#ifdef CHIRP_RADIO_CHANNEL
+#include "modules/radio_control/radio_control.h"
+pprz_t previous_radio_value_chirp = 0;
+#endif
+
 // #ifndef CHIRP_EXPONENTIAL
 // #define CHIRP_EXPONENTIAL TRUE
 // #endif
@@ -132,6 +137,13 @@ static void stop_chirp(void)
 void sys_id_chirp_activate_handler(uint8_t activate)
 {
   chirp_active = activate;
+  #ifdef CHIRP_RADIO_CHANNEL
+    // Don't activate chirp when radio signal is low
+    if (radio_control.values[CHIRP_RADIO_CHANNEL] < 1750)
+    {
+        chirp_active = 0;
+    }
+  #endif
   if (chirp_active) {
     chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), chirp_exponential,
                chirp_fade_in);
@@ -201,6 +213,28 @@ void sys_id_chirp_init(void)
 void sys_id_chirp_run(void)
 {
 #if CHIRP_ENABLED
+
+  #ifdef CHIRP_RADIO_CHANNEL
+    // Check if chirp switched on when off before
+    if (previous_radio_value_chirp < 1750)
+    {
+        if (radio_control.values[CHIRP_RADIO_CHANNEL] > 1750)
+        {
+            // Activate chirp
+            sys_id_chirp_activate_handler(1);
+        }
+    }
+    // Check if chirp switched off when on before
+    if (previous_radio_value_chirp > 1750)
+    {
+        if (radio_control.values[CHIRP_RADIO_CHANNEL] < 1750)
+        {
+            // Deactivate chirp
+            sys_id_chirp_activate_handler(0);
+        }
+    }
+    previous_radio_value_chirp = radio_control.values[CHIRP_RADIO_CHANNEL];
+  #endif
 
   if (chirp_active) {
     if (!chirp_is_running(&chirp, get_sys_time_float())) {

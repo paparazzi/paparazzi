@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="rot_wing_auto_doublet" dir="system_identification">
+  <doc>
+    <description>Module that automatically runs a doublet program for the rotating wing drone</description>
+  </doc>
+  <settings>
+  <dl_settings NAME="AutoDoublet">
+    <dl_settings name="auto_doublet">
+        <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="activated" var="rot_wing_auto_doublet_activated" type="uint8_t" module="system_identification/rot_wing_auto_doublet" handler="on_activation"/>
+    </dl_settings>
+  </dl_settings>
+  </settings>
+  <header>
+    <file name="rot_wing_auto_doublet.h"/>
+  </header>
+  <init fun="init_rot_wing_auto_doublet()"/>
+  <periodic fun="periodic_rot_wing_auto_doublet()" freq="20.0"/>
+  <makefile>
+    <file name="rot_wing_auto_doublet.c"/>
+    <test>
+      <define name="ROT_WING_AUTO_DOUBLET_N_ACTUATORS" value="1" />
+      <define name="ROT_WING_AUTO_DOUBLET_ACTUATORS" value="{0}" />
+      <define name="ROT_WING_AUTO_DOUBLET_AMPLITUDE" value="{5000}" />
+    </test>
+  </makefile>
+</module>
