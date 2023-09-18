@@ -17,6 +17,10 @@
   <periodic fun="periodic_rot_wing_auto_doublet()" freq="20.0"/>
   <makefile>
     <file name="rot_wing_auto_doublet.c"/>
-    <test/>
+    <test>
+      <define name="ROT_WING_AUTO_DOUBLET_N_ACTUATORS" value="1" />
+      <define name="ROT_WING_AUTO_DOUBLET_ACTUATORS" value="{0}" />
+      <define name="ROT_WING_AUTO_DOUBLET_AMPLITUDE" value="{5000}" />
+    </test>
   </makefile>
 </module>
