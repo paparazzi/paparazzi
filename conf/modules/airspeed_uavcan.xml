@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airspeed_uavcan" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Airspeed sensor over the uavcan protocol. Currently only subscribes to the 
+    </description>
+    <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER" value="TRUE|FALSE" description="Enable the lowpass filter for the airspeed"/>
+    <define name="AIRSPEED_UAVCAN_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
+  </doc>
+
+  <dep>
+    <depends>uavcan</depends>
+    <provides>airspeed</provides>
+  </dep>
+
+  <header>
+    <file name="airspeed_uavcan.h"/>
+  </header>
+
+  <init fun="airspeed_uavcan_init()"/>
+
+  <makefile target="ap">
+    <file name="airspeed_uavcan.c"/>
+  </makefile>
+</module>
