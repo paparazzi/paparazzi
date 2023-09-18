@@ -35,6 +35,20 @@
 
 struct State state;
 
+#if PREFLIGHT_CHECKS && !defined(AUTOPILOT_DISABLE_AHRS_KILL)
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t state_pfc;
+
+static void state_preflight(struct preflight_result_t *result) {
+  if(true || !stateIsAttitudeValid()) {
+    preflight_error(result, "State attitude is invalid");
+  } else {
+    preflight_success(result, "State attitude is valid");
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 /**
  * @addtogroup state_interface
  * @{
@@ -54,6 +68,11 @@ void stateInit(void)
 
   /* setting to zero forces recomputation of zone using lla when utm uninitialised*/
   state.utm_origin_f.zone = 0;
+
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS && !defined(AUTOPILOT_DISABLE_AHRS_KILL)
+  preflight_check_register(&state_pfc, state_preflight);
+#endif
 }
 
 

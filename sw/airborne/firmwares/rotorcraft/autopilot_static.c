@@ -192,10 +192,10 @@ void autopilot_static_SetModeHandler(float mode)
 void autopilot_static_set_mode(uint8_t new_autopilot_mode)
 {
 
-  /* force startup mode (default is kill) as long as AHRS is not aligned */
-  if (!ap_ahrs_is_aligned()) {
-    new_autopilot_mode = MODE_STARTUP;
-  }
+  // /* force startup mode (default is kill) as long as preflight fail */
+  // if (!peflight_check()) {
+  //   new_autopilot_mode = MODE_STARTUP;
+  // }
 
   if (new_autopilot_mode != autopilot.mode) {
     /* horizontal mode */
@@ -317,7 +317,7 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
 
 void autopilot_static_set_motors_on(bool motors_on)
 {
-  if (autopilot.mode != AP_MODE_KILL && ap_ahrs_is_aligned() && motors_on) {
+  if (autopilot.mode != AP_MODE_KILL && motors_on) {
     autopilot.motors_on = true;
   } else {
     autopilot.motors_on = false;
@@ -362,14 +362,9 @@ void autopilot_static_on_rc_frame(void)
   }
 
   /* an arming sequence is used to start/stop motors.
-   * only allow arming if ahrs is aligned
    */
-  if (ap_ahrs_is_aligned()) {
-    autopilot_arming_check_motors_on();
-    autopilot.kill_throttle = ! autopilot.motors_on;
-  } else {
-    autopilot.arming_status = AP_ARMING_STATUS_AHRS_NOT_ALLIGNED;
-  }
+  autopilot_arming_check_motors_on();
+  autopilot.kill_throttle = ! autopilot.motors_on;
 
   /* if not in FAILSAFE or HOME mode, read RC and set commands accordingly */
   if (autopilot.mode != AP_MODE_FAILSAFE && autopilot.mode != AP_MODE_HOME) {
