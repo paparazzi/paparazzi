@@ -155,27 +155,20 @@ void rm3100_event(struct Rm3100 *mag)
     return;
   }
 
-  switch (mag->status) {
+  // If we have a succesfull reading copy the data
+  if (mag->status == RM3100_STATUS_MEAS && mag->i2c_trans.status == I2CTransSuccess) {
+    // Copy the data
+    mag->data.vect.x = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 0);
+    mag->data.vect.y = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 3);
+    mag->data.vect.z = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 6);
+    mag->data_available = true;
+  }
 
-    case RM3100_STATUS_MEAS:
-      if (mag->i2c_trans.status == I2CTransSuccess) {
-        // Copy the data
-        mag->data.vect.x = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 0);
-        mag->data.vect.y = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 3);
-        mag->data.vect.z = rm3100_get_raw_from_buf(mag->i2c_trans.buf, 6);
-        mag->data_available = true;
-        // End reading, back to idle
-        mag->status = RM3100_STATUS_IDLE;
-      }
-      break;
-
-    default:
-      if (mag->i2c_trans.status == I2CTransSuccess || mag->i2c_trans.status == I2CTransFailed) {
-        // Goto idle
-        mag->i2c_trans.status = I2CTransDone;
-        mag->status = RM3100_STATUS_IDLE;
-      }
-      break;
+  // Always go back to idle
+  if (mag->i2c_trans.status == I2CTransSuccess || mag->i2c_trans.status == I2CTransFailed) {
+    // Goto idle
+    mag->i2c_trans.status = I2CTransDone;
+    mag->status = RM3100_STATUS_IDLE;
   }
 }
 
