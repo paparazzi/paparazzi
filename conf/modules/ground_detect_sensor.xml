@@ -2,8 +2,8 @@
 <module name="ground_detect_sensor" dir="nav">
   <doc>
     <description>Ground detection module to detect ground</description>
-    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" />
-    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" />
+    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" description="Use INDI thrust < 50 percent as detection"/>
+    <define name="USE_GROUND_DETECT_AGL_DIST" value="0" description="Use agl_dist_filtered"/>
   </doc>
   <header>
     <file name="ground_detect_sensor.h"/>

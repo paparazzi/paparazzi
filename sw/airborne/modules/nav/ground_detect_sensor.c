@@ -24,7 +24,6 @@
  */
 
 #include "modules/nav/ground_detect_sensor.h"
-#include "filters/low_pass_filter.h"
 #include "state.h"
 
 #if USE_GROUND_DETECT_INDI_THRUST
@@ -40,25 +39,17 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
-int32_t counter = 0;
 bool ground_detected = false;
-float agl_vert_speed = 0.0;
-bool agl_vert_speed_valid = false;
 
 
+#ifndef GROUND_DETECT_SENSOR_COUNTER_TRIGGER
 #define GROUND_DETECT_SENSOR_COUNTER_TRIGGER 10
+#endif
 
-// Cutoff frequency of the vertical speed calculated from the lidar
-#define GROUND_DETECT_SENSOR_VERT_SPEED_FILT_FREQ 5.0
-
-Butterworth2LowPass vert_speed_filter;
 
 void ground_detect_sensor_init(void)
 {
-  // init filters
-  float tau_vert_speed = 1.0 / (2.0 * M_PI * GROUND_DETECT_SENSOR_VERT_SPEED_FILT_FREQ);
-  float sample_time = 1.0 / PERIODIC_FREQUENCY;
-  init_butterworth_2_low_pass(&vert_speed_filter, tau_vert_speed, sample_time, 0.0);
+  ground_detected = false;
 }
 
 bool ground_detect(void) {
@@ -67,6 +58,7 @@ bool ground_detect(void) {
 
 void ground_detect_periodic(void)
 {
+  static int32_t counter = 0;
 
 #if USE_GROUND_DETECT_INDI_THRUST
   // Evaluate thrust given (less than hover thrust)
