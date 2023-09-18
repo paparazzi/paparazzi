@@ -92,6 +92,10 @@
 #define SDP3X_SENDER_ID 41
 #endif
 
+#ifndef UAVCAN_SENDER_ID
+#define UAVCAN_SENDER_ID 42
+#endif
+
 /*
  * IDs of airspeed sensors (message 14)
  */
