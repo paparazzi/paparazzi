@@ -386,6 +386,8 @@ int32_t guidance_pid_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance 
 
 void guidance_pid_h_enter(void)
 {
+  /* set nav_heading to current heading */
+  nav.heading = stateGetNedToBodyEulers_f()->psi;
 }
 
 void guidance_pid_v_enter(void)
