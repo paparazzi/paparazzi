@@ -405,9 +405,9 @@ void guidance_h_nav_enter(void)
   guidance_h_set_pos(nav.carrot.y, nav.carrot.x);
   reset_guidance_reference_from_current_position();
 
-  guidance_h_set_heading(nav.heading);
   /* call specific implementation */
   guidance_h_run_enter();
+  guidance_h_set_heading(nav.heading);
 }
 
 void guidance_h_from_nav(bool in_flight)
