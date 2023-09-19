@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="ground_detect_sensor" dir="nav">
+  <doc>
+    <description>Ground detection module to detect ground</description>
+    <define name="USE_GROUND_DETECT_INDI_THRUST" value="1" description="Use INDI thrust less than 50 percent as detection"/>
+    <define name="GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD" value="-5.0" description="[m/s2] positive down"/>
+
+    <define name="USE_GROUND_DETECT_AGL_DIST" value="0" description="Use agl_dist_filtered"/>
+    <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE" value="0.1" description="AGL value low enough to be used as ground detection [m]"/>
+    
+    <define name="GROUND_DETECT_SENSOR_COUNTER_TRIGGER" value="10" description="Number of times a trigger must be valid to accept ground detection."/>
+  </doc>
+  <header>
+    <file name="ground_detect_sensor.h"/>
+  </header>
+  <init fun="ground_detect_sensor_init()"/>
+  <periodic fun="ground_detect_sensor_periodic()" freq="50"/>
+  <makefile>
+    <file name="ground_detect_sensor.c"/>
+    <test>
+      <define name="USE_GROUND_DETECT_AGL_DIST" value="1" />
+    </test>
+  </makefile>
+</module>
