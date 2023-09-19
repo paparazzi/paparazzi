@@ -39,6 +39,7 @@
       <define name="USE_SPI_SLAVE2"/>
       <define name="USE_I2C2"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="IMU_PX4FMU_PERIODIC_FREQ" value="512"/> 
     </test>
   </makefile>
 </module>
