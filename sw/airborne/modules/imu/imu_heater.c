@@ -75,7 +75,7 @@ static void send_imu_heater(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 #if defined(IMU_HEATER_GYRO_ID)
-static void imu_heater_gyro_raw_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct Int32Rates *data __attribute__((unused)), uint8_t samples __attribute__((unused)), float temp) {
+static void imu_heater_gyro_raw_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct Int32Rates *data __attribute__((unused)), uint8_t samples __attribute__((unused)), float rate __attribute__((unused)), float temp) {
   if(isnan(temp))
     return;
   
@@ -85,7 +85,7 @@ static void imu_heater_gyro_raw_cb(uint8_t sender_id __attribute__((unused)), ui
 #endif
 
 #if defined(IMU_HEATER_ACCEL_ID)
-static void imu_heater_accel_raw_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct Int32Vect3 *data __attribute__((unused)), uint8_t samples __attribute__((unused)), float temp) {
+static void imu_heater_accel_raw_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct Int32Vect3 *data __attribute__((unused)), uint8_t samples __attribute__((unused)), float rate __attribute__((unused)), float temp) {
   if(isnan(temp))
     return;
 

@@ -273,8 +273,8 @@ static void send_mag_current(struct transport_tx *trans, struct link_device *dev
 
 struct Imu imu = {0};
 static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
-static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float temp);
-static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float temp);
+static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp);
+static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp);
 static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data);
 static void imu_set_body_to_imu_eulers(struct FloatEulers *body_to_imu_eulers);
 
@@ -489,7 +489,7 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
   }
 }
 
-static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float temp)
+static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp)
 {
   // Find the correct gyro
   struct imu_gyro_t *gyro = imu_get_gyro(sender_id, true);
@@ -510,9 +510,8 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
-  if(gyro->last_stamp > 0 && stamp > gyro->last_stamp) {
+  if(!isnan(rate) && gyro->last_stamp > 0 && stamp > gyro->last_stamp) {
     struct FloatRates integrated;
-    uint16_t dt = stamp - gyro->last_stamp;
 
     // Trapezoidal integration (TODO: coning correction)
     integrated.p = RATE_FLOAT_OF_BFP(gyro->scaled.p + scaled_rot.p) * 0.5f;
@@ -538,14 +537,17 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
       float_rmat_transp_ratemult(&integrated, &body_to_sensor, &integrated_sensor);
     }
 
-    // Divide by the amount of samples and multiply by the delta time
-    integrated.p = integrated.p / samples * ((float)dt * 1e-6f);
-    integrated.q = integrated.q / samples * ((float)dt * 1e-6f);
-    integrated.r = integrated.r / samples * ((float)dt * 1e-6f);
+    // Divide by the time om the collected samples
+    uint16_t dt = 1e6 / rate * samples;
+    integrated.p = integrated.p * ((float)dt * 1e-6f);
+    integrated.q = integrated.q * ((float)dt * 1e-6f);
+    integrated.r = integrated.r * ((float)dt * 1e-6f);
 
     // Send the integrated values
     AbiSendMsgIMU_GYRO_INT(sender_id, stamp, &integrated, dt);
   }
+#else
+  (void)rate; // Surpress compile warning not used
 #endif
 
   // Copy and send
@@ -555,7 +557,7 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   gyro->last_stamp = stamp;
 }
 
-static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float temp)
+static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *data, uint8_t samples, float rate, float temp)
 {
   // Find the correct accel
   struct imu_accel_t *accel = imu_get_accel(sender_id, true);
@@ -576,9 +578,8 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 
 #if IMU_INTEGRATION
   // Only integrate if we have gotten a previous measurement and didn't overflow the timer
-  if(accel->last_stamp > 0 && stamp > accel->last_stamp) {
+  if(!isnan(rate) && accel->last_stamp > 0 && stamp > accel->last_stamp) {
     struct FloatVect3 integrated;
-    uint16_t dt = stamp - accel->last_stamp;
 
     // Trapezoidal integration
     integrated.x = ACCEL_FLOAT_OF_BFP(accel->scaled.x + scaled_rot.x) * 0.5f;
@@ -604,14 +605,17 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
       float_rmat_transp_vmult(&integrated, &body_to_sensor, &integrated_sensor);
     }
 
-    // Divide by the amount of samples and multiply by the delta time
-    integrated.x = integrated.x / samples * ((float)dt * 1e-6f);
-    integrated.y = integrated.y / samples * ((float)dt * 1e-6f);
-    integrated.z = integrated.z / samples * ((float)dt * 1e-6f);
+    // Divide by the time om the collected samples
+    uint16_t dt = 1e6 / rate * samples;
+    integrated.x = integrated.x / ((float)dt * 1e-6f);
+    integrated.y = integrated.y / ((float)dt * 1e-6f);
+    integrated.z = integrated.z / ((float)dt * 1e-6f);
 
     // Send the integrated values
     AbiSendMsgIMU_ACCEL_INT(sender_id, stamp, &integrated, dt);
   }
+#else
+  (void)rate; // Surpress compile warning not used
 #endif
 
   // Copy and send
