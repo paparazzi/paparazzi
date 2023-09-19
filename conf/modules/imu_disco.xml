@@ -38,6 +38,7 @@
       <define name="USE_I2C2"/>
       <define name="USE_I2C1"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="IMU_DISCO_PERIODIC_FREQ" value="512"/>
     </test>
   </makefile>
 </module>

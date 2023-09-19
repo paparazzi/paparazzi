@@ -212,17 +212,19 @@
     </message>
 
     <message name="IMU_GYRO_RAW" id="31">
-      <field name="stamp" type="uint32_t" unit="us"/>
-      <field name="gyro" type="struct Int32Rates *"/>
-      <field name="samples" type="uint8_t"/>
-      <field name="temp" type="float" unit="deg Celcius"/>
+      <field name="stamp" type="uint32_t" unit="us">Registered timestamp of the measurement</field>
+      <field name="gyro" type="struct Int32Rates *">Raw gyro samples measured</field>
+      <field name="samples" type="uint8_t">Amount of samples</field>
+      <field name="rate" type="float" unit="Hz">Sampling rate in Hz of the samples</field>
+      <field name="temp" type="float" unit="deg Celcius">Temperature of the sensor</field>
     </message>
 
     <message name="IMU_ACCEL_RAW" id="32">
-      <field name="stamp" type="uint32_t" unit="us"/>
-      <field name="accel" type="struct Int32Vect3 *"/>
-      <field name="samples" type="uint8_t"/>
-      <field name="temp" type="float" unit="deg Celcius"/>
+      <field name="stamp" type="uint32_t" unit="us">Registered timestamp of the measurement</field>
+      <field name="accel" type="struct Int32Vect3 *">Raw accelration samples measured</field>
+      <field name="samples" type="uint8_t">Amount of samples</field>
+      <field name="rate" type="float" unit="Hz">Sampling rate in Hz of the samples</field>
+      <field name="temp" type="float" unit="deg Celcius">Temperature of the sensor</field>
     </message>
 
     <message name="IMU_MAG_RAW" id="33">
