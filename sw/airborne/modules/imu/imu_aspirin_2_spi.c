@@ -30,6 +30,7 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/hmc58xx_regs.h"
+#include "generated/modules.h"
 
 /* defaults suitable for Lisa */
 #ifndef ASPIRIN_2_SPI_SLAVE_IDX
@@ -237,8 +238,8 @@ void imu_aspirin2_event(void)
 
     imu_aspirin2.mpu.data_available = false;
 
-    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1, imu_aspirin2.mpu.temp);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1, imu_aspirin2.mpu.temp);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN2_ID, now_ts, &gyro, 1, IMU_ASPIRIN2_PERIODIC_FREQ, imu_aspirin2.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN2_ID, now_ts, &accel, 1, IMU_ASPIRIN2_PERIODIC_FREQ, imu_aspirin2.mpu.temp);
 #if !ASPIRIN_2_DISABLE_MAG
     AbiSendMsgIMU_MAG_RAW(IMU_ASPIRIN2_ID, now_ts, &mag_rot);
 #endif

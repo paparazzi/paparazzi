@@ -67,6 +67,7 @@
       <define name="IMU_HMC_I2C_DEV" value="i2c2"/>
       <define name="USE_I2C2"/>
       <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="IMU_MPU_HMC_PERIODIC_FREQ" value="512"/>
     </test>
   </makefile>
 </module>
