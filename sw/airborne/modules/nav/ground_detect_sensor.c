@@ -33,7 +33,6 @@
 #if USE_GROUND_DETECT_AGL_DIST
 #include "modules/sonar/agl_dist.h"
 #define GROUND_DETECT_SENSOR_AGL_MIN_VALUE 0.1
-#define GROUND_DETECT_SENSOR_AGL_MAX_VALUE 0.3
 #endif
 
 #include "pprzlink/messages.h"
@@ -46,6 +45,10 @@ bool ground_detected = false;
 #define GROUND_DETECT_SENSOR_COUNTER_TRIGGER 10
 #endif
 
+#ifndef GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD
+#define GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD -5.0
+#endif
+
 
 void ground_detect_sensor_init(void)
 {
@@ -56,7 +59,7 @@ bool ground_detect(void) {
   return ground_detected;
 }
 
-void ground_detect_periodic(void)
+void ground_detect_sensor_periodic(void)
 {
   static int32_t counter = 0;
 
@@ -69,13 +72,12 @@ void ground_detect_periodic(void)
     specific_thrust += actuator_state_filt_vect[i] * g1g2[3][i] * -((int32_t) act_is_servo[i] - 1);
   }
 
-  if (specific_thrust > -5.) {
-    counter += 1;
+  ground_detected = false;
+  if (specific_thrust > GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD ) {
     if (counter > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
       ground_detected = true;
     }
   } else {
-    ground_detected = false;
     counter = 0;
   }
 

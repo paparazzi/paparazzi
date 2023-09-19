@@ -26,6 +26,8 @@
 #ifndef GROUND_DETECT_SENSOR_H
 #define GROUND_DETECT_SENSOR_H
 
+#include "std.h"
+
 extern void ground_detect_sensor_init(void);
 extern void ground_detect_sensor_periodic(void);
 
