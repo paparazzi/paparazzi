@@ -29,6 +29,7 @@
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
+#include "generated/modules.h"
 
 // Set SPI_CS High to enable I2C mode of ADXL345
 #include "mcu_periph/gpio.h"
@@ -154,14 +155,14 @@ void imu_aspirin_i2c_event(void)
 
   adxl345_i2c_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
-    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1, NAN);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.acc_adxl.data.vect, 1, IMU_ASPIRIN_I2C_PERIODIC_FREQ, NAN);
     imu_aspirin.acc_adxl.data_available = false;
   }
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.gyro_itg.data.rates, 1, NAN);
+    AbiSendMsgIMU_GYRO_RAW(IMU_ASPIRIN_ID, now_ts, &imu_aspirin.gyro_itg.data.rates, 1, IMU_ASPIRIN_I2C_PERIODIC_FREQ, NAN);
     imu_aspirin.gyro_itg.data_available = false;
   }
 
