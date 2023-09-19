@@ -51,6 +51,7 @@
       <define name="USE_SPI1"/>
       <define name="IMU_MPU9250_SPI_SLAVE_IDX" value="0"/>
       <define name="USE_SPI_SLAVE0"/>
+      <define name="IMU_MPU9250_PERIODIC_FREQ" value="512"/>
     </test>
   </makefile>
 </module>

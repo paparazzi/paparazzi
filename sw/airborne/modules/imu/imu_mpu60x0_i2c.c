@@ -30,6 +30,7 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+#include "generated/modules.h"
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
 #if !defined IMU_MPU60X0_LOWPASS_FILTER && !defined  IMU_MPU60X0_SMPLRT_DIV
@@ -89,8 +90,8 @@ void imu_mpu_i2c_event(void)
   // If the MPU60X0 I2C transaction has succeeded: convert the data
   mpu60x0_i2c_event(&imu_mpu_i2c.mpu);
   if (imu_mpu_i2c.mpu.data_available) {
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_rates.rates, 1, imu_mpu_i2c.mpu.temp);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_accel.vect, 1, imu_mpu_i2c.mpu.temp);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_rates.rates, 1, IMU_MPU_I2C_PERIODIC_FREQ, imu_mpu_i2c.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU60X0_ID, now_ts, &imu_mpu_i2c.mpu.data_accel.vect, 1, IMU_MPU_I2C_PERIODIC_FREQ, imu_mpu_i2c.mpu.temp);
     imu_mpu_i2c.mpu.data_available = false;
   }
 }

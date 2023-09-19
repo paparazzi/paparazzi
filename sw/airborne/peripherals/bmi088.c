@@ -115,6 +115,54 @@ void bmi088_send_config(Bmi088ConfigSet bmi_set, void *bmi, struct Bmi088Config 
       config->init_status++;
       break;
     case BMI088_CONF_DONE:
+      /* Set the samplerates from the ODR */
+      switch(config->gyro_odr) {
+        case BMI088_GYRO_ODR_2000_BW_532:
+        case BMI088_GYRO_ODR_2000_BW_230:
+          config->gyro_samplerate = 2000;
+          break;
+        case BMI088_GYRO_ODR_1000_BW_116:
+          config->gyro_samplerate = 1000;
+          break;
+        case BMI088_GYRO_ODR_400_BW_47:
+          config->gyro_samplerate = 400;
+          break;
+        case BMI088_GYRO_ODR_200_BW_23:
+        case BMI088_GYRO_ODR_200_BW_64:
+          config->gyro_samplerate = 200;
+          break;
+        case BMI088_GYRO_ODR_100_BW_12:
+        case BMI088_GYRO_ODR_100_BW_32:
+          config->gyro_samplerate = 100;
+          break;
+      }
+      switch(config->accel_odr) {
+        case BMI088_ACCEL_ODR_1600:
+          config->accel_samplerate = 1600;
+          break;
+        case BMI088_ACCEL_ODR_800:
+          config->accel_samplerate = 800;
+          break;
+        case BMI088_ACCEL_ODR_400:
+          config->accel_samplerate = 400;
+          break;
+        case BMI088_ACCEL_ODR_200:
+          config->accel_samplerate = 200;
+          break;
+        case BMI088_ACCEL_ODR_100:
+          config->accel_samplerate = 100;
+          break;
+        case BMI088_ACCEL_ODR_50:
+          config->accel_samplerate = 50;
+          break;
+        case BMI088_ACCEL_ODR_25:
+          config->accel_samplerate = 25;
+          break;
+        case BMI088_ACCEL_ODR_12:
+          config->accel_samplerate = 12;
+          break;
+      }
+
       config->initialized = true;
       break;
     default:
