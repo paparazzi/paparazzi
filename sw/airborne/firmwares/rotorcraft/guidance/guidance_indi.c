@@ -159,6 +159,9 @@ void guidance_indi_init(void)
  */
 void guidance_indi_enter(void)
 {
+  /* set nav_heading to current heading */
+  nav.heading = stateGetNedToBodyEulers_f()->psi;
+
   thrust_in = stabilization_cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
 

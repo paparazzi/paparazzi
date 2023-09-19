@@ -495,7 +495,10 @@ int32_t guidance_hybrid_vertical(int32_t delta_t)
 
 void guidance_h_run_enter(void)
 {
-  // nothing to do
+  /*Obtain eulers with zxy rotation order*/
+  struct FloatEulers eulers_zxy;
+  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  nav.heading = eulers_zxy.psi;
 }
 
 void guidance_v_run_enter(void)
