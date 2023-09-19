@@ -30,6 +30,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/core/abi.h"
+#include "generated/modules.h"
 
 #if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined  IMU_MPU9250_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY >= 60) && (PERIODIC_FREQUENCY <= 120)
@@ -142,8 +143,8 @@ void imu_mpu9250_event(void)
     };
 
     imu_mpu9250.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1, NAN);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1, NAN);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1, IMU_MPU9250_PERIODIC_FREQ, NAN);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1, IMU_MPU9250_PERIODIC_FREQ, NAN);
   }
 #if IMU_MPU9250_READ_MAG
   // Test if mag data are updated

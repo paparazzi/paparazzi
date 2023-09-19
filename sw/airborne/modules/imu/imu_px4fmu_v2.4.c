@@ -29,6 +29,7 @@
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
+#include "generated/modules.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_LSM_SPI_SLAVE_IDX)
@@ -90,7 +91,7 @@ void imu_px4_event(void) {
       imu_px4.l3g.data_rates.rates.r
     };
     imu_px4.l3g.data_available = FALSE;
-    AbiSendMsgIMU_GYRO_RAW(IMU_PX4_ID, now_ts, &gyro, 1, NAN);
+    AbiSendMsgIMU_GYRO_RAW(IMU_PX4_ID, now_ts, &gyro, 1, IMU_PX4_PERIODIC_FREQ, NAN);
   }
 
   /* LSM303d event task */
@@ -98,7 +99,7 @@ void imu_px4_event(void) {
   if (imu_px4.lsm_acc.data_available_acc) {
     struct Int32Vect3 accel;
     VECT3_COPY(accel, imu_px4.lsm_acc.data_accel.vect);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_PX4_ID, now_ts, &accel, 1, NAN);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_PX4_ID, now_ts, &accel, 1, IMU_PX4_PERIODIC_FREQ, NAN);
     imu_px4.lsm_acc.data_available_acc = FALSE;
   }
 #if !IMU_PX4_DISABLE_MAG
