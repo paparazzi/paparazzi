@@ -29,6 +29,7 @@
 #include "modules/core/abi.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/hmc58xx_regs.h"
+#include "generated/modules.h"
 
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
@@ -103,8 +104,8 @@ void imu_px4fmu_event(void)
       -imu_px4fmu.mpu.data_accel.vect.z
     };
     imu_px4fmu.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, imu_px4fmu.mpu.temp);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, imu_px4fmu.mpu.temp);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, IMU_PX4FMU_PERIODIC_FREQ, imu_px4fmu.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, IMU_PX4FMU_PERIODIC_FREQ, imu_px4fmu.mpu.temp);
   }
 
   /* HMC58XX event task */

@@ -180,6 +180,8 @@ struct invensense3_t {
   uint16_t accel_aaf_regs[4];                   ///< Accelerometer Anti-alias filter register values
   enum invensense3_fifo_packet_t sample_size;   ///< FIFO packet size
   int sample_numbers;                           ///< expected FIFO packet number, assuming reading at PERIODIC_FREQUENCY
+  float gyro_samplerate;                        ///< Sample rate in Hz from the gyro_odr
+  float accel_samplerate;                       ///< Sample rate in Hz from the accel_odr
 };
 
 /* External functions */

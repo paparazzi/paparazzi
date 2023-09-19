@@ -512,12 +512,12 @@ static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data
   // ADC temp * temp sensitivity + temp zero
   float temp_f = ((float)temp / i) / 2.07 + 25.f; 
   if (accel_samplerate == faster_odr)
-    temp_f = ((float)temp / j) / 2.07 + 25.f; 
+    temp_f = ((float)temp / j) / 2.07 + 25.f;
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, i, temp_f);
-  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, temp_f);
+  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, i, inv->gyro_samplerate, temp_f);
+  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, inv->accel_samplerate, temp_f);
   AbiSendMsgTEMPERATURE(inv->abi_id, temp_f);
 }
 
@@ -545,8 +545,8 @@ static void invensense3_parse_reg_data(struct invensense3_t *inv, uint8_t *data)
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, 1, temp_f);
-  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, 1, temp_f);
+  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, 1, inv->gyro_samplerate, temp_f);
+  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, 1, inv->accel_samplerate, temp_f);
   AbiSendMsgTEMPERATURE(inv->abi_id, temp_f);
 }
 
@@ -612,6 +612,102 @@ static void invensense3_fix_config(struct invensense3_t *inv) {
   if(i >= (aaf_len-1)) {
     inv->accel_aaf = aaf_table[aaf_len-1][0];
     RMAT_COPY(inv->accel_aaf_regs, aaf_table[aaf_len-1]);
+  }
+
+  /* Calculate the samplerates in Hz */
+  switch(inv->gyro_odr) {
+    case INVENSENSE3_GYRO_ODR_32KHZ:
+      inv->gyro_samplerate = 32000;
+      break;
+    case INVENSENSE3_GYRO_ODR_16KHZ:
+      inv->gyro_samplerate  = 16000;
+      break;
+    case INVENSENSE3_GYRO_ODR_8KHZ:
+      inv->gyro_samplerate  = 8000;
+      break;
+    case INVENSENSE3_GYRO_ODR_4KHZ:
+      inv->gyro_samplerate  = 4000;
+      break;
+    case INVENSENSE3_GYRO_ODR_2KHZ:
+      inv->gyro_samplerate  = 2000;
+      break;
+    case INVENSENSE3_GYRO_ODR_1KHZ:
+      inv->gyro_samplerate  = 1000;
+      break;
+    case INVENSENSE3_GYRO_ODR_200HZ:
+      inv->gyro_samplerate  = 200;
+      break;
+    case INVENSENSE3_GYRO_ODR_100HZ:
+      inv->gyro_samplerate  = 100;
+      break;
+    case INVENSENSE3_GYRO_ODR_50HZ:
+      inv->gyro_samplerate  = 50;
+      break;
+    case INVENSENSE3_GYRO_ODR_25HZ:
+      inv->gyro_samplerate  = 25;
+      break;
+    case INVENSENSE3_GYRO_ODR_12_5HZ:
+      inv->gyro_samplerate  = 12.5;
+      break;
+    case INVENSENSE3_GYRO_ODR_6_25HZ:
+      inv->gyro_samplerate  = 6.25;
+      break;
+    case INVENSENSE3_GYRO_ODR_3_125HZ:
+      inv->gyro_samplerate  = 3.125;
+      break;
+    case INVENSENSE3_GYRO_ODR_1_5625HZ:
+      inv->gyro_samplerate  = 1.5625;
+      break;
+    case INVENSENSE3_GYRO_ODR_500HZ:
+      inv->gyro_samplerate  = 500;
+      break;
+  }
+  switch(inv->accel_odr) {
+    case INVENSENSE3_ACCEL_ODR_32KHZ:
+      inv->accel_samplerate = 32000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_16KHZ:
+      inv->accel_samplerate  = 16000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_8KHZ:
+      inv->accel_samplerate  = 8000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_4KHZ:
+      inv->accel_samplerate  = 4000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_2KHZ:
+      inv->accel_samplerate  = 2000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_1KHZ:
+      inv->accel_samplerate  = 1000;
+      break;
+    case INVENSENSE3_ACCEL_ODR_200HZ:
+      inv->accel_samplerate  = 200;
+      break;
+    case INVENSENSE3_ACCEL_ODR_100HZ:
+      inv->accel_samplerate  = 100;
+      break;
+    case INVENSENSE3_ACCEL_ODR_50HZ:
+      inv->accel_samplerate  = 50;
+      break;
+    case INVENSENSE3_ACCEL_ODR_25HZ:
+      inv->accel_samplerate  = 25;
+      break;
+    case INVENSENSE3_ACCEL_ODR_12_5HZ:
+      inv->accel_samplerate  = 12.5;
+      break;
+    case INVENSENSE3_ACCEL_ODR_6_25HZ:
+      inv->accel_samplerate  = 6.25;
+      break;
+    case INVENSENSE3_ACCEL_ODR_3_125HZ:
+      inv->accel_samplerate  = 3.125;
+      break;
+    case INVENSENSE3_ACCEL_ODR_1_5625HZ:
+      inv->accel_samplerate  = 1.5625;
+      break;
+    case INVENSENSE3_ACCEL_ODR_500HZ:
+      inv->accel_samplerate  = 500;
+      break;
   }
   
   /* Set the default values */
@@ -878,7 +974,7 @@ static bool invensense3_config(struct invensense3_t *inv) {
 }
 
 static int samples_from_odr(int odr) {
-   float freq;
+   float freq = 0;
    if(odr < INVENSENSE3_GYRO_ODR_200HZ) {
     freq = 32000 / pow(2, odr-INVENSENSE3_GYRO_ODR_32KHZ);
    }
