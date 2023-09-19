@@ -74,7 +74,7 @@ static const struct Int32Vect3 invensense2_accel_scale[5][2] = {
 /**
  * @brief Initialize the invensense v2 sensor instance
  * 
- * @param inv The structure containing the configuratio of the invensense v2 instance
+ * @param inv The structure containing the configuration of the invensense v2 instance
  */
 void invensense2_init(struct invensense2_t *inv) {
   /* General setup */
@@ -274,6 +274,9 @@ void invensense2_event(struct invensense2_t *inv) {
  * @param data The FIFO buffer data to parse
  * @param len The length of the FIFO buffer
  */
+#include "modules/loggers/pprzlog_tp.h"
+#include "modules/loggers/flight_recorder.h"
+#include "modules/datalink/telemetry.h"
 static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *data, uint16_t len) {
   uint8_t samples = len  / INVENSENSE2_SAMPLE_SIZE;
   static struct Int32Vect3 accel[INVENSENSE2_SAMPLE_CNT] = {0};
@@ -314,8 +317,8 @@ static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples, temp_f);
-  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, temp_f);
+  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples, gyro_samplerate, temp_f);
+  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, accel_samplerate, temp_f);
 }
 
 /**

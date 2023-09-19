@@ -119,6 +119,9 @@ struct Bmi088Config {
   enum Bmi088AccelBW accel_bw;          ///< bandwidth
   enum Bmi088ConfStatus init_status;    ///< init status
   bool initialized;                     ///< config done flag
+
+  float gyro_samplerate;                ///< samplerate in Hz from gyro_odr
+  float accel_samplerate;               ///< samplerate in Hz from accel_odr
 };
 
 extern void bmi088_set_default_config(struct Bmi088Config *c);

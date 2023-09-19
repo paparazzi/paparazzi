@@ -28,9 +28,11 @@
     <module name="telemetry" type="transparent">
       <configure name="MODEM_PORT" value="usb_serial"/>
     </module>
-    <module name="imu" type="matek_h743_slim">
-      <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
-      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+    <module name="imu" type="icm42688">
+      <configure name="IMU_SPI_DEV" value="spi4"/>
+      <configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE6"/>
+      <!--define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/-->
     </module>
     <module name="gps" type="optitrack"/>
     <configure name="USE_MAGNETOMETER" value="FALSE"/>

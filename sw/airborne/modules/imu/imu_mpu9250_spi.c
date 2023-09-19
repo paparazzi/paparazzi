@@ -31,6 +31,7 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/ak8963_regs.h"
+#include "generated/modules.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_MPU9250_SPI_SLAVE_IDX)
@@ -200,8 +201,8 @@ void imu_mpu9250_event(void)
 #endif
 
     imu_mpu9250.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1, NAN);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1, NAN);
+    AbiSendMsgIMU_GYRO_RAW(IMU_MPU9250_ID, now_ts, &rates, 1, IMU_MPU9250_PERIODIC_FREQ, NAN);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_MPU9250_ID, now_ts, &accel, 1, IMU_MPU9250_PERIODIC_FREQ, NAN);
   }
 
 }
