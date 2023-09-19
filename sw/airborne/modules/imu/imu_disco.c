@@ -28,6 +28,7 @@
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/i2c.h"
+#include "generated/modules.g"
 
 
 /* I2C is hardwired on Disco autopilot */
@@ -131,8 +132,8 @@ void imu_disco_event(void)
         imu_disco.mpu.data_accel.vect.z);
 
     imu_disco.mpu.data_available = false;
-    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, imu_disco.mpu.temp);
-    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, imu_disco.mpu.temp);
+    AbiSendMsgIMU_GYRO_RAW(IMU_BOARD_ID, now_ts, &gyro, 1, IMU_DISCO_PERIODIC_FREQ, imu_disco.mpu.temp);
+    AbiSendMsgIMU_ACCEL_RAW(IMU_BOARD_ID, now_ts, &accel, 1, IMU_DISCO_PERIODIC_FREQ, imu_disco.mpu.temp);
   }
 
   /* AKM8963 event task */
