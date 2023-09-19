@@ -314,8 +314,8 @@ static void invensense2_parse_data(struct invensense2_t *inv, volatile uint8_t *
 
   // Send the scaled values over ABI
   uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples, temp_f);
-  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, temp_f);
+  AbiSendMsgIMU_GYRO_RAW(inv->abi_id, now_ts, gyro, samples, gyro_samplerate, temp_f);
+  AbiSendMsgIMU_ACCEL_RAW(inv->abi_id, now_ts, accel, j, accel_samplerate, temp_f);
 }
 
 /**
