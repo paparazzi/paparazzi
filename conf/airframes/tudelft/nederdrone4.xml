@@ -18,11 +18,6 @@
       <configure name="FLASH_MODE" value="SWD"/>
       <define name="USE_BARO_BOARD" value="1"/>
 
-      <module name="eff_scheduling_nederdrone">
-        <!-- Trims -->
-        <define name="INDI_SCHEDULING_TRIM_ELEVATOR" value="840"/>
-      </module>
-
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART3"/>
       </module>
@@ -43,8 +38,9 @@
       <module name="logger" type="sd_chibios"/>
       <module name="flight_recorder"/>
 
-      <!-- Chibios monitor -->
+      <!-- Monitoring -->
       <module name="sys_mon"/>
+      <!--module name="status_nederdrone"/-->
 
       <define name="ADC_CURRENT_DISABLE" value="TRUE"/>
 
@@ -67,8 +63,6 @@
     </target>
 
     <target name="nps" board="pc">
-
-      <module name="eff_scheduling_nederdrone"/>
       <module name="radio_control" type="datalink"/>
       <module name="fdm" type="jsbsim"/>
 
@@ -83,6 +77,12 @@
       <define name="RADIO_KILL_SWITCH" value="0"/>
     </target>
 
+    <module name="eff_scheduling_nederdrone">
+      <!-- Trims -->
+      <define name="INDI_SCHEDULING_TRIM_ELEVATOR" value="840"/>
+      <define name="INDI_SCHEDULING_PREF_FLAPS_FACTOR" value="1.0"/>
+    </module>
+
     <!--module name="follow_me">
       <define name="FOLLOW_ME_DISTANCE" value="60"/>
       <define name="FOLLOW_ME_HEIGHT" value="40"/>
@@ -94,9 +94,12 @@
 
     <module name="approach_moving_target">
       <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
+      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
     </module>
 
-    <module name="ins"           type="ekf2" />
+    <module name="ins"           type="ekf2">
+      <define name="USE_INS_NAV_INIT" value="FALSE"/>
+    </module>
 
     <module name="actuators"     type="uavcan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
@@ -114,7 +117,8 @@
     </module>
     <module name="stabilization" type="rate_indi"/>
 
-    <module name="air_data" >
+    <module name="air_data">
+      <define name="AIR_DATA_BARO_DIFF_ID" value="MS45XX_SENDER_ID"/> <!-- UAVCAN_SENDER_ID -->
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
     </module>
 
@@ -383,6 +387,7 @@
     <define name="ACT_DYN" value="{0.0354, 0.0354, 0.0354, 0.0354, 0.05, 0.05, 0.05, 0.05}"/>
     <define name="ACT_RATE_LIMIT" value="{9600, 9600, 9600, 9600, 170, 170, 170, 170}"/>
     <define name="ACT_IS_SERVO" value="{0, 0, 0, 0, 1, 1, 1, 1}"/>
+    <define name="WLS_WU" value="{1.,1.,1.,1.,1.,1.,1.,1.}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
