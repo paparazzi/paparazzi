@@ -347,22 +347,21 @@ void ekf_aw_wrapper_fetch(void){
 
   // Getting body accel
   struct FloatVect3 body_accel_f = {0.0f,0.0f,0.0f};
-  if (EKF_AW_WRAPPER_ROT_WING){
-    // If body accel available, can use this
-    struct Int32Vect3 *body_accel_i;
-    body_accel_i = stateGetAccelBody_i();
-    ACCELS_FLOAT_OF_BFP(body_accel_f, *body_accel_i);
-  }
-  else{
-    // Transferring from NED to Body as body is not available right now
-    struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
-    struct Int32Vect3 ned_accel_i,body_accel_i;
-    struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
-    VECT3_COPY(ned_accel_i, (*accel_tmp));
-    ned_accel_i.z += ACCEL_BFP_OF_REAL(-9.81); // Add gravity
-    int32_rmat_vmult(&body_accel_i, ned_to_body_rmat, &ned_accel_i);
-    ACCELS_FLOAT_OF_BFP(body_accel_f, body_accel_i);
-  }
+#if EKF_AW_WRAPPER_ROT_WING
+  // If body accel available, can use this
+  struct Int32Vect3 *body_accel_i;
+  body_accel_i = stateGetAccelBody_i();
+  ACCELS_FLOAT_OF_BFP(body_accel_f, *body_accel_i);
+#else
+  // Transferring from NED to Body as body is not available right now
+  struct NedCoor_i *accel_tmp = stateGetAccelNed_i();
+  struct Int32Vect3 ned_accel_i,body_accel_i;
+  struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
+  VECT3_COPY(ned_accel_i, (*accel_tmp));
+  ned_accel_i.z += ACCEL_BFP_OF_REAL(-9.81); // Add gravity
+  int32_rmat_vmult(&body_accel_i, ned_to_body_rmat, &ned_accel_i);
+  ACCELS_FLOAT_OF_BFP(body_accel_f, body_accel_i);
+#endif
 
   // Body accel
   update_butterworth_2_low_pass(&filt_acc[0], body_accel_f.x);
@@ -387,22 +386,21 @@ void ekf_aw_wrapper_fetch(void){
   }
   update_butterworth_2_low_pass(&filt_pusher_prop_rpm, ekf_aw.last_RPM_pusher*1.0f);
 
-  if (EKF_AW_WRAPPER_ROT_WING){
-    update_butterworth_2_low_pass(&filt_skew, wing_rotation.wing_angle_rad);
+#if EKF_AW_WRAPPER_ROT_WING
+  update_butterworth_2_low_pass(&filt_skew, wing_rotation.wing_angle_rad);
 
-    // Get elevator pprz signal
-    int16_t *elev_pprz = &actuators_pprz[5];
-    float de = 0.0f;
-    // Calculate deflection angle in [deg]
-    de = (-0.004885417f * *elev_pprz + 36.6f)*3.14f/180.0f;
+  // Get elevator pprz signal
+  int16_t *elev_pprz = &actuators_pprz[5];
+  float de = 0.0f;
+  // Calculate deflection angle in [deg]
+  de = (-0.004885417f * *elev_pprz + 36.6f)*3.14f/180.0f;
     
-    update_butterworth_2_low_pass(&filt_elevator_pprz, de);
-  }
-  else{
-    update_butterworth_2_low_pass(&filt_skew, 0.0f);
-    update_butterworth_2_low_pass(&filt_elevator_pprz, 0.0f);
-  }
-  
+  update_butterworth_2_low_pass(&filt_elevator_pprz, de);
+#else
+  update_butterworth_2_low_pass(&filt_skew, 0.0f);
+  update_butterworth_2_low_pass(&filt_elevator_pprz, 0.0f);
+#endif
+
   update_butterworth_2_low_pass(&filt_airspeed_pitot, stateGetAirspeed_f());
 
   // FOR DEBUG
