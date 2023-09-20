@@ -23,6 +23,8 @@
  * Approach a moving target (e.g. ship)
  */
 
+#include "generated/airframe.h"
+
 #include "approach_moving_target.h"
 
 #include "generated/modules.h"

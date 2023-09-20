@@ -92,10 +92,7 @@
       <configure name="MODEM_BAUD" value="B460800"/>
     </module>
 
-    <module name="approach_moving_target">
-      <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
-      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
-    </module>
+    <module name="approach_moving_target"/>
 
     <module name="ins"           type="ekf2">
       <define name="USE_INS_NAV_INIT" value="FALSE"/>
@@ -409,6 +406,14 @@
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="0"/>
     <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="AMT" prefix="APPROACH_MOVING_TARGET_">
+    <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
+    <define name="ERR_SLOWDOWN_GAIN" value="0.25" />
+    <define name="SLOPE" value="35.0"/>
+    <define name="DISTANCE" value="60.0"/>
+    <define name="SPEED" value="-1.0"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
