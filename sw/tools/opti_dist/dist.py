@@ -15,16 +15,19 @@ from NatNetClient import NatNetClient
 
 
 # This is a callback function that gets connected to the NatNet client. It is called once per rigid body per frame
-def receiveRigidBodyFrame(id, position, rotation):
-    # print( "Received frame for rigid body", id )
-    global pos_x, pos_y, pos_z
-    global track_id
-    if track_id and id != track_id:
-        return
-    
-    pos_x = position[0]
-    pos_y = position[1]
-    pos_z = position[2]
+def receiveRigidBodyFrame(rigidBodyList, stamp):
+    # print(rigidBodyList)
+    for (id, position, quat, valid) in rigidBodyList:
+        # print( "Received frame for rigid body", id )
+        global pos_x, pos_y, pos_z
+        global track_id
+        if track_id and id != track_id:
+            continue
+        
+        # print( "Received frame for rigid body", id )
+        pos_x = position[0]
+        pos_y = position[1]
+        pos_z = position[2]
 
 
 def main(args):
@@ -42,7 +45,8 @@ def main(args):
         multicast=args.multicast,
         commandPort=args.commandPort,
         dataPort=args.dataPort,
-        rigidBodyListListener=receiveRigidBodyFrame)
+        rigidBodyListListener=receiveRigidBodyFrame,
+        version=(2,9,0,0))
     # Start up the streaming client now that the callbacks are set up.
     # This will run perpetually, and operate on a separate thread.
     streamingClient.run()
@@ -84,7 +88,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--server', default="169.254.201.120")
+    parser.add_argument('--server', default="127.0.0.1")
     parser.add_argument('--multicast', default="239.255.42.99")
     parser.add_argument('--commandPort', type=int, default=1510)
     parser.add_argument('--dataPort', type=int, default=1511)

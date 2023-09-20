@@ -163,7 +163,7 @@ class InstallWindow(QWidget):
         button8 = QPushButton('8) Bebop Opencv')
         button8.clicked.connect(self.cmd_bebopcv)
         if float(release['RELEASE']) > 20.04:
-            button8.setDisables(True)
+            button8.setDisabled(True)
         btn_layout.addWidget(button8)
 
         button9 = QPushButton('9) VLC + Joystick + Natnet')
