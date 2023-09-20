@@ -223,6 +223,7 @@ static void parse_esc32(struct esc32_private *esc, uint8_t c) {
 
 static void esc32_msg_send(struct transport_tx *trans, struct link_device *dev) {
   float temp = 0;
+  float temp_dev = 0;
   uint8_t id0 = 0;
 
   pprz_msg_send_ESC(trans, dev, AC_ID,
@@ -233,6 +234,7 @@ static void esc32_msg_send(struct transport_tx *trans, struct link_device *dev) 
       &esc32.params.volts_motor,
       &esc32.energy,
       &temp,
+      &temp_dev,
       &id0,
       &id0); // only one motor handled for now
 }
