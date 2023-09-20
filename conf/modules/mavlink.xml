@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mavlink" dir="datalink">
+<module name="mavlink" dir="datalink" task="datalink">
   <doc>
     <description>Basic MAVLink implementation</description>
     <configure name="MAVLINK_PORT" value="UARTx|UDPx|UsbS" description="The port device to use for mavlink (default: UART1)"/>
@@ -12,7 +12,7 @@
 
   <init fun="mavlink_init()"/>
   <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
-  <periodic fun="mavlink_periodic_telemetry()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
+  <periodic fun="mavlink_periodic_telemetry()" autorun="TRUE"/>
   <event fun="mavlink_event()"/>
 
   <makefile>
