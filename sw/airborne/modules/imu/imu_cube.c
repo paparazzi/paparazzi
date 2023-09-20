@@ -74,7 +74,7 @@ void imu_cube_init(void)
   imu2.spi.slave_idx = CUBE_IMU2_SPI_SLAVE_IDX;
 
   imu2.gyro_odr = INVENSENSE3_GYRO_ODR_4KHZ;
-  imu2.gyro_range = INVENSENSE3_GYRO_RANGE_500DPS;
+  imu2.gyro_range = INVENSENSE3_GYRO_RANGE_2000DPS;
   imu2.accel_odr = INVENSENSE3_ACCEL_ODR_4KHZ;
   imu2.accel_range = INVENSENSE3_ACCEL_RANGE_32G;
   imu2.gyro_aaf = 977; // ~ODR/4
