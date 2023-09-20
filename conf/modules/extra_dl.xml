@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="extra_dl" dir="datalink">
+<module name="extra_dl" dir="datalink" task="datalink">
   <doc>
     <description>Extra datalink (PPRZ transport)</description>
     <configure name="EXTRA_DL_PORT" value="UARTX|UDPX|usb_serial" description="Select port for extra datalink"/>
@@ -10,7 +10,7 @@
     <file name="extra_pprz_dl.h"/>
   </header>
   <init fun="extra_pprz_dl_init()"/>
-  <periodic fun="extra_pprz_dl_periodic()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
+  <periodic fun="extra_pprz_dl_periodic()" autorun="TRUE"/>
 
   <!--
   The event function listens on the extra telemetry port (from the payload computer for example)
@@ -23,9 +23,9 @@
 
   <makefile>
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
-    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
     <define name="USE_$(EXTRA_DL_PORT_UPPER)"/>
+    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
     <raw>
       # Check for UDP port
