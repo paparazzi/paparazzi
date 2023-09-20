@@ -125,7 +125,6 @@
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="route"/>
     </block>
-
     <block group="extra_pattern" name="Survey S1-S2 25m NS" strip_button="Svy25-NS-PRIMITIVE">
       <set value="FALSE" var="force_forward"/>
       <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
@@ -145,7 +144,6 @@
       <exception cond="rectangle_survey_sweep_num @GT 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
     </block>
-
     <block name="Oval">
       <set value="TRUE" var="force_forward"/>
       <oval p1="p1" p2="p2" radius="nav.radius"/>

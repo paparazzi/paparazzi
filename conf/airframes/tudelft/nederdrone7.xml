@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- This is a Nedderdrone with Trailing edge motors
-     * Airframe:    TUD00???
+     * Airframe:    TUD00343
      * Autopilot:   Pixhawk 4
      * Actuators:   12x T-Motor ESC + Motors and 8x Servos (all CAN)
      * Datalink:    Herelink
@@ -81,6 +81,7 @@
     <module name="eff_scheduling_nederdrone">
       <!-- Trims -->
       <define name="INDI_SCHEDULING_TRIM_ELEVATOR" value="0"/>
+      <define name="INDI_SCHEDULING_PREF_FLAPS_FACTOR" value="1.0"/>
     </module>
 
     <module name="telemetry"     type="transparent">
@@ -89,9 +90,12 @@
 
     <module name="approach_moving_target">
       <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
+      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
     </module>
 
-    <module name="ins"           type="ekf2" />
+    <module name="ins"           type="ekf2">
+      <define name="USE_INS_NAV_INIT" value="FALSE"/>
+    </module>
 
     <module name="actuators"     type="uavcan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
@@ -350,6 +354,7 @@
     <define name="ACT_DYN" value="{0.028, 0.028, 0.028, 0.028, 0.05, 0.05, 0.05, 0.05}"/>
     <define name="ACT_RATE_LIMIT" value="{9600, 9600, 9600, 9600, 170, 170, 170, 170}"/>
     <define name="ACT_IS_SERVO" value="{0, 0, 0, 0, 1, 1, 1, 1}"/>
+    <define name="WLS_WU" value="{1.,1.,1.,1.,1.,1.,1.,1.}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>

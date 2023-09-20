@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- This is a Nedderdrone with Trailing edge motors
-     * Airframe:    TUD00???
+     * Airframe:    TUD00344
      * Autopilot:   Pixhawk 4
      * Actuators:   12x T-Motor ESC + Motors and 8x Servos (all CAN)
      * Datalink:    Herelink
@@ -282,7 +282,7 @@
     <define name="MPU_Y_SIGN" value="1"/>
     <define name="MPU_Z_SIGN" value="1"/>
 
-    <!-- Calibated 2022-08-30 (Next to cyberzoo body only) -->
+    <!-- Calibrated 2022-08-30 (Next to cyberzoo body only) -->
     <define name="ACCEL_X_NEUTRAL" value="-40"/>
     <define name="ACCEL_Y_NEUTRAL" value="45"/>
     <define name="ACCEL_Z_NEUTRAL" value="-34"/>
@@ -348,9 +348,9 @@
     <define name="ESTIMATION_FILT_CUTOFF" value="5.0"/>
     <define name="FILT_CUTOFF_P" value="20."/>
     <define name="FILT_CUTOFF_Q" value="20."/>
-    <define name="FILT_CUTOFF_R" value="4."/>
+    <define name="FILT_CUTOFF_R" value="4.0"/>
+
     <!-- first order actuator dynamics -->
-    <!--define name="ACT_DYN" value="{0.009, 0.009, 0.009, 0.009, 0.05, 0.05, 0.05, 0.05}"/-->
     <define name="ACT_DYN" value="{0.028, 0.028, 0.028, 0.028, 0.05, 0.05, 0.05, 0.05}"/>
     <define name="ACT_RATE_LIMIT" value="{9600, 9600, 9600, 9600, 170, 170, 170, 170}"/>
     <define name="ACT_IS_SERVO" value="{0, 0, 0, 0, 1, 1, 1, 1}"/>
