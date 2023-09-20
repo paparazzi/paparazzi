@@ -16,10 +16,7 @@
 
 
 #ifndef EKF_AW_WRAPPER_ROT_WING
-#define EKF_AW_WRAPPER_ROT_WING true
-#endif
-#ifndef EKF_AW_WRAPPER_ROT_WING_TYPE_A
-#define EKF_AW_WRAPPER_ROT_WING_TYPE_A true
+#define EKF_AW_WRAPPER_ROT_WING false
 #endif
 #ifndef EKF_AW_WRAPPER_RANDOM_INPUTS
 #define EKF_AW_WRAPPER_RANDOM_INPUTS false
@@ -34,9 +31,7 @@
 #define EKF_AW_DEBUG false
 #endif
 
-#if EKF_AW_WRAPPER_ROT_WING_TYPE_A
-  #include "modules/rot_wing_drone/wing_rotation_controller_v3a.h"
-#else
+#if EKF_AW_WRAPPER_ROT_WING
   #include "modules/rot_wing_drone/wing_rotation_controller_v3b.h"
 #endif
 
@@ -398,14 +393,8 @@ void ekf_aw_wrapper_fetch(void){
     // Get elevator pprz signal
     int16_t *elev_pprz = &actuators_pprz[5];
     float de = 0.0f;
-    if (EKF_AW_WRAPPER_ROT_WING_TYPE_A){
-      // Calculate deflection angle in [deg]
-      de = (-0.004885417f * *elev_pprz + 36.6f)*3.14f/180.0f;
-    }
-    else{
-      // Calculate deflection angle in [deg]
-      de = (-0.004885417f * *elev_pprz + 36.6f)*3.14f/180.0f;
-    }
+    // Calculate deflection angle in [deg]
+    de = (-0.004885417f * *elev_pprz + 36.6f)*3.14f/180.0f;
     
     update_butterworth_2_low_pass(&filt_elevator_pprz, de);
   }
