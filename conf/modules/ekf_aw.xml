@@ -1,0 +1,151 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ekf_aw" dir="meteo">
+  <doc>
+    <description>
+      Airspeed and Wind Estimator with EKF 
+      Frédéric Larocque
+    </description>
+    <define name="PERIODIC_FREQUENCY_AIRSPEED_EKF" value="25" description="Airspeed periodic frequency"/>
+    <define name="PERIODIC_FREQUENCY_AIRSPEED_EKF_FETCH" value="100" description="Airspeed periodic fetch frequency"/>
+    
+    <define name="EKF_AW_P0_V_BODY"  value="1e-00f" description="Initial covariance body velocity"/>
+    <define name="EKF_AW_P0_MU"      value="1e-00f" description="Initial covariance wind"/>
+    <define name="EKF_AW_P0_OFFSET"  value="1e-00f" description="Initial covariance offset"/>
+
+    <define name="EKF_AW_Q_ACCEL"  value="1e-00f" description="Accel process noise"/>
+    <define name="EKF_AW_Q_GYRO"   value="1e-00f"  description="Gyro process noise"/>
+    <define name="EKF_AW_Q_MU"     value="1e-00f"  description="Wind process noise"/>
+    <define name="EKF_AW_Q_OFFSET" value="1e-00f" description="Offset process noise"/>
+
+    <define name="EKF_AW_R_V_GND"        value="1e-00f" description="GPS Velocity measurement noise"/>
+    <define name="EKF_AW_R_ACCEL_FILT_X" value="1e-00f" description="Filtered x accel measurement noise"/>
+    <define name="EKF_AW_R_ACCEL_FILT_Y" value="1e-00f" description="Filtered y accel measurement noise"/>
+    <define name="EKF_AW_R_ACCEL_FILT_Z" value="1e-00f" description="Filtered z accel measurement noise"/>
+    <define name="EKF_AW_R_V_PITOT"      value="1e-00f" description="Pitot Tube Velocity measurement noise"/>
+
+    <define name="EKF_AW_WING_INSTALLED"   value="false" description="Use wing contribution"/>
+    <define name="EKF_AW_USE_MODEL_BASED"  value="false" description="Use model based to augment filter"/>
+    <define name="EKF_AW_USE_BETA"         value="false" description="Use beta to estimate sideforce"/>
+    <define name="EKF_AW_PROPAGATE_OFFSET" value="false" description="Propagate the offset state"/>
+
+    <define name="EKF_AW_VEHICLE_MASS" value="0.0" description="Mass of the vehicle"/>
+
+    <define name="EKF_AW_K1_FX_DRAG" value="0.f" description="Drag coefficient linear to u used if use model based is set to false"/>
+    <define name="EKF_AW_K2_FX_DRAG" value="0.f" description="Drag coefficient linear to u^2 used if use model based is set to false"/>
+
+    <define name="EKF_AW_K_FY_BETA"  value="1e-00f" description="Fy v (side velocity) coefficient"/>
+    <define name="EKF_AW_K_FY_V"     value="1e-00f" description="Fy beta coefficient"/>
+
+    <define name="EKF_AW_K1_FX_FUSELAGE"  value="1e-00f" description="Fx Fuselage Coeff"/>
+    <define name="EKF_AW_K2_FX_FUSELAGE"  value="1e-00f" description="Fx Fuselage Coeff"/>
+    <define name="EKF_AW_K3_FX_FUSELAGE"  value="1e-00f" description="Fx Fuselage Coeff"/>
+    <define name="EKF_AW_K4_FX_FUSELAGE"  value="1e-00f" description="Fx Fuselage Coeff"/>
+
+    <define name="EKF_AW_K1_FX_HOVER"  value="1e-00f" description="Fx Hover Prop Coeff"/>
+    <define name="EKF_AW_K2_FX_HOVER"  value="1e-00f" description="Fx Hover Prop Coeff"/>
+
+    <define name="EKF_AW_K1_FX_WING"  value="1e-00f" description="Fx Wing Coeff"/>
+    <define name="EKF_AW_K2_FX_WING"  value="1e-00f" description="Fx Wing Coeff"/>
+    <define name="EKF_AW_K3_FX_WING"  value="1e-00f" description="Fx Wing Coeff"/>
+    <define name="EKF_AW_K4_FX_WING"  value="1e-00f" description="Fx Wing Coeff"/>
+    <define name="EKF_AW_K5_FX_WING"  value="1e-00f" description="Fx Wing Coeff"/>
+
+    <define name="EKF_AW_K1_FX_PUSH"  value="1e-00f" description="Fx Pusher Coeff"/>
+    <define name="EKF_AW_K2_FX_PUSH"  value="1e-00f" description="Fx Pusher Coeff"/>
+    <define name="EKF_AW_K3_FX_PUSH"  value="1e-00f" description="Fx Pusher Coeff"/>
+
+    <define name="EKF_AW_K1_FX_ELEV"  value="1e-00f" description="Fx Elevator Coeff"/>
+    <define name="EKF_AW_K2_FX_ELEV"  value="1e-00f" description="Fx Elevator Coeff"/>
+    <define name="EKF_AW_K3_FX_ELEV"  value="1e-00f" description="Fx Elevator Coeff"/>
+
+    <define name="EKF_AW_K1_FZ_FUSELAGE"  value="1e-00f" description="Fz Fuselage Coeff"/>
+    <define name="EKF_AW_K2_FZ_FUSELAGE"  value="1e-00f" description="Fz Fuselage Coeff"/>
+    <define name="EKF_AW_K3_FZ_FUSELAGE"  value="1e-00f" description="Fz Fuselage Coeff"/>
+    <define name="EKF_AW_K4_FZ_FUSELAGE"  value="1e-00f" description="Fz Fuselage Coeff"/>
+
+    <define name="EKF_AW_K1_FZ_HOVER"  value="1e-00f" description="Fz Hover Prop Coeff"/>
+    <define name="EKF_AW_K2_FZ_HOVER"  value="1e-00f" description="Fz Hover Prop Coeff"/>
+    <define name="EKF_AW_K3_FZ_HOVER"  value="1e-00f" description="Fz Hover Prop Coeff"/>
+    <define name="EKF_AW_K4_FZ_HOVER"  value="1e-00f" description="Fz Hover Prop Coeff"/>
+
+    <define name="EKF_AW_K1_Fz_WING"  value="1e-00f" description="Fz Wing Coeff"/>
+    <define name="EKF_AW_K2_Fz_WING"  value="1e-00f" description="Fz Wing Coeff"/>
+    <define name="EKF_AW_K3_Fz_WING"  value="1e-00f" description="Fz Wing Coeff"/>
+    <define name="EKF_AW_K4_Fz_WING"  value="1e-00f" description="Fz Wing Coeff"/>
+    <define name="EKF_AW_K5_Fz_WING"  value="1e-00f" description="Fz Wing Coeff"/>
+
+    <define name="EKF_AW_K1_FZ_ELEV"  value="1e-00f" description="Fz Elevator Coeff"/>
+    <define name="EKF_AW_K2_FZ_ELEV"  value="1e-00f" description="Fz Elevator Coeff"/>
+
+    <define name="EKF_AW_ELEV_MAX_ANGLE"  value="1e-00f" description="Maximum elevator angle"/>
+    <define name="EKF_AW_ELEV_MIN_ANGLE"  value="1e-00f" description="Minimum elevator angle"/>
+    <define name="EKF_AW_AOA_MAX_ANGLE"  value="1e-00f" description="Maximum angle of attack"/>
+    <define name="EKF_AW_AOA_MIN_ANGLE"  value="1e-00f" description="Minimum angle of attack"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="EKF_Airspeed_Wind">
+        <dl_setting min="0" max="1" step="1" var="ekf_aw.override_start" module="meteo/ekf_aw_wrapper" shortname="Override Start"/>
+        <dl_setting min="0" max="1" step="1" var="ekf_aw.override_quick_convergence" module="meteo/ekf_aw_wrapper" shortname="Override Quick Convergence"/>
+        <dl_setting min="0" max="1" step="1" var="ekf_aw.reset" module="meteo/ekf_aw_wrapper" shortname="Reset States and Health" handler="reset"/>
+        <dl_setting min="0" max="1" step="1" var="ekf_aw_params.propagate_offset" module="meteo/ekf_aw" shortname="propagate offset"/>
+
+        <dl_setting min="1E-1" max="8" step="1E-1" var="ekf_aw_params.vehicle_mass" module="meteo/ekf_aw" shortname="Vehicle Mass"/>
+
+        <dl_setting min="-1" max="0" step="1E-3" var="ekf_aw_params.k_fx_drag[0]" module="meteo/ekf_aw" shortname="k_drag_lin"/>
+        <dl_setting min="-1" max="0" step="1E-3" var="ekf_aw_params.k_fx_drag[1]" module="meteo/ekf_aw" shortname="k_drag_quad"/>
+
+        <dl_setting min="-5E-2" max="0" step="1E-4" var="ekf_aw_params.k_fy_beta" module="meteo/ekf_aw" shortname="k_beta"/>
+        <dl_setting min="-5E-2" max="0" step="1E-4" var="ekf_aw_params.k_fy_v" module="meteo/ekf_aw" shortname="k_v"/>
+
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.Q_accel" module="meteo/ekf_aw" shortname="Q accel" handler="update_Q_accel"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.Q_gyro" module="meteo/ekf_aw" shortname="Q gyro" handler="update_Q_gyro"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.Q_mu" module="meteo/ekf_aw" shortname="Q wind" handler="update_Q_mu"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.Q_k" module="meteo/ekf_aw" shortname="Q offset" handler="update_Q_k"/>
+
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.R_V_gnd" module="meteo/ekf_aw" shortname="R V_gnd" handler="update_R_V_gnd"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.R_accel_filt[0]" module="meteo/ekf_aw" shortname="R Accel Filt x" handler="update_R_accel_filt_x"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.R_accel_filt[1]" module="meteo/ekf_aw" shortname="R Accel Filt y" handler="update_R_accel_filt_y"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.R_accel_filt[2]" module="meteo/ekf_aw" shortname="R Accel Filt z" handler="update_R_accel_filt_z"/>
+        <dl_setting min="1E-9" max="1E-2" step="1E-8" var="ekf_aw_params.R_V_pitot" module="meteo/ekf_aw" shortname="R Pitot" handler="update_R_V_pitot"/>
+
+        <dl_setting min="-10" max="10" step="0.1" var="ekf_aw.wind_guess.x" module="meteo/ekf_aw_wrapper" shortname="Wind Guess N" handler="set_wind_N"/>
+        <dl_setting min="-10" max="10" step="0.1" var="ekf_aw.wind_guess.y" module="meteo/ekf_aw_wrapper" shortname="Wind Guess E" handler="set_wind_E"/>
+        <dl_setting min="-10" max="10" step="0.1" var="ekf_aw.wind_guess.z" module="meteo/ekf_aw_wrapper" shortname="Wind Guess D" handler="set_wind_D"/>
+
+        <dl_setting min="-1" max="1" step="1E-3" var="ekf_aw.offset_guess.x" module="meteo/ekf_aw_wrapper" shortname="Offset Guess x" handler="set_offset_x"/>
+        <dl_setting min="-1" max="1" step="1E-3" var="ekf_aw.offset_guess.y" module="meteo/ekf_aw_wrapper" shortname="Offset Guess y" handler="set_offset_y"/>  
+        <dl_setting min="-1" max="1" step="1E-3" var="ekf_aw.offset_guess.z" module="meteo/ekf_aw_wrapper" shortname="Offset Guess z" handler="set_offset_z"/>            
+        </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="ekf_aw_wrapper.h"/>
+  </header>
+  <init fun="ekf_aw_wrapper_init()"/>
+  <periodic fun="ekf_aw_wrapper_periodic()" freq="25"/>
+  <periodic fun="ekf_aw_wrapper_fetch()" freq="100"/>
+  <makefile target="ap|nps">
+    <file name="ekf_aw.cpp"/>
+    <file name="ekf_aw_wrapper.c"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
+  </makefile>
+</module>
+
+<!--Your comment
+Target NPS or AP
+<configure name="CXXSTANDARD" value="-std=c++14"/>
+<flag name="LDFLAGS" value="lstdc++" />
+
+Target AP
+<define name="EIGEN_NO_DEBUG"/>  Removes debug checks and should lead to faster code execution
+<flag name="CXXFLAGS" value="Wno-bool-compare"/>
+<flag name="CXXFLAGS" value="Wno-logical-not-parentheses"/>
+
+<datalink message="PING" fun="datalink_parse_PING(dev, trans, buf)"/>
+
+
+
+-->
+
