@@ -87,6 +87,9 @@ struct Imu {
   struct imu_accel_t accels[IMU_MAX_SENSORS]; ///< The accelerometer sensors
   struct imu_mag_t mags[IMU_MAX_SENSORS];     ///< The magnetometer sensors
   struct OrientationReps body_to_imu;         ///< Rotation from body to imu (all sensors) frame
+  uint8_t gyro_abi_send_id;                   ///< Filter out and send only a specific ABI id in telemetry for the gyro
+  uint8_t accel_abi_send_id;                  ///< Filter out and send only a specific ABI id in telemetry for the accelerometer
+  uint8_t mag_abi_send_id;                    ///< Filter out and send only a specific ABI id in telemetry for the magnetometer
 
   /** flag for adjusting body_to_imu via settings.
    * if FALSE, reset to airframe values, if TRUE set current roll/pitch
