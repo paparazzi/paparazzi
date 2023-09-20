@@ -30,21 +30,42 @@
 #include "filters/low_pass_filter.h"
 
 
-#ifndef AMT_ERR_SLOWDOWN_GAIN
-#define AMT_ERR_SLOWDOWN_GAIN 0.25
+// Filter value in Hz
+#ifndef APPROACH_MOVING_TARGET_CUTOFF_FREQ_FILTERS_HZ
+#define APPROACH_MOVING_TARGET_CUTOFF_FREQ_FILTERS_HZ 0.5
 #endif
 
-// Filter value in Hz
-#ifndef CUTOFF_FREQ_FILTERS_HZ
-#define CUTOFF_FREQ_FILTERS_HZ 0.5
-#endif 
+// Approach slope angle in degrees
+#ifndef APPROACH_MOVING_TARGET_SLOPE
+#define APPROACH_MOVING_TARGET_SLOPE 35.0
+#endif
 
+// Approach initial distance in meters
+#ifndef APPROACH_MOVING_TARGET_DISTANCE
+#define APPROACH_MOVING_TARGET_DISTANCE 60.0
+#endif
 
-float amt_err_slowdown_gain = AMT_ERR_SLOWDOWN_GAIN;
+// Approach speed in meters per second along the slope
+#ifndef APPROACH_MOVING_TARGET_SPEED
+#define APPROACH_MOVING_TARGET_SPEED -1.0
+#endif
 
-float approach_moving_target_angle_deg;
+// Gains
+#ifndef APPROACH_MOVING_TARGET_ERR_SLOWDOWN_GAIN
+#define APPROACH_MOVING_TARGET_ERR_SLOWDOWN_GAIN 0.25
+#endif
 
-float cutoff_freq_filters_hz = CUTOFF_FREQ_FILTERS_HZ;
+#ifndef APPROACH_MOVING_TARGET_POS_GAIN
+#define APPROACH_MOVING_TARGET_POS_GAIN 0.3
+#endif
+
+#ifndef APPROACH_MOVING_TARGET_SPEED_GAIN
+#define APPROACH_MOVING_TARGET_SPEED_GAIN 1.0
+#endif
+
+#ifndef APPROACH_MOVING_TARGET_RELVEL_GAIN
+#define APPROACH_MOVING_TARGET_RELVEL_GAIN 1.0
+#endif
 
 Butterworth2LowPass target_pos_filt[3];
 Butterworth2LowPass target_vel_filt[3];
@@ -54,15 +75,17 @@ Butterworth2LowPass target_heading_filt;
 #include <stdio.h>
 
 struct Amt amt = {
-  .distance = 60,
-  .speed = -1.0,
-  .pos_gain = 0.3,
-  .psi_ref = 180.0,
-  .slope_ref = 35.0,
-  .speed_gain = 1.0,
-  .relvel_gain = 1.0,
-  .enabled_time = 0,
-  .wp_id = 0,
+  .distance               = APPROACH_MOVING_TARGET_DISTANCE,
+  .speed                  = APPROACH_MOVING_TARGET_SPEED,
+  .psi_ref                = 180.0,
+  .slope_ref              = APPROACH_MOVING_TARGET_SLOPE,
+  .err_slowdown_gain      = APPROACH_MOVING_TARGET_ERR_SLOWDOWN_GAIN,
+  .pos_gain               = APPROACH_MOVING_TARGET_POS_GAIN,
+  .speed_gain             = APPROACH_MOVING_TARGET_SPEED_GAIN,
+  .relvel_gain            = APPROACH_MOVING_TARGET_RELVEL_GAIN,
+  .cutoff_freq_filters_hz = APPROACH_MOVING_TARGET_CUTOFF_FREQ_FILTERS_HZ,
+  .enabled_time           = 0,
+  .wp_id                  = 0,
 };
 
 struct AmtTelem {
@@ -74,35 +97,36 @@ struct AmtTelem amt_telem;
 bool approach_moving_target_enabled = false;
 
 struct FloatVect3 nav_get_speed_sp_from_diagonal(struct EnuCoor_i target, float pos_gain, float rope_heading);
-void update_waypoint(uint8_t wp_id, struct FloatVect3 * target_ned);
+void update_waypoint(uint8_t wp_id, struct FloatVect3 *target_ned);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 static void send_approach_moving_target(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_APPROACH_MOVING_TARGET(trans, dev, AC_ID,
-                              &amt_telem.des_pos.x,
-                              &amt_telem.des_pos.y,
-                              &amt_telem.des_pos.z,
-                              &amt_telem.des_vel.x,
-                              &amt_telem.des_vel.y,
-                              &amt_telem.des_vel.z,
-                              &amt.distance);
+                                       &amt_telem.des_pos.x,
+                                       &amt_telem.des_pos.y,
+                                       &amt_telem.des_pos.z,
+                                       &amt_telem.des_vel.x,
+                                       &amt_telem.des_vel.y,
+                                       &amt_telem.des_vel.z,
+                                       &amt.distance);
 }
 #endif
 
 void approach_moving_target_init(void)
 {
-  approach_moving_target_set_low_pass_freq(cutoff_freq_filters_hz);
+  approach_moving_target_set_low_pass_freq(amt.cutoff_freq_filters_hz);
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_APPROACH_MOVING_TARGET, send_approach_moving_target);
 #endif
 }
 
-void approach_moving_target_set_low_pass_freq(float filter_freq) {
-  cutoff_freq_filters_hz = filter_freq;
+void approach_moving_target_set_low_pass_freq(float filter_freq)
+{
+  amt.cutoff_freq_filters_hz = filter_freq;
   // tau = 1/(2*pi*Fc)
-  float tau = 1.0 / (2.0 * M_PI * cutoff_freq_filters_hz);
+  float tau = 1.0 / (2.0 * M_PI * amt.cutoff_freq_filters_hz);
   float sample_time = 1.0 / FOLLOW_DIAGONAL_APPROACH_FREQ;
   for (uint8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&target_pos_filt[i], tau, sample_time, 0.0);
@@ -113,7 +137,8 @@ void approach_moving_target_set_low_pass_freq(float filter_freq) {
 }
 
 // Update a waypoint such that you can see on the GCS where the drone wants to go
-void update_waypoint(uint8_t wp_id, struct FloatVect3 * target_ned) {
+void update_waypoint(uint8_t wp_id, struct FloatVect3 *target_ned)
+{
 
   // Update the waypoint
   struct EnuCoor_f target_enu;
@@ -121,17 +146,18 @@ void update_waypoint(uint8_t wp_id, struct FloatVect3 * target_ned) {
   waypoint_set_enu(wp_id, &target_enu);
 
   // Send waypoint update every half second
-  RunOnceEvery(100/2, {
+  RunOnceEvery(100 / 2, {
     // Send to the GCS that the waypoint has been moved
     DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                                &waypoints[wp_id].enu_i.x,
-                                &waypoints[wp_id].enu_i.y,
-                                &waypoints[wp_id].enu_i.z);
-  } );
+                               &waypoints[wp_id].enu_i.x,
+                               &waypoints[wp_id].enu_i.y,
+                               &waypoints[wp_id].enu_i.z);
+  });
 }
 
 // Function to enable from flight plan (call repeatedly!)
-void approach_moving_target_enable(uint8_t wp_id) {
+void approach_moving_target_enable(uint8_t wp_id)
+{
   amt.enabled_time = get_sys_time_msec();
   amt.wp_id = wp_id;
 }
@@ -140,21 +166,22 @@ void approach_moving_target_enable(uint8_t wp_id) {
  * @brief Generates a velocity reference from a diagonal approach path
  *
  */
-void follow_diagonal_approach(void) {
+void follow_diagonal_approach(void)
+{
 
   // Check if the flight plan recently called the enable function
-  if ( (get_sys_time_msec() - amt.enabled_time) > (2000 / NAVIGATION_FREQUENCY)) {
+  if ((get_sys_time_msec() - amt.enabled_time) > (2000 / NAVIGATION_FREQUENCY)) {
     return;
   }
 
   // Get the target position, velocity and heading
   struct NedCoor_f target_pos, target_vel = {0};
   float target_heading;
-  if(!target_get_pos(&target_pos, &target_heading)) {
+  if (!target_get_pos(&target_pos, &target_heading)) {
     // TODO: What to do? Same can be checked for the velocity
     return;
   }
-  if(target_heading > 360.f) {
+  if (target_heading > 360.f) {
     // TODO: We got an invalid heading and need to do something with it
     return;
   }
@@ -227,7 +254,7 @@ void follow_diagonal_approach(void) {
   float_vect3_bound_in_3d(&des_vel, 10.0);
 
   // Bound vertical speed setpoint
-  if(stateGetAirspeed_f() > 13.0) {
+  if (stateGetAirspeed_f() > 13.0) {
     Bound(des_vel.z, -4.0, 5.0);
   } else {
     Bound(des_vel.z, -nav.climb_vspeed, -nav.descend_vspeed);
@@ -241,7 +268,7 @@ void follow_diagonal_approach(void) {
   float min_speed;
   float sin_gamma_ref = sinf(gamma_ref);
   if (sin_gamma_ref > 0.05) {
-    min_speed = (nav.descend_vspeed+0.1) / sin_gamma_ref;
+    min_speed = (nav.descend_vspeed + 0.1) / sin_gamma_ref;
   } else {
     min_speed = -5.0; // prevent dividing by zero
   }
@@ -251,11 +278,11 @@ void follow_diagonal_approach(void) {
 
   // Reduce approach speed if the error is large
   float norm_pos_err_sq = VECT3_NORM2(pos_err);
-  float int_speed = amt.speed / (norm_pos_err_sq * amt_err_slowdown_gain + 1.0);
+  float int_speed = amt.speed / (norm_pos_err_sq * amt.err_slowdown_gain + 1.0);
 
   // integrate speed to get the distance
   float dt = FOLLOW_DIAGONAL_APPROACH_PERIOD;
-  amt.distance += int_speed*dt;
+  amt.distance += int_speed * dt;
 
   // For display purposes
   struct FloatVect3 disp_pos_target;
