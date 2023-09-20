@@ -40,6 +40,12 @@
 extern void actuators_init(void);
 extern void actuators_periodic(void);
 
+// Actuator RPM structure for ABI Message
+struct rpm_act_t {
+  uint8_t actuator_idx;
+  int32_t rpm;
+};
+
 #if ACTUATORS_NB
 
 extern uint32_t actuators_delay_time;
