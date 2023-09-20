@@ -49,8 +49,11 @@ PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 #endif
 
 /* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
- * defaults to 60Hz or set by TELEMETRY_FREQUENCY configure option in airframe file
+ * defaults to PERIODIC_FREQUENCY or set by TELEMETRY_FREQUENCY configure option in airframe file
  */
+#if (TELEMETRY_FREQUENCY > SYS_TIME_FREQUENCY) || !(SYS_TIME_FREQUENCY/TELEMETRY_FREQUENCY*TELEMETRY_FREQUENCY == SYS_TIME_FREQUENCY)
+#warning "The TELEMETRY_FREQUENCY can not be faster than the SYS_TIME_FREQUENCY and needs to be dividable by the SYS_TIME_FREQUENCY."
+#endif
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
 #if USE_AHRS && USE_IMU && (defined AHRS_PROPAGATE_FREQUENCY)
