@@ -5,17 +5,19 @@
     <description>
       Approach a moving target (e.g. ship) along a diagonal.
     </description>
-    <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.5" description="low pass filter on WP position"/>
+    <section name="APPROACH_MOVING_TARGET" prefix="APPROACH_MOVING_TARGET_">
+      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.5" description="low pass filter on WP position"/>
 
-    <define name="APPROACH_MOVING_TARGET_SLOPE" value="35.0" description="[degrees] the angle of the slope for the approach"/>
-    <define name="APPROACH_MOVING_TARGET_DISTANCE" value="60.0" description="[m] the initial distance to start the approach"/>
-    <define name="APPROACH_MOVING_TARGET_SPEED" value="-1.0" description="[m/s] the approach speed along the slope"/>
+      <define name="SLOPE" value="35.0" description="[degrees] the angle of the slope for the approach"/>
+      <define name="DISTANCE" value="60.0" description="[m] the initial distance to start the approach"/>
+      <define name="SPEED" value="-1.0" description="[m/s] the approach speed along the slope"/>
 
-    <define name="APPROACH_MOVING_TARGET_ERR_SLOWDOWN_GAIN" value="0.25" description="slowing down when arriving"/>
-    <define name="APPROACH_MOVING_TARGET_POS_GAIN" value="-1.0" description="P-gain"/>
-    <define name="APPROACH_MOVING_TARGET_SPEED_GAIN" value="-1.0" description="D-gain"/>
-    <define name="APPROACH_MOVING_TARGET_RELVEL_GAIN" value="-1.0" description="RelVel-gain"/>
-   </doc>
+      <define name="ERR_SLOWDOWN_GAIN" value="0.25" description="slowing down when arriving"/>
+      <define name="POS_GAIN" value="-1.0" description="P-gain"/>
+      <define name="SPEED_GAIN" value="-1.0" description="D-gain"/>
+      <define name="RELVEL_GAIN" value="-1.0" description="RelVel-gain"/>
+    </section>
+  </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="Approach">
@@ -27,7 +29,7 @@
         <dl_setting var="amt.pos_gain" min="0.05" max="3.0" step="0.01" shortname="pos_gain" param="APPROACH_MOVING_TARGET_POS_GAIN"/>
         <dl_setting var="amt.speed_gain" min="0.0" max="1.0" step="0.01" shortname="speed_gain" param="APPROACH_MOVING_TARGET_SPEED_GAIN"/>
         <dl_setting var="amt.relvel_gain" min="0.0" max="1.0" step="0.01" shortname="relvel_gain" param="APPROACH_MOVING_TARGET_RELVEL_GAIN"/>
-        <dl_setting var="amt.cutoff_freq_filters_hz" min="0.3" max="2.0" step="0.01" shortname="filter_freq" module="ctrl/approach_moving_target" handler="set_low_pass_freq" param="CUTOFF_FREQ_FILTERS_HZ"/>
+        <dl_setting var="amt.cutoff_freq_filters_hz" min="0.3" max="2.0" step="0.01" shortname="filter_freq" module="ctrl/approach_moving_target" handler="set_low_pass_freq" param="APPROACH_MOVING_TARGET_CUTOFF_FREQ_FILTERS_HZ"/>
       </dl_settings>
     </dl_settings>
   </settings>
