@@ -33,9 +33,9 @@
 
       <!-- Airspeed sensors -->
       <module name="airspeed" type="ms45xx_i2c">
-        <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
-        <define name="I2C4_CLOCK_SPEED" value="100000"/>
+      <define name="USE_I2C4"/>
+      <define name="MS45XX_I2C_DEV" value="i2c4"/>
+      <define name="I2C4_CLOCK_SPEED" value="100000"/>
       </module>
       <!--module name="airspeed" type="uavcan"/-->
 
@@ -52,14 +52,14 @@
 
       <!-- <module name="ahrs" type="int_cmpl_quat">
         <configure name="USE_MAGNETOMETER" value="FALSE"/>
-        <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-        <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
       </module> -->
 
       <!--module name="ins" type="extended">
-        <define name="INS_USE_GPS_ALT" value="1"/>
-        <define name="INS_USE_GPS_ALT_SPEED" value="1"/>
-        <define name="INS_VFF_R_GPS" value="0.01"/>
+      <define name="INS_USE_GPS_ALT" value="1"/>
+      <define name="INS_USE_GPS_ALT_SPEED" value="1"/>
+      <define name="INS_VFF_R_GPS" value="0.01"/>
       </module-->
     </target>
 
@@ -68,7 +68,7 @@
       <module name="fdm" type="jsbsim"/>
 
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
+      <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
       </module>
 
       <!--Not dealing with these in the simulation-->
@@ -163,6 +163,64 @@
     </module>
 
     <module name="motor_mixing"/>
+
+
+    <!--Airspeed estimation using EKF-->
+    <module name="ekf_aw">
+      <define name="EKF_AW_P0_V_BODY"  value="1.E-2f" description="Initial covariance body velocity"/>
+      <define name="EKF_AW_P0_MU"      value="1.E-5f" description="Initial covariance wind"/>
+      <define name="EKF_AW_P0_OFFSET"  value="1.E-10f" description="Initial covariance offset"/>
+
+      <define name="EKF_AW_Q_ACCEL"  value="1.0E-4f" description="Accel process noise"/>
+      <define name="EKF_AW_Q_GYRO"   value="1.0E-9f"  description="Gyro process noise"/>
+      <define name="EKF_AW_Q_MU"     value="1.0E-6f"  description="Wind process noise"/>
+      <define name="EKF_AW_Q_OFFSET" value="1.0E-8f" description="Offset process noise"/>
+
+      <define name="EKF_AW_R_V_GND"        value="1.E-5f" description="GPS Velocity measurement noise"/>
+      <define name="EKF_AW_R_ACCEL_FILT_X" value="1.E-5f" description="Filtered x accel measurement noise"/>
+      <define name="EKF_AW_R_ACCEL_FILT_Y" value="1.E-5f" description="Filtered y accel measurement noise"/>
+      <define name="EKF_AW_R_ACCEL_FILT_Z" value="1.E-5f" description="Filtered z accel measurement noise"/>
+      <define name="EKF_AW_R_V_PITOT"      value="1.E-7f" description="Pitot Tube Velocity measurement noise"/>
+
+      <define name="EKF_AW_AZ_SCHED_GAIN"     value="2" />
+      <define name="EKF_AW_AZ_SCHED_START_DEG"     value="60" />
+      <define name="EKF_AW_AZ_SCHED_END_DEG"     value="70" />
+
+      <define name="EKF_AW_AX_SCHED_GAIN"     value="0" />
+      <define name="EKF_AW_AX_SCHED_START_DEG"     value="45" />
+      <define name="EKF_AW_AX_SCHED_END_DEG"     value="60" />
+
+      <define name="EKF_AW_QUICK_CONVERGENCE"     value="true" />
+      <define name="EKF_AW_QUICK_CONVERGENCE_TIME"     value="15" />
+
+      <define name="EKF_AW_WING_INSTALLED"   value="true" description="Use wing contribution"/>
+      <define name="EKF_AW_USE_MODEL_BASED_X"  value="true" description="Use model based to augment filter"/>
+      <define name="EKF_AW_USE_MODEL_BASED_Y"  value="true" description="Use model based to augment filter"/>
+      <define name="EKF_AW_USE_MODEL_BASED_Z"  value="true" description="Use model based to augment filter"/>
+
+      <define name="EKF_AW_VEHICLE_MASS" value="6.5" description="Mass of the vehicle"/>
+
+      <define name="EKF_AW_K2_FX_FUSELAGE" value="-4E-2f" description="K*u*u"/>
+      <define name="EKF_AW_K3_FX_HOVER" value="-3E-1f" description="K*u"/>
+
+      <define name="EKF_AW_K1_FX_WING" value="-3.21432e-02f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K2_FX_WING" value="1.67195e-01f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K3_FX_WING" value="5.9441e-01f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K4_FX_WING" value="3.9839e-03f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K5_FX_WING" value="3.5321e-03f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+
+      <define name="EKF_AW_K_FY_V"     value="-3.2E-1f" description="Fy beta coefficient"/>
+      <define name="EKF_AW_K1_FY_WING" value="0.0f" description="Fy = K1*cos(skew)*sin(skew)*u^2"/>
+
+      <define name="EKF_AW_K1_FZ_WING" value="-1.0008e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K2_FZ_WING" value="-8.6965e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K3_FZ_WING" value="1.45783e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+      <define name="EKF_AW_K4_FZ_WING" value="2.185395e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+
+      <define name="EKF_AW_TELEMETRY_DEBUG"     value="false" description="debug mode to send timing info through telemetry"/>
+    </module>
+
+
   </firmware>
 
   <!-- CAN BUS 1 (Front Wing) -->
