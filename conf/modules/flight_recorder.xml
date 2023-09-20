@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="flight_recorder" dir="loggers" task="core">
+<module name="flight_recorder" dir="loggers" task="datalink">
   <doc>
     <description>
       Record flight data according to your telemetry file.
@@ -24,6 +24,8 @@
   <makefile target="ap">
     <file name="flight_recorder.c"/>
     <define name="FLIGHTRECORDER_SDLOG" cond="ifneq (FALSE,$(findstring $(FLIGHTRECORDER_SDLOG),FALSE))"/>
+    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
+    <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
   </makefile>
 </module>
 
