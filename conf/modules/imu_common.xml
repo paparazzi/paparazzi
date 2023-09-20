@@ -7,14 +7,24 @@
 
       This takes the IMU_GYRO_RAW, IMU_ACCEL_RAW and IMU_MAG_RAW ABI messages as input.
     </description>
+    <define name="IMU_INTEGRATION" value="FALSE" description="Enable gyro/accel integration calculations (enabled for the ekf2)"/>
+    <define name="IMU_GYRO_CALIB" value="{}" description="Gyroscope calibration structures list (see struct imu_gyro_t)"/>
+    <define name="IMU_ACCEL_CALIB" value="{}" description="Accelerometer calibration structures list (see struct imu_accel_t)"/>
+    <define name="IMU_MAG_CALIB" value="{}" description="Magnetometer calibration structures list (see struct imu_mag_t)"/>
+    <define name="IMU_GYRO_ABI_SEND_ID" value="ABI_BROADCAST" description="The gyro ABI ID which is send over telemetry/logging"/>
+    <define name="IMU_ACCEL_ABI_SEND_ID" value="ABI_BROADCAST" description="The accel ABI ID which is send over telemetry/logging"/>
+    <define name="IMU_MAG_ABI_SEND_ID" value="ABI_BROADCAST" description="The mag ABI ID which is send over telemetry/logging"/>
   </doc>
   <settings>
     <dl_settings>
-      <dl_settings NAME="body2imu">
-        <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.phi" shortname="b2i phi" module="modules/imu/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi" type="float" persistent="true"/>
-        <dl_setting MAX="90" MIN="-90" STEP="0.5" VAR="imu.body_to_imu.eulers_f.theta" shortname="b2i theta" module="modules/imu/imu" param="IMU_BODY_TO_IMU_THETA" unit="rad" alt_unit="deg" handler="SetBodyToImuTheta" type="float" persistent="true"/>
-        <dl_setting MAX="180" MIN="-180" STEP="0.5" VAR="imu.body_to_imu.eulers_f.psi" shortname="b2i psi" module="modules/imu/imu" param="IMU_BODY_TO_IMU_PSI" unit="rad" alt_unit="deg" handler="SetBodyToImuPsi" type="float" persistent="true"/>
-        <dl_setting MAX="1" MIN="0" STEP="1" VAR="imu.b2i_set_current" values="FALSE|TRUE" shortname="b2i cur roll/pitch" module="modules/imu/imu" handler="SetBodyToImuCurrent"/>
+      <dl_settings NAME="IMU">
+        <dl_setting var="imu.body_to_imu.eulers_f.phi" shortname="b2i phi" min="-90" max="90" step="0.5"  module="modules/imu/imu" param="IMU_BODY_TO_IMU_PHI" unit="rad" alt_unit="deg" handler="SetBodyToImuPhi" type="float" persistent="true"/>
+        <dl_setting var="imu.body_to_imu.eulers_f.theta" shortname="b2i theta" min="-90" max="90" step="0.5"  module="modules/imu/imu" param="IMU_BODY_TO_IMU_THETA" unit="rad" alt_unit="deg" handler="SetBodyToImuTheta" type="float" persistent="true"/>
+        <dl_setting var="imu.body_to_imu.eulers_f.psi" shortname="b2i psi" min="-90" max="90" step="0.5" module="modules/imu/imu" param="IMU_BODY_TO_IMU_PSI" unit="rad" alt_unit="deg" handler="SetBodyToImuPsi" type="float" persistent="true"/>
+        <dl_setting var="imu.b2i_set_current" shortname="b2i cur roll/pitch" min="0" max="1" step="1" values="FALSE|TRUE" module="modules/imu/imu" handler="SetBodyToImuCurrent"/>
+        <dl_setting var="imu.gyro_abi_send_id" shortname="gyro abi send" min="0" max="255" step="1" param="IMU_GYRO_ABI_SEND_ID"/>
+        <dl_setting var="imu.accel_abi_send_id" shortname="accel abi send" min="0" max="255" step="1" param="IMU_ACCEL_ABI_SEND_ID"/>
+        <dl_setting var="imu.mag_abi_send_id" shortname="mag abi send" min="0" max="255" step="1" param="IMU_MAG_ABI_SEND_ID"/>
       </dl_settings>
     </dl_settings>
   </settings>
