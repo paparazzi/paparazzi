@@ -111,12 +111,10 @@ ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(AIRBORNE)/Makefile
 
 ifdef PERIODIC_FREQUENCY
-# telemetry and module periodic frequency default to PERIODIC_FREQUENCY
-TELEMETRY_FREQUENCY ?= $(PERIODIC_FREQUENCY)
+# module periodic frequency default to PERIODIC_FREQUENCY
 DEFAULT_MODULES_FREQUENCY = $(PERIODIC_FREQUENCY)
 else
-$(warning Info: PERIODIC_FREQUENCY not configured, defaulting to 60Hz for modules and telemetry)
-TELEMETRY_FREQUENCY ?= 60
+$(warning Info: PERIODIC_FREQUENCY not configured, defaulting to 60Hz for modules)
 DEFAULT_MODULES_FREQUENCY = 60
 endif
 

@@ -19,6 +19,8 @@
   <makefile>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
+    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
+    <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
     <file name="downlink.c"/>
     <file name="datalink.c"/>
     <file name="telemetry.c"/>
