@@ -26,6 +26,10 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
+#include "math/ActiveSetCtlAlloc/src/common/solveActiveSet.h"
+#ifdef USE_CHIBIOS_RTOS
+#include <ch.h>
+#endif
 
 // Scaling for the control effectiveness to make it readible
 #define INDI_G_SCALING 1000.0
@@ -36,6 +40,11 @@ extern float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
 extern float actuator_state_filt_vect[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
+extern activeSetAlgoChoice indi_ctl_alloc_algo;
+extern float indi_ctl_alloc_cond_bound;
+extern float indi_ctl_alloc_theta;
+extern bool indi_ctl_alloc_warmstart;
+extern uint16_t indi_ctl_alloc_imax;
 
 extern float *Bwls[INDI_OUTPUTS];
 

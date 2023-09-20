@@ -1,0 +1,14 @@
+.DEFAULT_GOAL = all
+all :
+	$(MAKE) library \
+		AS_N_U=20 \
+		AS_N_V=6 \
+		VERBOSE=n \
+		SINGLE=y \
+		TRUNCATE=y \
+		STATIC=y \
+		INCLUDE_CG=n \
+        RECORD_COST=n \
+		OPTI=2
+
+# TODO: explain the choices

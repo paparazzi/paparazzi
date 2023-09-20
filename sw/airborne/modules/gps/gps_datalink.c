@@ -134,7 +134,7 @@ void gps_datalink_parse_EXTERNAL_POSE(uint8_t *buf)
   enu_speed.y = DL_EXTERNAL_POSE_enu_yd(buf);
   enu_speed.z = DL_EXTERNAL_POSE_enu_zd(buf);
 
-  struct FloatQuat body_q;
+  struct FloatQuat body_q; // Converted to NED for heading calculation
   body_q.qi = DL_EXTERNAL_POSE_body_qi(buf);
   body_q.qx = DL_EXTERNAL_POSE_body_qy(buf);
   body_q.qy = DL_EXTERNAL_POSE_body_qx(buf);
@@ -142,7 +142,7 @@ void gps_datalink_parse_EXTERNAL_POSE(uint8_t *buf)
 
   struct FloatEulers body_e;
   float_eulers_of_quat(&body_e, &body_q);
-  float heading = -body_e.psi; // convert heading in ENU to NED
+  float heading = -body_e.psi;
 
   gps_datalink_publish(tow, &enu_pos, &enu_speed, heading);
 }

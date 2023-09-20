@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "solveactiveset.h": "c",
+        "setupwls.h": "c"
+    }
+}
