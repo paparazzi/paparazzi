@@ -193,6 +193,39 @@ extern float flight_altitude; // hmsl flight altitude in meters
  */
 #define GetAltRef() (state.ned_origin_f.hmsl)
 
+static float get_bearing_to_next_waypoint(double lat_now, double lon_now, double lat_next, double lon_next)
+{
+	const double lat_now_rad = RadOfDeg(lat_now);
+	const double lat_next_rad = RadOfDeg(lat_next);
+
+	const double cos_lat_next = cos(lat_next_rad);
+	const double d_lon = RadOfDeg(lon_next - lon_now);
+
+	/* conscious mix of double and float trig function to maximize speed and efficiency */
+
+	const float y = (sin(d_lon) * cos_lat_next);
+	const float x = (cos(lat_now_rad) * sin(lat_next_rad) - sin(lat_now_rad) * cos_lat_next * cos(d_lon));
+
+  float a = atan2f(y, x);
+  FLOAT_ANGLE_NORMALIZE(a);
+
+	return a;
+}
+
+static void
+get_vector_to_next_waypoint(double lat_now, double lon_now, double lat_next, double lon_next, float *v_n, float *v_e)
+{
+  double CONSTANTS_RADIUS_OF_EARTH = 6371000.0;
+
+	const double lat_now_rad = RadOfDeg(lat_now);
+	const double lat_next_rad = RadOfDeg(lat_next);
+	const double d_lon = RadOfDeg(lon_next) - RadOfDeg(lon_now);
+
+	/* conscious mix of double and float trig function to maximize speed and efficiency */
+	*v_n = (CONSTANTS_RADIUS_OF_EARTH * (cos(lat_now_rad) * sin(lat_next_rad) - sin(lat_now_rad) * cos(lat_next_rad) * cos(d_lon)));
+	*v_e = (CONSTANTS_RADIUS_OF_EARTH * sin(d_lon) * cos(lat_next_rad));
+}
+
 
 extern void nav_init(void);
 extern void nav_run(void);
@@ -301,9 +334,43 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 /*********** Navigation to  waypoint *************************************/
 static inline void NavGotoWaypoint(uint8_t wp)
 {
-  struct EnuCoor_f * _wp = waypoint_get_enu_f(wp);
+  // struct EnuCoor_f * _wp = waypoint_get_enu_f(wp);
+  // waypoint_get_lla
+  struct LlaCoor_i * _wp = waypoint_get_lla(wp);
+  // get ltp
+  struct LtpDef_i ltp_curpos;
+  struct LlaCoor_i * lla_curpos;
+  lla_curpos = stateGetPositionLla_i();
+  ltp_def_from_lla_i(&ltp_curpos, lla_curpos);
+  // lla to ltp (local ned)
+  // Convert lla to ned (in cm, no pos_frac!?? TODO!!)
+  struct NedCoor_i waypoint_ltp;
+  ned_of_lla_point_i(&waypoint_ltp, &ltp_curpos, _wp);
+  // separate altitude
+  waypoint_ltp.z = -POS_BFP_OF_REAL(_wp->alt)/1000;
+
+  struct EnuCoor_f waypoint_ltp_enu;
+  waypoint_ltp_enu.x = ((float) waypoint_ltp.y)/100.0f;
+  waypoint_ltp_enu.y = ((float) waypoint_ltp.x)/100.0f;
+  waypoint_ltp_enu.z = POS_FLOAT_OF_BFP(-waypoint_ltp.z);
+
+  float v_n, v_e;
+  get_vector_to_next_waypoint(((double) lla_curpos->lat)/1.0e7, ((double) lla_curpos->lon)/1.0e7, ((double) _wp->lat)/1.0e7, ((double) _wp->lon)/1.0e7, &v_n, &v_e);
+
+  float bearing = get_bearing_to_next_waypoint(((double) lla_curpos->lat)/1.0e7, ((double) lla_curpos->lon)/1.0e7, ((double) _wp->lat)/1.0e7, ((double) _wp->lon)/1.0e7);
+
+  RunOnceEvery(30, printf("pos sp enu: %f, %f, %f\n", waypoint_ltp_enu.x, waypoint_ltp_enu.y, waypoint_ltp_enu.z));
+  RunOnceEvery(30, printf("new func: %f, %f, %f\n", v_e, v_n, bearing));
+  double lat = ((double) lla_curpos->lat)/1.0e7;
+  double lon = ((double) lla_curpos->lon)/1.0e7;
+  RunOnceEvery(30, printf("la lon: %f, %f\n", lat, lon));
+  double latwp = ((double) _wp->lat)/1.0e7;
+  double lonwp = ((double) _wp->lon)/1.0e7;
+  RunOnceEvery(30, printf("la lon wp: %f, %f\n", latwp, lonwp));
+
   if (_wp != NULL) {
-    nav.nav_goto(_wp);
+    // nav.nav_goto(_wp);
+    nav.nav_goto(&waypoint_ltp_enu);
   }
 }
 

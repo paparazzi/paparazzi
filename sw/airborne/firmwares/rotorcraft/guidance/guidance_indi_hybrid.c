@@ -667,7 +667,11 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
     gi_speed_sp.x = SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
     gi_speed_sp.y = SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
     if (v_mode == GUIDANCE_INDI_HYBRID_V_POS) {
-      pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+      // pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
+      float hmsl_alt = state.ned_origin_f.hmsl - state.ned_origin_f.lla.alt;
+      pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionLla_f()->alt;
+      pos_err.z = -pos_err.z;
+      // RunOnceEvery(20,printf("pos err: %f, lla_alt: %f, hmsl alt: %f, gvzref %f \n", pos_err.z, stateGetPositionLla_f()->alt, hmsl_alt, POS_FLOAT_OF_BFP(gv->z_ref)));
       gi_speed_sp.z = bound_vz_sp(pos_err.z * gih_params.pos_gainz + SPEED_FLOAT_OF_BFP(gv->zd_ref));
     } else if (v_mode == GUIDANCE_INDI_HYBRID_V_SPEED) {
       gi_speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
