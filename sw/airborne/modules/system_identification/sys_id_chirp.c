@@ -35,24 +35,29 @@
 #include "math/pprz_random.h"
 
 
-#ifndef CHIRP_AXES
-#define CHIRP_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}
+#ifndef SYS_ID_CHIRP_AXES
+#define SYS_ID_CHIRP_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}
 #endif
 
-#ifndef CHIRP_ENABLED
-#define CHIRP_ENABLED TRUE
+#ifndef SYS_ID_CHIRP_ENABLED
+#define SYS_ID_CHIRP_ENABLED TRUE
 #endif
 
-#ifndef CHIRP_USE_NOISE
-#define CHIRP_USE_NOISE TRUE
+#ifndef SYS_ID_CHIRP_USE_NOISE
+#define SYS_ID_CHIRP_USE_NOISE TRUE
 #endif
 
-// #ifndef CHIRP_EXPONENTIAL
-// #define CHIRP_EXPONENTIAL TRUE
+#ifdef SYS_ID_CHIRP_RADIO_CHANNEL
+#include "modules/radio_control/radio_control.h"
+pprz_t previous_radio_value_chirp = 0;
+#endif
+
+// #ifndef SYS_ID_CHIRP_EXPONENTIAL
+// #define SYS_ID_CHIRP_EXPONENTIAL TRUE
 // #endif
 
-// #ifndef CHIRP_FADEIN
-// #define CHIRP_FADEIN TRUE
+// #ifndef SYS_ID_CHIRP_FADEIN
+// #define SYS_ID_CHIRP_FADEIN TRUE
 // #endif
 
 
@@ -70,28 +75,28 @@ uint8_t chirp_fade_in = false;
 uint8_t chirp_exponential = false;
 
 // The axes on which noise and chirp values can be applied
-static const int8_t ACTIVE_CHIRP_AXES[] = CHIRP_AXES;
-#define CHIRP_NB_AXES sizeof ACTIVE_CHIRP_AXES / sizeof ACTIVE_CHIRP_AXES[0] // Number of items in ACTIVE_CHIRP_AXES
+static const int8_t SYS_ID_ACTIVE_CHIRP_AXES[] = SYS_ID_CHIRP_AXES;
+#define SYS_ID_CHIRP_NB_AXES sizeof SYS_ID_ACTIVE_CHIRP_AXES / sizeof SYS_ID_ACTIVE_CHIRP_AXES[0] // Number of items in ACTIVE_CHIRP_AXES
 
 // Filters used to cut-off the gaussian noise fed into the actuator channels
-static struct FirstOrderLowPass filters[CHIRP_NB_AXES];
+static struct FirstOrderLowPass filters[SYS_ID_CHIRP_NB_AXES];
 
 // Chirp and noise values for all axes (indices correspond to the axes given in CHIRP_AXES)
-static pprz_t current_chirp_values[CHIRP_NB_AXES];
+static pprz_t current_chirp_values[SYS_ID_CHIRP_NB_AXES];
 
 static void set_current_chirp_values(void)
 {
     // initializing at zero the chirp input for every axis
-    for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
+    for (uint8_t i = 0; i < SYS_ID_CHIRP_NB_AXES; i++) {
       current_chirp_values[i] = 0;
     }  
     // adding values if the chirp is active
     if (chirp_active) {
       // adding extra  on the chirp signal (both on-axis and off axis)
-      #if CHIRP_USE_NOISE
+      #if SYS_ID_CHIRP_USE_NOISE
 
           float amplitude, noise;
-          for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
+          for (uint8_t i = 0; i < SYS_ID_CHIRP_NB_AXES; i++) {
             noise = update_first_order_low_pass(&filters[i], rand_gaussian());
             amplitude = chirp_axis == i ? chirp_noise_stdv_onaxis_ratio * chirp_amplitude : chirp_noise_stdv_offaxis;
             current_chirp_values[i] += (int32_t)(noise * amplitude);
@@ -101,7 +106,7 @@ static void set_current_chirp_values(void)
       // adding nominal chirp value
       current_chirp_values[chirp_axis] += (int32_t)(chirp_amplitude * chirp.current_value);
     } else {
-      for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
+      for (uint8_t i = 0; i < SYS_ID_CHIRP_NB_AXES; i++) {
         current_chirp_values[i] = 0;
       }
   }
@@ -132,6 +137,13 @@ static void stop_chirp(void)
 void sys_id_chirp_activate_handler(uint8_t activate)
 {
   chirp_active = activate;
+  #ifdef SYS_ID_CHIRP_RADIO_CHANNEL
+    // Don't activate chirp when radio signal is low
+    if (radio_control.values[SYS_ID_CHIRP_RADIO_CHANNEL] < 1750)
+    {
+        chirp_active = 0;
+    }
+  #endif
   if (chirp_active) {
     chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), chirp_exponential,
                chirp_fade_in);
@@ -148,7 +160,7 @@ uint8_t sys_id_chirp_running(void)
 
 extern void sys_id_chirp_axis_handler(uint8_t axis)
 {
-  if (axis < CHIRP_NB_AXES) {
+  if (axis < SYS_ID_CHIRP_NB_AXES) {
     chirp_axis = axis;
   }
 }
@@ -179,7 +191,7 @@ extern void sys_id_chirp_exponential_activate_handler(uint8_t exponential)
 
 void sys_id_chirp_init(void)
 {
-#if CHIRP_USE_NOISE
+#if SYS_ID_CHIRP_USE_NOISE
 
   init_random();
 
@@ -192,7 +204,7 @@ void sys_id_chirp_init(void)
 
   // Filter cutoff frequency is the chirp maximum frequency
   float tau = 1 / (chirp_fstop_hz * 2 * M_PI);
-  for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
+  for (uint8_t i = 0; i < SYS_ID_CHIRP_NB_AXES; i++) {
     init_first_order_low_pass(&filters[i], tau, SYS_ID_CHIRP_RUN_PERIOD, 0);
     current_chirp_values[i] = 0;
   }
@@ -200,7 +212,29 @@ void sys_id_chirp_init(void)
 
 void sys_id_chirp_run(void)
 {
-#if CHIRP_ENABLED
+#if SYS_ID_CHIRP_ENABLED
+
+  #ifdef SYS_ID_CHIRP_RADIO_CHANNEL
+    // Check if chirp switched on when off before
+    if (previous_radio_value_chirp < 1750)
+    {
+        if (radio_control.values[SYS_ID_CHIRP_RADIO_CHANNEL] > 1750)
+        {
+            // Activate chirp
+            sys_id_chirp_activate_handler(1);
+        }
+    }
+    // Check if chirp switched off when on before
+    if (previous_radio_value_chirp > 1750)
+    {
+        if (radio_control.values[SYS_ID_CHIRP_RADIO_CHANNEL] < 1750)
+        {
+            // Deactivate chirp
+            sys_id_chirp_activate_handler(0);
+        }
+    }
+    previous_radio_value_chirp = radio_control.values[SYS_ID_CHIRP_RADIO_CHANNEL];
+  #endif
 
   if (chirp_active) {
     if (!chirp_is_running(&chirp, get_sys_time_float())) {
@@ -214,16 +248,15 @@ void sys_id_chirp_run(void)
 #endif
 }
 
-void sys_id_chirp_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
+void sys_id_chirp_add_values(bool UNUSED motors_on, bool UNUSED override_on, pprz_t UNUSED in_cmd[])
 {
-  (void)(override_on); // Suppress unused parameter warnings
 
-#if CHIRP_ENABLED
+#if SYS_ID_CHIRP_ENABLED
 
   if (motors_on) {
-    for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
-      in_cmd[ACTIVE_CHIRP_AXES[i]] += current_chirp_values[i];
-      BoundAbs(in_cmd[ACTIVE_CHIRP_AXES[i]], MAX_PPRZ);
+    for (uint8_t i = 0; i < SYS_ID_CHIRP_NB_AXES; i++) {
+      in_cmd[SYS_ID_ACTIVE_CHIRP_AXES[i]] += current_chirp_values[i];
+      BoundAbs(in_cmd[SYS_ID_ACTIVE_CHIRP_AXES[i]], MAX_PPRZ);
     }
   }
 
