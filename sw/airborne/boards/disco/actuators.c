@@ -169,7 +169,9 @@ void actuators_disco_commit(void)
   }
 
   // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, &actuators_disco.rpm_obs, 1);//FIXME & or not
+  struct rpm_act_t rpm_message = {0, 0};
+  rpm_message.rpm = actuators_disco.rpm_obs;
+  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);//FIXME & or not
 }
 
 static uint8_t actuators_disco_checksum(uint8_t *bytes, uint8_t size)

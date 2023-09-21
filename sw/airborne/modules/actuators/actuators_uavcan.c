@@ -223,7 +223,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   rpm_message.rpm = telem[esc_idx].rpm;
 
   // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, SERVOS_UAVCAN1_NB);
+  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
 #endif
 }
 

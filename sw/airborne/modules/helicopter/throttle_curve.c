@@ -54,7 +54,7 @@
 #define THROTTLE_CURVE_RPM_ACT 0
 #endif
 static abi_event rpm_ev;
-static void rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
+static void rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act);
 
 /* Initialize the throttle curves from the airframe file */
 struct throttle_curve_t throttle_curve = {
@@ -99,12 +99,12 @@ void throttle_curve_init(void)
 /**
  * RPM callback for RPM based control throttle curves
  */
-static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t *rpm, uint8_t num_act)
+static void rpm_cb(uint8_t __attribute__((unused)) sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act)
 {
   if(num_act <= THROTTLE_CURVE_RPM_ACT)
     return;
     
-  throttle_curve.rpm_meas = rpm[THROTTLE_CURVE_RPM_ACT];
+  throttle_curve.rpm_meas = rpm_msg[THROTTLE_CURVE_RPM_ACT].rpm;
   throttle_curve.rpm_measured = true;
 }
 

@@ -60,8 +60,9 @@ void rpm_sensor_init(void)
 /* RPM periodic */
 void rpm_sensor_periodic(void)
 {
-  rpm = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
-  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm, 1);
+  struct rpm_act_t rpm_msg = {0, 0};
+  rpm_msg.rpm =  = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
+  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_msg, 1);
 }
 
 /* Get the RPM sensor */

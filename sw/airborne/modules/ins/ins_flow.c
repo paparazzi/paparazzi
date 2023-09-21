@@ -120,7 +120,7 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 void ins_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x,
                          int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
-static void ins_rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
+static void ins_rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm, uint8_t num_act);
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        uint32_t stamp __attribute__((unused)),
                        struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
@@ -1467,11 +1467,11 @@ static void set_body_state_from_quat(void)
 
 }
 
-static void ins_rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act)
+static void ins_rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act)
 {
   ins_flow.RPM_num_act = num_act;
   for (int i = 0; i < num_act; i++) {
-    ins_flow.RPM[i] = rpm[i];
+    ins_flow.RPM[i] = rpm_msg[i].rpm;
   }
 }
 
