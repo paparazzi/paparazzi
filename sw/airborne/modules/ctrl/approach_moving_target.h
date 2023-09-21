@@ -29,25 +29,23 @@
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 
-// Angle of the approach in degrees
-extern float approach_moving_target_angle_deg;
 
 struct Amt {
   struct FloatVect3 rel_unit_vec;
   float distance;
   float speed;
-  float pos_gain;
   float psi_ref;
   float slope_ref;
+  float err_slowdown_gain;
+  float pos_gain;
   float speed_gain;
   float relvel_gain;
+  float cutoff_freq_filters_hz;
   int32_t enabled_time;
   uint8_t wp_id;
 };
 
 extern struct Amt amt;
-extern float amt_err_slowdown_gain;
-extern float cutoff_freq_filters_hz;
 
 extern void approach_moving_target_init(void);
 extern void follow_diagonal_approach(void);
