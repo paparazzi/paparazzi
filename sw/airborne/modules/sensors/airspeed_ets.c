@@ -234,7 +234,11 @@ void airspeed_ets_read_event(void)
     stateSetAirspeed_f(airspeed_ets);
 #endif
 #if AIRSPEED_ETS_SYNC_SEND
-    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
+    uint8_t dev_id = AIRSPEED_ETS_ID;
+    float press = 0;
+    float temp = 0;
+    float airspeed = 0;
+    DOWNLINK_SEND_AIRSPEED_RAW(DefaultChannel, DefaultDevice, &dev_id, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets, &press, &temp, &airspeed);
 #endif
   } else {
     airspeed_ets = 0.0;
