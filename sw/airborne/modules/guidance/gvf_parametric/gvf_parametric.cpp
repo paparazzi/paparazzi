@@ -70,6 +70,7 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
   float wb = gvf_parametric_control.w * gvf_parametric_control.beta;
 
   if (delta_T < 200) {
+  	gvf_parametric_splines_ctr = (gvf_parametric_splines_ctr + 1) % 3;
     pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &wb, gvf_parametric_plen,
                                  gvf_parametric_trajectory.p_parametric, gvf_parametric_elen, gvf_parametric_trajectory.phi_errors);
   }
@@ -393,13 +394,13 @@ bool gvf_parametric_2D_bezier_wp(uint8_t wp0, uint8_t wp1, uint8_t wp2, uint8_t 
 	/* Send data piecewise. Some radio modules do not allow for a big data frame.*/
 	
 	// Send x points -> Indicate x with sign (+) in the first parameter
-	if(gvf_parametric_splines_ctr < 1){
+	if(gvf_parametric_splines_ctr == 0){
 		gvf_parametric_trajectory.p_parametric[0] = -GVF_PARAMETRIC_2D_BEZIER_N_SEG; // send x (negative value)
 		for(int k = 0; k < 3*GVF_PARAMETRIC_2D_BEZIER_N_SEG+1; k++)
 			gvf_parametric_trajectory.p_parametric[k+1] = x[k];
 	}
 	// Send y points -> Indicate y with sign (-) in the first parameter
-	else if (gvf_parametric_splines_ctr < 2){
+	else if (gvf_parametric_splines_ctr == 1){
 		gvf_parametric_trajectory.p_parametric[0]  = GVF_PARAMETRIC_2D_BEZIER_N_SEG; // send y (positive value)
 		for(int k = 0; k < 3*GVF_PARAMETRIC_2D_BEZIER_N_SEG+1; k++)
 			gvf_parametric_trajectory.p_parametric[k+1] = y[k];
@@ -410,10 +411,7 @@ bool gvf_parametric_2D_bezier_wp(uint8_t wp0, uint8_t wp1, uint8_t wp2, uint8_t 
 		gvf_parametric_trajectory.p_parametric[1] = gvf_parametric_2d_bezier_par.kx;
 		gvf_parametric_trajectory.p_parametric[2] = gvf_parametric_2d_bezier_par.ky;
 		gvf_parametric_trajectory.p_parametric[3] = gvf_parametric_control.beta;
-		gvf_parametric_splines_ctr++;
 	}
-	
-	gvf_parametric_splines_ctr = (gvf_parametric_splines_ctr + 1) % 4;
 	gvf_parametric_plen = 16;
 	gvf_parametric_plen_wps = 1;
 	

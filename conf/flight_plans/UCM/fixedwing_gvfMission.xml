@@ -13,19 +13,19 @@
     <waypoint alt="700.0" name="P2"      x="20" y="-40"/>
     
     <!-- Bézier Waypoints -->
-    <waypoint alt="700.0" name="BZ0" x="1.7" y="-60.0"/>
-    <waypoint alt="700.0" name="BZ1" x="-1.4" y="-140.7"/>
-    <waypoint alt="700.0" name="BZ2" x="0.8" y="-190.3"/>
-    <waypoint alt="700.0" name="BZ3" x="6.3" y="-260.2"/>
-    <waypoint alt="700.0" name="BZ4" x="16.9" y="-300.7"/>
-    <waypoint alt="700.0" name="BZ5" x="25.6" y="-300.0"/>
-    <waypoint alt="700.0" name="BZ6" x="31.0" y="-220.6"/>
-    <waypoint alt="700.0" name="BZ7" x="33.4" y="-140.7"/>
-    <waypoint alt="700.0" name="BZ8" x="32.3" y="-70.0"/>
-    <waypoint alt="700.0" name="BZ9" x="27.3" y="-20.0"/>
-    <waypoint alt="700.0" name="BZ10" x="19.7" y="6"/>
-    <waypoint alt="700.0" name="BZ11" x="12.6" y="10.6"/>
-    <waypoint alt="700.0" name="BZ12" x="1.8" y="-50.8"/>
+    <waypoint alt="700.0" name="BZ0" x="10.7" y="-60.0"/>
+    <waypoint alt="700.0" name="BZ1" x="-10.4" y="-140.7"/>
+    <waypoint alt="700.0" name="BZ2" x="8" y="-190.3"/>
+    <waypoint alt="700.0" name="BZ3" x="60.3" y="-260.2"/>
+    <waypoint alt="700.0" name="BZ4" x="160.9" y="-300.7"/>
+    <waypoint alt="700.0" name="BZ5" x="250.6" y="-300.0"/>
+    <waypoint alt="700.0" name="BZ6" x="310.0" y="-220.6"/>
+    <waypoint alt="700.0" name="BZ7" x="330.4" y="-140.7"/>
+    <waypoint alt="700.0" name="BZ8" x="320.3" y="-70.0"/>
+    <waypoint alt="700.0" name="BZ9" x="270.3" y="-20.0"/>
+    <waypoint alt="700.0" name="BZ10" x="190.7" y="6"/>
+    <waypoint alt="700.0" name="BZ11" x="120.6" y="10.6"/>
+    <waypoint alt="700.0" name="BZ12" x="10.8" y="-50.8"/>
     
     <!-- Sectors waypoints -->
     <waypoint name="_S1" x="3" y="4"/>
