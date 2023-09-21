@@ -237,7 +237,8 @@ void airspeed_ets_read_event(void)
     uint8_t dev_id = AIRSPEED_ETS_ID;
     float press = 0;
     float temp = 0;
-    DOWNLINK_SEND_AIRSPEED_RAW(DefaultChannel, DefaultDevice, &dev_id, &airspeed_ets_raw, &airspeed_ets_offset, &press, &temp, &airspeed_ets);
+    float offset = airspeed_ets_offset;
+    DOWNLINK_SEND_AIRSPEED_RAW(DefaultChannel, DefaultDevice, &dev_id, &airspeed_ets_raw, &offset, &press, &temp, &airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;
