@@ -189,9 +189,9 @@ extern void mt9f002_reset_color(struct mt9f002_t *mt);
 extern void mt9f002_set_gains(struct mt9f002_t *mt);
 
 // settings to update resolution, color and exposure
-float mt9f002_send_resolution;
-float mt9f002_send_color;
-float mt9f002_send_exposure;
+extern float mt9f002_send_resolution;
+extern float mt9f002_send_color;
+extern float mt9f002_send_exposure;
 
 // handlers for propagating settings
 extern void mt9f002_setting_update_resolution(float in);
