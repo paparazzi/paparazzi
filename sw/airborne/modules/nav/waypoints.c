@@ -148,7 +148,7 @@ float waypoint_get_alt(uint8_t wp_id)
 float waypoint_get_lla_alt(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
-    return waypoints[wp_id].lla.alt/1000.f - stateGetLlaOrigin_i().alt/1000.f;
+    return waypoints[wp_id].lla.alt/1000.f;
   }
   return 0.f;
 }
