@@ -40,15 +40,15 @@
 #include "generated/airframe.h"
 #include "mcu_periph/sys_time.h"
 
-#ifndef DOUBLET_AXES
-#define DOUBLET_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}
+#ifndef SYS_ID_DOUBLET_AXES
+#define SYS_ID_DOUBLET_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}
 #endif
 
-#ifndef DOUBLET_ENABLED
-#define DOUBLET_ENABLED TRUE
+#ifndef SYS_ID_DOUBLET_ENABLED
+#define SYS_ID_DOUBLET_ENABLED TRUE
 #endif
 
-#ifdef DOUBLET_RADIO_CHANNEL
+#ifdef SYS_ID_DOUBLET_RADIO_CHANNEL
 #include "modules/radio_control/radio_control.h"
 pprz_t previous_radio_value_doublet = 0;
 #endif
@@ -67,10 +67,10 @@ float doublet_extra_waiting_time_s = 0.0f;
 
 
 
-static const int8_t ACTIVE_DOUBLET_AXES[] = DOUBLET_AXES;
-#define DOUBLET_NB_AXES sizeof ACTIVE_DOUBLET_AXES / sizeof ACTIVE_DOUBLET_AXES[0] // Number of items in ACTIVE_DOUBLET_AXES
+static const int8_t SYS_ID_ACTIVE_DOUBLET_AXES[] = SYS_ID_DOUBLET_AXES;
+#define SYS_ID_DOUBLET_NB_AXES sizeof SYS_ID_ACTIVE_DOUBLET_AXES / sizeof SYS_ID_ACTIVE_DOUBLET_AXES[0] // Number of items in ACTIVE_DOUBLET_AXES
 
-static pprz_t current_doublet_values[DOUBLET_NB_AXES];
+static pprz_t current_doublet_values[SYS_ID_DOUBLET_NB_AXES];
 
 static void set_current_doublet_values(void)
 {
@@ -78,7 +78,7 @@ static void set_current_doublet_values(void)
         current_doublet_values[doublet_axis] = (int32_t)(doublet_amplitude * doublet.current_value);
         
     } else {
-        for (uint8_t i = 0; i < DOUBLET_NB_AXES; i++) {
+        for (uint8_t i = 0; i < SYS_ID_DOUBLET_NB_AXES; i++) {
             current_doublet_values[i] = 0;
         }
     }
@@ -113,7 +113,7 @@ void sys_id_doublet_activate_handler(uint8_t activate)
     doublet_active = activate;
     #ifdef DOUBLET_RADIO_CHANNEL
     // Don't activate doublet when radio signal is low
-        if (radio_control.values[DOUBLET_RADIO_CHANNEL] < 1750)
+        if (radio_control.values[SYS_ID_DOUBLET_RADIO_CHANNEL] < 1750)
         {
             doublet_active = 0;
         }
@@ -128,7 +128,7 @@ void sys_id_doublet_activate_handler(uint8_t activate)
 
 void sys_id_doublet_axis_handler(uint8_t axis)
 {
-    if (axis < DOUBLET_NB_AXES) {
+    if (axis < SYS_ID_DOUBLET_NB_AXES) {
         doublet_axis = axis;
     }
 }
@@ -144,18 +144,18 @@ void sys_id_doublet_init(void)
     set_current_doublet_values();
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DOUBLET, send_doublet);
     
-    for (uint8_t i = 0; i < DOUBLET_NB_AXES; i++) {
+    for (uint8_t i = 0; i < SYS_ID_DOUBLET_NB_AXES; i++) {
         current_doublet_values[i] = 0;
     }
 }
 
 void sys_id_doublet_run(void)
 {   
-    #ifdef DOUBLET_RADIO_CHANNEL
+    #ifdef SYS_ID_DOUBLET_RADIO_CHANNEL
         // Check if doublet switched on when off before
         if (previous_radio_value_doublet < 1750)
         {
-            if (radio_control.values[DOUBLET_RADIO_CHANNEL] > 1750)
+            if (radio_control.values[SYS_ID_DOUBLET_RADIO_CHANNEL] > 1750)
             {
                 // Activate doublet
                 sys_id_doublet_activate_handler(1);
@@ -164,13 +164,13 @@ void sys_id_doublet_run(void)
         // Check if doublet switched off when on before
         if (previous_radio_value_doublet > 1750)
         {
-            if (radio_control.values[DOUBLET_RADIO_CHANNEL] < 1750)
+            if (radio_control.values[SYS_ID_DOUBLET_RADIO_CHANNEL] < 1750)
             {
                 // Deactivate doublet
                 sys_id_doublet_activate_handler(0);
             }
         }
-        previous_radio_value_doublet = radio_control.values[DOUBLET_RADIO_CHANNEL];
+        previous_radio_value_doublet = radio_control.values[SYS_ID_DOUBLET_RADIO_CHANNEL];
     #endif
     if (doublet_active) {
         if (!doublet_is_running(&doublet, get_sys_time_float())) {
@@ -184,16 +184,15 @@ void sys_id_doublet_run(void)
 
 }
 
-void sys_id_doublet_add_values(bool motors_on, bool override_on, pprz_t in_cmd[])
+void sys_id_doublet_add_values(bool UNUSED motors_on, bool UNUSED override_on, pprz_t UNUSED in_cmd[])
 {
-    (void)(override_on); // Suppress unused parameter warnings
 
-#if DOUBLET_ENABLED
+#if SYS_ID_DOUBLET_ENABLED
 
 if (motors_on) {
-    for (uint8_t i = 0; i < DOUBLET_NB_AXES; i++) {
-        in_cmd[ACTIVE_DOUBLET_AXES[i]] += current_doublet_values[i];
-        BoundAbs(in_cmd[ACTIVE_DOUBLET_AXES[i]], MAX_PPRZ);
+    for (uint8_t i = 0; i < SYS_ID_DOUBLET_NB_AXES; i++) {
+        in_cmd[SYS_ID_ACTIVE_DOUBLET_AXES[i]] += current_doublet_values[i];
+        BoundAbs(in_cmd[SYS_ID_ACTIVE_DOUBLET_AXES[i]], MAX_PPRZ);
     }
 }
 

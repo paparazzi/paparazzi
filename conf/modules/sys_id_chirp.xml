@@ -29,20 +29,21 @@
     Add the message "CHIRP" to your telemetry to see chirp progress, and to your logger to automatically filter chirps in post-processing.
 
     </description>
-    <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}" description="Which axes the chirp is applied to (specify as array with {})"/>
-    <!-- <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the chirp is applied to (specify as array with {})"/> -->
-    <define name="CHIRP_ENABLED"     value="TRUE|FALSE"  description="If false, the chirp does not run and values are not added"/>
-    <define name="CHIRP_USE_NOISE"   value="TRUE|FALSE"  description="If true, add noise to all axes (also the axes where no chirp is active)"/>
-    <define name="CHIRP_EXPONENTIAL" value="TRUE|FALSE"  description="If true, exponential-time chirp. Else, linear-time chirp"/>
-    <define name="CHIRP_FADEIN"      value="TRUE|FALSE"  description="If true, start the chirp with two wavelengths of the lowest frequency"/>
+    <section name="SYS_ID" prefix="SYS_ID_">
+      <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW,COMMAND_THRUST}" description="Which axes the chirp is applied to (specify as array with {})"/>
+      <define name="CHIRP_ENABLED"     value="TRUE|FALSE"  description="If false, the chirp does not run and values are not added"/>
+      <define name="CHIRP_USE_NOISE"   value="TRUE|FALSE"  description="If true, add noise to all axes (also the axes where no chirp is active)"/>
+      <define name="CHIRP_EXPONENTIAL" value="TRUE|FALSE"  description="If true, exponential-time chirp. Else, linear-time chirp"/>
+      <define name="CHIRP_FADEIN"      value="TRUE|FALSE"  description="If true, start the chirp with two wavelengths of the lowest frequency"/>
+    </section>
   </doc>
 
   <settings>
     <dl_settings name="System identification">
       <dl_settings name="Chirp input">
         <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Chirp" var="chirp_active" type="uint8_t" module="system_identification/sys_id_chirp" handler="activate_handler"/>
-        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Fade in" var="chirp_fade_in" type="uint8_t" module="system_identification/sys_id_chirp" handler="fade_in_activate_handler"/>
-        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Exponential" var="chirp_exponential" type="uint8_t" module="system_identification/sys_id_chirp" handler="exponential_activate_handler"/>
+        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Fade in" var="chirp_fade_in" type="uint8_t" module="system_identification/sys_id_chirp" handler="fade_in_activate_handler" param="SYS_ID_CHIRP_FADEIN"/>
+        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Exponential" var="chirp_exponential" type="uint8_t" module="system_identification/sys_id_chirp" handler="exponential_activate_handler" param="SYS_ID_CHIRP_EXPONENTIAL"/>
         <dl_setting min="0"    max="7"    step="1"    shortname="Chirp axis"     var="chirp_axis"                    type="uint8_t" module="system_identification/sys_id_chirp" handler="axis_handler"/>
         <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="chirp_amplitude"               type="int32_t" module="system_identification/sys_id_chirp"/>
         <dl_setting min="0"    max="0.5"    step="0.01" shortname="on-axis noise"  var="chirp_noise_stdv_onaxis_ratio" type="float"   module="system_identification/sys_id_chirp"/>

@@ -174,15 +174,9 @@
 
     <module name="motor_mixing"/>
 
-    <module name="sys_id" type="doublet">
-      <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7}"/>
-      <define name="DOUBLET_RADIO_CHANNEL" value="9"/>
-    </module>
+    <module name="sys_id" type="doublet"/>
     <module name="sys_id" type="auto_doublets"/>
-    <module name="sys_id" type="chirp">
-      <define name="CHIRP_AXES" value="{0,1,2,3,4,5,6,7}"/>
-      <define name="CHIRP_RADIO_CHANNEL" value="9"/>
-    </module>
+    <module name="sys_id" type="chirp"/>
 
   </firmware>
 
@@ -287,6 +281,13 @@
   </section>
 
   <section name="SYS_ID" prefix="SYS_ID_">
+    <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7}"/>
+    <define name="DOUBLET_RADIO_CHANNEL" value="9"/>
+
+    <define name="CHIRP_ENABLED" value="FALSE"/>
+    <define name="CHIRP_AXES" value="{0,1,2,3,4,5,6,7}"/>
+    <define name="CHIRP_RADIO_CHANNEL" value="9"/>
+
     <define name="AUTO_DOUBLETS_N_ACTUATORS" value="2"/>
     <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1}"/>
     <define name="AUTO_DOUBLETS_AMPLITUDE" value="{5000,5000}"/>
