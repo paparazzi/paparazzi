@@ -216,14 +216,26 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 #endif
 #endif
 
-// Create struct for ABI
+  // Feedback ABI RPM messages
 #ifdef SERVOS_UAVCAN1_NB
-  struct rpm_act_t rpm_message;
-  rpm_message.actuator_idx =  esc_idx;
-  rpm_message.rpm = telem[esc_idx].rpm;
+  if (iface == &uavcan1) {
+    struct rpm_act_t rpm_message;
+    rpm_message.actuator_idx =  SERVOS_UAVCAN1_OFFSET + esc_idx;
+    rpm_message.rpm = telem[esc_idx].rpm;
 
-  // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
+    // Send ABI message
+    AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
+  }
+#endif
+#ifdef SERVOS_UAVCAN2_NB
+  if (iface == &uavcan2) {
+    struct rpm_act_t rpm_message;
+    rpm_message.actuator_idx =  SERVOS_UAVCAN2_OFFSET + esc_idx;
+    rpm_message.rpm = telem[esc_idx].rpm;
+
+    // Send ABI message
+    AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
+  }
 #endif
 }
 

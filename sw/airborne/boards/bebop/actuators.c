@@ -140,7 +140,11 @@ void actuators_bebop_commit(void)
   // Send ABI message
   struct rpm_act_t rpm_message[4];
   for (int i=0;i<4;i++) {
-    rpm_message[i].actuator_idx = i;
+#ifdef SERVOS_BEBOP_OFFSET
+    rpm_message[i].actuator_idx = SERVOS_BEBOP_OFFSET + i;
+#else
+    rpm_message[i].actuator_idx = SERVOS_DEFAULT_OFFSET + i;
+#endif
     rpm_message[i].rpm = actuators_bebop.rpm_obs[i];
   }
   AbiSendMsgRPM(RPM_SENSOR_ID, rpm_message, 4);

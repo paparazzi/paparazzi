@@ -169,7 +169,12 @@ void actuators_disco_commit(void)
   }
 
   // Send ABI message
-  struct rpm_act_t rpm_message = {0, 0};
+  struct rpm_act_t rpm_message = {0};
+#ifdef SERVOS_DISCO_OFFSET
+  rpm_message.actuator_idx = SERVOS_DISCO_OFFSET;
+#else
+  rpm_message.actuator_idx = SERVOS_DEFAULT_OFFSET;
+#endif
   rpm_message.rpm = actuators_disco.rpm_obs;
   AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);//FIXME & or not
 }

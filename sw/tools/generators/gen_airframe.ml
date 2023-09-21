@@ -315,8 +315,10 @@ let rec parse_section = fun out ac_id s ->
       let driver = ExtXml.attrib_or_default s "driver" "Default" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
+      let servos_offset = Hashtbl.length servos_drivers in
 
       define_out out (sprintf "SERVOS_%s_NB" (String.uppercase_ascii driver)) (string_of_int nb_servos);
+      define_out out (sprintf "SERVOS_%s_OFFSET" (String.uppercase_ascii driver)) (string_of_int servos_offset);
       fprintf out "#include \"modules/actuators/actuators_%s.h\"\n" (String.lowercase_ascii driver);
       fprintf out "\n";
       List.iter (parse_servo out driver) servos;
