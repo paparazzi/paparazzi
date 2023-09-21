@@ -305,7 +305,8 @@ struct ThrustSetpoint guidance_v_from_nav(bool in_flight)
   struct ThrustSetpoint sp;
   THRUST_SP_SET_ZERO(sp);
   if (nav.vertical_mode == NAV_VERTICAL_MODE_ALT) {
-    guidance_v.z_sp = -POS_BFP_OF_REAL(nav.nav_altitude);
+    // RunOnceEvery(100, printf("nav alt: %f\n", POS_BFP_OF_REAL(nav.nav_altitude)));
+    guidance_v.z_sp = POS_BFP_OF_REAL(nav.nav_altitude);
     guidance_v.zd_sp = 0;
     guidance_v.zdd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v.z_sp);
