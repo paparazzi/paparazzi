@@ -23,6 +23,7 @@
       <configure name="SRC_BOARD" value="boards/bebop"/>
       <define name="BEBOP_ACTUATORS_I2C_DEV" value="i2c1"/>
       <define name="USE_I2C1"/>
+      <define name="SERVOS_DEFAULT_OFFSET" value="0"/>
     </test>
   </makefile>
 </module>
