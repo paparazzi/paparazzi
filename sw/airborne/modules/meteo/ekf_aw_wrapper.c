@@ -122,7 +122,7 @@ Butterworth2LowPass filt_acc[3];
 Butterworth2LowPass filt_acc_low[3];
 Butterworth2LowPass filt_rate[3];
 Butterworth2LowPass filt_euler[3];
-Butterworth2LowPass filt_hover_prop_rpm[4];
+Butterworth2LowPass filt_hover_prop_rpm[EKF_AW_RPM_HOVER_NUM];
 Butterworth2LowPass filt_pusher_prop_rpm;
 Butterworth2LowPass filt_skew;
 Butterworth2LowPass filt_elevator_pprz;
@@ -152,7 +152,7 @@ void ekf_aw_wrapper_init(void){
     init_butterworth_2_low_pass(&filt_euler[i], tau_high, sample_time, 0.0); // Init filters Euler
   }
 
-  for(int8_t i=0; i<4; i++) {
+  for(int8_t i=0; i<EKF_AW_RPM_HOVER_NUM; i++) {
     init_butterworth_2_low_pass(&filt_hover_prop_rpm[i], tau_low, sample_time, 0.0);
     ekf_aw.last_RPM_hover[i] = 0;
   }
@@ -188,7 +188,9 @@ void ekf_aw_wrapper_init(void){
   ekf_aw.override_quick_convergence = false;
   
   // Init of public filter states //TO DO: Is it necessary or just safer?
-  ekf_aw.last_RPM_hover[0] = 0;ekf_aw.last_RPM_hover[1] = 0;ekf_aw.last_RPM_hover[2] = 0;ekf_aw.last_RPM_hover[3] = 0;
+  for (int i=0;i<EKF_AW_RPM_HOVER_NUM;i++) {
+    ekf_aw.last_RPM_hover[i] = 0;
+  }
   ekf_aw.last_RPM_pusher = 0;
 
   ekf_aw.V_body.x = 0.0f; ekf_aw.V_body.y = 0.0f; ekf_aw.V_body.z = 0.0f;
@@ -208,7 +210,9 @@ void ekf_aw_wrapper_init(void){
   ekf_aw.skew = 0.0f;
   ekf_aw.elevator_angle = 0.0f; 
   ekf_aw.RPM_pusher = 0.0f;
-  ekf_aw.RPM_hover[0] = 0.0f; ekf_aw.RPM_hover[1] = 0.0f; ekf_aw.RPM_hover[2] = 0.0f; ekf_aw.RPM_hover[3] = 0.0f;
+  for (int i=0;i<EKF_AW_RPM_HOVER_NUM;i++) {
+    ekf_aw.RPM_hover[i] = 0.0f;
+  }
 };
 
 void ekf_aw_wrapper_periodic(void){
@@ -231,10 +235,9 @@ void ekf_aw_wrapper_periodic(void){
     ekf_aw.euler.phi = 1.0f*rand()/RAND_MAX; // TO BE REMOVED
     ekf_aw.euler.theta = 1.0f*rand()/RAND_MAX; // TO BE REMOVED
     ekf_aw.euler.psi = 1.0f*rand()/RAND_MAX; // TO BE REMOVED
-    ekf_aw.RPM_hover[0] = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
-    ekf_aw.RPM_hover[1] = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
-    ekf_aw.RPM_hover[2] = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
-    ekf_aw.RPM_hover[3] = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
+    for (int i=0;i<EKF_AW_RPM_HOVER_NUM;i++) {
+      ekf_aw.RPM_hover[i] = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
+    }
     ekf_aw.RPM_pusher = 1000.0f*rand()/RAND_MAX; // TO BE REMOVED
     ekf_aw.skew = 10.0f*rand()/RAND_MAX; // TO BE REMOVED
     ekf_aw.elevator_angle = 10.0f*rand()/RAND_MAX; // TO BE REMOVED
@@ -264,8 +267,8 @@ void ekf_aw_wrapper_periodic(void){
     //ekf_aw.euler.psi = filt_euler[2].o[0];
     ekf_aw.euler.psi = stateGetNedToBodyEulers_f()->psi; // TO DO: implement circular wrap filter for psi angle
 
-    for(int8_t i=0; i<4; i++) {
-    ekf_aw.RPM_hover[i] = filt_hover_prop_rpm[i].o[0];
+    for(int8_t i=0; i<EKF_AW_RPM_HOVER_NUM; i++) {
+      ekf_aw.RPM_hover[i] = filt_hover_prop_rpm[i].o[0];
     }
 
     ekf_aw.RPM_pusher = filt_pusher_prop_rpm.o[0];
@@ -381,7 +384,7 @@ void ekf_aw_wrapper_fetch(void){
   update_butterworth_2_low_pass(&filt_euler[1], stateGetNedToBodyEulers_f()->theta);
   //update_butterworth_2_low_pass(&filt_euler[2], stateGetNedToBodyEulers_f()->psi); // TO DO: implement circular wrap filter for psi angle
 
-  for(int8_t i=0; i<4; i++) {
+  for(int8_t i=0; i<EKF_AW_RPM_HOVER_NUM; i++) {
     update_butterworth_2_low_pass(&filt_hover_prop_rpm[i], ekf_aw.last_RPM_hover[i]*1.0f);
   }
   update_butterworth_2_low_pass(&filt_pusher_prop_rpm, ekf_aw.last_RPM_pusher*1.0f);
@@ -409,30 +412,32 @@ void ekf_aw_wrapper_fetch(void){
 };
 
 // ABI callback that obtains the RPM from a module
-static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct rpm_act_t * rpm_message, uint8_t num_act)
+static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct rpm_act_t * rpm_message, uint8_t num_act_message)
 {
-  // Sanity check that index is valid
-  if (rpm_message->actuator_idx<num_act){
-    // Assign rpm to right actuator
-    switch (rpm_message->actuator_idx) {
-      case 0:
-          ekf_aw.last_RPM_hover[0] = rpm_message->rpm;
-          break;
-      case 1:
-          ekf_aw.last_RPM_hover[1] = rpm_message->rpm;
-          break;
-      case 2:
-          ekf_aw.last_RPM_hover[2] = rpm_message->rpm;
-          break;
-      case 3:
-          ekf_aw.last_RPM_hover[3] = rpm_message->rpm;
-          break;
-      case 4:
-          ekf_aw.last_RPM_pusher = rpm_message->rpm;
-          break;
-      default:
-          break;
-    }  
+  for (int i=0;i<num_act_message;i++) {
+    // Sanity check that index is valid
+    if (rpm_message[i].actuator_idx < EKF_AW_RPM_HOVER_NUM){
+      // Assign rpm to right actuator
+      switch (rpm_message[i].actuator_idx) {
+        case 0:
+            ekf_aw.last_RPM_hover[0] = rpm_message[i].rpm;
+            break;
+        case 1:
+            ekf_aw.last_RPM_hover[1] = rpm_message[i].rpm;
+            break;
+        case 2:
+            ekf_aw.last_RPM_hover[2] = rpm_message[i].rpm;
+            break;
+        case 3:
+            ekf_aw.last_RPM_hover[3] = rpm_message[i].rpm;
+            break;
+        case 4:
+            ekf_aw.last_RPM_pusher = rpm_message[i].rpm;
+            break;
+        default:
+            break;
+    }
+  }
   time_of_rpm = get_sys_time_float();
   }
 };
