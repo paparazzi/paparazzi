@@ -21,7 +21,24 @@
     <waypoint name="_N2" x="100" y="-100"/>
     <waypoint name="_N3" x="-100" y="-100"/>
     <waypoint name="_N4" x="-100" y="100"/>
+    
+    <!-- Bézier Waypoints -->
+    <waypoint  name="BZ0" x="1.7" y="-6.0"/>
+    <waypoint  name="BZ1" x="-1.4" y="-14.7"/>
+    <waypoint  name="BZ2" x="8" y="-19.3"/>
+    <waypoint  name="BZ3" x="6.3" y="-26.2"/>
+    <waypoint  name="BZ4" x="16.9" y="-30.7"/>
+    <waypoint  name="BZ5" x="25.6" y="-30.0"/>
+    <waypoint  name="BZ6" x="31.0" y="-22.6"/>
+    <waypoint  name="BZ7" x="33.4" y="-14.7"/>
+    <waypoint  name="BZ8" x="32.3" y="-7.0"/>
+    <waypoint  name="BZ9" x="27.3" y="-2.0"/>
+    <waypoint  name="BZ10" x="19.7" y="0.6"/>
+    <waypoint  name="BZ11" x="12.6" y="1.6"/>
+    <waypoint  name="BZ12" x="1.8" y="-5.8"/>
   </waypoints>
+  
+  
   
   <sectors>
     <sector name="Net" color="red">
@@ -89,6 +106,12 @@
       <call fun="gvf_sin_wp1_wp2(WP_P1, WP_P2, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
+    
+    <block name="2D_bezier" strip_icon="eight.png">
+      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0, WP_BZ1, WP_BZ2,WP_BZ3,WP_BZ4, WP_BZ5, WP_BZ6, WP_BZ7, WP_BZ8, WP_BZ9, WP_BZ10, WP_BZ11, WP_BZ12)"/>
+      <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
+    </block>
+    
     
   </blocks>
 </flight_plan>

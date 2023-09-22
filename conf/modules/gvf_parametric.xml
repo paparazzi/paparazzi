@@ -88,7 +88,26 @@
     <flag name="LDFLAGS" value="lstdc++" />
   </makefile>
 
+  <makefile target="ap|nps" firmware="rover">
+    <configure name="CXXSTANDARD" value="-std=c++14"/>
+    <flag name="CXXFLAGS" value="Wno-int-in-bool-context -Wno-deprecated-copy"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
+    <define name="EIGEN_NO_MALLOC"/>
+    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
+    <file name="gvf_parametric.cpp"/>
+    <file name="gvf_parametric_low_level_control.c"/>
+    <file name="trajectories/gvf_parametric_3d_ellipse.c"/>
+    <file name="trajectories/gvf_parametric_3d_lissajous.c"/>
+    <file name="trajectories/gvf_parametric_2d_trefoil.c"/>
+    <file name="trajectories/gvf_parametric_2d_bezier_splines.c"/>
+    <flag name="LDFLAGS" value="lstdc++" />
+  </makefile>
+
   <makefile target="ap" firmware="fixedwing">
+    <define name="EIGEN_NO_DEBUG"/>
+  </makefile>
+
+  <makefile target="ap" firmware="rover">
     <define name="EIGEN_NO_DEBUG"/>
   </makefile>
 </module>

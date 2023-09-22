@@ -134,8 +134,10 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   }
 
   // Carrot position
+  #ifdef FIXEDWING_FIRMWARE
   desired_x = f1;
   desired_y = f2;
+  #endif
 
   float L = gvf_parametric_control.L;
   float beta = gvf_parametric_control.beta * gvf_parametric_control.s;
@@ -215,6 +217,7 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   gvf_parametric_low_level_control_2D(heading_rate);
 }
 
+#ifdef FIXEDWING_FIRMWARE
 void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d,
                                float f3d, float f1dd, float f2dd, float f3dd)
 {
@@ -321,6 +324,7 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
 
   gvf_parametric_low_level_control_3D(heading_rate, climbing_rate);
 }
+#endif // FIXED_WING FIRMWARE
 
 /** 2D TRAJECTORIES **/
 // 2D TREFOIL KNOT
@@ -351,8 +355,11 @@ bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, f
 { 
   gvf_parametric_trajectory.p_parametric[7] = wp;
   gvf_parametric_plen_wps = 1;
-
+  #if defined(FIXEDWING_FIRMWARE)
   gvf_parametric_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r, alpha);
+  #elif defined(ROVER_FIRMWARE)
+  gvf_parametric_2D_trefoil_XY(WaypointX(wp), WaypointY(wp), w1, w2, ratio, r, alpha);
+  #endif
   return true;
 }
 
@@ -426,7 +433,7 @@ bool gvf_parametric_2D_bezier_wp(uint8_t wp0, uint8_t wp1, uint8_t wp2, uint8_t 
 
 /** 3D TRAJECTORIES **/
 // 3D ELLIPSE
-
+#ifdef FIXEDWING_FIRMWARE
 bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
@@ -526,3 +533,4 @@ bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float
   gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
   return true;
 }
+#endif // FIXEDWING_FIRMWARE
