@@ -139,6 +139,7 @@ struct invensense2_t {
   enum invensense2_gyro_range_t gyro_range;     ///< Gyro range configuration
   enum invensense2_accel_dlpf_t accel_dlpf;     ///< Accelerometer DLPF configuration
   enum invensense2_accel_range_t accel_range;   ///< Accelerometer range configuration
+  float timebase_correction_pll;              ///< Timebase correction factor for the PLL clock
 };
 
 /* External functions */
