@@ -107,7 +107,7 @@ value get_commands(value val_commands)
 value set_datalink_message(value s)
 {
   int n = string_length(s);
-  char *ss = String_val(s);
+  char *ss = (char *)String_val(s);
   assert(n <= MSG_SIZE);
 
   int i;
