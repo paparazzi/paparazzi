@@ -49,6 +49,10 @@
 #include "modules/datalink/downlink.h"
 #include <math.h>
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+#endif
+
 #ifndef USE_AIRSPEED_ETS
 #if USE_AIRSPEED
 #define USE_AIRSPEED_ETS TRUE

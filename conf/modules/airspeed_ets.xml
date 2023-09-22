@@ -46,6 +46,9 @@
     <test>
       <define name="USE_I2C0"/>
       <define name="USE_AIRSPEED_ETS"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
     </test>
   </makefile>
 
