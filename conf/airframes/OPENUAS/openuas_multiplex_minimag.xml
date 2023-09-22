@@ -101,7 +101,6 @@ NOTES:
         <define name="AIRSPEED_ETS_OFFSET" value="0"/>
         <define name="AIRSPEED_ETS_USE_FILTER" value="TRUE"/> 
         <define name="AIRSPEED_ETS_LOWPASS_TAU" value=".20"/>
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>  <!-- TODO Disable after first 10 test flights -->
       </module>
 
       <!--<module name="filter_1euro_imu"/>-->

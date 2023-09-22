@@ -56,8 +56,8 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_ETS automatically set to TRUE")
 #endif
 #endif
 
-#if !USE_AIRSPEED_ETS && !AIRSPEED_ETS_SYNC_SEND
-#warning either set USE_AIRSPEED_ETS or AIRSPEED_ETS_SYNC_SEND to use airspeed_ets
+#if !USE_AIRSPEED_ETS
+PRINT_CONFIG_MSG("AIRSPEED_ETS not used")
 #endif
 
 #define AIRSPEED_ETS_ADDR 0xEA

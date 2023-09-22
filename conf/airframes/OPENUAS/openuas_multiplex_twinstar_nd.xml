@@ -78,7 +78,6 @@ NOTES:
       <module name="gps" type="ubx_ucenter"/>
 
       <module name="airspeed_ets">
-        <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO Disable after first 10 test flights -->
         <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
         <!-- <define name="AIRSPEED_ETS_SCALE"   value="1.44"/>--> <!-- default 1.8-->
         <!-- <define name="AIRSPEED_ETS_OFFSET"  value="50"/> --> <!-- default 0 -->
