@@ -48,7 +48,7 @@
 #define MOT_LEDGREEN 2
 #define MOT_LEDORANGE 3
 
-uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
+extern uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 extern void actuators_ardrone_commit(void);
 extern void actuators_ardrone_init(void);
