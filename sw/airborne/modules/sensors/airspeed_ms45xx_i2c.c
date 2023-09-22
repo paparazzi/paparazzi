@@ -175,9 +175,14 @@ static Butterworth2LowPass ms45xx_filter;
 
 static void ms45xx_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AIRSPEED_MS45XX(trans,dev,AC_ID,
+  uint8_t dev_id = MS45XX_SENDER_ID;
+  float temp = ((float)ms45xx.temperature) * 0.1f;
+  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
+                                &dev_id,
+                                &ms45xx.raw_p,
+                                &ms45xx.pressure_offset,
                                 &ms45xx.pressure,
-                                &ms45xx.temperature,
+                                &temp,
                                 &ms45xx.airspeed);
 }
 
@@ -186,6 +191,7 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure = 0.;
   ms45xx.temperature = 0;
   ms45xx.airspeed = 0.;
+  ms45xx.raw_p = 0;
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
@@ -200,7 +206,7 @@ void ms45xx_i2c_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, ms45xx_downlink);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, ms45xx_downlink);
 #endif
 }
 
@@ -228,6 +234,7 @@ void ms45xx_i2c_event(void)
     if (status == 0) {
       /* 14bit raw pressure */
       uint16_t p_raw = 0x3FFF & (((uint16_t)(ms45xx_trans.buf[0]) << 8) | (uint16_t)(ms45xx_trans.buf[1]));
+      ms45xx.raw_p = p_raw;
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |

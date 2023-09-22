@@ -55,7 +55,6 @@
     <module name="geo_mag"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="airspeed_ets">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
     </module>
     <module name="adc_generic">

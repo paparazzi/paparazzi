@@ -371,7 +371,6 @@
 
   <!--Use an airspeed sensor and get the measured airspeed in the messages-->
 <!--    <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
     <module name="logger_spi_link"/>

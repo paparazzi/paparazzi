@@ -66,6 +66,7 @@ int actuator_ardrone2_fd; /**< File descriptor for the port */
 #define ARDRONE_GPIO_PIN_IRQ_INPUT    176
 
 uint32_t led_hw_values;
+uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 static inline void actuators_ardrone_reset_flipflop(void)
 {

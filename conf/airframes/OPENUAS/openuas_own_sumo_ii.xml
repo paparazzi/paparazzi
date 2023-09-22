@@ -86,7 +86,6 @@ NOTES:
         <define name="AIRSPEED_ETS_START_DELAY" value="1"/>
         <define name="AIRSPEED_ETS_SCALE" value="1.44"/> <!-- default 1.8-->
         <define name="AIRSPEED_ETS_OFFSET" value="5"/> <!-- default 0 -->
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>  <!-- TODO Disable after first 10 test flights -->
       </module>
 
       <configure name="USE_ADC_2" value="TRUE"/> <!-- For external PowerBrick Voltage measure-->

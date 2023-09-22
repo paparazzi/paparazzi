@@ -49,6 +49,10 @@
 #include "modules/datalink/downlink.h"
 #include <math.h>
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+#endif
+
 #ifndef USE_AIRSPEED_ETS
 #if USE_AIRSPEED
 #define USE_AIRSPEED_ETS TRUE
@@ -56,8 +60,8 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_ETS automatically set to TRUE")
 #endif
 #endif
 
-#if !USE_AIRSPEED_ETS && !AIRSPEED_ETS_SYNC_SEND
-#warning either set USE_AIRSPEED_ETS or AIRSPEED_ETS_SYNC_SEND to use airspeed_ets
+#if !USE_AIRSPEED_ETS
+PRINT_CONFIG_MSG("AIRSPEED_ETS not used")
 #endif
 
 #define AIRSPEED_ETS_ADDR 0xEA
@@ -93,6 +97,7 @@ bool log_airspeed_ets_started;
 #endif
 
 
+
 // Global variables
 uint16_t airspeed_ets_raw;
 uint16_t airspeed_ets_offset;
@@ -110,6 +115,21 @@ uint32_t airspeed_ets_offset_tmp;
 uint16_t airspeed_ets_cnt;
 uint32_t airspeed_ets_delay_time;
 bool   airspeed_ets_delay_done;
+
+static void airspeed_ets_downlink(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t dev_id = AIRSPEED_ETS_ID;
+  float press = 0;
+  float temp = 0;
+  float offset = airspeed_ets_offset;
+  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
+                                &dev_id,
+                                &airspeed_ets_raw,
+                                &offset,
+                                &press,
+                                &temp,
+                                &airspeed_ets);
+}
 
 void airspeed_ets_init(void)
 {
@@ -132,6 +152,11 @@ void airspeed_ets_init(void)
 
   airspeed_ets_delay_done = false;
   SysTimeTimerStart(airspeed_ets_delay_time);
+
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_ets_downlink);
+#endif
 
 #ifndef SITL
 #if AIRSPEED_ETS_SDLOG
@@ -232,9 +257,6 @@ void airspeed_ets_read_event(void)
 
 #if USE_AIRSPEED_ETS
     stateSetAirspeed_f(airspeed_ets);
-#endif
-#if AIRSPEED_ETS_SYNC_SEND
-    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;

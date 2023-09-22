@@ -83,7 +83,6 @@
       <!--Use an airspeed sensor and get the measured airspeed in the messages-->
       <!--
       <module name="airspeed_ets.xml">
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>
       </module>
       -->
       <!-- If you want raw data on SPI logger -->

@@ -143,10 +143,13 @@ static bool sdp3x_crc(const uint8_t data[], unsigned size, uint8_t checksum)
 
 static void sdp3x_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  int16_t temp = (int16_t)(sdp3x.temperature * 10.f);
-  pprz_msg_send_AIRSPEED_MS45XX(trans,dev,AC_ID,
+  uint8_t dev_id = SDP3X_SENDER_ID;
+  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
+                                &dev_id,
+                                &sdp3x.raw_p,
+                                &sdp3x.pressure_offset,
                                 &sdp3x.pressure,
-                                &temp,
+                                &sdp3x.temperature,
                                 &sdp3x.airspeed);
 }
 
@@ -170,7 +173,7 @@ void sdp3x_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, sdp3x_downlink); // FIXME
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, sdp3x_downlink); // FIXME
 #endif
 }
 
@@ -216,6 +219,7 @@ void sdp3x_event(void)
       }
 
       int16_t p_raw = ((int16_t)(buf[0]) << 8) | (int16_t)(buf[1]);
+      sdp3x.raw_p = (uint16_t) p_raw;
 
       float p_out = ((float)p_raw / sdp3x.pressure_scale) - sdp3x.pressure_offset;
 
