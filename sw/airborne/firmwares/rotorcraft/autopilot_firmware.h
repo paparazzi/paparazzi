@@ -33,6 +33,8 @@
 
 extern uint8_t autopilot_mode_auto2;
 
+__attribute__((weak)) extern bool autopilot_ground_detection(void);
+
 extern void autopilot_firmware_init(void);
 
 #endif /* AUTOPILOT_FIRMWARE_H */
