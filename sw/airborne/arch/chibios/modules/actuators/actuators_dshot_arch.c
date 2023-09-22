@@ -327,11 +327,14 @@ void actuators_dshot_arch_commit(void)
   dshotSendFrame(&DSHOTD9);
 #endif
 
-  uint16_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
+
+  struct rpm_act_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
+    rpm_list[i].actuator_idx = ACTUATORS_DSHOT_OFFSET + i;
+    rpm_list[i].rpm = 0;
     if (actuators_dshot_values[i].activated) {
       const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      rpm_list[i] = dtelem->rpm;
+      rpm_list[i].rpm = dtelem->rpm;
     }
   }
   AbiSendMsgRPM(RPM_DSHOT_ID, rpm_list, ACTUATORS_DSHOT_NB);

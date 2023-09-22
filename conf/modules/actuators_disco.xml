@@ -21,6 +21,7 @@
       <define name="USE_I2C1"/>
       <include name="arch/linux"/>
       <configure name="SRC_BOARD" value="boards/disco"/>
+      <define name="SERVOS_DEFAULT_OFFSET" value="0"/>
     </test>
   </makefile>
 </module>
