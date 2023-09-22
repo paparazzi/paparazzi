@@ -233,7 +233,7 @@
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <module name="airspeed" type="ms45xx_i2c">
       <define name="MS45XX_I2C_DEV" value="i2c1"/>
-      <define name="MS45XX_AIRSPEED_SCALE" value="2.4"/>
+      <define name="MS45XX_PRESSURE_SCALE" value="1.546"/> <!-- 2.4 / 1.6327 * 1.0521 -->
       <define name="USE_AIRSPEED_MS45XX" value="TRUE"/>
     </module>
 

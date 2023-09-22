@@ -156,7 +156,9 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
  * With p_diff in Pa and standard air density of 1.225 kg/m^3,
  * default airspeed scale is 2/1.225
  */
-#ifndef MS45XX_AIRSPEED_SCALE
+#ifdef MS45XX_AIRSPEED_SCALE
+#warning Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX, otherwise AIR_DATA is wrong.
+#else
 #define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
 
@@ -195,7 +197,6 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
-  ms45xx.airspeed_scale = MS45XX_AIRSPEED_SCALE;
   ms45xx.sync_send = MS45XX_SYNC_SEND;
 
   ms45xx_trans.status = I2CTransDone;
@@ -286,7 +287,7 @@ void ms45xx_i2c_event(void)
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure * ms45xx.airspeed_scale, 0));
+      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure, 0)) * MS45XX_AIRSPEED_SCALE;
 
 #if USE_AIRSPEED_MS45XX
       stateSetAirspeed_f(ms45xx.airspeed);

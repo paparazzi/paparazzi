@@ -34,7 +34,6 @@ struct AirspeedMs45xx {
   uint16_t raw_p;              ///< Raw pressure
   float airspeed;              ///< Airspeed in m/s estimated from (differential) pressure.
   bool  pressure_type;         ///< Pressure type Differential of Gauge
-  float airspeed_scale;        ///< Quadratic scale factor to convert (differential) pressure to airspeed
   float pressure_scale;        ///< Scaling factor from raw measurement to Pascal
   float pressure_offset;       ///< Offset in Pascal
   bool autoset_offset;         ///< Set offset value from current filtered value
