@@ -47,8 +47,11 @@
     <module name="air_data"/>
     <!-- <module name="gps" type="ubx_ucenter"/> -->
 
-    <module name="video_thread"/>
-
+    <module name="bebop_cam">
+      <!-- IMPORTANT to limit these or FPS drops significantly -->
+      <!-- <define name="MT9F002_TARGET_FPS" value="30"/> --> <!-- Front cam -->
+      <define name="MT9V117_TARGET_FPS" value="90"/> <!-- Bottom cam -->
+    </module>
     <module name="pose_history"/>
 
     <module name="logger_file">
