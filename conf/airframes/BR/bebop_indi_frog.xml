@@ -40,6 +40,7 @@
 
     <module name="cv_blob_locator">
       <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
+      <define name="DETECT_WINDOW_CAMERA" value="bottom_camera"/>
     </module>
 
     <module name="video_rtp_stream">
