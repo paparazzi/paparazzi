@@ -1086,7 +1086,7 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
       else if (geofence_max_height +. !ground_alt) < (float_of_string alt) then
         fprintf stderr "\nWarning: Geofence max AGL below default waypoint AGL (%.0f < %.0f)\n" (geofence_max_height +. !ground_alt) (float_of_string alt);
       Xml2h.define_out out "GEOFENCE_MAX_HEIGHT" (sof geofence_max_height);
-      fprintf stderr "\nWarning: Geofence max AGL set to %.0f\n" geofence_max_height;
+      fprintf stderr "\nInfo: Geofence max AGL set to %.0f\n" geofence_max_height;
     with
       _ -> ()
   end;
