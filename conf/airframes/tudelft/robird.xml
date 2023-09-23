@@ -60,7 +60,7 @@ Flapping wing frame equiped with
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
    </target>
-   <target name="fbw" board="px4io_2.4" />
+   <target name="fbw" board="px4io_2.4" >
     <define name="FBW_MODE_AUTO_ONLY" value="false"/>
     <module name="radio_control" type="sbus">
       <configure name="SBUS_PORT" value="UART3"/>
