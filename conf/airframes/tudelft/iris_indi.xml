@@ -11,7 +11,7 @@
   <description>3DR IRIS
   </description>
   <firmware name="rotorcraft">
-    <target name="ap" board="px4fmu_2.4" />
+    <target name="ap" board="px4fmu_2.4">
     <define name="BAT_CHECKER_DELAY" value="80" />
     <define name="RADIO_MODE_2x3" value="true"/>
     <!-- amount of time it take for the bat to check -->
@@ -62,9 +62,9 @@
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
     <!--  <module name="spektrum_soft_bind"/>-->
-  </firmware>
-  <firmware name="rotorcraft">
-    <target name="fbw" board="px4io_2.4" />
+    </target>
+
+    <target name="fbw" board="px4io_2.4" >
     <module name="motor_mixing" />
     <module name="radio_control" type="ppm">
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
@@ -96,6 +96,7 @@
       <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
       <define name="TELEMETRY_DISABLE_RX"/>
     </module>
+    </target>
   </firmware>
 
   <section name="MISC">
