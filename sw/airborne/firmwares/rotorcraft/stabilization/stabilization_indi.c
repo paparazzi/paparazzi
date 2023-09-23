@@ -851,7 +851,7 @@ static void rpm_cb(uint8_t __attribute__((unused)) sender_id, struct rpm_act_t U
 #if INDI_RPM_FEEDBACK
   int8_t i;
   for (i = 0; i < num_act; i++) {
-    act_obs[i] = (rpm_msg.rpm[i] - get_servo_min(i));
+    act_obs[i] = (rpm_msg[i].rpm - get_servo_min(i));
     act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i) - get_servo_min(i)));
     Bound(act_obs[i], 0, MAX_PPRZ);
   }
