@@ -14,9 +14,9 @@
     <target name="ap" board="matek_h743_slim">
     </target>
 
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-    </target>
+    </target-->
 
     <module name="radio_control" type="sbus"/>
 
