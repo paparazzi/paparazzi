@@ -76,6 +76,10 @@
     </dl_settings>
   </settings>
 
+  <dep>
+    <depends>cv_textons</depends>
+  </dep>
+
   <header>
     <file name="optical_flow_landing.h"/>
   </header>
