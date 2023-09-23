@@ -34,6 +34,7 @@ ARDrone2 with optical_flow landing.
     <module name="pose_history"/>
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
+      <define name="TEXTONS_CAMERA" value="bottom_camera"/>
     </module>
     <module name="optical_flow_landing"/>
   </firmware>
