@@ -45,7 +45,7 @@ Downloading of the data occurs over the configured serial device using sw/logali
     <file name="sdlogger_spi_direct.h"/>
   </header>
   <init fun="sdlogger_spi_direct_init()"/>
-  <periodic fun="sdlogger_spi_direct_periodic()" freq="512" start="sdlogger_spi_direct_start()" stop="sdlogger_spi_direct_stop()" autorun="LOCK"/>
+  <periodic fun="sdlogger_spi_direct_periodic()" freq="512" start="sdlogger_spi_direct_start()" autorun="LOCK"/><!-- remove stop when autorun=LOCK stop="sdlogger_spi_direct_stop()"-->
   <datalink message="SETTING" fun="sdlogger_spi_direct_command()"/>
   <makefile target="ap">
 
