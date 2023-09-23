@@ -31,6 +31,7 @@
     <module name="ins" type="extended"/> -->
     
     <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+    <define name="AHRS_FLOATING_HEADING" value="1"/>
     <module name="ins" type="flow"/>
 <!-- These are already defined in fdm_gazebo
     <define name="NPS_BYPASS_AHRS" value="FALSE"/>
