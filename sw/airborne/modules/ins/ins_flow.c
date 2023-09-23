@@ -673,7 +673,7 @@ void ins_reset_local_origin(void)
 
 void ins_optical_flow_cb(uint8_t sender_id UNUSED, uint32_t stamp, int32_t flow_x UNUSED,
                          int32_t flow_y UNUSED,
-                         int32_t flow_der_x, int32_t flow_der_y, float quality UNUSED, float size_divergence)
+                         int32_t flow_der_x UNUSED, int32_t flow_der_y UNUSED, float quality UNUSED, float size_divergence)
 {
 
   // TODO: make parameters:
@@ -1467,7 +1467,7 @@ static void set_body_state_from_quat(void)
 
 }
 
-static void ins_rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act)
+static void ins_rpm_cb(uint8_t sender_id UNUSED, struct rpm_act_t *rpm_msg, uint8_t num_act)
 {
   ins_flow.RPM_num_act = num_act;
   for (int i = 0; i < num_act; i++) {
@@ -1478,7 +1478,7 @@ static void ins_rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num
 
 /* Update INS based on GPS information */
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp,
+                   uint32_t stamp UNUSED,
                    struct GpsState *gps_s)
 {
 
