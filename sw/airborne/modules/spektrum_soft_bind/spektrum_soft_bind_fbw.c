@@ -32,7 +32,7 @@
 #include "mcu_periph/gpio.h"
 
 #ifdef RADIO_CONTROL_BIND_IMPL_FUNC
-#include "modules/radio_control/spektrum_arch.h"
+#include "modules/radio_control/spektrum.h"
 #endif
 
 void spektrum_soft_bind_init(void)
