@@ -69,7 +69,7 @@ NOTES:
 
       <configure name="NAVIGATION_FREQUENCY" value="16"/> <!--  unit="Hz" -->
       <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
-      <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
+      <configure name="TELEMETRY_FREQUENCY" value="64"/> <!--  unit="Hz" PERIODIC_FREQ must be dividable -->
       <configure name="MODULES_FREQUENCY" value="512"/> <!--  unit="Hz" -->
 
       <module name="imu" type="mpu9250_spi">
