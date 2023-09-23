@@ -84,7 +84,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/ahrs_float_dcm.xml modules/air_data.xml modules/gps.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
+   settings_modules="modules/ahrs_float_cmpl_quat.xml modules/ahrs_float_dcm.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="blue"
   />
   <aircraft
@@ -136,7 +136,7 @@
    ac_id="218"
    airframe="airframes/ENAC/quadrotor/ulysse_indi.xml"
    radio="radios/FrSky_X-Lite.xml"
-   telemetry="telemetry/rotorcraft_imav2022.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/competitions/IMAV2022_drop.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/jevois.xml modules/logger_sd_chibios.xml modules/nav_basic_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/stabilization_indi.xml modules/switch_servo.xml modules/tag_tracking.xml"
