@@ -148,18 +148,25 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
   struct FloatRates g1_disp;
   RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
   float g2_disp = indi.est.g2 * INDI_EST_SCALE;
+  float zero = 0;
 
   pprz_msg_send_STAB_ATTITUDE_INDI(trans, dev, AC_ID,
-                                   &indi.rate_d[0],
+                                   &zero, &zero, &zero,         // input lin.acc
+                                   &indi.rate[0].o[0],          // rate
+                                   &indi.rate[1].o[0],
+                                   &indi.rate[2].o[0],
+                                   &zero, &zero, &zero,         // rate.ref
+                                   &indi.rate_d[0],             // ang.acc = rate.diff
                                    &indi.rate_d[1],
                                    &indi.rate_d[2],
-                                   &indi.angular_accel_ref.p,
+                                   &indi.angular_accel_ref.p,   // ang.acc.ref
                                    &indi.angular_accel_ref.q,
                                    &indi.angular_accel_ref.r,
-                                   &g1_disp.p,
+                                   &g1_disp.p,                  // matrix
                                    &g1_disp.q,
                                    &g1_disp.r,
-                                   &g2_disp);
+                                   &g2_disp,
+                                   0, &zero);                   // outputs
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
