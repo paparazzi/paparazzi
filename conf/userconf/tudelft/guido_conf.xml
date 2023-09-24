@@ -24,7 +24,7 @@
   <aircraft
    name="Bebop2_opticflow_sim"
    ac_id="4"
-   airframe="airframes/tudelft/tudelft_bebop2_opticflow_sim.xml"
+   airframe="airframes/tudelft/bebop2_opticflow_sim.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/rotorcraft_guido_optitrack.xml"
