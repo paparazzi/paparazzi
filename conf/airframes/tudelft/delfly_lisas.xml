@@ -122,6 +122,7 @@
     <define name="H_Y" value="0.00278894"/>
     <define name="H_Z" value="0.92060036"/>
     <define name="USE_GPS_HEADING" value="0"/>
+    <define name="FLOATING_HEADING" value="1"/><!-- accept floating heading -->
 
     <!-- For vibrating airfames -->
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>

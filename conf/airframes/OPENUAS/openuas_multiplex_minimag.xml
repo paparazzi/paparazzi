@@ -44,7 +44,8 @@ NOTES:
 <!-- ********************** For in the real flying hardware ******************** -->
 
     <target name="ap" board="px4fmu_4.0">
-   <!--<define name="GPS_UBX_MAX_PAYLOAD" value="2048"/>--><!-- Temp enlarge buffer for debugging velocity issue of uBlox M9 types FW v4.03-->
+   <!--<define name="GPS_UBX_MAX_PAYLOAD" value="2048"/>-->
+   <!-- Temp enlarge buffer for debugging velocity issue of uBlox M9 types FW v4.03-->
  
       <!-- Towards better kind of aligner initial conditions -->
 
@@ -69,7 +70,7 @@ NOTES:
 
       <configure name="NAVIGATION_FREQUENCY" value="16"/> <!--  unit="Hz" -->
       <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
-      <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
+      <configure name="TELEMETRY_FREQUENCY" value="64"/> <!--  unit="Hz" PERIODIC_FREQ must be dividable -->
       <configure name="MODULES_FREQUENCY" value="512"/> <!--  unit="Hz" -->
 
       <module name="imu" type="mpu9250_spi">
@@ -91,7 +92,8 @@ NOTES:
       of nifty Galilleio setting we rather keep that so no autosetting now.-->
       <!--<module name="gps" type="ubx_ucenter">-->
         <!--<define name="GPS_UBX_NAV5_DYNAMICS" value="NAV5_DYN_PEDESTRIAN"/>-->
-        <!--<define name="GPS_UBX_UCENTER_RATE" value="51"/>--> <!-- In milliseconds. 0x0033 = 51ms = ~19Hz --><!-- make sure packets fit portrate-->
+        <!--<define name="GPS_UBX_UCENTER_RATE" value="51"/>--> <!-- In milliseconds. 0x0033 = 51ms = ~19Hz -->
+        <!-- make sure packets fit portrate-->
       <!--</module>-->
 
       <module name="airspeed_ets">
@@ -142,7 +144,8 @@ NOTES:
         <define name="RADIO_CONTROL_NB_CHANNEL" value="16"/>  <!-- Set the OpenRXSR receiver to maximum channel output of 8 9ms -->
         <!--<configure name="SBUS_PORT" value="UART5"/>--> <!-- Default use UART2  on FMU4 -->
         <!-- Mode set one a three way switch -->
-        <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
+        <!--  Per default already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> -->
+        <!-- yes, already done by default if not redefined to something else-->
         <define name="RADIO_GEAR" value="RADIO_AUX2"/>
         <define name="RADIO_FLAP" value="RADIO_AUX3"/>
       </module>
@@ -159,9 +162,11 @@ NOTES:
         <define name="BENCHMARK_TOLERANCE_POSITION" value="6" unit="m"/>
       </module>-->
 
-      <!--<module name="sys_mon"/>--><!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
+      <!--<module name="sys_mon"/>-->
+      <!-- Enable if one want to check processor load for higher loop, nav, module etc. frequencies -->
 
-      <!-- <module name="mag_calib_ukf"/>--><!-- New, and needs more testing, be careful with testflights if enabled -->
+      <!-- <module name="mag_calib_ukf"/>-->
+      <!-- New, and needs more testing, be careful with testflights if enabled -->
 
       <module name="tune_airspeed"/>
 
@@ -195,7 +200,8 @@ NOTES:
       <!-- For various parameter info here  https://wiki.paparazziuav.org/wiki/Subsystem/ahrs -->
       <!--<module name="ahrs" type="int_cmpl_quat">
       </module>-->
-      <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g a photocam trigger etc -->
+      <!--<module name="uart"/>-->
+      <!-- TODO: Exteral HITL PC debugging e.g a photocam trigger etc -->
     </target>
 
 <!-- ********* Another way for simulation of the flight *************-->
@@ -237,11 +243,10 @@ NOTES:
 <!-- ********************* and another one ... ********************* -->
     <!-- <target name="yasim" board="pc"> -->
       <!-- Note NPS needs the ppm type radio_control module -->
-      <!--
-      <module name="radio_control" type="ppm">
+    <!--  <module name="radio_control" type="ppm">
       <module name="fdm" type="yasim"/>
-      <module name="udp"/>-->
-    <!-- </target>-->
+      <module name="udp"/>
+    </target> -->
 
 <!-- ********** Common Defines and Config and values for both Real Hardware and Simulation ***** -->
 
@@ -286,14 +291,16 @@ NOTES:
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->
     <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
    <!-- If AHRS_MAG_CORRECT_FREQUENCY is set outside of target no need USE_MAGNETOMETER it is assumed TRUE -->
-    <!--<configure name="USE_MAGNETOMETER" value="TRUE"/>--><!-- should be as in USE the device-->
+    <!--<configure name="USE_MAGNETOMETER" value="TRUE"/>-->
+    <!-- should be as in USE the device-->
 
 <!-- ************************* MODULES ************************* -->
 <!-- Warning: unit conversion does not work in this section of airframe, so use the native units, or you'll have trouble...-->
 
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B460800"/><!-- UBX message only but rate set to ~12HZ with GPS, GLONASS, BEIDU and GALILEIO at the SAME time is lots of GNSS data-->
-      <!-- <configure name="GPS_PORT" value="UARTx"/>--><!-- Uses the default GPS port on pixracer no need to set it -->
+      <!-- <configure name="GPS_PORT" value="UARTx"/>-->
+      <!-- Uses the default GPS port on pixracer no need to set it -->
     </module>
 
     <module name="tune_airspeed"/> <!-- Enable if one want to perform airspeed tuning -->
@@ -302,17 +309,21 @@ NOTES:
       <!--<configure name="AHRS_USE_MAGNETOMETER" value="TRUE"/>--> <!-- as in USE it for values in the AHRS -->
       <configure name="AHRS_ALIGNER_LED" value="2"/><!-- Which color you want sir? ;) -->
       <define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/> <!-- if TRUE with those high roll n pith angles magneto should be calibrated well or use UKF autocalib -->
-      <!--<define name="AHRS_USE_GPS_HEADING" value="FALSE"/>--><!-- TRUE by default Use GPS course to update heading for time being,if FALSE data from magneto only -->
+      <!--<define name="AHRS_USE_GPS_HEADING" value="FALSE"/>-->
+      <!-- TRUE by default Use GPS course to update heading for time being,if FALSE data from magneto only -->
       <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>--> <!--Already TRUE by default Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"-->
       <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/> <!-- AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction. Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction" -->
       <!--<define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="TRUE"/>--> <!-- apply a low pass filter on rotational velocity"-->
-      <!--<define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="0.174533"/>--><!--unit="rad"/--><!-- don't update gyro bias if heading deviation is above this rotation threshold"-->
+      <!--<define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="0.174533"/>-->
+      <!--unit="rad"/-->
+      <!-- don't update gyro bias if heading deviation is above this rotation threshold"-->
       <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="3.0"/> <!--unit="m/s"--> <!-- CAREFULL,  Don't update heading from GPS course if GPS ground speed is below is this threshold in m/s" -->
       <!-- Some insights https://lists.nongnu.org/archive/html/paparazzi-devel/2013-10/msg00126.html -->
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0.0"/> <!-- TODO: determine Default is 30.0 Reduce accelerometer cut-off frequency when the vehicle is accelerating: norm(ax,ay,az) 9,81 m/s2. WARNING: when the IMU is not well damped, the norm of accelerometers never equals to 9,81 m/s2. As a result, the GRAVITY_HEURISTIC_FACTOR will reduce the accelerometer bandwith even if the vehicle is not accelerating. -->
       <!--<define name="AHRS_FC_IMU_ID" value="ABI_BROADCAST"/>--> <!-- ABI sender id of IMU to use Change is you change your AHRS type -->
       <define name="AHRS_FC_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/><!-- MAG_CALIB_UKF_ID for when using the mag_clib_ukf  change your AHRS type-->
-        <!--<define name="AHRS_FC_MAG_ID" value="MAG_QMC5883_SENDER_ID" />--><!-- Use this insted of MAG_HMC5883_SENDER_ID for alternative sensor -->
+        <!--<define name="AHRS_FC_MAG_ID" value="MAG_QMC5883_SENDER_ID" />-->
+      <!-- Use this insted of MAG_HMC5883_SENDER_ID for alternative sensor -->
     </module>
 
     <module name="ins" type="alt_float">  <!--Does not work in SIM: extended thus use alt_float"/> -->
@@ -324,9 +335,11 @@ NOTES:
     <module name="control" type="new"/><!-- energy or energyadaptive or type="new" to you gusto -->
     <module name="navigation"/>
 
-    <!--<module name="imu_quality_assessment"/>--><!-- disable after initial filter tuning-->
+    <!--<module name="imu_quality_assessment"/>-->
+      <!-- disable after initial filter tuning-->
 
-    <module name="auto1_commands"/><!-- FIXME not working in JSBSim target with RC controller steering in Simulator--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
+    <module name="auto1_commands"/><!-- FIXME not working in JSBSim target with RC controller steering in Simulator-->
+      <!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
 
     <module name="baro_ms5611_spi">
       <configure name="MS5611_SPI_DEV" value="spi1"/>
@@ -345,7 +358,9 @@ NOTES:
 
     <!-- Quite a good alternative for the catapult module in this case -->
     <!--<module name="takeoff_detect">-->
-      <!--<define name="TAKEOFF_DETECT_LAUNCH_PITCH" value="0.785398"/>--><!-- unit="rad"--><!--45deg Pitch angle for takeoff detection (sets 'launch' state to TRUE)-->
+      <!--<define name="TAKEOFF_DETECT_LAUNCH_PITCH" value="0.785398"/>-->
+      <!-- unit="rad"-->
+      <!--45deg Pitch angle for takeoff detection (sets 'launch' state to TRUE)-->
       <!--<define name="TAKEOFF_DETECT_ABORT_PITCH" value="-0.349066"/>--> <!-- unit="rad"--> <!-- -20deg Pitch angle to abort takeoff (set 'launch' to FALSE)-->
       <!--<define name="TAKEOFF_DETECT_TIMER" value="1.2"/>--> <!-- Timer for takeoff detection in seconds (default 2s above pitch angle threshold)-->
       <!--<define name="TAKEOFF_DETECT_DISABLE_TIMER" value="6.0"/>--> <!--Timer for module de-activation (default 4s after the launch detection)-->
@@ -380,21 +395,24 @@ NOTES:
    <!--  <module name="current_sensor">
         <define name="USE_ADC_3"/>
         <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>-->
-        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
+        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>-->
+      <!-- TODO determine -->
    <!--  </module>-->
 
     <module name="nav" type="line"/>
     <module name="nav" type="line_border"/>
     <module name="nav" type="line_osam"/>
     <module name="nav" type="survey_polygon">
-      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="40"/> <!--unit="m"--><!-- Make it your fit for plan and camera type for overlap -->
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="40"/> <!--unit="m"-->
+      <!-- Make it your fit for plan and camera type for overlap -->
     </module>
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="smooth"/>
     <module name="nav" type="vertical_raster"/>
     <module name="nav" type="flower"/>
 
-    <!-- module name="nav" type="catapult"/> --><!-- TODO Switch it on later after first flights -->
+    <!-- module name="nav" type="catapult"/> -->
+      <!-- TODO Switch it on later after first flights -->
 
     <!-- For R15 a ST LIS3MDL magneto on the main PCB test if conflict with other magneto -->
     <!--module name="mag_lis3mdl">
@@ -417,9 +435,11 @@ NOTES:
     our luck at least the tree axis are aligned already in hardware :) -->
     <module name="mag" type="hmc58xx">
    <!-- <define name="MAG_TO_IMU_THETA" value="6" unit="deg"/>-->
-      <!--<define name="HMC58XX_STARTUP_DELAY" value="1.4"/>--><!-- If you mag somehow does not work, Enable this line, and maybe even change it to a higher value if it still does not work e.g. 1.9 -->
+      <!--<define name="HMC58XX_STARTUP_DELAY" value="1.4"/>-->
+      <!-- If you mag somehow does not work, Enable this line, and maybe even change it to a higher value if it still does not work e.g. 1.9 -->
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
-      <!--<define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/>--><!-- temporary for debugging external magneto and setup orientation sign and Body to Magneto angles-->
+      <!--<define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/>-->
+      <!-- temporary for debugging external magneto and setup orientation sign and Body to Magneto angles-->
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/> <!-- When all calib and works to TRUE -->
 
       <define name="HMC58XX_CHAN_X" value="1"/>
@@ -873,7 +893,8 @@ The most crucial part for the magnetometer calibration:
     <define name="ROLL_KFFA" value="100"/>
     <define name="ROLL_KFFD" value="10"/>
 
-    <!--<define name="PITCH_OF_ROLL" value="4." unit="deg"/>--><!-- TODO: -->
+    <!--<define name="PITCH_OF_ROLL" value="4." unit="deg"/>-->
+      <!-- TODO: -->
     <define name="AILERON_OF_THROTTLE" value="0.0"/><!-- TODO: in case of some pusher prop over control flap -->
 
   </section>
@@ -985,8 +1006,10 @@ The most crucial part for the magnetometer calibration:
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
     <define name="MAX_BAT_CAPACITY" value="2200" unit="mAh"/><!-- Change if battery is differen en you have no current measurement -->
-    <!--<define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>--><!-- Change if you have a non default 3DR type powerbrick-->
-    <!--<define name="VoltageOfAdc(_adc)" value="0.01017793941"/>--><!-- Change if you have a non default 3DR type powerbrick-->
+    <!--<define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/>-->
+    <!-- Change if you have a non default 3DR type powerbrick-->
+    <!--<define name="VoltageOfAdc(_adc)" value="0.01017793941"/>-->
+    <!-- Change if you have a non default 3DR type powerbrick-->
     <!-- tested at V 11.7 the avg -->  <!-- idle RPM then ?.0A half throttle ?A-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="280" unit="mA"/><!-- We substract ESC selfusage+AP+telemetry max-->
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="10600" unit="mA"/><!--at max volts-->

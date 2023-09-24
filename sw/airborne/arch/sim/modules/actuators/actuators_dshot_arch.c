@@ -27,7 +27,7 @@
 
 #include "modules/actuators/actuators_dshot.h"
 
-uint16_t actuators_dshot_values[ACTUATORS_DSHOT_NB];
+struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
 
 void actuators_dshot_arch_init(void) {}
 

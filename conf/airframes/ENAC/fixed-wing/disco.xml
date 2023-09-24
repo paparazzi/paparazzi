@@ -7,13 +7,15 @@
 <airframe name="Disco">
 
   <firmware name="fixedwing">
-    <configure name="PERIODIC_FREQUENCY" value="120"/>
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
 
     <target name="ap" board="disco">
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
     </target>
     <target name="sim" board="pc">
+      <configure name="SYS_TIME_FREQUENCY" value="120"/>
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
       <module name="radio_control" type="ppm"/>
     </target>
 

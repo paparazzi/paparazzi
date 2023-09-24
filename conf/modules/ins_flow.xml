@@ -19,7 +19,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@imu</depends>
+    <depends>@imu,@gps</depends>
     <provides>ahrs,ins</provides>
   </dep>
   <header>

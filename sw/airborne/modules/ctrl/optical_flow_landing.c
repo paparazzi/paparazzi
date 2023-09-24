@@ -330,7 +330,7 @@ void vertical_ctrl_module_init(void)
   of_landing_ctrl.vel = 0.0f;
   of_landing_ctrl.divergence_setpoint = 0.0f; // For exponential gain landing, pick a negative value
   of_landing_ctrl.cov_set_point = OFL_COV_SETPOINT;
-  of_landing_ctrl.cov_limit = fabsf(OFL_COV_LANDING_LIMIT);
+  of_landing_ctrl.cov_limit = fabsf((float)OFL_COV_LANDING_LIMIT);
   of_landing_ctrl.lp_const = OFL_LP_CONST;
   Bound(of_landing_ctrl.lp_const, 0.001f, 1.f);
   of_landing_ctrl.pgain = OFL_PGAIN;
@@ -1125,7 +1125,7 @@ void guidance_h_module_enter(void)
 
 }
 
-void guidance_h_module_run(bool in_flight)
+void guidance_h_module_run(bool UNUSED in_flight)
 {
 
 }
@@ -1248,7 +1248,7 @@ void learn_from_file(void)
   printf("Learned! Fit error = %f\n", fit_error);
 
   // free learning distributions:
-  for (i = 0; i < n_read_samples; i++) {
+  for (i = 0; i < (int) n_read_samples; i++) {
     free(text_dists[i]);
   }
 }
@@ -1312,7 +1312,7 @@ void recursive_least_squares_batch(float *targets, float **samples, uint8_t D, u
   (*fit_error) = sum_abs_err / count;
 }
 
-void recursive_least_squares(float target, float *sample, uint8_t length_sample, float *params)
+void recursive_least_squares(float target, float *sample, uint8_t length_sample, UNUSED float *params)
 {
   // MATLAB procedure:
   /*

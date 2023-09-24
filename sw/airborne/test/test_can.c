@@ -34,7 +34,8 @@
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
-void main_on_can_msg(uint32_t id, uint8_t *data, int len);
+void main_on_can_msg(uint32_t id, uint8_t *data, uint8_t len);
+
 
 uint8_t tx_data[8];
 uint8_t rx_data[8];
@@ -124,7 +125,7 @@ static inline void main_event_task(void)
 
 }
 
-void main_on_can_msg(uint32_t id __attribute__((unused)), uint8_t *data, int len __attribute__((unused)))
+void main_on_can_msg(uint32_t id UNUSED, uint8_t *data, uint8_t len UNUSED)
 {
   for (int i = 0; i < 8; i++) {
     rx_data[i] = data[i];

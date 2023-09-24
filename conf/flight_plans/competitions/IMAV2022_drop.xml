@@ -382,7 +382,7 @@
       <exception cond="PolySurveySweepBackNum > 0" deroute="Land"/>
       <call_once fun="jevois_stream(true)"/>
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
-      <call fun="nav_survey_poly_run(search_height)"/>
+      <call fun="nav_survey_poly_run()"/>
     </block>
 
     <block name="Run Search Truck">

@@ -24,6 +24,7 @@
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
     <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
     <define name="AHRS_USE_GPS_HEADING" value="FALSE|TRUE" description="Use GPS course to update heading"/>
+    <define name="AHRS_FLOATING_HEADING" value="FALSE|TRUE" description="If no GPS and no Mag is available, define AHRS_FLOATING_HEADING to silent warnings."/>
     <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE|TRUE" description="Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"/>
     <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE|TRUE" description="AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction. Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction"/>
     <define name="AHRS_PROPAGATE_LOW_PASS_RATES" description="apply a low pass filter on rotational velocity"/>

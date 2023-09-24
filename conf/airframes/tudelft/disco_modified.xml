@@ -76,7 +76,7 @@
 
       <configure name="NAVIGATION_FREQUENCY" value="16"/> <!--  unit="Hz" -->
       <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
-      <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
+      <configure name="TELEMETRY_FREQUENCY" value="64"/> <!--  unit="Hz" PERIODIC_FREQ must be dividable by TELEMETRY -->
       <configure name="MODULES_FREQUENCY" value="512"/> <!--  unit="Hz" -->
 
       <module name="radio_control" type="sbus"/>
@@ -172,7 +172,7 @@
         <configure name="AHRS_USE_MAGNETOMETER" value="TRUE"/> <!-- as in USE it for values in the AHRS -->
         <configure name="AHRS_ALIGNER_LED" value="2"/><!-- Which color you want sir? ;) -->
         <define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/> <!-- if TRUE with those high roll n pith angles magneto should be calibrated well or use UKF autocalib -->
-        <define name="AHRS_USE_GPS_HEADING" value="TRUE"/><!-- TRUE by default Use GPS course to update heading for time being,if FALSE data from magneto only -->
+        <define name="AHRS_USE_GPS_HEADING" value="FALSE"/><!-- Either MAG or GPS. by default Use GPS course to update heading for time being,if FALSE data from magneto only -->
         <!-- <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE"/>--> <!--Already TRUE by default Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"-->
         <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/> <!-- AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction. Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction" -->
         <define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="FALSE"/> <!-- apply a low pass filter on rotational velocity"-->
