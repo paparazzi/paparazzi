@@ -8,6 +8,7 @@
       Needs to be a versions with 14bit pressure and 11bit temperature data output.
 
       If the airspeed reading is badly calibrated, use the MS45XX_PRESSURE_SCALE to compensate.
+      Use the MS45XX_AIRSPEED_SCALE only to change air density.
     </description>
     <define name="MS45XX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c2)"/>
     <define name="MS45XX_I2C_ADDR" value="0x50" description="i2c slave address (default: 0x50)"/>
