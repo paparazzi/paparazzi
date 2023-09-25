@@ -88,7 +88,7 @@ bool WEAK autopilot_ground_detection(void) {
 }
 
 
-/** Default in-flight detection estimation based on thrust and speed */
+/** Default end-of-in-flight detection estimation based on thrust and speed */
 bool WEAK autopilot_in_flight_end_detection(void) {
   if (autopilot_in_flight_counter > 0) {
     /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
