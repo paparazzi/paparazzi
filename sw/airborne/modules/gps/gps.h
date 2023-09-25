@@ -43,11 +43,6 @@ extern "C" {
 #define GPS_FIX_DGPS 0x04     ///< DGPS fix
 #define GPS_FIX_RTK  0x05     ///< RTK GPS fix
 
-#define GpsFixValid() (gps.fix >= GPS_FIX_3D)
-#if USE_GPS
-#define GpsIsLost() !GpsFixValid()
-#endif
-
 #define GPS_VALID_POS_ECEF_BIT 0
 #define GPS_VALID_POS_LLA_BIT  1
 #define GPS_VALID_POS_UTM_BIT  2
@@ -177,11 +172,32 @@ extern void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data);
 extern void gps_parse_GPS_INJECT(uint8_t *buf);
 extern void gps_parse_RTCM_INJECT(uint8_t *buf);
 
-/** GPS timeout in seconds */
+/** Check if GPS fix is valid.
+ *
+ * If GPS_FIX_TIMEOUT is configured, check for 3D fix with timeout,
+ * otherwise, returns the last value from GPS module
+ */
+extern bool gps_fix_valid(void);
+
+// Compatibility macros
+#define GpsFixValid() gps_fix_valid()
+#if USE_GPS
+#define GpsIsLost() !GpsFixValid()
+#endif
+
+/** GPS timeout in seconds
+ *  in case of communication loss with GPS module
+ */
 #ifndef GPS_TIMEOUT
 #define GPS_TIMEOUT 2
 #endif
 
+/** Periodic GPS check.
+ * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
+ */
+extern void gps_periodic_check(struct GpsState *gps_s);
+
+// FIXME not used, to be removed ?
 static inline bool gps_has_been_good(void)
 {
   static bool gps_had_valid_fix = false;
@@ -191,11 +207,11 @@ static inline bool gps_has_been_good(void)
   return gps_had_valid_fix;
 }
 
-
-/** Periodic GPS check.
- * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
- */
-extern void gps_periodic_check(struct GpsState *gps_s);
+/** Returns the time since last 3D fix in seconds (float) */
+static inline float gps_time_since_last_3dfix(void)
+{
+  return (float)(gps.last_3dfix_time + (float)(gps.last_3dfix_ticks) / sys_time.cpu_ticks_per_sec);
+}
 
 
 /*
