@@ -140,7 +140,7 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
  * default airspeed scale is 2/1.225
  */
 #ifdef MS45XX_AIRSPEED_SCALE
-#PRINT_CONFIG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX.")
+PRINT_CONFIG_MSG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX.");
 #else
 #define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
