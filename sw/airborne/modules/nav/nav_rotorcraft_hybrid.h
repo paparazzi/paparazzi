@@ -33,6 +33,7 @@
 
 // settings
 extern float nav_max_speed;
+extern float nav_max_deceleration_sp;
 
 extern void nav_rotorcraft_hybrid_init(void);
 
