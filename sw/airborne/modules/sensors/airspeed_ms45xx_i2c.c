@@ -39,17 +39,6 @@
 #include "modules/datalink/telemetry.h"
 #endif
 
-#ifndef USE_AIRSPEED_MS45XX
-#if USE_AIRSPEED
-#define USE_AIRSPEED_MS45XX TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED")
-#endif
-#endif
-
-#if USE_AIRSPEED_MS45XX
-#include "state.h"
-#endif
-
 /** Default I2C device
  */
 #ifndef MS45XX_I2C_DEV
@@ -144,19 +133,15 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_RANGE)
 PRINT_CONFIG_VAR(MS45XX_PRESSURE_SCALE)
 PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
 
-/** Send a AIRSPEED_MS45XX message with every new measurement.
- * Mainly for debugging, use with caution, sends message at ~100Hz.
- */
-#ifndef MS45XX_SYNC_SEND
-#define MS45XX_SYNC_SEND FALSE
-#endif
 
 /** Quadratic scale factor for indicated airspeed.
  * airspeed = sqrt(2*p_diff/density)
  * With p_diff in Pa and standard air density of 1.225 kg/m^3,
  * default airspeed scale is 2/1.225
  */
-#ifndef MS45XX_AIRSPEED_SCALE
+#ifdef MS45XX_AIRSPEED_SCALE
+#PRINT_CONFIG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX.")
+#else
 #define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
 
@@ -175,9 +160,14 @@ static Butterworth2LowPass ms45xx_filter;
 
 static void ms45xx_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AIRSPEED_MS45XX(trans,dev,AC_ID,
+  uint8_t dev_id = MS45XX_SENDER_ID;
+  float temp = ((float)ms45xx.temperature) * 0.1f;
+  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
+                                &dev_id,
+                                &ms45xx.raw_p,
+                                &ms45xx.pressure_offset,
                                 &ms45xx.pressure,
-                                &ms45xx.temperature,
+                                &temp,
                                 &ms45xx.airspeed);
 }
 
@@ -186,11 +176,10 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure = 0.;
   ms45xx.temperature = 0;
   ms45xx.airspeed = 0.;
+  ms45xx.raw_p = 0;
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
-  ms45xx.airspeed_scale = MS45XX_AIRSPEED_SCALE;
-  ms45xx.sync_send = MS45XX_SYNC_SEND;
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
@@ -200,7 +189,7 @@ void ms45xx_i2c_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, ms45xx_downlink);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, ms45xx_downlink);
 #endif
 }
 
@@ -228,6 +217,7 @@ void ms45xx_i2c_event(void)
     if (status == 0) {
       /* 14bit raw pressure */
       uint16_t p_raw = 0x3FFF & (((uint16_t)(ms45xx_trans.buf[0]) << 8) | (uint16_t)(ms45xx_trans.buf[1]));
+      ms45xx.raw_p = p_raw;
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |
@@ -279,14 +269,8 @@ void ms45xx_i2c_event(void)
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure * ms45xx.airspeed_scale, 0));
+      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure, 0)) * MS45XX_AIRSPEED_SCALE;
 
-#if USE_AIRSPEED_MS45XX
-      stateSetAirspeed_f(ms45xx.airspeed);
-#endif
-      if (ms45xx.sync_send) {
-        ms45xx_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-      }
     }
 
     // Set to done

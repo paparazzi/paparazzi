@@ -37,6 +37,7 @@ struct AirspeedSdp3x {
   bool autoset_offset;         ///< Set offset value from current filtered value
   bool sync_send;              ///< Flag to enable sending every new measurement via telemetry for debugging purpose
   bool initialized;            ///< init flag
+  uint16_t raw_p;              ///< raw value from chip
 };
 
 extern struct AirspeedSdp3x sdp3x;

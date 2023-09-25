@@ -10,7 +10,7 @@ Flapping wing frame equiped with
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="px4fmu_2.4" />
+   <target name="ap" board="px4fmu_2.4">
     <define name="BAT_CHECKER_DELAY" value="80" />
     <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
     <!-- amount of time it take for the bat to check -->
@@ -59,9 +59,8 @@ Flapping wing frame equiped with
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
-  </firmware>
-  <firmware name="rotorcraft">
-    <target name="fbw" board="px4io_2.4" />
+   </target>
+   <target name="fbw" board="px4io_2.4" >
     <define name="FBW_MODE_AUTO_ONLY" value="false"/>
     <module name="radio_control" type="sbus">
       <configure name="SBUS_PORT" value="UART3"/>
@@ -87,6 +86,7 @@ Flapping wing frame equiped with
       <configure name="MODEM_BAUD" value="$(INTERMCU_BAUD)"/>
       <define name="TELEMETRY_DISABLE_RX"/>
     </module>
+   </target>
   </firmware>
 
   <section name="MISC">

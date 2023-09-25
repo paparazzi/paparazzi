@@ -215,6 +215,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_FLOATING_HEADING" value="1"/><!-- accept floating heading -->
     </module>
     <module name="ins"/>
 

@@ -15,7 +15,7 @@
   <makefile target="nps|hitl">
     <raw>
       nps.CFLAGS += $(shell python3-config --cflags) -fPIE
-      nps.LDFLAGS += $(shell python3-config --ldflags) -lpython3.8
+      nps.LDFLAGS += $(shell python3-config --ldflags --embed) 
       nps.CFLAGS += -DPAPARAZZI_SRC=\"$(PAPARAZZI_SRC)\"
     </raw>
     <file name="nps_fdm_pybullet.c" dir="nps"/>

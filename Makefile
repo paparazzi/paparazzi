@@ -317,6 +317,9 @@ test_openuas: all
 # test TU Delft conf
 test_tudelft: all
 	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/
 
 # test GVF conf
 test_gvf: all

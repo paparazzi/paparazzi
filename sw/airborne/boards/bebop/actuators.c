@@ -138,7 +138,16 @@ void actuators_bebop_commit(void)
     actuators_bebop.led = led_hw_values & 0x3;
   }
   // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, actuators_bebop.rpm_obs, 4);
+  struct rpm_act_t rpm_message[4];
+  for (int i=0;i<4;i++) {
+#ifdef SERVOS_BEBOP_OFFSET
+    rpm_message[i].actuator_idx = SERVOS_BEBOP_OFFSET + i;
+#else
+    rpm_message[i].actuator_idx = SERVOS_DEFAULT_OFFSET + i;
+#endif
+    rpm_message[i].rpm = actuators_bebop.rpm_obs[i];
+  }
+  AbiSendMsgRPM(RPM_SENSOR_ID, rpm_message, 4);
 }
 
 static uint8_t actuators_bebop_checksum(uint8_t *bytes, uint8_t size)

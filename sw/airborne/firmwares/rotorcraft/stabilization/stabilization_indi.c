@@ -145,6 +145,7 @@ float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT-1] = 1.0};
 // variables needed for control
 float actuator_state_filt_vect[INDI_NUM_ACT];
 struct FloatRates angular_accel_ref = {0., 0., 0.};
+struct FloatRates angular_rate_ref = {0., 0., 0.};
 float angular_acceleration[3] = {0., 0., 0.};
 float actuator_state[INDI_NUM_ACT];
 float indi_u[INDI_NUM_ACT];
@@ -179,7 +180,7 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
 abi_event rpm_ev;
-static void rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
+static void rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act);
 
 abi_event thrust_ev;
 static void thrust_cb(uint8_t sender_id, float thrust_increment);
@@ -233,6 +234,34 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
                               &(quat->qy),
                               &(quat->qz));
 }
+
+static void send_att_full_indi(struct transport_tx *trans, struct link_device *dev)
+{
+  struct FloatRates *body_rates = stateGetBodyRates_f();
+  struct Int32Vect3 *body_accel_i = stateGetAccelBody_i();
+  struct FloatVect3 body_accel_f_telem;
+  ACCELS_FLOAT_OF_BFP(body_accel_f_telem, *body_accel_i);
+  float zero = 0;
+  pprz_msg_send_STAB_ATTITUDE_INDI(trans, dev, AC_ID,
+                                        &body_accel_f_telem.x,    // input lin.acc
+                                        &body_accel_f_telem.y,
+                                        &body_accel_f_telem.z,
+                                        &body_rates->p,           // rate
+                                        &body_rates->q,
+                                        &body_rates->r,
+                                        &angular_rate_ref.p,      // rate.sp
+                                        &angular_rate_ref.q,
+                                        &angular_rate_ref.r,
+                                        &angular_acceleration[0], // ang.acc
+                                        &angular_acceleration[1],
+                                        &angular_acceleration[2],
+                                        &angular_accel_ref.p,     // ang.acc.sp
+                                        &angular_accel_ref.q,
+                                        &angular_accel_ref.r,
+                                        &zero, &zero,             // eff.mat
+                                        &zero, &zero,
+                                        INDI_NUM_ACT, indi_u);    // out
+}
 #endif
 
 /**
@@ -278,6 +307,7 @@ void stabilization_indi_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INDI, send_att_full_indi);
 #endif
 }
 
@@ -616,6 +646,11 @@ void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight)
   rate_sp.q = indi_gains.att.q * att_fb.y / indi_gains.rate.q;
   rate_sp.r = indi_gains.att.r * att_fb.z / indi_gains.rate.r;
 
+  // Store for telemetry
+  angular_rate_ref.p = rate_sp.p;
+  angular_rate_ref.q = rate_sp.q;
+  angular_rate_ref.r = rate_sp.r;
+
   // Possibly we can use some bounding here
   /*BoundAbs(rate_sp.r, 5.0);*/
 
@@ -846,14 +881,18 @@ void calc_g1g2_pseudo_inv(void)
   }
 }
 
-static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t UNUSED *rpm, uint8_t UNUSED num_act)
+static void rpm_cb(uint8_t sender_id UNUSED, struct rpm_act_t *rpm_msg UNUSED, uint8_t num_act UNUSED)
 {
 #if INDI_RPM_FEEDBACK
   int8_t i;
   for (i = 0; i < num_act; i++) {
-    act_obs[i] = (rpm[i] - get_servo_min(i));
-    act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i) - get_servo_min(i)));
-    Bound(act_obs[i], 0, MAX_PPRZ);
+    // Sanity check that index is valid
+    if (rpm_msg[i].actuator_idx < INDI_NUM_ACT) {
+      int8_t idx = rpm_msg[i].actuator_idx;
+      act_obs[idx] = (rpm_msg[i].rpm - get_servo_min(idx));
+      act_obs[idx] *= (MAX_PPRZ / (float)(get_servo_max(idx) - get_servo_min(idx)));
+      Bound(act_obs[idx], 0, MAX_PPRZ);
+    }
   }
 #endif
 }

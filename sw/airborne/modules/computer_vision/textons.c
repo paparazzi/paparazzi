@@ -139,8 +139,8 @@ static FILE *dictionary_logger = NULL;
  * @param[out] *img The output image
  * @param[in] *img The input image (YUV422)
  */
-struct image_t *texton_func(struct image_t *img, uint8_t p);
-struct image_t *texton_func(struct image_t *img, uint8_t p)
+struct image_t *texton_func(struct image_t *img, UNUSED uint8_t p);
+struct image_t *texton_func(struct image_t *img, UNUSED uint8_t p)
 {
   // whether to execute the function:
   if (!running) { return img; }
@@ -286,7 +286,7 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
     }
 
     // Extract and learn from n_samples_image per image
-    for (s = 0; s < n_samples_image; s++) {
+    for (s = 0; s < (int) n_samples_image; s++) {
       // select a random sample from the image
       x = rand() % (width - patch_size);
       y = rand() % (height - patch_size);
@@ -446,7 +446,7 @@ void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height)
     texton_distribution[assignment]++;
     n_extracted_textons++;
 
-    if (!FULL_SAMPLING && n_extracted_textons == n_samples_image) {
+    if (!FULL_SAMPLING && n_extracted_textons == (int) n_samples_image) {
       finished = 1;
     } else {
       // FULL_SAMPLING is actually a sampling that covers the image:

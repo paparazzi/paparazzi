@@ -6,29 +6,27 @@
       MS45XX differential or gauge type of pressure sensor for e.g measuring airspeed.
       This sensor module is using the MS45xxDO digital pressure sensor with readings via I2C.
       Needs to be a versions with 14bit pressure and 11bit temperature data output.
+
+      If the airspeed reading is badly calibrated, use the MS45XX_PRESSURE_SCALE to compensate.
+      Use the MS45XX_AIRSPEED_SCALE only to change air density.
     </description>
     <define name="MS45XX_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c2)"/>
     <define name="MS45XX_I2C_ADDR" value="0x50" description="i2c slave address (default: 0x50)"/>
     <define name="MS45XX_PRESSURE_TYPE" value="0|1" description="Pressure Differential or Gauge, default is Differential"/>
     <define name="MS45XX_PRESSURE_RANGE" value="1|2|4|5|10|15|20|30|50|100|150" description="pressure range in psi (default: 1)"/>
     <define name="MS45XX_OUTPUT_TYPE" value="0|1" description="set to 0 for output type A, to 1 for output type B (default: type A)"/>
-    <define name="MS45XX_SYNC_SEND" value="TRUE|FALSE" description="flag to enable sending every new measurement via telemetry (default:FALSE)"/>
     <define name="MS45XX_PRESSURE_SCALE" value="1.05" description="pressure scaling factor to convert raw output to Pa (default: set according to pressure range and output type according to datasheet)"/>
     <define name="MS45XX_PRESSURE_OFFSET" value="8618.4" description="pressure offset in Pa (default: set according to pressure range and output type according to datasheet)"/>
-    <define name="MS45XX_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed"/>
     <define name="MS45XX_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
-    <define name="USE_AIRSPEED_MS45XX" value="TRUE|FALSE" description="Set airspeed in state interface for this sensor"/>
   </doc>
 
   <settings>
     <dl_settings>
       <dl_settings NAME="MS45XX">
-        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="ms45xx.sync_send" type="bool" shortname="sync_send" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_SYNC_SEND" persistent="true"/>
-        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="ms45xx.autoset_offset" type="bool" shortname="autoset offset" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_SYNC_SEND" persistent="true"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="ms45xx.autoset_offset" type="bool" shortname="autoset offset" module="modules/sensors/airspeed_ms45xx_i2c" persistent="true"/>
         <dl_setting min="0.9" max="1.2" step="0.01" var="ms45xx.pressure_scale" type="float" shortname="PressScale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_PRESSURE_SCALE" persistent="true"/>
         <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="ms45xx.pressure_type" type="bool" shortname="Type G" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_PRESSURE_TYPE" persistent="true"/>
         <dl_setting min="8300.0" max="8900.0" step="0.1" var="ms45xx.pressure_offset" type="float" shortname="PressOffset" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_PRESSURE_OFFSET" persistent="true"/>
-        <dl_setting min="1.0" max="2.0" step="0.01" var="ms45xx.airspeed_scale" type="float" shortname="AirScale" module="modules/sensors/airspeed_ms45xx_i2c" param="MS45XX_AIRSPEED_SCALE" persistent="true"/>
       </dl_settings>
     </dl_settings>
   </settings>

@@ -45,7 +45,7 @@
 
             <configure name="NAVIGATION_FREQUENCY" value="16"/>
             <configure name="CONTROL_FREQUENCY" value="2000"/>
-            <configure name="TELEMETRY_FREQUENCY" value="120"/>
+            <configure name="TELEMETRY_FREQUENCY" value="128"/>
             <configure name="MODULES_FREQUENCY" value="2048"/>
 
             <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/><!-- handy with the short flight time between tuning sets, not tested if it works yet, this board we have 16kb reserved -->

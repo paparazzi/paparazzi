@@ -10,7 +10,7 @@ bool led_disabled = false;
 
 value register_leds_cb(value cb_name)
 {
-  leds_closure = caml_named_value(String_val(cb_name));
+  leds_closure = (value *)caml_named_value(String_val(cb_name));
   return Val_unit;
 }
 

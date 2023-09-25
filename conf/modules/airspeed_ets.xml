@@ -22,7 +22,6 @@
     <define name="AIRSPEED_ETS_OFFSET" value="offset" description="sensor reading offset for sensor in proprietary mode (default: 0)"/>
     <define name="AIRSPEED_ETS_SCALE" value="scale" description="sensor scale factor for sensor in proprietary mode  (default: 1.8)"/>
     <define name="AIRSPEED_ETS_START_DELAY" value="delay" description="set initial start delay in seconds"/>
-    <define name="AIRSPEED_ETS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
     <define name="USE_AIRSPEED_ETS" value="TRUE|FALSE" description="set airspeed in state interface"/>
     <define name="AIRSPEED_ETS_3RD_PARTY_MODE"  description="read raw value for sensor in third-party mode"/>
     <define name="AIRSPEED_ETS_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
@@ -47,6 +46,9 @@
     <test>
       <define name="USE_I2C0"/>
       <define name="USE_AIRSPEED_ETS"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
     </test>
   </makefile>
 

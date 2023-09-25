@@ -105,6 +105,10 @@
     <servo name="FR" no="1" min="1000" neutral="1100" max="1900"/>
     <servo name="BR" no="2" min="1000" neutral="1100" max="1900"/>
     <servo name="BL" no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="E1" no="4" min="1000" neutral="1100" max="1900"/>
+    <servo name="E2" no="5" min="1000" neutral="1100" max="1900"/>
+    <servo name="E3" no="6" min="1000" neutral="1100" max="1900"/>
+    <servo name="E4" no="7" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>

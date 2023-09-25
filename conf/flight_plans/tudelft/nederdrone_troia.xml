@@ -193,6 +193,18 @@
       <exception cond="GpsFixValid()" deroute="GO NORTH"/>
       <attitude pitch="0" roll="0" climb="-1.0" vmode="climb"/>
     </block>
+    <block name="300m Circle">
+      <set value="300.0" var="nav.radius"/>
+      <deroute block="Circle"/>
+    </block>
+    <block name="600m Circle">
+      <set value="600.0" var="nav.radius"/>
+      <deroute block="Circle"/>
+    </block>
+    <block name="1000m Circle">
+      <set value="1000.0" var="nav.radius"/>
+      <deroute block="Circle"/>
+    </block>
     <block name="Circle">
       <set value="TRUE" var="force_forward"/>
       <circle radius="nav.radius" wp="CIRCLE"/>

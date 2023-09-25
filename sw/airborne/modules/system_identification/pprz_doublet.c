@@ -28,30 +28,34 @@
 
 
 
-void doublet_init(struct doublet_t *doublet, float length_s, float extra_waiting_time_s, float current_time_s, bool mod3211)
+void doublet_init(struct doublet_t *doublet, float length_s, float extra_waiting_time_s, float current_time_s, uint8_t mod)
 {
     doublet->t0 = current_time_s;
     doublet->tf = length_s;
     doublet->total_length_s = doublet->tf + extra_waiting_time_s;
-    doublet->mod3211 = mod3211;
+    doublet->mod = mod;
     doublet->current_value = 0;
     doublet->current_time_s = current_time_s;
 
-    if (mod3211) {
-        doublet->t1 = length_s / 9;
-        doublet->t2 = doublet->t1 * 4;
-        doublet->t3 = doublet->t1 * 6;
-        doublet->t4 = doublet->t1 * 7;
-        doublet->t5 = doublet->t1 * 8;
-    } else{
+    if (mod==0) { // Normal doublet
         doublet->t1 = length_s / 4;
         doublet->t2 = doublet->t1 * 2;
         doublet->t3 = doublet->t1 * 3;
         doublet->t4 = doublet->t1 * 4;
         doublet->t5 = doublet->tf;
-
+    } else if (mod==1) { // Half doublet
+        doublet->t1 = length_s / 4;
+        doublet->t2 = doublet->t1 * 2;
+        doublet->t3 = doublet->t1 * 3;
+        doublet->t4 = doublet->t1 * 4;
+        doublet->t5 = doublet->tf;
+    } else if (mod==2) { // 3211 doublet 
+        doublet->t1 = length_s / 9;
+        doublet->t2 = doublet->t1 * 4;
+        doublet->t3 = doublet->t1 * 6;
+        doublet->t4 = doublet->t1 * 7;
+        doublet->t5 = doublet->t1 * 8;
     }
-
 }
 
 void doublet_reset(struct doublet_t *doublet, float current_time_s){
@@ -74,7 +78,23 @@ float doublet_update(struct doublet_t *doublet, float current_time_s){
 
     float t = current_time_s - doublet->t0; // since the start of the doublet
     if ((t>=0) & (t<=doublet->tf)){
-        if (doublet->mod3211){
+        if (doublet->mod == 0) {
+            if((t >= doublet->t1) & (t <= doublet->t2)){
+                doublet->current_value = 1.0f;
+            }else if((t >= doublet->t2) & (t <= doublet->t3)){
+                doublet->current_value = -1.0f;
+            }else{
+                doublet->current_value = 0.0f;
+            }
+        } else if (doublet->mod == 1) {
+            if((t >= doublet->t1) & (t <= doublet->t2)){
+                doublet->current_value = 1.0f;
+            }else if((t >= doublet->t2) & (t <= doublet->t3)){
+                doublet->current_value = 1.0f;
+            }else{
+                doublet->current_value = 0.0f;
+            }
+        } else if (doublet->mod == 2) {
             if (((t >= doublet->t1) & (t <= doublet->t2)) | ((t >= doublet->t3) & (t <= doublet->t4))){
                 doublet->current_value = 1.0f;
             }else if(((t >= doublet->t2) && (t <= doublet->t3)) | ((t >= doublet->t4) && (t <= doublet->t5))){
@@ -83,16 +103,7 @@ float doublet_update(struct doublet_t *doublet, float current_time_s){
                 doublet->current_value = 0.0f;
             }
         }
-        else{
-            if((t >= doublet->t1) & (t <= doublet->t2)){
-                doublet->current_value = 1.0f;
-            }else if((t >= doublet->t2) & (t <= doublet->t3)){
-                doublet->current_value = -1.0f;
-            }else{
-                doublet->current_value = 0.0f;
-            }
-        }
-    }else{
+    } else {
         doublet->current_value = 0.0f;
     }
     return doublet->current_value;

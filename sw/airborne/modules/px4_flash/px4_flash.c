@@ -37,6 +37,10 @@
 #include "led.h"
 #include "mcu_arch.h"
 
+#ifdef STM32_MCU_ARCH_H // scb_reset_system from OpenCM3
+#include <libopencm3/cm3/scb.h>
+#endif
+
 #include "mcu_periph/sys_time.h"
 #ifdef INTER_MCU_AP
 tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset

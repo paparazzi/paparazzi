@@ -93,7 +93,6 @@ NOTES:
         <define name="AIRSPEED_ETS_OFFSET" value="5"/> <!-- default 0 -->
         <!--<define name="AIRSPEED_ETS_USE_FILTER" value="TRUE"/> 
         <define name="AIRSPEED_ETS_LOWPASS_TAU" value=".20"/>-->
-        <define name="AIRSPEED_ETS_SYNC_SEND"/>  <!-- TODO Disable after first 10 test flights -->
       </module>
 
       <!--<module name="filter_1euro_imu"/>-->
@@ -244,7 +243,7 @@ NOTES:
     (differential) pressure sensor module publishing the BARO_DIFF ABI message.
     Make sure to disable other modules which otherwise directly set the
     airspeed in the state interface. E.g. when using the airspeed_ms45xx.xml module,
-    define USE_AIRSPEED or USE_AIRSPEED_MS45XX to FALSE only when Airdata is set to TRUE
+    define USE_AIRSPEED to FALSE only when Airdata is set to TRUE
     Sometimes one just wants to measure, and not yet use the airspeed in
     a final navigational solution then also set it to FALSE
     -->

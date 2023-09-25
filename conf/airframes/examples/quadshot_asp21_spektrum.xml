@@ -237,7 +237,7 @@
     <define name="ACT_DYN_Q" value="0.03"/>
     <define name="ACT_DYN_R" value="0.03"/>
         <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="TRUE"/>
+    <define name="USE_ADAPTIVE" value="FALSE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
@@ -364,7 +364,6 @@
 
   <!--Use an airspeed sensor and get the measured airspeed in the messages-->
 <!--    <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
     <module name="logger_spi_link"/>

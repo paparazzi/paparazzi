@@ -93,7 +93,8 @@ static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
       float bat_voltage = electrical.vsupply;
       float power = actuators_dshot_values[i].current * bat_voltage;
       float energy = (float)dtelem->consumption;
-      float temp = dtelem->temp + 273.15;
+      float temp = dtelem->temp;
+      float temp_dev = 0;
       pprz_msg_send_ESC(trans, dev, AC_ID,
           &actuators_dshot_values[i].current,
           &bat_voltage,
@@ -102,6 +103,7 @@ static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
           &actuators_dshot_values[i].voltage,
           &energy,
           &temp,
+          &temp_dev,
           &i,
           &i);
     }
@@ -325,11 +327,14 @@ void actuators_dshot_arch_commit(void)
   dshotSendFrame(&DSHOTD9);
 #endif
 
-  uint16_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
+
+  struct rpm_act_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
+    rpm_list[i].actuator_idx = ACTUATORS_DSHOT_OFFSET + i;
+    rpm_list[i].rpm = 0;
     if (actuators_dshot_values[i].activated) {
       const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      rpm_list[i] = dtelem->rpm;
+      rpm_list[i].rpm = dtelem->rpm;
     }
   }
   AbiSendMsgRPM(RPM_DSHOT_ID, rpm_list, ACTUATORS_DSHOT_NB);

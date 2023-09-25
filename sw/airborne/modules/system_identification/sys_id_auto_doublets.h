@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2023 Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  *
  * This file is part of paparazzi
  *
@@ -18,18 +18,20 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file "modules/actuators/actuators_dshot_arch.c"
- * @author Gautier Hattenberger
- * Simulation driver for DSHOT speed controller protocol
- * Arch dependent part
+/** @file "modules/system_identification/sys_id_auto_doublets.h"
+ * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ * Module that automatically runs a doublet program for the rotating wing drone
  */
 
-#include "modules/actuators/actuators_dshot.h"
+#ifndef SYS_ID_AUTO_DOUBLETS_H
+#define SYS_ID_AUTO_DOUBLETS_H
 
-struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
+#include "std.h"
 
-void actuators_dshot_arch_init(void) {}
+extern bool sys_id_auto_doublets_activated;
 
-void actuators_dshot_arch_commit(void) {}
+extern void init_sys_id_auto_doublets(void);
+extern void periodic_sys_id_auto_doublets(void);
+extern void sys_id_auto_doublets_on_activation(uint8_t active);
 
+#endif  // SYS_ID_AUTO_DOUBLETS_H

@@ -250,7 +250,6 @@
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <module name="airspeed_ets">
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </module>
 
     <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->

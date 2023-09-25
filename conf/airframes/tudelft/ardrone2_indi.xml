@@ -157,7 +157,7 @@
     <define name="ACT_DYN_R" value="0.06"/>
 
     <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="TRUE"/>
+    <define name="USE_ADAPTIVE" value="FALSE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 

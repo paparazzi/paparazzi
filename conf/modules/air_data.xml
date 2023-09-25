@@ -8,7 +8,7 @@
     Subscribes to BARO_ABS, BARO_DIFF and TEMPERATURE ABI messages and calculates QNH and true airspeed from it.
     Also enables you to fly on "flight levels" using AMSL (AltitudeAboveSeaLevel) calculated from current pressure and QNH.
 
-    When using this module to provide airspeed you need a differential pressure sensor module publishing the BARO_DIFF ABI message. Make sure to disable other modules which otherwise directly set the airspeed in the state interface. E.g. when using the airspeed_ms45xx.xml module, define USE_AIRSPEED_MS45XX to FALSE.
+    When using this module to provide airspeed you need a differential pressure sensor module publishing the BARO_DIFF ABI message. Make sure to disable other modules which otherwise directly set the airspeed in the state interface.
     </description>
     <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
     <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>

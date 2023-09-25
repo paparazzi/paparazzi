@@ -30,6 +30,7 @@ pyramid level 2: 21 fps average, min=11fps
     </module>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_FLOATING_HEADING" value="1"/><!-- accept floating heading -->
     </module>
     <module name="ins" type="hff_extended"/>
     <define name="USE_SONAR"/>

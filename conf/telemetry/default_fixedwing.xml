@@ -72,6 +72,7 @@
       <message name="BARO_RAW"          period="0.5"/>
       <message name="IR_SENSORS"        period="0.5"/>
       <message name="IMU_GYRO_RAW"      period="0.1"/>
+      <message name="AIRSPEED_RAW"      period="0.5"/>
     </mode>
   </process>
   <process name="Fbw">

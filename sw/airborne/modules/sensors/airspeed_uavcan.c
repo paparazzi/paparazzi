@@ -61,9 +61,17 @@ struct airspeed_uavcan_s airspeed_uavcan;
 
 static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AIRSPEED_UAVCAN(trans,dev,AC_ID,
+  uint8_t dev_id = UAVCAN_SENDER_ID;
+  uint16_t raw = 0;
+  float offset = 0;
+  float airspeed = 0;
+  pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
+                                &dev_id,
+                                &raw,
+                                &offset,
                                 &airspeed_uavcan.diff_p,
-                                &airspeed_uavcan.temperature);
+                                &airspeed_uavcan.temperature,
+                                &airspeed);
 }
 
 static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
@@ -118,6 +126,6 @@ void airspeed_uavcan_init(void)
   uavcan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_uavcan_ev, &airspeed_uavcan_cb);
 
   #if PERIODIC_TELEMETRY
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_UAVCAN, airspeed_uavcan_downlink);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_uavcan_downlink);
   #endif
 }

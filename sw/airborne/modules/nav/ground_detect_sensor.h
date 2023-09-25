@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2023 Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  *
  * This file is part of paparazzi
  *
@@ -18,18 +18,19 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file "modules/actuators/actuators_dshot_arch.c"
- * @author Gautier Hattenberger
- * Simulation driver for DSHOT speed controller protocol
- * Arch dependent part
+/** @file "modules/nav/ground_detect_sensor.h"
+ * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ * Ground detection module
  */
 
-#include "modules/actuators/actuators_dshot.h"
+#ifndef GROUND_DETECT_SENSOR_H
+#define GROUND_DETECT_SENSOR_H
 
-struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
+#include "std.h"
 
-void actuators_dshot_arch_init(void) {}
+extern void ground_detect_sensor_init(void);
+extern void ground_detect_sensor_periodic(void);
 
-void actuators_dshot_arch_commit(void) {}
+extern bool ground_detect(void);
 
+#endif  // GROUND_DETECT_SENSOR_H

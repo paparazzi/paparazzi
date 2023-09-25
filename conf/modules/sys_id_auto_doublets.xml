@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="sys_id_auto_doublets" dir="system_identification">
+  <doc>
+    <description>Module that automatically runs a doublet sequence on a list of actuators</description>
+    <section name="SYS_ID" prefix="SYS_ID_">
+      <define name="AUTO_DOUBLETS_N_ACTUATORS" value="1" description="Number of doublets in the sequence"/>
+      <define name="AUTO_DOUBLETS_ACTUATORS" value="{0}" description="List with SYS_ID_AUTO_DOUBLETS_N_ACTUATORS actuators"/>
+      <define name="AUTO_DOUBLETS_AMPLITUDE" value="{5000}" description="List with SYS_ID_AUTO_DOUBLETS_N_ACTUATORS doublet amplitudes"/>
+    </section>
+  </doc>
+  <settings>
+  <dl_settings NAME="AutoDoublet">
+    <dl_settings name="auto_doublet">
+        <dl_setting min="0"    max="1"    step="1" values="Inactive|Active" shortname="activated" var="sys_id_auto_doublets_activated" type="uint8_t" module="system_identification/sys_id_auto_doublets" handler="on_activation"/>
+    </dl_settings>
+  </dl_settings>
+  </settings>
+  <header>
+    <file name="sys_id_auto_doublets.h"/>
+  </header>
+  <init fun="init_sys_id_auto_doublets()"/>
+  <periodic fun="periodic_sys_id_auto_doublets()" freq="20.0"/>
+  <makefile>
+    <file name="sys_id_auto_doublets.c"/>
+    <test>
+      <define name="SYS_ID_AUTO_DOUBLETS_N_ACTUATORS" value="1" />
+      <define name="SYS_ID_AUTO_DOUBLETS_ACTUATORS" value="{0}" />
+      <define name="SYS_ID_AUTO_DOUBLETS_AMPLITUDE" value="{5000}" />
+    </test>
+  </makefile>
+</module>

@@ -92,10 +92,7 @@
       <configure name="MODEM_BAUD" value="B460800"/>
     </module>
 
-    <module name="approach_moving_target">
-      <define name="AMT_ERR_SLOWDOWN_GAIN" value="0.25"/>
-      <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
-    </module>
+    <module name="approach_moving_target"/>
 
     <module name="ins"           type="ekf2">
       <define name="USE_INS_NAV_INIT" value="FALSE"/>
@@ -176,14 +173,10 @@
     </module>
 
     <module name="motor_mixing"/>
-    <!--module name="sys_id_doublet">
-      <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7}"/>
-      <define name="DOUBLET_RADIO_CHANNEL" value="9"/>
-    </module-->
-    <!--<module name="sys_id_chirp">
-    	<define name="CHIRP_AXES" value="{0,1,2,3,4,5,6,7}"/>
-      <define name="CHIRP_RADIO_CHANNEL" value="9"/>
-    </module>-->
+
+    <module name="sys_id" type="doublet"/>
+    <module name="sys_id" type="auto_doublets"/>
+    <module name="sys_id" type="chirp"/>
 
   </firmware>
 
@@ -244,8 +237,8 @@
 
     <!-- Tip props always at 80% -->
     <call fun="actuators_pprz[8] = (Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), 0.01 > sched_ratio_tip_props)? -9600 : 9600/100*85*sched_ratio_tip_props);"/>
-    <!--call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/-->
-    <!--<call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>-->
+    <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
+    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
 
     <set servo="MOTOR_1"   value="($th_hold? -9600 : actuators_pprz[8])"/>
     <set servo="MOTOR_2"   value="($th_hold? -9600 : actuators_pprz[0])"/>
@@ -285,6 +278,19 @@
     <!-- Avoid GPS loss behavior when having RC or datalink -->
     <define name="NO_GPS_LOST_WITH_DATALINK_TIME" value="20"/>
     <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>
+  </section>
+
+  <section name="SYS_ID" prefix="SYS_ID_">
+    <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7}"/>
+    <define name="DOUBLET_RADIO_CHANNEL" value="9"/>
+
+    <define name="CHIRP_ENABLED" value="FALSE"/>
+    <define name="CHIRP_AXES" value="{0,1,2,3,4,5,6,7}"/>
+    <define name="CHIRP_RADIO_CHANNEL" value="9"/>
+
+    <define name="AUTO_DOUBLETS_N_ACTUATORS" value="2"/>
+    <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1}"/>
+    <define name="AUTO_DOUBLETS_AMPLITUDE" value="{5000,5000}"/>
   </section>
 
   <section name="FORWARD">
@@ -409,6 +415,14 @@
     <define name="DGAIN" value="100"/>
     <define name="AGAIN" value="0"/>
     <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="AMT" prefix="APPROACH_MOVING_TARGET_">
+    <define name="CUTOFF_FREQ_FILTERS_HZ" value="0.25"/>
+    <define name="ERR_SLOWDOWN_GAIN" value="0.25" />
+    <define name="SLOPE" value="35.0"/>
+    <define name="DISTANCE" value="60.0"/>
+    <define name="SPEED" value="-1.0"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
