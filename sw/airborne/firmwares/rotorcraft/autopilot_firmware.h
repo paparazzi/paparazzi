@@ -33,6 +33,12 @@
 
 extern uint8_t autopilot_mode_auto2;
 
+// Detect the ground and set NavGroundDetect() to true
+extern bool autopilot_ground_detection(void);
+
+// Detect the end of in_flight and stop integrators in control loops
+extern bool autopilot_in_flight_end_detection(void);
+
 extern void autopilot_firmware_init(void);
 
 #endif /* AUTOPILOT_FIRMWARE_H */
