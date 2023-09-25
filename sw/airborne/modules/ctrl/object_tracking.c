@@ -111,7 +111,7 @@ void object_tracking_run(void)
     float diff = target_heading - nav.heading;
     FLOAT_ANGLE_NORMALIZE(diff);
     BoundAbs(diff, object_tracking_rate * nav_dt)
-    nav_heading += ANGLE_BFP_OF_REAL(diff);
+    nav.heading += diff;
 #if OBJECT_TRACKING_DEBUG
     float msg[] = {
       target_heading,
@@ -122,8 +122,8 @@ void object_tracking_run(void)
     DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, msg);
 #endif
   } else {
-    nav_heading += ANGLE_BFP_OF_REAL(object_tracking_search_rate * nav_dt);
+    nav.heading += object_tracking_search_rate * nav_dt;
   }
-  INT32_COURSE_NORMALIZE(nav_heading);
+  NormCourseRad(nav.heading);
 }
 
