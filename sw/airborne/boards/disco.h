@@ -97,7 +97,6 @@ extern struct video_config_t front_camera;
 #define MS45XX_PRESSURE_TYPE 1
 #define MS45XX_OUTPUT_TYPE 1
 #define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
-#define MS45XX_AIRSPEED_SCALE 1.6327
 #ifndef USE_AIRSPEED_LOWPASS_FILTER
 #define USE_AIRSPEED_LOWPASS_FILTER 1
 #endif
