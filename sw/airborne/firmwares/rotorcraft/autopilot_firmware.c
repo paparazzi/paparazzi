@@ -72,9 +72,24 @@ static uint32_t autopilot_in_flight_counter;
 #define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
 #endif
 
+/** Z-acceleration threshold to detect ground in m/s^2 */
+#ifndef THRESHOLD_GROUND_DETECT
+#define THRESHOLD_GROUND_DETECT 25.0
+#endif
 
-/** Default ground detection estimation based on thrust and speed */
+/** Default ground-detection estimation based on accelerometer shock */
 __attribute__((weak)) bool autopilot_ground_detection(void) {
+  struct NedCoor_f *accel = stateGetAccelNed_f();
+  if (accel->z < -THRESHOLD_GROUND_DETECT ||
+      accel->z > THRESHOLD_GROUND_DETECT) {
+    return true;
+  }
+  return false;
+}
+
+
+/** Default in-flight detection estimation based on thrust and speed */
+__attribute__((weak)) bool autopilot_in_flight_detection(void) {
   if (autopilot_in_flight_counter > 0) {
     /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
     if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
@@ -267,7 +282,7 @@ void autopilot_reset_in_flight_counter(void)
 void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot.in_flight) {
-    if (autopilot_ground_detection()) {
+    if (autopilot_in_flight_detection()) {
       autopilot.in_flight = false;
       autopilot_in_flight_counter == 0;
     }
