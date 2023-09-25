@@ -89,7 +89,7 @@ bool WEAK autopilot_ground_detection(void) {
 
 
 /** Default end-of-in-flight detection estimation based on thrust and speed */
-bool WEAK autopilot_in_flight_end_detection(void) {
+bool WEAK autopilot_in_flight_end_detection(bool motors_on UNUSED) {
   if (autopilot_in_flight_counter > 0) {
     /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
     if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
@@ -282,7 +282,7 @@ void autopilot_reset_in_flight_counter(void)
 void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot.in_flight) {
-    if (autopilot_in_flight_end_detection()) {
+    if (autopilot_in_flight_end_detection(motors_on)) {
       autopilot.in_flight = false;
       autopilot_in_flight_counter = 0;
     }
