@@ -39,17 +39,6 @@
 #include "modules/datalink/telemetry.h"
 #endif
 
-#ifndef USE_AIRSPEED_MS45XX
-#if USE_AIRSPEED
-#define USE_AIRSPEED_MS45XX TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED")
-#endif
-#endif
-
-#if USE_AIRSPEED_MS45XX
-#include "state.h"
-#endif
-
 /** Default I2C device
  */
 #ifndef MS45XX_I2C_DEV
@@ -144,12 +133,6 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_RANGE)
 PRINT_CONFIG_VAR(MS45XX_PRESSURE_SCALE)
 PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
 
-/** Send a AIRSPEED_MS45XX message with every new measurement.
- * Mainly for debugging, use with caution, sends message at ~100Hz.
- */
-#ifndef MS45XX_SYNC_SEND
-#define MS45XX_SYNC_SEND FALSE
-#endif
 
 /** Quadratic scale factor for indicated airspeed.
  * airspeed = sqrt(2*p_diff/density)
@@ -157,7 +140,7 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
  * default airspeed scale is 2/1.225
  */
 #ifdef MS45XX_AIRSPEED_SCALE
-#warning Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX, otherwise AIR_DATA is wrong.
+#PRINT_CONFIG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX.")
 #else
 #define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
@@ -197,7 +180,6 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
-  ms45xx.sync_send = MS45XX_SYNC_SEND;
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
@@ -289,12 +271,6 @@ void ms45xx_i2c_event(void)
       // Compute airspeed
       ms45xx.airspeed = sqrtf(Max(ms45xx.pressure, 0)) * MS45XX_AIRSPEED_SCALE;
 
-#if USE_AIRSPEED_MS45XX
-      stateSetAirspeed_f(ms45xx.airspeed);
-#endif
-      if (ms45xx.sync_send) {
-        ms45xx_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-      }
     }
 
     // Set to done
