@@ -312,7 +312,6 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
-  //printf("abi thrust %f\n", euler_cmd.z);
   AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
 
   // Coordinated turn
@@ -510,7 +509,6 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   /*BoundAbs(sp_accel.y, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   BoundAbs(accel_sp.z, 3.0);
 
-  //printf("accel_sp %f %f %f\n", accel_sp.x, accel_sp.y, accel_sp.z);
   return accel_sp;
 }
 
