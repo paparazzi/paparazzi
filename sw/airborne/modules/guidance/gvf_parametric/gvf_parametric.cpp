@@ -33,6 +33,7 @@
 #include "./trajectories/gvf_parametric_3d_lissajous.h"
 #include "./trajectories/gvf_parametric_2d_trefoil.h"
 #include "./trajectories/gvf_parametric_2d_bezier_splines.h"
+#include "../gvf_common.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -209,6 +210,11 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   float aux = ht * Fp * X;
   float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux /
                        sqrtf(Xt * G * X));
+  
+  // From gvf_common.h TODO: implement d/dt of kppa and ori_err
+  gvf_c_omega.omega   = heading_rate; 
+  gvf_c_info.kappa    = (f1d*f2dd - f1dd*f2d)/powf(f1d*f1d + f2d*f2d, 1.5);
+  gvf_c_info.ori_err  = 1 - (Xh(0)*cosf(course) + Xh(1)*sinf(course));
 
   // Virtual coordinate update, even if the vehicle is not in autonomous mode, the parameter w will get "closer" to
   // the vehicle. So it is not only okei but advisable to update it.

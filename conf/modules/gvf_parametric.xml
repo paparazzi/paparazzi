@@ -61,7 +61,11 @@
       </dl_settings>
     </dl_settings>
   </settings>
-
+  
+  <dep>
+    <depends>gvf_common</depends>
+  </dep>
+  
   <header>
     <file name="gvf_parametric.h"/>
     <file name="gvf_parametric_low_level_control.h"/>
