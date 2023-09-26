@@ -31,6 +31,9 @@
 #include "generated/airframe.h"
 #include "modules/datalink/datalink.h"
 #include "modules/datalink/downlink.h"
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+#endif
 
 // Check for unique ID by default
 #ifndef MISSION_CHECK_UNIQUE_ID
@@ -38,6 +41,26 @@
 #endif
 
 struct _mission mission = { 0 };
+
+static void send_mission_status(struct transport_tx *trans, struct link_device *device)
+{
+  // build index list
+  uint8_t index_list[MISSION_ELEMENT_NB];
+  uint8_t i = mission.current_idx, j = 0;
+  while (i != mission.insert_idx) {
+    index_list[j++] = mission.elements[i].index;
+    i = (i + 1) % MISSION_ELEMENT_NB;
+  }
+  if (j == 0) { index_list[j++] = 0; } // Dummy value if index list is empty
+  //compute remaining time (or -1. if no time limit)
+  float remaining_time = -1.;
+  if (mission.elements[mission.current_idx].duration > 0.) {
+    remaining_time = mission.elements[mission.current_idx].duration - mission.element_time;
+  }
+
+  // send status
+  pprz_msg_send_MISSION_STATUS(trans, device, AC_ID, &remaining_time, j, index_list);
+}
 
 void mission_init(void)
 {
@@ -49,6 +72,10 @@ void mission_init(void)
     mission.registered[i].cb = NULL;
     memset(mission.registered[i].type, '\0', MISSION_TYPE_SIZE);
   }
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_MISSION_STATUS, send_mission_status);
+#endif
 }
 
 
@@ -160,22 +187,7 @@ struct _mission_element *mission_get(void)
 // Report function
 void mission_status_report(void)
 {
-  // build index list
-  uint8_t index_list[MISSION_ELEMENT_NB];
-  uint8_t i = mission.current_idx, j = 0;
-  while (i != mission.insert_idx) {
-    index_list[j++] = mission.elements[i].index;
-    i = (i + 1) % MISSION_ELEMENT_NB;
-  }
-  if (j == 0) { index_list[j++] = 0; } // Dummy value if index list is empty
-  //compute remaining time (or -1. if no time limit)
-  float remaining_time = -1.;
-  if (mission.elements[mission.current_idx].duration > 0.) {
-    remaining_time = mission.elements[mission.current_idx].duration - mission.element_time;
-  }
-
-  // send status
-  DOWNLINK_SEND_MISSION_STATUS(DefaultChannel, DefaultDevice, &remaining_time, j, index_list);
+  send_mission_status(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 }
 
 

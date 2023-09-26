@@ -7,6 +7,13 @@
       This module parse datalink commands for basic navigation routines
       and store them in a queue.
     </description>
+    <section name="MISSION" prefix="MISSION_">
+      <define name="ELEMENT_NB" value="20" description="maximum number of elements in the mission queue"/>
+      <define name="REGISTER_NB" value="6" description="maximum number of custom elemets to register"/>
+      <define name="CHECK_UNIQUE_ID" value="TRUE|FALSE" description="check before inserting that all elements ID are unique in the queue (default: TRUE)"/>
+      <define name="ALT_PROXIMITY" value="distance" unit="m" description="if defined, enforce a vertical proximity to validate the target points (default: undefined)"/>
+      <define name="WAIT_TIMEOUT" value="time" unit="s" description="time in waiting pattern when queue is empty before ending the mission (default: fixedwing=120, rotorcraft=30)"/>
+    </section>
   </doc>
   <header>
     <file name="mission_common.h"/>
