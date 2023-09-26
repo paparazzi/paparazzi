@@ -59,6 +59,18 @@ void mag_lis3mdl_module_init(void)
      LIS3MDL_SCALE_4_GAUSS,
      LIS3MDL_MODE_CONTINUOUS,
      LIS3MDL_PERFORMANCE_ULTRA_HIGH);
+
+#if MODULE_LIS3MDL_UPDATE_AHRS && defined(LIS3MDL_MAG_TO_IMU_PHI) && defined(LIS3MDL_MAG_TO_IMU_THETA) && defined(LIS3MDL_MAG_TO_IMU_PSI)
+  struct Int32RMat mag_to_imu;
+  struct Int32Eulers mag_to_imu_eulers = {
+    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_PHI),
+    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_THETA),
+    ANGLE_BFP_OF_REAL(LIS3MDL_MAG_TO_IMU_PSI)
+  };
+  int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
+
+  imu_set_defaults_mag(MAG_LIS3MDL_SENDER_ID, &mag_to_imu, NULL, NULL);
+#endif
 }
 
 void mag_lis3mdl_module_periodic(void)

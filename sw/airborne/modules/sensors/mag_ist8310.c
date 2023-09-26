@@ -65,7 +65,7 @@ void mag_ist8310_module_init(void)
   };
   int32_rmat_of_eulers(&mag_to_imu, &mag_to_imu_eulers);
 
-  imu_set_defaults_mag(MAG_IST8310_SENDER_ID, &mag_to_imu, NULL, NULL)
+  imu_set_defaults_mag(MAG_IST8310_SENDER_ID, &mag_to_imu, NULL, NULL);
 #endif
 }
 
