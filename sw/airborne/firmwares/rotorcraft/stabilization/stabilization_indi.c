@@ -66,8 +66,9 @@
 #define STABILIZATION_INDI_FILT_CUTOFF_R 20.0
 #endif
 
+// Default is WLS
 #ifndef STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
-#define STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE TRUE
+#define STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE FALSE
 #endif
 
 #ifndef INDI_FILTER_RATES_SECOND_ORDER
@@ -294,10 +295,12 @@ void stabilization_indi_init(void)
   float_vect_zero(estimation_rate_dd, INDI_NUM_ACT);
   float_vect_zero(actuator_state_filt_vect, INDI_NUM_ACT);
 
-  //Calculate G1G2_PSEUDO_INVERSE
+  //Calculate G1G2
   sum_g1_g2();
 
+  // Do not compute if not needed
   #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
+  //Calculate G1G2_PSEUDO_INVERSE
   calc_g1g2_pseudo_inv();
   #endif
 
