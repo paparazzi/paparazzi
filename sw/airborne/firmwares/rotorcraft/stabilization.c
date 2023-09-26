@@ -294,7 +294,7 @@ struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp)
     }
   } else {
     // error, attitude setpoint
-    struct Int32Rates rates = {0};
+    struct Int32Rates rates = {0, 0, 0};
     return rates;
   }
 }
@@ -311,7 +311,7 @@ struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp)
     }
   } else {
     // error, attitude setpoint
-    struct FloatRates rates = {0};
+    struct FloatRates rates = {0, 0, 0};
     return rates;
   }
 }
