@@ -73,7 +73,11 @@ struct EnuCoor_f last_wp_f = { 0.f, 0.f, 0.f };
  */
 static inline bool mission_nav_wp(struct _mission_wp *wp)
 {
-  if (nav_approaching_xy(wp->wp.x, wp->wp.y, last_wp_f.x, last_wp_f.y, CARROT)) {
+  if (nav_approaching_xy(wp->wp.x, wp->wp.y, last_wp_f.x, last_wp_f.y, CARROT)
+#ifdef MISSION_ALT_PROXIMITY
+      && fabsf(stateGetPositionEnu_f()->z - wp->wp.z) <= MISSION_ALT_PROXIMITY
+#endif
+      ) {
     last_wp_f = wp->wp; // store last wp
     return false; // end of mission element
   }
@@ -98,7 +102,11 @@ static inline bool mission_nav_circle(struct _mission_circle *circle)
  */
 static inline bool mission_nav_segment(struct _mission_segment *segment)
 {
-  if (nav_approaching_xy(segment->to.x, segment->to.y, segment->from.x, segment->from.y, CARROT)) {
+  if (nav_approaching_xy(segment->to.x, segment->to.y, segment->from.x, segment->from.y, CARROT)
+#ifdef MISSION_ALT_PROXIMITY
+      && fabsf(stateGetPositionEnu_f()->z - segment->to.z) <= MISSION_ALT_PROXIMITY
+#endif
+      ) {
     last_wp_f = segment->to;
     return false; // end of mission element
   }
@@ -131,7 +139,11 @@ static inline bool mission_nav_path(struct _mission_path *path)
   nav_route_xy(from.x, from.y, to.x, to.y);
   NavVerticalAutoThrottleMode(0.f);
   NavVerticalAltitudeMode(to.z, 0.f); // both altitude should be the same anyway
-  if (nav_approaching_xy(to.x, to.y, from.x, from.y, CARROT)) {
+  if (nav_approaching_xy(to.x, to.y, from.x, from.y, CARROT)
+#ifdef MISSION_ALT_PROXIMITY
+      && fabsf(stateGetPositionEnu_f()->z - to.z) <= MISSION_ALT_PROXIMITY
+#endif
+      ) {
     path->path_idx++; // go to next segment
   }
   return true;
