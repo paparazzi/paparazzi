@@ -55,9 +55,6 @@ static uint8_t dc_timer;
 
 void servo_cam_ctrl_init(void)
 {
-  // Call common DC init
-  dc_init();
-
   // Do Servo specific DC init
   dc_timer = 0;
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam_pprzlink" dir="digital_cam">
+  <doc>
+    <description>
+      Digital Photo Camera Triggering using PPRZLINK messages
+
+      Sends DC_SHOT and PAYLOAD_COMMAND messages over serial link.
+      Flags DC_SHOT_SYNC_SEND and DC_SHOT_EXTRA_DL are set to TRUE.
+
+      An example application can be found at: https://github.com/enacuavlab/ueye_pprzlink
+      This project controls a ueye camera with a NanoPI (or equivalent)
+      connected to the autopilot. It is possible to trigger the camera
+      with DC_SHOT messages (images are georeference with GPS coordinates
+      in Exif), but also to change the exposure and get the feedback 
+      from the camera (useful to check the result when autoexpo is requested).
+    </description>
+  </doc>
+  <dep>
+    <depends>digital_cam_common,extra_dl</depends>
+    <conflicts>digital_cam_gpio,digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
+  </dep>
+  <header>
+    <file name="pprzlink_cam_ctrl.h"/>
+  </header>
+  <init fun="pprzlink_cam_ctrl_init()"/>
+  <periodic fun="pprzlink_cam_ctrl_periodic()" freq="10" autorun="TRUE"/>
+  <datalink message="PAYLOAD_COMMAND" fun="dc_expo_cb(buf)"/>
+  <makefile target="ap|sim|nps">
+    <define name="DIGITAL_CAM"/>
+    <define name="DC_SHOT_SYNC_SEND"/>
+    <define name="DC_SHOT_EXTRA_DL"/>
+    <file name="pprzlink_cam_ctrl.c"/>
+    <test>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="EXTRA_DOWNLINK_DEVICE" value="uart1"/>
+      <define name="USE_UART1"/>
+    </test>
+  </makefile>
+</module>

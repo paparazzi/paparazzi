@@ -32,8 +32,6 @@
 
 void digital_cam_video_init(void)
 {
-  // Call common DC init
-  dc_init();
 }
 
 void digital_cam_video_periodic(void)

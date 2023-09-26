@@ -263,7 +263,7 @@
       <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/><!-- in M -->
     </module>
 
-    <!--<module name="digital_cam">-->
+    <!--<module name="digital_cam_gpio">-->
     <!--  <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/>--> <!-- should be value="CAM_SWITCH_GPIO"/>-->
     <!--</module>-->
 

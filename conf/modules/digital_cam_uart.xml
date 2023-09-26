@@ -5,9 +5,8 @@
       Digital Photo Camera Triggering (using a UART link)
 
       This module controls triggering of an attached external digital camera via UART commands.
-      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
 
-      This module fullfilss 4 functions:
+      This module fullfills 4 functions:
       1) send shoot commands over UART
       2) Besides triggering the shooting of images, the module also sends attitude and other relevant data.
       Typically an external linux camera or linux computer will receive the attitude and position data and add
@@ -19,30 +18,9 @@
 
       The linux program used to parse the UART command is given in the subdirectory.
     </description>
-    <define name="DC_AUTOSHOOT_PERIOD" value="0.5" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
-    <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
-    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings name="control">
-      <dl_settings name="dc">
-
-        <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
-          <strip_button name="Photo" icon="digital-camera.png" value="32" group="maindc"/>
-        </dl_setting>
-
-        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
-          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dcauto"/>
-          <strip_button name="Stop Autoshoot" icon="dcstop.png" value="0" group="dcauto"/>
-        </dl_setting>
-
-        <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
-        <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
-
-        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
-        <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
-        <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
-      </dl_settings>
       <dl_settings name="tb">
         <dl_setting max="2" min="0" step="1" var="digital_cam_uart_thumbnails" shortname="thumbs">
           <strip_button name="DL Thumbs High" icon="on.png" value="2" group="ticket"/>
@@ -54,12 +32,11 @@
     </dl_settings>
   </settings>
   <dep>
-    <conflicts>digital_cam,digital_cam_servo,digital_cam_i2c</conflicts>
-    <provides>digital_cam</provides>
+    <depends>digital_cam_common</depends>
+    <conflicts>digital_cam_gpio,digital_cam_servo,digital_cam_i2c,digital_cam_pprzlink</conflicts>
   </dep>
   <header>
     <file name="uart_cam_ctrl.h"/>
-    <file name="dc.h"/>
   </header>
   <init fun="digital_cam_uart_init()"/>
   <periodic fun="digital_cam_uart_periodic()" freq="10" autorun="TRUE"/>
@@ -69,14 +46,16 @@
     <define name="UART5_DEV" value="ttyUSB0"/>
   </makefile>
   <makefile target="ap|sim|nps">
-    <define name="DIGITAL_CAM" />
     <file name="uart_cam_ctrl.c"/>
     <file name="catia/protocol.c"/>
-    <file name="dc.c"/>
     <configure name="CAMERA_PORT" case="upper|lower"/>
     <define name="USE_$(CAMERA_PORT_UPPER)"/>
     <define name="CAMERA_LINK" value="$(CAMERA_PORT_LOWER)"/>
     <define name="$(CAMERA_PORT_UPPER)_BAUD" value="B115200"/>
+    <test>
+      <define name="CAMERA_LINK" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 </module>
 

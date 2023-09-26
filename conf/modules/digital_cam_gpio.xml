@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam_gpio" dir="digital_cam">
+  <doc>
+    <description>
+      Digital Photo Camera Triggering (using a GPIO pin)
+
+      This module controls triggering of an attached external digital camera via one or more GPIO pins for on/off/shoot/zoom.
+    </description>
+    <section name="DIGITAL_CAM" prefix="DC_">
+      <define name="SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
+      <define name="SHUTTER_GPIO" value="GPIOC,GPIO12" description="mandatory, gpio to control shutter"/>
+      <define name="ZOOM_IN_GPIO" value="GPIOC,GPIO2" description="optional, gpio to activate zoom in"/>
+      <define name="ZOOM_OUT_GPIO" value="GPIOC,GPIO5" description="optional, gpio to activate zoom out"/>
+      <define name="POWER_GPIO" value="GPIOB,GPIO1" description="optional, gpio to turn power on"/>
+      <define name="POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
+      <define name="PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
+      <define name="RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
+      <define name="SHUTTER_DELAY" value="0.5" description="how long to push shutter in seconds"/>
+      <define name="POWER_OFF_DELAY" value="0.75" description="how long to send power off in seconds"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>digital_cam_common</depends>
+    <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video,digital_cam_pprzlink</conflicts>
+  </dep>
+  <header>
+    <file name="gpio_cam_ctrl.h"/>
+  </header>
+  <init fun="gpio_cam_ctrl_init()"/>
+  <periodic fun="gpio_cam_ctrl_periodic()" freq="10" autorun="TRUE"/>
+  <makefile>
+    <file name="gpio_cam_ctrl.c"/>
+    <test arch="chibios">
+      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
+      <define name="GPIO_CAM_CTRL_PERIODIC_FREQ" value="10."/>
+    </test>
+  </makefile>
+</module>

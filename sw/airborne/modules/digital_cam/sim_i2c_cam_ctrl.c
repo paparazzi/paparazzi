@@ -38,7 +38,6 @@
 
 void atmega_i2c_cam_ctrl_init(void)
 {
-  dc_init();
 }
 
 void atmega_i2c_cam_ctrl_periodic(void)
