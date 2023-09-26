@@ -36,10 +36,11 @@ extern struct NavBase_t nav_rotorcraft_base;
 extern void nav_rotorcraft_init(void);
 
 
-/** Macros for circle nav
+/** Macros for circle and oval nav
  */
 #define NavCircleCount() nav_circle_get_count(&nav_rotorcraft_base.circle)
 #define NavCircleQdr() nav_circle_qdr(&nav_rotorcraft_base.circle)
+#define NavOvalCount nav_rotorcraft_base.oval.count
 
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)
  */
