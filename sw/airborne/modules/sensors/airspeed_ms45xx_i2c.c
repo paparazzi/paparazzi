@@ -106,14 +106,14 @@
  * p_diff = (p_raw - 0.1*16383) * 2*RANGE/(0.8*16383) - RANGE
  * p_diff = p_raw * 2*RANGE/(0.8*16383) - (RANGE + (0.1 * 16383) * 2*RANGE/(0.8*16383)
  * p_diff = p_raw * 2*RANGE/(0.8*16383) - (1.25 * RANGE)
- * p_diff = p_raw * scale - offset
+ * p_diff = (p_raw - offset) * scale
  * then convert to Pascal
  */
 #ifndef MS45XX_PRESSURE_SCALE
 #define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.8 * 16383) * OutputPressureToPa)
 #endif
 #ifndef MS45XX_PRESSURE_OFFSET
-#define MS45XX_PRESSURE_OFFSET (1.25 * MS45XX_PRESSURE_RANGE * OutputPressureToPa)
+#define MS45XX_PRESSURE_OFFSET (16383 / 2)
 #endif
 #else /* Can still be improved using another if statment with MS45XX_PRESSURE_TYPE etc. */
 /* Offset and scaling for OUTPUT TYPE B:
@@ -123,7 +123,7 @@
 #define MS45XX_PRESSURE_SCALE (MS45XX_PRESSURE_RANGE/(0.9*16383)*OutputPressureToPa)
 #endif
 #ifndef MS45XX_PRESSURE_OFFSET
-#define MS45XX_PRESSURE_OFFSET (((MS45XX_PRESSURE_RANGE*0.05*16383)/(0.9*16383))*OutputPressureToPa)
+#define MS45XX_PRESSURE_OFFSET (0.05*16383)
 #endif
 #endif
 
@@ -236,10 +236,10 @@ void ms45xx_i2c_event(void)
        * swings positive when Port 1> Port 2. Output is 50% of total counts
        * when Port 1=Port 2.
        * For type Gauge
-       * p_out = p_raw * scale - offset
+       * p_out = (p_raw - offset) * scale
        */
 
-      float p_out = (p_raw * ms45xx.pressure_scale) - ms45xx.pressure_offset;
+      float p_out = (p_raw - ms45xx.pressure_offset) * ms45xx.pressure_scale;
 #ifdef USE_AIRSPEED_LOWPASS_FILTER
       ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
 #else
@@ -248,7 +248,7 @@ void ms45xx_i2c_event(void)
 
       if (ms45xx.autoset_offset) {
         if (autoset_nb < AUTOSET_NB_MAX) {
-          autoset_offset += p_raw * ms45xx.pressure_scale;
+          autoset_offset += p_raw;
           autoset_nb++;
         } else {
           ms45xx.pressure_offset = autoset_offset / (float)autoset_nb;
