@@ -37,7 +37,7 @@ extern uint8_t autopilot_mode_auto2;
 extern bool autopilot_ground_detection(void);
 
 // Detect the end of in_flight and stop integrators in control loops
-extern bool autopilot_in_flight_end_detection(void);
+extern bool autopilot_in_flight_end_detection(bool motors_on);
 
 extern void autopilot_firmware_init(void);
 
