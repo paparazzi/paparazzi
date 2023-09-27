@@ -21,17 +21,6 @@
  */
 
 /**
- * @brief Wrapper for qr solve
- *
- * Possible to use a different solver if needed.
- * Solves a system of the form Ax = b for x.
- *
- * @param m number of rows
- * @param n number of columns
- */
-void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
-
-/**
  * @brief active set algorithm for control allocation
  *
  * Takes the control objective and max and min inputs from pprz and calculates
@@ -39,7 +28,9 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
  * weighting matrices Wv and Wu
  *
  * @param u The control output vector
- * @param v The control objective
+ * @param n_u Size of the control output vector
+ * @param v The control objective vector
+ * @param n_v Size of the control objective vector
  * @param umin The minimum u vector
  * @param umax The maximum u vector
  * @param B The control effectiveness matrix
@@ -56,6 +47,7 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
  *
  * @return Number of iterations, -1 upon failure
  */
-int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
+int wls_alloc(float* u, int n_u, float* v, int n_v,
+              float* umin, float* umax, float** B,
               float* u_guess, float* W_init, float* Wv, float* Wu,
               float* ud, float gamma, int imax);

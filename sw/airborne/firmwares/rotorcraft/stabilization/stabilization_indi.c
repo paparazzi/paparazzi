@@ -42,7 +42,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
-#include "wls/wls_alloc.h"
+#include "math/wls/wls_alloc.h"
 #include <stdio.h>
 
 // Factor that the estimated G matrix is allowed to deviate from initial one
@@ -597,7 +597,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, du_pref, 10000, 10);
+    wls_alloc(indi_du, INDI_NUM_ACT, indi_v, INDI_OUTPUTS, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, du_pref, 10000, 10);
 #endif
 
   if (in_flight) {

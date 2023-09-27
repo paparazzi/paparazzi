@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="wls" task="core">
+  <doc>
+    <description>
+      Weighted Least Square optimization algorithm.
+
+      Used for dynamic allocation of actuators, in particular
+      with INDI-based control algorithms.
+    </description>
+  </doc>
+  <header>
+    <file name="wls_alloc.h" dir="math/wls"/>
+  </header>
+  <makefile>
+    <file name="wls_alloc.c" dir="math/wls"/>
+    <file name="qr_solve.c" dir="math/qr_solve"/>
+    <file name="r8lib_min.c" dir="math/qr_solve"/>
+    <test/>
+  </makefile>
+</module>
+
