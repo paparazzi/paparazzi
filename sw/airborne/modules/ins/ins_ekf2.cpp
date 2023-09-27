@@ -455,6 +455,31 @@ static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias(0), &accel_bias(1), &accel_bias(2),
                           &gyro_bias(0), &gyro_bias(1), &gyro_bias(2), &mag_bias(0), &mag_bias(1), &mag_bias(2));
 }
+
+static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Quat ltp_to_body_quat;
+  const Quatf att_q{ekf.calculate_quaternion()};
+  ltp_to_body_quat.qi = QUAT1_BFP_OF_REAL(att_q(0));
+  ltp_to_body_quat.qx = QUAT1_BFP_OF_REAL(att_q(1));
+  ltp_to_body_quat.qy = QUAT1_BFP_OF_REAL(att_q(2));
+  ltp_to_body_quat.qz = QUAT1_BFP_OF_REAL(att_q(3));
+  struct Int32Quat *quat = stateGetNedToBodyQuat_i();
+  float foo = 0.f;
+  uint8_t ahrs_id = 1; // generic
+  pprz_msg_send_AHRS_QUAT_INT(trans, dev, AC_ID,
+                              &foo,
+                              &ltp_to_body_quat.qi,
+                              &ltp_to_body_quat.qx,
+                              &ltp_to_body_quat.qy,
+                              &ltp_to_body_quat.qz,
+                              &(quat->qi),
+                              &(quat->qx),
+                              &(quat->qy),
+                              &(quat->qz),
+                              &ahrs_id);
+}
+
 #endif
 
 /* Initialize the EKF */
@@ -550,6 +575,7 @@ void ins_ekf2_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_QUAT_INT, send_ahrs_quat);
 #endif
 
   /*
@@ -563,6 +589,20 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+}
+
+void ins_reset_local_origin(void)
+{
+#if USE_GPS
+  if (GpsFixValid()) {
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
+      ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
+      ekf2.ltp_def.hmsl = gps.hmsl;
+      stateSetLocalOrigin_i(&ekf2.ltp_def);
+    }
+  }
+#endif
 }
 
 /* Update the INS state */

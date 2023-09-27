@@ -166,7 +166,7 @@ static void gps_ubx_parse_nav_pvt(void)
     gps_ubx.state.fix = 4; // dgnss
   } else if(gnssFixOK) {
     gps_ubx.state.fix = 3; // 3D
-  } else{
+  } else {
     gps_ubx.state.fix = 0;
   }
 
@@ -397,14 +397,14 @@ static void gps_ubx_parse_nav_relposned(void)
     uint8_t gnssFixOK   = RTCMgetbitu(&flags, 7, 1);
 
     /* Only save the latest valid relative position */
-    if(relPosValid) {
+    if (relPosValid) {
       if (diffSoln && carrSoln == 2) {
         gps_ubx.state.fix = 5; // rtk
       } else if(diffSoln && carrSoln == 1) {
         gps_ubx.state.fix = 4; // dgnss
       } else if(gnssFixOK) {
         gps_ubx.state.fix = 3; // 3D
-      } else{
+      } else {
         gps_ubx.state.fix = 0;
       }
 

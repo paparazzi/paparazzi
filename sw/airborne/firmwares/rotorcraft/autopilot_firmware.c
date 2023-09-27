@@ -77,6 +77,35 @@ static uint32_t autopilot_in_flight_counter;
 #define THRESHOLD_GROUND_DETECT 25.0
 #endif
 
+/** Default ground-detection estimation based on accelerometer shock */
+bool WEAK autopilot_ground_detection(void) {
+  struct NedCoor_f *accel = stateGetAccelNed_f();
+  if (accel->z < -THRESHOLD_GROUND_DETECT ||
+      accel->z > THRESHOLD_GROUND_DETECT) {
+    return true;
+  }
+  return false;
+}
+
+
+/** Default end-of-in-flight detection estimation based on thrust and speed */
+bool WEAK autopilot_in_flight_end_detection(bool motors_on UNUSED) {
+  if (autopilot_in_flight_counter > 0) {
+    /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
+    if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
+        (fabsf(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
+        (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
+      autopilot_in_flight_counter--;
+      if (autopilot_in_flight_counter == 0) {
+        return true;
+      }
+    } else { /* thrust, speed or accel not above min threshold, reset counter */
+      autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
+    }
+  }
+  return false;
+}
+
 
 #if USE_MOTOR_MIXING
 #include "modules/actuators/motor_mixing.h"
@@ -234,9 +263,7 @@ void autopilot_event(void)
       || autopilot.mode == AP_MODE_FAILSAFE
 #endif
      ) {
-    struct NedCoor_f *accel = stateGetAccelNed_f();
-    if (accel->z < -THRESHOLD_GROUND_DETECT ||
-        accel->z > THRESHOLD_GROUND_DETECT) {
+    if (autopilot_ground_detection()) {
       autopilot.ground_detected = true;
       autopilot.detect_ground_once = false;
     }
@@ -255,18 +282,9 @@ void autopilot_reset_in_flight_counter(void)
 void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot.in_flight) {
-    if (autopilot_in_flight_counter > 0) {
-      /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
-      if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
-          (fabsf(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
-          (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
-        autopilot_in_flight_counter--;
-        if (autopilot_in_flight_counter == 0) {
-          autopilot.in_flight = false;
-        }
-      } else { /* thrust, speed or accel not above min threshold, reset counter */
-        autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
-      }
+    if (autopilot_in_flight_end_detection(motors_on)) {
+      autopilot.in_flight = false;
+      autopilot_in_flight_counter = 0;
     }
   } else { /* currently not in flight */
     if (autopilot_in_flight_counter < AUTOPILOT_IN_FLIGHT_TIME &&
