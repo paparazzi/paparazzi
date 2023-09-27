@@ -277,7 +277,7 @@ struct FloatEulers stab_sp_to_eulers_f(struct StabilizationSetpoint *sp)
     }
   } else {
     // error, rates setpoint
-    struct FloatEulers eulers = {0};
+    struct FloatEulers eulers = {0, 0, 0};
     return eulers;
   }
 }
@@ -286,10 +286,10 @@ struct Int32Rates stab_sp_to_rates_i(struct StabilizationSetpoint *sp)
 {
   if ((sp->type == STAB_SP_RATES) || (sp->type == STAB_SP_QUAT_FF_RATE)) {
     if (sp->format == STAB_SP_INT) {
-      return sp->sp.rates_i;
+      return sp->r_sp.rates_i;
     } else {
       struct Int32Rates rates;
-      RATES_BFP_OF_REAL(rates, sp->sp.rates_f);
+      RATES_BFP_OF_REAL(rates, sp->r_sp.rates_f);
       return rates;
     }
   } else {
@@ -303,10 +303,10 @@ struct FloatRates stab_sp_to_rates_f(struct StabilizationSetpoint *sp)
 {
   if ((sp->type == STAB_SP_RATES) || (sp->type == STAB_SP_QUAT_FF_RATE)) {
     if (sp->format == STAB_SP_FLOAT) {
-      return sp->sp.rates_f;
+      return sp->r_sp.rates_f;
     } else {
       struct FloatRates rates;
-      RATES_FLOAT_OF_BFP(rates, sp->sp.rates_i);
+      RATES_FLOAT_OF_BFP(rates, sp->r_sp.rates_i);
       return rates;
     }
   } else {
@@ -342,7 +342,7 @@ struct StabilizationSetpoint stab_sp_from_quat_ff_rates_f(struct FloatQuat *quat
     .type = STAB_SP_QUAT_FF_RATE,
     .format = STAB_SP_FLOAT,
     .sp.quat_f = *quat,
-    .sp.rates_f = *rates
+    .r_sp.rates_f = *rates
   };
   return sp;
 }
@@ -394,7 +394,7 @@ struct StabilizationSetpoint stab_sp_from_rates_i(struct Int32Rates *rates)
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_RATES,
     .format = STAB_SP_INT,
-    .sp.rates_i = *rates
+    .r_sp.rates_i = *rates
   };
   return sp;
 }
@@ -404,7 +404,7 @@ struct StabilizationSetpoint stab_sp_from_rates_f(struct FloatRates *rates)
   struct StabilizationSetpoint sp = {
     .type = STAB_SP_RATES,
     .format = STAB_SP_FLOAT,
-    .sp.rates_f = *rates
+    .r_sp.rates_f = *rates
   };
   return sp;
 }
