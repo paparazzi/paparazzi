@@ -67,7 +67,7 @@
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </module>
-    <module name="digital_cam">
+    <module name="digital_cam_gpio">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </module>
     <!-- module name="nav" type="catapult"/-->

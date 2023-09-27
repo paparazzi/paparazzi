@@ -8,25 +8,22 @@
       This module controls triggering of an attached device via an I2C command.
       Typically a remote microcontroller (atmega/arduino) will then use the triggering/zoom/power commands.
       Using the PAYLOAD_COMMAND, all functions of the camera can be controlled.
-      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
     </description>
     <configure name="ATMEGA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
-    <define name="DC_SHOOT_ON_BUTTON_RELEASE" />
-    <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
+    <section name="DIGITAL_CAM" prefix="DC_">
+      <define name="SHOOT_ON_BUTTON_RELEASE" />
+    </section>
   </doc>
   <dep>
-    <conflicts>digital_cam,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
-    <provides>digital_cam</provides>
+    <depends>digital_cam_common</depends>
+    <conflicts>digital_cam_gpio,digital_cam_servo,digital_cam_uart,digital_cam_video,digital_cam_pprzlink</conflicts>
   </dep>
   <header>
     <file name="atmega_i2c_cam_ctrl.h"/>
-    <file name="dc.h"/>
   </header>
-
   <init fun="atmega_i2c_cam_ctrl_init()"/>
   <periodic fun="atmega_i2c_cam_ctrl_periodic()"  autorun="TRUE" freq="10"/>
   <event fun="atmega_i2c_cam_ctrl_event()"/>
-
   <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand(buf)"/>
 
   <makefile target="ap">
@@ -34,12 +31,21 @@
     <define name="USE_$(ATMEGA_I2C_DEV_UPPER)"/>
     <define name="ATMEGA_I2C_DEV" value="$(ATMEGA_I2C_DEV_LOWER)"/>
     <file name="atmega_i2c_cam_ctrl.c"/>
-    <file name="dc.c"/>
+    <test firmware="rotorcraft">
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+      <define name="USE_I2C0"/>
+    </test>
   </makefile>
 
   <makefile target="sim">
     <file name="sim_i2c_cam_ctrl.c"/>
-    <file name="dc.c"/>
+    <test firmware="rotorcraft">
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
   </makefile>
 
 </module>
