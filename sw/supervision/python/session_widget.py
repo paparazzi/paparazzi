@@ -62,7 +62,7 @@ class SessionWidget(QWidget, Ui_Session):
 
     def on_control_panel_changed(self):
         current_cp = self.control_panel_combo.currentText()
-        self.sessions = parse_sessions(current_cp)
+        self.sessions = sorted(parse_sessions(current_cp), key=lambda session: session.name)
         self.tools = parse_tools(current_cp)
         self.tools_changed.emit(self.tools)
         self.init_tools_menu()
