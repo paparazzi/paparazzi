@@ -92,6 +92,7 @@
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
+struct Int32Rates  stab_att_ff_rates;
 
 static struct FirstOrderLowPass rates_filt_fo[3];
 
@@ -304,6 +305,7 @@ void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp)
 {
   stab_att_sp_euler = stab_sp_to_eulers_i(sp);
   stab_att_sp_quat = stab_sp_to_quat_i(sp);
+  stab_att_ff_rates = stab_sp_to_rates_i(sp);
 }
 
 /**
@@ -484,6 +486,9 @@ void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight __
   rate_sp.p = indi.gains.att.p * att_fb.x / indi.gains.rate.p;
   rate_sp.q = indi.gains.att.q * att_fb.y / indi.gains.rate.q;
   rate_sp.r = indi.gains.att.r * att_fb.z / indi.gains.rate.r;
+
+  // Add feed-forward rates to the attitude feedback part
+  RATES_ADD(rate_sp, stab_att_ff_rates);
 
   /* compute the INDI command */
   stabilization_indi_rate_run(rate_sp, in_flight);
