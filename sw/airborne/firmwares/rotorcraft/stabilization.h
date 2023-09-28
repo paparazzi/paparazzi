@@ -58,9 +58,11 @@ struct StabilizationSetpoint {
     struct FloatEulers eulers_f;
     struct { struct Int32Vect2 vect; int32_t heading; } ltp_i;
     struct { struct FloatVect2 vect; float heading; } ltp_f;
+  } sp;
+  union {
     struct Int32Rates rates_i;
     struct FloatRates rates_f;
-  } sp;
+  } r_sp;
 };
 
 // helper convert functions

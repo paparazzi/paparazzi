@@ -344,7 +344,7 @@ NOTES:
     <module name="photogrammetry_calculator"/>
 
     <!--Unkn aux camsw -->
-    <module name="digital_cam">
+    <module name="digital_cam_gpio">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO2"/><!-- correct pin add to board file one from Wifi pins-->
     </module>
 

@@ -225,7 +225,7 @@
       <define name="AGL_DIST_FILTER" value="0.1"/>
     </module>
 
-    <!--<module name="digital_cam">-->
+    <!--<module name="digital_cam_gpio">-->
     <!--  <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/>--> <!-- should be value="CAM_SWITCH_GPIO"/>-->
     <!--</module>-->
 

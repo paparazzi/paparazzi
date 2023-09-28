@@ -288,7 +288,7 @@
     </module>
 
 <!--    <module name="digital_cam_i2c"/>  -->
-    <module name="digital_cam">
+    <module name="digital_cam_gpio">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
     </module>
 

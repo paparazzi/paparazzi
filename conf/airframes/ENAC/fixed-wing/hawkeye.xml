@@ -54,7 +54,7 @@
       <configure name="EXTRA_DL_PORT" value="UART6"/>
       <configure name="EXTRA_DL_BAUD" value="B115200"/>
     </module>
-    <module name="digital_cam">
+    <module name="digital_cam_gpio">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO15"/> <!-- Apogee AUX4 -->
       <define name="DC_AUTOSHOOT_DISTANCE_INIT" value="4"/>
     </module>

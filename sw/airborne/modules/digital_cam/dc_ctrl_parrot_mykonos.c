@@ -116,9 +116,6 @@ struct Dc_Ctrl_Parrot_Mykonos dc_ctrl_parrot_mykonos;
 
 void dc_ctrl_parrot_mykonos_init(void)
 {
-  // Call common DC init
-  dc_init();
-
   dc_ctrl_parrot_mykonos.status = DC_CTRL_PARROT_MYKONOS_NONE;
   dc_ctrl_parrot_mykonos.timer = 0;
   dc_ctrl_parrot_mykonos.photo_nr = 0;
