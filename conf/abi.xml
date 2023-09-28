@@ -89,7 +89,7 @@
     </message>
 
     <message name="THRUST" id="16">
-      <field name="thrust_increment" type="float" unit="m/s^2"/>
+      <field name="thrust_increment_vect" type="struct FloatVect3" unit="m/s^2"/>
     </message>
 
     <message name="OBSTACLE_DETECTION" id="17">

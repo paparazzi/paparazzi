@@ -40,6 +40,9 @@
 #include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
+#ifndef GUIDANCE_INDI_QUADPLANE
+#define GUIDANCE_INDI_QUADPLANE FALSE 
+#endif
 
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default
@@ -312,7 +315,15 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
+  struct FloatVect3 thrust_vect;
+  #if GUIDANCE_INDI_QUADPLANE
+    thrust_vect.x = guidance_indi_du[3];
+  #else
+    thrust_vect.x = 0.0;
+  #endif
+  thrust_vect.y = 0.0;
+  thrust_vect.z = euler_cmd.z;
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
 
   // Coordinated turn
   // feedforward estimate angular rotation omega = g*tan(phi)/v
@@ -691,6 +702,7 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
  *
  * @return The derivative of lift w.r.t. pitch
  */
+float guidance_indi_get_liftd(float airspeed, float theta);
 float guidance_indi_get_liftd(float airspeed, float theta) {
   float liftd = 0.0;
 
