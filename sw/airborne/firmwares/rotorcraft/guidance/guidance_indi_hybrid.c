@@ -316,11 +316,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
   struct FloatVect3 thrust_vect;
-  #if GUIDANCE_INDI_QUADPLANE
-    thrust_vect.x = guidance_indi_du[3];
-  #else
-    thrust_vect.x = 0.0;
-  #endif
+  thrust_vect.x = 0.0;  // Fill for quadplanes
   thrust_vect.y = 0.0;
   thrust_vect.z = euler_cmd.z;
   AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
