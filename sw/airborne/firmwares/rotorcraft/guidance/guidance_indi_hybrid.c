@@ -40,9 +40,6 @@
 #include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
-#ifndef GUIDANCE_INDI_QUADPLANE
-#define GUIDANCE_INDI_QUADPLANE FALSE 
-#endif
 
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default
