@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 #include "std.h"
-#include "firmwares/rotorcraft/stabilization/wls/wls_alloc.h"
+#include "math/wls/wls_alloc.h"
 
 #define INDI_OUTPUTS 4
 
@@ -83,7 +83,7 @@ void test_four_by_four(void)
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du, indi_v, u_min, u_max, Bwls, 0, 0, Wv, 0, 0, 10000, 10);
+    wls_alloc(indi_du, INDI_NUM_ACT, indi_v, INDI_OUTPUTS, u_min, u_max, Bwls, 0, 0, Wv, 0, 0, 10000, 10);
 
   printf("finished in %d iterations\n", num_iter);
   printf("du = %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3]);
@@ -144,7 +144,7 @@ void test_overdetermined(void)
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, u_p, 0, 10);
+    wls_alloc(indi_du, INDI_NUM_ACT, indi_v, INDI_OUTPUTS, du_min, du_max, Bwls, 0, 0, Wv, 0, u_p, 0, 10);
 
   printf("finished in %d iterations\n", num_iter);
 
@@ -212,7 +212,7 @@ for (i=0; i< INDI_OUTPUTS;i++) {
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, u_p, 0, 15);
+    wls_alloc(indi_du, INDI_NUM_ACT, indi_v, INDI_OUTPUTS, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, u_p, 0, 15);
 
   printf("finished in %d iterations\n", num_iter);
 
