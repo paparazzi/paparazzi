@@ -695,7 +695,6 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
  *
  * @return The derivative of lift w.r.t. pitch
  */
-float guidance_indi_get_liftd(float airspeed, float theta);
 float guidance_indi_get_liftd(float airspeed, float theta) {
   float liftd = 0.0;
 
