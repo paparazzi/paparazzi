@@ -37,6 +37,9 @@ extern float actuator_state_filt_vect[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 
+extern float du_min_stab_indi[INDI_NUM_ACT];
+extern float du_max_stab_indi[INDI_NUM_ACT];
+extern float du_pref_stab_indi[INDI_NUM_ACT];
 extern float *Bwls[INDI_OUTPUTS];
 
 extern float act_pref[INDI_NUM_ACT];
@@ -60,6 +63,7 @@ extern void stabilization_indi_set_quat_setpoint_i(struct Int32Quat *quat);
 extern void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
 extern void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp);
 extern void stabilization_indi_rate_run(struct FloatRates rate_ref, bool in_flight);
+extern void stabilization_indi_set_wls_settings(float use_increment);
 extern void stabilization_indi_attitude_run(struct Int32Quat quat_sp, bool in_flight);
 extern void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 

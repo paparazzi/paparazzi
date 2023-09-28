@@ -248,6 +248,10 @@
       <field name="vel_sp" type="struct FloatVect3 *" unit="m/s"/>
     </message>
 
+    <message name="LIFT_D" id="37">
+      <field name="liftd" type="float"/>
+    </message>
+
   </msg_class>
 
 </protocol>

@@ -130,6 +130,17 @@ static void guidance_indi_filter_thrust(void);
 #endif
 #endif
 
+#ifndef GUIDANCE_INDI_CLIMB_SPEED_FWD
+#define GUIDANCE_INDI_CLIMB_SPEED_FWD 4.0
+#endif
+
+#ifndef GUIDANCE_INDI_DESCEND_SPEED_FWD
+#define GUIDANCE_INDI_DESCEND_SPEED_FWD -4.0
+#endif
+
+float climb_vspeed_fwd = GUIDANCE_INDI_CLIMB_SPEED_FWD;
+float descend_vspeed_fwd = GUIDANCE_INDI_DESCEND_SPEED_FWD;
+
 float inv_eff[4];
 
 // Max bank angle in radians
@@ -167,6 +178,14 @@ static void vel_sp_cb(uint8_t sender_id, struct FloatVect3 *vel_sp);
 struct FloatVect3 indi_vel_sp = {0.0, 0.0, 0.0};
 float time_of_vel_sp = 0.0;
 
+#ifndef GUIDANCE_INDI_LIFT_D_ID
+#define GUIDANCE_INDI_LIFT_D_ID ABI_BROADCAST
+#endif
+abi_event lift_d_ev;
+static void lift_d_cb(uint8_t sender_id, float lift_d);
+float indi_lift_d_abi = 0;
+float time_of_lift_d = 0.0;
+
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
 static float guidance_indi_get_liftd(float pitch, float theta);
@@ -198,6 +217,7 @@ void guidance_indi_init(void)
 {
   /*AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);*/
   AbiBindMsgVEL_SP(GUIDANCE_INDI_VEL_SP_ID, &vel_sp_ev, vel_sp_cb);
+  AbiBindMsgLIFT_D(GUIDANCE_INDI_LIFT_D_ID, &lift_d_ev, lift_d_cb);
 
   float tau = 1.0/(2.0*M_PI*filter_cutoff);
   float sample_time = 1.0/PERIODIC_FREQUENCY;
@@ -530,7 +550,7 @@ static float bound_vz_sp(float vz_sp)
 {
   // Bound vertical speed setpoint
   if (stateGetAirspeed_f() > 13.f) {
-    Bound(vz_sp, -4.0f, 4.0f); // FIXME no harcoded values
+    Bound(vz_sp, -climb_vspeed_fwd, -descend_vspeed_fwd);
   } else {
     Bound(vz_sp, -nav.climb_vspeed, -nav.descend_vspeed); // FIXME don't use nav settings
   }
@@ -725,6 +745,20 @@ float guidance_indi_get_liftd(float airspeed, float theta) {
 }
 
 /**
+ * @brief Get the derivative of lift w.r.t. pitch from a ABI message
+ *
+ * @return The derivative of lift w.r.t. pitch
+ */
+float guidance_indi_get_liftd_abi(void) {
+  float liftd = 0.0;
+  float dt = get_sys_time_float() - time_of_lift_d;
+  if (dt < 0.5) {
+    liftd = indi_lift_d_abi;
+  }
+  return liftd;
+}
+
+/**
  * ABI callback that obtains the velocity setpoint from a module
   */
 static void vel_sp_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *vel_sp)
@@ -735,6 +769,14 @@ static void vel_sp_cb(uint8_t sender_id __attribute__((unused)), struct FloatVec
   time_of_vel_sp = get_sys_time_float();
 }
 
+/**
+ * ABI callback that obtains the liftd from a module
+  */
+static void lift_d_cb(uint8_t sender_id __attribute__((unused)), float lift_d)
+{
+  indi_lift_d_abi = lift_d;
+  time_of_lift_d = get_sys_time_float();
+}
 
 #if GUIDANCE_INDI_HYBRID_USE_AS_DEFAULT
 // guidance indi control function is implementing the default functions of guidance

@@ -81,9 +81,13 @@
 #define INDI_HROTTLE_LIMIT_AIRSPEED_FWD 8.0
 #endif
 
-float du_min[INDI_NUM_ACT];
-float du_max[INDI_NUM_ACT];
-float du_pref[INDI_NUM_ACT];
+#ifdef SetCommandsFromRC
+#warning SetAutoCommandsFromRC not used: STAB_INDI overwrites actuators
+#endif
+
+float du_min_stab_indi[INDI_NUM_ACT];
+float du_max_stab_indi[INDI_NUM_ACT];
+float du_pref_stab_indi[INDI_NUM_ACT];
 float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
@@ -577,30 +581,12 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
       + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
-  // Calculate the min and max increments
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    du_min[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
-    du_max[i] = MAX_PPRZ - use_increment*actuator_state_filt_vect[i];
-    du_pref[i] = act_pref[i] - use_increment*actuator_state_filt_vect[i];
+  stabilization_indi_set_wls_settings(use_increment);
 
-#ifdef GUIDANCE_INDI_MIN_THROTTLE
-    float airspeed = stateGetAirspeed_f();
-    //limit minimum thrust ap can give
-    if (!act_is_servo[i]) {
-      if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
-        if (airspeed < INDI_HROTTLE_LIMIT_AIRSPEED_FWD) {
-          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment*actuator_state_filt_vect[i];
-        } else {
-          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment*actuator_state_filt_vect[i];
-        }
-      }
-    }
-#endif
-  }
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, indi_Wu, du_pref, 10000, 10);
+    wls_alloc(indi_du, indi_v, du_min_stab_indi, du_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, du_pref_stab_indi, 10000, 10);
 #endif
 
   if (in_flight) {
@@ -653,6 +639,35 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   stabilization_cmd[COMMAND_ROLL] = 42;
   stabilization_cmd[COMMAND_PITCH] = 42;
   stabilization_cmd[COMMAND_YAW] = 42;
+}
+
+/**
+ * @param use_increment 
+ * 
+ * Function that sets the du_min, du_max and du_pref if function not elsewhere defined
+ */
+void WEAK stabilization_indi_set_wls_settings(float use_increment)
+{
+   // Calculate the min and max increments
+    for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+      du_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
+      du_max_stab_indi[i] = MAX_PPRZ - use_increment*actuator_state_filt_vect[i];
+      du_pref_stab_indi[i] = act_pref[i] - use_increment*actuator_state_filt_vect[i];
+
+#ifdef GUIDANCE_INDI_MIN_THROTTLE
+    float airspeed = stateGetAirspeed_f();
+    //limit minimum thrust ap can give
+    if (!act_is_servo[i]) {
+      if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
+        if (airspeed < INDI_HROTTLE_LIMIT_AIRSPEED_FWD) {
+          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment*actuator_state_filt_vect[i];
+        } else {
+          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment*actuator_state_filt_vect[i];
+        }
+      }
+    }
+#endif
+  }
 }
 
 /**

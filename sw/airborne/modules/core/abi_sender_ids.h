@@ -624,4 +624,12 @@
 #define VEL_SP_FCR_ID 1 // Approach Moving Target
 #endif
 
+/*
+ * IDs of LIFT_D senders
+ */
+
+#ifndef LIFT_D_SCHED_ID
+#define LIFT_D_SCHED_ID 1
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
