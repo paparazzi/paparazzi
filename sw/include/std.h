@@ -135,8 +135,8 @@ typedef uint8_t unit_t;
 
 #define BoundUpper(_x, _max) { if (_x > (_max)) _x = (_max);}
 
-
-#define Bound(_x, _min, _max) { if (_x > (_max)) _x = (_max); else if (_x < (_min)) _x = (_min); }
+// Note: the bound function will bound NaN to max
+#define Bound(_x, _min, _max) { if (!(_x < (_max))) _x = (_max); else if (!(_x > (_min))) _x = (_min); }
 #define BoundInverted(_x, _min, _max) {           \
     if ((_x < (_min)) && (_x > (_max))) {         \
       if (abs(_x - (_min)) < abs(_x - (_max)))    \
