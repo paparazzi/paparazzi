@@ -256,7 +256,11 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(control_increment, Ga_inv, a_diff);
 
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, control_increment.z);
+  struct FloatVect3 thrust_vect;
+  thrust_vect.x = 0.0;  // Fill for quadplanes
+  thrust_vect.y = 0.0;
+  thrust_vect.z = control_increment.z;
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
 
   guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
   guidance_euler_cmd.phi = roll_filt.o[0] + control_increment.y;

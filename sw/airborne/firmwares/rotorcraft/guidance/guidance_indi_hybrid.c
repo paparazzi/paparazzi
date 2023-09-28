@@ -312,7 +312,11 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
+  struct FloatVect3 thrust_vect;
+  thrust_vect.x = 0.0;  // Fill for quadplanes
+  thrust_vect.y = 0.0;
+  thrust_vect.z = euler_cmd.z;
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
 
   // Coordinated turn
   // feedforward estimate angular rotation omega = g*tan(phi)/v
