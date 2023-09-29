@@ -41,6 +41,7 @@
 
 extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
+extern float guidance_indi_get_liftd(float pitch, float theta);
 
 enum GuidanceIndiHybrid_HMode {
   GUIDANCE_INDI_HYBRID_H_POS,
