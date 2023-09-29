@@ -6,6 +6,9 @@
     <configure name="EXTRA_DL_PORT" value="UARTX|UDPX|usb_serial" description="Select port for extra datalink"/>
     <configure name="EXTRA_DL_BAUD" value="B57600" description="Baudrate for extra datalink if link device is UART"/>
   </doc>
+  <dep>
+    <depends>uart|udp</depends>
+  </dep>
   <header>
     <file name="extra_pprz_dl.h"/>
   </header>
@@ -25,28 +28,9 @@
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
     <define name="USE_$(EXTRA_DL_PORT_UPPER)"/>
+    <define name="$(EXTRA_DL_PORT_UPPER)_BAUD" value="$(EXTRA_DL_BAUD)"/>
     <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
-    <raw>
-      # Check for UDP port
-      ifneq (,$(findstring udp,$(EXTRA_DL_PORT_LOWER)))
-      include $(CFG_SHARED)/udp.makefile
-      else
-      ifneq (,$(findstring usb_serial,$(EXTRA_DL_PORT_LOWER)))
-        # usb_serial telemetry chosen, add files based on architecture
-        ifeq ($(ARCH), stm32)
-        $(TARGET).srcs += $(SRC_ARCH)/usb_ser_hw.c
-        else
-        ifneq ($(ARCH), sim)
-        $(error telemetry_transparent_usb currently only implemented for the stm32)
-        endif
-        endif
-      else
-      EXTRA_DL_BAUD ?= B57600
-      $(TARGET).CFLAGS += -D$(EXTRA_DL_PORT_UPPER)_BAUD=$(EXTRA_DL_BAUD)
-      endif # USB serial
-      endif # UDP
-    </raw>
     <file name="extra_pprz_dl.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
   </makefile>

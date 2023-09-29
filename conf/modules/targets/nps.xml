@@ -76,9 +76,5 @@ VPATH += $(PAPARAZZI_SRC)/sw/simulator
   <makefile target="nps">
     <file name="nps_main_sitl.c" dir="$(NPS_DIR)"/>
   </makefile>
-  <makefile target="hitl">
-    <file name="nps_main_hitl.c" dir="$(NPS_DIR)"/>
-    <file name="nps_ins_vectornav.c" dir="$(NPS_DIR)"/> <!-- TODO should be in ins_vectornav module -->
-  </makefile>
 </module>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2023 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -18,29 +18,28 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IMU_NPS_H
-#define IMU_NPS_H
+#ifndef SENSORS_HITL_H
+#define SENSORS_HITL_H
 
-#include "modules/imu/imu.h"
+#include "std.h"
 
-#include "generated/airframe.h"
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_SIM
+#endif
 
-struct ImuNps {
-  uint8_t mag_available;
-  uint8_t accel_available;
-  uint8_t gyro_available;
+extern bool gps_has_fix;
 
-  struct Int32Rates gyro;
-  struct Int32Vect3 accel;
-  struct Int32Vect3 mag;
-};
+extern void sensors_hitl_init(void);
+extern void sensors_hitl_periodic(void);
+extern void sensors_hitl_event(void);
+extern void sensors_hitl_parse_HITL_IMU(uint8_t *buf);
+extern void sensors_hitl_parse_HITL_GPS(uint8_t *buf);
+extern void sensors_hitl_parse_HITL_AIR_DATA(uint8_t *buf);
 
-extern struct ImuNps imu_nps;
-
+// dummy definition for compilation
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
+extern void gps_feed_value(void);
 
-extern void imu_nps_init(void);
-extern void imu_nps_event(void);
+#endif /* SENSORS_HITL_H */
 
-#endif /* IMU_NPS_H */
