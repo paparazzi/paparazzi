@@ -27,10 +27,11 @@
  * the inputs that will satisfy most of the control objective, subject to the
  * weighting matrices Wv and Wu
  *
+ * The dimension of the input vectors u and v are defined at compilation time
+ * and must be large enough for all the considered cases.
+ *
  * @param u The control output vector
- * @param n_u Size of the control output vector
  * @param v The control objective vector
- * @param n_v Size of the control objective vector
  * @param umin The minimum u vector
  * @param umax The maximum u vector
  * @param B The control effectiveness matrix
@@ -47,7 +48,7 @@
  *
  * @return Number of iterations, -1 upon failure
  */
-int wls_alloc(float* u, int n_u, float* v, int n_v,
+int wls_alloc(float* u, float* v,
               float* umin, float* umax, float** B,
               float* u_guess, float* W_init, float* Wv, float* Wu,
               float* ud, float gamma, int imax);

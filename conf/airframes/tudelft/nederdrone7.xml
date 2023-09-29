@@ -106,6 +106,7 @@
     </module>
     <module name="stabilization" type="indi">
       <configure name="INDI_NUM_ACT" value="8"/>
+      <define name="WLS_N_U" value="8"/>
       <define name="TILT_TWIST_CTRL" value="TRUE"/>
     </module>
     <module name="stabilization" type="rate_indi"/>

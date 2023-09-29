@@ -350,7 +350,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   float v_gih[3] = { a_diff.x, a_diff.y, a_diff.z };
   float du_gih[3];
   int num_iter UNUSED = wls_alloc(
-      du_gih, 3, v_gih, 3, du_min_gih, du_max_gih,
+      du_gih, v_gih, du_min_gih, du_max_gih,
       Bwls_gih, 0, 0, Wv_gih, Wu_gih, du_pref_gih, 100000, 10);
   euler_cmd.x = du_gih[0];
   euler_cmd.y = du_gih[1];

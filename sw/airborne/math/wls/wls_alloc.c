@@ -55,6 +55,16 @@ static void print_final_values(int n_u, int n_v, float* u, float** B, float* v, 
 static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free);
 #endif
 
+#ifndef WLS_N_U
+#define WLS_N_U 6
+#endif
+
+#ifndef WLS_N_V
+#define WLS_N_V 4
+#endif
+
+#define WLS_N_C ((WLS_N_U)+(WLS_N_V))
+
 /**
  * @brief Wrapper for qr solve
  *
@@ -85,9 +95,7 @@ static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * weighting matrices Wv and Wu
  *
  * @param u The control output vector
- * @param n_u Size of the control output vector
  * @param v The control objective vector
- * @param n_v Size of the control objective vector
  * @param umin The minimum u vector
  * @param umax The maximum u vector
  * @param B The control effectiveness matrix
@@ -104,7 +112,7 @@ static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  *
  * @return Number of iterations, -1 upon failure
  */
-int wls_alloc(float* u, int n_u, float* v, int n_v,
+int wls_alloc(float* u, float* v,
     float* umin, float* umax, float** B,
     float* u_guess, float* W_init, float* Wv, float* Wu,
     float* up, float gamma_sq, int imax)
@@ -113,33 +121,35 @@ int wls_alloc(float* u, int n_u, float* v, int n_v,
   if(!gamma_sq) gamma_sq = 100000;
   if(!imax) imax = 100;
 
+  int n_u = WLS_N_U;
+  int n_v = WLS_N_V;
   int n_c = n_u + n_v;
 
-  float A[n_c][n_u];
-  float A_free[n_c][n_u];
+  float A[WLS_N_C][WLS_N_U];
+  float A_free[WLS_N_C][WLS_N_U];
 
   // Create a pointer array to the rows of A_free
   // such that we can pass it to a function
-  float * A_free_ptr[n_c];
+  float * A_free_ptr[WLS_N_C];
   for(int i = 0; i < n_c; i++)
     A_free_ptr[i] = A_free[i];
 
-  float b[n_c];
-  float d[n_c];
+  float b[WLS_N_C];
+  float d[WLS_N_C];
 
-  int free_index[n_u];
-  int free_index_lookup[n_u];
+  int free_index[WLS_N_U];
+  int free_index_lookup[WLS_N_U];
   int n_free = 0;
   int free_chk = -1;
 
   int iter = 0;
-  float p_free[n_u];
-  float p[n_u];
-  float u_opt[n_u];
-  int infeasible_index[n_u] UNUSED;
+  float p_free[WLS_N_U];
+  float p[WLS_N_U];
+  float u_opt[WLS_N_U];
+  int infeasible_index[WLS_N_U] UNUSED;
   int n_infeasible = 0;
-  float lambda[n_u];
-  float W[n_u];
+  float lambda[WLS_N_U];
+  float W[WLS_N_U];
 
   // Initialize u and the working set, if provided from input
   if (!u_guess) {
@@ -155,7 +165,7 @@ int wls_alloc(float* u, int n_u, float* v, int n_v,
     : memset(W, 0, n_u * sizeof(float));
 
   memset(free_index_lookup, -1, n_u * sizeof(float));
-  
+
   // find free indices
   for (int i = 0; i < n_u; i++) {
     if (W[i] == 0) {
