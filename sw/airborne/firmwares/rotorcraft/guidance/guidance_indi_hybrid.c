@@ -130,6 +130,17 @@ static void guidance_indi_filter_thrust(void);
 #endif
 #endif
 
+#ifndef GUIDANCE_INDI_CLIMB_SPEED_FWD
+#define GUIDANCE_INDI_CLIMB_SPEED_FWD 4.0
+#endif
+
+#ifndef GUIDANCE_INDI_DESCEND_SPEED_FWD
+#define GUIDANCE_INDI_DESCEND_SPEED_FWD -4.0
+#endif
+
+float climb_vspeed_fwd = GUIDANCE_INDI_CLIMB_SPEED_FWD;
+float descend_vspeed_fwd = GUIDANCE_INDI_DESCEND_SPEED_FWD;
+
 float inv_eff[4];
 
 // Max bank angle in radians
@@ -169,7 +180,6 @@ float time_of_vel_sp = 0.0;
 
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
-static float guidance_indi_get_liftd(float pitch, float theta);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -530,7 +540,7 @@ static float bound_vz_sp(float vz_sp)
 {
   // Bound vertical speed setpoint
   if (stateGetAirspeed_f() > 13.f) {
-    Bound(vz_sp, -4.0f, 4.0f); // FIXME no harcoded values
+    Bound(vz_sp, -climb_vspeed_fwd, -descend_vspeed_fwd);
   } else {
     Bound(vz_sp, -nav.climb_vspeed, -nav.descend_vspeed); // FIXME don't use nav settings
   }
@@ -695,7 +705,7 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
  *
  * @return The derivative of lift w.r.t. pitch
  */
-float guidance_indi_get_liftd(float airspeed, float theta) {
+float WEAK guidance_indi_get_liftd(float airspeed, float theta) {
   float liftd = 0.0;
 
   if(airspeed < 12) {
