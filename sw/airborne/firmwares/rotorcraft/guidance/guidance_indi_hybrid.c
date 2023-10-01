@@ -91,12 +91,15 @@ struct guidance_indi_hybrid_params gih_params = {
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
+// If using WLS, check that the matrix size is sufficient
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 #if 3 > WLS_N_U
 #error Matrix-WLS_N_U too small: increase WLS_N_U in airframe file
 #endif
 
 #if 3 > WLS_N_V
 #error Matrix-WLS_N_V too small: increase WLS_N_V in airframe file
+#endif
 #endif
 
 

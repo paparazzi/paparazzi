@@ -85,12 +85,14 @@
 #warning SetAutoCommandsFromRC not used: STAB_INDI overwrites actuators
 #endif
 
+#if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #if INDI_NUM_ACT > WLS_N_U
 #error Matrix-WLS_N_U too small: increase WLS_N_U in airframe file
 #endif
 
 #if INDI_OUTPUTS > WLS_N_V
 #error Matrix-WLS_N_V too small: increase WLS_N_V in airframe file
+#endif
 #endif
 
 float du_min_stab_indi[INDI_NUM_ACT];
