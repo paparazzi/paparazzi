@@ -91,6 +91,15 @@ struct guidance_indi_hybrid_params gih_params = {
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 
+#if 3 > WLS_N_U
+#error Matrix-WLS_N_U too small: increase WLS_N_U in airframe file
+#endif
+
+#if 3 > WLS_N_V
+#error Matrix-WLS_N_V too small: increase WLS_N_V in airframe file
+#endif
+
+
 // Tell the guidance that the airspeed needs to be zeroed.
 // Recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case.
 #ifndef GUIDANCE_INDI_ZERO_AIRSPEED
