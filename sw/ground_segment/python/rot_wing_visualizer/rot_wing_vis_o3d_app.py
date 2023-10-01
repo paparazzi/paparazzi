@@ -478,7 +478,7 @@ class Viewer3D(object):
             self.ahrs_ref_quat = AHRSRefQuatMessage(msg)
             self.update_orientation_from_quat()
 
-        if msg.name == "ROT_WING_CONTROLLER":
+        if msg.name == "ROTATING_WING_STATE":
             self.wing_rotation_controller = RotWingControllerMessage(msg)
 
         if msg.name == "ACTUATORS":
