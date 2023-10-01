@@ -42,7 +42,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
-#include "wls/wls_alloc.h"
+#include "math/wls/wls_alloc.h"
 #include <stdio.h>
 
 // Factor that the estimated G matrix is allowed to deviate from initial one

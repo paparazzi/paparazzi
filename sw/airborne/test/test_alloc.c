@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 #include "std.h"
-#include "firmwares/rotorcraft/stabilization/wls/wls_alloc.h"
+#include "math/wls/wls_alloc.h"
 
 #define INDI_OUTPUTS 4
 

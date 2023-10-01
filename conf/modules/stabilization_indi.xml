@@ -55,7 +55,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>stabilization_rotorcraft,@attitude_command</depends>
+    <depends>stabilization_rotorcraft,@attitude_command,wls</depends>
     <provides>commands</provides>
   </dep>
   <header>
@@ -65,15 +65,10 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
-    <file name="qr_solve.c" dir="math/qr_solve"/>
-    <file name="r8lib_min.c" dir="math/qr_solve"/>
     <configure name="INDI_OUTPUTS" default="4"/>
     <configure name="INDI_NUM_ACT" default="4"/>
     <define name="INDI_OUTPUTS" value="$(INDI_OUTPUTS)"/>
     <define name="INDI_NUM_ACT" value="$(INDI_NUM_ACT)"/>
-    <define name="CA_N_V" value="$(INDI_OUTPUTS)"/>
-    <define name="CA_N_U" value="$(INDI_NUM_ACT)"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
