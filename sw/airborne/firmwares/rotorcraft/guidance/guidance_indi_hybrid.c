@@ -362,7 +362,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   du_max_gih[2] = -(actuator_state_filt_vect[0]*g1g2[3][0] + actuator_state_filt_vect[1]*g1g2[3][1] + actuator_state_filt_vect[2]*g1g2[3][2] + actuator_state_filt_vect[3]*g1g2[3][3]);
 
   // Set prefered states
-  du_pref_gih[0] = 0.; // prefered delta roll angle
+  du_pref_gih[0] = -roll_filt.o[0]; // prefered delta roll angle
   du_pref_gih[1] = -pitch_filt.o[0]; // prefered delta pitch angle
   du_pref_gih[2] = du_max_gih[2];
 
