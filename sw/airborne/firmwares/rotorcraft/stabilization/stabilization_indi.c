@@ -81,6 +81,12 @@
 #define INDI_HROTTLE_LIMIT_AIRSPEED_FWD 8.0
 #endif
 
+#if INDI_OUTPUTS > 4
+#ifndef STABILIZATION_INDI_G1_THRUST_X
+#error "You must define STABILIZATION_INDI_G1_THRUST_X for your number of INDI_OUTPUTS"
+#endif
+#endif
+
 #ifdef SetCommandsFromRC
 #warning SetAutoCommandsFromRC not used: STAB_INDI overwrites actuators
 #endif
@@ -141,6 +147,14 @@ bool act_is_servo[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_IS_SERVO;
 bool act_is_servo[INDI_NUM_ACT] = {0};
 #endif
 
+#ifdef STABILIZATION_INDI_ACT_IS_THRUSTER_X
+bool act_is_thruster_x[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_IS_THRUSTER_X;
+#else
+bool act_is_thruster_x[INDI_NUM_ACT] = {0};
+#endif
+
+bool act_is_thruster_z[INDI_NUM_ACT];
+
 #ifdef STABILIZATION_INDI_ACT_PREF
 // Preferred (neutral, least energy) actuator value
 float act_pref[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_PREF;
@@ -155,7 +169,11 @@ float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
 #else
 //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+#if INDI_OUTPUTS == 5
+static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100, 100};
+#else
 static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+#endif
 #endif
 
 /**
@@ -164,7 +182,7 @@ static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
 #ifdef STABILIZATION_INDI_WLS_WU
 float indi_Wu[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
 #else
-float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT-1] = 1.0};
+float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT - 1] = 1.0};
 #endif
 
 // variables needed for control
@@ -200,6 +218,7 @@ float act_obs[INDI_NUM_ACT];
 
 // Number of actuators used to provide thrust
 int32_t num_thrusters;
+int32_t num_thrusters_x;
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
@@ -215,9 +234,17 @@ bool indi_thrust_increment_set = false;
 
 float g1g2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
 float g2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by INDI_G_SCALING
+#if INDI_OUTPUTS == 5
+float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
+                                        STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW,
+                                        STABILIZATION_INDI_G1_THRUST, STABILIZATION_INDI_G1_THRUST_X
+                                       };
+#else
 float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
                                         STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST
                                        };
+#endif
+
 float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
 float g1_est[INDI_OUTPUTS][INDI_NUM_ACT];
 float g2_est[INDI_NUM_ACT];
@@ -243,10 +270,10 @@ void sum_g1_g2(void);
 #include "modules/datalink/telemetry.h"
 static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, g1_est[0],
-                       INDI_NUM_ACT, g1_est[1],
-                       INDI_NUM_ACT, g1_est[2],
-                       INDI_NUM_ACT, g1_est[3],
+  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, g1g2[0],
+                       INDI_NUM_ACT, g1g2[1],
+                       INDI_NUM_ACT, g1g2[2],
+                       INDI_NUM_ACT, g1g2[3],
                        INDI_NUM_ACT, g2_est);
 }
 
@@ -272,24 +299,24 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
   ACCELS_FLOAT_OF_BFP(body_accel_f_telem, *body_accel_i);
   float zero = 0;
   pprz_msg_send_STAB_ATTITUDE_INDI(trans, dev, AC_ID,
-                                        &body_accel_f_telem.x,    // input lin.acc
-                                        &body_accel_f_telem.y,
-                                        &body_accel_f_telem.z,
-                                        &body_rates->p,           // rate
-                                        &body_rates->q,
-                                        &body_rates->r,
-                                        &angular_rate_ref.p,      // rate.sp
-                                        &angular_rate_ref.q,
-                                        &angular_rate_ref.r,
-                                        &angular_acceleration[0], // ang.acc
-                                        &angular_acceleration[1],
-                                        &angular_acceleration[2],
-                                        &angular_accel_ref.p,     // ang.acc.sp
-                                        &angular_accel_ref.q,
-                                        &angular_accel_ref.r,
-                                        &zero, &zero,             // eff.mat
-                                        &zero, &zero,
-                                        INDI_NUM_ACT, indi_u);    // out
+                                   &body_accel_f_telem.x,    // input lin.acc
+                                   &body_accel_f_telem.y,
+                                   &body_accel_f_telem.z,
+                                   &body_rates->p,           // rate
+                                   &body_rates->q,
+                                   &body_rates->r,
+                                   &angular_rate_ref.p,      // rate.sp
+                                   &angular_rate_ref.q,
+                                   &angular_rate_ref.r,
+                                   &angular_acceleration[0], // ang.acc
+                                   &angular_acceleration[1],
+                                   &angular_acceleration[2],
+                                   &angular_accel_ref.p,     // ang.acc.sp
+                                   &angular_accel_ref.q,
+                                   &angular_accel_ref.r,
+                                   &zero, &zero,             // eff.mat
+                                   &zero, &zero,
+                                   INDI_NUM_ACT, indi_u);    // out
 }
 #endif
 
@@ -314,10 +341,10 @@ void stabilization_indi_init(void)
   sum_g1_g2();
 
   // Do not compute if not needed
-  #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
+#if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   //Calculate G1G2_PSEUDO_INVERSE
   calc_g1g2_pseudo_inv();
-  #endif
+#endif
 
   int8_t i;
   // Initialize the array of pointers to the rows of g1g2
@@ -334,8 +361,14 @@ void stabilization_indi_init(void)
 
   // Assume all non-servos are delivering thrust
   num_thrusters = INDI_NUM_ACT;
+  num_thrusters_x = 0;
   for (i = 0; i < INDI_NUM_ACT; i++) {
     num_thrusters -= act_is_servo[i];
+    num_thrusters -= act_is_thruster_x[i];
+
+    num_thrusters_x += act_is_thruster_x[i];
+
+    act_is_thruster_z[i] = !act_is_servo[i] && !act_is_thruster_x[i];
   }
 
 #if PERIODIC_TELEMETRY
@@ -550,7 +583,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   g2_times_du = g2_times_du / INDI_G_SCALING;
 
   float use_increment = 0.0;
-  if(in_flight) {
+  if (in_flight) {
     use_increment = 1.0;
   }
 
@@ -564,31 +597,47 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     //update thrust command such that the current is correctly estimated
     stabilization_cmd[COMMAND_THRUST] = 0;
     for (i = 0; i < INDI_NUM_ACT; i++) {
-      stabilization_cmd[COMMAND_THRUST] += actuator_state[i] * -((int32_t) act_is_servo[i] - 1);
+      stabilization_cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_is_thruster_z[i];
     }
     stabilization_cmd[COMMAND_THRUST] /= num_thrusters;
+
+#if INDI_OUTPUTS == 5
+    stabilization_cmd[COMMAND_THRUST_X] = 0;
+    for (i = 0; i < INDI_NUM_ACT; i++) {
+      stabilization_cmd[COMMAND_THRUST_X] += actuator_state[i] * (int32_t) act_is_thruster_x[i];
+    }
+    stabilization_cmd[COMMAND_THRUST_X] /= num_thrusters_x;
+#endif
 
   } else {
     // incremental thrust
     for (i = 0; i < INDI_NUM_ACT; i++) {
       v_thrust.z +=
-        (stabilization_cmd[COMMAND_THRUST] - use_increment*actuator_state_filt_vect[i]) * Bwls[3][i];
+        (stabilization_cmd[COMMAND_THRUST] - use_increment * actuator_state_filt_vect[i]) * Bwls[3][i];
+#if INDI_OUTPUTS == 5
+      v_thrust.x +=
+        (stabilization_cmd[COMMAND_THRUST_X] - use_increment * actuator_state_filt_vect[i]) * Bwls[4][i];
+#endif
     }
   }
 
   // The control objective in array format
-  indi_v[0] = (angular_accel_ref.p - use_increment*angular_acceleration[0]);
-  indi_v[1] = (angular_accel_ref.q - use_increment*angular_acceleration[1]);
-  indi_v[2] = (angular_accel_ref.r - use_increment*angular_acceleration[2] + g2_times_du);
+  indi_v[0] = (angular_accel_ref.p - use_increment * angular_acceleration[0]);
+  indi_v[1] = (angular_accel_ref.q - use_increment * angular_acceleration[1]);
+  indi_v[2] = (angular_accel_ref.r - use_increment * angular_acceleration[2] + g2_times_du);
   indi_v[3] = v_thrust.z;
+#if INDI_OUTPUTS == 5
+  indi_v[4] = v_thrust.x;
+#endif
+
 
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   // Calculate the increment for each actuator
   for (i = 0; i < INDI_NUM_ACT; i++) {
     indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
-      + (g1g2_pseudo_inv[i][1] * indi_v[1])
-      + (g1g2_pseudo_inv[i][2] * indi_v[2])
-      + (g1g2_pseudo_inv[i][3] * indi_v[3]);
+                 + (g1g2_pseudo_inv[i][1] * indi_v[1])
+                 + (g1g2_pseudo_inv[i][2] * indi_v[2])
+                 + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
   stabilization_indi_set_wls_settings(use_increment);
@@ -596,7 +645,8 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min_stab_indi, du_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, du_pref_stab_indi, 10000, 10, INDI_NUM_ACT, INDI_OUTPUTS);
+    wls_alloc(indi_du, indi_v, du_min_stab_indi, du_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, du_pref_stab_indi, 10000, 10,
+              INDI_NUM_ACT, INDI_OUTPUTS);
 #endif
 
   if (in_flight) {
@@ -614,8 +664,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     } else {
       if (autopilot_get_motors_on()) {
         Bound(indi_u[i], 0, MAX_PPRZ);
-      }
-      else {
+      } else {
         indi_u[i] = -MAX_PPRZ;
       }
     }
@@ -652,17 +701,17 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 }
 
 /**
- * @param use_increment 
- * 
+ * @param use_increment
+ *
  * Function that sets the du_min, du_max and du_pref if function not elsewhere defined
  */
 void WEAK stabilization_indi_set_wls_settings(float use_increment)
 {
-   // Calculate the min and max increments
-    for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-      du_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
-      du_max_stab_indi[i] = MAX_PPRZ - use_increment*actuator_state_filt_vect[i];
-      du_pref_stab_indi[i] = act_pref[i] - use_increment*actuator_state_filt_vect[i];
+  // Calculate the min and max increments
+  for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
+    du_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i] - use_increment * actuator_state_filt_vect[i];
+    du_max_stab_indi[i] = MAX_PPRZ - use_increment * actuator_state_filt_vect[i];
+    du_pref_stab_indi[i] = act_pref[i] - use_increment * actuator_state_filt_vect[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
     float airspeed = stateGetAirspeed_f();
@@ -670,9 +719,9 @@ void WEAK stabilization_indi_set_wls_settings(float use_increment)
     if (!act_is_servo[i]) {
       if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
         if (airspeed < INDI_HROTTLE_LIMIT_AIRSPEED_FWD) {
-          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment*actuator_state_filt_vect[i];
+          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment * actuator_state_filt_vect[i];
         } else {
-          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment*actuator_state_filt_vect[i];
+          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment * actuator_state_filt_vect[i];
         }
       }
     }
@@ -833,11 +882,11 @@ void lms_estimation(void)
 
   // Use xml setting for adaptive mu for lms
   // Set default value if not defined
-  #ifndef STABILIZATION_INDI_ADAPTIVE_MU
-    float adaptive_mu_lr = 0.001;
-  #else
-    float adaptive_mu_lr = STABILIZATION_INDI_ADAPTIVE_MU;
-  #endif
+#ifndef STABILIZATION_INDI_ADAPTIVE_MU
+  float adaptive_mu_lr = 0.001;
+#else
+  float adaptive_mu_lr = STABILIZATION_INDI_ADAPTIVE_MU;
+#endif
 
   // scale the inputs to avoid numerical errors
   float_vect_smul(du_estimation, actuator_state_filt_vectd, adaptive_mu_lr, INDI_NUM_ACT);
@@ -899,7 +948,8 @@ void lms_estimation(void)
  * Function that sums g1 and g2 to obtain the g1g2 matrix
  * It also undoes the scaling that was done to make the values readable
  */
-void sum_g1_g2(void) {
+void sum_g1_g2(void)
+{
   int8_t i;
   int8_t j;
   for (i = 0; i < INDI_OUTPUTS; i++) {
@@ -962,7 +1012,7 @@ void calc_g1g2_pseudo_inv(void)
 static void rpm_cb(uint8_t sender_id UNUSED, struct rpm_act_t *rpm_msg UNUSED, uint8_t num_act UNUSED)
 {
 #if INDI_RPM_FEEDBACK
-PRINT_CONFIG_MSG("INDI_RPM_FEEDBACK");
+  PRINT_CONFIG_MSG("INDI_RPM_FEEDBACK");
   int8_t i;
   for (i = 0; i < num_act; i++) {
     // Sanity check that index is valid
