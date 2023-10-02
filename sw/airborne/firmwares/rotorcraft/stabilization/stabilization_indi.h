@@ -34,6 +34,7 @@ extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 extern float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
 extern float actuator_state_filt_vect[INDI_NUM_ACT];
+extern bool act_is_servo[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 
@@ -41,6 +42,11 @@ extern float du_min_stab_indi[INDI_NUM_ACT];
 extern float du_max_stab_indi[INDI_NUM_ACT];
 extern float du_pref_stab_indi[INDI_NUM_ACT];
 extern float *Bwls[INDI_OUTPUTS];
+
+extern float thrust_bx_eff;
+extern float thrust_bx_act_dyn;
+extern float actuator_thrust_bx_pprz;
+extern float thrust_bx_state_filt;
 
 extern float act_pref[INDI_NUM_ACT];
 
