@@ -90,6 +90,7 @@ float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
 float guidance_indi_pitch_pref_deg = 0;
 
 
+#if GUIDANCE_INDI_QUADPLANE
 #ifndef GUIDANCE_INDI_THRUST_Z_EFF
 #error "You need to define GUIDANCE_INDI_THRUST_Z_EFF"
 #else
@@ -100,6 +101,7 @@ float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
 #error "You need to define GUIDANCE_INDI_THRUST_X_EFF"
 #else
 float guidance_indi_thrust_x_eff = GUIDANCE_INDI_THRUST_X_EFF;
+#endif
 #endif
 
 // If using WLS, check that the matrix size is sufficient
