@@ -702,7 +702,6 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
   }
 }
 
-#ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 /**
  * Filter the thrust, such that it corresponds to the filtered acceleration
  */
@@ -714,7 +713,6 @@ void guidance_indi_filter_thrust(void)
   // same filter as for the acceleration
   update_butterworth_2_low_pass(&thrust_filt, thrust_act);
 }
-#endif
 
 /**
  * Low pass the accelerometer measurements to remove noise from vibrations.
@@ -745,9 +743,11 @@ void guidance_indi_propagate_filters(void) {
  * w.r.t. the NED accelerations, taking into account the lift of a wing that is
  * horizontal at -90 degrees pitch
  *
- * @param Gmat array to write the matrix to [3x3]
+ * @param Gmat Dynamics matrix
+ * @param a_diff acceleration errors in earth frame
+ * @param body_v 3D vector to write the control objective v
  */
-#ifndef GUIDANCE_INDI_QUADPLANE
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_gih[GUIDANCE_INDI_HYBRID_V]) {
 
   /*Pre-calculate sines and cosines*/
@@ -786,11 +786,13 @@ void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_I
   v_gih[1] = a_diff.y;
   v_gih[2] = a_diff.z;
 }
-#else
+#elif defined(GUIDANCE_INDI_QUADPLANE)
 /**
  * Perform WLS
  *
- * @param a_diff 3D vector to write the acceration error
+ * @param Gmat Dynamics matrix
+ * @param a_diff acceleration errors in earth frame
+ * @param body_v 3D vector to write the control objective v
  */
 void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
   /*Pre-calculate sines and cosines*/
@@ -832,6 +834,11 @@ void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_I
   body_v[1] = -spsi * a_diff.x + cpsi * a_diff.y;
   body_v[2] =  a_diff.z;
 }
+
+#else
+
+void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U] UNUSED, struct FloatVect3 a_diff UNUSED, float body_v[GUIDANCE_INDI_HYBRID_V] UNUSED) {}
+
 #endif
 /**
  * 
@@ -839,7 +846,7 @@ void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_I
  * 
  * WEAK function to set the quadplane wls settings
  */
-#ifndef GUIDANCE_INDI_QUADPLANE
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
 {
   // Set lower limits
@@ -857,7 +864,7 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float ro
   du_pref_gih[1] = -pitch_angle; // prefered delta pitch angle
   du_pref_gih[2] = du_max_gih[2];
 }
-#else
+#elif defined(GUIDANCE_INDI_QUADPLANE)
 #warning We have GUIDANCE_INDI_QUADPLANE
 void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
@@ -884,6 +891,10 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   du_pref_gih[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
   du_pref_gih[2] = du_max_gih[2]; // Low thrust better for efficiency
   du_pref_gih[3] = body_v[0]; // solve the body acceleration
+}
+#else
+void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle UNUSED, float pitch_angle UNUSED) {
+
 }
 #endif
 
