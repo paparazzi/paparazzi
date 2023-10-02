@@ -32,8 +32,6 @@
  *
  * @param u The control output vector
  * @param v The control objective vector
- * @param umin The minimum u vector
- * @param umax The maximum u vector
  * @param B The control effectiveness matrix
  * @param n_u Length of u
  * @param n_v Lenght of v
@@ -45,10 +43,12 @@
  * @param gamma_sq Preference of satisfying control objective over desired
  * control vector (sqare root of gamma)
  * @param imax Max number of iterations
+ * @param n_u Length of u (the number of actuators)
+ * @param n_v Lenght of v (the number of control objectives)
  *
- * @return Number of iterations, -1 upon failure
+ * @return Number of iterations: (imax+1) means it ran out of iterations
  */
 int wls_alloc(float* u, float* v,
               float* umin, float* umax, float** B,
               float* u_guess, float* W_init, float* Wv, float* Wu,
-              float* ud, float gamma, int imax);
+              float* ud, float gamma, int imax, int n_u, int n_v);
