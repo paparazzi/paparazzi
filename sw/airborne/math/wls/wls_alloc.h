@@ -32,8 +32,6 @@
  *
  * @param u The control output vector
  * @param v The control objective vector
- * @param umin The minimum u vector
- * @param umax The maximum u vector
  * @param B The control effectiveness matrix
  * @param n_u Length of u
  * @param n_v Lenght of v
@@ -45,6 +43,8 @@
  * @param gamma_sq Preference of satisfying control objective over desired
  * control vector (sqare root of gamma)
  * @param imax Max number of iterations
+ * @param n_u Length of u (the number of actuators)
+ * @param n_v Lenght of v (the number of control objectives)
  *
  * @return Number of iterations: (imax+1) means it ran out of iterations
  */

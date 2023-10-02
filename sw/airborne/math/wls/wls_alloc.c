@@ -99,8 +99,6 @@ static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * @param umin The minimum u vector
  * @param umax The maximum u vector
  * @param B The control effectiveness matrix
- * @param n_u Length of u
- * @param n_v Lenght of v
  * @param u_guess Initial value for u
  * @param W_init Initial working set, if known
  * @param Wv Weighting on different control objectives
@@ -109,6 +107,8 @@ static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * @param gamma_sq Preference of satisfying control objective over desired
  * control vector (sqare root of gamma)
  * @param imax Max number of iterations
+ * @param n_u Length of u (the number of actuators)
+ * @param n_v Lenght of v (the number of control objectives)
  *
  * @return Number of iterations which is (imax+1) if it ran out of iterations
  */
