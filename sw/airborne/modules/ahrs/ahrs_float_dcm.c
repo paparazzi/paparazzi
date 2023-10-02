@@ -418,7 +418,7 @@ void Drift_correction()
   }
 #endif
 
-  Vector_Cross_Product(&errorRollPitch[0], &accel_float.x, &DCM_Matrix[2][0]); //adjust the ground of reference
+  Vector_Cross_Product(&errorRollPitch[0], (float *)&accel_float, &DCM_Matrix[2][0]); //adjust the ground of reference
   Vector_Scale(&Omega_P[0], &errorRollPitch[0], Kp_ROLLPITCH * Accel_weight);
 
   Vector_Scale(&Scaled_Omega_I[0], &errorRollPitch[0], Ki_ROLLPITCH * Accel_weight);
@@ -488,7 +488,7 @@ void Drift_correction()
 
 void Matrix_update(float dt)
 {
-  Vector_Add(&Omega[0], &ahrs_dcm.body_rate.p, &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], (float *)&ahrs_dcm.body_rate, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
 #if OUTPUTMODE==1    // With corrected data (drift correction)
