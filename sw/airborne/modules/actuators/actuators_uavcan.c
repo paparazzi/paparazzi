@@ -46,6 +46,7 @@ struct actuators_uavcan_telem_t {
   float temperature_dev;
   int32_t rpm;
   uint32_t energy;
+  float position;
 };
 
 #ifdef SERVOS_UAVCAN1_NB
@@ -62,6 +63,12 @@ int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
 #ifdef SERVOS_UAVCAN2CMD_NB
 int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 #endif
+
+float getActuatorPosition(int nr) 
+{
+  // TODO: What about uavcan[2]
+  return uavcan1_telem[nr].position;
+}
 
 /* UNUSED value for CMD */
 #define UAVCAN_CMD_UNUSED (MIN_PPRZ-1)
@@ -94,6 +101,7 @@ int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 /* private variables */
 static bool actuators_uavcan_initialized = false;
 static uavcan_event esc_status_ev;
+static uavcan_event actuator_status_ev;
 static uavcan_event device_temperature_ev;
 
 #if PERIODIC_TELEMETRY
@@ -240,6 +248,49 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 }
 
 /**
+ * Whevener an ACTUATOR_STATUS message from the EQUIPMENT group is received
+ */
+static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
+{
+  uint8_t actuator_idx;
+  uint16_t tmp_float;
+
+  struct actuators_uavcan_telem_t *telem = NULL;
+  uint8_t max_id = 0;
+#ifdef SERVOS_UAVCAN1_NB
+  if (iface == &uavcan1) {
+    telem = uavcan1_telem;
+    max_id = SERVOS_UAVCAN1_NB;
+  }
+#endif
+#ifdef SERVOS_UAVCAN2_NB
+  if (iface == &uavcan2) {
+    telem = uavcan2_telem;
+    max_id = SERVOS_UAVCAN2_NB;
+  }
+#endif
+
+  canardDecodeScalar(transfer, 0, 8, false, (void *)&actuator_idx);
+  //Could not find the right interface
+  if (actuator_idx >= max_id || telem == NULL || max_id == 0) {
+    return;
+  }
+
+  //telem[actuator_idx].set = true;
+  canardDecodeScalar(transfer, 8, 16, true, (void *)&tmp_float);
+  telem[actuator_idx].position = canardConvertFloat16ToNativeFloat(tmp_float);
+
+#ifdef SERVOS_UAVCAN1_NB
+  struct rpm_act_t position_message;
+  position_message.actuator_idx =  SERVOS_UAVCAN1_OFFSET + actuator_idx;
+  position_message.rpm = telem[actuator_idx].position;
+
+  // Send ABI message
+  AbiSendMsgRPM(RPM_SENSOR_ID, &position_message, 1);
+#endif
+}
+
+/**
  * Whevener an DEVICE_TEMPERATURE message from the EQUIPMENT group is received
  */
 static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
@@ -269,6 +320,7 @@ static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface,
     return;
   }
 
+  telem[device_id].set = true;
   canardDecodeScalar(transfer, 16, 16, false, (void*)&tmp_float);
   telem[device_id].temperature_dev = canardConvertFloat16ToNativeFloat(tmp_float) - 273.15;
 }
@@ -285,6 +337,9 @@ void actuators_uavcan_init(struct uavcan_iface_t *iface __attribute__((unused)))
   // Bind uavcan ESC_STATUS message from EQUIPMENT
   uavcan_bind(UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev,
               &actuators_uavcan_esc_status_cb);
+  // Bind uavcan ACTUATOR_STATUS message from EQUIPMENT
+  uavcan_bind(UAVCAN_EQUIPMENT_ACTUATOR_STATUS_ID, UAVCAN_EQUIPMENT_ACTUATOR_STATUS_SIGNATURE, &actuator_status_ev,
+              &actuators_uavcan_actuator_status_cb);
   // Bind uavcan DEVICE_TEMPERATURE message from EQUIPMENT
   uavcan_bind(UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID, UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE, &device_temperature_ev,
               &actuators_uavcan_device_temperature_cb);
