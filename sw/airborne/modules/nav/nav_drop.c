@@ -161,8 +161,8 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
   // wind in NED frame
   if (stateIsAirspeedValid()) {
-    nav_drop_vx = x1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+    nav_drop_vx = x1 * Max(0, stateGetAirspeed_f()) + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 * Max(0, stateGetAirspeed_f()) + stateGetHorizontalWindspeed_f()->x;
   } else {
     // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
     nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;

@@ -825,7 +825,7 @@ static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device 
 #endif
   float hmsl_alt = state.ned_origin_f.hmsl - state.ned_origin_f.lla.alt;
   mavlink_msg_vfr_hud_send(MAVLINK_COMM_0,
-                           stateGetAirspeed_f(),
+                           Max(0,stateGetAirspeed_f()),
                            stateGetHorizontalSpeedNorm_f(), // groundspeed
                            heading,
                            throttle,
