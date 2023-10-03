@@ -1,5 +1,5 @@
-  /*
- * Copyright (C) 2022 D.C. van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+/*
+ * Copyright (C) 2023 Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  *
  * This file is part of paparazzi
  *
@@ -19,8 +19,8 @@
  */
 
 /** @file "modules/ctrl/ctrl_eff_sched_rot_wing_v3b.c"
- * @author D.C. van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
- * Crtl effectiveness scheduler for thr rotating wing drone V3
+ * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ * The control effectiveness scheduler for the rotating wing drone type
  */
 
 #include "modules/ctrl/ctrl_eff_sched_rot_wing_v3b.h"
