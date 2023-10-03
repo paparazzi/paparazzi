@@ -141,9 +141,10 @@ PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
  */
 #ifdef MS45XX_AIRSPEED_SCALE
 PRINT_CONFIG_MSG("MS45XX changed air density. PS: Use MS45XX_PRESSURE_SCALE to calibrate the MS45XX.");
-#else
-#define MS45XX_AIRSPEED_SCALE 1.6327
 #endif
+
+#define MS45XX_RHO_DIV_2 1.6327
+
 
 /** Time constant for second order Butterworth low pass filter
  * Default of 0.15 should give cut-off freq of 1/(2*pi*tau) ~= 1Hz
@@ -269,7 +270,11 @@ void ms45xx_i2c_event(void)
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure, 0)) * MS45XX_AIRSPEED_SCALE;
+      float sign = 1.0f;
+      if (ms45xx.pressure < 0.0f) {
+        sign = -1.0f;
+      }
+      ms45xx.airspeed = sqrtf(ms45xx.pressure * sign * MS45XX_RHO_DIV_2) * sign;
 
     }
 

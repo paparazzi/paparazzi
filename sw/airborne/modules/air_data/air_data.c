@@ -327,7 +327,12 @@ float eas_from_dynamic_pressure(float q)
    * Lower bound of q at zero, no flying backwards guys...
    */
   const float two_div_rho_0 = 2.0 / PPRZ_ISA_AIR_DENSITY;
-  return sqrtf(Max(q * two_div_rho_0, 0));
+  float sign = 1.0f;
+  if (q < 0) {
+    sign = -1.0f;
+    q = -q;
+  }
+  return sqrtf(q * two_div_rho_0) * sign;
 }
 
 /**
