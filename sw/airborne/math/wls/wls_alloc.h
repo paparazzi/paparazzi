@@ -48,7 +48,15 @@
  *
  * @return Number of iterations: (imax+1) means it ran out of iterations
  */
-int wls_alloc(float* u, float* v,
+
+#ifndef WLS_ALLOC_HEADER
+#define WLS_ALLOC_HEADER
+
+
+extern int wls_alloc(float* u, float* v,
               float* umin, float* umax, float** B,
               float* u_guess, float* W_init, float* Wv, float* Wu,
               float* ud, float gamma, int imax, int n_u, int n_v);
+
+
+#endif

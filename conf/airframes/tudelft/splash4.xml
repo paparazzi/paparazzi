@@ -87,6 +87,8 @@
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
     </module> -->
     <module name="stabilization" type="indi">
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
       <!--define name="TILT_TWIST_CTRL" value="TRUE"/-->
     </module>
     <module name="stabilization" type="rate_indi"/>
@@ -134,13 +136,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
-  <rc_commands>
-    <set command="THRUST" value="@THROTTLE" />
-    <set command="ROLL" value="@ROLL" />
-    <set command="PITCH" value="@PITCH" />
-    <set command="YAW" value="@YAW" />
-  </rc_commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TYPE" value="QUAD_X"/>
