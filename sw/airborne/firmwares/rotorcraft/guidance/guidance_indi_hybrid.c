@@ -702,6 +702,7 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
   }
 }
 
+#ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 /**
  * Filter the thrust, such that it corresponds to the filtered acceleration
  */
@@ -713,6 +714,8 @@ void guidance_indi_filter_thrust(void)
   // same filter as for the acceleration
   update_butterworth_2_low_pass(&thrust_filt, thrust_act);
 }
+
+#endif
 
 /**
  * Low pass the accelerometer measurements to remove noise from vibrations.
