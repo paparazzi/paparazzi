@@ -1,0 +1,939 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Ewoud Smeur</author>
+    <filecreationdate>07-03-2017</filecreationdate>
+    <version>Version 0.9 - beta</version>
+    <description>Bebop1 with actuator dynamics (NE/SW turning CCW, NW/SE CW)</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="IN2"> 775.0015484220969 </wingarea>
+    <wingspan unit="IN"> 78.7401574 </wingspan>
+    <chord unit="IN"> 9.842519675 </chord>
+    <htailarea unit="FT2"> 0 </htailarea>
+    <htailarm unit="FT"> 0 </htailarm>
+    <vtailarea unit="FT2"> 0 </vtailarea>
+    <vtailarm unit="FT"> 0 </vtailarm>
+    <location name="AERORP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="IN">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="SLUG*FT2"> 0.08732735879497003</ixx>
+    <iyy unit="SLUG*FT2"> 0.8520317979725454</iyy>
+    <izz unit="SLUG*FT2"> 0.870323339341762</izz>
+    <ixy unit="SLUG*FT2"> 0. </ixy>
+    <ixz unit="SLUG*FT2"> 0. </ixz>
+    <iyz unit="SLUG*FT2"> 0. </iyz>
+        <emptywt unit="LBS"> 15.305316865071301 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.15 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.15</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="front_motor_lag">
+        <input> fcs/front_motor </input>
+        <c1> 18 </c1>
+        <output> fcs/front_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="right_motor_lag">
+        <input> fcs/right_motor </input>
+        <c1> 18 </c1>
+        <output> fcs/right_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="back_motor_lag">
+        <input> fcs/back_motor </input>
+        <c1> 18 </c1>
+        <output> fcs/back_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="left_motor_lag">
+        <input> fcs/left_motor </input>
+        <c1> 18 </c1>
+        <output> fcs/left_motor_lag</output>
+      </lag_filter>
+      <lag_filter name="pusher_lag">
+        <input> fcs/pusher </input>
+        <c1> 18 </c1>
+        <output> fcs/pusher_lag</output>
+      </lag_filter>
+      <lag_filter name="elevator_lag">
+        <input> fcs/elevator </input>
+        <c1> 54 </c1>
+        <output> fcs/elevator_lag</output>
+      </lag_filter>
+      <lag_filter name="rudder_lag">
+        <input> fcs/rudder </input>
+        <c1> 54 </c1>
+        <output> fcs/rudder_lag</output>
+      </lag_filter>
+      <lag_filter name="aileron_lag">
+        <input> fcs/aileron </input>
+        <c1> 54 </c1>
+        <output> fcs/aileron_lag</output>
+      </lag_filter>
+      <lag_filter name="flap_lag">
+        <input> fcs/flap </input>
+        <c1> 54 </c1>
+        <output> fcs/flap_lag</output>
+      </lag_filter>
+
+      <fcs_function name="cosskew">
+        <function>
+          <cos>
+            <product>
+              <property>fcs/skew</property>
+              <value>0.5</value>
+              <pi/>
+            </product>
+          </cos>
+        </function>
+      <output> fcs/cosskew </output>
+      </fcs_function>
+
+      <fcs_function name="cos2skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 2.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos2skew </output>
+      </fcs_function>
+
+      <fcs_function name="cos3skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos3skew </output>
+      </fcs_function>
+
+      <fcs_function name="sinskew">
+        <function>
+          <sin>
+            <product>
+              <property>fcs/skew</property>
+              <value>0.5</value>
+              <pi/>
+            </product>
+          </sin>
+        </function>
+        <output> fcs/sinskew </output>
+      </fcs_function>
+
+      <fcs_function name="sin2skew">
+        <function>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 2.0 </v>
+          </pow>
+        </function>
+        <output> fcs/sin2skew </output>
+      </fcs_function>
+
+      <fcs_function name="sin3skew">
+        <function>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+        <output> fcs/sin3skew </output>
+      </fcs_function>
+
+      <fcs_function name="Ixx">
+        <function>
+          <sum>
+            <product>
+              <value> 0.128887470778173 </value>
+              <property> fcs/sin2skew </property>
+            </product>
+            <product>
+              <value> -0.00522080411150638 </value>
+              <property> fcs/cos2skew </property>
+            </product>
+            <value> 0.123666666666667 </value>
+          </sum>
+        </function>
+        <output> fcs/Ixx </output>
+      </fcs_function>
+
+      <fcs_function name="Iyy">
+        <function>
+          <sum>
+            <product>
+              <value> 0.299513844419477 </value>
+              <property> fcs/sin2skew </property>
+            </product>
+            <product>
+              <value> 0.427819488913857 </value>
+              <property> fcs/cos2skew </property>
+            </product>
+            <value> 0.727333333333334 </value>
+          </sum>
+        </function>
+        <output> fcs/Iyy </output>
+      </fcs_function>
+
+      <fcs_function name="eff_xx_compensation">
+        <function>
+          <quotient>
+            <value> 0.1184 </value>
+            <property> fcs/Ixx </property>
+          </quotient>
+        </function>
+        <output> fcs/eff_xx_compensation </output>
+      </fcs_function>
+
+      <fcs_function name="eff_yy_compensation">
+        <function>
+          <quotient>
+            <value> 1.1552 </value>
+            <property> fcs/Iyy </property>
+          </quotient>
+        </function>
+        <output> fcs/eff_yy_compensation </output>
+      </fcs_function>
+
+    </channel>
+
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/front_motor</property>
+    <property>fcs/front_motor_lag</property>
+    <property>fcs/right_motor</property>
+    <property>fcs/right_motor_lag</property>
+    <property>fcs/back_motor</property>
+    <property>fcs/back_motor_lag</property>
+    <property>fcs/left_motor</property>
+    <property>fcs/left_motor_lag</property>
+    <property>fcs/rudder</property>
+    <property>fcs/rudder_lag</property>
+    <property>fcs/elevator</property>
+    <property>fcs/elevator_lag</property>
+    <property>fcs/aileron</property>
+    <property>fcs/aileron_lag</property>
+    <property>fcs/flap</property>
+    <property>fcs/flap_lag</property>
+    <property>fcs/pusher</property>
+    <property>fcs/pusher_lag</property>
+    <property>fcs/skew</property>
+    <property>fcs/eff_xx_compensation</property>
+    <property>fcs/eff_yy_compensation</property>
+    <property>fcs/cosskew</property>
+    <property>fcs/sinskew</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+<force name="front_motor" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/front_motor_lag</property>
+                        <value>7.643508703</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="right_motor" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <value>7.643508703</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="back_motor" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/back_motor_lag</property>
+                        <value>7.643508703</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="left_motor" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <value>7.643508703</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="right_motor_roll_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <property>fcs/eff_xx_compensation</property>
+                        <property>fcs/cosskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>14.566929119</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="right_motor_roll_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <property>fcs/eff_xx_compensation</property>
+                        <property>fcs/cosskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-14.566929119</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="right_motor_pitch_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <property>fcs/sinskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>-14.566929119</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="right_motor_pitch_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <property>fcs/sinskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>14.566929119</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="right_motor_yaw_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>-1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="right_motor_yaw_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/right_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="left_motor_roll_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <property>fcs/eff_xx_compensation</property>
+                        <property>fcs/cosskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-14.566929119</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="left_motor_roll_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <property>fcs/eff_xx_compensation</property>
+                        <property>fcs/cosskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>14.566929119</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="left_motor_pitch_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <property>fcs/sinskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>14.566929119</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="left_motor_pitch_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <property>fcs/sinskew</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>-14.566929119</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="left_motor_yaw_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>-1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="left_motor_yaw_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/left_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="front_motor_pitch_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/front_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>-18.503936989</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="front_motor_pitch_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/front_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>18.503936989</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="front_motor_yaw_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/front_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>-1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="front_motor_yaw_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/front_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="back_motor_pitch_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/back_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>18.503936989</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>-1</z>
+        </direction>
+</force>
+
+<force name="back_motor_pitch_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/back_motor_lag</property>
+                        <property>fcs/eff_yy_compensation</property>
+                        <value>3.8217543515</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>-18.503936989</x>
+                <y>0</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>0</x>
+                <y>0</y>
+                <z>1</z>
+        </direction>
+</force>
+
+<force name="back_motor_yaw_couple_1" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/back_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>-39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>-1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+<force name="back_motor_yaw_couple_2" frame="BODY" unit="LBS">
+        <function>
+                <product>
+                        <property>fcs/back_motor_lag</property>
+                        <value>0.3810513897525</value>
+                </product>
+        </function>
+        <location unit="IN">
+                <x>0</x>
+                <y>39.3700787</y>
+                <z>0</z>
+        </location>
+        <direction>
+                <x>1</x>
+                <y>0</y>
+                <z>0</z>
+        </direction>
+</force>
+
+    <force name="pusher_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/pusher_lag</property>
+          <value> 6.825 </value>
+        </product>
+      </function>
+      <location unit="IN">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>aero/qbar-psf</property>
+          <value>47.9</value> <!-- Conversion to pascals -->
+          <value>0.0151</value> <!-- CD x Area (m^2) -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+
+    <axis name="SIDE">
+    <function name="aero/force/Side_beta">
+       <description>Side force due to beta</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>aero/beta-rad</property>
+           <value>-4</value>
+       </product>
+    </function>
+
+  </axis>
+
+  <axis name="LIFT">
+    <function name="aero/force/Lift_alpha">
+       <description>Lift due to alpha</description>
+       <product>
+           <property>aero/qbar-psf</property> <!--Pound per square ft-->
+           <value>47.880259</value> <!--to N/m²-->
+           <value>2.45</value> <!--Get rid of 0.5 rho-->
+           <property>aero/alpha-rad</property>
+           <value>0.2248090795 </value> <!--Convert to lbs from N-->
+           <sum>
+             <value>0.62313</value>
+             <product>
+                <value>0.74529</value>
+                <property>fcs/sin2skew</property>
+             </product>
+           </sum>
+       </product>
+    </function>
+
+  </axis>
+
+  <axis name="ROLL">
+    <function name="aero/moment/Roll_aileron" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>aero/qbar-psf</property>
+        <value>47.880259</value> <!--to N/m²-->
+        <value>2.45</value> <!--Get rid of 0.5 rho-->
+        <property>fcs/aileron_lag</property>
+        <property>fcs/sin3skew</property>
+        <property>fcs/eff_xx_compensation</property>
+        <value>0.7376</value> <!--Convert to lbsft-->
+        <value> 0.026665413  </value>
+      </product>
+      <product>
+        <property>aero/qbar-psf</property>
+        <value>47.880259</value> <!--to N/m²-->
+        <value>2.45</value> <!--Get rid of 0.5 rho-->
+        <property>fcs/flap_lag</property>
+        <property>fcs/sin3skew</property>
+        <property>fcs/eff_xx_compensation</property>
+        <value>0.7376</value> <!--Convert to lbsft-->
+        <value> 0.019621719 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="PITCH">
+    <function name="aero/moment/Pitch_elevator" frame="BODY" unit="FT*LBS"> 
+        <product>
+                <property>aero/qbar-psf</property>
+                <value>47.880259</value> <!--to N/m²-->
+                <value>2.45</value> <!--Get rid of 0.5 rho-->
+                <property>fcs/eff_yy_compensation</property>
+                <sum>
+                <property>fcs/elevator_lag</property> <!--Between 0 and 1-->
+                <value>-0.5</value> <!--Compensation voor 0 moment at about 75 percent of cmd-->
+                </sum>
+                <value>0.7376</value> <!--Convert to lbsft-->
+                <value> 0.173856 </value>     
+        </product>
+    </function>
+  </axis>
+
+  <axis name="YAW">
+    <function name="aero/moment/Yaw_rudder" frame="BODY" unit="FT*LBS">
+        <product>
+          <property>aero/qbar-psf</property>
+          <value>47.880259</value> <!--to N/m²-->
+          <value>2.45</value> <!--Get rid of 0.5 rho-->
+          <property>fcs/rudder_lag</property>
+          <value>0.7376</value> <!--Convert to lbsft-->
+          <value> 0.002 </value>   
+        </product>
+    </function>
+
+    <function name="aero/moment/Yaw_damp">
+       <description>Yaw moment due to yaw rate</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>metrics/bw-ft</property>
+           <property>aero/bi2vel</property>
+           <property>velocities/r-aero-rad_sec</property>
+           <value>-0.15</value>
+       </product>
+    </function>
+  </axis>
+
+  </aerodynamics>
+
+</fdm_config>
