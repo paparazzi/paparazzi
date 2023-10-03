@@ -84,7 +84,10 @@
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi">
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
+    </module>
     <module name="guidance"      type="indi">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>

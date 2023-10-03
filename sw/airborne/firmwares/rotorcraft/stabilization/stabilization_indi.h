@@ -52,8 +52,6 @@ extern float act_pref[INDI_NUM_ACT];
 
 extern float indi_Wu[INDI_NUM_ACT];
 
-extern bool act_is_servo[INDI_NUM_ACT];
-
 struct Indi_gains {
   struct FloatRates att;
   struct FloatRates rate;

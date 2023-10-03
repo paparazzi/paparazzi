@@ -289,6 +289,8 @@
     </module>
     <module name="stabilization" type="indi">
       <define name="INDI_THRUST_ON_PITCH_EFF" value="23.0"/>
+      <define name="WLS_N_U" value="4" />
+      <define name="WLS_N_V" value="4" />
     </module>
     <module name="guidance"      type="indi_hybrid">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
