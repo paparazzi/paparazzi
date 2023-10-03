@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="ctrl_eff_sched_rot_wing_v3b" dir="ctrl">
+  <doc>
+    <description>Crtl effectiveness scheduler for the rotating wing drone V3B</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="EffSched">
+        <dl_setting var="hover_motors_active" min="0" step="1" max="1" values="FALSE|TRUE" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="h_motors_active"/>
+        <dl_setting var="bool_disable_hover_motors" min="0" step="1" max="1" values="FALSE|TRUE" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="h_motors_disable"/>
+        <dl_setting var="wing_rotation_sched_activated" min="0" step="1" max="1" values="FALSE|TRUE" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="rot_sched_on"/>
+        <dl_setting var="pusher_sched_activated" min="0" step="1" max="1" values="FALSE|TRUE" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="push_sched_on"/>
+        <dl_setting var="pitch_angle_set" min="-10.0" step="0.1" max="10.0" shortname="pitch_angle"/>
+        <dl_setting var="lift_d_multiplier" min="0.1" step="0.01" max="5" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="lift_mult"/>
+        <dl_setting var="g1_p_multiplier" min="0.1" step="0.01" max="5" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="eff_mult_p"/>
+        <dl_setting var="g1_q_multiplier" min="0.1" step="0.01" max="5" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="eff_mult_q"/>
+        <dl_setting var="g1_r_multiplier" min="0.1" step="0.01" max="5" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="eff_mult_r"/>
+        <dl_setting var="g1_t_multiplier" min="0.1" step="0.01" max="5" module="ctrl/ctrl_eff_sched_rot_wing_v3b" shortname="eff_mult_t"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctrl_eff_sched_rot_wing_v3b.h"/>
+  </header>
+    <init fun="init_eff_scheduling()"/>
+    <periodic fun="event_eff_scheduling()" freq="20"/>
+  <makefile>
+    <file name="ctrl_eff_sched_rot_wing_v3b.c"/>
+    <test/>
+  </makefile>
+</module>
