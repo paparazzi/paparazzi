@@ -328,14 +328,14 @@ void actuators_dshot_arch_commit(void)
 #endif
 
 
-  struct rpm_act_t rpm_list[ACTUATORS_DSHOT_NB] = { 0 };
+  struct rpm_act_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
-    rpm_list[i].actuator_idx = ACTUATORS_DSHOT_OFFSET + i;
-    rpm_list[i].rpm = 0;
+    feedback[i].idx = ACTUATORS_DSHOT_OFFSET + i;
     if (actuators_dshot_values[i].activated) {
       const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      rpm_list[i].rpm = dtelem->rpm;
+      feedback[i].rpm = dtelem->rpm;
+      feedback[i].set.rpm = true;
     }
   }
-  AbiSendMsgRPM(RPM_DSHOT_ID, rpm_list, ACTUATORS_DSHOT_NB);
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DSHOT_ID, feedback, ACTUATORS_DSHOT_NB);
 }

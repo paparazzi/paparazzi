@@ -28,7 +28,7 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="FALSE"/>
       <define name="CLIMB_VSPEED" value="0.8"/>
       <define name="STABILIZATION_INDI_G1_P" value="0.05"/>
       <define name="STABILIZATION_INDI_G1_Q" value="0.025"/>

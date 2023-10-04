@@ -38,7 +38,9 @@
       <module name="opa_controller"/>
       <module name="mag_pitot_uart" />
       <module name="pwm_meas"/>
-      <module name="rpm_sensor"/>
+      <module name="rpm_sensor">
+        <define name="RPM_SENSOR_ACTUATOR_IDX" value="0"/>
+      </module>
 
       <module name="geo_mag"/>
       <module name="air_data">

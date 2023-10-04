@@ -8,6 +8,7 @@
     <configure name="RPM_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for RPM sensor"/>
     <define name="RPM_PULSE_PER_RND" value="14" description="Amount of pulses per round"/>
     <define name="RPM_FILTER_TAU" value="0.3" description="1/cut-off-frequency = filter time"/>
+    <define name="RPM_SENSOR_ACTUATOR_IDX" value="" description="the actuator which we are sensing the RPM for"/>
   </doc>
   <dep>
     <depends>pwm_meas</depends>

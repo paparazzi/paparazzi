@@ -40,10 +40,16 @@
 extern void actuators_init(void);
 extern void actuators_periodic(void);
 
-// Actuator RPM structure for ABI Message
-struct rpm_act_t {
-  uint8_t actuator_idx;
-  int32_t rpm;
+// Actuator feedback structure for ABI Message
+struct act_feedback_t {
+  uint8_t idx;                      ///< General index of the actuators (generated in airframe.h)
+  struct act_feedback_set_t {
+    bool rpm: 1;                    ///< RPM is set
+    bool position: 1;               ///< Position is set
+  } set;                            ///< Bitset registering what is set as feedback
+
+  int32_t rpm;                      ///< RPM
+  float position;                   ///< In radians
 };
 
 #if ACTUATORS_NB

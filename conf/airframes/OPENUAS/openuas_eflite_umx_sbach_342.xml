@@ -61,6 +61,7 @@
        <module name="pwm_meas.xml"/> <!--  To be able to measure PWM pulses -->
        <module name="rpm_sensor.xml">
          <define name="RPM_PULSE_PER_RND" value="18"/><!-- TODO: determine correct value for this specific setup -->
+         <define name="RPM_SENSOR_ACTUATOR_IDX" value="0"/>
        </module>
        <module name="ins"/>
      </target>

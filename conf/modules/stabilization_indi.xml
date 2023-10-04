@@ -39,6 +39,8 @@
       <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred (low energy) actuator value. Important when the system is over-determined!"/>
       <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
+      <define name="RPM_FEEDBACK" value="FALSE" description="enable RPM feedback"/>
+      <define name="ACT_FEEDBACK_ID" value="ABI_BROADCAST" description="listening for RPM feedback on this ABI id"/>
     </section>
   </doc>
   <settings>

@@ -145,7 +145,7 @@
     <module name="stabilization" type="indi_simple"/>
     <!-- for later if simple works
     <module name="stabilization" type="indi">
-      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
     </module>-->
     <!--<module name="guidance" type="indi"/>--><!-- for later if classic works-->
 

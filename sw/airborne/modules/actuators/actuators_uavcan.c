@@ -221,22 +221,24 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   // Feedback ABI RPM messages
 #ifdef SERVOS_UAVCAN1_NB
   if (iface == &uavcan1) {
-    struct rpm_act_t rpm_message;
-    rpm_message.actuator_idx =  SERVOS_UAVCAN1_OFFSET + esc_idx;
-    rpm_message.rpm = telem[esc_idx].rpm;
+    struct act_feedback_t feedback;
+    feedback.idx =  SERVOS_UAVCAN1_OFFSET + esc_idx;
+    feedback.rpm = telem[esc_idx].rpm;
+    feedback.set.rpm = true;
 
     // Send ABI message
-    AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
   }
 #endif
 #ifdef SERVOS_UAVCAN2_NB
   if (iface == &uavcan2) {
-    struct rpm_act_t rpm_message;
-    rpm_message.actuator_idx =  SERVOS_UAVCAN2_OFFSET + esc_idx;
-    rpm_message.rpm = telem[esc_idx].rpm;
+    struct act_feedback_t feedback;
+    feedback.idx =  SERVOS_UAVCAN2_OFFSET + esc_idx;
+    feedback.rpm = telem[esc_idx].rpm;
+    feedback.set.rpm = true;
 
     // Send ABI message
-    AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
   }
 #endif
 }
@@ -275,12 +277,27 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
   telem[actuator_idx].position = canardConvertFloat16ToNativeFloat(tmp_float);
 
 #ifdef SERVOS_UAVCAN1_NB
-  struct rpm_act_t position_message;
-  position_message.actuator_idx =  SERVOS_UAVCAN1_OFFSET + actuator_idx;
-  position_message.rpm = telem[actuator_idx].position;
+  if (iface == &uavcan1) {
+    struct act_feedback_t feedback;
+    feedback.idx =  SERVOS_UAVCAN1_OFFSET + actuator_idx;
+    feedback.position = telem[actuator_idx].position;
+    feedback.set.position = true;
 
-  // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, &position_message, 1);
+    // Send ABI message
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+  }
+#endif
+
+#ifdef SERVOS_UAVCAN2_NB
+  if (iface == &uavcan2) {
+    struct act_feedback_t feedback;
+    feedback.idx =  SERVOS_UAVCAN2_OFFSET + actuator_idx;
+    feedback.position = telem[actuator_idx].position;
+    feedback.set.position = true;
+
+    // Send ABI message
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+  }
 #endif
 }
 

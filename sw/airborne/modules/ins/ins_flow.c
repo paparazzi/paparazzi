@@ -43,6 +43,7 @@
 #include "generated/flight_plan.h"
 #include "mcu_periph/sys_time.h"
 #include "modules/actuators/motor_mixing.h"
+#include "stabilization.h"
 #include <stdio.h>
 
 #define DEBUG_INS_FLOW 0
@@ -104,7 +105,7 @@ static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event gps_ev;
 static abi_event ins_optical_flow_ev;
-static abi_event ins_RPM_ev;
+static abi_event ins_act_feedback_ev;
 static abi_event aligner_ev;
 //static abi_event mag_ev;
 //static abi_event geo_mag_ev;
@@ -120,7 +121,7 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 void ins_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x,
                          int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
-static void ins_rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm, uint8_t num_act);
+static void ins_act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        uint32_t stamp __attribute__((unused)),
                        struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
@@ -650,7 +651,7 @@ void ins_flow_init(void)
   AbiBindMsgGPS(INS_FLOW_GPS_ID, &gps_ev, gps_cb);
   //AbiBindMsgBODY_TO_IMU_QUAT(ABI_BROADCAST, &body_to_imu_ev, body_to_imu_cb);
   AbiBindMsgOPTICAL_FLOW(INS_OPTICAL_FLOW_ID, &ins_optical_flow_ev, ins_optical_flow_cb);
-  AbiBindMsgRPM(INS_RPM_ID, &ins_RPM_ev, ins_rpm_cb);
+  AbiBindMsgACT_FEEDBACK(INS_RPM_ID, &ins_act_feedback_ev, ins_act_feedback_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FLOW_IMU_ID, &aligner_ev, aligner_cb);
   // AbiBindMsgIMU_MAG_INT32(ABI_BROADCAST, &mag_ev, mag_cb);
   // AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
@@ -1467,11 +1468,12 @@ static void set_body_state_from_quat(void)
 
 }
 
-static void ins_rpm_cb(uint8_t sender_id UNUSED, struct rpm_act_t *rpm_msg, uint8_t num_act)
+static void ins_act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
 {
   ins_flow.RPM_num_act = num_act;
   for (int i = 0; i < num_act; i++) {
-    ins_flow.RPM[i] = rpm_msg[i].rpm;
+    if(feedback[i].set.rpm)
+      ins_flow.RPM[i] = feedback[i].rpm;
   }
 }
 
