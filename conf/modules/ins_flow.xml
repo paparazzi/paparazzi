@@ -38,10 +38,14 @@
     <!-- <file name="ahrs.c" dir="subsystems"/> -->
     <file name="ahrs_aligner.c" dir="modules/ahrs"/>
     <!-- <file name="pprz_algebra_float.c" dir="math"/> -->
-	<raw>
-	$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_flow.h\"
-	$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_icq
-	</raw>
+    <raw>
+      $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_flow.h\"
+      $(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_icq
+    </raw>
+    <test firmware="rotorcraft">
+      <define name="MOTOR_MIXING_NB_MOTOR" value="4"/>
+      <define name="USE_MAGNETOMETER" value="true"/>
+    </test>
   </makefile>
 
 </module>

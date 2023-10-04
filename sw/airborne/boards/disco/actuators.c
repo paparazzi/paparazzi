@@ -169,14 +169,15 @@ void actuators_disco_commit(void)
   }
 
   // Send ABI message
-  struct rpm_act_t rpm_message = {0};
+  struct act_feedback_t feedback = {0};
 #ifdef SERVOS_DISCO_OFFSET
-  rpm_message.actuator_idx = SERVOS_DISCO_OFFSET;
+  feedback.idx = SERVOS_DISCO_OFFSET;
 #else
-  rpm_message.actuator_idx = SERVOS_DEFAULT_OFFSET;
+  feedback.idx = SERVOS_DEFAULT_OFFSET;
 #endif
-  rpm_message.rpm = actuators_disco.rpm_obs;
-  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_message, 1);//FIXME & or not
+  feedback.rpm = actuators_disco.rpm_obs;
+  feedback.set.rpm = true;
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_BOARD_ID, &feedback, 1);
 }
 
 static uint8_t actuators_disco_checksum(uint8_t *bytes, uint8_t size)

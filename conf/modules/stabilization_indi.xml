@@ -47,6 +47,8 @@
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
       <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100, 100}" description="WLS control objective priorities: roll, pitch, thrust, yaw, thrust_x"/>
       <define name="WLS_WU" value="{1, 1, 1, 1}" description="WLS actuator cost (size of INDI_NUM_ACT)"/>
+      <define name="RPM_FEEDBACK" value="FALSE" description="enable RPM feedback"/>
+      <define name="ACT_FEEDBACK_ID" value="ABI_BROADCAST" description="listening for RPM feedback on this ABI id"/>
     </section>
   </doc>
   <settings>

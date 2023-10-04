@@ -6,13 +6,13 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
-      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="FALSE"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
