@@ -465,14 +465,22 @@
 #endif
 
 /*
- * IDs of RPM sensors (message 15)
+ * IDs of ACT_FEEDBACK sensors (message 15)
  */
-#ifndef RPM_SENSOR_ID
-#define RPM_SENSOR_ID 1
+#ifndef ACT_FEEDBACK_BOARD_ID
+#define ACT_FEEDBACK_BOARD_ID 1
 #endif
 
-#ifndef RPM_DSHOT_ID
-#define RPM_DSHOT_ID 2
+#ifndef ACT_FEEDBACK_DSHOT_ID
+#define ACT_FEEDBACK_DSHOT_ID 2
+#endif
+
+#ifndef ACT_FEEDBACK_UAVCAN_ID
+#define ACT_FEEDBACK_UAVCAN_ID 3
+#endif
+
+#ifndef ACT_FEEDBACK_RPM_SENSOR_ID
+#define ACT_FEEDBACK_RPM_SENSOR_ID 4
 #endif
 
 /*

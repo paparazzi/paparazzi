@@ -223,8 +223,17 @@ struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 struct FloatRates  stab_att_ff_rates;
 
-abi_event rpm_ev;
-static void rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act);
+// Register actuator feedback if we rely on RPM information
+#if STABILIZATION_INDI_RPM_FEEDBACK
+#ifndef STABILIZATION_INDI_ACT_FEEDBACK_ID
+#define STABILIZATION_INDI_ACT_FEEDBACK_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(STABILIZATION_INDI_ACT_FEEDBACK_ID)
+
+abi_event act_feedback_ev;
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
+PRINT_CONFIG_MSG("STABILIZATION_INDI_RPM_FEEDBACK")
+#endif
 
 abi_event thrust_ev;
 static void thrust_cb(uint8_t sender_id, struct FloatVect3 thrust_increment);
@@ -327,7 +336,9 @@ void stabilization_indi_init(void)
   // Initialize filters
   init_filters();
 
-  AbiBindMsgRPM(RPM_SENSOR_ID, &rpm_ev, rpm_cb);
+#if STABILIZATION_INDI_RPM_FEEDBACK 
+  AbiBindMsgACT_FEEDBACK(STABILIZATION_INDI_ACT_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
+#endif
   AbiBindMsgTHRUST(THRUST_INCREMENT_ID, &thrust_ev, thrust_cb);
 
   float_vect_zero(actuator_state_filt_vectd, INDI_NUM_ACT);
@@ -806,7 +817,7 @@ void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinat
  */
 void get_actuator_state(void)
 {
-#if INDI_RPM_FEEDBACK
+#if STABILIZATION_INDI_RPM_FEEDBACK
   float_vect_copy(actuator_state, act_obs, INDI_NUM_ACT);
 #else
   //actuator dynamics
@@ -1008,22 +1019,21 @@ void calc_g1g2_pseudo_inv(void)
 }
 #endif
 
-static void rpm_cb(uint8_t sender_id UNUSED, struct rpm_act_t *rpm_msg UNUSED, uint8_t num_act UNUSED)
+#if STABILIZATION_INDI_RPM_FEEDBACK
+static void act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
 {
-#if INDI_RPM_FEEDBACK
-  PRINT_CONFIG_MSG("INDI_RPM_FEEDBACK");
   int8_t i;
   for (i = 0; i < num_act; i++) {
     // Sanity check that index is valid
-    if (rpm_msg[i].actuator_idx < INDI_NUM_ACT) {
-      int8_t idx = rpm_msg[i].actuator_idx;
-      act_obs[idx] = (rpm_msg[i].rpm - get_servo_min(idx));
+    if (feedback[i].idx < INDI_NUM_ACT && feedback[i].set.rpm) {
+      int8_t idx = feedback[i].idx;
+      act_obs[idx] = (feedback[i].rpm - get_servo_min(idx));
       act_obs[idx] *= (MAX_PPRZ / (float)(get_servo_max(idx) - get_servo_min(idx)));
       Bound(act_obs[idx], 0, MAX_PPRZ);
     }
   }
-#endif
 }
+#endif
 
 /**
  * ABI callback that obtains the thrust increment from guidance INDI

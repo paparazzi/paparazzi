@@ -36,6 +36,10 @@ uint16_t rpm;
 #define RPM_FILTER_TAU RPM_SENSOR_PERIODIC_PERIOD
 #endif
 
+#ifndef RPM_SENSOR_ACTUATOR_IDX
+#error "You need to define an actuator for which the RPM is read, please define RPM_SENSOR_ACTUATOR_IDX"
+#endif
+
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -60,9 +64,11 @@ void rpm_sensor_init(void)
 /* RPM periodic */
 void rpm_sensor_periodic(void)
 {
-  struct rpm_act_t rpm_msg = {0, 0};
-  rpm_msg.rpm = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
-  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm_msg, 1);
+  struct act_feedback_t feedback = {0};
+  feedback.idx = RPM_SENSOR_ACTUATOR_IDX;
+  feedback.rpm = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
+  feedback.set.rpm = true;
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_RPM_SENSOR_ID, &feedback, 1);
 }
 
 /* Get the RPM sensor */

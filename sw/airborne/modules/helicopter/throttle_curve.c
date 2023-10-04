@@ -37,24 +37,32 @@
 #ifndef THROTTLE_CURVE_RPM_FB_P
 #define THROTTLE_CURVE_RPM_FB_P 0.0
 #endif
+PRINT_CONFIG_VAR(THROTTLE_CURVE_RPM_FB_P)
 
 #ifndef THROTTLE_CURVE_RPM_FB_I
 #define THROTTLE_CURVE_RPM_FB_I 0.0
 #endif
+PRINT_CONFIG_VAR(THROTTLE_CURVE_RPM_FB_I)
 
 #ifndef THROTTLE_CURVE_RPM_INC_LIMIT
 #define THROTTLE_CURVE_RPM_INC_LIMIT 512
 #endif
+PRINT_CONFIG_VAR(THROTTLE_CURVE_RPM_INC_LIMIT)
 
 /* Register the RPM callback */
-#ifndef THROTTLE_CURVE_RPM_ID
-#define THROTTLE_CURVE_RPM_ID ABI_BROADCAST
+#ifndef THROTTLE_CURVE_ACT_FEEDBACK_ID
+#define THROTTLE_CURVE_ACT_FEEDBACK_ID ABI_BROADCAST
 #endif
+PRINT_CONFIG_VAR(THROTTLE_CURVE_ACT_FEEDBACK_ID)
+
+/* Which actuator to listen for RPM feedback */
 #ifndef THROTTLE_CURVE_RPM_ACT
-#define THROTTLE_CURVE_RPM_ACT 0
+#error "There needs to be an actuator to listen for RPM feedback, please set THROTTLE_CURVE_RPM_ACT"
 #endif
-static abi_event rpm_ev;
-static void rpm_cb(uint8_t sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act);
+PRINT_CONFIG_VAR(THROTTLE_CURVE_RPM_ACT)
+
+static abi_event act_feedback_ev;
+static void act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
 
 /* Initialize the throttle curves from the airframe file */
 struct throttle_curve_t throttle_curve = {
@@ -89,7 +97,7 @@ void throttle_curve_init(void)
   throttle_curve.throttle_trim = 0;
   throttle_curve.coll_trim = 0;
 
-  AbiBindMsgRPM(THROTTLE_CURVE_RPM_ID, &rpm_ev, rpm_cb);
+  AbiBindMsgACT_FEEDBACK(THROTTLE_CURVE_ACT_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_THROTTLE_CURVE, throttle_curve_send_telem);
@@ -99,13 +107,15 @@ void throttle_curve_init(void)
 /**
  * RPM callback for RPM based control throttle curves
  */
-static void rpm_cb(uint8_t __attribute__((unused)) sender_id, struct rpm_act_t *rpm_msg, uint8_t num_act)
+static void act_feedback_cb(uint8_t sender_id UNUSED, struct act_feedback_t *feedback, uint8_t num_act)
 {
-  if(num_act <= THROTTLE_CURVE_RPM_ACT)
-    return;
-    
-  throttle_curve.rpm_meas = rpm_msg[THROTTLE_CURVE_RPM_ACT].rpm;
-  throttle_curve.rpm_measured = true;
+  // Search for the actuator
+  for(uint8_t i = 0; i < num_act; i++) {
+    if(feedback[i].idx == THROTTLE_CURVE_RPM_ACT && feedback[i].set.rpm) {
+      throttle_curve.rpm_meas = feedback[i].rpm;
+      throttle_curve.rpm_measured = true;
+    }
+  }
 }
 
 /**

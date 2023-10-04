@@ -6,8 +6,8 @@
     <define name="THROTTLE_CURVE_RPM_FB_P" value="0" description="The RPM controller feeadback P gain of the PI controller"/>
     <define name="THROTTLE_CURVE_RPM_FB_I" value="0" description="The RPM controller feeadback I gain of the PI controller"/>
     <define name="THROTTLE_CURVE_RPM_INC_LIMIT" value="512" description="Amount of RPM the controller can increase or decrease per second"/>
-    <define name="THROTTLE_CURVE_RPM_ID" value="ABI_BROADCAST" description="The ABI sender ID to listen for RPM messages"/>
-    <define name="THROTTLE_CURVE_RPM_ACT" value="0" description="The ABI RPM message motor index"/>
+    <define name="THROTTLE_CURVE_ACT_FEEDBACK_ID" value="ABI_BROADCAST" description="The ABI sender ID to listen for RPM messages"/>
+    <define name="THROTTLE_CURVE_RPM_ACT" value="0" description="The RPM message motor index (generated from airframe.h)"/>
   </doc>
   <settings>
     <dl_settings>
@@ -25,6 +25,15 @@
   <makefile target="ap">
     <file name="throttle_curve.c"/>
     <define name="USE_THROTTLE_CURVES" value="TRUE"/>
+    <test firmware="rotorcraft">
+      <define name="THROTTLE_CURVE_RPM_ACT" value="0"/>
+      <define name="THROTTLE_POINTS_NB" value="3"/>
+      <define name="THROTTLE_CURVES_NB" value="2"/>
+      <define name="THROTTLE_CURVES" value="{{0}}"/>
+      <define name="THROTTLE_CURVE_MODE_INIT" value="0"/>
+      <define name="RADIO_FMODE" value="0"/>
+      <define name="COMMAND_COLLECTIVE" value="0"/>
+    </test>
   </makefile>
 </module>
 
