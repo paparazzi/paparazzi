@@ -111,6 +111,7 @@
     <module name="stabilization" type="indi">
       <configure name="INDI_NUM_ACT" value="8"/>
       <define name="WLS_N_U" value="8"/>
+      <define name="WLS_N_V" value="4"/>
       <define name="TILT_TWIST_CTRL" value="TRUE"/>
     </module>
     <module name="stabilization" type="rate_indi"/>
@@ -213,13 +214,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
-  <rc_commands>
-    <set command="THRUST" value="@THROTTLE" />
-    <set command="ROLL" value="@YAW" />
-    <set command="PITCH" value="@PITCH/2" />
-    <set command="YAW" value="-@ROLL/4" />
-  </rc_commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <!-- frontleft left (CCW), frontleft mid (CW), frontleft right (CCW), frontright left (CW), frontright mid (CCW), frontright right (CW) -->

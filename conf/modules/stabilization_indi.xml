@@ -9,13 +9,17 @@
     <configure name="INDI_OUTPUTS" default="4"/>
     <configure name="INDI_NUM_ACT" default="4"/>
 
+    <define name="TILT_TWIST_CTRL" value="FALSE|TRUE" description="assume twist is slower than tilt and solve separately"/>
+
     <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
       <define name="SP_MAX_PHI"   value="45." description="max setpoint for roll angle" unit="deg"/>
       <define name="SP_MAX_THETA" value="45." description="max setpoint for pitch angle" unit="deg"/>
       <define name="SP_MAX_R"     value="90." description="max setpoint for yaw rate" unit="deg/s"/>
       <define name="DEADBAND_R"   value="250" description="deadband on yaw rate input"/>
     </section>
+
     <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+      <define name="ALLOCATION_PSEUDO_INVERSE" value="FALSE|TRUE" description="Master setting: leave false for WLS allocation, and use TRUE if not overactuated and no WLS"/>
       <define name="G1_ROLL" value="{20 , -20, -20 , 20 }" description="control effectiveness of every actuator on the roll axis"/>
       <define name="G1_PITCH" value="{14 , 14, -14 , -14 }" description="control effectiveness of every actuator on the pitch axis"/>
       <define name="G1_YAW" value="{-1, 1, -1, 1}" description="control effectiveness of every actuator on the yaw axis"/>
@@ -29,16 +33,20 @@
       <define name="REF_RATE_R" value="28.0" description="INDI gains linear controller"/>
       <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
       <define name="FILT_CUTOFF" value="8.0" description="second order cutoff frequency for angular accelerations in Hz"/>
+      <define name="FILTER_RATES_SECOND_ORDER" value="FALSE|TRUE" description="use second order rate filters instead of first order"/>
       <define name="STABILIZATION_INDI_FILT_CUTOFF_P" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="STABILIZATION_INDI_FILT_CUTOFF_Q" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="STABILIZATION_INDI_FILT_CUTOFF_R" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
       <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}" description="actuator dynamics"/>
       <define name="ACT_IS_SERVO" value="{0,0,0,0}" description="1 for every actuator that is a servo"/>
+      <define name="ACT_IS_THRUSTER_X" value="{0,0,0,0}" description="1 for every actuator that is a thruster in the body-x direction"/>
       <define name="ACT_RATE_LIMIT" value="{9600,9600,9600,9600}" description="rate limit in PPRZ units per timestep (depends on control frequency)"/>
       <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred (low energy) actuator value. Important when the system is over-determined!"/>
       <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
+      <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100, 100}" description="WLS control objective priorities: roll, pitch, thrust, yaw, thrust_x"/>
+      <define name="WLS_WU" value="{1, 1, 1, 1}" description="WLS actuator cost (size of INDI_NUM_ACT)"/>
       <define name="RPM_FEEDBACK" value="FALSE" description="enable RPM feedback"/>
       <define name="ACT_FEEDBACK_ID" value="ABI_BROADCAST" description="listening for RPM feedback on this ABI id"/>
     </section>

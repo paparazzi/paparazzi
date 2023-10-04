@@ -56,7 +56,9 @@
     <module name="actuators" type="disco"/>
     <!--<module name="control" type="new"/>-->
     <module name="stabilization" type="indi">
-      <configure name="INDI_NUM_ACT" value="3"/>
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
+     <configure name="INDI_NUM_ACT" value="3"/>
     </module>
     <module name="guidance" type="indi_hybrid"/>
     <!--<module name="sonar_bebop">
@@ -80,13 +82,6 @@
     <axis name="PITCH"    failsafe_value="0"/>
     <axis name="YAW"      failsafe_value="0"/>
   </commands>
-
-  <rc_commands>
-    <set command="THRUST"   value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
-    <set command="YAW"      value="@YAW"/>
-  </rc_commands>
 
   <section name="MIXER">
     <define name="AILEVON_AILERON_RATE" value="0.75"/>
