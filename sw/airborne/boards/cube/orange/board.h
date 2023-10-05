@@ -125,8 +125,8 @@
 #define	PD10_SPI_SLAVE7                10U
 #define	PD11_UART3_CTS                 11U
 #define	PD12_UART3_RTS                 12U
-#define	PD13_SERVO5                    13U
-#define	PD14_SERVO6                    14U
+#define	PD13_PWM_INPUT1                13U
+#define	PD14_PWM_INPUT2                14U
 #define	PD15_MPU_DRDY                  15U
 
 #define	PE00_UART8_RX                  0U
@@ -313,8 +313,8 @@
 #define	LINE_SPI_SLAVE7                PAL_LINE(GPIOD, 10U)
 #define	LINE_UART3_CTS                 PAL_LINE(GPIOD, 11U)
 #define	LINE_UART3_RTS                 PAL_LINE(GPIOD, 12U)
-#define	LINE_SERVO5                    PAL_LINE(GPIOD, 13U)
-#define	LINE_SERVO6                    PAL_LINE(GPIOD, 14U)
+#define	LINE_PWM_INPUT1                PAL_LINE(GPIOD, 13U)
+#define	LINE_PWM_INPUT2                PAL_LINE(GPIOD, 14U)
 #define	LINE_MPU_DRDY                  PAL_LINE(GPIOD, 15U)
 
 #define	LINE_UART8_RX                  PAL_LINE(GPIOE, 0U)
@@ -682,8 +682,8 @@
 					 PIN_MODE_OUTPUT(PD10_SPI_SLAVE7) | \
 					 PIN_MODE_INPUT(PD11_UART3_CTS) | \
 					 PIN_MODE_INPUT(PD12_UART3_RTS) | \
-					 PIN_MODE_ALTERNATE(PD13_SERVO5) | \
-					 PIN_MODE_ALTERNATE(PD14_SERVO6) | \
+					 PIN_MODE_ALTERNATE(PD13_PWM_INPUT1) | \
+					 PIN_MODE_ALTERNATE(PD14_PWM_INPUT2) | \
 					 PIN_MODE_INPUT(PD15_MPU_DRDY))
 
 #define VAL_GPIOD_OTYPER                (PIN_OTYPE_PUSHPULL(PD00_CAN1_RX) | \
@@ -699,8 +699,8 @@
 					 PIN_OTYPE_PUSHPULL(PD10_SPI_SLAVE7) | \
 					 PIN_OTYPE_OPENDRAIN(PD11_UART3_CTS) | \
 					 PIN_OTYPE_OPENDRAIN(PD12_UART3_RTS) | \
-					 PIN_OTYPE_PUSHPULL(PD13_SERVO5) | \
-					 PIN_OTYPE_PUSHPULL(PD14_SERVO6) | \
+					 PIN_OTYPE_PUSHPULL(PD13_PWM_INPUT1) | \
+					 PIN_OTYPE_PUSHPULL(PD14_PWM_INPUT2) | \
 					 PIN_OTYPE_OPENDRAIN(PD15_MPU_DRDY))
 
 #define VAL_GPIOD_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(PD00_CAN1_RX) | \
@@ -716,8 +716,8 @@
 					 PIN_OSPEED_SPEED_HIGH(PD10_SPI_SLAVE7) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD11_UART3_CTS) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD12_UART3_RTS) | \
-					 PIN_OSPEED_SPEED_HIGH(PD13_SERVO5) | \
-					 PIN_OSPEED_SPEED_HIGH(PD14_SERVO6) | \
+					 PIN_OSPEED_SPEED_HIGH(PD13_PWM_INPUT1) | \
+					 PIN_OSPEED_SPEED_HIGH(PD14_PWM_INPUT2) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD15_MPU_DRDY))
 
 #define VAL_GPIOD_PUPDR                 (PIN_PUPDR_FLOATING(PD00_CAN1_RX) | \
@@ -733,8 +733,8 @@
 					 PIN_PUPDR_FLOATING(PD10_SPI_SLAVE7) | \
 					 PIN_PUPDR_PULLDOWN(PD11_UART3_CTS) | \
 					 PIN_PUPDR_PULLDOWN(PD12_UART3_RTS) | \
-					 PIN_PUPDR_FLOATING(PD13_SERVO5) | \
-					 PIN_PUPDR_FLOATING(PD14_SERVO6) | \
+					 PIN_PUPDR_FLOATING(PD13_PWM_INPUT1) | \
+					 PIN_PUPDR_FLOATING(PD14_PWM_INPUT2) | \
 					 PIN_PUPDR_PULLDOWN(PD15_MPU_DRDY))
 
 #define VAL_GPIOD_ODR                   (PIN_ODR_LEVEL_HIGH(PD00_CAN1_RX) | \
@@ -750,8 +750,8 @@
 					 PIN_ODR_LEVEL_HIGH(PD10_SPI_SLAVE7) | \
 					 PIN_ODR_LEVEL_HIGH(PD11_UART3_CTS) | \
 					 PIN_ODR_LEVEL_HIGH(PD12_UART3_RTS) | \
-					 PIN_ODR_LEVEL_LOW(PD13_SERVO5) | \
-					 PIN_ODR_LEVEL_LOW(PD14_SERVO6) | \
+					 PIN_ODR_LEVEL_HIGH(PD13_PWM_INPUT1) | \
+					 PIN_ODR_LEVEL_HIGH(PD14_PWM_INPUT2) | \
 					 PIN_ODR_LEVEL_HIGH(PD15_MPU_DRDY))
 
 #define VAL_GPIOD_AFRL			(PIN_AFIO_AF(PD00_CAN1_RX, 9) | \
@@ -768,8 +768,8 @@
 					 PIN_AFIO_AF(PD10_SPI_SLAVE7, 0) | \
 					 PIN_AFIO_AF(PD11_UART3_CTS, 0) | \
 					 PIN_AFIO_AF(PD12_UART3_RTS, 0) | \
-					 PIN_AFIO_AF(PD13_SERVO5, 2) | \
-					 PIN_AFIO_AF(PD14_SERVO6, 2) | \
+					 PIN_AFIO_AF(PD13_PWM_INPUT1, 2) | \
+					 PIN_AFIO_AF(PD14_PWM_INPUT2, 2) | \
 					 PIN_AFIO_AF(PD15_MPU_DRDY, 0))
 
 #define VAL_GPIOE_MODER                 (PIN_MODE_ALTERNATE(PE00_UART8_RX) | \
@@ -1559,10 +1559,10 @@
 #define AF_LINE_UART3_TX                 7U
 #define AF_PD09_UART3_RX                 7U
 #define AF_LINE_UART3_RX                 7U
-#define AF_PD13_SERVO5                   2U
-#define AF_LINE_SERVO5                   2U
-#define AF_PD14_SERVO6                   2U
-#define AF_LINE_SERVO6                   2U
+#define AF_PD13_PWM_INPUT1               2U
+#define AF_LINE_PWM_INPUT1               2U
+#define AF_PD14_PWM_INPUT2               2U
+#define AF_LINE_PWM_INPUT2               2U
 #define AF_PE00_UART8_RX                 8U
 #define AF_LINE_UART8_RX                 8U
 #define AF_PE01_UART8_TX                 8U
@@ -1609,14 +1609,14 @@
 #define ADC5_ADC	 1
 #define ADC5_ADC_FN	 INP
 #define ADC5_ADC_INP	 8
-#define SERVO5_TIM	 4
-#define SERVO5_TIM_FN	 CH
-#define SERVO5_TIM_CH	 2
-#define SERVO5_TIM_AF	 2
-#define SERVO6_TIM	 4
-#define SERVO6_TIM_FN	 CH
-#define SERVO6_TIM_CH	 3
-#define SERVO6_TIM_AF	 2
+#define PWM_INPUT1_TIM	 4
+#define PWM_INPUT1_TIM_FN	 CH
+#define PWM_INPUT1_TIM_CH	 2
+#define PWM_INPUT1_TIM_AF	 2
+#define PWM_INPUT2_TIM	 4
+#define PWM_INPUT2_TIM_FN	 CH
+#define PWM_INPUT2_TIM_CH	 3
+#define PWM_INPUT2_TIM_AF	 2
 #define SERVO4_TIM	 1
 #define SERVO4_TIM_FN	 CH
 #define SERVO4_TIM_CH	 1
@@ -1658,15 +1658,13 @@
 	LINE_SPI_SLAVE5, \
 	LINE_SPI_SLAVE6, \
 	LINE_SPI_SLAVE7, \
-	LINE_SERVO5, \
-	LINE_SERVO6, \
 	LINE_SPI_SLAVE8, \
 	LINE_SERVO4, \
 	LINE_SERVO3, \
 	LINE_LED1, \
 	LINE_SERVO2, \
 	LINE_SERVO1
-#define ENERGY_SAVE_INPUTS_SIZE 	 16
+#define ENERGY_SAVE_INPUTS_SIZE 	 14
 
 #define ENERGY_SAVE_LOWS \
 	LINE_VDD_5V_PERIPH_EN, \
