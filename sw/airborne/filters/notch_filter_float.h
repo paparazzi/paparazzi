@@ -101,7 +101,7 @@ static inline void notch_filter_update(struct SecondOrderNotchFilter *filter, fl
  */
 
 
-static inline float notch_filter_get_output(struct notch_filter_float *filter)
+static inline float notch_filter_get_output(struct SecondOrderNotchFilter *filter)
 {
   return filter->yn1;
 }
