@@ -2,6 +2,18 @@
 <module name="ctrl_eff_sched_rot_wing" dir="ctrl">
   <doc>
     <description>The control effectiveness scheduler for the rotating wing drone type</description>
+    <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
+      <define name="IXX_BODY" value="0"  description=""/>
+      <define name="IYY_BODY" value="0"  description=""/>
+      <define name="IZZ" value="0"       description=""/>
+      <define name="IXX_WING" value="0"  description=""/>
+      <define name="IYY_WING" value="0"  description=""/>
+      <define name="M" value="0"         description=""/>
+      <define name="ROLL_ARM" value="0"  description=""/>
+      <define name="PITCH_ARM" value="0" description=""/>
+      <define name="HOVER_DF_DPPRZ" value="0" description=""/>
+      <define name="HOVER_ROLL_PITCH_COEF" value="0" description=""/>
+    </section>
   </doc>
   <settings>
     <dl_settings>
