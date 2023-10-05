@@ -33,15 +33,15 @@ struct SecondOrderNotchFilter {
   float Ts;
   float d2;
   float costheta;
-  int32_t xn1;
-  int32_t xn2;
-  int32_t yn1;
-  int32_t yn2;
+  float xn1;
+  float xn2;
+  float yn1;
+  float yn2;
 };
 
 /** Set sampling frequency of the notch filter
  *
- * @param filter filter data structure
+ * @param filter SecondOrderNotchFilter data
  * @param frequency frequency at which the filter is updated
  */
 static inline void notch_filter_set_sampling_frequency(struct SecondOrderNotchFilter *filter, uint16_t frequency)
@@ -51,7 +51,7 @@ static inline void notch_filter_set_sampling_frequency(struct SecondOrderNotchFi
 
 /** Set bandwidth of the notch filter
  *
- * @param filter filter data structure
+ * @param filter SecondOrderNotchFilter data
  * @param bandwidth bandwidth of the filter [Hz]
  */
 static inline void notch_filter_set_bandwidth(struct SecondOrderNotchFilter *filter, float bandwidth)
@@ -62,7 +62,7 @@ static inline void notch_filter_set_bandwidth(struct SecondOrderNotchFilter *fil
 
 /** Set notch filter frequency in Hz
  *
- * @param filter filter data structure
+ * @param filter SecondOrderNotchFilter data
  * @param frequency to attenuate [Hz]
  */
 static inline void notch_filter_set_filter_frequency(struct SecondOrderNotchFilter *filter, float frequency)
@@ -76,12 +76,11 @@ static inline void notch_filter_set_filter_frequency(struct SecondOrderNotchFilt
  * Discrete implementation:
  * y[n] = b * y[n-1] - d^2 * y[n-2] + a * x[n] - b * x[n-1] + a * x[n-2]
  *
- * @param filter filter data structure
+ * @param filter SecondOrderNotchFilter data
  * @param input_signal input x[n]
  * @param output_signal output y[n]
  */
-static inline void notch_filter_update(struct SecondOrderNotchFilter *filter, int32_t *input_signal,
-                                       int32_t *output_signal)
+static inline void notch_filter_update(struct SecondOrderNotchFilter *filter, float *input_signal, float *output_signal)
 {
   float a = (1 + filter->d2) * 0.5;
   float b = (1 + filter->d2) * filter->costheta;
@@ -95,23 +94,26 @@ static inline void notch_filter_update(struct SecondOrderNotchFilter *filter, in
   filter->yn1 = *output_signal;
 }
 
-/** Get latest notch filter output
+/** Get notch filter output
  *
- * @param filter filter data structure
- * @return Latest filtered value
+ * @param filter SecondOrderNotchFilter data
+ * @return Laterst filtered value
  */
 
 
-static inline int32_t notch_filter_get_output(struct SecondOrderNotchFilter *filter)
+static inline float notch_filter_get_output(struct notch_filter_float *filter)
 {
   return filter->yn1;
 }
+
+
 
 /** Initialize second order notch filter
  *
  * Discrete implementation:
  * y[n] = b * y[n-1] - d^2 * y[n-2] + a * x[n] - b * x[n-1] + a * x[n-2]
  *
+ * @param filter SecondOrderNotchFilter data
  * @param cutoff_frequency frequency to attenuate [Hz]
  * @param bandwidth bandwidth of the filter [Hz]
  * @param sample_frequency frequency at which the filter is updated
