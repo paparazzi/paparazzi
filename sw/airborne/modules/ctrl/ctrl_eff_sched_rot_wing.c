@@ -90,10 +90,13 @@ float pprz_angle_step = 9600. / 45.; // CMD per degree
 // Telemetry
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
-static void send_rot_wing_controller(struct transport_tx *trans, struct link_device *dev)
+static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
+  uint8_t state = 0; // Quadrotor
   float angle = eff_sched_var.wing_rotation_rad / M_PI * 180.f;
-  pprz_msg_send_ROT_WING_CONTROLLER(trans, dev, AC_ID,
+  pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID,
+                          &state,
+                          &state,
                           &angle,
                           &rotation_angle_setpoint_deg,
                           0,
@@ -124,7 +127,7 @@ void ctrl_eff_sched_rot_wing_init(void)
   eff_sched_var.roll_motor_dMdpprz  = eff_sched_p.hover_dFdpprz * eff_sched_p.roll_arm;
 
   #if PERIODIC_TELEMETRY
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROT_WING_CONTROLLER, send_rot_wing_controller);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTATING_WING_STATE, send_rotating_wing_state);
   #endif
 }
 
@@ -155,7 +158,7 @@ void ctrl_eff_sched_rot_wing_update_wing_angle_sp(void)
 void ctrl_eff_sched_rot_wing_update_wing_angle(void)
 {
   // Get wing rotation angle from sensor
-  eff_sched_var.wing_rotation_rad = 0.5 * M_PI - uavcan1_telem[7].position;
+  eff_sched_var.wing_rotation_rad = 0.5 * M_PI - getActuatorPosition(7);
 
   // Bound wing rotation angle
   Bound(eff_sched_var.wing_rotation_rad, 0, 0.5*M_PI);
