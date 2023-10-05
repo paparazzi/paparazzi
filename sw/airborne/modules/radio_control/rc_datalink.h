@@ -40,6 +40,10 @@
 #define RADIO_YAW       2
 #define RADIO_THROTTLE  3
 #define RADIO_MODE      4
+#define RADIO_AUX1      5
+#define RADIO_AUX2      6
+#define RADIO_AUX4      7
+#define RADIO_AUX6      8
 
 extern int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 extern volatile bool rc_dl_frame_available;
