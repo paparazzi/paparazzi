@@ -64,7 +64,11 @@ static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_dev
   uint8_t dev_id = UAVCAN_SENDER_ID;
   uint16_t raw = 0;
   float offset = 0;
-  float airspeed = 0;
+  float sign = 1.0f;
+  if (airspeed_uavcan.diff_p < 0) {
+    sign = -1.0f;
+  }
+  float airspeed = sqrt(airspeed_uavcan.diff_p * sign * 2.0f / 1.225f) * sign;
   pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
                                 &dev_id,
                                 &raw,
