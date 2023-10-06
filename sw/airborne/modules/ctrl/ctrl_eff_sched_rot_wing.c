@@ -114,16 +114,17 @@ static void send_rotating_wing_state(struct transport_tx *trans, struct link_dev
 PRINT_CONFIG_VAR(CTRL_EFF_SCHED_ROT_WING_ID)
 static abi_event wing_position_ev;
 
-static void wing_position_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp, struct act_feedback_t *pos_msg)
+static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
 {
-  if (pos_msg->set.position && (pos_msg->idx =  7))
-  {
-    // Get wing rotation angle from sensor
-    eff_sched_var.wing_rotation_rad = 0.5 * M_PI - pos_msg->position;
+  for (int i=0; i<num_act; i++){
+    if (pos_msg[i].set.position && (pos_msg[i].idx =  7))
+    {
+      // Get wing rotation angle from sensor
+      eff_sched_var.wing_rotation_rad = 0.5 * M_PI - pos_msg[i].position;
 
-    // Bound wing rotation angle
-    Bound(eff_sched_var.wing_rotation_rad, 0, 0.5*M_PI);
+      // Bound wing rotation angle
+      Bound(eff_sched_var.wing_rotation_rad, 0, 0.5*M_PI);
+    }
   }
 }
 
@@ -149,7 +150,7 @@ void ctrl_eff_sched_rot_wing_init(void)
   eff_sched_var.pitch_motor_dMdpprz = eff_sched_p.hover_dFdpprz * eff_sched_p.pitch_arm;
   eff_sched_var.roll_motor_dMdpprz  = eff_sched_p.hover_dFdpprz * eff_sched_p.roll_arm;
 
-  AbiBindMsgACT_FEEDBACK_RPM(CTRL_EFF_SCHED_ROT_WING_ID, &wing_position_ev, wing_position_cb);
+  AbiBindMsgACT_FEEDBACK(CTRL_EFF_SCHED_ROT_WING_ID, &wing_position_ev, wing_position_cb);
 
 
   #if PERIODIC_TELEMETRY
