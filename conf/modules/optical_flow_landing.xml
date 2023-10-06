@@ -31,6 +31,7 @@
       <define name="IGAIN_HORIZONTAL_FACTOR" value="0.0001" description="Factor multiplied with I gain for horizontal control"/>
       <define name="ROLL_TRIM" value="0.0" description="Roll trim in degrees"/>
       <define name="PITCH_TRIM" value="0.0" description="Pitch trim in degrees"/>
+      <define name="FRONT_DIV_THRESHOLD" value="0.3" description="Threshold on front divergence for stopping."/>
       <!-- TODO: add more explanations of settings below -->
     </section>
   </doc>
@@ -72,6 +73,7 @@
         <dl_setting var="of_landing_ctrl.omega_LR" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_LR" param="OFL_OMEGA_LR"/>
         <dl_setting var="of_landing_ctrl.omega_FB" min="-60.0" step="1.0" max="60.0" module="ctrl/optical_flow_landing" shortname="omega_FB" param="OFL_OMEGA_FB"/>
 	<dl_setting var="of_landing_ctrl.active_motion" min="0" step="1" max="2" values="none|flow|angle" module="ctrl/optical_flow_landing" shortname="active_motion" param="OFL_ACTIVE_MOTION"/>
+	<dl_setting var="of_landing_ctrl.front_div_threshold" min="0.0" step="0.01" max="0.5" module="ctrl/optical_flow_landing" shortname="front_div_threshold" param="OFL_FRONT_DIV_THRESHOLD"/>
       </dl_settings>
     </dl_settings>
   </settings>

@@ -200,6 +200,10 @@ PRINT_CONFIG_VAR(OFL_OPTICAL_FLOW_ID)
 #define OFL_ACTIVE_MOTION 0
 #endif
 
+#ifndef OFL_FRONT_DIV_THRESHOLD
+#define OFL_FRONT_DIV_THRESHOLD 0.3
+#endif
+
 // Normally, horizontal control is done via sending angle commands to INDI, so 0 (false)
 // When this is 1 (true),a change in angle will be commanded instead.
 #define HORIZONTAL_RATE_CONTROL 0
@@ -217,6 +221,9 @@ PRINT_CONFIG_VAR(OFL_OPTICAL_FLOW_ID)
 #define INCREASE_GAIN_PER_SECOND 0.10
 
 // variables retained between module calls
+
+
+float old_flow_time;
 
 // horizontal loop:
 float optical_flow_x;
@@ -239,6 +246,8 @@ bool landing;
 float previous_cov_err;
 int32_t thrust_set;
 float divergence_setpoint;
+
+float divergence_front;
 
 // *********************************
 // include and define stuff for SSL:
@@ -290,7 +299,7 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_DIVERGENCE(trans, dev, AC_ID,
                            &(of_landing_ctrl.divergence), &divergence_vision_dt, &normalized_thrust,
-                           &cov_div, &pstate, &pused, &(of_landing_ctrl.agl));
+                           &cov_div, &pstate, &pused, &(of_landing_ctrl.agl), &divergence_front);
 }
 
 /// Function definitions
@@ -371,6 +380,8 @@ void vertical_ctrl_module_init(void)
   of_landing_ctrl.omega_LR = OFL_OMEGA_LR;
   of_landing_ctrl.active_motion = OFL_ACTIVE_MOTION;
 
+  of_landing_ctrl.front_div_threshold = OFL_FRONT_DIV_THRESHOLD;
+
   int i;
   if (of_landing_ctrl.use_bias) {
     weights = (float *)calloc(n_textons + 1, sizeof(float));
@@ -423,6 +434,10 @@ void vertical_ctrl_module_init(void)
 
   lp_flow_x = 0.0f;
   lp_flow_y = 0.0f;
+
+  old_flow_time = get_sys_time_float();
+
+  divergence_front = 0.0f;
 }
 
 /**
@@ -900,6 +915,10 @@ void vertical_ctrl_module_run(bool in_flight)
   lp_flow_y = of_landing_ctrl.lp_factor_prediction * lp_flow_y + (1.0f - of_landing_ctrl.lp_factor_prediction) *
               optical_flow_y;
 
+  if(divergence_front > of_landing_ctrl.front_div_threshold) {
+      // Stop moving in the longitudinal direction:
+      of_landing_ctrl.omega_FB = 0.0f;
+  }
 
   if (of_landing_ctrl.active_motion == 1) {
     // Active motion through varying ventral flow commands
@@ -1109,6 +1128,28 @@ void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
     divergence_vision = size_divergence;
     //printf("Reading %f, %f, %f\n", optical_flow_x, optical_flow_y, divergence_vision);
     vision_time = ((float)stamp) / 1e6;
+
+
+    // checking fps and newness of images:
+    float new_flow_time = get_sys_time_float();
+    float dt = (new_flow_time - old_flow_time);
+    if (dt > 0) {
+      float fps_flow = 1.0f / dt;
+      printf("FPS flow bottom cam in OF landing = %f, optical_flow_x = %f\n", fps_flow, optical_flow_x);
+      old_flow_time = new_flow_time;
+    }
+  }
+  else {
+
+      float new_flow_time = get_sys_time_float();
+      float dt_flow_front = new_flow_time - old_flow_time;
+      if (dt_flow_front > 0) {
+	float fps_flow = 1.0f / dt_flow_front;
+	//printf("FPS flow front cam in OF landing = %f\n", fps_flow);
+	old_flow_time = new_flow_time;
+
+	divergence_front = size_divergence / dt_flow_front;
+      }
   }
 }
 
