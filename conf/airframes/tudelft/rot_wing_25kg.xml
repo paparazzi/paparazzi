@@ -96,31 +96,7 @@
             <define name="WLS_N_V" value="5"/>
         </module>
 
-        <!-- 20.17 kg -->
-        <!-- <module name="ctrl_eff_sched_rot_wing">
-            <define name="ROT_WING_EFF_SCHED_IXX_BODY"          value="0.90940"/>
-            <define name="ROT_WING_EFF_SCHED_IYY_BODY"          value="7.88418"/>
-            <define name="ROT_WING_EFF_SCHED_IZZ"               value="5.91445"/>
-            <define name="ROT_WING_EFF_SCHED_IWING"             value="1.06965"/>
-            <define name="ROT_WING_EFF_SCHED_M"                 value="20.17"/>
-            <define name="ROT_WING_EFF_SCHED_ROLL_ARM"          value="0.64"/>
-            <define name="ROT_WING_EFF_SCHED_PITCH_ARM"         value="0.556"/>
-            <define name="ROT_WING_EFF_SCHED_HOVER_DF_DPPRZ"    value="0.012078"/>
-        </module> -->
-        
-        <!-- 25kg -->
-        <module name="ctrl_eff_sched_rot_wing">
-            <define name="ROT_WING_EFF_SCHED_IXX_BODY"              value="0.2845"/>
-            <define name="ROT_WING_EFF_SCHED_IYY_BODY"              value="5.078"/>
-            <define name="ROT_WING_EFF_SCHED_IZZ"                   value="7.051"/>
-            <define name="ROT_WING_EFF_SCHED_IXX_WING"              value="0.712"/>
-            <define name="ROT_WING_EFF_SCHED_IYY_WING"              value="1.77"/>
-            <define name="ROT_WING_EFF_SCHED_M"                     value="25.5"/>
-            <define name="ROT_WING_EFF_SCHED_ROLL_ARM"              value="0.64"/>
-            <define name="ROT_WING_EFF_SCHED_PITCH_ARM"             value="0.556"/>
-            <define name="ROT_WING_EFF_SCHED_HOVER_DF_DPPRZ"        value="0.014007"/>
-            <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{0.64,1.4}"/>
-        </module>
+        <module name="ctrl_eff_sched_rot_wing"/>
 
         <module name="guidance" type="indi_hybrid"/>
         <module name="nav_hybrid"/>
@@ -227,6 +203,34 @@
 
         <define name="CHIRP_AXES" value="{0,1,2,3}"/>
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
+    </section>
+
+
+    <!-- 20.17 kg -->
+    <!--    <section name="CTRL_EFF_SCED" prefix="ROT_WING_EFF_SCHED_">
+        <define name="IXX_BODY"          value="0.90940"/>
+        <define name="IYY_BODY"          value="7.88418"/>
+        <define name="IZZ"               value="5.91445"/>
+        <define name="IWING"             value="1.06965"/>
+        <define name="M"                 value="20.17"/>
+        <define name="ROLL_ARM"          value="0.64"/>
+        <define name="PITCH_ARM"         value="0.556"/>
+        <define name="HOVER_DF_DPPRZ"    value="0.012078"/>
+    </section> -->
+        
+    <!-- 25kg -->
+    <section name="CTRL_EFF_SCED" prefix="ROT_WING_EFF_SCHED_">
+        <!-- Control Effectiveness Scheduling -->
+        <define name="IXX_BODY"              value="0.2845"/>
+        <define name="IYY_BODY"              value="5.078"/>
+        <define name="IZZ"                   value="7.051"/>
+        <define name="IXX_WING"              value="0.712"/>
+        <define name="IYY_WING"              value="1.77"/>
+        <define name="M"                     value="25.5"/>
+        <define name="ROLL_ARM"              value="0.64"/>
+        <define name="PITCH_ARM"             value="0.556"/>
+        <define name="HOVER_DF_DPPRZ"        value="0.014007"/>
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.64,1.4}"/>
     </section>
 
 

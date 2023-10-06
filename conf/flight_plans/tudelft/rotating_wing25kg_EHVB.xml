@@ -1,10 +1,7 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="60" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="1100" name="Rotating wing Valkenburg" security_height="2">
-  <header>
-    #include "autopilot.h"
-    #include "modules/datalink/datalink.h"
-</header>
+  <header/>
   <waypoints>
     <waypoint name="HOME" x="12.6" y="-48.7"/>
     <waypoint name="CLIMB" x="62.6" y="-80.4"/>
@@ -12,7 +9,6 @@
     <waypoint name="decel" x="100." y="100."/>
     <waypoint name="end_trans" x="100." y="100."/>
     <waypoint name="STDBY" lat="52.1682655" lon="4.4135103"/>
-    <!--<waypoint name="p1" lat="52.1674262" lon="4.4141448"/>-->
     <waypoint name="p1" lat="52.1684116" lon="4.4149282"/>
     <waypoint name="p2" lat="52.1675165" lon="4.4147158"/>
     <waypoint name="p3" lat="52.1688983" lon="4.4139655"/>
@@ -74,7 +70,7 @@
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <set value="false" var="force_forward"/>
-        <exception cond="stateGetPositionEnu_f()->z > 4.0" deroute="Standby"/>
+        <exception cond="GetPosAlt()  @LT 4.0" deroute="Standby"/>
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>2" vmode="throttle"/>
     </block>
@@ -145,13 +141,13 @@
     </block>
     <block name="descend">
         <set value="false" var="force_forward"/>
-        <exception cond="!(stateGetPositionEnu_f()->z > 12.0)" deroute="flare"/>
+        <exception cond="!(GetPosAlt()  @LT 12.0)" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
         <set value="false" var="force_forward"/>
         <stay climb="-0.5" vmode="climb" wp="TD"/>
-        <exception cond="!(stateGetPositionEnu_f()->z > 2.0)" deroute="flare_low"/>
+        <exception cond="!(GetPosAlt()  @LT 2.0)" deroute="flare_low"/>
     </block>
     <block name="flare_low">
         <set value="false" var="force_forward"/>
