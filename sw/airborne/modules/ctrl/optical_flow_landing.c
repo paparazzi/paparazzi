@@ -1144,7 +1144,7 @@ void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
       float new_flow_time = get_sys_time_float();
       float dt_flow_front = new_flow_time - old_flow_time;
       if (dt_flow_front > 0) {
-	float fps_flow = 1.0f / dt_flow_front;
+	//float fps_flow = 1.0f / dt_flow_front;
 	//printf("FPS flow front cam in OF landing = %f\n", fps_flow);
 	old_flow_time = new_flow_time;
 
