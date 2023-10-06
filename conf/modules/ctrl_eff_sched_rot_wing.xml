@@ -29,6 +29,9 @@
   <periodic fun="ctrl_eff_sched_rot_wing_periodic()" freq="10.0"/>
   <makefile>
     <file name="ctrl_eff_sched_rot_wing.c"/>
-    <test/>
+    <test>
+      <define name="INDI_NUM_ACT" value="4"/>
+      <define name="INDI_OUTPUTS" value="3"/>
+    </test>
   </makefile>
 </module>
