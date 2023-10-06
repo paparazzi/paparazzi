@@ -230,6 +230,7 @@ float optical_flow_x;
 float optical_flow_y;
 float lp_flow_x;
 float lp_flow_y;
+float lp_divergence_front;
 float sum_roll_error;
 float sum_pitch_error;
 
@@ -299,7 +300,7 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_DIVERGENCE(trans, dev, AC_ID,
                            &(of_landing_ctrl.divergence), &divergence_vision_dt, &normalized_thrust,
-                           &cov_div, &pstate, &pused, &(of_landing_ctrl.agl), &divergence_front);
+                           &cov_div, &pstate, &pused, &(of_landing_ctrl.agl), &lp_divergence_front);
 }
 
 /// Function definitions
@@ -434,6 +435,7 @@ void vertical_ctrl_module_init(void)
 
   lp_flow_x = 0.0f;
   lp_flow_y = 0.0f;
+  lp_divergence_front = 0.0f;
 
   old_flow_time = get_sys_time_float();
 
@@ -499,6 +501,7 @@ static void reset_all_vars(void)
 
   lp_flow_x = 0.0f;
   lp_flow_y = 0.0f;
+  lp_divergence_front = 0.0f;
 }
 
 /**
@@ -914,8 +917,12 @@ void vertical_ctrl_module_run(bool in_flight)
               optical_flow_x;
   lp_flow_y = of_landing_ctrl.lp_factor_prediction * lp_flow_y + (1.0f - of_landing_ctrl.lp_factor_prediction) *
               optical_flow_y;
+  lp_divergence_front = of_landing_ctrl.lp_factor_prediction * lp_divergence_front + (1.0f - of_landing_ctrl.lp_factor_prediction) *
+              divergence_front;
 
-  if(divergence_front > of_landing_ctrl.front_div_threshold) {
+
+
+  if(lp_divergence_front > of_landing_ctrl.front_div_threshold) {
       // Stop moving in the longitudinal direction:
       of_landing_ctrl.omega_FB = 0.0f;
   }
@@ -968,6 +975,7 @@ void vertical_ctrl_module_run(bool in_flight)
   if (!HORIZONTAL_RATE_CONTROL) {
     // normal operation:
     pitch_cmd = RadOfDeg(of_landing_ctrl.pitch_trim + error_pitch *  P_hor +  I_hor * sum_pitch_error);
+    // printf("Pitch error = %f, command = %f\n", error_pitch, pitch_cmd);
     // add_active_sine = 0.0f in normal operation:
     roll_cmd = RadOfDeg(of_landing_ctrl.roll_trim + error_roll *  P_hor +  I_hor * sum_roll_error) + add_active_sine;
   }
@@ -1135,7 +1143,7 @@ void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
     float dt = (new_flow_time - old_flow_time);
     if (dt > 0) {
       float fps_flow = 1.0f / dt;
-      printf("FPS flow bottom cam in OF landing = %f, optical_flow_x = %f\n", fps_flow, optical_flow_x);
+      //printf("FPS flow bottom cam in OF landing = %f, optical_flow_x = %f\n", fps_flow, optical_flow_x);
       old_flow_time = new_flow_time;
     }
   }
