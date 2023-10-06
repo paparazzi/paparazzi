@@ -1139,13 +1139,13 @@ void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
 
 
     // checking fps and newness of images:
-    float new_flow_time = get_sys_time_float();
+    /*float new_flow_time = get_sys_time_float();
     float dt = (new_flow_time - old_flow_time);
-    if (dt > 0) {
+     if (dt > 0) {
       float fps_flow = 1.0f / dt;
-      //printf("FPS flow bottom cam in OF landing = %f, optical_flow_x = %f\n", fps_flow, optical_flow_x);
-      old_flow_time = new_flow_time;
+      printf("FPS flow bottom cam in OF landing = %f, optical_flow_x = %f\n", fps_flow, optical_flow_x);
     }
+    old_flow_time = new_flow_time; */
   }
   else {
 
