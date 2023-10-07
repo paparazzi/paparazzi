@@ -10,20 +10,10 @@
       <message name="TAKEOFF" ID="4">
         <field name="cpu_time" type="uint16" unit="s"/>
       </message>
-      <message name="RAD_OF_IR" ID="5">
-        <field name="ir" type="int16"/>
-        <field name="rad" type="int16" unit="decideg"/>
-        <field name="rad_of_ir" type="float" format="%.5f"/>
-      </message>
       <message name="ATTITUDE" ID="6">
         <field name="phi" type="int16" unit="deg"/>
         <field name="psi" type="int16" unit="deg"/>
         <field name="theta" type="int16" unit="deg"/>
-      </message>
-      <message name="IR_SENSORS" ID="7">
-        <field name="longitudinal" type="int16"/>
-        <field name="lateral" type="int16"/>
-        <field name="vertical" type="int16"/>
       </message>
       <message name="GPS" ID="8">
         <field name="mode" type="uint8" unit="byte_mask"/>
@@ -68,11 +58,6 @@
         <field name="block_time" type="uint16" unit="s"/>
         <field name="stage_time" type="uint16" unit="s"/>
         <field name="energy" type="uint16" unit="mAh"/>
-      </message>
-      <message name="DEBUG_MCU_LINK" ID="13">
-        <field name="i2c_nb_err" type="uint8"/>
-        <field name="i2c_mcu1_nb_err" type="uint8"/>
-        <field name="ppm_rate" type="uint8"/>
       </message>
       <message name="CALIBRATION" ID="14">
         <field name="climb_sum_err" type="float" format="%.1f"/>
