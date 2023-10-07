@@ -56,7 +56,9 @@
         <define name="SDLOGGER_ON_ARM" value="TRUE"/>
       </module>
       <module name="gps_ubx_ucenter"/>
-      <module name="heli_throttle_curve"/>
+      <module name="heli_throttle_curve">
+        <define name="THROTTLE_CURVE_RPM_ACT" value="0"/>
+      </module>
       <define name="ROTORCRAFT_IS_HELI" value="TRUE" />
       <define name="RC_LOST_MODE" value="AP_MODE_NAV" />
     </target>
