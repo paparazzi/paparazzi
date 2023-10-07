@@ -34,6 +34,7 @@
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/textons.h"
 #include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
 
 float ** **dictionary;
 uint32_t learned_samples = 0;
