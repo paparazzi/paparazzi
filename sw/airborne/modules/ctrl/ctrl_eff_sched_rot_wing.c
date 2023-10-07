@@ -28,6 +28,10 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "modules/core/abi.h"
 
+#ifndef SERVO_ROTATION_MECH
+#error ctrl_eff_sched_rot_wing requires a servo named ROTATION_MECH
+#endif
+
 
 #ifndef ROT_WING_EFF_SCHED_IXX_BODY
 #error "NO ROT_WING_EFF_SCHED_IXX_BODY defined"
@@ -117,7 +121,7 @@ static abi_event wing_position_ev;
 static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
 {
   for (int i=0; i<num_act; i++){
-    if (pos_msg[i].set.position && (pos_msg[i].idx =  7))
+    if (pos_msg[i].set.position && (pos_msg[i].idx =  SERVO_ROTATION_MECH))
     {
       // Get wing rotation angle from sensor
       eff_sched_var.wing_rotation_rad = 0.5 * M_PI - pos_msg[i].position;
