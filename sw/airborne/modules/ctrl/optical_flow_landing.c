@@ -975,7 +975,6 @@ void vertical_ctrl_module_run(bool in_flight)
   if (!HORIZONTAL_RATE_CONTROL) {
     // normal operation:
     pitch_cmd = RadOfDeg(of_landing_ctrl.pitch_trim + error_pitch *  P_hor +  I_hor * sum_pitch_error);
-    // printf("Pitch error = %f, command = %f\n", error_pitch, pitch_cmd);
     // add_active_sine = 0.0f in normal operation:
     roll_cmd = RadOfDeg(of_landing_ctrl.roll_trim + error_roll *  P_hor +  I_hor * sum_roll_error) + add_active_sine;
   }

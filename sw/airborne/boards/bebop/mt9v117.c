@@ -37,7 +37,6 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
 
-#include "generated/airframe.h"
 #ifdef BOARD_DISCO
 #include "boards/disco.h"
 #else

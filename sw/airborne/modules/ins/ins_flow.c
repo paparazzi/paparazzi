@@ -966,9 +966,9 @@ void ins_flow_update(void)
 
   if (OF_DRAG) {
     // In MATLAB: -sign(v)*2*kd*v/m (always minus, whether v is positive or negative):
-    F[OF_V_IND][OF_V_IND] -=  dt * 2 * kd * abs(OF_X[OF_V_IND]) / mass;
+    F[OF_V_IND][OF_V_IND] -=  dt * 2 * kd * fabs(OF_X[OF_V_IND]) / mass;
     if (OF_TWO_DIM) {
-      F[OF_VX_IND][OF_VX_IND] -=  dt * 2 * kd * abs(OF_X[OF_VX_IND]) / mass;
+      F[OF_VX_IND][OF_VX_IND] -=  dt * 2 * kd * fabs(OF_X[OF_VX_IND]) / mass;
     }
   }
 

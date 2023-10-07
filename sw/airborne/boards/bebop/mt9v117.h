@@ -29,7 +29,8 @@
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
-//#include "generated/airframe.h"
+// Camera parameters are defined in sections
+#include "generated/airframe.h"
 
 #ifndef MT9V117_TARGET_FPS
 #define MT9V117_TARGET_FPS 0
