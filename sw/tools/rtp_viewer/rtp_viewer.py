@@ -17,6 +17,9 @@ os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'protocol_whitelist;file,rtp,udp'
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
+# See the issue and solution here: https://github.com/opencv/opencv/issues/10328
+os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'protocol_whitelist;file,rtp,udp'
+
 class RtpViewer:
     running = False
     scale = 1
