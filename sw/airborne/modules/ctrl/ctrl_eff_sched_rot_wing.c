@@ -29,7 +29,7 @@
 #include "modules/core/abi.h"
 
 #ifndef SERVO_ROTATION_MECH
-#error ctrl_eff_sched_rot_wing requires a <servo name="BROTATION_MECH">
+#error ctrl_eff_sched_rot_wing requires a servo named ROTATION_MECH
 #endif
 
 

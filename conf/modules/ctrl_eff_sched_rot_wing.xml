@@ -1,7 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="ctrl_eff_sched_rot_wing" dir="ctrl">
   <doc>
-    <description>The control effectiveness scheduler for the rotating wing drone type</description>
+    <description>The control effectiveness scheduler for the rotating wing quadplane drone type
+     - it requires a servo called ROTATION_MECH
+    </description>
     <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
       <define name="IXX_BODY" value="0"  description=""/>
       <define name="IYY_BODY" value="0"  description=""/>
@@ -30,6 +32,7 @@
   <makefile>
     <file name="ctrl_eff_sched_rot_wing.c"/>
     <test>
+      <define name="SERVO_ROTATION_MECH" value="0"/>
       <define name="INDI_NUM_ACT" value="4"/>
       <define name="INDI_OUTPUTS" value="3"/>
       <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
