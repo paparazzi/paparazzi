@@ -36,6 +36,7 @@
 #include "lib/vision/image.h"
 #include "lib/v4l/v4l2.h"
 #include "opticflow/opticflow_calculator.h"
+#include "generated/airframe.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
