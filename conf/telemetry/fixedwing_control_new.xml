@@ -18,7 +18,6 @@
       <message name="PPRZ_MODE"      period="5."/>
       <message name="DATALINK_REPORT"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
-      <message name="IR_SENSORS"     period="1.2"/>
       <message name="IMU_GYRO"       period="0.2"/>
       <message name="SURVEY"         period="2.1"/>
       <message name="GPS_SOL"        period="2.0"/>
@@ -26,7 +25,6 @@
     <mode name="debug">
       <message name="ATTITUDE"       period="0.5"/>
       <message name="TUNE_ROLL"      period="0.2"/>
-      <message name="DEBUG_MCU_LINK" period="5."/>
       <message name="ADC"            period="0.5"/>
     </mode>
   </process>
