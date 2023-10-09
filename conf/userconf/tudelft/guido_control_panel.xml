@@ -119,7 +119,11 @@
         <arg flag="-ac 9999" constant="5"/>
       </program>
       <program name="Messages (Python)"/>
-      <program name="Real-time Plotter"/>
+      <program name="Real-time Plotter">
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-m" constant="1000"/>
+        <arg flag=""/>
+      </program>
       <program name="Messages"/>
     </session>
   </section>
