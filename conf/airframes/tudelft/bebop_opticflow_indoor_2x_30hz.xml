@@ -27,6 +27,8 @@ pyramid level 2: 21 fps average, min=11fps
     <module name="imu" type="bebop"/>
     <module name="stabilization" type="indi">
       <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
     </module>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
