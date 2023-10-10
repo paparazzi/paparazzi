@@ -145,6 +145,7 @@ void actuators_dshot_arch_init(void)
       CONCAT_GPIO(DSHOT_TIM1_TELEMETRY_NUM, PORT_RX),
       CONCAT_GPIO(DSHOT_TIM1_TELEMETRY_NUM, RX),
       CONCAT_GPIO(DSHOT_TIM1_TELEMETRY_NUM, AF), FALSE);
+  PRINT_CONFIG_VAR(DSHOT_TIM1_TELEMETRY_NUM);
 #endif
 #ifdef DSHOT_TIM2_TELEMETRY_NUM
   gpio_setup_pin_af(
@@ -163,6 +164,7 @@ void actuators_dshot_arch_init(void)
       CONCAT_GPIO(DSHOT_TIM4_TELEMETRY_NUM, PORT_RX),
       CONCAT_GPIO(DSHOT_TIM4_TELEMETRY_NUM, RX),
       CONCAT_GPIO(DSHOT_TIM4_TELEMETRY_NUM, AF), FALSE);
+  PRINT_CONFIG_VAR(DSHOT_TIM4_TELEMETRY_NUM);
 #endif
 #ifdef DSHOT_TIM5_TELEMETRY_NUM
   gpio_setup_pin_af(
@@ -328,7 +330,7 @@ void actuators_dshot_arch_commit(void)
 #endif
 
 
-  struct rpm_act_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
+  struct act_feedback_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     feedback[i].idx = ACTUATORS_DSHOT_OFFSET + i;
     if (actuators_dshot_values[i].activated) {
