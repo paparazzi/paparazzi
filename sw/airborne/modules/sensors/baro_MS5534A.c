@@ -218,7 +218,7 @@ static void calibration(void)
 #ifndef BARO_NO_DOWNLINK
   float debug[4];
   for (int i=0; i<4; i++){
-    debug[0] = words[0];
+    debug[i] = words[i];
   }
   DOWNLINK_SEND_DEBUG_VECT(DefaultChannel, DefaultDevice, "baro_calib", 4, debug);
 #endif

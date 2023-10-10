@@ -27,16 +27,20 @@ All rights reserved.
 #include "math.h"
 #include "image.h"
 #include "../../opticflow/opticflow_calculator.h"
+#include "generated/airframe.h"
 
 // ACT-FAST agents arrays
 // equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c
 // TODO Currently hardcoded to two cameras
 #define MAX_AGENTS FAST9_MAX_CORNERS
-#ifndef OPTICFLOW_CAMERA2
-  struct agent_t agents[1][MAX_AGENTS];
+#ifdef OPTICFLOW_CAMERA2
+#define FAST9_MAX_CAMERAS 2
 #else
-  struct agent_t agents[2][MAX_AGENTS];
+#define FAST9_MAX_CAMERAS 1
 #endif
+
+struct agent_t agents[FAST9_MAX_CAMERAS][MAX_AGENTS];
+
 
 /**
  * Do an ACT-FAST corner detection.
@@ -55,6 +59,11 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
               uint16_t n_agents, uint16_t n_time_steps, float long_step, float short_step, int min_gradient,
               int gradient_method, int camera_id)
 {
+  // Input protection:
+  if (camera_id >= FAST9_MAX_CAMERAS) {
+    *num_corners = 0;
+    return;
+  }
 
   /*
    * Procedure:

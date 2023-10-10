@@ -53,8 +53,6 @@
 
     <module name="cv_opticflow">
       <define name="MAX_HORIZON" value="10"/>
-      <configure name="OPTICFLOW_MAX_TRACK_CORNERS" value="20"/>
-      <configure name="OPTICFLOW_MAX_TRACK_CORNERS_CAMERA2" value="20"/>
     </module>
 
     <module name="video_rtp_stream">
@@ -126,6 +124,7 @@
 
   <section name="OPTICAL_FLOW" prefix="OPTICFLOW_">
     <define name="CAMERA" value="bottom_camera"/>
+    <define name="MAX_TRACK_CORNERS" value="20"/>
 
     <define name="FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
     <define name="FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
@@ -141,6 +140,8 @@
 
 
     <define name="CAMERA2" value="front_camera"/>
+    <define name="MAX_TRACK_CORNERS_CAMERA2" value="20"/>
+
     <define name="DEROTATION_CORRECTION_FACTOR_X_CAMERA2" value="0.8"/>
     <define name="DEROTATION_CORRECTION_FACTOR_Y_CAMERA2" value="0.85"/>
     <define name="FEATURE_MANAGEMENT_CAMERA2" value="0"/>
@@ -272,7 +273,7 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
-  	<define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF" value="3.2"/>
     <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
