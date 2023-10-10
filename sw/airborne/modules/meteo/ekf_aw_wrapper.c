@@ -97,7 +97,7 @@ static void send_airspeed_wind_ekf_forces(struct transport_tx *trans, struct lin
 // RPM ABI Event
 abi_event RPM_ev;
 float time_of_rpm = 0.0f;
-static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct rpm_act_t *rpm_message, uint8_t num_act);
+static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct act_feedback_t *rpm_message, uint8_t num_act);
 
 // Filter struct
 struct ekfAw ekf_aw; // Local wrapper
@@ -172,7 +172,7 @@ void ekf_aw_wrapper_init(void){
   ekf_aw_init();
   
   // Register ABI message
-  AbiBindMsgRPM(RPM_SENSOR_ID, &RPM_ev, rpm_cb);
+  AbiBindMsgACT_FEEDBACK(ACT_FEEDBACK_RPM_SENSOR_ID, &RPM_ev, rpm_cb);
   
 
   //Get EKF param handle
@@ -412,13 +412,13 @@ void ekf_aw_wrapper_fetch(void){
 };
 
 // ABI callback that obtains the RPM from a module
-static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct rpm_act_t * rpm_message, uint8_t num_act_message)
+static void rpm_cb(uint8_t sender_id __attribute__((unused)), struct act_feedback_t * rpm_message, uint8_t num_act_message)
 {
   for (int i=0;i<num_act_message;i++) {
     // Sanity check that index is valid
-    if (rpm_message[i].actuator_idx < EKF_AW_RPM_HOVER_NUM){
+    if (rpm_message[i].idx < EKF_AW_RPM_HOVER_NUM){
       // Assign rpm to right actuator
-      switch (rpm_message[i].actuator_idx) {
+      switch (rpm_message[i].idx) {
         case 0:
             ekf_aw.last_RPM_hover[0] = rpm_message[i].rpm;
             break;
