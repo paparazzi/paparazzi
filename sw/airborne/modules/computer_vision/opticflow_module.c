@@ -39,6 +39,7 @@
 #include "errno.h"
 
 #include "cv.h"
+#include "generated/airframe.h"
 
 uint16_t fps_OF;
 
