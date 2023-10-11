@@ -45,6 +45,7 @@
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
 #include "modules/sonar/agl_dist.h"
+#include "generated/airframe.h"
 
 // to get the definition of front_camera / bottom_camera
 #include BOARD_CONFIG
