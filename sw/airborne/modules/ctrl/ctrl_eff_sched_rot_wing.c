@@ -121,7 +121,7 @@ static abi_event wing_position_ev;
 static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
 {
   for (int i=0; i<num_act; i++){
-    if (pos_msg[i].set.position && (pos_msg[i].idx =  SERVO_ROTATION_MECH))
+    if (pos_msg[i].set.position && (pos_msg[i].idx == SERVO_ROTATION_MECH))
     {
       // Get wing rotation angle from sensor
       eff_sched_var.wing_rotation_rad = 0.5 * M_PI - pos_msg[i].position;
