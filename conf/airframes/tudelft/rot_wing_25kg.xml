@@ -255,12 +255,18 @@
 
     <section name="IMU" prefix="IMU_">
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true},.neutral={-3,3,13}, .scale={{15146,60067,2567},{1551,6124,263}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-26,9,2}, .scale={{32863,18346,55169},{6721,3745,11294}}}}"/>
-        <define name="MAG_CALIB"   value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true},.neutral={-96,-292,-95}, .scale={{33136,8764,8709},{59233,15761,15343}}}}"/> <!-- Calibrated 't Harde 17-08-2023 -->
+        <define name="MAG_CALIB"   value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true},.neutral={-96,-95,-292}, .scale={{33136,8709,8764},{59233,15343,15761}}}}"/> <!-- Calibrated 't Harde 17-08-2023 -->
 
         <!-- Define axis in hover frame -->
-        <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+        <define name="BODY_TO_IMU_PHI"   value="180." unit="deg"/>
         <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
         <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    </section>
+
+    <section name="MAG_RM3100" prefix="RM3100_">
+      <define name="MAG_TO_IMU_PHI" value="-90.0"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0"/>
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
