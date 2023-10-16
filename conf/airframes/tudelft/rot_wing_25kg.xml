@@ -148,7 +148,7 @@
         <axis name="PITCH"      failsafe_value="0"/>
         <axis name="YAW"        failsafe_value="0"/>
         <axis name="THRUST"     failsafe_value="0"/>
-        <axis name="THRUST_X"     failsafe_value="0"/>
+        <axis name="THRUST_X"   failsafe_value="0"/>
     </commands>
     
 
@@ -258,9 +258,12 @@
         <define name="MAG_CALIB"   value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true},.neutral={-96,-95,-292}, .scale={{33136,8709,8764},{59233,15343,15761}}}}"/> <!-- Calibrated 't Harde 17-08-2023 -->
 
         <!-- Define axis in hover frame -->
-        <define name="BODY_TO_IMU_PHI"   value="180." unit="deg"/>
-        <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-        <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+        <define name="BODY_TO_IMU_PHI"      value="180." unit="deg"/>
+        <define name="BODY_TO_IMU_THETA"    value="0." unit="deg"/>
+        <define name="BODY_TO_IMU_PSI"      value="0." unit="deg"/>
+
+        <!-- Log in high speed -->
+        <define name="LOG_HIGHSPEED"        value="TRUE"/>
     </section>
 
     <section name="MAG_RM3100" prefix="RM3100_">
@@ -357,8 +360,8 @@
 
         <!-- Other -->
         <define name="WLS_PRIORITIES"   value="{1000, 1000, 1, 100}"/>
-        <define value="FALSE" name="USE_ADAPTIVE"/>
-        <define value="0.001" name="ADAPTIVE_MU"/>
+        <define name="USE_ADAPTIVE"     value="FALSE"/>
+        <define name="ADAPTIVE_MU"      value="0.001"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -399,9 +402,9 @@
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
         <define name="ZERO_AIRSPEED"        value="TRUE"/>
 
-        <define name="QUADPLANE" value="TRUE"/>
-        <define name="THRUST_Z_EFF" value="-0.0023"/>
-        <define name="THRUST_X_EFF" value="0.00055"/>
+        <define name="QUADPLANE"            value="TRUE"/>
+        <define name="THRUST_Z_EFF"         value="-0.0023"/>
+        <define name="THRUST_X_EFF"         value="0.00055"/>
 
     </section>
 

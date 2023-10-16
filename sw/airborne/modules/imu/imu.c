@@ -173,6 +173,11 @@ PRINT_CONFIG_VAR(IMU_ACCEL_ABI_SEND_ID)
 #endif
 PRINT_CONFIG_VAR(IMU_MAG_ABI_SEND_ID)
 
+/** By default log highspeed on the flightrecorder */
+#ifndef IMU_LOG_HIGHSPEED_DEVICE
+#define IMU_LOG_HIGHSPEED_DEVICE flightrecorder_sdlog
+#endif
+
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -590,9 +595,18 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 
       // Add all the other samples
       for(uint8_t i = 0; i < samples-1; i++) {
-        integrated_sensor.p += RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale[0].p / gyro->scale[1].p);
-        integrated_sensor.q += RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale[0].q / gyro->scale[1].q);
-        integrated_sensor.r += RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r);
+        struct FloatRates f_sample;
+        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale[0].p / gyro->scale[1].p);
+        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale[0].q / gyro->scale[1].q);
+        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r);
+
+#ifdef IMU_LOG_HIGHSPEED
+        pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.p, &f_sample.q, &f_sample.r);
+#endif
+
+        integrated_sensor.p += f_sample.p;
+        integrated_sensor.q += f_sample.q;
+        integrated_sensor.r += f_sample.r;
       }
 
       // Rotate to body frame
@@ -610,6 +624,12 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
   }
 #else
   (void)rate; // Surpress compile warning not used
+#endif
+
+#ifdef IMU_LOG_HIGHSPEED
+  struct FloatRates f_sample;
+  RATES_FLOAT_OF_BFP(f_sample, scaled);
+  pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.p, &f_sample.q, &f_sample.r);
 #endif
 
   // Copy and send
@@ -658,9 +678,18 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 
       // Add all the other samples
       for(uint8_t i = 0; i < samples-1; i++) {
-        integrated_sensor.x += ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x);
-        integrated_sensor.y += ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale[0].y / accel->scale[1].y);
-        integrated_sensor.z += ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z);
+        struct FloatVect3 f_sample;
+        f_sample.x = ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x);
+        f_sample.y = ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale[0].y / accel->scale[1].y);
+        f_sample.z = ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z);
+
+#ifdef IMU_LOG_HIGHSPEED
+        pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
+#endif
+
+        integrated_sensor.x += f_sample.x;
+        integrated_sensor.y += f_sample.y;
+        integrated_sensor.z += f_sample.z;
       }
 
       // Rotate to body frame
@@ -678,6 +707,12 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
   }
 #else
   (void)rate; // Surpress compile warning not used
+#endif
+
+#ifdef IMU_LOG_HIGHSPEED
+  struct FloatVect3 f_sample;
+  ACCELS_FLOAT_OF_BFP(f_sample, scaled);
+  pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
 #endif
 
   // Copy and send
