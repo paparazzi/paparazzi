@@ -15,6 +15,8 @@
       <define name="GYRO_ABI_SEND_ID" value="ABI_BROADCAST" description="The gyro ABI ID which is send over telemetry/logging"/>
       <define name="ACCEL_ABI_SEND_ID" value="ABI_BROADCAST" description="The accel ABI ID which is send over telemetry/logging"/>
       <define name="MAG_ABI_SEND_ID" value="ABI_BROADCAST" description="The mag ABI ID which is send over telemetry/logging"/>
+      <define name="LOG_HIGHSPEED" value="FALSE" description="Log all the accel/gyro measurements at the IMU sampling rates in floats"/>
+      <define name="LOG_HIGHSPEED_DEVICE" value="flightrecorder_sdlog" description="The device to log all the highspeeds measurements"/>
     </section>
   </doc>
   <settings>
