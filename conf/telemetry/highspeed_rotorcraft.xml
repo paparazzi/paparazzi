@@ -45,8 +45,10 @@
       <message name="HYBRID_GUIDANCE"          period="0.4"/>
       <message name="ESC"                      period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.1"/>
-      <message name="INS_FLOW_INFO"	       period="0.1"/> 
+      <message name="INS_FLOW_INFO"            period="0.1"/>
       <message name="GPS_RTK"                  period="0.1"/>
+      <message name="AIRSPEED_RAW"             period="0.1"/>
+      <message name="ROTATING_WING_STATE"      period="0.2"/>
     </mode>
 
     <mode name="calibration">
@@ -82,6 +84,7 @@
       <message name="IMU_MAG_RAW"       period=".05"/>
       <message name="BARO_RAW"          period=".1"/>
       <message name="ARDRONE_NAVDATA"   period=".05"/>
+      <message name="AIRSPEED_RAW"      period="0.1"/>
     </mode>
 
     <mode name="scaled_sensors">
@@ -149,6 +152,7 @@
     <mode name="vel_guidance" key_press="q">
       <message name="ALIVE" period="0.9"/>
       <message name="HYBRID_GUIDANCE" period="0.062"/>
+      <message name="GUIDANCE_INDI_HYBRID"     period="0.1"/>
       <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
       <message name="ROTORCRAFT_FP" period="0.8"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
@@ -242,6 +246,7 @@
       <message name="ACTUATORS"                period="0.002"/>
       <message name="GPS_RTK"                  period="0.1"/>
       <message name="IMU_HEATER"               period="1.0"/>
+      <message name="AIRSPEED_RAW"             period="0.01"/>
     </mode>
   </process>
 
