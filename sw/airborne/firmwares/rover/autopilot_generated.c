@@ -84,7 +84,7 @@ void autopilot_generated_set_mode(uint8_t new_autopilot_mode)
 
 void autopilot_generated_set_motors_on(bool motors_on)
 {
-  if (ap_ahrs_is_aligned() && motors_on
+  if (motors_on
 #ifdef AP_MODE_KILL
       && autopilot.mode != AP_MODE_KILL
 #endif

@@ -41,6 +41,8 @@
     <module name="logger_file">
       <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
     </module>
+
+    <module name="preflight_checks"/>
   </firmware>
 
 
