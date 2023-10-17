@@ -136,13 +136,13 @@ static inline void autopilot_arming_check_motors_on(void)
           autopilot_check_motor_status = STATUS_MOTORS_ON;
         } else {
           autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
-          autopilot_set_motors_on(false);
+          autopilot_arming_motors_on(false);
         }
         break;
       case STATUS_MOTORS_AUTOMATICALLY_OFF: // Motors were disarmed externally
         //(possibly due to crash)
         //wait extra delay before enabling the normal arming state machine
-        autopilot_set_motors_on(false);
+        autopilot_arming_motors_on(false);
         autopilot_motors_on_counter = 0;
         if (autopilot_arming_check_valid(YAW_MUST_BE_CENTERED)) {
           autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT;
@@ -157,7 +157,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_MOTORS_OFF:
-        autopilot_set_motors_on(false);
+        autopilot_arming_motors_on(false);
         autopilot_motors_on_counter = 0;
         autopilot.arming_status = AP_ARMING_STATUS_WAITING;
         if (autopilot_arming_check_valid(YAW_MUST_BE_PUSHED)) { // stick pushed
@@ -165,7 +165,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_M_OFF_STICK_PUSHED:
-        autopilot_set_motors_on(false);
+        autopilot_arming_motors_on(false);
         autopilot_motors_on_counter++;
         if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
           autopilot_check_motor_status = STATUS_START_MOTORS;
@@ -176,7 +176,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_START_MOTORS:
-        autopilot_set_motors_on(true);
+        autopilot_arming_motors_on(true);
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         autopilot_set_in_flight(false);   // stop fc from starting control (integration and yaw) till arm process is complete
         if (YAW_STICK_CENTERED()) { // wait until stick released
@@ -185,14 +185,14 @@ static inline void autopilot_arming_check_motors_on(void)
         break;
       case STATUS_MOTORS_ON:
         autopilot.arming_status = AP_ARMING_STATUS_ARMED;
-        autopilot_set_motors_on(true);
+        autopilot_arming_motors_on(true);
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
           autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
         }
         break;
       case STATUS_M_ON_STICK_PUSHED:
-        autopilot_set_motors_on(true);
+        autopilot_arming_motors_on(true);
         autopilot_motors_on_counter--;
         if (autopilot_motors_on_counter == 0) {
           autopilot_check_motor_status = STATUS_STOP_MOTORS;
@@ -203,7 +203,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_STOP_MOTORS:
-        autopilot_set_motors_on(false);
+        autopilot_arming_motors_on(false);
         autopilot_motors_on_counter = 0;
         if (autopilot_arming_check_valid(YAW_MUST_BE_CENTERED)) { // wait till release disarm stick before allowing to re-arm
           autopilot_check_motor_status = STATUS_MOTORS_OFF;
@@ -215,7 +215,7 @@ static inline void autopilot_arming_check_motors_on(void)
   } else {
     autopilot.arming_status = AP_ARMING_STATUS_KILLED;
     if (kill_switch_is_on()) {
-      autopilot_set_motors_on(false);
+      autopilot_arming_motors_on(false);
     }
   }
 }

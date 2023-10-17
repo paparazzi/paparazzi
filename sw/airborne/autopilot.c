@@ -256,6 +256,23 @@ bool autopilot_set_motors_on(bool motors_on)
   return true;
 }
 
+/** turn motors on/off during arming, not done automatically
+ * prevents takeoff with preflight checks
+ */
+bool autopilot_arming_motors_on(bool motors_on)
+{
+#if PREFLIGHT_CHECKS
+  // When we fail the preflight checks abort
+  if(motors_on && !preflight_check()) {
+    // Bypass the preflight checks even if they fail but still preform them
+    if(!preflight_bypass)
+      return false;
+  }
+#endif
+  autopilot.motors_on = motors_on;
+  return true;
+}
+
 /** get motors status
  */
 bool autopilot_get_motors_on(void)
