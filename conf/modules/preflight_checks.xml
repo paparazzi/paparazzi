@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="preflight_checks" dir="checks" task="core">
+  <doc>
+    <description>
+      Preform preflight checks before arming the motors and periodically while not armed for status information.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Checks">
+        <dl_setting var="preflight_bypass" min="0" max="1" step="1" values="FALSE|TRUE"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="preflight_checks.h"/>
+  </header>
+  <makefile>
+    <define name="PREFLIGHT_CHECKS" value="true"/>
+    <file name="preflight_checks.c"/>
+    <test>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>
