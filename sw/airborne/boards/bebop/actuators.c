@@ -87,7 +87,7 @@ void actuators_bebop_commit(void)
   // When detected a suicide
   actuators_bebop.i2c_trans.buf[10] = actuators_bebop.i2c_trans.buf[10] & 0x7;
   if (actuators_bebop.i2c_trans.buf[11] == 2 && actuators_bebop.i2c_trans.buf[10] != 1) {
-    autopilot_set_motors_on(FALSE);
+    autopilot_set_motors_on(false);
   }
 
   // Start the motors

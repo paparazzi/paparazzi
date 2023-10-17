@@ -37,7 +37,6 @@
 #define FAILSAFE_DESCENT_SPEED 1.5
 #endif
 
-extern bool ap_ahrs_is_aligned(void);
 #if defined RADIO_MODE_2x3
 extern uint8_t ap_mode_of_3x2way_switch(void);
 #else
