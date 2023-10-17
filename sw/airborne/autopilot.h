@@ -140,6 +140,12 @@ extern void autopilot_force_motors_on(bool motors_on);
  */
 extern bool autopilot_set_motors_on(bool motors_on);
 
+/**
+ * Start or stop the motors during arming
+ * May not happen when preflight checks are failing
+*/
+extern bool autopilot_arming_motors_on(bool motors_on);
+
 /** Get motor status
  *
  * @return true if motors are running
