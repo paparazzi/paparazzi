@@ -5,6 +5,11 @@
     <description>
       Preform preflight checks before arming the motors and periodically while not armed for status information.
     </description>
+    <section name="PREFLIGHT_CHECK" prefix="PREFLIGHT_CHECK_">
+      <define name="MAX_MSGBUF" value="512" description="Maximum combined message size for storing the errors"/>
+      <define name="SEPERATOR" value=";" description="Seperating character for storing the errors"/>
+      <define name="INFO_TIMEOUT" value="5" description="Only send messages down every xx amount of seconds"/>
+    </section>
   </doc>
   <settings>
     <dl_settings>

@@ -28,12 +28,19 @@
 #include "modules/datalink/telemetry.h"
 #include <stdio.h>
 
-#ifndef PREFLIGHT_MAX_MSG_BUF
-#define PREFLIGHT_MAX_MSG_BUF 512
+/** Maximum combined message size for storing the errors */
+#ifndef PREFLIGHT_CHECK_MAX_MSGBUF
+#define PREFLIGHT_CHECK_MAX_MSGBUF 512
 #endif
 
+/** Seperating character for storing the errors */
 #ifndef PREFLIGHT_CHECK_SEPERATOR
 #define PREFLIGHT_CHECK_SEPERATOR ';'
+#endif
+
+/** Only send messages down every xx amount of seconds */
+#ifndef PREFLIGHT_CHECK_INFO_TIMEOUT
+#define PREFLIGHT_CHECK_INFO_TIMEOUT 5
 #endif
 
 static struct preflight_check_t *preflight_head = NULL;
@@ -60,10 +67,11 @@ void preflight_check_register(struct preflight_check_t *check, preflight_check_f
  * @return false When one or more preflight checks fail
  */
 bool preflight_check(void) {
-  char error_msg[PREFLIGHT_MAX_MSG_BUF];
+  static float last_info_time = 0;
+  char error_msg[PREFLIGHT_CHECK_MAX_MSGBUF];
   struct preflight_result_t result = {
     .message = error_msg,
-    .max_len = PREFLIGHT_MAX_MSG_BUF,
+    .max_len = PREFLIGHT_CHECK_MAX_MSGBUF,
     .fail_cnt = 0,
     .success_cnt = 0
   };
@@ -78,28 +86,31 @@ bool preflight_check(void) {
 
   // We failed a check
   if(result.fail_cnt > 0) {
-    // Record the total
-    int rc = snprintf(result.message, result.max_len, "Preflight fail [%d/%d]", result.fail_cnt, (result.fail_cnt+result.success_cnt));
-    if(rc > 0)
-      result.max_len -= rc;
+    // Only send every xx amount of seconds
+    if((get_sys_time_float() - last_info_time) > PREFLIGHT_CHECK_INFO_TIMEOUT) {
+      // Record the total
+      int rc = snprintf(result.message, result.max_len, "Preflight fail [%d/%d]", result.fail_cnt, (result.fail_cnt+result.success_cnt));
+      if(rc > 0)
+        result.max_len -= rc;
 
-    // Send the errors seperatly
-    uint8_t last_sendi = 0;
-    for(uint8_t i = 0; i < PREFLIGHT_MAX_MSG_BUF-result.max_len; i++) {
-      if(error_msg[i] == PREFLIGHT_CHECK_SEPERATOR) {
-        DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i-last_sendi, &error_msg[last_sendi]);
-        last_sendi = i+1;
+      // Send the errors seperatly
+      uint8_t last_sendi = 0;
+      for(uint8_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF-result.max_len; i++) {
+        if(error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF-result.max_len)) {
+          DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i-last_sendi, &error_msg[last_sendi]);
+          last_sendi = i+1;
+        }
       }
+
+      // Update the time
+      last_info_time = get_sys_time_float();
     }
 
-    // Send the last error
-    if(last_sendi < PREFLIGHT_MAX_MSG_BUF-result.max_len)
-      DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, PREFLIGHT_MAX_MSG_BUF-result.max_len-last_sendi, &error_msg[last_sendi]);
     return false;
   }
 
   // Send success down
-  int rc = snprintf(error_msg, PREFLIGHT_MAX_MSG_BUF, "Preflight success [%d]", result.success_cnt);
+  int rc = snprintf(error_msg, PREFLIGHT_CHECK_MAX_MSGBUF, "Preflight success [%d]", result.success_cnt);
   if(rc > 0)
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
 
