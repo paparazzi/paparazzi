@@ -20,16 +20,16 @@ struct ekfAw {
   struct FloatVect3 acc;  ///< Last accelerometer measurements
   struct FloatRates gyro;   ///< Last gyroscope measurements
   struct FloatEulers euler; /// Euler angles
-  
-  #define EKF_AW_RPM_HOVER_NUM   4
+
+#define EKF_AW_RPM_HOVER_NUM   4
   int32_t last_RPM_hover[EKF_AW_RPM_HOVER_NUM]; // Value obtained from ABI Callback
   int32_t last_RPM_pusher; // Value obtained from ABI Callback
   float RPM_hover[EKF_AW_RPM_HOVER_NUM]; /// Hover motor RPM
   float RPM_pusher; /// Pusher motor RPM
   float skew; /// Skew
   float elevator_angle;
-  
-  
+
+
   // Measurements
   struct FloatVect3 Vg_NED; /// Ground Speed
   struct FloatVect3 acc_filt;  ///< Last accelerometer measurements
@@ -57,7 +57,7 @@ struct ekfAw {
   bool in_air;
   struct NedCoor_f wind_guess;
   struct NedCoor_f offset_guess;
-  struct ekfHealth health; 
+  struct ekfHealth health;
   uint64_t internal_clock;
   uint64_t time_last_on_gnd;
   uint64_t time_last_in_air;
@@ -80,39 +80,39 @@ extern struct ekfAw ekf_aw;
 
 // Handlers
 #define ekf_aw_wrapper_reset(_v) { \
-  ekf_aw.reset = false;  \
-  ekf_aw_reset();                  \
-  ekf_aw_reset_health();                  \
-}
+    ekf_aw.reset = false;  \
+    ekf_aw_reset();                  \
+    ekf_aw_reset_health();                  \
+  }
 
 #define ekf_aw_wrapper_set_wind_N(_v) { \
-  ekf_aw.wind_guess.x = _v;  \
-  ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
-}
+    ekf_aw.wind_guess.x = _v;  \
+    ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
+  }
 
 #define ekf_aw_wrapper_set_wind_E(_v) { \
-  ekf_aw.wind_guess.y = _v;  \
-  ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
-}
+    ekf_aw.wind_guess.y = _v;  \
+    ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
+  }
 
 #define ekf_aw_wrapper_set_wind_D(_v) { \
-  ekf_aw.wind_guess.z = _v;  \
-  ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
-}
+    ekf_aw.wind_guess.z = _v;  \
+    ekf_aw_set_wind(&ekf_aw.wind_guess);                  \
+  }
 
 #define ekf_aw_wrapper_set_offset_x(_v) { \
-  ekf_aw.offset_guess.x = _v;  \
-  ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
-}
+    ekf_aw.offset_guess.x = _v;  \
+    ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
+  }
 
 #define ekf_aw_wrapper_set_offset_y(_v) { \
-  ekf_aw.offset_guess.y = _v;  \
-  ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
-}
+    ekf_aw.offset_guess.y = _v;  \
+    ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
+  }
 
 #define ekf_aw_wrapper_set_offset_z(_v) { \
-  ekf_aw.offset_guess.z = _v;  \
-  ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
-}
+    ekf_aw.offset_guess.z = _v;  \
+    ekf_aw_set_offset(&ekf_aw.offset_guess);                  \
+  }
 
 #endif /* EKF_AW_WRAPPER_H */
