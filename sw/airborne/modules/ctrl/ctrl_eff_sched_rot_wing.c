@@ -98,14 +98,16 @@ float pprz_angle_step = 9600. / 45.; // CMD per degree
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t state = 0; // Quadrotor
+  uint16_t adc_pos = 0;
+  int32_t pprz_cmd = 0;
   float angle = eff_sched_var.wing_rotation_rad / M_PI * 180.f;
   pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID,
                           &state,
                           &state,
                           &angle,
                           &rotation_angle_setpoint_deg,
-                          0,
-                          0);
+                          &adc_pos,
+                          &pprz_cmd);
 }
 #endif
 
