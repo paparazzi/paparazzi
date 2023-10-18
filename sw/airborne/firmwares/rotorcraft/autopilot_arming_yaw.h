@@ -134,6 +134,7 @@ static inline void autopilot_arming_check_motors_on(void)
         // If the vehicle was killed accidentally, allow rapid re-arm
         if ( (get_sys_time_float() - motor_kill_time) < MOTOR_RE_ARM_TIME) {
           autopilot_check_motor_status = STATUS_MOTORS_ON;
+          autopilot.motors_on = true; // Bypass preflight-checks and force the motors on
         } else {
           autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
           autopilot_arming_motors_on(false);
