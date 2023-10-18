@@ -60,37 +60,34 @@ static void send_airspeed_wind_ekf(struct transport_tx *trans, struct link_devic
                               &ekf_aw.acc.z);
 }
 
-static void send_airspeed_wind_ekf_cov(struct transport_tx *trans, struct link_device *dev)
+static void debug_vect(struct transport_tx *trans, struct link_device *dev, char* name, float* data, int datasize)
 {
-  pprz_msg_send_AIRSPEED_WIND_ESTIMATOR_EKF_COV(trans, dev, AC_ID,
-                              &ekf_aw.process_cov[0],
-                              &ekf_aw.process_cov[3],
-                              &ekf_aw.process_cov[6],
-                              &ekf_aw.process_cov[7],
-                              &ekf_aw.process_cov[8],
-                              &ekf_aw.process_cov[9],
-                              &ekf_aw.meas_cov[0],
-                              &ekf_aw.meas_cov[3],
-                              &ekf_aw.meas_cov[4],
-                              &ekf_aw.meas_cov[5],
-                              &ekf_aw.meas_cov[6],
-                              &ekf_aw.state_cov[0],&ekf_aw.state_cov[1],&ekf_aw.state_cov[2],
-                              &ekf_aw.state_cov[3],&ekf_aw.state_cov[4],&ekf_aw.state_cov[5],
-                              &ekf_aw.state_cov[6],&ekf_aw.state_cov[7],&ekf_aw.state_cov[8]);                      
+  pprz_msg_send_DEBUG_VECT(trans, dev,AC_ID,
+                              strlen(name), name,
+                              datasize, data);
 }
 
-static void send_airspeed_wind_ekf_forces(struct transport_tx *trans, struct link_device *dev)
+
+
+static void send_airspeed_wind_ekf_debug(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AIRSPEED_WIND_ESTIMATOR_EKF_FORCES(trans, dev, AC_ID,
-                              &ekf_aw.fuselage_force[0],&ekf_aw.fuselage_force[1],&ekf_aw.fuselage_force[2],
-                              &ekf_aw.wing_force[0],&ekf_aw.wing_force[1],&ekf_aw.wing_force[2],
-                              &ekf_aw.elevator_force[0],&ekf_aw.elevator_force[1],&ekf_aw.elevator_force[2],
-                              &ekf_aw.hover_force[0],&ekf_aw.hover_force[1],&ekf_aw.hover_force[2],
-                              &ekf_aw.pusher_force[0],&ekf_aw.pusher_force[1],&ekf_aw.pusher_force[2],
-                              &ekf_aw.skew,
-                              &ekf_aw.elevator_angle,
-                              &ekf_aw.RPM_pusher,
-                              &ekf_aw.RPM_hover[0]);
+  debug_vect(trans, dev, "process_cov", ekf_aw.process_cov, 12);
+  debug_vect(trans, dev, "meas_cov", ekf_aw.meas_cov, 7);
+  debug_vect(trans, dev, "state_cov", ekf_aw.state_cov, 9);
+
+  debug_vect(trans, dev, "fuselage_force", ekf_aw.fuselage_force, 3);
+  debug_vect(trans, dev, "wing_force", ekf_aw.wing_force, 3);
+  debug_vect(trans, dev, "elevator_force", ekf_aw.elevator_force, 3);
+  debug_vect(trans, dev, "hover_force", ekf_aw.hover_force, 3);
+  debug_vect(trans, dev, "pusher_force", ekf_aw.pusher_force, 3);
+
+  float rw_state[4];
+  rw_state[0] = ekf_aw.skew;
+  rw_state[1] = ekf_aw.elevator_angle;
+  rw_state[2] = ekf_aw.RPM_pusher;
+  rw_state[3] = ekf_aw.RPM_hover[0];
+
+  debug_vect(trans, dev, "rw_state", rw_state, 4);
 }
 #endif
 
@@ -164,8 +161,7 @@ void ekf_aw_wrapper_init(void){
 
   #if PERIODIC_TELEMETRY
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_WIND_ESTIMATOR_EKF, send_airspeed_wind_ekf);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_WIND_ESTIMATOR_EKF_COV, send_airspeed_wind_ekf_cov);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_WIND_ESTIMATOR_EKF_FORCES, send_airspeed_wind_ekf_forces);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_airspeed_wind_ekf_debug);
   #endif
   
   // Init EKF Filter
