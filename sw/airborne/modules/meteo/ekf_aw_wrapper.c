@@ -32,7 +32,7 @@
 #endif
 
 #if EKF_AW_WRAPPER_ROT_WING
-#include "modules/rot_wing_drone/wing_rotation_controller_v3b.h"
+#include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
 #endif
 
 #if PERIODIC_TELEMETRY
