@@ -33,6 +33,9 @@
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
             <define name="USE_I2C1"/>
+
+            <!-- Log in high speed (Remove for outdoor flights) -->
+            <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/>
         </target>
 
         <target name="nps" board="pc">
@@ -104,6 +107,7 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
+        <module name="preflight_checks"/>
 
     </firmware>
 
@@ -261,9 +265,6 @@
         <define name="BODY_TO_IMU_PHI"      value="180." unit="deg"/>
         <define name="BODY_TO_IMU_THETA"    value="0." unit="deg"/>
         <define name="BODY_TO_IMU_PSI"      value="0." unit="deg"/>
-
-        <!-- Log in high speed -->
-        <define name="LOG_HIGHSPEED"        value="TRUE"/>
     </section>
 
     <section name="MAG_RM3100" prefix="RM3100_">
@@ -426,6 +427,7 @@
         <define name="CRITIC_BAT_LEVEL"         value="37.2" unit="V"/>
         <define name="LOW_BAT_LEVEL"            value="48.4" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="50.4" unit="V"/>
+        <define name="TAKEOFF_BAT_LEVEL"        value="48.4" unit="V"/>
         <define name="BAT_NB_CELLS"             value="12"/>
     </section>
 
