@@ -194,7 +194,7 @@
     </command_laws>
 
 
-    <section name="WING_ROTATION" prefix="WING_ROTATION_">
+    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
         <define name="POSITION_ADC_0" value="62930" />
         <define name="POSITION_ADC_90" value="41760" />
         <define name="DEADZONE_PPRZ_CMD" value="500" />

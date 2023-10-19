@@ -35,7 +35,7 @@ extern bool set_wing_rotation_scheduler(bool rotation_scheduler_on);
 extern bool set_wing_rotation_scheduler_nav(bool rotation_scheduler_on);
 
 // Paramaters
-struct wing_rotation_controller {
+struct wing_rotation_controller_t {
   int32_t servo_pprz_cmd;
   uint16_t adc_wing_rotation;
   float wing_angle_deg;
@@ -53,6 +53,6 @@ struct wing_rotation_controller {
   float forward_airspeed;
 };
 
-extern struct wing_rotation_controller wing_rotation;
+extern struct wing_rotation_controller_t wing_rotation_controller;
 
 #endif  // WING_ROTATION_CONTROLLER_SERVO_H
