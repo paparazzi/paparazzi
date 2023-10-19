@@ -388,7 +388,7 @@ void ekf_aw_wrapper_fetch(void)
   update_butterworth_2_low_pass(&filt_pusher_prop_rpm, ekf_aw.last_RPM_pusher * 1.0f);
 
 #if EKF_AW_WRAPPER_ROT_WING
-  update_butterworth_2_low_pass(&filt_skew, wing_rotation.wing_angle_rad);
+  update_butterworth_2_low_pass(&filt_skew, RadOfDeg(wing_rotation.wing_angle_deg));
 
   // Get elevator pprz signal
   int16_t *elev_pprz = &actuators_pprz[5];
