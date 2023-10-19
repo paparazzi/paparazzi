@@ -76,7 +76,7 @@ static struct adc_buf buf_wing_rot_pos;
 #endif
 
 // Inline functions
-inline void wing_rotation_to_rad(void);
+inline void wing_rotation_adc_to_deg(void);
 inline void wing_rotation_compute_pprz_cmd(void);
 
 void wing_rotation_init(void)
@@ -130,7 +130,7 @@ void wing_rotation_event(void)
   }
 
   // Update Wing position sensor
-  wing_rotation_to_rad();
+  wing_rotation_adc_to_deg();
 
   // Run control if initialized
   if (wing_rotation_controller.initialized) {
@@ -155,12 +155,15 @@ void wing_rotation_event(void)
 
     }
 
+    // Setpoint checks
+    Bound(wing_rotation_controller.wing_angle_deg_sp, 0., 90.);
+
     // Control the wing rotation position.
     wing_rotation_compute_pprz_cmd();
   }
 }
 
-void wing_rotation_to_rad(void)
+void wing_rotation_adc_to_deg(void)
 {
 #if !USE_NPS
   wing_rotation_controller.adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
