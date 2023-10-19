@@ -26,17 +26,13 @@
 #include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
 #include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "generated/airframe.h"
 
 #include "state.h"
 
 #include <stdlib.h>
 #include "mcu_periph/adc.h"
 
-/*
-#ifndef WING_ROTATION_CONTROLLER_SERVO_IDX
-#error "No WING_ROTATION_CONTROLLER_SERVO_IDX defined"
-#endif
-*/
 
 #if !USE_NPS
 
@@ -81,7 +77,6 @@ static struct adc_buf buf_wing_rot_pos;
 
 // Inline functions
 inline void wing_rotation_to_rad(void);
-inline void wing_rotation_update_sp(void);
 inline void wing_rotation_compute_pprz_cmd(void);
 
 void wing_rotation_init(void)
@@ -160,8 +155,6 @@ void wing_rotation_event(void)
 
     }
 
-    wing_rotation_update_sp();
-
     // Control the wing rotation position.
     wing_rotation_compute_pprz_cmd();
   }
@@ -178,10 +171,6 @@ void wing_rotation_to_rad(void)
   // Copy setpoint as actual angle in simulation
   wing_rotation_controller.wing_angle_deg = wing_rotation_controller.wing_angle_virtual_deg_sp;
 #endif
-}
-
-void wing_rotation_update_sp(void)
-{
 }
 
 void wing_rotation_compute_pprz_cmd(void)
