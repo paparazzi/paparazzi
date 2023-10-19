@@ -95,7 +95,6 @@ void wing_rotation_init(void)
   wing_rotation.wing_angle_virtual_deg_sp = 45;
   wing_rotation.wing_rotation_first_order_dynamics = WING_ROTATION_FIRST_DYN;
   wing_rotation.wing_rotation_second_order_dynamics = WING_ROTATION_SECOND_DYN;
-  wing_rotation.adc_wing_rotation_range = WING_ROTATION_POSITION_ADC_90 - WING_ROTATION_POSITION_ADC_0;
   wing_rotation.forward_airspeed = 18.;
 }
 
@@ -107,8 +106,7 @@ void wing_rotation_periodic(void)
     wing_rotation.init_loop_count += 1;
     if (wing_rotation.init_loop_count > 4) {
       wing_rotation.initialized = true;
-      wing_rotation.wing_angle_rad_sp = M_PI * 0.25;
-      wing_rotation.wing_angle_deg_sp = wing_rotation.wing_angle_rad_sp / M_PI * 180.;
+      wing_rotation.wing_angle_deg_sp = 45.;
     }
   }
 }
@@ -175,18 +173,15 @@ void wing_rotation_to_rad(void)
   wing_rotation.adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
 
   wing_rotation.wing_angle_deg = 0.00247111 * (float)wing_rotation.adc_wing_rotation - 25.635294;
-  wing_rotation.wing_angle_rad = wing_rotation.wing_angle_deg / 180. * M_PI;
 
 #else
   // Copy setpoint as actual angle in simulation
   wing_rotation.wing_angle_deg = wing_rotation.wing_angle_virtual_deg_sp;
-  wing_rotation.wing_angle_rad = wing_rotation.wing_angle_virtual_deg_sp / 180. * M_PI;
 #endif
 }
 
 void wing_rotation_update_sp(void)
 {
-  wing_rotation.wing_angle_rad_sp = wing_rotation.wing_angle_deg_sp / 180. * M_PI;
 }
 
 void wing_rotation_compute_pprz_cmd(void)

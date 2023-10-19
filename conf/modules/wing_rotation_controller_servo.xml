@@ -34,11 +34,5 @@
     <define name="ADC_CHANNEL_WING_ROTATION_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_POSITION_UPPER)"/>
     <define name="USE_$(ADC_CHANNEL_WING_ROTATION_POSITION_UPPER)"/>
     <file name="wing_rotation_controller_servo.c"/>
-    <test>
-      <define name="USE_ADC" value="1"/>
-      <define name="USE_ADC_5" value="1"/>
-      <define name="WING_ROTATION_POSITION_ADC_0" value="0"/>
-      <define name="WING_ROTATION_POSITION_ADC_90" value="1023"/>
-    </test>
   </makefile>
 </module>

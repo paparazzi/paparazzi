@@ -38,10 +38,7 @@ extern bool set_wing_rotation_scheduler_nav(bool rotation_scheduler_on);
 struct wing_rotation_controller {
   int32_t servo_pprz_cmd;
   uint16_t adc_wing_rotation;
-  int16_t adc_wing_rotation_range;
-  float wing_angle_rad;
   float wing_angle_deg;
-  float wing_angle_rad_sp;
   float wing_angle_deg_sp;
   float wing_rotation_speed;
   float wing_angle_virtual_deg_sp;
