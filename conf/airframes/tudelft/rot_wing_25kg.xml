@@ -97,6 +97,7 @@
         </module>
 
         <module name="ctrl_eff_sched_rot_wing"/>
+        <module name="wing_rotation_controller_servo"/>
 
         <module name="guidance" type="indi_hybrid"/>
         <module name="nav_hybrid"/>
@@ -191,6 +192,15 @@
         <set servo="BFLAP_LEFT"         value="0"/>
         <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/>
     </command_laws>
+
+
+    <section name="WING_ROTATION" prefix="WING_ROTATION_">
+        <define name="POSITION_ADC_0" value="62930" />
+        <define name="POSITION_ADC_90" value="41760" />
+        <define name="DEADZONE_PPRZ_CMD" value="500" />
+        <define name="P_GAIN" value="-50000" />
+        <define name="MAX_CMD" value="9600" />
+    </section>
 
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">

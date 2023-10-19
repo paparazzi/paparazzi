@@ -67,7 +67,7 @@
 #endif
 
 // Parameters
-struct wing_rotation_controller wing_rotation;
+struct wing_rotation_controller wing_rotation = {0};
 
 bool in_transition = false;
 
@@ -92,33 +92,17 @@ void wing_rotation_init(void)
 #endif
 
   // Init wing_rotation_controller struct
-  wing_rotation.servo_pprz_cmd = 0;
-  wing_rotation.adc_wing_rotation = 0;
-  wing_rotation.wing_angle_rad = 0;
-  wing_rotation.wing_angle_deg = 0;
-  wing_rotation.wing_angle_rad_sp = 0;
-  wing_rotation.wing_angle_deg_sp = 0;
-  wing_rotation.wing_rotation_speed = 0;
   wing_rotation.wing_angle_virtual_deg_sp = 45;
   wing_rotation.wing_rotation_first_order_dynamics = WING_ROTATION_FIRST_DYN;
   wing_rotation.wing_rotation_second_order_dynamics = WING_ROTATION_SECOND_DYN;
   wing_rotation.adc_wing_rotation_range = WING_ROTATION_POSITION_ADC_90 - WING_ROTATION_POSITION_ADC_0;
-  wing_rotation.airspeed_scheduling = false;
-  wing_rotation.airspeed_scheduling_nav = false;
-  wing_rotation.force_rotation_angle = false;
-  wing_rotation.transition_forward = false;
   wing_rotation.forward_airspeed = 18.;
-
-  // Set wing angle to current wing angle
-  wing_rotation.initialized = false;
-  wing_rotation.init_loop_count = 0;
 }
 
 void wing_rotation_periodic(void)
 {
-  // freq = 1.0 Hz
-
   // After 5 loops, set current setpoint and enable wing_rotation
+  // freq = 1.0 Hz
   if (!wing_rotation.initialized) {
     wing_rotation.init_loop_count += 1;
     if (wing_rotation.init_loop_count > 4) {
@@ -182,10 +166,6 @@ void wing_rotation_event(void)
 
     // Control the wing rotation position.
     wing_rotation_compute_pprz_cmd();
-    //servo_pprz_cmd = wing_rotation.wing_angle_deg_sp / 90 * MAX_PPRZ;
-    //Bound(servo_pprz_cmd, 0, MAX_PPRZ);
-
-    //wing_rotation.servo_pprz_cmd = servo_pprz_cmd;
   }
 }
 
