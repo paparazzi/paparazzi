@@ -908,6 +908,8 @@ static inline void float_mat_mul_scalar(float **o, float **a, float scalar, int 
 
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);
+extern bool float_mat_inv_3d(float inv_out[3][3], float mat_in[3][3]);
+extern void float_mat3_mult(struct FloatVect3 *vect_out, float mat[3][3], struct FloatVect3 vect_in);
 extern bool float_mat_inv_4d(float invOut[4][4], float mat_in[4][4]);
 
 extern void float_vect3_bound_in_2d(struct FloatVect3 *vect3, float bound);

@@ -55,11 +55,6 @@
 #define GUIDANCE_INDI_POS_GAINZ 0.5
 #endif
 
-#ifndef GUIDANCE_INDI_MIN_PITCH
-#define GUIDANCE_INDI_MIN_PITCH -120
-#define GUIDANCE_INDI_MAX_PITCH 25
-#endif
-
 #ifndef GUIDANCE_INDI_LIFTD_ASQ
 #define GUIDANCE_INDI_LIFTD_ASQ 0.20
 #endif
@@ -90,6 +85,36 @@ struct guidance_indi_hybrid_params gih_params = {
 #error "You must have an airspeed sensor to use this guidance"
 #endif
 float guidance_indi_max_airspeed = GUIDANCE_INDI_MAX_AIRSPEED;
+
+// Quadplanes can hover at various pref pitch
+float guidance_indi_pitch_pref_deg = 0;
+
+
+#if GUIDANCE_INDI_QUADPLANE
+#ifndef GUIDANCE_INDI_THRUST_Z_EFF
+#error "You need to define GUIDANCE_INDI_THRUST_Z_EFF"
+#else
+float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
+#endif
+
+#ifndef GUIDANCE_INDI_THRUST_X_EFF
+#error "You need to define GUIDANCE_INDI_THRUST_X_EFF"
+#else
+float guidance_indi_thrust_x_eff = GUIDANCE_INDI_THRUST_X_EFF;
+#endif
+#endif
+
+// If using WLS, check that the matrix size is sufficient
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+#if GUIDANCE_INDI_HYBRID_U > WLS_N_U
+#error Matrix-WLS_N_U too small: increase WLS_N_U in airframe file
+#endif
+
+#if GUIDANCE_INDI_HYBRID_V > WLS_N_V
+#error Matrix-WLS_N_V too small: increase WLS_N_V in airframe file
+#endif
+#endif
+
 
 // Tell the guidance that the airspeed needs to be zeroed.
 // Recomended to also put GUIDANCE_INDI_NAV_SPEED_MARGIN low in this case.
@@ -130,10 +155,22 @@ static void guidance_indi_filter_thrust(void);
 #endif
 #endif
 
+#ifndef GUIDANCE_INDI_CLIMB_SPEED_FWD
+#define GUIDANCE_INDI_CLIMB_SPEED_FWD 4.0
+#endif
+
+#ifndef GUIDANCE_INDI_DESCEND_SPEED_FWD
+#define GUIDANCE_INDI_DESCEND_SPEED_FWD -4.0
+#endif
+
+float climb_vspeed_fwd = GUIDANCE_INDI_CLIMB_SPEED_FWD;
+float descend_vspeed_fwd = GUIDANCE_INDI_DESCEND_SPEED_FWD;
+
 float inv_eff[4];
 
 // Max bank angle in radians
 float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
+float guidance_indi_min_pitch = GUIDANCE_INDI_MIN_PITCH;
 
 /** state eulers in zxy order */
 struct FloatEulers eulers_zxy;
@@ -144,14 +181,33 @@ Butterworth2LowPass roll_filt;
 Butterworth2LowPass pitch_filt;
 Butterworth2LowPass thrust_filt;
 Butterworth2LowPass accely_filt;
+Butterworth2LowPass accel_bodyz_filt;
 
 struct FloatVect2 desired_airspeed;
 
-struct FloatMat33 Ga;
-struct FloatMat33 Ga_inv;
+float Ga[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U];
 struct FloatVect3 euler_cmd;
 
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+#include "math/wls/wls_alloc.h"
+float du_min_gih[GUIDANCE_INDI_HYBRID_U];
+float du_max_gih[GUIDANCE_INDI_HYBRID_U];
+float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
+float *Bwls_gih[GUIDANCE_INDI_HYBRID_V];
+#ifdef GUIDANCE_INDI_HYBRID_WLS_PRIORITIES
+float Wv_gih[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_HYBRID_WLS_PRIORITIES;
+#else
+float Wv_gih[GUIDANCE_INDI_HYBRID_V] = { 100.f, 100.f, 1.f }; // X,Y accel, Z accel
+#endif
+#ifdef GUIDANCE_INDI_HYBRID_WLS_WU
+float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_HYBRID_WLS_WU;
+#else
+float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
+#endif
+#endif
+
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
+float bodyz_filter_cutoff = 0.2;
 
 float guidance_indi_hybrid_heading_sp = 0.f;
 struct FloatEulers guidance_euler_cmd;
@@ -168,8 +224,7 @@ struct FloatVect3 indi_vel_sp = {0.0, 0.0, 0.0};
 float time_of_vel_sp = 0.0;
 
 void guidance_indi_propagate_filters(void);
-static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
-static float guidance_indi_get_liftd(float pitch, float theta);
+void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_body[GUIDANCE_INDI_HYBRID_V]);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -209,6 +264,12 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+  for (int8_t i = 0; i < GUIDANCE_INDI_HYBRID_V; i++) {
+    Bwls_gih[i] = Ga[i];
+  }
+#endif
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
 #endif
@@ -228,6 +289,7 @@ void guidance_indi_enter(void) {
   guidance_indi_hybrid_heading_sp = stateGetNedToBodyEulers_f()->psi;
 
   float tau = 1.0 / (2.0 * M_PI * filter_cutoff);
+  float tau_bodyz = 1.0/(2.0*M_PI*bodyz_filter_cutoff);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   for (int8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&filt_accel_ned[i], tau, sample_time, 0.0);
@@ -240,6 +302,7 @@ void guidance_indi_enter(void) {
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, eulers_zxy.theta);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&accel_bodyz_filt, tau_bodyz, sample_time, -9.81);
 }
 
 #include "firmwares/rotorcraft/navigation.h"
@@ -281,11 +344,6 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*8.0/9600.0;
 #endif
 
-  // Calculate matrix of partial derivatives
-  guidance_indi_calcg_wing(&Ga);
-  // Invert this matrix
-  MAT33_INV(Ga_inv, Ga);
-
   struct FloatVect3 accel_filt;
   accel_filt.x = filt_accel_ned[0].o[0];
   accel_filt.y = filt_accel_ned[1].o[0];
@@ -309,10 +367,46 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #endif
 #endif
 
-  //Calculate roll,pitch and thrust command
-  MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
+  // Create the control objective
+  float v_gih[3];
+
+  // Calculate matrix of partial derivatives and control objective
+  guidance_indi_calcg_wing(Ga, a_diff, v_gih);
+
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+
+  // Calculate the maximum deflections
+  guidance_indi_hybrid_set_wls_settings(v_gih, roll_filt.o[0], pitch_filt.o[0]);
+
+  float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
+
+  int num_iter UNUSED = wls_alloc(
+      du_gih, v_gih, du_min_gih, du_max_gih,
+      Bwls_gih, 0, 0, Wv_gih, Wu_gih, du_pref_gih, 100000, 10,
+      GUIDANCE_INDI_HYBRID_U, GUIDANCE_INDI_HYBRID_V);
+  
+  euler_cmd.x = du_gih[0];
+  euler_cmd.y = du_gih[1];
+  euler_cmd.z = du_gih[2];
+
+#else
+  // compute inverse matrix of Ga
+  float Ga_inv[3][3] = {};
+  float_mat_inv_3d(Ga_inv, Ga);
+  // Calculate roll,pitch and thrust command
+  float_mat3_mult(&euler_cmd, Ga_inv, a_diff);
+#endif
+
+  struct FloatVect3 thrust_vect;
+#if GUIDANCE_INDI_HYBRID_U > 3
+  thrust_vect.x = du_gih[3];
+#else
+  thrust_vect.x = 0;
+#endif
+  thrust_vect.y = 0;
+  thrust_vect.z = euler_cmd.z;
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
 
   // Coordinated turn
   // feedforward estimate angular rotation omega = g*tan(phi)/v
@@ -331,7 +425,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
-  Bound(guidance_euler_cmd.theta, RadOfDeg(GUIDANCE_INDI_MIN_PITCH), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
+  Bound(guidance_euler_cmd.theta, RadOfDeg(guidance_indi_min_pitch), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
   float coordinated_turn_roll = eulers_zxy.phi;
@@ -526,7 +620,7 @@ static float bound_vz_sp(float vz_sp)
 {
   // Bound vertical speed setpoint
   if (stateGetAirspeed_f() > 13.f) {
-    Bound(vz_sp, -4.0f, 4.0f); // FIXME no harcoded values
+    Bound(vz_sp, -climb_vspeed_fwd, -descend_vspeed_fwd);
   } else {
     Bound(vz_sp, -nav.climb_vspeed, -nav.descend_vspeed); // FIXME don't use nav settings
   }
@@ -620,6 +714,7 @@ void guidance_indi_filter_thrust(void)
   // same filter as for the acceleration
   update_butterworth_2_low_pass(&thrust_filt, thrust_act);
 }
+
 #endif
 
 /**
@@ -640,6 +735,10 @@ void guidance_indi_propagate_filters(void) {
   // Propagate filter for sideslip correction
   float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
   update_butterworth_2_low_pass(&accely_filt, accely);
+
+  // Propagate filter for thrust/lift estimate
+  float accelz = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
+  update_butterworth_2_low_pass(&accel_bodyz_filt, accelz);
 }
 
 /**
@@ -647,9 +746,12 @@ void guidance_indi_propagate_filters(void) {
  * w.r.t. the NED accelerations, taking into account the lift of a wing that is
  * horizontal at -90 degrees pitch
  *
- * @param Gmat array to write the matrix to [3x3]
+ * @param Gmat Dynamics matrix
+ * @param a_diff acceleration errors in earth frame
+ * @param body_v 3D vector to write the control objective v
  */
-void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_gih[GUIDANCE_INDI_HYBRID_V]) {
 
   /*Pre-calculate sines and cosines*/
   float sphi = sinf(eulers_zxy.phi);
@@ -673,16 +775,131 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
   // get the derivative of the lift wrt to theta
   float liftd = guidance_indi_get_liftd(stateGetAirspeed_f(), eulers_zxy.theta);
 
-  RMAT_ELMT(*Gmat, 0, 0) =  cphi*ctheta*spsi*T + cphi*spsi*lift;
-  RMAT_ELMT(*Gmat, 1, 0) = -cphi*ctheta*cpsi*T - cphi*cpsi*lift;
-  RMAT_ELMT(*Gmat, 2, 0) = -sphi*ctheta*T -sphi*lift;
-  RMAT_ELMT(*Gmat, 0, 1) = (ctheta*cpsi - sphi*stheta*spsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING + sphi*spsi*liftd;
-  RMAT_ELMT(*Gmat, 1, 1) = (ctheta*spsi + sphi*stheta*cpsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING - sphi*cpsi*liftd;
-  RMAT_ELMT(*Gmat, 2, 1) = -cphi*stheta*T*GUIDANCE_INDI_PITCH_EFF_SCALING + cphi*liftd;
-  RMAT_ELMT(*Gmat, 0, 2) = stheta*cpsi + sphi*ctheta*spsi;
-  RMAT_ELMT(*Gmat, 1, 2) = stheta*spsi - sphi*ctheta*cpsi;
-  RMAT_ELMT(*Gmat, 2, 2) = cphi*ctheta;
+  Gmat[0][0] =  cphi*ctheta*spsi*T + cphi*spsi*lift;
+  Gmat[1][0] = -cphi*ctheta*cpsi*T - cphi*cpsi*lift;
+  Gmat[2][0] = -sphi*ctheta*T -sphi*lift;
+  Gmat[0][1] = (ctheta*cpsi - sphi*stheta*spsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING + sphi*spsi*liftd;
+  Gmat[1][1] = (ctheta*spsi + sphi*stheta*cpsi)*T*GUIDANCE_INDI_PITCH_EFF_SCALING - sphi*cpsi*liftd;
+  Gmat[2][1] = -cphi*stheta*T*GUIDANCE_INDI_PITCH_EFF_SCALING + cphi*liftd;
+  Gmat[0][2] = stheta*cpsi + sphi*ctheta*spsi;
+  Gmat[1][2] = stheta*spsi - sphi*ctheta*cpsi;
+  Gmat[2][2] = cphi*ctheta;
+
+  v_gih[0] = a_diff.x;
+  v_gih[1] = a_diff.y;
+  v_gih[2] = a_diff.z;
 }
+#elif defined(GUIDANCE_INDI_QUADPLANE)
+/**
+ * Perform WLS
+ *
+ * @param Gmat Dynamics matrix
+ * @param a_diff acceleration errors in earth frame
+ * @param body_v 3D vector to write the control objective v
+ */
+void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float body_v[GUIDANCE_INDI_HYBRID_V]) {
+  /*Pre-calculate sines and cosines*/
+  float sphi = sinf(eulers_zxy.phi);
+  float cphi = cosf(eulers_zxy.phi);
+  float stheta = sinf(eulers_zxy.theta);
+  float ctheta = cosf(eulers_zxy.theta);
+  float spsi = sinf(eulers_zxy.psi);
+  float cpsi = cosf(eulers_zxy.psi);
+
+#ifndef GUIDANCE_INDI_PITCH_EFF_SCALING
+#define GUIDANCE_INDI_PITCH_EFF_SCALING 1.0
+#endif
+
+  /*Amount of lift produced by the wing*/
+  float lift_thrust_bz = accel_bodyz_filt.o[0]; // Sum of lift and thrust in boxy z axis (level flight)
+
+  // get the derivative of the lift wrt to theta
+  float liftd = guidance_indi_get_liftd(0.0f, 0.0f);
+
+  Gmat[0][0] = -sphi*stheta*lift_thrust_bz;
+  Gmat[1][0] = -cphi*lift_thrust_bz;
+  Gmat[2][0] = -sphi*ctheta*lift_thrust_bz;
+
+  Gmat[0][1] =  cphi*ctheta*lift_thrust_bz*GUIDANCE_INDI_PITCH_EFF_SCALING;
+  Gmat[1][1] =  sphi*stheta*lift_thrust_bz*GUIDANCE_INDI_PITCH_EFF_SCALING - sphi*liftd;
+  Gmat[2][1] = -cphi*stheta*lift_thrust_bz*GUIDANCE_INDI_PITCH_EFF_SCALING + cphi*liftd;
+
+  Gmat[0][2] =  cphi*stheta;
+  Gmat[1][2] = -sphi; 
+  Gmat[2][2] =  cphi*ctheta;
+
+  Gmat[0][3] =  ctheta;
+  Gmat[1][3] =  0;
+  Gmat[2][3] = -stheta;
+
+  // Convert acceleration error to body axis system
+  body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
+  body_v[1] = -spsi * a_diff.x + cpsi * a_diff.y;
+  body_v[2] =  a_diff.z;
+}
+
+#else
+
+void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U] UNUSED, struct FloatVect3 a_diff UNUSED, float body_v[GUIDANCE_INDI_HYBRID_V] UNUSED) {}
+
+#endif
+/**
+ * 
+ * @param body_v 
+ * 
+ * WEAK function to set the quadplane wls settings
+ */
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
+{
+  // Set lower limits
+  du_min_gih[0] = -guidance_indi_max_bank - roll_angle; // roll
+  du_min_gih[1] = RadOfDeg(guidance_indi_min_pitch) - pitch_angle; // pitch
+  du_min_gih[2] = (MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ - actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] + (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3];
+
+  // Set upper limits limits
+  du_max_gih[0] = guidance_indi_max_bank - roll_angle; //roll
+  du_max_gih[1] = RadOfDeg(GUIDANCE_INDI_MAX_PITCH) - pitch_angle; // pitch
+  du_max_gih[2] = -(actuator_state_filt_vect[0]*g1g2[3][0] + actuator_state_filt_vect[1]*g1g2[3][1] + actuator_state_filt_vect[2]*g1g2[3][2] + actuator_state_filt_vect[3]*g1g2[3][3]);
+
+  // Set prefered states
+  du_pref_gih[0] = -roll_angle; // prefered delta roll angle
+  du_pref_gih[1] = -pitch_angle; // prefered delta pitch angle
+  du_pref_gih[2] = du_max_gih[2];
+}
+#elif defined(GUIDANCE_INDI_QUADPLANE)
+#warning We have GUIDANCE_INDI_QUADPLANE
+void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
+{
+  float roll_limit_rad = GUIDANCE_H_MAX_BANK;
+  float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
+  float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
+
+  float pitch_pref_rad = RadOfDeg(guidance_indi_pitch_pref_deg);
+
+  // Set lower limits
+  du_min_gih[0] = -roll_limit_rad - roll_angle; //roll
+  du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
+  du_min_gih[2] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
+  du_min_gih[3] = -stabilization_cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
+
+  // Set upper limits limits
+  du_max_gih[0] = roll_limit_rad - roll_angle; //roll
+  du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
+  du_max_gih[2] = -stabilization_cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
+  du_max_gih[3] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
+
+  // Set prefered states
+  du_pref_gih[0] = -roll_angle; // prefered delta roll angle
+  du_pref_gih[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
+  du_pref_gih[2] = du_max_gih[2]; // Low thrust better for efficiency
+  du_pref_gih[3] = body_v[0]; // solve the body acceleration
+}
+#else
+void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle UNUSED, float pitch_angle UNUSED) {
+
+}
+#endif
 
 /**
  * @brief Get the derivative of lift w.r.t. pitch.
@@ -691,18 +908,18 @@ void guidance_indi_calcg_wing(struct FloatMat33 *Gmat) {
  *
  * @return The derivative of lift w.r.t. pitch
  */
-float guidance_indi_get_liftd(float airspeed, float theta) {
-  float liftd = 0.0;
+float WEAK guidance_indi_get_liftd(float airspeed, float theta) {
+  float liftd = 0.0f;
 
-  if(airspeed < 12) {
+  if (airspeed < 12.f) {
   /* Assume the airspeed is too low to be measured accurately
     * Use scheduling based on pitch angle instead.
     * You can define two interpolation segments
     */
     float pitch_interp = DegOfRad(theta);
-    const float min_pitch = -80.0;
-    const float middle_pitch = -50.0;
-    const float max_pitch = -20.0;
+    const float min_pitch = -80.0f;
+    const float middle_pitch = -50.0f;
+    const float max_pitch = -20.0f;
 
     Bound(pitch_interp, min_pitch, max_pitch);
     if (pitch_interp > middle_pitch) {
@@ -767,21 +984,21 @@ int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_HYBRID_V_POS;
-  return (int32_t)thrust_in; // nothing to do
+  return (int32_t)stabilization_cmd[COMMAND_THRUST]; // nothing to do
 }
 
 int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_HYBRID_V_SPEED;
-  return (int32_t)thrust_in; // nothing to do
+  return (int32_t)stabilization_cmd[COMMAND_THRUST]; // nothing to do
 }
 
 int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_HYBRID_V_ACCEL;
-  return (int32_t)thrust_in; // nothing to do
+  return (int32_t)stabilization_cmd[COMMAND_THRUST]; // nothing to do
 }
 
 #endif

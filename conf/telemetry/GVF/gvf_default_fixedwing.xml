@@ -20,7 +20,6 @@
       <message name="STATE_FILTER_STATUS" period="5."/>
       <message name="DATALINK_REPORT"     period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
-      <message name="IR_SENSORS"          period="1.2"/>
       <message name="SURVEY"              period="2.1"/>
       <message name="GPS_SOL"             period="2.0"/>
       <message name="CAM"                 period="0.5"/>
@@ -49,7 +48,6 @@
       <message name="STATE_FILTER_STATUS" period="5."/>
       <message name="DATALINK_REPORT"     period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
-      <message name="IR_SENSORS"          period="5.2"/>
       <message name="IMU_GYRO"            period="10.1"/>
       <message name="SURVEY"              period="2.1"/>
       <message name="GPS_SOL"             period="5.0"/>
@@ -69,7 +67,6 @@
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="BARO_RAW"          period="0.5"/>
-      <message name="IR_SENSORS"        period="0.5"/>
       <message name="IMU_GYRO_RAW"      period="0.1"/>
     </mode>
   </process>

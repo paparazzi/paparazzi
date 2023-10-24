@@ -83,13 +83,13 @@
       <field name="eas" type="float" unit="m/s"/>
     </message>
 
-    <message name="RPM" id="15">
-      <field name="rpm" type="struct rpm_act_t *" unit="rpm"/>
+    <message name="ACT_FEEDBACK" id="15">
+      <field name="feedback" type="struct act_feedback_t *"/>
       <field name="num_act" type="uint8_t"/>
     </message>
 
     <message name="THRUST" id="16">
-      <field name="thrust_increment" type="float" unit="m/s^2"/>
+      <field name="thrust_increment_vect" type="struct FloatVect3" unit="m/s^2"/>
     </message>
 
     <message name="OBSTACLE_DETECTION" id="17">

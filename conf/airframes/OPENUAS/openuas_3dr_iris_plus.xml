@@ -185,7 +185,7 @@
       <module name="udp"/>
       <!-- INDI RPM feedback not implemented in sim, will it be YOU who adds this? TIA! -->
       <module name="stabilization" type="indi_simple">
-        <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+        <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="FALSE"/>
       </module>
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g test external device triggering while mission flying in sim -->
 
@@ -231,7 +231,7 @@
     <module name="stabilization" type="indi_simple"/>
       <!-- for later if simple works we then need to add RPM feedback... a big effort :(
       <module name="stabilization" type="indi">
-        <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+        <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
       </module>-->
       <!--<module name="guidance" type="indi">
         <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>

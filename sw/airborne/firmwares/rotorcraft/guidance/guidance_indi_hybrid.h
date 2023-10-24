@@ -37,10 +37,20 @@
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
+#ifdef GUIDANCE_INDI_QUADPLANE
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_quadplanes.h"
+#define GUIDANCE_INDI_HYBRID_USE_WLS true
+#else
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_tailsitters.h"
+#endif
+
+
 // TODO change names for _indi_hybrid_
 
 extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
+extern float guidance_indi_get_liftd(float pitch, float theta);
+extern void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle);
 
 enum GuidanceIndiHybrid_HMode {
   GUIDANCE_INDI_HYBRID_H_POS,
@@ -71,11 +81,22 @@ struct guidance_indi_hybrid_params {
 extern struct FloatVect3 sp_accel;
 extern struct FloatVect3 gi_speed_sp;
 
+extern float guidance_indi_pitch_pref_deg;
+
+extern float Wu_gih[GUIDANCE_INDI_HYBRID_U];
+extern float Wv_gih[GUIDANCE_INDI_HYBRID_V];
+extern float du_min_gih[GUIDANCE_INDI_HYBRID_U];
+extern float du_max_gih[GUIDANCE_INDI_HYBRID_U];
+extern float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
+extern float guidance_indi_thrust_z_eff;
+extern float guidance_indi_thrust_x_eff;
+
 extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
 extern float guidance_indi_max_airspeed;
 extern bool take_heading_control;
 extern float guidance_indi_max_bank;
+extern float guidance_indi_min_pitch;
 extern bool force_forward;       ///< forward flight for hybrid nav
 
 

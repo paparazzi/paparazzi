@@ -6,13 +6,13 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
-      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="FALSE"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -34,6 +34,8 @@
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
     </module>
 
     <module name="geo_mag"/>

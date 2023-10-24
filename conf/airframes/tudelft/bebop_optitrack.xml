@@ -18,7 +18,9 @@
     <module name="imu" type="bebop"/>
     <module name="gps" type="datalink"/>
     <module name="stabilization" type="indi">
-      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+      <define name="WLS_N_U" value="4"/>
+      <define name="WLS_N_V" value="4"/>
+      <define name="STABILIZATION_INDI_RPM_FEEDBACK" value="TRUE"/>
     </module>
     <module name="ahrs" type="int_cmpl_quat">
       <!-- Use the optitrack heading instead of magnetometer -->

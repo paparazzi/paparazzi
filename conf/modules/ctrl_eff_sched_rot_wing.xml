@@ -1,0 +1,50 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="ctrl_eff_sched_rot_wing" dir="ctrl">
+  <doc>
+    <description>The control effectiveness scheduler for the rotating wing quadplane drone type
+     - it requires a servo called ROTATION_MECH
+    </description>
+    <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
+      <define name="IXX_BODY" value="0"  description=""/>
+      <define name="IYY_BODY" value="0"  description=""/>
+      <define name="IZZ" value="0"       description=""/>
+      <define name="IXX_WING" value="0"  description=""/>
+      <define name="IYY_WING" value="0"  description=""/>
+      <define name="M" value="0"         description=""/>
+      <define name="ROLL_ARM" value="0"  description=""/>
+      <define name="PITCH_ARM" value="0" description=""/>
+      <define name="HOVER_DF_DPPRZ" value="0" description=""/>
+      <define name="HOVER_ROLL_PITCH_COEF" value="{0,0}" description=""/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Eff_sched">
+        <dl_setting var="rotation_angle_setpoint_deg" min="0" step="1" max="90" shortname="rotation" module="modules/ctrl/ctrl_eff_sched_rot_wing"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="ctrl_eff_sched_rot_wing.h"/>
+  </header>
+  <init fun="ctrl_eff_sched_rot_wing_init()"/>
+  <periodic fun="ctrl_eff_sched_rot_wing_periodic()" freq="10.0"/>
+  <makefile>
+    <file name="ctrl_eff_sched_rot_wing.c"/>
+    <test>
+      <define name="SERVO_ROTATION_MECH" value="0"/>
+      <define name="INDI_NUM_ACT" value="4"/>
+      <define name="INDI_OUTPUTS" value="3"/>
+      <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IZZ" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_M" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_ROLL_ARM" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_PITCH_ARM" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_HOVER_DF_DPPRZ" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
+    </test>
+  </makefile>
+</module>

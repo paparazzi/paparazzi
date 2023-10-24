@@ -43,7 +43,9 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
       <module name="intermcu"      type="uart">
         <define name="REMAP_UART3" value="TRUE"/>
       </module>
-      <module name="heli" type="throttle_curve"/>
+      <module name="heli" type="throttle_curve">
+        <define name="THROTTLE_CURVE_RPM_ACT" value="0"/>
+      </module>
 
       <module name="geo_mag"/>
       <module name="air_data"/>

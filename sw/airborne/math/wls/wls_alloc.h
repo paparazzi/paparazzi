@@ -21,27 +21,17 @@
  */
 
 /**
- * @brief Wrapper for qr solve
- *
- * Possible to use a different solver if needed.
- * Solves a system of the form Ax = b for x.
- *
- * @param m number of rows
- * @param n number of columns
- */
-void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
-
-/**
  * @brief active set algorithm for control allocation
  *
  * Takes the control objective and max and min inputs from pprz and calculates
  * the inputs that will satisfy most of the control objective, subject to the
  * weighting matrices Wv and Wu
  *
+ * The dimension of the input vectors u and v are defined at compilation time
+ * and must be large enough for all the considered cases.
+ *
  * @param u The control output vector
- * @param v The control objective
- * @param umin The minimum u vector
- * @param umax The maximum u vector
+ * @param v The control objective vector
  * @param B The control effectiveness matrix
  * @param n_u Length of u
  * @param n_v Lenght of v
@@ -53,9 +43,20 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
  * @param gamma_sq Preference of satisfying control objective over desired
  * control vector (sqare root of gamma)
  * @param imax Max number of iterations
+ * @param n_u Length of u (the number of actuators)
+ * @param n_v Lenght of v (the number of control objectives)
  *
- * @return Number of iterations, -1 upon failure
+ * @return Number of iterations: (imax+1) means it ran out of iterations
  */
-int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
+
+#ifndef WLS_ALLOC_HEADER
+#define WLS_ALLOC_HEADER
+
+
+extern int wls_alloc(float* u, float* v,
+              float* umin, float* umax, float** B,
               float* u_guess, float* W_init, float* Wv, float* Wu,
-              float* ud, float gamma, int imax);
+              float* ud, float gamma, int imax, int n_u, int n_v);
+
+
+#endif
