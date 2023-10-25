@@ -114,23 +114,6 @@
       </program>
       <program name="Messages"/>
     </session>
-    <session name="HITL">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="HITL"/>
-        <arg flag="-noground"/>
-        <arg flag="-boot"/>
-      </program>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-      <program name="Ivy2NMEAout" command="sw/ground_segment/misc/ivy2nmeaout">
-        <arg flag="-b" variable="ivy_bus"/>
-        <arg flag="-d" constant="/dev/ttyUSB1"/>
-        <arg flag="-s" constant="9600"/>
-    </program>
-    </session>
     <session name="OpenUAS Simulation with OBC 2014 GUI">
       <program name="GCS">
         <arg flag="-speech"/>

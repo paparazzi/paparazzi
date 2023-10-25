@@ -30,7 +30,7 @@
     <file name="nav_spiral_3D.h"/>
   </header>
   <init fun="nav_spiral_3D_init()"/>
-  <makefile target="ap|sim|nps|hitl">
+  <makefile target="ap|sim|nps">
     <file name="nav_spiral_3D.c"/>
   </makefile>
 </module>

@@ -9,5 +9,5 @@
   <dep>
     <depends>nav_basic_fw</depends>
   </dep>
-  <makefile target="ap|sim|nps|hitl"/>
+  <makefile target="ap|sim|nps"/>
 </module>
