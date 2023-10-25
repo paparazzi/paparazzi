@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gvf_parametric_bare" dir="guidance/gvf_parametric_bare">
+  <doc>
+    <description>Guidance algorithm for tracking 2D and 3D smooth trajectories that are defined by a parametric equation.
+No Eigen is needed
+    </description>
+  </doc>
+
+  <settings name="GVF_PARAMETRIC_BARE">
+    <dl_settings>
+      <dl_settings NAME="GVF_PARAMETRIC_BARE">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_parametric_bare_control.s" shortname = "direction"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_bare_control.k_roll" shortname="k_roll" param="GVF_PARAMETRIC_BARE_CONTROL_KROLL"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_bare_control.k_climb" shortname="k_climb" param="GVF_PARAMETRIC_BARE_CONTROL_KCLIMB"/>
+          <dl_setting MAX="10" MIN="0.01" STEP="0.05" VAR="gvf_parametric_bare_control.L" shortname="L" param="GVF_PARAMETRIC_BARE_CONTROL_L"/>
+          <dl_setting MAX="1" MIN="0.001" STEP="0.005" VAR="gvf_parametric_bare_control.beta" shortname="beta" param="GVF_PARAMETRIC_BARE_CONTROL_BETA"/>
+          <dl_setting MAX="1.5" MIN="0.5" STEP="0.01" VAR="gvf_parametric_bare_control.k_psi" shortname="k_psi" param="GVF_PARAMETRIC_BARE_CONTROL_KPSI"/>
+        </dl_settings>
+        <dl_settings NAME="2D_bezier">
+          <dl_setting MAX="9.750" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_bare_2d_bezier_par.kx" shortname="2d_bezier_kx" param="GVF_PARAMETRIC_BARE_2D_BEZIER_KX"/>
+          <dl_setting MAX="9.750" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_bare_2d_bezier_par.ky" shortname="2d_bezier_ky" param="GVF_PARAMETRIC_BARE_2D_BEZIER_KY"/>
+        </dl_settings>   
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  
+  <dep>
+    <depends>gvf_common</depends>
+  </dep>
+  
+   <header>
+     <file name="gvf_parametric_bare.h"/>
+     <file name="trajectories/gvf_parametric_bare_2d_bezier_splines.h"/> 
+   </header>
+
+   <init fun = "gvf_parametric_bare_init()"/>
+
+   <makefile target="ap|nps" firmware="fixedwing">
+    <file name="gvf_parametric_bare.c"/>
+    <file name="trajectories/gvf_parametric_bare_2d_bezier_splines.c"/>
+   </makefile>
+
+   <makefile target="ap|nps" firmware="rover">
+    <file name="gvf_parametric_bare.c"/>
+    <file name="trajectories/gvf_parametric_bare_2d_bezier_splines.c"/>
+  </makefile>
+</module>

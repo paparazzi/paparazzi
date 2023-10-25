@@ -47,22 +47,7 @@ typedef struct{
 	float ori_err_dot;
 } gvf_common_params;
 
- /** @typedef gvf_common_stop_at_wp
-* @brief different parameters to stop at waypoints
-* @param stay_still indicates if vehicle must stay still
-* @param stop_at_wp indicates if vehicle must wait at wp
-* @param wait_time indicates how much time
-* @param distance stop indicates the radius in which it must stop
-*/
-typedef struct{
-	int   stay_still;
-	int   stop_at_wp;
-	uint32_t wait_time;
-	float distance_stop;
-} gvf_common_stop_at_wp;
- 
 extern gvf_common_params gvf_c_info;
-extern gvf_common_stop_at_wp gvf_c_stopwp;
  
  #endif // GVF_COMMON_H
 

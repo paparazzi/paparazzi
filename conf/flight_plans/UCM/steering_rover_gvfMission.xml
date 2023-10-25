@@ -1,5 +1,5 @@
+<?xml version="1.0"?>
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-
 <flight_plan alt="660" ground_alt="650" lat0="40.450631" lon0="-3.726058" max_dist_from_home="1500" name="Rover Steering" security_height="0.3">
   <header>
 
@@ -7,9 +7,9 @@
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="STDBY" x="0" y="-4"/>
-    <waypoint name="ELLIPSE" x="-3" y="-3"/>
-    <waypoint name="P1" x="-2" y="-4"/>
-    <waypoint name="P2" x="2" y="-4"/>
+    <waypoint name="ELLIPSE" x="-6.116" y="-8.525"/>
+    <waypoint name="P1" x="-4.39" y="-0.738"/>
+    <waypoint name="P2" x="-7.046" y="-4.57"/>
     <!--waypoint name="OBJ" x="2" y="-4"/-->
     
     <!-- Sectors waypoints -->
@@ -23,19 +23,19 @@
     <waypoint name="_N4" x="-100" y="100"/>
     
     <!-- Bézier Waypoints -->
-    <waypoint  name="BZ0" x="1.7" y="-6.0"/>
-    <waypoint  name="BZ1" x="-1.4" y="-14.7"/>
-    <waypoint  name="BZ2" x="8" y="-19.3"/>
-    <waypoint  name="BZ3" x="6.3" y="-26.2"/>
-    <waypoint  name="BZ4" x="16.9" y="-30.7"/>
-    <waypoint  name="BZ5" x="25.6" y="-30.0"/>
-    <waypoint  name="BZ6" x="31.0" y="-22.6"/>
-    <waypoint  name="BZ7" x="33.4" y="-14.7"/>
-    <waypoint  name="BZ8" x="32.3" y="-7.0"/>
-    <waypoint  name="BZ9" x="27.3" y="-2.0"/>
-    <waypoint  name="BZ10" x="19.7" y="0.6"/>
-    <waypoint  name="BZ11" x="12.6" y="1.6"/>
-    <waypoint  name="BZ12" x="1.8" y="-5.8"/>
+    <waypoint name="BZ0" x="1.7" y="-6.0"/>
+    <waypoint name="BZ1" x="-1.4" y="-14.7"/>
+    <waypoint name="BZ2" x="-0.688" y="-24.723"/>
+    <waypoint name="BZ3" x="6.3" y="-26.2"/>
+    <waypoint name="BZ4" x="16.9" y="-30.7"/>
+    <waypoint name="BZ5" x="25.6" y="-30.0"/>
+    <waypoint name="BZ6" x="31.0" y="-22.6"/>
+    <waypoint name="BZ7" x="33.4" y="-14.7"/>
+    <waypoint name="BZ8" x="32.3" y="-7.0"/>
+    <waypoint name="BZ9" x="27.3" y="-2.0"/>
+    <waypoint name="BZ10" x="19.7" y="0.6"/>
+    <waypoint name="BZ11" x="12.6" y="1.6"/>
+    <waypoint name="BZ12" x="8.373" y="-2.597"/>
   </waypoints>
   
   
