@@ -24,6 +24,7 @@
 #include "modules/core/abi.h"
 #include "nps_sensors.h"
 #include "nps_fdm.h"
+#include "modules/datalink/datalink.h"
 
 struct GpsState gps_nps;
 bool gps_has_fix;
@@ -104,3 +105,4 @@ void gps_nps_init(void)
 {
   gps_has_fix = true;
 }
+

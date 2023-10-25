@@ -17,7 +17,8 @@
     <provides>recovery</provides>
   </dep>
   <makefile target="ap" firmware="fixedwing">
-    <define name="USE_HARD_FAULT_RECOVERY"/>
+    <configure name="USE_HARD_FAULT_RECOVERY" default="TRUE"/>
+    <define name="USE_HARD_FAULT_RECOVERY" value="$(USE_HARD_FAULT_RECOVERY)"/>
     <file name="main_recovery.c" dir="firmwares/fixedwing"/>
     <test firmware="fixedwing">
       <define name="RADIO_CONTROL"/>

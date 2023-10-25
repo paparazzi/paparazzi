@@ -8,19 +8,73 @@
     </description>
   </doc>
   <dep>
-    <depends>targets/nps</depends>
-    <suggests>gps_nps</suggests>
+    <depends>math</depends>
+    <suggests>sensors_hitl</suggests>
   </dep>
   <makefile target="hitl">
-    <configure name="INS_DEV" default="/dev/ttyUSB1"/>
-    <configure name="INS_BAUD" default="B921600"/>
-    <configure name="AP_DEV" default="/dev/ttyUSB2"/>
-    <configure name="AP_BAUD" default="B921600"/>
-    <define name="AP"/>
-    <define name="AP_DEV" value="$(AP_DEV)"/>
-    <define name="AP_BAUD" value="$(AP_BAUD)"/>
-    <define name="INS_DEV" value="$(INS_DEV)"/>
-    <define name="INS_BAUD" value="$(INS_BAUD)"/>
+    <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>
+    <configure name="NPS_DIR" value="nps"/>
+    <raw>
+$(TARGET).MAKEFILE = $(TARGET)
+$(TARGET).ARCHDIR = sim
+
+# detect system arch and include rt and pthread library only on linux
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+  $(TARGET).LDFLAGS += -lrt -pthread
+endif
+
+# sdl needed for joystick input
+$(TARGET).LDFLAGS += $(shell sdl-config --libs)
+
+# glib is still needed for some components (such as radio input)
+$(TARGET).CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
+$(TARGET).LDFLAGS += $(shell pkg-config glib-2.0 --libs)
+
+#
+# add the simulator and var directory to the make searchpath
+#
+VPATH += $(PAPARAZZI_SRC)/sw/simulator
+VPATH += $(PAPARAZZI_HOME)/var/share
+
+    </raw>
+    <configure name="PERIODIC_FREQUENCY" default="60"/>
+    <configure name="SRC_FIRMWARE" value="firmwares/fixedwing"/>
+    <configure name="WIND_INFO" default="TRUE"/>
+    <define name="FIXEDWING_FIRMWARE"/>
+    <define name="PERIODIC_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <define name="WIND_INFO" cond="ifeq ($(WIND_INFO), TRUE)"/>
+    <define name="AHRS_PROPAGATE_FREQUENCY" value="$(AHRS_PROPAGATE_FREQUENCY)" cond="ifdef AHRS_PROPAGATE_FREQUENCY"/>
+    <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)" cond="ifdef AHRS_CORRECT_FREQUENCY"/>
+    <define name="AHRS_MAG_CORRECT_FREQUENCY" value="$(AHRS_MAG_CORRECT_FREQUENCY)" cond="ifdef AHRS_MAG_CORRECT_FREQUENCY"/>
+    <include name="$(SRC_FIRMWARE)"/>
+    <define name="BARO_PERIODIC_FREQUENCY" value="$(BARO_PERIODIC_FREQUENCY)"/>
+    <define name="USE_BARO_BOARD" value="FALSE"/>
+    <define name="HITL"/>
+    <define name="USE_NPS"/>
+    <flag name="LDFLAGS" value="lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas"/>
+    <include name="$(PAPARAZZI_SRC)/sw/simulator"/>
+    <include name="$(PAPARAZZI_SRC)/sw/simulator/nps"/>
+    <include name="$(PAPARAZZI_HOME)/conf/simulator/nps"/>
+    <file name="nps_sensors.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensors_utils.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_gyro.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_accel.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_mag.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_baro.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_sonar.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_gps.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_airspeed.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_temperature.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_aoa.c" dir="$(NPS_DIR)"/>
+    <file name="nps_sensor_sideslip.c" dir="$(NPS_DIR)"/>
+    <file name="nps_atmosphere.c" dir="$(NPS_DIR)"/>
+    <file name="nps_ivy.c" dir="$(NPS_DIR)"/>
+    <file name="nps_flightgear.c" dir="$(NPS_DIR)"/>
+    <file name="nps_random.c" dir="$(NPS_DIR)"/>
+    <file name="pprz_geodetic_wmm2020.c" dir="math"/>
+    <file name="nps_main_common.c" dir="$(NPS_DIR)"/>
+    <file name="nps_main_hitl.c" dir="$(NPS_DIR)"/>
   </makefile>
 </module>
 

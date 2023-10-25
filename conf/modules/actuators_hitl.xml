@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_hitl" dir="actuators" task="actuators">
+  <doc>
+    <description>
+        Sends commands or actuators for Hardware In The Loop simulation
+    </description>
+    <configure name="HITL_PORT" value="UARTX|UDPX|usb_serial" description="Select port for extra datalink"/>
+    <configure name="HITL_BAUD" value="B230400" description="Baudrate for extra datalink if link device is UART"/>
+  </doc>
+  <dep>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_hitl.h"/>
+  </header>
+  <init fun="actuators_hitl_init()"/>
+  <periodic fun="actuators_hitl_periodic()"/>
+  <makefile target="ap">
+    <configure name="HITL_PORT" case="upper|lower"/>
+    <configure name="HITL_BAUD" default="B230400"/>
+    <define name="HITL_DEVICE" value="$(HITL_PORT_LOWER)"/>
+    <define name="USE_$(HITL_PORT_UPPER)"/>
+    <define name="$(HITL_PORT_UPPER)_BAUD" value="$(HITL_BAUD)"/>
+    <file name="actuators_hitl.c"/>
+    <test/>
+  </makefile>
+</module>

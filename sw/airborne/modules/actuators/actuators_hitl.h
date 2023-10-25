@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2012 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2023 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
- * This file is part of paparazzi.
+ * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,29 +18,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IMU_NPS_H
-#define IMU_NPS_H
+/** @file "modules/actuators/actuators_hitl.h"
+ * @author Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Sends commands or actuators for Hardware In The Loop simulation
+ */
 
-#include "modules/imu/imu.h"
+#ifndef ACTUATORS_HITL_H
+#define ACTUATORS_HITL_H
 
-#include "generated/airframe.h"
+extern void actuators_hitl_init(void);
+extern void actuators_hitl_periodic(void);
 
-struct ImuNps {
-  uint8_t mag_available;
-  uint8_t accel_available;
-  uint8_t gyro_available;
-
-  struct Int32Rates gyro;
-  struct Int32Vect3 accel;
-  struct Int32Vect3 mag;
-};
-
-extern struct ImuNps imu_nps;
-
-extern void imu_feed_gyro_accel(void);
-extern void imu_feed_mag(void);
-
-extern void imu_nps_init(void);
-extern void imu_nps_event(void);
-
-#endif /* IMU_NPS_H */
+#endif  // ACTUATORS_HITL_H
