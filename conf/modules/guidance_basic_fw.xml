@@ -54,7 +54,7 @@
     <file name="guidance_h.h"/>
   </header>
   <init fun="v_ctl_init()"/>
-  <makefile target="ap|sim|nps|hitl" firmware="fixedwing">
+  <makefile target="ap|sim|nps" firmware="fixedwing">
     <file name="guidance_v.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_h.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>

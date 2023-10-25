@@ -55,7 +55,7 @@
   <header>
     <file name="nav_skid_landing.h"/>
   </header>
-  <makefile target="ap|sim|nps|hitl">
+  <makefile target="ap|sim|nps">
     <file name="nav_skid_landing.c"/>
     <define name="CTRL_VERTICAL_LANDING" value="1"/>
     <test firmware="fixedwing">

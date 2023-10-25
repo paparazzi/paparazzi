@@ -25,7 +25,7 @@
   <makefile target="!fbw">
     <file name="main_ap.c" dir="."/>
   </makefile>
-  <makefile target="nps|hitl">
+  <makefile target="nps">
     <file name="nps_autopilot_rotorcraft.c" dir="nps"/>
   </makefile>
 </module>

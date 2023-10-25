@@ -19,7 +19,7 @@
     <file name="nav_line.h"/>
   </header>
   <init fun="nav_line_init()"/>
-  <makefile target="ap|sim|nps|hitl">
+  <makefile target="ap|sim|nps">
     <file name="nav_line.c"/>
     <test firmware="fixedwing">
       <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>

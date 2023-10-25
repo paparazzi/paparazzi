@@ -17,7 +17,7 @@
     <depends>udp,datalink_common</depends>
     <provides>datalink,telemetry</provides>
   </dep>
-  <makefile target="nps|hitl">
+  <makefile target="nps">
     <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
     <configure name="MODEM_PORT_OUT" default="4242"/>
     <configure name="MODEM_PORT_IN" default="4243"/>

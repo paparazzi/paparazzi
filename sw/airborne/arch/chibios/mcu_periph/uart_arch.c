@@ -40,6 +40,8 @@
 #include "mcu_periph/gpio.h"
 #include BOARD_CONFIG
 
+#if HAL_USE_SERIAL
+
 // Default stack size
 #ifndef UART_THREAD_STACK_SIZE
 #define UART_THREAD_STACK_SIZE 512
@@ -1160,3 +1162,6 @@ void uart_send_message(struct uart_periph *p, long fd)
   // send signal to start transmission
   chSemSignal(init_struct->tx_sem);
 }
+
+#endif // HAL_USE_SERIAL
+
