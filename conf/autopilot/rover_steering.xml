@@ -11,7 +11,7 @@
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
       <include name="modules/radio_control/radio_control.h"/>
-      <include name="modules/guidance/gvf/gvf.h"/>
+      <include name="modules/guidance/gvf_common.h"/>
       <include name="navigation.h"/>
       <include name="state.h"/>
       <define  name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
@@ -78,7 +78,7 @@
       </control>
       <control>
         <call fun="rover_guidance_steering_speed_ctrl()"/>
-        <call fun="rover_guidance_steering_heading_ctrl(gvf_control.omega)"/>
+        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_omega.omega)"/>
 
         <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
         <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>

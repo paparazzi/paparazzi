@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gvf_common" dir="guidance/">
+  <doc>
+    <description> 
+    	Common file to allow both gvf to work together.
+    	Still requires at least one module providing the actual gvf implementation
+    </description>
+  </doc>
+  
+  <header>
+     <file name="gvf_common.h"/>
+  </header>
+   
+  <makefile firmware="fixedwing">
+     <file name="gvf_common.c"/>
+  </makefile>
+   
+  <makefile firmware="rover">
+     <file name="gvf_common.c"/>
+  </makefile>
+  
+</module>
+
