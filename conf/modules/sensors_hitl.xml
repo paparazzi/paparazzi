@@ -30,6 +30,11 @@
     <define name="$(HITL_PORT_UPPER)_BAUD" value="$(HITL_BAUD)"/>
     <include name="$(PAPARAZZI_HOME)/conf/simulator/nps"/>
     <file name="sensors_hitl.c"/>
-    <test firmware="rotorcraft"/>
+    <test firmware="rotorcraft">
+      <include name="../../conf/simulator/nps"/>
+      <define name="NPS_PROPAGATE" value="500"/>
+      <define name="HITL_DEVICE" value="usb_serial"/>
+      <define name="USE_USB_SERIAL"/>
+    </test>
   </makefile>
 </module>

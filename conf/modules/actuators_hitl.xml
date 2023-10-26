@@ -23,6 +23,9 @@
     <define name="USE_$(HITL_PORT_UPPER)"/>
     <define name="$(HITL_PORT_UPPER)_BAUD" value="$(HITL_BAUD)"/>
     <file name="actuators_hitl.c"/>
-    <test/>
+    <test>
+      <define name="HITL_DEVICE" value="usb_serial"/>
+      <define name="USE_USB_SERIAL"/>
+    </test>
   </makefile>
 </module>
