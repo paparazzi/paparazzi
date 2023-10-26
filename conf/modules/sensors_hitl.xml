@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sensors_hitl" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Simulated sensors for HITL (HardwareInTheLoop).
+    </description>
+    <configure name="HITL_PORT" value="UARTX|UDPX|usb_serial" description="Select port for extra datalink"/>
+    <configure name="HITL_BAUD" value="B230400" description="Baudrate for extra datalink if link device is UART"/>
+  </doc>
+  <dep>
+    <depends>imu_common,gps</depends>
+    <provides>imu,mag,gps,baro,airspeed</provides>
+  </dep>
+  <header>
+    <file name="sensors_hitl.h"/>
+  </header>
+  <init fun="sensors_hitl_init()"/>
+  <periodic fun="sensors_hitl_periodic()"/>
+  <event fun="sensors_hitl_event()"/>
+  <datalink message="HITL_IMU" fun="sensors_hitl_parse_HITL_IMU(buf)"/>
+  <datalink message="HITL_GPS" fun="sensors_hitl_parse_HITL_GPS(buf)"/>
+  <datalink message="HITL_AIR_DATA" fun="sensors_hitl_parse_HITL_AIR_DATA(buf)"/>
+
+  <makefile target="ap">
+    <configure name="HITL_PORT" case="upper|lower"/>
+    <configure name="HITL_BAUD" default="B230400"/>
+    <define name="HITL_DEVICE" value="$(HITL_PORT_LOWER)"/>
+    <define name="USE_$(HITL_PORT_UPPER)"/>
+    <define name="$(HITL_PORT_UPPER)_BAUD" value="$(HITL_BAUD)"/>
+    <include name="$(PAPARAZZI_HOME)/conf/simulator/nps"/>
+    <file name="sensors_hitl.c"/>
+    <test firmware="rotorcraft">
+      <include name="../../conf/simulator/nps"/>
+      <define name="NPS_PROPAGATE" value="500"/>
+      <define name="HITL_DEVICE" value="usb_serial"/>
+      <define name="USE_USB_SERIAL"/>
+    </test>
+  </makefile>
+</module>

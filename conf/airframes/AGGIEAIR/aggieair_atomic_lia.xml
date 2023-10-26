@@ -32,16 +32,6 @@ AggieAir Atomic Tangerine
       <module name="telemetry"   type="transparent"/>
     </target>
 
-    <target name="hitl" board="pc">
-      <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="spektrum"/>
-      <configure name="INS_DEV" value="/dev/ttyUSB1"/>
-      <configure name="INS_BAUD" value="B230400"/>
-      <configure name="AP_DEV" value="/dev/ttyUSB2"/>
-      <configure name="AP_BAUD" value="B921600"/>
-      <module name="telemetry"   type="transparent"/>
-    </target>
-
     <module name="control"/>
     <module name="navigation"/>
 

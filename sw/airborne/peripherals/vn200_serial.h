@@ -30,7 +30,6 @@
 #define VN200_SERIAl_H
 
 #include "std.h"
-#include "mcu_periph/uart.h"
 
 // Geodetic / Math
 #include "math/pprz_algebra.h"

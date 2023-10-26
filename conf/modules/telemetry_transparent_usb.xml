@@ -10,7 +10,7 @@
   <dep>
     <depends>telemetry_transparent</depends>
   </dep>
-  <makefile target="!sim|nps|hitl">
+  <makefile target="!sim|nps">
     <configure name="MODEM_PORT" value="usb_serial"/>
     <raw>
     $(warning Warning: telemetry_transparent_usb is deprecated. Use telemetry_transparent with configure MODEM_PORT=usb_serial instead.)

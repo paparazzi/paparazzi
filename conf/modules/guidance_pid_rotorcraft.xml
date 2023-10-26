@@ -45,7 +45,7 @@
     <file name="guidance_pid.h"/>
   </header>
   <init fun="guidance_pid_init()"/>
-  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+  <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_pid.c" dir="$(SRC_FIRMWARE)/guidance"/>
   </makefile>
 </module>

@@ -17,7 +17,7 @@
   </header>
   <init fun="gps_nps_init()"/>
   <periodic fun="gps_nps_periodic_check()" freq="1." autorun="TRUE"/>
-  <makefile target="nps|hitl">
+  <makefile target="nps">
     <file name="gps_sim_nps.c"/>
     <define name="GPS_TYPE_H" value="modules/gps/gps_sim_nps.h" type="string"/>
     <test>

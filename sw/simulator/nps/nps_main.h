@@ -48,6 +48,8 @@ extern double ntime_to_double(struct timespec *t);
 
 void nps_update_launch_from_dl(uint8_t value);
 
+extern void nps_hitl_impl_init(void); // implement for HITL specific implementation
+
 struct NpsMain {
   double real_initial_time;
   double scaled_initial_time;

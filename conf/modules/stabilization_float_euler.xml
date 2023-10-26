@@ -66,7 +66,7 @@
     <file name="stabilization_attitude_euler_float.h"/>
   </header>
   <init fun="stabilization_attitude_init()"/>
-  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+  <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_attitude_euler_float.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_ref_euler_float.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_FLOAT"/>

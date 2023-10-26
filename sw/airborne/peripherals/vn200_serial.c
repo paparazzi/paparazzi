@@ -27,6 +27,8 @@
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #include "peripherals/vn200_serial.h"
+#include "mcu_periph/uart.h"
+#include "mcu_periph/usb_serial.h"
 
 
 void vn200_check_status(struct VNData *vn_data);
@@ -101,15 +103,17 @@ static inline bool verify_chk(unsigned char data[], unsigned int length, uint16_
 
 static inline void vn200_read_buffer(struct VNPacket *vnp)
 {
-  while (uart_char_available(&VN_PORT) && !(vnp->msg_available)) {
-    vn200_parse(vnp, uart_getch(&VN_PORT));
+  struct link_device *dev = &(VN_PORT.device);
+  while (dev->char_available(dev->periph) && !(vnp->msg_available)) {
+    vn200_parse(vnp, dev->get_byte(dev->periph));
   }
 }
 
 
 void vn200_event(struct VNPacket *vnp)
 {
-  if (uart_char_available(&VN_PORT)) {
+  struct link_device *dev = &(VN_PORT.device);
+  if (dev->char_available(dev->periph)) {
     vn200_read_buffer(vnp);
   }
 }
