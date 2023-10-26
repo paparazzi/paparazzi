@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="148" ground_alt="118" lat0="50.9097" lon0="6.22823" max_dist_from_home="610" name="IMAV2023" security_height="10" home_mode_height="35">
+
+  <header>
+    #define FP_NONE       0
+    #define FP_ENDURANCE_CIRCLE  1
+    #define FP_ENDURANCE_SQUARE  2
+
+    #ifdef NAV_C
+    #ifndef TAG_TRACKING_COORD_TO_M
+    #define TAG_TRACKING_COORD_TO_M (1.f / 1000.f)
+    #ifdef SITL
+    #define jevois_stream(_x) {}
+    #endif
+    #endif
+
+    static void fp_tag_cb(uint8_t sender_id UNUSED,
+        uint8_t type, char * id UNUSED,
+        uint8_t nb UNUSED, int16_t * coord, uint16_t * dim UNUSED,
+        struct FloatQuat quat UNUSED, char * extra UNUSED)
+    {
+      if (type == JEVOIS_MSG_D3) {
+        tag_distance = coord[2] * TAG_TRACKING_COORD_TO_M;
+        tag_valid = true;
+      }
+    }
+    
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    static inline float avoid_height(float normal_height, float avoid_height, float avoid_dist, uint8_t wp_id) {
+      if (LessThan(get_dist2_to_waypoint(wp_id), avoid_dist*avoid_dist)) {
+        return avoid_height;
+      } else {
+        return normal_height;
+      }
+    }
+
+    #endif
+  </header>
+  <waypoints>
+    <waypoint lat="50.9099" lon="6.22682" name="HOME"/>
+    <waypoint lat="50.9096" lon="6.22732" name="STDBY"/>
+    <waypoint lat="50.9093" lon="6.22731" name="LANDPAD"/>
+    <waypoint lat="50.908377" lon="6.222250" name="TAG"/>
+    <waypoint lat="50.9103" lon="6.22656" name="ENDURANCE"/>
+    <waypoint lat="50.9109" lon="6.22871" name="_HERE"/>
+    <waypoint name="E1" lat="50.9119" lon="6.22861"/>
+    <waypoint name="E2" lat="50.9087" lon="6.2264"/>
+    <waypoint name="E3" lat="50.909" lon="6.22501"/>
+    <waypoint name="E4" lat="50.9123" lon="6.22713"/>
+  </waypoints>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="40." var="goto_height" min="5." max="120." step="0.1"/>
+    <variable init="7." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="5." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="4." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="50." var="endurance_height" min="5." max="120." step="0.1"/>
+    <variable init="10." var="endurance_speed" min="0.5" max="20." step="0.1"/>
+    <variable init="420" type="int" var="endurance_time" min="1" max="1200" step="1"/>
+    <variable init="42." var="tag_distance"/>
+    <variable init="false" type="bool" var="tag_valid"/>
+    <abi_binding name="JEVOIS_MSG" handler="fp_tag_cb"/>
+  </variables>
+  <modules>
+    <module name="nav" type="takeoff_and_landing"/>
+    <module name="tag_tracking">
+      <define name="TAG_TRACKING_WP" value="WP_LANDPAD"/>
+      <!--define name="TAG_TRACKING_SIM_WP" value="WP_TAG"/-->
+    </module>
+  </modules>
+  <includes>
+    <include name="Data" procedure="IMAV2023_data.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosAlt() @GT GetAltRef() + 100))
+               @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))"
+               deroute="Standby"/>
+    <exception cond="(!InsideKill(GetPosX(), GetPosY()) @OR (GetPosAlt() @GT GetAltRef() + 120))
+               @AND (nav_block @GT IndexOfBlock('Holding point')) @AND (nav_block @LT IndexOfBlock('Kill landed'))"
+               deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed'))
+               @AND (GpsIsLost() @AND delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 5))"
+               deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed'))
+               @AND (delay_test_rc(RadioControlIsLost(),20) @AND (datalink_time @GT 15))"
+               deroute="Kill landed"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="jevois_stream(false)"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_ENDURANCE_SQUARE" deroute="Run Endurance Square"/>
+      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Endurance Square" strip_button="Endurance (square)">
+      <set var="mission_nb" value="FP_ENDURANCE_SQUARE"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Run Endurance Square">
+      <!-- exception cond="electrical.bat_low" deroute="Landing"/-->
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(endurance_speed)"/>
+      <while cond="block_time @LT endurance_time">
+        <path wpts="E1,E2,E3,E4,E1" alt="endurance_height"/>
+      </while>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Land here" strip_button="Land here" strip_icon="land-right.png" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="goto_height" approaching_time="5"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" height="goto_height"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <call_once fun="jevois_stream(true)"/>
+      <stay wp="LANDPAD" height="goto_height" until="stage_time @GT 3"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD" until="GetPosHeight() @LT 8"/>
+      <stay wp="LANDPAD" height="6." until="stage_time @GT 3"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>
