@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_oneloop" dir="guidance" task="control">
+  <doc>
+    <description>
+      Dummy file for oneloop controller
+    </description>
+  </doc>
+  <dep>
+    <depends>@navigation,guidance_rotorcraft</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
+  <header>
+    <file name="guidance_oneloop.h"/>
+  </header>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_oneloop.c" dir="$(SRC_FIRMWARE)/guidance"/>
+  </makefile>
+</module>
