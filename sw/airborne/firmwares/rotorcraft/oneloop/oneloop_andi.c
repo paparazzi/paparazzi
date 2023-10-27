@@ -25,7 +25,6 @@
 
 /* Include necessary header files */
 #include "firmwares/rotorcraft/oneloop/oneloop_andi.h"
-#include "firmwares/rotorcraft/oneloop/navigation_oneloop.h"
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
