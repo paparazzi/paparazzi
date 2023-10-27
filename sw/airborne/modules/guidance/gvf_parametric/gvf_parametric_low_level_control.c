@@ -73,7 +73,7 @@ void gvf_parametric_low_level_control_3D(float heading_rate, float climbing_rate
     h_ctl_roll_setpoint =
       -gvf_parametric_control.k_roll * atanf(heading_rate * ground_speed / GVF_PARAMETRIC_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
-  }  
+  }
 // Allow for rover operation
 #elif defined(ROVER_FIRMWARE)
 #else

@@ -123,8 +123,7 @@ extern bool gvf_parametric_2D_trefoil_XY(float, float, float, float, float, floa
 extern bool gvf_parametric_2D_trefoil_wp(uint8_t, float, float, float, float, float);
 
 // 2D BEZIER
-extern bool gvf_parametric_2D_bezier_wp(uint8_t , uint8_t , uint8_t , uint8_t , uint8_t , uint8_t , 
-																				uint8_t , uint8_t , uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+extern bool gvf_parametric_2D_bezier_wp(uint8_t);
 extern bool gvf_parametric_2D_bezier_XY(void);
 
 // 3D Ellipse

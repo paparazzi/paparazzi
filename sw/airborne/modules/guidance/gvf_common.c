@@ -17,7 +17,7 @@
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "./gvf_common.h"
 
 gvf_common_omega  gvf_c_omega;

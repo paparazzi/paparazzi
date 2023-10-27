@@ -22,7 +22,7 @@
     <waypoint name="_N3" x="-100" y="-100"/>
     <waypoint name="_N4" x="-100" y="100"/>
     
-    <!-- Bézier Waypoints -->
+    <!-- Bézier Waypoints. Define them in order -->
     <waypoint name="BZ0" x="1.7" y="-6.0"/>
     <waypoint name="BZ1" x="-1.4" y="-14.7"/>
     <waypoint name="BZ2" x="-0.688" y="-24.723"/>
@@ -108,7 +108,7 @@
     </block>
     
     <block name="2D_bezier" strip_icon="eight.png">
-      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0, WP_BZ1, WP_BZ2,WP_BZ3,WP_BZ4, WP_BZ5, WP_BZ6, WP_BZ7, WP_BZ8, WP_BZ9, WP_BZ10, WP_BZ11, WP_BZ12)"/>
+      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
       <exception cond="! InsideNet(GetPosX(), GetPosY())" deroute="Standby"/>
     </block>
     
