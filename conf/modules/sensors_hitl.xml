@@ -6,7 +6,8 @@
       Simulated sensors for HITL (HardwareInTheLoop).
     </description>
     <configure name="HITL_PORT" value="UARTX|UDPX|usb_serial" description="Select port for extra datalink"/>
-    <configure name="HITL_BAUD" value="B230400" description="Baudrate for extra datalink if link device is UART"/>
+    <configure name="HITL_BAUD" value="B921600" description="Baudrate for extra datalink if link device is UART"/>
+    <define name="USE_BATTERY_MONITOR" value="FALSE|TRUE" description="If the board is not powered from a real battery, set this flag to TRUE to override the battery voltage reading"/>
   </doc>
   <dep>
     <depends>imu_common,gps</depends>
@@ -24,7 +25,7 @@
 
   <makefile target="ap">
     <configure name="HITL_PORT" case="upper|lower"/>
-    <configure name="HITL_BAUD" default="B230400"/>
+    <configure name="HITL_BAUD" default="B921600"/>
     <define name="HITL_DEVICE" value="$(HITL_PORT_LOWER)"/>
     <define name="USE_$(HITL_PORT_UPPER)"/>
     <define name="$(HITL_PORT_UPPER)_BAUD" value="$(HITL_BAUD)"/>

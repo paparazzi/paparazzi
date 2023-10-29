@@ -42,6 +42,14 @@ the *usb_serial* driver or if not available a serial link with high baudrate.
 
 Another consideration is the bandwidth of the system - the sensor data and the actuator values have to be send/received at ``PERIODIC_FREQUENCY`` (between 40-512 Hz) for HITL to work correctly. Not all communication links and frequencies are feasible without introducing latency or bandwidth saturation.
 
+As an example, for rotorcraft with a periodic frequency of 500 Hz with default settings:
+
+- ``HITL_IMU`` message (45 bytes) comes at 500 Hz
+- ``HITL_GPS`` message (42 bytes) comes at 10 Hz
+- ``HITL_AIR_DATA`` message (26 bytes) comes at 50 Hz
+
+Total bandwidth is 24220 bytes/s. A standard UART has 10 bits per bytes, so a baudrate of at least 242200 is required. To give enough margins and reduce latency, the default baudrate is set to 961600. A USB serial, even at low speed, has a baudrate of more than 1 Mb/s.
+
 When to use SITL and when HITL?
 ------------------------------------
 

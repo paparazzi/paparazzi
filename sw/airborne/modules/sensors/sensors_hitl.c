@@ -139,8 +139,6 @@ void sensors_hitl_parse_HITL_GPS(uint8_t *buf)
   gps_hitl.lla_pos.lon = DL_HITL_GPS_lon(buf) * 1e7;
   gps_hitl.lla_pos.alt = DL_HITL_GPS_alt(buf) * 1000.;
   SetBit(gps_hitl.valid_fields, GPS_VALID_POS_LLA_BIT);
-  //ecef_of_lla_i(&gps_hitl.ecef_pos, &gps_hitl.lla_pos);
-  //SetBit(gps_hitl.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
   gps_hitl.hmsl        = DL_HITL_GPS_hmsl(buf) * 1000.;
   SetBit(gps_hitl.valid_fields, GPS_VALID_HMSL_BIT);
@@ -194,8 +192,6 @@ void sensors_hitl_parse_HITL_AIR_DATA(uint8_t *buf) {
   if (DL_HITL_AIR_DATA_ac_id(buf) != AC_ID) {
     return;
   }
-
-  // TODO move abi send to event ?
 
   uint8_t flag = DL_HITL_AIR_DATA_update_flag(buf);
   if (bit_is_set(flag, 0)) {
