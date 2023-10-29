@@ -24,7 +24,7 @@
     <file name="nav_rotorcraft_hybrid.h"/>
   </header>
   <init fun="nav_rotorcraft_hybrid_init()"/>
-  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+  <makefile target="ap|nps" firmware="rotorcraft">
     <file name="nav_rotorcraft_hybrid.c"/>
     <test firmware="rotorcraft">
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="15."/>

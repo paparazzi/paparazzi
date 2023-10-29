@@ -192,6 +192,19 @@
       </program>
     </session>
 
+    <session name="HITL demo">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="hitl"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyACM1"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS"/>
+    </session>
   </section>
 
 </control_panel>

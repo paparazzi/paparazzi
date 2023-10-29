@@ -35,7 +35,7 @@
   <periodic fun="gps_ubx_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_ubx_event()"/>
   <datalink message="HITL_UBX" fun="gps_ubx_parse_HITL_UBX(buf)"/> 
-  <makefile target="ap|fbw|hitl">
+  <makefile target="ap|fbw">
     <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="UBX_GPS_BAUD" default="$(GPS_BAUD)"/>
 

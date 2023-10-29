@@ -37,7 +37,7 @@
   </header>
   <init fun="guidance_h_init()"/>
   <init fun="guidance_v_init()"/>
-  <makefile target="ap|nps|hitl" firmware="rotorcraft">
+  <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_h.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_h_ref.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_v.c" dir="$(SRC_FIRMWARE)/guidance"/>
