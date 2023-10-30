@@ -8,9 +8,7 @@ Hardware in the Loop
 
 Hardware In The Loop (HITL) simulation is a way to test an embedded system (the real hardware and software) by simulating its environment, 
 ie. sensor inputs, and comparing its output, ie. actuator outputs, to expected output values. 
-It is the closest to an actual flight without actually flying. Using Paparazzi's Software In The Loop (SITL) and HITL for validation of a 
-flight dynamics of a fixed wing UAV is in detail described in a paper "Software-and hardware-in-the-loop verification of flight dynamics 
-model and flight control simulationof a fixed-wing unmanned aerial vehicle" by Cal Coopmans and Michal Podhradsky. Refer to the paper for more details.
+It is the closest to an actual flight without actually flying.
 
 Principle
 -----------
@@ -38,17 +36,19 @@ Commands computed by the autopilot are sent to the flight model which sends back
 Limitations
 -----------------
 
-.. warning::
-
-  HITL currently works only with Pprzlink 1.0, which is not supported anymore. The code might not work as desired yet.
-
 For practical reasons (it is very difficult to simulate SPI/I2C devices such as accelerometer, gyroscope etc.), 
-Paparazzi HITL simulates only sensors that connect to the autopilot via serial port (for example GPS unit, or an external AHRS/INS). 
-Currently implemented is Vectornav VN-200 in INS mode, but other sensors and modes can be added (i.e. VN-200 as IMU, Xsens INS etc.). 
-Because the benefit of HITL is to test the autopilot code that is identical to the actual flight code, no other means of transporting 
-sensor data to the autopilot are currently supported (such as sending them through uplink).
+Paparazzi HITL simulates sensors and sends them through a dedicated link (independent of the telemetry link). It is thus recommanded to use
+the *usb_serial* driver or if not available a serial link with high baudrate.
 
-Another consideration is the bandwidth of the system - the sensor data and the actuator values have to be send/received at ``PERIODIC_FREQUENCY`` (between 40-512 Hz) for HITL to work correctly.
+Another consideration is the bandwidth of the system - the sensor data and the actuator values have to be send/received at ``PERIODIC_FREQUENCY`` (between 40-512 Hz) for HITL to work correctly. Not all communication links and frequencies are feasible without introducing latency or bandwidth saturation.
+
+As an example, for rotorcraft with a periodic frequency of 500 Hz with default settings:
+
+- ``HITL_IMU`` message (45 bytes) comes at 500 Hz
+- ``HITL_GPS`` message (42 bytes) comes at 10 Hz
+- ``HITL_AIR_DATA`` message (26 bytes) comes at 50 Hz
+
+Total bandwidth is 24220 bytes/s. A standard UART has 10 bits per bytes, so a baudrate of at least 242200 is required. To give enough margins and reduce latency, the default baudrate is set to 921600. A USB serial, even at low speed, has a baudrate of more than 1 Mb/s.
 
 When to use SITL and when HITL?
 ------------------------------------
@@ -62,6 +62,10 @@ has been configured. Usually HITL is the last thing to run before going flying.
 
 Prerequisites
 --------------------
+
+.. warning::
+  some recommendations may not apply, in particular if real USB is used instead of UART or UART-USB bridge
+
 
 HITL currently (Ubuntu 16.04) needs the following two steps to run correctly:
 
@@ -80,156 +84,66 @@ HITL currently (Ubuntu 16.04) needs the following two steps to run correctly:
 Configuration
 ------------------------
 
+.. warning::
+  HITL support as changed in version 6.3, older procedure (especially described in the `wiki <https://wiki.paparazziuav.org/wiki/HITL>`_, no longer applies
+
 HITL can currently run on any that has:
 
-- Serial port for Vectornav INS input (provides position and orientation data, including GPS coordinates)
-- Serial port for additional high-speed telemetry output (so not your regular 57600 telemetry)
+- Serial port (at high speed) or USB for sending commands and receiving sensor data
 - Other serial/io for regular telemetry, RC input etc.
 
-If you have high-speed telemetry (like over WiFi) it should be possible to use only one telemetry link and demux the messages on GCS, 
-but it is not currently supported. Note that HITL is timing sensitive (at 512Hz you need to receive, process, and send data every ~2ms).
+Note that HITL is timing sensitive (at 512Hz you need to receive, process, and send data every ~2ms).
 
-HITL has been tested on:
+Examples are provided based on the Matek H7 Slim: ``conf/airframes/examples/matek_h7_fixedwing_hitl.xml`` and ``conf/airframes/examples/matek_h7_rotorcraft_hitl.xml``
 
-- Lisa M/MX (exampes for `fixedwing <https://github.com/paparazzi/paparazzi/blob/master/conf/airframes/AGGIEAIR/aggieair_minion_rp3_lia.xml>`_ and 
-  `rotorcraft <https://github.com/paparazzi/paparazzi/blob/master/conf/airframes/AGGIEAIR/aggieair_ark_hexa_1-8.xml>`_)
-  
-- Umarim v 2.0 (example for `fixedwing with Unarim <https://github.com/paparazzi/paparazzi/blob/master/conf/airframes/AGGIEAIR/El_Captain.xml>`_)
+.. figure:: images/hitl_gcs.jpg
 
-We recommend a dedicated computer for HITL, with enough CPU power and memory, and a nice graphics card for :ref:`flightgear` visualisation 
-(see the test station in the picture). HITL can run on a regular laptop too (tested on both Lenovo Thinkpad and Toughbooks).
+The airframe needs to contain: 
 
-.. figure:: images/600px-HITL_station.jpg
+* ``sensors_hitl`` module in main firmware section
+* ``actuators_hitl`` module in main firmware section
+* a specific HITL firmware section ``<firmware name="generic_hitl">...</firmware>`` that contains an ``hitl`` target with the selected FDM and the module ``nps_hitl_sensors``
 
-  Hardware-in-the-loop (HITL) test station in simulated flight
+.. warning::
+  an ariframe file configured for HITL simulation can usually also be used with normal SITL simulation, but is not compatible with normal ``ap`` target as the sensors and actuators drivers are replaced by simulation modules
 
-There are a few example airframes to choose from. Let's start with a fixed wing airplane and walk you through step by step. Get a fresh copy of the latest paparazzi and do:
+Modules in main firmware section
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: php
+Here is an example of configuration for fixedwing or rotorcraft using an USB link (alternate debug link, primary `usb_serial` is used for telemetry):
 
-  # in prrz root dir
-  ./start.py
+.. code-block:: xml
 
-and choose AggieAir's ``conf`` and ``control panel``:
+    <configure name="HITL_PORT" value="usb_serial_debug"/>
+    <configure name="USE_HARD_FAULT_RECOVERY" value="FALSE"/>
+    <module name="sensors" type="hitl">
+      <define name="USE_BATTERY_MONITOR"/>
+    </module>
+    <module name="actuators" type="hitl"/>
 
-.. figure:: images/Aggieair_conf.png
+It is preferable to disable the hard fault recovery mode for HITL.
 
-  Select AggieAir's conf and control panel and then Launch
-
-Choose **Minion_RP3** airframe:
-
-.. figure:: images/900px-Minion_rp3_airfame.png
-
-  Minion RP3 airfame
-
-and click on **Edit**. The airframe file is on github: https://github.com/paparazzi/paparazzi/blob/master/conf/airframes/AGGIEAIR/aggieair_minion_rp3_lia.xml For HITL to work, there have to be 4 things:
-
-- `extra_dl <https://github.com/paparazzi/paparazzi/blob/master/conf/modules/extra_dl.xml>`_ telemetry module
-- specified ``COMMANDS`` (Fixedwing) or ``ACTUATORS`` (rotorcrafts) Extra telemetry message in the telemetry config file (an example `with AggieAir here <https://github.com/paparazzi/paparazzi/blob/master/conf/telemetry/AGGIEAIR/aggieair_fixedwing.xml#L108>`_)
-- HITL target
-- Airframe configured to use external INS
-
-Extra_DL Module
-^^^^^^^^^^^^^^^^^^^^^^
-
-This is the additiona high speed telemetry link that sends the actuators data back to the FDM.
-
-.. code-block:: php
-
-  # in your airframe config file
-      <module name="extra_dl">
-        <!-- in order to use uart1 without chibios we need to remap the peripheral-->
-        <define name="REMAP_UART1" value="TRUE"/>
-        <configure name="EXTRA_DL_PORT" value="UART1"/>
-        <configure name="EXTRA_DL_BAUD" value="B921600"/>
-      </module>
-
-If you have `Umarim <https://wiki.paparazziuav.org/wiki/Umarim_Lite_v2>`_ board or similar, you can also use a usb serial port:
-
-.. code-block:: php
-
-  # in your airframe config file
-      <module name="extra_dl">
-        <configure name="EXTRA_DL_PORT" value="usb_serial"/>
-        <configure name="EXTRA_DL_BAUD" value="B921600"/>
-      </module>
-
-Telemetry config file
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Just add this section to your telemetry config file:
-
-.. code-block:: php
-
-  # in your telemetry config file
-    <process name="Extra">
-      <mode name="default">
-        <message name="COMMANDS"            period="0.01"/>
-      </mode>
-    </process>
-
-The period has to be matching your ``PERIODIC_FREQUENCY`` - best if you explicitly define all the frequencies to avoid ambiguity:
-
-.. code-block::
-
-  # in your airfame config file
-      <!-- NOTE: if you want to use extra_dl module for HITL
-      you have to set TELEMETRY_FREQUENCY to CONTROL_FREQUENCY -->
-      <configure name="PERIODIC_FREQUENCY" value="100"/>
-      <define name="CONTROL_FREQUENCY" value="100"/>
-      <configure name="TELEMETRY_FREQUENCY" value="100"/>
-      <define name="SERVO_HZ" value="100"/>
-
-NOTE: the ``TELEMETRY_FREQUENCY`` has to match your ``PERIODIC_FREQUENCY``
+Since the sensors data received are IMU, GPS and barometer data, any internal INS/AHRS filter compatible with your airframe should work.
 
 HITL Target
 ^^^^^^^^^^^^^^^
 
-Add the target in your airfame config file:
+Add an extra firmware and an ``hitl`` target in your airfame config file:
 
-.. code-block:: php
+.. code-block:: xml
 
-  # in your airfame config file
-      <target name="hitl" board="pc">
-        <module name="fdm" type="jsbsim"/>
-        <configure name="INS_DEV" value="/dev/ttyUSB1"/>
-        <configure name="INS_BAUD" value="B921600"/>
-        <configure name="AP_DEV" value="/dev/ttyUSB2"/>
-        <configure name="AP_BAUD" value="B921600"/>
-      </target>
-
-What does it mean? First, we have to specify the FDM for the HITL simulation. We recommend :ref:`jsbsim`, but any FDM that :ref:`nps` supports should work (because NPS is the backend for HITL).
-
-Then we have to specify the serial ports to talk to the autopilot. ``INS_DEV`` is the port your external INS (such as Vectornav) is using. 
-AP_DEV is the port for the extra telemetry. Make sure your baud rates are matching too.
-
-Note that you can either specify the devices in ``/dev/ttyUSB*`` format, which makes it universal across different USB-to-serial converters, 
-but you have to remember to plug in the ports in the right order (since they enumerate sequentially).
-
-The other option is to specify the ``/dev/serial/by-id/usb-FTDI_*****`` format, in which case it doesn't matter in which order you plug the 
-devices in, but you can use it only for a particular FTDI converter.
-
-It might be handy to use a simple Lia breakout board for connecting all the serial 
-ports - `the breakout board files are available here <https://github.com/paparazzi/paparazzi-hardware/tree/master/controller/lia/breakout_board>`_.
-
-.. figure:: images/500px-Liabreakoutboard.jpeg
-
-  Lia breakout board
-
-Airframe Configuration for External INS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Indeed, HITL will work only if your aiframe is configured to use external INS of some sort. In our example, we specify using Vectornav:
-
-.. code-block::
-
-  # in your airfame config file
-      <module name="ins"       type="vectornav">
-        <configure name="VN_PORT" value="UART2"/>
-        <configure name="VN_BAUD" value="B921600"/>
+  <firmware name="generic_hitl">
+    <target name="hitl" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="nps" type="hitl_sensors">
+        <define name="AP_DEV" value="/dev/ttyACM1" type="string"/>
       </module>
+    </target>
+  </firmware>
 
-See the `Minion_RP3 airframe config <https://github.com/paparazzi/paparazzi/blob/master/conf/airframes/AGGIEAIR/aggieair_minion_rp3_lia.xml>`_ for more details.
+We have to specify the FDM for the HITL simulation. We recommend :ref:`jsbsim`, but any FDM that :ref:`nps` supports should work (because NPS is the backend for HITL).
+
+``AP_DEV`` correcponds to the serial link which is used to have a direct communication with the autopilot and exchange commands and data. It as to match the one selected on the airborne side (``usb_serial_debug`` in example above).
 
 
 Running
@@ -237,41 +151,16 @@ Running
 
 Once you have your setup completed:
 
-- Clean, compile and upload the AP target (HINT: use keyboard shortcuts **Alt+C** to **Clean**, **Alt+B** to **Build** and **Alt+U** to **Upload**)
-- Clean and build HITL target
-- Choose ``HITL USB-serial@57600`` session and Execute
+- Clean, compile and upload the `hitl` target. This target will build at the same time the `ap` target and the ground part for simulation. It is also possible to build separately the AP and then HITL but it is not recommended.
+- Choose ``HITL demo`` session and Execute
 
 .. note::
   
   If you want to use your own session, you have to pass ``-t hitl`` flag into ``sw/simulator/pprzsim-launch`` to start in HITL mode. 
   Have a look at the ``HITL USB-serual@57600`` session for example, or add this to your own:
 
-Messages will pop up and you can verify that you are getting data by looking at the ``VECTORNAV_INFO`` message:
-
-.. figure:: images/300px-Hitl_messages.png
-
-  VECTORNAV_INFO message
-
-And once you take-off you will see something like this:
-
-.. figure:: images/1000px-Hitl_flight.png
-
-  HITL Flight with fixedwing airplane
 
 Similar steps work for rotorcraft.
-
-SBUS Fakerator
-^^^^^^^^^^^^^^^^^^^^^
-
-A simple tool simulating SBUS radio inputs is available. It is useful if you don't have a radio around, and want to test flight in manual mode. 
-It has to be used with a `Sbus_fakerator radio config file <https://github.com/paparazzi/paparazzi/blob/master/conf/radios/AGGIEAIR/aggieair_sbus_fakerator.xml>`_ and it requires an additional serial port (for example ``/dev/ttyUSB3``). 
-It can be launched as a tool from the Paparazzi center.
-
-Source code is available at: https://github.com/paparazzi/paparazzi/tree/master/sw/tools/sbus_fakerator
-
-.. figure:: images/300px-Sbus_fakerator.png
-
-  SBUS fakerator tool
 
 FlightGear
 ^^^^^^^^^^^^^
@@ -302,5 +191,4 @@ Then I believe you have to restart your computer in order for limits to refresh.
 
 Happy flying!
 
-.. figure:: images/600px-Minion_HITL.png
 

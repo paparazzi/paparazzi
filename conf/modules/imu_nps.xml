@@ -16,7 +16,7 @@
   <init fun="imu_nps_init()"/>
   <event fun="imu_nps_event()"/>
 
-  <makefile target="nps|hitl">
+  <makefile target="nps">
     <file name="imu_nps.c"/>
   </makefile>
 </module>

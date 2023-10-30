@@ -17,7 +17,7 @@
     <file name="dfu_command.h"/>
   </header>
   <event fun="dfu_command_event()"/>
-  <makefile target="!fbw|sim|nps|hitl">
+  <makefile target="!fbw|sim|nps">
     <configure name="SERIAL_TTY" default="/dev/ttyACM0"/>
     <configure name="DFU_PRE_UPLOAD_CMD" default="@(printf '\043\012' $(REDIRECT) $(SERIAL_TTY) $(AND) sleep 1 $(AND) printf 'bl\012' $(REDIRECT) $(SERIAL_TTY) $(AND) sleep 1) $(OR) echo 'Warning: DFU command failed!'"/>
     <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(printf '\043\012' $(REDIRECT) $(SERIAL_TTY) $(AND) sleep 1 $(AND) printf 'bl\012' $(REDIRECT) $(SERIAL_TTY) $(AND) sleep 1) $(OR) echo 'Warning: DFU command failed!'"/>

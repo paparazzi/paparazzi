@@ -65,6 +65,9 @@ ifneq ($(MAKECMDGOALS),clean)
   ifdef PRINT_CONFIG
     $(TARGET).CFLAGS += -DPRINT_CONFIG
   endif
+  ifdef AP_LAUNCH
+    $(TARGET).CFLAGS += -DAP_LAUNCH=$(AP_LAUNCH)
+  endif
 
   # sort cflags and sources to throw out duplicates
   #

@@ -31,7 +31,7 @@
   <datalink message="GPS_INJECT" fun="gps_parse_GPS_INJECT(buf)"/>
   <datalink message="RTCM_INJECT" fun="gps_parse_RTCM_INJECT(buf)"/>
 
-  <makefile target="fbw|ap|sim|nps|hitl">
+  <makefile target="fbw|ap|sim|nps">
     <configure name="GPS_LED" default="none"/>
     <file name="gps.c"/>
     <define name="USE_GPS"/>

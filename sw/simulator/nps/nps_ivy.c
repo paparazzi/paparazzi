@@ -160,6 +160,10 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
 
 int find_launch_index(void)
 {
+#ifdef AP_LAUNCH
+  return AP_LAUNCH - 1; // index of AP_LAUNCH starts at 1, but it should be 0 here
+#else
+#if NB_SETTING > 0
   static const char ap_launch[] = "aut_lau"; // short name
   char *ap_settings[NB_SETTING] = SETTINGS_NAMES_SHORT;
 
@@ -170,7 +174,9 @@ int find_launch_index(void)
      return (int)idx;
     }
   }
+#endif
   return -1;
+#endif
 }
 
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
@@ -190,10 +196,12 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
    */
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
+#ifndef HITL
   if (!datalink_enabled) {
     DlSetting(index, value);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   }
+#endif
   printf("setting %d %f\n", index, value);
 
   /*

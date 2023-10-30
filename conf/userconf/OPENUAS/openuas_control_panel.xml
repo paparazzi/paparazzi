@@ -224,30 +224,6 @@
         <arg flag="-c" constant="'*:telemetry:IMU_ACCEL:az'"/>
       </program>
     </session>
-    <session name="HITL">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="HITL"/>
-        <arg flag="-noground"/>
-        <arg flag="-boot"/>
-      </program>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-    </session>
-    <session name="HITL">
-      <program name="Hardware in the Loop">
-        <arg flag="-a" constant="HITL"/>
-        <arg flag="-noground"/>
-        <arg flag="-boot"/>
-      </program>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-    </session>
 
     <session name="Forward Skywalker to C172 over ttyUSB1">
       <program name="IvySerialBridge">

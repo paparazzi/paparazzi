@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="generic_hitl" dir="firmwares" task="core">
+  <doc>
+    <description>
+        Generic firmware config for Hardware In The Loop simualtion
+    </description>
+  </doc>
+  <makefile target="hitl">
+    <configure name="PERIODIC_FREQUENCY" default="60"/>
+    <define name="PERIODIC_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
+    <define name="BOARD_CONFIG" value="$(BOARD_CFG)"/>
+  </makefile>
+</module>
+

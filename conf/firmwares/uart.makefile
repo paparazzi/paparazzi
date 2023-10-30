@@ -12,10 +12,6 @@ ifeq ($(TARGET), nps)
 UART_CFLAGS += -Iarch/linux
 UART_SRCS += arch/linux/serial_port.c
 endif
-ifeq ($(TARGET), hitl)
-UART_CFLAGS += -Iarch/linux
-UART_SRCS += arch/linux/serial_port.c
-endif
 ifeq ($(TARGET), sim)
 UART_CFLAGS += -Iarch/linux
 UART_SRCS += arch/linux/serial_port.c
