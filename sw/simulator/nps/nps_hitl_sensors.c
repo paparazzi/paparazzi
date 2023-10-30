@@ -47,8 +47,8 @@
 #define AP_DEV "/dev/ttyUSB0"
 #endif
 #ifndef AP_BAUD
-#define AP_BAUD B961600
-PRINT_CONFIG_MSG_VALUE("[hitl] Using default baudrate for AP_DEV (B961600)", AP_BAUD)
+#define AP_BAUD B921600
+PRINT_CONFIG_MSG_VALUE("[hitl] Using default baudrate for AP_DEV (B921600)", AP_BAUD)
 #endif
 
 #define NPS_HITL_DEBUG 0
