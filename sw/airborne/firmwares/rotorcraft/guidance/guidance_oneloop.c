@@ -22,7 +22,7 @@
 /**
  * @file firmwares/rotorcraft/guidance/guidance_oneloop.c
  *
- * A dummy guidance mode to run the oneloop_andi controller
+ * A dummy guidance module to run the oneloop_andi controller
  *
  */
 

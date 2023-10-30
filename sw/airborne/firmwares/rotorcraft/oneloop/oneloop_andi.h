@@ -56,7 +56,6 @@ extern float g1g2_1l[ANDI_OUTPUTS][ANDI_NUM_ACT_TOT];
 extern float andi_u[ANDI_NUM_ACT_TOT];
 extern float andi_du[ANDI_NUM_ACT_TOT];
 
-extern bool check_1st_nav;
 extern bool heading_on;
 extern float v_nav_des;
 
@@ -68,8 +67,6 @@ extern float p1_alt;
 
 extern float psi_des_deg;
 extern float rm_k_attitude;
-
-extern float w_scale;
 
 extern bool half_loop;
 
