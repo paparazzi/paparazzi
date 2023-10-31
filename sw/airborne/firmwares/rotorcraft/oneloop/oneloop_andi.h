@@ -32,20 +32,6 @@
 
 #define ANDI_G_SCALING 1000.0f
 
-extern float att_ref[3];
-extern float att_d_ref[3];
-extern float att_2d_ref[3];
-extern float att_3d_ref[3];
-extern float pos_ref[3];
-extern float pos_d_ref[3];
-extern float pos_2d_ref[3];
-extern float pos_3d_ref[3];
-extern float att_1l[3];
-extern float att_d[3]; 
-extern float att_2d[3];
-extern float pos_1l[3];
-extern float pos_d[3];
-extern float pos_2d[3];
 extern float pos_init[3];
 extern float act_state_filt_vect_1l[ANDI_NUM_ACT];
 extern float actuator_state_1l[ANDI_NUM_ACT];
@@ -58,20 +44,9 @@ extern float andi_du[ANDI_NUM_ACT_TOT];
 
 extern bool heading_on;
 extern float v_nav_des;
-
-extern float p1_att;
-extern float p1_head;
-extern float p1_pos;
-extern float p2_pos;
-extern float p1_alt;
-
 extern float psi_des_deg;
-extern float rm_k_attitude;
 
-extern bool half_loop;
-
-
-// Delete once hybrid nav is fixed
+// Delete once hybrid nav is fixed //////////////////////////////////////////////////////////////////////////////////
 struct guidance_indi_hybrid_params {
   float pos_gain;
   float pos_gainz;
@@ -84,7 +59,7 @@ struct guidance_indi_hybrid_params {
 };
 extern struct guidance_indi_hybrid_params gih_params;
 extern bool force_forward; 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct OneloopGuidanceRef {
   float pos[3];     
   float vel[3]; 
@@ -121,6 +96,40 @@ struct OneloopGeneral {
 
 extern struct OneloopGeneral oneloop_andi;
 
+struct PolePlacement{
+  float omega_n;
+  float zeta;
+  float p3;
+};
+struct Gains3rdOrder{
+  float k1[3];
+  float k2[3];
+  float k3[3];
+};
+struct Gains2ndOrder{
+  float k2;
+  float k3;
+};
+
+/*Declaration of Reference Model and Error Controller Gains*/
+extern struct PolePlacement p_att_e;
+extern struct PolePlacement p_att_rm;
+/*Position Loop*/
+extern struct PolePlacement p_pos_e;  
+extern struct PolePlacement p_pos_rm;
+/*Altitude Loop*/
+extern struct PolePlacement p_alt_e;   
+extern struct PolePlacement p_alt_rm; 
+/*Heading Loop*/
+extern struct PolePlacement p_head_e;
+extern struct PolePlacement p_head_rm;
+/*Gains of EC and RM*/
+extern struct Gains3rdOrder k_att_e;
+extern struct Gains3rdOrder k_att_rm;
+extern struct Gains2ndOrder k_head_e;
+extern struct Gains2ndOrder k_head_rm;  
+extern struct Gains3rdOrder k_pos_e;
+extern struct Gains3rdOrder k_pos_rm; 
 extern void oneloop_andi_init(void);
 extern void oneloop_andi_enter(bool half_loop_sp);
 extern void oneloop_andi_set_failsafe_setpoint(void);
@@ -128,5 +137,4 @@ extern void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 P
 extern void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
 extern void oneloop_andi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 extern float convert_angle(float psi);
-//extern int32_t stabilization_cmd[COMMANDS_NB];
 #endif  // ONELOOP_ANDI_H

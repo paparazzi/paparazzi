@@ -6,18 +6,20 @@
   <settings>
    <dl_settings>
      <dl_settings NAME="oneloop">
-       <dl_setting var="p1_att"         min="0.0"     step="0.001" max="60.0"   shortname="p1_att"/>
-       <dl_setting var="p1_head"        min="0.0"     step="0.001" max="60.0"   shortname="p1_head"/>
-       <dl_setting var="p1_pos"         min="0.0"     step="0.001" max="60.0"   shortname="p1_pos"/>
-       <dl_setting var="p2_pos"         min="0.0"     step="0.001" max="60.0"   shortname="p2_pos"/>
-       <dl_setting var="p1_alt"         min="0.0"     step="0.001" max="60.0"   shortname="p1_alt"/>
-       <dl_setting var="pos_init[0]"    min="-10.0"   step="0.001" max="10.0"   shortname="Pos_N"/>
-       <dl_setting var="pos_init[1]"    min="-10.0"   step="0.001" max="10.0"   shortname="Pos_E"/>
-       <dl_setting var="pos_init[2]"    min="-10.0"   step="0.001" max="0.0"    shortname="Pos_D"/>
-       <dl_setting var="v_nav_des"      min="0.0"     step="0.001" max="15.0"    shortname="nav_vel"/>
-       <dl_setting var="psi_des_deg"    min="-180.0"  step="0.1"   max="180.0"   shortname="psi_des"/>
-       <dl_setting var="heading_on"     min="0"       step="1"     max="1"      values="OFF|ON" shortname="heading_on"/>
-       <dl_setting var="rm_k_attitude"  min="0.01"    step="0.001" max="10.0"    shortname="rm_k_attitude"/>
+       <dl_setting var="p_att_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_att_e_omega_n"/>
+       <dl_setting var="p_att_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_att_e_zeta"/>
+       <dl_setting var="p_head_e.omega_n" min="0.1"     step="0.001" max="20.0"  shortname="p_head_e_omega_n"/>
+       <dl_setting var="p_head_e.zeta"    min="0.1"     step="0.001" max="1.0"   shortname="p_head_e_zeta"/>
+       <dl_setting var="p_pos_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_pos_e_omega_n"/>
+       <dl_setting var="p_pos_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_pos_e_zeta"/>
+       <dl_setting var="p_alt_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_alt_e_omega_n"/>
+       <dl_setting var="p_alt_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_alt_e_zeta"/>
+       <dl_setting var="pos_init[0]"      min="-10.0"   step="0.001" max="10.0"  shortname="Pos_N"/>
+       <dl_setting var="pos_init[1]"      min="-10.0"   step="0.001" max="10.0"  shortname="Pos_E"/>
+       <dl_setting var="pos_init[2]"      min="-10.0"   step="0.001" max="0.0"   shortname="Pos_D"/>
+       <dl_setting var="v_nav_des"        min="0.0"     step="0.001" max="15.0"  shortname="nav_vel"/>
+       <dl_setting var="psi_des_deg"      min="-180.0"  step="0.1"   max="180.0" shortname="psi_des"/>
+       <dl_setting var="heading_on"       min="0"       step="1"     max="1"     values="OFF|ON" shortname="heading_on"/>
      </dl_settings>
    </dl_settings>
   </settings>
@@ -31,7 +33,6 @@
   <init fun="oneloop_andi_init()"/>
    <makefile target="ap|nps" firmware="rotorcraft">
     <file       name="oneloop_andi.c" dir="$(SRC_FIRMWARE)/oneloop"/>
-    <!-- <file       name="wls_alloc.c" dir="$(SRC_FIRMWARE)/oneloop/wls"/> -->
     <file       name="qr_solve.c" dir="math/qr_solve"/>
     <file       name="r8lib_min.c" dir="math/qr_solve"/>
     <configure  name="ANDI_OUTPUTS" default="4"/>

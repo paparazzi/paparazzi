@@ -249,6 +249,7 @@ bool force_forward = false;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*  Define Section of the functions used in this module*/
+void  init_poles(void);
 void  calc_normalization(void);
 void  sum_g1g2_1l(void);
 void  get_act_state_oneloop(void);
@@ -344,6 +345,7 @@ float use_increment = 0.0;
 float nav_target[3]; // Can be a position, speed or acceleration depending on the guidance H mode
 float pos_init[3];
 float dt_1l = 1./PERIODIC_FREQUENCY;
+static float g   = 9.81; // [m/s^2] Gravitational Acceleration
 
 /* Oneloop Control Variables*/
 float andi_u[ANDI_NUM_ACT_TOT];
@@ -363,10 +365,6 @@ float  psi_des_rad = 0.0;
 float  psi_des_deg = 0.0;
 float  psi_vec[4]  = {0.0, 0.0, 0.0, 0.0};
 
-/*Physical Properties RW3C*/
-static float g   = 9.81; // [m/s^2] Gravitational Acceleration
-
-
 /*WLS Settings*/
 static float gamma_wls = 1000.0;
 static float du_min_1l[ANDI_NUM_ACT_TOT]; 
@@ -376,96 +374,29 @@ static int   number_iter = 0;
 
 /*Complementary Filter Variables*/
 static float model_pred[ANDI_OUTPUTS];
-static float old_state[ANDI_NUM_ACT_TOT];
 static float ang_acc[3];
 static float lin_acc[3];
 
 
 /*Declaration of Reference Model and Error Controller Gains*/
-float rm_k_attitude = 0.8;
-float p1_att = 7.68;//7.68; %12 works well for bebop1       
-float p2_att;      
-float p3_att;
-
-float k_theta_e;    
-float k_q_e;        
-float k_qdot_e;     
-float k_phi_e;      
-float k_p_e;        
-float k_pdot_e;      
-
-float k_theta_rm;   
-float k_q_rm;       
-float k_qdot_rm;    
-float k_phi_rm;     
-float k_p_rm ;      
-float k_pdot_rm ;    
-
+struct PolePlacement p_att_e;
+struct PolePlacement p_att_rm;
 /*Position Loop*/
-float rm_k_pos;    
-float damp_pos = 0.85;
-float p1_pos   = 1.2;
-float p2_pos   = 6.0;    
-float p3_pos  ;     
-float route_k ;   
-float p1_pos_rm = 0.6;
-float p2_pos_rm = 6.0; 
-float damp_pos_rm = 1.0; //0.3979;//0.7;
-
-float k_N_e    ;    
-float k_vN_e   ;    
-float k_aN_e   ;    
-float k_E_e    ;    
-float k_vE_e   ;   
-float k_aE_e   ;     
-
-float k_N_rm   ;    
-float k_vN_rm  ;     
-float k_aN_rm  ;    
-float k_E_rm   ;    
-float k_vE_rm  ;    
-float k_aE_rm  ;    
-
-float k_N_route ;   
-float k_vN_route ; 
-float k_aN_route ;  
-float k_E_route  ;  
-float k_vE_route ;  
-float k_aE_route ;  
-
+struct PolePlacement p_pos_e;  
+struct PolePlacement p_pos_rm;
 /*Altitude Loop*/
-float rm_k_alt ;   
-float damp_alt = 0.7;//0.7; 
-float p1_alt   = 3.0;  
-float p1_alt_2 = 3.0;//0.5;  
-float p2_alt   ;    
-float p3_alt   ;     
-
-float k_D_e  ;      
-float k_vD_e  ;     
-float k_aD_e  ;     
-
-float k_D_rm  ;     
-float k_vD_rm ;     
-float k_aD_rm ;     
-
+struct PolePlacement p_alt_e;   
+struct PolePlacement p_alt_rm; 
 /*Heading Loop*/
-float rm_k_head  ;  
-float p1_head = 1.5;//5.0;     //3.0 works well for bebop1
-float p2_head ;
-float p3_head ;      
-
-float k_r_e  ;      
-float k_r_d_e ;     
-float k_psi_e     ;  
-float k_psi_d_e   ;  
-float k_psi_2d_e  ;  
-    
-float k_r_rm  ;     
-float k_r_d_rm ;   
-float k_psi_rm    ;  
-float k_psi_d_rm  ;  
-float k_psi_2d_rm ;
+struct PolePlacement p_head_e;
+struct PolePlacement p_head_rm;
+/*Gains of EC and RM*/
+struct Gains3rdOrder k_att_e;
+struct Gains3rdOrder k_att_rm;
+struct Gains2ndOrder k_head_e;
+struct Gains2ndOrder k_head_rm;  
+struct Gains3rdOrder k_pos_e;
+struct Gains3rdOrder k_pos_rm; 
 
 /* Effectiveness Matrix definition */
 float g2_1l[ANDI_NUM_ACT_TOT]               = ONELOOP_ANDI_G2; //scaled by INDI_G_SCALING
@@ -900,100 +831,111 @@ static float w_approx(float p1, float p2, float p3, float rm_k){
   tao = positive_non_zero(tao);
   return 1.0/tao;
 }
+/**
+ * @brief Initialize Position of Poles
+ * 
+ */
+void init_poles(void){
+  p_att_e.omega_n = 7.68;
+  p_att_e.zeta    = 1.0;
+  p_att_e.p3      = p_att_e.omega_n * p_att_e.zeta;
 
+  p_att_rm.omega_n = 6.14;
+  p_att_rm.zeta    = 1.0;
+  p_att_rm.p3      = p_att_rm.omega_n * p_att_rm.zeta;
+
+  p_pos_e.omega_n = 1.41;
+  p_pos_e.zeta    = 0.85;
+  p_pos_e.p3      = 6.0;
+
+  p_pos_rm.omega_n = 0.6;
+  p_pos_rm.zeta    = 1.0;  
+  p_pos_rm.p3      = 6.0;
+
+  p_alt_e.omega_n = 3.54;
+  p_alt_e.zeta    = 0.85;
+  p_alt_e.p3      = 6.0;
+
+  p_alt_rm.omega_n = 2.0;
+  p_alt_rm.zeta    = 1.0;
+  p_alt_rm.p3      = p_alt_rm.omega_n * p_alt_rm.zeta;
+
+  p_head_e.omega_n = 1.5;
+  p_head_e.zeta    = 1.0;
+  p_head_e.p3      = p_head_e.omega_n * p_head_e.zeta;
+}
 /** 
  * @brief Initialize Controller Gains
  * FIXME: Calculate the gains dynamically for transition
  */
 void init_controller(void){
-/*Attitude Loop*/
-p2_att        = p1_att;
-p3_att        = p1_att;
-k_theta_e     = k_e_1_3_f(p1_att,p2_att,p3_att);
-k_q_e         = k_e_2_3_f(p1_att,p2_att,p3_att);
-k_qdot_e      = k_e_3_3_f(p1_att,p2_att,p3_att);
-k_phi_e       = k_theta_e;
-k_p_e         = k_q_e;
-k_pdot_e      = k_qdot_e;
-k_theta_rm    = k_rm_1_3_f(rm_k_attitude*p1_att,1.0,rm_k_attitude*p3_att);
-k_q_rm        = k_rm_2_3_f(rm_k_attitude*p1_att,1.0,rm_k_attitude*p3_att);
-k_qdot_rm     = k_rm_3_3_f(rm_k_attitude*p1_att,1.0,rm_k_attitude*p3_att);
-k_phi_rm      = k_theta_rm;
-k_p_rm        = k_q_rm;
-k_pdot_rm     = k_qdot_rm;
+  /*Attitude Loop*/
+  k_att_e.k1[0]  = k_e_1_3_f(p_att_e.p3, p_att_e.p3, p_att_e.p3);
+  k_att_e.k2[0]  = k_e_2_3_f(p_att_e.p3, p_att_e.p3, p_att_e.p3);
+  k_att_e.k3[0]  = k_e_3_3_f(p_att_e.p3, p_att_e.p3, p_att_e.p3);
+  k_att_e.k1[1]  = k_att_e.k1[0]; 
+  k_att_e.k2[1]  = k_att_e.k2[0]; 
+  k_att_e.k3[1]  = k_att_e.k3[0]; 
+  k_att_rm.k1[0] = k_rm_1_3_f(p_att_rm.omega_n, p_att_rm.zeta, p_att_rm.p3);
+  k_att_rm.k2[0] = k_rm_2_3_f(p_att_rm.omega_n, p_att_rm.zeta, p_att_rm.p3);
+  k_att_rm.k3[0] = k_rm_3_3_f(p_att_rm.omega_n, p_att_rm.zeta, p_att_rm.p3);
+  k_att_rm.k1[1] = k_att_rm.k1[0];
+  k_att_rm.k2[1] = k_att_rm.k2[0];
+  k_att_rm.k3[1] = k_att_rm.k3[0];
 
-/*Position Loop*/
-rm_k_pos      = 0.9;
-p3_pos        = p1_pos;
-route_k       = 0.8;
-damp_pos      = positive_non_zero(damp_pos);
-k_N_e         = k_e_1_3_f_v2(p1_pos/damp_pos,damp_pos,p2_pos);
-k_vN_e        = k_e_2_3_f_v2(p1_pos/damp_pos,damp_pos,p2_pos);
-k_aN_e        = k_e_3_3_f_v2(p1_pos/damp_pos,damp_pos,p2_pos);
-k_E_e         = k_N_e;
-k_vE_e        = k_vN_e;
-k_aE_e        = k_aN_e;
-k_N_rm        = k_rm_1_3_f(p1_pos_rm/damp_pos_rm, damp_pos_rm, p2_pos_rm);
-k_vN_rm       = k_rm_2_3_f(p1_pos_rm/damp_pos_rm, damp_pos_rm, p2_pos_rm);
-k_aN_rm       = k_rm_3_3_f(p1_pos_rm/damp_pos_rm, damp_pos_rm, p2_pos_rm);
-k_E_rm        = k_N_rm;
-k_vE_rm       = k_vN_rm;
-k_aE_rm       = k_aN_rm;
+  /*Position Loop*/
 
-k_N_route    = k_rm_1_3_f(route_k*rm_k_pos*p1_pos,1.0,route_k*rm_k_pos*p3_pos);
-k_vN_route   = k_rm_2_3_f(route_k*rm_k_pos*p1_pos,1.0,route_k*rm_k_pos*p3_pos);
-k_aN_route   = k_rm_3_3_f(route_k*rm_k_pos*p1_pos,1.0,route_k*rm_k_pos*p3_pos);
-k_E_route    = k_N_route;
-k_vE_route   = k_vN_route;
-k_aE_route   = k_aN_route;
-gih_params.pos_gain   = k_N_rm;  //delete once nav hybrid is fixed
-gih_params.speed_gain = k_vN_rm; //delete once nav hybrid is fixed
-/*Altitude Loop*/
-rm_k_alt      = 0.9;
-p2_alt        = 6.0;
-p3_alt        = p1_alt;
-damp_alt      = positive_non_zero(damp_alt);
-k_D_e         = k_e_1_3_f_v2(p1_alt/damp_alt,damp_alt,p2_alt);
-k_vD_e        = k_e_2_3_f_v2(p1_alt/damp_alt,damp_alt,p2_alt);
-k_aD_e        = k_e_3_3_f_v2(p1_alt/damp_alt,damp_alt,p2_alt);
-k_D_rm        = k_rm_1_3_f(rm_k_alt*p1_alt,1.0,rm_k_alt*p3_alt);
-k_vD_rm       = k_rm_2_3_f(rm_k_alt*p1_alt,1.0,rm_k_alt*p3_alt);
-k_aD_rm       = k_rm_3_3_f(rm_k_alt*p1_alt,1.0,rm_k_alt*p3_alt);
-gih_params.pos_gainz   = k_D_rm;
-gih_params.speed_gainz = k_vD_rm;
+  k_pos_e.k1[0]  = k_e_1_3_f_v2(p_pos_e.omega_n, p_pos_e.zeta, p_pos_e.p3);
+  k_pos_e.k2[0]  = k_e_2_3_f_v2(p_pos_e.omega_n, p_pos_e.zeta, p_pos_e.p3);
+  k_pos_e.k3[0]  = k_e_3_3_f_v2(p_pos_e.omega_n, p_pos_e.zeta, p_pos_e.p3);
+  k_pos_e.k1[1]  = k_pos_e.k1[0];  
+  k_pos_e.k2[1]  = k_pos_e.k2[0];  
+  k_pos_e.k3[1]  = k_pos_e.k3[0];  
+  k_pos_rm.k1[0] = k_e_1_3_f_v2(p_pos_rm.omega_n, p_pos_rm.zeta, p_pos_rm.p3);
+  k_pos_rm.k2[0] = k_e_2_3_f_v2(p_pos_rm.omega_n, p_pos_rm.zeta, p_pos_rm.p3);
+  k_pos_rm.k3[0] = k_e_3_3_f_v2(p_pos_rm.omega_n, p_pos_rm.zeta, p_pos_rm.p3);
+  k_pos_rm.k1[1] = k_pos_rm.k1[0];  
+  k_pos_rm.k2[1] = k_pos_rm.k2[0];  
+  k_pos_rm.k3[1] = k_pos_rm.k3[0];
 
-/*Heading Loop Manual*/
-rm_k_head     = 0.9;
-p2_head       = p1_head;
-k_r_e         = k_e_1_2_f(p1_head,p2_head);
-k_r_d_e       = k_e_2_2_f(p1_head,p2_head);
-k_r_rm        = k_rm_1_2_f(rm_k_head*p1_head,rm_k_head*p2_head);
-k_r_d_rm      = k_rm_2_2_f(rm_k_head*p1_head,rm_k_head*p2_head);
+  gih_params.pos_gain   = k_pos_rm.k1[0];  //delete once nav hybrid is fixed
+  gih_params.speed_gain = k_pos_rm.k2[0]; //delete once nav hybrid is fixed
 
-/*Heading Loop NAV*/
-rm_k_head     = 0.9;
-p2_head       = p1_head;
-p3_head       = p1_head;
-k_psi_e       = k_e_1_3_f(p1_head,p2_head,p3_head);
-k_psi_d_e     = k_e_2_3_f(p1_head,p2_head,p3_head);
-k_psi_2d_e    = k_e_3_3_f(p1_head,p2_head,p3_head);
-k_psi_rm      = k_rm_1_3_f(rm_k_head*p1_head,1.0,rm_k_head*p3_head);
-k_psi_d_rm    = k_rm_2_3_f(rm_k_head*p1_head,1.0,rm_k_head*p3_head);
-k_psi_2d_rm   = k_rm_3_3_f(rm_k_head*p1_head,1.0,rm_k_head*p3_head);
+  /*Altitude Loop*/
+  k_pos_e.k1[2]  = k_e_1_3_f_v2(p_alt_e.omega_n, p_alt_e.zeta, p_alt_e.p3);
+  k_pos_e.k2[2]  = k_e_2_3_f_v2(p_alt_e.omega_n, p_alt_e.zeta, p_alt_e.p3);
+  k_pos_e.k3[2]  = k_e_3_3_f_v2(p_alt_e.omega_n, p_alt_e.zeta, p_alt_e.p3);
+  k_pos_rm.k1[2] = k_rm_1_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
+  k_pos_rm.k2[2] = k_rm_2_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
+  k_pos_rm.k3[2] = k_rm_3_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
+  gih_params.pos_gainz   = k_pos_rm.k1[2];  //delete once nav hybrid is fixed
+  gih_params.speed_gainz = k_pos_rm.k2[2]; //delete once nav hybrid is fixed
 
-/*Approximated Dynamics*/
-act_dynamics[ANDI_NUM_ACT]   = w_approx( p1_att,  p2_att,  p3_att,  1.0);//rm_k_attitude);
-act_dynamics[ANDI_NUM_ACT+1]   = w_approx( p1_att,  p2_att,  p3_att,  1.0);//rm_k_attitude);
+  /*Heading Loop Manual*/
+  k_head_e.k2  = k_e_1_2_f(p_head_e.p3, p_head_e.p3);
+  k_head_e.k3  = k_e_2_2_f(p_head_e.p3, p_head_e.p3);
+  k_head_rm.k2 = k_rm_1_2_f(p_head_rm.p3, p_head_rm.p3);
+  k_head_rm.k3 = k_rm_2_2_f(p_head_rm.p3, p_head_rm.p3);
+
+  /*Heading Loop NAV*/
+  k_att_e.k1[2]  = k_e_1_3_f(p_head_e.p3, p_head_e.p3, p_head_e.p3);
+  k_att_e.k2[2]  = k_e_2_3_f(p_head_e.p3, p_head_e.p3, p_head_e.p3);
+  k_att_e.k3[2]  = k_e_3_3_f(p_head_e.p3, p_head_e.p3, p_head_e.p3);
+  k_att_rm.k1[2] = k_rm_1_3_f(p_head_rm.omega_n, p_head_rm.zeta, p_head_rm.p3);
+  k_att_rm.k2[2] = k_rm_2_3_f(p_head_rm.omega_n, p_head_rm.zeta, p_head_rm.p3);
+  k_att_rm.k3[2] = k_rm_3_3_f(p_head_rm.omega_n, p_head_rm.zeta, p_head_rm.p3);
+
+  /*Approximated Dynamics*/
+  act_dynamics[ANDI_NUM_ACT]   = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
+  act_dynamics[ANDI_NUM_ACT+1] = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
 }
 
 
 /** @brief  Initialize the filters */
 void init_filter(void)
 {
-  float tau = 1.0 / (2.0 * M_PI *oneloop_andi_filt_cutoff);
+  float tau   = 1.0 / (2.0 * M_PI *oneloop_andi_filt_cutoff);
   float tau_a = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_a);
-  float tau_v = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_v);
-  float tau_p = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_p);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
 
   // Filtering of the Inputs with 3 dimensions (e.g. rates and accelerations)
@@ -1024,13 +966,8 @@ void init_filter(void)
 /** @brief  Propagate the filters */
 void oneloop_andi_propagate_filters(void) {
   struct  NedCoor_f *accel = stateGetAccelNed_f();
-  float   accel_b_x = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->x);
-  float   accel_b_y = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
-  float   accel_b_z = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
   struct  FloatRates *body_rates = stateGetBodyRates_f();
   float   rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
-  float   pos_vect[3]  = {stateGetPositionNed_f()->x,stateGetPositionNed_f()->y,stateGetPositionNed_f()->z};
-  float   vel_vect[3]  = {stateGetSpeedNed_f()->x,stateGetSpeedNed_f()->y,stateGetSpeedNed_f()->z};
   update_first_order_low_pass(&filt_accel_ned[0], accel->x);
   update_first_order_low_pass(&filt_accel_ned[1], accel->y);
   update_first_order_low_pass(&filt_accel_ned[2], accel->z);
@@ -1055,6 +992,7 @@ void oneloop_andi_propagate_filters(void) {
 void oneloop_andi_init(void)
 { 
   oneloop_andi.half_loop = true;
+  init_poles();
   // Make sure that the dynamics are positive and non-zero
   int8_t i;
   for (i = 0; i < ANDI_NUM_ACT_TOT; i++) {
@@ -1170,33 +1108,25 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
     des_r = (float) (radio_control_get(RADIO_YAW))/MAX_PPRZ*3.0; 
     BoundAbs(des_r,3.0);
     // Generate reference signals
-    rm_2nd(dt_1l, &oneloop_andi.sta_ref.att_d[2], &oneloop_andi.sta_ref.att_2d[2], &oneloop_andi.sta_ref.att_3d[2], des_r, k_r_rm, k_r_d_rm);
-    rm_3rd(dt_1l, &oneloop_andi.sta_ref.att[0],   &oneloop_andi.sta_ref.att_d[0],  &oneloop_andi.sta_ref.att_2d[0], &oneloop_andi.sta_ref.att_3d[0], eulers_zxy_des.phi, k_phi_rm, k_p_rm, k_pdot_rm);
-    rm_3rd(dt_1l, &oneloop_andi.sta_ref.att[1],   &oneloop_andi.sta_ref.att_d[1],  &oneloop_andi.sta_ref.att_2d[1], &oneloop_andi.sta_ref.att_3d[1], eulers_zxy_des.theta, k_theta_rm, k_q_rm, k_qdot_rm);
+    rm_3rd(dt_1l, &oneloop_andi.sta_ref.att[0],   &oneloop_andi.sta_ref.att_d[0],  &oneloop_andi.sta_ref.att_2d[0], &oneloop_andi.sta_ref.att_3d[0], eulers_zxy_des.phi,   k_att_rm.k1[0], k_att_rm.k2[0], k_att_rm.k3[0]);
+    rm_3rd(dt_1l, &oneloop_andi.sta_ref.att[1],   &oneloop_andi.sta_ref.att_d[1],  &oneloop_andi.sta_ref.att_2d[1], &oneloop_andi.sta_ref.att_3d[1], eulers_zxy_des.theta, k_att_rm.k1[1], k_att_rm.k2[1], k_att_rm.k3[1]);
+    rm_2nd(dt_1l, &oneloop_andi.sta_ref.att_d[2], &oneloop_andi.sta_ref.att_2d[2], &oneloop_andi.sta_ref.att_3d[2], des_r, k_head_rm.k2, k_head_rm.k3);
   }else{
     // Make sure X and Y jerk objectives are active
     Wv_wls[0] = Wv[0];
     Wv_wls[1] = Wv[1];
-    // Group RM gains in arrays
-    float k1_pos_rm[3] = {k_N_rm,  k_E_rm,  k_D_rm};
-    float k2_pos_rm[3] = {k_vN_rm, k_vE_rm, k_vD_rm};
-    float k3_pos_rm[3] = {k_aN_rm, k_aE_rm, k_aD_rm};
-    float k1_att_rm[3] = {k_phi_rm, k_theta_rm, k_psi_rm};
-    float k2_att_rm[3] = {k_p_rm, k_q_rm, k_psi_d_rm};
-    float k3_att_rm[3] = {k_pdot_rm, k_qdot_rm, k_psi_2d_rm};
-    // First time engaging NAV Mode or Navigation Functions (e.g. Oval) requires some initialization
-    // Register Arttitude Setpoints from previous loop
+    // Register Attitude Setpoints from previous loop
     float att_des[3] = {eulers_zxy_des.phi, eulers_zxy_des.theta, psi_des_rad};
     // Generate Reference signals for positioning using RM
     if (rm_order_h == 3){
-      rm_3rd_pos(dt_1l, oneloop_andi.gui_ref.pos, oneloop_andi.gui_ref.vel, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k1_pos_rm, k2_pos_rm, k3_pos_rm, max_v_nav, max_a_nav, max_j_nav, 2);    
+      rm_3rd_pos(dt_1l, oneloop_andi.gui_ref.pos, oneloop_andi.gui_ref.vel, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k_pos_rm.k1, k_pos_rm.k2, k_pos_rm.k3, max_v_nav, max_a_nav, max_j_nav, 2);    
     } else if (rm_order_h == 2){
       float_vect_copy(oneloop_andi.gui_ref.pos, oneloop_andi.gui_state.pos,2);
-      rm_2nd_pos(dt_1l, oneloop_andi.gui_ref.vel, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k2_pos_rm, k3_pos_rm, max_a_nav, max_j_nav, 2);   
+      rm_2nd_pos(dt_1l, oneloop_andi.gui_ref.vel, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k_pos_rm.k2, k_pos_rm.k3, max_a_nav, max_j_nav, 2);   
     } else if (rm_order_h == 1){
       float_vect_copy(oneloop_andi.gui_ref.pos, oneloop_andi.gui_state.pos,2);
       float_vect_copy(oneloop_andi.gui_ref.vel, oneloop_andi.gui_state.vel,2);
-      rm_1st_pos(dt_1l, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k3_pos_rm, max_j_nav, 2);   
+      rm_1st_pos(dt_1l, oneloop_andi.gui_ref.acc, oneloop_andi.gui_ref.jer, nav_target, k_pos_rm.k3, max_j_nav, 2);   
     }
 
     // The RM functions want an array as input. Create a single entry array and write the vertical guidance entries. 
@@ -1205,33 +1135,33 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
     float single_value_2d_ref[1]     = {oneloop_andi.gui_ref.acc[2]};
     float single_value_3d_ref[1]     = {oneloop_andi.gui_ref.jer[2]};
     float single_value_nav_target[1] = {nav_target[2]};
-    float single_value_k1_rm[1]      = {k1_pos_rm[2]};
-    float single_value_k2_rm[1]      = {k2_pos_rm[2]};
-    float single_value_k3_rm[1]      = {k3_pos_rm[2]};
+    float single_value_k1_rm[1]      = {k_pos_rm.k1[2]};
+    float single_value_k2_rm[1]      = {k_pos_rm.k2[2]};
+    float single_value_k3_rm[1]      = {k_pos_rm.k3[2]};
 
     if (rm_order_v == 3){
       rm_3rd_pos(dt_1l, single_value_ref, single_value_d_ref, single_value_2d_ref, single_value_3d_ref, single_value_nav_target, single_value_k1_rm, single_value_k2_rm, single_value_k3_rm, max_v_nav, max_a_nav, max_j_nav, 1);    
-      oneloop_andi.gui_ref.pos[2]    = single_value_ref[0];
-      oneloop_andi.gui_ref.vel[2]  = single_value_d_ref[0];
+      oneloop_andi.gui_ref.pos[2] = single_value_ref[0];
+      oneloop_andi.gui_ref.vel[2] = single_value_d_ref[0];
       oneloop_andi.gui_ref.acc[2] = single_value_2d_ref[0];
       oneloop_andi.gui_ref.jer[2] = single_value_3d_ref[0];
     } else if (rm_order_v == 2){
       rm_2nd_pos(dt_1l, single_value_d_ref, single_value_2d_ref, single_value_3d_ref, single_value_nav_target, single_value_k2_rm, single_value_k3_rm, max_a_nav, max_j_nav, 1);   
-      oneloop_andi.gui_ref.pos[2]    = oneloop_andi.gui_state.pos[2];
-      oneloop_andi.gui_ref.vel[2]  = single_value_d_ref[0];
+      oneloop_andi.gui_ref.pos[2] = oneloop_andi.gui_state.pos[2];
+      oneloop_andi.gui_ref.vel[2] = single_value_d_ref[0];
       oneloop_andi.gui_ref.acc[2] = single_value_2d_ref[0];
       oneloop_andi.gui_ref.jer[2] = single_value_3d_ref[0];
     } else if (rm_order_v == 1){
       rm_1st_pos(dt_1l, single_value_2d_ref, single_value_3d_ref, single_value_nav_target, single_value_k3_rm, max_j_nav, 1); 
-      oneloop_andi.gui_ref.pos[2]    = oneloop_andi.gui_state.pos[2];
-      oneloop_andi.gui_ref.vel[2]  = oneloop_andi.gui_state.vel[2];
+      oneloop_andi.gui_ref.pos[2] = oneloop_andi.gui_state.pos[2];
+      oneloop_andi.gui_ref.vel[2] = oneloop_andi.gui_state.vel[2];
       oneloop_andi.gui_ref.acc[2] = single_value_2d_ref[0];
       oneloop_andi.gui_ref.jer[2] = single_value_3d_ref[0];  
     }    
     // Generate Reference signals for attitude using RM
     // FIX ME ow not yet defined, will be useful in the future to have accurate psi tracking in NAV functions
     bool ow_psi = false;
-    rm_3rd_attitude(dt_1l, oneloop_andi.sta_ref.att, oneloop_andi.sta_ref.att_d, oneloop_andi.sta_ref.att_2d, oneloop_andi.sta_ref.att_3d, att_des, ow_psi, psi_vec, k1_att_rm, k2_att_rm, k3_att_rm);
+    rm_3rd_attitude(dt_1l, oneloop_andi.sta_ref.att, oneloop_andi.sta_ref.att_d, oneloop_andi.sta_ref.att_2d, oneloop_andi.sta_ref.att_3d, att_des, ow_psi, psi_vec, k_att_rm.k1, k_att_rm.k2, k_att_rm.k3);
 }
 }
 
@@ -1302,18 +1232,15 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
     nu[0] = 0.0;
     nu[1] = 0.0;
     nu[2] = a_thrust;
-    nu[3] = ec_3rd(oneloop_andi.sta_ref.att[0], oneloop_andi.sta_ref.att_d[0], oneloop_andi.sta_ref.att_2d[0], oneloop_andi.sta_ref.att_3d[0], oneloop_andi.sta_state.att[0], oneloop_andi.sta_state.att_d[0], oneloop_andi.sta_state.att_2d[0], k_phi_e, k_p_e, k_pdot_e);
-    nu[4] = ec_3rd(oneloop_andi.sta_ref.att[1], oneloop_andi.sta_ref.att_d[1], oneloop_andi.sta_ref.att_2d[1], oneloop_andi.sta_ref.att_3d[1], oneloop_andi.sta_state.att[1], oneloop_andi.sta_state.att_d[1], oneloop_andi.sta_state.att_2d[1], k_theta_e, k_q_e, k_qdot_e);
-    nu[5] = ec_2rd(oneloop_andi.sta_ref.att_d[2], oneloop_andi.sta_ref.att_2d[2], oneloop_andi.sta_ref.att_3d[2], oneloop_andi.sta_state.att_d[2], oneloop_andi.sta_state.att_2d[2], k_r_e, k_r_d_e);
+    nu[3] = ec_3rd(oneloop_andi.sta_ref.att[0],   oneloop_andi.sta_ref.att_d[0],  oneloop_andi.sta_ref.att_2d[0], oneloop_andi.sta_ref.att_3d[0],  oneloop_andi.sta_state.att[0],    oneloop_andi.sta_state.att_d[0], oneloop_andi.sta_state.att_2d[0], k_att_e.k1[0], k_att_e.k2[0], k_att_e.k3[0]);
+    nu[4] = ec_3rd(oneloop_andi.sta_ref.att[1],   oneloop_andi.sta_ref.att_d[1],  oneloop_andi.sta_ref.att_2d[1], oneloop_andi.sta_ref.att_3d[1],  oneloop_andi.sta_state.att[1],    oneloop_andi.sta_state.att_d[1], oneloop_andi.sta_state.att_2d[1], k_att_e.k1[1], k_att_e.k2[1], k_att_e.k3[1]);
+    nu[5] = ec_2rd(oneloop_andi.sta_ref.att_d[2], oneloop_andi.sta_ref.att_2d[2], oneloop_andi.sta_ref.att_3d[2], oneloop_andi.sta_state.att_d[2], oneloop_andi.sta_state.att_2d[2], k_head_e.k2, k_head_e.k3);
   }else{
-    float k1_att_e[3] = {k_phi_e,  k_theta_e, k_psi_e};
-    float k2_att_e[3] = {k_p_e,    k_q_e,     k_psi_d_e};
-    float k3_att_e[3] = {k_pdot_e, k_qdot_e,  k_psi_2d_e};
     float y_4d_att[3];
-    ec_3rd_att(y_4d_att, oneloop_andi.sta_ref.att, oneloop_andi.sta_ref.att_d, oneloop_andi.sta_ref.att_2d, oneloop_andi.sta_ref.att_3d, oneloop_andi.sta_state.att, oneloop_andi.sta_state.att_d, oneloop_andi.sta_state.att_2d, k1_att_e, k2_att_e, k3_att_e);
-    nu[0] = ec_3rd(oneloop_andi.gui_ref.pos[0], oneloop_andi.gui_ref.vel[0], oneloop_andi.gui_ref.acc[0], oneloop_andi.gui_ref.jer[0], oneloop_andi.gui_state.pos[0], oneloop_andi.gui_state.vel[0], oneloop_andi.gui_state.acc[0], k_N_e, k_vN_e, k_aN_e);
-    nu[1] = ec_3rd(oneloop_andi.gui_ref.pos[1], oneloop_andi.gui_ref.vel[1], oneloop_andi.gui_ref.acc[1], oneloop_andi.gui_ref.jer[1], oneloop_andi.gui_state.pos[1], oneloop_andi.gui_state.vel[1], oneloop_andi.gui_state.acc[1], k_E_e, k_vE_e, k_aE_e);
-    nu[2] = ec_3rd(oneloop_andi.gui_ref.pos[2], oneloop_andi.gui_ref.vel[2], oneloop_andi.gui_ref.acc[2], oneloop_andi.gui_ref.jer[2], oneloop_andi.gui_state.pos[2], oneloop_andi.gui_state.vel[2], oneloop_andi.gui_state.acc[2], k_D_e, k_vD_e, k_aD_e); 
+    ec_3rd_att(y_4d_att, oneloop_andi.sta_ref.att, oneloop_andi.sta_ref.att_d, oneloop_andi.sta_ref.att_2d, oneloop_andi.sta_ref.att_3d, oneloop_andi.sta_state.att, oneloop_andi.sta_state.att_d, oneloop_andi.sta_state.att_2d, k_att_e.k1, k_att_e.k2, k_att_e.k3);
+    nu[0] = ec_3rd(oneloop_andi.gui_ref.pos[0], oneloop_andi.gui_ref.vel[0], oneloop_andi.gui_ref.acc[0], oneloop_andi.gui_ref.jer[0], oneloop_andi.gui_state.pos[0], oneloop_andi.gui_state.vel[0], oneloop_andi.gui_state.acc[0], k_pos_e.k1[0], k_pos_e.k2[0], k_pos_e.k3[0]);
+    nu[1] = ec_3rd(oneloop_andi.gui_ref.pos[1], oneloop_andi.gui_ref.vel[1], oneloop_andi.gui_ref.acc[1], oneloop_andi.gui_ref.jer[1], oneloop_andi.gui_state.pos[1], oneloop_andi.gui_state.vel[1], oneloop_andi.gui_state.acc[1], k_pos_e.k1[1], k_pos_e.k2[1], k_pos_e.k3[1]);
+    nu[2] = ec_3rd(oneloop_andi.gui_ref.pos[2], oneloop_andi.gui_ref.vel[2], oneloop_andi.gui_ref.acc[2], oneloop_andi.gui_ref.jer[2], oneloop_andi.gui_state.pos[2], oneloop_andi.gui_state.vel[2], oneloop_andi.gui_state.acc[2], k_pos_e.k1[2], k_pos_e.k2[2], k_pos_e.k3[2]); 
     nu[3] = y_4d_att[0];  
     nu[4] = y_4d_att[1]; 
     nu[5] = y_4d_att[2]; 
