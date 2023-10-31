@@ -31,6 +31,7 @@
 #include <stdnoreturn.h>
 #include <math.h>
 #include <string.h>
+#include "mcu_periph/sys_time_arch.h"
 
 /*
 #                     _            __   _            _    _      _
@@ -45,14 +46,14 @@
  * Possible values are: 150, 300, 600
  */
 #ifndef DSHOT_SPEED
-#define DSHOT_SPEED 300
+#define DSHOT_SPEED 300U
 #endif
 
 /** Baudrate of the serial link used for telemetry data
  * Can depend on the ESC, but only 115k have been used so far
  */
 #ifndef DSHOT_TELEMETRY_BAUD
-#define DSHOT_TELEMETRY_BAUD 115200
+#define DSHOT_TELEMETRY_BAUD 115200U
 #endif
 
 /** Telemetry timeout in ms
@@ -61,8 +62,17 @@
 #define DSHOT_TELEMETRY_TIMEOUT_MS 3
 #endif
 
-/** the timer will beat @84Mhz on STM32F4 // TODO check on F7 */
-#define PWM_FREQ (STM32_SYSCLK/2000)
+
+#ifdef STM32H7XX
+// each H7 timer have the same max clock speed
+#define PWM_FREQ         (STM32_TIMCLK1 / 1000U) // the timer will beat @240Mhz on STM32H7
+#else
+// some F4 and F7 timers are limited to  / 2
+// others are limited to STM32_SYSCLK
+// so we take the max frequency that all timers can run
+#define PWM_FREQ         (STM32_SYSCLK / 2000U) // the timer will beat @84Mhz on STM32F4
+#endif
+
 
 /** Ticks per period
  * that let use any timer:
@@ -72,11 +82,17 @@
  */
 #define TICKS_PER_PERIOD 1000
 
+// ESCs are quite sensitive to the DSHOT duty cycle.
+// 333 should work most of the time, but some ESC need 373
+#ifndef DSHOT_BIT0_DUTY_RATIO
+#define DSHOT_BIT0_DUTY_RATIO 373U
+#endif
+
 // Some extra defines and macros
 #define DSHOT_FREQ (DSHOT_SPEED*1000) // in Hz
 #define TICK_FREQ (PWM_FREQ * TICKS_PER_PERIOD)
 #define DSHOT_PWM_PERIOD (TICK_FREQ/DSHOT_FREQ)
-#define DSHOT_BIT0_DUTY (DSHOT_PWM_PERIOD * 373 / 1000)
+#define DSHOT_BIT0_DUTY (DSHOT_PWM_PERIOD * DSHOT_BIT0_DUTY_RATIO / 1000)
 #define DSHOT_BIT1_DUTY (DSHOT_BIT0_DUTY*2)
 #define DCR_DBL ((DSHOT_CHANNELS-1) << 8) //  DSHOT_CHANNELS transfert(s), first register to get is CCR1
 #define DCR_DBA(pwmd) (((uint32_t *) (&pwmd->tim->CCR) - ((uint32_t *) pwmd->tim)))
@@ -135,7 +151,11 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
   // use pburst, mburst only if buffer size satisfy aligmnent requirement
   driver->dma_conf = (DMAConfig) {
     .stream = config->dma_stream,
+#if STM32_DMA_SUPPORTS_DMAMUX
+    .dmamux = config->dmamux,
+#else
     .channel = config->dma_channel,
+#endif
     .dma_priority = 3,
     .irq_priority = CORTEX_MAX_KERNEL_PRIORITY + 1,
     .direction = DMA_DIR_M2P,
