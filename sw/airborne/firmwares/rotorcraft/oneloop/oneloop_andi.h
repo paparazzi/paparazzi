@@ -85,6 +85,42 @@ struct guidance_indi_hybrid_params {
 extern struct guidance_indi_hybrid_params gih_params;
 extern bool force_forward; 
 
+struct OneloopGuidanceRef {
+  float pos[3];     
+  float vel[3]; 
+  float acc[3];
+  float jer[3];
+};
+
+struct OneloopGuidanceState {
+  float pos[3];     
+  float vel[3]; 
+  float acc[3];
+};
+
+struct OneloopStabilizationRef {
+  float att[3];     
+  float att_d[3]; 
+  float att_2d[3];
+  float att_3d[3];
+};
+
+struct OneloopStabilizationState {
+  float att[3];     
+  float att_d[3]; 
+  float att_2d[3];
+};
+struct OneloopGeneral {
+  bool   half_loop;
+  struct OneloopGuidanceRef         gui_ref;     // Guidance References
+  struct OneloopGuidanceState       gui_state;   // Guidance State
+  struct OneloopStabilizationRef    sta_ref;     // Stabilization References
+  struct OneloopStabilizationState  sta_state;   // Stabilization State
+
+};
+
+extern struct OneloopGeneral oneloop_andi;
+
 extern void oneloop_andi_init(void);
 extern void oneloop_andi_enter(bool half_loop_sp);
 extern void oneloop_andi_set_failsafe_setpoint(void);

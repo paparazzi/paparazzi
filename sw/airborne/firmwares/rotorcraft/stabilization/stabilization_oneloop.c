@@ -82,8 +82,8 @@ void stabilization_attitude_run(bool in_flight)
   int    rm_order_h = 3;
   int    rm_order_v = 3;
   // Run the oneloop controller in half-loop mode
-  if (half_loop){
-  oneloop_andi_run(in_flight, half_loop, PSA_des, rm_order_h, rm_order_v);
+  if (oneloop_andi.half_loop){
+  oneloop_andi_run(in_flight, oneloop_andi.half_loop, PSA_des, rm_order_h, rm_order_v);
   }
 }
 

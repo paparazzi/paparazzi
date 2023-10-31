@@ -34,7 +34,6 @@
     <module name="nav_hybrid"/>
 
     <module name="oneloop" type="andi">
-      <configure name="ANDI_NUM_ACT_TOT"      value="6"/>
       <configure name="ANDI_NUM_ACT"          value="4"/>
       <configure name="ANDI_NUM_VIRTUAL_ACT"  value="2"/>
       <configure name="ANDI_OUTPUTS"          value="6"/>

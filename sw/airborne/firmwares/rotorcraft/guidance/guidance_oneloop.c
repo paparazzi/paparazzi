@@ -116,8 +116,8 @@ struct StabilizationSetpoint guidance_oneloop_run_mode(bool in_flight, struct Ho
     PSA_des.z   = ACCEL_FLOAT_OF_BFP(gv->zdd_ref); //why is there not acceleration SP and only REF?
     rm_order_v  = 1;
   }
-  half_loop = false;
-  oneloop_andi_run(in_flight, half_loop, PSA_des, rm_order_h, rm_order_v);
+  oneloop_andi.half_loop = false;
+  oneloop_andi_run(in_flight, oneloop_andi.half_loop, PSA_des, rm_order_h, rm_order_v);
   struct StabilizationSetpoint sp = { 0 };
   return sp; 
 }
