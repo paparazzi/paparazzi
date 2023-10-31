@@ -19,7 +19,7 @@
     <file name="nav_rosette.h"/>
   </header>
   <init fun="nav_rosette_init()"/>
-  <makefile target="ap|sim|nps|hitl">
+  <makefile target="ap|sim|nps">
     <file name="nav_rosette.c"/>
   </makefile>
 </module>

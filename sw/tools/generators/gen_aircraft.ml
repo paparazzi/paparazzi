@@ -342,15 +342,22 @@ let () =
     | _ -> Printf.eprintf "Missing airframe or flight_plan" end;
 
     (* Create Makefile.ac only if needed *)
+    Printf.printf "Dumping makefile...%!";
     let makefile_ac = aircraft_dir // "Makefile.ac" in
     match ac.Aircraft.airframe with
-    | None -> ()
+    | None -> Printf.printf "(skip)"
     | Some airframe ->
       let module_files = List.map (fun m -> m.Module.xml_filename) loaded_modules in
       if is_older makefile_ac (airframe.Airframe.filename :: module_files)
       then
-        assert(Sys.command (sprintf "mv %s %s" temp_makefile_ac makefile_ac) = 0)
+        begin
+          Printf.printf("(copying)");
+          assert(Sys.command (sprintf "mv %s %s" temp_makefile_ac makefile_ac) = 0);
+        end
+      else
+          Printf.printf("(skip copying)");
       ;
+    Printf.printf " done\n%!";
 
   with Failure f ->
     prerr_endline f;

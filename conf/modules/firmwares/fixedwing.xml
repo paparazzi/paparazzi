@@ -11,7 +11,7 @@
     <depends>system_core,autopilot_gnc_fw,actuators_pwm</depends>
     <suggests>nav_basic_fw</suggests>
   </dep>
-  <makefile>
+  <makefile target="ap|nps|sim|fbw">
     <configure name="PERIODIC_FREQUENCY" default="60"/>
     <configure name="SRC_FIRMWARE" value="firmwares/fixedwing"/>
     <configure name="WIND_INFO" default="TRUE"/>
@@ -28,7 +28,7 @@
   <makefile target="!fbw">
     <file name="main_ap.c" dir="."/>
   </makefile>
-  <makefile target="nps|hitl">
+  <makefile target="nps">
     <define name="AP"/>
     <file name="nps_autopilot_fixedwing.c" dir="nps"/>
   </makefile>
