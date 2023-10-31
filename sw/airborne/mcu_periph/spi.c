@@ -85,6 +85,15 @@ void spi4_init(void)
 }
 #endif // USE_SPI4
 
+#if USE_SPI6
+struct spi_periph spi6;
+
+void spi6_init(void)
+{
+  spi_init(&spi6);
+  spi6_arch_init();
+}
+#endif // USE_SPI6
 
 void spi_init(struct spi_periph *p)
 {
