@@ -20,8 +20,36 @@
 
 /** @file "firmwares/rotorcraft/oneloop/oneloop_andi.h"
  * @author Tomaso De Ponti <tmldeponti@tudelft.nl>
- * One loop (Guidance + Stabilization) ANDI controller for the rotating wing drone RW3C
- */
+ * One loop (Guidance + Stabilization) ANDI controller for rotorcrafts
+ * 
+ * /////EXPLANATION OF HALFLOOP /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * @param oneloop_andi_half_loop is a Boolean which indicates the state of the oneloop controller////////////////////////////////////////////////////////////////////////////////////
+ * @param oneloop_andi_half_loop = true  @result Control allocation is performed to accomodate desired Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk (ANDI)//////////////////////////
+ * @param oneloop_andi_half_loop = false @result Control allocation is performed to accomodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk (ANDI)///
+ * //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * // Enter functions change the state of the oneloop controller/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * @fn stabilization_attitude_enter in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" @result oneloop_andi_half_loop = true /////////////////////////////////////
+ * @fn guidance_h_run_enter         in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"           @result oneloop_andi_half_loop = false ////////////////////////////////////
+ * @fn guidance_v_run_enter         in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"           @result nothing ///////////////////////////////////////////////////////////
+ * //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * // Example of execution of the oneloop controller for two different states in the state machine  /////////////////////////////////////////////////////////////////////////////////
+ * @file "sw/airborne/firmwares/rotorcraft/autopilot_static.c" @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * @if MODE_ATTITUDE_RC_DIRECT @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * --- @fn stabilization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" @result: //////////////////////////////////////////////////////////////
+ * ----- @if half_loop @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * ------- @fn oneloop_andi_run(true) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c" ////////////////////////////////////////////////////////////////////////////////////////
+ * --------- @result: Control allocation is performed to accomodate desired Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk from stick inputs /////////////////////////////////////////
+ * ----- @endif /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * @elseif MODE_NAV @result: ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * --- @fn guidance_h_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c" @result: ////////////////////////////////////////////////////////////////////////////////////
+ * ----- @fn oneloop_andi_run(false) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c" /////////////////////////////////////////////////////////////////////////////////////////
+ * ------- @result: Control allocation is performed to accomodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk from navigation outputs //////////////
+ * --- @fn guidance_v_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c" /////////////////////////////////////////////////////////////////////////////////////////////
+ * ----- @result: nothing ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * --- @fn stablization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" ////////////////////////////////////////////////////////////////////////
+ * ----- @result:nothing because of oneloop_andi_half_loop = false //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * @endif////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ *///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Include necessary header files */
 #include "firmwares/rotorcraft/oneloop/oneloop_andi.h"
@@ -592,7 +620,9 @@ void rm_3rd_attitude(float dt, float x_ref[3], float x_d_ref[3], float x_2d_ref[
   float e_x_2d[3];
   float x_d_eul_ref[3];
   err_nd(e_x, x_des, x_ref, k1_rm, 3);
-  e_x[2] = k1_rm[2] * convert_angle((x_des[2] - x_ref[2])); // Correction for Heading error +-Pi
+  float temp_diff = x_des[2] - x_ref[2];
+  NormRadAngle(temp_diff);
+  e_x[2] = k1_rm[2] * temp_diff; // Correction for Heading error +-Pi
   float_rates_of_euler_dot_vec(e_x_rates, x_ref, e_x);
   err_nd(e_x_d, e_x_rates, x_d_ref, k2_rm, 3);
   err_nd(e_x_2d, e_x_d, x_2d_ref, k3_rm, 3);
@@ -605,7 +635,7 @@ void rm_3rd_attitude(float dt, float x_ref[3], float x_d_ref[3], float x_2d_ref[
   float_euler_dot_of_rates_vec(x_d_ref, x_ref, x_d_eul_ref);
   integrate_nd(dt, x_ref, x_d_eul_ref, 3);
   if(ow_psi){x_ref[2] = psi_overwrite[0];}
-  x_ref[2] = convert_angle(x_ref[2]);
+  NormRadAngle(x_ref[2]);
 }
 
 /** 
@@ -643,7 +673,9 @@ void rm_3rd(float dt, float* x_ref, float* x_d_ref, float* x_2d_ref, float* x_3d
  * @param k3_rm           Reference Model Gain 3rd order signal
  */
 void rm_3rd_head(float dt, float* x_ref, float* x_d_ref, float* x_2d_ref, float* x_3d_ref, float x_des, float k1_rm, float k2_rm, float k3_rm){
-  float e_x      = k1_rm * convert_angle((x_des- *x_ref));
+  float temp_diff = x_des - *x_ref;
+  NormRadAngle(temp_diff);
+  float e_x      = k1_rm * temp_diff;
   float e_x_d    = k2_rm * (e_x- *x_d_ref);
   float e_x_2d   = k3_rm * (e_x_d- *x_2d_ref);
   *x_3d_ref = e_x_2d;
@@ -788,7 +820,10 @@ void ec_3rd_att(float y_4d[3], float x_ref[3], float x_d_ref[3], float x_2d_ref[
   float y_4d_2[3];
   float y_4d_3[3];
   err_nd(y_4d_1, x_ref, x, k1_e, 3);
-  y_4d_1[2] = k1_e[2] * convert_angle((x_ref[2] - x[2])); // Correction for Heading error +-Pi
+  float temp_diff = x_ref[2] - x[2];
+  NormRadAngle(temp_diff);
+  float e_x = temp_diff;
+  y_4d_1[2] = k1_e[2] * e_x; // Correction for Heading error +-Pi
   err_nd(y_4d_2, x_d_ref, x_d, k2_e, 3);
   err_nd(y_4d_3, x_2d_ref, x_2d, k3_e, 3);
   float_vect_copy(y_4d,x_3d_ref,3);
@@ -869,6 +904,11 @@ void init_poles(void){
  * FIXME: Calculate the gains dynamically for transition
  */
 void init_controller(void){
+  /*Some calculations in case new poles have been specified*/
+  p_att_e.p3  = p_att_e.omega_n  * p_att_e.zeta;
+  p_att_rm.p3 = p_att_rm.omega_n * p_att_rm.zeta;
+  p_alt_rm.p3 = p_alt_rm.omega_n * p_alt_rm.zeta;
+  p_head_e.p3 = p_head_e.omega_n * p_head_e.zeta;
   /*Attitude Loop*/
   k_att_e.k1[0]  = k_e_1_3_f(p_att_e.p3, p_att_e.p3, p_att_e.p3);
   k_att_e.k2[0]  = k_e_2_3_f(p_att_e.p3, p_att_e.p3, p_att_e.p3);
@@ -1420,25 +1460,4 @@ void calc_model(void){
   }
 }
 
-/**
- * @brief Converts an angle in radians to an angle between -pi and pi.
- *
- * @param psi The input angle in radians.
- * @return The converted angle between -pi and pi.
- */
-float convert_angle(float psi) {
-    // Compute the equivalent angle between -2pi and 2pi
-    psi = fmodf(psi, 2 * M_PI);
 
-    if (psi < -M_PI){
-        psi += 2 * M_PI;
-    }else if (psi > M_PI){
-        psi -= 2 * M_PI;
-    }
-    // Convert to angle between -pi and pi
-    if (psi <= M_PI){
-        return psi;
-    }else{
-        return psi - 2 * M_PI;
-    }
-}
