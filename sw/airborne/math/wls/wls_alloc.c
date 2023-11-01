@@ -43,6 +43,7 @@
 #include <float.h>
 #include "math/qr_solve/qr_solve.h"
 #include "math/qr_solve/r8lib_min.h"
+#include "generated/airframe.h"
 
 // provide loop feedback
 #ifndef WLS_VERBOSE
@@ -64,6 +65,18 @@ static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float*
 #endif
 
 #define WLS_N_C ((WLS_N_U)+(WLS_N_V))
+
+
+#if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
+#if INDI_NUM_ACT > WLS_N_U
+#error Matrix-WLS_N_U too small or not defined: define WLS_N_U >= INDI_NUM_ACT in airframe file
+#endif
+#if INDI_OUTPUTS > WLS_N_V
+#error Matrix-WLS_N_V too small or not defined: define WLS_N_U >= INDI_OUTPUTS in airframe file
+#endif
+#endif
+
+
 
 /**
  * @brief Wrapper for qr solve
