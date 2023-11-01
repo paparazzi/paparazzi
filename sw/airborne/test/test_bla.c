@@ -76,7 +76,36 @@ int main(int argc, char **argv)
   DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("qc ", qc);
 
   float v_n, v_e;
-  get_vector_to_next_waypoint(0.+1.e-7, 0.0+1.e-7, 0., 0.0, &v_n, &v_e);
-  printf("new func: %f, %f\n", v_e, v_n);
+  double lat_now =  50.;
+  double lon_now =   0.;
+  double lat_next = 50.+3.e-2;
+  double lon_next =  0.+4.e-2;
+  get_vector_to_next_waypoint(lat_now, lon_now, lat_next, lon_next, &v_n, &v_e);
+  float bearing = get_bearing_to_next_waypoint(lat_now, lon_now, lat_next, lon_next);
+  printf("new func: %f, %f, %f\n", v_e, v_n, bearing);
+
+  // float lat_nowf =  lat_now;
+  // float lon_nowf =  lon_now;
+  // float lat_nextf = lat_next;
+  // float lon_nextf = lon_next;
+  // // waypoint_get_lla
+  // struct LlaCoor_i wp;
+  // wp.lat = RadOfDeg(lat_nowf); //, RadOfDeg(lon_nowf), 0.0f};
+  // // get ltp
+  // struct LtpDef_i ltp_curpos;
+  // struct LlaCoor_i * lla_curpos;
+  // lla_curpos = stateGetPositionLla_i();
+  // ltp_def_from_lla_i(&ltp_curpos, lla_curpos);
+  // // lla to ltp (local ned)
+  // // Convert lla to ned (in cm, no pos_frac!)
+  // struct NedCoor_i waypoint_ltp;
+  // ned_of_lla_point_i(&waypoint_ltp, &ltp_curpos, _wp);
+  // // separate altitude
+  // waypoint_ltp.z = -POS_BFP_OF_REAL(_wp->alt)/1000;
+
+  // struct EnuCoor_f waypoint_ltp_enu;
+  // waypoint_ltp_enu.x = ((float) waypoint_ltp.y)/100.0f;
+  // waypoint_ltp_enu.y = ((float) waypoint_ltp.x)/100.0f;
+  // waypoint_ltp_enu.z = POS_FLOAT_OF_BFP(-waypoint_ltp.z);
 
 }

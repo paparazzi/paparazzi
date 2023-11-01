@@ -334,39 +334,45 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 /*********** Navigation to  waypoint *************************************/
 static inline void NavGotoWaypoint(uint8_t wp)
 {
-  // struct EnuCoor_f * _wp = waypoint_get_enu_f(wp);
   // waypoint_get_lla
   struct LlaCoor_i * _wp = waypoint_get_lla(wp);
+  struct LlaCoor_f _wp_f;
+  LLA_FLOAT_OF_BFP(_wp_f, *_wp);
   // get ltp
-  struct LtpDef_i ltp_curpos;
   struct LlaCoor_i * lla_curpos;
   lla_curpos = stateGetPositionLla_i();
-  ltp_def_from_lla_i(&ltp_curpos, lla_curpos);
+  struct LlaCoor_f * lla_curpos_f;
+  lla_curpos_f = stateGetPositionLla_f();
+  // ltp_def_from_lla_i(&ltp_curpos, lla_curpos);
+  struct LtpDef_f *ltp_curpos;
+  ltp_curpos = stateGetLtp_f();
   // lla to ltp (local ned)
-  // Convert lla to ned (in cm, no pos_frac!?? TODO!!)
-  struct NedCoor_i waypoint_ltp;
-  ned_of_lla_point_i(&waypoint_ltp, &ltp_curpos, _wp);
+  // Convert lla to ned (in cm, no pos_frac!)
+  struct NedCoor_f waypoint_ltp;
+  ned_of_lla_point_f(&waypoint_ltp, ltp_curpos, &_wp_f);
   // separate altitude
-  waypoint_ltp.z = -POS_BFP_OF_REAL(_wp->alt)/1000;
+  waypoint_ltp.z = -_wp_f.alt;
 
   struct EnuCoor_f waypoint_ltp_enu;
-  waypoint_ltp_enu.x = ((float) waypoint_ltp.y)/100.0f;
-  waypoint_ltp_enu.y = ((float) waypoint_ltp.x)/100.0f;
-  waypoint_ltp_enu.z = POS_FLOAT_OF_BFP(-waypoint_ltp.z);
+  waypoint_ltp_enu.x = waypoint_ltp.y;
+  waypoint_ltp_enu.y = waypoint_ltp.x;
+  waypoint_ltp_enu.z = -waypoint_ltp.z;
 
   float v_n, v_e;
   get_vector_to_next_waypoint(((double) lla_curpos->lat)/1.0e7, ((double) lla_curpos->lon)/1.0e7, ((double) _wp->lat)/1.0e7, ((double) _wp->lon)/1.0e7, &v_n, &v_e);
 
   float bearing = get_bearing_to_next_waypoint(((double) lla_curpos->lat)/1.0e7, ((double) lla_curpos->lon)/1.0e7, ((double) _wp->lat)/1.0e7, ((double) _wp->lon)/1.0e7);
 
+  RunOnceEvery(30, printf("la lon wp: %f, %f, %f\n", _wp_f.lat, _wp_f.lon, _wp_f.alt));
+  RunOnceEvery(30, printf("ltp : %f, %f, %f\n", ltp_curpos->lla.lat, ltp_curpos->lla.lon, ltp_curpos->lla.alt));
   RunOnceEvery(30, printf("pos sp enu: %f, %f, %f\n", waypoint_ltp_enu.x, waypoint_ltp_enu.y, waypoint_ltp_enu.z));
   RunOnceEvery(30, printf("new func: %f, %f, %f\n", v_e, v_n, bearing));
   double lat = ((double) lla_curpos->lat)/1.0e7;
   double lon = ((double) lla_curpos->lon)/1.0e7;
   RunOnceEvery(30, printf("la lon: %f, %f\n", lat, lon));
-  double latwp = ((double) _wp->lat)/1.0e7;
-  double lonwp = ((double) _wp->lon)/1.0e7;
-  RunOnceEvery(30, printf("la lon wp: %f, %f\n", latwp, lonwp));
+  // double latwp = ((double) _wp->lat)/1.0e7;
+  // double lonwp = ((double) _wp->lon)/1.0e7;
+  RunOnceEvery(30, printf("la lon : %f, %f\n", lla_curpos_f->lat, lla_curpos_f->lon));
 
   if (_wp != NULL) {
     // nav.nav_goto(_wp);
