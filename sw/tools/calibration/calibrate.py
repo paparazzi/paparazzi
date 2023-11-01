@@ -27,7 +27,7 @@ import os
 from optparse import OptionParser
 import scipy
 from scipy import optimize
-
+import numpy as np
 import calibration_utils
 
 
@@ -117,9 +117,9 @@ def main():
     # estimate the noise threshold if not explicitly given
     if noise_threshold <= 0:
         # mean over all measurements (flattended array) as approx neutral value
-        neutral = scipy.mean(measurements)
+        neutral = np.mean(measurements)
         # find the median of measurement vector length after subtracting approximate neutral
-        meas_median = scipy.median(scipy.array([scipy.linalg.norm(v - neutral) for v in measurements]))
+        meas_median = np.median(np.array([scipy.linalg.norm(v - neutral) for v in measurements]))
         if options.sensor == "ACCEL":
             # set noise threshold to be below 10% of that for accelerometers
             noise_threshold = meas_median * 0.1
@@ -148,8 +148,8 @@ def main():
 #    print p0
 
     def err_func(p, meas, y):
-        cp, np = calibration_utils.scale_measurements(meas, p)
-        err = y*scipy.ones(len(meas)) - np
+        c_p, n_p = calibration_utils.scale_measurements(meas, p)
+        err = y*np.ones(len(meas)) - n_p
         return err
 
     p1, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref), full_output=1)
