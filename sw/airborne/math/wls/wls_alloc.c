@@ -55,13 +55,6 @@ static void print_final_values(int n_u, int n_v, float* u, float** B, float* v, 
 static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free);
 #endif
 
-#ifndef WLS_N_U
-#define WLS_N_U 6
-#endif
-
-#ifndef WLS_N_V
-#define WLS_N_V 4
-#endif
 
 #define WLS_N_C ((WLS_N_U)+(WLS_N_V))
 
