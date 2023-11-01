@@ -56,6 +56,18 @@ void stateInit(void)
   state.utm_origin_f.zone = 0;
 }
 
+void stateCalcLtp_f(void)
+{
+  if (bit_is_set(state.ltp_status, LTP_F)) {
+    return;
+  }
+
+  ltp_def_from_lla_f(&state.ltp_curpos_f, stateGetPositionLla_f());
+
+  /* set bit to indicate this representation is computed */
+  SetBit(state.ltp_status, LTP_F);
+}
+
 
 /*******************************************************************************
  *                                                                             *
@@ -578,7 +590,7 @@ void stateCalcPositionLla_f(void)
 
   int errno = 0;
   if (bit_is_set(state.pos_status, POS_LLA_I)) {
-    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_f);
+    LLA_FLOAT_OF_BFP(state.lla_pos_f, state.lla_pos_i);
   } else if (bit_is_set(state.pos_status, POS_ECEF_F)) {
     lla_of_ecef_f(&state.lla_pos_f, &state.ecef_pos_f);
   } else if (bit_is_set(state.pos_status, POS_ECEF_I)) {
@@ -982,7 +994,7 @@ void stateCalcSpeedEcef_f(void)
   }
 
   if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
-    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ned_speed_i);
+    SPEEDS_FLOAT_OF_BFP(state.ecef_speed_f, state.ecef_speed_i);
   } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
     ecef_of_ned_vect_f(&state.ecef_speed_f, &state.ned_origin_f, &state.ned_speed_f);
   } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
@@ -998,6 +1010,33 @@ void stateCalcSpeedEcef_f(void)
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_ECEF_F);
+}
+
+void stateCalcSpeedLtp_f(void)
+{
+  if (bit_is_set(state.speed_status, SPEED_LTP_F)) {
+    return;
+  }
+
+  stateGetLtp_f();
+
+  if (bit_is_set(state.speed_status, SPEED_ECEF_F)) {
+    ned_of_ecef_vect_f(&state.ltp_speed_f, &state.ltp_curpos_f, &state.ecef_speed_f);
+  } else if (bit_is_set(state.speed_status, SPEED_ECEF_I)) {
+    stateCalcSpeedEcef_f();
+    ned_of_ecef_vect_f(&state.ltp_speed_f, &state.ltp_curpos_f, &state.ecef_speed_f);
+  } else if (bit_is_set(state.speed_status, SPEED_NED_F)) {
+    ecef_of_ned_vect_f(&state.ecef_speed_f, &state.ned_origin_f, &state.ned_speed_f);
+    ned_of_ecef_vect_f(&state.ltp_speed_f, &state.ltp_curpos_f, &state.ecef_speed_f);
+  } else if (bit_is_set(state.speed_status, SPEED_NED_I)) {
+    stateCalcSpeedNed_f();
+    ecef_of_ned_vect_f(&state.ecef_speed_f, &state.ned_origin_f, &state.ned_speed_f);
+    ned_of_ecef_vect_f(&state.ltp_speed_f, &state.ltp_curpos_f, &state.ecef_speed_f);
+  } else {
+    return;
+  }
+  /* set bit to indicate this representation is computed */
+  SetBit(state.speed_status, SPEED_LTP_F);
 }
 
 void stateCalcHorizontalSpeedNorm_f(void)

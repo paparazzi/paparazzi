@@ -118,6 +118,14 @@ float waypoint_get_alt(uint8_t wp_id)
   return 0.f;
 }
 
+float waypoint_get_lla_alt(uint8_t wp_id)
+{
+  if (wp_id < nb_waypoint) {
+    return waypoints[wp_id].lla.alt/1000.f;
+  }
+  return 0.f;
+}
+
 float waypoint_get_lat_deg(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
@@ -335,9 +343,9 @@ void waypoint_localize(uint8_t wp_id)
     struct EnuCoor_i enu;
     enu_of_lla_point_i(&enu, &state.ned_origin_i, &waypoints[wp_id].lla);
     // convert ENU pos from cm to BFP with INT32_POS_FRAC
-    enu.x = POS_BFP_OF_REAL(enu.x) / 100;
-    enu.y = POS_BFP_OF_REAL(enu.y) / 100;
-    enu.z = POS_BFP_OF_REAL(enu.z) / 100;
+    enu.x = POS_BFP_OF_REAL((int64_t) enu.x) / 100;
+    enu.y = POS_BFP_OF_REAL((int64_t) enu.y) / 100;
+    enu.z = POS_BFP_OF_REAL((int64_t) enu.z) / 100;
     waypoints[wp_id].enu_i = enu;
     SetBit(waypoints[wp_id].flags, WP_FLAG_ENU_I);
     ENU_FLOAT_OF_BFP(waypoints[wp_id].enu_f, waypoints[wp_id].enu_i);
