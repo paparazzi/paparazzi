@@ -64,6 +64,8 @@
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
 #include "math/wls/wls_alloc.h"
+#include "modules/nav/nav_rotorcraft_hybrid.h"
+
 
 #include <stdio.h>
 
@@ -225,10 +227,17 @@ static float u_pref[ANDI_NUM_ACT_TOT] = {0.0};
 
 
 /* Declaration of Navigation Variables*/
-float v_nav_des = 1.2;
-float max_j_nav = 500.0; // Pusher Test shows erros above 2[Hz] ramp commands [0.6 SF]
+#ifdef ONELOOP_MAX_ACC
+float max_a_nav = ONELOOP_MAX_ACC;
+#else
 float max_a_nav = 4.0;   // (35[N]/6.5[Kg]) = 5.38[m/s2]  [0.8 SF]
-//float max_v_nav = 5.0;
+#endif
+
+#ifdef ONELOOP_MAX_JERK
+float max_j_nav = ONELOOP_MAX_JERK;
+#else
+float max_j_nav = 500.0; // Pusher Test shows erros above 2[Hz] ramp commands [0.6 SF]
+#endif
 
 #ifdef ONELOOP_MAX_AIRSPEED
 float max_v_nav = ONELOOP_MAX_AIRSPEED; // Consider implications of difference Ground speed and airspeed
@@ -299,8 +308,6 @@ void  rm_1st_pos(float dt, float x_2d_ref[], float x_3d_ref[], float x_2d_des[],
 void  ec_3rd_att(float y_4d[3], float x_ref[3], float x_d_ref[3], float x_2d_ref[3], float x_3d_ref[3], float x[3], float x_d[3], float x_2d[3], float k1_e[3], float k2_e[3], float k3_e[3]);
 void  calc_model(void);
 
-// Define general struct of the Oneloop ANDI controller
-struct OneloopGeneral oneloop_andi;
 /* Define messages of the module*/
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -367,31 +374,32 @@ static void send_oneloop_guidance(struct transport_tx *trans, struct link_device
 }
 #endif
 
+/*Define general struct of the Oneloop ANDI controller*/
+struct OneloopGeneral oneloop_andi;
+
 /* Oneloop Misc variables*/
-bool  heading_on = false;
-float use_increment = 0.0;
-float nav_target[3]; // Can be a position, speed or acceleration depending on the guidance H mode
-float pos_init[3];
-float dt_1l = 1./PERIODIC_FREQUENCY;
+static float use_increment = 0.0;
+static float nav_target[3]; // Can be a position, speed or acceleration depending on the guidance H mode
+static float dt_1l = 1./PERIODIC_FREQUENCY;
 static float g   = 9.81; // [m/s^2] Gravitational Acceleration
 
 /* Oneloop Control Variables*/
 float andi_u[ANDI_NUM_ACT_TOT];
 float andi_du[ANDI_NUM_ACT_TOT];
-float andi_du_n[ANDI_NUM_ACT_TOT];
+static float andi_du_n[ANDI_NUM_ACT_TOT];
 float nu[ANDI_OUTPUTS];
-float act_dynamics_d[ANDI_NUM_ACT_TOT];
+static float act_dynamics_d[ANDI_NUM_ACT_TOT];
 float actuator_state_1l[ANDI_NUM_ACT];
-float a_thrust = 0.0;
+static float a_thrust = 0.0;
 
 /*Attitude related variables*/
 struct Int32Eulers stab_att_sp_euler_1l;// here for now to correct warning, can be better eploited in the future 
 struct Int32Quat   stab_att_sp_quat_1l; // here for now to correct warning, can be better eploited in the future
 struct FloatEulers eulers_zxy_des;
 struct FloatEulers eulers_zxy;
-float  psi_des_rad = 0.0;
+static float  psi_des_rad = 0.0;
 float  psi_des_deg = 0.0;
-float  psi_vec[4]  = {0.0, 0.0, 0.0, 0.0};
+static float  psi_vec[4]  = {0.0, 0.0, 0.0, 0.0};
 
 /*WLS Settings*/
 static float gamma_wls = 1000.0;
@@ -904,6 +912,8 @@ void init_poles(void){
  * FIXME: Calculate the gains dynamically for transition
  */
 void init_controller(void){
+  /*Register a variable from nav_hybrid. SHould be improved when nav hybrid is final.*/
+  max_v_nav = nav_max_speed;
   /*Some calculations in case new poles have been specified*/
   p_att_e.p3  = p_att_e.omega_n  * p_att_e.zeta;
   p_att_rm.p3 = p_att_rm.omega_n * p_att_rm.zeta;
@@ -1129,7 +1139,6 @@ void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, 
     float_vect_copy(oneloop_andi.gui_ref.vel,oneloop_andi.gui_state.vel,3);
     float_vect_copy(oneloop_andi.gui_ref.acc,oneloop_andi.gui_state.acc,3);
     float_vect_zero(oneloop_andi.gui_ref.jer,3);
-    float_vect_copy(pos_init,oneloop_andi.gui_state.pos,3);
     // Set desired attitude with stick input
     eulers_zxy_des.phi   = (float) (radio_control_get(RADIO_ROLL))/MAX_PPRZ*45.0*M_PI/180.0;
     eulers_zxy_des.theta = (float) (radio_control_get(RADIO_PITCH))/MAX_PPRZ*45.0*M_PI/180.0;
