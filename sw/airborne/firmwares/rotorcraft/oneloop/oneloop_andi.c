@@ -314,7 +314,9 @@ void  calc_model(void);
 
 static void send_eff_mat_g_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0;
+  printf("Sending EFF_MAT_G\n");
+
+  float zero = 0.0;
   pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
                 ANDI_NUM_ACT_TOT, g1g2_1l[0],
                 ANDI_NUM_ACT_TOT, g1g2_1l[1],
@@ -322,8 +324,8 @@ static void send_eff_mat_g_oneloop_andi(struct transport_tx *trans, struct link_
                 ANDI_NUM_ACT_TOT, g1g2_1l[3],
                 ANDI_NUM_ACT_TOT, g1g2_1l[4],
                 ANDI_NUM_ACT_TOT, g1g2_1l[5], 
-                                    0, &zero,
-                                    0, &zero);
+                                    1, &zero,
+                                    1, &zero);
 }
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {

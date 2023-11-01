@@ -278,11 +278,11 @@ void sum_g1_g2(void);
 #include "modules/datalink/telemetry.h"
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0;
+  float zero = 0.0;
   pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
-                                   0, &zero,
-                                   0, &zero,
-                                   0, &zero,
+                                   1, &zero,
+                                   1, &zero,
+                                   1, &zero,
                       INDI_NUM_ACT, g1g2[0],
                       INDI_NUM_ACT, g1g2[1],
                       INDI_NUM_ACT, g1g2[2],
@@ -306,7 +306,7 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
 
 static void send_att_full_indi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0;
+  float zero = 0.0;
   pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
                                       &zero, &zero, &zero,      // att
                                       &zero, &zero, &zero,      // att.ref
@@ -322,7 +322,7 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
                                       &angular_accel_ref.p,     // ang.acc.ref
                                       &angular_accel_ref.q,
                                       &angular_accel_ref.r,
-                                      0, &zero,                 // inputs
+                                      1, &zero,                 // inputs
                                       INDI_NUM_ACT, indi_u);    // out
 }
 #endif

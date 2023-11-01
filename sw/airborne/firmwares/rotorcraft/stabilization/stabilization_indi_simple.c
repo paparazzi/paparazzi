@@ -145,7 +145,7 @@ struct IndiVariables indi = {
 
 static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0;
+  float zero = 0.0;
   pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
                                       &zero, &zero, &zero,         // att
                                       &zero, &zero, &zero,         // att.ref
@@ -159,8 +159,8 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
                                       &indi.angular_accel_ref.p,   // ang.acc.ref
                                       &indi.angular_accel_ref.q,
                                       &indi.angular_accel_ref.r,
-                                      0, &zero,                    // inputs
-                                      0, &zero);                   // outputs
+                                      1, &zero,                    // inputs
+                                      1, &zero);                   // outputs
 }
 static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_device *dev)
 {
@@ -168,16 +168,16 @@ static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_d
   struct FloatRates g1_disp;
   RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
   float g2_disp = indi.est.g2 * INDI_EST_SCALE;
-  float zero = 0;
+  float zero = 0.0;
   pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
-                                    0, &zero,
-                                    0, &zero,
-                                    0, &zero,
-                                    0, &g1_disp.p,
-                                    0, &g1_disp.q,
-                                    0, &g1_disp.r, 
-                                    0, &g2_disp,
-                                    0, &zero);
+                                    1, &zero,
+                                    1, &zero,
+                                    1, &zero,
+                                    1, &g1_disp.p,
+                                    1, &g1_disp.q,
+                                    1, &g1_disp.r, 
+                                    1, &g2_disp,
+                                    1, &zero);
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
