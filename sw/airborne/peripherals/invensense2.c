@@ -504,7 +504,7 @@ static bool invensense2_config(struct invensense2_t *inv) {
       /* Configure accelerometer */
       uint8_t accel_config = 0;
       if(inv->accel_dlpf != INVENSENSE2_ACCEL_DLPF_OFF)
-        accel_config |= BIT_ACCEL_DLPF_ENABLE | ((inv->accel_dlpf - 1) << ACCEL_DLPF_CFG_SHIFT);
+        accel_config |= BIT_ACCEL_DLPF_ENABLE | (inv->accel_dlpf << ACCEL_DLPF_CFG_SHIFT);
       if((inv->device == INVENSENSE2_ICM20649 && inv->accel_range > 0) || inv->accel_range > 3)
         accel_config |= (inv->accel_range - 1) << ACCEL_FS_SEL_SHIFT;
       else
