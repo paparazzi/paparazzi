@@ -312,43 +312,47 @@ void  calc_model(void);
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void send_oneloop_g(struct transport_tx *trans, struct link_device *dev)
+static void send_eff_mat_g_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_ONELOOP_G(trans, dev, AC_ID,
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[0],
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[1],
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[2],
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[3],
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[4],
-                                        ANDI_NUM_ACT_TOT, g1g2_1l[5]);
+  float zero = 0;
+  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
+                ANDI_NUM_ACT_TOT, g1g2_1l[0],
+                ANDI_NUM_ACT_TOT, g1g2_1l[1],
+                ANDI_NUM_ACT_TOT, g1g2_1l[2],
+                ANDI_NUM_ACT_TOT, g1g2_1l[3],
+                ANDI_NUM_ACT_TOT, g1g2_1l[4],
+                ANDI_NUM_ACT_TOT, g1g2_1l[5], 
+                                    0, &zero,
+                                    0, &zero);
 }
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_ONELOOP_ANDI(trans, dev, AC_ID,
-                                        &oneloop_andi.sta_ref.att[0],
-                                        &oneloop_andi.sta_ref.att[1],
-                                        &oneloop_andi.sta_ref.att[2],
+  pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
                                         &oneloop_andi.sta_state.att[0],
                                         &oneloop_andi.sta_state.att[1],
                                         &oneloop_andi.sta_state.att[2],
-                                        &oneloop_andi.sta_ref.att_d[0],
-                                        &oneloop_andi.sta_ref.att_d[1],
-                                        &oneloop_andi.sta_ref.att_d[2],
+                                        &oneloop_andi.sta_ref.att[0],
+                                        &oneloop_andi.sta_ref.att[1],
+                                        &oneloop_andi.sta_ref.att[2],
                                         &oneloop_andi.sta_state.att_d[0],
                                         &oneloop_andi.sta_state.att_d[1],
                                         &oneloop_andi.sta_state.att_d[2],
-                                        &oneloop_andi.sta_ref.att_2d[0],
-                                        &oneloop_andi.sta_ref.att_2d[1],
-                                        &oneloop_andi.sta_ref.att_2d[2],
+                                        &oneloop_andi.sta_ref.att_d[0],
+                                        &oneloop_andi.sta_ref.att_d[1],
+                                        &oneloop_andi.sta_ref.att_d[2],                                       
                                         &oneloop_andi.sta_state.att_2d[0],
                                         &oneloop_andi.sta_state.att_2d[1],
                                         &oneloop_andi.sta_state.att_2d[2],
+                                        &oneloop_andi.sta_ref.att_2d[0],
+                                        &oneloop_andi.sta_ref.att_2d[1],
+                                        &oneloop_andi.sta_ref.att_2d[2],                                        
                                         ANDI_OUTPUTS, nu,
-                                        ANDI_NUM_ACT, actuator_state_1l);
+                                        ANDI_NUM_ACT, actuator_state_1l);                                      
 }
-static void send_oneloop_guidance(struct transport_tx *trans, struct link_device *dev)
+
+static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_ONELOOP_GUIDANCE(trans, dev, AC_ID,
+  pprz_msg_send_GUIDANCE_GENERAL(trans, dev, AC_ID,
                                         &oneloop_andi.gui_ref.pos[0],
                                         &oneloop_andi.gui_ref.pos[1],
                                         &oneloop_andi.gui_ref.pos[2],
@@ -369,8 +373,7 @@ static void send_oneloop_guidance(struct transport_tx *trans, struct link_device
                                         &oneloop_andi.gui_state.acc[2],
                                         &oneloop_andi.gui_ref.jer[0],
                                         &oneloop_andi.gui_ref.jer[1],
-                                        &oneloop_andi.gui_ref.jer[2],
-                                        ANDI_NUM_ACT_TOT,andi_u);
+                                        &oneloop_andi.gui_ref.jer[2]);
 }
 #endif
 
@@ -1077,9 +1080,9 @@ void oneloop_andi_init(void)
 
   // Start telemetry
   #if PERIODIC_TELEMETRY
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ONELOOP_ANDI, send_oneloop_andi);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ONELOOP_G, send_oneloop_g);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ONELOOP_GUIDANCE, send_oneloop_guidance);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_GENERAL, send_oneloop_andi);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_oneloop_andi);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_GENERAL, send_guidance_oneloop_andi);
   #endif
 }
 
