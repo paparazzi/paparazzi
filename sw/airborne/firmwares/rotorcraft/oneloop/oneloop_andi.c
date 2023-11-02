@@ -22,34 +22,58 @@
  * @author Tomaso De Ponti <tmldeponti@tudelft.nl>
  * One loop (Guidance + Stabilization) ANDI controller for rotorcrafts
  * 
- * /////EXPLANATION OF HALFLOOP /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * @param oneloop_andi_half_loop is a Boolean which indicates the state of the oneloop controller////////////////////////////////////////////////////////////////////////////////////
- * @param oneloop_andi_half_loop = true  @result Control allocation is performed to accomodate desired Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk (ANDI)//////////////////////////
- * @param oneloop_andi_half_loop = false @result Control allocation is performed to accomodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk (ANDI)///
- * //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * // Enter functions change the state of the oneloop controller/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * @fn stabilization_attitude_enter in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" @result oneloop_andi_half_loop = true /////////////////////////////////////
- * @fn guidance_h_run_enter         in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"           @result oneloop_andi_half_loop = false ////////////////////////////////////
- * @fn guidance_v_run_enter         in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"           @result nothing ///////////////////////////////////////////////////////////
- * //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * // Example of execution of the oneloop controller for two different states in the state machine  /////////////////////////////////////////////////////////////////////////////////
- * @file "sw/airborne/firmwares/rotorcraft/autopilot_static.c" @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * @if MODE_ATTITUDE_RC_DIRECT @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * --- @fn stabilization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" @result: //////////////////////////////////////////////////////////////
- * ----- @if half_loop @result: /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * ------- @fn oneloop_andi_run(true) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c" ////////////////////////////////////////////////////////////////////////////////////////
- * --------- @result: Control allocation is performed to accomodate desired Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk from stick inputs /////////////////////////////////////////
- * ----- @endif /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * @elseif MODE_NAV @result: ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * --- @fn guidance_h_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c" @result: ////////////////////////////////////////////////////////////////////////////////////
- * ----- @fn oneloop_andi_run(false) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c" /////////////////////////////////////////////////////////////////////////////////////////
- * ------- @result: Control allocation is performed to accomodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk and Yaw Jerk from navigation outputs //////////////
- * --- @fn guidance_v_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c" /////////////////////////////////////////////////////////////////////////////////////////////
- * ----- @result: nothing ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * --- @fn stablization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c" ////////////////////////////////////////////////////////////////////////
- * ----- @result:nothing because of oneloop_andi_half_loop = false //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- * @endif////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- *///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// EXPLANATION OF HALFLOOP ///////////////////////////////////////////////////////////
+/**
+ * @param oneloop_andi_half_loop - A Boolean indicating the state of the oneloop controller.
+ * @param oneloop_andi_half_loop = true - Control allocation is performed to accommodate desired Jerk Down, Roll Jerk, Pitch Jerk, and Yaw Jerk (ANDI).
+ * @param oneloop_andi_half_loop = false - Control allocation is performed to accommodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk, and Yaw Jerk (ANDI).
+ */
+///// Enter functions change the state of the oneloop controller //////////////////////
+/**
+ * @fn stabilization_attitude_enter in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c"
+ * @result oneloop_andi_half_loop = true
+ */
+/**
+ * @fn guidance_h_run_enter in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"
+ * @result oneloop_andi_half_loop = false
+ */
+/**
+ * @fn guidance_v_run_enter in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"
+ * @result nothing
+ */
+///// Example of execution of the oneloop controller for two different states in the state machine /////////////////////
+/**
+ * @file "sw/airborne/firmwares/rotorcraft/autopilot_static.c"
+ * 
+ * @if MODE_ATTITUDE_RC_DIRECT
+ * 
+ * - @fn stabilization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c"
+ * 
+ * - - @if half_loop
+ * 
+ * - - - @fn oneloop_andi_run(true) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c"
+ * 
+ * - - - @result: Control allocation is performed to accommodate desired Jerk Down, Roll Jerk, Pitch Jerk, and Yaw Jerk from stick inputs
+ * - - @endif
+ * 
+ * @elseif MODE_NAV
+ * 
+ * - @fn guidance_h_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"
+ * 
+ * - @fn oneloop_andi_run(false) in @file "firmwares/rotorcraft/oneloop/oneloop_andi.c"
+ * 
+ * - @result: Control allocation is performed to accommodate desired Jerk North, Jerk East, Jerk Down, Roll Jerk, Pitch Jerk, and Yaw Jerk from navigation outputs
+ * 
+ * - @fn guidance_v_run() in @file "firmwares/rotorcraft/guidance/guidance_oneloop.c"
+ * 
+ * - @result: nothing
+ * 
+ * - @fn stabilization_attitude_run() in @file "firmwares/rotorcraft/stabilization/stabilization_oneloop.c"
+ * 
+ * - @result: nothing because of oneloop_andi_half_loop = false
+ * @endif
+ */
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Include necessary header files */
 #include "firmwares/rotorcraft/oneloop/oneloop_andi.h"
