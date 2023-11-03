@@ -17,13 +17,6 @@
       <define name="HOVER_ROLL_PITCH_COEF" value="{0,0}" description=""/>
     </section>
   </doc>
-  <settings>
-    <dl_settings>
-      <dl_settings NAME="Eff_sched">
-        <dl_setting var="rotation_angle_setpoint_deg" min="0" step="1" max="90" shortname="rotation" module="modules/ctrl/ctrl_eff_sched_rot_wing"/>
-      </dl_settings>
-    </dl_settings>
-  </settings>
   <header>
     <file name="ctrl_eff_sched_rot_wing.h"/>
   </header>
