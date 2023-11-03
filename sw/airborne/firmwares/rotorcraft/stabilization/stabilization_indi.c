@@ -308,7 +308,7 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
 {
   float zero = 0.0;
   struct FloatRates *body_rates = stateGetBodyRates_f();
-  pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
+  pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
                                       &zero, &zero, &zero,      // att
                                       &zero, &zero, &zero,      // att.ref
                                       &body_rates->p,           // rate
@@ -384,7 +384,7 @@ void stabilization_indi_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_GENERAL, send_att_full_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_full_indi);
 #endif
 }
 

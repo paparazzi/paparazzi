@@ -352,7 +352,7 @@ static void send_eff_mat_g_oneloop_andi(struct transport_tx *trans, struct link_
 }
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
+  pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
                                         &oneloop_andi.sta_state.att[0],
                                         &oneloop_andi.sta_state.att[1],
                                         &oneloop_andi.sta_state.att[2],
@@ -377,7 +377,7 @@ static void send_oneloop_andi(struct transport_tx *trans, struct link_device *de
 
 static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_GUIDANCE_GENERAL(trans, dev, AC_ID,
+  pprz_msg_send_GUIDANCE(trans, dev, AC_ID,
                                         &oneloop_andi.gui_ref.pos[0],
                                         &oneloop_andi.gui_ref.pos[1],
                                         &oneloop_andi.gui_ref.pos[2],
@@ -1105,9 +1105,9 @@ void oneloop_andi_init(void)
 
   // Start telemetry
   #if PERIODIC_TELEMETRY
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_GENERAL, send_oneloop_andi);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_oneloop_andi);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_GENERAL, send_guidance_oneloop_andi);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE, send_guidance_oneloop_andi);
   #endif
 }
 

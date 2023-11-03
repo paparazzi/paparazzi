@@ -146,7 +146,7 @@ struct IndiVariables indi = {
 static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
-  pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
+  pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
                                       &zero, &zero, &zero,         // att
                                       &zero, &zero, &zero,         // att.ref
                                       &indi.rate[0].o[0],          // rate
@@ -201,7 +201,7 @@ void stabilization_indi_init(void)
   indi_init_filters();
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_GENERAL, send_att_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi_simple);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
 #endif
