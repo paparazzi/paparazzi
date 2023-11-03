@@ -114,7 +114,7 @@
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Pre-Standby">
-      <while cond="check_1st_nav"/>
+      <while cond="oneloop_andi.half_loop"/>
       <!-- <call_once fun="NavSetWaypointPosAndAltHere(WP_STDBY)"/> -->
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
