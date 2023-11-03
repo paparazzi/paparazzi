@@ -35,9 +35,10 @@
 #define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
 float nav_max_speed = NAV_MAX_SPEED;
 
-// Max ground speed in hover mode (goto/stay)
-#ifndef GUIDANCE_INDI_HOVER_SPEED
-#define GUIDANCE_INDI_HOVER_SPEED 5.f
+// Max ground speed in with goto/stay instruction
+// by default, same as route speed
+#ifndef GUIDANCE_INDI_GOTO_SPEED
+#define GUIDANCE_INDI_GOTO_SPEED NAV_MAX_SPEED
 #endif
 float nav_hover_speed = GUIDANCE_INDI_HOVER_SPEED;
 
@@ -231,7 +232,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
       desired_speed = radius_diff * gih_params.pos_gain;
     } else {
       // close to circle, speed function of radius for a feasible turn
-      // MAX_BANK / 2 gives some margins for the turns
+      // 0.8 * MAX_BANK gives some margins for the turns
       desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * GUIDANCE_H_MAX_BANK));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
