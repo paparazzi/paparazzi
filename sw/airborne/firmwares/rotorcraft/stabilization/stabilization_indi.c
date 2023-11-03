@@ -87,8 +87,8 @@
 #endif
 #endif
 
-#ifdef SetCommandsFromRC
-#warning SetCommandsFromRC not used: STAB_INDI overwrites actuators
+#ifdef SetAutoCommandsFromRC
+#warning SetAutoCommandsFromRC not used: STAB_INDI writes actuators directly
 #endif
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
