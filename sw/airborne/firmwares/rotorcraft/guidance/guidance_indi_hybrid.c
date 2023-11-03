@@ -204,6 +204,8 @@ float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_HYBRID_WLS_WU;
 #else
 float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 #endif
+// The control objective
+float v_gih[3];
 #endif
 
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
@@ -244,6 +246,47 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
                               &gi_speed_sp.y,
                               &gi_speed_sp.z);
 }
+
+static void debug(struct transport_tx *trans, struct link_device *dev, char* name, float* data, int datasize)
+{
+  pprz_msg_send_DEBUG_VECT(trans, dev,AC_ID,
+                              strlen(name), name,
+                              datasize, data);
+}
+
+
+static void send_guidance_indi_debug(struct transport_tx *trans, struct link_device *dev)
+{
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+  static int c = 0;
+  switch (c++)
+  {
+  case 0:
+    debug(trans, dev, "v_gih", v_gih, 3);
+    break;
+  case 1:
+    debug(trans, dev, "du_min_gih", du_min_gih, GUIDANCE_INDI_HYBRID_U);
+    break;
+  case 2:
+    debug(trans, dev, "du_max_gih", du_max_gih, GUIDANCE_INDI_HYBRID_U);
+    break;
+  case 3:
+    debug(trans, dev, "du_pref_gih", du_pref_gih, GUIDANCE_INDI_HYBRID_U);
+    break;
+  case 4:
+    debug(trans, dev, "Wu_gih", Wu_gih, GUIDANCE_INDI_HYBRID_U);
+    break;
+  case 5:
+    debug(trans, dev, "Wv_gih", Wv_gih, GUIDANCE_INDI_HYBRID_V);
+    break;
+  default:
+    debug(trans, dev, "Bwls_gih[0]", Bwls_gih[0], GUIDANCE_INDI_HYBRID_U);
+    c=0;
+    break;
+  }
+#endif
+}
+
 #endif
 
 /**
@@ -272,6 +315,7 @@ void guidance_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_guidance_indi_debug);
 #endif
 }
 
@@ -367,9 +411,6 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 #endif
 #endif
 
-
-  // Create the control objective
-  float v_gih[3];
 
   // Calculate matrix of partial derivatives and control objective
   guidance_indi_calcg_wing(Ga, a_diff, v_gih);
