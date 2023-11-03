@@ -307,6 +307,7 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
 static void send_att_full_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
+  struct FloatRates *body_rates = stateGetBodyRates_f();
   pprz_msg_send_STAB_ATTITUDE_GENERAL(trans, dev, AC_ID,
                                       &zero, &zero, &zero,      // att
                                       &zero, &zero, &zero,      // att.ref
