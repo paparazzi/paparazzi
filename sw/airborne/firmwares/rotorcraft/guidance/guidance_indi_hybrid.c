@@ -257,6 +257,7 @@ static void debug(struct transport_tx *trans, struct link_device *dev, char* nam
 
 static void send_guidance_indi_debug(struct transport_tx *trans, struct link_device *dev)
 {
+#if GUIDANCE_INDI_HYBRID_USE_WLS
   static int c = 0;
   switch (c++)
   {
@@ -283,6 +284,7 @@ static void send_guidance_indi_debug(struct transport_tx *trans, struct link_dev
     c=0;
     break;
   }
+#endif
 }
 
 #endif
