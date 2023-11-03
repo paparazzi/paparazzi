@@ -159,6 +159,20 @@ static struct i2c_transaction ms45xx_trans;
 static Butterworth2LowPass ms45xx_filter;
 #endif
 
+#if PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t ms45xx_i2c_pfc;
+bool preflight_checks_ms45xx_offset_set = false;
+static void ms45xx_preflight(struct preflight_result_t *result) {
+  if(preflight_checks_ms45xx_offset_set) {
+    preflight_success(result, "ms45xx_i2c airspeed sensor nulled ok");
+  } else {
+    preflight_error(result, "ms45xx_i2c airspeed sensor not nulled");
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 static void ms45xx_downlink(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t dev_id = MS45XX_SENDER_ID;
@@ -192,6 +206,11 @@ void ms45xx_i2c_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, ms45xx_downlink);
 #endif
+
+#if PREFLIGHT_CHECKS
+  /* Register preflight checks */
+  preflight_check_register(&ms45xx_i2c_pfc, ms45xx_preflight);
+#endif // AGL_DIST_PREFLIGHT_CHECK
 }
 
 void ms45xx_i2c_periodic(void)
@@ -256,6 +275,10 @@ void ms45xx_i2c_event(void)
           autoset_offset = 0.f;
           autoset_nb = 0;
           ms45xx.autoset_offset = false;
+
+          #if PREFLIGHT_CHECKS
+          preflight_checks_ms45xx_offset_set = true;
+          #endif // PREFLIGHT_CHECKS
         }
       }
 
