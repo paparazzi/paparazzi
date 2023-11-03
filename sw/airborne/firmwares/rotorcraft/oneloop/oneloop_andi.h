@@ -130,4 +130,5 @@ extern void oneloop_andi_set_failsafe_setpoint(void);
 extern void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
 extern void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
 extern void oneloop_andi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
+extern void oneloop_from_nav(bool in_flight);
 #endif  // ONELOOP_ANDI_H

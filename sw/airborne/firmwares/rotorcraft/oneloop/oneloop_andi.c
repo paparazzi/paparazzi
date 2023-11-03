@@ -21,7 +21,7 @@
 /** @file "firmwares/rotorcraft/oneloop/oneloop_andi.h"
  * @author Tomaso De Ponti <tmldeponti@tudelft.nl>
  * One loop (Guidance + Stabilization) ANDI controller for rotorcrafts
- * 
+ */
 ///// EXPLANATION OF HALFLOOP ///////////////////////////////////////////////////////////
 /**
  * @param oneloop_andi_half_loop - A Boolean indicating the state of the oneloop controller.
@@ -73,7 +73,7 @@
  * - @result: nothing because of oneloop_andi_half_loop = false
  * @endif
  */
-////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* Include necessary header files */
 #include "firmwares/rotorcraft/oneloop/oneloop_andi.h"
@@ -89,6 +89,7 @@
 #include "filters/low_pass_filter.h"
 #include "math/wls/wls_alloc.h"
 #include "modules/nav/nav_rotorcraft_hybrid.h"
+#include "firmwares/rotorcraft/navigation.h"
 
 
 #include <stdio.h>
@@ -1494,6 +1495,44 @@ void calc_model(void){
       model_pred[i] = model_pred[i] +  actuator_state_1l[j] * g1g2_1l[i][j] / (act_dynamics[j] * ratio_u_un[j] * ratio_vn_v[j]);
     }
   }
+}
+
+/** @brief  Function that maps navigation inputs to the oneloop controller for the generated autopilot. */
+void oneloop_from_nav(bool in_flight)
+{
+  if (!in_flight) {
+    oneloop_andi_enter(false);
+  }
+  struct FloatVect3 PSA_des;
+  PSA_des.x = stateGetPositionNed_f()->x;
+  PSA_des.y = stateGetPositionNed_f()->y;
+  PSA_des.z = stateGetPositionNed_f()->z;
+  int    rm_order_h = 3;
+  int    rm_order_v = 3;
+  // Oneloop controller wants desired targets and handles reference generation internally
+  switch (nav.setpoint_mode) {
+    case NAV_SETPOINT_MODE_POS:
+      PSA_des.x   = POS_FLOAT_OF_BFP(POS_BFP_OF_REAL(nav.carrot.y));
+      PSA_des.y   = POS_FLOAT_OF_BFP(POS_BFP_OF_REAL(nav.carrot.x));
+      rm_order_h  = 3;
+      break;
+    case NAV_SETPOINT_MODE_SPEED:
+      PSA_des.x   = SPEED_FLOAT_OF_BFP(SPEED_BFP_OF_REAL(nav.speed.y));
+      PSA_des.y   = SPEED_FLOAT_OF_BFP(SPEED_BFP_OF_REAL(nav.speed.x));
+      rm_order_h  = 2;
+      break;
+  }
+  switch (nav.vertical_mode) {
+    case NAV_VERTICAL_MODE_ALT:
+      PSA_des.z   = POS_FLOAT_OF_BFP(-POS_BFP_OF_REAL(nav.nav_altitude));
+      rm_order_v  = 3;
+      break;
+    case NAV_VERTICAL_MODE_CLIMB:
+      PSA_des.z   = SPEED_FLOAT_OF_BFP(-SPEED_BFP_OF_REAL(nav.climb));
+      rm_order_v  = 2;
+      break;
+  }
+  oneloop_andi_run(in_flight, false, PSA_des, rm_order_h, rm_order_v);
 }
 
 
