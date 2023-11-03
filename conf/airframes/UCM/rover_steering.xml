@@ -50,6 +50,10 @@
     <module name="gvf"  type="module">
       <define name="GVF_OCAML_GCS" value="FALSE"/>
     </module>
+    
+    <module name="gvf_parametric">
+      <define name="GVF_PARAMETRIC_2D_BEZIER_N_SEG" value="4"/>
+    </module>
 
     <module name="guidance" type="rover_steering">
       <define name="MAX_DELTA"            value="15.0"/>
