@@ -22,7 +22,7 @@
   </header>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
-  <makefile target="nps">
+  <makefile target="sim|nps">
     <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
     <configure name="MODEM_PORT_OUT" default="4242"/>
     <configure name="MODEM_PORT_IN" default="4243"/>

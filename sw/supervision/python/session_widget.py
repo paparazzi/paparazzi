@@ -131,20 +131,12 @@ class SessionWidget(QWidget, Ui_Session):
             # simulator is "sim"
             simulator = "sim"
 
-        if simulator == "nps":
-            t = self.tools["Simulator"]
-            simu = Program.from_tool(t)
-            simu.args.append(Arg("-t", "nps"))
-            self.launch_program(simu)
-            datalink = Program.from_tool(self.tools["Data Link"])
-            datalink.args = [Arg("-udp", None), Arg("-udp_broadcast", None)]
-            self.launch_program(datalink)
-        else:
-            # simulator is "sim"
-            sim = Program.from_tool(self.tools["Simulator"])
-            sim.args.extend([Arg("-t", "sim"), Arg("--boot", None), Arg("--norc", None)])
-            self.launch_program(sim)
-
+        sim = Program.from_tool(self.tools["Simulator"])
+        sim.args.append(Arg("-t", simulator))
+        self.launch_program(sim)
+        datalink = Program.from_tool(self.tools["Data Link"])
+        datalink.args = [Arg("-udp", None), Arg("-udp_broadcast", None)]
+        self.launch_program(datalink)
         server = Program.from_tool(self.tools["Server"])
         server.args.append(Arg("-n", None))
         gcs = Program.from_tool(self.tools["PprzGCS"])

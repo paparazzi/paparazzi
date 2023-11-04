@@ -27,21 +27,14 @@
 
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/ppm.h"
-
-#include <inttypes.h>
-
-#if USE_NPS
 #include "nps_radio_control.h"
-#else
-#include <caml/mlvalues.h>
-#endif
+#include <inttypes.h>
 
 
 void ppm_arch_init(void)
 {
 }
 
-#if USE_NPS
 #ifdef RADIO_CONTROL
 #define PPM_OF_NPS(_nps, _neutral, _min, _max)                          \
   ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
@@ -74,24 +67,3 @@ void radio_control_feed(void)
 void radio_control_feed(void) {}
 #endif //RADIO_CONTROL
 
-#elif !USE_JSBSIM // not NPS and not JSBSIM -> simple ocaml sim
-#ifdef RADIO_CONTROL
-value update_rc_channel(value c, value v)
-{
-  ppm_pulses[Int_val(c)] = Double_val(v);
-  return Val_unit;
-}
-
-value send_ppm(value unit)
-{
-  ppm_frame_available = true;
-  return unit;
-}
-#else // RADIO_CONTROL
-value update_rc_channel(value c __attribute__((unused)), value v __attribute__((unused)))
-{
-  return Val_unit;
-}
-value send_ppm(value unit) {return unit;}
-#endif // RADIO_CONTROL
-#endif // USE_NPS

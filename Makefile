@@ -343,14 +343,8 @@ test_all_confs: all opencv_bebop
 test_math:
 	make -C tests/math
 
-# super simple simulator test, needs X
-# always uses conf/conf.xml, so that needs to contain the appropriate aircrafts
-# (only Microjet right now)
-test_sim: all
-	prove tests/sim
-
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
 static sim_static opencv_bebop\
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
-test test_examples test_math test_sim test_all_confs
+test test_examples test_math test_all_confs

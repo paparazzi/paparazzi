@@ -19,7 +19,7 @@
     <file_arch name="udp_arch.c" dir="mcu_periph"/>
     <file name="udp_socket.c" dir="arch/linux" cond="ifeq ($(ARCH), linux)"/>
   </makefile>
-  <makefile target="nps">
+  <makefile target="sim|nps">
     <include name="arch/linux"/>
     <file name="udp_socket.c" dir="arch/linux"/>
   </makefile>
