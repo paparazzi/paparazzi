@@ -25,7 +25,14 @@
   <makefile>
     <file name="ctrl_eff_sched_rot_wing.c"/>
     <test>
-      <define name="SERVO_ROTATION_MECH" value="0"/>
+      <define name="ACTUATORS_NB" value="10"/>
+      <define name="SERVO_ROTATION_MECH" value="8"/>
+      <define name="SERVO_MOTOR_FRONT" value="0"/>
+      <define name="SERVO_MOTOR_RIGHT" value="1"/>
+      <define name="SERVO_MOTOR_BACK" value="2"/>
+      <define name="SERVO_MOTOR_LEFT" value="3"/>
+      <define name="SERVO_MOTOR_PUSH" value="8"/>
+      <define name="SERVO_SERVO_ELEVATOR" value="5"/>
       <define name="INDI_NUM_ACT" value="4"/>
       <define name="INDI_OUTPUTS" value="3"/>
       <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
@@ -42,7 +49,7 @@
       <define name="ROT_WING_EFF_SCHED_K_RUDDER" value="{1,1,1}"/>
       <define name="ROT_WING_EFF_SCHED_K_AILERON" value="1"/>
       <define name="ROT_WING_EFF_SCHED_K_FLAPERON" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_K_PUSHER" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_PUSHER" value="{1,1}"/>
       <define name="ROT_WING_EFF_SCHED_K_ELEVATOR_DEFLECTION" value="{1,1}"/>
       <define name="ROT_WING_EFF_SCHED_D_RUDDER_D_PPRZ" value="1"/>
       <define name="ROT_WING_EFF_SCHED_K_RPM_PPRZ_PUSHER" value="{1,1,1}"/>

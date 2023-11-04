@@ -25,22 +25,13 @@
 
 #include "modules/ctrl/ctrl_eff_sched_rot_wing.h"
 
-#ifdef USE_WING_ROTATION_CONTROLLER_SERVO
-#include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
-#else
-#ifdef USE_WING_ROTATION_CONTROLLER_CAN
-#include "modules/rot_wing_drone/wing_rotation_controller_can.h"
-#else
-#error "No wing rotation_controller selected. Include SERVO or CAN in your airframe"
-#endif // USE_WING_ROTATION_CONTROLLER_CAN
-#endif // USE_WING_ROTATION_CONTROLLER_SERVO
-
 #include "generated/airframe.h"
 #include "state.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 
 #include "modules/actuators/actuators.h"
+#include "modules/core/abi.h"
 
 #ifndef SERVO_ROTATION_MECH
 #error ctrl_eff_sched_rot_wing requires a servo named ROTATION_MECH
@@ -169,12 +160,35 @@ inline void ctrl_eff_sched_rot_wing_schedule_liftd(void);
 inline float guidance_indi_get_liftd(float pitch UNUSED, float theta UNUSED);
 inline void stabilization_indi_set_wls_settings(float use_increment);
 
+
+/** ABI binding wing position data.
+ */
+#ifndef WING_ROTATION_CAN_ROT_WING_ID
+#define WING_ROTATION_CAN_ROT_WING_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(WING_ROTATION_CAN_ROT_WING_ID)
+static abi_event wing_position_ev;
+
+static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
+{
+  for (int i=0; i<num_act; i++){
+    if (pos_msg[i].set.position && (pos_msg[i].idx == SERVO_ROTATION_MECH))
+    {
+      // Get wing rotation angle from sensor
+      eff_sched_var.wing_rotation_rad = 0.5 * M_PI - pos_msg[i].position;
+
+      // Bound wing rotation angle
+      Bound(eff_sched_var.wing_rotation_rad, 0, 0.5 * M_PI);
+    }
+  }
+}
+
 void ctrl_eff_sched_rot_wing_init(void)
 {
   // Initialize variables to quad values
   eff_sched_var.Ixx               = eff_sched_p.Ixx_body + eff_sched_p.Ixx_wing;             
   eff_sched_var.Iyy               = eff_sched_p.Iyy_body + eff_sched_p.Iyy_wing;
-  eff_sched_var.wing_rotation_rad = 0;
+  eff_sched_var.wing_rotation_rad = 0; // ABI input
   eff_sched_var.wing_rotation_deg = 0;
   eff_sched_var.cosr              = 1;             
   eff_sched_var.sinr              = 0;              
@@ -192,6 +206,9 @@ void ctrl_eff_sched_rot_wing_init(void)
 
   eff_sched_var.airspeed = 0;
   eff_sched_var.airspeed2 = 0;
+
+  // Get wing angle
+  AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROT_WING_ID, &wing_position_ev, wing_position_cb);
 }
 
 void ctrl_eff_sched_rot_wing_periodic(void)
@@ -216,7 +233,7 @@ void ctrl_eff_sched_rot_wing_periodic(void)
 void ctrl_eff_sched_rot_wing_update_wing_angle(void)
 {
   // Calculate sin and cosines of rotation
-  eff_sched_var.wing_rotation_rad = wing_rotation_controller.wing_angle_deg / 180. * M_PI;
+  eff_sched_var.wing_rotation_deg = eff_sched_var.wing_rotation_rad / M_PI * 180.;
 
   eff_sched_var.cosr = cosf(eff_sched_var.wing_rotation_rad);
   eff_sched_var.sinr = sinf(eff_sched_var.wing_rotation_rad);
@@ -226,7 +243,6 @@ void ctrl_eff_sched_rot_wing_update_wing_angle(void)
 
   eff_sched_var.sinr3 = eff_sched_var.sinr2 * eff_sched_var.sinr;
 
-  eff_sched_var.wing_rotation_deg = eff_sched_var.wing_rotation_rad / M_PI * 180.;
 }
 
 void ctrl_eff_sched_rot_wing_update_MMOI(void)
@@ -241,9 +257,9 @@ void ctrl_eff_sched_rot_wing_update_MMOI(void)
 
 void ctrl_eff_sched_rot_wing_update_cmd(void)
 {
-  eff_sched_var.cmd_elevator = actuators_pprz[5];
-  eff_sched_var.cmd_pusher_scaled = actuators_pprz[8] * 0.000853229; // Scaled with 8181 / 9600 / 1000
-  eff_sched_var.cmd_T_mean_scaled = (actuators_pprz[0] + actuators_pprz[1] + actuators_pprz[2] + actuators_pprz[3]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_elevator = actuators_pprz[SERVO_SERVO_ELEVATOR];
+  eff_sched_var.cmd_pusher_scaled = actuators_pprz[SERVO_MOTOR_PUSH] * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_T_mean_scaled = (actuators_pprz[SERVO_MOTOR_FRONT] + actuators_pprz[SERVO_MOTOR_RIGHT] + actuators_pprz[SERVO_MOTOR_BACK] + actuators_pprz[SERVO_MOTOR_LEFT]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
 }
 
 void ctrl_eff_sched_rot_wing_update_airspeed(void)

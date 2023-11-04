@@ -53,8 +53,8 @@ struct rot_wing_eff_sched_param_t {
 struct rot_wing_eff_sched_var_t {
   float Ixx;                  // Total MMOI around roll axis [kgm²]
   float Iyy;                  // Total MMOI around pitch axis [kgm²]
-  float wing_rotation_rad;    // Wing rotation angle in radians
-  float wing_rotation_deg;    // Wing rotation angle in degrees
+  float wing_rotation_rad;    // Wing rotation angle in radians: from ABI message
+  float wing_rotation_deg;    // Wing rotation angle in degrees: (clone in degrees)
   float cosr;                 // cosine of wing rotation angle
   float sinr;                 // sine of wing rotation angle
   float cosr2;                // cosine² of wing rotation angle
@@ -73,7 +73,6 @@ struct rot_wing_eff_sched_var_t {
   // airspeed
   float airspeed;
   float airspeed2;
-
 };
 
 extern float rotation_angle_setpoint_deg;
