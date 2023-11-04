@@ -74,7 +74,6 @@
 
     <module name="nav_hybrid">
       <configure name="NAV_HYBRID_POS_GAIN" value="1"/>
-      <configure name="NAV_MAX_SPEED" value="15"/>
     </module>
 
     <module name="stabilization" type="indi_simple"/>
