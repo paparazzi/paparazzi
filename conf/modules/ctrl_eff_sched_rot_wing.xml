@@ -34,10 +34,21 @@
       <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
       <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
       <define name="ROT_WING_EFF_SCHED_M" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_ROLL_ARM" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_PITCH_ARM" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_HOVER_DF_DPPRZ" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="1"/>
       <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_K_ELEVATOR" value="{1,1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_K_RUDDER" value="{1,1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_K_AILERON" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_FLAPERON" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_PUSHER" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_ELEVATOR_DEFLECTION" value="{1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_D_RUDDER_D_PPRZ" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_RPM_PPRZ_PUSHER" value="{1,1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_K_LIFT_WING" value="{1,1}"/>
+      <define name="ROT_WING_EFF_SCHED_K_LIFT_FUSELAGE" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_K_LIFT_TAIL" value="1"/>
     </test>
   </makefile>
 </module>
