@@ -204,10 +204,12 @@ float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_HYBRID_WLS_WU;
 #else
 float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 #endif
-// The control objective
-float v_gih[3];
 #endif
 
+// The control objective
+float v_gih[3];
+
+// Filters
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 float bodyz_filter_cutoff = 0.2;
 
