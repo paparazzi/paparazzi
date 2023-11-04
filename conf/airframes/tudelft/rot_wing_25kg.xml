@@ -98,7 +98,7 @@
 
         <module name="ctrl_eff_sched_rot_wing"/>
 
-        <module name="guidance" type="indi_hybrid"/>
+        <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav_hybrid"/>
 
         <!-- Other -->
@@ -402,7 +402,6 @@
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
         <define name="ZERO_AIRSPEED"        value="TRUE"/>
 
-        <define name="QUADPLANE"            value="TRUE"/>
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
         <define name="THRUST_X_EFF"         value="0.00055"/>
 

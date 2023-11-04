@@ -37,12 +37,6 @@
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
-#ifdef GUIDANCE_INDI_QUADPLANE
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_quadplanes.h"
-#define GUIDANCE_INDI_HYBRID_USE_WLS true
-#else
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_tailsitters.h"
-#endif
 
 
 // TODO change names for _indi_hybrid_
@@ -51,6 +45,7 @@ extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
 extern float guidance_indi_get_liftd(float pitch, float theta);
 extern void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle);
+extern void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_body[GUIDANCE_INDI_HYBRID_V]);
 
 enum GuidanceIndiHybrid_HMode {
   GUIDANCE_INDI_HYBRID_H_POS,

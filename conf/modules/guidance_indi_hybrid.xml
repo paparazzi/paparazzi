@@ -38,7 +38,6 @@
   </header>
   <init fun="guidance_indi_init()"/>
   <init fun="guidance_indi_enter()"/>
-  <!--<periodic fun="guidance_indi_propagate_filters()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>-->
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi_hybrid.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="GUIDANCE_INDI_HYBRID" value="TRUE"/>
