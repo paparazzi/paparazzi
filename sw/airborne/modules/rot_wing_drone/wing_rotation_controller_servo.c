@@ -28,6 +28,7 @@
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 
+#include "modules/core/abi.h"
 #include "state.h"
 
 #include <stdlib.h>
@@ -169,6 +170,17 @@ wing_rotation_controller.wing_angle_deg = 0;
   // Copy setpoint as actual angle in simulation
   wing_rotation_controller.wing_angle_deg = wing_rotation_controller.wing_angle_virtual_deg_sp;
 #endif
+
+  // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
+  struct act_feedback_t feedback;
+  feedback.idx =  SERVO_ROTATION_MECH;
+  feedback.position = 0.5 * M_PI - RadOfDeg(wing_rotation_controller.wing_angle_deg);
+  feedback.set.position = true;
+
+  // Send ABI message
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+
+
 }
 
 void wing_rotation_compute_pprz_cmd(void)
