@@ -32,6 +32,8 @@
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart0"/>
       <define name="USE_UART0"/>
+      <define name="GUIDANCE_INDI_HYBRID_U" value="3"/>
+      <define name="GUIDANCE_INDI_HYBRID_V" value="3"/>
     </test>
   </makefile>
 </module>
