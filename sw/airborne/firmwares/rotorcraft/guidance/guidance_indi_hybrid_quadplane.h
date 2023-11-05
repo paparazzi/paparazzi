@@ -33,6 +33,5 @@ extern void guidance_indi_quadplane_propagate_filters(void);
 #endif
 
 
-#define GUIDANCE_INDI_HYBRID_USE_WLS true
 
 #endif // GUIDANCE_INDI_HYBRID_QUADPLANE

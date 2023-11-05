@@ -24,6 +24,7 @@
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_tailsitter.h"
 #include "state.h"
 #include "generated/modules.h"
 
@@ -81,6 +82,10 @@ void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_I
 }
 
 
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+
+
+
 void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
 {
   // Set lower limits
@@ -98,3 +103,8 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float ro
   du_pref_gih[1] = -pitch_angle; // prefered delta pitch angle
   du_pref_gih[2] = du_max_gih[2];
 }
+
+
+#endif
+
+

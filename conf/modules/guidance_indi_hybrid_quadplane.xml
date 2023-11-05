@@ -8,6 +8,7 @@
   </doc>
   <dep>
     <depends>guidance_indi_hybrid</depends>
+    <provides>guidance,attitude_command</provides>
   </dep>
   <header>
     <file name="guidance_indi_hybrid_quadplane.h"/>
@@ -15,6 +16,7 @@
   <init fun="guidance_indi_quadplane_init()"/>
   <periodic fun="guidance_indi_quadplane_propagate_filters()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
   <makefile target="ap|nps" firmware="rotorcraft">
+    <define name="GUIDANCE_INDI_HYBRID_USE_WLS" value="1"/>
     <!-- Guidance actuators: (roll, pitch, thrust, push) for quadplanes  -->
     <define name="GUIDANCE_INDI_HYBRID_U" value="4"/>
     <!-- Guidance control objectives: ax, ay, ay for quadplanes -->

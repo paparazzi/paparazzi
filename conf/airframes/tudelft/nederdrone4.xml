@@ -151,6 +151,7 @@
     </module>
 
     <module name="guidance" type="indi_hybrid_tailsitter">
+      <define name="GUIDANCE_INDI_HYBRID_USE_WLS" value="TRUE"/>
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.3"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="0.5"/>
