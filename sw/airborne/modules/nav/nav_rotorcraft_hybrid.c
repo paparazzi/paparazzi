@@ -25,22 +25,31 @@
 
 #include "modules/nav/nav_rotorcraft_hybrid.h"
 #include "firmwares/rotorcraft/navigation.h"
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h" // strong dependency for now
 #include "math/pprz_isa.h"
+#include "generated/flight_plan.h"
+
+// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees. 
+#ifndef NAV_HYBRID_MAX_BANK
+#define NAV_HYBRID_MAX_BANK 0.52f
+#endif
 
 // Max ground speed that will be commanded
-#ifndef GUIDANCE_INDI_NAV_SPEED_MARGIN
-#define GUIDANCE_INDI_NAV_SPEED_MARGIN 10.0f
+#ifndef NAV_HYBRID_MAX_AIRSPEED
+#define NAV_HYBRID_MAX_AIRSPEED 15.0f
 #endif
-#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + GUIDANCE_INDI_NAV_SPEED_MARGIN)
+
+#ifndef NAV_HYBRID_SPEED_MARGIN
+#define NAV_HYBRID_SPEED_MARGIN 10.0f
+#endif
+
+#define NAV_MAX_SPEED (NAV_HYBRID_MAX_AIRSPEED + NAV_HYBRID_SPEED_MARGIN)
 float nav_max_speed = NAV_MAX_SPEED;
 
-// Max ground speed in with goto/stay instruction
-// by default, same as route speed
-#ifndef GUIDANCE_INDI_GOTO_SPEED
-#define GUIDANCE_INDI_GOTO_SPEED NAV_MAX_SPEED
+#ifndef NAV_HYBRID_GOTO_MAX_SPEED
+#define NAV_HYBRID_GOTO_MAX_SPEED NAV_MAX_SPEED
 #endif
-float nav_goto_speed = GUIDANCE_INDI_GOTO_SPEED;
+
+float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
 
 #ifndef NAV_HYBRID_MAX_DECELERATION
 #define NAV_HYBRID_MAX_DECELERATION 1.0
@@ -48,18 +57,30 @@ float nav_goto_speed = GUIDANCE_INDI_GOTO_SPEED;
 
 float nav_max_deceleration_sp = NAV_HYBRID_MAX_DECELERATION;
 
-#ifdef GUIDANCE_INDI_LINE_GAIN
-static float guidance_indi_line_gain = GUIDANCE_INDI_LINE_GAIN;
+#ifdef NAV_HYBRID_LINE_GAIN
+float nav_hybrid_line_gain = NAV_HYBRID_LINE_GAIN;
 #else
-static float guidance_indi_line_gain = 1.0f;
+float nav_hybrid_line_gain = 1.0f;
 #endif
 
-#ifndef GUIDANCE_INDI_NAV_LINE_DIST
-#define GUIDANCE_INDI_NAV_LINE_DIST 50.f
+#ifndef NAV_HYBRID_NAV_LINE_DIST
+#define NAV_HYBRID_NAV_LINE_DIST 50.f
 #endif
 
-#ifndef GUIDANCE_INDI_NAV_CIRCLE_DIST
-#define GUIDANCE_INDI_NAV_CIRCLE_DIST 40.f
+#ifndef NAV_HYBRID_NAV_CIRCLE_DIST
+#define NAV_HYBRID_NAV_CIRCLE_DIST 40.f
+#endif
+
+#ifdef NAV_HYBRID_POS_GAIN 
+float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN; 
+#else
+float nav_hybrid_pos_gain = 1.0; 
+#endif
+
+#ifndef USE_NPS
+#ifndef GUIDANCE_INDI_HYBRID
+bool force_forward = 0;
+#endif
 #endif
 
 /** Implement basic nav function for the hybrid case
@@ -77,12 +98,12 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   VECT2_DIFF(pos_error, nav.target, *pos);
 
   struct FloatVect2 speed_sp;
-  VECT2_SMUL(speed_sp, pos_error, gih_params.pos_gain);
+  VECT2_SMUL(speed_sp, pos_error, nav_hybrid_pos_gain);
 
   // Bound the setpoint velocity vector
   float max_h_speed = nav_max_speed;
   if (!force_forward) {
-    // If not in force_forward, compute speed based on decceleration and nav_goto_speed
+    // If not in force_forward, compute speed based on decceleration and nav_goto_max_speed
     // Calculate distance to waypoint
     float dist_to_wp = float_vect2_norm(&pos_error);
     // Calculate max speed when decelerating at MAX capacity a_max
@@ -93,7 +114,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
     float max_speed_decel = sqrtf(max_speed_decel2);
     // Bound the setpoint velocity vector
-    max_h_speed = Min(nav_goto_speed, max_speed_decel); // use hover max speed
+    max_h_speed = Min(nav_goto_max_speed, max_speed_decel); // use hover max speed
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 
@@ -114,7 +135,7 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   if (force_forward) {
     desired_speed = nav_max_speed;
   } else {
-    desired_speed = dist_to_target * gih_params.pos_gain;
+    desired_speed = dist_to_target * nav_hybrid_pos_gain;
     Bound(desired_speed, 0.0f, nav_max_speed);
   }
 
@@ -129,11 +150,11 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   float dist_to_line = (pos_diff.x * normalv.x + pos_diff.y * normalv.y) / length_normalv;
   // Normal vector scaled to be the distance to the line
   struct FloatVect2 v_to_line, v_along_line;
-  v_to_line.x = dist_to_line * normalv.x / length_normalv * guidance_indi_line_gain;
-  v_to_line.y = dist_to_line * normalv.y / length_normalv * guidance_indi_line_gain;
+  v_to_line.x = dist_to_line * normalv.x / length_normalv * nav_hybrid_line_gain;
+  v_to_line.y = dist_to_line * normalv.y / length_normalv * nav_hybrid_line_gain;
   // The distance that needs to be traveled along the line
-  v_along_line.x = wp_diff.x / length_line * GUIDANCE_INDI_NAV_LINE_DIST;
-  v_along_line.y = wp_diff.y / length_line * GUIDANCE_INDI_NAV_LINE_DIST;
+  v_along_line.x = wp_diff.x / length_line * NAV_HYBRID_NAV_LINE_DIST;
+  v_along_line.y = wp_diff.y / length_line * NAV_HYBRID_NAV_LINE_DIST;
   // Calculate the desired direction to converge to the line
   struct FloatVect2 direction;
   VECT2_SMUL(direction, v_along_line, (1.f / (1.f + fabsf(dist_to_line) * 0.05f)));
@@ -211,7 +232,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     NormRadAngle(trigo_diff);
     nav_rotorcraft_base.circle.radians += trigo_diff;
     // progress angle
-    float progress_angle = GUIDANCE_INDI_NAV_CIRCLE_DIST / abs_radius;
+    float progress_angle = NAV_HYBRID_NAV_CIRCLE_DIST / abs_radius;
     Bound(progress_angle, M_PI / 16.f, M_PI / 4.f);
     float alpha = nav_rotorcraft_base.circle.qdr - sign_radius * progress_angle;
     // final target position, should be on the circle, for display
@@ -227,13 +248,13 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     desired_speed = nav_max_speed;
   } else {
     float radius_diff = fabsf(float_vect2_norm(&pos_diff) - abs_radius);
-    if (radius_diff > GUIDANCE_INDI_NAV_CIRCLE_DIST) {
+    if (radius_diff > NAV_HYBRID_NAV_CIRCLE_DIST) {
       // far from circle, speed proportional to diff
-      desired_speed = radius_diff * gih_params.pos_gain;
+      desired_speed = radius_diff * nav_hybrid_pos_gain;
     } else {
       // close to circle, speed function of radius for a feasible turn
       // 0.8 * MAX_BANK gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * GUIDANCE_H_MAX_BANK));
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * NAV_HYBRID_MAX_BANK));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
   }
