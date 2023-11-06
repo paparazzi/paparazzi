@@ -54,7 +54,7 @@
     <file name="stabilization_attitude.h"/>
   </header>
   <init fun="h_ctl_init()"/>
-  <makefile target="ap|sim|nps|hitl" firmware="fixedwing">
+  <makefile target="ap|sim|nps" firmware="fixedwing">
     <file name="stabilization_attitude.c" dir="$(SRC_FIRMWARE)/stabilization"/>
   </makefile>
 </module>

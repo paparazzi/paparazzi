@@ -52,6 +52,16 @@
 #ifndef WLS_ALLOC_HEADER
 #define WLS_ALLOC_HEADER
 
+#include "generated/airframe.h"
+
+#ifndef WLS_N_U
+#define WLS_N_U 6
+#endif
+
+#ifndef WLS_N_V
+#define WLS_N_V 4
+#endif
+
 
 extern int wls_alloc(float* u, float* v,
               float* umin, float* umax, float** B,

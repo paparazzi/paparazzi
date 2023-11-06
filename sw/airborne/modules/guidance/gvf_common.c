@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Sergey Krukowski <softsr@yahoo.de>
+ * Copyright (C) 2023 Alfredo Gonzalez Calvin <alfredgo@ucm.es>
  *
  * This file is part of paparazzi.
  *
@@ -14,24 +14,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file modules/gps/gps_sim_hitl.h
- * GPS subsystem simulation from rotorcrafts horizontal/vertical reference system
- */
+#include "./gvf_common.h"
 
-#ifndef GPS_SIM_HITL_H
-#define GPS_SIM_HITL_H
-
-#ifndef PRIMARY_GPS
-#define PRIMARY_GPS GPS_SIM
-#endif
-
-extern void gps_sim_hitl_event(void);
-extern void gps_sim_hitl_init(void);
-
-#endif /* GPS_SIM_HITL_H */
+gvf_common_omega  gvf_c_omega;
+gvf_common_params gvf_c_info;

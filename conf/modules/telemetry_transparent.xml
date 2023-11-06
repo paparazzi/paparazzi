@@ -22,7 +22,7 @@
   </header>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()" cond="!TELEMETRY_DISABLE_RX"/>
-  <makefile target="!sim|nps|hitl">
+  <makefile target="!sim|nps">
     <configure name="MODEM_PORT" case="upper|lower"/>
     <define name="USE_$(MODEM_PORT_UPPER)"/>
     <define name="$(MODEM_PORT_UPPER)_BAUD" value="$(MODEM_BAUD)"/>

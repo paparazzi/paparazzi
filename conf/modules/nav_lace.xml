@@ -19,7 +19,7 @@
     <file name="nav_lace.h"/>
   </header>
   <init fun="nav_lace_init()"/>
-  <makefile target="ap|sim|nps|hitl">
+  <makefile target="ap|sim|nps">
     <file name="nav_lace.c"/>
   </makefile>
 </module>

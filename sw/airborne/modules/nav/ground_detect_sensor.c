@@ -61,9 +61,10 @@ bool ground_detect(void) {
 
 void ground_detect_sensor_periodic(void)
 {
-  static int32_t counter = 0;
-
+  bool ground_detect_method = false;
 #if USE_GROUND_DETECT_INDI_THRUST
+  ground_detect_method = true;
+  static int32_t counter_thrust = 0;
   // Evaluate thrust given (less than hover thrust)
   // Use the control effectiveness in thrust in order to estimate the thrust delivered (only works for multicopters)
   float specific_thrust = 0.0; // m/s2
@@ -74,11 +75,12 @@ void ground_detect_sensor_periodic(void)
 
   ground_detected = false;
   if (specific_thrust > GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD ) {
-    if (counter > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
+    counter_thrust += 1;
+    if (counter_thrust > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
       ground_detected = true;
     }
   } else {
-    counter = 0;
+    counter_thrust = 0;
   }
 
   #ifdef DEBUG_GROUND_DETECT
@@ -89,21 +91,23 @@ void ground_detect_sensor_periodic(void)
 
     RunOnceEvery(10, {DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, &test_gd); DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 4, payload);} );
   #endif
+#endif
 
-#elif USE_GROUND_DETECT_AGL_DIST
-  if (agl_value && (agl_dist_value_filtered < GROUND_DETECT_SENSOR_AGL_MIN_VALUE)) {
-    counter += 1;
+#if USE_GROUND_DETECT_AGL_DIST
+  ground_detect_method = true;
+  static int32_t counter_agl_dist = 0;
+  if (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_SENSOR_AGL_MIN_VALUE)) {
+    counter_agl_dist += 1;
   } else {
-    counter = 0;
+    counter_agl_dist = 0;
   }
-  if (counter > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
+  if (counter_agl_dist > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
     ground_detected = true;
   } else {
     ground_detected = false;
   }
-#else
-  ground_detected = false;
 #endif
-
-
+  if (!ground_detect_method) {
+    ground_detected = false;
+  }
 }

@@ -195,6 +195,16 @@ endif
 	@echo "#######################################"
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out -all -name $(AIRCRAFT) -target $* -conf $(CONF_XML)
 
+# generate headers for HITL as is it was AP target
+hitl.ac_h : $(GENERATORS)/gen_aircraft.out
+	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
+	@echo "#######################################"
+	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET hitl"
+	@echo "#######################################"
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=hitl Q=$(Q) $(GENERATORS)/gen_aircraft.out -airframe -flight_plan -settings -name $(AIRCRAFT) -target hitl -conf $(CONF_XML)
+	$(Q)rm -f $(AIRCRAFT_BUILD_DIR)/Makefile.ac
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=ap Q=$(Q) $(GENERATORS)/gen_aircraft.out -all -name $(AIRCRAFT) -target ap -conf $(CONF_XML)
+
 %.qt: %.ac_h
 	@echo "GENERATED Qt project"
 
@@ -202,8 +212,16 @@ endif
 	$(MAKE) TARGET=$* -f Makefile.ac all_ac_h
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
 
+hitl.compile: hitl.ac_h | print_version
+	$(MAKE) TARGET=ap -f Makefile.ac all_ac_h
+	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=ap all
+	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=hitl AP_LAUNCH=$(shell grep '<dl_setting ' $(AIRCRAFT_BUILD_DIR)/settings.xml | grep 'autopilot.launch' -n | cut -d ':' -f 1) all
+
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
+
+hitl.upload: hitl.compile
+	cd $(AIRBORNE); $(MAKE) TARGET=ap upload
 
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi

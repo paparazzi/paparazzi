@@ -11,7 +11,7 @@
     <waypoint alt="700.0" name="CLIMB"   x="-30" y="-40"/>
     <waypoint alt="700.0" name="P1"      x="-20" y="-40"/>
     <waypoint alt="700.0" name="P2"      x="20" y="-40"/>
-
+    
     <!-- Sectors waypoints -->
     <waypoint name="_S1" x="3" y="4"/>
     <waypoint name="_S2" x="3" y="-4"/>
@@ -106,9 +106,9 @@
     <block name="2D_trefoil_wp" strip_icon="eight.png"> 
       <call fun="gvf_parametric_2D_trefoil_wp(WP_P1, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
     </block>
-
+    
     <block name="3D_ellipse_wp" strip_icon="oval.png">
-	<call fun="gvf_parametric_3D_ellipse_wp(WP_ELLIPSE, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+	  <call fun="gvf_parametric_3D_ellipse_wp(WP_ELLIPSE, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
     </block>
 
     <block name="3D_lissajous_wp" strip_icon="eight.png"> 

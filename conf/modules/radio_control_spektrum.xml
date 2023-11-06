@@ -53,7 +53,7 @@
       <define name="SPEKTRUM_SECONDARY_BIND_CONF_PIN" value="GPIO1"/>
     </test>
   </makefile>
-  <makefile target="sim|nps|hitl">
+  <makefile target="sim|nps">
     <file_arch name="spektrum_arch.c" dir="modules/radio_control"/>
     <test>
       <define name="RADIO_CONTROL"/>

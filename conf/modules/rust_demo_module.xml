@@ -26,7 +26,7 @@
   <init fun="rust_function()"/>
   <periodic fun="rust_periodic()" freq="1." autorun="TRUE"/>
 
-  <makefile target="ap|nps|hitl">
+  <makefile target="ap|nps">
     <!--
       MODULE_PATH is where the module lives.
       RUST_MODULES contains all Rust modules that should be built.
