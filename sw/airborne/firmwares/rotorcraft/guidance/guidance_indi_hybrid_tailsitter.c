@@ -38,7 +38,7 @@
  * @param body_v 3D vector to write the control objective v
  */
 
-void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_gih[GUIDANCE_INDI_HYBRID_V]) {
+void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_gih[GUIDANCE_INDI_HYBRID_V]) {
   // Get attitude
   struct FloatEulers eulers_zxy;
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
@@ -86,7 +86,7 @@ void WEAK guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_I
 
 
 
-void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
+void guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
 {
   // Set lower limits
   du_min_gih[0] = -guidance_indi_max_bank - roll_angle; // roll
