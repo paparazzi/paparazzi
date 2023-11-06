@@ -299,8 +299,8 @@ void guidance_h_run(bool  in_flight)
         transition_run(false);
       }
 
-#ifdef SetCommandsFromRC
-      SetCommandsFromRC(stabilization_cmd,radio_control.values);
+#ifdef COMMAND_THRUST_X
+      stabilization_cmd[COMMAND_THRUST_X] = radio_control.values[RADIO_CONTROL_THRUST_X];
 #endif
 
       stabilization_attitude_run(in_flight);

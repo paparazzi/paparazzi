@@ -20,10 +20,11 @@
             <module name="flight_recorder"/>
 
             <!-- RC switches -->
-            <define name="RADIO_TH_HOLD"        value="RADIO_AUX1"/>
-            <define name="RADIO_KILL_SWITCH"    value="RADIO_AUX1"/>
-            <define name="RADIO_FMODE"          value="RADIO_AUX2"/>
-            <define name="RADIO_FBW_MODE"       value="RADIO_AUX3"/>
+            <define name="RADIO_TH_HOLD"          value="RADIO_AUX1"/>
+            <define name="RADIO_KILL_SWITCH"      value="RADIO_AUX1"/>
+            <define name="RADIO_FMODE"            value="RADIO_AUX2"/>
+            <define name="RADIO_FBW_MODE"         value="RADIO_AUX3"/>
+            <define name="RADIO_CONTROL_THRUST_X" value="RADIO_AUX4"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
