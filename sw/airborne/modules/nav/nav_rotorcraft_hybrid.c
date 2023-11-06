@@ -37,10 +37,10 @@ float nav_max_speed = NAV_MAX_SPEED;
 
 // Max ground speed in with goto/stay instruction
 // by default, same as route speed
-#ifndef GUIDANCE_INDI_GOTO_SPEED
-#define GUIDANCE_INDI_GOTO_SPEED NAV_MAX_SPEED
+#ifndef GUIDANCE_INDI_GOTO_MAX_SPEED
+#define GUIDANCE_INDI_GOTO_MAX_SPEED NAV_MAX_SPEED
 #endif
-float nav_goto_speed = GUIDANCE_INDI_GOTO_SPEED;
+float nav_goto_max_speed = GUIDANCE_INDI_GOTO_MAX_SPEED;
 
 #ifndef NAV_HYBRID_MAX_DECELERATION
 #define NAV_HYBRID_MAX_DECELERATION 1.0
@@ -82,7 +82,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   // Bound the setpoint velocity vector
   float max_h_speed = nav_max_speed;
   if (!force_forward) {
-    // If not in force_forward, compute speed based on decceleration and nav_goto_speed
+    // If not in force_forward, compute speed based on decceleration and nav_goto_max_speed
     // Calculate distance to waypoint
     float dist_to_wp = float_vect2_norm(&pos_error);
     // Calculate max speed when decelerating at MAX capacity a_max
@@ -93,7 +93,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
     float max_speed_decel = sqrtf(max_speed_decel2);
     // Bound the setpoint velocity vector
-    max_h_speed = Min(nav_goto_speed, max_speed_decel); // use hover max speed
+    max_h_speed = Min(nav_goto_max_speed, max_speed_decel); // use hover max speed
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 
