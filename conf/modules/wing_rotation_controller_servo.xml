@@ -1,0 +1,38 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="wing_rotation_controller_servo" dir="rot_wing_drone">
+  <doc>
+    <description>Module to control wing rotation servo command based on prefered angle setpoint</description>
+    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
+        <define name="POSITION_ADC_0" value="62930" description="Endpoint quad"/>
+        <define name="POSITION_ADC_90" value="41760" description="Endpoint wing"/>
+        <define name="DEADZONE_PPRZ_CMD" value="500" description="Make the servo not move"/>
+        <define name="P_GAIN" value="-50000" description="P-gain"/>
+        <define name="MAX_CMD" value="9600" description="Maximum rotation speed"/>
+        <define name="RESET_RADIO_CHANNEL" value="10" description="Radio channel to reset"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings NAME="wing_rotation">
+      <dl_settings NAME="wing_rot">
+        <dl_setting MAX="90" MIN="0" STEP="1" VAR="wing_rotation_controller.wing_angle_deg_sp" shortname="wing_sp_deg"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="wing_rotation_controller.airspeed_scheduling" shortname="airspeed_sched"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="wing_rotation_controller.force_rotation_angle" shortname="force_skew"/>
+        <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="wing_rotation_controller.wing_rotation_first_order_dynamics" shortname="first_dyn"/>
+        <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="wing_rotation_controller.wing_rotation_second_order_dynamics" shortname="second_dyn"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="wing_rotation_controller_servo.h"/>
+  </header>
+    <init fun="wing_rotation_init()"/>
+    <periodic fun="wing_rotation_periodic()" freq="1.0"/>
+    <periodic fun="wing_rotation_event()"/>
+  <makefile>
+    <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" case="lower|upper"/>
+    <define name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
+    <define name="USE_$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
+    <define name="USE_WING_ROTATION_CONTROLLER_SERVO"/>
+    <file name="wing_rotation_controller_servo.c"/>
+  </makefile>
+</module>
