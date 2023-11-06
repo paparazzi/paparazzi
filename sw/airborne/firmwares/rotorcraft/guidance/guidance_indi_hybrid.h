@@ -37,11 +37,9 @@
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
-#ifdef GUIDANCE_INDI_QUADPLANE
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_quadplanes.h"
-#define GUIDANCE_INDI_HYBRID_USE_WLS true
-#else
-#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid_tailsitters.h"
+
+#ifndef GUIDANCE_INDI_HYBRID_U
+#error Please use guidance_indi_hybrid_tailsitter or guidance_indi_hybrid_quadplane in your airframe file.
 #endif
 
 
@@ -50,7 +48,11 @@
 extern void guidance_indi_init(void);
 extern void guidance_indi_enter(void);
 extern float guidance_indi_get_liftd(float pitch, float theta);
+extern void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_body[GUIDANCE_INDI_HYBRID_V]);
+
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 extern void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle);
+#endif
 
 enum GuidanceIndiHybrid_HMode {
   GUIDANCE_INDI_HYBRID_H_POS,
@@ -83,11 +85,14 @@ extern struct FloatVect3 gi_speed_sp;
 
 extern float guidance_indi_pitch_pref_deg;
 
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 extern float Wu_gih[GUIDANCE_INDI_HYBRID_U];
 extern float Wv_gih[GUIDANCE_INDI_HYBRID_V];
 extern float du_min_gih[GUIDANCE_INDI_HYBRID_U];
 extern float du_max_gih[GUIDANCE_INDI_HYBRID_U];
 extern float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
+#endif
+
 extern float guidance_indi_thrust_z_eff;
 extern float guidance_indi_thrust_x_eff;
 

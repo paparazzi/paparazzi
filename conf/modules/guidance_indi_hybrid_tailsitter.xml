@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi_hybrid_tailsitter" dir="guidance" task="control">
+  <doc>
+    <description>
+      Guidance controller for hybrid tailsitter vehicles
+    </description>
+  </doc>
+  <dep>
+    <depends>guidance_indi_hybrid</depends>
+    <conflicts>guidance_indi_hybrid_quadplane</conflicts>
+    <provides>guidance,attitude_command</provides>
+  </dep>
+  <header>
+    <file name="guidance_indi_hybrid_tailsitter.h"/>
+  </header>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <!-- Guidance actuators: (roll, pitch, thrust, push) for quadplanes  -->
+    <define name="GUIDANCE_INDI_HYBRID_U" value="3"/>
+    <!-- Guidance control objectives: ax, ay, ay for quadplanes -->
+    <define name="GUIDANCE_INDI_HYBRID_V" value="3"/>
+    <file name="guidance_indi_hybrid_tailsitter.c" dir="$(SRC_FIRMWARE)/guidance"/>
+  </makefile>
+</module>
