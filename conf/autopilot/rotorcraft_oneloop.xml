@@ -30,35 +30,8 @@
       <dl_setting var="autopilot_mode_auto2" min="2" step="1" max="3" module="autopilot" values="NAV|GUIDED"/>
     </settings>
 
-    <control_block name="half_loop">
-      <call fun="oneloop_andi_run(true)"/>
-    </control_block>
-
     <control_block name="set_commands">
       <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight(), autopilot_get_motors_on())"/>
-    </control_block>
-
-    <control_block name="half_loop">
-      <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
-    </control_block>
-
-    <control_block name="full_loop">
-      <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
-    </control_block>
-    <control_block name="attitude_loop">
-      <call fun="stabilization_attitude_read_rc(autopilot_in_flight(), FALSE, FALSE)"/>
-      <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
-    </control_block>
-        <control_block name="throttle_direct">
-      <call fun="guidance_v_read_rc()"/>
-      <call fun="guidance_v_set_z(stateGetPositionNed_i()->z)"/>
-      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
-    </control_block>
-
-    <control_block name="altitude_loop">
-      <call fun="gv_update_ref_from_z_sp(guidance_v.z_sp)"/>
-      <call fun="guidance_v.delta_t = guidance_v_run_pos(autopilot_in_flight(), &guidance_v)"/>
-      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
     </control_block>
 
     <exceptions>
