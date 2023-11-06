@@ -28,10 +28,16 @@
 #include "math/pprz_isa.h"
 #include "generated/flight_plan.h"
 
+// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees. 
+#ifndef NAV_HYBRID_MAX_BANK
+#define NAV_HYBRID_MAX_BANK 0.52f
+#endif
+
 // Max ground speed that will be commanded
 #ifndef NAV_HYBRID_MAX_AIRSPEED
 #define NAV_HYBRID_MAX_AIRSPEED 15.0f
 #endif
+
 #ifndef NAV_HYBRID_SPEED_MARGIN
 #define NAV_HYBRID_SPEED_MARGIN 10.0f
 #endif
@@ -241,7 +247,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     } else {
       // close to circle, speed function of radius for a feasible turn
       // MAX_BANK / 2 gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(GUIDANCE_H_MAX_BANK / 2.f));
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(NAV_HYBRID_MAX_BANK / 2.f));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
   }
