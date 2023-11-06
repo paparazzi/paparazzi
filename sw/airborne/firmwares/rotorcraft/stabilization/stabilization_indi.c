@@ -630,6 +630,7 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
       v_thrust.z +=
         (stabilization_cmd[COMMAND_THRUST] - use_increment * actuator_state_filt_vect[i]) * Bwls[3][i];
 #if INDI_OUTPUTS == 5
+      stabilization_cmd[COMMAND_THRUST_X] = radio_control.values[RADIO_CONTROL_THRUST_X];
       v_thrust.x +=
         (stabilization_cmd[COMMAND_THRUST_X] - use_increment * actuator_state_filt_vect[i]) * Bwls[4][i];
 #endif
