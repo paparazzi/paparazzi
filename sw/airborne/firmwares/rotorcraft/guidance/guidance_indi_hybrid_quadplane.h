@@ -19,15 +19,19 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#ifndef GUIDANCE_INDI_HYBRID_QUADPLANE
+#define GUIDANCE_INDI_HYBRID_QUADPLANE
 
 
-// Guidance actuators: (roll, pitch, thrust) for tailsitters 
-#define GUIDANCE_INDI_HYBRID_U  3
+extern void guidance_indi_quadplane_init(void);
+extern void guidance_indi_quadplane_propagate_filters(void);
 
-// Guidance control objectives: ax, ay, ay for tailsitters
-#define GUIDANCE_INDI_HYBRID_V  3
 
 #ifndef GUIDANCE_INDI_MIN_PITCH
-#define GUIDANCE_INDI_MIN_PITCH -120
-#define GUIDANCE_INDI_MAX_PITCH 25
+#define GUIDANCE_INDI_MIN_PITCH -20
+#define GUIDANCE_INDI_MAX_PITCH 20
 #endif
+
+
+
+#endif // GUIDANCE_INDI_HYBRID_QUADPLANE

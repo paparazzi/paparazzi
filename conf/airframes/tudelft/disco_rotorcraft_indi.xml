@@ -60,7 +60,7 @@
       <define name="WLS_N_V" value="4"/>
      <configure name="INDI_NUM_ACT" value="3"/>
     </module>
-    <module name="guidance" type="indi_hybrid"/>
+    <module name="guidance" type="indi_hybrid_tailsitter"/>
     <!--<module name="sonar_bebop">
       <define name="USE_SONAR"/>
       <define name="SENSOR_SYNC_SEND_SONAR"/>

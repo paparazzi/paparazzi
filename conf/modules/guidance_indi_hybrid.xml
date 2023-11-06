@@ -3,7 +3,9 @@
 <module name="guidance_indi_hybrid" dir="guidance" task="control">
   <doc>
     <description>
-      Guidance controller for hybrids using INDI
+      Common guidance controller code for hybrids using INDI: in your airframe file include one of the options:
+       - guidance_indi_hybid_tailsitter
+       - guidance_indi_hybid_quadplane
     </description>
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_HYBRID_">
       <define name="USE_WLS" value="FALSE|TRUE" description="use WLS allocation instead of matrix inversion (default: FALSE)"/>
@@ -31,14 +33,13 @@
   </settings>
   <dep>
     <depends>@navigation,guidance_rotorcraft,wls</depends>
-    <provides>guidance,attitude_command</provides>
+    <suggests>guidance_indi_hybrid_tailsitter</suggests>
   </dep>
   <header>
     <file name="guidance_indi_hybrid.h"/>
   </header>
   <init fun="guidance_indi_init()"/>
   <init fun="guidance_indi_enter()"/>
-  <!--<periodic fun="guidance_indi_propagate_filters()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>-->
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi_hybrid.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <define name="GUIDANCE_INDI_HYBRID" value="TRUE"/>
