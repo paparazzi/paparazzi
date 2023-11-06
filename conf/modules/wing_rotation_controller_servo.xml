@@ -17,7 +17,6 @@
         <dl_setting MAX="90" MIN="0" STEP="1" VAR="wing_rotation_controller.wing_angle_deg_sp" shortname="wing_sp_deg"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="wing_rotation_controller.airspeed_scheduling" shortname="airspeed_sched"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="wing_rotation_controller.force_rotation_angle" shortname="force_skew"/>
-        <dl_setting MAX="18" MIN="14" STEP="0.1" VAR="wing_rotation_controller.forward_airspeed" shortname="forward_airspeed"/>
         <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="wing_rotation_controller.wing_rotation_first_order_dynamics" shortname="first_dyn"/>
         <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="wing_rotation_controller.wing_rotation_second_order_dynamics" shortname="second_dyn"/>
       </dl_settings>
@@ -33,6 +32,7 @@
     <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" case="lower|upper"/>
     <define name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
     <define name="USE_$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
+    <define name="USE_WING_ROTATION_CONTROLLER_SERVO"/>
     <file name="wing_rotation_controller_servo.c"/>
   </makefile>
 </module>

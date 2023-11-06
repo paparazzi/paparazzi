@@ -90,7 +90,6 @@ void wing_rotation_init(void)
   wing_rotation_controller.wing_angle_virtual_deg_sp = 45;
   wing_rotation_controller.wing_rotation_first_order_dynamics = WING_ROTATION_CONTROLLER_FIRST_DYN;
   wing_rotation_controller.wing_rotation_second_order_dynamics = WING_ROTATION_CONTROLLER_SECOND_DYN;
-  wing_rotation_controller.forward_airspeed = 18.;
 }
 
 void wing_rotation_periodic(void)
@@ -116,14 +115,6 @@ void wing_rotation_event(void)
     wing_rotation_controller.wing_angle_deg_sp = 0;
   }
 #endif
-
-  if (guidance_h.mode == GUIDANCE_H_MODE_FORWARD) {
-    set_wing_rotation_scheduler(true);
-  } else if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-    set_wing_rotation_scheduler(false);
-  } else if (guidance_h.mode == GUIDANCE_H_MODE_NAV) {
-    set_wing_rotation_scheduler(wing_rotation_controller.airspeed_scheduling_nav);
-  }
 
   if (!wing_rotation_controller.airspeed_scheduling) {
     wing_rotation_controller.transition_forward = false;
@@ -166,11 +157,15 @@ void wing_rotation_event(void)
 void wing_rotation_adc_to_deg(void)
 {
 #if !USE_NPS
+#if ROTWING_V3B
   wing_rotation_controller.adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
 
   wing_rotation_controller.wing_angle_deg = 0.00247111 * (float)wing_rotation_controller.adc_wing_rotation - 25.635294;
-
 #else
+wing_rotation_controller.wing_angle_deg = 0;
+#endif // ROTWING_V3B
+
+#else // !USE_NPS
   // Copy setpoint as actual angle in simulation
   wing_rotation_controller.wing_angle_deg = wing_rotation_controller.wing_angle_virtual_deg_sp;
 #endif
@@ -211,11 +206,5 @@ bool set_wing_rotation_scheduler(bool rotation_scheduler_on)
       wing_rotation_controller.wing_angle_deg_sp = 0;
     }
   }
-  return false;
-}
-
-bool set_wing_rotation_scheduler_nav(bool rotation_scheduler_on)
-{
-  wing_rotation_controller.airspeed_scheduling_nav = rotation_scheduler_on;
   return false;
 }
