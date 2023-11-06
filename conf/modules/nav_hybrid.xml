@@ -8,11 +8,19 @@
     <section name="NAV_HYBRID" prefix="NAV_HYBRID_">
       <define name="MAX_DECELERATION" value="1.0" description="Maximum deceleration in [m/s2] when arriving to hover at a WP"/>
     </section>
+    <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
+      <define name="MAX_AIRSPEED" value="15." description="maximum airspeed (required)"/>
+      <define name="NAV_SPEED_MARGIN" value="10." description="maximum commanded ground speed is MAX_AIRSPEED + NAV_SPEED_MARGIN"/>
+      <define name="GOTO_SPEED" value="nav_max_speed" description="maximum speed when flying goto/stay routines (default is max speed)"/>
+      <define name="NAV_LINE_DIST" value="50" description="distance coefficient for line routine"/>
+      <define name="NAV_CIRCLE_DIST" value="40" description="distance coefficient for circle routine"/>
+    </section>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="nav_hybrid">
-        <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0" shortname="nav_max_speed"/>
+        <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0"/>
+        <dl_setting var="nav_goto_max_speed" min="1.0" step="1.0" max="50.0"/>
         <dl_setting var="nav_max_deceleration_sp" min="0.5" step="0.1" max="10.0" shortname="max_deceleration" param="NAV_HYBRID_MAX_DECELERATION"/>
         <dl_setting var="nav_hybrid_line_gain" min="0.1" step="0.1" max="3" shortname="nav_hybrid_line_gain" param="NAV_HYBRID_LINE_GAIN"/>
         <dl_setting var="nav_hybrid_pos_gain" min="0.1" step="0.1" max="10" shortname="nav_hybrid_pos_gain" param="NAV_HYBRID_POS_GAIN"/>
@@ -33,6 +41,8 @@
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart0"/>
       <define name="USE_UART0"/>
+      <define name="GUIDANCE_INDI_HYBRID_U" value="3"/>
+      <define name="GUIDANCE_INDI_HYBRID_V" value="3"/>
     </test>
   </makefile>
 </module>

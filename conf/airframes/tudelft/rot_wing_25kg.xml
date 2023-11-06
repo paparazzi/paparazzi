@@ -33,6 +33,9 @@
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
             <define name="USE_I2C1"/>
+
+            <!-- Log in high speed (Remove for outdoor flights) -->
+            <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/>
         </target>
 
         <target name="nps" board="pc">
@@ -91,20 +94,21 @@
 
         <!-- Control -->
         <module name="stabilization" type="indi">
-            <configure name="INDI_NUM_ACT" value="6"/>
+            <configure name="INDI_NUM_ACT" value="9"/>
+            <configure name="INDI_OUTPUTS" value="5"/>
             <define name="WLS_N_U" value="9"/>
             <define name="WLS_N_V" value="5"/>
         </module>
 
         <module name="ctrl_eff_sched_rot_wing"/>
 
-        <module name="guidance" type="indi_hybrid"/>
+        <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav_hybrid"/>
 
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-
+        <module name="ground_detect_sensor"/>
     </firmware>
 
 
@@ -117,12 +121,12 @@
         <servo no="3"  name="MOTOR_LEFT"      min="-8191" neutral="-5000" max="8191"/>
         <servo no="4"  name="MOTOR_PUSH"      min="-8191" neutral="-8191" max="8191"/>
         <servo no="5"  name="SERVO_ELEVATOR"  min="-8191" neutral="-8191" max="4900"/>
-        <servo no="6"  name="SERVO_RUDDER"    min="-8191" neutral="0"     max="8191"/>
+        <servo no="6"  name="SERVO_RUDDER"    min="-6500" neutral="0"     max="6500"/>
         <servo no="7"  name="ROTATION_MECH"   min="-8191" neutral="0"     max="8191"/>
-        <servo no="8"  name="AIL_RIGHT"       min="-8191" neutral="0"     max="8191"/>
-        <servo no="9"  name="FLAP_RIGHT"      min="-8191" neutral="0"     max="8191"/>
-        <servo no="10" name="AIL_LEFT"        min="-8191" neutral="0"     max="8191"/>
-        <servo no="11" name="FLAP_LEFT"       min="-8191" neutral="0"     max="8191"/>
+        <servo no="8"  name="AIL_RIGHT"       min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="9"  name="FLAP_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="10" name="AIL_LEFT"        min="-5000" neutral="1000"     max="8000"/>
+        <servo no="11" name="FLAP_LEFT"       min="-5000" neutral="1000"     max="8000"/>
         <servo no="12" name="PARACHUTE"       min="-8191" neutral="0"     max="8191"/>
     </servos>
 
@@ -134,12 +138,12 @@
         <servo no="3"  name="BMOTOR_LEFT"     min="-8191" neutral="-5000" max="8191"/>
         <servo no="4"  name="BMOTOR_PUSH"     min="-8191" neutral="-8191" max="8191"/>
         <servo no="5"  name="BSERVO_ELEVATOR" min="-8191" neutral="-8191" max="4900"/>
-        <servo no="6"  name="BSERVO_RUDDER"   min="-8191" neutral="0"     max="8191"/>
+        <servo no="6"  name="BSERVO_RUDDER"   min="-6500" neutral="0"     max="6500"/>
         <servo no="7"  name="BROTATION_MECH"  min="-8191" neutral="0"     max="8191"/>
-        <servo no="8"  name="BAIL_RIGHT"      min="-8191" neutral="0"     max="8191"/>
-        <servo no="9"  name="BFLAP_RIGHT"     min="-8191" neutral="0"     max="8191"/>
-        <servo no="10" name="BAIL_LEFT"       min="-8191" neutral="0"     max="8191"/>
-        <servo no="11" name="BFLAP_LEFT"      min="-8191" neutral="0"     max="8191"/>
+        <servo no="8"  name="BAIL_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="9"  name="BFLAP_RIGHT"     min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="10" name="BAIL_LEFT"       min="-5000" neutral="1000"     max="8000"/>
+        <servo no="11" name="BFLAP_LEFT"      min="-5000" neutral="1000"     max="8000"/>
         <servo no="12" name="BPARACHUTE"      min="-8191" neutral="0"     max="8191"/>
     </servos>
 
@@ -159,36 +163,38 @@
 
     <command_laws>
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
+        <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+        <let VAR="hover_off" VALUE="$th_hold"/>
+        
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
-
         <!-- Main bus -->
-        <set servo="MOTOR_FRONT"        value="($th_hold? -9600 : actuators_pprz[0])"/>
-        <set servo="MOTOR_RIGHT"        value="($th_hold? -9600 : actuators_pprz[1])"/>
-        <set servo="MOTOR_BACK"         value="($th_hold? -9600 : actuators_pprz[2])"/>
-        <set servo="MOTOR_LEFT"         value="($th_hold? -9600 : actuators_pprz[3])"/>
-        <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[6])"/>
-        <set servo="SERVO_ELEVATOR"     value="0"/>
-        <set servo="SERVO_RUDDER"       value="0"/>
-        <set servo="ROTATION_MECH"      value="rotation_cmd"/>
-        <set servo="AIL_RIGHT"          value="0"/>
-        <set servo="FLAP_RIGHT"         value="0"/>
-        <set servo="AIL_LEFT"           value="0"/>
-        <set servo="FLAP_LEFT"          value="0"/>
+        <set servo="MOTOR_FRONT"        value="($hover_off? -9600 : actuators_pprz[0])"/>
+        <set servo="MOTOR_RIGHT"        value="($hover_off? -9600 : actuators_pprz[1])"/>
+        <set servo="MOTOR_BACK"         value="($hover_off? -9600 : actuators_pprz[2])"/>
+        <set servo="MOTOR_LEFT"         value="($hover_off? -9600 : actuators_pprz[3])"/>
+        <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[8])"/>
+        <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : actuators_pprz[5])"/>
+        <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[4])"/>
+        <set servo="ROTATION_MECH"      value="0"/>
+        <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <set servo="FLAP_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
+        <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <set servo="FLAP_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="PARACHUTE"          value="RadioControlValues(RADIO_AUX6)"/>
 
         <!-- Second bus -->
-        <set servo="BMOTOR_FRONT"       value="($th_hold? -9600 : actuators_pprz[0])"/>
-        <set servo="BMOTOR_RIGHT"       value="($th_hold? -9600 : actuators_pprz[1])"/>
-        <set servo="BMOTOR_BACK"        value="($th_hold? -9600 : actuators_pprz[2])"/>
-        <set servo="BMOTOR_LEFT"        value="($th_hold? -9600 : actuators_pprz[3])"/>
-        <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[6])"/>
-        <set servo="BSERVO_ELEVATOR"    value="0"/>
-        <set servo="BSERVO_RUDDER"      value="0"/>
-        <set servo="BROTATION_MECH"     value="rotation_cmd"/>
-        <set servo="BAIL_RIGHT"         value="0"/>
-        <set servo="BFLAP_RIGHT"        value="0"/>
-        <set servo="BAIL_LEFT"          value="0"/>
-        <set servo="BFLAP_LEFT"         value="0"/>
+        <set servo="BMOTOR_FRONT"       value="($hover_off? -9600 : actuators_pprz[0])"/>
+        <set servo="BMOTOR_RIGHT"       value="($hover_off? -9600 : actuators_pprz[1])"/>
+        <set servo="BMOTOR_BACK"        value="($hover_off? -9600 : actuators_pprz[2])"/>
+        <set servo="BMOTOR_LEFT"        value="($hover_off? -9600 : actuators_pprz[3])"/>
+        <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[8])"/>
+        <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : actuators_pprz[5])"/>
+        <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[4])"/>
+        <set servo="BROTATION_MECH"     value="0"/>
+        <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <set servo="BFLAP_RIGHT"        value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
+        <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <set servo="BFLAP_LEFT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/>
     </command_laws>
 
@@ -205,32 +211,33 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
-
-    <!-- 20.17 kg -->
-    <!--    <section name="CTRL_EFF_SCED" prefix="ROT_WING_EFF_SCHED_">
-        <define name="IXX_BODY"          value="0.90940"/>
-        <define name="IYY_BODY"          value="7.88418"/>
-        <define name="IZZ"               value="5.91445"/>
-        <define name="IWING"             value="1.06965"/>
-        <define name="M"                 value="20.17"/>
-        <define name="ROLL_ARM"          value="0.64"/>
-        <define name="PITCH_ARM"         value="0.556"/>
-        <define name="HOVER_DF_DPPRZ"    value="0.012078"/>
-    </section> -->
-        
-    <!-- 25kg -->
-    <section name="CTRL_EFF_SCED" prefix="ROT_WING_EFF_SCHED_">
-        <!-- Control Effectiveness Scheduling -->
+    <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.2845"/>
         <define name="IYY_BODY"              value="5.078"/>
         <define name="IZZ"                   value="7.051"/>
         <define name="IXX_WING"              value="0.712"/>
         <define name="IYY_WING"              value="1.77"/>
         <define name="M"                     value="25.5"/>
-        <define name="ROLL_ARM"              value="0.64"/>
-        <define name="PITCH_ARM"             value="0.556"/>
-        <define name="HOVER_DF_DPPRZ"        value="0.014007"/>
-        <define name="HOVER_ROLL_PITCH_COEF" value="{0.64,1.4}"/>
+
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="0.00925"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="0.0085"/>
+
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.0015,    -0.011}"/>
+        <define name="HOVER_ROLL_ROLL_COEF"  value="{0.0,       -0.0}"/>
+
+        <define name="K_ELEVATOR"            value="{ 1.27655, -13.3525, -80.0}"/>
+        <define name="K_RUDDER"              value="{-72.5037,  -0.9329, -3.23651}"/>
+        <define name="K_AILERON"             value="2.777647188"/>
+        <define name="K_FLAPERON"            value="2.0439"/>
+        <define name="K_PUSHER"              value="{0.027775,-2.41146}"/>
+
+        <define name="K_ELEVATOR_DEFLECTION" value="{50.0,-0.0063}"/>
+        <define name="D_RUDDER_D_PPRZ"       value="-0.0018"/>
+        <define name="K_RPM_PPRZ_PUSHER"     value="{-131.497033952591,1.32098226269777,-0.0000291178067445214}"/>
+        
+        <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
+        <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
+        <define name="K_LIFT_TAIL"           value="-0.101691751"/>
     </section>
 
 
@@ -261,9 +268,6 @@
         <define name="BODY_TO_IMU_PHI"      value="180." unit="deg"/>
         <define name="BODY_TO_IMU_THETA"    value="0." unit="deg"/>
         <define name="BODY_TO_IMU_PSI"      value="0." unit="deg"/>
-
-        <!-- Log in high speed -->
-        <define name="LOG_HIGHSPEED"        value="TRUE"/>
     </section>
 
     <section name="MAG_RM3100" prefix="RM3100_">
@@ -322,19 +326,21 @@
         <define name="G2"           value="{   0.0,     0.0,     0.0,    0.0,  0.0,  0.0}"/> -->
 
         <!-- G1 and G2 25 kg-->
-        <define name="G1_ROLL"      value="{   0.0,    -9.0,    0.0,     9.0,  0.0,  0.0}"/>
-        <define name="G1_PITCH"     value="{  1.14,     0.0,   -1.14,    0.0,  0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{ -0.29,    0.29,   -0.29,   0.29,  0.0,  0.0}"/>
-        <define name="G1_THRUST"    value="{ -0.54,   -0.54,   -0.54,  -0.54,  0.0,  0.0}"/>
-        <define name="G2"           value="{   0.0,     0.0,     0.0,    0.0,  0.0,  0.0}"/>
+        <define name="G1_ROLL"      value="{   0.0,    -9.0,    0.0,     9.0,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
+        <define name="G1_PITCH"     value="{  1.14,     0.0,   -1.14,    0.0,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
+        <define name="G1_YAW"       value="{ -0.29,    0.29,   -0.29,   0.29,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
+        <define name="G1_THRUST"    value="{ -0.54,   -0.54,   -0.54,  -0.54,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
+        <define name="G1_THRUST_X"  value="{   0.0,     0.0,     0.0,    0.0,  0.0,  0.0, 0.0, 0.0, 0.9}"/>
+        <define name="G2"           value="{   0.0,     0.0,     0.0,    0.0,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_DYN"          value="{0.024,  0.024,  0.024,  0.024,  0.1,  0.1}"/>
-        <define name="ACT_IS_SERVO"     value="{    0,      0,      0,      0,    1,    1}"/>
+        <define name="ACT_DYN"              value="{0.024,  0.024,  0.024,  0.024,  0.1,  0.1, 0.1, 0.1, 0.047}"/>
+        <define name="ACT_IS_SERVO"         value="{    0,      0,      0,      0,    1,    1,   1,   1,     0}"/>
+        <define name="ACT_IS_THRUSTER_X"    value="{    0,      0,      0,      0,    0,    0,   0,   0,     1}" />
 
-        <!-- Pusher prop -->
-        <define name="PUSHER_PROP_EFFECTIVENESS"    value="0.0009"/>
-        <define name="PUSHER_PROP_DYN"              value="0.047"/>
+        <define VALUE="{1000, 1000, 1, 100, 100}" NAME="WLS_PRIORITIES"/>
+        <define VALUE="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}" NAME="WLS_WU"/>
+
 
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="40.0"/>
@@ -359,7 +365,8 @@
         <define name="OUTPUT_NOTCH_FILTER_BANDWITDH"    value="3.0"/>
 
         <!-- Other -->
-        <define name="WLS_PRIORITIES"   value="{1000, 1000, 1, 100}"/>
+        <define name="WLS_PRIORITIES"   value="{1000, 1000, 1, 100, 100}"/>
+        <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
     </section>
@@ -402,7 +409,6 @@
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
         <define name="ZERO_AIRSPEED"        value="TRUE"/>
 
-        <define name="QUADPLANE"            value="TRUE"/>
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
         <define name="THRUST_X_EFF"         value="0.00055"/>
 
@@ -430,10 +436,10 @@
     </section>
 
     <section name="SIMULATOR" prefix="NPS_">
-        <define name="ACTUATOR_NAMES"   value="front_motor, right_motor, back_motor, left_motor, rudder, elevator, pusher" type="string[]"/>
+        <define name="ACTUATOR_NAMES"   value="front_motor, right_motor, back_motor, left_motor, rudder, elevator, aileron, flaperon, pusher" type="string[]"/>
         <define name="JSBSIM_MODEL"     value="rotwing25" type="string"/>
         <define name="SENSORS_PARAMS"   value="nps_sensors_params_default.h" type="string"/>
-        <define name="COMMANDS_NB"      value="7"/>
+        <define name="COMMANDS_NB"      value="9"/>
         <define name="NO_MOTOR_MIXING"  value="TRUE"/>
         <define name="JS_AXIS_MODE"     value="4"/>
     </section>

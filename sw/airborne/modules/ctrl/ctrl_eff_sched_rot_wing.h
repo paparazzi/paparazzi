@@ -35,25 +35,44 @@ struct rot_wing_eff_sched_param_t {
   float Ixx_wing;                 // wing MMOI around the chordwise direction of the wing [kgm²]
   float Iyy_wing;                 // wing MMOI around the spanwise direction of the wing [kgm²]
   float m;                        // mass [kg]
-  float roll_arm;                 // distance from rotation point to roll motor [m]
-  float pitch_arm;                // distance from rotation point to pitch motor [m]
-  float hover_dFdpprz;            // derivative of delta force with respect to a delta paparazzi command [N/pprz]
   float hover_roll_pitch_coef[2]; // Model coefficients to correct pitch effective for roll motors
+  float hover_roll_roll_coef[2];  // Model coefficients to correct roll effectiveness for roll motors
+  float k_elevator[3];
+  float k_rudder[3];
+  float k_aileron;
+  float k_flaperon;
+  float k_pusher[2];
+  float k_elevator_deflection[2];
+  float d_rudder_d_pprz;
+  float k_rpm_pprz_pusher[3];
+  float k_lift_wing[2];
+  float k_lift_fuselage;
+  float k_lift_tail;
 };
 
 struct rot_wing_eff_sched_var_t {
   float Ixx;                  // Total MMOI around roll axis [kgm²]
   float Iyy;                  // Total MMOI around pitch axis [kgm²]
-  float wing_rotation_rad;    // Wing rotation angle in radians
+  float wing_rotation_rad;    // Wing rotation angle in radians: from ABI message
+  float wing_rotation_deg;    // Wing rotation angle in degrees: (clone in degrees)
   float cosr;                 // cosine of wing rotation angle
   float sinr;                 // sine of wing rotation angle
   float cosr2;                // cosine² of wing rotation angle
   float sinr2;                // sine² of wing rotation angle
-  float cosr3;                // cos³ of wing rotation angle
+  float sinr3;                // sine³ of wing rotation angle
 
   // Set during initialization
   float pitch_motor_dMdpprz;  // derivative of delta moment with respect to a delta paparazzi command for the pitch motors [Nm/pprz]
   float roll_motor_dMdpprz;   // derivative of delta moment with respect to a delta paparazzi command for the roll motors [Nm/pprz]
+
+  // commands
+  float cmd_elevator;
+  float cmd_pusher_scaled;
+  float cmd_T_mean_scaled;
+
+  // airspeed
+  float airspeed;
+  float airspeed2;
 };
 
 extern float rotation_angle_setpoint_deg;

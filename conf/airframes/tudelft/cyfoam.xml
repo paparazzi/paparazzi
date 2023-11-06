@@ -292,7 +292,7 @@
       <define name="WLS_N_U" value="4" />
       <define name="WLS_N_V" value="4" />
     </module>
-    <module name="guidance"      type="indi_hybrid">
+    <module name="guidance"      type="indi_hybrid_tailsitter">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>

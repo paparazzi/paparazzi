@@ -32,7 +32,9 @@
 #include "modules/nav/nav_rotorcraft_base.h"
 
 // settings
-extern float nav_max_speed;
+extern float nav_max_speed;   // max speed in route mode
+extern float nav_goto_max_speed; // max speed in goto/stay mode
+extern float nav_max_deceleration_sp;
 extern float nav_hybrid_line_gain; 
 extern float nav_hybrid_pos_gain; 
 
