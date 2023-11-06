@@ -47,10 +47,8 @@ struct wing_rotation_controller_t {
   bool initialized;
   uint8_t init_loop_count;
   bool airspeed_scheduling;
-  bool airspeed_scheduling_nav;
   bool force_rotation_angle;
   bool transition_forward;
-  float forward_airspeed;
 };
 
 extern struct wing_rotation_controller_t wing_rotation_controller;
