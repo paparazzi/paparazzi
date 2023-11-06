@@ -36,20 +36,6 @@
 PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
 
 
-// Utility functions
-#ifndef AUTOPILOT_DISABLE_AHRS_KILL
-bool ap_ahrs_is_aligned(void)
-{
-  return stateIsAttitudeValid();
-}
-#else
-PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
-bool ap_ahrs_is_aligned(void)
-{
-  return true;
-}
-#endif
-
 #if defined RADIO_MODE_2x3
 
 #define THRESHOLD_1d3_PPRZ (MAX_PPRZ / 3)
