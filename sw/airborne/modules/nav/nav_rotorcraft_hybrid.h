@@ -33,7 +33,7 @@
 
 // settings
 extern float nav_max_speed;   // max speed in route mode
-extern float nav_hover_speed; // max speed in goto/stay mode
+extern float nav_goto_speed; // max speed in goto/stay mode
 extern float nav_max_deceleration_sp;
 
 extern void nav_rotorcraft_hybrid_init(void);
