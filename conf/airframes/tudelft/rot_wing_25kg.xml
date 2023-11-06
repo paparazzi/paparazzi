@@ -156,9 +156,9 @@
     </commands>
     
 
-    <auto_rc_commands>
-        <set VALUE="@AUX4" COMMAND="THRUST_X"/>
-    </auto_rc_commands>
+    <rc_commands>
+        <set COMMAND="THRUST_X" VALUE="@AUX4"/>
+    </rc_commands>
 
 
     <command_laws>
