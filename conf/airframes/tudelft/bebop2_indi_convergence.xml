@@ -34,7 +34,7 @@
     <module name="gps" type="ublox"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="indi_simple"/>
-    <module name="guidance" type="indi_hybrid"/>
+    <module name="guidance" type="indi_hybrid_tailsitter"/>
 
     <module name="ins" type="ekf2"/>
     <!--<module name="ahrs" type="int_cmpl_quat">-->
