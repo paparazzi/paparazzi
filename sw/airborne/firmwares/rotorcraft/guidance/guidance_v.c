@@ -233,9 +233,6 @@ void guidance_v_run(bool in_flight)
       guidance_v.z_sp = stateGetPositionNed_i()->z; // for display only
       stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t;
 
-#ifdef SetCommandsFromRC
-      SetCommandsFromRC(stabilization_cmd,radio_control.values);
-#endif
       break;
 
     case GUIDANCE_V_MODE_RC_CLIMB:
