@@ -14,7 +14,7 @@
     <file name="ins_gps_passthrough.h"/>
   </header>
   <init fun="ins_gps_passthrough_init()"/>
-  <makefile target="nps">
+  <makefile target="sim|nps">
     <file name="imu.c" dir="modules/imu"/>
     <file name="imu_nps.c" dir="modules/imu"/>
     <define name="USE_IMU"/>
@@ -34,7 +34,7 @@
     <file name="ins.c"/>
     <file name="ins_gps_passthrough.c"/>
   </makefile>
-  <makefile target="nps" firmware="fixedwing">
+  <makefile target="sim|nps" firmware="fixedwing">
     <define name="INS_TYPE_H" value="modules/ins/ins_gps_passthrough.h" type="string"/>
     <file name="ins.c"/>
     <file name="ins_gps_passthrough_utm.c"/>

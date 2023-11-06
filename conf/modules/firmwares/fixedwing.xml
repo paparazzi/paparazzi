@@ -28,7 +28,7 @@
   <makefile target="!fbw">
     <file name="main_ap.c" dir="."/>
   </makefile>
-  <makefile target="nps">
+  <makefile target="sim|nps">
     <define name="AP"/>
     <file name="nps_autopilot_fixedwing.c" dir="nps"/>
   </makefile>

@@ -11,26 +11,9 @@
     </description>
   </doc>
   <dep>
-    <depends>system_core,electrical,settings,actuators_dummy,@gps,@ins,@ahrs</depends>
-    <suggests>gps_sim,imu_sim,ins_sim,ahrs_sim,baro_sim,telemetry_sim</suggests>
+    <depends>targets/nps,fdm_fixedwing_sim</depends>
   </dep>
   <makefile target="sim">
-    <define name="SITL"/>
-    <define name="AP"/>
-    <file name="main_bare.c" dir="."/>
-    <file_arch name="sim_ap.c" dir="."/>
-    <file_arch name="sim_gps.c" dir="."/>
-    <file_arch name="sim_adc_generic.c" dir="."/>
-    <file_arch name="sim_ahrs.c" dir="."/>
-    <file_arch name="sim_airspeed.c" dir="."/>
-    <raw>
-UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Darwin")
-  sim.CFLAGS += $(shell if test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; elif test -d /opt/local/include; then echo "-I/opt/local/include"; fi)
-endif
-
-sim.CFLAGS  	+= $(CPPFLAGS)
-    </raw>
   </makefile>
 </module>
 

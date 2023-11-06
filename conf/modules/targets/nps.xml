@@ -15,7 +15,7 @@
     <provides>baro,airspeed,sonar,incidence,temperature</provides>
     <suggests>gps_nps,imu_nps,ins_nps,actuators_nps,telemetry_nps</suggests>
   </dep>
-  <makefile target="nps">
+  <makefile target="sim|nps">
     <define name="AP"/>
     <define name="SITL"/>
     <file name="nps_electrical.c" dir="$(NPS_DIR)"/>
