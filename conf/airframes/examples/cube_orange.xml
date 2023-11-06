@@ -89,6 +89,7 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ins"           type="ekf2"/>
+    <module name="nav"           type="hybrid"/>
 
     <module name="air_data"/>
 
