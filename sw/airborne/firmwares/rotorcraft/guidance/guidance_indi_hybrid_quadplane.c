@@ -28,8 +28,13 @@
 #include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "filters/low_pass_filter.h"
 #include "state.h"
+#include "autopilot.h"
 #include "generated/modules.h"
 
+
+#ifndef COMMAND_THRUST_X
+#error "Quadplanes require a forward thrust actuator"
+#endif
 
 #ifndef GUIDANCE_INDI_THRUST_Z_EFF
 #error "You need to define GUIDANCE_INDI_THRUST_Z_EFF"
@@ -154,4 +159,10 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   du_pref_gih[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
   du_pref_gih[2] = du_max_gih[2]; // Low thrust better for efficiency
   du_pref_gih[3] = body_v[0]; // solve the body acceleration
+}
+
+
+/** Quadplanes can still be in-flight with COMMAND_THRUST==0 and can even soar not descending in updrafts with all thrust off */
+bool autopilot_in_flight_end_detection(bool motors_on UNUSED) {
+  return ! motors_on;
 }
