@@ -8,6 +8,7 @@
   </doc>
   <dep>
     <depends>guidance_indi_hybrid</depends>
+    <conflicts>guidance_indi_hybrid_tailsitter</conflicts>
     <provides>guidance,attitude_command</provides>
   </dep>
   <header>
