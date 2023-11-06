@@ -298,6 +298,11 @@ void guidance_h_run(bool  in_flight)
       if ((!(guidance_h.mode == GUIDANCE_H_MODE_FORWARD)) && transition_percentage > 0) {
         transition_run(false);
       }
+
+#ifdef COMMAND_THRUST_X
+      stabilization_cmd[COMMAND_THRUST_X] = radio_control.values[RADIO_CONTROL_THRUST_X];
+#endif
+
       stabilization_attitude_run(in_flight);
 #if (STABILIZATION_FILTER_CMD_ROLL_PITCH || STABILIZATION_FILTER_CMD_YAW)
       if (in_flight) {
