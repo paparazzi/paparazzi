@@ -74,7 +74,9 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   // Calculate position error
   struct FloatVect2 pos_error;
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
-  VECT2_DIFF(pos_error, nav.target, *pos);
+  // VECT2_DIFF(pos_error, nav.target, *pos);
+  VECT2_COPY(pos_error, nav.target);
+  RunOnceEvery(30, printf("pos_error: %f, %f\n", pos_error.x, pos_error.y));
 
   struct FloatVect2 speed_sp;
   VECT2_SMUL(speed_sp, pos_error, gih_params.pos_gain);
