@@ -34,6 +34,7 @@ struct preflight_result_t {
   char *message;
   uint16_t max_len;
   uint16_t fail_cnt;
+  uint16_t warning_cnt;
   uint16_t success_cnt;
 };
 
