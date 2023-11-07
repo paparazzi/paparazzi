@@ -24,6 +24,7 @@
             <define name="RADIO_KILL_SWITCH"    value="RADIO_AUX1"/>
             <define name="RADIO_FMODE"          value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"       value="RADIO_AUX3"/>
+            <define name="RADIO_CONTROL_THRUST_X" value="RADIO_AUX4"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
@@ -155,11 +156,6 @@
         <axis name="THRUST_X"   failsafe_value="0"/>
     </commands>
     
-
-    <auto_rc_commands>
-        <set VALUE="@AUX4" COMMAND="THRUST_X"/>
-    </auto_rc_commands>
-
 
     <command_laws>
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
