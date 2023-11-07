@@ -17,8 +17,5 @@
   <makefile target="ap">
     <file name="ins_arduimu.c"/>
   </makefile>
-  <makefile target="sim">
-    <file_arch name="ins_arduimu.c"/>
-  </makefile>
 </module>
 

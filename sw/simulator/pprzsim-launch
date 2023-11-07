@@ -50,46 +50,28 @@ def main():
                       action="store_true", dest="verbose")
     parser.add_option("--norc", dest="norc", action="store_true",
                               help="Hide the simulated RC")
-
-    # special options for the fixedwing OCaml sim
-    ocamlsim_opts = OptionGroup(parser, "Simple fixedwing OCaml Simulator Options",
-                                "These are only relevant to the simple fixedwing OCaml sim")
-    ocamlsim_opts.add_option("--boot", dest="boot", action="store_true",
-                             help="Boot the aircraft on start")
-    #ocamlsim_opts.add_option("--norc", dest="norc", action="store_true",
-    #                          help="Hide the simulated RC")
-    ocamlsim_opts.add_option("--noground", dest="noground", action="store_true",
-                             help="Disable ground detection")
-    ocamlsim_opts.add_option("--launch", dest="launch", action="store_true",
-                             help="Launch the aircraft on startup")
-
-    # special options for NPS
-    nps_opts = OptionGroup(parser, "NPS Options", "These are only relevant to the NPS sim")
-    nps_opts.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
-                        type="int", default=5501, action="store",
-                        help="Port on FlightGear host to connect to (Default: %default)")
-    nps_opts.add_option("-P", "--fg_port_in", dest="fg_port_in", metavar="PORT_IN",
-                        type="int", default=5502, action="store",
-                        help="Port to receive from FlightGear host (Default: %default)")
-    nps_opts.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
-                        help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
-    nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
-                        type="int", default=-1, action="store",
-                        help="Use joystick with specified index (e.g. 0)")
-    nps_opts.add_option("--spektrum_dev", type="string", action="callback",
-                        callback=spektrum_callback, metavar="DEV",
-                        help="Spektrum device to use (e.g. /dev/ttyUSB0)")
-    nps_opts.add_option("--rc_script", type="int", action="store", metavar="NO",
-                        help="Number of RC script to use")
-    nps_opts.add_option("--time_factor", type="float", action="store", metavar="factor",
-                        help="Time factor (default 1.0)")
-    nps_opts.add_option("--fg_fdm", action="store_true",
-                        help="Use FlightGear native-fdm protocol instead of native-gui")
-    nps_opts.add_option("--nodisplay", dest="nodisplay", action="store_true",
-                        help="Don't send NPS Ivy messages")
-
-    parser.add_option_group(ocamlsim_opts)
-    parser.add_option_group(nps_opts)
+    parser.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
+                      type="int", default=5501, action="store",
+                      help="Port on FlightGear host to connect to (Default: %default)")
+    parser.add_option("-P", "--fg_port_in", dest="fg_port_in", metavar="PORT_IN",
+                      type="int", default=5502, action="store",
+                      help="Port to receive from FlightGear host (Default: %default)")
+    parser.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
+                      help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
+    parser.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
+                      type="int", default=-1, action="store",
+                      help="Use joystick with specified index (e.g. 0)")
+    parser.add_option("--spektrum_dev", type="string", action="callback",
+                      callback=spektrum_callback, metavar="DEV",
+                      help="Spektrum device to use (e.g. /dev/ttyUSB0)")
+    parser.add_option("--rc_script", type="int", action="store", metavar="NO",
+                      help="Number of RC script to use")
+    parser.add_option("--time_factor", type="float", action="store", metavar="factor",
+                      help="Time factor (default 1.0)")
+    parser.add_option("--fg_fdm", action="store_true",
+                      help="Use FlightGear native-fdm protocol instead of native-gui")
+    parser.add_option("--nodisplay", dest="nodisplay", action="store_true",
+                      help="Don't send NPS Ivy messages")
 
     (options, args) = parser.parse_args()
 
@@ -121,22 +103,7 @@ def main():
 
     simargs = []
 
-    if options.simtype == "sim":
-        if options.boot:
-            simargs.append("-boot")
-        if options.norc:
-            simargs.append("-norc")
-        if options.noground:
-            simargs.append("-noground")
-        if options.launch:
-            simargs.append("-launch")
-        if options.ivy_bus:
-            simargs.append("-b")
-            simargs.append(options.ivy_bus)
-        if options.fg_host:
-            simargs.append("-fg")
-            simargs.append(options.fg_host)
-    elif (options.simtype == "nps") or (options.simtype == "hitl"):
+    if options.simtype in ["sim", "nps", "hitl"]:
         if options.fg_host:
             simargs.append("--fg_host")
             simargs.append(options.fg_host)
