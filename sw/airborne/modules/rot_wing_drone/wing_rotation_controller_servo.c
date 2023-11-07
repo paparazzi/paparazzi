@@ -145,16 +145,11 @@ void wing_rotation_compute_pprz_cmd(void)
 
   // Send to actuators
   int32_t servo_pprz_cmd;
-#if !USE_NPS
   servo_pprz_cmd = (int32_t)(wing_rotation_controller.wing_angle_virtual_deg_sp / 90. * (float)MAX_PPRZ);
   Bound(servo_pprz_cmd, 0, MAX_PPRZ);
   wing_rotation_controller.servo_pprz_cmd = servo_pprz_cmd;
-#else
-  servo_pprz_cmd = (int32_t)(wing_rotation_controller.wing_angle_deg_sp / 90. * (float)MAX_PPRZ);
-  Bound(servo_pprz_cmd, 0, MAX_PPRZ);
-  wing_rotation_controller.servo_pprz_cmd = servo_pprz_cmd;
-  actuators_pprz[INDI_NUM_ACT] = servo_pprz_cmd;
-#endif
+  
+  actuators_pprz[SERVO_ROTATION_MECH] = servo_pprz_cmd;
 }
 
 

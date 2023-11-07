@@ -34,7 +34,7 @@ extern void wing_rotation_event(void);
 
 // Paramaters
 struct wing_rotation_controller_t {
-  float wing_angle_deg;                       ///< Wing angle in degrees
+  float wing_angle_deg;                       ///< Wing angle measurement in degrees
   float wing_angle_deg_sp;                    ///< Wing angle setpoint in degrees
 
   int32_t servo_pprz_cmd;                     ///< Servo command in pprz
@@ -48,6 +48,9 @@ struct wing_rotation_controller_t {
   bool initialized;                           ///< Wing rotation controller initialized                
   uint8_t init_loop_count;                    ///< Wing rotation controller initialization loop count
 };
+
+// Setters
+#define SetWingAngleDegSp(_wing_angle_deg_sp) (wing_rotation_controller.wing_angle_deg_sp = _wing_angle_deg_sp)
 
 extern struct wing_rotation_controller_t wing_rotation_controller;
 
