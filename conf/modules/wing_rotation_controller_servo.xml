@@ -3,12 +3,7 @@
   <doc>
     <description>Module to control wing rotation servo command based on prefered angle setpoint</description>
     <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
-        <define name="POSITION_ADC_0" value="62930" description="Endpoint quad"/>
-        <define name="POSITION_ADC_90" value="41760" description="Endpoint wing"/>
-        <define name="DEADZONE_PPRZ_CMD" value="500" description="Make the servo not move"/>
-        <define name="P_GAIN" value="-50000" description="P-gain"/>
-        <define name="MAX_CMD" value="9600" description="Maximum rotation speed"/>
-        <define name="RESET_RADIO_CHANNEL" value="10" description="Radio channel to reset"/>
+      <define name="RESET_RADIO_CHANNEL" value="10" description="Radio channel to reset"/>
     </section>
   </doc>
   <settings>
@@ -32,7 +27,6 @@
     <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" case="lower|upper"/>
     <define name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
     <define name="USE_$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
-    <define name="USE_WING_ROTATION_CONTROLLER_SERVO"/>
     <file name="wing_rotation_controller_servo.c"/>
   </makefile>
 </module>

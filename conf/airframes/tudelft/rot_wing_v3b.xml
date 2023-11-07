@@ -115,10 +115,10 @@
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="wing_rotation_controller_servo"/>
-        <module name="rot_wing_automation"/>
+        <!--module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks"/>
+        <module name="preflight_checks"/-->
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
 
@@ -222,15 +222,11 @@
         <axis name="THRUST_X"   failsafe_value="0"/>
     </commands>
 
-    <auto_rc_commands>
-        <set VALUE="@AUX4" COMMAND="THRUST_X"/>
-    </auto_rc_commands>
-
 
     <command_laws>
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
         <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-        <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
+        <let VAR="hover_off" VALUE="$th_hold"/>
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
@@ -416,11 +412,6 @@
     </section>
 
     <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
-        <define name="POSITION_ADC_0" value="62930"/>
-        <define name="POSITION_ADC_90" value="41760"/>
-        <define name="DEADZONE_PPRZ_CMD" value="500"/>
-        <define name="P_GAIN" value="-50000"/>
-        <define name="MAX_CMD" value="9600"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
