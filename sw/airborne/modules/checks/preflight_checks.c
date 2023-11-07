@@ -73,6 +73,7 @@ bool preflight_check(void) {
     .message = error_msg,
     .max_len = PREFLIGHT_CHECK_MAX_MSGBUF,
     .fail_cnt = 0,
+    .warning_cnt = 0,
     .success_cnt = 0
   };
 
@@ -84,12 +85,16 @@ bool preflight_check(void) {
     check = check->next;
   }
 
-  // We failed a check
-  if(result.fail_cnt > 0) {
+  // We failed a check or have a warning
+  if(result.fail_cnt > 0 || result.warning_cnt > 0) {
     // Only send every xx amount of seconds
     if((get_sys_time_float() - last_info_time) > PREFLIGHT_CHECK_INFO_TIMEOUT) {
       // Record the total
-      int rc = snprintf(result.message, result.max_len, "Preflight fail [%d/%d]", result.fail_cnt, (result.fail_cnt+result.success_cnt));
+      int rc = 0;
+      if(result.fail_cnt > 0)
+        rc = snprintf(result.message, result.max_len, "Preflight fail [fail:%d warn:%d tot:%d]", result.fail_cnt, result.warning_cnt, (result.fail_cnt+result.warning_cnt+result.success_cnt));
+      else
+        rc = snprintf(result.message, result.max_len, "Preflight success with warnings [%d/%d]", result.warning_cnt, (result.fail_cnt+result.warning_cnt+result.success_cnt));
       if(rc > 0)
         result.max_len -= rc;
 
@@ -106,7 +111,11 @@ bool preflight_check(void) {
       last_info_time = get_sys_time_float();
     }
 
-    return false;
+    // Only if we fail a check
+    if(result.fail_cnt > 0)
+      return false;
+    else
+      return true;
   }
 
   // Send success down
@@ -135,6 +144,46 @@ void preflight_error(struct preflight_result_t *result, const char *fmt, ...) {
   }
 
   // Add the error
+  va_list args;
+  va_start(args, fmt);
+  int rc = vsnprintf(result->message, result->max_len, fmt, args);
+  va_end(args);
+
+  // Remove the length from the buffer if it was successfull
+  if(rc > 0) {
+    result->max_len -= rc;
+    result->message += rc;
+
+    // Add seperator if it fits
+    if(result->max_len > 0) {
+      result->message[0] = PREFLIGHT_CHECK_SEPERATOR;
+      result->max_len--;
+      result->message++;
+
+      // Add the '\0' character
+      if(result->max_len > 0)
+        result->message[0] = 0;
+    }
+  }
+}
+
+/**
+ * @brief Register a preflight error used inside the preflight checking functions 
+ * 
+ * @param result Where the error gets registered
+ * @param fmt A formatted string describing the error used in a vsnprintf
+ * @param ... The arguments for the vsnprintf
+ */
+void preflight_warning(struct preflight_result_t *result, const char *fmt, ...) {
+  // Record the warning count
+  result->warning_cnt++;
+
+  // No more space in the message
+  if(result->max_len <= 0) {
+    return;
+  }
+
+  // Add the warning to the error string
   va_list args;
   va_start(args, fmt);
   int rc = vsnprintf(result->message, result->max_len, fmt, args);
