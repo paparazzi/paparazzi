@@ -10,9 +10,9 @@
 extern struct GpsState gps_nps;
 extern bool gps_has_fix;
 
-extern void gps_feed_value();
+extern void gps_feed_value(void);
 
-extern void gps_nps_init();
+extern void gps_nps_init(void);
 
 #define gps_nps_periodic_check() gps_periodic_check(&gps_nps)
 

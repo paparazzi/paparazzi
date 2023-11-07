@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<procedure>
+  <waypoints>
+    <waypoint lat="50.906886" lon="6.223927" name="_FLY1"/>
+    <waypoint lat="50.910946" lon="6.223798" name="_FLY2"/>
+    <waypoint lat="50.913247" lon="6.226908" name="_FLY3"/>
+    <waypoint lat="50.912701" lon="6.229972" name="_FLY4"/>
+    <waypoint lat="50.912425" lon="6.230648" name="_FLY5"/>
+    <waypoint lat="50.911652" lon="6.231214" name="_FLY6"/>
+    <waypoint lat="50.911392" lon="6.229977" name="_FLY7"/>
+    <waypoint lat="50.910842" lon="6.229131" name="_FLY8"/>
+    <waypoint lat="50.909282" lon="6.228386" name="_FLY9"/>
+    <waypoint lat="50.908253" lon="6.226671" name="_FLY10"/>
+    <waypoint lat="50.907502" lon="6.226436" name="_FLY11"/>
+    <waypoint lat="50.907083" lon="6.226495" name="_FLY12"/>
+    <waypoint lat="50.906788" lon="6.226718" name="_FLY13"/>
+    <waypoint lat="50.906549" lon="6.226418" name="_FLY14"/>
+
+    <waypoint lat="50.906376" lon="6.223196" name="_KILL1"/>
+    <waypoint lat="50.910998" lon="6.223086" name="_KILL2"/>
+    <waypoint lat="50.913740" lon="6.226769" name="_KILL3"/>
+    <waypoint lat="50.913135" lon="6.230278" name="_KILL4"/>
+    <waypoint lat="50.912821" lon="6.231021" name="_KILL5"/>
+    <waypoint lat="50.912073" lon="6.231793" name="_KILL6"/>
+    <waypoint lat="50.911361" lon="6.231674" name="_KILL7"/>
+    <waypoint lat="50.911074" lon="6.230432" name="_KILL8"/>
+    <waypoint lat="50.910664" lon="6.229780" name="_KILL9"/>
+    <waypoint lat="50.907942" lon="6.227214" name="_KILL10"/>
+    <waypoint lat="50.907432" lon="6.227156" name="_KILL11"/>
+    <waypoint lat="50.906610" lon="6.227501" name="_KILL12"/>
+    <waypoint lat="50.905917" lon="6.226675" name="_KILL13"/>
+    <waypoint lat="50.906223" lon="6.225644" name="_KILL14"/>
+
+    <waypoint lat="50.911017" lon="6.228648" name="O1"/>
+    <waypoint lat="50.907650" lon="6.226392" name="O2"/>
+    <waypoint lat="50.909557" lon="6.225059" name="O3"/>
+  </waypoints>
+  <sectors>
+    <sector color="orange" name="Flight_Area">
+      <corner name="_FLY1"/>
+      <corner name="_FLY2"/>
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+      <corner name="_FLY5"/>
+      <corner name="_FLY6"/>
+      <corner name="_FLY7"/>
+      <corner name="_FLY8"/>
+      <corner name="_FLY9"/>
+      <corner name="_FLY10"/>
+      <corner name="_FLY11"/>
+      <corner name="_FLY12"/>
+      <corner name="_FLY13"/>
+      <corner name="_FLY14"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+      <corner name="_KILL5"/>
+      <corner name="_KILL6"/>
+      <corner name="_KILL7"/>
+      <corner name="_KILL8"/>
+      <corner name="_KILL9"/>
+      <corner name="_KILL10"/>
+      <corner name="_KILL11"/>
+      <corner name="_KILL12"/>
+      <corner name="_KILL13"/>
+      <corner name="_KILL14"/>
+    </sector>
+  </sectors>
+</procedure>
+

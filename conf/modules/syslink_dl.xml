@@ -15,7 +15,7 @@
   <periodic fun="syslink_dl_periodic()" freq="2"/>
   <event fun="syslink_dl_event()"/>
 
-  <makefile target="!fbw|sim|nps|hitl">
+  <makefile target="!fbw|sim|nps">
     <configure name="SYSLINK_PORT" default="uart6" case="upper|lower"/>
     <configure name="SYSLINK_BAUD" default="B1000000" case="upper|lower"/>
     <define name="SYSLINK_DEV" value="$(SYSLINK_PORT_LOWER)"/>
