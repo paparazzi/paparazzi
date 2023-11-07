@@ -50,27 +50,22 @@ float agl_measurement_time;
 #endif
 
 abi_event agl_ev;
-
 static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 
 
-#if PREFLIGHT_CHECKS
-#ifdef AGL_DIST_MIN_DISTANCE_CHECK
-#ifdef AGL_DIST_MAX_DISTANCE_CHECK
-#define AGL_DIST_PREFLIGHT_CHECK
+#if PREFLIGHT_CHECKS && defined(AGL_DIST_MIN_DISTANCE_CHECK) && defined(AGL_DIST_MAX_DISTANCE_CHECK)
 /* Preflight checks */
 #include "modules/checks/preflight_checks.h"
-  static struct preflight_check_t agl_dist_pfc;
-  static void agl_dist_preflight(struct preflight_result_t *result) {
-    if(agl_dist_valid && agl_dist_value > AGL_DIST_MIN_DISTANCE_CHECK && agl_dist_value < AGL_DIST_MAX_DISTANCE_CHECK) {
-      preflight_success(result, "agl data ok");
-    } else {
-      preflight_error(result, "No valid agl data");
-    }
+static struct preflight_check_t agl_dist_pfc;
+
+static void agl_dist_preflight(struct preflight_result_t *result) {
+  if(agl_dist_valid && agl_dist_value > AGL_DIST_MIN_DISTANCE_CHECK && agl_dist_value < AGL_DIST_MAX_DISTANCE_CHECK) {
+    preflight_success(result, "AGL within limits %.2f < %.2f > %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
+  } else {
+    preflight_error(result, "AGL outside limits %.2f < %.2f > %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
   }
-#endif // AGL_DIST_MIN_DISTANCE_CHECK
-#endif // AGL_DIST_MAX_DISTANCE_CHECK
-#endif // PREFLIGHT_CHECKS
+}
+#endif // PREFLIGHT_CHECKS && defined(AGL_DIST_MIN_DISTANCE_CHECK) && defined(AGL_DIST_MAX_DISTANCE_CHECK)
 
 void agl_dist_init(void)
 {
@@ -82,10 +77,10 @@ void agl_dist_init(void)
   // Bind to AGL message
   AbiBindMsgAGL(AGL_DIST_ID, &agl_ev, agl_cb);
 
-  #ifdef AGL_DIST_PREFLIGHT_CHECK
-   /* Register preflight checks */
-    preflight_check_register(&agl_dist_pfc, agl_dist_preflight);
-  #endif // AGL_DIST_PREFLIGHT_CHECK
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS && defined(AGL_DIST_MIN_DISTANCE_CHECK) && defined(AGL_DIST_MAX_DISTANCE_CHECK)
+  preflight_check_register(&agl_dist_pfc, agl_dist_preflight);
+#endif // PREFLIGHT_CHECKS && defined(AGL_DIST_MIN_DISTANCE_CHECK) && defined(AGL_DIST_MAX_DISTANCE_CHECK)
 }
 
 static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, float distance)
