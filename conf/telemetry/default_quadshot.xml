@@ -14,7 +14,7 @@
       <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
       <message name="WP_MOVED"               period="1.3"/>
       <message name="ROTORCRAFT_CMD"         period=".25"/>
-      <message name="STAB_ATTITUDE_INDI"     period=".5"/>
+      <message name="STAB_ATTITUDE"     period=".5"/>
       <message name="INS"                    period=".5"/>
       <message name="ENERGY"                 period="2.5"/>
       <message name="DATALINK_REPORT"        period="5.1"/>
@@ -109,7 +109,7 @@
 
     <mode name="indi">
       <message name="ALIVE" period="0.9"/>
-      <message name="STAB_ATTITUDE_INDI" period="0.062"/>
+      <message name="STAB_ATTITUDE" period="0.062"/>
       <message name="ROTORCRAFT_FP" period="0.8"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS" period="1.6"/>

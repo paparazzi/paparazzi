@@ -1,0 +1,161 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="8.0" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="5000" name="Oneloop Valkenburg" security_height="2">
+  <header>
+    #include "autopilot.h"
+    #include "modules/datalink/datalink.h"
+    #include "modules/energy/electrical.h"
+    #include "modules/radio_control/radio_control.h"
+    #include "modules/ahrs/ahrs.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" lat="52.1682196" lon="4.4134865"/>
+    <waypoint name="CLIMB" x="62.6" y="-80.4"/>
+    <waypoint name="STDBY" x="106.0" y="-55.1"/>
+    <waypoint name="p1" x="322.0" y="-254.3"/>
+    <waypoint name="p2" x="696.0" y="-148.1"/>
+    <waypoint name="p3" x="600.4" y="73.4"/>
+    <waypoint name="p4" x="238.6" y="-48.5"/>
+    <waypoint name="TD" x="-4.1" y="-23.7"/>
+    <waypoint name="FOLLOW" x="123.2" y="-87.8"/>
+    <waypoint name="S1" lat="52.1669450" lon="4.4174372"/>
+    <waypoint name="S2" lat="52.1689871" lon="4.4208804"/>
+    <waypoint lat="52.169189"  lon="4.410820"  name="C1"/>
+    <waypoint lat="52.168049"  lon="4.406923"  name="C2"/>
+    <waypoint lat="52.166515"  lon="4.408235"  name="C3"/>
+    <waypoint lat="52.163255"  lon="4.407668"  name="C4"/>
+    <waypoint lat="52.161908"  lon="4.410082"  name="C5"/>
+    <waypoint lat="52.162641"  lon="4.416992"  name="C6"/>
+    <waypoint lat="52.164861"  lon="4.427268"  name="C7"/>
+    <waypoint lat="52.170422"  lon="4.427511"  name="C8"/>
+    <waypoint lat="52.172276"  lon="4.424011"  name="C9"/>
+    <waypoint lat="52.1673931" lon="4.4127541" name="p5"/>
+    <waypoint lat="52.1678569" lon="4.4150577" name="p6"/>
+    <waypoint lat="52.1689993" lon="4.4144979" name="p7"/>
+    <waypoint lat="52.1686045" lon="4.4121999" name="p8"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Hard_Geofence">
+      <corner name="C1"/>
+      <corner name="C2"/>
+      <corner name="C3"/>
+      <corner name="C4"/>
+      <corner name="C5"/>
+      <corner name="C6"/>
+      <corner name="C7"/>
+      <corner name="C8"/>
+      <corner name="C9"/>
+    </sector>
+        <sector color="blue" name="Soft_Geofence">
+      <corner name="p5"/>
+      <corner name="p6"/>
+      <corner name="p7"/>
+      <corner name="p8"/>
+    </sector>
+  </sectors>
+  <modules>
+    <!--module name="follow_me"/-->
+    <module name="nav" type="survey_rectangle_rotorcraft">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="100"/>
+    </module>
+  </modules>
+  <exceptions>
+       <!--Soft Geofencing (go back to Standby)-->
+    <exception cond="Or(!InsideSoft_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 80.0) @AND
+     !(nav_block == IndexOfBlock('Wait GPS')) @AND
+     !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
+    <!-- Hard Geofencing (Kill) -->
+    <exception cond="(Or(!InsideHard_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 80.0) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- RC lost -->
+    <exception cond="((radio_control.status == RC_REALLY_LOST) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- Datalink lost  -->
+    <exception cond="((datalink_time @GT 5) @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="Landed"/>
+    <!-- Bat low (constant RPM descent)-->
+    <exception cond="(electrical.bat_low @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="land here"/>
+    <!-- Bat critical (constant RPM no stabilization)-->
+    <exception cond="(electrical.bat_critical @AND
+      !(IndexOfBlock('Holding point') @GT nav_block) @AND
+      !(nav_block >= IndexOfBlock('land here')) @AND
+      (autopilot_in_flight() == true) )" deroute="land here"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+     <block key="r" name="Start Engine">
+      <call_once fun="NavResurrect()"/>     
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+      <call_once fun="NavResurrect()"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() @GT 0.8" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Pre-Standby">
+      <while cond="oneloop_andi.half_loop"/>
+      <!-- <call_once fun="NavSetWaypointPosAndAltHere(WP_STDBY)"/> -->
+    </block>
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="safe">
+      <stay wp="HOME"/>
+    </block>
+        <block name="Circle_CW">
+      <set value="false" var="force_forward"/>
+      <circle radius="100" wp="FOLLOW"/>
+    </block>
+    <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Land">
+      <go wp="TD"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="Landed"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Safe landing">
+      <exception cond="!nav_is_in_flight()" deroute="Manual"/>
+      <exception cond="0.10 @GT GetPosAlt()" deroute="Manual"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="Manual">
+      <set value="AP_MODE_ATTITUDE_DIRECT" var="autopilot_mode_auto2"/>
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

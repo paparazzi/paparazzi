@@ -37,6 +37,8 @@
       <message name="INS_EKF2"                 period=".25"/>
       <message name="WIND_INFO_RET"            period="1."/>
       <message name="AHRS_REF_QUAT"            period="0.5"/>
+      <message name="STAB_ATTITUDE"      period=".25"/>
+      <message name="EFF_MAT_G"            period="2.0"/>
     </mode>
 
     <mode name="ppm">
@@ -109,8 +111,8 @@
       <message name="STAB_ATTITUDE_REF_INT"   period=".03"/>
       <message name="STAB_ATTITUDE_FLOAT"     period=".03"/>
       <message name="STAB_ATTITUDE_REF_FLOAT" period=".03"/>
-      <message name="STAB_ATTITUDE_INDI"      period=".25"/>
-      <message name="INDI_G"            period="2.0"/>
+      <message name="STAB_ATTITUDE"      period=".25"/>
+      <message name="EFF_MAT_G"            period="2.0"/>
     </mode>
 
     <mode name="vert_loop" key_press="v">
