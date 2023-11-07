@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_fixedwing_sim" dir="fdm">
+  <doc>
+    <description>
+      Basic fixedwing FDM for NPS simulator
+
+      This flight dynamic model is the copy of the legacy simulator that was written in OCaml.
+      Its only purpose is to allow to test the flight plans with a very simple airplane model.
+    </description>
+  </doc>
+  <header/>
+  <makefile target="sim|nps|hitl">
+    <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+    <define name="NPS_BYPASS_INS" value="TRUE"/>
+    <file name="nps_fdm_fixedwing_sim.c" dir="nps"/>
+  </makefile>
+</module>
+

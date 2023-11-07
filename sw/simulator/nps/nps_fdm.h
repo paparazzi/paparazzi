@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #include "std.h"
-#include "../flight_gear.h"
+#include "flight_gear.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_algebra_double.h"
 

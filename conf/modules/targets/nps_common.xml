@@ -12,7 +12,7 @@
   <dep>
     <depends>math</depends>
   </dep>
-  <makefile target="nps|hitl">
+  <makefile target="sim|nps|hitl">
     <configure name="BARO_PERIODIC_FREQUENCY" default="50"/>
     <configure name="NPS_DIR" value="nps"/>
     <raw>

@@ -40,7 +40,7 @@
   </header>
   <init fun="imu_init()"/>
 
-  <makefile target="!sim|fbw">
+  <makefile target="!fbw">
     <define name="USE_IMU"/>
     <file name="imu.c"/>
     <test/>
