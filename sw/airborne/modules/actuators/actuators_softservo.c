@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2022 Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
+ * Copyright (C) 2023 MAVLab
  *
- * This file is part of paparazzi
+ * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,35 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  */
 
-/** @file "modules/rot_wing_drone/wing_rotation_controller_v3b.c"
- * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
- * Module to control wing rotation servo command based on prefered angle setpoint
+/** @file actuators_softservo.c
+ *  Drive a motor until an ADC port has the correct value
  */
 
-#include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
-#include "modules/radio_control/radio_control.h"
-#include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "modules/actuators/actuators.h"
+#include "modules/actuators/actuators_softservo.h"
+#include "generated/airframe.h"
+#include "mcu_periph/adc.h"
+
+/* Currently we only support 1 channels */
+#if SERVOS_SOFT_SERVO_NB > 1
+#error Soft Servo actuators only support max 1 servo
+#endif
+
+/* Calculate the frequency divider to aim at 7 ms */
+#if PERIODIC_FREQUENCY < 450
+#error Soft Servo actuators need at least a frequency of 500 Hz
+#endif
+
+/* Main actuator structure */
+struct ActuatorsSoftServo actuators_soft_servo = {0};
+
+
+
 #include "generated/airframe.h"
 
 #include "modules/core/abi.h"
@@ -80,7 +97,10 @@ static struct adc_buf buf_wing_rot_pos;
 inline void wing_rotation_adc_to_deg(void);
 inline void wing_rotation_compute_pprz_cmd(void);
 
-void wing_rotation_init(void)
+/*
+ * Initialize the sbus devices (UART output devices)
+ */
+void actuators_soft_servo_init(void)
 {
   // your init code here
 #if !USE_NPS
@@ -92,6 +112,8 @@ void wing_rotation_init(void)
   wing_rotation_controller.wing_rotation_first_order_dynamics = WING_ROTATION_CONTROLLER_FIRST_DYN;
   wing_rotation_controller.wing_rotation_second_order_dynamics = WING_ROTATION_CONTROLLER_SECOND_DYN;
 }
+
+
 
 void wing_rotation_periodic(void)
 {
@@ -106,7 +128,11 @@ void wing_rotation_periodic(void)
   }
 }
 
-void wing_rotation_event(void)
+
+/*
+ * Transmit the sbus output at 1 / 7ms
+ */
+void actuators_softservo_update(void)
 {
   // First check if safety switch is triggered
 #ifdef WING_ROTATION_CONTROLLER_RESET_RADIO_CHANNEL

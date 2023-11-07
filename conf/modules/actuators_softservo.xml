@@ -1,0 +1,47 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_softservo" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Servo Driver (actuator) using ADC feedback control in the autopilot.
+       - ADC port: ADC5
+
+    </description>
+    <configure name="ACTUATORS_SOFTSERVO_ADC" value="ADC5" description="ADC port"/>
+    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
+        <define name="POSITION_ADC_0" value="62930" description="Endpoint quad"/>
+        <define name="POSITION_ADC_90" value="41760" description="Endpoint wing"/>
+        <define name="DEADZONE_PPRZ_CMD" value="500" description="Make the servo not move"/>
+        <define name="P_GAIN" value="-50000" description="P-gain"/>
+        <define name="MAX_CMD" value="9600" description="Maximum rotation speed"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings NAME="softservo">
+      <dl_settings NAME="softservo">
+        <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="actuators_softservo.wing_rotation_first_order_dynamics" shortname="first_dyn"/>
+        <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="actuators_softservo.wing_rotation_second_order_dynamics" shortname="second_dyn"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>adc,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_softservo.h"/>
+  </header>
+  <makefile target="!sim">
+    <configure name="ACTUATORS_SOFTSERVO_ADC" default="ADC_5" case="lower|upper"/>
+    <define name="ACTUATORS_SOFTSERVO_ADC" value="$(ACTUATORS_SOFTSERVO_ADC_UPPER)"/>
+    <define name="USE_$(ACTUATORS_SOFTSERVO_ADC_UPPER)"/>
+    <define name="USE_WING_ROTATION_CONTROLLER_SERVO"/>
+    <file name="actuators_softservo.c"/>
+    <test>
+        <define name="USE_ADC_5"/>
+        <define name="PERIODIC_FREQUENCY" value="512"/>
+        <define name="ACTUATORS_SOFTSERVO_ADC" value="ADC_5"/>
+    </test>
+  </makefile>
+</module>
+
