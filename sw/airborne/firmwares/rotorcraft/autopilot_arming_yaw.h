@@ -181,7 +181,11 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         autopilot_set_in_flight(false);   // stop fc from starting control (integration and yaw) till arm process is complete
         if (YAW_STICK_CENTERED()) { // wait until stick released
-          autopilot_check_motor_status = STATUS_MOTORS_ON;
+          // Verify if motors are really on else go back to STATUS_MOTORS_OFF
+          if(autopilot_arming_motors_on())
+            autopilot_check_motor_status = STATUS_MOTORS_ON;
+          else
+             autopilot_check_motor_status = STATUS_MOTORS_OFF;
         }
         break;
       case STATUS_MOTORS_ON:
