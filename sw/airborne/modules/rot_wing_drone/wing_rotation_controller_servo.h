@@ -31,24 +31,22 @@
 extern void wing_rotation_init(void);
 extern void wing_rotation_periodic(void);
 extern void wing_rotation_event(void);
-extern bool set_wing_rotation_scheduler(bool rotation_scheduler_on);
-extern bool set_wing_rotation_scheduler_nav(bool rotation_scheduler_on);
 
 // Paramaters
 struct wing_rotation_controller_t {
-  int32_t servo_pprz_cmd;
-  uint16_t adc_wing_rotation;
-  float wing_angle_deg;
-  float wing_angle_deg_sp;
-  float wing_rotation_speed;
-  float wing_angle_virtual_deg_sp;
-  float wing_rotation_first_order_dynamics;
-  float wing_rotation_second_order_dynamics;
-  bool initialized;
-  uint8_t init_loop_count;
-  bool airspeed_scheduling;
-  bool force_rotation_angle;
-  bool transition_forward;
+  float wing_angle_deg;                       ///< Wing angle in degrees
+  float wing_angle_deg_sp;                    ///< Wing angle setpoint in degrees
+
+  int32_t servo_pprz_cmd;                     ///< Servo command in pprz
+  uint16_t adc_wing_rotation;                 ///< ADC value of wing
+
+  float wing_rotation_speed;                  ///< Rate limiter state variable 1
+  float wing_angle_virtual_deg_sp;            ///< Rate limiter state variable 2
+  float wing_rotation_first_order_dynamics;   ///< Rate limiter for wing rotation
+  float wing_rotation_second_order_dynamics;  ///< Acceleration limiter for wing rotation
+
+  bool initialized;                           ///< Wing rotation controller initialized                
+  uint8_t init_loop_count;                    ///< Wing rotation controller initialization loop count
 };
 
 extern struct wing_rotation_controller_t wing_rotation_controller;

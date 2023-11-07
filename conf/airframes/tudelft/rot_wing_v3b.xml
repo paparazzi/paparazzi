@@ -411,8 +411,6 @@
         <define name="ROTWING_V3B"      value="1" />
     </section>
 
-    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
-    </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
         <!-- Gains -->
