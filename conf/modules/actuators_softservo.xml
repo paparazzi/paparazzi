@@ -8,9 +8,9 @@
 
     </description>
     <configure name="ACTUATORS_SOFTSERVO_ADC" value="ADC5" description="ADC port"/>
-    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
-        <define name="POSITION_ADC_0" value="62930" description="Endpoint quad"/>
-        <define name="POSITION_ADC_90" value="41760" description="Endpoint wing"/>
+    <section name="ACTUATORS_SOFTSERVO" prefix="ACTUATORS_SOFTSERVO_">
+        <define name="ADC_MIN" value="62930" description="Endpoint servo"/>
+        <define name="ADC_MAX" value="41760" description="Endpoint servo"/>
         <define name="DEADZONE_PPRZ_CMD" value="500" description="Make the servo not move"/>
         <define name="P_GAIN" value="-50000" description="P-gain"/>
         <define name="MAX_CMD" value="9600" description="Maximum rotation speed"/>
@@ -35,7 +35,6 @@
     <configure name="ACTUATORS_SOFTSERVO_ADC" default="ADC_5" case="lower|upper"/>
     <define name="ACTUATORS_SOFTSERVO_ADC" value="$(ACTUATORS_SOFTSERVO_ADC_UPPER)"/>
     <define name="USE_$(ACTUATORS_SOFTSERVO_ADC_UPPER)"/>
-    <define name="USE_WING_ROTATION_CONTROLLER_SERVO"/>
     <file name="actuators_softservo.c"/>
     <test>
         <define name="USE_ADC_5"/>

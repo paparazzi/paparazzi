@@ -33,13 +33,14 @@
 /* Main actuator structure */
 struct ActuatorsSoftServo {
   int32_t cmds;
+  float wing_angle_deg_sp;
   int32_t servo_pprz_cmd;
   uint16_t adc_wing_rotation;
   float wing_rotation_speed;
   float wing_rotation_first_order_dynamics;
   float wing_rotation_second_order_dynamics;
   bool initialized;
-  uint8_t init_loop_count;
+  int init_loop_count;
 };
 
 /* Functions used in actuator macros */
