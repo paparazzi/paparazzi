@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="oneloop_andi" dir="oneloop" task="control">
+  <doc>
+    <description>One loop (Guidance + Stabilization) ANDI controller for the rotating wing drone RW3C</description>
+  </doc>
+  <settings>
+   <dl_settings>
+     <dl_settings NAME="oneloop">
+       <dl_setting var="p_att_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_att_e_omega_n"/>
+       <dl_setting var="p_att_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_att_e_zeta"/>
+       <dl_setting var="p_head_e.omega_n" min="0.1"     step="0.001" max="20.0"  shortname="p_head_e_omega_n"/>
+       <dl_setting var="p_head_e.zeta"    min="0.1"     step="0.001" max="1.0"   shortname="p_head_e_zeta"/>
+       <dl_setting var="p_pos_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_pos_e_omega_n"/>
+       <dl_setting var="p_pos_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_pos_e_zeta"/>
+       <dl_setting var="p_alt_e.omega_n"  min="0.1"     step="0.001" max="20.0"  shortname="p_alt_e_omega_n"/>
+       <dl_setting var="p_alt_e.zeta"     min="0.1"     step="0.001" max="1.0"   shortname="p_alt_e_zeta"/>
+       <dl_setting var="psi_des_deg"      min="-180.0"  step="0.1"   max="180.0" shortname="psi_des"/>
+     </dl_settings>
+   </dl_settings>
+  </settings>
+  <dep>
+    <depends>stabilization_rotorcraft,@attitude_command,wls</depends>
+    <provides>commands</provides>
+  </dep>
+  <header>
+    <file name="oneloop_andi.h"/>
+  </header>
+  <init fun="oneloop_andi_init()"/>
+   <makefile target="ap|nps" firmware="rotorcraft">
+    <file       name="oneloop_andi.c" dir="$(SRC_FIRMWARE)/oneloop"/>
+    <configure  name="ANDI_OUTPUTS" default="4"/>
+    <configure  name="ANDI_NUM_ACT" default="4"/>
+    <configure  name="ANDI_NUM_VIRTUAL_ACT" default="2"/>
+    <configure  name="ANDI_NUM_ACT_TOT" default="6"/>
+    <define     name="ANDI_OUTPUTS" value="$(ANDI_OUTPUTS)"/>
+    <define     name="ANDI_NUM_ACT" value="$(ANDI_NUM_ACT)"/>
+    <define     name="ANDI_NUM_VIRTUAL_ACT" value="$(ANDI_NUM_VIRTUAL_ACT)"/>
+    <define     name="ANDI_NUM_ACT_TOT" value="$(ANDI_NUM_ACT_TOT)"/>
+  </makefile> 
+</module>
