@@ -389,7 +389,7 @@ void imu_init(void)
       float tau = 1.0 / (2.0 * M_PI * imu.gyros[i].filter_freq);
       float sample_time = 1 / imu.gyros[i].filter_sample_freq;
       for(uint8_t j = 0; j < 3; j++)
-        init_butterworth_2_low_pass_int(&imu.gyros[i].filter[j], tau, sample_time, 0.0);
+        init_butterworth_2_low_pass(&imu.gyros[i].filter[j], tau, sample_time, 0.0);
     }
 
     /* Copy accel calibration if needed */
@@ -421,7 +421,7 @@ void imu_init(void)
       float tau = 1.0 / (2.0 * M_PI * imu.accels[i].filter_freq);
       float sample_time = 1 / imu.accels[i].filter_sample_freq;
       for(uint8_t j = 0; j < 3; j++)
-        init_butterworth_2_low_pass_int(&imu.accels[i].filter[j], tau, sample_time, 0.0);
+        init_butterworth_2_low_pass(&imu.accels[i].filter[j], tau, sample_time, 0.0);
     }
 
     /* Copy mag calibrated if needed */
@@ -576,15 +576,12 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
     return;
 
   // Filter the gyro
+  struct Int32Rates data_filtered[samples];
   if(gyro->calibrated.filter) {
-    struct Int32Rates data_filtered[samples];
     for(uint8_t i = 0; i < samples; i++) {
-      update_butterworth_2_low_pass_int(&gyro->filter[0], data[i].p);
-      data_filtered[i].p = get_butterworth_2_low_pass_int(&gyro->filter[0]);
-      update_butterworth_2_low_pass_int(&gyro->filter[1], data[i].q);
-      data_filtered[i].q = get_butterworth_2_low_pass_int(&gyro->filter[1]);
-      update_butterworth_2_low_pass_int(&gyro->filter[2], data[i].r);
-      data_filtered[i].r = get_butterworth_2_low_pass_int(&gyro->filter[2]);
+      data_filtered[i].p = update_butterworth_2_low_pass(&gyro->filter[0], data[i].p);
+      data_filtered[i].q = update_butterworth_2_low_pass(&gyro->filter[1], data[i].q);
+      data_filtered[i].r = update_butterworth_2_low_pass(&gyro->filter[2], data[i].r);
     }
     data = data_filtered;
   }
@@ -673,15 +670,12 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
     return;
 
   // Filter the accel
+  struct Int32Vect3 data_filtered[samples];
   if(accel->calibrated.filter) {
-    struct Int32Vect3 data_filtered[samples];
     for(uint8_t i = 0; i < samples; i++) {
-      update_butterworth_2_low_pass_int(&accel->filter[0], data[i].x);
-      data_filtered[i].x = get_butterworth_2_low_pass_int(&accel->filter[0]);
-      update_butterworth_2_low_pass_int(&accel->filter[1], data[i].y);
-      data_filtered[i].y = get_butterworth_2_low_pass_int(&accel->filter[1]);
-      update_butterworth_2_low_pass_int(&accel->filter[2], data[i].z);
-      data_filtered[i].z = get_butterworth_2_low_pass_int(&accel->filter[2]);
+      data_filtered[i].x = update_butterworth_2_low_pass(&accel->filter[0], data[i].x);
+      data_filtered[i].y = update_butterworth_2_low_pass(&accel->filter[1], data[i].y);
+      data_filtered[i].z = update_butterworth_2_low_pass(&accel->filter[2], data[i].z);
     }
     data = data_filtered;
   }
