@@ -60,9 +60,9 @@ static struct preflight_check_t agl_dist_pfc;
 
 static void agl_dist_preflight(struct preflight_result_t *result) {
   if(agl_dist_valid && agl_dist_value > AGL_DIST_MIN_DISTANCE_CHECK && agl_dist_value < AGL_DIST_MAX_DISTANCE_CHECK) {
-    preflight_success(result, "AGL within limits %.2f < %.2f > %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
+    preflight_success(result, "AGL within limits %.2f < %.2f < %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
   } else {
-    preflight_error(result, "AGL outside limits %.2f < %.2f > %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
+    preflight_error(result, "AGL outside limits %.2f < %.2f < %.2f", AGL_DIST_MIN_DISTANCE_CHECK, agl_dist_value, AGL_DIST_MAX_DISTANCE_CHECK);
   }
 }
 #endif // PREFLIGHT_CHECKS && defined(AGL_DIST_MIN_DISTANCE_CHECK) && defined(AGL_DIST_MAX_DISTANCE_CHECK)

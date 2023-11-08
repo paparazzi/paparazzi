@@ -49,6 +49,7 @@ extern bool preflight_bypass;
 extern void preflight_check_register(struct preflight_check_t *check, preflight_check_f func);
 extern bool preflight_check(void);
 extern void preflight_error(struct preflight_result_t *result, const char *fmt, ...);
+extern void preflight_warning(struct preflight_result_t *result, const char *fmt, ...);
 extern void preflight_success(struct preflight_result_t *result, const char *fmt, ...);
 
 #endif /* PREFLIGHT_CHECKS_H */

@@ -244,6 +244,10 @@ void autopilot_force_motors_on(bool motors_on)
  */
 bool autopilot_set_motors_on(bool motors_on)
 {
+  // Prevent unnessary preflight checks
+  if(autopilot.motors_on == motors_on)
+    return true;
+
 #if PREFLIGHT_CHECKS
   // When we fail the preflight checks abort
   if(motors_on && !preflight_check()) {
@@ -261,6 +265,10 @@ bool autopilot_set_motors_on(bool motors_on)
  */
 bool autopilot_arming_motors_on(bool motors_on)
 {
+  // Prevent unnessary preflight checks
+  if(autopilot.motors_on == motors_on)
+    return true;
+  
 #if PREFLIGHT_CHECKS
   // When we fail the preflight checks abort
   if(motors_on && !preflight_check()) {
