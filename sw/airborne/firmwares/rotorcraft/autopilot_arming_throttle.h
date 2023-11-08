@@ -129,7 +129,11 @@ static inline void autopilot_arming_check_motors_on(void)
         if (!autopilot_arming_check_valid()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
         } else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY) {
-          autopilot_arming_state = STATE_MOTORS_ON;
+          if(autopilot_arming_motors_on(true)) {
+            autopilot_arming_state = STATE_MOTORS_ON;
+          } else {
+            autopilot_arming_state = AP_ARMING_STATUS_ARMING;
+          }
         } else {
           autopilot.arming_status = AP_ARMING_STATUS_ARMING;
         }

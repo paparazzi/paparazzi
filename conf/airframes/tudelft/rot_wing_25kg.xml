@@ -110,7 +110,9 @@
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect_sensor"/>
-        <module name="preflight_checks"/>
+        <module name="preflight_checks">
+            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+        </module>
 
     </firmware>
 
