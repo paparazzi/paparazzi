@@ -30,8 +30,8 @@ The basis of steering is the standard signs of aerospace convention
     <axis index="0" name="LeftStickVertical"/>
     <axis index="1" name="RightStickHorizontal"/>
     <axis index="2" name="RightStickVertical"/>
-    <axis index="5" name="arm"/>
     <axis index="4" name="VRA"/>
+    <axis index="5" name="arm"/>
   </input>
 
   <messages period="0.05">
@@ -41,7 +41,6 @@ The basis of steering is the standard signs of aerospace convention
       <field name="pitch"    value="RightStickVertical"/>
       <field name="yaw"      value="LeftStickHorizontal"/>
       <field name="mode"     value="Fit(VRA,-108,108,0,2)"/>
-      <!-- <field name="mode"     value="Fit(VRA,-75,126,0,2)"/> -->
     </message>
     <message class="ground" name="DL_SETTING" on_event="arm">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
