@@ -1,0 +1,47 @@
+<!--
+RadioMaster TX12 Transmitter - Used as Joystick
+
+The RadioMaster TX12 is a versatile radio transmitter 12CH. 
+
+In this file we will use it as a 6CH joystick to control a UAS.
+- The left stick vertical axis will be used for throttle
+- The right stick horizontal axis will be used for roll
+- The right stick vertical axis will be used for pitch
+- The left stick horizontal axis will be used for yaw
+- The VRA axis will be used for mode switching (right top switch)
+- The arm axis will be used for arming (left top switch)
+
+If you want to fly your UAS via the joystick add this to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy  -d 0 -ac yourairfamename radiomaster_tx12.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="3" name="LeftStickHorizontal"/>
+    <axis index="0" name="LeftStickVertical"/>
+    <axis index="1" name="RightStickHorizontal"/>
+    <axis index="2" name="RightStickVertical"/>
+    <axis index="4" name="VRA"/>
+    <axis index="5" name="arm"/>
+  </input>
+
+  <messages period="0.05">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="throttle" value="Fit(LeftStickVertical,-127,127,0,127)"/>
+      <field name="roll"     value="RightStickHorizontal"/>
+      <field name="pitch"    value="RightStickVertical"/>
+      <field name="yaw"      value="LeftStickHorizontal"/>
+      <field name="mode"     value="Fit(VRA,-108,108,0,2)"/>
+    </message>
+    <message class="ground" name="DL_SETTING" on_event="arm">
+      <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
+      <field name="value" value="Fit(-arm,-127,126,0,1)"/>
+    </message>
+  </messages>
+
+</joystick>
