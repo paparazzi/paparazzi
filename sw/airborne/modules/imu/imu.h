@@ -58,7 +58,7 @@ struct imu_gyro_t {
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
   float filter_freq;                  ///< Filter frequency
   float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
-  Butterworth2LowPass_int filter[3];  ///< Lowpass filter optional
+  Butterworth2LowPass filter[3];      ///< Lowpass filter optional
 };
 
 struct imu_accel_t {
@@ -73,7 +73,7 @@ struct imu_accel_t {
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
   float filter_freq;                  ///< Lowpass filter frequency (Hz)
   float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
-  Butterworth2LowPass_int filter[3];  ///< Lowpass filter optional
+  Butterworth2LowPass filter[3];      ///< Lowpass filter optional
 };
 
 struct imu_mag_t {
