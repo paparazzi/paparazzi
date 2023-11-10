@@ -20,6 +20,5 @@
     <periodic fun="periodic_rotwing_state()" freq="50"/>
   <makefile>
     <file name="rotwing_state.c"/>
-    <test/>
   </makefile>
 </module>
