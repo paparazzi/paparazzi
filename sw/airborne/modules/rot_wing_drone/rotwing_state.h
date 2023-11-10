@@ -61,8 +61,16 @@ struct RotWingStateSettings {
   float max_v_descend;
 };
 
+struct RotWingStateSkewing {
+  float wing_angle_deg_sp;   // Wing angle setpoint in deg
+  float wing_angle_deg;      // Wing angle from sensor in deg
+  bool airspeed_scheduling;  // Airspeed scheduling on or off
+  bool force_rotation_angle; // Setting to force wing_angle_deg_sp
+};
+
 extern struct RotwingState rotwing_state;
 extern struct RotWingStateSettings rotwing_state_settings;
+extern struct RotWingStateSkewing rotwing_state_skewing;
 
 extern bool rotwing_state_force_quad;
 
