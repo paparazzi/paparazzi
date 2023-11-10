@@ -29,7 +29,6 @@
 #include "std.h"
 
 extern void wing_rotation_init(void);
-extern void wing_rotation_periodic(void);
 extern void wing_rotation_event(void);
 
 // Paramaters
@@ -44,9 +43,6 @@ struct wing_rotation_controller_t {
   float wing_angle_virtual_deg_sp;            ///< Rate limiter state variable 2
   float wing_rotation_first_order_dynamics;   ///< Rate limiter for wing rotation
   float wing_rotation_second_order_dynamics;  ///< Acceleration limiter for wing rotation
-
-  bool initialized;                           ///< Wing rotation controller initialized                
-  uint8_t init_loop_count;                    ///< Wing rotation controller initialization loop count
 };
 
 // Setters
