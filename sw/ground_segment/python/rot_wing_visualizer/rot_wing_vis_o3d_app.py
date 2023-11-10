@@ -349,12 +349,12 @@ class Viewer3D(object):
 
     def update_actuator_colors(self):
         # update motors
-        self.update_actuator_color("motor_F", 1000, 8191, self.actuators.get_actuator_value(3))
-        self.update_actuator_color("motor_R", 1000, 8191, self.actuators.get_actuator_value(4))
-        self.update_actuator_color("motor_B", 1000, 8191, self.actuators.get_actuator_value(5))
-        self.update_actuator_color("motor_L", 1000, 8191, self.actuators.get_actuator_value(6))
+        self.update_actuator_color("motor_F", 1000, 8191, self.actuators.get_actuator_value(1))
+        self.update_actuator_color("motor_R", 1000, 8191, self.actuators.get_actuator_value(2))
+        self.update_actuator_color("motor_B", 1000, 8191, self.actuators.get_actuator_value(3))
+        self.update_actuator_color("motor_L", 1000, 8191, self.actuators.get_actuator_value(4))
         # update elevator
-        self.update_actuator_color("ḧor_tail", 8191, -1395, self.actuators.get_actuator_value(8), transparant=False)
+        self.update_actuator_color("ḧor_tail", 8191, -1395, self.actuators.get_actuator_value(6), transparant=False)
 
     def update_fuselage(self):
         self.main_vis.scene.set_geometry_transform("fuselage", self.T_rotation)
