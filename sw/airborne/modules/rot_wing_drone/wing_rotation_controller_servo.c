@@ -24,10 +24,14 @@
  */
 
 #include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
+#include "modules/rot_wing_drone/rotwing_state.h"
 #include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
 #include "modules/core/abi.h"
+#include "state.h"
+
+#include <stdlib.h>
 #include "mcu_periph/adc.h"
 
 #if USE_NPS
@@ -58,6 +62,7 @@
 // Parameters
 struct wing_rotation_controller_t wing_rotation_controller = {0};
 
+bool in_transition = false;
 
 #if !USE_NPS
 static struct adc_buf buf_wing_rot_pos;
@@ -77,22 +82,9 @@ void wing_rotation_init(void)
 #endif
 
   // Init Data
-  wing_rotation_controller.wing_angle_virtual_deg_sp = 45;
+  wing_rotation_controller.wing_angle_virtual_deg_sp = 0;
   wing_rotation_controller.wing_rotation_first_order_dynamics = WING_ROTATION_CONTROLLER_FIRST_DYN;
   wing_rotation_controller.wing_rotation_second_order_dynamics = WING_ROTATION_CONTROLLER_SECOND_DYN;
-}
-
-void wing_rotation_periodic(void)
-{
-  // After 5 loops, set current setpoint and enable wing_rotation
-  // freq = 1.0 Hz
-  if (!wing_rotation_controller.initialized) {
-    wing_rotation_controller.init_loop_count += 1;
-    if (wing_rotation_controller.init_loop_count > 4) {
-      wing_rotation_controller.initialized = true;
-      wing_rotation_controller.wing_angle_deg_sp = 45.;
-    }
-  }
 }
 
 void wing_rotation_event(void)
@@ -100,15 +92,8 @@ void wing_rotation_event(void)
   // Update Wing position sensor
   wing_rotation_adc_to_deg();
 
-  // Run control if initialized
-  if (wing_rotation_controller.initialized) {
-
-    // Setpoint checks
-    Bound(wing_rotation_controller.wing_angle_deg_sp, 0., 90.);
-
-    // Control the wing rotation position.
-    wing_rotation_compute_pprz_cmd();
-  }
+  // Control the wing rotation position.
+  wing_rotation_compute_pprz_cmd();
 }
 
 void wing_rotation_adc_to_deg(void)
@@ -116,8 +101,8 @@ void wing_rotation_adc_to_deg(void)
 #if !USE_NPS
   // Read ADC
   wing_rotation_controller.adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
-  wing_rotation_controller.wing_angle_deg = 0.00247111 * (float)wing_rotation_controller.adc_wing_rotation - 25.635294;
 
+  wing_rotation_controller.wing_angle_deg = 0.00247111 * (float)wing_rotation_controller.adc_wing_rotation - 25.635294;
 #else // !USE_NPS
   // Copy setpoint as actual angle in simulation
   wing_rotation_controller.wing_angle_deg = wing_rotation_controller.wing_angle_virtual_deg_sp;
@@ -131,11 +116,11 @@ void wing_rotation_adc_to_deg(void)
 
   // Send ABI message
   AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
-
 }
 
 void wing_rotation_compute_pprz_cmd(void)
 {
+  wing_rotation_controller.wing_angle_deg_sp = rotwing_state_skewing.wing_angle_deg_sp;
   // Smooth accerelation and rate limited setpoint
   float angle_error = wing_rotation_controller.wing_angle_deg_sp - wing_rotation_controller.wing_angle_virtual_deg_sp;
   float speed_sp = wing_rotation_controller.wing_rotation_first_order_dynamics * angle_error;
@@ -148,8 +133,8 @@ void wing_rotation_compute_pprz_cmd(void)
   servo_pprz_cmd = (int32_t)(wing_rotation_controller.wing_angle_virtual_deg_sp / 90. * (float)MAX_PPRZ);
   Bound(servo_pprz_cmd, 0, MAX_PPRZ);
   wing_rotation_controller.servo_pprz_cmd = servo_pprz_cmd;
-  
-  actuators_pprz[SERVO_ROTATION_MECH] = servo_pprz_cmd;
+
+#if USE_NPS
+  actuators_pprz[INDI_NUM_ACT] = servo_pprz_cmd;
+#endif
 }
-
-
