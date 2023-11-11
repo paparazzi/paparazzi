@@ -46,14 +46,20 @@
       <message name="HYBRID_GUIDANCE"          period="0.4"/>
       <message name="ESC"                      period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.1"/>
-      <message name="INS_FLOW_INFO"	           period="0.1"/> 
+      <message name="INS_FLOW_INFO"            period="0.1"/>
       <message name="GPS_RTK"                  period="0.1"/>
+      <message name="AOA"			                 period="0.2"/>
+      <message name="ACTUATORS"                period="0.02"/>
+      <message name="APPROACH_MOVING_TARGET"   period="0.1"/>
       <message name="AIRSPEED_RAW"             period="0.1"/>
-      <message name="ROTATING_WING_STATE"	     period="0.2"/>
+      <message name="TARGET_POS_INFO"          period="0.1"/>
+      <message name="ROTATING_WING_STATE"	 period="0.2"/>
       <message name="ACTUATORS"                period="0.02"/>
       <message name="EFF_MAT_G"                period="0.02"/>
       <message name="GUIDANCE"                 period="0.02"/> 
       <message name="STAB_ATTITUDE"            period="0.02"/>
+      <message name="ROTORCRAFT_CMD"           period="0.2"/>
+      <message name="DEBUG_VECT"               period="0.2"/>
     </mode>
 
     <mode name="calibration">
@@ -112,6 +118,7 @@
       <message name="AHRS_QUAT_INT"      period=".25"/>
       <message name="AHRS_EULER_INT"     period=".1"/>
       <message name="AHRS_EULER"         period=".1"/>
+<!--      <message name="AHRS_RMAT_INT"   period=".5"/> -->
     </mode>
 
     <mode name="rate_loop">
@@ -193,6 +200,7 @@
       <message name="ALIVE"                   period="2.1"/>
       <message name="GUIDANCE_H_INT"          period="0.05"/>
       <message name="ROTORCRAFT_TUNE_HOVER"   period=".1"/>
+      <!--<message name="INS3"                    period=".20"/>-->
       <message name="INS_REF"                 period="5.1"/>
     </mode>
 
