@@ -423,7 +423,7 @@
 
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
         <!--WLS settings-->
-        <define name="USE_WLS"              value="FALSE|TRUE"/>
+        <define name="USE_WLS"              value="TRUE"/>
         <define name="WLS_PRIORITIES"       value="{10., 10., 10.}"/>
         <define name="WLS_WU"               value="{10., 10., 100., 1.}"/>
 
