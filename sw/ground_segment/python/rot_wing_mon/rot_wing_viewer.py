@@ -140,7 +140,7 @@ class RotWingFrame(wx.Frame):
             self.motors.fill_from_esc_msg(self.esc)
             wx.CallAfter(self.update)    
 
-        if msg.name == "STAB_ATTITUDE_INDI":
+        if msg.name == "STAB_ATTITUDE":
             self.indi = INDIMessage(msg)
             wx.CallAfter(self.update)
 

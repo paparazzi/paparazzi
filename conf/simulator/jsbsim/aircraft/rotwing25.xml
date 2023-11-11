@@ -159,6 +159,8 @@
     <property>fcs/left_motor_lag</property>
     <property>fcs/rudder</property>
     <property>fcs/elevator</property>
+    <property>fcs/aileron</property>
+    <property>fcs/flaperon</property>
     <property>fcs/pusher</property>
     <property>fcs/pusher_lag</property>
 

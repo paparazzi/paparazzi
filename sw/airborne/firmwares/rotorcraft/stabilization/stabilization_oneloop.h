@@ -1,7 +1,5 @@
-(*
- * Utilities for the simulators
- *
- * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
+/*
+ * Copyright (C) 2011-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,19 +17,27 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file stabilization_none.h
+ *  Dummy stabilization for rotorcrafts.
  *
- *)
+ *  Doesn't actually do any stabilization,
+ *  just directly passes the RC commands along.
+ */
 
-type pprz_t = int
-val max_pprz : pprz_t
-val pi : float
-val norm_angle : float -> float
-val deg_of_rad : float -> float
-val rad_of_deg : float -> float
-val set_float : string -> float ref -> string -> string * Arg.spec * string
-val set_string : string -> string ref -> string -> string * Arg.spec * string
+#ifndef STABILIZATION_ONELOOP
+#define STABILIZATION_ONELOOP
 
-class type value = object method value : float end
+#include "math/pprz_algebra_int.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
-val timer : ?scale:#value -> float -> (unit -> 'a) -> unit
-(** [timer ?time_accel period_s callback] Non derivating periodic timer *)
+extern struct FloatEulers stab_att_sp_euler;
+extern struct Int32Quat   stab_att_sp_quat;
+extern struct FloatRates  stab_att_ff_rates;
+
+
+extern struct Int32Rates stabilization_oneloop_rc_cmd;
+
+
+#endif /* STABILIZATION_NONE */

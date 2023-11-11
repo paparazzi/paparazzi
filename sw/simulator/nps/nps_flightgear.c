@@ -13,7 +13,7 @@
 #include <pthread.h>
 
 #include "std.h"
-#include "../flight_gear.h"
+#include "flight_gear.h"
 #include "nps_main.h"
 #include "nps_fdm.h"
 #include "nps_atmosphere.h"

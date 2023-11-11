@@ -1,0 +1,212 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="bebop_one_indi_ekf2">
+  <description> bebop with a oneloop ANDI and backup INDI controller and EKF2
+  </description>
+
+  <firmware name="rotorcraft">
+    <autopilot name="rotorcraft_oneloop_with_backup.xml"/>
+    <target name="ap" board="bebop">
+       <define name="RADIO_TH_HOLD"     value="0"/>
+    </target>
+
+    <target name="nps"    board="pc">
+      <module name="fdm"  type="jsbsim"/>
+      <module name="udp"/>    
+    </target>
+
+    <module name="telemetry"      type="transparent_udp"/>
+    <module name="radio_control"  type="datalink"/>
+    <module name="actuators"      type="bebop"/>
+    <module name="imu"            type="bebop"/>
+
+    <!-- <module name="gps" type="furuno"/> -->
+    <module name="gps" type="datalink"/>
+    
+    <module name="oneloop" type="andi">
+      <configure name="ANDI_NUM_ACT"          value="4"/>
+      <configure name="ANDI_NUM_VIRTUAL_ACT"  value="2"/>
+      <configure name="ANDI_OUTPUTS"          value="6"/>
+    </module>
+
+    <module name="stabilization" type="indi" >
+      <configure name="INDI_NUM_ACT" value="4"/>
+    </module>  
+
+    <module name="ins" type="ekf2">
+      <define name="INS_EKF2_OPTITRACK" value="true"/>
+    </module>
+    <module name="nav_hybrid"/>
+
+    <module name="guidance" type="indi">
+       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+     </module>
+
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+
+    <module name="wls">
+      <define name="WLS_N_U" value = "6"/>
+      <define name="WLS_N_V" value = "6"/>
+    </module>
+
+    <module name="logger_file">
+        <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/"/>
+    </module>
+  </firmware>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="4000"/>
+  </commands>
+
+  <servos driver="Default">
+    <servo name="TOP_LEFT"     no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_RIGHT"    no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT"  no="3" min="3000" neutral="3000" max="12000"/>
+  </servos>
+
+  <command_laws>
+    <let VAR="th_hold" value="!autopilot_get_motors_on()"/>
+    <set value="($th_hold? -9600 : actuators_pprz[0])" SERVO="TOP_LEFT"/>
+    <set value="($th_hold? -9600 : actuators_pprz[1])" SERVO="TOP_RIGHT"/>
+    <set value="($th_hold? -9600 : actuators_pprz[2])" SERVO="BOTTOM_RIGHT"/>
+    <set value="($th_hold? -9600 : actuators_pprz[3])" SERVO="BOTTOM_LEFT"/>
+  </command_laws>
+
+  <section name="MISC">
+    <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"      value = "300"/>
+    <define name="THRESHOLD_GROUND_DETECT"             value = "40"/>
+    <define name="AUTOPILOT_ARMING_DELAY"              value = "2"/>
+    <define name="GUIDANCE_INDI_MAX_AIRSPEED"          value = "5.0f"/> <!--remove once hybrid nav is made not dependent on guidance indi hybrid-->
+    <define name="GUIDANCE_INDI_NAV_SPEED_MARGIN"      value = "0.0"/>  <!--remove once hybrid nav is made not dependent on guidance indi hybrid-->
+  </section>
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AIRSPEED"    value="FALSE"/>
+    <define name="CALC_TAS_FACTOR"  value="FALSE"/>
+    <define name="CALC_AMSL_BARO"   value="TRUE"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"    value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA"  value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"    value="0." unit="deg"/>
+    <define name="ACCEL_CALIB"        value="{{.abi_id=1, .calibrated={.neutral=true, .scale=true},.neutral={171,25,-326}, .scale={{22001,54059,59579},{8998,22092,24933}}}}"/>
+    <define name="IMU_MAG_CALIB"      value="{{.abi_id=1, .calibrated={.neutral=true, .scale=true},.neutral={-9,8,121}, .scale={{1143,47395,48383},{152,5978,5811}}}}"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="SONAR_MAX_RANGE" value="2.2"/>
+  </section>
+ <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+    <define name="SP_MAX_PHI"   value="45" unit="deg"/>
+    <define name="SP_MAX_THETA" value="45" unit="deg"/>
+    <define name="SP_MAX_R"     value="400" unit="deg/s"/>
+    <define name="DEADBAND_A"   value="0"/>
+    <define name="DEADBAND_E"   value="0"/>
+    <define name="DEADBAND_R"   value="50"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <define name="G1_ROLL"                value="{20 , -20, -20 , 20 }"/>
+    <define name="G1_PITCH"               value="{14 , 14, -14 , -14 }"/>
+    <define name="G1_YAW"                 value="{-1, 1, -1, 1}"/>
+    <define name="G1_THRUST"              value="{-.4, -.4, -.4, -.4}"/>
+    <define name="G2"                     value="{-61.2093,   65.3670,  -65.7419,   65.4516}"/>
+    <define name="REF_ERR_P"              value="600.0"/>
+    <define name="REF_ERR_Q"              value="600.0"/>
+    <define name="REF_ERR_R"              value="600.0"/>
+    <define name="REF_RATE_P"             value="28.0"/>
+    <define name="REF_RATE_Q"             value="28.0"/>
+    <define name="REF_RATE_R"             value="28.0"/>
+    <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
+    <define name="FILT_CUTOFF"            value="5.0"/>
+    <define name="ACT_DYN"                value="{0.1, 0.1, 0.1, 0.1}"/>
+    <define name="USE_ADAPTIVE"           value="TRUE"/>
+    <define name="ADAPTIVE_MU"            value="0.0001"/>
+    <define name="WLS_PRIORITIES"         value="{1000, 1000, 1, 100}"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP" value="283"/>
+    <define name="HOVER_KD" value="82"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
+  </section>
+
+  <section PREFIX="ONELOOP_ANDI_" name="ONELOOP_ANDI">
+    <define name  = "G1_ROLL"                 value = "{20.0f , -20.0f, -20.0f, 20.0f , 0.0f, 0.0f  }"/>
+    <define name  = "G1_PITCH"                value = "{10.0f , 10.0f , -10.0f, -10.0f, 0.0f, 0.0f  }"/>  
+    <define name  = "G1_YAW"                  value = "{-1.0f , 1.0f  , -1.0f , 1.0f  , 0.0f, 0.0f  }"/>
+    <define name  = "G1_THRUST"               value = "{-.4f  , -.4f  , -.4f  , -.4f  , 0.0f, 0.0f  }"/>  
+    <define name  = "G1_ZERO"                 value = "{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }"/>
+    <define name  = "G2"                      value = "{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}"/>
+    <define name  = "MAX_R"                   value = "120.0" unit="deg/s"/>
+    <define name  = "FILT_CUTOFF"             value = "1.0" />
+    <define name  = "FILT_CUTOFF_ACC"         value = "1.0" />
+    <define name  = "FILT_CUTOFF_VEL"         value = "10.0"/>
+    <define name  = "FILT_CUTOFF_POS"         value = "10.0"/>
+    <define name  = "ESTIMATION_FILT_CUTOFF"  value = "3.2" />
+    <define name  = "FILT_CUTOFF_P"           value = "5.0" />
+    <define name  = "FILT_CUTOFF_Q"           value = "5.0" />
+    <define name  = "FILT_CUTOFF_R"           value = "5.0" />
+    <define name  = "FILT_CUTOFF_RDOT"        value = "0.5" />
+    <define name  = "FILTER_YAW_RATE"         value = "TRUE"/>
+    <define name  = "ACT_DYN"                 value = "{50.0f, 50.0f, 50.0f, 50.0f, 0.0f,0.0f}" />
+    <define name  = "ACT_IS_SERVO"            value = "{0, 0, 0, 0, 0, 0}" />
+    <define name  = "ACT_MAX"                 value = "{9600.0f, 9600.0f,  9600.0f,  9600.0f,  M_PI_4,  M_PI_4}"/>
+    <define name  = "ACT_MIN"                 value = "{0.0f   ,    0.0f,     0.0f,     0.0f, -M_PI_4, -M_PI_4}"/>
+    <define name  = "ACT_MAX_NORM"            value = "{1.0f   ,    1.0f,     1.0f,     1.0f,    1.0f,    1.0f}"/>
+    <define name  = "ACT_MIN_NORM"            value = "{0.0f   ,    0.0f,     0.0f,     0.0f,   -1.0f,   -1.0f}"/>
+    <define name  = "DEBUG_MODE"              value = "FALSE"/>
+    <define name  = "AC_HAS_PUSHER"           value = "FALSE"/>
+    <define name  = "WV"                      value = "{1.0f, 1.0f, 1.0f, 1000.0f, 1000.0f, 100.0f}"/>
+    <define name  = "WU"                      value = "{3.0f, 3.0f, 3.0f, 3.0f, 2.0f, 2.0f}"/>
+    <define name  = "U_PREF"                  value = "{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}"/>
+    <define name  = "MAX_AIRSPEED"            value = "5.0f"/>
+  </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define name="CLIMB_VSPEED"   value="2.5"/>
+    <define name="DESCEND_VSPEED" value="-1.0"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"   value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL"     value="bebop" type="string"/>
+    <define name="COMMANDS_NB"      value="4"/>
+    <define name="NO_MOTOR_MIXING"  value="TRUE"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_STARTUP"       value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_MANUAL"        value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"         value="AP_MODE_MODULE"/>
+    <define name="MODE_AUTO2"         value="AP_MODE_NAV"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE"  value="8700"/>
+    <define name="CATASTROPHIC_BAT_LEVEL"     value="9.9" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"           value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL"              value="11.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL"              value="12.4" unit="V"/>
+  </section>
+
+</airframe>
