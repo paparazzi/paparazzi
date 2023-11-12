@@ -447,7 +447,6 @@
         <define name="LINE_GAIN"            value="0.2"/>
         <define name="CLIMB_SPEED_FWD"      value="2.0"/>
         <define name="DESCEND_SPEED_FWD"    value="-3.0"/>
-        <define name="QUADPLANE"            value="TRUE"/>
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
