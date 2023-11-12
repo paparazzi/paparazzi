@@ -500,7 +500,7 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
   }
   mavlink_msg_heartbeat_send(MAVLINK_COMM_0,
                              mav_type,
-                             MAV_AUTOPILOT_PPZ,
+                             MAV_AUTOPILOT_ARDUPILOTMEGA,
                              mav_mode,
                              0, // custom_mode
                              mav_state);
