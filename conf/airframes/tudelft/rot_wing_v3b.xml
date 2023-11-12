@@ -20,16 +20,16 @@
             <module name="flight_recorder"/>
 
             <!-- RC switches -->
-            <define name="RADIO_TH_HOLD"          value="RADIO_AUX1"/>
-            <define name="RADIO_KILL_SWITCH"      value="RADIO_AUX1"/>
-            <define name="RADIO_FMODE"            value="RADIO_AUX2"/>
-            <define name="RADIO_FBW_MODE"         value="RADIO_AUX3"/>
-            <define name="RADIO_CONTROL_THRUST_X" value="RADIO_AUX4"/>
+            <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
+            <define name="RADIO_KILL_SWITCH"        value="RADIO_AUX1"/>
+            <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
+            <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
+            <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
 
             <!-- EKF2 configure inputs -->
-            <define name="INS_EKF2_GYRO_ID"       value="IMU_CUBE1_ID"/>
-            <define name="INS_EKF2_ACCEL_ID"      value="IMU_CUBE2_ID"/>
-            <define name="INS_EKF2_MAG_ID"        value="MAG_RM3100_SENDER_ID"/>
+            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
             <module name="lidar_tfmini">
                 <configure name="TFMINI_PORT"     value="UART8"/>
@@ -48,10 +48,11 @@
             <module name="fdm" type="jsbsim"/>
 
             <!--Not dealing with these in the simulation-->
-            <define name="RADIO_TH_HOLD"     value="0"/> <!-- Throttle hold in command laws -->
-            <define name="RADIO_FMODE"       value="0"/> <!-- Throttle curve select -->
-            <define name="RADIO_FBW_MODE"    value="0"/> <!-- Switch between AP and FBW control -->
-            <define name="RADIO_KILL_SWITCH" value="0"/>
+            <define name="RADIO_TH_HOLD"          value="0"/> <!-- Throttle hold in command laws -->
+            <define name="RADIO_FMODE"            value="0"/> <!-- Throttle curve select -->
+            <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
+            <define name="RADIO_KILL_SWITCH"      value="0"/>
+            <define name="RADIO_CONTROL_THRUST_X" value="0"/>
         </target>
 
         <!-- Kongsberg datalink -->
@@ -61,14 +62,14 @@
 
         <!-- Sensors -->
         <module name="mag" type="rm3100">
-            <define name="MODULE_RM3100_UPDATE_AHRS"        value="TRUE"/>
-            <configure name="MAG_RM3100_I2C_DEV"            value="I2C2"/>
+            <define name="MODULE_RM3100_UPDATE_AHRS"    value="TRUE"/>
+            <configure name="MAG_RM3100_I2C_DEV"        value="I2C2"/>
         </module>
         <module name="airspeed" type="ms45xx_i2c">
-            <define name="MS45XX_I2C_DEV"                   value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"            value="1.9077609"/>
-            <define name="USE_AIRSPEED_LOWPASS_FILTER"      value="TRUE"/>
-            <define name="MS45XX_LOWPASS_TAU"               value="0.15"/>
+            <define name="MS45XX_I2C_DEV"               value="i2c2"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
+            <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
         </module>
         <module name="airspeed" type="uavcan">
             <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
@@ -76,14 +77,14 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
-        <module name="gps"           type="ublox">
+        <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
         </module>
 
         <!-- IMU / INS -->
         <module name="imu" type="cube"/>
-        <module name="ins" type="ekf2" />
+        <module name="ins" type="ekf2"/>
 
         <!-- Actuators on dual CAN bus -->
         <module name="actuators" type="uavcan">
@@ -97,11 +98,11 @@
         </module>
 
         <!-- Control -->
-        <module TYPE="indi" NAME="stabilization">
-            <configure name="INDI_NUM_ACT"  value="9"/>
-            <configure name="INDI_OUTPUTS"  value="5"/>
-            <define name="WLS_N_U"          value="9"/>
-            <define name="WLS_N_V"          value="5"/>
+        <module name="stabilization" type="indi">
+            <configure name="INDI_NUM_ACT" value="9"/>
+            <configure name="INDI_OUTPUTS" value="5"/>
+            <define name="WLS_N_U" value="9"/>
+            <define name="WLS_N_V" value="5"/>
         </module>
 
         <module name="ctrl_eff_sched_rot_wing"/>
@@ -115,10 +116,10 @@
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="wing_rotation_controller_servo"/>
-        <!--module name="rot_wing_automation"/>
+        <module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks"/-->
+        <module name="preflight_checks"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
 
@@ -189,13 +190,13 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0" name="MOTOR_FRONT"    min="0"     neutral="1000" max="8191"/>
-        <servo no="1" name="MOTOR_RIGHT"    min="0"     neutral="1000" max="8191"/>
-        <servo no="2" name="MOTOR_BACK"     min="0"     neutral="1000" max="8191"/>
-        <servo no="3" name="MOTOR_LEFT"     min="0"     neutral="1000" max="8191"/>
-        <servo no="4" name="MOTOR_PUSH"     min="0"     neutral="0"    max="8191"/>
-        <servo no="5" name="SERVO_ELEVATOR" min="5000"  neutral="5000" max="-5500"/>
-        <servo no="6" name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
+        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
+        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
+        <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
+        <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
@@ -222,11 +223,10 @@
         <axis name="THRUST_X"   failsafe_value="0"/>
     </commands>
 
-
     <command_laws>
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
         <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-        <let VAR="hover_off" VALUE="$th_hold"/>
+        <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
@@ -411,6 +411,13 @@
         <define name="ROTWING_V3B"      value="1" />
     </section>
 
+    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
+        <define name="POSITION_ADC_0" value="62930"/>
+        <define name="POSITION_ADC_90" value="41760"/>
+        <define name="DEADZONE_PPRZ_CMD" value="500"/>
+        <define name="P_GAIN" value="-50000"/>
+        <define name="MAX_CMD" value="9600"/>
+    </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
         <!-- Gains -->
