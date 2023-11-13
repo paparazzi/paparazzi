@@ -20,13 +20,15 @@
     <dl_settings>
       <dl_settings NAME="nav_hybrid">
         <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0"/>
-        <dl_setting var="nav_goto_speed" min="0.1" step="0.1" max="10.0"/>
+        <dl_setting var="nav_goto_max_speed" min="0.1" step="0.1" max="50.0"/>
         <dl_setting var="nav_max_deceleration_sp" min="0.5" step="0.1" max="10.0" shortname="max_deceleration" param="NAV_HYBRID_MAX_DECELERATION"/>
+        <dl_setting var="nav_hybrid_line_gain" min="0.1" step="0.1" max="3" shortname="nav_hybrid_line_gain" param="NAV_HYBRID_LINE_GAIN"/>
+        <dl_setting var="nav_hybrid_pos_gain" min="0.1" step="0.1" max="10" shortname="nav_hybrid_pos_gain" param="NAV_HYBRID_POS_GAIN"/>
       </dl_settings>
     </dl_settings>
   </settings>
   <dep>
-    <depends>nav_basic_rotorcraft,guidance_indi_hybrid</depends>
+    <depends>nav_basic_rotorcraft</depends>
   </dep>
   <header>
     <file name="nav_rotorcraft_hybrid.h"/>
@@ -35,7 +37,6 @@
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="nav_rotorcraft_hybrid.c"/>
     <test firmware="rotorcraft">
-      <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="15."/>
       <configure name="SRC_FIRMWARE" value="firmwares/rotorcraft"/>
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart0"/>
