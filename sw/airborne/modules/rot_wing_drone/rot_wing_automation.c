@@ -32,18 +32,22 @@
 #include "math/pprz_algebra_float.h"
 #include "modules/nav/waypoints.h"
 
+/*** Longitudinal maximum acceleration during a transition */
 #ifndef ROT_WING_AUTOMATION_TRANS_ACCEL
 #define ROT_WING_AUTOMATION_TRANS_ACCEL 1.0
 #endif
 
+/*** Longitudinal maximum deceleration during a transition */
 #ifndef ROT_WING_AUTOMATION_TRANS_DECEL
 #define ROT_WING_AUTOMATION_TRANS_DECEL 0.5
 #endif
 
+/*** Maximum transition distance (at which to draw waypoints) */
 #ifndef ROT_WING_AUTOMATION_TRANS_LENGTH
 #define ROT_WING_AUTOMATION_TRANS_LENGTH 200.0
 #endif
 
+/*** Airspeed threshold above which the  transiton is considered complete */
 #ifndef ROT_WING_AUTOMATION_TRANS_AIRSPEED
 #define ROT_WING_AUTOMATION_TRANS_AIRSPEED 15.0
 #endif

@@ -3,6 +3,12 @@
   <doc>
     <description>Functions to automate the navigation and guidance of the rotating wing drone</description>
   </doc>
+  <section name="ROT_WING_AUTOMATION" prefix="ROT_WING_AUTOMATION_">
+    <define name="TRANS_ACCEL" value="1.0" description="Longitudinal maximum acceleration during a transition"/>
+    <define name="TRANS_DECEL" value="0.5" description="Longitudinal maximum deceleration during a transition"/>
+    <define name="TRANS_LENGTH" value="200.0" description="Maximum transition distance (at which to draw waypoints)"/>
+    <define name="TRANS_AIRSPEED" value="" description="Airspeed threshold above which the  transiton is considered complete"/>
+  </section>
   <settings>
     <dl_settings>
       <dl_settings NAME="transition">
