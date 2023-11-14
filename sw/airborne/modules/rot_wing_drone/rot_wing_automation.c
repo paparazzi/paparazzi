@@ -129,12 +129,8 @@ void update_wind_vector(void)
   VECT2_DIFF(rot_wing_a.windvect, *groundspeed, airspeed_v);
 
   // Filter the wind
-  update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], rot_wing_a.windvect.x);
-  update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], rot_wing_a.windvect.y);
-
-  // Update the filtered wind vector
-  rot_wing_a.windvect_f.x = rot_wing_automation_wind_filter[0].o[0];
-  rot_wing_a.windvect_f.y = rot_wing_automation_wind_filter[1].o[0];
+  rot_wing_a.windvect_f.x = update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], rot_wing_a.windvect.x);
+  rot_wing_a.windvect_f.x = update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], rot_wing_a.windvect.y);
 }
 
 // Function to visualize from flightplan, call repeadely
