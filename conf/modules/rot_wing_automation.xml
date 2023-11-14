@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="rot_wing_automation" dir="rot_wing_drone">
+  <doc>
+    <description>Functions to automate the navigation and guidance of the rotating wing drone</description>
+    <section name="ROT_WING_AUTOMATION" prefix="ROT_WING_AUTOMATION_">
+      <define name="TRANS_ACCEL" value="1.0" description="Longitudinal maximum acceleration during a transition"/>
+      <define name="TRANS_DECEL" value="0.5" description="Longitudinal maximum deceleration during a transition"/>
+      <define name="TRANS_LENGTH" value="200.0" description="Maximum transition distance (at which to draw waypoints)"/>
+      <define name="TRANS_AIRSPEED" value="" description="Airspeed threshold above which the  transiton is considered complete"/>
+      <define name="ROT_WING_AUTOMATION_WIND_FILT_CUTOFF" value="0.001" description="Wind low-pass filtering cutoff frequency"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="transition">
+        <dl_setting var="rot_wing_a.trans_accel" min="0.1" max="5.0" step="0.1" shortname="trans_accel" param="ROT_WING_AUTOMATION_TRANS_ACCEL"/>
+        <dl_setting var="rot_wing_a.trans_decel" min="0.1" max="5.0" step="0.1" shortname="trans_decel" param="ROT_WING_AUTOMATION_TRANS_DECEL"/>
+        <dl_setting var="rot_wing_a.trans_length" min="10" max="500." step="1.0" shortname="trans_distance" param="ROT_WING_AUTOMATION_TRANS_LENGTH"/>
+        <dl_setting var="rot_wing_a.trans_airspeed" min="10.0" max="20.0" step="0.1" shortname="trans_airspeed" param="ROT_WING_AUTOMATION_TRANS_AIRSPEED"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="rot_wing_automation.h"/>
+  </header>
+    <init fun="init_rot_wing_automation()"/>
+    <periodic fun="periodic_rot_wing_automation()" freq="10."/>
+  <makefile>
+    <file name="rot_wing_automation.c"/>
+  </makefile>
+</module>
