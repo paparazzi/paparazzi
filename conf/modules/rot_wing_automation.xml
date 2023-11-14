@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="rot_wing_automation" dir="rot_wing_drone">
+  <doc>
+    <description>Functions to automate the navigation and guidance of the rotating wing drone</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="transition">
+        <dl_setting var="rot_wing_a.trans_accel" min="0.1" max="5.0" step="0.1" shortname="trans_accel"/>
+        <dl_setting var="rot_wing_a.trans_decel" min="0.1" max="5.0" step="0.1" shortname="trans_decel"/>
+        <dl_setting var="rot_wing_a.trans_length" min="10" max="500." step="1.0" shortname="trans_distance"/>
+        <dl_setting var="rot_wing_a.trans_airspeed" min="10.0" max="20.0" step="0.1" shortname="trans_airspeed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="rot_wing_automation.h"/>
+  </header>
+    <init fun="init_rot_wing_automation()"/>
+    <periodic fun="periodic_rot_wing_automation()" freq="10."/>
+  <makefile>
+    <file name="rot_wing_automation.c"/>
+  </makefile>
+</module>
