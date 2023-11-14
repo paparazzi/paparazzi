@@ -26,6 +26,10 @@
 #include "modules/rot_wing_drone/rot_wing_automation.h"
 #include "state.h"
 #include "modules/datalink/telemetry.h"
+#include "filters/low_pass_filter.h"
+#include "state.h"
+
+#include "math/pprz_algebra_float.h"
 
 #ifndef ROT_WING_AUTOMATION_TRANS_ACCEL
 #define ROT_WING_AUTOMATION_TRANS_ACCEL 1.0
@@ -43,10 +47,22 @@
 #define ROT_WING_AUTOMATION_TRANS_AIRSPEED 15.0
 #endif
 
+#ifndef ROT_WING_AUTOMATION_BASE_DIST
+#define ROT_WING_AUTOMATION_BASE_DIST 100.
+#endif
+
+#ifndef ROT_WING_AUTOMATION_WIND_FILT_CUTOFF
+#define ROT_WING_AUTOMATION_WIND_FILT_CUTOFF 0.001
+#endif
+
 struct rot_wing_automation rot_wing_a;
+
+// Declare filters (for windspeed estimation)
+Butterworth2LowPass rot_wing_automation_wind_filter[2]; // Wind filter
 
 // declare function
 inline void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * target_ned);
+inline void update_wind_vector(void);
 
 void init_rot_wing_automation(void)
 {
@@ -54,12 +70,24 @@ void init_rot_wing_automation(void)
   rot_wing_a.trans_decel = ROT_WING_AUTOMATION_TRANS_DECEL;
   rot_wing_a.trans_length = ROT_WING_AUTOMATION_TRANS_LENGTH;
   rot_wing_a.trans_airspeed = ROT_WING_AUTOMATION_TRANS_AIRSPEED;
+
   rot_wing_a.transitioned = false;
+  rot_wing_a.windvect.x = 0.0;
+  rot_wing_a.windvect.y = 0.0;
+  rot_wing_a.windvect_f.x = 0.0;
+  rot_wing_a.windvect_f.y = 0.0;
+
+  // Init windvector low pass filter
+  float tau = 1.0 / (2.0 * M_PI * ROT_WING_AUTOMATION_WIND_FILT_CUTOFF);
+  float sample_time = 1.0 / 10.0;
+  init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], tau, sample_time, 0.0);
 }
 
 // periodic function
 void periodic_rot_wing_automation(void)
 {
+  update_wind_vector();
   float airspeed = stateGetAirspeed_f();
   if (airspeed > rot_wing_a.trans_airspeed)
   {
@@ -85,6 +113,27 @@ void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * targ
                                 &waypoints[wp_id].enu_i.y,
                                 &waypoints[wp_id].enu_i.z);
   } );
+}
+
+void update_wind_vector(void)
+{
+  float psi = stateGetNedToBodyEulers_f()->psi;
+
+  float cpsi = cosf(psi);
+  float spsi = sinf(psi);
+
+  float airspeed = stateGetAirspeed_f();
+  struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
+  struct FloatVect2 airspeed_v = { cpsi * airspeed, spsi * airspeed };
+  VECT2_DIFF(rot_wing_a.windvect, *groundspeed, airspeed_v);
+
+  // Filter the wind
+  update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], rot_wing_a.windvect.x);
+  update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], rot_wing_a.windvect.y);
+
+  // Update the filtered wind vector
+  rot_wing_a.windvect_f.x = rot_wing_automation_wind_filter[0].o[0];
+  rot_wing_a.windvect_f.y = rot_wing_automation_wind_filter[1].o[0];
 }
 
 // Function to visualize from flightplan, call repeadely

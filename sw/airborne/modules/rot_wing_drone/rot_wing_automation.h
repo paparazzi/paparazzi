@@ -35,11 +35,16 @@ extern void periodic_rot_wing_automation(void);
 extern void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint8_t wp_end_id);
 
 struct rot_wing_automation {
-  float trans_accel;
-  float trans_decel;
-  float trans_length;
-  float trans_airspeed;
-  bool transitioned;
+  // Constants
+  float trans_accel;            // Acceleration during transition
+  float trans_decel;            // Deceleration during transition
+  float trans_length;           // Transition length
+  float trans_airspeed;         // Transition airspeed
+
+  // Variables
+  bool transitioned;            // Boolean that indicates if drone flies faster than transion airspeed
+  struct FloatVect2 windvect;   // Wind vector
+  struct FloatVect2 windvect_f; // Filtered wind vector 
 };
 
 extern struct rot_wing_automation rot_wing_a;
