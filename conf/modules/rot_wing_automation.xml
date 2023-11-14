@@ -1,7 +1,7 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="rot_wing_automation" dir="rot_wing_drone">
   <doc>
-    <description>Fucntions to automate the navigation and guidance of the rotating wing drone</description>
+    <description>Functions to automate the navigation and guidance of the rotating wing drone</description>
   </doc>
   <settings>
     <dl_settings>
