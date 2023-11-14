@@ -20,6 +20,5 @@
     <periodic fun="periodic_rot_wing_automation()" freq="10."/>
   <makefile>
     <file name="rot_wing_automation.c"/>
-    <test/>
   </makefile>
 </module>

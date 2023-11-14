@@ -30,6 +30,7 @@
 #include "state.h"
 
 #include "math/pprz_algebra_float.h"
+#include "modules/nav/waypoints.h"
 
 #ifndef ROT_WING_AUTOMATION_TRANS_ACCEL
 #define ROT_WING_AUTOMATION_TRANS_ACCEL 1.0
