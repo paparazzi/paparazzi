@@ -31,6 +31,7 @@
 
 #include "math/pprz_algebra_float.h"
 #include "modules/nav/waypoints.h"
+#include "generated/modules.h"
 
 /*** Longitudinal maximum acceleration during a transition */
 #ifndef ROT_WING_AUTOMATION_TRANS_ACCEL
@@ -52,10 +53,7 @@
 #define ROT_WING_AUTOMATION_TRANS_AIRSPEED 15.0
 #endif
 
-#ifndef ROT_WING_AUTOMATION_BASE_DIST
-#define ROT_WING_AUTOMATION_BASE_DIST 100.
-#endif
-
+/*** Wind low-pass filtering cutoff frequency */
 #ifndef ROT_WING_AUTOMATION_WIND_FILT_CUTOFF
 #define ROT_WING_AUTOMATION_WIND_FILT_CUTOFF 0.001
 #endif
@@ -84,7 +82,7 @@ void init_rot_wing_automation(void)
 
   // Init windvector low pass filter
   float tau = 1.0 / (2.0 * M_PI * ROT_WING_AUTOMATION_WIND_FILT_CUTOFF);
-  float sample_time = 1.0 / 10.0;
+  float sample_time = 1.0 / PERIODIC_ROT_WING_AUTOMATION_FREQ;
   init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], tau, sample_time, 0.0);
 }
