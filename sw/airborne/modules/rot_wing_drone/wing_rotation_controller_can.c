@@ -23,7 +23,7 @@
  * Module to control wing rotation servo command based on prefered angle setpoint
  */
 
-#include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
+#include "modules/rot_wing_drone/wing_rotation_controller_can.h"
 #include "modules/rot_wing_drone/rotwing_state.h"
 #include "modules/radio_control/radio_control.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
