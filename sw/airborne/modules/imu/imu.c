@@ -366,6 +366,7 @@ void imu_init(void)
       imu.gyros[i].calibrated.neutral = false;
       imu.gyros[i].calibrated.scale = false;
       imu.gyros[i].calibrated.rotation = false;
+      imu.gyros[i].calibrated.filter = false;
     } else {
       imu.gyros[i] = gyro_calib[i];
     }
@@ -398,6 +399,7 @@ void imu_init(void)
       imu.accels[i].calibrated.neutral = false;
       imu.accels[i].calibrated.scale = false;
       imu.accels[i].calibrated.rotation = false;
+      imu.accels[i].calibrated.filter = false;
     } else {
       imu.accels[i] = accel_calib[i];
     }
