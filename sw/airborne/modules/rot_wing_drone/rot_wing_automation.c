@@ -108,7 +108,7 @@ void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * targ
   ENU_OF_TO_NED(target_enu, *target_ned);
   waypoint_set_enu(wp_id, &target_enu);
 
-  // Send waypoint update every half second
+  // Send waypoint update roughly every half second
   RunOnceEvery(100/2, {
     // Send to the GCS that the waypoint has been moved
     DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
