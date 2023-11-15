@@ -36,7 +36,7 @@
             <define name="USE_I2C1"/>
 
             <!-- Log in high speed (Remove for outdoor flights) -->
-            <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/>
+            <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
         </target>
 
         <target name="nps" board="pc">

@@ -41,6 +41,9 @@
                 <configure name="MAVLINK_PORT" value="UART8"/>
             </module> -->
 
+            <!-- Log in high speed (Remove for outdoor flights) -->
+            <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
+
         </target>
 
         <target name="nps" board="pc">
@@ -318,8 +321,9 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true},.neutral={-6,-3,23}, .scale={{6478,36819,14396},{661,3766,1477}}}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-63,-15,-22}, .scale={{23554,58016,33455},{4537,11839,6837}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-40,-9,6}, .scale={{17919,36647,49183},{3659,7481,10067}}}}"/>
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-6,-3,23}, .scale={{6478,36819,14396},{661,3766,1477}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-63,-15,-22}, .scale={{23554,58016,33455},{4537,11839,6837}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-40,-9,6}, .scale={{17919,36647,49183},{3659,7481,10067}}}}"/>
         <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-14,3,42}, .scale={{17279,2209,36874},{30247,3800,64095}}, .body_to_sensor={{0,16384,0,-16384,0,0,0,0,16384}}}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
