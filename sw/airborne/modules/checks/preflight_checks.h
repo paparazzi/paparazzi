@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** 
+/**
  * @file "modules/checks/preflight_checks.h"
  * @author Freek van Tienen <freek.v.tienen@gmail.com>
  * Adds preflight checks for takeoff

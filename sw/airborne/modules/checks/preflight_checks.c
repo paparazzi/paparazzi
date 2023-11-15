@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** 
+/**
  * @file "modules/checks/preflight_checks.c"
  * @author Freek van Tienen <freek.v.tienen@gmail.com>
  * Adds preflight checks for takeoff
@@ -48,11 +48,12 @@ bool preflight_bypass = FALSE;
 
 /**
  * @brief Register a preflight check and add it to the linked list
- * 
+ *
  * @param check The check to add containing a linked list
  * @param func The function to register for the check
  */
-void preflight_check_register(struct preflight_check_t *check, preflight_check_f func) {
+void preflight_check_register(struct preflight_check_t *check, preflight_check_f func)
+{
   // Prepend the preflight check
   struct preflight_check_t *next = preflight_head;
   preflight_head = check;
@@ -62,11 +63,12 @@ void preflight_check_register(struct preflight_check_t *check, preflight_check_f
 
 /**
  * @brief Perform all the preflight checks
- * 
+ *
  * @return true When all preflight checks are successful
  * @return false When one or more preflight checks fail
  */
-bool preflight_check(void) {
+bool preflight_check(void)
+{
   static float last_info_time = 0;
   char error_msg[PREFLIGHT_CHECK_MAX_MSGBUF];
   struct preflight_result_t result = {
@@ -79,31 +81,35 @@ bool preflight_check(void) {
 
   // Go through all the checks
   struct preflight_check_t *check = preflight_head;
-  while(check != NULL) {
+  while (check != NULL) {
     // Peform the check and register errors
     check->func(&result);
     check = check->next;
   }
 
   // We failed a check or have a warning
-  if(result.fail_cnt > 0 || result.warning_cnt > 0) {
+  if (result.fail_cnt > 0 || result.warning_cnt > 0) {
     // Only send every xx amount of seconds
-    if((get_sys_time_float() - last_info_time) > PREFLIGHT_CHECK_INFO_TIMEOUT) {
+    if ((get_sys_time_float() - last_info_time) > PREFLIGHT_CHECK_INFO_TIMEOUT) {
       // Record the total
       int rc = 0;
-      if(result.fail_cnt > 0)
-        rc = snprintf(result.message, result.max_len, "Preflight fail [fail:%d warn:%d tot:%d]", result.fail_cnt, result.warning_cnt, (result.fail_cnt+result.warning_cnt+result.success_cnt));
-      else
-        rc = snprintf(result.message, result.max_len, "Preflight success with warnings [%d/%d]", result.warning_cnt, (result.fail_cnt+result.warning_cnt+result.success_cnt));
-      if(rc > 0)
+      if (result.fail_cnt > 0) {
+        rc = snprintf(result.message, result.max_len, "Preflight fail [fail:%d warn:%d tot:%d]", result.fail_cnt,
+                      result.warning_cnt, (result.fail_cnt + result.warning_cnt + result.success_cnt));
+      } else {
+        rc = snprintf(result.message, result.max_len, "Preflight success with warnings [%d/%d]", result.warning_cnt,
+                      (result.fail_cnt + result.warning_cnt + result.success_cnt));
+      }
+      if (rc > 0) {
         result.max_len -= rc;
+      }
 
       // Send the errors seperatly
       uint8_t last_sendi = 0;
-      for(uint8_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF-result.max_len; i++) {
-        if(error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF-result.max_len)) {
-          DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i-last_sendi, &error_msg[last_sendi]);
-          last_sendi = i+1;
+      for (uint8_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len; i++) {
+        if (error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len)) {
+          DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i - last_sendi, &error_msg[last_sendi]);
+          last_sendi = i + 1;
         }
       }
 
@@ -112,34 +118,37 @@ bool preflight_check(void) {
     }
 
     // Only if we fail a check
-    if(result.fail_cnt > 0)
+    if (result.fail_cnt > 0) {
       return false;
-    else
+    } else {
       return true;
+    }
   }
 
   // Send success down
   int rc = snprintf(error_msg, PREFLIGHT_CHECK_MAX_MSGBUF, "Preflight success [%d]", result.success_cnt);
-  if(rc > 0)
+  if (rc > 0) {
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+  }
 
   // Return success if we didn't fail a preflight check
   return true;
 }
 
 /**
- * @brief Register a preflight error used inside the preflight checking functions 
- * 
+ * @brief Register a preflight error used inside the preflight checking functions
+ *
  * @param result Where the error gets registered
  * @param fmt A formatted string describing the error used in a vsnprintf
  * @param ... The arguments for the vsnprintf
  */
-void preflight_error(struct preflight_result_t *result, const char *fmt, ...) {
+void preflight_error(struct preflight_result_t *result, const char *fmt, ...)
+{
   // Record the error count
   result->fail_cnt++;
 
   // No more space in the message
-  if(result->max_len <= 0) {
+  if (result->max_len <= 0) {
     return;
   }
 
@@ -150,36 +159,38 @@ void preflight_error(struct preflight_result_t *result, const char *fmt, ...) {
   va_end(args);
 
   // Remove the length from the buffer if it was successfull
-  if(rc > 0) {
+  if (rc > 0) {
     result->max_len -= rc;
     result->message += rc;
 
     // Add seperator if it fits
-    if(result->max_len > 0) {
+    if (result->max_len > 0) {
       result->message[0] = PREFLIGHT_CHECK_SEPERATOR;
       result->max_len--;
       result->message++;
 
       // Add the '\0' character
-      if(result->max_len > 0)
+      if (result->max_len > 0) {
         result->message[0] = 0;
+      }
     }
   }
 }
 
 /**
- * @brief Register a preflight error used inside the preflight checking functions 
- * 
+ * @brief Register a preflight error used inside the preflight checking functions
+ *
  * @param result Where the error gets registered
  * @param fmt A formatted string describing the error used in a vsnprintf
  * @param ... The arguments for the vsnprintf
  */
-void preflight_warning(struct preflight_result_t *result, const char *fmt, ...) {
+void preflight_warning(struct preflight_result_t *result, const char *fmt, ...)
+{
   // Record the warning count
   result->warning_cnt++;
 
   // No more space in the message
-  if(result->max_len <= 0) {
+  if (result->max_len <= 0) {
     return;
   }
 
@@ -190,31 +201,33 @@ void preflight_warning(struct preflight_result_t *result, const char *fmt, ...) 
   va_end(args);
 
   // Remove the length from the buffer if it was successfull
-  if(rc > 0) {
+  if (rc > 0) {
     result->max_len -= rc;
     result->message += rc;
 
     // Add seperator if it fits
-    if(result->max_len > 0) {
+    if (result->max_len > 0) {
       result->message[0] = PREFLIGHT_CHECK_SEPERATOR;
       result->max_len--;
       result->message++;
 
       // Add the '\0' character
-      if(result->max_len > 0)
+      if (result->max_len > 0) {
         result->message[0] = 0;
+      }
     }
   }
 }
 
 /**
  * @brief Register a preflight success used inside the preflight checking functions
- * 
- * @param result 
- * @param __attribute__ 
- * @param ... 
+ *
+ * @param result
+ * @param __attribute__
+ * @param ...
  */
-void preflight_success(struct preflight_result_t *result, const char *fmt __attribute__((unused)), ...) {
+void preflight_success(struct preflight_result_t *result, const char *fmt __attribute__((unused)), ...)
+{
   // Record the success count
   result->success_cnt++;
 }

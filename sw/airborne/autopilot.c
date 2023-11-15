@@ -245,15 +245,17 @@ void autopilot_force_motors_on(bool motors_on)
 bool autopilot_set_motors_on(bool motors_on)
 {
   // Prevent unnessary preflight checks
-  if(autopilot.motors_on == motors_on)
+  if (autopilot.motors_on == motors_on) {
     return true;
+  }
 
 #if PREFLIGHT_CHECKS
   // When we fail the preflight checks abort
-  if(motors_on && !preflight_check()) {
+  if (motors_on && !preflight_check()) {
     // Bypass the preflight checks even if they fail but still preform them
-    if(!preflight_bypass)
+    if (!preflight_bypass) {
       return false;
+    }
   }
 #endif
   autopilot_force_motors_on(motors_on);
@@ -266,15 +268,17 @@ bool autopilot_set_motors_on(bool motors_on)
 bool autopilot_arming_motors_on(bool motors_on)
 {
   // Prevent unnessary preflight checks
-  if(autopilot.motors_on == motors_on)
+  if (autopilot.motors_on == motors_on) {
     return true;
-  
+  }
+
 #if PREFLIGHT_CHECKS
   // When we fail the preflight checks abort
-  if(motors_on && !preflight_check()) {
+  if (motors_on && !preflight_check()) {
     // Bypass the preflight checks even if they fail but still preform them
-    if(!preflight_bypass)
+    if (!preflight_bypass) {
       return false;
+    }
   }
 #endif
   autopilot.motors_on = motors_on;

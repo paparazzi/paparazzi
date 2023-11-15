@@ -125,7 +125,7 @@ extern void autopilot_reset_flight_time(void);
 /**
  * @brief Force start/stop the motors
  * WARNING This will skip he preflight checks
- * 
+ *
  * @param motors_on Wheter the motors should be forced on/off
  */
 extern void autopilot_force_motors_on(bool motors_on);
