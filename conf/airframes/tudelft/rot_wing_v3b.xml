@@ -119,6 +119,7 @@
         <module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
+        <module name="preflight_checks"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
 
