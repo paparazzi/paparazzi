@@ -13,6 +13,7 @@
     <define name="SDLOG_START_DELAY" value="30" unit="s" description="Set the delay in seconds before starting the logger. This delay can be used to get plug USB cable and get data without starting a new log. Default: 30s"/>
     <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
     <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
+    <define name="SDLOG_PREFLIGHT_ERROR" value="FALSE" description="If set to TRUE, the autopilot will not arm if the SDLogger is not running. Default: FALSE"/>
   </doc>
    <settings>
     <dl_settings>
