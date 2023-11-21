@@ -31,6 +31,10 @@
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
+            <!--Only send gyro and accel that is being used-->
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
             <define name="USE_I2C1"/>
@@ -212,7 +216,7 @@
 
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
-        <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6}"/>
+        <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7,8}"/>
         <define name="DOUBLET_RADIO_CHANNEL" value="6"/>
 
         <define name="AUTO_DOUBLETS_N_ACTUATORS" value="4"/>
@@ -278,8 +282,8 @@
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"   value="0.24"/>
-        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.20"/>
-        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
+        <!-- <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.20"/>
+        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/> -->
         <define name="AGL_DIST_FILTER"                      value="0.07"/>
     </section>
 
@@ -373,8 +377,8 @@
         <define name="REF_ERR_P"                    value="40.0"/>
         <define name="REF_ERR_Q"                    value="32.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
-        <define name="REF_RATE_P"                   value="7.0"/>
-        <define name="REF_RATE_Q"                   value="7.2"/>
+        <define name="REF_RATE_P"                   value="5.5"/>
+        <define name="REF_RATE_Q"                   value="5.5"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>

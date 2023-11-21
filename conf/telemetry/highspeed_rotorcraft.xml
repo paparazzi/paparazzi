@@ -254,7 +254,9 @@
       <message name="IMU_HEATER"               period="1.0"/>
       <message name="AIRSPEED_RAW"             period="0.01"/>
       <message name="EFF_MAT_G"                period="0.002"/>
-      <message name="GUIDANCE"                 period="0.002"/> 
+      <message name="GUIDANCE"                 period="0.002"/>
+      <message name="ROTATING_WING_STATE"      period="0.1"/>
+      <message name="DOUBLET"			             period="0.002"/> 
     </mode>
   </process>
 

@@ -180,9 +180,22 @@ void periodic_rotwing_state(void)
   // Check and set the current state
   rotwing_check_set_current_state();
 
+  // Check if quad skew needs to be forced
+  if (rotwing_state_force_quad) {
+    // Set force quad to false when desired state is not hover
+    if (rotwing_state.desired_state != ROTWING_STATE_HOVER) {
+      rotwing_state_force_quad = false;
+    }
+  }
+
   // Check and update desired state
   if (guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     rotwing_switch_state();
+    // If flightplan has a force_quad defined and desired state is ROTWING_STATE_HOVER, skew to 0 degrees
+    if (rotwing_state_force_quad && !rotwing_state_skewing.force_rotation_angle) {
+      rotwing_state_skewing.airspeed_scheduling = false;
+      rotwing_state_skewing.wing_angle_deg_sp = 0;
+    }
   } else if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
     rotwing_state_set_hover_settings();
   } else if (guidance_h.mode == GUIDANCE_H_MODE_FORWARD) {

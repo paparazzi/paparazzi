@@ -64,11 +64,13 @@
       <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
       <set var="stabilization_cmd[COMMAND_THRUST_X]" value="0"/>
+      <set var="rotwing_state_force_quad" value="1"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <call_once fun="NavResurrect()"/>
+        <set var="rotwing_state_force_quad" value="1"/>
         <attitude pitch="0" roll="0" throttle="0" until="stage_time>10" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
@@ -77,12 +79,14 @@
         <call_once fun="autopilot_set_in_flight(true)"/><!-- this is a hack to solve INDI not being active fast enough -->
 
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+        <set var="rotwing_state_force_quad" value="1"/>
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
       <exception cond="GetPosAlt() @GT 20.0" deroute="Standby"/>
       <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
       <call_once fun="nav_set_heading_current()"/>
+      <set var="rotwing_state_force_quad" value="1"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -91,6 +95,7 @@
         <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Approach APP">
+      <set var="rotwing_state_force_quad" value="1"/>
       <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
     </block>
@@ -172,22 +177,26 @@
       <deroute block="Standby"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <go wp="TD"/>
     </block>
     <block name="descend">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <exception cond="GetPosAlt() @LT 12.0" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <stay climb="-0.5" vmode="climb" wp="TD"/>
@@ -195,6 +204,7 @@
         <exception cond="agl_dist_valid @AND (agl_dist_value @LT 0.28)" deroute="flare_low"/>
     </block>
     <block name="flare_low">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <exception cond="NavDetectGround()" deroute="Holding point"/>
@@ -204,6 +214,7 @@
         <stay climb="-0.5" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
+        <set var="rotwing_state_force_quad" value="1"/>
         <set value="7" var="nav_max_speed"/>
         <call_once fun="request_rotwing_state(ROTWING_STATE_HOVER)"/>
         <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
