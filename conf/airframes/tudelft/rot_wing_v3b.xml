@@ -119,7 +119,9 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="wing_rotation_adc_sensor"/>
+        <module name="wing_rotation_adc_sensor"
+            <define name = "ROT_MECH_IDX" value = "9"/>
+        </module>
         <module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
