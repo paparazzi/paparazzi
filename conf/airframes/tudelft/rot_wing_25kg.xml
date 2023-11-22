@@ -108,7 +108,7 @@
 
         <module name="stabilization" type="rate_indi"/>
 
-        <module name="ctrl_eff_sched_rot_wing"/>
+        <module name="eff_scheduling_rot_wing"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">

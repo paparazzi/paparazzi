@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="eff_scheduling_generic" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectivenss matrix.
+      This is necessary if the vehicle has different operating points,
+      with significantly different control effectivenss.
+      Interpolation is linear between two points, usually hover and
+      forward conditions.
+      
+      If instead using online adaptation is an option, be sure to 
+      not use this module at the same time!
+    </description>
+  </doc>
+  <header>
+    <file name="eff_scheduling_generic.h"/>
+  </header>
+  <init fun="eff_scheduling_generic_init()"/>
+  <periodic fun="eff_scheduling_generic_periodic()" freq="20"/>
+  <makefile>
+    <file name="eff_scheduling_generic.c"/>
+  </makefile>
+</module>

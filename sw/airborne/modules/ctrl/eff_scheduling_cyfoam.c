@@ -14,16 +14,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /** @file modules/ctrl/ctrl_effectiveness_scheduling.c
  * Module that interpolates gainsets in flight based on the transition percentage
  */
 
-#include "modules/ctrl/ctrl_effectiveness_scheduling.h"
+#include "modules/ctrl/eff_scheduling_cyfoam.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
@@ -38,18 +37,23 @@
 #error "You need to define an RC channel to switch between simple and advanced scheduling"
 #endif
 
-static float g1g2_forward[INDI_OUTPUTS][INDI_NUM_ACT] = {FWD_G1_ROLL,
-                                                  FWD_G1_PITCH, FWD_G1_YAW, FWD_G1_THRUST
-                                                 };
+static float g1g2_forward[INDI_OUTPUTS][INDI_NUM_ACT] = {
+  FWD_G1_ROLL,
+  FWD_G1_PITCH,
+  FWD_G1_YAW,
+  FWD_G1_THRUST
+};
 
-static float g1g2_hover[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
-                                                STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST
-                                               };
+static float g1g2_hover[INDI_OUTPUTS][INDI_NUM_ACT] = {
+  STABILIZATION_INDI_G1_ROLL,
+  STABILIZATION_INDI_G1_PITCH,
+  STABILIZATION_INDI_G1_YAW,
+  STABILIZATION_INDI_G1_THRUST
+};
 
 static float g2_both[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by INDI_G_SCALING
 
-//Get the specified gains in the gainlibrary
-void ctrl_eff_scheduling_init(void)
+void eff_scheduling_cyfoam_init(void)
 {
   //sum of G1 and G2
   int8_t i;
@@ -67,31 +71,7 @@ void ctrl_eff_scheduling_init(void)
   }
 }
 
-void ctrl_eff_scheduling_periodic(void)
-{
-  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
-    ctrl_eff_scheduling_periodic_b();
-  } else {
-    ctrl_eff_scheduling_periodic_a();
-  }
-
-#ifdef INDI_THRUST_ON_PITCH_EFF
-  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
-  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] < -7000) && (actuator_state_filt_vect[1] > 7000)) {
-    Bwls[1][2] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
-    Bwls[1][3] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
-  } else if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] > 7000) && (actuator_state_filt_vect[1] < -7000)) {
-    Bwls[1][2] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
-    Bwls[1][3] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
-  } else {
-    Bwls[1][2] = 0.0;
-    Bwls[1][3] = 0.0;
-  }
-#endif
-
-}
-
-void ctrl_eff_scheduling_periodic_a(void)
+static void eff_scheduling_periodic_a(void)
 {
   // Go from transition percentage to ratio
   float ratio = FLOAT_OF_BFP(transition_percentage, INT32_PERCENTAGE_FRAC) / 100;
@@ -105,7 +85,7 @@ void ctrl_eff_scheduling_periodic_a(void)
   }
 }
 
-void ctrl_eff_scheduling_periodic_b(void)
+static void eff_scheduling_periodic_b(void)
 {
   float airspeed = stateGetAirspeed_f();
   struct FloatEulers eulers_zxy;
@@ -147,5 +127,28 @@ void ctrl_eff_scheduling_periodic_b(void)
     indi_gains.att.q = 200.0;
   }
 
+}
+
+void eff_scheduling_cyfoam_periodic(void)
+{
+  if (radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
+    eff_scheduling_periodic_b();
+  } else {
+    eff_scheduling_periodic_a();
+  }
+
+#ifdef INDI_THRUST_ON_PITCH_EFF
+  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] < -7000) && (actuator_state_filt_vect[1] > 7000)) {
+    Bwls[1][2] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
+    Bwls[1][3] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
+  } else if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] > 7000) && (actuator_state_filt_vect[1] < -7000)) {
+    Bwls[1][2] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
+    Bwls[1][3] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
+  } else {
+    Bwls[1][2] = 0.0;
+    Bwls[1][3] = 0.0;
+  }
+#endif
 }
 

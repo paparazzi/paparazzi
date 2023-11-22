@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/ctrl/ctrl_eff_sched_rot_wing.h"
+/** @file "modules/ctrl/eff_scheduling_rot_wing.h"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * The control effectiveness scheduler for the rotating wing drone type
  */
@@ -29,8 +29,8 @@
 #include "std.h"
 
 struct rot_wing_eff_sched_param_t {
-  float Ixx_body;                 // body MMOI around roll axis [kgm²] 
-  float Iyy_body;                 // body MMOI around pitch axis [kgm²] 
+  float Ixx_body;                 // body MMOI around roll axis [kgm²]
+  float Iyy_body;                 // body MMOI around pitch axis [kgm²]
   float Izz;                      // total MMOI around yaw axis [kgm²]
   float Ixx_wing;                 // wing MMOI around the chordwise direction of the wing [kgm²]
   float Iyy_wing;                 // wing MMOI around the spanwise direction of the wing [kgm²]
@@ -78,7 +78,8 @@ struct rot_wing_eff_sched_var_t {
 extern float rotation_angle_setpoint_deg;
 extern int16_t rotation_cmd;
 
-extern void ctrl_eff_sched_rot_wing_init(void);
-extern void ctrl_eff_sched_rot_wing_periodic(void);
+extern void eff_scheduling_rot_wing_init(void);
+extern void eff_scheduling_rot_wing_periodic(void);
 
 #endif  // CTRL_EFF_SCHED_ROT_WING_H
+

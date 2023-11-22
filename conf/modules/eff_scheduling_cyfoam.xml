@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="eff_scheduling_cyfoam" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectiveness matrix for Cyfoam tailsitter.
+
+      The configuration of Cyfoam is a tailsitter with 2 propellers
+      blowing a wing with 2 flaps. A minimum amont of thrust is thus
+      required to have enough control on moments, especially pitch moment.
+
+      Two scheduling functions are available, controlled by the flag
+      INDI_FUNCTIONS_RC_CHANNEL, which indicates the RC channel to be used.
+    </description>
+  </doc>
+  <header>
+    <file name="eff_scheduling_cyfoam.h"/>
+  </header>
+  <init fun="eff_scheduling_cyfoam_init()"/>
+  <periodic fun="eff_scheduling_cyfoam_periodic()" freq="20"/>
+  <makefile>
+    <file name="eff_scheduling_cyfoam.c"/>
+  </makefile>
+</module>

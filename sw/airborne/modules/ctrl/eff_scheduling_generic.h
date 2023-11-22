@@ -14,32 +14,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file modules/ctrl/ctrl_effectiveness_scheduling.h
+ * @file modules/ctrl/eff_scheduling_generic.h
  */
 
-#ifndef CTRL_EFFECTIVENESS_SCHEDULING_H
-#define CTRL_EFFECTIVENESS_SCHEDULING_H
-
-#include "generated/airframe.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#ifndef EFF_SCHEDULING_GENERIC_H
+#define EFF_SCHEDULING_GENERIC_H
 
 /**
  * Initialises periodic loop;
  */
-extern void ctrl_eff_scheduling_init(void);
+extern void eff_scheduling_generic_init(void);
 
 /**
  * Periodic function that interpolates between gain sets depending on the scheduling variable.
  */
-extern void ctrl_eff_scheduling_periodic(void);
-extern void ctrl_eff_scheduling_periodic_a(void);
-extern void ctrl_eff_scheduling_periodic_b(void);
+extern void eff_scheduling_generic_periodic(void);
 
-#endif  /* CTRL_EFFECTIVENESS_SCHEDULING_H */
+#endif  /* EFF_SCHEDULING_GENERIC_H */
 

@@ -15,7 +15,7 @@
         <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
       </module>
 
-      <module name="ctrl_effectiveness_scheduling">
+      <module name="eff_scheduling_cyfoam">
         <define name="SQUARED_ROLL_EFF" value="0.0018"/>
         <define name="PITCH_EFF_AT_60" value="4.0"/>
         <define name="YAW_EFF_AT_60" value="8.0"/>
