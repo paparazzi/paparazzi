@@ -289,7 +289,7 @@ class SessionWidget(QWidget, Ui_Session):
                 break
 
     def save_sessions(self):
-        ctrl_panel_path = os.path.join(utils.CONF_DIR, "control_panel.xml")
+        ctrl_panel_path = os.path.join(utils.CONF_DIR, self.get_current_control_panel())
         parser = ET.XMLParser(remove_blank_text=True)
         control_panel = ET.parse(ctrl_panel_path, parser)
         xml_sessions = ET.Element("section")
