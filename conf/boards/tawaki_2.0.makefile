@@ -36,7 +36,7 @@ CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32H7xx/platform.mk
-CHIBIOS_BOARD_LINKER = STM32H743xI_TawakiH7.ld
+CHIBIOS_BOARD_LINKER = STM32H743xI_nobl_nc.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
 
 # ITCM flash is a special flash that allow faster operations
