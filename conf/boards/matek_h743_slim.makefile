@@ -34,7 +34,7 @@ PROJECT = $(TARGET)
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32H7xx/platform.mk
 CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
-CHIBIOS_BOARD_LINKER = STM32H743xI_no_bl.ld
+CHIBIOS_BOARD_LINKER = STM32H743xI_nobl_nc.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
 
 ##############################################################################

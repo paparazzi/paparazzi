@@ -762,5 +762,5 @@
   .pwmp = &PWMD5 \
 }
 
-#endif /* CONFIG_TAWAKI_1_00_H */
+#endif /* CONFIG_TAWAKI_2_00_H */
 
