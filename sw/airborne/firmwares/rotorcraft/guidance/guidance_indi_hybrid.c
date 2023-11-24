@@ -232,6 +232,7 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
                               &gi_speed_sp.z);
 }
 
+#if GUIDANCE_INDI_HYBRID_USE_WLS
 static void debug(struct transport_tx *trans, struct link_device *dev, char* name, float* data, int datasize)
 {
   pprz_msg_send_DEBUG_VECT(trans, dev,AC_ID,
@@ -239,10 +240,8 @@ static void debug(struct transport_tx *trans, struct link_device *dev, char* nam
                               datasize, data);
 }
 
-
 static void send_guidance_indi_debug(struct transport_tx *trans, struct link_device *dev)
 {
-#if GUIDANCE_INDI_HYBRID_USE_WLS
   static int c = 0;
   switch (c++)
   {
@@ -269,10 +268,14 @@ static void send_guidance_indi_debug(struct transport_tx *trans, struct link_dev
     c=0;
     break;
   }
-#endif
 }
+#else
+static void send_guidance_indi_debug(struct transport_tx *trans USUSED, struct link_device *dev USUSED)
+{
+}
+#endif // GUIDANCE_INDI_HYBRID_USE_WLS
 
-#endif
+#endif // PERIODIC_TELEMETRY
 
 /**
  * @brief Init function
