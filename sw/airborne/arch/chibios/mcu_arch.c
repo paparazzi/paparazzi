@@ -41,9 +41,18 @@
 
 #include "mcu_periph/ram_arch.h"
 
+#if defined(STM32H7XX)
+typedef struct {
+  uint32_t              *init_text_area;
+  uint32_t              *init_area;
+  uint32_t              *clear_area;
+  uint32_t              *no_init_area;
+} ram_init_area_t;
 
+static void initRam0nc(void);
+static void init_ram_areas(const ram_init_area_t *rap);
 static void mpuConfigureNonCachedRam(void);
-
+#endif
 
 #if USE_HARD_FAULT_RECOVERY
 
@@ -155,7 +164,9 @@ void mcu_arch_init(void)
   halInit();
   chSysInit();
 
+#if defined(STM32H7XX)
   mpuConfigureNonCachedRam();
+#endif
 
 #if USE_HARD_FAULT_RECOVERY
   /* Backup domain SRAM enable, and with it, the regulator */
@@ -305,7 +316,7 @@ static void mcu_set_rtcbackup(uint32_t val) {
 
 
 
-
+#if defined(STM32H7XX)
 /*
   nocache regions are 
     ° ram0nc for sdmmc1
@@ -348,25 +359,59 @@ static void mpuConfigureNonCachedRam(void)
   chDbgAssert(ram4_base == 0x38000000, "MPU ram4 addr mismatch");
 
   chDbgAssert((ram0nc_base % ram0nc_size) == 0, "MPU ram0nc base addr must be size aligned");
+  chDbgAssert(ram0nc_size == 128 * 1024, "MPU ram0nc size must be 128K");
   chDbgAssert((ram3_base % ram3_size) == 0, "MPU ram3 base addr must be size aligned");
   chDbgAssert((ram4_base % ram4_size) == 0, "MPU ram4 base addr must be size aligned");
+  chDbgAssert(getMPU_RASR_SIZE(ram0nc_size) == MPU_RASR_SIZE_128K, "getMPU_RASR_SIZE error");
 
   
   mpuConfigureRegion(MPU_REGION_6,
-		     ram3_base,
-		     getMPU_RASR_SIZE(ram3_size) | mpuSharedOption
-		     );
-  mpuConfigureRegion(MPU_REGION_5,
-		     ram4_base,
-		     getMPU_RASR_SIZE(ram4_size) | mpuSharedOption
-		     );
-  mpuConfigureRegion(MPU_REGION_4,
 		     ram0nc_base,
 		     getMPU_RASR_SIZE(ram0nc_size) | mpuSharedOption
 		     );
-  
+  mpuConfigureRegion(MPU_REGION_5,
+		     ram3_base,
+		     getMPU_RASR_SIZE(ram3_size) | mpuSharedOption
+		     );
+  mpuConfigureRegion(MPU_REGION_4,
+		     ram4_base,
+		     getMPU_RASR_SIZE(ram4_size) | mpuSharedOption
+		     );
+  initRam0nc();
   mpuEnable(MPU_CTRL_PRIVDEFENA);
   __ISB();
   __DSB();
-  SCB_CleanInvalidateDCache();
+   SCB_CleanInvalidateDCache();
+
 }
+
+static void initRam0nc(void)
+{
+  extern uint32_t __ram0nc_init_text__, __ram0nc_init__, __ram0nc_clear__, __ram0nc_noinit__;
+  static const ram_init_area_t ram_areas[1] = {
+    {&__ram0nc_init_text__, &__ram0nc_init__, &__ram0nc_clear__, &__ram0nc_noinit__},
+  };
+  init_ram_areas(ram_areas);
+  
+}
+
+static void init_ram_areas(const ram_init_area_t *rap)
+{
+  uint32_t *tp = rap->init_text_area;
+  uint32_t *p = rap->init_area;
+
+  /* Copying initialization data.*/
+  while (p < rap->clear_area) {
+    *p = *tp;
+    p++;
+    tp++;
+  }
+  
+  /* Zeroing clear area.*/
+  while (p < rap->no_init_area) {
+    *p = 0;
+    p++;
+  }
+}
+
+#endif
