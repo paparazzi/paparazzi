@@ -166,7 +166,7 @@ class Conf:
                           gui_color, settings, settings_modules)
             self.aircrafts.append(ac)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> Aircraft:
         for ac in self.aircrafts:
             if (isinstance(item, int) and item == ac.ac_id) or (isinstance(item, str) and item == ac.name):
                 return ac

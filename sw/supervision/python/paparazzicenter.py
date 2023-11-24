@@ -78,6 +78,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.conf = Conf(conf_file)
         Conf.set_current_conf(conf_file)
         self.configuration_panel.build_widget.set_conf(self.conf)
+        self.log_widget.set_conf(self.conf)
         acs = [ac.name for ac in self.conf.aircrafts]
         self.header.set_acs(acs)
 
