@@ -418,7 +418,7 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
   uint8_t mde = 0;
 
   // Check the alignment and if GPS is fused
-  if (control_mode.flags.tilt_align && control_mode.flags.yaw_align && control_mode.flags.gps) {
+  if (control_mode.flags.tilt_align && control_mode.flags.yaw_align && (control_mode.flags.gps || control_mode.flags.ev_pos)) {
     mde = 3;
   } else if (control_mode.flags.tilt_align && control_mode.flags.yaw_align) {
     mde = 4;
