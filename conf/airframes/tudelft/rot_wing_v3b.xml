@@ -108,7 +108,7 @@
             <define name="WLS_N_V" value="5"/>
         </module>
 
-        <module name="ctrl_eff_sched_rot_wing"/>
+        <module name="eff_scheduling_rot_wing"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">

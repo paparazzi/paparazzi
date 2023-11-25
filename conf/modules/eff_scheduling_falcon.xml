@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="eff_scheduling_falcon" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectivenss matrix of the Falcon hybride plane
+
+      The configuation of Falcon is a tailsitter with 4 propellers mounted as a
+      regular quadcopter and a wing in the middle with 2 ailevons. The ailevons
+      are only used for roll and pitch with sufficient forward speed. This module
+      is in charge of disabling them at low speed / high angle of attack when
+      they have no more efficiency.
+    </description>
+  </doc>
+ 
+  <header>
+    <file name="eff_scheduling_falcon.h"/>
+  </header>
+  <init fun="eff_scheduling_falcon_init()"/>
+  <periodic fun="eff_scheduling_falcon_periodic()" freq="20.0"/>
+  <periodic fun="eff_scheduling_falcon_report()" freq="0.5" autorun="FALSE"/> <!-- TRUE  FALSE-->
+  <makefile target="ap|nps" firmware="rotorcraft" >
+    <file name="eff_scheduling_falcon.c"/>
+  </makefile>
+</module>
