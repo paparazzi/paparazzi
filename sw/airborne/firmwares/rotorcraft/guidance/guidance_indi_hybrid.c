@@ -270,7 +270,7 @@ static void send_guidance_indi_debug(struct transport_tx *trans, struct link_dev
   }
 }
 #else
-static void send_guidance_indi_debug(struct transport_tx *trans USUSED, struct link_device *dev USUSED)
+static void send_guidance_indi_debug(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED)
 {
 }
 #endif // GUIDANCE_INDI_HYBRID_USE_WLS
