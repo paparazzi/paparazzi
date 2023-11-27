@@ -22,7 +22,7 @@
  * Module that interpolates gainsets in flight based on the transition percentage
  */
 
-#include "modules/ctrl/ctrl_effectiveness_scheduling.h"
+#include "modules/ctrl/eff_scheduling_generic.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "generated/airframe.h"
