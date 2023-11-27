@@ -167,7 +167,8 @@ float act_pref[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_PREF;
 float act_pref[INDI_NUM_ACT] = {0.0};
 #endif
 
-float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
+float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
+float act_dyn_discrete[INDI_NUM_ACT];
 
 #ifdef STABILIZATION_INDI_WLS_PRIORITIES
 static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
@@ -284,7 +285,7 @@ void sum_g1_g2(void);
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
-  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
+  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID,
                                    1, &zero,
                                    1, &zero,
                                    1, &zero,
@@ -341,7 +342,13 @@ void stabilization_indi_init(void)
   // Initialize filters
   init_filters();
 
-#if STABILIZATION_INDI_RPM_FEEDBACK 
+  int8_t i;
+  // Initialize the array of pointers to the rows of g1g2
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    act_dyn_discrete[i] = 1-exp(-act_first_order_cutoff[i]/PERIODIC_FREQUENCY);
+  }
+
+#if STABILIZATION_INDI_RPM_FEEDBACK
   AbiBindMsgACT_FEEDBACK(STABILIZATION_INDI_ACT_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
 #endif
   AbiBindMsgTHRUST(THRUST_INCREMENT_ID, &thrust_ev, thrust_cb);
@@ -361,7 +368,6 @@ void stabilization_indi_init(void)
   calc_g1g2_pseudo_inv();
 #endif
 
-  int8_t i;
   // Initialize the array of pointers to the rows of g1g2
   for (i = 0; i < INDI_OUTPUTS; i++) {
     Bwls[i] = g1g2[i];
@@ -833,7 +839,7 @@ void get_actuator_state(void)
     prev_actuator_state = actuator_state[i];
 
     actuator_state[i] = actuator_state[i]
-                        + act_dyn[i] * (indi_u[i] - actuator_state[i]);
+                        + act_dyn_discrete[i] * (indi_u[i] - actuator_state[i]);
 
 #ifdef STABILIZATION_INDI_ACT_RATE_LIMIT
     if ((actuator_state[i] - prev_actuator_state) > act_rate_limit[i]) {
