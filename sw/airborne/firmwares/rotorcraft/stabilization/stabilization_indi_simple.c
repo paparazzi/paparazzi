@@ -41,8 +41,13 @@
 #include "modules/radio_control/radio_control.h"
 #include "filters/low_pass_filter.h"
 
-#if !defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
-#error You have to define the first order time constant of the actuator dynamics!
+#if defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
+#error You now have to define the continuous time corner frequency in rad/s of the actuators.
+#error "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
+#endif
+
+#if !defined(STABILIZATION_INDI_ACT_FREQ_P) && !defined(STABILIZATION_INDI_ACT_FREQ_Q) && !defined(STABILIZATION_INDI_ACT_FREQ_R)
+#error You have to define the corner frequency of the first order actuator dynamics model in rad/s!
 #endif
 
 // these parameters are used in the filtering of the angular acceleration
@@ -169,13 +174,13 @@ static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_d
   RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
   float g2_disp = indi.est.g2 * INDI_EST_SCALE;
   float zero = 0.0;
-  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID, 
+  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID,
                                     1, &zero,
                                     1, &zero,
                                     1, &zero,
                                     1, &g1_disp.p,
                                     1, &g1_disp.q,
-                                    1, &g1_disp.r, 
+                                    1, &g1_disp.r,
                                     1, &g2_disp,
                                     1, &zero);
 }
@@ -199,6 +204,10 @@ void stabilization_indi_init(void)
 {
   // Initialize filters
   indi_init_filters();
+
+  indi.act_dyn.p = 1-exp(-STABILIZATION_INDI_ACT_FREQ_P/PERIODIC_FREQUENCY);
+  indi.act_dyn.q = 1-exp(-STABILIZATION_INDI_ACT_FREQ_Q/PERIODIC_FREQUENCY);
+  indi.act_dyn.r = 1-exp(-STABILIZATION_INDI_ACT_FREQ_R/PERIODIC_FREQUENCY);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_indi);
@@ -374,9 +383,9 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight __att
 {
   //Propagate input filters
   //first order actuator dynamics
-  indi.u_act_dyn.p = indi.u_act_dyn.p + STABILIZATION_INDI_ACT_DYN_P * (indi.u_in.p - indi.u_act_dyn.p);
-  indi.u_act_dyn.q = indi.u_act_dyn.q + STABILIZATION_INDI_ACT_DYN_Q * (indi.u_in.q - indi.u_act_dyn.q);
-  indi.u_act_dyn.r = indi.u_act_dyn.r + STABILIZATION_INDI_ACT_DYN_R * (indi.u_in.r - indi.u_act_dyn.r);
+  indi.u_act_dyn.p = indi.u_act_dyn.p + indi.act_dyn.p * (indi.u_in.p - indi.u_act_dyn.p);
+  indi.u_act_dyn.q = indi.u_act_dyn.q + indi.act_dyn.q * (indi.u_in.q - indi.u_act_dyn.q);
+  indi.u_act_dyn.r = indi.u_act_dyn.r + indi.act_dyn.r * (indi.u_in.r - indi.u_act_dyn.r);
 
   // Propagate the filter on the gyroscopes and actuators
   struct FloatRates *body_rates = stateGetBodyRates_f();
