@@ -124,7 +124,8 @@ class LogWidget(QWidget, Ui_LogWidget):
 
     def show_help(self):
         QMessageBox.information(self, "logs extractor help",
-                                "<h1>Extract easily your log files!</h1><br/>"
+                                "<h1>SD log extractor</h1><br/>"
+                                "Extract logs from flight recorder.<br/>"
                                 "You can use substitution variables in the output directory:<br/>"
                                 "<b>$AIRCRAFT</b>: aircraft name<br/>"
                                 "<b>$AC_ID</b>: aircraft id<br/>"
