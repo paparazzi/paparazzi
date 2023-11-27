@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/help.png</file>
+    <file>icons/undo.png</file>
+    <file>icons/open.png</file>
     <file>icons/error.svg</file>
     <file>icons/running.svg</file>
     <file>icons/edit.png</file>
