@@ -124,10 +124,11 @@ float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 static void guidance_indi_filter_thrust(void);
 
 #ifdef GUIDANCE_INDI_THRUST_DYNAMICS
-#error "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
-#error "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
-#error "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
-#else
+#warning GUIDANCE_INDI_THRUST_DYNAMICS is deprecated, use GUIDANCE_INDI_THRUST_DYNAMICS_FREQ instead.
+#warning "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
+#warning "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
+#endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
 #ifndef STABILIZATION_INDI_ACT_DYN_P
@@ -136,7 +137,6 @@ static void guidance_indi_filter_thrust(void);
 #define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ STABILIZATION_INDI_ACT_DYN_P
 #endif
 #endif //GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
-#endif
 
 #endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 
@@ -293,7 +293,11 @@ void guidance_indi_init(void)
   /*AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);*/
   AbiBindMsgVEL_SP(GUIDANCE_INDI_VEL_SP_ID, &vel_sp_ev, vel_sp_cb);
 
+#ifdef GUIDANCE_INDI_THRUST_DYNAMICS
+  thrust_dyn = GUIDANCE_INDI_THRUST_DYNAMICS;
+#else
   thrust_dyn = 1-exp(-GUIDANCE_INDI_THRUST_DYNAMICS_FREQ/PERIODIC_FREQUENCY);
+#endif
 
   float tau = 1.0/(2.0*M_PI*filter_cutoff);
   float sample_time = 1.0/PERIODIC_FREQUENCY;

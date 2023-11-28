@@ -42,12 +42,12 @@
 #include "filters/low_pass_filter.h"
 
 #if defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
-#error You now have to define the continuous time corner frequency in rad/s of the actuators.
-#error "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
-#endif
-
+#warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
+#warning You now have to define the continuous time corner frequency in rad/s of the actuators.
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
+#else
 #if !defined(STABILIZATION_INDI_ACT_FREQ_P) && !defined(STABILIZATION_INDI_ACT_FREQ_Q) && !defined(STABILIZATION_INDI_ACT_FREQ_R)
-#error You have to define the corner frequency of the first order actuator dynamics model in rad/s!
+#warning You have to define the corner frequency of the first order actuator dynamics model in rad/s!
 #endif
 
 // these parameters are used in the filtering of the angular acceleration
@@ -205,9 +205,15 @@ void stabilization_indi_init(void)
   // Initialize filters
   indi_init_filters();
 
+#ifdef STABILIZATION_INDI_ACT_FREQ_P
   indi.act_dyn.p = 1-exp(-STABILIZATION_INDI_ACT_FREQ_P/PERIODIC_FREQUENCY);
   indi.act_dyn.q = 1-exp(-STABILIZATION_INDI_ACT_FREQ_Q/PERIODIC_FREQUENCY);
   indi.act_dyn.r = 1-exp(-STABILIZATION_INDI_ACT_FREQ_R/PERIODIC_FREQUENCY);
+#else
+  indi.act_dyn.p = STABILIZATION_INDI_ACT_DYN_P;
+  indi.act_dyn.q = STABILIZATION_INDI_ACT_DYN_Q;
+  indi.act_dyn.r = STABILIZATION_INDI_ACT_DYN_R;
+#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_indi);

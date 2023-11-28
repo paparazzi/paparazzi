@@ -168,12 +168,14 @@ float act_pref[INDI_NUM_ACT] = {0.0};
 #endif
 
 #ifdef STABILIZATION_INDI_ACT_DYN
-#error You now have to define the continuous time corner frequency in rad/s of the actuators.
-#error "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
-#endif
-
+#warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
+#warning You now have to define the continuous time corner frequency in rad/s of the actuators.
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
 float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
 float act_dyn_discrete[INDI_NUM_ACT];
+#else
+float act_dyn_discrete[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
+#endif
 
 #ifdef STABILIZATION_INDI_WLS_PRIORITIES
 static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
@@ -347,11 +349,13 @@ void stabilization_indi_init(void)
   // Initialize filters
   init_filters();
 
+#ifdef STABILIZATION_INDI_ACT_FREQ
   int8_t i;
   // Initialize the array of pointers to the rows of g1g2
   for (i = 0; i < INDI_NUM_ACT; i++) {
     act_dyn_discrete[i] = 1-exp(-act_first_order_cutoff[i]/PERIODIC_FREQUENCY);
   }
+#endif
 
 #if STABILIZATION_INDI_RPM_FEEDBACK
   AbiBindMsgACT_FEEDBACK(STABILIZATION_INDI_ACT_FEEDBACK_ID, &act_feedback_ev, act_feedback_cb);
