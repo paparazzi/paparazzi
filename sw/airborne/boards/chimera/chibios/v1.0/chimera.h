@@ -575,5 +575,19 @@
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
+/**
+ * For WS2812
+ */
+#define WS2812D1_GPIO GPIOC
+#define WS2812D1_PIN  GPIO6
+#define WS2812D1_AF 3
+#define WS2812D1_CFG_DEF { \
+  .dma_stream = STM32_PWM8_UP_DMA_STREAM, \
+  .dma_channel = STM32_PWM8_UP_DMA_CHANNEL, \
+  .dma_priority = STM32_PWM8_UP_DMA_PRIORITY, \
+  .pwm_channel = 0, \
+  .pwmp = &PWMD8 \
+}
+
 #endif /* CONFIG_CHIMERA_1_00_H */
 

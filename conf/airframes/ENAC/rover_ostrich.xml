@@ -40,6 +40,14 @@
 
     <module name="nav" type="rover_base"/>
     <module name="guidance" type="rover_holonomic"/>
+
+    <!--Info: Tawaki(Auxa1):STM32_PWM_USE_TIM5, Apogee: PPMin, Chimera(Aux7/PC6) : TIM8 ch1 -->
+    <module name="light_scheduler">
+       <configure name="WS2812_TIM" value="TIM8"/>
+       <define name="WS2812_NB_LEDS" value="32"/>
+       <define name="WS2812_SEQUENCE" value="1"/>
+     </module>
+    
   </firmware>
 
   <servos driver="OSTRICH">

@@ -317,7 +317,9 @@
 #define STM32_PWM_USE_TIM4                  TRUE
 #endif
 #define STM32_PWM_USE_TIM5                  FALSE
+#ifndef STM32_PWM_USE_TIM8
 #define STM32_PWM_USE_TIM8                  FALSE
+#endif
 #define STM32_PWM_USE_TIM9                  FALSE
 #define STM32_PWM_USE_TIM10                 FALSE
 #define STM32_PWM_USE_TIM11                 FALSE
@@ -327,6 +329,11 @@
 #define STM32_PWM_USE_TIM15                 FALSE
 #define STM32_PWM_USE_TIM16                 FALSE
 #define STM32_PWM_USE_TIM17                 FALSE
+
+#define STM32_PWM8_UP_DMA_STREAM STM32_DMA_STREAM_ID(2, 1)
+#define STM32_PWM8_UP_DMA_CHANNEL           7
+#define STM32_PWM8_UP_DMA_IRQ_PRIORITY      6
+#define STM32_PWM8_UP_DMA_PRIORITY          2
 
 /*
  * RTC driver system settings.

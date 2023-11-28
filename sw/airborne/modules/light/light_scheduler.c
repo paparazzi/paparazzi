@@ -41,8 +41,18 @@ void light_scheduler_periodic(void)
 {
   uint32_t n, s0;
   for (n = 0; n < WS2812_NB_LEDS; n++) {
-    s0 = s + 10 * n;
-    light_ws2812_arch_set(n, s0 % 255, (s0 + 85) % 255, (s0 + 170) % 255);
+    if (WS2812_NB_LEDS == 32) {
+      if (n<=7) light_ws2812_arch_set(n, 0,255,0);  // LEFT = GREEN
+      else if (n<=15)
+        light_ws2812_arch_set(n, 0,0,255);           // BACK = BLUE
+      else if (n<=23)
+        light_ws2812_arch_set(n, 255,0,0);           // RIGHT = RED
+      else
+        light_ws2812_arch_set(n, 255,255,255);       // FRONT = WHITE
+    } else {
+      s0 = s + 10 * n;
+      light_ws2812_arch_set(n, s0 % 255, (s0 + 85) % 255, (s0 + 170) % 255);
+    }
   }
   s += 10;
 }
