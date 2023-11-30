@@ -66,6 +66,7 @@
 #       define FIFO_COUNT_BIG_ENDIAN                        0x20
 #       define FIFO_COUNT_REC                               0x40
 #       define FIFO_HOLD_LAST_DATA_EN                       0x80
+#define INV3REG_INTF_CONFIG1          INV3REG(INV3_BANK0,0x4DU)
 #define INV3REG_PWR_MGMT0             INV3REG(INV3_BANK0,0x4EU)
 #       define ACCEL_MODE_OFF                               0x00
 #       define ACCEL_MODE_LN                                0x03

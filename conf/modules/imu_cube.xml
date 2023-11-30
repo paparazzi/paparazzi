@@ -46,7 +46,7 @@
 
      <!-- Configure the heater (ICM20602) -->
     <define name="IMU_HEATER_GYRO_ID" value="IMU_CUBE2_ID"/>
-    <define name="IMU_HEATER_TARGET_TEMP" value="55.0"/>
+    <define name="IMU_HEATER_TARGET_TEMP" value="45.0"/>
     <define name="IMU_HEATER_P_GAIN" value="50.0"/>
     <define name="IMU_HEATER_I_GAIN" value="0.07"/>
 
