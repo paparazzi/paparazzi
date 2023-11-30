@@ -30,7 +30,7 @@
 
 /** Maximum combined message size for storing the errors */
 #ifndef PREFLIGHT_CHECK_MAX_MSGBUF
-#define PREFLIGHT_CHECK_MAX_MSGBUF 512
+#define PREFLIGHT_CHECK_MAX_MSGBUF 1024
 #endif
 
 /** Seperating character for storing the errors */
@@ -94,10 +94,10 @@ bool preflight_check(void)
       // Record the total
       int rc = 0;
       if (result.fail_cnt > 0) {
-        rc = snprintf(result.message, result.max_len, "Preflight fail [fail:%d warn:%d tot:%d]", result.fail_cnt,
+        rc = snprintf(result.message, result.max_len, "*Preflight fail [fail:%d warn:%d tot:%d]*", result.fail_cnt,
                       result.warning_cnt, (result.fail_cnt + result.warning_cnt + result.success_cnt));
       } else {
-        rc = snprintf(result.message, result.max_len, "Preflight success with warnings [%d/%d]", result.warning_cnt,
+        rc = snprintf(result.message, result.max_len, "*Preflight success with warnings [%d/%d]*", result.warning_cnt,
                       (result.fail_cnt + result.warning_cnt + result.success_cnt));
       }
       if (rc > 0) {
@@ -105,8 +105,8 @@ bool preflight_check(void)
       }
 
       // Send the errors seperatly
-      uint8_t last_sendi = 0;
-      for (uint8_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len; i++) {
+      uint16_t last_sendi = 0;
+      for (uint16_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len; i++) {
         if (error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len)) {
           DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i - last_sendi, &error_msg[last_sendi]);
           last_sendi = i + 1;
