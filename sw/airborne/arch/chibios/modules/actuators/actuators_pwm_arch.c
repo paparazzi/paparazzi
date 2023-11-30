@@ -102,7 +102,7 @@ int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
  */
  __attribute__((unused)) static void pwmpcb(PWMDriver *pwmp __attribute__((unused))) {}
 
-#if STM32_PWM_USE_TIM1
+#if USE_PWM_TIM1
 static PWMConfig pwmcfg1 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM1_SERVO_HZ,
@@ -111,14 +111,14 @@ static PWMConfig pwmcfg1 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM2
+#if USE_PWM_TIM2
 static PWMConfig pwmcfg2 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM2_SERVO_HZ,
@@ -127,14 +127,14 @@ static PWMConfig pwmcfg2 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM3
+#if USE_PWM_TIM3
 static PWMConfig pwmcfg3 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM3_SERVO_HZ,
@@ -143,14 +143,14 @@ static PWMConfig pwmcfg3 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM4
+#if USE_PWM_TIM4
 static PWMConfig pwmcfg4 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM4_SERVO_HZ,
@@ -159,14 +159,14 @@ static PWMConfig pwmcfg4 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM5
+#if USE_PWM_TIM5
 static PWMConfig pwmcfg5 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM5_SERVO_HZ,
@@ -175,14 +175,14 @@ static PWMConfig pwmcfg5 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM8
+#if USE_PWM_TIM8
 static PWMConfig pwmcfg8 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM8_SERVO_HZ,
@@ -191,14 +191,14 @@ static PWMConfig pwmcfg8 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM9
+#if USE_PWM_TIM9
 static PWMConfig pwmcfg9 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM9_SERVO_HZ,
@@ -207,14 +207,14 @@ static PWMConfig pwmcfg9 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM10
+#if USE_PWM_TIM10
 static PWMConfig pwmcfg10 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM10_SERVO_HZ,
@@ -223,14 +223,14 @@ static PWMConfig pwmcfg10 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM11
+#if USE_PWM_TIM11
 static PWMConfig pwmcfg11 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM11_SERVO_HZ,
@@ -239,14 +239,14 @@ static PWMConfig pwmcfg11 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
   .dier = 0
 };
 #endif
-#if STM32_PWM_USE_TIM12
+#if USE_PWM_TIM12
 static PWMConfig pwmcfg12 = {
   .frequency = PWM_FREQUENCY,
   .period = PWM_FREQUENCY/TIM12_SERVO_HZ,
@@ -255,7 +255,7 @@ static PWMConfig pwmcfg12 = {
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
     { PWM_OUTPUT_DISABLED, NULL },
-    { PWM_OUTPUT_DISABLED, NULL }, 
+    { PWM_OUTPUT_DISABLED, NULL },
   },
   .cr2 = 0,
   .bdtr = 0,
@@ -341,34 +341,34 @@ void actuators_pwm_arch_init(void)
   /*---------------
    * Configure PWM
    *---------------*/
-#if STM32_PWM_USE_TIM1
+#if USE_PWM_TIM1
   pwmStart(&PWMD1, &pwmcfg1);
 #endif
-#if STM32_PWM_USE_TIM2
+#if USE_PWM_TIM2
   pwmStart(&PWMD2, &pwmcfg2);
 #endif
-#if STM32_PWM_USE_TIM3
+#if USE_PWM_TIM3
   pwmStart(&PWMD3, &pwmcfg3);
 #endif
-#if STM32_PWM_USE_TIM4
+#if USE_PWM_TIM4
   pwmStart(&PWMD4, &pwmcfg4);
 #endif
-#if STM32_PWM_USE_TIM5
+#if USE_PWM_TIM5
   pwmStart(&PWMD5, &pwmcfg5);
 #endif
-#if STM32_PWM_USE_TIM8
+#if USE_PWM_TIM8
   pwmStart(&PWMD8, &pwmcfg8);
 #endif
-#if STM32_PWM_USE_TIM9
+#if USE_PWM_TIM9
   pwmStart(&PWMD9, &pwmcfg9);
 #endif
-#if STM32_PWM_USE_TIM10
+#if USE_PWM_TIM10
   pwmStart(&PWMD10, &pwmcfg10);
 #endif
-#if STM32_PWM_USE_TIM11
+#if USE_PWM_TIM11
   pwmStart(&PWMD11, &pwmcfg11);
 #endif
-#if STM32_PWM_USE_TIM12
+#if USE_PWM_TIM12
   pwmStart(&PWMD12, &pwmcfg12);
 #endif
 }

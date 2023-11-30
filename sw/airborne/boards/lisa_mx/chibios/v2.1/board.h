@@ -1165,7 +1165,21 @@
 
 /*
  * PWM defines
+ * enable TIM3, TIM4 and TIM5 by default
  */
+
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM5
+#define USE_PWM_TIM5 1
+#endif
+
 #ifndef USE_PWM0
 #define USE_PWM0 1
 #endif

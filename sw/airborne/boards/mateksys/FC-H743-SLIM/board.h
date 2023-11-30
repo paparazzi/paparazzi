@@ -54,6 +54,22 @@
 #define SDLOG_BAT_CHAN AD1_5_CHANNEL
 
 /*
+ * PWM TIM defines
+ * enable TIM 3, 4 and 5 by default
+ */
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM5
+#define USE_PWM_TIM5 1
+#endif
+
+/*
  * IO pins assignments.
  */
 #define	PA00_SERVO3                    0U

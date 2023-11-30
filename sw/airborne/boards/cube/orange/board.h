@@ -59,6 +59,18 @@
 #define SDLOG_BAT_CHAN AD1_1_CHANNEL
 
 /*
+ * PWM TIM defines
+ * enable TIM1 and TIM4 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+/*
  * IO pins assignments.
  */
 #define	PA00_UART4_TX                  0U

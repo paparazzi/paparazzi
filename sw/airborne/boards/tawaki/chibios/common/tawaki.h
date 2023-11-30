@@ -158,6 +158,13 @@
  * PWM defines
  */
 
+/*
+ * enable TIM1 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
 // SRVa connectors, activated in PWM mode by default
 
 #ifndef USE_PWM1
