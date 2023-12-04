@@ -67,6 +67,18 @@
 // No VBAT monitoring ?
 
 /*
+ * PWM TIM defines
+ * enable TIM2 and TIM4 by default
+ */
+#ifndef USE_PWM_TIM2
+#define USE_PWM_TIM2 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+/*
  * PWM defines
  */
 

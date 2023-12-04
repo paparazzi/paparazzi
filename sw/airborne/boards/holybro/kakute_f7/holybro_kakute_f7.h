@@ -85,6 +85,30 @@
 #define DefaultMilliAmpereOfAdc(adc) ((40000.f*3.3f/4096.f)*adc)
 
 /*
+ * PWM TIM defines
+ * enable TIM 1, 3, 4, 5, 8 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM5
+#define USE_PWM_TIM5 1
+#endif
+
+#ifndef USE_PWM_TIM8
+#define USE_PWM_TIM8 1
+#endif
+
+/*
  * PWM defines
  */
 

@@ -769,6 +769,18 @@
 #define DefaultVoltageOfAdc(adc) (0.006185*adc)
 
 /*
+ * PWM TIM defines
+ * enable TIM2 and TIM3 by default
+ */
+#ifndef USE_PWM_TIM2
+#define USE_PWM_TIM2 1
+#endif
+
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+/*
  * PWM defines TODO
  */
 #ifndef USE_PWM0

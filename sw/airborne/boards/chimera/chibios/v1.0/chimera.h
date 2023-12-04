@@ -208,8 +208,17 @@
 //TODO configure DAC (ADC_1)
 
 /*
- * PWM defines
+ * PWM TIM defines
+ * enable TIM3 and TIM4 by default
  */
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
 /*
  * PWM defines
  */

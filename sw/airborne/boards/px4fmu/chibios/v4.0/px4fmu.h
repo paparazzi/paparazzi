@@ -99,6 +99,18 @@
 #define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
 
 /*
+ * PWM TIM defines
+ * enable TIM1 and TIM4 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+/*
  * PWM defines
  */
 #if defined(LINE_SERVO1)

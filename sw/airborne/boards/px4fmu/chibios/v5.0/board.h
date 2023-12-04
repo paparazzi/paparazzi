@@ -66,6 +66,22 @@
 #define SDLOG_USB_LED 3
 
 /*
+ * PWM TIM defines
+ * enable TIM 1, 4 and 12 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM12
+#define USE_PWM_TIM12 1
+#endif
+
+/*
  * IO pins assignments.
  */
 #define	PA00_ADC1                      0U
