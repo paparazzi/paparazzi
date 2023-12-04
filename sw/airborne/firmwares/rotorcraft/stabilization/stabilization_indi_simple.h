@@ -70,6 +70,7 @@ struct IndiVariables {
   Butterworth2LowPass rate[3];
   struct FloatRates g1;
   float g2;
+  struct FloatRates act_dyn;
 
   struct Indi_gains gains;
 
