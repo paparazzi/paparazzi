@@ -49,6 +49,7 @@
 #if !defined(STABILIZATION_INDI_ACT_FREQ_P) && !defined(STABILIZATION_INDI_ACT_FREQ_Q) && !defined(STABILIZATION_INDI_ACT_FREQ_R)
 #warning You have to define the corner frequency of the first order actuator dynamics model in rad/s!
 #endif
+#endif
 
 // these parameters are used in the filtering of the angular acceleration
 // define them in the airframe file if different values are required
