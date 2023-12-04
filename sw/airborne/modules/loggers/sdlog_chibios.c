@@ -114,9 +114,9 @@ static struct preflight_check_t sdlog_pfc;
 static void sdlog_preflight(struct preflight_result_t *result) {
   if(chibios_sdlog_status != SDLOG_RUNNING) {
 #ifdef SDLOG_PREFLIGHT_ERROR
-    preflight_error(result, "SDLogger is not running [%d: %d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_error(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
 #else
-    preflight_warning(result, "SDLogger is not running [%d: %d]", chibios_sdlog_status, sdLogGetStorageStatus());
+    preflight_warning(result, "SDLogger is not running [%d:%d]", chibios_sdlog_status, sdLogGetStorageStatus());
 #endif
   } else {
     preflight_success(result, "SDLogger running");

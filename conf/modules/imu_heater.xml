@@ -5,13 +5,16 @@
     <description>
       IMU Heater through a resistor or IO co-processor
     </description>
-    <define name="IMU_HEATER_TARGET_TEMP" value="55." description="Target temperature" unit="Celcius"/>
-    <define name="IMU_HEATER_P_GAIN" value="200." description="kP gain for the heater" unit="%/degC"/>
-    <define name="IMU_HEATER_I_GAIN" value="0.3" description="kI gain for the heater"/>
-    <define name="IMU_HEATER_GYRO_ID" value="ABI_BROADCAST" description="Gyro ABI id for the temperature measurement"/>
-    <define name="IMU_HEATER_ACCEL_ID" description="Accel ABI id for the temperature measurement"/>
-    <define name="IMU_HEATER_GPIO" description="Heater GPIO port for resistor activation"/>
-    <define name="IMU_HEATER_GPIO_PIN" description="Heater GPIO pin for resistor activation"/>
+    <section name="IMU_HEATER"  prefix="IMU_HEATER_">
+      <define name="TARGET_TEMP" value="55." description="Target temperature" unit="Celcius"/>
+      <define name="P_GAIN" value="200." description="kP gain for the heater" unit="%/degC"/>
+      <define name="I_GAIN" value="0.3" description="kI gain for the heater"/>
+      <define name="GYRO_ID" value="ABI_BROADCAST" description="Gyro ABI id for the temperature measurement"/>
+      <define name="ACCEL_ID" description="Accel ABI id for the temperature measurement"/>
+      <define name="GPIO" description="Heater GPIO port for resistor activation"/>
+      <define name="GPIO_PIN" description="Heater GPIO pin for resistor activation"/>
+      <define name="MAX_ERROR" value="0.15" description="Maximum error for the heater preflight check" unit="percentile"/>
+    </section>
     <define name="INTERMCU_IOMCU" description="Heater IOMCU communication enabled"/>
   </doc>
   <settings>

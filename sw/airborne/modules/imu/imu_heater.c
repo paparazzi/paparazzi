@@ -74,6 +74,32 @@ static void send_imu_heater(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
+#ifdef PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t imu_heater_pfc;
+
+/** Maximum error in percentile */
+#ifndef IMU_HEATER_MAX_ERROR
+#define IMU_HEATER_MAX_ERROR 0.15f
+#endif
+
+/** ABI id from either guro or accel */
+#if defined(IMU_HEATER_GYRO_ID)
+#define IMU_HEATER_ABI_ID IMU_HEATER_GYRO_ID
+#elif defined(IMU_HEATER_ACCEL_ID) 
+#define IMU_HEATER_ABI_ID IMU_HEATER_ACCEL_ID
+#endif
+
+static void imu_heater_preflight(struct preflight_result_t *result) {
+  if(imu_heater.meas_temp < ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp) || imu_heater.meas_temp > ((1.0f+IMU_HEATER_MAX_ERROR)*imu_heater.target_temp)) {
+    preflight_error(result, "IMU %d temperature outside limits %.2f < %.2f < %.2f", IMU_HEATER_ABI_ID, ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp), imu_heater.meas_temp, ((1.0f+IMU_HEATER_MAX_ERROR)*imu_heater.target_temp));
+  } else {
+    preflight_success(result, "IMU %d temperature ok", IMU_HEATER_ABI_ID);
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 #if defined(IMU_HEATER_GYRO_ID)
 static void imu_heater_gyro_raw_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct Int32Rates *data __attribute__((unused)), uint8_t samples __attribute__((unused)), float rate __attribute__((unused)), float temp) {
   if(isnan(temp))
@@ -121,6 +147,11 @@ void imu_heater_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_HEATER, send_imu_heater);
 #endif
+
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&imu_heater_pfc, imu_heater_preflight);
+#endif 
 }
 
 /**
