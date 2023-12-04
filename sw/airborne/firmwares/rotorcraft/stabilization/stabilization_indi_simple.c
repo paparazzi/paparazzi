@@ -44,10 +44,11 @@
 #if defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
 #warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
 #warning You now have to define the continuous time corner frequency in rad/s of the actuators.
-#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values."
 #else
 #if !defined(STABILIZATION_INDI_ACT_FREQ_P) && !defined(STABILIZATION_INDI_ACT_FREQ_Q) && !defined(STABILIZATION_INDI_ACT_FREQ_R)
 #warning You have to define the corner frequency of the first order actuator dynamics model in rad/s!
+#endif
 #endif
 
 // these parameters are used in the filtering of the angular acceleration

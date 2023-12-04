@@ -88,11 +88,13 @@ static void guidance_indi_filter_thrust(void);
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
+#ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_FREQ_P
 #error "You need to define GUIDANCE_INDI_THRUST_DYN_FREQ to be able to use indi vertical control"
 #else // assume that the same actuators are used for thrust as for roll (e.g. quadrotor)
 #define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ STABILIZATION_INDI_ACT_FREQ_P
 #endif
+#endif // GUIDANCE_INDI_THRUST_DYN_FREQ
 #endif //GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
 
 
