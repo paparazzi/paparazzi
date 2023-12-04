@@ -488,7 +488,7 @@ static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data
         
         // Temperature sensor register data TEMP_DATA is updated with new data at max(Accelerometer ODR, Gyroscope ODR)
         if(gyro_samplerate == faster_odr)
-          temp += data[13];
+          temp += (int8_t)data[13];
         
         i++;
       }
@@ -500,7 +500,7 @@ static void invensense3_parse_fifo_data(struct invensense3_t *inv, uint8_t *data
         accel[j].z =  (int16_t)((uint16_t)data[5] | data[6] << 8 );
 
         if(accel_samplerate == faster_odr)
-          temp += data[13];
+          temp += (int8_t)data[13];
 
         j++;
       }
@@ -919,27 +919,32 @@ static bool invensense3_config(struct invensense3_t *inv) {
         inv->config_idx++;
       break;
     case 12:
+      /* Disable AFSR, which changes noise sensitivity with angular rate, causing stuck gyro's for 2ms resulting in DC gyro bias */
+      if(invensense3_register_write(inv, INV3REG_INTF_CONFIG1, 0x51))
+        inv->config_idx++;
+      break;
+    case 13:
       /* FIFO Stop-on-Full mode (enable the FIFO) */
       if(invensense3_register_write(inv, INV3REG_FIFO_CONFIG , FIFO_CONFIG_MODE_STOP_ON_FULL << FIFO_CONFIG_MODE_SHIFT))
         inv->config_idx++;
       break;
-    case 13:
+    case 14:
       /* FIFO content: enable accel, gyro, temperature */
       if(invensense3_register_write(inv, INV3REG_FIFO_CONFIG1 , BIT_FIFO_CONFIG1_ACCEL_EN | 
                     BIT_FIFO_CONFIG1_GYRO_EN | BIT_FIFO_CONFIG1_TEMP_EN))
         inv->config_idx++;
       break;
-    case 14:
+    case 15:
       /* Set FIFO watermark to 1 (so that INT is triggered for each packet) */
       if(invensense3_register_write(inv, INV3REG_FIFO_CONFIG2, 20))
         inv->config_idx++;
       break;
-    case 15:
+    case 16:
       /* Set FIFO watermark to 1 (so that INT is triggered for each packet) */
       if(invensense3_register_write(inv, INV3REG_FIFO_CONFIG3, 0x00))
         inv->config_idx++;
       break;
-    case 16:
+    case 17:
       /* Enable interrupt pin/status */
         switch(inv->parser) {
           case INVENSENSE3_PARSER_REGISTERS:
@@ -954,13 +959,13 @@ static bool invensense3_config(struct invensense3_t *inv) {
             break;
           }
       break;
-    case 17:
+    case 18:
       /* Interrupt pins ASYNC_RESET configuration */
       // Datasheet: "User should change setting to 0 from default setting of 1, for proper INT1 and INT2 pin operation"
       if(invensense3_register_write(inv, INV3REG_INT_CONFIG1, BIT_INT_ASYNC_RESET))
         inv->config_idx++;
       break;
-    case 18:
+    case 19:
       /* FIFO flush */
       if(invensense3_reset_fifo(inv))
         inv->config_idx++;
