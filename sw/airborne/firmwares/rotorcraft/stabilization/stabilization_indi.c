@@ -170,11 +170,11 @@ float act_pref[INDI_NUM_ACT] = {0.0};
 #ifdef STABILIZATION_INDI_ACT_DYN
 #warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
 #warning You now have to define the continuous time corner frequency in rad/s of the actuators.
-#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values."
-float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
-float act_dyn_discrete[INDI_NUM_ACT];
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
+float act_dyn_discrete[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 #else
-float act_dyn_discrete[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
+float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
+float act_dyn_discrete[INDI_NUM_ACT]; // will be computed from freq at init
 #endif
 
 #ifdef STABILIZATION_INDI_WLS_PRIORITIES
@@ -351,7 +351,7 @@ void stabilization_indi_init(void)
 
   int8_t i;
 // If the deprecated STABILIZATION_INDI_ACT_DYN is used, convert it to the new FREQUENCY format
-#ifdef STABILIZATION_INDI_ACT_DYN
+#ifdef STABILIZATION_INDI_ACT_FREQ
   // Initialize the array of pointers to the rows of g1g2
   for (i = 0; i < INDI_NUM_ACT; i++) {
     act_dyn_discrete[i] = 1-exp(-act_first_order_cutoff[i]/PERIODIC_FREQUENCY);
