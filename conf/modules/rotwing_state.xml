@@ -18,6 +18,7 @@
   </header>
     <init fun="init_rotwing_state()"/>
     <periodic fun="periodic_rotwing_state()" freq="50"/>
+    <periodic fun="rotwing_state_skew_actuator_periodic()"/>
   <makefile>
     <file name="rotwing_state.c"/>
   </makefile>
