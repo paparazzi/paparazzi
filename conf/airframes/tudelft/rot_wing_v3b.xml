@@ -118,7 +118,7 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="wing_rotation_controller_servo"/>
+        <module name="wing_rotation_adc_sensor"/>
         <module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
@@ -188,7 +188,7 @@
     <!-- PWM actuators -->
     <servos driver="Pwm">
     <!--1018 = quad 2086 = fw-->
-        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1018" MAX="2086"/>
+        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
     </servos>
 
     <!-- Can bus 1 actuators -->
@@ -239,7 +239,7 @@
         <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[4])" SERVO="SERVO_RUDDER"/>
         <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
         <set VALUE="($th_hold? -9600 : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
-        <set VALUE="wing_rotation_controller.servo_pprz_cmd" SERVO="ROTATION_MECH"/>
+        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"  SERVO="ROTATION_MECH"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
@@ -253,7 +253,7 @@
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
-        <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6}"/>
+        <define name="DOUBLET_AXES" value="{0,1,2,3,4,5,6,7,8}"/>
         <define name="DOUBLET_RADIO_CHANNEL" value="6"/>
 
         <define name="AUTO_DOUBLETS_N_ACTUATORS" value="4"/>
@@ -308,6 +308,7 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"        value="TRUE"/>
         <define name="USE_AIRSPEED"                     value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.5"/>
+        <define name="ROTWING_STATE_PD_WING_ROTATION"   value="TRUE"/>
     </section>
 
     <section name="GROUND_DETECT">
@@ -415,14 +416,6 @@
         <define name="ROTWING_V3B"      value="1" />
     </section>
 
-    <section name="WING_ROTATION" prefix="WING_ROTATION_CONTROLLER_">
-        <define name="POSITION_ADC_0" value="62930"/>
-        <define name="POSITION_ADC_90" value="41760"/>
-        <define name="DEADZONE_PPRZ_CMD" value="500"/>
-        <define name="P_GAIN" value="-50000"/>
-        <define name="MAX_CMD" value="9600"/>
-    </section>
-
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
         <!-- Gains -->
         <define name="HOVER_KP"                 value="310"/>
@@ -449,7 +442,7 @@
 
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
         <!--WLS settings-->
-        <define name="USE_WLS"              value="FALSE|TRUE"/>
+        <define name="USE_WLS"              value="TRUE"/>
         <define name="WLS_PRIORITIES"       value="{10., 10., 10.}"/>
         <define name="WLS_WU"               value="{10., 10., 100., 1.}"/>
 
