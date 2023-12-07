@@ -170,7 +170,7 @@ float act_pref[INDI_NUM_ACT] = {0.0};
 #ifdef STABILIZATION_INDI_ACT_DYN
 #warning STABILIZATION_INDI_ACT_DYN is deprecated, use STABILIZATION_INDI_ACT_FREQ instead.
 #warning You now have to define the continuous time corner frequency in rad/s of the actuators.
-#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values.
+#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old values."
 float act_dyn_discrete[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 #else
 float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
