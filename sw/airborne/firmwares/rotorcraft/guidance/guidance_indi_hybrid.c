@@ -293,10 +293,12 @@ void guidance_indi_init(void)
   /*AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);*/
   AbiBindMsgVEL_SP(GUIDANCE_INDI_VEL_SP_ID, &vel_sp_ev, vel_sp_cb);
 
+#ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 #ifdef GUIDANCE_INDI_THRUST_DYNAMICS
   thrust_dyn = GUIDANCE_INDI_THRUST_DYNAMICS;
 #else
   thrust_dyn = 1-exp(-GUIDANCE_INDI_THRUST_DYNAMICS_FREQ/PERIODIC_FREQUENCY);
+#endif
 #endif
 
   float tau = 1.0/(2.0*M_PI*filter_cutoff);
