@@ -350,7 +350,8 @@ void stabilization_indi_init(void)
   init_filters();
 
   int8_t i;
-#ifdef STABILIZATION_INDI_ACT_FREQ
+// If the deprecated STABILIZATION_INDI_ACT_DYN is used, convert it to the new FREQUENCY format
+#ifdef STABILIZATION_INDI_ACT_DYN
   // Initialize the array of pointers to the rows of g1g2
   for (i = 0; i < INDI_NUM_ACT; i++) {
     act_dyn_discrete[i] = 1-exp(-act_first_order_cutoff[i]/PERIODIC_FREQUENCY);
