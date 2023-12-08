@@ -26,15 +26,7 @@
 #ifndef AIRSPEED_UAVCAN_H
 #define AIRSPEED_UAVCAN_H
 
-/* External variables */
-extern struct airspeed_uavcan_s {
-  float diff_p;
-  float temperature;
-} airspeed_uavcan;
-
 /* External functions */
 extern void airspeed_uavcan_init(void);
-
-
 
 #endif /* AIRSPEED_UAVCAN_H */
