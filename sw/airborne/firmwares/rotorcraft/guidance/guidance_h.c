@@ -485,7 +485,6 @@ void guidance_h_from_nav(bool in_flight)
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
-        // // TODO set_accel ref
         guidance_h_set_acc(nav.accel.y, nav.accel.x); // nav acc is in ENU frame, convert to NED
         guidance_h_update_reference();
         guidance_h_set_heading(nav.heading);
