@@ -44,6 +44,17 @@
 #define GVF_MODE_WAYPOINT NAV_MODE_WAYPOINT
 #define GVF_MODE_CIRCLE NAV_MODE_CIRCLE
 
+#elif defined(ROTORCRAFT_FIRMWARE)
+#include "firmwares/rotorcraft/navigation.h"
+#define gvf_setNavMode(_navMode) (nav.horizontal_mode = _navMode)
+#define GVF_MODE_ROUTE NAV_HORIZONTAL_MODE_ROUTE
+#define GVF_MODE_WAYPOINT NAV_HORIZONTAL_MODE_WAYPOINT
+#define GVF_MODE_CIRCLE NAV_HORIZONTAL_MODE_CIRCLE
+
+//NAV_SETPOINT_MODE_POS
+//NAV_SETPOINT_MODE_SPEED
+//NAV_SETPOINT_MODE_ACCEL
+
 #else
 #error "GVF does not support your firmware yet!"
 #endif

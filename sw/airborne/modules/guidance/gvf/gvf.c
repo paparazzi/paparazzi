@@ -23,13 +23,14 @@
 #include <math.h>
 #include "std.h"
 
-#include "modules/guidance/gvf/gvf.h"
-#include "modules/guidance/gvf/gvf_low_level_control.h"
-#include "modules/guidance/gvf/trajectories/gvf_ellipse.h"
-#include "modules/guidance/gvf/trajectories/gvf_line.h"
-#include "modules/guidance/gvf/trajectories/gvf_sin.h"
+#include "gvf.h"
+#include "gvf_low_level_control.h"
+#include "trajectories/gvf_ellipse.h"
+#include "trajectories/gvf_line.h"
+#include "trajectories/gvf_sin.h"
 #include "autopilot.h"
 #include "../gvf_common.h"
+
 
 // Control
 gvf_con gvf_control;
@@ -155,10 +156,6 @@ void gvf_control_2D(float ke, float kn, float e,
   float pdx_dot = tx - ke * e * nx;
   float pdy_dot = ty - ke * e * ny;
 
-  float norm_pd_dot = sqrtf(pdx_dot * pdx_dot + pdy_dot * pdy_dot);
-  float md_x = pdx_dot / norm_pd_dot;
-  float md_y = pdy_dot / norm_pd_dot;
-
   float Apd_dot_dot_x = -ke * (nx * px_dot + ny * py_dot) * nx;
   float Apd_dot_dot_y = -ke * (nx * px_dot + ny * py_dot) * ny;
 
@@ -169,6 +166,10 @@ void gvf_control_2D(float ke, float kn, float e,
 
   float pd_dot_dot_x = Apd_dot_dot_x + Bpd_dot_dot_x;
   float pd_dot_dot_y = Apd_dot_dot_y + Bpd_dot_dot_y;
+
+  float norm_pd_dot = sqrtf(pdx_dot * pdx_dot + pdy_dot * pdy_dot);
+  float md_x = pdx_dot / norm_pd_dot;
+  float md_y = pdy_dot / norm_pd_dot;
 
   float md_dot_const = -(md_x * pd_dot_dot_y - md_y * pd_dot_dot_x)
                        / norm_pd_dot;
@@ -184,12 +185,34 @@ void gvf_control_2D(float ke, float kn, float e,
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
   
   gvf_control.omega = omega;
+
+
+  #ifdef ROTORCRAFT_FIRMWARE
+
+  // Speed normalization
+  pdx_dot *= (kn/norm_pd_dot);
+  pdy_dot *= (kn/norm_pd_dot);
+
+  // Set nav for command
+
+  nav.speed.x = pdx_dot;
+  nav.speed.y = pdy_dot;
+
+  nav.accel.x = pd_dot_dot_x * kn;
+  nav.accel.y = pd_dot_dot_y * kn;
+
+  nav.heading = atan2f(pdx_dot,pdy_dot);
+
+  // I don't know how gvf_common works ... so I use nav directly
+  #else
   
   // From gvf_common.h TODO: derivative of curvature and ori_err
   gvf_c_omega.omega  = omega; 
   gvf_c_info.kappa   = (nx*(H12*ny - nx*H22) + ny*(H21*nx - H11*ny))/powf(nx*nx + ny*ny,1.5);
   gvf_c_info.ori_err = 1 - (md_x*cosf(course) + md_y*sinf(course));
   gvf_low_level_control_2D(omega);
+
+  #endif
 }
 
 void gvf_set_direction(int8_t s)
