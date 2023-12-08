@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="range_sensor_uavcan" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Range sensor over the uavcan protocol which publishes over ABI as AGL
+    </description>
+  </doc>
+  <dep>
+    <depends>uavcan</depends>
+    <provides>sonar</provides>
+  </dep>
+  <header>
+    <file name="range_sensor_uavcan.h"/>
+  </header>
+  <init fun="range_sensor_uavcan_init()"/>
+  <makefile target="ap">
+    <file name="range_sensor_uavcan.c"/>
+  </makefile>
+</module>

@@ -59,7 +59,7 @@ struct airspeed_uavcan_t {
 };
 
 /* Local variables */
-static struct airspeed_uavcan_t airspeed_uavcan;
+static struct airspeed_uavcan_t airspeed_uavcan = {0};
 static uavcan_event airspeed_uavcan_ev;
 
 #if PERIODIC_TELEMETRY
