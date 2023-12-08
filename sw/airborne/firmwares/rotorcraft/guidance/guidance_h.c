@@ -349,6 +349,7 @@ static void guidance_h_update_reference(void)
   } else {
     gh_update_ref_from_pos_sp(guidance_h.sp.pos);
   }
+  // TODO: Case when guidance is done through acceleration
 #endif
 
   /* either use the reference or simply copy the pos setpoint */
@@ -360,18 +361,34 @@ static void guidance_h_update_reference(void)
     guidance_h.ref.accel.x = ACCEL_BFP_OF_REAL(gh_ref.accel.x);
     guidance_h.ref.accel.y = ACCEL_BFP_OF_REAL(gh_ref.accel.y);
   } else {
-    if (nav.setpoint_mode == NAV_SETPOINT_MODE_POS) {
-      VECT2_COPY(guidance_h.ref.pos, guidance_h.sp.pos);
-      INT_VECT2_ZERO(guidance_h.ref.speed);
-      INT_VECT2_ZERO(guidance_h.ref.accel);
-    } else { //(nav.setpoint_mode == NAV_SETPOINT_MODE_SPEED)
+    switch (nav.setpoint_mode)
+    {
+    
+    case NAV_SETPOINT_MODE_SPEED:
       guidance_h.ref.pos.x = stateGetPositionNed_i()->x;
       guidance_h.ref.pos.y = stateGetPositionNed_i()->y;
       guidance_h.ref.speed.x = guidance_h.sp.speed.x;
       guidance_h.ref.speed.y = guidance_h.sp.speed.y;
       guidance_h.ref.accel.x = 0;
       guidance_h.ref.accel.y = 0;
-    } // TODO: make accel ref set
+      break;
+
+    case NAV_SETPOINT_MODE_ACCEL:
+      guidance_h.ref.pos.x = stateGetPositionNed_i()->x;
+      guidance_h.ref.pos.y = stateGetPositionNed_i()->y;
+      guidance_h.ref.speed.x = stateGetSpeedNed_i()->x;
+      guidance_h.ref.speed.y = stateGetSpeedNed_i()->y;
+      guidance_h.ref.accel.x = guidance_h.sp.accel.x;
+      guidance_h.ref.accel.y = guidance_h.sp.accel.y;
+      break;
+
+    case NAV_SETPOINT_MODE_POS:
+    default: // Fallback is guidance by pos
+      VECT2_COPY(guidance_h.ref.pos, guidance_h.sp.pos);
+      INT_VECT2_ZERO(guidance_h.ref.speed);
+      INT_VECT2_ZERO(guidance_h.ref.accel);
+      break;
+    }
   }
 
 #if GUIDANCE_H_USE_SPEED_REF
@@ -468,7 +485,8 @@ void guidance_h_from_nav(bool in_flight)
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
-        // TODO set_accel ref
+        guidance_h_set_acc(nav.accel.y, nav.accel.x); // nav acc is in ENU frame, convert to NED
+        guidance_h_update_reference();
         guidance_h_set_heading(nav.heading);
         guidance_h_cmd = guidance_h_run_accel(in_flight, &guidance_h);
         break;
@@ -576,9 +594,23 @@ void guidance_h_set_vel(float vx, float vy)
   guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
 }
 
+void guidance_h_set_body_acc(float ax, float ay)
+{
+  float psi = stateGetNedToBodyEulers_f()->psi;
+  float newax =  cosf(-psi) * ax + sinf(-psi) * ay;
+  float neway = -sinf(-psi) * ax + cosf(-psi) * ay;
+  guidance_h_set_acc(newax, neway);
+}
+
+void guidance_h_set_acc(float ax, float ay)
+{
+  SetBit(guidance_h.sp.mask, 4);
+  guidance_h.sp.accel.x = ACCEL_BFP_OF_REAL(ax);
+  guidance_h.sp.accel.y = ACCEL_BFP_OF_REAL(ay);
+}
+
 void guidance_h_set_heading_rate(float rate)
 {
   SetBit(guidance_h.sp.mask, 7);
   guidance_h.sp.heading_rate = rate;
 }
-
