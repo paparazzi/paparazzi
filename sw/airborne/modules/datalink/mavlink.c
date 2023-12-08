@@ -57,6 +57,11 @@
 #include "modules/radio_control/radio_control.h"
 #endif
 
+// Change the autopilot identification code: by default identify as PPZ autopilot: alternatively as MAV_AUTOPILOT_ARDUPILOTMEGA
+#ifndef MAV_AUTOPILOT_ID
+#define MAV_AUTOPILOT_ID MAV_AUTOPILOT_PPZ
+#endif
+
 #include "modules/datalink/missionlib/mission_manager.h"
 
 // for UINT16_MAX
@@ -500,7 +505,7 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
   }
   mavlink_msg_heartbeat_send(MAVLINK_COMM_0,
                              mav_type,
-                             MAV_AUTOPILOT_PPZ,
+                             MAV_AUTOPILOT_ID,
                              mav_mode,
                              0, // custom_mode
                              mav_state);
