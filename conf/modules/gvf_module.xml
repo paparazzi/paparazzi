@@ -83,6 +83,14 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
      <file name="trajectories/gvf_ellipse.c"/>
      <file name="nav/nav_survey_polygon_gvf.c"/>
    </makefile>
+   
+   <makefile firmware="rotorcraft">
+     <file name="gvf.c"/>
+     <file name="gvf_low_level_control.c"/>
+     <file name="trajectories/gvf_line.c"/>
+     <file name="trajectories/gvf_sin.c"/>
+     <file name="trajectories/gvf_ellipse.c"/>
+   </makefile>
 
    <makefile firmware="rover">
      <file name="gvf.c"/>
@@ -94,4 +102,3 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
    </makefile>
 
 </module>
-
