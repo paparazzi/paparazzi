@@ -19,14 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/airspeed_uavcan.h
- * Airspeed sensor on the uavcan bus
+/** @file modules/sensors/range_sensor_uavcan.h
+ * Range sensor sensor on the uavcan bus
  */
 
-#ifndef AIRSPEED_UAVCAN_H
-#define AIRSPEED_UAVCAN_H
+#ifndef RANGE_SENSOR_UAVCAN_H
+#define RANGE_SENSOR_UAVCAN_H
 
 /* External functions */
-extern void airspeed_uavcan_init(void);
+extern void range_sensor_uavcan_init(void);
 
-#endif /* AIRSPEED_UAVCAN_H */
+#endif /* RANGE_SENSOR_UAVCAN_H */
