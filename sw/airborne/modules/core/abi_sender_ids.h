@@ -197,6 +197,10 @@
 #define AGL_LIDAR_MATEKSYS_3901_L0X_ID 15
 #endif
 
+#ifndef AGL_UAVCAN_ID
+#define AGL_UAVCAN_ID 16
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */

@@ -24,10 +24,8 @@
         <configure name="SBUS_PORT" value="UART3"/>
       </module>
 
-      <module name="airspeed" type="ms45xx_i2c">
-        <define name="USE_I2C2"/>
-        <define name="MS45XX_I2C_DEV" value="i2c2"/>
-      </module>
+      <module name="airspeed" type="uavcan"/>
+      <module name="range_sensor" type="uavcan"/>
 
       <module name="scheduling_indi_simple"/>
 
