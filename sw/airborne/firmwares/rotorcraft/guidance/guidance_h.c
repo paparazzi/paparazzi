@@ -341,7 +341,14 @@ static void guidance_h_update_reference(void)
 {
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
-  if (bit_is_set(guidance_h.sp.mask, 5)) {
+  if (bit_is_set(guidance_h.sp.mask, 4))
+  {
+    struct FloatVect2 sp_accel;
+    sp_accel.x = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.x);
+    sp_accel.y = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.y);
+    gh_update_ref_from_accel_sp(sp_accel);
+  }
+  else if (bit_is_set(guidance_h.sp.mask, 5)) {
     struct FloatVect2 sp_speed;
     sp_speed.x = SPEED_FLOAT_OF_BFP(guidance_h.sp.speed.x);
     sp_speed.y = SPEED_FLOAT_OF_BFP(guidance_h.sp.speed.y);
@@ -349,7 +356,6 @@ static void guidance_h_update_reference(void)
   } else {
     gh_update_ref_from_pos_sp(guidance_h.sp.pos);
   }
-  // TODO: Case when guidance is done through acceleration
 #endif
 
   /* either use the reference or simply copy the pos setpoint */
@@ -484,7 +490,6 @@ void guidance_h_from_nav(bool in_flight)
         break;
 
       case NAV_SETPOINT_MODE_ACCEL:
-        // // TODO set_accel ref
         guidance_h_set_acc(nav.accel.y, nav.accel.x); // nav acc is in ENU frame, convert to NED
         guidance_h_update_reference();
         guidance_h_set_heading(nav.heading);
@@ -567,6 +572,7 @@ void guidance_h_guided_run(bool in_flight)
 
 void guidance_h_set_pos(float x, float y)
 {
+  ClearBit(guidance_h.sp.mask, 4);
   ClearBit(guidance_h.sp.mask, 5);
   guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
   guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
@@ -590,6 +596,7 @@ void guidance_h_set_body_vel(float vx, float vy)
 void guidance_h_set_vel(float vx, float vy)
 {
   SetBit(guidance_h.sp.mask, 5);
+  ClearBit(guidance_h.sp.mask, 4);
   guidance_h.sp.speed.x = SPEED_BFP_OF_REAL(vx);
   guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
 }
@@ -605,6 +612,8 @@ void guidance_h_set_body_acc(float ax, float ay)
 void guidance_h_set_acc(float ax, float ay)
 {
   SetBit(guidance_h.sp.mask, 4);
+  ClearBit(guidance_h.sp.mask, 5);
+
   guidance_h.sp.accel.x = ACCEL_BFP_OF_REAL(ax);
   guidance_h.sp.accel.y = ACCEL_BFP_OF_REAL(ay);
 }
