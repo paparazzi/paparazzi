@@ -26,14 +26,15 @@
 #include "airspeed_uavcan.h"
 #include "uavcan/uavcan.h"
 #include "core/abi.h"
-#include "filters/low_pass_filter.h"
 
-#include "pprzlink/messages.h"
-#include "modules/datalink/downlink.h"
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
+/* Enable ABI sending */
+#ifndef AIRSPEED_UAVCAN_SEND_ABI
+#define AIRSPEED_UAVCAN_SEND_ABI true
 #endif
+
+/* Airspeed lowpass filter*/
+#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
+#include "filters/low_pass_filter.h"
 
 #ifndef AIRSPEED_UAVCAN_LOWPASS_TAU
 #define AIRSPEED_UAVCAN_LOWPASS_TAU 0.15
@@ -43,21 +44,26 @@
 #define AIRSPEED_UAVCAN_LOWPASS_PERIOD 0.1
 #endif
 
-#ifndef AIRSPEED_UAVCAN_SEND_ABI
-#define AIRSPEED_UAVCAN_SEND_ABI 1
-#endif
-
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
 static Butterworth2LowPass airspeed_filter;
-#endif
-static uavcan_event airspeed_uavcan_ev;
+#endif  /* USE_AIRSPEED_UAVCAN_LOWPASS_FILTER */
 
 /* uavcan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID            1027
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE     (0xC77DF38BA122F5DAULL)
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_MAX_SIZE      ((397 + 7)/8)
 
-struct airspeed_uavcan_s airspeed_uavcan;
+/* Local structure */
+struct airspeed_uavcan_t {
+  float diff_p;       ///< Differential pressure
+  float temperature;  ///< Temperature in Celsius
+};
+
+/* Local variables */
+static struct airspeed_uavcan_t airspeed_uavcan = {0};
+static uavcan_event airspeed_uavcan_ev;
+
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
 
 static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_device *dev)
 {
@@ -77,6 +83,7 @@ static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_dev
                                 &airspeed_uavcan.temperature,
                                 &airspeed);
 }
+#endif /* PERIODIC_TELEMETRY */
 
 static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
   uint16_t tmp_float = 0;
@@ -118,18 +125,15 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
 
 void airspeed_uavcan_init(void)
 {
-  // Setup low pass filter with time constant and 100Hz sampling freq
+  // Setup the low pass filter
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
   init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
 #endif
 
-  airspeed_uavcan.diff_p = 0;
-  airspeed_uavcan.temperature = 0;
-
   // Bind uavcan RAWAIRDATA message from EQUIPMENT.AIR_DATA
   uavcan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_uavcan_ev, &airspeed_uavcan_cb);
 
-  #if PERIODIC_TELEMETRY
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_uavcan_downlink);
-  #endif
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_uavcan_downlink);
+#endif
 }
