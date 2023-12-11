@@ -48,6 +48,16 @@
 #define STM32H743xx
 #define STM32H753xx
 
+
+/*
+ * PWM TIM defines
+ * enable TIM1 by default
+ */
+#ifndef USE_PWM_TIM1
+#define USE_PWM_TIM1 1
+#endif
+
+
 /*
  * IO pins assignments.
  */
