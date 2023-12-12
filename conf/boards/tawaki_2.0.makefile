@@ -1,15 +1,16 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# matek_h743_slim.makefile
+# tawaki_common.makefile
 #
-# This is for the Flight Controller Matek H743 SLIM
-# See http://www.mateksys.com/?portfolio=h743-slim for details
+# based on STM32H7
+# only compatible with ChibiOS
 #
 
-BOARD=mateksys
-BOARD_VERSION=FC-H743-SLIM
-BOARD_DIR=$(BOARD)/$(BOARD_VERSION)
-BOARD_CFG=\"arch/chibios/common_board.h\"
+BOARD=tawaki
+BOARD_VERSION=2.0
+
+BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
+BOARD_CFG=\"boards/$(BOARD_DIR)/$(BOARD)_v$(BOARD_VERSION).h\"
 
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)
@@ -17,13 +18,13 @@ $(TARGET).ARCHDIR = $(ARCH)
 RTOS=chibios
 MCU=cortex-m7
 
-# FPU on H7
-USE_FPU=hard
+## FPU on F7
+USE_FPU=softfp
 USE_FPU_OPT= -mfpu=fpv5-d16
 
 USE_LTO ?= yes
 
-$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD
+$(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD -DDSHOT_CHANNEL_FIRST_INDEX=1U
 
 ##############################################################################
 # Architecture or project specific options
@@ -31,45 +32,62 @@ $(TARGET).CFLAGS += -DPPRZLINK_ENABLE_FD
 # Define project name here (target)
 PROJECT = $(TARGET)
 
+CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
+
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32H7xx/platform.mk
-CHIBIOS_LINKER_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
 CHIBIOS_BOARD_LINKER = STM32H743xI_nobl_nc.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32h7xx.mk
+
+# ITCM flash is a special flash that allow faster operations
+# At the moment it is not possible to flash the code in this mode using dfu-util
+# but it should work with the BlackMagicProbe or STLINK
+# By default, normal flash is used
+ifeq ($(USE_ITCM),1)
+$(TARGET).CFLAGS += -DUSE_ITCM=1
+DFU_ADDR = 0x00200000
+else
+$(TARGET).CFLAGS += -DUSE_ITCM=0
+DFU_ADDR = 0x08000000
+endif
 
 ##############################################################################
 # Compiler settings
 #
 
-# default flash mode is the DFU
-# possibilities: DFU-UTIL, SWD, PX4 bootloader
+# default flash mode is via usb dfu bootloader
+# possibilities: DFU-UTIL, SWD, STLINK
 FLASH_MODE ?= DFU-UTIL
-DFU_ADDR = 0x08000000
-PX4_TARGET = "ap"
-PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/matek_h743_slim.prototype"
-PX4_BL_PORT ?= "/dev/serial/by-id/usb-*_MatekH743_*"
+
+HAS_LUFTBOOT = FALSE
 
 #
 # default LED configuration
 #
-SDLOG_LED          ?= none
-RADIO_CONTROL_LED  ?= none
+RADIO_CONTROL_LED  ?= 4
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 2
-GPS_LED            ?= none
+GPS_LED            ?= 3
 SYS_TIME_LED       ?= 1
 
 #
 # default UART configuration (modem, gps, spektrum)
 #
-SBUS_PORT ?= UART6
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART6
 
-MODEM_PORT ?= UART7
+MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
-GPS_PORT ?= UART2
+GPS_PORT ?= UART7
 GPS_BAUD ?= B57600
+
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART6
+RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT ?= UART8
+
+# single mode
+SBUS_PORT ?= UART8
+# dual mode
+SBUS1_PORT ?= UART8
+SBUS2_PORT ?= UART6
 
 #
 # default actuator configuration

@@ -35,6 +35,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include <ch.h>
+#include <hal.h>
 
 #if (defined STM32H7XX) && !(defined STM32_SYSCLK)
 #define STM32_SYSCLK  STM32_SYS_CK

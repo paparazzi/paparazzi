@@ -345,8 +345,14 @@ void i2c3_hw_init(void)
 
 #if USE_I2C4
 PRINT_CONFIG_VAR(I2C4_CLOCK_SPEED)
+
+#if defined(STM32H7XX)
+// Local variables (in DMA safe memory)
+static IN_BDMA_SECTION(struct i2c_init i2c4_init_s) = {
+#else
 // Local variables (in DMA safe memory)
 static IN_DMA_SECTION(struct i2c_init i2c4_init_s) = {
+#endif
   .name = "i2c4",
   .sem = __SEMAPHORE_DATA(i2c4_init_s.sem, 0),
   .cfg = I2C4_CFG_DEF,
