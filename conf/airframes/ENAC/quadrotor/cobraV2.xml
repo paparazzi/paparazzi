@@ -34,7 +34,7 @@
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
 
-    <module name="board" type="tawakiV2">
+    <module name="board" type="tawaki_2.0">
     </module>
 
     <!-- <module name="gps" type="ublox">

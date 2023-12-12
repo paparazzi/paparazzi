@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="board_tawakiV2" dir="boards">
+<module name="board_tawaki_2.0" dir="boards">
   <doc>
     <description>
       Autoload several onboard sensors for the Tawaki board with proper configuration
