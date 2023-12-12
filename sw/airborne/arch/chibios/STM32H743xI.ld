@@ -35,11 +35,12 @@ MEMORY
     flash5 (rx) : org = 0x00000000, len = 0
     flash6 (rx) : org = 0x00000000, len = 0
     flash7 (rx) : org = 0x00000000, len = 0
-    ram0   (wx) : org = 0x24000000, len = 64k       /* AXI SRAM no-cache*/
-    ram1   (wx) : org = 0x24010000, len = 448k      /* AXI SRAM cached */
+    ram0nc  (wx) : org = 0x24000000, len = 128k       /* AXI SRAM NON CACHED */
+    ram0    (wx) : org = 0x24020000, len = 384k      /* AXI SRAM */
+    ram1   (wx) : org = 0x30000000, len = 256k      /* AHB SRAM1+SRAM2 */
     ram2   (wx) : org = 0x30000000, len = 288k      /* AHB SRAM1+SRAM2+SRAM3 */
-    ram3   (wx) : org = 0x30040000, len = 32k       /* AHB SRAM3 */
-    ram4   (wx) : org = 0x38000000, len = 64k       /* AHB SRAM4 */
+    ram3   (wx) : org = 0x30040000, len = 32k       /* AHB SRAM3 NON CACHED*/
+    ram4   (wx) : org = 0x38000000, len = 64k       /* AHB SRAM4 NON CACHED*/
     ram5   (wx) : org = 0x20000000, len = 128k      /* DTCM-RAM */
     ram6   (wx) : org = 0x00000000, len = 64k       /* ITCM-RAM */
     ram7   (wx) : org = 0x38800000, len = 4k        /* BCKP SRAM */
@@ -80,14 +81,14 @@ REGION_ALIAS("MAIN_STACK_RAM", ram5);
 REGION_ALIAS("PROCESS_STACK_RAM", ram5);
 
 /* RAM region to be used for data segment.*/
-REGION_ALIAS("DATA_RAM", ram1);
+REGION_ALIAS("DATA_RAM", ram0);
 REGION_ALIAS("DATA_RAM_LMA", flash0);
 
 /* RAM region to be used for BSS segment.*/
-REGION_ALIAS("BSS_RAM", ram1);
+REGION_ALIAS("BSS_RAM", ram0);
 
 /* RAM region to be used for the default heap.*/
-REGION_ALIAS("HEAP_RAM", ram1);
+REGION_ALIAS("HEAP_RAM", ram0);
 
 /* Stack rules inclusion.*/
 INCLUDE rules_stacks.ld
@@ -97,8 +98,15 @@ INCLUDE rules_stacks.ld
 /* SRAM3 is assumed to be marked non-cacheable using MPU.                    */
 /*===========================================================================*/
 
-/* RAM region to be used for nocache segment.*/
-REGION_ALIAS("NOCACHE_RAM", ram0);
+/* RAM region to be used for ram0nc (SDMMC1) nocache segment.*/
+/* named nocache because SDIO driver is hardwired to declare buffer nocache */
+REGION_ALIAS("NOCACHE_RAM", ram0nc);
+
+/* RAM region to be used for ram3 nocache segment.*/
+REGION_ALIAS("NOCACHE3_RAM", ram3);
+
+/* RAM region to be used for ram4 (BDMA) nocache segment.*/
+REGION_ALIAS("NOCACHE4_RAM", ram4);
 
 /* RAM region to be used for eth segment.*/
 REGION_ALIAS("ETH_RAM", ram3);
@@ -114,7 +122,29 @@ SECTIONS
         *(.bss.__nocache_*)
         . = ALIGN(4);
         __nocache_end__ = .;
-    } > NOCACHE_RAM
+    	} > NOCACHE_RAM
+
+/* Special section for non cache-able areas.*/
+    .nocache3 (NOLOAD) : ALIGN(4)
+    {
+        __nocache3_base__ = .;
+        *(.nocache3)
+        *(.nocache3.*)
+        *(.bss.__nocache3_*)
+        . = ALIGN(4);
+        __nocache3_end__ = .;
+    } > NOCACHE3_RAM
+
+/* Special section for non cache4-able areas.*/
+    .nocache4 (NOLOAD) : ALIGN(4)
+    {
+        __nocache4_base__ = .;
+        *(.nocache4)
+        *(.nocache4.*)
+        *(.bss.__nocache4_*)
+        . = ALIGN(4);
+        __nocache4_end__ = .;
+    } > NOCACHE4_RAM
 
     /* Special section for Ethernet DMA non cache-able areas.*/
     .eth (NOLOAD) : ALIGN(4)
@@ -133,6 +163,37 @@ INCLUDE rules_code.ld
 
 /* Data rules inclusion.*/
 INCLUDE rules_data.ld
+
+/* Custom memory rules.*/
+
+__ram0nc_base__         = ORIGIN(ram0nc);
+__ram0nc_size__         = LENGTH(ram0nc);
+__ram0nc_end__          = __ram0nc_base__ + __ram0nc_size__;
+
+SECTIONS
+{
+     .ram0nc_init : ALIGN(4)
+    {
+        __ram0nc_init_text__ = LOADADDR(.ram0nc_init);
+        __ram0nc_init__ = .;
+        KEEP(*(.ram0nc_init))
+        KEEP(*(.ram0nc_init.*))
+        . = ALIGN(4);
+    } > ram0nc AT > RAM_INIT_FLASH_LMA
+
+    .ram0nc (NOLOAD) : ALIGN(4)
+    {
+        __ram0nc_clear__ = .;
+        *(.ram0nc_clear)
+        *(.ram0nc_clear.*)
+        . = ALIGN(4);
+        __ram0nc_noinit__ = .;
+        *(.ram0nc)
+        *(.ram0nc.*)
+        . = ALIGN(4);
+        __ram0nc_free__ = .;
+    } > ram0nc
+}
 
 /* Memory rules inclusion.*/
 INCLUDE rules_memory.ld

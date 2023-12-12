@@ -153,4 +153,15 @@
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_rotorcraft.xml modules/stabilization_int_quat.xml"
    gui_color="red"
   />
+  <aircraft
+   name="tawakiV2"
+   ac_id="11"
+   airframe="airframes/ENAC/quadrotor/TawakiV2.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="#55005500ff00"
+  />
 </conf>
