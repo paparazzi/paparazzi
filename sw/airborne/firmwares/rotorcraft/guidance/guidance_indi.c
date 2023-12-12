@@ -84,7 +84,7 @@ static void guidance_indi_filter_thrust(void);
 #warning GUIDANCE_INDI_THRUST_DYNAMICS is deprecated, use GUIDANCE_INDI_THRUST_DYNAMICS_FREQ instead.
 #warning "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
 #warning "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
-#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
+#warning "Use -ln(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
@@ -354,7 +354,7 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
 void guidance_indi_filter_thrust(void)
 {
   // Actuator dynamics
-  thrust_act = thrust_act + GUIDANCE_INDI_THRUST_DYNAMICS * (thrust_in - thrust_act);
+  thrust_act = thrust_act + thrust_dyn * (thrust_in - thrust_act);
 
   // same filter as for the acceleration
   update_butterworth_2_low_pass(&thrust_filt, thrust_act);
