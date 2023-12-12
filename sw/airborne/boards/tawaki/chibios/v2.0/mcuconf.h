@@ -50,12 +50,10 @@
 /*
  * Memory attributes settings.
  */
+// nocache regions are configured in mcu_arch.c because we need to configure 3 regions.
+// This ChibiOS configuration can only configure 1 nocache region.
 #define STM32_NOCACHE_ENABLE                FALSE
-#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
-#define STM32_NOCACHE_SRAM1_SRAM2           FALSE
-#define STM32_NOCACHE_SRAM3                 TRUE
-#define STM32_NOCACHE_RBAR                  0x24000000U
-#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
+
 
 /*
  * PWR system settings.
