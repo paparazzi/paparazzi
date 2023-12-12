@@ -108,7 +108,41 @@
 
   stm32f7 : regular sram  : 256ko, dma only possible if data cache are explicitely flushed, fast
             dtcm sram     : 64ko, dma, slow (no cache)
+ 
+   stm32h7 :    
+    ram0nc  (wx) : org = 0x24000000, len = 128k : non cached for DMA stuff
+    ram0    (wx) : org = 0x24000000, len = 384k : standard
+    ram1    (wx) : org = 0x30000000, len = 256k   
+    ram2    (wx) : org = 0x30000000, len = 288k : ram1+ram3  
+    ram3    (wx) : org = 0x30040000, len = 32k    
+    ram4    (wx) : org = 0x38000000, len = 64k    
+    ram5    (wx) : org = 0x20000000, len = 128k : DTCM : fast ram  
+    ram6    (wx) : org = 0x00000000, len = 64k    
+    ram7    (wx) : org = 0x38800000, len = 4k 
  */
+
+
+
+#ifdef STM32H7XX
+#define IN_SDMMC_DMA_SECTION(x) IN_SDMMC_SECTION(x)
+#define IN_SDMMC_DMA_SECTION_CLEAR(x) IN_SDMMC_SECTION_CLEAR(x)
+#define IN_SDMMC_DMA_SECTION_NOINIT(x) IN_SDMMC_SECTION_NOINIT(x)
+#else
+#define IN_SDMMC_DMA_SECTION(x) IN_DMA_SECTION(x)
+#define IN_SDMMC_DMA_SECTION_CLEAR(x) IN_DMA_SECTION_CLEAR(x)
+#define IN_SDMMC_DMA_SECTION_NOINIT(x) IN_DMA_SECTION_NOINIT(x)
+#endif
+/*
+  s*printf functions are supposed to be thread safe, but the ones provided by
+  newlib function are not.  One has to use _s*printf_r family that take a
+  struct _reent as first parameter.
+ */
+
+// #pragma GCC diagnostic push
+// #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+// static struct _reent reent =  _REENT_INIT(reent);
+// #pragma GCC diagnostic pop
+
 
 
 
@@ -139,7 +173,7 @@ struct FilePoolUnit {
   uint8_t writeByteSeek;
 };
 
-static  struct FilePoolUnit IN_DMA_SECTION(fileDes[SDLOG_NUM_FILES]) = {
+static  struct FilePoolUnit IN_SDMMC_DMA_SECTION(fileDes[SDLOG_NUM_FILES]) = {
   [0 ... SDLOG_NUM_FILES - 1] = {
     .fil = {{0}}, .inUse = false, .tagAtClose = false,
     .writeByteCache = NULL, .writeByteSeek = 0
@@ -167,7 +201,7 @@ struct  _SdLogBuffer {
 #endif //  SDLOG_NEED_QUEUE
 
 /* File system object */
-static IN_DMA_SECTION(FATFS fatfs);
+static IN_SDMMC_DMA_SECTION(FATFS fatfs);
 
 #ifdef SDLOG_NEED_QUEUE
 static size_t logMessageLen(const LogMessage *lm);
@@ -661,9 +695,9 @@ SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
 #define WA_LOG_BASE_SIZE 1024
 #if FF_USE_LFN == 2
 #if FF_FS_EXFAT
-static IN_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)+(19*32)));
+static IN_SDMMC_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)+(19*32)));
 #else
-static IN_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)));
+static IN_SDMMC_DMA_SECTION_NOINIT(THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((FF_MAX_LFN+1)*2)));
 #endif
 #else
 static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE);
@@ -924,7 +958,7 @@ static void thdSdLog(void *arg)
   } ;
 
   UINT bw;
-  static IN_DMA_SECTION_CLEAR(struct PerfBuffer perfBuffers[SDLOG_NUM_FILES]);
+  static IN_SDMMC_DMA_SECTION_CLEAR(struct PerfBuffer perfBuffers[SDLOG_NUM_FILES]);
   storageStatus = SDLOG_OK;
   chRegSetThreadName("thdSdLog");
   while (true) {

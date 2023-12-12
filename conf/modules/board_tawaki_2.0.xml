@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_tawaki_2.0" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors for the Tawaki board with proper configuration
+      - IMU (ICM42688)
+      - Baro (BMP390)
+      - Mag (LIS3MDL)
+      Normal front of the board is on USB connector side
+      Normal up of the board is on the Molex connector side
+    </description>
+  </doc>
+  <dep>
+    <depends>baro_bmp3,mag_lis3mdl,imu_icm42688</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_SPI_DEV" value="spi6" case="upper|lower"/>
+    <configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE5"/>
+    <configure name="BMP3_I2C_DEV" value="i2c4" case="upper|lower"/>
+    <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
+    <define name="TAWAKIV2_IMU_ROT" value=".body_to_sensor={{0,-16383,0,16383,0,0,0,0,16382}}"/>
+    <define name="TAWAKIV2_MAG_ROT" value=".body_to_sensor={{2,16382,0,-16382,2,0,0,0,16382}}"/>
+    <configure name="MAG_LIS3MDL_I2C_DEV" default="i2c4" case="upper|lower"/>
+    <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
+  </makefile>
+</module>
