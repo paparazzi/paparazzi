@@ -455,10 +455,12 @@ bool dma_lld_start(DMADriver *dmap)
 #endif
 
   // portable way (V1, V2) to retreive controler number
+#if STM32_DMA_SUPPORTS_DMAMUX == 0
 #if STM32_DMA_ADVANCED
   dmap->controller = 1 + (cfg->stream / STM32_DMA_STREAM_ID(2, 0));
 #else
   dmap->controller = 1 + (cfg->stream / STM32_DMA_STREAM_ID(2, 1));
+#endif
 #endif
 
   dmap->dmamode = STM32_DMA_CR_PL(cfg->dma_priority) |
@@ -470,7 +472,9 @@ bool dma_lld_start(DMADriver *dmap)
 #if STM32_DMA_SUPPORTS_CSELR
                   | STM32_DMA_CR_CHSEL(cfg->request)
 #elif STM32_DMA_ADVANCED
+#if STM32_DMA_SUPPORTS_DMAMUX == 0
                   | STM32_DMA_CR_CHSEL(cfg->channel)
+#endif
                   | (cfg->periph_inc_size_4 ? STM32_DMA_CR_PINCOS : 0UL) |
                   (cfg->transfert_end_ctrl_by_periph ? STM32_DMA_CR_PFCTRL : 0UL)
 #   endif
@@ -631,10 +635,12 @@ bool dma_lld_start(DMADriver *dmap)
     Only the DMA2 controller is able to perform memory-to-memory transfers.
   */
 
+#if STM32_DMA_SUPPORTS_DMAMUX == 0
   if (cfg->direction == DMA_DIR_M2M) {
     osalDbgAssert(dmap->controller == 2, "M2M not available on DMA1");
     osalDbgAssert(cfg->circular == false, "M2M not available in circular mode");
   }
+#endif
 
 
 #  endif
@@ -704,6 +710,9 @@ bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0
 #endif
   dmap->size = size;
   dmaStreamSetPeripheral(dmap->dmastream, periphp);
+#if STM32_DMA_SUPPORTS_DMAMUX
+  dmaSetRequestSource(dmap->dmastream, dmap->config->dmamux);
+#endif
   dmaStreamSetMemory0(dmap->dmastream, mem0p);
   dmaStreamSetTransactionSize(dmap->dmastream, size);
   dmaStreamSetMode(dmap->dmastream, dmap->dmamode);
