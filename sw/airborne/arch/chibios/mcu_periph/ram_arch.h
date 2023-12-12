@@ -66,7 +66,9 @@
 #elif defined(STM32H7XX)
 #define STD_SECTION   ".ram1"
 #define FAST_SECTION  ".ram5"
-#define DMA_SECTION   ".ram0"
+#define DMA_SECTION   ".ram0nc"
+#define BDMA_SECTION  ".ram4"
+#define SDMMC_SECTION DMA_SECTION 
 #define DMA_ALIGN     32
 #else
 #error "section defined only for STM32F1, STM32F3, STM32F4, STM32F7 and STM32H7"
@@ -83,6 +85,14 @@
 #define IN_DMA_SECTION_NOINIT(var) var __attribute__ ((section(DMA_SECTION), aligned(DMA_ALIGN)))
 #define IN_DMA_SECTION_CLEAR(var) var __attribute__ ((section(DMA_SECTION "_clear"), aligned(DMA_ALIGN)))
 #define IN_DMA_SECTION(var) var __attribute__ ((section(DMA_SECTION "_init"), aligned(DMA_ALIGN)))
+
+#define IN_BDMA_SECTION_NOINIT(var) var __attribute__ ((section(BDMA_SECTION), aligned(DMA_ALIGN)))
+#define IN_BDMA_SECTION_CLEAR(var) var __attribute__ ((section(BDMA_SECTION "_clear"), aligned(DMA_ALIGN)))
+#define IN_BDMA_SECTION(var) var __attribute__ ((section(BDMA_SECTION "_init"), aligned(DMA_ALIGN)))
+
+#define IN_SDMMC_SECTION_NOINIT(var) var __attribute__ ((section(SDMMC_SECTION), aligned(DMA_ALIGN)))
+#define IN_SDMMC_SECTION_CLEAR(var) var __attribute__ ((section(SDMMC_SECTION "_clear"), aligned(DMA_ALIGN)))
+#define IN_SDMMC_SECTION(var) var __attribute__ ((section(SDMMC_SECTION "_init"), aligned(DMA_ALIGN)))
 
 #endif
 
