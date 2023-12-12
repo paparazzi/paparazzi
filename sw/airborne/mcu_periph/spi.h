@@ -262,6 +262,18 @@ extern void spi4_arch_init(void);
 
 #endif // USE_SPI4
 
+#if USE_SPI6
+
+extern struct spi_periph spi6;
+extern void spi6_init(void);
+
+/** Architecture dependent SPI6 initialization.
+ * Must be implemented by underlying architecture
+ */
+extern void spi6_arch_init(void);
+
+#endif // USE_SPI6
+
 /** Initialize a spi peripheral.
  * @param p spi peripheral to be configured
  */
