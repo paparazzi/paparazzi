@@ -26,9 +26,9 @@
     </target>
 
     <module name="telemetry" type="xbee_api"/>
-    <!-- <module name="telemetry" type="transparent">
+    <!--module name="telemetry" type="transparent">
       <configure name="MODEM_PORT" value="usb_serial"/>
-    </module> -->
+    </module-->
 
     <module name="actuators" type="dshot"/>
     <module name="actuators" type="pwm"/>
@@ -37,24 +37,20 @@
     <module name="board" type="tawaki_2.0">
     </module>
 
-    <!-- <module name="gps" type="ublox">
+    <!--module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
       <define name="GPS_FIX_TIMEOUT" value="0.5"/>
-    </module> -->
-    <module name="gps" type="optitrack">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-    </module>
+    </module-->
+    <module name="gps" type="optitrack"/>
 
     <module name="stabilization" type="indi"/>
     <module name="guidance" type="indi"/>
 
-    
-    <!-- <module name="ins"/> -->
-    <module name="ins" type="gps_passthrough"/>
-    <module name="ahrs" type="int_cmpl_quat"/>
-    <module name="air_data"/>
+    <module name="ins" type="ekf2">
+      <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
+    </module>
+    <module name="preflight_checks"/>
 
     <!--module name="filter" type="1euro_imu">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
@@ -67,11 +63,11 @@
       <configure name="JEVOIS_UART" value="UART3"/>
     </module>
 
-    <!-- <module name="flight_recorder"/> -->
+    <module name="flight_recorder"/>
   </firmware>
 
   <servos driver="Pwm">
-    <servo name="SWITCH" no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="SWITCH" no="1" min="800" neutral="800" max="1500"/>
   </servos>
 
   <servos driver="DShot">
@@ -150,7 +146,7 @@
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2"        value="{80, -80, 80, -80.0 }"/>
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.02, 0.02, 0.02, 0.02}"/>
+    <define name="ACT_FREQ" value="{10.10, 10.10, 10.10, 10.10}"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
     <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
@@ -178,20 +174,20 @@
     <define name="NGAIN" value="0"/>
     <!-- feedforward -->
     <define name="AGAIN" value="0"/>
-    <define name="REF_MAX_SPEED" value="4."/>
+    <define name="REF_MAX_SPEED" value="0.5"/>
     <define name="REF_MAX_ACCEL" value="2."/>
   </section>
 
   <section name="GUIDANCE_INDI" prefix="GUIDANCE_INDI_">
     <define name="SPECIFIC_FORCE_GAIN" value="-500.0"/>
-    <define name="THRUST_DYNAMICS" value="0.05"/>
+    <define name="THRUST_DYNAMICS_FREQ" value="25.64"/>
     <define name="RC_DEBUG" value="FALSE"/>
     <define name="SPEED_GAINZ" value="2.5"/>
   </section>
 
   <section name="NAV">
-    <define name="ARRIVED_AT_WAYPOINT" value="2."/>
-    <define name="NAV_CLIMB_VSPEED" value="1.5"/>
+    <define name="ARRIVED_AT_WAYPOINT" value="0.25"/>
+    <define name="NAV_CLIMB_VSPEED" value="0.8"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.5"/>
     <define name="NAV_CARROT_DIST" value="18"/>
   </section>
@@ -205,6 +201,7 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+    <define name="FAILSAFE_FIXED_THROTTLE" value="0.4"/>
   </section>
 
   <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
@@ -224,3 +221,4 @@
   </section>
 
 </airframe>
+
