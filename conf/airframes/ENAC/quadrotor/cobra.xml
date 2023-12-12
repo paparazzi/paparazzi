@@ -55,8 +55,6 @@
     <module name="ins" type="ekf2">
       <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
     </module>
-    <!--module name="ahrs" type="int_cmpl_quat"/-->
-    <!--module name="air_data"/-->
     <module name="preflight_checks"/>
 
     <!--module name="filter" type="1euro_imu">
