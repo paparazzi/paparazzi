@@ -161,7 +161,11 @@ typedef struct  {
   /**
    * @brief : dma channel associated with pwm timer used to generate dshot output
    */
-  uint8_t dma_channel;
+#if STM32_DMA_SUPPORTS_DMAMUX
+  uint8_t	dmamux;
+#else
+  uint8_t	dma_channel;
+#endif
 
   /**
    * @brief PWM driver that feed up to 4 dshot lines
@@ -177,6 +181,13 @@ typedef struct  {
    * @brief dshot dma buffer, sgould be defined in a non Dcached region
    */
   DshotDmaBuffer *dma_buf;
+
+#if DSHOT_BIDIR
+ /**
+   * @brief : DshotRpmCapture configuration structure when DSHOT_BIDIR is enabled
+   */
+  DshotRpmCaptureConfig dma_capt_cfg;
+#endif
 
 #if __DCACHE_PRESENT
   /**
