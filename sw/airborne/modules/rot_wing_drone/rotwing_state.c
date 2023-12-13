@@ -26,6 +26,7 @@
 #include "modules/rot_wing_drone/rotwing_state.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+#include "modules/nav/nav_rotorcraft_hybrid.h"
 #include "firmwares/rotorcraft/autopilot_firmware.h"
 
 #include "modules/actuators/actuators.h"
@@ -84,6 +85,21 @@
 #define ROTWING_HOV_MOT_OFF_COUNTER 10
 #endif
 
+#ifndef ROTWING_STATE_PD_WING_ROTATION
+#define ROTWING_STATE_PD_WING_ROTATION FALSE
+#endif
+
+#if ROTWING_STATE_PD_WING_ROTATION
+#ifndef ROTWING_STATE_WING_ROTATION_P_GAIN
+#define ROTWING_STATE_WING_ROTATION_P_GAIN 0.001
+#endif
+#ifndef ROTWING_STATE_WING_ROTATION_D_GAIN
+#define ROTWING_STATE_WING_ROTATION_D_GAIN 0.003
+#endif
+float rotwing_state_skew_p_cmd = -MAX_PPRZ;
+float rotwing_state_skew_d_cmd = 0;
+#endif
+
 
 // Hover preferred pitch (deg)
 #ifndef ROTWING_STATE_HOVER_PREF_PITCH
@@ -114,13 +130,13 @@ struct RotwingState rotwing_state;
 struct RotWingStateSettings rotwing_state_settings;
 struct RotWingStateSkewing  rotwing_state_skewing;
 
-bool rotwing_state_force_quad = false;
-
 uint8_t rotwing_state_hover_counter = 0;
 uint8_t rotwing_state_skewing_counter = 0;
 uint8_t rotwing_state_fw_counter = 0;
 uint8_t rotwing_state_fw_idle_counter = 0;
 uint8_t rotwing_state_fw_m_off_counter = 0;
+
+float rotwing_state_max_hover_speed = 7;
 
 bool hover_motors_active = true;
 bool bool_disable_hover_motors = false;
@@ -145,14 +161,13 @@ inline void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_an
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t adc_dummy = 0;
-  int32_t cmd_dummy = 0;
   pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID, 
                                         &rotwing_state.current_state,
                                         &rotwing_state.desired_state,
                                         &rotwing_state_skewing.wing_angle_deg,
                                         &rotwing_state_skewing.wing_angle_deg_sp,
                                         &adc_dummy,
-                                        &cmd_dummy);
+                                        &rotwing_state_skewing.servo_pprz_cmd);
 }
 #endif // PERIODIC_TELEMETRY
 
@@ -167,6 +182,7 @@ void init_rotwing_state(void)
 
   rotwing_state_skewing.wing_angle_deg_sp     = 0;
   rotwing_state_skewing.wing_angle_deg        = 0;
+  rotwing_state_skewing.servo_pprz_cmd        = -MAX_PPRZ; 
   rotwing_state_skewing.airspeed_scheduling   = false;  
   rotwing_state_skewing.force_rotation_angle  = false;
 
@@ -209,6 +225,22 @@ void request_rotwing_state(uint8_t state)
     rotwing_state.desired_state = state;
   }
 }
+
+// Function to prefer configuration
+void rotwing_request_configuration(uint8_t configuration)
+{
+    switch (configuration) {
+      case ROTWING_CONFIGURATION_HOVER:
+        request_rotwing_state(ROTWING_STATE_HOVER);
+        break;
+      case ROTWING_CONFIGURATION_HYBRID:
+        request_rotwing_state(ROTWING_STATE_SKEWING);
+      break;
+      case ROTWING_CONFIGURATION_EFFICIENT:
+        request_rotwing_state(ROTWING_STATE_FW_HOV_MOT_OFF);
+      break;
+    }
+} 
 
 void rotwing_check_set_current_state(void)
 {
@@ -415,12 +447,19 @@ void rotwing_state_set_hover_settings(void)
   rotwing_state_settings.stall_protection     = false;
   rotwing_state_settings.max_v_climb          = 2.0;
   rotwing_state_settings.max_v_descend        = 1.0;
+  rotwing_state_settings.nav_max_speed        = rotwing_state_max_hover_speed; // Using setting
   rotwing_state_set_state_settings();
 }
 
 void rotwing_state_set_skewing_settings(void)
 {
-  rotwing_state_settings.wing_scheduler       = ROTWING_STATE_WING_SCHEDULING_SETTING;
+  // Wing may be skewed to quad when desired state is hover and skewing settings set by state machine
+  if (rotwing_state.desired_state == ROTWING_STATE_HOVER)
+  {
+    rotwing_state_settings.wing_scheduler     = ROTWING_STATE_WING_QUAD_SETTING;
+  } else {
+    rotwing_state_settings.wing_scheduler     = ROTWING_STATE_WING_SCHEDULING_SETTING;
+  }
   rotwing_state_settings.hover_motors_active  = true;
   rotwing_state_settings.hover_motors_disable = false;
   rotwing_state_settings.force_forward        = false;
@@ -428,6 +467,7 @@ void rotwing_state_set_skewing_settings(void)
   rotwing_state_settings.stall_protection     = false;
   rotwing_state_settings.max_v_climb          = 2.0;
   rotwing_state_settings.max_v_descend        = 1.0;
+  rotwing_state_settings.nav_max_speed        = 100; // Big as we use airspeed guidance
   rotwing_state_set_state_settings();
 }
 
@@ -441,6 +481,7 @@ void rotwing_state_set_fw_settings(void)
   rotwing_state_settings.stall_protection     = false;
   rotwing_state_settings.max_v_climb          = 4.0;
   rotwing_state_settings.max_v_descend        = 4.0;
+  rotwing_state_settings.nav_max_speed        = 100; // Big as we use airspeed guidance
   rotwing_state_set_state_settings();
 }
 
@@ -454,6 +495,7 @@ void rotwing_state_set_fw_hov_mot_idle_settings(void)
   rotwing_state_settings.stall_protection     = true;
   rotwing_state_settings.max_v_climb          = 4.0;
   rotwing_state_settings.max_v_descend        = 4.0;
+  rotwing_state_settings.nav_max_speed        = 100; // Big as we use airspeed guidance
   rotwing_state_set_state_settings();
 }
 
@@ -467,6 +509,7 @@ void rotwing_state_set_fw_hov_mot_off_settings(void)
   rotwing_state_settings.stall_protection     = true;
   rotwing_state_settings.max_v_climb          = 4.0;
   rotwing_state_settings.max_v_descend        = 4.0;
+  rotwing_state_settings.nav_max_speed        = 100; // Big as we use airspeed guidance
   rotwing_state_set_state_settings();
 }
 
@@ -497,6 +540,8 @@ void rotwing_state_set_state_settings(void)
 
   force_forward = rotwing_state_settings.force_forward;
 
+  nav_max_speed = rotwing_state_settings.nav_max_speed;
+
   // TO DO: pitch angle now hard coded scheduled by wing angle
 
   // Stall protection handled by hover_motors_active boolean
@@ -524,13 +569,56 @@ void rotwing_state_skewer(void)
     }
 }
 
+void rotwing_state_skew_actuator_periodic(void)
+{
+
+  // calc rotation percentage of setpoint (0 deg = -1, 45 deg = 0, 90 deg = 1)
+  float wing_rotation_percentage = (rotwing_state_skewing.wing_angle_deg_sp - 45.) / 45.;
+  Bound(wing_rotation_percentage, -1., 1.);
+
+  float servo_pprz_cmd = MAX_PPRZ * wing_rotation_percentage;
+  // Calulcate rotation_cmd
+  Bound(servo_pprz_cmd, -MAX_PPRZ, MAX_PPRZ);
+
+  #if ROTWING_STATE_PD_WING_ROTATION
+  // Rotate with second order filter
+  // Smooth accerelation and rate limited setpoint
+  
+  float error_cmd = servo_pprz_cmd - rotwing_state_skew_p_cmd;
+  float speed_sp  = ROTWING_STATE_WING_ROTATION_P_GAIN * error_cmd;
+  float speed_error = speed_sp - rotwing_state_skew_d_cmd;
+  rotwing_state_skew_d_cmd += ROTWING_STATE_WING_ROTATION_D_GAIN * speed_error;
+  rotwing_state_skew_p_cmd += rotwing_state_skew_d_cmd;
+  Bound(rotwing_state_skew_p_cmd, -MAX_PPRZ, MAX_PPRZ);
+  rotwing_state_skewing.servo_pprz_cmd = rotwing_state_skew_p_cmd;
+
+  #else
+  // Directly controlling the wing rotation
+  rotwing_state_skewing.servo_pprz_cmd = servo_pprz_cmd;
+  #endif
+
+  #if USE_NPS
+    actuators_pprz[INDI_NUM_ACT] = (rotwing_state_skewing.servo_pprz_cmd + MAX_PPRZ) / 2.; // Scale to simulation command
+    rotwing_state_skewing.wing_angle_deg = (float) rotwing_state_skewing.servo_pprz_cmd / MAX_PPRZ * 45. + 45.;
+
+    // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
+    struct act_feedback_t feedback;
+    feedback.idx =  SERVO_ROTATION_MECH_IDX;
+    feedback.position = 0.5 * M_PI - RadOfDeg(rotwing_state_skewing.wing_angle_deg);
+    feedback.set.position = true;
+
+    // Send ABI message
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+  #endif
+}
+
 static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id, struct act_feedback_t UNUSED * feedback_msg, uint8_t UNUSED num_act_message)
 {
   for (int i=0; i<num_act_message; i++) {
 
     for (int i=0; i<num_act_message; i++){
       // Check for wing rotation feedback
-      if ((feedback_msg[i].set.position) && (feedback_msg[i].idx == SERVO_ROTATION_MECH))
+      if ((feedback_msg[i].set.position) && (feedback_msg[i].idx == SERVO_ROTATION_MECH_IDX))
       {
         // Get wing rotation angle from sensor
         float wing_angle_rad = 0.5 * M_PI - feedback_msg[i].position;
@@ -542,9 +630,22 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
     }
 
     // Sanity check that index is valid
-    int idx = feedback_msg[i].idx - 1;
-    if ((feedback_msg[i].set.rpm) && (idx >= 0) && (idx < ROTWING_STATE_NUM_HOVER_RPM)){
-      rotwing_state_hover_rpm[idx] = feedback_msg->rpm;
+    int idx = feedback_msg[i].idx;
+    if (feedback_msg[i].set.rpm)
+    {
+      if (idx == SERVO_MOTOR_FRONT_IDX)
+      {
+        rotwing_state_hover_rpm[0] = feedback_msg->rpm;
+      } else if (idx == SERVO_MOTOR_RIGHT_IDX)
+      {
+        rotwing_state_hover_rpm[1] = feedback_msg->rpm;
+      } else if (idx == SERVO_MOTOR_BACK_IDX)
+      {
+        rotwing_state_hover_rpm[2] = feedback_msg->rpm;
+      } else if (idx == SERVO_MOTOR_LEFT_IDX)
+      {
+        rotwing_state_hover_rpm[3] = feedback_msg->rpm;
+      }
     }
   }
 }
