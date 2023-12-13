@@ -27,7 +27,7 @@
     <file name="eff_scheduling_rot_wing.c"/>
     <test>
       <define name="ACTUATORS_NB" value="10"/>
-      <define name="SERVO_ROTATION_MECH" value="8"/>
+      <define name="SERVO_ROTATION_MECH_IDX" value="8"/>
       <define name="SERVO_MOTOR_FRONT" value="0"/>
       <define name="SERVO_MOTOR_RIGHT" value="1"/>
       <define name="SERVO_MOTOR_BACK" value="2"/>
