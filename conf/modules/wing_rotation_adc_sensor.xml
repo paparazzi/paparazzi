@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="wing_rotation_adc_sensor" dir="rot_wing_drone">
+  <doc>
+    <description>Module to read wing skew angle from ADC</description>
+    <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" description="ADC channel connected to the wing rotation potentiometer"/>
+  </doc>
+  <header>
+    <file name="wing_rotation_adc_sensor.h"/>
+  </header>
+    <init fun="wing_rotation_adc_init()"/>
+    <periodic fun="wing_rotation_adc_to_deg()"/>
+  <makefile>
+    <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" case="lower|upper"/>
+    <define name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
+    <define name="USE_$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
+    <file name="wing_rotation_adc_sensor.c"/>
+  </makefile>
+</module>
