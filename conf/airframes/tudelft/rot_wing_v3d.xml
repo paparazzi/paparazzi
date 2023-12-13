@@ -311,7 +311,7 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"        value="TRUE"/>
         <define name="USE_AIRSPEED"                     value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.5"/>
-        <define name="ROTWING_STATE_PD_WING_ROTATION"   value="TRUE"/>
+        <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
     </section>
 
     <section name="GROUND_DETECT">
