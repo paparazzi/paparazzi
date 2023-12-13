@@ -30,9 +30,7 @@
 #include <stdlib.h>
 #include "mcu_periph/adc.h"
 
-
-
-
+/*** ADC channel connected to the wing rotation potentiometer */
 #ifndef ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION
 #define ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION ADC_5
 #endif
@@ -47,7 +45,8 @@ static struct adc_buf buf_wing_rot_pos;
 void wing_rotation_adc_init(void)
 {
   // ADC init
-  adc_buf_channel(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION, &buf_wing_rot_pos, ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);
+  adc_buf_channel(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION, &buf_wing_rot_pos,
+                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);
 }
 
 void wing_rotation_adc_to_deg(void)
@@ -58,7 +57,7 @@ void wing_rotation_adc_to_deg(void)
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
   struct act_feedback_t feedback;
-  feedback.idx =  SERVO_ROTATION_MECH;
+  feedback.idx =  SERVO_ROTATION_MECH_IDX;
   feedback.position = 0.5 * M_PI - RadOfDeg(wing_angle_deg);
   feedback.set.position = true;
 
