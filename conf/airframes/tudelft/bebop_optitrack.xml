@@ -33,7 +33,13 @@
     </module>
   </firmware>
 
-  <commands>
+  <commands><!-- Order must match the INDI ctrl_eff: INDI_NUM_ACT -->
+    <axis name="TOP_LEFT"     failsafe_value="0"/>
+    <axis name="TOP_RIGHT"    failsafe_value="0"/>
+    <axis name="BOTTOM_RIGHT" failsafe_value="0"/>
+    <axis name="BOTTOM_LEFT"  failsafe_value="0"/>
+
+    <!-- default commands: can not be removed -->
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
@@ -48,10 +54,10 @@
   </servos>
 
   <command_laws>
-    <set servo="TOP_LEFT"     value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
-    <set servo="TOP_RIGHT"    value="autopilot_get_motors_on() ? actuators_pprz[1] : -MAX_PPRZ"/>
-    <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? actuators_pprz[2] : -MAX_PPRZ"/>
-    <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? actuators_pprz[3] : -MAX_PPRZ"/>
+    <set servo="TOP_LEFT"     value="autopilot_get_motors_on() ? @TOP_LEFT     : -MAX_PPRZ"/>
+    <set servo="TOP_RIGHT"    value="autopilot_get_motors_on() ? @TOP_RIGHT    : -MAX_PPRZ"/>
+    <set servo="BOTTOM_RIGHT" value="autopilot_get_motors_on() ? @BOTTOM_RIGHT : -MAX_PPRZ"/>
+    <set servo="BOTTOM_LEFT"  value="autopilot_get_motors_on() ? @BOTTOM_LEFT  : -MAX_PPRZ"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -120,7 +126,7 @@
     <define name="FILT_CUTOFF" value="5.0"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
+    <define name="ACT_FREQ" value="{53.9, 53.9, 53.9, 53.9}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
