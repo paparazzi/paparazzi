@@ -64,7 +64,7 @@ struct rot_wing_automation rot_wing_a;
 Butterworth2LowPass rot_wing_automation_wind_filter[2]; // Wind filter
 
 // declare function
-inline void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * target_ned);
+inline void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 *target_ned);
 inline void update_wind_vector(void);
 
 void init_rot_wing_automation(void)
@@ -92,8 +92,7 @@ void periodic_rot_wing_automation(void)
 {
   update_wind_vector();
   float airspeed = stateGetAirspeed_f();
-  if (airspeed > rot_wing_a.trans_airspeed)
-  {
+  if (airspeed > rot_wing_a.trans_airspeed) {
     rot_wing_a.transitioned = true;
   } else {
     rot_wing_a.transitioned = false;
@@ -101,7 +100,8 @@ void periodic_rot_wing_automation(void)
 }
 
 // Update a waypoint such that you can see on the GCS where the drone wants to go
-void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * target_ned) {
+void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 *target_ned)
+{
 
   // Update the waypoint
   struct EnuCoor_f target_enu;
@@ -109,13 +109,13 @@ void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 * targ
   waypoint_set_enu(wp_id, &target_enu);
 
   // Send waypoint update roughly every half second
-  RunOnceEvery(100/2, {
+  RunOnceEvery(100 / 2, {
     // Send to the GCS that the waypoint has been moved
     DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                                &waypoints[wp_id].enu_i.x,
-                                &waypoints[wp_id].enu_i.y,
-                                &waypoints[wp_id].enu_i.z);
-  } );
+                               &waypoints[wp_id].enu_i.x,
+                               &waypoints[wp_id].enu_i.y,
+                               &waypoints[wp_id].enu_i.z);
+  });
 }
 
 void update_wind_vector(void)

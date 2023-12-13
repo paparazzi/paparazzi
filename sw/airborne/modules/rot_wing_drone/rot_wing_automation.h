@@ -44,7 +44,7 @@ struct rot_wing_automation {
   // Variables
   bool transitioned;            // Boolean that indicates if drone flies faster than transion airspeed
   struct FloatVect2 windvect;   // Wind vector
-  struct FloatVect2 windvect_f; // Filtered wind vector 
+  struct FloatVect2 windvect_f; // Filtered wind vector
 };
 
 extern struct rot_wing_automation rot_wing_a;
