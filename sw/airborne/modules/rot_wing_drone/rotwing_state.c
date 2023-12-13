@@ -150,13 +150,13 @@ inline void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_an
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t adc_dummy = 0;
-  pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID, 
-                                        &rotwing_state.current_state,
-                                        &rotwing_state.desired_state,
-                                        &rotwing_state_skewing.wing_angle_deg,
-                                        &rotwing_state_skewing.wing_angle_deg_sp,
-                                        &adc_dummy,
-                                        &rotwing_state_skewing.servo_pprz_cmd);
+  pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID,
+                                    &rotwing_state.current_state,
+                                    &rotwing_state.desired_state,
+                                    &rotwing_state_skewing.wing_angle_deg,
+                                    &rotwing_state_skewing.wing_angle_deg_sp,
+                                    &adc_dummy,
+                                    &rotwing_state_skewing.servo_pprz_cmd);
 }
 #endif // PERIODIC_TELEMETRY
 
@@ -171,8 +171,8 @@ void init_rotwing_state(void)
 
   rotwing_state_skewing.wing_angle_deg_sp     = 0;
   rotwing_state_skewing.wing_angle_deg        = 0;
-  rotwing_state_skewing.servo_pprz_cmd        = -MAX_PPRZ; 
-  rotwing_state_skewing.airspeed_scheduling   = false;  
+  rotwing_state_skewing.servo_pprz_cmd        = -MAX_PPRZ;
+  rotwing_state_skewing.airspeed_scheduling   = false;
   rotwing_state_skewing.force_rotation_angle  = false;
 
 #if PERIODIC_TELEMETRY
@@ -217,18 +217,18 @@ void request_rotwing_state(uint8_t state)
 // Function to prefer configuration
 void rotwing_request_configuration(uint8_t configuration)
 {
-    switch (configuration) {
-      case ROTWING_CONFIGURATION_HOVER:
-        request_rotwing_state(ROTWING_STATE_HOVER);
-        break;
-      case ROTWING_CONFIGURATION_HYBRID:
-        request_rotwing_state(ROTWING_STATE_SKEWING);
+  switch (configuration) {
+    case ROTWING_CONFIGURATION_HOVER:
+      request_rotwing_state(ROTWING_STATE_HOVER);
       break;
-      case ROTWING_CONFIGURATION_EFFICIENT:
-        request_rotwing_state(ROTWING_STATE_FW_HOV_MOT_OFF);
+    case ROTWING_CONFIGURATION_HYBRID:
+      request_rotwing_state(ROTWING_STATE_SKEWING);
       break;
-    }
-} 
+    case ROTWING_CONFIGURATION_EFFICIENT:
+      request_rotwing_state(ROTWING_STATE_FW_HOV_MOT_OFF);
+      break;
+  }
+}
 
 void rotwing_check_set_current_state(void)
 {
@@ -440,8 +440,7 @@ void rotwing_state_set_hover_settings(void)
 void rotwing_state_set_skewing_settings(void)
 {
   // Wing may be skewed to quad when desired state is hover and skewing settings set by state machine
-  if (rotwing_state.desired_state == ROTWING_STATE_HOVER)
-  {
+  if (rotwing_state.desired_state == ROTWING_STATE_HOVER) {
     rotwing_state_settings.wing_scheduler     = ROTWING_STATE_WING_QUAD_SETTING;
   } else {
     rotwing_state_settings.wing_scheduler     = ROTWING_STATE_WING_SCHEDULING_SETTING;
@@ -613,19 +612,14 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
 
     // Sanity check that index is valid
     int idx = feedback_msg[i].idx;
-    if (feedback_msg[i].set.rpm)
-    {
-      if (idx == SERVO_MOTOR_FRONT_IDX)
-      {
+    if (feedback_msg[i].set.rpm) {
+      if (idx == SERVO_MOTOR_FRONT_IDX) {
         rotwing_state_hover_rpm[0] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_RIGHT_IDX)
-      {
+      } else if (idx == SERVO_MOTOR_RIGHT_IDX) {
         rotwing_state_hover_rpm[1] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_BACK_IDX)
-      {
+      } else if (idx == SERVO_MOTOR_BACK_IDX) {
         rotwing_state_hover_rpm[2] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_LEFT_IDX)
-      {
+      } else if (idx == SERVO_MOTOR_LEFT_IDX) {
         rotwing_state_hover_rpm[3] = feedback_msg->rpm;
       }
     }
