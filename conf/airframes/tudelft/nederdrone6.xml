@@ -189,7 +189,7 @@
     <servo name="AIL_4" no="7" min="6000" neutral="0" max="-6000"/>
   </servos>
 
-  <commands>
+  <commands><!-- Order must match the INDI ctrl_eff: INDI_NUM_ACT -->
     <axis name="FRONT_LEFT"       failsafe_value="0"/>
     <axis name="FRONT_RIGHT"      failsafe_value="0"/>
     <axis name="REAR_LEFT"        failsafe_value="0"/>
@@ -202,6 +202,7 @@
 
     <axis name="TIP_THRUSTERS"    failsafe_value="0"/>
 
+    <!-- Default commands -->
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="-300"/>
     <axis name="YAW"    failsafe_value="0"/>
@@ -223,26 +224,27 @@
     <let var="th_hold"     value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
 
     <!-- Tip props always at 80% -->
-    <call fun="actuators_pprz[8] = (Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), 0.01 > sched_ratio_tip_props)? -9600 : 9600/100*70*sched_ratio_tip_props);"/>
+    <let var="tip_thruster" value="(Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), 0.01 > sched_ratio_tip_props)? -9600 : 9600/100*70*sched_ratio_tip_props)"/>
 
-    <set servo="MOTOR_1"   value="($th_hold? -9600 : actuators_pprz[8])"/>
-    <set servo="MOTOR_2"   value="($th_hold? -9600 : actuators_pprz[0])"/>
-    <set servo="MOTOR_3"   value="($th_hold? -9600 : actuators_pprz[0])"/>
-    <set servo="MOTOR_4"   value="($th_hold? -9600 : actuators_pprz[1])"/>
-    <set servo="MOTOR_5"   value="($th_hold? -9600 : actuators_pprz[1])"/>
-    <set servo="MOTOR_6"   value="($th_hold? -9600 : actuators_pprz[8])"/>
-    <set servo="MOTOR_7"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_8"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_9"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_10"  value="($th_hold? -9600 : actuators_pprz[3])"/>
-    <set servo="MOTOR_11"  value="($th_hold? -9600 : actuators_pprz[3])"/>
-    <set servo="MOTOR_12"  value="($th_hold? -9600 : actuators_pprz[3])"/>
+    <set servo="MOTOR_1"   value="($th_hold? -9600 : $tip_thruster)"/>
+    <set servo="MOTOR_2"   value="($th_hold? -9600 : @FRONT_LEFT)"/>
+    <set servo="MOTOR_3"   value="($th_hold? -9600 : @FRONT_LEFT)"/>
+    <set servo="MOTOR_4"   value="($th_hold? -9600 : @FRONT_RIGHT)"/>
+    <set servo="MOTOR_5"   value="($th_hold? -9600 : @FRONT_RIGHT)"/>
+    <set servo="MOTOR_6"   value="($th_hold? -9600 : $tip_thruster)"/>
+
+    <set servo="MOTOR_7"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_8"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_9"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_10"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
+    <set servo="MOTOR_11"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
+    <set servo="MOTOR_12"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
 
     <!-- Removed ApplyDiff for differential control -->
-    <set servo="AIL_1"     value="($th_hold? 9600 : actuators_pprz[4])"/>
-    <set servo="AIL_2"     value="($th_hold? 9600 : actuators_pprz[5])"/>
-    <set servo="AIL_3"     value="actuators_pprz[6]"/>
-    <set servo="AIL_4"     value="actuators_pprz[7]"/>
+    <set servo="AIL_1"     value="($th_hold? 9600 : @FRONT_LEFT_FLAP)"/>
+    <set servo="AIL_2"     value="($th_hold? 9600 : @FRONT_RIGHT_FLAP)"/>
+    <set servo="AIL_3"     value="@REAR_LEFT_FLAP"/>
+    <set servo="AIL_4"     value="@REAR_RIGHT_FLAP"/>
   </command_laws>
 
   <section name="MISC">
@@ -353,8 +355,8 @@
     <define name="FILT_CUTOFF_Q" value="20."/>
     <define name="FILT_CUTOFF_R" value="4."/>
     <!-- first order actuator dynamics -->
-    <!--define name="ACT_FREQ" value="{4.5, 4.5, 4.5, 4.5, 25.6, 25.6, 25.6, 25.6}"/-->
-    <define name="ACT_FREQ" value="{14.2, 14.2, 14.2, 14.2, 25.6, 25.6, 25.6, 25.6}"/>
+    <!--define name="ACT_DYN" value="{0.009, 0.009, 0.009, 0.009, 0.05, 0.05, 0.05, 0.05}"/-->
+    <define name="ACT_DYN" value="{0.028, 0.028, 0.028, 0.028, 0.05, 0.05, 0.05, 0.05}"/>
     <define name="ACT_RATE_LIMIT" value="{9600, 9600, 9600, 9600, 170, 170, 170, 170}"/>
     <define name="ACT_IS_SERVO" value="{0, 0, 0, 0, 1, 1, 1, 1}"/>
     <define name="WLS_WU" value="{1.,1.,1.,1.,1.,1.,1.,1.}"/>

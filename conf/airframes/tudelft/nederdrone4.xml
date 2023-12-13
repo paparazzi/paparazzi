@@ -232,30 +232,31 @@
     <let var="th_hold"     value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
 
     <!-- Tip props always at 80% -->
-    <call fun="actuators_pprz[8] = (Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), 0.01 > sched_ratio_tip_props)? -9600 : 9600/100*85*sched_ratio_tip_props);"/>
-    <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
-    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
+    <let var="tip_thruster" value="(Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), 0.01 > sched_ratio_tip_props)? -9600 : 9600/100*85*sched_ratio_tip_props)"/>
+    <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/>
 
-    <set servo="MOTOR_1"   value="($th_hold? -9600 : actuators_pprz[8])"/>
-    <set servo="MOTOR_2"   value="($th_hold? -9600 : actuators_pprz[0])"/>
-    <set servo="MOTOR_3"   value="($th_hold? -9600 : actuators_pprz[0])"/>
-    <set servo="MOTOR_4"   value="($th_hold? -9600 : actuators_pprz[1])"/>
-    <set servo="MOTOR_5"   value="($th_hold? -9600 : actuators_pprz[1])"/>
-    <set servo="MOTOR_6"   value="($th_hold? -9600 : actuators_pprz[8])"/>
-    <set servo="MOTOR_7"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_8"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_9"   value="($th_hold? -9600 : actuators_pprz[2])"/>
-    <set servo="MOTOR_10"  value="($th_hold? -9600 : actuators_pprz[3])"/>
-    <set servo="MOTOR_11"  value="($th_hold? -9600 : actuators_pprz[3])"/>
-    <set servo="MOTOR_12"  value="($th_hold? -9600 : actuators_pprz[3])"/>
+    <set servo="MOTOR_1"   value="($th_hold? -9600 : $tip_thruster)"/>
+    <set servo="MOTOR_2"   value="($th_hold? -9600 : @FRONT_LEFT)"/>
+    <set servo="MOTOR_3"   value="($th_hold? -9600 : @FRONT_LEFT)"/>
+    <set servo="MOTOR_4"   value="($th_hold? -9600 : @FRONT_RIGHT)"/>
+    <set servo="MOTOR_5"   value="($th_hold? -9600 : @FRONT_RIGHT)"/>
+    <set servo="MOTOR_6"   value="($th_hold? -9600 : $tip_thruster)"/>
+
+    <set servo="MOTOR_7"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_8"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_9"   value="($th_hold? -9600 : @REAR_LEFT)"/>
+    <set servo="MOTOR_10"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
+    <set servo="MOTOR_11"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
+    <set servo="MOTOR_12"  value="($th_hold? -9600 : @REAR_RIGHT)"/>
 
     <!-- Removed ApplyDiff for differential control -->
-    <set servo="AIL_1"     value="($th_hold? 9600 : actuators_pprz[4])"/>
-    <set servo="AIL_2"     value="($th_hold? 9600 : actuators_pprz[5])"/>
-    <set servo="AIL_3"     value="actuators_pprz[6]"/>
-    <set servo="AIL_4"     value="actuators_pprz[7]"/>
-    <set servo="FLAP_3"    value="actuators_pprz[6]"/>
-    <set servo="FLAP_4"    value="actuators_pprz[7]"/>
+    <set servo="AIL_1"     value="($th_hold? 9600 : @FRONT_LEFT_FLAP)"/>
+    <set servo="AIL_2"     value="($th_hold? 9600 : @FRONT_RIGHT_FLAP)"/>
+    <set servo="AIL_3"     value="@REAR_LEFT_FLAP"/>
+    <set servo="AIL_4"     value="@REAR_RIGHT_FLAP"/>
+    <set servo="FLAP_3"    value="@REAR_LEFT_FLAP"/>
+    <set servo="FLAP_4"    value="@REAR_RIGHT_FLAP"/>
   </command_laws>
 
   <section name="MISC">

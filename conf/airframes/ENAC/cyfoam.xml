@@ -156,7 +156,7 @@
     <!--<servo name="SERVO_TEST" no="4" min="1000" neutral="1500" max="2000"/>-->
   </servos>
 
-  <commands>
+  <commands><!-- Order must match the INDI ctrl_eff: INDI_NUM_ACT -->
     <axis name="ELEVON_LEFT"  failsafe_value="0"/>
     <axis name="ELEVON_RIGHT" failsafe_value="0"/>
     <axis name="MOTOR_RIGHT"  failsafe_value="0"/>
@@ -169,10 +169,10 @@
   </commands>
 
   <command_laws>
-    <set servo="ELEVON_LEFT"     value="autopilot.motors_on ? actuators_pprz[0] : 0"/>
-    <set servo="ELEVON_RIGHT"    value="autopilot.motors_on ? actuators_pprz[1] : 0"/>
-    <set servo="RM"              value="autopilot.motors_on ? actuators_pprz[2] : -MAX_PPRZ"/>
-    <set servo="LM"              value="autopilot.motors_on ? actuators_pprz[3] : -MAX_PPRZ"/>
+    <set servo="ELEVON_LEFT"     value="autopilot.motors_on ? @ELEVON_LEFT : 0"/>
+    <set servo="ELEVON_RIGHT"    value="autopilot.motors_on ? @ELEVON_RIGHT : 0"/>
+    <set servo="RM"              value="autopilot.motors_on ? @MOTOR_RIGHT : -MAX_PPRZ"/>
+    <set servo="LM"              value="autopilot.motors_on ? @MOTOR_LEFT : -MAX_PPRZ"/>
     <!--<set servo="RM"              value="autopilot_motors_on ? -MAX_PPRZ : -MAX_PPRZ"/>-->
     <!--<set servo="LM"              value="autopilot_motors_on ? -MAX_PPRZ : -MAX_PPRZ"/>-->
   </command_laws>
