@@ -218,40 +218,59 @@
         <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
     </servos>
 
-    <commands>
-        <axis name="ROLL"       failsafe_value="0"/>
-        <axis name="PITCH"      failsafe_value="0"/>
-        <axis name="YAW"        failsafe_value="0"/>
-        <axis name="THRUST"     failsafe_value="0"/>
-        <axis name="THRUST_X"   failsafe_value="0"/>
+    <commands><!-- order must match the INDI ctrl_eff -->
+        <axis name="FRONT_MOTOR" failsafe_value="0"/>
+        <axis name="RIGHT_MOTOR" failsafe_value="0"/>
+        <axis name="BACK_MOTOR"  failsafe_value="0"/>
+        <axis name="LEFT_MOTOR"  failsafe_value="0"/>
+        <axis name="RUDDER"      failsafe_value="0"/>
+        <axis name="ELEVATOR"    failsafe_value="0"/>
+        <axis name="AILERON"     failsafe_value="0"/>
+        <axis name="FLAP"        failsafe_value="0"/>
+        <axis name="PUSHER"      failsafe_value="0"/>
+        <axis name="SKEW"        failsafe_value="0"/>
+
+        <axis name="THRUST"      failsafe_value="0"/>
+        <!-- todo: merge with other pusher command -->
+        <axis name="THRUST_X"    failsafe_value="0"/>
+        <!-- unused but does not compile if removed -->
+        <axis name="ROLL"        failsafe_value="0"/>
+        <axis name="PITCH"       failsafe_value="0"/>
+        <axis name="YAW"         failsafe_value="0"/>
     </commands>
 
     <command_laws>
+        <!--
+          - actuators[SERVO_NAME_IDX] ACTUATORS_NB (allen in gebruik) alles na elkaar
+          - functonal numbers of SERVO: SERVO_NAME -> no="" vb: MOTOR_FRONT = 0 = BMOTOR_FRONT === CAN nummering
+          - actuators_pprz[] ACTUATORS_NB waarvan enkel INDI_U in gebruik + Rotation. Nummering afhankelijk van INDI matrix
+          - commands[] COMMAND_NB
+        -->
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
         <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
         <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
 <let var="ail_limit_hit" value="LessThan(rotwing_state_skewing.wing_angle_deg, 20)"/>
         <let var="flap_limit_hit" value="LessThan(rotwing_state_skewing.wing_angle_deg, 50)"/>
 
-        <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[1])" SERVO="MOTOR_RIGHT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[2])" SERVO="MOTOR_BACK"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[3])" SERVO="MOTOR_LEFT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[4])" SERVO="SERVO_RUDDER"/>
-        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
-        <set VALUE="($th_hold? -9600 : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
-        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"  SERVO="ROTATION_MECH"/>
-        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
-        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
-        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
-        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
+        <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,values)"/>
+        <set VALUE="($hover_off? -9600 : @FRONT_MOTOR)" SERVO="MOTOR_FRONT"/>
+        <set VALUE="($hover_off? -9600 : @RIGHT_MOTOR)" SERVO="MOTOR_RIGHT"/>
+        <set VALUE="($hover_off? -9600 : @BACK_MOTOR)" SERVO="MOTOR_BACK"/>
+        <set VALUE="($hover_off? -9600 : @LEFT_MOTOR)" SERVO="MOTOR_LEFT"/>
+        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : @RUDDER)" SERVO="SERVO_RUDDER"/>
+        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : @ELEVATOR))" SERVO="SERVO_ELEVATOR"/>
+        <set VALUE="($th_hold? -9600 : @PUSHER)" SERVO="MOTOR_PUSH"/>
+        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"  SERVO="ROTATION_MECH"/><!-- todo @SKEW] -->
+        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERON)" SERVO="AIL_LEFT"/>
+        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : @AILERON)" SERVO="AIL_RIGHT"/>
+        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : @FLAP)" SERVO="FLAP_LEFT"/>
+        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : @FLAP)" SERVO="FLAP_RIGHT"/>
 
         <!-- Backup commands -->
-        <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="BMOTOR_FRONT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
+        <set VALUE="($hover_off? -9600 : @FRONT_MOTOR)" SERVO="BMOTOR_FRONT"/>
+        <set VALUE="($hover_off? -9600 : @RIGHT_MOTOR)" SERVO="BMOTOR_RIGHT"/>
+        <set VALUE="($hover_off? -9600 : @BACK_MOTOR)" SERVO="BMOTOR_BACK"/>
+        <set VALUE="($hover_off? -9600 : @LEFT_MOTOR)" SERVO="BMOTOR_LEFT"/>
         <set VALUE="rotwing_state_skewing.servo_pprz_cmd"    SERVO="BROTATION_MECH"/>
     </command_laws>
 
