@@ -726,8 +726,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     if (i < COMMANDS_NB) {
       stabilization_cmd[i] = (int32_t) indi_u[i];
     }
-    // TODO remove
-    //actuators_pprz[i] = (int16_t) indi_u[i];
   }
 
   // Set the stab_cmd to 42 to indicate that it is not used
