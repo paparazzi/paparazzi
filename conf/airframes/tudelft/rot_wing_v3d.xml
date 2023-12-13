@@ -1,16 +1,16 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00352
-     * Autopilot:   Cube orange
-     * Datalink:    Kongsberg
+     * Airframe:    TUD00359
+     * Autopilot:   Cube orange+
+     * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3B">
-    <description>RotatingWingV3B</description>
+<airframe name="RotatingWingV3D">
+    <description>RotatingWingV3D</description>
 
     <firmware name="rotorcraft">
-        <target name="ap" board="cube_orange">
+        <target name="ap" board="cube_orangeplus">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
             <module name="radio_control" type="sbus">
@@ -31,20 +31,20 @@
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
-            <module name="lidar_tfmini">
-                <configure name="TFMINI_PORT"     value="UART8"/>
-                <configure name="USE_TFMINI_AGL"  value="TRUE"/>
-            </module>
+            <!--Only send gyro and accel that is being used-->
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+
+            <!-- Range sensor connected to supercan -->
+            <module name="range_sensor_uavcan"/>
 
             <!-- <module name="mavlink">
                 <configure name="MAVLINK_BAUD" value="B115200"/>
                 <configure name="MAVLINK_PORT" value="UART8"/>
-                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
             </module> -->
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
-
         </target>
 
         <target name="nps" board="pc">
@@ -59,7 +59,7 @@
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
         </target>
 
-        <!-- Kongsberg datalink -->
+        <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
@@ -119,7 +119,6 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="wing_rotation_adc_sensor"/>
         <module name="rot_wing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
@@ -186,12 +185,6 @@
         </module>
     </firmware>
 
-    <!-- PWM actuators -->
-    <servos driver="Pwm">
-    <!--1018 = quad 2086 = fw-->
-        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
-    </servos>
-
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
         <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="8191"/>
@@ -199,24 +192,30 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
-        <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
-        <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2842" neutral="1053" max="4947"/>
+    </servos>
+
+     <!-- CAN BUS 1 command outputs-->
+    <servos driver="Uavcan1Cmd">
+        <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-3250"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-3250" neutral="0"    max="3250"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
-    <servos DRIVER="Uavcan2">
+    <servos driver="Uavcan2">
         <servo no="0" name="BMOTOR_FRONT" min="0" neutral="1000" max="8191"/>
         <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="1000" max="8191"/>
         <servo no="2" name="BMOTOR_BACK"  min="0" neutral="1000" max="8191"/>
         <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="1000" max="8191"/>
+        <servo no="5" name="BROTATION_MECH"   min="-2842" neutral="1053" max="4947"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="7"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="8"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="9"  name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
-        <servo no="10" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
     </servos>
 
     <commands>
@@ -231,6 +230,8 @@
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
         <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
         <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
+<let var="ail_limit_hit" value="LessThan(rotwing_state_skewing.wing_angle_deg, 20)"/>
+        <let var="flap_limit_hit" value="LessThan(rotwing_state_skewing.wing_angle_deg, 50)"/>
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
@@ -241,16 +242,17 @@
         <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
         <set VALUE="($th_hold? -9600 : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
         <set VALUE="rotwing_state_skewing.servo_pprz_cmd"  SERVO="ROTATION_MECH"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
+        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
+        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
+        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
+        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
 
         <!-- Backup commands -->
         <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="BMOTOR_FRONT"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
         <set VALUE="($hover_off? -9600 : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
+        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"    SERVO="BROTATION_MECH"/>
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
@@ -266,12 +268,12 @@
     </section>
 
     <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
-        <define name="IXX_BODY"              value="-0.13362537"/>
-        <define name="IYY_BODY"              value="0.77187463"/>
-        <define name="IZZ"                   value="1.18"/>
-        <define name="IXX_WING"              value="0.25352115"/>
-        <define name="IYY_WING"              value="0.38472811"/>
-        <define name="M"                     value="6.94"/>
+        <define name="IXX_BODY"              value="0.04780"/>
+        <define name="IYY_BODY"              value="0.7546"/>
+        <define name="IZZ"                   value="0.9752"/>
+        <define name="IXX_WING"              value="0.08099"/>
+        <define name="IYY_WING"              value="0.1949"/>
+        <define name="M"                     value="6.67"/>
 
         <define name="DM_DPPRZ_HOVER_PITCH"  value="0.001734904"/>
         <define name="DM_DPPRZ_HOVER_ROLL"   value="0.001684595"/>
@@ -288,7 +290,7 @@
         <define name="K_ELEVATOR_DEFLECTION" value="{50.0,-0.0063}"/>
         <define name="D_RUDDER_D_PPRZ"       value="-0.0018"/>
         <define name="K_RPM_PPRZ_PUSHER"     value="{-131.497033952591,1.32098226269777,-0.0000291178067445214}"/>
-        
+
         <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
         <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
         <define name="K_LIFT_TAIL"           value="-0.101691751"/>
@@ -323,14 +325,15 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-6,-3,23}, .scale={{6478,36819,14396},{661,3766,1477}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-63,-15,-22}, .scale={{23554,58016,33455},{4537,11839,6837}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-40,-9,6}, .scale={{17919,36647,49183},{3659,7481,10067}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-14,3,42}, .scale={{17279,2209,36874},{30247,3800,64095}}, .body_to_sensor={{0,16384,0,-16384,0,0,0,0,16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1518,-1489,512}, .scale={{1124,9185,21218},{1879,15118,36859}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
+
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
         <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-        <define name="BODY_TO_IMU_PSI"   value="-90." unit="deg"/>
+        <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -385,22 +388,23 @@
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{10.1, 10.1, 10.1, 10.1, 52.7, 52.7, 52.7, 52.7, 24.1}"/>
+        <define name="ACT_FREQ"             value="{20.0, 20.0, 20.0, 20.0, 52.7, 52.7, 52.7, 52.7, 24.1}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
         <!-- Reference -->
-        <define name="REF_ERR_P"                    value="40.0"/>
+        <define name="REF_ERR_P"                    value="38.0"/>
         <define name="REF_ERR_Q"                    value="32.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
-        <define name="REF_RATE_P"                   value="7.0"/>
+        <define name="REF_RATE_P"                   value="5.0"/>
         <define name="REF_RATE_Q"                   value="7.2"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
 
         <!-- Filters -->
-        <define name="FILT_CUTOFF_P"                    value="20.0"/>
+        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE"/>
+        <define name="FILT_CUTOFF_P"                    value="5.0"/>
         <define name="FILT_CUTOFF_Q"                    value="20.0"/>
         <define name="FILT_CUTOFF_R"                    value="5.0"/>
         <define name="FILT_CUTOFF"                      value="2.0"/>
@@ -413,8 +417,6 @@
         <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
-
-        <define name="ROTWING_V3B"      value="1" />
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -474,7 +476,7 @@
     </section>
 
     <section name="FORWARD">
-        <define name="TURN_AIRSPEED_TH"             value="8.0"/> <!-- This is the pitch angle that the drone will have in forward flight, where 0 degrees is hover-->
+    <define name="TURN_AIRSPEED_TH"             value="8.0"/> <!-- This is the pitch angle that the drone will have in forward flight, where 0 degrees is hover-->
         <define name="TRANSITION_MAX_OFFSET"        value="0.0" unit="deg"/>
         <define name="GUIDANCE_HEADING_IS_FREE"     value="FALSE"/>
     </section>

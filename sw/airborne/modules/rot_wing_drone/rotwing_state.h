@@ -64,6 +64,7 @@ struct RotWingStateSettings {
 struct RotWingStateSkewing {
   float wing_angle_deg_sp;   // Wing angle setpoint in deg
   float wing_angle_deg;      // Wing angle from sensor in deg
+  int32_t servo_pprz_cmd;    // Wing rotation servo pprz cmd
   bool airspeed_scheduling;  // Airspeed scheduling on or off
   bool force_rotation_angle; // Setting to force wing_angle_deg_sp
 };
@@ -80,5 +81,6 @@ extern bool bool_disable_hover_motors;
 extern void init_rotwing_state(void);
 extern void periodic_rotwing_state(void);
 extern void request_rotwing_state(uint8_t state);
+extern void rotwing_state_skew_actuator_periodic(void);
 
 #endif  // ROTWING_STATE_H
