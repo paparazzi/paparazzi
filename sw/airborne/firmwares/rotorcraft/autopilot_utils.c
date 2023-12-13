@@ -132,15 +132,8 @@ void WEAK set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flig
     cmd_in[COMMAND_THRUST] = 0;
   }
 #endif
-#ifdef COMMAND_ROLL
-  cmd_out[COMMAND_ROLL] = cmd_in[COMMAND_ROLL];
-#endif
-#ifdef COMMAND_PITCH
-  cmd_out[COMMAND_PITCH] = cmd_in[COMMAND_PITCH];
-#endif
-#ifdef COMMAND_YAW
-  cmd_out[COMMAND_YAW] = cmd_in[COMMAND_YAW];
-#endif
-  cmd_out[COMMAND_THRUST] = cmd_in[COMMAND_THRUST];
+  for (int i=0; i < COMMANDS_NB; i++) {
+    cmd_out[i] = cmd_in[i];
+  }
 }
 
