@@ -93,6 +93,9 @@ static struct {
 #ifdef ADC_CHANNEL_VSUPPLY
   struct adc_buf vsupply_adc_buf;
 #endif
+#if defined ADC_CHANNEL_VBOARD
+  struct adc_buf vboard_adc_buf;
+#endif
 #if defined ADC_CHANNEL_CURRENT && !defined SITL
   struct adc_buf current_adc_buf;
 #endif
@@ -122,6 +125,7 @@ static void electrical_preflight(struct preflight_result_t *result) {
 void electrical_init(void)
 {
   electrical.vsupply = 0.f;
+  electrical.vboard = 0.f;
   electrical.current = 0.f;
   electrical.charge  = 0.f;
   electrical.energy  = 0.f;
@@ -133,6 +137,10 @@ void electrical_init(void)
 
 #if defined ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &electrical_priv.vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
+#endif
+
+#if defined ADC_CHANNEL_VBOARD
+  adc_buf_channel(ADC_CHANNEL_VBOARD, &electrical_priv.vboard_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #endif
 
   /* measure current if available, otherwise estimate it */
@@ -161,6 +169,11 @@ void electrical_periodic(void)
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL) && !USE_BATTERY_MONITOR
   electrical.vsupply = VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
                                           electrical_priv.vsupply_adc_buf.av_nb_sample));
+#endif
+
+#if defined(ADC_CHANNEL_VBOARD) && !defined(SITL)
+  electrical.vboard = VBoardOfAdc((electrical_priv.vboard_adc_buf.sum /
+                                         electrical_priv.vboard_adc_buf.av_nb_sample));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT

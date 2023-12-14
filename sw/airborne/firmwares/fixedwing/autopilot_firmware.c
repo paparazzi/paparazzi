@@ -92,7 +92,7 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
   }
   
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
-                       &throttle, &electrical.vsupply, &electrical.current, &power, &avg_power, &electrical.charge, &electrical.energy);
+                       &throttle, &electrical.vsupply, &electrical.current, &power, &electrical.vboard, &electrical.charge, &electrical.energy);
 }
 
 // FIXME not the best place
