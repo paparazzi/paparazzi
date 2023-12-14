@@ -1172,7 +1172,11 @@
 #endif
 
 #ifndef USE_PWM_TIM4
+#ifdef USE_SERVOS_7AND8
 #define USE_PWM_TIM4 1
+#else
+#define USE_PWM_TIM4 0
+#endif
 #endif
 
 #ifndef USE_PWM_TIM5
