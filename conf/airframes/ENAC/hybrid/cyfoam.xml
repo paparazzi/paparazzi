@@ -162,10 +162,12 @@
 
   <section name="CTRL_EFF_SCHEDULING" prefix="FWD_">
     <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
-    <define name="G1_ROLL"   value="{    0,     0, -13.0,  13.0}"/>
-    <define name="G1_PITCH"  value="{-12.0,  12.0,     0,     0}"/>
-    <define name="G1_YAW"    value="{-20.0, -20.0,   0.0,   0.0}"/>
-    <define name="G1_THRUST" value="{    0,     0,  -0.9,  -0.9}"/>
+    <define name="G1" type="matrix">
+      <field name="ROLL"   value="{    0,     0, -13.0,  13.0}"/>
+      <field name="PITCH"  value="{-12.0,  12.0,     0,     0}"/>
+      <field name="YAW"    value="{-20.0, -20.0,   0.0,   0.0}"/>
+      <field name="THRUST" value="{    0,     0,  -0.9,  -0.9}"/>
+    </define>
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -180,10 +182,12 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
-    <define name="G1_ROLL"   value="{   0,    0,  -13.3,  13.3}"/>
-    <define name="G1_PITCH"  value="{-2.1,  2.1,      0,     0}"/>
-    <define name="G1_YAW"    value="{-2.0, -2.0,    0.0,   0.0}"/>
-    <define name="G1_THRUST" value="{   0,    0,   -1.1,  -1.1}"/>
+    <define name="G1" type="matrix">
+      <field name="ROLL"   value="{   0,    0,  -13.3,  13.3}"/>
+      <field name="PITCH"  value="{-2.1,  2.1,      0,     0}"/>
+      <field name="YAW"    value="{-2.0, -2.0,    0.0,   0.0}"/>
+      <field name="THRUST" value="{   0,    0,   -1.1,  -1.1}"/>
+    </define>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{0, 0, 0, 0}"/>
 

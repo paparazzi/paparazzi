@@ -208,19 +208,23 @@
 
   <section name="EFF_SCHEDULING" prefix="FWD_">
     <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
-    <define name="G1_ROLL"   value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
-    <define name="G1_PITCH"  value="{ -20.0,  20.0,   20.0, -20.0,  15.0, -15.0}"/> <!-- 12 , -12 -->
-    <define name="G1_YAW"    value="{  -3.0,   3.0,   -3.0,   3.0, -10.0, -10.0}"/> <!-- -20  -20 -->
-    <define name="G1_THRUST" value="{  -0.6,  -0.6,   -0.6,  -0.6,   0.0,   0.0}"/>
+    <define name="G1" type="matrix">
+      <field value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
+      <field value="{ -20.0,  20.0,   20.0, -20.0,  15.0, -15.0}"/> <!-- 12 , -12 -->
+      <field value="{  -3.0,   3.0,   -3.0,   3.0, -10.0, -10.0}"/> <!-- -20  -20 -->
+      <field value="{  -0.6,  -0.6,   -0.6,  -0.6,   0.0,   0.0}"/>
+    </define>
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!--  UR BR BL UL-->
     <!-- control effectiveness, scaled by INDI_G_SCALING (1000)-->
-    <define name="G1_ROLL"   value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
-    <define name="G1_PITCH"  value="{ -19.5,  19.5,   19.5, -19.5,   0.0,   0.0}"/>
-    <define name="G1_YAW"    value="{  -3.0,   3.0,   -3.0,   3.0,   0.0,   0.0}"/>
-    <define name="G1_THRUST" value="{ -0.85,  -0.85,  -0.85, -0.85,  0.0,   0.0}"/>
+    <define name="G1" type="matrix">
+      <field value="{  -9.0,  -9.0,    9.0,   9.0,   0.0,   0.0}"/>
+      <field value="{ -19.5,  19.5,   19.5, -19.5,   0.0,   0.0}"/>
+      <field value="{  -3.0,   3.0,   -3.0,   3.0,   0.0,   0.0}"/>
+      <field value="{ -0.85,  -0.85,  -0.85, -0.85,  0.0,   0.0}"/>
+    </define>
 
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{0, 0, 0, 0, 0, 0}"/>
