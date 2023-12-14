@@ -39,10 +39,28 @@
 /* Paparazzi includes */
 #include "mcu.h"
 
+#include "mcu_periph/ram_arch.h"
+
+#if defined(STM32H7XX)
+typedef struct {
+  uint32_t              *init_text_area;
+  uint32_t              *init_area;
+  uint32_t              *clear_area;
+  uint32_t              *no_init_area;
+} ram_init_area_t;
+
+static void initRam0nc(void);
+static void init_ram_areas(const ram_init_area_t *rap);
+static void mpuConfigureNonCachedRam(void);
+#endif
+
 #if USE_HARD_FAULT_RECOVERY
 
 #if defined(STM32F4XX) || defined (STM32F7XX)
 #define BCKP_SECTION ".ram5"
+#define IN_BCKP_SECTION(var) var __attribute__ ((section(BCKP_SECTION), aligned(8)))
+#elif defined(STM32H7XX)
+#define BCKP_SECTION ".ram7"
 #define IN_BCKP_SECTION(var) var __attribute__ ((section(BCKP_SECTION), aligned(8)))
 #else
 #error "No backup ram available"
@@ -88,13 +106,26 @@ bool recovering_from_hard_fault;
 
 // select correct register
 #if defined(STM32F4XX)
-#define __PWR_CSR PWR->CSR
-#define __PWR_CSR_BRE PWR_CSR_BRE
-#define __PWR_CSR_BRR PWR_CSR_BRR
+#define __PWR_BACKUP_REG PWR->CSR
+#define __PWR_BACKUP_ENABLE PWR_CSR_BRE
+#define __PWR_BACKUP_READY PWR_CSR_BRR
+#define __RCC_RESET_REGISTER RCC->CSR
+#define __RCC_RESET_FLAG RCC_CSR_SFTRSTF
+#define __RCC_RESET_REMOVE_FLAG RCC_CSR_RMVF
 #elif defined(STM32F7XX)
-#define __PWR_CSR PWR->CSR1
-#define __PWR_CSR_BRE PWR_CSR1_BRE
-#define __PWR_CSR_BRR PWR_CSR1_BRR
+#define __PWR_BACKUP_REG PWR->CSR1
+#define __PWR_BACKUP_ENABLE PWR_CSR1_BRE
+#define __PWR_BACKUP_READY PWR_CSR1_BRR
+#define __RCC_RESET_REGISTER RCC->CSR
+#define __RCC_RESET_FLAG RCC_CSR_SFTRSTF
+#define __RCC_RESET_REMOVE_FLAG RCC_CSR_RMVF
+#elif defined(STM32H7XX)
+#define __PWR_BACKUP_REG PWR->CR2
+#define __PWR_BACKUP_ENABLE PWR_CR2_BREN
+#define __PWR_BACKUP_READY PWR_CR2_BRRDY
+#define __RCC_RESET_REGISTER RCC->RSR
+#define __RCC_RESET_FLAG RCC_RSR_SFTRSTF
+#define __RCC_RESET_REMOVE_FLAG RCC_RSR_RMVF
 #else
 #error Hard fault recovery not supported
 #endif
@@ -133,20 +164,24 @@ void mcu_arch_init(void)
   halInit();
   chSysInit();
 
+#if defined(STM32H7XX)
+  mpuConfigureNonCachedRam();
+#endif
+
 #if USE_HARD_FAULT_RECOVERY
   /* Backup domain SRAM enable, and with it, the regulator */
 #if defined(STM32F4XX) || defined(STM32F7XX)
   RCC->AHB1ENR |= RCC_AHB1ENR_BKPSRAMEN;
-  __PWR_CSR |= __PWR_CSR_BRE;
-  while ((__PWR_CSR & __PWR_CSR_BRR) == 0) ; /* Waits until the regulator is stable */
+  __PWR_BACKUP_REG |= __PWR_BACKUP_ENABLE;
+  while ((__PWR_BACKUP_REG & __PWR_BACKUP_READY) == 0) ; /* Waits until the regulator is stable */
 #endif /* STM32F4 | STM32F7 */
 
   // test if last reset was a 'real' hard fault
   recovering_from_hard_fault = false;
-  if (!(RCC->CSR & RCC_CSR_SFTRSTF)) {
+  if (!(__RCC_RESET_REGISTER & __RCC_RESET_FLAG)) {
     // not coming from soft reset
     hard_fault = false;
-  } else if ((RCC->CSR & RCC_CSR_SFTRSTF) && !hard_fault) {
+  } else if ((__RCC_RESET_REGISTER & __RCC_RESET_FLAG) && !hard_fault) {
     // this is a soft reset, probably from a debug probe, so let's start in normal mode
     hard_fault = false;
   } else {
@@ -155,7 +190,7 @@ void mcu_arch_init(void)
     hard_fault = false;
   }
   // *MANDATORY* clear of rcc bits
-  RCC->CSR = RCC_CSR_RMVF;
+  __RCC_RESET_REGISTER = __RCC_RESET_REMOVE_FLAG;
   // end of reset bit probing
 #endif /* USE_HARD_FAULT_RECOVERY */
 }
@@ -278,3 +313,105 @@ static void mcu_set_rtcbackup(uint32_t val) {
 #endif
 }
 #endif /* USE_RTC_BACKUP */
+
+
+
+#if defined(STM32H7XX)
+/*
+  nocache regions are 
+    ° ram0nc for sdmmc1
+    ° ram3 for miscellanous ?
+    ° ram4 for bdma attached peripherals (i2c4, spi6, adc3)
+ */
+
+extern const uint32_t __ram0nc_base__;
+extern const uint32_t __ram0nc_size__;
+extern const uint32_t __ram3_base__;
+extern const uint32_t __ram3_size__;
+extern const uint32_t __ram4_base__;
+extern const uint32_t __ram4_size__;
+
+static uint32_t getMPU_RASR_SIZE(const uint32_t ldSize)
+{
+  // 2^n -> n-1
+  chDbgAssert(__builtin_popcount(ldSize) == 1U, "MPU region size must be 2^n");
+  chDbgAssert(ldSize >= 32U, "MPU region size must be >= 32");
+  return MPU_RASR_SIZE(__builtin_ctz(ldSize) - 1U);
+}
+
+
+static void mpuConfigureNonCachedRam(void)
+{
+  const uint32_t mpuSharedOption = MPU_RASR_ATTR_AP_RW_RW |
+    MPU_RASR_ATTR_NON_CACHEABLE | MPU_RASR_ATTR_S |
+    MPU_RASR_ENABLE;
+
+  const uint32_t ram0nc_base = (uint32_t) &__ram0nc_base__;
+  const uint32_t ram3_base = (uint32_t) &__ram3_base__;
+  const uint32_t ram4_base = (uint32_t) &__ram4_base__;
+
+  const uint32_t ram0nc_size = (uint32_t) &__ram0nc_size__;
+  const uint32_t ram3_size = (uint32_t) &__ram3_size__;
+  const uint32_t ram4_size = (uint32_t) &__ram4_size__;
+
+  chDbgAssert(ram0nc_base == 0x24000000, "MPU ram0nc addr mismatch");
+  chDbgAssert(ram3_base == 0x30040000, "MPU ram3 addr mismatch");
+  chDbgAssert(ram4_base == 0x38000000, "MPU ram4 addr mismatch");
+
+  chDbgAssert((ram0nc_base % ram0nc_size) == 0, "MPU ram0nc base addr must be size aligned");
+  chDbgAssert(ram0nc_size == 128 * 1024, "MPU ram0nc size must be 128K");
+  chDbgAssert((ram3_base % ram3_size) == 0, "MPU ram3 base addr must be size aligned");
+  chDbgAssert((ram4_base % ram4_size) == 0, "MPU ram4 base addr must be size aligned");
+  chDbgAssert(getMPU_RASR_SIZE(ram0nc_size) == MPU_RASR_SIZE_128K, "getMPU_RASR_SIZE error");
+
+  
+  mpuConfigureRegion(MPU_REGION_6,
+		     ram0nc_base,
+		     getMPU_RASR_SIZE(ram0nc_size) | mpuSharedOption
+		     );
+  mpuConfigureRegion(MPU_REGION_5,
+		     ram3_base,
+		     getMPU_RASR_SIZE(ram3_size) | mpuSharedOption
+		     );
+  mpuConfigureRegion(MPU_REGION_4,
+		     ram4_base,
+		     getMPU_RASR_SIZE(ram4_size) | mpuSharedOption
+		     );
+  initRam0nc();
+  mpuEnable(MPU_CTRL_PRIVDEFENA);
+  __ISB();
+  __DSB();
+   SCB_CleanInvalidateDCache();
+
+}
+
+static void initRam0nc(void)
+{
+  extern uint32_t __ram0nc_init_text__, __ram0nc_init__, __ram0nc_clear__, __ram0nc_noinit__;
+  static const ram_init_area_t ram_areas[1] = {
+    {&__ram0nc_init_text__, &__ram0nc_init__, &__ram0nc_clear__, &__ram0nc_noinit__},
+  };
+  init_ram_areas(ram_areas);
+  
+}
+
+static void init_ram_areas(const ram_init_area_t *rap)
+{
+  uint32_t *tp = rap->init_text_area;
+  uint32_t *p = rap->init_area;
+
+  /* Copying initialization data.*/
+  while (p < rap->clear_area) {
+    *p = *tp;
+    p++;
+    tp++;
+  }
+  
+  /* Zeroing clear area.*/
+  while (p < rap->no_init_area) {
+    *p = 0;
+    p++;
+  }
+}
+
+#endif

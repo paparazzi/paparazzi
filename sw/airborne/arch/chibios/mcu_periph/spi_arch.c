@@ -487,6 +487,31 @@ void spi4_arch_init(void)
 }
 #endif
 
+#if USE_SPI6
+
+#if defined(STM32H7XX)
+// Local variables (in DMA safe memory)
+static IN_BDMA_SECTION(struct spi_init spi6_init_s) = {
+#else
+// Local variables (in DMA safe memory)
+static IN_DMA_SECTION(struct spi_init spi6_init_s) = {
+#endif
+  .name = "spi6",
+  .sem = __SEMAPHORE_DATA(spi6_init_s.sem, 0),
+};
+static THD_WORKING_AREA(wa_thd_spi6, SPI_THREAD_STACK_SIZE);
+
+// Initialize the interface
+void spi6_arch_init(void)
+{
+  spi6.reg_addr = &SPID6;
+  spi6.init_struct = &spi6_init_s;
+  // Create thread
+  chThdCreateStatic(wa_thd_spi6, sizeof(wa_thd_spi6),
+                    NORMALPRIO + 1, thd_spi, (void *)&spi6);
+}
+#endif
+
 
 /**
  * Submit SPI transaction
