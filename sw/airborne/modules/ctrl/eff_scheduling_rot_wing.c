@@ -257,9 +257,9 @@ void eff_scheduling_rot_wing_update_MMOI(void)
 
 void eff_scheduling_rot_wing_update_cmd(void)
 {
-  eff_sched_var.cmd_elevator = actuators_pprz[SERVO_SERVO_ELEVATOR];
-  eff_sched_var.cmd_pusher_scaled = actuators_pprz[SERVO_MOTOR_PUSH] * 0.000853229; // Scaled with 8181 / 9600 / 1000
-  eff_sched_var.cmd_T_mean_scaled = (actuators_pprz[SERVO_MOTOR_FRONT] + actuators_pprz[SERVO_MOTOR_RIGHT] + actuators_pprz[SERVO_MOTOR_BACK] + actuators_pprz[SERVO_MOTOR_LEFT]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_elevator = stabilization_cmd[COMMAND_ELEVATOR];
+  eff_sched_var.cmd_pusher_scaled = stabilization_cmd[COMMAND_PUSHER] * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_T_mean_scaled = (stabilization_cmd[COMMAND_FRONT_MOTOR] + stabilization_cmd[COMMAND_RIGHT_MOTOR] + stabilization_cmd[COMMAND_BACK_MOTOR] + stabilization_cmd[COMMAND_LEFT_MOTOR]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
 }
 
 void eff_scheduling_rot_wing_update_airspeed(void)
