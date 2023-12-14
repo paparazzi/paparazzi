@@ -54,7 +54,7 @@
     </dl_settings>
   </settings>
   <dep>
-    <depends>@gps,@mag,@imu</depends>
+    <depends>@gps,@imu</depends>
     <provides>ins,ahrs</provides>
   </dep>
   <header>

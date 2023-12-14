@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_pixhawk6x" dir="imu" task="sensors">
+  <doc>
+    <description>
+      IMU driver for the sensors inside the Pixhawk 6X autopilots
+      - IMU1: ICM20948 (non-isolated)
+      - IMU2: ICM20602 (isolated)
+      - IMU3: ICM20649 (isolated)
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,imu_common,intermcu_iomcu,imu_heater</depends>
+    <provides>imu</provides>
+  </dep>
+  <header>
+    <file name="imu_pixhawk6x.h"/>
+  </header>
+  <init fun="imu_pixhawk6x_init()"/>
+  <periodic fun="imu_pixhawk6x_periodic()"/>
+  <event fun="imu_pixhawk6x_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <file name="imu_pixhawk6x.c"/>
+    <define name="USE_SPI1"/>
+
+    <test>
+      <define name="SPI_MASTER"/>
+      <define name="CUBE_IMU1_SPI_DEV" value="spi1"/>
+      <define name="CUBE_IMU1_SPI_SLAVE_IDX" value="0"/>
+      <define name="CUBE_IMU2_SPI_DEV" value="spi4"/>
+      <define name="CUBE_IMU2_SPI_SLAVE_IDX" value="1"/>
+      <define name="CUBE_IMU3_SPI_DEV" value="spi4"/>
+      <define name="CUBE_IMU3_SPI_SLAVE_IDX" value="2"/>
+      <define name="USE_SPI1"/>
+      <define name="USE_SPI4"/>
+      <define name="USE_SPI_SLAVE0"/>
+      <define name="USE_SPI_SLAVE2"/>
+      <define name="USE_SPI_SLAVE2"/>
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="IMU_CUBE_PERIODIC_FREQ" value="512"/>
+    </test>
+  </makefile>
+</module>

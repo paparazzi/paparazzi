@@ -81,6 +81,16 @@
 #define LED_4_GPIO_OFF    gpio_set
 #endif
 
+#if defined(LINE_LED5)
+#ifndef USE_LED_5
+#define USE_LED_5 1
+#endif
+#define LED_5_GPIO        PAL_PORT(LINE_LED5)
+#define LED_5_GPIO_PIN    PAL_PAD(LINE_LED5)
+#define LED_5_GPIO_ON     gpio_clear
+#define LED_5_GPIO_OFF    gpio_set
+#endif
+
 /*
  * IMU Heater
  */
