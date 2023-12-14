@@ -287,10 +287,10 @@ void ms45xx_i2c_event(void)
 
       if (ms45xx.autoset_offset) {
         if (autoset_nb < AUTOSET_NB_MAX) {
-          autoset_offset += p_raw;
+          autoset_offset += p_out;
           autoset_nb++;
         } else {
-          ms45xx.pressure_offset = autoset_offset / (float)autoset_nb;
+          ms45xx.pressure_offset = (autoset_offset / (float)autoset_nb) / ms45xx.pressure_scale + ms45xx.pressure_scale;
           autoset_offset = 0.f;
           autoset_nb = 0;
           ms45xx.autoset_offset = false;
