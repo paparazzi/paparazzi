@@ -36,6 +36,22 @@
       <board name="holybro_.*"/>
     </boards>
   </mode>
+  <mode name="USB CubeProgrammer">
+    <variable name="FLASH_MODE" value="DFU_CUBE"/>
+    <boards>
+      <board name="apogee_.*"/>
+      <board name="li[s]?a_mx_.*"/>
+      <board name="elle*"/>
+      <board name="openpilot_revo.*"/>
+      <board name="chimera_.*"/>
+      <board name="tawaki_.*"/>
+      <board name="crazybee_f4_.*"/>
+      <board name="crazyflie_.*"/>
+      <board name="nucleo.*"/>
+      <board name="matek_.*"/>
+      <board name="holybro_.*"/>
+    </boards>
+  </mode>
   <mode name="STLink (SWD)">
     <variable name="FLASH_MODE" value="STLINK"/>
     <boards>
