@@ -32,6 +32,11 @@
 #define AIRSPEED_UAVCAN_SEND_ABI true
 #endif
 
+/* Default pressure scaling */
+#ifndef AIRSPEED_UAVCAN_DIFF_P_SCALE
+#define AIRSPEED_UAVCAN_DIFF_P_SCALE 1.0f
+#endif
+
 /* Airspeed lowpass filter*/
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
 #include "filters/low_pass_filter.h"
@@ -52,14 +57,8 @@ static Butterworth2LowPass airspeed_filter;
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE     (0xC77DF38BA122F5DAULL)
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_MAX_SIZE      ((397 + 7)/8)
 
-/* Local structure */
-struct airspeed_uavcan_t {
-  float diff_p;       ///< Differential pressure
-  float temperature;  ///< Temperature in Celsius
-};
-
 /* Local variables */
-static struct airspeed_uavcan_t airspeed_uavcan = {0};
+struct airspeed_uavcan_t airspeed_uavcan = {0};
 static uavcan_event airspeed_uavcan_ev;
 
 #if PERIODIC_TELEMETRY
@@ -103,6 +102,11 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
   //float pitot_temp = canardConvertFloat16ToNativeFloat(tmp_float);
 
   if(!isnan(diff_p)) {
+    // Remove the offset and apply a scaling factor
+    diff_p -= airspeed_uavcan.diff_p_offset;
+    diff_p *= airspeed_uavcan.diff_p_scale;
+
+    // Filtering
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
     float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
     airspeed_uavcan.diff_p = diff_p_filt;
@@ -110,6 +114,7 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
     airspeed_uavcan.diff_p = diff_p;
 #endif
 
+    // Send the ABI message
 #if AIRSPEED_UAVCAN_SEND_ABI
     AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, airspeed_uavcan.diff_p);
 #endif
@@ -125,6 +130,9 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
 
 void airspeed_uavcan_init(void)
 {
+  // Set the default values
+  airspeed_uavcan.diff_p_scale = AIRSPEED_UAVCAN_DIFF_P_SCALE;
+
   // Setup the low pass filter
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
   init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
@@ -136,4 +144,10 @@ void airspeed_uavcan_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_uavcan_downlink);
 #endif
+}
+
+void airspeed_uavcan_autoset_offset(bool set) {
+  if(set) {
+    airspeed_uavcan.diff_p_offset = airspeed_uavcan.diff_p;
+  }
 }

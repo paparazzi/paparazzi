@@ -9,7 +9,17 @@
     <define name="AIRSPEED_UAVCAN_LOWPASS_TAU" value="0.15" description="Time constant for second order Butterworth low pass filter"/>
     <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD" value="0.1" description="Period at which the sensor is sending airspeed"/>
     <define name="AIRSPEED_UAVCAN_SEND_ABI" value="true" description="Send the uavcan airspeed sensor over ABI"/>
+    <define name="AIRSPEED_UAVCAN_DIFF_P_SCALE" value="1.0" description="Pressure scaling correcting factor"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Airspeed UAVCAN">
+        <dl_setting shortname="autoset offset" var="autoset_offset" handler="autoset_offset" min="0" max="1" step="1" values="FALSE|TRUE" type="fun" module="modules/sensors/airspeed_uavcan"/>
+        <dl_setting shortname="diff_p offset" var="airspeed_uavcan.diff_p_offset" min="-2000" max="1000" step="0.1" type="float"/>
+        <dl_setting shortname="diff_p scale" var="airspeed_uavcan.diff_p_scale" min="0" max="1" step="0.01" type="float" param="AIRSPEED_UAVCAN_DIFF_P_SCALE"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <dep>
     <depends>uavcan</depends>
     <provides>airspeed</provides>
