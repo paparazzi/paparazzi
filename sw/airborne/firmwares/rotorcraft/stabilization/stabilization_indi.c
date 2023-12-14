@@ -727,9 +727,9 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   }
 
   // Set the stab_cmd to 42 to indicate that it is not used
-  stabilization_cmd[COMMAND_ROLL] = 42;
-  stabilization_cmd[COMMAND_PITCH] = 42;
-  stabilization_cmd[COMMAND_YAW] = 42;
+#if defined(COMMAND_ROLL) || defined(COMMAND_PITCH) || defined(COMMAND_YAW) 
+#warning "COMMAND_ROLL, PITCH, YAW not used in INDI: please remove it from your airframe file"
+#endif
 }
 
 /**

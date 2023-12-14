@@ -85,6 +85,7 @@ static void send_href(struct transport_tx *trans, struct link_device *dev)
 
 static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
 {
+#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW)
   pprz_msg_send_ROTORCRAFT_TUNE_HOVER(trans, dev, AC_ID,
                                       &radio_control.values[RADIO_ROLL],
                                       &radio_control.values[RADIO_PITCH],
@@ -96,6 +97,7 @@ static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
                                       &(stateGetNedToBodyEulers_i()->phi),
                                       &(stateGetNedToBodyEulers_i()->theta),
                                       &(stateGetNedToBodyEulers_i()->psi));
+#endif
 }
 
 #endif
@@ -426,9 +428,15 @@ void guidance_h_from_nav(bool in_flight)
   }
 
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_MANUAL) {
+    #ifdef COMMAND_ROLL
     stabilization_cmd[COMMAND_ROLL]  = nav.cmd_roll;
+    #endif
+    #ifdef COMMAND_PITCH
     stabilization_cmd[COMMAND_PITCH] = nav.cmd_pitch;
+    #endif
+    #ifdef COMMAND_YAW
     stabilization_cmd[COMMAND_YAW]   = nav.cmd_yaw;
+    #endif
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     if (nav.setpoint_mode == NAV_SETPOINT_MODE_QUAT) {
       // directly apply quat setpoint
