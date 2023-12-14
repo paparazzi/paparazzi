@@ -159,12 +159,12 @@ static void handle_i2c_thd(struct i2c_periph *p)
   } else {
 #if defined(STM32F7XX) || defined(STM32H7XX)
     // we do stupid mem copy because F7 needs a special RAM for DMA operation
-    memcpy(i->dma_buf, (void *)t->buf, (size_t)(t->len_w));
     status = i2cMasterReceiveTimeout(
                (I2CDriver *)p->reg_addr,
                (i2caddr_t)((t->slave_addr) >> 1),
                (uint8_t *)i->dma_buf, (size_t)(t->len_r),
                tmo);
+    cacheBufferInvalidate(i->dma_buf, t->len_r);
     memcpy((void *)t->buf, i->dma_buf, (size_t)(t->len_r));
 #else
     status = i2cMasterReceiveTimeout(
