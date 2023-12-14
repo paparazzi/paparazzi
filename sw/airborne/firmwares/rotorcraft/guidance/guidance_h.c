@@ -85,13 +85,27 @@ static void send_href(struct transport_tx *trans, struct link_device *dev)
 
 static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
 {
+  int32_t cmd_roll = 0;
+  int32_t cmd_pitch = 0;
+  int32_t cmd_yaw = 0;
+#ifdef COMMAND_ROLL
+  cmd_roll = stabilization_cmd[COMMAND_ROLL];
+#endif
+#ifdef COMMAND_PITCH
+  cmd_pitch = stabilization_cmd[COMMAND_PITCH];
+#endif
+#ifdef COMMAND_YAW
+  cmd_yaw = stabilization_cmd[COMMAND_YAW];
+#endif
+
+  
   pprz_msg_send_ROTORCRAFT_TUNE_HOVER(trans, dev, AC_ID,
                                       &radio_control.values[RADIO_ROLL],
                                       &radio_control.values[RADIO_PITCH],
                                       &radio_control.values[RADIO_YAW],
-                                      &stabilization_cmd[COMMAND_ROLL],
-                                      &stabilization_cmd[COMMAND_PITCH],
-                                      &stabilization_cmd[COMMAND_YAW],
+                                      &cmd_roll,
+                                      &cmd_pitch,
+                                      &cmd_yaw,
                                       &stabilization_cmd[COMMAND_THRUST],
                                       &(stateGetNedToBodyEulers_i()->phi),
                                       &(stateGetNedToBodyEulers_i()->theta),
@@ -426,9 +440,15 @@ void guidance_h_from_nav(bool in_flight)
   }
 
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_MANUAL) {
+    #ifdef COMMAND_ROLL
     stabilization_cmd[COMMAND_ROLL]  = nav.cmd_roll;
+    #endif
+    #ifdef COMMAND_PITCH
     stabilization_cmd[COMMAND_PITCH] = nav.cmd_pitch;
+    #endif
+    #ifdef COMMAND_YAW
     stabilization_cmd[COMMAND_YAW]   = nav.cmd_yaw;
+    #endif
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     if (nav.setpoint_mode == NAV_SETPOINT_MODE_QUAT) {
       // directly apply quat setpoint

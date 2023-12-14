@@ -727,9 +727,15 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   }
 
   // Set the stab_cmd to 42 to indicate that it is not used
+#ifdef COMMAND_ROLL
   stabilization_cmd[COMMAND_ROLL] = 42;
+#endif
+#ifdef COMMAND_PITCH
   stabilization_cmd[COMMAND_PITCH] = 42;
+#endif
+#ifdef COMMAND_YAW
   stabilization_cmd[COMMAND_YAW] = 42;
+#endif
 }
 
 /**
