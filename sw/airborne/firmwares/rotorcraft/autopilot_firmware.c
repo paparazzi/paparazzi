@@ -227,10 +227,23 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *d
 
 static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev)
 {
+  int32_t cmd_roll = 0;
+  int32_t cmd_pitch = 0;
+  int32_t cmd_yaw = 0;
+#ifdef COMMAND_ROLL
+  cmd_roll = stabilization_cmd[COMMAND_ROLL];
+#endif
+#ifdef COMMAND_PITCH
+  cmd_pitch = stabilization_cmd[COMMAND_PITCH];
+#endif
+#ifdef COMMAND_YAW
+  cmd_yaw = stabilization_cmd[COMMAND_YAW];
+#endif
+
   pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
-                               &stabilization_cmd[COMMAND_ROLL],
-                               &stabilization_cmd[COMMAND_PITCH],
-                               &stabilization_cmd[COMMAND_YAW],
+                               &cmd_roll,
+                               &cmd_pitch,
+                               &cmd_yaw,
                                &stabilization_cmd[COMMAND_THRUST]);
 }
 
