@@ -272,13 +272,13 @@ void ms45xx_i2c_event(void)
        */
       ms45xx.temperature = ((uint32_t)temp_raw * 2000) / 2047 - 500;
       
-      if(electrical.vboard != 0) {
-        float volt_diff = electrical.vboard - 5.0f;
-        Bound(volt_diff, -0.7f, 0.5f);
+      // if(electrical.vboard != 0) {
+      //   float volt_diff = electrical.vboard - 5.0f;
+      //   Bound(volt_diff, -0.7f, 0.5f);
 
-        p_out -= 65.0f * volt_diff;
-        ms45xx.temperature -= 8.87f * volt_diff;
-      }
+      //   p_out -= 65.0f * volt_diff;
+      //   ms45xx.temperature -= 8.87f * volt_diff;
+      // }
 #ifdef USE_AIRSPEED_LOWPASS_FILTER
       ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
 #else
@@ -287,10 +287,10 @@ void ms45xx_i2c_event(void)
 
       if (ms45xx.autoset_offset) {
         if (autoset_nb < AUTOSET_NB_MAX) {
-          autoset_offset += p_out;
+          autoset_offset += p_raw;
           autoset_nb++;
         } else {
-          ms45xx.pressure_offset = (autoset_offset / (float)autoset_nb) / ms45xx.pressure_scale + ms45xx.pressure_scale;
+          ms45xx.pressure_offset = autoset_offset / (float)autoset_nb;
           autoset_offset = 0.f;
           autoset_nb = 0;
           ms45xx.autoset_offset = false;

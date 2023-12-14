@@ -45,6 +45,8 @@
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
+
+            <define name="I2C2_CLOCK_SPEED" value="100000"/>
         </target>
 
         <target name="nps" board="pc">
