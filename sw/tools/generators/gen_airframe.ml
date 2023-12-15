@@ -151,7 +151,7 @@ let print_reverse_servo_table = fun out driver servos ->
   fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    fprintf out "    case SERVO_%s: return SERVO_%s_MIN;\n" name name;
+    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_MIN;\n" name name;
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
@@ -160,7 +160,7 @@ let print_reverse_servo_table = fun out driver servos ->
   fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    fprintf out "    case SERVO_%s: return SERVO_%s_MAX;\n" name name;
+    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_MAX;\n" name name;
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
@@ -171,7 +171,7 @@ let parse_servo = fun out driver c ->
   let name = "SERVO_"^shortname
   and no_servo = int_of_string (ExtXml.attrib c "no") in
 
-  define_out out name (string_of_int no_servo);
+  define_out out (name^"_DRIVER_NO") (string_of_int no_servo);
 
   let s_min = fos (ExtXml.attrib c "min" )
   and neutral = fos (ExtXml.attrib c "neutral")
@@ -211,7 +211,7 @@ let print_actuators_idx = fun out ->
     (* Set servo macro *)
     fprintf out "#define Set_%s_Servo(_v) { \\\n" s;
     fprintf out "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
-    fprintf out "  Actuator%sSet(SERVO_%s, actuators[SERVO_%s_IDX]); \\\n" d s s;
+    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX]); \\\n" d s s;
     fprintf out "}\n\n"
   ) servos_drivers;
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
