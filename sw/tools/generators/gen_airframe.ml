@@ -210,8 +210,9 @@ let print_actuators_idx = fun out ->
     fprintf out "#define SERVO_%s_IDX %d\n" s i;
     (* Set servo macro *)
     fprintf out "#define Set_%s_Servo(_pprzv,_s) { \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX] = _pprzv; \\\n" s;
-    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, Clip(_s, SERVO_%s_MIN, SERVO_%s_MAX)); \\\n" d s s s;
+    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( _pprzv, MAX_PPRZ); \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(_s, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
     fprintf out "}\n\n"
   ) servos_drivers;
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
