@@ -173,6 +173,33 @@ let print_reverse_servo_table = fun out driver servos ->
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
+  fprintf out "}\n\n";
+  fprintf out "static inline int get_servo_idx%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
+  List.iter (fun c ->
+    let name = ExtXml.attrib c "name" in
+    fprintf out "    case SERVO_%s: return SERVO_%s_IDX;\n" name name;
+  ) servos;
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
+  fprintf out "}\n\n";
+  fprintf out "static inline int get_servo_idx%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
+  List.iter (fun c ->
+    let name = ExtXml.attrib c "name" in
+    fprintf out "    case SERVO_%s: return SERVO_%s_IDX;\n" name name;
+  ) servos;
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
+  fprintf out "}\n\n";
+  fprintf out "static inline int get_servo_idx%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
+  List.iter (fun c ->
+    let name = ExtXml.attrib c "name" in
+    fprintf out "    case SERVO_%s: return SERVO_%s_IDX;\n" name name;
+  ) servos;
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
   fprintf out "}\n\n"
 
 let parse_servo = fun out driver c ->
