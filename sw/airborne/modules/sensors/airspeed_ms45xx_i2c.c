@@ -39,6 +39,11 @@
 #include "modules/datalink/telemetry.h"
 #endif
 
+/* Enable ABI sending */
+#ifndef AIRSPEED_MS45XX_SEND_ABI
+#define AIRSPEED_MS45XX_SEND_ABI true
+#endif
+
 /** Default I2C device
  */
 #ifndef MS45XX_I2C_DEV
@@ -261,6 +266,19 @@ void ms45xx_i2c_event(void)
        */
 
       float p_out = (p_raw - ms45xx.pressure_offset) * ms45xx.pressure_scale;
+
+      /* 0 = -50degC, 20147 = 150degC
+       * ms45xx_temperature in 0.1 deg Celcius
+       */
+      ms45xx.temperature = ((uint32_t)temp_raw * 2000) / 2047 - 500;
+      
+      // if(electrical.vboard != 0) {
+      //   float volt_diff = electrical.vboard - 5.0f;
+      //   Bound(volt_diff, -0.7f, 0.5f);
+
+      //   p_out -= 65.0f * volt_diff;
+      //   ms45xx.temperature -= 8.87f * volt_diff;
+      // }
 #ifdef USE_AIRSPEED_LOWPASS_FILTER
       ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
 #else
@@ -280,16 +298,16 @@ void ms45xx_i2c_event(void)
         }
       }
 
-      /* 0 = -50degC, 20147 = 150degC
-       * ms45xx_temperature in 0.1 deg Celcius
-       */
-      ms45xx.temperature = ((uint32_t)temp_raw * 2000) / 2047 - 500;
-
       // Send (differential) pressure via ABI
+      #if AIRSPEED_MS45XX_SEND_ABI
       AbiSendMsgBARO_DIFF(MS45XX_SENDER_ID, ms45xx.pressure);
+
       // Send temperature as float in deg Celcius via ABI
       float temp = ms45xx.temperature / 10.0f;
+      
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
+      #endif
+
       // Compute airspeed
       float sign = 1.0f;
       if (ms45xx.pressure < 0.0f) {

@@ -45,6 +45,8 @@
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
+
+            <define name="I2C2_CLOCK_SPEED" value="100000"/>
         </target>
 
         <target name="nps" board="pc">
@@ -299,6 +301,7 @@
     <section name="MISC">
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
+        <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
 
         <!-- Others -->
         <define name="NO_RC_THRUST_LIMIT"                   value="TRUE"/>
