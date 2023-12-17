@@ -42,17 +42,10 @@ void stabilization_none_init(void)
 
 void stabilization_none_read_rc(void)
 {
-#ifdef COMMAND_ROLL
+
   stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
-#else
-#warning "STABILIZATION_NONE is not working without COMMAND_ROLL/PITCH/YAW"
-#endif
-#ifdef COMMAND_PITCH
   stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
-#endif
-#ifdef COMMAND_YAW
   stabilization_none_rc_cmd.r = (int32_t)radio_control.values[RADIO_YAW];
-#endif
 }
 
 void stabilization_none_enter(void)

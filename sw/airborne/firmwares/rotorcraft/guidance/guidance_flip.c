@@ -140,5 +140,8 @@ void guidance_flip_run(void)
       stabilization_cmd[COMMAND_THRUST] = 8000; //Some thrust to come out of the roll?
       break;
   }
-  #endif
+#else
+  autopilot_set_mode(autopilot_mode_old);
+  stab_att_sp_euler.psi = heading_save;
+#endif
 }
