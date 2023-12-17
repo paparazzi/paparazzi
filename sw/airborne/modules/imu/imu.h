@@ -35,7 +35,7 @@
 #include "generated/airframe.h"
 
 #ifndef IMU_MAX_SENSORS
-#define IMU_MAX_SENSORS 3
+#define IMU_MAX_SENSORS 4
 #endif
 
 struct imu_calib_t {
