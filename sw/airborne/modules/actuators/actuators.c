@@ -42,11 +42,16 @@
 
 static void send_actuators(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
+  // Downlink the actuators raw driver values
+  int16_t v[ACTUATORS_NB] = {0};
+  for (int i = 0; i < ACTUATORS_NB; i++) {
+    v[i] = actuators[i].driver_val;
+  }
+  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, v);
 }
 #endif
 
-int16_t actuators[ACTUATORS_NB];
+struct actuator_t actuators[ACTUATORS_NB];
 
 // Can be used to directly control each actuator from the control algorithm
 int16_t actuators_pprz[ACTUATORS_NB];
