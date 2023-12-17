@@ -24,7 +24,7 @@
       <message name="ENERGY"                   period="0.5"/>
       <message name="DATALINK_REPORT"          period="5.1"/>
       <message name="STATE_FILTER_STATUS"      period="3.2"/>
-      <message name="AIR_DATA"                 period="0.6"/>
+      <message name="AIR_DATA"                 period="0.1"/>
       <message name="SURVEY"                   period="2.5"/>
       <message name="OPTIC_FLOW_EST"           period="0.05"/>
       <message name="VECTORNAV_INFO"           period="0.5"/>
