@@ -157,6 +157,11 @@
   </servos>
 
   <commands>
+    <axis name="ELEVON_LEFT"  failsafe_value="0"/>
+    <axis name="ELEVON_RIGHT" failsafe_value="0"/>
+    <axis name="MOTOR_RIGHT"  failsafe_value="0"/>
+    <axis name="MOTOR_LEFT"   failsafe_value="0"/>
+
     <axis name="PITCH"  failsafe_value="0"/>
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
@@ -234,7 +239,7 @@
     <define name="FILT_CUTOFF" value="5.0"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.1, 0.1, 0.045, 0.045}"/>
+    <define name="ACT_FREQ" value="{52.7, 52.7, 23.0, 23.0}"/>
     <define name="ACT_RATE_LIMIT" value="{170, 170, 9600, 9600}"/>
     <define name="ACT_IS_SERVO" value="{1, 1, 0, 0}"/>
 
