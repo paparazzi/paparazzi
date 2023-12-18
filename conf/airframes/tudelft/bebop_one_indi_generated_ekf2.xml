@@ -40,7 +40,7 @@
 
     <module name="guidance" type="indi">
        <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+       <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="53.9"/>
        <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
      </module>
 
@@ -127,7 +127,7 @@
     <define name="REF_RATE_R"             value="28.0"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
     <define name="FILT_CUTOFF"            value="5.0"/>
-    <define name="ACT_DYN"                value="{0.1, 0.1, 0.1, 0.1}"/>
+    <define name="ACT_FREQ"               value="{53.9, 53.9, 53.9, 53.9}"/>
     <define name="USE_ADAPTIVE"           value="TRUE"/>
     <define name="ADAPTIVE_MU"            value="0.0001"/>
     <define name="WLS_PRIORITIES"         value="{1000, 1000, 1, 100}"/>
