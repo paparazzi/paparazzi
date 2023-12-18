@@ -613,13 +613,13 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
     // Sanity check that index is valid
     int idx = feedback_msg[i].idx;
     if (feedback_msg[i].set.rpm) {
-      if (idx == SERVO_MOTOR_FRONT_IDX) {
+      if ((idx == SERVO_MOTOR_FRONT_IDX) || (idx == SERVO_BMOTOR_FRONT_IDX)) {
         rotwing_state_hover_rpm[0] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_RIGHT_IDX) {
+      } else if ((idx == SERVO_MOTOR_RIGHT_IDX) || (idx == SERVO_BMOTOR_RIGHT_IDX)) {
         rotwing_state_hover_rpm[1] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_BACK_IDX) {
+      } else if ((idx == SERVO_MOTOR_BACK_IDX) || (idx == SERVO_BMOTOR_BACK_IDX)) {
         rotwing_state_hover_rpm[2] = feedback_msg->rpm;
-      } else if (idx == SERVO_MOTOR_LEFT_IDX) {
+      } else if ((idx == SERVO_MOTOR_LEFT_IDX) || (idx == SERVO_BMOTOR_LEFT_IDX)) {
         rotwing_state_hover_rpm[3] = feedback_msg->rpm;
       }
     }
