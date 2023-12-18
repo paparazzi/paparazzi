@@ -33,7 +33,7 @@
     <file name="sensors_hitl.c"/>
     <test firmware="rotorcraft">
       <include name="../../conf/simulator/nps"/>
-      <define name="NPS_PROPAGATE" value="500"/>
+      <define name="PERIODIC_FREQUENCY" value="500"/>
       <define name="HITL_DEVICE" value="usb_serial"/>
       <define name="USE_USB_SERIAL"/>
     </test>

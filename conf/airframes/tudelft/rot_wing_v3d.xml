@@ -125,6 +125,7 @@
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks"/>
+        <module name="pfc_actuators"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
 
@@ -236,25 +237,26 @@
         <let var="flap_limit_hit" value="LessThan(rotwing_state_skewing.wing_angle_deg, 50)"/>
 
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[1])" SERVO="MOTOR_RIGHT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[2])" SERVO="MOTOR_BACK"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[3])" SERVO="MOTOR_LEFT"/>
-        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[4])" SERVO="SERVO_RUDDER"/>
-        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
-        <set VALUE="($th_hold? -9600 : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
-        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"  SERVO="ROTATION_MECH"/>
-        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
-        <set VALUE="$ail_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
-        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
-        <set VALUE="$flap_limit_hit? 0 : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
+        <call fun="pfc_actuators_run()"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : actuators_pprz[0])" SERVO="MOTOR_FRONT"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : actuators_pprz[1])" SERVO="MOTOR_RIGHT"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="MOTOR_BACK"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="MOTOR_LEFT"/>
+        <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : pfc_actuators_value(1, actuators_pprz[4]))" SERVO="SERVO_RUDDER"/>
+        <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? pfc_actuators_value(0, 0) : actuators_pprz[5]))" SERVO="SERVO_ELEVATOR"/>
+        <set VALUE="($th_hold? ($servo_hold? -9600 : pfc_actuators_value(11, -9600)) : actuators_pprz[8])" SERVO="MOTOR_PUSH"/>
+        <set VALUE="pfc_actuators_value(6, rotwing_state_skewing.servo_pprz_cmd)"  SERVO="ROTATION_MECH"/>
+        <set VALUE="$ail_limit_hit? pfc_actuators_value(2, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_LEFT"/>
+        <set VALUE="$ail_limit_hit? pfc_actuators_value(5, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])" SERVO="AIL_RIGHT"/>
+        <set VALUE="$flap_limit_hit? pfc_actuators_value(3, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_LEFT"/>
+        <set VALUE="$flap_limit_hit? pfc_actuators_value(4, 0) : ($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])" SERVO="FLAP_RIGHT"/>
 
         <!-- Backup commands -->
-        <set VALUE="($hover_off? -9600 : actuators_pprz[0])" SERVO="BMOTOR_FRONT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
-        <set VALUE="($hover_off? -9600 : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
-        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"    SERVO="BROTATION_MECH"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(7, -9600)) : actuators_pprz[0])" SERVO="BMOTOR_FRONT"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
+        <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
+        <set VALUE="pfc_actuators_value(6, rotwing_state_skewing.servo_pprz_cmd)"  SERVO="BROTATION_MECH"/>
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
@@ -301,6 +303,9 @@
     <section name="MISC">
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
+
+        <!-- Preflight check actuators (ELE, RUD, AIL_L, FLAP_L, FLAP_R, AIL_R, ROT_M, M_FRONT, M_RIGHT_, M_BACK, M_LEFT, M_PUSH) -->
+        <define name="PFC_ACTUATORS" value="{{.feedback_id=SERVO_SERVO_ELEVATOR_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=0.85, .high_feedback=0.3, .timeout=1},{.feedback_id=SERVO_SERVO_RUDDER_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_AIL_LEFT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_FLAP_LEFT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_FLAP_RIGHT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_AIL_RIGHT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_ROTATION_MECH_IDX, .feedback_id2=SERVO_BROTATION_MECH_IDX, .low=-9600, .high=9600, .low_feedback=1.57, .high_feedback=0, .timeout=5},{.feedback_id=SERVO_MOTOR_FRONT_IDX, .feedback_id2=SERVO_BMOTOR_FRONT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_RIGHT_IDX, .feedback_id2=SERVO_BMOTOR_RIGHT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_BACK_IDX, .feedback_id2=SERVO_BMOTOR_BACK_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_LEFT_IDX, .feedback_id2=SERVO_BMOTOR_LEFT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_PUSH_IDX, .feedback_id2=255, .low=-9600, .high=2000, .low_feedback=0, .high_feedback=2200, .timeout=3}}"/>
 
         <!-- Others -->
         <define name="NO_RC_THRUST_LIMIT"                   value="TRUE"/>

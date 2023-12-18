@@ -18,6 +18,9 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <dep>
+    <depends>@datalink</depends>
+  </dep>
   <header>
     <file name="preflight_checks.h"/>
   </header>
