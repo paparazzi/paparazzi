@@ -184,6 +184,7 @@ void schdule_control_effectiveness(void) {
 #error "ctfl_eff_scheduling_nederdrone is very specific and only works for one Nederdrone configuration!"
 #endif
     if (i>3) {
+      // Increase servo effectiveness depending on the thrust of the propeller of that wing: 0,1,2,3 = motors, 4,5,6,7 = flaps
       float wing_thrust = actuators_pprz[i-4];
       Bound(wing_thrust,3000.0,9600.0);
       wing_thrust_scaling = wing_thrust/9600.0/0.8;
