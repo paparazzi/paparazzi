@@ -202,7 +202,7 @@
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2"        value="{100, -100, 100, -100.0 }"/>
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.02, 0.02, 0.02, 0.02}"/>
+    <define name="ACT_FREQ" value="{10.3, 10.3, 10.3, 10.3}"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
 
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
