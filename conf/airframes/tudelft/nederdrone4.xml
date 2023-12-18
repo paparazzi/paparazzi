@@ -67,7 +67,7 @@
       <module name="fdm" type="jsbsim"/>
 
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
+        <define name="FILE_LOGGER_PATH" value="~/"/>
       </module>
 
       <!--Not dealing with these in the simulation-->
@@ -225,7 +225,6 @@
     <define name="ROLL_COEF"   value="{256,  253,  159, -159, -253, -256,  256,  157,   56,  -56, -157, -256}"/>
     <define name="PITCH_COEF"  value="{256,  256,  256,  256,  256,  256, -256, -256, -256, -256, -256, -256}"/>
     <define name="YAW_COEF"    value="{251, -256,  252, -252,  256, -251, -256,  252, -254,  254, -252,  256}"/>
-    <!--<define name="YAW_COEF"    value="{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}"/>-->
     <define name="THRUST_COEF" value="{256,  256,  256,  256,  256,  256,  256,  256,  256,  256,  256,  256}"/>
   </section>
 

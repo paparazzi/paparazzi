@@ -157,6 +157,11 @@
   </servos>
 
   <commands>
+    <axis name="ELEVON_LEFT"  failsafe_value="0"/>
+    <axis name="ELEVON_RIGHT" failsafe_value="0"/>
+    <axis name="MOTOR_RIGHT"  failsafe_value="0"/>
+    <axis name="MOTOR_LEFT"   failsafe_value="0"/>
+
     <axis name="PITCH"  failsafe_value="0"/>
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
