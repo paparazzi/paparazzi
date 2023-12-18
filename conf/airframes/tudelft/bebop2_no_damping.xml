@@ -25,7 +25,7 @@
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.5"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.8"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.06"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="31.7"/>
     </module>
 
     <module name="ahrs" type="int_cmpl_quat">
@@ -150,9 +150,9 @@
     <define name="FILT_CUTOFF_RDOT" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.06"/>
-    <define name="ACT_DYN_Q" value="0.06"/>
-    <define name="ACT_DYN_R" value="0.06"/>
+    <define name="ACT_FREQ_P" value="31.7"/>
+    <define name="ACT_FREQ_Q" value="31.7"/>
+    <define name="ACT_FREQ_R" value="31.7"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>

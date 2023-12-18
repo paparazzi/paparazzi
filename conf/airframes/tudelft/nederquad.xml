@@ -218,9 +218,9 @@
     <define name="FILT_CUTOFF" value="1.5"/>
     <define name="FILT_CUTOFF_R" value="1.0"/>
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.0354" />
-    <define name="ACT_DYN_Q" value="0.0354" />
-    <define name="ACT_DYN_R" value="0.0354" />
+    <define name="ACT_FREQ_P" value="18.0" />
+    <define name="ACT_FREQ_Q" value="18.0" />
+    <define name="ACT_FREQ_R" value="18.0" />
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE" />
     <define name="ADAPTIVE_MU" value="0.0001" />

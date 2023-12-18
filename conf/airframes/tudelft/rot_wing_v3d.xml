@@ -222,11 +222,23 @@
     </servos>
 
     <commands>
-        <axis name="ROLL"       failsafe_value="0"/>
-        <axis name="PITCH"      failsafe_value="0"/>
-        <axis name="YAW"        failsafe_value="0"/>
-        <axis name="THRUST"     failsafe_value="0"/>
-        <axis name="THRUST_X"   failsafe_value="0"/>
+        <!-- commands from INDI -->
+        <axis name="FRONT_MOTOR" failsafe_value="0"/>
+        <axis name="RIGHT_MOTOR" failsafe_value="0"/>
+        <axis name="BACK_MOTOR"  failsafe_value="0"/>
+        <axis name="LEFT_MOTOR"  failsafe_value="0"/>
+        <axis name="RUDDER"      failsafe_value="0"/>
+        <axis name="ELEVATOR"    failsafe_value="0"/>
+        <axis name="AILERON"     failsafe_value="0"/>
+        <axis name="FLAP"        failsafe_value="0"/>
+        <axis name="THRUST_X"    failsafe_value="0"/>
+        <!-- commands modules -->
+        <axis name="SKEW"        failsafe_value="0"/>
+        <!-- default commands -->
+        <axis name="THRUST"      failsafe_value="0"/>
+        <axis name="ROLL"        failsafe_value="0"/>
+        <axis name="PITCH"       failsafe_value="0"/>
+        <axis name="YAW"         failsafe_value="0"/>
     </commands>
 
     <command_laws>

@@ -88,13 +88,11 @@ static void guidance_indi_filter_thrust(void);
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
-#ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_FREQ_P
-#error "You need to define GUIDANCE_INDI_THRUST_DYN_FREQ to be able to use indi vertical control"
+#error "You need to define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ to be able to use indi vertical control"
 #else // assume that the same actuators are used for thrust as for roll (e.g. quadrotor)
 #define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ STABILIZATION_INDI_ACT_FREQ_P
 #endif
-#endif // GUIDANCE_INDI_THRUST_DYN_FREQ
 #endif //GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
 
 
@@ -176,11 +174,13 @@ void guidance_indi_enter(void)
   thrust_in = stabilization_cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
 
+#ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 #ifdef GUIDANCE_INDI_THRUST_DYNAMICS
   thrust_dyn = GUIDANCE_INDI_THRUST_DYNAMICS;
 #else
   thrust_dyn = 1-exp(-GUIDANCE_INDI_THRUST_DYNAMICS_FREQ/PERIODIC_FREQUENCY);
-#endif
+#endif //GUIDANCE_INDI_THRUST_DYNAMICS
+#endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 
   float tau = 1.0 / (2.0 * M_PI * filter_cutoff);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
