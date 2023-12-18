@@ -49,6 +49,9 @@ paparazzi.sublime-workspace
 *.files
 *.includes
 
+# VSCode IDE
+.vscode/ipch/
+
 # Vagrant VM files
 /.vagrant
 
@@ -144,6 +147,10 @@ Cargo.lock
 /sw/logalizer/ahrs2fg
 /sw/logalizer/disp3d
 /sw/logalizer/sdlogger_download
+
+# /sw/misc
+/sw/misc/link/pprzlink_router
+/sw/misc/link/pprzlink_router_cc
 
 # /sw/simulator/
 /sw/simulator/gaia
