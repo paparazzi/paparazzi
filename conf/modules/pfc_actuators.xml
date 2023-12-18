@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="pfc_actuators" dir="checks">
+  <doc>
+    <description>
+      Preform a pre flight check of the actuators and validate by looking at the feedback.
+    </description>
+    <define name="PFC_ACTUATORS" value="{}" description="Struct containing the setup of the preflight check"/>
+    <define name="PFC_ACTUATORS_MAX_ANGLE_ERROR" value="0.1" description="Maximum allowed angle error in radians +/-"/>
+    <define name="PFC_ACTUATORS_MAX_RPM_ERROR" value="250" description="Maximum allowed RPM error +/-"/>
+    <define name="PFC_ACTUATORS_DEBUG" value="false" description="Enable debug output in the GCS"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Checks">
+        <dl_setting var="act_start" min="0" step="1" max="1" values="OFF|START" handler="start" module="checks/pfc_actuators" type="fun"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@datalink,preflight_checks</depends>
+  </dep>
+  <header>
+    <file name="pfc_actuators.h"/>
+  </header>
+  <init fun="pfc_actuators_init()"/>
+  <makefile>
+    <file name="pfc_actuators.c"/>
+    <test>
+      <define name="PFC_ACTUATORS" value="{{}}"/>
+      <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+      <define name="DOWNLINK_DEVICE" value="uart0"/>
+      <define name="USE_UART0"/>
+    </test>
+  </makefile>
+</module>
