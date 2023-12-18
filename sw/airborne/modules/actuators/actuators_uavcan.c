@@ -245,7 +245,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
     feedback.idx = get_servo_idx_UAVCAN1(esc_idx);
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
-    if(actuators_uavcan1cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
+    if(esc_idx < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN1CMD(esc_idx);
     }
 #endif
@@ -264,7 +264,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
     feedback.idx = get_servo_idx_UAVCAN2(esc_idx);
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
-    if(actuators_uavcan2cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
+    if(esc_idx < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN2CMD(esc_idx);
     }
 #endif
@@ -318,7 +318,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
     feedback.idx = get_servo_idx_UAVCAN1(actuator_idx);
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
-    if(actuators_uavcan1cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
+    if(actuator_idx < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN1CMD(actuator_idx);
     }
 #endif
@@ -338,7 +338,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
     feedback.idx = get_servo_idx_UAVCAN2(actuator_idx);
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
-    if(actuators_uavcan2cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
+    if(actuator_idx < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN2CMD(actuator_idx);
     }
 #endif
