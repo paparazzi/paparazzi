@@ -43,6 +43,7 @@
 
 struct Electrical {
   float vsupply;        ///< supply voltage in V
+  float vboard;         ///< board voltage in V
   float current;        ///< current in A
   float charge;         ///< consumed electric charge in Ah
   float energy;         ///< consumed energy in Wh
