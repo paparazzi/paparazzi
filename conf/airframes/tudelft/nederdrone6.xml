@@ -68,7 +68,7 @@
       <module name="fdm" type="jsbsim"/>
 
       <module name="logger_file">
-        <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
+        <define name="FILE_LOGGER_PATH" value="~/"/>
       </module>
 
       <!--Not dealing with these in the simulation-->
@@ -190,6 +190,18 @@
   </servos>
 
   <commands>
+    <axis name="FRONT_LEFT"       failsafe_value="0"/>
+    <axis name="FRONT_RIGHT"      failsafe_value="0"/>
+    <axis name="REAR_LEFT"        failsafe_value="0"/>
+    <axis name="REAR_RIGHT"       failsafe_value="0"/>
+
+    <axis name="FRONT_LEFT_FLAP"  failsafe_value="0"/>
+    <axis name="FRONT_RIGHT_FLAP" failsafe_value="0"/>
+    <axis name="REAR_LEFT_FLAP"   failsafe_value="0"/>
+    <axis name="REAR_RIGHT_FLAP"  failsafe_value="0"/>
+
+    <axis name="TIP_THRUSTERS"    failsafe_value="0"/>
+
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="-300"/>
     <axis name="YAW"    failsafe_value="0"/>
@@ -204,7 +216,6 @@
     <define name="ROLL_COEF"   value="{256,  157,   56,  -56, -157, -256,  256,  157,   56,  -56, -157, -256}"/>
     <define name="PITCH_COEF"  value="{256,  256,  256,  256,  256,  256, -256, -256, -256, -256, -256, -256}"/>
     <define name="YAW_COEF"    value="{251, -256,  252, -252,  256, -251, -256,  252, -254,  254, -252,  256}"/>
-    <!--<define name="YAW_COEF"    value="{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}"/>-->
     <define name="THRUST_COEF" value="{256,  256,  256,  256,  256,  256,  256,  256,  256,  256,  256,  256}"/>
   </section>
 
