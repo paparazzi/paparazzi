@@ -26,7 +26,20 @@
 #ifndef AIRSPEED_UAVCAN_H
 #define AIRSPEED_UAVCAN_H
 
+#include "std.h"
+
+/* Airspeed UAVCAN structure */
+struct airspeed_uavcan_t {
+  float diff_p;       ///< Differential pressure
+  float temperature;  ///< Temperature in Celsius
+
+  float diff_p_offset;  ///< Differential pressure offset
+  float diff_p_scale;   ///< Differential pressure scale
+};
+extern struct airspeed_uavcan_t airspeed_uavcan;
+
 /* External functions */
 extern void airspeed_uavcan_init(void);
+extern void airspeed_uavcan_autoset_offset(bool set);
 
 #endif /* AIRSPEED_UAVCAN_H */
