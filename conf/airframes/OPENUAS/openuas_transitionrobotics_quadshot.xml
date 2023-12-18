@@ -586,9 +586,9 @@ The most crucial part for the magnetometer calibration:
     <define name="FILT_CUTOFF_RDOT" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.03"/>
-    <define name="ACT_DYN_Q" value="0.03"/>
-    <define name="ACT_DYN_R" value="0.03"/>
+    <define name="ACT_FREQ_P" value="15.6"/>
+    <define name="ACT_FREQ_Q" value="15.6"/>
+    <define name="ACT_FREQ_R" value="15.6"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="TRUE"/>
