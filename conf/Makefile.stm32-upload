@@ -85,6 +85,15 @@ ifeq ($(VERIFY),1)
 endif
 
 #
+# DFU flash with STM32CubeProgrammer
+else ifeq ($(FLASH_MODE),DFU_CUBE)
+
+CUBE_PROGRAMMER = /usr/local/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin/STM32_Programmer_CLI
+
+upload: $(OBJDIR)/$(TARGET).elf
+	$(CUBE_PROGRAMMER) -c port=usb1 -d $^
+
+#
 # serial flash mode
 else ifeq ($(FLASH_MODE),SERIAL)
 LOADER ?= $(PAPARAZZI_SRC)/sw/tools/stm32loader/stm32loader.py
