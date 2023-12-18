@@ -26,6 +26,8 @@
 
 #include "preflight_checks.h"
 #include "core/abi.h"
+#include "modules/datalink/telemetry.h"
+#include <stdio.h>
 
 /**
  * Maximum error for the angle of the actuators (rad)
@@ -48,6 +50,9 @@
 #define PFC_ACTUATORS_DEBUG false
 #endif
 
+/**
+ * @brief The status of the preflight checks
+*/
 enum pfc_actuators_state_t {
   PFC_ACTUATORS_STATE_INIT,
   PFC_ACTUATORS_STATE_RUNNING,
@@ -55,36 +60,42 @@ enum pfc_actuators_state_t {
   PFC_ACTUATORS_STATE_ERROR
 };
 
+/**
+ * @brief The state of the actuator during the test
+*/
 enum pfc_actuator_state_t {
   PFC_ACTUATOR_STATE_WAIT,
   PFC_ACTUATOR_STATE_LOW,
   PFC_ACTUATOR_STATE_HIGH,
 };
 
+/**
+ * @brief The configuration struct of the actuator
+*/
 struct pfc_actuator_t {
-  uint8_t feedback_id;
-  uint8_t feedback_id2;
+  uint8_t feedback_id;    ///< The feedback id of the actuator (255 for none)
+  uint8_t feedback_id2;   ///< The secondary feedback id of the actuator (255 for none)
 
-  int16_t low;
-  int16_t high;
-  float low_feedback;
-  float high_feedback;
+  int16_t low;            ///< The low value to set the actuator to
+  int16_t high;           ///< The high value to set the actuator to
+  float low_feedback;     ///< The expected feedback value when the actuator is low
+  float high_feedback;    ///< The expected feedback value when the actuator is high
 
-  float timeout;
+  float timeout;          ///< The timeout for the actuator to move
 };
 
 struct pfc_actuators_t {
-  enum pfc_actuators_state_t state;
+  enum pfc_actuators_state_t state;     ///< The state of the preflight checks
 
-  uint8_t act_idx;
-  uint8_t act_nb;
-  enum pfc_actuator_state_t act_state;
-  float act_start_time;
+  uint8_t act_idx;                      ///< The current actuator index
+  uint8_t act_nb;                       ///< The number of actuators
+  enum pfc_actuator_state_t act_state;  ///< The state of the actuator (during the test)
+  float act_start_time;                 ///< The start time of the actuator (during the test)
 
-  float last_feedback;
-  float last_feedback_err;
-  float last_feedback2;
-  float last_feedback_err2;
+  float last_feedback;                  ///< The last measured feedback value of the actuator
+  float last_feedback_err;              ///< The last expected feedback error of the actuator (based on RPM/angle)
+  float last_feedback2;                 ///< The last measured secondary feedback value of the actuator
+  float last_feedback_err2;             ///< The last expected secondary feedback error of the actuator (based on RPM/angle)
 };
 
 // Local variables and functions
@@ -95,11 +106,12 @@ static abi_event act_feedback_ev;
 static void pfc_actuators_cb(struct preflight_result_t *result);
 static void pfc_act_feedback_cb(uint8_t sender_id, struct act_feedback_t *feedback, uint8_t num_act);
 
-#if PFC_ACTUATORS_DEBUG
-#include "modules/datalink/telemetry.h"
-#include <stdio.h>
-
-static void pfc_actuators_debug(const char *fmt, ...) {
+/**
+ * @brief Send an error message to the ground station
+ * @param fmt The format of the message
+ * @param ... The arguments for the format
+ */
+static void pfc_actuators_error(const char *fmt, ...) {
   char msg[200];
 
   // Add the error
@@ -113,11 +125,14 @@ static void pfc_actuators_debug(const char *fmt, ...) {
   }
 }
 
+/**
+ * @brief Send a debug message to the ground station
+*/
+#if PFC_ACTUATORS_DEBUG
+#define pfc_actuators_debug pfc_actuators_error
 #else
-static void pfc_actuators_debug(const char *fmt, ...) {
-  (void)fmt;
-}
-#endif /* PFC_ACTUATORS_DEBUG */
+#define pfc_actuators_debug(...)
+#endif
 
 /**
  * @brief Register the preflight checks for the actuators
@@ -160,11 +175,11 @@ void pfc_actuators_run(void) {
         // Check if the feedback is correct
         if(act->feedback_id != 255 && 
           (pfc_actuators.last_feedback < (act->low_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->low_feedback + pfc_actuators.last_feedback_err))) {
-          pfc_actuators_debug("Actuator %d not responding correctly LOW %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->low_feedback + pfc_actuators.last_feedback_err);
+          pfc_actuators_error("Actuator %d not responding correctly LOW %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->low_feedback + pfc_actuators.last_feedback_err);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         } else if(act->feedback_id2 != 255 && 
           (pfc_actuators.last_feedback2 < (act->low_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->low_feedback + pfc_actuators.last_feedback_err2))) {
-          pfc_actuators_debug("Actuator %d not responding correctly LOW2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->low_feedback + pfc_actuators.last_feedback_err2);
+          pfc_actuators_error("Actuator %d not responding correctly LOW2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->low_feedback + pfc_actuators.last_feedback_err2);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         }
         if(pfc_actuators.state != PFC_ACTUATORS_STATE_ERROR || PFC_ACTUATORS_DEBUG) {
@@ -180,11 +195,11 @@ void pfc_actuators_run(void) {
         // Check if the feedback is correct
         if(act->feedback_id != 255 && 
           (pfc_actuators.last_feedback < (act->high_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->high_feedback + pfc_actuators.last_feedback_err))) {
-          pfc_actuators_debug("Actuator %d not responding correctly HIGH %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->high_feedback + pfc_actuators.last_feedback_err);
+          pfc_actuators_error("Actuator %d not responding correctly HIGH %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->high_feedback + pfc_actuators.last_feedback_err);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         } else if(act->feedback_id2 != 255 && 
           (pfc_actuators.last_feedback2 < (act->high_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->high_feedback + pfc_actuators.last_feedback_err2))) {
-          pfc_actuators_debug("Actuator %d not responding correctly HIGH2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->high_feedback + pfc_actuators.last_feedback_err2);
+          pfc_actuators_error("Actuator %d not responding correctly HIGH2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->high_feedback + pfc_actuators.last_feedback_err2);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         } 
         if(pfc_actuators.state != PFC_ACTUATORS_STATE_ERROR || PFC_ACTUATORS_DEBUG) {
@@ -201,7 +216,7 @@ void pfc_actuators_run(void) {
   // Finished testing
   if(pfc_actuators.act_idx >= pfc_actuators.act_nb) {
     pfc_actuators.state = PFC_ACTUATORS_STATE_SUCCESS;
-    pfc_actuators_debug("Running done %d", pfc_actuators.act_idx);
+    pfc_actuators_error("Actuators checks done %d", pfc_actuators.act_idx);
   }
 }
 
@@ -225,6 +240,11 @@ void pfc_actuators_start(bool start) {
   }
 }
 
+/**
+ * @brief Get the actuator value in the command laws to move the actuator during the preflight checks
+ * @param idx The index of the actuator in the preflight checks struct
+ * @param value The value if no checks are performed on this actuator
+*/
 int16_t pfc_actuators_value(uint8_t idx, int16_t value) {
   if(idx != pfc_actuators.act_idx || pfc_actuators.state != PFC_ACTUATORS_STATE_RUNNING) {
     return value;
