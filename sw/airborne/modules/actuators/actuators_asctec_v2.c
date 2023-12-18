@@ -109,10 +109,10 @@ void actuators_asctec_v2_set(void)
       actuators_asctec_v2.i2c_trans.len_w = 4;
       break;
     case NONE:
-      actuators_asctec_v2.i2c_trans.buf[0] = actuators_asctec_v2.cmds[SERVO_FRONT];
-      actuators_asctec_v2.i2c_trans.buf[1] = actuators_asctec_v2.cmds[SERVO_BACK];
-      actuators_asctec_v2.i2c_trans.buf[2] = actuators_asctec_v2.cmds[SERVO_LEFT];
-      actuators_asctec_v2.i2c_trans.buf[3] = actuators_asctec_v2.cmds[SERVO_RIGHT];
+      actuators_asctec_v2.i2c_trans.buf[0] = actuators_asctec_v2.cmds[SERVO_FRONT_IDX];
+      actuators_asctec_v2.i2c_trans.buf[1] = actuators_asctec_v2.cmds[SERVO_BACK_IDX];
+      actuators_asctec_v2.i2c_trans.buf[2] = actuators_asctec_v2.cmds[SERVO_LEFT_IDX];
+      actuators_asctec_v2.i2c_trans.buf[3] = actuators_asctec_v2.cmds[SERVO_RIGHT_IDX];
       actuators_asctec_v2.i2c_trans.buf[4] = 0xAA + actuators_asctec_v2.i2c_trans.buf[0] +
                                              actuators_asctec_v2.i2c_trans.buf[1] +
                                              actuators_asctec_v2.i2c_trans.buf[2] +
