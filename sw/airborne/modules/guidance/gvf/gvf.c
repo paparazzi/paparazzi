@@ -180,28 +180,6 @@ void gvf_control_2D(float ke, float kn, float e,
 
   #ifdef ROTORCRAFT_FIRMWARE
 
-  float n_norm = sqrtf(nx*nx+ny*ny);
-  float hess_px_dot = px_dot * H11 + py_dot * H12;
-  float hess_py_dot = px_dot * H21 + py_dot * H22;
-
-  float hess_pdx_dot = pdx_dot * H11 + pdy_dot * H12;
-  float hess_pdy_dot = pdx_dot * H21 + pdy_dot * H22;
-
-  // float curvature_correction = tx * hess_px_dot + ty * hess_py_dot / (n_norm * n_norm);
-  // float accel_correction_x = kn * hess_py_dot / n_norm;
-  // float accel_correction_y = - kn * hess_px_dot / n_norm;
-  // float accel_cmd_x = accel_correction_x + px_dot * curvature_correction;
-  // float accel_cmd_y = accel_correction_y + py_dot * curvature_correction;
-
-  float curvature_correction = tx * hess_pdx_dot + ty * hess_py_dot / (n_norm * n_norm);
-  float accel_correction_x = kn * hess_py_dot / n_norm;
-  float accel_correction_y = - kn * hess_pdx_dot / n_norm;
-  float accel_cmd_x = accel_correction_x + pdx_dot * curvature_correction;
-  float accel_cmd_y = accel_correction_y + pdy_dot * curvature_correction;
-
-  float speed_cmd_x = kn*tx / n_norm - ke * e * nx / (n_norm);
-  float speed_cmd_y = kn*ty / n_norm - ke * e * ny / (n_norm);
-
   // Set nav for command
 
   // Use parameter kn as the speed command
@@ -209,22 +187,28 @@ void gvf_control_2D(float ke, float kn, float e,
   nav.speed.y = md_y * kn;
 
 
-  // Acceleration induced by the field with speed set to kn
+  // Acceleration induced by the field with speed set to kn (!WIP! Disabled for now)
+  #if 0
+  float n_norm = sqrtf(nx*nx+ny*ny);
+  float hess_px_dot = px_dot * H11 + py_dot * H12;
+  float hess_py_dot = px_dot * H21 + py_dot * H22;
+
+  float hess_pdx_dot = pdx_dot * H11 + pdy_dot * H12;
+  float hess_pdy_dot = pdx_dot * H21 + pdy_dot * H22;
+
+  float curvature_correction = tx * hess_px_dot + ty * hess_py_dot / (n_norm * n_norm);
+  float accel_correction_x = kn * hess_py_dot / n_norm;
+  float accel_correction_y = - kn * hess_px_dot / n_norm;
+  float accel_cmd_x = accel_correction_x + px_dot * curvature_correction;
+  float accel_cmd_y = accel_correction_y + py_dot * curvature_correction;
+
+  float speed_cmd_x = kn*tx / n_norm - ke * e * nx / (n_norm);
+  float speed_cmd_y = kn*ty / n_norm - ke * e * ny / (n_norm);
+
   nav.accel.x = accel_cmd_x + (speed_cmd_x - px_dot); 
   nav.accel.y = accel_cmd_y + (speed_cmd_y - py_dot); 
 
-  if (nav.setpoint_mode == NAV_SETPOINT_MODE_SPEED)
-  {
-    printf("GVF speed cmd:\nX: %f\nY: %f\nNorm: %f\n",nav.speed.x,nav.speed.y, sqrtf(nav.speed.x*nav.speed.x + nav.speed.y*nav.speed.y));
-  }
-  else if (nav.setpoint_mode == NAV_SETPOINT_MODE_ACCEL)
-  {
-    printf("GVF accel cmd:\nX: %f\nY: %f\nNorm: %f\n",nav.accel.x,nav.accel.y, sqrtf(nav.accel.x*nav.accel.x + nav.accel.y*nav.accel.y));
-  }
-  else
-  {
-    printf("GVF unsupported mode!\n");
-  }
+  #endif
 
   nav.heading = atan2f(md_x,md_y);
 
