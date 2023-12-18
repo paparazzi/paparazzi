@@ -128,13 +128,14 @@ static void guidance_indi_filter_thrust(void);
 #warning "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
 #warning "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
 #warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
+#define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ (-ln(1-GUIDANCE_INDI_THRUST_DYNAMICS)*PERIODIC_FREQUENCY)
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
-#ifndef STABILIZATION_INDI_ACT_DYN_P
-#error "You need to define GUIDANCE_INDI_THRUST_DYNAMICS to be able to use indi vertical control"
+#ifndef STABILIZATION_INDI_ACT_FREQ_P
+#error "You need to define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ to be able to use indi vertical control"
 #else // assume that the same actuators are used for thrust as for roll (e.g. quadrotor)
-#define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ STABILIZATION_INDI_ACT_DYN_P
+#define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ STABILIZATION_INDI_ACT_FREQ_P
 #endif
 #endif //GUIDANCE_INDI_THRUST_DYNAMICS_FREQ
 
