@@ -579,7 +579,7 @@ void rotwing_state_skew_actuator_periodic(void)
 #endif
 
 #if USE_NPS
-  actuators_pprz[INDI_NUM_ACT] = (rotwing_state_skewing.servo_pprz_cmd + MAX_PPRZ) / 2.; // Scale to simulation command
+  stabilization_cmd[COMMAND_SKEW] = (rotwing_state_skewing.servo_pprz_cmd + MAX_PPRZ) / 2.; // Scale to simulation command
   rotwing_state_skewing.wing_angle_deg = (float) rotwing_state_skewing.servo_pprz_cmd / MAX_PPRZ * 45. + 45.;
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback

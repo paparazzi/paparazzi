@@ -66,7 +66,7 @@ extern int16_t actuators[ACTUATORS_NB];
  * Can be used to directly control actuators from the control algorithm
  * if the command_laws are set up appropriately in the airframe file
  */
-extern int16_t actuators_pprz[ACTUATORS_NB];
+//extern int16_t actuators_pprz[ACTUATORS_NB];
 
 /** Set actuators.
  * @param _n actuators name as given in airframe file, servos section
