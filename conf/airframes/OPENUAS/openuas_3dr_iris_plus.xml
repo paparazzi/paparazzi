@@ -143,7 +143,7 @@
         <!-- Mode set one a three way switch -->
         <!--  Per default already GEAR if not defined -->
         <!-- <define name="RADIO_GEAR" value="RADIO_AUX2"/>-->
-        <!-- <define name="0.03149f"" value="RADIO_AUX3"/>-->
+        <!-- <define name="RADIO_FLAP" value="RADIO_AUX3"/>-->
         <!-- <define name="RADIO_MODE" value="RADIO_GEAR"/>--> <!-- yes, already done by default if not redefined to something else-->
         <!-- <define name="RADIO_AUX2" value="RADIO_GAIN1"/>-->
       </module>
