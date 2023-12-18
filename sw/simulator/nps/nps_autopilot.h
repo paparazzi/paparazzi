@@ -39,7 +39,7 @@ extern "C" {
 #if defined MOTOR_MIXING_NB_MOTOR
 #define NPS_COMMANDS_NB MOTOR_MIXING_NB_MOTOR
 #else
-#define NPS_COMMANDS_NB COMMANDS_NB
+#define NPS_COMMANDS_NB ACTUATORS_NB  // uses actuators_pprz[ACTUATORS_NB]
 #endif /* #if defined MOTOR_MIXING_NB_MOTOR */
 #endif /* #ifndef NPS_COMMANDS_NB */
 

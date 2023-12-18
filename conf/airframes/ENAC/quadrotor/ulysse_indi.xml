@@ -54,7 +54,7 @@
     </module>
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.03"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="30.5"/>
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     </module>
 
@@ -183,7 +183,7 @@
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{150.0,   -150.0,  150.0,   -150.0 }"/>
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.03, 0.03, 0.03, 0.03}"/>
+    <define name="ACT_FREQ" value="{30.5, 30.5, 30.5, 30.5}"/>
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
 
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->

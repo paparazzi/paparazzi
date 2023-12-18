@@ -91,13 +91,14 @@ Aggie Air ARK
   </section>
 
   <command_laws>
+    <!-- Use SERVO_FRONT_IDX to know the actuators array number, and user SERVO_FRONT_DRIVER_NO to use the xx-value defined in servo no="xx" -->
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
-    <set servo="FRONT_RIGHT" value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
-    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>
-    <set servo="BACK"    value="motor_mixing.commands[SERVO_BACK]"/>
-    <set servo="BACK_LEFT"  value="motor_mixing.commands[SERVO_BACK_LEFT]"/>
-    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT]"/>
+    <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT_IDX]"/>
+    <set servo="FRONT_RIGHT" value="motor_mixing.commands[SERVO_FRONT_RIGHT_IDX]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT_IDX]"/>
+    <set servo="BACK"    value="motor_mixing.commands[SERVO_BACK_IDX]"/>
+    <set servo="BACK_LEFT"  value="motor_mixing.commands[SERVO_BACK_LEFT_IDX]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[SERVO_FRONT_LEFT_IDX]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
