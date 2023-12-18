@@ -38,7 +38,7 @@
       <define name="STABILIZATION_INDI_FILT_CUTOFF_Q" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="STABILIZATION_INDI_FILT_CUTOFF_R" value="20.0" description="First order cutoff freq for angular rate in Hz"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
-      <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}" description="actuator dynamics"/>
+      <define name="ACT_FREQ" value="{53.9, 53.9, 53.9, 53.9}" description="actuator dynamics [rad/s]"/>
       <define name="ACT_IS_SERVO" value="{0,0,0,0}" description="1 for every actuator that is a servo"/>
       <define name="ACT_IS_THRUSTER_X" value="{0,0,0,0}" description="1 for every actuator that is a thruster in the body-x direction"/>
       <define name="ACT_RATE_LIMIT" value="{9600,9600,9600,9600}" description="rate limit in PPRZ units per timestep (depends on control frequency)"/>

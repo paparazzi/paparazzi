@@ -127,8 +127,7 @@ static void guidance_indi_filter_thrust(void);
 #warning GUIDANCE_INDI_THRUST_DYNAMICS is deprecated, use GUIDANCE_INDI_THRUST_DYNAMICS_FREQ instead.
 #warning "The thrust dynamics are now specified in continuous time with the corner frequency of the first order model!"
 #warning "define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ in rad/s"
-#warning "Use -log(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
-#define GUIDANCE_INDI_THRUST_DYNAMICS_FREQ (-ln(1-GUIDANCE_INDI_THRUST_DYNAMICS)*PERIODIC_FREQUENCY)
+#warning "Use -ln(1 - old_number) * PERIODIC_FREQUENCY to compute it from the old value."
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS_FREQ

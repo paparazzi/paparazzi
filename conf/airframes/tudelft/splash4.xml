@@ -97,7 +97,7 @@
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
       <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.0354"/>
+      <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="18.0"/>
     </module>
 
     <module name="air_data"/>
@@ -275,7 +275,7 @@
     <define name="FILTER_YAW_RATE" value="TRUE"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.0354, 0.0354, 0.0354, 0.0354}"/>
+    <define name="ACT_FREQ" value="{18.0, 18.0, 18.0, 18.0}"/>
 
     <define name="WLS_PRIORITIES" value="{1000.f, 1000.f, 1.f, 100.f}"/>
 

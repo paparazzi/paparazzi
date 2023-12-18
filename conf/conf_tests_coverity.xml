@@ -84,7 +84,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/nav_modules.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_dash_loiter_trim.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_basic_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/stabilization_attitude_fw.xml"
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/digital_cam_common.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_basic_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/stabilization_attitude_fw.xml"
    gui_color="blue"
   />
   <aircraft
