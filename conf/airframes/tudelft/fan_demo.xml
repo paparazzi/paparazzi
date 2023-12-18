@@ -101,7 +101,7 @@
 
   <section name="GUIDANCE_INDI">
     <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-    <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+    <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="53.9"/>
     <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     <define name="GUIDANCE_INDI_POS_GAIN" value="0.7"/>
     <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.5"/>
@@ -146,7 +146,7 @@
     <define name="FILT_CUTOFF" value="5.0"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
+    <define name="ACT_FREQ" value="{53.9, 53.9, 53.9, 53.9}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="TRUE"/>
