@@ -164,14 +164,25 @@ let print_reverse_servo_table = fun out driver servos ->
   ) servos;
   fprintf out "    default: return 0;\n";
   fprintf out "  };\n";
+  fprintf out "}\n\n";
+  fprintf out "static inline int get_servo_idx%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
+  List.iter (fun c ->
+    let name = ExtXml.attrib c "name" in
+    fprintf out "    case SERVO_%s_DRIVER_NO: return SERVO_%s_IDX;\n" name name;
+  ) servos;
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
   fprintf out "}\n\n"
 
 let parse_servo = fun out driver c ->
   let shortname = ExtXml.attrib c "name" in
   let name = "SERVO_"^shortname
   and no_servo = int_of_string (ExtXml.attrib c "no") in
+  let global_idx = Hashtbl.length servos_drivers in
 
   define_out out (name^"_DRIVER_NO") (string_of_int no_servo);
+  define_out out (name^"_IDX") (string_of_int global_idx);
 
   let s_min = fos (ExtXml.attrib c "min" )
   and neutral = fos (ExtXml.attrib c "neutral")
@@ -194,7 +205,6 @@ let parse_servo = fun out driver c ->
   fprintf out "\n";
 
   (* Memorize the associated driver (if any) and global index (insertion order) *)
-  let global_idx = Hashtbl.length servos_drivers in
   Hashtbl.add servos_drivers shortname (driver, global_idx)
 
 (* Characters checked in Gen_radio.checl_function_name *)
@@ -207,7 +217,6 @@ let preprocess_value = fun s v prefix ->
 
 let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
-    fprintf out "#define SERVO_%s_IDX %d\n" s i;
     (* Set servo macro *)
     fprintf out "#define Set_%s_Servo(_v) { \\\n" s;
     fprintf out "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
@@ -315,10 +324,8 @@ let rec parse_section = fun out ac_id s ->
       let driver = ExtXml.attrib_or_default s "driver" "Default" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
-      let servos_offset = Hashtbl.length servos_drivers in
 
       define_out out (sprintf "SERVOS_%s_NB" (String.uppercase_ascii driver)) (string_of_int nb_servos);
-      define_out out (sprintf "SERVOS_%s_OFFSET" (String.uppercase_ascii driver)) (string_of_int servos_offset);
       fprintf out "#include \"modules/actuators/actuators_%s.h\"\n" (String.lowercase_ascii driver);
       fprintf out "\n";
       List.iter (parse_servo out driver) servos;
