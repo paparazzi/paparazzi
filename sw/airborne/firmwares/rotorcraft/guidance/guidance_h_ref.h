@@ -102,6 +102,7 @@ extern void gh_ref_init(void);
 extern void gh_set_ref(struct Int32Vect2 pos, struct FloatVect2 speed, struct FloatVect2 accel);
 extern void gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp);
 extern void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp);
+extern void gh_update_ref_from_accel_sp(struct FloatVect2 accel_sp);
 
 /**
  * Set a new maximum speed for waypoint navigation.

@@ -23,13 +23,14 @@
 #include <math.h>
 #include "std.h"
 
-#include "modules/guidance/gvf/gvf.h"
-#include "modules/guidance/gvf/gvf_low_level_control.h"
-#include "modules/guidance/gvf/trajectories/gvf_ellipse.h"
-#include "modules/guidance/gvf/trajectories/gvf_line.h"
-#include "modules/guidance/gvf/trajectories/gvf_sin.h"
+#include "gvf.h"
+#include "gvf_low_level_control.h"
+#include "trajectories/gvf_ellipse.h"
+#include "trajectories/gvf_line.h"
+#include "trajectories/gvf_sin.h"
 #include "autopilot.h"
 #include "../gvf_common.h"
+
 
 // Control
 gvf_con gvf_control;
@@ -127,9 +128,9 @@ void gvf_init(void)
 // GENERIC TRAJECTORY CONTROLLER
 void gvf_control_2D(float ke, float kn, float e,
                     struct gvf_grad *grad, struct gvf_Hess *hess)
-{
+{ 
   gvf_t0 = get_sys_time_msec();
-  
+
   gvf_low_level_getState();
   float course = gvf_state.course;
   float px_dot = gvf_state.px_dot;
@@ -155,10 +156,6 @@ void gvf_control_2D(float ke, float kn, float e,
   float pdx_dot = tx - ke * e * nx;
   float pdy_dot = ty - ke * e * ny;
 
-  float norm_pd_dot = sqrtf(pdx_dot * pdx_dot + pdy_dot * pdy_dot);
-  float md_x = pdx_dot / norm_pd_dot;
-  float md_y = pdy_dot / norm_pd_dot;
-
   float Apd_dot_dot_x = -ke * (nx * px_dot + ny * py_dot) * nx;
   float Apd_dot_dot_y = -ke * (nx * px_dot + ny * py_dot) * ny;
 
@@ -170,11 +167,53 @@ void gvf_control_2D(float ke, float kn, float e,
   float pd_dot_dot_x = Apd_dot_dot_x + Bpd_dot_dot_x;
   float pd_dot_dot_y = Apd_dot_dot_y + Bpd_dot_dot_y;
 
+  float norm_pd_dot = sqrtf(pdx_dot * pdx_dot + pdy_dot * pdy_dot);
+  float md_x = pdx_dot / norm_pd_dot;
+  float md_y = pdy_dot / norm_pd_dot;
+
   float md_dot_const = -(md_x * pd_dot_dot_y - md_y * pd_dot_dot_x)
                        / norm_pd_dot;
 
   float md_dot_x =  md_y * md_dot_const;
   float md_dot_y = -md_x * md_dot_const;
+
+
+  #ifdef ROTORCRAFT_FIRMWARE
+
+  // Set nav for command
+
+  // Use parameter kn as the speed command
+  nav.speed.x = md_x * kn;
+  nav.speed.y = md_y * kn;
+
+
+  // Acceleration induced by the field with speed set to kn (!WIP! Disabled for now)
+  #if 0
+  float n_norm = sqrtf(nx*nx+ny*ny);
+  float hess_px_dot = px_dot * H11 + py_dot * H12;
+  float hess_py_dot = px_dot * H21 + py_dot * H22;
+
+  float hess_pdx_dot = pdx_dot * H11 + pdy_dot * H12;
+  float hess_pdy_dot = pdx_dot * H21 + pdy_dot * H22;
+
+  float curvature_correction = tx * hess_px_dot + ty * hess_py_dot / (n_norm * n_norm);
+  float accel_correction_x = kn * hess_py_dot / n_norm;
+  float accel_correction_y = - kn * hess_px_dot / n_norm;
+  float accel_cmd_x = accel_correction_x + px_dot * curvature_correction;
+  float accel_cmd_y = accel_correction_y + py_dot * curvature_correction;
+
+  float speed_cmd_x = kn*tx / n_norm - ke * e * nx / (n_norm);
+  float speed_cmd_y = kn*ty / n_norm - ke * e * ny / (n_norm);
+
+  nav.accel.x = accel_cmd_x + (speed_cmd_x - px_dot); 
+  nav.accel.y = accel_cmd_y + (speed_cmd_y - py_dot); 
+
+  #endif
+
+  nav.heading = atan2f(md_x,md_y);
+
+  // I don't know how gvf_common works ... so I use nav directly
+  #else
 
   float omega_d = -(md_dot_x * md_y - md_dot_y * md_x);
 
@@ -190,6 +229,8 @@ void gvf_control_2D(float ke, float kn, float e,
   gvf_c_info.kappa   = (nx*(H12*ny - nx*H22) + ny*(H21*nx - H11*ny))/powf(nx*nx + ny*ny,1.5);
   gvf_c_info.ori_err = 1 - (md_x*cosf(course) + md_y*sinf(course));
   gvf_low_level_control_2D(omega);
+
+  #endif
 }
 
 void gvf_set_direction(int8_t s)
