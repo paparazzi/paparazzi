@@ -35,6 +35,9 @@
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
             <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
 
+            <!-- Range sensor connected to supercan -->
+            <module name="range_sensor_uavcan"/>
+
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
             <define name="USE_I2C1"/>
@@ -160,7 +163,7 @@
         <servo no="4"  name="BMOTOR_PUSH"     min="-8191" neutral="-8191" max="8191"/>
         <servo no="5"  name="BSERVO_ELEVATOR" min="-8191" neutral="-8191" max="4900"/>
         <servo no="6"  name="BSERVO_RUDDER"   min="-6500" neutral="0"     max="6500"/>
-        <servo no="7"  name="BROTATION_MECH"  min="-8191" neutral="0"     max="8191"/>
+        <servo no="7"  name="BROTATION_MECH"  min="8191" neutral="0"      max="-8191"/>
         <servo no="8"  name="BAIL_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
         <servo no="9"  name="BFLAP_RIGHT"     min="-8000" neutral="-1000"     max="5000"/>
         <servo no="10" name="BAIL_LEFT"       min="-5000" neutral="1000"     max="8000"/>
@@ -262,6 +265,7 @@
         <define name="VoltageOfAdc(adc)"                value="((3.3f/65536.0f) * 21.314 * adc)"/> <!-- ADC calibration -->
         <define name="MilliAmpereOfAdc(adc)"            value="((3.3f/65536.0f) * 50000.f * adc)"/> <!-- Has like a -2A offset -->
         <define name="MilliAmpereOfAdc2(adc)"           value="((3.3f/65536.0f) * 50000.f * adc)"/> <!-- Seems te be ok -->
+        <define name="VBoardOfAdc(adc)"                 value="((3.3f/65536.0f) * 1.89036 * adc)"/>
         <define name="ADC_CHANNEL_CURRENT2"             value="ADC_4"/>
 
         <!-- Others -->
@@ -346,12 +350,6 @@
     </section>
 
     <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-        <!-- G1 and G2 20.17 kg-->
-        <!-- <define name="G1_ROLL"      value="{   0.0,    -8.5,     0.0,    8.5,  0.0,  0.0}"/>
-        <define name="G1_PITCH"     value="{  0.75,    0.0,    -0.75,    0.0,  0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{ -0.25,    0.25,   -0.25,   0.25,  0.0,  0.0}"/>
-        <define name="G1_THRUST"    value="{-0.575,  -0.575,  -0.575, -0.575,  0.0,  0.0}"/>
-        <define name="G2"           value="{   0.0,     0.0,     0.0,    0.0,  0.0,  0.0}"/> -->
 
         <!-- G1 and G2 25 kg-->
         <define name="G1_ROLL"      value="{   0.0,    -9.0,    0.0,     9.0,  0.0,  0.0, 0.0, 0.0, 0.0}"/>
@@ -375,10 +373,10 @@
         
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="40.0"/>
-        <define name="REF_ERR_Q"                    value="32.0"/>
+        <define name="REF_ERR_Q"                    value="25.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
         <define name="REF_RATE_P"                   value="5.5"/>
-        <define name="REF_RATE_Q"                   value="5.5"/>
+        <define name="REF_RATE_Q"                   value="4.5"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
@@ -443,7 +441,6 @@
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
-        <define name="ZERO_AIRSPEED"        value="TRUE"/>
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
         <define name="THRUST_X_EFF"         value="0.00055"/>

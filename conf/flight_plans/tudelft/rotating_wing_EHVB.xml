@@ -1,23 +1,29 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-
-<flight_plan alt="70" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="1070" name="Rotating wing Valkenburg" security_height="2">
+<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
+  <!-- 
+  	EHVB alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468"
+  	EHR8 alt="60" ground_alt="0" lat0="52.965523" lon0="4.474033"
+  	Harde alt="180" ground_alt="60" lat0="52.3931434" lon0="5.9205099"
+  	Terschelling lat0="53.3988083" lon0="5.2487480"
+   -->
   <header/>
   <waypoints>
-    <waypoint name="HOME" x="12.6" y="-48.7"/>
-    <waypoint name="CLIMB" x="62.6" y="-80.4"/>
-    <waypoint name="trans" x="100." y="100."/>
-    <waypoint name="decel" x="100." y="100."/>
-    <waypoint name="end_trans" x="100." y="100."/>
-    <waypoint name="STDBY" lat="52.1682655" lon="4.4135103"/>
-    <waypoint name="begin_trans" lat="52.168412" lon="4.4149282"/>
-    <waypoint name="p1" lat="52.1672408" lon="4.4144528"/>
-    <waypoint name="p2" lat="52.1682897" lon="4.4138441"/>
-    <waypoint name="p3" lat="52.1687878" lon="4.4155648"/>
-    <waypoint name="p4" lat="52.1678559" lon="4.4164701"/>
-    <waypoint name="circ" lat="52.1684116" lon="4.4149282"/>
-    <waypoint name="TD" lat="52.1681602" lon="4.4127708"/>
-    <waypoint name="APP" lat="52.1679567" lon="4.4136344"/>
-    <waypoint name="FOLLOW" lat="52.16850964562752" lon="4.413635008734417"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="CLIMB" x="300." y="70"/>
+    <waypoint name="trans" x="300." y="100."/>
+    <waypoint name="decel" x="300." y="110."/>
+    <waypoint name="begin_trans" x="300." y="90."/>
+    <waypoint name="end_trans" x="300." y="120."/>
+    <waypoint name="STDBY" x="60" y="20"/>
+    <waypoint name="p1" x="120" y="-75"/>
+    <waypoint name="p2" x="65" y="75"/>
+    <waypoint name="p3" x="200" y="120"/>
+    <waypoint name="p4" x="250" y="-30"/>
+    <waypoint name="circ" x="160" y="25"/>
+    <waypoint name="TD" x="10" y="-1"/>
+    <waypoint name="APP" x="70" y="-25"/>
+    <waypoint name="FOLLOW" x="300" y="80"/>
+    <!-- EHVB -->
     <waypoint lat="52.169189" lon="4.410820" name="C1"/>
     <waypoint lat="52.168049" lon="4.406923" name="C2"/>
     <waypoint lat="52.166515" lon="4.408235" name="C3"/>
@@ -27,6 +33,32 @@
     <waypoint lat="52.164861" lon="4.427268" name="C7"/>
     <waypoint lat="52.170422" lon="4.427511" name="C8"/>
     <waypoint lat="52.172276" lon="4.424011" name="C9"/>
+    <!-- t'Harde
+    <waypoint lat="52.4034734" lon="5.9067552" name="C1"/>
+    <waypoint lat="52.3878517" lon="5.9212118" name="C2"/>
+    <waypoint lat="52.4054122" lon="5.9581765" name="C3"/>
+    <waypoint lat="52.4179727" lon="6.0083051" name="C4"/>
+    <waypoint lat="52.4420912" lon="5.9871178" name="C5"/> -->
+    <!-- EHR8
+    <waypoint name="C1" lat="52.96166667" lon="4.740277778"/>
+    <waypoint name="C2" lat="52.86666667" lon="4.716666667"/>
+    <waypoint name="C3" lat="52.78333333" lon="4.683333333"/>
+    <waypoint name="C4" lat="52.75" lon="4.533333333"/>
+    <waypoint name="C5" lat="52.775" lon="4.433333333"/>
+    <waypoint name="C6" lat="52.81666667" lon="4.35"/>
+    <waypoint name="C7" lat="53.08333333" lon="4.35"/>
+    <waypoint name="C8" lat="53.10277778" lon="4.515555556"/>
+    <waypoint name="C9" lat="53.04972222" lon="4.679444444"/> -->
+    <!-- Terschelling
+    <waypoint lat="53.403590" lon="5.214102" name="C1"/>
+    <waypoint lat="53.399129" lon="5.219031" name="C2"/>
+    <waypoint lat="53.391752" lon="5.234877" name="C3"/>
+    <waypoint lat="53.399786" lon="5.273960" name="C4"/>
+    <waypoint lat="53.416200" lon="5.265441" name="C5"/>
+    <waypoint lat="53.424575" lon="5.252654" name="C6"/>
+    <waypoint lat="53.422246" lon="5.233265" name="C7"/>
+    <waypoint lat="53.418859" lon="5.216361" name="C8"/>
+    <waypoint lat="53.411762" lon="5.208801" name="C9"/> -->
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
