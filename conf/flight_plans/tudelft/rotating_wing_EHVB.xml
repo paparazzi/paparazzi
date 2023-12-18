@@ -1,23 +1,23 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-
-<flight_plan alt="70" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="1070" name="Rotating wing Valkenburg" security_height="2">
+<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
   <header/>
   <waypoints>
-    <waypoint name="HOME" x="12.6" y="-48.7"/>
-    <waypoint name="CLIMB" x="62.6" y="-80.4"/>
-    <waypoint name="trans" x="100." y="100."/>
-    <waypoint name="decel" x="100." y="100."/>
-    <waypoint name="end_trans" x="100." y="100."/>
-    <waypoint name="STDBY" lat="52.1682655" lon="4.4135103"/>
-    <waypoint name="begin_trans" lat="52.168412" lon="4.4149282"/>
-    <waypoint name="p1" lat="52.1672408" lon="4.4144528"/>
-    <waypoint name="p2" lat="52.1682897" lon="4.4138441"/>
-    <waypoint name="p3" lat="52.1687878" lon="4.4155648"/>
-    <waypoint name="p4" lat="52.1678559" lon="4.4164701"/>
-    <waypoint name="circ" lat="52.1684116" lon="4.4149282"/>
-    <waypoint name="TD" lat="52.1681602" lon="4.4127708"/>
-    <waypoint name="APP" lat="52.1679567" lon="4.4136344"/>
-    <waypoint name="FOLLOW" lat="52.16850964562752" lon="4.413635008734417"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="CLIMB" x="300." y="70"/>
+    <waypoint name="trans" x="300." y="100."/>
+    <waypoint name="decel" x="300." y="110."/>
+    <waypoint name="begin_trans" x="300." y="90."/>
+    <waypoint name="end_trans" x="300." y="120."/>
+    <waypoint name="STDBY" x="60" y="20"/>
+    <waypoint name="p1" x="120" y="-75"/>
+    <waypoint name="p2" x="65" y="75"/>
+    <waypoint name="p3" x="200" y="120"/>
+    <waypoint name="p4" x="250" y="-30"/>
+    <waypoint name="circ" x="160" y="25"/>
+    <waypoint name="TD" x="10" y="-1"/>
+    <waypoint name="APP" x="70" y="-25"/>
+    <waypoint name="FOLLOW" x="300" y="80"/>
+    <!-- EHVB -->
     <waypoint lat="52.169189" lon="4.410820" name="C1"/>
     <waypoint lat="52.168049" lon="4.406923" name="C2"/>
     <waypoint lat="52.166515" lon="4.408235" name="C3"/>
