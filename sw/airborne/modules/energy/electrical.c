@@ -69,6 +69,9 @@ PRINT_CONFIG_VAR(MIN_BAT_LEVEL)
 #ifndef VoltageOfAdc
 #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
 #endif
+#ifndef VBoardOfAdc
+#define VBoardOfAdc(acd) DefaultVBoardOfAdc(adc)
+#endif
 #ifndef MilliAmpereOfAdc
 #define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
 #endif
