@@ -22,7 +22,6 @@
     <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
     <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/messagepicker.py"/>
     <program name="Log File Player" command="sw/logalizer/play"/>
-    <program name="Simulator" command="sw/simulator/pprzsim-launch"/>
     <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-ac" constant="@AIRCRAFT"/>
