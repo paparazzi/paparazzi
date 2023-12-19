@@ -1,8 +1,10 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
-
-<!-- Crazyflie 2.1 -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="Crazyflie2">
+
+  <description>
+    Crazyflie 2.1
+  </description>
 
   <firmware name="rotorcraft">
     <configure name="PERIODIC_FREQUENCY" value="1000"/>
