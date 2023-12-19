@@ -85,6 +85,7 @@ void guidance_v_init(void)
 
   guidance_v.mode = GUIDANCE_V_MODE_KILL;
   guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
+  guidance_v.nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
 
   guidance_v.thrust_coeff = BFP_OF_REAL(1.f, INT32_TRIG_FRAC);
   desired_zd_updated = false;
