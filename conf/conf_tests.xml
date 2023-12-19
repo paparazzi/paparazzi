@@ -46,7 +46,7 @@
   <aircraft
    name="apogee_chibios"
    ac_id="30"
-   airframe="airframes/ENAC/fixed-wing/apogee.xml"
+   airframe="airframes/test_boards/apogee.xml"
    radio="radios/T10CG_SBUS.xml"
    telemetry="telemetry/fixedwing_flight_recorder.xml"
    flight_plan="flight_plans/basic.xml"
