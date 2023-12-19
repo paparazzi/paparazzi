@@ -45,6 +45,7 @@
     
     <module name="sys_mon"/>
     <module name="baro_sim"/>
+    <module name="imu_nps"/>
     <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
     </module>
