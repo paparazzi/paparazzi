@@ -167,6 +167,26 @@ void gh_update_ref_from_speed_sp(struct FloatVect2 speed_sp)
   VECT2_COPY(gh_ref.accel, accel_sp);
 }
 
+void gh_update_ref_from_accel_sp(struct FloatVect2 accel_sp)
+{
+  struct FloatVect2 pos_step, speed_step;
+
+  VECT2_SMUL(pos_step, gh_ref.speed, gh_ref.dt);
+  VECT2_SMUL(speed_step, gh_ref.accel, gh_ref.dt);
+
+  struct Int64Vect2 pos_update;
+  pos_update.x = LBFP_OF_REAL(pos_step.x, GH_POS_REF_FRAC);
+  pos_update.y = LBFP_OF_REAL(pos_step.y, GH_POS_REF_FRAC);
+
+  VECT2_ADD(gh_ref.pos, pos_update);
+  VECT2_ADD(gh_ref.speed, speed_step);
+
+  gh_saturate_accel(&accel_sp);
+
+  // copy accel
+  VECT2_COPY(gh_ref.accel, accel_sp);
+}
+
 static void gh_saturate_speed(struct FloatVect2 *speed_sp)
 {
   // Speed squared

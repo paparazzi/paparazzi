@@ -79,9 +79,20 @@ struct HorizontalGuidanceSetpoint {
    */
   struct Int32Vect2 pos;
   struct Int32Vect2 speed;  ///< only used in HOVER mode if GUIDANCE_H_USE_SPEED_REF or in GUIDED mode
+  struct Int32Vect2 accel;  ///< For direct control of acceleration, if the guidance scheme is able to provide it
+
   float heading;
   float heading_rate;
-  uint8_t mask;             ///< bit 5: vx & vy, bit 6: vz, bit 7: vyaw
+
+  enum {
+    GUIDANCE_H_SP_POS   = 0,
+    GUIDANCE_H_SP_SPEED = 1,
+    GUIDANCE_H_SP_ACCEL = 2
+  } h_mask;
+  enum {
+    GUIDANCE_H_SP_YAW       = 0,
+    GUIDANCE_H_SP_YAW_RATE  = 1
+  } yaw_mask;
 };
 
 struct HorizontalGuidanceReference {
@@ -145,6 +156,18 @@ extern void guidance_h_set_body_vel(float vx, float vy);
 /** Set horizontal velocity setpoint.
  * @param vx North velocity (local NED frame) in meters/sec.
  * @param vy East velocity (local NED frame) in meters/sec.
+ */
+extern void guidance_h_set_acc(float ax, float ay);
+
+/** Set body relative horizontal acceleration setpoint.
+ * @param vx forward acceleration (body frame) in meters/sec².
+ * @param vy right acceleration (body frame) in meters/sec².
+ */
+extern void guidance_h_set_body_acc(float ax, float ay);
+
+/** Set horizontal acceleration setpoint.
+ * @param vx North acceleration (local NED frame) in meters/sec².
+ * @param vy East acceleration (local NED frame) in meters/sec².
  */
 extern void guidance_h_set_vel(float vx, float vy);
 
