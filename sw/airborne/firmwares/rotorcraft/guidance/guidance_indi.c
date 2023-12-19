@@ -302,22 +302,18 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
   struct FloatVect3 speed_fb;
 
 
-  if (h_mode == GUIDANCE_INDI_H_ACCEL)
-  {
+  if (h_mode == GUIDANCE_INDI_H_ACCEL) {
     // Speed feedback is included in the guidance when running in ACCEL mode
     speed_fb.x = 0.;
     speed_fb.y = 0.;
   }
-  else
-  {
+  else {
     // Generate speed feedback for acceleration, as it is estimated
-    if (h_mode == GUIDANCE_INDI_H_SPEED) 
-    {
+    if (h_mode == GUIDANCE_INDI_H_SPEED) {
       speed_sp.x = SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
       speed_sp.y = SPEED_FLOAT_OF_BFP(gh->ref.speed.y);
     }
-    else // H_POS
-    {
+    else { // H_POS
       pos_err.x = POS_FLOAT_OF_BFP(gh->ref.pos.x) - stateGetPositionNed_f()->x;
       pos_err.y = POS_FLOAT_OF_BFP(gh->ref.pos.y) - stateGetPositionNed_f()->y;
       speed_sp.x = pos_err.x * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gh->ref.speed.x);
@@ -327,20 +323,16 @@ struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight UNUSED, struc
     speed_fb.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain;
   }
 
-  if (v_mode == GUIDANCE_INDI_V_ACCEL)
-  {
+  if (v_mode == GUIDANCE_INDI_V_ACCEL)  {
     // Speed feedback is included in the guidance when running in ACCEL mode
     speed_fb.z = 0;
   }
-  else
-  {
+  else {
     // Generate speed feedback for acceleration, as it is estimated
-    if (v_mode == GUIDANCE_INDI_V_SPEED)
-    {
+    if (v_mode == GUIDANCE_INDI_V_SPEED) {
       speed_sp.z = SPEED_FLOAT_OF_BFP(gv->zd_ref);
     }
-    else // V_POS
-    {
+    else { // V_POS
       pos_err.z = POS_FLOAT_OF_BFP(gv->z_ref) - stateGetPositionNed_f()->z;
       speed_sp.z = pos_err.z * guidance_indi_pos_gain + SPEED_FLOAT_OF_BFP(gv->zd_ref);
     }

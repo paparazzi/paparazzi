@@ -79,11 +79,20 @@ struct HorizontalGuidanceSetpoint {
    */
   struct Int32Vect2 pos;
   struct Int32Vect2 speed;  ///< only used in HOVER mode if GUIDANCE_H_USE_SPEED_REF or in GUIDED mode
-  struct Int32Vect2 accel;    ///< For direct control of acceleration, if the guidance scheme is able to provide it
-  
+  struct Int32Vect2 accel;  ///< For direct control of acceleration, if the guidance scheme is able to provide it
+
   float heading;
   float heading_rate;
-  uint8_t mask;             ///< bit 4: ax & ay, bit 5: vx & vy, bit 6: vz, bit 7: vyaw; 
+
+  enum {
+    GUIDANCE_H_SP_POS   = 0,
+    GUIDANCE_H_SP_SPEED = 1,
+    GUIDANCE_H_SP_ACCEL = 2
+  } h_mask;
+  enum {
+    GUIDANCE_H_SP_YAW       = 0,
+    GUIDANCE_H_SP_YAW_RATE  = 1
+  } yaw_mask;
 };
 
 struct HorizontalGuidanceReference {
