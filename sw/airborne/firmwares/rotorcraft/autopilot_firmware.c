@@ -225,6 +225,7 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *d
 }
 #endif
 
+#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW)
 static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
@@ -233,6 +234,9 @@ static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *
                                &stabilization_cmd[COMMAND_YAW],
                                &stabilization_cmd[COMMAND_THRUST]);
 }
+#else
+static void send_rotorcraft_cmd(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED) {}
+#endif
 
 
 void autopilot_firmware_init(void)

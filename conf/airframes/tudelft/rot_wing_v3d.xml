@@ -233,9 +233,6 @@
         <axis name="SKEW"        failsafe_value="0"/>
         <!-- default commands -->
         <axis name="THRUST"      failsafe_value="0"/>
-        <axis name="ROLL"        failsafe_value="0"/>
-        <axis name="PITCH"       failsafe_value="0"/>
-        <axis name="YAW"         failsafe_value="0"/>
     </commands>
 
     <command_laws>
