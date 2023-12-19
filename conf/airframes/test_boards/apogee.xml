@@ -1,10 +1,10 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
-
-<!--
-     Apogee test board
--->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="Apogee">
+
+  <description>
+    Apogee test board
+  </description>
 
   <firmware name="fixedwing">
     <configure name="RTOS_DEBUG" value="0"/>
@@ -19,8 +19,6 @@
 
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
-    <module name="tlsf"/>
-    <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/>
     <module name="flight_recorder"/>
 
@@ -38,16 +36,6 @@
     </module>
 
     <module name="sys_mon"/>
-
-    <!--module name="spi_master"/-->
-    <!-- <module name="mcp355x"> -->
-    <!--   <define name="USE_SPI1"/> -->
-    <!-- </module> -->
-    <!--module name="extra_dl">
-      <configure name="EXTRA_DL_PORT" value="UART6"/>
-      <configure name="EXTRA_DL_BAUD" value="B57600"/>
-    </module>
-    <module name="meteo_france_DAQ"/-->
   </firmware>
 
   <firmware name="test_chibios">
@@ -56,7 +44,7 @@
     <target name="test_sys_gpio"        board="apogee_1.0_chibios"/>
   </firmware>
 
-<!-- commands section -->
+  <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
     <servo name="AILEVON_LEFT" no="1" min="1900" neutral="1543" max="1100"/>

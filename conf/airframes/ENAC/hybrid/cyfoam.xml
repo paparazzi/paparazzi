@@ -1,10 +1,13 @@
-<!--Foam Cyclone Airframe
-  Chimera AP
-  Xbee API
-  Ublox M8N
-  SBUS Futaba -->
 
-<airframe name="foam cylone">
+<airframe name="Cylone">
+
+  <description>
+    Foam Cyclone Airframe
+    Chimera AP
+    Xbee API
+    Ublox M8N
+    SBUS Futaba
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="chimera_1.0">
@@ -15,16 +18,7 @@
         <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
       </module>
 
-      <module name="eff_scheduling_cyfoam">
-        <define name="SQUARED_ROLL_EFF" value="0.0018"/>
-        <define name="PITCH_EFF_AT_60" value="4.0"/>
-        <define name="YAW_EFF_AT_60" value="8.0"/>
-        <!--function of the form: A + B*airspeed^2-->
-        <define name="CE_PITCH_A" value="2.4169"/>
-        <define name="CE_PITCH_B" value="0.0307"/>
-        <define name="CE_YAW_A" value="5.631"/>
-        <define name="CE_YAW_B" value="0.0515"/>
-      </module>
+      <module name="eff_scheduling_cyfoam"/>
 
       <!--Switch advanced INDI scheduling functions on or off-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
@@ -34,10 +28,6 @@
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
       <module name="radio_control" type="datalink"/>
-      <module name="logger_file">
-        <define name="LOGGER_FILE_PATH" value="/home/ewoud/Documents"/>
-      </module>
-
       <!--Switch advanced INDI scheduling functions on or off-->
       <!--Take the mode channel for simulation-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="4"/>
@@ -88,24 +78,7 @@
       <define name="WLS_N_U" value="4"/>
       <define name="WLS_N_V" value="4"/>
     </module>
-    <module name="guidance"      type="indi">
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
-      <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
-      <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
-      <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>
-      <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.8"/>
-      <define name="GUIDANCE_INDI_LIFTD_ASQ" value="0.20"/>
-      <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
-      <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
-      <define name="GUIDANCE_INDI_MIN_THROTTLE" value="4000"/>
-      <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
-      <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
-      <!--Flap effectiveness on lift-->
-      <define name="FE_LIFT_A_PITCH" value="0.00018"/>
-      <define name="FE_LIFT_B_PITCH" value="0.00072"/>
-      <define name="FE_LIFT_A_AS" value="0.0008"/>
-      <define name="FE_LIFT_B_AS" value="0.00009"/>
-    </module>
+    <module name="guidance"      type="indi"/>
 
     <!--<module name="ahrs"          type="int_cmpl_quat">-->
       <!--<configure name="USE_MAGNETOMETER" value="TRUE"/>-->
@@ -114,21 +87,16 @@
       <!--[><define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/><]-->
       <!--[><define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="TRUE"/><]-->
       <!--</module>-->
-
     <!--<module name="ins"/>-->
     <module name="ins" type="float_invariant">
       <define name="INS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
     </module>
 
-    <!--<module name="gps" type="ubx_ucenter"/>-->
-    <module name="tlsf"/>
-    <module name="pprzlog">
+    <module name="logger" type="sd_chibios">
       <define name="SDLOG_START_DELAY" value="10"/>
     </module>
-    <module name="logger" type="sd_chibios"/>
     <!--<module name="flight_recorder"/>-->
-    <!--<module name="logger_spi_link"/>-->
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <module name="airspeed" type="ms45xx_i2c">
@@ -136,15 +104,13 @@
       <define name="MS45XX_PRESSURE_SCALE" value="1.546"/> <!-- 2.4 / 1.6327 * 1.0521 -->
     </module>
 
-    <!--<module name="pwm_meas"/>-->
-    <!--<module name="AOA_pwm">-->
-      <!--<define name="AOA_PWM_CHANNEL" value="PWM_INPUT1"/>-->
-      <!--</module>-->
-
-    <module name="pwm_meas">
+    <!--
+    <module name="AOA_pwm">
+      <define name="AOA_PWM_CHANNEL" value="PWM_INPUT1"/>
       <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
       <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
     </module>
+    -->
 
   </firmware>
 
@@ -153,7 +119,6 @@
     <servo name="ELEVON_RIGHT" no="1" min="1000" neutral="1500" max="2000"/>
     <servo name="RM" no="2" min="1000" neutral="1100" max="2000"/>
     <servo name="LM" no="3" min="1000" neutral="1100" max="2000"/>
-    <!--<servo name="SERVO_TEST" no="4" min="1000" neutral="1500" max="2000"/>-->
   </servos>
 
   <commands>
@@ -173,8 +138,6 @@
     <set servo="ELEVON_RIGHT"    value="autopilot.motors_on ? actuators_pprz[1] : 0"/>
     <set servo="RM"              value="autopilot.motors_on ? actuators_pprz[2] : -MAX_PPRZ"/>
     <set servo="LM"              value="autopilot.motors_on ? actuators_pprz[3] : -MAX_PPRZ"/>
-    <!--<set servo="RM"              value="autopilot_motors_on ? -MAX_PPRZ : -MAX_PPRZ"/>-->
-    <!--<set servo="LM"              value="autopilot_motors_on ? -MAX_PPRZ : -MAX_PPRZ"/>-->
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -257,17 +220,38 @@
     <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
+  <section name="GUIDANCE_INDI">
+    <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+    <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
+    <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.0"/>
+    <define name="GUIDANCE_INDI_POS_GAINZ" value="0.5"/>
+    <define name="GUIDANCE_INDI_SPEED_GAINZ" value="1.8"/>
+    <define name="GUIDANCE_INDI_LIFTD_ASQ" value="0.20"/>
+    <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
+    <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
+    <define name="GUIDANCE_INDI_MIN_THROTTLE" value="4000"/>
+    <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
+    <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
+    <!--Flap effectiveness on lift-->
+    <define name="FE_LIFT_A_PITCH" value="0.00018"/>
+    <define name="FE_LIFT_B_PITCH" value="0.00072"/>
+    <define name="FE_LIFT_A_AS" value="0.0008"/>
+    <define name="FE_LIFT_B_AS" value="0.00009"/>
+    <!-- Efficiency scheduling -->
+    <define name="SQUARED_ROLL_EFF" value="0.0018"/>
+    <define name="PITCH_EFF_AT_60" value="4.0"/>
+    <define name="YAW_EFF_AT_60" value="8.0"/>
+    <!--function of the form: A + B*airspeed^2-->
+    <define name="CE_PITCH_A" value="2.4169"/>
+    <define name="CE_PITCH_B" value="0.0307"/>
+    <define name="CE_YAW_A" value="5.631"/>
+    <define name="CE_YAW_B" value="0.0515"/>
+  </section>
+
   <section name="NAV">
     <define name="NAV_CLIMB_VSPEED" value="1.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.8"/>
   </section>
-
-  <!--<section name="AHRS" prefix="AHRS_">-->
-    <!--<define name="H_X" value="0.5138"/>-->
-    <!--<define name="H_Y" value="0.00019"/>-->
-    <!--<define name="H_Z" value="0.8578"/>-->
-    <!--<define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>-->
-    <!--</section>-->
 
   <section name="INS" prefix="INS_">
     <define name="H_X" value="0.5138"/>
