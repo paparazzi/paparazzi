@@ -572,6 +572,9 @@ void guidance_h_guided_run(bool in_flight)
 
 void guidance_h_set_pos(float x, float y)
 {
+  if (guidance_h.sp.h_mask != GUIDANCE_H_SP_POS) {
+    reset_guidance_reference_from_current_position();
+  }
   guidance_h.sp.h_mask = GUIDANCE_H_SP_POS;
   guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
   guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
@@ -594,6 +597,9 @@ void guidance_h_set_body_vel(float vx, float vy)
 
 void guidance_h_set_vel(float vx, float vy)
 {
+  if (guidance_h.sp.h_mask != GUIDANCE_H_SP_SPEED) {
+    reset_guidance_reference_from_current_position();
+  }
   guidance_h.sp.h_mask = GUIDANCE_H_SP_SPEED;
   guidance_h.sp.speed.x = SPEED_BFP_OF_REAL(vx);
   guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
@@ -609,6 +615,9 @@ void guidance_h_set_body_acc(float ax, float ay)
 
 void guidance_h_set_acc(float ax, float ay)
 {
+  if (guidance_h.sp.h_mask != GUIDANCE_H_SP_ACCEL) {
+    reset_guidance_reference_from_current_position();
+  }
   guidance_h.sp.h_mask = GUIDANCE_H_SP_ACCEL;
   guidance_h.sp.accel.x = ACCEL_BFP_OF_REAL(ax);
   guidance_h.sp.accel.y = ACCEL_BFP_OF_REAL(ay);
