@@ -64,6 +64,8 @@ void guidance_flip_enter(void)
 
 void guidance_flip_run(void)
 {
+#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW) 
+
   uint32_t timer;
   int32_t phi;
   static uint32_t timer_save = 0;
@@ -138,4 +140,8 @@ void guidance_flip_run(void)
       stabilization_cmd[COMMAND_THRUST] = 8000; //Some thrust to come out of the roll?
       break;
   }
+#else
+  autopilot_set_mode(autopilot_mode_old);
+  stab_att_sp_euler.psi = heading_save;
+#endif
 }
