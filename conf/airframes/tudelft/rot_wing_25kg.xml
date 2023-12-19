@@ -259,7 +259,6 @@
         <define name="K_LIFT_TAIL"           value="-0.101691751"/>
     </section>
 
-
     <section name="MISC">
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)"                value="((3.3f/65536.0f) * 21.314 * adc)"/> <!-- ADC calibration -->
@@ -382,10 +381,10 @@
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
 
         <!-- Filters -->
+        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE" />
         <define name="FILT_CUTOFF_P"                    value="10.0"/>
         <define name="FILT_CUTOFF_Q"                    value="10.0"/>
         <define name="FILT_CUTOFF_R"                    value="5.0"/>
-        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE" />
         <define name="FILT_CUTOFF"                      value="2.0"/>
         <define name="ESTIMATION_FILT_CUTOFF"           value="2.0"/>
         <define name="FILTER_YAW_RATE"                  value="TRUE"/>
