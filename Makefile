@@ -310,9 +310,11 @@ test_coverity: all
 test_aggieair: all
 	CONF_XML=conf/airframes/AGGIEAIR/aggieair_conf.xml prove tests/aircrafts/
 	
-# test Open UAS conf
-test_openuas: all
+# test MAVLab users conf
+test_mavlab: all
 	CONF_XML=conf/userconf/OPENUAS/openuas_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/airframes/CDW/cdw_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/airframes/BR/conf.xml prove tests/aircrafts/
 	
 # test TU Delft conf
 test_tudelft: all
@@ -320,8 +322,6 @@ test_tudelft: all
 	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/
 	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/
 	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/airframes/CDW/cdw_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/airframes/BR/conf.xml prove tests/aircrafts/
 
 # test GVF conf
 test_gvf: all

@@ -197,6 +197,7 @@ NOTES:
       <!--<module name="ahrs" type="float_dcm"/>
       <module name="ins" type="alt_float"/>-->
       <module name="baro_sim"/>
+      <module name="imu_nps"/>
       <!-- For various parameter info here  https://wiki.paparazziuav.org/wiki/Subsystem/ahrs -->
       <!--<module name="ahrs" type="int_cmpl_quat">
       </module>-->
