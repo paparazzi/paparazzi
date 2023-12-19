@@ -241,7 +241,7 @@
         <define name="DM_DPPRZ_HOVER_PITCH"  value="0.00925"/>
         <define name="DM_DPPRZ_HOVER_ROLL"   value="0.0085"/>
 
-        <define name="HOVER_ROLL_PITCH_COEF" value="{0.0015,    -0.011}"/>
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.015,     -0.011}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{0.0,       -0.0}"/>
 
         <define name="K_ELEVATOR"            value="{ 1.27655, -13.3525, -80.0}"/>
@@ -258,7 +258,6 @@
         <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
         <define name="K_LIFT_TAIL"           value="-0.101691751"/>
     </section>
-
 
     <section name="MISC">
         <!-- Voltage and current measurements -->
@@ -382,10 +381,10 @@
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
 
         <!-- Filters -->
+        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE" />
         <define name="FILT_CUTOFF_P"                    value="10.0"/>
         <define name="FILT_CUTOFF_Q"                    value="10.0"/>
         <define name="FILT_CUTOFF_R"                    value="5.0"/>
-        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE" />
         <define name="FILT_CUTOFF"                      value="2.0"/>
         <define name="ESTIMATION_FILT_CUTOFF"           value="2.0"/>
         <define name="FILTER_YAW_RATE"                  value="TRUE"/>
