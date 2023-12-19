@@ -1,22 +1,22 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 
-<airframe name="Matek_H743">
+<airframe name="Kakute_F7">
   
   <description>
-    Mateksys FC H743 SLIM test board
+    Holybro Kakute F7 test board
   </description>
 
   <firmware name="rotorcraft">
     <configure name="RTOS_DEBUG" value="0"/>
     <configure name="PERIODIC_FREQUENCY" value="500"/>
 
-    <target name="ap" board="matek_h743_slim">
+    <target name="ap" board="holybro_kakute_f7">
     </target>
 
-    <!--target name="nps" board="pc">
+    <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-    </target-->
+    </target>
 
     <module name="radio_control" type="sbus"/>
 
@@ -25,14 +25,14 @@
       <define name="SERVO_HZ" value="400"/>
     </module>
 
-    <module name="telemetry" type="transparent">
-      <configure name="MODEM_PORT" value="usb_serial"/>
-    </module>
-    <module name="imu" type="icm42688">
-      <configure name="IMU_SPI_DEV" value="spi4"/>
-      <configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE6"/>
-      <!--define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
-      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/-->
+    <module name="telemetry" type="xbee_api"/>
+    <module name="imu" type="mpu6000">
+      <define name="IMU_MPU_CHAN_X" value="1"/>
+      <define name="IMU_MPU_CHAN_Y" value="0"/>
+      <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+      <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+      <configure name="IMU_MPU_SPI_DEV" value="spi4"/>
+      <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
     </module>
     <module name="gps" type="optitrack"/>
     <configure name="USE_MAGNETOMETER" value="FALSE"/>
@@ -44,9 +44,6 @@
     <module name="air_data"/>
 
     <module name="sys_mon"/>
-    <module name="shell">
-      <configure name="SHELL_PORT" value="usb_serial_debug"/>
-    </module>
   </firmware>
 
   <servos driver="Pwm">
@@ -77,13 +74,13 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
-    <define name="GYRO_R_SIGN" value="1"/>
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
 
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>
+    <define name="ACCEL_X_SIGN" value="-1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="-1"/>
     <define name="ACCEL_X_NEUTRAL" value="-42"/>
     <define name="ACCEL_Y_NEUTRAL" value="64"/>
     <define name="ACCEL_Z_NEUTRAL" value="-155"/>
@@ -189,10 +186,6 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <!--define name="G1_P" value="0.018284"/>
-    <define name="G1_Q" value="0.017385"/>
-    <define name="G1_R" value="0.0024217"/>
-    <define name="G2_R" value="-0.30628"/-->
     <define name="G1_P" value="0.025483"/>
     <define name="G1_Q" value="0.022144"/>
     <define name="G1_R" value="0.0023438"/>
@@ -268,7 +261,7 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
-    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" value="mA"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
   </section>
 
