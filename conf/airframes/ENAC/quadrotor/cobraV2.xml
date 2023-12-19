@@ -23,12 +23,11 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
+      <define name="TAWAKIV2_IMU_ROT" value=""/>
+      <define name="TAWAKIV2_MAG_ROT" value=""/>
     </target>
 
     <module name="telemetry" type="xbee_api"/>
-    <!--module name="telemetry" type="transparent">
-      <configure name="MODEM_PORT" value="usb_serial"/>
-    </module-->
 
     <module name="actuators" type="dshot"/>
     <module name="actuators" type="pwm"/>
@@ -191,7 +190,6 @@
     <define name="ARRIVED_AT_WAYPOINT" value="0.25"/>
     <define name="NAV_CLIMB_VSPEED" value="0.8"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.5"/>
-    <define name="NAV_CARROT_DIST" value="18"/>
   </section>
 
   <section name="BAT">
@@ -220,6 +218,7 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="COMMANDS_NB" value="4"/>
   </section>
 
 </airframe>
