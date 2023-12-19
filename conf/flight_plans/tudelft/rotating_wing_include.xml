@@ -11,14 +11,14 @@
     </module>
   </modules>
   <exceptions>
-    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 1500) @AND !(nav_block == IndexOfBlock('Wait_GPS')) @AND !(nav_block == IndexOfBlock('Geo_Init')) @AND !(nav_block == IndexOfBlock('Holding_point'))" deroute="Holding_point"/>
+    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosAlt() @GT (GetAltRef() + 1500)) @AND !(nav_block == IndexOfBlock('Wait_GPS')) @AND !(nav_block == IndexOfBlock('Geo_Init')) @AND !(nav_block == IndexOfBlock('Holding_point'))" deroute="Holding_point"/>
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait_GPS')) @AND !(nav_block == IndexOfBlock('Geo_Init')) @AND !(nav_block == IndexOfBlock('Holding_point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
   </exceptions>
   <blocks>
    <block name="Wait_GPS">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
-      <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
+      <while cond="!GpsFixValid() @OR !state.ned_initialized_i"/>
     </block>
     <block name="Geo_Init">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
@@ -45,7 +45,7 @@
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <exception cond="GetPosAlt() @GT 20.0" deroute="Standby"/>
+      <exception cond="GetPosAlt() > 20.0" deroute="Standby"/>
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <call_once fun="nav_set_heading_current()"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
@@ -133,13 +133,13 @@
     </block>
     <block name="descend">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
-        <exception cond="GetPosAlt() @LT 12.0" deroute="flare"/>
+        <exception cond="12.0 > GetPosAlt()" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <stay climb="-0.5" vmode="climb" wp="TD"/>
-        <exception cond="agl_dist_valid @AND (agl_dist_value @LT 0.28)" deroute="flare_low"/>
+        <exception cond="agl_dist_valid @AND (0.28 > agl_dist_value)" deroute="flare_low"/>
     </block>
     <block name="flare_low">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
