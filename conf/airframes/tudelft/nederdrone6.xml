@@ -351,9 +351,9 @@
     <define name="ESTIMATION_FILT_CUTOFF" value="5.0"/>
     <define name="FILT_CUTOFF_P" value="20."/>
     <define name="FILT_CUTOFF_Q" value="20."/>
-    <define name="FILT_CUTOFF_R" value="4."/>
+    <define name="FILT_CUTOFF_R" value="4.0"/>
+
     <!-- first order actuator dynamics -->
-    <!--define name="ACT_FREQ" value="{4.5, 4.5, 4.5, 4.5, 25.6, 25.6, 25.6, 25.6}"/-->
     <define name="ACT_FREQ" value="{14.2, 14.2, 14.2, 14.2, 25.6, 25.6, 25.6, 25.6}"/>
     <define name="ACT_RATE_LIMIT" value="{9600, 9600, 9600, 9600, 170, 170, 170, 170}"/>
     <define name="ACT_IS_SERVO" value="{0, 0, 0, 0, 1, 1, 1, 1}"/>
