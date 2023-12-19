@@ -725,11 +725,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   for (i = 0; i < INDI_NUM_ACT; i++) {
     actuators_pprz[i] = (int16_t) indi_u[i];
   }
-
-  // Set the stab_cmd to 42 to indicate that it is not used
-  stabilization_cmd[COMMAND_ROLL] = 42;
-  stabilization_cmd[COMMAND_PITCH] = 42;
-  stabilization_cmd[COMMAND_YAW] = 42;
 }
 
 /**
