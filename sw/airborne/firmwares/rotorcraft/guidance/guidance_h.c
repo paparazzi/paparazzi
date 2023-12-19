@@ -83,9 +83,9 @@ static void send_href(struct transport_tx *trans, struct link_device *dev)
                                    &guidance_h.ref.accel.y);
 }
 
+#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW)
 static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
 {
-#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW)
   pprz_msg_send_ROTORCRAFT_TUNE_HOVER(trans, dev, AC_ID,
                                       &radio_control.values[RADIO_ROLL],
                                       &radio_control.values[RADIO_PITCH],
@@ -97,8 +97,10 @@ static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
                                       &(stateGetNedToBodyEulers_i()->phi),
                                       &(stateGetNedToBodyEulers_i()->theta),
                                       &(stateGetNedToBodyEulers_i()->psi));
-#endif
 }
+#else
+static void send_tune_hover(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED) {}
+#endif
 
 #endif
 
