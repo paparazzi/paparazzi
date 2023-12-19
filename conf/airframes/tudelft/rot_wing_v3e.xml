@@ -266,6 +266,8 @@
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
         <set VALUE="pfc_actuators_value(6, rotwing_state_skewing.servo_pprz_cmd)"  SERVO="BROTATION_MECH"/>
+
+        <call fun="actuators_pprz[9] = (rotwing_state_skewing.servo_pprz_cmd + MAX_PPRZ) / 2."/><!-- Fill skew for NPS: see NPS_ACTUATOR_NAMES for index -->
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
