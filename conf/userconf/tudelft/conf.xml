@@ -134,12 +134,12 @@
   <aircraft
    name="Disco"
    ac_id="16"
-   airframe="airframes/ENAC/fixed-wing/disco.xml"
+   airframe="airframes/tudelft/disco.xml"
    radio="radios/T14SG_SBUS.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
+   settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/airspeed_ms45xx_i2c.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="blue"
   />
   <aircraft
