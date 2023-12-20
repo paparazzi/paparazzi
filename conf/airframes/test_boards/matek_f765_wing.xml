@@ -1,70 +1,46 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="Tawaki Test File">
+<airframe name="Matek F765-WING Test File">
 
   <firmware name="fixedwing">
-    <!--configure name="RTOS_DEBUG" value="1"/-->
-    <!--configure name="CH_OPT" value="0 -g -ggdb3"/-->
-    <define name="SERVO_HZ" type="60"/>
+    <configure name="RTOS_DEBUG" value="0"/>
 
-    <target name="ap" board="tawaki_1.0">
+    <target name="ap" board="matek_f765_wing">
       <configure name="PERIODIC_FREQUENCY" value="100"/>
       <module name="radio_control" type="sbus"/>
-      <!--module name="ahrs" type="float_dcm"/>
-      <module name="ins" type="alt_float"/-->
-      <module name="ins" type="float_invariant">
-        <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
-        <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-        <define name="SEND_INVARIANT_FILTER"/>
-      </module>
     </target>
 
     <target name="nps" board="pc">
       <configure name="PERIODIC_FREQUENCY" value="100"/>
       <module name="radio_control" type="ppm"/>
       <module name="fdm" type="jsbsim"/>
-
-      <module name="ahrs" type="float_cmpl_quat">
-        <configure name="USE_MAGNETOMETER" value="1"/>
-      </module>
-      <module name="ins" type="alt_float"/>
     </target>
 
     <target name="sim" board="pc">
-      <configure name="PERIODIC_FREQUENCY" value="60"/><!-- sim only works at 60Hz -->
       <module name="radio_control" type="ppm"/>
-      <module name="ahrs" type="float_dcm"/>
-      <module name="ins" type="alt_float"/>
     </target>
 
-    <module name="telemetry" type="xbee_api"/>
-
-    <module name="board" type="tawaki">
-      <configure name="BOARD_TAWAKI_ROTATED" value="TRUE"/>
-    </module>
-    <module name="actuators" type="pwm"/>
-
+    <module name="board" type="matek_f765_wing"/>
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
 
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="air_data"/>
+
+    <module name="telemetry" type="xbee_api"/>
+
     <module name="control" type="new"/>
     <module name="navigation"/>
 
-    <module name="air_data"> 
-      <define name="AIR_DATA_BARO_ABS_ID" value="BARO_BMP3_SENDER_ID"/>
-      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-    </module>
-
-    <!--configure name="SDLOG_USE_RTC" value="FALSE"/-->
-    <module name="flight_recorder"/>
   </firmware>
 
   <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="1" min="1040" neutral="1040" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="2" max="1900" neutral="1416" min="1100"/>
-    <servo name="AILEVON_LEFT"  no="3" max="1100" neutral="1586" min="1900"/>
+    <servo name="MOTOR"         no="2" min="1040" neutral="1040" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="3" max="1900" neutral="1416" min="1100"/>
+    <servo name="AILEVON_LEFT"  no="4" max="1100" neutral="1586" min="1900"/>
   </servos>
 
   <commands>

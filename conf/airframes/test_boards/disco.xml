@@ -1,10 +1,10 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
-
-<!--
-     Parrot Disco
--->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="Disco">
+
+  <description>
+    Parrot Disco
+  </description>
 
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>

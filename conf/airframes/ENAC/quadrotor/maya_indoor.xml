@@ -1,9 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<airframe name="CobraV2">
+<airframe name="Maya">
 
   <description>
-    * Autopilot:   TawakiV2
+    * Autopilot:   Tawaki
     * Actuators:   4 in 1  
     * Telemetry:   XBee
     * GPS:         datalink
@@ -11,11 +11,10 @@
   </description>
 
   <firmware name="rotorcraft">
-    <configure name="RTOS_DEBUG" value="FALSE"/>
     <configure name="PERIODIC_FREQUENCY" value="500"/>
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="$(PERIODIC_FREQUENCY)"/>
 
-    <target name="ap" board="tawaki_2.0">
+    <target name="ap" board="tawaki_1.1">
       <module name="radio_control" type="sbus"/>
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
@@ -23,8 +22,6 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
-      <define name="TAWAKIV2_IMU_ROT" value=""/>
-      <define name="TAWAKIV2_MAG_ROT" value=""/>
     </target>
 
     <module name="telemetry" type="xbee_api"/>
@@ -35,14 +32,12 @@
     <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MAX"/>
     <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_SWITCH_MIN"/>
 
-    <module name="board" type="tawaki_2.0">
+    <module name="board" type="tawaki">
+      <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>
+      <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_218HZ"/>
+      <define name="IMU_MPU_SMPLRT_DIV" value="0"/>
     </module>
 
-    <!--module name="gps" type="ublox">
-      <configure name="GPS_BAUD" value="B115200"/>
-      <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
-      <define name="GPS_FIX_TIMEOUT" value="0.5"/>
-    </module-->
     <module name="gps" type="optitrack"/>
 
     <module name="stabilization" type="indi"/>
@@ -51,7 +46,7 @@
     <module name="ins" type="ekf2">
       <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
     </module>
-    <module name="preflight_checks"/>
+    <!-- <module name="preflight_checks"/> -->
 
     <!--module name="filter" type="1euro_imu">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
@@ -72,11 +67,12 @@
   </servos>
 
   <servos driver="DShot">
-    <servo name="FR" no="3" min="0" neutral="100" max="2000"/>
-    <servo name="BR" no="4" min="0" neutral="100" max="2000"/>
-    <servo name="BL" no="2" min="0" neutral="100" max="2000"/>
-    <servo name="FL" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="FR" no="1" min="0" neutral="100" max="2000"/>
+    <servo name="BR" no="2" min="0" neutral="100" max="2000"/>
+    <servo name="BL" no="3" min="0" neutral="100" max="2000"/>
+    <servo name="FL" no="4" min="0" neutral="100" max="2000"/>
   </servos>
+
 
   <commands>
     <axis name="ROLL" failsafe_value="0"/>
@@ -98,10 +94,8 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_CALIB" value="{{.abi_id=24, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-10,-47,-130}, .scale={{36821,8142,5741},{60003,13319,9358}}, TAWAKIV2_IMU_ROT}}"/>
-    <define name="GYRO_CALIB" value="{{.abi_id=24, .calibrated={.neutral=false, .scale=false, .rotation=true}, TAWAKIV2_IMU_ROT}}"/>
-    <define name="MAG_CALIB" value="{{.abi_id=3, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={791,-190,2545}, .scale={{26437,35997,25098},{35181,44272,29767}}, TAWAKIV2_MAG_ROT}}"/>
-    
+    <define name="ACCEL_CALIB" value="{{.abi_id=9, .calibrated={.neutral=true, .scale=true},.neutral={18,45,-22}, .scale={{47720,3841,3732},{18911,1570,1517}}}}"/>
+
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="180." unit="deg"/>
@@ -222,4 +216,3 @@
   </section>
 
 </airframe>
-

@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<airframe name="JP">
+<airframe name="Zagi test">
 
   <firmware name="fixedwing">
 

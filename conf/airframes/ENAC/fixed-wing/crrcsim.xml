@@ -1,12 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!-- Funjet Multiplex (http://www.multiplex-rc.de/)
-     UBX GPS
-     Airspeed sensor
-     Digital camera
--->
-
 <airframe name="CRRCSIM demo">
+
+  <description>
+    Demo for the CRRCSIM simulator with NPS
+  </description>
 
   <firmware name="fixedwing">
     <define name="AGR_CLIMB"/>

@@ -1,0 +1,16 @@
+<!DOCTYPE airframe SYSTEM "../airframes/airframe.dtd">
+
+<airframe>
+  <description>
+    Germany / Aachen
+    50.9097° N, 6.22823° W
+    Date 	Declination (+ E|-W) 	Inclination (+D|-U) 	Horizontal Intensity 	North Comp (+N|-S) 	East Comp (+E|-W) 	Vertical Comp (+D|-U) 	Total Field
+    2023-08-17 	-1.3339° 	65.7508° 	19,995.7 nT 	19,990.2 nT 	-465.5 nT 	44,390.4 nT 	48,686.0 nT 
+  </description>
+  <section name="MAG_MODEL" prefix="INS_">
+    <define name="H_X" value="0.410594"/>
+    <define name="H_Y" value="-0.00956127"/>
+    <define name="H_Z" value="0.911769"/>
+  </section>
+</airframe>
+

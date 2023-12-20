@@ -1,0 +1,199 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Panache_1">
+
+  <description>
+    Talon GT Rebel
+    Project Panache
+    AP: Tawaki
+    GPS: Ublox
+    Modem: XBee
+  </description>
+
+  <firmware name="fixedwing">
+    <configure name="PERIODIC_FREQUENCY" value="100"/>
+
+    <target name="ap" board="tawaki_1.1">
+      <module name="radio_control" type="sbus"/>
+      <define name="USE_PWM5"/>
+      <define name="USE_PWM_TIM4"/>
+    </target>
+    <target name="nps" board="pc">
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+
+      <!-- to use real panache board in simulation, remove target="ap" from extra_dl.xml -->
+      <module name="uart"/>
+      <define name="UART6_DEV" value="/dev/ttyUSB0"/>
+    </target>
+    <module name="telemetry" type="xbee_api"/> 
+    <module name="board" type="tawaki"/>
+    <module name="ahrs" type="float_dcm"/> <!--Attitude and heading reference system-->
+    <module name="ins" type="alt_float"/><!--Inertial navigation system-->
+    <module name="air_data"/>
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B115200"/>
+    </module>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
+
+    <module name="e_identification_fr">
+      <configure name="E_ID_PORT" value="UART3"/>
+      <configure name="E_ID_BAUD" value="B115200"/>
+    </module>
+
+    <module name="flight_recorder"/>
+
+    <!--  panache_sensor depends on flight_recorder and extra_dl >-->
+    <!--module name="panache_sensor">
+      <configure name="PANACHE_PORT" value="uart3"/>
+      <configure name="PANACHE_BAUD" value="B230400"/>
+    </module-->
+
+  </firmware>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+  </commands>
+
+  <servos>
+    <servo name="TAIL_RIGHT" no="1" min="1000" neutral="1400" max="1800"/>
+    <servo name="TAIL_LEFT" no="2" min="1950" neutral="1550" max="1150"/>
+    <servo name="AILERON_RIGHT" no="3" min="1960" neutral="1660" max="1260"/> 
+    <servo name="AILERON_LEFT" no="4" min="1780" neutral="1380" max="1080"/>
+    <servo name="MOTOR" no="5" min="1000" neutral="1000" max="2000"/>
+  </servos>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"      value="@YAW"/>
+  </rc_commands>
+
+  <section name="MIXER">
+    <define name="AILERON_RATE"   value="0.85"/>
+    <define name="ELEVATOR_RATE"  value="0.85"/>
+    <define name="RUDDER_RATE"    value="0.75"/>
+  </section>
+
+  <command_laws>
+    <set servo="MOTOR"          value="@THROTTLE"/>
+    <set servo="AILERON_LEFT"   value="@ROLL * AILERON_RATE"/>
+    <set servo="AILERON_RIGHT"  value="@ROLL * AILERON_RATE"/>
+    <set servo="TAIL_LEFT"      value="- @PITCH * ELEVATOR_RATE - @YAW * RUDDER_RATE"/>
+    <set servo="TAIL_RIGHT"     value="- @PITCH * ELEVATOR_RATE + @YAW * RUDDER_RATE"/>
+  </command_laws>
+
+  <section name="GVF" prefix="GVF_">
+    <define name="LINE_KE" value="2.5"/>
+    <define name="ELLIPSE_KE" value="0.8"/>
+    <define name="ELLIPSE_KN" value="0.6"/>
+  </section>
+
+  <section name="GVF_PARAMETRIC" prefix="GVF_PARAMETRIC_">
+    <define name="3D_LISSAJOUS_KX" value="0.001"/>
+    <define name="3D_LISSAJOUS_KY" value="0.001"/>
+    <define name="3D_LISSAJOUS_KZ" value="0.001"/>
+  </section>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="45." unit="deg"/>
+    <define name="MAX_PITCH" value="30." unit="deg"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_X_NEUTRAL" value="-89"/>
+    <define name="ACCEL_Y_NEUTRAL" value="40"/>
+    <define name="ACCEL_Z_NEUTRAL" value="42"/>
+    <define name="ACCEL_X_SENS" value="2.5489897051228363" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.4490240616062073" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.4604910680255285" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="180" unit="deg"/>
+  </section>
+
+  <include href="conf/mag/toulouse_muret.xml"/>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="12.6" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="16.8"/>
+    <define name="BAT_NB_CELLS" value="4"/>
+  </section>
+
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED" value="18." unit="m/s"/>
+    <define name="CARROT" value="5." unit="s"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100."/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="0.06"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="3."/>
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.6"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.08" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.003"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.005"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.09"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.024"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.013"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="20" unit="deg"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-20" unit="deg"/>
+    <define name="PITCH_TRIM" value="-0.4" unit="deg"/>
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="0.4"/>
+    <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
+    <define name="PITCH_PGAIN" value="10210"/>
+    <define name="PITCH_IGAIN" value="322"/>
+    <define name="PITCH_DGAIN" value="1485"/>
+
+    <define name="ROLL_RATE_GAIN" value="1000"/>
+
+    <define name="ROLL_MAX_SETPOINT" value="40" unit="deg"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="11770"/>
+  </section>
+
+  <section name="CATAPULT" prefix="NAV_CATAPULT_">
+    <define name="ACCELERATION_THRESHOLD" value="1.2" description="acceleration threshold in multiples of g" unit="g"/>
+    <define name="ACCELERATION_DETECTION" value="2" description="number acceleration measurments above threshold for launch detection"/>
+    <define name="MOTOR_DELAY" value="0.5" description="delay until motor is turned on in seconds" unit="s"/>
+    <define name="HEADING_DELAY" value="3.0" description="delay until heading is unlocked in seconds" unit="s"/>
+    <define name="INITIAL_PITCH" value="15." description="inital pitch in radians (default 10deg)" unit="deg"/>
+    <define name="INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)" unit="%"/>
+    <define name="CLIMB_DISTANCE" value="200" description="distance of the climb waypoint in front of the catapult" unit="m"/>
+    <define name="TIMEOUT" value="30." description="timeout to disarm the high freq module" unit="s"/>
+  </section>
+
+
+  <section name="NAV_LANDING" prefix="NAV_LANDING_">
+    <define name="AF_HEIGHT" value="25"/>
+    <define name="FLARE_HEIGHT" value="8"/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    <define name="DEFAULT_ROLL" value="10." unit="deg"/>
+    <define name="DEFAULT_PITCH" value="4." unit="deg"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+  </section>
+</airframe>
