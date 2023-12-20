@@ -348,10 +348,10 @@ static void guidance_h_update_reference(void)
   /* compute reference even if usage temporarily disabled via guidance_h_use_ref */
 #if GUIDANCE_H_USE_REF
   if (guidance_h.sp.h_mask == GUIDANCE_H_SP_ACCEL) {
-    struct FloatVect2 sp_accel;
-    sp_accel.x = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.x);
-    sp_accel.y = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.y);
-    gh_update_ref_from_accel_sp(sp_accel);
+    struct FloatVect2 sp_accel_local;
+    sp_accel_local.x = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.x);
+    sp_accel_local.y = ACCEL_FLOAT_OF_BFP(guidance_h.sp.accel.y);
+    gh_update_ref_from_accel_sp(sp_accel_local);
   }
   else if (guidance_h.sp.h_mask == GUIDANCE_H_SP_SPEED) {
     struct FloatVect2 sp_speed;
