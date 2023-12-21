@@ -149,6 +149,7 @@ rigid-body in motive must be known (that's when the quaternion is initialized to
 import sys
 from os import path, getenv
 from time import time, sleep
+import datetime
 import numpy as np
 from pyquaternion import Quaternion as Quat
 from collections import deque
@@ -299,7 +300,10 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
                 timestamp[i] = stamp
             continue # too early for next message
         timestamp[i] = stamp
-
+        
+        today = datetime.datetime.today()
+        utc_time = datetime.datetime.utcnow()
+        tow = ((today.weekday()+1)*24*3600 + utc_time.hour*3600 + utc_time.minute*60 + utc_time.second+18)*1000 + utc_time.microsecond/1000
         vel = compute_velocity(i)
 
         # Rotate position and velocity according to the quaternions found above
@@ -322,7 +326,8 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
             msg['enu_xd'] = vel[0]
             msg['enu_yd'] = vel[1]
             msg['enu_zd'] = vel[2]
-            msg['tow'] = int(1000. * stamp) # TODO convert to GPS itow ?
+            # msg['tow'] = int(1000. * stamp) # TODO convert to GPS itow ?
+            msg['tow'] = int(tow) # Time of week in ms
             # convert quaternion to psi euler angle
             dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
             dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
@@ -337,12 +342,14 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
             # TODO calculate everything
             msg = PprzMessage("datalink", "EXTERNAL_POSE_SMALL")
             msg['ac_id'] = id_dict[i]
-            msg['timestamp'] = int(1000. * stamp) # Time in ms
+            # msg['timestamp'] = int(1000. * stamp) # Time in ms
+            msg['timestamp'] = int(tow) # Time of week in ms
             ivy.send(msg)
         else:
             msg = PprzMessage("datalink", "EXTERNAL_POSE")
             msg['ac_id'] = id_dict[i]
-            msg['timestamp'] = int(1000. * stamp) # Time in ms
+            # msg['timestamp'] = int(1000. * stamp) # Time in ms
+            msg['timestamp'] = int(tow) # Time of week in ms
             msg['enu_x'] = pos[0]
             msg['enu_y'] = pos[1]
             msg['enu_z'] = pos[2]
