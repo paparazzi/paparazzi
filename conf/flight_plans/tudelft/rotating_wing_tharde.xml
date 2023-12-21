@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
+<flight_plan alt="180" ground_alt="60" lat0="52.3931434" lon0="5.9205099" max_dist_from_home="5000" name="Rotating Wing 't Harde" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -17,16 +17,12 @@
     <waypoint name="TD" x="10" y="-1"/>
     <waypoint name="APP" x="70" y="-25"/>
     <waypoint name="FOLLOW" x="300" y="80"/>
-    <!-- EHVB -->
-    <waypoint lat="52.169189" lon="4.410820" name="C1"/>
-    <waypoint lat="52.168049" lon="4.406923" name="C2"/>
-    <waypoint lat="52.166515" lon="4.408235" name="C3"/>
-    <waypoint lat="52.163255" lon="4.407668" name="C4"/>
-    <waypoint lat="52.161908" lon="4.410082" name="C5"/>
-    <waypoint lat="52.162641" lon="4.416992" name="C6"/>
-    <waypoint lat="52.164861" lon="4.427268" name="C7"/>
-    <waypoint lat="52.170422" lon="4.427511" name="C8"/>
-    <waypoint lat="52.172276" lon="4.424011" name="C9"/>
+    <!-- t'Harde -->
+    <waypoint lat="52.4034734" lon="5.9067552" name="C1"/>
+    <waypoint lat="52.3878517" lon="5.9212118" name="C2"/>
+    <waypoint lat="52.4054122" lon="5.9581765" name="C3"/>
+    <waypoint lat="52.4179727" lon="6.0083051" name="C4"/>
+    <waypoint lat="52.4420912" lon="5.9871178" name="C5"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
@@ -35,10 +31,6 @@
       <corner name="C3"/>
       <corner name="C4"/>
       <corner name="C5"/>
-      <corner name="C6"/>
-      <corner name="C7"/>
-      <corner name="C8"/>
-      <corner name="C9"/>
     </sector>
   </sectors>
   <modules>
