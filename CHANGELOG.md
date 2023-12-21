@@ -1,3 +1,26 @@
+Paparazzi v6.3.0_stable
+=======================
+
+Stable version release v6.3.
+The main changes are the improvement of the modules dependency mananagement,
+an in-depth rewrite of the navigation/guidance layer for rotorcraft allowing
+a better integration of hybrid airframes, the support for STM32H7 and some new
+drivers, the rework of hardware in the loop (HITL) simulation
+and the replacement of legacy ocaml sim by a NPS-based version.
+
+- documentation (#2981) (#2980) (#2979) (#2978) (#2973) (#2972)
+- python plotter (#2997)
+- new navigation for rotorcraft (#2964) (#3004)(#3006) (#3108)
+- new boards with STM32H7 (#3001) (#3017) (#3199)
+- improve modules dependency algorithm (#3005) (#3009)
+- new navigation and sensors modules (#3010) (#3021) (#3039) (#3067) (#3074) (#3088) (#3077)
+- PyBullet backend for NPS (#3024)
+- Mavlink update to v2
+- Improvements to INDI stabilization and guidance
+
+And also many other improvements and corrections...
+
+
 Paparazzi v6.2.0_stable
 =======================
 
