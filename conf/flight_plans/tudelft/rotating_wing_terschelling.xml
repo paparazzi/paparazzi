@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
+<flight_plan alt="70" ground_alt="0" lat0="53.3988083" lon0="5.2487480" max_dist_from_home="2000" name="Rotating Wing Terschelling" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -8,25 +8,25 @@
     <waypoint name="decel" x="300." y="110."/>
     <waypoint name="begin_trans" x="300." y="90."/>
     <waypoint name="end_trans" x="300." y="120."/>
-    <waypoint name="STDBY" x="60" y="20"/>
-    <waypoint name="p1" x="65" y="75"/>
-    <waypoint name="p2" x="200" y="120"/>
-    <waypoint name="p3" x="250" y="-30"/>
-    <waypoint name="p4" x="120" y="-75"/>
+    <waypoint name="STDBY" x="-60" y="5"/>
+    <waypoint name="p1" x="-65" y="80"/>
+    <waypoint name="p2" x="-120" y="480"/>
+    <waypoint name="p3" x="-400" y="400"/>
+    <waypoint name="p4" x="-150" y="70"/>
     <waypoint name="circ" x="160" y="25"/>
     <waypoint name="TD" x="10" y="-1"/>
-    <waypoint name="APP" x="70" y="-25"/>
+    <waypoint name="APP" x="-200" y="150"/>
     <waypoint name="FOLLOW" x="300" y="80"/>
-    <!-- EHVB -->
-    <waypoint lat="52.169189" lon="4.410820" name="C1"/>
-    <waypoint lat="52.168049" lon="4.406923" name="C2"/>
-    <waypoint lat="52.166515" lon="4.408235" name="C3"/>
-    <waypoint lat="52.163255" lon="4.407668" name="C4"/>
-    <waypoint lat="52.161908" lon="4.410082" name="C5"/>
-    <waypoint lat="52.162641" lon="4.416992" name="C6"/>
-    <waypoint lat="52.164861" lon="4.427268" name="C7"/>
-    <waypoint lat="52.170422" lon="4.427511" name="C8"/>
-    <waypoint lat="52.172276" lon="4.424011" name="C9"/>
+    <!-- Terschelling -->
+    <waypoint lat="53.403590" lon="5.214102" name="C1"/>
+    <waypoint lat="53.399129" lon="5.219031" name="C2"/>
+    <waypoint lat="53.391752" lon="5.234877" name="C3"/>
+    <waypoint lat="53.399786" lon="5.273960" name="C4"/>
+    <waypoint lat="53.416200" lon="5.265441" name="C5"/>
+    <waypoint lat="53.424575" lon="5.252654" name="C6"/>
+    <waypoint lat="53.422246" lon="5.233265" name="C7"/>
+    <waypoint lat="53.418859" lon="5.216361" name="C8"/>
+    <waypoint lat="53.411762" lon="5.208801" name="C9"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">

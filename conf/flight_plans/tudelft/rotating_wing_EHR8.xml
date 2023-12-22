@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
+<flight_plan alt="70" ground_alt="0" alt="119" lat0="52.9262279" lon0="4.4986184" max_dist_from_home="20500" name="Rotating Wing EHR8" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -17,16 +17,16 @@
     <waypoint name="TD" x="10" y="-1"/>
     <waypoint name="APP" x="70" y="-25"/>
     <waypoint name="FOLLOW" x="300" y="80"/>
-    <!-- EHVB -->
-    <waypoint lat="52.169189" lon="4.410820" name="C1"/>
-    <waypoint lat="52.168049" lon="4.406923" name="C2"/>
-    <waypoint lat="52.166515" lon="4.408235" name="C3"/>
-    <waypoint lat="52.163255" lon="4.407668" name="C4"/>
-    <waypoint lat="52.161908" lon="4.410082" name="C5"/>
-    <waypoint lat="52.162641" lon="4.416992" name="C6"/>
-    <waypoint lat="52.164861" lon="4.427268" name="C7"/>
-    <waypoint lat="52.170422" lon="4.427511" name="C8"/>
-    <waypoint lat="52.172276" lon="4.424011" name="C9"/>
+    <!-- EHR8 -->
+    <waypoint name="C1" lat="52.96166667" lon="4.740277778"/>
+    <waypoint name="C2" lat="52.86666667" lon="4.716666667"/>
+    <waypoint name="C3" lat="52.78333333" lon="4.683333333"/>
+    <waypoint name="C4" lat="52.75" lon="4.533333333"/>
+    <waypoint name="C5" lat="52.775" lon="4.433333333"/>
+    <waypoint name="C6" lat="52.81666667" lon="4.35"/>
+    <waypoint name="C7" lat="53.08333333" lon="4.35"/>
+    <waypoint name="C8" lat="53.10277778" lon="4.515555556"/>
+    <waypoint name="C9" lat="53.04972222" lon="4.679444444"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
@@ -42,9 +42,9 @@
     </sector>
   </sectors>
   <modules>
-    <!--<module name="follow_me">
+    <module name="follow_me">
       <define name="FOLLOW_ME_MOVING_WPS" value="WP_p1,WP_p2,WP_p3,WP_p4,WP_STDBY,WP_circ,WP_APP"/>
-    </module> -->
+    </module>
   </modules>
   <exceptions>
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
