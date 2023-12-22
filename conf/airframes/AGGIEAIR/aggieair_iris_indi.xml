@@ -14,7 +14,7 @@
     <!-- Main autopilot MCU -->
     <target name="ap" board="px4fmu_2.4">
       <configure name="PERIODIC_FREQUENCY" value="200"/>
-      <configure name="TELEMETRY_FREQUENCY" value="60"/>
+      <configure name="TELEMETRY_FREQUENCY" value="50"/>
 
       <comment>
         amount of time it take for the bat to check
