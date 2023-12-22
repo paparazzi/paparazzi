@@ -33,7 +33,7 @@ let open_compress file =
   else open_in file
 
 let compress file =
-  assert (Sys.command ("gzip "^file) = 0)
+  assert (Sys.command ("gzip -f "^file) = 0)
 
 
 let extensions = ["";".gz";".Z";".bz2";".zip";".ZIP"]

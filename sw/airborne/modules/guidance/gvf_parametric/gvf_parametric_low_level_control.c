@@ -33,7 +33,13 @@
 #include "firmwares/fixedwing/guidance/guidance_v_n.h"   // gvf_parametric is only compatible with the new pprz controller!
 #endif
 
-void gvf_parametric_low_level_control_2D(float heading_rate)
+#if defined(FIXEDWING_FIRMWARE)
+#define USED_IN_FIXEDWING_ONLY
+#else
+#define USED_IN_FIXEDWING_ONLY UNUSED
+#endif
+
+void gvf_parametric_low_level_control_2D(float heading_rate USED_IN_FIXEDWING_ONLY )
 {
 #if defined(FIXEDWING_FIRMWARE)
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
@@ -54,7 +60,7 @@ void gvf_parametric_low_level_control_2D(float heading_rate)
 #endif
 }
 
-void gvf_parametric_low_level_control_3D(float heading_rate, float climbing_rate)
+void gvf_parametric_low_level_control_3D(float heading_rate USED_IN_FIXEDWING_ONLY, float climbing_rate USED_IN_FIXEDWING_ONLY)
 {
 #if defined(FIXEDWING_FIRMWARE)
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
