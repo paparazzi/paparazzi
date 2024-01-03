@@ -18,7 +18,8 @@
 <!ELEMENT copy EMPTY>
 <!ELEMENT curve EMPTY>
 <!ELEMENT let EMPTY>
-<!ELEMENT define EMPTY>
+<!ELEMENT define (field)*>
+<!ELEMENT field (field)*>
 <!ELEMENT modules (module)*>
 <!ELEMENT configure EMPTY>
 <!ELEMENT firmware (target|module|autopilot|configure|define|comment)*>
@@ -104,6 +105,11 @@ code_unit CDATA #IMPLIED
 integer CDATA #IMPLIED
 type CDATA #IMPLIED
 description CDATA #IMPLIED>
+
+<!ATTLIST field
+name CDATA #IMPLIED
+value CDATA #IMPLIED
+type CDATA #IMPLIED>
 
 <!ATTLIST configure
 name CDATA #REQUIRED

@@ -72,7 +72,11 @@ float backwing_pitch_eff_scaling = 1.0;
 
 static float g_forward[4][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL_FWD, STABILIZATION_INDI_G1_PITCH_FWD, STABILIZATION_INDI_G1_YAW_FWD, STABILIZATION_INDI_G1_THRUST_FWD};
 
+#ifdef STABILIZATION_INDI_G1
+static float g_hover[4][INDI_NUM_ACT] = STABILIZATION_INDI_G1;
+#else
 static float g_hover[4][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL, STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST};
+#endif
 
 // Functions to schedule switching on and of of tip props on front wing
 float sched_ratio_tip_props = 1.0;

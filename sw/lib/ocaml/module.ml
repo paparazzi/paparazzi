@@ -61,6 +61,12 @@ let parse_configure = fun xml ->
   { cname = find_name xml; cvalue = get "value"; case = get "case";
     default = get "default"; cdescription = get "description" }
 
+type field = {
+    finame: string option;
+    fivalue: string option;
+    fitype: string option
+  }
+
 type define = {
     dname: string;
     dvalue: string option;
@@ -68,8 +74,14 @@ type define = {
     dunit: string option;
     dtype: string option;
     ddescription: string option;
-    cond: string option
+    cond: string option;
+    fields: field list
   }
+
+let parse_field = fun xml ->
+  { finame = ExtXml.attrib_opt xml "name";
+    fivalue = ExtXml.attrib_opt xml "value";
+    fitype = ExtXml.attrib_opt xml "type" }
 
 let parse_define = fun xml ->
   let get = fun x -> ExtXml.attrib_opt xml x in
@@ -77,7 +89,8 @@ let parse_define = fun xml ->
     integer = begin match get "integer" with
       | None -> None | Some i -> Some (int_of_string i) end;
     dunit = get "unit"; dtype = get "type";
-    ddescription = get "description"; cond = get "cond" }
+    ddescription = get "description"; cond = get "cond";
+    fields = List.map parse_field (Xml.children xml)  }
 
 type incl = { element: string; condition: string option }
 

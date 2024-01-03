@@ -98,10 +98,44 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_CALIB" value="{{.abi_id=24, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-10,-47,-130}, .scale={{36821,8142,5741},{60003,13319,9358}}, TAWAKIV2_IMU_ROT}}"/>
-    <define name="GYRO_CALIB" value="{{.abi_id=24, .calibrated={.neutral=false, .scale=false, .rotation=true}, TAWAKIV2_IMU_ROT}}"/>
-    <define name="MAG_CALIB" value="{{.abi_id=3, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={791,-190,2545}, .scale={{26437,35997,25098},{35181,44272,29767}}, TAWAKIV2_MAG_ROT}}"/>
-    
+    <define name="ACCEL_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="24"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale" value="true"/>
+          <field name="rotation" value="true"/>
+        </field>
+        <field name="neutral" value="-10,-47,-130" type="int[]"/>
+        <field name="scale" value="{{36821,8142,5741},{60003,13319,9358}}"/>
+        <field value="TAWAKIV2_IMU_ROT"/>
+      </field>
+    </define>
+    <define name="GYRO_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="24"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="false"/>
+          <field name="scale" value="false"/>
+          <field name="rotation" value="true"/>
+        </field>
+        <field value="TAWAKIV2_IMU_ROT"/>
+      </field>
+    </define>
+    <define name="MAG_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="3"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale" value="true"/>
+          <field name="rotation" value="true"/>
+        </field>
+        <field name="neutral" value="791,-190,2545" type="int[]"/>
+        <field name="scale" value="{{26437,35997,25098},{35181,44272,29767}}"/>
+        <field value="TAWAKIV2_MAG_ROT"/>
+      </field>
+    </define>
+
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="180." unit="deg"/>
@@ -140,10 +174,12 @@
 
     <!-- Full INDI -->
     <!-- control effectiveness -->
-    <define name="G1_ROLL"   value="{  -20.0,  -20.0,  20.0,  20.0 }"/>
-    <define name="G1_PITCH"  value="{   20.0,  -20.0, -20.0,  20.0 }"/>
-    <define name="G1_YAW"    value="{   3,    -3,    3,   -3 }"/>
-    <define name="G1_THRUST" value="{  -1., -1., -1., -1.}"/>
+    <define name="G1" type="matrix">
+      <field value="{ -20.0,  -20.0,  20.0,  20.0 }"/>
+      <field value="{  20.0,  -20.0, -20.0,  20.0 }"/>
+      <field value="{  3.,    -3.,    3.,   -3. }"/>
+      <field value="{ -1., -1., -1., -1.}"/>
+    </define>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2"        value="{80, -80, 80, -80.0 }"/>
     <!-- first order actuator dynamics -->

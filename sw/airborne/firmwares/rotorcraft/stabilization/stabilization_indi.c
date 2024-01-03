@@ -255,6 +255,9 @@ bool indi_thrust_increment_set = false;
 
 float g1g2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
 float g2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by INDI_G_SCALING
+#ifdef STABILIZATION_INDI_G1
+float g1[INDI_OUTPUTS][INDI_NUM_ACT] = STABILIZATION_INDI_G1;
+#else // old defines TODO remove
 #if INDI_OUTPUTS == 5
 float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
                                         STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW,
@@ -264,6 +267,7 @@ float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
 float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
                                         STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST
                                        };
+#endif
 #endif
 
 float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
