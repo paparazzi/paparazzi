@@ -176,10 +176,12 @@
 
     <!-- Full INDI -->
     <!-- control effectiveness -->
-    <define name="G1_ROLL" value="{-40 , -40, 40 , 40 }"/>
-    <define name="G1_PITCH" value="{40 , -40, -40 , 40 }"/>
-    <define name="G1_YAW" value="{5, -5, 5, -5}"/>
-    <define name="G1_THRUST" value="{-1.5, -1.5, -1.5, -1.5}"/>
+    <define name="G1" type="matrix">
+      <field value="{-40 , -40, 40 , 40 }"/>
+      <field value="{40 , -40, -40 , 40 }"/>
+      <field value="{5, -5, 5, -5}"/>
+      <field value="{-1.5, -1.5, -1.5, -1.5}"/>
+    </define>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{150.0,   -150.0,  150.0,   -150.0 }"/>
     <!-- first order actuator dynamics -->
