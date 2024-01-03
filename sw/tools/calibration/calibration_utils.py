@@ -192,14 +192,18 @@ def print_xml(p, sensor, sensor_id, res):
     y_sens = continious_frac(p[4]*2**res)
     z_sens = continious_frac(p[5]*2**res)
 
-    struct = "{{.abi_id="+sensor_id+", .calibrated={.neutral=true, .scale=true},"
-    struct += ".neutral={"+str(int(round(p[0])))+","+str(int(round(p[1])))+","+str(int(round(p[2])))+"}, "
-    struct += ".scale={{"+str(x_sens[0])+","+str(y_sens[0])+","+str(z_sens[0])+"},"
-    struct += "{"+str(x_sens[1])+","+str(y_sens[1])+","+str(z_sens[1])+"}}"
-    struct += "}}"
-
     print("")
-    print("<define name=\"IMU_"+sensor+"_CALIB\" value=\""+struct+"\"/>")
+    print('<define name="IMU_'+sensor+'_CALIB" type="array"/>')
+    print('  <field type="struct"/>')
+    print('    <field name="abi_id" value="'+sensor_id+'"/>')
+    print('    <field name="calibrated" type="struct">')
+    print('      <field name="neutral" value="true"/>')
+    print('      <field name="scale" value="true"/>')
+    print('    </field>')
+    print('    <field name="neutral" value="'+str(int(round(p[0])))+','+str(int(round(p[1])))+','+str(int(round(p[2])))+'" type="int[]"/>')
+    print('    <field name="scale" value="{{'+str(x_sens[0])+','+str(y_sens[0])+','+str(z_sens[0])+'},{'+str(x_sens[1])+','+str(y_sens[1])+','+str(z_sens[1])+'}}"/>')
+    print('  </field>')
+    print('</define>')
     print("")
     print("<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>")
     print("<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>")
