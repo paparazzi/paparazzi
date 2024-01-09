@@ -102,8 +102,17 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_CALIB" value="{{.abi_id=9, .calibrated={.neutral=true, .scale=true},.neutral={-12,23,29}, .scale={{65369,62166,40813},{28737,25351,16753}}}}"/>
-    <!--define name="MAG_CALIB" value="{{.abi_id=3, .calibrated={.neutral=true, .scale=true},.neutral={-833,-5969,-931}, .scale={{22816,38799,15650},{34941,60353,24187}}}}"/-->
+    <define name="ACCEL_CALIB" type="array">
+      <field type="struct">
+        <field name="abi_id" value="9"/>
+        <field name="calibrated" type="struct">
+          <field name="neutral" value="true"/>
+          <field name="scale" value="true"/>
+        </field>
+        <field name="neutral" value="-12,23,29" type="int[]"/>
+        <field name="scale" value="{{65369,62166,40813},{28737,25351,16753}}"/>
+      </field>
+    </define>
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -143,10 +152,12 @@
 
     <!-- Full INDI -->
     <!-- control effectiveness -->
-    <define name="G1_ROLL"   value="{  -20.0,  -20.0,  20.0,  20.0 }"/>
-    <define name="G1_PITCH"  value="{   20.0,  -20.0, -20.0,  20.0 }"/>
-    <define name="G1_YAW"    value="{   3,    -3,    3,   -3 }"/>
-    <define name="G1_THRUST" value="{  -1., -1., -1., -1.}"/>
+    <define name="G1" type="matrix">
+      <field value="{ -20.0,  -20.0,  20.0,  20.0 }"/>
+      <field value="{  20.0,  -20.0, -20.0,  20.0 }"/>
+      <field value="{  3.,    -3.,    3.,   -3. }"/>
+      <field value="{ -1., -1., -1., -1.}"/>
+    </define>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2"        value="{80, -80, 80, -80.0 }"/>
     <!-- first order actuator dynamics -->

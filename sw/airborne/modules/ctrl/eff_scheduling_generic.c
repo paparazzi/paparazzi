@@ -37,19 +37,27 @@
 #error "You need to define an RC channel to switch between simple and advanced scheduling"
 #endif
 
+#ifdef FWD_G1
+static float g1g2_forward[INDI_OUTPUTS][INDI_NUM_ACT] = FWD_G1;
+#else
 static float g1g2_forward[INDI_OUTPUTS][INDI_NUM_ACT] = {
   FWD_G1_ROLL,
   FWD_G1_PITCH,
   FWD_G1_YAW,
   FWD_G1_THRUST
 };
+#endif
 
+#ifdef STABILIZATION_INDI_G1
+static float g1g2_hover[INDI_OUTPUTS][INDI_NUM_ACT] = STABILIZATION_INDI_G1;
+#else
 static float g1g2_hover[INDI_OUTPUTS][INDI_NUM_ACT] = {
   STABILIZATION_INDI_G1_ROLL,
   STABILIZATION_INDI_G1_PITCH,
   STABILIZATION_INDI_G1_YAW,
   STABILIZATION_INDI_G1_THRUST
 };
+#endif
 
 static float g2_both[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by INDI_G_SCALING
 
