@@ -91,6 +91,16 @@
 #define LED_5_GPIO_OFF    gpio_set
 #endif
 
+#if defined(LINE_LED6)
+#ifndef USE_LED_6
+#define USE_LED_6 1
+#endif
+#define LED_6_GPIO        PAL_PORT(LINE_LED6)
+#define LED_6_GPIO_PIN    PAL_PAD(LINE_LED6)
+#define LED_6_GPIO_ON     gpio_clear
+#define LED_6_GPIO_OFF    gpio_set
+#endif
+
 /*
  * IMU Heater
  */
@@ -686,26 +696,26 @@
 /**
  * SDIO
  */
-#if defined(LINE_SDIO_D0) && defined(LINE_SDIO_D1) && defined(LINE_SDIO_D2) && defined(LINE_SDIO_D3) && defined(LINE_SDIO_CK) && defined(LINE_SDIO_CMD)
-#define SDIO_D0_PORT    PAL_PORT(LINE_SDIO_D0)
-#define SDIO_D0_PIN     PAL_PAD(LINE_SDIO_D0)
-#define SDIO_D1_PORT    PAL_PORT(LINE_SDIO_D1)
-#define SDIO_D1_PIN     PAL_PAD(LINE_SDIO_D1)
-#define SDIO_D2_PORT    PAL_PORT(LINE_SDIO_D2)
-#define SDIO_D2_PIN     PAL_PAD(LINE_SDIO_D2)
-#define SDIO_D3_PORT    PAL_PORT(LINE_SDIO_D3)
-#define SDIO_D3_PIN     PAL_PAD(LINE_SDIO_D3)
-#define SDIO_CK_PORT    PAL_PORT(LINE_SDIO_CK)
-#define SDIO_CK_PIN     PAL_PAD(LINE_SDIO_CK)
-#define SDIO_CMD_PORT   PAL_PORT(LINE_SDIO_CMD)
-#define SDIO_CMD_PIN    PAL_PAD(LINE_SDIO_CMD)
+// #if defined(LINE_SDIO_D0) && defined(LINE_SDIO_D1) && defined(LINE_SDIO_D2) && defined(LINE_SDIO_D3) && defined(LINE_SDIO_CK) && defined(LINE_SDIO_CMD)
+// #define SDIO_D0_PORT    PAL_PORT(LINE_SDIO_D0)
+// #define SDIO_D0_PIN     PAL_PAD(LINE_SDIO_D0)
+// #define SDIO_D1_PORT    PAL_PORT(LINE_SDIO_D1)
+// #define SDIO_D1_PIN     PAL_PAD(LINE_SDIO_D1)
+// #define SDIO_D2_PORT    PAL_PORT(LINE_SDIO_D2)
+// #define SDIO_D2_PIN     PAL_PAD(LINE_SDIO_D2)
+// #define SDIO_D3_PORT    PAL_PORT(LINE_SDIO_D3)
+// #define SDIO_D3_PIN     PAL_PAD(LINE_SDIO_D3)
+// #define SDIO_CK_PORT    PAL_PORT(LINE_SDIO_CK)
+// #define SDIO_CK_PIN     PAL_PAD(LINE_SDIO_CK)
+// #define SDIO_CMD_PORT   PAL_PORT(LINE_SDIO_CMD)
+// #define SDIO_CMD_PIN    PAL_PAD(LINE_SDIO_CMD)
 
-#if defined(AF_LINE_SDIO_CMD)
-#define SDIO_AF   AF_LINE_SDIO_CMD
-#else
-#define SDIO_AF   ((void)0)
-#endif
-#endif
+// #if defined(AF_LINE_SDIO_CMD)
+// #define SDIO_AF   AF_LINE_SDIO_CMD
+// #else
+// #define SDIO_AF   ((void)0)
+// #endif
+// #endif
 
 #if defined(LINE_USB_VBUS)
 #define SDLOG_USB_VBUS_PORT   PAL_PORT(LINE_USB_VBUS)

@@ -6,9 +6,9 @@
 # See https://pixhawk.org/modules/pixhawk for details
 #
 
-BOARD=pixhawk
-BOARD_VERSION=6x
-BOARD_DIR=$(BOARD)/$(BOARD_VERSION)
+BOARD=px4fmu
+BOARD_VERSION=v6x
+BOARD_DIR=$(BOARD)/chibios/$(BOARD_VERSION)
 BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
@@ -56,25 +56,25 @@ RADIO_CONTROL_LED  ?= none
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
-SYS_TIME_LED       ?= 5
+SYS_TIME_LED       ?= 6
 
 #
 # default UART configuration (modem, gps, spektrum)
 # The TELEM2 port
-SBUS_PORT ?= UART3
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART3
+SBUS_PORT ?= UART6
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART6
 
-# The TELEM1 port (UART3 is TELEM2)
-MODEM_PORT ?= UART2
+# The TELEM1 port (UART5 is TELEM2, UART2 is TELEM3)
+MODEM_PORT ?= UART7
 MODEM_BAUD ?= B57600
 
-# The GPS1 port (UART8 is GPS2)
-GPS_PORT ?= UART4
-GPS_BAUD ?= B57600
+# The GPS1 port (UART1 is GPS2)
+GPS_PORT ?= UART8
+GPS_BAUD ?= B460800
 
 # InterMCU port connected to the IO processor
-INTERMCU_PORT ?= UART6
-INTERMCU_BAUD ?= B1500000
+#INTERMCU_PORT ?= UART6
+#INTERMCU_BAUD ?= B1500000
 
 #
 # default actuator configuration

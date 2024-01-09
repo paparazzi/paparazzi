@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Gautier Hattenberger, Alexandre Bustico
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,32 +14,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
- *
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  */
 
-/** \file mcu_periph/sdio.h
- *  \brief arch independent SDIO API
- *
- */
+#ifndef MCUCONF_H
+#define MCUCONF_H
 
-#ifndef MCU_PERIPH_SDIO_H
-#define MCU_PERIPH_SDIO_H
+#include "board.h"
 
-typedef struct SDCDriver SDCDriver;
-
-/** Connect a SD card on SDIO peripheral
- */
-bool sdio_connect(SDCDriver *sdc);
-
-/** Disconnect a SD card on SDIO peripheral
- */
-bool sdio_disconnect(SDCDriver *sdc);
-
-/** Check if a SD card is inserted
- */
-bool is_card_inserted(SDCDriver *sdc);
-
+#if defined(STM32H7XX)
+#include "mcuconf_h7.h"
+#else
+#error "Unsupported MCU"
 #endif
 
+#endif /* MCUCONF_H */

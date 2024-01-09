@@ -25,12 +25,6 @@
 /*
  * Board oscillators-related settings.
  */
-#if !defined(STM32_LSECLK)
-#define STM32_LSECLK                32768U
-#endif
-
-#define STM32_LSEDRV                (3U << 3U)
-
 #if !defined(STM32_HSECLK)
 #define STM32_HSECLK                24000000U
 #endif
@@ -38,6 +32,7 @@
 /*
  * MCU type as defined in the ST header.
  */
+#define STM32H7XX
 #define STM32H743xx
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
