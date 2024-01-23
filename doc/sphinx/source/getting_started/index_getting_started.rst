@@ -1,8 +1,8 @@
-.. quickstart index_quick_start
+.. quickstart index_getting_started
 
-=================
-Quick Start
-=================
+===============
+Getting Started
+===============
 
 Welcome to the Paparazzi UAV user guide!
 
@@ -17,6 +17,5 @@ To start, go to the :doc:`install` page!
     system_overview
     paparazzi_center_tour
     first_simulation
-    gcs_tour
     first_flight
     
