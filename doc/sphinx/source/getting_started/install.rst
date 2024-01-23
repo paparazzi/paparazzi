@@ -1,10 +1,10 @@
 .. quickstart install
 
-======================
-Quick Install
-======================
+============
+Installation
+============
 
-Paparazzi runs best on **Ubuntu 16.04 or higher**, so this quick installation guide is for Ubuntu users. I you have an other OS or if you want more detailled installation, see the :doc:`../installation/index_installation` page.
+Paparazzi runs best on **Ubuntu 16.04 or higher**, so this quick installation guide is for Ubuntu users.
 
 Open a terminal and execute each lines below. If one fails, ask for help on gitter.
 
