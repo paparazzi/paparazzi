@@ -11,7 +11,9 @@ void nps_sensor_accel_init(struct NpsSensorAccel *accel, double time)
   accel->min = NPS_ACCEL_MIN;
   accel->max = NPS_ACCEL_MAX;
   FLOAT_MAT33_DIAG(accel->sensitivity,
-                   NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ);
+                   NPS_ACCEL_SIGN_X * NPS_ACCEL_SENSITIVITY_XX,
+                   NPS_ACCEL_SIGN_Y * NPS_ACCEL_SENSITIVITY_YY,
+                   NPS_ACCEL_SIGN_Z * NPS_ACCEL_SENSITIVITY_ZZ);
   VECT3_ASSIGN(accel->neutral,
                NPS_ACCEL_NEUTRAL_X, NPS_ACCEL_NEUTRAL_Y, NPS_ACCEL_NEUTRAL_Z);
   VECT3_ASSIGN(accel->noise_std_dev,
