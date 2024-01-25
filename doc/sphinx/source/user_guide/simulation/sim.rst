@@ -17,7 +17,7 @@ From the **Session** combo box, select **Simulation** entry and click **Execute*
 
 - **Microjet** is the interface of a simulator program. It runs the same code as the one for the autopilot processor plus a rudimentary flight dynamic model. 
   It allows you to test the interactions with the UAV and the flight plan execution.
-- **GCS** (:ref:`gcs`) is the main window. It displays the track of the aircraft, as well as information about the execution of its flight plans. 
+- **GCS** is the main window. It displays the track of the aircraft, as well as information about the execution of its flight plans. 
   This program provide menus for the datalink functions and is able to edit a flight plan.
 - **Server** is a hidden process which won't be described here (see the architecture of the system).
 
