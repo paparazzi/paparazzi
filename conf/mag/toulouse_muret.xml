@@ -13,7 +13,7 @@
   <section name="MAG_MODEL" prefix="INS_">
     <define name="H_X" value="0.515118"/>
     <define name="H_Y" value="0.0125878"/>
-    <define name="H_Z" value="0.0125878"/>
+    <define name="H_Z" value="0.857027"/>
   </section>
 </airframe>
 
