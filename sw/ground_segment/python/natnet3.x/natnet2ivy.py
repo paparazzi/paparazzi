@@ -209,7 +209,7 @@ track = dict([(ac_id, deque()) for ac_id in id_dict.keys()])
 
 # Rotation for Z up if needed
 if args.up_axis == 'y_up':
-    # x right, y up, z, near -> x right, y far, z up
+    # x far, y up, z right -> x far, y left, z up
     q_z_up = Quat(axis=[1., 0., 0.], angle=np.pi/2.)
 else:
     q_z_up = Quat(axis=[1., 0., 0.], angle=0.)
@@ -234,13 +234,14 @@ q_x_correction = Quat(
 )
 
 # Total axis system rotation
-q_total = q_x_correction * q_ground_plane * q_z_up
+q_total = q_x_correction * q_ground_plane * q_z_up  # extrinsic
+#q_total = q_z_up * q_ground_plane * q_x_correction # intrinsic
 
 # Attitude Quaternion correction    
 nose_correction = {'left': 90., 'far': 0., 'right': -90., 'near': 180.}
 q_nose_correction = Quat(
     axis=[0., 0., 1.],
-    angle=np.deg2rad(nose_correction[args.ac_nose] + x_angle)
+    angle=np.deg2rad(nose_correction[args.ac_nose])
 )
 
 
@@ -308,7 +309,7 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
         # Rotate the attitude delta to the new frame
         quat = Quat(real=quat[3], imaginary=[quat[0], quat[1], quat[2]])
-        quat = q_nose_correction * (q_total * quat * q_total.inverse)
+        quat = (q_total * quat * q_total.inverse) * q_nose_correction
         quat = quat.elements[[1, 2, 3, 0]].tolist()
 
         # Check which message to send
@@ -380,6 +381,20 @@ natnet = NatNetClient(
         commandPort=args.command_port,
         verbose=args.verbose,
         version=natnet_version)
+
+#t = 0
+#while(True):
+#    t += 0.1
+#    # z_up test cases with
+#    #      le right, xs far, an right
+#    #  or  le near, xs right, an right
+#    #q = [0.7,   0.1, -0.1, 0.7]  # should give [1.0,   ]
+#    #q = [1.,   0.1, 0., 0.] # z_up: pitch down, yawed to the right. should give [0.7 0.1 0.1 -0.7]
+#
+#    # le right, xs right, up y_up, an far
+#    #q = [0.7,   0.0, 0.7, 0.0]  # should give [0.7   0.0 0.0 0.7]
+#    q = [-0.7,   -0.1, 0.7, 0.1]  # should give [-0.7   0.1 -0.1 0.7]
+#    receiveRigidBodyList([(2, [0,0,0], [q[1], q[2], q[3], q[0]], True)], t)
 
 
 print("Starting Natnet3.x to Ivy interface at %s" % (args.server))
