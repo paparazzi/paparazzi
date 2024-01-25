@@ -12,7 +12,9 @@ void  nps_sensor_gyro_init(struct NpsSensorGyro *gyro, double time)
   gyro->min = NPS_GYRO_MIN;
   gyro->max = NPS_GYRO_MAX;
   FLOAT_MAT33_DIAG(gyro->sensitivity,
-                   NPS_GYRO_SENSITIVITY_PP, NPS_GYRO_SENSITIVITY_QQ, NPS_GYRO_SENSITIVITY_RR);
+                   NPS_GYRO_SIGN_P * NPS_GYRO_SENSITIVITY_PP,
+                   NPS_GYRO_SIGN_Q * NPS_GYRO_SENSITIVITY_QQ,
+                   NPS_GYRO_SIGN_R * NPS_GYRO_SENSITIVITY_RR);
   VECT3_ASSIGN(gyro->neutral,
                NPS_GYRO_NEUTRAL_P, NPS_GYRO_NEUTRAL_Q, NPS_GYRO_NEUTRAL_R);
   VECT3_ASSIGN(gyro->noise_std_dev,
