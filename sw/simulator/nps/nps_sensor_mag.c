@@ -11,7 +11,9 @@ void nps_sensor_mag_init(struct NpsSensorMag *mag, double time)
   mag->min = NPS_MAG_MIN;
   mag->max = NPS_MAG_MAX;
   FLOAT_MAT33_DIAG(mag->sensitivity,
-                   NPS_MAG_SENSITIVITY_XX, NPS_MAG_SENSITIVITY_YY, NPS_MAG_SENSITIVITY_ZZ);
+                   NPS_MAG_SIGN_X * NPS_MAG_SENSITIVITY_XX,
+                   NPS_MAG_SIGN_Y * NPS_MAG_SENSITIVITY_YY,
+                   NPS_MAG_SIGN_Z * NPS_MAG_SENSITIVITY_ZZ);
   VECT3_ASSIGN(mag->neutral,
                NPS_MAG_NEUTRAL_X, NPS_MAG_NEUTRAL_Y, NPS_MAG_NEUTRAL_Z);
   VECT3_ASSIGN(mag->noise_std_dev,
