@@ -36,7 +36,7 @@ Once the aircraft is configured, the firmware can be build for a target.
 
 Some usual targets are:
 
-- **sim**: The basic fixedwing simulator written in OCaml without IMU simulation or any sensor models (noise, bias, etc) and mainly intended to validate your flight plan logic.
+- **sim**: This basic fixedwing simulator has no IMU simulation or any sensor models (noise, bias, etc) and is mainly intended to validate your flight plan logic.
 - **nps**: NPS is a more advanced rotorcraft and fixedwing simulator with sensor models and commonly uses JSBSim as FDM (Flight Dynamic Model).
 - **ap**: This is for a *real* autopilot.
 
@@ -44,7 +44,7 @@ Some usual targets are:
 If the selected target is not a simulator, you can choose how you want to upload the
 firmware to your autopilot, then flash it.
 
-Compilation output is shown in the console zone.
+Compilation output is shown in the console below.
 
 
 
