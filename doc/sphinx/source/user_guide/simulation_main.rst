@@ -11,7 +11,7 @@ Simulation
 A FDM is a set of mathematical equations used to calculate the physical forces acting on a simulated aircraft, such as thrust, lift, and drag.
 Paparazzi currently has two different simulator targets with different degrees of realism and intended purpose:
 
-* **sim**: The basic fixedwing simulator written in OCaml without IMU simulation or any sensor models (noise, bias, etc) and mainly intended to validate your :ref:`flightplans` logic.
+* **sim**: The basic fixedwing simulator without IMU simulation or any sensor models (noise, bias, etc) and mainly intended to validate your :ref:`flightplans` logic.
 * **nps**: NPS is a more advanced rotorcraft and fixedwing simulator with sensor models and commonly uses JSBSim as FDM (Flight Dynamic Model). Other FDM's can be integrated easily. At the moment JSBSIM, CRRCSIM, GAZEBO and PyBullet are supported as FDM backend. It is also possible to implement ad-hoc simulation code, based on Matlab/Simulink generated code for instance.
     * **JSBSim**: a flight dynamic library used by default by various simulation sofware including Flight Gear.
     * **gazebo**: Gazebo can be used as flight dynamic engine, but its main interest is to generate virtual sensor readings (cameras, lidars, ...) from a 3D realistic environment.

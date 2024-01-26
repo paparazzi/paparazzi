@@ -27,7 +27,7 @@ Remember the architecture ? Its time to use this *messages* tool at the bottom l
 
 The *messages* tool allows you to visualize all messages on the ground network.
 
-First, start a session as explained in the :doc:`../quickstart/first_simulation` page.
+First, start a session as explained in the :doc:`../getting_started/first_simulation` page.
 
 Then start the *messages* tool by going in the Paparazzi Center menu and hiting *Tools -> Messages*.
 
