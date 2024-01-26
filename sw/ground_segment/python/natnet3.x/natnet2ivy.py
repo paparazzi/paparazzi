@@ -193,10 +193,10 @@ parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true'
 
 run_test_cases = '--test' in sys.argv
 
-if not run_test_cases:
-    args = parser.parse_args()
-else:
+if run_test_cases:
     args = argparse.Namespace()
+else:
+    args = parser.parse_args()
 
 def process_args(args):
     if args.ac is None:
@@ -240,8 +240,7 @@ def process_args(args):
     )
 
     # Total axis system rotation
-    q_total = q_x_correction * q_ground_plane * q_z_up  # extrinsic
-    #q_total = q_z_up * q_ground_plane * q_x_correction # intrinsic
+    q_total = q_x_correction * q_ground_plane * q_z_up
 
     # Attitude Quaternion correction    
     nose_correction = {'left': 90., 'far': 0., 'right': -90., 'near': 180.}
@@ -324,7 +323,7 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
 
         # Rotate position, velocity and attitude according to the quaternions
         # found above
-        pos, vel, quat = performTransformation( pos, vel, quat )
+        pos, vel, quat = performTransformation(pos, vel, quat)
 
         # Check which message to send
         if args.rgl_msg:
@@ -414,11 +413,21 @@ if not run_test_cases:
         ivy.stop()
         exit(-1)
 
+
 else:
     #%% test cases
+    # Idea: position a drone at 90deg yaw to the right, and 15deg nose down.
+    #       Then run through all settings and check output. Because it's a 
+    #       combined rotation, it should show all problems with transformations
+    #
+    # Correcteness of the NatNet pos and NatNet quaternion for each case have
+    # been experimentally verified. The TargetPos and TargetQuat are relatively
+    # easy to generate manually.
+    # Test flights still outstanding for setting xa to a numeric value
 
     args.freq = 10
     args.ac = [(1,1)]
+
     # in testcases, quaternions are scalar last
     test_cases =\
     [
@@ -472,19 +481,15 @@ else:
         posTarget = np.array(case['TargetPos'], dtype=float)
         quatTarget = np.array(case['TargetQuat'], dtype=float)
     
-        posOut, _, quatOut = performTransformation( pos, vel, quat )
+        posOut, _, quatOut = performTransformation(pos, vel, quat)
         quatOut = np.array(quatOut)
         quatOut = quatOut[[3,0,1,2]]
     
-        thresh = 1e-6
         posError = np.linalg.norm(posTarget - posOut)
         quatError = Quat.absolute_distance(Quat(quatTarget), Quat(quatOut))
 
-        assert posError < 3e-3, f"Failed position case {i}. Should be {posTarget}, but is {posOut}. Error {posError}"
-        assert quatError < 3e-3, f"Failed quaternion case {i}. Should be {quatTarget}, but is {quatOut}. Error {quatError}"
-    
+        thresh = 3e-3
+        assert posError < thresh, f"Failed position case {i}. Should be {posTarget}, but is {posOut}. Error {posError}"
+        assert quatError < thresh, f"Failed quaternion case {i}. Should be {quatTarget}, but is {quatOut}. Error {quatError}"
+
     print(f"Passed all {i+1} test cases")
-    
-    exit(0)
-
-
