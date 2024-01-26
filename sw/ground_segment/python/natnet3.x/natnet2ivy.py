@@ -191,13 +191,6 @@ parser.add_argument('-rg', '--remote_gps', dest='rgl_msg', action='store_true', 
 parser.add_argument('-sm', '--small', dest='small_msg', action='store_true', help="enable the EXTERNAL_POSE_SMALL message instead of the full")
 parser.add_argument('-o', '--old_natnet', dest='old_natnet', action='store_true', help="Change the NatNet version to 2.9")
 
-run_test_cases = '--test' in sys.argv
-
-if run_test_cases:
-    args = argparse.Namespace()
-else:
-    args = parser.parse_args()
-
 def process_args(args):
     if args.ac is None:
         print("At least one pair of rigid boby / AC id must be declared")
@@ -250,13 +243,6 @@ def process_args(args):
     )
 
     return id_dict, timestamp, period, track, q_total, q_nose_correction
-
-# start ivy interface
-if not run_test_cases:
-    if args.ivy_bus is not None:
-        ivy = IvyMessagesInterface("natnet2ivy", ivy_bus=args.ivy_bus)
-    else:
-        ivy = IvyMessagesInterface("natnet2ivy")
 
 # store track function
 def store_track(ac_id, pos, t):
@@ -381,8 +367,18 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
             gr['timestamp'] = stamp
             ivy.send(gr)
 
+run_test_cases = '--test' in sys.argv
 
 if not run_test_cases:
+    # parse arguments
+    args = parser.parse_args()
+
+    # start ivy interface
+    if args.ivy_bus is not None:
+        ivy = IvyMessagesInterface("natnet2ivy", ivy_bus=args.ivy_bus)
+    else:
+        ivy = IvyMessagesInterface("natnet2ivy")
+
     # start natnet interface
     natnet_version = (3,0,0,0)
     if args.old_natnet:
@@ -424,6 +420,8 @@ else:
     # been experimentally verified. The TargetPos and TargetQuat are relatively
     # easy to generate manually.
     # Test flights still outstanding for setting xa to a numeric value
+
+    args = argparse.Namespace()
 
     args.freq = 10
     args.ac = [(1,1)]
