@@ -22,7 +22,7 @@
     <file name="ins_ext_pose.h"/>
   </header>
   <init fun="ins_ext_pose_init()"/>
-  <periodic fun="ins_ext_pose_run()" freq="512" />
+  <periodic fun="ins_ext_pose_run()" freq="500" />
   <datalink message="EXTERNAL_POSE" fun="ins_ext_pose_msg_update(buf)"/>
 
   <makefile target="ap">
