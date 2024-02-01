@@ -68,7 +68,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <define name="MS45XX_I2C_DEV"               value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.618426"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
