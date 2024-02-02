@@ -142,11 +142,7 @@ void rover_guidance_enter(void)
 //    rover_guidance_nav_enter();
 //  }
 //
-//  if (horizontal_mode == HORIZONTAL_MODE_MANUAL) {
-//    stabilization_cmd[COMMAND_ROLL]  = nav_cmd_roll;
-//    stabilization_cmd[COMMAND_PITCH] = nav_cmd_pitch;
-//    stabilization_cmd[COMMAND_YAW]   = nav_cmd_yaw;
-//  } else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
+//  if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
 //    struct Int32Eulers sp_cmd_i;
 //    sp_cmd_i.phi = nav_roll;
 //    sp_cmd_i.theta = nav_pitch;

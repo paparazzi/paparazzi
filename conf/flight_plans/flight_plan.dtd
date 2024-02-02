@@ -28,18 +28,17 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path|guided)*>
+<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path|guided)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
-<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
+<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
+<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path|guided)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
-<!ELEMENT manual EMPTY>
 <!ELEMENT go EMPTY>
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
@@ -182,21 +181,6 @@ height CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
-pre_call CDATA #IMPLIED
-post_call CDATA #IMPLIED
-nav_type CDATA #IMPLIED
-nav_params CDATA #IMPLIED
-until CDATA #IMPLIED>
-
-<!ATTLIST manual
-pitch CDATA #REQUIRED
-roll CDATA #REQUIRED
-yaw CDATA #REQUIRED
-vmode CDATA #IMPLIED
-alt CDATA #IMPLIED
-height CDATA #IMPLIED
-throttle CDATA #IMPLIED
-climb CDATA #IMPLIED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED

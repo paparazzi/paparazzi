@@ -242,14 +242,11 @@ let pprz_throttle = fun s ->
 let output_vmode = fun out stage_xml wp last_wp ->
   let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
   let t = ExtXml.attrib_or_default stage_xml "nav_type" "Nav" in
-  if String.lowercase_ascii (Xml.tag stage_xml) <> "manual"
+  if pitch = "auto"
   then begin
-    if pitch = "auto"
-    then begin
-      lprintf out "%sVerticalAutoPitchMode(%s);\n" t (pprz_throttle (parsed_attrib stage_xml "throttle"))
-    end else begin
-      lprintf out "%sVerticalAutoThrottleMode(RadOfDeg(%s));\n" t (parse pitch);
-    end
+    lprintf out "%sVerticalAutoPitchMode(%s);\n" t (pprz_throttle (parsed_attrib stage_xml "throttle"))
+  end else begin
+    lprintf out "%sVerticalAutoThrottleMode(RadOfDeg(%s));\n" t (parse pitch);
   end;
 
   let vmode = try ExtXml.attrib stage_xml "vmode" with _ -> "alt" in
@@ -335,7 +332,7 @@ let rec index_stage = fun x ->
         incr stage; (* To count the loop stage *)
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi n], l)
       | "return" | "goto"  | "deroute" | "exit_block" | "follow" | "call" | "call_once" | "home"
-      | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" | "guided" ->
+      | "heading" | "attitude" | "go" | "stay" | "xyz" | "set" | "circle" | "guided" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
       | "survey_rectangle" | "eight" | "oval"->
@@ -451,16 +448,6 @@ let rec print_stage = fun out index_of_waypoints x ->
         let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
         let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
         lprintf out "%sAttitude(RadOfDeg(%s)%s);\n" t (parsed_attrib x "roll") p;
-        ignore (output_vmode out x "" "");
-        stage_until out x;
-        fp_post_call out x;
-        lprintf out "break;\n"
-      | "manual" ->
-        stage out;
-        fp_pre_call out x;
-        let t = ExtXml.attrib_or_default x "nav_type" "Nav" in
-        let p = try ", " ^ (Xml.attrib x "nav_params") with _ -> "" in
-        lprintf out "%sSetManual(%s, %s, %s%s);\n" t (parsed_attrib x "roll") (parsed_attrib x "pitch") (parsed_attrib x "yaw") p;
         ignore (output_vmode out x "" "");
         stage_until out x;
         fp_post_call out x;
