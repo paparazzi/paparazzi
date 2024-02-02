@@ -86,7 +86,7 @@
 #define NAV_HORIZONTAL_MODE_ROUTE     1
 #define NAV_HORIZONTAL_MODE_CIRCLE    2
 #define NAV_HORIZONTAL_MODE_ATTITUDE  3
-#define NAV_HORIZONTAL_MODE_MANUAL    4
+#define NAV_HORIZONTAL_MODE_NONE      4
 #define NAV_HORIZONTAL_MODE_GUIDED    5
 
 #define NAV_VERTICAL_MODE_MANUAL      0
@@ -128,9 +128,6 @@ struct RotorcraftNavigation {
   struct EnuCoor_f speed;   ///< speed setpoint (in m/s)
   struct EnuCoor_f accel;   ///< accel setpoint (in m/s)
   uint32_t throttle;        ///< throttle command (in pprz_t)
-  int32_t cmd_roll;         ///< roll command (in pprz_t)
-  int32_t cmd_pitch;        ///< pitch command (in pprz_t)
-  int32_t cmd_yaw;          ///< yaw command (in pprz_t)
   float roll;               ///< roll angle (in radians)
   float pitch;              ///< pitch angle (in radians)
   float heading;            ///< heading setpoint (in radians)
@@ -203,7 +200,6 @@ extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_f *p);
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
-extern void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw);
 
 extern void nav_reset_reference(void) __attribute__((unused));
 extern void nav_reset_alt(void) __attribute__((unused));
@@ -239,7 +235,6 @@ static inline void NavResurrect(void)
 }
 
 
-#define NavSetManual nav_set_manual
 #define NavSetFailsafe nav_set_failsafe
 
 #define NavSetGroundReferenceHere nav_reset_reference

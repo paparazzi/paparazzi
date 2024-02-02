@@ -451,16 +451,8 @@ void guidance_h_from_nav(bool in_flight)
     guidance_h_nav_enter();
   }
 
-  if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_MANUAL) {
-    #ifdef COMMAND_ROLL
-    stabilization_cmd[COMMAND_ROLL]  = nav.cmd_roll;
-    #endif
-    #ifdef COMMAND_PITCH
-    stabilization_cmd[COMMAND_PITCH] = nav.cmd_pitch;
-    #endif
-    #ifdef COMMAND_YAW
-    stabilization_cmd[COMMAND_YAW]   = nav.cmd_yaw;
-    #endif
+  if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_NONE) {
+    return; // don't call guidance nor stabilization
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     if (nav.setpoint_mode == NAV_SETPOINT_MODE_QUAT) {
       // directly apply quat setpoint
