@@ -86,9 +86,6 @@ void nav_init(void)
   FLOAT_RATES_ZERO(nav.rates);
 
   nav.throttle = 0;
-  nav.cmd_roll = 0;
-  nav.cmd_pitch = 0;
-  nav.cmd_yaw = 0;
   nav.roll = 0.f;
   nav.pitch = 0.f;
   nav.heading = 0.f;
@@ -303,25 +300,6 @@ void nav_home(void)
 
   /* run carrot loop */
   nav_run();
-}
-
-/** Set manual roll, pitch and yaw without stabilization
- *
- * @param[in] roll command in pprz scale (int32_t)
- * @param[in] pitch command in pprz scale (int32_t)
- * @param[in] yaw command in pprz scale (int32_t)
- *
- * This function allows to directly set commands from the flight plan,
- * if in nav_manual mode.
- * This is for instance useful for helicopters during the spinup
- */
-void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw)
-{
-  nav.horizontal_mode = NAV_HORIZONTAL_MODE_MANUAL;
-  nav.setpoint_mode = NAV_SETPOINT_MODE_MANUAL;
-  nav.cmd_roll = roll;
-  nav.cmd_pitch = pitch;
-  nav.cmd_yaw = yaw;
 }
 
 /** Returns squared horizontal distance to given point */
