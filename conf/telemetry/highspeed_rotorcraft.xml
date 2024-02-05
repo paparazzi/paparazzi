@@ -60,7 +60,7 @@
       <message name="STAB_ATTITUDE"            period="0.02"/>
       <message name="ROTORCRAFT_CMD"           period="0.2"/>
       <message name="DEBUG_VECT"               period="0.2"/>
-      <message name="EXTERNAL_POSE_2"          period="0.2"/>
+      <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
 
     </mode>
 
@@ -258,7 +258,7 @@
       <message name="AIRSPEED_RAW"             period="0.01"/>
       <message name="EFF_MAT_G"                period="0.002"/>
       <message name="GUIDANCE"                 period="0.002"/> 
-      <message name="EXTERNAL_POSE_2"          period="0.002"/>
+      <message name="EXTERNAL_POSE_DOWN"       period="0.002"/>
       <message name="ROTATING_WING_STATE"      period="0.1"/>
       <message name="DOUBLET"                  period="0.002"/>
     </mode>

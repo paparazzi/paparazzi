@@ -500,7 +500,7 @@ static void send_eternal_pose_optitrack(struct transport_tx *trans, struct link_
   float_vect_zero(sample_temp, 11);
   #endif
 
-  pprz_msg_send_EXTERNAL_POSE_2(trans, dev, AC_ID,
+  pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
                         &sample_temp[0],
                         &sample_temp[1], 
                         &sample_temp[2], 
@@ -610,7 +610,7 @@ void ins_ekf2_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_QUAT_INT, send_ahrs_quat);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_2, send_eternal_pose_optitrack);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_eternal_pose_optitrack);
 #endif
 
   /*
