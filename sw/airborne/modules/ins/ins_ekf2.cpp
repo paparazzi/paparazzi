@@ -480,7 +480,7 @@ static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
                               &ahrs_id);
 }
 
-static void send_eternal_pose_optitrack(struct transport_tx *trans, struct link_device *dev)
+static void send_eternal_pose_down(struct transport_tx *trans, struct link_device *dev)
 {
 
   float sample_temp[11];
@@ -610,7 +610,7 @@ void ins_ekf2_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_QUAT_INT, send_ahrs_quat);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_eternal_pose_optitrack);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_eternal_pose_down);
 #endif
 
   /*
@@ -740,7 +740,7 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample.pos(1) = DL_EXTERNAL_POSE_enu_x(buf);
   sample.pos(2) = -DL_EXTERNAL_POSE_enu_z(buf);
   sample.vel(0) = DL_EXTERNAL_POSE_enu_yd(buf);
-  sample.vel(1) = DL_EXTERNAL_POSE_enu_xd(buf);              
+  sample.vel(1) = DL_EXTERNAL_POSE_enu_xd(buf);      
   sample.vel(2) = -DL_EXTERNAL_POSE_enu_zd(buf);
   sample.quat(0) = DL_EXTERNAL_POSE_body_qi(buf);
   sample.quat(1) = DL_EXTERNAL_POSE_body_qy(buf);
