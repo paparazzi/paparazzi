@@ -45,7 +45,28 @@
 
 /** Data for telemetry and LTP origin.
  */
+struct InsExtPose {
+  /* Inputs */
+  struct FloatRates gyros_f;
+  struct FloatVect3 accels_f;
+  bool   has_new_gyro;
+  bool   has_new_acc;
 
+  struct FloatVect3 ev_pos;
+  struct FloatVect3 ev_vel;
+  struct FloatEulers ev_att;
+  struct FloatQuat ev_quat;
+  bool   has_new_ext_pose;
+  float  ev_time;
+
+  /* Origin */
+  struct LtpDef_i  ltp_def;
+
+  /* output LTP NED */
+  struct NedCoor_i ltp_pos;
+  struct NedCoor_i ltp_speed;
+  struct NedCoor_i ltp_accel;
+};
 struct InsExtPose ins_ext_pos;
 
 
