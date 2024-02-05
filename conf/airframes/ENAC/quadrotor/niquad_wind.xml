@@ -258,6 +258,7 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="front_motor, right_motor, back_motor, left_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_quad_wind" type="string"/>
+    <define name="COMMANDS_NB" value="4"/>
   </section>
 
 </airframe>
