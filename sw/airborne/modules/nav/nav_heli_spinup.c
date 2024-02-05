@@ -24,6 +24,7 @@
  */
 
 #include "modules/nav/nav_heli_spinup.h"
+#include "firmwares/rotorcraft/stabilization.h"
 #include "navigation.h"
 #include "paparazzi.h"
 
@@ -41,11 +42,18 @@ void nav_heli_spinup_setup(uint16_t duration, float throttle)
   nav_heli_spinup.duration = (duration > 0) ? duration : 1;
   nav_heli_spinup.throttle = throttle * MAX_PPRZ;
 
+#ifdef COMMAND_ROLL
+  stabilization_cmd[COMMAND_ROLL]  = 0;
+#endif
+#ifdef COMMAND_PITCH
+  stabilization_cmd[COMMAND_PITCH] = 0;
+#endif
+#ifdef COMMAND_YAW
+  stabilization_cmd[COMMAND_YAW]   = 0;
+#endif
   nav.throttle = 0;
-  nav.cmd_roll = 0;
-  nav.cmd_pitch = 0;
-  nav.cmd_yaw = 0;
-  nav.horizontal_mode = NAV_HORIZONTAL_MODE_ATTITUDE;
+
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_NONE;
   nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
 }
 
@@ -59,11 +67,18 @@ bool nav_heli_spinup_run(void)
     return false;
   }
 
-  nav.cmd_roll = 0;
-  nav.cmd_pitch = 0;
-  nav.cmd_yaw = 0;
-  nav.horizontal_mode = NAV_HORIZONTAL_MODE_MANUAL;
-  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
+#ifdef COMMAND_ROLL
+  stabilization_cmd[COMMAND_ROLL]  = 0;
+#endif
+#ifdef COMMAND_PITCH
+  stabilization_cmd[COMMAND_PITCH] = 0;
+#endif
+#ifdef COMMAND_YAW
+  stabilization_cmd[COMMAND_YAW]   = 0;
+#endif
   nav.throttle = stage_time * nav_heli_spinup.throttle / nav_heli_spinup.duration;
+
+  nav.horizontal_mode = NAV_HORIZONTAL_MODE_NONE;
+  nav.vertical_mode = NAV_VERTICAL_MODE_MANUAL;
   return true;
 }
