@@ -1,0 +1,109 @@
+ <aerodynamics>
+
+  <axis name="YAW">
+    <function name="elevon_yaw" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.35 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> -.35 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="PITCH">
+    <function name="elevon_pitch" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.0417 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> .0417 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="LIFT">
+
+    <function name="aero/force/Lift_alpha">
+      <description>Lift due to alpha</description>
+      <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-deg</independentVar>
+            <tableData>
+              -180   0.14
+              -140  -0.80
+              -110  -0.63
+              -102  -0.74
+              -98  -0.64
+              -90  0.0
+              -85  0.15
+              -80  0.25
+              -75  0.42
+               0   0.0
+               45  0.8
+               90  0.0
+               135 -0.8
+               180 0.0
+            </tableData>
+          </table>
+      </product>
+    </function>
+
+  </axis>
+
+  <axis name="DRAG">
+
+    <function name="aero/force/Drag_basic">
+       <description>Drag</description>
+       <product>
+          <property>aero/qbar-psf</property>
+          <property>metrics/Sw-sqft</property>
+          <table>
+            <independentVar lookup="row">aero/alpha-deg</independentVar>
+            <tableData>
+             -180    1.7
+             -160    1.62
+             -100    0.4 
+             -90     0.15
+             -85     0.17
+             -75     0.22
+             -70     0.33
+             -65     0.6128
+             -20     1.36
+             -4      1.45
+             15      1.35
+             30      1.12
+            </tableData>
+          </table>
+          <value>2.0</value> <!-- FIXME why this factor 2 ? -->
+       </product>
+    </function>
+
+  </axis>
+
+  <axis name="SIDE">
+
+    <function name="aero/force/Side_beta">
+       <description>Side force due to beta</description>
+       <product>
+           <property>aero/qbar-psf</property>
+           <property>metrics/Sw-sqft</property>
+           <property>aero/beta-rad</property>
+           <!--value>-4</value-->
+           <value>0.02</value>
+       </product>
+    </function>
+
+  </axis>
+
+ </aerodynamics>

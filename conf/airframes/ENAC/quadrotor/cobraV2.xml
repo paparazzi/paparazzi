@@ -19,6 +19,7 @@
       <module name="radio_control" type="sbus"/>
       <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
+      <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
@@ -48,17 +49,13 @@
     <module name="stabilization" type="indi"/>
     <module name="guidance" type="indi"/>
 
-    <module name="ins" type="ekf2">
-      <define name="INS_EKF2_OPTITRACK" value="TRUE"/>
-    </module>
+    <module name="ins" type="ekf2"/>
     <module name="preflight_checks"/>
 
     <!--module name="filter" type="1euro_imu">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"/>
       <define name="AHRS_ALIGNER_IMU_ID" value="IMU_F1E_ID"/>
     </module-->
-
-    <module name="motor_mixing"/>
 
     <module name="tag_tracking">
       <configure name="JEVOIS_UART" value="UART3"/>
@@ -84,11 +81,6 @@
     <axis name="YAW" failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
-  <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TYPE" value="QUAD_X"/>
-    <define name="REVERSE" value="TRUE"/>
-  </section>
 
   <command_laws>
     <set servo="FR" value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
@@ -252,9 +244,10 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="COMMANDS_NB" value="4"/>
+    <define name="NO_MOTOR_MIXING" value="TRUE"/>
   </section>
 
 </airframe>
