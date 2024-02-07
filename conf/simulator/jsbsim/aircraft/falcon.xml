@@ -1,0 +1,394 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>ENAC</author>
+    <filecreationdate>09-06-2022</filecreationdate>
+    <version>Version 0.92 - beta</version>
+    <description>Falcon</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="M2"> 0.075 </wingarea>
+    <wingspan unit="M"> 0.9 </wingspan>
+    <chord unit="M"> 0.12 </chord>
+    <htailarea unit="M2"> 0 </htailarea>
+    <htailarm unit="M"> 0 </htailarm>
+    <vtailarea unit="M2"> 0 </vtailarea>
+    <vtailarm unit="M"> 0 </vtailarm>
+    <wing_incidence unit="DEG"> 90 </wing_incidence>
+    <location name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2"> 0.005 </ixx>
+    <iyy unit="KG*M2"> 0.005  </iyy>
+    <izz unit="KG*M2"> 0.015 </izz>
+    <ixy unit="KG*M2"> 0. </ixy>
+    <ixz unit="KG*M2"> 0. </ixz>
+    <iyz unit="KG*M2"> 0. </iyz>
+    <emptywt unit="KG"> 0.72 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x> -0.12 </x>
+        <y> 0.0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x>  0.12</x>
+        <y>  0.0</y>
+        <z> -0.1</z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.0  </x>
+        <y> 0.12</y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.0  </x>
+        <y>-0.12</y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <property value="30.">fcs/motor_lag</property>
+    <property value="54.">fcs/elevon_lag</property>
+
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="UR_lag">
+        <input> fcs/UR </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/UR_lag</output>
+      </lag_filter>
+      <lag_filter name="BR_lag">
+        <input> fcs/BR </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/BR_lag</output>
+      </lag_filter>
+      <lag_filter name="BL_lag">
+        <input> fcs/BL </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/BL_lag</output>
+      </lag_filter>
+      <lag_filter name="UL_lag">
+        <input> fcs/UL </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/UL_lag</output>
+      </lag_filter>
+
+      <lag_filter name="ele_left_lag">
+        <input> fcs/ele_left </input>
+        <c1> fcs/elevon_lag </c1>
+        <output> fcs/ele_left_lag</output>
+      </lag_filter>
+      <lag_filter name="ele_right_lag">
+        <input> fcs/ele_right </input>
+        <c1> fcs/elevon_lag </c1>
+        <output> fcs/ele_right_lag</output>
+      </lag_filter>
+    </channel>
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/UR</property>
+    <property>fcs/BR</property>
+    <property>fcs/BL</property>
+    <property>fcs/UL</property>
+    <property>fcs/UR_lag</property>
+    <property>fcs/BR_lag</property>
+    <property>fcs/BL_lag</property>
+    <property>fcs/UL_lag</property>
+    <property>fcs/ele_left</property>
+    <property>fcs/ele_left_lag</property>
+    <property>fcs/ele_right</property>
+    <property>fcs/ele_right_lag</property>
+
+    <property value="6.">fcs/motor_max_thrust</property> <!-- FIXME should be 4. from flight data -->
+    <property value="0.00001">fcs/motor_max_torque</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="UR" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/UR_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+          <table>
+            <independentVar lookup="row">aero/qbar-psf</independentVar>
+            <tableData> <!-- 1 psf = 47.88 Pa , 18m/s : 200Pa, 5m/s :15Pa  3m/s:5.5Pa-->
+              0.       1.
+              0.1148   1.
+              4.17     0.7 <!-- 18m/s -->
+            </tableData>
+          </table>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.105</x>
+        <y>0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0.342</x>
+        <y>0</y>
+        <z>-0.94</z>
+      </direction>
+    </force>
+    <force name="BR" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/BR_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+          <table>
+            <independentVar lookup="row">aero/qbar-psf</independentVar>
+            <tableData> <!-- 1 psf = 47.88 Pa , 18m/s : 200Pa, 5m/s :15Pa  3m/s:5.5Pa-->
+              0.       1.
+              0.1148   1.
+              4.17     0.7 <!-- 18m/s -->
+            </tableData>
+          </table>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.105</x>
+        <y>0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-0.342</x>
+        <y>0</y>
+        <z>-0.94</z>
+      </direction>
+    </force>
+    <force name="BL" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/BL_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+          <table>
+            <independentVar lookup="row">aero/qbar-psf</independentVar>
+            <tableData> <!-- 1 psf = 47.88 Pa , 18m/s : 200Pa, 5m/s :15Pa  3m/s:5.5Pa-->
+              0.       1.
+              0.1148   1.
+              4.17     0.7 <!-- 18m/s -->
+            </tableData>
+          </table>
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.105</x>
+        <y>-0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-0.342</x>
+        <y>0</y>
+        <z>-0.94</z>
+      </direction>
+    </force>
+    <force name="UL" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/UL_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+          <table>
+            <independentVar lookup="row">aero/qbar-psf</independentVar>
+            <tableData> <!-- 1 psf = 47.88 Pa , 18m/s : 200Pa, 5m/s :15Pa  3m/s:5.5Pa-->
+              0.       1.
+              0.1148   1.
+              4.17     0.7 <!-- 18m/s -->
+            </tableData>
+          </table>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.105</x>
+        <y>-0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0.342</x>
+        <y>0</y>
+        <z>-0.94</z>
+      </direction>
+    </force>
+    
+    <!-- Then the Moment Couples -->
+
+    <moment name="UR_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/UR_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.105</x>
+        <y>0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="BR_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/BR_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.105</x>
+        <y>0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="BL_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/BL_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.105</x>
+        <y>-0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="UL_couple" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/UL_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.105</x>
+        <y>-0.12</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+  <aerodynamics file="Systems/aerodynamics_falcon.xml"/>
+
+</fdm_config>
