@@ -1,13 +1,13 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00359
+     * Airframe:    TUD00360
      * Autopilot:   Cube orange+
      * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3E">
-    <description>RotatingWingV3E</description>
+<airframe name="RotatingWingV3F">
+    <description>RotatingWingV3F</description>
 
     <firmware name="rotorcraft">
         <target name="ap" board="cube_orangeplus">
@@ -68,7 +68,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <define name="MS45XX_I2C_DEV"               value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.652116663"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -192,12 +192,12 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-3629" neutral="66"   max="3760"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-1769" neutral="66"   max="1900"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-4349"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="3211"  neutral="3211" max="-6102"/>
         <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/>
     </servos>
 
@@ -207,7 +207,7 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="8191"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
-        <servo no="5" name="BROTATION_MECH" min="-3629" neutral="66"  max="3760"/>
+        <servo no="5" name="BROTATION_MECH" min="-1769" neutral="66"  max="1900"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -342,9 +342,9 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,4,26}, .scale={{59909,31081,6709},{6117,3178,691}}, .filter_sample_freq=1138, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={0,1,60}, .scale={{5003,51323,19499},{1021,10477,3977}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-42,8,6}, .scale={{38293,32787,25898},{7823,6703,5301}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={3073,2311,1939}, .scale={{8241,27895,4777},{15881,55537,10618}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1138, .filter_freq=30}}"/>
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-21,-4,22}, .scale={{567,50215,64637},{58,5138,6630}}, .filter_sample_freq=1149, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,-2,22}, .scale={{25973,64501,57292},{5299,13157,11701}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-60,-5,20}, .scale={{841,13935,36282},{172,2846,7423}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={3159,2643,868}, .scale={{34501,31597,17807},{56553,53471,30739}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1149, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>

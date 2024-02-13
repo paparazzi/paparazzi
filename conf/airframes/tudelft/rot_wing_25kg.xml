@@ -144,7 +144,7 @@
         <servo no="2"  name="MOTOR_BACK"      min="-8191" neutral="-5000" max="8191"/>
         <servo no="3"  name="MOTOR_LEFT"      min="-8191" neutral="-5000" max="8191"/>
         <servo no="4"  name="MOTOR_PUSH"      min="-8191" neutral="-8191" max="8191"/>
-        <servo no="5"  name="SERVO_ELEVATOR"  min="-8191" neutral="-8191" max="4900"/>
+        <servo no="5"  name="SERVO_ELEVATOR"  min="-3191" neutral="-3191" max="4900"/>
         <servo no="6"  name="SERVO_RUDDER"    min="-6500" neutral="0"     max="6500"/>
         <servo no="7"  name="ROTATION_MECH"   min="8191"  neutral="0"     max="-8191"/>
         <servo no="8"  name="AIL_RIGHT"       min="-8000" neutral="-1000"     max="5000"/>
@@ -161,7 +161,7 @@
         <servo no="2"  name="BMOTOR_BACK"     min="-8191" neutral="-5000" max="8191"/>
         <servo no="3"  name="BMOTOR_LEFT"     min="-8191" neutral="-5000" max="8191"/>
         <servo no="4"  name="BMOTOR_PUSH"     min="-8191" neutral="-8191" max="8191"/>
-        <servo no="5"  name="BSERVO_ELEVATOR" min="-8191" neutral="-8191" max="4900"/>
+        <servo no="5"  name="BSERVO_ELEVATOR" min="-3191" neutral="-3191" max="4900"/>
         <servo no="6"  name="BSERVO_RUDDER"   min="-6500" neutral="0"     max="6500"/>
         <servo no="7"  name="BROTATION_MECH"  min="8191"  neutral="0"     max="-8191"/>
         <servo no="8"  name="BAIL_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
@@ -244,7 +244,7 @@
         <define name="HOVER_ROLL_PITCH_COEF" value="{0.015,     -0.011}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{0.0,       -0.0}"/>
 
-        <define name="K_ELEVATOR"            value="{ 1.27655, -13.3525, -80.0}"/>
+        <define name="K_ELEVATOR"            value="{ 1.27655, -13.3525, -96.0}"/>
         <define name="K_RUDDER"              value="{-72.5037,  -0.9329, -3.23651}"/>
         <define name="K_AILERON"             value="2.777647188"/>
         <define name="K_FLAPERON"            value="2.0439"/>
@@ -413,7 +413,7 @@
     </section>
 
     <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-        <define name="MAX_BANK"         value="30" unit="deg"/>
+        <define name="MAX_BANK"         value="20" unit="deg"/>
         <define name="USE_SPEED_REF"    value="TRUE"/>
 
         <!-- Gains -->
