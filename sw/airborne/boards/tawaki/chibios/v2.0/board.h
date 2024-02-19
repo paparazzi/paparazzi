@@ -88,8 +88,8 @@
 #define	AUX_B2                         7U
 #define	AUX_B3                         8U
 #define	AUX_B4                         9U
-#define	I2C2_SCL_EXTERNAL              10U
-#define	I2C2_SDA_EXTERNAL              11U
+#define	I2C2_SCL                       10U
+#define	I2C2_SDA                       11U
 #define	SPI2_EXTERNAL_CS               12U
 #define	PB13                           13U
 #define	SPI2_EXTERNAL_MISO             14U
@@ -275,8 +275,8 @@
 #define	LINE_AUX_B2                    PAL_LINE(GPIOB, 7U)
 #define	LINE_AUX_B3                    PAL_LINE(GPIOB, 8U)
 #define	LINE_AUX_B4                    PAL_LINE(GPIOB, 9U)
-#define	LINE_I2C2_SCL_EXTERNAL         PAL_LINE(GPIOB, 10U)
-#define	LINE_I2C2_SDA_EXTERNAL         PAL_LINE(GPIOB, 11U)
+#define	LINE_I2C2_SCL                  PAL_LINE(GPIOB, 10U)
+#define	LINE_I2C2_SDA                  PAL_LINE(GPIOB, 11U)
 #define	LINE_SPI2_EXTERNAL_CS          PAL_LINE(GPIOB, 12U)
 #define	LINE_SPI2_EXTERNAL_MISO        PAL_LINE(GPIOB, 14U)
 #define	LINE_SPI2_EXTERNAL_MOSI        PAL_LINE(GPIOB, 15U)
@@ -450,8 +450,8 @@
 					 PIN_MODE_ALTERNATE(AUX_B2) | \
 					 PIN_MODE_ALTERNATE(AUX_B3) | \
 					 PIN_MODE_ALTERNATE(AUX_B4) | \
-					 PIN_MODE_ALTERNATE(I2C2_SCL_EXTERNAL) | \
-					 PIN_MODE_ALTERNATE(I2C2_SDA_EXTERNAL) | \
+					 PIN_MODE_ALTERNATE(I2C2_SCL) | \
+					 PIN_MODE_ALTERNATE(I2C2_SDA) | \
 					 PIN_MODE_OUTPUT(SPI2_EXTERNAL_CS) | \
 					 PIN_MODE_INPUT(PB13) | \
 					 PIN_MODE_ALTERNATE(SPI2_EXTERNAL_MISO) | \
@@ -467,8 +467,8 @@
 					 PIN_OTYPE_PUSHPULL(AUX_B2) | \
 					 PIN_OTYPE_PUSHPULL(AUX_B3) | \
 					 PIN_OTYPE_PUSHPULL(AUX_B4) | \
-					 PIN_OTYPE_OPENDRAIN(I2C2_SCL_EXTERNAL) | \
-					 PIN_OTYPE_OPENDRAIN(I2C2_SDA_EXTERNAL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C2_SCL) | \
+					 PIN_OTYPE_OPENDRAIN(I2C2_SDA) | \
 					 PIN_OTYPE_PUSHPULL(SPI2_EXTERNAL_CS) | \
 					 PIN_OTYPE_PUSHPULL(PB13) | \
 					 PIN_OTYPE_PUSHPULL(SPI2_EXTERNAL_MISO) | \
@@ -484,8 +484,8 @@
 					 PIN_OSPEED_SPEED_HIGH(AUX_B2) | \
 					 PIN_OSPEED_SPEED_HIGH(AUX_B3) | \
 					 PIN_OSPEED_SPEED_HIGH(AUX_B4) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C2_SCL_EXTERNAL) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C2_SDA_EXTERNAL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C2_SCL) | \
+					 PIN_OSPEED_SPEED_HIGH(I2C2_SDA) | \
 					 PIN_OSPEED_SPEED_HIGH(SPI2_EXTERNAL_CS) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB13) | \
 					 PIN_OSPEED_SPEED_HIGH(SPI2_EXTERNAL_MISO) | \
@@ -501,8 +501,8 @@
 					 PIN_PUPDR_FLOATING(AUX_B2) | \
 					 PIN_PUPDR_FLOATING(AUX_B3) | \
 					 PIN_PUPDR_FLOATING(AUX_B4) | \
-					 PIN_PUPDR_PULLUP(I2C2_SCL_EXTERNAL) | \
-					 PIN_PUPDR_PULLUP(I2C2_SDA_EXTERNAL) | \
+					 PIN_PUPDR_PULLUP(I2C2_SCL) | \
+					 PIN_PUPDR_PULLUP(I2C2_SDA) | \
 					 PIN_PUPDR_FLOATING(SPI2_EXTERNAL_CS) | \
 					 PIN_PUPDR_PULLDOWN(PB13) | \
 					 PIN_PUPDR_FLOATING(SPI2_EXTERNAL_MISO) | \
@@ -518,8 +518,8 @@
 					 PIN_ODR_LEVEL_LOW(AUX_B2) | \
 					 PIN_ODR_LEVEL_LOW(AUX_B3) | \
 					 PIN_ODR_LEVEL_LOW(AUX_B4) | \
-					 PIN_ODR_LEVEL_HIGH(I2C2_SCL_EXTERNAL) | \
-					 PIN_ODR_LEVEL_HIGH(I2C2_SDA_EXTERNAL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C2_SCL) | \
+					 PIN_ODR_LEVEL_HIGH(I2C2_SDA) | \
 					 PIN_ODR_LEVEL_HIGH(SPI2_EXTERNAL_CS) | \
 					 PIN_ODR_LEVEL_LOW(PB13) | \
 					 PIN_ODR_LEVEL_HIGH(SPI2_EXTERNAL_MISO) | \
@@ -536,8 +536,8 @@
 
 #define VAL_GPIOB_AFRH			(PIN_AFIO_AF(AUX_B3, 2) | \
 					 PIN_AFIO_AF(AUX_B4, 2) | \
-					 PIN_AFIO_AF(I2C2_SCL_EXTERNAL, 4) | \
-					 PIN_AFIO_AF(I2C2_SDA_EXTERNAL, 4) | \
+					 PIN_AFIO_AF(I2C2_SCL, 4) | \
+					 PIN_AFIO_AF(I2C2_SDA, 4) | \
 					 PIN_AFIO_AF(SPI2_EXTERNAL_CS, 0) | \
 					 PIN_AFIO_AF(PB13, 0) | \
 					 PIN_AFIO_AF(SPI2_EXTERNAL_MISO, 5) | \
@@ -1506,10 +1506,10 @@
 #define AF_LINE_AUX_B3                   2U
 #define AF_AUX_B4                        2U
 #define AF_LINE_AUX_B4                   2U
-#define AF_I2C2_SCL_EXTERNAL             4U
-#define AF_LINE_I2C2_SCL_EXTERNAL        4U
-#define AF_I2C2_SDA_EXTERNAL             4U
-#define AF_LINE_I2C2_SDA_EXTERNAL        4U
+#define AF_I2C2_SCL                      4U
+#define AF_LINE_I2C2_SCL                 4U
+#define AF_I2C2_SDA                      4U
+#define AF_LINE_I2C2_SDA                 4U
 #define AF_SPI2_EXTERNAL_MISO            5U
 #define AF_LINE_SPI2_EXTERNAL_MISO       5U
 #define AF_SPI2_EXTERNAL_MOSI            5U
