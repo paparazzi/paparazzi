@@ -27,7 +27,7 @@
 #define LIDAR_VL53L5CX_H
 
 #include "stdint.h"
-#include "vl53l5cx_api.h"
+#include "peripherals/vl53l5cx_api.h"
 
 extern void lidar_vl53l5cx_init(void);
 extern void lidar_vl53l5cx_periodic(void);

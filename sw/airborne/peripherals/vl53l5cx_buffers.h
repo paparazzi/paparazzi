@@ -18,7 +18,7 @@
 #ifndef VL53L5CX_BUFFERS_H_
 #define VL53L5CX_BUFFERS_H_
 
-#include "vl53l5cx_platform.h"
+#include "lidar/vl53l5cx_platform.h"
 
 /**
  * @brief Inner internal number of targets.

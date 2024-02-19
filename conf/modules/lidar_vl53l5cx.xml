@@ -19,7 +19,7 @@
     <define name="USE_$(LIDAR_VL53L5CX_I2C_DEV_UPPER)"/>
 
     <file_arch name="lidar_vl53l5cx.c"/>
-    <file_arch name="vl53l5cx_api.c"/>
+    <file name="vl53l5cx_api.c" dir="peripherals"/>
     <file_arch name="vl53l5cx_platform.c"/>
     <test/>
   </makefile>
