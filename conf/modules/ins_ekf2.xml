@@ -25,7 +25,7 @@
     <define name="INS_EKF2_FLOW_POS_X" value="0" description="Flow sensor X offset from CoG position [m]"/>
     <define name="INS_EKF2_FLOW_POS_Y" value="0" description="Flow sensor Y offset from CoG position [m]"/>
     <define name="INS_EKF2_FLOW_POS_Z" value="0" description="Flow sensor Z offset from CoG position [m]"/>
-    
+
     <define name="INS_EKF2_SONAR_MIN_RANGE" value="0.05" description="AGL sensor minimum range [m]"/>
     <define name="INS_EKF2_SONAR_MAX_RANGE" value="3" description="AGL sensor maximum range [m]"/>
     <define name="INS_EKF2_RANGE_MAIN_AGL" value="1" description="If enabled uses radar sensor as primary AGL source, if possible"/>
@@ -80,6 +80,7 @@
     <define name="__PAPARAZZI" value="TRUE"/>
     <define name="ECL_STANDALONE" value="TRUE"/>
     <define name="IMU_INTEGRATION" value="TRUE"/> <!-- Needed to enable IMU integration -->
+    <define name="USE_ALT_LLA_WAYPOINTS" value="TRUE"/>
 
     <!-- Compile needed ecl files -->
     <file name="geo.cpp" dir="ecl/geo"/>
@@ -103,6 +104,6 @@
     <file name="EKFGSF_yaw.cpp" dir="ecl/EKF"/>
     <file name="sensor_range_finder.cpp" dir="ecl/EKF"/>
     <file name="utils.cpp" dir="ecl/EKF"/>
-    
+
   </makefile>
 </module>
