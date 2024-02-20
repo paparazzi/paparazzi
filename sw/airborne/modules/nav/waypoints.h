@@ -53,7 +53,11 @@ extern struct Waypoint waypoints[];
 /* aliases for backwards compatibilty */
 #define WaypointX(_wp)    waypoint_get_x(_wp)
 #define WaypointY(_wp)    waypoint_get_y(_wp)
+#if USE_ALT_LLA_WAYPOINTS
+#define WaypointAlt(_wp)  waypoint_get_lla_alt(_wp)
+#else
 #define WaypointAlt(_wp)  waypoint_get_alt(_wp)
+#endif
 #define Height(_h) (_h)
 
 extern void waypoints_init(void);
@@ -72,6 +76,7 @@ extern float waypoint_get_x(uint8_t wp_id);
 extern float waypoint_get_y(uint8_t wp_id);
 /** Get altitude of waypoint in meters (above reference) */
 extern float waypoint_get_alt(uint8_t wp_id);
+extern float waypoint_get_lla_alt(uint8_t wp_id);
 /** Get latitude of waypoint in deg */
 extern float waypoint_get_lat_deg(uint8_t wp_id);
 /** Get latitude of waypoint in rad */
