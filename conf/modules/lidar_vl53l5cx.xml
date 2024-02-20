@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="lidar_vl53l5cx" dir="lidar" task="sensors">
+  <doc>
+    <description>
+      VL53L5CX multizone range sensor.
+      Sends LIDAR_DATA Abi messages.
+    </description>
+    <configure name="LIDAR_VL53L5CX_I2C_DEV" value="i2c2" description="I2C device to use for the VL53L5CX sensor"/>
+    <define name="LIDAR_VL53L5CX_I2C_ADDR" value="0x52" description="I2C address"/>
+  </doc>
+  <dep>
+    <depends>i2c</depends>
+  </dep>
+  <header>
+    <file name="lidar_vl53l5cx.h"/>
+  </header>
+  <init fun="lidar_vl53l5cx_init()"/>
+  <periodic fun="lidar_vl53l5cx_periodic()" freq="5.0"/>
+  <makefile>
+    <configure name="LIDAR_VL53L5CX_I2C_DEV" default="i2c2" case="lower|upper"/>
+    <define name="LIDAR_VL53L5CX_I2C_DEV" value="$(LIDAR_VL53L5CX_I2C_DEV_LOWER)"/>
+    <define name="USE_$(LIDAR_VL53L5CX_I2C_DEV_UPPER)"/>
+
+    <file_arch name="lidar_vl53l5cx.c"/>
+    <file name="vl53l5cx_api.c" dir="peripherals"/>
+    <file_arch name="vl53l5cx_platform.c"/>
+    <test arch="chibios"/>
+  </makefile>
+</module>
