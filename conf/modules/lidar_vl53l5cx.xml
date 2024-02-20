@@ -24,6 +24,6 @@
     <file_arch name="lidar_vl53l5cx.c"/>
     <file name="vl53l5cx_api.c" dir="peripherals"/>
     <file_arch name="vl53l5cx_platform.c"/>
-    <test/>
+    <test arch="chibios"/>
   </makefile>
 </module>
