@@ -41,9 +41,6 @@
 static IN_DMA_SECTION(VL53L5CX_Configuration  vl53l5cx_dev);
 static IN_DMA_SECTION(VL53L5CX_ResultsData  vl53l5cx_results);
 
-static abi_event lidar_ev;
-
-
 static THD_WORKING_AREA(wa_thd_lidar_vl53l5cx, 1024);
 static void thd_lidar_vl53l5cx(void *arg);
 
@@ -56,25 +53,6 @@ char *VL53L5CX_ERROR_MSGS[] = {
   "VL53L5CX_RUNTIME_ERROR",
 };
 
-static void lidar_cb(uint8_t sender_id __attribute__((unused)),
-                     uint32_t stamp __attribute__((unused)),
-                     uint32_t numRows, uint32_t numCols, uint16_t size,
-                     uint8_t subtype, uint8_t *data)
-{
-  (void)numRows;
-  (void)numCols;
-  (void)size;
-  (void)subtype;
-  (void)data;
-  // example
-  // float f[16];
-  // uint16_t* distances_mm = (uint16_t*) data;
-  // for(int i=0; i<16; i++) {
-  //   f[i] = distances_mm[i];
-  // }
-  // DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 16, f);
-}
-
 
 void lidar_vl53l5cx_init(void)
 {
@@ -82,8 +60,6 @@ void lidar_vl53l5cx_init(void)
   vl53l5cx_dev.platform.address = LIDAR_VL53L5CX_I2C_ADDR;
   vl53l5cx_dev.platform.thread_handle = NULL;
   vl53l5cx_dev.platform.error_code = VL53L5CX_NO_ERROR;
-
-  AbiBindMsgLIDAR_DATA(ABI_BROADCAST, &lidar_ev, lidar_cb);
 
   // Create thread
   vl53l5cx_dev.platform.thread_handle = chThdCreateStatic(wa_thd_lidar_vl53l5cx, sizeof(wa_thd_lidar_vl53l5cx),

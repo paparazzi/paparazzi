@@ -1,7 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 <module name="lidar_vl53l5cx" dir="lidar" task="sensors">
   <doc>
-    <description>VL53L5CX multizone range sensor.</description>
+    <description>
+      VL53L5CX multizone range sensor.
+      Sends LIDAR_DATA Abi messages.
+    </description>
     <configure name="LIDAR_VL53L5CX_I2C_DEV" value="i2c2" description="I2C device to use for the VL53L5CX sensor"/>
     <define name="LIDAR_VL53L5CX_I2C_ADDR" value="0x52" description="I2C address"/>
   </doc>
