@@ -68,7 +68,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <define name="MS45XX_I2C_DEV"               value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.65"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -343,7 +343,7 @@
 
     <section name="IMU" prefix="IMU_">
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,28}, .scale={{1537,43219,6232},{157,4410,641}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,2,33}, .scale={{21914,8531,5489},{4477,1738,1120}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-47,0,3}, .scale={{17288,29444,25808},{3531,6031,5293}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1,-2,22}, .scale={{8241,27895,4777},{15881,55537,10618}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={3163,2783,1623}, .scale={{25833,28413,12237},{45868,51206,22472}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->

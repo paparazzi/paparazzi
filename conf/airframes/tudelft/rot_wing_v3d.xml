@@ -192,7 +192,7 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-2842" neutral="1053" max="4947"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2375" neutral="-172" max="2031"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
@@ -207,7 +207,7 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="8191"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
-        <servo no="5" name="BROTATION_MECH" min="-2842" neutral="1053" max="4947"/>
+        <servo no="5" name="BROTATION_MECH" min="-2375" neutral="-172" max="2031"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
