@@ -64,12 +64,11 @@
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
 
-struct FloatRates stabilization_rate_sp;
+static struct FloatRates stabilization_rate_sp;
+static struct FloatRates stabilization_rate_sum_err;
+static struct FloatRates stabilization_rate_fb_cmd;
 struct FloatRates stabilization_rate_gain;
 struct FloatRates stabilization_rate_igain;
-struct FloatRates stabilization_rate_sum_err;
-
-struct FloatRates stabilization_rate_fb_cmd;
 
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
@@ -108,7 +107,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
                           &stabilization_rate_fb_cmd.p,
                           &stabilization_rate_fb_cmd.q,
                           &stabilization_rate_fb_cmd.r,
-                          &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization.cmd[COMMAND_THRUST]);
 }
 #endif
 
@@ -184,11 +183,12 @@ void stabilization_rate_enter(void)
   FLOAT_RATES_ZERO(stabilization_rate_sum_err);
 }
 
-void stabilization_rate_run(bool in_flight)
+void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
   /* compute feed-back command */
   struct FloatRates _error;
   struct FloatRates *body_rate = stateGetBodyRates_f();
+  stabilization_rate_sp = stab_sp_to_rates_f(rate_sp);
   RATES_DIFF(_error, stabilization_rate_sp, (*body_rate));
   if (in_flight) {
     /* update integrator */
@@ -211,13 +211,15 @@ void stabilization_rate_run(bool in_flight)
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
                                 stabilization_rate_igain.r  * stabilization_rate_sum_err.r;
 
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
-  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
-  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+  cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
+  cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
+  cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(th, 0, THRUST_AXIS_Z);
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
-
+  BoundAbs(cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_THRUST], MAX_PPRZ);
 }
+

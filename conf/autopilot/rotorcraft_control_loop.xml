@@ -14,13 +14,8 @@
       <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
-      <include name="modules/actuators/motor_mixing.h"/>
-      <!--define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" cond="ifndef MODE_MANUAL"/>
-      <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" cond="ifndef MODE_AUTO1"/-->
       <define name="MODE_AUTO2" value="AP_MODE_NAV" cond="ifndef MODE_AUTO2"/>
       <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
-      <define name="DLModeNav()" value="(autopilot_mode_auto2 == AP_MODE_NAV)"/>
-      <define name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
     </includes>
 
     <settings>
@@ -67,46 +62,28 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
+    <mode name="MODULE">
       <select cond="RCMode1()"/>
       <on_enter>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER)"/>
-        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
+        <call fun="guidance_module_enter()"/>
       </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call_block name="read_rc"/>
-        <call_block name="run_control"/>
+        <call fun="guidance_module_read_rc()"/>
+        <call fun="guidance_module_run(autopilot_in_flight())"/>
         <call_block name="set_commands"/>
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="NAV">
-      <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
+      <select cond="RCMode2()" exception="HOME"/>
+      <select cond="$DEFAULT_MODE"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
-        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call_block name="run_control"/>
-        <call_block name="set_commands"/>
-      </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>
-
-    <mode name="GUIDED">
-      <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
-      <on_enter>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED)"/>
         <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
       </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
@@ -154,7 +131,6 @@
 
     <!-- Kill throttle mode -->
     <mode name="KILL">
-      <select cond="$DEFAULT_MODE"/>
       <select cond="kill_switch_is_on()"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>

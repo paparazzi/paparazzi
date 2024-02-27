@@ -19,11 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_none.h
- *  Dummy stabilization for rotorcrafts.
- *
- *  Doesn't actually do any stabilization,
- *  just directly passes the RC commands along.
+/** @file stabilization_oneloop.h
  */
 
 #ifndef STABILIZATION_ONELOOP
@@ -40,4 +36,4 @@ extern struct FloatRates  stab_att_ff_rates;
 extern struct Int32Rates stabilization_oneloop_rc_cmd;
 
 
-#endif /* STABILIZATION_NONE */
+#endif /* STABILIZATION_ONELOOP */

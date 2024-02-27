@@ -19,11 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_none.c
- *  Dummy stabilization for rotorcrafts.
- *
- *  Doesn't actually do any stabilization,
- *  just directly passes the RC commands along.
+/** @file stabilization_oneloop.c
  */
 
 //#include "firmwares/rotorcraft/stabilization.h"
@@ -51,39 +47,14 @@ void stabilization_attitude_enter(void)
   oneloop_andi_enter(true);
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void)
-{
-
-}
-
-void stabilization_attitude_set_rpy_setpoint_i(UNUSED struct Int32Eulers *rpy)
-{
-
-}
-
-void stabilization_attitude_set_quat_setpoint_i(UNUSED struct Int32Quat *quat)
-{
-
-}
-
-void stabilization_attitude_set_earth_cmd_i(UNUSED struct Int32Vect2 *cmd, UNUSED int32_t heading)
-{
-
-}
-
-void stabilization_attitude_set_stab_sp(UNUSED struct StabilizationSetpoint *sp)
-{
-
-}
-
-void stabilization_attitude_run(bool in_flight)
+void stabilization_attitude_run(bool in_flight, UNUSED struct StabilizationSetpoint *sp, UNUSED struct ThrustSetpoint *thrust, UNUSED int32_t *cmd)
 {
   struct FloatVect3 PSA_des    = { 0 };
   int    rm_order_h = 3;
   int    rm_order_v = 3;
   // Run the oneloop controller in half-loop mode
-  if (oneloop_andi.half_loop){
-  oneloop_andi_run(in_flight, oneloop_andi.half_loop, PSA_des, rm_order_h, rm_order_v);
+  if (oneloop_andi.half_loop) {
+    oneloop_andi_run(in_flight, oneloop_andi.half_loop, PSA_des, rm_order_h, rm_order_v);
   }
 }
 
