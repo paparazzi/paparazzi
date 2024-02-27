@@ -43,6 +43,7 @@ uint8_t cov_array_filledXY;
 uint32_t ind_histZ;
 uint8_t cov_array_filledZ;
 
+struct OpticalFlowHover of_hover;
 
 /**
  * Set the covariance of the divergence and the thrust / past divergence

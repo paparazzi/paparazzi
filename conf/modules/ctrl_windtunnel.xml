@@ -37,13 +37,19 @@
   <header>
     <file name="ctrl_windtunnel.h"/>
   </header>
+  <init fun="ctrl_windtunnel_init()"/>
 
   <makefile>
     <file name="ctrl_windtunnel.c"/>
-  </makefile>
-  <makefile target="ap">
-    <define name="GUIDANCE_V_MODE_MODULE_SETTING" value="GUIDANCE_V_MODE_HOVER"/>
-    <define name="DGUIDANCE_H_MODE_MODULE_SETTING" value="GUIDANCE_H_MODE_MODULE"/>
+    <test>
+      <define name="CTRL_WINDTUNNEL_STEPTIME" value="8.0"/>
+      <define name="CTRL_WINDTUNNEL_THR_MIN" value="0"/>
+      <define name="CTRL_WINDTUNNEL_THR_MAX" value="9600"/>
+      <define name="CTRL_WINDTUNNEL_THR_STEP" value="1200"/>
+      <define name="CTRL_WINDTUNNEL_FLAP_MIN" value="0"/>
+      <define name="CTRL_WINDTUNNEL_FLAP_MAX" value="9600"/>
+      <define name="CTRL_WINDTUNNEL_FLAP_STEP" value="2400"/>
+    </test>
   </makefile>
 
 </module>

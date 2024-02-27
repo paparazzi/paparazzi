@@ -90,6 +90,13 @@
   <makefile target="ap">
     <file name="optical_flow_hover.c" />
     <file name="optical_flow_functions.c" />
+    <test firmware="rotorcraft">
+      <define name="COV_WINDOW_SIZE" value="300"/>
+      <define name="GUIDANCE_H_MAX_BANK" value="0.5"/>
+      <define name="GUIDANCE_H_PGAIN" value="1"/>
+      <define name="GUIDANCE_H_IGAIN" value="1"/>
+      <define name="GUIDANCE_H_DGAIN" value="1"/>
+    </test>
   </makefile>
 
 </module>

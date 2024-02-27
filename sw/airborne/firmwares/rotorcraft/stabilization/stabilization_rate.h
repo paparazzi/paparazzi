@@ -28,18 +28,16 @@
 #ifndef STABILIZATION_RATE
 #define STABILIZATION_RATE
 
+#include "firmwares/rotorcraft/stabilization.h"
 #include "math/pprz_algebra_float.h"
 
 extern void stabilization_rate_init(void);
 extern void stabilization_rate_read_rc(void);
 extern void stabilization_rate_read_rc_switched_sticks(void);
-extern void stabilization_rate_run(bool in_flight);
+extern void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd);
 extern void stabilization_rate_enter(void);
 
-extern struct FloatRates stabilization_rate_sp;
 extern struct FloatRates stabilization_rate_gain;
 extern struct FloatRates stabilization_rate_igain;
-extern struct FloatRates stabilization_rate_sum_err;
-extern struct FloatRates stabilization_rate_fb_cmd;
 
 #endif /* STABILIZATION_RATE */

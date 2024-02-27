@@ -73,9 +73,9 @@ struct FloatRates stabilization_rate_sp;
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {
   float dummy = 0;
-  float fb_p = stabilization_cmd[COMMAND_ROLL];
-  float fb_q = stabilization_cmd[COMMAND_PITCH];
-  float fb_r = stabilization_cmd[COMMAND_YAW];
+  float fb_p = stabilization.cmd[COMMAND_ROLL];
+  float fb_q = stabilization.cmd[COMMAND_PITCH];
+  float fb_r = stabilization.cmd[COMMAND_YAW];
 
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
                           &stabilization_rate_sp.p,
@@ -85,7 +85,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
                           &fb_p,
                           &fb_q,
                           &fb_r,
-                          &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization.cmd[COMMAND_THRUST]);
 }
 #endif
 
@@ -161,8 +161,8 @@ void stabilization_rate_read_rc_switched_sticks(void)
 /**
  * @brief Run indi rate interface from the "stabilization_rate_run" function
  */
-void stabilization_rate_run(bool in_flight)
+void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
   /* compute the INDI rate command */
-  stabilization_indi_rate_run(stabilization_rate_sp, in_flight);
+  stabilization_indi_rate_run(in_flight, rate_sp, thrust, cmd);
 }

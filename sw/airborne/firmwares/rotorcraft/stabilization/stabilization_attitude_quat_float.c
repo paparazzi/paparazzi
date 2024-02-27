@@ -119,9 +119,9 @@ static void send_att(struct transport_tx *trans, struct link_device *dev)
                                     &stabilization_att_ff_cmd[COMMAND_ROLL],
                                     &stabilization_att_ff_cmd[COMMAND_PITCH],
                                     &stabilization_att_ff_cmd[COMMAND_YAW],
-                                    &stabilization_cmd[COMMAND_ROLL],
-                                    &stabilization_cmd[COMMAND_PITCH],
-                                    &stabilization_cmd[COMMAND_YAW],
+                                    &stabilization.cmd[COMMAND_ROLL],
+                                    &stabilization.cmd[COMMAND_PITCH],
+                                    &stabilization.cmd[COMMAND_YAW],
                                     &body_rate_d.p, &body_rate_d.q, &body_rate_d.r);
 }
 
@@ -216,47 +216,6 @@ void stabilization_attitude_enter(void)
   float_quat_identity(&stabilization_att_sum_err_quat);
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void)
-{
-  /* set failsafe to zero roll/pitch and current heading */
-  float heading2 = stabilization_attitude_get_heading_f() / 2;
-  stab_att_sp_quat.qi = cosf(heading2);
-  stab_att_sp_quat.qx = 0.0;
-  stab_att_sp_quat.qy = 0.0;
-  stab_att_sp_quat.qz = sinf(heading2);
-}
-
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
-{
-  // copy euler setpoint for debugging
-  EULERS_FLOAT_OF_BFP(stab_att_sp_euler, *rpy);
-
-  float_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
-}
-
-void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
-{
-  QUAT_FLOAT_OF_BFP(stab_att_sp_quat, *quat);
-  float_eulers_of_quat(&stab_att_sp_euler, &stab_att_sp_quat);
-}
-
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
-{
-  struct FloatVect2 cmd_f;
-  cmd_f.x = ANGLE_FLOAT_OF_BFP(cmd->x);
-  cmd_f.y = ANGLE_FLOAT_OF_BFP(cmd->y);
-  float heading_f;
-  heading_f = ANGLE_FLOAT_OF_BFP(heading);
-
-  quat_from_earth_cmd_f(&stab_att_sp_quat, &cmd_f, heading_f);
-}
-
-void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
-{
-  stab_att_sp_euler = stab_sp_to_eulers_f(sp);
-  stab_att_sp_quat = stab_sp_to_quat_f(sp);
-}
-
 #ifndef GAIN_PRESCALER_FF
 #define GAIN_PRESCALER_FF 1
 #endif
@@ -323,8 +282,10 @@ static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gain
 #endif
 }
 
-void stabilization_attitude_run(bool enable_integrator)
+void stabilization_attitude_run(bool enable_integrator, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
+  stab_att_sp_euler = stab_sp_to_eulers_f(sp);
+  stab_att_sp_quat = stab_sp_to_quat_f(sp);
 
   /*
    * Update reference
@@ -370,23 +331,30 @@ void stabilization_attitude_run(bool enable_integrator)
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &body_rate_d,
                   &stabilization_att_sum_err_quat);
 
-  stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
+  cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
+  cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
+  cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 
 #ifdef HAS_SURFACE_COMMANDS
-  stabilization_cmd[COMMAND_ROLL_SURFACE] = stabilization_att_fb_cmd[COMMAND_ROLL_SURFACE] +
+  cmd[COMMAND_ROLL_SURFACE] = stabilization_att_fb_cmd[COMMAND_ROLL_SURFACE] +
       stabilization_att_ff_cmd[COMMAND_ROLL_SURFACE];
-  stabilization_cmd[COMMAND_PITCH_SURFACE] = stabilization_att_fb_cmd[COMMAND_PITCH_SURFACE] +
+  cmd[COMMAND_PITCH_SURFACE] = stabilization_att_fb_cmd[COMMAND_PITCH_SURFACE] +
       stabilization_att_ff_cmd[COMMAND_PITCH_SURFACE];
-  stabilization_cmd[COMMAND_YAW_SURFACE] = stabilization_att_fb_cmd[COMMAND_YAW_SURFACE] +
+  cmd[COMMAND_YAW_SURFACE] = stabilization_att_fb_cmd[COMMAND_YAW_SURFACE] +
       stabilization_att_ff_cmd[COMMAND_YAW_SURFACE];
 #endif
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_THRUST], MAX_PPRZ);
+#ifdef HAS_SURFACE_COMMANDS
+  BoundAbs(cmd[COMMAND_ROLL_SURFACE], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_PITCH_SURFACE], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_YAW_SURFACE], MAX_PPRZ);
+#endif
 }
 
 void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)

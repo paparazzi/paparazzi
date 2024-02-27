@@ -145,14 +145,14 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   // Set lower limits
   du_min_gih[0] = -roll_limit_rad - roll_angle; //roll
   du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
-  du_min_gih[2] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
-  du_min_gih[3] = -stabilization_cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
+  du_min_gih[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
+  du_min_gih[3] = -stabilization.cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
 
   // Set upper limits limits
   du_max_gih[0] = roll_limit_rad - roll_angle; //roll
   du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
-  du_max_gih[2] = -stabilization_cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
-  du_max_gih[3] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
+  du_max_gih[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
+  du_max_gih[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
 
   // Set prefered states
   du_pref_gih[0] = -roll_angle; // prefered delta roll angle

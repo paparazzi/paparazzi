@@ -33,17 +33,14 @@ extern "C" {
 
 #include "firmwares/rotorcraft/stabilization.h"
 #include "math/pprz_algebra_int.h"
+#ifdef STABILIZATION_ATTITUDE_TYPE_H
 #include STABILIZATION_ATTITUDE_TYPE_H
+#endif
 
 extern void stabilization_attitude_init(void);
 extern void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 extern void stabilization_attitude_enter(void);
-extern void stabilization_attitude_set_failsafe_setpoint(void);
-extern void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy);
-extern void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat);
-extern void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-extern void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp);
-extern void stabilization_attitude_run(bool in_flight);
+extern void stabilization_attitude_run(bool in_flight, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd);
 
 #ifdef __cplusplus
 }

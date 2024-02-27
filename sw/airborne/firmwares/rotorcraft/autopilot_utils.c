@@ -35,6 +35,7 @@
 /** Display descent speed in failsafe mode if needed */
 PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
 
+#if (defined MODE_MANUAL) && (defined MODE_AUTO1)
 
 #if defined RADIO_MODE_2x3
 
@@ -113,6 +114,7 @@ uint8_t ap_mode_of_two_switches(void)
 }
 #endif
 
+#endif // MODE_MANUAL && MODE_AUTO1
 
 /** Set Rotorcraft commands.
  *  Limit thrust and/or yaw depending of the in_flight
