@@ -196,7 +196,7 @@ void autopilot_static_SetModeHandler(float mode)
     autopilot_static_set_mode(mode);
   } else {
     if (radio_control.status != RC_OK &&
-        (mode == AP_MODE_NAV || mode == AP_MODE_GUIDED || mode == AP_MODE_FLIP || mode == AP_MODE_MODULE)) {
+        (mode == AP_MODE_NAV || mode == AP_MODE_GUIDED)) {
       // without RC, only nav-like modes are accessible
       autopilot_static_set_mode(mode);
     }
@@ -411,8 +411,6 @@ void autopilot_failsafe_checks(void)
       autopilot_get_mode() != AP_MODE_HOME &&
       autopilot_get_mode() != AP_MODE_FAILSAFE &&
       autopilot_get_mode() != AP_MODE_NAV &&
-      autopilot_get_mode() != AP_MODE_MODULE &&
-      autopilot_get_mode() != AP_MODE_FLIP &&
       autopilot_get_mode() != AP_MODE_GUIDED) {
     autopilot_set_mode(RC_LOST_MODE);
   }
