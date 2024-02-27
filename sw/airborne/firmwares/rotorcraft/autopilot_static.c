@@ -39,7 +39,6 @@
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
 #if USE_STABILIZATION_RATE
@@ -158,14 +157,31 @@ void autopilot_static_periodic(void)
    * If in FAILSAFE mode, run normal loops with failsafe attitude and
    * downwards velocity setpoints.
    */
-  if (autopilot.mode == AP_MODE_KILL) {
-    SetCommands(commands_failsafe);
-  } else {
-    guidance_v_run(autopilot_in_flight());
-    guidance_h_run(autopilot_in_flight());
-    SetRotorcraftCommands(stabilization_cmd, autopilot.in_flight, autopilot.motors_on);
+  struct StabilizationSetpoint stab_sp;
+  struct ThrustSetpoint thrust_sp;
+  switch (autopilot.mode) {
+    case AP_MODE_FAILSAFE:
+#ifndef KILL_AS_FAILSAFE
+      thrust_sp = guidance_v_run(autopilot_in_flight());
+      stab_sp = stabilization_get_failsafe_sp();
+      stabilization_run(autopilot_in_flight(), &stab_sp, &thrust_sp, stabilization.cmd);
+      SetRotorcraftCommands(stabilization.cmd, autopilot.in_flight, autopilot.motors_on);
+      break;
+#endif
+    case AP_MODE_KILL:
+      SetCommands(commands_failsafe);
+      break;
+    default:
+      thrust_sp = guidance_v_run(autopilot_in_flight());
+      stab_sp = guidance_h_run(autopilot_in_flight());
+      stabilization_run(autopilot_in_flight(), &stab_sp, &thrust_sp, stabilization.cmd);
+      // TODO maybe add RC limiter here as an option ?
+      SetRotorcraftCommands(stabilization.cmd, autopilot.in_flight, autopilot.motors_on);
+      break;
   }
+#ifdef COMMAND_THRUST
   autopilot.throttle = commands[COMMAND_THRUST];
+#endif
 
 }
 
@@ -196,22 +212,26 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-        stabilization_attitude_set_failsafe_setpoint();
-        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_HEADING);
         break;
 #endif
       case AP_MODE_KILL:
         autopilot_set_in_flight(false);
-        guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_NONE, 0);
         break;
       case AP_MODE_RC_DIRECT:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_DIRECT, 0);
         break;
       case AP_MODE_RATE_RC_CLIMB:
       case AP_MODE_RATE_DIRECT:
       case AP_MODE_RATE_Z_HOLD:
 #if USE_STABILIZATION_RATE
-        guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_RATE, 0);
 #else
         return;
 #endif
@@ -220,33 +240,37 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_ATTITUDE_DIRECT:
       case AP_MODE_ATTITUDE_CLIMB:
       case AP_MODE_ATTITUDE_Z_HOLD:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_HEADING);
         break;
       case AP_MODE_FORWARD:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_FORWARD);
         break;
       case AP_MODE_CARE_FREE_DIRECT:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
+        guidance_h_mode_changed(GUIDANCE_H_MODE_NONE);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_CARE_FREE);
         break;
       case AP_MODE_HOVER_DIRECT:
       case AP_MODE_HOVER_CLIMB:
       case AP_MODE_HOVER_Z_HOLD:
         guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_HEADING);
         break;
       case AP_MODE_HOME:
       case AP_MODE_NAV:
         guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
-        break;
-      case AP_MODE_MODULE:
-#ifdef GUIDANCE_H_MODE_MODULE_SETTING
-        guidance_h_mode_changed(GUIDANCE_H_MODE_MODULE_SETTING);
-#endif
-        break;
-      case AP_MODE_FLIP:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_FLIP);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_HEADING); // TODO check
         break;
       case AP_MODE_GUIDED:
         guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED);
+        stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,
+            STABILIZATION_ATT_SUBMODE_HEADING);
         break;
       default:
         break;
@@ -260,8 +284,10 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
         break;
 #endif
       case AP_MODE_KILL:
-        autopilot_set_motors_on(FALSE);
-        stabilization_cmd[COMMAND_THRUST] = 0;
+        autopilot_set_motors_on(false);
+#ifdef COMMAND_THRUST
+        stabilization.cmd[COMMAND_THRUST] = 0; // FIXME maybe not needed ?
+#endif
         guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
         break;
       case AP_MODE_RC_DIRECT:
@@ -288,14 +314,6 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
       case AP_MODE_HOME:
       case AP_MODE_NAV:
         guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
-        break;
-      case AP_MODE_MODULE:
-#ifdef GUIDANCE_V_MODE_MODULE_SETTING
-        guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE_SETTING);
-#endif
-        break;
-      case AP_MODE_FLIP:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_FLIP);
         break;
       case AP_MODE_GUIDED:
         guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED);
