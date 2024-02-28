@@ -70,7 +70,7 @@ extern uint8_t cov_array_filledXY;
 extern uint32_t ind_histZ;
 extern uint8_t cov_array_filledZ;
 
-struct OpticalFlowHover of_hover;
+extern struct OpticalFlowHover of_hover;
 
 extern float set_cov_div(bool cov_method, struct OFhistory *history, struct DesiredInputs *inputs);
 extern void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY,

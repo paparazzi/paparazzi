@@ -85,11 +85,13 @@
   <header>
     <file name="optical_flow_landing.h"/>
   </header>
+  <init fun="optical_flow_landing_init()"/>
 
   <makefile target="ap|nps">
     <file name="optical_flow_landing.c"/>
     <file name="pprz_algebra_float.c" dir="math"/>
     <file name="pprz_matrix_decomp_float.c" dir="math"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 
 </module>

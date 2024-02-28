@@ -92,10 +92,6 @@ void guidance_v_init(void)
 
   gv_adapt_init();
 
-#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
-  guidance_v_module_init();
-#endif
-
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_TUNE_VERT, send_tune_vert);
 #endif
@@ -144,15 +140,6 @@ void guidance_v_mode_changed(uint8_t new_mode)
     case GUIDANCE_V_MODE_NAV:
       guidance_v_run_enter();
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
-      break;
-
-#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
-    case GUIDANCE_V_MODE_MODULE:
-      guidance_v_module_enter();
-      break;
-#endif
-
-    case GUIDANCE_V_MODE_FLIP:
       break;
 
     default:
@@ -210,9 +197,10 @@ void guidance_v_thrust_adapt(bool in_flight)
      * This means that the estimation is not updated when using direct throttle commands.
      *
      * FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT, AKA SUPERVISION and co
+     * FIXME get this out of here !!!! and don't get stab cmd directly
      */
     if (desired_zd_updated) {
-      int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v.thrust_coeff) >> INT32_TRIG_FRAC;
+      int32_t vertical_thrust = (stabilization.cmd[COMMAND_THRUST] * guidance_v.thrust_coeff) >> INT32_TRIG_FRAC;
       gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v.zd_ref);
     }
   } else {
@@ -221,63 +209,49 @@ void guidance_v_thrust_adapt(bool in_flight)
   }
 }
 
-void guidance_v_run(bool in_flight)
+struct ThrustSetpoint guidance_v_run(bool in_flight)
 {
   guidance_v_thrust_adapt(in_flight);
 
   /* reset flag indicating if desired zd was updated */
   desired_zd_updated = false;
+  /* reset setpoint */
+  THRUST_SP_SET_ZERO(guidance_v.thrust);
 
   switch (guidance_v.mode) {
 
     case GUIDANCE_V_MODE_RC_DIRECT:
       guidance_v.z_sp = stateGetPositionNed_i()->z; // for display only
-      stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t;
+      guidance_v.thrust = th_sp_from_thrust_i(guidance_v.rc_delta_t, THRUST_AXIS_Z);
       break;
 
     case GUIDANCE_V_MODE_RC_CLIMB:
       guidance_v.zd_sp = guidance_v.rc_zd_sp;
       gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
-      guidance_v.delta_t = guidance_v_run_speed(in_flight, &guidance_v);
-      stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
+      guidance_v.thrust = guidance_v_run_speed(in_flight, &guidance_v);
       break;
 
     case GUIDANCE_V_MODE_CLIMB:
       gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
-      guidance_v.delta_t = guidance_v_run_speed(in_flight, &guidance_v);
-#if !NO_RC_THRUST_LIMIT
-      /* use rc limitation if available */
-      if (radio_control.status == RC_OK) {
-        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v.rc_delta_t, guidance_v.delta_t);
-      } else
-#endif
-        stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
+      guidance_v.thrust = guidance_v_run_speed(in_flight, &guidance_v);
       break;
 
     case GUIDANCE_V_MODE_HOVER:
       guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
       /* Falls through. */
     case GUIDANCE_V_MODE_GUIDED:
-      guidance_v_guided_run(in_flight);
+      guidance_v.thrust = guidance_v_guided_run(in_flight);
       break;
-
-#if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
-    case GUIDANCE_V_MODE_MODULE:
-      guidance_v_module_run(in_flight);
-      break;
-#endif
 
     case GUIDANCE_V_MODE_NAV: {
-      guidance_v_from_nav(in_flight);
+      guidance_v.thrust = guidance_v_from_nav(in_flight);
       break;
     }
-
-    case GUIDANCE_V_MODE_FLIP:
-      break;
 
     default:
       break;
   }
+  return guidance_v.thrust;
 }
 
 
@@ -314,36 +288,32 @@ void guidance_v_update_ref(void)
   desired_zd_updated = true;
 }
 
-void guidance_v_from_nav(bool in_flight)
+struct ThrustSetpoint guidance_v_from_nav(bool in_flight)
 {
+  struct ThrustSetpoint sp;
+  THRUST_SP_SET_ZERO(sp);
   if (nav.vertical_mode == NAV_VERTICAL_MODE_ALT) {
     guidance_v.z_sp = -POS_BFP_OF_REAL(nav.nav_altitude);
     guidance_v.zd_sp = 0;
     gv_update_ref_from_z_sp(guidance_v.z_sp);
     guidance_v_update_ref();
-    guidance_v.delta_t = guidance_v_run_pos(in_flight, &guidance_v);
+    sp = guidance_v_run_pos(in_flight, &guidance_v);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_CLIMB) {
     guidance_v.z_sp = stateGetPositionNed_i()->z;
     guidance_v.zd_sp = -SPEED_BFP_OF_REAL(nav.climb);
     gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
     guidance_v_update_ref();
-    guidance_v.delta_t = guidance_v_run_speed(in_flight, &guidance_v);
+    sp = guidance_v_run_speed(in_flight, &guidance_v);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_MANUAL) {
     guidance_v.z_sp = stateGetPositionNed_i()->z;
     guidance_v.zd_sp = stateGetSpeedNed_i()->z;
     GuidanceVSetRef(guidance_v.z_sp, guidance_v.zd_sp, 0);
     guidance_v_run_enter();
-    guidance_v.delta_t = nav.throttle;
+    sp = th_sp_from_thrust_i((int32_t)nav.throttle, THRUST_AXIS_Z);
   } else if (nav.vertical_mode == NAV_VERTICAL_MODE_GUIDED) {
-    guidance_v_guided_run(in_flight);
+    sp = guidance_v_guided_run(in_flight);
   }
-#if !NO_RC_THRUST_LIMIT
-  /* use rc limitation if available */
-  if (radio_control.status == RC_OK) {
-    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v.rc_delta_t, guidance_v.delta_t);
-  } else
-#endif
-    stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
+  return sp;
 }
 
 void guidance_v_guided_enter(void)
@@ -356,8 +326,10 @@ void guidance_v_guided_enter(void)
   GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
 }
 
-void guidance_v_guided_run(bool in_flight)
+struct ThrustSetpoint guidance_v_guided_run(bool in_flight)
 {
+  struct ThrustSetpoint sp;
+  THRUST_SP_SET_ZERO(sp);
   switch(guidance_v_guided_mode)
   {
     case GUIDANCE_V_GUIDED_MODE_ZHOLD:
@@ -365,29 +337,23 @@ void guidance_v_guided_run(bool in_flight)
       guidance_v.zd_sp = 0;
       gv_update_ref_from_z_sp(guidance_v.z_sp);
       guidance_v_update_ref();
-      guidance_v.delta_t = guidance_v_run_pos(in_flight, &guidance_v);
+      sp = guidance_v_run_pos(in_flight, &guidance_v);
       break;
     case GUIDANCE_V_GUIDED_MODE_CLIMB:
       // Climb
       gv_update_ref_from_zd_sp(guidance_v.zd_sp, stateGetPositionNed_i()->z);
       guidance_v_update_ref();
-      guidance_v.delta_t = guidance_v_run_speed(in_flight, &guidance_v);
+      sp = guidance_v_run_speed(in_flight, &guidance_v);
       break;
     case GUIDANCE_V_GUIDED_MODE_THROTTLE:
       // Throttle
       guidance_v.z_sp = stateGetPositionNed_i()->z; // for display only
-      guidance_v.delta_t = guidance_v.th_sp;
+      sp = th_sp_from_thrust_i(guidance_v.th_sp, THRUST_AXIS_Z);
       break;
     default:
       break;
   }
-#if !NO_RC_THRUST_LIMIT
-  /* use rc limitation if available */
-  if (radio_control.status == RC_OK) {
-    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v.rc_delta_t, guidance_v.delta_t);
-  } else
-#endif
-    stabilization_cmd[COMMAND_THRUST] = guidance_v.delta_t;
+  return sp;
 }
 
 void guidance_v_set_z(float z)
