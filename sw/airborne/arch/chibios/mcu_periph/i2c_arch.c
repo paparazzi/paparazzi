@@ -123,6 +123,8 @@ static void handle_i2c_thd(struct i2c_periph *p)
   // wait for a transaction to be pushed in the queue
   chSemWait(&i->sem);
 
+  i2cAcquireBus((I2CDriver *)p->reg_addr);
+
   if (p->trans_insert_idx == p->trans_extract_idx) {
     p->status = I2CIdle;
     // no transaction pending
@@ -231,6 +233,8 @@ static void handle_i2c_thd(struct i2c_periph *p)
     default:
       break;
   }
+
+  i2cReleaseBus((I2CDriver *)p->reg_addr);
 }
 
 /**
