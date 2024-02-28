@@ -17,7 +17,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "mcu_periph/i2c.h"
-#include "hal.h"
 
 #define VL53L5CX_I2C_BUF_SIZE 512
 
@@ -50,8 +49,8 @@ typedef struct
   int16_t distances_mm[64];
 
 	enum VL53L5CX_ERRORS error_code;
-	thread_t* thread_handle;
 	uint8_t buf[VL53L5CX_I2C_BUF_SIZE+2];
+	void* user_data;
 
 } VL53L5CX_Platform;
 

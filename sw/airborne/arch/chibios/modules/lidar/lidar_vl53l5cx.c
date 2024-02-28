@@ -26,11 +26,13 @@
 #include "modules/lidar/lidar_vl53l5cx.h"
 #include "mcu_periph/i2c.h"
 #include "ch.h"
-#include "vl53l5cx_platform.h"
+#include "lidar/vl53l5cx_platform.h"
 #include "peripherals/vl53l5cx_api.h"
-#include "mcu_periph/ram_arch.h"
 #include "modules/core/abi.h"
 #include "modules/datalink/downlink.h"
+#include "ch.h"
+#include "hal.h"
+#include "mcu_periph/ram_arch.h"
 
 #ifndef LIDAR_VL53L5CX_I2C_ADDR
 #define LIDAR_VL53L5CX_I2C_ADDR 0x29
@@ -58,22 +60,23 @@ void lidar_vl53l5cx_init(void)
 {
   vl53l5cx_dev.platform.i2cdev = &LIDAR_VL53L5CX_I2C_DEV;
   vl53l5cx_dev.platform.address = LIDAR_VL53L5CX_I2C_ADDR;
-  vl53l5cx_dev.platform.thread_handle = NULL;
+  vl53l5cx_dev.platform.user_data = NULL;
   vl53l5cx_dev.platform.error_code = VL53L5CX_NO_ERROR;
 
   // Create thread
-  vl53l5cx_dev.platform.thread_handle = chThdCreateStatic(wa_thd_lidar_vl53l5cx, sizeof(wa_thd_lidar_vl53l5cx),
+  vl53l5cx_dev.platform.user_data = chThdCreateStatic(wa_thd_lidar_vl53l5cx, sizeof(wa_thd_lidar_vl53l5cx),
                                         NORMALPRIO, thd_lidar_vl53l5cx, (void *)&vl53l5cx_dev);
 }
 
 void lidar_vl53l5cx_periodic(void)
 {
 
-  if (vl53l5cx_dev.platform.thread_handle != NULL) {
+  if (vl53l5cx_dev.platform.user_data != NULL) {
+    thread_t* thread_handle = (thread_t*) vl53l5cx_dev.platform.user_data;
     // check thread status
-    if (vl53l5cx_dev.platform.thread_handle->state == CH_STATE_FINAL) {
-      vl53l5cx_dev.platform.error_code = (enum VL53L5CX_ERRORS) chThdWait(vl53l5cx_dev.platform.thread_handle);
-      vl53l5cx_dev.platform.thread_handle = NULL;
+    if (thread_handle->state == CH_STATE_FINAL) {
+      vl53l5cx_dev.platform.error_code = (enum VL53L5CX_ERRORS) chThdWait(thread_handle);
+      vl53l5cx_dev.platform.user_data = NULL;
     }
   } else {
 

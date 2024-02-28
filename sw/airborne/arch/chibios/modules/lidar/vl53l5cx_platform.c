@@ -11,7 +11,8 @@
  */
 
 
-#include "vl53l5cx_platform.h"
+#include "lidar/vl53l5cx_platform.h"
+#include "hal.h"
 
 #define VL53L5_I2C_TIMEOUT chTimeMS2I(100)
 
