@@ -1,5 +1,5 @@
+<?xml version="1.0"?>
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "modules/datalink/datalink.h"
@@ -19,11 +19,10 @@
     <waypoint lat="51.9906440" lon="4.3767060" name="_CZ2"/>
     <waypoint lat="51.9906860" lon="4.3768080" name="_CZ3"/>
     <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
-
-    <waypoint lat="51.9905860" lon="4.3767712" name="_OZ1"/>
-    <waypoint lat="51.9906430" lon="4.3767110" name="_OZ2"/>
-    <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
-    <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
+    <waypoint lat="51.9906006" lon="4.3767764" name="_OZ1"/>
+    <waypoint lat="51.9906405" lon="4.3767316" name="_OZ2"/>
+    <waypoint lat="51.9906687" lon="4.3768025" name="_OZ3"/>
+    <waypoint lat="51.9906273" lon="4.3768438" name="_OZ4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">
