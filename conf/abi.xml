@@ -248,6 +248,15 @@
       <field name="vel_sp" type="struct FloatVect3 *" unit="m/s"/>
     </message>
 
+    <message name="LIDAR_DATA" id="37">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="numRows" type="uint32_t">number of rows of the matrix</field>
+      <field name="numCols" type="uint32_t">number of columns of the matrix</field>
+      <field name="size" type="uint16_t">size of a matrix element</field>
+      <field name="subtype" type="uint8_t">subtype of data, driver dependent (e.g. distance, reflectance, ...)</field>
+      <field name="data" type="uint8_t*">pointer to the data of the matrix</field>
+    </message>
+
   </msg_class>
 
 </protocol>
