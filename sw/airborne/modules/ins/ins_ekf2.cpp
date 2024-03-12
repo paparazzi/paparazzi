@@ -483,8 +483,8 @@ static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
 
 static void send_external_pose_down(struct transport_tx *trans, struct link_device *dev)
 {
-  if(sample_ev.time_us==0){
-  return;
+  if(sample_ev.time_us == 0){
+    return;
   }
   float sample_temp_ev[11];
   sample_temp_ev[0]  = (float) sample_ev.time_us;
