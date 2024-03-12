@@ -301,7 +301,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp);
 static Ekf ekf;                                   ///< EKF class itself
 static parameters *ekf_params;                    ///< The EKF parameters
 struct ekf2_t ekf2;                               ///< Local EKF2 status structure
-static struct extVisionSample sample_ev;          ///< External vision sample
+static struct extVisionSample sample_ev = {0};          ///< External vision sample
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -480,11 +480,13 @@ static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
                               &ahrs_id);
 }
 
+
 static void send_eternal_pose_down(struct transport_tx *trans, struct link_device *dev)
 {
-
+  if(sample_ev.time_us==0){
+  return;
+  } else {
   float sample_temp_ev[11];
-  #if INS_EKF2_OPTITRACK
   sample_temp_ev[0]  = (float) sample_ev.time_us;
   sample_temp_ev[1]  = sample_ev.pos(0) ;
   sample_temp_ev[2]  = sample_ev.pos(1) ;
@@ -496,10 +498,6 @@ static void send_eternal_pose_down(struct transport_tx *trans, struct link_devic
   sample_temp_ev[8]  = sample_ev.quat(1);
   sample_temp_ev[9]  = sample_ev.quat(2); 
   sample_temp_ev[10] = sample_ev.quat(3);
-  #else
-  float_vect_zero(sample_temp_ev, 11);
-  #endif
-
   pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
                         &sample_temp_ev[0],
                         &sample_temp_ev[1], 
@@ -512,8 +510,8 @@ static void send_eternal_pose_down(struct transport_tx *trans, struct link_devic
                         &sample_temp_ev[8], 
                         &sample_temp_ev[9], 
                         &sample_temp_ev[10] );
-}
-
+  }
+} 
 #endif
 
 /* Initialize the EKF */
