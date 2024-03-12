@@ -40,7 +40,10 @@
                 <configure name="USE_TFMINI_AGL"  value="TRUE"/>
             </module>
 
-            <module name="wing_rotation_adc_sensor"/>
+            <module name="wing_rotation_adc_sensor">
+                <define name="ADC_SCALE"  value="0.00247111"/>
+                <define name="ADC_OFFSET" value="-25.635294"/>
+            </module>
 
             <!-- <module name="mavlink">
                 <configure name="MAVLINK_BAUD" value="B115200"/>

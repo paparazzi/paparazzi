@@ -105,6 +105,13 @@
 #define ROTWING_STATE_FW_PREF_PITCH 8.0
 #endif
 
+// stream ADC data if ADC rotation sensor
+#ifndef ADC_WING_ROTATION
+#define ADC_WING_ROTATION FALSE
+#endif
+#if ADC_WING_ROTATION
+#include "wing_rotation_adc_sensor.h"
+#endif
 /** ABI binding feedback data.
  */
 #ifndef ROTWING_STATE_ACT_FEEDBACK_ID
@@ -149,7 +156,11 @@ inline void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_an
 #include "modules/datalink/telemetry.h"
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
+  #if ADC_WING_ROTATION
+  uint16_t adc_dummy = adc_wing_rotation_extern;
+  #else
   uint16_t adc_dummy = 0;
+  #endif
   pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID,
                                     &rotwing_state.current_state,
                                     &rotwing_state.desired_state,
