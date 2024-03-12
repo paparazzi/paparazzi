@@ -481,11 +481,11 @@ static void send_ahrs_quat(struct transport_tx *trans, struct link_device *dev)
 }
 
 
-static void send_eternal_pose_down(struct transport_tx *trans, struct link_device *dev)
+static void send_external_pose_down(struct transport_tx *trans, struct link_device *dev)
 {
   if(sample_ev.time_us==0){
   return;
-  } else {
+  }
   float sample_temp_ev[11];
   sample_temp_ev[0]  = (float) sample_ev.time_us;
   sample_temp_ev[1]  = sample_ev.pos(0) ;
@@ -510,7 +510,6 @@ static void send_eternal_pose_down(struct transport_tx *trans, struct link_devic
                         &sample_temp_ev[8], 
                         &sample_temp_ev[9], 
                         &sample_temp_ev[10] );
-  }
 } 
 #endif
 
@@ -608,7 +607,7 @@ void ins_ekf2_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_QUAT_INT, send_ahrs_quat);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_eternal_pose_down);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_external_pose_down);
 #endif
 
   /*
