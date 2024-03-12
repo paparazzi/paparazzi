@@ -43,21 +43,21 @@
 #define DEBUG_PRINT(...) {}
 #endif
 
-
 /** Data for telemetry and LTP origin.
  */
-
-
 struct InsExtPose {
   /* Inputs */
   struct FloatRates gyros_f;
   struct FloatVect3 accels_f;
-  bool has_new_gyro;
-  bool has_new_acc;
+  bool   has_new_gyro;
+  bool   has_new_acc;
 
   struct FloatVect3 ev_pos;
+  struct FloatVect3 ev_vel;
   struct FloatEulers ev_att;
-  bool has_new_ext_pose;
+  struct FloatQuat ev_quat;
+  bool   has_new_ext_pose;
+  float  ev_time;
 
   /* Origin */
   struct LtpDef_i  ltp_def;
@@ -67,7 +67,6 @@ struct InsExtPose {
   struct NedCoor_i ltp_speed;
   struct NedCoor_i ltp_accel;
 };
-
 struct InsExtPose ins_ext_pos;
 
 
@@ -86,6 +85,8 @@ static void ins_ext_pose_init_from_flightplan(void)
   ltp_def_from_ecef_i(&ins_ext_pos.ltp_def, &ecef_nav0);
   ins_ext_pos.ltp_def.hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(&ins_ext_pos.ltp_def);
+  /* update local ENU coordinates of global waypoints */
+  waypoints_localize_all();
 }
 
 
@@ -118,6 +119,36 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
                         &ins_ext_pos.ltp_def.ecef.x, &ins_ext_pos.ltp_def.ecef.y, &ins_ext_pos.ltp_def.ecef.z,
                         &ins_ext_pos.ltp_def.lla.lat, &ins_ext_pos.ltp_def.lla.lon, &ins_ext_pos.ltp_def.lla.alt,
                         &ins_ext_pos.ltp_def.hmsl, (float *)&fake_qfe);
+}
+
+static void send_external_pose_down(struct transport_tx *trans, struct link_device *dev)
+{ 
+  pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
+                        &ins_ext_pos.ev_time,
+                        &ins_ext_pos.ev_pos.x, 
+                        &ins_ext_pos.ev_pos.y, 
+                        &ins_ext_pos.ev_pos.z,
+                        &ins_ext_pos.ev_vel.x, 
+                        &ins_ext_pos.ev_vel.y, 
+                        &ins_ext_pos.ev_vel.z, 
+                        &ins_ext_pos.ev_quat.qi, 
+                        &ins_ext_pos.ev_quat.qx, 
+                        &ins_ext_pos.ev_quat.qy, 
+                        &ins_ext_pos.ev_quat.qz);
+}
+static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
+{
+  float dummy0 = 0.0;
+  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, 
+                &ekf_X[9], 
+                &ekf_X[10], 
+                &ekf_X[11], 
+                &ekf_X[12], 
+                &ekf_X[13], 
+                &ekf_X[14], 
+                &dummy0, 
+                &dummy0, 
+                &dummy0);
 }
 #endif
 
@@ -163,11 +194,13 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
 void ins_ext_pose_msg_update(uint8_t *buf)
 {
   if (DL_EXTERNAL_POSE_ac_id(buf) != AC_ID) { return; } // not for this aircraft
-
-  float enu_x = DL_EXTERNAL_POSE_enu_x(buf);
-  float enu_y = DL_EXTERNAL_POSE_enu_y(buf);
-  float enu_z = DL_EXTERNAL_POSE_enu_z(buf);
-
+  
+  float enu_x  = DL_EXTERNAL_POSE_enu_x(buf);
+  float enu_y  = DL_EXTERNAL_POSE_enu_y(buf);
+  float enu_z  = DL_EXTERNAL_POSE_enu_z(buf);
+  float enu_xd = DL_EXTERNAL_POSE_enu_xd(buf);
+  float enu_yd = DL_EXTERNAL_POSE_enu_yd(buf);              
+  float enu_zd = DL_EXTERNAL_POSE_enu_zd(buf);
   float quat_i = DL_EXTERNAL_POSE_body_qi(buf);
   float quat_x = DL_EXTERNAL_POSE_body_qx(buf);
   float quat_y = DL_EXTERNAL_POSE_body_qy(buf);
@@ -178,20 +211,28 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   struct FloatQuat orient;
   struct FloatEulers orient_eulers;
 
-  orient.qi = quat_i;
-  orient.qx = quat_y;   //north
-  orient.qy = -quat_x;  //east
-  orient.qz = -quat_z;  //down
+  // Transformation of External Pose. Optitrack motive 2.X Yup
+  orient.qi = quat_i ;
+  orient.qx = quat_y ; 
+  orient.qy = quat_x ;                
+  orient.qz = -quat_z;
 
   float_eulers_of_quat(&orient_eulers, &orient);
-  orient_eulers.theta = -orient_eulers.theta;
-
-  ins_ext_pos.ev_pos.x = enu_y;
-  ins_ext_pos.ev_pos.y = enu_x;
-  ins_ext_pos.ev_pos.z = -enu_z;
-  ins_ext_pos.ev_att.phi = orient_eulers.phi;
-  ins_ext_pos.ev_att.theta = orient_eulers.theta;
-  ins_ext_pos.ev_att.psi = orient_eulers.psi;
+  
+  ins_ext_pos.ev_time       = get_sys_time_usec(); 
+  ins_ext_pos.ev_pos.x      = enu_y;                
+  ins_ext_pos.ev_pos.y      = enu_x;                
+  ins_ext_pos.ev_pos.z      = -enu_z;  
+  ins_ext_pos.ev_vel.x      = enu_yd;
+  ins_ext_pos.ev_vel.y      = enu_xd;
+  ins_ext_pos.ev_vel.z      = -enu_zd;             
+  ins_ext_pos.ev_att.phi    = orient_eulers.phi;
+  ins_ext_pos.ev_att.theta  = orient_eulers.theta;
+  ins_ext_pos.ev_att.psi    = orient_eulers.psi;
+  ins_ext_pos.ev_quat.qi    = orient.qi;
+  ins_ext_pos.ev_quat.qx    = orient.qx;
+  ins_ext_pos.ev_quat.qy    = orient.qy;
+  ins_ext_pos.ev_quat.qz    = orient.qz;
 
   ins_ext_pos.has_new_ext_pose = true;
 
@@ -235,12 +276,13 @@ void ins_ext_pose_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EXTERNAL_POSE_DOWN, send_external_pose_down);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
 #endif
 
   // Get IMU through ABI
   AbiBindMsgIMU_ACCEL(INS_EXT_POSE_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_GYRO(INS_EXT_POSE_IMU_ID, &gyro_ev, gyro_cb);
-
   // Get External Pose through datalink message: setup in xml
 
   // Initialize EKF
@@ -315,9 +357,9 @@ static inline void ekf_init(void)
   float Z0[EKF_NUM_OUTPUTS] = {0, 0, 0, 0, 0, 0};
 
   float Pdiag[EKF_NUM_STATES] = {1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.};
-  float Qdiag[EKF_NUM_INPUTS] = {0.5, 0.5, 0.5, 0.01, 0.01, 0.01};
+  float Qdiag[EKF_NUM_INPUTS] = {1.0, 1.0, 1.0, 0.0173, 4.878e-4, 3.547e-4};//{0.0325, 0.4494, 0.5087, 0.0173, 4.878e-4, 3.547e-4};
 
-  float Rdiag[EKF_NUM_OUTPUTS] = {0.001, 0.001, 0.001, 0.1, 0.1, 0.1};
+  float Rdiag[EKF_NUM_OUTPUTS] = {8.372e-6, 3.832e-6, 4.761e-6, 2.830e-4, 8.684e-6, 7.013e-6};
 
   MAKE_MATRIX_PTR(ekf_P_, ekf_P, EKF_NUM_STATES);
   MAKE_MATRIX_PTR(ekf_Q_, ekf_Q, EKF_NUM_INPUTS);
