@@ -157,7 +157,7 @@ inline void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_an
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
   #if ADC_WING_ROTATION
-  uint16_t adc_dummy = adc_wing_rotation_extern;
+  uint16_t adc_dummy = skew_adc_sensor;
   #else
   uint16_t adc_dummy = 0;
   #endif

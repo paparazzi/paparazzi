@@ -41,8 +41,8 @@
             </module>
 
             <module name="wing_rotation_adc_sensor">
-                <define name="ADC_SCALE"  value="0.00247111"/>
-                <define name="ADC_OFFSET" value="-25.635294"/>
+                <define name="ADC_WING_ROT_SCALE"  value="0.00247111"/>
+                <define name="ADC_WING_ROT_OFFSET" value="-25.635294"/>
             </module>
 
             <!-- <module name="mavlink">
