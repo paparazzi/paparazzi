@@ -37,7 +37,8 @@ Section 5.3: Non-additive noise formulation and equations
 #define EKF_NUM_OUTPUTS 6
 
 #include "std.h"
-
+#include "math/pprz_algebra_float.h"
+#include "state.h"
 #include <stdio.h>
 
 
@@ -51,6 +52,5 @@ extern void ins_ext_pose_msg_update(uint8_t *buf);
 // Logging
 extern void ins_ext_pos_log_header(FILE *file);
 extern void ins_ext_pos_log_data(FILE *file);
-
 
 #endif
