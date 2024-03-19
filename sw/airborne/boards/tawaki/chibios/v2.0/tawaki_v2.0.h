@@ -455,7 +455,7 @@
   .dmamux = STM32_DMAMUX1_TIM3_UP,        \
   .pwmp = &PWMD3,                         \
   .tlm_sd = DSHOT_TIM3_TELEMETRY_DEV,     \
-  .dma_buf = &dshot3DmaBuffer,        \
+  .dma_buf = &dshot3DmaBuffer,            \
   DSHOT_CAPT_CONF3_DEF                    \
   .dcache_memory_in_use = false           \
 }

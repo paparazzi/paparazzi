@@ -38,7 +38,7 @@ extern "C" {
  * @note    specific for DMAMUX MCU
             make use of STM32_DMA_STREAM_ID_ANY auto placement
  */
-#define DSHOT_CONCAT_CAPTURE_NX(pre, tim, event) STM32_DMA_STREAM_ID_ANY , pre ## tim ## event
+#define DSHOT_CONCAT_CAPTURE_NX(pre, tim, event) {STM32_DMA_STREAM_ID_ANY , pre ## tim ## event}
 #define DSHOTS_1STREAM(tim)  DSHOT_CONCAT_CAPTURE_NX(STM32_DMAMUX1_TIM, tim, _CH1)
 #define DSHOTS_2STREAMS(tim) DSHOT_CONCAT_CAPTURE_NX(STM32_DMAMUX1_TIM, tim, _CH1), \
 			     DSHOT_CONCAT_CAPTURE_NX(STM32_DMAMUX1_TIM, tim, _CH2)
