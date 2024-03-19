@@ -394,13 +394,14 @@
 #define DSHOT_TLM_RX 1
 #define DSHOT_TLM_AUX_RX 4
 
-#ifndef USE_DSHOT_TIM4
-#define USE_DSHOT_TIM4 1 // use SRVb for DShot by default
+#ifndef USE_DSHOT_TIM3
+#define USE_DSHOT_TIM3 1 // use SRVb for DShot by default
 #endif
 
-#define DSHOT_TIM3_BIDIR_GPT  &GPTD7
 
-#if USE_DSHOT_TIM4 // Servo B1, B2, B3, B4 on TIM4
+
+
+#if USE_DSHOT_TIM3 // Servo B1, B2, B3, B4 on TIM4
 
 // Servo B1, B2, B3, B4 on TM4 are primary DSHOT connector
 #define DSHOT_SERVO_1 1
@@ -433,7 +434,11 @@
 
 #define DSHOT_CONF_TIM3 1
 
+
 #if DSHOT_BIDIR
+
+#define DSHOT_TIM3_BIDIR_GPT  &GPTD7
+
 #define DSHOT_CAPT_CONF3_DEF                     \
   .dma_capt_cfg = {                              \
     .gptd = DSHOT_TIM3_BIDIR_GPT,                \
@@ -490,6 +495,7 @@
 #define DSHOT_CONF_TIM1 1
 
 #if DSHOT_BIDIR
+#define DSHOT_TIM1_BIDIR_GPT  &GPTD8
 #define DSHOT_CAPT_CONF1_DEF                     \
   .dma_capt_cfg = {                              \
     .gptd = DSHOT_TIM1_BIDIR_GPT,                \
