@@ -55,6 +55,17 @@ extern "C" {
 #define STM32_DMA_SUPPORTS_CSELR   FALSE
 #endif
 
+#if !defined(STM32_DMA_SUPPORTS_DMAMUX) || defined(__DOXYGEN__)
+#define STM32_DMA_SUPPORTS_DMAMUX  FALSE
+#endif
+
+#if  !defined(STM32_DMA_DUMMY_MEMORY_AREA_ADDRESS) || defined(__DOXYGEN__)
+#define  STM32_DMA_DUMMY_MEMORY_AREA_ADDRESS 0x80000000
+#endif   
+
+#if  !defined(__DCACHE_PRESENT) 
+#define  __DCACHE_PRESENT FALSE
+#endif  
 
 /**
  * @brief   Driver state machine possible states.
@@ -90,6 +101,17 @@ typedef enum {
   DMA_DIR_M2M = 3,           /**< MEMORY to MEMORY      */
 } dmadirection_t;
 
+  /**
+ * @brief   DMA transfert memory mode
+ */
+typedef enum {
+  DMA_ONESHOT = 1,			/**< One transert then stop  */
+  DMA_CONTINUOUS_HALF_BUFFER,       /**< Continuous mode to/from the same buffer */
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+  DMA_CONTINUOUS_DOUBLE_BUFFER     /**< Continuous mode to/from differents buffers */
+#endif
+} dmaopmode_t;
+
 /**
  * @brief   Type of a structure representing an DMA driver.
  */
@@ -100,10 +122,20 @@ typedef struct DMADriver DMADriver;
  *
  * @param[in] dmap      pointer to the @p DMADriver object triggering the
  *                      callback
- * @param[in] buffer    pointer to the most recent samples data
+ * @param[in] buffer    pointer to the most recent dma data
  * @param[in] n         number of buffer rows available starting from @p buffer
  */
 typedef void (*dmacallback_t)(DMADriver *dmap, void *buffer, const size_t n);
+
+/**
+ * @brief   DMA next buffer query callback type.
+ *
+ * @param[in] dmap      pointer to the @p DMADriver object triggering the
+ *                      callback
+ * @param[in] n         number of buffer rows needed in the returned buffer pointer
+ * @return              pointer to the next to be used dma buffer 
+ */
+typedef void * (*dmanextcallback_t)(DMADriver *dmap, const size_t n);
 
 
 /**
@@ -246,7 +278,7 @@ typedef struct  {
   uint32_t    stream;
 
 #if STM32_DMA_SUPPORTS_DMAMUX
-  uint8_t		dmamux;
+  uint32_t		dmamux; // 4 bytes wide for mdma use
 #else
 #if STM32_DMA_SUPPORTS_CSELR
   /**
@@ -275,15 +307,23 @@ typedef struct  {
 
 
   /**
-   * @brief   Enables the circular buffer mode for the stream.
+   * @brief   one shot, or circular half buffer, or circular double buffers
    */
-  bool      circular;
+  dmaopmode_t op_mode;
 
 
   /**
    * @brief   Callback function associated to the stream or @p NULL.
    */
   dmacallback_t         end_cb;
+
+#if STM32_DMA_USE_DOUBLE_BUFFER
+  /**
+   * @brief   Next data buffer callback function associated to the stream or @p NULL.
+   * @note    Mandatory in the DMA_CONTINUOUS_DOUBLE_BUFFER mode
+   */
+  dmanextcallback_t     next_cb;
+#endif
 
   /**
    * @brief   Error callback or @p NULL.
@@ -327,7 +367,10 @@ typedef struct  {
   /**
    * @brief   DMA memory is in a cached section and beed to be flushed
    */
-bool		dcache_memory_in_use;
+  union {
+    bool		dcache_memory_in_use; // this name was hardly meaningfull
+    bool		activate_dcache_sync;
+  };
 #endif
 #if STM32_DMA_ADVANCED
 #define STM32_DMA_FIFO_SIZE 16 // hardware specification for dma V2
@@ -357,7 +400,7 @@ bool		dcache_memory_in_use;
    */
   bool			transfert_end_ctrl_by_periph; // PFCTRL bit
 #endif
-#ifdef STM32_DMA_DRIVER_USER_DATA_FIELD
+#if STM32_DMA_DRIVER_USER_DATA_FIELD
   void *user_data;
 #endif
 }  DMAConfig;
@@ -431,6 +474,10 @@ struct DMADriver {
    */
   size_t		     size;
 
+#if STM32_DMA_USE_DOUBLE_BUFFER
+  volatile uint32_t		     next_cb_errors;
+#endif
+
 #if CH_DBG_SYSTEM_STATE_CHECK
   volatile size_t		     nbTransferError;
   volatile size_t		     nbDirectModeError;
@@ -457,6 +504,7 @@ struct DMADriver {
 
 void  dmaObjectInit(DMADriver *dmap);
 bool  dmaStart(DMADriver *dmap, const DMAConfig *cfg);
+bool  dmaReloadConf(DMADriver *dmap, const DMAConfig *cfg);
 void  dmaStop(DMADriver *dmap);
 
 #if STM32_DMA_USE_WAIT == TRUE
@@ -477,12 +525,38 @@ void  dmaStopTransfert(DMADriver *dmap);
 
 bool  dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
 void  dmaStopTransfertI(DMADriver *dmap);
-
+uint8_t dmaGetStreamIndex(DMADriver *dmap);
+#ifndef DMA_request_TypeDef
+void  dmaGetRegisters(DMADriver *dmap, volatile void *periphp, void *mem0p,
+		      const size_t size,
+		      DMA_Stream_TypeDef *registers);
+#endif
 static  inline dmastate_t dmaGetState(DMADriver *dmap) {return dmap->state;}
+static  inline size_t dmaGetTransactionCounter(DMADriver *dmap) {return dmaStreamGetTransactionSize(dmap->dmastream);}
+
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+/**
+ * @brief   get double buffer allocation errors counter
+ *
+ * @param[in] dmap      pointer to the @p DMADriver object triggering the
+ *                      callback
+ * @return		the number of allocation error since the last call to
+ *			dmaClearNextErrors
+ * @note		there is allocation error when nect_cb callback return NULL pointer
+ */
+static  inline dmastate_t dmaGetNextErrors(DMADriver *dmap) {return dmap->next_cb_errors;}
+/**
+ * @brief   clear double buffer allocation errors counter
+ *
+ * @param[in] dmap      pointer to the @p DMADriver object triggering the
+ *                      callback
+ */
+static  inline void dmaClearNextErrors(DMADriver *dmap) {dmap->next_cb_errors = 0U;}
+#endif
 
 // low level driver
 
-bool  dma_lld_start(DMADriver *dmap);
+bool  dma_lld_start(DMADriver *dmap, bool allocate_stream);
 void  dma_lld_stop(DMADriver *dmap);
 
 
@@ -494,6 +568,8 @@ void  dma_lld_stop_transfert(DMADriver *dmap);
 #if STM32_DMA_USE_ASYNC_TIMOUT
 void dma_lld_serve_timeout_interrupt(void *arg);
 #endif
+
+void* dma_lld_set_next_double_buffer(DMADriver *dmap, void *nextBuffer);
 
 #if STM32_DMA_USE_ASYNC_TIMOUT
 typedef enum {FROM_TIMOUT_CODE, FROM_HALF_CODE, FROM_FULL_CODE, FROM_NON_CIRCULAR_CODE} CbCallContext;
@@ -562,7 +638,7 @@ static inline void _dma_isr_half_code(DMADriver *dmap)
 
 static inline void _dma_isr_full_code(DMADriver *dmap)
 {
-  if (dmap->config->circular) {
+  if (dmap->config->op_mode == DMA_CONTINUOUS_HALF_BUFFER) {
 #if STM32_DMA_USE_ASYNC_TIMOUT
     if (dmap->config->timeout != TIME_INFINITE) {
       chSysLockFromISR();
@@ -586,7 +662,8 @@ static inline void _dma_isr_full_code(DMADriver *dmap)
       }
     }
 #endif
-  } else { // not circular
+  }
+  else if (dmap->config->op_mode == DMA_ONESHOT) {  // not circular
     /* End transfert.*/
 #if STM32_DMA_USE_ASYNC_TIMOUT
     if (dmap->config->timeout != TIME_INFINITE) {
@@ -612,6 +689,21 @@ static inline void _dma_isr_full_code(DMADriver *dmap)
     }
     _dma_wakeup_isr(dmap);
   }
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+  else { // CONTINUOUS_DOUBLE_BUFFER
+    /* Next buffer handling */
+    void* const rawNextBuff =  dmap->config->next_cb(dmap, dmap->size);
+    if (rawNextBuff == NULL) 
+      dmap->next_cb_errors++;
+    void* const nextBuff = rawNextBuff ? rawNextBuff : (void *) STM32_DMA_DUMMY_MEMORY_AREA_ADDRESS;
+    void* const memXp = dma_lld_set_next_double_buffer(dmap, nextBuff);
+    /* Callback handling.*/
+    if ((dmap->config->end_cb != NULL) &&
+	(memXp != (void *) STM32_DMA_DUMMY_MEMORY_AREA_ADDRESS)){
+      dmap->config->end_cb(dmap, memXp, dmap->size);
+    }
+  }
+#endif
 }
 
 static inline void _dma_isr_error_code(DMADriver *dmap, dmaerrormask_t err) {
@@ -644,8 +736,11 @@ static inline void _dma_isr_error_code(DMADriver *dmap, dmaerrormask_t err) {
   }
   _dma_timeout_isr(dmap);
 }
-
-
+#ifndef DMA_request_TypeDef
+void  dma_lld_get_registers(DMADriver *dmap, volatile void *periphp,
+			    void *mem0p, const size_t size,
+			    DMA_Stream_TypeDef *registers);
+#endif
 #ifdef __cplusplus
 }
 #endif

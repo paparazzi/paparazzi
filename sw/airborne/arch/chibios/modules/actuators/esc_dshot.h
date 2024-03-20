@@ -32,13 +32,12 @@
 #include <ch.h>
 #include <hal.h>
 #include "mcu_periph/hal_stm32_dma.h"
-
-/**
- *  By default enable the possibility to mix 16 and 32 bits timer
- */
-#ifndef DSHOT_AT_LEAST_ONE_32B_TIMER
-#define DSHOT_AT_LEAST_ONE_32B_TIMER TRUE
+#include "modules/actuators/esc_dshot_config.h"
+#if DSHOT_BIDIR
+#include "modules/actuators/dshot_rpmCapture.h"
+#include "modules/actuators/dshot_erps.h"
 #endif
+
 
 #ifndef DSHOT_CHANNEL_FIRST_INDEX
 #define DSHOT_CHANNEL_FIRST_INDEX 0U
@@ -48,12 +47,24 @@
  */
 #define DSHOT_BIT_WIDTHS              16U
 #define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2U
-#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2U
+#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 4U
 #define DSHOT_DMA_BUFFER_SIZE	      (DSHOT_BIT_WIDTHS + \
 				       DSHOT_PRE_FRAME_SILENT_SYNC_BITS + \
 				       DSHOT_POST_FRAME_SILENT_SYNC_BITS )
 
-#define DSHOT_CHANNELS                4U // depend on the number of channels per timer
+
+#if STM32_DMA_SUPPORTS_DMAMUX
+#define DSHOT_EMIT_STREAM_NX(tim)  STM32_DMAMUX1_TIM ## tim ## _UP
+#define DSHOT_EMIT_STREAM(tim)  DSHOT_EMIT_STREAM_NX(tim)
+#endif
+
+/**
+ * @brief  special values returned by dshotGetRpm function
+ * @note   must be checked after each call to dshotGetRpm
+ */
+#define DSHOT_BIDIR_ERR_CRC		 UINT32_MAX
+#define DSHOT_BIDIR_TLM_EDT		 (UINT32_MAX-1U)
+
 
 /**
  * @brief   special value for index : send order to all channels
@@ -62,16 +73,16 @@
  */
 #define DSHOT_ALL_MOTORS 255U
 
-/**
- * @brief   Driver state machine possible states.
- */
-typedef enum {
-  DSHOT_UNINIT = 0,                       /**< Not initialized.          */
-  DSHOT_STOP,                             /**< Stopped.                  */
-  DSHOT_READY,                            /**< Ready.                    */
-  DSHOT_ONGOING_TELEMETRY_QUERY,          /**< Transfering.              */
-  DSHOT_ERROR                             /**< Transfert error.          */
-} dshotstate_t;
+// /**
+//  * @brief   Driver state machine possible states.
+//  */
+// typedef enum {
+//   DSHOT_UNINIT = 0,                       /**< Not initialized.          */
+//   DSHOT_STOP,                             /**< Stopped.                  */
+//   DSHOT_READY,                            /**< Ready.                    */
+//   DSHOT_ONGOING_TELEMETRY_QUERY,          /**< Transfering.              */
+//   DSHOT_ERROR                             /**< Transfert error.          */
+// } dshotstate_t;
 
 /*
   DshotSettingRequest (KISS24). Spin direction,
@@ -89,7 +100,7 @@ typedef enum {
  * @note    commands 48-2047 are used to send motor power
  */
 typedef enum {
-  DSHOT_CMD_MOTOR_STOP = 0,
+  DSHOT_CMD_MOTOR_STOP = 0U,
   DSHOT_CMD_BEACON1,
   DSHOT_CMD_BEACON2,
   DSHOT_CMD_BEACON3,
@@ -102,8 +113,10 @@ typedef enum {
   DSHOT_CMD_3D_MODE_ON,
   DSHOT_CMD_SETTINGS_REQUEST, // Currently not implemented
   DSHOT_CMD_SAVE_SETTINGS,
-  DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20,
-  DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21,
+  DSHOT_CMD_BIDIR_EDT_MODE_ON,
+  DSHOT_CMD_BIDIR_EDT_MODE_OFF,
+  DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20U,
+  DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21U,
   DSHOT_CMD_LED0_ON, // BLHeli32 only
   DSHOT_CMD_LED1_ON, // BLHeli32 only
   DSHOT_CMD_LED2_ON, // BLHeli32 only
@@ -112,9 +125,10 @@ typedef enum {
   DSHOT_CMD_LED1_OFF, // BLHeli32 only
   DSHOT_CMD_LED2_OFF, // BLHeli32 only
   DSHOT_CMD_LED3_OFF, // BLHeli32 only
-  DSHOT_CMD_AUDIO_STREAM_MODE_ON_OFF = 30, // KISS audio Stream mode on/Off
-  DSHOT_CMD_SILENT_MODE_ON_OFF = 31, // KISS silent Mode on/Off
-  DSHOT_CMD_MAX = 47
+  DSHOT_CMD_AUDIO_STREAM_MODE_ON_OFF = 30U, // KISS audio Stream mode on/Off
+  DSHOT_CMD_SILENT_MODE_ON_OFF = 31U, // KISS silent Mode on/Off
+  DSHOT_CMD_MAX = 47U,
+  DSHOT_MIN_THROTTLE
 } dshot_special_commands_t;
 
 /**
@@ -130,11 +144,24 @@ typedef struct {
       uint16_t current;
       uint16_t consumption;
       uint16_t rpm;
-    } __attribute__((__packed__, scalar_storage_order("big-endian")));
+    }
+      __attribute__ ((__packed__));
     uint8_t rawData[9];
   };
   uint8_t  crc8;
-}  __attribute__((__packed__)) DshotTelemetry ;
+}  __attribute__ ((__packed__)) DshotTelemetryFrame ;
+
+
+/**
+ * @brief   telemetry with timestamp
+ */
+typedef struct {
+  DshotTelemetryFrame frame; // fields shared by serial telemetry and EDT
+  uint8_t  stress; // EDT additionnal field
+  uint8_t  status; // EDT additionnal field
+  systime_t	      ts; // timestamp of last succesfull received frame
+}  DshotTelemetry ;
+
 
 typedef union {
 #if DSHOT_AT_LEAST_ONE_32B_TIMER
@@ -178,7 +205,7 @@ typedef struct  {
   SerialDriver	*tlm_sd;
 
   /**
-   * @brief dshot dma buffer, sgould be defined in a non Dcached region
+   * @brief dshot dma buffer, should be defined in a non Dcached region
    */
   DshotDmaBuffer *dma_buf;
 
@@ -189,22 +216,41 @@ typedef struct  {
   DshotRpmCaptureConfig dma_capt_cfg;
 #endif
 
+#if DSHOT_SPEED == 0
+ /**
+   * @brief	dynamic dshot speed, when speed id not known at compilation
+   * @note	incompatible with BIDIR
+   */
+  uint16_t speed_khz;
+#endif
+
 #if __DCACHE_PRESENT
   /**
-   * @brief   DMA memory is in a cached section and beed to be flushed
+   * @brief   DMA memory is in a cached section and need to be flushed
    */
   bool		 dcache_memory_in_use;
 #endif
 } DSHOTConfig;
 
+
+
+
+
+
 void     dshotStart(DSHOTDriver *driver, const DSHOTConfig *config);
+void     dshotStop(DSHOTDriver *driver);
 void     dshotSetThrottle(DSHOTDriver *driver, const uint8_t index, const uint16_t throttle);
 void     dshotSendFrame(DSHOTDriver *driver);
 void     dshotSendThrottles(DSHOTDriver *driver, const uint16_t throttles[DSHOT_CHANNELS]);
 void     dshotSendSpecialCommand(DSHOTDriver *driver, const uint8_t index, const dshot_special_commands_t specmd);
 
-uint32_t dshotGetCrcErrorsCount(DSHOTDriver *driver);
-const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_t index);
+uint32_t dshotGetCrcErrorCount(const DSHOTDriver *driver);
+uint32_t dshotGetTelemetryFrameCount(const DSHOTDriver *driver);
+DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, const uint32_t index);
+#if DSHOT_BIDIR
+uint32_t dshotGetEperiod(DSHOTDriver *driver, const uint32_t index);
+uint32_t dshotGetRpm(DSHOTDriver *driver, const uint32_t index);
+#endif
 
 
 /*
@@ -218,18 +264,20 @@ const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_
 
 typedef union {
   struct {
-    uint16_t crc: 4;
-    uint16_t telemetryRequest: 1;
-    uint16_t throttle: 11;
+    uint16_t crc:4;
+    uint16_t telemetryRequest:1;
+    uint16_t throttle:11;
   };
   uint16_t rawFrame;
 } DshotPacket;
 
+
 typedef struct {
   DshotPacket       dp[DSHOT_CHANNELS];
   DshotTelemetry    dt[DSHOT_CHANNELS];
-  volatile uint8_t  currentTlmQry;
-  volatile bool     onGoingQry;
+  mutex_t	    tlmMtx[DSHOT_CHANNELS];
+  volatile bool	    onGoingQry;
+  uint8_t  currentTlmQry;
 } DshotPackets;
 
 
@@ -273,10 +321,38 @@ struct  DSHOTDriver {
   uint32_t crc_errors;
 
   /**
+   * @brief number of sucessful telemetry frame received
+   */
+  uint32_t tlm_frame_nb;
+  
+#if DSHOT_SPEED == 0
+  uint16_t bit0Duty;
+  uint16_t bit1Duty;
+#endif
+#if DSHOT_BIDIR
+  /**
+   * @brief object managing capture of erpm frame 
+   *	    using timer in input capture mode dans one dma stream 
+   *        for each channels
+   */
+  DshotRpmCapture rpm_capture;
+  /**
+   * @brief object managing decoding of erpm frame
+   */
+  DshotErps	  erps;
+  /**
+   * @brief half decoded rpms frame
+   */
+  uint32_t	  rpms_frame[DSHOT_CHANNELS];
+#endif
+  /**
    * @brief stack working area for dshot telemetry thread
    */
   THD_WORKING_AREA(waDshotTlmRec, 512);
 
+  /**
+   * @brief object managing dma control frame for outgoing command
+   */
   DshotPackets dshotMotors;
 };
 
