@@ -9,6 +9,7 @@
       It might be required to disable by hand some PWM output to avoid conflicts when they are activated by default on a board.
       Currently only implemented over ChibiOS.
     </description>
+    <configure name="DSHOT_BIDIR" value="FALSE" description="Bidirectionnal DSHOT for fast rpm feedback"/>
     <define name="DSHOT_SPEED" value="600" description="DSHOT speed (150,300,600,1200)"/>
   </doc>
   <dep>
@@ -19,8 +20,15 @@
     <file name="actuators_dshot.h"/>
   </header>
   <makefile>
+    <configure name="DSHOT_BIDIR" default="FALSE"/>
+    <define name="DSHOT_BIDIR" value="$(DSHOT_BIDIR)"/>
+    <define name="USE_GPT7" value="TRUE" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
     <file_arch name="actuators_dshot_arch.c"/>
     <file_arch name="esc_dshot.c" cond="ifeq ($(RTOS),chibios)"/>
+    <file_arch name="dshot_rpmCapture.c" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+    <file_arch name="dshot_erps.c" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+    <file_arch name="inputCapture.c" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+    <file_arch name="timerDmaCache.c" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>
     <test/>
   </makefile>
