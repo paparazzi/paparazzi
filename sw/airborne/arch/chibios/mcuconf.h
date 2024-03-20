@@ -24,10 +24,10 @@
 
 #include "board.h"
 
-#if defined(STM32H7XX)
+#if defined(MCUCONF_H7)
 #include "mcuconf_h7.h"
 #else
-#error "Unsupported MCU"
+#include "mcuconf_board.h"
 #endif
 
 #endif /* MCUCONF_H */

@@ -56,7 +56,7 @@ RADIO_CONTROL_LED  ?= none
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
-SYS_TIME_LED       ?= 6
+SYS_TIME_LED       ?= 4
 
 #
 # default UART configuration (modem, gps, spektrum)
