@@ -395,6 +395,18 @@
 #define IMU_ICM42688_ID 24
 #endif
 
+#ifndef IMU_PIXHAWK1_ID
+#define IMU_PIXHAWK1_ID 25
+#endif
+
+#ifndef IMU_PIXHAWK2_ID
+#define IMU_PIXHAWK2_ID 26
+#endif
+
+#ifndef IMU_PIXHAWK3_ID
+#define IMU_PIXHAWK3_ID 27
+#endif
+
 // prefiltering with OneEuro filter
 #ifndef IMU_F1E_ID
 #define IMU_F1E_ID 30
