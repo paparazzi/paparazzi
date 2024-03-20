@@ -1,4 +1,4 @@
-#include "inputCapture.h"
+#include "mcu_periph/input_capture_arch.h"
 
 
 enum  TimICChannel {TIMIC_CH1=1<<0, TIMIC_CH2=1<<1, TIMIC_CH3=1<<2, TIMIC_CH4=1<<3};

@@ -361,7 +361,7 @@ void actuators_dshot_arch_commit(void)
 
   struct act_feedback_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
-    feedback[i].idx = ACTUATORS_DSHOT_OFFSET + i;
+    feedback[i].idx = get_servo_idx_DSHOT(i);
     if (actuators_dshot_values[i].activated) {
       DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel-1);
       feedback[i].rpm = dtelem.frame.rpm;
