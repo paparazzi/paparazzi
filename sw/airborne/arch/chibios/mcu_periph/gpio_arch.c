@@ -58,6 +58,10 @@ void gpio_setup_input_pulldown(ioportid_t port, uint16_t gpios)
   chSysUnlock();
 }
 
+void gpio_setup_pin_af_pullup(ioportid_t port, uint16_t pin, uint8_t af) {
+  palSetPadMode(port, pin, PAL_MODE_ALTERNATE(af) | PAL_STM32_PUPDR_PULLUP);
+}
+
 void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output)
 {
   chSysLock();
