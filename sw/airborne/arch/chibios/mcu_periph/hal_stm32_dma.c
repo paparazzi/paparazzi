@@ -27,6 +27,7 @@
  */
 
 #include "hal_stm32_dma.h"
+#include "string.h"
 
 /*
 TODO :
@@ -42,6 +43,15 @@ TODO :
 */
 
 
+#if (! STM32_DMA_ADVANCED) && STM32_DMA_USE_DOUBLE_BUFFER
+#error "STM32_DMA_USE_DOUBLE_BUFFER only available on DMAv2" 
+#endif
+
+#if (STM32_DMA_USE_ASYNC_TIMOUT) && STM32_DMA_USE_DOUBLE_BUFFER
+#error "STM32_DMA_USE_DOUBLE_BUFFER only not yet compatible with STM32_DMA_USE_ASYNC_TIMOUT"
+#endif
+
+
 /**
  * @brief   DMA ISR service routine.
  *
@@ -49,9 +59,12 @@ TODO :
  * @param[in] flags     pre-shifted content of the ISR register
  */
 static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags);
+
+#if STM32_DMA_ADVANCED
 static inline uint32_t getFCR_FS(const DMADriver *dmap) {
   return (dmap->dmastream->stream->FCR & DMA_SxFCR_FS_Msk);
 }
+#endif
 
 void dmaObjectInit(DMADriver *dmap)
 {
@@ -92,13 +105,53 @@ void dmaObjectInit(DMADriver *dmap)
 bool dmaStart(DMADriver *dmap, const DMAConfig *cfg)
 {
   osalDbgCheck((dmap != NULL) && (cfg != NULL));
+  #if STM32_DMA_USE_DOUBLE_BUFFER
+  osalDbgAssert((cfg->op_mode != DMA_CONTINUOUS_DOUBLE_BUFFER) || (!STM32_DMA_USE_ASYNC_TIMOUT),
+                "STM32_DMA_USE_ASYNC_TIMOUT not yet implemented in DMA_CONTINUOUS_DOUBLE_BUFFER mode");
 
+  osalDbgAssert((cfg->op_mode != DMA_CONTINUOUS_DOUBLE_BUFFER) || (cfg->next_cb != NULL),
+                "DMA_CONTINUOUS_DOUBLE_BUFFER mode implies next_cb not NULL");
+#endif
   osalSysLock();
   osalDbgAssert((dmap->state == DMA_STOP) || (dmap->state == DMA_READY),
                 "invalid state");
   dmap->config = cfg;
-  const bool statusOk = dma_lld_start(dmap);
+  const bool statusOk = dma_lld_start(dmap, true);
   dmap->state = DMA_READY;
+  #if  STM32_DMA_USE_DOUBLE_BUFFER
+  dmap->next_cb_errors = 0U;
+#endif  
+  osalSysUnlock();
+  return statusOk;
+}
+
+/**
+ * @brief   Configures and activates the DMA peripheral.
+ *
+ * @param[in] dmap      pointer to the @p DMADriver object
+ * @param[in] config    pointer to the @p DMAConfig object.
+ * @return              The operation result.
+ * @retval true         dma driver is OK
+ * @retval false        incoherencies has been found in config
+ * @api
+ */
+bool dmaReloadConf(DMADriver *dmap, const DMAConfig *cfg)
+{
+  osalDbgCheck((dmap != NULL) && (cfg != NULL));
+#if STM32_DMA_USE_DOUBLE_BUFFER
+  osalDbgAssert((cfg->op_mode != DMA_CONTINUOUS_DOUBLE_BUFFER) || (!STM32_DMA_USE_ASYNC_TIMOUT),
+                "STM32_DMA_USE_ASYNC_TIMOUT not yet implemented in DMA_CONTINUOUS_DOUBLE_BUFFER mode");
+
+  osalDbgAssert((cfg->op_mode != DMA_CONTINUOUS_DOUBLE_BUFFER) || (cfg->next_cb != NULL),
+                "DMA_CONTINUOUS_DOUBLE_BUFFER mode implies next_cb not NULL");
+#endif
+  osalSysLock();
+  osalDbgAssert(dmap->state == DMA_READY, "invalid state");
+  dmap->config = cfg;
+  const bool statusOk = dma_lld_start(dmap, false);
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+  dmap->next_cb_errors = 0U;
+#endif  
   osalSysUnlock();
   return statusOk;
 }
@@ -115,16 +168,15 @@ void dmaStop(DMADriver *dmap)
 {
   osalDbgCheck(dmap != NULL);
 
-  osalSysLock();
-
   osalDbgAssert((dmap->state == DMA_STOP) || (dmap->state == DMA_READY),
                 "invalid state");
 
   dma_lld_stop(dmap);
+
+  osalSysLock();
   dmap->config = NULL;
   dmap->state  = DMA_STOP;
   dmap->mem0p   = NULL;
-
   osalSysUnlock();
 }
 
@@ -174,10 +226,21 @@ bool dmaStartTransfert(DMADriver *dmap, volatile void *periphp,  void * mem0p, c
 bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  void *  mem0p, const size_t size)
 {
   osalDbgCheckClassI();
+
+  #if STM32_DMA_USE_DOUBLE_BUFFER
+  if (dmap->config->op_mode == DMA_CONTINUOUS_DOUBLE_BUFFER) {
+    osalDbgAssert(mem0p == NULL,
+		  "in double buffer mode memory pointer is dynamically completed by next_cb callback");
+    mem0p = dmap->config->next_cb(dmap, size);    
+  }
+#endif
+
 #if (CH_DBG_ENABLE_ASSERTS != FALSE)
   if (size != dmap->size) {
     osalDbgCheck((dmap != NULL) && (mem0p != NULL) && (periphp != NULL) &&
-		 (size > 0U) && ((size == 1U) || ((size & 1U) == 0U)));
+		 (size > 0U) && ((size == 1U) ||
+				 ((dmap->config->op_mode != DMA_CONTINUOUS_HALF_BUFFER) ||
+				  (((size & 1U) == 0U)))));
 
     const DMAConfig	    *cfg = dmap->config;
     osalDbgAssert((dmap->state == DMA_READY) ||
@@ -223,12 +286,15 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  void *  mem0p,
       osalDbgAssert((((uint32_t) periphp) % cfg->pburst) == 0,
 		    "peripheral address alignment rule not respected");
    }
-
-
+    if (cfg->periph_inc_size_4) {
+      osalDbgAssert(cfg->inc_peripheral_addr,
+		    "periph_inc_size_4 implies enabling inc_peripheral_addr");
+      osalDbgAssert(cfg->fifo,
+		    "periph_inc_size_4 implies enabling fifo");
+    }
 
 # endif //  STM32_DMA_ADVANCED
   }
-
 #endif // CH_DBG_ENABLE_ASSERTS != FALSE
   dmap->state    = DMA_ACTIVE;
 
@@ -243,6 +309,76 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  void *  mem0p,
   return dma_lld_start_transfert(dmap, periphp, mem0p, size);
 }
 
+/**
+ * @brief   copy the dma register to memory.
+ * @details mainly used to preapare mdma linked list chained 
+ *          transferts
+ *
+ * @param[in]      dmap      pointer to the @p DMADriver object
+ * @param[in,out]  periphp   pointer to a @p peripheral register address
+ * @param[in,out]  mem0p     pointer to the data buffer
+ * @param[in]      size      buffer size. The buffer size
+ *                           must be one or an even number.
+ * @param[out]     registers pointer to structure representing 
+                             a DMA stream set of registers
+ *
+ * @iclass
+ */
+#ifndef DMA_request_TypeDef
+void  dmaGetRegisters(DMADriver *dmap, volatile void *periphp, void *mem0p,
+		      const size_t size,
+		      DMA_Stream_TypeDef *registers)
+{
+#if STM32_DMA_USE_DOUBLE_BUFFER
+  if (dmap->config->op_mode == DMA_CONTINUOUS_DOUBLE_BUFFER) {
+    osalDbgAssert(mem0p == NULL,
+		  "in double buffer mode memory pointer is dynamically completed by next_cb callback");
+    mem0p = dmap->config->next_cb(dmap, size);    
+  }
+#endif
+  
+#if (CH_DBG_ENABLE_ASSERTS != FALSE)
+  osalDbgCheck((dmap != NULL) && (mem0p != NULL) && (periphp != NULL) &&
+	       (size > 0U) && ((size == 1U) ||
+			       ((dmap->config->op_mode != DMA_CONTINUOUS_HALF_BUFFER) ||
+				(((size & 1U) == 0U)))));
+  
+  const DMAConfig	    *cfg = dmap->config;
+  osalDbgAssert(dmap->state == DMA_READY,  "not ready");
+  osalDbgAssert((uint32_t) periphp % cfg->psize == 0,
+		"peripheral address not aligned");
+
+  osalDbgAssert((uint32_t) mem0p % cfg->msize == 0,
+		"memory address not aligned");
+
+# if  STM32_DMA_ADVANCED
+  if (cfg->mburst) {
+    osalDbgAssert((size % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
+		  "mburst alignment rule not respected");
+    osalDbgAssert((size % (cfg->mburst * cfg->msize)) == 0,
+		  "mburst alignment rule not respected");
+    osalDbgAssert((((uint32_t) mem0p) % cfg->mburst) == 0,
+		  "memory address alignment rule not respected");
+  }
+  if (cfg->pburst) {
+    osalDbgAssert((size % (cfg->pburst * cfg->psize)) == 0,
+		  "pburst alignment rule not respected");
+    osalDbgAssert((((uint32_t) periphp) % cfg->pburst) == 0,
+		  "peripheral address alignment rule not respected");
+  }
+  if (cfg->periph_inc_size_4) {
+    osalDbgAssert(cfg->inc_peripheral_addr,
+		  "periph_inc_size_4 implies enabling inc_peripheral_addr");
+    osalDbgAssert(cfg->fifo,
+		  "periph_inc_size_4 implies enabling fifo");
+  }
+  
+# endif //  STM32_DMA_ADVANCED
+#endif // CH_DBG_ENABLE_ASSERTS != FALSE
+
+  dma_lld_get_registers(dmap, periphp, mem0p, size, registers);
+}
+#endif
 
 /**
  * @brief   Stops an ongoing transaction.
@@ -297,7 +433,15 @@ void dmaStopTransfertI(DMADriver *dmap)
     dmap->state = DMA_READY;
     _dma_reset_i(dmap);
   }
+}
 
+uint8_t dmaGetStreamIndex(DMADriver *dmap)
+{
+  for(uint8_t i = 0; i < 16; i++) {
+    if (dmap->dmastream == STM32_DMA_STREAM(i))
+      return i;
+  }
+  return 0xff;
 }
 
 #if (STM32_DMA_USE_WAIT == TRUE) || defined(__DOXYGEN__)
@@ -332,7 +476,7 @@ msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void *mem0p, 
 
   osalSysLock();
   osalDbgAssert(dmap->thread == NULL, "already waiting");
-  osalDbgAssert(dmap->config->circular == false, "blocking API is incompatible with circular mode");
+  osalDbgAssert(dmap->config->op_mode == DMA_ONESHOT, "blocking API is incompatible with circular modes");
   dmaStartTransfertI(dmap, periphp, mem0p, size);
   msg = osalThreadSuspendTimeoutS(&dmap->thread, timeout);
   if (msg != MSG_OK) {
@@ -398,7 +542,6 @@ void dmaReleaseBus(DMADriver *dmap)
 #                |_____/   |_|    |_|    \_/    \___| |_|
 */
 
-
 /**
  * @brief   Configures and activates the DMA peripheral.
  *
@@ -406,12 +549,13 @@ void dmaReleaseBus(DMADriver *dmap)
  *
  * @notapi
  */
-bool dma_lld_start(DMADriver *dmap)
+bool dma_lld_start(DMADriver *dmap, bool allocate_stream)
 {
   uint32_t psize_msk, msize_msk;
 
   const DMAConfig *cfg = dmap->config;
-
+  osalDbgAssert(PORT_IRQ_IS_VALID_KERNEL_PRIORITY(cfg->irq_priority),
+		"illegal IRQ priority");
   switch (cfg->psize) {
     case 1 : psize_msk = STM32_DMA_CR_PSIZE_BYTE; break;
     case 2 : psize_msk = STM32_DMA_CR_PSIZE_HWORD; break;
@@ -435,14 +579,15 @@ bool dma_lld_start(DMADriver *dmap)
     default: osalDbgAssert(false, "direction not set or incorrect");
   }
 
-  uint32_t isr_flags = cfg->circular ? 0UL : STM32_DMA_CR_TCIE;
-
-  if (cfg->direction != DMA_DIR_M2M) {
-    if (cfg->end_cb) {
-      isr_flags |= STM32_DMA_CR_TCIE;
-      if (cfg->circular) {
-        isr_flags |= STM32_DMA_CR_HTIE;
-      }
+  uint32_t isr_flags = cfg->op_mode == DMA_ONESHOT ? STM32_DMA_CR_TCIE : 0UL;
+  
+  // in M2M mode, half buffer transfert ISR is disabled, but
+  // full buffer transfert complete ISR is enabled
+  if (cfg->end_cb) {
+    isr_flags |= STM32_DMA_CR_TCIE;
+    if ((cfg->direction != DMA_DIR_M2M) &&
+	(cfg->op_mode == DMA_CONTINUOUS_HALF_BUFFER)) {
+      isr_flags |= STM32_DMA_CR_HTIE;
     }
   }
 
@@ -464,10 +609,13 @@ bool dma_lld_start(DMADriver *dmap)
 #endif
 
   dmap->dmamode = STM32_DMA_CR_PL(cfg->dma_priority) |
-                  dir_msk | psize_msk | msize_msk | isr_flags |
-                  (cfg->circular ? STM32_DMA_CR_CIRC : 0UL) |
-                  (cfg->inc_peripheral_addr ? STM32_DMA_CR_PINC : 0UL) |
-                  (cfg->inc_memory_addr ? STM32_DMA_CR_MINC : 0UL)
+    dir_msk | psize_msk | msize_msk | isr_flags |
+    (cfg->op_mode == DMA_CONTINUOUS_HALF_BUFFER ? STM32_DMA_CR_CIRC : 0UL) |
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+    (cfg->op_mode == DMA_CONTINUOUS_DOUBLE_BUFFER ? STM32_DMA_CR_DBM : 0UL) |
+#endif
+    (cfg->inc_peripheral_addr ? STM32_DMA_CR_PINC : 0UL) |
+    (cfg->inc_memory_addr ? STM32_DMA_CR_MINC : 0UL)
 
 #if STM32_DMA_SUPPORTS_CSELR
                   | STM32_DMA_CR_CHSEL(cfg->request)
@@ -476,7 +624,7 @@ bool dma_lld_start(DMADriver *dmap)
                   | STM32_DMA_CR_CHSEL(cfg->channel)
 #endif
                   | (cfg->periph_inc_size_4 ? STM32_DMA_CR_PINCOS : 0UL) |
-                  (cfg->transfert_end_ctrl_by_periph ? STM32_DMA_CR_PFCTRL : 0UL)
+                  (cfg->transfert_end_ctrl_by_periph? STM32_DMA_CR_PFCTRL : 0UL)
 #   endif
                   ;
 
@@ -504,7 +652,7 @@ bool dma_lld_start(DMADriver *dmap)
     case 1 : fifo_msk = STM32_DMA_FCR_FTH_1Q; break;
     case 2 : fifo_msk  = STM32_DMA_FCR_FTH_HALF; break;
     case 3 : fifo_msk  = STM32_DMA_FCR_FTH_3Q;  break;
-    case 4 : fifo_msk =  STM32_DMA_FCR_FTH_FULL; ; break;
+    case 4 : fifo_msk =  STM32_DMA_FCR_FTH_FULL; break;
     default: osalDbgAssert(false, "fifo threshold should be 1(/4) or 2(/4) or 3(/4) or 4(/4)");
       return false;
   }
@@ -515,103 +663,108 @@ bool dma_lld_start(DMADriver *dmap)
   osalDbgAssert(dmap->config->timeout != 0,
                 "timeout cannot be 0 if STM32_DMA_USE_ASYNC_TIMOUT is enabled");
   osalDbgAssert(!((dmap->config->timeout != TIME_INFINITE) && (dmap->config->fifo != 0)),
-                "timeout should be dynamicly disabled (dmap->config->timeout = TIME_INFINITE) "
+                "timeout should be dynamically disabled (dmap->config->timeout = TIME_INFINITE) "
                 "if STM32_DMA_USE_ASYNC_TIMOUT is enabled and fifo is enabled (fifo != 0)");
 
 #   endif
 
 
   // lot of combination of parameters are forbiden, and some conditions must be meet
-  if (!cfg->msize !=  !cfg->psize) {
-    osalDbgAssert(false, "psize and msize should be enabled or disabled together");
+  if (!cfg->mburst !=  !cfg->pburst) {
+    osalDbgAssert(false, "pburst and mburst should be enabled or disabled together");
     return false;
   }
 
-  if (cfg->fifo) {
-    switch (cfg->msize) {
-    case 1: // msize 1
-      switch (cfg->mburst) {
-      case 4 : // msize 1 mburst 4
-	switch (cfg->fifo) {
-	case 1: break; // msize 1 mburst 4 fifo 1/4
-	case 2: break; // msize 1 mburst 4 fifo 2/4
-	case 3: break; // msize 1 mburst 4 fifo 3/4
-	case 4: break; // msize 1 mburst 4 fifo 4/4
-	}
-	break;
-      case 8 : // msize 1 mburst 8
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination;  // msize 1 mburst 8 fifo 1/4
-	case 2: break;			    // msize 1 mburst 8 fifo 2/4
-	case 3: goto forbiddenCombination;  // msize 1 mburst 8 fifo 3/4
-	case 4: break;			    // msize 1 mburst 8 fifo 4/4
-	}
-	break;
-      case 16 :  // msize 1 mburst 16
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 1 mburst 16 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 1 mburst 16 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 1 mburst 16 fifo 3/4
-	case 4: break;			   // msize 1 mburst 16 fifo 4/4
-	}
-	break;
-      }
-      break;
-    case 2: // msize 2
-      switch (cfg->mburst) {
-      case 4 : // msize 2 mburst 4
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 2 mburst 4 fifo 1/4
-	case 2: break;			   // msize 2 mburst 4 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 2 mburst 4 fifo 3/4
-	case 4: break;			   // msize 2 mburst 4 fifo 4/4
-	}
-	break;
-      case 8 :
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 2 mburst 8 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 2 mburst 8 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 2 mburst 8 fifo 3/4
-	case 4: break;			   // msize 2 mburst 8 fifo 4/4
-	}
-	break;
-      case 16 :
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 2 mburst 16 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 2 mburst 16 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 2 mburst 16 fifo 3/4
-	case 4: goto forbiddenCombination; // msize 2 mburst 16 fifo 4/4
-	}
-      }
-      break;
-    case 4:
-      switch (cfg->mburst) {
-      case 4 :
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 4 mburst 4 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 4 mburst 4 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 4 mburst 4 fifo 3/4
-	case 4: break;			   // msize 4 mburst 4 fifo 4/4
-	}
-	break;
-      case 8 :
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 4 mburst 8 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 4 mburst 8 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 4 mburst 8 fifo 3/4
-	case 4: goto forbiddenCombination; // msize 4 mburst 8 fifo 4/4
-	}
-	break;
-      case 16 :
-	switch (cfg->fifo) {
-	case 1: goto forbiddenCombination; // msize 4 mburst 16 fifo 1/4
-	case 2: goto forbiddenCombination; // msize 4 mburst 16 fifo 2/4
-	case 3: goto forbiddenCombination; // msize 4 mburst 16 fifo 3/4
-	case 4: goto forbiddenCombination; // msize 4 mburst 16 fifo 4/4
-	}
-      }
-    }
+  // from RM0090, Table 48. FIFO threshold configurations
+  if (cfg->fifo && cfg->mburst) {
+    const size_t fifo_level = cfg->fifo * 4U;
+    osalDbgAssert(fifo_level % (cfg->mburst * cfg->msize) == 0, "threshold combination forbidden");
   }
+  // if (cfg->fifo) {
+  //   switch (cfg->msize) {
+  //   case 1: // msize 1
+  //     switch (cfg->mburst) {
+  //     case 4 : // msize 1 mburst 4
+	// switch (cfg->fifo) {
+	// case 1: break; // msize 1 mburst 4 fifo 1/4
+	// case 2: break; // msize 1 mburst 4 fifo 2/4
+	// case 3: break; // msize 1 mburst 4 fifo 3/4
+	// case 4: break; // msize 1 mburst 4 fifo 4/4
+	// }
+	// break;
+  //     case 8 : // msize 1 mburst 8
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination;  // msize 1 mburst 8 fifo 1/4
+	// case 2: break;			    // msize 1 mburst 8 fifo 2/4
+	// case 3: goto forbiddenCombination;  // msize 1 mburst 8 fifo 3/4
+	// case 4: break;			    // msize 1 mburst 8 fifo 4/4
+	// }
+	// break;
+  //     case 16 :  // msize 1 mburst 16
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 1 mburst 16 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 1 mburst 16 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 1 mburst 16 fifo 3/4
+	// case 4: break;			   // msize 1 mburst 16 fifo 4/4
+	// }
+	// break;
+  //     }
+  //     break;
+  //   case 2: // msize 2
+  //     switch (cfg->mburst) {
+  //     case 4 : // msize 2 mburst 4
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 2 mburst 4 fifo 1/4
+	// case 2: break;			   // msize 2 mburst 4 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 2 mburst 4 fifo 3/4
+	// case 4: break;			   // msize 2 mburst 4 fifo 4/4
+	// }
+	// break;
+  //     case 8 :
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 2 mburst 8 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 2 mburst 8 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 2 mburst 8 fifo 3/4
+	// case 4: break;			   // msize 2 mburst 8 fifo 4/4
+	// }
+	// break;
+  //     case 16 :
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 2 mburst 16 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 2 mburst 16 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 2 mburst 16 fifo 3/4
+	// case 4: goto forbiddenCombination; // msize 2 mburst 16 fifo 4/4
+	// }
+  //     }
+  //     break;
+  //   case 4:
+  //     switch (cfg->mburst) {
+  //     case 4 :
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 4 mburst 4 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 4 mburst 4 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 4 mburst 4 fifo 3/4
+	// case 4: break;			   // msize 4 mburst 4 fifo 4/4
+	// }
+	// break;
+  //     case 8 :
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 4 mburst 8 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 4 mburst 8 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 4 mburst 8 fifo 3/4
+	// case 4: goto forbiddenCombination; // msize 4 mburst 8 fifo 4/4
+	// }
+	// break;
+  //     case 16 :
+	// switch (cfg->fifo) {
+	// case 1: goto forbiddenCombination; // msize 4 mburst 16 fifo 1/4
+	// case 2: goto forbiddenCombination; // msize 4 mburst 16 fifo 2/4
+	// case 3: goto forbiddenCombination; // msize 4 mburst 16 fifo 3/4
+	// case 4: goto forbiddenCombination; // msize 4 mburst 16 fifo 4/4
+	// }
+  //     }
+  //   }
+  // }
 # endif
 
   dmap->dmamode |= (pburst_msk | mburst_msk);
@@ -625,8 +778,7 @@ bool dma_lld_start(DMADriver *dmap)
     avoid permanent underrun or overrun conditions, depending on the DMA stream direction:
     If (PBURST × PSIZE) = FIFO_SIZE (4 words), FIFO_Threshold = 3/4 is forbidden
   */
-
-  if (((cfg->pburst * cfg->psize) == STM32_DMA_FIFO_SIZE) && (cfg->fifo == 3)) {
+  if ( ((cfg->pburst * cfg->psize) == STM32_DMA_FIFO_SIZE) && (cfg->fifo == 3)) {
     goto forbiddenCombination;
   }
 
@@ -634,14 +786,11 @@ bool dma_lld_start(DMADriver *dmap)
     When memory-to-memory mode is used, the Circular and direct modes are not allowed.
     Only the DMA2 controller is able to perform memory-to-memory transfers.
   */
-
 #if STM32_DMA_SUPPORTS_DMAMUX == 0
   if (cfg->direction == DMA_DIR_M2M) {
     osalDbgAssert(dmap->controller == 2, "M2M not available on DMA1");
-    osalDbgAssert(cfg->circular == false, "M2M not available in circular mode");
   }
 #endif
-
 
 #  endif
 #endif
@@ -650,30 +799,30 @@ bool dma_lld_start(DMADriver *dmap)
   if (cfg->fifo) {
     dmap->fifomode = STM32_DMA_FCR_DMDIS | STM32_DMA_FCR_FEIE | fifo_msk;
   } else {
-    osalDbgAssert(cfg->direction != DMA_DIR_M2M, "fifo mode mandatory for M2M");
     osalDbgAssert(cfg->psize == cfg->msize,
 		  "msize == psize is mandatory when fifo is disabled");
     dmap->fifomode = 0U;
   }
 #endif
 
+  if (allocate_stream == true) {
 #if CH_KERNEL_MAJOR < 6
-  const bool error = dmaStreamAllocate( dmap->dmastream,
-					cfg->irq_priority,
-					(stm32_dmaisr_t) &dma_lld_serve_interrupt,
-					(void *) dmap );
+    const bool error = dmaStreamAllocate( dmap->dmastream,
+            cfg->irq_priority,
+            (stm32_dmaisr_t) &dma_lld_serve_interrupt,
+            (void *) dmap );
 #else
-  dmap->dmastream = dmaStreamAllocI(dmap->config->stream,
-				    cfg->irq_priority,
-				    (stm32_dmaisr_t) &dma_lld_serve_interrupt,
-				    (void *) dmap );
-  bool error = dmap->dmastream == NULL;
+    dmap->dmastream = dmaStreamAllocI(dmap->config->stream,
+              cfg->irq_priority,
+              (stm32_dmaisr_t) &dma_lld_serve_interrupt,
+              (void *) dmap );
+    const bool error = dmap->dmastream == NULL;
 #endif
-  if (error) {
-    osalDbgAssert(false, "stream already allocated");
-    return false;
+    if (error) {
+      osalDbgAssert(false, "stream already allocated");
+      return false;
+    }
   }
-
   return true;
 
 #if (CH_DBG_ENABLE_ASSERTS != FALSE)
@@ -686,7 +835,58 @@ forbiddenCombination:
 #endif
 }
 
+static inline size_t getCrossCacheBoundaryAwareSize(const void *memp,
+						    const size_t dsize)
+{
+  // L1 cache on F7 and H7 is organised of line of 32 bytes
+  // returned size is not 32 bytes aligned by a mask operation
+  // because cache management does internal mask and this operation
+  // would be useless
 
+#if defined CACHE_LINE_SIZE && CACHE_LINE_SIZE != 0
+  const uint32_t endp = ((uint32_t) memp % CACHE_LINE_SIZE  +
+			 dsize % CACHE_LINE_SIZE );
+  return endp < CACHE_LINE_SIZE  ? dsize + CACHE_LINE_SIZE  :
+    dsize + CACHE_LINE_SIZE *2U;
+#else
+  (void) memp;
+  return dsize;
+#endif
+}
+
+/**
+ * @brief   Copy the register of a ready stream
+ *
+ * @param[in] dmap      pointer to the @p DMADriver object
+ * @note : main use is preparing link list of transactions for mdma use
+ * @notapi
+ */
+#ifndef DMA_request_TypeDef
+void  dma_lld_get_registers(DMADriver *dmap, volatile void *periphp,
+			    void *mem0p, const size_t size,
+			    DMA_Stream_TypeDef *registers)
+{
+  dmaStreamSetPeripheral(dmap->dmastream, periphp);
+#if STM32_DMA_SUPPORTS_DMAMUX
+    dmaSetRequestSource(dmap->dmastream, dmap->config->dmamux);
+#endif
+
+  dmaStreamSetMemory0(dmap->dmastream, mem0p);
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+  if (dmap->config->op_mode == DMA_CONTINUOUS_DOUBLE_BUFFER) {
+    dmaStreamSetMemory1(dmap->dmastream, dmap->config->next_cb(dmap, size));
+  }
+#endif
+  dmaStreamSetTransactionSize(dmap->dmastream, size);
+  dmaStreamSetMode(dmap->dmastream, dmap->dmamode);
+#if STM32_DMA_ADVANCED
+  dmaStreamSetFIFO(dmap->dmastream, dmap->fifomode);
+#endif
+
+  memcpy(registers, dmap->dmastream->stream, sizeof(DMA_Stream_TypeDef));
+  registers->CR |= STM32_DMA_CR_EN;
+}
+#endif
 /**
  * @brief   Starts a DMA transaction.
  *
@@ -696,12 +896,12 @@ forbiddenCombination:
  */
 bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
 {
-  const DMAConfig *cfg = dmap->config;
-  osalDbgAssert(PORT_IRQ_IS_VALID_KERNEL_PRIORITY(cfg->irq_priority), "illegal IRQ priority");
 #if __DCACHE_PRESENT
-  if (dmap->config->dcache_memory_in_use &&
+  if (dmap->config->activate_dcache_sync &&
       (dmap->config->direction != DMA_DIR_P2M)) {
-    cacheBufferFlush(mem0p, size * dmap->config->msize);
+    const size_t cacheSize = getCrossCacheBoundaryAwareSize(mem0p,
+						    size * dmap->config->msize);
+    cacheBufferFlush(mem0p, cacheSize);
   }
 #endif
   dmap->mem0p = mem0p;
@@ -713,7 +913,13 @@ bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0
 #if STM32_DMA_SUPPORTS_DMAMUX
   dmaSetRequestSource(dmap->dmastream, dmap->config->dmamux);
 #endif
+
   dmaStreamSetMemory0(dmap->dmastream, mem0p);
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+  if (dmap->config->op_mode == DMA_CONTINUOUS_DOUBLE_BUFFER) {
+    dmaStreamSetMemory1(dmap->dmastream, dmap->config->next_cb(dmap, size));
+  }
+#endif
   dmaStreamSetTransactionSize(dmap->dmastream, size);
   dmaStreamSetMode(dmap->dmastream, dmap->dmamode);
 #if STM32_DMA_ADVANCED
@@ -767,21 +973,29 @@ static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags)
 {
 
   /* DMA errors handling.*/
-#if CH_DBG_SYSTEM_STATE_CHECK
+#if CH_DBG_SYSTEM_STATE_CHECK && STM32_DMA_ADVANCED
   const uint32_t feif_msk = dmap->config->fifo != 0U ? STM32_DMA_ISR_FEIF : 0U;
 #else
-  static const uint32_t feif_msk = 0U;
+  const uint32_t feif_msk = 0U;
 #endif
   //const uint32_t feif_msk = STM32_DMA_ISR_FEIF;
   if ((flags & (STM32_DMA_ISR_TEIF | STM32_DMA_ISR_DMEIF | feif_msk)) != 0U) {
     /* DMA, this could help only if the DMA tries to access an unmapped
        address space or violates alignment rules.*/
-    const dmaerrormask_t err =
+    dmaerrormask_t err =
       ( (flags & STM32_DMA_ISR_TEIF)  ? DMA_ERR_TRANSFER_ERROR : 0UL) |
-      ( (flags & STM32_DMA_ISR_DMEIF) ? DMA_ERR_DIRECTMODE_ERROR : 0UL) |
-      ( (flags & feif_msk)  ? DMA_ERR_FIFO_ERROR : 0UL) |
-      ( getFCR_FS(dmap) == (0b100 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_EMPTY: 0UL) |
-      ( getFCR_FS(dmap) == (0b101 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_FULL: 0UL);
+      ( (flags & STM32_DMA_ISR_DMEIF) ? DMA_ERR_DIRECTMODE_ERROR : 0UL);
+
+    if (dmap->config->fifo != 0U) {
+#if STM32_DMA_ADVANCED
+      dmaerrormask_t fserr = 
+	( (flags & feif_msk)  ? DMA_ERR_FIFO_ERROR : 0UL) |
+	( getFCR_FS(dmap) == (0b100 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_EMPTY: 0UL) |
+	( getFCR_FS(dmap) == (0b101 << DMA_SxFCR_FS_Pos) ? DMA_ERR_FIFO_FULL: 0UL) ;
+      err |= fserr;
+#endif
+    }
+
 
     _dma_isr_error_code(dmap, err);
   } else {
@@ -789,16 +1003,23 @@ static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags)
        DMA error handler, in this case this interrupt is spurious.*/
     if (dmap->state == DMA_ACTIVE) {
 #if __DCACHE_PRESENT
-      if (dmap->config->dcache_memory_in_use)
+      if (dmap->config->activate_dcache_sync)
 	  switch (dmap->config->direction) {
 	  case DMA_DIR_M2P : break;
-	  case DMA_DIR_P2M :
-	    cacheBufferInvalidate(dmap->mem0p,
-				  dmap->size * dmap->config->msize);
+	  case DMA_DIR_P2M : if (dmap->mem0p >= (void *) 0x20000000) {
+	      const size_t cacheSize =
+		getCrossCacheBoundaryAwareSize(dmap->mem0p, dmap->size *
+					       dmap->config->msize);
+	      cacheBufferInvalidate(dmap->mem0p, cacheSize);
+	    }
 	    break;
-	  case DMA_DIR_M2M :
-	    cacheBufferInvalidate(dmap->periphp,
-				  dmap->size * dmap->config->msize);
+
+	  case DMA_DIR_M2M :  if (dmap->periphp >=  (void *) 0x20000000) {
+	      const size_t cacheSize =
+		getCrossCacheBoundaryAwareSize((void *) dmap->periphp,
+					       dmap->size * dmap->config->psize);
+	      cacheBufferInvalidate(dmap->periphp, cacheSize);
+	    }
 	    break;
       }
 #endif
@@ -823,12 +1044,40 @@ static void dma_lld_serve_interrupt(DMADriver *dmap, uint32_t flags)
 void dma_lld_serve_timeout_interrupt(void *arg)
 {
   DMADriver *dmap = (DMADriver *) arg;
-  if (dmap->config->circular) {
+  if (dmap->config->op_mode != DMA_ONESHOT) {
     chSysLockFromISR();
     chVTSetI(&dmap->vt, dmap->config->timeout,
              &dma_lld_serve_timeout_interrupt, (void *) dmap);
     chSysUnlockFromISR();
   }
   async_timout_enabled_call_end_cb(dmap, FROM_TIMOUT_CODE);
+}
+#endif
+
+#if  STM32_DMA_USE_DOUBLE_BUFFER
+/**
+ * @brief   Common ISR code, switch memory pointer in double buffer mode
+ * @note    This macro is meant to be used in the low level drivers
+ *          implementation only. This function must be called as soon as
+ *          DMA has switched buffer.
+ *
+ * @param[in] dmap        pointer to the @p DMADriver object
+ * @param[in] nextBuffer  pointer to a buffer that is set in MEM0xP or MEM1xP
+ *			  the one which is not occupied beeing filled
+ *                        by DMA.
+ * @notapi
+ */
+void* dma_lld_set_next_double_buffer(DMADriver *dmap, void *nextBuffer)
+{
+  void *lastBuffer;
+
+  if (dmaStreamGetCurrentTarget(dmap->dmastream)) {
+    lastBuffer = (void *) dmap->dmastream->stream->M0AR;
+    dmap->dmastream->stream->M0AR = (uint32_t) nextBuffer;
+  } else {
+    lastBuffer = (void *) dmap->dmastream->stream->M1AR;
+    dmap->dmastream->stream->M1AR = (uint32_t) nextBuffer;
+  }
+  return lastBuffer;
 }
 #endif
