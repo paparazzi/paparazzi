@@ -16,6 +16,7 @@
     </description>
     <configure name="DSHOT_BIDIR" value="FALSE" description="Bidirectionnal DSHOT for fast rpm feedback"/>
     <define name="DSHOT_SPEED" value="600" description="DSHOT speed (150,300,600,1200)"/>
+    <configure name="DSHOT1_GPT_TIM" value="7" description="GPT driver used for telemetry timeout"/>
   </doc>
   <dep>
     <depends>actuators,@commands</depends>
@@ -27,7 +28,9 @@
   <makefile>
     <configure name="DSHOT_BIDIR" default="FALSE"/>
     <define name="DSHOT_BIDIR" value="$(DSHOT_BIDIR)"/>
-    <define name="USE_GPT7" value="TRUE" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+    <define name="USE_GPT$(DSHOT1_GPT_TIM)" value="TRUE" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+    <define name="DSHOT1_BIDIR_GPT" value="GPTD$(DSHOT1_GPT_TIM)" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>
+
     <file_arch name="actuators_dshot_arch.c"/>
     <file_arch name="esc_dshot.c" cond="ifeq ($(RTOS),chibios)"/>
     <file_arch name="dshot_rpmCapture.c" cond="ifeq ($(DSHOT_BIDIR),TRUE)"/>

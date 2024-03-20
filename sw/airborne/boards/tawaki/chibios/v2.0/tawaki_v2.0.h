@@ -437,11 +437,9 @@
 
 #if DSHOT_BIDIR
 
-#define DSHOT_TIM3_BIDIR_GPT  &GPTD7
-
 #define DSHOT_CAPT_CONF3_DEF                     \
   .dma_capt_cfg = {                              \
-    .gptd = DSHOT_TIM3_BIDIR_GPT,                \
+    .gptd = &DSHOT1_BIDIR_GPT,                \
     .dma_streams = {DSHOTS_CAPTURE_STREAMS(3)},  \
     .dma_capture = &dshot3DmaCaptureBuffer,      \
     .dcache_memory_in_use = false,               \
@@ -495,19 +493,21 @@
 #define DSHOT_CONF_TIM1 1
 
 #if DSHOT_BIDIR
-#define DSHOT_TIM1_BIDIR_GPT  &GPTD8
+#ifndef DSHOT2_BIDIR_GPT
+#error "Select and activate DSHOT2_BIDIR_GPT for DSHOT_CONF1. Example: USE_GPT8=TRUE, DSHOT2_BIDIR_GPT=GPTD8"
+#endif
 #define DSHOT_CAPT_CONF1_DEF                     \
   .dma_capt_cfg = {                              \
-    .gptd = DSHOT_TIM1_BIDIR_GPT,                \
+    .gptd = &DSHOT2_BIDIR_GPT,                   \
     .dma_streams = {DSHOTS_CAPTURE_STREAMS(1)},  \
     .dma_capture = &dshot1DmaCaptureBuffer,      \
     .dcache_memory_in_use = false,               \
   },
 #else
-#define DSHOT_CAPT_CONF3_DEF
+#define DSHOT_CAPT_CONF1_DEF
 #endif
 
-#define DSHOT_CONF3_DEF {                 \
+#define DSHOT_CONF1_DEF {                 \
   .dma_stream = STM32_DMA_STREAM_ID_ANY,  \
   .dmamux = STM32_DMAMUX1_TIM1_UP,        \
   .pwmp = &PWMD1,                         \
