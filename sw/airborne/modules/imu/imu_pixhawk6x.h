@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Gautier Hattenberger, Alexandre Bustico
+ * Copyright (C) 2022 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,32 +14,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
- *
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
  */
 
-/** \file mcu_periph/sdio.h
- *  \brief arch independent SDIO API
- *
+/**
+ * @file modules/imu/imu_pixhawk6x.h
+ * Driver for the IMU's in the Pixhawk 6X autopilots.
  */
 
-#ifndef MCU_PERIPH_SDIO_H
-#define MCU_PERIPH_SDIO_H
+#ifndef IMU_PIXHAWK6X_H
+#define IMU_PIXHAWK6X_H
 
-typedef struct SDCDriver SDCDriver;
+#include "std.h"
 
-/** Connect a SD card on SDIO peripheral
- */
-bool sdio_connect(SDCDriver *sdc);
+extern void imu_pixhawk6x_init(void);
+extern void imu_pixhawk6x_periodic(void);
+extern void imu_pixhawk6x_event(void);
 
-/** Disconnect a SD card on SDIO peripheral
- */
-bool sdio_disconnect(SDCDriver *sdc);
-
-/** Check if a SD card is inserted
- */
-bool is_card_inserted(SDCDriver *sdc);
-
-#endif
-
+#endif /* IMU_PIXHAWK6X_H */

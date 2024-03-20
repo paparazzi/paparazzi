@@ -39,6 +39,7 @@
  * MCU type as defined in the ST header.
  */
 #define STM32H743xx
+#define MCUCONF_H7
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
@@ -57,7 +58,7 @@
 
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/65536.0f) * 13.38f * adc)
-#define DefaultVBoardOfAdc(adc) ((3.3f/65536.0f) * 1.89036 * adc)
+#define DefaultVBoardOfAdc(adc) ((3.3f/65536.0f) * 1.89036f * adc)
 #define DefaultMilliAmpereOfAdc(adc) ((3.3f/65536.0f) * 39.877f * adc)
 
 /* Battery monitoring for file closing */
