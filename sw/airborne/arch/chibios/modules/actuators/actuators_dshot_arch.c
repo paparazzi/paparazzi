@@ -106,14 +106,14 @@ static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     if (actuators_dshot_values[i].activated) {
-      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel-1);
+      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
 
       actuators_dshot_values[i].current = (float)dtelem.frame.current * 0.01f;
       actuators_dshot_values[i].voltage = (float)dtelem.frame.voltage * 0.01f;
       actuators_dshot_values[i].rpm = (float)dtelem.frame.rpm;
 
 #if DSHOT_BIDIR
-    const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel-1);
+    const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
     if(erpm != DSHOT_BIDIR_ERR_CRC && erpm != DSHOT_BIDIR_TLM_EDT) {
       actuators_dshot_values[i].rpm = (float) erpm;
     }
@@ -363,11 +363,11 @@ void actuators_dshot_arch_commit(void)
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     feedback[i].idx = get_servo_idx_DSHOT(i);
     if (actuators_dshot_values[i].activated) {
-      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel-1);
+      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
       feedback[i].rpm = dtelem.frame.rpm;
       feedback[i].set.rpm = true;
 #if DSHOT_BIDIR
-      const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel-1);
+      const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
       if(erpm != DSHOT_BIDIR_ERR_CRC) {
         if(erpm != DSHOT_BIDIR_TLM_EDT) {
           feedback[i].rpm = (float) erpm;

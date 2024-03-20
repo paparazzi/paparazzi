@@ -465,8 +465,9 @@ uint32_t dshotGetTelemetryFrameCount(const DSHOTDriver *driver)
  * @return    telemetry structure by copy
  * @api
  */
-DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, const uint32_t index)
+DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, uint32_t index)
 {
+  index -= - DSHOT_CHANNEL_FIRST_INDEX;
   chDbgAssert(index < DSHOT_CHANNELS, "dshot index error");
   chMtxLock(&driver->dshotMotors.tlmMtx[index]);
   const DshotTelemetry tlm = driver->dshotMotors.dt[index];
@@ -550,8 +551,9 @@ uint32_t dshotGetEperiod(DSHOTDriver *driver, const uint32_t index)
  *	     must be checked after every call to dshotGetRpm     
  */
 
-uint32_t dshotGetRpm(DSHOTDriver *driver, const uint32_t index)
+uint32_t dshotGetRpm(DSHOTDriver *driver, uint32_t index)
 {
+  index -= DSHOT_CHANNEL_FIRST_INDEX;
   chDbgAssert(index < DSHOT_CHANNELS, "index check failed");
    DshotErpsSetFromFrame(&driver->erps,  driver->rpms_frame[index]);
    if (DshotErpsCheckCrc4(&driver->erps)) {
