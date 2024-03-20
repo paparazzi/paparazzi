@@ -437,11 +437,9 @@
 
 #if DSHOT_BIDIR
 
-#define DSHOT_TIM3_BIDIR_GPT  &GPTD7
-
 #define DSHOT_CAPT_CONF3_DEF                     \
   .dma_capt_cfg = {                              \
-    .gptd = DSHOT_TIM3_BIDIR_GPT,                \
+    .gptd = &DSHOT_TIM3_BIDIR_GPT,                \
     .dma_streams = {DSHOTS_CAPTURE_STREAMS(3)},  \
     .dma_capture = &dshot3DmaCaptureBuffer,      \
     .dcache_memory_in_use = false,               \
