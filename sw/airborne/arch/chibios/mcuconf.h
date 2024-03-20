@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef MCUCONF_H
-#define MCUCONF_H
+#ifndef CHIBIOS_MCUCONF_H
+#define CHIBIOS_MCUCONF_H
 
 #include "board.h"
 
@@ -30,4 +30,4 @@
 #include "mcuconf_board.h"
 #endif
 
-#endif /* MCUCONF_H */
+#endif /* CHIBIOS_MCUCONF_H */
