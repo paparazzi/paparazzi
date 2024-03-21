@@ -23,7 +23,7 @@
   </doc>
 
   <settings>
-	<dl_settings NAME="Vision stabilization">
+    <dl_settings NAME="Vision stabilization">
       <!-- Satabilization loop parameters and gains -->
       <dl_settings name="vision_stab">
         <dl_setting var="opticflow_stab.phi_pgain" module="guidance_opticflow/guidance_opticflow_hover" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
@@ -43,13 +43,10 @@
   <header>
     <file name="guidance_opticflow_hover.h"/>
   </header>
-
+  <init fun="guidance_opticflow_hover_init()"/>
   <makefile>
     <file name="guidance_opticflow_hover.c"/>
-    <raw>
-      ap.CFLAGS += -DGUIDANCE_V_MODE_MODULE_SETTING=GUIDANCE_V_MODE_HOVER
-      ap.CFLAGS += -DGUIDANCE_H_MODE_MODULE_SETTING=GUIDANCE_H_MODE_MODULE
-    </raw>
+    <test firmware="rotorcraft"/>
   </makefile>
 
 </module>

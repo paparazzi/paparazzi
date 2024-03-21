@@ -22,15 +22,6 @@
 #define OPTICAL_FLOW_HOVER_H_
 
 #include "std.h"
-// Without optitrack set to: GUIDANCE_V/H_MODE_ATTITUDE
-// With optitrack set to: GUIDANCE_V/H_MODE_NAV
-// To use the Optical Flow Hover module use GUIDANCE_V/H_MODE_MODULE
-
-#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
-// #define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_NAV
-
-#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
-//#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_NAV
 
 extern bool oscphi;
 extern bool osctheta;
@@ -45,15 +36,8 @@ extern struct OpticalFlowHoverControl of_hover_ctrl_Z;
 // The module functions
 extern void optical_flow_hover_init(void);
 
-// Vertical loops
-extern void guidance_v_module_init(void);
-extern void guidance_v_module_enter(void);
-extern void guidance_v_module_run(bool in_flight);
-
-// Horizontal loops
-extern void guidance_h_module_init(void);
-extern void guidance_h_module_enter(void);
-extern void guidance_h_module_run(bool in_flight);
-extern void guidance_h_module_read_rc(void);
+extern void guidance_module_enter(void);
+extern void guidance_module_run(bool in_flight);
 
 #endif /* OPTICAL_FLOW_LANDING_H_ */
+

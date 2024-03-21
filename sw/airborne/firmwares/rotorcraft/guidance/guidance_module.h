@@ -31,17 +31,15 @@
  *
  * The guidance that the module implement must be activated with following defines:
  *
- * a) Implement own Horizontal loops when GUIDANCE_H_MODE_MODULE_SETTING is set to GUIDANCE_H_MODE_MODULE
- * One must then implement:
- * - void guidance_h_module_init(void);
- * - void guidance_h_module_enter(void);
- * - void guidance_h_module_read_rc(void);
- * - void guidance_h_module_run(bool in_flight);
+ * a) Implement own loops
+ * - void guidance_module_enter(void);
+ * - void guidance_module_run(bool in_flight);
  *
  *
- * b) Implement own Vertical loops when GUIDANCE_V_MODE_MODULE_SETTING is set to GUIDANCE_V_MODE_MODULE
- * - void guidance_v_module_enter(void);
- * - void guidance_v_module_run(bool in_flight);
+ * b) Use or copy the generated autopilot file 'conf/autopilot/rotorcraft_control_loop.xml'
+ * - load custom autopilot from your airframe filewith by adding
+ *   <autopilot name="rotorcraft_control_loop"/>
+ *   to the firmware section
  *
  * If the module implements both V and H mode, take into account that the V is called first and later H
  *

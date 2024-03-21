@@ -492,7 +492,7 @@ static void agl_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unu
   }
 #endif
 #ifdef INS_AGL_THROTTLE_THRESHOLD
-   if(stabilization_cmd[COMMAND_THRUST] < INS_AGL_THROTTLE_THRESHOLD){
+   if(stabilization.cmd[COMMAND_THRUST] < INS_AGL_THROTTLE_THRESHOLD){
      return;
    }
 #endif

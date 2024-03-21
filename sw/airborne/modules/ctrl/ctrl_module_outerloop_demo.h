@@ -33,16 +33,10 @@
 // Settings
 extern float comode_time;
 
-// Demo with own guidance_h
-#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
-
-// But re-using an existing altitude-hold controller
-#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
+extern void ctrl_module_init(void);
 
 // Implement own Horizontal loops
-extern void guidance_h_module_init(void);
-extern void guidance_h_module_enter(void);
-extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool in_flight);
+extern void guidance_module_enter(void);
+extern void guidance_module_run(bool in_flight);
 
 #endif /* CTRL_MODULE_OUTERLOOP_DEMO_H_ */
