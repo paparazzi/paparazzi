@@ -56,21 +56,18 @@ static float adc_scale = ADC_WING_ROT_SCALE;
 #endif
 
 static struct adc_buf buf_wing_rot_pos;
-float skew_adc_sensor;
 // Initialization
 void wing_rotation_adc_init(void)
 {
   // ADC init
   adc_buf_channel(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION, &buf_wing_rot_pos,
-                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);
-  skew_adc_sensor = 0;     
+                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);    
 }
 
 void wing_rotation_adc_to_deg(void)
 {
   float adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
   float wing_angle_deg = adc_scale * adc_wing_rotation + adc_offset;
-  skew_adc_sensor = adc_wing_rotation;
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
   struct act_feedback_t feedback = {0};
