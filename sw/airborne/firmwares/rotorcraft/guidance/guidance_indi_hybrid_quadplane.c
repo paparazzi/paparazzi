@@ -25,12 +25,10 @@
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "filters/low_pass_filter.h"
 #include "state.h"
 #include "autopilot.h"
 #include "generated/modules.h"
-
 
 #ifndef COMMAND_THRUST_X
 #error "Quadplanes require a forward thrust actuator"
@@ -48,12 +46,9 @@ float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
 float guidance_indi_thrust_x_eff = GUIDANCE_INDI_THRUST_X_EFF;
 #endif
 
-
 float bodyz_filter_cutoff = 0.2;
 
 Butterworth2LowPass accel_bodyz_filt;
-
-
 
 /**
  *
@@ -64,7 +59,6 @@ void guidance_indi_quadplane_init(void) {
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_bodyz_filt, tau_bodyz, sample_time, -9.81);
 }
-
 
 /**
  * Low pass the accelerometer measurements to remove noise from vibrations.
@@ -77,9 +71,6 @@ void guidance_indi_quadplane_propagate_filters(void) {
   float accelz = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
   update_butterworth_2_low_pass(&accel_bodyz_filt, accelz);
 }
-
-
-
 
 /**
  * Perform WLS
@@ -145,14 +136,14 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   // Set lower limits
   du_min_gih[0] = -roll_limit_rad - roll_angle; //roll
   du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
-  du_min_gih[2] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
-  du_min_gih[3] = -stabilization_cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
+  du_min_gih[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
+  du_min_gih[3] = -stabilization.cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
 
   // Set upper limits limits
   du_max_gih[0] = roll_limit_rad - roll_angle; //roll
   du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
-  du_max_gih[2] = -stabilization_cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
-  du_max_gih[3] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
+  du_max_gih[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
+  du_max_gih[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
 
   // Set prefered states
   du_pref_gih[0] = -roll_angle; // prefered delta roll angle
@@ -166,3 +157,4 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
 bool autopilot_in_flight_end_detection(bool motors_on UNUSED) {
   return ! motors_on;
 }
+

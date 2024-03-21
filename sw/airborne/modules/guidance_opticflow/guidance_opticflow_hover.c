@@ -102,17 +102,17 @@ static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unus
 /**
  * Initialization of horizontal guidance module.
  */
-void guidance_h_module_init(void)
+void guidance_opticflow_hover_init(void)
 {
   // Subscribe to the VELOCITY_ESTIMATE ABI message
   AbiBindMsgVELOCITY_ESTIMATE(VISION_VELOCITY_ESTIMATE_ID, &velocity_est_ev, stabilization_opticflow_vel_cb);
 }
 
 /**
- * Horizontal guidance mode enter resets the errors
+ * guidance mode enter resets the errors
  * and starts the controller.
  */
-void guidance_h_module_enter(void)
+void guidance_module_enter(void)
 {
   /* Reset the integrated errors */
   opticflow_stab.err_vx_int = 0;
@@ -122,40 +122,29 @@ void guidance_h_module_enter(void)
   opticflow_stab.cmd.phi = 0;
   opticflow_stab.cmd.theta = 0;
   opticflow_stab.cmd.psi = stateGetNedToBodyEulers_i()->psi;
-}
 
-/**
- * Read the RC commands
- */
-void guidance_h_module_read_rc(void)
-{
-  // TODO: change the desired vx/vy
+  guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
 }
 
 /**
  * Main guidance loop
  * @param[in] in_flight Whether we are in flight or not
  */
-void guidance_h_module_run(bool in_flight)
+void guidance_module_run(bool in_flight)
 {
-  /* Update the setpoint */
-  stabilization_attitude_set_rpy_setpoint_i(&opticflow_stab.cmd);
-
+  struct StabilizationSetpoint sp = stab_sp_from_eulers_i(&opticflow_stab.cmd);
+  struct ThrustSetpoint th = guidance_v_run(in_flight);
   /* Run the default attitude stabilization */
-  stabilization_attitude_run(in_flight);
+  stabilization_attitude_run(in_flight, &sp, &th, stabilization.cmd);
 }
 
 /**
  * Update the controls on a new VELOCITY_ESTIMATE ABI message.
  */
 static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise_x, float noise_y, float noise_z)
+    uint32_t stamp UNUSED, float vel_x, float vel_y, float vel_z UNUSED,
+    float noise_x, float noise_y, float noise_z UNUSED)
 {
-  /* Check if we are in the correct AP_MODE before setting commands */
-  if (autopilot_get_mode() != AP_MODE_MODULE) {
-    return;
-  }
-
   if (noise_x >= 0.f)
   {
     /* Calculate the error */

@@ -109,11 +109,11 @@ struct Gains2ndOrder{
 extern struct PolePlacement p_att_e;
 extern struct PolePlacement p_att_rm;
 /*Position Loop*/
-extern struct PolePlacement p_pos_e;  
+extern struct PolePlacement p_pos_e;
 extern struct PolePlacement p_pos_rm;
 /*Altitude Loop*/
-extern struct PolePlacement p_alt_e;   
-extern struct PolePlacement p_alt_rm; 
+extern struct PolePlacement p_alt_e;
+extern struct PolePlacement p_alt_rm;
 /*Heading Loop*/
 extern struct PolePlacement p_head_e;
 extern struct PolePlacement p_head_rm;
@@ -121,12 +121,11 @@ extern struct PolePlacement p_head_rm;
 extern struct Gains3rdOrder k_att_e;
 extern struct Gains3rdOrder k_att_rm;
 extern struct Gains2ndOrder k_head_e;
-extern struct Gains2ndOrder k_head_rm;  
+extern struct Gains2ndOrder k_head_rm;
 extern struct Gains3rdOrder k_pos_e;
-extern struct Gains3rdOrder k_pos_rm; 
+extern struct Gains3rdOrder k_pos_rm;
 extern void oneloop_andi_init(void);
 extern void oneloop_andi_enter(bool half_loop_sp);
-extern void oneloop_andi_set_failsafe_setpoint(void);
 extern void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
 extern void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
 extern void oneloop_andi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);

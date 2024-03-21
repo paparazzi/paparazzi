@@ -27,8 +27,10 @@
 #include "modules/ctrl/vertical_ctrl_module_demo.h"
 
 #include "generated/airframe.h"
+#include "autopilot.h"
 #include "paparazzi.h"
 #include "modules/core/abi.h"
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
 /* Default sonar/agl to use */
@@ -53,9 +55,6 @@ static void vertical_ctrl_agl_cb(uint8_t sender_id, uint32_t stamp, float distan
 struct VerticalCtrlDemo v_ctrl;
 
 
-void vertical_ctrl_module_init(void);
-void vertical_ctrl_module_run(bool in_flight);
-
 void vertical_ctrl_module_init(void)
 {
   v_ctrl.agl = 0.0f;
@@ -69,20 +68,22 @@ void vertical_ctrl_module_init(void)
 }
 
 
-void vertical_ctrl_module_run(bool in_flight)
+static struct ThrustSetpoint vertical_ctrl_module_run(bool in_flight)
 {
+  struct ThrustSetpoint th;
   if (!in_flight) {
     // Reset integrators
     v_ctrl.sum_err = 0;
-    stabilization_cmd[COMMAND_THRUST] = 0;
+    th = th_sp_from_thrust_i(0, THRUST_AXIS_Z);
   } else {
     int32_t nominal_throttle = 0.5 * MAX_PPRZ;
     float err = v_ctrl.setpoint - v_ctrl.agl;
     int32_t thrust = nominal_throttle + v_ctrl.pgain * err + v_ctrl.igain * v_ctrl.sum_err;
     Bound(thrust, 0, MAX_PPRZ);
-    stabilization_cmd[COMMAND_THRUST] = thrust;
+    th = th_sp_from_thrust_i(thrust, THRUST_AXIS_Z);
     v_ctrl.sum_err += err;
   }
+  return th;
 }
 
 static void vertical_ctrl_agl_cb(__attribute__((unused)) uint8_t sender_id, __attribute__((unused)) uint32_t stamp, float distance)
@@ -93,18 +94,17 @@ static void vertical_ctrl_agl_cb(__attribute__((unused)) uint8_t sender_id, __at
 
 ////////////////////////////////////////////////////////////////////
 // Call our controller
-void guidance_v_module_init(void)
-{
-  vertical_ctrl_module_init();
-}
-
-void guidance_v_module_enter(void)
+void guidance_module_enter(void)
 {
   // reset integrator
   v_ctrl.sum_err = 0.0f;
+
+  guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
 }
 
-void guidance_v_module_run(bool in_flight)
+void guidance_module_run(bool in_flight)
 {
-  vertical_ctrl_module_run(in_flight);
+  struct ThrustSetpoint th = vertical_ctrl_module_run(in_flight);
+  struct StabilizationSetpoint stab = guidance_h_run(in_flight);
+  stabilization_run(in_flight, &stab, &th, stabilization.cmd);
 }

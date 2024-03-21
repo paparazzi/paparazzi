@@ -25,8 +25,7 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
 #include "std.h"
@@ -72,8 +71,8 @@ struct Int32Quat stabilization_att_sum_err_quat;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-struct Int32Quat   stab_att_sp_quat;
-struct Int32Eulers stab_att_sp_euler;
+static struct Int32Quat   stab_att_sp_quat;
+static struct Int32Eulers stab_att_sp_euler;
 
 struct AttRefQuatInt att_ref_quat_i;
 
@@ -105,9 +104,9 @@ static void send_att(struct transport_tx *trans, struct link_device *dev)   //FI
                                   &stabilization_att_ff_cmd[COMMAND_ROLL],
                                   &stabilization_att_ff_cmd[COMMAND_PITCH],
                                   &stabilization_att_ff_cmd[COMMAND_YAW],
-                                  &stabilization_cmd[COMMAND_ROLL],
-                                  &stabilization_cmd[COMMAND_PITCH],
-                                  &stabilization_cmd[COMMAND_YAW]);
+                                  &stabilization.cmd[COMMAND_ROLL],
+                                  &stabilization.cmd[COMMAND_PITCH],
+                                  &stabilization.cmd[COMMAND_YAW]);
 }
 
 static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
@@ -145,11 +144,9 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
 }
 #endif
 
-void stabilization_attitude_init(void)
+void stabilization_attitude_quat_int_init(void)
 {
-
   attitude_ref_quat_int_init(&att_ref_quat_i);
-
   int32_quat_identity(&stabilization_att_sum_err_quat);
 
 #if PERIODIC_TELEMETRY
@@ -161,63 +158,10 @@ void stabilization_attitude_init(void)
 
 void stabilization_attitude_enter(void)
 {
-
-  /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
-
   struct Int32Quat *state_quat = stateGetNedToBodyQuat_i();
-
   attitude_ref_quat_int_enter(&att_ref_quat_i, state_quat);
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
-
-}
-
-void stabilization_attitude_set_failsafe_setpoint(void)
-{
-  /* set failsafe to zero roll/pitch and current heading */
-  int32_t heading2 = stabilization_attitude_get_heading_i() / 2;
-  PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
-  stab_att_sp_quat.qx = 0;
-  stab_att_sp_quat.qy = 0;
-  PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
-}
-
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
-{
-  // stab_att_sp_euler.psi still used in ref..
-  stab_att_sp_euler = *rpy;
-
-  int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
-}
-
-void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
-{
-  stab_att_sp_quat = *quat;
-  int32_eulers_of_quat(&stab_att_sp_euler, quat);
-}
-
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
-{
-  // stab_att_sp_euler.psi still used in ref..
-  stab_att_sp_euler.psi = heading;
-
-  // compute sp_euler phi/theta for debugging/telemetry
-  /* Rotate horizontal commands to body frame by psi */
-  int32_t psi = stateGetNedToBodyEulers_i()->psi;
-  int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, psi);
-  PPRZ_ITRIG_COS(c_psi, psi);
-  stab_att_sp_euler.phi = (-s_psi * cmd->x + c_psi * cmd->y) >> INT32_TRIG_FRAC;
-  stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
-
-  quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
-}
-
-void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
-{
-  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
-  stab_att_sp_quat = stab_sp_to_quat_i(sp);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -253,8 +197,10 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
 
 }
 
-void stabilization_attitude_run(bool enable_integrator)
+void stabilization_attitude_run(bool enable_integrator, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
+  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
+  stab_att_sp_quat = stab_sp_to_quat_i(sp);
 
   /*
    * Update reference
@@ -307,23 +253,15 @@ void stabilization_attitude_run(bool enable_integrator)
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
 
   /* sum feedforward and feedback */
-  stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
+  cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
+  cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
+  cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_THRUST], MAX_PPRZ);
 }
 
-void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
-{
-  struct FloatQuat q_sp;
-#if USE_EARTH_BOUND_RC_SETPOINT
-  stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight, in_carefree, coordinated_turn);
-#else
-  stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight, in_carefree, coordinated_turn);
-#endif
-  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
-}
