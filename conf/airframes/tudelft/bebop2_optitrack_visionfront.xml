@@ -3,6 +3,8 @@
 <airframe name="bebop2_optitrack_visionfront">
 
   <firmware name="rotorcraft">
+    <autopilot name="rotorcraft_control_loop"/>
+
     <target name="ap" board="bebop2"/>
 
     <module name="telemetry" type="transparent_udp"/>

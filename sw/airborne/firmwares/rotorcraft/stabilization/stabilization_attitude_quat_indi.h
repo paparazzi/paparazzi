@@ -33,6 +33,7 @@
 #ifndef STABILIZATION_ATTITUDE_QUAT_INDI_H
 #define STABILIZATION_ATTITUDE_QUAT_INDI_H
 
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #ifdef STABILIZATION_ATTITUDE_INDI_SIMPLE
 #include "firmwares/rotorcraft/stabilization/stabilization_indi_simple.h"
 #else

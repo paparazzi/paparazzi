@@ -55,8 +55,6 @@ struct min_max_ctrl_t ctrl_windtunnel_throttle = {.min = CTRL_WINDTUNNEL_THR_MIN
 struct min_max_ctrl_t ctrl_windtunnel_flaps = {.min = CTRL_WINDTUNNEL_FLAP_MIN, .max = CTRL_WINDTUNNEL_FLAP_MAX, .step = CTRL_WINDTUNNEL_FLAP_STEP};
 static float last_time = 0;
 
-void ctrl_module_init(void);
-void ctrl_module_run(bool in_flight);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -72,11 +70,11 @@ static void send_windtunnel_meas(struct transport_tx *trans, struct link_device 
   float aoa = DegOfRad(windtunnel_to_body_e.theta);
   float power = electrical.vsupply * electrical.current;
   pprz_msg_send_WINDTUNNEL_MEAS(trans, dev, AC_ID, &aoa, &air_data.airspeed, &electrical.vsupply, &electrical.current,
-                                &power, COMMANDS_NB, stabilization_cmd);
+                                &power, COMMANDS_NB, stabilization.cmd);
 }
 #endif
 
-void ctrl_module_init(void)
+void ctrl_windtunnel_init(void)
 {
   ctrl_windtunnel.rc_throttle = 0;
   ctrl_windtunnel.rc_roll = 0;
@@ -93,7 +91,7 @@ void ctrl_module_init(void)
 #endif
 }
 
-void ctrl_module_run(bool in_flight __attribute__((unused)))
+static void ctrl_module_run(bool in_flight __attribute__((unused)))
 {
   bool done = false;
   // Increase step in steptime
@@ -127,54 +125,33 @@ void ctrl_module_run(bool in_flight __attribute__((unused)))
     last_time = get_sys_time_float();
   }
 
-  stabilization_cmd[COMMAND_ROLL] = 0;
-  stabilization_cmd[COMMAND_PITCH] = 0;
-  stabilization_cmd[COMMAND_YAW] = 0;
-  stabilization_cmd[COMMAND_THRUST] = (done) ? 0 : ctrl_windtunnel_throttle.current;
-  stabilization_cmd[COMMAND_FLAPS] = (done) ? 0 : ctrl_windtunnel_flaps.current;
+  stabilization.cmd[COMMAND_ROLL] = 0;
+  stabilization.cmd[COMMAND_PITCH] = 0;
+  stabilization.cmd[COMMAND_YAW] = 0;
+  stabilization.cmd[COMMAND_THRUST] = (done) ? 0 : ctrl_windtunnel_throttle.current;
+  stabilization.cmd[COMMAND_FLAPS] = (done) ? 0 : ctrl_windtunnel_flaps.current;
 }
 
 
 ////////////////////////////////////////////////////////////////////
 // Call our controller
-// Implement own Horizontal loops
-void guidance_h_module_init(void)
+// Implement own loops
+void guidance_module_enter(void)
 {
-  ctrl_module_init();
+  ctrl_windtunnel.rc_throttle = 0;
+  ctrl_windtunnel.rc_roll = 0;
+  ctrl_windtunnel.rc_pitch = 0;
+  ctrl_windtunnel.rc_yaw = 0;
 }
 
-void guidance_h_module_enter(void)
-{
-  ctrl_module_init();
-}
-
-void guidance_h_module_read_rc(void)
+void guidance_module_run(bool in_flight)
 {
   // -MAX_PPRZ to MAX_PPRZ
   ctrl_windtunnel.rc_throttle = radio_control.values[RADIO_THROTTLE];
   ctrl_windtunnel.rc_roll = radio_control.values[RADIO_ROLL];
   ctrl_windtunnel.rc_pitch = radio_control.values[RADIO_PITCH];
   ctrl_windtunnel.rc_yaw = radio_control.values[RADIO_YAW];
-}
-
-void guidance_h_module_run(bool in_flight)
-{
   // Call full inner-/outerloop / horizontal-/vertical controller:
   ctrl_module_run(in_flight);
 }
 
-void guidance_v_module_init(void)
-{
-  // initialization of your custom vertical controller goes here
-}
-
-// Implement own Vertical loops
-void guidance_v_module_enter(void)
-{
-  // your code that should be executed when entering this vertical mode goes here
-}
-
-void guidance_v_module_run(UNUSED bool in_flight)
-{
-  // your vertical controller goes here
-}

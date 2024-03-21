@@ -456,13 +456,13 @@ static void send_ins_flow(struct transport_tx *trans, struct link_device *dev)
     // normally:
     p = phi_dot;
     // when estimating the gyros:
-    // // p = -1.8457e-04 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
-    // p = -2.0e-03 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+    // // p = -1.8457e-04 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+    // p = -2.0e-03 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
     // TODO: expand the full filter later as well, to include q:
     q = q_GT;
   } else {
     p = ins_flow.lp_gyro_roll - ins_flow.lp_gyro_bias_roll;
-    // p = -2.0e-03 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+    // p = -2.0e-03 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
     q = ins_flow.lp_gyro_pitch - ins_flow.lp_gyro_bias_pitch;
   }
 
@@ -762,7 +762,7 @@ void ins_flow_update(void)
   }
   // same assumption for the roll command: assuming a close-to-hover situation and roll trim for staying in place:
   ins_flow.lp_roll_command = lp_factor_strong * ins_flow.lp_roll_command + (1 - lp_factor_strong) *
-                             stabilization_cmd[COMMAND_ROLL];
+                             stabilization.cmd[COMMAND_ROLL];
 
   // only start estimation when flying (and above 1 meter: || position->z > -1.0f )
   // I removed the condition on height, since (1) we need to start the filter anyway explicitly now, and (2) it created a dependence on GPS fix.
@@ -842,7 +842,7 @@ void ins_flow_update(void)
 #else
 
   /*
-  moments[moment_ind] = Ix *(-0.000553060716181365 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command) -3.23315441805895 * OF_X[OF_ANGLE_DOT_IND]);
+  moments[moment_ind] = Ix *(-0.000553060716181365 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command) -3.23315441805895 * OF_X[OF_ANGLE_DOT_IND]);
 
   int select_ind = moment_ind - MOMENT_DELAY;
   if(select_ind < 0) {
@@ -858,7 +858,7 @@ void ins_flow_update(void)
   moment_ind = 0;
   }
   */
-  // moment = Ix *(-0.000553060716181365 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command) -3.23315441805895 * OF_X[OF_ANGLE_DOT_IND]);
+  // moment = Ix *(-0.000553060716181365 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command) -3.23315441805895 * OF_X[OF_ANGLE_DOT_IND]);
   moment = 0;
 #endif
 
@@ -884,7 +884,7 @@ void ins_flow_update(void)
     } */
 
     // temporary insertion of gyro estimate here, for quicker effect:
-    // OF_X[OF_ANGLE_IND] += dt * -2.0e-03 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+    // OF_X[OF_ANGLE_IND] += dt * -2.0e-03 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
 
     OF_X[OF_ANGLE_IND] += dt * OF_X[OF_ANGLE_DOT_IND];
     OF_X[OF_ANGLE_DOT_IND] += dt * (moment / Ix);
@@ -1241,10 +1241,10 @@ void ins_flow_update(void)
       } else {
         // TODO: You can fake gyros here by estimating them as follows:
         // rate_p_filt_est = -1.8457e-04 * cmd_roll;
-        // gyro_meas_roll = -1.8457e-04 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
-        // gyro_meas_roll = -2.0e-03 * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+        // gyro_meas_roll = -1.8457e-04 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+        // gyro_meas_roll = -2.0e-03 * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
 
-        // gyro_meas_roll = 1e-04 * parameters[PAR_PRED_ROLL_1] * (stabilization_cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
+        // gyro_meas_roll = 1e-04 * parameters[PAR_PRED_ROLL_1] * (stabilization.cmd[COMMAND_ROLL]-ins_flow.lp_roll_command);
         // gyro_meas_roll = parameters[PAR_PRED_ROLL_2] * gyro_meas_roll + 1E-3 * parameters[PAR_PRED_ROLL_3] * ins_flow.optical_flow_x;
 
         // only flow:

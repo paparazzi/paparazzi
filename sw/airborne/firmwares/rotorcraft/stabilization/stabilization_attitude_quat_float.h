@@ -29,6 +29,7 @@
 #define STABILIZATION_ATTITUDE_QUAT_FLOAT_H
 
 #include "generated/airframe.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_float.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_float.h"
 
@@ -43,13 +44,11 @@
 
 extern struct FloatAttitudeGains stabilization_gains[];
 
-extern struct FloatEulers stab_att_sp_euler;
-extern struct FloatQuat   stab_att_sp_quat;
-
 extern struct AttRefQuatFloat att_ref_quat_f;
 
+extern void stabilization_attitude_quat_float_init(void);
 
-void stabilization_attitude_gain_schedule(uint8_t idx);
+extern void stabilization_attitude_gain_schedule(uint8_t idx);
 
 /* settings handlers */
 #define stabilization_attitude_quat_float_SetOmegaP(_val) {      \
