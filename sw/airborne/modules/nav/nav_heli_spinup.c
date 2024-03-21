@@ -43,13 +43,13 @@ void nav_heli_spinup_setup(uint16_t duration, float throttle)
   nav_heli_spinup.throttle = throttle * MAX_PPRZ;
 
 #ifdef COMMAND_ROLL
-  stabilization_cmd[COMMAND_ROLL]  = 0;
+  stabilization.cmd[COMMAND_ROLL]  = 0;
 #endif
 #ifdef COMMAND_PITCH
-  stabilization_cmd[COMMAND_PITCH] = 0;
+  stabilization.cmd[COMMAND_PITCH] = 0;
 #endif
 #ifdef COMMAND_YAW
-  stabilization_cmd[COMMAND_YAW]   = 0;
+  stabilization.cmd[COMMAND_YAW]   = 0;
 #endif
   nav.throttle = 0;
 
@@ -68,13 +68,13 @@ bool nav_heli_spinup_run(void)
   }
 
 #ifdef COMMAND_ROLL
-  stabilization_cmd[COMMAND_ROLL]  = 0;
+  stabilization.cmd[COMMAND_ROLL]  = 0;
 #endif
 #ifdef COMMAND_PITCH
-  stabilization_cmd[COMMAND_PITCH] = 0;
+  stabilization.cmd[COMMAND_PITCH] = 0;
 #endif
 #ifdef COMMAND_YAW
-  stabilization_cmd[COMMAND_YAW]   = 0;
+  stabilization.cmd[COMMAND_YAW]   = 0;
 #endif
   nav.throttle = stage_time * nav_heli_spinup.throttle / nav_heli_spinup.duration;
 

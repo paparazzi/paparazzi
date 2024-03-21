@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file stabilization_none.c
+/** @file stabilization_direct.c
  *  Dummy stabilization for rotorcrafts.
  *
  *  Doesn't actually do any stabilization,
@@ -27,42 +27,47 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_direct.h"
 
 #include "modules/radio_control/radio_control.h"
 #include "generated/airframe.h"
 #include "generated/modules.h"
 
-struct Int32Rates stabilization_none_rc_cmd;
+struct Int32Rates stabilization_direct_rc_cmd;
 
-void stabilization_none_init(void)
+void stabilization_direct_init(void)
 {
-  INT_RATES_ZERO(stabilization_none_rc_cmd);
+  INT_RATES_ZERO(stabilization_direct_rc_cmd);
 }
 
-void stabilization_none_read_rc(void)
+void stabilization_direct_read_rc(void)
 {
-
-  stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
-  stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
-  stabilization_none_rc_cmd.r = (int32_t)radio_control.values[RADIO_YAW];
+#ifdef RADIO_CONTROL
+  stabilization_direct_rc_cmd.p = (int32_t)radio_control_get(RADIO_ROLL);
+  stabilization_direct_rc_cmd.q = (int32_t)radio_control_get(RADIO_PITCH);
+  stabilization_direct_rc_cmd.r = (int32_t)radio_control_get(RADIO_YAW);
+#endif
 }
 
-void stabilization_none_enter(void)
+void stabilization_direct_enter(void)
 {
-  INT_RATES_ZERO(stabilization_none_rc_cmd);
+  INT_RATES_ZERO(stabilization_direct_rc_cmd);
 }
 
-void stabilization_none_run(bool in_flight __attribute__((unused)))
+void stabilization_direct_run(bool in_flight UNUSED, struct StabilizationSetpoint *sp UNUSED,
+    struct ThrustSetpoint *thrust UNUSED, int32_t *cmd UNUSED)
 {
   /* just directly pass rc commands through */
 #ifdef COMMAND_ROLL
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_none_rc_cmd.p;
+  cmd[COMMAND_ROLL]   = stabilization_direct_rc_cmd.p;
 #endif
 #ifdef COMMAND_PITCH
-  stabilization_cmd[COMMAND_PITCH] = stabilization_none_rc_cmd.q;
+  cmd[COMMAND_PITCH]  = stabilization_direct_rc_cmd.q;
 #endif
 #ifdef COMMAND_YAW
-  stabilization_cmd[COMMAND_YAW]   = stabilization_none_rc_cmd.r;
+  cmd[COMMAND_YAW]    = stabilization_direct_rc_cmd.r;
+#endif
+#ifdef COMMAND_THRUST
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 #endif
 }

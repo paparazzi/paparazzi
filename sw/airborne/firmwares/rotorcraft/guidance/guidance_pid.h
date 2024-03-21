@@ -64,9 +64,9 @@ extern void guidance_pid_v_enter(void);
 extern struct StabilizationSetpoint guidance_pid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_pid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_pid_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);
-extern int32_t guidance_pid_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_pid_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_pid_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_pid_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_pid_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_pid_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
 
 extern void guidance_pid_set_h_igain(uint32_t igain);
 extern void guidance_pid_set_v_igain(uint32_t igain);

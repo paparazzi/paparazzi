@@ -27,16 +27,18 @@
 #include "modules/ctrl/ctrl_module_outerloop_demo.h"
 #include "state.h"
 #include "modules/radio_control/radio_control.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "modules/radio_control/radio_control.h"
 #include "autopilot.h"
 
 // Own Variables
 
 struct ctrl_module_demo_struct {
 // RC Inputs
-  struct Int32Eulers rc_sp;
+  struct AttitudeRCInput rc_sp;
 
 // Output command
   struct Int32Eulers cmd;
@@ -50,28 +52,27 @@ float comode_time = 0;
 
 ////////////////////////////////////////////////////////////////////
 // Call our controller
-// Implement own Horizontal loops
-void guidance_h_module_init(void)
+void ctrl_module_init(void)
 {
+  stabilization_attitude_rc_setpoint_init(&ctrl.rc_sp);
 }
 
-void guidance_h_module_enter(void)
+void guidance_module_enter(void)
 {
   // Store current heading
   ctrl.cmd.psi = stateGetNedToBodyEulers_i()->psi;
 
   // Convert RC to setpoint
-  stabilization_attitude_read_rc_setpoint_eulers(&ctrl.rc_sp, autopilot.in_flight, false, false);
+  stabilization_attitude_read_rc_setpoint_eulers(&ctrl.rc_sp, autopilot_in_flight(), false, false, &radio_control);
+
+  // vertical mode in hover
+  guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
 }
 
-void guidance_h_module_read_rc(void)
+void guidance_module_run(bool in_flight)
 {
-  stabilization_attitude_read_rc_setpoint_eulers(&ctrl.rc_sp, autopilot.in_flight, false, false);
-}
+  stabilization_attitude_read_rc_setpoint_eulers(&ctrl.rc_sp, autopilot_in_flight(), false, false, &radio_control);
 
-
-void guidance_h_module_run(bool in_flight)
-{
   // YOUR NEW HORIZONTAL OUTERLOOP CONTROLLER GOES HERE
   // ctrl.cmd = CallMyNewHorizontalOuterloopControl(ctrl);
   float roll = 0.0;
@@ -80,9 +81,9 @@ void guidance_h_module_run(bool in_flight)
   ctrl.cmd.phi = ANGLE_BFP_OF_REAL(roll);
   ctrl.cmd.theta = ANGLE_BFP_OF_REAL(pitch);
 
-  stabilization_attitude_set_rpy_setpoint_i(&(ctrl.cmd));
-  stabilization_attitude_run(in_flight);
-
-  // Alternatively, use the indi_guidance and send AbiMsgACCEL_SP to it instead of setting pitch and roll
+  struct StabilizationSetpoint sp = stab_sp_from_eulers_i(&(ctrl.cmd));
+  struct ThrustSetpoint th = guidance_v_run(in_flight);
+  // execute attitude stabilization:
+  stabilization_attitude_run(in_flight, &sp, &th, stabilization.cmd);
 }
 

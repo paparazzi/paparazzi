@@ -73,9 +73,9 @@ struct FloatRates stabilization_rate_sp;
 static void send_rate(struct transport_tx *trans, struct link_device *dev)
 {
   float dummy = 0;
-  float fb_p = stabilization_cmd[COMMAND_ROLL];
-  float fb_q = stabilization_cmd[COMMAND_PITCH];
-  float fb_r = stabilization_cmd[COMMAND_YAW];
+  float fb_p = stabilization.cmd[COMMAND_ROLL];
+  float fb_q = stabilization.cmd[COMMAND_PITCH];
+  float fb_r = stabilization.cmd[COMMAND_YAW];
 
   pprz_msg_send_RATE_LOOP(trans, dev, AC_ID,
                           &stabilization_rate_sp.p,
@@ -85,7 +85,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
                           &fb_p,
                           &fb_q,
                           &fb_r,
-                          &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization.cmd[COMMAND_THRUST]);
 }
 #endif
 
@@ -94,6 +94,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
  */
 void stabilization_rate_init(void)
 {
+  FLOAT_RATES_ZERO(stabilization_rate_sp);
   // indi init is already done through module init
 
 #if PERIODIC_TELEMETRY
@@ -110,59 +111,13 @@ void stabilization_rate_enter(void)
 }
 
 /**
- * @brief Read RC comands with roll and yaw sticks
- */
-void stabilization_rate_read_rc(void)
-{
-  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.p = (float) radio_control.values[RADIO_ROLL] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.p = 0;
-  }
-
-  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = (float) radio_control.values[RADIO_PITCH] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.q = 0;
-  }
-
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.r = (float) radio_control.values[RADIO_YAW] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.r = 0;
-  }
-}
-
-/**
- * @brief Read rc with roll and yaw sitcks switched if the default orientation is vertical
- * but airplane sticks are desired
- */
-void stabilization_rate_read_rc_switched_sticks(void)
-{
-  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.r =  - (float) radio_control.values[RADIO_ROLL] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.r = 0;
-  }
-
-  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = (float) radio_control.values[RADIO_PITCH] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.q = 0;
-  }
-
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.p = (float) radio_control.values[RADIO_YAW] * STABILIZATION_INDI_MAX_RATE / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.p = 0;
-  }
-}
-
-/**
  * @brief Run indi rate interface from the "stabilization_rate_run" function
  */
-void stabilization_rate_run(bool in_flight)
+void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
+  stabilization_rate_sp = stab_sp_to_rates_f(rate_sp);
+
   /* compute the INDI rate command */
-  stabilization_indi_rate_run(stabilization_rate_sp, in_flight);
+  stabilization_indi_rate_run(in_flight, rate_sp, thrust, cmd);
 }
+

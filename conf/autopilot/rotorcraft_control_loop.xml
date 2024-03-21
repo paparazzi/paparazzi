@@ -1,6 +1,6 @@
 <!DOCTYPE autopilot SYSTEM "autopilot.dtd">
 
-<autopilot name="Oneloop Autopilot Rotorcraft">
+<autopilot name="Quadrotor Autopilot (Basic version)">
 
   <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
 
@@ -10,19 +10,12 @@
       <include name="autopilot_rc_helpers.h"/>
       <include name="navigation.h"/>
       <include name="guidance.h"/>
-      <include name="oneloop/oneloop_andi.h"/>
       <include name="stabilization.h"/>
       <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
-      <define  name="MODE_MANUAL"    value="AP_MODE_ATTITUDE_DIRECT"  cond="ifndef MODE_MANUAL"/>
-      <define  name="MODE_ONELOOP"   value="AP_MODE_MODULE"           cond="ifndef MODE_AUTO1"/>
-      <define  name="MODE_AUTO2"     value="AP_MODE_NAV"              cond="ifndef MODE_AUTO2"/>
-      <define  name="RCLost()"       value="(radio_control.status == RC_REALLY_LOST)"/>
-      <define  name="DLModeNav()"    value="(autopilot_mode_auto2 == AP_MODE_NAV)"/>
-      <define  name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
-      <define  name="DLModeModule()" value="(MODE_AUTO1 == AP_MODE_MODULE)"/>
-      <define  name="DLModeAZH()"    value="(MODE_AUTO1 == AP_MODE_ATTITUDE_Z_HOLD)"/>
+      <define name="MODE_AUTO2" value="AP_MODE_NAV" cond="ifndef MODE_AUTO2"/>
+      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
     </includes>
 
     <settings>
@@ -67,8 +60,24 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
+    <mode name="MODULE">
+      <select cond="RCMode1()"/>
+      <on_enter>
+        <call fun="guidance_module_enter()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="guidance_module_run(autopilot_in_flight())"/>
+        <call_block name="set_commands"/>
+      </control>
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
+
     <mode name="NAV">
-      <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
+      <select cond="RCMode2()" exception="HOME"/>
+      <select cond="$DEFAULT_MODE"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
@@ -82,54 +91,6 @@
         <call_block name="set_commands"/>
       </control>
       <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>
-
-    <mode name="GUIDED">
-      <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
-      <on_enter>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED)"/>
-        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call_block name="run_guidance_control"/>
-        <call_block name="set_commands"/>
-      </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>
-
-    <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
-      <select cond="RCMode1() && DLModeAZH()"/>
-      <on_enter>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER)"/>
-        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call_block name="run_attitude_control"/>
-        <call_block name="set_commands"/>
-      </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>
-
-    <mode name="MODULE" shortname="ONE">
-      <select cond="RCMode1() && DLModeModule()" exception="HOME"/>
-      <on_enter>
-        <call fun="oneloop_andi_enter(false)"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call fun="oneloop_from_nav(autopilot_in_flight())"/>
-      </control>
-      <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="HOME">
@@ -150,7 +111,6 @@
 
     <!-- Safe landing -->
     <mode name="FAILSAFE" shortname="FAIL">
-    <!-- Failsafe does not work needs to be fixed-->
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)"/>

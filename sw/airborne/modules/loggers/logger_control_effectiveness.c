@@ -118,7 +118,7 @@ void logger_control_effectiveness_periodic(void)
 #if LOGGER_CONTROL_EFFECTIVENESS_COMMANDS
   for (unsigned int i = 0; i < COMMANDS_NB; i++) {
 #ifdef ROTORCRAFT_FIRMWARE
-    sdLogWriteLog(pprzLogFile, ",%ld", stabilization_cmd[i]);
+    sdLogWriteLog(pprzLogFile, ",%ld", stabilization.cmd[i]);
 #endif
 #ifdef FIXEDWING_FIRMWARE
     sdLogWriteLog(pprzLogFile, ",%d", commands[i]);
