@@ -44,6 +44,10 @@
   <event fun="ms45xx_i2c_event()"/>
 
   <makefile target="ap">
+    <configure name="MS45XX_I2C_DEV" default="i2c2" case="lower|upper"/>
+    <define name="MS45XX_I2C_DEV" value="$(MS45XX_I2C_DEV_LOWER)"/>
+    <define name="USE_$(MS45XX_I2C_DEV_UPPER)"/>
+
     <file name="airspeed_ms45xx_i2c.c"/>
     <test>
       <define name="MS45XX_I2C_PERIODIC_PERIOD" value="0.001"/>
