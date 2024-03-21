@@ -39,21 +39,35 @@
 #define ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES 16
 #endif
 
-static struct adc_buf buf_wing_rot_pos;
+#ifndef ADC_WING_ROT_OFFSET 
+#error "ADC_WING_ROT_OFFSET not defined"
+#endif
 
+#ifndef ADC_WING_ROT_SCALE
+#error "ADC_WING_ROT_SCALE not defined"
+#endif
+
+#ifdef ADC_WING_ROT_OFFSET
+static float adc_offset = ADC_WING_ROT_OFFSET;
+#endif
+
+#ifdef ADC_WING_ROT_SCALE
+static float adc_scale = ADC_WING_ROT_SCALE;
+#endif
+
+static struct adc_buf buf_wing_rot_pos;
 // Initialization
 void wing_rotation_adc_init(void)
 {
   // ADC init
   adc_buf_channel(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION, &buf_wing_rot_pos,
-                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);
+                  ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_NB_SAMPLES);    
 }
 
 void wing_rotation_adc_to_deg(void)
 {
   float adc_wing_rotation = buf_wing_rot_pos.sum / buf_wing_rot_pos.av_nb_sample;
-  float wing_angle_deg = 0.00247111 * adc_wing_rotation - 25.635294;
-
+  float wing_angle_deg = adc_scale * adc_wing_rotation + adc_offset;
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
   struct act_feedback_t feedback = {0};
