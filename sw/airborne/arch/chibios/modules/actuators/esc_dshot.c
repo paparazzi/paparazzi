@@ -467,7 +467,7 @@ uint32_t dshotGetTelemetryFrameCount(const DSHOTDriver *driver)
  */
 DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, uint32_t index)
 {
-  index -= - DSHOT_CHANNEL_FIRST_INDEX;
+  index -= DSHOT_CHANNEL_FIRST_INDEX;
   chDbgAssert(index < DSHOT_CHANNELS, "dshot index error");
   chMtxLock(&driver->dshotMotors.tlmMtx[index]);
   const DshotTelemetry tlm = driver->dshotMotors.dt[index];
