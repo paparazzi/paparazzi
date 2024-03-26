@@ -69,7 +69,7 @@
     <provides>commands</provides>
   </dep>
   <header>
-    <file name="stabilization_indi.h"/>
+    <file name="stabilization_attitude_quat_indi.h"/>
   </header>
   <init fun="stabilization_indi_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
@@ -79,8 +79,6 @@
     <configure name="INDI_NUM_ACT" default="4"/>
     <define name="INDI_OUTPUTS" value="$(INDI_OUTPUTS)"/>
     <define name="INDI_NUM_ACT" value="$(INDI_NUM_ACT)"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
   </makefile>
 </module>

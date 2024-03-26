@@ -39,10 +39,10 @@
 static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_BEBOP_ACTUATORS(trans, dev, AC_ID,
-                                &stabilization_cmd[COMMAND_THRUST],
-                                &stabilization_cmd[COMMAND_ROLL],
-                                &stabilization_cmd[COMMAND_PITCH],
-                                &stabilization_cmd[COMMAND_YAW],
+                                &stabilization.cmd[COMMAND_THRUST],
+                                &stabilization.cmd[COMMAND_ROLL],
+                                &stabilization.cmd[COMMAND_PITCH],
+                                &stabilization.cmd[COMMAND_YAW],
                                 &actuators_bebop.rpm_ref[0],
                                 &actuators_bebop.rpm_ref[1],
                                 &actuators_bebop.rpm_ref[2],

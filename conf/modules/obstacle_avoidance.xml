@@ -63,12 +63,6 @@
   <makefile>
     <file name="obstacle_avoidance.c"/>
     <file name="guidance_OA.c"/>
-
-    <raw>
-        ap.CFLAGS += -DGUIDANCE_V_MODE_MODULE_SETTING=GUIDANCE_V_MODE_HOVER
-    ap.CFLAGS += -DGUIDANCE_H_MODE_MODULE_SETTING=GUIDANCE_H_MODE_MODULE
-    </raw>
-
   </makefile>
 
 </module>

@@ -261,7 +261,7 @@ static struct StabilizationSetpoint guidance_pid_h_run(bool in_flight, struct Ho
   if (guidance_pid.approx_force_by_thrust && in_flight) {
     static int32_t thrust_cmd_filt;
     // FIXME strong coupling with guidance_v here !!!
-    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v.thrust_coeff) >> INT32_TRIG_FRAC;
+    int32_t vertical_thrust = (stabilization.cmd[COMMAND_THRUST] * guidance_v.thrust_coeff) >> INT32_TRIG_FRAC;
     thrust_cmd_filt = (thrust_cmd_filt * GUIDANCE_H_THRUST_CMD_FILTER + vertical_thrust) /
                       (GUIDANCE_H_THRUST_CMD_FILTER + 1);
     guidance_pid.cmd_earth.x = ANGLE_BFP_OF_REAL(atan2f((guidance_pid.cmd_earth.x * MAX_PPRZ / INT32_ANGLE_PI_2),
@@ -318,7 +318,7 @@ struct StabilizationSetpoint guidance_pid_h_run_accel(bool in_flight UNUSED, str
 
 #define FF_CMD_FRAC 18
 
-static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv)
+static struct ThrustSetpoint guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv)
 {
   /* compute the error to our reference */
   int32_t err_z  = gv->z_ref - stateGetPositionNed_i()->z;
@@ -365,23 +365,25 @@ static int32_t guidance_pid_v_run(bool in_flight, struct VerticalGuidance *gv)
   /* bound the result */
   Bound(guidance_pid.cmd_thrust, 0, MAX_PPRZ);
 
-  return guidance_pid.cmd_thrust;
+  return th_sp_from_thrust_i(guidance_pid.cmd_thrust, THRUST_AXIS_Z);
 }
 
-int32_t guidance_pid_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_pid_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_pid_v_run(in_flight, gv);
 }
 
-int32_t guidance_pid_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_pid_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_pid_v_run(in_flight, gv);
 }
 
-int32_t guidance_pid_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
+struct ThrustSetpoint guidance_pid_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv UNUSED)
 {
   // TODO
-  return 0;
+  struct ThrustSetpoint sp;
+  THRUST_SP_SET_ZERO(sp);
+  return sp;
 }
 
 void guidance_pid_h_enter(void)
@@ -445,17 +447,17 @@ struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct Horizon
   return guidance_pid_h_run_accel(in_flight, gh);
 }
 
-int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_pid_v_run_pos(in_flight, gv);
 }
 
-int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_pid_v_run_speed(in_flight, gv);
 }
 
-int32_t guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_pid_v_run_accel(in_flight, gv);
 }

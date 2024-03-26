@@ -755,18 +755,13 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     ekf.get_quat_reset(delta_q_reset, &quat_reset_counter);
 
 #ifndef NO_RESET_UPDATE_SETPOINT_HEADING
-
+    // FIXME is this hard reset of control setpoint really needed ? is it the right place ?
     if (ekf2.quat_reset_counter < quat_reset_counter) {
       float psi = matrix::Eulerf(matrix::Quatf(delta_q_reset)).psi();
-#if defined STABILIZATION_ATTITUDE_TYPE_INT
-      stab_att_sp_euler.psi += ANGLE_BFP_OF_REAL(psi);
-#else
-      stab_att_sp_euler.psi += psi;
-#endif
       guidance_h.sp.heading += psi;
-      guidance_h.rc_sp.psi += psi;
+      guidance_h.rc_sp.heading += psi;
       nav.heading += psi;
-      guidance_h_read_rc(autopilot_in_flight());
+      //guidance_h_read_rc(autopilot_in_flight());
       stabilization_attitude_enter();
       ekf2.quat_reset_counter = quat_reset_counter;
     }

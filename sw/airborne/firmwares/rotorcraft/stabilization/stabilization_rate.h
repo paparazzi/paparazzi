@@ -28,18 +28,50 @@
 #ifndef STABILIZATION_RATE
 #define STABILIZATION_RATE
 
+#include "firmwares/rotorcraft/stabilization.h"
+#include "modules/radio_control/radio_control.h"
 #include "math/pprz_algebra_float.h"
 
-extern void stabilization_rate_init(void);
-extern void stabilization_rate_read_rc(void);
-extern void stabilization_rate_read_rc_switched_sticks(void);
-extern void stabilization_rate_run(bool in_flight);
-extern void stabilization_rate_enter(void);
+#ifndef STABILIZATION_RATE_DEADBAND_P
+#define STABILIZATION_RATE_DEADBAND_P 0
+#endif
+#ifndef STABILIZATION_RATE_DEADBAND_Q
+#define STABILIZATION_RATE_DEADBAND_Q 0
+#endif
+#ifndef STABILIZATION_RATE_DEADBAND_R
+#define STABILIZATION_RATE_DEADBAND_R 200
+#endif
 
-extern struct FloatRates stabilization_rate_sp;
+#define ROLL_RATE_DEADBAND_EXCEEDED(_rc)                       \
+  (_rc->values[RADIO_ROLL] >  STABILIZATION_RATE_DEADBAND_P || \
+   _rc->values[RADIO_ROLL] < -STABILIZATION_RATE_DEADBAND_P)
+
+#define PITCH_RATE_DEADBAND_EXCEEDED(_rc)                       \
+  (_rc->values[RADIO_PITCH] >  STABILIZATION_RATE_DEADBAND_Q || \
+   _rc->values[RADIO_PITCH] < -STABILIZATION_RATE_DEADBAND_Q)
+
+#define YAW_RATE_DEADBAND_EXCEEDED(_rc)                       \
+  (_rc->values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
+   _rc->values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
+
+#if SWITCH_STICKS_FOR_RATE_CONTROL
+// Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
+#define RC_RATE_P RADIO_YAW
+#define RC_RATE_Q RADIO_PITCH
+#define RC_RATE_R RADIO_ROLL
+#else
+// Normal orientation
+#define RC_RATE_P RADIO_ROLL
+#define RC_RATE_Q RADIO_PITCH
+#define RC_RATE_R RADIO_YAW
+#endif
+
+extern void stabilization_rate_init(void);
+extern void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd);
+extern void stabilization_rate_enter(void);
+extern struct StabilizationSetpoint stabilization_rate_read_rc(struct RadioControl *rc);
+
 extern struct FloatRates stabilization_rate_gain;
 extern struct FloatRates stabilization_rate_igain;
-extern struct FloatRates stabilization_rate_sum_err;
-extern struct FloatRates stabilization_rate_fb_cmd;
 
 #endif /* STABILIZATION_RATE */

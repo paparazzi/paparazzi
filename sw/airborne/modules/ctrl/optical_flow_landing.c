@@ -81,6 +81,7 @@ float divergence_vision;
 #include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
 
 // used for automated landing:
@@ -325,13 +326,12 @@ float past_divergence_history[OFL_COV_WINDOW_SIZE];
 uint32_t ind_hist;
 uint8_t cov_array_filled;
 
-void vertical_ctrl_module_init(void);
 void vertical_ctrl_module_run(bool in_flight);
 
 /**
  * Initialize the optical flow landing module
  */
-void vertical_ctrl_module_init(void)
+void optical_flow_landing_init(void)
 {
   // filling the of_landing_ctrl struct with default values:
   of_landing_ctrl.use_bias = true;
@@ -617,7 +617,7 @@ void vertical_ctrl_module_run(bool in_flight)
     if (module_active_time_sec < 2.5f) {
       int32_t nominal_throttle = of_landing_ctrl.nominal_thrust * MAX_PPRZ;
       thrust_set = nominal_throttle;
-      stabilization_cmd[COMMAND_THRUST] = thrust;
+      stabilization.cmd[COMMAND_THRUST] = thrust;
       // keep track of histories and set the covariance
       set_cov_div(thrust_set);
       cov_div = 0.0f; // however, cov div is set to 0 to prevent strange issues at module startup.
@@ -902,7 +902,6 @@ void vertical_ctrl_module_run(bool in_flight)
 
     if (in_flight) {
       Bound(thrust_set, 0.25 * of_landing_ctrl.nominal_thrust * MAX_PPRZ, MAX_PPRZ);
-      stabilization_cmd[COMMAND_THRUST] = thrust_set;
     }
   }
 
@@ -987,9 +986,10 @@ void vertical_ctrl_module_run(bool in_flight)
   };
 
   // set the desired roll pitch and yaw:
-  stabilization_indi_set_rpy_setpoint_i(&rpy);
+  struct StabilizationSetpoint sp = stab_sp_from_eulers_i(&rpy);
+  struct ThrustSetpoint th = th_sp_from_thrust_i(thrust_set, THRUST_AXIS_Z);
   // execute attitude stabilization:
-  stabilization_attitude_run(in_flight);
+  stabilization_attitude_run(in_flight, &sp, &th, stabilization.cmd);
 }
 
 /**
@@ -1163,46 +1163,23 @@ void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp,
 ////////////////////////////////////////////////////////////////////
 // Call our controller
 
-void guidance_h_module_init(void)
-{
-
-}
-
-void guidance_h_module_enter(void)
-{
-
-}
-
-void guidance_h_module_run(bool UNUSED in_flight)
-{
-
-}
-
-void guidance_h_module_read_rc(void)
-{
-
-}
-
-void guidance_v_module_init(void)
-{
-  vertical_ctrl_module_init();
-}
-
 /**
  * Entering the module (user switched to module)
  */
-void guidance_v_module_enter(void)
+void guidance_module_enter(void)
 {
   reset_all_vars();
 
   // adaptive estimation - assume hover condition when entering the module
-  of_landing_ctrl.nominal_thrust = (float) stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ;
+  of_landing_ctrl.nominal_thrust = (float) stabilization.cmd[COMMAND_THRUST] / MAX_PPRZ;
   thrust_set = of_landing_ctrl.nominal_thrust * MAX_PPRZ;
 }
 
-void guidance_v_module_run(bool in_flight)
+void guidance_module_run(bool in_flight)
 {
   vertical_ctrl_module_run(in_flight);
+
+  // FIXME horizontal guidance ?
 }
 
 // SSL:

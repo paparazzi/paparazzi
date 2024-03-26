@@ -53,6 +53,10 @@
   (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_THRESHOLD && \
    radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_THRESHOLD)
 
+// macros with pointer to radio control struct
+#define THROTTLE_STICK_DOWN_FROM_RC(_rc)                                \
+  (_rc->values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_THRESHOLD)
+
 /** RC mode switch position helper
  *  switch positions threshold are evenly spaced
  *

@@ -20,14 +20,17 @@
   </dep>
   <header>
     <file name="stabilization.h" dir="firmwares/rotorcraft"/>
-    <file name="stabilization_none.h"/>
+    <file name="stabilization_direct.h"/>
   </header>
   <init fun="stabilization_init()"/>
-  <init fun="stabilization_none_init()"/>
+  <init fun="stabilization_direct_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization.c" dir="$(SRC_FIRMWARE)"/>
-    <file name="stabilization_none.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_direct.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <test firmware="rotorcraft">
+      <define name="PERIODIC_FREQUENCY" value="500"/>
+    </test>
   </makefile>
 </module>

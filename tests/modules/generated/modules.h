@@ -9,6 +9,7 @@
 #include "std.h"
 #include "core/settings.h"
 #include "radio_control/radio_control.h"
+#include "generated/radio.h"
 #include "./mcu.h"
 #include "mcu_periph/gpio.h"
 #include "math/pprz_algebra_int.h"

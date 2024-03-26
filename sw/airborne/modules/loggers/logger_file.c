@@ -108,8 +108,8 @@ static void logger_file_write_row(FILE *file) {
 #endif
 #ifdef COMMAND_THRUST
   fprintf(file, "%d,%d,%d,%d\n",
-      stabilization_cmd[COMMAND_THRUST], stabilization_cmd[COMMAND_ROLL],
-      stabilization_cmd[COMMAND_PITCH], stabilization_cmd[COMMAND_YAW]);
+      stabilization.cmd[COMMAND_THRUST], stabilization.cmd[COMMAND_ROLL],
+      stabilization.cmd[COMMAND_PITCH], stabilization.cmd[COMMAND_YAW]);
 #else
   fprintf(file, "%d,%d\n", h_ctl_aileron_setpoint, h_ctl_elevator_setpoint);
 #endif

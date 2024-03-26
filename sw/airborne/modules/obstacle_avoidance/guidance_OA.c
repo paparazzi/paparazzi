@@ -135,16 +135,11 @@ struct FloatVect3 Total_force = {0, 0, 0};
 //    //                          &opticflow_stab.desired_vy, &opti_speed_read.x, &opti_speed_read.y);
 //}
 
-void guidance_h_module_init(void)
-{
-
-}
-
 /**
  * Horizontal guidance mode enter resets the errors
  * and starts the controller.
  */
-void guidance_h_module_enter(void)
+void guidance_module_enter(void)
 {
   /* Reset the integrated errors */
   opticflow_stab.err_vx_int = 0;
@@ -158,28 +153,21 @@ void guidance_h_module_enter(void)
   new_heading = 0;
 
 //  register_periodic_telemetry(DefaultPeriodic, "INPUT_CONTROL", send_INPUT_CONTROL);
-}
 
-/**
- * Read the RC commands
- */
-void guidance_h_module_read_rc(void)
-{
-  // TODO: change the desired vx/vy
+  guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
 }
 
 /**
  * Main guidance loop
  * @param[in] in_flight Whether we are in flight or not
  */
-void guidance_h_module_run(bool in_flight)
+void guidance_module_run(bool in_flight)
 {
   OA_update();
-  /* Update the setpoint */
-  stabilization_attitude_set_rpy_setpoint_i(&opticflow_stab.cmd);
-
+  struct StabilizationSetpoint sp = stab_sp_from_eulers_i(&opticflow_stab.cmd);
+  struct ThrustSetpoint th = guidance_v_run(in_flight);
   /* Run the default attitude stabilization */
-  stabilization_attitude_run(in_flight);
+  stabilization_attitude_run(in_flight, &sp, &th, stabilization.cmd);
 }
 
 /**

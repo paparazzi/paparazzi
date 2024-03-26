@@ -6,6 +6,8 @@ ARDrone2 with optical_flow landing.
   </description>
 
   <firmware name="rotorcraft">
+    <autopilot name="rotorcraft_control_loop"/>
+
     <target name="ap" board="ardrone2">
       <configure name="USE_BARO_BOARD" value="FALSE"/>
     </target>

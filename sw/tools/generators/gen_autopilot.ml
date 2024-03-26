@@ -251,10 +251,17 @@ let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
 
   (** Print function *)
   let print_call = fun call ->
+    let store =
+      try
+        let s = Xml.attrib call "store" in
+        let s = List.hd (List.rev (Str.split (Str.regexp " ") s)) in (* extract last word *)
+        sprintf "%s = " s
+      with _ -> ""
+    in
     try
       let f = Xml.attrib call "fun" in
-      let cond = try String.concat "" ["if ("; (Xml.attrib call "cond"); ") { "; f; "; }\n"]
-        with _ -> String.concat "" [f; ";\n"] in
+      let cond = try String.concat "" ["if ("; (Xml.attrib call "cond"); ") { "; store; f; "; }\n"]
+        with _ -> String.concat "" [store; f; ";\n"] in
       lprintf out_h "%s" cond
     with _ -> ()
   in
@@ -293,9 +300,25 @@ let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
     List.filter (fun m -> (Xml.tag m) = "control") (Xml.children mode)
   in
 
+  (** Find store attributes *)
+  let rec get_stores = fun acc x ->
+    match x with
+    | [] -> acc
+    | h::xs -> begin
+      try
+        let s = Xml.attrib h "store" in
+        get_stores (s::acc) xs
+      with _ ->
+        get_stores (get_stores acc (Xml.children h)) xs
+    end
+  in
+  let stores = Gen_common.singletonize (get_stores [] (modes @ ctrl_block)) in
+
+
   (** Start printing the main periodic task *)
   lprintf out_h "\nstatic inline void autopilot_core_%s_periodic_task(void) {\n\n" name;
   right ();
+  List.iter (fun s -> lprintf out_h "%s;\n" s) stores;
   lprintf out_h "uint8_t mode = autopilot_core_%s_mode_select();\n" name; (* get selected mode *)
   lprintf out_h "mode = autopilot_core_%s_mode_exceptions(mode);\n" name; (* change mode according to exceptions *)
   lprintf out_h "mode = autopilot_core_%s_global_exceptions(mode);\n" name; (* change mode according to global exceptions *)

@@ -15,7 +15,5 @@
   </header>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_oneloop.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <!-- <define name="STABILIZATION_ATTITUDE_TYPE_INT"/> -->
-    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_oneloop.h" type="string"/>
   </makefile>
 </module>

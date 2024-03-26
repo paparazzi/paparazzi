@@ -237,9 +237,6 @@
     <define name="REF_RATE_Q" value="18.0"/>
     <define name="REF_RATE_R" value="11.0"/> 
 
-    <!--Maxium yaw rate, to avoid instability-->
-    <define name="MAX_R" value="60.0" unit="deg/s"/>
-
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
     <define name="FILT_CUTOFF" value="5.0"/>
 
@@ -251,6 +248,10 @@
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="60" unit="deg"/>
   </section>
 
   <section name="GUIDANCE_INDI">
@@ -272,20 +273,12 @@
     <define name="GUIDANCE_INDI_PITCH_OFFSET_GAIN" value="0.06"/>
     <define name="GUIDANCE_INDI_FILTER_CUTOFF" value="1.5"/>
     <define name="GUIDANCE_INDI_LINE_GAIN" value="0.7"/>
+    <define name="FWD_SIDESLIP_GAIN" value="0.20"/>
     <!--Flap effectiveness on lift-->
     <define name="FE_LIFT_A_PITCH" value="0.00018"/>
     <define name="FE_LIFT_B_PITCH" value="0.00072"/>
     <define name="FE_LIFT_A_AS" value="0.0008"/>
     <define name="FE_LIFT_B_AS" value="0.00009"/>
-  </section>
-
-  <!-- Gains for vertical navigation -->
-  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="174"/>
-    <define name="HOVER_KD" value="92"/>
-    <define name="HOVER_KI" value="72"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.4"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
   <section name="NAV">
@@ -297,6 +290,7 @@
     <define name="NAV_LANDING_DESCEND_SPEED" value="-1.0"/>
     <define name="SURVEY_HYBRID_MAX_SWEEP_BACK" value="1"/>
     <define name="MISSION_ALT_PROXIMITY" value="4."/>
+    <define name="NAV_HYBRID_LINE_GAIN" value="0.8"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -305,18 +299,9 @@
 
   <include href="conf/mag/toulouse_muret.xml"/>
 
-  <!-- Gains for horizontal navigation-->
-  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="50" unit="deg"/>
-    <define name="PGAIN" value="100"/>
-    <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="10"/>
-  </section>
-
   <section name="MISC">
     <!--The Quadshot uses (when TRUE) a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
-    <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
     <define name="TRANSITION_MAX_OFFSET" value="-80.0" unit="deg"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <define name="COORDINATED_TURN_AIRSPEED" value="18.0"/>
@@ -324,11 +309,7 @@
     <define name="BARO_PERIODIC_FREQUENCY" value="50"/>
     <define name="USE_AIRSPEED" value="TRUE"/>
 
-    <define name="FWD_SIDESLIP_GAIN" value="0.20"/> <!-- most flight done with 0.3 -->
-
-    <define name="EFF_SCHED_USE_FUNCTION" value="TRUE"/>
-
-    <define name="ARRIVED_AT_WAYPOINT" value="4.0"/> <!-- For outdoor -->
+    <define name="ARRIVED_AT_WAYPOINT" value="5.0"/> <!-- For outdoor -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="60"/> <!-- For outdoor -->
     <define name="CARROT" value="3.0"/>
   </section>

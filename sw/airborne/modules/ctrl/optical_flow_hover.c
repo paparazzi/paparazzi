@@ -22,10 +22,12 @@
 #include "optical_flow_functions.h"
 
 #include "generated/airframe.h"
+#include "autopilot.h"
 #include "paparazzi.h"
 #include "modules/core/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "modules/energy/electrical.h"
 #include <stdio.h>
 
@@ -222,10 +224,8 @@ void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t sta
 // resetting all variables to be called for instance when starting up / re-entering module
 static void reset_horizontal_vars(void);
 static void reset_vertical_vars(void);
-void vertical_ctrl_module_init(void);
-void vertical_ctrl_module_run(bool in_flight);
-void horizontal_ctrl_module_init(void);
-void horizontal_ctrl_module_run(bool in_flight);
+void vertical_ctrl_module_run(void);
+void horizontal_ctrl_module_run(void);
 
 // Compute OptiTrack stabilization for 1/2 axes
 void computeOptiTrack(bool phi, bool theta, struct Int32Eulers *opti_sp_eu);
@@ -299,44 +299,26 @@ void optical_flow_hover_init()
 }
 
 /**
- * Initialize the vertical optical flow hover module
- */
-void vertical_ctrl_module_init(void)
-{
-  // filling the of_hover_ctrl struct with default values:
-  reset_vertical_vars();
-}
-
-/**
- * Initialize the horizontal optical flow hover module
- */
-void horizontal_ctrl_module_init(void)
-{
-  // filling the of_hover_ctrl struct with default values:
-  reset_horizontal_vars();
-}
-
-/**
  * Reset all horizontal variables:
  */
 static void reset_horizontal_vars(void)
 {
   // Take the current angles as neutral
-  struct Int32Eulers tempangle;
-  int32_eulers_of_quat(&tempangle, &stab_att_sp_quat);
+  struct Int32Eulers tempangle = stab_sp_to_eulers_i(&stabilization.sp);
   of_hover_ctrl_X.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.phi, INT32_ANGLE_FRAC));
   of_hover_ctrl_Y.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.theta, INT32_ANGLE_FRAC));
 
   des_inputs.phi = 0;
   des_inputs.theta = 0;
 
-  if ((hover_method == 0) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE)) {
+  // FIXME module is always used for vertical control
+  if ((hover_method == 0)) {
     // Z - X - Y Order
     oscillatingX = 1;
     oscillatingY = 1;
     of_hover_ctrl_X.PID.P = OFH_PGAINX;
     of_hover_ctrl_Y.PID.P = OFH_PGAINX;
-  } else if ((hover_method == 2) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE)) {
+  } else if ((hover_method == 2)) {
     // Z Set XY
     oscillatingX = 1;
     oscillatingY = 1;
@@ -345,7 +327,7 @@ static void reset_horizontal_vars(void)
     of_hover_ctrl_X.PID.I = OFH_IGAINX / 4; // Have a slighly lower I gain during Z
     of_hover_ctrl_Y.PID.I = OFH_IGAINY / 4; // Have a slighly lower I gain during Z
   } else {
-    // if V is in NAV or hover_method = 1
+    // if V is in NAV or hover_method = 1 FIXME NAV is not called for vertical
     //All axes
     oscillatingX = 0;
     oscillatingY = 0;
@@ -420,13 +402,11 @@ static void reset_vertical_vars(void)
   prev_vision_timeZ = vision_time;
 }
 
-// Read H RC
-void guidance_h_module_read_rc(void) {}
 
 /**
  * Run the horizontal optical flow hover module
  */
-void horizontal_ctrl_module_run(bool in_flight)
+void horizontal_ctrl_module_run(void)
 {
   /***********
    * TIME
@@ -509,8 +489,6 @@ void horizontal_ctrl_module_run(bool in_flight)
 
   // Compute 0, 1 or 2 horizontal axes with optitrack
   computeOptiTrack(!oscphi, !osctheta, &ofh_sp_eu);
-  // Run the stabilization mode
-  stabilization_attitude_set_rpy_setpoint_i(&ofh_sp_eu);
 
   prev_vision_timeXY = vision_time;
 }
@@ -518,7 +496,7 @@ void horizontal_ctrl_module_run(bool in_flight)
 /**
  * Run the vertical optical flow hover module
  */
-void vertical_ctrl_module_run(bool in_flight)
+void vertical_ctrl_module_run(void)
 {
   /***********
    * TIME
@@ -595,11 +573,10 @@ void vertical_ctrl_module_run(bool in_flight)
     }
   }
 
-  stabilization_cmd[COMMAND_THRUST] = des_inputs.thrust;
 }
 
-void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int32_t flow_x, int32_t flow_y,
-                         int32_t flow_der_x, int32_t flow_der_y, float quality, float size_div)
+void ofh_optical_flow_cb(uint8_t sender_id UNUSED, uint32_t stamp, int32_t flow_x, int32_t flow_y,
+                         int32_t flow_der_x, int32_t flow_der_y, float quality UNUSED, float size_div)
 {
   if (!derotated) {
     flowX = flow_x;
@@ -615,63 +592,38 @@ void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t sta
 }
 
 ////////////////////////////////////////////////////////////////////
-// Call our vertical controller
-void guidance_v_module_init(void)
-{
-  vertical_ctrl_module_init();
-}
-
-// Call our horizontal controller
-void guidance_h_module_init(void)
-{
-  horizontal_ctrl_module_init();
-}
+// Call our controller
 
 /**
- * Entering the vertical module (user switched to module)
+ * Entering the module (user switched to module)
  */
-void guidance_v_module_enter(void)
+void guidance_module_enter(void)
 {
   reset_vertical_vars();
 
   // adaptive estimation - assume hover condition when entering the module
-  of_hover_ctrl_Z.nominal_value = (float) stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ;
+  of_hover_ctrl_Z.nominal_value = (float) stabilization.cmd[COMMAND_THRUST] / MAX_PPRZ;
   des_inputs.thrust = (int32_t) of_hover_ctrl_Z.nominal_value * MAX_PPRZ;
-}
 
-/**
- * Entering the horizontal module (user switched to module)
- */
-void guidance_h_module_enter(void)
-{
   // Set current psi as heading
   ofh_sp_eu.psi = stateGetNedToBodyEulers_i()->psi;
 
   VECT2_COPY(of_hover_ref_pos, *stateGetPositionNed_i());
   reset_horizontal_vars();
-
 }
 
-// Run the veritcal controller
-void guidance_v_module_run(bool in_flight)
+// Run the controller
+void guidance_module_run(bool in_flight)
 {
   if (electrical.bat_low) {
-    autopilot_static_set_mode(AP_MODE_NAV);
+    autopilot_set_mode(AP_MODE_NAV);
   } else {
-    // your vertical controller goes here
-    vertical_ctrl_module_run(in_flight);
-  }
-}
-
-// Run the horizontal controller
-void guidance_h_module_run(bool in_flight)
-{
-
-  if (electrical.bat_low) {
-    autopilot_static_set_mode(AP_MODE_NAV);
-  } else {
-    horizontal_ctrl_module_run(in_flight);
-    stabilization_attitude_run(in_flight);
+    // your controller goes here
+    vertical_ctrl_module_run();
+    horizontal_ctrl_module_run();
+    struct StabilizationSetpoint sp = stab_sp_from_eulers_i(&ofh_sp_eu);
+    struct ThrustSetpoint th = th_sp_from_thrust_i(des_inputs.thrust, THRUST_AXIS_Z);
+    stabilization_attitude_run(in_flight, &sp, &th, stabilization.cmd);
   }
 }
 
@@ -754,3 +706,4 @@ void computeOptiTrack(bool phi, bool theta, struct Int32Eulers *opti_sp_eu)
     opti_sp_eu->theta = -(c_psi * of_hover_cmd_earth.x + s_psi * of_hover_cmd_earth.y) >> INT32_TRIG_FRAC;
   }
 }
+

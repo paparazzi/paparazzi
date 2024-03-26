@@ -29,50 +29,16 @@
  * Dynamic Inversion for Attitude Control of Micro Aerial Vehicles
  */
 
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_indi.h"
 
-
-void stabilization_attitude_init(void)
-{
-  // indi init is already done through module init
-}
 
 void stabilization_attitude_enter(void)
 {
   stabilization_indi_enter();
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void)
+void stabilization_attitude_run(bool in_flight, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
-  stabilization_indi_set_failsafe_setpoint();
+  stabilization_indi_attitude_run(in_flight, sp, thrust, cmd);
 }
 
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
-{
-  stabilization_indi_set_rpy_setpoint_i(rpy);
-}
-
-void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
-{
-  stabilization_indi_set_quat_setpoint_i(quat);
-}
-
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
-{
-  stabilization_indi_set_earth_cmd_i(cmd, heading);
-}
-
-void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
-{
-  stabilization_indi_set_stab_sp(sp);
-}
-
-void stabilization_attitude_run(bool in_flight)
-{
-  stabilization_indi_attitude_run(stab_att_sp_quat, in_flight);
-}
-
-void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
-{
-  stabilization_indi_read_rc(in_flight, in_carefree, coordinated_turn);
-}

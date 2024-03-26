@@ -49,8 +49,6 @@
 #define AP_MODE_RC_DIRECT         14  // Safety Pilot Direct Commands for helicopter direct control
 #define AP_MODE_CARE_FREE_DIRECT  15
 #define AP_MODE_FORWARD           16
-#define AP_MODE_MODULE            17
-#define AP_MODE_FLIP              18
 #define AP_MODE_GUIDED            19
 
 

@@ -767,7 +767,7 @@ void draw_osd(void)
 #if defined(FIXEDWING_FIRMWARE)
       osd_sprintf(osd_string, "THR%.0f", (((float)command_get(COMMAND_THROTTLE) / (float)MAX_PPRZ) * 100.));
 #else
-      osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization_cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
+      osd_sprintf(osd_string, "THR%.0fTHR", (((float)stabilization.cmd[COMMAND_THRUST] / (float)MAX_PPRZ) * 100.));
 #endif
       osd_put_s(osd_string, L_JUST, 6, 3, 1);
       step = 60;

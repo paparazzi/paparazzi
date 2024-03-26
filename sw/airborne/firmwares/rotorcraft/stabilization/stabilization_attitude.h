@@ -32,18 +32,38 @@ extern "C" {
 #endif
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "math/pprz_algebra_int.h"
-#include STABILIZATION_ATTITUDE_TYPE_H
+#include "modules/radio_control/radio_control.h"
 
+/** Stabilization init function
+ *
+ * needs to be implemented by the selected controller
+ */
 extern void stabilization_attitude_init(void);
-extern void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
+
+/** Retrun attitude setpoint from RC as euler angles
+ *
+ * weak function that can be re-implemeted if needed
+ *
+ * @param[in]  in_flight         true if in flight
+ * @param[in]  in_carefree       true if in carefree mode
+ * @param[in]  coordinated_turn  true if in horizontal mode forward
+ * @param[in]  rc                pointer to radio control structure
+ * @return stabilization setpoint
+ */
+extern struct StabilizationSetpoint stabilization_attitude_read_rc(bool in_flight, bool carefree, bool coordinated_turn, struct RadioControl *rc);
+
+/** Attitude control enter function
+ */
 extern void stabilization_attitude_enter(void);
-extern void stabilization_attitude_set_failsafe_setpoint(void);
-extern void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy);
-extern void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat);
-extern void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
-extern void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp);
-extern void stabilization_attitude_run(bool in_flight);
+
+/** Attitude control run function
+ *
+ * @param[in] in_flight         true if in flight
+ * @param[in] sp                pointer to the stabilization setpoint structure
+ * @param[in] thrust            pointer to the thrust setoint structure
+ * @param[out] cmd              pointer to the output command vector
+ */
+extern void stabilization_attitude_run(bool in_flight, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd);
 
 #ifdef __cplusplus
 }

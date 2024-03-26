@@ -19,9 +19,11 @@
   <header>
     <file name="ctrl_module_outerloop_demo.h"/>
   </header>
+  <init fun="ctrl_module_init()"/>
 
   <makefile>
     <file name="ctrl_module_outerloop_demo.c"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 
 </module>

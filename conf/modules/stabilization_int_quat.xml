@@ -65,14 +65,11 @@
     <provides>commands</provides>
   </dep>
   <header>
-    <file name="stabilization_attitude.h"/>
     <file name="stabilization_attitude_quat_int.h"/>
   </header>
-  <init fun="stabilization_attitude_init()"/>
+  <init fun="stabilization_attitude_quat_int_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_attitude_quat_int.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_ref_quat_int.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization_attitude_quat_int.h" type="string"/>
   </makefile>
 </module>

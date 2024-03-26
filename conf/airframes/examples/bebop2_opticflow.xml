@@ -9,6 +9,7 @@
   </description>
 
   <firmware name="rotorcraft">
+    <autopilot name="rotorcraft_control_loop"/>
 
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>

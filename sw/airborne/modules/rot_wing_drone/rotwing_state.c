@@ -297,7 +297,7 @@ void rotwing_check_set_current_state(void)
       }
 
       // Check if state needs to be set to fixed wing with hover motors idle (If hover thrust below threshold)
-      if (stabilization_cmd[COMMAND_THRUST] < ROTWING_MIN_THRUST_IDLE && rotwing_state.desired_state > ROTWING_STATE_FW) {
+      if (stabilization.cmd[COMMAND_THRUST] < ROTWING_MIN_THRUST_IDLE && rotwing_state.desired_state > ROTWING_STATE_FW) {
         rotwing_state_fw_idle_counter++;
       } else {
         rotwing_state_fw_idle_counter = 0;
@@ -318,7 +318,7 @@ void rotwing_check_set_current_state(void)
 
     case ROTWING_STATE_FW_HOV_MOT_IDLE:
       // Check if state needs to be set to fixed wing with hover motors activated
-      if (stabilization_cmd[COMMAND_THRUST] > ROTWING_MIN_THRUST_IDLE
+      if (stabilization.cmd[COMMAND_THRUST] > ROTWING_MIN_THRUST_IDLE
           || rotwing_state.desired_state < ROTWING_STATE_FW_HOV_MOT_IDLE) {
         rotwing_state_fw_counter++;
       } else {

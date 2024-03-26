@@ -46,9 +46,10 @@ extern struct VerticalCtrlDemo v_ctrl;
 // and own guidance_v
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
 
+extern void vertical_ctrl_module_init(void);
+
 // Implement own Vertical loops
-extern void guidance_v_module_init(void);
-extern void guidance_v_module_enter(void);
-extern void guidance_v_module_run(bool in_flight);
+extern void guidance_module_enter(void);
+extern void guidance_module_run(bool in_flight);
 
 #endif /* VERTICAL_CTRL_MODULE_DEMO_H_ */

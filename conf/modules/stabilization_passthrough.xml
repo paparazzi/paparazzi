@@ -13,12 +13,9 @@
   <header>
     <file name="stabilization_attitude_passthrough.h"/>
   </header>
-  <init fun="stabilization_attitude_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="stabilization_attitude_passthrough.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <define name="STABILIZATION_ATTITUDE_NO_REF"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
-    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_passthrough.h" type="string"/>
   </makefile>
 </module>
 

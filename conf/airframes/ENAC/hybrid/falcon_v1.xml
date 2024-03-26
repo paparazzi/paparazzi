@@ -297,6 +297,8 @@
   <section name="NAV">
     <define name="NAV_CLIMB_VSPEED" value="1.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.8"/>
+    <define name="NAV_HYBRID_MAX_AIRSPEED" value="GUIDANCE_INDI_MAX_AIRSPEED"/>
+    <define name="NAV_HYBRID_POS_GAIN" value="GUIDANCE_INDI_POS_GAIN"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">

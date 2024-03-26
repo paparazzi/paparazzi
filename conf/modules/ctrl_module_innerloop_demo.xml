@@ -22,9 +22,11 @@
   <header>
     <file name="ctrl_module_innerloop_demo.h"/>
   </header>
+  <init fun="ctrl_module_init()"/>
 
   <makefile>
     <file name="ctrl_module_innerloop_demo.c"/>
+    <test/>
   </makefile>
 
 </module>

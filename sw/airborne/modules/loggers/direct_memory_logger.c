@@ -135,7 +135,7 @@ void direct_memory_logger_periodic(void)
       log_struct.gyro_p    = imu.gyro.p;
       log_struct.gyro_q    = imu.gyro.q;
       log_struct.gyro_r    = imu.gyro.r;
-      log_struct.thrust    = stabilization_cmd[COMMAND_THRUST];
+      log_struct.thrust    = stabilization.cmd[COMMAND_THRUST];
 
       sst25vfxxxx_write(&dml.sst, (uint8_t *) &log_struct, sizeof(struct LogStruct));
       break;
