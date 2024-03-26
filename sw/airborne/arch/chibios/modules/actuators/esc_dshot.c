@@ -42,18 +42,16 @@
 #                 \__,_|   \___| |_|   |_|  |_| |_| |_|   \__|  |_|   \___/  |_| |_|
 */
 
-/** Base freq of DSHOT signal (in kHz)
- * Possible values are: 150, 300, 600
- */
-#ifndef DSHOT_SPEED
-#define DSHOT_SPEED 300U
-#endif
 
 /** Baudrate of the serial link used for telemetry data
  * Can depend on the ESC, but only 115k have been used so far
  */
 #ifndef DSHOT_TELEMETRY_BAUD
 #define DSHOT_TELEMETRY_BAUD 115200U
+#endif
+
+#ifndef DSHOT_BIDIR_EXTENTED_TELEMETRY
+#define DSHOT_BIDIR_EXTENTED_TELEMETRY	FALSE
 #endif
 
 /** Telemetry timeout in ms
@@ -88,19 +86,28 @@
 #define DSHOT_BIT0_DUTY_RATIO 373U
 #endif
 
-// Some extra defines and macros
-#define DSHOT_FREQ (DSHOT_SPEED*1000) // in Hz
+#if DSHOT_SPEED != 0 // statically defined
+#   define DSHOT_FREQ (DSHOT_SPEED*1000)
+#   define DSHOT_BIT0_DUTY (DSHOT_PWM_PERIOD * DSHOT_BIT0_DUTY_RATIO  / 1000U)
+#   define DSHOT_BIT1_DUTY (DSHOT_BIT0_DUTY*2)
+#else			 // dynamically defined
+#   define DSHOT_FREQ (driver->config->speed_khz * 1000U)
+#   define DSHOT_BIT0_DUTY (driver->bit0Duty)
+#   define DSHOT_BIT1_DUTY (driver->bit1Duty)
+#endif
 #define TICK_FREQ (PWM_FREQ * TICKS_PER_PERIOD)
 #define DSHOT_PWM_PERIOD (TICK_FREQ/DSHOT_FREQ)
-#define DSHOT_BIT0_DUTY (DSHOT_PWM_PERIOD * DSHOT_BIT0_DUTY_RATIO / 1000)
-#define DSHOT_BIT1_DUTY (DSHOT_BIT0_DUTY*2)
-#define DCR_DBL ((DSHOT_CHANNELS-1) << 8) //  DSHOT_CHANNELS transfert(s), first register to get is CCR1
+
+
+#define DCR_DBL ((DSHOT_CHANNELS-1) << 8) //  DSHOT_CHANNELS transfert(s)
+// first register to get is CCR1
 #define DCR_DBA(pwmd) (((uint32_t *) (&pwmd->tim->CCR) - ((uint32_t *) pwmd->tim)))
+
+#define DSHOT_MAX_VALUE ((1U<<11U)-1U) // 11 bits used to send command, so maximum value is 2047
 
 #define ARRAY_LEN(a) (sizeof(a)/sizeof(a[0]))
 #define Min(x,y) (x < y ? x : y)
 
-#define DSHOT_MAX_VALUE ((1<<11)-1) // 11 bits used to send command, so maximum value is 2047
 
 /*
 #                 _ __                   _              _      _   _    _ __
@@ -111,13 +118,22 @@
 #                |_|     |_|     \___/   \__|   \___/   \__|   |___/   |_|      \___|
 */
 static DshotPacket makeDshotPacket(const uint16_t throttle, const bool tlmRequest);
+static void setCrc4(DshotPacket *dp);
 static inline void setDshotPacketThrottle(DshotPacket * const dp, const uint16_t throttle);
 static inline void setDshotPacketTlm(DshotPacket * const dp, const bool tlmRequest);
-static void buildDshotDmaBuffer(DshotPackets * const dsp,  DshotDmaBuffer * const dma, const size_t timerWidth);
+static void buildDshotDmaBuffer(DSHOTDriver *driver);
+//static void buildDshotDmaBuffer(DshotPackets * const dsp,  DshotDmaBuffer * const dma, const size_t timerWidth);
 static inline uint8_t updateCrc8(uint8_t crc, uint8_t crc_seed);
 static uint8_t calculateCrc8(const uint8_t *Buf, const uint8_t BufLen);
-static noreturn void dshotTlmRec(void *arg);
+static noreturn void dshotTlmRec (void *arg);
 static size_t getTimerWidth(const PWMDriver *pwmp);
+#if DSHOT_BIDIR
+static void processBidirErpm(DSHOTDriver *driver);
+static void     dshotRestart(DSHOTDriver *driver);
+#if DSHOT_BIDIR_EXTENTED_TELEMETRY
+static void updateTelemetryFromBidirEdt(const DshotErps *erps, DshotTelemetry *tlm);
+#endif
+#endif
 
 /*
 #                         _ __    _
@@ -137,6 +153,12 @@ static size_t getTimerWidth(const PWMDriver *pwmp);
  */
 void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 {
+    chDbgAssert(config->dma_buf != NULL, ".dma_buf must reference valid DshotDmaBuffer object");
+
+#if DSHOT_BIDIR
+  dshotRpmCaptureStart(&driver->rpm_capture, &config->dma_capt_cfg, config->pwmp->tim);
+#endif
+  
   memset((void *) config->dma_buf, 0, sizeof(*(config->dma_buf)));
   const size_t timerWidthInBytes = getTimerWidth(config->pwmp);
 
@@ -146,6 +168,8 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .cr2 = USART_CR2_STOP1_BITS,       // 1 bit de stop
     .cr3 = 0                           // pas de controle de flux hardware (CTS, RTS)
   };
+  // when dshot is bidir, the polarity is inverted
+  static const uint32_t pwmPolarity = DSHOT_BIDIR ? PWM_OUTPUT_ACTIVE_LOW : PWM_OUTPUT_ACTIVE_HIGH;
 
   driver->config = config;
   // use pburst, mburst only if buffer size satisfy aligmnent requirement
@@ -166,7 +190,7 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 #endif
     .inc_peripheral_addr = false,
     .inc_memory_addr = true,
-    .circular = false,
+    .op_mode = DMA_ONESHOT,
     .error_cb = NULL,
     .end_cb = NULL,
     .pburst = 0,
@@ -179,13 +203,13 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
   .period    = TICKS_PER_PERIOD,
   .callback  = NULL,
   .channels  = {
-    {.mode = PWM_OUTPUT_ACTIVE_HIGH,
+    {.mode = pwmPolarity,
      .callback = NULL},
-    {.mode = DSHOT_CHANNELS > 1 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+    {.mode = DSHOT_CHANNELS > 1 ? pwmPolarity : PWM_OUTPUT_DISABLED,
      .callback = NULL},
-    {.mode = DSHOT_CHANNELS > 2 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+    {.mode = DSHOT_CHANNELS > 2 ? pwmPolarity : PWM_OUTPUT_DISABLED,
      .callback = NULL},
-    {.mode = DSHOT_CHANNELS > 3 ? PWM_OUTPUT_ACTIVE_HIGH : PWM_OUTPUT_DISABLED,
+    {.mode = DSHOT_CHANNELS > 3 ? pwmPolarity : PWM_OUTPUT_DISABLED,
      .callback = NULL},
   },
   .cr2  =  STM32_TIM_CR2_CCDS,
@@ -193,6 +217,14 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
   };
 
   driver->crc_errors = 0;
+    driver->tlm_frame_nb = 0;
+#if DSHOT_SPEED == 0
+  driver->bit0Duty = (DSHOT_PWM_PERIOD * DSHOT_BIT0_DUTY_RATIO / 1000U);
+  driver->bit1Duty = (driver->bit0Duty*2U)            ;
+#endif
+
+
+
   dmaObjectInit(&driver->dmap);
   chMBObjectInit(&driver->mb, driver->_mbBuf, ARRAY_LEN(driver->_mbBuf));
 
@@ -209,13 +241,52 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
   driver->config->pwmp->tim->DCR = DCR_DBL | DCR_DBA(driver->config->pwmp); // enable bloc register DMA transaction
   pwmChangePeriod(driver->config->pwmp, DSHOT_PWM_PERIOD);
 
-  for (size_t j = 0; j < DSHOT_CHANNELS; j++) {
+  for (size_t j=0; j<DSHOT_CHANNELS; j++) {
     pwmEnableChannel(driver->config->pwmp, j, 0);
-    driver->dshotMotors.dp[j] =  makeDshotPacket(0, 0);
+    driver->dshotMotors.dp[j] =  makeDshotPacket(0,0);
+    chMtxObjectInit(&driver->dshotMotors.tlmMtx[j]);
   }
   driver->dshotMotors.onGoingQry = false;
   driver->dshotMotors.currentTlmQry = 0U;
 }
+
+/**
+ * @brief   stop the DSHOT driver and free the 
+ *          related resources : pwm driver and dma driver.
+ *
+ * @param[in] driver    pointer to the @p DSHOTDriver object
+ * @api
+ */
+void     dshotStop(DSHOTDriver *driver)
+{
+  pwmStop(driver->config->pwmp);
+  dmaStopTransfert(&driver->dmap);
+  dmaStop(&driver->dmap);
+}
+
+#if DSHOT_BIDIR
+/**
+ * @brief   restart the driver in outgoing mode
+ *          
+ *
+ * @param[in] driver    pointer to the @p DSHOTDriver object
+ * @api
+ */
+static void dshotRestart(DSHOTDriver *driver)
+{
+  const bool dmaOk = dmaStart(&driver->dmap, &driver->dma_conf);
+  chDbgAssert(dmaOk == true, "dshot dma start error");
+
+  pwmStart(driver->config->pwmp, &driver->pwm_conf);
+  driver->config->pwmp->tim->DCR = DCR_DBL | DCR_DBA(driver->config->pwmp); // enable bloc register DMA transaction
+  pwmChangePeriod(driver->config->pwmp, DSHOT_PWM_PERIOD);
+
+  for (size_t j=0; j<DSHOT_CHANNELS; j++) {
+    pwmEnableChannel(driver->config->pwmp, j, 0);
+    driver->dshotMotors.dp[j] =  makeDshotPacket(0,0);
+  }
+}
+#endif
 
 /**
  * @brief   prepare throttle order for specified ESC
@@ -262,16 +333,9 @@ void dshotSendSpecialCommand(DSHOTDriver *driver, const  uint8_t index,
   if (specmd > DSHOT_CMD_MAX) {
     return; // Don't apply special commands from this function
   }
-  if (index < DSHOT_CHANNELS) {
-    setDshotPacketThrottle(&driver->dshotMotors.dp[index], specmd);
-    setDshotPacketTlm(&driver->dshotMotors.dp[index], driver->config->tlm_sd != NULL);
-  } else if (index == DSHOT_ALL_MOTORS) {
-    for (uint8_t _index = 0; _index < DSHOT_CHANNELS; _index++) {
-      setDshotPacketThrottle(&driver->dshotMotors.dp[_index], specmd);
-      setDshotPacketTlm(&driver->dshotMotors.dp[_index], driver->config->tlm_sd != NULL);
-    }
-  }
 
+  // some dangerous special commands need to be repeated 6 times
+  // to avoid catastrophic failure
   uint8_t repeat;
   switch (specmd) {
     case DSHOT_CMD_SPIN_DIRECTION_1:
@@ -282,6 +346,8 @@ void dshotSendSpecialCommand(DSHOTDriver *driver, const  uint8_t index,
     case DSHOT_CMD_SETTINGS_REQUEST:
     case DSHOT_CMD_AUDIO_STREAM_MODE_ON_OFF:
     case DSHOT_CMD_SILENT_MODE_ON_OFF:
+      case DSHOT_CMD_BIDIR_EDT_MODE_ON:
+    case DSHOT_CMD_BIDIR_EDT_MODE_OFF:
       repeat = 10;
       break;
     default:
@@ -289,8 +355,21 @@ void dshotSendSpecialCommand(DSHOTDriver *driver, const  uint8_t index,
   }
 
   while (repeat--) {
+    systime_t now = chVTGetSystemTimeX();
+    if (index < DSHOT_CHANNELS) {
+      setDshotPacketThrottle(&driver->dshotMotors.dp[index], specmd);
+      setDshotPacketTlm(&driver->dshotMotors.dp[index], driver->config->tlm_sd != NULL);
+  } else if (index == DSHOT_ALL_MOTORS) {
+    for (uint8_t _index = 0; _index < DSHOT_CHANNELS; _index++) {
+      setDshotPacketThrottle(&driver->dshotMotors.dp[_index], specmd);
+      setDshotPacketTlm(&driver->dshotMotors.dp[_index], driver->config->tlm_sd != NULL);
+    }
+  } else {
+      chDbgAssert(false, "dshotSetThrottle index error");
+    }
     dshotSendFrame(driver);
-    chThdSleepMilliseconds(1);
+    if (repeat)
+      chThdSleepUntilWindowed(now, now + TIME_US2I(500));
   }
 }
 
@@ -312,6 +391,9 @@ void dshotSendThrottles(DSHOTDriver *driver, const  uint16_t throttles[DSHOT_CHA
   dshotSendFrame(driver);
 }
 
+
+
+
 /**
  * @brief   send throttle  order
  *
@@ -322,20 +404,31 @@ void dshotSendThrottles(DSHOTDriver *driver, const  uint16_t throttles[DSHOT_CHA
 void dshotSendFrame(DSHOTDriver *driver)
 {
   if (driver->dmap.state == DMA_READY) {
+#if DSHOT_BIDIR
+    const tprio_t currentPrio = chThdSetPriority(HIGHPRIO);
+#endif
     if ((driver->config->tlm_sd != NULL) &&
         (driver->dshotMotors.onGoingQry == false)) {
       driver->dshotMotors.onGoingQry = true;
-      const uint32_t index = (driver->dshotMotors.currentTlmQry + 1) % DSHOT_CHANNELS;
-      driver->dshotMotors.currentTlmQry = index;
+      const msg_t index = (driver->dshotMotors.currentTlmQry + 1U) % DSHOT_CHANNELS;
+      driver->dshotMotors.currentTlmQry = (uint8_t) index;
       setDshotPacketTlm(&driver->dshotMotors.dp[index], true);
-      chMBPostTimeout(&driver->mb, driver->dshotMotors.currentTlmQry, TIME_IMMEDIATE);
+      chMBPostTimeout(&driver->mb, index, TIME_IMMEDIATE);
     }
 
-    buildDshotDmaBuffer(&driver->dshotMotors, driver->config->dma_buf, getTimerWidth(driver->config->pwmp));
-    dmaStartTransfert(&driver->dmap,
+    //buildDshotDmaBuffer(&driver->dshotMotors, driver->config->dma_buf, getTimerWidth(driver->config->pwmp));
+    buildDshotDmaBuffer(driver);
+    dmaTransfert(&driver->dmap,
                       &driver->config->pwmp->tim->DMAR,
                       driver->config->dma_buf, DSHOT_DMA_BUFFER_SIZE * DSHOT_CHANNELS);
 
+#if DSHOT_BIDIR
+    dshotStop(driver);
+    dshotRpmCatchErps(&driver->rpm_capture);
+    processBidirErpm(driver);
+    dshotRestart(driver);
+    chThdSetPriority(currentPrio);
+#endif
   }
 }
 
@@ -346,23 +439,140 @@ void dshotSendFrame(DSHOTDriver *driver)
  * @return    number of CRC errors
  * @api
  */
-uint32_t dshotGetCrcErrorsCount(DSHOTDriver *driver)
+uint32_t dshotGetCrcErrorCount(const DSHOTDriver *driver)
 {
   return driver->crc_errors;
 }
+
+/**
+ * @brief   return number of telemetry succesfull frame since  dshotStart
+ *
+ * @param[in] driver    pointer to the @p DSHOTDriver object
+ * @return    number of frames
+ * @api
+ */
+uint32_t dshotGetTelemetryFrameCount(const DSHOTDriver *driver)
+{
+  return driver->tlm_frame_nb;
+}
+
 
 /**
  * @brief   return last received telemetry data
  *
  * @param[in] driver    pointer to the @p DSHOTDriver object
  * @param[in] index     channel : [0..3] or [0..1] depending on driver used
- * @return    pointer on a telemetry structure
+ * @return    telemetry structure by copy
  * @api
  */
-const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_t index)
+DshotTelemetry dshotGetTelemetry(DSHOTDriver *driver, uint32_t index)
 {
-  return &driver->dshotMotors.dt[index - DSHOT_CHANNEL_FIRST_INDEX];
+  index -= DSHOT_CHANNEL_FIRST_INDEX;
+  chDbgAssert(index < DSHOT_CHANNELS, "dshot index error");
+  chMtxLock(&driver->dshotMotors.tlmMtx[index]);
+  const DshotTelemetry tlm = driver->dshotMotors.dt[index];
+  chMtxUnlock(&driver->dshotMotors.tlmMtx[index]);
+  return tlm;
 }
+
+/*
+
+    [2] 0010 mmmm mmmm - Temperature frame in degree Celsius, just like Blheli_32 and KISS [0, 1, ..., 255]
+    [4] 0100 mmmm mmmm - Voltage frame with a step size of 0,25V [0, 0.25 ..., 63,75]
+    [6] 0110 mmmm mmmm - Current frame with a step size of 1A [0, 1, ..., 255]
+    [8] 1000 mmmm mmmm - Debug frame 1 not associated with any specific value, can be used to debug ESC firmware
+    [10] 1010 mmmm mmmm - Debug frame 2 not associated with any specific value, can be used to debug ESC firmware
+    [12] 1100 mmmm mmmm - Stress level frame [0, 1, ..., 255] (since v2.0.0)
+    [14] 1110 mmmm mmmm - Status frame: Bit[7] = alert event, Bit[6] = warning event, Bit[5] = error event, Bit[3-1] - Max. stress level [0-15] (since v2.0.0)
+
+ */
+#if DSHOT_BIDIR && DSHOT_BIDIR_EXTENTED_TELEMETRY
+static void updateTelemetryFromBidirEdt(const DshotErps *erps, DshotTelemetry *tlm)
+{
+  switch(DshotErpsEdtType(erps)) {
+  case EDT_TEMP:
+    tlm->frame.temp = DshotErpsEdtTempCentigrade(erps); break;
+    
+  case EDT_VOLT:
+    tlm->frame.voltage = DshotErpsEdtCentiVolts(erps); break;
+    
+  case EDT_CURRENT:
+    tlm->frame.current = DshotErpsEdtCurrentAmp(erps) * 100U; break;
+
+  case EDT_STRESS:
+   tlm->stress = DshotErpsEdtStress(erps); break;
+
+  case EDT_STATUS:
+    tlm->status = DshotErpsEdtStatus(erps);break;
+    
+  default: {};
+  }
+  tlm->ts = chVTGetSystemTimeX();
+}
+#endif
+
+#if DSHOT_BIDIR
+/**
+ * @brief   return last received telemetry ERPM data
+ *
+ * @param[in] driver    pointer to the @p DSHOTDriver object
+ * @param[in] index     channel : [0..3]
+ * @return    eperiod or special values DSHOT_BIDIR_ERR_CRC, DSHOT_BIDIR_TLM_EDT
+ * @note     ° special values DSHOT_BIDIR_ERR_CRC, DSHOT_BIDIR_TLM_EDT
+ *	     must be checked after every call to dshotGetEperiod     
+ *           ° this fonction is less cpu intensive than dshotGetRpm
+ */
+uint32_t dshotGetEperiod(DSHOTDriver *driver, const uint32_t index)
+{
+  chDbgAssert(index < DSHOT_CHANNELS, "index check failed");
+   DshotErpsSetFromFrame(&driver->erps,  driver->rpms_frame[index]);
+   if (DshotErpsCheckCrc4(&driver->erps)) {
+#if DSHOT_BIDIR_EXTENTED_TELEMETRY
+     if (DshotErpsIsEdt(&driver->erps)) {
+       if (driver->config->tlm_sd == NULL) {
+	 DshotTelemetry *tlm = &driver->dshotMotors.dt[index];
+	 updateTelemetryFromBidirEdt(&driver->erps, tlm);
+       }
+       return DSHOT_BIDIR_TLM_EDT;
+     }
+#endif
+     return DshotErpsGetEperiod(&driver->erps);
+   } else {
+     return DSHOT_BIDIR_ERR_CRC;
+   }
+}
+/**
+ * @brief   return last received telemetry ERPM data
+ *
+ * @param[in] driver    pointer to the @p DSHOTDriver object
+ * @param[in] index     channel : [0..3]
+ * @return    erpm or special values DSHOT_BIDIR_ERR_CRC, DSHOT_BIDIR_TLM_EDT
+ * @note     special values DSHOT_BIDIR_ERR_CRC, DSHOT_BIDIR_TLM_EDT
+ *	     must be checked after every call to dshotGetRpm     
+ */
+
+uint32_t dshotGetRpm(DSHOTDriver *driver, uint32_t index)
+{
+  index -= DSHOT_CHANNEL_FIRST_INDEX;
+  chDbgAssert(index < DSHOT_CHANNELS, "index check failed");
+   DshotErpsSetFromFrame(&driver->erps,  driver->rpms_frame[index]);
+   if (DshotErpsCheckCrc4(&driver->erps)) {
+#if DSHOT_BIDIR_EXTENTED_TELEMETRY
+     if (DshotErpsIsEdt(&driver->erps)) {
+       if (driver->config->tlm_sd == NULL) {
+	 DshotTelemetry *tlm = &driver->dshotMotors.dt[index];
+	 updateTelemetryFromBidirEdt(&driver->erps, tlm);
+       }
+       return DSHOT_BIDIR_TLM_EDT;
+     }
+#endif
+     return DshotErpsGetRpm(&driver->erps);
+   } else {
+     return DSHOT_BIDIR_ERR_CRC;
+   }
+}
+#endif
+
 
 
 /*
@@ -374,6 +584,20 @@ const DshotTelemetry *dshotGetTelemetry(const DSHOTDriver *driver, const uint32_
 #                |_|     |_|    |_|    \_/    \__,_|  \__|   \___|
 */
 
+static void setCrc4(DshotPacket *dp)
+{
+  // compute checksum
+  dp->crc = 0;
+  uint16_t csum = (dp->throttle << 1) | dp->telemetryRequest;
+  for (int i = 0; i < 3; i++) {
+    dp->crc ^=  csum;   // xor data by nibbles
+    csum >>= 4;
+  }
+#if DSHOT_BIDIR
+  dp->crc = ~(dp->crc); // crc is inverted when dshot bidir protocol is choosed
+#endif
+}
+
 static DshotPacket makeDshotPacket(const uint16_t _throttle, const bool tlmRequest)
 {
   DshotPacket dp = {.throttle = _throttle,
@@ -381,13 +605,7 @@ static DshotPacket makeDshotPacket(const uint16_t _throttle, const bool tlmReque
                     .crc = 0
                    };
 
-  // compute checksum
-  uint16_t csum = (_throttle << 1) | dp.telemetryRequest;
-  for (int i = 0; i < 3; i++) {
-    dp.crc ^=  csum;   // xor data by nibbles
-    csum >>= 4;
-  }
-
+  setCrc4(&dp);
   return dp;
 }
 
@@ -402,17 +620,16 @@ static inline void setDshotPacketTlm(DshotPacket *const dp, const bool tlmReques
   dp->telemetryRequest =  tlmRequest ? 1 : 0;
 }
 
-static void buildDshotDmaBuffer(DshotPackets *const dsp, DshotDmaBuffer *const dma, const size_t timerWidth)
+static void buildDshotDmaBuffer(DSHOTDriver *driver)
 {
+  DshotPackets *const dsp = &driver->dshotMotors;
+  DshotDmaBuffer *const dma =  driver->config->dma_buf;
+  const size_t timerWidth = getTimerWidth(driver->config->pwmp);
+  
   for (size_t chanIdx = 0; chanIdx < DSHOT_CHANNELS; chanIdx++) {
     // compute checksum
-    DshotPacket *const dp = &dsp->dp[chanIdx];
-    dp->crc = 0;
-    uint16_t csum = (dp->throttle << 1) | dp->telemetryRequest;
-    for (int i = 0; i < 3; i++) {
-      dp->crc ^=  csum;   // xor data by nibbles
-      csum >>= 4;
-    }
+    DshotPacket * const dp  = &dsp->dp[chanIdx];
+    setCrc4(dp);
     // generate pwm frame
     for (size_t bitIdx = 0; bitIdx < DSHOT_BIT_WIDTHS; bitIdx++) {
       const uint16_t value = dp->rawFrame &
@@ -431,6 +648,7 @@ static void buildDshotDmaBuffer(DshotPackets *const dsp, DshotDmaBuffer *const d
     // the bits for silence sync (pre and post) in case of continous sending are zeroed once at init
   }
 }
+
 
 static inline uint8_t updateCrc8(uint8_t crc, uint8_t crc_seed)
 {
@@ -453,6 +671,17 @@ static uint8_t calculateCrc8(const uint8_t *Buf, const uint8_t BufLen)
 
   return crc;
 }
+
+
+#if DSHOT_BIDIR
+static void processBidirErpm(DSHOTDriver *driver)
+{
+  for (size_t idx = 0; idx < DSHOT_CHANNELS; idx++) {
+    driver->rpms_frame[idx] = dshotRpmGetFrame(&driver->rpm_capture, idx);
+  }
+}
+#endif
+
 
 __attribute__((const))
 static size_t   getTimerWidth(const PWMDriver *pwmp)
@@ -479,28 +708,42 @@ static size_t   getTimerWidth(const PWMDriver *pwmp)
 #                 \__|  |_| |_| |_|     \___|  \__,_|  \__,_|  |___/
 */
 
+
 static noreturn void dshotTlmRec(void *arg)
 {
   DSHOTDriver *driver = (DSHOTDriver *) arg;
+  DshotTelemetry tlm;
 
-  uint32_t escIdx = 0;
+  msg_t escIdx = 0;
 
   chRegSetThreadName("dshotTlmRec");
   while (true) {
-    chMBFetchTimeout(&driver->mb, (msg_t *) &escIdx, TIME_INFINITE);
+    chMBFetchTimeout(&driver->mb,  &escIdx, TIME_INFINITE);
     const uint32_t idx = escIdx;
     const bool success =
-      (sdReadTimeout(driver->config->tlm_sd, driver->dshotMotors.dt[idx].rawData, sizeof(DshotTelemetry),
-                     TIME_MS2I(DSHOT_TELEMETRY_TIMEOUT_MS)) == sizeof(DshotTelemetry));
+      (sdReadTimeout(driver->config->tlm_sd, tlm.frame.rawData, sizeof(DshotTelemetryFrame),
+                     TIME_MS2I(DSHOT_TELEMETRY_TIMEOUT_MS)) == sizeof(DshotTelemetryFrame));
     if (!success ||
-        (calculateCrc8(driver->dshotMotors.dt[idx].rawData,
-                       sizeof(driver->dshotMotors.dt[idx].rawData)) != driver->dshotMotors.dt[idx].crc8)) {
+        (calculateCrc8(tlm.frame.rawData, sizeof(tlm.frame.rawData)) != tlm.frame.crc8)) {
       // empty buffer to resync
       while (sdGetTimeout(driver->config->tlm_sd, TIME_IMMEDIATE) >= 0) {};
-      memset(driver->dshotMotors.dt[idx].rawData, 0U, sizeof(DshotTelemetry));
+      memset(tlm.frame.rawData, 0U, sizeof(DshotTelemetry));
       // count errors
-      driver->crc_errors++;
+      if (success)
+        driver->crc_errors++;
+    } else {
+      // big-endian to little-endian conversion
+      tlm.frame.voltage = __builtin_bswap16(tlm.frame.voltage);
+      tlm.frame.current = __builtin_bswap16(tlm.frame.current);
+      tlm.frame.consumption = __builtin_bswap16(tlm.frame.consumption);
+      tlm.frame.rpm = __builtin_bswap16(tlm.frame.rpm);
+      tlm.ts = chVTGetSystemTimeX();
+      driver->tlm_frame_nb++;
     }
+    
+    chMtxLock(&driver->dshotMotors.tlmMtx[idx]);
+    driver->dshotMotors.dt[idx] = tlm;
+    chMtxUnlock(&driver->dshotMotors.tlmMtx[idx]);
     driver->dshotMotors.onGoingQry = false;
   }
 }

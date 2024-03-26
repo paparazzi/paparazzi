@@ -91,7 +91,12 @@
  * @brief   Enables the GPT subsystem.
  */
 #if !defined(HAL_USE_GPT) || defined(__DOXYGEN__)
+#if USE_GPT5 || USE_GPT7 || USE_GPT8 || USE_GPT12 || USE_GPT13
+#define HAL_USE_GPT                         TRUE
+#define GPT_DRIVER_EXT_FIELDS void *user_data;
+#else
 #define HAL_USE_GPT                         FALSE
+#endif
 #endif
 
 /**

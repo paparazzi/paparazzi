@@ -30,7 +30,9 @@
 
     <module name="telemetry" type="xbee_api"/>
 
-    <module name="actuators" type="dshot"/>
+    <module name="actuators" type="dshot">
+      <configure name="DSHOT_BIDIR" value="TRUE"/>
+    </module>
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
     <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MAX"/>

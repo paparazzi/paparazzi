@@ -73,6 +73,12 @@ extern void gpio_setup_input_pulldown(ioportid_t port, uint16_t gpios);
 extern void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output);
 
 /**
+ * Setup a gpio for input pullup with alternate function.
+ * This is an STM32 specific helper funtion and should only be used in stm32 code.
+*/
+void gpio_setup_pin_af_pullup(ioportid_t port, uint16_t pin, uint8_t af);
+
+/**
  * Setup a gpio for analog use.
  * @param[in] port
  * @param[in] pin

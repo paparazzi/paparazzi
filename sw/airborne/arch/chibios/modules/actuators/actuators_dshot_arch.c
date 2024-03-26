@@ -48,36 +48,57 @@ struct dshot_private actuators_dshot_private[ACTUATORS_DSHOT_NB];
 #if DSHOT_CONF_TIM1
 static DSHOTDriver DSHOTD1;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot1DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot1DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg1 = DSHOT_CONF1_DEF;
 #endif
 #if DSHOT_CONF_TIM2
 static DSHOTDriver  DSHOTD2;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot2DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot2DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg2 = DSHOT_CONF2_DEF;
 #endif
 #if DSHOT_CONF_TIM3
 static DSHOTDriver  DSHOTD3;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot3DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot3DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg3 = DSHOT_CONF3_DEF;
 #endif
 #if DSHOT_CONF_TIM4
 static DSHOTDriver  DSHOTD4;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot4DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot4DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg4 = DSHOT_CONF4_DEF;
 #endif
 #if DSHOT_CONF_TIM5
 static DSHOTDriver  DSHOTD5;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot5DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot5DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg5 = DSHOT_CONF5_DEF;
 #endif
 #if DSHOT_CONF_TIM8
 static DSHOTDriver  DSHOTD8;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot8DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot8DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg8 = DSHOT_CONF8_DEF;
 #endif
 #if DSHOT_CONF_TIM9
 static DSHOTDriver  DSHOTD9;
 static IN_DMA_SECTION_NOINIT(DshotDmaBuffer dshot9DmaBuffer);
+#if DSHOT_BIDIR
+static IN_DMA_SECTION_NOINIT(DshotRpmCaptureDmaBuffer dshot9DmaCaptureBuffer);
+#endif
 static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 #endif
 
@@ -85,15 +106,23 @@ static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 static void esc_msg_send(struct transport_tx *trans, struct link_device *dev) {
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
     if (actuators_dshot_values[i].activated) {
-      const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
+      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
 
-      actuators_dshot_values[i].current = (float)dtelem->current * 0.01f;
-      actuators_dshot_values[i].voltage = (float)dtelem->voltage * 0.01f;
-      actuators_dshot_values[i].rpm = (float)dtelem->rpm;
+      actuators_dshot_values[i].current = (float)dtelem.frame.current * 0.01f;
+      actuators_dshot_values[i].voltage = (float)dtelem.frame.voltage * 0.01f;
+      actuators_dshot_values[i].rpm = (float)dtelem.frame.rpm;
+
+#if DSHOT_BIDIR
+    const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
+    if(erpm != DSHOT_BIDIR_ERR_CRC && erpm != DSHOT_BIDIR_TLM_EDT) {
+      actuators_dshot_values[i].rpm = (float) erpm;
+    }
+#endif
+
       float bat_voltage = electrical.vsupply;
       float power = actuators_dshot_values[i].current * bat_voltage;
-      float energy = (float)dtelem->consumption;
-      float temp = dtelem->temp;
+      float energy = (float)dtelem.frame.consumption;
+      float temp = dtelem.frame.temp;
       float temp_dev = 0;
       pprz_msg_send_ESC(trans, dev, AC_ID,
           &actuators_dshot_values[i].current,
@@ -189,51 +218,51 @@ void actuators_dshot_arch_init(void)
    * Configure GPIO
    *----------------*/
 #ifdef DSHOT_SERVO_0
-  gpio_setup_pin_af(DSHOT_SERVO_0_GPIO, DSHOT_SERVO_0_PIN, DSHOT_SERVO_0_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_0_GPIO, DSHOT_SERVO_0_PIN, DSHOT_SERVO_0_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_0], &actuators_dshot_private[DSHOT_SERVO_0], &DSHOT_SERVO_0_DRIVER, DSHOT_SERVO_0_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_1
-  gpio_setup_pin_af(DSHOT_SERVO_1_GPIO, DSHOT_SERVO_1_PIN, DSHOT_SERVO_1_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_1_GPIO, DSHOT_SERVO_1_PIN, DSHOT_SERVO_1_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_1], &actuators_dshot_private[DSHOT_SERVO_1], &DSHOT_SERVO_1_DRIVER, DSHOT_SERVO_1_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_2
-  gpio_setup_pin_af(DSHOT_SERVO_2_GPIO, DSHOT_SERVO_2_PIN, DSHOT_SERVO_2_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_2_GPIO, DSHOT_SERVO_2_PIN, DSHOT_SERVO_2_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_2], &actuators_dshot_private[DSHOT_SERVO_2], &DSHOT_SERVO_2_DRIVER, DSHOT_SERVO_2_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_3
-  gpio_setup_pin_af(DSHOT_SERVO_3_GPIO, DSHOT_SERVO_3_PIN, DSHOT_SERVO_3_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_3_GPIO, DSHOT_SERVO_3_PIN, DSHOT_SERVO_3_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_3], &actuators_dshot_private[DSHOT_SERVO_3], &DSHOT_SERVO_3_DRIVER, DSHOT_SERVO_3_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_4
-  gpio_setup_pin_af(DSHOT_SERVO_4_GPIO, DSHOT_SERVO_4_PIN, DSHOT_SERVO_4_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_4_GPIO, DSHOT_SERVO_4_PIN, DSHOT_SERVO_4_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_4], &actuators_dshot_private[DSHOT_SERVO_4], &DSHOT_SERVO_4_DRIVER, DSHOT_SERVO_4_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_5
-  gpio_setup_pin_af(DSHOT_SERVO_5_GPIO, DSHOT_SERVO_5_PIN, DSHOT_SERVO_5_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_5_GPIO, DSHOT_SERVO_5_PIN, DSHOT_SERVO_5_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_5], &actuators_dshot_private[DSHOT_SERVO_5], &DSHOT_SERVO_5_DRIVER, DSHOT_SERVO_5_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_6
-  gpio_setup_pin_af(DSHOT_SERVO_6_GPIO, DSHOT_SERVO_6_PIN, DSHOT_SERVO_6_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_6_GPIO, DSHOT_SERVO_6_PIN, DSHOT_SERVO_6_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_6], &actuators_dshot_private[DSHOT_SERVO_6], &DSHOT_SERVO_6_DRIVER, DSHOT_SERVO_6_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_7
-  gpio_setup_pin_af(DSHOT_SERVO_7_GPIO, DSHOT_SERVO_7_PIN, DSHOT_SERVO_7_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_7_GPIO, DSHOT_SERVO_7_PIN, DSHOT_SERVO_7_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_7], &actuators_dshot_private[DSHOT_SERVO_7], &DSHOT_SERVO_7_DRIVER, DSHOT_SERVO_7_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_8
-  gpio_setup_pin_af(DSHOT_SERVO_8_GPIO, DSHOT_SERVO_8_PIN, DSHOT_SERVO_8_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_8_GPIO, DSHOT_SERVO_8_PIN, DSHOT_SERVO_8_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_8], &actuators_dshot_private[DSHOT_SERVO_8], &DSHOT_SERVO_8_DRIVER, DSHOT_SERVO_8_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_9
-  gpio_setup_pin_af(DSHOT_SERVO_9_GPIO, DSHOT_SERVO_9_PIN, DSHOT_SERVO_9_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_9_GPIO, DSHOT_SERVO_9_PIN, DSHOT_SERVO_9_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_9], &actuators_dshot_private[DSHOT_SERVO_9], &DSHOT_SERVO_9_DRIVER, DSHOT_SERVO_9_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_10
-  gpio_setup_pin_af(DSHOT_SERVO_10_GPIO, DSHOT_SERVO_10_PIN, DSHOT_SERVO_10_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_10_GPIO, DSHOT_SERVO_10_PIN, DSHOT_SERVO_10_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_10], &actuators_dshot_private[DSHOT_SERVO_10], &DSHOT_SERVO_10_DRIVER, DSHOT_SERVO_10_CHANNEL);
 #endif
 #ifdef DSHOT_SERVO_11
-  gpio_setup_pin_af(DSHOT_SERVO_11_GPIO, DSHOT_SERVO_11_PIN, DSHOT_SERVO_11_AF, true);
+  gpio_setup_pin_af_pullup(DSHOT_SERVO_11_GPIO, DSHOT_SERVO_11_PIN, DSHOT_SERVO_11_AF);
   dshot_set_struct(&actuators_dshot_values[DSHOT_SERVO_11], &actuators_dshot_private[DSHOT_SERVO_11], &DSHOT_SERVO_11_DRIVER, DSHOT_SERVO_11_CHANNEL);
 #endif
 
@@ -332,11 +361,22 @@ void actuators_dshot_arch_commit(void)
 
   struct act_feedback_t feedback[ACTUATORS_DSHOT_NB] = { 0 };
   for (uint8_t i = 0; i < ACTUATORS_DSHOT_NB; i++) {
-    feedback[i].idx = ACTUATORS_DSHOT_OFFSET + i;
+    feedback[i].idx = get_servo_idx_DSHOT(i);
     if (actuators_dshot_values[i].activated) {
-      const DshotTelemetry *dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
-      feedback[i].rpm = dtelem->rpm;
+      DshotTelemetry dtelem = dshotGetTelemetry(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
+      feedback[i].rpm = dtelem.frame.rpm;
       feedback[i].set.rpm = true;
+#if DSHOT_BIDIR
+      const uint32_t erpm = dshotGetRpm(actuators_dshot_private[i].driver, actuators_dshot_private[i].channel);
+      if(erpm != DSHOT_BIDIR_ERR_CRC) {
+        if(erpm != DSHOT_BIDIR_TLM_EDT) {
+          feedback[i].rpm = (float) erpm;
+          feedback[i].set.rpm = true;
+        }
+      } else {
+        feedback[i].set.rpm = false;
+      }
+#endif
     }
   }
   AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DSHOT_ID, feedback, ACTUATORS_DSHOT_NB);

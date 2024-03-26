@@ -391,14 +391,17 @@
 #endif
 
 // macros for possible dshot telemetry
-#define DSHOT_TLM_RX 5
+#define DSHOT_TLM_RX 1
 #define DSHOT_TLM_AUX_RX 4
 
-#ifndef USE_DSHOT_TIM4
-#define USE_DSHOT_TIM4 1 // use SRVb for DShot by default
+#ifndef USE_DSHOT_TIM3
+#define USE_DSHOT_TIM3 1 // use SRVb for DShot by default
 #endif
 
-#if USE_DSHOT_TIM4 // Servo B1, B2, B3, B4 on TIM4
+
+
+
+#if USE_DSHOT_TIM3 // Servo B1, B2, B3, B4 on TIM4
 
 // Servo B1, B2, B3, B4 on TM4 are primary DSHOT connector
 #define DSHOT_SERVO_1 1
@@ -430,13 +433,29 @@
 #define DSHOT_SERVO_4_CHANNEL SRVB4_TIM_CH
 
 #define DSHOT_CONF_TIM3 1
-#define DSHOT_CONF3_DEF { \
-  .dma_stream = STM32_DMA_STREAM_ID_ANY,   \
-  .dmamux = STM32_DMAMUX1_TIM3_UP,          \
-  .pwmp = &PWMD3,                           \
-  .tlm_sd = DSHOT_TIM3_TELEMETRY_DEV,       \
-  .dma_buf = &dshot3DmaBuffer,              \
-  .dcache_memory_in_use = false             \
+
+
+#if DSHOT_BIDIR
+
+#define DSHOT_CAPT_CONF3_DEF                     \
+  .dma_capt_cfg = {                              \
+    .gptd = &DSHOT1_BIDIR_GPT,                \
+    .dma_streams = {DSHOTS_CAPTURE_STREAMS(3)},  \
+    .dma_capture = &dshot3DmaCaptureBuffer,      \
+    .dcache_memory_in_use = false,               \
+  },
+#else
+#define DSHOT_CAPT_CONF3_DEF
+#endif
+
+#define DSHOT_CONF3_DEF {                 \
+  .dma_stream = STM32_DMA_STREAM_ID_ANY,  \
+  .dmamux = STM32_DMAMUX1_TIM3_UP,        \
+  .pwmp = &PWMD3,                         \
+  .tlm_sd = DSHOT_TIM3_TELEMETRY_DEV,     \
+  .dma_buf = &dshot3DmaBuffer,            \
+  DSHOT_CAPT_CONF3_DEF                    \
+  .dcache_memory_in_use = false           \
 }
 
 #endif
@@ -472,13 +491,30 @@
 #define DSHOT_SERVO_8_CHANNEL SRVA4_TIM_CH
 
 #define DSHOT_CONF_TIM1 1
-#define DSHOT_CONF1_DEF { \
-  .dma_stream = STM32_DMA_STREAM_ID_ANY,   \
-  .dmamux = STM32_DMAMUX1_TIM1_UP,          \
-  .pwmp = &PWMD1,                           \
-  .tlm_sd = DSHOT_TIM1_TELEMETRY_DEV,       \
-  .dma_buf = &dshot1DmaBuffer,              \
-  .dcache_memory_in_use = false             \
+
+#if DSHOT_BIDIR
+#ifndef DSHOT2_BIDIR_GPT
+#error "Select and activate DSHOT2_BIDIR_GPT for DSHOT_CONF1. Example: USE_GPT8=TRUE, DSHOT2_BIDIR_GPT=GPTD8"
+#endif
+#define DSHOT_CAPT_CONF1_DEF                     \
+  .dma_capt_cfg = {                              \
+    .gptd = &DSHOT2_BIDIR_GPT,                   \
+    .dma_streams = {DSHOTS_CAPTURE_STREAMS(1)},  \
+    .dma_capture = &dshot1DmaCaptureBuffer,      \
+    .dcache_memory_in_use = false,               \
+  },
+#else
+#define DSHOT_CAPT_CONF1_DEF
+#endif
+
+#define DSHOT_CONF1_DEF {                 \
+  .dma_stream = STM32_DMA_STREAM_ID_ANY,  \
+  .dmamux = STM32_DMAMUX1_TIM1_UP,        \
+  .pwmp = &PWMD1,                         \
+  .tlm_sd = DSHOT_TIM1_TELEMETRY_DEV,     \
+  .dma_buf = &dshot1DmaBuffer,        \
+  DSHOT_CAPT_CONF1_DEF                    \
+  .dcache_memory_in_use = false           \
 }
 
 #endif
@@ -523,12 +559,12 @@
 #define UART4_GPIO_AF       AUX_A1_UART_AF
 
 /**
- * UART5 on SRVB (DSHOT telemetry)
+ * UART1 on SRVB (DSHOT telemetry)
  */
 
-#define UART5_GPIO_PORT_RX  PAL_PORT(LINE_DSHOT_RX)
-#define UART5_GPIO_RX       PAL_PAD(LINE_DSHOT_RX)
-#define UART5_GPIO_AF       AF_DSHOT_RX
+#define UART1_GPIO_PORT_RX  PAL_PORT(LINE_DSHOT_RX)
+#define UART1_GPIO_RX       PAL_PAD(LINE_DSHOT_RX)
+#define UART1_GPIO_AF       AF_DSHOT_RX
 
 /**
  * SBUS / Spektrum port

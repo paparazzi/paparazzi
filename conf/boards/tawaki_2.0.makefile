@@ -99,3 +99,6 @@ SBUS2_PORT ?= UART6
 #
 ACTUATORS ?= actuators_pwm
 
+
+# Bidirectionnal DSHOT timer for input capture timeout
+DSHOT1_GPT_TIM ?= 7
