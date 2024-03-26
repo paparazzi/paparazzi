@@ -917,7 +917,7 @@
           <value>2.45</value> <!--Get rid of 0.5 rho-->
           <property>fcs/rudder_lag</property>
           <value>0.7376</value> <!--Convert to lbsft-->
-          <value> 0.002 </value>   
+          <value> 0.01 </value>   
         </product>
     </function>
 

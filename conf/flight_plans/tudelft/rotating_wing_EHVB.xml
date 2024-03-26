@@ -9,14 +9,14 @@
     <waypoint name="begin_trans" x="300." y="90."/>
     <waypoint name="end_trans" x="300." y="120."/>
     <waypoint name="STDBY" x="60" y="20"/>
-    <waypoint name="p1" x="65" y="75"/>
+    <!-- <waypoint name="p1" x="65" y="75"/>
     <waypoint name="p2" x="200" y="120"/>
     <waypoint name="p3" x="250" y="-30"/>
-    <waypoint name="p4" x="120" y="-75"/>
+    <waypoint name="p4" x="120" y="-75"/> -->
     <waypoint name="circ" x="160" y="25"/>
     <waypoint name="TD" x="10" y="-1"/>
-    <waypoint name="APP" x="70" y="-25"/>
-    <waypoint name="FOLLOW" x="300" y="80"/>
+    <!-- <waypoint name="APP" x="70" y="-25"/> -->
+    <!-- <waypoint name="FOLLOW" x="300" y="80"/> -->
     <!-- EHVB -->
     <waypoint lat="52.169189" lon="4.410820" name="C1"/>
     <waypoint lat="52.168049" lon="4.406923" name="C2"/>
@@ -90,10 +90,14 @@
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="Approach APP">
+    <block name="Standby_fwd">
+        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
+        <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+    </block>
+    <!-- <block name="Approach APP">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
-    </block>
+    </block> -->
     <!-- <block name="follow_module">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay pre_call="follow_me_set_wp(WP_p1, 0)" wp="p1"/>
@@ -102,12 +106,12 @@
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay wp="begin_trans" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="line_trans_fwd">
+    <!-- <block name="line_trans_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <call_once fun="NavSetWaypointHere(WP_begin_trans)"/>
       <go wp="end_trans"/>
       <deroute block="end_transition"/>
-    </block>
+    </block> -->
     <block name="end_transition">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay wp="end_trans"/>
@@ -122,22 +126,22 @@
       <stay wp="end_trans"/>
       <exception cond="RotWingAutomationReadyForForward()" deroute="Circle_CCW_fwd"/>
     </block>
-    <block name="route">
+    <!-- <block name="route">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <go from="p1" hmode="route" wp="p2"/>
       <go from="p2" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="route"/>
-    </block>
-    <block name="small_route" strip_button="Route" strip_icon="path.png">
+    </block> -->
+    <!-- <block name="small_route" strip_button="Route" strip_icon="path.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <go wp="p2"/>
       <go wp="p3"/>
       <go wp="p4"/>
       <go wp="p1"/>
       <deroute block="small_route"/>
-    </block>
+    </block> -->
     <block name="Circle_CW_fwd" strip_button="CircleRight" strip_icon="circle-right.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <circle radius="100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
@@ -146,24 +150,24 @@
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <circle radius="-100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="big_Circle_CW_fwd">
+    <!-- <block name="big_Circle_CW_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <circle radius="150" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="big_Circle_CCW_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <circle radius="-150" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
-    </block>
+    </block> -->
     <block name="Transition_quad">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <go wp="STDBY"/>
       <deroute block="Standby"/>
     </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+    <block name="land here">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
-    <block name="land">
+    <block name="land" strip_button="Land" strip_icon="land-right.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <go wp="TD"/>
     </block>
