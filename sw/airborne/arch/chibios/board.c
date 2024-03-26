@@ -260,6 +260,11 @@ void __early_init(void)
 {
   stm32_gpio_init();
   stm32_clock_init();
+
+#if defined(STM32H7XX)
+  SCB->ITCMCR |= 1; // ITCM enable
+  SCB->DTCMCR |= 1; // DTCM enable
+#endif
 }
 
 #if HAL_USE_SDC || defined(__DOXYGEN__)

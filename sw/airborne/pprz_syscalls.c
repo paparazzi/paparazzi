@@ -169,6 +169,12 @@ void _exit(int i) {
 void _kill(void) {}
 
 /***************************************************************************/
+
+void __cxa_pure_virtual(void);
+void __cxa_pure_virtual() { while (1); } //TODO: Handle properly, maybe generate a traceback
+
+/***************************************************************************/
+
 #endif // USE_CHIBIOS_RTOS
 
 
@@ -180,8 +186,6 @@ void _fini(void) {
 }
 
 void *__dso_handle;
-void __cxa_pure_virtual(void);
-void __cxa_pure_virtual() { while (1); } //TODO: Handle properly, maybe generate a traceback
 
 #pragma GCC diagnostic pop
 

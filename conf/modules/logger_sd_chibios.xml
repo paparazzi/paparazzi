@@ -9,6 +9,7 @@
       Files are written on a FAT file system using the FatFS library and can be accessed
       by using the autopilot as a mass storage (plug USB while the board is running).
     </description>
+    <configure name="SDLOG_SDIO" value="SDCDx" description="The SDC device which the SD card is connected to. Default: SDCD1"/>
     <configure name="SDLOG_LED" value="none|num" description="LED number or 'none' to disable. Default: none"/>
     <define name="SDLOG_START_DELAY" value="30" unit="s" description="Set the delay in seconds before starting the logger. This delay can be used to get plug USB cable and get data without starting a new log. Default: 30s"/>
     <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
@@ -31,8 +32,17 @@
   <init fun="sdlog_chibios_init()"/>
   <datalink message="INFO_MSG_UP" fun="logger_log_msg_up(buf)"/>
   <makefile target="ap">
+    <!-- LED -->
     <configure name="SDLOG_LED" default="none"/>
     <define name="SDLOG_LED" value="$(SDLOG_LED)" cond="ifneq ($(SDLOG_LED),none)"/>
+
+    <!-- SDMMC device -->
+    <configure name="SDLOG_SDIO" default="SDCD1" case="upper"/>
+    <define name="SDLOG_SDIO" value="$(SDLOG_SDIO_UPPER)"/>
+    <define name="FATFS_HAL_DEVICE" value="$(SDLOG_SDIO_UPPER)"/>
+    <define name="USE_$(SDLOG_SDIO_UPPER)"/>
+
+    <!-- Files -->
     <file name="sdlog_chibios.c"/>
     <file name="sdlog_chibios/sdLog.c"/>
     <file name="sdlog_chibios/msg_queue.c"/>
@@ -41,6 +51,8 @@
     <file name="sdlog_chibios/usb_msd.c"/>
     <file name="sdlog_chibios/usbStorage.c"/>
     <file_arch name="sdio_arch.c" dir="mcu_periph"/>
+
+    <!-- Configuration -->
     <configure name="SDLOG_USE_RTC" default="TRUE"/>
     <configure name="USE_FATFS" value="TRUE"/>
     <define name="HAL_USE_RTC" value="TRUE" cond="ifeq (,$(findstring $(SDLOG_USE_RTC),0 FALSE))"/>

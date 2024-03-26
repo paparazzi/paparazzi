@@ -243,11 +243,11 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
   }
 
 
-  sdio_connect();
+  sdio_connect(&SDLOG_SDIO);
   chThdSleepMilliseconds(10);
-  sdio_disconnect();
+  sdio_disconnect(&SDLOG_SDIO);
 
-  if (sdio_connect() == FALSE) {
+  if (sdio_connect(&SDLOG_SDIO) == FALSE) {
     return  storageStatus = SDLOG_NOCARD;
   }
 
@@ -294,7 +294,7 @@ SdioError sdLogFinish(void)
   }
 
   // if we mount, unmount, don't disconnect sdio
-  /* if (sdio_disconnect () == FALSE) */
+  /* if (sdio_disconnect (&SDLOG_SDIO) == FALSE) */
   /*   return  SDLOG_NOCARD; */
 
   return  storageStatus = SDLOG_OK;
