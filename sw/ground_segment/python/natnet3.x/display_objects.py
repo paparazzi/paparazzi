@@ -38,6 +38,8 @@ import argparse
 
 # import NatNet client
 from NatNetClient import NatNetClient
+import DataDescriptions
+import MoCapData
 
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
@@ -108,69 +110,69 @@ def is_moving(old_pos, new_pos):
         # if failing, update position
         return True
 
-def receiveMarkerSet(name, posList):
+def receiveMarkerSet(data: MoCapData.MarkerSetData):
     '''
     callback for markerset with name and marker position as input
     '''
     global current_index
+    for marker_data in data.marker_data_list:
+        # check if name is matching regexp
+        name = marker_data.model_name.decode('utf-8')
+        if re.fullmatch(args.name, name) is not None:
 
-    # check if name is matching regexp
-    name = name.decode('utf-8')
-    if re.fullmatch(args.name, name) is not None:
-
-        # check if message should be sent (first time or period)
-        send = False
-        now = time()
-        if name in markerset:
-            dt = now - markerset[name]['time']
-            dt_refresh = now - markerset[name]['time_refresh']
-            if dt >= period:
-                # period elapsed, check if moved
-                markerset[name]['time'] = now
-                moved = is_moving(markerset[name]['pos'], posList)
-                if moved:
+            # check if message should be sent (first time or period)
+            send = False
+            now = time()
+            if name in markerset:
+                dt = now - markerset[name]['time']
+                dt_refresh = now - markerset[name]['time_refresh']
+                if dt >= period:
+                    # period elapsed, check if moved
+                    markerset[name]['time'] = now
+                    moved = is_moving(markerset[name]['pos'], marker_data.marker_pos_list)
+                    if moved:
+                        send = True
+                        markerset[name]['pos'] = marker_data.marker_pos_list
+                if dt_refresh >= args.refresh_period:
+                    # refresh period elapsed, send anyway
                     send = True
-                    markerset[name]['pos'] = posList
-            if dt_refresh >= args.refresh_period:
-                # refresh period elapsed, send anyway
-                send = True
-        else:
-            send = True
-            markerset[name] = {'time_refresh': now, 'time': now, 'id': current_index, 'pos': posList }
-            current_index += 1
-
-        if args.very_verbose:
-            print(name, posList, time)
-
-        if send:
-            if args.verbose and (not args.very_verbose):
-                print(name, posList, now)
-
-            # build list of 2D points and compute convex hull
-            points = [(pos[X_AXIS], Y_SIGN*pos[Y_AXIS]) for pos in posList]
-            hull = ConvexHull(points)
-            # build lists of polygon corners to display in lat long
-            latitudes = [ int(1e7 * (lat0 + np.rad2deg(points[i][1] / R_earth))) for i in hull.vertices ]
-            longitudes = [ int(1e7 * (long0 + np.rad2deg(points[i][0] / R_cos_lat0))) for i in hull.vertices ]
-
-            # send SHAPE message
-            shape = PprzMessage("ground", "SHAPE")
-            shape['id'] = markerset[name]['id']
-            shape['linecolor'] = '"{}"'.format(args.color)
-            shape['fillcolor'] = '"{}"'.format(args.color)
-            shape['opacity'] = 1 # light
-            shape['shape'] = 1 # polygon
-            shape['status'] = 0 # create or update
-            shape['latarr'] = latitudes
-            shape['lonarr'] = longitudes
-            shape['radius'] = 0. # not relevant
-            if args.show_name:
-                shape['text'] = name
             else:
-                shape['text'] = '" "'
-            ivy.send(shape)
-            markerset[name]['time_refresh'] = now
-            sleep(0.01)
+                send = True
+                markerset[name] = {'time_refresh': now, 'time': now, 'id': current_index, 'pos': marker_data.marker_pos_list }
+                current_index += 1
+
+            if args.very_verbose:
+                print(name, marker_data.marker_pos_list, time)
+
+            if send:
+                if args.verbose and (not args.very_verbose):
+                    print(name, marker_data.marker_pos_list, now)
+
+                # build list of 2D points and compute convex hull
+                points = [(pos[X_AXIS], Y_SIGN*pos[Y_AXIS]) for pos in marker_data.marker_pos_list]
+                hull = ConvexHull(points)
+                # build lists of polygon corners to display in lat long
+                latitudes = [ int(1e7 * (lat0 + np.rad2deg(points[i][1] / R_earth))) for i in hull.vertices ]
+                longitudes = [ int(1e7 * (long0 + np.rad2deg(points[i][0] / R_cos_lat0))) for i in hull.vertices ]
+
+                # send SHAPE message
+                shape = PprzMessage("ground", "SHAPE")
+                shape['id'] = markerset[name]['id']
+                shape['linecolor'] = '"{}"'.format(args.color)
+                shape['fillcolor'] = '"{}"'.format(args.color)
+                shape['opacity'] = 1 # light
+                shape['shape'] = 1 # polygon
+                shape['status'] = 0 # create or update
+                shape['latarr'] = latitudes
+                shape['lonarr'] = longitudes
+                shape['radius'] = 0. # not relevant
+                if args.show_name:
+                    shape['text'] = name
+                else:
+                    shape['text'] = '" "'
+                ivy.send(shape)
+                markerset[name]['time_refresh'] = now
+                sleep(0.01)
 
 def check_timeout():
     '''
@@ -196,16 +198,14 @@ def check_timeout():
 
 
 # start natnet interface
-natnet_version = (3,0,0,0)
-if args.old_natnet:
-    natnet_version = (2,9,0,0)
-natnet = NatNetClient(
-        server=args.server,
-        markerSetListener=receiveMarkerSet,
-        dataPort=args.data_port,
-        commandPort=args.command_port,
-        verbose=args.very_verbose,
-        version=natnet_version)
+natnet = NatNetClient()
+natnet.set_server_address(args.server)
+natnet.set_client_address('0.0.0.0')
+natnet.marker_set_listener = receiveMarkerSet
+if args.verbose:
+    natnet.set_print_level(1) # print all frames
+else:
+    natnet.set_print_level(0)
 
 
 print("Starting Object Display interface at %s" % (args.server))
@@ -218,11 +218,11 @@ try:
         check_timeout()
 except (KeyboardInterrupt, SystemExit):
     print("Shutting down ivy and natnet interfaces...")
-    natnet.stop()
+    natnet.shutdown()
     ivy.shutdown()
 except OSError:
     print("Natnet connection error")
-    natnet.stop()
+    natnet.shutdown()
     ivy.stop()
     exit(-1)
 
