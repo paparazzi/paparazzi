@@ -42,8 +42,6 @@
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
-
-            <define name="SERVO_ROTATION_MECH_IDX" value="0"/> <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXMEEE !!!!!!!!!!!!!!!!!!!!!!!!!! -->
         </target>
 
         <target name="nps" board="pc">
@@ -180,6 +178,10 @@
         <servo no="6"  name="BSERVO_RUDDER"     min="-3250" neutral="0" max="3250"/>
     </servos>
 
+    <servos driver="Faulhaber">
+        <servo no="0"  name="ROTATION_MECH"     min="0" neutral="1630500" max="3261000"/>
+    </servos>
+
     <commands>
         <axis name="ROLL"       failsafe_value="0"/>
         <axis name="PITCH"      failsafe_value="0"/>
@@ -203,8 +205,7 @@
         <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <!--set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
-        <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <!--set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
@@ -218,12 +219,14 @@
         <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <!--set servo="BROTATION_MECH"     value="rotwing_state_skewing.servo_pprz_cmd"/>
-        <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
+        <!--set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_RIGHT"        value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_LEFT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/-->
+
+        <!-- Rotation mechanism -->
+        <set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
     </command_laws>
 
 
