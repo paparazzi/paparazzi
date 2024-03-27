@@ -60,7 +60,7 @@ extern bool   actuators_delay_done;
 // Actuator feedback structure for ABI Message
 struct actuator_t {
   pprz_t pprz_val;                  ///< Actuator value in PPRZ units
-  int16_t driver_val;               ///< Actuator value in driver units (scaling from servo in airframe.h)
+  int32_t driver_val;               ///< Actuator value in driver units (scaling from servo in airframe.h)
 };
 
 
