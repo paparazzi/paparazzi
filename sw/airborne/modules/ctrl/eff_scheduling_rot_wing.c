@@ -128,6 +128,7 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
   .Ixx_wing                 = ROT_WING_EFF_SCHED_IXX_WING,
   .Iyy_wing                 = ROT_WING_EFF_SCHED_IYY_WING,
   .m                        = ROT_WING_EFF_SCHED_M,
+  .DMdpprz_hover_roll       = ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL,
   .hover_roll_pitch_coef    = ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF,
   .hover_roll_roll_coef     = ROT_WING_EFF_SCHED_HOVER_ROLL_ROLL_COEF,
   .k_elevator               = ROT_WING_EFF_SCHED_K_ELEVATOR,
@@ -158,7 +159,7 @@ inline void eff_scheduling_rot_wing_update_pusher_effectiveness(void);
 inline void eff_scheduling_rot_wing_schedule_liftd(void);
 
 inline float guidance_indi_get_liftd(float pitch UNUSED, float theta UNUSED);
-inline void stabilization_indi_set_wls_settings(float use_increment);
+void stabilization_indi_set_wls_settings(void);
 
 
 /** ABI binding wing position data.
@@ -198,9 +199,10 @@ void eff_scheduling_rot_wing_init(void)
 
   // Set moment derivative variables
   eff_sched_var.pitch_motor_dMdpprz = ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH;
-  eff_sched_var.roll_motor_dMdpprz  = ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL;
+  eff_sched_var.roll_motor_dMdpprz  = (eff_sched_p.DMdpprz_hover_roll[0] + (MAX_PPRZ/2.) * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.; // Dmdpprz hover roll for hover thrust
 
   eff_sched_var.cmd_elevator = 0;
+  eff_sched_var.cmd_pusher = 0;
   eff_sched_var.cmd_pusher_scaled = 0;
   eff_sched_var.cmd_T_mean_scaled = 0;
 
@@ -258,9 +260,10 @@ void eff_scheduling_rot_wing_update_MMOI(void)
 void eff_scheduling_rot_wing_update_cmd(void)
 {
   // These indexes depend on the INDI sequence, not the actuator IDX
-  eff_sched_var.cmd_elevator = actuators_pprz[5];
-  eff_sched_var.cmd_pusher_scaled = actuators_pprz[8] * 0.000853229; // Scaled with 8181 / 9600 / 1000
-  eff_sched_var.cmd_T_mean_scaled = (actuators_pprz[0] + actuators_pprz[1] + actuators_pprz[2] + actuators_pprz[3]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_elevator = actuator_state_filt_vect[5];
+  eff_sched_var.cmd_pusher = actuator_state_filt_vect[8];
+  eff_sched_var.cmd_pusher_scaled = actuator_state_filt_vect[8] * 0.000853229; // Scaled with 8181 / 9600 / 1000
+  eff_sched_var.cmd_T_mean_scaled = (actuator_state_filt_vect[0] + actuator_state_filt_vect[1] + actuator_state_filt_vect[2] + actuator_state_filt_vect[3]) / 4. * 0.000853229; // Scaled with 8181 / 9600 / 1000
 }
 
 void eff_scheduling_rot_wing_update_airspeed(void)
@@ -278,12 +281,20 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   float pitch_motor_q_eff = eff_sched_var.pitch_motor_dMdpprz / eff_sched_var.Iyy;
 
   // Roll motor effectiveness
+  float dM_dpprz_right  = (eff_sched_p.DMdpprz_hover_roll[0] + actuator_state_filt_vect[1] * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
+  float dM_dpprz_left   = (eff_sched_p.DMdpprz_hover_roll[0] + actuator_state_filt_vect[3] * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
 
-  float roll_motor_p_eff = (eff_sched_var.roll_motor_dMdpprz * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  Bound(roll_motor_p_eff, 0.00001, 1);
+  // Bound dM_dpprz to half and 2 times the hover effectiveness
+  Bound(dM_dpprz_right, eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);
+  Bound(dM_dpprz_left,  eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);
+
+  float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  Bound(roll_motor_p_eff_right, -1, -0.00001);
+
+  float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
   float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
-  float roll_motor_p_eff_compensated = roll_motor_p_eff + roll_motor_airspeed_compensation;
-  Bound(roll_motor_p_eff_compensated, 0.00001, 1);
+  roll_motor_p_eff_left += roll_motor_airspeed_compensation;
+  Bound(roll_motor_p_eff_left, 0.00001, 1);
 
   float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
   Bound(roll_motor_q_eff, 0, 1);
@@ -295,11 +306,11 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   g1g2[1][2] = -pitch_motor_q_eff;  // pitch effectiveness back motor
 
   // Update right motor p and q effectiveness
-  g1g2[0][1] = -roll_motor_p_eff;   // roll effectiveness right motor (no airspeed compensation)
+  g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
   g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
 
   // Update left motor p and q effectiveness
-  g1g2[0][3] = roll_motor_p_eff_compensated;  // roll effectiveness left motor
+  g1g2[0][3] = roll_motor_p_eff_left;  // roll effectiveness left motor
   g1g2[1][3] = -roll_motor_q_eff;   // pitch effectiveness left motor
 }
 
@@ -334,7 +345,7 @@ void eff_scheduling_rot_wing_update_rudder_effectiveness(void)
   // Convert moment to effectiveness
   float eff_z_rudder = dMzdpprz / eff_sched_p.Izz;
 
-  Bound(eff_z_rudder, 0.00001, 0.1);
+  Bound(eff_z_rudder, 0.000001, 0.1);
 
   g1g2[2][4] = eff_z_rudder;
 }
@@ -357,10 +368,10 @@ void eff_scheduling_rot_wing_update_flaperon_effectiveness(void)
 
 void eff_scheduling_rot_wing_update_pusher_effectiveness(void)
 {
-  float rpmP = eff_sched_p.k_rpm_pprz_pusher[0] + eff_sched_p.k_rpm_pprz_pusher[1] * eff_sched_var.cmd_pusher_scaled + eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher_scaled * eff_sched_var.cmd_pusher_scaled;
+  float rpmP = eff_sched_p.k_rpm_pprz_pusher[0] + eff_sched_p.k_rpm_pprz_pusher[1] * eff_sched_var.cmd_pusher + eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher * eff_sched_var.cmd_pusher;
 
   float dFxdrpmP = eff_sched_p.k_pusher[0]*rpmP + eff_sched_p.k_pusher[1] * eff_sched_var.airspeed;
-  float drpmPdpprz = eff_sched_p.k_rpm_pprz_pusher[1] + 2. * eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher_scaled;
+  float drpmPdpprz = eff_sched_p.k_rpm_pprz_pusher[1] + 2. * eff_sched_p.k_rpm_pprz_pusher[2] * eff_sched_var.cmd_pusher;
 
   float eff_pusher = (dFxdrpmP * drpmPdpprz / eff_sched_p.m) / 10000.;
 
@@ -389,39 +400,16 @@ float guidance_indi_get_liftd(float pitch UNUSED, float theta UNUSED) {
   return eff_scheduling_rot_wing_lift_d;
 }
 
-void stabilization_indi_set_wls_settings(float use_increment)
+void stabilization_indi_set_wls_settings(void)
 {
    // Calculate the min and max increments
     for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-      du_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i] - use_increment*actuator_state_filt_vect[i];
-      du_max_stab_indi[i] = MAX_PPRZ - use_increment*actuator_state_filt_vect[i];
-      du_pref_stab_indi[i] = act_pref[i] - use_increment*actuator_state_filt_vect[i];
+      u_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i];
+      u_max_stab_indi[i] = MAX_PPRZ;
+      u_pref_stab_indi[i] = act_pref[i];
       if (i == 5) {
-        du_pref_stab_indi[i] = 0; // Set change in prefered state to 0 for elevator
-        du_min_stab_indi[i] = - use_increment*actuator_state_filt_vect[i]; // cmd 0 is lowest position for elevator
+        u_pref_stab_indi[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
+        u_min_stab_indi[i] = 0; // cmd 0 is lowest position for elevator
       }
   }
-
-  #if ROTWING_V3B
-  float min_pprz_cmd_ail = -MAX_PPRZ;
-  if (eff_sched_var.wing_rotation_deg < 15) {
-    min_pprz_cmd_ail = 0;
-  }
-  Bound(min_pprz_cmd_ail, -9600, 0);
-
-  du_min_stab_indi[6] = min_pprz_cmd_ail - use_increment*actuators_pprz[6];
-
-  float min_pprz_cmd_flap_ail = -MAX_PPRZ;
-  if (eff_sched_var.wing_rotation_deg < 38) {
-    min_pprz_cmd_flap_ail = -1000;
-  } if (eff_sched_var.wing_rotation_deg > 50) {
-    min_pprz_cmd_flap_ail = -9600;
-  } else {
-    min_pprz_cmd_flap_ail = -5.596578906693223 * eff_sched_var.wing_rotation_deg * eff_sched_var.wing_rotation_deg * eff_sched_var.wing_rotation_deg + 654.186408367317 * eff_sched_var.wing_rotation_deg * eff_sched_var.wing_rotation_deg - 25577.0135504177 * eff_sched_var.wing_rotation_deg + 333307.855118805;
-  }
-
-  Bound(min_pprz_cmd_flap_ail, -9600, 0);
-
-  du_min_stab_indi[7] = min_pprz_cmd_flap_ail - use_increment*actuators_pprz[7];
-  #endif //ROTWING_V3B
 }
