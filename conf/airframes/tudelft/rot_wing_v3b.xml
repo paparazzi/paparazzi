@@ -203,21 +203,21 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="8191"/>
-        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="8191"/>
-        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
-        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
+        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="7372"/>
+        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
+        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
+        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
         <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
         <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
     <servos DRIVER="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="1000" max="8191"/>
-        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="1000" max="8191"/>
-        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="1000" max="8191"/>
-        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="1000" max="8191"/>
+        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="1000" max="7372"/>
+        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="1000" max="7372"/>
+        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="1000" max="7372"/>
+        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="1000" max="7372"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -297,11 +297,11 @@
         <define name="IYY_WING"              value="0.38472811"/>
         <define name="M"                     value="6.94"/>
 
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="0.001734904"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="0.001684595"/>
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="0.001537287553553"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.001936126151564}"/>
 
-        <define name="HOVER_ROLL_PITCH_COEF" value="{0.001600837,-0.000732843248849}"/>
-        <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000947144886298017, -0.000053954}"/>
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
+        <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
 
         <define name="K_ELEVATOR"            value="{0.4603,-4.81466,-28.8464}"/>
         <define name="K_RUDDER"              value="{-26.1434,-0.336403,-1.16702}"/>
@@ -311,7 +311,7 @@
 
         <define name="K_ELEVATOR_DEFLECTION" value="{50.0,-0.0063}"/>
         <define name="D_RUDDER_D_PPRZ"       value="-0.0018"/>
-        <define name="K_RPM_PPRZ_PUSHER"     value="{-131.497033952591,1.32098226269777,-0.0000291178067445214}"/>
+        <define name="K_RPM_PPRZ_PUSHER"     value="{-116.518697071689,1.17051409813432,-0.00002580110593734}"/>
 
         <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
         <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
@@ -367,7 +367,7 @@
         <define name="SP_MAX_THETA"         value="45." unit="deg"/>
         <define name="SP_MAX_R"             value="90." unit="deg/s"/>
         <define name="DEADBAND_R"           value="200"/>
-        <define name="SP_PSI_DELTA_LIMIT"   value="45" unit="deg"/>
+        <define name="SP_PSI_DELTA_LIMIT"   value="5" unit="deg"/>
 
         <!-- Reference model -->
         <define name="REF_OMEGA_P"          value="800" unit="deg/s"/>
@@ -437,7 +437,7 @@
         <define name="FILT_CUTOFF_RDOT"                 value="0.5"/>
 
         <!-- Other -->
-        <define name="WLS_PRIORITIES"   value="{1000, 1000, 1, 100, 100}"/>
+        <define name="WLS_PRIORITIES"   value="{1000, 1000, 10, 100, 100}"/>
         <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>

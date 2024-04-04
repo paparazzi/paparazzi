@@ -105,9 +105,9 @@
 #endif
 #endif
 
-float du_min_stab_indi[INDI_NUM_ACT];
-float du_max_stab_indi[INDI_NUM_ACT];
-float du_pref_stab_indi[INDI_NUM_ACT];
+float u_min_stab_indi[INDI_NUM_ACT];
+float u_max_stab_indi[INDI_NUM_ACT];
+float u_pref_stab_indi[INDI_NUM_ACT];
 float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
@@ -197,6 +197,15 @@ float indi_Wu[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
 float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT - 1] = 1.0};
 #endif
 
+/**
+ * Limit the maximum specific moment that can be compensated (units rad/s^2)
+*/
+#ifdef STABILIZATION_INDI_YAW_DISTURBANCE_LIMIT
+float stablization_indi_yaw_dist_limit = STABILIZATION_INDI_YAW_DISTURBANCE_LIMIT
+#else // Put a rediculously high limit
+float stablization_indi_yaw_dist_limit = 99999.f;
+#endif
+
 // variables needed for control
 float actuator_state_filt_vect[INDI_NUM_ACT];
 struct FloatRates angular_accel_ref = {0., 0., 0.};
@@ -204,8 +213,7 @@ struct FloatRates angular_rate_ref = {0., 0., 0.};
 float angular_acceleration[3] = {0., 0., 0.};
 float actuator_state[INDI_NUM_ACT];
 float indi_u[INDI_NUM_ACT];
-float indi_du[INDI_NUM_ACT];
-float g2_times_du;
+float rate_vect_prev[3] = {0., 0., 0.};
 
 float q_filt = 0.0;
 float r_filt = 0.0;
@@ -426,6 +434,8 @@ void stabilization_indi_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
+  float_vect_zero(rate_vect_prev, 3);
+
   float_vect_zero(du_estimation, INDI_NUM_ACT);
   float_vect_zero(ddu_estimation, INDI_NUM_ACT);
 }
@@ -554,6 +564,31 @@ void stabilization_indi_set_stab_sp(struct StabilizationSetpoint *sp)
  */
 void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 {
+
+  // Propagate actuator filters
+  get_actuator_state();
+  float actuator_state_filt_vect_prev[INDI_NUM_ACT];
+  for (int i = 0; i < INDI_NUM_ACT; i++) {
+    update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
+    update_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], actuator_state[i]);
+    actuator_state_filt_vect[i] = actuator_lowpass_filters[i].o[0];
+    actuator_state_filt_vect_prev[i] = actuator_lowpass_filters[i].o[1];
+
+    // calculate derivatives for estimation
+    float actuator_state_filt_vectd_prev = actuator_state_filt_vectd[i];
+    actuator_state_filt_vectd[i] = (estimation_input_lowpass_filters[i].o[0] - estimation_input_lowpass_filters[i].o[1]) *
+                                   PERIODIC_FREQUENCY;
+    actuator_state_filt_vectdd[i] = (actuator_state_filt_vectd[i] - actuator_state_filt_vectd_prev) * PERIODIC_FREQUENCY;
+  }
+
+  // Use the last actuator state for this computation
+  float g2_times_u_act_filt = float_vect_dot_product(g2, actuator_state_filt_vect_prev, INDI_NUM_ACT)/INDI_G_SCALING;
+
+  // Predict angular acceleration u*B
+  float angular_acc_prediction_filt[INDI_OUTPUTS];
+  float_mat_vect_mul(angular_acc_prediction_filt, Bwls, actuator_state_filt_vect, INDI_OUTPUTS, INDI_NUM_ACT);
+  angular_acc_prediction_filt[2] -= g2_times_u_act_filt;
+
   /* Propagate the filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
   float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
@@ -572,6 +607,10 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
                            PERIODIC_FREQUENCY;
     estimation_rate_dd[i] = (estimation_rate_d[i] - estimation_rate_d_prev) * PERIODIC_FREQUENCY;
   }
+
+  // subtract u*B from angular acceleration
+  float angular_acc_disturbance_estimate[INDI_OUTPUTS];
+  float_vect_diff(angular_acc_disturbance_estimate, angular_acceleration, angular_acc_prediction_filt, 3);
 
   //The rates used for feedback are by default the measured rates.
   //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
@@ -610,88 +649,82 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
   angular_accel_ref.q = (rate_sp.q - rates_filt.q) * indi_gains.rate.q;
   angular_accel_ref.r = (rate_sp.r - rates_filt.r) * indi_gains.rate.r;
 
-  g2_times_du = 0.0;
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    g2_times_du += g2[i] * indi_du[i];
-  }
-  //G2 is scaled by INDI_G_SCALING to make it readable
-  g2_times_du = g2_times_du / INDI_G_SCALING;
-
-  float use_increment = 0.0;
-  if (in_flight) {
-    use_increment = 1.0;
-  }
-
   struct FloatVect3 v_thrust;
   v_thrust.x = 0.0;
   v_thrust.y = 0.0;
   v_thrust.z = 0.0;
   if (indi_thrust_increment_set) {
-    v_thrust = indi_thrust_increment;
-
     //update thrust command such that the current is correctly estimated
     stabilization_cmd[COMMAND_THRUST] = 0;
+    float current_thrust_filt_z = 0;
     for (i = 0; i < INDI_NUM_ACT; i++) {
       stabilization_cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_is_thruster_z[i];
+      current_thrust_filt_z += Bwls[3][i]* actuator_lowpass_filters[i].o[0] * (int32_t) act_is_thruster_z[i];
     }
     stabilization_cmd[COMMAND_THRUST] /= num_thrusters;
 
+    // Add the increment to the current estimated thrust
+    v_thrust.z = current_thrust_filt_z + indi_thrust_increment.z;
+
 #if INDI_OUTPUTS == 5
     stabilization_cmd[COMMAND_THRUST_X] = 0;
+    float current_thrust_filt_x = 0;
     for (i = 0; i < INDI_NUM_ACT; i++) {
       stabilization_cmd[COMMAND_THRUST_X] += actuator_state[i] * (int32_t) act_is_thruster_x[i];
+      current_thrust_filt_x += Bwls[4][i]* actuator_lowpass_filters[i].o[0] * (int32_t) act_is_thruster_x[i];
     }
     stabilization_cmd[COMMAND_THRUST_X] /= num_thrusters_x;
+
+    v_thrust.x = current_thrust_filt_x + indi_thrust_increment.x;
 #endif
 
   } else {
     // incremental thrust
     for (i = 0; i < INDI_NUM_ACT; i++) {
-      v_thrust.z +=
-        (stabilization_cmd[COMMAND_THRUST] - use_increment * actuator_state_filt_vect[i]) * Bwls[3][i];
+      v_thrust.z += stabilization_cmd[COMMAND_THRUST] * Bwls[3][i];
 #if INDI_OUTPUTS == 5
       stabilization_cmd[COMMAND_THRUST_X] = radio_control.values[RADIO_CONTROL_THRUST_X];
-      v_thrust.x +=
-        (stabilization_cmd[COMMAND_THRUST_X] - use_increment * actuator_state_filt_vect[i]) * Bwls[4][i];
+      v_thrust.x += stabilization_cmd[COMMAND_THRUST_X] * Bwls[4][i];
 #endif
     }
   }
 
+  // This term compensates for the spinup torque in the yaw axis
+  float g2_times_u = float_vect_dot_product(g2, indi_u, INDI_NUM_ACT)/INDI_G_SCALING;
+
+  if (in_flight) {
+    // Limit the estimated disturbance in yaw for drones that are stable in sideslip
+    BoundAbs(angular_acc_disturbance_estimate[2], stablization_indi_yaw_dist_limit);
+  } else {
+    // Not in flight, so don't estimate disturbance
+    float_vect_zero(angular_acc_disturbance_estimate, INDI_OUTPUTS);
+  }
+
   // The control objective in array format
-  indi_v[0] = (angular_accel_ref.p - use_increment * angular_acceleration[0]);
-  indi_v[1] = (angular_accel_ref.q - use_increment * angular_acceleration[1]);
-  indi_v[2] = (angular_accel_ref.r - use_increment * angular_acceleration[2] + g2_times_du);
+  indi_v[0] = (angular_accel_ref.p - angular_acc_disturbance_estimate[0]);
+  indi_v[1] = (angular_accel_ref.q - angular_acc_disturbance_estimate[1]);
+  indi_v[2] = (angular_accel_ref.r - angular_acc_disturbance_estimate[2]) + g2_times_u;
   indi_v[3] = v_thrust.z;
 #if INDI_OUTPUTS == 5
   indi_v[4] = v_thrust.x;
 #endif
 
-
 #if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   // Calculate the increment for each actuator
   for (i = 0; i < INDI_NUM_ACT; i++) {
-    indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
-                 + (g1g2_pseudo_inv[i][1] * indi_v[1])
-                 + (g1g2_pseudo_inv[i][2] * indi_v[2])
-                 + (g1g2_pseudo_inv[i][3] * indi_v[3]);
+    indi_u[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
+                + (g1g2_pseudo_inv[i][1] * indi_v[1])
+                + (g1g2_pseudo_inv[i][2] * indi_v[2])
+                + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
-  stabilization_indi_set_wls_settings(use_increment);
-
+  stabilization_indi_set_wls_settings();
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min_stab_indi, du_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, du_pref_stab_indi, 10000, 10,
+    wls_alloc(indi_u, indi_v, u_min_stab_indi, u_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, u_pref_stab_indi, 10000, 10,
               INDI_NUM_ACT, INDI_OUTPUTS);
 #endif
-
-  if (in_flight) {
-    // Add the increments to the actuators
-    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
-  } else {
-    // Not in flight, so don't increment
-    float_vect_copy(indi_u, indi_du, INDI_NUM_ACT);
-  }
 
   // Bound the inputs to the actuators
   for (i = 0; i < INDI_NUM_ACT; i++) {
@@ -706,20 +739,6 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
     }
   }
 
-  // Propagate actuator filters
-  get_actuator_state();
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
-    update_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], actuator_state[i]);
-    actuator_state_filt_vect[i] = actuator_lowpass_filters[i].o[0];
-
-    // calculate derivatives for estimation
-    float actuator_state_filt_vectd_prev = actuator_state_filt_vectd[i];
-    actuator_state_filt_vectd[i] = (estimation_input_lowpass_filters[i].o[0] - estimation_input_lowpass_filters[i].o[1]) *
-                                   PERIODIC_FREQUENCY;
-    actuator_state_filt_vectdd[i] = (actuator_state_filt_vectd[i] - actuator_state_filt_vectd_prev) * PERIODIC_FREQUENCY;
-  }
-
   // Use online effectiveness estimation only when flying
   if (in_flight && indi_use_adaptive) {
     lms_estimation();
@@ -732,17 +751,15 @@ void stabilization_indi_rate_run(struct FloatRates rate_sp, bool in_flight)
 }
 
 /**
- * @param use_increment
- *
  * Function that sets the du_min, du_max and du_pref if function not elsewhere defined
  */
-void WEAK stabilization_indi_set_wls_settings(float use_increment)
+void WEAK stabilization_indi_set_wls_settings(void)
 {
   // Calculate the min and max increments
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-    du_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i] - use_increment * actuator_state_filt_vect[i];
-    du_max_stab_indi[i] = MAX_PPRZ - use_increment * actuator_state_filt_vect[i];
-    du_pref_stab_indi[i] = act_pref[i] - use_increment * actuator_state_filt_vect[i];
+    u_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i];
+    u_max_stab_indi[i] = MAX_PPRZ;
+    u_pref_stab_indi[i] = act_pref[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
     float airspeed = stateGetAirspeed_f();
@@ -750,9 +767,9 @@ void WEAK stabilization_indi_set_wls_settings(float use_increment)
     if (!act_is_servo[i]) {
       if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
         if (airspeed < STABILIZATION_INDI_THROTTLE_LIMIT_AIRSPEED_FWD) {
-          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE - use_increment * actuator_state_filt_vect[i];
+          u_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE;
         } else {
-          du_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - use_increment * actuator_state_filt_vect[i];
+          u_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD;
         }
       }
     }
