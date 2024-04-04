@@ -5,6 +5,7 @@ import os
 import math
 import argparse
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
@@ -12,6 +13,15 @@ PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.di
 sys.path.append(PPRZ_HOME + "/sw/ground_segment/python/natnet3.x")
 
 from NatNetClient import NatNetClient
+
+recording = False
+
+def on_press(event):
+    global recording
+    if event.key == 'r':
+        recording = not recording
+    if event.key == 'q':
+        plt.close()
 
 
 # This is a callback function that gets connected to the NatNet client. It is called once per rigid body per frame
@@ -39,6 +49,12 @@ def main(args):
     fig = plt.figure()
     plt.axis([-6, 6, -6, 6])
     
+    # add key press event
+    fig.canvas.mpl_connect('key_press_event', on_press)
+    
+    # title
+    plt.title('Press r to start/stop recording \n press q to quit')
+    
     # This will create a new NatNet client
     streamingClient = NatNetClient(
         server=args.server,
@@ -46,7 +62,7 @@ def main(args):
         commandPort=args.commandPort,
         dataPort=args.dataPort,
         rigidBodyListListener=receiveRigidBodyFrame,
-        version=(2,9,0,0))
+        version=(3,0,0,0))
     # Start up the streaming client now that the callbacks are set up.
     # This will run perpetually, and operate on a separate thread.
     streamingClient.run()
@@ -55,7 +71,7 @@ def main(args):
     print('Start tracking')
     if args.outputfile:
         file = open(args.outputfile, 'w')
-        file.write('timestamp, x, y, z\n')
+        file.write('time, distance, x, y, z, recording \n')
     
     old_z = pos_z
     old_x = pos_x
@@ -64,22 +80,33 @@ def main(args):
     pre_time = time.time()
     
     while plt.fignum_exists(fig.number):
-        if args.outputfile:
-            data = '{}, {}, {}, {}\n'.format(int((time.time() - start_time) * 1000), pos_x, pos_y, pos_z)
-            file.write(data)
             
         h = math.hypot(pos_z - old_z, pos_x - old_x)
-        if h > 0.20:
-            distance += h
+        
+        if h > 0.10:
+            if recording:
+                distance += h
             old_z = pos_z
             old_x = pos_x
-        if time.time() - pre_time > 0.5:
-            print("distance:%3.4f m; time_step:%d" % (distance, int((time.time() - start_time) * 2)))
+        if time.time() - pre_time > .1:
+            current_time = time.time() - start_time
+            print(f'distance: {distance}; time: {current_time:.2f}; recording: {recording}')
             pre_time = time.time()
-        plt.plot(pos_z, pos_x, 'ro')
-        plt.draw()
+            
+            if args.outputfile:
+                # data = '{}, {}, {}, {}, {}, {} \n'.format(time.time() - start_time, distance, pos_x, pos_y, pos_z, recording)
+                data = f'{current_time}, {distance}, {pos_x}, {pos_y}, {pos_z}, {recording} \n'
+                file.write(data)
+                
+            if recording:
+                plt.plot(pos_z, pos_x, 'ro')
+                plt.title('Press r to start/stop recording \n press q to quit \n RECORDING')
+            else:
+                plt.plot(pos_z, pos_x, 'bo')
+                plt.title('Press r to start/stop recording \n press q to quit \n NOT RECORDING')
+                
         plt.pause(0.001)
-        time.sleep(0.01)
+        # time.sleep(0.01)
     
     streamingClient.stop()
     if args.outputfile:
