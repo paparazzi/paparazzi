@@ -126,6 +126,8 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
   Gmat[0][3] =  ctheta;
   Gmat[1][3] =  0;
   Gmat[2][3] = -stheta;
+  // Make this term zero to prevent switching 'exploits'
+  // Gmat[2][3] = 0;
 
   // Convert acceleration error to body axis system
   body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
