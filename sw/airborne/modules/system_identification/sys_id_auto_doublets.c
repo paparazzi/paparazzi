@@ -49,8 +49,8 @@ uint8_t sys_id_auto_doublets_actuators[SYS_ID_AUTO_DOUBLETS_N_ACTUATORS] = SYS_I
 int16_t sys_id_auto_doublets_amplitude[SYS_ID_AUTO_DOUBLETS_N_ACTUATORS] = SYS_ID_AUTO_DOUBLETS_AMPLITUDE;
 
 float sys_id_auto_doublets_time = 0.5;         // time of one doublet
-float sys_id_auto_doublets_interval_time = 5.; // time interval for doublets
-int8_t sys_id_auto_doublets_n_repeat = 5;      // The number of times a doublet has to be repeated on a single actuator
+float sys_id_auto_doublets_interval_time = 3.; // time interval for doublets
+int8_t sys_id_auto_doublets_n_repeat = 4;      // The number of times a doublet has to be repeated on a single actuator
 
 bool sys_id_auto_doublets_activated = false;
 
