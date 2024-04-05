@@ -233,7 +233,7 @@
 
         <define name="AUTO_DOUBLETS_N_ACTUATORS" value="4"/>
         <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1,2,3}"/>
-        <define name="AUTO_DOUBLETS_AMPLITUDE" value="{1500,1500,1500,1500}"/>
+        <define name="AUTO_DOUBLETS_AMPLITUDE" value="{1500,1000,1500,1000}"/>
 
         <define name="CHIRP_AXES" value="{0,1,2,3}"/>
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
@@ -325,7 +325,7 @@
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
-                <field name="filter_sample_freq" value="24776"/>
+                <field name="filter_sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
@@ -340,13 +340,13 @@
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
-                <field name="filter_sample_freq" value="24776"/>
+                <field name="filter_sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
 
         <!-- High speed IMU logging for debugging only -->
-        <define name="LOG_HIGHSPEED" value="TRUE"/>
+        <!--define name="LOG_HIGHSPEED" value="TRUE"/-->
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"      value="180." unit="deg"/>
