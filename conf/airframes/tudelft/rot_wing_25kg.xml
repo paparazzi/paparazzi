@@ -85,15 +85,15 @@
         <!-- IMU / INS -->
         <module name="imu" type="pixhawk6x"/>
         <module name="ins" type="ekf2">
-            <!-- The Cube is mounted 25cm backwards of the CG -->
-            <define name="INS_EKF2_IMU_POS_X" value="-0.25"/>
+            <!-- The Cube is mounted 37cm forwards of the CG -->
+            <define name="INS_EKF2_IMU_POS_X" value="0.37"/>
             <define name="INS_EKF2_IMU_POS_Y" value="0.0"/>
             <define name="INS_EKF2_IMU_POS_Z" value="0.0"/>
 
-            <!-- The main GPS is mounted at the tail 1.44m backwards and 20cm above the CG -->
-            <define name="INS_EKF2_GPS_POS_X" value="-1.44"/>
+            <!-- The main GPS is mounted at the tail 1.44m backwards and 10cm above the CG -->
+            <define name="INS_EKF2_GPS_POS_X" value="-1.28"/>
             <define name="INS_EKF2_GPS_POS_Y" value="0.0"/>
-            <define name="INS_EKF2_GPS_POS_Z" value="0.2"/>
+            <define name="INS_EKF2_GPS_POS_Z" value="0.1"/>
         </module>
 
         <!-- Actuators on dual CAN bus -->
@@ -316,6 +316,21 @@
 
         <!-- Accelerometers calibration -->
         <define name="ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="26"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="false"/>
+                    <field name="scale" value="false"/>
+                    <field name="rotation" value="false"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="filter_sample_freq" value="24776"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
+
+        <!-- Gyrometer calibration -->
+        <define name="GYRO_CALIB" type="array">
             <field type="struct">
                 <field name="abi_id" value="26"/>
                 <field name="calibrated" type="struct">
