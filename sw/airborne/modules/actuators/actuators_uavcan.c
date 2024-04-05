@@ -32,7 +32,7 @@
 
 /* By default enable the usage of the current sensing in the ESC telemetry */
 #ifndef UAVCAN_ACTUATORS_USE_CURRENT
-#define UAVCAN_ACTUATORS_USE_CURRENT TRUE
+#define UAVCAN_ACTUATORS_USE_CURRENT FALSE
 #endif
 
 /* uavcan ESC status telemetry structure */
