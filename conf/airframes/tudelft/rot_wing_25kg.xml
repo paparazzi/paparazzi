@@ -530,7 +530,7 @@
         <define name="CATASTROPHIC_BAT_LEVEL"   value="36.0" unit="V"/>
         <define name="CRITIC_BAT_LEVEL"         value="37.2" unit="V"/>
         <define name="LOW_BAT_LEVEL"            value="48.4" unit="V"/>
-        <define name="MAX_BAT_LEVEL"            value="50.4" unit="V"/>
+        <define name="MAX_BAT_LEVEL"            value="52.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="48.4" unit="V"/>
         <define name="BAT_NB_CELLS"             value="12"/>
     </section>
