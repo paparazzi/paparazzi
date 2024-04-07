@@ -118,6 +118,9 @@ bool take_heading_control = false;
 
 bool force_forward = false;
 
+bool guidance_indi_secondary_airspeed_filtering = false;
+
+
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float guidance_indi_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
@@ -148,6 +151,10 @@ static void guidance_indi_filter_thrust(void);
 #endif
 #endif
 
+#ifndef GUIDANCE_INDI_SECONDARY_AIRSPEED_FILT_CUTOFF
+#define GUIDANCE_INDI_SECONDARY_AIRSPEED_FILT_CUTOFF 0.5
+#endif
+
 #ifndef GUIDANCE_INDI_CLIMB_SPEED_FWD
 #define GUIDANCE_INDI_CLIMB_SPEED_FWD 4.0
 #endif
@@ -175,6 +182,7 @@ Butterworth2LowPass roll_filt;
 Butterworth2LowPass pitch_filt;
 Butterworth2LowPass thrust_filt;
 Butterworth2LowPass accely_filt;
+Butterworth2LowPass secondary_airspeed_filt;
 
 struct FloatVect2 desired_airspeed;
 
@@ -204,6 +212,7 @@ float v_gih[3];
 
 // Filters
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
+float secondary_airspeed_filt_cutoff = GUIDANCE_INDI_SECONDARY_AIRSPEED_FILT_CUTOFF;
 
 float guidance_indi_hybrid_heading_sp = 0.f;
 struct FloatEulers guidance_euler_cmd;
@@ -310,6 +319,9 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
+  
+  float tau_secondary_airspeed = 1.0/(2.0*M_PI*secondary_airspeed_filt_cutoff);
+  init_butterworth_2_low_pass(&secondary_airspeed_filt, tau_secondary_airspeed, sample_time, 0.0);
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
   for (int8_t i = 0; i < GUIDANCE_INDI_HYBRID_V; i++) {
@@ -349,6 +361,9 @@ void guidance_indi_enter(void) {
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, eulers_zxy.theta);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
+
+  float tau_secondary_airspeed = 1.0/(2.0*M_PI*secondary_airspeed_filt_cutoff);
+  init_butterworth_2_low_pass(&secondary_airspeed_filt, tau_secondary_airspeed, sample_time, 0.0);
 }
 
 #include "firmwares/rotorcraft/navigation.h"
@@ -575,6 +590,9 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   float airspeed = 0.f;
 #else
   float airspeed = stateGetAirspeed_f();
+  if (guidance_indi_secondary_airspeed_filtering) {
+    airspeed = secondary_airspeed_filt.o[0];
+  }
 #endif
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
   struct FloatVect2 airspeed_v = { cpsi * airspeed, spsi * airspeed };
@@ -785,6 +803,9 @@ void guidance_indi_propagate_filters(void) {
   // Propagate filter for sideslip correction
   float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
   update_butterworth_2_low_pass(&accely_filt, accely);
+
+  float airspeed = stateGetAirspeed_f();
+  update_butterworth_2_low_pass(&secondary_airspeed_filt, airspeed);
 }
 
 
