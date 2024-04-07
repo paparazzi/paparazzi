@@ -17,6 +17,9 @@
 #define COMMAND_YAW 2
 #define COMMAND_THRUST 3
 
+// extra commands
+#define COMMAND_FLAPS 4
+
 #define SetCommandsFromRC(_commands_array, _rc_array) { }
 #define AllActuatorsInit() { }
 #define AllActuatorsCommit() { }
@@ -52,5 +55,11 @@
 #define INS_SONAR_UPDATE_ON_AGL TRUE
 #define INS_ROLL_NEUTRAL_DEFAULT 0.
 #define INS_PITCH_NEUTRAL_DEFAULT 0.
+
+#define SECTION_STABILIZATION_ATTITUDE 1
+#define STABILIZATION_ATTITUDE_SP_MAX_PHI 0.7853981625
+#define STABILIZATION_ATTITUDE_SP_MAX_THETA 0.7853981625
+#define STABILIZATION_ATTITUDE_SP_MAX_R 1.04719755
+#define STABILIZATION_ATTITUDE_DEADBAND_R 250
 
 #endif // AIRFRAME_H

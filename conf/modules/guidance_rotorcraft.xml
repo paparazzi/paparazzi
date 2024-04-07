@@ -7,7 +7,6 @@
       It provides:
       - horizontal guidance with reference
       - vertical guidance with reference and adaptive control
-      - flip mode
     </description>
   </doc>
   <settings target="ap|nps">
@@ -43,6 +42,8 @@
     <file name="guidance_v.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_v_ref.c" dir="$(SRC_FIRMWARE)/guidance"/>
     <file name="guidance_v_adapt.c" dir="$(SRC_FIRMWARE)/guidance"/>
-    <file name="guidance_flip.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <test firmware="rotorcraft">
+      <define name="PERIODIC_FREQUENCY" value="500"/>
+    </test>
   </makefile>
 </module>
