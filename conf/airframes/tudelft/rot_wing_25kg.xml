@@ -246,8 +246,8 @@
         <define name="IYY_WING"              value="1.671"/>
         <define name="M"                     value="23.66"/>
 
-        <define name="DM_DPPRZ_HOVER_PITCH"  value="0.00925"/>
-        <define name="DM_DPPRZ_HOVER_ROLL"   value="{0.0085, 0}"/>
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="0.01326745"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{77.768,0.0}"/>
 
         <define name="HOVER_ROLL_PITCH_COEF" value="{0.0210321, -0.01170221}"/>
         <define name="HOVER_ROLL_ROLL_COEF"  value="{0.0,       -0.0}"/>
@@ -359,7 +359,7 @@
         <define name="SP_MAX_THETA"         value="45." unit="deg"/>
         <define name="SP_MAX_R"             value="90." unit="deg/s"/>
         <define name="DEADBAND_R"           value="200"/>
-        <define name="SP_PSI_DELTA_LIMIT"   value="45" unit="deg"/>
+        <define name="SP_PSI_DELTA_LIMIT"   value="5"   unit="deg"/>
 
         <!-- Reference model -->
         <define name="REF_OMEGA_P"          value="800" unit="deg/s"/>
