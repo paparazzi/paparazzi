@@ -188,10 +188,11 @@
 
 
     <command_laws>
-        <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
-        <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-        <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
-
+        <let var="rc_motors_off"    value="Or(LessThan(RadioControlValues(RADIO_KILL_SWITCH), -4800), MoreThan(RadioControlValues(RADIO_PARACHUTE), 4800))"/>
+        <let var="th_hold"          value="Or($rc_motors_off, !autopilot_get_motors_on())"/>
+        <let var="servo_hold"       value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+        <let var="hover_off"        value="Or($th_hold, bool_disable_hover_motors)"/>
+        
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <!-- Main bus -->
         <set servo="MOTOR_FRONT"        value="($hover_off? -9600 : actuators_pprz[0])"/>
@@ -205,7 +206,7 @@
         <set servo="FLAP_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
-        <set servo="PARACHUTE"          value="RadioControlValues(RADIO_AUX6)"/>
+        <set servo="PARACHUTE"          value="RadioControlValues(RADIO_PARACHUTE)"/>
 
         <!-- Second bus -->
         <set servo="BMOTOR_FRONT"       value="($hover_off? -9600 : actuators_pprz[0])"/>
@@ -219,7 +220,7 @@
         <set servo="BFLAP_RIGHT"        value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_LEFT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
-        <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/>
+        <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_PARACHUTE)"/>
 
         <!-- Rotation mechanism -->
         <set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
