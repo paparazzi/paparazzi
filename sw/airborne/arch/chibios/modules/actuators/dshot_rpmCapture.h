@@ -4,7 +4,7 @@
 #include <hal.h>
 #include "mcu_periph/input_capture_arch.h"
 #include "mcu_periph/hal_stm32_dma.h"
-#include "timerDmaCache.h"
+#include "mcu_periph/timerDmaCache.h"
 #include "modules/actuators/esc_dshot_config.h"
 
 #ifdef __cplusplus
