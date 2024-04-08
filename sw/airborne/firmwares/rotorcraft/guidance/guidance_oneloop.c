@@ -33,7 +33,7 @@
 
 void guidance_h_run_enter(void)
 {
-  oneloop_andi_enter(false);
+  oneloop_andi_enter(false, CTRL_ANDI);
 }
 
 void guidance_v_run_enter(void)

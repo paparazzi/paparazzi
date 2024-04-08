@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="8.0" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="5000" name="Oneloop Valkenburg" security_height="2">
+<flight_plan alt="70.0" ground_alt="0" lat0="52.168595" lon0="4.412444" max_dist_from_home="1070" name="Oneloop Valkenburg" security_height="2">
   <header>
     #include "autopilot.h"
     #include "modules/datalink/datalink.h"
@@ -9,15 +9,15 @@
     #include "modules/ahrs/ahrs.h"
 </header>
   <waypoints>
-    <waypoint name="HOME" lat="52.1682196" lon="4.4134865"/>
+    <waypoint name="HOME" x="12.6" y="-48.7"/>
     <waypoint name="CLIMB" x="62.6" y="-80.4"/>
-    <waypoint name="STDBY" x="106.0" y="-55.1"/>
+    <waypoint name="STDBY" lat="52.1682655" lon="4.4135103"/>
     <waypoint name="p1" x="322.0" y="-254.3"/>
     <waypoint name="p2" x="696.0" y="-148.1"/>
     <waypoint name="p3" x="600.4" y="73.4"/>
     <waypoint name="p4" x="238.6" y="-48.5"/>
-    <waypoint name="TD" x="-4.1" y="-23.7"/>
-    <waypoint name="FOLLOW" x="123.2" y="-87.8"/>
+    <waypoint name="TD" lat="52.1681602" lon="4.4127708"/>
+    <waypoint name="FOLLOW" lat="52.16850964562752" lon="4.413635008734417"/>
     <waypoint name="S1" lat="52.1669450" lon="4.4174372"/>
     <waypoint name="S2" lat="52.1689871" lon="4.4208804"/>
     <waypoint lat="52.169189"  lon="4.410820"  name="C1"/>
