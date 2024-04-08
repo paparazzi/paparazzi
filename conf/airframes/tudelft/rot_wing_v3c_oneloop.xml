@@ -7,7 +7,7 @@
 -->
 
 <airframe name="RotatingWingV3C">
-    <description>RotatingWingV3C for outdoor flight with INS EKF2</description>
+    <description>RotatingWingV3C for outdoor flight and simulation with INS EKF2</description>
 
     <firmware name="rotorcraft">
      <autopilot name="rotorcraft_oneloop_andi_indi.xml"/>
@@ -85,7 +85,10 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>                
         <module name="air_data"/>              
-        <module name="gps" type="datalink"/>   
+        <module name="gps"           type="ublox">
+            <configure name="UBX_GPS_BAUD" value="B460800"/>
+            <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
+        </module>  
         
         <!-- IMU / INS -->  
         <module name="imu" type="cube"/>  
@@ -104,7 +107,7 @@
 
         <!-- Control -->      
         <module name="stabilization" type="oneloop" >
-            <configure name="INDI_NUM_ACT" value="9"/>
+            <configure name="INDI_NUM_ACT" value="8"/>
         </module>
         
         <module name="guidance" type="oneloop"/>
@@ -278,7 +281,7 @@
         <define name  = "AC_HAS_PUSHER"             value = "TRUE"/>
         <define name  = "PUSHER_IDX"                value = "4"/>
         <define name  = "WV"                        value = "{1.0f, 1.0f, 1.0f, 1000.0f, 1000.0f, 100.0f}"/>
-        <define name  = "WU"                        value = "{3.0f, 3.0f, 3.0f, 3.0f, 1.0f, 2.0f, 2.0f}"/>
+        <define name  = "WU"                        value = "{0.75f, 0.75f, 0.75f, 0.75f, 1.0f, 2.0f, 2.0f}"/>
         <define name  = "U_PREF"                    value = "{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}"/>
     </section>
 
@@ -300,10 +303,10 @@
     </section>
 
     <section name="SIMULATOR" prefix="NPS_">
-        <define name="ACTUATOR_NAMES"  value="front_motor, right_motor, back_motor, left_motor, pusher, rudder, elevator, aileron_left, aileron_right" type="string[]"/>
-        <define name="JSBSIM_MODEL"    value="rotwingv3c" type="string"/>
+        <define name="ACTUATOR_NAMES"  value="front_motor, right_motor, back_motor, left_motor, pusher" type="string[]"/>
+        <define name="JSBSIM_MODEL"    value="rotwingv3c_SI" type="string"/>
         <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
-        <define name="COMMANDS_NB"     value="9"/>
+        <define name="COMMANDS_NB"     value="5"/>
         <define name="NO_MOTOR_MIXING" value="TRUE"/>
         <define name="JS_AXIS_MODE"    value="4"/>
     </section>
