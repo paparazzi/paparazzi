@@ -506,36 +506,20 @@ static void debug_vect(struct transport_tx *trans, struct link_device *dev, char
 
 static void send_oneloop_debug(struct transport_tx *trans, struct link_device *dev)
 {
-  // float temp_att_des[3];
-  // temp_att_des[0] = eulers_zxy_des.phi;
-  // temp_att_des[1] = eulers_zxy_des.theta;
-  // temp_att_des[2] = eulers_zxy_des.psi;
-  // debug_vect(trans, dev, "att_des", temp_att_des, 3);
-  // float temp_debug_vect[ANDI_NUM_ACT_TOT+1];
-  // for (int i = 0; i < ANDI_NUM_ACT_TOT; i++) {
-  //   temp_debug_vect[i] = andi_u[i];
-  // }
-  // temp_debug_vect[ANDI_NUM_ACT_TOT] = pitch_pref;
-  // debug_vect(trans, dev, "andi_u_pitch_pref", temp_debug_vect, ANDI_NUM_ACT_TOT+1);
   float temp_debug_vect[2];
   temp_debug_vect[0] = andi_u[ONELOOP_ANDI_THETA_IDX];
   temp_debug_vect[1] = pitch_pref;
   debug_vect(trans, dev, "andi_u_pitch_pref", temp_debug_vect, 2);
-  // debug_vect(trans, dev, "andi_u", andi_u, ANDI_NUM_ACT);
-  // float temp_pref_vect[1]={pitch_pref};
-  // debug_vect(trans, dev, "pitch_pref", temp_pref_vect, 1);
-  // float   rate_vect_temp[3] = {stateGetBodyRates_f()->p, stateGetBodyRates_f()->q, stateGetBodyRates_f()->r};
-  // debug_vect(trans, dev, "att_rate", rate_vect_temp, 3);
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
 { 
   struct Int32Quat quat_ext_pose;
   #ifdef INS_EXT_POSE
-  quat_ext_pose.qi = ins_ext_pos.ev_quat.qi/0.0000305;//(int32_t) 
-  quat_ext_pose.qx = ins_ext_pos.ev_quat.qx/0.0000305;//(int32_t) 
-  quat_ext_pose.qy = ins_ext_pos.ev_quat.qy/0.0000305;//(int32_t) 
-  quat_ext_pose.qz = ins_ext_pos.ev_quat.qz/0.0000305;//(int32_t) 
+  quat_ext_pose.qi = ins_ext_pos.ev_quat.qi/0.0000305;
+  quat_ext_pose.qx = ins_ext_pos.ev_quat.qx/0.0000305;
+  quat_ext_pose.qy = ins_ext_pos.ev_quat.qy/0.0000305;
+  quat_ext_pose.qz = ins_ext_pos.ev_quat.qz/0.0000305;
   #else
   quat_ext_pose.qi = 0; 
   quat_ext_pose.qx = 0;
@@ -1083,20 +1067,10 @@ void init_controller(void){
   /*Register a variable from nav_hybrid. SHould be improved when nav hybrid is final.*/
   max_v_nav = nav_max_speed;
   /*Some calculations in case new poles have been specified*/
-  //p_att_e.p3   = p_att_e.omega_n   * p_att_e.zeta;
   p_att_rm.p3  = p_att_rm.omega_n  * p_att_rm.zeta;
-  //p_pos_e.p3   = p_pos_e.omega_n   * p_pos_e.zeta;
   p_pos_rm.p3  = p_pos_rm.omega_n  * p_pos_rm.zeta;
-  //p_alt_e.p3   = p_alt_e.omega_n   * p_alt_e.zeta;
   p_alt_rm.p3  = p_alt_rm.omega_n  * p_alt_rm.zeta;
-  //p_head_e.p3  = p_head_e.omega_n  * p_head_e.zeta;
   p_head_rm.p3 = p_head_rm.omega_n * p_head_rm.zeta;
-
-  
-  //printf("p_att_e.omega_n = %f \n", p_att_e.omega_n);
-  //printf("p_head_e.omega_n = %f\n", p_head_e.omega_n);
-  //printf("p_pos_e.omega_n = %f\n", p_pos_e.omega_n);
-  //printf("p_alt_e.omega_n = %f\n", p_alt_e.omega_n);
 
   //--ANDI Controller gains --------------------------------------------------------------------------------
   /*Attitude Loop*/
@@ -1147,16 +1121,6 @@ void init_controller(void){
   k_pos_rm.k1[2] = k_rm_1_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
   k_pos_rm.k2[2] = k_rm_2_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
   k_pos_rm.k3[2] = k_rm_3_3_f(p_alt_rm.omega_n, p_alt_rm.zeta, p_alt_rm.p3);
-
-  // ANDI Gains check
-  printf("k_att_e [k1,k2,k3] = [%f,%f,%f]\n",k_att_e.k1[0],k_att_e.k2[0],k_att_e.k3[0]);
-  printf("k_att_rm [k1,k2,k3] = [%f,%f,%f]\n",k_att_rm.k1[0],k_att_rm.k2[0],k_att_rm.k3[0]);
-  printf("k_att_head [k1,k2,k3] = [%f,%f,%f]\n",k_att_e.k1[2],k_att_e.k2[2],k_att_e.k3[2]);
-  printf("k_att_head_rm [k1,k2,k3] = [%f,%f,%f]\n",k_att_rm.k1[2],k_att_rm.k2[2],k_att_rm.k3[2]);
-  printf("k_pos_e [k1,k2,k3] = [%f,%f,%f]\n",k_pos_e.k1[0],k_pos_e.k2[0],k_pos_e.k3[0]); 
-  printf("k_pos_rm [k1,k2,k3] = [%f,%f,%f]\n",k_pos_rm.k1[0],k_pos_rm.k2[0],k_pos_rm.k3[0]);
-  printf("k_alt_e [k1,k2,k3] = [%f,%f,%f]\n",k_pos_e.k1[2],k_pos_e.k2[2],k_pos_e.k3[2]); 
-  printf("k_alt_rm [k1,k2,k3] = [%f,%f,%f]\n",k_pos_rm.k1[2],k_pos_rm.k2[2],k_pos_rm.k3[2]); 
   
   //--INDI Controller gains --------------------------------------------------------------------------------
     /*Attitude Loop*/
@@ -1672,17 +1636,11 @@ void sum_g1g2_1l(int ctrl_type) {
   float s3skew = sskew * s2skew;
   float c3skew = cskew * c2skew;
 
-  // float T      = 0.0;
-  // for (i = 0; i < 4; i++){
-  //   T += actuator_state_1l[i] * g1_1l[2][i];
-  // }
-  // T = T / num_thrusters_oneloop;
-
   // Thrust and Pusher force estimation
-  float T      = -g/(cphi*ctheta);//-9.81; //minus gravity is a guesstimate of the thrust force, thrust measurement would be better
+  float T      = -g/(cphi*ctheta);//minus gravity is a guesstimate of the thrust force, thrust measurement would be better
   float P      = 0.0;
   if (ONELOOP_ANDI_AC_HAS_PUSHER){
-    P    = actuator_state_1l[ONELOOP_ANDI_PUSHER_IDX] * g1_1l[2][ONELOOP_ANDI_PUSHER_IDX] / ANDI_G_SCALING; // DIVIDE BY MASS!!!!!!!
+    P    = actuator_state_1l[ONELOOP_ANDI_PUSHER_IDX] * g1_1l[2][ONELOOP_ANDI_PUSHER_IDX] / ANDI_G_SCALING;
   } 
   float scaler  = 1.0;
   float sched_p = 1.0; // Scheduler variable for roll axis 
@@ -1781,11 +1739,7 @@ void calc_model(int ctrl_type){
   float ctheta = cosf(eulers_zxy.theta);
   float spsi   = sinf(eulers_zxy.psi);
   float cpsi   = cosf(eulers_zxy.psi);
-  // float T      = 0.0;
-  // for (i = 0; i < 4; i++){
-  //   T += actuator_state_1l[i] * g1_1l[2][i];
-  // }
-  // T = T / num_thrusters_oneloop;
+
   float T      = -g/(cphi*ctheta); // -9.81;
   float P      = 0.0;
   if (ONELOOP_ANDI_AC_HAS_PUSHER){  
