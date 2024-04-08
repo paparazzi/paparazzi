@@ -301,7 +301,7 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <!-- Magnetometers calibration (NOT YET PERFORMED) -->
+        <!-- Magnetometers calibration (08-04-2024 @ Valkenburg) -->
         <define name="MAG_CALIB" type="array">
             <field type="struct">
                 <field name="abi_id" value="5"/>
@@ -310,8 +310,8 @@
                     <field name="scale" value="true"/>
                     <field name="rotation" value="true"/>
                 </field>
-                <field name="neutral" value="-96,-95,-292" type="int[]"/>
-                <field name="scale" value="{{33136,8709,8764},{59233,15343,15761}}"/>
+                <field name="neutral" value="95,217,-115" type="int[]"/>
+                <field name="scale" value="{{29417,8274,1853},{49873,15133,3195}}"/>
                 <field name="body_to_sensor" value="{{0,-16384,0, -16384,0,0, 0,0,-16384}}"/>
             </field>
         </define>
