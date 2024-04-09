@@ -301,7 +301,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp);
 static Ekf ekf;                                   ///< EKF class itself
 static parameters *ekf_params;                    ///< The EKF parameters
 struct ekf2_t ekf2;                               ///< Local EKF2 status structure
-static struct extVisionSample sample_ev = {0};          ///< External vision sample
+static struct extVisionSample sample_ev;          ///< External vision sample
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -575,6 +575,9 @@ void ins_ekf2_init(void)
 
   /* Initialize the flow sensor limits */
   ekf.set_optical_flow_limits(INS_EKF2_MAX_FLOW_RATE, INS_EKF2_SONAR_MIN_RANGE, INS_EKF2_SONAR_MAX_RANGE);
+
+  // Don't send external vision data by default
+  sample_ev.time_us = 0;
 
   /* Initialize the origin from flight plan */
 #if USE_INS_NAV_INIT
