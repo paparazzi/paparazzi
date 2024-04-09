@@ -551,39 +551,6 @@ static float positive_non_zero(float input)
 
 /** @brief  Error Controller Gain Design */
 
-static float k_e_1_3_f(float p1, float p2, float p3) {
-    p1 = positive_non_zero(p1);
-    p2 = positive_non_zero(p2);
-    p3 = positive_non_zero(p3);
-    return (p1 * p2 * p3);
-}
-
-static float k_e_2_3_f(float p1, float p2, float p3) {
-    p1 = positive_non_zero(p1);
-    p2 = positive_non_zero(p2);
-    p3 = positive_non_zero(p3);
-    return (p1 * p2 + p1 * p3 + p2 * p3);
-}
-
-static float k_e_3_3_f(float p1, float p2, float p3) {
-    p1 = positive_non_zero(p1);
-    p2 = positive_non_zero(p2);
-    p3 = positive_non_zero(p3);
-    return (p1 + p2 + p3);
-}
-
-static float k_e_1_2_f(float p1, float p2) {
-    p1 = positive_non_zero(p1);
-    p2 = positive_non_zero(p2);
-    return (p1 * p2);
-}
-
-static float k_e_2_2_f(float p1, float p2) {
-    p1 = positive_non_zero(p1);
-    p2 = positive_non_zero(p2);
-    return (p1 + p2);
-}
-
 static float k_e_1_2_f_v2(float omega, float zeta) {
     omega = positive_non_zero(omega);
     zeta  = positive_non_zero(zeta);
@@ -637,18 +604,6 @@ static float k_rm_3_3_f(float omega_n, float zeta, float p1) {
     zeta    = positive_non_zero(zeta);
     p1      = positive_non_zero(p1);
     return p1 + omega_n * zeta * 2.0;
-}
-
-static float k_rm_1_2_f(float omega_n, float zeta) {
-    omega_n = positive_non_zero(omega_n);
-    zeta    = positive_non_zero(zeta);
-    return omega_n / (2.0 * zeta);
-}
-
-static float k_rm_2_2_f(float omega_n, float zeta) {
-    omega_n = positive_non_zero(omega_n);
-    zeta    = positive_non_zero(zeta);
-    return 2.0 * zeta * omega_n;
 }
 
 /** @brief Attitude Rates to Euler Conversion Function */
@@ -959,18 +914,6 @@ static float w_approx(float p1, float p2, float p3, float rm_k){
   return 1.0/tao;
 }
 
-/**
- * @brief  3 Coincident poles to 2 coincident and act dynamics Approximation
- * @param p3              Pole 
- * @param omega           Dynamics Slowest actuator
- */
-static float P3_2_P2Omega(float p3, float omega){
-  p3    = positive_non_zero(p3);
-  omega = positive_non_zero(omega);
-  float p2 = -omega + sqrt(pow(omega,2) + 3 * pow(p3,2));
-  p2 = positive_non_zero(p2);
-  return p2;
-}
 /**
  * @brief Initialize Position of Poles
  * 
@@ -1584,16 +1527,16 @@ void sum_g1g2_1l(int ctrl_type) {
   float spsi   = sinf(eulers_zxy.psi);
   float cpsi   = cosf(eulers_zxy.psi);
   // Trig of skew
-  float skew   = 0.0;
-  if (ONELOOP_ANDI_SCHEDULING){
-    skew   = rotwing_state_skewing.wing_angle_deg;
-  }
-  float sskew  = sinf(skew);
-  float cskew  = cosf(skew);
-  float s2skew = sskew * sskew;
-  float c2skew = cskew * cskew;
-  float s3skew = sskew * s2skew;
-  float c3skew = cskew * c2skew;
+  // float skew   = 0.0;
+  // if (ONELOOP_ANDI_SCHEDULING){
+  //   skew   = rotwing_state_skewing.wing_angle_deg;
+  // }
+  // float sskew  = sinf(skew);
+  // float cskew  = cosf(skew);
+  // float s2skew = sskew * sskew;
+  // float c2skew = cskew * cskew;
+  // float s3skew = sskew * s2skew;
+  // float c3skew = cskew * c2skew;
 
   // Thrust and Pusher force estimation
   float T      = -g/(cphi*ctheta);//minus gravity is a guesstimate of the thrust force, thrust measurement would be better
@@ -1804,7 +1747,7 @@ static float chirp_pos_j_ref(float delta_t, float f0, float k, float A){
 }
 
 /** 
- * @brief Reference Model Definition for 3rd order system specific to positioning with bounds
+ * @brief Function to perform position and attitude chirps
  * @param dt      [s]    time passed since start of the chirp
  * @param f0      [Hz]   initial frequency of the chirp
  * @param f1      [Hz]   final frequency of the chirp
