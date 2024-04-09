@@ -147,8 +147,8 @@
 
     <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"   min="-3250" neutral="0" max="3250"/>
-        <servo no="7"  name="SERVO_RUDDER"     min="-3250" neutral="0" max="3250"/>
+        <servo no="6"  name="SERVO_ELEVATOR"   min="-7300" neutral="-7300" max="4650"/> <!-- 2500 is level 4650 is 10deg -7300 is -50deg -->
+        <servo no="7"  name="SERVO_RUDDER"     min="-4000" neutral="0" max="4000"/>
         <servo no="8"  name="AIL_RIGHT"        min="-3250" neutral="0" max="3250"/>
         <servo no="9"  name="FLAP_RIGHT"       min="-3250" neutral="0" max="3250"/>
         <servo no="10" name="AIL_LEFT"         min="-3250" neutral="0" max="3250"/>
@@ -167,8 +167,8 @@
 
     <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="6"  name="BSERVO_ELEVATOR"   min="-3250" neutral="0" max="3250"/>
-        <servo no="7"  name="BSERVO_RUDDER"     min="-3250" neutral="0" max="3250"/>
+        <servo no="6"  name="BSERVO_ELEVATOR"   min="-7300" neutral="-7300" max="4650"/> <!-- 2500 is level 4650 is 10deg -7300 is -50deg -->
+        <servo no="7"  name="BSERVO_RUDDER"     min="-4000" neutral="0" max="4000"/>
         <servo no="8"  name="BAIL_RIGHT"        min="-3250" neutral="0" max="3250"/>
         <servo no="9"  name="BFLAP_RIGHT"       min="-3250" neutral="0" max="3250"/>
         <servo no="10" name="BAIL_LEFT"         min="-3250" neutral="0" max="3250"/>
