@@ -538,29 +538,6 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
                               &(quat->qy),
                               &(quat->qz));
 }
-
-// static void send_oneloop_nps(struct transport_tx *trans, struct link_device *dev)
-// {
-//   float nps_acc_N = (float) fdm.ltpprz_ecef_accel.x;
-//   float nps_acc_E = (float) fdm.ltpprz_ecef_accel.y;
-//   float nps_acc_D = (float) fdm.ltpprz_ecef_accel.z;
-//   float nps_vel_N = (float) fdm.ltpprz_ecef_vel.x  ;
-//   float nps_vel_E = (float) fdm.ltpprz_ecef_vel.y  ;
-//   float nps_vel_D = (float) fdm.ltpprz_ecef_vel.z  ;
-//   float nps_pos_N = (float) fdm.ltpprz_pos.x       ;
-//   float nps_pos_E = (float) fdm.ltpprz_pos.y       ;
-//   float nps_pos_D = (float) fdm.ltpprz_pos.z       ;
-//   pprz_msg_send_NPS_SPEED_POS(trans, dev, AC_ID,
-//                                         &nps_acc_N,
-//                                         &nps_acc_E,
-//                                         &nps_acc_D,
-//                                         &nps_vel_N,
-//                                         &nps_vel_E,
-//                                         &nps_vel_D,
-//                                         &nps_pos_N,
-//                                         &nps_pos_E,
-//                                         &nps_pos_D);
-// }
 #endif
 
 /** @brief Function to make sure that inputs are positive non zero vaues*/
@@ -965,24 +942,6 @@ void ec_3rd_att(float y_4d[3], float x_ref[3], float x_d_ref[3], float x_2d_ref[
   float_vect_sum(y_4d, y_4d, y_4d_3, 3);
 }
 
-/** 
- * @brief Error Controller Definition for 2rd order system 
- * @param dt              Delta time [s]
- * @param x_ref           Reference signal 1st order
- * @param x_d_ref         Reference signal 2nd order
- * @param x_2d_ref        Reference signal 3rd order
- * @param x_des           Desired 1st order signal
- * @param x               Current 1st order signal
- * @param x_d             Current 2nd order signal
- * @param k1_e            Error Controller Gain 1st order signal
- * @param k2_e            Error Controller Gain 2nd order signal
- */
-// static float ec_2rd(float x_ref, float x_d_ref, float x_2d_ref, float x, float x_d, float k1_e, float k2_e){
-//   float y_3d = k1_e*(x_ref-x)+k2_e*(x_d_ref-x_d)+x_2d_ref;
-//   return y_3d;
-// }
-
-
 /**
  * @brief  Third Order to First Order Dynamics Approximation
  * @param p1              Pole 1
@@ -996,7 +955,7 @@ static float w_approx(float p1, float p2, float p3, float rm_k){
   p3   = positive_non_zero(p3);
   rm_k = positive_non_zero(rm_k);
   float tao = (p1*p2+p1*p3+p2*p3)/(p1*p2*p3)/(rm_k);
-  tao = positive_non_zero(tao);
+  tao  = positive_non_zero(tao);
   return 1.0/tao;
 }
 
@@ -1021,19 +980,19 @@ void init_poles(void){
   // Attitude Controller Poles----------------------------------------------------------
   float slow_pole = 10.1; // Pole of the slowest dynamics used in the attitude controller
 
-  p_att_e.omega_n = 4.50;//sqrt(pow(7.68,3)/slow_pole);
+  p_att_e.omega_n = 4.50;
   p_att_e.zeta    = 1.0;
-  p_att_e.p3      = slow_pole; //p_att_e.omega_n * p_att_e.zeta;
+  p_att_e.p3      = slow_pole;
 
-  p_att_rm.omega_n = 4.71;//6.14;
+  p_att_rm.omega_n = 4.71;
   p_att_rm.zeta    = 1.0;
   p_att_rm.p3      = p_att_rm.omega_n * p_att_rm.zeta;
 
-  p_head_e.omega_n = 1.80;//sqrt(pow(3.4,3)/slow_pole);//P3_2_P2Omega(1.5,slow_pole);// sqrt(pow(1.5,3)/slow_pole);//1.5;//
+  p_head_e.omega_n = 1.80;
   p_head_e.zeta    = 1.0;
-  p_head_e.p3      = slow_pole;//p_head_e.omega_n * p_head_e.zeta;//
+  p_head_e.p3      = slow_pole;
 
-  p_head_rm.omega_n = 2.56;//1.5;
+  p_head_rm.omega_n = 2.56;
   p_head_rm.zeta    = 1.0;
   p_head_rm.p3      = p_head_rm.omega_n * p_head_rm.zeta;
 
@@ -1043,19 +1002,19 @@ void init_poles(void){
   // Position Controller Poles----------------------------------------------------------
   slow_pole = act_dynamics[ONELOOP_ANDI_PHI_IDX]; // Pole of the slowest dynamics used in the position controller
 
-  p_pos_e.omega_n = 1.0;//sqrt(pow(1.41,3)/slow_pole);
+  p_pos_e.omega_n = 1.0;
   p_pos_e.zeta    = 1.0; 
-  p_pos_e.p3      = slow_pole; //p_pos_e.omega_n * p_pos_e.zeta;
+  p_pos_e.p3      = slow_pole; 
 
-  p_pos_rm.omega_n = 0.93;//0.6;
+  p_pos_rm.omega_n = 0.93;
   p_pos_rm.zeta    = 1.0;  
   p_pos_rm.p3      = p_pos_rm.omega_n * p_pos_rm.zeta;
 
-  p_alt_e.omega_n = 3.0;//sqrt(pow(3.54,3)/slow_pole);
+  p_alt_e.omega_n = 3.0;
   p_alt_e.zeta    = 1.0; 
-  p_alt_e.p3      = slow_pole; //p_alt_e.omega_n * p_alt_e.zeta; //
+  p_alt_e.p3      = slow_pole; 
 
-  p_alt_rm.omega_n = 1.93;//2.0;
+  p_alt_rm.omega_n = 1.93;
   p_alt_rm.zeta    = 1.0;
   p_alt_rm.p3      = p_alt_rm.omega_n * p_alt_rm.zeta;
 }
@@ -1064,7 +1023,7 @@ void init_poles(void){
  * FIXME: Calculate the gains dynamically for transition
  */
 void init_controller(void){
-  /*Register a variable from nav_hybrid. SHould be improved when nav hybrid is final.*/
+  /*Register a variable from nav_hybrid. Should be improved when nav hybrid is final.*/
   max_v_nav = nav_max_speed;
   /*Some calculations in case new poles have been specified*/
   p_att_rm.p3  = p_att_rm.omega_n  * p_att_rm.zeta;
