@@ -30,7 +30,9 @@
 
 // if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees. 
 #ifndef NAV_HYBRID_MAX_BANK
-#define NAV_HYBRID_MAX_BANK 0.52f
+float nav_hybrid_max_bank = 0.52f;
+#else
+float nav_hybrid_max_bank = NAV_HYBRID_MAX_BANK;
 #endif
 
 // Max ground speed that will be commanded
@@ -74,13 +76,16 @@ float nav_hybrid_line_gain = 1.0f;
 #ifdef NAV_HYBRID_POS_GAIN 
 float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN; 
 #else
-float nav_hybrid_pos_gain = 1.0; 
+float nav_hybrid_pos_gain = 1.0f; 
 #endif
 
 #ifndef GUIDANCE_INDI_HYBRID
-bool force_forward = 0;
+bool force_forward = 0.0f;
 #endif
 
+#ifndef NAV_OPTITRACK
+#define NAV_OPTITRACK FALSE 
+#endif
 /** Implement basic nav function for the hybrid case
  */
 
@@ -118,7 +123,13 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
 
   VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
-  nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+
+  // In optitrack tests use position mode for more precise hovering
+  if (NAV_OPTITRACK){
+    nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
+  }else{
+    nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+  }
 }
 
 static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -252,7 +263,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     } else {
       // close to circle, speed function of radius for a feasible turn
       // 0.8 * MAX_BANK gives some margins for the turns
-      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * NAV_HYBRID_MAX_BANK));
+      desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * nav_hybrid_max_bank));
     }
     Bound(desired_speed, 0.0f, nav_max_speed);
   }
