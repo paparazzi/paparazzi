@@ -95,28 +95,6 @@
 #include <stdio.h>
 
 // Number of real actuators (e.g. motors, servos)
-#ifndef ANDI_NUM_ACT
-#error "You must specify the number of real actuators"
-#define ANDI_NUM_ACT 4
-#endif
-
-// Number of virtual actuators (e.g. Phi, Theta). For now 2 and only 2 are supported but in the future this can be further developed. 
-#if ANDI_NUM_VIRTUAL_ACT < 2
-#error "You must specify the number of virtual actuators to be at least 2"
-#define ANDI_NUM_VIRTUAL_ACT 2
-#endif
-
-// If the total number of actuators is not defined or wrongly defined correct it
-#if ANDI_NUM_ACT_TOT != (ANDI_NUM_ACT + ANDI_NUM_VIRTUAL_ACT)
-#error "The number of actuators is not equal to the sum of real and virtual actuators"
-#define ANDI_NUM_ACT_TOT (ANDI_NUM_ACT + ANDI_NUM_VIRTUAL_ACT)
-#endif
-
-#ifndef ANDI_OUTPUTS
-#error "You must specify the number of controlled axis (outputs)"
-#define ANDI_OUTPUTS 6
-#endif
-
 #ifndef ONELOOP_ANDI_NUM_THRUSTERS
 float num_thrusters_oneloop = 4.0; // Number of motors used for thrust
 #else
