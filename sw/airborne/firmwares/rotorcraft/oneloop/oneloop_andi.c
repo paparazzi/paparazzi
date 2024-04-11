@@ -511,33 +511,6 @@ static void send_oneloop_debug(struct transport_tx *trans, struct link_device *d
   temp_debug_vect[1] = pitch_pref;
   debug_vect(trans, dev, "andi_u_pitch_pref", temp_debug_vect, 2);
 }
-
-static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
-{ 
-  struct Int32Quat quat_ext_pose;
-  #ifdef INS_EXT_POSE
-  quat_ext_pose.qi = ins_ext_pos.ev_quat.qi/0.0000305;
-  quat_ext_pose.qx = ins_ext_pos.ev_quat.qx/0.0000305;
-  quat_ext_pose.qy = ins_ext_pos.ev_quat.qy/0.0000305;
-  quat_ext_pose.qz = ins_ext_pos.ev_quat.qz/0.0000305;
-  #else
-  quat_ext_pose.qi = 0; 
-  quat_ext_pose.qx = 0;
-  quat_ext_pose.qy = 0;
-  quat_ext_pose.qz = 0;
-  #endif
-
-  struct Int32Quat *quat = stateGetNedToBodyQuat_i();
-  pprz_msg_send_AHRS_REF_QUAT(trans, dev, AC_ID,
-                              &quat_ext_pose.qi,// In the future also stream setpoint in quat &stab_att_sp_quat.qi,
-                              &quat_ext_pose.qx,// In the future also stream setpoint in quat &stab_att_sp_quat.qx,
-                              &quat_ext_pose.qy,// In the future also stream setpoint in quat &stab_att_sp_quat.qy,
-                              &quat_ext_pose.qz,// In the future also stream setpoint in quat &stab_att_sp_quat.qz,
-                              &(quat->qi),
-                              &(quat->qx),
-                              &(quat->qy),
-                              &(quat->qz));
-}
 #endif
 
 /** @brief Function to make sure that inputs are positive non zero vaues*/
@@ -1173,8 +1146,6 @@ void oneloop_andi_init(void)
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE, send_guidance_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_oneloop_debug);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
-    //register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_NPS_SPEED_POS, send_oneloop_nps);
   #endif
 }
 
