@@ -48,7 +48,7 @@ void stabilization_attitude_init(void)
 
 void stabilization_attitude_enter(void)
 {
-  oneloop_andi_enter(true);
+  oneloop_andi_enter(true, CTRL_ANDI);
 }
 
 void stabilization_attitude_set_failsafe_setpoint(void)
