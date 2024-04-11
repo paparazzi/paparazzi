@@ -42,6 +42,7 @@ BARH = 140
 class EscMessage(object):
     def __init__(self, msg):
         self.id = int(msg['motor_id'])
+        self.node_id = int(msg['node_id'])
         self.amp = float(msg['amps'])
         self.rpm = float(msg['rpm'])
         self.volt_b = float(msg['bat_volts'])
@@ -74,15 +75,15 @@ class EscMessage(object):
         return self.volt_b / (6*4.2)
 
     def get_temp(self):
-        if self.temperature < -200:
-            return "xxx"
+        #if self.temperature < -200:
+        #    return "xxx"
         return str(round(self.temperature ,1)) + "C"
     def get_temp_perc(self):
         return self.temperature / 120.0
     
     def get_temp_dev(self):
-        if self.temperature_dev < -200:
-            return "xxx"
+        #if self.temperature_dev < -200:
+        #    return "xxx"
         return str(round(self.temperature_dev, 1)) + "C"
     def get_temp_dev_perc(self):
         return self.temperature_dev / 120.0
@@ -110,6 +111,9 @@ class INDIMessage(object):
     def get_u(self, id):
         return str(round(self.u[id], 0)) + " PPRZ"
 
+    def get_len(self):
+        return len(self.u)
+
     def get_u_perc(self, id):
         return self.u[id] / 9600.
 
@@ -125,6 +129,13 @@ class MotorList(object):
 
     def fill_from_esc_msg(self, esc):
         added = False
+        # Some corrections for the big one:
+        if esc.id == 13:
+            esc.id = 1
+        if esc.temperature < -50:
+            esc.temperature += 273.15
+        if esc.temperature_dev < -50:
+            esc.temperature_dev += 273.15
         for i in range(len(self.mot)):
             if self.mot[i].id == esc.id:
                 self.mot[i] = esc
@@ -210,43 +221,73 @@ class RotWingFrame(wx.Frame):
         dc.SetPen(wx.Pen(wx.Colour(0,0,0))) 
         dc.SetBrush(wx.Brush(wx.Colour(240,240,220))) 
         # Fuselage
+        dc.DrawRoundedRectangle(int(0.475*w), int(0.05*h),int(0.05*w), int(0.75*h), int(0.015*w))
         dc.DrawRoundedRectangle(int(0.425*w), int(0.05*h),int(0.15*w), int(0.4*h), int(0.05*w))
         # Front Wing
-        #dc.DrawRectangle(int(0.05*w), int(0.25*h),int(0.9*w), int(0.15*h))
+        dc.DrawRectangle(int(0.05*w), int(0.25*h),int(0.9*w), int(0.15*h))
         # Back Wing
-        #dc.DrawRectangle(int(0.01*w), int(0.65*h),int(0.98*w), int(0.15*h))
+        dc.DrawRectangle(int(0.25*w), int(0.65*h),int(0.5*w), int(0.1*h))
 
         # Motors
         self.stat = int(0.10*w)
-        dc.SetBrush(wx.Brush(wx.Colour(200,200,100))) 
         w1 = 0.03
-        w2 = 0.2
-        w3 = 0.37
-        w4 = 0.54
-        dw = 0.11
+        w2 = 0.18
+        w3 = 0.31
+        w4 = 0.52
+        dw = 0.17
         mw = 0.1
-        mh = 0.15
-        mm = [(0.5-0.5*mw,w1), (0.5+dw,w2), (0.5-0.5*mw,w3), (0.5-dw-mw,w2), (0.5-0.5*mw,w4)]
-        for m in mm:
-            dc.DrawRectangle(int(m[0]*w), int(m[1]*h),int(mw*w), int(mh*h))
+        mh = 0.2
+
+        mm = [(0.5-0.5*mw-0.05,w1), (0.5+dw-0.05+0.1,w2), (0.5-0.5*mw-0.05,w3), (0.5-dw-mw-0.05-0.1,w2), # hover CAN1: front right back left
+            (0.5-0.5*mw-0.05,w4), # pusher CAN1
+            (0.5-dw-mw-0.05,w4+0.05), (0.5+dw-0.05,w4+0.05), # tail CAN1
+            (0.5-0.5*mw+0.05,w1), (0.5+dw+0.05+0.1,w2), (0.5-0.5*mw+0.05,w3), (0.5-dw-mw+0.05-0.1,w2), # hover CAN2
+            (0.5-0.5*mw+0.05,w4), # pusher CAN2
+            (0.5-dw-mw+0.05,w4+0.05), (0.5+dw+0.05,w4+0.05), # Tail CAN2
+            (0.0, 0.75), (0.1, 0.75), (0.2, 0.75), (0.3, 0.75), (0.4, 0.75), # extra
+            (0.5, 0.75), (0.6, 0.75), (0.7, 0.75), (0.8, 0.75), (0.9, 0.75),
+        ]
+
+        mot_ids = [ 0, 1, 2, 3,     # hover CAN1
+            4,                      # pusher CAN1
+            6, 7,                   # elevator/rudder CAN1
+            12,13,14,15,            # hover CAN2
+            16,                     # pusher CAN2
+            18, 19,                 # tail CAN2
+            5, 8, 9, 10, 11,        # Extra's at the bottoms
+            17, 20, 21, 22, 23
+        ]
 
         for m in self.motors.mot:
-            if m.id>4:
+            mot_id = m.id
+            
+            # Drawing ID
+            if not (mot_id in mot_ids):
                 continue
-            mo_co = mm[m.id]
+            draw_id = mot_ids.index(mot_id)
+            if draw_id >= len(mm):
+                continue
+            mo_co = mm[draw_id]
             #print(m.id, mo_co)
             dx = int(mo_co[0]*w)
             dy = int(mo_co[1]*h)
+
+            dc.SetBrush(wx.Brush(wx.Colour(200,200,100))) 
+            dc.DrawRectangle( int((mo_co[0]+0.001)*w), int((mo_co[1]+0.001)*h),int((mw-0.002)*w), int((mh-0.002)*h) )
+
             self.StatusBox(dc, dx, dy, 0, 0, m.get_volt(), m.get_volt_perc(), 1)
             self.StatusBox(dc, dx, dy, 1, 0, m.get_current(), m.get_current_perc(), 1)
             self.StatusBox(dc, dx, dy, 2, 0, m.get_rpm(), m.get_rpm_perc(), m.get_rpm_color())
             self.StatusBox(dc, dx, dy, 3, 0, m.get_temp(), m.get_temp_perc(), m.get_temp_color())
             self.StatusBox(dc, dx, dy, 4, 0, m.get_temp_dev(), m.get_temp_dev_perc(), m.get_temp_dev_color())
             try:
+                indi_id = m.id
                 if m.id == 4:
-                    self.StatusBox(dc, dx, dy, 5, 0, self.indi.get_u(8), self.indi.get_u_perc(8), self.indi.get_u_color(8))
-                else:
-                    self.StatusBox(dc, dx, dy, 5, 0, self.indi.get_u(m.id), self.indi.get_u_perc(m.id), self.indi.get_u_color(m.id))
+                    indi_id=8
+
+                if indi_id < self.indi.get_len():
+                    self.StatusBox(dc, dx, dy, 5, 0, self.indi.get_u(indi_id), self.indi.get_u_perc(indi_id), self.indi.get_u_color(indi_id))
+                
             except:
                 pass
 
