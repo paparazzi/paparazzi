@@ -1024,26 +1024,16 @@ void init_controller(void){
   k_pos_e_indi.k2[2]  = k_e_2_2_f_v2(p_alt_e.omega_n, p_alt_e.zeta);
   k_pos_e_indi.k3[2]  = 1.0;
   
-  // INDI Gains check
-  printf("k_att_e_indi [k1,k2,k3] = [%f,%f,%f]\n",k_att_e_indi.k1[0],k_att_e_indi.k2[0],k_att_e_indi.k3[0]);
-  printf("k_att_head_indi [k1,k2,k3] = [%f,%f,%f]\n",k_att_e_indi.k1[2],k_att_e_indi.k2[2],k_att_e_indi.k3[2]);
-  printf("k_pos_e_indi [k1,k2,k3] = [%f,%f,%f]\n",k_pos_e_indi.k1[0],k_pos_e_indi.k2[0],k_pos_e_indi.k3[0]); 
-  printf("k_alt_e_indi [k1,k2,k3] = [%f,%f,%f]\n",k_pos_e_indi.k1[2],k_pos_e_indi.k2[2],k_pos_e_indi.k3[2]);   
-
   //------------------------------------------------------------------------------------------
   /*Approximated Dynamics*/
   act_dynamics[ONELOOP_ANDI_PHI_IDX]   = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
   act_dynamics[ONELOOP_ANDI_THETA_IDX] = w_approx(p_att_rm.p3, p_att_rm.p3, p_att_rm.p3, 1.0);
-  
-  printf("act_dynamics[ONELOOP_ANDI_PHI_IDX] = %f\n",act_dynamics[ONELOOP_ANDI_PHI_IDX]);
-  printf("act_dynamics[ONELOOP_ANDI_THETA_IDX] = %f\n",act_dynamics[ONELOOP_ANDI_THETA_IDX]);
 }
 
 
 /** @brief  Initialize the filters */
 void init_filter(void)
 {
-  //printf("oneloop andi filt cutoff PQR: %f %f %f\n", oneloop_andi_filt_cutoff_p,oneloop_andi_filt_cutoff_q,oneloop_andi_filt_cutoff_r);
   float tau   = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff);
   float tau_a = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_a);
   float tau_v = 1.0 / (2.0 * M_PI * oneloop_andi_filt_cutoff_v);
