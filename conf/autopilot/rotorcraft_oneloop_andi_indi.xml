@@ -23,6 +23,7 @@
       <define  name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
       <define  name="DLModeModule()" value="(MODE_AUTO1 == AP_MODE_MODULE)"/>
       <define  name="DLModeAZH()"    value="(MODE_AUTO1 == AP_MODE_ATTITUDE_Z_HOLD)"/>
+      <define  name="ONELOOP_CONTROLLER" value="TRUE"/>
     </includes>
 
     <settings>
@@ -34,6 +35,23 @@
       <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight(), autopilot_get_motors_on())"/>
     </control_block>
 
+    <control_block name="attitude_loop">
+      <call fun="stabilization_attitude_read_rc(autopilot_in_flight(), FALSE, FALSE)"/>
+      <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
+    </control_block>
+
+    <control_block name="throttle_direct">
+      <call fun="guidance_v_read_rc()"/>
+      <call fun="guidance_v_set_z(stateGetPositionNed_i()->z)"/>
+      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
+    </control_block>
+
+    <control_block name="altitude_loop">
+      <call fun="gv_update_ref_from_z_sp(guidance_v.z_sp)"/>
+      <call fun="guidance_v.delta_t = guidance_v_run_pos(autopilot_in_flight(), &guidance_v)"/>
+      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v.rc_delta_t"/>
+    </control_block>
+
     <exceptions>
       <exception cond="nav.too_far_from_home" deroute="HOME"/>
       <exception cond="kill_switch_is_on()" deroute="KILL"/>
@@ -41,7 +59,6 @@
 
     <mode name="ATTITUDE_DIRECT" shortname="ATT">
       <select cond="RCMode0()"/>
-      <select cond="$DEFAULT_MODE"/>
       <on_enter>
         <call fun="stabilization_attitude_enter()"/>
       </on_enter>
@@ -49,7 +66,9 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
+        <call_block name="attitude_loop"/>
+        <call_block name="throttle_direct"/>
+        <call_block name="set_commands"/>
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
@@ -57,20 +76,16 @@
     <mode name="NAV">
       <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
       <on_enter>
-        <call fun="guidance_h_nav_enter()"/>
+        <call fun="oneloop_andi_enter(false, CTRL_INDI)"/>
       </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
       <control>
-        <call fun="guidance_v_read_rc()"/>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
-        <call fun="guidance_v_from_nav(autopilot_in_flight())"/>
-        <call fun="guidance_h_from_nav(autopilot_in_flight())"/>
+        <call fun="nav_periodic_task()"/>
+        <call fun="guidance_h_set_pos(nav.carrot.y, nav.carrot.x)"/>
+        <call fun="oneloop_from_nav(autopilot_in_flight())"/>
       </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>
-  
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>    
+
     <mode name="GUIDED">
       <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
       <on_enter>
@@ -118,10 +133,9 @@
       <on_enter>
         <call fun="oneloop_andi_enter(false, CTRL_ANDI)"/>
       </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
       <control>
+        <call fun="nav_periodic_task()"/>
+        <call fun="guidance_h_set_pos(nav.carrot.y, nav.carrot.x)"/>
         <call fun="oneloop_from_nav(autopilot_in_flight())"/>
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>
