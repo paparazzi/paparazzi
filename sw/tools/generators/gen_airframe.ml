@@ -31,7 +31,7 @@ open Printf
 open Xml2h
 
 type channel = { min : float; max : float; neutral : float }
-type control = { failsafe_value : int; foo : int }
+type control = { failsafe_value : int; foo : int; actuator_type : string}
 
 let fos = float_of_string
 let sof = fun x -> if mod_float x 1. = 0. then Printf.sprintf "%.0f" x else string_of_float x
@@ -337,9 +337,17 @@ let parse_ap_only_commands = fun out ap_only ->
 
 let parse_command = fun out command no ->
   let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-  define_out out command_name (string_of_int no);
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
-  { failsafe_value = failsafe_value; foo = 0}
+  let actuator_type = ExtXml.attrib_or_default command "actuator_type" "REAL" in 
+  define_out out command_name (string_of_int no);
+  { failsafe_value = failsafe_value; foo = 0 ; actuator_type = actuator_type }  
+
+let count_commands_by_type commands_params =
+  List.fold_left (fun acc cmd ->
+    let subtype = cmd.actuator_type in
+    let count = try List.assoc subtype acc with Not_found -> 0 in
+    (subtype, count + 1) :: (List.remove_assoc subtype acc)
+  ) [("REAL", 0); ("VIRTUAL", 0); ("PASSIVE", 0); ("OTHER", 0)] commands_params
 
 let parse_heli_curves = fun out heli_curves ->
   let a = fun s -> ExtXml.attrib heli_curves s in
@@ -387,6 +395,10 @@ let rec parse_section = fun out ac_id s ->
     | "commands" ->
       let commands = Array.of_list (Xml.children s) in
       let commands_params = Array.mapi (fun i c -> parse_command out c i) commands in
+      let commands_counts = count_commands_by_type (Array.to_list commands_params) in
+      List.iter (fun (subtype, count) ->
+        define_out out (sprintf "COMMANDS_NB_%s" subtype) (string_of_int count)
+      ) commands_counts;      
       define_out out "COMMANDS_NB" (string_of_int (Array.length commands));
       define_out out "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       fprintf out "\n\n"
