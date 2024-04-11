@@ -627,7 +627,7 @@
    gui_color="red"
   />
   <aircraft
-   name="RotatingWIngV3C"
+   name="RotatingWingV3C"
    ac_id="34"
    airframe="airframes/tudelft/rot_wing_v3c_oneloop.xml"
    radio="radios/crossfire_sbus.xml"
