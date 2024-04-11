@@ -131,11 +131,11 @@
         </module>
 
         <module name="ground_detect_sensor"/>
-        <module name="rotwing_state">
+        <!-- <module name="rotwing_state">
              <define name = "ROT_MECH_IDX"        value = "9"/>
              <define name = "USE_ROTMECH_VIRTUAL" value = "FALSE"/>
              <define name = "ROTMECH_DYN"         value = "3.0"/>
-        </module>
+        </module> -->
         <module name="agl_dist"/>
     </firmware>
 
@@ -200,7 +200,8 @@
         <set VALUE="($servo_hold? RadioControlValues(RADIO_YAW) : actuators_pprz[5])"                                           SERVO="SERVO_RUDDER"/>
         <set VALUE="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[6]))"  SERVO="SERVO_ELEVATOR"/>
         <set VALUE="($th_hold? -9600 : actuators_pprz[4])"                                                                      SERVO="MOTOR_PUSH"/>
-        <set VALUE="rotwing_state_skewing.servo_pprz_cmd"                                                                       SERVO="ROTATION_MECH"/>
+        <!-- <set VALUE="rotwing_state_skewing.servo_pprz_cmd"                                                                       SERVO="ROTATION_MECH"/> -->
+        <set VALUE="-9600"                                                                                                      SERVO="ROTATION_MECH"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"                                          SERVO="AIL_LEFT"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"                                          SERVO="AIL_RIGHT"/>
         <set VALUE="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[8])"                                          SERVO="FLAP_LEFT"/>
