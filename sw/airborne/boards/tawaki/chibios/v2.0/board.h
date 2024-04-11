@@ -71,7 +71,7 @@
 #define	SRVB2                          7U
 #define	PA08                           8U
 #define	USB_VBUS                       9U
-#define	DSHOT_TLM                      10U
+#define	DSHOT_RX                       10U
 #define	OTG_FS_DM                      11U
 #define	OTG_FS_DP                      12U
 #define	SWDIO                          13U
@@ -259,7 +259,7 @@
 #define	LINE_SRVB1                     PAL_LINE(GPIOA, 6U)
 #define	LINE_SRVB2                     PAL_LINE(GPIOA, 7U)
 #define	LINE_USB_VBUS                  PAL_LINE(GPIOA, 9U)
-#define	LINE_DSHOT_TLM                 PAL_LINE(GPIOA, 10U)
+#define	LINE_DSHOT_RX                  PAL_LINE(GPIOA, 10U)
 #define	LINE_OTG_FS_DM                 PAL_LINE(GPIOA, 11U)
 #define	LINE_OTG_FS_DP                 PAL_LINE(GPIOA, 12U)
 #define	LINE_SWDIO                     PAL_LINE(GPIOA, 13U)
@@ -347,7 +347,7 @@
 					 PIN_MODE_ALTERNATE(SRVB2) | \
 					 PIN_MODE_INPUT(PA08) | \
 					 PIN_MODE_INPUT(USB_VBUS) | \
-					 PIN_MODE_ALTERNATE(DSHOT_TLM) | \
+					 PIN_MODE_ALTERNATE(DSHOT_RX) | \
 					 PIN_MODE_ALTERNATE(OTG_FS_DM) | \
 					 PIN_MODE_ALTERNATE(OTG_FS_DP) | \
 					 PIN_MODE_ALTERNATE(SWDIO) | \
@@ -364,7 +364,7 @@
 					 PIN_OTYPE_PUSHPULL(SRVB2) | \
 					 PIN_OTYPE_PUSHPULL(PA08) | \
 					 PIN_OTYPE_OPENDRAIN(USB_VBUS) | \
-					 PIN_OTYPE_PUSHPULL(DSHOT_TLM) | \
+					 PIN_OTYPE_PUSHPULL(DSHOT_RX) | \
 					 PIN_OTYPE_PUSHPULL(OTG_FS_DM) | \
 					 PIN_OTYPE_PUSHPULL(OTG_FS_DP) | \
 					 PIN_OTYPE_PUSHPULL(SWDIO) | \
@@ -381,7 +381,7 @@
 					 PIN_OSPEED_SPEED_HIGH(SRVB2) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA08) | \
 					 PIN_OSPEED_SPEED_VERYLOW(USB_VBUS) | \
-					 PIN_OSPEED_SPEED_HIGH(DSHOT_TLM) | \
+					 PIN_OSPEED_SPEED_HIGH(DSHOT_RX) | \
 					 PIN_OSPEED_SPEED_HIGH(OTG_FS_DM) | \
 					 PIN_OSPEED_SPEED_HIGH(OTG_FS_DP) | \
 					 PIN_OSPEED_SPEED_HIGH(SWDIO) | \
@@ -394,11 +394,11 @@
 					 PIN_PUPDR_PULLDOWN(AUX_A4) | \
 					 PIN_PUPDR_PULLDOWN(PA04) | \
 					 PIN_PUPDR_FLOATING(SPI6_INTERNAL_CLK) | \
-					 PIN_PUPDR_FLOATING(SRVB1) | \
-					 PIN_PUPDR_FLOATING(SRVB2) | \
+					 PIN_PUPDR_PULLUP(SRVB1) | \
+					 PIN_PUPDR_PULLUP(SRVB2) | \
 					 PIN_PUPDR_PULLDOWN(PA08) | \
 					 PIN_PUPDR_PULLDOWN(USB_VBUS) | \
-					 PIN_PUPDR_FLOATING(DSHOT_TLM) | \
+					 PIN_PUPDR_FLOATING(DSHOT_RX) | \
 					 PIN_PUPDR_FLOATING(OTG_FS_DM) | \
 					 PIN_PUPDR_FLOATING(OTG_FS_DP) | \
 					 PIN_PUPDR_PULLUP(SWDIO) | \
@@ -415,7 +415,7 @@
 					 PIN_ODR_LEVEL_LOW(SRVB2) | \
 					 PIN_ODR_LEVEL_LOW(PA08) | \
 					 PIN_ODR_LEVEL_LOW(USB_VBUS) | \
-					 PIN_ODR_LEVEL_HIGH(DSHOT_TLM) | \
+					 PIN_ODR_LEVEL_HIGH(DSHOT_RX) | \
 					 PIN_ODR_LEVEL_HIGH(OTG_FS_DM) | \
 					 PIN_ODR_LEVEL_HIGH(OTG_FS_DP) | \
 					 PIN_ODR_LEVEL_HIGH(SWDIO) | \
@@ -433,7 +433,7 @@
 
 #define VAL_GPIOA_AFRH			(PIN_AFIO_AF(PA08, 0) | \
 					 PIN_AFIO_AF(USB_VBUS, 0) | \
-					 PIN_AFIO_AF(DSHOT_TLM, 7) | \
+					 PIN_AFIO_AF(DSHOT_RX, 7) | \
 					 PIN_AFIO_AF(OTG_FS_DM, 10) | \
 					 PIN_AFIO_AF(OTG_FS_DP, 10) | \
 					 PIN_AFIO_AF(SWDIO, 0) | \
@@ -491,8 +491,8 @@
 					 PIN_OSPEED_SPEED_HIGH(SPI2_EXTERNAL_MISO) | \
 					 PIN_OSPEED_SPEED_HIGH(SPI2_EXTERNAL_MOSI))
 
-#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_FLOATING(SRVB3) | \
-					 PIN_PUPDR_FLOATING(SRVB4) | \
+#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_PULLUP(SRVB3) | \
+					 PIN_PUPDR_PULLUP(SRVB4) | \
 					 PIN_PUPDR_PULLDOWN(PB02) | \
 					 PIN_PUPDR_FLOATING(UART7_RX) | \
 					 PIN_PUPDR_FLOATING(SPI6_INTERNAL_MISO) | \
@@ -1476,8 +1476,8 @@
 #define AF_LINE_SRVB1                    2U
 #define AF_SRVB2                         2U
 #define AF_LINE_SRVB2                    2U
-#define AF_DSHOT_TLM                     7U
-#define AF_LINE_DSHOT_TLM                7U
+#define AF_DSHOT_RX                      7U
+#define AF_LINE_DSHOT_RX                 7U
 #define AF_OTG_FS_DM                     10U
 #define AF_LINE_OTG_FS_DM                10U
 #define AF_OTG_FS_DP                     10U
