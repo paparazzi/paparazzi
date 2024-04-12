@@ -487,7 +487,7 @@
         <!-- Other -->
         <define name="FILTER_CUTOFF"        value="2.0"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
-        <define name="MAX_AIRSPEED"         value="19.0"/>
+        <define name="MAX_AIRSPEED"         value="25.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
         <define name="ZERO_AIRSPEED"        value="FALSE"/>
 
