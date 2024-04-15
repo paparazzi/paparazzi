@@ -349,6 +349,15 @@ let count_commands_by_type commands_params =
     (subtype, count + 1) :: (List.remove_assoc subtype acc)
   ) [] commands_params
 
+let generate_command_names = fun out commands ->
+  let command_names = ref [] in
+  Array.iter (fun axis ->
+    let name = ExtXml.attrib axis "name" in
+    command_names := ("\"" ^ name ^ "\"") :: !command_names
+  ) commands;
+  let command_array = String.concat ", " (List.rev !command_names) in
+  fprintf out "#define COMMAND_NAMES { %s }\n\n" command_array
+
 let parse_heli_curves = fun out heli_curves ->
   let a = fun s -> ExtXml.attrib heli_curves s in
   match Xml.tag heli_curves with
@@ -400,6 +409,7 @@ let rec parse_section = fun out ac_id s ->
         define_out out (sprintf "COMMANDS_NB_%s" subtype) (string_of_int count)
       ) commands_counts;      
       define_out out "COMMANDS_NB" (string_of_int (Array.length commands));
+      generate_command_names out commands;
       define_out out "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       fprintf out "\n\n"
     | "rc_commands" ->
