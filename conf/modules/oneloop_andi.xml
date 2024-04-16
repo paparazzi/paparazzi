@@ -28,13 +28,7 @@
   <init fun="oneloop_andi_init()"/>
    <makefile target="ap|nps" firmware="rotorcraft">
     <file       name="oneloop_andi.c" dir="$(SRC_FIRMWARE)/oneloop"/>
-    <configure  name="ANDI_OUTPUTS" default="4"/>
-    <configure  name="ANDI_NUM_ACT" default="4"/>
-    <configure  name="ANDI_NUM_VIRTUAL_ACT" default="2"/>
-    <configure  name="ANDI_NUM_ACT_TOT" default="6"/>
+    <configure  name="ANDI_OUTPUTS" default="6"/>
     <define     name="ANDI_OUTPUTS" value="$(ANDI_OUTPUTS)"/>
-    <define     name="ANDI_NUM_ACT" value="$(ANDI_NUM_ACT)"/>
-    <define     name="ANDI_NUM_VIRTUAL_ACT" value="$(ANDI_NUM_VIRTUAL_ACT)"/>
-    <define     name="ANDI_NUM_ACT_TOT" value="$(ANDI_NUM_ACT_TOT)"/>
   </makefile> 
 </module>

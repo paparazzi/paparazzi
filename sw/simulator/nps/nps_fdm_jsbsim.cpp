@@ -316,7 +316,18 @@ static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
 #else /* use COMMAND names */
+#ifdef NPS_USE_COMMANDS /*Use generated command names*/
+  char buf[64];
+  const char *names[] = COMMAND_NAMES;
+  string property;
 
+  int i;
+  for (i = 0; i < commands_nb; i++) {
+    sprintf(buf, "fcs/%s", names[i]);
+    property = string(buf);
+    FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
+  }
+#else /*Use manually defined commands*/
   // get FGFCS instance
   FGFCS *FCS = FDMExec->GetFCS();
 
@@ -355,6 +366,7 @@ static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)
   FCS->SetDfCmd(commands[COMMAND_FLAP]);
 #endif /* COMMAND_FLAP */
 
+#endif /* NPS_USE_COMMANDS */
 #endif /* NPS_ACTUATOR_NAMES */
 }
 
