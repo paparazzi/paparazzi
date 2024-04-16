@@ -350,13 +350,9 @@ let count_commands_by_type commands_params =
   ) [] commands_params
 
 let generate_command_names = fun out commands ->
-  let command_names = ref [] in
-  Array.iter (fun axis ->
-    let name = ExtXml.attrib axis "name" in
-    command_names := ("\"" ^ name ^ "\"") :: !command_names
-  ) commands;
-  let command_array = String.concat ", " (List.rev !command_names) in
-  fprintf out "#define COMMAND_NAMES { %s }\n\n" command_array
+  let command_names = Array.map (fun axis -> "\"" ^ (ExtXml.attrib axis "name") ^ "\"") commands in
+  let command_names = String.concat ", " (Array.to_list command_names) in
+  fprintf out "#define COMMAND_NAMES { %s }\n\n" command_names
 
 let parse_heli_curves = fun out heli_curves ->
   let a = fun s -> ExtXml.attrib heli_curves s in
