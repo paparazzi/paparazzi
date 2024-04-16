@@ -80,6 +80,19 @@
 #define JSBSIM_PATH(_x) _x
 #endif
 
+/* Actuator naming*/
+#ifdef NPS_USE_COMMANDS
+#define NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES TRUE
+#endif
+
+#ifdef NPS_ACTUATOR_NAMES
+#define NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES TRUE
+#endif
+
+#ifndef NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES
+#define NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES FALSE
+#endif
+
 /** Name of the JSBSim model.
  *  Defaults to the AIRFRAME_NAME
  */
@@ -304,19 +317,21 @@ void nps_fdm_set_temperature(double temp, double h)
  */
 static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)))
 {
-#ifdef NPS_ACTUATOR_NAMES
+#if NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES
   char buf[64];
+#if defined(NPS_USE_COMMANDS)
+  const char *names[] = COMMAND_NAMES; 
+#elif defined(NPS_ACTUATOR_NAMES)
   const char *names[] = NPS_ACTUATOR_NAMES;
+#endif 
   string property;
-
   int i;
   for (i = 0; i < commands_nb; i++) {
     sprintf(buf, "fcs/%s", names[i]);
     property = string(buf);
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
-#else /* use COMMAND names */
-
+#else /*Use manually defined commands*/
   // get FGFCS instance
   FGFCS *FCS = FDMExec->GetFCS();
 
@@ -355,7 +370,7 @@ static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)
   FCS->SetDfCmd(commands[COMMAND_FLAP]);
 #endif /* COMMAND_FLAP */
 
-#endif /* NPS_ACTUATOR_NAMES */
+#endif /* NPS_AUTOMATIC_JSBSIM_ACTUATOR_NAMES */
 }
 
 /**

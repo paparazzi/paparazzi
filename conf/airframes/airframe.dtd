@@ -74,7 +74,8 @@ collective CDATA #REQUIRED>
 
 <!ATTLIST axis
 name CDATA #REQUIRED
-failsafe_value CDATA #REQUIRED>
+failsafe_value CDATA #REQUIRED
+group CDATA #IMPLIED>
 
 <!ATTLIST set
 value CDATA #REQUIRED
