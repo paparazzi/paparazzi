@@ -61,8 +61,6 @@
 #error sdlog_chibios need USE_ADC_WATCHDOG in order to properly close files when power is unplugged
 #endif
 
-#define DefaultAdcOfVoltage(voltage) ((uint32_t) (voltage/(DefaultVoltageOfAdc(1))))
-static const uint16_t V_ALERT = DefaultAdcOfVoltage(5.5f);
 static const char PPRZ_LOG_NAME[] = "pprzlog_";
 static const char PPRZ_LOG_DIR[] = "PPRZ";
 
@@ -71,15 +69,6 @@ static const char PPRZ_LOG_DIR[] = "PPRZ";
  */
 static IN_DMA_SECTION(THD_WORKING_AREA(wa_thd_startlog, 4096));
 static __attribute__((noreturn)) void thd_startlog(void *arg);
-
-/*
- * Bat survey thread
- */
-static THD_WORKING_AREA(wa_thd_bat_survey, 1024);
-static __attribute__((noreturn)) void thd_bat_survey(void *arg);
-static void  powerOutageIsr(void);
-event_source_t powerOutageSource;
-event_listener_t powerOutageListener;
 
 bool sdOk = false;
 
@@ -240,6 +229,56 @@ void sdlog_chibios_finish(const bool flush)
   chibios_sdlog_status = SDLOG_STOPPED;
 }
 
+#if defined(SDLOG_BAT_ADC) && defined(SDLOG_BAT_CHAN)
+/*
+ * Bat survey thread
+ */
+static THD_WORKING_AREA(wa_thd_bat_survey, 1024);
+static __attribute__((noreturn)) void thd_bat_survey(void *arg);
+static void  powerOutageIsr(void);
+event_source_t powerOutageSource;
+event_listener_t powerOutageListener;
+
+#define DefaultAdcOfVoltage(voltage) ((uint32_t) (voltage/(DefaultVoltageOfAdc(1))))
+static const uint16_t V_ALERT = DefaultAdcOfVoltage(5.5f);
+
+/*
+  powerOutageIsr is called within a lock zone from an isr, so no lock/unlock is needed
+*/
+static void powerOutageIsr(void)
+{
+  chEvtBroadcastI(&powerOutageSource);
+}
+
+static void thd_bat_survey(void *arg)
+{
+  (void)arg;
+  chRegSetThreadName("battery survey");
+  chEvtRegister(&powerOutageSource, &powerOutageListener, 1);
+  chThdSleepMilliseconds(2000);
+
+  register_adc_watchdog(&SDLOG_BAT_ADC, SDLOG_BAT_CHAN, V_ALERT, &powerOutageIsr);
+
+  chEvtWaitOne(EVENT_MASK(1));
+  // Only try to energy save is it is really a problem and not powered through USB
+  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
+    // disable all required periph to save energy and maximize chance to flush files
+    // to mass storage and avoid infamous dirty bit on filesystem
+    mcu_energy_save();
+  }
+
+  // in case of powerloss, we should go fast and avoid to flush ram buffer
+  sdlog_chibios_finish(false);
+
+  // Only put to deep sleep in case there is no power on the USB
+  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
+    mcu_reboot(MCU_REBOOT_POWEROFF);
+  }
+  chThdExit(0);
+  while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
+}
+#endif
+
 static void thd_startlog(void *arg)
 {
   (void) arg;
@@ -281,10 +320,12 @@ static void thd_startlog(void *arg)
   }
 
   if (sdOk) {
+#if defined(SDLOG_BAT_ADC) && defined(SDLOG_BAT_CHAN)
     // Create Battery Survey Thread with event
     chEvtObjectInit(&powerOutageSource);
     chThdCreateStatic(wa_thd_bat_survey, sizeof(wa_thd_bat_survey),
                       NORMALPRIO + 2, thd_bat_survey, NULL);
+#endif
 
     chibios_sdlog_status = SDLOG_RUNNING;
   } else {
@@ -328,43 +369,6 @@ static void thd_startlog(void *arg)
   }
 }
 
-
-static void thd_bat_survey(void *arg)
-{
-  (void)arg;
-  chRegSetThreadName("battery survey");
-  chEvtRegister(&powerOutageSource, &powerOutageListener, 1);
-  chThdSleepMilliseconds(2000);
-
-  register_adc_watchdog(&SDLOG_BAT_ADC, SDLOG_BAT_CHAN, V_ALERT, &powerOutageIsr);
-
-  chEvtWaitOne(EVENT_MASK(1));
-  // Only try to energy save is it is really a problem and not powered through USB
-  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
-    // disable all required periph to save energy and maximize chance to flush files
-    // to mass storage and avoid infamous dirty bit on filesystem
-    mcu_energy_save();
-  }
-
-  // in case of powerloss, we should go fast and avoid to flush ram buffer
-  sdlog_chibios_finish(false);
-
-  // Only put to deep sleep in case there is no power on the USB
-  if (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW) {
-    mcu_reboot(MCU_REBOOT_POWEROFF);
-  }
-  chThdExit(0);
-  while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
-}
-
-
-/*
-  powerOutageIsr is called within a lock zone from an isr, so no lock/unlock is needed
-*/
-static void powerOutageIsr(void)
-{
-  chEvtBroadcastI(&powerOutageSource);
-}
 
 void logger_log_msg_up(uint8_t* buf) {
   uint8_t ac_id = pprzlink_get_DL_INFO_MSG_UP_ac_id(buf);

@@ -10,12 +10,10 @@
     <description>RotatingWing25Kg</description>
 
     <firmware name="rotorcraft">
-        <target name="ap" board="cube_orangeplus">
+        <target name="ap" board="pixhawk_6x">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
-            <module name="radio_control" type="sbus">
-                <configure name="SBUS_PORT" value="UART3"/> <!-- On the TELEM2 port -->
-            </module>
+            <module name="radio_control" type="sbus"/>
             <module name="sys_mon"/>
             <module name="flight_recorder"/>
 
@@ -27,23 +25,24 @@
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
 
             <!-- EKF2 configure inputs -->
-            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
-            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
-            <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
+            <define name="INS_EKF2_GYRO_ID"         value="IMU_PIXHAWK2_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"        value="IMU_PIXHAWK2_ID"/>
+            <define name="INS_EKF2_MAG_ID"          value="MAG_RM3100_SENDER_ID"/>
 
             <!--Only send gyro and accel that is being used-->
-            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
-            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+            <define name="IMU_GYRO_ABI_SEND_ID"     value="IMU_PIXHAWK2_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value="IMU_PIXHAWK2_ID"/>
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
 
             <!-- Disable current sensing using UAVCAN -->
-            <define name="UAVCAN_ACTUATORS_USE_CURRENT"     value="FALSE"/>
-            <define name="USE_I2C1"/>
+            <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="FALSE"/>
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
+
+            <define name="SERVO_ROTATION_MECH_IDX" value="0"/> <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXMEEE !!!!!!!!!!!!!!!!!!!!!!!!!! -->
         </target>
 
         <target name="nps" board="pc">
@@ -60,16 +59,17 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
+            <configure name="MODEM_PORT" value="usb_serial"/>
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
 
         <!-- Sensors -->
         <module name="mag" type="rm3100">
+            <configure name="MAG_RM3100_I2C_DEV"        value="I2C1"/>
             <define name="MODULE_RM3100_UPDATE_AHRS"    value="TRUE"/>
-            <configure name="MAG_RM3100_I2C_DEV"        value="I2C2"/>
         </module>
         <module name="airspeed" type="ms45xx_i2c">
-            <define name="MS45XX_I2C_DEV"               value="i2c1"/>
+            <configure name="MS45XX_I2C_DEV"            value="I2C2"/>
             <define name="MS45XX_AIRSPEED_SCALE"        value="2.0833"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
@@ -86,7 +86,7 @@
         </module>
 
         <!-- IMU / INS -->
-        <module name="imu" type="cube"/>
+        <module name="imu" type="pixhawk6x"/>
         <module name="ins" type="ekf2">
             <!-- The Cube is mounted 25cm backwards of the CG -->
             <define name="INS_EKF2_IMU_POS_X" value="-0.25"/>
@@ -139,36 +139,42 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0"  name="MOTOR_FRONT"     min="-8191" neutral="-5000" max="8191"/>
-        <servo no="1"  name="MOTOR_RIGHT"     min="-8191" neutral="-5000" max="8191"/>
-        <servo no="2"  name="MOTOR_BACK"      min="-8191" neutral="-5000" max="8191"/>
-        <servo no="3"  name="MOTOR_LEFT"      min="-8191" neutral="-5000" max="8191"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="-8191" neutral="-8191" max="8191"/>
-        <servo no="5"  name="SERVO_ELEVATOR"  min="-3191" neutral="-3191" max="4900"/>
-        <servo no="6"  name="SERVO_RUDDER"    min="-6500" neutral="0"     max="6500"/>
-        <servo no="7"  name="ROTATION_MECH"   min="8191"  neutral="0"     max="-8191"/>
-        <servo no="8"  name="AIL_RIGHT"       min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="0"  name="MOTOR_FRONT"     min="-3276" neutral="-2437" max="3605"/> <!-- Supercan (1100-1202.56-1940us) -->
+        <servo no="1"  name="MOTOR_RIGHT"     min="-3276" neutral="-2437" max="3605"/> <!-- Supercan (1100-1202.56-1940us) -->
+        <servo no="2"  name="MOTOR_BACK"      min="-3276" neutral="-2437" max="3605"/> <!-- Supercan (1100-1202.56-1940us) -->
+        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC  is neutral -->
+        <servo no="4"  name="MOTOR_PUSH"      min="-3276" neutral="-3276" max="3605"/> <!-- Supercan (1100-1940us) -->
+        <!--servo no="8"  name="AIL_RIGHT"       min="-8000" neutral="-1000"     max="5000"/>
         <servo no="9"  name="FLAP_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
         <servo no="10" name="AIL_LEFT"        min="-5000" neutral="1000"     max="8000"/>
         <servo no="11" name="FLAP_LEFT"       min="-5000" neutral="1000"     max="8000"/>
-        <servo no="12" name="PARACHUTE"       min="-8191" neutral="0"     max="8191"/>
+        <servo no="12" name="PARACHUTE"       min="-8191" neutral="0"     max="8191"/-->
+    </servos>
+
+    <!-- CAN BUS 1 command outputs-->
+    <servos driver="Uavcan1Cmd">
+        <servo no="5"  name="SERVO_ELEVATOR"   min="-3250" neutral="0" max="3250"/>
+        <servo no="6"  name="SERVO_RUDDER"  min="-3250" neutral="0" max="3250"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
     <servos driver="Uavcan2">
-        <servo no="0"  name="BMOTOR_FRONT"    min="-8191" neutral="-5000" max="8191"/>
-        <servo no="1"  name="BMOTOR_RIGHT"    min="-8191" neutral="-5000" max="8191"/>
-        <servo no="2"  name="BMOTOR_BACK"     min="-8191" neutral="-5000" max="8191"/>
-        <servo no="3"  name="BMOTOR_LEFT"     min="-8191" neutral="-5000" max="8191"/>
-        <servo no="4"  name="BMOTOR_PUSH"     min="-8191" neutral="-8191" max="8191"/>
-        <servo no="5"  name="BSERVO_ELEVATOR" min="-3191" neutral="-3191" max="4900"/>
-        <servo no="6"  name="BSERVO_RUDDER"   min="-6500" neutral="0"     max="6500"/>
-        <servo no="7"  name="BROTATION_MECH"  min="8191"  neutral="0"     max="-8191"/>
-        <servo no="8"  name="BAIL_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
+        <servo no="0"  name="BMOTOR_FRONT"    min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
+        <servo no="1"  name="BMOTOR_RIGHT"    min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
+        <servo no="2"  name="BMOTOR_BACK"     min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
+        <servo no="3"  name="BMOTOR_LEFT"     min="-3276" neutral="-2437" max="3605"/> <!-- Supercan (1100-1202.56-1940us) -->
+        <servo no="4"  name="BMOTOR_PUSH"     min="-3276" neutral="-3276" max="3605"/> <!-- Supercan (1100-1940us) -->
+        <!--servo no="8"  name="BAIL_RIGHT"      min="-8000" neutral="-1000"     max="5000"/>
         <servo no="9"  name="BFLAP_RIGHT"     min="-8000" neutral="-1000"     max="5000"/>
         <servo no="10" name="BAIL_LEFT"       min="-5000" neutral="1000"     max="8000"/>
         <servo no="11" name="BFLAP_LEFT"      min="-5000" neutral="1000"     max="8000"/>
-        <servo no="12" name="BPARACHUTE"      min="-8191" neutral="0"     max="8191"/>
+        <servo no="12" name="BPARACHUTE"      min="-8191" neutral="0"     max="8191"/-->
+    </servos>
+
+    <!-- CAN BUS 1 command outputs-->
+    <servos driver="Uavcan2Cmd">
+        <servo no="5"  name="BSERVO_ELEVATOR"   min="-3250" neutral="0" max="3250"/>
+        <servo no="6"  name="BSERVO_RUDDER"  min="-3250" neutral="0" max="3250"/>
     </servos>
 
     <commands>
@@ -194,12 +200,12 @@
         <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
+        <!--set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
         <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
-        <set servo="PARACHUTE"          value="RadioControlValues(RADIO_AUX6)"/>
+        <set servo="PARACHUTE"          value="RadioControlValues(RADIO_AUX6)"/-->
 
         <!-- Second bus -->
         <set servo="BMOTOR_FRONT"       value="($hover_off? -9600 : actuators_pprz[0])"/>
@@ -209,12 +215,12 @@
         <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <set servo="BROTATION_MECH"     value="rotwing_state_skewing.servo_pprz_cmd"/>
+        <!--set servo="BROTATION_MECH"     value="rotwing_state_skewing.servo_pprz_cmd"/>
         <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_RIGHT"        value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_LEFT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
-        <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/>
+        <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/-->
     </command_laws>
 
 
