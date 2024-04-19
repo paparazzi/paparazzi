@@ -401,7 +401,6 @@
 /*
  * SDC driver system settings.
  */
-#define STM32_SDMMC_MAXCLK                  200000000
 #define STM32_SDC_USE_SDMMC1                TRUE
 #define STM32_SDC_USE_SDMMC2                FALSE
 #define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   TRUE
