@@ -604,7 +604,7 @@ void rotwing_state_free_processor(void)
 
   /*
     Calculations
-  */ 
+  */
   // speed over pos_error projection
   struct FloatVect2 pos_error_norm;
   VECT2_COPY(pos_error_norm, pos_error);
@@ -612,9 +612,9 @@ void rotwing_state_free_processor(void)
   float dist_to_target = sqrtf(nav_rotorcraft_base.goto_wp.dist2_to_wp);
   float max_speed_decel2 = fabsf(2.f * dist_to_target * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
   float max_speed_decel = sqrtf(max_speed_decel2);
-  
+
   // Check if speed setpoint above set airspeed
-  struct FloatVect2 desired_airspeed_v; 
+  struct FloatVect2 desired_airspeed_v;
   struct FloatVect2 groundspeed_sp;
   groundspeed_sp.x = pos_error.x * nav_hybrid_pos_gain;
   groundspeed_sp.y = pos_error.y * nav_hybrid_pos_gain;
@@ -748,7 +748,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
                             actuator_state_filt_vect[2] * g1g2[3][2] + actuator_state_filt_vect[3] * g1g2[3][3]);
   Bound(du_max_thrust_z, 0., 50.);
 
-  float roll_limit_rad = guidance_indi_max_bank;
+  float roll_limit_rad = RadOfDeg(guidance_indi_max_bank);
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
