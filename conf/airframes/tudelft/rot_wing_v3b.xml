@@ -462,7 +462,7 @@
     </section>
 
     <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-        <define name="MAX_BANK"         value="30" unit="deg"/>
+        <define name="MAX_BANK"         value="60" unit="deg"/>
         <define name="USE_SPEED_REF"    value="TRUE"/>
 
         <!-- Gains -->
