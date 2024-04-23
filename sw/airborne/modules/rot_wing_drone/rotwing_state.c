@@ -196,6 +196,10 @@ void periodic_rotwing_state(void)
 
   // Check and update desired state
   if (guidance_h.mode == GUIDANCE_H_MODE_NAV) {
+    // Run the free state requester if free configuration requestes
+    if(rotwing_state.requested_config == ROTWING_CONFIGURATION_FREE) {
+      rotwing_state_free_processor();
+    }
     rotwing_switch_state();
   } else if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
     rotwing_state_set_hover_settings();
@@ -214,10 +218,7 @@ void periodic_rotwing_state(void)
     bool_disable_hover_motors = false;
   }
 
-  // Run the free state requester if free configuration requestes
-  if(rotwing_state.requested_config == ROTWING_CONFIGURATION_FREE) {
-    rotwing_state_free_processor();
-  }
+  
 }
 
 // Function to request a state
