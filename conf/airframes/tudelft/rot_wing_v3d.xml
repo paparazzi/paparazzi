@@ -343,7 +343,7 @@
 
     <section name="IMU" prefix="IMU_">
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1518,-1489,512}, .scale={{1124,9185,21218},{1879,15118,36859}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1948,-2534,1576}, .scale={{13543,22822,7749},{23470,38711,13795}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
