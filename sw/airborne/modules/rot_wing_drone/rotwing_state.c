@@ -621,21 +621,14 @@ void rotwing_state_free_processor(void)
   VECT2_ADD(desired_airspeed_v, windspeed_v);
 
   float desired_airspeed = FLOAT_VECT2_NORM(desired_airspeed_v);
+  float airspeed_error = guidance_indi_max_airspeed - airspeed;
 
-  if (speed_to_target > 0) {
     // Request hybrid if we have to decelerate and approaching target
     if (max_speed_decel < current_groundspeed) {
       request_rotwing_state(ROTWING_STATE_SKEWING);
-    } else if (desired_airspeed > 15) {
+   } else if ((desired_airspeed > 15) && ((current_groundspeed + airspeed_error) < max_speed_decel)) {
       request_rotwing_state(ROTWING_STATE_FW_HOV_MOT_OFF);
     }
-  } else { // If speed to target negative (flying away from target)
-    if (airspeed > 15) {
-      request_rotwing_state(ROTWING_STATE_FW_HOV_MOT_OFF);
-    } else {
-      request_rotwing_state(ROTWING_STATE_SKEWING);
-    }
-  }
 }
 
 void rotwing_state_skew_actuator_periodic(void)
