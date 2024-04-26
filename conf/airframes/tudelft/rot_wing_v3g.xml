@@ -434,7 +434,7 @@
         <define name="FILT_CUTOFF_P"                    value="5.0"/>
         <define name="FILT_CUTOFF_Q"                    value="20.0"/>
         <define name="FILT_CUTOFF_R"                    value="5.0"/>
-        <define name="FILT_CUTOFF"                      value="2.0"/>
+        <define name="FILT_CUTOFF"                      value="2.5"/>
         <define name="ESTIMATION_FILT_CUTOFF"           value="2.0"/>
         <define name="FILTER_YAW_RATE"                  value="TRUE"/>
         <define name="FILT_CUTOFF_RDOT"                 value="0.5"/>
@@ -484,7 +484,7 @@
         <define name="SPEED_GAINZ"          value="0.6"/>
 
         <!-- Other -->
-        <define name="FILTER_CUTOFF"        value="2.0"/>
+        <define name="FILTER_CUTOFF"        value="2.5"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
@@ -502,6 +502,7 @@
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
         <define name="MAX_LAT_ACCEL"        value="5.0"/>
+        <define name="ACCEL_FWD_BX_LIM"     value="3.0"/>
     </section>
 
     <section name="FORWARD">
