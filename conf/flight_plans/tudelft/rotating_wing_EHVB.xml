@@ -84,6 +84,7 @@
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
         <set var="stage_timer_msec" value="get_sys_time_msec()"/>
         <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.75" until="(get_sys_time_msec()-stage_timer_msec)>250" vmode="throttle"/>
+        <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
       <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
