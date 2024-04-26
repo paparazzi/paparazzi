@@ -84,6 +84,7 @@ extern struct FloatVect3 sp_accel;
 extern struct FloatVect3 gi_speed_sp;
 
 extern float guidance_indi_pitch_pref_deg;
+extern float gih_max_accel_hover;
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 extern float Wu_gih[GUIDANCE_INDI_HYBRID_U];

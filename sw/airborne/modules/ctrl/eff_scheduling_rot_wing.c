@@ -144,7 +144,7 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
   .k_lift_tail              = ROT_WING_EFF_SCHED_K_LIFT_TAIL
 };
 
-float eff_sched_pusher_time = 0.002; 
+float eff_sched_pusher_time = 0.002;
 
 struct rot_wing_eff_sched_var_t eff_sched_var;
 
@@ -328,7 +328,7 @@ void eff_scheduling_rot_wing_update_elevator_effectiveness(void)
 
   // Calculate pitch moment due to airspeed change
   float dMydairspeed = (-28.8464 * 2 * de * eff_sched_var.airspeed +
-                        -92.8148 * 2 * eff_sched_var.airspeed + 
+                        -92.8148 * 2 * eff_sched_var.airspeed +
                         0.23015 * de * de * 2 * eff_sched_var.airspeed +
                         -4.81466 * de * eff_sched_var.cmd_pusher_scaled * eff_sched_var.cmd_pusher_scaled) / 10000.;
   float domegadairspeed = dMydairspeed / eff_sched_var.Iyy;
