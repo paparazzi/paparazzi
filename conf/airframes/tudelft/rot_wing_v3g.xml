@@ -197,7 +197,7 @@
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="3500"  neutral="3500" max="-6102"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
         <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/>
     </servos>
 
