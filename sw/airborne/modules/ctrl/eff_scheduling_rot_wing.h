@@ -80,6 +80,8 @@ struct rot_wing_eff_sched_var_t {
 extern float rotation_angle_setpoint_deg;
 extern int16_t rotation_cmd;
 
+extern float eff_sched_pusher_time;
+
 extern void eff_scheduling_rot_wing_init(void);
 extern void eff_scheduling_rot_wing_periodic(void);
 
