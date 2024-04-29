@@ -438,7 +438,7 @@
         <define name="FILT_CUTOFF_P"                    value="20.0"/>
         <define name="FILT_CUTOFF_Q"                    value="20.0"/>
         <define name="FILT_CUTOFF_R"                    value="5.0"/>
-        <define name="FILT_CUTOFF"                      value="2.5"/>
+        <define name="FILT_CUTOFF"                      value="2.0"/>
         <define name="ESTIMATION_FILT_CUTOFF"           value="2.0"/>
         <define name="FILTER_YAW_RATE"                  value="TRUE"/>
         <define name="FILT_CUTOFF_RDOT"                 value="0.5"/>
