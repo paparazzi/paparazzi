@@ -73,6 +73,10 @@
         <call_once fun="NavResurrect()"/>
         <attitude pitch="0" roll="0" throttle="0" until="stage_time>10" vmode="throttle"/>
     </block>
+    <block name="Wait takeoff">
+      <exception cond="stage_time > 10" deroute="Holding point"/>
+      <attitude pitch="0" roll="0" throttle="0" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0)" vmode="throttle"/>
+    </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <exception cond="agl_dist_valid @AND (agl_dist_value @GT 1.0)" deroute="Climb"/>
