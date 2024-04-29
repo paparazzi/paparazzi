@@ -90,8 +90,12 @@
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="Standby_fwd">
+    <block name="Standby_hybrid">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
+        <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+    </block>
+    <block name="Standby_free">
+        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_FREE)"/>
         <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <!-- <block name="Approach APP">
