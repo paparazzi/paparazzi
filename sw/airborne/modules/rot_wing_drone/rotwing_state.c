@@ -607,7 +607,6 @@ void rotwing_state_free_processor(void)
   struct FloatVect2 pos_error_norm;
   VECT2_COPY(pos_error_norm, pos_error);
   float_vect2_normalize(&pos_error_norm);
-  float speed_to_target = (pos_error_norm.x * groundspeed->x + pos_error_norm.y * groundspeed->y);
   float dist_to_target = sqrtf(nav_rotorcraft_base.goto_wp.dist2_to_wp);
   float max_speed_decel2 = fabsf(2.f * dist_to_target * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
   float max_speed_decel = sqrtf(max_speed_decel2);
