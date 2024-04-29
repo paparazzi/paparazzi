@@ -144,6 +144,8 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
   .k_lift_tail              = ROT_WING_EFF_SCHED_K_LIFT_TAIL
 };
 
+float eff_sched_pusher_time = 0.002; 
+
 struct rot_wing_eff_sched_var_t eff_sched_var;
 
 inline void eff_scheduling_rot_wing_update_wing_angle(void);
@@ -410,6 +412,16 @@ void stabilization_indi_set_wls_settings(void)
       if (i == 5) {
         u_pref_stab_indi[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
         u_min_stab_indi[i] = 0; // cmd 0 is lowest position for elevator
+      }
+      if (i==8) {
+        // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
+        Bound(eff_sched_pusher_time, 0.002, 5.);
+        float max_increment = MAX_PPRZ / (eff_sched_pusher_time * 500);
+        u_min_stab_indi[i] = actuators_pprz[i] - max_increment;
+        u_max_stab_indi[i] = actuators_pprz[i] + max_increment;
+
+        Bound(u_min_stab_indi[i], 0, MAX_PPRZ);
+        Bound(u_max_stab_indi[i], 0, MAX_PPRZ);
       }
   }
 }
