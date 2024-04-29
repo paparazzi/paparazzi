@@ -420,7 +420,7 @@ void stabilization_indi_set_wls_settings(void)
       u_pref_stab_indi[i] = act_pref[i];
       if (i == 5) {
         u_pref_stab_indi[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
-        u_min_stab_indi[i] = 0; // cmd 0 is lowest position for elevator
+        u_min_stab_indi[i] = 800; // cmd 0 is lowest position for elevator
       }
       if (i==8) {
         // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
