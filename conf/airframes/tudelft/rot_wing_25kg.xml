@@ -56,6 +56,8 @@
             <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"      value="0"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+
+            <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
         </target>
 
         <!-- Herelink datalink -->
@@ -178,13 +180,13 @@
         <axis name="THRUST"     failsafe_value="0"/>
         <axis name="THRUST_X"   failsafe_value="0"/>
     </commands>
-    
+
 
     <command_laws>
         <let var="th_hold" value="Or(LessThan(RadioControlValues(RADIO_TH_HOLD), -4800), !autopilot_get_motors_on())"/>
         <let VAR="servo_hold" VALUE="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
         <let VAR="hover_off" VALUE="Or($th_hold, bool_disable_hover_motors)"/>
-        
+
         <call fun="sys_id_doublet_add_values(autopilot_get_motors_on(),FALSE,actuators_pprz)"/>
         <!-- Main bus -->
         <set servo="MOTOR_FRONT"        value="($hover_off? -9600 : actuators_pprz[0])"/>
@@ -253,7 +255,7 @@
         <define name="K_ELEVATOR_DEFLECTION" value="{50.0,-0.0063}"/>
         <define name="D_RUDDER_D_PPRZ"       value="-0.0018"/>
         <define name="K_RPM_PPRZ_PUSHER"     value="{-131.497033952591,1.32098226269777,-0.0000291178067445214}"/>
-        
+
         <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
         <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
         <define name="K_LIFT_TAIL"           value="-0.101691751"/>
@@ -369,7 +371,7 @@
 
         <!-- Rate INDI -->
         <define name="MAX_RATE"             value="1.5"/>
-        
+
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="40.0"/>
         <define name="REF_ERR_Q"                    value="25.0"/>
@@ -427,7 +429,7 @@
         <!--WLS settings-->
         <define name="USE_WLS"              value="TRUE"/>
         <define name="WLS_PRIORITIES"       value="{10., 10., 10.}"/>
-        <define name="WLS_WU"               value="{10., 10., 100., 1.}"/>
+        <define name="WLS_WU"               value="{100., 300., 4., 30.}"/>
 
         <!-- Gains -->
         <define name="POS_GAIN"             value="0.3"/>
@@ -454,6 +456,7 @@
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
+        <define name="MAX_LAT_ACCEL"        value="5.0"/>
     </section>
 
     <section name="FORWARD">

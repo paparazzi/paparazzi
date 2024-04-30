@@ -126,6 +126,8 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
   Gmat[0][3] =  ctheta;
   Gmat[1][3] =  0;
   Gmat[2][3] = -stheta;
+  // Make this term zero to prevent switching 'exploits'
+  // Gmat[2][3] = 0;
 
   // Convert acceleration error to body axis system
   body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
@@ -136,7 +138,7 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
 
 void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
-  float roll_limit_rad = GUIDANCE_H_MAX_BANK;
+  float roll_limit_rad = RadOfDeg(guidance_indi_max_bank);
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
