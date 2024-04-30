@@ -655,7 +655,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
 
     // Control the airspeed
     sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
-    BoundAbs(sp_accel_b.x, GUIDANCE_INDI_ACCEL_FWD_BX_LIM);
+    //BoundAbs(sp_accel_b.x, GUIDANCE_INDI_ACCEL_FWD_BX_LIM);
 
     accel_sp.x = cpsi * sp_accel_b.x - spsi * sp_accel_b.y;
     accel_sp.y = spsi * sp_accel_b.x + cpsi * sp_accel_b.y;
@@ -683,7 +683,8 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   }
 
   // Bound the acceleration setpoint
-  float accelbound = (3.0f + airspeed / guidance_indi_max_airspeed * 5.0f)/8.0*gih_max_accel_hover; // FIXME remove hard coded values
+  float accelbound = 3.0f + airspeed / guidance_indi_max_airspeed * 5.0f;
+  //float accelbound = (3.0f + airspeed / guidance_indi_max_airspeed * 5.0f)/8.0*gih_max_accel_hover; // FIXME remove hard coded values
   float_vect3_bound_in_2d(&accel_sp, accelbound);
   /*BoundAbs(sp_accel.x, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   /*BoundAbs(sp_accel.y, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
