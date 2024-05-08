@@ -328,6 +328,10 @@ void eff_scheduling_rot_wing_update_elevator_effectiveness(void)
                  eff_sched_p.k_elevator[1] * eff_sched_var.cmd_pusher_scaled * eff_sched_var.cmd_pusher_scaled * eff_sched_var.airspeed +
                  eff_sched_p.k_elevator[2] * eff_sched_var.airspeed2) / 10000.;
 
+  // scale the effectiveness of the elevator down if it has a large deflection to encourage it to become flat quickly (pragmatic, not physically inpsired)
+  float elevator_ineffectiveness_scaling = (50-de)/40;
+  Bound(elevator_ineffectiveness_scaling, 0.5, 1.0);
+
   float dMydpprz = dMyde * eff_sched_p.k_elevator_deflection[1];
 
   // Calculate pitch moment due to airspeed change
