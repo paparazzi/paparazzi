@@ -68,6 +68,7 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
+        <exception cond="stage_time > 10" deroute="Holding point"/>
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
@@ -77,7 +78,7 @@
         <set var="stabilization_cmd[2]" value="0"/>
         <set var="stabilization_cmd[3]" value="0"/>
         <while cond="block_time @LT 10"/> -->
-        <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="stage_time>10" vmode="throttle"/>
+        <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
     <block name="Wait takeoff">
       <exception cond="stage_time > 10" deroute="Holding point"/>
