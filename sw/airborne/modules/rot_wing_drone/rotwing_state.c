@@ -78,6 +78,9 @@
 #endif
 
 // FW hov mot off state identification
+#ifndef ROTWING_HOV_MOT_RUN_RPM_TH
+#define ROTWING_HOV_MOT_RUN_RPM_TH 800
+#endif
 #ifndef ROTWING_HOV_MOT_OFF_RPM_TH
 #define ROTWING_HOV_MOT_OFF_RPM_TH 50
 #endif
@@ -710,10 +713,10 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
 
 bool rotwing_state_hover_motors_running(void) {
   // Check if hover motors are running
-  if (rotwing_state_hover_rpm[0] > ROTWING_HOV_MOT_OFF_RPM_TH
-      && rotwing_state_hover_rpm[1] > ROTWING_HOV_MOT_OFF_RPM_TH
-      && rotwing_state_hover_rpm[2] > ROTWING_HOV_MOT_OFF_RPM_TH
-      && rotwing_state_hover_rpm[3] > ROTWING_HOV_MOT_OFF_RPM_TH) {
+  if (rotwing_state_hover_rpm[0] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[1] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[2] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[3] > ROTWING_HOV_MOT_RUN_RPM_TH) {
     return true;
   } else {
     return false;

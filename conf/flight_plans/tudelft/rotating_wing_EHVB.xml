@@ -82,7 +82,7 @@
     </block>
     <block name="Wait takeoff">
       <exception cond="stage_time > 10" deroute="Holding point"/>
-      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0)" vmode="throttle"/>
+      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
