@@ -708,6 +708,18 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
   }
 }
 
+bool rotwing_state_hover_motors_running(void) {
+  // Check if hover motors are running
+  if (rotwing_state_hover_rpm[0] > ROTWING_HOV_MOT_OFF_RPM_TH
+      && rotwing_state_hover_rpm[1] > ROTWING_HOV_MOT_OFF_RPM_TH
+      && rotwing_state_hover_rpm[2] > ROTWING_HOV_MOT_OFF_RPM_TH
+      && rotwing_state_hover_rpm[3] > ROTWING_HOV_MOT_OFF_RPM_TH) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
   // adjust weights
