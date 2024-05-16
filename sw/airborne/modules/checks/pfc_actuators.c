@@ -269,16 +269,16 @@ static void pfc_actuators_cb(struct preflight_result_t *result)
 {
   switch(pfc_actuators.state) {
     case PFC_ACTUATORS_STATE_INIT:
-      preflight_error(result, "Actuators not checked perform checks first[%d]", pfc_actuators.act_nb);
+      preflight_error(result, "Actuators not checked [act: %d]", pfc_actuators.act_nb);
       break;
     case PFC_ACTUATORS_STATE_RUNNING:
-      preflight_error(result, "Actuators are currently being checked[%d/%d]",pfc_actuators.act_idx, pfc_actuators.act_nb);
+      preflight_error(result, "Actuators are currently being checked [act: %d/%d]",pfc_actuators.act_idx, pfc_actuators.act_nb);
       break;
     case PFC_ACTUATORS_STATE_SUCCESS:
-      preflight_success(result, "Actuators checked and moved succesfully[%d]", pfc_actuators.act_nb);
+      preflight_success(result, "Actuators checked and succesfull [act: %d]", pfc_actuators.act_nb);
       break;
     case PFC_ACTUATORS_STATE_ERROR:
-      preflight_error(result, "Actuators not responding correctly[%d/%d]",pfc_actuators.act_idx, pfc_actuators.act_nb);
+      preflight_error(result, "Actuators not responding correctly [act: %d/%d]",pfc_actuators.act_idx, pfc_actuators.act_nb);
       break;
   }
 }
