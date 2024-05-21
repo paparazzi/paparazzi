@@ -71,10 +71,10 @@ float nav_hybrid_line_gain = 1.0f;
 #define NAV_HYBRID_NAV_CIRCLE_DIST 40.f
 #endif
 
-#ifdef NAV_HYBRID_POS_GAIN 
-float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN; 
+#ifdef NAV_HYBRID_POS_GAIN
+float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN;
 #else
-float nav_hybrid_pos_gain = 1.0; 
+float nav_hybrid_pos_gain = 1.0;
 #endif
 
 #ifndef GUIDANCE_INDI_HYBRID

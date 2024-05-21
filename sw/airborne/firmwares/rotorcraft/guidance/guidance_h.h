@@ -53,17 +53,10 @@ extern "C" {
 #define GUIDANCE_H_USE_SPEED_REF TRUE
 #endif
 
-#define GUIDANCE_H_MODE_KILL        0
-#define GUIDANCE_H_MODE_RATE        1
-#define GUIDANCE_H_MODE_ATTITUDE    2
-#define GUIDANCE_H_MODE_HOVER       3
-#define GUIDANCE_H_MODE_NAV         4
-#define GUIDANCE_H_MODE_RC_DIRECT   5
-#define GUIDANCE_H_MODE_CARE_FREE   6
-#define GUIDANCE_H_MODE_FORWARD     7
-#define GUIDANCE_H_MODE_MODULE      8
-#define GUIDANCE_H_MODE_FLIP        9
-#define GUIDANCE_H_MODE_GUIDED      10
+#define GUIDANCE_H_MODE_NONE        0
+#define GUIDANCE_H_MODE_HOVER       1
+#define GUIDANCE_H_MODE_NAV         2
+#define GUIDANCE_H_MODE_GUIDED      3
 
 /** Max bank controlled by guidance
  */
@@ -101,6 +94,12 @@ struct HorizontalGuidanceReference {
   struct Int32Vect2 accel;   ///< with #INT32_ACCEL_FRAC
 };
 
+struct HorizontalGuidanceRCInput {
+  struct Int32Vect2 vect;
+  float heading;
+  float last_ts;
+};
+
 struct HorizontalGuidance {
   uint8_t mode;
   /* configuration options */
@@ -108,19 +107,15 @@ struct HorizontalGuidance {
 
   struct HorizontalGuidanceSetpoint sp;   ///< setpoints
   struct HorizontalGuidanceReference ref; ///< reference calculated from setpoints
-
-  struct FloatEulers rc_sp;               ///< remote control setpoint
+  struct HorizontalGuidanceRCInput rc_sp; ///< remote control setpoint
 };
 
 extern struct HorizontalGuidance guidance_h;
 
-extern int32_t transition_percentage;
-
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
-extern void guidance_h_read_rc(bool in_flight);
-extern void guidance_h_run(bool in_flight);
 extern void guidance_h_run_enter(void);
+extern struct StabilizationSetpoint guidance_h_run(bool in_flight);
 extern struct StabilizationSetpoint guidance_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);
@@ -130,11 +125,11 @@ extern void guidance_h_nav_enter(void);
 
 /** Set horizontal guidance from NAV and run control loop
  */
-extern void guidance_h_from_nav(bool in_flight);
+extern struct StabilizationSetpoint guidance_h_from_nav(bool in_flight);
 
 /** Run GUIDED mode control
  */
-extern void guidance_h_guided_run(bool in_flight);
+extern struct StabilizationSetpoint guidance_h_guided_run(bool in_flight);
 
 /** Set horizontal position setpoint.
  * @param x North position (local NED frame) in meters.

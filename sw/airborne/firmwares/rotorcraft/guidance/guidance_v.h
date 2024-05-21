@@ -30,6 +30,7 @@
 
 #include "firmwares/rotorcraft/guidance/guidance_v_ref.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adapt.h"
+#include "firmwares/rotorcraft/stabilization.h"
 
 #define GUIDANCE_V_MODE_KILL      0
 #define GUIDANCE_V_MODE_RC_DIRECT 1
@@ -37,9 +38,7 @@
 #define GUIDANCE_V_MODE_CLIMB     3
 #define GUIDANCE_V_MODE_HOVER     4
 #define GUIDANCE_V_MODE_NAV       5
-#define GUIDANCE_V_MODE_MODULE    6
-#define GUIDANCE_V_MODE_FLIP      7
-#define GUIDANCE_V_MODE_GUIDED    8
+#define GUIDANCE_V_MODE_GUIDED    6
 
 struct VerticalGuidance {
   uint8_t mode;
@@ -85,16 +84,16 @@ struct VerticalGuidance {
    */
   int32_t rc_zd_sp;
 
-  /** thrust setpoint.
+  /** input thrust setpoint.
    *  valid range 0 : #MAX_PPRZ
    */
   int32_t th_sp;
 
-  /** thrust command.
+  /** Final thrust setpoint
    *  summation of feed-forward and feed-back commands,
-   *  valid range 0 : #MAX_PPRZ
+   *  can be a total thrust or increment, float or int
    */
-  int32_t delta_t;
+  struct ThrustSetpoint thrust; // FIXME maybe not needed to store the value ?
 
   /** nominal throttle for hover.
    * This is only used if #GUIDANCE_V_NOMINAL_HOVER_THROTTLE is defined!
@@ -108,18 +107,20 @@ struct VerticalGuidance {
 extern struct VerticalGuidance guidance_v;
 
 extern void guidance_v_init(void);
-extern void guidance_v_read_rc(void);
 extern void guidance_v_mode_changed(uint8_t new_mode);
 extern void guidance_v_notify_in_flight(bool in_flight);
 extern void guidance_v_thrust_adapt(bool in_flight);
 extern void guidance_v_update_ref(void);
-extern void guidance_v_run(bool in_flight);
 extern void guidance_v_z_enter(void);
-
 extern void guidance_v_run_enter(void);
-extern int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
+
+/** Guidance vertical run functions
+ * @return a thrust setpoint structure
+ */
+extern struct ThrustSetpoint guidance_v_run(bool in_flight);
+extern struct ThrustSetpoint guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
 
 /** Set guidance ref parameters
 */
@@ -129,7 +130,7 @@ extern void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel);
 
 /** Set guidance setpoint from NAV and run hover loop
 */
-extern void guidance_v_from_nav(bool in_flight);
+extern struct ThrustSetpoint guidance_v_from_nav(bool in_flight);
 
 /** Enter GUIDED mode control
 */
@@ -137,7 +138,7 @@ extern void guidance_v_guided_enter(void);
 
 /** Run GUIDED mode control
 */
-extern void guidance_v_guided_run(bool in_flight);
+extern struct ThrustSetpoint guidance_v_guided_run(bool in_flight);
 
 /** Set z position setpoint.
  * @param z Setpoint (down is positive) in meters.
