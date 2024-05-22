@@ -162,13 +162,17 @@ static void guidance_indi_filter_thrust(void);
 #define GUIDANCE_INDI_DESCEND_SPEED_FWD -4.0
 #endif
 
+#ifndef GUIDANCE_INDI_MAX_LAT_ACCEL
+#define GUIDANCE_INDI_MAX_LAT_ACCEL 9.81
+#endif
+
 float climb_vspeed_fwd = GUIDANCE_INDI_CLIMB_SPEED_FWD;
 float descend_vspeed_fwd = GUIDANCE_INDI_DESCEND_SPEED_FWD;
 
 float inv_eff[4];
 
 // Max bank angle in radians
-float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
+float guidance_indi_max_bank = DegOfRad(GUIDANCE_H_MAX_BANK);
 float guidance_indi_min_pitch = GUIDANCE_INDI_MIN_PITCH;
 
 /** state eulers in zxy order */
@@ -188,19 +192,21 @@ struct FloatVect2 desired_airspeed;
 float Ga[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U];
 struct FloatVect3 euler_cmd;
 
+float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
+
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 #include "math/wls/wls_alloc.h"
 float du_min_gih[GUIDANCE_INDI_HYBRID_U];
 float du_max_gih[GUIDANCE_INDI_HYBRID_U];
 float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
 float *Bwls_gih[GUIDANCE_INDI_HYBRID_V];
-#ifdef GUIDANCE_INDI_HYBRID_WLS_PRIORITIES
-float Wv_gih[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_HYBRID_WLS_PRIORITIES;
+#ifdef GUIDANCE_INDI_WLS_PRIORITIES
+float Wv_gih[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_WLS_PRIORITIES;
 #else
 float Wv_gih[GUIDANCE_INDI_HYBRID_V] = { 100.f, 100.f, 1.f }; // X,Y accel, Z accel
 #endif
-#ifdef GUIDANCE_INDI_HYBRID_WLS_WU
-float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_HYBRID_WLS_WU;
+#ifdef GUIDANCE_INDI_WLS_WU
+float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_WLS_WU;
 #else
 float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 #endif
@@ -319,7 +325,7 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
-  
+
   float tau_guidance_indi_airspeed = 1.0/(2.0*M_PI*guidance_indi_airspeed_filt_cutoff);
   init_butterworth_2_low_pass(&guidance_indi_airspeed_filt, tau_guidance_indi_airspeed, sample_time, 0.0);
 
@@ -466,7 +472,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
 
   //Bound euler angles to prevent flipping
-  Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
+  Bound(guidance_euler_cmd.phi, -RadOfDeg(guidance_indi_max_bank), RadOfDeg(guidance_indi_max_bank));
   Bound(guidance_euler_cmd.theta, RadOfDeg(guidance_indi_min_pitch), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
@@ -639,6 +645,8 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
     sp_accel_b.y = atan2f(desired_airspeed.y, desired_airspeed.x) - psi;
     FLOAT_ANGLE_NORMALIZE(sp_accel_b.y);
     sp_accel_b.y *= gih_params.heading_bank_gain;
+
+    BoundAbs(sp_accel_b.y, GUIDANCE_INDI_MAX_LAT_ACCEL);
 
     // Control the airspeed
     sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
