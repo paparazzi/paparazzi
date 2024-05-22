@@ -57,7 +57,7 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
-            <configure name="MODEM_PORT" value="usb_serial"/>
+            <!--configure name="MODEM_PORT" value="usb_serial"/-->
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
 
@@ -176,7 +176,7 @@
     </servos>
 
     <servos driver="Faulhaber">
-        <servo no="0"  name="ROTATION_MECH"     min="0" neutral="1630500" max="3261000"/>
+        <servo no="0"  name="ROTATION_MECH"     min="80000" neutral="1763500" max="3447000"/>
     </servos>
 
     <commands>
