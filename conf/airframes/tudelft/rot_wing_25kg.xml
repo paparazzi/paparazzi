@@ -176,7 +176,7 @@
     </servos>
 
     <servos driver="Faulhaber">
-        <servo no="0"  name="ROTATION_MECH"     min="80000" neutral="1763500" max="3447000"/>
+        <servo no="0"  name="ROTATION_MECH"     min="29000" neutral="1707000" max="3385000"/>
     </servos>
 
     <commands>
