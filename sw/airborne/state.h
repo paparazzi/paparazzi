@@ -332,7 +332,7 @@ struct State {
   uint8_t accel_status;
 
   /**
-   * Acceleration in North East Down coordinates.
+   * Acceleration in Body coordinates.
    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
    */
   struct Int32Vect3 body_accel_i;
