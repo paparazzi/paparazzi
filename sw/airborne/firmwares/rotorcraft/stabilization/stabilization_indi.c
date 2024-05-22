@@ -200,7 +200,7 @@ float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT - 1] = 1.0};
  * Limit the maximum specific moment that can be compensated (units rad/s^2)
 */
 #ifdef STABILIZATION_INDI_YAW_DISTURBANCE_LIMIT
-float stablization_indi_yaw_dist_limit = STABILIZATION_INDI_YAW_DISTURBANCE_LIMIT
+float stablization_indi_yaw_dist_limit = STABILIZATION_INDI_YAW_DISTURBANCE_LIMIT;
 #else // Put a rediculously high limit
 float stablization_indi_yaw_dist_limit = 99999.f;
 #endif
