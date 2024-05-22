@@ -197,7 +197,7 @@
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="3500"  neutral="3500" max="-6102"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
         <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/>
     </servos>
 
@@ -433,6 +433,7 @@
         <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
+        <define name="YAW_DISTURBANCE_LIMIT" value="0.85"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
