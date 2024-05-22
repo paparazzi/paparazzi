@@ -43,11 +43,11 @@
 #define PREFLIGHT_CHECK_INFO_TIMEOUT 5
 #endif
 
-#ifdef PREFLIGHT_CHECK_BYPASS
-bool preflight_bypass = PREFLIGHT_CHECK_BYPASS;
-#else
-bool preflight_bypass = FALSE;
+#ifndef PREFLIGHT_CHECK_BYPASS
+#define PREFLIGHT_CHECK_BYPASS FALSE
 #endif
+
+bool preflight_bypass = PREFLIGHT_CHECK_BYPASS;
 
 static struct preflight_check_t *preflight_head = NULL;
 
