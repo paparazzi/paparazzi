@@ -195,10 +195,14 @@ void periodic_rotwing_state(void)
   // Check and update desired state
   if (guidance_h.mode == GUIDANCE_H_MODE_NAV) {
     rotwing_switch_state();
-  } else if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-    rotwing_state_set_hover_settings();
-  } else if (guidance_h.mode == GUIDANCE_H_MODE_FORWARD) {
-    rotwing_state_set_fw_settings();
+  } else if (guidance_h.mode == GUIDANCE_H_MODE_NONE) {
+    if (stabilization.mode == STABILIZATION_MODE_ATTITUDE) {
+      if (stabilization.att_submode == STABILIZATION_ATT_SUBMODE_FORWARD) {
+        rotwing_state_set_fw_settings();
+      } else {
+        rotwing_state_set_hover_settings();
+      }
+    }
   }
 
   // Run the wing skewer
@@ -206,9 +210,7 @@ void periodic_rotwing_state(void)
 
   //TODO: incorparate motor active / disbaling depending on called flight state
   // Switch on motors if flight mode is attitude
-  if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-    bool_disable_hover_motors = false;
-  } else if (guidance_h.mode == GUIDANCE_H_MODE_FORWARD) {
+  if (guidance_h.mode == GUIDANCE_H_MODE_NONE) {
     bool_disable_hover_motors = false;
   }
 }
