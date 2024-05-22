@@ -64,7 +64,7 @@
     <block name="Holding point">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
-      <set var="stabilization_cmd[COMMAND_THRUST_X]" value="0"/>
+      <set var="stabilization.cmd[COMMAND_THRUST_X]" value="0"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
