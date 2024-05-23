@@ -80,8 +80,12 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
+
+        <configure name="PRIMARY_GPS" value="ublox"/>
+        <configure name="SECONDARY_GPS" value="ublox2"/>
         <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
+            <configure name="UBX2_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
         </module>
 
@@ -331,6 +335,9 @@
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.5"/>
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
+        <define name="INS_EKF2_FUSION_MODE"                 value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+        <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
+        <define name="MULTI_GPS_MODE"                       value="PRIMARY_GPS"/>
     </section>
 
     <section name="GROUND_DETECT">
