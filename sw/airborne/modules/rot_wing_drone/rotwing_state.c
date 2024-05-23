@@ -63,7 +63,7 @@
 
 // FW state identification
 #ifndef ROTWING_MIN_FW_SKEW_ANGLE_DEG
-#define ROTWING_MIN_FW_SKEW_ANGLE_DEG 80.0        // Minimum wing angle to fly in fixed wing state 
+#define ROTWING_MIN_FW_SKEW_ANGLE_DEG 80.0        // Minimum wing angle to fly in fixed wing state
 #endif
 #ifndef ROTWING_MIN_FW_COUNTER
 #define ROTWING_MIN_FW_COUNTER 10                 // Minimum number of loops the skew angle is above the MIN_FW_SKEW_ANGLE
@@ -710,20 +710,6 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
 
 void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
-  float pitch_priority_factor = 11.;
-  float roll_priority_factor = 10.;
-  float thrust_priority_factor = 7.;
-  float pusher_priority_factor = 30.;
-
-  float horizontal_accel_weight = 10.;
-  float vertical_accel_weight = 10.;
-
-  // Set weights
-  Wu_gih[0] = roll_priority_factor * 10.414;
-  Wu_gih[1] = pitch_priority_factor * 27.53;
-  Wu_gih[2] = thrust_priority_factor * 0.626;
-  Wu_gih[3] = pusher_priority_factor * 1.0;
-
   // adjust weights
   float thrust_command = (actuator_state_filt_vect[0] + actuator_state_filt_vect[1] + actuator_state_filt_vect[2] +
                           actuator_state_filt_vect[3]) / 4;
@@ -732,10 +718,11 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   Bound(fixed_wing_percentage, 0, 1);
 #define AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT 16
 
-  Wv_gih[0] = horizontal_accel_weight * (1.0f + fixed_wing_percentage *
+  float Wv_original[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_WLS_PRIORITIES;
+
+  // Increase importance of forward acceleration in forward flight
+  Wv_gih[0] = Wv_original[0] * (1.0f + fixed_wing_percentage *
                                          AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT); // stall n low hover motor_off (weight 16x more important than vertical weight)
-  Wv_gih[1] = horizontal_accel_weight;
-  Wv_gih[2] = vertical_accel_weight;
 
   struct FloatEulers eulers_zxy;
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
@@ -761,7 +748,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
                             actuator_state_filt_vect[2] * g1g2[3][2] + actuator_state_filt_vect[3] * g1g2[3][3]);
   Bound(du_max_thrust_z, 0., 50.);
 
-  float roll_limit_rad = 2.0; // big roll limit hacked in to overcome wls problems at roll limit
+  float roll_limit_rad = guidance_indi_max_bank;
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
