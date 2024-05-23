@@ -37,7 +37,6 @@
 
 #ifndef GPS_UBX_NB
 #define GPS_UBX_NB 1
-aaa
 #endif
 
 #ifndef PRIMARY_GPS
