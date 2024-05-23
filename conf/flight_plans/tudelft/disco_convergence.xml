@@ -73,14 +73,14 @@
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <while cond="true">
-        <path wpts="p1,p2,p3,p4"/>
+        <path wpts="p1,p2,p3,p4,p1"/>
       </while>
     </block>
     <block name="route_run">
       <set value="true" var="force_forward"/>
       <call_once fun="NavResurrect()"/>
       <while cond="true">
-        <path wpts="p1,p2,p3,p4,p5,p6,p7,p8,p5,p6,p7,p8"/>
+        <path wpts="p1,p2,p3,p4,p5,p6,p7,p8,p5,p6,p7,p8,p1"/>
       </while>
     </block>
     <block name="ReturnStbyNoThrottle">
