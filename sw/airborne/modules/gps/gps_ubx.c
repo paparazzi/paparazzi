@@ -461,6 +461,7 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
 #endif
 }
 
+void gps_ubx_read_message(struct GpsUbx *gubx);
 void gps_ubx_read_message(struct GpsUbx *gubx)
 {
 

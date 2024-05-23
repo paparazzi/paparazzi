@@ -39,6 +39,10 @@
 #define DEBUG_PRINT(...) {}
 #endif
 
+#if GPS_UBX_NB > 1
+#warning "Only one GPS_UBX is supported for ucenter configuration."
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -164,38 +168,38 @@ void gps_ubx_ucenter_event(void)
   }
 
   // Read Configuration Reply's
-  switch (gps_ubx.msg_class) {
+  switch (gps_ubx[0].msg_class) {
     case UBX_ACK_ID:
-      if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
+      if (gps_ubx[0].msg_id == UBX_ACK_ACK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_ACK;
         DEBUG_PRINT("ACK\n");
-      } else if (gps_ubx.msg_id == UBX_ACK_NAK_ID) {
+      } else if (gps_ubx[0].msg_id == UBX_ACK_NAK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NACK;
         DEBUG_PRINT("NACK\n");
       }
       break;
     case UBX_MON_ID:
-      if (gps_ubx.msg_id == UBX_MON_VER_ID) {
+      if (gps_ubx[0].msg_id == UBX_MON_VER_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_VERSION;
-        gps_ubx_ucenter.sw_ver_h = UBX_MON_VER_c(gps_ubx.msg_buf, 0) - '0';
-        gps_ubx_ucenter.sw_ver_l = 10 * (UBX_MON_VER_c(gps_ubx.msg_buf, 2) - '0');
-        gps_ubx_ucenter.sw_ver_l += UBX_MON_VER_c(gps_ubx.msg_buf, 3) - '0';
-        gps_ubx_ucenter.hw_ver_h = UBX_MON_VER_c(gps_ubx.msg_buf, 33) - '0';
-        gps_ubx_ucenter.hw_ver_h += 10 * (UBX_MON_VER_c(gps_ubx.msg_buf, 32) - '0');
-        gps_ubx_ucenter.hw_ver_l = UBX_MON_VER_c(gps_ubx.msg_buf, 37) - '0';
-        gps_ubx_ucenter.hw_ver_l += 10 * (UBX_MON_VER_c(gps_ubx.msg_buf, 36) - '0');
+        gps_ubx_ucenter.sw_ver_h = UBX_MON_VER_c(gps_ubx[0].msg_buf, 0) - '0';
+        gps_ubx_ucenter.sw_ver_l = 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 2) - '0');
+        gps_ubx_ucenter.sw_ver_l += UBX_MON_VER_c(gps_ubx[0].msg_buf, 3) - '0';
+        gps_ubx_ucenter.hw_ver_h = UBX_MON_VER_c(gps_ubx[0].msg_buf, 33) - '0';
+        gps_ubx_ucenter.hw_ver_h += 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 32) - '0');
+        gps_ubx_ucenter.hw_ver_l = UBX_MON_VER_c(gps_ubx[0].msg_buf, 37) - '0';
+        gps_ubx_ucenter.hw_ver_l += 10 * (UBX_MON_VER_c(gps_ubx[0].msg_buf, 36) - '0');
 
         DEBUG_PRINT("ublox sw_ver: %u.%u\n", gps_ubx_ucenter.sw_ver_h, gps_ubx_ucenter.sw_ver_l);
         DEBUG_PRINT("ublox hw_ver: %u.%u\n", gps_ubx_ucenter.hw_ver_h, gps_ubx_ucenter.hw_ver_l);
-      } else if (gps_ubx.msg_id == UBX_MON_GNSS_ID) {
-        gps_ubx_ucenter.gnss_in_use = UBX_MON_GNSS_enabled(gps_ubx.msg_buf);
+      } else if (gps_ubx[0].msg_id == UBX_MON_GNSS_ID) {
+        gps_ubx_ucenter.gnss_in_use = UBX_MON_GNSS_enabled(gps_ubx[0].msg_buf);
       }
       break;
     case UBX_CFG_ID:
-      if (gps_ubx.msg_id == UBX_CFG_PRT_ID) {
+      if (gps_ubx[0].msg_id == UBX_CFG_PRT_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_CFG_PRT;
-        gps_ubx_ucenter.port_id = UBX_CFG_PRT_PortId(gps_ubx.msg_buf, 0);
-        gps_ubx_ucenter.baud_run = UBX_CFG_PRT_Baudrate(gps_ubx.msg_buf, 0);
+        gps_ubx_ucenter.port_id = UBX_CFG_PRT_PortId(gps_ubx[0].msg_buf, 0);
+        gps_ubx_ucenter.baud_run = UBX_CFG_PRT_Baudrate(gps_ubx[0].msg_buf, 0);
 
         DEBUG_PRINT("gps_ubx_ucenter.baud_run: %u\n", gps_ubx_ucenter.baud_run);
         DEBUG_PRINT("gps_ubx_ucenter.port_id: %u\n", gps_ubx_ucenter.port_id);
