@@ -89,6 +89,8 @@
         <module name="imu" type="cube"/>
         <module name="ins" type="ekf2"/>
 
+        <module name="parachute"/>
+
         <!-- Actuators on dual CAN bus -->
         <module name="actuators" type="uavcan">
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
