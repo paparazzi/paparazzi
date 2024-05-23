@@ -296,6 +296,10 @@
 #define GPS_DW1000_ID 15
 #endif
 
+#ifndef GPS_UBX2_ID
+#define GPS_UBX2_ID 16
+#endif
+
 /*
  * IDs of IMU sensors (accel, gyro)
  */
