@@ -298,8 +298,10 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   roll_motor_p_eff_left += roll_motor_airspeed_compensation;
   Bound(roll_motor_p_eff_left, 0.00001, 1);
 
-  float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
-  Bound(roll_motor_q_eff, 0, 1);
+  float roll_motor_q_eff_left = -(dM_dpprz_left * eff_sched_var.sinr) / eff_sched_var.Iyy;
+  float roll_motor_q_eff_right = (dM_dpprz_right * eff_sched_var.sinr) / eff_sched_var.Iyy;
+  Bound(roll_motor_q_eff_left, -1, 0);
+  Bound(roll_motor_q_eff_right, 0, 1);
 
   // Update front pitch motor q effectiveness
   g1g2[1][0] = pitch_motor_q_eff;   // pitch effectiveness front motor
@@ -309,11 +311,11 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
 
   // Update right motor p and q effectiveness
   g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
-  g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
+  g1g2[1][1] = roll_motor_q_eff_right;    // pitch effectiveness right motor
 
   // Update left motor p and q effectiveness
   g1g2[0][3] = roll_motor_p_eff_left;  // roll effectiveness left motor
-  g1g2[1][3] = -roll_motor_q_eff;   // pitch effectiveness left motor
+  g1g2[1][3] = roll_motor_q_eff_left;   // pitch effectiveness left motor
 }
 
 void eff_scheduling_rot_wing_update_elevator_effectiveness(void)
