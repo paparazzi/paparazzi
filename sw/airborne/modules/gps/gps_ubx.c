@@ -654,7 +654,7 @@ void ubx_send_bytes(struct link_device *dev, uint8_t len, uint8_t *bytes)
   }
 }
 
-void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , uint8_t reset_mode)
+void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , UNUSED uint8_t reset_mode)
 {
 #ifdef UBX_GPS_PORT
   UbxSend_CFG_RST(dev, bbr, reset_mode, 0x00);
