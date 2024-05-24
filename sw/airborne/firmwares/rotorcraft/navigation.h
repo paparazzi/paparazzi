@@ -389,6 +389,4 @@ static inline void NavGlide(uint8_t wp_start, uint8_t wp_end)
  */
 #define NavFollow(_i, _d, _h) {}
 
-extern uint32_t stage_timer_msec;
-
 #endif /* NAVIGATION_H */
