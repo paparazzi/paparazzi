@@ -112,13 +112,16 @@ float guidance_indi_pitch_pref_deg = 0;
 #define TURN_AIRSPEED_TH 10.0
 #endif
 
+#ifndef GUIDANCE_INDI_ACCEL_FWD_BX_LIM
+#define GUIDANCE_INDI_ACCEL_FWD_BX_LIM 5.0
+#endif
+
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
 bool take_heading_control = false;
 
 bool force_forward = false;
 
 bool guidance_indi_airspeed_filtering = false;
-
 
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
@@ -172,7 +175,7 @@ float descend_vspeed_fwd = GUIDANCE_INDI_DESCEND_SPEED_FWD;
 float inv_eff[4];
 
 // Max bank angle in radians
-float guidance_indi_max_bank = GUIDANCE_H_MAX_BANK;
+float guidance_indi_max_bank = DegOfRad(GUIDANCE_H_MAX_BANK);
 float guidance_indi_min_pitch = GUIDANCE_INDI_MIN_PITCH;
 
 /** state eulers in zxy order */
@@ -214,6 +217,8 @@ float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 
 // The control objective
 float v_gih[3];
+
+float gih_max_accel_hover = 8.f;
 
 // Filters
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
@@ -472,7 +477,7 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
 
   //Bound euler angles to prevent flipping
-  Bound(guidance_euler_cmd.phi, -guidance_indi_max_bank, guidance_indi_max_bank);
+  Bound(guidance_euler_cmd.phi, -RadOfDeg(guidance_indi_max_bank), RadOfDeg(guidance_indi_max_bank));
   Bound(guidance_euler_cmd.theta, RadOfDeg(guidance_indi_min_pitch), RadOfDeg(GUIDANCE_INDI_MAX_PITCH));
 
   // Use the current roll angle to determine the corresponding heading rate of change.
@@ -650,6 +655,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
 
     // Control the airspeed
     sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
+    //BoundAbs(sp_accel_b.x, GUIDANCE_INDI_ACCEL_FWD_BX_LIM);
 
     accel_sp.x = cpsi * sp_accel_b.x - spsi * sp_accel_b.y;
     accel_sp.y = spsi * sp_accel_b.x + cpsi * sp_accel_b.y;
@@ -677,7 +683,8 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   }
 
   // Bound the acceleration setpoint
-  float accelbound = 3.0f + airspeed / guidance_indi_max_airspeed * 5.0f; // FIXME remove hard coded values
+  float accelbound = 3.0f + airspeed / guidance_indi_max_airspeed * 5.0f;
+  //float accelbound = (3.0f + airspeed / guidance_indi_max_airspeed * 5.0f)/8.0*gih_max_accel_hover; // FIXME remove hard coded values
   float_vect3_bound_in_2d(&accel_sp, accelbound);
   /*BoundAbs(sp_accel.x, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   /*BoundAbs(sp_accel.y, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/

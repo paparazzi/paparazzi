@@ -29,6 +29,7 @@
         <dl_setting var="guidance_indi_min_pitch" min="-130.0" step="1.0" max="-30.0" shortname="min_pitch" param="GUIDANCE_INDI_MIN_PITCH"/>
         <dl_setting var="take_heading_control" min="0" step="1" max="1" values="OFF|ON" shortname="take_heading"/>
         <dl_setting var="guidance_indi_airspeed_filtering" min="0" step="1" max="1" values="OFF|ON" shortname="as_filt"/>
+        <dl_setting var="gih_max_accel_hover" min="1.0" step="1" max="20.0" shortname="max_acc_hover"/>
       </dl_settings>
     </dl_settings>
   </settings>

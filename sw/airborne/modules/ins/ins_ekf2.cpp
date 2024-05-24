@@ -726,7 +726,7 @@ void ins_ekf2_change_param(int32_t unk)
 void ins_ekf2_remove_gps(int32_t mode)
 {
   if (mode) {
-    ekf_params->fusion_mode = ekf2.fusion_mode = (MASK_USE_OF | MASK_USE_GPSYAW);
+    ekf_params->fusion_mode = ekf2.fusion_mode = MASK_USE_GPS;
   } else {
     ekf_params->fusion_mode = ekf2.fusion_mode = INS_EKF2_FUSION_MODE;
   }
