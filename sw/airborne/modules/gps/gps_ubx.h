@@ -29,14 +29,14 @@
 
 #include "modules/gps/gps.h"
 
-#ifdef GPS_CONFIGURE
-#warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
-#endif
-
 #ifdef GPS_I2C
 #include "modules/gps/gps_ubx_i2c.h"
 #else
 #include "mcu_periph/uart.h"
+#endif
+
+#ifndef GPS_UBX_NB
+#define GPS_UBX_NB 1
 #endif
 
 #ifndef PRIMARY_GPS
@@ -47,12 +47,11 @@ extern void gps_ubx_init(void);
 extern void gps_ubx_event(void);
 extern void gps_ubx_parse_HITL_UBX(uint8_t *buf);
 
-#define gps_ubx_periodic_check() gps_periodic_check(&gps_ubx.state)
-
 #define GPS_UBX_NB_CHANNELS 40
-
 #define GPS_UBX_MAX_PAYLOAD 512
+
 struct GpsUbx {
+  struct link_device *dev;
   bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
@@ -65,7 +64,6 @@ struct GpsUbx {
   uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;
   uint8_t error_last;
-  uint8_t reset;
 
   uint8_t status_flags;
   uint8_t sol_flags;
@@ -74,28 +72,8 @@ struct GpsUbx {
   struct GpsState state;
 };
 
-extern struct GpsUbx gps_ubx;
-
-#if USE_GPS_UBX_RXM_RAW
-struct GpsUbxRawMes {
-  double cpMes;
-  double prMes;
-  float doMes;
-  uint8_t sv;
-  int8_t mesQI;
-  int8_t cno;
-  uint8_t lli;
-};
-
-struct GpsUbxRaw {
-  int32_t iTOW;
-  int16_t week;
-  uint8_t numSV;
-  struct GpsUbxRawMes measures[GPS_UBX_NB_CHANNELS];
-};
-
-extern struct GpsUbxRaw gps_ubx_raw;
-#endif
+extern struct GpsUbx gps_ubx[GPS_UBX_NB];
+extern uint8_t gps_ubx_reset;
 
 /*
  * This part is used by the autopilot to read data from a uart
@@ -107,29 +85,6 @@ extern void ubx_trailer(struct link_device *dev);
 extern void ubx_send_bytes(struct link_device *dev, uint8_t len, uint8_t *bytes);
 extern void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr, uint8_t reset_mode);
 
-extern void gps_ubx_read_message(void);
-extern void gps_ubx_parse(uint8_t c);
-extern void gps_ubx_msg(void);
-
-/*
- * GPS Reset
- */
-
-#define CFG_RST_Reset_Hardware 0x00
-#define CFG_RST_Reset_Controlled 0x01
-#define CFG_RST_Reset_Controlled_GPS_only 0x02
-#define CFG_RST_Reset_Controlled_GPS_stop 0x08
-#define CFG_RST_Reset_Controlled_GPS_start 0x09
-
-#define CFG_RST_BBR_Hotstart  0x0000
-#define CFG_RST_BBR_Warmstart 0x0001
-#define CFG_RST_BBR_Coldstart 0xffff
-
-#define gps_ubx_Reset(_val) {                               \
-    gps_ubx.reset = _val;                                       \
-    if (gps_ubx.reset > CFG_RST_BBR_Warmstart)                  \
-      gps_ubx.reset = CFG_RST_BBR_Coldstart;                    \
-    ubx_send_cfg_rst(&(UBX_GPS_LINK).device, gps_ubx.reset, CFG_RST_Reset_Controlled);   \
-  }
+extern void gps_ubx_periodic_check(void);
 
 #endif /* GPS_UBX_H */
