@@ -30,10 +30,10 @@ extern bool switch_servo_on;
 extern int16_t switch_servo_value;
 
 #ifndef SWITCH_SERVO_ON_VALUE
-#define SWITCH_SERVO_ON_VALUE 2000
+#define SWITCH_SERVO_ON_VALUE MAX_PPRZ
 #endif
 #ifndef SWITCH_SERVO_OFF_VALUE
-#define SWITCH_SERVO_OFF_VALUE 1000
+#define SWITCH_SERVO_OFF_VALUE MIN_PPRZ
 #endif
 #ifndef SWITCH_SERVO_SERVO
 #define SWITCH_SERVO_SERVO SWITCH

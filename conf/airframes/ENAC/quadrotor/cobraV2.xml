@@ -35,8 +35,8 @@
     </module>
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
-    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MAX"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_SWITCH_MIN"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="MAX_PPRZ"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="MIN_PPRZ"/>
 
     <module name="board" type="tawaki_2.0">
     </module>

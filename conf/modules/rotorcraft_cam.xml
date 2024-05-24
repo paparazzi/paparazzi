@@ -42,7 +42,7 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
           <key_press key="F1" value="0"/>
           <key_press key="F2" value="1"/>
         </dl_setting>
-        <dl_setting var="rotorcraft_cam_tilt_pwm" min="1000" step="1" max="2500" shortname="tilt_pwm"/>
+        <dl_setting var="rotorcraft_cam_tilt_pprz" min="MIN_PPRZ" step="1" max="MAX_PPRZ" shortname="tilt_pprz"/>
         <dl_setting var="rotorcraft_cam_tilt" min="-90" step="1" max="0" shortname="tilt" alt_unit="deg" alt_unit_coef="0.0139882">
           <strip_button name="Look Foreward" icon="lookfore.png" value="0" group="cam_look"/>
           <strip_button name="Look Down" icon="lookdown.png" value="-6434" group="cam_look"/>
