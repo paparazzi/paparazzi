@@ -112,6 +112,10 @@ float guidance_indi_pitch_pref_deg = 0;
 #define TURN_AIRSPEED_TH 10.0
 #endif
 
+#ifndef GUIDANCE_INDI_ACCEL_FWD_BX_LIM
+#define GUIDANCE_INDI_ACCEL_FWD_BX_LIM 5.0
+#endif
+
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
 bool take_heading_control = false;
 
@@ -214,6 +218,8 @@ float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 
 // The control objective
 float v_gih[3];
+
+float gih_max_accel_hover = 8.f;
 
 // Filters
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
@@ -650,6 +656,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
 
     // Control the airspeed
     sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
+    //BoundAbs(sp_accel_b.x, GUIDANCE_INDI_ACCEL_FWD_BX_LIM);
 
     accel_sp.x = cpsi * sp_accel_b.x - spsi * sp_accel_b.y;
     accel_sp.y = spsi * sp_accel_b.x + cpsi * sp_accel_b.y;

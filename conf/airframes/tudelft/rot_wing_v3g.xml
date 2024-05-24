@@ -30,6 +30,7 @@
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
+            <define name="MULTI_GPS_MODE"       value="GPS_MODE_PRIMARY"/>
 
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
@@ -421,10 +422,10 @@
 
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="30.0"/>
-        <define name="REF_ERR_Q"                    value="32.0"/>
+        <define name="REF_ERR_Q"                    value="70.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
         <define name="REF_RATE_P"                   value="5.0"/>
-        <define name="REF_RATE_Q"                   value="7.2"/>
+        <define name="REF_RATE_Q"                   value="9.0"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
@@ -484,7 +485,7 @@
         <define name="SPEED_GAINZ"          value="0.6"/>
 
         <!-- Other -->
-        <define name="FILTER_CUTOFF"        value="2.0"/>
+        <define name="FILTER_CUTOFF"        value="2.5"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
@@ -502,6 +503,7 @@
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
         <define name="MAX_LAT_ACCEL"        value="5.0"/>
+        <define name="ACCEL_FWD_BX_LIM"     value="3.0"/>
     </section>
 
     <section name="FORWARD">
