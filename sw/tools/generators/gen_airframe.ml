@@ -271,9 +271,12 @@ let preprocess_value = fun s v prefix ->
 let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
     (* Set servo macro *)
-    fprintf out "#define Set_%s_Servo(_pprzv,_s) { \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( _pprzv, MAX_PPRZ); \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(_s, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    fprintf out "#define Set_%s_Servo(actuator_value_pprz) { \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
+    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
+    fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
+    fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(servo_value, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
     fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
     fprintf out "}\n\n"
   ) servos_drivers;
@@ -288,10 +291,7 @@ let parse_command_laws = fun out command ->
         and value = a "value" in
         let v = preprocess_value value "values" "COMMAND" in
         fprintf out "  actuator_value_pprz = %s; \\\n" v;
-        fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" servo servo;
-        fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
-        fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
-        fprintf out "  Set_%s_Servo(actuator_value_pprz, servo_value); \\\n\\\n" servo
+        fprintf out "  Set_%s_Servo(actuator_value_pprz); \\\n\\\n" servo
     | "let" ->
       let var = a "var"
       and value = a "value" in
