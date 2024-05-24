@@ -72,12 +72,6 @@
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
-        <!-- <set var="nav.horizontal_mode" value="NAV_HORIZONTAL_MODE_ATTITUDE"/>
-        <set var="stabilization_cmd[0]" value="0"/>
-        <set var="stabilization_cmd[1]" value="0"/>
-        <set var="stabilization_cmd[2]" value="0"/>
-        <set var="stabilization_cmd[3]" value="0"/>
-        <while cond="block_time @LT 10"/> -->
         <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
     <block name="Wait takeoff">
