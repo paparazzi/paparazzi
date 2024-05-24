@@ -9,12 +9,15 @@
       <define name="MAX_MSGBUF" value="512" description="Maximum combined message size for storing the errors"/>
       <define name="SEPERATOR" value=";" description="Seperating character for storing the errors"/>
       <define name="INFO_TIMEOUT" value="5" description="Only send messages down every xx amount of seconds"/>
+      <define name="GROUND" value="TRUE" description="Enable groundstation checklist"/>
+      <define name="BYPASS" value="FALSE" description="Bypass all checks for arming"/>
     </section>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="Checks">
-        <dl_setting var="preflight_bypass" min="0" max="1" step="1" values="FALSE|TRUE"/>
+        <dl_setting var="preflight_bypass" shortname="bypass" min="0" max="1" step="1" values="FALSE|TRUE"/>
+        <dl_setting var="preflight_ground_done" shortname="ground_done" min="0" max="1" step="1" values="FALSE|TRUE"/>
       </dl_settings>
     </dl_settings>
   </settings>
