@@ -45,9 +45,9 @@
 static enum {STOP, CONNECT} cnxState = STOP;
 
 
-bool sdio_connect(void)
+bool sdio_connect(SDCDriver *sdc)
 {
-  if (!sdc_lld_is_card_inserted(NULL)) {
+  if (!sdc_lld_is_card_inserted(sdc)) {
     return FALSE;
   }
 
@@ -57,12 +57,12 @@ bool sdio_connect(void)
 
   // Try only 3 times to prevent hanging
   for (uint8_t i = 0; i < 3; i++) {
-    sdcStart(&SDCD1, NULL);
-    if (sdcConnect(&SDCD1) == HAL_SUCCESS) {
+    sdcStart(sdc, NULL);
+    if (sdcConnect(sdc) == HAL_SUCCESS) {
       cnxState = CONNECT;
       return TRUE;
     }
-    sdcStop(&SDCD1);
+    sdcStop(sdc);
     chThdSleepMilliseconds(100);
   }
 
@@ -70,21 +70,21 @@ bool sdio_connect(void)
 }
 
 
-bool sdio_disconnect(void)
+bool sdio_disconnect(SDCDriver *sdc)
 {
   if (cnxState == STOP) {
     return TRUE;
   }
-  if (sdcDisconnect(&SDCD1)) {
+  if (sdcDisconnect(sdc)) {
     return FALSE;
   }
-  sdcStop(&SDCD1);
+  sdcStop(sdc);
   cnxState = STOP;
   return TRUE;
 }
 
-bool is_card_inserted(void)
+bool is_card_inserted(SDCDriver *sdc)
 {
-  return sdc_lld_is_card_inserted(NULL);
+  return sdc_lld_is_card_inserted(sdc);
 }
 
