@@ -763,7 +763,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
                             actuator_state_filt_vect[2] * g1g2[3][2] + actuator_state_filt_vect[3] * g1g2[3][3]);
   Bound(du_max_thrust_z, 0., 50.);
 
-  float roll_limit_rad = RadOfDeg(guidance_indi_max_bank);
+  float roll_limit_rad = guidance_indi_max_bank;
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
