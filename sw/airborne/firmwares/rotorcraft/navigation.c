@@ -253,6 +253,8 @@ void nav_init_stage(void)
   }
 }
 
+uint32_t stage_timer_msec = 0;
+
 #include <stdio.h>
 void nav_periodic_task(void)
 {
