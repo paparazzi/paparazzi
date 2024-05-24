@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="70" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
+<flight_plan alt="80" ground_alt="0" lat0="52.1681551" lon0="4.4126468" max_dist_from_home="1070" name="Rotating Wing Valkenburg" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -41,6 +41,11 @@
       <corner name="C9"/>
     </sector>
   </sectors>
+  <variables>
+    <variable var="liftoff_pitch"/>
+    <variable var="liftoff_roll"/>
+    <variable var="stage_timer_msec"/>
+  </variables>
   <modules>
     <!--<module name="follow_me">
       <define name="FOLLOW_ME_MOVING_WPS" value="WP_p1,WP_p2,WP_p3,WP_p4,WP_STDBY,WP_circ,WP_APP"/>
@@ -68,16 +73,29 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
+        <exception cond="stage_time > 10" deroute="Holding point"/>
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
-        <attitude pitch="0" roll="0" throttle="0" until="stage_time>10" vmode="throttle"/>
+        <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
+        <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
+        <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
+    </block>
+    <block name="Wait takeoff">
+      <exception cond="stage_time > 10" deroute="Holding point"/>
+      <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
+      <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
+      <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <exception cond="agl_dist_valid @AND (agl_dist_value @GT 1.0)" deroute="Climb"/>
-        <call_once fun="autopilot_set_in_flight(true)"/><!-- this is a hack to solve INDI not being active fast enough -->
-
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+        <set var="stage_timer_msec" value="get_sys_time_msec()"/>
+        <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
+        <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
+        <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0.75" until="(get_sys_time_msec()-stage_timer_msec)>250" vmode="throttle"/>
+        <call_once fun="autopilot_set_in_flight(true)"/><!-- this is a hack to solve INDI not being active fast enough -->
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
