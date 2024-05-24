@@ -50,7 +50,7 @@
       <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
       <define name="ROT_WING_EFF_SCHED_M" value="1"/>
       <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="{1,1}"/>
       <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
       <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
       <define name="ROT_WING_EFF_SCHED_K_ELEVATOR" value="{1,1,1}"/>
