@@ -79,7 +79,7 @@ extern int16_t actuators_pprz[ACTUATORS_NB];
  * @param _n actuators name as given in airframe file, servos section
  * @param _v new actuator's value
  */
-#define _ActuatorSet(_n, _v) Set_ ## _n ## _Servo(_v,_v)
+#define _ActuatorSet(_n, _v) Set_ ## _n ## _Servo(_v)
 #define ActuatorSet(_n, _v) _ActuatorSet(_n, _v)
 
 #endif /* ACTUATORS_NB */
