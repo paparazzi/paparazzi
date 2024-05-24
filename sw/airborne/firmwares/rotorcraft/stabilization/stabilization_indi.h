@@ -47,6 +47,9 @@ extern float thrust_bx_act_dyn;
 extern float actuator_thrust_bx_pprz;
 extern float thrust_bx_state_filt;
 
+extern float indi_elevator_domega_dv;
+extern float indi_elev_domega_dv_gain;
+
 extern float act_pref[INDI_NUM_ACT];
 
 extern float indi_Wu[INDI_NUM_ACT];

@@ -111,6 +111,9 @@ float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
 
+float indi_elevator_domega_dv = 0.;
+float indi_elev_domega_dv_gain = 0.;
+
 static void lms_estimation(void);
 static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
@@ -282,6 +285,7 @@ Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass measurement_lowpass_filters[3];
 Butterworth2LowPass estimation_output_lowpass_filters[3];
 Butterworth2LowPass acceleration_lowpass_filter;
+Butterworth2LowPass acceleration_body_x_filter;
 #if STABILIZATION_INDI_FILTER_RATES_SECOND_ORDER
 Butterworth2LowPass rates_filt_so[3];
 #else
@@ -462,6 +466,9 @@ void init_filters(void)
     init_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], tau_est, sample_time, 0.0);
   }
 
+  // Filtering the bodyx acceleration with same cutoff as gyroscope
+  init_butterworth_2_low_pass(&acceleration_body_x_filter, tau, sample_time, 0.0);
+
   // Filtering of the accel body z
   init_butterworth_2_low_pass(&acceleration_lowpass_filter, tau_est, sample_time, 0.0);
 
@@ -520,10 +527,18 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   /* Propagate the filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
   float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
+
+  // Get the acceleration in body axes
+  struct Int32Vect3 *body_accel_i;
+  body_accel_i = stateGetAccelBody_i();
+  ACCELS_FLOAT_OF_BFP(body_accel_f, *body_accel_i);
+
   int8_t i;
   for (i = 0; i < 3; i++) {
     update_butterworth_2_low_pass(&measurement_lowpass_filters[i], rate_vect[i]);
     update_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], rate_vect[i]);
+
+    update_butterworth_2_low_pass(&acceleration_body_x_filter, body_accel_f.x);
 
     //Calculate the angular acceleration via finite difference
     angular_acceleration[i] = (measurement_lowpass_filters[i].o[0]
@@ -620,9 +635,20 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   // This term compensates for the spinup torque in the yaw axis
   float g2_times_u = float_vect_dot_product(g2, indi_u, INDI_NUM_ACT)/INDI_G_SCALING;
 
+  if (in_flight) {
+    // Limit the estimated disturbance in yaw for drones that are stable in sideslip
+    BoundAbs(angular_acc_disturbance_estimate[2], stablization_indi_yaw_dist_limit);
+  } else {
+    // Not in flight, so don't estimate disturbance
+    float_vect_zero(angular_acc_disturbance_estimate, INDI_OUTPUTS);
+  }
+
+  // Calculate the elevator compensation factor
+  float indi_elevator_moment_compensation = acceleration_body_x_filter.o[0] * indi_elevator_domega_dv * indi_elev_domega_dv_gain / 52.7;
+
   // The control objective in array format
   indi_v[0] = (angular_accel_ref.p - angular_acc_disturbance_estimate[0]);
-  indi_v[1] = (angular_accel_ref.q - angular_acc_disturbance_estimate[1]);
+  indi_v[1] = (angular_accel_ref.q - angular_acc_disturbance_estimate[1]) - indi_elevator_moment_compensation;
   indi_v[2] = (angular_accel_ref.r - angular_acc_disturbance_estimate[2]) + g2_times_u;
   indi_v[3] = v_thrust.z;
 #if INDI_OUTPUTS == 5
