@@ -394,7 +394,7 @@ static uint32_t processErpsDmaBuffer(const uint16_t *capture, size_t dmaLen)
  * @note	      does nothing if DSHOT_STATISTICS == FALSE
  * @private
  */
-static void dmaErrCb(DMADriver *, dmaerrormask_t em)
+static void dmaErrCb(DMADriver *dmad __attribute__((__unused__)), dmaerrormask_t em)
 {
 #if DSHOT_STATISTICS
   lastErr = em;
