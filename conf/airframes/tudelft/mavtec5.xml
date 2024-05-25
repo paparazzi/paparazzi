@@ -74,8 +74,8 @@
 
   <section name="SWITCH_SERVO">
     <define name="SWITCH_SERVO_SERVO" value="DROP"/>
-    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_DROP_MIN"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="MIN_PPRZ"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="MAX_PPRZ"/>
     <define name="DropOpen()" value="SwitchServoOn()"/>
     <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
