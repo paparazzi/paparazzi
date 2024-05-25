@@ -146,7 +146,7 @@ void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_s
   cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
   cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
   cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
-  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(th, 0, THRUST_AXIS_Z);
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 
   /* bound the result */
   BoundAbs(cmd[COMMAND_ROLL], MAX_PPRZ);
