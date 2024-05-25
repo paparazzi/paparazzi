@@ -5,6 +5,9 @@
   </description>
 
   <firmware name="rotorcraft">
+
+    <autopilot name="rotorcraft_control_loop"/>
+
     <target name="ap" board="ardrone2"/>
 
     <!--target name="nps" board="pc">
