@@ -5,6 +5,10 @@
   </description>
 
   <firmware name="rotorcraft">
+  
+  
+    <autopilot name="rotorcraft_control_loop"/>
+
     <target name="ap" board="bebop"/>
 
     <target name="nps" board="pc">
