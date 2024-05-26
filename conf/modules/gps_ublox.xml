@@ -51,7 +51,7 @@
     <define name="USE_$(UBX2_GPS_PORT_UPPER)" cond="ifneq ($(UBX2_GPS_PORT)$(SECONDARY_GPS),)"/>
     <define name="UBX2_GPS_PORT" value="$(UBX2_GPS_PORT_LOWER)" cond="ifneq ($(UBX2_GPS_PORT)$(SECONDARY_GPS),)"/>
     <define name="$(UBX2_GPS_PORT_UPPER)_BAUD" value="$(UBX2_GPS_BAUD)" cond="ifneq ($(UBX2_GPS_BAUD)$(SECONDARY_GPS),)"/>
-    <define name="GPS_UBX_NB" value="2" cond="ifneq ($(UBX2_GPS_PORT)$(SECONDARY_GPS),)"/>
+    <define name="GPS_UBX_NB" value="2" cond="ifneq ($(UBX2_GPS_PORT),)"/>
 
     <raw>
       ifdef SECONDARY_GPS
