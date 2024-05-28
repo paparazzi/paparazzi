@@ -464,7 +464,6 @@
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
         <define name="MAX_LAT_ACCEL"        value="5.0"/>
-        <define name="ACCEL_FWD_BX_LIM"     value="3.0"/>
     </section>
 
     <section name="FORWARD">

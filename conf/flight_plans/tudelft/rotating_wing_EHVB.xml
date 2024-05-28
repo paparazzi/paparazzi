@@ -77,15 +77,11 @@
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
-        <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
-        <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
-        <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
+        <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
     <block name="Wait takeoff">
       <exception cond="stage_time > 10" deroute="Holding point"/>
-      <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
-      <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
-      <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0) @AND (stage_time > 2)" vmode="throttle"/>
+      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
