@@ -78,6 +78,9 @@
 #endif
 
 // FW hov mot off state identification
+#ifndef ROTWING_HOV_MOT_RUN_RPM_TH
+#define ROTWING_HOV_MOT_RUN_RPM_TH 800
+#endif
 #ifndef ROTWING_HOV_MOT_OFF_RPM_TH
 #define ROTWING_HOV_MOT_OFF_RPM_TH 50
 #endif
@@ -604,7 +607,7 @@ void rotwing_state_free_processor(void)
 
   /*
     Calculations
-  */ 
+  */
   // speed over pos_error projection
   struct FloatVect2 pos_error_norm;
   VECT2_COPY(pos_error_norm, pos_error);
@@ -612,9 +615,9 @@ void rotwing_state_free_processor(void)
   float dist_to_target = sqrtf(nav_rotorcraft_base.goto_wp.dist2_to_wp);
   float max_speed_decel2 = fabsf(2.f * dist_to_target * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
   float max_speed_decel = sqrtf(max_speed_decel2);
-  
+
   // Check if speed setpoint above set airspeed
-  struct FloatVect2 desired_airspeed_v; 
+  struct FloatVect2 desired_airspeed_v;
   struct FloatVect2 groundspeed_sp;
   groundspeed_sp.x = pos_error.x * nav_hybrid_pos_gain;
   groundspeed_sp.y = pos_error.y * nav_hybrid_pos_gain;
@@ -705,6 +708,18 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
         rotwing_state_hover_rpm[3] = feedback_msg->rpm;
       }
     }
+  }
+}
+
+bool rotwing_state_hover_motors_running(void) {
+  // Check if hover motors are running
+  if (rotwing_state_hover_rpm[0] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[1] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[2] > ROTWING_HOV_MOT_RUN_RPM_TH
+      && rotwing_state_hover_rpm[3] > ROTWING_HOV_MOT_RUN_RPM_TH) {
+    return true;
+  } else {
+    return false;
   }
 }
 

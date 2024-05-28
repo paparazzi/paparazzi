@@ -215,6 +215,8 @@ float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
 // The control objective
 float v_gih[3];
 
+float gih_max_accel_hover = 8.f;
+
 // Filters
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 float guidance_indi_airspeed_filt_cutoff = GUIDANCE_INDI_AIRSPEED_FILT_CUTOFF;
