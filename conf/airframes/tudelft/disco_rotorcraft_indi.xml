@@ -17,7 +17,7 @@
         <define name="LOGGER_FILE_PATH" value="/data/ftp/internal_000"/>
       </module>
       <module name="airspeed" type="ms45xx_i2c">
-        <define name="MS45XX_I2C_DEV" value="i2c1"/>
+        <configure name="MS45XX_I2C_DEV" value="i2c1"/>
       </module>
 
       <define name="RADIO_TH_HOLD"     value="RADIO_KILL"/> <!-- Throttle hold in command laws -->
