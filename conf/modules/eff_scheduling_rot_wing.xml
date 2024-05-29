@@ -32,7 +32,7 @@
   <periodic fun="eff_scheduling_rot_wing_periodic()" freq="10.0"/>
   <makefile>
     <file name="eff_scheduling_rot_wing.c"/>
-    <test>
+    <test firmware="rotorcraft">
       <define name="ACTUATORS_NB" value="10"/>
       <define name="SERVO_ROTATION_MECH_IDX" value="8"/>
       <define name="SERVO_MOTOR_FRONT" value="0"/>

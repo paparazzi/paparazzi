@@ -30,6 +30,8 @@
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 
+#include "autopilot.h"
+
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 
@@ -144,7 +146,7 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
   .k_lift_tail              = ROT_WING_EFF_SCHED_K_LIFT_TAIL
 };
 
-float eff_sched_pusher_time = 0.002; 
+float eff_sched_pusher_time = 0.002;
 
 struct rot_wing_eff_sched_var_t eff_sched_var;
 
@@ -294,8 +296,10 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   Bound(roll_motor_p_eff_right, -1, -0.00001);
 
   float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
-  roll_motor_p_eff_left += roll_motor_airspeed_compensation;
+  if(autopilot.in_flight) {
+    float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
+    roll_motor_p_eff_left += roll_motor_airspeed_compensation;
+  }
   Bound(roll_motor_p_eff_left, 0.00001, 1);
 
   float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
@@ -324,7 +328,20 @@ void eff_scheduling_rot_wing_update_elevator_effectiveness(void)
                  eff_sched_p.k_elevator[1] * eff_sched_var.cmd_pusher_scaled * eff_sched_var.cmd_pusher_scaled * eff_sched_var.airspeed +
                  eff_sched_p.k_elevator[2] * eff_sched_var.airspeed2) / 10000.;
 
+  // scale the effectiveness of the elevator down if it has a large deflection to encourage it to become flat quickly (pragmatic, not physically inpsired)
+  float elevator_ineffectiveness_scaling = (50-de)/40;
+  Bound(elevator_ineffectiveness_scaling, 0.5, 1.0);
+
   float dMydpprz = dMyde * eff_sched_p.k_elevator_deflection[1];
+
+  // Calculate pitch moment due to airspeed change
+  float dMydairspeed = (-28.8464 * 2 * de * eff_sched_var.airspeed +
+                        -92.8148 * 2 * eff_sched_var.airspeed +
+                        0.23015 * de * de * 2 * eff_sched_var.airspeed +
+                        -4.81466 * de * eff_sched_var.cmd_pusher_scaled * eff_sched_var.cmd_pusher_scaled) / 10000.;
+  float domegadairspeed = dMydairspeed / eff_sched_var.Iyy;
+
+  indi_elevator_domega_dv = domegadairspeed;
 
   // Convert moment to effectiveness
   float eff_y_elev = dMydpprz / eff_sched_var.Iyy;
