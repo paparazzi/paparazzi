@@ -87,14 +87,20 @@ static inline void main_init(void)
 
 
 static inline void main_periodic(void)
-{
-
+{  
   // generated macro from airframe file
   AllActuatorsCommit();
 
+  // Downlink the actuators raw driver values
+  int16_t v[ACTUATORS_NB] = {0};
+  for (int i = 0; i < ACTUATORS_NB; i++) {
+    v[i] = actuators[i].driver_val;
+  }
+
+
   LED_PERIODIC();
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
-  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators));
+  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, v));
 
   modules_periodic_task();
 }

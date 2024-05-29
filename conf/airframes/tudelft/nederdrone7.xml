@@ -34,7 +34,7 @@
       <!-- Airspeed sensors -->
       <module name="airspeed" type="ms45xx_i2c">
         <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
+        <configure name="MS45XX_I2C_DEV" value="i2c4"/>
         <define name="I2C4_CLOCK_SPEED" value="100000"/>
       </module>
       <!--module name="airspeed" type="uavcan"/-->

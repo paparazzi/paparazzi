@@ -272,6 +272,8 @@ let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
     (* Set servo macro *)
     fprintf out "#define Set_%s_Servo(actuator_value_pprz) { \\\n" s;
+    fprintf out "  int32_t servo_value;\\\n";
+    fprintf out "  int32_t command_value;\\\n\\\n";
     fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
     fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
     fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
@@ -434,8 +436,6 @@ let rec parse_section = fun out ac_id s ->
       fprintf out "}\n\n";
       (* print actuators from commands macro *)
       fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
-      fprintf out "  int32_t servo_value;\\\n";
-      fprintf out "  int32_t command_value;\\\n\\\n";
       fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
       List.iter (parse_command_laws out) (Xml.children s);
       fprintf out "  AllActuatorsCommit(); \\\n";
