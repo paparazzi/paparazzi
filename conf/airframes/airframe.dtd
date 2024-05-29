@@ -28,7 +28,7 @@
 <!ELEMENT autopilot EMPTY>
 <!ELEMENT comment (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
-<!ELEMENT item EMPTY>
+<!ELEMENT item (#PCDATA)>
 <!ELEMENT checklist (item)*>
 
 <!ATTLIST include
