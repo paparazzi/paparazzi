@@ -284,9 +284,14 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
 
   float pitch_motor_q_eff = eff_sched_var.pitch_motor_dMdpprz / eff_sched_var.Iyy;
 
+  float cmd_right = actuator_state_filt_vect[1];
+  float cmd_left = actuator_state_filt_vect[3];
+  Bound(cmd_right, 3500, MAX_PPRZ);
+  Bound(cmd_left, 3500, MAX_PPRZ);
+
   // Roll motor effectiveness
-  float dM_dpprz_right  = (eff_sched_p.DMdpprz_hover_roll[0] + actuator_state_filt_vect[1] * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
-  float dM_dpprz_left   = (eff_sched_p.DMdpprz_hover_roll[0] + actuator_state_filt_vect[3] * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
+  float dM_dpprz_right  = (eff_sched_p.DMdpprz_hover_roll[0] + cmd_right * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
+  float dM_dpprz_left   = (eff_sched_p.DMdpprz_hover_roll[0] + cmd_left  * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
 
   // Bound dM_dpprz to half and 2 times the hover effectiveness
   Bound(dM_dpprz_right, eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);

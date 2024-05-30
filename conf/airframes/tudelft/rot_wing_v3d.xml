@@ -110,6 +110,8 @@
             <configure name="INDI_OUTPUTS" value="5"/>
             <define name="WLS_N_U" value="9"/>
             <define name="WLS_N_V" value="5"/>
+            <!-- prevent in-flight in start engine block-->
+            <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST" value="4000"/>
         </module>
 
         <module name="eff_scheduling_rot_wing"/>
