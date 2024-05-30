@@ -92,5 +92,6 @@ extern void periodic_rotwing_state(void);
 extern void request_rotwing_state(uint8_t state);
 extern void rotwing_request_configuration(uint8_t configuration);
 extern void rotwing_state_skew_actuator_periodic(void);
+extern bool rotwing_state_hover_motors_running(void);
 
 #endif  // ROTWING_STATE_H

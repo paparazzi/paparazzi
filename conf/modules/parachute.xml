@@ -7,7 +7,7 @@
   </doc>
   <settings>
     <dl_settings>
-      <dl_settings NAME="RotWingState">
+      <dl_settings NAME="Parachute">
         <dl_setting var="parachute.arming_method" min="0" step="1" max="2" values="OFF|AUTO|ALWAYS ON" shortname="arming"/>
       </dl_settings>
     </dl_settings>
