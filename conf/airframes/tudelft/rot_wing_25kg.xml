@@ -23,6 +23,7 @@
             <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <define name="RADIO_PARACHUTE"          value="RADIO_AUX6"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"         value="IMU_PIXHAWK2_ID"/>
@@ -106,6 +107,8 @@
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
             <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
         </module>
+        <!-- Rotation mechanism actuator on UART -->
+        <module name="actuators" type="faulhaber"/>
 
         <!-- Control -->
         <module name="stabilization" type="indi">
