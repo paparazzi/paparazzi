@@ -201,7 +201,7 @@ void follow_diagonal_approach(void)
   // just filtering the heading will go wrong if it wraps, instead do:
   // take the diff with current heading_filtered, wrap that, add to current, insert in filter and wrap again?
   // example: target_heading - target_heading_filt (170 - -170 = 340), -> -20 -> -190 -> into filter -> wrap
-  float heading_diff = target_heading - target_heading_filt.o[0];
+  float heading_diff = RadOfDeg(target_heading) - target_heading_filt.o[0];
   FLOAT_ANGLE_NORMALIZE(heading_diff);
   float target_heading_input = target_heading_filt.o[0] + heading_diff;
   update_butterworth_2_low_pass(&target_heading_filt, target_heading_input);
@@ -220,7 +220,7 @@ void follow_diagonal_approach(void)
 
   // Reference model
   float gamma_ref = RadOfDeg(amt.slope_ref);
-  float psi_ref = RadOfDeg(target_heading_filt_wrapped + amt.psi_ref);
+  float psi_ref = target_heading_filt_wrapped + RadOfDeg(amt.psi_ref);
 
   amt.rel_unit_vec.x = cosf(gamma_ref) * cosf(psi_ref);
   amt.rel_unit_vec.y = cosf(gamma_ref) * sinf(psi_ref);
