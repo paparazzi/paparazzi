@@ -469,6 +469,11 @@
       <program name="Server"/>
       <program name="Messages"/>
       <program name="Settings"/>
+      <program name="ATC">
+        <arg flag="-i" constant="11"/>
+        <arg flag="-e" constant="udp://0.0.0.0:12001:10.19.127.1:12000"/>
+        <arg flag="-r"/>
+      </program>
     </session>
   </section>
 </control_panel>
