@@ -113,6 +113,8 @@
             <configure name="INDI_OUTPUTS" value="5"/>
             <define name="WLS_N_U" value="9"/>
             <define name="WLS_N_V" value="5"/>
+            <!-- prevent in-flight in start engine block-->
+            <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST" value="4000"/>
         </module>
 
         <module name="stabilization" type="rate_indi"/>
@@ -445,7 +447,7 @@
         <define name="SPEED_GAINZ"          value="0.6"/>
 
         <!-- Other -->
-        <define name="FILTER_CUTOFF"        value="2.0"/>
+        <define name="FILTER_CUTOFF"        value="2.5"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
