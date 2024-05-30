@@ -54,16 +54,16 @@ uint8_t faulhaber_crc8(uint8_t u8Byte, uint8_t u8CRC)
   u8CRC = u8CRC ^ u8Byte;
   for (i = 0; i < 8; i++) {
     if (u8CRC & 0x01) {
-    u8CRC = (u8CRC >> 1) ^ Polynom;
-    }
-    else {
-    u8CRC >>= 1;
+      u8CRC = (u8CRC >> 1) ^ Polynom;
+    } else {
+      u8CRC >>= 1;
     }
   }
   return u8CRC;
 }
 
-static void faulhaber_send_command(struct uart_periph *dev, uint8_t cmd_code, uint8_t *data, uint8_t data_length) {
+static void faulhaber_send_command(struct uart_periph *dev, uint8_t cmd_code, uint8_t *data, uint8_t data_length)
+{
   uart_put_byte(dev, 0, 'S'); // Character (S) as Start of Frame
   uart_put_byte(dev, 0, data_length + 4); // Telegram length without SOF/EOF (packet length)
   uint8_t crc8 = faulhaber_crc8(data_length + 4, 0xFF); // Start CRC with 0xFF
@@ -71,7 +71,7 @@ static void faulhaber_send_command(struct uart_periph *dev, uint8_t cmd_code, ui
   crc8 = faulhaber_crc8(0x01, crc8);
   uart_put_byte(dev, 0, cmd_code); // See Tab. 2
   crc8 = faulhaber_crc8(cmd_code, crc8);
-  for(uint8_t i = 0; i < data_length; i++) { // Data area (length = packet length – 4)
+  for (uint8_t i = 0; i < data_length; i++) { // Data area (length = packet length – 4)
     uart_put_byte(dev, 0, data[i]);
     crc8 = faulhaber_crc8(data[i], crc8);
   }
@@ -89,7 +89,8 @@ static void faulhaber_send_command(struct uart_periph *dev, uint8_t cmd_code, ui
 #define GET_EOF         6
 #define GOT_FULL_PACKET 7
 
-static void faulhaber_parser(struct faulhaber_parser_t *p, uint8_t c) {
+static void faulhaber_parser(struct faulhaber_parser_t *p, uint8_t c)
+{
   switch (p->state) {
     case UINIT:
       if (c == 'S') {
@@ -98,7 +99,7 @@ static void faulhaber_parser(struct faulhaber_parser_t *p, uint8_t c) {
       }
       break;
     case GOT_SOF:
-      if(c - 4 < 0) {
+      if (c - 4 < 0) {
         p->state = UINIT;
       } else {
         p->data_length = c - 4;
@@ -120,18 +121,19 @@ static void faulhaber_parser(struct faulhaber_parser_t *p, uint8_t c) {
     case GET_DATA:
       p->data[p->data_idx++] = c;
       p->calc_crc8 = faulhaber_crc8(c, p->calc_crc8);
-      if(p->data_idx >= p->data_length)
+      if (p->data_idx >= p->data_length) {
         p->state = GET_CRC;
+      }
       break;
     case GET_CRC:
-      if(p->calc_crc8 == c) {
+      if (p->calc_crc8 == c) {
         p->state = GET_EOF;
       } else {
         p->state = UINIT;
       }
       break;
     case GET_EOF:
-      if(c == 'E') {
+      if (c == 'E') {
         p->state = GOT_FULL_PACKET;
       } else {
         p->state = UINIT;
@@ -151,7 +153,8 @@ static void faulhaber_parser(struct faulhaber_parser_t *p, uint8_t c) {
 // <0x607A.00 (Actual Position)
 // Start positioning via the rising edge in bit 4 of the controlword. Also set the optional bits here.
 
-void actuators_faulhaber_init(void) {
+void actuators_faulhaber_init(void)
+{
   faulhaber_p.state = UINIT;
 
   faulhaber.mode = FH_MODE_INIT;
@@ -161,12 +164,13 @@ void actuators_faulhaber_init(void) {
 }
 
 
-void actuators_faulhaber_periodic(void) {
-  switch(faulhaber.mode) {
+void actuators_faulhaber_periodic(void)
+{
+  switch (faulhaber.mode) {
 
     /* HOME MODE */
     case FH_MODE_HOME:
-      switch(faulhaber.state) {
+      switch (faulhaber.state) {
         case 0: {
           // Set the homing mode
           uint8_t data[] = { 0x60, 0x60, 0x00, 0x06 }; // Set 0x6060.00 to 0x06:  Homing mode
@@ -205,7 +209,7 @@ void actuators_faulhaber_periodic(void) {
 
     /* POSITION MODE */
     case FH_MODE_POSITION:
-      switch(faulhaber.state) {
+      switch (faulhaber.state) {
         case 0: {
           uint8_t data[] = { 0x60, 0x60, 0x00, 0x01 }; // Set 0x6060.00 to 0x01:  Position mode
           faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
@@ -245,7 +249,7 @@ void actuators_faulhaber_periodic(void) {
     /* FH_MODE_IDLE */
     case FH_MODE_IDLE: {
       // Move to the new position
-      if(faulhaber.target_position != faulhaber.setpoint_position) {
+      if (faulhaber.target_position != faulhaber.setpoint_position) {
         faulhaber.mode = FH_MODE_POSITION;
         faulhaber.state = 0;
         break;
@@ -259,7 +263,7 @@ void actuators_faulhaber_periodic(void) {
     }
 
     case FH_MODE_ENABLE:
-      switch(faulhaber.state) {
+      switch (faulhaber.state) {
         case 0: {
           // Disable drive
           uint8_t data[] = { 0x40, 0x60, 0x00, 0x80, 0x00}; // Set 0x6040.00 to 0x0007: Disable drive
@@ -302,13 +306,15 @@ void actuators_faulhaber_periodic(void) {
 
 }
 
-static void faulhaber_parse_msg(struct faulhaber_parser_t *p) {
+static void faulhaber_parse_msg(struct faulhaber_parser_t *p)
+{
   // Process position message
-  if(p->cmd_code == 0x01 && p->data[0] == 0x64 && p->data[1] == 0x60 && p->data[2] == 0x00) {
+  if (p->cmd_code == 0x01 && p->data[0] == 0x64 && p->data[1] == 0x60 && p->data[2] == 0x00) {
     faulhaber.real_position = p->data[3] | (p->data[4] << 8) | (p->data[5] << 16) | (p->data[6] << 24);
 
     struct act_feedback_t feedback = {0};
-    feedback.position = (faulhaber.real_position - get_servo_min_FAULHABER(0)) / (double)(get_servo_max_FAULHABER(0) - get_servo_min_FAULHABER(0)) * M_PI_2; // In radians
+    feedback.position = (faulhaber.real_position - get_servo_min_FAULHABER(0)) / (double)(get_servo_max_FAULHABER(
+                          0) - get_servo_min_FAULHABER(0)) * M_PI_2; // In radians
     feedback.set.position = true;
     feedback.idx = get_servo_idx_FAULHABER(0);
 
@@ -318,7 +324,8 @@ static void faulhaber_parse_msg(struct faulhaber_parser_t *p) {
 }
 
 
-void actuators_faulhaber_event(void) {
+void actuators_faulhaber_event(void)
+{
   while (uart_char_available(faulhaber_dev)) {
     faulhaber_parser(&faulhaber_p, uart_getch(faulhaber_dev));
     if (faulhaber_p.state == GOT_FULL_PACKET) {
@@ -328,7 +335,8 @@ void actuators_faulhaber_event(void) {
   }
 }
 
-void actuators_faulhaber_SetMode(uint8_t mode) {
+void actuators_faulhaber_SetMode(uint8_t mode)
+{
   faulhaber.mode = mode;
   faulhaber.state = 0;
 }
