@@ -148,6 +148,8 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
 
 float eff_sched_pusher_time = 0.002;
 
+float roll_eff_scaling = 1.f;
+
 struct rot_wing_eff_sched_var_t eff_sched_var;
 
 inline void eff_scheduling_rot_wing_update_wing_angle(void);
@@ -292,6 +294,9 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   // Roll motor effectiveness
   float dM_dpprz_right  = (eff_sched_p.DMdpprz_hover_roll[0] + cmd_right * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
   float dM_dpprz_left   = (eff_sched_p.DMdpprz_hover_roll[0] + cmd_left  * eff_sched_p.DMdpprz_hover_roll[1]) / 10000.;
+
+  dM_dpprz_right = dM_dpprz_right * roll_eff_scaling;
+  dM_dpprz_left = dM_dpprz_left * roll_eff_scaling;
 
   // Bound dM_dpprz to half and 2 times the hover effectiveness
   Bound(dM_dpprz_right, eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);
