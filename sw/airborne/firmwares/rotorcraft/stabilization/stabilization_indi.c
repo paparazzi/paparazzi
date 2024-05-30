@@ -698,7 +698,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   //update thrust command such that the current is correctly estimated
   cmd[COMMAND_THRUST] = 0;
   for (i = 0; i < INDI_NUM_ACT; i++) {
-    cmd[COMMAND_THRUST] += actuator_state[i] * -((int32_t) act_is_servo[i] - 1);
+    cmd[COMMAND_THRUST] += actuator_state[i] * (int32_t) act_is_thruster_z[i];
   }
   cmd[COMMAND_THRUST] /= num_thrusters;
 
