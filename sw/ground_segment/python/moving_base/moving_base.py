@@ -57,14 +57,16 @@ class Base:
         self.use_ground_ref = use_ground_ref
         self.enabled = True # run sim by default
         self.verbose = verbose
-        self.ids = [5]
+        self.ids = [11]
         self.uavs = [UAV(i) for i in self.ids]
         self.time = time.mktime(time.gmtime())
         self.speed = 1 # m/s
         self.course = -90 # deg
         self.heading = -90 # deg
-        self.lat = 38.08000040764657 #deg
-        self.lon = -9.1 #deg
+        # self.lat = 38.08000040764657 #deg
+        # self.lon = -9.1 #deg
+        self.lat = 52.926 #deg
+        self.lon = 4.499 #deg
         self.altitude = 2.0 # starts from 1 m high
 
         # Start IVY interface
@@ -153,6 +155,23 @@ class Base:
             msg['heading'] = self.heading
             self._interface.send(msg)
 
+            msg2 = PprzMessage("ground", "FLIGHT_PARAM")
+            msg2['ac_id'] = "GCS"
+            msg2['roll'] = 0.0
+            msg2['pitch'] = 0.0
+            msg2['heading'] = self.heading
+            msg2['lat'] = self.lat
+            msg2['long'] = self.lon
+            msg2['speed'] = self.speed
+            msg2['course'] = self.course
+            msg2['alt'] = 0.0
+            msg2['climb'] = 0.0
+            msg2['agl'] = 0.0
+            msg2['unix_time'] = 0.0
+            msg2['itow'] = 0
+            msg2['airspeed'] = self.speed
+            self._interface.send(msg2)
+
     def run(self):
         try:
             # The main loop
@@ -165,6 +184,8 @@ class Base:
 
                 # Send base position
                 if self.enabled:
+                    self.heading += self.step*1
+                    self.course = self.heading
                     dn = self.speed*m.cos(self.course/180.0*m.pi)
                     de = self.speed*m.sin(self.course/180.0*m.pi)
                     self.move_base(self.step*dn,self.step*de)
