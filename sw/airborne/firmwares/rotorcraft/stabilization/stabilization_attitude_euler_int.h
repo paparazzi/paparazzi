@@ -25,7 +25,7 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 
-extern stabilization_attitude_euler_int_init(void);
+extern void stabilization_attitude_euler_int_init(void);
 
 extern struct Int32Eulers stabilization_att_sum_err;
 

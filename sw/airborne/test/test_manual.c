@@ -98,11 +98,18 @@ static inline void main_periodic(void)
 
   SetActuatorsFromCommands(commands, 0);
 
+  // Downlink the actuators raw driver values
+  int16_t v[ACTUATORS_NB] = {0};
+  for (int i = 0; i < ACTUATORS_NB; i++) {
+    v[i] = actuators[i].driver_val;
+  }
+
+
   LED_PERIODIC();
   RunOnceEvery(512, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
   RunOnceEvery(100, {DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
   RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
-  RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
+  RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, v);});
 
 }
 
