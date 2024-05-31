@@ -35,6 +35,7 @@
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
+            <module name="battery_uavcan"/>
 
             <!-- Disable current sensing using UAVCAN -->
             <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="FALSE"/>
