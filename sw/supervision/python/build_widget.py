@@ -85,6 +85,9 @@ class BuildWidget(Ui_Build, QWidget):
             board = self.ac.boards[target]
             flash_modes = self.get_flash_modes(board)
             self.device_combo.addItems(flash_modes)
+            last_flash_mode = utils.get_settings().value("ui/last_flash_mode", None, str)
+            if last_flash_mode in flash_modes:
+                self.device_combo.setCurrentText(last_flash_mode)
 
     def get_current_target(self) -> str:
         return self.target_combo.currentText()
@@ -124,6 +127,7 @@ class BuildWidget(Ui_Build, QWidget):
         cmd = ["make", "-C", utils.PAPARAZZI_HOME, "-f", "Makefile.ac",
                "AIRCRAFT={}".format(self.ac.name)] + vars + ["{}.upload".format(target)]
         shortname = "Flash {}".format(self.ac.name)
+        utils.get_settings().setValue("ui/last_flash_mode", flash_mode)
         self.spawn_program.emit(shortname, cmd, None, None)
 
     def enable_buttons(self, enable: bool):
