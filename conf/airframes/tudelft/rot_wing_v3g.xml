@@ -339,7 +339,7 @@
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
         <define name="INS_EKF2_FUSION_MODE"                 value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
-        <define name="MULTI_GPS_MODE"                       value="PRIMARY_GPS"/>
+        <define name="MULTI_GPS_MODE"                       value="GPS_MODE_PRIMARY"/>
     </section>
 
     <section name="GROUND_DETECT">
