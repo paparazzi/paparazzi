@@ -35,7 +35,9 @@
 
             <!-- Sensors connected to supercan -->
             <module name="range_sensor_uavcan"/>
-            <module name="battery_uavcan"/>
+            <module name="power_uavcan">
+                <define name="POWER_UAVCAN_BATTERY_CIRCUITS" value="{{14,0},{6,1}}"/>
+            </module>
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->

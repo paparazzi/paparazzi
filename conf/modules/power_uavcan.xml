@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="power_uavcan" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Power sensors over the uavcan protocol:
+      - BatteryInfo
+      - CircuitStatus
+    </description>
+    <section name="POWER_UAVCAN" prefix="POWER_UAVCAN_">
+      <define name="BATTERIES_MAX" value="3" description="Maximum number of batteries"/>
+      <define name="CIRCUITS_MAX" value="3" description="Maximum number of circuits"/>
+      <define name="BATTERY_CIRCUITS" value="{}" description="Struct of {node_id, circuit_id} indicating the batteries"/>
+    </section>
+  </doc>
+  <dep>
+    <depends>uavcan</depends>
+    <provides></provides>
+  </dep>
+  <header>
+    <file name="power_uavcan.h"/>
+  </header>
+  <init fun="power_uavcan_init()"/>
+  <makefile target="ap">
+    <file name="power_uavcan.c"/>
+  </makefile>
+</module>
