@@ -557,6 +557,7 @@
         <item name="goal" type="text">Goal of the flight</item>
         <item name="basic law">Location, airspace and weather</item>
         <item name="RC Battery">Check the RC battery</item>
+        <item name="wings">Check wings secured (and taped)</item>
         <item name="attitude">Check attitude and heading</item>
         <item name="takeoff location">Put UAV on take-off location</item>
         <item name="flight plan">Check flight plan</item>
