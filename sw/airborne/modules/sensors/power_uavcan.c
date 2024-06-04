@@ -240,6 +240,7 @@ void power_uavcan_init(void)
     circuits[i].set = true;
     circuits[i].node_id = battery_circuits[i].node_id;
     circuits[i].circuit_id = battery_circuits[i].circuit_id;
+    circuits[i].is_battery = true;
   }
 
   // Bind uavcan BATTERYINFO message from EQUIPMENT.POWER
