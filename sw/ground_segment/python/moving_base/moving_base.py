@@ -52,7 +52,7 @@ class UAV:
         self.timeout = 0
 
 class Base:
-    def __init__(self, freq=10., use_ground_ref=False, ignore_geo_fence=False, verbose=False):
+    def __init__(self, freq=10., use_ground_ref=False, verbose=False, speed=0, heading=0, turn_rate=0):
         self.step = 1. / freq
         self.use_ground_ref = use_ground_ref
         self.enabled = True # run sim by default
@@ -60,9 +60,10 @@ class Base:
         self.ids = [11]
         self.uavs = [UAV(i) for i in self.ids]
         self.time = time.mktime(time.gmtime())
-        self.speed = 1 # m/s
+        self.speed = speed # m/s
         self.course = -90 # deg
-        self.heading = -90 # deg
+        self.heading = heading # deg
+        self.turn_rate = turn_rate #deg/s
         # self.lat = 38.08000040764657 #deg
         # self.lon = -9.1 #deg
         self.lat = 52.926 #deg
@@ -184,7 +185,8 @@ class Base:
 
                 # Send base position
                 if self.enabled:
-                    self.heading += self.step*1 # deg/step
+                    #integrate derivatives
+                    self.heading += self.step*self.turn_rate
                     self.course = self.heading
                     dn = self.speed*m.cos(self.course/180.0*m.pi)
                     de = self.speed*m.sin(self.course/180.0*m.pi)
@@ -198,7 +200,12 @@ class Base:
 if __name__ == '__main__':
     import argparse
 
+    parser = argparse.ArgumentParser(description="Moving base simulator")
+    parser.add_argument('-s', '--speed', dest='speed', default=1, type=float, help="Speed of the ship (m/s).")
+    parser.add_argument('-he', '--heading', dest='heading', default=0, type=float, help="Heading of the ship (deg).")
+    parser.add_argument('-t', '--turn_rate', dest='turn_rate', default=0, type=float, help="Turn rate of the ship (deg/s).")
+    args = parser.parse_args()
 
-    base = Base()
+    base = Base(speed=args.speed, heading=args.heading, turn_rate=args.turn_rate)
     base.run()
 
