@@ -184,7 +184,7 @@ class Base:
 
                 # Send base position
                 if self.enabled:
-                    self.heading += self.step*1
+                    self.heading += self.step*1 # deg/step
                     self.course = self.heading
                     dn = self.speed*m.cos(self.course/180.0*m.pi)
                     de = self.speed*m.sin(self.course/180.0*m.pi)
