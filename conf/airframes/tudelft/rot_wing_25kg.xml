@@ -281,7 +281,8 @@
         <define name="NAV_CLIMB_VSPEED"                 value="2.0" />
         <define name="NAV_DESCEND_VSPEED"               value="-1.0"/>
         <define name="NAV_CARROT_DIST"                  value="200"/>
-        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"   value="300"/>
+        <!-- prevent in-flight in start engine block-->
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST" value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"              value="50.0"/>
         <define name="NO_GPS_LOST_WITH_DATALINK_TIME"   value="20"/>
         <define name="NO_GPS_LOST_WITH_RC_VALID"        value="TRUE"/>
@@ -446,7 +447,7 @@
         <define name="SPEED_GAINZ"          value="0.6"/>
 
         <!-- Other -->
-        <define name="FILTER_CUTOFF"        value="2.0"/>
+        <define name="FILTER_CUTOFF"        value="2.5"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>

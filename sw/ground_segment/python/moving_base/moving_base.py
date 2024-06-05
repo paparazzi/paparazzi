@@ -52,19 +52,22 @@ class UAV:
         self.timeout = 0
 
 class Base:
-    def __init__(self, freq=10., use_ground_ref=False, ignore_geo_fence=False, verbose=False):
+    def __init__(self, freq=10., use_ground_ref=False, verbose=False, speed=0, heading=0, turn_rate=0, id=[]):
         self.step = 1. / freq
         self.use_ground_ref = use_ground_ref
         self.enabled = True # run sim by default
         self.verbose = verbose
-        self.ids = [5]
+        self.ids = []
         self.uavs = [UAV(i) for i in self.ids]
         self.time = time.mktime(time.gmtime())
-        self.speed = 1 # m/s
+        self.speed = speed # m/s
         self.course = -90 # deg
-        self.heading = -90 # deg
-        self.lat = 38.08000040764657 #deg
-        self.lon = -9.1 #deg
+        self.heading = heading # deg
+        self.turn_rate = turn_rate #deg/s
+        # self.lat = 38.08000040764657 #deg
+        # self.lon = -9.1 #deg
+        self.lat = 52.926 #deg
+        self.lon = 4.499 #deg
         self.altitude = 2.0 # starts from 1 m high
 
         # Start IVY interface
@@ -72,6 +75,9 @@ class Base:
 
         # bind to GPS_INT message
         def ins_cb(ac_id, msg):
+            if ac_id not in self.ids:
+                self.ids.append(ac_id)
+                self.uavs.append(UAV(ac_id))
             if ac_id in self.ids and msg.name == "GPS_INT":
                 uav = self.uavs[self.ids.index(ac_id)]
                 i2p = 1. / 2**8     # integer to position
@@ -153,6 +159,23 @@ class Base:
             msg['heading'] = self.heading
             self._interface.send(msg)
 
+            msg2 = PprzMessage("ground", "FLIGHT_PARAM")
+            msg2['ac_id'] = "GCS"
+            msg2['roll'] = 0.0
+            msg2['pitch'] = 0.0
+            msg2['heading'] = self.heading
+            msg2['lat'] = self.lat
+            msg2['long'] = self.lon
+            msg2['speed'] = self.speed
+            msg2['course'] = self.course
+            msg2['alt'] = 0.0
+            msg2['climb'] = 0.0
+            msg2['agl'] = 0.0
+            msg2['unix_time'] = 0.0
+            msg2['itow'] = 0
+            msg2['airspeed'] = self.speed
+            self._interface.send(msg2)
+
     def run(self):
         try:
             # The main loop
@@ -165,6 +188,9 @@ class Base:
 
                 # Send base position
                 if self.enabled:
+                    #integrate derivatives
+                    self.heading += self.step*self.turn_rate
+                    self.course = self.heading
                     dn = self.speed*m.cos(self.course/180.0*m.pi)
                     de = self.speed*m.sin(self.course/180.0*m.pi)
                     self.move_base(self.step*dn,self.step*de)
@@ -177,7 +203,13 @@ class Base:
 if __name__ == '__main__':
     import argparse
 
+    parser = argparse.ArgumentParser(description="Moving base simulator")
+    parser.add_argument('-s', '--speed', dest='speed', default=1, type=float, help="Speed of the ship (m/s).")
+    parser.add_argument('-he', '--heading', dest='heading', default=0, type=float, help="Heading of the ship (deg).")
+    parser.add_argument('-t', '--turn_rate', dest='turn_rate', default=0, type=float, help="Turn rate of the ship (deg/s).")
+    parser.add_argument('-i', '--id', dest='id', default=0, type=float, help="Aircraft ID.")
+    args = parser.parse_args()
 
-    base = Base()
+    base = Base(speed=args.speed, heading=args.heading, turn_rate=args.turn_rate, id=args.id)
     base.run()
 
