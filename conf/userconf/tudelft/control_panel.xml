@@ -66,6 +66,66 @@
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
   </section>
   <section name="sessions">
+    <session name="Bluegiga">
+      <program name="BluegigaUsbDongle">
+        <arg flag="/dev/ttyACM2" constant="all"/>
+        <arg flag="4242" constant="4252"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="-ac" constant="1"/>
+        <arg flag="12"/>
+        <arg flag="-sm"/>
+        <arg flag="-f" constant="5"/>
+        <arg flag="-o"/>
+        <arg flag="-zf"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
+    <session name="Bluegiga">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="NatNet3">
+        <arg flag="-ac" constant="7"/>
+        <arg flag="114"/>
+        <arg flag="-sm"/>
+        <arg flag="-f" constant="5"/>
+        <arg flag="-o"/>
+        <arg flag="-zf"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+      <program name="BluegigaUsbDongle">
+        <arg flag="/dev/ttyACM2"/>
+        <arg flag="00:07:80:2d:e0:4b"/>
+        <arg flag="4242"/>
+        <arg flag="4252"/>
+      </program>
+    </session>
     <session name="EKF Full">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -138,110 +198,6 @@
         <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
       </program>
     </session>
-    <session name="helidd">
-      <program name="BluegigaUsbDongle">
-        <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>
-        <arg flag="4242" constant="4252"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="GeniusDD"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-    </session>
-    <session name="Flight XBeeAPI USB0 @57600">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-transport" constant="xbee"/>
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="bottom_settings.xml"/>
-      </program>
-      <program name="Messages"/>
-    </session>
-    <session name="Bluegiga">
-      <program name="BluegigaUsbDongle">
-        <arg flag="/dev/ttyACM2" constant="all"/>
-        <arg flag="4242" constant="4252"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="NatNet3">
-        <arg flag="-ac" constant="1"/>
-        <arg flag="12"/>
-        <arg flag="-sm"/>
-        <arg flag="-f" constant="5"/>
-        <arg flag="-o"/>
-        <arg flag="-zf"/>
-      </program>
-      <program name="Joystick">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-    </session>
-    <session name="Scaled Sensors">
-      <program name="Real-time Plotter">
-        <arg flag="-g" constant="1000x250-0+0"/>
-        <arg flag="-t" constant="ACC"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="9.81"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="-9.81"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+250"/>
-        <arg flag="-t" constant="GYRO"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+500"/>
-        <arg flag="-t" constant="MAG"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
-      </program>
-    </session>
-    <session name="Joystick Hobbyking">
-      <program name="Joystick">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-    </session>
-    <session name="PythonTools">
-      <program name="IridiumDialer"/>
-      <program name="PayloadForward"/>
-      <program name="SVInfo"/>
-      <program name="IridiumDialer"/>
-    </session>
     <session name="Flight /dev/paparazzi/link Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/link"/>
@@ -264,52 +220,6 @@
         <arg flag="-layout" constant="bottom_settings.xml"/>
       </program>
     </session>
-    <session name="Messages and Settings">
-      <program name="Messages"/>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-      </program>
-    </session>
-    <session name="Flight ttyUSB0 Transparent @57600">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-    </session>
-    <session name="Flight UDP">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-        <arg flag="-layout" constant="bottom_settings.xml"/>
-      </program>
-      <program name="Messages"/>
-    </session>
-    <session name="Flight UDP Optitrack + Joystick">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-        <arg flag="-d 0"/>
-      </program>
-      <program name="NatNet3">
-        <arg flag="-ac 9999" constant="@AC_ID"/>
-        <arg flag="-o"/>
-        <arg flag="-zf"/>
-      </program>
-    </session>
     <session name="Flight ACM0 Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyACM0"/>
@@ -330,35 +240,31 @@
         <arg flag="-speech"/>
       </program>
     </session>
-    <session name="Bluegiga">
+    <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
-        <arg flag="-udp_port" constant="4242"/>
-        <arg flag="-udp_uplink_port" constant="4252"/>
       </program>
       <program name="Server"/>
       <program name="Messages"/>
+      <program name="PprzGCS"/>
+    </session>
+    <session name="Flight UDP Optitrack + Joystick">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
       <program name="GCS">
         <arg flag="-speech"/>
       </program>
-      <program name="NatNet3">
-        <arg flag="-ac" constant="7"/>
-        <arg flag="114"/>
-        <arg flag="-sm"/>
-        <arg flag="-f" constant="5"/>
-        <arg flag="-o"/>
-        <arg flag="-zf"/>
-      </program>
       <program name="Joystick">
-        <arg flag="-d" constant="2"/>
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
       </program>
-      <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
-        <arg flag="/dev/ttyACM2"/>
-        <arg flag="00:07:80:2d:e0:4b"/>
-        <arg flag="4242"/>
-        <arg flag="4252"/>
+      <program name="NatNet3">
+        <arg flag="-ac 9999" constant="@AC_ID"/>
+        <arg flag="-o"/>
+        <arg flag="-zf"/>
       </program>
     </session>
     <session name="Flight UDP/WiFi">
@@ -367,6 +273,59 @@
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
+    </session>
+    <session name="Flight XBeeAPI USB0 @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-layout" constant="bottom_settings.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="Flight ttyUSB0 Transparent @57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+    </session>
+    <session name="Hydrogen">
+      <program name="Attitude Visualizer"/>
+      <program name="HydrogenStatus"/>
+      <program name="NederdroneStatus"/>
+      <program name="ATC"/>
+    </session>
+    <session name="Joystick Hobbyking">
+      <program name="Joystick">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
+    <session name="Joystick X3D Pro">
+      <program name="Joystick">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="extreme_3d_pro.xml"/>
+      </program>
+    </session>
+    <session name="Messages and Settings">
+      <program name="Messages"/>
+      <program name="Settings">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+      </program>
+    </session>
+    <session name="PythonTools">
+      <program name="IridiumDialer"/>
+      <program name="PayloadForward"/>
+      <program name="SVInfo"/>
+      <program name="IridiumDialer"/>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">
@@ -401,10 +360,33 @@
         <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
       </program>
     </session>
-    <session name="Joystick X3D Pro">
-      <program name="Joystick">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="extreme_3d_pro.xml"/>
+    <session name="Scaled Sensors">
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="ACC"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="9.81"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="-9.81"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
+        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
+        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+500"/>
+        <arg flag="-t" constant="MAG"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
+        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
       </program>
     </session>
     <session name="Simulation - Gazebo">
@@ -449,18 +431,33 @@
         <arg flag="-track_size" constant="200"/>
         <arg flag="-zoom" constant="40."/>
       </program>
-      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
         <arg flag="-d 0"/>
       </program>
       <program name="Gazebo"/>
     </session>
-    <session name="Hydrogen">
-      <program name="Attitude Visualizer"/>
-      <program name="HydrogenStatus"/>
-      <program name="NederdroneStatus"/>
-      <program name="ATC"/>
+    <session name="helidd">
+      <program name="BluegigaUsbDongle">
+        <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>
+        <arg flag="4242" constant="4252"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="GeniusDD"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
     </session>
   </section>
 </control_panel>
