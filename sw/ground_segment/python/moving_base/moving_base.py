@@ -52,12 +52,12 @@ class UAV:
         self.timeout = 0
 
 class Base:
-    def __init__(self, freq=10., use_ground_ref=False, verbose=False, speed=0, heading=0, turn_rate=0):
+    def __init__(self, freq=10., use_ground_ref=False, verbose=False, speed=0, heading=0, turn_rate=0, id=[]):
         self.step = 1. / freq
         self.use_ground_ref = use_ground_ref
         self.enabled = True # run sim by default
         self.verbose = verbose
-        self.ids = [11]
+        self.ids = []
         self.uavs = [UAV(i) for i in self.ids]
         self.time = time.mktime(time.gmtime())
         self.speed = speed # m/s
@@ -75,6 +75,9 @@ class Base:
 
         # bind to GPS_INT message
         def ins_cb(ac_id, msg):
+            if ac_id not in self.ids:
+                self.ids.append(ac_id)
+                self.uavs.append(UAV(ac_id))
             if ac_id in self.ids and msg.name == "GPS_INT":
                 uav = self.uavs[self.ids.index(ac_id)]
                 i2p = 1. / 2**8     # integer to position
@@ -204,8 +207,9 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--speed', dest='speed', default=1, type=float, help="Speed of the ship (m/s).")
     parser.add_argument('-he', '--heading', dest='heading', default=0, type=float, help="Heading of the ship (deg).")
     parser.add_argument('-t', '--turn_rate', dest='turn_rate', default=0, type=float, help="Turn rate of the ship (deg/s).")
+    parser.add_argument('-i', '--id', dest='id', default=0, type=float, help="Aircraft ID.")
     args = parser.parse_args()
 
-    base = Base(speed=args.speed, heading=args.heading, turn_rate=args.turn_rate)
+    base = Base(speed=args.speed, heading=args.heading, turn_rate=args.turn_rate, id=args.id)
     base.run()
 

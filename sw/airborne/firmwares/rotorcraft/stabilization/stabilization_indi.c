@@ -111,9 +111,6 @@ float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
 int num_iter = 0;
 
-float indi_elevator_domega_dv = 0.;
-float indi_elev_domega_dv_gain = 0.;
-
 static void lms_estimation(void);
 static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
@@ -643,12 +640,9 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
     float_vect_zero(angular_acc_disturbance_estimate, INDI_OUTPUTS);
   }
 
-  // Calculate the elevator compensation factor
-  float indi_elevator_moment_compensation = acceleration_body_x_filter.o[0] * indi_elevator_domega_dv * indi_elev_domega_dv_gain / 52.7;
-
   // The control objective in array format
   indi_v[0] = (angular_accel_ref.p - angular_acc_disturbance_estimate[0]);
-  indi_v[1] = (angular_accel_ref.q - angular_acc_disturbance_estimate[1]) - indi_elevator_moment_compensation;
+  indi_v[1] = (angular_accel_ref.q - angular_acc_disturbance_estimate[1]);
   indi_v[2] = (angular_accel_ref.r - angular_acc_disturbance_estimate[2]) + g2_times_u;
   indi_v[3] = v_thrust.z;
 #if INDI_OUTPUTS == 5
