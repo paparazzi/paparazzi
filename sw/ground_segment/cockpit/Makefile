@@ -29,9 +29,17 @@ include ../../Makefile.ocaml
 OCAMLPATH:=$(shell echo $(PAPARAZZI_SRC)/sw/ground_segment/cockpit/lib:$(OCAMLPATH))
 export OCAMLPATH
 
+ifneq ($(USE_LABELGTK),lablgtk2)
+all :
+	@echo Skipping legacy GCS build \(missing lablgtk2\)
+
+opt :
+	@echo Skipping legacy GCS.opt build \(missing lablgtk2\)
+
+else
 INCLUDES=
-PKG = -package pprzlink,gcslib
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprzlink,gcslib,pprz
+PKG = -package lablgtk2,pprzlink,gcslib
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg lablgtk2,pprzlink,gcslib,pprz
 
 LABLGTK2INIT = $(shell ocamlfind query -p-format lablgtk2.init 2>/dev/null)
 ifeq ($(LABLGTK2INIT),)
@@ -68,6 +76,7 @@ all : $(MAIN)
 
 opt : $(MAIN).opt
 
+endif
 endif
 endif
 
