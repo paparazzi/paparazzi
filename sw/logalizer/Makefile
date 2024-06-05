@@ -25,20 +25,24 @@ Q=@
 
 include ../Makefile.ocaml
 INCLUDES=
-PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
+PKG = -package glibivy,pprz,$(USE_LABELGTK)
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
 
 LABLGTK2GLADE = $(shell ocamlfind query -p-format lablgtk2.glade 2>/dev/null)
 
+ifeq ($(USE_LABELGTK),lablgtk2)
 # only compile it lablgtk2.glade is installed
 ifeq ($(LABLGTK2GLADE),)
-XPKG = -package pprz.xlib
+XPKG = -package pprz.xlib,lablgtk2
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 all : play plotter sd2log plotprofile openlog2tlm sdlogger_download
 else
-XPKG = -package pprz.xlib,lablgtk2.glade
+XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
+endif
+else # no gtk2
+all: sd2log plotprofile openlog2tlm sdlogger_download
 endif
 
 

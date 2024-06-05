@@ -30,8 +30,8 @@ endif
 endif
 
 OCAML = ocaml
-OCAMLC = ocamlfind ocamlc -safe-string -g
-OCAMLOPT = ocamlfind ocamlopt -safe-string -g
+OCAMLC = ocamlfind ocamlc -safe-string -g -thread
+OCAMLOPT = ocamlfind ocamlopt -safe-string -g -thread
 OCAMLDEP = ocamlfind ocamldep
 OCAMLMKLIB = ocamlmklib
 OCAMLLEX=ocamllex
@@ -50,3 +50,18 @@ OCAMLXDLL = -dllpath $(LIBPPRZDIR),$(LIBPPRZLINKDIR)
 
 OCAMLPATH:=$(shell echo $(LIBPPRZLINKDIR):$(LIBPPRZDIR):$(OCAMLPATH))
 export OCAMLPATH
+
+# Test lablgtk version, use V2 if available, V3 otherwise
+# disable ocaml/gtk tools if none ?
+LABLGTK2_VER = $(shell ocamlfind query -p-format lablgtk2 2>/dev/null)
+LABLGTK3_VER = $(shell ocamlfind query -p-format lablgtk3 2>/dev/null)
+ifneq ($(LABLGTK2_VER),)
+USE_LABELGTK = $(LABLGTK2_VER)
+else
+ifneq ($(LABLGTK3_VER),)
+USE_LABELGTK = $(LABLGTK3_VER)
+else
+USE_LABELGTK=
+endif
+endif
+

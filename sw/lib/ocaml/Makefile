@@ -30,16 +30,20 @@ include ../../Makefile.ocaml
 VERBOSITY =
 
 INCLUDES=
-PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy,lablgtk2
+PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy
 XINCLUDES=
-XPKGCOMMON=pprzlink,xml-light,glibivy,lablgtk2
+XPKGCOMMON=pprzlink,xml-light,glibivy,$(USE_LABELGTK)
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml quaternion.ml
 SRC += gen_common.ml radio.ml settings.ml module.ml flight_plan.ml autopilot.ml airframe.ml telemetry.ml aircraft.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
+ifeq ($(USE_LABELGTK),lablgtk2)
 XSRC = gtk_tools.ml
+else
+XSRC =
+endif
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 

@@ -47,8 +47,8 @@ PKGCOMMON=pprzlink
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-PKG = -package pprzlink,pprz.xlib
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+PKG = -package lablgtk2,pprzlink,pprz.xlib
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg lablgtk2,pprz.xlib,pprzlink
 
 XSRC = contrastLabel.ml acIcon.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_text_editor.ml gtk_papget_gauge_editor.ml gtk_papget_led_editor.ml papget_common.ml papget_renderer.ml papget.ml mapCanvas.ml mapWaypoints.ml mapTrack.ml mapGoogle.ml mapIGN.ml ml_gtk_drag.o xmlEdit.ml mapFP.ml
 XCMO = $(XSRC:.ml=.cmo)
