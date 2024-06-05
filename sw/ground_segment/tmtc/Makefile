@@ -29,16 +29,19 @@ CONF = ../../../conf
 VAR = ../../../var
 
 INCLUDES=
-PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
-XPKG = -package pprz.xlib
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+PKG = -package glibivy,pprz,$(USE_LABELGTK)
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
+XPKG = -package pprz.xlib,$(USE_LABELGTK)
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 
 SERVERCMO = server_globals.cmo aircraft_server.cmo wind.cmo airprox.cmo kml.cmo parse_messages_v1.ml intruder.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
+all: link server ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea gpsd2ivy gtk_tools
 
-all: link server messages ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea gpsd2ivy
+ifeq ($(USE_LABELGTK),lablgtk2)
+gtk_tools: messages
+endif
 
 opt: server.opt
 
@@ -151,7 +154,7 @@ ivy_serial_bridge: ivy_serial_bridge.c Makefile
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
 
-.PHONY: all opt clean
+.PHONY: all opt clean gtk_tools
 
 #
 # Dependencies
