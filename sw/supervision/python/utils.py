@@ -74,7 +74,7 @@ def open_terminal(wd, command=None):
     terminal_emulator = get_settings().value("terminal_emulator", "", str)
     if terminal_emulator == "":
         terminal_emulator = "gnome-terminal"
-    os.system("{} --working-directory {}{}".format(terminal_emulator, wd, cmd))
+    os.system("{}".format(terminal_emulator))
 
 
 def get_settings() -> QSettings:
