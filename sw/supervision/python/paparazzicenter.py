@@ -299,9 +299,10 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         self.statusBar().setStyleSheet("")
 
 
-if __name__ == "__main__":
-
-    app = QApplication(sys.argv)
+if __name__ == "__main__": 
+    # argument needed for the webviewer to work (documentation)
+    # https://stackoverflow.com/questions/75922410/pyqt5-qwebengineview-blank-window
+    app = QApplication(sys.argv + ["--disable-seccomp-filter-sandbox"])
 
     timer = QtCore.QTimer()
     timer.start(100)
