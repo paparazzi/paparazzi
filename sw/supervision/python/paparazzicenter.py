@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Copyright (C) 2008-2022 The Paparazzi Team
 # released under GNU GPLv2 or later. See COPYING file.
 import os
