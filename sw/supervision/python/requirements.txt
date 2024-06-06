@@ -1,3 +1,3 @@
 PyQt5
+PyQtWebEngine
 lxml
-
