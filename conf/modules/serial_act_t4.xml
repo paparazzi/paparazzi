@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="serial_act_t4" dir="sensors">
+  <doc>
+    <description>Transfers data from Teensy 4.0 to Pixhawk and vice versa</description>
+  </doc>
+  <header>
+    <file name="serial_act_t4.h"/>
+  </header>
+  <init fun="serial_act_t4_init()"/>
+  <event fun="serial_act_t4_event()"/>
+  <makefile>
+<!--       Configure default UART port and baudrate-->
+    <configure name="SERIAL_ACT_T4_PORT" default="UART4" case="upper|lower"/>
+    <configure name="SERIAL_ACT_T4_BAUD" default="B1500000"/>
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(SERIAL_ACT_T4_PORT_UPPER)"/>
+    <define name="USE_$(SERIAL_ACT_T4_PORT_UPPER)_TX" value="TRUE"/>
+    <define name="$(SERIAL_ACT_T4_PORT_UPPER)_BAUD" value="$(SERIAL_ACT_T4_BAUD)"/>
+    <define name="SERIAL_ACT_T4_PORT" value="$(SERIAL_ACT_T4_PORT_LOWER)"/>
+    <file name="serial_act_t4.c" dir="modules/sensors"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+</module>
