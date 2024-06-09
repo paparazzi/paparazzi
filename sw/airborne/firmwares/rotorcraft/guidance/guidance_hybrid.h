@@ -61,9 +61,9 @@ extern struct StabilizationSetpoint guidance_hybrid_run(void);
 extern struct StabilizationSetpoint guidance_hybrid_h_run_pos(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_hybrid_h_run_speed(bool in_flight, struct HorizontalGuidance *gh);
 extern struct StabilizationSetpoint guidance_hybrid_h_run_accel(bool in_flight, struct HorizontalGuidance *gh);
-extern int32_t guidance_hybrid_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_hybrid_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
-extern int32_t guidance_hybrid_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_hybrid_v_run_pos(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_hybrid_v_run_speed(bool in_flight, struct VerticalGuidance *gv);
+extern struct ThrustSetpoint guidance_hybrid_v_run_accel(bool in_flight, struct VerticalGuidance *gv);
 
 /** Creates the attitude set-points from an orientation vector.
  * @param sp_cmd The orientation vector
@@ -84,16 +84,11 @@ extern void guidance_hybrid_groundspeed_to_airspeed(void);
 extern void guidance_hybrid_determine_wind_estimate(void);
 
 /** Description.
- * @param sp_cmd Add Description
- */
-extern void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd);
-
-/** Description.
  * Change thurst command from standard hover loop to hybrid thrust command
  * @param delta_t original thurst command
  * @return modified thrust command
  */
-extern int32_t guidance_hybrid_vertical(int32_t delta_t);
+extern struct ThrustSetpoint guidance_hybrid_vertical(struct ThrustSetpoint *th);
 
 extern bool force_forward_flight;
 
