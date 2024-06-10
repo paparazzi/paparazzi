@@ -372,7 +372,8 @@ void guidance_indi_filter_thrust(void)
   // Actuator dynamics
   thrust_act = thrust_act + thrust_dyn * (thrust_in - thrust_act);
 
-  // same filter as for the acceleorth_2_low_pass(&thrust_filt, thrust_act);
+  // same filter as for the acceleration
+  update_butterworth_2_low_pass(&thrust_filt, thrust_act);
 }
 #endif
 
