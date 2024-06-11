@@ -59,7 +59,7 @@ extern void actuators_faulhaber_SetMode(uint8_t mode);
 #define ActuatorsFaulhaberCommit()  {}
 #else
 #define ActuatorsFaulhaberInit() actuators_faulhaber_init()
-#define ActuatorFaulhaberSet(_i, _v) { faulhaber.setpoint_position = (get_servo_max_FAULHABER(0)-_v) + get_servo_min_FAULHABER(0); }
+#define ActuatorFaulhaberSet(_i, _v) { faulhaber.setpoint_position = ((get_servo_max_FAULHABER(0)-_v) + get_servo_min_FAULHABER(0))*1000.0f; }
 #define ActuatorsFaulhaberCommit()  {}
 #endif
 
