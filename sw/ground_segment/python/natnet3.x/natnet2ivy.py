@@ -411,9 +411,6 @@ if not run_test_cases:
             print("Natnet error: Fail to connect to natnet")
             exit(-1)
 
-        if args.verbose:
-            print_configuration(natnet)
-            
         while True:
             sleep(1)
     except (KeyboardInterrupt, SystemExit):

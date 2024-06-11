@@ -183,31 +183,24 @@ struct StabilizationSetpoint guidance_hybrid_h_run_accel(bool in_flight UNUSED, 
   return sp;
 }
 
-int32_t guidance_hybrid_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_hybrid_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
 {
-  int32_t delta_t = guidance_pid_v_run_pos(in_flight, gv);
-  return guidance_hybrid_vertical(delta_t);
+  struct ThrustSetpoint th = guidance_pid_v_run_pos(in_flight, gv);
+  return guidance_hybrid_vertical(&th);
 }
 
-int32_t guidance_hybrid_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_hybrid_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
 {
-  int32_t delta_t = guidance_pid_v_run_speed(in_flight, gv);
-  return guidance_hybrid_vertical(delta_t);
+  struct ThrustSetpoint th = guidance_pid_v_run_speed(in_flight, gv);
+  return guidance_hybrid_vertical(&th);
 }
 
-int32_t guidance_hybrid_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_hybrid_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
 {
-  int32_t delta_t = guidance_pid_v_run_accel(in_flight, gv);
-  return guidance_hybrid_vertical(delta_t);
+  struct ThrustSetpoint th = guidance_pid_v_run_accel(in_flight, gv);
+  return guidance_hybrid_vertical(&th);
 }
 
-
-void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd)
-{
-  guidance_hybrid_ypr_sp.psi = sp_cmd->psi;
-  high_res_psi = sp_cmd->psi << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC);
-  stabilization_attitude_set_rpy_setpoint_i(sp_cmd);
-}
 
 /// Convert a required airspeed to a certain attitude for the Quadshot
 void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp)
@@ -440,8 +433,9 @@ struct StabilizationSetpoint guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cm
  * Take a thrust command as input and returns the modified value
  * according to the current flight regime
  */
-int32_t guidance_hybrid_vertical(int32_t delta_t)
+struct ThrustSetpoint guidance_hybrid_vertical(struct ThrustSetpoint *th)
 {
+  int32_t delta_t = th_sp_to_thrust_i(th, 0, THRUST_AXIS_Z);
   int32_t hybrid_delta_t = 0;
 
   float fwd_speed_err = guidance_hybrid_norm_ref_airspeed_f - AIRSPEED_FORWARD;
@@ -486,7 +480,7 @@ int32_t guidance_hybrid_vertical(int32_t delta_t)
     guidance_pid.ki = GUIDANCE_V_HOVER_KI;
   }
 
-  return hybrid_delta_t;
+  return th_sp_from_thrust_i(hybrid_delta_t, THRUST_AXIS_Z);
 }
 
 
@@ -521,17 +515,17 @@ struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct Horizon
   return guidance_hybrid_h_run_accel(in_flight, gh);
 }
 
-int32_t guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_pos(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_hybrid_v_run_pos(in_flight, gv);
 }
 
-int32_t guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_speed(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_hybrid_v_run_speed(in_flight, gv);
 }
 
-int32_t guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_accel(bool in_flight, struct VerticalGuidance *gv)
 {
   return guidance_hybrid_v_run_accel(in_flight, gv);
 }
