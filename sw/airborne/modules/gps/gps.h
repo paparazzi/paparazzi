@@ -36,6 +36,7 @@ extern "C" {
 #include "math/pprz_geodetic_float.h"
 
 #include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
 
 #define GPS_FIX_NONE 0x00     ///< No GPS fix
 #define GPS_FIX_2D   0x02     ///< 2D GPS fix
