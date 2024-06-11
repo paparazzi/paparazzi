@@ -43,9 +43,9 @@
 static void send_actuators(struct transport_tx *trans, struct link_device *dev)
 {
   // Downlink the actuators raw driver values
-  int16_t v[ACTUATORS_NB] = {0};
+  int32_t v[ACTUATORS_NB] = {0};
   for (int i = 0; i < ACTUATORS_NB; i++) {
-    v[i] = actuators[i].driver_val;
+    v[i] = actuators[i].pprz_val;
   }
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, v);
 }
