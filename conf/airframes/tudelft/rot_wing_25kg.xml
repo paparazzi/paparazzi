@@ -23,6 +23,7 @@
             <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <define name="RADIO_PARACHUTE"          value="RADIO_AUX6"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"         value="IMU_PIXHAWK2_ID"/>
@@ -41,8 +42,6 @@
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
-
-            <define name="SERVO_ROTATION_MECH_IDX" value="0"/> <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!! FIXMEEE !!!!!!!!!!!!!!!!!!!!!!!!!! -->
         </target>
 
         <target name="nps" board="pc">
@@ -106,6 +105,8 @@
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
             <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
         </module>
+        <!-- Rotation mechanism actuator on UART -->
+        <module name="actuators" type="faulhaber"/>
 
         <!-- Control -->
         <module name="stabilization" type="indi">
@@ -179,6 +180,10 @@
         <servo no="6"  name="BSERVO_RUDDER"  min="-3250" neutral="0" max="3250"/>
     </servos>
 
+    <servos driver="Faulhaber">
+        <servo no="0"  name="ROTATION_MECH"     min="29" neutral="1707" max="3385"/>
+    </servos>
+
     <commands>
         <axis name="ROLL"       failsafe_value="0"/>
         <axis name="PITCH"      failsafe_value="0"/>
@@ -221,6 +226,9 @@
         <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_LEFT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BPARACHUTE"         value="RadioControlValues(RADIO_AUX6)"/-->
+
+        <!-- Rotation mechanism -->
+        <set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
     </command_laws>
 
 
