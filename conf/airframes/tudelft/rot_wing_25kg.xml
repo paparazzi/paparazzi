@@ -33,12 +33,11 @@
             <define name="IMU_GYRO_ABI_SEND_ID"     value="IMU_PIXHAWK2_ID"/>
             <define name="IMU_ACCEL_ABI_SEND_ID"    value="IMU_PIXHAWK2_ID"/>
 
-            <!-- Range sensor connected to supercan -->
+            <!-- Sensors connected to supercan -->
             <module name="range_sensor_uavcan"/>
-            <module name="battery_uavcan"/>
-
-            <!-- Disable current sensing using UAVCAN -->
-            <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="FALSE"/>
+            <module name="power_uavcan">
+                <define name="POWER_UAVCAN_BATTERY_CIRCUITS" value="{{14,0},{6,1}}"/>
+            </module>
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
@@ -203,7 +202,6 @@
         <set servo="MOTOR_PUSH"         value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="SERVO_ELEVATOR"     value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="SERVO_RUDDER"       value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <!--set servo="ROTATION_MECH"      value="rotwing_state_skewing.servo_pprz_cmd"/>
         <set servo="AIL_RIGHT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="FLAP_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="AIL_LEFT"           value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
@@ -218,7 +216,6 @@
         <set servo="BMOTOR_PUSH"        value="($th_hold? -9600 : actuators_pprz[8])"/>
         <set servo="BSERVO_ELEVATOR"    value="($servo_hold? (RadioControlValues(RADIO_PITCH)/4+7200) : (!autopilot_in_flight()? 0 : actuators_pprz[5]))"/>
         <set servo="BSERVO_RUDDER"      value="($servo_hold? RadioControlValues(RADIO_YAW) : (!autopilot_in_flight()? 0 : actuators_pprz[4]))"/>
-        <!--set servo="BROTATION_MECH"     value="rotwing_state_skewing.servo_pprz_cmd"/>
         <set servo="BAIL_RIGHT"         value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
         <set servo="BFLAP_RIGHT"        value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[7])"/>
         <set servo="BAIL_LEFT"          value="($servo_hold? RadioControlValues(RADIO_ROLL) : actuators_pprz[6])"/>
@@ -493,7 +490,7 @@
         <define name="CATASTROPHIC_BAT_LEVEL"   value="36.0" unit="V"/>
         <define name="CRITIC_BAT_LEVEL"         value="37.2" unit="V"/>
         <define name="LOW_BAT_LEVEL"            value="48.4" unit="V"/>
-        <define name="MAX_BAT_LEVEL"            value="50.4" unit="V"/>
+        <define name="MAX_BAT_LEVEL"            value="52.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="48.4" unit="V"/>
         <define name="BAT_NB_CELLS"             value="12"/>
     </section>
