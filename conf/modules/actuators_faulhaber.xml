@@ -36,10 +36,10 @@
     <test>
         <define name="USE_UART4"/>
         <define name="PERIODIC_FREQUENCY" value="500"/>
-        <define name="FAULHABER_DEV" value="UART4"/>
-        <define name="get_servo_min_FAULHABER(0)" value="-9600"/>
-        <define name="get_servo_max_FAULHABER(0)" value="9600"/>
-        <define name="get_servo_idx_FAULHABER(0)" value="-0"/>
+        <define name="FAULHABER_DEV" value="UART4_DEV"/>
+        <define name="get_servo_min_FAULHABER" value=""/>
+        <define name="get_servo_max_FAULHABER" value=""/>
+        <define name="get_servo_idx_FAULHABER" value=""/>
     </test>
   </makefile>
 </module>
