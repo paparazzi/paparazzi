@@ -605,7 +605,8 @@
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
-        <define name="THRUST_X_EFF"         value="0.00055"/>
+
+        <define name="MAX_PUSHER_INCREMENT" value="4000"/>
 
         <define name="NAV_CIRCLE_DIST"      value="60."/>
         <define name="NAV_LINE_DIST"        value="100"/>
@@ -613,6 +614,7 @@
         <define name="CLIMB_SPEED_FWD"      value="2.0"/>
         <define name="DESCEND_SPEED_FWD"    value="-3.0"/>
         <define name="QUADPLANE"            value="TRUE"/>
+        <define name="PUSHER_INDEX"         value="8"/>
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
