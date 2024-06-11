@@ -19,16 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/battery_uavcan.h
- * Battery sensor on the uavcan bus
+/** @file modules/sensors/power_uavcan.h
+ * Power sensors on the uavcan bus
  */
 
-#ifndef BATTERY_UAVCAN_H
-#define BATTERY_UAVCAN_H
+#ifndef POWER_UAVCAN_H
+#define POWER_UAVCAN_H
 
 #include "std.h"
 
 /* External functions */
-extern void battery_uavcan_init(void);
+extern void power_uavcan_init(void);
 
-#endif /* BATTERY_UAVCAN_H */
+#endif /* POWER_UAVCAN_H */
