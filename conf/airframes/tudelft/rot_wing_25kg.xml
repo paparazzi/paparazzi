@@ -240,6 +240,10 @@
         <define name="AUTO_DOUBLETS_ACTUATORS" value="{0,1,2,3}"/>
         <define name="AUTO_DOUBLETS_AMPLITUDE" value="{1500,1500,1500,1500}"/>
 
+        <define name="AUTO_DOUBLETS_TIME" value="1.0"/>
+        <define name="AUTO_DOUBLETS_INTERVAL" value="3.0"/>
+        <define name="AUTO_DOUBLETS_REPEATS" value="4"/>
+
         <define name="CHIRP_AXES" value="{0,1,2,3}"/>
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
