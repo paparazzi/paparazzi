@@ -53,13 +53,15 @@ extern void actuators_faulhaber_event(void);
 extern void actuators_faulhaber_SetMode(uint8_t mode);
 
 
+#define ACTUATORS_FAULHABER_COMMAND_SCALE 1000.0f
+
 #if USE_NPS
 #define ActuatorsFaulhaberInit() {}
 #define ActuatorFaulhaberSet(_i, _v) {}
 #define ActuatorsFaulhaberCommit()  {}
 #else
 #define ActuatorsFaulhaberInit() actuators_faulhaber_init()
-#define ActuatorFaulhaberSet(_i, _v) { faulhaber.setpoint_position = ((get_servo_max_FAULHABER(0)-_v) + get_servo_min_FAULHABER(0))*1000.0f; }
+#define ActuatorFaulhaberSet(_i, _v) { faulhaber.setpoint_position = ((get_servo_max_FAULHABER(0)-_v) + get_servo_min_FAULHABER(0))*ACTUATORS_FAULHABER_COMMAND_SCALE; }
 #define ActuatorsFaulhaberCommit()  {}
 #endif
 
