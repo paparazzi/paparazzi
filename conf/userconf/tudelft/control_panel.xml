@@ -11,6 +11,10 @@
     <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-edit"/>
     </program>
+    <program name="Herelink PprzLink Router" command="adb shell /oem/bin/pprzlink_router_cc">
+      <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+      <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+    </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
