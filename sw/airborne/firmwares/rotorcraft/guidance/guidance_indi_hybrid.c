@@ -58,6 +58,10 @@
 #define GUIDANCE_INDI_LIFTD_ASQ 0.20
 #endif
 
+#ifndef GUIDANCE_INDI_MAX_PUSHER_INCREMENT
+#define GUIDANCE_INDI_MAX_PUSHER_INCREMENT MAX_PPRZ
+#endif
+
 /* If lift effectiveness at low airspeed not defined,
  * just make one interpolation segment that connects to
  * the quadratic part from 12 m/s onward
@@ -554,6 +558,9 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   float thrust_vect[3];
 #if GUIDANCE_INDI_HYBRID_U > 3
   thrust_vect[0] = du_gih[3];
+  if (thrust_vect[0] > GUIDANCE_INDI_MAX_PUSHER_INCREMENT*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX]) {
+    thrust_vect[0] = GUIDANCE_INDI_MAX_PUSHER_INCREMENT*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
+  }
 #else
   thrust_vect[0] = 0;
 #endif
