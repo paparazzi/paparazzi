@@ -55,6 +55,7 @@
             <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"      value="0"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+            <define name="RADIO_PARACHUTE"        value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
         </target>
@@ -451,7 +452,6 @@
         <define name="ZERO_AIRSPEED"        value="TRUE"/>
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
-        <define name="THRUST_X_EFF"         value="0.00055"/>
 
         <define name="NAV_CIRCLE_DIST"      value="60."/>
         <define name="NAV_LINE_DIST"        value="100"/>
@@ -459,6 +459,7 @@
         <define name="CLIMB_SPEED_FWD"      value="2.0"/>
         <define name="DESCEND_SPEED_FWD"    value="-3.0"/>
         <define name="QUADPLANE"            value="TRUE"/>
+        <define name="PUSHER_INDEX"     value="8"/>
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
