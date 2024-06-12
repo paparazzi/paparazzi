@@ -727,9 +727,6 @@ bool rotwing_state_hover_motors_running(void) {
 void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
   // adjust weights
-  float thrust_command = (actuator_state_filt_vect[0] + actuator_state_filt_vect[1] + actuator_state_filt_vect[2] +
-                          actuator_state_filt_vect[3]) / 4;
-  Bound(thrust_command, 0, MAX_PPRZ);
   float fixed_wing_percentage = !hover_motors_active; // TODO: when hover props go below 40%, ...
   Bound(fixed_wing_percentage, 0, 1);
 #define AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT 16
