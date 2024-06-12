@@ -313,7 +313,7 @@ static void faulhaber_parse_msg(struct faulhaber_parser_t *p)
     faulhaber.real_position = p->data[3] | (p->data[4] << 8) | (p->data[5] << 16) | (p->data[6] << 24);
 
     struct act_feedback_t feedback = {0};
-    feedback.position = (faulhaber.real_position - get_servo_min_FAULHABER(0)) / (double)(get_servo_max_FAULHABER(
+    feedback.position = ((faulhaber.real_position/ACTUATORS_FAULHABER_COMMAND_SCALE) - get_servo_min_FAULHABER(0)) / (double)(get_servo_max_FAULHABER(
                           0) - get_servo_min_FAULHABER(0)) * M_PI_2; // In radians
     feedback.set.position = true;
     feedback.idx = get_servo_idx_FAULHABER(0);
