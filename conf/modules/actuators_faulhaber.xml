@@ -4,6 +4,13 @@
   <doc>
     <description>
       Actuators Driver for the Faulhaber controller
+      Currently initialization is done manually.
+      Set mode to:
+       - 2
+       - 4
+       - 2 (it will home slowly)
+       - Wait until homing is finished!
+       - Back to 1 and the wing will move
     </description>
     <configure name="FAULHABER_DEV" value="UARTX" description="UART port (default UART4)"/>
   </doc>
