@@ -25,10 +25,10 @@
  *
  */
 
-#include "actuators_t4.h"
 #include "modules/energy/electrical.h"
 #include "modules/core/abi.h"
 #include "modules/actuators/actuators.h"
+#include "actuators_t4.h"
 
 /* By default enable the usage of the current sensing in the ESC telemetry */
 #ifndef T4_ACTUATORS_USE_CURRENT

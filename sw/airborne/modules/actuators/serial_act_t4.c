@@ -22,13 +22,14 @@
  * @author Alessandro Mancinelli
  */
 
-#include "modules/sensors/serial_act_t4.h"
+
 #include "pprzlink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include <time.h>
 #include <sys/time.h>
 #include "modules/core/abi.h"
+#include "modules/actuators/serial_act_t4.h"
 
 //Variables for outbound packet
 static abi_event SERIAL_ACT_T4_OUT;

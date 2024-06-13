@@ -3,7 +3,7 @@
 <module name="t4_uart" dir="actuators" task="actuators">
   <doc>
     <description>
-      Actuators Driver using T4 protocol to a T4 servo board via UART bus.
+       Actuators Driver using T4 protocol to a T4 actuator board via UART bus.
     </description>
     <configure name="ACTUATORS_T4_UART_DEV" value="UARTX" description="UART port the T4 board is connected to (default uart2)"/>
   </doc>

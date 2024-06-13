@@ -1,7 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="serial_act_t4" dir="sensors">
+<module name="serial_act_t4" dir="actuators" task="actuators">
   <doc>
-    <description>Transfers data from Teensy 4.0 to Pixhawk and vice versa</description>
+    <description>
+      Module to set serialbus servos, PWM ESC's, DShot ESC's and PWM servos connected to a Teensy 4.0 based T4 module.
+      Also get and use status information that is returned like RPM, Angle, Torque, Temperature, Current.
+    </description>
   </doc>
   <header>
     <file name="serial_act_t4.h"/>
