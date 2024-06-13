@@ -54,6 +54,7 @@
             <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"      value="0"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+            <define name="RADIO_PARACHUTE"        value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
         </target>
