@@ -12,7 +12,7 @@
     <waypoint name="p1" x="65" y="75"/>
     <waypoint name="p2" x="200" y="120"/>
     <waypoint name="p3" x="250" y="-30"/>
-    <waypoint name="p4" x="120" y="-75"/> -->
+    <waypoint name="p4" x="120" y="-75"/>
     <waypoint name="circ" x="160" y="25"/>
     <waypoint name="TD" x="10" y="-1"/>
     <waypoint name="APP" x="70" y="-25"/>
