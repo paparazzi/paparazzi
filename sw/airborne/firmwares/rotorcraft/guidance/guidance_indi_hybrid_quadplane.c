@@ -34,16 +34,14 @@
 #error "Quadplanes require a forward thrust actuator"
 #endif
 
+#ifndef GUIDANCE_INDI_PUSHER_INDEX
+#error "You need to define GUIDANCE_INDI_PUSHER_INDEX"
+#endif
+
 #ifndef GUIDANCE_INDI_THRUST_Z_EFF
 #error "You need to define GUIDANCE_INDI_THRUST_Z_EFF"
 #else
 float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
-#endif
-
-#ifndef GUIDANCE_INDI_THRUST_X_EFF
-#error "You need to define GUIDANCE_INDI_THRUST_X_EFF"
-#else
-float guidance_indi_thrust_x_eff = GUIDANCE_INDI_THRUST_X_EFF;
 #endif
 
 float bodyz_filter_cutoff = 0.2;
@@ -138,13 +136,13 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   du_min_gih[0] = -guidance_indi_max_bank - roll_angle; //roll
   du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
   du_min_gih[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
-  du_min_gih[3] = -stabilization.cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
+  du_min_gih[3] = -stabilization.cmd[COMMAND_THRUST_X]*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set upper limits limits
   du_max_gih[0] = guidance_indi_max_bank - roll_angle; //roll
   du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
   du_max_gih[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
-  du_max_gih[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
+  du_max_gih[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set prefered states
   du_pref_gih[0] = -roll_angle; // prefered delta roll angle
