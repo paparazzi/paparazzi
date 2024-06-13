@@ -338,8 +338,6 @@ static void jevois_parse(struct jevois_t *jv, char c)
             break;
           case 3:
             jv->msg.quat.qz = q;
-            break;
-          case 4:
             jv->state = JV_EXTRA;
             break;
           default:
@@ -367,6 +365,15 @@ static void jevois_parse(struct jevois_t *jv, char c)
       }
       break;
     case JV_SEND_MSG:
+    // handled by the following if.
+    // needed to send the message now.
+    default:
+      // error, back to SYNC
+      jv->state = JV_SYNC;
+      break;
+  }
+
+  if(jv->state == JV_SEND_MSG) {
       // send ABI message
       AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
           jv->msg.type,
@@ -379,12 +386,16 @@ static void jevois_parse(struct jevois_t *jv, char c)
       // also send specific messages if needed
       jevois_send_message();
       jv->data_available = true;
-      jv->state = JV_SYNC;
-      break;
-    default:
-      // error, back to SYNC
-      jv->state = JV_SYNC;
-      break;
+      
+      if (c == '\n') {
+        // bypass SYNC
+        jv->state = JV_TYPE;
+        jv->idx = 0;
+        jv->n = 0;
+      } else {
+        jv->state = JV_SYNC;
+      }
+      
   }
 }
 
