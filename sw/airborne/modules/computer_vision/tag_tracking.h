@@ -33,6 +33,13 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_float.h"
 
+#ifndef TAG_TRACKING_NB_MAX
+#define TAG_TRACKING_NB_MAX 5
+#endif
+
+
+
+
 // Searching status
 #define TAG_TRACKING_SEARCHING  0
 #define TAG_TRACKING_RUNNING    1
@@ -55,8 +62,7 @@ struct tag_tracking_public {
   float kpz;                    ///< vertical tracking command gain
 };
 
-extern struct tag_tracking_public tag_tracking;
-
+extern struct tag_tracking_public* tag_tracking_get(uint8_t tag_id);
 extern void tag_tracking_init(void);
 extern void tag_tracking_propagate(void);
 extern void tag_tracking_propagate_start(void);
