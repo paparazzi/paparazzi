@@ -75,6 +75,22 @@
     <module name="navigation"/>
     <module name="auto1_commands"/>
 
+    <!--UART3 is Telem2 on FMU4 e.g. a Pixracer-->
+    <module name="serial_act_t4">
+      <configure name="SERIAL_ACT_T4_PORT" value="UART3"/> <configure name="MODEM_PORT" value="UART3"/>
+      <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
+    </module>
+  
+    <!-- AOA sensor thru Teensy 4-by using a modded servo -->
+    <!-- <module name="aoa_t4">
+        <define name="AOA_T4_SERVO_ID" value="8"/>
+        <define name="AOA_T4_OFFSET" value="-0.66"/> 
+        <define name="AOA_T4_SIGN" value="-1"/>
+        <define name="AOA_T4_USE_LOWPASS_FILTER" value="FALSE"/>
+        <define name="AOA_T4_LOWPASS_TAU" value="0.15"/>
+    </module>
+    <define name="USE_AOA" value="TRUE"/> -->
+
   </firmware>
 
   <servos>

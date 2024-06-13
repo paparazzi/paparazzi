@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_t4" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      To be able to use T4 Board based actuators. read all about it here https://github.com/tudelft/Teensy_actuators_PPZ
+   </description>
+   <define name="T4_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+  </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_t4.h"/>
+  </header>
+  <makefile target="ap">
+    <file name="actuators_t4.c"/>
+  </makefile>
+</module>
