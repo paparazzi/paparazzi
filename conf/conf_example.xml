@@ -1,5 +1,16 @@
 <conf>
   <aircraft
+   name="T4_actuator_example"
+   ac_id="14"
+   airframe="airframes/examples/example_t4_actuators_fw.xml"
+   radio="radios/OPENUAS/openuas_openrxsr_sbus_16_out.xml"
+   telemetry="telemetry/default_fixedwing.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/ahrs_float_dcm.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_basic_fw.xml modules/imu_common.xml modules/nav_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   gui_color="#ffffffffffff"
+  />
+  <aircraft
    name="Bixler"
    ac_id="2"
    airframe="airframes/examples/bixler_lisa_m_2.xml"
