@@ -48,15 +48,26 @@
         <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
       </module>
 
-      <module name="actuators" type="pwm"/>
+       <!-- Load module to be able to also have PWM Servos connected to the regular Flightcontroller PWM outputs -->
+       <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="200" />
+      </module>
+
+      <!-- tyryout with UAV CAN actuaters -->
+      <module name="actuators" type="uavcan">
+        <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
+        <configure value="FALSE" name="UAVCAN_USE_CAN2"/>
+      </module>
+
       <!-- <module name="actuators" type="t4"/> --><!-- TODO: Finalize module for PPRZ for full mixing integration -->
 
       <!-- To use this module one needs to have real T4 actuator board hardware connected -->
-      <module name="serial_act_t4">
-        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>   <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
+      <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
+      <!-- <module name="serial_act_t4">
+        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/> 
         <configure name="MODEM_PORT" value="UART3"/>
         <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
-      </module>
+      </module> -->
 
       <module name="gps" type="ublox"/>
 
@@ -68,11 +79,6 @@
 
       <module name="telemetry" type="transparent">
         <configure name="MODEM_PORT" value="usb_serial"/>
-      </module>
-
-       <!-- Load module to be able to also have PWM Servos connected to the regular Flightcontroller PWM outputs -->
-      <module name="actuators" type="pwm">
-        <define name="SERVO_HZ" value="200" />
       </module>
 
       <!-- TODO: Add documentation on how to modify a serialbus servo to make it a AOA sensor -->
@@ -106,22 +112,36 @@
   </firmware>
 
   <!-- PWM Servos connected to the regular Flightcontroller PWM outputs -->
-  <servos type="pwm">
+  <servos driver="Pwm">
     <servo name="CAMTILT" no="3" min="1100" neutral="1500" max="1900"/>
     <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>
   </servos>
 
-  <servos type="t4"> <!-- At the moment only one T4 board is supported, but feel free to enhance -->
+  <servos driver="Uavcan1">
+    <servo name="S_THROTTLE" no="0" min="0" neutral="4096" max="8191"/>
+    <servo name="S_AILERON"  no="1" min="0" neutral="4096" max="8191"/>
+    <servo name="S_ELEVATOR" no="2" min="0" neutral="4096" max="8191"/>
+    <servo name="S_RUDDER"   no="3" min="0" neutral="4096" max="8191"/>
+  </servos>
+
+  <!-- <servos driver="Uavcan2Cmd">
+    <servo name="AIL_LEFT" no="7" min="-3250" neutral="0" max="3250"/> 
+    <servo name="FLAP_LEFT" no="8" min="-3250" neutral="0" max="3250"/>
+    <servo name="FLAP_RIGHT" no="9" min="-3250" neutral="0" max="3250"/>
+    <servo name="AIL_RIGHT" no="10" min="-3250" neutral="0" max="3250"/>
+</servos> -->
+
+ <!--<servos driver="t4">--><!-- At the moment only one T4 board is supported, but feel free to enhance -->
 
     <!-- ESC's -->
-    <servo name="S_L_THROTTLE" no="9" min="1100" neutral="1150" max="1900"/>
-    <servo name="S_R_THROTTLE" no="10" min="1100" neutral="1150" max="1900"/>
+    <!-- <servo name="S_L_THROTTLE" no="9" min="1100" neutral="1150" max="1900"/>
+    <servo name="S_R_THROTTLE" no="10" min="1100" neutral="1150" max="1900"/> -->
 
     <!-- ESC for the extra posher motor -->
-    <servo name="S_P_THROTTLE" no="11" min="1100" neutral="1150" max="1900"/>
+    <!-- <servo name="S_P_THROTTLE" no="11" min="1100" neutral="1150" max="1900"/> -->
 
     <!-- SerialBus Servos -->
-    <servo name="S_L_AILERON"  no="1" min="1100" neutral="1500" max="1900"/>
+    <!-- <servo name="S_L_AILERON"  no="1" min="1100" neutral="1500" max="1900"/>
     <servo name="S_L_FLAPERON" no="2" min="1100" neutral="1500" max="1900"/>
 
     <servo name="S_R_AILERON"  no="3" min="1100" neutral="1500" max="1900"/>
@@ -130,15 +150,15 @@
     <servo name="S_ELEVATOR"   no="5" min="1100" neutral="1500" max="1900"/>
     <servo name="S_RUDDER"     no="6" min="1100" neutral="1500" max="1900"/>
 
-    <servo name="S_AIRBRAKE"   no="7" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_AIRBRAKE"   no="7" min="1100" neutral="1500" max="1900"/> -->
 
     <!--Servo 12 not steerable but motor removed now free rotating to get AOA angle feedback only -->
     <!-- <servo name="AOA"  no="8" min="1000" neutral="1500" max="2000"/> -->
 
     <!-- Simple PWM servos without feedback but connected to T4 -->
-    <servo name="S_FRONTWHEEL" no="13" min="1350" neutral="1500" max="1800"/>
-    <servo name="S_WHEELCOVER" no="14" min="1850" neutral="1500" max="1250"/>
-  </servos>
+    <!-- <servo name="S_FRONTWHEEL" no="13" min="1350" neutral="1500" max="1800"/>
+    <servo name="S_WHEELCOVER" no="14" min="1850" neutral="1500" max="1250"/> -->
+
 
   <section name="ServoPositions">
     <define name="LANDINGGEAR_EXTEND" value="-MAX_PPRZ"/>
