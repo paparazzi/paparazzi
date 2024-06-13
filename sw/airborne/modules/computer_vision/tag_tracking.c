@@ -577,3 +577,65 @@ static void tag_motion_sim(void)
 
 #endif
 
+
+
+
+int tag_tracking_setting_id;
+float tag_tracking_motion_type;
+float tag_tracking_predict_time;
+float tag_tracking_kp;
+float tag_tracking_kpz;
+
+
+void tag_tracking_set_motion_type(float motion_type) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.motion_type = (uint8_t)motion_type;
+      tag_tracking_motion_type = (uint8_t)motion_type;;
+    }
+  }
+}
+
+void tag_tracking_set_predict_time(float predict_time) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.predict_time = predict_time;
+      tag_tracking_predict_time = predict_time;
+    }
+  }
+}
+
+void tag_tracking_set_kp(float kp) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.kp = kp;
+      tag_tracking_kp = kp;
+    }
+  }
+}
+
+void tag_tracking_set_kpz(float kpz) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.kpz = kpz;
+      tag_tracking_kpz = kpz;
+    }
+  }
+}
+
+void tag_tracking_set_setting_id(float id) {
+  tag_tracking_setting_id = (int)id;
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_tracking_motion_type = tag_infos[i].tag_tracking.motion_type;
+      tag_tracking_predict_time = tag_infos[i].tag_tracking.predict_time;
+      tag_tracking_kp = tag_infos[i].tag_tracking.kp;
+      tag_tracking_kpz = tag_infos[i].tag_tracking.kpz;
+    }
+  }
+}

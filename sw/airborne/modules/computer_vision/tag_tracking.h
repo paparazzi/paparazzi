@@ -62,6 +62,19 @@ struct tag_tracking_public {
   float kpz;                    ///< vertical tracking command gain
 };
 
+
+// settings
+extern int tag_tracking_setting_id;
+extern float tag_tracking_motion_type;
+extern float tag_tracking_predict_time;
+extern float tag_tracking_kp;
+extern float tag_tracking_kpz;
+void tag_tracking_set_setting_id(float id);
+void tag_tracking_set_motion_type(float motion_type);
+void tag_tracking_set_predict_time(float predict_time);
+void tag_tracking_set_kp(float kp);
+void tag_tracking_set_kpz(float kpz);
+
 extern struct tag_tracking_public* tag_tracking_get(uint8_t tag_id);
 extern void tag_tracking_init(void);
 extern void tag_tracking_propagate(void);
