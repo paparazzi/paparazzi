@@ -42,11 +42,8 @@ def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="This script will setup the python environment for Paparazzi")
-    parser.add_argument('-n', '--name', default='pprzEnv', help='environnment name')
     parser.add_argument('-s', '--system', action='store_true', help="Use system site packages.")
-
-    parser.add_argument('-c', '--clean', action='store_true',
-                            help="Clean aka delete  the virtual environment and previous build results.")
+    parser.add_argument('-c', '--clean', action='store_true', help="Delete the previous virtual environment before recreating it.")
     args = parser.parse_args()
 
     run(args)
