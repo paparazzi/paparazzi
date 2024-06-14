@@ -217,6 +217,8 @@ float rate_vect_prev[3] = {0., 0., 0.};
 float q_filt = 0.0;
 float r_filt = 0.0;
 
+float stabilization_indi_filter_freq = 20.0; //Hz, for setting handler
+
 // variables needed for estimation
 float g1g2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
 float g1g2inv[INDI_OUTPUTS][INDI_OUTPUTS];
@@ -439,6 +441,16 @@ void stabilization_indi_enter(void)
 
   float_vect_zero(du_estimation, INDI_NUM_ACT);
   float_vect_zero(ddu_estimation, INDI_NUM_ACT);
+}
+
+void stabilization_indi_update_filt_freq(float freq)
+{
+  stabilization_indi_filter_freq = freq;
+  float tau = 1.0 / (2.0 * M_PI * freq);
+  float sample_time = 1.0 / PERIODIC_FREQUENCY;
+  init_first_order_low_pass(&rates_filt_fo[0], tau, sample_time, stateGetBodyRates_f()->p);
+  init_first_order_low_pass(&rates_filt_fo[1], tau, sample_time, stateGetBodyRates_f()->q);
+  init_first_order_low_pass(&rates_filt_fo[2], tau, sample_time, stateGetBodyRates_f()->r);
 }
 
 /**
