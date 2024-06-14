@@ -236,6 +236,17 @@
   <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
     <define name="BODY_TO_CAM_PSI" value="0"/>
     <define name="CAM_POS_Y" value="-0.12"/>
+    <define name="NB_WP_MAX" value="2"/>
+    <define name="WPS" type="array">
+      <field type="struct">
+        <field name="wp_id" value="WP_TAG"/>
+        <field name="tag_id" value="0"/>
+      </field>
+      <field type="struct">
+        <field name="wp_id" value="WP_ROVER"/>
+        <field name="tag_id" value="4"/>
+      </field>
+    </define>
   </section>
 
   <section name="GCS">
