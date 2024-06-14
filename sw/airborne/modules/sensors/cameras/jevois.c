@@ -167,6 +167,23 @@ static void jevois_send_message(void)
 #endif
 }
 
+static void jevois_handle_msg() {
+  // send ABI message
+  AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
+      jv->msg.type,
+      jv->msg.id,
+      jv->msg.nb,
+      jv->msg.coord,
+      jv->msg.dim,
+      jv->msg.quat,
+      jv->msg.extra);
+  // also send specific messages if needed
+  jevois_send_message();
+  jv->data_available = true;
+  jv->idx = 0;
+  jv->n = 0;
+}
+
 // raw message parsing function
 static void jevois_parse(struct jevois_t *jv, char c)
 {
@@ -275,7 +292,8 @@ static void jevois_parse(struct jevois_t *jv, char c)
             case JEVOIS_MSG_T1:
             case JEVOIS_MSG_T2:
             case JEVOIS_MSG_T3:
-              jv->state = JV_SEND_MSG;
+              jevois_handle_msg();
+              jv->state = JV_TYPE;
               break;
             case JEVOIS_MSG_N1:
             case JEVOIS_MSG_N2:
@@ -311,7 +329,8 @@ static void jevois_parse(struct jevois_t *jv, char c)
           if (jv->msg.type == JEVOIS_MSG_D3) {
             jv->state = JV_QUAT;
           } else {
-            jv->state = JV_SEND_MSG;
+            jevois_handle_msg();
+            jv->state = JV_TYPE;
           }
           break;
         }
@@ -353,24 +372,10 @@ static void jevois_parse(struct jevois_t *jv, char c)
     case JV_EXTRA:
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->msg.extra[jv->idx] = '\0'; // end string
-        jv->idx = 0;
-        jv->n = 0;
+
         if (c == '\n') {
-          // send ABI message
-          AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
-              jv->msg.type,
-              jv->msg.id,
-              jv->msg.nb,
-              jv->msg.coord,
-              jv->msg.dim,
-              jv->msg.quat,
-              jv->msg.extra);
-          // also send specific messages if needed
-          jevois_send_message();
-          jv->data_available = true;
-          // bypass SYNC
+          jevois_handle_msg();
           jv->state = JV_TYPE;
-          
         } else {
           jv->state = JV_SYNC;
         }
@@ -382,9 +387,6 @@ static void jevois_parse(struct jevois_t *jv, char c)
         }
       }
       break;
-    case JV_SEND_MSG:
-    // handled by the following if.
-    // needed to send the message now.
     default:
       // error, back to SYNC
       jv->state = JV_SYNC;
