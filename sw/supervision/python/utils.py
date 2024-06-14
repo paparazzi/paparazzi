@@ -67,12 +67,17 @@ def get_build_version() -> str:
         version = f.readline().strip()
     return version
 
+def get_shell():
+    p = subprocess.run(['getent', 'passwd', os.getenv('LOGNAME')], capture_output=True)
+    shell = p.stdout.decode().strip().split(':')[6]
+    return shell
 
 def open_terminal(wd):
     terminal_emulator = get_settings().value("terminal_emulator", "", str)
     if terminal_emulator == "":
         terminal_emulator = "x-terminal-emulator"
-    subprocess.Popen([terminal_emulator], cwd=wd)
+    shell = get_shell()
+    subprocess.Popen([terminal_emulator, '-e', shell, '--rcfile', 'conf/system/term_init.sh'], cwd=wd)
 
 def get_settings() -> QSettings:
     return QSettings(os.path.join(CONF_DIR, "pprz_center_settings.ini"), QSettings.IniFormat)
