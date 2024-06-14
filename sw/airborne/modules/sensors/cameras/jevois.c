@@ -63,8 +63,7 @@ enum jevois_state {
   JV_COORD,
   JV_DIM,
   JV_QUAT,
-  JV_EXTRA,
-  JV_SEND_MSG
+  JV_EXTRA
 };
 
 // jevois struct
@@ -166,6 +165,23 @@ static void jevois_send_message(void)
       0,
       (int16_t)jevois_extract_nb(jevois.msg.id));
 #endif
+}
+
+static void jevois_handle_msg(struct jevois_t *jv) {
+  // send ABI message
+  AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
+      jv->msg.type,
+      jv->msg.id,
+      jv->msg.nb,
+      jv->msg.coord,
+      jv->msg.dim,
+      jv->msg.quat,
+      jv->msg.extra);
+  // also send specific messages if needed
+  jevois_send_message();
+  jv->data_available = true;
+  jv->idx = 0;
+  jv->n = 0;
 }
 
 // raw message parsing function
@@ -276,7 +292,8 @@ static void jevois_parse(struct jevois_t *jv, char c)
             case JEVOIS_MSG_T1:
             case JEVOIS_MSG_T2:
             case JEVOIS_MSG_T3:
-              jv->state = JV_SEND_MSG;
+              jevois_handle_msg(jv);
+              jv->state = JV_TYPE;
               break;
             case JEVOIS_MSG_N1:
             case JEVOIS_MSG_N2:
@@ -312,7 +329,8 @@ static void jevois_parse(struct jevois_t *jv, char c)
           if (jv->msg.type == JEVOIS_MSG_D3) {
             jv->state = JV_QUAT;
           } else {
-            jv->state = JV_SEND_MSG;
+            jevois_handle_msg(jv);
+            jv->state = JV_TYPE;
           }
           break;
         }
@@ -354,8 +372,13 @@ static void jevois_parse(struct jevois_t *jv, char c)
     case JV_EXTRA:
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->msg.extra[jv->idx] = '\0'; // end string
-        jv->state = JV_SEND_MSG;
-        jv->idx = 0; // reset index
+
+        if (c == '\n') {
+          jevois_handle_msg(jv);
+          jv->state = JV_TYPE;
+        } else {
+          jv->state = JV_SYNC;
+        }
       }
       else {
         jv->msg.extra[jv->idx++] = c; // store extra string
@@ -364,38 +387,10 @@ static void jevois_parse(struct jevois_t *jv, char c)
         }
       }
       break;
-    case JV_SEND_MSG:
-    // handled by the following if.
-    // needed to send the message now.
     default:
       // error, back to SYNC
       jv->state = JV_SYNC;
       break;
-  }
-
-  if(jv->state == JV_SEND_MSG) {
-      // send ABI message
-      AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
-          jv->msg.type,
-          jv->msg.id,
-          jv->msg.nb,
-          jv->msg.coord,
-          jv->msg.dim,
-          jv->msg.quat,
-          jv->msg.extra);
-      // also send specific messages if needed
-      jevois_send_message();
-      jv->data_available = true;
-      
-      if (c == '\n') {
-        // bypass SYNC
-        jv->state = JV_TYPE;
-        jv->idx = 0;
-        jv->n = 0;
-      } else {
-        jv->state = JV_SYNC;
-      }
-      
   }
 }
 
