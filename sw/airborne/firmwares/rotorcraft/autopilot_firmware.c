@@ -143,7 +143,7 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
   if(electrical.avg_cnt != 0) {
     avg_power = (float)electrical.avg_power / electrical.avg_cnt;
   }
-  
+
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
                        &throttle, &electrical.vsupply, &electrical.current, &power, &avg_power, &electrical.charge, &electrical.energy);
 }
@@ -255,6 +255,13 @@ void autopilot_firmware_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BODY_RATES_ACCEL, send_body_rates_accel);
 #ifdef RADIO_CONTROL
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
+#endif
+}
+
+void autopilot_send_mode(void)
+{
+#if DOWNLINK
+  send_status(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 }
 
