@@ -63,8 +63,7 @@ enum jevois_state {
   JV_COORD,
   JV_DIM,
   JV_QUAT,
-  JV_EXTRA,
-  JV_SEND_MSG
+  JV_EXTRA
 };
 
 // jevois struct
@@ -354,8 +353,27 @@ static void jevois_parse(struct jevois_t *jv, char c)
     case JV_EXTRA:
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->msg.extra[jv->idx] = '\0'; // end string
-        jv->state = JV_SEND_MSG;
-        jv->idx = 0; // reset index
+        jv->idx = 0;
+        jv->n = 0;
+        if (c == '\n') {
+          // send ABI message
+          AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
+              jv->msg.type,
+              jv->msg.id,
+              jv->msg.nb,
+              jv->msg.coord,
+              jv->msg.dim,
+              jv->msg.quat,
+              jv->msg.extra);
+          // also send specific messages if needed
+          jevois_send_message();
+          jv->data_available = true;
+          // bypass SYNC
+          jv->state = JV_TYPE;
+          
+        } else {
+          jv->state = JV_SYNC;
+        }
       }
       else {
         jv->msg.extra[jv->idx++] = c; // store extra string
@@ -371,31 +389,6 @@ static void jevois_parse(struct jevois_t *jv, char c)
       // error, back to SYNC
       jv->state = JV_SYNC;
       break;
-  }
-
-  if(jv->state == JV_SEND_MSG) {
-      // send ABI message
-      AbiSendMsgJEVOIS_MSG(CAM_JEVOIS_ID,
-          jv->msg.type,
-          jv->msg.id,
-          jv->msg.nb,
-          jv->msg.coord,
-          jv->msg.dim,
-          jv->msg.quat,
-          jv->msg.extra);
-      // also send specific messages if needed
-      jevois_send_message();
-      jv->data_available = true;
-      
-      if (c == '\n') {
-        // bypass SYNC
-        jv->state = JV_TYPE;
-        jv->idx = 0;
-        jv->n = 0;
-      } else {
-        jv->state = JV_SYNC;
-      }
-      
   }
 }
 
