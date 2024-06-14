@@ -33,7 +33,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="px4fmu_4.0_chibios">
+    <target name="ap" board="cube_orangeplus">
 
       <!-- <configure name="PERIODIC_FREQUENCY" value="500"/> -->
 
@@ -54,12 +54,21 @@
       </module>
 
       <!-- tyryout with UAV CAN actuaters -->
-      <module name="actuators" type="uavcan">
-        <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
-        <configure value="FALSE" name="UAVCAN_USE_CAN2"/>
-      </module>
+<!--      <module name="actuators" type="uavcan">-->
+<!--        <configure value="TRUE" name="UAVCAN_USE_CAN1"/>-->
+<!--        <configure value="FALSE" name="UAVCAN_USE_CAN2"/>-->
+<!--      </module>-->
 
-      <!-- <module name="actuators" type="t4"/> --><!-- TODO: Finalize module for PPRZ for full mixing integration -->
+<!--      UART8==GPS2 -->
+
+<!--      type should match to the module name-->
+      <module name="actuators" type="myt4"/>
+
+<!--       <module name="actuators" type="t4">-->
+<!--         <configure value="FALSE" name="UAVCAN_USE_CAN1"/>-->
+<!--         <configure value="TRUE" name="UAVCAN_USE_CAN2"/>-->
+<!--       </module>-->
+      <!-- TODO: Finalize module for PPRZ for full mixing integration -->
 
       <!-- To use this module one needs to have real T4 actuator board hardware connected -->
       <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
@@ -117,7 +126,9 @@
     <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>
   </servos>
 
-  <servos driver="Uavcan1">
+  <!-- and this driver name should also match to the actuator module name -->
+  <!-- cASe SeNsITiVe! -->
+  <servos driver="Myt4">
     <servo name="S_THROTTLE" no="0" min="0" neutral="4096" max="8191"/>
     <servo name="S_AILERON"  no="1" min="0" neutral="4096" max="8191"/>
     <servo name="S_ELEVATOR" no="2" min="0" neutral="4096" max="8191"/>
