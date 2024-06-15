@@ -1,4 +1,4 @@
-# Python
+#!/usr/bin/env python
 
 # Parse compiler logs and generate a summary of the errors and warnings
 # Load log file from var/compiler.log
@@ -14,14 +14,21 @@ def parse_log(log_file):
     errors = []
     conf = ''
     airframe = ''
+    module = ''
 
     for line in lines:
         if 'Testing all aircrafts in conf: ' in line:
             conf = line.split('Testing all aircrafts in conf: ')[1].strip()
             #print(conf)
-        if 'compiling AIRCRAFT: [' in line:
+        elif 'tests/modules/test_modules.py' in line:
+            conf = 'modules'
+        elif 'compiling AIRCRAFT: [' in line:
             airframe = line.split('compiling AIRCRAFT: [')[1].strip().strip(']').replace('] TARGET: [', ' --- ' )
             #print('\t-',airframe)
+        if conf == 'modules':
+            if ('ok ' in line) and ('_0' in line):
+                airframe = line.strip()
+
         if conf and airframe:
             if 'error:' in line:
                 errors.append((conf, airframe, line.strip()))
@@ -38,7 +45,7 @@ def print_errors(errors):
         return
     for conf, airframe, error in errors:
         if conf != last_conf:
-            pinrt('')
+            print('')
             print(conf+':')
             print('-' * len(conf))
             last_conf = conf
