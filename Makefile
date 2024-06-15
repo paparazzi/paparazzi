@@ -304,7 +304,8 @@ test: test_math test_examples test_modules
 
 # subset of airframes for coverity test to pass the limited build time on travis
 test_coverity: all
-	CONF_XML=conf/conf_tests_coverity.xml prove tests/aircrafts/
+	CONF_XML=conf/conf_tests_coverity.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
+	python ./sw/tools/parse_compile_logs.py
 
 # test AggieAir conf
 test_aggieair: all
@@ -344,6 +345,12 @@ test_all_confs: all opencv_bebop
 # run some math tests that don't need whole paparazzi to be built
 test_math:
 	make -C tests/math
+
+test_full:
+	make -C ./ test_all_confs 2>&1 | tee ./var/compile.log
+	python ./sw/tools/parse_compile_logs.py | tee ./issues.md
+
+
 
 .PHONY: all print_build_version _print_building _save_build_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink.update libpprzlink.install cockpit cockpit.opt tmtc tmtc.opt generators\
