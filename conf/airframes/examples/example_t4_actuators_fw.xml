@@ -1,0 +1,280 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<airframe name="example_t4_actuators_fw">
+  <description>
+   Example for an airframe with a T4 Actuator board attatched and a mRo Pixracer flightcontroller
+
+    + Model:             Example model
+    + FC:   PX4FMU 4.0 in the form of a mRo Pixracer v1.0 R15
+    + Actuators:   SerialBus and regular PWM servos
+    + GNSS         Ublox M10 GNSS
+    + MAG          None
+    + ESC:         AM32 ESC on T4 board and AM32 ESC via PWM
+    + RCRX:        OpenRXSR Receiver
+    + AIRSPEED:    None
+    + TELEMETRY:   USB cable
+    + CURRENT:     None
+    + RANGER:      None
+    + MOTOR:       Generic Outrunner Brushless
+    + PROP:        Generic
+    + BAT:         Generic 3S LiPo
+
+    NOTES:
+
+    + This airframe is a eample on how to use a T4 Actuator board
+      You will have full Force Position feedback from Serial Buas servos
+      RPM feedback from ESC
+    + PWM Servos powered via BEC of Powerbrick
+    + Flightcontroller powered via Powerbrick
+    + Telemetry powerd via BEC on powerbrick
+    + Uploading of the firmware can be performed via original PX4 bootloader...
+      Simple, click upload...plug USB cable in, wait, voila!
+
+  </description>
+
+  <firmware name="fixedwing">
+
+    <target name="ap" board="cube_orangeplus">
+
+      <!-- <configure name="PERIODIC_FREQUENCY" value="500"/> -->
+
+      <module name="imu" type="mpu9250_spi">
+        <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+        <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+        <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+      </module>
+
+      <module name="baro_ms5611_spi">
+        <configure name="MS5611_SPI_DEV" value="spi1"/>
+        <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE3"/>
+      </module>
+
+       <!-- Load module to be able to also have PWM Servos connected to the regular Flightcontroller PWM outputs -->
+       <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="200" />
+      </module>
+
+      <!-- tyryout with UAV CAN actuaters -->
+<!--      <module name="actuators" type="uavcan">-->
+<!--        <configure value="TRUE" name="UAVCAN_USE_CAN1"/>-->
+<!--        <configure value="FALSE" name="UAVCAN_USE_CAN2"/>-->
+<!--      </module>-->
+
+<!--      UART8==GPS2 -->
+
+<!--      type should match to the module name-->
+      <module name="actuators" type="myt4"/>
+
+<!--       <module name="actuators" type="t4">-->
+<!--         <configure value="FALSE" name="UAVCAN_USE_CAN1"/>-->
+<!--         <configure value="TRUE" name="UAVCAN_USE_CAN2"/>-->
+<!--       </module>-->
+      <!-- TODO: Finalize module for PPRZ for full mixing integration -->
+
+      <!-- To use this module one needs to have real T4 actuator board hardware connected -->
+      <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
+      <!-- <module name="serial_act_t4">
+        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/> 
+        <configure name="MODEM_PORT" value="UART3"/>
+        <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
+      </module> -->
+
+      <module name="gps" type="ublox"/>
+
+      <module name="radio_control" type="sbus">
+        <define name="RADIO_CONTROL_NB_CHANNEL" value="16"/> 
+         <define name="RADIO_GEAR" value="RADIO_AUX3"/>
+        <define name="RADIO_FLAP" value="RADIO_AUX4"/>
+      </module>
+
+      <module name="telemetry" type="transparent">
+        <configure name="MODEM_PORT" value="usb_serial"/>
+      </module>
+
+      <!-- TODO: Add documentation on how to modify a serialbus servo to make it a AOA sensor -->
+    <!-- AOA sensor thru T4 by using a servo with motor removed TODO: Offset in rad ?-->
+
+    <!-- 
+    <module name="aoa_t4">
+        <define name="AOA_T4_SERVO_ID" value="8"/>
+        <define name="AOA_T4_OFFSET" value="-0.66"/> 
+        <define name="AOA_T4_SIGN" value="-1"/>
+        <define name="AOA_T4_USE_LOWPASS_FILTER" value="FALSE"/>
+        <define name="AOA_T4_LOWPASS_TAU" value="0.15"/>
+    </module>
+    -->
+
+    <!-- <define name="USE_AOA" value="TRUE"/> --><!-- Enable AOA sensor in control not only reading -->
+
+    </target>
+
+    <define name="RADIO_CONTROL_AUTO1"/>
+
+    <configure name="USE_BARO_BOARD" value="TRUE"/>
+    <configure name="BARO_PERIODIC_FREQUENCY" value="50"/>
+
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="auto1_commands"/>
+
+  </firmware>
+
+  <!-- PWM Servos connected to the regular Flightcontroller PWM outputs -->
+  <servos driver="Pwm">
+    <servo name="CAMTILT" no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>
+  </servos>
+
+  <!-- and this driver name should also match to the actuator module name -->
+  <!-- cASe SeNsITiVe! -->
+  <servos driver="Myt4">
+    <servo name="S_THROTTLE" no="0" min="0" neutral="4096" max="8191"/>
+    <servo name="S_AILERON"  no="1" min="0" neutral="4096" max="8191"/>
+    <servo name="S_ELEVATOR" no="2" min="0" neutral="4096" max="8191"/>
+    <servo name="S_RUDDER"   no="3" min="0" neutral="4096" max="8191"/>
+  </servos>
+
+  <!-- <servos driver="Uavcan2Cmd">
+    <servo name="AIL_LEFT" no="7" min="-3250" neutral="0" max="3250"/> 
+    <servo name="FLAP_LEFT" no="8" min="-3250" neutral="0" max="3250"/>
+    <servo name="FLAP_RIGHT" no="9" min="-3250" neutral="0" max="3250"/>
+    <servo name="AIL_RIGHT" no="10" min="-3250" neutral="0" max="3250"/>
+</servos> -->
+
+ <!--<servos driver="t4">--><!-- At the moment only one T4 board is supported, but feel free to enhance -->
+
+    <!-- ESC's -->
+    <!-- <servo name="S_L_THROTTLE" no="9" min="1100" neutral="1150" max="1900"/>
+    <servo name="S_R_THROTTLE" no="10" min="1100" neutral="1150" max="1900"/> -->
+
+    <!-- ESC for the extra posher motor -->
+    <!-- <servo name="S_P_THROTTLE" no="11" min="1100" neutral="1150" max="1900"/> -->
+
+    <!-- SerialBus Servos -->
+    <!-- <servo name="S_L_AILERON"  no="1" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_L_FLAPERON" no="2" min="1100" neutral="1500" max="1900"/>
+
+    <servo name="S_R_AILERON"  no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_R_FLAPERON" no="4" min="1100" neutral="1500" max="1900"/>
+
+    <servo name="S_ELEVATOR"   no="5" min="1100" neutral="1500" max="1900"/>
+    <servo name="S_RUDDER"     no="6" min="1100" neutral="1500" max="1900"/>
+
+    <servo name="S_AIRBRAKE"   no="7" min="1100" neutral="1500" max="1900"/> -->
+
+    <!--Servo 12 not steerable but motor removed now free rotating to get AOA angle feedback only -->
+    <!-- <servo name="AOA"  no="8" min="1000" neutral="1500" max="2000"/> -->
+
+    <!-- Simple PWM servos without feedback but connected to T4 -->
+    <!-- <servo name="S_FRONTWHEEL" no="13" min="1350" neutral="1500" max="1800"/>
+    <servo name="S_WHEELCOVER" no="14" min="1850" neutral="1500" max="1250"/> -->
+
+
+  <section name="ServoPositions">
+    <define name="LANDINGGEAR_EXTEND" value="-MAX_PPRZ"/>
+    <define name="LANDINGGEAR_RETRACT" value="MAX_PPRZ"/>
+    <define name="FLAP_FULL" value="-MAX_PPRZ"/>
+    <define name="FLAP_HALF" value="-MAX_PPRZ/2"/>
+    <define name="FLAP_NONE" value="0"/>
+    <define name="BEACON_ROTATE" value="MAX_PPRZ"/>
+    <define name="BEACON_FLASH" value="0"/>
+    <define name="BEACON_OFF" value="-MAX_PPRZ"/>
+    <define name="SERVO_BRAKE_FULL" value="-MAX_PPRZ"/>
+    <define name="SERVO_HATCH_OPEN" value="0"/>
+    <define name="SERVO_HATCH_CLOSED" value="-9600"/>
+    <define name="AirbrakesOff()" value="(commands[COMMAND_BRAKE]=0)"/>
+    <define name="AirbrakesOn()" value="(commands[COMMAND_BRAKE]=SERVO_BRAKE_FULL)"/>
+    <define name="ThrottleHigh()" value="(commands[COMMAND_THROTTLE]>9600/2)"/>
+    <define name="SPOILERON_BRAKE_FULL" value="-MAX_PPRZ"/>
+    <define name="FLAPERON_BRAKE_FULL" value="MAX_PPRZ"/>
+  </section>
+
+  <section name="MIXER">
+    <define name="ASSIST_ROLL_WITH_RUDDER" value="0.0"/>
+    <define name="AILERON_DIFF" value="0.0"/>
+    <define name="BRAKE" value="0.3"/>
+  </section>
+
+  <command_laws>
+    <set servo="S_THROTTLE" value="@THROTTLE"/>
+    <set servo="S_AILERON" value="@ROLL"/>
+    <set servo="S_ELEVATOR" value="@PITCH"/>
+    <set servo="S_RUDDER" value="@YAW - @ROLL*ASSIST_ROLL_WITH_RUDDER"/>
+  </command_laws>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+  <auto_rc_commands>
+    <set command="YAW" value="@YAW*0.8"/>
+  </auto_rc_commands>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="400"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+  </commands>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="60" unit="deg"/>
+    <define name="MAX_PITCH" value="80" unit="deg"/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DEFAULT_THROTTLE" value="0.20" unit="%"/>
+    <define name="DEFAULT_GEAR" value="1100"/>
+    <define name="DEFAULT_ROLL" value="8.0" unit="deg"/>
+    <define name="DEFAULT_PITCH" value="-4.0" unit="deg"/>
+    <define name="HOME_RADIUS" value="70" unit="m"/>
+    <define name="DELAY_WITHOUT_GPS" value="5" unit="s"/>
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="0.8"/>
+    <define name="COURSE_DGAIN" value="0.05"/>
+    <define name="COURSE_TAU" value="0.7"/>
+    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="40" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-40" unit="deg"/>
+    <define name="PITCH_PGAIN" value="6000"/>
+    <define name="PITCH_DGAIN" value="80"/>
+    <define name="PITCH_IGAIN" value="6"/>
+    <define name="ELEVATOR_OF_ROLL" value="1500" unit="PPRZ_MAX"/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.6" unit="volt"/>
+    <define name="ALTITUDE_PGAIN" value="0.05"/> 
+    <define name="AUTO_CLIMB_LIMIT" value="V_CTL_ALTITUDE_MAX_CLIMB"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.45" unit="%"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.6" unit="%"/> 
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85" unit="%"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.30" unit="%/(m/s)"/> 
+    <define name="AUTO_THROTTLE_PGAIN" value="0.01" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.001"/>
+    <define name="AUTO_THROTTLE_DGAIN" value="0.001"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.01" unit="rad/(m/s)"/> 
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0." unit="rad"/>
+    <define name="ALTITUDE_MAX_CLIMB" value="1.0" unit="m/s"/>
+  </section>
+
+  <section name="BAT">
+    <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/> 
+    <define name="LOW_BAT_LEVEL" value="11.4" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="10.6" unit="V"/>
+  </section>
+
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100." unit="m"/>
+    <define name="CARROT" value="4." unit="s"/>
+  </section>
+
+</airframe>

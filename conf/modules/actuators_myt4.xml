@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_myt4" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver using Teensy 4
+    </description>
+  </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_myt4.h"/>
+  </header>
+  <makefile target="!sim">
+    <file_arch name="actuators_t4_arch.c"/>
+<!--    <file_arch name="actuators_shared_arch.c" cond="ifeq ($(ARCH), stm32)"/>-->
+  </makefile>
+</module>
+
