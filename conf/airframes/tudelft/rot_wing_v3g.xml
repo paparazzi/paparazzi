@@ -384,7 +384,7 @@
             <!-- Rotation -->
             <field type="struct">
                 <field name="feedback_id" value="SERVO_ROTATION_MECH_IDX"/>
-                <field name="feedback_id2" value="255"/>
+                <field name="feedback_id2" value="SERVO_BROTATION_MECH_IDX"/>
                 <field name="low" value="-9600"/>
                 <field name="high" value="9600"/>
                 <field name="low_feedback" value="1.57"/>
