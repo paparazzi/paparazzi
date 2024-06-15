@@ -777,7 +777,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   } else {
     float pitch_progression = (rotwing_state_skewing.wing_angle_deg - 55) / 35.;
     scheduled_pitch_angle = pitch_angle_range * pitch_progression;
-    Wu_gih[1] = Wu_gih_original[1] * (1.f - pitch_angle_range*0.9);
+    Wu_gih[1] = Wu_gih_original[1] * (1.f - pitch_progression*0.9);
     max_pitch_limit_rad = quad_pitch_limit_rad + (fwd_pitch_limit_rad - quad_pitch_limit_rad) * pitch_progression;
   }
   if (!hover_motors_active) {
