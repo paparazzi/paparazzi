@@ -52,7 +52,7 @@
   <ground_reactions>
     <contact type="STRUCTURE" name="CONTACT_FRONT">
       <location unit="M">
-        <x>-0.15 </x>
+        <x>-0.5 </x>
         <y> 0 </y>
         <z>-0.1 </z>
       </location>
@@ -68,7 +68,7 @@
 
     <contact type="STRUCTURE" name="CONTACT_BACK">
       <location unit="M">
-        <x> 0.15</x>
+        <x> 0.5</x>
         <y> 0   </y>
         <z>-0.1 </z>
       </location>
@@ -85,7 +85,7 @@
     <contact type="STRUCTURE" name="CONTACT_RIGHT">
       <location unit="M">
         <x> 0.  </x>
-        <y> 0.15</y>
+        <y> 0.5</y>
         <z>-0.1 </z>
       </location>
       <static_friction>  0.8 </static_friction>
@@ -101,7 +101,7 @@
     <contact type="STRUCTURE" name="CONTACT_LEFT">
       <location unit="M">
         <x> 0.  </x>
-        <y>-0.15</y>
+        <y>-0.5</y>
         <z>-0.1 </z>
       </location>
       <static_friction>  0.8 </static_friction>

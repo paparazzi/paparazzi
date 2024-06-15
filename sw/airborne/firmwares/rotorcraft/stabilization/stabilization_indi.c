@@ -448,9 +448,15 @@ void stabilization_indi_update_filt_freq(float freq)
   stabilization_indi_filter_freq = freq;
   float tau = 1.0 / (2.0 * M_PI * freq);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
+#if STABILIZATION_INDI_FILTER_RATES_SECOND_ORDER
+  init_butterworth_2_low_pass(&rates_filt_so[0], tau, sample_time, stateGetBodyRates_f()->p);
+  init_butterworth_2_low_pass(&rates_filt_so[1], tau, sample_time, stateGetBodyRates_f()->q);
+  init_butterworth_2_low_pass(&rates_filt_so[2], tau, sample_time, stateGetBodyRates_f()->r);
+#else
   init_first_order_low_pass(&rates_filt_fo[0], tau, sample_time, stateGetBodyRates_f()->p);
   init_first_order_low_pass(&rates_filt_fo[1], tau, sample_time, stateGetBodyRates_f()->q);
   init_first_order_low_pass(&rates_filt_fo[2], tau, sample_time, stateGetBodyRates_f()->r);
+#endif
 }
 
 /**
