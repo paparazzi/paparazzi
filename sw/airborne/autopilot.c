@@ -198,7 +198,12 @@ bool autopilot_set_mode(uint8_t new_autopilot_mode)
 #else
   autopilot_static_set_mode(new_autopilot_mode);
 #endif
-  return (autopilot.mode != mode);
+  if (autopilot.mode != mode) {
+    autopilot_send_mode();
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /** AP mode setting handler
