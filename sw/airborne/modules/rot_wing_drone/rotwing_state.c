@@ -727,9 +727,6 @@ bool rotwing_state_hover_motors_running(void) {
 void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
   // adjust weights
-  float thrust_command = (actuator_state_filt_vect[0] + actuator_state_filt_vect[1] + actuator_state_filt_vect[2] +
-                          actuator_state_filt_vect[3]) / 4;
-  Bound(thrust_command, 0, MAX_PPRZ);
   float fixed_wing_percentage = !hover_motors_active; // TODO: when hover props go below 40%, ...
   Bound(fixed_wing_percentage, 0, 1);
 #define AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT 16
@@ -768,18 +765,24 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
+  float fwd_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
+  float quad_pitch_limit_rad = RadOfDeg(5.0);
+
   float scheduled_pitch_angle = 0;
   float pitch_angle_range = 3.;
   if (rotwing_state_skewing.wing_angle_deg < 55) {
     scheduled_pitch_angle = 0;
     Wu_gih[1] = Wu_gih_original[1];
+    max_pitch_limit_rad = quad_pitch_limit_rad;
   } else {
     float pitch_progression = (rotwing_state_skewing.wing_angle_deg - 55) / 35.;
     scheduled_pitch_angle = pitch_angle_range * pitch_progression;
-    Wu_gih[1] = Wu_gih_original[1] * (1.f - pitch_angle_range*0.9);
+    Wu_gih[1] = Wu_gih_original[1] * (1.f - pitch_progression*0.9);
+    max_pitch_limit_rad = quad_pitch_limit_rad + (fwd_pitch_limit_rad - quad_pitch_limit_rad) * pitch_progression;
   }
   if (!hover_motors_active) {
     scheduled_pitch_angle = 8.;
+    max_pitch_limit_rad = fwd_pitch_limit_rad;
   }
   Bound(scheduled_pitch_angle, -5., 8.);
   guidance_indi_pitch_pref_deg = scheduled_pitch_angle;
