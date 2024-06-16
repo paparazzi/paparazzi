@@ -219,11 +219,13 @@ void autopilot_failsafe_checks(void)
   /* check normal mode from RC channel(s)
    */
   if (!RadioControlIsLost()) {
-    bool pprz_mode_changed = pprz_mode_update();
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+    bool pprz_mode_changed = pprz_mode_update();
     bool calib_mode_changed = RcSettingsModeUpdate(radio_control.values);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     calib_mode_changed;
+#else
+    pprz_mode_update();
 #endif
   }
 
