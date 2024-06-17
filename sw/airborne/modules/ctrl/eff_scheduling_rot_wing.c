@@ -123,6 +123,10 @@
 #error "NO ROT_WING_EFF_SCHED_K_LIFT_TAIL defined"
 #endif
 
+#ifndef ROLL_EFFECTIVENESS_CUTOFF
+#define ROLL_EFFECTIVENESS_CUTOFF 5e-4f
+#endif
+
 struct rot_wing_eff_sched_param_t eff_sched_p = {
   .Ixx_body                 = ROT_WING_EFF_SCHED_IXX_BODY,
   .Iyy_body                 = ROT_WING_EFF_SCHED_IYY_BODY,
@@ -149,6 +153,9 @@ struct rot_wing_eff_sched_param_t eff_sched_p = {
 float eff_sched_pusher_time = 0.002;
 
 float roll_eff_scaling = 1.f;
+float scale_roll_roll_coeff = 1.f;
+bool bool_fake_airspeed = false;
+float fake_airspeed = 1.f;
 
 struct rot_wing_eff_sched_var_t eff_sched_var;
 
@@ -274,6 +281,11 @@ void eff_scheduling_rot_wing_update_cmd(void)
 
 void eff_scheduling_rot_wing_update_airspeed(void)
 {
+
+  if (bool_fake_airspeed) {
+    stateSetAirspeed_f(fake_airspeed);
+  }
+
   eff_sched_var.airspeed = stateGetAirspeed_f();
   Bound(eff_sched_var.airspeed, 0. , 30.);
   eff_sched_var.airspeed2 = eff_sched_var.airspeed * eff_sched_var.airspeed;
@@ -302,15 +314,25 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   Bound(dM_dpprz_right, eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);
   Bound(dM_dpprz_left,  eff_sched_var.roll_motor_dMdpprz * 0.5, eff_sched_var.roll_motor_dMdpprz * 2.0);
 
-  float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  Bound(roll_motor_p_eff_right, -1, -0.00001);
+  float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + scale_roll_roll_coeff * eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  // Bound(roll_motor_p_eff_right, -1, -0.00001);
 
-  float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  // Hysteresis on roll eff to prevent spiking of effectiveness with new cutoff
+  if (roll_motor_p_eff_right >= -ROLL_EFFECTIVENESS_CUTOFF + 0) {
+    roll_motor_p_eff_right = 0;
+  } 
+
+  float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + scale_roll_roll_coeff * eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  
   if(autopilot.in_flight) {
     float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
     roll_motor_p_eff_left += roll_motor_airspeed_compensation;
   }
-  Bound(roll_motor_p_eff_left, 0.00001, 1);
+  // Bound(roll_motor_p_eff_left, 0.00001, 1);
+
+  if (roll_motor_p_eff_left <= ROLL_EFFECTIVENESS_CUTOFF - 0) {
+    roll_motor_p_eff_left = 0;
+  }
 
   float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
   Bound(roll_motor_q_eff, 0, 1);
