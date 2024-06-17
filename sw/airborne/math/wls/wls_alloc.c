@@ -58,6 +58,53 @@ static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float*
 
 #define WLS_N_C ((WLS_N_U)+(WLS_N_V))
 
+struct WLS_param WLS_p = {
+  .nu     = WLS_N_U,         
+  .nv     = WLS_N_V,
+  .gamma  = 0.0,
+  .v      = {0.0},
+  .Wv     = {0.0},
+  .Wu     = {0.0},
+  .u_pref = {0.0},
+  .u_min  = {0.0},
+  .u_max  = {0.0},
+  .PC     = 0.0,
+  .SC     = 0.0,
+  .iter   = 0
+};
+
+/* Define messages of the module*/
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+static void send_wls_v(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t iter_temp = (uint8_t)WLS_p.iter;
+  pprz_msg_send_WLS_v(trans, dev, AC_ID,               
+         &WLS_p.gamma,
+         &iter_temp,
+         WLS_p.nv, WLS_p.v,
+         WLS_p.nv, WLS_p.Wv);                                      
+}
+static void send_wls_u(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_WLS_u(trans, dev, AC_ID,               
+         WLS_p.nu, WLS_p.Wu,
+         WLS_p.nu, WLS_p.u_pref,
+         WLS_p.nu, WLS_p.u_min,
+         WLS_p.nu, WLS_p.u_max,
+         WLS_p.nu, WLS_p.u);                                      
+}
+#endif
+
+/** @brief Init function */
+void wls_init(void)
+{ 
+  // Start telemetry
+  #if PERIODIC_TELEMETRY
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_v, send_wls_v);
+    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_u, send_wls_u);
+  #endif
+}
 /**
  * @brief Wrapper for qr solve
  *
@@ -111,7 +158,21 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
   // allocate variables, use defaults where parameters are set to 0
   if(!gamma_sq) gamma_sq = 100000;
   if(!imax) imax = 100;
+  
+  // Store some values for the message
+  for (int i = 0; i < n_u; i++) {
+    WLS_p.u_min[i] = umin[i];
+    WLS_p.u_max[i] = umax[i];
+    WLS_p.u_pref[i] = up ? up[i] : 0;
+    WLS_p.Wu[i] = Wu ? Wu[i] : 1.0;
+  }
+  for (int i = 0; i < n_v; i++) {
+    WLS_p.v[i] = v[i];
+    WLS_p.Wv[i] = Wv ? Wv[i] : 1.0;
+  }
+  WLS_p.gamma = gamma_sq;
 
+  ///////////////////////////////////
   int n_c = n_u + n_v;
 
   float A[WLS_N_C][WLS_N_U];
@@ -260,8 +321,11 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
 #if WLS_VERBOSE
         print_final_values(n_u, n_v, u, B, v, umin, umax);
 #endif
-
+        for(int i = 0; i < n_u; i++) {
+          WLS_p.u[i] = u[i];
+        }
         // if solution is found, return number of iterations
+        WLS_p.iter = iter;
         return iter;
       }
     } else {
@@ -306,6 +370,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
       free_index_lookup[id_alpha] = -1;
     }
   }
+  WLS_p.iter = iter;
   return iter;
 }
 
