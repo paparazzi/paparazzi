@@ -52,4 +52,4 @@
 	url = https://github.com/PX4/Matrix.git
 [submodule "sw/ext/libcanard"]
 	path = sw/ext/libcanard
-	url = https://github.com/UAVCAN/libcanard.git
+	url = https://github.com/dronecan/libcanard.git
