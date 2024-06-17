@@ -212,7 +212,6 @@ struct FloatRates angular_rate_ref = {0., 0., 0.};
 float angular_acceleration[3] = {0., 0., 0.};
 float actuator_state[INDI_NUM_ACT];
 float indi_u[INDI_NUM_ACT];
-float rate_vect_prev[3] = {0., 0., 0.};
 
 float q_filt = 0.0;
 float r_filt = 0.0;
@@ -329,13 +328,15 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
 {
   float zero = 0.0;
   struct FloatRates *body_rates = stateGetBodyRates_f();
-  struct FloatEulers att_sp;
-  EULERS_FLOAT_OF_BFP(att_sp, stab_att_sp_euler);
+  struct FloatEulers att, att_sp;
 #if GUIDANCE_INDI_HYBRID
-  struct FloatEulers att;
   float_eulers_of_quat_zxy(&att, stateGetNedToBodyQuat_f());
+  struct FloatQuat stab_att_sp_quat_f;
+  QUAT_FLOAT_OF_BFP(stab_att_sp_quat_f, stab_att_sp_quat);
+  float_eulers_of_quat_zxy(&att_sp, &stab_att_sp_quat_f);
 #else
-  struct FloatEulers att = *stateGetNedToBodyEulers_f();
+  att = *stateGetNedToBodyEulers_f();
+  EULERS_FLOAT_OF_BFP(att_sp, stab_att_sp_euler);
 #endif
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
                                       &att.phi, &att.theta, &att.psi,           // att
@@ -434,11 +435,6 @@ void stabilization_indi_init(void)
  */
 void stabilization_indi_enter(void)
 {
-  /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
-
-  float_vect_zero(rate_vect_prev, 3);
-
   float_vect_zero(du_estimation, INDI_NUM_ACT);
   float_vect_zero(ddu_estimation, INDI_NUM_ACT);
 }
