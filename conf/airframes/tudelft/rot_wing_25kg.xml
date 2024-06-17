@@ -478,7 +478,7 @@
     </section>
 
     <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-        <define name="MAX_BANK"         value="20" unit="deg"/>
+        <define name="MAX_BANK"         value="40" unit="deg"/>
         <define name="USE_SPEED_REF"    value="TRUE"/>
 
         <!-- Gains -->
@@ -521,7 +521,7 @@
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
-        <define name="MAX_LAT_ACCEL"        value="5.0"/>
+        <define name="MAX_LAT_ACCEL"        value="4.0"/>
     </section>
 
     <section name="FORWARD">
