@@ -26,10 +26,17 @@ do
   if [ "$arg" = "-s" ] || [ "$arg" = "--source" ]
   then
     BASHRC_SOURCE_VENV=true
-    "venv source will be added to ~/.bashrc"
   fi
 
 done
+
+
+if [ $VIRTUAL_ENV ]
+then
+  echo "Cannot create venv from itself! Run 'deactivate' first if you want to recreate the venv."
+  USE_VENV = false
+  BASHRC_SOURCE_VENV=false
+fi
 
 
 if [ "$USE_VENV" = true ]
@@ -40,6 +47,7 @@ then
 
   if [ "$BASHRC_SOURCE_VENV" = true ]
   then
+    echo "venv source will be added to ~/.bashrc"
     echo "source $(pwd)/pprzEnv/bin/activate" >> ~/.bashrc
   fi
 
