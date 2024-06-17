@@ -206,8 +206,8 @@
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
-        <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/> <!-- 12 deg upwards, 47 deg downwards -->
+        <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/> <!-- 35 deg left/right -->
     </servos>
 
     <!-- Can bus 2 actuators -->
@@ -221,10 +221,10 @@
 
     <!-- CAN BUS 2 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
-        <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600, 9 deg upwards, 25 deg downwards-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600, 8 deg upwards, 26 deg downwards-->
+        <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600, 8 deg upwards, 26 deg downwards-->
+        <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600, 9 deg upwards, 25 deg downwards-->
     </servos>
 
     <commands>
