@@ -104,7 +104,10 @@
       <call_once fun="jevois_stream(false)"/>
       <stay wp="STDBY"/>
     </block>
-
+    <block name="Stay Tag" strip_button="Stay Tag" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <stay wp="TAG" height="search_height" pre_call="nav_set_heading_deg(tag_tracking_get_heading(11))"/>
+    </block>
     <block name="Search Tag" strip_button="Search Target" group="tag">
       <call_once fun="jevois_stream(true)"/>
       <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, 1, NS)"/>
@@ -115,7 +118,6 @@
       <exception cond="rectangle_survey_sweep_num == 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S3)"/>
     </block>
-
     <block name="Follow Tag" strip_button="Follow Tag" group="tag">
       <call_once fun="jevois_stream(true)"/>
       <set var="tag_tracking_get(0)->motion_type" value="TAG_TRACKING_MOVING"/>

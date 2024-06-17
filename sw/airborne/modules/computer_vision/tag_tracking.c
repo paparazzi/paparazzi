@@ -199,6 +199,8 @@ struct tag_info tag_infos[TAG_TRACKING_NB_MAX];
 
 struct tag_tracking_public dummy = {0};
 
+struct FloatQuat rot_x_quat;  // quaternion to rotate tag to have Z down
+
 // Abi bindings
 #ifndef TAG_TRACKING_ID
 #define TAG_TRACKING_ID ABI_BROADCAST
@@ -229,7 +231,7 @@ float tag_tracking_get_heading(int16_t tag_id) {
   struct tag_tracking_public* tag = tag_tracking_get(tag_id);
   struct FloatEulers e;
   float_eulers_of_quat(&e, &tag->ned_to_tag_quat);
-  return e.psi * 180.0 / M_PI;
+  return DegOfRad(e.psi);
 }
 
 // update measure vect before calling
@@ -247,7 +249,7 @@ static void update_tag_position(struct tag_info* tag_info)
   VECT3_ADD(target_pos_ned, *pos_ned);
 
   // TODO filter in kalman ?
-  float_quat_comp(&tag_info->tag_tracking.body_to_tag_quat, &tag_infos[i].tag_track_private.body_to_cam_quat, &tag_info->tag_track_private.cam_to_tag_quat);
+  float_quat_comp(&tag_info->tag_tracking.body_to_tag_quat, &tag_infos->tag_track_private.body_to_cam_quat, &tag_info->tag_track_private.cam_to_tag_quat);
   float_quat_comp(&tag_info->tag_tracking.ned_to_tag_quat, stateGetNedToBodyQuat_f(), &tag_info->tag_tracking.body_to_tag_quat);
 
   if (tag_info->tag_tracking.status == TAG_TRACKING_DISABLE) {
@@ -290,7 +292,10 @@ static void tag_track_cb(uint8_t sender_id UNUSED,
       tag_infos[i].tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
       tag_infos[i].tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
       tag_infos[i].tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
-      tag_infos[i].tag_track_private.cam_to_tag_quat = quat;
+
+      float_quat_normalize(&quat);
+      // rotate the quaternion so Z is down
+      float_quat_comp(&tag_infos[i].tag_track_private.cam_to_tag_quat, &quat, &rot_x_quat);
       // update filter
       update_tag_position(&tag_infos[i]);
       // reset timeout and status
@@ -352,6 +357,9 @@ static void update_wp(struct tag_info* tag_info, bool report UNUSED)
 // Init function
 void tag_tracking_init()
 {
+  struct FloatEulers rot_x = { M_PI, 0, 0};
+  float_quat_of_eulers(&rot_x_quat, &rot_x);
+
   // Init structure
   for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
     FLOAT_VECT3_ZERO(tag_infos[i].tag_track_private.meas);
