@@ -160,8 +160,10 @@ static const float tag_track_dt = TAG_TRACKING_PROPAGATE_PERIOD;
 // global state structure
 struct tag_tracking {
   struct FloatVect3 meas;       ///< measured position
+  struct FloatQuat cam_to_tag_quat;   ///< measured quat
 
   struct FloatRMat body_to_cam; ///< Body to camera rotation
+  struct FloatQuat body_to_cam_quat;  ///< Body to camera rotation in quaternion
   struct FloatVect3 cam_pos;    ///< Position of camera in body frame
 
   float timeout;                ///< timeout for lost flag [sec]
@@ -197,6 +199,8 @@ struct tag_info tag_infos[TAG_TRACKING_NB_MAX];
 
 struct tag_tracking_public dummy = {0};
 
+struct FloatQuat rot_x_quat;  // quaternion to rotate tag to have Z down
+
 // Abi bindings
 #ifndef TAG_TRACKING_ID
 #define TAG_TRACKING_ID ABI_BROADCAST
@@ -206,7 +210,7 @@ static abi_event tag_track_ev;
 
 static void tag_tracking_propagate_start_tag(struct tag_info* tag_info);
 
-struct tag_tracking_public* tag_tracking_get(uint8_t tag_id) {
+struct tag_tracking_public* tag_tracking_get(int16_t tag_id) {
   for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
     if(tag_infos[i].tag_track_private.id == tag_id) {
       return &tag_infos[i].tag_tracking;
@@ -219,7 +223,15 @@ struct tag_tracking_public* tag_tracking_get(uint8_t tag_id) {
   }
 
   dummy.status = TAG_TRACKING_SEARCHING;
+  float_quat_identity(&dummy.ned_to_tag_quat);
   return &dummy;
+}
+
+float tag_tracking_get_heading(int16_t tag_id) {
+  struct tag_tracking_public* tag = tag_tracking_get(tag_id);
+  struct FloatEulers e;
+  float_eulers_of_quat(&e, &tag->ned_to_tag_quat);
+  return DegOfRad(e.psi);
 }
 
 // update measure vect before calling
@@ -235,6 +247,10 @@ static void update_tag_position(struct tag_info* tag_info)
   // compute absolute position of tag in earth frame
   struct NedCoor_f * pos_ned = stateGetPositionNed_f();
   VECT3_ADD(target_pos_ned, *pos_ned);
+
+  // TODO filter in kalman ?
+  float_quat_comp(&tag_info->tag_tracking.body_to_tag_quat, &tag_infos->tag_track_private.body_to_cam_quat, &tag_info->tag_track_private.cam_to_tag_quat);
+  float_quat_comp(&tag_info->tag_tracking.ned_to_tag_quat, stateGetNedToBodyQuat_f(), &tag_info->tag_tracking.body_to_tag_quat);
 
   if (tag_info->tag_tracking.status == TAG_TRACKING_DISABLE) {
     // don't run kalman, just update pos, set speed to zero
@@ -276,6 +292,10 @@ static void tag_track_cb(uint8_t sender_id UNUSED,
       tag_infos[i].tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
       tag_infos[i].tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
       tag_infos[i].tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
+
+      float_quat_normalize(&quat);
+      // rotate the quaternion so Z is down
+      float_quat_comp(&tag_infos[i].tag_track_private.cam_to_tag_quat, &quat, &rot_x_quat);
       // update filter
       update_tag_position(&tag_infos[i]);
       // reset timeout and status
@@ -337,18 +357,23 @@ static void update_wp(struct tag_info* tag_info, bool report UNUSED)
 // Init function
 void tag_tracking_init()
 {
+  struct FloatEulers rot_x = { M_PI, 0, 0};
+  float_quat_of_eulers(&rot_x_quat, &rot_x);
+
   // Init structure
   for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
     FLOAT_VECT3_ZERO(tag_infos[i].tag_track_private.meas);
     FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.pos);
     FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.speed);
     FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.speed_cmd);
+    float_quat_identity(&tag_infos[i].tag_tracking.ned_to_tag_quat);
     struct FloatEulers euler = {
       TAG_TRACKING_BODY_TO_CAM_PHI,
       TAG_TRACKING_BODY_TO_CAM_THETA,
       TAG_TRACKING_BODY_TO_CAM_PSI
     };
     float_rmat_of_eulers(&tag_infos[i].tag_track_private.body_to_cam, &euler);
+    float_quat_of_eulers(&tag_infos[i].tag_track_private.body_to_cam_quat, &euler);
     VECT3_ASSIGN(tag_infos[i].tag_track_private.cam_pos,
         TAG_TRACKING_CAM_POS_X,
         TAG_TRACKING_CAM_POS_Y,
