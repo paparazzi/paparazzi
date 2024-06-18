@@ -48,12 +48,12 @@
       <message name="AHRS_REF_QUAT"            period="0.1"/>
       <message name="INS_FLOW_INFO"            period="0.1"/>
       <message name="GPS_RTK"                  period="0.1"/>
-      <message name="AOA"			                 period="0.2"/>
-      <message name="ACTUATORS"                period="0.02"/>
+      <message name="AOA"                      period="0.2"/>
+      <message name="ACTUATORS_RAW"            period="0.23"/>
       <message name="APPROACH_MOVING_TARGET"   period="0.1"/>
       <message name="AIRSPEED_RAW"             period="0.1"/>
       <message name="TARGET_POS_INFO"          period="0.1"/>
-      <message name="ROTATING_WING_STATE"	     period="0.2"/>
+      <message name="ROTATING_WING_STATE"      period="0.2"/>
       <message name="ACTUATORS"                period="0.02"/>
       <message name="EFF_MAT_G"                period="0.02"/>
       <message name="GUIDANCE"                 period="0.02"/>
