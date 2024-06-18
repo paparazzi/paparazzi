@@ -281,29 +281,27 @@ static void tag_track_cb(uint8_t sender_id UNUSED,
   if (type == JEVOIS_MSG_D3) {
     int16_t tag_id = (int16_t)jevois_extract_nb(id);
     for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
-      if( tag_infos[i].tag_track_private.id != tag_id &&
-          tag_infos[i].tag_track_private.id != TAG_UNUSED_ID &&
-          tag_infos[i].tag_track_private.id != TAG_TRACKING_ANY) {
-        continue;
-      }
+      // free slot, store tag ID
       if(tag_infos[i].tag_track_private.id == TAG_UNUSED_ID) {
-        // store tag ID
         tag_infos[i].tag_track_private.id = tag_id;
       }
-      // store data from Jevois detection
-      tag_infos[i].tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
-      tag_infos[i].tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
-      tag_infos[i].tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
 
-      float_quat_normalize(&quat);
-      // rotate the quaternion so Z is down
-      float_quat_comp(&tag_infos[i].tag_track_private.cam_to_tag_quat, &quat, &rot_x_quat);
-      // update filter
-      update_tag_position(&tag_infos[i]);
-      // reset timeout and status
-      tag_infos[i].tag_track_private.timeout = 0.f;
-      tag_infos[i].tag_track_private.updated = true;
-      break;
+      if(tag_infos[i].tag_track_private.id == tag_id) {
+        // store data from Jevois detection
+        tag_infos[i].tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
+        tag_infos[i].tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
+        tag_infos[i].tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
+
+        float_quat_normalize(&quat);
+        // rotate the quaternion so Z is down
+        float_quat_comp(&tag_infos[i].tag_track_private.cam_to_tag_quat, &quat, &rot_x_quat);
+        // update filter
+        update_tag_position(&tag_infos[i]);
+        // reset timeout and status
+        tag_infos[i].tag_track_private.timeout = 0.f;
+        tag_infos[i].tag_track_private.updated = true;
+        break;
+      }
     }
   }
 }
