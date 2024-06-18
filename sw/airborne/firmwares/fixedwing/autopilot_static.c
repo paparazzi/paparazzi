@@ -215,18 +215,17 @@ void navigation_task(void)
  */
 void autopilot_failsafe_checks(void)
 {
-  uint8_t mode_changed = false;
-
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /* check normal mode from RC channel(s)
    */
   if (!RadioControlIsLost()) {
-    bool pprz_mode_changed = pprz_mode_update();
-    mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+    bool pprz_mode_changed = pprz_mode_update();
     bool calib_mode_changed = RcSettingsModeUpdate(radio_control.values);
     rc_settings(calib_mode_changed || pprz_mode_changed);
-    mode_changed |= calib_mode_changed;
+    calib_mode_changed;
+#else
+    pprz_mode_update();
 #endif
   }
 
@@ -237,7 +236,7 @@ void autopilot_failsafe_checks(void)
   if (RadioControlIsLost() &&
       (autopilot_get_mode() == AP_MODE_AUTO1 ||
        autopilot_get_mode() == AP_MODE_MANUAL)) {
-    mode_changed |= autopilot_set_mode(RC_LOST_MODE);
+    autopilot_set_mode(RC_LOST_MODE);
   }
 
   /* Check RC kill switch
@@ -274,12 +273,12 @@ void autopilot_failsafe_checks(void)
       if (autopilot_get_mode() == AP_MODE_AUTO2 ||
           autopilot_get_mode() == AP_MODE_HOME) {
         last_pprz_mode = autopilot_get_mode();
-        mode_changed |= autopilot_set_mode(AP_MODE_GPS_OUT_OF_ORDER);
+        autopilot_set_mode(AP_MODE_GPS_OUT_OF_ORDER);
         gps_lost = true;
       }
     } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
-      mode_changed |= autopilot_set_mode(last_pprz_mode);
+      autopilot_set_mode(last_pprz_mode);
       gps_lost = false;
     }
   }
@@ -291,13 +290,8 @@ void autopilot_failsafe_checks(void)
       autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER &&
       autopilot.launch) {
     if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
-      mode_changed |= autopilot_set_mode(AP_MODE_HOME);
+      autopilot_set_mode(AP_MODE_HOME);
     }
-  }
-
-  // send new mode if needed
-  if (mode_changed) {
-    autopilot_send_mode();
   }
 }
 

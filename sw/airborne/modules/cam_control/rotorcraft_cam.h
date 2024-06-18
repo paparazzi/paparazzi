@@ -92,7 +92,7 @@ extern uint8_t rotorcraft_cam_mode;
 
 extern int16_t rotorcraft_cam_tilt;
 extern int16_t rotorcraft_cam_pan;
-extern int16_t rotorcraft_cam_tilt_pwm;
+extern int16_t rotorcraft_cam_tilt_pprz;
 
 extern void rotorcraft_cam_init(void);
 extern void rotorcraft_cam_periodic(void);

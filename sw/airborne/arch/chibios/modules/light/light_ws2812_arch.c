@@ -110,7 +110,7 @@ void light_ws2812_arch_init(void)
     .msize = 4,
     .inc_peripheral_addr = false,
     .inc_memory_addr = true,
-    .circular = true,
+    .op_mode = DMA_CONTINUOUS_HALF_BUFFER,
     .error_cb = NULL,
     .end_cb = NULL,
     .pburst = 0,

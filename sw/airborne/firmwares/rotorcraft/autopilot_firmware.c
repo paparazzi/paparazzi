@@ -92,7 +92,7 @@ bool WEAK autopilot_ground_detection(void) {
 bool WEAK autopilot_in_flight_end_detection(bool motors_on UNUSED) {
   if (autopilot_in_flight_counter > 0) {
     /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
-    if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
+    if ((stabilization.cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
         (fabsf(stateGetSpeedNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_SPEED) &&
         (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
       autopilot_in_flight_counter--;
@@ -143,7 +143,7 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
   if(electrical.avg_cnt != 0) {
     avg_power = (float)electrical.avg_power / electrical.avg_cnt;
   }
-  
+
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
                        &throttle, &electrical.vsupply, &electrical.current, &power, &avg_power, &electrical.charge, &electrical.energy);
 }
@@ -229,10 +229,10 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *d
 static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
-                               &stabilization_cmd[COMMAND_ROLL],
-                               &stabilization_cmd[COMMAND_PITCH],
-                               &stabilization_cmd[COMMAND_YAW],
-                               &stabilization_cmd[COMMAND_THRUST]);
+                               &stabilization.cmd[COMMAND_ROLL],
+                               &stabilization.cmd[COMMAND_PITCH],
+                               &stabilization.cmd[COMMAND_YAW],
+                               &stabilization.cmd[COMMAND_THRUST]);
 }
 #else
 static void send_rotorcraft_cmd(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED) {}
@@ -242,7 +242,9 @@ static void send_rotorcraft_cmd(struct transport_tx *trans UNUSED, struct link_d
 void autopilot_firmware_init(void)
 {
   autopilot_in_flight_counter = 0;
+#ifdef MODE_AUTO2
   autopilot_mode_auto2 = MODE_AUTO2;
+#endif
 
   // register messages
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_STATUS, send_status);
@@ -253,6 +255,13 @@ void autopilot_firmware_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BODY_RATES_ACCEL, send_body_rates_accel);
 #ifdef RADIO_CONTROL
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
+#endif
+}
+
+void autopilot_send_mode(void)
+{
+#if DOWNLINK
+  send_status(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 }
 
@@ -296,7 +305,7 @@ void autopilot_check_in_flight(bool motors_on)
       /* if thrust above min threshold, assume in_flight.
        * Don't check for velocity and acceleration above threshold here...
        */
-      if (stabilization_cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
+      if (stabilization.cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME) {
           autopilot.in_flight = true;

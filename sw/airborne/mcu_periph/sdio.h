@@ -27,17 +27,19 @@
 #ifndef MCU_PERIPH_SDIO_H
 #define MCU_PERIPH_SDIO_H
 
+typedef struct SDCDriver SDCDriver;
+
 /** Connect a SD card on SDIO peripheral
  */
-bool sdio_connect(void);
+bool sdio_connect(SDCDriver *sdc);
 
 /** Disconnect a SD card on SDIO peripheral
  */
-bool sdio_disconnect(void);
+bool sdio_disconnect(SDCDriver *sdc);
 
 /** Check if a SD card is inserted
  */
-bool is_card_inserted  (void);
+bool is_card_inserted(SDCDriver *sdc);
 
 #endif
 

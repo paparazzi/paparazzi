@@ -28,7 +28,7 @@ This python example shows the reception and emission of messages. For the recept
 .. code-block:: python
     :linenos:
 
-    #!/usr/bin/python3
+    #!/usr/bin/env python3
     import sys
     import time
     import os

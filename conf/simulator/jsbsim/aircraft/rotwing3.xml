@@ -825,7 +825,7 @@
         <product>
           <property>aero/qbar-psf</property>
           <value>47.9</value> <!-- Conversion to pascals -->
-          <value>0.0151</value> <!-- CD x Area (m^2) -->
+          <value>0.0453</value> <!-- CD x Area (m^2) -->
           <value>0.224808943</value> <!-- N to LBS -->
         </product>
       </function>

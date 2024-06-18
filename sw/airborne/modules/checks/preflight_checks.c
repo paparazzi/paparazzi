@@ -43,8 +43,20 @@
 #define PREFLIGHT_CHECK_INFO_TIMEOUT 5
 #endif
 
+/** Enable ground based checklist */
+#ifndef PREFLIGHT_CHECK_GROUND
+#define PREFLIGHT_CHECK_GROUND TRUE
+#endif
+
+/** Bypass the preflight checks */
+#ifndef PREFLIGHT_CHECK_BYPASS
+#define PREFLIGHT_CHECK_BYPASS FALSE
+#endif
+
+bool preflight_bypass = PREFLIGHT_CHECK_BYPASS;
+bool preflight_ground_done = false;
+
 static struct preflight_check_t *preflight_head = NULL;
-bool preflight_bypass = FALSE;
 
 /**
  * @brief Register a preflight check and add it to the linked list
@@ -86,6 +98,15 @@ bool preflight_check(void)
     check->func(&result);
     check = check->next;
   }
+
+  // Add the ground check
+#if PREFLIGHT_CHECK_GROUND
+  if (!preflight_ground_done) {
+    preflight_error(&result, "Ground checks not done");
+  } else {
+    preflight_success(&result, "Ground checks done");
+  }
+#endif
 
   // We failed a check or have a warning
   if (result.fail_cnt > 0 || result.warning_cnt > 0) {
@@ -178,7 +199,7 @@ void preflight_error(struct preflight_result_t *result, const char *fmt, ...)
 }
 
 /**
- * @brief Register a preflight error used inside the preflight checking functions
+ * @brief Register a preflight warning used inside the preflight checking functions
  *
  * @param result Where the error gets registered
  * @param fmt A formatted string describing the error used in a vsnprintf

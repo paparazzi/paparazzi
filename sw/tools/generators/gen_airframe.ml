@@ -31,7 +31,7 @@ open Printf
 open Xml2h
 
 type channel = { min : float; max : float; neutral : float }
-type control = { failsafe_value : int; foo : int }
+type control = { failsafe_value : int; foo : int; group : string}
 
 let fos = float_of_string
 let sof = fun x -> if mod_float x 1. = 0. then Printf.sprintf "%.0f" x else string_of_float x
@@ -271,9 +271,15 @@ let preprocess_value = fun s v prefix ->
 let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
     (* Set servo macro *)
-    fprintf out "#define Set_%s_Servo(_v) { \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
-    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX]); \\\n" d s s;
+    fprintf out "#define Set_%s_Servo(actuator_value_pprz) { \\\n" s;
+    fprintf out "  int32_t servo_value;\\\n";
+    fprintf out "  int32_t command_value;\\\n\\\n";
+    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
+    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
+    fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
+    fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(servo_value, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
     fprintf out "}\n\n"
   ) servos_drivers;
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
@@ -286,11 +292,8 @@ let parse_command_laws = fun out command ->
         let servo = a "servo"
         and value = a "value" in
         let v = preprocess_value value "values" "COMMAND" in
-        fprintf out "  command_value = %s; \\\n" v;
-        fprintf out "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
-        fprintf out "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
-        fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
-        fprintf out "  Set_%s_Servo(servo_value); \\\n\\\n" servo
+        fprintf out "  actuator_value_pprz = %s; \\\n" v;
+        fprintf out "  Set_%s_Servo(actuator_value_pprz); \\\n\\\n" servo
     | "let" ->
       let var = a "var"
       and value = a "value" in
@@ -337,9 +340,22 @@ let parse_ap_only_commands = fun out ap_only ->
 
 let parse_command = fun out command no ->
   let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-  define_out out command_name (string_of_int no);
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
-  { failsafe_value = failsafe_value; foo = 0}
+  let group = ExtXml.attrib_or_default command "group" "REAL" in 
+  define_out out command_name (string_of_int no);
+  { failsafe_value = failsafe_value; foo = 0 ; group = group }  
+
+let count_commands_by_type commands_params =
+  Array.fold_left (fun acc cmd ->
+    let subtype = cmd.group in
+    let count = try List.assoc subtype acc with Not_found -> 0 in
+    (subtype, count + 1) :: (List.remove_assoc subtype acc)
+  ) [] commands_params
+
+let generate_command_names = fun out commands ->
+  let command_names = Array.map (fun axis -> "\"" ^ (ExtXml.attrib axis "name") ^ "\"") commands in
+  let command_names = String.concat ", " (Array.to_list command_names) in
+  fprintf out "#define COMMAND_NAMES { %s }\n\n" command_names
 
 let parse_heli_curves = fun out heli_curves ->
   let a = fun s -> ExtXml.attrib heli_curves s in
@@ -387,7 +403,12 @@ let rec parse_section = fun out ac_id s ->
     | "commands" ->
       let commands = Array.of_list (Xml.children s) in
       let commands_params = Array.mapi (fun i c -> parse_command out c i) commands in
+      let commands_counts = count_commands_by_type (commands_params) in
+      List.iter (fun (subtype, count) ->
+        define_out out (sprintf "COMMANDS_NB_%s" subtype) (string_of_int count)
+      ) commands_counts;      
       define_out out "COMMANDS_NB" (string_of_int (Array.length commands));
+      generate_command_names out commands;
       define_out out "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
       fprintf out "\n\n"
     | "rc_commands" ->
@@ -415,8 +436,7 @@ let rec parse_section = fun out ac_id s ->
       fprintf out "}\n\n";
       (* print actuators from commands macro *)
       fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
-      fprintf out "  int32_t servo_value;\\\n";
-      fprintf out "  int32_t command_value;\\\n\\\n";
+      fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
       List.iter (parse_command_laws out) (Xml.children s);
       fprintf out "  AllActuatorsCommit(); \\\n";
       fprintf out "}\n\n";

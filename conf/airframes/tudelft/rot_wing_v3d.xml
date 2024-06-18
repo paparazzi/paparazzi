@@ -54,6 +54,8 @@
             <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"      value="0"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+
+            <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
         </target>
 
         <!-- Herelink datalink -->
@@ -67,7 +69,7 @@
             <configure name="MAG_RM3100_I2C_DEV"        value="I2C2"/>
         </module>
         <module name="airspeed" type="ms45xx_i2c">
-            <define name="MS45XX_I2C_DEV"               value="i2c2"/>
+            <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.618426"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
@@ -88,6 +90,8 @@
         <!-- IMU / INS -->
         <module name="imu" type="cube"/>
         <module name="ins" type="ekf2"/>
+
+        <module name="parachute"/>
 
         <!-- Actuators on dual CAN bus -->
         <module name="actuators" type="uavcan">
@@ -198,7 +202,7 @@
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
         <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-3250"/>
-        <servo no="7"  name="SERVO_RUDDER"    min="-3250" neutral="0"    max="3250"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-6000" neutral="0"    max="3250"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
@@ -314,15 +318,130 @@
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
 
-        <!-- Preflight check actuators (ELE, RUD, AIL_L, FLAP_L, FLAP_R, AIL_R, ROT_M, M_FRONT, M_RIGHT_, M_BACK, M_LEFT, M_PUSH) -->
-        <define name="PFC_ACTUATORS" value="{{.feedback_id=SERVO_SERVO_ELEVATOR_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=0.85, .high_feedback=0.3, .timeout=1},{.feedback_id=SERVO_SERVO_RUDDER_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_AIL_LEFT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_FLAP_LEFT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_FLAP_RIGHT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_AIL_RIGHT_IDX, .feedback_id2=255, .low=-4500, .high=4500, .low_feedback=-0.15, .high_feedback=0.15, .timeout=1},{.feedback_id=SERVO_ROTATION_MECH_IDX, .feedback_id2=SERVO_BROTATION_MECH_IDX, .low=-9600, .high=9600, .low_feedback=1.57, .high_feedback=0, .timeout=5},{.feedback_id=SERVO_MOTOR_FRONT_IDX, .feedback_id2=SERVO_BMOTOR_FRONT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_RIGHT_IDX, .feedback_id2=SERVO_BMOTOR_RIGHT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_BACK_IDX, .feedback_id2=SERVO_BMOTOR_BACK_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_LEFT_IDX, .feedback_id2=SERVO_BMOTOR_LEFT_IDX, .low=-9600, .high=0, .low_feedback=0, .high_feedback=975, .timeout=3},{.feedback_id=SERVO_MOTOR_PUSH_IDX, .feedback_id2=255, .low=-9600, .high=2000, .low_feedback=0, .high_feedback=2200, .timeout=3}}"/>
+        <!-- Preflight check actuators (ELE, RUD, AIL_L, FLAP_L, AIL_R, FLAP_R, ROT_M, M_FRONT, M_RIGHT_, M_BACK, M_LEFT, M_PUSH) -->
+        <define name="PFC_ACTUATORS" type="array">
+            <!-- Aerodynamic -->
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_SERVO_ELEVATOR_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="0.85"/>
+                <field name="high_feedback" value="0.3"/>
+                <field name="timeout" value="1"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_SERVO_RUDDER_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="-0.30"/>
+                <field name="high_feedback" value="0.15"/>
+                <field name="timeout" value="1"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_AIL_LEFT_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="-0.15"/>
+                <field name="high_feedback" value="0.15"/>
+                <field name="timeout" value="1"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_FLAP_LEFT_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="-0.15"/>
+                <field name="high_feedback" value="0.15"/>
+                <field name="timeout" value="1"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_FLAP_RIGHT_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="-0.15"/>
+                <field name="high_feedback" value="0.15"/>
+                <field name="timeout" value="1"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_AIL_RIGHT_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-4500"/>
+                <field name="high" value="4500"/>
+                <field name="low_feedback" value="-0.15"/>
+                <field name="high_feedback" value="0.15"/>
+                <field name="timeout" value="1"/>
+            </field>
+
+            <!-- Rotation -->
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_ROTATION_MECH_IDX"/>
+                <field name="feedback_id2" value="SERVO_BROTATION_MECH_IDX"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="9600"/>
+                <field name="low_feedback" value="1.57"/>
+                <field name="high_feedback" value="0"/>
+                <field name="timeout" value="5"/>
+            </field>
+
+            <!-- Motors -->
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_MOTOR_FRONT_IDX"/>
+                <field name="feedback_id2" value="SERVO_BMOTOR_FRONT_IDX"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="0"/>
+                <field name="low_feedback" value="0"/>
+                <field name="high_feedback" value="975"/>
+                <field name="timeout" value="3"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_MOTOR_RIGHT_IDX"/>
+                <field name="feedback_id2" value="SERVO_BMOTOR_RIGHT_IDX"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="0"/>
+                <field name="low_feedback" value="0"/>
+                <field name="high_feedback" value="975"/>
+                <field name="timeout" value="3"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_MOTOR_BACK_IDX"/>
+                <field name="feedback_id2" value="SERVO_BMOTOR_BACK_IDX"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="0"/>
+                <field name="low_feedback" value="0"/>
+                <field name="high_feedback" value="975"/>
+                <field name="timeout" value="3"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_MOTOR_LEFT_IDX"/>
+                <field name="feedback_id2" value="SERVO_BMOTOR_LEFT_IDX"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="0"/>
+                <field name="low_feedback" value="0"/>
+                <field name="high_feedback" value="975"/>
+                <field name="timeout" value="3"/>
+            </field>
+            <field type="struct">
+                <field name="feedback_id" value="SERVO_MOTOR_PUSH_IDX"/>
+                <field name="feedback_id2" value="255"/>
+                <field name="low" value="-9600"/>
+                <field name="high" value="2000"/>
+                <field name="low_feedback" value="0"/>
+                <field name="high_feedback" value="2200"/>
+                <field name="timeout" value="3"/>
+            </field>
+        </define>
 
         <!-- Others -->
         <define name="NO_RC_THRUST_LIMIT"                   value="TRUE"/>
         <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
         <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
         <define name="NAV_CARROT_DIST"                      value="200"/>
-        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="300"/>
+        <!-- prevent in-flight in start engine block-->
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST" value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
         <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
@@ -343,7 +462,7 @@
 
     <section name="IMU" prefix="IMU_">
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1518,-1489,512}, .scale={{1124,9185,21218},{1879,15118,36859}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1948,-2534,1576}, .scale={{13543,22822,7749},{23470,38711,13795}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
@@ -410,10 +529,10 @@
 
         <!-- Reference -->
         <define name="REF_ERR_P"                    value="30.0"/>
-        <define name="REF_ERR_Q"                    value="32.0"/>
+        <define name="REF_ERR_Q"                    value="70.0"/>
         <define name="REF_ERR_R"                    value="23.0"/>
         <define name="REF_RATE_P"                   value="5.0"/>
-        <define name="REF_RATE_Q"                   value="7.2"/>
+        <define name="REF_RATE_Q"                   value="9.0"/>
         <define name="REF_RATE_R"                   value="3.9"/>
 
         <define name="MAX_R"                        value="30.0" unit="deg/s"/>
@@ -433,6 +552,7 @@
         <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
         <define name="USE_ADAPTIVE"     value="FALSE"/>
         <define name="ADAPTIVE_MU"      value="0.001"/>
+        <define name="YAW_DISTURBANCE_LIMIT" value="0.85"/>
     </section>
 
     <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -449,7 +569,7 @@
     </section>
 
     <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-        <define name="MAX_BANK"         value="30" unit="deg"/>
+        <define name="MAX_BANK"         value="50" unit="deg"/>
         <define name="USE_SPEED_REF"    value="TRUE"/>
 
         <!-- Gains -->
@@ -463,7 +583,7 @@
         <!--WLS settings-->
         <define name="USE_WLS"              value="TRUE"/>
         <define name="WLS_PRIORITIES"       value="{10., 10., 10.}"/>
-        <define name="WLS_WU"               value="{10., 10., 100., 1.}"/>
+        <define name="WLS_WU"               value="{100., 300., 4., 30.}"/>
 
         <!-- Gains -->
         <define name="POS_GAIN"             value="0.3"/>
@@ -472,7 +592,7 @@
         <define name="SPEED_GAINZ"          value="0.6"/>
 
         <!-- Other -->
-        <define name="FILTER_CUTOFF"        value="2.0"/>
+        <define name="FILTER_CUTOFF"        value="2.5"/>
         <define name="HEADING_BANK_GAIN"    value="5."/>
         <define name="MAX_AIRSPEED"         value="19.0"/>
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
@@ -489,6 +609,8 @@
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
+        <define name="MAX_LAT_ACCEL"        value="5.0"/>
+        <define name="ACCEL_FWD_BX_LIM"     value="3.0"/>
     </section>
 
     <section name="FORWARD">
@@ -499,10 +621,14 @@
 
     <section name="AMT" prefix="APPROACH_MOVING_TARGET_">
         <define name="CUTOFF_FREQ_FILTERS_HZ"   value="0.25"/>
-        <define name="ERR_SLOWDOWN_GAIN"        value="0.25" />
-        <define name="SLOPE"                    value="60.0"/>
+        <define name="ERR_SLOWDOWN_GAIN"        value="0.1" />
+        <define name="SLOPE"                    value="50.0"/>
         <define name="DISTANCE"                 value="70.0"/>
         <define name="SPEED"                    value="0.0"/>
+    </section>
+
+    <section name="TARGET_POS">
+        <define name="TARGET_OFFSET_DISTANCE" value="20.0"/>
     </section>
 
     <section name="AUTOPILOT">
@@ -529,4 +655,23 @@
         <define name="NO_MOTOR_MIXING" value="TRUE"/>
         <define name="JS_AXIS_MODE" value="4"/>
     </section>
+
+    <checklist>
+        <item name="pic" type="text">Enter the PIC</item>
+        <item name="pac" type="text">Enter the PAC</item>
+        <item name="gcs" type="text">Enter the GCS op</item>
+        <item name="goal" type="text">Goal of the flight</item>
+        <item name="basic law">Location, airspace and weather</item>
+        <item name="RC Battery">Check the RC battery</item>
+        <item name="tail connection">Check tail connection</item>
+        <item name="wing tape">Check wings taped and secured</item>
+        <item name="attitude">Check attitude and heading</item>
+        <item name="airspeed">Airspeed sensor calibration</item>
+        <item name="takeoff location">Put UAV on take-off location</item>
+        <item name="actuators">Automated actuator check</item>
+        <item name="flight plan">Check flight plan</item>
+        <item name="flight block">Switch to correct flight block</item>
+        <item name="camera">Switch on camera</item>
+        <item name="announce">Announce flight to other airspace users</item>
+    </checklist>
 </airframe>

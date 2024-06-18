@@ -43,8 +43,6 @@ extern bool force_forward;
 #endif
 
 
-extern float nav_max_deceleration_sp;
-
 extern void nav_rotorcraft_hybrid_init(void);
 
 #endif

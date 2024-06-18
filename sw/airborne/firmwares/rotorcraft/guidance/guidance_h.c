@@ -26,18 +26,13 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
-#include "firmwares/rotorcraft/guidance/guidance_flip.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
+#include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "modules/radio_control/radio_control.h"
-
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "modules/core/abi.h"
 
 /* for guidance_v.thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
@@ -49,16 +44,19 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 
 struct HorizontalGuidance guidance_h;
 
-int32_t transition_percentage;
-
 /** horizontal guidance command.
  * In north/east with #INT32_ANGLE_FRAC
  */
 struct StabilizationSetpoint guidance_h_cmd;
 
 static void guidance_h_update_reference(void);
-static inline void transition_run(bool to_forward);
-static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight);
+
+#ifndef GUIDANCE_H_RC_ID
+#define GUIDANCE_H_RC_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_H_RC_ID)
+static abi_event rc_ev;
+static void rc_cb(uint8_t sender_id UNUSED, struct RadioControl *rc);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -83,52 +81,31 @@ static void send_href(struct transport_tx *trans, struct link_device *dev)
                                    &guidance_h.ref.accel.y);
 }
 
-#if defined(COMMAND_ROLL) && defined(COMMAND_PITCH) && defined(COMMAND_YAW)
-static void send_tune_hover(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ROTORCRAFT_TUNE_HOVER(trans, dev, AC_ID,
-                                      &radio_control.values[RADIO_ROLL],
-                                      &radio_control.values[RADIO_PITCH],
-                                      &radio_control.values[RADIO_YAW],
-                                      &stabilization_cmd[COMMAND_ROLL],
-                                      &stabilization_cmd[COMMAND_PITCH],
-                                      &stabilization_cmd[COMMAND_YAW],
-                                      &stabilization_cmd[COMMAND_THRUST],
-                                      &(stateGetNedToBodyEulers_i()->phi),
-                                      &(stateGetNedToBodyEulers_i()->theta),
-                                      &(stateGetNedToBodyEulers_i()->psi));
-}
-#else
-static void send_tune_hover(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED) {}
-#endif
-
 #endif
 
 void guidance_h_init(void)
 {
 
-  guidance_h.mode = GUIDANCE_H_MODE_KILL;
+  guidance_h.mode = GUIDANCE_H_MODE_NONE;
   guidance_h.use_ref = GUIDANCE_H_USE_REF;
 
   INT_VECT2_ZERO(guidance_h.sp.pos);
-  FLOAT_EULERS_ZERO(guidance_h.rc_sp);
-  guidance_h.sp.heading = 0.0;
-  guidance_h.sp.heading_rate = 0.0;
+  guidance_h.sp.heading = 0.f;
+  guidance_h.sp.heading_rate = 0.f;
   guidance_h.sp.h_mask = GUIDANCE_H_SP_POS;
   guidance_h.sp.yaw_mask = GUIDANCE_H_SP_YAW;
-  transition_percentage = 0;
-  transition_theta_offset = 0;
+  INT_VECT2_ZERO(guidance_h.rc_sp.vect);
+  guidance_h.rc_sp.heading = 0.f;
+  guidance_h.rc_sp.last_ts = 0.f;
 
   gh_ref_init();
 
-#if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE
-  guidance_h_module_init();
-#endif
+  // bind ABI messages
+  AbiBindMsgRADIO_CONTROL(GUIDANCE_H_RC_ID, &rc_ev, rc_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_H_INT, send_gh);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_H_REF_INT, send_href);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_TUNE_HOVER, send_tune_hover);
 #endif
 
 }
@@ -155,63 +132,13 @@ void guidance_h_mode_changed(uint8_t new_mode)
   }
 
   switch (new_mode) {
-    case GUIDANCE_H_MODE_RC_DIRECT:
-      stabilization_none_enter();
-      break;
-
-#if USE_STABILIZATION_RATE
-    case GUIDANCE_H_MODE_RATE:
-      stabilization_rate_enter();
-      break;
-#endif
-
-    case GUIDANCE_H_MODE_CARE_FREE:
-      stabilization_attitude_reset_care_free_heading();
-      /* Falls through. */
-    case GUIDANCE_H_MODE_FORWARD:
-    case GUIDANCE_H_MODE_ATTITUDE:
-#if NO_ATTITUDE_RESET_ON_MODE_CHANGE
-      /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h.mode == GUIDANCE_H_MODE_KILL ||
-          guidance_h.mode == GUIDANCE_H_MODE_RATE ||
-          guidance_h.mode == GUIDANCE_H_MODE_RC_DIRECT)
-#endif
-        stabilization_attitude_enter();
-      break;
-
-    case GUIDANCE_H_MODE_GUIDED:
     case GUIDANCE_H_MODE_HOVER:
+    case GUIDANCE_H_MODE_GUIDED:
       guidance_h_hover_enter();
-#if NO_ATTITUDE_RESET_ON_MODE_CHANGE
-      /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h.mode == GUIDANCE_H_MODE_KILL ||
-          guidance_h.mode == GUIDANCE_H_MODE_RATE ||
-          guidance_h.mode == GUIDANCE_H_MODE_RC_DIRECT)
-#endif
-        stabilization_attitude_enter();
       break;
-
-#if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE
-    case GUIDANCE_H_MODE_MODULE:
-      guidance_h_module_enter();
-      break;
-#endif
-
     case GUIDANCE_H_MODE_NAV:
       guidance_h_nav_enter();
-#if NO_ATTITUDE_RESET_ON_MODE_CHANGE
-      /* reset attitude stabilization if previous mode was not using it */
-      if (guidance_h.mode == GUIDANCE_H_MODE_KILL ||
-          guidance_h.mode == GUIDANCE_H_MODE_RATE ||
-          guidance_h.mode == GUIDANCE_H_MODE_RC_DIRECT)
-#endif
-        stabilization_attitude_enter();
       break;
-
-    case GUIDANCE_H_MODE_FLIP:
-      guidance_flip_enter();
-      break;
-
     default:
       break;
   }
@@ -220,59 +147,93 @@ void guidance_h_mode_changed(uint8_t new_mode)
 
 }
 
+// If not defined, use attitude max yaw setpoint (or 60 deg/s) by default
+#ifndef GUIDANCE_H_SP_MAX_R
+#ifdef STABILIZATION_ATTITUDE_SP_MAX_R
+#define GUIDANCE_H_SP_MAX_R STABILIZATION_ATTITUDE_SP_MAX_R
+#else
+#define GUIDANCE_H_SP_MAX_R 60.f
+#endif
+#endif
 
-void guidance_h_read_rc(bool  in_flight)
+#ifndef GUIDANCE_H_DEADBAND_R
+#define GUIDANCE_H_DEADBAND_R 200
+#endif
+
+#define YAW_DEADBAND_EXCEEDED(_rc)                               \
+  (rc->values[RADIO_YAW] >  GUIDANCE_H_DEADBAND_R || \
+   rc->values[RADIO_YAW] < -GUIDANCE_H_DEADBAND_R)
+
+static void read_rc_setpoint_heading(struct HorizontalGuidanceRCInput *rc_sp, bool in_flight, struct RadioControl *rc)
 {
+  if (in_flight) {
+    /* calculate dt for yaw integration */
+    float dt = get_sys_time_float() - rc_sp->last_ts;
+    /* make sure nothing drastically weird happens, bound dt to 0.5sec */
+    Bound(dt, 0, 0.5);
 
+    /* do not advance yaw setpoint if within a small deadband around stick center or if throttle is zero */
+    if (YAW_DEADBAND_EXCEEDED(rc) && !THROTTLE_STICK_DOWN_FROM_RC(rc)) {
+      float heading_rate = (float) rc->values[RADIO_YAW] * GUIDANCE_H_SP_MAX_R / MAX_PPRZ;
+      rc_sp->heading += heading_rate * dt;
+      FLOAT_ANGLE_NORMALIZE(rc_sp->heading);
+    }
+  } else { /* if not flying, use current yaw as setpoint */
+    rc_sp->heading = stateGetNedToBodyEulers_f()->psi;
+  }
+  /* update timestamp for dt calculation */
+  rc_sp->last_ts = get_sys_time_float();
+}
+
+/// read speed setpoint from RC
+static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight, struct RadioControl *rc)
+{
+  if (in_flight) {
+    // negative pitch is forward
+    int64_t rc_x = -rc->values[RADIO_PITCH];
+    int64_t rc_y = rc->values[RADIO_ROLL];
+    DeadBand(rc_x, MAX_PPRZ / 20);
+    DeadBand(rc_y, MAX_PPRZ / 20);
+
+    // convert input from MAX_PPRZ range to SPEED_BFP
+    int32_t max_speed = SPEED_BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED);
+    /// @todo calc proper scale while making sure a division by zero can't occur
+    //int32_t rc_norm = sqrtf(rc_x * rc_x + rc_y * rc_y);
+    //int32_t max_pprz = rc_norm * MAX_PPRZ / Max(abs(rc_x), abs(rc_y);
+    rc_x = rc_x * max_speed / MAX_PPRZ;
+    rc_y = rc_y * max_speed / MAX_PPRZ;
+
+    /* Rotate from body to NED frame by negative psi angle */
+    int32_t psi = -stateGetNedToBodyEulers_i()->psi;
+    int32_t s_psi, c_psi;
+    PPRZ_ITRIG_SIN(s_psi, psi);
+    PPRZ_ITRIG_COS(c_psi, psi);
+    speed_sp->x = (int32_t)(((int64_t)c_psi * rc_x + (int64_t)s_psi * rc_y) >> INT32_TRIG_FRAC);
+    speed_sp->y = (int32_t)((-(int64_t)s_psi * rc_x + (int64_t)c_psi * rc_y) >> INT32_TRIG_FRAC);
+  } else {
+    speed_sp->x = 0;
+    speed_sp->y = 0;
+  }
+}
+
+static void rc_cb(uint8_t sender_id UNUSED, struct RadioControl *rc)
+{
   switch (guidance_h.mode) {
 
-    case GUIDANCE_H_MODE_RC_DIRECT:
-      stabilization_none_read_rc();
-      break;
-
-#if USE_STABILIZATION_RATE
-    case GUIDANCE_H_MODE_RATE:
-#if SWITCH_STICKS_FOR_RATE_CONTROL
-      stabilization_rate_read_rc_switched_sticks();
-#else
-      stabilization_rate_read_rc();
-#endif
-      break;
-#endif
-
-    case GUIDANCE_H_MODE_CARE_FREE:
-      stabilization_attitude_read_rc(in_flight, TRUE, FALSE);
-      break;
-    case GUIDANCE_H_MODE_FORWARD:
-      stabilization_attitude_read_rc(in_flight, FALSE, TRUE);
-      break;
-    case GUIDANCE_H_MODE_ATTITUDE:
-      stabilization_attitude_read_rc(in_flight, FALSE, FALSE);
-      break;
     case GUIDANCE_H_MODE_HOVER:
-      stabilization_attitude_read_rc_setpoint_eulers_f(&guidance_h.rc_sp, in_flight, FALSE, FALSE);
+      read_rc_setpoint_heading(&guidance_h.rc_sp, autopilot_in_flight(), rc);
+      read_rc_setpoint_speed_i(&guidance_h.rc_sp.vect, autopilot_in_flight(), rc);
 #if GUIDANCE_H_USE_SPEED_REF
-      read_rc_setpoint_speed_i(&guidance_h.sp.speed, in_flight);
       /* enable x,y velocity setpoints */
+      guidance_h.sp.speed = guidance_h.rc_sp.vect;
       guidance_h.sp.h_mask = GUIDANCE_H_SP_SPEED;
 #endif
       break;
-
-#if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE
-    case GUIDANCE_H_MODE_MODULE:
-      guidance_h_module_read_rc();
-      break;
-#endif
-
     case GUIDANCE_H_MODE_NAV:
+      INT_VECT2_ZERO(guidance_h.rc_sp.vect);
       if (radio_control.status == RC_OK) {
-        stabilization_attitude_read_rc_setpoint_eulers_f(&guidance_h.rc_sp, in_flight, FALSE, FALSE);
-      } else {
-        FLOAT_EULERS_ZERO(guidance_h.rc_sp);
+        read_rc_setpoint_heading(&guidance_h.rc_sp, autopilot_in_flight(), rc);
       }
-      break;
-    case GUIDANCE_H_MODE_FLIP:
-      stabilization_attitude_read_rc(in_flight, FALSE, FALSE);
       break;
     default:
       break;
@@ -280,66 +241,32 @@ void guidance_h_read_rc(bool  in_flight)
 
 }
 
-void guidance_h_run(bool  in_flight)
+struct StabilizationSetpoint guidance_h_run(bool in_flight)
 {
+  struct StabilizationSetpoint sp;
+  STAB_SP_SET_EULERS_ZERO(sp);
+
   switch (guidance_h.mode) {
-
-    case GUIDANCE_H_MODE_RC_DIRECT:
-      stabilization_none_run(in_flight);
-      break;
-
-#if USE_STABILIZATION_RATE
-    case GUIDANCE_H_MODE_RATE:
-      stabilization_rate_run(in_flight);
-      break;
-#endif
-
-    case GUIDANCE_H_MODE_FORWARD:
-      if (transition_percentage < (100 << INT32_PERCENTAGE_FRAC)) {
-        transition_run(true);
-      }
-      /* Falls through. */
-    case GUIDANCE_H_MODE_CARE_FREE:
-    case GUIDANCE_H_MODE_ATTITUDE:
-      if ((!(guidance_h.mode == GUIDANCE_H_MODE_FORWARD)) && transition_percentage > 0) {
-        transition_run(false);
-      }
-      stabilization_attitude_run(in_flight);
-#if (STABILIZATION_FILTER_CMD_ROLL_PITCH || STABILIZATION_FILTER_CMD_YAW)
-      if (in_flight) {
-        stabilization_filter_commands();
-      }
-#endif
-
-      break;
 
     case GUIDANCE_H_MODE_HOVER:
       /* set psi command from RC */
-      guidance_h.sp.heading = guidance_h.rc_sp.psi;
+      guidance_h.sp.heading = guidance_h.rc_sp.heading;
       /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
 
       /* Falls through. */
     case GUIDANCE_H_MODE_GUIDED:
-      guidance_h_guided_run(in_flight);
+      sp = guidance_h_guided_run(in_flight);
       break;
 
     case GUIDANCE_H_MODE_NAV:
-      guidance_h_from_nav(in_flight);
-      break;
-
-#if GUIDANCE_H_MODE_MODULE_SETTING == GUIDANCE_H_MODE_MODULE
-    case GUIDANCE_H_MODE_MODULE:
-      guidance_h_module_run(in_flight);
-      break;
-#endif
-
-    case GUIDANCE_H_MODE_FLIP:
-      guidance_flip_run();
+      sp = guidance_h_from_nav(in_flight);
       break;
 
     default:
       break;
   }
+
+  return sp;
 }
 
 
@@ -427,7 +354,7 @@ void guidance_h_hover_enter(void)
   reset_guidance_reference_from_current_position();
 
   /* set guidance to current heading and position */
-  guidance_h.rc_sp.psi = stateGetNedToBodyEulers_f()->psi;
+  guidance_h.rc_sp.heading = stateGetNedToBodyEulers_f()->psi;
   guidance_h_set_heading(stateGetNedToBodyEulers_f()->psi);
 
   /* call specific implementation */
@@ -445,34 +372,32 @@ void guidance_h_nav_enter(void)
   guidance_h_set_heading(nav.heading);
 }
 
-void guidance_h_from_nav(bool in_flight)
+struct StabilizationSetpoint guidance_h_from_nav(bool in_flight)
 {
   if (!in_flight) {
     guidance_h_nav_enter();
   }
 
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_NONE) {
-    return; // don't call guidance nor stabilization
+    struct StabilizationSetpoint sp;
+    STAB_SP_SET_EULERS_ZERO(sp);
+    return sp; // don't call guidance, still return attitude zero
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ATTITUDE) {
     if (nav.setpoint_mode == NAV_SETPOINT_MODE_QUAT) {
-      // directly apply quat setpoint
-      struct Int32Quat quat_i;
-      QUAT_BFP_OF_REAL(quat_i, nav.quat);
-      stabilization_attitude_set_quat_setpoint_i(&quat_i);
-      stabilization_attitude_run(in_flight);
+      return stab_sp_from_quat_f(&nav.quat);
     }
     else {
       // it should be nav.setpoint_mode == NAV_SETPOINT_MODE_ATTITUDE
       // TODO error handling ?
-      struct Int32Eulers sp_cmd_i;
-      sp_cmd_i.phi = ANGLE_BFP_OF_REAL(nav.roll);
-      sp_cmd_i.theta = ANGLE_BFP_OF_REAL(nav.pitch);
-      sp_cmd_i.psi = ANGLE_BFP_OF_REAL(nav.heading);
-      stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
-      stabilization_attitude_run(in_flight);
+      struct FloatEulers sp_cmd_f = {
+        .phi = nav.roll,
+        .theta = nav.pitch,
+        .psi = nav.heading
+      };
+      return stab_sp_from_eulers_f(&sp_cmd_f);
     }
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_GUIDED) {
-    guidance_h_guided_run(in_flight);
+    return guidance_h_guided_run(in_flight);
   } else {
     // update carrot for GCS display and convert ENU float -> NED int
     // even if sp is changed later
@@ -505,62 +430,12 @@ void guidance_h_from_nav(bool in_flight)
         // nothing to do for other cases at the moment
         break;
     }
-    /* set final attitude setpoint */
-    stabilization_attitude_set_stab_sp(&guidance_h_cmd);
-    stabilization_attitude_run(in_flight);
-
+    /* return final attitude setpoint */
+    return guidance_h_cmd;
   }
 }
 
-static inline void transition_run(bool to_forward)
-{
-  if (to_forward) {
-    //Add 0.00625%
-    transition_percentage += 1 << (INT32_PERCENTAGE_FRAC - 4);
-  } else {
-    //Subtract 0.00625%
-    transition_percentage -= 1 << (INT32_PERCENTAGE_FRAC - 4);
-  }
-
-#ifdef TRANSITION_MAX_OFFSET
-  const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
-  transition_theta_offset = INT_MULT_RSHIFT((transition_percentage << (INT32_ANGLE_FRAC - INT32_PERCENTAGE_FRAC)) / 100,
-                            max_offset, INT32_ANGLE_FRAC);
-#endif
-}
-
-/// read speed setpoint from RC
-static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight)
-{
-  if (in_flight) {
-    // negative pitch is forward
-    int64_t rc_x = -radio_control.values[RADIO_PITCH];
-    int64_t rc_y = radio_control.values[RADIO_ROLL];
-    DeadBand(rc_x, MAX_PPRZ / 20);
-    DeadBand(rc_y, MAX_PPRZ / 20);
-
-    // convert input from MAX_PPRZ range to SPEED_BFP
-    int32_t max_speed = SPEED_BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED);
-    /// @todo calc proper scale while making sure a division by zero can't occur
-    //int32_t rc_norm = sqrtf(rc_x * rc_x + rc_y * rc_y);
-    //int32_t max_pprz = rc_norm * MAX_PPRZ / Max(abs(rc_x), abs(rc_y);
-    rc_x = rc_x * max_speed / MAX_PPRZ;
-    rc_y = rc_y * max_speed / MAX_PPRZ;
-
-    /* Rotate from body to NED frame by negative psi angle */
-    int32_t psi = -stateGetNedToBodyEulers_i()->psi;
-    int32_t s_psi, c_psi;
-    PPRZ_ITRIG_SIN(s_psi, psi);
-    PPRZ_ITRIG_COS(c_psi, psi);
-    speed_sp->x = (int32_t)(((int64_t)c_psi * rc_x + (int64_t)s_psi * rc_y) >> INT32_TRIG_FRAC);
-    speed_sp->y = (int32_t)((-(int64_t)s_psi * rc_x + (int64_t)c_psi * rc_y) >> INT32_TRIG_FRAC);
-  } else {
-    speed_sp->x = 0;
-    speed_sp->y = 0;
-  }
-}
-
-void guidance_h_guided_run(bool in_flight)
+struct StabilizationSetpoint guidance_h_guided_run(bool in_flight)
 {
   /* guidance_h.sp.pos and guidance_h.sp.heading need to be set from external source */
   if (!in_flight) {
@@ -570,9 +445,8 @@ void guidance_h_guided_run(bool in_flight)
   guidance_h_update_reference();
 
   guidance_h_cmd = guidance_h_run_pos(in_flight, &guidance_h);
-  /* set final attitude setpoint */
-  stabilization_attitude_set_stab_sp(&guidance_h_cmd);
-  stabilization_attitude_run(in_flight);
+  /* return final attitude setpoint */
+  return guidance_h_cmd;
 }
 
 void guidance_h_set_pos(float x, float y)

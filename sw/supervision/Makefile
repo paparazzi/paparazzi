@@ -32,6 +32,7 @@ else
 	MKTEMP = mktemp
 endif
 
+ifeq ($(USE_LABELGTK),lablgtk2)
 LABLGTK2GNOMEUI = $(shell ocamlfind query -p-format lablgtk2-gnome.gnomeui 2>/dev/null)
 ifeq ($(LABLGTK2GNOMEUI),)
 LABLGTK2GNOMEUI = $(shell ocamlfind query -p-format lablgtk2.gnomeui 2>/dev/null)
@@ -40,18 +41,20 @@ endif
 LABLGTK2GLADE = $(shell ocamlfind query -p-format lablgtk2.glade 2>/dev/null)
 
 INCLUDES =
-XPKG = -package pprz.xlib,lablgtk2.glade,$(LABLGTK2GNOMEUI)
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade,$(LABLGTK2GNOMEUI)
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg lablgtk2,pprz.xlib,pprzlink
 
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_control_panel.cmo pc_aircraft.cmo paparazzicenter.cmo
 
-
 # only compile it lablgtk2.glade is installed
-ifeq ($(LABLGTK2GLADE),)
+ifneq ($(LABLGTK2GLADE),)
+all: paparazzicenter
+
+endif
+
+else # no gtk2
 all :
 	@echo Skipping legacy Paparazzi Center build
-else
-all: paparazzicenter
 endif
 
 paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(XLIBPPRZCMA)

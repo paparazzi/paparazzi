@@ -95,28 +95,6 @@
 //#include "nps/nps_fdm.h"
 
 // Number of real actuators (e.g. motors, servos)
-#ifndef ANDI_NUM_ACT
-#error "You must specify the number of real actuators"
-#define ANDI_NUM_ACT 4
-#endif
-
-// Number of virtual actuators (e.g. Phi, Theta). For now 2 and only 2 are supported but in the future this can be further developed. 
-#if ANDI_NUM_VIRTUAL_ACT < 2
-#error "You must specify the number of virtual actuators to be at least 2"
-#define ANDI_NUM_VIRTUAL_ACT 2
-#endif
-
-// If the total number of actuators is not defined or wrongly defined correct it
-#if ANDI_NUM_ACT_TOT != (ANDI_NUM_ACT + ANDI_NUM_VIRTUAL_ACT)
-#error "The number of actuators is not equal to the sum of real and virtual actuators"
-#define ANDI_NUM_ACT_TOT (ANDI_NUM_ACT + ANDI_NUM_VIRTUAL_ACT)
-#endif
-
-#ifndef ANDI_OUTPUTS
-#error "You must specify the number of controlled axis (outputs)"
-#define ANDI_OUTPUTS 6
-#endif
-
 #ifndef ONELOOP_ANDI_NUM_THRUSTERS
 float num_thrusters_oneloop = 4.0; // Number of motors used for thrust
 #else
@@ -1436,13 +1414,14 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
   }
 
   /*Commit the actuator command*/
-  stabilization_cmd[COMMAND_THRUST] = 0;
+  stabilization.cmd[COMMAND_THRUST] = 0;
   for (i = 0; i < ANDI_NUM_ACT; i++) {
     actuators_pprz[i] = (int16_t) andi_u[i];
-    stabilization_cmd[COMMAND_THRUST] += actuator_state_1l[i]; 
+    stabilization.cmd[COMMAND_THRUST] += actuator_state_1l[i];
   }
-  stabilization_cmd[COMMAND_THRUST] = stabilization_cmd[COMMAND_THRUST]/num_thrusters_oneloop;
+  stabilization.cmd[COMMAND_THRUST] = stabilization.cmd[COMMAND_THRUST]/num_thrusters_oneloop;
   autopilot.throttle = stabilization_cmd[COMMAND_THRUST];
+
   if(autopilot.mode==AP_MODE_ATTITUDE_DIRECT){
     eulers_zxy_des.phi   =  andi_u[ONELOOP_ANDI_PHI_IDX];
     eulers_zxy_des.theta =  andi_u[ONELOOP_ANDI_THETA_IDX];

@@ -34,8 +34,6 @@
     <module name="actuators" type="dshot"/>
     <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
-    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MAX"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_SWITCH_MIN"/>
 
     <module name="board" type="tawaki">
       <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/>

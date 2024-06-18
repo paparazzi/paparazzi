@@ -33,18 +33,14 @@
  */
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi.h"
-#include "modules/ins/ins_int.h"
 #include "modules/radio_control/radio_control.h"
-#include "state.h"
-#include "modules/imu/imu.h"
+#include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "mcu_periph/sys_time.h"
+#include "state.h"
 #include "autopilot.h"
-#include "stabilization/stabilization_attitude_ref_quat_int.h"
-#include "firmwares/rotorcraft/stabilization.h"
 #include "filters/low_pass_filter.h"
 #include "modules/core/abi.h"
 
@@ -124,6 +120,7 @@ float time_of_accel_sp_2d = 0.0;
 float time_of_accel_sp_3d = 0.0;
 
 struct FloatEulers guidance_euler_cmd;
+struct ThrustSetpoint thrust_sp;
 float thrust_in;
 
 static void guidance_indi_propagate_filters(struct FloatEulers *eulers);
@@ -155,6 +152,8 @@ static void send_indi_guidance(struct transport_tx *trans, struct link_device *d
  */
 void guidance_indi_init(void)
 {
+  FLOAT_EULERS_ZERO(guidance_euler_cmd);
+  THRUST_SP_SET_ZERO(thrust_sp);
   AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);
 
 #if PERIODIC_TELEMETRY
@@ -171,7 +170,7 @@ void guidance_indi_enter(void)
   /* set nav_heading to current heading */
   nav.heading = stateGetNedToBodyEulers_f()->psi;
 
-  thrust_in = stabilization_cmd[COMMAND_THRUST];
+  thrust_in = stabilization.cmd[COMMAND_THRUST];
   thrust_act = thrust_in;
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
@@ -273,31 +272,32 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(control_increment, Ga_inv, a_diff);
 
-  struct FloatVect3 thrust_vect;
-  thrust_vect.x = 0.0;  // Fill for quadplanes
-  thrust_vect.y = 0.0;
-  thrust_vect.z = control_increment.z;
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, thrust_vect);
-
   guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
   guidance_euler_cmd.phi = roll_filt.o[0] + control_increment.y;
   guidance_euler_cmd.psi = heading_sp;
 
+  // Compute and store thust setpoint
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
   guidance_indi_filter_thrust();
-
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
   thrust_in = thrust_filt.o[0] + control_increment.z * guidance_indi_specific_force_gain;
   Bound(thrust_in, 0, 9600);
-
 #if GUIDANCE_INDI_RC_DEBUG
   if (radio_control.values[RADIO_THROTTLE] < 300) {
     thrust_in = 0;
   }
 #endif
+  // return required thrust
+  thrust_sp = th_sp_from_thrust_i(thrust_in, THRUST_AXIS_Z);
 
-  //Overwrite the thrust command from guidance_v
-  stabilization_cmd[COMMAND_THRUST] = thrust_in;
+#else
+  float thrust_vect[3];
+  thrust_vect[0] = 0.0f;  // Fill for quadplanes
+  thrust_vect[1] = 0.0f;
+  thrust_vect[2] = control_increment.z;
+
+  // specific force not defined, return required increment
+  thrust_sp = th_sp_from_incr_vect_f(thrust_vect);
 #endif
 
   //Bound euler angles to prevent flipping
@@ -504,25 +504,25 @@ struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct Horizon
   return guidance_indi_run_mode(in_flight, gh, _gv, GUIDANCE_INDI_H_ACCEL, _v_mode);
 }
 
-int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_V_POS;
-  return 0; // nothing to do
+  return thrust_sp;
 }
 
-int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_V_SPEED;
-  return 0; // nothing to do
+  return thrust_sp;
 }
 
-int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_INDI_V_ACCEL;
-  return 0; // nothing to do
+  return thrust_sp;
 }
 
 #endif

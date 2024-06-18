@@ -42,15 +42,11 @@ extern float ctrl_windtunnel_steptime;
 extern struct min_max_ctrl_t ctrl_windtunnel_throttle;
 extern struct min_max_ctrl_t ctrl_windtunnel_flaps;
 
-// Implement own Horizontal loops
-extern void guidance_h_module_init(void);
-extern void guidance_h_module_enter(void);
-extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool in_flight);
+extern void ctrl_windtunnel_init(void);
 
-// Implement own Vertical loops
-extern void guidance_v_module_init(void);
-extern void guidance_v_module_enter(void);
-extern void guidance_v_module_run(bool in_flight);
+// Implement own loops
+extern void guidance_module_enter(void);
+extern void guidance_module_run(bool in_flight);
 
 #endif /* CTRL_MODULE_WINDTUNNEL_H_ */
+

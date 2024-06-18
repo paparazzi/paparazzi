@@ -29,7 +29,28 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
+#include "generated/airframe.h"
 
+#ifndef ANDI_NUM_ACT
+#define ANDI_NUM_ACT COMMANDS_NB_REAL
+#endif
+
+#ifndef ANDI_NUM_VIRTUAL_ACT
+#define ANDI_NUM_VIRTUAL_ACT COMMANDS_NB_VIRTUAL
+#endif
+
+// Number of virtual actuators (e.g. Phi, Theta). For now 2 and only 2 are supported but in the future this can be further developed. 
+#if ANDI_NUM_VIRTUAL_ACT < 2
+#error "You must specify the number of virtual actuators to be at least 2"
+#define ANDI_NUM_VIRTUAL_ACT 2
+#endif
+
+#define ANDI_NUM_ACT_TOT (ANDI_NUM_ACT + ANDI_NUM_VIRTUAL_ACT)
+
+#ifndef ANDI_OUTPUTS
+#error "You must specify the number of controlled axis (outputs)"
+#define ANDI_OUTPUTS 6
+#endif
 #define ANDI_G_SCALING 1000.0f
 
 /** Control types.*/
@@ -127,11 +148,11 @@ struct Gains2ndOrder{
 extern struct PolePlacement p_att_e;
 extern struct PolePlacement p_att_rm;
 /*Position Loop*/
-extern struct PolePlacement p_pos_e;  
+extern struct PolePlacement p_pos_e;
 extern struct PolePlacement p_pos_rm;
 /*Altitude Loop*/
-extern struct PolePlacement p_alt_e;   
-extern struct PolePlacement p_alt_rm; 
+extern struct PolePlacement p_alt_e;
+extern struct PolePlacement p_alt_rm;
 /*Heading Loop*/
 extern struct PolePlacement p_head_e;
 extern struct PolePlacement p_head_rm;
@@ -139,9 +160,9 @@ extern struct PolePlacement p_head_rm;
 extern struct Gains3rdOrder k_att_e;
 extern struct Gains3rdOrder k_att_rm;
 extern struct Gains2ndOrder k_head_e;
-extern struct Gains2ndOrder k_head_rm;  
+extern struct Gains2ndOrder k_head_rm;
 extern struct Gains3rdOrder k_pos_e;
-extern struct Gains3rdOrder k_pos_rm; 
+extern struct Gains3rdOrder k_pos_rm;
 extern void oneloop_andi_init(void);
 extern void oneloop_andi_enter(bool half_loop_sp, int ctrl_type);
 extern void oneloop_andi_set_failsafe_setpoint(void);

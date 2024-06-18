@@ -65,7 +65,8 @@ name CDATA #REQUIRED>
 
 <!ATTLIST call
 fun CDATA #REQUIRED
-cond CDATA #IMPLIED>
+cond CDATA #IMPLIED
+store CDATA #IMPLIED>
 
 <!ATTLIST call_block
 name CDATA #REQUIRED>
