@@ -216,8 +216,8 @@ struct tag_tracking_public* tag_tracking_get(int16_t tag_id) {
       return &tag_infos[i].tag_tracking;
     }
 
-    // tag_id == 0 returns the first running tag.
-    if(tag_id == 0 && tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING) {
+    // tag_id == TAG_TRACKING_ANY, returns the first running tag.
+    if(tag_id == TAG_TRACKING_ANY && tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING) {
       return &tag_infos[i].tag_tracking;
     }
   }
@@ -281,7 +281,9 @@ static void tag_track_cb(uint8_t sender_id UNUSED,
   if (type == JEVOIS_MSG_D3) {
     int16_t tag_id = (int16_t)jevois_extract_nb(id);
     for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
-      if(tag_infos[i].tag_track_private.id != tag_id && tag_infos[i].tag_track_private.id != TAG_UNUSED_ID) {
+      if( tag_infos[i].tag_track_private.id != tag_id &&
+          tag_infos[i].tag_track_private.id != TAG_UNUSED_ID &&
+          tag_infos[i].tag_track_private.id != TAG_TRACKING_ANY) {
         continue;
       }
       if(tag_infos[i].tag_track_private.id == TAG_UNUSED_ID) {

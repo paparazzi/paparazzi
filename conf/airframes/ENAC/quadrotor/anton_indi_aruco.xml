@@ -243,7 +243,7 @@
         <field name="tag_id" value="0"/>
       </field>
       <field type="struct">
-        <field name="wp_id" value="WP_ROVER"/>
+        <field name="wp_id" value="WP_TRUCK"/>
         <field name="tag_id" value="4"/>
       </field>
     </define>

@@ -38,7 +38,7 @@
 #endif
 
 
-
+#define TAG_TRACKING_ANY -2
 
 // Searching status
 #define TAG_TRACKING_SEARCHING  0
