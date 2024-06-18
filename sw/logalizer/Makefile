@@ -33,12 +33,12 @@ LABLGTK2GLADE = $(shell ocamlfind query -p-format lablgtk2.glade 2>/dev/null)
 ifeq ($(USE_LABELGTK),lablgtk2)
 # only compile it lablgtk2.glade is installed
 ifeq ($(LABLGTK2GLADE),)
-XPKG = -package pprz.xlib,lablgtk2
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+XPKG = -package lablgtk2,pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 all : play plotter sd2log plotprofile openlog2tlm sdlogger_download
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
 endif
 else # no gtk2
