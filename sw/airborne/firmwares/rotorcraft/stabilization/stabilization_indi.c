@@ -700,7 +700,9 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 
   /*Commit the actuator command*/
   for (i = 0; i < INDI_NUM_ACT; i++) {
-    actuators_pprz[i] = (int16_t) indi_u[i];
+    if (i < COMMANDS_NB) {
+      stabilization_cmd[i] = (int32_t) indi_u[i];
+    }
   }
 
   //update thrust command such that the current is correctly estimated
