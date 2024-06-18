@@ -38,7 +38,7 @@
 #endif
 
 
-
+#define TAG_TRACKING_ANY -2
 
 // Searching status
 #define TAG_TRACKING_SEARCHING  0
@@ -52,14 +52,16 @@
 #define TAG_TRACKING_MOVING     1
 
 struct tag_tracking_public {
-  struct FloatVect3 pos;        ///< estimated position
-  struct FloatVect3 speed;      ///< estimated speed
-  uint8_t status;               ///< tracking status flag
-  uint8_t motion_type;          ///< type of tag motion
-  float predict_time;           ///< prediction time for WP tag
-  struct NedCoor_f speed_cmd;   ///< speed command to track the tag position
-  float kp;                     ///< horizontal tracking command gain
-  float kpz;                    ///< vertical tracking command gain
+  struct FloatVect3 pos;            ///< estimated position
+  struct FloatVect3 speed;          ///< estimated speed
+  struct FloatQuat body_to_tag_quat;///< estimated attitude in body frame
+  struct FloatQuat ned_to_tag_quat; ///< estimated attitude in NED frame
+  uint8_t status;                   ///< tracking status flag
+  uint8_t motion_type;              ///< type of tag motion
+  float predict_time;               ///< prediction time for WP tag
+  struct NedCoor_f speed_cmd;       ///< speed command to track the tag position
+  float kp;                         ///< horizontal tracking command gain
+  float kpz;                        ///< vertical tracking command gain
 };
 
 
@@ -75,13 +77,14 @@ void tag_tracking_set_predict_time(float predict_time);
 void tag_tracking_set_kp(float kp);
 void tag_tracking_set_kpz(float kpz);
 
-extern struct tag_tracking_public* tag_tracking_get(uint8_t tag_id);
+extern struct tag_tracking_public* tag_tracking_get(int16_t tag_id);
 extern void tag_tracking_init(void);
 extern void tag_tracking_propagate(void);
 extern void tag_tracking_propagate_start(void);
 extern void tag_tracking_report(void);
 extern void tag_tracking_parse_target_pos(uint8_t *buf);
 extern void tag_tracking_compute_speed(void);
+float tag_tracking_get_heading(int16_t tag_id);
 
 #endif  // TAG_TRACKING_H
 
