@@ -7,7 +7,6 @@
     </description>
     <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
       <define name="WPS" value="[{.wp_id=WP_TAG, .tag_id=42}, ...]" description="Array of structs. If defined, update the position of the waypoints at the location of the tags"/>
-      <define name="WPS_SIZE" description="size of WPS array"/>
       <define name="SIM_WP" value="WP_TARGET" description="designate a waypoint to be used as virtual tag in simulation; if TARGET waypoint exists in flight plan, it is used by default"/>
       <define name="BODY_TO_CAM_PHI" value="0." description="rotation from body to cam frame (phi)"/>
       <define name="BODY_TO_CAM_THETA" value="0." description="rotation from body to cam frame (theta)"/>

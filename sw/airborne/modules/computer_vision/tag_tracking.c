@@ -148,9 +148,6 @@ float speed_circle = 0.03;
 #define TAG_TRACKING_MAX_VZ 2.f
 #endif
 
-#ifndef TAG_TRACKING_NB_WP_MAX
-#define TAG_TRACKING_NB_WP_MAX 1
-#endif
 
 #define TAG_UNUSED_ID -1
 
@@ -188,10 +185,11 @@ struct wp_tracking {
 
 
 #if (defined TAG_TRACKING_WPS)
-struct wp_tracking wp_track[TAG_TRACKING_NB_WP_MAX] = TAG_TRACKING_WPS;
+struct wp_tracking wp_track[] = TAG_TRACKING_WPS;
+const uint8_t tag_tracking_wps_len = sizeof(wp_track) / sizeof(struct wp_tracking);
 #else
-#error "TAG_TRACKING_NB_WP_MAX not defined!"
-struct wp_tracking wp_track[TAG_TRACKING_NB_WP_MAX] = {0};
+struct wp_tracking wp_track[] = {};
+const uint8_t tag_tracking_wps_len = 0;
 #endif
 
 
@@ -390,7 +388,7 @@ void tag_tracking_init()
   }
 
   // reserve slots for tag_ids we are looking for, and associate wp_ids.
-  for(int i=0; i<Min(TAG_TRACKING_NB_WP_MAX, TAG_TRACKING_NB_MAX); i++) {
+  for(int i=0; i<Min(tag_tracking_wps_len, TAG_TRACKING_NB_MAX); i++) {
     tag_infos[i].tag_track_private.id = wp_track[i].tag_id;
     tag_infos[i].wp_id = wp_track[i].wp_id;
   }
