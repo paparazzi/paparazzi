@@ -23,6 +23,7 @@
 #define ACTUATORS_MYT4_H
 
 #include "modules/actuators/actuators_t4_arch.h"
+#include "serial_act_t4.h"
 
 /** Arch dependent init file.
  * implemented in arch files

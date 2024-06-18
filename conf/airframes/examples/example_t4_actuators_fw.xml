@@ -72,11 +72,11 @@
 
       <!-- To use this module one needs to have real T4 actuator board hardware connected -->
       <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
-      <!-- <module name="serial_act_t4">
-        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/> 
+      <module name="serial_act_t4">
+        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>
         <configure name="MODEM_PORT" value="UART3"/>
         <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
-      </module> -->
+      </module>
 
       <module name="gps" type="ublox"/>
 
@@ -105,6 +105,24 @@
 
     <!-- <define name="USE_AOA" value="TRUE"/> --><!-- Enable AOA sensor in control not only reading -->
 
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="radio_control" type="datalink"/>
+      <module name="fdm" type="jsbsim"/>
+
+<!--      <module name="serial_act_t4">-->
+<!--        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>-->
+<!--        <configure name="MODEM_PORT" value="UART3"/>-->
+<!--        <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>-->
+<!--      </module>-->
+      <module name="actuators" type="myt4"/>
+
+      <!--Not dealing with these in the simulation-->
+<!--      <define name="RADIO_TH_HOLD"     value="0"/> &lt;!&ndash; Throttle hold in command laws &ndash;&gt;-->
+<!--      <define name="RADIO_FMODE"       value="0"/> &lt;!&ndash; Throttle curve select &ndash;&gt;-->
+<!--      <define name="RADIO_FBW_MODE"    value="0"/> &lt;!&ndash; Switch between AP and FBW control &ndash;&gt;-->
+<!--      <define name="RADIO_KILL_SWITCH" value="0"/>-->
     </target>
 
     <define name="RADIO_CONTROL_AUTO1"/>
@@ -275,6 +293,16 @@
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="100." unit="m"/>
     <define name="CARROT" value="4." unit="s"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <define name="COMMANDS_NB" value="4"/>
+    <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
+    <define name="JS_AXIS_MODE" value="4"/>
+    <define name="BYPASS_AHRS" value="TRUE"/>
+    <define name="BYPASS_INS" value="TRUE"/>
+    <define name="JSBSIM_LAUNCHSPEED" value="10"/>
   </section>
 
 </airframe>

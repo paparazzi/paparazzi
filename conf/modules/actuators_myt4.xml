@@ -13,7 +13,7 @@
   <header>
     <file name="actuators_myt4.h"/>
   </header>
-  <makefile target="!sim">
+  <makefile>
     <file_arch name="actuators_t4_arch.c"/>
 <!--    <file_arch name="actuators_shared_arch.c" cond="ifeq ($(ARCH), stm32)"/>-->
   </makefile>
