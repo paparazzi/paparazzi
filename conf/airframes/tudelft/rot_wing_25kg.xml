@@ -478,7 +478,7 @@
     </section>
 
     <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-        <define name="MAX_BANK"         value="20" unit="deg"/>
+        <define name="MAX_BANK"         value="40" unit="deg"/>
         <define name="USE_SPEED_REF"    value="TRUE"/>
 
         <!-- Gains -->
@@ -508,7 +508,6 @@
         <define name="ZERO_AIRSPEED"        value="FALSE"/>
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
-        <define name="THRUST_X_EFF"         value="0.00055"/>
 
         <define name="MAX_PUSHER_INCREMENT" value="2000"/>
 
@@ -518,10 +517,11 @@
         <define name="CLIMB_SPEED_FWD"      value="2.0"/>
         <define name="DESCEND_SPEED_FWD"    value="-3.0"/>
         <define name="QUADPLANE"            value="TRUE"/>
+        <define name="PUSHER_INDEX"         value="8"/>
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>
-        <define name="MAX_LAT_ACCEL"        value="5.0"/>
+        <define name="MAX_LAT_ACCEL"        value="4.0"/>
     </section>
 
     <section name="FORWARD">
