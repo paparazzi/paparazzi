@@ -103,7 +103,7 @@
       <message name="RC"                  period="0.25"/>
       <message name="COMMANDS"            period="0.25"/>
       <message name="FBW_STATUS"          period="1.0"/>
-      <message name="ACTUATORS"           period="0.5"/>
+      <message name="ACTUATORS_RAW"       period="0.5"/>
     </mode>
     <mode name="empty">
     </mode>      
@@ -123,14 +123,14 @@
     <mode name="default">
       <message name="COMMANDS"            period="5.0"/>
       <message name="FBW_STATUS"          period="2.0"/>
-      <message name="ACTUATORS"           period="5.0"/> <!-- For trimming -->
+      <message name="ACTUATORS_RAW"       period="5.0"/> <!-- For trimming -->
     </mode>
     <mode name="debug">
       <message name="PPM"                 period="0.5"/>
       <message name="RC"                  period="0.5"/>
       <message name="COMMANDS"            period="0.5"/>
       <message name="FBW_STATUS"          period="1.0"/>
-      <message name="ACTUATORS"           period="5.0"/>
+      <message name="ACTUATORS_RAW"       period="5.0"/>
     </mode>
   </process>
 </telemetry>
