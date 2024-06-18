@@ -40,12 +40,22 @@
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void send_actuators(struct transport_tx *trans, struct link_device *dev)
+static void send_actuators_raw(struct transport_tx *trans, struct link_device *dev)
 {
   // Downlink the actuators raw driver values
   int16_t v[ACTUATORS_NB] = {0};
   for (int i = 0; i < ACTUATORS_NB; i++) {
     v[i] = actuators[i].driver_val;
+  }
+  pprz_msg_send_ACTUATORS_RAW(trans, dev, AC_ID , ACTUATORS_NB, v);
+}
+
+static void send_actuators(struct transport_tx *trans, struct link_device *dev)
+{
+  // Downlink the actuators pprz actuator values
+  int16_t v[ACTUATORS_NB] = {0};
+  for (int i = 0; i < ACTUATORS_NB; i++) {
+    v[i] = actuators[i].pprz_val;
   }
   pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, v);
 }
@@ -82,6 +92,7 @@ void actuators_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS_RAW, send_actuators_raw);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS, send_actuators);
 #endif
 }
