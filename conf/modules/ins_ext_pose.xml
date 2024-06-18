@@ -27,6 +27,7 @@
 
   <makefile target="ap">
     <define name="INS_TYPE_H" value="modules/ins/ins_ext_pose.h" type="string"/>
+    <define name="INS_EXT_POSE" value="TRUE"/>
     <file name="ins_ext_pose.c"/>
     <file name="ins.c"/>
   </makefile>
