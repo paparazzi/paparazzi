@@ -154,7 +154,6 @@ float eff_sched_pusher_time = 0.002;
 
 float roll_eff_scaling = 1.f;
 float scale_roll_roll_coeff = 1.f;
-bool bool_fake_airspeed = false;
 float fake_airspeed = 1.f;
 
 struct rot_wing_eff_sched_var_t eff_sched_var;
@@ -281,11 +280,6 @@ void eff_scheduling_rot_wing_update_cmd(void)
 
 void eff_scheduling_rot_wing_update_airspeed(void)
 {
-
-  if (bool_fake_airspeed) {
-    stateSetAirspeed_f(fake_airspeed);
-  }
-
   eff_sched_var.airspeed = stateGetAirspeed_f();
   Bound(eff_sched_var.airspeed, 0. , 30.);
   eff_sched_var.airspeed2 = eff_sched_var.airspeed * eff_sched_var.airspeed;
