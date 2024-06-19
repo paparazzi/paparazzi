@@ -311,8 +311,8 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + scale_roll_roll_coeff * eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
   // Bound(roll_motor_p_eff_right, -1, -0.00001);
 
-  // Hysteresis on roll eff to prevent spiking of effectiveness with new cutoff
-  if (roll_motor_p_eff_right >= -ROLL_EFFECTIVENESS_CUTOFF + 0) {
+  // Set the roll effectiveness to zero when below a certain threshold
+  if (abs(roll_motor_p_eff_right) <= ROLL_EFFECTIVENESS_CUTOFF) {
     roll_motor_p_eff_right = 0;
   } 
 
@@ -324,7 +324,7 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   }
   // Bound(roll_motor_p_eff_left, 0.00001, 1);
 
-  if (roll_motor_p_eff_left <= ROLL_EFFECTIVENESS_CUTOFF - 0) {
+  if (abs(roll_motor_p_eff_left) <= ROLL_EFFECTIVENESS_CUTOFF) {
     roll_motor_p_eff_left = 0;
   }
 
