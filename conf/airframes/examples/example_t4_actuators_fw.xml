@@ -111,11 +111,11 @@
       <module name="radio_control" type="datalink"/>
       <module name="fdm" type="jsbsim"/>
 
-<!--      <module name="serial_act_t4">-->
+      <module name="serial_act_t4">
 <!--        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>-->
 <!--        <configure name="MODEM_PORT" value="UART3"/>-->
 <!--        <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>-->
-<!--      </module>-->
+      </module>
       <module name="actuators" type="myt4"/>
 
       <!--Not dealing with these in the simulation-->

@@ -26,9 +26,6 @@
 #define ACTUATORS_T4_ARCH_H
 
 #include "std.h"
-//#include "hal.h"
-
-#include BOARD_CONFIG
 
 // servo 1~10(0~10) + esc 1~4 (10~13)
 #ifndef ACTUATORS_T4_NB
