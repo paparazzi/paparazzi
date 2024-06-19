@@ -312,7 +312,7 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   // Bound(roll_motor_p_eff_right, -1, -0.00001);
 
   // Set the roll effectiveness to zero when below a certain threshold
-  if (abs(roll_motor_p_eff_right) <= ROLL_EFFECTIVENESS_CUTOFF) {
+  if (fabs(roll_motor_p_eff_right) <= ROLL_EFFECTIVENESS_CUTOFF) {
     roll_motor_p_eff_right = 0;
   } 
 
@@ -324,7 +324,7 @@ void eff_scheduling_rot_wing_update_hover_motor_effectiveness(void)
   }
   // Bound(roll_motor_p_eff_left, 0.00001, 1);
 
-  if (abs(roll_motor_p_eff_left) <= ROLL_EFFECTIVENESS_CUTOFF) {
+  if (fabs(roll_motor_p_eff_left) <= ROLL_EFFECTIVENESS_CUTOFF) {
     roll_motor_p_eff_left = 0;
   }
 
