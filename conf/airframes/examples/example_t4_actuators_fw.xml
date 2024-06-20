@@ -73,7 +73,7 @@
       <!-- To use this module one needs to have real T4 actuator board hardware connected -->
       <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
       <module name="serial_act_t4">
-        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>
+        <configure name="SERIAL_ACT_T4_PORT" value="UART8"/>
 <!--        <configure name="MODEM_PORT" value="UART3"/>-->
         <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
       </module>
@@ -144,13 +144,20 @@
     <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>
   </servos>
 
-  <!-- and this driver name should also match to the actuator module name -->
+
+  <!-- This driver name should match to the actuator module name -->
   <!-- cASe SeNsITiVe! -->
   <servos driver="Myt4">
-    <servo name="S_THROTTLE" no="10" min="0" neutral="4096" max="8191"/>
-    <servo name="S_AILERON"  no="1" min="0" neutral="4096" max="8191"/>
-    <servo name="S_ELEVATOR" no="2" min="0" neutral="4096" max="8191"/>
-    <servo name="S_RUDDER"   no="3" min="0" neutral="4096" max="8191"/>
+    <!-- ref: https://github.com/tudelft/Teensy_actuators_PPZ -->
+    <!-- no="0~9" for servos, no="10~13" for escs -->
+    <!-- Servo no == (servo_ID - 1) because it starts from ZERO... -->
+    <!-- e.g. if you want to use a servo with ID 3 for your elevator -->
+    <!-- <servo name="ELEVATOR" no="2" min="20" neutral="50" max="100"/>-->
+
+    <servo name="S_THROTTLE" no="10" min="20" neutral="0" max="1000"/>
+    <servo name="S_AILERON"  no="6" min="20" neutral="510" max="1000"/>
+    <servo name="S_ELEVATOR" no="1" min="20" neutral="510" max="1000"/>
+    <servo name="S_RUDDER"   no="2" min="20" neutral="510" max="1000"/>
   </servos>
 
   <!-- <servos driver="Uavcan2Cmd">
