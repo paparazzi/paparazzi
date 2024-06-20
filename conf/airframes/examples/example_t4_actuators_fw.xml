@@ -33,7 +33,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="cube_orangeplus">
+    <target name="ap" board="px4fmu_4.0_chibios">
 
       <!-- <configure name="PERIODIC_FREQUENCY" value="500"/> -->
 
@@ -73,7 +73,7 @@
       <!-- To use this module one needs to have real T4 actuator board hardware connected -->
       <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
       <module name="serial_act_t4">
-        <configure name="SERIAL_ACT_T4_PORT" value="UART8"/>
+        <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>
 <!--        <configure name="MODEM_PORT" value="UART3"/>-->
         <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
       </module>
