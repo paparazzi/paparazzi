@@ -81,7 +81,7 @@ static struct preflight_check_t imu_heater_pfc;
 
 /** Maximum error in percentile */
 #ifndef IMU_HEATER_MAX_ERROR
-#define IMU_HEATER_MAX_ERROR 0.15f
+#define IMU_HEATER_MAX_ERROR 0.20f
 #endif
 
 /** ABI id from either guro or accel */
@@ -92,8 +92,8 @@ static struct preflight_check_t imu_heater_pfc;
 #endif
 
 static void imu_heater_preflight(struct preflight_result_t *result) {
-  if(imu_heater.meas_temp < ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp) || imu_heater.meas_temp > ((1.0f+IMU_HEATER_MAX_ERROR)*imu_heater.target_temp)) {
-    preflight_error(result, "IMU %d temperature outside limits %.2f < %.2f < %.2f", IMU_HEATER_ABI_ID, ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp), imu_heater.meas_temp, ((1.0f+IMU_HEATER_MAX_ERROR)*imu_heater.target_temp));
+  if(imu_heater.meas_temp < ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp) || imu_heater.meas_temp > ((1.0f+2*IMU_HEATER_MAX_ERROR)*imu_heater.target_temp)) {
+    preflight_error(result, "IMU %d temperature outside limits %.2f < %.2f < %.2f", IMU_HEATER_ABI_ID, ((1.0f-IMU_HEATER_MAX_ERROR)*imu_heater.target_temp), imu_heater.meas_temp, ((1.0f+2*IMU_HEATER_MAX_ERROR)*imu_heater.target_temp));
   } else {
     preflight_success(result, "IMU %d temperature ok", IMU_HEATER_ABI_ID);
   }
