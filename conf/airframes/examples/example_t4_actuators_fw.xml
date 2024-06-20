@@ -74,7 +74,7 @@
       <!-- UART3 is Telem2 labeled connector on FMU4 e.g. a Pixracer -->
       <module name="serial_act_t4">
         <configure name="SERIAL_ACT_T4_PORT" value="UART3"/>
-        <configure name="MODEM_PORT" value="UART3"/>
+<!--        <configure name="MODEM_PORT" value="UART3"/>-->
         <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>
       </module>
 
@@ -147,7 +147,7 @@
   <!-- and this driver name should also match to the actuator module name -->
   <!-- cASe SeNsITiVe! -->
   <servos driver="Myt4">
-    <servo name="S_THROTTLE" no="0" min="0" neutral="4096" max="8191"/>
+    <servo name="S_THROTTLE" no="10" min="0" neutral="4096" max="8191"/>
     <servo name="S_AILERON"  no="1" min="0" neutral="4096" max="8191"/>
     <servo name="S_ELEVATOR" no="2" min="0" neutral="4096" max="8191"/>
     <servo name="S_RUDDER"   no="3" min="0" neutral="4096" max="8191"/>

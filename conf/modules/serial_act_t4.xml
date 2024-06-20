@@ -24,6 +24,10 @@
     <file name="pprz_transport.c" dir="pprzlink/src"/>
   </makefile>
   <makefile target="!ap">
+    <define name="SERIAL_ACT_T4_SIM" value="TRUE"/>
+    <configure name="SERIAL_ACT_T4_PORT" default="UART4" case="upper|lower"/>
+    <configure name="SERIAL_ACT_T4_BAUD" default="B1500000"/>
+    <define name="SERIAL_ACT_T4_PORT" value="$(SERIAL_ACT_T4_PORT_LOWER)"/>
     <file name="serial_act_t4.c" dir="modules/actuators"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
   </makefile>
