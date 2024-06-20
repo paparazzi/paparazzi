@@ -80,6 +80,7 @@ struct rot_wing_eff_sched_var_t {
 extern float roll_eff_scaling;
 extern float scale_roll_roll_coeff;
 extern float fake_airspeed;
+extern bool bool_fake_airspeed;
 
 extern float rotation_angle_setpoint_deg;
 extern int16_t rotation_cmd;
