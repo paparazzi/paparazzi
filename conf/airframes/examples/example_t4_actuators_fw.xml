@@ -53,13 +53,7 @@
         <define name="SERVO_HZ" value="200" />
       </module>
 
-      <!-- tyryout with UAV CAN actuaters -->
-<!--      <module name="actuators" type="uavcan">-->
-<!--        <configure value="TRUE" name="UAVCAN_USE_CAN1"/>-->
-<!--        <configure value="FALSE" name="UAVCAN_USE_CAN2"/>-->
-<!--      </module>-->
-
-<!--      UART8==GPS2 -->
+<!--      UART8==GPS2 (orange pi) -->
 
 <!--      type should match to the module name-->
       <module name="actuators" type="myt4"/>
@@ -155,17 +149,10 @@
     <!-- <servo name="ELEVATOR" no="2" min="20" neutral="50" max="100"/>-->
 
     <servo name="S_THROTTLE" no="10" min="20" neutral="0" max="1000"/>
-    <servo name="S_AILERON"  no="6" min="20" neutral="510" max="1000"/>
-    <servo name="S_ELEVATOR" no="1" min="20" neutral="510" max="1000"/>
+    <servo name="S_AILERON"  no="1" min="20" neutral="0" max="18000"/>
+    <servo name="S_ELEVATOR" no="0" min="-18000" neutral="0" max="18000"/>
     <servo name="S_RUDDER"   no="2" min="20" neutral="510" max="1000"/>
   </servos>
-
-  <!-- <servos driver="Uavcan2Cmd">
-    <servo name="AIL_LEFT" no="7" min="-3250" neutral="0" max="3250"/> 
-    <servo name="FLAP_LEFT" no="8" min="-3250" neutral="0" max="3250"/>
-    <servo name="FLAP_RIGHT" no="9" min="-3250" neutral="0" max="3250"/>
-    <servo name="AIL_RIGHT" no="10" min="-3250" neutral="0" max="3250"/>
-</servos> -->
 
  <!--<servos driver="t4">--><!-- At the moment only one T4 board is supported, but feel free to enhance -->
 
