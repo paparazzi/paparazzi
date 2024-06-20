@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_t4" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Module to set Serialbus servos, PWM ESC's, DShot ESC's and PWM servos connected to a Teensy 4.0 based T4 module.
+      Optionally also get status information returned e.g. RPM, Angle, Force, Temperature, Current.
+
+      T4 hardware consists of a basic Teensy 4.0 PCB with specific firmware.
+
+      Pre-compiled firmware for this board is already available in the paparazzi repository, so one can just upload it.
+      For this one needs the Teensy Loader application and this included HEX firmware file. 
+      
+      Connect your Teensy to your computer with USB data cable. Then run the Teensy loader app. 
+      Drop the HEX file onto Teensy Loader app and then Push the button on the Teensy.
+
+      Next to it is also the full source code available in the sw/ext/t4/src directory.
+      The firmware is based on the Teensyduino environment and can be compiled with the Arduino IDE.
+
+      Visit the link for more information: https://github.com/tudelft/Teensy_actuators_PPZ
+   </description>
+   <define name="T4_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+  </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_t4.h"/>
+  </header>
+  <makefile target="ap">
+    <file name="actuators_t4.c"/>
+  </makefile>
+</module>
