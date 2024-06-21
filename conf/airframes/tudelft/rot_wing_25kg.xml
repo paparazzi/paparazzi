@@ -305,7 +305,7 @@
         <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.5"/>
         <define name="MULTI_GPS_MODE"                   value="GPS_MODE_PRIMARY"/>
         <define name="INS_EKF2_FUSION_MODE"             value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
-        <define name="INS_EKF2_GPS_YAW_OFFSET"          value="180"/>
+        <define name="INS_EKF2_GPS_YAW_OFFSET"          value="0"/>
     </section>
 
     <section name="GROUND_DETECT">
