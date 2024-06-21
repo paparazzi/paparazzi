@@ -76,6 +76,10 @@ PRINT_CONFIG_MSG("Using PX4_IO force program. Don't forget to re-program AP with
 bool setToBootloaderMode;
 bool px4ioRebootTimeout;
 
+#if defined(STM32_MCU_ARCH_H)
+extern int scb_reset_system(void);
+#endif
+
 void px4flash_init(void)
 {
   setToBootloaderMode = false;
