@@ -5,6 +5,7 @@ import subprocess
 from PyQt5.QtWidgets import *
 from typing import NamedTuple
 from PyQt5.QtCore import QSettings
+import subprocess
 
 
 class GConfEntry(NamedTuple):
@@ -66,16 +67,17 @@ def get_build_version() -> str:
         version = f.readline().strip()
     return version
 
+def get_shell():
+    p = subprocess.run(['getent', 'passwd', os.getenv('LOGNAME')], capture_output=True)
+    shell = p.stdout.decode().strip().split(':')[6]
+    return shell
 
-def open_terminal(wd, command=None):
-    cmd = ""
-    if command is not None:
-        cmd = " -- {}".format(command)
+def open_terminal(wd):
     terminal_emulator = get_settings().value("terminal_emulator", "", str)
     if terminal_emulator == "":
-        terminal_emulator = "gnome-terminal"
-    os.system("{}".format(terminal_emulator))
-
+        terminal_emulator = "x-terminal-emulator"
+    shell = get_shell()
+    subprocess.Popen([terminal_emulator, '-e', shell, '--rcfile', 'conf/system/term_init.sh'], cwd=wd)
 
 def get_settings() -> QSettings:
     return QSettings(os.path.join(CONF_DIR, "pprz_center_settings.ini"), QSettings.IniFormat)
