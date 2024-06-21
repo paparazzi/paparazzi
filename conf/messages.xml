@@ -1762,6 +1762,8 @@
          <field name = "servo_8_angle" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 8 angle telemetry</field>
          <field name = "servo_9_angle" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 9 angle telemetry</field>
          <field name = "servo_10_angle" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 10 angle telemetry</field>
+         <field name = "servo_11_angle" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 11 angle telemetry</field>
+         <field name = "servo_12_angle" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 12 angle telemetry</field>
 
          <field name = "serial_act_t4_missed_packets" type="uint32">Missed packets on T4 serial communication</field>
          <field name = "serial_act_t4_message_frequency" type="uint16">Refresh rate of the incoming messages from T4</field>
@@ -1773,16 +1775,18 @@
          <field name = "motor_3_err_code" type="int16" >Motor 3 error code</field>
          <field name = "motor_4_err_code" type="int16" >Motor 4 error code</field>
 
-         <field name = "servo_1_update_time_us" type="int16" >servo 1 update time in microseconds</field>
-         <field name = "servo_2_update_time_us" type="int16" >servo 2 update time in microseconds</field>
-         <field name = "servo_3_update_time_us" type="int16" >servo 3 update time in microseconds</field>
-         <field name = "servo_4_update_time_us" type="int16" >servo 4 update time in microseconds</field>
-         <field name = "servo_5_update_time_us" type="int16" >servo 5 update time in microseconds</field>
-         <field name = "servo_6_update_time_us" type="int16" >servo 6 update time in microseconds</field>
-         <field name = "servo_7_update_time_us" type="int16" >servo 7 update time in microseconds</field>
-         <field name = "servo_8_update_time_us" type="int16" >servo 8 update time in microseconds</field>
-         <field name = "servo_9_update_time_us" type="int16" >Servo 9 update time in microseconds</field>
-         <field name = "servo_10_update_time_us" type="int16" >Servo 10 update time in microseconds</field>
+         <field name = "servo_1_load_int" type="int16" >servo 1 loads</field>
+         <field name = "servo_2_load_int" type="int16" >servo 2 loads</field>
+         <field name = "servo_3_load_int" type="int16" >servo 3 loads</field>
+         <field name = "servo_4_load_int" type="int16" >servo 4 loads</field>
+         <field name = "servo_5_load_int" type="int16" >servo 5 loads</field>
+         <field name = "servo_6_load_int" type="int16" >servo 6 loads</field>
+         <field name = "servo_7_load_int" type="int16" >servo 7 loads</field>
+         <field name = "servo_8_load_int" type="int16" >servo 8 loads</field>
+         <field name = "servo_9_load_int" type="int16" >Servo 9 loads</field>
+         <field name = "servo_10_load_int" type="int16" >Servo 10 loads</field>
+
+         <field name = "bitmask_servo_health" type="uint16">Bitmask of servo health status</field>
 
          <field name = "motor_1_current_int" type="int16" >Motor 1 current in mA</field>
          <field name = "motor_2_current_int" type="int16" >Motor 2 current in mA</field>
@@ -1815,6 +1819,8 @@
          <field name = "servo_8_angle_cmd" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 8 angle cmd</field>
          <field name = "servo_9_angle_cmd" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 9 angle cmd</field>
          <field name = "servo_10_angle_cmd" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 10 angle cmd</field>
+         <field name = "servo_11_angle_cmd" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 10 angle cmd</field>
+         <field name = "servo_12_angle_cmd" type="int16" unit="1e2_deg" alt_unit="deg"  alt_unit_coef="0.01">Servo 10 angle cmd</field>
 
          <field name = "serial_act_t4_rolling_msg_out" type="float">T4 Rolling message out content</field>
          <field name = "serial_act_t4_rolling_msg_out_id" type="uint8">T4 Rolling message out id</field>

@@ -84,17 +84,21 @@ static uint8_t serial_act_t4_msg_buf_in[sizeof(struct serial_act_t4_in)*2]__attr
         int16_t servo_8_angle_int_telemetry = myserial_act_t4_in.servo_8_angle_int;
         int16_t servo_9_angle_int_telemetry = myserial_act_t4_in.servo_9_angle_int;
         int16_t servo_10_angle_int_telemetry = myserial_act_t4_in.servo_10_angle_int;
+        int16_t servo_11_angle_int_telemetry = myserial_act_t4_in.servo_11_angle_int;
+        int16_t servo_12_angle_int_telemetry = myserial_act_t4_in.servo_12_angle_int;
 
-        int16_t servo_1_angle_update_time_us_telemetry = myserial_act_t4_in.servo_1_update_time_us;
-        int16_t servo_2_angle_update_time_us_telemetry = myserial_act_t4_in.servo_2_update_time_us;
-        int16_t servo_3_angle_update_time_us_telemetry = myserial_act_t4_in.servo_3_update_time_us;
-        int16_t servo_4_angle_update_time_us_telemetry = myserial_act_t4_in.servo_4_update_time_us;
-        int16_t servo_5_angle_update_time_us_telemetry = myserial_act_t4_in.servo_5_update_time_us;
-        int16_t servo_6_angle_update_time_us_telemetry = myserial_act_t4_in.servo_6_update_time_us;
-        int16_t servo_7_angle_update_time_us_telemetry = myserial_act_t4_in.servo_7_update_time_us;
-        int16_t servo_8_angle_update_time_us_telemetry = myserial_act_t4_in.servo_8_update_time_us;
-        int16_t servo_9_update_time_us_telemetry = myserial_act_t4_in.servo_9_update_time_us;
-        int16_t servo_10_update_time_us_telemetry = myserial_act_t4_in.servo_10_update_time_us;
+        int16_t servo_1_load_int_telemetry = myserial_act_t4_in.servo_1_load_int;
+        int16_t servo_2_load_int_telemetry = myserial_act_t4_in.servo_2_load_int;
+        int16_t servo_3_load_int_telemetry = myserial_act_t4_in.servo_3_load_int;
+        int16_t servo_4_load_int_telemetry = myserial_act_t4_in.servo_4_load_int;
+        int16_t servo_5_load_int_telemetry = myserial_act_t4_in.servo_5_load_int;
+        int16_t servo_6_load_int_telemetry = myserial_act_t4_in.servo_6_load_int;
+        int16_t servo_7_load_int_telemetry = myserial_act_t4_in.servo_7_load_int;
+        int16_t servo_8_load_int_telemetry = myserial_act_t4_in.servo_8_load_int;
+        int16_t servo_9_load_int_telemetry = myserial_act_t4_in.servo_9_load_int;
+        int16_t servo_10_load_int_telemetry = myserial_act_t4_in.servo_10_load_int;
+        uint16_t bitmask_servo_health_telemetry = myserial_act_t4_in.bitmask_servo_health;
+
         float rolling_msg_in_telemetry = myserial_act_t4_in.rolling_msg_in;
         uint8_t rolling_msg_in_id_telemetry = myserial_act_t4_in.rolling_msg_in_id; 
 
@@ -103,13 +107,14 @@ static uint8_t serial_act_t4_msg_buf_in[sizeof(struct serial_act_t4_in)*2]__attr
                 &motor_1_rpm_int_telemetry, &motor_2_rpm_int_telemetry, &motor_3_rpm_int_telemetry, &motor_4_rpm_int_telemetry,
                 &servo_1_angle_int_telemetry, &servo_2_angle_int_telemetry, &servo_3_angle_int_telemetry, &servo_4_angle_int_telemetry,
                 &servo_5_angle_int_telemetry, &servo_6_angle_int_telemetry, &servo_7_angle_int_telemetry, &servo_8_angle_int_telemetry,
-                &servo_9_angle_int_telemetry, &servo_10_angle_int_telemetry, 
+                &servo_9_angle_int_telemetry, &servo_10_angle_int_telemetry, &servo_11_angle_int_telemetry, &servo_12_angle_int_telemetry,
                 &serial_act_t4_missed_packets_in, &serial_act_t4_message_frequency_in,
                 &rolling_msg_in_telemetry, &rolling_msg_in_id_telemetry,
                 &motor_1_error_code_int_telemetry, &motor_2_error_code_int_telemetry, &motor_3_error_code_int_telemetry, &motor_4_error_code_int_telemetry,
-                &servo_1_angle_update_time_us_telemetry, &servo_2_angle_update_time_us_telemetry, &servo_3_angle_update_time_us_telemetry, &servo_4_angle_update_time_us_telemetry,
-                &servo_5_angle_update_time_us_telemetry, &servo_6_angle_update_time_us_telemetry, &servo_7_angle_update_time_us_telemetry, &servo_8_angle_update_time_us_telemetry,
-                &servo_9_update_time_us_telemetry, &servo_10_update_time_us_telemetry,
+                &servo_1_load_int_telemetry, &servo_2_load_int_telemetry, &servo_3_load_int_telemetry, &servo_4_load_int_telemetry,
+                &servo_5_load_int_telemetry, &servo_6_load_int_telemetry, &servo_7_load_int_telemetry, &servo_8_load_int_telemetry,
+                &servo_9_load_int_telemetry, &servo_10_load_int_telemetry,
+                &bitmask_servo_health_telemetry,
                 &motor_1_current_int_telemetry, &motor_2_current_int_telemetry, &motor_3_current_int_telemetry, &motor_4_current_int_telemetry,
                 &motor_1_voltage_int_telemetry, &motor_2_voltage_int_telemetry, &motor_3_voltage_int_telemetry, &motor_4_voltage_int_telemetry);
     }
@@ -132,8 +137,10 @@ static uint8_t serial_act_t4_msg_buf_in[sizeof(struct serial_act_t4_in)*2]__attr
     int16_t servo_6_angle_cmd_int_telemetry = myserial_act_t4_out.servo_6_cmd_int;
     int16_t servo_7_angle_cmd_int_telemetry = myserial_act_t4_out.servo_7_cmd_int;
     int16_t servo_8_angle_cmd_int_telemetry = myserial_act_t4_out.servo_8_cmd_int;
-    int16_t servo_9_cmd_int_telemetry = myserial_act_t4_out.servo_9_cmd_int; 
-    int16_t servo_10_cmd_int_telemetry = myserial_act_t4_out.servo_10_cmd_int;
+    int16_t servo_9_angle_cmd_int_telemetry = myserial_act_t4_out.servo_9_cmd_int;
+    int16_t servo_10_angle_cmd_int_telemetry = myserial_act_t4_out.servo_10_cmd_int;
+    int16_t servo_11_angle_cmd_int_telemetry = myserial_act_t4_out.servo_11_cmd_int;
+    int16_t servo_12_angle_cmd_int_telemetry = myserial_act_t4_out.servo_12_cmd_int;
 
     float rolling_msg_out_telemetry = myserial_act_t4_out.rolling_msg_out;
     uint8_t rolling_msg_out_id_telemetry = myserial_act_t4_out.rolling_msg_out_id;
@@ -143,7 +150,7 @@ static uint8_t serial_act_t4_msg_buf_in[sizeof(struct serial_act_t4_in)*2]__attr
                     &motor_1_dshot_cmd_int_telemetry, &motor_2_dshot_cmd_int_telemetry, &motor_3_dshot_cmd_int_telemetry, &motor_4_dshot_cmd_int_telemetry, 
                     &servo_1_angle_cmd_int_telemetry, &servo_2_angle_cmd_int_telemetry, &servo_3_angle_cmd_int_telemetry, &servo_4_angle_cmd_int_telemetry,
                     &servo_5_angle_cmd_int_telemetry, &servo_6_angle_cmd_int_telemetry, &servo_7_angle_cmd_int_telemetry, &servo_8_angle_cmd_int_telemetry,
-                    &servo_9_cmd_int_telemetry, &servo_10_cmd_int_telemetry, 
+                    &servo_9_angle_cmd_int_telemetry, &servo_10_angle_cmd_int_telemetry, &servo_11_angle_cmd_int_telemetry, &servo_12_angle_cmd_int_telemetry,
                     &rolling_msg_out_telemetry, &rolling_msg_out_id_telemetry);
 
     }

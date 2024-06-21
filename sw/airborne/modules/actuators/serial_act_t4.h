@@ -65,16 +65,19 @@ struct __attribute__((__packed__)) serial_act_t4_in {
     int16_t servo_8_angle_int; //Degrees * 100 
     int16_t servo_9_angle_int; //Degrees * 100 
     int16_t servo_10_angle_int; //Degrees * 100 
-	int16_t servo_1_update_time_us; //MicroSeconds
-	int16_t servo_2_update_time_us; //MicroSeconds
-	int16_t servo_3_update_time_us; //MicroSeconds
-    int16_t servo_4_update_time_us; //MicroSeconds
-    int16_t servo_5_update_time_us; //MicroSeconds
-    int16_t servo_6_update_time_us; //MicroSeconds 
-    int16_t servo_7_update_time_us; //MicroSeconds 
-    int16_t servo_8_update_time_us; //MicroSeconds 
-    int16_t servo_9_update_time_us; //MicroSeconds 
-    int16_t servo_10_update_time_us; //MicroSeconds    
+    int16_t servo_11_angle_int; //Degrees * 100
+    int16_t servo_12_angle_int; //Degrees * 100
+    int16_t servo_1_load_int;
+    int16_t servo_2_load_int;
+    int16_t servo_3_load_int;
+    int16_t servo_4_load_int;
+    int16_t servo_5_load_int;
+    int16_t servo_6_load_int;
+    int16_t servo_7_load_int;
+    int16_t servo_8_load_int;
+    int16_t servo_9_load_int;
+    int16_t servo_10_load_int;
+    uint16_t bitmask_servo_health; //Bitmask of servo health status
     //Rolling message in 
     float rolling_msg_in;
     uint8_t rolling_msg_in_id;   
@@ -101,7 +104,9 @@ struct __attribute__((__packed__)) serial_act_t4_out {
     int16_t servo_7_cmd_int; //Degrees * 100 
     int16_t servo_8_cmd_int; //Degrees * 100 
     int16_t servo_9_cmd_int; //Degrees * 100 
-    int16_t servo_10_cmd_int; //Degrees * 100   
+    int16_t servo_10_cmd_int; //Degrees * 100
+    int16_t servo_11_cmd_int; //Degrees * 100
+    int16_t servo_12_cmd_int; //Degrees * 100
     //Rolling message out
     float rolling_msg_out;
     uint8_t rolling_msg_out_id;

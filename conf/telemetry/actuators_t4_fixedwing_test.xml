@@ -27,12 +27,13 @@
       <message name="GPS_SOL"             period="2.0"/>
       <message name="CAM"                 period="0.5"/>
       <message name="CAM_POINT"           period="1.0"/>
-      <message name="COMMANDS"            period="5"/>
+      <message name="COMMANDS"            period="0.5"/>
       <message name="FBW_STATUS"          period="2"/>
       <message name="AIR_DATA"            period="1.3"/>
       <message name="VECTORNAV_INFO"      period="0.5"/>
       <message name="SERIAL_ACT_T4_IN"    period="0.5"/>
       <message name="SERIAL_ACT_T4_OUT"    period="0.5"/>
+      <message name="ACTUATORS"           period="0.5"/> <!-- For trimming -->
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>
@@ -72,6 +73,14 @@
       <message name="BARO_RAW"          period="0.5"/>
       <message name="IMU_GYRO_RAW"      period="0.1"/>
       <message name="AIRSPEED_RAW"      period="0.5"/>
+    </mode>
+    <mode name="debug_rc" key_press="c">
+      <message name="PPRZ_MODE"           period="1.0"/>
+      <message name="PPM"                 period="0.25"/>
+      <message name="RC"                  period="0.25"/>
+      <message name="COMMANDS"            period="0.25"/>
+      <message name="FBW_STATUS"          period="1.0"/>
+      <message name="ACTUATORS"           period="0.5"/>
     </mode>
   </process>
   <process name="Fbw">

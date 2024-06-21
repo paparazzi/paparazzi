@@ -57,6 +57,7 @@
 
 <!--      type should match to the module name-->
       <module name="actuators" type="myt4"/>
+<!--      TODO: unify t4 modules..   -->
 
 <!--       <module name="actuators" type="t4">-->
 <!--         <configure value="FALSE" name="UAVCAN_USE_CAN1"/>-->
@@ -133,10 +134,10 @@
   </firmware>
 
   <!-- PWM Servos connected to the regular Flightcontroller PWM outputs -->
-  <servos driver="Pwm">
-    <servo name="CAMTILT" no="3" min="1100" neutral="1500" max="1900"/>
-    <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>
-  </servos>
+<!--  <servos driver="Pwm">-->
+<!--    <servo name="CAMTILT" no="3" min="1100" neutral="1500" max="1900"/>-->
+<!--    <servo name="CAMPITCH" no="4"  min="1900" neutral="1500" max="1100"/>-->
+<!--  </servos>-->
 
 
   <!-- This driver name should match to the actuator module name -->
@@ -148,10 +149,19 @@
     <!-- e.g. if you want to use a servo with ID 3 for your elevator -->
     <!-- <servo name="ELEVATOR" no="2" min="20" neutral="50" max="100"/>-->
 
-    <servo name="S_THROTTLE" no="10" min="20" neutral="0" max="1000"/>
-    <servo name="S_AILERON"  no="1" min="20" neutral="0" max="18000"/>
-    <servo name="S_ELEVATOR" no="0" min="-18000" neutral="0" max="18000"/>
-    <servo name="S_RUDDER"   no="2" min="20" neutral="510" max="1000"/>
+    <servo name="S_THROTTLE" no="10" min="100" neutral="100" max="1900"/>
+
+<!--    degress * 100 -->
+    <servo name="S_AILERON_L"  no="0" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_ELEVATOR" no="1" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_RUDDER"   no="2" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_AILERON_R"   no="3" min="18000" neutral="0" max="-18000"/>
+<!--    <servo name="S_ID5"   no="4" min="20" neutral="510" max="1000"/>-->
+<!--    <servo name="S_ID6"   no="5" min="1000" neutral="510" max="20"/>-->
+<!--    <servo name="S_ID7"   no="6" min="20" neutral="510" max="1000"/>-->
+<!--    <servo name="S_ID8"   no="7" min="20" neutral="510" max="1000"/>-->
+<!--    <servo name="S_ID9"   no="8" min="20" neutral="510" max="1000"/>-->
+<!--    <servo name="S_ID10"   no="9" min="20" neutral="510" max="1000"/>-->
   </servos>
 
  <!--<servos driver="t4">--><!-- At the moment only one T4 board is supported, but feel free to enhance -->
@@ -210,9 +220,18 @@
 
   <command_laws>
     <set servo="S_THROTTLE" value="@THROTTLE"/>
-    <set servo="S_AILERON" value="@ROLL"/>
+    <set servo="S_AILERON_L" value="@ROLL"/>
+    <set servo="S_AILERON_R" value="-@ROLL"/>
     <set servo="S_ELEVATOR" value="@PITCH"/>
     <set servo="S_RUDDER" value="@YAW - @ROLL*ASSIST_ROLL_WITH_RUDDER"/>
+
+<!--    <set servo="S_ID5" value="-@PITCH"/>-->
+<!--    <set servo="S_ID6" value="@PITCH"/>-->
+<!--    <set servo="S_ID7" value="@PITCH"/>-->
+<!--    <set servo="S_ID8" value="@PITCH"/>-->
+<!--    <set servo="S_ID9" value="@PITCH"/>-->
+<!--    <set servo="S_ID10" value="@PITCH"/>-->
+
   </command_laws>
 
   <rc_commands>
