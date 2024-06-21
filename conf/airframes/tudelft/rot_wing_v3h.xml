@@ -462,7 +462,7 @@
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"   value="0.24"/>
-        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.20"/>
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
         <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
         <define name="AGL_DIST_FILTER"                      value="0.07"/>
     </section>
