@@ -322,7 +322,7 @@ void tag_tracking_parse_target_pos(uint8_t *buf)
 }
 
 // Update and display tracking WP
-static void update_wp(struct tag_info* tag_info, bool report UNUSED)
+static void update_wp(struct tag_info* tag_info UNUSED, bool report UNUSED)
 {
 #ifdef TAG_TRACKING_WPS
 
