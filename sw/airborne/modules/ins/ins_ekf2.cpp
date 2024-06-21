@@ -929,11 +929,11 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.yaw_offset = 0;
 #elif defined(INS_EKF2_GPS_YAW_OFFSET)
   if(ISFINITE(gps_relposned.relPosHeading)) {
-    gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading));
+    gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading + INS_EKF2_GPS_YAW_OFFSET));
   } else {
     gps_msg.yaw = NAN;
   }
-  gps_msg.yaw_offset = INS_EKF2_GPS_YAW_OFFSET;
+  gps_msg.yaw_offset = 0;
 #else
   gps_msg.yaw = NAN;
   gps_msg.yaw_offset = NAN;
