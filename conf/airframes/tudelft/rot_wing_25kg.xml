@@ -304,6 +304,8 @@
         <define name="USE_AIRSPEED"                     value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.5"/>
         <define name="MULTI_GPS_MODE"                   value="GPS_MODE_PRIMARY"/>
+        <define name="INS_EKF2_FUSION_MODE"             value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+        <define name="INS_EKF2_GPS_YAW_OFFSET"          value="0"/>
     </section>
 
     <section name="GROUND_DETECT">
@@ -326,8 +328,8 @@
                     <field name="scale" value="true"/>
                     <field name="rotation" value="true"/>
                 </field>
-                <field name="neutral" value="95,217,-115" type="int[]"/>
-                <field name="scale" value="{{29417,8274,1853},{49873,15133,3195}}"/>
+                <field name="neutral" value="-66,372,-134" type="int[]"/>
+                <field name="scale" value="{{34618,27035,27547},{57579,48737,47275}}"/>
                 <field name="body_to_sensor" value="{{0,-16384,0, -16384,0,0, 0,0,-16384}}"/>
             </field>
         </define>
@@ -571,12 +573,14 @@
         <item name="basic law">Location, airspace and weather</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="wings">Check wings secured (and taped)</item>
+        <item name="rotation">Initialize and check wing rotation</item>
         <item name="attitude">Check attitude and heading</item>
         <item name="airspeed">Calibrate airspeed sensor</item>
         <item name="takeoff location">Put UAV on take-off location</item>
         <item name="flight plan">Check flight plan</item>
         <item name="flight block">Switch to correct flight block</item>
         <item name="camera">Switch on camera</item>
+        <item name="parachute">Arm parachute</item>
         <item name="announce">Announce flight to other airspace users</item>
     </checklist>
 </airframe>
