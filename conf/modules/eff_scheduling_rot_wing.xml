@@ -23,6 +23,9 @@
       <dl_settings NAME="eff_sched">
         <dl_setting var="eff_sched_pusher_time" min="0.002" step="0.002" max="3." shortname="push_time"/>
         <dl_setting shortname="roll_scaling" var="roll_eff_scaling" min="0.3" step="0.01" max="1.0"/>
+        <dl_setting shortname="scale_roll_roll_coef" var="scale_roll_roll_coeff" min="-2" step="0.05" max="2.0"/>
+        <dl_setting shortname="bool_fake_airspeed" var="bool_fake_airspeed" min="0" step="1" max="1" values="FALSE|TRUE"/>
+        <dl_setting shortname="fake_airspeed" var="fake_airspeed" min="0" step="0.5" max="25"/>
       </dl_settings>
     </dl_settings>
   </settings>
