@@ -52,7 +52,9 @@
 #ifndef WLS_ALLOC_HEADER
 #define WLS_ALLOC_HEADER
 
+#ifndef TEST_ALLOC
 #include "generated/airframe.h"
+#endif
 
 #ifndef WLS_N_U
 #define WLS_N_U 6
@@ -62,6 +64,23 @@
 #define WLS_N_V 4
 #endif
 
+struct WLS_param{
+  int nu;                // number of actuators
+  int nv;                // number of controlled axes
+  float gamma;           // weighting factor WLS
+  float v[WLS_N_V];      // Pseudo Control Vector
+  float u[WLS_N_U];      // Allocation of Controlss
+  float Wv[WLS_N_V];     // Weighting on different control objectives
+  float Wu[WLS_N_U];     // Weighting on different actutors
+  float u_pref[WLS_N_U]; // Preferred control vector
+  float u_min[WLS_N_U];  // Minimum control vector
+  float u_max[WLS_N_U];  // Maximum control vector
+  float PC;              // Primary cost
+  float SC;              // Secondary cost
+  int   iter;            // Number of iterations
+};
+
+extern void wls_init(void);
 
 extern int wls_alloc(float* u, float* v,
               float* umin, float* umax, float** B,
