@@ -5,11 +5,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import lsb_release
+import distro
 import subprocess
 import webbrowser
 
-release = lsb_release.get_distro_information()
+distro_version = float(distro.version())
 docs = 'https://paparazzi-uav.readthedocs.io'
 
 
@@ -47,12 +47,12 @@ class InstallWindow(QWidget):
     def cmd_dev(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
         # Missing
-        if float(release['RELEASE']) <= 20.04:
+        if distro_version <= 20.04:
             self.execute('sudo -E apt-get install -y python3-lxml python3-numpy')
 
     def cmd_arm(self):
         self.execute('sudo -E apt-get -f -y install paparazzi-dev')
-        if float(release['RELEASE']) >= 20.04:
+        if distro_version >= 20.04:
             self.execute('sudo -E apt-get install -y python-is-python3 gcc-arm-none-eabi gdb-multiarch')
             # python3-serial?
         else:
@@ -72,7 +72,7 @@ class InstallWindow(QWidget):
         self.execute('sudo -E cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo -E udevadm control --reload-rules')
 
     def cmd_gazebo(self):
-        if float(release['RELEASE']) > 20.04:
+        if distro_version > 20.04:
             self.execute('sudo -E apt-get -f -y install gazebo libgazebo-dev')
         else:
             self.execute('sudo -E apt-get -f -y install gazebo9 libgazebo9-dev')
@@ -106,8 +106,7 @@ class InstallWindow(QWidget):
         QWidget.__init__(self)
         mainlayout = QVBoxLayout()
 
-        os = QLabel()
-        os.setText("OS: " + release['ID'] + ' ' + release['RELEASE'])
+        os = QLabel(f"OS: {distro.name()} {distro.version()}")
         os.setFont(QFont("Times", 18, QFont.Bold))
         mainlayout.addWidget(os)
 
@@ -143,7 +142,7 @@ class InstallWindow(QWidget):
         btn_layout.addWidget(button4)
 
         button5 = QPushButton('5) Binary ground station')
-        if float(release['RELEASE']) < 20.04:
+        if distro_version < 20.04:
             button5.setDisabled(True)
         else:
             button5.clicked.connect(self.cmd_gcs)
@@ -153,7 +152,7 @@ class InstallWindow(QWidget):
         button6.clicked.connect(self.cmd_mcu)
         btn_layout.addWidget(button6)
 
-        if float(release['RELEASE']) <= 20.04:
+        if distro_version <= 20.04:
             button7 = QPushButton('7) Gazebo9')
         else:
             button7 = QPushButton('7) Gazebo11')
@@ -162,7 +161,7 @@ class InstallWindow(QWidget):
 
         button8 = QPushButton('8) Bebop Opencv')
         button8.clicked.connect(self.cmd_bebopcv)
-        if float(release['RELEASE']) > 20.04:
+        if distro_version > 20.04:
             button8.setDisabled(True)
         btn_layout.addWidget(button8)
 
