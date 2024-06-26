@@ -87,8 +87,8 @@ struct __attribute__((__packed__)) serial_act_t4_in {
 
 struct __attribute__((__packed__)) serial_act_t4_out {
     //ARM cmd
-    int8_t motor_arm_int; //Arm motor boolean
-    int8_t servo_arm_int; //Arm servo boolean
+    uint8_t motor_arm_int; //Arm motor boolean
+    uint16_t servo_arm_int; //Arm servo boolean
     //ESC cmd
     int16_t motor_1_dshot_cmd_int; //Motor cmd 0 - 1999
     int16_t motor_2_dshot_cmd_int; //Motor cmd 0 - 1999

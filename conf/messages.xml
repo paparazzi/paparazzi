@@ -1801,8 +1801,8 @@
 
      <message name= "SERIAL_ACT_T4_OUT" id = "187">
          <description>Transmitted message to Serial actuator module Teensy 4.0</description>
-         <field name = "motor_arm" type="int8" >Motor arm boolean</field>
-         <field name = "servo_arm" type="int8" >Servo arm boolean</field>
+         <field name = "motor_arm" type="uint8" >Motor arm bitmask</field>
+         <field name = "servo_arm" type="uint16" >Servo arm bitmask</field>
 
          <field name = "motor_1_dshot_cmd" type="int16" unit="dshot" >Motor 1 dshot cmd</field>
          <field name = "motor_2_dshot_cmd" type="int16" unit="dshot" >Motor 2 dshot cmd</field>

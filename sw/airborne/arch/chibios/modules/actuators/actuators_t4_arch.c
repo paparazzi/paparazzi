@@ -37,9 +37,9 @@ struct serial_act_t4_out myserial_act_t4_out_local;
 float serial_act_t4_extra_data_out_local[255] __attribute__((aligned));
 
 void actuators_t4_arch_init(void) {
-    // ARM motors and servos by default
-    myserial_act_t4_out_local.motor_arm_int = 1;
-    myserial_act_t4_out_local.servo_arm_int = 1;
+    // ARM motors and servos by default TODO: option to disarm / arm
+    myserial_act_t4_out_local.motor_arm_int = (1 << 4) -1;
+    myserial_act_t4_out_local.servo_arm_int = (1 << 12) - 1;
 
     // comm_refresh_frequency [Hz] TODO: change the default frequency
     serial_act_t4_extra_data_out_local[0] = 100;
