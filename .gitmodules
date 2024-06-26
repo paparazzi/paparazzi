@@ -53,3 +53,6 @@
 [submodule "sw/ext/libcanard"]
 	path = sw/ext/libcanard
 	url = https://github.com/UAVCAN/libcanard.git
+[submodule "sw/ext/t4_actuators_board"]
+	path = sw/ext/t4_actuators_board
+	url = https://github.com/tudelft/Teensy_actuators_PPZ
