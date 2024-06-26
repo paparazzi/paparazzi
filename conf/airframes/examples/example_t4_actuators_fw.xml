@@ -155,7 +155,7 @@
     <servo name="S_AILERON_L"  no="0" min="-18000" neutral="0" max="18000"/>
     <servo name="S_ELEVATOR" no="1" min="-18000" neutral="0" max="18000"/>
     <servo name="S_RUDDER"   no="2" min="-18000" neutral="0" max="18000"/>
-    <servo name="S_AILERON_R"   no="3" min="18000" neutral="0" max="-18000"/>
+    <servo name="S_AILERON_R"   no="3" min="-18000" neutral="0" max="18000"/>
 <!--    <servo name="S_ID5"   no="4" min="20" neutral="510" max="1000"/>-->
 <!--    <servo name="S_ID6"   no="5" min="1000" neutral="510" max="20"/>-->
 <!--    <servo name="S_ID7"   no="6" min="20" neutral="510" max="1000"/>-->

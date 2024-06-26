@@ -122,8 +122,8 @@ static uint8_t serial_act_t4_msg_buf_in[sizeof(struct serial_act_t4_in)*2]__attr
     static void serial_act_t4_uplink(struct transport_tx *trans, struct link_device *dev)
     {
     
-    int8_t motor_arm_int_telemetry = myserial_act_t4_out.motor_arm_int;
-    int8_t servo_arm_int_telemetry = myserial_act_t4_out.servo_arm_int;
+    uint8_t motor_arm_int_telemetry = myserial_act_t4_out.motor_arm_int;
+    uint16_t servo_arm_int_telemetry = myserial_act_t4_out.servo_arm_int;
     int16_t motor_1_dshot_cmd_int_telemetry = myserial_act_t4_out.motor_1_dshot_cmd_int; 
     int16_t motor_2_dshot_cmd_int_telemetry = myserial_act_t4_out.motor_2_dshot_cmd_int; 
     int16_t motor_3_dshot_cmd_int_telemetry = myserial_act_t4_out.motor_3_dshot_cmd_int; 

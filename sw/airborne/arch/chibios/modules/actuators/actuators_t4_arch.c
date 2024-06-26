@@ -42,7 +42,7 @@ void actuators_t4_arch_init(void) {
     myserial_act_t4_out_local.servo_arm_int = (1 << 12) - 1;
 
     // comm_refresh_frequency [Hz] TODO: change the default frequency
-    serial_act_t4_extra_data_out_local[0] = 100;
+    serial_act_t4_extra_data_out_local[0] = 50;
 }
 
 void actuators_t4_commit(void) {
