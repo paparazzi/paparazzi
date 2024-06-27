@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="t4_uart" dir="actuators" task="actuators">
+  <doc>
+    <description>
+       Actuators Driver using T4 protocol to a T4 actuator board via UART bus.
+    </description>
+    <configure name="ACTUATORS_T4_UART_DEV" value="UARTX" description="UART port the T4 board is connected to (default uart2)"/>
+  </doc>
+  <dep>
+    <depends>uart,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="serial_act_t4.h"/>
+  </header>
+  <makefile target="ap">
+    <configure name="ACTUATORS_T4_UART_DEV" default="uart2" case="upper|lower"/>
+    <define name="ACTUATORS_T4_UART_DEV" value="$(ACTUATORS_T4_UART_DEV_LOWER)"/>
+    <define name="USE_$(ACTUATORS_T4_UART_DEV_UPPER)"/>
+    <define name="$(ACTUATORS_T4_UART_DEV_UPPER)_BAUD" value="921600"/>
+    <define name="USE_$(ACTUATORS_T4_UART_DEV_UPPER)_RX" value="FALSE"/>
+    <file name="serial_act_t4.c"/>
+    <test>
+        <define name="USE_UART2"/>
+        <define name="PERIODIC_FREQUENCY" value="500"/>
+        <define name="ACTUATORS_T4_UART_DEV" value="uart2"/>
+    </test>
+  </makefile>
+</module>
