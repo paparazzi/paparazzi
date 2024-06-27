@@ -152,11 +152,18 @@
     <servo name="S_THROTTLE" no="10" min="100" neutral="100" max="1900"/>
 
 <!--    degress * 100 -->
-    <servo name="S_AILERON_L"  no="0" min="-18000" neutral="0" max="18000"/>
-    <servo name="S_ELEVATOR" no="1" min="-18000" neutral="0" max="18000"/>
-    <servo name="S_RUDDER"   no="2" min="-18000" neutral="0" max="18000"/>
-    <servo name="S_AILERON_R"   no="3" min="-18000" neutral="0" max="18000"/>
-<!--    <servo name="S_ID5"   no="4" min="20" neutral="510" max="1000"/>-->
+    <servo name="S_AILERON_L"  no="6" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_ELEVATOR" no="7" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_RUDDER"   no="8" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_AILERON_R"   no="9" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_1" no="0" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_2" no="1" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_3" no="2" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_4" no="3" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_5" no="4" min="-18000" neutral="0" max="18000"/>
+    <servo name="S_6" no="5" min="-18000" neutral="0" max="18000"/>
+
+    <!--    <servo name="S_ID5"   no="4" min="20" neutral="510" max="1000"/>-->
 <!--    <servo name="S_ID6"   no="5" min="1000" neutral="510" max="20"/>-->
 <!--    <servo name="S_ID7"   no="6" min="20" neutral="510" max="1000"/>-->
 <!--    <servo name="S_ID8"   no="7" min="20" neutral="510" max="1000"/>-->
@@ -225,12 +232,12 @@
     <set servo="S_ELEVATOR" value="@PITCH"/>
     <set servo="S_RUDDER" value="@YAW - @ROLL*ASSIST_ROLL_WITH_RUDDER"/>
 
-<!--    <set servo="S_ID5" value="-@PITCH"/>-->
-<!--    <set servo="S_ID6" value="@PITCH"/>-->
-<!--    <set servo="S_ID7" value="@PITCH"/>-->
-<!--    <set servo="S_ID8" value="@PITCH"/>-->
-<!--    <set servo="S_ID9" value="@PITCH"/>-->
-<!--    <set servo="S_ID10" value="@PITCH"/>-->
+    <set servo="S_1" value="-@PITCH"/>
+    <set servo="S_2" value="@PITCH"/>
+    <set servo="S_3" value="@PITCH"/>
+    <set servo="S_4" value="@PITCH"/>
+    <set servo="S_5" value="@PITCH"/>
+    <set servo="S_6" value="@PITCH"/>
 
   </command_laws>
 
