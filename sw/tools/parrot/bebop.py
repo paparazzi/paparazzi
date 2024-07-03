@@ -41,7 +41,7 @@ class Bebop(ParrotUtils):
         self.config_content = self.execute_command('cat ' + self.config_file)
 
         # Search for the name
-        search = re.search(name + '=([^\r\n\t ]+)',self.config_content)
+        search = re.search(name + '=([^\r\n\t ]+)', self.config_content)
         if search is None:
             return 'Unknown'
         else:
@@ -196,13 +196,13 @@ class Bebop(ParrotUtils):
         # Change the network ID
         if args.command == 'networkid':
             self.bebop_set_ssid(args.name)
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the wifi mode
         elif args.command == 'wifimode':
             self.bebop_set_wifi_mode(args.mode)
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the wifi mode
@@ -211,13 +211,13 @@ class Bebop(ParrotUtils):
                 print("Invalid address or dhcp option. Leaving.")
                 return
             self.bebop_set_address(args.address)
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the wifi encryption mode
         elif args.command == 'wifikey':
             self.bebop_set_wifi_key(args.amode, args.key)
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Install and configure network
@@ -230,11 +230,11 @@ class Bebop(ParrotUtils):
                 return
             if self.check_autoboot():
                 print('Custom autostart (and network) script already installed')
-                if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
                     self.bebop_install_scripts()
             else:
                 print('Custom autostart (and network) script is required but is not installed')
-                if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
                     self.bebop_install_scripts()
                 else:
                     print('Scripts not installed, Leaving.')
@@ -248,14 +248,14 @@ class Bebop(ParrotUtils):
             self.uav_status()
             print('==================================')
 
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Install and configure autostart
         elif args.command == 'install_autostart':
             if self.check_autoboot():
                 print('Custom autostart script already installed')
-                if raw_input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
                     self.bebop_install_scripts()
             else:
                 self.bebop_install_scripts()
@@ -263,7 +263,7 @@ class Bebop(ParrotUtils):
             self.write_to_config('START_PPRZ', autorun[args.type])
             print('The autostart on boot is changed to ' + args.type)
 
-            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+            if input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the autostart
