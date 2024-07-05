@@ -335,6 +335,8 @@ void gps_init(void)
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
 
+  gps_relposned.relPosHeading = NAN;
+
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
   GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
