@@ -179,8 +179,40 @@ void gvf_control_2D(float ke, float kn, float e,
   float md_dot_x =  md_y * md_dot_const;
   float md_dot_y = -md_x * md_dot_const;
 
-
   #if defined(ROTORCRAFT_FIRMWARE)
+
+  // Use accel based control. Not recommended as of current implementation
+  #if defined(GVF_ROTORCRAFT_USE_ACCEL)
+
+  // Set nav for command
+  // Use parameter kn as the speed command
+  nav.speed.x = md_x * kn;
+  nav.speed.y = md_y * kn;
+
+  // Acceleration induced by the field with speed set to kn (!WIP!)
+  #warning "Using GVF for rotorcraft is still experimental, proceed with caution"
+  float n_norm = sqrtf(nx*nx+ny*ny);
+  float hess_px_dot = px_dot * H11 + py_dot * H12;
+  float hess_py_dot = px_dot * H21 + py_dot * H22;
+
+  float hess_pdx_dot = pdx_dot * H11 + pdy_dot * H12;
+  float hess_pdy_dot = pdx_dot * H21 + pdy_dot * H22;
+
+  float curvature_correction = tx * hess_px_dot + ty * hess_py_dot / (n_norm * n_norm);
+  float accel_correction_x = kn * hess_py_dot / n_norm;
+  float accel_correction_y = - kn * hess_px_dot / n_norm;
+  float accel_cmd_x = accel_correction_x + px_dot * curvature_correction;
+  float accel_cmd_y = accel_correction_y + py_dot * curvature_correction;
+
+  float speed_cmd_x = kn*tx / n_norm - ke * e * nx / (n_norm);
+  float speed_cmd_y = kn*ty / n_norm - ke * e * ny / (n_norm);
+
+  // TODO: don't change nav struct directly
+  nav.accel.x = accel_cmd_x + (speed_cmd_x - px_dot);
+  nav.accel.y = accel_cmd_y + (speed_cmd_y - py_dot);
+  nav.heading = atan2f(md_x,md_y);
+
+  #else // SPEED_BASED_GVF
 
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 
@@ -193,8 +225,10 @@ void gvf_control_2D(float ke, float kn, float e,
   {
     nav.heading = atan2f(md_x, md_y);
   }
+  
+  #endif
 
-  #else
+  #else // FIXEDWING / ROVER FIRMWARE
 
   float omega_d = -(md_dot_x * md_y - md_dot_y * md_x);
 

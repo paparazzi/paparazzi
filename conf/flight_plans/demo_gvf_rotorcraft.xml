@@ -19,6 +19,11 @@
     <variable var="nominal_alt" init="0.5" type="float" min="0." max="10." step="0.1"/>
   </variables>
 
+  <modules>
+    <module name="gvf_module"/>
+    <!-- module name="gvf_parametric"/--> <!-- Not implemented yet -->
+  </modules>
+
   <blocks>
     <block name="FPInit">
       <call_once fun="NavKillThrottle()"/>
@@ -44,26 +49,12 @@
       <stay wp="STDBY"/>
     </block>
 
-    <!-- Vars found in sw/airborne/firmwares/rotorcraft/navigation.h --> 
-    <block name="Move East">
-      <while cond="1">
-        <set var="nav.setpoint_mode" value="NAV_SETPOINT_MODE_SPEED"/>
-        <set var="nav.speed.x" value="3.0"/>
-        <set var="nav.speed.y" value="0.0"/>
-      </while>
-    </block>
-
     <block name="GVF Segment 1">
       <call fun="gvf_segment_loop_wp1_wp2(WP_S1_START, WP_S1_END, gvf_segment_par.d1, gvf_segment_par.d2)"/>
     </block>
 
     <block name="GVF Segment 2">
       <call fun="gvf_segment_loop_wp1_wp2(WP_S2_START, WP_S2_END, gvf_segment_par.d1, gvf_segment_par.d2)"/>
-    </block>
-
-    <!-- Can't go below 1 because int var -->
-    <block name="GVF 1m Circle">
-      <call fun="gvf_ellipse_wp(WP_TD, 1, 1, gvf_ellipse_par.alpha)"/>
     </block>
 
     <block name="GVF 25m Circle">
@@ -84,15 +75,8 @@
     </block>
 
     <block name="Land Target" strip_button="Land Target" group="target">
-      <exception cond="GetPosHeight() @LT 0.3" deroute="Ramp down"/>
       <exception cond="!nav_is_in_flight()" deroute="Kill Engine"/>
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
-    </block>
-
-    <block name="Ramp down" key="r">
-      <exception cond="guidance_v.rc_delta_t @LT 0.1*9600." deroute="Kill Engine"/>
-      <set var="fp_throttle" value="guidance_v.rc_delta_t/9600."/>
-      <stay throttle="fp_throttle-0.1*stage_time" vmode="throttle" wp="TD"/>
     </block>
 
     <block name="Kill Engine" key="k">
