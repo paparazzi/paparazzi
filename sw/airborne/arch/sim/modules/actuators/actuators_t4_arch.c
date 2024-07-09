@@ -23,7 +23,7 @@
  */
 #include <stdio.h>
 #include "modules/actuators/actuators_t4_arch.h"
-#include "modules/actuators/actuators_myt4.h"
+#include "modules/actuators/actuators_t4.h"
 
 #include "modules/core/abi.h"
 

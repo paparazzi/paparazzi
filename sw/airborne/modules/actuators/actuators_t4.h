@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Paparazzi Team
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -22,12 +22,14 @@
 #ifndef ACTUATORS_T4_H
 #define ACTUATORS_T4_H
 
-#include "modules/t4/t4.h"
-#include BOARD_CONFIG
+#include "modules/actuators/actuators_t4_arch.h"
+#include "serial_act_t4.h"
 
-/* External functions */
-extern void actuators_t4_init(struct t4_iface_t *iface);
-extern void actuators_t4_commit(struct t4_iface_t *iface, int16_t *values, uint8_t nb);
-extern void actuators_t4_cmd_commit(struct t4_iface_t *iface, int16_t *values, uint8_t nb);
+/** Arch dependent init file.
+ * implemented in arch files
+ */
+extern void actuators_t4_arch_init(void);
+
+#define ActuatorsT4Init() actuators_t4_arch_init()
 
 #endif /* ACTUATORS_T4_H */

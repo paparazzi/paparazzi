@@ -56,7 +56,7 @@
 <!--      UART8==GPS2 (orange pi) -->
 
 <!--      type should match to the module name-->
-      <module name="actuators" type="myt4"/>
+      <module name="actuators" type="t4"/>
 <!--      TODO: unify t4 modules..   -->
 
 <!--       <module name="actuators" type="t4">-->
@@ -111,7 +111,7 @@
 <!--        <configure name="MODEM_PORT" value="UART3"/>-->
 <!--        <configure name="SERIAL_ACT_T4_BAUD" value="B921600"/>-->
       </module>
-      <module name="actuators" type="myt4"/>
+      <module name="actuators" type="t4"/>
 
       <!--Not dealing with these in the simulation-->
 <!--      <define name="RADIO_TH_HOLD"     value="0"/> &lt;!&ndash; Throttle hold in command laws &ndash;&gt;-->
@@ -142,7 +142,7 @@
 
   <!-- This driver name should match to the actuator module name -->
   <!-- cASe SeNsITiVe! -->
-  <servos driver="Myt4">
+  <servos driver="T4">
     <!-- ref: https://github.com/tudelft/Teensy_actuators_PPZ -->
     <!-- no="0~9" for servos, no="10~13" for escs -->
     <!-- Servo no == (servo_ID - 1) because it starts from ZERO... -->

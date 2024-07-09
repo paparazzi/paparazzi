@@ -36,7 +36,7 @@ extern int32_t actuators_t4_values[ACTUATORS_T4_NB];
 
 extern void actuators_t4_commit(void);
 
-#define ActuatorMyt4Set(_i, _v) { actuators_t4_values[_i] = _v; }
-#define ActuatorsMyt4Commit  actuators_t4_commit
+#define ActuatorT4Set(_i, _v) { actuators_t4_values[_i] = _v; }
+#define ActuatorsT4Commit  actuators_t4_commit
 
 #endif /* ACTUATORS_T4_ARCH_H */
