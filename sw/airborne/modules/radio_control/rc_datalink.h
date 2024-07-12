@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-#define RC_DL_NB_CHANNEL 5
+#define RC_DL_NB_CHANNEL 11
 
 /**
  * Redefining RADIO_*
@@ -45,6 +45,15 @@
 #define RADIO_AUX4      7
 #define RADIO_AUX6      8
 #define RADIO_AUX5      9
+#define RADIO_AUX7      10
+
+#ifndef RADIO_KILL_SWITCH
+#define RADIO_KILL_SWITCH RADIO_AUX1
+#endif
+
+#ifndef AP_MODE_SWITCH
+#define AP_MODE_SWITCH RADIO_AUX7
+#endif
 
 extern int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 extern volatile bool rc_dl_frame_available;
@@ -68,9 +77,21 @@ extern void parse_rc_4ch_datalink(
   int8_t pitch,
   int8_t yaw);
 
+/**
+ * Decode datalink message to get rc values with RC_4CH message
+ */
+extern void parse_rc_6ch_datalink(
+  int8_t mode,
+  uint8_t throttle,
+  int8_t roll,
+  int8_t pitch,
+  int8_t yaw,
+  int8_t kill,
+  int8_t aux7);  
+
 extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
-
+extern void rc_datalink_parse_RC_6CH(uint8_t *buf);
 /**
  * RC init function.
  */
