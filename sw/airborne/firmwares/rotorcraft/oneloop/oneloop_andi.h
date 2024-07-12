@@ -57,6 +57,7 @@
 #define  CTRL_ANDI 0
 #define  CTRL_INDI 1
 
+extern bool ctrl_off;
 extern float act_state_filt_vect_1l[ANDI_NUM_ACT];
 extern float actuator_state_1l[ANDI_NUM_ACT];
 extern float nu[6];
@@ -69,6 +70,8 @@ extern bool  yaw_stick_in_auto;
 extern float fwd_sideslip_gain;
 extern struct FloatEulers eulers_zxy_des;
 extern float psi_des_rad;
+extern float k_as;
+extern float max_as;
 
 /*Chirp test Variables*/
 extern bool  chirp_on;
@@ -90,7 +93,7 @@ struct guidance_indi_hybrid_params {
   float liftd_p50;
 };
 extern struct guidance_indi_hybrid_params gih_params;
-extern bool force_forward; 
+//extern bool force_forward; 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct OneloopGuidanceRef {
   float pos[3];     
@@ -144,6 +147,7 @@ struct Gains2ndOrder{
   float k3;
 };
 
+extern int16_t temp_pitch;
 /*Declaration of Reference Model and Error Controller Gains*/
 extern struct PolePlacement p_att_e;
 extern struct PolePlacement p_att_rm;
@@ -167,7 +171,7 @@ extern void oneloop_andi_init(void);
 extern void oneloop_andi_enter(bool half_loop_sp, int ctrl_type);
 extern void oneloop_andi_set_failsafe_setpoint(void);
 extern void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
-extern void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v);
+extern void oneloop_andi_RM(bool half_loop, struct FloatVect3 PSA_des, int rm_order_h, int rm_order_v, bool in_flight_oneloop);
 extern void oneloop_andi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn);
 extern void oneloop_from_nav(bool in_flight);
 #endif  // ONELOOP_ANDI_H

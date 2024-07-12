@@ -15,6 +15,7 @@
       <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
+      <include name="modules/rot_wing_drone/rotwing_state_V2.h"/>
       <define  name="MODE_MANUAL"    value="AP_MODE_ATTITUDE_DIRECT"  cond="ifndef MODE_MANUAL"/>
       <define  name="MODE_ONELOOP"   value="AP_MODE_MODULE"           cond="ifndef MODE_AUTO1"/>
       <define  name="MODE_AUTO2"     value="AP_MODE_NAV"              cond="ifndef MODE_AUTO2"/>
@@ -34,7 +35,7 @@
     <control_block name="set_commands">
       <call fun="SetRotorcraftCommands(stabilization.cmd, autopilot_in_flight(), autopilot_get_motors_on())"/>
     </control_block>
-
+    
     <control_block name="run_attitude_control">
       <call fun="guidance_v_run(autopilot_in_flight())" store="struct ThrustSetpoint thrust_sp"/>
       <call fun="stabilization_run(autopilot_in_flight(), &stabilization.rc_sp, &thrust_sp, stabilization.cmd)"/>
@@ -109,7 +110,7 @@
     </mode>
 
     <!-- Attitude mode 4-->
-    <mode name="ATTITUDE_DIRECT" shortname="ATT">
+    <mode name="ATTITUDE_DIRECT" shortname="ATT_Quad">
       <select cond="RCMode0()"/>
       <on_enter>
         <call fun="stabilization_attitude_enter()"/>
@@ -118,6 +119,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
+        <!-- <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE)"/> -->
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
         <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,STABILIZATION_ATT_SUBMODE_HEADING)"/>
         <call_block name="run_attitude_control"/>
@@ -148,24 +150,7 @@
 
     <!-- ATTITUDE_Z_HOLD: 9 -->
     <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
-      <select cond="RCMode1() && DLModeAZH()"/>
-      <on_enter>
-        <call fun="guidance_h_hover_enter()"/>
-        <call fun="stabilization_attitude_enter()"/>
-        <call fun="guidance_v.mode = GUIDANCE_V_MODE_GUIDED"/>
-        <call fun="guidance_v_guided_enter()"/>
-      </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
-        <call fun="nav_periodic_task()"/>
-      </control>
-      <control>
-        <call fun="guidance_v_read_rc()"/>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
-        <call fun="guidance_v_guided_run(autopilot_in_flight())"/>
-        <call fun="guidance_h_guided_run(autopilot_in_flight())"/>
-        <call_block name="set_commands"/>
-      </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
     <!-- HOVER_DIRECT: 10 -->
@@ -185,7 +170,7 @@
 
     <!-- NAV: 13 -->
     <mode name="NAV">
-      <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
+      <select cond="RCMode2() && RCAP2() && DLModeNav()" exception="HOME"/>
       <on_enter>
         <call fun="oneloop_andi_enter(false, CTRL_INDI)"/>
       </on_enter>
@@ -193,6 +178,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
+        <!-- <call fun="nav_periodic_task()"/> -->
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
         <call fun="guidance_h_set_pos(nav.carrot.y, nav.carrot.x)"/>
@@ -219,14 +205,19 @@
 
     <!-- MODULE: 17 -->
     <mode name="MODULE" shortname="ONE">
-      <select cond="RCMode1() && DLModeModule()" exception="HOME"/>
+      <select cond="RCMode2() && RCAP0() && DLModeModule()" exception="HOME"/>
       <on_enter>
         <call fun="oneloop_andi_enter(false, CTRL_ANDI)"/>
       </on_enter>
-      <control>
+      <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
-        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_MODULE)"/>
-        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE)"/>
+      </control>
+      <control>
+        <!-- <call fun="nav_periodic_task()"/> -->
+        <!-- <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_MODULE)"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE)"/> -->
+        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
         <call fun="guidance_h_set_pos(nav.carrot.y, nav.carrot.x)"/>
         <call_block name="update_v_sp_gcs"/>
         <call fun="oneloop_from_nav(autopilot_in_flight())"/>
@@ -241,25 +232,27 @@
 
     <!-- GUIDED: 19 -->
     <mode name="GUIDED">
-      <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>  
+
+    <!-- Attitude mode fixed wing20-->
+    <mode name="ATTITUDE_DIRECT_FWD" shortname="ATT_Fwd">
+      <select cond="RCMode1()"/>
       <on_enter>
-        <call fun="guidance_h_hover_enter()"/>
         <call fun="stabilization_attitude_enter()"/>
-        <call fun="guidance_v.mode = GUIDANCE_V_MODE_GUIDED"/>
-        <call fun="guidance_v_guided_enter()"/>
       </on_enter>
       <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="guidance_v_read_rc()"/>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
-        <call fun="guidance_v_guided_run(autopilot_in_flight())"/>
-        <call fun="guidance_h_guided_run(autopilot_in_flight())"/>
+        <!-- <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD)"/> -->
+        <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
+        <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE,STABILIZATION_ATT_SUBMODE_FORWARD)"/>
+        <call_block name="run_attitude_control"/>
         <call_block name="set_commands"/>
       </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
-    </mode>  
+      <exception cond="RCLost()" deroute="FAILSAFE"/>
+    </mode>
   </state_machine>
 
 </autopilot>
