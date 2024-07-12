@@ -13,7 +13,7 @@
     <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" case="lower|upper"/>
     <define name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" value="$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
     <define name="USE_$(ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION_UPPER)"/>
-        <define name="ADC_WING_ROTATION" value="TRUE"/>
+    <define name="ADC_WING_ROTATION" value="TRUE"/>
     <file name="wing_rotation_adc_sensor.c"/>
   </makefile>
 </module>

@@ -26,6 +26,7 @@
 #ifndef WING_ROTATION_ADC_SENSOR_H
 #define WING_ROTATION_ADC_SENSOR_H
 
+extern float adc_wing_rotation_extern;
 extern void wing_rotation_adc_init(void);
 extern void wing_rotation_adc_to_deg(void);
 
