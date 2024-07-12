@@ -35,13 +35,14 @@
 extern float nav_max_speed;   // max speed in route mode
 extern float nav_goto_max_speed; // max speed in goto/stay mode
 extern float nav_max_deceleration_sp;
+extern float nav_max_acceleration_sp;
 extern float nav_hybrid_line_gain; 
 extern float nav_hybrid_pos_gain; 
 extern float nav_hybrid_max_bank;
+extern float nav_hybrid_max_expected_wind;
 #ifndef GUIDANCE_INDI_HYBRID
 extern bool force_forward;
 #endif
-
 
 extern void nav_rotorcraft_hybrid_init(void);
 
