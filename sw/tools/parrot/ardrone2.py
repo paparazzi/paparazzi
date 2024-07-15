@@ -225,19 +225,19 @@ class Ardrone2(ParrotUtils):
         # Change the network ID
         if args.command == 'networkid':
             self.ardrone2_set_ssid(args.name)
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the IP address
         elif args.command == 'ipaddress':
             self.ardrone2_set_ip_address(args.address)
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the wifi mode
         elif args.command == 'wifimode':
             self.ardrone2_set_wifi_mode(args.mode)
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Install and configure network
@@ -252,12 +252,12 @@ class Ardrone2(ParrotUtils):
             print('=============================')
             if self.check_wifi_setup():
                 print('Custom Wifi script already installed')
-                if raw_input("Shall I reinstall the Wifi script (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the Wifi script (y/N) ").lower() == 'y':
                     self.ardrone2_install_network_script()
             else:
-                if raw_input("Shall I install custom Wifi script (recommanded) (y/N) ").lower() == 'y':
+                if input("Shall I install custom Wifi script (recommanded) (y/N) ").lower() == 'y':
                     self.ardrone2_install_network_script()
-            if raw_input("Shall I install olsrd (ad-hoc wireless mesh routing deamon) (y/N) ").lower() == 'y':
+            if input("Shall I install olsrd (ad-hoc wireless mesh routing deamon) (y/N) ").lower() == 'y':
                 self.ardrone2_install_olsrd()
             self.ardrone2_set_ssid(args.name)
             self.ardrone2_set_ip_address(args.address)
@@ -272,14 +272,14 @@ class Ardrone2(ParrotUtils):
             print('Channel:\t' + self.read_from_config('wifi_channel'))
             print('==================================')
 
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Install and configure autostart
         elif args.command == 'install_autostart':
             if self.check_autoboot():
                 print('Custom autostart script already installed')
-                if raw_input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
                     self.ardrone2_install_autoboot()
             else:
                 self.ardrone2_install_autoboot()
@@ -287,7 +287,7 @@ class Ardrone2(ParrotUtils):
             self.write_to_config('start_paparazzi', autorun[args.type])
             print('The autostart on boot is changed to ' + args.type)
 
-            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+            if input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
                 self.reboot()
 
         # Change the autostart
@@ -300,7 +300,7 @@ class Ardrone2(ParrotUtils):
         elif args.command == 'installvision':
             if self.check_vision_installed():
                 print('Vision framework already installed')
-                if raw_input("Shall I reinstall the vision framework? (y/N) ").lower() == 'y':
+                if input("Shall I reinstall the vision framework? (y/N) ").lower() == 'y':
                     self.ardrone2_remove_vision()
                     self.ardrone2_install_vision()
 
@@ -314,7 +314,7 @@ class Ardrone2(ParrotUtils):
             else:
                 if not self.check_vision_installed():
                     print('No vision framework installed')
-                    if raw_input("Shall I install the vision framework? (y/N) ").lower() == 'y':
+                    if input("Shall I install the vision framework? (y/N) ").lower() == 'y':
                         self.ardrone2_install_vision()
 
                 if self.check_vision_installed():
@@ -331,7 +331,7 @@ class Ardrone2(ParrotUtils):
             else:
                 if not self.check_vision_installed():
                     print('Warning: No vision framework installed')
-                    if raw_input("Warning: Shall I install the vision framework? (y/N) ").lower() == 'y':
+                    if input("Warning: Shall I install the vision framework? (y/N) ").lower() == 'y':
                         self.ardrone2_install_vision()
 
                 if self.check_vision_installed():

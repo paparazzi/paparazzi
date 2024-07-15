@@ -23,6 +23,7 @@
       <define  name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
       <define  name="DLModeModule()" value="(MODE_AUTO1 == AP_MODE_MODULE)"/>
       <define  name="DLModeAZH()"    value="(MODE_AUTO1 == AP_MODE_ATTITUDE_Z_HOLD)"/>
+      <define  name="ONELOOP_CONTROLLER" value="TRUE"/>
     </includes>
 
     <settings>
@@ -74,9 +75,9 @@
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
         <call fun="stabilization_mode_changed(STABILIZATION_MODE_ATTITUDE, STABILIZATION_ATT_SUBMODE_HEADING)"/>
       </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
+      <!-- <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
-      </control>
+      </control> -->
       <control>
         <call_block name="run_guidance_control"/>
         <call_block name="set_commands"/>
@@ -121,12 +122,14 @@
     <mode name="MODULE" shortname="ONE">
       <select cond="RCMode1() && DLModeModule()" exception="HOME"/>
       <on_enter>
-        <call fun="oneloop_andi_enter(false)"/>
+        <call fun="oneloop_andi_enter(false, CTRL_ANDI)"/>
       </on_enter>
-      <control freq="NAVIGATION_FREQUENCY">
+      <!-- <control freq="NAVIGATION_FREQUENCY">
         <call fun="nav_periodic_task()"/>
-      </control>
+      </control> -->
       <control>
+        <call fun="nav_periodic_task()"/>
+        <call fun="guidance_h_set_pos(nav.carrot.y, nav.carrot.x)"/>
         <call fun="oneloop_from_nav(autopilot_in_flight())"/>
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>

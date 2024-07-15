@@ -467,7 +467,7 @@
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"   value="0.24"/>
-        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.20"/>
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
         <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
         <define name="AGL_DIST_FILTER"                      value="0.07"/>
     </section>
@@ -611,7 +611,6 @@
         <define name="PITCH_LIFT_EFF"       value="0.0"/>
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
-        <define name="THRUST_X_EFF"         value="0.00055"/>
 
         <define name="NAV_CIRCLE_DIST"      value="60."/>
         <define name="NAV_LINE_DIST"        value="100"/>
@@ -619,6 +618,7 @@
         <define name="CLIMB_SPEED_FWD"      value="2.0"/>
         <define name="DESCEND_SPEED_FWD"    value="-3.0"/>
         <define name="QUADPLANE"            value="TRUE"/>
+        <define name="PUSHER_INDEX"         value="8"/>
 
         <define name="MAX_PITCH"            value="12"/>
         <define name="MIN_PITCH"            value="-20"/>

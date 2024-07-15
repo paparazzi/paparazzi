@@ -150,7 +150,7 @@ void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
 
 static void send_actuators(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
+  pprz_msg_send_ACTUATORS_RAW(trans, dev, AC_ID , ACTUATORS_NB, actuators);
 }
 
 static void send_commands(struct transport_tx *trans, struct link_device *dev)

@@ -64,24 +64,24 @@
       <message name="DATALINK_REPORT"     period="5.7"/>
     </mode>
     <mode name="raw_sensors">
-      <message name="DL_VALUE"          period="0.5"/>
-      <message name="ALIVE"             period="2.1"/>
-      <message name="BARO_RAW"          period="0.5"/>
-      <message name="IMU_GYRO_RAW"      period="0.1"/>
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="ALIVE"               period="2.1"/>
+      <message name="BARO_RAW"            period="0.5"/>
+      <message name="IMU_GYRO_RAW"        period="0.1"/>
     </mode>
   </process>
   <process name="Fbw">
     <mode name="default">
       <message name="COMMANDS"            period="5"/>
       <message name="FBW_STATUS"          period="2"/>
-      <message name="ACTUATORS"           period="5"/> <!-- For trimming -->
+      <message name="ACTUATORS_RAW"       period="5"/> <!-- For trimming -->
     </mode>
     <mode name="debug">
       <message name="PPM"                 period="0.5"/>
       <message name="RC"                  period="0.5"/>
       <message name="COMMANDS"            period="0.5"/>
       <message name="FBW_STATUS"          period="1"/>
-      <message name="ACTUATORS"           period="5"/> <!-- For trimming -->
+      <message name="ACTUATORS_RAW"       period="5"/> <!-- For trimming -->
     </mode>
   </process>
 </telemetry>

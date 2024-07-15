@@ -49,12 +49,14 @@ PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_control_panel.c
 # only compile it lablgtk2.glade is installed
 ifneq ($(LABLGTK2GLADE),)
 all: paparazzicenter
-
+else # no lablgtk2 glade
+all :
+	@echo Skipping legacy Paparazzi Center build, no lablgtk2-glade
 endif
 
-else # no gtk2
+else # no lablgtk2
 all :
-	@echo Skipping legacy Paparazzi Center build
+	@echo Skipping legacy Paparazzi Center build, no lablgtk2
 endif
 
 paparazzicenter : $(PAPARAZZICENTERCMO) $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(XLIBPPRZCMA)

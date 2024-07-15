@@ -123,7 +123,7 @@
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay wp="begin_trans" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="line_trans_fwd">
+    <block name="line_trans_fwd" strip_button="Transition Line" strip_icon="wp_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <call_once fun="NavSetWaypointHere(WP_begin_trans)"/>
       <go wp="end_trans"/>
@@ -133,12 +133,12 @@
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <stay wp="end_trans"/>
     </block>
-    <block name="transition_CW">
+    <block name="transition_CW" strip_button="Transition CW" strip_icon="circle_cw_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <stay wp="end_trans"/>
       <exception cond="RotWingAutomationReadyForForward()" deroute="Circle_CW_fwd"/>
     </block>
-    <block name="transition_CCW">
+    <block name="transition_CCW" strip_button="Transition CCW" strip_icon="circle_ccw_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <stay wp="end_trans"/>
       <exception cond="RotWingAutomationReadyForForward()" deroute="Circle_CCW_fwd"/>
@@ -175,7 +175,7 @@
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <circle radius="-150" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
-    <block name="Transition_quad">
+    <block name="Transition_quad" strip_button="Transition Quad" strip_icon="wp_quad.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <go wp="STDBY"/>
       <deroute block="Standby"/>
@@ -188,7 +188,7 @@
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <go wp="TD"/>
     </block>
-    <block name="descend">
+    <block name="descend" strip_button="Descend" strip_icon="descend.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <exception cond="GetPosHeight() @LT 12.0" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
