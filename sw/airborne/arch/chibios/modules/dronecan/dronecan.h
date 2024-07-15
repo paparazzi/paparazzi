@@ -23,8 +23,8 @@
  * Interface with dronecan using the Chibios can interfaces.
  * This uses multithreading and starts a transmit and receive thread per interface.
  */
-#ifndef MODULES_UAVCAN_ARCH_H
-#define MODULES_UAVCAN_ARCH_H
+#ifndef MODULES_DRONECAN_ARCH_H
+#define MODULES_DRONECAN_ARCH_H
 
 #include <hal.h>
 #include <canard.h>
@@ -66,10 +66,10 @@ struct dronecan_event_t {
 typedef struct dronecan_event_t dronecan_event;
 
 /** dronecan interfaces */
-#if UAVCAN_USE_CAN1
+#if DRONECAN_USE_CAN1
 extern struct dronecan_iface_t dronecan1;
 #endif
-#if UAVCAN_USE_CAN2
+#if DRONECAN_USE_CAN2
 extern struct dronecan_iface_t dronecan2;
 #endif
 
@@ -79,4 +79,4 @@ void dronecan_bind(uint16_t data_type_id, uint64_t data_type_signature, dronecan
 void dronecan_broadcast(struct dronecan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload, uint16_t payload_len);
 
-#endif /* MODULES_UAVCAN_ARCH_H */
+#endif /* MODULES_DRONECAN_ARCH_H */

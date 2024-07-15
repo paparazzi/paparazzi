@@ -77,7 +77,7 @@ static void range_sensor_dronecan_cb(struct dronecan_iface_t *iface __attribute_
   // Send the range over ABI
   if(!isnan(range_sensor_dronecan.range)) {
     uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgAGL(AGL_UAVCAN_ID, now_ts, range_sensor_dronecan.range);
+    AbiSendMsgAGL(AGL_DRONECAN_ID, now_ts, range_sensor_dronecan.range);
   }
 }
 

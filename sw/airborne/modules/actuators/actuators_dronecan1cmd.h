@@ -19,22 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN1_CMD_H
-#define ACTUATORS_UAVCAN1_CMD_H
+#ifndef ACTUATORS_DRONECAN1_CMD_H
+#define ACTUATORS_DRONECAN1_CMD_H
 
 #include "actuators_dronecan.h"
 
 /** Stub file needed per dronecan interface because of generator */
-extern int16_t actuators_dronecan1cmd_values[SERVOS_UAVCAN1CMD_NB];
+extern int16_t actuators_dronecan1cmd_values[SERVOS_DRONECAN1CMD_NB];
 
 #if USE_NPS
-#define ActuatorsUavcan1CmdInit() {}
-#define ActuatorUavcan1CmdSet(_i, _v) {}
-#define ActuatorsUavcan1CmdCommit()  {}
+#define ActuatorsDronecan1CmdInit() {}
+#define ActuatorDronecan1CmdSet(_i, _v) {}
+#define ActuatorsDronecan1CmdCommit()  {}
 #else
-#define ActuatorsUavcan1CmdInit() actuators_dronecan_init(&dronecan1)
-#define ActuatorUavcan1CmdSet(_i, _v) { actuators_dronecan1cmd_values[_i] = _v; }
-#define ActuatorsUavcan1CmdCommit()  actuators_dronecan_cmd_commit(&dronecan1, actuators_dronecan1cmd_values, SERVOS_UAVCAN1CMD_NB)
+#define ActuatorsDronecan1CmdInit() actuators_dronecan_init(&dronecan1)
+#define ActuatorDronecan1CmdSet(_i, _v) { actuators_dronecan1cmd_values[_i] = _v; }
+#define ActuatorsDronecan1CmdCommit()  actuators_dronecan_cmd_commit(&dronecan1, actuators_dronecan1cmd_values, SERVOS_DRONECAN1CMD_NB)
 #endif
 
-#endif /* ACTUATORS_UAVCAN1_CMD_H */
+#endif /* ACTUATORS_DRONECAN1_CMD_H */

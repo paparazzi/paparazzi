@@ -31,10 +31,10 @@
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
         <module name="airspeed" type="dronecan">
-            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
-            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
+            <define name="AIRSPEED_DRONECAN_LOWPASS_FILTER"   value="TRUE" />
+            <define name="AIRSPEED_DRONECAN_LOWPASS_PERIOD"   value="0.1" />
+            <define name="AIRSPEED_DRONECAN_LOWPASS_TAU"      value="0.15" />
+            <define name="AIRSPEED_DRONECAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
       <module name="range_sensor" type="dronecan"/>
 
@@ -89,8 +89,8 @@
     </module>
 
     <module name="actuators"     type="dronecan">
-      <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
-      <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
+      <configure name="DRONECAN_USE_CAN1" value="TRUE"/>
+      <configure name="DRONECAN_USE_CAN2" value="TRUE"/>
     </module>
     <module name="actuators"     type="pwm"/>
     <module name="imu"           type="pixhawk6x"/>
@@ -152,7 +152,7 @@
   </servos>
 
   <!-- CAN BUS 1 outputs -->
-  <servos driver="Uavcan1">
+  <servos driver="Dronecan1">
     <!--servo name="MOTOR_1" no="0" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_2" no="1" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_3" no="2" min="-8191" neutral="1500" max="8191"/>
@@ -166,7 +166,7 @@
   </servos>
 
   <!-- CAN BUS 2 outputs -->
-  <servos driver="Uavcan2">
+  <servos driver="Dronecan2">
     <servo name="MOTOR_8" no="0" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_9" no="1" min="-8191" neutral="1500" max="8191"/>
     <servo name="MOTOR_10" no="2" min="-8191" neutral="1500" max="8191"/>
@@ -175,13 +175,13 @@
   </servos>
 
   <!-- CAN BUS 1 command outputs-->
-  <servos driver="Uavcan1Cmd">
+  <servos driver="Dronecan1Cmd">
     <servo name="AIL_3" no="6" min="6000" neutral="0" max="-6000"/>
     <servo name="FLAP_3" no="7" min="6000" neutral="0" max="-6000"/>
   </servos>
 
   <!-- CAN BUS 1 command outputs-->
-  <servos driver="Uavcan2Cmd">
+  <servos driver="Dronecan2Cmd">
     <servo name="FLAP_4" no="8" min="-6000" neutral="0" max="6000"/>
     <servo name="AIL_4" no="9" min="-6000" neutral="0" max="6000"/>
   </servos>

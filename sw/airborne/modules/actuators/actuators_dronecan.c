@@ -31,8 +31,8 @@
 #include "modules/actuators/actuators.h"
 
 /* By default enable the usage of the current sensing in the ESC telemetry */
-#ifndef UAVCAN_ACTUATORS_USE_CURRENT
-#define UAVCAN_ACTUATORS_USE_CURRENT TRUE
+#ifndef DRONECAN_ACTUATORS_USE_CURRENT
+#define DRONECAN_ACTUATORS_USE_CURRENT TRUE
 #endif
 
 /* dronecan ESC status telemetry structure */
@@ -50,38 +50,38 @@ struct actuators_dronecan_telem_t {
 };
 
 /* The transmitted actuator values */
-#ifdef SERVOS_UAVCAN1_NB
-int16_t actuators_dronecan1_values[SERVOS_UAVCAN1_NB];
+#ifdef SERVOS_DRONECAN1_NB
+int16_t actuators_dronecan1_values[SERVOS_DRONECAN1_NB];
 #endif
-#ifdef SERVOS_UAVCAN2_NB
-int16_t actuators_dronecan2_values[SERVOS_UAVCAN2_NB];
+#ifdef SERVOS_DRONECAN2_NB
+int16_t actuators_dronecan2_values[SERVOS_DRONECAN2_NB];
 #endif
-#ifdef SERVOS_UAVCAN1CMD_NB
-int16_t actuators_dronecan1cmd_values[SERVOS_UAVCAN1CMD_NB];
+#ifdef SERVOS_DRONECAN1CMD_NB
+int16_t actuators_dronecan1cmd_values[SERVOS_DRONECAN1CMD_NB];
 #endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-int16_t actuators_dronecan2cmd_values[SERVOS_UAVCAN2CMD_NB];
+#ifdef SERVOS_DRONECAN2CMD_NB
+int16_t actuators_dronecan2cmd_values[SERVOS_DRONECAN2CMD_NB];
 #endif
 
 /* Set the actual telemetry length (ID's from actuators can't collide with the command version) */
-#if SERVOS_UAVCAN1CMD_NB > SERVOS_UAVCAN1_NB
-#define UAVCAN1_TELEM_NB SERVOS_UAVCAN1CMD_NB
-static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_UAVCAN1CMD_NB] = {0};
-#elif defined(SERVOS_UAVCAN1_NB)
-#define UAVCAN1_TELEM_NB SERVOS_UAVCAN1_NB
-static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_UAVCAN1_NB] = {0};
+#if SERVOS_DRONECAN1CMD_NB > SERVOS_DRONECAN1_NB
+#define DRONECAN1_TELEM_NB SERVOS_DRONECAN1CMD_NB
+static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_DRONECAN1CMD_NB] = {0};
+#elif defined(SERVOS_DRONECAN1_NB)
+#define DRONECAN1_TELEM_NB SERVOS_DRONECAN1_NB
+static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_DRONECAN1_NB] = {0};
 #endif
 
-#if SERVOS_UAVCAN2CMD_NB > SERVOS_UAVCAN2_NB
-#define UAVCAN2_TELEM_NB SERVOS_UAVCAN2CMD_NB
-static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_UAVCAN2CMD_NB] = {0};
-#elif defined(SERVOS_UAVCAN2_NB)
-#define UAVCAN2_TELEM_NB SERVOS_UAVCAN2_NB
-static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_UAVCAN2_NB] = {0};
+#if SERVOS_DRONECAN2CMD_NB > SERVOS_DRONECAN2_NB
+#define DRONECAN2_TELEM_NB SERVOS_DRONECAN2CMD_NB
+static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_DRONECAN2CMD_NB] = {0};
+#elif defined(SERVOS_DRONECAN2_NB)
+#define DRONECAN2_TELEM_NB SERVOS_DRONECAN2_NB
+static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_DRONECAN2_NB] = {0};
 #endif
 
 /* UNUSED value for CMD */
-#define UAVCAN_CMD_UNUSED (MIN_PPRZ-1)
+#define DRONECAN_CMD_UNUSED (MIN_PPRZ-1)
 
 /* dronecan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_ESC_STATUS_ID                     1034
@@ -128,8 +128,8 @@ static struct actuators_dronecan_telem_t *actuators_dronecan_next_telem(void) {
 
   // Find the next set telemetry
   uint8_t offset = 0;
-#ifdef UAVCAN1_TELEM_NB
-  for(uint8_t i = esc_idx - offset; i < UAVCAN1_TELEM_NB; i++) {
+#ifdef DRONECAN1_TELEM_NB
+  for(uint8_t i = esc_idx - offset; i < DRONECAN1_TELEM_NB; i++) {
     if(dronecan1_telem[i].set) {
       old_idx = i + offset;
       esc_idx = i + offset + add_idx;
@@ -138,10 +138,10 @@ static struct actuators_dronecan_telem_t *actuators_dronecan_next_telem(void) {
       esc_idx = i + offset + 1;
     }
   }
-  offset += UAVCAN1_TELEM_NB;
+  offset += DRONECAN1_TELEM_NB;
 #endif
-#ifdef UAVCAN2_TELEM_NB
-  for(uint8_t i = esc_idx - offset; i < UAVCAN2_TELEM_NB; i++) {
+#ifdef DRONECAN2_TELEM_NB
+  for(uint8_t i = esc_idx - offset; i < DRONECAN2_TELEM_NB; i++) {
     if(dronecan2_telem[i].set) {
       old_idx = i + offset;
       esc_idx = i + offset + add_idx;
@@ -150,7 +150,7 @@ static struct actuators_dronecan_telem_t *actuators_dronecan_next_telem(void) {
       esc_idx = i + offset + 1;
     }
   }
-  offset += UAVCAN2_TELEM_NB;
+  offset += DRONECAN2_TELEM_NB;
 #endif
 
   // Going round or no telemetry found
@@ -189,16 +189,16 @@ static void actuators_dronecan_esc_status_cb(struct dronecan_iface_t *iface, Can
 
   struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
+#ifdef DRONECAN1_TELEM_NB
   if (iface == &dronecan1) {
     telem = dronecan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
+    max_id = DRONECAN1_TELEM_NB;
   }
 #endif
-#ifdef UAVCAN2_TELEM_NB
+#ifdef DRONECAN2_TELEM_NB
   if (iface == &dronecan2) {
     telem = dronecan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
+    max_id = DRONECAN2_TELEM_NB;
   }
 #endif
 
@@ -219,58 +219,58 @@ static void actuators_dronecan_esc_status_cb(struct dronecan_iface_t *iface, Can
   telem[esc_idx].temperature = canardConvertFloat16ToNativeFloat(tmp_float) - 273.15;
   canardDecodeScalar(transfer, 80, 18, true, (void *)&telem[esc_idx].rpm);
 
-#if UAVCAN_ACTUATORS_USE_CURRENT
+#if DRONECAN_ACTUATORS_USE_CURRENT
   // Update total current
   electrical.current = 0;
-#ifdef UAVCAN1_TELEM_NB
-  for (uint8_t i = 0; i < UAVCAN1_TELEM_NB; ++i) {
+#ifdef DRONECAN1_TELEM_NB
+  for (uint8_t i = 0; i < DRONECAN1_TELEM_NB; ++i) {
     electrical.current += dronecan1_telem[i].current;
   }
 #endif
-#ifdef UAVCAN2_TELEM_NB
-  for (uint8_t i = 0; i < UAVCAN2_TELEM_NB; ++i) {
+#ifdef DRONECAN2_TELEM_NB
+  for (uint8_t i = 0; i < DRONECAN2_TELEM_NB; ++i) {
     electrical.current += dronecan2_telem[i].current;
   }
 #endif
 #endif
 
   // Feedback ABI RPM messages
-#ifdef UAVCAN1_TELEM_NB
+#ifdef DRONECAN1_TELEM_NB
   if (iface == &dronecan1) {
     struct act_feedback_t feedback = {0};
     feedback.rpm = telem[esc_idx].rpm;
     feedback.set.rpm = true;
 
-#ifdef SERVOS_UAVCAN1_NB
-    feedback.idx = get_servo_idx_UAVCAN1(esc_idx);
+#ifdef SERVOS_DRONECAN1_NB
+    feedback.idx = get_servo_idx_DRONECAN1(esc_idx);
 #endif
-#ifdef SERVOS_UAVCAN1CMD_NB
-    if(esc_idx < SERVOS_UAVCAN1CMD_NB && actuators_dronecan1cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN1CMD(esc_idx);
+#ifdef SERVOS_DRONECAN1CMD_NB
+    if(esc_idx < SERVOS_DRONECAN1CMD_NB && actuators_dronecan1cmd_values[esc_idx] != DRONECAN_CMD_UNUSED) {
+      feedback.idx = get_servo_idx_DRONECAN1CMD(esc_idx);
     }
 #endif
 
     // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
   }
 #endif
-#ifdef UAVCAN2_TELEM_NB
+#ifdef DRONECAN2_TELEM_NB
   if (iface == &dronecan2) {
     struct act_feedback_t feedback = {0};
     feedback.rpm = telem[esc_idx].rpm;
     feedback.set.rpm = true;
 
-#ifdef SERVOS_UAVCAN2_NB
-    feedback.idx = get_servo_idx_UAVCAN2(esc_idx);
+#ifdef SERVOS_DRONECAN2_NB
+    feedback.idx = get_servo_idx_DRONECAN2(esc_idx);
 #endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-    if(esc_idx < SERVOS_UAVCAN2CMD_NB && actuators_dronecan2cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN2CMD(esc_idx);
+#ifdef SERVOS_DRONECAN2CMD_NB
+    if(esc_idx < SERVOS_DRONECAN2CMD_NB && actuators_dronecan2cmd_values[esc_idx] != DRONECAN_CMD_UNUSED) {
+      feedback.idx = get_servo_idx_DRONECAN2CMD(esc_idx);
     }
 #endif
 
     // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
   }
 #endif
 }
@@ -285,16 +285,16 @@ static void actuators_dronecan_actuator_status_cb(struct dronecan_iface_t *iface
 
   struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
+#ifdef DRONECAN1_TELEM_NB
   if (iface == &dronecan1) {
     telem = dronecan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
+    max_id = DRONECAN1_TELEM_NB;
   }
 #endif
-#ifdef UAVCAN2_TELEM_NB
+#ifdef DRONECAN2_TELEM_NB
   if (iface == &dronecan2) {
     telem = dronecan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
+    max_id = DRONECAN2_TELEM_NB;
   }
 #endif
 
@@ -308,43 +308,43 @@ static void actuators_dronecan_actuator_status_cb(struct dronecan_iface_t *iface
   canardDecodeScalar(transfer, 8, 16, true, (void *)&tmp_float);
   telem[actuator_idx].position = canardConvertFloat16ToNativeFloat(tmp_float);
 
-#ifdef UAVCAN1_TELEM_NB
+#ifdef DRONECAN1_TELEM_NB
   if (iface == &dronecan1) {
     struct act_feedback_t feedback = {0};
     feedback.position = telem[actuator_idx].position;
     feedback.set.position = true;
 
-#ifdef SERVOS_UAVCAN1_NB
-    feedback.idx = get_servo_idx_UAVCAN1(actuator_idx);
+#ifdef SERVOS_DRONECAN1_NB
+    feedback.idx = get_servo_idx_DRONECAN1(actuator_idx);
 #endif
-#ifdef SERVOS_UAVCAN1CMD_NB
-    if(actuator_idx < SERVOS_UAVCAN1CMD_NB && actuators_dronecan1cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN1CMD(actuator_idx);
+#ifdef SERVOS_DRONECAN1CMD_NB
+    if(actuator_idx < SERVOS_DRONECAN1CMD_NB && actuators_dronecan1cmd_values[actuator_idx] != DRONECAN_CMD_UNUSED) {
+      feedback.idx = get_servo_idx_DRONECAN1CMD(actuator_idx);
     }
 #endif
 
     // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
   }
 #endif
 
-#ifdef UAVCAN2_TELEM_NB
+#ifdef DRONECAN2_TELEM_NB
   if (iface == &dronecan2) {
     struct act_feedback_t feedback = {0};
     feedback.position = telem[actuator_idx].position;
     feedback.set.position = true;
 
-#ifdef SERVOS_UAVCAN2_NB
-    feedback.idx = get_servo_idx_UAVCAN2(actuator_idx);
+#ifdef SERVOS_DRONECAN2_NB
+    feedback.idx = get_servo_idx_DRONECAN2(actuator_idx);
 #endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-    if(actuator_idx < SERVOS_UAVCAN2CMD_NB && actuators_dronecan2cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN2CMD(actuator_idx);
+#ifdef SERVOS_DRONECAN2CMD_NB
+    if(actuator_idx < SERVOS_DRONECAN2CMD_NB && actuators_dronecan2cmd_values[actuator_idx] != DRONECAN_CMD_UNUSED) {
+      feedback.idx = get_servo_idx_DRONECAN2CMD(actuator_idx);
     }
 #endif
 
     // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
   }
 #endif
 }
@@ -359,16 +359,16 @@ static void actuators_dronecan_device_temperature_cb(struct dronecan_iface_t *if
 
   struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
+#ifdef DRONECAN1_TELEM_NB
   if (iface == &dronecan1) {
     telem = dronecan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
+    max_id = DRONECAN1_TELEM_NB;
   }
 #endif
-#ifdef UAVCAN2_TELEM_NB
+#ifdef DRONECAN2_TELEM_NB
   if (iface == &dronecan2) {
     telem = dronecan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
+    max_id = DRONECAN2_TELEM_NB;
   }
 #endif
 
@@ -409,13 +409,13 @@ void actuators_dronecan_init(struct dronecan_iface_t *iface __attribute__((unuse
 #endif
 
   // Set default to not set
-#ifdef SERVOS_UAVCAN1CMD_NB
-  for(uint8_t i = 0; i < SERVOS_UAVCAN1CMD_NB; i++)
-    actuators_dronecan1cmd_values[i] = UAVCAN_CMD_UNUSED;
+#ifdef SERVOS_DRONECAN1CMD_NB
+  for(uint8_t i = 0; i < SERVOS_DRONECAN1CMD_NB; i++)
+    actuators_dronecan1cmd_values[i] = DRONECAN_CMD_UNUSED;
 #endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-  for(uint8_t i = 0; i < SERVOS_UAVCAN2CMD_NB; i++)
-    actuators_dronecan2cmd_values[i] = UAVCAN_CMD_UNUSED;
+#ifdef SERVOS_DRONECAN2CMD_NB
+  for(uint8_t i = 0; i < SERVOS_DRONECAN2CMD_NB; i++)
+    actuators_dronecan2cmd_values[i] = DRONECAN_CMD_UNUSED;
 #endif
 
   // Set initialization
@@ -456,7 +456,7 @@ void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *valu
   // Encode the values for each command
   for (uint8_t i = 0; i < nb; i++) {
     // Skip unused commands
-    if(values[i] == UAVCAN_CMD_UNUSED || values[i] < MIN_PPRZ || values[i] > MAX_PPRZ)
+    if(values[i] == DRONECAN_CMD_UNUSED || values[i] < MIN_PPRZ || values[i] > MAX_PPRZ)
       continue;
 
     // Set the command id

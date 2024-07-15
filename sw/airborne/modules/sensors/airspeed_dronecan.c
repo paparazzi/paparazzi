@@ -28,29 +28,29 @@
 #include "core/abi.h"
 
 /* Enable ABI sending */
-#ifndef AIRSPEED_UAVCAN_SEND_ABI
-#define AIRSPEED_UAVCAN_SEND_ABI true
+#ifndef AIRSPEED_DRONECAN_SEND_ABI
+#define AIRSPEED_DRONECAN_SEND_ABI true
 #endif
 
 /* Default pressure scaling */
-#ifndef AIRSPEED_UAVCAN_DIFF_P_SCALE
-#define AIRSPEED_UAVCAN_DIFF_P_SCALE 1.0f
+#ifndef AIRSPEED_DRONECAN_DIFF_P_SCALE
+#define AIRSPEED_DRONECAN_DIFF_P_SCALE 1.0f
 #endif
 
 /* Airspeed lowpass filter*/
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
+#ifdef USE_AIRSPEED_DRONECAN_LOWPASS_FILTER
 #include "filters/low_pass_filter.h"
 
-#ifndef AIRSPEED_UAVCAN_LOWPASS_TAU
-#define AIRSPEED_UAVCAN_LOWPASS_TAU 0.15
+#ifndef AIRSPEED_DRONECAN_LOWPASS_TAU
+#define AIRSPEED_DRONECAN_LOWPASS_TAU 0.15
 #endif
 
-#ifndef AIRSPEED_UAVCAN_LOWPASS_PERIOD
-#define AIRSPEED_UAVCAN_LOWPASS_PERIOD 0.1
+#ifndef AIRSPEED_DRONECAN_LOWPASS_PERIOD
+#define AIRSPEED_DRONECAN_LOWPASS_PERIOD 0.1
 #endif
 
 static Butterworth2LowPass airspeed_filter;
-#endif  /* USE_AIRSPEED_UAVCAN_LOWPASS_FILTER */
+#endif  /* USE_AIRSPEED_DRONECAN_LOWPASS_FILTER */
 
 /* dronecan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID            1027
@@ -66,7 +66,7 @@ static dronecan_event airspeed_dronecan_ev;
 
 static void airspeed_dronecan_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t dev_id = UAVCAN_SENDER_ID;
+  uint8_t dev_id = DRONECAN_SENDER_ID;
   uint16_t raw = 0;
   float offset = 0;
   float sign = 1.0f;
@@ -107,7 +107,7 @@ static void airspeed_dronecan_cb(struct dronecan_iface_t *iface __attribute__((u
     diff_p *= airspeed_dronecan.diff_p_scale;
 
     // Filtering
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
+#ifdef USE_AIRSPEED_DRONECAN_LOWPASS_FILTER
     float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
     airspeed_dronecan.diff_p = diff_p_filt;
 #else
@@ -115,15 +115,15 @@ static void airspeed_dronecan_cb(struct dronecan_iface_t *iface __attribute__((u
 #endif
 
     // Send the ABI message
-#if AIRSPEED_UAVCAN_SEND_ABI
-    AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, airspeed_dronecan.diff_p);
+#if AIRSPEED_DRONECAN_SEND_ABI
+    AbiSendMsgBARO_DIFF(DRONECAN_SENDER_ID, airspeed_dronecan.diff_p);
 #endif
   }
 
   if(!isnan(static_air_temp)) {
     airspeed_dronecan.temperature = static_air_temp;
-#if AIRSPEED_UAVCAN_SEND_ABI
-    AbiSendMsgTEMPERATURE(UAVCAN_SENDER_ID, airspeed_dronecan.temperature);
+#if AIRSPEED_DRONECAN_SEND_ABI
+    AbiSendMsgTEMPERATURE(DRONECAN_SENDER_ID, airspeed_dronecan.temperature);
 #endif
   }
 }
@@ -131,11 +131,11 @@ static void airspeed_dronecan_cb(struct dronecan_iface_t *iface __attribute__((u
 void airspeed_dronecan_init(void)
 {
   // Set the default values
-  airspeed_dronecan.diff_p_scale = AIRSPEED_UAVCAN_DIFF_P_SCALE;
+  airspeed_dronecan.diff_p_scale = AIRSPEED_DRONECAN_DIFF_P_SCALE;
 
   // Setup the low pass filter
-#ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
+#ifdef USE_AIRSPEED_DRONECAN_LOWPASS_FILTER
+  init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_DRONECAN_LOWPASS_TAU, AIRSPEED_DRONECAN_LOWPASS_PERIOD, 0);
 #endif
 
   // Bind dronecan RAWAIRDATA message from EQUIPMENT.AIR_DATA

@@ -26,23 +26,23 @@
 
 #include "dronecan.h"
 
-#ifndef UAVCAN_NODE_ID
-#define UAVCAN_NODE_ID    100
+#ifndef DRONECAN_NODE_ID
+#define DRONECAN_NODE_ID    100
 #endif
 
-#ifndef UAVCAN_BAUDRATE
-#define UAVCAN_BAUDRATE   1000000
+#ifndef DRONECAN_BAUDRATE
+#define DRONECAN_BAUDRATE   1000000
 #endif
 
 static dronecan_event *dronecan_event_hd = NULL;
 
-#if UAVCAN_USE_CAN1
-#ifndef UAVCAN_CAN1_NODE_ID
-#define UAVCAN_CAN1_NODE_ID UAVCAN_NODE_ID
+#if DRONECAN_USE_CAN1
+#ifndef DRONECAN_CAN1_NODE_ID
+#define DRONECAN_CAN1_NODE_ID DRONECAN_NODE_ID
 #endif
 
-#ifndef UAVCAN_CAN1_BAUDRATE
-#define UAVCAN_CAN1_BAUDRATE UAVCAN_BAUDRATE
+#ifndef DRONECAN_CAN1_BAUDRATE
+#define DRONECAN_CAN1_BAUDRATE DRONECAN_BAUDRATE
 #endif
 
 static THD_WORKING_AREA(dronecan1_rx_wa, 1024 * 2);
@@ -50,25 +50,25 @@ static THD_WORKING_AREA(dronecan1_tx_wa, 1024 * 2);
 
 struct dronecan_iface_t dronecan1 = {
   .can_driver = &CAND1,
-  .can_baudrate = UAVCAN_CAN1_BAUDRATE,
+  .can_baudrate = DRONECAN_CAN1_BAUDRATE,
   .can_cfg = {0},
   .thread_rx_wa = dronecan1_rx_wa,
   .thread_rx_wa_size = sizeof(dronecan1_rx_wa),
   .thread_tx_wa = dronecan1_tx_wa,
   .thread_tx_wa_size = sizeof(dronecan1_tx_wa),
-  .node_id = UAVCAN_CAN1_NODE_ID,
+  .node_id = DRONECAN_CAN1_NODE_ID,
   .transfer_id = 0,
   .initialized = false
 };
 #endif
 
-#if UAVCAN_USE_CAN2
-#ifndef UAVCAN_CAN2_NODE_ID
-#define UAVCAN_CAN2_NODE_ID UAVCAN_NODE_ID
+#if DRONECAN_USE_CAN2
+#ifndef DRONECAN_CAN2_NODE_ID
+#define DRONECAN_CAN2_NODE_ID DRONECAN_NODE_ID
 #endif
 
-#ifndef UAVCAN_CAN2_BAUDRATE
-#define UAVCAN_CAN2_BAUDRATE UAVCAN_BAUDRATE
+#ifndef DRONECAN_CAN2_BAUDRATE
+#define DRONECAN_CAN2_BAUDRATE DRONECAN_BAUDRATE
 #endif
 
 static THD_WORKING_AREA(dronecan2_rx_wa, 1024 * 2);
@@ -76,13 +76,13 @@ static THD_WORKING_AREA(dronecan2_tx_wa, 1024 * 2);
 
 struct dronecan_iface_t dronecan2 = {
   .can_driver = &CAND2,
-  .can_baudrate = UAVCAN_CAN2_BAUDRATE,
+  .can_baudrate = DRONECAN_CAN2_BAUDRATE,
   .can_cfg = {0},
   .thread_rx_wa = dronecan2_rx_wa,
   .thread_rx_wa_size = sizeof(dronecan2_rx_wa),
   .thread_tx_wa = dronecan2_tx_wa,
   .thread_tx_wa_size = sizeof(dronecan2_tx_wa),
-  .node_id = UAVCAN_CAN2_NODE_ID,
+  .node_id = DRONECAN_CAN2_NODE_ID,
   .transfer_id = 0,
   .initialized = false
 };
@@ -382,7 +382,7 @@ static void dronecanInitIface(struct dronecan_iface_t *iface)
  */
 void dronecan_init(void)
 {
-#if UAVCAN_USE_CAN1
+#if DRONECAN_USE_CAN1
 #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
   dronecan1.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (0 << FDCAN_RXF0C_F0SA_Pos);
@@ -393,7 +393,7 @@ void dronecan_init(void)
 #endif
   dronecanInitIface(&dronecan1);
 #endif
-#if UAVCAN_USE_CAN2
+#if DRONECAN_USE_CAN2
 #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
   dronecan2.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (384 << FDCAN_RXF0C_F0SA_Pos);

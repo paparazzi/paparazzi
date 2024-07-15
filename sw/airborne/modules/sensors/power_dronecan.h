@@ -23,12 +23,12 @@
  * Power sensors on the dronecan bus
  */
 
-#ifndef POWER_UAVCAN_H
-#define POWER_UAVCAN_H
+#ifndef POWER_DRONECAN_H
+#define POWER_DRONECAN_H
 
 #include "std.h"
 
 /* External functions */
 extern void power_dronecan_init(void);
 
-#endif /* POWER_UAVCAN_H */
+#endif /* POWER_DRONECAN_H */

@@ -23,12 +23,12 @@
  * Airspeed sensor on the dronecan bus
  */
 
-#ifndef AIRSPEED_UAVCAN_H
-#define AIRSPEED_UAVCAN_H
+#ifndef AIRSPEED_DRONECAN_H
+#define AIRSPEED_DRONECAN_H
 
 #include "std.h"
 
-/* Airspeed UAVCAN structure */
+/* Airspeed DroneCAN structure */
 struct airspeed_dronecan_t {
   float diff_p;       ///< Differential pressure
   float temperature;  ///< Temperature in Celsius
@@ -42,4 +42,4 @@ extern struct airspeed_dronecan_t airspeed_dronecan;
 extern void airspeed_dronecan_init(void);
 extern void airspeed_dronecan_autoset_offset(bool set);
 
-#endif /* AIRSPEED_UAVCAN_H */
+#endif /* AIRSPEED_DRONECAN_H */

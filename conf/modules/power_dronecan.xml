@@ -7,7 +7,7 @@
       - BatteryInfo
       - CircuitStatus
     </description>
-    <section name="POWER_UAVCAN" prefix="POWER_UAVCAN_">
+    <section name="POWER_DRONECAN" prefix="POWER_DRONECAN_">
       <define name="BATTERIES_MAX" value="3" description="Maximum number of batteries"/>
       <define name="CIRCUITS_MAX" value="3" description="Maximum number of circuits"/>
       <define name="BATTERY_CIRCUITS" value="{}" description="Struct of {node_id, circuit_id} indicating the batteries"/>

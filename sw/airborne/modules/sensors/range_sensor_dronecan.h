@@ -23,10 +23,10 @@
  * Range sensor sensor on the dronecan bus
  */
 
-#ifndef RANGE_SENSOR_UAVCAN_H
-#define RANGE_SENSOR_UAVCAN_H
+#ifndef RANGE_SENSOR_DRONECAN_H
+#define RANGE_SENSOR_DRONECAN_H
 
 /* External functions */
 extern void range_sensor_dronecan_init(void);
 
-#endif /* RANGE_SENSOR_UAVCAN_H */
+#endif /* RANGE_SENSOR_DRONECAN_H */

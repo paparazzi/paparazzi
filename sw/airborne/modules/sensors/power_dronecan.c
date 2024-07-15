@@ -38,18 +38,18 @@
 #define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_MAX_SIZE 7
 
 /* Default maximum amount of batteries */
-#ifndef POWER_UAVCAN_BATTERIES_MAX
-#define POWER_UAVCAN_BATTERIES_MAX 3
+#ifndef POWER_DRONECAN_BATTERIES_MAX
+#define POWER_DRONECAN_BATTERIES_MAX 3
 #endif
 
 /* Default maximum amount of circuits */
-#ifndef POWER_UAVCAN_CIRCUITS_MAX
-#define POWER_UAVCAN_CIRCUITS_MAX 15
+#ifndef POWER_DRONECAN_CIRCUITS_MAX
+#define POWER_DRONECAN_CIRCUITS_MAX 15
 #endif
 
 /* Default Battery circuits */
-#ifndef POWER_UAVCAN_BATTERY_CIRCUITS
-#define POWER_UAVCAN_BATTERY_CIRCUITS {}
+#ifndef POWER_DRONECAN_BATTERY_CIRCUITS
+#define POWER_DRONECAN_BATTERY_CIRCUITS {}
 #endif
 
 /* Local variables */
@@ -76,7 +76,7 @@ struct dronecan_equipment_power_BatteryInfo {
   uint32_t model_instance_id;
 //  struct { uint8_t len; uint8_t data[31]; }model_name;
 };
-static struct dronecan_equipment_power_BatteryInfo batteries[POWER_UAVCAN_BATTERIES_MAX] = {0};
+static struct dronecan_equipment_power_BatteryInfo batteries[POWER_DRONECAN_BATTERIES_MAX] = {0};
 
 /* Circuits */
 struct dronecan_equipment_power_CircuitStatus {
@@ -89,14 +89,14 @@ struct dronecan_equipment_power_CircuitStatus {
   float current;
   uint8_t error_flags;
 };
-static struct dronecan_equipment_power_CircuitStatus circuits[POWER_UAVCAN_CIRCUITS_MAX] = {0};
+static struct dronecan_equipment_power_CircuitStatus circuits[POWER_DRONECAN_CIRCUITS_MAX] = {0};
 
 /* Battery circuits */
 struct dronecan_circuit_battery_t {
   uint8_t node_id;
   uint16_t circuit_id;
 };
-static struct dronecan_circuit_battery_t battery_circuits[] = POWER_UAVCAN_BATTERY_CIRCUITS;
+static struct dronecan_circuit_battery_t battery_circuits[] = POWER_DRONECAN_BATTERY_CIRCUITS;
 
 
 static void power_dronecan_battery_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
@@ -132,8 +132,8 @@ static void power_dronecan_battery_cb(struct dronecan_iface_t *iface __attribute
   canardDecodeScalar(transfer, (uint32_t)152, 32, false, (void *)&model_instance_id);
 
   // Search for the battery or free spot
-  uint8_t battery_idx = POWER_UAVCAN_BATTERIES_MAX;
-  for (uint8_t i = 0; i < POWER_UAVCAN_BATTERIES_MAX; i++) {
+  uint8_t battery_idx = POWER_DRONECAN_BATTERIES_MAX;
+  for (uint8_t i = 0; i < POWER_DRONECAN_BATTERIES_MAX; i++) {
     if (batteries[i].set && batteries[i].node_id == transfer->source_node_id && 
         batteries[i].battery_id == battery_id && batteries[i].model_instance_id == model_instance_id) {
       battery_idx = i;
@@ -146,7 +146,7 @@ static void power_dronecan_battery_cb(struct dronecan_iface_t *iface __attribute
   }
 
   // No free spot found
-  if (battery_idx >= POWER_UAVCAN_BATTERIES_MAX) {
+  if (battery_idx >= POWER_DRONECAN_BATTERIES_MAX) {
     return;
   }
 
@@ -169,7 +169,7 @@ static void power_dronecan_battery_cb(struct dronecan_iface_t *iface __attribute
 
   // Sum the battery currents
   float current_sum = 0;
-  for (uint8_t i = 0; i < POWER_UAVCAN_BATTERIES_MAX; i++) {
+  for (uint8_t i = 0; i < POWER_DRONECAN_BATTERIES_MAX; i++) {
     if (batteries[i].set) {
       current_sum += batteries[i].current;
     }
@@ -195,8 +195,8 @@ static void power_dronecan_circuit_cb(struct dronecan_iface_t *iface __attribute
   canardDecodeScalar(transfer, (uint32_t)48, 8, false, (void *)&error_flags);
 
   // Search for the circuit or free spot
-  uint8_t circuit_idx = POWER_UAVCAN_CIRCUITS_MAX;
-  for (uint8_t i = 0; i < POWER_UAVCAN_CIRCUITS_MAX; i++) {
+  uint8_t circuit_idx = POWER_DRONECAN_CIRCUITS_MAX;
+  for (uint8_t i = 0; i < POWER_DRONECAN_CIRCUITS_MAX; i++) {
     if (circuits[i].set && circuits[i].node_id == transfer->source_node_id && circuits[i].circuit_id == circuit_id) {
       circuit_idx = i;
       break;
@@ -208,7 +208,7 @@ static void power_dronecan_circuit_cb(struct dronecan_iface_t *iface __attribute
   }
 
   // No free spot found
-  if (circuit_idx >= POWER_UAVCAN_CIRCUITS_MAX) {
+  if (circuit_idx >= POWER_DRONECAN_CIRCUITS_MAX) {
     return;
   }
 
@@ -222,7 +222,7 @@ static void power_dronecan_circuit_cb(struct dronecan_iface_t *iface __attribute
 
   // Sum the 'battery' circuit currents
   float current_sum = 0;
-  for (uint8_t i = 0; i < POWER_UAVCAN_CIRCUITS_MAX; i++) {
+  for (uint8_t i = 0; i < POWER_DRONECAN_CIRCUITS_MAX; i++) {
     if (circuits[i].set && circuits[i].is_battery) {
       current_sum += circuits[i].current;
     }

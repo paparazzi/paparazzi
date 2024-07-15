@@ -5,7 +5,7 @@
     <description>
       UAVCan actuators
    </description>
-   <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+   <define name="DRONECAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
   </doc>
   <dep>
     <depends>dronecan,actuators</depends>

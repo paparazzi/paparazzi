@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN_H
-#define ACTUATORS_UAVCAN_H
+#ifndef ACTUATORS_DRONECAN_H
+#define ACTUATORS_DRONECAN_H
 
 #include "modules/dronecan/dronecan.h"
 #include BOARD_CONFIG
@@ -30,4 +30,4 @@ extern void actuators_dronecan_init(struct dronecan_iface_t *iface);
 extern void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
 extern void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
 
-#endif /* ACTUATORS_UAVCAN_H */
+#endif /* ACTUATORS_DRONECAN_H */

@@ -23,8 +23,8 @@
  *  dummy servos handling for sim
  */
 
-#ifndef ACTUATORS_UAVCAN_ARCH_H
-#define ACTUATORS_UAVCAN_ARCH_H
+#ifndef ACTUATORS_DRONECAN_ARCH_H
+#define ACTUATORS_DRONECAN_ARCH_H
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
@@ -33,4 +33,4 @@
 
 extern void actuators_dronecan_arch_init(void);
 
-#endif /* ACTUATORS_UAVCAN_ARCH_H */
+#endif /* ACTUATORS_DRONECAN_ARCH_H */

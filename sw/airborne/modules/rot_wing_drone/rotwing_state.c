@@ -675,7 +675,7 @@ void rotwing_state_skew_actuator_periodic(void)
   feedback.set.position = true;
 
   // Send ABI message
-  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
 #endif
 }
 
