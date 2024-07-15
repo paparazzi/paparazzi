@@ -53,7 +53,7 @@ void actuators_hitl_periodic(void)
 #endif
 #if ROTORCRAFT_FIRMWARE
 #if NPS_NO_MOTOR_MIXING
-  pprz_msg_send_ACTUATORS(&actuators_hitl_tp.trans_tx, &(HITL_DEVICE).device, AC_ID,
+  pprz_msg_send_ACTUATORS_RAW(&actuators_hitl_tp.trans_tx, &(HITL_DEVICE).device, AC_ID,
       ACTUATORS_NB, actuators_pprz);
 #else // use motor mixing
   int16_t motors[MOTOR_MIXING_NB_MOTOR];

@@ -29,7 +29,7 @@
 
 void stabilization_attitude_enter(void)
 {
-  oneloop_andi_enter(true);
+  oneloop_andi_enter(true, CTRL_ANDI);
 }
 
 void stabilization_attitude_run(bool in_flight, UNUSED struct StabilizationSetpoint *sp, UNUSED struct ThrustSetpoint *thrust, UNUSED int32_t *cmd)

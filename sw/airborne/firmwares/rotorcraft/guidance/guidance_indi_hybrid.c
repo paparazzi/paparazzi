@@ -558,8 +558,8 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   float thrust_vect[3];
 #if GUIDANCE_INDI_HYBRID_U > 3
   thrust_vect[0] = du_gih[3];
-  if (thrust_vect[0] > GUIDANCE_INDI_MAX_PUSHER_INCREMENT*guidance_indi_thrust_x_eff) {
-    thrust_vect[0] = GUIDANCE_INDI_MAX_PUSHER_INCREMENT*guidance_indi_thrust_x_eff;
+  if (thrust_vect[0] > GUIDANCE_INDI_MAX_PUSHER_INCREMENT*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX]) {
+    thrust_vect[0] = GUIDANCE_INDI_MAX_PUSHER_INCREMENT*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
   }
 #else
   thrust_vect[0] = 0;
