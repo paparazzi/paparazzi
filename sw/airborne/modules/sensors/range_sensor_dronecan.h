@@ -19,22 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN1_CMD_H
-#define ACTUATORS_UAVCAN1_CMD_H
+/** @file modules/sensors/range_sensor_dronecan.h
+ * Range sensor sensor on the dronecan bus
+ */
 
-#include "actuators_uavcan.h"
+#ifndef RANGE_SENSOR_UAVCAN_H
+#define RANGE_SENSOR_UAVCAN_H
 
-/** Stub file needed per uavcan interface because of generator */
-extern int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
+/* External functions */
+extern void range_sensor_dronecan_init(void);
 
-#if USE_NPS
-#define ActuatorsUavcan1CmdInit() {}
-#define ActuatorUavcan1CmdSet(_i, _v) {}
-#define ActuatorsUavcan1CmdCommit()  {}
-#else
-#define ActuatorsUavcan1CmdInit() actuators_uavcan_init(&uavcan1)
-#define ActuatorUavcan1CmdSet(_i, _v) { actuators_uavcan1cmd_values[_i] = _v; }
-#define ActuatorsUavcan1CmdCommit()  actuators_uavcan_cmd_commit(&uavcan1, actuators_uavcan1cmd_values, SERVOS_UAVCAN1CMD_NB)
-#endif
-
-#endif /* ACTUATORS_UAVCAN1_CMD_H */
+#endif /* RANGE_SENSOR_UAVCAN_H */

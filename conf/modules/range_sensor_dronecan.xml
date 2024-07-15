@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="range_sensor_dronecan" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      Range sensor over the dronecan protocol which publishes over ABI as AGL
+    </description>
+  </doc>
+  <dep>
+    <depends>dronecan</depends>
+    <provides>sonar</provides>
+  </dep>
+  <header>
+    <file name="range_sensor_dronecan.h"/>
+  </header>
+  <init fun="range_sensor_dronecan_init()"/>
+  <makefile target="ap">
+    <file name="range_sensor_dronecan.c"/>
+  </makefile>
+</module>

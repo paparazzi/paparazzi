@@ -99,7 +99,7 @@
       <define name="USE_INS_NAV_INIT" value="FALSE"/>
     </module>
 
-    <module name="actuators"     type="uavcan">
+    <module name="actuators"     type="dronecan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>

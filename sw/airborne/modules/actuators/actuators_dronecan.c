@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file modules/actuators/actuators_uavcan.c
+ * @file modules/actuators/actuators_dronecan.c
  * UAVCan actuators using RAWCOMMAND message and ESC_STATUS telemetry
  *
  */
 
-#include "actuators_uavcan.h"
+#include "actuators_dronecan.h"
 #include "modules/energy/electrical.h"
 #include "math/pprz_random.h"
 #include "modules/core/abi.h"
@@ -35,8 +35,8 @@
 #define UAVCAN_ACTUATORS_USE_CURRENT TRUE
 #endif
 
-/* uavcan ESC status telemetry structure */
-struct actuators_uavcan_telem_t {
+/* dronecan ESC status telemetry structure */
+struct actuators_dronecan_telem_t {
   bool set;
   uint8_t node_id;
   float timestamp;
@@ -51,75 +51,75 @@ struct actuators_uavcan_telem_t {
 
 /* The transmitted actuator values */
 #ifdef SERVOS_UAVCAN1_NB
-int16_t actuators_uavcan1_values[SERVOS_UAVCAN1_NB];
+int16_t actuators_dronecan1_values[SERVOS_UAVCAN1_NB];
 #endif
 #ifdef SERVOS_UAVCAN2_NB
-int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
+int16_t actuators_dronecan2_values[SERVOS_UAVCAN2_NB];
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
-int16_t actuators_uavcan1cmd_values[SERVOS_UAVCAN1CMD_NB];
+int16_t actuators_dronecan1cmd_values[SERVOS_UAVCAN1CMD_NB];
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
-int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
+int16_t actuators_dronecan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 #endif
 
 /* Set the actual telemetry length (ID's from actuators can't collide with the command version) */
 #if SERVOS_UAVCAN1CMD_NB > SERVOS_UAVCAN1_NB
 #define UAVCAN1_TELEM_NB SERVOS_UAVCAN1CMD_NB
-static struct actuators_uavcan_telem_t uavcan1_telem[SERVOS_UAVCAN1CMD_NB] = {0};
+static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_UAVCAN1CMD_NB] = {0};
 #elif defined(SERVOS_UAVCAN1_NB)
 #define UAVCAN1_TELEM_NB SERVOS_UAVCAN1_NB
-static struct actuators_uavcan_telem_t uavcan1_telem[SERVOS_UAVCAN1_NB] = {0};
+static struct actuators_dronecan_telem_t dronecan1_telem[SERVOS_UAVCAN1_NB] = {0};
 #endif
 
 #if SERVOS_UAVCAN2CMD_NB > SERVOS_UAVCAN2_NB
 #define UAVCAN2_TELEM_NB SERVOS_UAVCAN2CMD_NB
-static struct actuators_uavcan_telem_t uavcan2_telem[SERVOS_UAVCAN2CMD_NB] = {0};
+static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_UAVCAN2CMD_NB] = {0};
 #elif defined(SERVOS_UAVCAN2_NB)
 #define UAVCAN2_TELEM_NB SERVOS_UAVCAN2_NB
-static struct actuators_uavcan_telem_t uavcan2_telem[SERVOS_UAVCAN2_NB] = {0};
+static struct actuators_dronecan_telem_t dronecan2_telem[SERVOS_UAVCAN2_NB] = {0};
 #endif
 
 /* UNUSED value for CMD */
 #define UAVCAN_CMD_UNUSED (MIN_PPRZ-1)
 
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
+/* dronecan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_ESC_STATUS_ID                     1034
 #define UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE              (0xA9AF28AEA2FBB254ULL)
 #define UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE               ((110 + 7)/8)
 
-/* uavcan EQUIPMENT_ESC_RAWCOMMAND message definition */
+/* dronecan EQUIPMENT_ESC_RAWCOMMAND message definition */
 #define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID                 1030
 #define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE          (0x217F5C87D7EC951DULL)
 #define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_MAX_SIZE           ((285 + 7)/8)
 
-/* uavcan EQUIPMENT_ACTUATOR_STATUS message definition */
+/* dronecan EQUIPMENT_ACTUATOR_STATUS message definition */
 #define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_ID                1011
 #define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_SIGNATURE         (0x5E9BBA44FAF1EA04ULL)
 #define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_MAX_SIZE          ((64 + 7)/8)
 
-/* uavcan EQUIPMENT_ACTUATOR_ARRAYCOMMAND message definition */
+/* dronecan EQUIPMENT_ACTUATOR_ARRAYCOMMAND message definition */
 #define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID          1010
 #define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE   (0xD8A7486238EC3AF3ULL)
 #define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_MAX_SIZE    ((484 + 7)/8)
 
-/* uavcan EQUIMPENT_DEVICE_TEMPERATURE message definition */
+/* dronecan EQUIMPENT_DEVICE_TEMPERATURE message definition */
 #define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID             1110
 #define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE      (0x70261C28A94144C6ULL)
 #define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_MAX_SIZE       ((40 + 7)/8)
 
 /* private variables */
-static bool actuators_uavcan_initialized = false;
-static uavcan_event esc_status_ev;
-static uavcan_event actuator_status_ev;
-static uavcan_event device_temperature_ev;
+static bool actuators_dronecan_initialized = false;
+static dronecan_event esc_status_ev;
+static dronecan_event actuator_status_ev;
+static dronecan_event device_temperature_ev;
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
 static uint8_t old_idx = 0;
 static uint8_t esc_idx = 0;
-static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
+static struct actuators_dronecan_telem_t *actuators_dronecan_next_telem(void) {
   // Randomness added for multiple  transport devices
   uint8_t add_idx = 0;
   if (rand_uniform() > 0.02) {
@@ -130,10 +130,10 @@ static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
   uint8_t offset = 0;
 #ifdef UAVCAN1_TELEM_NB
   for(uint8_t i = esc_idx - offset; i < UAVCAN1_TELEM_NB; i++) {
-    if(uavcan1_telem[i].set) {
+    if(dronecan1_telem[i].set) {
       old_idx = i + offset;
       esc_idx = i + offset + add_idx;
-      return &uavcan1_telem[i];
+      return &dronecan1_telem[i];
     } else {
       esc_idx = i + offset + 1;
     }
@@ -142,10 +142,10 @@ static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
 #endif
 #ifdef UAVCAN2_TELEM_NB
   for(uint8_t i = esc_idx - offset; i < UAVCAN2_TELEM_NB; i++) {
-    if(uavcan2_telem[i].set) {
+    if(dronecan2_telem[i].set) {
       old_idx = i + offset;
       esc_idx = i + offset + add_idx;
-      return &uavcan2_telem[i];
+      return &dronecan2_telem[i];
     } else {
       esc_idx = i + offset + 1;
     }
@@ -158,12 +158,12 @@ static struct actuators_uavcan_telem_t *actuators_uavcan_next_telem(void) {
   return NULL;
 }
 
-static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_device *dev)
+static void actuators_dronecan_send_esc(struct transport_tx *trans, struct link_device *dev)
 {
   // Find the correct telemetry (Try twice if going round)
-  struct actuators_uavcan_telem_t *telem = actuators_uavcan_next_telem();
+  struct actuators_dronecan_telem_t *telem = actuators_dronecan_next_telem();
   if(telem == NULL) {
-    telem = actuators_uavcan_next_telem();
+    telem = actuators_dronecan_next_telem();
   }
 
   // Safety check (no telemetry received 2 times)
@@ -182,22 +182,22 @@ static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_de
 /**
  * Whevener an ESC_STATUS message from the EQUIPMENT group is received
  */
-static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
+static void actuators_dronecan_esc_status_cb(struct dronecan_iface_t *iface, CanardRxTransfer *transfer)
 {
   uint8_t esc_idx;
   uint16_t tmp_float;
 
-  struct actuators_uavcan_telem_t *telem = NULL;
+  struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
 #ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
+  if (iface == &dronecan1) {
+    telem = dronecan1_telem;
     max_id = UAVCAN1_TELEM_NB;
   }
 #endif
 #ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
+  if (iface == &dronecan2) {
+    telem = dronecan2_telem;
     max_id = UAVCAN2_TELEM_NB;
   }
 #endif
@@ -224,19 +224,19 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   electrical.current = 0;
 #ifdef UAVCAN1_TELEM_NB
   for (uint8_t i = 0; i < UAVCAN1_TELEM_NB; ++i) {
-    electrical.current += uavcan1_telem[i].current;
+    electrical.current += dronecan1_telem[i].current;
   }
 #endif
 #ifdef UAVCAN2_TELEM_NB
   for (uint8_t i = 0; i < UAVCAN2_TELEM_NB; ++i) {
-    electrical.current += uavcan2_telem[i].current;
+    electrical.current += dronecan2_telem[i].current;
   }
 #endif
 #endif
 
   // Feedback ABI RPM messages
 #ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
+  if (iface == &dronecan1) {
     struct act_feedback_t feedback = {0};
     feedback.rpm = telem[esc_idx].rpm;
     feedback.set.rpm = true;
@@ -245,7 +245,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
     feedback.idx = get_servo_idx_UAVCAN1(esc_idx);
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
-    if(esc_idx < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
+    if(esc_idx < SERVOS_UAVCAN1CMD_NB && actuators_dronecan1cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN1CMD(esc_idx);
     }
 #endif
@@ -255,7 +255,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   }
 #endif
 #ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
+  if (iface == &dronecan2) {
     struct act_feedback_t feedback = {0};
     feedback.rpm = telem[esc_idx].rpm;
     feedback.set.rpm = true;
@@ -264,7 +264,7 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
     feedback.idx = get_servo_idx_UAVCAN2(esc_idx);
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
-    if(esc_idx < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
+    if(esc_idx < SERVOS_UAVCAN2CMD_NB && actuators_dronecan2cmd_values[esc_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN2CMD(esc_idx);
     }
 #endif
@@ -278,22 +278,22 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 /**
  * Whevener an ACTUATOR_STATUS message from the EQUIPMENT group is received
  */
-static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
+static void actuators_dronecan_actuator_status_cb(struct dronecan_iface_t *iface, CanardRxTransfer *transfer)
 {
   uint8_t actuator_idx;
   uint16_t tmp_float;
 
-  struct actuators_uavcan_telem_t *telem = NULL;
+  struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
 #ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
+  if (iface == &dronecan1) {
+    telem = dronecan1_telem;
     max_id = UAVCAN1_TELEM_NB;
   }
 #endif
 #ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
+  if (iface == &dronecan2) {
+    telem = dronecan2_telem;
     max_id = UAVCAN2_TELEM_NB;
   }
 #endif
@@ -309,7 +309,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
   telem[actuator_idx].position = canardConvertFloat16ToNativeFloat(tmp_float);
 
 #ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
+  if (iface == &dronecan1) {
     struct act_feedback_t feedback = {0};
     feedback.position = telem[actuator_idx].position;
     feedback.set.position = true;
@@ -318,7 +318,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
     feedback.idx = get_servo_idx_UAVCAN1(actuator_idx);
 #endif
 #ifdef SERVOS_UAVCAN1CMD_NB
-    if(actuator_idx < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
+    if(actuator_idx < SERVOS_UAVCAN1CMD_NB && actuators_dronecan1cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN1CMD(actuator_idx);
     }
 #endif
@@ -329,7 +329,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
 #endif
 
 #ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
+  if (iface == &dronecan2) {
     struct act_feedback_t feedback = {0};
     feedback.position = telem[actuator_idx].position;
     feedback.set.position = true;
@@ -338,7 +338,7 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
     feedback.idx = get_servo_idx_UAVCAN2(actuator_idx);
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
-    if(actuator_idx < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
+    if(actuator_idx < SERVOS_UAVCAN2CMD_NB && actuators_dronecan2cmd_values[actuator_idx] != UAVCAN_CMD_UNUSED) {
       feedback.idx = get_servo_idx_UAVCAN2CMD(actuator_idx);
     }
 #endif
@@ -352,22 +352,22 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
 /**
  * Whevener an DEVICE_TEMPERATURE message from the EQUIPMENT group is received
  */
-static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
+static void actuators_dronecan_device_temperature_cb(struct dronecan_iface_t *iface, CanardRxTransfer *transfer)
 {
   uint16_t device_id;
   uint16_t tmp_float;
 
-  struct actuators_uavcan_telem_t *telem = NULL;
+  struct actuators_dronecan_telem_t *telem = NULL;
   uint8_t max_id = 0;
 #ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
+  if (iface == &dronecan1) {
+    telem = dronecan1_telem;
     max_id = UAVCAN1_TELEM_NB;
   }
 #endif
 #ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
+  if (iface == &dronecan2) {
+    telem = dronecan2_telem;
     max_id = UAVCAN2_TELEM_NB;
   }
 #endif
@@ -386,49 +386,49 @@ static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface,
 
 
 /**
- * Initialize an uavcan interface
+ * Initialize an dronecan interface
  */
-void actuators_uavcan_init(struct uavcan_iface_t *iface __attribute__((unused)))
+void actuators_dronecan_init(struct dronecan_iface_t *iface __attribute__((unused)))
 {
   // Check if not already initialized (for multiple interfaces, needs only 1)
-  if (actuators_uavcan_initialized) { return; }
+  if (actuators_dronecan_initialized) { return; }
 
-  // Bind uavcan ESC_STATUS message from EQUIPMENT
-  uavcan_bind(UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev,
-              &actuators_uavcan_esc_status_cb);
-  // Bind uavcan ACTUATOR_STATUS message from EQUIPMENT
-  uavcan_bind(UAVCAN_EQUIPMENT_ACTUATOR_STATUS_ID, UAVCAN_EQUIPMENT_ACTUATOR_STATUS_SIGNATURE, &actuator_status_ev,
-              &actuators_uavcan_actuator_status_cb);
-  // Bind uavcan DEVICE_TEMPERATURE message from EQUIPMENT
-  uavcan_bind(UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID, UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE, &device_temperature_ev,
-              &actuators_uavcan_device_temperature_cb);
+  // Bind dronecan ESC_STATUS message from EQUIPMENT
+  dronecan_bind(UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev,
+              &actuators_dronecan_esc_status_cb);
+  // Bind dronecan ACTUATOR_STATUS message from EQUIPMENT
+  dronecan_bind(UAVCAN_EQUIPMENT_ACTUATOR_STATUS_ID, UAVCAN_EQUIPMENT_ACTUATOR_STATUS_SIGNATURE, &actuator_status_ev,
+              &actuators_dronecan_actuator_status_cb);
+  // Bind dronecan DEVICE_TEMPERATURE message from EQUIPMENT
+  dronecan_bind(UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID, UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE, &device_temperature_ev,
+              &actuators_dronecan_device_temperature_cb);
 
   // Configure telemetry
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC, actuators_uavcan_send_esc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC, actuators_dronecan_send_esc);
 #endif
 
   // Set default to not set
 #ifdef SERVOS_UAVCAN1CMD_NB
   for(uint8_t i = 0; i < SERVOS_UAVCAN1CMD_NB; i++)
-    actuators_uavcan1cmd_values[i] = UAVCAN_CMD_UNUSED;
+    actuators_dronecan1cmd_values[i] = UAVCAN_CMD_UNUSED;
 #endif
 #ifdef SERVOS_UAVCAN2CMD_NB
   for(uint8_t i = 0; i < SERVOS_UAVCAN2CMD_NB; i++)
-    actuators_uavcan2cmd_values[i] = UAVCAN_CMD_UNUSED;
+    actuators_dronecan2cmd_values[i] = UAVCAN_CMD_UNUSED;
 #endif
 
   // Set initialization
-  actuators_uavcan_initialized = true;
+  actuators_dronecan_initialized = true;
 
   // Initialize Random (for telemetry)
   init_random();
 }
 
 /**
- * Commit actuator values to the uavcan interface (EQUIPMENT_ESC_RAWCOMMAND)
+ * Commit actuator values to the dronecan interface (EQUIPMENT_ESC_RAWCOMMAND)
  */
-void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb)
+void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb)
 {
   uint8_t buffer[UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_MAX_SIZE];
   uint32_t offset = 0;
@@ -440,14 +440,14 @@ void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint
   }
 
   // Broadcast the raw command message on the interface
-  uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID,
+  dronecan_broadcast(iface, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID,
                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8);
 }
 
 /**
- * Commit actuator values to the uavcan interface (EQUIPMENT_ACTUATOR_ARRAYCOMMAND)
+ * Commit actuator values to the dronecan interface (EQUIPMENT_ACTUATOR_ARRAYCOMMAND)
  */
-void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb)
+void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb)
 {
   uint8_t buffer[UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_MAX_SIZE];
   uint32_t offset = 0;
@@ -474,6 +474,6 @@ void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, 
   }
 
   // Broadcast the raw command message on the interface
-  uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID,
+  dronecan_broadcast(iface, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID,
                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8);
 }

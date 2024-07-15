@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="actuators_uavcan" dir="actuators" task="actuators">
+<module name="actuators_dronecan" dir="actuators" task="actuators">
   <doc>
     <description>
       UAVCan actuators
@@ -8,14 +8,14 @@
    <define name="UAVCAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
   </doc>
   <dep>
-    <depends>uavcan,actuators</depends>
+    <depends>dronecan,actuators</depends>
     <provides>actuators</provides>
   </dep>
   <header>
-    <file name="actuators_uavcan.h"/>
+    <file name="actuators_dronecan.h"/>
   </header>
   <makefile target="ap">
-    <file name="actuators_uavcan.c"/>
+    <file name="actuators_dronecan.c"/>
     <file name="pprz_random.c" dir="math"/>
   </makefile>
 </module>

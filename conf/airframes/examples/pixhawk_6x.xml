@@ -30,13 +30,13 @@
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
-        <module name="airspeed" type="uavcan">
+        <module name="airspeed" type="dronecan">
             <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
             <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-      <module name="range_sensor" type="uavcan"/>
+      <module name="range_sensor" type="dronecan"/>
 
       <module name="scheduling_indi_simple"/>
 
@@ -88,7 +88,7 @@
       <configure name="MODEM_PORT" value="usb_serial"/>
     </module>
 
-    <module name="actuators"     type="uavcan">
+    <module name="actuators"     type="dronecan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>

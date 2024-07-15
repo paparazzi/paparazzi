@@ -35,8 +35,8 @@
             <define name="IMU_ACCEL_ABI_SEND_ID"    value="IMU_PIXHAWK2_ID"/>
 
             <!-- Sensors connected to supercan -->
-            <module name="range_sensor_uavcan"/>
-            <module name="power_uavcan">
+            <module name="range_sensor_dronecan"/>
+            <module name="power_dronecan">
                 <define name="POWER_UAVCAN_BATTERY_CIRCUITS" value="{{14,0},{6,1}}"/>
             </module>
 
@@ -76,7 +76,7 @@
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
         </module>
-        <module name="airspeed" type="uavcan">
+        <module name="airspeed" type="dronecan">
             <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
             <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
@@ -106,7 +106,7 @@
         </module>
 
         <!-- Actuators on dual CAN bus -->
-        <module name="actuators" type="uavcan">
+        <module name="actuators" type="dronecan">
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
             <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
             <define value="FALSE" name="UAVCAN_ACTUATORS_USE_CURRENT"/>

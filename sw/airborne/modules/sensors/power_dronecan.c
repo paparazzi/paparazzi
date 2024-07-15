@@ -19,20 +19,20 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/power_uavcan.c
- * Power sensors on the uavcan bus
+/** @file modules/sensors/power_dronecan.c
+ * Power sensors on the dronecan bus
  */
 
-#include "power_uavcan.h"
-#include "uavcan/uavcan.h"
+#include "power_dronecan.h"
+#include "dronecan/dronecan.h"
 #include "modules/energy/electrical.h"
 
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
+/* dronecan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_ID 1092
 #define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_SIGNATURE (0x249C26548A711966ULL)
 #define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_MAX_SIZE 55
 
-/* uavcan EQUIPMENT_POWER_CIRCUITSTATUS message definition */
+/* dronecan EQUIPMENT_POWER_CIRCUITSTATUS message definition */
 #define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_ID 1091
 #define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_SIGNATURE (0x8313D33D0DDDA115ULL)
 #define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_MAX_SIZE 7
@@ -53,11 +53,11 @@
 #endif
 
 /* Local variables */
-static uavcan_event power_uavcan_ev;
-static uavcan_event circuit_uavcan_ev;
+static dronecan_event power_dronecan_ev;
+static dronecan_event circuit_dronecan_ev;
 
 /* Batteries */
-struct uavcan_equipment_power_BatteryInfo {
+struct dronecan_equipment_power_BatteryInfo {
   bool set;
   uint8_t node_id;
 
@@ -76,10 +76,10 @@ struct uavcan_equipment_power_BatteryInfo {
   uint32_t model_instance_id;
 //  struct { uint8_t len; uint8_t data[31]; }model_name;
 };
-static struct uavcan_equipment_power_BatteryInfo batteries[POWER_UAVCAN_BATTERIES_MAX] = {0};
+static struct dronecan_equipment_power_BatteryInfo batteries[POWER_UAVCAN_BATTERIES_MAX] = {0};
 
 /* Circuits */
-struct uavcan_equipment_power_CircuitStatus {
+struct dronecan_equipment_power_CircuitStatus {
   bool set;
   uint8_t node_id;
   bool is_battery;
@@ -89,17 +89,17 @@ struct uavcan_equipment_power_CircuitStatus {
   float current;
   uint8_t error_flags;
 };
-static struct uavcan_equipment_power_CircuitStatus circuits[POWER_UAVCAN_CIRCUITS_MAX] = {0};
+static struct dronecan_equipment_power_CircuitStatus circuits[POWER_UAVCAN_CIRCUITS_MAX] = {0};
 
 /* Battery circuits */
-struct uavcan_circuit_battery_t {
+struct dronecan_circuit_battery_t {
   uint8_t node_id;
   uint16_t circuit_id;
 };
-static struct uavcan_circuit_battery_t battery_circuits[] = POWER_UAVCAN_BATTERY_CIRCUITS;
+static struct dronecan_circuit_battery_t battery_circuits[] = POWER_UAVCAN_BATTERY_CIRCUITS;
 
 
-static void power_uavcan_battery_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
+static void power_dronecan_battery_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
 {
   uint16_t tmp_float = 0;
 
@@ -180,7 +180,7 @@ static void power_uavcan_battery_cb(struct uavcan_iface_t *iface __attribute__((
   }
 }
 
-static void power_uavcan_circuit_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
+static void power_dronecan_circuit_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
 {
   uint16_t tmp_float = 0;
 
@@ -233,21 +233,21 @@ static void power_uavcan_circuit_cb(struct uavcan_iface_t *iface __attribute__((
   }
 }
 
-void power_uavcan_init(void)
+void power_dronecan_init(void)
 {
   // Init the battery circuits
-  for (uint8_t i = 0; i < sizeof(battery_circuits) / sizeof(struct uavcan_circuit_battery_t); i++) {
+  for (uint8_t i = 0; i < sizeof(battery_circuits) / sizeof(struct dronecan_circuit_battery_t); i++) {
     circuits[i].set = true;
     circuits[i].node_id = battery_circuits[i].node_id;
     circuits[i].circuit_id = battery_circuits[i].circuit_id;
     circuits[i].is_battery = true;
   }
 
-  // Bind uavcan BATTERYINFO message from EQUIPMENT.POWER
-  uavcan_bind(UAVCAN_EQUIPMENT_POWER_BATTERYINFO_ID, UAVCAN_EQUIPMENT_POWER_BATTERYINFO_SIGNATURE, &power_uavcan_ev,
-              &power_uavcan_battery_cb);
+  // Bind dronecan BATTERYINFO message from EQUIPMENT.POWER
+  dronecan_bind(UAVCAN_EQUIPMENT_POWER_BATTERYINFO_ID, UAVCAN_EQUIPMENT_POWER_BATTERYINFO_SIGNATURE, &power_dronecan_ev,
+              &power_dronecan_battery_cb);
 
-  // Bind uavcan CIRCUIT_STATUS message from EQUIPMENT.POWER
-  uavcan_bind(UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_ID, UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_SIGNATURE, &circuit_uavcan_ev,
-              &power_uavcan_circuit_cb);
+  // Bind dronecan CIRCUIT_STATUS message from EQUIPMENT.POWER
+  dronecan_bind(UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_ID, UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_SIGNATURE, &circuit_dronecan_ev,
+              &power_dronecan_circuit_cb);
 }

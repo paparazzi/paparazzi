@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,22 +19,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN2_H
-#define ACTUATORS_UAVCAN2_H
+/** @file modules/sensors/power_dronecan.h
+ * Power sensors on the dronecan bus
+ */
 
-#include "actuators_uavcan.h"
+#ifndef POWER_UAVCAN_H
+#define POWER_UAVCAN_H
 
-/** Stub file needed per interface because of generator */
-extern int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
+#include "std.h"
 
-#if USE_NPS
-#define ActuatorsUavcan2Init() {}
-#define ActuatorUavcan2Set(_i, _v) {}
-#define ActuatorsUavcan2Commit()  {}
-#else
-#define ActuatorsUavcan2Init() actuators_uavcan_init(&uavcan2)
-#define ActuatorUavcan2Set(_i, _v) { actuators_uavcan2_values[_i] = _v; }
-#define ActuatorsUavcan2Commit()  actuators_uavcan_commit(&uavcan2, actuators_uavcan2_values, SERVOS_UAVCAN2_NB)
-#endif
+/* External functions */
+extern void power_dronecan_init(void);
 
-#endif /* ACTUATORS_UAVCAN2_H */
+#endif /* POWER_UAVCAN_H */

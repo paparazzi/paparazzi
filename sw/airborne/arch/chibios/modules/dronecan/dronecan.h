@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/modules/uavcan/uavcan.h
- * Interface with uavcan using the Chibios can interfaces.
+ * @file arch/chibios/modules/dronecan/dronecan.h
+ * Interface with dronecan using the Chibios can interfaces.
  * This uses multithreading and starts a transmit and receive thread per interface.
  */
 #ifndef MODULES_UAVCAN_ARCH_H
@@ -30,8 +30,8 @@
 #include <canard.h>
 #include <string.h>
 
-/** uavcan interface structure */
-struct uavcan_iface_t {
+/** dronecan interface structure */
+struct dronecan_iface_t {
   CANDriver *can_driver;
   uint32_t can_baudrate;
   CANConfig can_cfg;
@@ -40,10 +40,10 @@ struct uavcan_iface_t {
   mutex_t mutex;
   void *thread_rx_wa;
   void *thread_tx_wa;
-  void *thread_uavcan_wa;
+  void *thread_dronecan_wa;
   size_t thread_rx_wa_size;
   size_t thread_tx_wa_size;
-  size_t thread_uavcan_wa_size;
+  size_t thread_dronecan_wa_size;
 
   uint8_t node_id;
   CanardInstance canard;
@@ -53,30 +53,30 @@ struct uavcan_iface_t {
   bool initialized;
 };
 
-/** Generic uavcan callback definition */
-typedef void (*uavcan_callback)(struct uavcan_iface_t *iface, CanardRxTransfer *transfer);
+/** Generic dronecan callback definition */
+typedef void (*dronecan_callback)(struct dronecan_iface_t *iface, CanardRxTransfer *transfer);
 
-/** Main uavcan event structure for registering/calling callbacks */
-struct uavcan_event_t {
+/** Main dronecan event structure for registering/calling callbacks */
+struct dronecan_event_t {
   uint16_t data_type_id;
   uint64_t data_type_signature;
-  uavcan_callback cb;
-  struct uavcan_event_t *next;
+  dronecan_callback cb;
+  struct dronecan_event_t *next;
 };
-typedef struct uavcan_event_t uavcan_event;
+typedef struct dronecan_event_t dronecan_event;
 
-/** uavcan interfaces */
+/** dronecan interfaces */
 #if UAVCAN_USE_CAN1
-extern struct uavcan_iface_t uavcan1;
+extern struct dronecan_iface_t dronecan1;
 #endif
 #if UAVCAN_USE_CAN2
-extern struct uavcan_iface_t uavcan2;
+extern struct dronecan_iface_t dronecan2;
 #endif
 
-/** uavcan external functions */
-void uavcan_init(void);
-void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb);
-void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
+/** dronecan external functions */
+void dronecan_init(void);
+void dronecan_bind(uint16_t data_type_id, uint64_t data_type_signature, dronecan_event *ev, dronecan_callback cb);
+void dronecan_broadcast(struct dronecan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload, uint16_t payload_len);
 
 #endif /* MODULES_UAVCAN_ARCH_H */

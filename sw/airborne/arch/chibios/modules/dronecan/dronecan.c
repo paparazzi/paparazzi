@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/modules/uavcan/uavcan.c
+ * @file arch/chibios/modules/dronecan/dronecan.c
  * Interface from actuators to ChibiOS CAN driver using UAVCan
  *
  */
 
-#include "uavcan.h"
+#include "dronecan.h"
 
 #ifndef UAVCAN_NODE_ID
 #define UAVCAN_NODE_ID    100
@@ -34,7 +34,7 @@
 #define UAVCAN_BAUDRATE   1000000
 #endif
 
-static uavcan_event *uavcan_event_hd = NULL;
+static dronecan_event *dronecan_event_hd = NULL;
 
 #if UAVCAN_USE_CAN1
 #ifndef UAVCAN_CAN1_NODE_ID
@@ -45,17 +45,17 @@ static uavcan_event *uavcan_event_hd = NULL;
 #define UAVCAN_CAN1_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
-static THD_WORKING_AREA(uavcan1_rx_wa, 1024 * 2);
-static THD_WORKING_AREA(uavcan1_tx_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan1_rx_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan1_tx_wa, 1024 * 2);
 
-struct uavcan_iface_t uavcan1 = {
+struct dronecan_iface_t dronecan1 = {
   .can_driver = &CAND1,
   .can_baudrate = UAVCAN_CAN1_BAUDRATE,
   .can_cfg = {0},
-  .thread_rx_wa = uavcan1_rx_wa,
-  .thread_rx_wa_size = sizeof(uavcan1_rx_wa),
-  .thread_tx_wa = uavcan1_tx_wa,
-  .thread_tx_wa_size = sizeof(uavcan1_tx_wa),
+  .thread_rx_wa = dronecan1_rx_wa,
+  .thread_rx_wa_size = sizeof(dronecan1_rx_wa),
+  .thread_tx_wa = dronecan1_tx_wa,
+  .thread_tx_wa_size = sizeof(dronecan1_tx_wa),
   .node_id = UAVCAN_CAN1_NODE_ID,
   .transfer_id = 0,
   .initialized = false
@@ -71,17 +71,17 @@ struct uavcan_iface_t uavcan1 = {
 #define UAVCAN_CAN2_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
-static THD_WORKING_AREA(uavcan2_rx_wa, 1024 * 2);
-static THD_WORKING_AREA(uavcan2_tx_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan2_rx_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan2_tx_wa, 1024 * 2);
 
-struct uavcan_iface_t uavcan2 = {
+struct dronecan_iface_t dronecan2 = {
   .can_driver = &CAND2,
   .can_baudrate = UAVCAN_CAN2_BAUDRATE,
   .can_cfg = {0},
-  .thread_rx_wa = uavcan2_rx_wa,
-  .thread_rx_wa_size = sizeof(uavcan2_rx_wa),
-  .thread_tx_wa = uavcan2_tx_wa,
-  .thread_tx_wa_size = sizeof(uavcan2_tx_wa),
+  .thread_rx_wa = dronecan2_rx_wa,
+  .thread_rx_wa_size = sizeof(dronecan2_rx_wa),
+  .thread_tx_wa = dronecan2_tx_wa,
+  .thread_tx_wa_size = sizeof(dronecan2_tx_wa),
   .node_id = UAVCAN_CAN2_NODE_ID,
   .transfer_id = 0,
   .initialized = false
@@ -91,14 +91,14 @@ struct uavcan_iface_t uavcan2 = {
 /*
  * Receiver thread.
  */
-static THD_FUNCTION(uavcan_rx, p)
+static THD_FUNCTION(dronecan_rx, p)
 {
   event_listener_t el;
   CANRxFrame rx_msg;
   CanardCANFrame rx_frame;
-  struct uavcan_iface_t *iface = (struct uavcan_iface_t *)p;
+  struct dronecan_iface_t *iface = (struct dronecan_iface_t *)p;
 
-  chRegSetThreadName("uavcan_rx");
+  chRegSetThreadName("dronecan_rx");
   chEvtRegister(&iface->can_driver->rxfull_event, &el, EVENT_MASK(0));
   while (true) {
     if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0) {
@@ -137,13 +137,13 @@ static THD_FUNCTION(uavcan_rx, p)
 /*
  * Transmitter thread.
  */
-static THD_FUNCTION(uavcan_tx, p)
+static THD_FUNCTION(dronecan_tx, p)
 {
   event_listener_t txc, txe, txr;
-  struct uavcan_iface_t *iface = (struct uavcan_iface_t *)p;
+  struct dronecan_iface_t *iface = (struct dronecan_iface_t *)p;
   uint8_t err_cnt = 0;
 
-  chRegSetThreadName("uavcan_tx");
+  chRegSetThreadName("dronecan_tx");
   chEvtRegister(&iface->can_driver->txempty_event, &txc, EVENT_MASK(0));
   chEvtRegister(&iface->can_driver->error_event, &txe, EVENT_MASK(1));
   chEvtRegister(&iface->tx_request, &txr, EVENT_MASK(2));
@@ -203,10 +203,10 @@ static THD_FUNCTION(uavcan_tx, p)
  */
 static void onTransferReceived(CanardInstance *ins, CanardRxTransfer *transfer)
 {
-  struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
+  struct dronecan_iface_t *iface = (struct dronecan_iface_t *)ins->user_reference;
 
   // Go through all registered callbacks and call function callback if found
-  for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
+  for (dronecan_event *ev = dronecan_event_hd; ev; ev = ev->next) {
     if (transfer->data_type_id == ev->data_type_id) {
       ev->cb(iface, transfer);
     }
@@ -224,7 +224,7 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
 {
 
   // Go through all registered callbacks and return signature if found
-  for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
+  for (dronecan_event *ev = dronecan_event_hd; ev; ev = ev->next) {
     if (data_type_id == ev->data_type_id) {
       *out_data_type_signature = ev->data_type_signature;
       return true;
@@ -237,7 +237,7 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
 /**
  * Try to compute the timing registers for the can interface and set the configuration
  */
-static bool uavcanConfigureIface(struct uavcan_iface_t *iface)
+static bool dronecanConfigureIface(struct dronecan_iface_t *iface)
 {
   if (iface->can_baudrate < 1) {
     return false;
@@ -349,12 +349,12 @@ static bool uavcanConfigureIface(struct uavcan_iface_t *iface)
 }
 
 /**
- * Initialize uavcan interface
+ * Initialize dronecan interface
  */
-static void uavcanInitIface(struct uavcan_iface_t *iface)
+static void dronecanInitIface(struct dronecan_iface_t *iface)
 {
   // First try to configure abort if failed
-  if (!uavcanConfigureIface(iface)) {
+  if (!dronecanConfigureIface(iface)) {
     return;
   }
 
@@ -365,66 +365,66 @@ static void uavcanInitIface(struct uavcan_iface_t *iface)
   // Initialize canard
   canardInit(&iface->canard, iface->canard_memory_pool, sizeof(iface->canard_memory_pool),
              onTransferReceived, shouldAcceptTransfer, iface);
-  // Update the uavcan node ID
+  // Update the dronecan node ID
   canardSetLocalNodeID(&iface->canard, iface->node_id);
 
   // Start the can interface
   canStart(iface->can_driver, &iface->can_cfg);
 
   // Start the receiver and transmitter thread
-  chThdCreateStatic(iface->thread_rx_wa, iface->thread_rx_wa_size, NORMALPRIO + 8, uavcan_rx, (void *)iface);
-  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, uavcan_tx, (void *)iface);
+  chThdCreateStatic(iface->thread_rx_wa, iface->thread_rx_wa_size, NORMALPRIO + 8, dronecan_rx, (void *)iface);
+  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, dronecan_tx, (void *)iface);
   iface->initialized = true;
 }
 
 /**
- * Initialize all uavcan interfaces
+ * Initialize all dronecan interfaces
  */
-void uavcan_init(void)
+void dronecan_init(void)
 {
 #if UAVCAN_USE_CAN1
 #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
-  uavcan1.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (0 << FDCAN_RXF0C_F0SA_Pos);
-  uavcan1.can_cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | (128 << FDCAN_RXF1C_F1SA_Pos);
-  uavcan1.can_cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | (256 << FDCAN_TXBC_TBSA_Pos);
-  uavcan1.can_cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
-  uavcan1.can_cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
+  dronecan1.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (0 << FDCAN_RXF0C_F0SA_Pos);
+  dronecan1.can_cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | (128 << FDCAN_RXF1C_F1SA_Pos);
+  dronecan1.can_cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | (256 << FDCAN_TXBC_TBSA_Pos);
+  dronecan1.can_cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
+  dronecan1.can_cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
 #endif
-  uavcanInitIface(&uavcan1);
+  dronecanInitIface(&dronecan1);
 #endif
 #if UAVCAN_USE_CAN2
 #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
-  uavcan2.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (384 << FDCAN_RXF0C_F0SA_Pos);
-  uavcan2.can_cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | (512 << FDCAN_RXF1C_F1SA_Pos);
-  uavcan2.can_cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | (640 << FDCAN_TXBC_TBSA_Pos);
-  uavcan2.can_cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
-  uavcan2.can_cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
+  dronecan2.can_cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (384 << FDCAN_RXF0C_F0SA_Pos);
+  dronecan2.can_cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | (512 << FDCAN_RXF1C_F1SA_Pos);
+  dronecan2.can_cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | (640 << FDCAN_TXBC_TBSA_Pos);
+  dronecan2.can_cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
+  dronecan2.can_cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
 #endif
-  uavcanInitIface(&uavcan2);
+  dronecanInitIface(&dronecan2);
 #endif
 }
 
 /**
- * Bind to a receiving message from uavcan
+ * Bind to a receiving message from dronecan
  */
-void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb)
+void dronecan_bind(uint16_t data_type_id, uint64_t data_type_signature, dronecan_event *ev, dronecan_callback cb)
 {
   // Configure the event
   ev->data_type_id = data_type_id;
   ev->data_type_signature = data_type_signature;
   ev->cb = cb;
-  ev->next = uavcan_event_hd;
+  ev->next = dronecan_event_hd;
 
   // Switch the head
-  uavcan_event_hd = ev;
+  dronecan_event_hd = ev;
 }
 
 /**
- * Broadcast an uavcan message to a specific interface
+ * Broadcast an dronecan message to a specific interface
  */
-void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
+void dronecan_broadcast(struct dronecan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
                       uint8_t priority, const void *payload,
                       uint16_t payload_len)
 {

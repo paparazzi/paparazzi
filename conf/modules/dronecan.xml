@@ -1,9 +1,9 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="uavcan" dir="uavcan">
+<module name="dronecan" dir="dronecan">
   <doc>
     <description>
-      UAVCan interface for transmitting/receiving uavcan messages on CAN busses
+      UAVCan interface for transmitting/receiving dronecan messages on CAN busses
    </description>
    <configure name="UAVCAN_USE_CAN1" value="FALSE" description="Enable UAVCAN on CAN1 interface"/>
    <configure name="UAVCAN_USE_CAN2" value="FALSE" description="Enable UAVCAN on CAN2 interface"/>
@@ -11,9 +11,9 @@
    <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
   </doc>
   <header>
-    <file name="uavcan.h" dir="modules/uavcan"/>
+    <file name="dronecan.h" dir="modules/dronecan"/>
   </header>
-  <init fun="uavcan_init()"/>
+  <init fun="dronecan_init()"/>
   <makefile target="ap">
     <!-- Enable the CAN busses if needed -->
     <define name="USE_CAN1" cond="ifeq ($(UAVCAN_USE_CAN1), TRUE)"/>
@@ -25,8 +25,8 @@
     <include name="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
     <file name="canard.c" dir="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
 
-    <!-- Load uavcan itself -->
-    <file_arch name="uavcan.c" dir="modules/uavcan"/>
+    <!-- Load dronecan itself -->
+    <file_arch name="dronecan.c" dir="modules/dronecan"/>
   </makefile>
 </module>
 

@@ -37,7 +37,7 @@
         <configure name="MS45XX_I2C_DEV" value="i2c4"/>
         <define name="I2C4_CLOCK_SPEED" value="100000"/>
       </module>
-      <!--module name="airspeed" type="uavcan"/-->
+      <!--module name="airspeed" type="dronecan"/-->
 
       <!-- Monitoring -->
       <module name="sys_mon"/>
@@ -94,7 +94,7 @@
       <define name="USE_INS_NAV_INIT" value="FALSE"/>
     </module>
 
-    <module name="actuators"     type="uavcan">
+    <module name="actuators"     type="dronecan">
       <configure name="UAVCAN_USE_CAN1" value="TRUE"/>
       <configure name="UAVCAN_USE_CAN2" value="TRUE"/>
     </module>

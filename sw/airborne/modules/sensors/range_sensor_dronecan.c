@@ -19,45 +19,45 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/range_sensor_uavcan.c
- * Range sensor on the uavcan bus
+/** @file modules/sensors/range_sensor_dronecan.c
+ * Range sensor on the dronecan bus
  */
 
-#include "range_sensor_uavcan.h"
-#include "uavcan/uavcan.h"
+#include "range_sensor_dronecan.h"
+#include "dronecan/dronecan.h"
 #include "core/abi.h"
 
 
-/* uavcan EQUIPMENT_RANGE_SENSOR_MEASUREMENT message definition */
+/* dronecan EQUIPMENT_RANGE_SENSOR_MEASUREMENT message definition */
 #define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID       1050
 #define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE (0x68FFFE70FC771952ULL)
 #define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_MAX_SIZE ((120 + 7)/8)
 
 /* Local structure */
-struct range_sensor_uavcan_t {
+struct range_sensor_dronecan_t {
   float range;
   uint8_t reading_type;
 };
 
 /* Local variables */
-static struct range_sensor_uavcan_t range_sensor_uavcan = {0};
-static uavcan_event range_sensor_uavcan_ev;
+static struct range_sensor_dronecan_t range_sensor_dronecan = {0};
+static dronecan_event range_sensor_dronecan_ev;
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void range_sensor_uavcan_send_lidar(struct transport_tx *trans, struct link_device *dev)
+static void range_sensor_dronecan_send_lidar(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t nul = 0;
   pprz_msg_send_LIDAR(trans, dev, AC_ID,
-                      &range_sensor_uavcan.range,
-                      &range_sensor_uavcan.reading_type,
+                      &range_sensor_dronecan.range,
+                      &range_sensor_dronecan.reading_type,
                       &nul);
 }
 
 #endif
 
-static void range_sensor_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
+static void range_sensor_dronecan_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
   uint16_t tmp_float = 0;
 
   /* Decode the message */
@@ -70,23 +70,23 @@ static void range_sensor_uavcan_cb(struct uavcan_iface_t *iface __attribute__((u
   //canardDecodeScalar(transfer, (uint32_t)80, 16, false, (void*)&tmp_float);
   //float fov = canardConvertFloat16ToNativeFloat(tmp_float);
   //canardDecodeScalar(transfer, (uint32_t)96, 5, false, (void*)&dest->sensor_type);
-  canardDecodeScalar(transfer, (uint32_t)101, 3, false, (void*)&range_sensor_uavcan.reading_type);
+  canardDecodeScalar(transfer, (uint32_t)101, 3, false, (void*)&range_sensor_dronecan.reading_type);
   canardDecodeScalar(transfer, (uint32_t)104, 16, false, (void*)&tmp_float);
-  range_sensor_uavcan.range = canardConvertFloat16ToNativeFloat(tmp_float);
+  range_sensor_dronecan.range = canardConvertFloat16ToNativeFloat(tmp_float);
 
   // Send the range over ABI
-  if(!isnan(range_sensor_uavcan.range)) {
+  if(!isnan(range_sensor_dronecan.range)) {
     uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgAGL(AGL_UAVCAN_ID, now_ts, range_sensor_uavcan.range);
+    AbiSendMsgAGL(AGL_UAVCAN_ID, now_ts, range_sensor_dronecan.range);
   }
 }
 
-void range_sensor_uavcan_init(void)
+void range_sensor_dronecan_init(void)
 {
-  // Bind uavcan MEASUREMENT message from EQUIPMENT.RANGE_SENSOR
-  uavcan_bind(UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE, &range_sensor_uavcan_ev, &range_sensor_uavcan_cb);
+  // Bind dronecan MEASUREMENT message from EQUIPMENT.RANGE_SENSOR
+  dronecan_bind(UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE, &range_sensor_dronecan_ev, &range_sensor_dronecan_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, range_sensor_uavcan_send_lidar);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, range_sensor_dronecan_send_lidar);
 #endif
 }

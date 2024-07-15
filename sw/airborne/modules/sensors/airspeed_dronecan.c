@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/airspeed_uavcan.c
- * Airspeed sensor on the uavcan bus
+/** @file modules/sensors/airspeed_dronecan.c
+ * Airspeed sensor on the dronecan bus
  */
 
-#include "airspeed_uavcan.h"
-#include "uavcan/uavcan.h"
+#include "airspeed_dronecan.h"
+#include "dronecan/dronecan.h"
 #include "core/abi.h"
 
 /* Enable ABI sending */
@@ -52,39 +52,39 @@
 static Butterworth2LowPass airspeed_filter;
 #endif  /* USE_AIRSPEED_UAVCAN_LOWPASS_FILTER */
 
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
+/* dronecan EQUIPMENT_ESC_STATUS message definition */
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID            1027
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE     (0xC77DF38BA122F5DAULL)
 #define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_MAX_SIZE      ((397 + 7)/8)
 
 /* Local variables */
-struct airspeed_uavcan_t airspeed_uavcan = {0};
-static uavcan_event airspeed_uavcan_ev;
+struct airspeed_dronecan_t airspeed_dronecan = {0};
+static dronecan_event airspeed_dronecan_ev;
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void airspeed_uavcan_downlink(struct transport_tx *trans, struct link_device *dev)
+static void airspeed_dronecan_downlink(struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t dev_id = UAVCAN_SENDER_ID;
   uint16_t raw = 0;
   float offset = 0;
   float sign = 1.0f;
-  if (airspeed_uavcan.diff_p < 0) {
+  if (airspeed_dronecan.diff_p < 0) {
     sign = -1.0f;
   }
-  float airspeed = sqrt(airspeed_uavcan.diff_p * sign * 2.0f / 1.225f) * sign;
+  float airspeed = sqrt(airspeed_dronecan.diff_p * sign * 2.0f / 1.225f) * sign;
   pprz_msg_send_AIRSPEED_RAW(trans,dev,AC_ID,
                                 &dev_id,
                                 &raw,
                                 &offset,
-                                &airspeed_uavcan.diff_p,
-                                &airspeed_uavcan.temperature,
+                                &airspeed_dronecan.diff_p,
+                                &airspeed_dronecan.temperature,
                                 &airspeed);
 }
 #endif /* PERIODIC_TELEMETRY */
 
-static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
+static void airspeed_dronecan_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
   uint16_t tmp_float = 0;
   float diff_p;
 
@@ -103,51 +103,51 @@ static void airspeed_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unuse
 
   if(!isnan(diff_p)) {
     // Remove the offset and apply a scaling factor
-    diff_p -= airspeed_uavcan.diff_p_offset;
-    diff_p *= airspeed_uavcan.diff_p_scale;
+    diff_p -= airspeed_dronecan.diff_p_offset;
+    diff_p *= airspeed_dronecan.diff_p_scale;
 
     // Filtering
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
     float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
-    airspeed_uavcan.diff_p = diff_p_filt;
+    airspeed_dronecan.diff_p = diff_p_filt;
 #else
-    airspeed_uavcan.diff_p = diff_p;
+    airspeed_dronecan.diff_p = diff_p;
 #endif
 
     // Send the ABI message
 #if AIRSPEED_UAVCAN_SEND_ABI
-    AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, airspeed_uavcan.diff_p);
+    AbiSendMsgBARO_DIFF(UAVCAN_SENDER_ID, airspeed_dronecan.diff_p);
 #endif
   }
 
   if(!isnan(static_air_temp)) {
-    airspeed_uavcan.temperature = static_air_temp;
+    airspeed_dronecan.temperature = static_air_temp;
 #if AIRSPEED_UAVCAN_SEND_ABI
-    AbiSendMsgTEMPERATURE(UAVCAN_SENDER_ID, airspeed_uavcan.temperature);
+    AbiSendMsgTEMPERATURE(UAVCAN_SENDER_ID, airspeed_dronecan.temperature);
 #endif
   }
 }
 
-void airspeed_uavcan_init(void)
+void airspeed_dronecan_init(void)
 {
   // Set the default values
-  airspeed_uavcan.diff_p_scale = AIRSPEED_UAVCAN_DIFF_P_SCALE;
+  airspeed_dronecan.diff_p_scale = AIRSPEED_UAVCAN_DIFF_P_SCALE;
 
   // Setup the low pass filter
 #ifdef USE_AIRSPEED_UAVCAN_LOWPASS_FILTER
   init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_UAVCAN_LOWPASS_TAU, AIRSPEED_UAVCAN_LOWPASS_PERIOD, 0);
 #endif
 
-  // Bind uavcan RAWAIRDATA message from EQUIPMENT.AIR_DATA
-  uavcan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_uavcan_ev, &airspeed_uavcan_cb);
+  // Bind dronecan RAWAIRDATA message from EQUIPMENT.AIR_DATA
+  dronecan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_dronecan_ev, &airspeed_dronecan_cb);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_uavcan_downlink);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_dronecan_downlink);
 #endif
 }
 
-void airspeed_uavcan_autoset_offset(bool set) {
+void airspeed_dronecan_autoset_offset(bool set) {
   if(set) {
-    airspeed_uavcan.diff_p_offset = airspeed_uavcan.diff_p;
+    airspeed_dronecan.diff_p_offset = airspeed_dronecan.diff_p;
   }
 }

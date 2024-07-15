@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,27 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/airspeed_uavcan.h
- * Airspeed sensor on the uavcan bus
- */
+#ifndef ACTUATORS_UAVCAN_H
+#define ACTUATORS_UAVCAN_H
 
-#ifndef AIRSPEED_UAVCAN_H
-#define AIRSPEED_UAVCAN_H
-
-#include "std.h"
-
-/* Airspeed UAVCAN structure */
-struct airspeed_uavcan_t {
-  float diff_p;       ///< Differential pressure
-  float temperature;  ///< Temperature in Celsius
-
-  float diff_p_offset;  ///< Differential pressure offset
-  float diff_p_scale;   ///< Differential pressure scale
-};
-extern struct airspeed_uavcan_t airspeed_uavcan;
+#include "modules/dronecan/dronecan.h"
+#include BOARD_CONFIG
 
 /* External functions */
-extern void airspeed_uavcan_init(void);
-extern void airspeed_uavcan_autoset_offset(bool set);
+extern void actuators_dronecan_init(struct dronecan_iface_t *iface);
+extern void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
+extern void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
 
-#endif /* AIRSPEED_UAVCAN_H */
+#endif /* ACTUATORS_UAVCAN_H */

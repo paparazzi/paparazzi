@@ -11,7 +11,8 @@
     "files.associations": {
         "Makefile.*": "makefile",
         "*.h": "c",
-        "*.c": "c"
+        "*.c": "c",
+        "*.inc": "c"
     },
     "C_Cpp.dimInactiveRegions": false,
     "esbonio.sphinx.confDir": "",

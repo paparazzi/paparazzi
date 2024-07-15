@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,18 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/modules/actuators/actuators_uavcan_arch.h
- *  dummy servos handling for sim
- */
+#ifndef ACTUATORS_UAVCAN1_CMD_H
+#define ACTUATORS_UAVCAN1_CMD_H
 
-#ifndef ACTUATORS_UAVCAN_ARCH_H
-#define ACTUATORS_UAVCAN_ARCH_H
+#include "actuators_dronecan.h"
 
-#define SERVOS_TICS_OF_USEC(_v) (_v)
+/** Stub file needed per dronecan interface because of generator */
+extern int16_t actuators_dronecan1cmd_values[SERVOS_UAVCAN1CMD_NB];
 
-#define ActuatorUavcanSet(_i, _v) {}
-#define ActuatorsUavcanCommit() {}
+#if USE_NPS
+#define ActuatorsUavcan1CmdInit() {}
+#define ActuatorUavcan1CmdSet(_i, _v) {}
+#define ActuatorsUavcan1CmdCommit()  {}
+#else
+#define ActuatorsUavcan1CmdInit() actuators_dronecan_init(&dronecan1)
+#define ActuatorUavcan1CmdSet(_i, _v) { actuators_dronecan1cmd_values[_i] = _v; }
+#define ActuatorsUavcan1CmdCommit()  actuators_dronecan_cmd_commit(&dronecan1, actuators_dronecan1cmd_values, SERVOS_UAVCAN1CMD_NB)
+#endif
 
-extern void actuators_uavcan_arch_init(void);
-
-#endif /* ACTUATORS_UAVCAN_ARCH_H */
+#endif /* ACTUATORS_UAVCAN1_CMD_H */
