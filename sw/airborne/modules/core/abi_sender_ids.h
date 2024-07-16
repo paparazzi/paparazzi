@@ -130,6 +130,10 @@
 #define AOA_PWM_ID 2
 #endif
 
+#ifndef AOA_T4_ID
+#define AOA_T4_ID 3
+#endif
+
 #ifndef INCIDENCE_NPS_ID
 #define INCIDENCE_NPS_ID 20
 #endif
