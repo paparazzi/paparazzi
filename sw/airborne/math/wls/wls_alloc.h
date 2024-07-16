@@ -52,15 +52,39 @@
 #ifndef WLS_ALLOC_HEADER
 #define WLS_ALLOC_HEADER
 
+#ifndef TEST_ALLOC
 #include "generated/airframe.h"
-
-#ifndef WLS_N_U
-#define WLS_N_U 6
 #endif
 
-#ifndef WLS_N_V
-#define WLS_N_V 4
+#ifndef WLS_N_U_MAX
+#define WLS_N_U_MAX 6
 #endif
+
+#ifndef WLS_N_V_MAX
+#define WLS_N_V_MAX 4
+#endif
+
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+extern void send_wls_v(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
+extern void send_wls_u(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
+#endif
+
+extern struct WLS_t{
+  int nu;                    // number of actuators
+  int nv;                    // number of controlled axes
+  float gamma_sq;            // weighting factor WLS
+  float v[WLS_N_V_MAX];      // Pseudo Control Vector
+  float u[WLS_N_U_MAX];      // Allocation of Controls
+  float Wv[WLS_N_V_MAX];     // Weighting on different control objectives
+  float Wu[WLS_N_U_MAX];     // Weighting on different actuators
+  float u_pref[WLS_N_U_MAX]; // Preferred control vector
+  float u_min[WLS_N_U_MAX];  // Minimum control vector
+  float u_max[WLS_N_U_MAX];  // Maximum control vector
+  float PC;                  // Primary cost
+  float SC;                  // Secondary cost
+  int   iter;                // Number of iterations
+};
 
 
 extern int wls_alloc(float* u, float* v,
