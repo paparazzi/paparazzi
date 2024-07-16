@@ -35,7 +35,8 @@ struct dronecan_iface_t {
   CANDriver *can_driver;
   uint32_t can_baudrate;
   CANConfig can_cfg;
-
+  uint8_t can_baudrate_mult;
+  bool fdcan_operation;
   event_source_t tx_request;
   mutex_t mutex;
   void *thread_rx_wa;
@@ -49,7 +50,6 @@ struct dronecan_iface_t {
   CanardInstance canard;
   uint8_t canard_memory_pool[1024 * 2];
 
-  uint8_t transfer_id;
   bool initialized;
 };
 
@@ -58,6 +58,7 @@ typedef void (*dronecan_callback)(struct dronecan_iface_t *iface, CanardRxTransf
 
 /** Main dronecan event structure for registering/calling callbacks */
 struct dronecan_event_t {
+  CanardTransferType transfer_type;
   uint16_t data_type_id;
   uint64_t data_type_signature;
   dronecan_callback cb;
@@ -75,8 +76,8 @@ extern struct dronecan_iface_t dronecan2;
 
 /** dronecan external functions */
 void dronecan_init(void);
-void dronecan_bind(uint16_t data_type_id, uint64_t data_type_signature, dronecan_event *ev, dronecan_callback cb);
-void dronecan_broadcast(struct dronecan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
-                      uint8_t priority, const void *payload, uint16_t payload_len);
+void dronecan_bind(CanardTransferType transfer_type, uint16_t data_type_id, uint64_t data_type_signature, dronecan_event *ev, dronecan_callback cb);
+void dronecan_broadcast(struct dronecan_iface_t *iface, CanardTxTransfer *transfer);
+void dronecan_request_or_respond(struct dronecan_iface_t *iface, uint8_t destination_node_id,CanardTxTransfer *transfer);
 
 #endif /* MODULES_DRONECAN_ARCH_H */

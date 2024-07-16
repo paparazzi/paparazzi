@@ -12,7 +12,14 @@
         "Makefile.*": "makefile",
         "*.h": "c",
         "*.c": "c",
-        "*.inc": "c"
+        "*.inc": "c",
+        "*.tcc": "c",
+        "unordered_map": "c",
+        "fstream": "c",
+        "istream": "c",
+        "numeric": "c",
+        "ostream": "c",
+        "sstream": "c"
     },
     "C_Cpp.dimInactiveRegions": false,
     "esbonio.sphinx.confDir": "",
