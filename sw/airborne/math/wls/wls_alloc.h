@@ -63,14 +63,7 @@
 #ifndef WLS_N_V_MAX
 #define WLS_N_V_MAX 4
 #endif
-
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-extern void send_wls_v(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
-extern void send_wls_u(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
-#endif
-
-extern struct WLS_t{
+struct WLS_t{
   int nu;                    // number of actuators
   int nv;                    // number of controlled axes
   float gamma_sq;            // weighting factor WLS
@@ -86,11 +79,14 @@ extern struct WLS_t{
   int   iter;                // Number of iterations
 };
 
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+extern void send_wls_v(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
+extern void send_wls_u(char *name, struct WLS_t* WLS_p, struct transport_tx *trans, struct link_device *dev);
+#endif
 
-extern int wls_alloc(float* u, float* v,
-              float* umin, float* umax, float** B,
-              float* u_guess, float* W_init, float* Wv, float* Wu,
-              float* ud, float gamma, int imax, int n_u, int n_v);
+
+extern void wls_alloc(struct WLS_t* WLS_p, float **B, float *u_guess, float *W_init, int imax);
 
 
 #endif
