@@ -17,7 +17,6 @@
   <header>
     <file name="wls_alloc.h" dir="math/wls"/>
   </header>
-  <init fun="wls_init()"/>
   <makefile>
     <file name="wls_alloc.c" dir="math/wls"/>
     <file name="qr_solve.c" dir="math/qr_solve"/>
