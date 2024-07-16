@@ -55,24 +55,6 @@ static void print_final_values(struct WLS_t* WLS_p, float **B);
 static void print_in_and_outputs(int n_c, int n_free, float **A_free_ptr, float *d, float *p_free);
 #endif
 
-
-// #define WLS_N_C ((WLS_N_U)+(WLS_N_V))
-
-// struct WLS_t WLS_p = {
-//   .nu     = WLS_N_U,
-//   .nv     = WLS_N_V,
-//   .gamma  = 0.0,
-//   .v      = {0.0},
-//   .Wv     = {0.0},
-//   .Wu     = {0.0},
-//   .u_pref = {0.0},
-//   .u_min  = {0.0},
-//   .u_max  = {0.0},
-//   .PC     = 0.0,
-//   .SC     = 0.0,
-//   .iter   = 0
-// };
-
 /* Define messages of the module*/
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -97,16 +79,6 @@ void send_wls_u(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, str
                       WLS_p->nu, WLS_p->u);
 }
 #endif
-
-/** @brief Init function */
-// void wls_init(void)
-// {
-//   // Start telemetry
-//   #if PERIODIC_TELEMETRY
-//     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_v, send_wls_v);
-//     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_u, send_wls_u);
-//   #endif
-// }
 
 /**
  * @brief Wrapper for qr solve
@@ -154,9 +126,6 @@ static void qr_solve_wrapper(int m, int n, float **A, float *b, float *x) {
  * @param WLS_p Struct that contains most of the WLS parameters
  * @return Number of iterations which is (imax+1) if it ran out of iterations
  */
-// int wls_alloc(float* u, float* v, float* u_min, float* umax, float** B,
-//     float* u_guess, float* W_init, float* Wv, float* Wu, float* up,
-//     float gamma_sq, int imax,  int n_u, int n_v) {
 
 void wls_alloc(struct WLS_t* WLS_p, float **B, float *u_guess, float *W_init, int imax) {
   // allocate variables, use defaults where parameters are set to 0
