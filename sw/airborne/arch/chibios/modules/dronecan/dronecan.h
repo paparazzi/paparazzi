@@ -28,7 +28,18 @@
 
 #include <hal.h>
 #include <canard.h>
+#include "dronecan_msgs.h"
+#include <canard_chutils.h>
 #include <string.h>
+
+#ifndef MAX_CAN_NODES
+#define MAX_CAN_NODES           128
+#endif
+
+struct node_activity {
+  unsigned active : 1;
+  uint64_t timestamp_usec;
+};
 
 /** dronecan interface structure */
 struct dronecan_iface_t {
@@ -37,16 +48,20 @@ struct dronecan_iface_t {
   CANConfig can_cfg;
   uint8_t can_baudrate_mult;
   bool fdcan_operation;
+
   event_source_t tx_request;
   mutex_t mutex;
+
   void *thread_rx_wa;
   void *thread_tx_wa;
-  void *thread_dronecan_wa;
+  void *thread_ns_wa;
   size_t thread_rx_wa_size;
   size_t thread_tx_wa_size;
-  size_t thread_dronecan_wa_size;
+  size_t thread_ns_wa_size;
 
   uint8_t node_id;
+  struct uavcan_protocol_NodeStatus node_status;
+  struct node_activity nodes_list[MAX_CAN_NODES];
   CanardInstance canard;
   uint8_t canard_memory_pool[1024 * 2];
 
@@ -75,9 +90,9 @@ extern struct dronecan_iface_t dronecan2;
 #endif
 
 /** dronecan external functions */
-void dronecan_init(void);
 void dronecan_bind(CanardTransferType transfer_type, uint16_t data_type_id, uint64_t data_type_signature, dronecan_event *ev, dronecan_callback cb);
 void dronecan_broadcast(struct dronecan_iface_t *iface, CanardTxTransfer *transfer);
 void dronecan_request_or_respond(struct dronecan_iface_t *iface, uint8_t destination_node_id,CanardTxTransfer *transfer);
+void dronecan_init(void);
 
 #endif /* MODULES_DRONECAN_ARCH_H */
