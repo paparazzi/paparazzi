@@ -87,8 +87,8 @@
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
     </module> -->
     <module name="stabilization" type="indi">
-      <define name="WLS_N_U" value="4"/>
-      <define name="WLS_N_V" value="4"/>
+      <define name="WLS_N_U_MAX" value="4"/>
+      <define name="WLS_N_V_MAX" value="4"/>
       <!--define name="TILT_TWIST_CTRL" value="TRUE"/-->
     </module>
     <module name="stabilization" type="rate_indi"/>

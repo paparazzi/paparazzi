@@ -118,8 +118,8 @@
         <module name="stabilization" type="indi">
             <configure name="INDI_NUM_ACT" value="9"/>
             <configure name="INDI_OUTPUTS" value="5"/>
-            <define name="WLS_N_U" value="9"/>
-            <define name="WLS_N_V" value="5"/>
+            <define name="WLS_N_U_MAX" value="9"/>
+            <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
         <module name="stabilization" type="rate_indi"/>
