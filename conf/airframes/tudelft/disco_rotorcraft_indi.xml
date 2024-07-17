@@ -56,8 +56,8 @@
     <module name="actuators" type="disco"/>
     <!--<module name="control" type="new"/>-->
     <module name="stabilization" type="indi">
-      <define name="WLS_N_U" value="4"/>
-      <define name="WLS_N_V" value="4"/>
+      <define name="WLS_N_U_MAX" value="4"/>
+      <define name="WLS_N_V_MAX" value="4"/>
      <configure name="INDI_NUM_ACT" value="3"/>
     </module>
     <module name="guidance" type="indi_hybrid_tailsitter"/>
