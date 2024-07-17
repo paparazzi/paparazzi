@@ -11,8 +11,8 @@
       The size of the matrix (output vs. objectives) must be defined large
       enough for all the controllers
     </description>
-    <define name="WLS_N_U" value="4" description="size of the control output vector (default: 6)"/>
-    <define name="WLS_N_V" value="4" description="size of the control objectives vector (default: 4)"/>
+    <define name="WLS_N_U_MAX" value="4" description="size of the control output vector (default: 6)"/>
+    <define name="WLS_N_V_MAX" value="4" description="size of the control objectives vector (default: 4)"/>
   </doc>
   <header>
     <file name="wls_alloc.h" dir="math/wls"/>
