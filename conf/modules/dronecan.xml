@@ -7,8 +7,12 @@
    </description>
    <configure name="DRONECAN_USE_CAN1" value="FALSE" description="Enable DroneCAN on CAN1 interface"/>
    <configure name="DRONECAN_USE_CAN2" value="FALSE" description="Enable DroneCAN on CAN2 interface"/>
-   <define name="DRONECAN_NODE_ID" value="100" description="The DroneCAN node ID of the AP"/>
+   <define name="DRONECAN_NODE_ID" value="42" description="The DroneCAN node ID of the AP"/>
    <define name="DRONECAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
+   <define name="DRONECAN_BAUDRATE_MULT" value="4" description="The multiplier for the CAN FD data baudrate"/>
+   <define name="FDCAN_ENABLE" value="TRUE" description="The CAN interface CAN FD compatibility"/>
+   <define name="VENDOR_CODE" value="0xA5A5" description="A code contained in the NodeStatus message"/>
+   
   </doc>
   <header>
     <file name="dronecan.h" dir="modules/dronecan"/>

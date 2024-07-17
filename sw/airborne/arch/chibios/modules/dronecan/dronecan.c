@@ -30,6 +30,7 @@
 #ifndef FDCAN_ENABLED
 #define FDCAN_ENABLED 1
 #endif
+
 #if FDCAN_ENABLED
 #define CANARD_ENABLE_CANFD 1
 #endif
