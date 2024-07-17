@@ -273,7 +273,7 @@
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
       <call_once fun="NavSetWaypointHere(WP_TAG)"/>
       <call_once fun="jevois_stream(true)"/>
-      <stay wp="DELIVERY" until="(tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="DELIVERY" until="(tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
       <deroute block="Drop Package"/>
     </block>
 
@@ -287,7 +287,7 @@
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
       <call_once fun="NavSetWaypointHere(WP_TAG)"/>
       <call_once fun="jevois_stream(true)"/>
-      <stay wp="SILENT" until="(tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="SILENT" until="(tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
       <deroute block="Drop Package"/>
     </block>
 
@@ -315,7 +315,7 @@
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
       <call_once fun="NavSetWaypointHere(WP_TAG)"/>
       <call_once fun="jevois_stream(true)"/>
-      <stay wp="UNCERTAIN" until="(tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="UNCERTAIN" until="(tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
       <call_once fun="NavSetWaypointHere(WP_UNCERTAIN)"/>
       <deroute block="Drop Package"/>
     </block>
@@ -330,13 +330,13 @@
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
       <call_once fun="NavSetWaypointHere(WP_TAG)"/>
       <call_once fun="jevois_stream(true)"/>
-      <stay wp="AREA_TAG" until="(tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="AREA_TAG" until="(tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
       <deroute block="Drop Package"/>
     </block>
 
     <block name="Goto Truck">
       <set var="mission_nb" value="DROP_NONE"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <set var="tag_tracking_get(TAG_TRACKING_ANY)->motion_type" value="TAG_TRACKING_MOVING"/>
       <call_once fun="NavSetWaypointHere(WP__HERE)"/>
       <call_once fun="jevois_stream(false)"/>
       <!--call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/-->
@@ -348,13 +348,13 @@
       <call_once fun="guidance_h_SetMaxSpeed(search_speed)"/>
       <call_once fun="NavSetWaypointHere(WP_TAG)"/>
       <stay wp="TRUCK" until="stage_time @GT 5" height="truck_height"/>
-      <stay wp="TRUCK" until="(tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="truck_height"/>
+      <stay wp="TRUCK" until="(tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="truck_height"/>
       <deroute block="Drop Package on Truck"/>
     </block>
 
     <block name="Run Search Uncertain">
       <set var="mission_nb" value="DROP_NONE"/>
-      <exception cond="tag_tracking.status == TAG_TRACKING_RUNNING" deroute="Drop Package"/>
+      <exception cond="tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING" deroute="Drop Package"/>
       <call_once fun="NavSetWaypointHere(WP__HERE)"/>
       <call_once fun="jevois_stream(false)"/>
       <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
@@ -387,8 +387,8 @@
 
     <block name="Run Search Truck">
       <set var="mission_nb" value="DROP_NONE"/>
-      <exception cond="tag_tracking.status == TAG_TRACKING_RUNNING" deroute="Drop Package on Truck"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <exception cond="tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING" deroute="Drop Package on Truck"/>
+      <set var="tag_tracking_get(TAG_TRACKING_ANY)->motion_type" value="TAG_TRACKING_MOVING"/>
       <call_once fun="NavSetWaypointHere(WP__HERE)"/>
       <call_once fun="jevois_stream(false)"/>
       <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
@@ -418,21 +418,21 @@
     </block>
 
     <block name="Drop Package">
-      <stay wp="TAG" until="(stage_time @GT 2 @AND tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 5)" height="search_height"/>
+      <stay wp="TAG" until="(stage_time @GT 2 @AND tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 5)" height="search_height"/>
       <stay wp="TAG" climb="-0.5" vmode="climb" until="((tag_distance @LT drop_height) @AND tag_valid) @OR (GetPosHeight() @LT drop_height/2.)" post_call="tag_valid = false"/>
       <call_once fun="DropOpen()"/>
       <stay wp="TAG" until="stage_time @GT 3" height="goto_height"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
+      <set var="tag_tracking_get(TAG_TRACKING_ANY)->motion_type" value="TAG_TRACKING_FIXED_POS"/>
       <deroute block="Land"/>
     </block>
 
     <block name="Drop Package on Truck">
-      <exception cond="tag_tracking.status == TAG_TRACKING_SEARCHING @OR tag_tracking.status == TAG_TRACKING_LOST" deroute="Drop on Truck fallback"/>
+      <exception cond="tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_SEARCHING @OR tag_tracking_get(TAG_TRACKING_ANY) @DEREF status == TAG_TRACKING_LOST" deroute="Drop on Truck fallback"/>
       <stay wp="TAG" until="stage_time @GT 3" height="truck_height"/>
       <stay wp="TAG" climb="-0.5" vmode="climb" until="((tag_distance @LT drop_height+0.5) @AND tag_valid) @OR (GetPosHeight() @LT drop_height+1.)" post_call="tag_valid = false"/>
       <call_once fun="DropOpen()"/>
       <stay wp="TAG" until="stage_time @GT 3" height="goto_height"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
+      <set var="tag_tracking_get(TAG_TRACKING_ANY)->motion_type" value="TAG_TRACKING_FIXED_POS"/>
       <set var="follow_follow_wp_status" value="MODULES_STOP"/>
       <deroute block="Land"/>
     </block>
@@ -442,7 +442,7 @@
       <stay wp="TRUCK" climb="-0.5" vmode="climb" until="GetPosHeight() @LT drop_height+1.0"/>
       <call_once fun="DropOpen()"/>
       <stay wp="TRUCK" until="stage_time @GT 3" height="goto_height"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
+      <set var="tag_tracking_get(TAG_TRACKING_ANY)->motion_type" value="TAG_TRACKING_FIXED_POS"/>
       <set var="follow_follow_wp_status" value="MODULES_STOP"/>
       <deroute block="Land"/>
     </block>
