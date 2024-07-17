@@ -97,10 +97,10 @@
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #if INDI_NUM_ACT > WLS_N_U_MAX
-#error Matrix-WLS_N_U too small or not defined: define WLS_N_U >= INDI_NUM_ACT in airframe file
+#error Matrix-WLS_N_U_MAX too small or not defined: define WLS_N_U_MAX >= INDI_NUM_ACT in airframe file
 #endif
 #if INDI_OUTPUTS > WLS_N_V_MAX
-#error Matrix-WLS_N_V too small or not defined: define WLS_N_U >= INDI_OUTPUTS in airframe file
+#error Matrix-WLS_N_V_MAX too small or not defined: define WLS_N_V_MAX >= INDI_OUTPUTS in airframe file
 #endif
 struct WLS_t wls_stab_p = {
   .nu        = INDI_NUM_ACT,
