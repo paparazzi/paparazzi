@@ -96,13 +96,41 @@
 
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
-#if INDI_NUM_ACT > WLS_N_U
+#if INDI_NUM_ACT > WLS_N_U_MAX
 #error Matrix-WLS_N_U too small or not defined: define WLS_N_U >= INDI_NUM_ACT in airframe file
 #endif
-#if INDI_OUTPUTS > WLS_N_V
+#if INDI_OUTPUTS > WLS_N_V_MAX
 #error Matrix-WLS_N_V too small or not defined: define WLS_N_U >= INDI_OUTPUTS in airframe file
 #endif
+struct WLS_t WLS_stab_p = {
+  .nu        = INDI_NUM_ACT,
+  .nv        = INDI_OUTPUTS,
+  .gamma_sq  = 10000.0,
+  .v         = {0.0},
+#ifdef STABILIZATION_INDI_WLS_PRIORITIES
+  .Wv        =  STABILIZATION_INDI_WLS_PRIORITIES,
+#else //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+#if INDI_OUTPUTS == 5
+  .Wv        =  {1000, 1000, 1, 100, 100},
+#else
+  .Wv        =  {1000, 1000, 1, 100},
 #endif
+#endif  
+#ifdef STABILIZATION_INDI_WLS_WU //Weighting of different actuators in the cost function
+  .Wu        = STABILIZATION_INDI_WLS_WU,
+#else
+  .Wu        = {[0 ... INDI_NUM_ACT - 1] = 1.0},
+#endif
+  .u_pref    = {0.0},
+  .u_min     = {0.0},
+  .u_max     = {0.0},
+  .PC        = 0.0,
+  .SC        = 0.0,
+  .iter      = 0
+};
+#endif
+
+
 
 float u_min_stab_indi[INDI_NUM_ACT];
 float u_max_stab_indi[INDI_NUM_ACT];
@@ -174,26 +202,6 @@ float act_dyn_discrete[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 #else
 float act_first_order_cutoff[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_FREQ;
 float act_dyn_discrete[INDI_NUM_ACT]; // will be computed from freq at init
-#endif
-
-#ifdef STABILIZATION_INDI_WLS_PRIORITIES
-static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
-#else
-//State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
-#if INDI_OUTPUTS == 5
-static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100, 100};
-#else
-static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
-#endif
-#endif
-
-/**
- * Weighting of different actuators in the cost function
- */
-#ifdef STABILIZATION_INDI_WLS_WU
-float indi_Wu[INDI_NUM_ACT] = STABILIZATION_INDI_WLS_WU;
-#else
-float indi_Wu[INDI_NUM_ACT] = {[0 ... INDI_NUM_ACT - 1] = 1.0};
 #endif
 
 /**
@@ -296,6 +304,15 @@ void sum_g1_g2(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+static void send_wls_v_stab(struct transport_tx *trans, struct link_device *dev)
+{
+  send_wls_v("stab", &WLS_stab_p, trans, dev); 
+}
+static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
+{
+  send_wls_u("stab", &WLS_stab_p, trans, dev); 
+}
+
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
@@ -422,6 +439,8 @@ void stabilization_indi_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_full_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_v, send_wls_v_stab);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_u, send_wls_u_stab);
 #endif
 }
 
@@ -675,9 +694,13 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
   stabilization_indi_set_wls_settings();
 
   // WLS Control Allocator
-  num_iter =
-    wls_alloc(indi_u, indi_v, u_min_stab_indi, u_max_stab_indi, Bwls, 0, 0, Wv, indi_Wu, u_pref_stab_indi, 10000, 10,
-              INDI_NUM_ACT, INDI_OUTPUTS);
+  for (i = 0; i < INDI_OUTPUTS; i++) {
+    WLS_stab_p.v[i] = indi_v[i];
+  }
+  wls_alloc(&WLS_stab_p, Bwls, 0, 0, 10);
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    indi_u [i] = WLS_stab_p.u[i];
+  }
 #endif
 
   // Bound the inputs to the actuators
@@ -719,9 +742,9 @@ void WEAK stabilization_indi_set_wls_settings(void)
 {
   // Calculate the min and max increments
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-    u_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i];
-    u_max_stab_indi[i] = MAX_PPRZ;
-    u_pref_stab_indi[i] = act_pref[i];
+    WLS_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
+    WLS_stab_p.u_max[i] = MAX_PPRZ;
+    WLS_stab_p.u_pref[i] = act_pref[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
     float airspeed = stateGetAirspeed_f();
@@ -729,9 +752,9 @@ void WEAK stabilization_indi_set_wls_settings(void)
     if (!act_is_servo[i]) {
       if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
         if (airspeed < STABILIZATION_INDI_THROTTLE_LIMIT_AIRSPEED_FWD) {
-          u_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE;
+          WLS_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE;
         } else {
-          u_min_stab_indi[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD;
+          WLS_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD;
         }
       }
     }
