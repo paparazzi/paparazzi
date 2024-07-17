@@ -37,9 +37,6 @@ extern bool act_is_servo[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 
-extern float u_min_stab_indi[INDI_NUM_ACT];
-extern float u_max_stab_indi[INDI_NUM_ACT];
-extern float u_pref_stab_indi[INDI_NUM_ACT];
 extern float *Bwls[INDI_OUTPUTS];
 
 extern float thrust_bx_eff;
@@ -50,7 +47,6 @@ extern float thrust_bx_state_filt;
 extern float act_pref[INDI_NUM_ACT];
 
 extern float indi_Wu[INDI_NUM_ACT];
-
 struct Indi_gains {
   struct FloatRates att;
   struct FloatRates rate;
@@ -68,5 +64,9 @@ extern void stabilization_indi_attitude_run(bool in_flight, struct Stabilization
 extern void stabilization_indi_set_wls_settings(void);
 extern void stabilization_indi_update_filt_freq(float freq); // setting handler
 
+#if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
+#include "math/wls/wls_alloc.h"
+extern struct WLS_t wls_stab_p;
+#endif
 #endif /* STABILIZATION_INDI */
 
