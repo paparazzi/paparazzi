@@ -53,3 +53,12 @@
 [submodule "sw/ext/libcanard"]
 	path = sw/ext/libcanard
 	url = https://github.com/dronecan/libcanard.git
+[submodule "sw/ext/DSDL"]
+	path = sw/ext/DSDL
+	url = https://github.com/dronecan/DSDL.git
+[submodule "sw/ext/dronecan_dsdlc"]
+	path = sw/ext/dronecan_dsdlc
+	url = https://github.com/dronecan/dronecan_dsdlc.git
+[submodule "sw/ext/pydronecan"]
+	path = sw/ext/pydronecan
+	url = https://github.com/dronecan/pydronecan.git
