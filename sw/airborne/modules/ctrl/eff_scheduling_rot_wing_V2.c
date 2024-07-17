@@ -223,41 +223,41 @@ void calc_G1_G2_RW(void)
   Bound(RW.I.xx, 0.01, 100.);
   Bound(RW.I.yy, 0.01, 100.);
   // Motor Front
-  G1_RW[aZ][COMMAND_MOTOR_FRONT]  = -RW.mF.dFdu / RW.m;
-  G1_RW[aq][COMMAND_MOTOR_FRONT]  =  (RW.mF.dFdu * RW.mF.l) / RW.I.yy;
-  G1_RW[ar][COMMAND_MOTOR_FRONT]  = -RW.mF.dMdu  / RW.I.zz;
+  G1_RW[RW_aZ][COMMAND_MOTOR_FRONT]  = -RW.mF.dFdu / RW.m;
+  G1_RW[RW_aq][COMMAND_MOTOR_FRONT]  =  (RW.mF.dFdu * RW.mF.l) / RW.I.yy;
+  G1_RW[RW_ar][COMMAND_MOTOR_FRONT]  = -RW.mF.dMdu  / RW.I.zz;
   G2_RW[COMMAND_MOTOR_FRONT]      = -RW.mF.dMdud / RW.I.zz;
   // Motor Right
-  G1_RW[aZ][COMMAND_MOTOR_RIGHT]  = -RW.mR.dFdu / RW.m;
-  G1_RW[ap][COMMAND_MOTOR_RIGHT]  = -(RW.mR.dFdu * RW.mR.l * RW.skew.cosr) / RW.I.xx;
-  G1_RW[aq][COMMAND_MOTOR_RIGHT]  =  (RW.mR.dFdu * RW.mR.l * RW.skew.sinr) / RW.I.yy;
-  G1_RW[ar][COMMAND_MOTOR_RIGHT]  =  RW.mR.dMdu  / RW.I.zz;
+  G1_RW[RW_aZ][COMMAND_MOTOR_RIGHT]  = -RW.mR.dFdu / RW.m;
+  G1_RW[RW_ap][COMMAND_MOTOR_RIGHT]  = -(RW.mR.dFdu * RW.mR.l * RW.skew.cosr) / RW.I.xx;
+  G1_RW[RW_aq][COMMAND_MOTOR_RIGHT]  =  (RW.mR.dFdu * RW.mR.l * RW.skew.sinr) / RW.I.yy;
+  G1_RW[RW_ar][COMMAND_MOTOR_RIGHT]  =  RW.mR.dMdu  / RW.I.zz;
   G2_RW[COMMAND_MOTOR_RIGHT]      =  RW.mR.dMdud / RW.I.zz;
   // Motor Back
-  G1_RW[aZ][COMMAND_MOTOR_BACK]   = -RW.mB.dFdu / RW.m;
-  G1_RW[aq][COMMAND_MOTOR_BACK]   = -(RW.mB.dFdu * RW.mB.l) / RW.I.yy;
-  G1_RW[ar][COMMAND_MOTOR_BACK]   = -RW.mB.dMdu  / RW.I.zz;
+  G1_RW[RW_aZ][COMMAND_MOTOR_BACK]   = -RW.mB.dFdu / RW.m;
+  G1_RW[RW_aq][COMMAND_MOTOR_BACK]   = -(RW.mB.dFdu * RW.mB.l) / RW.I.yy;
+  G1_RW[RW_ar][COMMAND_MOTOR_BACK]   = -RW.mB.dMdu  / RW.I.zz;
   G2_RW[COMMAND_MOTOR_BACK]       = -RW.mB.dMdud / RW.I.zz;
   // Motor Left
-  G1_RW[aZ][COMMAND_MOTOR_LEFT]   = -RW.mL.dFdu / RW.m;
-  G1_RW[ap][COMMAND_MOTOR_LEFT]   =  (RW.mL.dFdu * RW.mL.l * RW.skew.cosr) / RW.I.xx;
-  G1_RW[aq][COMMAND_MOTOR_LEFT]   = -(RW.mL.dFdu * RW.mL.l * RW.skew.sinr) / RW.I.yy;
-  G1_RW[ar][COMMAND_MOTOR_LEFT]   =  RW.mL.dMdu  / RW.I.zz;
+  G1_RW[RW_aZ][COMMAND_MOTOR_LEFT]   = -RW.mL.dFdu / RW.m;
+  G1_RW[RW_ap][COMMAND_MOTOR_LEFT]   =  (RW.mL.dFdu * RW.mL.l * RW.skew.cosr) / RW.I.xx;
+  G1_RW[RW_aq][COMMAND_MOTOR_LEFT]   = -(RW.mL.dFdu * RW.mL.l * RW.skew.sinr) / RW.I.yy;
+  G1_RW[RW_ar][COMMAND_MOTOR_LEFT]   =  RW.mL.dMdu  / RW.I.zz;
   G2_RW[COMMAND_MOTOR_LEFT]       =  RW.mL.dMdud / RW.I.zz;
   // Motor Pusher
-  G1_RW[aX][COMMAND_MOTOR_PUSHER] =  RW.mP.dFdu / RW.m;
+  G1_RW[RW_aX][COMMAND_MOTOR_PUSHER] =  RW.mP.dFdu / RW.m;
   // Elevator
   RW.ele.dFdu                     = ele_eff / (RW_G_SCALE * RW_G_SCALE);
-  G1_RW[aq][COMMAND_ELEVATOR]     =  (RW.ele.dFdu * RW.as2 * RW.ele.l) / RW.I.yy;
+  G1_RW[RW_aq][COMMAND_ELEVATOR]     =  (RW.ele.dFdu * RW.as2 * RW.ele.l) / RW.I.yy;
   // Rudder
-  G1_RW[ar][COMMAND_RUDDER]       =  (RW.rud.dFdu * RW.as2 * RW.rud.l) / RW.I.zz ;
+  G1_RW[RW_ar][COMMAND_RUDDER]       =  (RW.rud.dFdu * RW.as2 * RW.rud.l) / RW.I.zz ;
   // Aileron
-  G1_RW[ap][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * RW.skew.sinr3) / RW.I.xx;
-  G1_RW[aq][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
+  G1_RW[RW_ap][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * RW.skew.sinr3) / RW.I.xx;
+  G1_RW[RW_aq][COMMAND_AILERONS]     =  (RW.ail.dFdu * RW.as2 * RW.ail.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
   
   // Flaperon
-  G1_RW[ap][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * RW.skew.sinr3) / RW.I.xx;
-  G1_RW[aq][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
+  G1_RW[RW_ap][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * RW.skew.sinr3) / RW.I.xx;
+  G1_RW[RW_aq][COMMAND_FLAPS]        =  (RW.flp.dFdu * RW.as2 * RW.flp.l * (RW.skew.cosr-RW.skew.cosr3)) / RW.I.yy;
   // Lift and thrust
   RW.wing.dLdtheta                =  (RW.wing.k0 + RW.wing.k1 * RW.skew.sinr2) * RW.as2;
   Bound(RW.wing.dLdtheta, 0.0, 1300.0);
@@ -303,47 +303,47 @@ void sum_EFF_MAT_RW(void) {
     case (COMMAND_MOTOR_BACK):
     case (COMMAND_MOTOR_RIGHT):     
     case (COMMAND_MOTOR_LEFT):
-      EFF_MAT_RW[aN][i] = (RW.att.cpsi * RW.att.stheta + RW.att.ctheta * RW.att.sphi   * RW.att.spsi) * G1_RW[aZ][i];
-      EFF_MAT_RW[aE][i] = (RW.att.spsi * RW.att.stheta - RW.att.cpsi   * RW.att.ctheta * RW.att.sphi) * G1_RW[aZ][i];
-      EFF_MAT_RW[aD][i] = (RW.att.cphi * RW.att.ctheta                                              ) * G1_RW[aZ][i];
-      EFF_MAT_RW[ap][i] = (G1_RW[ap][i])                                       ;
-      EFF_MAT_RW[aq][i] = (G1_RW[aq][i])                                       ;
-      EFF_MAT_RW[ar][i] = (G1_RW[ar][i] + G2_RW[i])                            ;
+      EFF_MAT_RW[RW_aN][i] = (RW.att.cpsi * RW.att.stheta + RW.att.ctheta * RW.att.sphi   * RW.att.spsi) * G1_RW[RW_aZ][i];
+      EFF_MAT_RW[RW_aE][i] = (RW.att.spsi * RW.att.stheta - RW.att.cpsi   * RW.att.ctheta * RW.att.sphi) * G1_RW[RW_aZ][i];
+      EFF_MAT_RW[RW_aD][i] = (RW.att.cphi * RW.att.ctheta                                              ) * G1_RW[RW_aZ][i];
+      EFF_MAT_RW[RW_ap][i] = (G1_RW[RW_ap][i])                                       ;
+      EFF_MAT_RW[RW_aq][i] = (G1_RW[RW_aq][i])                                       ;
+      EFF_MAT_RW[RW_ar][i] = (G1_RW[RW_ar][i] + G2_RW[i])                            ;
       break;
     case (COMMAND_MOTOR_PUSHER): 
-      EFF_MAT_RW[aN][i] = (RW.att.cpsi   * RW.att.ctheta - RW.att.sphi * RW.att.spsi * RW.att.stheta) * G1_RW[aX][i];
-      EFF_MAT_RW[aE][i] = (RW.att.ctheta * RW.att.spsi   + RW.att.cpsi * RW.att.sphi * RW.att.stheta) * G1_RW[aX][i];
-      EFF_MAT_RW[aD][i] = (- RW.att.cphi * RW.att.stheta                                            ) * G1_RW[aX][i];
-      EFF_MAT_RW[ap][i] = 0.0;
-      EFF_MAT_RW[aq][i] = 0.0;
-      EFF_MAT_RW[ar][i] = 0.0;
+      EFF_MAT_RW[RW_aN][i] = (RW.att.cpsi   * RW.att.ctheta - RW.att.sphi * RW.att.spsi * RW.att.stheta) * G1_RW[RW_aX][i];
+      EFF_MAT_RW[RW_aE][i] = (RW.att.ctheta * RW.att.spsi   + RW.att.cpsi * RW.att.sphi * RW.att.stheta) * G1_RW[RW_aX][i];
+      EFF_MAT_RW[RW_aD][i] = (- RW.att.cphi * RW.att.stheta                                            ) * G1_RW[RW_aX][i];
+      EFF_MAT_RW[RW_ap][i] = 0.0;
+      EFF_MAT_RW[RW_aq][i] = 0.0;
+      EFF_MAT_RW[RW_ar][i] = 0.0;
       break;
     case (COMMAND_ELEVATOR):
     case (COMMAND_RUDDER): 
     case (COMMAND_AILERONS):
     case (COMMAND_FLAPS):  
-      EFF_MAT_RW[aN][i] = 0.0;
-      EFF_MAT_RW[aE][i] = 0.0;
-      EFF_MAT_RW[aD][i] = 0.0;
-      EFF_MAT_RW[ap][i] = G1_RW[ap][i];
-      EFF_MAT_RW[aq][i] = G1_RW[aq][i];
-      EFF_MAT_RW[ar][i] = G1_RW[ar][i];
+      EFF_MAT_RW[RW_aN][i] = 0.0;
+      EFF_MAT_RW[RW_aE][i] = 0.0;
+      EFF_MAT_RW[RW_aD][i] = 0.0;
+      EFF_MAT_RW[RW_ap][i] = G1_RW[RW_ap][i];
+      EFF_MAT_RW[RW_aq][i] = G1_RW[RW_aq][i];
+      EFF_MAT_RW[RW_ar][i] = G1_RW[RW_ar][i];
       break;     
     case (COMMAND_ROLL):
-      EFF_MAT_RW[aN][i] = (-RW.att.cphi * RW.att.ctheta * RW.att.spsi * T_L - RW.att.cphi * RW.att.spsi * RW.att.stheta * P_L);
-      EFF_MAT_RW[aE][i] = ( RW.att.cphi * RW.att.ctheta * RW.att.cpsi * T_L + RW.att.cphi * RW.att.cpsi * RW.att.stheta * P_L);
-      EFF_MAT_RW[aD][i] = ( RW.att.sphi * RW.att.ctheta * T_L + RW.att.sphi * RW.att.stheta * P_L);
-      EFF_MAT_RW[ap][i] = 0.0;
-      EFF_MAT_RW[aq][i] = 0.0;
-      EFF_MAT_RW[ar][i] = 0.0;  
+      EFF_MAT_RW[RW_aN][i] = (-RW.att.cphi * RW.att.ctheta * RW.att.spsi * T_L - RW.att.cphi * RW.att.spsi * RW.att.stheta * P_L);
+      EFF_MAT_RW[RW_aE][i] = ( RW.att.cphi * RW.att.ctheta * RW.att.cpsi * T_L + RW.att.cphi * RW.att.cpsi * RW.att.stheta * P_L);
+      EFF_MAT_RW[RW_aD][i] = ( RW.att.sphi * RW.att.ctheta * T_L + RW.att.sphi * RW.att.stheta * P_L);
+      EFF_MAT_RW[RW_ap][i] = 0.0;
+      EFF_MAT_RW[RW_aq][i] = 0.0;
+      EFF_MAT_RW[RW_ar][i] = 0.0;  
       break;
     case (COMMAND_PITCH):
-      EFF_MAT_RW[aN][i] = (-(RW.att.ctheta * RW.att.cpsi - RW.att.sphi * RW.att.stheta * RW.att.spsi) * T - (RW.att.cpsi * RW.att.stheta + RW.att.ctheta * RW.att.sphi   * RW.att.spsi) * P - RW.att.sphi * RW.att.spsi * dLdtheta);
-      EFF_MAT_RW[aE][i] = (-(RW.att.ctheta * RW.att.spsi + RW.att.sphi * RW.att.stheta * RW.att.cpsi) * T - (RW.att.spsi * RW.att.stheta - RW.att.cpsi   * RW.att.ctheta * RW.att.sphi) * P + RW.att.sphi * RW.att.cpsi * dLdtheta);
-      EFF_MAT_RW[aD][i] = ( RW.att.stheta * RW.att.cphi * T - RW.att.cphi * RW.att.ctheta * P - RW.att.cphi * dLdtheta)                                           ;
-      EFF_MAT_RW[ap][i] = 0.0;
-      EFF_MAT_RW[aq][i] = 0.0;
-      EFF_MAT_RW[ar][i] = 0.0;
+      EFF_MAT_RW[RW_aN][i] = (-(RW.att.ctheta * RW.att.cpsi - RW.att.sphi * RW.att.stheta * RW.att.spsi) * T - (RW.att.cpsi * RW.att.stheta + RW.att.ctheta * RW.att.sphi   * RW.att.spsi) * P - RW.att.sphi * RW.att.spsi * dLdtheta);
+      EFF_MAT_RW[RW_aE][i] = (-(RW.att.ctheta * RW.att.spsi + RW.att.sphi * RW.att.stheta * RW.att.cpsi) * T - (RW.att.spsi * RW.att.stheta - RW.att.cpsi   * RW.att.ctheta * RW.att.sphi) * P + RW.att.sphi * RW.att.cpsi * dLdtheta);
+      EFF_MAT_RW[RW_aD][i] = ( RW.att.stheta * RW.att.cphi * T - RW.att.cphi * RW.att.ctheta * P - RW.att.cphi * dLdtheta)                                           ;
+      EFF_MAT_RW[RW_ap][i] = 0.0;
+      EFF_MAT_RW[RW_aq][i] = 0.0;
+      EFF_MAT_RW[RW_ar][i] = 0.0;
       break;
     default:
       break;

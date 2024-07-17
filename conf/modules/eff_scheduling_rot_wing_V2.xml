@@ -61,15 +61,15 @@
       <define name="COMMAND_RUDDER"              value="6"/>
       <define name="COMMAND_AILERONS"            value="7"/>
       <define name="COMMAND_ROT_MECH"            value="11"/>
-      <define name="aX"                          value="0"/>
-      <define name="aY"                          value="1"/>
-      <define name="aZ"                          value="2"/>
-      <define name="aN"                          value="0"/>
-      <define name="aE"                          value="1"/>
-      <define name="aD"                          value="2"/>
-      <define name="ap"                          value="3"/>
-      <define name="aq"                          value="4"/>
-      <define name="ar"                          value="5"/>
+      <define name="RW_aX"                       value="0"/>
+      <define name="RW_aY"                       value="1"/>
+      <define name="RW_aZ"                       value="2"/>
+      <define name="RW_aN"                       value="0"/>
+      <define name="RW_aE"                       value="1"/>
+      <define name="RW_aD"                       value="2"/>
+      <define name="RW_ap"                       value="3"/>
+      <define name="RW_aq"                       value="4"/>
+      <define name="RW_ar"                       value="5"/>
       <define name="ZERO_ELE_PPRZ"               value="8000"/>
       <define name="ELE_MIN_AS"                  value="8.8"/>
       <define name="ELE_MAX_AS"                  value="16.0"/>

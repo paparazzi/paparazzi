@@ -33,15 +33,15 @@
 #define EFF_MAT_ROWS_NB 6
 #endif
 
-#define aX 0
-#define aY 1
-#define aZ 2
-#define aN 0
-#define aE 1
-#define aD 2
-#define ap 3
-#define aq 4
-#define ar 5
+#define RW_aX 0 // X body axis (linear acceleration) 
+#define RW_aY 1 // Y body axis (linear acceleration)
+#define RW_aZ 2 // Z body axis (linear acceleration)
+#define RW_aN 0 // North axis (linear acceleration)
+#define RW_aE 1 // East axis (linear acceleration)
+#define RW_aD 2 // Down axis (linear acceleration)
+#define RW_ap 3 // X body axis (angular acceleration)
+#define RW_aq 4 // Y body axis (angular acceleration)
+#define RW_ar 5 // Z body axis (angular acceleration)
 
 #ifndef EFF_MAT_COLS_NB
 #define EFF_MAT_COLS_NB (COMMANDS_NB_REAL + COMMANDS_NB_VIRTUAL)
