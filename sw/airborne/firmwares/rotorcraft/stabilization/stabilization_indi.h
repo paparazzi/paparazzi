@@ -27,7 +27,7 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
-
+#include "math/wls/wls_alloc.h"
 // Scaling for the control effectiveness to make it readible
 #define INDI_G_SCALING 1000.0
 
@@ -50,7 +50,7 @@ extern float thrust_bx_state_filt;
 extern float act_pref[INDI_NUM_ACT];
 
 extern float indi_Wu[INDI_NUM_ACT];
-
+extern struct WLS_t WLS_stab_p;
 struct Indi_gains {
   struct FloatRates att;
   struct FloatRates rate;
