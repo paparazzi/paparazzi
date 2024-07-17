@@ -424,22 +424,22 @@ void stabilization_indi_set_wls_settings(void)
 {
    // Calculate the min and max increments
     for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-      u_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i];
-      u_max_stab_indi[i] = MAX_PPRZ;
-      u_pref_stab_indi[i] = act_pref[i];
+      wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
+      wls_stab_p.u_max[i] = MAX_PPRZ;
+      wls_stab_p.u_pref[i] = act_pref[i];
       if (i == 5) {
-        u_pref_stab_indi[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
-        u_min_stab_indi[i] = 0; // cmd 0 is lowest position for elevator
+        wls_stab_p.u_pref[i] = actuator_state_filt_vect[i]; // Set change in preferred state to 0 for elevator
+        wls_stab_p.u_min[i] = 0; // cmd 0 is lowest position for elevator
       }
       if (i==8) {
         // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
         Bound(eff_sched_pusher_time, 0.002, 5.);
         float max_increment = MAX_PPRZ / (eff_sched_pusher_time * 500);
-        u_min_stab_indi[i] = actuators_pprz[i] - max_increment;
-        u_max_stab_indi[i] = actuators_pprz[i] + max_increment;
+        wls_stab_p.u_min[i] = actuators_pprz[i] - max_increment;
+        wls_stab_p.u_max[i] = actuators_pprz[i] + max_increment;
 
-        Bound(u_min_stab_indi[i], 0, MAX_PPRZ);
-        Bound(u_max_stab_indi[i], 0, MAX_PPRZ);
+        Bound(wls_stab_p.u_min[i], 0, MAX_PPRZ);
+        Bound(wls_stab_p.u_max[i], 0, MAX_PPRZ);
       }
   }
 }
