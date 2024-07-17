@@ -108,23 +108,12 @@ static void qr_solve_wrapper(int m, int n, float **A, float *b, float *x) {
  * Takes the control objective and max and min inputs from pprz and calculates
  * the inputs that will satisfy most of the control objective, subject to the
  * weighting matrices Wv and Wu
- *
- * @param u The control output vector
- * @param v The control objective vector
- * @param umin The minimum u vector
- * @param u_max The maximum u vector
+ *  
+ * @param WLS_p Struct that contains most of the WLS parameters
  * @param B The control effectiveness matrix
  * @param u_guess Initial value for u
  * @param W_init Initial working set, if known
- * @param Wv Weighting on different control objectives
- * @param Wu Weighting on different controls
- * @param up Preferred control vector
- * @param gamma_sq Preference of satisfying control objective over desired control vector (sqare root of gamma)
  * @param imax Max number of iterations
- * @param nu Length of u (the number of actuators)
- * @param nv Length of v (the number of control objectives)
- * @param WLS_p Struct that contains most of the WLS parameters
- * @return Number of iterations which is (imax+1) if it ran out of iterations
  */
 
 void wls_alloc(struct WLS_t* WLS_p, float **B, float *u_guess, float *W_init, int imax) {
