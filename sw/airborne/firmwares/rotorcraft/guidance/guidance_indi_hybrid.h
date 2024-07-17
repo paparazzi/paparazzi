@@ -52,7 +52,7 @@ extern void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 #include "math/wls/wls_alloc.h"
-extern struct WLS_t WLS_guid_p;
+extern struct WLS_t wls_guid_p;
 extern void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle);
 #endif
 

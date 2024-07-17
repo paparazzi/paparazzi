@@ -61,7 +61,7 @@ static void print_in_and_outputs(int n_c, int n_free, float **A_free_ptr, float 
 void send_wls_v(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, struct link_device *dev)
 {
   uint8_t iter_temp = (uint8_t)WLS_p->iter;
-  pprz_msg_send_WLS_v(trans, dev, AC_ID,
+  pprz_msg_send_WLS_V(trans, dev, AC_ID,
                       strlen(name),name,
                       &WLS_p->gamma_sq,
                       &iter_temp,
@@ -70,7 +70,7 @@ void send_wls_v(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, str
 }
 void send_wls_u(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_WLS_u(trans, dev, AC_ID,
+  pprz_msg_send_WLS_U(trans, dev, AC_ID,
                       strlen(name),name,
                       WLS_p->nu, WLS_p->Wu,
                       WLS_p->nu, WLS_p->u_pref,

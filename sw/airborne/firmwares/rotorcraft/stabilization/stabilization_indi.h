@@ -66,7 +66,7 @@ extern void stabilization_indi_update_filt_freq(float freq); // setting handler
 
 #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 #include "math/wls/wls_alloc.h"
-extern struct WLS_t WLS_stab_p;
+extern struct WLS_t wls_stab_p;
 #endif
 #endif /* STABILIZATION_INDI */
 

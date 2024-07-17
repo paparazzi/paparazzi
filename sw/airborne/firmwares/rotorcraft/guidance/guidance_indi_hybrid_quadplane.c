@@ -133,22 +133,22 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
   float pitch_pref_rad = RadOfDeg(guidance_indi_pitch_pref_deg);
 
   // Set lower limits
-  WLS_guid_p.u_min[0] = -guidance_indi_max_bank - roll_angle; //roll
-  WLS_guid_p.u_min[1] = min_pitch_limit_rad - pitch_angle; // pitch
-  WLS_guid_p.u_min[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
-  WLS_guid_p.u_min[3] = -stabilization.cmd[COMMAND_THRUST_X]*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
+  wls_guid_p.u_min[0] = -guidance_indi_max_bank - roll_angle; //roll
+  wls_guid_p.u_min[1] = min_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_min[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
+  wls_guid_p.u_min[3] = -stabilization.cmd[COMMAND_THRUST_X]*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set upper limits limits
-  WLS_guid_p.u_max[0] = guidance_indi_max_bank - roll_angle; //roll
-  WLS_guid_p.u_max[1] = max_pitch_limit_rad - pitch_angle; // pitch
-  WLS_guid_p.u_max[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
-  WLS_guid_p.u_max[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
+  wls_guid_p.u_max[0] = guidance_indi_max_bank - roll_angle; //roll
+  wls_guid_p.u_max[1] = max_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_max[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
+  wls_guid_p.u_max[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set prefered states
-  WLS_guid_p.u_pref[0] = -roll_angle; // prefered delta roll angle
-  WLS_guid_p.u_pref[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
-  WLS_guid_p.u_pref[2] =  WLS_guid_p.u_max[2]; // Low thrust better for efficiency
-  WLS_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
+  wls_guid_p.u_pref[0] = -roll_angle; // prefered delta roll angle
+  wls_guid_p.u_pref[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
+  wls_guid_p.u_pref[2] =  wls_guid_p.u_max[2]; // Low thrust better for efficiency
+  wls_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
 }
 
 

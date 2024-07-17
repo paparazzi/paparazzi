@@ -102,7 +102,7 @@
 #if INDI_OUTPUTS > WLS_N_V_MAX
 #error Matrix-WLS_N_V too small or not defined: define WLS_N_U >= INDI_OUTPUTS in airframe file
 #endif
-struct WLS_t WLS_stab_p = {
+struct WLS_t wls_stab_p = {
   .nu        = INDI_NUM_ACT,
   .nv        = INDI_OUTPUTS,
   .gamma_sq  = 10000.0,
@@ -299,11 +299,11 @@ void sum_g1_g2(void);
 #include "modules/datalink/telemetry.h"
 static void send_wls_v_stab(struct transport_tx *trans, struct link_device *dev)
 {
-  send_wls_v("stab", &WLS_stab_p, trans, dev); 
+  send_wls_v("stab", &wls_stab_p, trans, dev); 
 }
 static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 {
-  send_wls_u("stab", &WLS_stab_p, trans, dev); 
+  send_wls_u("stab", &wls_stab_p, trans, dev); 
 }
 
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
@@ -432,8 +432,8 @@ void stabilization_indi_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_full_indi);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_v, send_wls_v_stab);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_u, send_wls_u_stab);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_stab);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_stab);
 #endif
 }
 
@@ -688,11 +688,11 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 
   // WLS Control Allocator
   for (i = 0; i < INDI_OUTPUTS; i++) {
-    WLS_stab_p.v[i] = indi_v[i];
+    wls_stab_p.v[i] = indi_v[i];
   }
-  wls_alloc(&WLS_stab_p, Bwls, 0, 0, 10);
+  wls_alloc(&wls_stab_p, Bwls, 0, 0, 10);
   for (i = 0; i < INDI_NUM_ACT; i++) {
-    indi_u [i] = WLS_stab_p.u[i];
+    indi_u [i] = wls_stab_p.u[i];
   }
 #endif
 
@@ -735,9 +735,9 @@ void WEAK stabilization_indi_set_wls_settings(void)
 {
   // Calculate the min and max increments
   for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-    WLS_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
-    WLS_stab_p.u_max[i] = MAX_PPRZ;
-    WLS_stab_p.u_pref[i] = act_pref[i];
+    wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
+    wls_stab_p.u_max[i] = MAX_PPRZ;
+    wls_stab_p.u_pref[i] = act_pref[i];
 
 #ifdef GUIDANCE_INDI_MIN_THROTTLE
     float airspeed = stateGetAirspeed_f();
@@ -745,9 +745,9 @@ void WEAK stabilization_indi_set_wls_settings(void)
     if (!act_is_servo[i]) {
       if ((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
         if (airspeed < STABILIZATION_INDI_THROTTLE_LIMIT_AIRSPEED_FWD) {
-          WLS_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE;
+          wls_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE;
         } else {
-          WLS_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD;
+          wls_stab_p.u_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD;
         }
       }
     }

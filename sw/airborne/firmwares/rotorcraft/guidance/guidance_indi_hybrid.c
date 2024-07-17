@@ -201,7 +201,7 @@ float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 #include "math/wls/wls_alloc.h"
 float *Bwls_gih[GUIDANCE_INDI_HYBRID_V];
-struct WLS_t WLS_guid_p = {
+struct WLS_t wls_guid_p = {
   .nu        = GUIDANCE_INDI_HYBRID_U,
   .nv        = GUIDANCE_INDI_HYBRID_V,
   .gamma_sq  = 100000.0,
@@ -270,11 +270,11 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 static void send_wls_v_guid(struct transport_tx *trans, struct link_device *dev)
 {
-  send_wls_v("guid", &WLS_guid_p, trans, dev); 
+  send_wls_v("guid", &wls_guid_p, trans, dev); 
 }
 static void send_wls_u_guid(struct transport_tx *trans, struct link_device *dev)
 {
-  send_wls_u("guid", &WLS_guid_p, trans, dev); 
+  send_wls_u("guid", &wls_guid_p, trans, dev); 
 }
 #endif // GUIDANCE_INDI_HYBRID_USE_WLS
 
@@ -317,8 +317,8 @@ void guidance_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_v, send_wls_v_guid);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_u, send_wls_u_guid);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_guid);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_guid);
 #endif
 }
 
@@ -421,11 +421,11 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
   float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
 
   for (int i = 0; i < GUIDANCE_INDI_HYBRID_V; i++) {
-    WLS_guid_p.v[i] = v_gih[i];
+    wls_guid_p.v[i] = v_gih[i];
   }
-  wls_alloc(&WLS_guid_p, Bwls_gih, 0, 0, 10);
+  wls_alloc(&wls_guid_p, Bwls_gih, 0, 0, 10);
   for (int i = 0; i < GUIDANCE_INDI_HYBRID_U; i++) {
-    du_gih[i] = WLS_guid_p.u[i];
+    du_gih[i] = wls_guid_p.u[i];
   }
   euler_cmd.x = du_gih[0];
   euler_cmd.y = du_gih[1];
