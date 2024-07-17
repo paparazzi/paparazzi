@@ -129,15 +129,8 @@ struct WLS_t WLS_stab_p = {
   .iter      = 0
 };
 #endif
-
-
-
-float u_min_stab_indi[INDI_NUM_ACT];
-float u_max_stab_indi[INDI_NUM_ACT];
-float u_pref_stab_indi[INDI_NUM_ACT];
 float indi_v[INDI_OUTPUTS];
 float *Bwls[INDI_OUTPUTS];
-int num_iter = 0;
 
 static void lms_estimation(void);
 static void get_actuator_state(void);
