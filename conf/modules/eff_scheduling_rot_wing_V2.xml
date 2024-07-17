@@ -49,24 +49,18 @@
       <define name="COMMANDS_NB_VIRTUAL"         value="2"/>
       <define name="COMMANDS_NB_REAL"            value="9"/>
       <define name="COMMANDS_NB_OTHER"           value="2"/>
-      <define name="COMMANDS_NB"                 value="14"/>
       <define name="ANDI_OUTPUTS"                value="6"/>
       <define name="EFF_MAT_ROWS_NB"             value="6"/> 
       <define name="EFF_MAT_COLS_NB"             value="11"/>
       <define name="COMMAND_MOTOR_FRONT"         value="0"/>
-      <define name="COMMAND_MOTOR_RIGHT"         value="1"/>
-      <define name="COMMAND_MOTOR_BACK"          value="2"/>
+      <define name="COMMAND_MOTOR_RIGHT"         value="8"/>
+      <define name="COMMAND_MOTOR_BACK"          value="9"/>
       <define name="COMMAND_MOTOR_LEFT"          value="3"/>
-      <define name="COMMAND_MOTOR_PUSHER"        value="4"/>
+      <define name="COMMAND_MOTOR_PUSHER"        value="10"/>
       <define name="COMMAND_ELEVATOR"            value="5"/>
       <define name="COMMAND_RUDDER"              value="6"/>
       <define name="COMMAND_AILERONS"            value="7"/>
-      <define name="COMMAND_FLAPS"               value="8"/>
-      <define name="COMMAND_ROLL"                value="9"/>
-      <define name="COMMAND_PITCH"               value="10"/>
       <define name="COMMAND_ROT_MECH"            value="11"/>
-      <define name="COMMAND_YAW"                 value="12"/>
-      <define name="COMMAND_THRUST"              value="13"/>
       <define name="aX"                          value="0"/>
       <define name="aY"                          value="1"/>
       <define name="aZ"                          value="2"/>
