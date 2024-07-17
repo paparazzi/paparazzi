@@ -2,7 +2,7 @@
 <module name="eff_scheduling_rot_wing_V2" dir="ctrl">
   <doc>
     <description>T
-      he control effectiveness scheduler for the rotating wing quadplane drone type
+      The control effectiveness scheduler for the rotating wing quadplane drone type
      - it requires a servo called ROTATION_MECH
     </description>
     <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
@@ -36,34 +36,49 @@
   <makefile>
     <file name="eff_scheduling_rot_wing_V2.c"/>
     <test firmware="rotorcraft">
-      <define name="RW_G_SCALE"             value="1000.0"/>
-      <define name="M_PI"                   value="3.14"/>
-      <define name="PERIODIC_FREQUENCY"     value="500.0"/>
-      <define name="ACTUATORS_NB"           value="10"/>
-      <define name="EFF_MAT_ROWS_NB"        value="6"/> 
-      <define name="EFF_MAT_COLS_NB"        value="6"/>
-      <define name="COMMAND_ROT_MECH"       value="8"/>
-      <define name="COMMAND_MOTOR_FRONT"    value="0"/>
-      <define name="COMMAND_MOTOR_RIGHT"    value="1"/>
-      <define name="COMMAND_MOTOR_BACK"     value="2"/>
-      <define name="COMMAND_MOTOR_LEFT"     value="3"/>
-      <define name="COMMAND_MOTOR_PUSH"     value="4"/>
-      <define name="COMMAND_SERVO_ELEVATOR" value="5"/>
-      <define name="COMMAND_SERVO_RUDDER"   value="6"/>
-      <define name="COMMAND_SERVO_AILERON"  value="7"/>
-      <define name="COMMAND_SERVO_FLAPERON" value="8"/>
-      <define name="aX"                     value="0"/>
-      <define name="aY"                     value="1"/>
-      <define name="aZ"                     value="2"/>
-      <define name="aN"                     value="0"/>
-      <define name="aE"                     value="1"/>
-      <define name="aD"                     value="2"/>
-      <define name="ap"                     value="3"/>
-      <define name="aq"                     value="4"/>
-      <define name="ar"                     value="5"/>
-      <define name="ZERO_ELE_PPRZ"          value="8000"/>
-      <define name="ELE_MIN_AS"             value="8.8"/>
-      <define name="ELE_MAX_AS"             value="16.0"/>
+      <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IZZ"      value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_M"        value="1"/>
+      <define name="M_PI"                        value="3.14"/>
+      <define name="PERIODIC_FREQUENCY"          value="500.0"/>
+      <define name="ACTUATORS_NB"                value="10"/>
+      <define name="COMMANDS_NB_PASSIVE"         value="1"/>
+      <define name="COMMANDS_NB_VIRTUAL"         value="2"/>
+      <define name="COMMANDS_NB_REAL"            value="9"/>
+      <define name="COMMANDS_NB_OTHER"           value="2"/>
+      <define name="COMMANDS_NB"                 value="14"/>
+      <define name="ANDI_OUTPUTS"                value="6"/>
+      <define name="EFF_MAT_ROWS_NB"             value="6"/> 
+      <define name="EFF_MAT_COLS_NB"             value="11"/>
+      <define name="COMMAND_MOTOR_FRONT"         value="0"/>
+      <define name="COMMAND_MOTOR_RIGHT"         value="1"/>
+      <define name="COMMAND_MOTOR_BACK"          value="2"/>
+      <define name="COMMAND_MOTOR_LEFT"          value="3"/>
+      <define name="COMMAND_MOTOR_PUSHER"        value="4"/>
+      <define name="COMMAND_ELEVATOR"            value="5"/>
+      <define name="COMMAND_RUDDER"              value="6"/>
+      <define name="COMMAND_AILERONS"            value="7"/>
+      <define name="COMMAND_FLAPS"               value="8"/>
+      <define name="COMMAND_ROLL"                value="9"/>
+      <define name="COMMAND_PITCH"               value="10"/>
+      <define name="COMMAND_ROT_MECH"            value="11"/>
+      <define name="COMMAND_YAW"                 value="12"/>
+      <define name="COMMAND_THRUST"              value="13"/>
+      <define name="aX"                          value="0"/>
+      <define name="aY"                          value="1"/>
+      <define name="aZ"                          value="2"/>
+      <define name="aN"                          value="0"/>
+      <define name="aE"                          value="1"/>
+      <define name="aD"                          value="2"/>
+      <define name="ap"                          value="3"/>
+      <define name="aq"                          value="4"/>
+      <define name="ar"                          value="5"/>
+      <define name="ZERO_ELE_PPRZ"               value="8000"/>
+      <define name="ELE_MIN_AS"                  value="8.8"/>
+      <define name="ELE_MAX_AS"                  value="16.0"/>
     </test>
   </makefile>
 </module>
