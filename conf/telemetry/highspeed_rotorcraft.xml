@@ -122,8 +122,8 @@
       <message name="ROTORCRAFT_CMD"           period="0.2"/>
       <message name="DEBUG_VECT"               period="0.002"/>
       <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
-      <message name="WLS_v"                    period="0.002"/>
-      <message name="WLS_u"                    period="0.002"/>
+      <message name="WLS_V"                    period="0.002"/>
+      <message name="WLS_U"                    period="0.002"/>
       <message name="ACTUATOR_STATE"           period="0.002"/>
     </mode>
 
