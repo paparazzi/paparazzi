@@ -458,8 +458,7 @@ static void send_oneloop_andi(struct transport_tx *trans, struct link_device *de
 static void send_oneloop_actuator_state(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_ACTUATOR_STATE(trans, dev, AC_ID, 
-                                        ANDI_NUM_ACT, actuator_state_1l,
-                                        ANDI_NUM_ACT_TOT, andi_u);
+                                        ANDI_NUM_ACT, actuator_state_1l);
 }
 static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
