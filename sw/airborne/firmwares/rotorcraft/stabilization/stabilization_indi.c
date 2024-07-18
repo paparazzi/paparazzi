@@ -345,23 +345,20 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
   att = *stateGetNedToBodyEulers_f();
   EULERS_FLOAT_OF_BFP(att_sp, stab_att_sp_euler);
 #endif
+  float temp_att[3] = {att.phi, att.theta, att.psi};
+  float temp_att_ref[3] = {att_sp.phi, att_sp.theta, att_sp.psi};
+  float temp_rate[3] = {body_rates->p, body_rates->q, body_rates->r};
+  float temp_rate_ref[3] = {angular_rate_ref.p, angular_rate_ref.q, angular_rate_ref.r};
+  float temp_ang_acc_ref[3] = {angular_accel_ref.p, angular_accel_ref.q, angular_accel_ref.r};
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
-                                      &att.phi, &att.theta, &att.psi,           // att
-                                      &att_sp.phi, &att_sp.theta, &att_sp.psi,  // att.ref
-                                      &body_rates->p,           // rate
-                                      &body_rates->q,
-                                      &body_rates->r,
-                                      &angular_rate_ref.p,      // rate.ref
-                                      &angular_rate_ref.q,
-                                      &angular_rate_ref.r,
-                                      &angular_acceleration[0], // ang.acc
-                                      &angular_acceleration[1],
-                                      &angular_acceleration[2],
-                                      &angular_accel_ref.p,     // ang.acc.ref
-                                      &angular_accel_ref.q,
-                                      &angular_accel_ref.r,
-                                      1, &zero,                 // inputs
-                                      INDI_NUM_ACT, indi_u);    // out
+                                      1, &zero,                    // att des
+                                      3, temp_att,                 // att
+                                      3, temp_att_ref,             // att ref
+                                      3, temp_rate,                // rate
+                                      3, temp_rate_ref,            // rate ref
+                                      3, angular_acceleration,     // ang.acc = rate.diff
+                                      3, temp_ang_acc_ref,         // ang.acc.ref
+                                      1, &zero);                   // jerk ref
 }
 #endif
 
