@@ -29,7 +29,7 @@
 #include <hal.h>
 #include <canard.h>
 #include "dronecan_msgs.h"
-#include <canard_chutils.h>
+#include "canard_chutils.h"
 #include <string.h>
 
 #ifndef MAX_CAN_NODES

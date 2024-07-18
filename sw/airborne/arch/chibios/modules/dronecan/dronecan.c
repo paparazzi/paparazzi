@@ -26,14 +26,6 @@
 
 #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
 #define FDCAN_PERIPH 1
-
-#ifndef FDCAN_ENABLED
-#define FDCAN_ENABLED 1
-#endif
-
-#if FDCAN_ENABLED
-#define CANARD_ENABLE_CANFD 1
-#endif
 #endif
 
 #include "dronecan.h"
@@ -54,8 +46,12 @@
 #define VENDOR_STATUS           0xA5A5
 #endif
 
+#ifndef FDCAN_ENABLED
+#define FDCAN_ENABLED           TRUE
+#endif
+
 #ifndef DRONECAN_BAUDRATE_MULT
-#if FDCAN
+#if FDCAN_ENABLED
 #define DRONECAN_BAUDRATE_MULT  4
 #else
 #define DRONECAN_BAUDRATE_MULT  1
@@ -91,8 +87,8 @@ struct dronecan_iface_t dronecan1 = {
   .thread_rx_wa_size = sizeof(dronecan1_rx_wa),
   .thread_tx_wa = dronecan1_tx_wa,
   .thread_tx_wa_size = sizeof(dronecan1_tx_wa),
-  .thread_node_status_wa = dronecan1_node_status_wa,
-  .thread_node_status_wa_size = sizeof(dronecan1_node_status_wa),
+  .thread_ns_wa = dronecan1_ns_wa,
+  .thread_ns_wa_size = sizeof(dronecan1_ns_wa),
   .node_id = DRONECAN_CAN1_NODE_ID,
   .initialized = false
 };
@@ -174,10 +170,10 @@ void dronecan_request_or_respond(struct dronecan_iface_t *iface, uint8_t destina
   chEvtBroadcast(&iface->tx_request);
 }
 
-static void initNodesList(struct node_activity *listp) {
+static void initNodesList(struct dronecan_iface_t *iface) {
   for (uint8_t i = 0; i < MAX_CAN_NODES; i++) {
-    listp[i].active = 0;
-    listp[i].timestamp_usec = 0;
+    iface->nodes_list[i].active = 0;
+    iface->nodes_list[i].timestamp_usec = 0;
   };
 }
 
@@ -200,13 +196,13 @@ static void getNodeInfo(struct dronecan_iface_t *iface, uint8_t dest_node_id) {
   dronecan_request_or_respond(iface, dest_node_id, &request);
 }
 
-static void updateNodesList(struct node_activity *listp, uint8_t node_id,
+static void updateNodesList(struct dronecan_iface_t *iface, uint8_t node_id,
                             uint64_t timestamp) {
   chDbgAssert(node_id < MAX_CAN_NODES, "erreur sur nodeID");
-  if (listp[node_id].active == 0) {
-    getNodeInfo(node_id);
+  if (iface->nodes_list[node_id].active == 0) {
+    getNodeInfo(iface, node_id);
   } else {
-    listp[node_id].timestamp_usec = timestamp;
+    iface->nodes_list[node_id].timestamp_usec = timestamp;
   };
 }
 
@@ -218,7 +214,7 @@ static void cb_NodeStatus(struct dronecan_iface_t *iface, CanardRxTransfer *tran
 
   decode_error = uavcan_protocol_NodeStatus_decode(transfer, &status);
   if (!decode_error) {
-    updateNodesList(iface->nodes_list, node_id, timestamp);
+    updateNodesList(iface, node_id, timestamp);
   }
 }
 
@@ -230,8 +226,8 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
   pkt.status = iface->node_status;
 
   // paparazzi version.
-  pkt.software_version.major = 7;
-  pkt.software_version.minor = 0;
+  pkt.software_version.major = PPRZ_VER_MAJOR;
+  pkt.software_version.minor = PPRZ_VER_MINOR;
   pkt.software_version.optional_field_flags = 0;
   pkt.software_version.vcs_commit = 0; // git hash
 
@@ -258,7 +254,7 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
   response.payload = buffer;
   response.payload_len = total_size;
   response.canfd = iface->fdcan_operation;
-  response.tao = !((canard.tao_disabled) || (response.canfd));
+  response.tao = !((iface->canard.tao_disabled) || (response.canfd));
 
   dronecan_request_or_respond(iface,transfer->source_node_id,&response);
 }
@@ -523,7 +519,7 @@ static void dronecanInitIface(struct dronecan_iface_t *iface)
     return;
   }
 
-  initNodesList(iface->nodes_list);
+  initNodesList(iface);
 
   // Initialize mutexes/events for multithread locking
   chMtxObjectInit(&iface->mutex);
