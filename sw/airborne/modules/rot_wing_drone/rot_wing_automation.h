@@ -29,7 +29,7 @@
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 
-#ifdef USE_V2
+#ifdef USE_RW_MODULES_V2
 #include "modules/rot_wing_drone/rotwing_state_V2.h"
 #else
 #include "modules/rot_wing_drone/rotwing_state.h"
