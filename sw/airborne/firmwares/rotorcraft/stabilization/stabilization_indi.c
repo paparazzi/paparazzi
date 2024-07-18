@@ -309,10 +309,7 @@ static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
-  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID,
-                                   1, &zero,
-                                   1, &zero,
-                                   1, &zero,
+  pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                       INDI_NUM_ACT, g1g2[0],
                       INDI_NUM_ACT, g1g2[1],
                       INDI_NUM_ACT, g1g2[2],
@@ -429,7 +426,7 @@ void stabilization_indi_init(void)
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_g_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_full_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_stab);
