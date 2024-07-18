@@ -308,7 +308,6 @@ static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
-  float zero = 0.0;
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                       INDI_NUM_ACT, g1g2[0],
                       INDI_NUM_ACT, g1g2[1],
