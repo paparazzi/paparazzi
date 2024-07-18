@@ -446,31 +446,14 @@ static void send_eff_mat_guid_oneloop_andi(struct transport_tx *trans, struct li
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
-                                        &eulers_zxy_des.phi,
-                                        &eulers_zxy_des.theta,
-                                        &eulers_zxy_des.psi,
-                                        &oneloop_andi.sta_state.att[0],
-                                        &oneloop_andi.sta_state.att[1],
-                                        &oneloop_andi.sta_state.att[2],
-                                        &oneloop_andi.sta_ref.att[0],
-                                        &oneloop_andi.sta_ref.att[1],
-                                        &oneloop_andi.sta_ref.att[2],
-                                        &oneloop_andi.sta_state.att_d[0],
-                                        &oneloop_andi.sta_state.att_d[1],
-                                        &oneloop_andi.sta_state.att_d[2],
-                                        &oneloop_andi.sta_ref.att_d[0],
-                                        &oneloop_andi.sta_ref.att_d[1],
-                                        &oneloop_andi.sta_ref.att_d[2],                                       
-                                        &oneloop_andi.sta_state.att_2d[0],
-                                        &oneloop_andi.sta_state.att_2d[1],
-                                        &oneloop_andi.sta_state.att_2d[2],
-                                        &oneloop_andi.sta_ref.att_2d[0],
-                                        &oneloop_andi.sta_ref.att_2d[1],
-                                        &oneloop_andi.sta_ref.att_2d[2],
-                                        &oneloop_andi.sta_ref.att_3d[0],
-                                        &oneloop_andi.sta_ref.att_3d[1],
-                                        &oneloop_andi.sta_ref.att_3d[2],                                        
-                                        ANDI_OUTPUTS, nu);                                      
+                                        3, eulers_zxy_des,
+                                        3, oneloop_andi.sta_state.att,
+                                        3, oneloop_andi.sta_ref.att,
+                                        3, oneloop_andi.sta_state.att_d,
+                                        3, oneloop_andi.sta_ref.att_d,
+                                        3, oneloop_andi.sta_state.att_2d,                                      
+                                        3, oneloop_andi.sta_ref.att_2d,
+                                        3, oneloop_andi.sta_ref.att_3d);                                      
 }
 static void send_oneloop_actuator_state(struct transport_tx *trans, struct link_device *dev)
 {
