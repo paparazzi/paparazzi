@@ -315,8 +315,7 @@
       <message name="GUIDANCE_INDI_HYBRID"     period="0.002"/>
       <message name="HYBRID_GUIDANCE"          period="0.02"/>
       <message name="ESC"                      period="0.02"/>
-      <message name="STAB_ATTITUDE"            period="0.002"/>        
-      <message name="PPM"                      period="0.05"/>
+      <message name="STAB_ATTITUDE"            period="0.002"/>
       <message name="ACTUATORS"                period="0.002"/>
       <message name="GPS_RTK"                  period="0.1"/>
       <message name="IMU_HEATER"               period="1.0"/>
@@ -327,6 +326,7 @@
       <message name="EXTERNAL_POSE_DOWN"       period="0.002"/>
       <message name="ROTATING_WING_STATE"      period="0.1"/>
       <message name="DOUBLET"                  period="0.002"/>
+      <message name="DEBUG"                    period="0.02"/> <!-- For the parachute module -->
       <message name="DEBUG_VECT"               period="0.002"/>
       <message name="WLS_v"                    period="0.002"/>
       <message name="WLS_u"                    period="0.002"/>
