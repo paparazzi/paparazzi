@@ -20,8 +20,8 @@
     <module name="actuators"      type="bebop"/>
     <module name="imu"            type="bebop"/>
 
-    <!-- <module name="gps" type="furuno"/> -->
-    <module name="gps" type="datalink"/>
+    <module name="gps" type="furuno"/>
+    <!-- <module name="gps" type="datalink"/> -->
     
     <module name="oneloop" type="andi">
       <configure name="ANDI_NUM_ACT"          value="4"/>
@@ -33,9 +33,10 @@
       <configure name="INDI_NUM_ACT" value="4"/>
     </module>  
 
-    <module name="ins" type="ekf2">
+    <!-- <module name="ins" type="ekf2">
       <define name="INS_EKF2_OPTITRACK" value="true"/>
-    </module>
+    </module> -->
+    <module name="ins" type="ekf2"/>  
     <module name="nav_hybrid"/>
 
     <module name="guidance" type="indi">
@@ -48,8 +49,8 @@
     <module name="air_data"/>
 
     <module name="wls">
-      <define name="WLS_N_U" value = "6"/>
-      <define name="WLS_N_V" value = "6"/>
+      <define name="WLS_N_U_MAX" value = "6"/>
+      <define name="WLS_N_V_MAX" value = "6"/>
     </module>
 
     <module name="logger_file">

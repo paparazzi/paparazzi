@@ -734,7 +734,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   float Wv_original[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_WLS_PRIORITIES;
 
   // Increase importance of forward acceleration in forward flight
-  Wv_gih[0] = Wv_original[0] * (1.0f + fixed_wing_percentage *
+  wls_guid_p.Wv[0] = Wv_original[0] * (1.0f + fixed_wing_percentage *
                                          AIRSPEED_IMPORTANCE_IN_FORWARD_WEIGHT); // stall n low hover motor_off (weight 16x more important than vertical weight)
 
   struct FloatEulers eulers_zxy;
@@ -772,12 +772,12 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   float pitch_angle_range = 3.;
   if (rotwing_state_skewing.wing_angle_deg < 55) {
     scheduled_pitch_angle = 0;
-    Wu_gih[1] = Wu_gih_original[1];
+    wls_guid_p.Wu[1] = Wu_gih_original[1];
     max_pitch_limit_rad = quad_pitch_limit_rad;
   } else {
     float pitch_progression = (rotwing_state_skewing.wing_angle_deg - 55) / 35.;
     scheduled_pitch_angle = pitch_angle_range * pitch_progression;
-    Wu_gih[1] = Wu_gih_original[1] * (1.f - pitch_progression*0.9);
+    wls_guid_p.Wu[1] = Wu_gih_original[1] * (1.f - pitch_progression*0.9);
     max_pitch_limit_rad = quad_pitch_limit_rad + (fwd_pitch_limit_rad - quad_pitch_limit_rad) * pitch_progression;
   }
   if (!hover_motors_active) {
@@ -790,20 +790,20 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   float pitch_pref_rad = RadOfDeg(guidance_indi_pitch_pref_deg);
 
   // Set lower limits
-  du_min_gih[0] = -roll_limit_rad - roll_angle; //roll
-  du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
-  du_min_gih[2] = du_min_thrust_z;
-  du_min_gih[3] = (-actuator_state_filt_vect[8] * g1g2[4][8]);
+  wls_guid_p.u_min[0] = -roll_limit_rad - roll_angle; //roll
+  wls_guid_p.u_min[1] = min_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_min[2] = du_min_thrust_z;
+  wls_guid_p.u_min[3] = (-actuator_state_filt_vect[8] * g1g2[4][8]);
 
   // Set upper limits limits
-  du_max_gih[0] = roll_limit_rad - roll_angle; //roll
-  du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
-  du_max_gih[2] = du_max_thrust_z;
-  du_max_gih[3] = 9.0; // Hacky value to prevent drone from pitching down in transition
+  wls_guid_p.u_max[0] = roll_limit_rad - roll_angle; //roll
+  wls_guid_p.u_max[1] = max_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_max[2] = du_max_thrust_z;
+  wls_guid_p.u_max[3] = 9.0; // Hacky value to prevent drone from pitching down in transition
 
   // Set prefered states
-  du_pref_gih[0] = 0; // prefered delta roll angle
-  du_pref_gih[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
-  du_pref_gih[2] = du_max_gih[2]; // Low thrust better for efficiency
-  du_pref_gih[3] = body_v[0]; // solve the body acceleration
+  wls_guid_p.u_pref[0] = 0; // prefered delta roll angle
+  wls_guid_p.u_pref[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
+  wls_guid_p.u_pref[2] = wls_guid_p.u_max[2]; // Low thrust better for efficiency
+  wls_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
 }

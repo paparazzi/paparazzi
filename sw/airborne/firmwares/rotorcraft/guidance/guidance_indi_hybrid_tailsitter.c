@@ -89,19 +89,19 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
 void guidance_indi_hybrid_set_wls_settings(float body_v[3] UNUSED, float roll_angle, float pitch_angle)
 {
   // Set lower limits
-  du_min_gih[0] = -guidance_indi_max_bank - roll_angle; // roll
-  du_min_gih[1] = RadOfDeg(guidance_indi_min_pitch) - pitch_angle; // pitch
-  du_min_gih[2] = (MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ - actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] + (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3];
+  wls_guid_p.u_min[0] = -guidance_indi_max_bank - roll_angle; // roll
+  wls_guid_p.u_min[1] = RadOfDeg(guidance_indi_min_pitch) - pitch_angle; // pitch
+  wls_guid_p.u_min[2] = (MAX_PPRZ - actuator_state_filt_vect[0]) * g1g2[3][0] + (MAX_PPRZ - actuator_state_filt_vect[1]) * g1g2[3][1] + (MAX_PPRZ - actuator_state_filt_vect[2]) * g1g2[3][2] + (MAX_PPRZ - actuator_state_filt_vect[3]) * g1g2[3][3];
 
   // Set upper limits limits
-  du_max_gih[0] = guidance_indi_max_bank - roll_angle; //roll
-  du_max_gih[1] = RadOfDeg(GUIDANCE_INDI_MAX_PITCH) - pitch_angle; // pitch
-  du_max_gih[2] = -(actuator_state_filt_vect[0]*g1g2[3][0] + actuator_state_filt_vect[1]*g1g2[3][1] + actuator_state_filt_vect[2]*g1g2[3][2] + actuator_state_filt_vect[3]*g1g2[3][3]);
+  wls_guid_p.u_max[0] = guidance_indi_max_bank - roll_angle; //roll
+  wls_guid_p.u_max[1] = RadOfDeg(GUIDANCE_INDI_MAX_PITCH) - pitch_angle; // pitch
+  wls_guid_p.u_max[2] = -(actuator_state_filt_vect[0]*g1g2[3][0] + actuator_state_filt_vect[1]*g1g2[3][1] + actuator_state_filt_vect[2]*g1g2[3][2] + actuator_state_filt_vect[3]*g1g2[3][3]);
 
   // Set prefered states
-  du_pref_gih[0] = -roll_angle; // prefered delta roll angle
-  du_pref_gih[1] = -pitch_angle; // prefered delta pitch angle
-  du_pref_gih[2] = du_max_gih[2];
+  wls_guid_p.u_pref[0] = -roll_angle; // prefered delta roll angle
+  wls_guid_p.u_pref[1] = -pitch_angle; // prefered delta pitch angle
+  wls_guid_p.u_pref[2] = wls_guid_p.u_max[2];
 }
 
 
