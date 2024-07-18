@@ -151,7 +151,7 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
 {
   float zero = 0.0;
   float temp_indi_rate[3] = {indi.rate[0].o[0], indi.rate[1].o[0], indi.rate[2].o[0]};
-  float temp_indi_ang_acc_ref = {indi.angular_accel_ref.p, indi.angular_accel_ref.q, indi.angular_accel_ref.r};
+  float temp_indi_ang_acc_ref[3] = {indi.angular_accel_ref.p, indi.angular_accel_ref.q, indi.angular_accel_ref.r};
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
                                       1, &zero,                    // att des
                                       1, &zero,                    // att
