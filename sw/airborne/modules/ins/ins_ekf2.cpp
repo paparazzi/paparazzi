@@ -928,7 +928,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
   gps_msg.yaw_offset = 0;
 #elif defined(INS_EKF2_GPS_YAW_OFFSET)
-  if(ISFINITE(gps_relposned.relPosHeading)) {
+  if(ISFINITE(gps_relposned.relPosHeading) && gps_relposned.relPosValid && gps_relposned.diffSoln && gps_relposned.carrSoln >= 1 &&
+  fabs(gps_relposned.relPosLength - INS_EKF2_GPS_RELPOS_REF_LENGTH) < 1.f) { // relPosLength deviation max 1 meter
     gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading - INS_EKF2_GPS_YAW_OFFSET));
   } else {
     gps_msg.yaw = NAN;
