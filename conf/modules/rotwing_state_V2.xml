@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="rotwing_state_V2" dir="rot_wing_drone">
+  <doc>
+    <description>This module keeps track of the current state of a rotating wing drone and desired state set by the RC or flightplan. Paramters are being scheduled in each change of a current state and desired state. Functions are defined in this module to call the actual state and desired state and set a desired state.</description>
+    <section name="ROTWING_STATE" prefix="ROTWING_STATE_">
+      <define name="USE_ROTATION_REF_MODEL" value="FALSE" description="Slow down the wing rotation with a reference model"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="RotWingState">
+        <dl_setting var="rotwing_state_skewing.wing_angle_deg_sp" min="0" step="1" max="90" shortname="skew angle"/>
+        <dl_setting var="rotwing_state_skewing.force_rotation_angle" min="0" step="1" max="1" values="FALSE|TRUE" shortname="force_skew"/>
+        <dl_setting var="rotwing_state_max_hover_speed" min="5" step="0.5" max="25" shortname="hover_speed"/>
+        <dl_setting var="hover_motors_active" min="0" step="1" max="1" values="FALSE|TRUE" shortname="h_motors_active"/>
+        <dl_setting var="bool_disable_hover_motors" min="0" step="1" max="1" values="FALSE|TRUE" shortname="h_motors_disable"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="rotwing_state_V2.h"/>
+  </header>
+    <init fun="init_rotwing_state()"/>
+    <periodic fun="periodic_rotwing_state()" freq="50"/>
+    <periodic fun="rotwing_state_skew_actuator_periodic()"/>
+  <makefile>
+    <file name="rotwing_state_V2.c"/>
+  </makefile>
+</module>
