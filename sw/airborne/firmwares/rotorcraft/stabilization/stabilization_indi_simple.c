@@ -173,10 +173,7 @@ static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_d
   RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
   float g2_disp = indi.est.g2 * INDI_EST_SCALE;
   float zero = 0.0;
-  pprz_msg_send_EFF_MAT_G(trans, dev, AC_ID,
-                                    1, &zero,
-                                    1, &zero,
-                                    1, &zero,
+  pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
                                     1, &g1_disp.p,
                                     1, &g1_disp.q,
                                     1, &g1_disp.r,
@@ -216,7 +213,7 @@ void stabilization_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_indi);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_G, send_eff_mat_g_indi_simple);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_g_indi_simple);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
 #endif
 }
