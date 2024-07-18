@@ -1,0 +1,78 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="eff_scheduling_rot_wing_V2" dir="ctrl">
+  <doc>
+    <description>T
+      The control effectiveness scheduler for the rotating wing quadplane drone type
+     - it requires a servo called ROTATION_MECH
+    </description>
+    <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
+      <define name="IXX_BODY" value="0"  description=""/>
+      <define name="IYY_BODY" value="0"  description=""/>
+      <define name="IZZ" value="0"       description=""/>
+      <define name="IXX_WING" value="0"  description=""/>
+      <define name="IYY_WING" value="0"  description=""/>
+      <define name="M" value="0"         description=""/>
+      <define name="ROLL_ARM" value="0"  description=""/>
+      <define name="PITCH_ARM" value="0" description=""/>
+      <define name="HOVER_DF_DPPRZ" value="0" description=""/>
+      <define name="HOVER_ROLL_PITCH_COEF" value="{0,0}" description=""/>
+    </section>
+  </doc>
+    <settings>
+   <dl_settings>
+     <dl_settings NAME="eff_sched">
+       <dl_setting var="ele_min"            min="0"       step="100"   max="6400"  shortname="ele_min"/> 
+       <dl_setting var="ele_eff"            min="5"       step="0.5"   max="50"    shortname="ele_eff"/> 
+       <dl_setting var="airspeed_fake_on"   min="0"       step="1"     max="1"     values="OFF|ON" shortname="bool_airspeed_fake"/> 
+       <dl_setting var="airspeed_fake"      min="0"       step="0.001" max="20"    shortname="airspeed_fake"/>     
+     </dl_settings>
+   </dl_settings>
+  </settings>
+  <header>
+    <file name="eff_scheduling_rot_wing_V2.h"/>
+  </header>
+  <init fun="eff_scheduling_rot_wing_init()"/>
+  <periodic fun="eff_scheduling_rot_wing_periodic()"/>
+  <makefile>
+    <file name="eff_scheduling_rot_wing_V2.c"/>
+    <test firmware="rotorcraft">
+      <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_BODY" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IZZ"      value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
+      <define name="ROT_WING_EFF_SCHED_M"        value="1"/>
+      <define name="M_PI"                        value="3.14"/>
+      <define name="PERIODIC_FREQUENCY"          value="500.0"/>
+      <define name="ACTUATORS_NB"                value="10"/>
+      <define name="COMMANDS_NB_PASSIVE"         value="1"/>
+      <define name="COMMANDS_NB_VIRTUAL"         value="2"/>
+      <define name="COMMANDS_NB_REAL"            value="9"/>
+      <define name="COMMANDS_NB_OTHER"           value="2"/>
+      <define name="ANDI_OUTPUTS"                value="6"/>
+      <define name="EFF_MAT_ROWS_NB"             value="6"/> 
+      <define name="EFF_MAT_COLS_NB"             value="11"/>
+      <define name="COMMAND_MOTOR_FRONT"         value="0"/>
+      <define name="COMMAND_MOTOR_RIGHT"         value="8"/>
+      <define name="COMMAND_MOTOR_BACK"          value="9"/>
+      <define name="COMMAND_MOTOR_LEFT"          value="3"/>
+      <define name="COMMAND_MOTOR_PUSHER"        value="10"/>
+      <define name="COMMAND_ELEVATOR"            value="5"/>
+      <define name="COMMAND_RUDDER"              value="6"/>
+      <define name="COMMAND_AILERONS"            value="7"/>
+      <define name="COMMAND_ROT_MECH"            value="11"/>
+      <define name="RW_aX"                       value="0"/>
+      <define name="RW_aY"                       value="1"/>
+      <define name="RW_aZ"                       value="2"/>
+      <define name="RW_aN"                       value="0"/>
+      <define name="RW_aE"                       value="1"/>
+      <define name="RW_aD"                       value="2"/>
+      <define name="RW_ap"                       value="3"/>
+      <define name="RW_aq"                       value="4"/>
+      <define name="RW_ar"                       value="5"/>
+      <define name="ZERO_ELE_PPRZ"               value="8000"/>
+      <define name="ELE_MIN_AS"                  value="8.8"/>
+      <define name="ELE_MAX_AS"                  value="16.0"/>
+    </test>
+  </makefile>
+</module>

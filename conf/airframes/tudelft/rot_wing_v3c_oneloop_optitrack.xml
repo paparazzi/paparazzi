@@ -140,7 +140,7 @@
         <module name="rotwing_state_V2"/>
         <module name="agl_dist"/>
         <module name="rot_wing_automation">
-            <define name="USE_V2" value="TRUE"/>
+            <define name="RW_USE_MODULES_V2" value="TRUE"/>
         </module>
     </firmware>
 
