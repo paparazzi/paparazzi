@@ -19,7 +19,12 @@
         "istream": "c",
         "numeric": "c",
         "ostream": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "regex": "c",
+        "ranges": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     },
     "C_Cpp.dimInactiveRegions": false,
     "esbonio.sphinx.confDir": "",

@@ -20,7 +20,7 @@
  */
 /**
  * @file arch/chibios/modules/dronecan/dronecan.c
- * Interface from actuators to ChibiOS CAN driver using UAVCan
+ * Interface from actuators to ChibiOS CAN driver using DroneCAN
  *
  */
 
@@ -74,8 +74,8 @@ static dronecan_event *dronecan_event_hd = NULL;
 #endif
 
 static THD_WORKING_AREA(dronecan1_rx_wa, 1024 * 2);
-static THD_WORKING_AREA(dronecan1_tx_wa, 1024 * 2);
-static THD_WORKING_AREA(dronecan1_ns_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan1_tx_wa, 1024);
+static THD_WORKING_AREA(dronecan1_ns_wa, 1024);
 
 struct dronecan_iface_t dronecan1 = {
   .can_driver = &CAND1,
@@ -108,8 +108,8 @@ struct dronecan_iface_t dronecan1 = {
 #endif
 
 static THD_WORKING_AREA(dronecan2_rx_wa, 1024 * 2);
-static THD_WORKING_AREA(dronecan2_tx_wa, 1024 * 2);
-static THD_WORKING_AREA(dronecan2_ns_wa, 1024 * 2);
+static THD_WORKING_AREA(dronecan2_tx_wa, 1024);
+static THD_WORKING_AREA(dronecan2_ns_wa, 1024);
 
 struct dronecan_iface_t dronecan2 = {
   .can_driver = &CAND2,
@@ -179,7 +179,7 @@ static void initNodesList(struct dronecan_iface_t *iface) {
 
 static void getNodeInfo(struct dronecan_iface_t *iface, uint8_t dest_node_id) {
 
-  static uint8_t transfer_id;
+  static uint8_t transfer_id = 0;
   static CanardTxTransfer request;
   canardInitTxTransfer(&request);
 
@@ -285,7 +285,7 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
   uint32_t len = uavcan_protocol_NodeStatus_encode(
       &iface->node_status, buffer, !((iface->canard.tao_disabled) || iface->fdcan_operation));
 
-  static uint8_t transfer_id;
+  static uint8_t transfer_id = 0;
   static CanardTxTransfer broadcast;
   canardInitTxTransfer(&broadcast);
 
@@ -294,7 +294,7 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
   broadcast.data_type_id = UAVCAN_PROTOCOL_NODESTATUS_ID;
   broadcast.inout_transfer_id = &transfer_id;
   broadcast.priority = CANARD_TRANSFER_PRIORITY_LOW;
-  broadcast.payload = &buffer[0];
+  broadcast.payload = buffer;
   broadcast.payload_len = len;
   broadcast.canfd = iface->fdcan_operation;
   broadcast.tao = !((iface->canard.tao_disabled) || broadcast.canfd);
