@@ -52,11 +52,6 @@
 static Butterworth2LowPass airspeed_filter;
 #endif  /* USE_AIRSPEED_DRONECAN_LOWPASS_FILTER */
 
-/* dronecan EQUIPMENT_ESC_STATUS message definition */
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID            1027
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE     (0xC77DF38BA122F5DAULL)
-#define UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_MAX_SIZE      ((397 + 7)/8)
-
 /* Local variables */
 struct airspeed_dronecan_t airspeed_dronecan = {0};
 static dronecan_event airspeed_dronecan_ev;
@@ -85,46 +80,39 @@ static void airspeed_dronecan_downlink(struct transport_tx *trans, struct link_d
 #endif /* PERIODIC_TELEMETRY */
 
 static void airspeed_dronecan_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
-  uint16_t tmp_float = 0;
-  float diff_p;
+  float diff_p, temperature;
+  struct uavcan_equipment_air_data_RawAirData air_data;
+  bool decode_error;
 
-  /* Decode the message */
-  //canardDecodeScalar(transfer, (uint32_t)0, 8, false, (void*)&dest->flags);
-  //canardDecodeScalar(transfer, (uint32_t)8, 32, false, (void*)&static_p);
-  canardDecodeScalar(transfer, (uint32_t)40, 32, false, (void*)&diff_p);
-  //canardDecodeScalar(transfer, (uint32_t)72, 16, false, (void*)&tmp_float);
-  //float static_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)88, 16, false, (void*)&tmp_float);
-  //float diff_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)104, 16, false, (void*)&tmp_float);
-  float static_air_temp = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)120, 16, false, (void*)&tmp_float);
-  //float pitot_temp = canardConvertFloat16ToNativeFloat(tmp_float);
+  decode_error = uavcan_equipment_air_data_RawAirData_decode(transfer, &air_data);
 
-  if(!isnan(diff_p)) {
-    // Remove the offset and apply a scaling factor
-    diff_p -= airspeed_dronecan.diff_p_offset;
-    diff_p *= airspeed_dronecan.diff_p_scale;
+  if (!decode_error){
+    diff_p = air_data.differential_pressure;
+    temperature = air_data.static_air_temperature;
 
-    // Filtering
+    if(!isnan(diff_p)) {
+      // Remove the offset and apply a scaling factor
+      diff_p -= airspeed_dronecan.diff_p_offset;
+      diff_p *= airspeed_dronecan.diff_p_scale;
+
+      // Filtering
 #ifdef USE_AIRSPEED_DRONECAN_LOWPASS_FILTER
-    float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
-    airspeed_dronecan.diff_p = diff_p_filt;
+      float diff_p_filt = update_butterworth_2_low_pass(&airspeed_filter, diff_p);
+      airspeed_dronecan.diff_p = diff_p_filt;
 #else
-    airspeed_dronecan.diff_p = diff_p;
+      airspeed_dronecan.diff_p = diff_p;
 #endif
-
-    // Send the ABI message
+      // Send the ABI message
 #if AIRSPEED_DRONECAN_SEND_ABI
-    AbiSendMsgBARO_DIFF(DRONECAN_SENDER_ID, airspeed_dronecan.diff_p);
+      AbiSendMsgBARO_DIFF(DRONECAN_SENDER_ID, airspeed_dronecan.diff_p);
 #endif
-  }
-
-  if(!isnan(static_air_temp)) {
-    airspeed_dronecan.temperature = static_air_temp;
+    }
+    if(!isnan(temperature)) {
+      airspeed_dronecan.temperature = temperature;
 #if AIRSPEED_DRONECAN_SEND_ABI
-    AbiSendMsgTEMPERATURE(DRONECAN_SENDER_ID, airspeed_dronecan.temperature);
+      AbiSendMsgTEMPERATURE(DRONECAN_SENDER_ID, airspeed_dronecan.temperature);
 #endif
+    }
   }
 }
 
@@ -139,7 +127,7 @@ void airspeed_dronecan_init(void)
 #endif
 
   // Bind dronecan RAWAIRDATA message from EQUIPMENT.AIR_DATA
-  dronecan_bind(UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_dronecan_ev, &airspeed_dronecan_cb);
+  dronecan_bind(CanardTransferTypeBroadcast,UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_ID, UAVCAN_EQUIPMENT_AIR_DATA_RAWAIRDATA_SIGNATURE, &airspeed_dronecan_ev, &airspeed_dronecan_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_RAW, airspeed_dronecan_downlink);

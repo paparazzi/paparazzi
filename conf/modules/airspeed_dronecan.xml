@@ -30,5 +30,6 @@
   <init fun="airspeed_dronecan_init()"/>
   <makefile target="ap">
     <file name="airspeed_dronecan.c"/>
+    <file name="uavcan.equipment.air_data.RawAirData.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
   </makefile>
 </module>

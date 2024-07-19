@@ -23,5 +23,7 @@
   <init fun="power_dronecan_init()"/>
   <makefile target="ap">
     <file name="power_dronecan.c"/>
+    <file name="uavcan.equipment.power.CircuitStatus.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.power.BatteryInfo.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
   </makefile>
 </module>

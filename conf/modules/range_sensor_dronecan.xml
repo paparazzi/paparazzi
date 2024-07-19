@@ -16,5 +16,6 @@
   <init fun="range_sensor_dronecan_init()"/>
   <makefile target="ap">
     <file name="range_sensor_dronecan.c"/>
+    <file name="uavcan.equipment.range_sensor.Measurement.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
   </makefile>
 </module>

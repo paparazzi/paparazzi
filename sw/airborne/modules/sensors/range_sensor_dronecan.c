@@ -27,12 +27,6 @@
 #include "dronecan/dronecan.h"
 #include "core/abi.h"
 
-
-/* dronecan EQUIPMENT_RANGE_SENSOR_MEASUREMENT message definition */
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID       1050
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE (0x68FFFE70FC771952ULL)
-#define UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_MAX_SIZE ((120 + 7)/8)
-
 /* Local structure */
 struct range_sensor_dronecan_t {
   float range;
@@ -58,33 +52,25 @@ static void range_sensor_dronecan_send_lidar(struct transport_tx *trans, struct 
 #endif
 
 static void range_sensor_dronecan_cb(struct dronecan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer) {
-  uint16_t tmp_float = 0;
+  struct uavcan_equipment_range_sensor_Measurement measurement;
+  bool decode_error;
+  decode_error = uavcan_equipment_range_sensor_Measurement_decode(transfer, &measurement);
+  if (!decode_error){
+    range_sensor_dronecan.range = measurement.range;
+    range_sensor_dronecan.reading_type = measurement.reading_type;
 
-  /* Decode the message */
-  //canardDecodeScalar(transfer, (uint32_t)0, 56, false, (void*)&dest->usec);
-  //canardDecodeScalar(transfer, (uint32_t)56, 8, false, (void*)&dest->sensor_id);
-  //canardDecodeScalar(transfer, (uint32_t)64, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 0));
-  //canardDecodeScalar(transfer, (uint32_t)69, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 1));
-  //canardDecodeScalar(transfer, (uint32_t)74, 5, true, (void*)(dest->fixed_axis_roll_pitch_yaw + 2));
-  //canardDecodeScalar(transfer, (uint32_t)79, 1, false, (void*)&dest->orientation_defined);
-  //canardDecodeScalar(transfer, (uint32_t)80, 16, false, (void*)&tmp_float);
-  //float fov = canardConvertFloat16ToNativeFloat(tmp_float);
-  //canardDecodeScalar(transfer, (uint32_t)96, 5, false, (void*)&dest->sensor_type);
-  canardDecodeScalar(transfer, (uint32_t)101, 3, false, (void*)&range_sensor_dronecan.reading_type);
-  canardDecodeScalar(transfer, (uint32_t)104, 16, false, (void*)&tmp_float);
-  range_sensor_dronecan.range = canardConvertFloat16ToNativeFloat(tmp_float);
-
-  // Send the range over ABI
-  if(!isnan(range_sensor_dronecan.range)) {
-    uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgAGL(AGL_DRONECAN_ID, now_ts, range_sensor_dronecan.range);
+    // Send the range over ABI
+    if(!isnan(range_sensor_dronecan.range)) {
+      uint32_t now_ts = get_sys_time_usec();
+      AbiSendMsgAGL(AGL_DRONECAN_ID, now_ts, range_sensor_dronecan.range);
+    }
   }
 }
 
 void range_sensor_dronecan_init(void)
 {
   // Bind dronecan MEASUREMENT message from EQUIPMENT.RANGE_SENSOR
-  dronecan_bind(UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE, &range_sensor_dronecan_ev, &range_sensor_dronecan_cb);
+  dronecan_bind(CanardTransferTypeBroadcast, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE, &range_sensor_dronecan_ev, &range_sensor_dronecan_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, range_sensor_dronecan_send_lidar);
