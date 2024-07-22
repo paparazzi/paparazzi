@@ -110,6 +110,17 @@
    gui_color="red"
   />
   <aircraft
+   name="bebop2_gvf"
+   ac_id="204"
+   airframe="airframes/examples/bebop2_gvf.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/GVF/gvf_default_rotorcraft.xml"
+   flight_plan="flight_plans/demo_gvf_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gvf_module.xml~GVF~ modules/imu_common.xml modules/ins_ekf2.xml modules/nav_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   gui_color="red"
+  />
+  <aircraft
    name="bebop2_opticflow"
    ac_id="3"
    airframe="airframes/examples/bebop2_opticflow.xml"
