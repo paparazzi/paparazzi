@@ -448,6 +448,9 @@
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.5"/>
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
+        <define name="INS_EKF2_FUSION_MODE"                 value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+        <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
+        <define name="INS_EKF2_GPS_ANTENNA_DISTANCE"        value="1.02"/>
     </section>
 
     <section name="GROUND_DETECT">
