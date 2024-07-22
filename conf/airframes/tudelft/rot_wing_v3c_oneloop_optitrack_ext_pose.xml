@@ -239,7 +239,7 @@
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
         <!-- <define name="THRESHOLD_GROUND_DETECT"              value="40"/> -->
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
-        <define name="INS_EXT_POSE_RW"                      value="TRUE"/>
+        <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>
