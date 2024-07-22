@@ -25,7 +25,6 @@
 
 #include "modules/ctrl/eff_scheduling_rot_wing_V2.h"
 #include "generated/airframe.h"
-#include "generated/modules.h"
 #include "state.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
@@ -63,6 +62,10 @@ float actuator_state_filt_vect[EFF_MAT_COLS_NB] = {0};
 #error "NO ROT_WING_EFF_SCHED_M defined"
 #endif
 
+#ifdef INS_EXT_VISION_ROTATION
+struct FloatQuat ins_ext_vision_rot;
+#endif
+
 /* Effectiveness Matrix definition */
 float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROT_WING_EFF_SCHED_G2; //scaled by RW_G_SCALE
 float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_THRUST, ROT_WING_EFF_SCHED_G1_ROLL, ROT_WING_EFF_SCHED_G1_PITCH, ROT_WING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
@@ -85,8 +88,7 @@ void  ele_pref_sched(void);
 void  update_attitude(void);
 void  sum_EFF_MAT_RW(void);
 void  init_RW_Model(void);
-void  calc_G1_G2_RW(void);
-void  ext_vision_quat_rotation(struct FloatQuat* orient);  
+void  calc_G1_G2_RW(void);  
 
 /** ABI binding wing position data.
  */
@@ -373,6 +375,11 @@ void eff_scheduling_rot_wing_update_wing_angle(void)
   RW.skew.sinr2 = RW.skew.sinr * RW.skew.sinr;
   RW.skew.sinr3 = RW.skew.sinr2 * RW.skew.sinr;
   RW.skew.cosr3 = RW.skew.cosr2 * RW.skew.cosr;
+#ifdef INS_EXT_VISION_ROTATION
+  // Define an INS external pose quaternion rotation from the wing rotation angle
+  struct FloatEulers rot_e = {0, 0, RW.skew.rad};
+  float_quat_of_eulers(&ins_ext_vision_rot, &rot_e);
+#endif
 
 }
 float time = 0.0;
@@ -401,19 +408,4 @@ void ele_pref_sched(void)
   } else {
     RW.ele_pref = ele_min;
   }
-}
-
-void ext_vision_quat_rotation(struct FloatQuat* orient){
-  struct FloatQuat orient_2;
-  float sz = sinf(RW.skew.rad/2.0);
-  float cz = cosf(RW.skew.rad/2.0);
-  orient_2.qi = orient->qi * cz - orient->qz * sz;
-  orient_2.qx = orient->qx * cz + orient->qy * sz;
-  orient_2.qy = orient->qy * cz - orient->qx * sz;
-  orient_2.qz = orient->qz * cz + orient->qi * sz;
-
-  orient->qi = orient_2.qi;
-  orient->qx = orient_2.qx;
-  orient->qy = orient_2.qy;
-  orient->qz = orient_2.qz;
 }

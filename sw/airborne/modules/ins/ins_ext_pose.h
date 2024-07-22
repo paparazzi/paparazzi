@@ -49,7 +49,10 @@ extern void ins_ext_pose_run(void);
 
 extern void ins_ext_pose_msg_update(uint8_t *buf);
 
-extern void ext_vision_quat_rotation(struct FloatQuat* orient);
+#ifdef INS_EXT_VISION_ROTATION
+extern struct FloatQuat ins_ext_vision_rot;
+#endif
+
 // Logging
 extern void ins_ext_pos_log_header(FILE *file);
 extern void ins_ext_pos_log_data(FILE *file);

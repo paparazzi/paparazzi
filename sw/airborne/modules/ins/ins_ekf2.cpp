@@ -746,16 +746,16 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.quat(2) = DL_EXTERNAL_POSE_body_qx(buf);
   sample_ev.quat(3) = -DL_EXTERNAL_POSE_body_qz(buf);
   
-  struct FloatQuat orient;
-  orient.qi   = sample_ev.quat(0);
-  orient.qx   = sample_ev.quat(1);
-  orient.qy   = sample_ev.quat(2);
-  orient.qz   = sample_ev.quat(3);
-  ext_vision_quat_rotation(&orient);
-  sample_ev.quat(0) = orient.qi;
-  sample_ev.quat(1) = orient.qx;
-  sample_ev.quat(2) = orient.qy;
-  sample_ev.quat(3) = orient.qz;
+#ifdef INS_EXT_VISION_ROTATION
+  // Rotate the quaternion
+  struct FloatQuat body_q = {sample_ev.quat(0), sample_ev.quat(1), sample_ev.quat(2), sample_ev.quat(3)};
+  struct FloatQuat rot_q;
+  float_quat_comp(&rot_q, &body_q, &ins_ext_vision_rot);
+  sample_ev.quat(0) = rot_q.qi;
+  sample_ev.quat(1) = rot_q.qx;
+  sample_ev.quat(2) = rot_q.qy;
+  sample_ev.quat(3) = rot_q.qz;
+#endif
 
   sample_ev.posVar.setAll(INS_EKF2_EVP_NOISE);
   sample_ev.velCov = matrix::eye<float, 3>() * INS_EKF2_EVV_NOISE;
@@ -763,11 +763,6 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.vel_frame = velocity_frame_t::LOCAL_FRAME_FRD;
 
   ekf.setExtVisionData(sample_ev);
-}
-
-void WEAK ext_vision_quat_rotation(struct FloatQuat* orient UNUSED)
-{
-  // Default do nothing
 }
 
 void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf) {
