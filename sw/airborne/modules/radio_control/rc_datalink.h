@@ -55,7 +55,7 @@
 #define AP_MODE_SWITCH RADIO_AUX7
 #endif
 
-extern int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
+extern int8_t rc_dl_values[RC_DL_NB_CHANNEL];
 extern volatile bool rc_dl_frame_available;
 
 /**
@@ -63,35 +63,36 @@ extern volatile bool rc_dl_frame_available;
  * Mode and throttle are merge in the same byte
  */
 extern void parse_rc_3ch_datalink(
-  uint8_t throttle_mode,
-  int8_t roll,
-  int8_t pitch);
+    uint8_t throttle_mode,
+    int8_t roll,
+    int8_t pitch);
 
 /**
  * Decode datalink message to get rc values with RC_4CH message
  */
 extern void parse_rc_4ch_datalink(
-  uint8_t mode,
-  uint8_t throttle,
-  int8_t roll,
-  int8_t pitch,
-  int8_t yaw);
+    uint8_t mode,
+    uint8_t throttle,
+    int8_t roll,
+    int8_t pitch,
+    int8_t yaw);
 
 /**
  * Decode datalink message to get rc values with RC_6CH message
  */
 extern void parse_rc_6ch_datalink(
-  int8_t mode,
-  uint8_t throttle,
-  int8_t roll,
-  int8_t pitch,
-  int8_t yaw,
-  int8_t kill,
-  int8_t aux7);  
+    int8_t mode,
+    uint8_t throttle,
+    int8_t roll,
+    int8_t pitch,
+    int8_t yaw,
+    int8_t kill,
+    int8_t aux7);
 
 extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_6CH(uint8_t *buf);
+extern void rc_datalink_parse_RC_UP(uint8_t *buf);
 /**
  * RC init function.
  */
@@ -103,4 +104,3 @@ extern void rc_datalink_init(void);
 extern void rc_datalink_event(void);
 
 #endif /* RC_DATALINK_H */
-

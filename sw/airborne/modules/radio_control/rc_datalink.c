@@ -76,6 +76,15 @@ void rc_datalink_parse_RC_6CH(uint8_t *buf)
       DL_RC_6CH_aux7(buf));
 }
 
+void rc_datalink_parse_RC_UP(uint8_t *buf)
+{
+#ifdef RADIO_CONTROL_DATALINK_LED
+  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+  parse_rc_up_datalink(DL_RC_UP_channels_length(buf),
+      DL_RC_UP_channels(buf);
+}
+
 void parse_rc_3ch_datalink(uint8_t throttle_mode,
                            int8_t roll,
                            int8_t pitch)
@@ -129,6 +138,16 @@ void parse_rc_6ch_datalink(
   rc_dl_values[RADIO_AUX7] = aux7;
   rc_dl_values[RADIO_KILL_SWITCH] = kill;
 
+  rc_dl_frame_available = true;
+}
+
+void parse_rc_up_datalink(
+  int8_t n,
+  int8_t *channels)
+{
+  for (int i = 0; i < n; i++) {
+    rc_dl_values[i] = channels[i];
+  }
   rc_dl_frame_available = true;
 }
 
