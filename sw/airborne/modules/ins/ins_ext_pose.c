@@ -37,10 +37,6 @@
 #include "modules/core/abi.h"
 
 
-float skew_rad = 0.2;
-// #ifdef INS_EXT_POSE_RW
-// #include "modules/ctrl/eff_scheduling_rot_wing_V2.h"
-// #endif
 
 #if 0
 #include <stdio.h>
@@ -192,26 +188,6 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   ins_ext_pos.has_new_acc = true;
 }
 
-#if INS_EXT_POSE_RW
-/** ABI binding wing position data.
- */
-#ifndef WING_ROTATION_CAN_ROT_WING_ID
-#define WING_ROTATION_CAN_ROT_WING_ID ABI_BROADCAST
-#endif
-PRINT_CONFIG_VAR(WING_ROTATION_CAN_ROT_WING_ID)
-static abi_event wing_position_ev;
-static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
-{
-  for (int i=0; i<num_act; i++){
-    if (pos_msg[i].set.position && (pos_msg[i].idx == COMMAND_ROT_MECH))
-    {
-      skew_rad = 0.5 * M_PI - pos_msg[i].position;
-      Bound(skew_rad, 0, 0.5 * M_PI);
-    }
-  }
-}
-#endif
-
 /**
  * Import External Pose Message
  */
@@ -242,20 +218,7 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   orient.qy = quat_x ;                
   orient.qz = -quat_z;
 
-  #ifdef INS_EXT_POSE_RW
-  struct FloatQuat orient_2;
-  float sz = sinf(skew_rad/2.0);
-  float cz = cosf(skew_rad/2.0);
-  orient_2.qi = orient.qi * cz - orient.qz * sz;
-  orient_2.qx = orient.qx * cz + orient.qy * sz;
-  orient_2.qy = orient.qy * cz - orient.qx * sz;
-  orient_2.qz = orient.qz * cz + orient.qi * sz;
-
-  orient.qi = orient_2.qi;
-  orient.qx = orient_2.qx;
-  orient.qy = orient_2.qy;
-  orient.qz = orient_2.qz;
-  #endif
+  ext_vision_quat_rotation(&orient);
   float_eulers_of_quat(&orient_eulers, &orient);
   
   ins_ext_pos.ev_time       = get_sys_time_usec(); 
@@ -276,6 +239,11 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   ins_ext_pos.has_new_ext_pose = true;
 
   DEBUG_PRINT("Att = %f %f %f \n", ins_ext_pos.ev_att.phi, ins_ext_pos.ev_att.theta, ins_ext_pos.ev_att.psi);
+}
+
+void WEAK ext_vision_quat_rotation(struct FloatQuat* orient UNUSED)
+{
+  // Default do nothing
 }
 
 void ins_reset_local_origin(void)
@@ -324,9 +292,6 @@ void ins_ext_pose_init(void)
   AbiBindMsgIMU_GYRO(INS_EXT_POSE_IMU_ID, &gyro_ev, gyro_cb);
   // Get External Pose through datalink message: setup in xml
 
-#if INS_EXT_POSE_RW
-  AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROT_WING_ID, &wing_position_ev, wing_position_cb);
-#endif
   // Initialize EKF
   ekf_init();
 }

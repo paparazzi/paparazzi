@@ -25,6 +25,7 @@
 
 #include "modules/ctrl/eff_scheduling_rot_wing_V2.h"
 #include "generated/airframe.h"
+#include "generated/modules.h"
 #include "state.h"
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
@@ -85,6 +86,7 @@ void  update_attitude(void);
 void  sum_EFF_MAT_RW(void);
 void  init_RW_Model(void);
 void  calc_G1_G2_RW(void);
+void  ext_vision_quat_rotation(struct FloatQuat* orient);  
 
 /** ABI binding wing position data.
  */
@@ -399,4 +401,19 @@ void ele_pref_sched(void)
   } else {
     RW.ele_pref = ele_min;
   }
+}
+
+void ext_vision_quat_rotation(struct FloatQuat* orient){
+  struct FloatQuat orient_2;
+  float sz = sinf(RW.skew.rad/2.0);
+  float cz = cosf(RW.skew.rad/2.0);
+  orient_2.qi = orient->qi * cz - orient->qz * sz;
+  orient_2.qx = orient->qx * cz + orient->qy * sz;
+  orient_2.qy = orient->qy * cz - orient->qx * sz;
+  orient_2.qz = orient->qz * cz + orient->qi * sz;
+
+  orient->qi = orient_2.qi;
+  orient->qx = orient_2.qx;
+  orient->qy = orient_2.qy;
+  orient->qz = orient_2.qz;
 }

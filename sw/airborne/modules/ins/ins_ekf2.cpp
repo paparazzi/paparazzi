@@ -282,10 +282,7 @@ static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event optical_flow_ev;
-#if INS_EKF2_RW
-static abi_event wing_position_ev;
-#endif
-float skew_rad = 0.2;
+
 
 /* All ABI callbacks */
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
@@ -296,9 +293,6 @@ static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *d
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
-#if INS_EKF2_RW
-static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act);
-#endif
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -630,12 +624,6 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
-  #if INS_EKF2_RW
-  #ifndef WING_ROTATION_CAN_ROT_WING_ID
-  #define WING_ROTATION_CAN_ROT_WING_ID ABI_BROADCAST
-  #endif
-  AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROT_WING_ID, &wing_position_ev, wing_position_cb);
-  #endif
 }
 
 void ins_reset_local_origin(void)
@@ -758,26 +746,29 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.quat(1) = DL_EXTERNAL_POSE_body_qy(buf);
   sample_ev.quat(2) = DL_EXTERNAL_POSE_body_qx(buf);
   sample_ev.quat(3) = -DL_EXTERNAL_POSE_body_qz(buf);
-  #ifdef INS_EKF2_RW
-  struct FloatQuat orient_2;
-  float sz = sinf(skew_rad/2.0);
-  float cz = cosf(skew_rad/2.0);
-  orient_2.qi = sample_ev.quat(0) * cz - sample_ev.quat(3) * sz;
-  orient_2.qx = sample_ev.quat(1) * cz + sample_ev.quat(2) * sz;
-  orient_2.qy = sample_ev.quat(2) * cz - sample_ev.quat(1) * sz;
-  orient_2.qz = sample_ev.quat(3) * cz + sample_ev.quat(0) * sz;
+  
+  struct FloatQuat orient;
+  orient.qi   = sample_ev.quat(0);
+  orient.qx   = sample_ev.quat(1);
+  orient.qy   = sample_ev.quat(2);
+  orient.qz   = sample_ev.quat(3);
+  ext_vision_quat_rotation(&orient);
+  sample_ev.quat(0) = orient.qi;
+  sample_ev.quat(1) = orient.qx;
+  sample_ev.quat(2) = orient.qy;
+  sample_ev.quat(3) = orient.qz;
 
-  sample_ev.quat(0) = orient_2.qi;
-  sample_ev.quat(1) = orient_2.qx;
-  sample_ev.quat(2) = orient_2.qy;
-  sample_ev.quat(3) = orient_2.qz;
-  #endif
   sample_ev.posVar.setAll(INS_EKF2_EVP_NOISE);
   sample_ev.velCov = matrix::eye<float, 3>() * INS_EKF2_EVV_NOISE;
   sample_ev.angVar = INS_EKF2_EVA_NOISE;
   sample_ev.vel_frame = velocity_frame_t::LOCAL_FRAME_FRD;
 
   ekf.setExtVisionData(sample_ev);
+}
+
+void WEAK ext_vision_quat_rotation(struct FloatQuat* orient UNUSED)
+{
+  // Default do nothing
 }
 
 void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf) {
@@ -1023,18 +1014,3 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   ekf.setOpticalFlowData(sample);
 }
 
-#if INS_EKF2_RW
-/** ABI binding wing position data.
- */
-PRINT_CONFIG_VAR(WING_ROTATION_CAN_ROT_WING_ID)
-static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *pos_msg, uint8_t num_act)
-{
-  for (int i=0; i<num_act; i++){
-    if (pos_msg[i].set.position && (pos_msg[i].idx == COMMAND_ROT_MECH))
-    {
-      skew_rad = 0.5 * M_PI - pos_msg[i].position;
-      Bound(skew_rad, 0, 0.5 * M_PI);
-    }
-  }
-}
-#endif
