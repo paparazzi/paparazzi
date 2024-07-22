@@ -35,17 +35,17 @@
  * Redefining RADIO_*
  * Do not use with radio.h (ppm rc)
  */
-#define RADIO_ROLL      0
-#define RADIO_PITCH     1
-#define RADIO_YAW       2
-#define RADIO_THROTTLE  3
-#define RADIO_MODE      4
-#define RADIO_AUX1      5
-#define RADIO_AUX2      6
-#define RADIO_AUX4      7
-#define RADIO_AUX6      8
-#define RADIO_AUX5      9
-#define RADIO_AUX7      10
+#define RADIO_ROLL      0  // Default: Roll 
+#define RADIO_PITCH     1  // Default: Pitch
+#define RADIO_YAW       2  // Default: Yaw
+#define RADIO_THROTTLE  3  // Default: Thrust
+#define RADIO_MODE      4  // Default: MODE
+#define RADIO_AUX1      5  // Default: KILL
+#define RADIO_AUX2      6  // Default: NA
+#define RADIO_AUX4      7  // Default: NA
+#define RADIO_AUX6      8  // Default: NA
+#define RADIO_AUX5      9  // Default: NA
+#define RADIO_AUX7      10 // Default: AP_MODE
 
 #ifndef RADIO_KILL_SWITCH
 #define RADIO_KILL_SWITCH RADIO_AUX1
