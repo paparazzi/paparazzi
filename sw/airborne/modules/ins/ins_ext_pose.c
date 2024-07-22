@@ -42,6 +42,10 @@
 #define DEBUG_PRINT(...) {}
 #endif
 
+#ifdef INS_EXT_VISION_ROTATION
+struct FloatQuat ins_ext_vision_rot;
+#endif
+
 /** Data for telemetry and LTP origin.
  */
 struct InsExtPose {

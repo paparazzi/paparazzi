@@ -273,6 +273,10 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
+#ifdef INS_EXT_VISION_ROTATION
+struct FloatQuat ins_ext_vision_rot;
+#endif
+
 /* All registered ABI events */
 static abi_event baro_ev;
 static abi_event temperature_ev;
