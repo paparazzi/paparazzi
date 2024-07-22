@@ -118,6 +118,8 @@ void gvf_init(void)
   gvf_control.ke = 1;
   gvf_control.kn = 1;
   gvf_control.s = 1;
+  gvf_control.speed = 1.0; // Rotorcraft only (for now)
+  gvf_control.align = false; // Rotorcraft only
   gvf_trajectory.type = NONE;
 
 #if PERIODIC_TELEMETRY
@@ -177,18 +179,18 @@ void gvf_control_2D(float ke, float kn, float e,
   float md_dot_x =  md_y * md_dot_const;
   float md_dot_y = -md_x * md_dot_const;
 
+  #if defined(ROTORCRAFT_FIRMWARE)
 
-  #ifdef ROTORCRAFT_FIRMWARE
+  // Use accel based control. Not recommended as of current implementation
+  #if defined(GVF_ROTORCRAFT_USE_ACCEL)
 
   // Set nav for command
-
   // Use parameter kn as the speed command
   nav.speed.x = md_x * kn;
   nav.speed.y = md_y * kn;
 
-
   // Acceleration induced by the field with speed set to kn (!WIP!)
-#warning "Using GVF for rotorcraft is still experimental, proceed with caution"
+  #warning "Using GVF for rotorcraft is still experimental, proceed with caution"
   float n_norm = sqrtf(nx*nx+ny*ny);
   float hess_px_dot = px_dot * H11 + py_dot * H12;
   float hess_py_dot = px_dot * H21 + py_dot * H22;
@@ -205,12 +207,28 @@ void gvf_control_2D(float ke, float kn, float e,
   float speed_cmd_x = kn*tx / n_norm - ke * e * nx / (n_norm);
   float speed_cmd_y = kn*ty / n_norm - ke * e * ny / (n_norm);
 
-  // TODO don't change nav struct directly
+  // TODO: don't change nav struct directly
   nav.accel.x = accel_cmd_x + (speed_cmd_x - px_dot);
   nav.accel.y = accel_cmd_y + (speed_cmd_y - py_dot);
   nav.heading = atan2f(md_x,md_y);
 
-  #else
+  #else // SPEED_BASED_GVF
+
+  nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+
+  // Speed-based control, acceleration based control not implemented yet
+  nav.speed.x = gvf_control.speed * md_x;
+  nav.speed.y = gvf_control.speed * md_y;
+
+  // Optionally align heading with trajectory
+  if (gvf_control.align) 
+  {
+    nav.heading = atan2f(md_x, md_y);
+  }
+  
+  #endif
+
+  #else // FIXEDWING / ROVER FIRMWARE
 
   float omega_d = -(md_dot_x * md_y - md_dot_y * md_x);
 
@@ -229,6 +247,21 @@ void gvf_control_2D(float ke, float kn, float e,
 
   #endif
 }
+
+// BEGIN ROTORCRAFT
+
+void gvf_set_speed(float speed)
+{
+  if (speed < 0.0) speed = 0.0;
+  gvf_control.speed = speed;
+}
+
+void gvf_set_align(bool align)
+{
+  gvf_control.align = align;
+}
+
+// END ROTORCRAFT
 
 void gvf_set_direction(int8_t s)
 {

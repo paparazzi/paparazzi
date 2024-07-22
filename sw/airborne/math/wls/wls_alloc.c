@@ -51,12 +51,34 @@
 
 #if WLS_VERBOSE
 #include <stdio.h>
-static void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax);
-static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free);
+static void print_final_values(struct WLS_t* WLS_p, float **B);
+static void print_in_and_outputs(int n_c, int n_free, float **A_free_ptr, float *d, float *p_free);
 #endif
 
-
-#define WLS_N_C ((WLS_N_U)+(WLS_N_V))
+/* Define messages of the module*/
+#if PERIODIC_TELEMETRY
+#include "modules/datalink/telemetry.h"
+void send_wls_v(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t iter_temp = (uint8_t)WLS_p->iter;
+  pprz_msg_send_WLS_V(trans, dev, AC_ID,
+                      strlen(name),name,
+                      &WLS_p->gamma_sq,
+                      &iter_temp,
+                      WLS_p->nv, WLS_p->v,
+                      WLS_p->nv, WLS_p->Wv);
+}
+void send_wls_u(char *name, struct WLS_t *WLS_p, struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_WLS_U(trans, dev, AC_ID,
+                      strlen(name),name,
+                      WLS_p->nu, WLS_p->Wu,
+                      WLS_p->nu, WLS_p->u_pref,
+                      WLS_p->nu, WLS_p->u_min,
+                      WLS_p->nu, WLS_p->u_max,
+                      WLS_p->nu, WLS_p->u);
+}
+#endif
 
 /**
  * @brief Wrapper for qr solve
@@ -67,7 +89,7 @@ static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float*
  * @param m number of rows
  * @param n number of columns
  */
-static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
+static void qr_solve_wrapper(int m, int n, float **A, float *b, float *x) {
   float in[m * n];
   // convert A to 1d array
   int k = 0;
@@ -86,77 +108,64 @@ static void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * Takes the control objective and max and min inputs from pprz and calculates
  * the inputs that will satisfy most of the control objective, subject to the
  * weighting matrices Wv and Wu
- *
- * @param u The control output vector
- * @param v The control objective vector
- * @param umin The minimum u vector
- * @param umax The maximum u vector
+ *  
+ * @param WLS_p Struct that contains most of the WLS parameters
  * @param B The control effectiveness matrix
  * @param u_guess Initial value for u
  * @param W_init Initial working set, if known
- * @param Wv Weighting on different control objectives
- * @param Wu Weighting on different controls
- * @param up Preferred control vector
- * @param gamma_sq Preference of satisfying control objective over desired
- * control vector (sqare root of gamma)
  * @param imax Max number of iterations
- * @param n_u Length of u (the number of actuators)
- * @param n_v Lenght of v (the number of control objectives)
- *
- * @return Number of iterations which is (imax+1) if it ran out of iterations
  */
-int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
-    float* u_guess, float* W_init, float* Wv, float* Wu, float* up,
-    float gamma_sq, int imax,  int n_u, int n_v) {
+
+void wls_alloc(struct WLS_t* WLS_p, float **B, float *u_guess, float *W_init, int imax) {
   // allocate variables, use defaults where parameters are set to 0
-  if(!gamma_sq) gamma_sq = 100000;
-  if(!imax) imax = 100;
+  if (!WLS_p->gamma_sq) WLS_p->gamma_sq = 100000;
+  if (!imax) imax = 100;
 
-  int n_c = n_u + n_v;
+  int n_c = WLS_p->nu + WLS_p->nv;
 
-  float A[WLS_N_C][WLS_N_U];
-  float A_free[WLS_N_C][WLS_N_U];
+  float A[n_c][WLS_p->nu];
+  float A_free[n_c][WLS_p->nu];
 
   // Create a pointer array to the rows of A_free
   // such that we can pass it to a function
-  float * A_free_ptr[WLS_N_C];
+  float *A_free_ptr[n_c];
   for(int i = 0; i < n_c; i++)
     A_free_ptr[i] = A_free[i];
 
-  float b[WLS_N_C];
-  float d[WLS_N_C];
+  float b[n_c];
+  float d[n_c];
 
-  int free_index[WLS_N_U];
-  int free_index_lookup[WLS_N_U];
+  int free_index[WLS_p->nu];
+  int free_index_lookup[WLS_p->nu];
   int n_free = 0;
   int free_chk = -1;
 
   int iter = 0;
-  float p_free[WLS_N_U];
-  float p[WLS_N_U];
-  float u_opt[WLS_N_U];
-  int infeasible_index[WLS_N_U] UNUSED;
+  float p_free[WLS_p->nu];
+  float p[WLS_p->nu];
+  float u_opt[WLS_p->nu];
+  int infeasible_index[WLS_p->nu] UNUSED;
   int n_infeasible = 0;
-  float lambda[WLS_N_U];
-  float W[WLS_N_U];
+  float lambda[WLS_p->nu];
+  float W[WLS_p->nu];
 
   // Initialize u and the working set, if provided from input
   if (!u_guess) {
-    for (int i = 0; i < n_u; i++) {
-      u[i] = (umax[i] + umin[i]) * 0.5;
+    for (int i = 0; i < WLS_p->nu; i++) {
+      WLS_p->u[i] = (WLS_p->u_max[i] + WLS_p->u_min[i]) * 0.5;
     }
   } else {
-    for (int i = 0; i < n_u; i++) {
-      u[i] = u_guess[i];
+    for (int i = 0; i < WLS_p->nu; i++) {
+      WLS_p->u[i] = u_guess[i];
     }
   }
-  W_init ? memcpy(W, W_init, n_u * sizeof(float))
-    : memset(W, 0, n_u * sizeof(float));
+  W_init ? memcpy(W, W_init, WLS_p->nu * sizeof(float))
+         : memset(W, 0, WLS_p->nu * sizeof(float));
 
-  memset(free_index_lookup, -1, n_u * sizeof(float));
+  memset(free_index_lookup, -1, WLS_p->nu * sizeof(float));
 
   // find free indices
-  for (int i = 0; i < n_u; i++) {
+  for (int i = 0; i < WLS_p->nu; i++) {
     if (W[i] == 0) {
       free_index_lookup[i] = n_free;
       free_index[n_free++] = i;
@@ -164,28 +173,27 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
   }
 
   // fill up A, A_free, b and d
-  for (int i = 0; i < n_v; i++) {
-    // If Wv is a NULL pointer, use Wv = identity
-    b[i] = Wv ? gamma_sq * Wv[i] * v[i] : gamma_sq * v[i];
+  for (int i = 0; i < WLS_p->nv; i++) {
+    b[i] = WLS_p->gamma_sq * WLS_p->Wv[i] * WLS_p->v[i];
     d[i] = b[i];
-    for (int j = 0; j < n_u; j++) {
+    for (int j = 0; j < WLS_p->nu; j++) {
       // If Wv is a NULL pointer, use Wv = identity
-      A[i][j] = Wv ? gamma_sq * Wv[i] * B[i][j] : gamma_sq * B[i][j];
-      d[i] -= A[i][j] * u[j];
+      A[i][j] = WLS_p->gamma_sq * WLS_p->Wv[i] * B[i][j];
+      d[i] -= A[i][j] * WLS_p->u[j];
     }
   }
-  for (int i = n_v; i < n_c; i++) {
-    memset(A[i], 0, n_u * sizeof(float));
-    A[i][i - n_v] = Wu ? Wu[i - n_v] : 1.0;
-    b[i] = up ? (Wu ? Wu[i-n_v] * up[i-n_v] : up[i-n_v]) : 0;
-    d[i] = b[i] - A[i][i - n_v] * u[i - n_v];
+  for (int i = WLS_p->nv; i < n_c; i++) {
+    memset(A[i], 0, WLS_p->nu * sizeof(float));
+    A[i][i - WLS_p->nv] = WLS_p->Wu[i - WLS_p->nv];
+    b[i] = WLS_p->Wu[i - WLS_p->nv] * WLS_p->u_pref[i - WLS_p->nv];
+    d[i] = b[i] - A[i][i - WLS_p->nv] * WLS_p->u[i - WLS_p->nv];
   }
 
   // -------------- Start loop ------------
   while (iter++ < imax) {
     // clear p, copy u to u_opt
-    memset(p, 0, n_u * sizeof(float));
-    memcpy(u_opt, u, n_u * sizeof(float));
+    memset(p, 0, WLS_p->nu * sizeof(float));
+    memcpy(u_opt, WLS_p->u, WLS_p->nu * sizeof(float));
 
     // Construct a matrix with the free columns of A
     if (free_chk != n_free) {
@@ -218,7 +226,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
         u_opt[free_index[i]] += p_free[i];
 
         // check limits
-        if ( (u_opt[free_index[i]] > umax[free_index[i]] || u_opt[free_index[i]] < umin[free_index[i]])) {
+        if ((u_opt[free_index[i]] > WLS_p->u_max[free_index[i]] || u_opt[free_index[i]] < WLS_p->u_min[free_index[i]])) {
           infeasible_index[n_infeasible++] = free_index[i];
         }
       }
@@ -227,22 +235,22 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
     // Check feasibility of the solution
     if (n_infeasible == 0) {
       // all variables are within limits
-      memcpy(u, u_opt, n_u * sizeof(float));
-      memset(lambda, 0, n_u * sizeof(float));
+      memcpy(WLS_p->u, u_opt, WLS_p->nu * sizeof(float));
+      memset(lambda, 0, WLS_p->nu * sizeof(float));
 
       // d = d + A_free*p_free; lambda = A*d;
       for (int i = 0; i < n_c; i++) {
         for (int k = 0; k < n_free; k++) {
           d[i] -= A_free[i][k] * p_free[k];
         }
-        for (int k = 0; k < n_u; k++) {
+        for (int k = 0; k < WLS_p->nu; k++) {
           lambda[k] += A[i][k] * d[i];
         }
       }
       bool break_flag = true;
 
       // lambda = lambda x W;
-      for (int i = 0; i < n_u; i++) {
+      for (int i = 0; i < WLS_p->nu; i++) {
         lambda[i] *= W[i];
         // if any lambdas are negative, keep looking for solution
         if (lambda[i] < -FLT_EPSILON) {
@@ -258,11 +266,11 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
       if (break_flag) {
 
 #if WLS_VERBOSE
-        print_final_values(n_u, n_v, u, B, v, umin, umax);
+        print_final_values(WLS_p, B);
 #endif
-
+        
         // if solution is found, return number of iterations
-        return iter;
+        WLS_p->iter = iter;
       }
     } else {
       // scaling back actuator command (0-1)
@@ -274,8 +282,8 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
       for (int i = 0; i < n_free; i++) {
         int id = free_index[i];
 
-        alpha_tmp = (p[id] < 0) ? (umin[id] - u[id]) / p[id]
-          : (umax[id] - u[id]) / p[id];
+        alpha_tmp = (p[id] < 0) ? (WLS_p->u_min[id] - WLS_p->u[id]) / p[id]
+                                : (WLS_p->u_max[id] - WLS_p->u[id]) / p[id];
 
         if (isnan(alpha_tmp) || alpha_tmp < 0.f) {
           alpha_tmp = 1.0f;
@@ -287,9 +295,9 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
       }
 
       // update input u = u + alpha*p
-      for (int i = 0; i < n_u; i++) {
-        u[i] += alpha * p[i];
-        Bound(u[i],umin[i],umax[i]);
+      for (int i = 0; i < WLS_p->nu; i++) {
+        WLS_p->u[i] += alpha * p[i];
+        Bound(WLS_p->u[i], WLS_p->u_min[i], WLS_p->u_max[i]);
       }
       // update d = d-alpha*A*p_free
       for (int i = 0; i < n_c; i++) {
@@ -302,20 +310,19 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
 
       free_index[free_index_lookup[id_alpha]] = free_index[--n_free];
       free_index_lookup[free_index[free_index_lookup[id_alpha]]] =
-        free_index_lookup[id_alpha];
+          free_index_lookup[id_alpha];
       free_index_lookup[id_alpha] = -1;
     }
   }
-  return iter;
+  WLS_p->iter = iter;
 }
 
 #if WLS_VERBOSE
-static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free) {
-
+static void print_in_and_outputs(int n_c, int n_free, float **A_free_ptr, float *d, float *p_free) {
   printf("n_c = %d n_free = %d\n", n_c, n_free);
 
   printf("A_free =\n");
-  for(int i = 0; i < n_c; i++) {
+  for (int i = 0; i < n_c; i++) {
     for (int j = 0; j < n_free; j++) {
       printf("%f ", A_free_ptr[i][j]);
     }
@@ -334,39 +341,39 @@ static void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float*
   printf("\n\n");
 }
 
-static void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax) {
-  printf("n_u = %d n_v = %d\n", n_u, n_v);
+static void print_final_values(struct WLS_t* WLS_p, float **B) {
+  printf("n_u = %d n_v = %d\n", WLS_p->nu, WLS_p->nv);
 
   printf("B =\n");
-  for(int i = 0; i < n_v; i++) {
-    for (int j = 0; j < n_u; j++) {
+  for (int i = 0; i < WLS_p->nv; i++) {
+    for (int j = 0; j < WLS_p->nu; j++) {
       printf("%f ", B[i][j]);
     }
     printf("\n");
   }
 
   printf("v = ");
-  for (int j = 0; j < n_v; j++) {
-    printf("%f ", v[j]);
+  for (int j = 0; j < WLS_p->nv; j++) {
+    printf("%f ", WLS_p->v[j]);
   }
 
   printf("\nu = ");
-  for (int j = 0; j < n_u; j++) {
+  for (int j = 0; j < WLS_p->nu; j++) {
     printf("%f ", u[j]);
   }
   printf("\n");
 
   printf("\numin = ");
-  for (int j = 0; j < n_u; j++) {
-    printf("%f ", umin[j]);
+  for (int j = 0; j < WLS_p->nu; j++) {
+    printf("%f ", WLS_p->u_min[j]);
   }
   printf("\n");
 
   printf("\numax = ");
-  for (int j = 0; j < n_u; j++) {
-    printf("%f ", umax[j]);
+  for (int j = 0; j < WLS_p->nu; j++) {
+    printf("%f ", WLS_p->u_max[j]);
   }
   printf("\n\n");
-
+  
 }
 #endif
