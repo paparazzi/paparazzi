@@ -78,7 +78,7 @@ extern void parse_rc_4ch_datalink(
   int8_t yaw);
 
 /**
- * Decode datalink message to get rc values with RC_4CH message
+ * Decode datalink message to get rc values with RC_6CH message
  */
 extern void parse_rc_6ch_datalink(
   int8_t mode,
