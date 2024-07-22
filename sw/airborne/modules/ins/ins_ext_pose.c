@@ -33,8 +33,10 @@
 #include "modules/imu/imu.h"
 #include "modules/ins/ins.h"
 #include "generated/flight_plan.h"
-
+#include "generated/airframe.h"
 #include "modules/core/abi.h"
+
+
 
 #if 0
 #include <stdio.h>
@@ -186,7 +188,6 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   ins_ext_pos.has_new_acc = true;
 }
 
-
 /**
  * Import External Pose Message
  */
@@ -217,6 +218,7 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   orient.qy = quat_x ;                
   orient.qz = -quat_z;
 
+  ext_vision_quat_rotation(&orient);
   float_eulers_of_quat(&orient_eulers, &orient);
   
   ins_ext_pos.ev_time       = get_sys_time_usec(); 
@@ -237,6 +239,11 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   ins_ext_pos.has_new_ext_pose = true;
 
   DEBUG_PRINT("Att = %f %f %f \n", ins_ext_pos.ev_att.phi, ins_ext_pos.ev_att.theta, ins_ext_pos.ev_att.psi);
+}
+
+void WEAK ext_vision_quat_rotation(struct FloatQuat* orient UNUSED)
+{
+  // Default do nothing
 }
 
 void ins_reset_local_origin(void)
