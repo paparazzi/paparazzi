@@ -46,7 +46,7 @@
   <aircraft
    name="CobraV2"
    ac_id="11"
-   airframe="airframes/ENAC/quadrotor/cobraV2.xml"
+   airframe="airframes/ENAC/quadrotor/cobraV2_CAN.xml"
    radio="radios/FrSky_X-Lite.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"

@@ -20,8 +20,8 @@
   <init fun="dronecan_init()"/>
   <makefile target="ap">
     <!-- Enable the CAN busses if needed -->
-    <define name="USE_CAN1" cond="ifeq ($(DRONECAN_USE_CAN1), TRUE)"/>
-    <define name="USE_CAN2" cond="ifeq ($(DRONECAN_USE_CAN2), TRUE)"/>
+    <define name="USE_CAN1" value="$(DRONECAN_USE_CAN1)"/>
+    <define name="USE_CAN2" value="$(DRONECAN_USE_CAN2)"/>
     <define name="DRONECAN_USE_CAN1" value="$(DRONECAN_USE_CAN1)"/>
     <define name="DRONECAN_USE_CAN2" value="$(DRONECAN_USE_CAN2)"/>
     <define name="CANARD_ENABLE_CANFD" value="1"/>

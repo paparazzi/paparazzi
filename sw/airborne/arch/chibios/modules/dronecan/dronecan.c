@@ -24,10 +24,6 @@
  *
  */
 
-#if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
-#define FDCAN_PERIPH 1
-#endif
-
 #include "dronecan.h"
 
 #ifndef DRONECAN_NODE_ID
@@ -61,6 +57,8 @@
 static dronecan_event *dronecan_event_hd = NULL;
 
 #if DRONECAN_USE_CAN1
+#define FDCAN_PERIPH 1
+
 #ifndef DRONECAN_CAN1_NODE_ID
 #define DRONECAN_CAN1_NODE_ID DRONECAN_NODE_ID
 #endif
@@ -95,6 +93,8 @@ struct dronecan_iface_t dronecan1 = {
 #endif
 
 #if DRONECAN_USE_CAN2
+#define FDCAN_PERIPH 1
+
 #ifndef DRONECAN_CAN2_NODE_ID
 #define DRONECAN_CAN2_NODE_ID DRONECAN_NODE_ID
 #endif
