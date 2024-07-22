@@ -62,6 +62,20 @@ void rc_datalink_parse_RC_4CH(uint8_t *buf)
       DL_RC_4CH_yaw(buf));
 }
 
+void rc_datalink_parse_RC_6CH(uint8_t *buf)
+{
+#ifdef RADIO_CONTROL_DATALINK_LED
+  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
+#endif
+  parse_rc_6ch_datalink(DL_RC_6CH_mode(buf),
+      DL_RC_6CH_throttle(buf),
+      DL_RC_6CH_roll(buf),
+      DL_RC_6CH_pitch(buf),
+      DL_RC_6CH_yaw(buf),
+      DL_RC_6CH_kill(buf),
+      DL_RC_6CH_aux7(buf));
+}
+
 void parse_rc_3ch_datalink(uint8_t throttle_mode,
                            int8_t roll,
                            int8_t pitch)
@@ -74,6 +88,8 @@ void parse_rc_3ch_datalink(uint8_t throttle_mode,
   rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
   rc_dl_values[RADIO_MODE] = (int8_t)mode;
   rc_dl_values[RADIO_YAW] = 0;
+  rc_dl_values[RADIO_AUX7] = 0;
+  rc_dl_values[RADIO_KILL_SWITCH] = 0;  
 
   rc_dl_frame_available = true;
 }
@@ -90,6 +106,28 @@ void parse_rc_4ch_datalink(
   rc_dl_values[RADIO_ROLL] = roll;
   rc_dl_values[RADIO_PITCH] = pitch;
   rc_dl_values[RADIO_YAW] = yaw;
+  rc_dl_values[RADIO_AUX7] = 0;
+  rc_dl_values[RADIO_KILL_SWITCH] = 0;
+
+  rc_dl_frame_available = true;
+}
+
+void parse_rc_6ch_datalink(
+  int8_t mode,
+  uint8_t throttle,
+  int8_t roll,
+  int8_t pitch,
+  int8_t yaw,
+  int8_t kill,
+  int8_t aux7)
+{
+  rc_dl_values[RADIO_MODE] = (int8_t)mode;
+  rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
+  rc_dl_values[RADIO_ROLL] = roll;
+  rc_dl_values[RADIO_PITCH] = pitch;
+  rc_dl_values[RADIO_YAW] = yaw;
+  rc_dl_values[RADIO_AUX7] = aux7;
+  rc_dl_values[RADIO_KILL_SWITCH] = kill;
 
   rc_dl_frame_available = true;
 }
@@ -109,6 +147,10 @@ static void rc_datalink_normalize(int8_t *in, int16_t *out)
   Bound(out[RADIO_THROTTLE], 0, MAX_PPRZ);
   out[RADIO_MODE] = MAX_PPRZ * (in[RADIO_MODE] - 1);
   Bound(out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);
+  out[RADIO_KILL_SWITCH] = MAX_PPRZ * (in[RADIO_KILL_SWITCH] - 1);
+  Bound(out[RADIO_KILL_SWITCH], MIN_PPRZ, MAX_PPRZ);
+  out[RADIO_AUX7] = MAX_PPRZ * (in[RADIO_AUX7] - 1);
+  Bound(out[RADIO_AUX7], MIN_PPRZ, MAX_PPRZ);
 }
 
 void rc_datalink_event(void)
