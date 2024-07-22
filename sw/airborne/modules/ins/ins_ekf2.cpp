@@ -291,8 +291,7 @@ static void gyro_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatRates *de
 static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
-static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x,
-                            int32_t flow_der_y, float quality, float size_divergence);
+static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -746,12 +745,29 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.quat(1) = DL_EXTERNAL_POSE_body_qy(buf);
   sample_ev.quat(2) = DL_EXTERNAL_POSE_body_qx(buf);
   sample_ev.quat(3) = -DL_EXTERNAL_POSE_body_qz(buf);
+  
+  struct FloatQuat orient;
+  orient.qi   = sample_ev.quat(0);
+  orient.qx   = sample_ev.quat(1);
+  orient.qy   = sample_ev.quat(2);
+  orient.qz   = sample_ev.quat(3);
+  ext_vision_quat_rotation(&orient);
+  sample_ev.quat(0) = orient.qi;
+  sample_ev.quat(1) = orient.qx;
+  sample_ev.quat(2) = orient.qy;
+  sample_ev.quat(3) = orient.qz;
+
   sample_ev.posVar.setAll(INS_EKF2_EVP_NOISE);
   sample_ev.velCov = matrix::eye<float, 3>() * INS_EKF2_EVV_NOISE;
   sample_ev.angVar = INS_EKF2_EVA_NOISE;
   sample_ev.vel_frame = velocity_frame_t::LOCAL_FRAME_FRD;
 
   ekf.setExtVisionData(sample_ev);
+}
+
+void WEAK ext_vision_quat_rotation(struct FloatQuat* orient UNUSED)
+{
+  // Default do nothing
 }
 
 void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t __attribute__((unused)) *buf) {
