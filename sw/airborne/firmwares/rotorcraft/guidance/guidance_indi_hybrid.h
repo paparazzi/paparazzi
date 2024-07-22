@@ -51,6 +51,8 @@ extern float guidance_indi_get_liftd(float pitch, float theta);
 extern void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_HYBRID_U], struct FloatVect3 a_diff, float v_body[GUIDANCE_INDI_HYBRID_V]);
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
+#include "math/wls/wls_alloc.h"
+extern struct WLS_t wls_guid_p;
 extern void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle);
 #endif
 

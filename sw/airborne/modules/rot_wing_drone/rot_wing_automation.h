@@ -28,7 +28,12 @@
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+
+#ifdef RW_USE_MODULES_V2
+#include "modules/rot_wing_drone/rotwing_state_V2.h"
+#else
 #include "modules/rot_wing_drone/rotwing_state.h"
+#endif
 
 extern void init_rot_wing_automation(void);
 extern void periodic_rot_wing_automation(void);

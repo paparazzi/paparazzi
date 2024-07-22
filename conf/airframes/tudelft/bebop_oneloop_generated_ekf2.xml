@@ -44,8 +44,8 @@
     <module name="air_data"/>
 
     <module name="wls">
-      <define name="WLS_N_U" value = "6"/>
-      <define name="WLS_N_V" value = "6"/>
+      <define name="WLS_N_U_MAX" value = "6"/>
+      <define name="WLS_N_V_MAX" value = "6"/>
     </module>
 
     <module name="logger_file">
