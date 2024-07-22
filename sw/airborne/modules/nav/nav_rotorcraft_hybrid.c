@@ -61,10 +61,16 @@ float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
 #define NAV_HYBRID_MAX_ACCELERATION 4.0
 #endif
 
-float nav_max_deceleration_sp = NAV_HYBRID_MAX_DECELERATION;
-float nav_max_acceleration_sp = NAV_HYBRID_MAX_ACCELERATION;
+float nav_max_deceleration_sp     = NAV_HYBRID_MAX_DECELERATION; //Maximum deceleration allowed for the set-point
+float nav_max_acceleration_sp     = NAV_HYBRID_MAX_ACCELERATION; //Maximum acceleration allowed for the set-point
+float nav_hybrid_max_acceleration = NAV_HYBRID_MAX_ACCELERATION; //Maximum general limit in acceleration allowed for the hybrid navigation
 
+#ifndef NAV_HYBRID_MAX_EXPECTED_WIND
 float nav_hybrid_max_expected_wind = 5.0f;
+#else
+float nav_hybrid_max_expected_wind = NAV_HYBRID_MAX_EXPECTED_WIND;
+#endif
+
 #ifdef NAV_HYBRID_LINE_GAIN
 float nav_hybrid_line_gain = NAV_HYBRID_LINE_GAIN;
 #else
@@ -93,8 +99,9 @@ bool force_forward = 0.0f;
 #define NAV_HYBRID_GOTO_MODE NAV_SETPOINT_MODE_SPEED
 #endif
 
-#ifndef NAV_OPTITRACK
-#define NAV_OPTITRACK FALSE 
+/* When using external vision, run the nav functions in position mode for better tracking*/
+#ifndef NAV_EXT_VISION_SETPOINT_MODE
+#define NAV_EXT_VISION_SETPOINT_MODE FALSE 
 #endif
 
 static void update_max_acc(bool full_acc){
@@ -109,7 +116,7 @@ static void update_max_acc(bool full_acc){
 
 static void nav_hybrid_goto(struct EnuCoor_f *wp)
 {
-  update_max_acc(false);
+  nav_max_acceleration_sp = nav_hybrid_max_acceleration / 2.0;
   nav_rotorcraft_base.goto_wp.to = *wp;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
   VECT2_COPY(nav.target, *wp);
@@ -142,11 +149,11 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 
   // In optitrack tests use position mode for more precise hovering
-  if (NAV_OPTITRACK){
+#if NAV_EXT_VISION_SETPOINT_MODE
     nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
-  }else{
+#else
     nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
-  }
+#endif
 }
 
 static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end)
@@ -247,7 +254,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   float sign_radius = radius > 0.f ? 1.f : -1.f;
   // absolute radius
   float abs_radius = fabsf(radius);
-  float min_radius =  pow(nav_max_speed+nav_hybrid_max_expected_wind,2) / (NAV_HYBRID_MAX_ACCELERATION * 0.8);
+  float min_radius =  pow(nav_max_speed+nav_hybrid_max_expected_wind,2) / (nav_hybrid_max_acceleration * 0.8);
   abs_radius = Max(abs_radius, min_radius);
   if (abs_radius > 0.1f) {
     // store last qdr
@@ -275,16 +282,16 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   if (radius_diff > NAV_HYBRID_NAV_CIRCLE_DIST) {
     // far from circle, speed proportional to diff
     desired_speed = radius_diff * nav_hybrid_pos_gain;
-    update_max_acc(false);
+    nav_max_acceleration_sp = nav_hybrid_max_acceleration / 2.0;
   } else {
     // close to circle, speed function of radius for a feasible turn
     // 0.8 * MAX_BANK gives some margins for the turns
     desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * nav_hybrid_max_bank));
-    update_max_acc(true);
+    nav_max_acceleration_sp = nav_hybrid_max_acceleration ;
   }
   if (force_forward) {
     desired_speed = nav_max_speed;
-    update_max_acc(true);
+    nav_max_acceleration_sp = nav_hybrid_max_acceleration ;
   }
   Bound(desired_speed, 0.0f, nav_max_speed);
   // compute speed vector from target position
