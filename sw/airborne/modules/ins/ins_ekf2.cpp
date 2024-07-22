@@ -283,7 +283,6 @@ static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event optical_flow_ev;
 
-
 /* All ABI callbacks */
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
 static void temperature_cb(uint8_t sender_id, float temp);
@@ -1013,4 +1012,3 @@ static void optical_flow_cb(uint8_t sender_id __attribute__((unused)),
   // Update the optical flow data based on the callback
   ekf.setOpticalFlowData(sample);
 }
-

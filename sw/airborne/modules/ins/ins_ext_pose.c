@@ -33,10 +33,7 @@
 #include "modules/imu/imu.h"
 #include "modules/ins/ins.h"
 #include "generated/flight_plan.h"
-#include "generated/airframe.h"
 #include "modules/core/abi.h"
-
-
 
 #if 0
 #include <stdio.h>
@@ -187,6 +184,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   ACCELS_FLOAT_OF_BFP(ins_ext_pos.accels_f, *accel);
   ins_ext_pos.has_new_acc = true;
 }
+
 
 /**
  * Import External Pose Message
