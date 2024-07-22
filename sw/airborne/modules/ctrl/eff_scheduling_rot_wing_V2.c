@@ -62,10 +62,6 @@ float actuator_state_filt_vect[EFF_MAT_COLS_NB] = {0};
 #error "NO ROT_WING_EFF_SCHED_M defined"
 #endif
 
-#ifdef INS_EXT_VISION_ROTATION
-struct FloatQuat ins_ext_vision_rot;
-#endif
-
 /* Effectiveness Matrix definition */
 float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROT_WING_EFF_SCHED_G2; //scaled by RW_G_SCALE
 float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_THRUST, ROT_WING_EFF_SCHED_G1_ROLL, ROT_WING_EFF_SCHED_G1_PITCH, ROT_WING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
