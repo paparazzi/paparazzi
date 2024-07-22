@@ -160,7 +160,8 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
                                       1, &zero,                    // rate ref
                                       3, indi.rate_d,              // ang.acc = rate.diff
                                       3, temp_indi_ang_acc_ref,    // ang.acc.ref
-                                      1, &zero);                   // jerk ref
+                                      1, &zero,                    // jerk ref
+                                      1, &zero);                   // u
 }
 static void send_eff_mat_g_indi_simple(struct transport_tx *trans, struct link_device *dev)
 {

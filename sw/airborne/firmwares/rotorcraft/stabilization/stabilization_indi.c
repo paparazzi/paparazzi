@@ -357,7 +357,8 @@ static void send_att_full_indi(struct transport_tx *trans, struct link_device *d
                                       3, temp_rate_ref,            // rate ref
                                       3, angular_acceleration,     // ang.acc = rate.diff
                                       3, temp_ang_acc_ref,         // ang.acc.ref
-                                      1, &zero);                   // jerk ref
+                                      1, &zero,                    // jerk ref
+                                      1, &zero);                   // u
 }
 #endif
 

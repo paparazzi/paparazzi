@@ -453,13 +453,10 @@ static void send_oneloop_andi(struct transport_tx *trans, struct link_device *de
                                         3, oneloop_andi.sta_ref.att_d,
                                         3, oneloop_andi.sta_state.att_2d,                                      
                                         3, oneloop_andi.sta_ref.att_2d,
-                                        3, oneloop_andi.sta_ref.att_3d);                                      
+                                        3, oneloop_andi.sta_ref.att_3d,
+                                        ANDI_NUM_ACT, actuator_state_1l);                                      
 }
-static void send_oneloop_actuator_state(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ACTUATOR_STATE(trans, dev, AC_ID, 
-                                        ANDI_NUM_ACT, actuator_state_1l);
-}
+
 static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE(trans, dev, AC_ID,
@@ -1202,7 +1199,6 @@ void oneloop_andi_init(void)
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_stab_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE, send_guidance_oneloop_andi);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATOR_STATE, send_oneloop_actuator_state);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_oneloop_debug);
   #endif
 }
