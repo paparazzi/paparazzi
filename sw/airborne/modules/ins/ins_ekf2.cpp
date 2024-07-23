@@ -278,6 +278,10 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
+#ifdef INS_EXT_VISION_ROTATION
+struct FloatQuat ins_ext_vision_rot;
+#endif
+
 /* All registered ABI events */
 static abi_event baro_ev;
 static abi_event temperature_ev;
@@ -296,8 +300,7 @@ static void gyro_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatRates *de
 static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
-static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x,
-                            int32_t flow_der_y, float quality, float size_divergence);
+static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -751,6 +754,18 @@ void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf) {
   sample_ev.quat(1) = DL_EXTERNAL_POSE_body_qy(buf);
   sample_ev.quat(2) = DL_EXTERNAL_POSE_body_qx(buf);
   sample_ev.quat(3) = -DL_EXTERNAL_POSE_body_qz(buf);
+  
+#ifdef INS_EXT_VISION_ROTATION
+  // Rotate the quaternion
+  struct FloatQuat body_q = {sample_ev.quat(0), sample_ev.quat(1), sample_ev.quat(2), sample_ev.quat(3)};
+  struct FloatQuat rot_q;
+  float_quat_comp(&rot_q, &body_q, &ins_ext_vision_rot);
+  sample_ev.quat(0) = rot_q.qi;
+  sample_ev.quat(1) = rot_q.qx;
+  sample_ev.quat(2) = rot_q.qy;
+  sample_ev.quat(3) = rot_q.qz;
+#endif
+
   sample_ev.posVar.setAll(INS_EKF2_EVP_NOISE);
   sample_ev.velCov = matrix::eye<float, 3>() * INS_EKF2_EVV_NOISE;
   sample_ev.angVar = INS_EKF2_EVA_NOISE;

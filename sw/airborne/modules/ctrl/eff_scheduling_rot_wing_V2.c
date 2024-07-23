@@ -84,7 +84,7 @@ void  ele_pref_sched(void);
 void  update_attitude(void);
 void  sum_EFF_MAT_RW(void);
 void  init_RW_Model(void);
-void  calc_G1_G2_RW(void);
+void  calc_G1_G2_RW(void);  
 
 /** ABI binding wing position data.
  */
@@ -371,6 +371,11 @@ void eff_scheduling_rot_wing_update_wing_angle(void)
   RW.skew.sinr2 = RW.skew.sinr * RW.skew.sinr;
   RW.skew.sinr3 = RW.skew.sinr2 * RW.skew.sinr;
   RW.skew.cosr3 = RW.skew.cosr2 * RW.skew.cosr;
+#ifdef INS_EXT_VISION_ROTATION
+  // Define an INS external pose quaternion rotation from the wing rotation angle
+  struct FloatEulers rot_e = {0, 0, RW.skew.rad};
+  float_quat_of_eulers(&ins_ext_vision_rot, &rot_e);
+#endif
 
 }
 float time = 0.0;
