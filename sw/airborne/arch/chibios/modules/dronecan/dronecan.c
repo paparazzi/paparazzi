@@ -489,8 +489,8 @@ static bool dronecanConfigureIface(struct dronecan_iface_t *iface)
   iface->can_cfg.DBTP = FDCAN_CONFIG_DBTP_DSJW(3U) |
                         FDCAN_CONFIG_DBTP_DBRP(0U) |
                         FDCAN_CONFIG_DBTP_DTSEG1(t_seg1 - 1) |
-                        FDCAN_CONFIG_DBTP_DTSEG2(t_seg2 - 1) |
-                        FDCAN_CONFIG_DBTP_TDC(0U);
+                        FDCAN_CONFIG_DBTP_DTSEG2(t_seg2 - 1);
+                        // FDCAN_CONFIG_DBTP_TDC = 0
   iface->can_cfg.CCCR = FDCAN_CCCR_BRSE;
   iface->can_cfg.RXGFC = FDCAN_CONFIG_GFC_ANFE_REJECT | // Réjection des trames étendues non
                                                         // acceptées.
