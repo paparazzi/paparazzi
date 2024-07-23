@@ -14,12 +14,16 @@
       <define name="GOTO_SPEED" value="nav_max_speed" description="maximum speed when flying goto/stay routines (default is max speed)"/>
       <define name="NAV_LINE_DIST" value="50" description="distance coefficient for line routine"/>
       <define name="NAV_CIRCLE_DIST" value="40" description="distance coefficient for circle routine"/>
+      <define name="NAV_HYBRID_MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
+      <define name="NAV_EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
     </section>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="nav_hybrid">
+        <dl_setting var="nav_hybrid_max_acceleration" min="1.0" step="0.1" max="9.0"/>
         <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0"/>
+        <dl_setting var="nav_hybrid_max_expected_wind" min="0.0" step="0.1" max="20.0" shortname="max_expected_wind"/>
         <dl_setting var="nav_goto_max_speed" min="0.1" step="0.1" max="50.0"/>
         <dl_setting var="nav_max_deceleration_sp" min="0.5" step="0.1" max="10.0" shortname="max_deceleration" param="NAV_HYBRID_MAX_DECELERATION"/>
         <dl_setting var="nav_hybrid_line_gain" min="0.1" step="0.1" max="3" shortname="nav_hybrid_line_gain" param="NAV_HYBRID_LINE_GAIN"/>
