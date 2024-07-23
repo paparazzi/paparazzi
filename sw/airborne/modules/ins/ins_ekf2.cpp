@@ -49,6 +49,11 @@
 #define USE_INS_NAV_INIT TRUE
 #endif
 
+/** Maximum allowed error in distance between dual GPS antennae */
+#ifndef INS_EKF2_MAX_REL_LENGTH_ERROR
+#define INS_EKF2_MAX_REL_LENGTH_ERROR 0.2 // Factor which gets multiplied by the reference distance
+#endif
+
 /** Special configuration for Optitrack */
 #if INS_EKF2_OPTITRACK
 #ifndef INS_EKF2_FUSION_MODE
@@ -927,8 +932,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 #if INS_EKF2_GPS_COURSE_YAW
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
   gps_msg.yaw_offset = 0;
-#elif defined(INS_EKF2_GPS_YAW_OFFSET)
-  if(ISFINITE(gps_relposned.relPosHeading)) {
+#elif defined(INS_EKF2_GPS_YAW_OFFSET) && defined(INS_EKF2_ANTENNA_DISTANCE) 
+  if(ISFINITE(gps_relposned.relPosHeading) && gps_relposned.relPosValid && gps_relposned.diffSoln && gps_relposned.carrSoln >= 1 
+  && fabsf(gps_relposned.relPosLength - INS_EKF2_ANTENNA_DISTANCE) <= INS_EKF2_MAX_REL_LENGTH_ERROR * INS_EKF2_ANTENNA_DISTANCE) {
     gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading - INS_EKF2_GPS_YAW_OFFSET));
   } else {
     gps_msg.yaw = NAN;
