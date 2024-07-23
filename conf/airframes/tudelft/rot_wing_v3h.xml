@@ -332,7 +332,7 @@
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
                 <field name="low_feedback" value="0.15"/>
-                <field name="high_feedback" value="0.3"/>
+                <field name="high_feedback" value="-0.3"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -340,7 +340,7 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="-0.15"/>
+                <field name="low_feedback" value="-0.2"/>
                 <field name="high_feedback" value="0.2"/>
                 <field name="timeout" value="1"/>
             </field>
@@ -455,6 +455,7 @@
         <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
         <define name="INS_EKF2_FUSION_MODE"                 value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
+        <define name="INS_EKF2_GPS_ANTENNA_DISTANCE"        value="1.02"/>
     </section>
 
     <section name="GROUND_DETECT">

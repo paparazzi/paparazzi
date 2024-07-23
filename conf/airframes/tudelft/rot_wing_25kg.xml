@@ -306,6 +306,7 @@
         <define name="MULTI_GPS_MODE"                   value="GPS_MODE_PRIMARY"/>
         <define name="INS_EKF2_FUSION_MODE"             value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"          value="0"/>
+        <define name="INS_EKF2_ANTENNA_DISTANCE"        value="2.40"/> <!-- In meters -->
     </section>
 
     <section name="GROUND_DETECT">
