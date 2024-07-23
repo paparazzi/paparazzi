@@ -32,7 +32,11 @@ The basis of steering is the standard signs of aerospace convention
   </input>
 
   <messages period="0.05">
-    <message class="datalink" name="RC_6CH" send_always="true">
+    <message class="datalink" name="RC_UP" send_always="true">
+      <!-- <field name="channels"    value="RightStickHorizontal,RightStickVertical,LeftStickHorizontal,Fit(LeftStickVertical,-127,127,0,127),Fit(VRA,-108,108,0,2),Fit(arm,-108,108,0,2),0,0,0,0,Fit(yellow,-108,108,0,2)"/> -->
+      <field name="channels"    value="{RightStickHorizontal,0}"/>
+   </message>
+    <!-- <message class="datalink" name="RC_6CH" send_always="true">
       <field name="throttle"    value="Fit(LeftStickVertical,-127,127,0,127)"/>
       <field name="roll"        value="RightStickHorizontal"/>
       <field name="pitch"       value="RightStickVertical"/>
@@ -40,7 +44,7 @@ The basis of steering is the standard signs of aerospace convention
       <field name="mode"        value="Fit(VRA,-108,108,0,2)"/>
       <field name="kill"        value="Fit(arm,-108,108,0,2)"/>
       <field name="aux7"        value="Fit(yellow,-108,108,0,2)"/>
-    </message>
+    </message> -->
     <!-- <message class="ground" name="DL_SETTING" on_event="arm">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
       <field name="value" value="Fit(-arm,-127,126,0,1)"/>

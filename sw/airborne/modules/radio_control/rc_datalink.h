@@ -89,6 +89,12 @@ extern void parse_rc_6ch_datalink(
     int8_t kill,
     int8_t aux7);
 
+/**
+ * Decode datalink message to get rc values with RC_UP message
+ */
+extern void parse_rc_up_datalink(
+    int8_t n, int8_t *channels);    
+
 extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_6CH(uint8_t *buf);

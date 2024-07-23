@@ -82,7 +82,7 @@ void rc_datalink_parse_RC_UP(uint8_t *buf)
   LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
   parse_rc_up_datalink(DL_RC_UP_channels_length(buf),
-      DL_RC_UP_channels(buf);
+      DL_RC_UP_channels(buf));
 }
 
 void parse_rc_3ch_datalink(uint8_t throttle_mode,
