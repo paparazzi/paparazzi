@@ -99,8 +99,8 @@ bool force_forward = 0.0f;
 #endif
 
 /* When using external vision, run the nav functions in position mode for better tracking*/
-#ifndef NAV_EXT_VISION_SETPOINT_MODE
-#define NAV_EXT_VISION_SETPOINT_MODE FALSE 
+#ifndef NAV_HYBRID_EXT_VISION_SETPOINT_MODE
+#define NAV_HYBRID_EXT_VISION_SETPOINT_MODE FALSE 
 #endif
 
 /** Implement basic nav function for the hybrid case
@@ -141,7 +141,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 
   // In optitrack tests use position mode for more precise hovering
-#if NAV_EXT_VISION_SETPOINT_MODE
+#if NAV_HYBRID_EXT_VISION_SETPOINT_MODE
     nav.setpoint_mode = NAV_SETPOINT_MODE_POS;
 #else
     nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
