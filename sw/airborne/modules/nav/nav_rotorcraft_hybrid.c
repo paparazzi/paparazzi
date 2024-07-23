@@ -66,10 +66,9 @@ float nav_max_acceleration_sp     = NAV_HYBRID_MAX_ACCELERATION; //Maximum accel
 float nav_hybrid_max_acceleration = NAV_HYBRID_MAX_ACCELERATION; //Maximum general limit in acceleration allowed for the hybrid navigation
 
 #ifndef NAV_HYBRID_MAX_EXPECTED_WIND
-float nav_hybrid_max_expected_wind = 5.0f;
-#else
-float nav_hybrid_max_expected_wind = NAV_HYBRID_MAX_EXPECTED_WIND;
+#define NAV_HYBRID_MAX_EXPECTED_WIND 5.0f
 #endif
+float nav_hybrid_max_expected_wind = NAV_HYBRID_MAX_EXPECTED_WIND;
 
 #ifdef NAV_HYBRID_LINE_GAIN
 float nav_hybrid_line_gain = NAV_HYBRID_LINE_GAIN;
@@ -104,13 +103,6 @@ bool force_forward = 0.0f;
 #define NAV_EXT_VISION_SETPOINT_MODE FALSE 
 #endif
 
-static void update_max_acc(bool full_acc){
-  if (full_acc){
-    nav_max_acceleration_sp = NAV_HYBRID_MAX_ACCELERATION;
-  } else {
-    nav_max_acceleration_sp = NAV_HYBRID_MAX_ACCELERATION / 2;
-  }
-}
 /** Implement basic nav function for the hybrid case
  */
 
@@ -139,7 +131,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     // The time in which it does this is: T = V / a_max
     // The maximum speed at which to fly to still allow arriving with zero
     // speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
-    float max_speed_decel2 = fabs(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
+    float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
     float max_speed_decel = sqrtf(max_speed_decel2);
     // Bound the setpoint velocity vector
     max_h_speed = Min(nav_max_speed, max_speed_decel); // use hover max speed

@@ -14,6 +14,8 @@
       <define name="GOTO_SPEED" value="nav_max_speed" description="maximum speed when flying goto/stay routines (default is max speed)"/>
       <define name="NAV_LINE_DIST" value="50" description="distance coefficient for line routine"/>
       <define name="NAV_CIRCLE_DIST" value="40" description="distance coefficient for circle routine"/>
+      <define name="NAV_HYBRID_MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
+      <define name="NAV_EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
     </section>
   </doc>
   <settings>
