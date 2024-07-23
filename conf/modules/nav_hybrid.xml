@@ -7,6 +7,8 @@
     </description>
     <section name="NAV_HYBRID" prefix="NAV_HYBRID_">
       <define name="MAX_DECELERATION" value="1.0" description="Maximum deceleration in [m/s2] when arriving to hover at a WP"/>
+      <define name="MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
+      <define name="EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
     </section>
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
       <define name="MAX_AIRSPEED" value="15." description="maximum airspeed (required)"/>
@@ -14,9 +16,7 @@
       <define name="GOTO_SPEED" value="nav_max_speed" description="maximum speed when flying goto/stay routines (default is max speed)"/>
       <define name="NAV_LINE_DIST" value="50" description="distance coefficient for line routine"/>
       <define name="NAV_CIRCLE_DIST" value="40" description="distance coefficient for circle routine"/>
-      <define name="NAV_HYBRID_MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
-      <define name="NAV_EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
-    </section>
+      </section>
   </doc>
   <settings>
     <dl_settings>
