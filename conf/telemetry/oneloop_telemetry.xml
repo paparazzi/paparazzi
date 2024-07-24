@@ -45,24 +45,25 @@
       <message name="GUIDANCE_INDI_HYBRID"     period="0.4"/>
       <message name="HYBRID_GUIDANCE"          period="0.4"/>
       <message name="ESC"                      period="0.5"/>
-      <message name="AHRS_REF_QUAT"            period="0.1"/>
-      <message name="INS_FLOW_INFO"            period="0.1"/>
-      <message name="GPS_RTK"                  period="0.1"/>
+      <message name="AHRS_REF_QUAT"            period="0.2"/>
+      <message name="INS_FLOW_INFO"            period="0.2"/>
+      <message name="GPS_RTK"                  period="0.2"/>
       <message name="AOA"                      period="0.2"/>
-      <message name="APPROACH_MOVING_TARGET"   period="0.1"/>
-      <message name="AIRSPEED_RAW"             period="0.1"/>
-      <message name="TARGET_POS_INFO"          period="0.1"/>
+      <message name="APPROACH_MOVING_TARGET"   period="0.2"/>
+      <message name="AIRSPEED_RAW"             period="0.2"/>
+      <message name="TARGET_POS_INFO"          period="0.2"/>
       <message name="ROTATING_WING_STATE"      period="0.2"/>
-      <message name="ACTUATORS"                period="0.02"/>
-      <message name="EFF_MAT_STAB"             period="0.02"/>
-      <message name="EFF_MAT_GUID"             period="0.02"/>
-      <message name="GUIDANCE"                 period="0.02"/> 
-      <message name="STAB_ATTITUDE"            period="0.02"/>
+      <message name="ACTUATORS"                period="0.2"/>
+      <message name="EFF_MAT_STAB"             period="0.2"/>
+      <message name="EFF_MAT_GUID"             period="0.2"/>
+      <message name="GUIDANCE"                 period="0.2"/> 
+      <message name="STAB_ATTITUDE"            period="0.2"/>
       <message name="ROTORCRAFT_CMD"           period="0.2"/>
       <message name="DEBUG_VECT"               period="0.2"/>
       <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
       <message name="WLS_V"                    period="0.2"/>
       <message name="WLS_U"                    period="0.2"/>
+      <message name="ACTUATOR_STATE"           period="0.2"/>
     </mode>
 
     <mode name="sim" key_press="d">
@@ -123,6 +124,7 @@
       <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
       <message name="WLS_V"                    period="0.002"/>
       <message name="WLS_U"                    period="0.002"/>
+      <message name="ACTUATOR_STATE"           period="0.002"/>
     </mode>
 
     <mode name="calibration">
@@ -316,16 +318,19 @@
       <message name="STAB_ATTITUDE"            period="0.002"/>
       <message name="ACTUATORS"                period="0.002"/>
       <message name="GPS_RTK"                  period="0.1"/>
-      <message name="IMU_HEATER"               period="6.2"/>
-      <message name="EFF_MAT_STAB"             period="0.002"/>
-      <message name="EFF_MAT_GUID"             period="0.002"/>
+      <message name="IMU_HEATER"               period="1.0"/>
+      <message name="AIRSPEED_RAW"             period="0.01"/>
+      <message name="EFF_MAT_STAB"             period="0.02"/>
+      <message name="EFF_MAT_GUID"             period="0.02"/>
       <message name="GUIDANCE"                 period="0.002"/>
       <message name="EXTERNAL_POSE_DOWN"       period="0.002"/>
       <message name="ROTATING_WING_STATE"      period="0.1"/>
       <message name="DOUBLET"                  period="0.002"/>
       <message name="DEBUG"                    period="0.02"/> <!-- For the parachute module -->
+      <message name="DEBUG_VECT"               period="0.002"/>
       <message name="WLS_V"                    period="0.002"/>
       <message name="WLS_U"                    period="0.002"/>
+      <message name="ACTUATOR_STATE"           period="0.002"/>
     </mode>
   </process>
 
