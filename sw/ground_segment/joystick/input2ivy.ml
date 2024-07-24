@@ -35,7 +35,7 @@
 
 open Printf
 open Random
-
+open PprzLink
 
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -88,11 +88,10 @@ type input =
 type msg = {
   msg_name : string;
   msg_class : string;
-  fields : (string * PprzLink._type * Syntax.expression) list;
+  fields : (string * PprzLink._type * Syntax.expression list) list;
   on_event : Syntax.expression option;
   send_always : bool;
-  has_ac_id : bool;
-  array_fields : (string * Syntax.expression list) list; (* New field for array expressions *)
+  has_ac_id : bool
 }
 
 (** Representation of a variable *)
@@ -221,8 +220,16 @@ let parse_input = fun input ->
     (Xml.children input)
 
 (** Parse a '� la C' expression *)
-let parse_value = fun s ->
-  Fp_proc.parse_expression s
+let parse_value s =
+  (* Printf.printf "s: %s\n" s; *)
+  let substrings = String.split_on_char ';' s in
+  let parsed_exprs = List.map (fun sub ->
+    let trimmed_sub = String.trim sub in
+    let parsed_expr = Fp_proc.parse_expression trimmed_sub in
+    (* Printf.printf "parsed_expr: %s\n" (Syntax.sprint parsed_expr); *)
+    parsed_expr
+  ) substrings in
+  parsed_exprs
 
 (** Parse a message field and eval *)
 let parse_msg_field = fun msg_descr field ->
@@ -230,15 +237,12 @@ let parse_msg_field = fun msg_descr field ->
   let field_descr = try List.assoc name msg_descr.PprzLink.fields with _ ->
     Printf.printf "parse_msg_field: field %s not found\n" name;
     raise (Failure "field not found") in
-
-  let value = eval_settings_and_blocks field_descr (parse_value (Xml.attrib field "value")) in
-  (name, field_descr.PprzLink._type, value)
-
-(** Define the parse_expr_list function *)
-let parse_expr_list value =
-  (* Assuming the value is a semicolumn-separated list of expressions *)
-  let exprs = String.split_on_char ';' value in
-  List.map (fun expr -> Fp_proc.parse_expression (String.trim expr)) exprs
+  (* Printf.printf "check 2\n"; *)
+  let value = List.map (eval_settings_and_blocks field_descr) (parse_value (Xml.attrib field "value")) in
+  let field_type = field_descr.PprzLink._type in
+  let field_type_str = PprzLink.string_of_type field_type in
+  (* Printf.printf "Field name: %s, Type: %s\n" name field_type_str; *)
+  (name, field_type, value)
 
 (** Parse a complete message and build its representation *)
 let parse_msg = fun msg ->
@@ -246,50 +250,39 @@ let parse_msg = fun msg ->
   and msg_class = Xml.attrib msg "class"
   and send_always = (try (Xml.attrib msg "send_always") = "true" with _ -> false) in
 
-  let fields, array_fields, has_ac_id =
+  let fields, has_ac_id =
     match get_message_type msg_class with
-    | "Message" ->
-      begin
-        let msg_descr = get_message msg_class msg_name in
-        try
-          let fields, array_fields = List.partition (fun field_node ->
+        "Message" ->
+          begin
+            let msg_descr = get_message msg_class msg_name in
             try
-              Xml.attrib field_node "type" <> "array"
-            with Xml.No_attribute _ ->
-              true (* Assume it's a normal field if "type" attribute is missing *)
-          ) (Xml.children msg) in
-          let fields = List.map (parse_msg_field msg_descr) fields in
-          let array_fields = List.map (fun field_node ->
-            let name = Xml.attrib field_node "name" in
-            let exprs = parse_expr_list (Xml.attrib field_node "value") in
-            (name, exprs)
-          ) array_fields in
-          (fields, array_fields, List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
-        with Failure e ->
-          failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
-      end
-    | "Trim" -> ([], [], false)
+              (List.map (parse_msg_field msg_descr) (Xml.children msg),
+               List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
+            with Failure e ->
+              failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
+          end
+      | "Trim" -> ([], false)
     | _ -> failwith ("Unknown message class type") in
-  
-    let on_event =
-      try Some (parse_value (Xml.attrib msg "on_event")) with _ -> None in
 
     (* Print the values for debugging *)
-    Printf.printf "msg_name: %s\n" msg_name;
-    Printf.printf "msg_class: %s\n" msg_class;
-    Printf.printf "fields: %s\n" (String.concat ", " (List.map (fun (k, _, _) -> k) fields));
-    Printf.printf "send_always: %b\n" send_always;
-    Printf.printf "has_ac_id: %b\n" has_ac_id;
-    Printf.printf "array_fields: %s\n" (String.concat ", " (List.map fst array_fields));
-    flush stdout; (* Ensure the output is flushed *)
+    (* Printf.printf "msg_name: %s\n" msg_name; *)
+    (* Printf.printf "msg_class: %s\n" msg_class; *)
+    (* Printf.printf "fields: %s\n" (String.concat ", " (List.map (fun (k, _, _) -> k) fields)); *)
+    (* flush stdout; (* Ensure the output is flushed *) *)
+    let on_event =
+      try 
+        match parse_value (Xml.attrib msg "on_event") with
+        | [] -> None
+        | expr :: _ -> Some expr
+      with _ -> None
+    in
    
     { msg_name = msg_name;
       msg_class = msg_class;
       fields = fields;
       on_event = on_event;
       send_always = send_always;
-      has_ac_id = has_ac_id;
-      array_fields = array_fields
+      has_ac_id = has_ac_id
     }
 
 (** Parse an XML list of variables and set function *)
@@ -306,11 +299,17 @@ let parse_variables = fun variables ->
             (ExtXml.tag_is vs "set") &&
               (compare (ExtXml.attrib_or_default vs "var" "") name) = 0)
             (Xml.children variables) in
-          let var_event = List.map (fun s ->
+          let var_event = List.fold_left (fun acc s ->
             let value = ExtXml.int_attrib s "value"
-            and on_event = parse_value (Xml.attrib s "on_event") in
-            (value, on_event)
-          ) set in
+            and on_event = 
+              match parse_value (Xml.attrib s "on_event") with
+              | [] -> None
+              | expr :: _ -> Some expr
+            in
+            match on_event with
+            | Some expr -> (value, expr) :: acc
+            | None -> acc
+          ) [] set in
           l := (name, { value = default; var_event = var_event; }) :: !l;
           ()
       | _ -> ()
@@ -524,9 +523,20 @@ let update_variables = fun inputs buttons hat axis variables ->
 let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
-      (fun (name, _type, expr) ->
-        let v = eval_expr buttons hat axis inputs variables expr in
-        (name, PprzLink.value _type (sprintf "%d" v))
+      (fun (name, _type, expr_list) ->
+        (* Printf.printf "Processing field: %s\n" name; *)
+        (* List.iter (fun expr -> Printf.printf "Expression in list: %s\n" (Syntax.sprint expr)) expr_list; *)
+        let v = List.fold_left (fun acc expr ->
+          let eval_result = eval_expr buttons hat axis inputs variables expr in
+          (* Printf.printf "Evaluated expression: %s, Result: %d\n" (Syntax.sprint expr) eval_result; *)
+          acc @ [eval_result]
+        ) [] expr_list in
+        let v_string = String.concat "," (List.map string_of_int v) in
+        (* Printf.printf "%s\n" v_string; *)
+        let field_type = _type in
+        let field_type_str = PprzLink.string_of_type field_type in
+        (* Printf.printf "Field name: %s, Type: %s\n" name field_type_str; *)
+        (name, PprzLink.value _type v_string)
       )
       message.fields
 

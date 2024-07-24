@@ -41,11 +41,11 @@
 #define RADIO_THROTTLE  3  // Default: Thrust
 #define RADIO_MODE      4  // Default: MODE
 #define RADIO_AUX1      5  // Default: KILL
-#define RADIO_AUX2      6  // Default: NA
-#define RADIO_AUX4      7  // Default: NA
-#define RADIO_AUX6      8  // Default: NA
+#define RADIO_AUX2      7  // Default: NA
+#define RADIO_AUX4      8  // Default: NA
 #define RADIO_AUX5      9  // Default: NA
-#define RADIO_AUX7      10 // Default: AP_MODE
+#define RADIO_AUX6      10 // Default: NA
+#define RADIO_AUX7      6  // Default: AP_MODE
 
 #ifndef RADIO_KILL_SWITCH
 #define RADIO_KILL_SWITCH RADIO_AUX1

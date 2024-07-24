@@ -33,9 +33,12 @@ The basis of steering is the standard signs of aerospace convention
 
   <messages period="0.05">
     <!-- <message class="datalink" name="RC_UP" send_always="true">
-      <field type="array" name="channels" value="RightStickHorizontal;RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);Fit(VRA,-108,108,0,2);Fit(arm,-108,108,0,2);0;0;0;0;Fit(yellow,-108,108,0,2)"/>
-    </message> -->
-    <message class="datalink" name="RC_6CH" send_always="true">
+      <field type="array" name="channels" value="RightStickHorizontal;RightStickVertical"/>
+    </message>   -->
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field type="array" name="channels" value="RightStickHorizontal;RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);Fit(VRA,-108,108,0,2);Fit(arm,-108,108,0,2);Fit(yellow,-108,108,0,2)"/>
+    </message>
+    <!-- <message class="datalink" name="RC_6CH" send_always="true">
       <field name="throttle"    value="Fit(LeftStickVertical,-127,127,0,127)"/>
       <field name="roll"        value="RightStickHorizontal"/>
       <field name="pitch"       value="RightStickVertical"/>
@@ -43,7 +46,7 @@ The basis of steering is the standard signs of aerospace convention
       <field name="mode"        value="Fit(VRA,-108,108,0,2)"/>
       <field name="kill"        value="Fit(arm,-108,108,0,2)"/>
       <field name="aux7"        value="Fit(yellow,-108,108,0,2)"/>
-    </message>
+    </message> -->
   </messages>
 
 </joystick>
