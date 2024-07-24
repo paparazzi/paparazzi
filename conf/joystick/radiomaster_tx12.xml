@@ -31,12 +31,10 @@ The basis of steering is the standard signs of aerospace convention
     <axis index="6" name="yellow"/>
   </input>
 
+<!-- Follow the order of rc_datalink.h -->
   <messages period="0.05">
-    <!-- <message class="datalink" name="RC_UP" send_always="true">
-      <field type="array" name="channels" value="RightStickHorizontal;RightStickVertical"/>
-    </message>   -->
     <message class="datalink" name="RC_UP" send_always="true">
-      <field type="array" name="channels" value="RightStickHorizontal;RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);Fit(VRA,-108,108,0,2);Fit(arm,-108,108,0,2);Fit(yellow,-108,108,0,2)"/>
+      <field name="channels" value="RightStickHorizontal;RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,-127,127,0,127);Fit(VRA,-108,108,0,2);Fit(arm,-108,108,0,2);Fit(yellow,-108,108,0,2)"/>
     </message>
     <!-- <message class="datalink" name="RC_6CH" send_always="true">
       <field name="throttle"    value="Fit(LeftStickVertical,-127,127,0,127)"/>
