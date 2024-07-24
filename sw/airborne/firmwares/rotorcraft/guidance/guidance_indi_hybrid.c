@@ -250,6 +250,13 @@ void guidance_indi_propagate_filters(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+static void send_eff_mat_guid_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_EFF_MAT_GUID(trans, dev, AC_ID, 
+                GUIDANCE_INDI_HYBRID_U, Ga[0],
+                GUIDANCE_INDI_HYBRID_U, Ga[1],
+                GUIDANCE_INDI_HYBRID_U, Ga[2]);
+}
 static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE_INDI_HYBRID(trans, dev, AC_ID,
@@ -317,6 +324,7 @@ void guidance_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_indi_hybrid);
 #if GUIDANCE_INDI_HYBRID_USE_WLS
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_guid);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_guid);
