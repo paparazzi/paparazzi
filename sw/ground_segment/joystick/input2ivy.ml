@@ -91,7 +91,8 @@ type msg = {
   fields : (string * PprzLink._type * Syntax.expression) list;
   on_event : Syntax.expression option;
   send_always : bool;
-  has_ac_id : bool
+  has_ac_id : bool;
+  array_fields : (string * Syntax.expression list) list; (* New field for array expressions *)
 }
 
 (** Representation of a variable *)
@@ -219,7 +220,7 @@ let parse_input = fun input ->
     (name, value))
     (Xml.children input)
 
-(** Parse a 'à la C' expression *)
+(** Parse a 'ï¿½ la C' expression *)
 let parse_value = fun s ->
   Fp_proc.parse_expression s
 
@@ -233,36 +234,63 @@ let parse_msg_field = fun msg_descr field ->
   let value = eval_settings_and_blocks field_descr (parse_value (Xml.attrib field "value")) in
   (name, field_descr.PprzLink._type, value)
 
+(** Define the parse_expr_list function *)
+let parse_expr_list value =
+  (* Assuming the value is a semicolumn-separated list of expressions *)
+  let exprs = String.split_on_char ';' value in
+  List.map (fun expr -> Fp_proc.parse_expression (String.trim expr)) exprs
+
 (** Parse a complete message and build its representation *)
 let parse_msg = fun msg ->
   let msg_name = Xml.attrib msg "name"
   and msg_class = Xml.attrib msg "class"
   and send_always = (try (Xml.attrib msg "send_always") = "true" with _ -> false) in
 
-  let fields, has_ac_id =
+  let fields, array_fields, has_ac_id =
     match get_message_type msg_class with
-        "Message" ->
-          begin
-            let msg_descr = get_message msg_class msg_name in
+    | "Message" ->
+      begin
+        let msg_descr = get_message msg_class msg_name in
+        try
+          let fields, array_fields = List.partition (fun field_node ->
             try
-              (List.map (parse_msg_field msg_descr) (Xml.children msg),
-               List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
-            with Failure e ->
-              failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
-          end
-      | "Trim" -> ([], false)
-      | _ -> failwith ("Unknown message class type") in
+              Xml.attrib field_node "type" <> "array"
+            with Xml.No_attribute _ ->
+              true (* Assume it's a normal field if "type" attribute is missing *)
+          ) (Xml.children msg) in
+          let fields = List.map (parse_msg_field msg_descr) fields in
+          let array_fields = List.map (fun field_node ->
+            let name = Xml.attrib field_node "name" in
+            let exprs = parse_expr_list (Xml.attrib field_node "value") in
+            (name, exprs)
+          ) array_fields in
+          (fields, array_fields, List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
+        with Failure e ->
+          failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
+      end
+    | "Trim" -> ([], [], false)
+    | _ -> failwith ("Unknown message class type") in
+  
+    let on_event =
+      try Some (parse_value (Xml.attrib msg "on_event")) with _ -> None in
 
-  let on_event =
-    try Some (parse_value (Xml.attrib msg "on_event")) with _ -> None in
-
-  { msg_name = msg_name;
-    msg_class = msg_class;
-    fields = fields;
-    on_event = on_event;
-    send_always = send_always;
-    has_ac_id = has_ac_id
-  }
+    (* Print the values for debugging *)
+    Printf.printf "msg_name: %s\n" msg_name;
+    Printf.printf "msg_class: %s\n" msg_class;
+    Printf.printf "fields: %s\n" (String.concat ", " (List.map (fun (k, _, _) -> k) fields));
+    Printf.printf "send_always: %b\n" send_always;
+    Printf.printf "has_ac_id: %b\n" has_ac_id;
+    Printf.printf "array_fields: %s\n" (String.concat ", " (List.map fst array_fields));
+    flush stdout; (* Ensure the output is flushed *)
+   
+    { msg_name = msg_name;
+      msg_class = msg_class;
+      fields = fields;
+      on_event = on_event;
+      send_always = send_always;
+      has_ac_id = has_ac_id;
+      array_fields = array_fields
+    }
 
 (** Parse an XML list of variables and set function *)
 let parse_variables = fun variables ->
