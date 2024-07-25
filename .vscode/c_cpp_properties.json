@@ -9,7 +9,10 @@
                 "limitSymbolsToIncludedHeaders": false
             },
             "includePath": [
-                "~/paparazzi/**"
+                "~/paparazzi/sw/**",
+                "~/paparazzi/conf/**",
+                "~/paparazzi/data/**",
+                "~/paparazzi/var/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",

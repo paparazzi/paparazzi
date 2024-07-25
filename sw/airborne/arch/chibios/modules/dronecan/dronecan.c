@@ -114,7 +114,7 @@ static THD_WORKING_AREA(dronecan2_ns_wa, 1024);
 struct dronecan_iface_t dronecan2 = {
   .can_driver = &CAND2,
   .can_baudrate = DRONECAN_CAN2_BAUDRATE,
-  .can_baudrate_mult = DRONECAN_CAN1_BAUDRATE_MULT,
+  .can_baudrate_mult = DRONECAN_CAN2_BAUDRATE_MULT,
   .fdcan_operation = FDCAN_ENABLED,
   .can_cfg = {0},
   .thread_rx_wa = dronecan2_rx_wa,
@@ -151,9 +151,7 @@ void dronecan_broadcast(struct dronecan_iface_t *iface, CanardTxTransfer *transf
 {
   if (!iface->initialized) { return; }
 
-  chMtxLock(&iface->mutex);
   canardBroadcastObj(&iface->canard, transfer);
-  chMtxUnlock(&iface->mutex);
   chEvtBroadcast(&iface->tx_request);
 }
 
@@ -164,9 +162,7 @@ void dronecan_request_or_respond(struct dronecan_iface_t *iface, uint8_t destina
 {
   if (!iface->initialized) { return; }
 
-  chMtxLock(&iface->mutex);
   canardRequestOrRespondObj(&iface->canard, destination_node_id, transfer);
-  chMtxUnlock(&iface->mutex);
   chEvtBroadcast(&iface->tx_request);
 }
 
@@ -346,7 +342,7 @@ static THD_FUNCTION(dronecan_rx, p)
 
   while (true) {
     // Wait until a CAN message is received
-    while (canReceive(iface->can_driver, CAN_ANY_MAILBOX, &rx_msg, TIME_INFINITE) == MSG_OK) {
+    while (canReceiveTimeout(iface->can_driver, CAN_ANY_MAILBOX, &rx_msg, TIME_INFINITE) == MSG_OK) {
       // Process message.
       const uint64_t timestamp = TIME_I2US(chVTGetSystemTimeX());
       rx_frame = chibiRx2canard(rx_msg);
@@ -363,50 +359,36 @@ static THD_FUNCTION(dronecan_rx, p)
  */
 static THD_FUNCTION(dronecan_tx, p)
 {
-  event_listener_t txemp, txerr, txreq;
+  event_listener_t txreq;
   struct dronecan_iface_t *iface = (struct dronecan_iface_t *)p;
   uint8_t err_cnt = 0;
 
   chRegSetThreadName("dronecan_tx");
-  chEvtRegister(&iface->can_driver->txempty_event, &txemp, EVENT_MASK(0));
-  chEvtRegister(&iface->can_driver->error_event, &txerr, EVENT_MASK(1));
-  chEvtRegister(&iface->tx_request, &txreq, EVENT_MASK(2));
+  chEvtRegister(&iface->tx_request, &txreq, 0);
 
   while (true) {
-    eventmask_t evts = chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100));
-    // Succesfull transmit
-    if (evts == 0) {
-      continue;
-    }
-
-    // Transmit error
-    if (evts & EVENT_MASK(1)) {
-      chEvtGetAndClearFlags(&txerr);
-      continue;
-    }
-
+    chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100));
     chMtxLock(&iface->mutex);
     for (const CanardCANFrame *txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
       CANTxFrame tx_msg;
       tx_msg = canard2chibiTx(txf);
-      if (!canTryTransmitI(iface->can_driver, CAN_ANY_MAILBOX, &tx_msg)) {
-        err_cnt = 0;
-        canardPopTxQueue(&iface->canard);
-      } else {
-        // After 5 retries giveup and clean full queue
-        if (err_cnt >= 5) {
+      msg_t tx_ok =
+        canTransmitTimeout(iface->can_driver, CAN_ANY_MAILBOX, &tx_msg, chTimeMS2I(100));
+      switch (tx_ok) {
+        case MSG_OK: {
           err_cnt = 0;
-          while (canardPeekTxQueue(&iface->canard)) { 
-            canardPopTxQueue(&iface->canard); 
-          }
-          continue;
+          canardPopTxQueue(&iface->canard);
+        break;
+        } 
+        case MSG_TIMEOUT: {
+          err_cnt++;
+        break;
         }
-
-        // Timeout - just exit and try again later
-        chMtxUnlock(&iface->mutex);
-        chThdSleepMilliseconds(++err_cnt);
-        chMtxLock(&iface->mutex);
-        continue;
+        case MSG_RESET: {
+          err_cnt++;
+          canardPopTxQueue(&iface->canard);
+        break;
+        }
       }
     }
     chMtxUnlock(&iface->mutex);
@@ -475,8 +457,8 @@ static bool dronecanConfigureIface(struct dronecan_iface_t *iface)
 
   uint32_t nb_tq = pclk/(iface->can_baudrate*iface->can_baudrate_mult);
 
-  uint32_t t_seg1 = (nb_tq*0.875) - 1;
-  uint32_t t_seg2 =  nb_tq - t_seg1;
+  uint32_t t_seg1 = (uint32_t)(nb_tq*0.875) - 1;
+  uint32_t t_seg2 =  nb_tq - t_seg1 - 1;
 
   // Configure the interface
 #if FDCAN_PERIPH
@@ -492,7 +474,7 @@ static bool dronecanConfigureIface(struct dronecan_iface_t *iface)
                         FDCAN_CONFIG_DBTP_DTSEG2(t_seg2 - 1);
                         // FDCAN_CONFIG_DBTP_TDC = 0
   iface->can_cfg.CCCR = FDCAN_CCCR_BRSE;
-  iface->can_cfg.RXGFC = FDCAN_CONFIG_GFC_ANFE_REJECT | // Réjection des trames étendues non
+  iface->can_cfg.RXGFC = //FDCAN_CONFIG_GFC_ANFE_REJECT | // Réjection des trames étendues non
                                                         // acceptées.
                          FDCAN_CONFIG_GFC_ANFS_REJECT | // Réjection des trames standard non
                                                         // acceptées.
@@ -542,12 +524,12 @@ static void dronecanInitIface(struct dronecan_iface_t *iface)
   // Start the can interface
   canStart(iface->can_driver, &iface->can_cfg);
 
+  iface->initialized = true;
+
   // Start the receiver and transmitter thread
+  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, dronecan_tx, (void *)iface);
   chThdCreateStatic(iface->thread_ns_wa, iface->thread_ns_wa_size, NORMALPRIO + 9, dronecan_ns, (void *)iface);
   chThdCreateStatic(iface->thread_rx_wa, iface->thread_rx_wa_size, NORMALPRIO + 8, dronecan_rx, (void *)iface);
-  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, dronecan_tx, (void *)iface);
-
-  iface->initialized = true;
 }
 
 /**

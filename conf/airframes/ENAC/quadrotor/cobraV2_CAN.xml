@@ -35,6 +35,7 @@
       <configure name="DRONECAN_USE_CAN2" value="FALSE"/>
     </module>
 
+    <module name="actuators" type="pwm"/>
     <module name="switch" type="servo"/>
     <define name="SWITCH_SERVO_ON_VALUE" value="MAX_PPRZ"/>
     <define name="SWITCH_SERVO_OFF_VALUE" value="MIN_PPRZ"/>
@@ -71,7 +72,7 @@
     <servo name="SWITCH" no="1" min="800" neutral="800" max="1500"/>
   </servos>
 
-  <servos driver="DShot">
+  <servos driver="Dronecan1">
     <servo name="FR" no="3" min="0" neutral="100" max="2000"/>
     <servo name="BR" no="4" min="0" neutral="100" max="2000"/>
     <servo name="BL" no="2" min="0" neutral="100" max="2000"/>
