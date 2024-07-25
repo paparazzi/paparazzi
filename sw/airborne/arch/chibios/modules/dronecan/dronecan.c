@@ -26,6 +26,16 @@
 
 #include "dronecan.h"
 
+#ifdef FDCAN1
+#define FDCAN_PERIPH 1
+#else
+#ifdef CAN1
+#define FDCAN_PERIPH 0
+#else
+#error "No CAN peripherals on chip"
+#endif
+#endif
+
 #ifndef DRONECAN_NODE_ID
 #define DRONECAN_NODE_ID        42
 #endif
@@ -57,7 +67,6 @@
 static dronecan_event *dronecan_event_hd = NULL;
 
 #if DRONECAN_USE_CAN1
-#define FDCAN_PERIPH 1
 
 #ifndef DRONECAN_CAN1_NODE_ID
 #define DRONECAN_CAN1_NODE_ID DRONECAN_NODE_ID
@@ -93,7 +102,6 @@ struct dronecan_iface_t dronecan1 = {
 #endif
 
 #if DRONECAN_USE_CAN2
-#define FDCAN_PERIPH 1
 
 #ifndef DRONECAN_CAN2_NODE_ID
 #define DRONECAN_CAN2_NODE_ID DRONECAN_NODE_ID
@@ -186,8 +194,10 @@ static void getNodeInfo(struct dronecan_iface_t *iface, uint8_t dest_node_id) {
   request.priority = CANARD_TRANSFER_PRIORITY_LOW;
   request.payload = NULL; // No data sent by this request.
   request.payload_len = 0;
-  request.canfd = iface->fdcan_operation;
-  request.tao = !((iface->canard.tao_disabled) || request.canfd);
+#if FDCAN_ENABLED
+  request.canfd = 1;
+  request.tao = 0;
+#endif
 
   dronecan_request_or_respond(iface, dest_node_id, &request);
 }
@@ -237,7 +247,11 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
   pkt.name.len = strnlen((char *)pkt.name.data, sizeof(pkt.name.data));
 
   uint16_t total_size = uavcan_protocol_GetNodeInfoResponse_encode(
-      &pkt, buffer, !((iface->canard.tao_disabled) || (transfer->canfd)));
+      &pkt, buffer
+#if FDCAN_ENABLED
+      ,0
+#endif
+      );
 
   static CanardTxTransfer response;
   canardInitTxTransfer(&response);
@@ -249,8 +263,10 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
   response.priority = transfer->priority;
   response.payload = buffer;
   response.payload_len = total_size;
-  response.canfd = iface->fdcan_operation;
-  response.tao = !((iface->canard.tao_disabled) || (response.canfd));
+#if FDCAN_ENABLED
+  response.canfd = 1;
+  response.tao = 0;
+#endif
 
   dronecan_request_or_respond(iface,transfer->source_node_id,&response);
 }
@@ -279,7 +295,11 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
   iface->node_status.vendor_specific_status_code = VENDOR_STATUS;
 
   uint32_t len = uavcan_protocol_NodeStatus_encode(
-      &iface->node_status, buffer, !((iface->canard.tao_disabled) || iface->fdcan_operation));
+      &iface->node_status, buffer
+#if FDCAN_ENABLED
+      ,0
+#endif
+      );
 
   static uint8_t transfer_id = 0;
   static CanardTxTransfer broadcast;
@@ -292,8 +312,10 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
   broadcast.priority = CANARD_TRANSFER_PRIORITY_LOW;
   broadcast.payload = buffer;
   broadcast.payload_len = len;
-  broadcast.canfd = iface->fdcan_operation;
-  broadcast.tao = !((iface->canard.tao_disabled) || broadcast.canfd);
+#if FDCAN_ENABLED
+  broadcast.canfd = 1;
+  broadcast.tao = 0;
+#endif
 
   dronecan_broadcast(iface, &broadcast);
 }

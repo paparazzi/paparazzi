@@ -24,7 +24,8 @@
     <define name="USE_CAN2" value="$(DRONECAN_USE_CAN2)"/>
     <define name="DRONECAN_USE_CAN1" value="$(DRONECAN_USE_CAN1)"/>
     <define name="DRONECAN_USE_CAN2" value="$(DRONECAN_USE_CAN2)"/>
-    <define name="CANARD_ENABLE_CANFD" value="1"/>
+    <define name="FDCAN_ENABLED" value="$(FDCAN_ENABLED)"/>
+    <define name="CANARD_ENABLE_CANFD" value="$(FDCAN_ENABLED)"/>
 
     <!-- Load canard -->
     <include name="$(PAPARAZZI_SRC)/sw/ext/libcanard"/>
