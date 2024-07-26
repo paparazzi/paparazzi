@@ -56,6 +56,18 @@ static Butterworth2LowPass airspeed_filter;
 struct airspeed_dronecan_t airspeed_dronecan = {0};
 static dronecan_event airspeed_dronecan_ev;
 
+#if FDCAN_PERIPH
+static const FDCANExtendedFilter filters[] = {
+  {
+    0x00040300, // filter RawAirData broadcast
+    FILTERING_FEC_FIFO_1,
+    0x00FFFF80, // mask
+    0,
+    FILTERING_FT_MASK // classic filter-mask mode
+  }
+};
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -124,6 +136,15 @@ void airspeed_dronecan_init(void)
   // Setup the low pass filter
 #ifdef USE_AIRSPEED_DRONECAN_LOWPASS_FILTER
   init_butterworth_2_low_pass(&airspeed_filter, AIRSPEED_DRONECAN_LOWPASS_TAU, AIRSPEED_DRONECAN_LOWPASS_PERIOD, 0);
+#endif
+
+#if FDCAN_PERIPH
+#if DRONECAN_USE_CAN1
+  canSTM32SetExtendedFilters(&dronecan1->can_driver, 1, filters);
+#endif
+#if DRONECAN_USE_CAN2
+  canSTM32SetExtendedFilters(&dronecan2->can_driver, 1, filters);
+#endif
 #endif
 
   // Bind dronecan RAWAIRDATA message from EQUIPMENT.AIR_DATA

@@ -30,7 +30,7 @@
 
     <module name="telemetry" type="xbee_api"/>
 
-    <module name="actuators"     type="dronecan">
+    <module name="actuators" type="dronecan">
       <configure name="DRONECAN_USE_CAN1" value="TRUE"/>
       <configure name="DRONECAN_USE_CAN2" value="FALSE"/>
       <configure name="FDCAN_ENABLED" value="FALSE"/>
@@ -67,6 +67,8 @@
     </module>
 
     <module name="flight_recorder"/>
+    <module name="air_data"/>
+    <module name="airspeed" type="dronecan"/>
   </firmware>
 
   <servos driver="Pwm">

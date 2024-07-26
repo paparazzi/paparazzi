@@ -37,6 +37,18 @@ struct range_sensor_dronecan_t {
 static struct range_sensor_dronecan_t range_sensor_dronecan = {0};
 static dronecan_event range_sensor_dronecan_ev;
 
+#if FDCAN_PERIPH
+static const FDCANExtendedFilter filters[] = {
+  {
+    0x00041A00, // filter RangeSensorMeasurement broadcast
+    FILTERING_FEC_FIFO_1,
+    0x00FFFF80, // mask
+    0,
+    FILTERING_FT_MASK // classic filter-mask mode
+  }
+};
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -69,6 +81,15 @@ static void range_sensor_dronecan_cb(struct dronecan_iface_t *iface __attribute_
 
 void range_sensor_dronecan_init(void)
 {
+#if FDCAN_PERIPH
+#if DRONECAN_USE_CAN1
+  canSTM32SetExtendedFilters(&dronecan1->can_driver, 1, filters);
+#endif
+#if DRONECAN_USE_CAN2
+  canSTM32SetExtendedFilters(&dronecan2->can_driver, 1, filters);
+#endif
+#endif
+
   // Bind dronecan MEASUREMENT message from EQUIPMENT.RANGE_SENSOR
   dronecan_bind(CanardTransferTypeBroadcast, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_ID, UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_SIGNATURE, &range_sensor_dronecan_ev, &range_sensor_dronecan_cb);
 
