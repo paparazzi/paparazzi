@@ -52,12 +52,12 @@
 #define VENDOR_STATUS           0xA5A5
 #endif
 
-#ifndef FDCAN_ENABLED
-#define FDCAN_ENABLED           TRUE
+#ifndef CANARD_ENABLE_CANFD
+#define CANARD_ENABLE_CANFD     1
 #endif
 
 #ifndef DRONECAN_BAUDRATE_MULT
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
 #define DRONECAN_BAUDRATE_MULT  4
 #else
 #define DRONECAN_BAUDRATE_MULT  1
@@ -88,7 +88,7 @@ struct dronecan_iface_t dronecan1 = {
   .can_driver = &CAND1,
   .can_baudrate = DRONECAN_CAN1_BAUDRATE,
   .can_baudrate_mult = DRONECAN_CAN1_BAUDRATE_MULT,
-  .fdcan_operation = FDCAN_ENABLED,
+  .fdcan_operation = CANARD_ENABLE_CANFD,
   .can_cfg = {0},
   .thread_rx_wa = dronecan1_rx_wa,
   .thread_rx_wa_size = sizeof(dronecan1_rx_wa),
@@ -123,7 +123,7 @@ struct dronecan_iface_t dronecan2 = {
   .can_driver = &CAND2,
   .can_baudrate = DRONECAN_CAN2_BAUDRATE,
   .can_baudrate_mult = DRONECAN_CAN2_BAUDRATE_MULT,
-  .fdcan_operation = FDCAN_ENABLED,
+  .fdcan_operation = CANARD_ENABLE_CANFD,
   .can_cfg = {0},
   .thread_rx_wa = dronecan2_rx_wa,
   .thread_rx_wa_size = sizeof(dronecan2_rx_wa),
