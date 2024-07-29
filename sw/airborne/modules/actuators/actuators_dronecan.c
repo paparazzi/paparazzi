@@ -442,11 +442,14 @@ void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, 
 {
   uint8_t buffer[UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_MAX_SIZE];
   struct uavcan_equipment_esc_RawCommand command;
+  
+  if (nb > 20){ return; }
+
   command.cmd.len = nb; 
-  memcpy(command.cmd.data,values,sizeof(values));
+  memcpy(command.cmd.data,values,nb*sizeof(int16_t));
 
   uint32_t len = uavcan_equipment_esc_RawCommand_encode(&command, buffer
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
     , 0
 #endif
   );
@@ -462,7 +465,7 @@ void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, 
   broadcast.priority = CANARD_TRANSFER_PRIORITY_LOW;
   broadcast.payload = buffer;
   broadcast.payload_len = len;
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
   broadcast.canfd = 1;
   broadcast.tao = 0;
 #endif
@@ -478,6 +481,9 @@ void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *valu
 {
   uint8_t buffer[UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_MAX_SIZE];
   struct uavcan_equipment_actuator_ArrayCommand array;
+
+  if (nb > 15){ return; }
+  
   struct uavcan_equipment_actuator_Command cmds[nb];
   uint8_t cmd_type = 0; // 0:UNITLESS, 1:meter or radian, 2:N or Nm, 3:m/s or rad/s
   for (uint8_t i = 0; i < nb ; i++){
@@ -489,7 +495,7 @@ void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *valu
   memcpy(array.commands.data,cmds,sizeof(cmds));
 
   uint32_t len = uavcan_equipment_actuator_ArrayCommand_encode(&array, buffer
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
     , 0
 #endif
   );
@@ -505,7 +511,7 @@ void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *valu
   broadcast.priority = CANARD_TRANSFER_PRIORITY_LOW;
   broadcast.payload = buffer;
   broadcast.payload_len = len;
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
   broadcast.canfd = 1;
   broadcast.tao = 0;
 #endif

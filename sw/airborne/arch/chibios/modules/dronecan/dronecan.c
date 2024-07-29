@@ -213,7 +213,7 @@ static void getNodeInfo(struct dronecan_iface_t *iface, uint8_t dest_node_id) {
   request.priority = CANARD_TRANSFER_PRIORITY_LOW;
   request.payload = NULL; // No data sent by this request.
   request.payload_len = 0;
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
   request.canfd = 1;
   request.tao = 0;
 #endif
@@ -267,7 +267,7 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
 
   uint16_t total_size = uavcan_protocol_GetNodeInfoResponse_encode(
       &pkt, buffer
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
       ,0
 #endif
       );
@@ -282,7 +282,7 @@ static void cb_GetNodeInfoRequest(struct dronecan_iface_t *iface, CanardRxTransf
   response.priority = transfer->priority;
   response.payload = buffer;
   response.payload_len = total_size;
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
   response.canfd = 1;
   response.tao = 0;
 #endif
@@ -315,7 +315,7 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
 
   uint32_t len = uavcan_protocol_NodeStatus_encode(
       &iface->node_status, buffer
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
       ,0
 #endif
       );
@@ -331,7 +331,7 @@ static void sendNodeStatus(struct dronecan_iface_t *iface) {
   broadcast.priority = CANARD_TRANSFER_PRIORITY_LOW;
   broadcast.payload = buffer;
   broadcast.payload_len = len;
-#if FDCAN_ENABLED
+#if CANARD_ENABLE_CANFD
   broadcast.canfd = 1;
   broadcast.tao = 0;
 #endif
