@@ -89,31 +89,31 @@ static dronecan_event esc_status_ev;
 static dronecan_event actuator_status_ev;
 static dronecan_event device_temperature_ev;
 
-#if FDCAN_PERIPH
-static const FDCANExtendedFilter filters[] = {
-  {
-    0x00040A00, // filter ESCStatus broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  },
-  {
-    0x0003F300, // filter ActuatorStatus broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  },
-  {
-    0x00045600, // filter DeviceTemperature broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  }
-};
-#endif
+// #if FDCAN_PERIPH
+// static const FDCANExtendedFilter filters[] = {
+//   {
+//     0x00040A00, // filter ESCStatus broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   },
+//   {
+//     0x0003F300, // filter ActuatorStatus broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   },
+//   {
+//     0x00045600, // filter DeviceTemperature broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   }
+// };
+// #endif
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -394,14 +394,14 @@ void actuators_dronecan_init(struct dronecan_iface_t *iface __attribute__((unuse
   // Check if not already initialized (for multiple interfaces, needs only 1)
   if (actuators_dronecan_initialized) { return; }
 
-#if FDCAN_PERIPH
-#if DRONECAN_USE_CAN1
-  canSTM32SetExtendedFilters(&dronecan1->can_driver, 3, filters);
-#endif
-#if DRONECAN_USE_CAN2
-  canSTM32SetExtendedFilters(&dronecan2->can_driver, 3, filters);
-#endif
-#endif
+// #if FDCAN_PERIPH
+// #if DRONECAN_USE_CAN1
+//   canSTM32SetExtendedFilters(&dronecan1->can_driver, 3, filters);
+// #endif
+// #if DRONECAN_USE_CAN2
+//   canSTM32SetExtendedFilters(&dronecan2->can_driver, 3, filters);
+// #endif
+// #endif
 
   // Bind dronecan ESC_STATUS message from EQUIPMENT
   dronecan_bind(CanardTransferTypeBroadcast,UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev,

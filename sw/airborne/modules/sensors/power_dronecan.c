@@ -46,24 +46,24 @@
 static dronecan_event power_dronecan_ev;
 static dronecan_event circuit_dronecan_ev;
 
-#if FDCAN_PERIPH
-static const FDCANExtendedFilter filters[] = {
-  {
-    0x00044300, // filter CircuitStatus broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  },
-  {
-    0x00044400, // filter BatteryInfo broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  }
-};
-#endif
+// #if FDCAN_PERIPH
+// static const FDCANExtendedFilter filters[] = {
+//   {
+//     0x00044300, // filter CircuitStatus broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   },
+//   {
+//     0x00044400, // filter BatteryInfo broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   }
+// };
+// #endif
 
 /* Batteries */
 struct dronecan_battery_t {
@@ -193,14 +193,14 @@ void power_dronecan_init(void)
     circuits[i].is_battery = true;
   }
 
-#if FDCAN_PERIPH
-#if DRONECAN_USE_CAN1
-  canSTM32SetExtendedFilters(&dronecan1->can_driver, 2, filters);
-#endif
-#if DRONECAN_USE_CAN2
-  canSTM32SetExtendedFilters(&dronecan2->can_driver, 2, filters);
-#endif
-#endif
+// #if FDCAN_PERIPH
+// #if DRONECAN_USE_CAN1
+//   canSTM32SetExtendedFilters(&dronecan1->can_driver, 2, filters);
+// #endif
+// #if DRONECAN_USE_CAN2
+//   canSTM32SetExtendedFilters(&dronecan2->can_driver, 2, filters);
+// #endif
+// #endif
 
   // Bind dronecan BATTERYINFO message from EQUIPMENT.POWER
   dronecan_bind(CanardTransferTypeBroadcast, UAVCAN_EQUIPMENT_POWER_BATTERYINFO_ID, UAVCAN_EQUIPMENT_POWER_BATTERYINFO_SIGNATURE, &power_dronecan_ev,

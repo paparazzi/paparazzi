@@ -136,24 +136,24 @@ struct dronecan_iface_t dronecan2 = {
 };
 #endif
 
-#if FDCAN_PERIPH
-static const FDCANExtendedFilter filters[] = {
-  {
-    0x00015500, // filter NodeStatus broadcast
-    FILTERING_FEC_FIFO_0,
-    0x00FFFF80, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  },
-  {
-    0x00010080, // filter GetNodeInfo request/response
-    FILTERING_FEC_FIFO_0,
-    0x00FF0080, // mask
-    0,
-    FILTERING_FT_MASK // classic filter-mask mode
-  }
-};
-#endif
+// #if FDCAN_PERIPH
+// static const FDCANExtendedFilter filters[] = {
+//   {
+//     0x00015500, // filter NodeStatus broadcast
+//     FILTERING_FEC_FIFO_0,
+//     0x00FFFF80, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   },
+//   {
+//     0x00010080, // filter GetNodeInfo request/response
+//     FILTERING_FEC_FIFO_0,
+//     0x00FF0080, // mask
+//     0,
+//     FILTERING_FT_MASK // classic filter-mask mode
+//   }
+// };
+// #endif
 
 /**
  * Bind to a receiving message from dronecan
@@ -565,7 +565,7 @@ static void dronecanInitIface(struct dronecan_iface_t *iface)
   // Start the can interface
   canStart(iface->can_driver, &iface->can_cfg);
 #if FDCAN_PERIPH
-  canSTM32SetExtendedFilters(&iface->can_driver, 2, filters);
+//  canSTM32SetExtendedFilters(&iface->can_driver, 2, filters);
 #endif
   iface->initialized = true;
 
