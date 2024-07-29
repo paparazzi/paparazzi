@@ -35,7 +35,7 @@
 
 open Printf
 open Random
-open PprzLink
+
 
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -221,12 +221,10 @@ let parse_input = fun input ->
 
 (** Parse a '� la C' expression *)
 let parse_value s =
-  (* Printf.printf "s: %s\n" s; *)
   let substrings = String.split_on_char ';' s in
   let parsed_exprs = List.map (fun sub ->
     let trimmed_sub = String.trim sub in
     let parsed_expr = Fp_proc.parse_expression trimmed_sub in
-    (* Printf.printf "parsed_expr: %s\n" (Syntax.sprint parsed_expr); *)
     parsed_expr
   ) substrings in
   parsed_exprs
@@ -237,11 +235,8 @@ let parse_msg_field = fun msg_descr field ->
   let field_descr = try List.assoc name msg_descr.PprzLink.fields with _ ->
     Printf.printf "parse_msg_field: field %s not found\n" name;
     raise (Failure "field not found") in
-  (* Printf.printf "check 2\n"; *)
   let value = List.map (eval_settings_and_blocks field_descr) (parse_value (Xml.attrib field "value")) in
   let field_type = field_descr.PprzLink._type in
-  let field_type_str = PprzLink.string_of_type field_type in
-  (* Printf.printf "Field name: %s, Type: %s\n" name field_type_str; *)
   (name, field_type, value)
 
 (** Parse a complete message and build its representation *)
@@ -263,12 +258,6 @@ let parse_msg = fun msg ->
           end
       | "Trim" -> ([], false)
     | _ -> failwith ("Unknown message class type") in
-
-    (* Print the values for debugging *)
-    (* Printf.printf "msg_name: %s\n" msg_name; *)
-    (* Printf.printf "msg_class: %s\n" msg_class; *)
-    (* Printf.printf "fields: %s\n" (String.concat ", " (List.map (fun (k, _, _) -> k) fields)); *)
-    (* flush stdout; (* Ensure the output is flushed *) *)
     let on_event =
       try 
         match parse_value (Xml.attrib msg "on_event") with
@@ -524,18 +513,11 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
       (fun (name, _type, expr_list) ->
-        (* Printf.printf "Processing field: %s\n" name; *)
-        (* List.iter (fun expr -> Printf.printf "Expression in list: %s\n" (Syntax.sprint expr)) expr_list; *)
         let v = List.fold_left (fun acc expr ->
           let eval_result = eval_expr buttons hat axis inputs variables expr in
-          (* Printf.printf "Evaluated expression: %s, Result: %d\n" (Syntax.sprint expr) eval_result; *)
           acc @ [eval_result]
         ) [] expr_list in
         let v_string = String.concat "," (List.map string_of_int v) in
-        (* Printf.printf "%s\n" v_string; *)
-        let field_type = _type in
-        let field_type_str = PprzLink.string_of_type field_type in
-        (* Printf.printf "Field name: %s, Type: %s\n" name field_type_str; *)
         (name, PprzLink.value _type v_string)
       )
       message.fields

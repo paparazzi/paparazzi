@@ -39,13 +39,13 @@
 #define RADIO_PITCH     1  // Default: Pitch
 #define RADIO_YAW       2  // Default: Yaw
 #define RADIO_THROTTLE  3  // Default: Thrust
-#define RADIO_MODE      4  // Default: MODE
+#define RADIO_MODE      4  // Default: MODE (MANUAL / AUTO)
 #define RADIO_AUX1      5  // Default: KILL
 #define RADIO_AUX2      7  // Default: NA
 #define RADIO_AUX4      8  // Default: NA
 #define RADIO_AUX5      9  // Default: NA
 #define RADIO_AUX6      10 // Default: NA
-#define RADIO_AUX7      6  // Default: AP_MODE
+#define RADIO_AUX7      6  // Default: AP_MODE (EXTRA MODE SWITCH: e.g Switch NAV from INDI to ANDI to PID)
 
 #ifndef RADIO_KILL_SWITCH
 #define RADIO_KILL_SWITCH RADIO_AUX1
@@ -78,18 +78,6 @@ extern void parse_rc_4ch_datalink(
     int8_t yaw);
 
 /**
- * Decode datalink message to get rc values with RC_6CH message
- */
-extern void parse_rc_6ch_datalink(
-    int8_t mode,
-    uint8_t throttle,
-    int8_t roll,
-    int8_t pitch,
-    int8_t yaw,
-    int8_t kill,
-    int8_t aux7);
-
-/**
  * Decode datalink message to get rc values with RC_UP message
  */
 extern void parse_rc_up_datalink(
@@ -97,7 +85,6 @@ extern void parse_rc_up_datalink(
 
 extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
-extern void rc_datalink_parse_RC_6CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_UP(uint8_t *buf);
 /**
  * RC init function.
