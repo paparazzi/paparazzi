@@ -8,6 +8,7 @@
     <section name="NAV_HYBRID" prefix="NAV_HYBRID_">
       <define name="MAX_DECELERATION" value="1.0" description="Maximum deceleration in [m/s2] when arriving to hover at a WP"/>
       <define name="MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
+      <define name="LIMIT_CIRCLE_RADIUS" value="FALSE" description="Limit the circle radius on max target groundspeed and max acceleration."/>
       <define name="EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
     </section>
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">

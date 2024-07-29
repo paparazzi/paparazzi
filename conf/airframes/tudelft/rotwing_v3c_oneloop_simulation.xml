@@ -83,6 +83,7 @@
             <define name="NAV_HYBRID_MAX_ACCELERATION"  value="4.0f"/>
             <define name="NAV_HYBRID_MAX_DECELERATION"  value="1.0f"/>
             <define name="GUIDANCE_H_USE_REF"           value="FALSE"/>
+            <define name="NAV_HYBRID_LIMIT_CIRCLE_RADIUS" value="TRUE"/>
         </module>
 
         <module name="oneloop" type="andi">

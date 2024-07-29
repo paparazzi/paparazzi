@@ -54,7 +54,7 @@ float nav_max_speed = NAV_MAX_SPEED;
 float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
 
 #ifndef NAV_HYBRID_MAX_DECELERATION
-#define NAV_HYBRID_MAX_DECELERATION 0.5
+#define NAV_HYBRID_MAX_DECELERATION 1.0
 #endif
 
 #ifndef NAV_HYBRID_MAX_ACCELERATION
@@ -94,15 +94,15 @@ float nav_hybrid_pos_gain = 1.0f;
 bool force_forward = 0.0f;
 #endif
 
-#ifndef NAV_HYBRID_GOTO_MODE
-#define NAV_HYBRID_GOTO_MODE NAV_SETPOINT_MODE_SPEED
-#endif
-
 /* When using external vision, run the nav functions in position mode for better tracking*/
 #ifndef NAV_HYBRID_EXT_VISION_SETPOINT_MODE
 #define NAV_HYBRID_EXT_VISION_SETPOINT_MODE FALSE 
 #endif
 
+/* Use max target groundspeed and max acceleration to limit circle radius*/
+#ifndef NAV_HYBRID_LIMIT_CIRCLE_RADIUS
+#define NAV_HYBRID_LIMIT_CIRCLE_RADIUS FALSE 
+#endif
 /** Implement basic nav function for the hybrid case
  */
 
@@ -120,6 +120,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
 
   struct FloatVect2 speed_sp;
   VECT2_SMUL(speed_sp, pos_error, nav_hybrid_pos_gain);
+
   // Bound the setpoint velocity vector
   float max_h_speed = nav_max_speed;
   if (!force_forward) {
@@ -137,6 +138,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     max_h_speed = Min(nav_max_speed, max_speed_decel); // use hover max speed
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
+
   VECT2_COPY(nav.speed, speed_sp);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
 
@@ -246,8 +248,10 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   float sign_radius = radius > 0.f ? 1.f : -1.f;
   // absolute radius
   float abs_radius = fabsf(radius);
+#if NAV_HYBRID_LIMIT_CIRCLE_RADIUS
   float min_radius =  pow(nav_max_speed+nav_hybrid_max_expected_wind,2) / (nav_hybrid_max_acceleration * 0.8);
   abs_radius = Max(abs_radius, min_radius);
+#endif
   if (abs_radius > 0.1f) {
     // store last qdr
     float last_qdr = nav_rotorcraft_base.circle.qdr;
