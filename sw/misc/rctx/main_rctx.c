@@ -35,14 +35,6 @@
 18     E XBEE_CHECKSUM (sum[A->D])
 
   - messages.xml
-
-  <message name="RC_3CH" ID="27">
-    <field name="mode"     type="uint8" unit="byte_mask"></field>
-    <field name="throttle" type="int16" unit="pprz" format="%d"/>
-    <field name="roll"     type="int16" unit="pprz" format="%d"/>
-    <field name="pitch"    type="int16" unit="pprz" format="%d"/>
-  </message>
-
   - xbee.h
 
 #ifdef USE_DOWNLINK_BROADCAST
@@ -50,17 +42,6 @@
 #else
 #define GROUND_STATION_ADDR 0x0100
 #endif
-
-  - datalink.c
-
-#ifdef USE_RC_TELEMETRY
-    if (msg_id == DL_RC_3CH && DL_RC_3CH_ac_id(dl_buffer) == TX_ID) {
-LED_TOGGLE(3);
-        bla_throttle = DL_RC_3CH_throttle(dl_buffer);
-        bla_roll = DL_RC_3CH_roll(dl_buffer);
-        bla_pitch = DL_RC_3CH_pitch(dl_buffer);
-    } else
-#endif // USE_RC_TELEMETRY
 
 */
 
@@ -188,11 +169,7 @@ LED_TOGGLE(3);
     // TODO: send only if aircraft is listening
     // TODO: send (here) only in auto1 and manual
     {
-      DOWNLINK_SEND_RC_3CH(
-            &rctx_mode,
-            &rc_values[RADIO_THROTTLE],
-            &rc_values[RADIO_ROLL],
-            &rc_values[RADIO_PITCH]);
+      DOWNLINK_SEND_RC_UP(3,rc_values);
     }
   }
 #endif
@@ -254,11 +231,7 @@ void periodic_task_rctx( void ) {
     if (0)
     // TODO: send (here) only in auto2
     {
-      DOWNLINK_SEND_RC_3CH(
-            &rctx_mode,
-            &rc_values[RADIO_THROTTLE],
-            &rc_values[RADIO_ROLL],
-            &rc_values[RADIO_PITCH]);
+      DOWNLINK_SEND_RC_UP(3,rc_values);
     }
   }
 #endif

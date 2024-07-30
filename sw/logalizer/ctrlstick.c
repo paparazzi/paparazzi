@@ -333,12 +333,6 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
         throttle_mode = (throttle << 2) | mode;
 
         gettimeofday(&time_now, 0);
-
-//        if (mode != 2)
-        {
-            dbgprintf(stdout,"mode: %d, throttle: %d, roll: %d, pitch: %d\n", throttle_mode & 3, throttle_mode >> 2, roll, pitch);
-	        IvySendMsg("dl RC_3CH %d %d %d", throttle_mode, roll, pitch);
-        }
     }
 
 	return 1;

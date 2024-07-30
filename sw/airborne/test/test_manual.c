@@ -148,28 +148,14 @@ void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transp
     }
     break;
 #ifdef RADIO_CONTROL_TYPE_DATALINK
-    case DL_RC_3CH :
+    case DL_RC_UP :
 #ifdef RADIO_CONTROL_DATALINK_LED
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
-      parse_rc_3ch_datalink(
-        DL_RC_3CH_throttle_mode(buf),
-        DL_RC_3CH_roll(buf),
-        DL_RC_3CH_pitch(buf));
-      break;
-    case DL_RC_4CH :
-#ifdef RADIO_CONTROL_DATALINK_LED
-      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-      parse_rc_4ch_datalink(
-        DL_RC_4CH_mode(buf),
-        DL_RC_4CH_throttle(buf),
-        DL_RC_4CH_roll(buf),
-        DL_RC_4CH_pitch(buf),
-        DL_RC_4CH_yaw(buf));
+      parse_rc_up_datalink(DL_RC_UP_channels_length(buf),
+          DL_RC_UP_channels(buf));
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
-
     default:
       break;
   }

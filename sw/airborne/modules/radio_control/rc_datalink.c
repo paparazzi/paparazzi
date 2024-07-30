@@ -39,29 +39,6 @@ void rc_datalink_init(void)
   rc_dl_frame_available = false;
 }
 
-void rc_datalink_parse_RC_3CH(uint8_t *buf)
-{
-#ifdef RADIO_CONTROL_DATALINK_LED
-  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-  parse_rc_3ch_datalink(
-      DL_RC_3CH_throttle_mode(buf),
-      DL_RC_3CH_roll(buf),
-      DL_RC_3CH_pitch(buf));
-}
-
-void rc_datalink_parse_RC_4CH(uint8_t *buf)
-{
-#ifdef RADIO_CONTROL_DATALINK_LED
-  LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-  parse_rc_4ch_datalink(DL_RC_4CH_mode(buf),
-      DL_RC_4CH_throttle(buf),
-      DL_RC_4CH_roll(buf),
-      DL_RC_4CH_pitch(buf),
-      DL_RC_4CH_yaw(buf));
-}
-
 void rc_datalink_parse_RC_UP(uint8_t *buf)
 {
 #ifdef RADIO_CONTROL_DATALINK_LED
@@ -69,42 +46,6 @@ void rc_datalink_parse_RC_UP(uint8_t *buf)
 #endif
   parse_rc_up_datalink(DL_RC_UP_channels_length(buf),
       DL_RC_UP_channels(buf));
-}
-
-void parse_rc_3ch_datalink(uint8_t throttle_mode,
-                           int8_t roll,
-                           int8_t pitch)
-{
-  uint8_t throttle = ((throttle_mode & 0xFC) >> 2) * (128 / 64);
-  uint8_t mode = throttle_mode & 0x03;
-
-  rc_dl_values[RADIO_ROLL] = roll;
-  rc_dl_values[RADIO_PITCH] = pitch;
-  rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
-  rc_dl_values[RADIO_MODE] = (int8_t)mode;
-  rc_dl_values[RADIO_YAW] = 0;
-  rc_dl_values[RADIO_AUX7] = 0;
-  rc_dl_values[RADIO_KILL_SWITCH] = 0;  
-
-  rc_dl_frame_available = true;
-}
-
-void parse_rc_4ch_datalink(
-  uint8_t mode,
-  uint8_t throttle,
-  int8_t roll,
-  int8_t pitch,
-  int8_t yaw)
-{
-  rc_dl_values[RADIO_MODE] = (int8_t)mode;
-  rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
-  rc_dl_values[RADIO_ROLL] = roll;
-  rc_dl_values[RADIO_PITCH] = pitch;
-  rc_dl_values[RADIO_YAW] = yaw;
-  rc_dl_values[RADIO_AUX7] = 0;
-  rc_dl_values[RADIO_KILL_SWITCH] = 0;
-
-  rc_dl_frame_available = true;
 }
 
 void parse_rc_up_datalink(

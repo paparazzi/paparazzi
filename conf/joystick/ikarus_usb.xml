@@ -7,14 +7,8 @@
   </input>
 
   <messages period="0.1">
-
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="mode" value="PprzMode(0-mode)"/>
-      <field name="throttle" value="127-throttle"/>
-      <field name="roll" value="roll"/>
-      <field name="pitch" value="pitch"/>
-      <field name="yaw" value="0"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="roll;pitch;0;127-throttle;PprzMode(0-mode)"/>
     </message>
-
   </messages>
 </joystick>

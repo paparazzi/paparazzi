@@ -65,12 +65,8 @@
 
   <messages period="0.05">
 
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="mode" value="mode"/>
-      <field name="throttle" value="Fit(-LeftStickVertical,-127,127,0,127)"/>
-      <field name="roll" value="RightStickHorizontal"/>
-      <field name="pitch" value="RightStickVertical"/>
-      <field name="yaw" value="Fit(R2-L2,-127,127,-127,127)"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="RightStickHorizontal;RightStickVertical;Fit(R2-L2,-127,127,-127,127);Fit(-LeftStickVertical,-127,127,0,127);mode"/>
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2 and pressing Options button -->
