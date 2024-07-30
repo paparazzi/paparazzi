@@ -71,7 +71,7 @@ void wing_rotation_adc_to_deg(void)
 
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
   struct act_feedback_t feedback = {0};
-  feedback.idx =  SERVO_ROTATION_MECH_IDX;
+  feedback.idx =  COMMAND_ROT_MECH;
   feedback.position = 0.5 * M_PI - RadOfDeg(wing_angle_deg);
   feedback.set.position = true;
 
