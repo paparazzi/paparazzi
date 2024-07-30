@@ -37,12 +37,8 @@ The "mode" button swaps the axes on the left stick and the d pad.
 
 <messages period="0.017">
 
-
-  <message class="datalink" name="RC_4CH" send_always="true">
-   <field name="throttle" value="Scale(0-ly,0,255)"/>
-   <field name="roll" value="rx"/>
-   <field name="yaw" value="lx"/>
-   <field name="pitch" value="ry"/>
+  <message class="datalink" name="RC_UP" send_always="true">
+    <field name="channels" value="rx;ry;lx;Scale(0-ly,0,255)"/>
   </message>
 
 

@@ -14,13 +14,8 @@ More extensive guide: https://bit.ly/3KbSugO
   </input>
 
   <messages period="0.05">
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <!-- The controller is sending from -97 to 97 so we have to scale to 127 -->
-      <field name="throttle" value="Fit(LeftStickVertical,-97,97,0,127)"/>
-      <field name="roll" value="Fit(RightStickHorizontal,-97,97,-127,127)"/>
-      <field name="pitch" value="-Fit(RightStickVertical,-97,97,-127,127)"/>
-      <field name="yaw" value="Fit(LeftStickHorizontal,-97,97,-127,127)"/>
-      <field name="mode" value="1*SWA"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="Fit(RightStickHorizontal,-97,97,-127,127);-Fit(RightStickVertical,-97,97,-127,127);Fit(LeftStickHorizontal,-97,97,-127,127);Fit(LeftStickVertical,-97,97,0,127);1*SWA"/>
     </message>
   </messages>
 

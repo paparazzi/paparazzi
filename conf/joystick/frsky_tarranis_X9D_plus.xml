@@ -29,12 +29,8 @@ The basis of steering is the standard signs of aerospace convention
   </input>
 
   <messages period="0.0333333">
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="throttle" value="Fit(throttle,-127,127,0,127)" />
-      <field name="roll" value="roll" />
-      <field name="pitch" value="-pitch" />
-      <field name="yaw" value="yaw"/>
-      <field name="mode" value="Fit(mode,-127,126,0,2)"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="roll;-pitch;yaw;Fit(throttle,-127,127,0,127);Fit(mode,-127,126,0,2)"/>
     </message>
     <message class="ground" name="DL_SETTING" on_event="arm">
       <field name="index" value="IndexOfSetting('autopilot.kill_throttle')"/>
