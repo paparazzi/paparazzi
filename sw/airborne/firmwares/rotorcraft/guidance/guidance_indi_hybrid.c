@@ -95,12 +95,12 @@ float guidance_indi_pitch_pref_deg = 0;
 
 // If using WLS, check that the matrix size is sufficient
 #if GUIDANCE_INDI_HYBRID_USE_WLS
-#if GUIDANCE_INDI_HYBRID_U > WLS_N_U
-#error Matrix-WLS_N_U too small: increase WLS_N_U in airframe file
+#if GUIDANCE_INDI_HYBRID_U > WLS_N_U_MAX
+#error Matrix-WLS_N_U_MAX too small: increase WLS_N_U_MAX in airframe file
 #endif
 
-#if GUIDANCE_INDI_HYBRID_V > WLS_N_V
-#error Matrix-WLS_N_V too small: increase WLS_N_V in airframe file
+#if GUIDANCE_INDI_HYBRID_V > WLS_N_V_MAX
+#error Matrix-WLS_N_V_MAX too small: increase WLS_N_V_MAX in airframe file
 #endif
 #endif
 
@@ -200,22 +200,30 @@ float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
 #include "math/wls/wls_alloc.h"
-float du_min_gih[GUIDANCE_INDI_HYBRID_U];
-float du_max_gih[GUIDANCE_INDI_HYBRID_U];
-float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
 float *Bwls_gih[GUIDANCE_INDI_HYBRID_V];
+struct WLS_t wls_guid_p = {
+  .nu        = GUIDANCE_INDI_HYBRID_U,
+  .nv        = GUIDANCE_INDI_HYBRID_V,
+  .gamma_sq  = 100000.0,
+  .v         = {0.0},
 #ifdef GUIDANCE_INDI_WLS_PRIORITIES
-float Wv_gih[GUIDANCE_INDI_HYBRID_V] = GUIDANCE_INDI_WLS_PRIORITIES;
+  .Wv        =  GUIDANCE_INDI_WLS_PRIORITIES,
+#else // X,Y accel, Z accel
+  .Wv        =  { 100.f, 100.f, 1.f },
+#endif  
+#ifdef GUIDANCE_INDI_WLS_WU 
+  .Wu        = GUIDANCE_INDI_WLS_WU,
 #else
-float Wv_gih[GUIDANCE_INDI_HYBRID_V] = { 100.f, 100.f, 1.f }; // X,Y accel, Z accel
+  .Wu        = {[0 ... GUIDANCE_INDI_HYBRID_U - 1] = 1.0},
 #endif
-#ifdef GUIDANCE_INDI_WLS_WU
-float Wu_gih[GUIDANCE_INDI_HYBRID_U] = GUIDANCE_INDI_WLS_WU;
-#else
-float Wu_gih[GUIDANCE_INDI_HYBRID_U] = { 1.f, 1.f, 1.f };
+  .u_pref    = {0.0},
+  .u_min     = {0.0},
+  .u_max     = {0.0},
+  .PC        = 0.0,
+  .SC        = 0.0,
+  .iter      = 0
+};
 #endif
-#endif
-
 // The control objective
 float v_gih[3];
 
@@ -242,6 +250,13 @@ void guidance_indi_propagate_filters(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+static void send_eff_mat_guid_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_EFF_MAT_GUID(trans, dev, AC_ID, 
+                GUIDANCE_INDI_HYBRID_U, Ga[0],
+                GUIDANCE_INDI_HYBRID_U, Ga[1],
+                GUIDANCE_INDI_HYBRID_U, Ga[2]);
+}
 static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE_INDI_HYBRID(trans, dev, AC_ID,
@@ -260,45 +275,13 @@ static void send_guidance_indi_hybrid(struct transport_tx *trans, struct link_de
 }
 
 #if GUIDANCE_INDI_HYBRID_USE_WLS
-static void debug(struct transport_tx *trans, struct link_device *dev, char* name, float* data, int datasize)
+static void send_wls_v_guid(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_DEBUG_VECT(trans, dev,AC_ID,
-                              strlen(name), name,
-                              datasize, data);
+  send_wls_v("guid", &wls_guid_p, trans, dev); 
 }
-
-static void send_guidance_indi_debug(struct transport_tx *trans, struct link_device *dev)
+static void send_wls_u_guid(struct transport_tx *trans, struct link_device *dev)
 {
-  static int c = 0;
-  switch (c++)
-  {
-  case 0:
-    debug(trans, dev, "v_gih", v_gih, 3);
-    break;
-  case 1:
-    debug(trans, dev, "du_min_gih", du_min_gih, GUIDANCE_INDI_HYBRID_U);
-    break;
-  case 2:
-    debug(trans, dev, "du_max_gih", du_max_gih, GUIDANCE_INDI_HYBRID_U);
-    break;
-  case 3:
-    debug(trans, dev, "du_pref_gih", du_pref_gih, GUIDANCE_INDI_HYBRID_U);
-    break;
-  case 4:
-    debug(trans, dev, "Wu_gih", Wu_gih, GUIDANCE_INDI_HYBRID_U);
-    break;
-  case 5:
-    debug(trans, dev, "Wv_gih", Wv_gih, GUIDANCE_INDI_HYBRID_V);
-    break;
-  default:
-    debug(trans, dev, "Bwls_gih[0]", Bwls_gih[0], GUIDANCE_INDI_HYBRID_U);
-    c=0;
-    break;
-  }
-}
-#else
-static void send_guidance_indi_debug(struct transport_tx *trans UNUSED, struct link_device *dev UNUSED)
-{
+  send_wls_u("guid", &wls_guid_p, trans, dev); 
 }
 #endif // GUIDANCE_INDI_HYBRID_USE_WLS
 
@@ -341,7 +324,11 @@ void guidance_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE_INDI_HYBRID, send_guidance_indi_hybrid);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_guidance_indi_debug);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_indi_hybrid);
+#if GUIDANCE_INDI_HYBRID_USE_WLS
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_guid);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_guid);
+#endif
 #endif
 }
 
@@ -443,11 +430,13 @@ struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accel_sp, floa
 
   float du_gih[GUIDANCE_INDI_HYBRID_U]; // = {0.0f, 0.0f, 0.0f};
 
-  int num_iter UNUSED = wls_alloc(
-      du_gih, v_gih, du_min_gih, du_max_gih,
-      Bwls_gih, 0, 0, Wv_gih, Wu_gih, du_pref_gih, 100000, 10,
-      GUIDANCE_INDI_HYBRID_U, GUIDANCE_INDI_HYBRID_V);
-
+  for (int i = 0; i < GUIDANCE_INDI_HYBRID_V; i++) {
+    wls_guid_p.v[i] = v_gih[i];
+  }
+  wls_alloc(&wls_guid_p, Bwls_gih, 0, 0, 10);
+  for (int i = 0; i < GUIDANCE_INDI_HYBRID_U; i++) {
+    du_gih[i] = wls_guid_p.u[i];
+  }
   euler_cmd.x = du_gih[0];
   euler_cmd.y = du_gih[1];
   euler_cmd.z = du_gih[2];

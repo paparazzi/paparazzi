@@ -33,7 +33,6 @@
 #include "modules/imu/imu.h"
 #include "modules/ins/ins.h"
 #include "generated/flight_plan.h"
-
 #include "modules/core/abi.h"
 
 #if 0
@@ -41,6 +40,10 @@
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) {}
+#endif
+
+#ifdef INS_EXT_VISION_ROTATION
+struct FloatQuat ins_ext_vision_rot;
 #endif
 
 /** Data for telemetry and LTP origin.
@@ -216,6 +219,16 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   orient.qx = quat_y ; 
   orient.qy = quat_x ;                
   orient.qz = -quat_z;
+
+#ifdef INS_EXT_VISION_ROTATION
+  // Rotate the quaternion
+  struct FloatQuat rot_q;
+  float_quat_comp(&rot_q, &orient, &ins_ext_vision_rot);
+  orient.qi = rot_q.qi;
+  orient.qx = rot_q.qx;
+  orient.qy = rot_q.qy;
+  orient.qz = rot_q.qz;
+#endif
 
   float_eulers_of_quat(&orient_eulers, &orient);
   
