@@ -131,6 +131,9 @@ bool preflight_check(void)
       for (uint16_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len; i++) {
         if (error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len)) {
           DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i - last_sendi, &error_msg[last_sendi]);
+#if FLIGHTRECORDER_SDLOG
+          pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, strlen(error_msg[last_sendi]), error_msg[last_sendi]);
+#endif
           last_sendi = i + 1;
         }
       }
@@ -151,6 +154,9 @@ bool preflight_check(void)
   int rc = snprintf(error_msg, PREFLIGHT_CHECK_MAX_MSGBUF, "*Preflight success [%d]*", result.success_cnt);
   if (rc > 0) {
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+#if FLIGHTRECORDER_SDLOG
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, strlen(error_msg), error_msg);
+#endif
   }
 
   // Return success if we didn't fail a preflight check
