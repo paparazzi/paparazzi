@@ -59,32 +59,11 @@ extern int8_t rc_dl_values[RC_DL_NB_CHANNEL];
 extern volatile bool rc_dl_frame_available;
 
 /**
- * Decode datalink message to get rc values with RC_3CH message
- * Mode and throttle are merge in the same byte
- */
-extern void parse_rc_3ch_datalink(
-    uint8_t throttle_mode,
-    int8_t roll,
-    int8_t pitch);
-
-/**
- * Decode datalink message to get rc values with RC_4CH message
- */
-extern void parse_rc_4ch_datalink(
-    uint8_t mode,
-    uint8_t throttle,
-    int8_t roll,
-    int8_t pitch,
-    int8_t yaw);
-
-/**
  * Decode datalink message to get rc values with RC_UP message
  */
 extern void parse_rc_up_datalink(
     int8_t n, int8_t *channels);    
 
-extern void rc_datalink_parse_RC_3CH(uint8_t *buf);
-extern void rc_datalink_parse_RC_4CH(uint8_t *buf);
 extern void rc_datalink_parse_RC_UP(uint8_t *buf);
 /**
  * RC init function.
