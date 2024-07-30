@@ -446,38 +446,17 @@ static void send_eff_mat_guid_oneloop_andi(struct transport_tx *trans, struct li
 static void send_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_STAB_ATTITUDE(trans, dev, AC_ID,
-                                        &eulers_zxy_des.phi,
-                                        &eulers_zxy_des.theta,
-                                        &eulers_zxy_des.psi,
-                                        &oneloop_andi.sta_state.att[0],
-                                        &oneloop_andi.sta_state.att[1],
-                                        &oneloop_andi.sta_state.att[2],
-                                        &oneloop_andi.sta_ref.att[0],
-                                        &oneloop_andi.sta_ref.att[1],
-                                        &oneloop_andi.sta_ref.att[2],
-                                        &oneloop_andi.sta_state.att_d[0],
-                                        &oneloop_andi.sta_state.att_d[1],
-                                        &oneloop_andi.sta_state.att_d[2],
-                                        &oneloop_andi.sta_ref.att_d[0],
-                                        &oneloop_andi.sta_ref.att_d[1],
-                                        &oneloop_andi.sta_ref.att_d[2],                                       
-                                        &oneloop_andi.sta_state.att_2d[0],
-                                        &oneloop_andi.sta_state.att_2d[1],
-                                        &oneloop_andi.sta_state.att_2d[2],
-                                        &oneloop_andi.sta_ref.att_2d[0],
-                                        &oneloop_andi.sta_ref.att_2d[1],
-                                        &oneloop_andi.sta_ref.att_2d[2],
-                                        &oneloop_andi.sta_ref.att_3d[0],
-                                        &oneloop_andi.sta_ref.att_3d[1],
-                                        &oneloop_andi.sta_ref.att_3d[2],                                        
-                                        ANDI_OUTPUTS, nu);                                      
+                                        3, eulers_zxy_des,
+                                        3, oneloop_andi.sta_state.att,
+                                        3, oneloop_andi.sta_ref.att,
+                                        3, oneloop_andi.sta_state.att_d,
+                                        3, oneloop_andi.sta_ref.att_d,
+                                        3, oneloop_andi.sta_state.att_2d,                                      
+                                        3, oneloop_andi.sta_ref.att_2d,
+                                        3, oneloop_andi.sta_ref.att_3d,
+                                        ANDI_NUM_ACT, actuator_state_1l);                                      
 }
-static void send_oneloop_actuator_state(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ACTUATOR_STATE(trans, dev, AC_ID, 
-                                        ANDI_NUM_ACT, actuator_state_1l,
-                                        ANDI_NUM_ACT_TOT, andi_u);
-}
+
 static void send_guidance_oneloop_andi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_GUIDANCE(trans, dev, AC_ID,
@@ -1220,7 +1199,6 @@ void oneloop_andi_init(void)
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_stab_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_GUID, send_eff_mat_guid_oneloop_andi);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GUIDANCE, send_guidance_oneloop_andi);
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATOR_STATE, send_oneloop_actuator_state);
     register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DEBUG_VECT, send_oneloop_debug);
   #endif
 }
@@ -1601,13 +1579,13 @@ void oneloop_andi_run(bool in_flight, bool half_loop, struct FloatVect3 PSA_des,
   }
 
   /*Commit the actuator command*/
-  stabilization.cmd[COMMAND_THRUST] = 0;
   for (i = 0; i < ANDI_NUM_ACT; i++) {
     //actuators_pprz[i] = (int16_t) andi_u[i];
     commands[i] = (int16_t) andi_u[i];
   }
   commands[COMMAND_THRUST] = (commands[COMMAND_MOTOR_FRONT] + commands[COMMAND_MOTOR_RIGHT] + commands[COMMAND_MOTOR_BACK] + commands[COMMAND_MOTOR_LEFT])/num_thrusters_oneloop;
   autopilot.throttle = commands[COMMAND_THRUST];
+  stabilization.cmd[COMMAND_THRUST] = commands[COMMAND_THRUST];
   if(autopilot.mode==AP_MODE_ATTITUDE_DIRECT){
     eulers_zxy_des.phi   =  andi_u[COMMAND_ROLL];
     eulers_zxy_des.theta =  andi_u[COMMAND_PITCH];

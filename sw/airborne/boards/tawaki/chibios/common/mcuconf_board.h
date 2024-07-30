@@ -46,7 +46,7 @@
 #define STM32_PLS                           STM32_PLS_LEV0
 #define STM32_BKPRAM_ENABLE                 FALSE
 #define STM32_HSI_ENABLED                   TRUE
-#define STM32_LSI_ENABLED                   FALSE
+#define STM32_LSI_ENABLED                   TRUE
 #define STM32_HSE_ENABLED                   TRUE
 #define STM32_LSE_ENABLED                   FALSE
 #define STM32_CLOCK48_REQUIRED              TRUE
@@ -60,7 +60,7 @@
 #define STM32_PPRE1                         STM32_PPRE1_DIV4
 #define STM32_PPRE2                         STM32_PPRE2_DIV2
 #if HAL_USE_RTC
-#define STM32_RTCSEL                        STM32_RTCSEL_HSEDIV
+#define STM32_RTCSEL                        STM32_RTCSEL_LSI
 #else
 #define STM32_RTCSEL                        STM32_RTCSEL_NOCLOCK
 #endif
@@ -543,6 +543,6 @@
 //#define CH_HEAP_SIZE (32*1024)
 //#define CH_HEAP_USE_TLSF 1 // if 0 or undef, chAlloc will be used
 
-
+#define HAL_USE_RTC     TRUE
 
 #endif /* MCUCONF_H */
