@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,15 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN_H
-#define ACTUATORS_UAVCAN_H
+/** @file modules/sensors/range_sensor_dronecan.h
+ * Range sensor sensor on the dronecan bus
+ */
 
-#include "modules/uavcan/uavcan.h"
-#include BOARD_CONFIG
+#ifndef RANGE_SENSOR_DRONECAN_H
+#define RANGE_SENSOR_DRONECAN_H
 
 /* External functions */
-extern void actuators_uavcan_init(struct uavcan_iface_t *iface);
-extern void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);
-extern void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);
+extern void range_sensor_dronecan_init(void);
 
-#endif /* ACTUATORS_UAVCAN_H */
+#endif /* RANGE_SENSOR_DRONECAN_H */

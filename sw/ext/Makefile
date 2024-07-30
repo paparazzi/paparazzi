@@ -32,8 +32,11 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 #
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
+DSDL := $(EXT_DIR)/DSDL
+DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL)/*/)))
+DSDL_ROOTS := $(filter-out ../../sw/ext/DSDL/tests/,$(DSDL_ROOTS_PART))
 
-all: libopencm3 luftboot chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix
+all: libopencm3 luftboot chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix libcanard DSDL dronecan_dsdlc pydronecan
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -53,7 +56,7 @@ update_submodules:
 		cd $(PAPARAZZI_SRC) && git submodule sync --recursive sw/ext/$*; \
 	fi
 
-# only build currentl checkout of libopencm3
+# only build current checkout of libopencm3
 libopencm3.build:
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) TARGETS="stm32/f1"
 	$(Q)$(MAKE) -C libopencm3 lib PREFIX=$(PREFIX) FP_FLAGS="-mfloat-abi=softfp -mfpu=fpv4-sp-d16" TARGETS="stm32/f4"
@@ -87,6 +90,14 @@ ecl: ecl.update
 
 matrix: matrix.update
 
+libcanard: libcanard.sync libcanard.update
+
+DSDL : DSDL.sync DSDL.update
+
+dronecan_dsdlc : dronecan_dsdlc.sync dronecan_dsdlc.update dronecan_dsdlc.build
+
+pydronecan : pydronecan.sync pydronecan.update
+
 mavlink: mavlink.update mavlink.build
 
 mavlink.build:
@@ -105,6 +116,11 @@ opencv_bebop: opencv_bebop.update opencv_bebop.build
 opencv_bebop.build:
 	$(Q)$(MAKE) -C opencv_bebop
 
+dronecan_dsdlc.build:
+	@echo Generating dsdl code from $(DSDL_ROOTS) to $(PAPARAZZI_SRC)/var/include/DSDLcode
+	$(Q) python $(EXT_DIR)/dronecan_dsdlc/dronecan_dsdlc.py -O $(PAPARAZZI_SRC)/var/include/DSDLcode $(DSDL_ROOTS)
+	@echo Done
+
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
 		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
@@ -112,6 +128,7 @@ clean:
 	$(Q)if [ -f luftboot/src/Makefile ]; then \
 		$(MAKE) -C luftboot/src clean; \
 	fi
+	$(Q)rm -r $(PAPARAZZI_SRC)/var/include/DSDLcode
 
 clean_opencv_bebop:
 	$(Q)if [ -f opencv_bebop/Makefile ]; then \

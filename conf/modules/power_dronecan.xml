@@ -1,27 +1,29 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="power_uavcan" dir="sensors" task="sensors">
+<module name="power_dronecan" dir="sensors" task="sensors">
   <doc>
     <description>
-      Power sensors over the uavcan protocol:
+      Power sensors over the dronecan protocol:
       - BatteryInfo
       - CircuitStatus
     </description>
-    <section name="POWER_UAVCAN" prefix="POWER_UAVCAN_">
+    <section name="POWER_DRONECAN" prefix="POWER_DRONECAN_">
       <define name="BATTERIES_MAX" value="3" description="Maximum number of batteries"/>
       <define name="CIRCUITS_MAX" value="3" description="Maximum number of circuits"/>
       <define name="BATTERY_CIRCUITS" value="{}" description="Struct of {node_id, circuit_id} indicating the batteries"/>
     </section>
   </doc>
   <dep>
-    <depends>uavcan</depends>
+    <depends>dronecan</depends>
     <provides></provides>
   </dep>
   <header>
-    <file name="power_uavcan.h"/>
+    <file name="power_dronecan.h"/>
   </header>
-  <init fun="power_uavcan_init()"/>
+  <init fun="power_dronecan_init()"/>
   <makefile target="ap">
-    <file name="power_uavcan.c"/>
+    <file name="power_dronecan.c"/>
+    <file name="uavcan.equipment.power.CircuitStatus.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.power.BatteryInfo.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
   </makefile>
 </module>

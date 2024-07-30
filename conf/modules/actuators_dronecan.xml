@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_dronecan" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      DroneCAN actuators
+   </description>
+   <define name="DRONECAN_ACTUATORS_USE_CURRENT" value="TRUE" description="Enable the usage of the current sensing in the ESC telemetry"/>
+  </doc>
+  <dep>
+    <depends>dronecan,actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_dronecan.h"/>
+  </header>
+  <makefile target="ap">
+    <file name="actuators_dronecan.c"/>
+    <file name="pprz_random.c" dir="math"/>
+    <file name="uavcan.equipment.esc.Status.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.actuator.Status.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.device.Temperature.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.esc.RawCommand.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.actuator.Command.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.actuator.ArrayCommand.c" dir="$(PAPARAZZI_SRC)/var/include/DSDLcode/src"/>
+  </makefile>
+</module>
+

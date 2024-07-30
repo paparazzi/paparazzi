@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,16 +19,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/power_uavcan.h
- * Power sensors on the uavcan bus
+/** @file arch/sim/modules/actuators/actuators_dronecan_arch.h
+ *  dummy servos handling for sim
  */
 
-#ifndef POWER_UAVCAN_H
-#define POWER_UAVCAN_H
+#ifndef ACTUATORS_DRONECAN_ARCH_H
+#define ACTUATORS_DRONECAN_ARCH_H
 
-#include "std.h"
+#define SERVOS_TICS_OF_USEC(_v) (_v)
 
-/* External functions */
-extern void power_uavcan_init(void);
+#define ActuatorUavcanSet(_i, _v) {}
+#define ActuatorsUavcanCommit() {}
 
-#endif /* POWER_UAVCAN_H */
+extern void actuators_dronecan_arch_init(void);
+
+#endif /* ACTUATORS_DRONECAN_ARCH_H */
