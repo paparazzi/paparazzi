@@ -19,22 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN2_CMD_H
-#define ACTUATORS_UAVCAN2_CMD_H
+/** @file modules/sensors/airspeed_dronecan.h
+ * Airspeed sensor on the dronecan bus
+ */
 
-#include "actuators_uavcan.h"
+#ifndef AIRSPEED_DRONECAN_H
+#define AIRSPEED_DRONECAN_H
 
-/** Stub file needed per uavcan interface because of generator */
-extern int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
+#include "std.h"
 
-#if USE_NPS
-#define ActuatorsUavcan2CmdInit() {}
-#define ActuatorUavcan2CmdSet(_i, _v) {}
-#define ActuatorsUavcan2CmdCommit()  {}
-#else
-#define ActuatorsUavcan2CmdInit() actuators_uavcan_init(&uavcan2)
-#define ActuatorUavcan2CmdSet(_i, _v) { actuators_uavcan2cmd_values[_i] = _v; }
-#define ActuatorsUavcan2CmdCommit()  actuators_uavcan_cmd_commit(&uavcan2, actuators_uavcan2cmd_values, SERVOS_UAVCAN2CMD_NB)
-#endif
+/* Airspeed DroneCAN structure */
+struct airspeed_dronecan_t {
+  float diff_p;       ///< Differential pressure
+  float temperature;  ///< Temperature in Celsius
 
-#endif /* ACTUATORS_UAVCAN2_CMD_H */
+  float diff_p_offset;  ///< Differential pressure offset
+  float diff_p_scale;   ///< Differential pressure scale
+};
+extern struct airspeed_dronecan_t airspeed_dronecan;
+
+/* External functions */
+extern void airspeed_dronecan_init(void);
+extern void airspeed_dronecan_autoset_offset(bool set);
+
+#endif /* AIRSPEED_DRONECAN_H */
