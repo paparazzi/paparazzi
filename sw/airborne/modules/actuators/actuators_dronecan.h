@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,13 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/modules/actuators/actuators_uavcan_arch.c
- *  dummy servos handling for sim
- */
+#ifndef ACTUATORS_DRONECAN_H
+#define ACTUATORS_DRONECAN_H
 
-#include "modules/actuators/actuators_uavcan_arch.h"
+#include "modules/dronecan/dronecan.h"
+#include BOARD_CONFIG
 
-void actuators_uavcan_arch_init(void)
-{
+/* External functions */
+extern void actuators_dronecan_init(struct dronecan_iface_t *iface);
+extern void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
+extern void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
 
-}
+#endif /* ACTUATORS_DRONECAN_H */
