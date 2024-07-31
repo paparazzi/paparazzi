@@ -6,16 +6,19 @@
                 "path": [
                     "${workspaceFolder}"
                 ],
-                "limitSymbolsToIncludedHeaders": true
+                "limitSymbolsToIncludedHeaders": false
             },
             "includePath": [
-                "${workspaceFolder}"
+                "~/paparazzi/sw/**",
+                "~/paparazzi/conf/**",
+                "~/paparazzi/data/**",
+                "~/paparazzi/var/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "linux-gcc-arm"
         }
     ],
     "version": 4
