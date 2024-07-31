@@ -34,7 +34,7 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 DSDL := $(EXT_DIR)/DSDL
 DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL)/*/)))
-DSDL_ROOTS := $(filter-out ../../sw/ext/DSDL/tests/ ../../sw/ext/DSDL,$(DSDL_ROOTS_PART))
+DSDL_ROOTS := $(filter-out ../../sw/ext/DSDL/tests/ ../../sw/ext/DSDL/,$(DSDL_ROOTS_PART))
 
 all: libopencm3 luftboot chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix libcanard DSDL dronecan_dsdlc pydronecan
 
