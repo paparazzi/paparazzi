@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,27 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/airspeed_uavcan.h
- * Airspeed sensor on the uavcan bus
- */
+#ifndef ACTUATORS_DRONECAN1_H
+#define ACTUATORS_DRONECAN1_H
 
-#ifndef AIRSPEED_UAVCAN_H
-#define AIRSPEED_UAVCAN_H
+#include "actuators_dronecan.h"
 
-#include "std.h"
+/** Stub file needed per dronecan interface because of generator */
+extern int16_t actuators_dronecan1_values[SERVOS_DRONECAN1_NB];
 
-/* Airspeed UAVCAN structure */
-struct airspeed_uavcan_t {
-  float diff_p;       ///< Differential pressure
-  float temperature;  ///< Temperature in Celsius
+#if USE_NPS
+#define ActuatorsDronecan1Init() {}
+#define ActuatorDronecan1Set(_i, _v) {}
+#define ActuatorsDronecan1Commit()  {}
+#else
+#define ActuatorsDronecan1Init() actuators_dronecan_init(&dronecan1)
+#define ActuatorDronecan1Set(_i, _v) { actuators_dronecan1_values[_i] = _v; }
+#define ActuatorsDronecan1Commit()  actuators_dronecan_commit(&dronecan1, actuators_dronecan1_values, SERVOS_DRONECAN1_NB)
+#endif
 
-  float diff_p_offset;  ///< Differential pressure offset
-  float diff_p_scale;   ///< Differential pressure scale
-};
-extern struct airspeed_uavcan_t airspeed_uavcan;
-
-/* External functions */
-extern void airspeed_uavcan_init(void);
-extern void airspeed_uavcan_autoset_offset(bool set);
-
-#endif /* AIRSPEED_UAVCAN_H */
+#endif /* ACTUATORS_DRONECAN1_H */
