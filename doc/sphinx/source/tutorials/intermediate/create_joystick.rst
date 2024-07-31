@@ -65,14 +65,9 @@ Create a new file for your joystick in the ``paparazzi/conf/joystick`` directory
 
       <messages period="0.01">
 
-        <message class="datalink" name="RC_4CH" send_always="true">
-          <field name="mode"        value="mode"/>
-          <field name="throttle"    value="Fit(-thrust,-127,127,0,127)"/>
-          <field name="roll"        value="roll"/>
-          <field name="yaw"         value="yaw"/>
-          <field name="pitch"       value="pitch"/>
+        <message class="datalink" name="RC_UP" send_always="true">
+          <field name="channels"    value="roll;pitch;yaw;Fit(-thrust,-127,127,0,127);mode">
         </message>
-
 
         <!-- resurrect throttle on fire button -->
         <message class="ground" name="DL_SETTING" on_event="fire">

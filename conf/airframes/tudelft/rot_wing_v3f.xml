@@ -51,8 +51,8 @@
             <!--Not dealing with these in the simulation-->
             <define name="RADIO_TH_HOLD"          value="0"/> <!-- Throttle hold in command laws -->
             <define name="RADIO_FMODE"            value="0"/> <!-- Throttle curve select -->
-            <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
-            <define name="RADIO_KILL_SWITCH"      value="0"/>
+            <define name="RADIO_FBW_MODE"         value="RADIO_AUX7"/> <!-- Switch between AP and FBW control -->
+            <define name="RADIO_KILL_SWITCH"      value="RADIO_AUX1"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
