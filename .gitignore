@@ -140,7 +140,6 @@ Cargo.lock
 /sw/logalizer/gtk_export.ml
 /sw/logalizer/sd2log
 /sw/logalizer/plotprofile
-/sw/logalizer/ctrlstick
 /sw/logalizer/ffjoystick
 /sw/logalizer/tmclient
 /sw/logalizer/openlog2tlm

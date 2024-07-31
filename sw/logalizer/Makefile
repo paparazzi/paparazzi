@@ -147,12 +147,8 @@ tmclient: tmclient.c
 ffjoystick: ffjoystick.c
 	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
-ctrlstick: ctrlstick.c
-	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
-
-
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log sdlogger_download
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick sd2log sdlogger_download
 
 .PHONY: all clean
 

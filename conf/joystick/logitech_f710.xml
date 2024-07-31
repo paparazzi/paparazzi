@@ -57,12 +57,8 @@ It has 8 buttons.
 
   <messages period="0.0333333333">
 
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="mode"        value="mode"/>
-      <field name="throttle"    value="Bound(0-ly,0,127)"/>
-      <field name="roll"        value="rx"/>
-      <field name="yaw"         value="lx"/>
-      <field name="pitch"       value="ry"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="rx;ry;lx;Bound(0-ly,0,127);mode"/>
     </message>
 
 

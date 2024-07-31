@@ -250,7 +250,8 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
       int8_t roll = -(cmd.chan1_raw - 1500) * 255 / 1100 / 2;
       int8_t pitch = -(cmd.chan2_raw - 1500) * 255 / 1100 / 2;
       int8_t yaw = -(cmd.chan4_raw - 1500) * 255 / 1100;
-      parse_rc_4ch_datalink(0, thrust, roll, pitch, yaw);
+      int8_t temp_rc[4] = {roll, pitch, yaw, thrust};
+      parse_rc_up_datalink(4, temp_rc);
       //printf("RECEIVED: RC Channel Override for: %d/%d: throttle: %d; roll: %d; pitch: %d; yaw: %d;\r\n",
       // cmd.target_system, cmd.target_component, thrust, roll, pitch, yaw);
 #endif
