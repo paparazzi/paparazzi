@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,22 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN2_H
-#define ACTUATORS_UAVCAN2_H
+#ifndef ACTUATORS_DRONECAN2_CMD_H
+#define ACTUATORS_DRONECAN2_CMD_H
 
-#include "actuators_uavcan.h"
+#include "actuators_dronecan.h"
 
-/** Stub file needed per interface because of generator */
-extern int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
+/** Stub file needed per dronecan interface because of generator */
+extern int16_t actuators_dronecan2cmd_values[SERVOS_DRONECAN2CMD_NB];
 
 #if USE_NPS
-#define ActuatorsUavcan2Init() {}
-#define ActuatorUavcan2Set(_i, _v) {}
-#define ActuatorsUavcan2Commit()  {}
+#define ActuatorsDronecan2CmdInit() {}
+#define ActuatorDronecan2CmdSet(_i, _v) {}
+#define ActuatorsDronecan2CmdCommit()  {}
 #else
-#define ActuatorsUavcan2Init() actuators_uavcan_init(&uavcan2)
-#define ActuatorUavcan2Set(_i, _v) { actuators_uavcan2_values[_i] = _v; }
-#define ActuatorsUavcan2Commit()  actuators_uavcan_commit(&uavcan2, actuators_uavcan2_values, SERVOS_UAVCAN2_NB)
+#define ActuatorsDronecan2CmdInit() actuators_dronecan_init(&dronecan2)
+#define ActuatorDronecan2CmdSet(_i, _v) { actuators_dronecan2cmd_values[_i] = _v; }
+#define ActuatorsDronecan2CmdCommit()  actuators_dronecan_cmd_commit(&dronecan2, actuators_dronecan2cmd_values, SERVOS_DRONECAN2CMD_NB)
 #endif
 
-#endif /* ACTUATORS_UAVCAN2_H */
+#endif /* ACTUATORS_DRONECAN2_CMD_H */

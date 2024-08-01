@@ -19,12 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/modules/uavcan/uavcan.h
- * Stub needed for compiling modules requiring uavcan
+ * @file arch/chibios/modules/dronecan/dronecan.h
+ * Stub needed for compiling modules requiring dronecan
  */
-#ifndef MODULES_UAVCAN_ARCH_H
-#define MODULES_UAVCAN_ARCH_H
+#ifndef MODULES_DRONECAN_ARCH_H
+#define MODULES_DRONECAN_ARCH_H
 
-struct uavcan_iface_t {};
+struct dronecan_iface_t {};
 
-#endif /* MODULES_UAVCAN_ARCH_H */
+#endif /* MODULES_DRONECAN_ARCH_H */
