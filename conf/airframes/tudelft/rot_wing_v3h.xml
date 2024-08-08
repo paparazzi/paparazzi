@@ -673,6 +673,7 @@
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
         <item name="wing tape">Check wings taped and secured</item>
+        <item name="inspection">Inspect airframe condition</item>
         <item name="attitude">Check attitude and heading</item>
         <item name="airspeed">Airspeed sensor calibration</item>
         <item name="takeoff location">Put UAV on take-off location</item>

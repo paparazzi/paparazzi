@@ -16,7 +16,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="Checks">
-        <dl_setting var="preflight_bypass" shortname="bypass" min="0" max="1" step="1" values="FALSE|TRUE"/>
+        <dl_setting var="preflight_bypass" shortname="bypass" min="0" max="1" step="1" values="FALSE|TRUE" handler="log_bypass" module="checks/preflight_checks"/> 
         <dl_setting var="preflight_ground_done" shortname="ground_done" min="0" max="1" step="1" values="FALSE|TRUE"/>
       </dl_settings>
     </dl_settings>
