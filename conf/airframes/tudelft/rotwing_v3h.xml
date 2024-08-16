@@ -127,7 +127,6 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="rotwing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks"/>
