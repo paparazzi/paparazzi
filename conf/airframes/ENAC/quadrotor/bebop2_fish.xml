@@ -219,7 +219,6 @@
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
     <define name="ARRIVED_AT_WAYPOINT" value="0.15"/>
 
-    <!--define name="NO_RC_THRUST_LIMIT" value="TRUE"/-->
   </section>
 
   <section name="BAT">
