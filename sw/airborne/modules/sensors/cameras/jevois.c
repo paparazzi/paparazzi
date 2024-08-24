@@ -132,7 +132,7 @@ int jevois_extract_nb(char *in) {
   bool first = false;
   char out[JEVOIS_MAX_LEN];
   for (i = 0; i < strlen(in)+1; i++) {
-    if ((in[i] > '0' && in[i] < '9') || in[i] == '-') {
+    if ((in[i] >= '0' && in[i] < '9') || in[i] == '-') {
       out[j++] = in[i];
       first = true;
     } else if (first || in[i] == '\0') {
