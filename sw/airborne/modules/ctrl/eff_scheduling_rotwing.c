@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/ctrl/eff_scheduling_rot_wing.c"
+/** @file "modules/ctrl/eff_scheduling_rotwing.c"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#include "modules/ctrl/eff_scheduling_rot_wing.h"
+#include "modules/ctrl/eff_scheduling_rotwing.h"
 
 #include "generated/airframe.h"
 #include "state.h"
