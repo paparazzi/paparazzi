@@ -1,0 +1,4 @@
+<program command="sw/ground_segment/tmtc/ivy2udp" name="Ivy2Udp">
+  <arg constant="192.168.0.2" flag="-h" />
+</program>
+
