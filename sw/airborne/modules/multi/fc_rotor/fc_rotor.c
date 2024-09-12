@@ -25,8 +25,15 @@
 #include "modules/multi/fc_rotor/fc_rotor.h"
 #include "firmwares/rotorcraft/navigation.h"
 
+bool fc_rotor_started = false;
+
+#ifndef FCROTOR_STARTED
+#define FCROTOR_STARTED true
+#endif
+
 void fc_rotor_init(void)
 {
+  fc_rotor_started = FCROTOR_STARTED;
 }
 
 void fc_read_msg(uint8_t *buf)
@@ -34,7 +41,7 @@ void fc_read_msg(uint8_t *buf)
   struct FloatVect3 u;
   uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id(buf);
 
-  if (ac_id == AC_ID) {
+  if ((ac_id == AC_ID) && (fc_rotor_started == true)) {
     // 0: 2D control, 1: 3D control
     uint8_t flag = DL_DESIRED_SETPOINT_flag(buf);
 
