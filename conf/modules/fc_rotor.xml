@@ -7,6 +7,13 @@
       The vehicles are are running the INDI control and the desired acceleration are given by script from ground.
     </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="fcROTOR">
+        <dl_setting shortname="fc_rotor_running" var="fc_rotor_started" min="0" step="1" max="1" values="STOPPED|RUNNING"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
 
   <header>
     <file name="fc_rotor.h"/>
