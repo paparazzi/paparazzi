@@ -487,7 +487,7 @@ class MessageClassItem(QStandardItem):
             
             self.appendRow(newitems)
             
-            print(f"Added row for {name}")
+            # print(f"Added row for {name}")
 
         msgReceptionItem.setData(dt,Qt.ItemDataRole.UserRole)
         msgReceptionItem.setText(f" {dt:.0f}s ({freq:.1f} Hz) ")
@@ -579,9 +579,17 @@ class SenderItem(QStandardItem):
         except KeyError:
             return
         
-        for msg in msgDict.values():
-            self.updateMessage(msg)
-            
+        try:
+            for msg in msgDict.values():
+                self.updateMessage(msg)
+        except RuntimeError:
+            time.sleep(0.1) # Wait a bit and retry
+            try:
+                for msg in msgDict.values():
+                    self.updateMessage(msg)
+            except RuntimeError:
+                # Give up
+                return
 
 #################### Model ####################
 
