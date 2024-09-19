@@ -20,7 +20,7 @@
     <file name="mavlink.c"/>
     <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
     <file name="waypoints.c" dir="modules/datalink/missionlib"/>
-    <file name="blocks.c" dir="modules/datalink/missionlib"/>
+    <!-- <file name="blocks.c" dir="modules/datalink/missionlib"/> -->
     <configure name="MAVLINK_PORT" default="uart1" case="upper|lower"/>
     <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>

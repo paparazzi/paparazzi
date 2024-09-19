@@ -160,7 +160,8 @@ bool target_get_pos(struct NedCoor_f *pos, float *heading) {
     time_diff = (get_sys_time_msec() - target.pos.recv_time) * 0.001; // FIXME: should be based on TOW of ground gps
 
     // Return the heading
-    *heading = target.pos.heading;
+    if(heading != NULL)
+      *heading = target.pos.heading;
 
     // If we have a velocity measurement try to integrate the x-y position when enabled
     struct NedCoor_f vel = {0};
@@ -175,8 +176,8 @@ bool target_get_pos(struct NedCoor_f *pos, float *heading) {
     }
 
     // Offset the target
-    pos->x += target.offset.distance * cosf((*heading + target.offset.heading)/180.*M_PI);
-    pos->y += target.offset.distance * sinf((*heading + target.offset.heading)/180.*M_PI);
+    pos->x += target.offset.distance * cosf((target.pos.heading + target.offset.heading)/180.*M_PI);
+    pos->y += target.offset.distance * sinf((target.pos.heading + target.offset.heading)/180.*M_PI);
     pos->z -= target.offset.height;
 
     return true;
@@ -226,4 +227,27 @@ bool target_pos_set_current_offset(float unk __attribute__((unused))) {
   }
 
   return false;
+}
+
+/*
+ * Set a waypoint to the current target position
+ */
+#include "navigation.h"
+void target_set_wp(uint8_t wp_id) {
+  struct NedCoor_f pos;
+  struct EnuCoor_f pos_enu;
+  if(target_get_pos(&pos, NULL)) {
+    ENU_OF_TO_NED(pos_enu, pos);
+
+    // Update the waypoint
+    waypoint_set_enu(wp_id, &pos_enu);
+
+    // Send to the GCS that the waypoint has been moved (every second)
+    RunOnceEvery(NAVIGATION_FREQUENCY, {
+      DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
+                                  &waypoints[wp_id].enu_i.x,
+                                  &waypoints[wp_id].enu_i.y,
+                                  &waypoints[wp_id].enu_i.z);
+    });
+  }
 }

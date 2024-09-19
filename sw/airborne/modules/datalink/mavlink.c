@@ -59,9 +59,14 @@
 #include "modules/radio_control/radio_control.h"
 #endif
 
+#if USE_MISSION
+#include "modules/mission/mission_common.h"
+#endif
+
 // Change the autopilot identification code: by default identify as PPZ autopilot: alternatively as MAV_AUTOPILOT_ARDUPILOTMEGA
 #ifndef MAV_AUTOPILOT_ID
-#define MAV_AUTOPILOT_ID MAV_AUTOPILOT_PPZ
+// #define MAV_AUTOPILOT_ID MAV_AUTOPILOT_PPZ
+#define MAV_AUTOPILOT_ID MAV_AUTOPILOT_ARDUPILOTMEGA
 #endif
 
 #include "modules/datalink/missionlib/mission_manager.h"
@@ -70,6 +75,7 @@
 #include <stdint.h>
 
 mavlink_system_t mavlink_system;
+uint16_t mavlink_rc_value = 1000;
 
 static uint8_t mavlink_params_idx = NB_SETTING; /**< Transmitting parameters index */
 /** mavlink parameter names.
@@ -82,7 +88,11 @@ mavlink_mission_mgr mission_mgr;
 
 void mavlink_common_message_handler(const mavlink_message_t *msg);
 
-static void mavlink_send_extended_sys_state(struct transport_tx *trans, struct link_device *dev);
+struct mavlink_modes_t mavlink_modes;
+
+void mavlink_determine_fp_modes(void);
+void mavlink_set_mode(void); 
+
 static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_device *dev);
 static void mavlink_send_sys_status(struct transport_tx *trans, struct link_device *dev);
 static void mavlink_send_system_time(struct transport_tx *trans, struct link_device *dev);
@@ -98,6 +108,8 @@ static void mavlink_send_battery_status(struct transport_tx *trans, struct link_
 static void mavlink_send_gps_global_origin(struct transport_tx *trans, struct link_device *dev);
 static void mavlink_send_gps_status(struct transport_tx *trans, struct link_device *dev);
 static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_mission_current(struct transport_tx *trans, struct link_device *dev);
+static void mavlink_send_extended_sys_state(struct transport_tx *trans, struct link_device *dev);
 
 
 /**
@@ -122,6 +134,8 @@ void mavlink_init(void)
 
   mavlink_mission_init(&mission_mgr);
 
+  mavlink_determine_fp_modes();
+
 #if PERIODIC_TELEMETRY && defined TELEMETRY_MAVLINK_NB_MSG
   register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_HEARTBEAT, mavlink_send_heartbeat);
   register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_SYS_STATUS, mavlink_send_sys_status);
@@ -138,6 +152,7 @@ void mavlink_init(void)
   register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GPS_GLOBAL_ORIGIN, mavlink_send_gps_global_origin);
   register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_GPS_STATUS, mavlink_send_gps_status);
   register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_VFR_HUD, mavlink_send_vfr_hud);
+  register_periodic_telemetry(&mavlink_telemetry, MAVLINK_MSG_ID_MISSION_CURRENT, mavlink_send_mission_current);
 #endif
 }
 
@@ -182,6 +197,7 @@ void mavlink_periodic(void)
   RunOnceEvery(2, mavlink_send_params(NULL, NULL));
 
   mavlink_mission_periodic();
+  mavlink_set_mode();
 }
 
 static int16_t settings_idx_from_param_id(char *param_id)
@@ -229,8 +245,48 @@ void mavlink_event(void)
   }
 }
 
+/**
+ * Set mode from flightplan
+ */
+void mavlink_set_mode(void) 
+{
+  if (mavlink_modes.takeoff_available)
+  {
+    if (nav_block == mavlink_modes.block_takeoff) {
+      mavlink_modes.current_mode = PLANE_MODE_TAKEOFF;
+    }
+  }
+
+  if (mavlink_modes.hover_available)
+  {
+    if (nav_block == mavlink_modes.block_hover) {
+      mavlink_modes.current_mode = PLANE_MODE_QHOVER;
+    }
+  }
+
+  if (mavlink_modes.guided_available)
+  {
+    if (nav_block == mavlink_modes.block_guided) {
+      mavlink_modes.current_mode = PLANE_MODE_GUIDED;
+    }
+  }
+
+  if (mavlink_modes.land_available)
+  {
+    if (nav_block == mavlink_modes.block_land) {
+      mavlink_modes.current_mode = PLANE_MODE_QLAND;
+    }
+  }
+}
+
 void mavlink_common_message_handler(const mavlink_message_t *msg)
 {
+  // char error_msg[200];
+  // int rc = snprintf(error_msg, 200, "REceived message with id: %d", msg->msgid);
+  // if (rc > 0) {
+  //   DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+  // }
+
   switch (msg->msgid) {
     case MAVLINK_MSG_ID_PLAY_TUNE:
     case MAVLINK_MSG_ID_PLAY_TUNE_V2:
@@ -259,8 +315,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
       int8_t roll = -(cmd.chan1_raw - 1500) * 255 / 1100 / 2;
       int8_t pitch = -(cmd.chan2_raw - 1500) * 255 / 1100 / 2;
       int8_t yaw = -(cmd.chan4_raw - 1500) * 255 / 1100;
-      int8_t temp_rc[4] = {roll, pitch, yaw, thrust};
-      parse_rc_up_datalink(4, temp_rc);
+      parse_rc_4ch_datalink(0, thrust, roll, pitch, yaw);
       //printf("RECEIVED: RC Channel Override for: %d/%d: throttle: %d; roll: %d; pitch: %d; yaw: %d;\r\n",
       // cmd.target_system, cmd.target_component, thrust, roll, pitch, yaw);
 #endif
@@ -327,24 +382,27 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
 
 #ifdef ROTORCRAFT_FIRMWARE
     /* only for rotorcraft */
+
+    case MAVLINK_MSG_ID_COMMAND_INT: {
+      
+      mavlink_command_int_t cmd;
+      mavlink_msg_command_int_decode(msg, &cmd);
+      
+      // Check if this message is for this system
+      if ((uint8_t) cmd.target_system == AC_ID) {
+        MAVLINK_DEBUG("COMMAND_INT received with command %i\n", cmd.command);  
+      }
+      break;
+    }
+
+
     case MAVLINK_MSG_ID_COMMAND_LONG: {
       mavlink_command_long_t cmd;
       mavlink_msg_command_long_decode(msg, &cmd);
       // Check if this message is for this system
-      if ((uint8_t) cmd.target_system == AC_ID) {
+      //if ((uint8_t) cmd.target_system == AC_ID) {
         uint8_t result = MAV_RESULT_UNSUPPORTED;
         switch (cmd.command) {
-
-          case MAV_CMD_SET_MESSAGE_INTERVAL:
-          case MAV_CMD_DO_SET_MODE: {
-            char error_msg[200];
-            int rc = snprintf(error_msg, 200, "Do set %d: %0.0f %0.0f (%d)", cmd.command, cmd.param1, cmd.param2, cmd.target_system);
-            if (rc > 0) {
-              DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
-            }
-            result = MAV_RESULT_ACCEPTED;
-            break;
-          }
 
           case MAV_CMD_NAV_GUIDED_ENABLE:
             MAVLINK_DEBUG("got cmd NAV_GUIDED_ENABLE: %f\n", cmd.param1);
@@ -363,62 +421,168 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
           case MAV_CMD_COMPONENT_ARM_DISARM:
             /* supposed to use this command to arm or SET_MODE?? */
             MAVLINK_DEBUG("got cmd COMPONENT_ARM_DISARM: %f\n", cmd.param1);
-            result = MAV_RESULT_FAILED;
-            if (cmd.param1 > 0.5) {
-              autopilot_set_motors_on(TRUE);
-              if (autopilot_get_motors_on())
-                result = MAV_RESULT_ACCEPTED;
+            result = MAV_RESULT_ACCEPTED;
+            // if (cmd.param1 > 0.5) {
+            //   autopilot_set_motors_on(TRUE);
+            //   if (autopilot_get_motors_on())
+            //     result = MAV_RESULT_ACCEPTED;
+            // }
+            // else {
+            //   autopilot_set_motors_on(FALSE);
+            //   if (!autopilot_get_motors_on())
+            //     result = MAV_RESULT_ACCEPTED;
+            // }
+            break;
+          
+          case MAV_CMD_DO_SET_MODE:
+            MAVLINK_DEBUG("DO SET_MODE param1 = %f, param2 = %f\n", cmd.param1, cmd.param2);
+            if (cmd.param1 != 1) {
+              MAVLINK_DEBUG("No valid mode set, requested mode was %f\n", cmd.param1);
+              result = MAV_RESULT_UNSUPPORTED;
+              break;
             }
-            else {
-              autopilot_set_motors_on(FALSE);
-              if (!autopilot_get_motors_on())
+
+            switch ((uint8_t) cmd.param2) {
+              case PLANE_MODE_GUIDED:
+                MAVLINK_DEBUG("PLANE_MODE_GUIDED received");
+                // if not available
+                if (!mavlink_modes.guided_available)
+                {
+                  result = MAV_RESULT_UNSUPPORTED;
+                  break;
+                }
+
+                // Don't hover if not armed
+                if (!autopilot_get_motors_on())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // hover only when in flight
+                if (!autopilot_in_flight())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // run hover
+                GotoBlock(mavlink_modes.block_guided);
+                
                 result = MAV_RESULT_ACCEPTED;
+
+                break;
+              case PLANE_MODE_AUTO:
+                MAVLINK_DEBUG("PLANE_MODE_AUTO received");
+                // If Hold Mission
+                if (nav_block == 3) {
+                  // Switch to mission block
+                  GotoBlock(9);
+                }
+                result = MAV_RESULT_ACCEPTED;
+                break;
+                
+              case PLANE_MODE_TAKEOFF:
+                MAVLINK_DEBUG("PLANE_MODE_TAKEOFF received");
+                // if not available
+                if (!mavlink_modes.takeoff_available)
+                {
+                  result = MAV_RESULT_UNSUPPORTED;
+                  break;
+                }
+
+                // Don't takeoff if not armed
+                if (!autopilot_get_motors_on())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // takeoff if not already in flight
+                if (autopilot_in_flight())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // run takeoff 
+                GotoBlock(mavlink_modes.block_takeoff);
+
+                result = MAV_RESULT_ACCEPTED;
+                break;
+              case PLANE_MODE_QLAND:
+                MAVLINK_DEBUG("PLANE_MODE_QLAND received");
+                // if not available
+                if (!mavlink_modes.land_available)
+                {
+                  result = MAV_RESULT_UNSUPPORTED;
+                  break;
+                }
+
+                // Don't land if not armed
+                if (!autopilot_get_motors_on())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // land only when in flight
+                if (!autopilot_in_flight())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // run takeoff 
+                GotoBlock(mavlink_modes.block_land);
+                
+                result = MAV_RESULT_ACCEPTED;
+                break;
+              case PLANE_MODE_QHOVER:
+                MAVLINK_DEBUG("PLANE_MODE_QHOVER received");
+                // if not available
+                if (!mavlink_modes.hover_available)
+                {
+                  result = MAV_RESULT_UNSUPPORTED;
+                  break;
+                }
+
+                // Don't hover if not armed
+                if (!autopilot_get_motors_on())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // hover only when in flight
+                if (!autopilot_in_flight())
+                {
+                  result = MAV_RESULT_FAILED;
+                  break;
+                }
+
+                // run hover
+                GotoBlock(mavlink_modes.block_hover);
+                
+                result = MAV_RESULT_ACCEPTED;
+                break;
+
+              default:
+                result = MAV_RESULT_UNSUPPORTED;
+                break;
             }
             break;
 
           default:
+            MAVLINK_DEBUG("TEST123 command = %i \n", cmd.command);
             break;
         }
-        // confirm command with result
-        mavlink_msg_command_ack_send(MAVLINK_COMM_0, cmd.command, result, 0, UINT8_MAX, msg->sysid, msg->compid);
-        MAVLinkSendMessage();
-      }
+
+          // confirm command with result
+          mavlink_msg_command_ack_send(MAVLINK_COMM_0, cmd.command, result, 0, UINT8_MAX, msg->sysid, msg->compid);
+          MAVLinkSendMessage();
       break;
     }
-
-#ifdef WP_ML_global_target
-    case MAVLINK_MSG_ID_SET_POSITION_TARGET_GLOBAL_INT: {
-      mavlink_set_position_target_global_int_t target;
-      mavlink_msg_set_position_target_global_int_decode(msg, &target);
-
-      // Check if this message is for this system
-      //if (target.target_system == AC_ID) {
-        MAVLINK_DEBUG("SET_POSITION_TARGET_GLOBAL_INT, type_mask: %d, frame: %d\n", target.type_mask, target.coordinate_frame);
-        /* if position and yaw bits are not set to ignored, use only position for now */
-        if (target.coordinate_frame == MAV_FRAME_GLOBAL || target.coordinate_frame == MAV_FRAME_GLOBAL_INT) {
-          MAVLINK_DEBUG("set position target, frame MAV_FRAME_GLOBAL %f \n", target.alt);
-          struct NedCoor_i ned;
-          //struct NedCoor_f ned_f;
-          struct LlaCoor_i lla;
-          lla.lat = target.lat_int;
-          lla.lon = target.lon_int;
-          lla.alt = MM_OF_M(target.alt);
-          ned_of_lla_point_i(&ned, &state.ned_origin_i, &lla);
-          //NED_FLOAT_OF_BFP(ned_f, ned);
-          //autopilot_guided_goto_ned(ned_f.x, ned_f.y, ned_f.z, target.yaw);
-          waypoint_set_latlon(WP_ML_global_target, &lla);
-          waypoint_set_alt(WP_ML_global_target, target.alt);
-
-          // Downlink the new waypoint
-          uint8_t wp_id = WP_ML_global_target;
-          int32_t hmsl = lla.alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
-          DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
-                                    &lla.lat, &lla.lon, &hmsl);
-
-        }
-      break;
-    }
-#endif
 
     case MAVLINK_MSG_ID_SET_MODE: {
       mavlink_set_mode_t mode;
@@ -436,6 +600,32 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
         }
         else if (mode.base_mode & MAV_MODE_FLAG_AUTO_ENABLED) {
           autopilot_set_mode(AP_MODE_NAV);
+        }
+      }
+      break;
+    }
+
+    case MAVLINK_MSG_ID_SET_POSITION_TARGET_GLOBAL_INT: {
+      mavlink_set_position_target_global_int_t target;
+      mavlink_msg_set_position_target_global_int_decode(msg, &target);
+
+      // Check if this message is for this system
+      if (target.target_system == AC_ID) {
+        MAVLINK_DEBUG("SET_POSITION_TARGET_GLOBAL_INT, type_mask: %d, frame: %d\n", target.type_mask, target.coordinate_frame);
+        /* if position and yaw bits are not set to ignored, use only position for now */
+        if (target.coordinate_frame == MAV_FRAME_GLOBAL || target.coordinate_frame == MAV_FRAME_GLOBAL_INT) {
+          MAVLINK_DEBUG("set position target, frame MAV_FRAME_GLOBAL %f \n", target.alt);
+          struct NedCoor_i ned;
+          //struct NedCoor_f ned_f;
+          struct LlaCoor_i lla;
+          lla.lat = target.lat_int;
+          lla.lon = target.lon_int;
+          lla.alt = MM_OF_M(target.alt);
+          ned_of_lla_point_i(&ned, &state.ned_origin_i, &lla);
+          //NED_FLOAT_OF_BFP(ned_f, ned);
+          //autopilot_guided_goto_ned(ned_f.x, ned_f.y, ned_f.z, target.yaw);
+          waypoint_set_latlon(WP_ML_global_target, &lla);
+          waypoint_set_alt(WP_ML_global_target, target.alt);
         }
       }
       break;
@@ -485,8 +675,64 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
     default:
       //Do nothing
       MAVLINK_DEBUG("Received message with id: %d\r\n", msg->msgid);
+      // char error_msg[200];
+      // int rc = snprintf(error_msg, 200, "Received message with id: %d", msg->msgid);
+      // if (rc > 0) {
+      //   DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+      // }
       break;
   }
+}
+
+void mavlink_determine_fp_modes(void) {
+  uint8_t i;
+  static const char *blocks[] = FP_BLOCKS;
+  char block_name[50];
+
+  char mavlink_takeoff[]  = "mavlink_takeoff";
+  char mavlink_hover[]    = "mavlink_hover";
+  char mavlink_guided[]   = "mavlink_guided";
+  char mavlink_land[]     = "mavlink_land";
+
+  mavlink_modes.takeoff_available = false;
+  mavlink_modes.hover_available = false;
+  mavlink_modes.guided_available = false;
+  mavlink_modes.land_available = false;
+
+  mavlink_modes.current_mode = 0;
+  
+  for (i = 0; i < NB_BLOCK; i++) {
+    // Check takeoff
+    strncpy(block_name, blocks[i], 49);
+    if (strcmp(mavlink_takeoff, block_name) == 0)
+    {
+      MAVLINK_DEBUG("MAVLINK takeoff found\n");
+      mavlink_modes.takeoff_available = true;
+      mavlink_modes.block_takeoff = i;
+    }
+    // Check hover
+    if (strcmp(mavlink_hover, block_name) == 0)
+    {
+      MAVLINK_DEBUG("MAVLINK hover found\n");
+      mavlink_modes.hover_available = true;
+      mavlink_modes.block_hover = i;
+    }
+    // Check guided
+    if (strcmp(mavlink_guided, block_name) == 0)
+    {
+      MAVLINK_DEBUG("MAVLINK guided found\n");
+      mavlink_modes.guided_available = true;
+      mavlink_modes.block_guided = i;
+    }
+    // Check land
+    if (strcmp(mavlink_land, block_name) == 0)
+    {
+      MAVLINK_DEBUG("MAVLINK land found\n");
+      mavlink_modes.land_available = true;
+      mavlink_modes.block_land = i;
+    }
+  }
+  
 }
 
 /* ignore the unused-parameter warnings */
@@ -520,7 +766,7 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
       break;
   }
 #elif defined(ROTORCRAFT_FIRMWARE)
-  uint8_t mav_type = MAV_TYPE_QUADROTOR;
+  uint8_t mav_type = MAV_TYPE_VTOL_FIXEDROTOR;
   switch (autopilot_get_mode()) {
     case AP_MODE_HOME:
       mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
@@ -543,11 +789,12 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
       break;
     case AP_MODE_NAV:
       mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
-      custom_mode = PLANE_MODE_GUIDED;
+      custom_mode = mavlink_modes.current_mode;
       break;
     case AP_MODE_GUIDED:
       mav_mode = MAV_MODE_FLAG_GUIDED_ENABLED;
       custom_mode = PLANE_MODE_GUIDED;
+      break;
     default:
       break;
   }
@@ -568,15 +815,6 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
                              mav_mode,
                              custom_mode,
                              mav_state);
-  MAVLinkSendMessage();
-}
-
-/*
- * Send extended system state
-*/
-static void mavlink_send_extended_sys_state(struct transport_tx *trans, struct link_device *dev) {
-  uint8_t landed_state = autopilot_in_flight()? MAV_LANDED_STATE_IN_AIR : MAV_LANDED_STATE_ON_GROUND;
-  mavlink_msg_extended_sys_state_send(MAVLINK_COMM_0, MAV_VTOL_STATE_UNDEFINED, landed_state);
   MAVLinkSendMessage();
 }
 
@@ -834,13 +1072,13 @@ static void mavlink_send_rc_channels(struct transport_tx *trans, struct link_dev
 #if defined RADIO_CONTROL
   mavlink_msg_rc_channels_send(MAVLINK_COMM_0,
                                get_sys_time_msec(),
-                               RC_CHANNELS,
-                               PPM_PULSES(0), PPM_PULSES(1), PPM_PULSES(2),
-                               PPM_PULSES(3), PPM_PULSES(4), PPM_PULSES(5),
-                               PPM_PULSES(6), PPM_PULSES(7), PPM_PULSES(8),
-                               PPM_PULSES(9), PPM_PULSES(10), PPM_PULSES(11),
-                               PPM_PULSES(12), PPM_PULSES(13), PPM_PULSES(14),
-                               PPM_PULSES(15), PPM_PULSES(16), PPM_PULSES(17),
+                               12,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
+                               mavlink_rc_value, mavlink_rc_value, mavlink_rc_value,
                                255); // rssi unknown
 #else
   mavlink_msg_rc_channels_send(MAVLINK_COMM_0,
@@ -906,6 +1144,57 @@ static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device 
                            stateGetSpeedNed_f()->z); // climb rate
   MAVLinkSendMessage();
 }
+
+/**
+ * Message that announces the sequence number of the current target mission item (that the system will fly towards/execute when the mission is running).
+ */
+static void mavlink_send_mission_current(struct transport_tx *trans, struct link_device *dev)
+{
+  /* Sequence number*/
+  uint16_t seq;
+  #if USE_MISSION
+  seq = mission.elements[mission.current_idx].index;
+  #else
+  seq = mission_mgr_seq;
+  #endif
+  /* Total number of mission items. 0: Not supported, UINT16_MAX if no mission is present on the vehicle.*/
+  uint16_t total = mission_mgr.active_count;
+  /* Mission state machine state. MISSION_STATE_UNKNOWN if state reporting not supported.*/
+  uint8_t mission_state = mission_mgr.mission_state;
+  /* Vehicle is in a mode that can execute mission items or suspended. 0: Unknown, 1: In mission mode, 2: Suspended (not in mission mode).*/
+  uint8_t mission_mode = 0; // TODO: implement
+
+  mavlink_msg_mission_current_send(MAVLINK_COMM_0,
+                                   seq,
+                                   total,
+                                   mission_state,
+                                   mission_mode);
+  MAVLinkSendMessage();
+}
+
+/**
+ * Provides state for additional features
+ */
+static void mavlink_send_extended_sys_state(struct transport_tx *trans, struct link_device *dev)
+{
+  /* The VTOL state if applicable. Is set to MAV_VTOL_STATE_UNDEFINED if UAV is not in VTOL configuration. */
+  uint8_t vtol_state = MAV_VTOL_STATE_UNDEFINED;
+  /* The landed state. Is set to MAV_LANDED_STATE_UNDEFINED if landed state is unknown. */
+  uint8_t landed_state = MAV_LANDED_STATE_UNDEFINED;
+  // On ground if not in flight
+  if (!autopilot_in_flight())
+  {
+    landed_state = MAV_LANDED_STATE_ON_GROUND;
+  } else {
+    landed_state = MAV_LANDED_STATE_IN_AIR;
+  }
+
+  mavlink_msg_extended_sys_state_send(MAVLINK_COMM_0,
+                                      vtol_state,
+                                      landed_state);
+  MAVLinkSendMessage();
+}
+
 
 /* end ignore unused-paramter */
 #pragma GCC diagnostic pop

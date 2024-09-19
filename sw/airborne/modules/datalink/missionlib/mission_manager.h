@@ -30,6 +30,7 @@
 #define MISSIONLIB_COMMON_H
 
 #include <mavlink/mavlink_types.h>
+#include "modules/mission/mission_common.h"
 
 #ifndef MAVLINK_TIMEOUT
 #define MAVLINK_TIMEOUT 15 // as in MAVLink waypoint convention
@@ -43,13 +44,32 @@ enum MAVLINK_MISSION_MGR_STATES {
   STATE_WAYPOINT_WRITE_TRANSACTION
 };
 
+struct mavlink_mission_item {
+  uint16_t seq;
+  uint8_t frame;
+  uint16_t cmd;
+  uint8_t current;
+  uint8_t autocontinue;
+  int32_t x;
+  int32_t y;
+  float z;
+};
+
+typedef struct mavlink_mission_item mavlink_mission_item;
+
 struct mavlink_mission_mgr {
   uint8_t current_block; // Counter that holds the index of the current block
+  uint8_t count; // Count of mission elements
+  uint8_t active_count; // Count of active mission elements
   enum MAVLINK_MISSION_MGR_STATES state; // The current state of the mission handler
+  uint8_t mission_state; // The current MISSION_STATE defined by common mavlink
   uint16_t seq; // Sequence id (position of the current item on the list)
+  uint16_t end_index; // Index of final element in a (partial) upload transaction
   uint8_t rem_sysid; // Remote system id
   uint8_t rem_compid; // Remote component id
   int timer_id; // Timer id
+  mavlink_mission_item active_mission_items[MISSION_ELEMENT_NB]; // The activated mission items
+  mavlink_mission_item standby_mission_items[MISSION_ELEMENT_NB]; // The standby mission items (used for fp upload)
 };
 
 typedef struct mavlink_mission_mgr mavlink_mission_mgr;
@@ -65,5 +85,8 @@ extern void mavlink_send_mission_ack(void);
 
 extern void mavlink_mission_set_timer(void);
 extern void mavlink_mission_cancel_timer(void);
+
+extern enum MAV_MISSION_RESULT mavlink_mission_check_validity(void);
+extern void mavlink_mission_set_active(void);
 
 #endif
