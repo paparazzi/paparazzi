@@ -46,6 +46,8 @@
         <define name="get_servo_min_FAULHABER" value=""/>
         <define name="get_servo_max_FAULHABER" value=""/>
         <define name="get_servo_idx_FAULHABER" value=""/>
+        <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+        <define name="DOWNLINK_DEVICE" value="uart0"/>
     </test>
   </makefile>
 </module>
