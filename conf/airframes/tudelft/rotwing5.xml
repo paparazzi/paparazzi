@@ -135,7 +135,7 @@
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="rotwing_automation"/>
-        <module name="ground_detect_sensor"/>
+        <module name="ground_detect"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks">
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
@@ -255,7 +255,7 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
-    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+    <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.3953"/>
         <define name="IYY_BODY"              value="8.472"/>
         <define name="IZZ"                   value="10.18"/>
