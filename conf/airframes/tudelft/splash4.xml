@@ -158,7 +158,6 @@
 
   <section name="MISC">
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 10.1 * adc)"/><!-- TODO: verify/calibrate -->
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
 
     <!-- Basic navigation settings -->
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>

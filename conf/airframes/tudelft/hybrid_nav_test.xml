@@ -61,7 +61,6 @@
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="17.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/>
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="5"/>
       <define name="GUIDANCE_INDI_LINE_GAIN" value="0.2"/>
       <define name="GUIDANCE_INDI_MIN_THROTTLE" value="1500"/>
@@ -211,7 +210,6 @@
   </section>
 
   <section name="MISC">
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
 
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-0.5"/>
