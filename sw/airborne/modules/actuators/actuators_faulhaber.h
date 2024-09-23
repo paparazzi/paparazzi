@@ -32,7 +32,9 @@
 enum faulhaber_modes_t {
   FH_MODE_INIT,
   FH_MODE_VELOCITY,
-  FH_MODE_ERROR
+  FH_MODE_ERROR,
+  FH_MODE_REQ_ERR,
+  FH_MODE_RESET_ERR,
 };
 
 struct faulhaber_t {
