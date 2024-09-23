@@ -128,7 +128,7 @@
             <define name="WLS_N_V_MAX" value = "6"/>
         </module>
 
-        <module name="ground_detect_sensor"/>
+        <module name="ground_detect"/>
         <module name="rotwing_state_V2"/>
         <module name="agl_dist"/>
         <module name="rotwing_automation">

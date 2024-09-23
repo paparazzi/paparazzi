@@ -96,7 +96,7 @@
             <define name="WLS_N_V_MAX" value = "6"/>
         </module>
 
-        <module name="ground_detect_sensor"/>
+        <module name="ground_detect"/>
         <module name="rotwing_state_V2">
              <define name = "USE_ROTMECH_VIRTUAL" value = "TRUE"/>
              <define name = "ROTMECH_DYN"         value = "3.0"/>

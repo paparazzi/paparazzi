@@ -23,14 +23,18 @@
  * Ground detection module
  */
 
-#ifndef GROUND_DETECT_SENSOR_H
-#define GROUND_DETECT_SENSOR_H
+#ifndef GROUND_DETECT_H
+#define GROUND_DETECT_H
 
 #include "std.h"
 
-extern void ground_detect_sensor_init(void);
-extern void ground_detect_sensor_periodic(void);
+extern void ground_detect_init(void);
+extern void ground_detect_periodic(void);
 
 extern bool ground_detect(void);
+
+extern void ground_detect_filter_accel(void);
+
+extern bool disarm_on_not_in_flight;
 
 #endif  // GROUND_DETECT_SENSOR_H
