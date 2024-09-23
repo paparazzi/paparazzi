@@ -142,6 +142,8 @@
         </module>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
+
+        <module name="can_fuelcell"/>
     </firmware>
 
 
