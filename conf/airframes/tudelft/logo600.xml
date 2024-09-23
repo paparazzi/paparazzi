@@ -135,7 +135,6 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
     <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE" />
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-1.5"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <!--define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/-->
     <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
     <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/><!-- using a 27kOhm series resistor before VBat (do not connect VIN to VBAT!!!). Default resistor divider is 10k/2.2k becomes (27+10)/2.2. Max voltage becomes (27+10+2.2)2.2*3.3V = 58.8volt-->

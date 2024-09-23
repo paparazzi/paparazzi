@@ -221,7 +221,6 @@
     <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
 
-    <!--<define name="ROTORCRAFT_IS_QUADPLANE"  value="TRUE"/>-->
 
   </section>
 
