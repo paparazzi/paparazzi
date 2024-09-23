@@ -441,7 +441,6 @@
         </define>
 
         <!-- Others -->
-        <define name="NO_RC_THRUST_LIMIT"                   value="TRUE"/>
         <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
         <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
         <define name="NAV_CARROT_DIST"                      value="200"/>
@@ -452,7 +451,6 @@
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.5"/>
-        <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
         <define name="INS_EKF2_FUSION_MODE"                 value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
         <define name="INS_EKF2_GPS_ANTENNA_DISTANCE"        value="1.02"/>
