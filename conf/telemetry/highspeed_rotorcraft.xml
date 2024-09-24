@@ -326,6 +326,7 @@
       <message name="DEBUG"                    period="0.02"/> <!-- For the parachute module -->
       <message name="WLS_V"                    period="0.002"/>
       <message name="WLS_U"                    period="0.002"/>
+      <message name="POWER_DEVICE"             period="0.12"/>
     </mode>
   </process>
 
