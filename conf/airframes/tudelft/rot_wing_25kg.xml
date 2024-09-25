@@ -293,7 +293,6 @@
         <define name="ADC_CHANNEL_CURRENT2"             value="ADC_4"/>
 
         <!-- Others -->
-        <define name="NO_RC_THRUST_LIMIT"               value="TRUE"/>
         <define name="NAV_CLIMB_VSPEED"                 value="2.0" />
         <define name="NAV_DESCEND_VSPEED"               value="-1.0"/>
         <define name="NAV_CARROT_DIST"                  value="200"/>
