@@ -51,6 +51,9 @@ struct uavcan_iface_t {
 
   uint8_t transfer_id;
   bool initialized;
+
+  uint16_t cnt_act_raw;
+  uint16_t cnt_act_cmd;
 };
 
 /** Generic uavcan callback definition */
