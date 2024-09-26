@@ -35,7 +35,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include "mavlink/paparazzi/mavlink.h"
+#include "mavlink/ardupilotmega/mavlink.h"
 #pragma GCC diagnostic pop
 
 #include "generated/flight_plan.h"

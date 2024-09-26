@@ -52,6 +52,7 @@
  * MAVLink description before main MAVLink include
  */
 extern mavlink_system_t mavlink_system;
+extern uint16_t mavlink_rc_value;
 
 #ifndef MAVLINK_DEV
 #define MAVLINK_DEV uart1
