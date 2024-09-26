@@ -26,10 +26,10 @@ This version is a small addition to the v6.3 before switching to a v7 series tha
 * [modules] EKF2 fixed initialization warning by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3262
 * Bidirectionnal DShot for H7 by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3253
 * [tools] Rot-wing visualizer opdate: show both CAN bus messages. by @dewagter in https://github.com/paparazzi/paparazzi/pull/3263
-* [rotwing nps] add more aerodynamic drag in rotwing simulation by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3259
+* [rot_wing nps] add more aerodynamic drag in rotwing simulation by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3259
 * Use Commands instead of actuator_pprz  by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3265
 * [guidance_indi_hybrid] Added secondary airspeed filtering in guidance by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3260
-* [rotwing_v3d] Updated magneto calibration by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3266
+* [rot_wing_v3d] Updated magneto calibration by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3266
 * Update cv_opencvdemo.xml by @dewagter in https://github.com/paparazzi/paparazzi/pull/3272
 
 
