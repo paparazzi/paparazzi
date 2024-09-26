@@ -1,11 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="eff_scheduling_rot_wing" dir="ctrl">
+<module name="eff_scheduling_rotwing" dir="ctrl">
   <doc>
     <description>T
       he control effectiveness scheduler for the rotating wing quadplane drone type
      - it requires a servo called ROTATION_MECH
     </description>
-    <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
+    <section name="ROTWING" prefix="ROTWING_EFF_SCHED_">
       <define name="IXX_BODY" value="0"  description=""/>
       <define name="IYY_BODY" value="0"  description=""/>
       <define name="IZZ" value="0"       description=""/>
@@ -27,12 +27,12 @@
     </dl_settings>
   </settings>
   <header>
-    <file name="eff_scheduling_rot_wing.h"/>
+    <file name="eff_scheduling_rotwing.h"/>
   </header>
-  <init fun="eff_scheduling_rot_wing_init()"/>
-  <periodic fun="eff_scheduling_rot_wing_periodic()" freq="10.0"/>
+  <init fun="eff_scheduling_rotwing_init()"/>
+  <periodic fun="eff_scheduling_rotwing_periodic()" freq="10.0"/>
   <makefile>
-    <file name="eff_scheduling_rot_wing.c"/>
+    <file name="eff_scheduling_rotwing.c"/>
     <test firmware="rotorcraft">
       <define name="ACTUATORS_NB" value="10"/>
       <define name="SERVO_ROTATION_MECH_IDX" value="8"/>
@@ -44,27 +44,27 @@
       <define name="SERVO_SERVO_ELEVATOR" value="5"/>
       <define name="INDI_NUM_ACT" value="4"/>
       <define name="INDI_OUTPUTS" value="3"/>
-      <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IYY_BODY" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IZZ" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_M" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_ELEVATOR" value="{1,1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_RUDDER" value="{1,1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_AILERON" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_K_FLAPERON" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_K_PUSHER" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_ELEVATOR_DEFLECTION" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_D_RUDDER_D_PPRZ" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_K_RPM_PPRZ_PUSHER" value="{1,1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_LIFT_WING" value="{1,1}"/>
-      <define name="ROT_WING_EFF_SCHED_K_LIFT_FUSELAGE" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_K_LIFT_TAIL" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IXX_BODY" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IYY_BODY" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IZZ" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IXX_WING" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IYY_WING" value="1"/>
+      <define name="ROTWING_EFF_SCHED_M" value="1"/>
+      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="1"/>
+      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_ELEVATOR" value="{1,1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_RUDDER" value="{1,1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_AILERON" value="1"/>
+      <define name="ROTWING_EFF_SCHED_K_FLAPERON" value="1"/>
+      <define name="ROTWING_EFF_SCHED_K_PUSHER" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_ELEVATOR_DEFLECTION" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_D_RUDDER_D_PPRZ" value="1"/>
+      <define name="ROTWING_EFF_SCHED_K_RPM_PPRZ_PUSHER" value="{1,1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_LIFT_WING" value="{1,1}"/>
+      <define name="ROTWING_EFF_SCHED_K_LIFT_FUSELAGE" value="1"/>
+      <define name="ROTWING_EFF_SCHED_K_LIFT_TAIL" value="1"/>
     </test>
   </makefile>
 </module>

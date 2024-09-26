@@ -89,7 +89,7 @@
             <configure name="ANDI_OUTPUTS" value="6"/>
         </module>
 
-        <module name="eff_scheduling_rot_wing_V2"/>
+        <module name="eff_scheduling_rotwing_V2"/>
         
         <module name="wls">
             <define name="WLS_N_U_MAX" value = "11"/>
@@ -102,7 +102,7 @@
              <define name = "ROTMECH_DYN"         value = "3.0"/>
         </module>
         <module name="agl_dist"/>
-        <module name="rot_wing_automation">
+        <module name="rotwing_automation">
             <define name="RW_USE_MODULES_V2" value="TRUE"/>
         </module>
     </firmware>
@@ -252,7 +252,7 @@
         <define name  = "WV"                        value = "{  4.0f,  4.0f,   4.0f,  8.0f,  8.0f,  1.00f}"/>   
     </section>
 
-    <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
+    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
         <!--                                          | MF   |   MR   |   MB   |   ML   |   MP   |   ELE  |   RUD  |   AIL  |   FLA  |   PHI  |   THETA | -->
         <!-- <define name  = "dFdu"               value = "{-0.50f,  -0.50f,  -0.50f,  -0.50f,   0.55f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>  
         <define name  = "dMzdu"              value = "{-0.40f,   0.40f,  -0.40f,   0.40f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f,   0.00f }"/>

@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/ctrl/eff_scheduling_rot_wing_V2.c"
+/** @file "modules/ctrl/eff_scheduling_rotwing_V2.c"
  * @author Tomaso De Ponti <T.M.L.DePonti@tudelft.nl>
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#include "modules/ctrl/eff_scheduling_rot_wing_V2.h"
+#include "modules/ctrl/eff_scheduling_rotwing_V2.h"
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/actuators/actuators.h"
@@ -38,33 +38,33 @@ float actuator_state_filt_vect[EFF_MAT_COLS_NB] = {0};
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_IXX_BODY
-#error "NO ROT_WING_EFF_SCHED_IXX_BODY defined"
+#ifndef ROTWING_EFF_SCHED_IXX_BODY
+#error "NO ROTWING_EFF_SCHED_IXX_BODY defined"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_IYY_BODY
-#error "NO ROT_WING_EFF_SCHED_IYY_BODY defined"
+#ifndef ROTWING_EFF_SCHED_IYY_BODY
+#error "NO ROTWING_EFF_SCHED_IYY_BODY defined"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_IZZ
-#error "NO ROT_WING_EFF_SCHED_IZZ defined"
+#ifndef ROTWING_EFF_SCHED_IZZ
+#error "NO ROTWING_EFF_SCHED_IZZ defined"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_IXX_WING
-#error "NO ROT_WING_EFF_SCHED_IXX_WING defined"
+#ifndef ROTWING_EFF_SCHED_IXX_WING
+#error "NO ROTWING_EFF_SCHED_IXX_WING defined"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_IYY_WING
-#error "NO ROT_WING_EFF_SCHED_IYY_WING defined"
+#ifndef ROTWING_EFF_SCHED_IYY_WING
+#error "NO ROTWING_EFF_SCHED_IYY_WING defined"
 #endif
 
-#ifndef ROT_WING_EFF_SCHED_M
-#error "NO ROT_WING_EFF_SCHED_M defined"
+#ifndef ROTWING_EFF_SCHED_M
+#error "NO ROTWING_EFF_SCHED_M defined"
 #endif
 
 /* Effectiveness Matrix definition */
-float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROT_WING_EFF_SCHED_G2; //scaled by RW_G_SCALE
-float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_ZERO, ROT_WING_EFF_SCHED_G1_THRUST, ROT_WING_EFF_SCHED_G1_ROLL, ROT_WING_EFF_SCHED_G1_PITCH, ROT_WING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
+float G2_RW[EFF_MAT_COLS_NB]                       = {0};//ROTWING_EFF_SCHED_G2; //scaled by RW_G_SCALE
+float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]      = {0};//{ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_ZERO, ROTWING_EFF_SCHED_G1_THRUST, ROTWING_EFF_SCHED_G1_ROLL, ROTWING_EFF_SCHED_G1_PITCH, ROTWING_EFF_SCHED_G1_YAW}; //scaled by RW_G_SCALE 
 float EFF_MAT_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB] = {0};
 static float flt_cut = 1.0e-4;
 
@@ -78,8 +78,8 @@ float ele_min = 0.0;
 /* Define Forces and Moments tructs for each actuator*/
 struct RW_Model RW;
 
-inline void eff_scheduling_rot_wing_update_wing_angle(void);
-inline void eff_scheduling_rot_wing_update_airspeed(void);
+inline void eff_scheduling_rotwing_update_wing_angle(void);
+inline void eff_scheduling_rotwing_update_airspeed(void);
 void  ele_pref_sched(void);
 void  update_attitude(void);
 void  sum_EFF_MAT_RW(void);
@@ -88,10 +88,10 @@ void  calc_G1_G2_RW(void);
 
 /** ABI binding wing position data.
  */
-#ifndef WING_ROTATION_CAN_ROT_WING_ID
-#define WING_ROTATION_CAN_ROT_WING_ID ABI_BROADCAST
+#ifndef WING_ROTATION_CAN_ROTWING_ID
+#define WING_ROTATION_CAN_ROTWING_ID ABI_BROADCAST
 #endif
-PRINT_CONFIG_VAR(WING_ROTATION_CAN_ROT_WING_ID)
+PRINT_CONFIG_VAR(WING_ROTATION_CAN_ROTWING_ID)
 static abi_event wing_position_ev;
 
 float skew_meas = 0.0;
@@ -106,11 +106,11 @@ static void wing_position_cb(uint8_t sender_id UNUSED, struct act_feedback_t *po
   }
 }
 
-void eff_scheduling_rot_wing_init(void)
+void eff_scheduling_rotwing_init(void)
 {
   init_RW_Model();
   update_attitude();
-  AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROT_WING_ID, &wing_position_ev, wing_position_cb);
+  AbiBindMsgACT_FEEDBACK(WING_ROTATION_CAN_ROTWING_ID, &wing_position_ev, wing_position_cb);
   float tau_skew = 1.0 / (2.0 * M_PI * 5.0);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&skew_filt, tau_skew, sample_time, 0.0);
@@ -268,11 +268,11 @@ void calc_G1_G2_RW(void)
   RW.P                            = actuator_state_1l[COMMAND_MOTOR_PUSHER] * RW.mP.dFdu;
 }
 
-void eff_scheduling_rot_wing_periodic(void)
+void eff_scheduling_rotwing_periodic(void)
 {
   update_attitude();
-  eff_scheduling_rot_wing_update_wing_angle();
-  eff_scheduling_rot_wing_update_airspeed();
+  eff_scheduling_rotwing_update_wing_angle();
+  eff_scheduling_rotwing_update_airspeed();
   ele_pref_sched();
   calc_G1_G2_RW();
   sum_EFF_MAT_RW();
@@ -359,7 +359,7 @@ void sum_EFF_MAT_RW(void) {
   }
 }
 
-void eff_scheduling_rot_wing_update_wing_angle(void)
+void eff_scheduling_rotwing_update_wing_angle(void)
 {
   // Calculate sin and cosines of rotation
   update_butterworth_2_low_pass(&skew_filt, skew_meas);
@@ -379,7 +379,7 @@ void eff_scheduling_rot_wing_update_wing_angle(void)
 
 }
 float time = 0.0;
-void eff_scheduling_rot_wing_update_airspeed(void)
+void eff_scheduling_rotwing_update_airspeed(void)
 {
   RW.as = stateGetAirspeed_f();
   Bound(RW.as, 0. , 30.);

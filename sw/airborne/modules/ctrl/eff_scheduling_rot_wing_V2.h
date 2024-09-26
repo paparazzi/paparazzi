@@ -18,13 +18,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/ctrl/eff_scheduling_rot_wing_V2.h"
+/** @file "modules/ctrl/eff_scheduling_rotwing_V2.h"
  * @author Tomaso De Ponti <T.M.L.DePonti@tudelft.nl>
  * The control effectiveness scheduler for the rotating wing drone type
  */
 
-#ifndef CTRL_EFF_SCHED_ROT_WING_H
-#define CTRL_EFF_SCHED_ROT_WING_H
+#ifndef CTRL_EFF_SCHED_ROTWING_H
+#define CTRL_EFF_SCHED_ROTWING_H
 
 #include "std.h"
 #include "generated/airframe.h"
@@ -65,7 +65,7 @@
 extern float EFF_MAT_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB];
 extern float G2_RW[EFF_MAT_COLS_NB]                      ; 
 extern float G1_RW[EFF_MAT_ROWS_NB][EFF_MAT_COLS_NB]     ; 
-struct rot_wing_eff_sched_param_t {
+struct rotwing_eff_sched_param_t {
   float Ixx_body;                 // body MMOI around roll axis [kgm²]
   float Iyy_body;                 // body MMOI around pitch axis [kgm²]
   float Izz;                      // total MMOI around yaw axis [kgm²]
@@ -88,7 +88,7 @@ struct rot_wing_eff_sched_param_t {
   float k_lift_tail;
 };
 
-struct rot_wing_eff_sched_var_t {
+struct rotwing_eff_sched_var_t {
   float Ixx;                  // Total MMOI around roll axis [kgm²]
   float Iyy;                  // Total MMOI around pitch axis [kgm²]
   float wing_rotation_rad;    // Wing rotation angle in radians: from ABI message
@@ -194,9 +194,9 @@ extern int16_t rotation_cmd;
 
 extern float eff_sched_pusher_time;
 
-extern void eff_scheduling_rot_wing_init(void);
-extern void eff_scheduling_rot_wing_periodic(void);
+extern void eff_scheduling_rotwing_init(void);
+extern void eff_scheduling_rotwing_periodic(void);
 
 extern struct RW_Model RW;
-#endif  // CTRL_EFF_SCHED_ROT_WING_H
+#endif  // CTRL_EFF_SCHED_ROTWING_H
 
