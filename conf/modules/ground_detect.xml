@@ -15,10 +15,10 @@
   </header>
   <init fun="ground_detect_init()"/>
   <periodic fun="ground_detect_periodic()" freq="50"/>
-  <periodic fun="ground_detect_filter_accel()" freq="500"/>
+  <periodic fun="ground_detect_filter_accel()"/>
   <makefile>
     <file name="ground_detect.c"/>
-    <test>
+    <test firmware="rotorcraft">
       <define name="USE_GROUND_DETECT_INDI_THRUST" value="1"/>
       <define name="INDI_OUTPUTS" value="1"/>
       <define name="INDI_NUM_ACT" value="1"/>
