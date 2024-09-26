@@ -135,21 +135,21 @@
     <block name="Standby" strip_button="Standby" strip_icon="wp_quad.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="rotwing_state_force_skew_off()"/>
-        <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+        <stay wp="STDBY" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Standby_fwd" strip_button="Standby_fwd" strip_icon="wp_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
       <call_once fun="rotwing_state_force_skew_off()"/>
-      <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <stay wp="STDBY" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Descend" strip_button="Descend" strip_icon="descend.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
         <call_once fun="rotwing_state_force_skew_off()"/>
-        <stay wp="Descend" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+        <stay wp="Descend" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <!-- <block name="stay_begin-trans">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
-      <stay wp="begin_trans" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <stay wp="begin_trans" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>  
     <block name="end_transition">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
@@ -167,27 +167,27 @@
     </block>       
     <block name="safe" strip_button="Unsafe" strip_icon="alert.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
-      <stay wp="HOME" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <stay wp="HOME" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Circle_CW_fwd" strip_button="CircleCW_Forward" strip_icon="circle_cw_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <call_once fun="rotwing_state_force_skew_off()"/>
-      <circle radius="100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Circle_CCW_fwd" strip_button="CircleCCW_Forward" strip_icon="circle_ccw_fwd.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
       <call_once fun="rotwing_state_force_skew_off()"/>
-      <circle radius="-100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="-100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Circle_CW_quad" strip_button="CircleCW_Quad" strip_icon="circle_cw_quad.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <call_once fun="rotwing_state_force_skew_off()"/>
-      <circle radius="100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Circle_CCW_quad" strip_button="CircleCCW_Quad" strip_icon="circle_ccw_quad.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
       <call_once fun="rotwing_state_force_skew_off()"/>
-      <circle radius="-100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="-100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="route_fw" strip_button="Route_fwd" strip_icon="path.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>

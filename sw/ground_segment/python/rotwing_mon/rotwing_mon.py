@@ -19,11 +19,11 @@
 #
 
 import wx
-import rot_wing_viewer
+import rotwing_viewer
 
 class RotWingApp(wx.App):
     def OnInit(self):
-        self.main = rot_wing_viewer.RotWingFrame()
+        self.main = rotwing_viewer.RotWingFrame()
         self.main.Show()
         self.SetTopWindow(self.main)
         return True

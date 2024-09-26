@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="wing_rotation_adc_sensor" dir="rot_wing_drone">
+<module name="wing_rotation_adc_sensor" dir="rotwing_drone">
   <doc>
     <description>Module to read wing skew angle from ADC</description>
     <configure name="ADC_CHANNEL_WING_ROTATION_CONTROLLER_POSITION" default="ADC_5" description="ADC channel connected to the wing rotation potentiometer"/>

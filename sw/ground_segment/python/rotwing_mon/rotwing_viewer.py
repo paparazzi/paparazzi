@@ -296,7 +296,7 @@ class RotWingFrame(wx.Frame):
         self.w = WIDTH
         self.h = WIDTH + BARH
 
-        self.cfg = wx.Config('rot_wing_conf')
+        self.cfg = wx.Config('rotwing_conf')
         if self.cfg.Exists('width'):
             self.w = int(self.cfg.Read('width'))
             self.h = int(self.cfg.Read('height'))
