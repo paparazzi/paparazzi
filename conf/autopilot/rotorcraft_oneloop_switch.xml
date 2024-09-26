@@ -15,7 +15,7 @@
       <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
-      <include name="modules/rot_wing_drone/rotwing_state_V2.h"/>
+      <include name="modules/rotwing_drone/rotwing_state_V2.h"/>
       <define  name="MODE_MANUAL"    value="AP_MODE_ATTITUDE_DIRECT"  cond="ifndef MODE_MANUAL"/>
       <define  name="MODE_ONELOOP"   value="AP_MODE_MODULE"           cond="ifndef MODE_AUTO1"/>
       <define  name="MODE_AUTO2"     value="AP_MODE_NAV"              cond="ifndef MODE_AUTO2"/>

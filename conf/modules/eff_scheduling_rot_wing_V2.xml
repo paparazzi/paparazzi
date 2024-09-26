@@ -1,11 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="eff_scheduling_rot_wing_V2" dir="ctrl">
+<module name="eff_scheduling_rotwing_V2" dir="ctrl">
   <doc>
     <description>T
       The control effectiveness scheduler for the rotating wing quadplane drone type
      - it requires a servo called ROTATION_MECH
     </description>
-    <section name="ROT_WING" prefix="ROT_WING_EFF_SCHED_">
+    <section name="ROTWING" prefix="ROTWING_EFF_SCHED_">
       <define name="IXX_BODY" value="0"  description=""/>
       <define name="IYY_BODY" value="0"  description=""/>
       <define name="IZZ" value="0"       description=""/>
@@ -29,19 +29,19 @@
    </dl_settings>
   </settings>
   <header>
-    <file name="eff_scheduling_rot_wing_V2.h"/>
+    <file name="eff_scheduling_rotwing_V2.h"/>
   </header>
-  <init fun="eff_scheduling_rot_wing_init()"/>
-  <periodic fun="eff_scheduling_rot_wing_periodic()"/>
+  <init fun="eff_scheduling_rotwing_init()"/>
+  <periodic fun="eff_scheduling_rotwing_periodic()"/>
   <makefile>
-    <file name="eff_scheduling_rot_wing_V2.c"/>
+    <file name="eff_scheduling_rotwing_V2.c"/>
     <test firmware="rotorcraft">
-      <define name="ROT_WING_EFF_SCHED_IXX_BODY" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IYY_BODY" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IZZ"      value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IXX_WING" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_IYY_WING" value="1"/>
-      <define name="ROT_WING_EFF_SCHED_M"        value="1"/>
+      <define name="ROTWING_EFF_SCHED_IXX_BODY" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IYY_BODY" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IZZ"      value="1"/>
+      <define name="ROTWING_EFF_SCHED_IXX_WING" value="1"/>
+      <define name="ROTWING_EFF_SCHED_IYY_WING" value="1"/>
+      <define name="ROTWING_EFF_SCHED_M"        value="1"/>
       <define name="M_PI"                        value="3.14"/>
       <define name="PERIODIC_FREQUENCY"          value="500.0"/>
       <define name="ACTUATORS_NB"                value="10"/>

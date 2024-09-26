@@ -124,7 +124,7 @@
 
         <module name="stabilization" type="rate_indi"/>
 
-        <module name="eff_scheduling_rot_wing"/>
+        <module name="eff_scheduling_rotwing"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">
@@ -134,7 +134,7 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="rot_wing_automation"/>
+        <module name="rotwing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks">
@@ -255,7 +255,7 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
-    <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
+    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.3953"/>
         <define name="IYY_BODY"              value="8.472"/>
         <define name="IZZ"                   value="10.18"/>
