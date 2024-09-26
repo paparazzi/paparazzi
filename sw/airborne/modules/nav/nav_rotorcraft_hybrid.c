@@ -73,10 +73,16 @@ float nav_hybrid_line_gain = 1.0f;
 #define NAV_HYBRID_NAV_CIRCLE_DIST 40.f
 #endif
 
-#ifdef NAV_HYBRID_POS_GAIN
+#ifdef GUIDANCE_INDI_POS_GAIN
+float nav_hybrid_pos_gain = GUIDANCE_INDI_POS_GAIN;
+#elif defined(NAV_HYBRID_POS_GAIN)
 float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN;
 #else
 float nav_hybrid_pos_gain = 1.0f; 
+#endif
+
+#if defined(NAV_HYBRID_POS_GAIN) && defined(GUIDANCE_INDI_POS_GAIN)
+#warning "NAV_HYBRID_POS_GAIN and GUIDANCE_INDI_POS_GAIN serve similar purpose and are both defined, using GUIDANCE_INDI_POS_GAIN"
 #endif
 
 #ifndef GUIDANCE_INDI_HYBRID
@@ -115,7 +121,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     // The time in which it does this is: T = V / a_max
     // The maximum speed at which to fly to still allow arriving with zero
     // speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
-    float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
+    float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp * 0.8f); // dist_to_wp can only be positive, but just in case
     float max_speed_decel = sqrtf(max_speed_decel2);
     // Bound the setpoint velocity vector
     max_h_speed = Min(nav_goto_max_speed, max_speed_decel); // use hover max speed

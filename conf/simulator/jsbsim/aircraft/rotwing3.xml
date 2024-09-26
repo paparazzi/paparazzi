@@ -921,6 +921,16 @@
         </product>
     </function>
 
+    <function name="aero/moment/Yaw_beta" frame="BODY" unit="FT*LBS">
+        <product>
+          <property>aero/qbar-psf</property>
+          <value>47.880259</value>  <!--Pound Per Square Foot to N/m² (Pascal)-->
+          <value>5.73</value> 
+          <property>aero/beta-rad</property> 
+          <value>0.039</value> <!--Aerea vertical tail-->
+        </product>
+    </function>
+
     <function name="aero/moment/Yaw_damp">
        <description>Yaw moment due to yaw rate</description>
        <product>

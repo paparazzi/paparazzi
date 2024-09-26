@@ -70,14 +70,14 @@ class AHRSRefQuatMessage(object):
     
 class RotWingControllerMessage(object):
     def __init__(self, msg):
-        self.wing_angle_deg = msg['wing_angle_deg']
-        self.wing_angle_deg_sp = msg['wing_angle_deg_sp']
+        self.meas_skew_angle_deg = msg['meas_skew_angle']
+        self.sp_skew_angle_deg = msg['sp_skew_angle']
 
     def get_wing_angle(self):
-        return np.deg2rad(float(self.wing_angle_deg))
+        return np.deg2rad(float(self.meas_skew_angle_deg))
     
     def get_wing_angle_sp(self):
-        return np.deg2rad(float(self.wing_angle_deg_sp))
+        return np.deg2rad(float(self.sp_skew_angle_deg))
     
 class ActuatorsMessage(object):
     def __init__(self, msg):
