@@ -7,6 +7,13 @@
     <configure name="MAVLINK_BAUD" value="B57600" description="Baud rate if MAVLINK_PORT is a UART"/>
     <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_PPZ|MAV_AUTOPILOT_ARDUPILOTMEGA" description="Some MAVLink GCS/Devices require specific ID's to work. Default is to identify as MAV_AUTOPILOT_PPZ."/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="mavlink">
+        <dl_setting var="mavlink_rc_value" min="0" step="1" max="2500"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="mavlink.h"/>
   </header>
