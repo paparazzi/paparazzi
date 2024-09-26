@@ -132,7 +132,7 @@ bool preflight_check(void)
         if (error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len)) {
           DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i - last_sendi, &error_msg[last_sendi]);
 #if FLIGHTRECORDER_SDLOG
-          pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, strlen(error_msg[last_sendi]), error_msg[last_sendi]);
+          pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, i - last_sendi, &error_msg[last_sendi]);
 #endif
           last_sendi = i + 1;
         }
