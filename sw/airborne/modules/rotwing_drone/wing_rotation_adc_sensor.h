@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/rot_wing_drone/wing_rotation_controller_adc_sensor.h"
+/** @file "modules/rotwing_drone/wing_rotation_controller_adc_sensor.h"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * Module to read skew angle from adc sensor
  */

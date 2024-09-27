@@ -1,13 +1,13 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00363
+     * Airframe:    TUD00359
      * Autopilot:   Cube orange+
      * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3H">
-    <description>RotatingWingV3H</description>
+<airframe name="RotatingWingV3D">
+    <description>RotatingWingV3D</description>
 
     <firmware name="rotorcraft">
         <target name="ap" board="cube_orangeplus">
@@ -30,7 +30,6 @@
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
-            <define name="MULTI_GPS_MODE"       value="GPS_MODE_PRIMARY"/>
 
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
@@ -71,7 +70,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.65"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.618426"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -83,12 +82,8 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
-
-        <configure name="PRIMARY_GPS" value="ublox"/>
-        <configure name="SECONDARY_GPS" value="ublox2"/>
         <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
-            <configure name="UBX2_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
         </module>
 
@@ -117,7 +112,7 @@
             <define name="WLS_N_V_MAX" value="5"/>
         </module>
 
-        <module name="eff_scheduling_rot_wing"/>
+        <module name="eff_scheduling_rotwing"/>
 
         <module name="guidance" type="indi_hybrid_quadplane"/>
         <module name="nav" type="hybrid">
@@ -127,7 +122,7 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="rot_wing_automation"/>
+        <module name="rotwing_automation"/>
         <module name="ground_detect_sensor"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks"/>
@@ -138,7 +133,7 @@
         <!--Airspeed estimation using EKF-->
         <module name="ekf_aw">
 
-            <define name="EKF_AW_WRAPPER_ROT_WING_TYPE_A"  value="0" description="1 for A, 0 for b"/>
+            <define name="EKF_AW_WRAPPER_ROTWING_TYPE_A"  value="0" description="1 for A, 0 for b"/>
 
             <define name="EKF_AW_P0_V_BODY"  value="1.E-2f" description="Initial covariance body velocity"/>
             <define name="EKF_AW_P0_MU"      value="1.E-5f" description="Initial covariance wind"/>
@@ -196,27 +191,27 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="7372"/>
-        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
-        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
-        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-1392" neutral="451"   max="2294"/>
+        <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="8191"/>
+        <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="8191"/>
+        <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="8191"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="8191"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2375" neutral="-172" max="2031"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="1200"  neutral="1200" max="-8191"/>
-        <servo no="7"  name="SERVO_RUDDER"    min="-5225" neutral="0"    max="5225"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-3250"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-6000" neutral="0"    max="3250"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
     <servos driver="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="7372"/>
-        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
-        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
-        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="5" name="BROTATION_MECH" min="-1392" neutral="451"  max="2294"/>
+        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="8191"/>
+        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="8191"/>
+        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="8191"/>
+        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="8191"/>
+        <servo no="5" name="BROTATION_MECH" min="-2375" neutral="-172" max="2031"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -289,7 +284,7 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
-    <section name="CTRL_EFF_SHED" prefix="ROT_WING_EFF_SCHED_">
+    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
         <define name="IZZ"                   value="0.9752"/>
@@ -331,8 +326,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="0.15"/>
-                <field name="high_feedback" value="-0.3"/>
+                <field name="low_feedback" value="0.85"/>
+                <field name="high_feedback" value="0.3"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -340,8 +335,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="-0.2"/>
-                <field name="high_feedback" value="0.2"/>
+                <field name="low_feedback" value="-0.30"/>
+                <field name="high_feedback" value="0.15"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -435,12 +430,13 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2000"/>
+                <field name="high_feedback" value="2200"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
 
         <!-- Others -->
+        <define name="NO_RC_THRUST_LIMIT"                   value="TRUE"/>
         <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
         <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
         <define name="NAV_CARROT_DIST"                      value="200"/>
@@ -468,9 +464,9 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,11}, .scale={{36573,4111,12385},{3737,420,1269}}, .filter_sample_freq=1130, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,-5,24}, .scale={{21205,53606,11977},{4326,10919,2440}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-63,-14,21}, .scale={{32790,18121,37501},{6697,3698,7659}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={11770,9014,-7862}, .scale={{1879,14000,16295},{3057,25229,28216}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1130, .filter_freq=30}}"/>
+        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
+        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1948,-2534,1576}, .scale={{13543,22822,7749},{23470,38711,13795}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
@@ -606,6 +602,8 @@
 
         <define name="THRUST_Z_EFF"         value="-0.0023"/>
 
+        <define name="MAX_PUSHER_INCREMENT" value="4000"/>
+
         <define name="NAV_CIRCLE_DIST"      value="60."/>
         <define name="NAV_LINE_DIST"        value="100"/>
         <define name="LINE_GAIN"            value="0.2"/>
@@ -628,8 +626,8 @@
 
     <section name="AMT" prefix="APPROACH_MOVING_TARGET_">
         <define name="CUTOFF_FREQ_FILTERS_HZ"   value="0.25"/>
-        <define name="ERR_SLOWDOWN_GAIN"        value="0.25" />
-        <define name="SLOPE"                    value="60.0"/>
+        <define name="ERR_SLOWDOWN_GAIN"        value="0.1" />
+        <define name="SLOPE"                    value="50.0"/>
         <define name="DISTANCE"                 value="70.0"/>
         <define name="SPEED"                    value="0.0"/>
     </section>

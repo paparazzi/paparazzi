@@ -18,28 +18,28 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/rot_wing_drone/rot_wing_automation.h"
+/** @file "modules/rotwing_drone/rotwing_automation.h"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * Fucntions to automate the navigation and guidance of the rotating wing drone
  */
 
-#ifndef ROT_WING_AUTOMATION_H
-#define ROT_WING_AUTOMATION_H
+#ifndef ROTWING_AUTOMATION_H
+#define ROTWING_AUTOMATION_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 
 #ifdef RW_USE_MODULES_V2
-#include "modules/rot_wing_drone/rotwing_state_V2.h"
+#include "modules/rotwing_drone/rotwing_state_V2.h"
 #else
-#include "modules/rot_wing_drone/rotwing_state.h"
+#include "modules/rotwing_drone/rotwing_state.h"
 #endif
 
-extern void init_rot_wing_automation(void);
-extern void periodic_rot_wing_automation(void);
-extern void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint8_t wp_end_id);
+extern void init_rotwing_automation(void);
+extern void periodic_rotwing_automation(void);
+extern void rotwing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint8_t wp_end_id);
 
-struct rot_wing_automation {
+struct rotwing_automation {
   // Constants
   float trans_accel;            // Acceleration during transition
   float trans_decel;            // Deceleration during transition
@@ -52,9 +52,9 @@ struct rot_wing_automation {
   struct FloatVect2 windvect_f; // Filtered wind vector
 };
 
-extern struct rot_wing_automation rot_wing_a;
+extern struct rotwing_automation rotwing_a;
 
-#define RotWingAutomationReadyForForward()  (rot_wing_a.transitioned && (rotwing_state_skewing.wing_angle_deg > 75.0))
+#define RotWingAutomationReadyForForward()  (rotwing_a.transitioned && (rotwing_state_skewing.wing_angle_deg > 75.0))
 
 
-#endif  // ROT_WING_AUTOMATION_H
+#endif  // ROTWING_AUTOMATION_H

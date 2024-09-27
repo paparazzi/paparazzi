@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/rot_wing_drone/rot_wing_automation.c"
+/** @file "modules/rotwing_drone/rotwing_automation.c"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * Fucntions to automate the navigation and guidance of the rotating wing drone
  */
 
-#include "modules/rot_wing_drone/rot_wing_automation.h"
+#include "modules/rotwing_drone/rotwing_automation.h"
 #include "state.h"
 #include "modules/datalink/telemetry.h"
 #include "filters/low_pass_filter.h"
@@ -34,73 +34,73 @@
 #include "generated/modules.h"
 
 /*** Longitudinal maximum acceleration during a transition */
-#ifndef ROT_WING_AUTOMATION_TRANS_ACCEL
-#define ROT_WING_AUTOMATION_TRANS_ACCEL 1.0
+#ifndef ROTWING_AUTOMATION_TRANS_ACCEL
+#define ROTWING_AUTOMATION_TRANS_ACCEL 1.0
 #endif
 
 /*** Longitudinal maximum deceleration during a transition */
-#ifndef ROT_WING_AUTOMATION_TRANS_DECEL
-#define ROT_WING_AUTOMATION_TRANS_DECEL 0.5
+#ifndef ROTWING_AUTOMATION_TRANS_DECEL
+#define ROTWING_AUTOMATION_TRANS_DECEL 0.5
 #endif
 
 /*** Maximum transition distance (at which to draw waypoints) */
-#ifndef ROT_WING_AUTOMATION_TRANS_LENGTH
-#define ROT_WING_AUTOMATION_TRANS_LENGTH 200.0
+#ifndef ROTWING_AUTOMATION_TRANS_LENGTH
+#define ROTWING_AUTOMATION_TRANS_LENGTH 200.0
 #endif
 
 /*** Airspeed threshold above which the  transiton is considered complete */
-#ifndef ROT_WING_AUTOMATION_TRANS_AIRSPEED
-#define ROT_WING_AUTOMATION_TRANS_AIRSPEED 15.0
+#ifndef ROTWING_AUTOMATION_TRANS_AIRSPEED
+#define ROTWING_AUTOMATION_TRANS_AIRSPEED 15.0
 #endif
 
 /*** Wind low-pass filtering cutoff frequency */
-#ifndef ROT_WING_AUTOMATION_WIND_FILT_CUTOFF
-#define ROT_WING_AUTOMATION_WIND_FILT_CUTOFF 0.001
+#ifndef ROTWING_AUTOMATION_WIND_FILT_CUTOFF
+#define ROTWING_AUTOMATION_WIND_FILT_CUTOFF 0.001
 #endif
 
-struct rot_wing_automation rot_wing_a;
+struct rotwing_automation rotwing_a;
 
 // Declare filters (for windspeed estimation)
-Butterworth2LowPass rot_wing_automation_wind_filter[2]; // Wind filter
+Butterworth2LowPass rotwing_automation_wind_filter[2]; // Wind filter
 
 // declare function
-inline void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 *target_ned);
+inline void update_waypoint_rotwing_automation(uint8_t wp_id, struct FloatVect3 *target_ned);
 inline void update_wind_vector(void);
 
-void init_rot_wing_automation(void)
+void init_rotwing_automation(void)
 {
-  rot_wing_a.trans_accel = ROT_WING_AUTOMATION_TRANS_ACCEL;
-  rot_wing_a.trans_decel = ROT_WING_AUTOMATION_TRANS_DECEL;
-  rot_wing_a.trans_length = ROT_WING_AUTOMATION_TRANS_LENGTH;
-  rot_wing_a.trans_airspeed = ROT_WING_AUTOMATION_TRANS_AIRSPEED;
+  rotwing_a.trans_accel = ROTWING_AUTOMATION_TRANS_ACCEL;
+  rotwing_a.trans_decel = ROTWING_AUTOMATION_TRANS_DECEL;
+  rotwing_a.trans_length = ROTWING_AUTOMATION_TRANS_LENGTH;
+  rotwing_a.trans_airspeed = ROTWING_AUTOMATION_TRANS_AIRSPEED;
 
-  rot_wing_a.transitioned = false;
-  rot_wing_a.windvect.x = 0.0;
-  rot_wing_a.windvect.y = 0.0;
-  rot_wing_a.windvect_f.x = 0.0;
-  rot_wing_a.windvect_f.y = 0.0;
+  rotwing_a.transitioned = false;
+  rotwing_a.windvect.x = 0.0;
+  rotwing_a.windvect.y = 0.0;
+  rotwing_a.windvect_f.x = 0.0;
+  rotwing_a.windvect_f.y = 0.0;
 
   // Init windvector low pass filter
-  float tau = 1.0 / (2.0 * M_PI * ROT_WING_AUTOMATION_WIND_FILT_CUTOFF);
-  float sample_time = 1.0 / PERIODIC_ROT_WING_AUTOMATION_FREQ;
-  init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], tau, sample_time, 0.0);
-  init_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], tau, sample_time, 0.0);
+  float tau = 1.0 / (2.0 * M_PI * ROTWING_AUTOMATION_WIND_FILT_CUTOFF);
+  float sample_time = 1.0 / PERIODIC_ROTWING_AUTOMATION_FREQ;
+  init_butterworth_2_low_pass(&rotwing_automation_wind_filter[0], tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&rotwing_automation_wind_filter[1], tau, sample_time, 0.0);
 }
 
 // periodic function
-void periodic_rot_wing_automation(void)
+void periodic_rotwing_automation(void)
 {
   update_wind_vector();
   float airspeed = stateGetAirspeed_f();
-  if (airspeed > rot_wing_a.trans_airspeed) {
-    rot_wing_a.transitioned = true;
+  if (airspeed > rotwing_a.trans_airspeed) {
+    rotwing_a.transitioned = true;
   } else {
-    rot_wing_a.transitioned = false;
+    rotwing_a.transitioned = false;
   }
 }
 
 // Update a waypoint such that you can see on the GCS where the drone wants to go
-void update_waypoint_rot_wing_automation(uint8_t wp_id, struct FloatVect3 *target_ned)
+void update_waypoint_rotwing_automation(uint8_t wp_id, struct FloatVect3 *target_ned)
 {
 
   // Update the waypoint
@@ -128,15 +128,15 @@ void update_wind_vector(void)
   float airspeed = stateGetAirspeed_f();
   struct NedCoor_f *groundspeed = stateGetSpeedNed_f();
   struct FloatVect2 airspeed_v = { cpsi * airspeed, spsi * airspeed };
-  VECT2_DIFF(rot_wing_a.windvect, *groundspeed, airspeed_v);
+  VECT2_DIFF(rotwing_a.windvect, *groundspeed, airspeed_v);
 
   // Filter the wind
-  rot_wing_a.windvect_f.x = update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[0], rot_wing_a.windvect.x);
-  rot_wing_a.windvect_f.x = update_butterworth_2_low_pass(&rot_wing_automation_wind_filter[1], rot_wing_a.windvect.y);
+  rotwing_a.windvect_f.x = update_butterworth_2_low_pass(&rotwing_automation_wind_filter[0], rotwing_a.windvect.x);
+  rotwing_a.windvect_f.x = update_butterworth_2_low_pass(&rotwing_automation_wind_filter[1], rotwing_a.windvect.y);
 }
 
 // Function to visualize from flightplan, call repeadely
-void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint8_t wp_end_id)
+void rotwing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint8_t wp_end_id)
 {
   //state eulers in zxy order
   struct FloatEulers eulers_zxy;
@@ -159,16 +159,16 @@ void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint
   // Move end transition waypoint at the correct length
   struct FloatVect3 end_transition_rel_pos;
   VECT3_COPY(end_transition_rel_pos, *drone_pos);
-  end_transition_rel_pos.x = cpsi * rot_wing_a.trans_length;
-  end_transition_rel_pos.y = spsi * rot_wing_a.trans_length;
+  end_transition_rel_pos.x = cpsi * rotwing_a.trans_length;
+  end_transition_rel_pos.y = spsi * rotwing_a.trans_length;
   struct FloatVect3 end_transition_pos;
   VECT3_SUM(end_transition_pos, end_transition_rel_pos, *drone_pos);
   end_transition_pos.z = drone_pos->z;
-  update_waypoint_rot_wing_automation(wp_end_id, &end_transition_pos);
+  update_waypoint_rotwing_automation(wp_end_id, &end_transition_pos);
 
   // Move transition waypoint
-  float airspeed_error = rot_wing_a.trans_airspeed - airspeed;
-  float transition_time = airspeed_error / rot_wing_a.trans_accel;
+  float airspeed_error = rotwing_a.trans_airspeed - airspeed;
+  float transition_time = airspeed_error / rotwing_a.trans_accel;
   float average_ground_speed = ground_speed + airspeed_error / 2.;
   float transition_distance = average_ground_speed * transition_time;
 
@@ -179,13 +179,13 @@ void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint
   struct FloatVect3 transition_pos;
   VECT3_SUM(transition_pos, transition_rel_pos, *drone_pos);
   transition_pos.z = drone_pos->z;
-  update_waypoint_rot_wing_automation(wp_transition_id, &transition_pos);
+  update_waypoint_rotwing_automation(wp_transition_id, &transition_pos);
 
   // Move decel point
   float final_groundspeed = ground_speed + airspeed_error;
-  float decel_time = final_groundspeed / rot_wing_a.trans_decel;
+  float decel_time = final_groundspeed / rotwing_a.trans_decel;
   float decel_distance = (final_groundspeed / 2.) * decel_time;
-  float decel_distance_from_drone = rot_wing_a.trans_length - decel_distance;
+  float decel_distance_from_drone = rotwing_a.trans_length - decel_distance;
 
   struct FloatVect3 decel_rel_pos;
   VECT3_COPY(decel_rel_pos, *drone_pos);
@@ -194,5 +194,5 @@ void rot_wing_vis_transition(uint8_t wp_transition_id, uint8_t wp_decel_id, uint
   struct FloatVect3 decel_pos;
   VECT3_SUM(decel_pos, decel_rel_pos, *drone_pos);
   decel_pos.z = drone_pos->z;
-  update_waypoint_rot_wing_automation(wp_decel_id, &decel_pos);
+  update_waypoint_rotwing_automation(wp_decel_id, &decel_pos);
 }
