@@ -376,7 +376,10 @@ static void jevois_parse(struct jevois_t *jv, char c)
         if (c == '\n') {
           jevois_handle_msg(jv);
           jv->state = JV_TYPE;
-        } else {
+        } else if( c=='\r') {
+          // do nothing, just to consume '\r'
+        }
+        else {
           jv->state = JV_SYNC;
         }
       }

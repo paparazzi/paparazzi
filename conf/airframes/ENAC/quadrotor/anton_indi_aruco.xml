@@ -26,6 +26,7 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
+      <define name="UART4_DEV" value="/tmp/ttya"/>
     </target>
 
     <module name="telemetry" type="xbee_api"/>
@@ -40,6 +41,7 @@
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
+      <define name="GPS_FIX_TIMEOUT" value="0.5"/>
     </module>
 
     <module name="stabilization" type="indi">
@@ -67,8 +69,20 @@
     </module>
     <module name="agl_dist"/-->
 
+    <module name="digital_cam" type="pprzlink"/>
+    <module name="power_switch"/>
+    <module name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_8"/>
+    </module>
+
+    <module name="extra_dl">
+      <configure name="EXTRA_DL_PORT" value="uart4"/>
+      <configure name="EXTRA_DL_BAUD" value="B115200"/>
+    </module>
+
     <module name="tag_tracking">
       <configure name="JEVOIS_UART" value="UART3" description="UART on which Jevois camera is connected"/>
+      <!--define name="JEVOIS_SEND_ALT"/--> <!-- enable for color rectangle tracking -->
     </module>
 
     <module name="flight_recorder"/>
@@ -83,7 +97,7 @@
   </servos>
 
   <servos driver="Pwm">
-    <servo name="SWITCH" no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="SWITCH" no="1" min="1150" neutral="1150" max="1800"/>
   </servos>
 
   <commands>
@@ -118,12 +132,12 @@
     <define name="MAG_X_SIGN" value="-1"/>
     <define name="MAG_Y_SIGN" value="-1"/>
     <define name="MAG_Z_SIGN" value="1"/>
-    <define name="MAG_X_NEUTRAL" value="415"/>
-    <define name="MAG_Y_NEUTRAL" value="-2365"/>
-    <define name="MAG_Z_NEUTRAL" value="1626"/>
-    <define name="MAG_X_SENS" value="0.6639205812316621" integer="16"/>
-    <define name="MAG_Y_SENS" value="0.6470134039115051" integer="16"/>
-    <define name="MAG_Z_SENS" value="0.6456573321937272" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="437"/>
+    <define name="MAG_Y_NEUTRAL" value="-2357"/>
+    <define name="MAG_Z_NEUTRAL" value="1978"/>
+    <define name="MAG_X_SENS" value="0.6420696170457475" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.6426945667319279" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.6220200205771864" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -211,7 +225,15 @@
   </section>
 
   <section name="BAT">
-    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="MilliAmpereOfAdc(_adc)" value="(20.76*_adc-9970)"/>
+    <!-- 3 Cells -->
+    <!--define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/-->
+    <!-- 4 Cells -->
+    <define name="CATASTROPHIC_BAT_LEVEL" value="12.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="13." unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="13.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="17.0" unit="V"/>
+    <define name="BAT_NB_CELLS" value="4"/>
   </section>
 
   <section name="AUTOPILOT">
@@ -236,16 +258,10 @@
   <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
     <define name="BODY_TO_CAM_PSI" value="0"/>
     <define name="CAM_POS_Y" value="-0.12"/>
-    <define name="WPS" type="array">
-      <field type="struct">
-        <field name="wp_id" value="WP_TAG"/>
-        <field name="tag_id" value="0"/>
-      </field>
-      <field type="struct">
-        <field name="wp_id" value="WP_TRUCK"/>
-        <field name="tag_id" value="4"/>
-      </field>
-    </define>
+  </section>
+
+  <section name="MISC">
+    <define name="POWER_SWITCH_GPIO" value="GPIOA,GPIO6"/>
   </section>
 
   <section name="GCS">
