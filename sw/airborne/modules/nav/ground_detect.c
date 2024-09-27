@@ -41,8 +41,11 @@
 #endif
 #endif
 
+#if PERIODIC_TELEMETRY
+#error "PERIODIC_TELEMETRY is not supported in this module"
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
+#endif
 
 #define GROUND_DETECT_COUNTER_TRIGGER 5
 
@@ -121,17 +124,21 @@ void ground_detect_periodic() {
     counter = 0;
   }
 
+#if PERIODIC_TELEMETRY
 #ifdef DEBUG_GROUND_DETECT
-  float payload[7];
+  float payload[7] = {0,0,0,0,0,0,0};
   payload[0] = vspeed_ned;
   payload[1] = spec_thrust_down;
   payload[2] = accel_filter.o[0];
   payload[3] = stateGetAccelNed_f()->z;
+#if USE_GROUND_DETECT_AGL_DIST
   payload[4] = agl_dist_valid;
   payload[5] = agl_dist_value_filtered;
+#endif
   payload[6] = 1.f*ground_detected;
 
   RunOnceEvery(10, {DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 7, payload);} );
+#endif
 #endif
 }
 

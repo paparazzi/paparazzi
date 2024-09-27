@@ -19,6 +19,8 @@
   <makefile>
     <file name="ground_detect.c"/>
     <test firmware="rotorcraft">
+      <define name="PERIODIC_FREQUENCY" value="512"/>
+      <define name="PERIODIC_TELEMETRY" value="0"/>
       <define name="USE_GROUND_DETECT_INDI_THRUST" value="1"/>
       <define name="INDI_OUTPUTS" value="1"/>
       <define name="INDI_NUM_ACT" value="1"/>
