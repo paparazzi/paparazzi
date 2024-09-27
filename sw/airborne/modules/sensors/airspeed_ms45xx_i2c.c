@@ -201,7 +201,6 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
   ms45xx.lowpass_tau = MS45XX_LOWPASS_TAU;
-  ms45xx.lowpass_tau_set = MS45XX_LOWPASS_TAU;
   ms45xx.offset_set = false;
 
   ms45xx_trans.status = I2CTransDone;
@@ -221,17 +220,19 @@ void ms45xx_i2c_init(void)
 #endif
 }
 
+
+void airspeed_ms45xx_i2c_change_tau(float new_tau)
+{
+  ms45xx.lowpass_tau = new_tau;
+#ifdef USE_AIRSPEED_LOWPASS_FILTER
+  init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
+                            MS45XX_I2C_PERIODIC_PERIOD, get_butterworth_2_low_pass(&ms45xx_filter));
+#endif
+}
+
+
 void ms45xx_i2c_periodic(void)
 {
-#ifdef USE_AIRSPEED_LOWPASS_FILTER
-  // Update the filter if needed
-  if(ms45xx.lowpass_tau != ms45xx.lowpass_tau_set) {
-    ms45xx.lowpass_tau_set = ms45xx.lowpass_tau;
-    init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
-                              MS45XX_I2C_PERIODIC_PERIOD, get_butterworth_2_low_pass(&ms45xx_filter));
-  }
-#endif
-
   // Initiate next read
   if (ms45xx_trans.status == I2CTransDone) {
     i2c_receive(&MS45XX_I2C_DEV, &ms45xx_trans, MS45XX_I2C_ADDR, 4);
