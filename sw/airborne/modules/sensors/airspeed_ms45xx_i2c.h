@@ -38,9 +38,12 @@ struct AirspeedMs45xx {
   float pressure_offset;       ///< Offset in Pascal
   bool autoset_offset;         ///< Set offset value from current filtered value
   bool offset_set;             ///< Offset is set once
+  float lowpass_tau;           ///< Time constant for low pass filter
 };
 
 extern struct AirspeedMs45xx ms45xx;
+
+extern void airspeed_ms45xx_i2c_change_tau(float new_tau);
 
 extern void ms45xx_i2c_init(void);
 extern void ms45xx_i2c_periodic(void);

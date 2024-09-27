@@ -84,6 +84,12 @@ static inline bool rc_mode_switch(uint8_t chan, uint8_t pos, uint8_t max)
 #define RCMode2() rc_mode_switch(RADIO_MODE, 2, 3)
 #endif
 
+#ifdef AP_MODE_SWITCH
+#define RCAP0() rc_mode_switch(AP_MODE_SWITCH, 0, 3)
+#define RCAP1() rc_mode_switch(AP_MODE_SWITCH, 1, 3)
+#define RCAP2() rc_mode_switch(AP_MODE_SWITCH, 2, 3)
+#endif
+
 static inline bool rc_attitude_sticks_centered(void)
 {
   return ROLL_STICK_CENTERED() && PITCH_STICK_CENTERED() && YAW_STICK_CENTERED();

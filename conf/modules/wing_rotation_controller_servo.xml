@@ -1,5 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<module name="wing_rotation_controller_servo" dir="rot_wing_drone">
+<module name="wing_rotation_controller_servo" dir="rotwing_drone">
   <doc>
     <description>Module to control wing rotation servo command based on prefered angle setpoint</description>
   </doc>

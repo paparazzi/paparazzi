@@ -98,18 +98,18 @@ class WindFrame(wx.Frame):
         else:
             h = ((WIDTH+BARH) / (WIDTH)) * w
 
-        bar = BARH / WIDTH * w
+        bar = int(BARH / WIDTH * w)
 
-        tdx = -5.0 / WIDTH * w
-        tdy = -7.0 / WIDTH * w
-        th = 15.0 / WIDTH * w
+        tdx = int(-5.0 / WIDTH * w)
+        tdy = int(-7.0 / WIDTH * w)
+        th = int(15.0 / WIDTH * w)
 
         dc = wx.PaintDC(self)
         brush = wx.Brush("white")
         dc.SetBackground(brush)
         dc.Clear()
 
-        self.mid = w/2
+        self.mid = int(w/2)
         diameter = w/2
 
         # Background
@@ -117,15 +117,15 @@ class WindFrame(wx.Frame):
 
         # Speed circles
         for v in range(0,40,5):
-            dc.DrawCircle(self.mid, self.mid, diameter * v / MAX_AIRSPEED )
+            dc.DrawCircle(self.mid, self.mid, int(diameter * v / MAX_AIRSPEED) )
 
         font = wx.Font(11, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         dc.SetFont(font)
 
-        dc.DrawText("N", self.mid + tdx, 2)
-        dc.DrawText("S", self.mid + tdx, w - 17)
-        dc.DrawText("E", w - 15, w / 2 + tdy)
-        dc.DrawText("W", 2, w / 2 + tdy)
+        dc.DrawText("N", int(self.mid + tdx), 2)
+        dc.DrawText("S", int(self.mid + tdx), int(w - 17))
+        dc.DrawText("E", int(w) - 15, int(w / 2 + tdy))
+        dc.DrawText("W", 2, int(w / 2 + tdy))
 
         # Ground Speed
         dc.SetBrush(wx.Brush(wx.Colour(0, 0, 255), wx.SOLID))
@@ -146,7 +146,7 @@ class WindFrame(wx.Frame):
         # Result
         font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
         dc.SetFont(font)
-        dc.DrawText("#" + str(self.count_gs) + ", " + str(self.count_as) + " | " + str(self.click_x) + "-" + str(self.click_y), 0, h - 14)
+        dc.DrawText("#" + str(self.count_gs) + ", " + str(self.count_as) + " | " + str(self.click_x) + "-" + str(self.click_y), 0, int(h - 14))
 
         windspeed = math.sqrt(self.click_x * +self.click_x + +self.click_y * +self.click_y) / diameter * MAX_AIRSPEED
         windheading = math.atan2(self.click_x,-self.click_y) * 180 / math.pi
@@ -154,7 +154,7 @@ class WindFrame(wx.Frame):
         fontsize = int(16.0 / WIDTH * w)
         font = wx.Font(fontsize, wx.ROMAN, wx.NORMAL, wx.NORMAL)
         dc.SetFont(font)
-        dc.DrawText("Wind = " + str(round(windspeed,1)) + " m/s from " + str(round(windheading, 0)), 0, w )
+        dc.DrawText("Wind = " + str(round(windspeed,1)) + " m/s from " + str(round(windheading, 0)), 0, int(w) )
 
     def __init__(self):
         # own data
@@ -173,15 +173,15 @@ class WindFrame(wx.Frame):
         self.click_on = 0
 
         # Window
-        self.w = WIDTH
-        self.h = WIDTH + BARH
+        self.w = int(WIDTH)
+        self.h = int(WIDTH + BARH)
 
         self.cfg = wx.Config('wind_conf')
         if self.cfg.Exists('width'):
             self.w = int(self.cfg.Read('width'))
             self.h = int(self.cfg.Read('height'))
 
-        self.mid = self.w/2
+        self.mid = int(self.w/2)
 
         wx.Frame.__init__(self, id=-1, parent=None, name=u'WindFrame',
                           size=wx.Size(self.w, self.h), title=u'Wind Tool')

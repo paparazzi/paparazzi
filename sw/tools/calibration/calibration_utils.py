@@ -193,8 +193,8 @@ def print_xml(p, sensor, sensor_id, res):
     z_sens = continious_frac(p[5]*2**res)
 
     print("")
-    print('<define name="IMU_'+sensor+'_CALIB" type="array"/>')
-    print('  <field type="struct"/>')
+    print('<define name="IMU_'+sensor+'_CALIB" type="array">')
+    print('  <field type="struct">')
     print('    <field name="abi_id" value="'+sensor_id+'"/>')
     print('    <field name="calibrated" type="struct">')
     print('      <field name="neutral" value="true"/>')

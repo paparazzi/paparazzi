@@ -35,12 +35,8 @@ The basis of steering is the standard signs of aerospace convention
   </input>
 
   <messages period="0.05">
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="throttle" value="Fit(LeftStickVertical,0,127,0,127)"/>
-      <field name="roll" value="RightStickHorizontal"/>
-      <field name="pitch" value="-RightStickVertical"/>
-      <field name="yaw" value="LeftStickHorizontal"/>
-      <field name="mode" value="2-2*VRA"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="RightStickHorizontal;-RightStickVertical;LeftStickHorizontal;Fit(LeftStickVertical,0,127,0,127);2-2*VRA"/>
     </message>
   </messages>
 

@@ -110,7 +110,6 @@
     <define name="NO_GPS_LOST_WITH_RC_VALID" value="TRUE"/>
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 12.0877510901 * adc)"/>
     <!--<define name="USE_AIRSPEED" value="TRUE"/>-->

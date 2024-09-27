@@ -28,12 +28,13 @@
 #include "core/abi.h"
 #include "modules/datalink/telemetry.h"
 #include <stdio.h>
+#include <math.h>
 
 /**
  * Maximum error for the angle of the actuators (rad)
 */
 #ifndef PFC_ACTUATORS_MAX_ANGLE_ERROR
-#define PFC_ACTUATORS_MAX_ANGLE_ERROR 0.1f
+#define PFC_ACTUATORS_MAX_ANGLE_ERROR 0.05f
 #endif
 
 /**
@@ -174,11 +175,11 @@ void pfc_actuators_run(void) {
       case PFC_ACTUATOR_STATE_LOW:
         // Check if the feedback is correct
         if(act->feedback_id != 255 && 
-          (pfc_actuators.last_feedback < (act->low_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->low_feedback + pfc_actuators.last_feedback_err))) {
+        (!isfinite(pfc_actuators.last_feedback) || (pfc_actuators.last_feedback < (act->low_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->low_feedback + pfc_actuators.last_feedback_err)))) {
           pfc_actuators_error("Actuator %d not responding correctly LOW %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->low_feedback + pfc_actuators.last_feedback_err);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         } else if(act->feedback_id2 != 255 && 
-          (pfc_actuators.last_feedback2 < (act->low_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->low_feedback + pfc_actuators.last_feedback_err2))) {
+        (!isfinite(pfc_actuators.last_feedback2) || (pfc_actuators.last_feedback2 < (act->low_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->low_feedback + pfc_actuators.last_feedback_err2)))) {
           pfc_actuators_error("Actuator %d not responding correctly LOW2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->low_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->low_feedback + pfc_actuators.last_feedback_err2);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         }
@@ -194,11 +195,11 @@ void pfc_actuators_run(void) {
       case PFC_ACTUATOR_STATE_HIGH:
         // Check if the feedback is correct
         if(act->feedback_id != 255 && 
-          (pfc_actuators.last_feedback < (act->high_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->high_feedback + pfc_actuators.last_feedback_err))) {
+        (!isfinite(pfc_actuators.last_feedback) || (pfc_actuators.last_feedback < (act->high_feedback - pfc_actuators.last_feedback_err) || pfc_actuators.last_feedback > (act->high_feedback + pfc_actuators.last_feedback_err)))) {
           pfc_actuators_error("Actuator %d not responding correctly HIGH %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err, pfc_actuators.last_feedback, act->high_feedback + pfc_actuators.last_feedback_err);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
-        } else if(act->feedback_id2 != 255 && 
-          (pfc_actuators.last_feedback2 < (act->high_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->high_feedback + pfc_actuators.last_feedback_err2))) {
+        } else if(act->feedback_id2 != 255 &&
+        (!isfinite(pfc_actuators.last_feedback2) || (pfc_actuators.last_feedback2 < (act->high_feedback - pfc_actuators.last_feedback_err2) || pfc_actuators.last_feedback2 > (act->high_feedback + pfc_actuators.last_feedback_err2)))) {
           pfc_actuators_error("Actuator %d not responding correctly HIGH2 %.2f < %.2f < %.2f", pfc_actuators.act_idx, act->high_feedback - pfc_actuators.last_feedback_err2, pfc_actuators.last_feedback2, act->high_feedback + pfc_actuators.last_feedback_err2);
           pfc_actuators.state = PFC_ACTUATORS_STATE_ERROR;
         } 

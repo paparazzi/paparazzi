@@ -148,7 +148,6 @@
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="17.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="5"/>
       <!--define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-943.0"/>
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN_45" value="-500.0"/>
@@ -247,7 +246,6 @@
 
   <section name="MISC">
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 18.028 * adc)"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
 
     <!-- Basic navigation settings -->
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>

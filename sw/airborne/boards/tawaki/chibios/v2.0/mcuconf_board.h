@@ -123,7 +123,7 @@
 #define STM32_SW                            STM32_SW_PLL1_P_CK
 
 #if HAL_USE_RTC
-#define STM32_RTCSEL                        STM32_RTCSEL_HSE_1M_CK
+#define STM32_RTCSEL                        STM32_RTCSEL_LSI_CK
 #else
 #define STM32_RTCSEL                        STM32_RTCSEL_NOCLK
 #endif
@@ -582,5 +582,6 @@
 // #define CH_HEAP_USE_TLSF 0 // if 0 or undef, chAlloc will be used
 // #define CONSOLE_DEV_SD SD3
 
+#define HAL_USE_RTC     TRUE
 
 #endif /* MCUCONF_H */

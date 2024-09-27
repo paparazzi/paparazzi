@@ -141,6 +141,24 @@ static void *uart_thread(void *data __attribute__((unused)))
     }
   }
 #endif
+#if USE_UART7
+  if (uart7.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart7.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax = fd;
+    }
+  }
+#endif
+#if USE_UART8
+  if (uart8.reg_addr != NULL) {
+    fd = ((struct SerialPort *)uart8.reg_addr)->fd;
+    FD_SET(fd, &fds_master);
+    if (fd > fdmax) {
+      fdmax = fd;
+    }
+  }
+#endif
 
   /* fds to be read, modified after each select */
   fd_set fds;
@@ -205,6 +223,22 @@ static void *uart_thread(void *data __attribute__((unused)))
         fd = ((struct SerialPort *)uart6.reg_addr)->fd;
         if (FD_ISSET(fd, &fds)) {
           uart_receive_handler(&uart6);
+        }
+      }
+#endif
+#if USE_UART7
+      if (uart7.reg_addr != NULL) {
+        fd = ((struct SerialPort *)uart7.reg_addr)->fd;
+        if (FD_ISSET(fd, &fds)) {
+          uart_receive_handler(&uart7);
+        }
+      }
+#endif
+#if USE_UART8
+      if (uart8.reg_addr != NULL) {
+        fd = ((struct SerialPort *)uart8.reg_addr)->fd;
+        if (FD_ISSET(fd, &fds)) {
+          uart_receive_handler(&uart8);
         }
       }
 #endif
@@ -393,3 +427,21 @@ void uart6_init(void)
   uart_periph_set_baudrate(&uart6, UART6_BAUD);
 }
 #endif /* USE_UART6 */
+
+#if USE_UART7
+void uart7_init(void)
+{
+  uart_periph_init(&uart7);
+  strncpy(uart7.dev, STRINGIFY(UART7_DEV), UART_DEV_NAME_SIZE);
+  uart_periph_set_baudrate(&uart7, UART7_BAUD);
+}
+#endif /* USE_UART7 */
+
+#if USE_UART8
+void uart8_init(void)
+{
+  uart_periph_init(&uart8);
+  strncpy(uart8.dev, STRINGIFY(UART8_DEV), UART_DEV_NAME_SIZE);
+  uart_periph_set_baudrate(&uart8, UART8_BAUD);
+}
+#endif /* USE_UART8 */

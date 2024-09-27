@@ -180,7 +180,7 @@ struct tag_info {
 
 struct wp_tracking {
   uint8_t wp_id;
-  uint8_t tag_id;
+  int16_t tag_id;
 };
 
 

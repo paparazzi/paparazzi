@@ -15,8 +15,8 @@
 
 
 
-#ifndef EKF_AW_WRAPPER_ROT_WING
-#define EKF_AW_WRAPPER_ROT_WING false
+#ifndef EKF_AW_WRAPPER_ROTWING
+#define EKF_AW_WRAPPER_ROTWING false
 #endif
 #ifndef EKF_AW_WRAPPER_RANDOM_INPUTS
 #define EKF_AW_WRAPPER_RANDOM_INPUTS false
@@ -31,8 +31,8 @@
 #define EKF_AW_DEBUG false
 #endif
 
-#if EKF_AW_WRAPPER_ROT_WING
-#include "modules/rot_wing_drone/wing_rotation_controller_servo.h"
+#if EKF_AW_WRAPPER_ROTWING
+#include "modules/rotwing_drone/wing_rotation_controller_servo.h"
 #endif
 
 #if PERIODIC_TELEMETRY
@@ -348,7 +348,7 @@ void ekf_aw_wrapper_fetch(void)
 
   // Getting body accel
   struct FloatVect3 body_accel_f = {0.0f, 0.0f, 0.0f};
-#if EKF_AW_WRAPPER_ROT_WING
+#if EKF_AW_WRAPPER_ROTWING
   // If body accel available, can use this
   struct Int32Vect3 *body_accel_i;
   body_accel_i = stateGetAccelBody_i();
@@ -387,7 +387,7 @@ void ekf_aw_wrapper_fetch(void)
   }
   update_butterworth_2_low_pass(&filt_pusher_prop_rpm, ekf_aw.last_RPM_pusher * 1.0f);
 
-#if EKF_AW_WRAPPER_ROT_WING
+#if EKF_AW_WRAPPER_ROTWING
   update_butterworth_2_low_pass(&filt_skew, RadOfDeg(wing_rotation.wing_angle_deg));
 
   // Get elevator pprz signal

@@ -32,8 +32,19 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Proportional gain on the velocity for the position controller */
+#ifndef FAULHABER_P_GAIN
+#define FAULHABER_P_GAIN 0.07
+#endif
+
+/* Maximum velocity for the position controller */
+#ifndef FAULHABER_MAX_VELOCITY
+#define FAULHABER_MAX_VELOCITY 12000
+#endif
+
 static struct uart_periph *faulhaber_dev = &(FAULHABER_DEV);
 
+/* Faulhaber message parser */
 struct faulhaber_parser_t {
   uint8_t state;
   uint8_t node_nb;
@@ -48,7 +59,7 @@ static struct faulhaber_parser_t faulhaber_p;
 struct faulhaber_t faulhaber;
 
 #define Polynom 0xD5
-uint8_t faulhaber_crc8(uint8_t u8Byte, uint8_t u8CRC)
+static uint8_t faulhaber_crc8(uint8_t u8Byte, uint8_t u8CRC)
 {
   uint8_t i;
   u8CRC = u8CRC ^ u8Byte;
@@ -160,144 +171,224 @@ void actuators_faulhaber_init(void)
   faulhaber.mode = FH_MODE_INIT;
   faulhaber.state = 0;
   faulhaber.setpoint_position = 0;
-  faulhaber.target_position = 0;
+  faulhaber.real_position = 0;
+  faulhaber.homing_completed = false;
+  faulhaber.position_ready = false;
+  faulhaber.target_reached = false;
+  faulhaber.p_gain = FAULHABER_P_GAIN;
+  faulhaber.max_velocity = FAULHABER_MAX_VELOCITY;
 }
-
 
 void actuators_faulhaber_periodic(void)
 {
+  static float last_time = 0;
   switch (faulhaber.mode) {
 
-    /* HOME MODE */
-    case FH_MODE_HOME:
-      switch (faulhaber.state) {
+    /* Initialize and home the motor */
+    case FH_MODE_INIT:
+      switch(faulhaber.state) {
         case 0: {
-          // Set the homing mode
-          uint8_t data[] = { 0x60, 0x60, 0x00, 0x06 }; // Set 0x6060.00 to 0x06:  Homing mode
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          // Start the controller boot timer
+          last_time = get_sys_time_float();
           faulhaber.state++;
           break;
         }
         case 1: {
+          // Check if the controller is ready, 5 seconds delay
+          if (get_sys_time_float() - last_time < 5.0)
+            break;
+          
+          // Enable power on the motor
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x0E, 0x00}; // Set 0x6040.00 to 0x000E: Try to start
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          last_time = get_sys_time_float();
+          faulhaber.state++;
+          break;
+        }
+        case 2: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
+          // Set to homing mode
+          static uint8_t data[] = { 0x60, 0x60, 0x00, 0x06 }; // Set 0x6060.00 to 0x06:  Homing mode
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          last_time = get_sys_time_float();
+          faulhaber.state++;
+          break;
+        }
+        case 3: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
           // Set the homing method
-          uint8_t data[] = { 0x98, 0x60, 0x00, 0x11 }; // Set 0x6098.00 to 0x11:  Homing method to 17
+          static uint8_t data[] = { 0x98, 0x60, 0x00, 0x11 }; // Set 0x6098.00 to 0x11:  Homing method to 17
           faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          last_time = get_sys_time_float();
           faulhaber.state++;
           break;
         }
-        case 2: {
+        case 4: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
           // Enable operation
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Enable operation
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Enable operation
           faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          last_time = get_sys_time_float();
           faulhaber.state++;
           break;
         }
-        case 3: {
+        case 5: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
           // Start moving
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x1F, 0x00}; // Set 0x6040.00 to 0x001F: Start moving
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x1F, 0x00}; // Set 0x6040.00 to 0x001F: Start moving
           faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          last_time = get_sys_time_float();
           faulhaber.state++;
           break;
         }
-        default:
-          // Goto position mode
-          faulhaber.mode = FH_MODE_INIT;
-          faulhaber.state = 0;
+        case 6: {
+          // Check if homing is completed
+          if(faulhaber.homing_completed) {
+            // Continue initialization
+            last_time = get_sys_time_float();
+            faulhaber.state++;
+          }
+          // Timeout after 40 seconds
+          else if(get_sys_time_float() - last_time > 40.0) {
+            faulhaber.mode = FH_MODE_ERROR;
+            faulhaber.state = 0;
+          }
           break;
+        }
+        case 7: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
+          // Set to velocity mode
+          static uint8_t data[] = { 0x60, 0x60, 0x00, 0x03 }; // Set 0x6060.00 to 0x03: Velocity mode
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          last_time = get_sys_time_float();
+          faulhaber.state++;
+          break;
+        }
+        case 8: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
+          // Enable operation
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Enable operation
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          last_time = get_sys_time_float();
+          faulhaber.state++;
+          break;
+        }
+        case 9: {
+          // Wait 10ms for the next command
+          if(get_sys_time_float() - last_time < 0.01)
+            break;
+          
+          // Go to position mode
+          faulhaber.mode = FH_MODE_VELOCITY;
+          faulhaber.state = 0;
+        }
       }
       break;
 
-    /* POSITION MODE */
-    case FH_MODE_POSITION:
+    /* FH_MODE_VELOCITY */
+    case FH_MODE_VELOCITY: {
+      // Request position and set the new velocity target
       switch (faulhaber.state) {
         case 0: {
-          uint8_t data[] = { 0x60, 0x60, 0x00, 0x01 }; // Set 0x6060.00 to 0x01:  Position mode
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          // Request the position
+          uint8_t data[] = { 0x64, 0x60, 0x00}; // Get 0x6064.00: Get the actual position
+          faulhaber_send_command(faulhaber_dev, 0x01, data, 3);
           faulhaber.state++;
           break;
         }
-        case 1: {
-          // Set the target position
-          faulhaber.target_position = faulhaber.setpoint_position;
-          uint8_t data[] = { 0x7A, 0x60, 0x00, (faulhaber.target_position & 0xFF), ((faulhaber.target_position >> 8) & 0xFF), ((faulhaber.target_position >> 16) & 0xFF), ((faulhaber.target_position >> 24) & 0xFF) }; // Set 0x607A.00 to 0x00000000:  Target position 0
+        default: {
+          // Calculate the new velocity target
+          int32_t poss_err = (faulhaber.setpoint_position - faulhaber.real_position);
+          faulhaber.target_velocity = poss_err * faulhaber.p_gain;
+          BoundAbs(faulhaber.target_velocity, faulhaber.max_velocity);
+
+          // Set the new velocity target
+          uint8_t data[] = { 0xFF, 0x60, 0x00, (faulhaber.target_velocity & 0xFF), ((faulhaber.target_velocity >> 8) & 0xFF), ((faulhaber.target_velocity >> 16) & 0xFF), ((faulhaber.target_velocity >> 24) & 0xFF) }; // Set 0x60FF.00 to [velocity]:  Target velocity
           faulhaber_send_command(faulhaber_dev, 0x02, data, 7);
-          faulhaber.state++;
-          break;
-        }
-        case 2: {
-          // Enable operation
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Enable operation
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
-          faulhaber.state++;
-          break;
-        }
-        case 3: {
-          // Start moving
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x3F, 0x00}; // Set 0x6040.00 to 0x003F: Start moving
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
-          faulhaber.state++;
-          break;
-        }
-        default:
-          faulhaber.mode = FH_MODE_IDLE;
           faulhaber.state = 0;
           break;
-
+        }
       }
-      break;
-
-    /* FH_MODE_IDLE */
-    case FH_MODE_IDLE: {
-      // Move to the new position
-      if (faulhaber.target_position != faulhaber.setpoint_position) {
-        faulhaber.mode = FH_MODE_POSITION;
-        faulhaber.state = 0;
-        break;
-      }
-
-      // Request the position
-      uint8_t data[] = { 0x64, 0x60, 0x00}; // Get 0x6064.00: Get the actual position
-      faulhaber_send_command(faulhaber_dev, 0x01, data, 3);
-      faulhaber.state = 0;
       break;
     }
 
-    case FH_MODE_ENABLE:
-      switch (faulhaber.state) {
+    /* FH_MODE_REQ_ERR */
+    case FH_MODE_REQ_ERR: {
+      switch(faulhaber.state) {
         case 0: {
-          // Disable drive
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x80, 0x00}; // Set 0x6040.00 to 0x0007: Disable drive
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          // Request the status code
+          uint8_t data[] = { 0x20, 0x23, 0x00}; // Get 0x2320.00: Get the error code
+          faulhaber_send_command(faulhaber_dev, 0x01, data, 3);
           faulhaber.state++;
-          //break;
+          break;
         }
         case 1: {
-          // Disable drive
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x06, 0x00}; // Set 0x6040.00 to 0x0006: Disable drive
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          // Request the status code
+          uint8_t data[] = { 0x21, 0x23, 0x00}; // Get 0x2321.00: Get the error mask
+          faulhaber_send_command(faulhaber_dev, 0x01, data, 3);
           faulhaber.state++;
-          //break;
+          break;
         }
         case 2: {
-          // Enable drive
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x07, 0x00}; // Set 0x6040.00 to 0x0007: Enable drive
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          // Request the status code
+          uint8_t data[] = { 0x01, 0x10, 0x00}; // Get 0x1001.00: Get the error mask
+          faulhaber_send_command(faulhaber_dev, 0x01, data, 3);
           faulhaber.state++;
-          //break;
-        }
-        case 3: {
-          // Execute
-          uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Execute
-          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
-          faulhaber.state++;
-          //break;
-        }
-        default:
-          faulhaber.mode = FH_MODE_INIT;
-          faulhaber.state = 0;
           break;
+          
+        }
+        default: {
+          // Do nothing and stop requesting
+          break;
+        }
       }
       break;
+    }
+
+    /* FH_MODE_RESET_ERR */
+    case FH_MODE_RESET_ERR: {
+      switch(faulhaber.state) {
+        case 0: {
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x0E, 0x00}; // Set 0x6040.00 to 0x000E: Try to start
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          faulhaber.state++;
+          break;
+        }
+        case 1: {
+          static uint8_t data[] = { 0x60, 0x60, 0x00, 0x03 }; // Set 0x6060.00 to 0x03: Velocity mode
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 4);
+          faulhaber.state++;
+          break;
+        }
+        default: {
+          // Enable operation
+          static uint8_t data[] = { 0x40, 0x60, 0x00, 0x0F, 0x00}; // Set 0x6040.00 to 0x000F: Enable operation
+          faulhaber_send_command(faulhaber_dev, 0x02, data, 5);
+          faulhaber.state = 0;
+          faulhaber.mode = FH_MODE_VELOCITY;
+          break;
+        }
+      }
+      break;
+    }
 
     /* Do nothing */
     default:
@@ -320,6 +411,45 @@ static void faulhaber_parse_msg(struct faulhaber_parser_t *p)
 
     // Send ABI message
     AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_FAULHABER_ID, &feedback, 1);
+  }
+  // Write requests
+  else if(p->cmd_code == 0x02) {
+    // Do nothing
+  }
+  // Parse the statuscode message
+  else if(p->cmd_code == 0x05) {
+    uint16_t status_code = p->data[0] | (p->data[1] << 8);
+
+    // Homing
+    if(!faulhaber.homing_completed && status_code&0x1000 && status_code&0x400)
+      faulhaber.homing_completed = true;
+    
+    // Position accepted
+    if(!faulhaber.position_ready && status_code&0x1000)
+      faulhaber.position_ready = true;
+      
+    // Target reached
+    if(!faulhaber.target_reached && status_code&0x400)
+      faulhaber.target_reached = true;
+    
+    // If the drive got disabled
+    if(!(status_code&0x0001) || !(status_code&0x0002) || !(status_code&0x0004)) {
+      char error_msg[250];
+      int rc = snprintf(error_msg, 200, "[FH]%d %04X", p->cmd_code, status_code);
+      DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+    }
+  }
+  else {
+    // Unknown message
+    char error_msg[250];
+    int rc = snprintf(error_msg, 200, "[FH]%d ", p->cmd_code);
+    for(int i = 0; i < p->data_length; i++) {
+      rc += snprintf(error_msg + rc, 200 - rc, "%02X", p->data[i]);
+    }
+
+    if (rc > 0) {
+      DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+    }
   }
 }
 

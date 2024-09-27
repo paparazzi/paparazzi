@@ -26,12 +26,8 @@
 	</variables>
 
 	<messages period="0.025">
-		<message class="datalink" name="RC_4CH" send_always="true">
-			<field name="mode" value="mode" />
-			<field name="throttle" value="127-Scale(throttle,0,128)" />
-			<field name="roll" value="roll" />
-			<field name="yaw" value="yaw" />
-			<field name="pitch" value="pitch" />
+		<message class="datalink" name="RC_UP" send_always="true">
+		  <field name="channels" value="roll;pitch;yaw;127-Scale(throttle,0,128);mode"/>
 		</message>
 	</messages>
 

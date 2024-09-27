@@ -88,7 +88,7 @@
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
         <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
-        <stay wp="STDBY" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+        <stay wp="STDBY" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Approach APP">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
@@ -100,7 +100,7 @@
     </block> -->
   <block name="stay_begin-trans">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
-      <stay wp="begin_trans" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <stay wp="begin_trans" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="line_trans_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
@@ -140,19 +140,19 @@
     </block>
     <block name="Circle_CW_fwd" strip_button="CircleRight" strip_icon="circle-right.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
-      <circle radius="100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Circle_CCW_fwd" strip_button="CircleLeft" strip_icon="circle-left.png">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
-      <circle radius="-100" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="-100" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="big_Circle_CW_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
-      <circle radius="150" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="150" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="big_Circle_CCW_fwd">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
-      <circle radius="-150" wp="circ" pre_call="rot_wing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
+      <circle radius="-150" wp="circ" pre_call="rotwing_vis_transition(WP_trans, WP_decel, WP_end_trans)"/>
     </block>
     <block name="Transition_quad">
       <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
