@@ -61,9 +61,14 @@ float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
 #define NAV_HYBRID_MAX_ACCELERATION 4.0
 #endif
 
-float nav_max_deceleration_sp     = NAV_HYBRID_MAX_DECELERATION; //Maximum deceleration allowed for the set-point
-float nav_max_acceleration_sp     = NAV_HYBRID_MAX_ACCELERATION; //Maximum acceleration allowed for the set-point
-float nav_hybrid_max_acceleration = NAV_HYBRID_MAX_ACCELERATION; //Maximum general limit in acceleration allowed for the hybrid navigation
+#ifndef NAV_HYBRID_SOFT_ACCELERATION
+#define NAV_HYBRID_SOFT_ACCELERATION NAV_HYBRID_MAX_ACCELERATION
+#endif
+
+float nav_max_deceleration_sp      = NAV_HYBRID_MAX_DECELERATION;  //Maximum deceleration allowed for the set-point
+float nav_max_acceleration_sp      = NAV_HYBRID_MAX_ACCELERATION;  //Maximum acceleration allowed for the set-point
+float nav_hybrid_soft_acceleration = NAV_HYBRID_SOFT_ACCELERATION; //Soft acceleration limit allowed for the set-point (Equal to the maximum acceleration by default)
+float nav_hybrid_max_acceleration  = NAV_HYBRID_MAX_ACCELERATION;  //Maximum general limit in acceleration allowed for the hybrid navigation
 
 #ifndef NAV_HYBRID_MAX_EXPECTED_WIND
 #define NAV_HYBRID_MAX_EXPECTED_WIND 5.0f
@@ -108,7 +113,7 @@ bool force_forward = 0.0f;
 
 static void nav_hybrid_goto(struct EnuCoor_f *wp)
 {
-  nav_max_acceleration_sp = nav_hybrid_max_acceleration / 2.0;
+  nav_max_acceleration_sp = nav_hybrid_soft_acceleration;
   nav_rotorcraft_base.goto_wp.to = *wp;
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp);
   VECT2_COPY(nav.target, *wp);
@@ -278,7 +283,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   if (radius_diff > NAV_HYBRID_NAV_CIRCLE_DIST) {
     // far from circle, speed proportional to diff
     desired_speed = radius_diff * nav_hybrid_pos_gain;
-    nav_max_acceleration_sp = nav_hybrid_max_acceleration / 2.0;
+    nav_max_acceleration_sp = nav_hybrid_soft_acceleration;
   } else {
     // close to circle, speed function of radius for a feasible turn
     // 0.8 * MAX_BANK gives some margins for the turns
