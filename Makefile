@@ -332,7 +332,8 @@ test_gvf: all
 
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
-	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
+	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
+	python ./sw/tools/parse_compile_logs.py | tee ./issues.md
 
 # test compilation of modules
 test_modules: all
