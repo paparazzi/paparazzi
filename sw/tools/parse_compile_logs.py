@@ -12,11 +12,12 @@ def parse_log(log_file):
         lines = f.readlines()
 
     errors = []
-    conf = ''
+    conf = 'Unknown'
     airframe = ''
     module = ''
 
     for line in lines:
+        lowerline = line.lower()
         if 'Testing all aircrafts in conf: ' in line:
             conf = line.split('Testing all aircrafts in conf: ')[1].strip()
             #print(conf)
@@ -30,9 +31,9 @@ def parse_log(log_file):
                 airframe = line.strip()
 
         if conf and airframe:
-            if 'error:' in line:
+            if ('error:' in lowerline) or ('failed:' in lowerline):
                 errors.append((conf, airframe, line.strip()))
-            if 'warning:' in line:
+            if 'warning:' in lowerline:
                 errors.append((conf, airframe, line.strip()))
 
     return errors
