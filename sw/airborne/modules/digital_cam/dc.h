@@ -48,6 +48,8 @@ extern uint16_t dc_photo_nr;
 /** number of images taken since the last change of dc_mode */
 extern uint16_t dc_gps_count;
 
+/** camera exposure */
+extern float dc_exposure;
 
 /*
  * Variables for PERIODIC mode.
@@ -122,6 +124,9 @@ extern void dc_send_command(uint8_t cmd);
 
 /** Command sending function */
 extern void dc_send_command_common(uint8_t cmd);
+
+/** Set camera exposure */
+extern void dc_set_expo(float expo);
 
 /** Auotmatic Digital Camera Photo Triggering modes */
 typedef enum {

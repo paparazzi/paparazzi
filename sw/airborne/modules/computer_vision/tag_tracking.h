@@ -78,13 +78,16 @@ void tag_tracking_set_kp(float kp);
 void tag_tracking_set_kpz(float kpz);
 
 extern struct tag_tracking_public* tag_tracking_get(int16_t tag_id);
+extern uint8_t tag_tracking_get_status(int16_t tag_id);
+extern uint8_t tag_tracking_get_motion_type(int16_t tag_id);
 extern void tag_tracking_init(void);
 extern void tag_tracking_propagate(void);
 extern void tag_tracking_propagate_start(void);
 extern void tag_tracking_report(void);
 extern void tag_tracking_parse_target_pos(uint8_t *buf);
 extern void tag_tracking_compute_speed(void);
-float tag_tracking_get_heading(int16_t tag_id);
+extern bool tag_tracking_set_tracker_id(int16_t tag_id, uint8_t wp_id);
+extern float tag_tracking_get_heading(int16_t tag_id);
 
 #endif  // TAG_TRACKING_H
 

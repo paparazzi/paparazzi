@@ -29,11 +29,9 @@
 // Include Standard Camera Control Interface
 #include "dc.h"
 
-float digital_cam_exposure;
-
 void pprzlink_cam_ctrl_init(void)
 {
-  digital_cam_exposure = 0.f; // auto expo
+  dc_exposure = PPRZLINK_CAM_AUTO_EXPO;
 }
 
 void pprzlink_cam_ctrl_periodic(void)
@@ -57,9 +55,9 @@ void dc_send_command(uint8_t cmd)
 #include "modules/datalink/downlink.h"
 #include "modules/datalink/extra_pprz_dl.h"
 
-void pprzlink_cam_ctrl_set_expo(float expo)
+void dc_set_expo(float expo)
 {
-  digital_cam_exposure = expo;
+  dc_exposure = expo;
   uint8_t tab[2];
   tab[0] = 'e';
   tab[1] = (uint8_t)(expo * 10.f);
@@ -72,7 +70,7 @@ void dc_expo_cb(uint8_t* buf) {
 
   // feedback from camera
   if (DL_PAYLOAD_COMMAND_command_length(buf) == 2 && DL_PAYLOAD_COMMAND_command(buf)[0] == 'e') {
-    digital_cam_exposure = DL_PAYLOAD_COMMAND_command(buf)[1] / 10.0;
+    dc_exposure = DL_PAYLOAD_COMMAND_command(buf)[1] / 10.0;
   }
 }
 
