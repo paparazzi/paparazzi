@@ -33,7 +33,7 @@ def parse_log(log_file):
         if conf and airframe:
             if ('error:' in lowerline) or ('failed:' in lowerline):
                 errors.append((conf, airframe, line.strip()))
-            if 'warning:' in lowerline.lower():
+            if 'warning:' in lowerline:
                 errors.append((conf, airframe, line.strip()))
 
     return errors
