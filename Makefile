@@ -319,10 +319,11 @@ test_mavlab: all
 	
 # test TU Delft conf
 test_tudelft: all
-	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/
-	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/
-	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
+	CONF_XML=conf/userconf/tudelft/delfly_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
+	CONF_XML=conf/userconf/tudelft/course_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
+	CONF_XML=conf/userconf/tudelft/guido_conf.xml prove tests/aircrafts/ 2>&1 | tee -a ./var/compile.log
+	python ./sw/tools/parse_compile_logs.py | tee ./issues.md
 
 # test GVF conf
 test_gvf: all
@@ -331,7 +332,8 @@ test_gvf: all
 
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
-	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
+	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/ 2>&1 | tee ./var/compile.log
+	python ./sw/tools/parse_compile_logs.py | tee ./issues.md
 
 # test compilation of modules
 test_modules: all
@@ -340,7 +342,7 @@ test_modules: all
 test_all_confs: all opencv_bebop
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
 	@echo "************\nFound $(words $($CONFS)) config files: $($CONFS)"
-	$(Q)$(foreach conf,$($CONFS),echo "\n************\nTesting all aircrafts in conf: $(conf)\n************" && (CONF_XML=$(conf) prove tests/aircrafts/ || echo "failed $(conf)" >> TEST_ALL_CONFS_FAILED);) test -f TEST_ALL_CONFS_FAILED && cat TEST_ALL_CONFS_FAILED && rm -f TEST_ALL_CONFS_FAILED && exit 1; exit 0
+	$(Q)$(foreach conf,$($CONFS),(CONF_XML=$(conf) prove tests/aircrafts/ || echo "failed $(conf)" >> TEST_ALL_CONFS_FAILED);) test -f TEST_ALL_CONFS_FAILED && cat TEST_ALL_CONFS_FAILED && rm -f TEST_ALL_CONFS_FAILED && exit 1; exit 0
 
 # run some math tests that don't need whole paparazzi to be built
 test_math:
