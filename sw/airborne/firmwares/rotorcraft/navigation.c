@@ -267,9 +267,12 @@ void nav_periodic_task(void)
 
 bool nav_detect_ground(void)
 {
-  if (!autopilot.ground_detected) { return false; }
-  autopilot.ground_detected = false;
-  return true;
+  if (autopilot.ground_detected) {
+    autopilot.ground_detected = false;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool nav_is_in_flight(void)

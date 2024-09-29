@@ -1,12 +1,10 @@
 <control_panel name="paparazzi control panel">
-
   <section name="programs">
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-layout" constant="bottom_settings.xml"/>
     </program>
     <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
   </section>
-
   <section name="sessions">
     <session name="Bluegiga">
       <program name="BluegigaUsbDongle">
@@ -37,7 +35,6 @@
         <arg flag="hobbyking.xml"/>
       </program>
     </session>
-
     <session name="Bluegiga">
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -69,7 +66,6 @@
         <arg flag="4252"/>
       </program>
     </session>
-
     <session name="EKF Full">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -142,7 +138,6 @@
         <arg flag="-c" constant="*:telemetry:OPTICAL_FLOW:distance_compensated"/>
       </program>
     </session>
-
     <session name="Flight /dev/paparazzi/link Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/link"/>
@@ -153,7 +148,6 @@
         <arg flag="-speech"/>
       </program>
     </session>
-
     <session name="Flight /dev/paparazzi/xbee XBeeAPI @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
@@ -166,7 +160,6 @@
         <arg flag="-layout" constant="bottom_settings.xml"/>
       </program>
     </session>
-
     <session name="Flight ACM0 Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyACM0"/>
@@ -177,7 +170,6 @@
         <arg flag="-speech"/>
       </program>
     </session>
-
     <session name="Flight ACM1 Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyACM1"/>
@@ -188,7 +180,6 @@
         <arg flag="-speech"/>
       </program>
     </session>
-
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -197,11 +188,10 @@
       <program name="Messages"/>
       <program name="PprzGCS"/>
       <program name="Herelink PprzLink Router">
-	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
-	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+        <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+        <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
       </program>
     </session>
-
     <session name="Flight UDP Optitrack + Joystick">
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -221,7 +211,6 @@
         <arg flag="-zf"/>
       </program>
     </session>
-
     <session name="Flight UDP/WiFi">
       <program name="Server"/>
       <program name="GCS"/>
@@ -229,11 +218,10 @@
         <arg flag="-udp"/>
       </program>
       <program name="Herelink PprzLink Router">
-	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
-	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+        <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+        <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
       </program>
     </session>
-
     <session name="Flight XBeeAPI USB0 @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -247,7 +235,6 @@
       </program>
       <program name="Messages"/>
     </session>
-
     <session name="Flight ttyUSB0 Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -258,76 +245,78 @@
         <arg flag="-speech"/>
       </program>
     </session>
-
     <session name="Hydrogen">
       <program name="Attitude Visualizer"/>
       <program name="HydrogenStatus"/>
       <program name="NederdroneStatus"/>
       <program name="ATC"/>
     </session>
-
     <session name="Joystick Hobbyking">
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
       </program>
     </session>
-
     <session name="Joystick X3D Pro">
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="extreme_3d_pro.xml"/>
       </program>
     </session>
-
     <session name="Messages and Settings">
       <program name="Messages"/>
       <program name="Settings">
         <arg flag="-ac" constant="@AIRCRAFT"/>
       </program>
     </session>
-
     <session name="PythonTools">
       <program name="IridiumDialer"/>
       <program name="PayloadForward"/>
       <program name="SVInfo"/>
       <program name="IridiumDialer"/>
     </session>
-
+    <session name="RW25">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
+      <program name="RotWingStatus"/>
+      <program name="Wind"/>
+    </session>
     <session name="Raw Sensors">
+      <program name="Messages"/>
+      <program name="Simulator">
+        <arg flag="-a" constant="RotatingWingV3B"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="PprzGCS"/>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
-        <arg flag="-t" constant="ACC"/>
+        <arg flag="-t" constant="SKEW"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ax"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:ay"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_RAW:az"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:meas_skew_angle"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:sp_skew_angle"/>
         <arg flag="-n"/>
         <arg flag="-g" constant="1000x250-0+250"/>
-        <arg flag="-t" constant="GYRO"/>
+        <arg flag="-t" constant="SKEW"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gp"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gq"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_RAW:gr"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+500"/>
-        <arg flag="-t" constant="MAG"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mx"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:my"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_RAW:mz"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+750"/>
-        <arg flag="-t" constant="BARO"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="101325.0"/>
-        <arg flag="-c" constant="*:telemetry:BARO_RAW:abs"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:nav_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:min_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:max_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:AIR_DATA:airspeed"/>
       </program>
     </session>
-
     <session name="Scaled Sensors">
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1000x250-0+0"/>
@@ -357,7 +346,22 @@
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
       </program>
     </session>
-
+    <session name="Ship">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="Herelink PprzLink Router">
+        <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+        <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+      </program>
+      <program name="Settings (Python)">
+        <arg flag="--ac_id" constant="@AC_ID"/>
+      </program>
+      <program name="AeronauticalInfo"/>
+      <program name="RotWingStatus"/>
+    </session>
     <session name="Simulation - Gazebo">
       <program name="Simulator">
         <arg flag="-a" constant="@AIRCRAFT"/>
@@ -380,7 +384,6 @@
       </program>
       <program name="Gazebo"/>
     </session>
-
     <session name="Simulation - Gazebo + Joystick">
       <program name="Simulator">
         <arg flag="-a" constant="@AIRCRAFT"/>
@@ -401,7 +404,6 @@
         <arg flag="-track_size" constant="200"/>
         <arg flag="-zoom" constant="40."/>
       </program>
-
       <program name="Joystick">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
@@ -409,7 +411,6 @@
       </program>
       <program name="Gazebo"/>
     </session>
-
     <session name="helidd">
       <program name="BluegigaUsbDongle">
         <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>
@@ -431,23 +432,5 @@
         <arg flag="hobbyking.xml"/>
       </program>
     </session>
-
-    <session name="Ship">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="Herelink PprzLink Router">
-	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
-	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
-      </program>
-      <program name="Settings (Python)">
-        <arg constant="@AC_ID" flag="--ac_id" />
-      </program>
-      <program name="AeronauticalInfo"/>
-      <program name="RotWingStatus"/>
-    </session>
-
   </section>
 </control_panel>

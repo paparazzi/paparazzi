@@ -1,28 +1,29 @@
+<?xml version="1.0"?>
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="70" ground_alt="0" alt="119" lat0="52.9262279" lon0="4.4986184" max_dist_from_home="20500" name="Rotating Wing EHR8" security_height="2">
+<flight_plan alt="110" ground_alt="0" lat0="53.383009" lon0="6.269968" max_dist_from_home="4000" name="Rotating Wing Valkenburg" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="CLIMB" x="300." y="70"/>
-    <waypoint name="STDBY" x="60" y="20"/>
-    <waypoint name="p1" x="65" y="75"/>
-    <waypoint name="p2" x="200" y="120"/>
-    <waypoint name="p3" x="250" y="-30"/>
-    <waypoint name="p4" x="120" y="-75"/>
-    <waypoint name="circ" x="160" y="25"/>
+    <waypoint name="STDBY" x="-44.938" y="78.183"/>
+    <waypoint name="p1" x="-210.22" y="163.937"/>
+    <waypoint name="p2" x="-165.862" y="863.765"/>
+    <waypoint name="p3" x="517.462" y="837.787"/>
+    <waypoint name="p4" x="481.728" y="117.868"/>
+    <waypoint name="circ" x="-100" y="500"/>
     <waypoint name="TD" x="10" y="-1"/>
     <waypoint name="APP" x="70" y="-25"/>
     <waypoint name="FOLLOW" x="300" y="80"/>
-    <!-- EHR8 -->
-    <waypoint name="C1" lat="52.96166667" lon="4.740277778"/>
-    <waypoint name="C2" lat="52.86666667" lon="4.716666667"/>
-    <waypoint name="C3" lat="52.78333333" lon="4.683333333"/>
-    <waypoint name="C4" lat="52.75" lon="4.533333333"/>
-    <waypoint name="C5" lat="52.775" lon="4.433333333"/>
-    <waypoint name="C6" lat="52.81666667" lon="4.35"/>
-    <waypoint name="C7" lat="53.08333333" lon="4.35"/>
-    <waypoint name="C8" lat="53.10277778" lon="4.515555556"/>
-    <waypoint name="C9" lat="53.04972222" lon="4.679444444"/>
+    <!-- Geofence -->
+    <waypoint lat="53.3813" lon="6.24491" name="C1"/>
+    <waypoint lat="53.3844" lon="6.24466" name="C2"/>
+    <waypoint lat="53.4076" lon="6.2359" name="C3"/>
+    <waypoint lat="53.4103" lon="6.25684" name="C4"/>
+    <waypoint lat="53.3946" lon="6.29501" name="C5"/>
+    <waypoint lat="53.3894" lon="6.28742" name="C6"/>
+    <waypoint lat="53.3793" lon="6.28197" name="C7"/>
+    <waypoint lat="53.3693" lon="6.2722" name="C8"/>
+    <waypoint lat="53.3701" lon="6.24525" name="C9"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
@@ -44,7 +45,7 @@
   </variables>
   <modules>
     <module name="follow_me">
-      <define name="FOLLOW_ME_MOVING_WPS" value="WP_p1,WP_p2,WP_p3,WP_p4,WP_STDBY,WP_circ,WP_TD"/>
+      <define name="FOLLOW_ME_MOVING_WPS" value="WP_FOLLOW"/>
     </module>
   </modules>
   <exceptions>
@@ -60,7 +61,7 @@
     <block name="Geo init">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     <block name="Holding point">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
@@ -78,7 +79,7 @@
     <block name="Wait takeoff">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <exception cond="stage_time > 10" deroute="Holding point"/>
-      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 5.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 5.0) @AND (stage_time > 2)" vmode="throttle"/>
+      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 3.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 3.0) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
@@ -89,6 +90,8 @@
         <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
         <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0.75" until="(get_sys_time_msec()-stage_timer_msec)>250" vmode="throttle"/>
         <call_once fun="autopilot_set_in_flight(true)"/><!-- this is a hack to solve INDI not being active fast enough -->
+
+        <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
@@ -101,63 +104,56 @@
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <stay wp="STDBY"/>
     </block>
-    <block name="Approach APP">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-      <exception cond="agl_dist_valid @AND (agl_dist_value @LT 0.28)" deroute="Approach Flare"/>
-      <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
+    <block name="Standby_free">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
+        <stay wp="STDBY"/>
     </block>
-    <block name="Approach Flare">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-      <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
-      <exception cond="ground_detect()" deroute="Holding point"/>
-      <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
+    <block name="stay_p1" strip_button="Stay P1" strip_icon="wp_quad.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p1"/>
     </block>
-    <!-- <block name="follow_module">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-      <stay pre_call="follow_me_set_wp(WP_p1, 0)" wp="p1"/>
-    </block> -->
-    <block name="route">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <go from="p1" hmode="route" wp="p2"/>
-      <go from="p2" hmode="route" wp="p3"/>
-      <go from="p3" hmode="route" wp="p4"/>
-      <go from="p4" hmode="route" wp="p1"/>
-      <deroute block="route"/>
+    <block name="stay_p2">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p2"/>
     </block>
-    <block name="small_route" strip_button="Route" strip_icon="path.png">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <go wp="p2"/>
-      <go wp="p3"/>
-      <go wp="p4"/>
-      <go wp="p1"/>
-      <deroute block="small_route"/>
+    <block name="p1_p2">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <go wp="p1"/>
+        <stay until="stage_time>5" wp="p1"/>
+        <go wp="p2"/>
+        <stay until="stage_time>5" wp="p2"/>
+        <deroute block="p1_p2"/>
     </block>
     <block name="Circle_CW_fwd" strip_button="CircleRight" strip_icon="circle-right.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="100" wp="circ"/>
+      <circle radius="nav.radius" wp="circ"/>
     </block>
     <block name="Circle_CCW_fwd" strip_button="CircleLeft" strip_icon="circle-left.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="-100" wp="circ"/>
+      <circle radius="-nav.radius" wp="circ"/>
     </block>
-    <block name="big_Circle_CW_fwd">
+    <block name="Circle_CW_hybrid" strip_icon="circle-right.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="150" wp="circ"/>
+      <circle radius="nav.radius" wp="circ"/>
     </block>
-    <block name="big_Circle_CCW_fwd">
+    <block name="Circle_CCW_hybrid" strip_icon="circle-left.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="-150" wp="circ"/>
+      <circle radius="-nav.radius" wp="circ"/>
+    </block>
+    <block name="Approach APP">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+      <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
     </block>
     <block name="Transition_quad" strip_button="Transition Quad" strip_icon="wp_quad.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
       <go wp="STDBY"/>
       <deroute block="Standby"/>
     </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+    <block name="land here">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
-    <block name="land">
+    <block name="land" strip_button="Land" strip_icon="land-right.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <go wp="TD"/>
     </block>
