@@ -37,9 +37,6 @@ extern bool act_is_servo[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 
-extern float u_min_stab_indi[INDI_NUM_ACT];
-extern float u_max_stab_indi[INDI_NUM_ACT];
-extern float u_pref_stab_indi[INDI_NUM_ACT];
 extern float *Bwls[INDI_OUTPUTS];
 
 extern float thrust_bx_eff;

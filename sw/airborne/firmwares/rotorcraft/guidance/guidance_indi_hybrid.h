@@ -98,14 +98,6 @@ extern float guidance_indi_pitch_pref_deg;
 
 extern float gi_unbounded_airspeed_sp;
 
-#if GUIDANCE_INDI_HYBRID_USE_WLS
-extern float Wu_gih[GUIDANCE_INDI_HYBRID_U];
-extern float Wv_gih[GUIDANCE_INDI_HYBRID_V];
-extern float du_min_gih[GUIDANCE_INDI_HYBRID_U];
-extern float du_max_gih[GUIDANCE_INDI_HYBRID_U];
-extern float du_pref_gih[GUIDANCE_INDI_HYBRID_U];
-#endif
-
 extern float guidance_indi_thrust_z_eff;
 
 extern struct guidance_indi_hybrid_params gih_params;

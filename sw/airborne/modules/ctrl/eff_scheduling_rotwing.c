@@ -451,19 +451,19 @@ void stabilization_indi_set_wls_settings(void)
 {
    // Calculate the min and max increments
     for (uint8_t i = 0; i < INDI_NUM_ACT; i++) {
-      u_min_stab_indi[i] = -MAX_PPRZ * act_is_servo[i];
-      u_max_stab_indi[i] = MAX_PPRZ;
-      u_pref_stab_indi[i] = act_pref[i];
+      wls_stab_p.u_min[i] = -MAX_PPRZ * act_is_servo[i];
+      wls_stab_p.u_max[i] = MAX_PPRZ;
+      wls_stab_p.u_pref[i] = act_pref[i];
       if (i == 5) { // elevator
-        u_pref_stab_indi[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
-        u_min_stab_indi[i] = 0; // cmd 0 is lowest position for elevator
+        wls_stab_p.u_pref[i] = actuator_state_filt_vect[i]; // Set change in prefered state to 0 for elevator
+        wls_stab_p.u_min[i] = 0; // cmd 0 is lowest position for elevator
       }
       if (i == 7) { // flaperons
         // If an offset is used, limit the max differential command to prevent unilateral saturation.
         int32_t flap_saturation_limit = MAX_PPRZ - abs(rw_flap_offset);
         BoundAbs(flap_saturation_limit, MAX_PPRZ);
-        u_min_stab_indi[i] = -flap_saturation_limit;
-        u_max_stab_indi[i] = flap_saturation_limit;
+        wls_stab_p.u_min[i] = -flap_saturation_limit;
+        wls_stab_p.u_max[i] = flap_saturation_limit;
       }
       if (i==8) { // pusher
         // dt (min to max) MAX_PPRZ / (dt * f) dt_min == 0.002
