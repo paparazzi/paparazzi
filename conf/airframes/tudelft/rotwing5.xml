@@ -141,6 +141,11 @@
         </module>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
+
+
+        <!-- Forward FuelCell data back to the GCS -->
+        <module name="can_fuelcell"/>
+
     </firmware>
 
 
