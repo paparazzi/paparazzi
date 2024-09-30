@@ -33,8 +33,6 @@
 #include "autopilot.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_heli_indi.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 #include "filters/low_pass_filter.h"
 
@@ -124,9 +122,9 @@
 #define INVG_33 -50000 // Not used at the moment
 #define INT32_INVG_FRAC 16
 
-struct Int32Quat   stab_att_sp_quat;
-struct Int32Eulers stab_att_sp_euler;
-struct Int32Quat sp_offset; // non-zero neutral attitude
+static struct Int32Quat   stab_att_sp_quat;
+static struct Int32Eulers stab_att_sp_euler;
+static struct Int32Quat sp_offset; // non-zero neutral attitude
 
 struct HeliIndiGains heli_indi_gains = {
   STABILIZATION_ATTITUDE_HELI_INDI_ROLL_P,
@@ -136,7 +134,7 @@ struct HeliIndiGains heli_indi_gains = {
 };
 
 /* Main controller struct */
-struct IndiController_int heli_indi_ctl;
+static struct IndiController_int heli_indi_ctl;
 
 /* Filter functions */
 struct delayed_first_order_lowpass_filter_t actuator_model[INDI_DOF];
@@ -157,12 +155,6 @@ void indi_apply_measurement_notch_filters(int32_t _out[], int32_t _in[]);
 void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[]);
 void indi_apply_measurement_butterworth_filters(int32_t _out[], int32_t _in[]);
 
-#if PERIODIC_TELEMETRY
-#include "modules/datalink/telemetry.h"
-
-/* Telemetry messages here, at the moment there are none */
-
-#endif // PERIODIC_TELEMETRY
 
 static inline void indi_apply_actuator_models(int32_t _out[], int32_t _in[])
 {
@@ -335,11 +327,11 @@ void stabilization_attitude_heli_indi_set_steadystate_pitchroll()
 }
 
 /**
- * @brief stabilization_attitude_init
+ * @brief stabilization_attitude_heli_indi_init
  *
  * Initialize the heli indi attitude controller.
  */
-void stabilization_attitude_init(void)
+void stabilization_attitude_heli_indi_init(void)
 {
   /* Initialization code INDI */
   struct IndiController_int *c = &heli_indi_ctl;
@@ -425,16 +417,16 @@ void stabilization_attitude_init(void)
   c->apply_measurement_filters[1] = &indi_apply_measurement_butterworth_filters;
   c->apply_actuator_filters[0] = &indi_apply_actuator_notch_filters;
   c->apply_actuator_filters[1] = &indi_apply_actuator_butterworth_filters;
-
-#if PERIODIC_TELEMETRY
-  //register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_<<MSG>>, function);
-#endif
 }
 
-void stabilization_attitude_run(bool in_flight)
+void stabilization_attitude_run(bool in_flight, struct StabilizationSetpoint *sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
   (void) in_flight; // unused variable
   struct IndiController_int *c = &heli_indi_ctl;
+
+  /* set setpoint */
+  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
+  stab_att_sp_quat = stab_sp_to_quat_i(sp);
 
   /* calculate acceleration in body frame */
   struct NedCoor_i *ltp_accel_nedcoor = stateGetAccelNed_i();
@@ -532,7 +524,7 @@ void stabilization_attitude_run(bool in_flight)
 
   /* Take the current (filtered) actuator position and add the incremental value. */
   int32_vect_sum(c->u_setpoint, c->filtered_actuator[INDI_NR_FILTERS - 1], c->du, INDI_DOF);
-  //c->u_setpoint[INDI_THRUST] = stabilization_cmd[COMMAND_THRUST];
+  //c->u_setpoint[INDI_THRUST] = stabilization.cmd[COMMAND_THRUST];
 
   /* bound the result */
   BoundAbs(c->u_setpoint[INDI_ROLL], MAX_PPRZ);
@@ -549,79 +541,20 @@ void stabilization_attitude_run(bool in_flight)
   /* Two correction angles, don't rotate but just add.
    * sin/cos = tan
    */
-  stabilization_cmd[COMMAND_ROLL] = c->command_out[__k][INDI_ROLL]
-                                    + c->command_out[__k][INDI_PITCH] * pprz_itrig_sin(c->pitch_comp_angle) / pprz_itrig_cos(c->pitch_comp_angle);
-  stabilization_cmd[COMMAND_PITCH] = c->command_out[__k][INDI_PITCH]
-                                     + c->command_out[__k][INDI_ROLL] * pprz_itrig_sin(c->roll_comp_angle) / pprz_itrig_cos(c->roll_comp_angle);
-  stabilization_cmd[COMMAND_YAW] = c->command_out[__k][INDI_YAW];
-  /* Thrust is not applied */
+  cmd[COMMAND_ROLL] = c->command_out[__k][INDI_ROLL]
+                      + c->command_out[__k][INDI_PITCH] * pprz_itrig_sin(c->pitch_comp_angle) / pprz_itrig_cos(c->pitch_comp_angle);
+  cmd[COMMAND_PITCH] = c->command_out[__k][INDI_PITCH]
+                       + c->command_out[__k][INDI_ROLL] * pprz_itrig_sin(c->roll_comp_angle) / pprz_itrig_cos(c->roll_comp_angle);
+  cmd[COMMAND_YAW] = c->command_out[__k][INDI_YAW];
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 
   /* Disable tail when not armed, because this thing goes crazy */
   if (!autopilot_get_motors_on()) {
-    stabilization_cmd[COMMAND_YAW] = 0;
+    cmd[COMMAND_YAW] = 0;
   }
 }
 
 void stabilization_attitude_enter(void)
 {
-  /* reset psi setpoint to current psi angle */
-  stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 }
 
-void stabilization_attitude_set_failsafe_setpoint(void)
-{
-  /* set failsafe to zero roll/pitch and current heading */
-  int32_t heading2 = stabilization_attitude_get_heading_i() / 2;
-  PPRZ_ITRIG_COS(stab_att_sp_quat.qi, heading2);
-  stab_att_sp_quat.qx = 0;
-  stab_att_sp_quat.qy = 0;
-  PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
-}
-
-void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
-{
-  // stab_att_sp_euler.psi still used in ref..
-  stab_att_sp_euler = *rpy;
-
-  int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
-}
-
-void stabilization_attitude_set_quat_setpoint_i(struct Int32Quat *quat)
-{
-  stab_att_sp_quat = *quat;
-  int32_eulers_of_quat(&stab_att_sp_euler, quat);
-}
-
-void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
-{
-  // stab_att_sp_euler.psi still used in ref..
-  stab_att_sp_euler.psi = heading;
-
-  // compute sp_euler phi/theta for debugging/telemetry
-  /* Rotate horizontal commands to body frame by psi */
-  int32_t psi = stateGetNedToBodyEulers_i()->psi;
-  int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, psi);
-  PPRZ_ITRIG_COS(c_psi, psi);
-  stab_att_sp_euler.phi = (-s_psi * cmd->x + c_psi * cmd->y) >> INT32_TRIG_FRAC;
-  stab_att_sp_euler.theta = -(c_psi * cmd->x + s_psi * cmd->y) >> INT32_TRIG_FRAC;
-
-  quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
-}
-
-void stabilization_attitude_set_stab_sp(struct StabilizationSetpoint *sp)
-{
-  stab_att_sp_euler = stab_sp_to_eulers_i(sp);
-  stab_att_sp_quat = stab_sp_to_quat_i(sp);
-}
-
-void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
-{
-  struct FloatQuat q_sp;
-#if USE_EARTH_BOUND_RC_SETPOINT
-  stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(&q_sp, in_flight, in_carefree, coordinated_turn);
-#else
-  stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight, in_carefree, coordinated_turn);
-#endif
-  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
-}

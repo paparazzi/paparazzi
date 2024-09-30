@@ -60,4 +60,7 @@ void nav_goto_block(uint8_t block_id);
 /** Time in s since the entrance in the current block */
 #define NavBlockTime() (block_time)
 
+/** macro to use pointers in flight plans XML */
+#define Ptr(x) (&(x))
+
 #endif /* COMMON_FLIGHT_PLAN_H */

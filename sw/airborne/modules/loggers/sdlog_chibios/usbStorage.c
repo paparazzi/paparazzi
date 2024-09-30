@@ -63,7 +63,7 @@ static void usbActivity(bool active __attribute__((unused)))
 /* USB mass storage configuration */
 static USBMassStorageConfig msdConfig = {
   &USBD1,
-  (BaseBlockDevice *) &SDCD1,
+  (BaseBlockDevice *) &SDLOG_SDIO,
   USB_MS_DATA_EP,
   &usbActivity,
   "Pprz_sd",
@@ -134,7 +134,7 @@ static void thdUsbStorage(void *arg)
 
 
   /* connect sdcard sdc interface sdio */
-  if (sdio_connect() == false) {
+  if (sdio_connect(&SDLOG_SDIO) == false) {
     chThdExit(MSG_TIMEOUT);
   }
 

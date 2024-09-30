@@ -36,9 +36,7 @@
 #include "modules/datalink/downlink.h"
 
 #include "generated/flight_plan.h"
-#if !(defined TAG_TRACKING_WP) && (defined WP_TAG)
-#define TAG_TRACKING_WP WP_TAG
-#endif
+
 
 // use WP_TARGET by default for simulation
 #if !(defined TAG_TRACKING_SIM_WP) && (defined WP_TARGET)
@@ -62,6 +60,10 @@ static void tag_motion_sim(void);
 #define TAG_MOTION_SPEED_Y 0.f
 #define TAG_MOTION_RANGE_X 4.f
 #define TAG_MOTION_RANGE_Y 4.f
+
+#ifndef TAG_TRACKING_SIM_ID
+#define TAG_TRACKING_SIM_ID "U1"
+#endif
 
 static uint8_t tag_motion_sim_type = TAG_MOTION_NONE;
 static struct FloatVect3 tag_motion_speed = { TAG_MOTION_SPEED_X, TAG_MOTION_SPEED_Y, 0.f };
@@ -150,26 +152,56 @@ float speed_circle = 0.03;
 #define TAG_TRACKING_MAX_VZ 2.f
 #endif
 
+
+#define TAG_UNUSED_ID -1
+
 // generated in modules.h
 static const float tag_track_dt = TAG_TRACKING_PROPAGATE_PERIOD;
 
 // global state structure
 struct tag_tracking {
   struct FloatVect3 meas;       ///< measured position
+  struct FloatQuat cam_to_tag_quat;   ///< measured quat
 
   struct FloatRMat body_to_cam; ///< Body to camera rotation
+  struct FloatQuat body_to_cam_quat;  ///< Body to camera rotation in quaternion
   struct FloatVect3 cam_pos;    ///< Position of camera in body frame
 
   float timeout;                ///< timeout for lost flag [sec]
   bool updated;                 ///< updated state
 
-  uint8_t id;                   ///< ID of detected tag
+  int16_t id;                   ///< ID of detected tag
 };
 
-static struct tag_tracking tag_track_private;
-static struct SimpleKinematicKalman kalman;
 
-struct tag_tracking_public tag_tracking;
+
+struct tag_info {
+  struct tag_tracking tag_track_private;
+  struct tag_tracking_public tag_tracking;
+  struct SimpleKinematicKalman kalman;
+  uint8_t wp_id;
+};
+
+struct wp_tracking {
+  int16_t tag_id;
+  uint8_t wp_id;
+};
+
+
+#if (defined TAG_TRACKING_WPS)
+struct wp_tracking wp_track[] = TAG_TRACKING_WPS;
+const uint8_t tag_tracking_wps_len = sizeof(wp_track) / sizeof(struct wp_tracking);
+#else
+struct wp_tracking wp_track[] = {};
+const uint8_t tag_tracking_wps_len = 0;
+#endif
+
+
+struct tag_info tag_infos[TAG_TRACKING_NB_MAX];
+
+struct tag_tracking_public dummy = {0};
+
+struct FloatQuat rot_x_quat;  // quaternion to rotate tag to have Z down
 
 // Abi bindings
 #ifndef TAG_TRACKING_ID
@@ -178,13 +210,49 @@ struct tag_tracking_public tag_tracking;
 
 static abi_event tag_track_ev;
 
+static void tag_tracking_propagate_start_tag(struct tag_info* tag_info);
+
+struct tag_tracking_public* tag_tracking_get(int16_t tag_id) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    if(tag_infos[i].tag_track_private.id == tag_id) {
+      return &tag_infos[i].tag_tracking;
+    }
+
+    // tag_id == TAG_TRACKING_ANY, returns the first running tag.
+    if (tag_id == TAG_TRACKING_ANY && tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING) {
+      return &tag_infos[i].tag_tracking;
+    }
+  }
+
+  dummy.status = TAG_TRACKING_SEARCHING;
+  float_quat_identity(&dummy.ned_to_tag_quat);
+  return &dummy;
+}
+
+uint8_t tag_tracking_get_status(int16_t tag_id)
+{
+  return tag_tracking_get(tag_id)->status;
+}
+
+uint8_t tag_tracking_get_motion_type(int16_t tag_id)
+{
+  return tag_tracking_get(tag_id)->motion_type;
+}
+
+float tag_tracking_get_heading(int16_t tag_id) {
+  struct tag_tracking_public* tag = tag_tracking_get(tag_id);
+  struct FloatEulers e;
+  float_eulers_of_quat(&e, &tag->ned_to_tag_quat);
+  return DegOfRad(e.psi);
+}
+
 // update measure vect before calling
-static void update_tag_position(void)
+static void update_tag_position(struct tag_info* tag_info)
 {
   struct FloatVect3 target_pos_ned, target_pos_body;
   // compute target position in body frame (rotate and translate)
-  float_rmat_transp_vmult(&target_pos_body, &tag_track_private.body_to_cam, &tag_track_private.meas);
-  VECT3_ADD(target_pos_body, tag_track_private.cam_pos);
+  float_rmat_transp_vmult(&target_pos_body, &tag_info->tag_track_private.body_to_cam, &tag_info->tag_track_private.meas);
+  VECT3_ADD(target_pos_body, tag_info->tag_track_private.cam_pos);
   // rotate to ltp frame
   struct FloatRMat *ltp_to_body_rmat = stateGetNedToBodyRMat_f();
   float_rmat_transp_vmult(&target_pos_ned, ltp_to_body_rmat, &target_pos_body);
@@ -192,24 +260,28 @@ static void update_tag_position(void)
   struct NedCoor_f * pos_ned = stateGetPositionNed_f();
   VECT3_ADD(target_pos_ned, *pos_ned);
 
-  if (tag_tracking.status == TAG_TRACKING_DISABLE) {
+  // TODO filter in kalman ?
+  float_quat_comp(&tag_info->tag_tracking.body_to_tag_quat, &tag_infos->tag_track_private.body_to_cam_quat, &tag_info->tag_track_private.cam_to_tag_quat);
+  float_quat_comp(&tag_info->tag_tracking.ned_to_tag_quat, stateGetNedToBodyQuat_f(), &tag_info->tag_tracking.body_to_tag_quat);
+
+  if (tag_info->tag_tracking.status == TAG_TRACKING_DISABLE) {
     // don't run kalman, just update pos, set speed to zero
-    tag_tracking.pos = target_pos_ned;
-    FLOAT_VECT3_ZERO(tag_tracking.speed);
+    tag_info->tag_tracking.pos = target_pos_ned;
+    FLOAT_VECT3_ZERO(tag_info->tag_tracking.speed);
   } else {
     // update state and status
-    if (tag_tracking.status != TAG_TRACKING_RUNNING) {
+    if (tag_info->tag_tracking.status != TAG_TRACKING_RUNNING) {
       // reset state after first detection or lost tag
       struct FloatVect3 speed = { 0.f, 0.f, 0.f };
-      simple_kinematic_kalman_set_state(&kalman, target_pos_ned, speed);
-      tag_tracking.status = TAG_TRACKING_RUNNING;
+      simple_kinematic_kalman_set_state(&tag_info->kalman, target_pos_ned, speed);
+      tag_info->tag_tracking.status = TAG_TRACKING_RUNNING;
     }
     else {
       // RUNNING state, call correction step
-      simple_kinematic_kalman_update_pos(&kalman, target_pos_ned);
+      simple_kinematic_kalman_update_pos(&tag_info->kalman, target_pos_ned);
     }
     // update public structure
-    simple_kinematic_kalman_get_state(&kalman, &tag_tracking.pos, &tag_tracking.speed);
+    simple_kinematic_kalman_get_state(&tag_info->kalman, &tag_info->tag_tracking.pos, &tag_info->tag_tracking.speed);
   }
 }
 
@@ -219,45 +291,64 @@ static void tag_track_cb(uint8_t sender_id UNUSED,
      struct FloatQuat quat UNUSED, char * extra UNUSED)
 {
   if (type == JEVOIS_MSG_D3) {
-    // store data from Jevois detection
-    tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
-    tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
-    tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
-    // update filter
-    update_tag_position();
-    // store tag ID
-    tag_track_private.id = (uint8_t)jevois_extract_nb(id);
-    // reset timeout and status
-    tag_track_private.timeout = 0.f;
-    tag_track_private.updated = true;
+    int16_t tag_id = (int16_t)jevois_extract_nb(id);
+    for (int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+      // free slot, store tag ID
+      if (tag_infos[i].tag_track_private.id == TAG_UNUSED_ID) {
+        tag_infos[i].tag_track_private.id = tag_id;
+      }
+
+      if (tag_infos[i].tag_track_private.id == tag_id) {
+        // store data from Jevois detection
+        tag_infos[i].tag_track_private.meas.x = coord[0] * TAG_TRACKING_COORD_TO_M;
+        tag_infos[i].tag_track_private.meas.y = coord[1] * TAG_TRACKING_COORD_TO_M;
+        tag_infos[i].tag_track_private.meas.z = coord[2] * TAG_TRACKING_COORD_TO_M;
+
+        float_quat_normalize(&quat);
+        // rotate the quaternion so Z is down
+        float_quat_comp(&tag_infos[i].tag_track_private.cam_to_tag_quat, &quat, &rot_x_quat);
+        // update filter
+        update_tag_position(&tag_infos[i]);
+        // reset timeout and status
+        tag_infos[i].tag_track_private.timeout = 0.f;
+        tag_infos[i].tag_track_private.updated = true;
+        break;
+      }
+    }
   }
 }
 
 void tag_tracking_parse_target_pos(uint8_t *buf)
 {
-  // update x,y,z position from lat,lon,alt fields
-  tag_track_private.meas.x = DL_TARGET_POS_lat(buf) * TAG_TRACKING_COORD_TO_M;
-  tag_track_private.meas.y = DL_TARGET_POS_lon(buf) * TAG_TRACKING_COORD_TO_M;
-  tag_track_private.meas.z = DL_TARGET_POS_alt(buf) * TAG_TRACKING_COORD_TO_M;
-  // update filter
-  update_tag_position();
-  // store tag ID
-  tag_track_private.id = DL_TARGET_POS_target_id(buf);
-  // reset timeout and status
-  tag_track_private.timeout = 0.f;
-  tag_track_private.updated = true;
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    // update x,y,z position from lat,lon,alt fields
+    tag_infos[i].tag_track_private.meas.x = DL_TARGET_POS_lat(buf) * TAG_TRACKING_COORD_TO_M;
+    tag_infos[i].tag_track_private.meas.y = DL_TARGET_POS_lon(buf) * TAG_TRACKING_COORD_TO_M;
+    tag_infos[i].tag_track_private.meas.z = DL_TARGET_POS_alt(buf) * TAG_TRACKING_COORD_TO_M;
+    // update filter
+    update_tag_position(&tag_infos[i]);
+    // store tag ID
+    tag_infos[i].tag_track_private.id = DL_TARGET_POS_target_id(buf);
+    // reset timeout and status
+    tag_infos[i].tag_track_private.timeout = 0.f;
+    tag_infos[i].tag_track_private.updated = true;
+  }
 }
 
 // Update and display tracking WP
-static void update_wp(bool report UNUSED)
+static void update_wp(struct tag_info* tag_info UNUSED, bool report UNUSED)
 {
-#ifdef TAG_TRACKING_WP
+  if (tag_info->wp_id == 0) {
+    // not associated with any WP
+    return;
+  }
+
   struct FloatVect3 target_pos_enu, target_pos_pred;
-  ENU_OF_TO_NED(target_pos_enu, tag_tracking.pos); // convert local target pos to ENU
-  if (tag_tracking.motion_type == TAG_TRACKING_MOVING) {
+  ENU_OF_TO_NED(target_pos_enu, tag_info->tag_tracking.pos); // convert local target pos to ENU
+  if (tag_info->tag_tracking.motion_type == TAG_TRACKING_MOVING) {
     // when moving mode, predict tag position
-    ENU_OF_TO_NED(target_pos_pred, tag_tracking.speed);
-    VECT2_SMUL(target_pos_pred, target_pos_pred, tag_tracking.predict_time); // pos offset at predict_time
+    ENU_OF_TO_NED(target_pos_pred, tag_info->tag_tracking.speed);
+    VECT2_SMUL(target_pos_pred, target_pos_pred, tag_info->tag_tracking.predict_time); // pos offset at predict_time
     VECT2_STRIM(target_pos_pred, -TAG_TRACKING_MAX_OFFSET, TAG_TRACKING_MAX_OFFSET); // trim max offset
     VECT3_ADD(target_pos_enu, target_pos_pred); // add prediction offset
   }
@@ -265,42 +356,55 @@ static void update_wp(bool report UNUSED)
   ENU_BFP_OF_REAL(pos_i, target_pos_enu);
   if (report) {
     // move is a set + downlink report
-    waypoint_move_enu_i(TAG_TRACKING_WP, &pos_i);
+    waypoint_move_enu_i(tag_info->wp_id, &pos_i);
   } else {
-    waypoint_set_enu_i(TAG_TRACKING_WP, &pos_i);
+    waypoint_set_enu_i(tag_info->wp_id, &pos_i);
   }
-#endif
 }
 
 // Init function
 void tag_tracking_init()
 {
+  struct FloatEulers rot_x = { M_PI, 0, 0};
+  float_quat_of_eulers(&rot_x_quat, &rot_x);
+
   // Init structure
-  FLOAT_VECT3_ZERO(tag_track_private.meas);
-  FLOAT_VECT3_ZERO(tag_tracking.pos);
-  FLOAT_VECT3_ZERO(tag_tracking.speed);
-  FLOAT_VECT3_ZERO(tag_tracking.speed_cmd);
-  struct FloatEulers euler = {
-    TAG_TRACKING_BODY_TO_CAM_PHI,
-    TAG_TRACKING_BODY_TO_CAM_THETA,
-    TAG_TRACKING_BODY_TO_CAM_PSI
-  };
-  float_rmat_of_eulers(&tag_track_private.body_to_cam, &euler);
-  VECT3_ASSIGN(tag_track_private.cam_pos,
-      TAG_TRACKING_CAM_POS_X,
-      TAG_TRACKING_CAM_POS_Y,
-      TAG_TRACKING_CAM_POS_Z);
-  tag_tracking.kp = TAG_TRACKING_KP;
-  tag_tracking.kpz = TAG_TRACKING_KPZ;
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    FLOAT_VECT3_ZERO(tag_infos[i].tag_track_private.meas);
+    FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.pos);
+    FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.speed);
+    FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.speed_cmd);
+    float_quat_identity(&tag_infos[i].tag_tracking.ned_to_tag_quat);
+    struct FloatEulers euler = {
+      TAG_TRACKING_BODY_TO_CAM_PHI,
+      TAG_TRACKING_BODY_TO_CAM_THETA,
+      TAG_TRACKING_BODY_TO_CAM_PSI
+    };
+    float_rmat_of_eulers(&tag_infos[i].tag_track_private.body_to_cam, &euler);
+    float_quat_of_eulers(&tag_infos[i].tag_track_private.body_to_cam_quat, &euler);
+    VECT3_ASSIGN(tag_infos[i].tag_track_private.cam_pos,
+        TAG_TRACKING_CAM_POS_X,
+        TAG_TRACKING_CAM_POS_Y,
+        TAG_TRACKING_CAM_POS_Z);
+    tag_infos[i].tag_tracking.kp = TAG_TRACKING_KP;
+    tag_infos[i].tag_tracking.kpz = TAG_TRACKING_KPZ;
+
+    tag_infos[i].tag_tracking.status = TAG_TRACKING_SEARCHING;
+    tag_infos[i].tag_tracking.motion_type = TAG_TRACKING_FIXED_POS;
+    tag_infos[i].tag_tracking.predict_time = TAG_TRACKING_PREDICT_TIME;
+    tag_infos[i].tag_track_private.timeout = 0.f;
+    tag_infos[i].tag_track_private.updated = false;
+    tag_infos[i].tag_track_private.id = TAG_UNUSED_ID;
+  }
+
+  // reserve slots for tag_ids we are looking for, and associate wp_ids.
+  for(int i=0; i<Min(tag_tracking_wps_len, TAG_TRACKING_NB_MAX); i++) {
+    tag_infos[i].tag_track_private.id = wp_track[i].tag_id;
+    tag_infos[i].wp_id = wp_track[i].wp_id;
+  }
 
   // Bind to ABI message
   AbiBindMsgJEVOIS_MSG(TAG_TRACKING_ID, &tag_track_ev, tag_track_cb);
-
-  tag_tracking.status = TAG_TRACKING_SEARCHING;
-  tag_tracking.motion_type = TAG_TRACKING_FIXED_POS;
-  tag_tracking.predict_time = TAG_TRACKING_PREDICT_TIME;
-  tag_track_private.timeout = 0.f;
-  tag_track_private.updated = false;
 }
 
 
@@ -313,74 +417,86 @@ void tag_tracking_propagate()
   }
   tag_tracking_sim();
 #endif
-
-  switch (tag_tracking.status) {
-    case TAG_TRACKING_SEARCHING:
-      // don't propagate, wait for first detection
-      break;
-    case TAG_TRACKING_RUNNING:
-      // call kalman propagation step
-      simple_kinematic_kalman_predict(&kalman);
-      // force speed to zero for fixed tag
-      if (tag_tracking.motion_type == TAG_TRACKING_FIXED_POS) {
-        struct FloatVect3 zero = { 0.f, 0.f, 0.f };
-        simple_kinematic_kalman_update_speed(&kalman, zero, SIMPLE_KINEMATIC_KALMAN_SPEED_3D);
-      }
-      // update public structure
-      simple_kinematic_kalman_get_state(&kalman, &tag_tracking.pos, &tag_tracking.speed);
-      // update WP
-      update_wp(false);
-      // increment timeout counter
-      tag_track_private.timeout += tag_track_dt;
-      if (tag_track_private.timeout > TAG_TRACKING_TIMEOUT) {
-        tag_tracking.status = TAG_TRACKING_LOST;
-      }
-      break;
-    case TAG_TRACKING_LOST:
-      // tag is lost, restart filter and wait for a new detection
-      tag_tracking_propagate_start();
-      break;
-    default:
-      break;
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    switch (tag_infos[i].tag_tracking.status) {
+      case TAG_TRACKING_SEARCHING:
+        // don't propagate, wait for first detection
+        break;
+      case TAG_TRACKING_RUNNING:
+        // call kalman propagation step
+        simple_kinematic_kalman_predict(&tag_infos[i].kalman);
+        // force speed to zero for fixed tag
+        if (tag_infos[i].tag_tracking.motion_type == TAG_TRACKING_FIXED_POS) {
+          struct FloatVect3 zero = { 0.f, 0.f, 0.f };
+          simple_kinematic_kalman_update_speed(&tag_infos[i].kalman, zero, SIMPLE_KINEMATIC_KALMAN_SPEED_3D);
+        }
+        // update public structure
+        simple_kinematic_kalman_get_state(&tag_infos[i].kalman, &tag_infos[i].tag_tracking.pos, &tag_infos[i].tag_tracking.speed);
+        // update WP
+        update_wp(&tag_infos[i], false);
+        // increment timeout counter
+        tag_infos[i].tag_track_private.timeout += tag_track_dt;
+        if (tag_infos[i].tag_track_private.timeout > TAG_TRACKING_TIMEOUT) {
+          tag_infos[i].tag_tracking.status = TAG_TRACKING_LOST;
+        }
+        break;
+      case TAG_TRACKING_LOST:
+        // tag is lost, restart filter and wait for a new detection
+        tag_tracking_propagate_start_tag(&tag_infos[i]);
+        break;
+      default:
+        break;
+    }
   }
 }
 
 // Propagation start function (called at each start state)
-void tag_tracking_propagate_start()
+static void tag_tracking_propagate_start_tag(struct tag_info* tag_info)
 {
-  simple_kinematic_kalman_init(&kalman, TAG_TRACKING_P0_POS, TAG_TRACKING_P0_SPEED, TAG_TRACKING_Q_SIGMA2, TAG_TRACKING_R, tag_track_dt);
-  tag_tracking.status = TAG_TRACKING_SEARCHING;
-  tag_track_private.timeout = 0.f;
+  simple_kinematic_kalman_init(&tag_info->kalman, TAG_TRACKING_P0_POS, TAG_TRACKING_P0_SPEED, TAG_TRACKING_Q_SIGMA2, TAG_TRACKING_R, tag_track_dt);
+  tag_info->tag_tracking.status = TAG_TRACKING_SEARCHING;
+  tag_info->tag_track_private.timeout = 0.f;
+}
+
+void tag_tracking_propagate_start() {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    tag_tracking_propagate_start_tag(&tag_infos[i]);
+  }
 }
 
 // Report function
 void tag_tracking_report()
 {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    if(tag_infos[i].tag_track_private.id == TAG_UNUSED_ID) {
+      continue;
+    }
 #if TAG_TRACKING_DEBUG
-  float msg[] = {
-    kalman.state[0],
-    kalman.state[1],
-    kalman.state[2],
-    kalman.state[3],
-    kalman.state[4],
-    kalman.state[5],
-    (float)tag_tracking.status
-  };
-  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 7, msg);
+    float msg[] = {
+      tag_infos[i].kalman.state[0],
+      tag_infos[i].kalman.state[1],
+      tag_infos[i].kalman.state[2],
+      tag_infos[i].kalman.state[3],
+      tag_infos[i].kalman.state[4],
+      tag_infos[i].kalman.state[5],
+      (float)tag_infos[i].tag_tracking.status
+    };
+    DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 7, msg);
 #endif
 
-  if (tag_tracking.status == TAG_TRACKING_RUNNING || tag_track_private.updated) {
-    // compute absolute position
-    struct LlaCoor_f tag_lla;
-    struct EcefCoor_f tag_ecef;
-    ecef_of_ned_point_f(&tag_ecef, &state.ned_origin_f, (struct NedCoor_f *)(&tag_tracking.pos));
-    lla_of_ecef_f(&tag_lla, &tag_ecef);
-    float lat_deg = DegOfRad(tag_lla.lat);
-    float lon_deg = DegOfRad(tag_lla.lon);
-    DOWNLINK_SEND_MARK(DefaultChannel, DefaultDevice, &tag_track_private.id,
-        &lat_deg, &lon_deg);
-    update_wp(true);
-    tag_track_private.updated = false;
+    if (tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING || tag_infos[i].tag_track_private.updated) {
+      // compute absolute position
+      struct LlaCoor_f tag_lla;
+      struct EcefCoor_f tag_ecef;
+      ecef_of_ned_point_f(&tag_ecef, &state.ned_origin_f, (struct NedCoor_f *)(&tag_infos[i].tag_tracking.pos));
+      lla_of_ecef_f(&tag_lla, &tag_ecef);
+      float lat_deg = DegOfRad(tag_lla.lat);
+      float lon_deg = DegOfRad(tag_lla.lon);
+      uint8_t id =(uint8_t)tag_infos[i].tag_track_private.id;
+      DOWNLINK_SEND_MARK(DefaultChannel, DefaultDevice, &id, &lat_deg, &lon_deg);
+      update_wp(&tag_infos[i], true);
+      tag_infos[i].tag_track_private.updated = false;
+    }
   }
 }
 
@@ -392,19 +508,33 @@ void tag_tracking_report()
  */
 void tag_tracking_compute_speed(void)
 {
-  if (tag_tracking.status == TAG_TRACKING_RUNNING) {
-    // compute speed command as estimated tag speed + gain * position error
-    struct NedCoor_f pos = *stateGetPositionNed_f();
-    tag_tracking.speed_cmd.x = tag_tracking.speed.x + tag_tracking.kp * (tag_tracking.pos.x - pos.x);
-    tag_tracking.speed_cmd.y = tag_tracking.speed.y + tag_tracking.kp * (tag_tracking.pos.y - pos.y);
-    tag_tracking.speed_cmd.z = tag_tracking.speed.z + tag_tracking.kpz * (tag_tracking.pos.z - pos.z);
-    VECT2_STRIM(tag_tracking.speed_cmd, -TAG_TRACKING_MAX_SPEED, TAG_TRACKING_MAX_SPEED); // trim max horizontal speed
-    BoundAbs(tag_tracking.speed_cmd.z, TAG_TRACKING_MAX_VZ); // tim max vertical speed
+  for (int i = 0; i < TAG_TRACKING_NB_MAX; i++) {
+    if (tag_infos[i].tag_tracking.status == TAG_TRACKING_RUNNING) {
+      // compute speed command as estimated tag speed + gain * position error
+      struct NedCoor_f pos = *stateGetPositionNed_f();
+      tag_infos[i].tag_tracking.speed_cmd.x = tag_infos[i].tag_tracking.speed.x + tag_infos[i].tag_tracking.kp * (tag_infos[i].tag_tracking.pos.x - pos.x);
+      tag_infos[i].tag_tracking.speed_cmd.y = tag_infos[i].tag_tracking.speed.y + tag_infos[i].tag_tracking.kp * (tag_infos[i].tag_tracking.pos.y - pos.y);
+      tag_infos[i].tag_tracking.speed_cmd.z = tag_infos[i].tag_tracking.speed.z + tag_infos[i].tag_tracking.kpz * (tag_infos[i].tag_tracking.pos.z - pos.z);
+      VECT2_STRIM(tag_infos[i].tag_tracking.speed_cmd, -TAG_TRACKING_MAX_SPEED, TAG_TRACKING_MAX_SPEED); // trim max horizontal speed
+      BoundAbs(tag_infos[i].tag_tracking.speed_cmd.z, TAG_TRACKING_MAX_VZ); // tim max vertical speed
+    }
+    else {
+      // filter is not runing, set speed command to zero
+      FLOAT_VECT3_ZERO(tag_infos[i].tag_tracking.speed_cmd);
+    }
   }
-  else {
-    // filter is not runing, set speed command to zero
-    FLOAT_VECT3_ZERO(tag_tracking.speed_cmd);
+}
+
+bool tag_tracking_set_tracker_id(int16_t tag_id, uint8_t wp_id)
+{
+  for (int i = 0; i < TAG_TRACKING_NB_MAX; i++) {
+    if (tag_infos[i].tag_track_private.id == TAG_UNUSED_ID || tag_infos[i].tag_track_private.id == tag_id) {
+      tag_infos[i].tag_track_private.id = tag_id;
+      tag_infos[i].wp_id = wp_id;
+      return true;
+    }
   }
+  return false; // fail to set tracker id
 }
 
 // Simulate detection using a WP coordinate
@@ -414,11 +544,11 @@ static void tag_tracking_sim(void)
   // Compute image coordinates of a WP given fake camera parameters
   struct FloatRMat *ltp_to_body_rmat = stateGetNedToBodyRMat_f();
   struct FloatRMat ltp_to_cam_rmat;
-  float_rmat_comp(&ltp_to_cam_rmat, ltp_to_body_rmat, &tag_track_private.body_to_cam);
+  float_rmat_comp(&ltp_to_cam_rmat, ltp_to_body_rmat, &tag_infos[0].tag_track_private.body_to_cam);
   // Prepare cam world position
   // C_w = P_w + R_w2b * C_b
   struct FloatVect3 cam_pos_ltp;
-  float_rmat_vmult(&cam_pos_ltp, ltp_to_body_rmat, &tag_track_private.cam_pos);
+  float_rmat_vmult(&cam_pos_ltp, ltp_to_body_rmat, &tag_infos[0].tag_track_private.cam_pos);
   VECT3_ADD(cam_pos_ltp, *stateGetPositionNed_f());
   // Target
   struct NedCoor_f target_ltp;
@@ -443,7 +573,7 @@ static void tag_tracking_sim(void)
       uint16_t dim[3] = { 100, 100, 0 };
       struct FloatQuat quat; // TODO
       float_quat_identity(&quat);
-      AbiSendMsgJEVOIS_MSG(42, JEVOIS_MSG_D3, "1", 3, coord, dim, quat, "");
+      AbiSendMsgJEVOIS_MSG(42, JEVOIS_MSG_D3, TAG_TRACKING_SIM_ID, 3, coord, dim, quat, "");
     }
   }
 }
@@ -492,3 +622,65 @@ static void tag_motion_sim(void)
 
 #endif
 
+
+
+
+int tag_tracking_setting_id;
+float tag_tracking_motion_type;
+float tag_tracking_predict_time;
+float tag_tracking_kp;
+float tag_tracking_kpz;
+
+
+void tag_tracking_set_motion_type(float motion_type) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.motion_type = (uint8_t)motion_type;
+      tag_tracking_motion_type = (uint8_t)motion_type;;
+    }
+  }
+}
+
+void tag_tracking_set_predict_time(float predict_time) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.predict_time = predict_time;
+      tag_tracking_predict_time = predict_time;
+    }
+  }
+}
+
+void tag_tracking_set_kp(float kp) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.kp = kp;
+      tag_tracking_kp = kp;
+    }
+  }
+}
+
+void tag_tracking_set_kpz(float kpz) {
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_infos[i].tag_tracking.kpz = kpz;
+      tag_tracking_kpz = kpz;
+    }
+  }
+}
+
+void tag_tracking_set_setting_id(float id) {
+  tag_tracking_setting_id = (int)id;
+  for(int i=0; i<TAG_TRACKING_NB_MAX; i++) {
+    bool joker = (tag_tracking_setting_id == -1) && (tag_infos[i].tag_track_private.id != TAG_UNUSED_ID);
+    if(tag_infos[i].tag_track_private.id == tag_tracking_setting_id || joker) {
+      tag_tracking_motion_type = tag_infos[i].tag_tracking.motion_type;
+      tag_tracking_predict_time = tag_infos[i].tag_tracking.predict_time;
+      tag_tracking_kp = tag_infos[i].tag_tracking.kp;
+      tag_tracking_kpz = tag_infos[i].tag_tracking.kpz;
+    }
+  }
+}

@@ -22,12 +22,11 @@
 #ifndef STABILIZATION_ATTITUDE_EULER_INT_H
 #define STABILIZATION_ATTITUDE_EULER_INT_H
 
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_euler_int.h"
+
+extern void stabilization_attitude_euler_int_init(void);
 
 extern struct Int32Eulers stabilization_att_sum_err;
-
-extern struct Int32Eulers stab_att_sp_euler;
-extern struct AttRefEulerInt att_ref_euler_i;
 
 #endif /* STABILIZATION_ATTITUDE_EULER_INT_H */

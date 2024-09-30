@@ -28,8 +28,8 @@ include ../Makefile.ocaml
 
 OCAMLC += -g
 INCLUDES =
-PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
+PKG = -package glibivy,pprz,$(USE_LABELGTK)
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -37,7 +37,11 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 CAML_CFLAGS = -I $(shell $(OCAMLC) -where)
 
+ifeq ($(USE_LABELGTK),lablgtk2)
 all : gaia
+else
+all :
+endif
 
 gaia : gaia.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@

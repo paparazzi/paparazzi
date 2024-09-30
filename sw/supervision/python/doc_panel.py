@@ -10,7 +10,7 @@ except ImportError:
         def setupUi(self, DocPanel):
             self.deactivated = True
             self.lay = QVBoxLayout(DocPanel)
-            label = QLabel("Please install 'python3-pyqt5.qtwebkit' to view the doc.", DocPanel)
+            label = QLabel("Please install 'PyQtWebEngine' to view the doc.", DocPanel)
             label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
             self.lay.addWidget(label)
 

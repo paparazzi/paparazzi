@@ -694,7 +694,7 @@ void ekf_aw_propagate(struct FloatVect3 *acc, struct FloatRates *gyro, struct Fl
 
   // Calculate Angle of Attack
   float aoa = atan2f(w, fabsf(u) < 1.E-5 ? 1E-5 : u); // Protected alpha calculation
-  float sat_aoa;
+  float sat_aoa = 0;
   Bound(sat_aoa, deg2rad * EKF_AW_AOA_MIN_ANGLE, deg2rad * EKF_AW_AOA_MAX_ANGLE); // Saturate alpha
   float tan_aoa = tanf(aoa);
 

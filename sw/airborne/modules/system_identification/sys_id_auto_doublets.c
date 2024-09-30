@@ -45,12 +45,24 @@
 #error No doublet actuators SYS_ID_AUTO_DOUBLETS_AMPLITUDE defined
 #endif
 
+#ifndef SYS_ID_AUTO_DOUBLETS_TIME
+#define SYS_ID_AUTO_DOUBLETS_TIME 0.5
+#endif
+
+#ifndef SYS_ID_AUTO_DOUBLETS_INTERVAL
+#define SYS_ID_AUTO_DOUBLETS_INTERVAL 5.0
+#endif
+
+#ifndef SYS_ID_AUTO_DOUBLETS_REPEATS
+#define SYS_ID_AUTO_DOUBLETS_REPEATS 5
+#endif
+
 uint8_t sys_id_auto_doublets_actuators[SYS_ID_AUTO_DOUBLETS_N_ACTUATORS] = SYS_ID_AUTO_DOUBLETS_ACTUATORS;
 int16_t sys_id_auto_doublets_amplitude[SYS_ID_AUTO_DOUBLETS_N_ACTUATORS] = SYS_ID_AUTO_DOUBLETS_AMPLITUDE;
 
-float sys_id_auto_doublets_time = 0.5;         // time of one doublet
-float sys_id_auto_doublets_interval_time = 5.; // time interval for doublets
-int8_t sys_id_auto_doublets_n_repeat = 5;      // The number of times a doublet has to be repeated on a single actuator
+float sys_id_auto_doublets_time = SYS_ID_AUTO_DOUBLETS_TIME;              // time of one doublet
+float sys_id_auto_doublets_interval_time = SYS_ID_AUTO_DOUBLETS_INTERVAL; // time interval for doublets
+int8_t sys_id_auto_doublets_n_repeat = SYS_ID_AUTO_DOUBLETS_REPEATS;      // The number of times a doublet has to be repeated on a single actuator
 
 bool sys_id_auto_doublets_activated = false;
 

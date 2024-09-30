@@ -30,10 +30,11 @@
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/guidance/guidance_oneloop.h"
 #include "firmwares/rotorcraft/oneloop/oneloop_andi.h"
+struct ThrustSetpoint thrust_sp;
 
 void guidance_h_run_enter(void)
 {
-  oneloop_andi_enter(false);
+  oneloop_andi_enter(false, CTRL_ANDI);
 }
 
 void guidance_v_run_enter(void)
@@ -59,25 +60,25 @@ struct StabilizationSetpoint guidance_h_run_accel(bool in_flight, struct Horizon
   return guidance_oneloop_run_mode(in_flight, gh, _gv, GUIDANCE_ONELOOP_H_ACCEL, _v_mode);
 }
 
-int32_t guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_pos(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_ONELOOP_V_POS;
-  return 0; // nothing to do
+  return thrust_sp; // nothing to do
 }
 
-int32_t guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_speed(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_ONELOOP_V_SPEED;
-  return 0; // nothing to do
+  return thrust_sp; // nothing to do
 }
 
-int32_t guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
+struct ThrustSetpoint guidance_v_run_accel(bool in_flight UNUSED, struct VerticalGuidance *gv)
 {
   _gv = gv;
   _v_mode = GUIDANCE_ONELOOP_V_ACCEL;  
-  return 0; // nothing to do
+  return thrust_sp;; // nothing to do
 }
 
 struct StabilizationSetpoint guidance_oneloop_run_mode(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceOneloop_HMode h_mode, enum GuidanceOneloop_VMode v_mode)

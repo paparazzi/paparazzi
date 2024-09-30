@@ -9,6 +9,7 @@ from program_widget import ProgramWidget
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List
+import re
 
 
 class Level(Enum):
@@ -85,6 +86,18 @@ class ConsoleWidget(QWidget, Ui_Console):
         lines = data.split(b'\n')
         for line in lines:
             line = line.data().decode()
+            # remove VT100 escape codes
+            while True:
+                m = re.match(r".*(\x1b\[((?:\d+;)*\d+)([mhK])).*", line)
+                if m is not None:
+                    seq = m.group(1)
+                    line = line.replace(seq, "")
+                else:
+                    break
+            #remove empty lines
+            if line == "":
+                continue
+
             level = self.classify(line)
             r = Record(level, line, pw, channel)
             self.records.append(r)

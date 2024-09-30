@@ -11,12 +11,9 @@
   </input>
 
   <messages period="0.025">
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="throttle" value="127-Fit(throttle, -93, 107, 0, 127)" />
-      <field name="roll" value="127-Fit(roll, -75, 108, 0, 127)" />
-      <field name="yaw" value="yaw" />
-      <field name="pitch" value="pitch" />
-    </message>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="127-Fit(roll, -75, 108, 0, 127);pitch;yaw;127-Fit(throttle, -93, 107, 0, 127)"/>
+    </message>  
   </messages>
 
 </joystick>

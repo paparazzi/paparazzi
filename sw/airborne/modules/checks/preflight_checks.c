@@ -26,6 +26,7 @@
 
 #include "preflight_checks.h"
 #include "modules/datalink/telemetry.h"
+#include "modules/loggers/flight_recorder.h"
 #include <stdio.h>
 
 /** Maximum combined message size for storing the errors */
@@ -43,8 +44,20 @@
 #define PREFLIGHT_CHECK_INFO_TIMEOUT 5
 #endif
 
+/** Enable ground based checklist */
+#ifndef PREFLIGHT_CHECK_GROUND
+#define PREFLIGHT_CHECK_GROUND TRUE
+#endif
+
+/** Bypass the preflight checks */
+#ifndef PREFLIGHT_CHECK_BYPASS
+#define PREFLIGHT_CHECK_BYPASS FALSE
+#endif
+
+bool preflight_bypass = PREFLIGHT_CHECK_BYPASS;
+bool preflight_ground_done = false;
+
 static struct preflight_check_t *preflight_head = NULL;
-bool preflight_bypass = FALSE;
 
 /**
  * @brief Register a preflight check and add it to the linked list
@@ -87,6 +100,15 @@ bool preflight_check(void)
     check = check->next;
   }
 
+  // Add the ground check
+#if PREFLIGHT_CHECK_GROUND
+  if (!preflight_ground_done) {
+    preflight_error(&result, "Ground checks not done");
+  } else {
+    preflight_success(&result, "Ground checks done");
+  }
+#endif
+
   // We failed a check or have a warning
   if (result.fail_cnt > 0 || result.warning_cnt > 0) {
     // Only send every xx amount of seconds
@@ -109,6 +131,9 @@ bool preflight_check(void)
       for (uint16_t i = 0; i <= PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len; i++) {
         if (error_msg[i] == PREFLIGHT_CHECK_SEPERATOR || i == (PREFLIGHT_CHECK_MAX_MSGBUF - result.max_len)) {
           DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, i - last_sendi, &error_msg[last_sendi]);
+#if FLIGHTRECORDER_SDLOG
+          pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, i - last_sendi, &error_msg[last_sendi]);
+#endif
           last_sendi = i + 1;
         }
       }
@@ -126,9 +151,12 @@ bool preflight_check(void)
   }
 
   // Send success down
-  int rc = snprintf(error_msg, PREFLIGHT_CHECK_MAX_MSGBUF, "Preflight success [%d]", result.success_cnt);
+  int rc = snprintf(error_msg, PREFLIGHT_CHECK_MAX_MSGBUF, "*Preflight success [%d]*", result.success_cnt);
   if (rc > 0) {
     DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, rc, error_msg);
+#if FLIGHTRECORDER_SDLOG
+    pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, strlen(error_msg), error_msg);
+#endif
   }
 
   // Return success if we didn't fail a preflight check
@@ -178,7 +206,7 @@ void preflight_error(struct preflight_result_t *result, const char *fmt, ...)
 }
 
 /**
- * @brief Register a preflight error used inside the preflight checking functions
+ * @brief Register a preflight warning used inside the preflight checking functions
  *
  * @param result Where the error gets registered
  * @param fmt A formatted string describing the error used in a vsnprintf
@@ -230,4 +258,15 @@ void preflight_success(struct preflight_result_t *result, const char *fmt __attr
 {
   // Record the success count
   result->success_cnt++;
+}
+
+void preflight_checks_log_bypass(bool bypass) {
+  char *msg = (bypass)? "*Preflight checks bypassed*" : "*Preflight checks unbypassed*";
+  int len = strlen(msg);
+  
+  DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, len, msg);
+#if FLIGHTRECORDER_SDLOG
+  pprz_msg_send_INFO_MSG(&pprzlog_tp.trans_tx, &flightrecorder_sdlog.device, AC_ID, len, msg);
+#endif
+  preflight_bypass = bypass;
 }

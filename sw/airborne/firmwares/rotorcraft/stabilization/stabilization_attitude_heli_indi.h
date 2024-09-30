@@ -22,8 +22,8 @@
 #ifndef STABILIZATION_ATTITUDE_HELI_INDI_H
 #define STABILIZATION_ATTITUDE_HELI_INDI_H
 
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "math/pprz_algebra_int.h"
-
 #include "filters/notch_filter.h"
 #include "filters/delayed_first_order_lowpass_filter.h"
 
@@ -67,13 +67,10 @@ struct IndiController_int {
   void (*apply_measurement_filters[INDI_NR_FILTERS])(int32_t _out[], int32_t _in[]);
 };
 
-//extern struct IndiController_int heli_indi_ctl; // keep private
-
 extern struct delayed_first_order_lowpass_filter_t actuator_model[INDI_DOF];
-extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
-extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 extern struct HeliIndiGains heli_indi_gains;
 
+extern void stabilization_attitude_heli_indi_init(void);
 extern void stabilization_attitude_heli_indi_set_steadystate_pitch(float pitch);
 extern void stabilization_attitude_heli_indi_set_steadystate_roll(float roll);
 extern void stabilization_attitude_heli_indi_set_steadystate_pitchroll(void);

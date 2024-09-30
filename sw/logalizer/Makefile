@@ -25,20 +25,24 @@ Q=@
 
 include ../Makefile.ocaml
 INCLUDES=
-PKG = -package glibivy,pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
+PKG = -package glibivy,pprz,$(USE_LABELGTK)
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
 
 LABLGTK2GLADE = $(shell ocamlfind query -p-format lablgtk2.glade 2>/dev/null)
 
+ifeq ($(USE_LABELGTK),lablgtk2)
 # only compile it lablgtk2.glade is installed
 ifeq ($(LABLGTK2GLADE),)
-XPKG = -package pprz.xlib
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+XPKG = -package lablgtk2,pprz.xlib
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 all : play plotter sd2log plotprofile openlog2tlm sdlogger_download
 else
-XPKG = -package pprz.xlib,lablgtk2.glade
-XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
+XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
+XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
 all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
+endif
+else # no gtk2
+all: sd2log plotprofile openlog2tlm sdlogger_download
 endif
 
 
@@ -143,12 +147,8 @@ tmclient: tmclient.c
 ffjoystick: ffjoystick.c
 	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
-ctrlstick: ctrlstick.c
-	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS)
-
-
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick ctrlstick sd2log sdlogger_download
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick sd2log sdlogger_download
 
 .PHONY: all clean
 

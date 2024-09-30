@@ -33,6 +33,13 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_float.h"
 
+#ifndef TAG_TRACKING_NB_MAX
+#define TAG_TRACKING_NB_MAX 5
+#endif
+
+
+#define TAG_TRACKING_ANY -2
+
 // Searching status
 #define TAG_TRACKING_SEARCHING  0
 #define TAG_TRACKING_RUNNING    1
@@ -45,24 +52,42 @@
 #define TAG_TRACKING_MOVING     1
 
 struct tag_tracking_public {
-  struct FloatVect3 pos;        ///< estimated position
-  struct FloatVect3 speed;      ///< estimated speed
-  uint8_t status;               ///< tracking status flag
-  uint8_t motion_type;          ///< type of tag motion
-  float predict_time;           ///< prediction time for WP tag
-  struct NedCoor_f speed_cmd;   ///< speed command to track the tag position
-  float kp;                     ///< horizontal tracking command gain
-  float kpz;                    ///< vertical tracking command gain
+  struct FloatVect3 pos;            ///< estimated position
+  struct FloatVect3 speed;          ///< estimated speed
+  struct FloatQuat body_to_tag_quat;///< estimated attitude in body frame
+  struct FloatQuat ned_to_tag_quat; ///< estimated attitude in NED frame
+  uint8_t status;                   ///< tracking status flag
+  uint8_t motion_type;              ///< type of tag motion
+  float predict_time;               ///< prediction time for WP tag
+  struct NedCoor_f speed_cmd;       ///< speed command to track the tag position
+  float kp;                         ///< horizontal tracking command gain
+  float kpz;                        ///< vertical tracking command gain
 };
 
-extern struct tag_tracking_public tag_tracking;
 
+// settings
+extern int tag_tracking_setting_id;
+extern float tag_tracking_motion_type;
+extern float tag_tracking_predict_time;
+extern float tag_tracking_kp;
+extern float tag_tracking_kpz;
+void tag_tracking_set_setting_id(float id);
+void tag_tracking_set_motion_type(float motion_type);
+void tag_tracking_set_predict_time(float predict_time);
+void tag_tracking_set_kp(float kp);
+void tag_tracking_set_kpz(float kpz);
+
+extern struct tag_tracking_public* tag_tracking_get(int16_t tag_id);
+extern uint8_t tag_tracking_get_status(int16_t tag_id);
+extern uint8_t tag_tracking_get_motion_type(int16_t tag_id);
 extern void tag_tracking_init(void);
 extern void tag_tracking_propagate(void);
 extern void tag_tracking_propagate_start(void);
 extern void tag_tracking_report(void);
 extern void tag_tracking_parse_target_pos(uint8_t *buf);
 extern void tag_tracking_compute_speed(void);
+extern bool tag_tracking_set_tracker_id(int16_t tag_id, uint8_t wp_id);
+extern float tag_tracking_get_heading(int16_t tag_id);
 
 #endif  // TAG_TRACKING_H
 

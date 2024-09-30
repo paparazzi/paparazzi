@@ -200,12 +200,13 @@ void ms45xx_i2c_init(void)
   ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
+  ms45xx.lowpass_tau = MS45XX_LOWPASS_TAU;
   ms45xx.offset_set = false;
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
 #ifdef USE_AIRSPEED_LOWPASS_FILTER
-  init_butterworth_2_low_pass(&ms45xx_filter, MS45XX_LOWPASS_TAU,
+  init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
                               MS45XX_I2C_PERIODIC_PERIOD, 0);
 #endif
 
@@ -219,6 +220,17 @@ void ms45xx_i2c_init(void)
 #endif
 }
 
+
+void airspeed_ms45xx_i2c_change_tau(float new_tau)
+{
+  ms45xx.lowpass_tau = new_tau;
+#ifdef USE_AIRSPEED_LOWPASS_FILTER
+  init_butterworth_2_low_pass(&ms45xx_filter, ms45xx.lowpass_tau,
+                            MS45XX_I2C_PERIODIC_PERIOD, get_butterworth_2_low_pass(&ms45xx_filter));
+#endif
+}
+
+
 void ms45xx_i2c_periodic(void)
 {
   // Initiate next read
@@ -227,7 +239,7 @@ void ms45xx_i2c_periodic(void)
   }
 }
 
-#define AUTOSET_NB_MAX 20
+#define AUTOSET_NB_MAX 200
 
 void ms45xx_i2c_event(void)
 {

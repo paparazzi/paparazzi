@@ -131,7 +131,7 @@ class ParrotUtils:
             s = s[len(command) + 2:-12]
         else:
             s = s[len(command) + 2:-4]
-        return s
+        return s.decode()
 
     # Upload ftp and catch memory-full error
     def upload(self, filename, content):

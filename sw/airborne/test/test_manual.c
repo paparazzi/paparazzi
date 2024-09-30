@@ -98,11 +98,18 @@ static inline void main_periodic(void)
 
   SetActuatorsFromCommands(commands, 0);
 
+  // Downlink the actuators raw driver values
+  int16_t v[ACTUATORS_NB] = {0};
+  for (int i = 0; i < ACTUATORS_NB; i++) {
+    v[i] = actuators[i].driver_val;
+  }
+
+
   LED_PERIODIC();
   RunOnceEvery(512, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
   RunOnceEvery(100, {DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
   RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
-  RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
+  RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, v);});
 
 }
 
@@ -141,28 +148,14 @@ void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transp
     }
     break;
 #ifdef RADIO_CONTROL_TYPE_DATALINK
-    case DL_RC_3CH :
+    case DL_RC_UP :
 #ifdef RADIO_CONTROL_DATALINK_LED
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
-      parse_rc_3ch_datalink(
-        DL_RC_3CH_throttle_mode(buf),
-        DL_RC_3CH_roll(buf),
-        DL_RC_3CH_pitch(buf));
-      break;
-    case DL_RC_4CH :
-#ifdef RADIO_CONTROL_DATALINK_LED
-      LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
-#endif
-      parse_rc_4ch_datalink(
-        DL_RC_4CH_mode(buf),
-        DL_RC_4CH_throttle(buf),
-        DL_RC_4CH_roll(buf),
-        DL_RC_4CH_pitch(buf),
-        DL_RC_4CH_yaw(buf));
+      parse_rc_up_datalink(DL_RC_UP_channels_length(buf),
+          DL_RC_UP_channels(buf));
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
-
     default:
       break;
   }

@@ -64,34 +64,11 @@
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
 #define OFFSET_AND_ROUND2(_a, _b) (((_a)+(1<<((_b)-1))-((_a)<0?1:0))>>(_b))
 
-struct FloatRates stabilization_rate_sp;
+static struct FloatRates stabilization_rate_sp;
+static struct FloatRates stabilization_rate_sum_err;
+static struct FloatRates stabilization_rate_fb_cmd;
 struct FloatRates stabilization_rate_gain;
 struct FloatRates stabilization_rate_igain;
-struct FloatRates stabilization_rate_sum_err;
-
-struct FloatRates stabilization_rate_fb_cmd;
-
-#ifndef STABILIZATION_RATE_DEADBAND_P
-#define STABILIZATION_RATE_DEADBAND_P 0
-#endif
-#ifndef STABILIZATION_RATE_DEADBAND_Q
-#define STABILIZATION_RATE_DEADBAND_Q 0
-#endif
-#ifndef STABILIZATION_RATE_DEADBAND_R
-#define STABILIZATION_RATE_DEADBAND_R 200
-#endif
-
-#define ROLL_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_ROLL] >  STABILIZATION_RATE_DEADBAND_P || \
-   radio_control.values[RADIO_ROLL] < -STABILIZATION_RATE_DEADBAND_P)
-
-#define PITCH_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_PITCH] >  STABILIZATION_RATE_DEADBAND_Q || \
-   radio_control.values[RADIO_PITCH] < -STABILIZATION_RATE_DEADBAND_Q)
-
-#define YAW_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
-   radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -108,7 +85,7 @@ static void send_rate(struct transport_tx *trans, struct link_device *dev)
                           &stabilization_rate_fb_cmd.p,
                           &stabilization_rate_fb_cmd.q,
                           &stabilization_rate_fb_cmd.r,
-                          &stabilization_cmd[COMMAND_THRUST]);
+                          &stabilization.cmd[COMMAND_THRUST]);
 }
 #endif
 
@@ -133,62 +110,17 @@ void stabilization_rate_init(void)
 #endif
 }
 
-
-void stabilization_rate_read_rc(void)
-{
-
-  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.p = radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.p = 0;
-  }
-
-  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.q = 0;
-  }
-
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.r = radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.r = 0;
-  }
-}
-
-//Read rc with roll and yaw sitcks switched if the default orientation is vertical but airplane sticks are desired
-void stabilization_rate_read_rc_switched_sticks(void)
-{
-
-  if (ROLL_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.r =  - radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.r = 0;
-  }
-
-  if (PITCH_RATE_DEADBAND_EXCEEDED()) {
-    stabilization_rate_sp.q = radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.q = 0;
-  }
-
-  if (YAW_RATE_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-    stabilization_rate_sp.p = radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
-  } else {
-    stabilization_rate_sp.p = 0;
-  }
-}
-
 void stabilization_rate_enter(void)
 {
   FLOAT_RATES_ZERO(stabilization_rate_sum_err);
 }
 
-void stabilization_rate_run(bool in_flight)
+void stabilization_rate_run(bool in_flight, struct StabilizationSetpoint *rate_sp, struct ThrustSetpoint *thrust, int32_t *cmd)
 {
   /* compute feed-back command */
   struct FloatRates _error;
   struct FloatRates *body_rate = stateGetBodyRates_f();
+  stabilization_rate_sp = stab_sp_to_rates_f(rate_sp);
   RATES_DIFF(_error, stabilization_rate_sp, (*body_rate));
   if (in_flight) {
     /* update integrator */
@@ -211,13 +143,31 @@ void stabilization_rate_run(bool in_flight)
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
                                 stabilization_rate_igain.r  * stabilization_rate_sum_err.r;
 
-  stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
-  stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
-  stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+  cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
+  cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
+  cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+  cmd[COMMAND_THRUST] = th_sp_to_thrust_i(thrust, 0, THRUST_AXIS_Z);
 
   /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
-
+  BoundAbs(cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_YAW], MAX_PPRZ);
+  BoundAbs(cmd[COMMAND_THRUST], MAX_PPRZ);
 }
+
+struct StabilizationSetpoint stabilization_rate_read_rc(struct RadioControl *rc)
+{
+  struct FloatRates rate_sp;
+  FLOAT_RATES_ZERO(rate_sp);
+  if (ROLL_RATE_DEADBAND_EXCEEDED(rc)) {
+    rate_sp.p = rc->values[RC_RATE_P] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+  }
+  if (PITCH_RATE_DEADBAND_EXCEEDED(rc)) {
+    rate_sp.q = rc->values[RC_RATE_Q] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+  }
+  if (YAW_RATE_DEADBAND_EXCEEDED(rc) && !THROTTLE_STICK_DOWN_FROM_RC(rc)) {
+    rate_sp.r = rc->values[RC_RATE_R] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+  }
+  return stab_sp_from_rates_f(&rate_sp);
+}
+

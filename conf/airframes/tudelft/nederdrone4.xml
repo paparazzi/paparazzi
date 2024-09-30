@@ -24,7 +24,7 @@
 
       <module name="airspeed" type="ms45xx_i2c">
         <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
+        <configure name="MS45XX_I2C_DEV" value="i2c4"/>
       </module>
 
 
@@ -111,8 +111,8 @@
     </module>
     <module name="stabilization" type="indi">
       <configure name="INDI_NUM_ACT" value="8"/>
-      <define name="WLS_N_U" value="8"/>
-      <define name="WLS_N_V" value="4"/>
+      <define name="WLS_N_U_MAX" value="8"/>
+      <define name="WLS_N_V_MAX" value="4"/>
       <define name="TILT_TWIST_CTRL" value="TRUE"/>
     </module>
     <module name="stabilization" type="rate_indi"/>
@@ -162,7 +162,6 @@
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="17.0"/>
-      <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
       <define name="GUIDANCE_INDI_HEADING_BANK_GAIN" value="5"/>
       <!--define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-943.0"/>
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN_45" value="-500.0"/>
@@ -260,7 +259,6 @@
 
   <section name="MISC">
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 18.1 * adc)"/><!-- TODO: verify/calibrate -->
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
 
     <!-- Basic navigation settings -->
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>

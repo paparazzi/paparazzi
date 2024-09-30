@@ -271,9 +271,15 @@ let preprocess_value = fun s v prefix ->
 let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
     (* Set servo macro *)
-    fprintf out "#define Set_%s_Servo(_v) { \\\n" s;
-    fprintf out "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
-    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX]); \\\n" d s s;
+    fprintf out "#define Set_%s_Servo(actuator_value_pprz) { \\\n" s;
+    fprintf out "  int32_t servo_value;\\\n";
+    fprintf out "  int32_t command_value;\\\n\\\n";
+    fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
+    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
+    fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
+    fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(servo_value, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
     fprintf out "}\n\n"
   ) servos_drivers;
   define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
@@ -286,11 +292,8 @@ let parse_command_laws = fun out command ->
         let servo = a "servo"
         and value = a "value" in
         let v = preprocess_value value "values" "COMMAND" in
-        fprintf out "  command_value = %s; \\\n" v;
-        fprintf out "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
-        fprintf out "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
-        fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
-        fprintf out "  Set_%s_Servo(servo_value); \\\n\\\n" servo
+        fprintf out "  actuator_value_pprz = %s; \\\n" v;
+        fprintf out "  Set_%s_Servo(actuator_value_pprz); \\\n\\\n" servo
     | "let" ->
       let var = a "var"
       and value = a "value" in
@@ -433,8 +436,7 @@ let rec parse_section = fun out ac_id s ->
       fprintf out "}\n\n";
       (* print actuators from commands macro *)
       fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
-      fprintf out "  int32_t servo_value;\\\n";
-      fprintf out "  int32_t command_value;\\\n\\\n";
+      fprintf out "  int32_t actuator_value_pprz;\\\n\\\n";
       List.iter (parse_command_laws out) (Xml.children s);
       fprintf out "  AllActuatorsCommit(); \\\n";
       fprintf out "}\n\n";

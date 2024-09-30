@@ -26,9 +26,11 @@
   <header>
     <file name="vertical_ctrl_module_demo.h"/>
   </header>
+  <init fun="vertical_ctrl_module_init()"/>
 
   <makefile>
     <file name="vertical_ctrl_module_demo.c"/>
+    <test firmware="rotorcraft"/>
   </makefile>
 
 </module>

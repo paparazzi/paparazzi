@@ -35,9 +35,14 @@ else
   LIBRARYS =
 endif
 
+GTK2_INC = $(shell pkg-config gtk+-2.0 --cflags 2> /dev/null)
+GTK2_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs 2> /dev/null)
+
+ifneq ($(GTK2_INC),)
 CFLAGS += -Wall -fPIC -g
-GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags) -DGTK_DISABLE_DEPRECATED
-GTK_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs) $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs) -fPIC
+GTK_CFLAGS  = $(GTK2_INC) -DGTK_DISABLE_DEPRECATED
+GTK_LDFLAGS = $(GTK2_LDFLAGS) $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs) -fPIC
+endif
 
 GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)
 GLIBIVY_LDFLAGS = $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs)
@@ -57,7 +62,11 @@ GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-co
 INCLUDES += $(shell pkg-config glib-2.0 --cflags) -I$(PAPARAZZI_SRC)/sw/airborne/ -I$(PAPARAZZI_SRC)/sw/include/ $(IVY_INC)
 INCLUDES += -I$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include/ -I$(PAPARAZZI_SRC)/sw/airborne/modules/gps/librtcm3/ -I$(PAPARAZZI_SRC)/sw/airborne/arch/linux/
 
+ifeq ($(GTK2_INC),)
+all: davis2ivy kestrel2ivy sbp2ivy rtcm2ivy ublox2ivy
+else
 all: davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy
+endif
 
 clean:
 	$(Q)rm -f *.o davis2ivy kestrel2ivy sbp2ivy video_synchronizer sbs2ivy rtcm2ivy ublox2ivy

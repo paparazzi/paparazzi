@@ -48,10 +48,10 @@ struct opticflow_stab_t {
 };
 extern struct opticflow_stab_t opticflow_stab;
 
-// Implement own Horizontal loops
-extern void guidance_h_module_init(void);
-extern void guidance_h_module_enter(void);
-extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool in_flight);
+extern void guidance_opticflow_hover_init(void);
+
+// Implement own module loops
+extern void guidance_module_enter(void);
+extern void guidance_module_run(bool in_flight);
 
 #endif /* GUIDANCE_OPTICFLOW_HOVER_H_ */

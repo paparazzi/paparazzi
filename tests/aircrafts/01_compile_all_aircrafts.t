@@ -43,6 +43,7 @@ my $conf_xml_file = $ENV{'CONF_XML'};
 if ($conf_xml_file eq "") {
     $conf_xml_file = "$ENV{'PAPARAZZI_HOME'}/conf/conf.xml";
 }
+warn "\n************\nTesting all aircrafts in conf: $conf_xml_file\n************\n";
 my $conf = $xmlSimple->XMLin($conf_xml_file);
 
 
