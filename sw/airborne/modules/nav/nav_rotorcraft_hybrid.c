@@ -140,7 +140,12 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
     float max_speed_decel = sqrtf(max_speed_decel2);
     // Bound the setpoint velocity vector
-    max_h_speed = Min(nav_max_speed, max_speed_decel); // use hover max speed
+    max_h_speed = Min(nav_max_speed, max_speed_decel);
+#ifdef NAV_HYBRID_MIN_DISTANCE_TO_TRANSISTION
+    if (dist_to_wp < NAV_HYBRID_MIN_DISTANCE_TO_TRANSISTION){
+      max_h_speed = Min(nav_goto_max_speed, max_h_speed);
+    }
+#endif
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 

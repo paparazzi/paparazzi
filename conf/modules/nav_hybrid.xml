@@ -17,7 +17,7 @@
       <define name="GOTO_SPEED" value="nav_max_speed" description="maximum speed when flying goto/stay routines (default is max speed)"/>
       <define name="NAV_LINE_DIST" value="50" description="distance coefficient for line routine"/>
       <define name="NAV_CIRCLE_DIST" value="40" description="distance coefficient for circle routine"/>
-      </section>
+    </section>
   </doc>
   <settings>
     <dl_settings>

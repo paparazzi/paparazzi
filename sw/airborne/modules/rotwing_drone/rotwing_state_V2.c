@@ -603,7 +603,6 @@ void rotwing_state_set_state_settings(void)
   force_forward = rotwing_state_settings.force_forward;
 
   nav_max_speed = rotwing_state_settings.nav_max_speed;
-  nav_goto_max_speed = rotwing_state_settings.nav_max_speed;
 
   // TO DO: pitch angle now hard coded scheduled by wing angle
 
