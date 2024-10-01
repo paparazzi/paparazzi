@@ -455,8 +455,8 @@ void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint
   }
 
   // Broadcast the raw command message on the interface
-  RunOnceEvery(ACTUATORS_UAVCAN_RAW_DIV, uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID,
-                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8));
+  uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID,
+                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8);
 }
 
 /**
@@ -489,6 +489,6 @@ void actuators_uavcan_cmd_commit(struct uavcan_iface_t *iface, int16_t *values, 
   }
 
   // Broadcast the raw command message on the interface
-  RunOnceEvery(ACTUATORS_UAVCAN_CMD_DIV, uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID,
-                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8));
+  uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID,
+                    CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8);
 }
