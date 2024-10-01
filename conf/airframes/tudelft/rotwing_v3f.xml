@@ -122,7 +122,7 @@
         <!-- Other -->
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
-        <module name="ground_detect_sensor"/>
+        <module name="ground_detect"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks"/>
         <module name="pfc_actuators"/>
@@ -456,7 +456,7 @@
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
-        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"   value="0.24"/>
+        <define name="GROUND_DETECT_AGL_MIN_VALUE"          value="0.24"/>
         <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
         <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
         <define name="AGL_DIST_FILTER"                      value="0.07"/>

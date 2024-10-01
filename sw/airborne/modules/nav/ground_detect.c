@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/nav/ground_detect_sensor.c"
+/** @file "modules/nav/ground_detect.c"
  * @author Dennis van Wijngaarden <D.C.vanWijngaarden@tudelft.nl>
  * Ground detection module relying on lidar to detect ground
  */
 
-#include "modules/nav/ground_detect_sensor.h"
+#include "modules/nav/ground_detect.h"
 #include "state.h"
 
 #if USE_GROUND_DETECT_INDI_THRUST
@@ -32,7 +32,7 @@
 
 #if USE_GROUND_DETECT_AGL_DIST
 #include "modules/sonar/agl_dist.h"
-#define GROUND_DETECT_SENSOR_AGL_MIN_VALUE 0.1
+#define GROUND_DETECT_AGL_MIN_VALUE 0.1
 #endif
 
 #include "pprzlink/messages.h"
@@ -41,16 +41,16 @@
 bool ground_detected = false;
 
 
-#ifndef GROUND_DETECT_SENSOR_COUNTER_TRIGGER
-#define GROUND_DETECT_SENSOR_COUNTER_TRIGGER 10
+#ifndef GROUND_DETECT_COUNTER_TRIGGER
+#define GROUND_DETECT_COUNTER_TRIGGER 10
 #endif
 
-#ifndef GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD
-#define GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD -5.0
+#ifndef GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD
+#define GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD -5.0
 #endif
 
 
-void ground_detect_sensor_init(void)
+void ground_detect_init(void)
 {
   ground_detected = false;
 }
@@ -59,7 +59,7 @@ bool ground_detect(void) {
   return ground_detected;
 }
 
-void ground_detect_sensor_periodic(void)
+void ground_detect_periodic(void)
 {
   bool ground_detect_method = false;
 #if USE_GROUND_DETECT_INDI_THRUST
@@ -74,9 +74,9 @@ void ground_detect_sensor_periodic(void)
   }
 
   ground_detected = false;
-  if (specific_thrust > GROUND_DETECT_SENSOR_SPECIFIC_THRUST_THRESHOLD ) {
+  if (specific_thrust > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD ) {
     counter_thrust += 1;
-    if (counter_thrust > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
+    if (counter_thrust > GROUND_DETECT_COUNTER_TRIGGER) {
       ground_detected = true;
     }
   } else {
@@ -96,12 +96,12 @@ void ground_detect_sensor_periodic(void)
 #if USE_GROUND_DETECT_AGL_DIST
   ground_detect_method = true;
   static int32_t counter_agl_dist = 0;
-  if (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_SENSOR_AGL_MIN_VALUE)) {
+  if (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE)) {
     counter_agl_dist += 1;
   } else {
     counter_agl_dist = 0;
   }
-  if (counter_agl_dist > GROUND_DETECT_SENSOR_COUNTER_TRIGGER) {
+  if (counter_agl_dist > GROUND_DETECT_COUNTER_TRIGGER) {
     ground_detected = true;
   } else {
     ground_detected = false;
