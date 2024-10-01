@@ -58,7 +58,9 @@ struct uavcan_iface_t uavcan1 = {
   .thread_tx_wa_size = sizeof(uavcan1_tx_wa),
   .node_id = UAVCAN_CAN1_NODE_ID,
   .transfer_id = 0,
-  .initialized = false
+  .initialized = false,
+  .cnt_act_raw = 0,
+  .cnt_act_cmd = 0
 };
 #endif
 
@@ -84,7 +86,9 @@ struct uavcan_iface_t uavcan2 = {
   .thread_tx_wa_size = sizeof(uavcan2_tx_wa),
   .node_id = UAVCAN_CAN2_NODE_ID,
   .transfer_id = 0,
-  .initialized = false
+  .initialized = false,
+  .cnt_act_raw = 0,
+  .cnt_act_cmd = 0
 };
 #endif
 
