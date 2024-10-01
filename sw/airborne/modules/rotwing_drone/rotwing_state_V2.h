@@ -87,6 +87,10 @@ extern float rotwing_state_max_hover_speed;
 
 extern bool hover_motors_active;
 extern bool bool_disable_hover_motors;
+extern bool demo_skew;
+extern float max_skew_demo;
+extern float min_skew_demo;
+extern float freq_skew_demo;
 
 extern void init_rotwing_state(void);
 extern void periodic_rotwing_state(void);

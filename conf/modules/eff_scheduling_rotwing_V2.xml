@@ -61,6 +61,7 @@
       <define name="COMMAND_RUDDER"              value="6"/>
       <define name="COMMAND_AILERONS"            value="7"/>
       <define name="COMMAND_ROT_MECH"            value="11"/>
+      <define name="SERVO_ROTATION_MECH_IDX"     value="11"/>
       <define name="RW_aX"                       value="0"/>
       <define name="RW_aY"                       value="1"/>
       <define name="RW_aZ"                       value="2"/>
