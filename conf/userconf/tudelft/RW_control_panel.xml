@@ -1290,6 +1290,13 @@
         <arg flag="-c" constant="*:telemetry:ACTUATOR_STATE:u[7]"/>
         <arg flag="-c" constant="*:telemetry:ACTUATOR_STATE:u[8]"/>
       </program>
+      <program name="Real-time Plotter">
+        <arg flag="-m" constant="1000"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-t" constant="u"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:wing_angle_deg_sp"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:wing_angle_deg"/>
+      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Data Link">
