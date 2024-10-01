@@ -157,6 +157,13 @@ float rotwing_state_max_fw_speed = 20;
 
 bool hover_motors_active = true;
 bool bool_disable_hover_motors = false;
+//DEMO Sine skew
+bool demo_skew = false;
+float max_skew_demo = 50;
+float min_skew_demo = 0;
+float freq_skew_demo = 0.8;
+int time_step_skew_demo = 0;
+
 
 inline void rotwing_check_set_current_state(void);
 inline void rotwing_switch_state(void);
@@ -190,6 +197,7 @@ static void send_rotating_wing_state(struct transport_tx *trans, struct link_dev
 void rotwing_state_force_skew_off(void)
 {
   rotwing_state_skewing.force_rotation_angle = false;
+  demo_skew = false;
 }
 
 void init_rotwing_state(void)
@@ -209,6 +217,7 @@ void init_rotwing_state(void)
   rotwing_state_skewing.servo_pprz_cmd        = -MAX_PPRZ;
   rotwing_state_skewing.airspeed_scheduling   = false;
   rotwing_state_skewing.force_rotation_angle  = false;
+  demo_skew = false;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTATING_WING_STATE, send_rotating_wing_state);
@@ -628,6 +637,17 @@ void rotwing_state_skewer(void)
 
     Bound(wing_angle_scheduled_sp_deg, 0., 90.)
     rotwing_state_skewing.wing_angle_deg_sp = wing_angle_scheduled_sp_deg;
+  } else {
+    if(demo_skew) {
+      float amplitude_skew_demo = (max_skew_demo - min_skew_demo) / 2;
+      float offset_skew_demo = (max_skew_demo + min_skew_demo) / 2;
+      float time_skew_demo = (float) time_step_skew_demo / PERIODIC_FREQUENCY;
+      float angle_skew_demo = amplitude_skew_demo * (-cosf(2 * M_PI * freq_skew_demo * time_skew_demo)) + offset_skew_demo;
+      rotwing_state_skewing.wing_angle_deg_sp = angle_skew_demo;
+      time_step_skew_demo++;
+    }else{
+      time_step_skew_demo = 0;
+    }
   }
 }
 
@@ -727,7 +747,7 @@ void rotwing_state_skew_actuator_periodic(void)
 #endif // USE_ROTMECH_VIRTUAL
   // SEND ABI Message to ctr_eff_sched and other modules that want Actuator position feedback
   struct act_feedback_t feedback;
-  feedback.idx =  COMMAND_ROT_MECH;
+  feedback.idx =  SERVO_ROTATION_MECH_IDX;
   feedback.position = 0.5 * M_PI - RadOfDeg(rotwing_state_skewing.wing_angle_deg);
   feedback.set.position = true;
   // Send ABI message
@@ -744,7 +764,7 @@ static void rotwing_state_feedback_cb(uint8_t __attribute__((unused)) sender_id,
 
     for (int i = 0; i < num_act_message; i++) {
       // Check for wing rotation feedback
-      if ((feedback_msg[i].set.position) && (feedback_msg[i].idx == COMMAND_ROT_MECH)) {
+      if ((feedback_msg[i].set.position) && (feedback_msg[i].idx == SERVO_ROTATION_MECH_IDX)) {
         // Get wing rotation angle from sensor
         float wing_angle_rad = 0.5 * M_PI - feedback_msg[i].position;
         rotwing_state_skewing.wing_angle_deg = DegOfRad(wing_angle_rad);
