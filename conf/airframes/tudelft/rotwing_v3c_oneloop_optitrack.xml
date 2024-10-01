@@ -153,11 +153,11 @@
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
-        <servo no="0" name="MOTOR_FRONT"    min="0"     neutral="600"   max="8191"/>
-        <servo no="1" name="MOTOR_RIGHT"    min="0"     neutral="600"   max="8191"/>
-        <servo no="2" name="MOTOR_BACK"     min="0"     neutral="600"   max="8191"/>
-        <servo no="3" name="MOTOR_LEFT"     min="0"     neutral="600"   max="8191"/>
-        <servo no="4" name="MOTOR_PUSH"     min="0"     neutral="200"   max="8191"/>
+        <servo no="0" name="MOTOR_FRONT"    min="0"     neutral="600"   max="7372"/>
+        <servo no="1" name="MOTOR_RIGHT"    min="0"     neutral="600"   max="7372"/>
+        <servo no="2" name="MOTOR_BACK"     min="0"     neutral="600"   max="7372"/>
+        <servo no="3" name="MOTOR_LEFT"     min="0"     neutral="600"   max="7372"/>
+        <servo no="4" name="MOTOR_PUSH"     min="0"     neutral="200"   max="7372"/>
     </servos>
 
     <!-- CAN BUS 1 command outputs-->
@@ -168,10 +168,10 @@
     
     <!-- Can bus 2 actuators -->
     <servos driver="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="600" max="8191"/>
-        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="600" max="8191"/>
-        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="600" max="8191"/>
-        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="600" max="8191"/>
+        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="600" max="7372"/>
+        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="600" max="7372"/>
+        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="600" max="7372"/>
+        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="600" max="7372"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -277,6 +277,8 @@
     </section>
 
     <section PREFIX="ONELOOP_ANDI_" NAME="ONELOOP_ANDI">
+        <define name  = "HEADING_MANUAL"            value = "TRUE"/>
+        <define name  = "YAW_STICK_IN_AUTO"         value = "TRUE"/>
         <define name  = "MAX_R"                     value = "120.0" unit="deg/s"/>
         <define name  = "FILT_CUTOFF"               value = "3.0" />
         <define name  = "FILT_CUTOFF_ACC"           value = "3.0"/>
