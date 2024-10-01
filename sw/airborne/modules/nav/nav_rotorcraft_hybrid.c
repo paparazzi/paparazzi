@@ -51,6 +51,10 @@ float nav_max_speed = NAV_MAX_SPEED;
 #define NAV_HYBRID_GOTO_MAX_SPEED NAV_MAX_SPEED
 #endif
 
+#ifndef NAV_HYBRID_FORCE_GOTO_MAX_SPEED
+#define NAV_HYBRID_FORCE_GOTO_MAX_SPEED FALSE 
+#endif
+
 float nav_goto_max_speed = NAV_HYBRID_GOTO_MAX_SPEED;
 
 #ifndef NAV_HYBRID_MAX_DECELERATION
@@ -145,6 +149,9 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     if (dist_to_wp < NAV_HYBRID_MIN_DISTANCE_TO_TRANSISTION){
       max_h_speed = Min(nav_goto_max_speed, max_h_speed);
     }
+#endif
+#if NAV_HYBRID_FORCE_GOTO_MAX_SPEED
+    max_h_speed = Min(nav_goto_max_speed, max_h_speed);
 #endif
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
