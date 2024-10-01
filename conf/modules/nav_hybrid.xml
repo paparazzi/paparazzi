@@ -7,6 +7,9 @@
     </description>
     <section name="NAV_HYBRID" prefix="NAV_HYBRID_">
       <define name="MAX_DECELERATION" value="1.0" description="Maximum deceleration in [m/s2] when arriving to hover at a WP"/>
+      <define name="MAX_EXPECTED_WIND" value="5" description="Maximum expected constant wind. Used to calculate minimum circle radius to not exceed acceleration bound."/>
+      <define name="LIMIT_CIRCLE_RADIUS" value="FALSE" description="Limit the circle radius on max target groundspeed and max acceleration."/>
+      <define name="EXT_VISION_SETPOINT_MODE" value="FALSE" description="Use position setpoints when using external vision systems."/>
     </section>
     <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
       <define name="MAX_AIRSPEED" value="15." description="maximum airspeed (required)"/>
@@ -19,8 +22,9 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="nav_hybrid">
+        <dl_setting var="nav_hybrid_max_acceleration" min="1.0" step="0.1" max="9.0"/>
         <dl_setting var="nav_max_speed" min="1.0" step="1.0" max="50.0"/>
-        <dl_setting var="nav_goto_max_speed" min="0.1" step="0.1" max="50.0"/>
+        <dl_setting var="nav_hybrid_max_expected_wind" min="0.0" step="0.1" max="20.0" shortname="max_expected_wind"/>
         <dl_setting var="nav_max_deceleration_sp" min="0.5" step="0.1" max="10.0" shortname="max_deceleration" param="NAV_HYBRID_MAX_DECELERATION"/>
         <dl_setting var="nav_hybrid_line_gain" min="0.1" step="0.1" max="3" shortname="nav_hybrid_line_gain" param="NAV_HYBRID_LINE_GAIN"/>
         <dl_setting var="nav_hybrid_pos_gain" min="0.1" step="0.1" max="10" shortname="nav_hybrid_pos_gain" param="NAV_HYBRID_POS_GAIN"/>

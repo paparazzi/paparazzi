@@ -120,9 +120,11 @@
             <define name="NAV_HYBRID_MAX_AIRSPEED"      value="19.0f"/>
             <define name="NAV_HYBRID_SPEED_MARGIN"      value="0.0f"/>
             <define name="NAV_HYBRID_MAX_ACCELERATION"  value="4.0f"/>
+            <define name="NAV_HYBRID_SOFT_ACCELERATION" value="2.0f"/>
             <define name="NAV_HYBRID_MAX_DECELERATION"  value="1.0f"/>
             <define name="GUIDANCE_H_USE_REF"           value="FALSE"/>
-            <define name="NAV_OPTITRACK"                value="TRUE"/>
+            <define name="NAV_HYBRID_EXT_VISION_SETPOINT_MODE" value="TRUE"/>
+            <define name="NAV_HYBRID_LIMIT_CIRCLE_RADIUS" value="TRUE"/>
         </module>
 
         <module name="oneloop" type="andi">
