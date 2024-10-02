@@ -93,9 +93,9 @@ void mavlink_mission_message_handler(const mavlink_message_t *msg)
 void mavlink_mission_periodic(void)
 {
   // FIXME: really use the SCRIPT_ITEM message to indicate current block?
-  if (mission_mgr.current_block != nav_block) {
-    mission_mgr.current_block = nav_block;
-    mavlink_msg_script_current_send(MAVLINK_COMM_0, nav_block);
+  if (mission_mgr.current_block != get_nav_block()) {
+    mission_mgr.current_block = get_nav_block();
+    mavlink_msg_script_current_send(MAVLINK_COMM_0, get_nav_block());
     MAVLinkSendMessage();
   }
   // check if we had a timeout on a transaction

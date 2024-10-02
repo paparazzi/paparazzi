@@ -70,9 +70,7 @@ static inline void nav_set_altitude(void);
 void nav_init(void)
 {
   waypoints_init();
-
-  nav_block = 0;
-  nav_stage = 0;
+  common_flight_plan_init();
 
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_WAYPOINT;
   nav.vertical_mode = NAV_VERTICAL_MODE_ALT;
