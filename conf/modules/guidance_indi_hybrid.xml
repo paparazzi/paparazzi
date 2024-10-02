@@ -7,10 +7,14 @@
        - guidance_indi_hybid_tailsitter
        - guidance_indi_hybid_quadplane
     </description>
-    <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_HYBRID_">
+    <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
       <define name="USE_WLS" value="FALSE|TRUE" description="use WLS allocation instead of matrix inversion (default: FALSE)"/>
       <define name="WLS_PRIORITIES" value="{100., 100., 1.}" description="WLS priorities on control objectives"/>
       <define name="WLS_WU" value="{1., 1., 1.}" description="WLS weighting on outputs"/>
+      <define name="MAX_LAT_ACCEL" value="9.81" description="Maximal Lateral Acceleration (in the Body-y Direction)"/>
+      <define name="COORDINATED_TURN_MIN_AIRSPEED" value="10.0" description="Yaw-rate computations based on airspeed are dividing by the airspeed, so a lower bound is important"/>
+      <define name="COORDINATED_TURN_MAX_AIRSPEED" value="30.0" description="Maximum airspeed in yaw-rate computations"/>
+      <define name="COORDINATED_TURN_AIRSPEED_MARGIN" value="0.0" description="Margin above maximum speed where we are sure the sensor reading is false"/>
     </section>
   </doc>
   <settings>

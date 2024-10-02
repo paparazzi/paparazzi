@@ -151,7 +151,7 @@ float guidance_indi_pitch_pref_deg = 0;
 
 /*Airspeed threshold where making a turn is "worth it"*/
 #ifndef TURN_AIRSPEED_TH
-#define TURN_AIRSPEED_TH 10.0
+#define TURN_AIRSPEED_TH 13 .0
 #endif
 
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
