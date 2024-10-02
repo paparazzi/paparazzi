@@ -531,8 +531,7 @@ static void send_survey(struct transport_tx *trans, struct link_device *dev)
  */
 void nav_init(void)
 {
-  nav_block = 0;
-  nav_stage = 0;
+  common_flight_plan_init();
   ground_alt = GROUND_ALT;
   nav_glide_pitch_trim = NAV_GLIDE_PITCH_TRIM;
   nav_radius = DEFAULT_CIRCLE_RADIUS;

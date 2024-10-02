@@ -918,6 +918,34 @@ let print_auto_init_bindings = fun out abi_msgs variables ->
   List.iter print_bindings variables;
   lprintf out "}\n\n"
 
+let print_enter_exit_functions = fun out blocks ->
+  let print_functions = fun name ->
+    lprintf out "void nav_%s_block(uint8_t block_id) {\n" name;
+    right ();
+    lprintf out "switch (block_id) {\n";
+    right ();
+    let block_id = ref (-1) in
+    List.iter (fun b ->
+      incr block_id;
+      try
+        let f_name = ExtXml.attrib b name in
+        lprintf out "case %d: // %s\n" !block_id (name_of b);
+        lprintf out "  %s;\n" f_name;
+        lprintf out "  break;\n"
+      with _ -> ()
+    ) blocks;
+    lprintf out "default:\n";
+    lprintf out "  break;\n";
+    left ();
+    lprintf out "}\n";
+    left ();
+    lprintf out "}\n\n"
+  in
+  (* print enter block functions *)
+  print_functions "on_enter";
+  (* print exit block functions *)
+  print_functions "on_exit"
+
 (**
  * Print flight plan header
  *)
@@ -1113,6 +1141,10 @@ let print_flight_plan_h = fun xml ref0 xml_file out_file ->
   List.iter (fun v -> print_var_impl out abi_msgs v) variables;
   lprintf out "\n";
   print_auto_init_bindings out abi_msgs variables;
+
+  (* print on_enter and on_exit functions *)
+  lprintf out "\n";
+  print_enter_exit_functions out blocks;
 
   (* print main flight plan state machine *)
   lprintf out "static inline void auto_nav(void) {\n";
