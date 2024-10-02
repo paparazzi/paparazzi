@@ -38,6 +38,7 @@ Section 5.3: Non-additive noise formulation and equations
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+#include "generated/airframe.h"
 #include "state.h"
 #include <stdio.h>
 
