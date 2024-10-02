@@ -25,6 +25,18 @@
 #include "modules/uavcan/uavcan.h"
 #include BOARD_CONFIG
 
+
+/* By default run UAVCAN_RAW message at periodic frequency */
+#ifndef ACTUATORS_UAVCAN_RAW_DIV
+#define ACTUATORS_UAVCAN_RAW_DIV 1
+#endif
+
+/* By default run UAVCAN_CMD message at periodic frequency */
+#ifndef ACTUATORS_UAVCAN_CMD_DIV
+#define ACTUATORS_UAVCAN_CMD_DIV 1
+#endif
+
+
 /* External functions */
 extern void actuators_uavcan_init(struct uavcan_iface_t *iface);
 extern void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);

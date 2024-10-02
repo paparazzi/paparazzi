@@ -34,7 +34,7 @@ extern int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
 #else
 #define ActuatorsUavcan2Init() actuators_uavcan_init(&uavcan2)
 #define ActuatorUavcan2Set(_i, _v) { actuators_uavcan2_values[_i] = _v; }
-#define ActuatorsUavcan2Commit()  actuators_uavcan_commit(&uavcan2, actuators_uavcan2_values, SERVOS_UAVCAN2_NB)
+#define ActuatorsUavcan2Commit()  RunOnceEvery(ACTUATORS_UAVCAN_RAW_DIV,actuators_uavcan_commit(&uavcan2, actuators_uavcan2_values, SERVOS_UAVCAN2_NB))
 #endif
 
 #endif /* ACTUATORS_UAVCAN2_H */
