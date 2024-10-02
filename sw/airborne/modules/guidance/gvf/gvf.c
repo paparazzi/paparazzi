@@ -128,13 +128,13 @@ void gvf_init(void)
 }
 
 // GENERIC TRAJECTORY CONTROLLER
-void gvf_control_2D(float ke, float kn, float e,
+void gvf_control_2D(float ke, float kn __attribute__((unused)), float e,
                     struct gvf_grad *grad, struct gvf_Hess *hess)
 {
   gvf_t0 = get_sys_time_msec();
 
   gvf_low_level_getState();
-  float course = gvf_state.course;
+  float course __attribute__((unused)) = gvf_state.course;
   float px_dot = gvf_state.px_dot;
   float py_dot = gvf_state.py_dot;
 
@@ -176,8 +176,8 @@ void gvf_control_2D(float ke, float kn, float e,
   float md_dot_const = -(md_x * pd_dot_dot_y - md_y * pd_dot_dot_x)
                        / norm_pd_dot;
 
-  float md_dot_x =  md_y * md_dot_const;
-  float md_dot_y = -md_x * md_dot_const;
+  float md_dot_x __attribute__((unused)) =  md_y * md_dot_const;
+  float md_dot_y __attribute__((unused))= -md_x * md_dot_const;
 
   #if defined(ROTORCRAFT_FIRMWARE)
 

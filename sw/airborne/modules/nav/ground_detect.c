@@ -24,7 +24,6 @@
  */
 
 #include "ground_detect.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "filters/low_pass_filter.h"
 #include "firmwares/rotorcraft/autopilot_firmware.h"
 
@@ -82,10 +81,13 @@ void ground_detect_periodic()
   // Evaluate thrust given (less than hover thrust)
   // Use the control effectiveness in thrust in order to estimate the thrust delivered (only works for multicopters)
   float specific_thrust = 0.0; // m/s2
+ 
+#if USE_GROUND_DETECT_INDI_THRUST
   uint8_t i;
   for (i = 0; i < INDI_NUM_ACT; i++) {
     specific_thrust += actuator_state_filt_vect[i] * g1g2[3][i] * -((int32_t) act_is_servo[i] - 1);
   }
+#endif
 
   // vertical component
   float spec_thrust_down;
