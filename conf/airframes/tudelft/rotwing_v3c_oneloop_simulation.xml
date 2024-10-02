@@ -102,11 +102,9 @@
         <module name="rotwing_state_V2">
              <define name = "USE_ROTMECH_VIRTUAL" value = "TRUE"/>
              <define name = "ROTMECH_DYN"         value = "3.0"/>
+             <define name="RW_USE_MODULES_V2"     value="TRUE"/>
         </module>
         <module name="agl_dist"/>
-        <module name="rotwing_automation">
-            <define name="RW_USE_MODULES_V2" value="TRUE"/>
-        </module>
     </firmware>
 
     <!-- PWM actuators -->   
