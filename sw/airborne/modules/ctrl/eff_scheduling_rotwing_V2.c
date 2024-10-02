@@ -29,6 +29,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "filters/low_pass_filter.h"
+#include "modules/ins/ins_ext_pose.h"
 
 #define FORCE_ONELOOP
 #ifdef FORCE_ONELOOP
