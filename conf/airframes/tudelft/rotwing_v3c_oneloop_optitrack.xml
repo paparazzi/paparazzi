@@ -49,6 +49,8 @@
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+
+            <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
         </target>
 
         <target name="nps" board="pc">
@@ -96,7 +98,6 @@
         <module name="imu" type="cube"/>  
         <module name="ins" type="ekf2">
          <define name="INS_EKF2_OPTITRACK"      value="TRUE"/>
-         <define name="INS_EXT_VISION_ROTATION" value="TRUE"/>
         </module>  
 
         <!-- Actuators on dual CAN bus -->
