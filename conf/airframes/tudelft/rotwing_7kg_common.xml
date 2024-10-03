@@ -45,8 +45,6 @@
         <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>
         <define name="DEFAULT_CIRCLE_RADIUS"                value="100.0"/>
-        <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
-        <define name="INS_EKF2_GPS_ANTENNA_DISTANCE"        value="1.02"/>
 
         <!-- Ground detect -->
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
@@ -259,6 +257,21 @@
         <define name="COMMANDS_NB" value="10"/>
         <define name="NO_MOTOR_MIXING" value="TRUE"/>
         <define name="JS_AXIS_MODE" value="4"/>
+    </section>
+
+    <!--EKF Settings-->
+    <section name="EKF2" prefix="INS_EKF2_">
+        <define name="GPS_YAW_OFFSET" value="0"/>
+        <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
+
+        <define name="IMU_POS_X" value="0.321"/>
+        <define name="IMU_POS_Y" value="0.0"/>
+        <define name="IMU_POS_Z" value="0.0"/>
+
+        <!-- The main GPS is mounted 0.55m behind of c.g.-->
+        <define name="GPS_POS_X" value="-0.55"/>
+        <define name="GPS_POS_Y" value="0.0"/>
+        <define name="GPS_POS_Z" value="0.0"/>
     </section>
 
     <!--Airspeed estimation using EKF-->
