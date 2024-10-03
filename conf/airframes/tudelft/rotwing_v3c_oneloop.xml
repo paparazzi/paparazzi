@@ -83,7 +83,7 @@
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
             </module>       
-        <module name="airspeed" type="uavcan">
+        <module name="airspeed" type="dronecan">
             <define name="AIRSPEED_DRONECAN_LOWPASS_FILTER"   value="TRUE" />
             <define name="AIRSPEED_DRONECAN_LOWPASS_PERIOD"   value="0.1" />
             <define name="AIRSPEED_DRONECAN_LOWPASS_TAU"      value="0.15" />
@@ -100,7 +100,7 @@
         <module name="ins" type="ekf2"/>
  
         <!-- Actuators on dual CAN bus -->
-        <module name="actuators" type="uavcan">
+        <module name="actuators" type="dronecan">
             <configure value="TRUE" name="DRONECAN_USE_CAN1"/>
             <configure value="TRUE" name="DRONECAN_USE_CAN2"/>
         </module>
