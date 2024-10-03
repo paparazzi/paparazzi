@@ -64,7 +64,7 @@
             <define name="RADIO_PARACHUTE"        value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
-            <define name="USE_SONAR"              value="1"/> <!-- Because uavcan can't handle simulation yet -->
+            <define name="USE_SONAR"              value="1"/> <!-- Because dronecan can't handle simulation yet -->
 
 
             <!-- MAVLink simulation -->
