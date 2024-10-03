@@ -87,10 +87,16 @@ float nav_hybrid_line_gain = 1.0f;
 #define NAV_HYBRID_NAV_CIRCLE_DIST 40.f
 #endif
 
-#ifdef NAV_HYBRID_POS_GAIN
+#ifdef GUIDANCE_INDI_POS_GAIN
+float nav_hybrid_pos_gain = GUIDANCE_INDI_POS_GAIN;
+#elif defined(NAV_HYBRID_POS_GAIN)
 float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN;
 #else
 float nav_hybrid_pos_gain = 1.0f; 
+#endif
+
+#if defined(NAV_HYBRID_POS_GAIN) && defined(GUIDANCE_INDI_POS_GAIN)
+#warning "NAV_HYBRID_POS_GAIN and GUIDANCE_INDI_POS_GAIN serve similar purpose and are both defined, using GUIDANCE_INDI_POS_GAIN"
 #endif
 
 #ifndef GUIDANCE_INDI_HYBRID
