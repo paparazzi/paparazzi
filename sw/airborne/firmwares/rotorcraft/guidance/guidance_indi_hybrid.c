@@ -297,7 +297,6 @@ struct FloatVect3 indi_vel_sp = {0.0, 0.0, 0.0};
 float time_of_vel_sp = 0.0;
 
 void guidance_indi_propagate_filters(void);
-void guidance_indi_set_min_max_airspeed(float min_airspeed, float max_airspeed);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -737,7 +736,7 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   float_vect3_bound_in_2d(&accel_sp, accelbound);
   BoundAbs(accel_sp.z, 3.0);
 
-#if ROTWING_EFF_SCHED_K_RPM_PPRZ_PUSHER
+#ifdef ROTWING_FW_MIN_AIRSPEED
   if (!rotwing_state_pusher_motor_running() && !rotwing_state_hover_motors_running()) {
     accel_sp.z = gih_params.stall_protect_gain * (gi_airspeed_sp - airspeed);
     BoundAbs(accel_sp.z, 5.0);
