@@ -35,9 +35,9 @@
             <define name="IMU_ACCEL_ABI_SEND_ID"    value="IMU_PIXHAWK2_ID"/>
 
             <!-- Sensors connected to supercan -->
-            <module name="range_sensor_uavcan"/>
-            <module name="power_uavcan">
-                <define name="POWER_UAVCAN_BATTERY_CIRCUITS" value="{{14,0},{6,1}}"/>
+            <module name="range_sensor_dronecan"/>
+            <module name="power_dronecan">
+                <define name="POWER_DRONECAN_BATTERY_CIRCUITS" value="{{14,0},{6,1}}"/>
             </module>
 
             <!-- MAVLink Genius communication -->
@@ -95,10 +95,10 @@
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
         </module>
-        <module name="airspeed" type="uavcan">
-            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
-            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
+        <module name="airspeed" type="dronecan">
+            <define name="AIRSPEED_DRONECAN_LOWPASS_FILTER"   value="TRUE" />
+            <define name="AIRSPEED_DRONECAN_LOWPASS_PERIOD"   value="0.1" />
+            <define name="AIRSPEED_DRONECAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
 
@@ -126,12 +126,12 @@
 
         <!-- Actuators on dual CAN bus -->
         <module name="actuators" type="uavcan">
-            <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
-            <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
-            <define value="FALSE" name="UAVCAN_ACTUATORS_USE_CURRENT"/>
+            <configure value="TRUE" name="DRONECAN_USE_CAN1"/>
+            <configure value="TRUE" name="DRONECAN_USE_CAN2"/>
+            <define value="FALSE" name="DRONECAN_ACTUATORS_USE_CURRENT"/>
             <!-- Don't oversaturate the UAVCAN bus -->
-            <define name="ACTUATORS_UAVCAN_RAW_DIV" value="2"/> <!-- ESC's at half the PERIODIC_FREQ -->
-            <define name="ACTUATORS_UAVCAN_CMD_DIV" value="4"/> <!-- Servo's at 1/4 the PERIODIC_FREQ -->
+            <define name="ACTUATORS_DRONECAN_RAW_DIV" value="2"/> <!-- ESC's at half the PERIODIC_FREQ -->
+            <define name="ACTUATORS_DRONECAN_RAW_DIV" value="4"/> <!-- Servo's at 1/4 the PERIODIC_FREQ -->
         </module>
         <!-- Rotation mechanism actuator on UART -->
         <module name="actuators" type="faulhaber"/>
@@ -172,7 +172,7 @@
 
 
     <!-- Can bus 1 actuators -->
-    <servos driver="Uavcan1">
+    <servos driver="Dronecan1">
         <servo no="0"  name="BMOTOR_FRONT"     min="0"     neutral="1000"  max="8191"/> <!-- Supercan (1100-1202.56-1940us) -->
         <servo no="1"  name="BMOTOR_RIGHT"     min="0"     neutral="1000"  max="8191"/> <!-- Supercan (1100-1202.56-1940us) -->
         <servo no="2"  name="BMOTOR_BACK"      min="0"     neutral="1000"  max="8191"/> <!-- Supercan (1100-1202.56-1940us) -->
@@ -182,7 +182,7 @@
     </servos>
 
     <!-- CAN BUS 1 command outputs-->
-    <servos driver="Uavcan1Cmd">
+    <servos driver="Dronecan1Cmd">
         <servo no="6"  name="SERVO_ELEVATOR"   min="-7300" neutral="-7300" max="4650"/> <!-- 2500 is level 4650 is 10deg -7300 is -50deg -->
         <servo no="7"  name="SERVO_RUDDER"     min="-4000" neutral="0" max="4000"/>
         <servo no="8"  name="AIL_RIGHT"        min="-3250" neutral="0" max="3250"/>
@@ -192,7 +192,7 @@
     </servos>
 
     <!-- Can bus 2 actuators -->
-    <servos driver="Uavcan2">
+    <servos driver="Dronecan2">
         <servo no="0"  name="MOTOR_FRONT"    min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
         <servo no="1"  name="MOTOR_RIGHT"    min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
         <servo no="2"  name="MOTOR_BACK"     min="0"     neutral="1000"  max="8191"/> <!-- T-Motor ESC -->
@@ -202,7 +202,7 @@
     </servos>
 
     <!-- CAN BUS 1 command outputs-->
-    <servos driver="Uavcan2Cmd">
+    <servos driver="Dronecan2Cmd">
         <servo no="6"  name="BSERVO_ELEVATOR"   min="-7300" neutral="-7300" max="4650"/> <!-- 2500 is level 4650 is 10deg -7300 is -50deg -->
         <servo no="7"  name="BSERVO_RUDDER"     min="-4000" neutral="0" max="4000"/>
         <servo no="8"  name="BAIL_RIGHT"        min="-3250" neutral="0" max="3250"/>
