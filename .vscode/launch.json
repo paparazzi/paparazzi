@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/var/aircrafts/CobraV2/ap/obj/ap.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "BMPGDBSerialPort": "/dev/ttyACM0",
+            "showDevDebugOutput": "raw",
+            "servertype": "bmp",
+            "svdFile": "/home/pprz/DEV/STM32/gdb_svd/STM32H7_svd/STM32H7_svd_V1.9/STM32H753.svd"
+        }
+    ]
+}
