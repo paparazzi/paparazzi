@@ -100,7 +100,6 @@ extern float gi_unbounded_airspeed_sp;
 
 extern float guidance_indi_thrust_z_eff;
 
-extern struct guidance_indi_hybrid_params gih_params;
 extern float guidance_indi_specific_force_gain;
 extern bool take_heading_control;
 extern float guidance_indi_max_bank;
