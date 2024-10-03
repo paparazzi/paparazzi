@@ -19,22 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef ACTUATORS_UAVCAN2_H
-#define ACTUATORS_UAVCAN2_H
+#ifndef ACTUATORS_DRONECAN_H
+#define ACTUATORS_DRONECAN_H
 
-#include "actuators_uavcan.h"
+#include "modules/dronecan/dronecan.h"
+#include BOARD_CONFIG
 
-/** Stub file needed per interface because of generator */
-extern int16_t actuators_uavcan2_values[SERVOS_UAVCAN2_NB];
 
-#if USE_NPS
-#define ActuatorsUavcan2Init() {}
-#define ActuatorUavcan2Set(_i, _v) {}
-#define ActuatorsUavcan2Commit()  {}
-#else
-#define ActuatorsUavcan2Init() actuators_uavcan_init(&uavcan2)
-#define ActuatorUavcan2Set(_i, _v) { actuators_uavcan2_values[_i] = _v; }
-#define ActuatorsUavcan2Commit()  RunOnceEvery(ACTUATORS_UAVCAN_RAW_DIV,actuators_uavcan_commit(&uavcan2, actuators_uavcan2_values, SERVOS_UAVCAN2_NB))
+/* By default run DRONECAN_RAW message at periodic frequency */
+#ifndef ACTUATORS_DRONECAN_RAW_DIV
+#define ACTUATORS_DRONECAN_RAW_DIV 1
 #endif
 
-#endif /* ACTUATORS_UAVCAN2_H */
+/* By default run DRONECAN_CMD message at periodic frequency */
+#ifndef ACTUATORS_DRONECAN_CMD_DIV
+#define ACTUATORS_DRONECAN_CMD_DIV 1
+#endif
+
+
+/* External functions */
+extern void actuators_dronecan_init(struct dronecan_iface_t *iface);
+extern void actuators_dronecan_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
+extern void actuators_dronecan_cmd_commit(struct dronecan_iface_t *iface, int16_t *values, uint8_t nb);
+
+#endif /* ACTUATORS_DRONECAN_H */
