@@ -65,7 +65,7 @@
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
-            <define name="USE_SONAR"              value="1"/> <!-- Because uavcan can't handle simulation yet -->
+            <define name="USE_SONAR"              value="1"/> <!-- Because dronecan can't handle simulation yet -->
         </target>
 
         <!-- Kongsberg datalink -->
@@ -85,11 +85,11 @@
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
-        <module name="airspeed" type="uavcan">
-            <define name="AIRSPEED_UAVCAN_LOWPASS_FILTER"   value="TRUE" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_PERIOD"   value="0.1" />
-            <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
-            <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
+        <module name="airspeed" type="dronecan">
+            <define name="AIRSPEED_DRONECAN_LOWPASS_FILTER"   value="TRUE" />
+            <define name="AIRSPEED_DRONECAN_LOWPASS_PERIOD"   value="0.1" />
+            <define name="AIRSPEED_DRONECAN_LOWPASS_TAU"      value="0.15" />
+            <define name="AIRSPEED_DRONECAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
         <module name="gps" type="ublox">
@@ -109,9 +109,9 @@
         <module name="ekf_aw"/>
 
         <!-- Actuators on dual CAN bus -->
-        <module name="actuators" type="uavcan">
-            <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
-            <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
+        <module name="actuators" type="dronecan">
+            <configure value="TRUE" name="DRONECAN_USE_CAN1"/>
+            <configure value="TRUE" name="DRONECAN_USE_CAN2"/>
         </module>
 
         <!-- Actuators on PWM -->
@@ -152,7 +152,7 @@
     </servos>
 
     <!-- Can bus 1 actuators -->
-    <servos driver="Uavcan1">
+    <servos driver="Dronecan1">
         <servo no="0"  name="MOTOR_FRONT"     min="0"     neutral="1000" max="7372"/>
         <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
@@ -163,7 +163,7 @@
     </servos>
 
     <!-- Can bus 2 actuators -->
-    <servos DRIVER="Uavcan2">
+    <servos DRIVER="Dronecan2">
         <servo no="0" name="BMOTOR_FRONT" min="0" neutral="1000" max="7372"/>
         <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="1000" max="7372"/>
         <servo no="2" name="BMOTOR_BACK"  min="0" neutral="1000" max="7372"/>
@@ -171,7 +171,7 @@
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
-    <servos driver="Uavcan2Cmd">
+    <servos driver="Dronecan2Cmd">
         <servo no="7"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
         <servo no="8"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
         <servo no="9"  name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
