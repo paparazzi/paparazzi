@@ -76,5 +76,5 @@ void wing_rotation_adc_to_deg(void)
   feedback.set.position = true;
 
   // Send ABI message
-  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_DRONECAN_ID, &feedback, 1);
 }
