@@ -182,15 +182,20 @@ inline void rotwing_state_free_processor(void);
 #include "modules/datalink/telemetry.h"
 static void send_rotating_wing_state(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t adc_dummy = 0;
+  uint16_t dummy = 0;
+  float nav_airspeed = stateGetAirspeed_f();;
+  float min_airspeed = 0;
+  float max_airspeed = rotwing_state_max_fw_speed;
 
   pprz_msg_send_ROTATING_WING_STATE(trans, dev, AC_ID,
                                     &rotwing_state.current_state,
                                     &rotwing_state.desired_state,
+                                    &dummy,
                                     &rotwing_state_skewing.wing_angle_deg,
                                     &rotwing_state_skewing.wing_angle_deg_sp,
-                                    &adc_dummy,
-                                    &rotwing_state_skewing.servo_pprz_cmd);
+                                    &nav_airspeed,
+                                    &min_airspeed,
+                                    &max_airspeed);
 }
 #endif // PERIODIC_TELEMETRY
 
