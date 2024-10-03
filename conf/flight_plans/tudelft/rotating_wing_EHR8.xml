@@ -53,34 +53,35 @@
   </exceptions>
   <blocks>
    <block name="Wait GPS">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
     </block>
     <block name="Geo init">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
       <set var="stabilization.cmd[COMMAND_THRUST_X]" value="0"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
         <exception cond="stage_time > 10" deroute="Holding point"/>
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
         <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
     <block name="Wait takeoff">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <exception cond="stage_time > 10" deroute="Holding point"/>
       <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 5.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 5.0) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <exception cond="agl_dist_valid @AND (agl_dist_value @GT 1.0)" deroute="Climb"/>
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
         <set var="stage_timer_msec" value="get_sys_time_msec()"/>
@@ -92,31 +93,31 @@
     </block>
     <block name="Climb">
       <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="nav_set_heading_current()"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <stay wp="STDBY"/>
     </block>
     <block name="Approach APP">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <exception cond="agl_dist_valid @AND (agl_dist_value @LT 0.28)" deroute="Approach Flare"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
     </block>
     <block name="Approach Flare">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
       <exception cond="ground_detect()" deroute="Holding point"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
     </block>
     <!-- <block name="follow_module">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <stay pre_call="follow_me_set_wp(WP_p1, 0)" wp="p1"/>
     </block> -->
     <block name="route">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go from="p1" hmode="route" wp="p2"/>
       <go from="p2" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
@@ -124,7 +125,7 @@
       <deroute block="route"/>
     </block>
     <block name="small_route" strip_button="Route" strip_icon="path.png">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go wp="p2"/>
       <go wp="p3"/>
       <go wp="p4"/>
@@ -132,47 +133,47 @@
       <deroute block="small_route"/>
     </block>
     <block name="Circle_CW_fwd" strip_button="CircleRight" strip_icon="circle-right.png">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <circle radius="100" wp="circ"/>
     </block>
     <block name="Circle_CCW_fwd" strip_button="CircleLeft" strip_icon="circle-left.png">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <circle radius="-100" wp="circ"/>
     </block>
     <block name="big_Circle_CW_fwd">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <circle radius="150" wp="circ"/>
     </block>
     <block name="big_Circle_CCW_fwd">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_EFFICIENT)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <circle radius="-150" wp="circ"/>
     </block>
     <block name="Transition_quad" strip_button="Transition Quad" strip_icon="wp_quad.png">
-      <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HYBRID)"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
       <go wp="STDBY"/>
       <deroute block="Standby"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <go wp="TD"/>
     </block>
     <block name="descend" strip_button="Descend" strip_icon="descend.png">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <exception cond="GetPosHeight() @LT 12.0" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <stay climb="-0.5" vmode="climb" wp="TD"/>
         <!--<exception cond="!(GetPosHeight() @LT 2.0)" deroute="flare_low"/>-->
         <exception cond="agl_dist_valid @AND (agl_dist_value @LT 0.28)" deroute="flare_low"/>
     </block>
     <block name="flare_low">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <exception cond="NavDetectGround()" deroute="Holding point"/>
         <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
         <exception cond="ground_detect()" deroute="Holding point"/>
@@ -180,7 +181,7 @@
         <stay climb="-0.5" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
-        <call_once fun="rotwing_request_configuration(ROTWING_CONFIGURATION_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

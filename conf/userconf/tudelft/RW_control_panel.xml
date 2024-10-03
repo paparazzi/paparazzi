@@ -1506,5 +1506,15 @@
         <arg flag="-g" constant="1050x300+0+1000"/>
       </program>
     </session>
+    <session name="RW25">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
+      <program name="RotWingStatus"/>
+      <program name="Wind"/>
+    </session>
   </section>
 </control_panel>

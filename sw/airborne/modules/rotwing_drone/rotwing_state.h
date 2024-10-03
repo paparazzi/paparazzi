@@ -28,70 +28,66 @@
 
 #include "std.h"
 
-/** Rotwing States
- */
-#define ROTWING_STATE_HOVER               0 // Wing is skewed in 0 degrees (quad)
-#define ROTWING_STATE_SKEWING             1 // WIng is skewing
-#define ROTWING_STATE_FW                  2 // Wing is skewed at 90 degrees (fixed wing), hover motors have full authority
-#define ROTWING_STATE_FW_HOV_MOT_IDLE     3 // Wing is skewed at 90 degrees (fixed wing), hover motors are forced to idle
-#define ROTWING_STATE_FW_HOV_MOT_OFF      4 // Wing is skewed at 90 degrees (fixed wubg), hover motors are switched off
-#define ROTWING_STATE_FREE                5 // This is a desired state for which the controller has to decide the desired state itself
-
-/** Rotwing Configurations
- */
-#define ROTWING_CONFIGURATION_HOVER       0 // UAV is in hover
-#define ROTWING_CONFIGURATION_HYBRID      1 // UAV can fly forward and hover if airspeed low, hover motors on
-#define ROTWING_CONFIGURATION_EFFICIENT   2 // UAV flies efficiently forward  (FW)
-#define ROTWING_CONFIGURATION_FREE        3 // UAV switched between efficient and hybrid dependent on deceleration 
-
-struct RotwingState {
-  uint8_t current_state;
-  uint8_t desired_state;
-  uint8_t requested_config;
+enum rotwing_states_t {
+  ROTWING_STATE_FORCE_HOVER,
+  ROTWING_STATE_REQUEST_HOVER,
+  ROTWING_STATE_FORCE_FW,
+  ROTWING_STATE_REQUEST_FW,
+  ROTWING_STATE_FREE,
 };
 
-#define ROTWING_STATE_WING_QUAD_SETTING         0 // Wing skew at 0 degrees
-#define ROTWING_STATE_WING_SCHEDULING_SETTING   1 // Wing skew handled by airspeed scheduler
-#define ROTWING_STATE_WING_FW_SETTING           2 // Wing skew at 90 degrees
-
-#define ROTWING_STATE_PITCH_QUAD_SETTING        0 // Pitch at prefered hover
-#define ROTWING_STATE_PITCH_TRANSITION_SETTING  1 // Pitch scheduled
-#define ROTWING_STATE_PITCH_FW_SETTING          2 // Pitch at prefered forward
-
-struct RotWingStateSettings {
-  uint8_t wing_scheduler;
-  bool hover_motors_active;
-  bool hover_motors_disable;
-  bool force_forward;
-  uint8_t preferred_pitch;
-  bool stall_protection;
-  float max_v_climb;
-  float max_v_descend;
-  float nav_max_speed;
+union rotwing_bitmask_t {
+  uint16_t value;
+  struct {
+    bool skew_angle_valid : 1;      // Skew angle didn't timeout
+    bool hover_motors_enabled : 1;  // Hover motors command is enabled
+    bool hover_motors_idle : 1;     // Hover motors are idling (throttle < IDLE_THROTTLE)
+    bool hover_motors_running : 1;  // Hover motors are running (RPM >= MIN_RPM)
+    bool pusher_motor_running : 1;  // Pusher motor is running (RPM >= MIN_RPM)
+    bool skew_forced : 1;           // Skew angle is forced
+  };
 };
 
-struct RotWingStateSkewing {
-  float wing_angle_deg_sp;   // Wing angle setpoint in deg
-  float wing_angle_deg;      // Wing angle from sensor in deg
-  int32_t servo_pprz_cmd;    // Wing rotation servo pprz cmd
-  bool airspeed_scheduling;  // Airspeed scheduling on or off
-  bool force_rotation_angle; // Setting to force wing_angle_deg_sp
+struct rotwing_state_t {
+  /* Control */
+  enum rotwing_states_t state;      // Current state
+  enum rotwing_states_t nav_state;  // Desired navigation state (requested only by NAV and can be overruled by RC)
+  bool hover_motors_enabled;        // Hover motors enabled (> idle throttle)
+
+  /* Skew */
+  float sp_skew_angle_deg;        // Setpoint skew angle in degrees
+  float ref_model_skew_angle_deg; // Reference model skew angle in degrees
+  float meas_skew_angle_deg;      // Measured skew angle in degrees
+  float meas_skew_angle_time;     // Time of the last skew angle measurement
+  bool force_skew;                // Force skew angle to a certain value by the GCS
+  int16_t skew_cmd;               // Skewing command in pprz values
+
+  /* Airspeeds */
+  float fw_min_airspeed;      // Minimum airspeed (stall+margin)
+  float cruise_airspeed;      // Airspeed for cruising
+  float min_airspeed;         // Minimum airspeed for bounding
+  float max_airspeed;         // Maximum airspeed for bounding
+
+  /* RPM measurements*/
+  int32_t meas_rpm[5];        // Measured RPM of the hover and pusher motors
+  float meas_rpm_time[5];     // Time of the last RPM measurement
+
+  /* Sim failures */
+  bool fail_skew_angle;       // Skew angle sensor failure
+  bool fail_hover_motor;      // Hover motor failure
+  bool fail_pusher_motor;     // Pusher motor failure
 };
+extern struct rotwing_state_t rotwing_state;
 
-extern struct RotwingState rotwing_state;
-extern struct RotWingStateSettings rotwing_state_settings;
-extern struct RotWingStateSkewing rotwing_state_skewing;
+void rotwing_state_init(void);
+void rotwing_state_periodic(void);
+bool rotwing_state_hover_motors_running(void);
+bool rotwing_state_pusher_motor_running(void);
+bool rotwing_state_skew_angle_valid(void);
 
-extern float rotwing_state_max_hover_speed;
-
-extern bool hover_motors_active;
-extern bool bool_disable_hover_motors;
-
-extern void init_rotwing_state(void);
-extern void periodic_rotwing_state(void);
-extern void request_rotwing_state(uint8_t state);
-extern void rotwing_request_configuration(uint8_t configuration);
-extern void rotwing_state_skew_actuator_periodic(void);
-extern bool rotwing_state_hover_motors_running(void);
+void rotwing_state_set(enum rotwing_states_t state);
+bool rotwing_state_choose_circle_direction(uint8_t wp_id);
+void rotwing_state_set_transition_wp(uint8_t wp_id);
+void rotwing_state_update_WP_height(uint8_t wp_id, float height);
 
 #endif  // ROTWING_STATE_H

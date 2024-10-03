@@ -197,8 +197,8 @@
       <program name="Messages"/>
       <program name="PprzGCS"/>
       <program name="Herelink PprzLink Router">
-	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
-	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+        <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+        <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
       </program>
     </session>
 
@@ -229,8 +229,8 @@
         <arg flag="-udp"/>
       </program>
       <program name="Herelink PprzLink Router">
-	<arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
-	<arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
+        <arg flag="-e udp://192.168.0.11:5242:192.168.0.10:5243"/>
+        <arg flag="-e udp://0.0.0.0:4243:192.168.43.255:4242"/>
       </program>
     </session>
 
@@ -292,6 +292,50 @@
       <program name="PayloadForward"/>
       <program name="SVInfo"/>
       <program name="IridiumDialer"/>
+    </session>
+
+    <session name="RW25">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
+      <program name="RotWingStatus"/>
+      <program name="Wind"/>
+    </session>
+
+    <session name="ROTATING_WING_STATE">
+      <program name="Messages"/>
+      <program name="Simulator">
+        <arg flag="-a" constant="RotatingWingV3B"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="PprzGCS"/>
+      <program name="Real-time Plotter">
+        <arg flag="-g" constant="1000x250-0+0"/>
+        <arg flag="-t" constant="SKEW"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:meas_skew_angle"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:sp_skew_angle"/>
+        <arg flag="-n"/>
+        <arg flag="-g" constant="1000x250-0+250"/>
+        <arg flag="-t" constant="SKEW"/>
+        <arg flag="-u" constant="0.05"/>
+        <arg flag="-c" constant="0.00"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:nav_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:min_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:max_airspeed"/>
+        <arg flag="-c" constant="*:telemetry:AIR_DATA:airspeed"/>
+      </program>
     </session>
 
     <session name="Raw Sensors">

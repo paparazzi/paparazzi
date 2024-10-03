@@ -1,0 +1,316 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe>
+
+    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+        <define name="IXX_BODY"              value="0.04780"/>
+        <define name="IYY_BODY"              value="0.7546"/>
+        <define name="IZZ"                   value="0.9752"/>
+        <define name="IXX_WING"              value="0.08099"/>
+        <define name="IYY_WING"              value="0.1949"/>
+        <define name="M"                     value="6.67"/>
+
+        <define name="DM_DPPRZ_HOVER_PITCH"  value="{15.37287553553,0.0}"/>
+        <define name="DM_DPPRZ_HOVER_ROLL"   value="{5.86747416762564,0.000968063}"/>
+
+        <define name="HOVER_ROLL_PITCH_COEF" value="{0.001418491625685,-0.000649367806611}"/>
+        <define name="HOVER_ROLL_ROLL_COEF"  value="{-0.0000839259143513,-0.0000478083}"/>
+
+        <define name="K_ELEVATOR"            value="{0.4603,-4.81466,-28.8464}"/>
+        <define name="K_RUDDER"              value="{-26.1434,-0.336403,-5.9}"/>
+        <define name="K_AILERON"             value="2.777647188"/>
+        <define name="K_FLAPERON"            value="2.0439"/>
+        <define name="K_PUSHER"              value="{0.007777,-0.67521}"/>
+
+        <define name="K_ELEVATOR_DEFLECTION" value="{50.0,-0.0063}"/>
+        <define name="D_RUDDER_D_PPRZ"       value="-0.0018"/>
+        <define name="K_RPM_PPRZ_PUSHER"     value="{1588.40,0.9212749,-1.833829e-05}"/>
+
+        <define name="K_LIFT_WING"           value="{-0.335811392,-0.615611143}"/>
+        <define name="K_LIFT_FUSELAGE"       value="-0.050653927"/>
+        <define name="K_LIFT_TAIL"           value="-0.101691751"/>
+    </section>
+
+    <section name="MISC">
+        <!-- Others -->
+        <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
+        <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
+        <define name="NAV_CARROT_DIST"                      value="200"/>
+        <!-- prevent in-flight in start engine block-->
+        <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
+        <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
+        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
+        <define name="USE_AIRSPEED"                         value="TRUE"/>  
+        <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
+        <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>
+        <define name="DEFAULT_CIRCLE_RADIUS"                value="100.0"/>
+        <define name="INS_EKF2_GPS_YAW_OFFSET"              value="0"/>
+        <define name="INS_EKF2_GPS_ANTENNA_DISTANCE"        value="1.02"/>
+
+        <!-- Ground detect -->
+        <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
+        <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
+        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"          value="0.24"/>
+
+        <!-- AGL distance -->
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
+        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
+        <define name="AGL_DIST_FILTER"                      value="0.07"/>
+
+        <!-- Flight plan defines -->
+        <define name="FLARE_HEIGHT"                         value="12"/>
+        <define name="HYBRID_HEIGHT"                        value="20"/>
+        <define name="TRANSITION_HEIGHT"                    value="40"/>
+        <define name="LIFTOFF_PITCH_LIMIT_DEG"              value="5"/>
+        <define name="LIFTOFF_ROLL_LIMIT_DEG"               value="5"/>
+        <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/>
+    </section>
+
+    <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+        <!-- Limits -->
+        <define name="SP_MAX_PHI"           value="45." unit="deg" />
+        <define name="SP_MAX_THETA"         value="45." unit="deg"/>
+        <define name="SP_MAX_R"             value="90." unit="deg/s"/>
+        <define name="DEADBAND_R"           value="200"/>
+        <define name="SP_PSI_DELTA_LIMIT"   value="5"   unit="deg"/>
+
+        <!-- Reference model -->
+        <define name="REF_OMEGA_P"          value="800" unit="deg/s"/>
+        <define name="REF_ZETA_P"           value="0.85"/>
+        <define name="REF_MAX_P"            value="300." unit="deg/s"/>
+        <define name="REF_MAX_PDOT"         value="RadOfDeg(7000.)"/>
+
+        <define name="REF_OMEGA_Q"          value="800" unit="deg/s"/>
+        <define name="REF_ZETA_Q"           value="0.85"/>
+        <define name="REF_MAX_Q"            value="300." unit="deg/s"/>
+        <define name="REF_MAX_QDOT"         value="RadOfDeg(7000.)"/>
+
+        <define name="REF_OMEGA_R"          value="500" unit="deg/s"/>
+        <define name="REF_ZETA_R"           value="0.85"/>
+        <define name="REF_MAX_R"            value="180." unit="deg/s"/>
+        <define name="REF_MAX_RDOT"         value="RadOfDeg(1800.)"/>
+
+        <!-- Gains -->
+        <define name="PHI_PGAIN"            value="500"/>
+        <define name="PHI_DGAIN"            value="230"/>
+        <define name="PHI_IGAIN"            value="10"/>
+        <define name="PHI_DDGAIN"           value="0"/>
+
+        <define name="THETA_PGAIN"          value="500"/>
+        <define name="THETA_DGAIN"          value="230"/>
+        <define name="THETA_IGAIN"          value="10"/>
+        <define name="THETA_DDGAIN"         value="0"/>
+
+        <define name="PSI_PGAIN"            value="700"/>
+        <define name="PSI_DGAIN"            value="200"/>
+        <define name="PSI_IGAIN"            value="10"/>
+        <define name="PSI_DDGAIN"           value="0"/>
+    </section>
+
+    <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+
+        <!-- G1 and G2 7 kg-->
+        <define name="G1_ROLL"      value="{   0.0,  -15.0,    0.0,   15.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_PITCH"     value="{   1.5,    0.0,   -1.5,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{-  0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_THRUST"    value="{-0.575, -0.575, -0.575, -0.575, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
+        <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+
+        <!-- Actuator dynamics -->
+        <define name="ACT_FREQ"             value="{10.1, 10.1, 10.1, 10.1, 52.7, 52.7, 52.7, 52.7, 24.1}"/>
+        <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
+        <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
+
+        <!-- Rate INDI -->
+        <define name="MAX_RATE"             value="1.5"/>
+
+        <!-- Reference -->
+        <define name="REF_ERR_P"                    value="30.0"/>
+        <define name="REF_ERR_Q"                    value="70.0"/>
+        <define name="REF_ERR_R"                    value="23.0"/>
+        <define name="REF_RATE_P"                   value="7.0"/>
+        <define name="REF_RATE_Q"                   value="9.0"/>
+        <define name="REF_RATE_R"                   value="3.9"/>
+
+        <define name="MAX_R"                        value="30.0" unit="deg/s"/>
+
+        <!-- Filters -->
+        <define name="FILTER_RATES_SECOND_ORDER"        value="TRUE"/>
+        <define name="FILT_CUTOFF_P"                    value="5.0"/>
+        <define name="FILT_CUTOFF_Q"                    value="20.0"/>
+        <define name="FILT_CUTOFF_R"                    value="5.0"/>
+        <define name="FILT_CUTOFF"                      value="2.0"/>
+        <define name="ESTIMATION_FILT_CUTOFF"           value="2.0"/>
+        <define name="FILTER_YAW_RATE"                  value="TRUE"/>
+        <define name="FILT_CUTOFF_RDOT"                 value="0.5"/>
+
+        <!-- Other -->
+        <define name="WLS_PRIORITIES"   value="{1000, 1000, 10, 100, 100}"/>
+        <define name="WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
+        <define name="USE_ADAPTIVE"     value="FALSE"/>
+        <define name="ADAPTIVE_MU"      value="0.001"/>
+        <define name="YAW_DISTURBANCE_LIMIT" value="0.68"/>
+    </section>
+
+    <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+        <!-- Gains -->
+        <define name="HOVER_KP"                 value="310"/>
+        <define name="HOVER_KD"                 value="130"/>
+        <define name="HOVER_KI"                 value="10"/>
+        <define name="NOMINAL_HOVER_THROTTLE"   value="0.42"/>
+        <define name="ADAPT_THROTTLE_ENABLED"   value="FALSE"/>
+
+        <!-- Reference -->
+        <define name="REF_MIN_ZD"               value="-4.0"/> <!-- climb -->
+        <define name="REF_MAX_ZD"               value="4.0"/> <!-- descend -->
+    </section>
+
+    <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+        <define name="MAX_BANK"         value="50" unit="deg"/>
+        <define name="USE_SPEED_REF"    value="TRUE"/>
+
+        <!-- Gains -->
+        <define name="PGAIN"            value="60"/>
+        <define name="DGAIN"            value="100"/>
+        <define name="IGAIN"            value="20"/>
+        <define name="AGAIN"            value="0"/>
+    </section>
+
+    <section name="ROTWING" prefix="ROTWING_">
+        <define name="FW_MIN_AIRSPEED"          value="17.0"/>  <!-- Forward stall airspeed + margin (motors off) -->
+        <define name="FW_QUAD_MIN_AIRSPEED"     value="15.0"/>  <!-- Forward stall airspeed + margin with quad motors on -->
+        <define name="FW_CRUISE_AIRSPEED"       value="19.0"/>  <!-- Default cruise airspeed -->
+        <define name="FW_MAX_AIRSPEED"          value="22.0"/>  <!-- Maximum forward airspeed -->
+        <define name="FW_MAX_DECELERATION"      value="0.75"/>  <!-- Maximum horizontal deceleration in fixed wing mode -->
+        <define name="QUAD_NOPUSH_AIRSPEED"     value="5.0"/>   <!-- Maximum quadrotor without pusher motor airspeed -->
+        <define name="QUAD_MAX_AIRSPEED"        value="12.0"/>  <!-- Maximum quadrotor airspeed (with pusher motor)-->
+        <define name="QUAD_MAX_DECELERATION"    value="0.75"/>  <!-- Maximum horizontal deceleration in quad mode -->
+        <define name="SKEW_UP_AIRSPEED"         value="10.0"/>  <!-- Airspeed where the skewing starts when going up in airspeed -->
+        <define name="SKEW_DOWN_AIRSPEED"       value="8.0"/>   <!-- Airspeed where the skewing starts when going down in airspeed -->
+
+        <define name="SKEW_REF_MODEL"           value="TRUE"/>  <!-- Enable second order reference model for the skewing command -->
+        <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->
+        <define name="SKEW_REF_MODEL_D_GAIN"    value="0.003"/> <!-- Skewing reference model differential gain -->
+        <define name="SKEW_REF_MODEL_MAX_SPEED" value="20"/>    <!-- Maximum rotational skewing speed bound for the reference model -->
+    </section>
+
+    <section name="GUIDANCE_INDI_HYBRID" prefix="GUIDANCE_INDI_">
+        <!--WLS settings-->
+        <define name="USE_WLS"              value="TRUE"/>
+        <define name="WLS_PRIORITIES"       value="{10., 10., 10.}"/>
+        <define name="WLS_WU"               value="{100., 300., 4., 30.}"/>
+
+        <!-- Gains -->
+        <define name="POS_GAIN"             value="1.0"/>
+        <define name="POS_GAINZ"            value="0.5"/>
+        <define name="SPEED_GAIN"           value="0.7"/>
+        <define name="SPEED_GAINZ"          value="0.6"/>
+
+        <!-- Other -->
+        <define name="FILTER_CUTOFF"        value="2.5"/>
+        <define name="HEADING_BANK_GAIN"    value="5."/>
+        <define name="MAX_AIRSPEED"         value="19.0"/>
+        <define name="PITCH_LIFT_EFF"       value="0.0"/>
+
+        <define name="THRUST_Z_EFF"         value="-0.0023"/>
+
+        <define name="PUSHER_INDEX"         value="8"/>
+
+        <define name="MAX_PITCH"            value="12"/>
+        <define name="MIN_PITCH"            value="-20"/>
+        <define name="MAX_LAT_ACCEL"        value="5.0"/>
+
+        <!-- Climb and descend speeds -->
+        <define name="FWD_CLIMB_SPEED"      value="2.0"/>
+        <define name="FWD_DESCEND_SPEED"    value="-3.0"/>
+        <define name="QUAD_CLIMB_SPEED"     value="2.0"/>
+        <define name="QUAD_DESCEND_SPEED"   value="-1.0"/>
+
+        <!-- Coordinated turns -->
+        <define name="COORDINATED_TURN_AIRSPEED_MARGIN" value="8.0"/>
+    </section>
+
+    <section name="FORWARD">
+        <define name="TURN_AIRSPEED_TH"             value="10.0"/>
+        <define name="TRANSITION_MAX_OFFSET"        value="0.0" unit="deg"/>
+    </section>
+
+    <section name="AMT" prefix="APPROACH_MOVING_TARGET_">
+        <define name="CUTOFF_FREQ_FILTERS_HZ"   value="0.25"/>
+        <define name="ERR_SLOWDOWN_GAIN"        value="0.25" />
+        <define name="SLOPE"                    value="60.0"/>
+        <define name="DISTANCE"                 value="70.0"/>
+        <define name="SPEED"                    value="0.0"/>
+    </section>
+
+    <section name="AUTOPILOT">
+        <define name="MODE_MANUAL"      value="AP_MODE_ATTITUDE_DIRECT"/>
+        <define name="MODE_AUTO1"       value="AP_MODE_FORWARD"/>
+        <define name="MODE_AUTO2"       value="AP_MODE_NAV"/>
+        <define name="MODE_STARTUP"     value="AP_MODE_NAV"/>
+    </section>
+
+    <section name="SIMULATOR" prefix="NPS_">
+        <define name="ACTUATOR_NAMES" value="front_motor, right_motor, back_motor, left_motor, rudder, elevator, aileron, flap, pusher, skew" type="string[]"/>
+        <define name="JSBSIM_MODEL" value="rotwing3" type="string"/>
+        <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+        <define name="COMMANDS_NB" value="10"/>
+        <define name="NO_MOTOR_MIXING" value="TRUE"/>
+        <define name="JS_AXIS_MODE" value="4"/>
+    </section>
+
+    <!--Airspeed estimation using EKF-->
+    <section name="EKF_AW">
+        <define name="EKF_AW_P0_V_BODY"  value="1.E-2f" description="Initial covariance body velocity"/>
+        <define name="EKF_AW_P0_MU"      value="1.E-5f" description="Initial covariance wind"/>
+        <define name="EKF_AW_P0_OFFSET"  value="1.E-10f" description="Initial covariance offset"/>
+
+        <define name="EKF_AW_Q_ACCEL"  value="1.0E-4f" description="Accel process noise"/>
+        <define name="EKF_AW_Q_GYRO"   value="1.0E-9f"  description="Gyro process noise"/>
+        <define name="EKF_AW_Q_MU"     value="1.0E-6f"  description="Wind process noise"/>
+        <define name="EKF_AW_Q_OFFSET" value="1.0E-8f" description="Offset process noise"/>
+
+        <define name="EKF_AW_R_V_GND"        value="1.E-5f" description="GPS Velocity measurement noise"/>
+        <define name="EKF_AW_R_ACCEL_FILT_X" value="1.E-5f" description="Filtered x accel measurement noise"/>
+        <define name="EKF_AW_R_ACCEL_FILT_Y" value="1.E-5f" description="Filtered y accel measurement noise"/>
+        <define name="EKF_AW_R_ACCEL_FILT_Z" value="1.E-5f" description="Filtered z accel measurement noise"/>
+        <define name="EKF_AW_R_V_PITOT"      value="1.E-7f" description="Pitot Tube Velocity measurement noise"/>
+
+        <define name="EKF_AW_AZ_SCHED_GAIN"     value="2" />
+        <define name="EKF_AW_AZ_SCHED_START_DEG"     value="60" />
+        <define name="EKF_AW_AZ_SCHED_END_DEG"     value="70" />
+
+        <define name="EKF_AW_AX_SCHED_GAIN"     value="0" />
+        <define name="EKF_AW_AX_SCHED_START_DEG"     value="45" />
+        <define name="EKF_AW_AX_SCHED_END_DEG"     value="60" />
+
+        <define name="EKF_AW_QUICK_CONVERGENCE"     value="true" />
+        <define name="EKF_AW_QUICK_CONVERGENCE_TIME"     value="15" />
+
+        <define name="EKF_AW_WING_INSTALLED"   value="true" description="Use wing contribution"/>
+        <define name="EKF_AW_USE_MODEL_BASED_X"  value="true" description="Use model based to augment filter"/>
+        <define name="EKF_AW_USE_MODEL_BASED_Y"  value="true" description="Use model based to augment filter"/>
+        <define name="EKF_AW_USE_MODEL_BASED_Z"  value="true" description="Use model based to augment filter"/>
+
+        <define name="EKF_AW_VEHICLE_MASS" value="6.5" description="Mass of the vehicle"/>
+
+        <define name="EKF_AW_K2_FX_FUSELAGE" value="-4E-2f" description="K*u*u"/>
+        <define name="EKF_AW_K3_FX_HOVER" value="-3E-1f" description="K*u"/>
+
+        <define name="EKF_AW_K1_FX_WING" value="-3.21432e-02f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K2_FX_WING" value="1.67195e-01f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K3_FX_WING" value="5.9441e-01f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K4_FX_WING" value="3.9839e-03f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K5_FX_WING" value="3.5321e-03f" description="Fx2 = (k1*(1+k5*skew)+(k2*alpha+k3*alpha^2))*(sin(skew)^2+k4)*V^2"/>
+
+        <define name="EKF_AW_K_FY_V"     value="-3.2E-1f" description="Fy beta coefficient"/>
+        <define name="EKF_AW_K1_FY_WING" value="0.0f" description="Fy = K1*cos(skew)*sin(skew)*u^2"/>
+
+        <define name="EKF_AW_K1_FZ_WING" value="-1.0008e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K2_FZ_WING" value="-8.6965e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K3_FZ_WING" value="1.45783e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+        <define name="EKF_AW_K4_FZ_WING" value="2.185395e-01f" description="Fz1 = ((k1+k2*alpha+k3*alpha^2)*(sin(skew)^2+k4)*V^2"/>
+    </section>
+</airframe>
