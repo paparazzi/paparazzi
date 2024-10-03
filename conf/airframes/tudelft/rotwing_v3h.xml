@@ -95,7 +95,16 @@
 
         <!-- IMU / INS -->
         <module name="imu" type="cube"/>
-        <module name="ins" type="ekf2"/>
+        <module name="ins" type="ekf2">
+            <define name="INS_EKF2_IMU_POS_X" value="0.321"/>
+            <define name="INS_EKF2_IMU_POS_Y" value="0.0"/>
+            <define name="INS_EKF2_IMU_POS_Z" value="0.0"/>
+
+            <!-- The main GPS is mounted 0.55m behind of c.g.-->
+            <define name="INS_EKF2_GPS_POS_X" value="-0.55"/>
+            <define name="INS_EKF2_GPS_POS_Y" value="0.0"/>
+            <define name="INS_EKF2_GPS_POS_Z" value="0.0"/>
+        </module>
 
         <module name="parachute"/>
         <module name="ekf_aw"/>
