@@ -19,18 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/modules/actuators/actuators_uavcan_arch.h
+/** @file arch/sim/modules/actuators/actuators_dronecan_arch.c
  *  dummy servos handling for sim
  */
 
-#ifndef ACTUATORS_UAVCAN_ARCH_H
-#define ACTUATORS_UAVCAN_ARCH_H
+#include "modules/actuators/actuators_dronecan_arch.h"
 
-#define SERVOS_TICS_OF_USEC(_v) (_v)
+void actuators_dronecan_arch_init(void)
+{
 
-#define ActuatorUavcanSet(_i, _v) {}
-#define ActuatorsUavcanCommit() {}
-
-extern void actuators_uavcan_arch_init(void);
-
-#endif /* ACTUATORS_UAVCAN_ARCH_H */
+}
