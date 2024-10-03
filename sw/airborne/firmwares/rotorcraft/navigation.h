@@ -137,6 +137,7 @@ struct RotorcraftNavigation {
   float climb;              ///< climb setpoint (in m/s)
   float fp_altitude;        ///< altitude setpoint from flight plan (in meters)
   float nav_altitude;       ///< current altitude setpoint (in meters): might differ from fp_altitude depending on altitude shift from operator
+  float fp_max_speed;       ///< maximum speed setpoint from flight plan (in m/s), negative value means unset or invalid, do not use
 
   // misc
   float dist2_to_home;        ///< squared distance to home waypoint
@@ -288,6 +289,10 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, uint16_t stay_time);
 /** Set the heading of the rotorcraft, nothing else */
 #define NavHeading nav_set_heading_rad
 
+/** Set maximum speed */
+#define NavSetMaxSpeed(_speed) {  \
+    nav.fp_max_speed = _speed;    \
+  }
 
 /***********************************************************
  * built in navigation routines
