@@ -43,7 +43,8 @@
         <define name="NO_GPS_LOST_WITH_DATALINK_TIME"   value="20"/>
         <define name="NO_GPS_LOST_WITH_RC_VALID"        value="TRUE"/>
         <define name="USE_AIRSPEED"                     value="TRUE"/>
-        <define name="NAV_HYBRID_MAX_AIRSPEED"          value="30"/> 
+        <define name="NAV_HYBRID_MAX_AIRSPEED"          value="30"/>
+        <define name="NAV_HYBRID_MAX_DECELERATION"      value="0.8"/>
         <define name="MULTI_GPS_MODE"                   value="GPS_MODE_PRIMARY"/>
         <define name="INS_EKF2_FUSION_MODE"             value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
         <define name="INS_EKF2_GPS_YAW_OFFSET"          value="0"/>
