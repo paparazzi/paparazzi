@@ -378,6 +378,9 @@ struct StabilizationSetpoint guidance_h_from_nav(bool in_flight)
     guidance_h_nav_enter();
   }
 
+  if (nav.fp_max_speed > 0.f) {
+    guidance_h_SetMaxSpeed(nav.fp_max_speed);
+  }
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_NONE) {
     struct StabilizationSetpoint sp;
     STAB_SP_SET_EULERS_ZERO(sp);

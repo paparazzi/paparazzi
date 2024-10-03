@@ -232,6 +232,7 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
 /** Set the heading of the rover, nothing else */
 #define NavHeading nav_set_heading_rad
 
+#define NavSetMaxSpeed(_speed) {} // not used
 
 
 /***********************************************************
