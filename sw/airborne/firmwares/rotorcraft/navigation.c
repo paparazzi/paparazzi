@@ -91,6 +91,7 @@ void nav_init(void)
   nav.climb = 0.f;
   nav.fp_altitude = SECURITY_HEIGHT;
   nav.nav_altitude = SECURITY_HEIGHT;
+  nav.fp_max_speed = -1.f;
   flight_altitude = SECURITY_ALT;
 
   nav.too_far_from_home = false;

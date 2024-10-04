@@ -173,7 +173,8 @@ pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
-until CDATA #REQUIRED>
+until CDATA #REQUIRED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST attitude
 roll CDATA #REQUIRED
@@ -209,7 +210,8 @@ pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
-until CDATA #IMPLIED>
+until CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST path
 wpts CDATA #REQUIRED
@@ -220,7 +222,8 @@ height CDATA #IMPLIED
 approaching_time CDATA #IMPLIED
 exceeding_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
-climb CDATA #IMPLIED>
+climb CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST set
 var CDATA #REQUIRED
@@ -265,7 +268,8 @@ pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
-until CDATA #IMPLIED>
+until CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST eight
 center CDATA #REQUIRED
@@ -278,8 +282,8 @@ throttle CDATA #IMPLIED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 until CDATA #IMPLIED
-radius CDATA #REQUIRED>
-
+radius CDATA #REQUIRED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST oval
 p1 CDATA #REQUIRED
@@ -292,7 +296,8 @@ pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
-until CDATA #IMPLIED>
+until CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST survey_rectangle
 grid CDATA #REQUIRED
@@ -303,7 +308,8 @@ pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
-until CDATA #IMPLIED>
+until CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST stay
 wp CDATA #REQUIRED
@@ -316,7 +322,8 @@ pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
 nav_params CDATA #IMPLIED
-height CDATA #IMPLIED>
+height CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST guided
 commands CDATA #REQUIRED
@@ -325,7 +332,8 @@ until CDATA #IMPLIED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
 nav_type CDATA #IMPLIED
-nav_params CDATA #IMPLIED>
+nav_params CDATA #IMPLIED
+max_speed CDATA #IMPLIED>
 
 <!ATTLIST deroute
 block CDATA #REQUIRED>
