@@ -151,7 +151,7 @@ float guidance_indi_pitch_pref_deg = 0;
 
 /*Airspeed threshold where making a turn is "worth it"*/
 #ifndef TURN_AIRSPEED_TH
-#define TURN_AIRSPEED_TH 13 .0
+#define TURN_AIRSPEED_TH 13.0
 #endif
 
 /*Boolean to force the heading to a static value (only use for specific experiments)*/
@@ -297,7 +297,6 @@ struct FloatVect3 indi_vel_sp = {0.0, 0.0, 0.0};
 float time_of_vel_sp = 0.0;
 
 void guidance_indi_propagate_filters(void);
-void guidance_indi_set_min_max_airspeed(float min_airspeed, float max_airspeed);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -737,10 +736,12 @@ static struct FloatVect3 compute_accel_from_speed_sp(void)
   float_vect3_bound_in_2d(&accel_sp, accelbound);
   BoundAbs(accel_sp.z, 3.0);
 
+#ifdef ROTWING_FW_MIN_AIRSPEED
   if (!rotwing_state_pusher_motor_running() && !rotwing_state_hover_motors_running()) {
     accel_sp.z = gih_params.stall_protect_gain * (gi_airspeed_sp - airspeed);
     BoundAbs(accel_sp.z, 5.0);
   }
+#endif
 
   return accel_sp;
 }

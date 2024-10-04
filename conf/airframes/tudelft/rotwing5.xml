@@ -129,6 +129,9 @@
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
             <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
             <define value="FALSE" name="UAVCAN_ACTUATORS_USE_CURRENT"/>
+            <!-- Don't oversaturate the UAVCAN bus -->
+            <define name="ACTUATORS_UAVCAN_RAW_DIV" value="2"/> <!-- ESC's at half the PERIODIC_FREQ -->
+            <define name="ACTUATORS_UAVCAN_CMD_DIV" value="4"/> <!-- Servo's at 1/4 the PERIODIC_FREQ -->
         </module>
         <!-- Rotation mechanism actuator on UART -->
         <module name="actuators" type="faulhaber"/>
