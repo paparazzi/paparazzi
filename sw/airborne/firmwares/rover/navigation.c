@@ -79,9 +79,7 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 void nav_init(void)
 {
   waypoints_init();
-
-  nav_block = 0;
-  nav_stage = 0;
+  common_flight_plan_init();
 
   nav.mode = NAV_MODE_WAYPOINT;
 

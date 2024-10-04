@@ -142,6 +142,8 @@ value CDATA #REQUIRED>
 name CDATA #REQUIRED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
+on_enter CDATA #IMPLIED
+on_exit CDATA #IMPLIED
 strip_button CDATA #IMPLIED
 strip_icon CDATA #IMPLIED
 group CDATA #IMPLIED
