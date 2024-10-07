@@ -52,10 +52,10 @@ extern void nav_goto_next_stage(void);
 extern void nav_return(uint8_t reset);
 
 /* Getter */
-extern uint8_t get_nav_block();
-extern uint8_t get_nav_stage();
-extern uint8_t get_last_block();
-extern uint8_t get_last_stage();
+extern uint8_t get_nav_block(void);
+extern uint8_t get_nav_stage(void);
+extern uint8_t get_last_block(void);
+extern uint8_t get_last_stage(void);
 
 /* Setter */
 extern void set_nav_block(uint8_t block_id);
