@@ -34,6 +34,8 @@
 
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
+#include "modules/radio_control/radio_control.h"
+#include "generated/radio.h"
 
 #ifndef SERVO_ROTATION_MECH_IDX
 #error ctrl_eff_sched_rotwing requires a servo named ROTATION_MECH_IDX
@@ -169,6 +171,7 @@ inline float bound_or_zero(float value, float low_lim, float up_lim) {
 }
 
 float eff_sched_pusher_time = 0.002;
+float roll_eff_slider = 12.f;
 
 struct rotwing_eff_sched_var_t eff_sched_var;
 
@@ -342,13 +345,29 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
 
   // Update back motor q effectiveness
   g1g2[1][2] = - dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
-
-  // Update right motor p and q effectiveness
+  
+#ifdef RADIO_CONTROL_EFF_SWITCH
+  if (radio_control.values[RADIO_CONTROL_EFF_SWITCH] > 1750) {
+    g1g2[0][1] = - roll_eff_slider / 1000.f;
+  } else {
+    g1g2[0][1] = roll_motor_p_eff_right;
+  }
+#else
   g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
+#endif
+  // Update right motor p and q effectiveness
   g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
 
   // Update left motor p and q effectiveness
+#ifdef RADIO_CONTROL_EFF_SWITCH
+  if (radio_control.values[RADIO_CONTROL_EFF_SWITCH] > 1750) {
+    g1g2[0][3] = roll_eff_slider / 1000.f;
+  } else {
+    g1g2[0][3] = roll_motor_p_eff_left; 
+  }
+#else
   g1g2[0][3] = roll_motor_p_eff_left;  // roll effectiveness left motor
+#endif
   g1g2[1][3] = -roll_motor_q_eff;   // pitch effectiveness left motor
 }
 
