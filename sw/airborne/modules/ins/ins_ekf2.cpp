@@ -648,6 +648,25 @@ void ins_reset_local_origin(void)
 #endif
 }
 
+void ins_reset_altitude_ref(void)
+{
+#if USE_GPS
+  if (GpsFixValid()) {
+    struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
+    struct LlaCoor_i lla = {
+      .lat = state.ned_origin_i.lla.lat,
+      .lon = state.ned_origin_i.lla.lon,
+      .alt = lla_pos.alt
+    };
+    if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {
+      ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
+      ekf2.ltp_def.hmsl = gps.hmsl;
+      stateSetLocalOrigin_i(&ekf2.ltp_def);
+    }
+  }
+#endif
+}
+
 /* Update the INS state */
 void ins_ekf2_update(void)
 {

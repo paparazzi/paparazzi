@@ -25,6 +25,7 @@
             <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
@@ -50,14 +51,15 @@
             <module name="fdm" type="jsbsim"/>
 
             <!--Not dealing with these in the simulation-->
-            <define name="RADIO_TH_HOLD"          value="0"/> <!-- Throttle hold in command laws -->
-            <define name="RADIO_FMODE"            value="0"/> <!-- Throttle curve select -->
-            <define name="RADIO_FBW_MODE"         value="0"/> <!-- Switch between AP and FBW control -->
-            <define name="RADIO_KILL_SWITCH"      value="0"/>
-            <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+            <define name="RADIO_TH_HOLD"            value="0"/> <!-- Throttle hold in command laws -->
+            <define name="RADIO_FMODE"              value="0"/> <!-- Throttle curve select -->
+            <define name="RADIO_FBW_MODE"           value="0"/> <!-- Switch between AP and FBW control -->
+            <define name="RADIO_KILL_SWITCH"        value="0"/>
+            <define name="RADIO_CONTROL_THRUST_X"   value="0"/>
+            <define name="RADIO_CONTROL_EFF_SWITCH" value="0"/>
 
-            <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
-            <define name="USE_SONAR"              value="1"/> <!-- Because uavcan can't handle simulation yet -->
+            <define name="PREFLIGHT_CHECK_BYPASS"   value="TRUE"/>
+            <define name="USE_SONAR"                value="1"/> <!-- Because uavcan can't handle simulation yet -->
         </target>
 
         <!-- Herelink datalink -->
@@ -74,7 +76,7 @@
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
-            <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
+            <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
         <module name="airspeed" type="uavcan">
