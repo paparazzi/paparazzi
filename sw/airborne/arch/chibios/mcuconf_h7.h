@@ -381,11 +381,31 @@
 /*
  * ICU driver system settings.
  */
+#if USE_ICU_TIM1
+#define STM32_ICU_USE_TIM1                  TRUE
+#else
 #define STM32_ICU_USE_TIM1                  FALSE
+#endif
+#if USE_ICU_TIM2
+#define STM32_ICU_USE_TIM2                  TRUE
+#else
 #define STM32_ICU_USE_TIM2                  FALSE
+#endif
+#if USE_ICU_TIM3
+#define STM32_ICU_USE_TIM3                  TRUE
+#else
 #define STM32_ICU_USE_TIM3                  FALSE
+#endif
+#if USE_ICU_TIM4
+#define STM32_ICU_USE_TIM4                  TRUE
+#else
 #define STM32_ICU_USE_TIM4                  FALSE
+#endif
+#if USE_ICU_TIM5
+#define STM32_ICU_USE_TIM5                  TRUE
+#else
 #define STM32_ICU_USE_TIM5                  FALSE
+#endif
 #define STM32_ICU_USE_TIM8                  FALSE
 #define STM32_ICU_USE_TIM12                 FALSE
 #define STM32_ICU_USE_TIM13                 FALSE
