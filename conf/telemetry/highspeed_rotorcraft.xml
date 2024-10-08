@@ -404,7 +404,8 @@
       <message name="GPS_GLOBAL_ORIGIN"   period="5.1"/>
       <message name="VFR_HUD"             period="0.5"/>
       <message name="RC_CHANNELS"         period="0.2"/>
-      <message name="EXTENDED_SYS_STATE"  period="1.0"/>
+      <message name="MISSION_CURRENT"     period="1.0"/>
+      <message name="EXTENDED_SYS_STATE"  period="0.5"/>
     </mode>
   </process>
 

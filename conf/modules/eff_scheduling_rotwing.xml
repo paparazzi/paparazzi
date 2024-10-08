@@ -28,6 +28,7 @@
         <dl_setting var="eff_sched_p.Iyy_wing" min="0" step="0.1" max="30" shortname="Iyy_wing"/>
         <dl_setting var="eff_sched_p.Ixx_wing" min="0" step="0.1" max="30" shortname="Ixx_wing"/>
         <dl_setting var="eff_sched_p.m" min="0" step="0.1" max="50" shortname="M"/>
+        <dl_setting var="roll_eff_slider" min="4" step="1" max="12" shortname="roll_eff_slider"/>
       </dl_settings>
     </dl_settings>
   </settings>

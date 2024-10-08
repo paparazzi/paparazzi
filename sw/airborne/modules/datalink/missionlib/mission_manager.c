@@ -28,24 +28,16 @@
 #include "modules/datalink/missionlib/mission_manager.h"
 
 #include "modules/datalink/mavlink.h"
-#include "modules/datalink/missionlib/blocks.h"
+//#include "modules/datalink/missionlib/blocks.h"
 #include "modules/datalink/missionlib/waypoints.h"
 
 // include mavlink headers, but ignore some warnings
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #pragma GCC diagnostic ignored "-Wswitch-default"
-#include "mavlink/paparazzi/mavlink.h"
+#include "mavlink/ardupilotmega/mavlink.h"
 #pragma GCC diagnostic pop
 
-// for waypoints, include correct header until we have unified API
-#if defined(FIXEDWING_FIRMWARE)
-#include "modules/nav/common_nav.h"
-#elif defined(ROTORCRAFT_FIRMWARE)
-#include "firmwares/rotorcraft/navigation.h"
-#else
-#error "Mission manager: unsupported firmware"
-#endif
 #include "generated/flight_plan.h"
 
 #include "mcu_periph/sys_time.h"
@@ -53,7 +45,11 @@
 
 void mavlink_mission_init(mavlink_mission_mgr *mgr)
 {
+  mgr->count = 0;
+  mgr->active_count = 0;
+  mgr->mission_state = MISSION_STATE_NO_MISSION;
   mgr->seq = 0;
+  mgr->end_index = 0;
   mgr->timer_id = -1;
 }
 
@@ -77,7 +73,7 @@ void mavlink_mission_cancel_timer(void)
 
 void mavlink_mission_message_handler(const mavlink_message_t *msg)
 {
-  mavlink_block_message_handler(msg);
+  // mavlink_block_message_handler(msg);
 
   mavlink_wp_message_handler(msg);
 
@@ -93,10 +89,10 @@ void mavlink_mission_message_handler(const mavlink_message_t *msg)
 void mavlink_mission_periodic(void)
 {
   // FIXME: really use the SCRIPT_ITEM message to indicate current block?
-  if (mission_mgr.current_block != get_nav_block()) {
-    mission_mgr.current_block = get_nav_block();
-    mavlink_msg_script_current_send(MAVLINK_COMM_0, get_nav_block());
-    MAVLinkSendMessage();
+  if (mission_mgr.current_block != nav_block) {
+    mission_mgr.current_block = nav_block;
+    // mavlink_msg_script_current_send(MAVLINK_COMM_0, nav_block);
+    // MAVLinkSendMessage();
   }
   // check if we had a timeout on a transaction
   if (sys_time_check_and_ack_timer(mission_mgr.timer_id)) {
@@ -113,4 +109,42 @@ void mavlink_send_mission_ack(void)
                                MAV_MISSION_ACCEPTED, MAV_MISSION_TYPE_MISSION);
   MAVLinkSendMessage();
   MAVLINK_DEBUG("Sent MISSION_ACK message\n");
+}
+
+enum MAV_MISSION_RESULT mavlink_mission_check_validity(void)
+{
+  // Check cmd and frame of mission items in mission
+  for (uint8_t i = 0; i < mission_mgr.count; i++) {
+    if (mission_mgr.standby_mission_items[i].cmd != MAV_CMD_NAV_WAYPOINT ||
+        mission_mgr.standby_mission_items[i].cmd != MAV_CMD_NAV_LOITER_TIME) {
+          return MAV_MISSION_UNSUPPORTED;
+    }
+    if (mission_mgr.standby_mission_items[i].frame != MAV_FRAME_GLOBAL || 
+        mission_mgr.standby_mission_items[i].frame != MAV_FRAME_GLOBAL_RELATIVE_ALT) {
+          return MAV_MISSION_UNSUPPORTED_FRAME;
+    }  
+  }
+  return MAV_MISSION_ACCEPTED;
+}
+
+
+void mavlink_mission_set_active(void) 
+{
+  for (uint8_t i = 0; i < mission_mgr.count; i++) {
+    mission_mgr.active_mission_items[i].seq = mission_mgr.standby_mission_items[i].seq;
+    mission_mgr.active_mission_items[i].frame = mission_mgr.standby_mission_items[i].frame;
+    mission_mgr.active_mission_items[i].cmd = mission_mgr.standby_mission_items[i].cmd;
+    mission_mgr.active_mission_items[i].current = mission_mgr.standby_mission_items[i].current;
+    mission_mgr.active_mission_items[i].autocontinue = mission_mgr.standby_mission_items[i].autocontinue;
+    mission_mgr.active_mission_items[i].x = mission_mgr.standby_mission_items[i].x;
+    mission_mgr.active_mission_items[i].y = mission_mgr.standby_mission_items[i].y;
+    mission_mgr.active_mission_items[i].z = mission_mgr.standby_mission_items[i].z;
+    // Process waypoint
+    mavlink_waypoint_handler(&mission_mgr.active_mission_items[i]);
+  }
+  mission_mgr.active_count = mission_mgr.count;
+
+  // TODO: set index correct in mission module
+  
+  MAVLINK_DEBUG("Mission with count %i activated", mission_mgr.count);
 }

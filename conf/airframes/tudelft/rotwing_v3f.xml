@@ -13,11 +13,20 @@
         <target name="ap" board="cube_orangeplus">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
-            <module name="radio_control" type="sbus">
-                <configure name="SBUS_PORT" value="UART3"/> <!-- On the TELEM2 port -->
-            </module>
+            <module name="radio_control" type="ppm"/>
             <module name="sys_mon"/>
             <module name="flight_recorder"/>
+            
+            <module name="mavlink">
+                <configure name="MAVLINK_BAUD" value="B460800"/>
+                <configure name="MAVLINK_PORT" value="UART3"/>
+                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
+            </module>
+            
+             <module name="mission_rotorcraft">
+                <define name="MISSION_WAIT_TIMEOUT" value="0"/>
+                <define name="MISSION_ELEMENT_NB" value="200"/>
+            </module>
 
             <!-- RC switches -->
             <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
@@ -25,6 +34,7 @@
             <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <define name="RADIO_CONTROL_EFF_SWITCH"       value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
@@ -48,6 +58,21 @@
         <target name="nps" board="pc">
             <module name="radio_control" type="datalink"/>
             <module name="fdm" type="jsbsim"/>
+            
+            <module name="mavlink">
+                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
+                <define name="UDP1_PORT_OUT" value="24550"/>
+                <define name="UDP1_PORT_IN" value="14551"/>
+                <define name="UDP1_HOST" value="127.0.0.1"/>
+                <define name="MAVLINK_DEBUG" value="printf"/>
+                <define name="GEOFENCE_START_IDX" value="WP_C1"/>
+                <define name="GEOFECNE_WP_COUNT" value="9"/>
+                <configure name="MAVLINK_PORT" value="UDP1"/>
+            </module>
+            
+            <module name="mission_rotorcraft">
+                <define name="MISSION_WAIT_TIMEOUT" value="0"/>
+            </module>
 
             <!--Not dealing with these in the simulation-->
             <define name="RADIO_TH_HOLD"          value="0"/> <!-- Throttle hold in command laws -->
@@ -55,6 +80,7 @@
             <define name="RADIO_FBW_MODE"         value="RADIO_AUX7"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"      value="RADIO_AUX1"/>
             <define name="RADIO_CONTROL_THRUST_X" value="0"/>
+            <define name="RADIO_CONTROL_EFF_SWITCH"       value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS" value="TRUE"/>
             <define name="USE_SONAR"              value="1"/> <!-- Because uavcan can't handle simulation yet -->
@@ -74,7 +100,7 @@
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
             <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
-            <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
+            <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
         </module>
         <module name="airspeed" type="uavcan">
@@ -95,7 +121,16 @@
 
         <!-- IMU / INS -->
         <module name="imu" type="cube"/>
-        <module name="ins" type="ekf2"/>
+        <module name="ins" type="ekf2">
+            <define name="INS_EKF2_IMU_POS_X" value="0.321"/>
+            <define name="INS_EKF2_IMU_POS_Y" value="0.0"/>
+            <define name="INS_EKF2_IMU_POS_Z" value="0.0"/>
+
+            <!-- The main GPS is mounted 0.55m behind of c.g.-->
+            <define name="INS_EKF2_GPS_POS_X" value="-0.55"/>
+            <define name="INS_EKF2_GPS_POS_Y" value="0.0"/>
+            <define name="INS_EKF2_GPS_POS_Z" value="0.0"/>
+        </module>
 
         <module name="parachute"/>
         <module name="ekf_aw"/>
@@ -127,6 +162,7 @@
         </module>
 
         <!-- Other -->
+        <module name="nav_rotwing"/>
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>

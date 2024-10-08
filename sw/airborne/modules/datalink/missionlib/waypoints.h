@@ -28,7 +28,10 @@
 #define MISSIONLIB_WAYPOINTS_H
 
 #include <mavlink/mavlink_types.h>
+#include "modules/datalink/missionlib/mission_manager.h"
 
 extern void mavlink_wp_message_handler(const mavlink_message_t *msg);
+
+extern void mavlink_waypoint_handler(mavlink_mission_item *mission_item);
 
 #endif // MISSIONLIB_WAYPOINTS_H

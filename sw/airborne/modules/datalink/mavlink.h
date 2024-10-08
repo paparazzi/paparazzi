@@ -67,6 +67,22 @@ extern mavlink_system_t mavlink_system;
 #define MAVLinkSendMessage() MAVLinkDev->send_message(MAVLinkDev->periph, 0)
 
 /**
+ * Struct of available mavlink commands
+ */
+struct mavlink_modes_t {
+  uint8_t current_mode;
+  bool takeoff_available;
+  bool hover_available;
+  bool guided_available;
+  bool land_available;
+  uint8_t block_takeoff;
+  uint8_t block_hover;
+  uint8_t block_guided;
+  uint8_t block_land;
+};
+
+
+/**
  * Module functions
  */
 void mavlink_init(void);

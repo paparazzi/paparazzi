@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="nav_rotwing" dir="nav">
+  <doc>
+    <description>Custom mission nav patterns for the rotating wing drone</description>
+  </doc>
+  <header>
+    <file name="nav_rotwing.h"/>
+  </header>
+  <init fun="nav_rotwing_init()"/>
+  <makefile>
+    <file name="nav_rotwing.c"/>
+    <test/>
+  </makefile>
+</module>
