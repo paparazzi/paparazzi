@@ -76,6 +76,100 @@ void stateInit(void)
 }
 
 
+/// Get the LLA position of the frame origin (int)
+struct LlaCoor_i stateGetLlaOrigin_i(void)
+{
+  struct LlaCoor_i lla_i = {0};
+  if (state.ned_initialized_i) {
+    return state.ned_origin_i.lla;
+  } else if (state.ned_initialized_f) {
+    LLA_BFP_OF_REAL(lla_i, state.ned_origin_f.lla);
+    return lla_i;
+  } else if (state.utm_initialized_f) {
+    struct LlaCoor_f lla_f;
+    lla_of_utm_f(&lla_f, &state.utm_origin_f);
+    LLA_BFP_OF_REAL(lla_i, lla_f);
+    return lla_i;
+  } else {
+    return lla_i;
+  }
+}
+
+/// Get the LLA position of the frame origin (float)
+struct LlaCoor_f stateGetLlaOrigin_f(void)
+{
+  struct LlaCoor_f lla_f = {0};
+  if (state.ned_initialized_f) {
+    return state.ned_origin_f.lla;
+  } else if (state.ned_initialized_i) {
+    LLA_FLOAT_OF_BFP(lla_f, state.ned_origin_i.lla);
+    return lla_f;
+  } else if (state.utm_initialized_f) {
+    lla_of_utm_f(&lla_f, &state.utm_origin_f);
+    return lla_f;
+  } else {
+    return lla_f;
+  }
+}
+
+/// Get the ECEF position of the frame origin (int)
+struct EcefCoor_i stateGetEcefOrigin_i(void)
+{
+  struct EcefCoor_i ecef_i = {0};
+  if (state.ned_initialized_i) {
+    return state.ned_origin_i.ecef;
+  } else if (state.ned_initialized_f) {
+    ECEF_BFP_OF_REAL(ecef_i, state.ned_origin_f.ecef);
+    return ecef_i;
+  } else {
+    // UTM case is not supported
+    return ecef_i;
+  }
+}
+
+/// Get the ECEF position of the frame origin (float)
+struct EcefCoor_f stateGetEcefOrigin_f(void)
+{
+  struct EcefCoor_f ecef_f = {0};
+  if (state.ned_initialized_f) {
+    return state.ned_origin_f.ecef;
+  } else if (state.ned_initialized_i) {
+    ECEF_FLOAT_OF_BFP(ecef_f, state.ned_origin_i.ecef);
+    return ecef_f;
+  } else {
+    // UTM case is not supported
+    return ecef_f;
+  }
+}
+
+/// Get the HMSL of the frame origin (int)
+int32_t stateGetHmslOrigin_i(void)
+{
+  if (state.ned_initialized_i) {
+    return state.ned_origin_i.hmsl;
+  } else if (state.ned_initialized_f) {
+    return (int32_t) MM_OF_M(state.ned_origin_f.hmsl);
+  } else if (state.utm_initialized_f) {
+    return (int32_t) MM_OF_M(state.utm_origin_f.alt);
+  } else {
+    return 0;
+  }
+}
+
+/// Get the HMSL of the frame origin (float)
+float stateGetHmslOrigin_f(void)
+{
+  if (state.ned_initialized_f) {
+    return state.ned_origin_f.hmsl;
+  } else if (state.ned_initialized_i) {
+    return (float) M_OF_MM(state.ned_origin_i.hmsl);
+  } else if (state.utm_initialized_f) {
+    return state.utm_origin_f.alt;
+  } else {
+    return 0.f;
+  }
+}
+
 /*******************************************************************************
  *                                                                             *
  * transformation functions for the POSITION representations                   *

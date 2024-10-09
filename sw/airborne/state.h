@@ -485,6 +485,45 @@ static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
   ClearBit(state.accel_status, ACCEL_NED_I);
   ClearBit(state.accel_status, ACCEL_NED_F);
 }
+
+/// Get the coordinate NED frame origin (int)
+static inline struct LtpDef_i *stateGetNedOrigin_i(void)
+{
+  if (state.ned_initialized_i) {
+    return &state.ned_origin_i;
+  } else {
+    return NULL;
+  }
+}
+
+/// Get the coordinate NED frame origin (float)
+static inline struct LtpDef_f *stateGetNedOrigin_f(void)
+{
+  if (state.ned_initialized_f) {
+    return &state.ned_origin_f;
+  } else {
+    return NULL;
+  }
+}
+
+/// Get the coordinate UTM frame origin (int)
+static inline struct UtmCoor_f *stateGetUtmOrigin_f(void)
+{
+  if (state.utm_initialized_f) {
+    return &state.utm_origin_f;
+  } else {
+    return NULL;
+  }
+}
+
+/************* declaration of origin accessor function ************/
+extern struct LlaCoor_i stateGetLlaOrigin_i(void);
+extern struct LlaCoor_f stateGetLlaOrigin_f(void);
+extern struct EcefCoor_i stateGetEcefOrigin_i(void);
+extern struct EcefCoor_f stateGetEcefOrigin_f(void);
+extern int32_t stateGetHmslOrigin_i(void);
+extern float stateGetHmslOrigin_f(void);
+
 /*******************************************************************************
  *                                                                             *
  * Set and Get functions for the POSITION representations                      *
