@@ -302,13 +302,13 @@ void ins_reset_local_origin(void)
 void ins_reset_altitude_ref(void)
 {
 #if FIXEDWING_FIRMWARE
-  struct UtmCoor_f utm = state.utm_origin_f;
+  struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   utm.alt = gps.hmsl / 1000.0f;
   stateSetLocalUtmOrigin_f(&utm);
 #else
   struct LlaCoor_i lla = {
-    .lat = state.ned_origin_i.lla.lat,
-    .lon = state.ned_origin_i.lla.lon,
+    .lat = stateGetLlaOrigin_i().lat,
+    .lon = stateGetLlaOrigin_i().lon,
     .alt = gps.lla_pos.alt
   };
   struct LtpDef_i ltp_def;
@@ -452,9 +452,9 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
     if (state.utm_initialized_f) {
       struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
       // position (local ned)
-      ins_float_inv.meas.pos_gps.x = utm.north - state.utm_origin_f.north;
-      ins_float_inv.meas.pos_gps.y = utm.east - state.utm_origin_f.east;
-      ins_float_inv.meas.pos_gps.z = state.utm_origin_f.alt - utm.alt;
+      ins_float_inv.meas.pos_gps.x = utm.north - stateGetUtmOrigin_f()->north;
+      ins_float_inv.meas.pos_gps.y = utm.east - stateGetUtmOrigin_f()->east;
+      ins_float_inv.meas.pos_gps.z = stateGetHmslOrigin_f() - utm.alt;
       // speed
       ins_float_inv.meas.speed_gps = ned_vel_float_from_gps(gps_s);
     }
@@ -463,12 +463,12 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
       // position
       struct NedCoor_i gps_pos_cm_ned, ned_pos;
       struct EcefCoor_i ecef_pos_i = ecef_int_from_gps(gps_s);
-      ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &ecef_pos_i);
+      ned_of_ecef_point_i(&gps_pos_cm_ned, stateGetNedOrigin_i(), &ecef_pos_i);
       INT32_VECT3_SCALE_2(ned_pos, gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
       NED_FLOAT_OF_BFP(ins_float_inv.meas.pos_gps, ned_pos);
       // speed
       struct EcefCoor_f ecef_vel = ecef_vel_float_from_gps(gps_s);
-      ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, &state.ned_origin_f, &ecef_vel);
+      ned_of_ecef_vect_f(&ins_float_inv.meas.speed_gps, stateGetNedOrigin_f(), &ecef_vel);
     }
 #endif
     // when getting first GPS pos (or after reset), set state to current pos and speed

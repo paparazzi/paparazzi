@@ -122,13 +122,13 @@ void nav_reset_reference(void)
   ins_reset_local_origin();
 
   /* Set nav UTM ref */
-  nav_utm_east0 = state.utm_origin_f.east;
-  nav_utm_north0 = state.utm_origin_f.north;
-  nav_utm_zone0 = state.utm_origin_f.zone;
+  nav_utm_east0 = stateGetUtmOrigin_f()->east;
+  nav_utm_north0 = stateGetUtmOrigin_f()->north;
+  nav_utm_zone0 = stateGetUtmOrigin_f()->zone;
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  ground_alt = stateGetHmslOrigin_f();
 }
 
 /** Reset the altitude reference to the current GPS alt */
@@ -138,7 +138,7 @@ void nav_reset_alt(void)
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  ground_alt = stateGetHmslOrigin_f();
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */

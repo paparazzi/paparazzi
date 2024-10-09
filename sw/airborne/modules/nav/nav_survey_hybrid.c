@@ -163,10 +163,10 @@ static bool nav_survey_hybrid_mission_global(uint8_t nb, float *params, enum Mis
         struct LlaCoor_f lla = {
           .lat = RadOfDeg(params[4+2*i]),
           .lon = RadOfDeg(params[4+2*i+1]),
-          .alt = state.ned_origin_f.lla.alt + height
+          .alt = stateGetLlaOrigin_f().alt + height
         };
         struct EnuCoor_f corner;
-        enu_of_lla_point_f(&corner, &state.ned_origin_f, &lla);
+        enu_of_lla_point_f(&corner, stateGetNedOrigin_f(), &lla);
         survey_private.corners[i] = corner;
       }
       nav_survey_hybrid_setup(orientation, sweep, radius, height);

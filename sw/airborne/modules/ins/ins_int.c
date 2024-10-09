@@ -276,8 +276,8 @@ void ins_reset_altitude_ref(void)
   if (GpsFixValid()) {
     struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
     struct LlaCoor_i lla = {
-      .lat = state.ned_origin_i.lla.lat,
-      .lon = state.ned_origin_i.lla.lon,
+      .lat = stateGetLlaOrigin_i().lat,
+      .lon = stateGetLlaOrigin_i().lon,
       .alt = lla_pos.alt
     };
     ltp_def_from_lla_i(&ins_int.ltp_def, &lla);

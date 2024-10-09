@@ -654,8 +654,8 @@ void ins_reset_altitude_ref(void)
   if (GpsFixValid()) {
     struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
     struct LlaCoor_i lla = {
-      .lat = state.ned_origin_i.lla.lat,
-      .lon = state.ned_origin_i.lla.lon,
+      .lat = stateGetLlaOrigin_i().lat,
+      .lon = stateGetLlaOrigin_i().lon,
       .alt = lla_pos.alt
     };
     if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {

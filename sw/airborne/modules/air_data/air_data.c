@@ -120,7 +120,7 @@ static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, uint32_t 
     // in the meantime use geoid separation at local reference frame origin
     float geoid_separation = 0;
     if (state.ned_initialized_f) {
-      geoid_separation = state.ned_origin_f.lla.alt - state.ned_origin_f.hmsl;
+      geoid_separation = stateGetLlaOrigin_f().alt - stateGetHmslOrigin_f();
     }
     float h = stateGetPositionLla_f()->alt - geoid_separation;
     air_data.qnh = pprz_isa_ref_pressure_of_height_full(air_data.pressure, h) / 100.f;

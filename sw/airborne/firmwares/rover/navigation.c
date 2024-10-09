@@ -126,8 +126,8 @@ void nav_parse_MOVE_WP(uint8_t *buf)
     /* WP_alt from message is alt above MSL in mm
      * lla.alt is above ellipsoid in mm
      */
-    lla.alt = DL_MOVE_WP_alt(buf) - state.ned_origin_i.hmsl +
-      state.ned_origin_i.lla.alt;
+    lla.alt = DL_MOVE_WP_alt(buf) - stateGetHmslOrigin_i() +
+      stateGetLlaOrigin_i().alt;
     waypoint_move_lla(wp_id, &lla);
   }
 }
