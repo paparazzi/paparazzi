@@ -379,7 +379,7 @@ def main_loop(args, ivy):
         sleep(1)
         if not natnet.connected():
             print("Natnet error: Fail to connect to natnet")
-            exit(-1)
+            #exit(-1)
 
         while True:
             sleep(1)
