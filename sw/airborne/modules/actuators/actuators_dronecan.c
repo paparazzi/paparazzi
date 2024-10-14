@@ -217,22 +217,18 @@ static void actuators_dronecan_esc_status_cb(struct dronecan_iface_t *iface, Can
     telem[esc_idx].current = status.current;
     telem[esc_idx].temperature = status.temperature - 273.15; // K -> °C conversion
     telem[esc_idx].rpm = status.rpm;
+  } else {
+    // early return because esc_idx is undefined in the rest of this function.
+    return;
   }
 
 
 #if DRONECAN_ACTUATORS_USE_CURRENT
   // Update total current
   electrical.current = 0;
-#ifdef DRONECAN1_TELEM_NB
-  for (uint8_t i = 0; i < DRONECAN1_TELEM_NB; ++i) {
-    electrical.current += dronecan1_telem[i].current;
+  for (uint8_t i=0; i<max_id; ++i) {
+    electrical.current += telem[i].current;
   }
-#endif
-#ifdef DRONECAN2_TELEM_NB
-  for (uint8_t i = 0; i < DRONECAN2_TELEM_NB; ++i) {
-    electrical.current += dronecan2_telem[i].current;
-  }
-#endif
 #endif
 
   // Feedback ABI RPM messages
@@ -307,6 +303,8 @@ static void actuators_dronecan_actuator_status_cb(struct dronecan_iface_t *iface
     }
     telem[actuator_idx].set = true;
     telem[actuator_idx].position = status.position;
+  } else {
+    return;
   }
 
 #ifdef DRONECAN1_TELEM_NB
