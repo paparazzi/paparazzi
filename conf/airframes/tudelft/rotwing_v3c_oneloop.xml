@@ -286,7 +286,7 @@
         <define name  = "FILT_CUTOFF_RDOT"          value = "0.5" />  
         <define name  = "FILTER_YAW_RATE"           value = "TRUE"/>
         <!--                                                 |   MF   |   MR   |    MB   |    ML   |   MP   |   ELE  |    RUD  |    AIL  |    FLA  |   PHI  |  THETA | -->
-        <define name  = "ACT_DYN"                   value = "{   15.1f,   15.1f,    15.1f,    15.1f,  24.07f,  50.00f,   50.00f,   50.00f,   50.00f,   0.00f,  0.00f }" />
+        <define name  = "ACT_DYN"                   value = "{   22.0f,   22.0f,    22.0f,    22.0f,   30.0f,  50.00f,   50.00f,   50.00f,   50.00f,   0.00f,  0.00f }" />
         <define name  = "ACT_IS_SERVO"              value = "{       0,       0,        0,        0,       0,       1,        1,        1,        1,       0,      0 }" />
         <define name  = "ACT_MAX"                   value = "{ 9600.0f, 9600.0f,  9600.0f,  9600.0f, 9600.0f, 9600.0f,  9600.0f,  9600.0f,  9600.0f,  M_PI_4,  M_PI_4}"/>
         <define name  = "ACT_MIN"                   value = "{    0.0f,    0.0f,     0.0f,     0.0f,    0.0f,    0.0f, -9600.0f, -9600.0f, -9600.0f, -M_PI_4, -M_PI_4}"/>
