@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2023 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -19,13 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file arch/sim/modules/actuators/actuators_uavcan_arch.c
- *  dummy servos handling for sim
+/** @file modules/sensors/range_sensor_dronecan.h
+ * Range sensor sensor on the dronecan bus
  */
 
-#include "modules/actuators/actuators_uavcan_arch.h"
+#ifndef RANGE_SENSOR_DRONECAN_H
+#define RANGE_SENSOR_DRONECAN_H
 
-void actuators_uavcan_arch_init(void)
-{
+/* External functions */
+extern void range_sensor_dronecan_init(void);
 
-}
+#endif /* RANGE_SENSOR_DRONECAN_H */
