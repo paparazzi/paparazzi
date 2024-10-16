@@ -628,8 +628,8 @@ void ins_reset_altitude_ref(void)
   stateSetLocalUtmOrigin_f(MODULE_INS_MEKF_WIND_ID, &utm);
 #else
   struct LlaCoor_i lla = {
-    .lat = stateGetNedOrigin_i()->lat,
-    .lon = stateGetNedOrigin_i()->lon,
+    .lat = stateGetNedOrigin_i()->lla.lat,
+    .lon = stateGetNedOrigin_i()->lla.lon,
     .alt = gps.lla_pos.alt
   };
   struct LtpDef_i ltp_def;
