@@ -128,13 +128,13 @@ void parse_ins_msg(void)
             CHIMU_DATA.m_attitude.euler.theta,
             CHIMU_DATA.m_attitude.euler.psi
           };
-          stateSetNedToBodyEulers_f(&att);
+          stateSetNedToBodyEulers_f(MODULE_AHRS_CHIMU_SPI_ID, &att);
           struct FloatRates rates = {
             CHIMU_DATA.m_sensor.rate[0],
             CHIMU_DATA.m_attrates.euler.theta,
             0.
           }; // FIXME rate r
-          stateSetBodyRates_f(&rates);
+          stateSetBodyRates_f(MODULE_AHRS_CHIMU_SPI_ID, &rates);
         }
       } else if (CHIMU_DATA.m_MsgID == 0x02) {
 #if CHIMU_DOWNLINK_IMMEDIATE

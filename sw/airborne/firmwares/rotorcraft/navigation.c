@@ -233,7 +233,7 @@ static inline void nav_set_altitude(void)
 /** Reset the geographic reference to the current GPS fix */
 void nav_reset_reference(void)
 {
-  ins_reset_local_origin();
+  ins_reset_local_origin(MODULE_NAV_ROTORCRAFT_ID);
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
 }

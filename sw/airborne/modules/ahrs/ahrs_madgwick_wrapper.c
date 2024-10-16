@@ -178,10 +178,10 @@ static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_madgwick_output_enabled) {
     /* Set state */
-    stateSetNedToBodyQuat_f(&ahrs_madgwick.quat);
+    stateSetNedToBodyQuat_f(MODULE_AHRS_MADGWICK_ID, &ahrs_madgwick.quat);
 
     /* compute body rates */
-    stateSetBodyRates_f(&ahrs_madgwick.rates);
+    stateSetBodyRates_f(MODULE_AHRS_MADGWICK_ID, &ahrs_madgwick.rates);
   }
 }
 

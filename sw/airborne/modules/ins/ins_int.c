@@ -204,7 +204,7 @@ void ins_int_init(void)
 {
 
 #if USE_INS_NAV_INIT
-  ins_init_origin_i_from_flightplan(&ins_int.ltp_def);
+  ins_init_origin_i_from_flightplan(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_def);
   ins_int.ltp_initialized = true;
 #else
   ins_int.ltp_initialized  = false;
@@ -246,7 +246,7 @@ void ins_int_init(void)
   AbiBindMsgAGL(INS_INT_AGL_ID, &agl_ev, agl_cb); // ABI to the altitude above ground level
 }
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -256,11 +256,12 @@ void ins_reset_local_origin(void)
     ins_int.ltp_def.lla.alt = lla_pos.alt;
     ins_int.ltp_def.hmsl = gps.hmsl;
     ins_int.ltp_initialized = true;
-    stateSetLocalOrigin_i(&ins_int.ltp_def);
+    stateSetLocalOrigin_i(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_def);
   } else {
     ins_int.ltp_initialized = false;
   }
 #else
+  (void) id;
   ins_int.ltp_initialized = false;
 #endif
 
@@ -282,7 +283,7 @@ void ins_reset_altitude_ref(void)
     };
     ltp_def_from_lla_i(&ins_int.ltp_def, &lla);
     ins_int.ltp_def.hmsl = gps.hmsl;
-    stateSetLocalOrigin_i(&ins_int.ltp_def);
+    stateSetLocalOrigin_i(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_def);
   }
 #endif
   ins_int.vf_reset = true;
@@ -296,7 +297,7 @@ void ins_reset_vertical_pos(void)
 void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 {
   // Set body acceleration in the state
-  stateSetAccelBody_i(accel);
+  stateSetAccelBody_i(MODULE_INS_INT_COMMON_ID, accel);
 
   /* untilt accels */
   struct Int32Vect3 accel_meas_ltp;
@@ -403,7 +404,7 @@ void ins_int_update_gps(struct GpsState *gps_s)
   }
 
   if (!ins_int.ltp_initialized) {
-    ins_reset_local_origin();
+    ins_reset_local_origin(MODULE_INS_INT_COMMON_ID);
   }
 
   struct NedCoor_i gps_pos_cm_ned;
@@ -518,9 +519,9 @@ static void agl_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unu
 /** copy position and speed to state interface */
 static void ins_ned_to_state(void)
 {
-  stateSetPositionNed_i(&ins_int.ltp_pos);
-  stateSetSpeedNed_i(&ins_int.ltp_speed);
-  stateSetAccelNed_i(&ins_int.ltp_accel);
+  stateSetPositionNed_i(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_pos);
+  stateSetSpeedNed_i(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_speed);
+  stateSetAccelNed_i(MODULE_INS_INT_COMMON_ID, &ins_int.ltp_accel);
 
 #if defined SITL && USE_NPS
   if (nps_bypass_ins) {

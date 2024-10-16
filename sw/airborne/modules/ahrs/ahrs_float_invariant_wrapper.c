@@ -201,12 +201,12 @@ static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_finv_output_enabled) {
     /* Set state */
-    stateSetNedToBodyQuat_f(&ahrs_float_inv.state.quat);
+    stateSetNedToBodyQuat_f(MODULE_AHRS_FLOAT_INVARIANT_ID, &ahrs_float_inv.state.quat);
 
     /* compute body rates */
     struct FloatRates body_rate;
     RATES_DIFF(body_rate, ahrs_float_inv.cmd.rates, ahrs_float_inv.state.bias);
-    stateSetBodyRates_f(&body_rate);
+    stateSetBodyRates_f(MODULE_AHRS_FLOAT_INVARIANT_ID, &body_rate);
   }
 }
 

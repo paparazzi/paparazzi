@@ -127,12 +127,12 @@ void ahrs_vectornav_propagate(void)
   // Rates [rad/s]
   static struct FloatRates body_rate;
   float_rmat_ratemult(&body_rate, orientationGetRMat_f(&ahrs_vn.body_to_imu), &ahrs_vn.vn_data.gyro); // compute body rates
-  stateSetBodyRates_f(&body_rate);   // Set state [rad/s]
+  stateSetBodyRates_f(MODULE_AHRS_VECTORNAV_ID, &body_rate);   // Set state [rad/s]
 
   // Attitude [deg]
   static struct FloatQuat imu_quat; // convert from euler to quat
   float_quat_of_eulers(&imu_quat, &ahrs_vn.vn_data.attitude);
-  stateSetNedToBodyQuat_f(&imu_quat);
+  stateSetNedToBodyQuat_f(MODULE_AHRS_VECTORNAV_ID, &imu_quat);
 
 }
 

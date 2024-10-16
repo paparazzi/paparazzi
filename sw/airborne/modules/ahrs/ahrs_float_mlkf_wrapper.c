@@ -196,8 +196,8 @@ static void set_body_state_from_quat(void)
 {
   if (ahrs_mlkf_output_enabled) {
     /* Set in state interface */
-    stateSetNedToBodyQuat_f(&ahrs_mlkf.ltp_to_body_quat);
-    stateSetBodyRates_f(&ahrs_mlkf.body_rate);
+    stateSetNedToBodyQuat_f(MODULE_AHRS_FLOAT_MLKF_ID, &ahrs_mlkf.ltp_to_body_quat);
+    stateSetBodyRates_f(MODULE_AHRS_FLOAT_MLKF_ID, &ahrs_mlkf.body_rate);
   }
 }
 

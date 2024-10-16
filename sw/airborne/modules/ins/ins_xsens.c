@@ -68,8 +68,8 @@ void ins_xsens_init(void)
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
+  stateSetLocalUtmOrigin_f(MODULE_INS_XSENS_ID, &utm0);
+  stateSetPositionUtm_f(MODULE_INS_XSENS_ID, &utm0);
 
   AbiBindMsgGPS(INS_XSENS_GPS_ID, &gps_ev, gps_cb);
 }
@@ -92,11 +92,11 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   utm.alt = gps_s->hmsl / 1000.;
 
   // set position
-  stateSetPositionUtm_f(&utm);
+  stateSetPositionUtm_f(MODULE_INS_XSENS_ID, &utm);
 
   struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
   // set velocity
-  stateSetSpeedNed_f(&ned_vel);
+  stateSetSpeedNed_f(MODULE_INS_XSENS_ID, &ned_vel);
 }
 
 #if USE_GPS_XSENS
@@ -142,8 +142,8 @@ static void update_state_interface(void)
   };
   struct FloatRates rates = xsens.gyro;
 #endif
-  stateSetNedToBodyEulers_f(&att);
-  stateSetBodyRates_f(&rates);
+  stateSetNedToBodyEulers_f(MODULE_INS_XSENS_ID, &att);
+  stateSetBodyRates_f(MODULE_INS_XSENS_ID, &rates);
 }
 
 

@@ -65,6 +65,13 @@ void stateInit(void)
   state.ned_initialized_i = false;
   state.ned_initialized_f = false;
   state.utm_initialized_f = false;
+  state.origin_input_filter = STATE_INPUT_ANY;
+  state.pos_input_filter = STATE_INPUT_ANY;
+  state.speed_input_filter = STATE_INPUT_ANY;
+  state.accel_input_filter = STATE_INPUT_ANY;
+  state.attitude_input_filter = STATE_INPUT_ANY;
+  state.rates_input_filter = STATE_INPUT_ANY;
+  state.wind_air_input_filter = STATE_INPUT_ANY;
 
   /* setting to zero forces recomputation of zone using lla when utm uninitialised*/
   state.utm_origin_f.zone = 0;
@@ -74,6 +81,43 @@ void stateInit(void)
   preflight_check_register(&state_pfc, state_preflight);
 #endif
 }
+
+void stateSetInputFilter(uint8_t type, uint16_t flag)
+{
+  switch (type) {
+    case STATE_INPUT_ORIGIN:
+      state.origin_input_filter = flag;
+      break;
+    case STATE_INPUT_POS:
+      state.pos_input_filter = flag;
+      break;
+    case STATE_INPUT_SPEED:
+      state.speed_input_filter = flag;
+      break;
+    case STATE_INPUT_ACCEL:
+      state.accel_input_filter = flag;
+      break;
+    case STATE_INPUT_ATTITUDE:
+      state.attitude_input_filter = flag;
+      break;
+    case STATE_INPUT_RATES:
+      state.rates_input_filter = flag;
+      break;
+    case STATE_INPUT_WIND_AIR:
+      state.wind_air_input_filter = flag;
+      break;
+    default:
+      break; // nothing to do, wrong type
+  }
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * transformation functions for the POSITION representations                   *
+ *                                                                             *
+ ******************************************************************************/
+/** @addtogroup state_position
+ *  @{ */
 
 
 /// Get the LLA position of the frame origin (int)
@@ -169,14 +213,6 @@ float stateGetHmslOrigin_f(void)
     return 0.f;
   }
 }
-
-/*******************************************************************************
- *                                                                             *
- * transformation functions for the POSITION representations                   *
- *                                                                             *
- ******************************************************************************/
-/** @addtogroup state_position
- *  @{ */
 
 void stateCalcPositionEcef_i(void)
 {

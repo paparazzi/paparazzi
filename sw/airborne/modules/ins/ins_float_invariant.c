@@ -226,8 +226,8 @@ void ins_float_invariant_init(void)
   utm0.east = (float)nav_utm_east0;
   utm0.alt = GROUND_ALT;
   utm0.zone = nav_utm_zone0;
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
+  stateSetLocalUtmOrigin_f(MODULE_INS_FLOAT_INVARIANT_ID, &utm0);
+  stateSetPositionUtm_f(MODULE_INS_FLOAT_INVARIANT_ID, &utm0);
 #else
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
@@ -239,7 +239,7 @@ void ins_float_invariant_init(void)
   struct LtpDef_i ltp_def;
   ltp_def_from_ecef_i(&ltp_def, &ecef_nav0);
   ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOAT_INVARIANT_ID, &ltp_def);
 #endif
 
 #if USE_MAGNETOMETER
@@ -279,12 +279,12 @@ void ins_float_invariant_init(void)
 }
 
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_FLOAT_INVARIANT_ID, &utm);
 #else
   struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
   struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
@@ -292,7 +292,7 @@ void ins_reset_local_origin(void)
   ltp_def_from_ecef_i(&ltp_def, &ecef_pos);
   ltp_def.lla.alt = lla_pos.alt;
   ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOAT_INVARIANT_ID, &ltp_def);
 #endif
   // reset state position and velocity to zero
   FLOAT_VECT3_ZERO(ins_float_inv.state.pos);
@@ -304,7 +304,7 @@ void ins_reset_altitude_ref(void)
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_FLOAT_INVARIANT_ID, &utm);
 #else
   struct LlaCoor_i lla = {
     .lat = stateGetLlaOrigin_i().lat,
@@ -314,7 +314,7 @@ void ins_reset_altitude_ref(void)
   struct LtpDef_i ltp_def;
   ltp_def_from_lla_i(&ltp_def, &lla);
   ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOAT_INVARIANT_ID, &ltp_def);
 #endif
   // reset vertical position and velocity to zero
   ins_float_inv.state.pos.z = 0.f;
@@ -337,7 +337,7 @@ void ins_float_invariant_align(struct FloatRates *lp_gyro,
   ins_float_inv.state.bias = *lp_gyro;
 
   /* push initial values to state interface */
-  stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
+  stateSetNedToBodyQuat_f(MODULE_INS_FLOAT_INVARIANT_ID, &ins_float_inv.state.quat);
 
   // ins and ahrs are now running
   ins_float_inv.is_aligned = true;
@@ -361,7 +361,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
 
   struct Int32Vect3 body_accel_i;
   ACCELS_BFP_OF_REAL(body_accel_i, ins_float_inv.cmd.accel);
-  stateSetAccelBody_i(&body_accel_i);
+  stateSetAccelBody_i(MODULE_INS_FLOAT_INVARIANT_ID, &body_accel_i);
 
   // update correction gains
   error_output(&ins_float_inv);
@@ -378,11 +378,11 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   float_quat_normalize(&ins_float_inv.state.quat);
 
   // set global state
-  stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
+  stateSetNedToBodyQuat_f(MODULE_INS_FLOAT_INVARIANT_ID, &ins_float_inv.state.quat);
   RATES_DIFF(body_rates, ins_float_inv.cmd.rates, ins_float_inv.state.bias);
-  stateSetBodyRates_f(&body_rates);
-  stateSetPositionNed_f(&ins_float_inv.state.pos);
-  stateSetSpeedNed_f(&ins_float_inv.state.speed);
+  stateSetBodyRates_f(MODULE_INS_FLOAT_INVARIANT_ID, &body_rates);
+  stateSetPositionNed_f(MODULE_INS_FLOAT_INVARIANT_ID, &ins_float_inv.state.pos);
+  stateSetSpeedNed_f(MODULE_INS_FLOAT_INVARIANT_ID, &ins_float_inv.state.speed);
   // untilt accel and remove gravity
   struct FloatQuat q_b2n;
   float_quat_invert(&q_b2n, &ins_float_inv.state.quat);
@@ -390,7 +390,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   float_quat_vmult(&accel_n, &q_b2n, &ins_float_inv.cmd.accel);
   VECT3_SMUL(accel_n, accel_n, 1.f / (ins_float_inv.state.as));
   VECT3_ADD(accel_n, A);
-  stateSetAccelNed_f((struct NedCoor_f *)&accel_n);
+  stateSetAccelNed_f(MODULE_INS_FLOAT_INVARIANT_ID, (struct NedCoor_f *)&accel_n);
 
   //------------------------------------------------------------//
 

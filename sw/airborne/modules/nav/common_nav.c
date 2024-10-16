@@ -107,7 +107,7 @@ void nav_reset_utm_zone(void)
   utm0.north = nav_utm_north0;
   utm0.east = nav_utm_east0;
   utm0.alt = ground_alt;
-  ins_reset_utm_zone(&utm0);
+  ins_reset_utm_zone(MODULE_NAV_BASIC_FW_ID, &utm0);
 
   /* Set the real UTM ref */
   nav_utm_zone0 = utm0.zone;
@@ -119,7 +119,7 @@ void nav_reset_utm_zone(void)
 void nav_reset_reference(void)
 {
   /* realign INS */
-  ins_reset_local_origin();
+  ins_reset_local_origin(MODULE_NAV_BASIC_FW_ID);
 
   /* Set nav UTM ref */
   nav_utm_east0 = stateGetUtmOrigin_f()->east;

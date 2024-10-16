@@ -100,7 +100,7 @@ void parse_ins_msg(void)
             CHIMU_DATA.m_attitude.euler.theta,
             CHIMU_DATA.m_attitude.euler.psi
           };
-          stateSetNedToBodyEulers_f(&att);
+          stateSetNedToBodyEulers_f(MODULE_AHRS_CHIMU_UART_ID, &att);
         }
 
 #if CHIMU_DOWNLINK_IMMEDIATE

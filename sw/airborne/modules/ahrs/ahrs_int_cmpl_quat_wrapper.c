@@ -246,8 +246,8 @@ static void set_body_state_from_quat(void)
 {
   if (ahrs_icq_output_enabled) {
     /* Set state */
-    stateSetNedToBodyQuat_i(&ahrs_icq.ltp_to_body_quat);
-    stateSetBodyRates_i(&ahrs_icq.body_rate);
+    stateSetNedToBodyQuat_i(MODULE_AHRS_INT_CMPL_QUAT_ID, &ahrs_icq.ltp_to_body_quat);
+    stateSetBodyRates_i(MODULE_AHRS_INT_CMPL_QUAT_ID, &ahrs_icq.body_rate);
   }
 }
 

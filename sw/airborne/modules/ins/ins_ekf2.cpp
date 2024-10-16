@@ -599,7 +599,7 @@ void ins_ekf2_init(void)
 
     ltp_def_from_lla_i(&ekf2.ltp_def, &llh_nav0);
     ekf2.ltp_def.hmsl = NAV_ALT0;
-    stateSetLocalOrigin_i(&ekf2.ltp_def);
+    stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
     /* update local ENU coordinates of global waypoints */
     waypoints_localize_all();
@@ -634,7 +634,7 @@ void ins_ekf2_init(void)
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
 }
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -642,7 +642,7 @@ void ins_reset_local_origin(void)
     if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
       ekf2.ltp_def.hmsl = gps.hmsl;
-      stateSetLocalOrigin_i(&ekf2.ltp_def);
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
     }
   }
 #endif
@@ -661,7 +661,7 @@ void ins_reset_altitude_ref(void)
     if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
       ekf2.ltp_def.hmsl = gps.hmsl;
-      stateSetLocalOrigin_i(&ekf2.ltp_def);
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
     }
   }
 #endif
@@ -689,7 +689,7 @@ void ins_ekf2_update(void)
       pos.z = pos_f(2);
 
       // Publish to the state
-      stateSetPositionNed_f(&pos);
+      stateSetPositionNed_f(MODULE_INS_EKF2_ID, &pos);
 
       /* Get the velocity in NED frame */
       const Vector3f vel_f{ekf.getVelocity()};
@@ -699,7 +699,7 @@ void ins_ekf2_update(void)
       speed.z = vel_f(2);
 
       // Publish to state
-      stateSetSpeedNed_f(&speed);
+      stateSetSpeedNed_f(MODULE_INS_EKF2_ID, &speed);
 
       /* Get the accelerations in NED frame */
       const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
@@ -709,7 +709,7 @@ void ins_ekf2_update(void)
       accel.z = vel_deriv_f(2);
 
       // Publish to state
-      stateSetAccelNed_f(&accel);
+      stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
 
       /* Get local origin */
       // Position of local NED origin in GPS / WGS84 frame
@@ -726,7 +726,7 @@ void ins_ekf2_update(void)
         lla_ref.alt = ref_alt * 1e3 + wgs84_ellipsoid_to_geoid_i(lla_ref.lat, lla_ref.lon); // in millimeters above WGS84 reference ellipsoid (ref_alt is in HMSL)
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         ekf2.ltp_def.hmsl = ref_alt * 1e3;
-        stateSetLocalOrigin_i(&ekf2.ltp_def);
+        stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
         /* update local ENU coordinates of global waypoints */
         waypoints_localize_all();
@@ -820,7 +820,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     ltp_to_body_quat.qz = att_q(3);
 
     // Publish it to the state
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(MODULE_INS_EKF2_ID, &ltp_to_body_quat);
 
     /* Check the quaternion reset state */
     float delta_q_reset[4];
@@ -848,7 +848,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     body_rates.r = (ekf2.delta_gyro.r / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(2);
 
     // Publish it to the state
-    stateSetBodyRates_f(&body_rates);
+    stateSetBodyRates_f(MODULE_INS_EKF2_ID, &body_rates);
 
     /* Get the in-run acceleration bias */
     struct Int32Vect3 accel;
@@ -858,7 +858,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     accel.z = ACCEL_BFP_OF_REAL((ekf2.delta_accel.z / (ekf2.accel_dt * 1e-6f)) - accel_bias(2));
 
     // Publish it to the state
-    stateSetAccelBody_i(&accel);
+    stateSetAccelBody_i(MODULE_INS_EKF2_ID, &accel);
   }
 
   ekf2.gyro_valid = false;

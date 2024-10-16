@@ -553,7 +553,7 @@ void ins_flow_init(void)
 
   ltp_def_from_ecef_i(&ins_flow.ltp_def, &ecef_nav0);
   ins_flow.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_flow.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_def);
   ins_flow.ltp_initialized = true;
   ins_flow.new_flow_measurement = false;
   ins_flow.lp_gyro_pitch = 0.0f;
@@ -663,12 +663,12 @@ void ins_flow_init(void)
 
 }
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
   ltp_def_from_ecef_i(&ins_flow.ltp_def, &gps.ecef_pos);
   ins_flow.ltp_def.lla.alt = gps.lla_pos.alt;
   ins_flow.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_flow.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_def);
   ins_flow.ltp_initialized = true;
 }
 
@@ -1442,7 +1442,7 @@ static void set_body_state_from_quat(void)
 
   if (use_filter < USE_ANGLE) {
     // Use the orientation as is:
-    stateSetNedToBodyQuat_i(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_i(MODULE_INS_FLOW_ID, &ltp_to_body_quat);
   } else {
 
     // get Euler angles:
@@ -1466,7 +1466,7 @@ static void set_body_state_from_quat(void)
     orient_euler.eulers_f = (*eulers);
 
     struct Int32Quat *quat_i_adapted = orientationGetQuat_i(&orient_euler);
-    stateSetNedToBodyQuat_i(quat_i_adapted);
+    stateSetNedToBodyQuat_i(MODULE_INS_FLOW_ID, quat_i_adapted);
   }
 
   /* compute body rates */
@@ -1474,7 +1474,7 @@ static void set_body_state_from_quat(void)
   // struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
   // int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
   /* Set state */
-  stateSetBodyRates_i(&body_rate);
+  stateSetBodyRates_i(MODULE_INS_FLOW_ID, &body_rate);
 
 }
 
@@ -1499,7 +1499,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     return;
   }
   if (!ins_flow.ltp_initialized) {
-    ins_reset_local_origin();
+    ins_reset_local_origin(MODULE_INS_FLOW_ID);
   }
 
   ahrs_icq_update_gps(gps_s);
@@ -1517,7 +1517,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     ins_flow.ltp_pos.z = z_Ned_i_filter;
   }
 
-  stateSetPositionNed_i(&ins_flow.ltp_pos);
+  stateSetPositionNed_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_pos);
 
 
 
@@ -1554,7 +1554,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     // printf("Changed speed y = %d (%f in float)\n", ins_flow.ltp_speed.y, NED_velocities.y);
   }
 
-  stateSetSpeedNed_i(&ins_flow.ltp_speed);
+  stateSetSpeedNed_i(MODULE_INS_FLOW_ID, &ins_flow.ltp_speed);
 
   /*
   bool vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);

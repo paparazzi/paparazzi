@@ -55,8 +55,8 @@ void update_ahrs_from_sim(void)
   struct FloatEulers ltp_to_imu_euler = { sim_phi, sim_theta, sim_psi };
   struct FloatRates imu_rate = { sim_p, sim_q, sim_r };
   /* set ltp_to_body to same as ltp_to_imu, currently no difference simulated */
-  stateSetNedToBodyEulers_f(&ltp_to_imu_euler);
-  stateSetBodyRates_f(&imu_rate);
+  stateSetNedToBodyEulers_f(MODULE_AHRS_SIM_ID, &ltp_to_imu_euler);
+  stateSetBodyRates_f(MODULE_AHRS_SIM_ID, &imu_rate);
 
 }
 

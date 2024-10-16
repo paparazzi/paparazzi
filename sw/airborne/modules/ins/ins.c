@@ -36,7 +36,7 @@
 #include "generated/flight_plan.h"
 
 
-void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
+void ins_init_origin_i_from_flightplan(uint16_t id, struct LtpDef_i *ltp_def)
 {
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
@@ -46,19 +46,19 @@ void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
 
   ltp_def_from_lla_i(ltp_def, &llh_nav0);
   ltp_def->hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(ltp_def);
+  stateSetLocalOrigin_i(id, ltp_def);
 }
 
 
 // weak functions, used if not explicitly provided by implementation
 
-void WEAK ins_reset_local_origin(void)
+void WEAK ins_reset_local_origin(uint16_t id UNUSED)
 {
 #if USE_GPS
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
 
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(id, &utm);
 #endif
 }
 
@@ -67,7 +67,7 @@ void WEAK ins_reset_altitude_ref(void) {}
 void WEAK ins_reset_vertical_pos(void) {}
 
 #if USE_GPS
-void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
+void WEAK ins_reset_utm_zone(uint16_t id, struct UtmCoor_f *utm)
 {
   struct LlaCoor_f lla0;
   lla_of_utm_f(&lla0, utm);
@@ -79,8 +79,8 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
   }
   utm_of_lla_f(utm, &lla0);
 
-  stateSetLocalUtmOrigin_f(utm);
+  stateSetLocalUtmOrigin_f(id, utm);
 }
 #else
-void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
+void WEAK ins_reset_utm_zone(uint16_t id UNUSED, struct UtmCoor_f *utm UNUSED) {}
 #endif

@@ -252,12 +252,19 @@ static bool ahrs_fc_enable_output(bool enable)
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
+#if (defined MODULE_AHRS_FLOAT_CMPL_QUAT_ID)
+#define MODULE_AHRS_FLOAT_CMPL_ID MODULE_AHRS_FLOAT_CMPL_QUAT_ID
+#elif (defined MODULE_AHRS_FLOAT_CMPL_RMAT_ID)
+#define MODULE_AHRS_FLOAT_CMPL_ID MODULE_AHRS_FLOAT_CMPL_RMAT_ID
+#else
+#error "wrong ahrs_cmpl module type"
+#endif
 static void compute_body_orientation_and_rates(void)
 {
   if (ahrs_fc_output_enabled) {
     /* Set state */
-    stateSetNedToBodyQuat_f(&ahrs_fc.ltp_to_body_quat);
-    stateSetBodyRates_f(&ahrs_fc.body_rate);
+    stateSetNedToBodyQuat_f(MODULE_AHRS_FLOAT_CMPL_ID, &ahrs_fc.ltp_to_body_quat);
+    stateSetBodyRates_f(MODULE_AHRS_FLOAT_CMPL_ID, &ahrs_fc.body_rate);
   }
 }
 

@@ -175,12 +175,12 @@ static void set_body_orientation_and_rates(void)
 {
   if (ahrs_dcm_output_enabled) {
     /* Set the state */
-    stateSetBodyRates_f(&ahrs_dcm.body_rate);
+    stateSetBodyRates_f(MODULE_AHRS_FLOAT_DCM_ID, &ahrs_dcm.body_rate);
 
     /* Convert eulers to RMaat and set state */
     struct FloatRMat ltp_to_body_rmat;
     float_rmat_of_eulers(&ltp_to_body_rmat, &ahrs_dcm.ltp_to_body_euler);
-    stateSetNedToBodyRMat_f(&ltp_to_body_rmat);
+    stateSetNedToBodyRMat_f(MODULE_AHRS_FLOAT_DCM_ID, &ltp_to_body_rmat);
   }
 }
 
