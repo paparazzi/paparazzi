@@ -47,6 +47,7 @@ extensions = [
 myst_enable_extensions = [
   "colon_fence",
 ]
+myst_heading_anchors = 3
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
