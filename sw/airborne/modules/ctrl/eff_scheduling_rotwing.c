@@ -29,6 +29,7 @@
 #include "state.h"
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
 
 #include "autopilot.h"
 
