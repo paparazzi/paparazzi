@@ -8,8 +8,6 @@
     #include "modules/radio_control/radio_control.h"
     #include "modules/ahrs/ahrs.h"
     #include "modules/gps/gps.h"
-    #include "modules/rotwing_drone/rotwing_state.h"
-    <!-- #include "sw/airborne/firmwares/rotorcraft/oneloop/oneloop_andi.h" -->
     inline static void set_demo_skew(void) {
       float amplitude_skew_demo       = (rotwing_demo_max_skew - rotwing_demo_min_skew) / 2;
       float offset_skew_demo          = (rotwing_demo_max_skew + rotwing_demo_min_skew) / 2;
@@ -49,9 +47,9 @@
     </sector>
   </sectors>
   <variables>
-    <variable var="rotwing_demo_max_skew"  init="50.0f" type="float"  min="0"   step="1"   max="80" shortname="demo_max_skew"/>
-    <variable var="rotwing_demo_min_skew"  init="0.0f"  type="float"  min="0"   step="1"   max="80" shortname="demo_min_skew"/>
-    <variable var="rotwing_demo_freq_skew" init="0.8f"  type="float"  min="0.1" step="0.1" max="10" shortname="demo_freq_skew"/>
+    <variable var="rotwing_demo_max_skew"  init="50.0f" type="float"  min="0"    step="1"    max="80"   shortname="demo_max_skew"/>
+    <variable var="rotwing_demo_min_skew"  init="0.0f"  type="float"  min="0"    step="1"    max="80"   shortname="demo_min_skew"/>
+    <variable var="rotwing_demo_freq_skew" init="0.1f"  type="float"  min="0.01" step="0.01" max="0.5"  shortname="demo_freq_skew"/>
     <variable var="rotwing_demo_timestep"  init="0"     type="uint32_t"/>
   </variables>
   <exceptions>
