@@ -133,9 +133,7 @@
         </module>
 
         <module name="ground_detect"/>
-        <module name="rotwing_state_V2">
-            <define name="RW_USE_MODULES_V2" value="TRUE"/>
-        </module>
+        <module name="rotwing_state"/>
         <module name="agl_dist"/>
     </firmware>
 
