@@ -33,6 +33,7 @@
 #include "math/pprz_isa.h"
 #include "state.h"
 #include "generated/airframe.h"
+#include "generated/modules.h"
 #include "pprzlink/dl_protocol.h"
 
 /** global AirData state
