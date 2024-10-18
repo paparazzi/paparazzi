@@ -411,7 +411,7 @@ void guidance_indi_enter(void)
   init_butterworth_2_low_pass(&guidance_indi_airspeed_filt, tau_guidance_indi_airspeed, sample_time, 0.0);
 }
 
-void guidance_indi_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
+void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
   gih_params.min_airspeed = min_airspeed;
   gih_params.max_airspeed = max_airspeed;
 }
