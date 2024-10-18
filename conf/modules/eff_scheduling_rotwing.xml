@@ -55,7 +55,7 @@
       <define name="ROTWING_EFF_SCHED_IXX_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_IYY_WING" value="1"/>
       <define name="ROTWING_EFF_SCHED_M" value="1"/>
-      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="1"/>
+      <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_PITCH" value="{1,1}"/>
       <define name="ROTWING_EFF_SCHED_DM_DPPRZ_HOVER_ROLL" value="{1,1}"/>
       <define name="ROTWING_EFF_SCHED_HOVER_ROLL_PITCH_COEF" value="{1,1}"/>
       <define name="ROTWING_EFF_SCHED_HOVER_ROLL_ROLL_COEF" value="{1,1}"/>
@@ -75,6 +75,9 @@
       <define name="GUIDANCE_INDI_HYBRID_V" value="5"/>
       <define name="GUIDANCE_INDI_WLS_PRIORITIES"   value="{1000, 1000, 10, 100, 100}"/>
       <define name="GUIDANCE_INDI_WLS_WU"           value="{1.3, 1.3, 1.3, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0}"/>
+      <define name="GUIDANCE_INDI_MAX_PITCH"        value="20.0"/>
+      <define name="GUIDANCE_INDI_MIN_PITCH"        value="-20.0"/>
+      
     </test>
   </makefile>
 </module>

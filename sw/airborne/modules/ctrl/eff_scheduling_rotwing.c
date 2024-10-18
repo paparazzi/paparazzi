@@ -30,7 +30,7 @@
 
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-
+#include "modules/rotwing_drone/rotwing_state.h"
 #include "autopilot.h"
 
 #include "modules/actuators/actuators.h"

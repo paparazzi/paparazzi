@@ -29,6 +29,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 
+
 /* Minimum measured RPM to consider the hover motors running (RPM) */
 #ifndef ROTWING_QUAD_MIN_RPM
 #define ROTWING_QUAD_MIN_RPM 400
