@@ -121,7 +121,8 @@
  * @brief   Enables the ICU subsystem.
  */
 #if !defined(HAL_USE_ICU) || defined(__DOXYGEN__)
-#if RADIO_CONTROL_TYPE_PPM || USE_PWM_INPUT || defined(USE_PWM_INPUT1) || defined(USE_PWM_INPUT2)
+#if USE_ICU_TIM1 || USE_ICU_TIM2 || USE_ICU_TIM3 || USE_ICU_TIM4 || USE_ICU_TIM5 || USE_ICU_TIM6 || USE_ICU_TIM7 || USE_ICU_TIM8 || USE_ICU_TIM12 || \
+    RADIO_CONTROL_TYPE_PPM || USE_PWM_INPUT || defined(USE_PWM_INPUT1) || defined(USE_PWM_INPUT2) //FIXME Remove old defines!!
 #define HAL_USE_ICU                         TRUE
 #else
 #define HAL_USE_ICU                         FALSE
@@ -146,7 +147,11 @@
  * @brief   Enables the PWM subsystem.
  */
 #if !defined(HAL_USE_PWM) || defined(__DOXYGEN__)
+#if USE_PWM_TIM1 || USE_PWM_TIM2 || USE_PWM_TIM3 || USE_PWM_TIM4 || USE_PWM_TIM5 || USE_PWM_TIM8 || USE_PWM_TIM12
 #define HAL_USE_PWM                         TRUE
+#else
+#define HAL_USE_PWM                         FALSE
+#endif
 #endif
 
 /**
