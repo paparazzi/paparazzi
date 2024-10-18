@@ -221,7 +221,7 @@ Defines can be used as child of the *firmware* node as well as in a *section* no
 
 A section is a group of defines with an optional prefix. See above.
 
-
+(servo_section)=
 ## Servos
 
 Actuators are configured in the *servos* element. The *driver* attribute is related to the loaded actuator module.
@@ -291,16 +291,22 @@ Each command is also associated with a failsafe value which will be used if no c
 
 ## Command laws
 
-The command laws bridges the gap between the *commands* and the *servos*.
+The command laws section acts as the interface between the commands, which are calculated by the stabilisation module, and the servos, which are the physical actuators. The operation of the line 
+```XML
+<set servo="<servo_name>" value="<value>"/>
+```
+can be understood as we apply the **value** in the servo name **servo_name**.
+From this, we can deduce that the servo definition (see section {ref}`servo_section`) must contain a corresponding **name**.
 
-:::{TODO}
-How does it works?
+Regarding the values attributed to actuators, when employing the INDI method or a control law utilising **actuators_pprz**, the following line should be used:
+```XML
+autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ
+```
+This allows the value calculated by the control law to be assigned only when the motors are started, otherwise the motors are stopped (-MAX_PPRZ). In the case of servomotors, it may be necessary to assign the value 0, which corresponds to a neutral value.
 
-What about the *motor_mixing* module ?
+**actuators_pprz** is an array in which the control law assigns the values calculated at each iteration.
 
-What is this *actuators_pprz* array ?
-:::
-
+This gives us a similar block for a quadcopter: 
 ``` XML
   <command_laws>
     <set servo="FR" value="autopilot_get_motors_on() ? actuators_pprz[0] : -MAX_PPRZ"/>
@@ -310,7 +316,7 @@ What is this *actuators_pprz* array ?
   </command_laws>
 ```
 
-
+Or for a fixedwing:
 ``` XML
   <command_laws>
     <let var="aileron"            value="@ROLL  * 0.3"/>
@@ -320,3 +326,5 @@ What is this *actuators_pprz* array ?
     <set servo="ELEVON_RIGHTSIDE" value="$elevator - $aileron"/>
   </command_laws>
 ```
+
+where transitory variables (**aileron** and **elevator**) are created to assign a control combination to the servo.
