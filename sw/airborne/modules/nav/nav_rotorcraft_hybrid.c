@@ -28,7 +28,7 @@
 #include "math/pprz_isa.h"
 #include "generated/flight_plan.h"
 
-// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees. 
+// if NAV_HYBRID_MAX_BANK is not defined, set it to 30 degrees.
 #ifndef NAV_HYBRID_MAX_BANK
 float nav_hybrid_max_bank = 0.52f;
 #else
@@ -92,7 +92,7 @@ float nav_hybrid_pos_gain = GUIDANCE_INDI_POS_GAIN;
 #elif defined(NAV_HYBRID_POS_GAIN)
 float nav_hybrid_pos_gain = NAV_HYBRID_POS_GAIN;
 #else
-float nav_hybrid_pos_gain = 1.0f; 
+float nav_hybrid_pos_gain = 1.0f;
 #endif
 
 #if defined(NAV_HYBRID_POS_GAIN) && defined(GUIDANCE_INDI_POS_GAIN)
@@ -105,13 +105,16 @@ bool force_forward = 0.0f;
 
 /* When using external vision, run the nav functions in position mode for better tracking*/
 #ifndef NAV_HYBRID_EXT_VISION_SETPOINT_MODE
-#define NAV_HYBRID_EXT_VISION_SETPOINT_MODE FALSE 
+#define NAV_HYBRID_EXT_VISION_SETPOINT_MODE FALSE
 #endif
 
 /* Use max target groundspeed and max acceleration to limit circle radius*/
 #ifndef NAV_HYBRID_LIMIT_CIRCLE_RADIUS
-#define NAV_HYBRID_LIMIT_CIRCLE_RADIUS FALSE 
+#define NAV_HYBRID_LIMIT_CIRCLE_RADIUS FALSE
 #endif
+
+static float max_speed_for_deceleration(float dist_to_wp);
+
 /** Implement basic nav function for the hybrid case
  */
 
@@ -136,15 +139,7 @@ static void nav_hybrid_goto(struct EnuCoor_f *wp)
     // If not in force_forward, compute speed based on deceleration and nav_max_speed
     // Calculate distance to waypoint
     float dist_to_wp = float_vect2_norm(&pos_error);
-    // Calculate max speed when decelerating at MAX capacity a_max
-    // distance travelled d = 1/2 a_max t^2
-    // The time in which it does this is: T = V / a_max
-    // The maximum speed at which to fly to still allow arriving with zero
-    // speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
-    float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
-    float max_speed_decel = sqrtf(max_speed_decel2);
-    // Bound the setpoint velocity vector
-    max_h_speed = Min(nav_max_speed, max_speed_decel);
+    max_h_speed = max_speed_for_deceleration(dist_to_wp);
   }
   float_vect2_bound_in_2d(&speed_sp, max_h_speed);
 
@@ -172,7 +167,8 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
     desired_speed = nav_max_speed;
   } else {
     desired_speed = dist_to_target * nav_hybrid_pos_gain;
-    Bound(desired_speed, 0.0f, nav_max_speed);
+    float max_h_speed = max_speed_for_deceleration(dist_to_target);
+    Bound(desired_speed, 0.0f, max_h_speed);
   }
 
   // Calculate length of line segment
@@ -206,6 +202,21 @@ static void nav_hybrid_route(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_en
   nav_rotorcraft_base.goto_wp.dist2_to_wp = get_dist2_to_point(wp_end);
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_ROUTE;
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
+}
+
+/**
+ * Calculate max speed when decelerating at MAX capacity a_max
+ * distance travelled d = 1/2 a_max t^2
+ * The time in which it does this is: T = V / a_max
+ * The maximum speed at which to fly to still allow arriving with zero
+ * speed at the waypoint given maximum deceleration is: V = sqrt(2 * a_max * d)
+ */
+static float max_speed_for_deceleration(float dist_to_wp) {
+  float max_speed_decel2 = fabsf(2.f * dist_to_wp * nav_max_deceleration_sp); // dist_to_wp can only be positive, but just in case
+  float max_speed_decel = sqrtf(max_speed_decel2);
+  // Bound the setpoint velocity vector
+  float max_h_speed = Min(nav_max_speed, max_speed_decel);
+  return max_h_speed;
 }
 
 static bool nav_hybrid_approaching(struct EnuCoor_f *wp, struct EnuCoor_f *from, float approaching_time)
