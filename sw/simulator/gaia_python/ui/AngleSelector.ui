@@ -19,21 +19,21 @@
      <item row="0" column="1" alignment="Qt::AlignHCenter|Qt::AlignBottom">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>180</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
      <item row="1" column="2" alignment="Qt::AlignLeft|Qt::AlignVCenter">
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>270</string>
+        <string>90</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0" alignment="Qt::AlignRight|Qt::AlignVCenter">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>90</string>
+        <string>270</string>
        </property>
       </widget>
      </item>
@@ -65,7 +65,7 @@
      <item row="2" column="1" alignment="Qt::AlignHCenter|Qt::AlignTop">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>      0 | 360</string>
+        <string>180</string>
        </property>
       </widget>
      </item>
@@ -95,38 +95,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>dial</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBox</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>142</x>
-     <y>88</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>176</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>dial</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>238</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>142</x>
-     <y>114</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
