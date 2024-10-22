@@ -69,7 +69,6 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 struct GpsState gps;
 struct GpsTimeSync gps_time_sync;
 struct GpsRelposNED gps_relposned;
-struct RtcmMan rtcm_man;
 
 #ifdef SECONDARY_GPS
 static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
@@ -173,17 +172,6 @@ static void send_gps_rtk(struct transport_tx *trans, struct link_device *dev)
                         &gps_relposned.relPosValid,
                         &gps_relposned.diffSoln,
                         &gps_relposned.gnssFixOK);
-}
-
-static void send_gps_rxmrtcm(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_GPS_RXMRTCM(trans, dev, AC_ID,
-                            &rtcm_man.Cnt105,
-                            &rtcm_man.Cnt177,
-                            &rtcm_man.Cnt187,
-                            &rtcm_man.Crc105,
-                            &rtcm_man.Crc177,
-                            &rtcm_man.Crc187);
 }
 
 static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
@@ -347,6 +335,8 @@ void gps_init(void)
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
 
+  gps_relposned.relPosHeading = NAN;
+
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
   GPS_POWER_GPIO_ON(GPS_POWER_GPIO);
@@ -364,22 +354,12 @@ void gps_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_SOL, send_gps_sol);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SVINFO, send_svinfo);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RTK, send_gps_rtk);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RXMRTCM, send_gps_rxmrtcm);
 #endif
 
   /* Register preflight checks */
 #if PREFLIGHT_CHECKS
   preflight_check_register(&gps_pfc, gps_preflight);
 #endif
-
-  // Initializing counter variables to count the number of Rtcm msgs in the input stream(for each msg type)
-  rtcm_man.Cnt105 = 0;
-  rtcm_man.Cnt177 = 0;
-  rtcm_man.Cnt187 = 0;
-  // Initializing counter variables to count the number of messages that failed Crc Check
-  rtcm_man.Crc105 = 0;
-  rtcm_man.Crc177 = 0;
-  rtcm_man.Crc187 = 0;
 }
 
 uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)

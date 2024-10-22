@@ -69,6 +69,8 @@ uint16_t dc_gps_count = 0;
 uint8_t dc_cam_tracing = 1;
 float dc_cam_angle = 0;
 
+float dc_exposure;
+
 float dc_circle_interval = 0;
 float dc_circle_start_angle = 0;
 float dc_circle_last_block = 0;
@@ -155,6 +157,7 @@ void dc_send_shot_position(void)
 
 void dc_init(void)
 {
+  dc_exposure = 0.f;
   dc_autoshoot = DC_AUTOSHOOT_STOP;
   dc_autoshoot_period = DC_AUTOSHOOT_PERIOD;
   dc_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
@@ -195,6 +198,8 @@ void dc_send_command_common(uint8_t cmd __attribute__((unused)))
 #endif
 }
 
+// weak function for set_expo, to be implemented by drivers if available
+void WEAK dc_set_expo(float expo UNUSED) {}
 
 /* shoot on distance */
 uint8_t dc_distance(float interval)

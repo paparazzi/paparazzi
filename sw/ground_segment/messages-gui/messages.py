@@ -18,6 +18,13 @@
 # along with messages_python.  If not, see <https://www.gnu.org/licenses/>.
 
 import typing
+import sys
+from os import path, getenv
+
+# if PAPARAZZI_HOME not set, then assume the tree containing this
+# file is a reasonable substitute
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 
 from msgRecord.ivyRecorder import IvyRecorder
 from msgRecord.qtMessageModel import IvyModel,FilteredIvyModel

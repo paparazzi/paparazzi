@@ -57,10 +57,17 @@ struct act_feedback_t {
 extern uint32_t actuators_delay_time;
 extern bool   actuators_delay_done;
 
+// Actuator feedback structure for ABI Message
+struct actuator_t {
+  pprz_t pprz_val;                  ///< Actuator value in PPRZ units
+  int16_t driver_val;               ///< Actuator value in driver units (scaling from servo in airframe.h)
+};
+
+
 /** Actuators array.
  * Temporary storage (for debugging purpose, downlinked via telemetry)
  * */
-extern int16_t actuators[ACTUATORS_NB];
+extern struct actuator_t actuators[ACTUATORS_NB];
 
 /** PPRZ command to each actuator
  * Can be used to directly control actuators from the control algorithm

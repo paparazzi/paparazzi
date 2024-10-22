@@ -38,12 +38,8 @@ The basis of steering is the standard signs of aerospace convention
   </input>
 
   <messages period="0.0333333">
-    <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="throttle" value="Fit(throttle,-127,127,0,127)" />
-      <field name="roll" value="Fit(roll,-125,125,-127,127)" />
-      <field name="pitch" value="Fit(-pitch,-127,127,-127,127)" />
-      <field name="yaw" value="Fit(yaw,-127,127,-127,127)"/>
-      <field name="mode" value="Fit(mode,-126,126,0,127)"/>
+    <message class="datalink" name="RC_UP" send_always="true">
+      <field name="channels" value="Fit(roll,-125,125,-127,127);Fit(-pitch,-127,127,-127,127);Fit(yaw,-127,127,-127,127);Fit(throttle,-127,127,0,127);Fit(mode,-126,126,0,127)"/>
     </message>
   </messages>
 </joystick>

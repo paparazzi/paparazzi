@@ -32,7 +32,7 @@
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>
     <test/>
   </makefile>
-  <makefile cond="ifeq ($(DSHOT_BIDIR),TRUE)">
+  <makefile cond="ifeq ($(DSHOT_BIDIR),TRUE)" target="ap">
     <define name="DSHOT_BIDIR" value="$(DSHOT_BIDIR)"/>
     <define name="USE_GPT$(DSHOT1_GPT_TIM)" value="TRUE"/>
     <define name="DSHOT1_BIDIR_GPT" value="GPTD$(DSHOT1_GPT_TIM)"/>

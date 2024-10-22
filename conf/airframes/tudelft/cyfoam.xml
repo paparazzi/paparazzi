@@ -160,7 +160,6 @@
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
     <define name="TRANSITION_MAX_OFFSET" value="-75.0" unit="deg"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <define name="COORDINATED_TURN_AIRSPEED" value="18.0"/>
 
     <define name="BARO_PERIODIC_FREQUENCY" value="50"/>
@@ -232,7 +231,7 @@
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
     <module name="airspeed" type="ms45xx_i2c">
-      <define name="MS45XX_I2C_DEV" value="i2c1"/>
+      <configure name="MS45XX_I2C_DEV" value="i2c1"/>
       <define name="MS45XX_PRESSURE_SCALE" value="1.546"/> <!-- 2.4 / 1.6327 * 1.0521 -->
     </module>
 
@@ -289,8 +288,8 @@
     </module>
     <module name="stabilization" type="indi">
       <define name="INDI_THRUST_ON_PITCH_EFF" value="23.0"/>
-      <define name="WLS_N_U" value="4" />
-      <define name="WLS_N_V" value="4" />
+      <define name="WLS_N_U_MAX" value="4" />
+      <define name="WLS_N_V_MAX" value="4" />
     </module>
     <module name="guidance"      type="indi_hybrid_tailsitter">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>

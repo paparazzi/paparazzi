@@ -86,7 +86,6 @@
   <section name="MISC">
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
     <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <!-- Rotation of the external magneto on the GPS -->

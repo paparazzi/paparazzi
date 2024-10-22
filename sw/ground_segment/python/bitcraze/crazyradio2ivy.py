@@ -5,6 +5,11 @@ with support of PPRZLINK messages
 
 Requires 'pip3 install cflib'
 
+IMPORTANT: 
+To make this script work, you need to have the Crazyflie firmware 2019.09.
+Some other firmwares may work, but the 2019.09 is the one that has been tested.
+2024 firmwares onwards DO NOT work for sure.
+
 As the ESB protocol works using PTX and PRX (Primary Transmitter/Reciever)
 modes. Thus, data is only recieved as a response to a sent packet.
 So, we need to constantly poll the receivers for bidirectional communication.
@@ -34,11 +39,9 @@ import pprzlink.messages_xml_map as messages_xml_map
 
 CRTP_PORT_PPRZLINK = 9
 
-
 # Only output errors from the logging framework
 #logging.basicConfig(level=logging.DEBUG)
 logging.basicConfig(level=logging.ERROR)
-
 
 class RadioBridge:
     def __init__(self, link_uri, msg_class='telemetry', verbose=False):
@@ -174,4 +177,3 @@ if __name__ == '__main__':
         time.sleep(1)
 
     sys.exit()
-

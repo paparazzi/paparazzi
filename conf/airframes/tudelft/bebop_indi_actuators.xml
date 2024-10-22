@@ -34,8 +34,8 @@
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS_FREQ" value="53.9"/>
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
-      <define name="WLS_N_U" value="4"/>
-      <define name="WLS_N_V" value="4"/>
+      <define name="WLS_N_U_MAX" value="4"/>
+      <define name="WLS_N_V_MAX" value="4"/>
     </module>
 
     <module name="geo_mag"/>
@@ -181,7 +181,6 @@
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
 
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">

@@ -1,0 +1,362 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="35" ground_alt="5" home_mode_height="30" lat0="51.4045109" lon0="-2.8193286" max_dist_from_home="600" name="IMAV2024 Rotorcraft" qfu="250." security_height="10">
+  <header>
+    #define FP_NONE       0
+    #define FP_ENDURANCE  1
+    #define FP_MAPPING    2
+    #define FP_DROP       4
+    #define FP_IMAGES     5
+
+    #ifndef SwitchServoOn
+    #define SwitchServoOn(_x) {}
+    #endif
+    #ifndef SwitchServoOff
+    #define SwitchServoOff(_x) {}
+    #endif
+    #define DropOpen SwitchServoOn
+    #define DropClose SwitchServoOff
+
+    #define TagID 800
+    #define SetRectID jevois_send_string("set_rect_id 800")
+
+    #if DIGITAL_CAM
+    #define LINE_START_FUNCTION dc_Survey(mapping_shot_distance);
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
+    
+    static inline bool delay_test_rc(bool test, int delay) {
+      static int nb = 0;
+        if (test) {
+        nb++;
+        if (nb == delay) {
+          nb = 0;
+          return true;
+        }
+        return false;
+      } else {
+        nb = 0;
+        return false;
+      }
+    }
+
+    static inline void send_image_mark(uint8_t id) {
+      struct LlaCoor_f lla = *stateGetPositionLla_f();
+      float lat_deg = DegOfRad(lla.lat);
+      float lon_deg = DegOfRad(lla.lon);
+      DOWNLINK_SEND_MARK(DefaultChannel, DefaultDevice, Ptr(id), Ptr(lat_deg), Ptr(lon_deg));
+    }
+  </header>
+  <waypoints>
+    <waypoint name="HOME" lat="51.4041653" lon="-2.8191115"/>
+    <waypoint name="STDBY" lat="51.4043" lon="-2.81948"/>
+    <waypoint name="LANDPAD" lat="51.4045" lon="-2.81923"/>
+    <waypoint name="TAG" x="47.13" y="-3.824"/>
+    <waypoint name="_TAG_SIM" x="57.13" y="-3.824"/>
+    <waypoint name="_HERE" x="100.545" y="24.169"/>
+    <waypoint name="MAP1" lat="51.40397348780787" lon="-2.820792534133579"/>
+    <waypoint name="MAP2" lat="51.40324827491988" lon="-2.822579075697425"/>
+    <waypoint name="MAP3" lat="51.4023" lon="-2.82183"/>
+    <waypoint name="MAP4" lat="51.40318633735384" lon="-2.820434907050242"/>
+    <waypoint name="DROP" lat="51.4045039" lon="-2.8189669"/>
+    <waypoint name="START_IMAGES" lat="51.4041454" lon="-2.8197853"/>
+    <waypoint name="D1" lat="51.4037624" lon="-2.8200670"/>
+    <waypoint name="D2" lat="51.4035808" lon="-2.8202947"/>
+    <waypoint name="D3" lat="51.4037931" lon="-2.8204535"/>
+    <waypoint name="D4" lat="51.4039687" lon="-2.8204949"/>
+    <waypoint name="C1" lat="51.40337101177714" lon="-2.81946343972307"/>
+    <waypoint name="C2" lat="51.40269828686684" lon="-2.81854499646789"/>
+    <waypoint name="C3" lat="51.40412401003561" lon="-2.81582776937354"/>
+    <waypoint name="C4" lat="51.40480870184149" lon="-2.81670290546800"/>
+    <waypoint name="_KILL1" lat="51.4037999994502" lon="-2.81235628238941"/>
+    <waypoint name="_KILL2" lat="51.4068594662325" lon="-2.81500423477735"/>
+    <waypoint name="_KILL3" lat="51.4057914135146" lon="-2.81767832087734"/>
+    <waypoint name="_KILL4" lat="51.4050872678795" lon="-2.81840937698165"/>
+    <waypoint name="_KILL5" lat="51.4044429026898" lon="-2.81999822497422"/>
+    <waypoint name="_KILL6" lat="51.4045354063380" lon="-2.82099070071843"/>
+    <waypoint name="_KILL7" lat="51.4029174531834" lon="-2.82498963302300"/>
+    <waypoint name="_KILL8" lat="51.3999463540515" lon="-2.82207948203042"/>
+    <waypoint name="_FLY1" lat="51.40424870902749" lon="-2.820119499603871"/>
+    <!--waypoint name="_FLY2" lat="51.40364806450683" lon="-2.821602369304292"/-->
+    <waypoint name="_FLY3" lat="51.40277234701238" lon="-2.823731664510897"/>
+    <waypoint name="_FLY4" lat="51.40074322069155" lon="-2.821774308525683"/>
+    <waypoint name="_FLY5" lat="51.40400414773781" lon="-2.813566012884135"/>
+    <waypoint name="_FLY6" lat="51.40610220954286" lon="-2.815401874714203"/>
+    <!--waypoint name="_FLY7" lat="51.40434319438164" lon="-2.819871389267096"/-->
+    <waypoint name="_P1" lat="51.40362957556762" lon="-2.819863662028597"/>
+    <waypoint name="_P2" lat="51.40429280586027" lon="-2.820004683319591"/>
+    <waypoint name="_P3" lat="51.40397717175711" lon="-2.820793630630163"/>
+    <waypoint name="_P4" lat="51.40359227287529" lon="-2.820623028420364"/>
+    <waypoint name="_P5" lat="51.40318748775402" lon="-2.820433716921217"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Kill">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+      <corner name="_KILL5"/>
+      <corner name="_KILL6"/>
+      <corner name="_KILL7"/>
+      <corner name="_KILL8"/>
+    </sector>
+    <sector color="green" name="Flight_Area">
+      <corner name="_FLY1"/>
+      <!--corner name="_FLY2"/-->
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+      <corner name="_FLY5"/>
+      <corner name="_FLY6"/>
+      <!--corner name="_FLY7"/-->
+    </sector>
+    <sector color="yellow" name="Survey">
+      <corner name="MAP1"/>
+      <corner name="MAP2"/>
+      <corner name="MAP3"/>
+      <corner name="MAP4"/>
+    </sector>
+    <sector color="purple" name="Photos">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+      <corner name="_P5"/>
+    </sector>
+    <sector color="blue" name="Circuit">
+      <corner name="C1"/>
+      <corner name="C2"/>
+      <corner name="C3"/>
+      <corner name="C4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="0" type="int" var="mission_nb"/>
+    <variable init="20." var="goto_height" min="5." max="120." step="0.1"/>
+    <variable init="7." var="goto_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="5." var="takeoff_height" min="0.5" max="15." step="0.1"/>
+    <variable init="10." var="land_height" min="0.5" max="15." step="0.1"/>
+    <variable init="4." var="land_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="4.5" var="tag_height" min="0.5" max="15." step="0.1"/>
+    <variable init="10." var="images_height" min="0.5" max="15." step="0.1"/>
+    <variable init="4." var="images_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="30." var="mapping_height" min="5." max="120." step="0.1"/>
+    <variable init="25." var="mapping_sweep" min="5." max="20." step="0.1"/>
+    <variable init="7." var="mapping_speed" min="0.5" max="10." step="0.1"/>
+    <variable init="-1." var="mapping_radius" min="-1." max="100." step="1.0"/>
+    <variable init="20." var="mapping_shot_distance" min="5." max="60." step="0.1"/>
+    <variable init="false" type="bool" var="stay_on_wp" min="0" max="1" step="1"/>
+  </variables>
+  <modules>
+    <module name="nav" type="survey_hybrid">
+      <define name="SURVEY_HYBRID_MAX_SWEEP_BACK" value="1"/>
+      <define name="SURVEY_HYBRID_APPROACHING_TIME" value="0"/>
+      <define name="SURVEY_HYBRID_ENTRY_DISTANCE" value="survey_private.sweep_distance"/>
+      <define name="SURVEY_HYBRID_ENTRY_CIRCLE" value="FALSE"/>
+    </module>
+    <module name="tag_tracking">
+      <define name="TAG_TRACKING_SIM_WP" value="WP__TAG_SIM"/>
+    </module>
+  </modules>
+  <exceptions>
+    <exception cond="(!InsideFlight_Area(GetPosX(), GetPosY()) @OR (GetPosAlt() @GT GetAltRef() + 100))
+      @AND (nav_block @GT IndexOfBlock('Holding point'))
+      @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Standby"/>
+    <exception cond="(!InsideKill(GetPosX(), GetPosY()) @OR (GetPosAlt() @GT GetAltRef() + 120))
+      @AND (nav_block @GT IndexOfBlock('Holding point'))
+      @AND (nav_block @LT IndexOfBlock('Kill landed'))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed'))
+      @AND (GpsIsLost() @AND delay_test_rc(RadioControlIsLost(),20)
+      @AND (datalink_time @GT 5))" deroute="Kill landed"/>
+    <exception cond="(nav_block @GT IndexOfBlock('Holding point') @AND nav_block @LT IndexOfBlock('Kill landed'))
+      @AND (delay_test_rc(RadioControlIsLost(),20)
+      @AND (datalink_time @GT 15))" deroute="Kill landed"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="power_switch_set(false)"/>
+      <call_once fun="tag_tracking_tag_tracking_report_status = MODULES_STOP"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point" strip_button="H. Point" group="home">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_NONE" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_ENDURANCE" deroute="Goto Endurance"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_MAPPING" deroute="Goto Mapping"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_DROP" deroute="Goto Drop"/>
+      <exception cond="GetPosHeight() @GT takeoff_height @AND mission_nb == FP_IMAGES" deroute="Goto Images"/>
+      <call_once fun="ins_reset_vertical_pos()"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0.1" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="STDBY"/>
+    </block>
+
+    <block group="mission" name="Start Endurance" strip_button="Endurance">
+      <set var="mission_nb" value="FP_ENDURANCE"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block group="mission" name="Start Mapping" strip_button="Mapping">
+      <set var="mission_nb" value="FP_MAPPING"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block group="mission" name="Start Drop" strip_button="Drop">
+      <set var="mission_nb" value="FP_DROP"/>
+      <deroute block="Takeoff"/>
+    </block>
+    <block group="mission" name="Start Images" strip_button="Images">
+      <set var="mission_nb" value="FP_IMAGES"/>
+      <deroute block="Takeoff"/>
+    </block>
+
+    <block name="Goto Endurance">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="power_switch_set(false)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(mapping_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="mapping_height"/>
+      <go wp="C1" from="_HERE" hmode="route" height="mapping_height"/>
+      <deroute block="Run Endurance"/>
+    </block>
+    <block name="Run Endurance">
+      <call_once fun="guidance_h_SetMaxSpeed(mapping_speed)"/>
+      <for var="i" from="1" to="3">
+        <path wpts="C1,C2,C3,C4,C1" height="mapping_height"/>
+      </for>
+      <deroute block="Goto Mapping"/>
+    </block>
+
+    <block name="Goto Mapping">
+      <set var="mission_nb" value="FP_NONE"/>
+      <!--call_once fun="NavSetWaypointHere(WP__HERE)"/-->
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="power_switch_set(false)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(mapping_speed)"/>
+      <!--stay wp="_HERE" until="stage_time @GT 3" height="mapping_height"/>
+      <go wp="MAP1" from="_HERE" hmode="route" height="mapping_height"/-->
+      <call_once fun="pprzlink_cam_ctrl_set_expo(PPRZLINK_CAM_AUTO_EXPO)"/>
+      <call_once fun="nav_survey_hybrid_setup_towards(WP_MAP1, WP_MAP2, 4, mapping_sweep, mapping_radius, mapping_height)"/>
+      <deroute block="Run Mapping"/>
+    </block>
+    <block name="Run Mapping">
+      <call_once fun="guidance_h_SetMaxSpeed(mapping_speed)"/>
+      <call fun="nav_survey_hybrid_run()"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Goto Drop">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="power_switch_set(true)"/>
+      <call_once fun="tag_tracking_set_tracker_id(TagID, WP_TAG)"/>
+      <call_once fun="SetRectID"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" height="images_height"/>
+      <go wp="DROP" from="_HERE" hmode="route" height="images_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <call_once fun="waypoint_position_copy(WP_TAG, WP_DROP)"/>
+      <call_once fun="jevois_stream(true)"/>
+      <stay wp="DROP" until="(tag_tracking_get_status(TAG_TRACKING_ANY) == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="tag_height"/>
+      <deroute block="Drop Camera"/>
+    </block>
+    <block name="Drop Camera">
+      <stay wp="TAG" until="(stage_time @GT 2 @AND tag_tracking_get_status(TAG_TRACKING_ANY) == TAG_TRACKING_RUNNING) @OR (stage_time @GT 5)" height="tag_height"/>
+      <stay wp="TAG" climb="-0.5" vmode="climb" until="!nav_is_in_flight() @OR (stage_time @GT 30)"/>
+      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="DropOpen()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time @GT 2" vmode="throttle"/>
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="stage_time @GT 2" vmode="throttle"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="TAG" until="GetPosHeight() @GT takeoff_height"/>
+      <stay wp="TAG" until="stage_time @GT 3" height="images_height"/>
+      <deroute block="Goto Images"/>
+    </block>
+
+    <block name="Goto Images">
+      <set var="mission_nb" value="FP_NONE"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="power_switch_set(true)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <stay wp="_HERE" until="stage_time @GT 3" alt="images_height"/>
+      <go from="_HERE" hmode="route" wp="START_IMAGES" alt="images_height"/>
+      <deroute block="Waiting WP"/>
+    </block>
+    <block name="Waiting WP">
+      <call_once fun="guidance_h_SetMaxSpeed(images_speed)"/>
+      <stay wp="START_IMAGES" alt="images_height"/>
+    </block>
+    <block name="Image 1" strip_button="Image 1" group="images">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go from="_HERE" hmode="route" wp="D1" alt="images_height"/>
+      <call_once fun="send_image_mark(1)"/>
+      <stay wp="D1" alt="images_height" until="stage_time @GT 3 @AND !stay_on_wp"/>
+    </block>
+    <block name="Image 2" strip_button="Image 2" group="images">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go from="_HERE" hmode="route" wp="D2" alt="images_height"/>
+      <call_once fun="send_image_mark(2)"/>
+      <stay wp="D2" alt="images_height" until="stage_time @GT 3 @AND !stay_on_wp"/>
+    </block>
+    <block name="Image 3" strip_button="Image 3" group="images">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go from="_HERE" hmode="route" wp="D3" alt="images_height"/>
+      <call_once fun="send_image_mark(3)"/>
+      <stay wp="D3" alt="images_height" until="stage_time @GT 3 @AND !stay_on_wp"/>
+    </block>
+    <block name="Image 4" strip_button="Image 4" group="images">
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <go from="_HERE" hmode="route" wp="D4" alt="images_height"/>
+      <call_once fun="send_image_mark(4)"/>
+      <stay wp="D4" alt="images_height" until="stage_time @GT 3 @AND !stay_on_wp"/>
+      <deroute block="Landing"/>
+    </block>
+
+    <block name="Land here" strip_button="Land here" group="land">
+      <call_once fun="NavSetWaypointHere(WP_LANDPAD)"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Landing" strip_button="Land on pad" group="land">
+      <call_once fun="jevois_stream(false)"/>
+      <call_once fun="dc_send_command(DC_OFF)"/>
+      <call_once fun="NavSetWaypointHere(WP__HERE)"/>
+      <call_once fun="guidance_h_SetMaxSpeed(goto_speed)"/>
+      <go wp="STDBY" from="_HERE" hmode="route" height="land_height"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <go wp="LANDPAD" from="STDBY" hmode="route" height="land_height"/>
+      <deroute block="Flare"/>
+    </block>
+    <block name="Flare">
+      <exception cond="!nav_is_in_flight()" deroute="Kill landed"/>
+      <call_once fun="guidance_h_SetMaxSpeed(land_speed)"/>
+      <call_once fun="jevois_stream(true)"/>
+      <stay climb="2*nav.descend_vspeed" vmode="climb" wp="LANDPAD" until="GetPosHeight() @LT 10"/>
+      <stay climb="nav.descend_vspeed" vmode="climb" wp="LANDPAD"/>
+    </block>
+    <block name="Kill landed">
+      <call_once fun="power_switch_set(false)"/>
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+  </blocks>
+
+</flight_plan>

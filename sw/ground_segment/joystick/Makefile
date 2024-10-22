@@ -32,8 +32,8 @@ CAML_LD_LIBRARY_PATH := /usr/lib/$(shell uname -m)-linux-gnu/:$(CAML_LD_LIBRARY_
 export CAML_LD_LIBRARY_PATH
 
 
-PKG = -package pprz,glibivy
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
+PKG = -package pprz,glibivy,$(USE_LABELGTK)
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
 
 GLIB_CFLAGS  = -Wall -fPIC $(shell pkg-config glib-2.0 --cflags)
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs)
@@ -71,7 +71,11 @@ else
 	endif
 endif
 
+ifneq ($(USE_LABELGTK),)
 all: test_stick input2ivy
+else
+all: test_stick
+endif
 
 test_stick: test_sdl_stick.o
 	@echo BUILD $@

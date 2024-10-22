@@ -2,11 +2,11 @@
 <module name="tag_tracking" dir="computer_vision">
   <doc>
     <description>
-      Track poistion of a tag (ArUco, QRcode, ...) detected by an onboard camera
+      Track position of a tag (ArUco, QRcode, ...) detected by an onboard camera
       The tag detection and pose computation is done outside of the module, only the estimation by fusion of AHRS and visual detection with a Kalman filter is performed in this module
     </description>
     <section name="TAG_TRACKING" prefix="TAG_TRACKING_">
-      <define name="WP" value="WP_TAG" description="if defined, update the position of the waypoint at the location of the tag; if TAG waypoint exists in flight plan, it is used by default"/>
+      <define name="WPS" value="[{.wp_id=WP_TAG, .tag_id=42}, ...]" description="Array of structs. If defined, update the position of the waypoints at the location of the tags"/>
       <define name="SIM_WP" value="WP_TARGET" description="designate a waypoint to be used as virtual tag in simulation; if TARGET waypoint exists in flight plan, it is used by default"/>
       <define name="BODY_TO_CAM_PHI" value="0." description="rotation from body to cam frame (phi)"/>
       <define name="BODY_TO_CAM_THETA" value="0." description="rotation from body to cam frame (theta)"/>
@@ -31,10 +31,11 @@
   <settings target="ap|nps">
     <dl_settings>
       <dl_settings NAME="Tag Tracking">
-        <dl_setting var="tag_tracking.motion_type" min="0" step="1" max="1" shortname="motion" values="FIXED|MOVING" module="modules/computer_vision/tag_tracking"/>
-        <dl_setting var="tag_tracking.predict_time" min="0." step="0.1" max="5." shortname="pred_time"/>
-        <dl_setting var="tag_tracking.kp" min="0." step="0.01" max="5." shortname="kp"/>
-        <dl_setting var="tag_tracking.kpz" min="0." step="0.01" max="5." shortname="kpz"/>
+        <dl_setting var="tag_tracking_setting_id" min="-1" step="1" max="50" shortname="tag_id" module="modules/computer_vision/tag_tracking" handler="set_setting_id"/>
+        <dl_setting var="tag_tracking_motion_type" min="0" step="1" max="1" shortname="motion" values="FIXED|MOVING" module="modules/computer_vision/tag_tracking" handler="set_motion_type"/>
+        <dl_setting var="tag_tracking_predict_time" min="0." step="0.1" max="5." shortname="pred_time" module="modules/computer_vision/tag_tracking" handler="set_predict_time"/>
+        <dl_setting var="tag_tracking_kp" min="0." step="0.01" max="5." shortname="kp" module="modules/computer_vision/tag_tracking" handler="set_kp"/>
+        <dl_setting var="tag_tracking_kpz" min="0." step="0.01" max="5." shortname="kpz" module="modules/computer_vision/tag_tracking" handler="set_kpz"/>
       </dl_settings>
     </dl_settings>
   </settings>

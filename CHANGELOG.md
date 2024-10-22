@@ -1,3 +1,40 @@
+Paparazzi v6.4.0_stable
+=======================
+
+This version is a small addition to the v6.3 before switching to a v7 series that will integrate more in-depth changes.
+
+
+* [flightplans] tudelft flightplans by @dewagter in https://github.com/paparazzi/paparazzi/pull/3220
+* Fix all compile warnings confs (on 20.04) by @dewagter in https://github.com/paparazzi/paparazzi/pull/3227
+* [generator] add support for matrix and struct in airframe by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3228
+* [doc] Update pprzcenter and GCS presentation. by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3229
+* [nps] fix inconsistent sensor scaling in simulation by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3230
+* [nav] remove nav_manual mode by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3234
+* [fix] guidance sp was not correct in speed mode by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3236
+* [conf] update Enac rotorcraft so that they work in simulation as well by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3235
+* Rot wing updates by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3238
+* [airframes] Updated calibrations of rotating wing drones by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3247
+* Add vl53l5cx driver. Based on St ULD. by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3240
+* Fix natnet2ivy rotation order by @tblaha in https://github.com/paparazzi/paparazzi/pull/3231
+* fix omega discontinuous by @EwoudSmeur in https://github.com/paparazzi/paparazzi/pull/3250
+* Use altitude waypoints for EKF2 by @EwoudSmeur in https://github.com/paparazzi/paparazzi/pull/3242
+* [board] fix crazyfly board files by @gautierhattenberger in https://github.com/paparazzi/paparazzi/pull/3255
+* Slight Changes to INS EXT POSE and INS EKF2 by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3233
+* Restructure INDI to limit estimated disturbances by @EwoudSmeur in https://github.com/paparazzi/paparazzi/pull/3256
+* TUD course update 2024 by @dewagter in https://github.com/paparazzi/paparazzi/pull/3258
+* Better ADC sensor integration by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3251
+* [modules] EKF2 fixed initialization warning by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3262
+* Bidirectionnal DShot for H7 by @Fabien-B in https://github.com/paparazzi/paparazzi/pull/3253
+* [tools] Rot-wing visualizer opdate: show both CAN bus messages. by @dewagter in https://github.com/paparazzi/paparazzi/pull/3263
+* [rot_wing nps] add more aerodynamic drag in rotwing simulation by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3259
+* Use Commands instead of actuator_pprz  by @tmldeponti in https://github.com/paparazzi/paparazzi/pull/3265
+* [guidance_indi_hybrid] Added secondary airspeed filtering in guidance by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3260
+* [rot_wing_v3d] Updated magneto calibration by @Dennis-Wijngaarden in https://github.com/paparazzi/paparazzi/pull/3266
+* Update cv_opencvdemo.xml by @dewagter in https://github.com/paparazzi/paparazzi/pull/3272
+
+
+**Full Changelog**: https://github.com/paparazzi/paparazzi/compare/v6.3.0_stable...v6.4.0_stable
+
 Paparazzi v6.3.0_stable
 =======================
 

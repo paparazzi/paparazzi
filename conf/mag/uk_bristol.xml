@@ -1,0 +1,19 @@
+<!DOCTYPE airframe SYSTEM "../airframes/airframe.dtd">
+
+<airframe>
+  <description>
+    Bristol, UK
+    Model Used: 	WMM-2020 	More information
+    Latitude: 	51.4045109° N
+    Longitude: 	2.8193286° W
+    Elevation: 	0.0 m Mean Sea Level 
+    Date 	Declination (+E|-W) 	Inclination (+D|-U) 	Horizontal Intensity 	North Comp (+N|-S) 	East Comp (+E|-W) 	Vertical Comp (+D|-U) 	Total Field
+    2024-09-15 	0.0454° 	66.3050° 	19,675.8 nT 	19,675.8 nT 	15.6 nT 	44,833.4 nT 	48,960.9 nT
+  </description>
+  <section name="MAG_MODEL" prefix="INS_">
+    <define name="H_X" value="0.401868"/>
+    <define name="H_Y" value="0.000318622"/>
+    <define name="H_Z" value="0.915698"/>
+  </section>
+</airframe>
+

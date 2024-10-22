@@ -1,0 +1,1041 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>Tomaso De Ponti</author>
+    <filecreationdate>07-03-2017</filecreationdate>
+    <version>Version 0.9 - beta</version>
+    <description>RW3C with actuator dynamics</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea   unit="M2">   0 </wingarea>
+    <wingspan   unit="M">    0 </wingspan>
+    <chord      unit="M">    0 </chord>
+    <htailarea  unit="M2">   0 </htailarea>
+    <htailarm   unit="M">    0 </htailarm>
+    <vtailarea  unit="M2">   0 </vtailarea>
+    <vtailarm   unit="M">    0 </vtailarm>
+    <location   name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2">  0.129</ixx>
+    <iyy unit="KG*M2">  0.950</iyy>
+    <izz unit="KG*M2">  0.975</izz>
+    <ixy unit="KG*M2">  0.0 </ixy>
+    <ixz unit="KG*M2">  0.0 </ixz>
+    <iyz unit="KG*M2">  0.0 </iyz>
+    <emptywt unit="KG"> 6.670 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x>-0.15 </x>
+        <y> 0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x> 0.15</x>
+        <y> 0   </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y> 0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.  </x>
+        <y>-0.15</y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <channel name="filtering">
+
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="MOTOR_FRONT_lag">
+        <input> fcs/MOTOR_FRONT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_FRONT_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_RIGHT_lag">
+        <input> fcs/MOTOR_RIGHT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_RIGHT_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_BACK_lag">
+        <input> fcs/MOTOR_BACK </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_BACK_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_LEFT_lag">
+        <input> fcs/MOTOR_LEFT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_LEFT_lag</output>
+      </lag_filter>
+      <lag_filter name="MOTOR_PUSHER_lag">
+        <input> fcs/MOTOR_PUSHER </input>
+        <c1> 24.07 </c1>
+        <output> fcs/MOTOR_PUSHER_lag</output>
+      </lag_filter>
+      <lag_filter name="ELEVATOR_lag">
+        <input> fcs/ELEVATOR </input>
+        <c1> 50.00 </c1>
+        <output> fcs/ELEVATOR_lag</output>
+      </lag_filter>
+      <lag_filter name="RUDDER_lag">
+        <input> fcs/RUDDER </input>
+        <c1> 50.00 </c1>
+        <output> fcs/RUDDER_lag</output>
+      </lag_filter>
+      <lag_filter name="AILERONS_lag">
+        <input> fcs/AILERONS </input>
+        <c1> 50.00 </c1>
+        <output> fcs/AILERONS_lag</output>
+      </lag_filter>
+      <lag_filter name="FLAPS_lag">
+        <input> fcs/FLAPS </input>
+        <c1> 50.00 </c1>
+        <output> fcs/FLAPS_lag</output>
+      </lag_filter>
+      <!--Derivative of actuator dynamics for spinup torque-->
+      <washout_filter name="MOTOR_FRONT_d">
+        <input> fcs/MOTOR_FRONT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_FRONT_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_RIGHT_d">
+        <input> fcs/MOTOR_RIGHT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_RIGHT_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_BACK_d">
+        <input> fcs/MOTOR_BACK </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_BACK_d</output>
+      </washout_filter>
+      <washout_filter name="MOTOR_LEFT_d">
+        <input> fcs/MOTOR_LEFT </input>
+        <c1> 10.1 </c1>
+        <output> fcs/MOTOR_LEFT_d</output>
+      </washout_filter>
+    </channel>
+
+    <channel name="skew_control">
+      <fcs_function name="cosskew">
+        <function>
+          <cos>
+            <product>
+              <property>fcs/ROT_MECH</property>
+              <value>0.5</value>
+              <pi/>
+            </product>
+          </cos>
+        </function>
+      <output> fcs/cosskew </output>
+      </fcs_function>
+
+      <fcs_function name="cos2skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 2.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos2skew </output>
+      </fcs_function>
+
+      <fcs_function name="cos3skew">
+        <function>
+          <pow>
+            <p> fcs/cosskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+      <output> fcs/cos3skew </output>
+      </fcs_function>
+
+      <fcs_function name="sinskew">
+        <function>
+          <sin>
+            <product>
+              <property>fcs/ROT_MECH</property>
+              <value>0.5</value>
+              <pi/>
+            </product>
+          </sin>
+        </function>
+        <output> fcs/sinskew </output>
+      </fcs_function>
+
+      <fcs_function name="sin2skew">
+        <function>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 2.0 </v>
+          </pow>
+        </function>
+        <output> fcs/sin2skew </output>
+      </fcs_function>
+
+      <fcs_function name="sin3skew">
+        <function>
+          <pow>
+            <p> fcs/sinskew </p>
+            <v> 3.0 </v>
+          </pow>
+        </function>
+        <output> fcs/sin3skew </output>
+      </fcs_function>
+
+      <fcs_function name="coscos3skew">
+        <function>
+          <sum>
+            <property>fcs/cosskew</property>
+            <product>
+              <property>fcs/cos3skew</property>
+              <value>-1</value>
+            </product>
+          </sum>
+        </function>
+        <output> fcs/coscos3skew </output>
+      </fcs_function>
+    </channel> 
+
+    <channel name="misc">
+      <fcs_function name="airspeed2_ms">
+        <function>
+          <product>
+            <property>aero/qbar-psf</property>
+            <value>47.880259</value>  <!--Pound Per Square Foot to N/m² (Pascal)-->
+            <value>1.6327</value>     <!-- 2/rho-->
+          </product>
+        </function>
+        <output>fcs/airspeed2_ms</output>
+      </fcs_function>
+
+      <fcs_function name="airspeed_ms">
+        <function>
+          <sqrt>
+            <property>fcs/airspeed2_ms</property>
+          </sqrt>
+        </function>
+        <output>fcs/airspeed_ms</output>
+      </fcs_function>
+
+      <fcs_function name="de_lag">
+        <function>
+          <sum>
+            <!--<value>-0.8333</value>--> <!-- Convert 0 to 1 scale so that de_lag is 0 when elevator is flat -->
+            <table>
+              <independentVar>fcs/airspeed_ms</independentVar>
+              <tableData>
+              0.0   0.0
+              8.8   0.0
+              16.0  -0.8333
+              25.0  -0.8333
+              </tableData>
+            </table>
+            <property>fcs/ELEVATOR_lag</property>
+          </sum>
+        </function>
+        <output>fcs/de_lag</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_quad">
+          <function>
+              <value>0.129</value> 
+          </function>
+          <output>fcs/Ixx_quad</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_quad">
+          <function>
+              <value>0.950</value> <!-- replace with the actual value -->
+          </function>
+          <output>fcs/Iyy_quad</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_body">
+        <function>
+          <value>0.0478</value>
+        </function>
+        <output>fcs/Ixx_body</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_body">
+        <function>
+          <value>0.7546</value>
+        </function>
+        <output>fcs/Iyy_body</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_wing">
+        <function>
+          <value>0.08099</value>
+        </function>
+        <output>fcs/Ixx_wing</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_wing">
+        <function>
+          <value>0.1949</value>
+        </function>
+        <output>fcs/Iyy_wing</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_sched">
+        <function>
+          <sum>
+            <property>fcs/Ixx_body</property>
+            <product>
+              <property>fcs/Ixx_wing</property>
+              <property>fcs/cos2skew</property>
+            </product>
+            <product>
+              <property>fcs/Iyy_wing</property>
+              <property>fcs/sin2skew</property>
+            </product>
+          </sum>
+        </function>
+        <output>fcs/Ixx_sched</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_sched">
+        <function>
+          <sum>
+            <property>fcs/Iyy_body</property>
+            <product>
+              <property>fcs/Ixx_wing</property>
+              <property>fcs/sin2skew</property>
+            </product>
+            <product>
+              <property>fcs/Iyy_wing</property>
+              <property>fcs/cos2skew</property>
+            </product>
+          </sum>
+        </function>
+        <output>fcs/Iyy_sched</output>
+      </fcs_function>
+
+      <fcs_function name="Ixx_ratio_quad_sched">
+        <function>
+          <quotient>
+            <property>fcs/Ixx_quad</property>
+            <property>fcs/Ixx_sched</property>
+          </quotient>
+        </function>
+        <output>fcs/Ixx_ratio_quad_sched</output>
+      </fcs_function>
+
+      <fcs_function name="Iyy_ratio_quad_sched">
+        <function>
+          <quotient>
+            <property>fcs/Iyy_quad</property>
+            <property>fcs/Iyy_sched</property>
+          </quotient>
+        </function>
+        <output>fcs/Iyy_ratio_quad_sched</output>
+      </fcs_function>
+    </channel>
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/MOTOR_FRONT</property>
+    <property>fcs/MOTOR_FRONT_lag</property>
+    <property>fcs/MOTOR_FRONT_d</property>
+    <property>fcs/MOTOR_RIGHT</property>
+    <property>fcs/MOTOR_RIGHT_lag</property>
+    <property>fcs/MOTOR_RIGHT_d</property>
+    <property>fcs/MOTOR_BACK</property>
+    <property>fcs/MOTOR_BACK_lag</property>
+    <property>fcs/MOTOR_BACK_d</property>
+    <property>fcs/MOTOR_LEFT</property>
+    <property>fcs/MOTOR_LEFT_lag</property>
+    <property>fcs/MOTOR_LEFT_d</property>
+    <property>fcs/MOTOR_PUSHER</property>
+    <property>fcs/MOTOR_PUSHER_lag</property>
+    <property>fcs/ELEVATOR</property>
+    <property>fcs/RUDDER</property>
+    <property>fcs/AILERONS</property> 
+    <property>fcs/FLAPS</property> 
+    <property>fcs/ELEVATOR_lag</property>
+    <property>fcs/RUDDER_lag</property>
+    <property>fcs/AILERONS_lag</property> 
+    <property>fcs/FLAPS_lag</property>       
+    <property>fcs/ROLL</property>
+    <property>fcs/PITCH</property>
+    <property>fcs/YAW</property>
+    <property>fcs/THRUST</property>
+    <property>fcs/ROT_MECH</property>
+    <property>fcs/de_lag</property>
+    <property>fcs/airspeed2_ms</property>
+    
+
+    <!-- Split Forces and moments so that Inertia can be scheduled -->
+    
+    <!-- Forces (work in progress) -->
+    <force name="MOTOR_FRONT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 36.82 </value>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_RIGHT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <value> 36.82 </value>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_BACK" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_BACK_lag</property>
+          <value> 36.82 </value>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+
+    <force name="MOTOR_LEFT" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <value> 36.82 </value>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>    
+
+    <force name="MOTOR_PUSHER_motor" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_PUSHER_lag</property>
+          <value> 33.30 </value>
+          <value> 0.2248</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </force>
+
+    <!-- Control Moments-->
+    <moment name="MOTOR_FRONT_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 36.82 </value>
+          <value> 0.423</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>   
+
+    <moment name="MOTOR_BACK_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_BACK_lag</property>
+          <value> 36.82 </value>
+          <value> 0.423</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>-1</y>
+        <z>0</z>
+      </direction>
+    </moment>       
+
+    <moment name="MOTOR_RIGHT_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <property>fcs/cosskew</property>
+          <value> 36.82 </value>
+          <value> 0.408</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Ixx_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>-1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_RIGHT_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <property>fcs/sinskew</property>
+          <value> 36.82 </value>
+          <value> 0.408</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>    
+
+    <moment name="MOTOR_LEFT_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <property>fcs/cosskew</property>
+          <value> 36.82 </value>
+          <value> 0.408</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Ixx_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_LEFT_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <property>fcs/sinskew</property>
+          <value> 36.82 </value>
+          <value> 0.408</value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>-1</y>
+        <z>0</z>
+      </direction>
+    </moment>    
+
+    <moment name="ELEVATOR_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <table>
+            <independentVar>fcs/airspeed2_ms</independentVar>
+            <tableData>
+              0.0   0.0
+              77.44 0.0
+              256   1.0
+            </tableData>
+          </table>
+          <property>fcs/airspeed2_ms</property>
+          <property>fcs/de_lag</property>
+          <!--<value>0.23819</value>--> <!-- dNdjsbsim-->
+          <!--<value>0.28512</value>--> <!-- dNdjsbsim-->
+          <value>0.2112</value> <!-- dNdjsbsim-->
+          <value>0.850</value>   <!-- m --> 
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="RUDDER_YAW" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/airspeed2_ms</property>
+          <property>fcs/RUDDER_lag</property>
+          <value>0.01159</value> <!-- dNdjsbsim-->
+          <value>0.880</value> <!-- m --> 
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="AILERONS_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/AILERONS_lag</property>
+          <property>fcs/sin3skew</property>
+          <property>fcs/airspeed2_ms</property>
+          <value>0.03920</value> <!-- dNdjsbsim-->
+          <value>0.68</value>    <!-- m -->
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Ixx_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="FLAPS_ROLL" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/airspeed2_ms</property>
+          <property>fcs/FLAPS_lag</property>
+          <property>fcs/sin3skew</property>
+          <value>0.05527</value> <!-- dNdjsbsim-->
+          <value>0.355</value>   <!-- m -->
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Ixx_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>1</x>
+        <y>0</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="AILERONS_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/airspeed2_ms</property>
+          <property>fcs/AILERONS_lag</property>
+          <property>fcs/coscos3skew</property>
+          <value>0.03920</value> <!-- dNdjsbsim-->
+          <value>0.68</value>    <!-- m -->
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+          <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>
+
+    <moment name="FLAPS_PITCH" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+         <property>fcs/airspeed2_ms</property>
+         <property>fcs/FLAPS_lag</property>
+         <property>fcs/coscos3skew</property>
+         <value>0.05527</value> <!-- dNdjsbsim-->
+         <value>0.355</value>   <!-- m -->
+         <value> 0.738</value> <!-- Nm to ft-lbs -->
+         <property>fcs/Iyy_ratio_quad_sched</property>
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>1</y>
+        <z>0</z>
+      </direction>
+    </moment>    
+
+    <!-- Reaction Torques -->
+    <moment name="MOTOR_FRONT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 3.74 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.423</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_RIGHT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <value> 3.74 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0.408</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_BACK_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 3.74 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.423</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_LEFT_reaction_torque" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_LEFT_lag</property>
+          <value> 3.74 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-0.408</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+ 
+    <!-- Now the G2 moment couples -->
+    <moment name="MOTOR_FRONT_reaction_torque_G2" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_d</property>
+          <value> 0.187 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.423</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_RIGHT_reaction_torque_G2" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <value> 0.187 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>0.408</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_BACK_reaction_torque_G2" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_FRONT_lag</property>
+          <value> 0.187 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0.423</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+    <moment name="MOTOR_LEFT_reaction_torque_G2" frame="BODY" unit="FT*LBS">
+      <function>
+        <product>
+          <property>fcs/MOTOR_RIGHT_lag</property>
+          <value> 0.187 </value>
+          <value> 0.738</value> <!-- Nm to ft-lbs -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>0</x>
+        <y>-0.408</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>1</z>
+      </direction>
+    </moment>
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+  
+  <aerodynamics>
+    <axis name="DRAG">
+      <function name="aero/coefficient/CD">
+        <description>Drag</description>
+        <product>
+          <property>fcs/airspeed2_ms</property>
+          <value>0.0576</value> <!-- CD x Area (m^2) -->
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+    </axis>
+
+   <axis name="LIFT">
+    <function name="aero/force/Lift_alpha"> 
+     <product>      
+      <sum>
+        <product>
+          <value> 0.4887 </value>
+          <property>aero/alpha-rad</property> 
+          <property>fcs/airspeed2_ms</property>
+        </product>
+        <product>
+          <value> 0.616 </value>
+          <property>fcs/sin2skew</property>
+          <property>aero/alpha-rad</property> 
+          <property>fcs/airspeed2_ms</property>
+        </product>
+        <product>
+          <value> 0.120 </value>
+          <property>fcs/sin2skew</property> 
+          <property>fcs/airspeed2_ms</property>
+        </product>
+      </sum>
+      <value> 0.2248</value> <!-- N to LBS -->  
+      </product>
+    </function>
+   </axis>
+
+
+  </aerodynamics>
+
+</fdm_config>

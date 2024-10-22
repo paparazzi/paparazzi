@@ -296,6 +296,10 @@
 #define GPS_DW1000_ID 15
 #endif
 
+#ifndef GPS_UBX2_ID
+#define GPS_UBX2_ID 16
+#endif
+
 /*
  * IDs of IMU sensors (accel, gyro)
  */
@@ -395,6 +399,18 @@
 #define IMU_ICM42688_ID 24
 #endif
 
+#ifndef IMU_PIXHAWK1_ID
+#define IMU_PIXHAWK1_ID 25
+#endif
+
+#ifndef IMU_PIXHAWK2_ID
+#define IMU_PIXHAWK2_ID 26
+#endif
+
+#ifndef IMU_PIXHAWK3_ID
+#define IMU_PIXHAWK3_ID 27
+#endif
+
 // prefiltering with OneEuro filter
 #ifndef IMU_F1E_ID
 #define IMU_F1E_ID 30
@@ -485,6 +501,10 @@
 
 #ifndef ACT_FEEDBACK_RPM_SENSOR_ID
 #define ACT_FEEDBACK_RPM_SENSOR_ID 4
+#endif
+
+#ifndef ACT_FEEDBACK_FAULHABER_ID
+#define ACT_FEEDBACK_FAULHABER_ID 5
 #endif
 
 /*

@@ -43,8 +43,8 @@
     <module name="air_data"/>
 
     <module name="wls">
-      <define name="WLS_N_U" value = "6"/>
-      <define name="WLS_N_V" value = "6"/>
+      <define name="WLS_N_U_MAX" value = "6"/>
+      <define name="WLS_N_V_MAX" value = "6"/>
     </module>
 
     <module name="logger_file">
@@ -153,7 +153,6 @@
     <define name="MODE_MANUAL"        value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1"         value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2"         value="AP_MODE_NAV"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">

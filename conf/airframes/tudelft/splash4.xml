@@ -87,8 +87,8 @@
       <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
     </module> -->
     <module name="stabilization" type="indi">
-      <define name="WLS_N_U" value="4"/>
-      <define name="WLS_N_V" value="4"/>
+      <define name="WLS_N_U_MAX" value="4"/>
+      <define name="WLS_N_V_MAX" value="4"/>
       <!--define name="TILT_TWIST_CTRL" value="TRUE"/-->
     </module>
     <module name="stabilization" type="rate_indi"/>
@@ -158,7 +158,6 @@
 
   <section name="MISC">
     <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 10.1 * adc)"/><!-- TODO: verify/calibrate -->
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
 
     <!-- Basic navigation settings -->
     <define name="NAV_CLIMB_VSPEED" value="3.5"/>

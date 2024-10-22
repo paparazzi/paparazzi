@@ -20,7 +20,7 @@
   <settings>
     <dl_settings name="control">
       <dl_settings name="dc">
-
+        <dl_setting max="20" min="0" step="0.1" module="digital_cam/dc" handler="set_expo" var="dc_exposure" shortname="exposure"/>
         <dl_setting max="255" min="0" step="1" module="digital_cam/dc" var="0" handler="send_command" shortname="Shutter">
           <strip_button name="Photo" icon="digital-camera.png" value="32" group="maindc"/>
           <strip_button name="Power" icon="off.png" value="111" group="maindc"/>

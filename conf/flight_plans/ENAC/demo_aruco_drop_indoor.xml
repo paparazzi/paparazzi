@@ -104,39 +104,41 @@
       <call_once fun="jevois_stream(false)"/>
       <stay wp="STDBY"/>
     </block>
-
+    <block name="Stay Tag" strip_button="Stay Tag" group="tag">
+      <call_once fun="jevois_stream(true)"/>
+      <stay wp="TAG" height="search_height" pre_call="nav_set_heading_deg(tag_tracking_get_heading(11))"/>
+    </block>
     <block name="Search Tag" strip_button="Search Target" group="tag">
       <call_once fun="jevois_stream(true)"/>
       <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, 1, NS)"/>
       <deroute block="Search run"/>
     </block>
     <block name="Search run">
-      <exception cond="tag_tracking.status == TAG_TRACKING_RUNNING" deroute="Drop Package"/>
+      <exception cond="tag_tracking_get(0) @DEREF status == TAG_TRACKING_RUNNING" deroute="Drop Package"/>
       <exception cond="rectangle_survey_sweep_num == 1" deroute="Standby"/>
       <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S3)"/>
     </block>
-
     <block name="Follow Tag" strip_button="Follow Tag" group="tag">
       <call_once fun="jevois_stream(true)"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <set var="tag_tracking_get(0)->motion_type" value="TAG_TRACKING_MOVING"/>
       <stay wp="TAG" height="search_height"/>
     </block>
     <block name="Follow Guided" strip_button="Follow Guided" group="tag">
       <call_once fun="jevois_stream(true)"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_MOVING"/>
+      <set var="tag_tracking_get(0)->motion_type" value="TAG_TRACKING_MOVING"/>
       <go wp="TAG" height="search_height"/>
-      <guided flags="GUIDED_FLAG_XY_VEL" commands="tag_tracking.speed_cmd.x, tag_tracking.speed_cmd.y, -search_height, 0." until="Neq(tag_tracking.status, TAG_TRACKING_RUNNING)" pre_call="tag_tracking_compute_speed()"/>
+      <guided flags="GUIDED_FLAG_XY_VEL" commands="tag_tracking_get(0)->speed_cmd.x, tag_tracking_get(0)->speed_cmd.y, -search_height, 0." until="Neq(tag_tracking_get(0)->status, TAG_TRACKING_RUNNING)" pre_call="tag_tracking_compute_speed()"/>
       <deroute block="Standby"/>
     </block>
 
     <block name="Drop Package" strip_button="Drop Package" group="tag">
       <call_once fun="jevois_stream(true)"/>
       <go wp="TAG" height="search_height"/>
-      <stay wp="TAG" until="(stage_time @GT 3 @AND tag_tracking.status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
+      <stay wp="TAG" until="(stage_time @GT 3 @AND tag_tracking_get(0) @DEREF status == TAG_TRACKING_RUNNING) @OR (stage_time @GT 15)" height="search_height"/>
       <stay wp="TAG" climb="nav.descend_vspeed" vmode="climb" until="((tag_distance @LT drop_height) @AND tag_valid) @OR (GetPosHeight() @LT drop_height/2.)" post_call="tag_valid = false"/>
       <call_once fun="DropOpen()"/>
       <stay wp="TAG" until="stage_time @GT 3" alt="search_height"/>
-      <set var="tag_tracking.motion_type" value="TAG_TRACKING_FIXED_POS"/>
+      <set var="tag_tracking_get(0)->motion_type" value="TAG_TRACKING_FIXED_POS"/>
       <set var="follow_follow_wp_status" value="MODULES_STOP"/>
       <deroute block="Land"/>
     </block>
@@ -170,8 +172,8 @@
       <stay climb="nav.descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Ramp down">
-      <exception cond="guidance_v.delta_t @LT 0.05*9600." deroute="Kill landed"/>
-      <set var="fp_throttle" value="guidance_v.delta_t/9600."/>
+      <exception cond="guidance_v.rc_delta_t @LT 0.05*9600." deroute="Kill landed"/>
+      <set var="fp_throttle" value="guidance_v.rc_delta_t/9600."/>
       <stay throttle="fp_throttle-0.02*stage_time" vmode="throttle" wp="TAG"/>
     </block>
     <block name="Kill landed">

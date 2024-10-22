@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 #       <message NAME="DC_SHOT" ID="110">
 #        <field TYPE="int16" NAME="photo_nr"/>

@@ -12,4 +12,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     libgazebo9-dev \
     rustc cargo \
     python3-lxml \
+    python3-empy \
+    python3-pexpect \
     && rm -rf /var/lib/apt/lists/*

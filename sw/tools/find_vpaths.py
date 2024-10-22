@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #This Python script generates a list of source files.
 #It finds the correct VPATH to each source file from make, and then feeds all info to gcc -MM.
 import sys

@@ -3,8 +3,8 @@
 <module name="switch_servo" dir="switching">
   <doc>
     <description>Swicht using a Servo</description>
-    <define name="SWITCH_SERVO_ON_VALUE"  value="pwm" description="servo value in usec"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="pwm" description="servo value in usec"/>
+    <define name="SWITCH_SERVO_ON_VALUE"  value="pprz_cmd" description="servo value in pprz units"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="pprz_cmd" description="servo value in pprz units"/>
     <define name="SWITCH_SERVO_SERVO"     value="nb" description="Id of the servo (default: SWITCH)"/>
   </doc>
   <settings>
@@ -27,8 +27,8 @@
 <!-- these parameters should be set for that module in the airframe file unless you want the defaults
      Servo value in usec
   <load name="switch_servo.xml">
-    <define name="SWITCH_SERVO_ON_VALUE"  value="2000"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="1000"/>
+    <define name="SWITCH_SERVO_ON_VALUE"  value="MAX_PPRZ"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="MIN_PPRZ"/>
     <define name="SWITCH_SERVO_SERVO"     value="SWITCH"/>
   </load>
 

@@ -25,15 +25,17 @@
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
-#include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "filters/low_pass_filter.h"
 #include "state.h"
 #include "autopilot.h"
 #include "generated/modules.h"
 
-
 #ifndef COMMAND_THRUST_X
 #error "Quadplanes require a forward thrust actuator"
+#endif
+
+#ifndef GUIDANCE_INDI_PUSHER_INDEX
+#error "You need to define GUIDANCE_INDI_PUSHER_INDEX"
 #endif
 
 #ifndef GUIDANCE_INDI_THRUST_Z_EFF
@@ -42,18 +44,9 @@
 float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
 #endif
 
-#ifndef GUIDANCE_INDI_THRUST_X_EFF
-#error "You need to define GUIDANCE_INDI_THRUST_X_EFF"
-#else
-float guidance_indi_thrust_x_eff = GUIDANCE_INDI_THRUST_X_EFF;
-#endif
-
-
 float bodyz_filter_cutoff = 0.2;
 
 Butterworth2LowPass accel_bodyz_filt;
-
-
 
 /**
  *
@@ -64,7 +57,6 @@ void guidance_indi_quadplane_init(void) {
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_bodyz_filt, tau_bodyz, sample_time, -9.81);
 }
-
 
 /**
  * Low pass the accelerometer measurements to remove noise from vibrations.
@@ -77,9 +69,6 @@ void guidance_indi_quadplane_propagate_filters(void) {
   float accelz = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
   update_butterworth_2_low_pass(&accel_bodyz_filt, accelz);
 }
-
-
-
 
 /**
  * Perform WLS
@@ -126,6 +115,8 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
   Gmat[0][3] =  ctheta;
   Gmat[1][3] =  0;
   Gmat[2][3] = -stheta;
+  // Make this term zero to prevent switching 'exploits'
+  // Gmat[2][3] = 0;
 
   // Convert acceleration error to body axis system
   body_v[0] =  cpsi * a_diff.x + spsi * a_diff.y;
@@ -136,29 +127,28 @@ void guidance_indi_calcg_wing(float Gmat[GUIDANCE_INDI_HYBRID_V][GUIDANCE_INDI_H
 
 void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, float pitch_angle)
 {
-  float roll_limit_rad = GUIDANCE_H_MAX_BANK;
   float max_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MAX_PITCH);
   float min_pitch_limit_rad = RadOfDeg(GUIDANCE_INDI_MIN_PITCH);
 
   float pitch_pref_rad = RadOfDeg(guidance_indi_pitch_pref_deg);
 
   // Set lower limits
-  du_min_gih[0] = -roll_limit_rad - roll_angle; //roll
-  du_min_gih[1] = min_pitch_limit_rad - pitch_angle; // pitch
-  du_min_gih[2] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
-  du_min_gih[3] = -stabilization_cmd[COMMAND_THRUST_X]*guidance_indi_thrust_x_eff;
+  wls_guid_p.u_min[0] = -guidance_indi_max_bank - roll_angle; //roll
+  wls_guid_p.u_min[1] = min_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_min[2] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST]) * guidance_indi_thrust_z_eff;
+  wls_guid_p.u_min[3] = -stabilization.cmd[COMMAND_THRUST_X]*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set upper limits limits
-  du_max_gih[0] = roll_limit_rad - roll_angle; //roll
-  du_max_gih[1] = max_pitch_limit_rad - pitch_angle; // pitch
-  du_max_gih[2] = -stabilization_cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
-  du_max_gih[3] = (MAX_PPRZ - stabilization_cmd[COMMAND_THRUST_X])*guidance_indi_thrust_x_eff;
+  wls_guid_p.u_max[0] = guidance_indi_max_bank - roll_angle; //roll
+  wls_guid_p.u_max[1] = max_pitch_limit_rad - pitch_angle; // pitch
+  wls_guid_p.u_max[2] = -stabilization.cmd[COMMAND_THRUST] * guidance_indi_thrust_z_eff;
+  wls_guid_p.u_max[3] = (MAX_PPRZ - stabilization.cmd[COMMAND_THRUST_X])*g1g2[4][GUIDANCE_INDI_PUSHER_INDEX];
 
   // Set prefered states
-  du_pref_gih[0] = -roll_angle; // prefered delta roll angle
-  du_pref_gih[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
-  du_pref_gih[2] = du_max_gih[2]; // Low thrust better for efficiency
-  du_pref_gih[3] = body_v[0]; // solve the body acceleration
+  wls_guid_p.u_pref[0] = -roll_angle; // prefered delta roll angle
+  wls_guid_p.u_pref[1] = -pitch_angle + pitch_pref_rad;// prefered delta pitch angle
+  wls_guid_p.u_pref[2] =  wls_guid_p.u_max[2]; // Low thrust better for efficiency
+  wls_guid_p.u_pref[3] = body_v[0]; // solve the body acceleration
 }
 
 
@@ -166,3 +156,4 @@ void WEAK guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angl
 bool autopilot_in_flight_end_detection(bool motors_on UNUSED) {
   return ! motors_on;
 }
+
