@@ -103,8 +103,8 @@ class Ui_Dialog(object):
         
         self.gps_checkBox = QtWidgets.QCheckBox(self.sliders_frame)
         self.gps_checkBox.setObjectName("gps_checkBox")
-        self.gps_checkBox.setText("GPS enabled")
-        self.gps_checkBox.setChecked(True)
+        self.gps_checkBox.setText("GPS disabled")
+        self.gps_checkBox.setChecked(False)
         self.sliders_verticalLayout.addWidget(self.gps_checkBox, 0, QtCore.Qt.AlignHCenter)
         self.verticalLayout_4.addLayout(self.sliders_verticalLayout)
         
@@ -138,7 +138,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Gaia", "Gaia"))
-        self.gps_checkBox.setText(_translate("Dialog", "GPS enabled"))
+        self.gps_checkBox.setText(_translate("Dialog", "GPS disabled"))
 
 
 
@@ -186,8 +186,8 @@ class GaiaWindow(QMainWindow):
         timescale = self.gaiaWidget.time_slider.value()
         
         msg = PprzMessage("ground","WORLD_ENV")
-        msg["wind_east"] = - wind_speed * math.cos(rad_wind_dir)
-        msg["wind_north"] = - wind_speed * math.sin(rad_wind_dir)
+        msg["wind_east"] = - wind_speed * math.sin(rad_wind_dir)
+        msg["wind_north"] = - wind_speed * math.cos(rad_wind_dir)
         msg["wind_up"] = wind_up
         msg["ir_contrast"] = 266
         msg["time_scale"] = timescale
@@ -205,3 +205,4 @@ if __name__ == "__main__":
     window = GaiaWindow(flags=QtCore.Qt.WindowType.Window)
     window.show()
     app.exec()
+
