@@ -38,6 +38,11 @@ class ArrowDial(QDial):
         QPoint(-6,60), # Left triangle
     ]
     
+    # Use a 4-point arrow(head) instead:
+    #   |V|
+    #   | |
+    #    v
+    
     ARROW_4POINTS = [
         QPoint(0,80),   # Tip
         QPoint(8,-80),  # Right base
