@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="actuators_t4" dir="actuators" task="actuators">
+  <doc>
+    <description>
+       Intermediate Actuators Driver when using a T4 actuators board
+    </description>
+  </doc>
+  <dep>
+    <depends>actuators</depends>
+    <provides>actuators</provides>
+  </dep>
+  <header>
+    <file name="actuators_t4.h"/>
+  </header>
+  <makefile>
+    <file_arch name="actuators_t4_arch.c"/>
+  </makefile>
+</module>
