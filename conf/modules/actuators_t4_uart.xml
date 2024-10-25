@@ -36,7 +36,7 @@
     <test>
         <define name="USE_UART2"/>
         <define name="PERIODIC_FREQUENCY" value="500"/>
-        <define name="ACTUATORS_T4_UART_DEV" value="uart2"/>
+        <define name="ACTUATORS_T4_PORT" value="uart2"/>
     </test>
   </makefile>
 </module>
