@@ -22,7 +22,7 @@
 /**
  * @file modules/core/abi_common.h
  *
- * Common tools for ABI middelware.
+ * Common tools for ABI middleware.
  */
 
 #ifndef ABI_COMMON_H
@@ -35,6 +35,7 @@
 #include "modules/gps/gps.h"
 #include "modules/radio_control/radio_control.h"
 #include "modules/actuators/actuators.h"
+#include "modules/actuators/actuators_t4_uart.h"
 /* Include here headers with structure definition you may want to use with ABI
  * Ex: '#include "modules/gps/gps.h"' in order to use the GpsState structure
  */
