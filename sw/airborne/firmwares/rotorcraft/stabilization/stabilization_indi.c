@@ -713,6 +713,20 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
     actuators_pprz[i] = (int16_t) indi_u[i];
   }
 
+#ifdef SITL
+// Rotating wing failure modes
+  if(rotwing_state.fail_hover_motor) {
+    actuators_pprz[0] = 0;
+    actuators_pprz[1] = 0;
+    actuators_pprz[2] = 0;
+    actuators_pprz[3] = 0;
+  }
+
+  if(rotwing_state.fail_pusher_motor) {
+    actuators_pprz[8] = 0;
+  }
+#endif
+
   //update thrust command such that the current is correctly estimated
   cmd[COMMAND_THRUST] = 0;
   for (i = 0; i < INDI_NUM_ACT; i++) {
