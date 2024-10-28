@@ -155,6 +155,9 @@ extern bool mission_insert(enum MissionInsertMode insert, struct _mission_elemen
  */
 extern bool mission_register(mission_custom_cb cb, char *type);
 
+// Returns a pointer to a register struct with matching types, NULL if not found
+extern struct _mission_registered *mission_get_registered(char *type);
+
 /** Get current mission element
  * @return return a pointer to the next mission element or NULL if no more elements
  */

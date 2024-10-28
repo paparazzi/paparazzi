@@ -63,5 +63,6 @@ extern void target_parse_target_pos(uint8_t *buf);
 extern bool target_get_pos(struct NedCoor_f *pos, float *heading);
 extern bool target_get_vel(struct NedCoor_f *vel);
 extern bool target_pos_set_current_offset(float unk);
+extern void target_set_wp(uint8_t wp_id);
 
 #endif

@@ -19,6 +19,17 @@
             <module name="sys_mon"/>
             <module name="flight_recorder"/>
 
+            <module name="mavlink">
+                <configure name="MAVLINK_BAUD" value="B115200"/>
+                <configure name="MAVLINK_PORT" value="UART8"/>
+                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
+            </module>
+            
+             <module name="mission_rotorcraft">
+                <define name="MISSION_WAIT_TIMEOUT" value="0"/>
+                <define name="MISSION_ELEMENT_NB" value="2000"/>
+            </module>
+
             <!-- RC switches -->
             <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
             <define name="RADIO_KILL_SWITCH"        value="RADIO_AUX1"/>
@@ -49,6 +60,21 @@
         <target name="nps" board="pc">
             <module name="radio_control" type="datalink"/>
             <module name="fdm" type="jsbsim"/>
+
+            <module name="mavlink">
+                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
+                <define name="UDP1_PORT_OUT" value="24550"/>
+                <define name="UDP1_PORT_IN" value="14551"/>
+                <define name="UDP1_HOST" value="127.0.0.1"/>
+                <define name="MAVLINK_DEBUG" value="printf"/>
+                <define name="GEOFENCE_START_IDX" value="WP_C1"/>
+            <define name="GEOFECNE_WP_COUNT" value="9"/>
+                <configure name="MAVLINK_PORT" value="UDP1"/>
+            </module>
+            
+            <module name="mission_rotorcraft">
+                <define name="MISSION_WAIT_TIMEOUT" value="0"/>
+            </module>
 
             <!--Not dealing with these in the simulation-->
             <define name="RADIO_TH_HOLD"            value="0"/> <!-- Throttle hold in command laws -->
@@ -129,6 +155,7 @@
         </module>
 
         <!-- Other -->
+        <module name="nav_rotwing"/>
         <module name="sys_id_doublet"/>
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>

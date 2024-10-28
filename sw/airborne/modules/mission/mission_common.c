@@ -148,7 +148,7 @@ bool mission_register(mission_custom_cb cb, char *type)
 }
 
 // Returns a pointer to a register struct with matching types, NULL if not found
-static struct _mission_registered *mission_get_registered(char *type)
+struct _mission_registered *mission_get_registered(char *type)
 {
   for (int i = 0; i < MISSION_REGISTER_NB; i++) {
     if (str_equal(mission.registered[i].type, type)) {
