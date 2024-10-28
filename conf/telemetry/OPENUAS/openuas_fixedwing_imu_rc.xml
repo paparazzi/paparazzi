@@ -3,8 +3,9 @@
 <telemetry>
   <process name="Ap">
     <mode name="default" key_press="d">
-      <message name="ADC_GENERIC"         period="0.7"/>
-      <message name="AIRSPEED"            period="1"/>
+      <message name="ADC_GENERIC"         period="0.1"/>
+      <message name="AIRSPEED"            period="0.1"/>
+      <message name="AIRSPEED_RAW"        period="0.1"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS"                 period="0.5"/>
       <message name="NAVIGATION"          period="0.5"/>
@@ -17,21 +18,22 @@
       <message name="SEGMENT"             period="1.2"/>
       <message name="CALIBRATION"         period="2.1"/>
       <message name="NAVIGATION_REF"      period="4.0"/>
-      <message name="PPRZ_MODE"           period="1.0"/>
-      <message name="SETTINGS"            period="3."/>
+      <message name="PPRZ_MODE"           period="0.3"/>
+      <message name="SETTINGS"            period="3.0"/>
       <message name="STATE_FILTER_STATUS" period="2.2"/>
       <message name="DATALINK_REPORT"     period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="SURVEY"              period="2.1"/>
       <message name="GPS_SOL"             period="2.0"/>
-      <message name="IMU_ACCEL"           period=".9"/>
-      <message name="IMU_GYRO"            period=".9"/>
-      <message name="IMU_MAG"             period="0.9"/>
+      <message name="IMU_ACCEL"           period="0.5"/>
+      <message name="IMU_GYRO"            period="0.5"/>
+      <message name="IMU_MAG"             period="0.5"/>
       <message name="CAM"                 period="0.5"/>
       <message name="CAM_POINT"           period="1.0"/>
-      <message name="COMMANDS"            period="0.8"/>
+      <message name="COMMANDS"            period="0.4"/>
       <message name="FBW_STATUS"          period="1.1"/>
-      <message name="AIR_DATA"            period="1.3"/>
+      <message name="AIR_DATA"            period="0.3"/>
+      <message name="LOGGER_STATUS"       period="0.3"/>
     </mode>
     <mode name="minimal" key_press="m">
       <message name="ALIVE"               period="5.0"/>
@@ -71,6 +73,7 @@
       <message name="IMU_GYRO_RAW"        period="0.05"/>
       <message name="IMU_MAG_RAW"         period="0.05"/>
       <message name="BARO_RAW"            period="0.25"/>
+      <message name="ADC_GENERIC"         period="0.1"/>
     </mode>
     <mode name="scaled_sensors" key_press="s">
       <message name="DL_VALUE"            period="0.5"/>
@@ -108,17 +111,7 @@
     <mode name="empty">
     </mode>      
   </process>
-    
-  <process name="Logger">
-    <mode name="default">
-      <message name="DL_VALUE"               period="0.5"/>
-      <message name="ALIVE"                  period="2.1"/>
-      <message name="IMU_GYRO_SCALED"        period="0.017"/>
-      <message name="IMU_ACCEL_SCALED"       period="0.017"/>
-      <message name="IMU_MAG_SCALED"         period="0.1"/>
-    </mode>
-  </process>    
-       
+   
   <process name="Fbw">
     <mode name="default">
       <message name="COMMANDS"            period="5.0"/>
@@ -132,5 +125,31 @@
       <message name="FBW_STATUS"          period="1.0"/>
       <message name="ACTUATORS_RAW"       period="5.0"/>
     </mode>
+  </process>
+
+  <process name="FlightRecorder">
+    <mode name="default">
+      <!-- <message name="FBW_STATUS"          period="1.2"/> -->
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="ATTITUDE"            period="0.05"/>
+      <message name="IMU_ACCEL"           period="0.05"/>
+      <message name="IMU_GYRO"            period="0.05"/>
+      <message name="IMU_MAG"             period="0.1"/>
+    </mode>
+    <!--
+    <mode name="fast">
+      <message name="FBW_STATUS"          period="1.2"/>
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="ATTITUDE"            period="0.05"/>
+      <message name="IMU_ACCEL"           period="0.05"/>
+      <message name="IMU_GYRO"            period="0.05"/>
+      <message name="IMU_MAG"             period="0.1"/>
+      <message name="IMU_ACCEL_RAW"       period="0.002"/>
+      <message name="IMU_GYRO_RAW"        period="0.002"/>
+      <message name="IMU_MAG_RAW"         period="0.002"/>
+      <message name="COMMANDS"            period=".002"/>
+      <message name="ADC_GENERIC"         period="0.05"/>
+    </mode>
+    -->
   </process>
 </telemetry>

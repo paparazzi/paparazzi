@@ -240,7 +240,11 @@
 #define STM32_ICU_USE_TIM1                  FALSE
 #define STM32_ICU_USE_TIM2                  FALSE
 #define STM32_ICU_USE_TIM3                  FALSE
+//#ifdef USE_PWM_INPUT1
+//#define STM32_ICU_USE_TIM4                  TRUE
+//#else
 #define STM32_ICU_USE_TIM4                  FALSE
+//#endif
 #define STM32_ICU_USE_TIM5                  FALSE
 #define STM32_ICU_USE_TIM8                  FALSE
 #define STM32_ICU_USE_TIM9                  TRUE

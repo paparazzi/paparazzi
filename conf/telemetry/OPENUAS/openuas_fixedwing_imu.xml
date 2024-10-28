@@ -3,11 +3,13 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="INS"                 period="1.0"/>
       <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="RSSI_COMBINED"       period="0.3"/>
-      <message name="AIRSPEED"            period="0.2"/>
+      <message name="AIRSPEED"            period="0.3"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS"                 period="0.25"/>
+      <message name="GPS_INT"             period="0.25"/>
       <message name="NAVIGATION"          period="1.0"/>
       <message name="ATTITUDE"            period="0.1"/>
       <message name="ESTIMATOR"           period="0.5"/>
@@ -114,6 +116,19 @@
       <message name="COMMANDS"            period="0.5"/>
       <message name="FBW_STATUS"          period="1"/>
       <message name="ACTUATORS_RAW"       period="5"/> <!-- For trimming -->
+    </mode>
+  </process>
+  <process name="FlightRecorder">
+    <mode name="default">
+      <message name="FBW_STATUS"          period="1.2"/>
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="IMU_ACCEL"           period="0.05"/>
+      <message name="IMU_GYRO"            period="0.05"/>
+      <message name="IMU_MAG"             period="0.1"/>
+      <message name="IMU_ACCEL_RAW"       period="0.002"/>
+      <message name="IMU_GYRO_RAW"        period="0.002"/>
+      <message name="IMU_MAG_RAW"         period="0.002"/>
+      <message name="COMMANDS"            period="0.002"/>
     </mode>
   </process>
 </telemetry>
