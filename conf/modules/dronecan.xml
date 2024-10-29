@@ -20,7 +20,7 @@
   <init fun="dronecan_init()"/>
   <makefile target="ap">
     <!-- Enable the CAN busses if needed -->
-    <configure name="FDCAN_ENABLED" default="TRUE"/>
+    <configure name="FDCAN_ENABLED" default="FALSE"/>
     <define name="USE_CAN1" value="$(DRONECAN_USE_CAN1)"/>
     <define name="USE_CAN2" value="$(DRONECAN_USE_CAN2)"/>
     <define name="DRONECAN_USE_CAN1" value="$(DRONECAN_USE_CAN1)"/>
