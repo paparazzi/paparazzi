@@ -35,7 +35,6 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/abi.h"
 #include "modules/radio_control/radio_control.h"
-#include "generated/radio.h"
 
 #ifndef SERVO_ROTATION_MECH_IDX
 #error ctrl_eff_sched_rotwing requires a servo named ROTATION_MECH_IDX
