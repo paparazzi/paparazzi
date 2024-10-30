@@ -6,19 +6,35 @@
       PWM measurement.
 
       PWM input measurement mcu periph access and init wrapper for other modules.
-
-      For STM32:
-      - each board (or airframe file) has to define the PWM input pin and parameters
-      - example can be found in sw/airborne/boards/apogee_1.0.h board file
     </description>
-    <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Activate PWM input 1 and select polarity"/>
-    <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Activate PWM input 2 and select polarity"/>
+    <configure name="PWM_INPUT1" value="SERVO1" description="Select PWM input 1"/>
+    <configure name="PWM_INPUT2" value="SERVO2" description="Select PWM input 2"/>
+    <define name="PWM_INPUT1_ACTIVE" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Polarity of PWM input 1 (default: PWM_PULSE_TYPE_ACTIVE_LOW)"/>
+    <define name="PWM_INPUT2_ACTIVE" value="PWM_PULSE_TYPE_ACTIVE_LOW|PWM_PULSE_TYPE_ACTIVE_HIGH" description="Polarity of PWM input 2 (default: PWM_PULSE_TYPE_ACTIVE_LOW)"/>
   </doc>
   <header>
     <file name="pwm_meas.h"/>
   </header>
   <init fun="pwm_meas_init()"/>
   <makefile target="ap">
+    <!-- Define PWM_INPUT1 configuration (move to c file?) -->
+    <define name="USE_PWM_INPUT1" cond="ifdef PWM_INPUT1"/>
+    <define name="USE_ICU_$(PWM_INPUT1)" cond="ifdef PWM_INPUT1"/>
+    <define name="PWM_INPUT1_TIMER" value="$(PWM_INPUT1)_ICU_DRIVER" cond="ifdef PWM_INPUT1"/>
+    <define name="PWM_INPUT1_CHANNEL" value="$(PWM_INPUT1)_CHANNEL" cond="ifdef PWM_INPUT1"/>
+    <define name="PWM_INPUT1_GPIO" value="$(PWM_INPUT1)_GPIO" cond="ifdef PWM_INPUT1"/>
+    <define name="PWM_INPUT1_PIN" value="$(PWM_INPUT1)_PIN" cond="ifdef PWM_INPUT1"/>
+    <define name="PWM_INPUT1_AF" value="$(PWM_INPUT1)_AF" cond="ifdef PWM_INPUT1"/>
+
+    <!-- Define PWM_INPUT2 configuration (move to c file?) -->
+    <define name="USE_PWM_INPUT2" cond="ifdef PWM_INPUT2"/>
+    <define name="USE_ICU_$(PWM_INPUT2)" cond="ifdef PWM_INPUT2"/>
+    <define name="PWM_INPUT2_TIMER" value="$(PWM_INPUT2)_ICU_DRIVER" cond="ifdef PWM_INPUT2"/>
+    <define name="PWM_INPUT2_CHANNEL" value="$(PWM_INPUT2)_CHANNEL" cond="ifdef PWM_INPUT2"/>
+    <define name="PWM_INPUT2_GPIO" value="$(PWM_INPUT2)_GPIO" cond="ifdef PWM_INPUT2"/>
+    <define name="PWM_INPUT2_PIN" value="$(PWM_INPUT2)_PIN" cond="ifdef PWM_INPUT2"/>
+    <define name="PWM_INPUT2_AF" value="$(PWM_INPUT2)_AF" cond="ifdef PWM_INPUT2"/>
+
     <file name="pwm_meas.c"/>
     <file name="pwm_input.c" dir="mcu_periph"/>
     <file_arch name="pwm_input_arch.c" dir="mcu_periph"/>

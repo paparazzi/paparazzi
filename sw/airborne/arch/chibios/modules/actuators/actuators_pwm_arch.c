@@ -269,73 +269,73 @@ void actuators_pwm_arch_init(void)
   /*----------------
    * Configure GPIO
    *----------------*/
-#ifdef PWM_SERVO_0
-  gpio_setup_pin_af(PWM_SERVO_0_GPIO, PWM_SERVO_0_PIN, PWM_SERVO_0_AF, true);
-  PWM_SERVO_0_CONF.channels[PWM_SERVO_0_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO0
+  gpio_setup_pin_af(SERVO0_GPIO, SERVO0_PIN, SERVO0_AF, true);
+  SERVO0_PWM_CONF.channels[SERVO0_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_1
-  gpio_setup_pin_af(PWM_SERVO_1_GPIO, PWM_SERVO_1_PIN, PWM_SERVO_1_AF, true);
-  PWM_SERVO_1_CONF.channels[PWM_SERVO_1_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO1
+  gpio_setup_pin_af(SERVO1_GPIO, SERVO1_PIN, SERVO1_AF, true);
+  SERVO1_PWM_CONF.channels[SERVO1_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_2
-  gpio_setup_pin_af(PWM_SERVO_2_GPIO, PWM_SERVO_2_PIN, PWM_SERVO_2_AF, true);
-  PWM_SERVO_2_CONF.channels[PWM_SERVO_2_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO2
+  gpio_setup_pin_af(SERVO2_GPIO, SERVO2_PIN, SERVO2_AF, true);
+  SERVO2_PWM_CONF.channels[SERVO2_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_3
-  gpio_setup_pin_af(PWM_SERVO_3_GPIO, PWM_SERVO_3_PIN, PWM_SERVO_3_AF, true);
-  PWM_SERVO_3_CONF.channels[PWM_SERVO_3_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO3
+  gpio_setup_pin_af(SERVO3_GPIO, SERVO3_PIN, SERVO3_AF, true);
+  SERVO3_PWM_CONF.channels[SERVO3_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_4
-  gpio_setup_pin_af(PWM_SERVO_4_GPIO, PWM_SERVO_4_PIN, PWM_SERVO_4_AF, true);
-  PWM_SERVO_4_CONF.channels[PWM_SERVO_4_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO4
+  gpio_setup_pin_af(SERVO4_GPIO, SERVO4_PIN, SERVO4_AF, true);
+  SERVO4_PWM_CONF.channels[SERVO4_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_5
-  gpio_setup_pin_af(PWM_SERVO_5_GPIO, PWM_SERVO_5_PIN, PWM_SERVO_5_AF, true);
-  PWM_SERVO_5_CONF.channels[PWM_SERVO_5_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO5
+  gpio_setup_pin_af(SERVO5_GPIO, SERVO5_PIN, SERVO5_AF, true);
+  SERVO5_PWM_CONF.channels[SERVO5_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_6
-  gpio_setup_pin_af(PWM_SERVO_6_GPIO, PWM_SERVO_6_PIN, PWM_SERVO_6_AF, true);
-  PWM_SERVO_6_CONF.channels[PWM_SERVO_6_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO6
+  gpio_setup_pin_af(SERVO6_GPIO, SERVO6_PIN, SERVO6_AF, true);
+  SERVO6_PWM_CONF.channels[SERVO6_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_7
-  gpio_setup_pin_af(PWM_SERVO_7_GPIO, PWM_SERVO_7_PIN, PWM_SERVO_7_AF, true);
-  PWM_SERVO_7_CONF.channels[PWM_SERVO_7_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO7
+  gpio_setup_pin_af(SERVO7_GPIO, SERVO7_PIN, SERVO7_AF, true);
+  SERVO7_PWM_CONF.channels[SERVO7_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_8
-  gpio_setup_pin_af(PWM_SERVO_8_GPIO, PWM_SERVO_8_PIN, PWM_SERVO_8_AF, true);
-  PWM_SERVO_8_CONF.channels[PWM_SERVO_8_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO8
+  gpio_setup_pin_af(SERVO8_GPIO, SERVO8_PIN, SERVO8_AF, true);
+  SERVO8_PWM_CONF.channels[SERVO8_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_9
-  gpio_setup_pin_af(PWM_SERVO_9_GPIO, PWM_SERVO_9_PIN, PWM_SERVO_9_AF, true);
-  PWM_SERVO_9_CONF.channels[PWM_SERVO_9_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO9
+  gpio_setup_pin_af(SERVO9_GPIO, SERVO9_PIN, SERVO9_AF, true);
+  SERVO9_PWM_CONF.channels[SERVO9_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_10
-  gpio_setup_pin_af(PWM_SERVO_10_GPIO, PWM_SERVO_10_PIN, PWM_SERVO_10_AF, true);
-  PWM_SERVO_10_CONF.channels[PWM_SERVO_10_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO10
+  gpio_setup_pin_af(SERVO10_GPIO, SERVO10_PIN, SERVO10_AF, true);
+  SERVO10_PWM_CONF.channels[SERVO10_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_11
-  gpio_setup_pin_af(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, true);
-  PWM_SERVO_11_CONF.channels[PWM_SERVO_11_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO11
+  gpio_setup_pin_af(SERVO11_GPIO, SERVO11_PIN, SERVO11_AF, true);
+  SERVO11_PWM_CONF.channels[SERVO11_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_12
-  gpio_setup_pin_af(PWM_SERVO_12_GPIO, PWM_SERVO_12_PIN, PWM_SERVO_12_AF, true);
-  PWM_SERVO_12_CONF.channels[PWM_SERVO_12_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO12
+  gpio_setup_pin_af(SERVO12_GPIO, SERVO12_PIN, SERVO12_AF, true);
+  SERVO12_PWM_CONF.channels[SERVO12_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_13
-  gpio_setup_pin_af(PWM_SERVO_13_GPIO, PWM_SERVO_13_PIN, PWM_SERVO_13_AF, true);
-  PWM_SERVO_13_CONF.channels[PWM_SERVO_13_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO13
+  gpio_setup_pin_af(SERVO13_GPIO, SERVO13_PIN, SERVO13_AF, true);
+  SERVO13_PWM_CONF.channels[SERVO13_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_14
-  gpio_setup_pin_af(PWM_SERVO_14_GPIO, PWM_SERVO_14_PIN, PWM_SERVO_14_AF, true);
-  PWM_SERVO_14_CONF.channels[PWM_SERVO_14_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO14
+  gpio_setup_pin_af(SERVO14_GPIO, SERVO14_PIN, SERVO14_AF, true);
+  SERVO14_PWM_CONF.channels[SERVO14_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_15
-  gpio_setup_pin_af(PWM_SERVO_15_GPIO, PWM_SERVO_15_PIN, PWM_SERVO_15_AF, true);
-  PWM_SERVO_15_CONF.channels[PWM_SERVO_15_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO15
+  gpio_setup_pin_af(SERVO15_GPIO, SERVO15_PIN, SERVO15_AF, true);
+  SERVO15_PWM_CONF.channels[SERVO15_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
-#ifdef PWM_SERVO_16
-  gpio_setup_pin_af(PWM_SERVO_16_GPIO, PWM_SERVO_16_PIN, PWM_SERVO_16_AF, true);
-  PWM_SERVO_16_CONF.channels[PWM_SERVO_16_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
+#if USE_PWM_SERVO16
+  gpio_setup_pin_af(SERVO16_GPIO, SERVO16_PIN, SERVO16_AF, true);
+  SERVO16_PWM_CONF.channels[SERVO16_CHANNEL].mode = PWM_OUTPUT_ACTIVE_HIGH;
 #endif
 
   /*---------------
@@ -376,55 +376,55 @@ void actuators_pwm_arch_init(void)
 
 void actuators_pwm_commit(void)
 {
-#ifdef PWM_SERVO_0
-  pwmEnableChannel(&PWM_SERVO_0_DRIVER, PWM_SERVO_0_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_0]));
+#if USE_PWM_SERVO0
+  pwmEnableChannel(&SERVO0_PWM_DRIVER, SERVO0_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO0]));
 #endif
-#ifdef PWM_SERVO_1
-  pwmEnableChannel(&PWM_SERVO_1_DRIVER, PWM_SERVO_1_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_1]));
+#if USE_PWM_SERVO1
+  pwmEnableChannel(&SERVO1_PWM_DRIVER, SERVO1_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO1]));
 #endif
-#ifdef PWM_SERVO_2
-  pwmEnableChannel(&PWM_SERVO_2_DRIVER, PWM_SERVO_2_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_2]));
+#if USE_PWM_SERVO2
+  pwmEnableChannel(&SERVO2_PWM_DRIVER, SERVO2_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO2]));
 #endif
-#ifdef PWM_SERVO_3
-  pwmEnableChannel(&PWM_SERVO_3_DRIVER, PWM_SERVO_3_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_3]));
+#if USE_PWM_SERVO3
+  pwmEnableChannel(&SERVO3_PWM_DRIVER, SERVO3_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO3]));
 #endif
-#ifdef PWM_SERVO_4
-  pwmEnableChannel(&PWM_SERVO_4_DRIVER, PWM_SERVO_4_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_4]));
+#if USE_PWM_SERVO4
+  pwmEnableChannel(&SERVO4_PWM_DRIVER, SERVO4_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO4]));
 #endif
-#ifdef PWM_SERVO_5
-  pwmEnableChannel(&PWM_SERVO_5_DRIVER, PWM_SERVO_5_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_5]));
+#if USE_PWM_SERVO5
+  pwmEnableChannel(&SERVO5_PWM_DRIVER, SERVO5_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO5]));
 #endif
-#ifdef PWM_SERVO_6
-  pwmEnableChannel(&PWM_SERVO_6_DRIVER, PWM_SERVO_6_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_6]));
+#if USE_PWM_SERVO6
+  pwmEnableChannel(&SERVO6_PWM_DRIVER, SERVO6_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO6]));
 #endif
-#ifdef PWM_SERVO_7
-  pwmEnableChannel(&PWM_SERVO_7_DRIVER, PWM_SERVO_7_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_7]));
+#if USE_PWM_SERVO7
+  pwmEnableChannel(&SERVO7_PWM_DRIVER, SERVO7_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO7]));
 #endif
-#ifdef PWM_SERVO_8
-  pwmEnableChannel(&PWM_SERVO_8_DRIVER, PWM_SERVO_8_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_8]));
+#if USE_PWM_SERVO8
+  pwmEnableChannel(&SERVO8_PWM_DRIVER, SERVO8_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO8]));
 #endif
-#ifdef PWM_SERVO_9
-  pwmEnableChannel(&PWM_SERVO_9_DRIVER, PWM_SERVO_9_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_9]));
+#if USE_PWM_SERVO9
+  pwmEnableChannel(&SERVO9_PWM_DRIVER, SERVO9_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO9]));
 #endif
-#ifdef PWM_SERVO_10
-  pwmEnableChannel(&PWM_SERVO_10_DRIVER, PWM_SERVO_10_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_10]));
+#if USE_PWM_SERVO10
+  pwmEnableChannel(&SERVO10_PWM_DRIVER, SERVO10_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO10]));
 #endif
-#ifdef PWM_SERVO_11
-  pwmEnableChannel(&PWM_SERVO_11_DRIVER, PWM_SERVO_11_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_11]));
+#if USE_PWM_SERVO11
+  pwmEnableChannel(&SERVO11_PWM_DRIVER, SERVO11_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO11]));
 #endif
-#ifdef PWM_SERVO_12
-  pwmEnableChannel(&PWM_SERVO_12_DRIVER, PWM_SERVO_12_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_12]));
+#if USE_PWM_SERVO12
+  pwmEnableChannel(&SERVO12_PWM_DRIVER, SERVO12_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO12]));
 #endif
-#ifdef PWM_SERVO_13
-  pwmEnableChannel(&PWM_SERVO_13_DRIVER, PWM_SERVO_13_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_13]));
+#if USE_PWM_SERVO13
+  pwmEnableChannel(&SERVO13_PWM_DRIVER, SERVO13_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO13]));
 #endif
-#ifdef PWM_SERVO_14
-  pwmEnableChannel(&PWM_SERVO_14_DRIVER, PWM_SERVO_14_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_14]));
+#if USE_PWM_SERVO14
+  pwmEnableChannel(&SERVO14_PWM_DRIVER, SERVO14_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO14]));
 #endif
-#ifdef PWM_SERVO_15
-  pwmEnableChannel(&PWM_SERVO_15_DRIVER, PWM_SERVO_15_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_15]));
+#if USE_PWM_SERVO15
+  pwmEnableChannel(&SERVO15_PWM_DRIVER, SERVO15_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO15]));
 #endif
-#ifdef PWM_SERVO_16
-  pwmEnableChannel(&PWM_SERVO_16_DRIVER, PWM_SERVO_16_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_16]));
+#if USE_PWM_SERVO16
+  pwmEnableChannel(&SERVO16_PWM_DRIVER, SERVO16_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[SERVO16]));
 #endif
 }
