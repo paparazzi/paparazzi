@@ -230,7 +230,7 @@
         <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->
         <define name="SKEW_REF_MODEL_D_GAIN"    value="0.003"/> <!-- Skewing reference model differential gain -->
         <define name="SKEW_REF_MODEL_MAX_SPEED" value="20"/>    <!-- Maximum rotational skewing speed bound for the reference model -->
-        <define name="ROTWING_FW_SKEW_ANGLE"    value="85"/> 
+        <define name="FW_SKEW_ANGLE"            value="85"/> 
     </section>
     <section NAME="MISC">
         <!-- Voltage and current measurements -->
