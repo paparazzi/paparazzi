@@ -31,6 +31,7 @@
  */
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/ppm.h"
+#include "mcu_periph/gpio.h"
 
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
