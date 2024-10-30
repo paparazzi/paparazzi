@@ -4,13 +4,8 @@
   <doc>
     <description>
       Radio control based on PPM input
-
-      Some STM32 boards have the option to configure RADIO_CONTROL_PPM_PIN.
-      See the board makefile for configure options of the pins.
-      If they set the PPM_CONFIG makefile variable, add it to the target.
-      The PPM_CONFIG define is then used in the _board_.h file to set the configuration.
     </description>
-    <configure name="PPM_CONFIG" value="num" description="Select PPM config, as some boards can used different mapping for the ppm input pin"/>
+    <configure name="PPM_INPUT" value="SERVO1" description="Select which servo can be used as PPM input"/>
   </doc>
   <dep>
     <depends>radio_control_common</depends>
@@ -22,14 +17,21 @@
   <init fun="ppm_init()"/>
   <event fun="ppm_event()"/>
   <makefile target="ap|fbw|sim|nps">
-    <define name="USE_PPM" value="TRUE"/>
-    <define name="PPM_CONFIG" value="$(PPM_CONFIG)" cond="ifdef PPM_CONFIG"/>
-    <define name="RADIO_CONTROL_TYPE_PPM"/>
+    <configure name="PPM_INPUT" case="upper|lower"/>
+
+    <!-- Enable ICU for the PPM port-->
+    <define name="USE_ICU_$(PPM_INPUT)"/>
+
+    <!-- Define PPM configuration (move to c file?) -->
+    <define name="PPM_TIMER" value="$(PPM_INPUT)_ICU_DRIVER"/>
+    <define name="PPM_CHANNEL" value="$(PPM_INPUT)_CHANNEL"/>
+    <define name="PPM_GPIO" value="$(PPM_INPUT)_GPIO"/>
+    <define name="PPM_PIN" value="$(PPM_INPUT)_PIN"/>
+    <define name="PPM_AF" value="$(PPM_INPUT)_AF"/>
+
     <file name="ppm.c"/>
     <file_arch name="ppm_arch.c"/>
-    <test>
-      <define name="RADIO_CONTROL_TYPE_PPM"/>
-    </test>
+    <test/>
   </makefile>
 </module>
 
