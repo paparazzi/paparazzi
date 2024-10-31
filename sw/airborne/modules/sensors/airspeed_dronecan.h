@@ -19,27 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/sensors/airspeed_uavcan.h
- * Airspeed sensor on the uavcan bus
+/** @file modules/sensors/airspeed_dronecan.h
+ * Airspeed sensor on the dronecan bus
  */
 
-#ifndef AIRSPEED_UAVCAN_H
-#define AIRSPEED_UAVCAN_H
+#ifndef AIRSPEED_DRONECAN_H
+#define AIRSPEED_DRONECAN_H
 
 #include "std.h"
 
-/* Airspeed UAVCAN structure */
-struct airspeed_uavcan_t {
+/* Airspeed DroneCAN structure */
+struct airspeed_dronecan_t {
   float diff_p;       ///< Differential pressure
   float temperature;  ///< Temperature in Celsius
 
   float diff_p_offset;  ///< Differential pressure offset
   float diff_p_scale;   ///< Differential pressure scale
 };
-extern struct airspeed_uavcan_t airspeed_uavcan;
+extern struct airspeed_dronecan_t airspeed_dronecan;
 
 /* External functions */
-extern void airspeed_uavcan_init(void);
-extern void airspeed_uavcan_autoset_offset(bool set);
+extern void airspeed_dronecan_init(void);
+extern void airspeed_dronecan_autoset_offset(bool set);
 
-#endif /* AIRSPEED_UAVCAN_H */
+#endif /* AIRSPEED_DRONECAN_H */

@@ -92,8 +92,8 @@
 #define SDP3X_SENDER_ID 41
 #endif
 
-#ifndef UAVCAN_SENDER_ID
-#define UAVCAN_SENDER_ID 42
+#ifndef DRONECAN_SENDER_ID
+#define DRONECAN_SENDER_ID 42
 #endif
 
 /*
@@ -197,8 +197,8 @@
 #define AGL_LIDAR_MATEKSYS_3901_L0X_ID 15
 #endif
 
-#ifndef AGL_UAVCAN_ID
-#define AGL_UAVCAN_ID 16
+#ifndef AGL_DRONECAN_ID
+#define AGL_DRONECAN_ID 16
 #endif
 
 /*
@@ -495,8 +495,8 @@
 #define ACT_FEEDBACK_DSHOT_ID 2
 #endif
 
-#ifndef ACT_FEEDBACK_UAVCAN_ID
-#define ACT_FEEDBACK_UAVCAN_ID 3
+#ifndef ACT_FEEDBACK_DRONECAN_ID
+#define ACT_FEEDBACK_DRONECAN_ID 3
 #endif
 
 #ifndef ACT_FEEDBACK_RPM_SENSOR_ID
