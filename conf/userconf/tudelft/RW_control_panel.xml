@@ -1124,6 +1124,16 @@
       </program>
       <program name="Server"/>
     </session>
+    <session name="RW25">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
+      <program name="RotWingStatus"/>
+      <program name="Wind"/>
+    </session>
     <session name="RW3C_Simulation">
       <program name="PprzGCS"/>
       <program name="Server">
@@ -1448,7 +1458,8 @@
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att[1]:57.325"/>
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att_ref[1]:57.325"/>
         <arg flag="-c" constant="45"/>
-        <arg flag="-c" constant="-45"/>
+        <arg flag="-c"/>
+        <arg flag="-45"/>
         <arg flag="-g" constant="1050x300+0+300"/>
       </program>
       <program name="Real-time Plotter">
@@ -1456,7 +1467,8 @@
         <arg flag="-u" constant="0.05"/>
         <arg flag="-t" constant="phi"/>
         <arg flag="-c" constant="45"/>
-        <arg flag="-c" constant="-45"/>
+        <arg flag="-c"/>
+        <arg flag="-45"/>
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att[0]:57.325"/>
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att_ref[0]:57.325"/>
         <arg flag="-g" constant="1050x300+0+0"/>
@@ -1466,7 +1478,8 @@
         <arg flag="-u" constant="0.05"/>
         <arg flag="-t" constant="psi"/>
         <arg flag="-c" constant="180"/>
-        <arg flag="-c" constant="-180"/>
+        <arg flag="-c"/>
+        <arg flag="-180"/>
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att[2]:57.325"/>
         <arg flag="-c" constant="*:telemetry:STAB_ATTITUDE:att_ref[2]:57.325"/>
         <arg flag="-g" constant="1050x300+0+600"/>
@@ -1497,24 +1510,14 @@
         <arg flag="-m" constant="1000"/>
         <arg flag="-u" constant="0.05"/>
         <arg flag="-t" constant="Skew"/>
-        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:wing_angle_deg"/>
-        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:wing_angle_deg_sp"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:meas_skew_angle"/>
+        <arg flag="-c" constant="*:telemetry:ROTATING_WING_STATE:sp_skew_angle"/>
         <arg flag="-g" constant="1050x300+0+1500"/>
       </program>
       <program name="Environment Simulator"/>
       <program name="Real-time Plotter">
         <arg flag="-g" constant="1050x300+0+1000"/>
       </program>
-    </session>
-    <session name="RW25">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="Messages"/>
-      <program name="PprzGCS"/>
-      <program name="RotWingStatus"/>
-      <program name="Wind"/>
     </session>
   </section>
 </control_panel>
