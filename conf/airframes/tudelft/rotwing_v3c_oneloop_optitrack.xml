@@ -49,7 +49,6 @@
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
-
             <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
         </target>
 
