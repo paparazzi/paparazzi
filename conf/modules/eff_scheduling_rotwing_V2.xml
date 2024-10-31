@@ -22,6 +22,8 @@
    <dl_settings>
      <dl_settings NAME="eff_sched">
        <dl_setting var="ele_min"            min="0"       step="100"   max="6400"  shortname="ele_min"/> 
+       <dl_setting var="roll_eff"           min="1"       step="0.05"   max="10"    shortname="roll_eff"/>
+       <dl_setting var="yaw_eff"            min="0.1"     step="0.01"   max="1"    shortname="yaw_eff"/>
        <dl_setting var="ele_eff"            min="5"       step="0.5"   max="50"    shortname="ele_eff"/> 
        <dl_setting var="airspeed_fake_on"   min="0"       step="1"     max="1"     values="OFF|ON" shortname="bool_airspeed_fake"/> 
        <dl_setting var="airspeed_fake"      min="0"       step="0.001" max="20"    shortname="airspeed_fake"/>     

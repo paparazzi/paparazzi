@@ -63,7 +63,8 @@
       <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
       <message name="WLS_V"                    period="0.2"/>
       <message name="WLS_U"                    period="0.2"/>
-      <message name="ACTUATOR_STATE"           period="0.2"/>
+      <!-- <message name="ACTUATOR_STATE"           period="0.2"/> -->
+      <message name="COMPLEMENTARY_FILTER"     period="0.5"/>
     </mode>
 
     <mode name="sim" key_press="d">
@@ -124,7 +125,8 @@
       <message name="EXTERNAL_POSE_DOWN"       period="0.2"/>
       <message name="WLS_V"                    period="0.002"/>
       <message name="WLS_U"                    period="0.002"/>
-      <message name="ACTUATOR_STATE"           period="0.002"/>
+      <!-- <message name="ACTUATOR_STATE"           period="0.002"/> -->
+      <message name="COMPLEMENTARY_FILTER"     period="0.002"/>
     </mode>
 
     <mode name="calibration">
@@ -330,7 +332,8 @@
       <message name="DEBUG_VECT"               period="0.002"/>
       <message name="WLS_V"                    period="0.002"/>
       <message name="WLS_U"                    period="0.002"/>
-      <message name="ACTUATOR_STATE"           period="0.002"/>
+      <!-- <message name="ACTUATOR_STATE"           period="0.002"/> -->
+      <message name="COMPLEMENTARY_FILTER"     period="0.002"/>
     </mode>
   </process>
 
