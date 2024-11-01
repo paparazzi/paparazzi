@@ -265,7 +265,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
 
   VECT2_DIFF(pos_diff, *stateGetPositionEnu_f(), *wp_center);
   // direction of rotation
-  float sign_radius = radius > 0.f ? 1.f : -1.f;
+  float sign_radius = (radius > 0.f) ? 1.f : (radius < 0.f) ? -1.f : 0.f;
   // absolute radius
   float abs_radius = fabsf(radius);
 #if NAV_HYBRID_LIMIT_CIRCLE_RADIUS
@@ -315,7 +315,6 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   VECT2_DIFF(speed_unit, nav.target, *stateGetPositionEnu_f());
   float_vect2_normalize(&speed_unit);
   VECT2_SMUL(nav.speed, speed_unit, desired_speed);
-
   nav_rotorcraft_base.circle.center = *wp_center;
   nav_rotorcraft_base.circle.radius = sign_radius * abs_radius;
   nav.horizontal_mode = NAV_HORIZONTAL_MODE_CIRCLE;

@@ -72,11 +72,11 @@
   </modules>
   <exceptions>
        <!--Soft Geofencing (go back to Standby)-->
-    <exception cond="Or(!InsideSoft_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 100.0) @AND
+    <exception cond="Or(!InsideSoft_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 120.0) @AND
      !(nav_block == IndexOfBlock('Wait GPS')) @AND
      !(nav_block == IndexOfBlock('Geo init'))" deroute="safe"/>
     <!-- Hard Geofencing (Kill) -->
-    <exception cond="(Or(!InsideHard_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 100.0) @AND
+    <exception cond="(Or(!InsideHard_Geofence(GetPosX(), GetPosY()), GetPosAlt() @GT 120.0) @AND
       !(IndexOfBlock('Holding point') @GT nav_block) @AND
       !(nav_block >= IndexOfBlock('land here')) @AND
       (autopilot_in_flight() == true) )" deroute="Landed"/>

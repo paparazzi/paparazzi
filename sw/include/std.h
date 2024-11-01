@@ -65,6 +65,10 @@ typedef uint8_t unit_t;
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef M_PI_6
+#define M_PI_6 (M_PI/6)
+#endif
+
 #ifndef M_PI_4
 #define M_PI_4 (M_PI/4)
 #endif
