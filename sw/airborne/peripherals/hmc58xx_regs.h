@@ -21,7 +21,7 @@
 
 /**
  * @file peripherals/hmc58xx_regs.h
- * Register defs for Honeywell HMC5843 and HMC5883 magnetometers.
+ * Register defs for Honeywell HMC5843, HMC5883 and HMC5983 magnetometers.
  */
 
 #ifndef HMC58XX_REGS_H
