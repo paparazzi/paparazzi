@@ -1,6 +1,6 @@
 <!-- (c) 2018 Freek van Tienen-->
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Crossfire SBUS" data_min="900" data_max="2100" sync_min="5000" sync_max="15000" pulse_type="POSITIVE">
+<radio name="Crossfire SBUS" data_min="900" data_max="2100" sync_min="3500" sync_max="15000" pulse_type="POSITIVE">
  <channel function="THROTTLE" min="1100" neutral="1100" max="1900" average="0"/>
  <channel function="ROLL" min="1100" neutral="1500" max="1900" average="0"/>
  <channel function="PITCH" min="1100" neutral="1500" max="1900" average="0"/>
