@@ -117,6 +117,7 @@
 // Different sensor WHOAMI replies
 #define MPU60X0_REG_WHO_AM_I        0x75
 #define MPU60X0_WHOAMI_REPLY        0x68
+#define MPU6500_WHOAMI_REPLY        0x70
 #define ICM20600_WHOAMI_REPLY       0x11
 #define ICM20608_WHOAMI_REPLY       0xAF
 #define ICM20602_WHOAMI_REPLY       0x12
