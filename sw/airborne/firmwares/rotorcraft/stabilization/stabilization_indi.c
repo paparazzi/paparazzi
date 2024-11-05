@@ -297,6 +297,7 @@ void sum_g1_g2(void);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+#if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 static void send_wls_v_stab(struct transport_tx *trans, struct link_device *dev)
 {
   send_wls_v("stab", &wls_stab_p, trans, dev); 
@@ -305,7 +306,7 @@ static void send_wls_u_stab(struct transport_tx *trans, struct link_device *dev)
 {
   send_wls_u("stab", &wls_stab_p, trans, dev); 
 }
-
+#endif
 static void send_eff_mat_g_indi(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_EFF_MAT_STAB(trans, dev, AC_ID,
@@ -426,8 +427,10 @@ void stabilization_indi_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_EFF_MAT_STAB, send_eff_mat_g_indi);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE, send_att_full_indi);
+  #if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_V, send_wls_v_stab);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WLS_U, send_wls_u_stab);
+  #endif
 #endif
 }
 
@@ -725,6 +728,7 @@ void stabilization_indi_rate_run(bool in_flight, struct StabilizationSetpoint *s
 /**
  * Function that sets the u_min, u_max and u_pref if function not elsewhere defined
  */
+#if !STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
 void WEAK stabilization_indi_set_wls_settings(void)
 {
   // Calculate the min and max increments
@@ -748,6 +752,7 @@ void WEAK stabilization_indi_set_wls_settings(void)
 #endif
   }
 }
+#endif
 
 /**
  * @param in_flight enable integrator only in flight
