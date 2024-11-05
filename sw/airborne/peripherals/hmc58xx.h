@@ -23,7 +23,7 @@
 /**
  * @file peripherals/hmc58xx.c
  *
- * Driver for Honeywell HMC5843 and HMC5883 magnetometers.
+ * Driver for Honeywell HMC5843, HMC5883 and HMC5983 magnetometers.
  */
 
 #ifndef HMC58XX_H
@@ -37,10 +37,12 @@
 #include "peripherals/hmc58xx_regs.h"
 
 struct Hmc58xxConfig {
-  uint8_t rate;  ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
-  uint8_t meas;  ///< Measurement configuration
-  uint8_t gain;   ///< Gain configuration (1 -> +- 1 Gauss)
-  uint8_t mode;   ///< Measurement mode
+  uint8_t rate;             ///< Data Output Rate Bits(6 -> 50Hz with HMC5843, 75Hz with HMC5883)
+  uint8_t meas;             ///< Measurement configuration
+  uint8_t gain;             ///< Gain configuration (1 -> +- 1 Gauss)
+  uint8_t mode;             ///< Measurement mode
+  uint8_t samples_averaged; ///< Number of samples averaged per measurement output.
+  uint8_t temp_comp;        ///< Enable temperature sensor (only on HMC5983)
 };
 
 /** config status states */
