@@ -46,15 +46,15 @@ PRINT_CONFIG_VAR(BMP280_SYNC_SEND)
 PRINT_CONFIG_VAR(BMP280_USE_SPI)
 PRINT_CONFIG_VAR(BMP280_DEV)
 /** default slave address */
-#if BMP280_BUS_TYPE == I2C
+
 #ifndef BMP280_SLAVE_ADDR
 #define BMP280_SLAVE_ADDR BMP280_I2C_ADDR
 #endif
-#else
+
 #ifndef BMP280_SLAVE_IDX
 #define BMP280_SLAVE_IDX SPI_SLAVE0
 #endif
-#endif
+
 
 float baro_alt = 0;
 float baro_temp = 0;

@@ -12,7 +12,7 @@
     <define name="BMP280_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <dep>
-    <depends>i2c,spi_master</depends>
+    <depends>i2c|spi_master</depends>
     <provides>baro</provides>
   </dep>
   <header>
