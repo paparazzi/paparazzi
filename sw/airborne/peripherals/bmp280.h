@@ -83,7 +83,7 @@ struct bmp280_reg_calib_data_t {
   int16_t dig_p7;
   int16_t dig_p8;
   int16_t dig_p9;
-  int32_t t_fine;
+  int64_t t_fine;
 };
 
 

@@ -38,7 +38,6 @@ static double compensate_temperature(struct bmp280_t *bmp);
 static void bmp280_register_write(struct bmp280_t *bmp, uint8_t reg, uint8_t value);
 static void bmp280_register_read(struct bmp280_t *bmp, uint8_t reg, uint16_t size);
 
-int64_t t_fine;
 
 /**
  * @brief Initialize the bmp280 sensor instance
@@ -280,14 +279,10 @@ static void parse_calib_data(struct bmp280_t *bmp, uint8_t *data)
  */
 static double compensate_temperature(struct bmp280_t *bmp)
 {
-
-  double var1;
-  double var2;
-
-  var1 = (((double)bmp->raw_temperature / 16384.0) - ((double)bmp->calib.dig_t1 / 1024.0)) * ((double)bmp->calib.dig_t2);
-  var2 = ((double)bmp->raw_temperature / 131072.0) - ((double)bmp->calib.dig_t1 / 8192.0);
+  double var1 = (((double)bmp->raw_temperature / 16384.0) - ((double)bmp->calib.dig_t1 / 1024.0)) * ((double)bmp->calib.dig_t2);
+  double var2 = ((double)bmp->raw_temperature / 131072.0) - ((double)bmp->calib.dig_t1 / 8192.0);
   var2 = (var2 * var2) * (double)bmp->calib.dig_t3;
-  t_fine = (int64_t)(var1 + var2);
+  int64_t t_fine = (int64_t)(var1 + var2);
 
   /* Store t_lin in dev. structure for pressure calculation */
   bmp->calib.t_fine = t_fine;
@@ -307,7 +302,7 @@ static double compensate_pressure(struct bmp280_t *bmp)
   double var2;
   double p;
 
-  var1 = ((double)t_fine / 2) - 64000.0;
+  var1 = ((double)bmp->calib.t_fine / 2) - 64000.0;
   var2 = (var1 * var1 * (double)bmp->calib.dig_p5) / 32768.0;
   var2 = var2 + (var1 * (double)bmp->calib.dig_p5 * 2.0);
   var2 = (var2 / 4.0) + ((double)bmp->calib.dig_p4 * 65536.0);

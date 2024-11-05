@@ -46,7 +46,7 @@
 #define HMC58XX_DEFAULT_MD 0x0 // Continious measurement mode
 #endif
 #ifndef HMC58XX_DEFAULT_SA
-#define HMC58XX_DEFAULT_SA 0x3 // Number of samples averaged 
+#define HMC58XX_DEFAULT_SA 0x0 // Number of samples averaged 
 #endif
 #ifndef HMC58XX_DEFAULT_TC
 #define HMC58XX_DEFAULT_TC 0x0 // Automatic compensation of sensitivity over temperature
