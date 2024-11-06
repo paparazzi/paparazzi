@@ -35,6 +35,7 @@ static void parse_calib_data(struct bmp280_t *bmp, uint8_t *data);
 PRINT_CONFIG_MSG("BMP280 uses double precision compensation")
 static double compensate_pressure(struct bmp280_t *bmp);
 static double compensate_temperature(struct bmp280_t *bmp);
+static bool bmp280_config(struct bmp280_t *bmp);
 static void bmp280_register_write(struct bmp280_t *bmp, uint8_t reg, uint8_t value);
 static void bmp280_register_read(struct bmp280_t *bmp, uint8_t reg, uint16_t size);
 
@@ -50,6 +51,8 @@ void bmp280_init(struct bmp280_t *bmp)
     bmp->data_available = false;
     bmp->initialized = false;
     bmp->status = BMP280_STATUS_UNINIT;
+
+    bmp->config_idx = 0;
 
   /* SPI setup */
   if(bmp->bus == BMP280_SPI) {
@@ -121,14 +124,11 @@ void bmp280_periodic(struct bmp280_t *bmp)
           break;
 
         case BMP280_STATUS_CONFIGURE:
-          // From datasheet, recommended config for drone usecase:
-          // osrs_p = 16, osrs_t = 2
-          // IIR filter = 2 (note: this one doesn't exist...)
-
-          bmp280_register_write(bmp, BMP280_CTRL_MEAS_REG_ADDR, (BMP280_OVERSAMPLING_2X_T | BMP280_OVERSAMPLING_16X_P | BMP280_POWER_NORMAL_MODE)); 
-          
-          bmp280_register_write(bmp, BMP280_CONFIG_REG_ADDR, (BMP280_INACTIVITY_HALF_MS | BMP280_IIR_FILTER_COEFF_16));
-
+          /* Start configuring */
+          if(bmp280_config(bmp)) {
+            bmp->status = BMP280_STATUS_READ_STATUS_REG;
+            bmp->initialized = true;
+          }
           break;
 
         case  BMP280_STATUS_READ_STATUS_REG:
@@ -178,9 +178,10 @@ void bmp280_event(struct bmp280_t *bmp)
           break;
 
         case BMP280_STATUS_CONFIGURE:
-          // nothing else to do, start reading
-          bmp->status = BMP280_STATUS_READ_STATUS_REG;
-          bmp->initialized = true;
+          if(bmp280_config(bmp)) {
+            bmp->status = BMP280_STATUS_READ_STATUS_REG;
+            bmp->initialized = true;
+          }
           break;
 
         case BMP280_STATUS_READ_STATUS_REG:
@@ -318,6 +319,33 @@ static double compensate_pressure(struct bmp280_t *bmp)
   return (p);
 }
 
+/**
+ * @brief Configure the BMP280 device register by register
+ * 
+ * @param bmp The bmp280 instance
+ * @return true When the configuration is completed
+ * @return false Still busy configuring
+ */
+static bool bmp280_config(struct bmp280_t *bmp) {
+  // Only one transaction can be made per call to the peridoic function 
+  switch(bmp->config_idx) {
+    case 0:
+      // From datasheet, recommended config for drone usecase:
+      // osrs_p = 16, osrs_t = 2
+      bmp280_register_write(bmp, BMP280_CTRL_MEAS_REG_ADDR, (BMP280_OVERSAMPLING_2X_T | BMP280_OVERSAMPLING_16X_P | BMP280_POWER_NORMAL_MODE)); 
+      break;
+
+    case 1: 
+      // IIR filter = 16 
+      bmp280_register_write(bmp, BMP280_CONFIG_REG_ADDR, (BMP280_INACTIVITY_HALF_MS | BMP280_IIR_FILTER_COEFF_16));
+      break;
+
+    default:
+      return true;
+  }
+  return false;
+}
+
 
 /**
  * @brief Write a register with a value
@@ -366,3 +394,4 @@ static void bmp280_register_read(struct bmp280_t *bmp, uint8_t reg, uint16_t siz
     i2c_transceive(bmp->i2c.p, &(bmp->i2c.trans), bmp->i2c.slave_addr, 1, size);
   }
 }
+

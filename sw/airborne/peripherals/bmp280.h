@@ -105,6 +105,8 @@ struct bmp280_t {
   uint8_t* rx_buffer;
   uint8_t* tx_buffer;
   uint16_t* rx_length;
+
+  uint8_t config_idx;                 ///< The current configuration index
 };
 
 
