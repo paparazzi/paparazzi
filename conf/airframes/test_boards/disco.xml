@@ -7,7 +7,7 @@
   </description>
 
   <firmware name="fixedwing">
-    <configure name="USE_MAGNETOMETER" value="TRUE"/>
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
 
     <target name="ap" board="disco">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
