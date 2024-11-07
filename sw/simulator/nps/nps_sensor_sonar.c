@@ -49,6 +49,13 @@
 #define NPS_SONAR_OFFSET 0
 #endif
 
+#ifndef NPS_SONAR_MIN_DIST
+#define NPS_SONAR_MIN_DIST 0.1f
+#endif
+
+#ifndef NPS_SONAR_MAX_DIST
+#define NPS_SONAR_MAX_DIST 7.0f
+#endif
 
 void nps_sensor_sonar_init(struct NpsSensorSonar *sonar, double time)
 {
@@ -71,6 +78,8 @@ void nps_sensor_sonar_run_step(struct NpsSensorSonar *sonar, double time)
   sonar->value = fdm.agl + sonar->offset;
   /* add noise with std dev meters */
   sonar->value += get_gaussian_noise() * sonar->noise_std_dev;
+  /* bound value */
+  Bound(sonar->value, NPS_SONAR_MIN_DIST, NPS_SONAR_MAX_DIST);
 
   sonar->next_update += NPS_SONAR_DT;
   sonar->data_available = TRUE;
