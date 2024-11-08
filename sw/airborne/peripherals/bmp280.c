@@ -327,17 +327,19 @@ static double compensate_pressure(struct bmp280_t *bmp)
  * @return false Still busy configuring
  */
 static bool bmp280_config(struct bmp280_t *bmp) {
-  // Only one transaction can be made per call to the peridoic function 
+  // Only one transaction can be made per call to the periodic function 
   switch(bmp->config_idx) {
     case 0:
       // From datasheet, recommended config for drone usecase:
       // osrs_p = 16, osrs_t = 2
       bmp280_register_write(bmp, BMP280_CTRL_MEAS_REG_ADDR, (BMP280_OVERSAMPLING_2X_T | BMP280_OVERSAMPLING_16X_P | BMP280_POWER_NORMAL_MODE)); 
+      bmp->config_idx++;
       break;
 
     case 1: 
       // IIR filter = 16 
       bmp280_register_write(bmp, BMP280_CONFIG_REG_ADDR, (BMP280_INACTIVITY_HALF_MS | BMP280_IIR_FILTER_COEFF_16));
+      bmp->config_idx++;
       break;
 
     default:
