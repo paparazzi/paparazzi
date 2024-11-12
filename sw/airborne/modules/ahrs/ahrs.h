@@ -21,7 +21,6 @@
 
 /**
  * @file modules/ahrs/ahrs.h
- * Dispatcher to register actual AHRS implementations.
  */
 
 #ifndef AHRS_H
@@ -49,16 +48,7 @@
 #define AHRS_COMP_ID_MADGWICK  13
 #define AHRS_COMP_ID_FLOW      14
 
-/**
- * Register an AHRS implementation.
- * Adds it to an internal list.
- * @param index ahrs type: PRIMARY or SECONDARY
- * @param module_id module ID, generated at compilation
- */
-extern void ahrs_register(uint8_t index, uint16_t module_id);
-
-/** AHRS initialization. Called at startup.
- * Registers/initializes the default AHRS.
+/** AHRS initialization.
  */
 extern void ahrs_init(void);
 

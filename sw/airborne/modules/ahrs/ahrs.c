@@ -21,9 +21,7 @@
 
 /**
  * @file modules/ahrs/ahrs.c
- * Dispatcher to register actual AHRS implementations.
  */
-
 
 #include "modules/ahrs/ahrs.h"
 
@@ -31,33 +29,8 @@
 #include "modules/ahrs/ahrs_aligner.h"
 #endif
 
-
-/** maximum number of AHRS implementations that can register */
-#ifndef AHRS_NB_IMPL
-#define AHRS_NB_IMPL 2
-#endif
-
-/** references a registered AHRS implementation */
-struct AhrsImpl {
-  uint16_t module_id;
-};
-
-struct AhrsImpl ahrs_impls[AHRS_NB_IMPL];
-uint8_t ahrs_output_idx;
-
-void ahrs_register(uint8_t index, uint16_t module_id)
-{
-  if (index > AHRS_NB_IMPL) { return; }
-  ahrs_impls[index].module_id = module_id;
-}
-
 void ahrs_init(void)
 {
-  int i;
-  for (i=0; i < AHRS_NB_IMPL; i++) {
-    ahrs_impls[i].module_id = 0;
-  }
-
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
