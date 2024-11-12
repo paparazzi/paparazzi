@@ -1,2 +1,2 @@
-<program command="sw/simulator/gaia" name="Environment Simulator" />
+<program command="sw/simulator/gaia.py" name="Environment Simulator" />
 
