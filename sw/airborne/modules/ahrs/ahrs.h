@@ -29,6 +29,10 @@
 
 #include "std.h"
 
+#define AHRS_DISABLE    0
+#define AHRS_PRIMARY    1
+#define AHRS_SECONDARY  2
+
 #define AHRS_COMP_ID_NONE       0
 #define AHRS_COMP_ID_GENERIC    1
 #define AHRS_COMP_ID_IR         2
@@ -39,43 +43,23 @@
 #define AHRS_COMP_ID_FINV       7
 #define AHRS_COMP_ID_MLKF       8
 #define AHRS_COMP_ID_GX3        9
-#define AHRS_COMP_ID_CHIMU     10
+// CHIMU (10) is not supported anymore
 #define AHRS_COMP_ID_VECTORNAV 11
 #define AHRS_COMP_ID_EKF2      12
 #define AHRS_COMP_ID_MADGWICK  13
 #define AHRS_COMP_ID_FLOW      14
 
-/* include actual (primary) implementation header */
-#ifdef AHRS_TYPE_H
-#include AHRS_TYPE_H
-#endif
-
-/* include secondary implementation header */
-#ifdef AHRS_SECONDARY_TYPE_H
-#include AHRS_SECONDARY_TYPE_H
-#endif
-
-typedef bool (*AhrsEnableOutput)(bool);
-
-/* for settings when using secondary AHRS */
-extern uint8_t ahrs_output_idx;
-
 /**
  * Register an AHRS implementation.
  * Adds it to an internal list.
- * @param enable pointer to function to enable/disable the output of registering AHRS
+ * @param index ahrs type: PRIMARY or SECONDARY
+ * @param module_id module ID, generated at compilation
  */
-extern void ahrs_register_impl(AhrsEnableOutput enable);
+extern void ahrs_register(uint8_t index, uint16_t module_id);
 
 /** AHRS initialization. Called at startup.
  * Registers/initializes the default AHRS.
  */
 extern void ahrs_init(void);
-
-/**
- * Switch to the output of another AHRS impl.
- * @param idx index of the AHRS impl (0 = PRIMARY_AHRS, 1 = SECONDARY_AHRS).
- */
-extern int ahrs_switch(uint8_t idx);
 
 #endif /* AHRS_H */

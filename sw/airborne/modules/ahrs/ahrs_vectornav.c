@@ -75,9 +75,7 @@ void ahrs_vectornav_event(void)
     vn200_read_message(&(ahrs_vn.vn_packet),&(ahrs_vn.vn_data));
     ahrs_vn.vn_packet.msg_available = false;
 
-    if (ahrs_vectornav_is_enabled()) {
-      ahrs_vectornav_propagate();
-    }
+    ahrs_vectornav_propagate();
 
     // send ABI messages
     uint32_t now_ts = get_sys_time_usec();

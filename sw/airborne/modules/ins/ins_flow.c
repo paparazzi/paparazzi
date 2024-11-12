@@ -129,7 +129,6 @@ static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
 static void print_ins_flow_state(void);
 static void print_true_state(void);
 /* Static local functions */
-//static bool ahrs_icq_output_enabled;
 static uint32_t ahrs_icq_last_stamp;
 static uint8_t ahrs_flow_id = AHRS_COMP_ID_FLOW;  ///< Component ID for FLOW
 static void set_body_state_from_quat(void);
@@ -537,9 +536,7 @@ void ins_reset_filter(void)
 void ins_flow_init(void)
 {
 
-  //ahrs_icq_output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq_init();
-  //ahrs_register_impl(ahrs_icq_enable_output);
 
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
