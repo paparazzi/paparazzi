@@ -55,7 +55,6 @@
     </test>
   </makefile>
   <makefile target="sim">
-    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     <define name="USE_AHRS"/>
     <file name="ahrs.c" dir="modules/ahrs"/>
     <file name="ahrs_sim.c" dir="modules/ahrs"/>
