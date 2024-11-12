@@ -506,7 +506,7 @@ extern void stateInit(void);
 extern void stateSetInputFilter(uint8_t type, uint16_t id);
 
 /// Helper macro to check input filter and return if not valid input id
-#define STATE_CHECK_INPUT_AND_RETURN(flag, id) if (flag==STATE_INPUT_DISABLE || flag==id) { return; }
+#define STATE_CHECK_INPUT_AND_RETURN(flag, id) if (flag==STATE_INPUT_DISABLE || !(flag==STATE_INPUT_ANY || flag==id)) { return; }
 
 /** @addtogroup state_position
  *  @{ */
