@@ -488,7 +488,7 @@ void tag_tracking_report()
       // compute absolute position
       struct LlaCoor_f tag_lla;
       struct EcefCoor_f tag_ecef;
-      ecef_of_ned_point_f(&tag_ecef, &state.ned_origin_f, (struct NedCoor_f *)(&tag_infos[i].tag_tracking.pos));
+      ecef_of_ned_point_f(&tag_ecef, stateGetNedOrigin_f(), (struct NedCoor_f *)(&tag_infos[i].tag_tracking.pos));
       lla_of_ecef_f(&tag_lla, &tag_ecef);
       float lat_deg = DegOfRad(tag_lla.lat);
       float lon_deg = DegOfRad(tag_lla.lon);

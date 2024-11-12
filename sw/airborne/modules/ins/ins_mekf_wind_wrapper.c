@@ -445,9 +445,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 			struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
       struct NedCoor_f pos, speed;
 			// position (local ned)
-			pos.x = utm.north - state.utm_origin_f.north;
-			pos.y = utm.east - state.utm_origin_f.east;
-			pos.z = state.utm_origin_f.alt - utm.alt;
+			pos.x = utm.north - stateGetUtmOrigin_f()->north;
+			pos.y = utm.east - stateGetUtmOrigin_f()->east;
+			pos.z = stateGetHmslOrigin_f() - utm.alt;
 			// speed
 			speed = ned_vel_float_from_gps(gps_s);
       if (!ins_mekf_wind.gps_initialized) {
@@ -472,11 +472,11 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
       struct NedCoor_f pos, speed;
 			struct NedCoor_i gps_pos_cm_ned, ned_pos;
       struct EcefCoor_i ecef_pos_i = ecef_int_from_gps(gps_s);
-			ned_of_ecef_point_i(&gps_pos_cm_ned, &state.ned_origin_i, &ecef_pos_i);
+			ned_of_ecef_point_i(&gps_pos_cm_ned, stateGetNedOrigin_i(), &ecef_pos_i);
 			INT32_VECT3_SCALE_2(ned_pos, gps_pos_cm_ned, INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
 			NED_FLOAT_OF_BFP(pos, ned_pos);
       struct EcefCoor_f ecef_vel = ecef_vel_float_from_gps(gps_s);
-			ned_of_ecef_vect_f(&speed, &state.ned_origin_f, &ecef_vel);
+			ned_of_ecef_vect_f(&speed, stateGetNedOrigin_f(), &ecef_vel);
       ins_mekf_wind_update_pos_speed((struct FloatVect3*)(&pos), (struct FloatVect3*)(&speed));
 
 #if LOG_MEKFW_FILTER
@@ -498,19 +498,19 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 static void set_state_from_ins(void)
 {
   struct FloatQuat quat = ins_mekf_wind_get_quat();
-  stateSetNedToBodyQuat_f(&quat);
+  stateSetNedToBodyQuat_f(MODULE_INS_MEKF_WIND_ID, &quat);
 
   struct FloatRates rates = ins_mekf_wind_get_body_rates();
-  stateSetBodyRates_f(&rates);
+  stateSetBodyRates_f(MODULE_INS_MEKF_WIND_ID, &rates);
 
   struct NedCoor_f pos = ins_mekf_wind_get_pos_ned();
-  stateSetPositionNed_f(&pos);
+  stateSetPositionNed_f(MODULE_INS_MEKF_WIND_ID, &pos);
 
   struct NedCoor_f speed = ins_mekf_wind_get_speed_ned();
-  stateSetSpeedNed_f(&speed);
+  stateSetSpeedNed_f(MODULE_INS_MEKF_WIND_ID, &speed);
 
   struct NedCoor_f accel = ins_mekf_wind_get_accel_ned();
-  stateSetAccelNed_f(&accel);
+  stateSetAccelNed_f(MODULE_INS_MEKF_WIND_ID, &accel);
 }
 
 /**
@@ -525,8 +525,8 @@ void ins_mekf_wind_wrapper_init(void)
   utm0.east = (float)nav_utm_east0;
   utm0.alt = GROUND_ALT;
   utm0.zone = nav_utm_zone0;
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
+  stateSetLocalUtmOrigin_f(MODULE_INS_MEKF_WIND_ID, &utm0);
+  stateSetPositionUtm_f(MODULE_INS_MEKF_WIND_ID, &utm0);
 #else
   struct LlaCoor_i llh_nav0;
   llh_nav0.lat = NAV_LAT0;
@@ -537,7 +537,7 @@ void ins_mekf_wind_wrapper_init(void)
   struct LtpDef_i ltp_def;
   ltp_def_from_ecef_i(&ltp_def, &ecef_nav0);
   ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_MEKF_WIND_ID, &ltp_def);
 #endif
 
   // reset flags
@@ -601,12 +601,12 @@ void ins_mekf_wind_wrapper_init(void)
  * local implemetation of the ins_reset functions
  */
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_MEKF_WIND_ID, &utm);
 #else
   struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
   struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
@@ -614,7 +614,7 @@ void ins_reset_local_origin(void)
   ltp_def_from_ecef_i(&ltp_def, &ecef_pos);
   ltp_def.lla.alt = lla_pos.alt;
   ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_MEKF_WIND_ID, &ltp_def);
 #endif
   ins_mekf_wind_wrapper_Reset(true);
   //ins_mekf_wind.gps_initialized = false;
@@ -623,19 +623,19 @@ void ins_reset_local_origin(void)
 void ins_reset_altitude_ref(void)
 {
 #if FIXEDWING_FIRMWARE
-  struct UtmCoor_f utm = state.utm_origin_f;
+  struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_MEKF_WIND_ID, &utm);
 #else
   struct LlaCoor_i lla = {
-    .lat = state.ned_origin_i.lla.lat,
-    .lon = state.ned_origin_i.lla.lon,
+    .lat = stateGetNedOrigin_i()->lla.lat,
+    .lon = stateGetNedOrigin_i()->lla.lon,
     .alt = gps.lla_pos.alt
   };
   struct LtpDef_i ltp_def;
   ltp_def_from_lla_i(&ltp_def, &lla);
   ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_MEKF_WIND_ID, &ltp_def);
 #endif
 }
 

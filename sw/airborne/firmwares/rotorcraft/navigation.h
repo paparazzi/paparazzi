@@ -180,7 +180,7 @@ extern float flight_altitude; // hmsl flight altitude in meters
 /// Get current y (north) position in local coordinates
 #define GetPosY() (stateGetPositionEnu_f()->y)
 /// Get current altitude above MSL
-#define GetPosAlt() (stateGetPositionEnu_f()->z+state.ned_origin_f.hmsl)
+#define GetPosAlt() (stateGetPositionEnu_f()->z+stateGetHmslOrigin_f())
 /// Get current height above reference
 #define GetPosHeight() (stateGetPositionEnu_f()->z)
 /**
@@ -189,7 +189,7 @@ extern float flight_altitude; // hmsl flight altitude in meters
  * but might be updated later through a call to NavSetGroundReferenceHere() or
  * NavSetAltitudeReferenceHere(), e.g. in the GeoInit flight plan block.
  */
-#define GetAltRef() (state.ned_origin_f.hmsl)
+#define GetAltRef() (stateGetHmslOrigin_f())
 
 
 extern void nav_init(void);
@@ -381,7 +381,7 @@ static inline void NavGlide(uint8_t wp_start, uint8_t wp_end)
 #define nav_SetNavRadius(x) {}
 #define navigation_SetFlightAltitude(x) {                         \
     flight_altitude = x;                                          \
-    nav.nav_altitude = flight_altitude - state.ned_origin_f.hmsl; \
+    nav.nav_altitude = flight_altitude - stateGetHmslOrigin_f();  \
   }
 
 /** Unused compat macros

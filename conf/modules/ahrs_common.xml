@@ -18,10 +18,7 @@
     <define name="USE_AHRS_ALIGNER"/>
     <file name="ahrs.c"/>
     <file name="ahrs_aligner.c"/>
-    <test>
-      <define name="PRIMARY_AHRS" value="ahrs_dcm"/>
-      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_dcm_wrapper.h" type="string"/>
-    </test>
+    <test/>
   </makefile>
   <makefile target="sim">
     <define name="USE_AHRS"/>

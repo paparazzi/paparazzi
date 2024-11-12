@@ -50,11 +50,10 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
   float foo = 0.;
   if (state.ned_initialized_i) {
-    pprz_msg_send_INS_REF(trans, dev, AC_ID,
-                          &state.ned_origin_i.ecef.x, &state.ned_origin_i.ecef.y,
-                          &state.ned_origin_i.ecef.z, &state.ned_origin_i.lla.lat,
-                          &state.ned_origin_i.lla.lon, &state.ned_origin_i.lla.alt,
-                          &state.ned_origin_i.hmsl, &foo);
+    struct EcefCoor_i ecef = stateGetEcefOrigin_i();
+    struct LlaCoor_i lla = stateGetLlaOrigin_i();
+    int32_t hmsl = stateGetHmslOrigin_i();
+    pprz_msg_send_INS_REF(trans, dev, AC_ID, &ecef.x, &ecef.y, &ecef.z, &lla.lat, &lla.lon, &lla.alt, &hmsl, &foo);
   }
 }
 

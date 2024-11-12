@@ -98,10 +98,10 @@ void ins_alt_float_init(void)
 {
 #if USE_INS_NAV_INIT
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
+  stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm0);
   ins_altf.origin_initialized = true;
 
-  stateSetPositionUtm_f(&utm0);
+  stateSetPositionUtm_f(MODULE_INS_ALT_FLOAT_ID, &utm0);
 #else
   ins_altf.origin_initialized = false;
 #endif
@@ -127,13 +127,13 @@ void ins_alt_float_init(void)
 }
 
 /** Reset the geographic reference to the current GPS fix */
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
   // get utm pos
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
 
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm);
 
   ins_altf.origin_initialized = true;
 
@@ -143,11 +143,11 @@ void ins_reset_local_origin(void)
 
 void ins_reset_altitude_ref(void)
 {
-  struct UtmCoor_f utm = state.utm_origin_f;
+  struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   // ground_alt
   utm.alt = gps.hmsl / 1000.0f;
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm);
   // reset filter flag
   ins_altf.reset_alt_ref = true;
 }
@@ -184,11 +184,11 @@ void ins_alt_float_update_baro(float pressure)
     struct UtmCoor_f utm;
     UTM_COPY(utm, *stateGetPositionUtm_f());
     utm.alt = ins_altf.alt;
-    stateSetPositionUtm_f(&utm);
+    stateSetPositionUtm_f(MODULE_INS_ALT_FLOAT_ID, &utm);
     struct NedCoor_f ned_vel;
     ned_vel = *stateGetSpeedNed_f();
     ned_vel.z = -ins_altf.alt_dot;
-    stateSetSpeedNed_f(&ned_vel);
+    stateSetSpeedNed_f(MODULE_INS_ALT_FLOAT_ID, &ned_vel);
   }
 }
 #else
@@ -206,7 +206,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
   }
 
   if (!ins_altf.origin_initialized) {
-    ins_reset_local_origin();
+    ins_reset_local_origin(MODULE_INS_ALT_FLOAT_ID);
   }
 
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
@@ -241,11 +241,11 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
 
   utm.alt = ins_altf.alt;
   // set position
-  stateSetPositionUtm_f(&utm);
+  stateSetPositionUtm_f(MODULE_INS_ALT_FLOAT_ID, &utm);
 
   ned_vel.z = -ins_altf.alt_dot; // vz (down) from filter
   // set velocity
-  stateSetSpeedNed_f(&ned_vel);
+  stateSetSpeedNed_f(MODULE_INS_ALT_FLOAT_ID, &ned_vel);
 
 #endif
 }
@@ -363,9 +363,9 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
 {
   // untilt accel and remove gravity
   struct Int32Vect3 accel_ned;
-  stateSetAccelBody_i(accel);
+  stateSetAccelBody_i(MODULE_INS_ALT_FLOAT_ID, accel);
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, accel);
   accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
-  stateSetAccelNed_i((struct NedCoor_i *)&accel_ned);
+  stateSetAccelNed_i(MODULE_INS_ALT_FLOAT_ID, (struct NedCoor_i *)&accel_ned);
 }
