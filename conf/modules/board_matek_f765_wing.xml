@@ -14,7 +14,7 @@
     <configure name="BOARD_MATEK_ROTATED" value="FALSE|TRUE" description="if TRUE, the board is not using is default orientation and axis can be redefined by hand"/>
   </doc>
   <dep>
-    <depends>spi_master,osd_max7456,baro_bmp280_i2c,current_sensor,imu_mpu6000</depends>
+    <depends>spi_master,osd_max7456,baro_bmp280,current_sensor,imu_mpu6000</depends>
   </dep>
 
   <makefile target="!sim|nps|fbw">
@@ -27,7 +27,7 @@
     <define name="IMU_MPU_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_MATEK_ROTATED),1 TRUE))"/>
     <define name="IMU_MPU_X_SIGN" value="-1" cond="ifeq (,$(findstring $(BOARD_MATEK_ROTATED),1 TRUE))"/>
     <!-- BAROMETER BMP280 CONFIGURATION -->
-    <configure name="BMP280_I2C_DEV" value="i2c2"/>
+    <configure name="BMP280_DEV" value="i2c2"/>
     <!-- OSD CONFIGURATION -->
     <configure name="MAX7456_SPI_DEV" value="spi2"/>
     <configure name="MAX7456_SLAVE_IDX" value="SPI_SLAVE5"/>
