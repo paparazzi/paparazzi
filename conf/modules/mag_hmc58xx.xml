@@ -46,8 +46,8 @@
     <configure name="MAG_HMC58XX_I2C_DEV" default="TRUE" case="upper|lower"/>
     <define name="USE_$(MAG_HMC58XX_I2C_DEV_UPPER)"/>
     <define name="MAG_HMC58XX_I2C_DEV" value="$(MAG_HMC58XX_I2C_DEV_LOWER)"/>
-    <configure name="MAG_HMC58XX_SA" value="0"/>
-    <configure name="MAG_HMC58XX_TC" value="0"/>
+    <configure name="MAG_HMC58XX_SA" default="0"/>
+    <configure name="MAG_HMC58XX_TC" default="0"/>
     <define name="HMC58XX_DEFAULT_SA" value="$(MAG_HMC58XX_SA)"/>
     <define name="HMC58XX_DEFAULT_TC" value="$(MAG_HMC58XX_SA)"/>
     <test>
