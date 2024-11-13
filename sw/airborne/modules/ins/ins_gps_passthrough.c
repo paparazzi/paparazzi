@@ -84,7 +84,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     return;
   }
   if (!ins_gp.ltp_initialized) {
-    ins_reset_local_origin();
+    ins_reset_local_origin(MODULE_INS_GPS_PASSTHROUGH_ID);
   }
 
   /* simply scale and copy pos/speed from gps */
@@ -93,14 +93,14 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ned_of_ecef_point_i(&gps_pos_cm_ned, &ins_gp.ltp_def, &ecef_pos);
   INT32_VECT3_SCALE_2(ins_gp.ltp_pos, gps_pos_cm_ned,
                       INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
-  stateSetPositionNed_i(&ins_gp.ltp_pos);
+  stateSetPositionNed_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_pos);
 
   struct NedCoor_i gps_speed_cm_s_ned;
   struct EcefCoor_i ecef_vel = ecef_vel_int_from_gps(gps_s);
   ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_gp.ltp_def, &ecef_vel);
   INT32_VECT3_SCALE_2(ins_gp.ltp_speed, gps_speed_cm_s_ned,
                       INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
-  stateSetSpeedNed_i(&ins_gp.ltp_speed);
+  stateSetSpeedNed_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_speed);
 }
 
 
@@ -150,7 +150,7 @@ void ins_gps_passthrough_init(void)
 
   ltp_def_from_ecef_i(&ins_gp.ltp_def, &ecef_nav0);
   ins_gp.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_gp.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_def);
 
   ins_gp.ltp_initialized = true;
 #else
@@ -171,27 +171,27 @@ void ins_gps_passthrough_init(void)
   AbiBindMsgIMU_ACCEL(INS_PT_IMU_ID, &accel_ev, accel_cb);
 }
 
-void ins_reset_local_origin(void)
+void ins_reset_local_origin(uint16_t id UNUSED)
 {
   struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
   struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
   ltp_def_from_ecef_i(&ins_gp.ltp_def, &ecef_pos);
   ins_gp.ltp_def.lla.alt = lla_pos.alt;
   ins_gp.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_gp.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_def);
   ins_gp.ltp_initialized = true;
 }
 
 void ins_reset_altitude_ref(void)
 {
   struct LlaCoor_i lla = {
-    .lat = state.ned_origin_i.lla.lat,
-    .lon = state.ned_origin_i.lla.lon,
+    .lat = stateGetLlaOrigin_i().lat,
+    .lon = stateGetLlaOrigin_i().lon,
     .alt = gps.lla_pos.alt
   };
   ltp_def_from_lla_i(&ins_gp.ltp_def, &lla);
   ins_gp.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_gp.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_def);
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
@@ -200,10 +200,10 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
 {
   // untilt accel and remove gravity
   struct Int32Vect3 accel_ned;
-  stateSetAccelBody_i(accel);
+  stateSetAccelBody_i(MODULE_INS_GPS_PASSTHROUGH_ID, accel);
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, accel);
   accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
-  stateSetAccelNed_i((struct NedCoor_i *)&accel_ned);
+  stateSetAccelNed_i(MODULE_INS_GPS_PASSTHROUGH_ID, (struct NedCoor_i *)&accel_ned);
   VECT3_COPY(ins_gp.ltp_accel, accel_ned);
 }

@@ -88,7 +88,7 @@ void aoa_adc_update(void)
   uint8_t flag = 1;
   float foo = 0.f;
   AbiSendMsgINCIDENCE(AOA_ADC_ID, flag, aoa_adc.angle, foo);
-  stateSetAngleOfAttack_f(aoa_adc.angle);
+  stateSetAngleOfAttack_f(MODULE_AOA_ADC_ID, aoa_adc.angle);
 #endif
 
   RunOnceEvery(30, DOWNLINK_SEND_AOA(DefaultChannel, DefaultDevice, &aoa_adc.raw, &aoa_adc.angle));

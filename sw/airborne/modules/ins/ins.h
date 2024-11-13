@@ -42,7 +42,7 @@
  *  Reset horizontal and vertical reference to the current position.
  *  Does nothing if not implemented by specific INS algorithm.
  */
-extern void ins_reset_local_origin(void);
+extern void ins_reset_local_origin(uint16_t id);
 
 /** INS altitude reference reset.
  *  Reset only vertical reference to the current altitude.
@@ -62,10 +62,10 @@ extern void ins_reset_vertical_pos(void);
  *  Can be overwritte by specifc INS implementation.
  *  @param utm initial utm zone, returns the corrected utm position
  */
-extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
+extern void ins_reset_utm_zone(uint16_t id, struct UtmCoor_f *utm);
 
 /** initialize the local origin (ltp_def in fixed point) from flight plan position */
-extern void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def);
+extern void ins_init_origin_i_from_flightplan(uint16_t id, struct LtpDef_i *ltp_def);
 
 
 #endif /* INS_H */
