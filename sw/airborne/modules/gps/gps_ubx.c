@@ -79,7 +79,6 @@ void gps_ubx_parse(struct GpsUbx *gubx, uint8_t c);
 void gps_ubx_msg(struct GpsUbx *gubx);
 
 #if USE_GPS_UBX_RTCM
-extern struct GpsRelposNED gps_relposned;
 extern struct RtcmMan rtcm_man;
 
 #ifndef INJECT_BUFF_SIZE
@@ -434,26 +433,22 @@ static void gps_ubx_parse_nav_relposned(struct GpsUbx *gubx)
         gubx->state.fix = 0;
       }
 
-      gps_relposned.iTOW          = UBX_NAV_RELPOSNED_iTOW(gubx->msg_buf);
-      gps_relposned.refStationId  = UBX_NAV_RELPOSNED_refStationId(gubx->msg_buf);
-      gps_relposned.relPosN     = UBX_NAV_RELPOSNED_relPosN(gubx->msg_buf);
-      gps_relposned.relPosE     = UBX_NAV_RELPOSNED_relPosE(gubx->msg_buf);
-      gps_relposned.relPosD     = UBX_NAV_RELPOSNED_relPosD(gubx->msg_buf) ;
-      gps_relposned.relPosHPN   = UBX_NAV_RELPOSNED_relPosHPN(gubx->msg_buf);
-      gps_relposned.relPosHPE   = UBX_NAV_RELPOSNED_relPosHPE(gubx->msg_buf);
-      gps_relposned.relPosHPD   = UBX_NAV_RELPOSNED_relPosHPD(gubx->msg_buf);
-      gps_relposned.relPosLength = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) / 100.f;
-      gps_relposned.relPosHeading = UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-5;
-      gps_relposned.accN      = UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-4;
-      gps_relposned.accE      = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf);
-      gps_relposned.accD      = UBX_NAV_RELPOSNED_accD(gubx->msg_buf);
-      gps_relposned.carrSoln    = carrSoln;
-      gps_relposned.relPosValid = relPosValid;
-      gps_relposned.diffSoln    = diffSoln;
-      gps_relposned.gnssFixOK   = gnssFixOK;
-    } else {
-      gps_relposned.relPosHeading = NAN;
-      gps_relposned.accN = 999;
+      uint32_t now_ts = get_sys_time_usec();
+      struct RelPosNED relpos = {0};
+      relpos.reference_id = UBX_NAV_RELPOSNED_refStationId(gubx->msg_buf);
+      relpos.tow = UBX_NAV_RELPOSNED_iTOW(gubx->msg_buf);
+      relpos.pos.x = UBX_NAV_RELPOSNED_relPosN(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPN(gubx->msg_buf) * 1e-4;
+      relpos.pos.y = UBX_NAV_RELPOSNED_relPosE(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPE(gubx->msg_buf) * 1e-4;
+      relpos.pos.z = UBX_NAV_RELPOSNED_relPosD(gubx->msg_buf) * 1e-2 + UBX_NAV_RELPOSNED_relPosHPD(gubx->msg_buf) * 1e-4;
+      relpos.distance = UBX_NAV_RELPOSNED_relPosLength(gubx->msg_buf) * 1e-2;
+      relpos.heading = RadOfDeg(UBX_NAV_RELPOSNED_relPosHeading(gubx->msg_buf) * 1e-5);
+      relpos.pos_acc.x = UBX_NAV_RELPOSNED_accN(gubx->msg_buf) * 1e-4;
+      relpos.pos_acc.y = UBX_NAV_RELPOSNED_accE(gubx->msg_buf) * 1e-4;
+      relpos.pos_acc.z = UBX_NAV_RELPOSNED_accD(gubx->msg_buf) * 1e-4;
+      relpos.distance_acc = UBX_NAV_RELPOSNED_accLength(gubx->msg_buf) * 1e-4;
+      relpos.heading_acc = RadOfDeg(UBX_NAV_RELPOSNED_accHeading(gubx->msg_buf) * 1e-5);
+
+      AbiSendMsgRELPOS(gubx->state.comp_id, now_ts, &relpos);
     }
   }
 #else
