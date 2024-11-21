@@ -11,7 +11,7 @@
 
       Sensor example: US DIGITAL MA3-P12-125-B
     </description>
-    <configure name="AOA_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for AOA sensor"/>
+    <configure name="AOA_PWM_CHANNEL" value="SERVOX" description="Select PWM input channel for AOA sensor"/>
     <define name="AOA_SENS" value="(2*3.14)/AOA_PWM_PERIOD" description="sensor sensitivity"/>
     <define name="AOA_OFFSET" value="0."  description="offset in radian that can be set from settings"/>
     <define name="AOA_ANGLE_OFFSET" value="3.14"  description="global offset in radian corresponding to the sensor mounting (default: 3.14)"/>
@@ -20,7 +20,7 @@
     <define name="AOA_PWM_OFFSET" value="1" description="initial offset on the raw pwm signal if needed (default: 1usec)"/>
     <define name="SEND_AOA" value="TRUE|FALSE" description="enable telemetry report (default: TRUE)"/>
     <define name="LOG_AOA" value="TRUE|FALSE" description="enable logging on SD card (default: FALSE)"/>
-    <configure name="SSA_PWM_CHANNEL" value="PWM_INPUTX" description="Select PWM input channel for Sideslip sensor (optional)"/>
+    <configure name="SSA_PWM_CHANNEL" value="SERVOX" description="Select PWM input channel for Sideslip sensor (optional)"/>
     <define name="SSA_SENS" value="(2*3.14)/AOA_PWM_PERIOD" description="sensor sensitivity"/>
     <define name="SSA_OFFSET" value="0."  description="offset in radian that can be set from settings"/>
     <define name="SSA_REVERSE" value="TRUE|FALSE" description="set to TRUE to reverse rotation direction"/>
@@ -51,10 +51,8 @@
     <file name="aoa_pwm.c" />
     <define name="AOA_PWM_CHANNEL" value="$(AOA_PWM_CHANNEL)" cond="ifdef AOA_PWM_CHANNEL" />
     <define name="$(AOA_PWM_CHANNEL)_TICKS_PER_USEC" value="1" />
-    <define name="USE_$(AOA_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_LOW" />
     <define name="SSA_PWM_CHANNEL" value="$(SSA_PWM_CHANNEL)" cond="ifdef SSA_PWM_CHANNEL" />
     <define name="$(SSA_PWM_CHANNEL)_TICKS_PER_USEC" value="1" cond="ifdef SSA_PWM_CHANNEL" />
-    <define name="USE_$(SSA_PWM_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_LOW" cond="ifdef SSA_PWM_CHANNEL" />
     <define name="USE_SIDESLIP" cond="ifdef SSA_PWM_CHANNEL" />
   </makefile>
 </module>
