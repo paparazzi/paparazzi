@@ -169,8 +169,8 @@ void vn100_event_task(void)
       ins_eulers.theta - ins_pitch_neutral,
       ins_eulers.psi
     };
-    stateSetNedToBodyEulers_f(&att);
-    stateSetBodyRates_f(&ins_rates);
+    stateSetNedToBodyEulers_f(MODULE_INS_VN100_ID, &att);
+    stateSetBodyRates_f(MODULE_INS_VN100_ID, &ins_rates);
 #endif
     //uint8_t s = 4+VN100_REG_QMR_SIZE;
     //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,s,spi_buffer_input);

@@ -128,7 +128,7 @@ void nps_autopilot_run_step(double time)
 
 #if USE_AIRSPEED
   if (nps_sensors_airspeed_available()) {
-    stateSetAirspeed_f((float)sensors.airspeed.value);
+    stateSetAirspeed_f(MODULE_NPS_ID, (float)sensors.airspeed.value);
     AbiSendMsgAIRSPEED(AIRSPEED_NPS_ID, (float)sensors.airspeed.value);
     main_ap_event();
   }
@@ -183,11 +183,11 @@ void sim_overwrite_ahrs(void)
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);
-  stateSetNedToBodyQuat_f(&quat_f);
+  stateSetNedToBodyQuat_f(MODULE_NPS_ID, &quat_f);
 
   struct FloatRates rates_f;
   RATES_COPY(rates_f, fdm.body_ecef_rotvel);
-  stateSetBodyRates_f(&rates_f);
+  stateSetBodyRates_f(MODULE_NPS_ID, &rates_f);
 
 }
 
@@ -196,15 +196,15 @@ void sim_overwrite_ins(void)
 
   struct NedCoor_f ltp_pos;
   VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
-  stateSetPositionNed_f(&ltp_pos);
+  stateSetPositionNed_f(MODULE_NPS_ID, &ltp_pos);
 
   struct NedCoor_f ltp_speed;
   VECT3_COPY(ltp_speed, fdm.ltpprz_ecef_vel);
-  stateSetSpeedNed_f(&ltp_speed);
+  stateSetSpeedNed_f(MODULE_NPS_ID, &ltp_speed);
 
   struct NedCoor_f ltp_accel;
   VECT3_COPY(ltp_accel, fdm.ltpprz_ecef_accel);
-  stateSetAccelNed_f(&ltp_accel);
+  stateSetAccelNed_f(MODULE_NPS_ID, &ltp_accel);
 
   // Here we make sure that ENU states are recalculated
   stateCalcPositionEnu_i();

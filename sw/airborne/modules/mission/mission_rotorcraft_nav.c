@@ -46,11 +46,11 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   }
 
   // change geoid alt to ellipsoid alt
-  lla->alt = lla->alt - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
+  lla->alt = lla->alt - stateGetHmslOrigin_i() + stateGetLlaOrigin_i().alt;
 
   //Compute ENU components from LLA with respect to ltp origin
   struct EnuCoor_i tmp_enu_point_i;
-  enu_of_lla_point_i(&tmp_enu_point_i, &state.ned_origin_i, lla);
+  enu_of_lla_point_i(&tmp_enu_point_i, stateGetNedOrigin_i(), lla);
   struct EnuCoor_f tmp_enu_point_f;
   // result of enu_of_lla_point_i is in cm, convert to float in m
   VECT3_SMUL(tmp_enu_point_f, tmp_enu_point_i, 0.01);

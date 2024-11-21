@@ -29,13 +29,9 @@
 #include "modules/core/abi.h"
 #include "state.h"
 
-#ifndef AHRS_ICQ_OUTPUT_ENABLED
-#define AHRS_ICQ_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_ICQ_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_ICQ_TYPE)
 
-/** if TRUE with push the estimation results to the state interface */
-static bool ahrs_icq_output_enabled;
+uint8_t ahrs_icq_enable;
 static uint32_t ahrs_icq_last_stamp;
 static uint8_t ahrs_icq_id = AHRS_COMP_ID_ICQ;
 
@@ -235,27 +231,22 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ahrs_icq_update_gps(gps_s);
 }
 
-static bool ahrs_icq_enable_output(bool enable)
-{
-  ahrs_icq_output_enabled = enable;
-  return ahrs_icq_output_enabled;
-}
-
 /** Rotate angles and rates from imu to body frame and set state */
 static void set_body_state_from_quat(void)
 {
-  if (ahrs_icq_output_enabled) {
-    /* Set state */
-    stateSetNedToBodyQuat_i(&ahrs_icq.ltp_to_body_quat);
-    stateSetBodyRates_i(&ahrs_icq.body_rate);
-  }
+  /* Set state */
+  stateSetNedToBodyQuat_i(MODULE_AHRS_INT_CMPL_QUAT_ID, &ahrs_icq.ltp_to_body_quat);
+  stateSetBodyRates_i(MODULE_AHRS_INT_CMPL_QUAT_ID, &ahrs_icq.body_rate);
 }
 
-void ahrs_icq_register(void)
+void ahrs_icq_wrapper_init(void)
 {
-  ahrs_icq_output_enabled = AHRS_ICQ_OUTPUT_ENABLED;
   ahrs_icq_init();
-  ahrs_register_impl(ahrs_icq_enable_output);
+  if (AHRS_ICQ_TYPE == AHRS_PRIMARY) {
+    ahrs_int_cmpl_quat_wrapper_enable(1);
+  } else {
+    ahrs_int_cmpl_quat_wrapper_enable(0);
+  }
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
@@ -275,3 +266,13 @@ void ahrs_icq_register(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
 }
+
+void ahrs_int_cmpl_quat_wrapper_enable(uint8_t enable)
+{
+  if (enable) {
+    stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_INT_CMPL_QUAT_ID);
+    stateSetInputFilter(STATE_INPUT_RATES, MODULE_AHRS_INT_CMPL_QUAT_ID);
+  }
+  ahrs_icq_enable = enable;
+}
+

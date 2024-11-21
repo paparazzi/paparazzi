@@ -291,6 +291,7 @@ static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event optical_flow_ev;
+static abi_event reset_ev;
 
 /* All ABI callbacks */
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
@@ -301,6 +302,7 @@ static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *d
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
+static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -498,25 +500,25 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
   sample_temp_ev[0]  = (float) sample_ev.time_us;
   sample_temp_ev[1]  = sample_ev.pos(0) ;
   sample_temp_ev[2]  = sample_ev.pos(1) ;
-  sample_temp_ev[3]  = sample_ev.pos(2) ; 
+  sample_temp_ev[3]  = sample_ev.pos(2) ;
   sample_temp_ev[4]  = sample_ev.vel(0) ;
-  sample_temp_ev[5]  = sample_ev.vel(1) ;              
-  sample_temp_ev[6]  = sample_ev.vel(2) ; 
+  sample_temp_ev[5]  = sample_ev.vel(1) ;
+  sample_temp_ev[6]  = sample_ev.vel(2) ;
   sample_temp_ev[7]  = sample_ev.quat(0);
   sample_temp_ev[8]  = sample_ev.quat(1);
-  sample_temp_ev[9]  = sample_ev.quat(2); 
+  sample_temp_ev[9]  = sample_ev.quat(2);
   sample_temp_ev[10] = sample_ev.quat(3);
   pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
                         &sample_temp_ev[0],
-                        &sample_temp_ev[1], 
-                        &sample_temp_ev[2], 
+                        &sample_temp_ev[1],
+                        &sample_temp_ev[2],
                         &sample_temp_ev[3],
-                        &sample_temp_ev[4], 
-                        &sample_temp_ev[5], 
-                        &sample_temp_ev[6], 
-                        &sample_temp_ev[7], 
-                        &sample_temp_ev[8], 
-                        &sample_temp_ev[9], 
+                        &sample_temp_ev[4],
+                        &sample_temp_ev[5],
+                        &sample_temp_ev[6],
+                        &sample_temp_ev[7],
+                        &sample_temp_ev[8],
+                        &sample_temp_ev[9],
                         &sample_temp_ev[10] );
 } 
 #endif
@@ -599,7 +601,7 @@ void ins_ekf2_init(void)
 
     ltp_def_from_lla_i(&ekf2.ltp_def, &llh_nav0);
     ekf2.ltp_def.hmsl = NAV_ALT0;
-    stateSetLocalOrigin_i(&ekf2.ltp_def);
+    stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
     /* update local ENU coordinates of global waypoints */
     waypoints_localize_all();
@@ -632,9 +634,10 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(void)
+static void reset_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -642,31 +645,45 @@ void ins_reset_local_origin(void)
     if (ekf.setEkfGlobalOrigin(lla_pos.lat*1e-7, lla_pos.lon*1e-7, gps.hmsl*1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla_pos);
       ekf2.ltp_def.hmsl = gps.hmsl;
-      stateSetLocalOrigin_i(&ekf2.ltp_def);
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
     }
   }
 #endif
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
     struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
     struct LlaCoor_i lla = {
-      .lat = state.ned_origin_i.lla.lat,
-      .lon = state.ned_origin_i.lla.lon,
+      .lat = stateGetLlaOrigin_i().lat,
+      .lon = stateGetLlaOrigin_i().lon,
       .alt = lla_pos.alt
     };
     if (ekf.setEkfGlobalOrigin(lla.lat*1e-7, lla.lon*1e-7, gps.hmsl*1e-3)) {
       ltp_def_from_lla_i(&ekf2.ltp_def, &lla);
       ekf2.ltp_def.hmsl = gps.hmsl;
-      stateSetLocalOrigin_i(&ekf2.ltp_def);
+      stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
     }
   }
 #endif
 }
 
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
+}
 /* Update the INS state */
 void ins_ekf2_update(void)
 {
@@ -689,7 +706,7 @@ void ins_ekf2_update(void)
       pos.z = pos_f(2);
 
       // Publish to the state
-      stateSetPositionNed_f(&pos);
+      stateSetPositionNed_f(MODULE_INS_EKF2_ID, &pos);
 
       /* Get the velocity in NED frame */
       const Vector3f vel_f{ekf.getVelocity()};
@@ -699,7 +716,7 @@ void ins_ekf2_update(void)
       speed.z = vel_f(2);
 
       // Publish to state
-      stateSetSpeedNed_f(&speed);
+      stateSetSpeedNed_f(MODULE_INS_EKF2_ID, &speed);
 
       /* Get the accelerations in NED frame */
       const Vector3f vel_deriv_f{ekf.getVelocityDerivative()};
@@ -709,7 +726,7 @@ void ins_ekf2_update(void)
       accel.z = vel_deriv_f(2);
 
       // Publish to state
-      stateSetAccelNed_f(&accel);
+      stateSetAccelNed_f(MODULE_INS_EKF2_ID, &accel);
 
       /* Get local origin */
       // Position of local NED origin in GPS / WGS84 frame
@@ -726,7 +743,7 @@ void ins_ekf2_update(void)
         lla_ref.alt = ref_alt * 1e3 + wgs84_ellipsoid_to_geoid_i(lla_ref.lat, lla_ref.lon); // in millimeters above WGS84 reference ellipsoid (ref_alt is in HMSL)
         ltp_def_from_lla_i(&ekf2.ltp_def, &lla_ref);
         ekf2.ltp_def.hmsl = ref_alt * 1e3;
-        stateSetLocalOrigin_i(&ekf2.ltp_def);
+        stateSetLocalOrigin_i(MODULE_INS_EKF2_ID, &ekf2.ltp_def);
 
         /* update local ENU coordinates of global waypoints */
         waypoints_localize_all();
@@ -820,7 +837,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     ltp_to_body_quat.qz = att_q(3);
 
     // Publish it to the state
-    stateSetNedToBodyQuat_f(&ltp_to_body_quat);
+    stateSetNedToBodyQuat_f(MODULE_INS_EKF2_ID, &ltp_to_body_quat);
 
     /* Check the quaternion reset state */
     float delta_q_reset[4];
@@ -848,7 +865,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     body_rates.r = (ekf2.delta_gyro.r / (ekf2.gyro_dt * 1.e-6f)) - gyro_bias(2);
 
     // Publish it to the state
-    stateSetBodyRates_f(&body_rates);
+    stateSetBodyRates_f(MODULE_INS_EKF2_ID, &body_rates);
 
     /* Get the in-run acceleration bias */
     struct Int32Vect3 accel;
@@ -858,7 +875,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     accel.z = ACCEL_BFP_OF_REAL((ekf2.delta_accel.z / (ekf2.accel_dt * 1e-6f)) - accel_bias(2));
 
     // Publish it to the state
-    stateSetAccelBody_i(&accel);
+    stateSetAccelBody_i(MODULE_INS_EKF2_ID, &accel);
   }
 
   ekf2.gyro_valid = false;

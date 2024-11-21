@@ -257,6 +257,10 @@
       <field name="data" type="uint8_t*">pointer to the data of the matrix</field>
     </message>
 
+    <message name="INS_RESET" id="38">
+      <field name="flag" type="uint8_t">flag to reset REF|VECTICAL_REF|VERTICAL_POS</field>
+    </message>
+
   </msg_class>
 
 </protocol>

@@ -29,10 +29,10 @@
 
 #include "modules/ahrs/ahrs_float_invariant.h"
 
-#ifndef PRIMARY_AHRS
-#define PRIMARY_AHRS ahrs_float_invariant
-#endif
+extern void ahrs_finv_wrapper_init(void);
 
-extern void ahrs_float_invariant_register(void);
+// enable setting
+extern uint8_t ahrs_finv_enable;
+extern void ahrs_float_invariant_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_FLOAT_INVARIANT_WRAPPER_H */

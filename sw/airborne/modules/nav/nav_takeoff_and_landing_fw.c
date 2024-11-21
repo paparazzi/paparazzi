@@ -207,7 +207,7 @@ bool nav_takeoff_from_loc(float lat, float lon)
     struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), stateGetPositionLla_f()->alt + NAV_TAKEOFF_HEIGHT };
     struct UtmCoor_f utm;
     utm_of_lla_f(&utm, &lla);
-    ENU_OF_UTM_DIFF(takeoff.climb_pos, utm, state.utm_origin_f);
+    ENU_OF_UTM_DIFF(takeoff.climb_pos, utm, *stateGetUtmOrigin_f());
   }
   return nav_takeoff_from_here();
 }
@@ -348,7 +348,7 @@ bool nav_land_at_loc(float td_alt, float lat, float lon, float dir, float dist, 
     struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), GetAltRef() + td_alt };
     struct UtmCoor_f utm;
     utm_of_lla_f(&utm, &lla);
-    ENU_OF_UTM_DIFF(landing.td_pos, utm, state.utm_origin_f);
+    ENU_OF_UTM_DIFF(landing.td_pos, utm, *stateGetUtmOrigin_f());
     landing.af_pos.x = landing.td_pos.x + dist * sinf(RadOfDeg(dir));
     landing.af_pos.y = landing.td_pos.y + dist * cosf(RadOfDeg(dir));
     landing.af_pos.z = landing.td_pos.z + NAV_LANDING_AF_HEIGHT;

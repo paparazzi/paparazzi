@@ -103,7 +103,7 @@ void follow_me_periodic(void)
   struct EnuCoor_f cur_targetpos, diff_targetpos;
   float cur_targetpos_heading, diff_targetpos_heading;
 
-  enu_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &ground_lla);
+  enu_of_lla_point_i(&target_pos_cm, stateGetNedOrigin_i(), &ground_lla);
   VECT3_FLOAT_OF_CM(cur_targetpos, target_pos_cm);
   VECT3_DIFF(diff_targetpos, cur_targetpos, last_targetpos);
 
@@ -196,7 +196,7 @@ void follow_me_set_wp(uint8_t wp_id, float speed)
   // Check if we got a position from the ground which didn't timeout and local NED is initialized
   else*/ if(ground_set && state.ned_initialized_i && ground_time_msec+FOLLOW_ME_GROUND_TIMEOUT > get_sys_time_msec()) {
     struct NedCoor_i target_pos_cm;
-    ned_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &ground_lla);
+    ned_of_lla_point_i(&target_pos_cm, stateGetNedOrigin_i(), &ground_lla);
     target_pos.x = target_pos_cm.x / 100.;
     target_pos.y = target_pos_cm.y / 100.;
     target_pos.z = target_pos_cm.z / 100.;
