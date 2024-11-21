@@ -34,6 +34,7 @@ extern "C" {
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_double.h"
 
 #include "mcu_periph/sys_time.h"
 #include "generated/airframe.h"
@@ -124,27 +125,18 @@ struct GpsTimeSync {
   uint32_t t0_ticks;    ///< hw clock ticks when GPS message is received
 };
 
-/** data structures for GPS with RTK capabilities */
-struct GpsRelposNED {
-  uint32_t iTOW;
-  uint16_t refStationId;
-  int32_t relPosN;
-  int32_t relPosE;
-  int32_t relPosD;
-  int8_t relPosHPN;
-  int8_t relPosHPE;
-  int8_t relPosHPD;
-  float relPosLength;
-  float relPosHeading;
-  uint32_t accN;
-  uint32_t accE;
-  uint32_t accD;
-  uint8_t carrSoln;
-  uint8_t relPosValid;
-  uint8_t diffSoln;
-  uint8_t gnssFixOK;
+struct RelPosNED {
+  uint16_t reference_id;      ///< Reference station identification
+  uint32_t tow;               ///< Time of week (GPS) in ms
+
+  struct NedCoor_d pos;       ///< Relative postion to the reference station in meters
+  double distance;            ///< Relative distance to the reference station in meters
+  float heading;              ///< Relative heading to the reference station in radians
+
+  struct NedCoor_f pos_acc;   ///< Position accuracy in meters
+  float distance_acc;         ///< Distance accuracy in meters
+  float heading_acc;          ///< Heading accuracy in radians
 };
-extern struct GpsRelposNED gps_relposned;
 
 /** global GPS state */
 extern struct GpsState gps;

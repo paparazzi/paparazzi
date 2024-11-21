@@ -257,6 +257,11 @@
       <field name="data" type="uint8_t*">pointer to the data of the matrix</field>
     </message>
 
+    <message name="RELPOS" id="38">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="relpos" type="struct RelPosNED *"/>
+    </message>
+
   </msg_class>
 
 </protocol>
