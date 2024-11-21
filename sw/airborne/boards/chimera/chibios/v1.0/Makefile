@@ -5,5 +5,5 @@
 # https://github.com/alex31/chibios_enac_various_common/blob/master/TOOLS/DOC/boardGen.pdf
 
 board.h: board.cfg Makefile
-	boardGen.pl --no-pp-pin --no-pp-line 	$<  $@
+	boardGen.pl --no-pp-line 	$<  $@
 

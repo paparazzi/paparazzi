@@ -16,7 +16,7 @@
       <configure name="MS_PRESSURE_SLAVE_IDX" value="0"/>
       <configure name="MS_DIFF_PRESSURE_SLAVE_IDX" value="3"/>
       <configure name="MS_TEMPERATURE_SLAVE_IDX" value="2"/>
-      <configure name="MS_HUMIDITY_PWM_INPUT" value="PWM_INPUT1"/>
+      <configure name="MS_HUMIDITY_PWM_INPUT" value="SERVO7"/>
     </module>
   </modules>
 
