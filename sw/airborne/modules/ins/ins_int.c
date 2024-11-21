@@ -163,6 +163,10 @@ PRINT_CONFIG_VAR(INS_INT_AGL_ID)
 static abi_event agl_ev;                 ///< The agl ABI event
 static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 
+
+static abi_event reset_ev;
+static void reset_cb(uint8_t sender_id, uint8_t flag);
+
 struct InsInt ins_int;
 
 #if PERIODIC_TELEMETRY
@@ -244,9 +248,10 @@ void ins_int_init(void)
   AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
   AbiBindMsgPOSITION_ESTIMATE(INS_INT_POS_ID, &pos_est_ev, pos_est_cb);
   AbiBindMsgAGL(INS_INT_AGL_ID, &agl_ev, agl_cb); // ABI to the altitude above ground level
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(uint16_t id UNUSED)
+static void reset_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -261,7 +266,6 @@ void ins_reset_local_origin(uint16_t id UNUSED)
     ins_int.ltp_initialized = false;
   }
 #else
-  (void) id;
   ins_int.ltp_initialized = false;
 #endif
 
@@ -271,7 +275,7 @@ void ins_reset_local_origin(uint16_t id UNUSED)
   ins_int.vf_reset = true;
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -289,9 +293,27 @@ void ins_reset_altitude_ref(void)
   ins_int.vf_reset = true;
 }
 
-void ins_reset_vertical_pos(void)
+static void reset_vertical_pos(void)
 {
   ins_int.vf_reset = true;
+}
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    case INS_RESET_VERTICAL_POS:
+      reset_vertical_pos();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
 }
 
 void ins_int_propagate(struct Int32Vect3 *accel, float dt)
@@ -404,7 +426,7 @@ void ins_int_update_gps(struct GpsState *gps_s)
   }
 
   if (!ins_int.ltp_initialized) {
-    ins_reset_local_origin(MODULE_INS_INT_COMMON_ID);
+    reset_ref();
   }
 
   struct NedCoor_i gps_pos_cm_ned;

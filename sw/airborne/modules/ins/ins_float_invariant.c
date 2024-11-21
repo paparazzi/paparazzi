@@ -278,8 +278,7 @@ void ins_float_invariant_init(void)
 #endif
 }
 
-
-void ins_reset_local_origin(uint16_t id UNUSED)
+void ins_float_invariant_reset_ref(void)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
@@ -299,7 +298,7 @@ void ins_reset_local_origin(uint16_t id UNUSED)
   FLOAT_VECT3_ZERO(ins_float_inv.state.speed);
 }
 
-void ins_reset_altitude_ref(void)
+void ins_float_invariant_reset_vertical_ref(void)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = *stateGetUtmOrigin_f();

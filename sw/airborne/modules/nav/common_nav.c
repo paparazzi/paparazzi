@@ -29,6 +29,11 @@
 #include "modules/ins/ins.h"
 #include "math/pprz_geodetic_float.h"
 #include "modules/datalink/downlink.h"
+#include "state.h"
+#if USE_GPS
+// for reset_utm_zone
+#include "modules/gps/gps.h"
+#endif
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -101,25 +106,36 @@ static float previous_ground_alt;
 /** Reset the UTM zone to current GPS fix */
 void nav_reset_utm_zone(void)
 {
-
+#if USE_GPS
   struct UtmCoor_f utm0;
   utm0.zone = nav_utm_zone0;
   utm0.north = nav_utm_north0;
   utm0.east = nav_utm_east0;
   utm0.alt = ground_alt;
-  ins_reset_utm_zone(MODULE_NAV_BASIC_FW_ID, &utm0);
+
+  struct LlaCoor_f lla0;
+  lla_of_utm_f(&lla0, utm);
+  if (bit_is_set(gps.valid_fields, GPS_VALID_POS_UTM_BIT)) {
+    utm->zone = gps.utm_pos.zone;
+  }
+  else {
+    utm->zone = 0;  // recompute zone from lla
+  }
+  utm_of_lla_f(utm, &lla0);
+  stateSetLocalUtmOrigin_f(MODULE_NAV_BASIC_FW_ID, utm);
 
   /* Set the real UTM ref */
   nav_utm_zone0 = utm0.zone;
   nav_utm_east0 = utm0.east;
   nav_utm_north0 = utm0.north;
+#endif
 }
 
 /** Reset the geographic reference to the current GPS fix */
 void nav_reset_reference(void)
 {
   /* realign INS */
-  ins_reset_local_origin(MODULE_NAV_BASIC_FW_ID);
+  AbiSendMsgINS_RESET(0, INS_RESET_REF);
 
   /* Set nav UTM ref */
   nav_utm_east0 = stateGetUtmOrigin_f()->east;
@@ -134,7 +150,7 @@ void nav_reset_reference(void)
 /** Reset the altitude reference to the current GPS alt */
 void nav_reset_alt(void)
 {
-  ins_reset_altitude_ref();
+  AbiSendMsgINS_RESET(0, INS_RESET_VERTICAL_REF);
 
   /* Ground alt */
   previous_ground_alt = ground_alt;

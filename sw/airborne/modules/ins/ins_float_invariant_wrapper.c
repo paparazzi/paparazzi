@@ -117,6 +117,7 @@ static abi_event mag_ev;
 static abi_event geo_mag_ev;
 #endif
 static abi_event gps_ev;
+static abi_event reset_ev;
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
@@ -209,6 +210,20 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   ins_float_invariant_update_gps(gps_s);
 }
 
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      ins_float_invariant_reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      ins_float_invariant_reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
+}
 
 void ins_float_invariant_wrapper_init(void)
 {
@@ -229,6 +244,7 @@ void ins_float_invariant_wrapper_init(void)
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
 #endif
   AbiBindMsgGPS(INS_FINV_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);

@@ -27,12 +27,6 @@
 
 #include "modules/ins/ins.h"
 
-#if USE_GPS
-// for ins_reset_utm_zone
-#include "modules/gps/gps.h"
-#include "state.h"
-#endif
-
 #include "generated/flight_plan.h"
 
 
@@ -50,37 +44,3 @@ void ins_init_origin_i_from_flightplan(uint16_t id, struct LtpDef_i *ltp_def)
 }
 
 
-// weak functions, used if not explicitly provided by implementation
-
-void WEAK ins_reset_local_origin(uint16_t id UNUSED)
-{
-#if USE_GPS
-  struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
-  // reset state UTM ref
-  stateSetLocalUtmOrigin_f(id, &utm);
-#endif
-}
-
-void WEAK ins_reset_altitude_ref(void) {}
-
-void WEAK ins_reset_vertical_pos(void) {}
-
-#if USE_GPS
-void WEAK ins_reset_utm_zone(uint16_t id, struct UtmCoor_f *utm)
-{
-  struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
-  if (bit_is_set(gps.valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    utm->zone = gps.utm_pos.zone;
-  }
-  else {
-    utm->zone = 0;  // recompute zone from lla
-  }
-  utm_of_lla_f(utm, &lla0);
-
-  stateSetLocalUtmOrigin_f(id, utm);
-}
-#else
-void WEAK ins_reset_utm_zone(uint16_t id UNUSED, struct UtmCoor_f *utm UNUSED) {}
-#endif

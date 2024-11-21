@@ -291,6 +291,7 @@ static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event optical_flow_ev;
+static abi_event reset_ev;
 
 /* All ABI callbacks */
 static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
@@ -301,6 +302,7 @@ static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *d
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
+static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 /* Static local functions */
 static void ins_ekf2_publish_attitude(uint32_t stamp);
@@ -498,25 +500,25 @@ static void send_external_pose_down(struct transport_tx *trans, struct link_devi
   sample_temp_ev[0]  = (float) sample_ev.time_us;
   sample_temp_ev[1]  = sample_ev.pos(0) ;
   sample_temp_ev[2]  = sample_ev.pos(1) ;
-  sample_temp_ev[3]  = sample_ev.pos(2) ; 
+  sample_temp_ev[3]  = sample_ev.pos(2) ;
   sample_temp_ev[4]  = sample_ev.vel(0) ;
-  sample_temp_ev[5]  = sample_ev.vel(1) ;              
-  sample_temp_ev[6]  = sample_ev.vel(2) ; 
+  sample_temp_ev[5]  = sample_ev.vel(1) ;
+  sample_temp_ev[6]  = sample_ev.vel(2) ;
   sample_temp_ev[7]  = sample_ev.quat(0);
   sample_temp_ev[8]  = sample_ev.quat(1);
-  sample_temp_ev[9]  = sample_ev.quat(2); 
+  sample_temp_ev[9]  = sample_ev.quat(2);
   sample_temp_ev[10] = sample_ev.quat(3);
   pprz_msg_send_EXTERNAL_POSE_DOWN(trans, dev, AC_ID,
                         &sample_temp_ev[0],
-                        &sample_temp_ev[1], 
-                        &sample_temp_ev[2], 
+                        &sample_temp_ev[1],
+                        &sample_temp_ev[2],
                         &sample_temp_ev[3],
-                        &sample_temp_ev[4], 
-                        &sample_temp_ev[5], 
-                        &sample_temp_ev[6], 
-                        &sample_temp_ev[7], 
-                        &sample_temp_ev[8], 
-                        &sample_temp_ev[9], 
+                        &sample_temp_ev[4],
+                        &sample_temp_ev[5],
+                        &sample_temp_ev[6],
+                        &sample_temp_ev[7],
+                        &sample_temp_ev[8],
+                        &sample_temp_ev[9],
                         &sample_temp_ev[10] );
 } 
 #endif
@@ -632,9 +634,10 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(uint16_t id UNUSED)
+static void reset_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -648,7 +651,7 @@ void ins_reset_local_origin(uint16_t id UNUSED)
 #endif
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
 #if USE_GPS
   if (GpsFixValid()) {
@@ -667,6 +670,20 @@ void ins_reset_altitude_ref(void)
 #endif
 }
 
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
+}
 /* Update the INS state */
 void ins_ekf2_update(void)
 {

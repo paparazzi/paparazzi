@@ -175,14 +175,14 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time)
 /** Reset the geographic reference to the current GPS fix */
 void nav_reset_reference(void)
 {
-  ins_reset_local_origin(MODULE_NAV_ROVER_BASE_ID);
+  AbiSendMsgINS_RESET(0, INS_RESET_REF);
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
 }
 
 void nav_reset_alt(void)
 {
-  ins_reset_altitude_ref();
+  AbiSendMsgINS_RESET(0, INS_RESET_VERTICAL_REF);
   waypoints_localize_all();
 }
 

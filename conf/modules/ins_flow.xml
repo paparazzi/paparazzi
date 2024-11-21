@@ -31,7 +31,6 @@
     <!-- FLOW files -->
     <!-- <define name="USE_AHRS"/> -->
     <define name="USE_AHRS_ALIGNER"/>
-    <define name="INS_TYPE_H" value="modules/ins/ins_flow.h" type="string"/>
     <file name="ins.c" dir="modules/ins/"/>
     <file name="ins_flow.c" dir="modules/ins"/>
     <file name="ahrs_int_cmpl_quat.c" dir="modules/ahrs"/>	

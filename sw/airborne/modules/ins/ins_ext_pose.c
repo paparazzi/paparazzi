@@ -252,17 +252,6 @@ void ins_ext_pose_msg_update(uint8_t *buf)
   DEBUG_PRINT("Att = %f %f %f \n", ins_ext_pos.ev_att.phi, ins_ext_pos.ev_att.theta, ins_ext_pos.ev_att.psi);
 }
 
-void ins_reset_local_origin(uint16_t id UNUSED)
-{
-  // Ext pos does not allow geoinit: FP origin only
-}
-
-void ins_reset_altitude_ref(void)
-{
-  // Ext pos does not allow geoinit: FP origin only
-}
-
-
 /** EKF protos
  */
 

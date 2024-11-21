@@ -88,6 +88,9 @@ static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 static abi_event accel_ev;
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
 
+static abi_event reset_ev;
+static void reset_cb(uint8_t sender_id, uint8_t flag);
+
 static void alt_kalman_reset(void);
 static void alt_kalman_init(void);
 static void alt_kalman(float z_meas, float dt);
@@ -124,24 +127,21 @@ void ins_alt_float_init(void)
 #endif
   AbiBindMsgGPS(INS_ALT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgIMU_ACCEL(INS_ALT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-/** Reset the geographic reference to the current GPS fix */
-void ins_reset_local_origin(uint16_t id UNUSED)
+static void reset_ref(void)
 {
   // get utm pos
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm);
-
   ins_altf.origin_initialized = true;
-
   // reset filter flag
   ins_altf.reset_alt_ref = true;
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
   struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   // ground_alt
@@ -150,6 +150,21 @@ void ins_reset_altitude_ref(void)
   stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm);
   // reset filter flag
   ins_altf.reset_alt_ref = true;
+}
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
 }
 
 #if USE_BAROMETER
@@ -206,7 +221,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
   }
 
   if (!ins_altf.origin_initialized) {
-    ins_reset_local_origin(MODULE_INS_ALT_FLOAT_ID);
+    reset_ref(MODULE_INS_ALT_FLOAT_ID);
   }
 
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);

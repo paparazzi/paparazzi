@@ -207,7 +207,9 @@ static abi_event accel_ev;
 static abi_event aligner_ev;
 static abi_event geo_mag_ev;
 static abi_event gps_ev;
+static abi_event reset_ev;
 
+static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
@@ -567,6 +569,7 @@ void ins_mekf_wind_wrapper_init(void)
   AbiBindMsgIMU_LOWPASSED(ABI_BROADCAST, &aligner_ev, aligner_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
   AbiBindMsgGPS(INS_MEKF_WIND_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER, send_euler);
@@ -597,11 +600,8 @@ void ins_mekf_wind_wrapper_init(void)
 
 }
 
-/**
- * local implemetation of the ins_reset functions
- */
 
-void ins_reset_local_origin(uint16_t id UNUSED)
+static void reset_ref(void)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
@@ -620,7 +620,7 @@ void ins_reset_local_origin(uint16_t id UNUSED)
   //ins_mekf_wind.gps_initialized = false;
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
 #if FIXEDWING_FIRMWARE
   struct UtmCoor_f utm = *stateGetUtmOrigin_f();
@@ -637,5 +637,20 @@ void ins_reset_altitude_ref(void)
   ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(MODULE_INS_MEKF_WIND_ID, &ltp_def);
 #endif
+}
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
 }
 

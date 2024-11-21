@@ -67,6 +67,9 @@ static abi_event accel_ev;
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
 
 
+static abi_event reset_ev;
+static void reset_cb(uint8_t sender_id, uint8_t flag);
+
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
  */
@@ -84,7 +87,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     return;
   }
   if (!ins_gp.ltp_initialized) {
-    ins_reset_local_origin(MODULE_INS_GPS_PASSTHROUGH_ID);
+    reset_cb(MODULE_INS_GPS_PASSTHROUGH_ID, INS_RESET_REF);
   }
 
   /* simply scale and copy pos/speed from gps */
@@ -169,9 +172,10 @@ void ins_gps_passthrough_init(void)
 
   AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgIMU_ACCEL(INS_PT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(uint16_t id UNUSED)
+static void reset_ref(void)
 {
   struct EcefCoor_i ecef_pos = ecef_int_from_gps(&gps);
   struct LlaCoor_i lla_pos = lla_int_from_gps(&gps);
@@ -182,7 +186,7 @@ void ins_reset_local_origin(uint16_t id UNUSED)
   ins_gp.ltp_initialized = true;
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
   struct LlaCoor_i lla = {
     .lat = stateGetLlaOrigin_i().lat,
@@ -192,6 +196,21 @@ void ins_reset_altitude_ref(void)
   ltp_def_from_lla_i(&ins_gp.ltp_def, &lla);
   ins_gp.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_def);
+}
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),
