@@ -39,7 +39,7 @@
 #include BOARD_CONFIG
 
 #ifndef ACTUATORS_PWM_NB
-#define ACTUATORS_PWM_NB 8
+#define ACTUATORS_PWM_NB 16
 #endif
 
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];

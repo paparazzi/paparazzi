@@ -38,7 +38,7 @@
  * The ppm counter desired resolution is 1/6 us.
  */
 #ifndef RC_PPM_TICKS_PER_USEC
-#error "RC_PPM_TICKS_PER_USEC not set in board.h file"
+#define RC_PPM_TICKS_PER_USEC 6
 #endif
 
 #define RC_PPM_TICKS_OF_USEC(_v)        ((_v)*RC_PPM_TICKS_PER_USEC)
