@@ -29,7 +29,7 @@
 
 #include "modules/ahrs/ahrs_float_dcm.h"
 
-extern void ahrs_dcm_register(void);
+extern void ahrs_dcm_wrapper_init(void);
 
 // enable setting
 extern uint8_t ahrs_dcm_enable;

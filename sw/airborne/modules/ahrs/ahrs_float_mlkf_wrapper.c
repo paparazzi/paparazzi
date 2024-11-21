@@ -189,7 +189,7 @@ static void set_body_state_from_quat(void)
   stateSetBodyRates_f(MODULE_AHRS_FLOAT_MLKF_ID, &ahrs_mlkf.body_rate);
 }
 
-void ahrs_mlkf_register(void)
+void ahrs_mlkf_wrapper_init(void)
 {
   ahrs_mlkf_init();
   if (AHRS_MLKF_TYPE == AHRS_PRIMARY) {

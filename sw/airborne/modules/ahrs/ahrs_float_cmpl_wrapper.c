@@ -257,7 +257,7 @@ static void compute_body_orientation_and_rates(void)
   stateSetBodyRates_f(MODULE_AHRS_FLOAT_CMPL_ID, &ahrs_fc.body_rate);
 }
 
-void ahrs_fc_register(void)
+void ahrs_fc_wrapper_init(void)
 {
   ahrs_fc_init();
   if (AHRS_FC_TYPE == AHRS_PRIMARY) {
