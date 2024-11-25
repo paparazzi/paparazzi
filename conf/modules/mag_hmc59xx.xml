@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_hmc59xx" dir="sensors" task="sensors">
+  <doc>
+    <description>
+      HMC59xx magnetometer with HMC58xx magnetometer driver.
+    </description>
+  </doc>
+  <dep>
+    <depends>mag_hmc58xx</depends>
+    <provides>mag</provides>
+  </dep>
+
+  <makefile target="ap">
+    <configure name="MAG_HMC58XX_SA" default="3"/>
+    <configure name="MAG_HMC58XX_TC" default="1"/>
+  </makefile>
+</module>
