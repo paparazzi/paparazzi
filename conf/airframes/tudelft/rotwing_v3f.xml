@@ -13,8 +13,8 @@
         <target name="ap" board="cube_orangeplus">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
-            <module name="radio_control" type="sbus">
-                <configure name="SBUS_PORT" value="UART3"/> <!-- On the TELEM2 port -->
+            <module name="radio_control" type="ppm">
+                <configure name="PPM_INPUT" value="SERVO6"/>
             </module>
             <module name="sys_mon"/>
             <module name="flight_recorder"/>
@@ -104,11 +104,6 @@
         <module name="actuators" type="uavcan">
             <configure value="TRUE" name="UAVCAN_USE_CAN1"/>
             <configure value="TRUE" name="UAVCAN_USE_CAN2"/>
-        </module>
-
-        <!-- Actuators on PWM -->
-        <module name="actuators" type="pwm" >
-            <define name="SERVO_HZ" value="400"/>
         </module>
 
         <!-- Control -->
