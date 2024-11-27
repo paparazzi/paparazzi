@@ -334,6 +334,91 @@ static void send_mag_current(struct transport_tx *trans, struct link_device *dev
 
 #endif /* PERIODIC_TELEMETRY */
 
+#if USE_SHELL
+#include "modules/core/shell.h"
+#include "printf.h"
+#include "string.h"
+
+static void show_calibrated(shell_stream_t *sh, struct imu_calib_t *calibrated) {
+  chprintf(sh, "  calibrated: neutral %d, scale %d, rotation %d, current %d, filter %d\r\n",
+      calibrated->neutral, calibrated->scale, calibrated->rotation, calibrated->current, calibrated->filter);
+}
+
+static void show_vect3(shell_stream_t *sh, char* name, struct Int32Vect3 *v) {
+  chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, v->x, v->y, v->z);
+}
+
+static void show_rates(shell_stream_t *sh, char* name, struct Int32Rates *r) {
+  chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, r->p, r->q, r->r);
+}
+
+static void show_matrix(shell_stream_t *sh, char* name, struct Int32RMat *m) {
+  chprintf(sh, "  %s:\r\n", name);
+  chprintf(sh, "    %ld, %ld, %ld\r\n", MAT33_ELMT(*m, 0, 0), MAT33_ELMT(*m, 0, 1), MAT33_ELMT(*m, 0, 2));
+  chprintf(sh, "    %ld, %ld, %ld\r\n", MAT33_ELMT(*m, 1, 0), MAT33_ELMT(*m, 1, 1), MAT33_ELMT(*m, 1, 2));
+  chprintf(sh, "    %ld, %ld, %ld\r\n", MAT33_ELMT(*m, 2, 0), MAT33_ELMT(*m, 2, 1), MAT33_ELMT(*m, 2, 2));
+}
+
+static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
+{
+  (void) argv;
+  int i = 0;
+  if (argc > 0) {
+    chprintf(sh, "Usage: imu\r\n");
+    return;
+  }
+  chprintf(sh, "GYRO IMU data\r\n");
+  for (i = 0; i < IMU_MAX_SENSORS; i++) {
+    if (imu.gyros[i].abi_id != 0) {
+      chprintf(sh, " Gyro id: %u, time %lu\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp);
+      show_calibrated(sh, &imu.gyros[i].calibrated);
+      show_rates(sh, "neutral", &imu.gyros[i].neutral);
+      show_rates(sh, "scale_num", &imu.gyros[i].scale[0]);
+      show_rates(sh, "scale_den", &imu.gyros[i].scale[1]);
+      show_matrix(sh, "body_to_sensor", &imu.gyros[i].body_to_sensor);
+      show_rates(sh, "unscaled", &imu.gyros[i].unscaled);
+      show_rates(sh, "scaled", &imu.gyros[i].scaled);
+      struct FloatRates gf;
+      RATES_FLOAT_OF_BFP(gf, imu.gyros[i].scaled);
+      chprintf(sh, "  -> gyro (rad/s): %.3f, %.3f, %.3f\r\n", gf.p, gf.q, gf.r);
+    }
+  }
+  chprintf(sh, "ACCEL IMU data\r\n");
+  for (i = 0; i < IMU_MAX_SENSORS; i++) {
+    if (imu.accels[i].abi_id != 0) {
+      chprintf(sh, " Accel id: %u, time %lu\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp);
+      show_calibrated(sh, &imu.accels[i].calibrated);
+      show_vect3(sh, "neutral", &imu.accels[i].neutral);
+      show_vect3(sh, "scale_num", &imu.accels[i].scale[0]);
+      show_vect3(sh, "scale_den", &imu.accels[i].scale[1]);
+      show_matrix(sh, "body_to_sensor", &imu.accels[i].body_to_sensor);
+      show_vect3(sh, "unscaled", &imu.accels[i].unscaled);
+      show_vect3(sh, "scaled", &imu.accels[i].scaled);
+      struct FloatVect3 af;
+      ACCELS_FLOAT_OF_BFP(af, imu.accels[i].scaled);
+      chprintf(sh, "  -> accel (m/s2): %.3f, %.3f, %.3f\r\n", af.x, af.y, af.z);
+    }
+  }
+  chprintf(sh, "MAG IMU data\r\n");
+  for (i = 0; i < IMU_MAX_SENSORS; i++) {
+    if (imu.mags[i].abi_id != 0) {
+      chprintf(sh, " Mag id: %u\r\n", imu.mags[i].abi_id);
+      show_calibrated(sh, &imu.mags[i].calibrated);
+      show_vect3(sh, "neutral", &imu.mags[i].neutral);
+      show_vect3(sh, "scale_num", &imu.mags[i].scale[0]);
+      show_vect3(sh, "scale_den", &imu.mags[i].scale[1]);
+      show_matrix(sh, "body_to_sensor", &imu.mags[i].body_to_sensor);
+      show_vect3(sh, "unscaled", &imu.mags[i].unscaled);
+      show_vect3(sh, "scaled", &imu.mags[i].scaled);
+      struct FloatVect3 mf;
+      MAGS_FLOAT_OF_BFP(mf, imu.mags[i].scaled);
+      chprintf(sh, "  -> mag (unit): %.3f, %.3f, %.3f\r\n", mf.x, mf.y, mf.z);
+    }
+  }
+}
+
+#endif
+
 struct Imu imu = {0};
 static abi_event imu_gyro_raw_ev, imu_accel_raw_ev, imu_mag_raw_ev;
 static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates *data, uint8_t samples, float rate, float temp);
@@ -472,6 +557,10 @@ void imu_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_CURRENT_CALIBRATION, send_mag_current);
 #endif // DOWNLINK
+
+#if USE_SHELL
+  shell_add_entry("imu", cmd_imu);
+#endif
 
   // Set defaults
   imu.gyro_abi_send_id = IMU_GYRO_ABI_SEND_ID;
@@ -937,3 +1026,4 @@ void imu_SetBodyToImuCurrent(float set)
     imu_set_body_to_imu_eulers(&body_to_imu_eulers);
   }
 }
+
