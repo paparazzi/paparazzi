@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_spa06" dir="sensors" task="sensors">
+  <doc>
+    <description>
+     SPA06/SPL06 pressure sensor (I2C or SPI)
+    </description>
+    <configure name="SPA06_USE_SPI" default="FALSE" description="select which bus type use (default I2C -> FALSE, SPI -> TRUE)"/>
+    <configure name="SPA06_DEV" value="i2cX/spiX" description="select which i2c/spi peripheral to use (default i2c1/spi1)"/>
+    <configure name="SPA06_SLAVE_IDX" value="spi_slave0" description="select which slave peripheral to use when bus is spi (default spi_slave0)"/>
+    <define name="SPA06_SLAVE_ADDR" value="SPA06_I2C_ADDR|SPA06_I2C_ADDR_ALT" description="i2c slave address (default SPA06_I2C_ADDR)"/>
+    <define name="SPA06_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+  </doc>
+  <dep>
+    <depends>i2c|spi_master</depends>
+    <provides>baro</provides>
+  </dep>
+  <header>
+    <file name="baro_spa06.h"/>
+  </header>
+  <init fun="baro_spa06_init()"/>
+  <periodic fun="baro_spa06_periodic()" freq="50"/>
+  <event fun="baro_spa06_event()"/>
+  <makefile target="ap" >
+    <configure name="SPA06_USE_SPI" default="FALSE"/>
+    <define name="SPA06_USE_SPI" value="$(SPA06_USE_SPI)" />
+    <file name="baro_spa06.c"/>
+    <file name="spa06.c" dir="peripherals"/>
+  </makefile>
+  <makefile target="ap" cond="ifeq ($(SPA06_USE_SPI), TRUE)">
+    <configure name="SPA06_DEV" default="spi1" case="upper|lower"/>
+    <configure name="SPA06_SLAVE_IDX" default="spi_slave0" case="upper|lower"/>
+    <define name="USE_$(SPA06_DEV_UPPER)"/>
+    <define name="SPA06_DEV" value="$(SPA06_DEV_LOWER)"/>
+    <define name="SPA06_SLAVE_IDX" value="$(SPA06_SLAVE_IDX_UPPER)" />
+    <define name="USE_$(SPA06_SLAVE_IDX_UPPER)" />
+    <test>
+      <define name="SPA06_USE_SPI"/>
+      <define name="SPA06_DEV" value="spi1"/>
+    </test>
+  </makefile>
+  <makefile target="ap" cond="ifeq ($(SPA06_USE_SPI), FALSE)">
+    <configure name="SPA06_DEV" default="i2c1" case="upper|lower"/>
+    <configure name="SPA06_SLAVE_ADDR" default="SPA06_I2C_ADDR"/>
+    <define name="USE_$(SPA06_DEV_UPPER)"/>
+    <define name="SPA06_DEV" value="$(SPA06_DEV_LOWER)"/>
+    <test>
+      <define name="SPA06_DEV" value="i2c1"/>
+    </test>
+  </makefile>
+</module>
