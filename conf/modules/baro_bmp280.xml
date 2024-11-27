@@ -26,6 +26,18 @@
     <define name="BMP280_USE_SPI" value="$(BMP280_USE_SPI)" />
     <file name="baro_bmp280.c"/>
     <file name="bmp280.c" dir="peripherals"/>
+    <test>
+      <define name="BMP280_USE_SPI"/>
+      <define name="BMP280_DEV" value="spi1"/>
+      <define name="BMP280_SLAVE_IDX" value="0"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI1"/>
+    </test>
+    <test>
+      <define name="BMP280_DEV" value="i2c1"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_I2C1"/>
+    </test>
   </makefile>
   <makefile target="ap" cond="ifeq ($(BMP280_USE_SPI), TRUE)">
     <configure name="BMP280_DEV" default="spi1" case="upper|lower"/>
@@ -34,18 +46,11 @@
     <define name="BMP280_DEV" value="$(BMP280_DEV_LOWER)"/>
     <define name="BMP280_SLAVE_IDX" value="$(BMP280_SLAVE_IDX_UPPER)" />
     <define name="USE_$(BMP280_SLAVE_IDX_UPPER)" />
-    <test>
-      <define name="BMP280_USE_SPI"/>
-      <define name="BMP280_DEV" value="spi1"/>
-    </test>
   </makefile>
   <makefile target="ap" cond="ifeq ($(BMP280_USE_SPI), FALSE)">
     <configure name="BMP280_DEV" default="i2c1" case="upper|lower"/>
     <configure name="BMP280_SLAVE_ADDR" default="BMP280_I2C_ADDR"/>
     <define name="USE_$(BMP280_DEV_UPPER)"/>
     <define name="BMP280_DEV" value="$(BMP280_DEV_LOWER)"/>
-    <test>
-      <define name="BMP280_DEV" value="i2c1"/>
-    </test>
   </makefile>
 </module>
