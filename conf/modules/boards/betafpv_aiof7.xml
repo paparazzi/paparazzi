@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="betafpv_aiof7" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for betafpv AIO F7
+    </description>
+  </doc>
+  <dep>
+    <depends>hard_fault_recovery</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
