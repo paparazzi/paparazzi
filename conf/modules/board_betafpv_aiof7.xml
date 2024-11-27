@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_betafpv_aiof7" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors for the betafpv aiof7 board with proper configuration
+      - IMU (ICM42688) 
+      - Baro (Externe)
+      - Mag (Externe)
+    </description>
+  </doc>
+  <dep>
+    <depends>imu_icm42688</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_SPI_DEV" value="spi1" case="upper|lower"/>
+    <configure name="IMU_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+  </makefile>
+</module>
