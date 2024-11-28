@@ -443,18 +443,17 @@ static void spa06_register_write(struct spa06_t *spa, uint8_t reg, uint8_t value
 
   spa->tx_buffer[1] = value;
 
+  #if SPA06_USE_SPI
   /* SPI transaction */
-  if(spa->bus == SPA06_SPI) {
     spa->tx_buffer[0] = (reg & 0x7F); //write command (bit 7 = RW = '0')
     spa->spi.trans.output_length = 2;
     spa->spi.trans.input_length = 0;
     spi_submit(spa->spi.p, &(spa->spi.trans));
-  }
+  #else 
   /* I2C transaction */
-  else {
     spa->tx_buffer[0] = reg;
     i2c_transmit(spa->i2c.p, &(spa->i2c.trans), spa->i2c.slave_addr, 2);
-  }
+  #endif 
 }
 
 /**
@@ -466,19 +465,19 @@ static void spa06_register_write(struct spa06_t *spa, uint8_t reg, uint8_t value
  */
 static void spa06_register_read(struct spa06_t *spa, uint8_t reg, uint16_t size) {
 
-  /* SPI transaction */
-  if(spa->bus == SPA06_SPI) {
+  
+  #if SPA06_USE_SPI
+    /* SPI transaction */
     spa->tx_buffer[0] = reg | SPL06_READ_FLAG ; 
     spa->spi.trans.output_length = 2;
     spa->spi.trans.input_length = size+1; // already 1 is added for the transmission of the register to read
     spa->tx_buffer[1] = 0;
     spi_submit(spa->spi.p, &(spa->spi.trans));
-  }
-  /* I2C transaction */
-  else {
+  #else 
+    /* I2C transaction */
     spa->tx_buffer[0] = reg ; 
     i2c_transceive(spa->i2c.p, &(spa->i2c.trans), spa->i2c.slave_addr, 1, size);
-  }
+  #endif
 }
 
 static int32_t getTwosComplement(uint32_t raw, uint8_t length)

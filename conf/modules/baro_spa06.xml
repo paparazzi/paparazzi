@@ -26,6 +26,17 @@
     <define name="SPA06_USE_SPI" value="$(SPA06_USE_SPI)" />
     <file name="baro_spa06.c"/>
     <file name="spa06.c" dir="peripherals"/>
+    <test>
+      <define name="SPA06_USE_SPI"/>
+      <define name="SPA06_DEV" value="spi1"/>
+      <define name="SPA06_SLAVE_IDX" value="0"/>
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI1"/>
+    </test>
+    <test>
+      <define name="SPA06_DEV" value="i2c1"/>
+      <define name="USE_I2C1"/>
+    </test>
   </makefile>
   <makefile target="ap" cond="ifeq ($(SPA06_USE_SPI), TRUE)">
     <configure name="SPA06_DEV" default="spi1" case="upper|lower"/>
@@ -34,22 +45,11 @@
     <define name="SPA06_DEV" value="$(SPA06_DEV_LOWER)"/>
     <define name="SPA06_SLAVE_IDX" value="$(SPA06_SLAVE_IDX_UPPER)" />
     <define name="USE_$(SPA06_SLAVE_IDX_UPPER)" />
-    <test>
-      <define name="SPA06_USE_SPI"/>
-      <define name="SPA06_DEV" value="spi1"/>
-      <define name="SPA06_SLAVE_IDX" value="0"/>
-      <define name="SPI_MASTER"/>
-      <define name="USE_SPI1"/>
-    </test>
   </makefile>
   <makefile target="ap" cond="ifeq ($(SPA06_USE_SPI), FALSE)">
     <configure name="SPA06_DEV" default="i2c1" case="upper|lower"/>
     <configure name="SPA06_SLAVE_ADDR" default="SPA06_I2C_ADDR"/>
     <define name="USE_$(SPA06_DEV_UPPER)"/>
     <define name="SPA06_DEV" value="$(SPA06_DEV_LOWER)"/>
-    <test>
-      <define name="SPA06_DEV" value="i2c1"/>
-      <define name="USE_I2C1"/>
-    </test>
   </makefile>
 </module>
