@@ -119,6 +119,8 @@ struct InsFloatInv {
 extern struct InsFloatInv ins_float_inv;
 
 extern void ins_float_invariant_init(void);
+extern void ins_float_invariant_reset_ref(void);
+extern void ins_float_invariant_reset_vertical_ref(void);
 extern void ins_float_invariant_align(struct FloatRates *lp_gyro,
                                       struct FloatVect3 *lp_accel,
                                       struct FloatVect3 *lp_mag);

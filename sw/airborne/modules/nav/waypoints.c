@@ -121,7 +121,7 @@ float waypoint_get_alt(uint8_t wp_id)
 float waypoint_get_lla_alt(uint8_t wp_id)
 {
   if (wp_id < nb_waypoint) {
-    return waypoints[wp_id].lla.alt/1000.f - state.ned_origin_i.lla.alt/1000.f;
+    return waypoints[wp_id].lla.alt/1000.f - stateGetLlaOrigin_i().alt/1000.f;
   }
   return 0.f;
 }
@@ -258,7 +258,7 @@ void waypoint_move_lla(uint8_t wp_id, struct LlaCoor_i *lla)
   waypoint_set_lla(wp_id, lla);
   if (waypoint_is_global(wp_id)) {
     /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
-    int32_t hmsl = lla->alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
+    int32_t hmsl = lla->alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
     DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
                                &lla->lat, &lla->lon, &hmsl);
   } else {
@@ -315,7 +315,7 @@ void waypoint_move_here_2d(uint8_t wp_id)
   if (waypoint_is_global(wp_id)) {
     /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
     struct LlaCoor_i *lla = &(waypoints[wp_id].lla);
-    int32_t hmsl = lla->alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
+    int32_t hmsl = lla->alt - stateGetLlaOrigin_i().alt + stateGetHmslOrigin_i();
     DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
                                &lla->lat, &lla->lon, &hmsl);
   } else {
@@ -330,7 +330,7 @@ void waypoint_globalize(uint8_t wp_id)
 {
   if (state.ned_initialized_i) {
     struct EcefCoor_i ecef;
-    ecef_of_enu_pos_i(&ecef, &state.ned_origin_i, &waypoints[wp_id].enu_i);
+    ecef_of_enu_pos_i(&ecef, stateGetNedOrigin_i(), &waypoints[wp_id].enu_i);
     lla_of_ecef_i(&waypoints[wp_id].lla, &ecef);
     SetBit(waypoints[wp_id].flags, WP_FLAG_LLA_I);
   }
@@ -341,7 +341,7 @@ void waypoint_localize(uint8_t wp_id)
 {
   if (state.ned_initialized_i) {
     struct EnuCoor_i enu;
-    enu_of_lla_point_i(&enu, &state.ned_origin_i, &waypoints[wp_id].lla);
+    enu_of_lla_point_i(&enu, stateGetNedOrigin_i(), &waypoints[wp_id].lla);
     // convert ENU pos from cm to BFP with INT32_POS_FRAC
     enu.x = POS_BFP_OF_REAL((int64_t) enu.x) / 100;
     enu.y = POS_BFP_OF_REAL((int64_t) enu.y) / 100;

@@ -32,13 +32,9 @@
 #include "message_pragmas.h"
 #include "state.h"
 
-#ifndef AHRS_FINV_OUTPUT_ENABLED
-#define AHRS_FINV_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_FINV_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_FINV_TYPE)
 
-/** if TRUE with push the estimation results to the state interface */
-static bool ahrs_finv_output_enabled;
+uint8_t ahrs_finv_enable;
 /** last gyro msg timestamp */
 static uint32_t ahrs_finv_last_stamp = 0;
 static uint8_t ahrs_finv_id = AHRS_COMP_ID_FINV;
@@ -188,34 +184,29 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   ahrs_float_inv.mag_h = *h;
 }
 
-static bool ahrs_float_invariant_enable_output(bool enable)
-{
-  ahrs_finv_output_enabled = enable;
-  return ahrs_finv_output_enabled;
-}
-
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
 static void compute_body_orientation_and_rates(void)
 {
-  if (ahrs_finv_output_enabled) {
-    /* Set state */
-    stateSetNedToBodyQuat_f(&ahrs_float_inv.state.quat);
+  /* Set state */
+  stateSetNedToBodyQuat_f(MODULE_AHRS_FLOAT_INVARIANT_ID, &ahrs_float_inv.state.quat);
 
-    /* compute body rates */
-    struct FloatRates body_rate;
-    RATES_DIFF(body_rate, ahrs_float_inv.cmd.rates, ahrs_float_inv.state.bias);
-    stateSetBodyRates_f(&body_rate);
-  }
+  /* compute body rates */
+  struct FloatRates body_rate;
+  RATES_DIFF(body_rate, ahrs_float_inv.cmd.rates, ahrs_float_inv.state.bias);
+  stateSetBodyRates_f(MODULE_AHRS_FLOAT_INVARIANT_ID, &body_rate);
 }
 
 
-void ahrs_float_invariant_register(void)
+void ahrs_finv_wrapper_init(void)
 {
-  ahrs_finv_output_enabled = AHRS_FINV_OUTPUT_ENABLED;
   ahrs_float_invariant_init();
-  ahrs_register_impl(ahrs_float_invariant_enable_output);
+  if (AHRS_FINV_TYPE == AHRS_PRIMARY) {
+    ahrs_float_invariant_wrapper_enable(1);
+  } else {
+    ahrs_float_invariant_wrapper_enable(0);
+  }
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
@@ -232,3 +223,13 @@ void ahrs_float_invariant_register(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
 }
+
+void ahrs_float_invariant_wrapper_enable(uint8_t enable)
+{
+  if (enable) {
+    stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_FLOAT_INVARIANT_ID);
+    stateSetInputFilter(STATE_INPUT_RATES, MODULE_AHRS_FLOAT_INVARIANT_ID);
+  }
+  ahrs_finv_enable = enable;
+}
+

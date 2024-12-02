@@ -268,8 +268,8 @@ bool nav_land_at_loc(float td_alt, float lat, float lon, float dir, float dist, 
   if (landing.status == NAV_LANDING_INIT) {
     landing.td_id = 0;
     landing.af_id = 0;
-    struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), state.ned_origin_f.lla.alt + td_alt };
-    enu_of_lla_point_f(&landing.td_pos, &state.ned_origin_f, &lla);
+    struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), stateGetLlaOrigin_f().alt + td_alt };
+    enu_of_lla_point_f(&landing.td_pos, stateGetNedOrigin_f(), &lla);
     landing.td_pos.z = landing.td_pos.z + NAV_LANDING_FLARE_HEIGHT;
     landing.af_pos.x = landing.td_pos.x + dist * sinf(RadOfDeg(dir));
     landing.af_pos.y = landing.td_pos.y + dist * cosf(RadOfDeg(dir));

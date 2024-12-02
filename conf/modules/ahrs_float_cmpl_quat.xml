@@ -9,6 +9,7 @@
       By default uses magnetometer for heading for rotorcrafts.
       For fixedwing firmware AHRS_GRAVITY_UPDATE_COORDINATED_TURN is enabled by default.
     </description>
+    <configure name="AHRS_FC_TYPE" value="AHRS_PRIMARY|AHRS_SECONDARY" description="set if the AHRS is the primary source (default) or one of the secondary sources"/>
     <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
     <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
@@ -25,7 +26,8 @@
 
   <settings>
     <dl_settings>
-      <dl_settings NAME="AHRS">
+      <dl_settings NAME="AHRS FC">
+        <dl_setting var="ahrs_fc_enable" min="0" step="1" max="1" module="modules/ahrs/ahrs_float_cmpl_wrapper" values="DISABLE|ENABLE" handler="enable"/>
         <dl_setting var="ahrs_fc.gravity_heuristic_factor" min="0" step="1" max="50" module="modules/ahrs/ahrs_float_cmpl" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR" type="uint8" persistent="true"/>
         <dl_setting var="ahrs_fc.accel_omega" min="0.02" step="0.02" max="0.2" module="modules/ahrs/ahrs_float_cmpl" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" type="float" persistent="true"/>
         <dl_setting var="ahrs_fc.accel_zeta" min="0.7" step="0.05" max="1.5" module="modules/ahrs/ahrs_float_cmpl" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" type="float" persistent="true"/>
@@ -39,37 +41,26 @@
     <depends>ahrs_common,@imu,@gps|@mag</depends>
     <provides>ahrs</provides>
   </dep>
+  <header>
+    <file name="ahrs_float_cmpl_wrapper.h"/>
+  </header>
+  <init fun="ahrs_fc_wrapper_init()"/>
   <makefile target="!sim|fbw" firmware="fixedwing">
     <configure name="USE_MAGNETOMETER" default="0"/>
     <define name="AHRS_USE_GPS_HEADING" cond="ifneq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
   </makefile>
   <makefile target="!sim|fbw">
+    <configure name="AHRS_FC_TYPE" default="AHRS_PRIMARY"/>
+    <define name="AHRS_FC_TYPE" value="$(AHRS_FC_TYPE)"/>
     <configure name="USE_MAGNETOMETER" default="1"/>
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
     <define name="AHRS_PROPAGATE_QUAT"/>
     <file name="ahrs_float_cmpl.c"/>
     <file name="ahrs_float_cmpl_wrapper.c"/>
     <test>
-      <define name="PRIMARY_AHRS" value="ahrs_fc"/>
-      <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_float_cmpl_wrapper.h" type="string"/>
+      <define name="AHRS_FC_TYPE" value="AHRS_PRIMARY"/>
       <define name="AHRS_PROPAGATE_QUAT"/>
     </test>
-    <raw>
-ifdef SECONDARY_AHRS
-ifneq (,$(findstring $(SECONDARY_AHRS), fcq float_cmpl_quat))
-# this is the secondary AHRS
-$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
-$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_fc
-else
-# this is the primary AHRS
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
-$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_fc
-endif
-else
-# plain old single AHRS usage
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_float_cmpl_wrapper.h\"
-endif
-    </raw>
   </makefile>
 </module>

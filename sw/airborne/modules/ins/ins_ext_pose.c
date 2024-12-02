@@ -87,7 +87,7 @@ static void ins_ext_pose_init_from_flightplan(void)
 
   ltp_def_from_ecef_i(&ins_ext_pos.ltp_def, &ecef_nav0);
   ins_ext_pos.ltp_def.hmsl = NAV_ALT0;
-  stateSetLocalOrigin_i(&ins_ext_pos.ltp_def);
+  stateSetLocalOrigin_i(MODULE_INS_EXT_POSE_ID, &ins_ext_pos.ltp_def);
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
 }
@@ -251,17 +251,6 @@ void ins_ext_pose_msg_update(uint8_t *buf)
 
   DEBUG_PRINT("Att = %f %f %f \n", ins_ext_pos.ev_att.phi, ins_ext_pos.ev_att.theta, ins_ext_pos.ev_att.psi);
 }
-
-void ins_reset_local_origin(void)
-{
-  // Ext pos does not allow geoinit: FP origin only
-}
-
-void ins_reset_altitude_ref(void)
-{
-  // Ext pos does not allow geoinit: FP origin only
-}
-
 
 /** EKF protos
  */
@@ -1279,18 +1268,18 @@ static inline void ekf_run(void)
   // Export Body Accelerations (without bias)
   struct Int32Vect3 accel_i;
   ACCELS_BFP_OF_REAL(accel_i, accel);
-  stateSetAccelBody_i(&accel_i);
+  stateSetAccelBody_i(MODULE_INS_EXT_POSE_ID, &accel_i);
 
 
   struct FloatRMat *ned_to_body_rmat_f = stateGetNedToBodyRMat_f();
   float_rmat_transp_vmult(&accel_ned_f, ned_to_body_rmat_f, &accel);
   accel_ned_f.z += 9.81;
 
-  stateSetPositionNed_f(&ned_pos);
-  stateSetSpeedNed_f(&ned_speed);
-  stateSetNedToBodyEulers_f(&ned_to_body_eulers);
-  stateSetBodyRates_f(&rates);
-  stateSetAccelNed_f((struct NedCoor_f *)&accel_ned_f);
+  stateSetPositionNed_f(MODULE_INS_EXT_POSE_ID, &ned_pos);
+  stateSetSpeedNed_f(MODULE_INS_EXT_POSE_ID, &ned_speed);
+  stateSetNedToBodyEulers_f(MODULE_INS_EXT_POSE_ID, &ned_to_body_eulers);
+  stateSetBodyRates_f(MODULE_INS_EXT_POSE_ID, &rates);
+  stateSetAccelNed_f(MODULE_INS_EXT_POSE_ID, (struct NedCoor_f *)&accel_ned_f);
 
 }
 
