@@ -31,6 +31,10 @@
 #ifndef STATE_H
 #define STATE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
@@ -1612,6 +1616,10 @@ static inline float stateGetSideslip_f(void)
 /** @}*/
 
 /** @}*/
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 
 #endif /* STATE_H */
