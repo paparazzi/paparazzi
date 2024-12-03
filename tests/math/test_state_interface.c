@@ -52,7 +52,7 @@ static void test_pos_lla_i(void)
   /* calc lla_i from ecef_f */
   struct EcefCoor_f ecef_f;
   VECT3_COPY(ecef_f, ecef_ref);
-  stateSetPositionEcef_f(&ecef_f);
+  stateSetPositionEcef_f(1, &ecef_f);
 
   struct LlaCoor_i *lla_result;
   lla_result = stateGetPositionLla_i();

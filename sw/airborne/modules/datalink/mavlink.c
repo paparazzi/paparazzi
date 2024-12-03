@@ -403,7 +403,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
           lla.lat = target.lat_int;
           lla.lon = target.lon_int;
           lla.alt = MM_OF_M(target.alt);
-          ned_of_lla_point_i(&ned, &state.ned_origin_i, &lla);
+          ned_of_lla_point_i(&ned, stateGetNedOrigin_i(), &lla);
           //NED_FLOAT_OF_BFP(ned_f, ned);
           //autopilot_guided_goto_ned(ned_f.x, ned_f.y, ned_f.z, target.yaw);
           waypoint_set_latlon(WP_ML_global_target, &lla);
@@ -411,7 +411,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
 
           // Downlink the new waypoint
           uint8_t wp_id = WP_ML_global_target;
-          int32_t hmsl = lla.alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
+          int32_t hmsl = lla.alt - stateGetNedOrigin_i()->alt + stateGetHmslOrigin_i();
           DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
                                     &lla.lat, &lla.lon, &hmsl);
 
@@ -655,8 +655,8 @@ static void mavlink_send_global_position_int(struct transport_tx *trans, struct 
     heading += 360;
   }
   uint16_t compass_heading = heading * 100;
-  int32_t relative_alt = stateGetPositionLla_i()->alt - state.ned_origin_i.lla.alt;
-  int32_t hmsl_alt = state.ned_origin_i.hmsl - state.ned_origin_i.lla.alt;
+  int32_t relative_alt = stateGetPositionLla_i()->alt - stateGetLlaOrigin_i().alt;
+  int32_t hmsl_alt = stateGetHmslOrigin_i() - stateGetNedOrigin_i()->alt;
   /// TODO: check/ask what coordinate system vel is supposed to be in, not clear from docs
   mavlink_msg_global_position_int_send(MAVLINK_COMM_0,
                                        get_sys_time_msec(),
@@ -675,9 +675,9 @@ static void mavlink_send_gps_global_origin(struct transport_tx *trans, struct li
 {
   if (state.ned_initialized_i) {
     mavlink_msg_gps_global_origin_send(MAVLINK_COMM_0,
-                                       state.ned_origin_i.lla.lat,
-                                       state.ned_origin_i.lla.lon,
-                                       state.ned_origin_i.hmsl,
+                                       stateGetLlaOrigin_i().lat,
+                                       stateGetLlaOrigin_i().lon,
+                                       stateGetHmslOrigin_i(),
                                        get_sys_time_usec());
     MAVLinkSendMessage();
   }
@@ -896,7 +896,7 @@ static void mavlink_send_vfr_hud(struct transport_tx *trans, struct link_device 
 #elif defined COMMAND_THROTTLE
   throttle = commands[COMMAND_THROTTLE] / (MAX_PPRZ / 100);
 #endif
-  float hmsl_alt = state.ned_origin_f.hmsl - state.ned_origin_f.lla.alt;
+  float hmsl_alt = stateGetHmslOrigin_f() - stateGetLlaOrigin_f().alt;
   mavlink_msg_vfr_hud_send(MAVLINK_COMM_0,
                            Max(0,stateGetAirspeed_f()),
                            stateGetHorizontalSpeedNorm_f(), // groundspeed

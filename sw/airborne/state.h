@@ -31,6 +31,10 @@
 #ifndef STATE_H
 #define STATE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_geodetic_int.h"
@@ -127,6 +131,20 @@
 #define SIDESLIP_F  7
 /**@}*/
 
+/**
+ * @defgroup input_filter Input filter specific flags and input types
+ * @{
+ */
+#define STATE_INPUT_DISABLE   0       ///< use with care
+#define STATE_INPUT_ANY       0xFFFF  ///< default
+#define STATE_INPUT_ORIGIN    1
+#define STATE_INPUT_POS       2
+#define STATE_INPUT_SPEED     3
+#define STATE_INPUT_ACCEL     4
+#define STATE_INPUT_ATTITUDE  5
+#define STATE_INPUT_RATES     6
+#define STATE_INPUT_WIND_AIR  7
+/**@}*/
 
 /**
  * Structure holding vehicle state data.
@@ -137,11 +155,21 @@ struct State {
    *  @{ */
 
   /**
+   * Holds the input filter id for state origin.
+   */
+  uint16_t origin_input_filter;
+
+  /**
    * Holds the status bits for all position representations.
    * When the corresponding bit is set the representation
    * is already computed.
    */
   uint16_t pos_status;
+
+  /**
+   * Holds the input filter id for position.
+   */
+  uint16_t pos_input_filter;
 
   /**
    * Position in EarthCenteredEarthFixed coordinates.
@@ -261,6 +289,11 @@ struct State {
   uint16_t speed_status;
 
   /**
+   * Holds the input filter id for speed.
+   */
+  uint16_t speed_input_filter;
+
+  /**
    * Velocity in EarthCenteredEarthFixed coordinates.
    * Units: m/s in BFP with #INT32_SPEED_FRAC
    */
@@ -332,6 +365,11 @@ struct State {
   uint8_t accel_status;
 
   /**
+   * Holds the input filter id for acceleration.
+   */
+  uint16_t accel_input_filter;
+
+  /**
    * Acceleration in Body coordinates.
    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
    */
@@ -367,6 +405,11 @@ struct State {
    */
   struct OrientationReps ned_to_body_orientation;
 
+  /**
+   * Holds the input filter id for attitude.
+   */
+  uint16_t attitude_input_filter;
+
 
   /** @addtogroup state_rate
    *  @{ */
@@ -376,6 +419,11 @@ struct State {
    * is already computed.
    */
   uint8_t rate_status;
+
+  /**
+   * Holds the input filter id for rates.
+   */
+  uint16_t rates_input_filter;
 
   /**
    * Angular rates in body frame.
@@ -399,6 +447,11 @@ struct State {
    * is already computed.
    */
   uint8_t wind_air_status;
+
+  /**
+   * Holds the input filter id for air data.
+   */
+  uint16_t wind_air_input_filter;
 
   /**
    * Horizontal windspeed in north/east/down.
@@ -450,12 +503,23 @@ extern struct State state;
 
 extern void stateInit(void);
 
+/** set the input filter for a specified type of data.
+ * @param[in] type type of data (origin, pos, speed, ...)
+ * @param[in] id value of the filter, can be a module ID, or a specific code (disable or any value)
+ */
+extern void stateSetInputFilter(uint8_t type, uint16_t id);
+
+/// Helper macro to check input filter and return if not valid input id
+#define STATE_CHECK_INPUT_AND_RETURN(flag, id) if (flag==STATE_INPUT_DISABLE || !(flag==STATE_INPUT_ANY || flag==id)) { return; }
+
 /** @addtogroup state_position
  *  @{ */
 
 /// Set the local (flat earth) coordinate frame origin (int).
-static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
+static inline void stateSetLocalOrigin_i(uint16_t id, struct LtpDef_i *ltp_def)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.origin_input_filter, id);
+
   state.ned_origin_i = *ltp_def;
   /* convert to float */
   ECEF_FLOAT_OF_BFP(state.ned_origin_f.ecef, state.ned_origin_i.ecef);
@@ -474,8 +538,10 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
 }
 
 /// Set the local (flat earth) coordinate frame origin from UTM (float).
-static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
+static inline void stateSetLocalUtmOrigin_f(uint16_t id, struct UtmCoor_f *utm_def)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.origin_input_filter, id);
+
   state.utm_origin_f = *utm_def;
   state.utm_initialized_f = true;
 
@@ -485,6 +551,45 @@ static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
   ClearBit(state.accel_status, ACCEL_NED_I);
   ClearBit(state.accel_status, ACCEL_NED_F);
 }
+
+/// Get the coordinate NED frame origin (int)
+static inline struct LtpDef_i *stateGetNedOrigin_i(void)
+{
+  if (state.ned_initialized_i) {
+    return &state.ned_origin_i;
+  } else {
+    return NULL;
+  }
+}
+
+/// Get the coordinate NED frame origin (float)
+static inline struct LtpDef_f *stateGetNedOrigin_f(void)
+{
+  if (state.ned_initialized_f) {
+    return &state.ned_origin_f;
+  } else {
+    return NULL;
+  }
+}
+
+/// Get the coordinate UTM frame origin (int)
+static inline struct UtmCoor_f *stateGetUtmOrigin_f(void)
+{
+  if (state.utm_initialized_f) {
+    return &state.utm_origin_f;
+  } else {
+    return NULL;
+  }
+}
+
+/************* declaration of origin accessor function ************/
+extern struct LlaCoor_i stateGetLlaOrigin_i(void);
+extern struct LlaCoor_f stateGetLlaOrigin_f(void);
+extern struct EcefCoor_i stateGetEcefOrigin_i(void);
+extern struct EcefCoor_f stateGetEcefOrigin_f(void);
+extern int32_t stateGetHmslOrigin_i(void);
+extern float stateGetHmslOrigin_f(void);
+
 /*******************************************************************************
  *                                                                             *
  * Set and Get functions for the POSITION representations                      *
@@ -520,32 +625,40 @@ static inline bool stateIsGlobalCoordinateValid(void)
 /************************ Set functions ****************************/
 
 /// Set position from ECEF coordinates (int).
-static inline void stateSetPositionEcef_i(struct EcefCoor_i *ecef_pos)
+static inline void stateSetPositionEcef_i(uint16_t id, struct EcefCoor_i *ecef_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.ecef_pos_i, *ecef_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ECEF_I);
 }
 
 /// Set position from local NED coordinates (int).
-static inline void stateSetPositionNed_i(struct NedCoor_i *ned_pos)
+static inline void stateSetPositionNed_i(uint16_t id, struct NedCoor_i *ned_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.ned_pos_i, *ned_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_NED_I);
 }
 
 /// Set position from local ENU coordinates (int).
-static inline void stateSetPositionEnu_i(struct EnuCoor_i *enu_pos)
+static inline void stateSetPositionEnu_i(uint16_t id, struct EnuCoor_i *enu_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.enu_pos_i, *enu_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ENU_I);
 }
 
 /// Set position from LLA coordinates (int).
-static inline void stateSetPositionLla_i(struct LlaCoor_i *lla_pos)
+static inline void stateSetPositionLla_i(uint16_t id, struct LlaCoor_i *lla_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   LLA_COPY(state.lla_pos_i, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_I);
@@ -553,11 +666,14 @@ static inline void stateSetPositionLla_i(struct LlaCoor_i *lla_pos)
 
 /// Set multiple position coordinates (int).
 static inline void stateSetPosition_i(
+  uint16_t id,
   struct EcefCoor_i *ecef_pos,
   struct NedCoor_i *ned_pos,
   struct EnuCoor_i *enu_pos,
   struct LlaCoor_i *lla_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   /* clear all status bit */
   state.pos_status = 0;
   if (ecef_pos != NULL) {
@@ -579,40 +695,50 @@ static inline void stateSetPosition_i(
 }
 
 /// Set position from UTM coordinates (float).
-static inline void stateSetPositionUtm_f(struct UtmCoor_f *utm_pos)
+static inline void stateSetPositionUtm_f(uint16_t id, struct UtmCoor_f *utm_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   state.utm_pos_f = *utm_pos;
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_UTM_F);
 }
 
 /// Set position from ECEF coordinates (float).
-static inline void stateSetPositionEcef_f(struct EcefCoor_f *ecef_pos)
+static inline void stateSetPositionEcef_f(uint16_t id, struct EcefCoor_f *ecef_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.ecef_pos_f, *ecef_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ECEF_F);
 }
 
 /// Set position from local NED coordinates (float).
-static inline void stateSetPositionNed_f(struct NedCoor_f *ned_pos)
+static inline void stateSetPositionNed_f(uint16_t id, struct NedCoor_f *ned_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.ned_pos_f, *ned_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_NED_F);
 }
 
 /// Set position from local ENU coordinates (float).
-static inline void stateSetPositionEnu_f(struct EnuCoor_f *enu_pos)
+static inline void stateSetPositionEnu_f(uint16_t id, struct EnuCoor_f *enu_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   VECT3_COPY(state.enu_pos_f, *enu_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_ENU_F);
 }
 
 /// Set position from LLA coordinates (float).
-static inline void stateSetPositionLla_f(struct LlaCoor_f *lla_pos)
+static inline void stateSetPositionLla_f(uint16_t id, struct LlaCoor_f *lla_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   LLA_COPY(state.lla_pos_f, *lla_pos);
   /* clear bits for all position representations and only set the new one */
   state.pos_status = (1 << POS_LLA_F);
@@ -620,12 +746,15 @@ static inline void stateSetPositionLla_f(struct LlaCoor_f *lla_pos)
 
 /// Set multiple position coordinates (float).
 static inline void stateSetPosition_f(
+  uint16_t id,
   struct EcefCoor_f *ecef_pos,
   struct NedCoor_f *ned_pos,
   struct EnuCoor_f *enu_pos,
   struct LlaCoor_f *lla_pos,
   struct UtmCoor_f *utm_pos)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.pos_input_filter, id);
+
   /* clear all status bit */
   state.pos_status = 0;
   if (ecef_pos != NULL) {
@@ -760,24 +889,30 @@ extern void stateCalcHorizontalSpeedDir_f(void);
 /************************ Set functions ****************************/
 
 /// Set ground speed in local NED coordinates (int).
-static inline void stateSetSpeedNed_i(struct NedCoor_i *ned_speed)
+static inline void stateSetSpeedNed_i(uint16_t id, struct NedCoor_i *ned_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.ned_speed_i, *ned_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_NED_I);
 }
 
 /// Set ground speed in local ENU coordinates (int).
-static inline void stateSetSpeedEnu_i(struct EnuCoor_i *enu_speed)
+static inline void stateSetSpeedEnu_i(uint16_t id, struct EnuCoor_i *enu_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.enu_speed_i, *enu_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ENU_I);
 }
 
 /// Set ground speed in ECEF coordinates (int).
-static inline void stateSetSpeedEcef_i(struct EcefCoor_i *ecef_speed)
+static inline void stateSetSpeedEcef_i(uint16_t id, struct EcefCoor_i *ecef_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.ecef_speed_i, *ecef_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ECEF_I);
@@ -785,10 +920,13 @@ static inline void stateSetSpeedEcef_i(struct EcefCoor_i *ecef_speed)
 
 /// Set multiple speed coordinates (int).
 static inline void stateSetSpeed_i(
+  uint16_t id,
   struct EcefCoor_i *ecef_speed,
   struct NedCoor_i *ned_speed,
   struct EnuCoor_i *enu_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   /* clear all status bit */
   state.speed_status = 0;
   if (ecef_speed != NULL) {
@@ -806,24 +944,30 @@ static inline void stateSetSpeed_i(
 }
 
 /// Set ground speed in local NED coordinates (float).
-static inline void stateSetSpeedNed_f(struct NedCoor_f *ned_speed)
+static inline void stateSetSpeedNed_f(uint16_t id, struct NedCoor_f *ned_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.ned_speed_f, *ned_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_NED_F);
 }
 
 /// Set ground speed in local ENU coordinates (float).
-static inline void stateSetSpeedEnu_f(struct EnuCoor_f *enu_speed)
+static inline void stateSetSpeedEnu_f(uint16_t id, struct EnuCoor_f *enu_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.enu_speed_f, *enu_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ENU_F);
 }
 
 /// Set ground speed in ECEF coordinates (float).
-static inline void stateSetSpeedEcef_f(struct EcefCoor_f *ecef_speed)
+static inline void stateSetSpeedEcef_f(uint16_t id, struct EcefCoor_f *ecef_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   VECT3_COPY(state.ecef_speed_f, *ecef_speed);
   /* clear bits for all speed representations and only set the new one */
   state.speed_status = (1 << SPEED_ECEF_F);
@@ -831,10 +975,13 @@ static inline void stateSetSpeedEcef_f(struct EcefCoor_f *ecef_speed)
 
 /// Set multiple speed coordinates (float).
 static inline void stateSetSpeed_f(
+  uint16_t id,
   struct EcefCoor_f *ecef_speed,
   struct NedCoor_f *ned_speed,
   struct EnuCoor_f *enu_speed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.speed_input_filter, id);
+
   /* clear all status bit */
   state.speed_status = 0;
   if (ecef_speed != NULL) {
@@ -849,12 +996,6 @@ static inline void stateSetSpeed_f(
     VECT3_COPY(state.enu_speed_f, *enu_speed);
     state.speed_status |= (1 << SPEED_ENU_F);
   }
-}
-
-/// Set acceleration in Body coordinates (int).
-static inline void stateSetAccelBody_i(struct Int32Vect3 *body_accel)
-{
-  VECT3_COPY(state.body_accel_i, *body_accel);
 }
 
 /************************ Get functions ****************************/
@@ -983,35 +1124,51 @@ static inline bool stateIsAccelValid(void)
 /************************ Set functions ****************************/
 
 /// Set acceleration in NED coordinates (int).
-static inline void stateSetAccelNed_i(struct NedCoor_i *ned_accel)
+static inline void stateSetAccelNed_i(uint16_t id, struct NedCoor_i *ned_accel)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.accel_input_filter, id);
+
   VECT3_COPY(state.ned_accel_i, *ned_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_NED_I);
 }
 
 /// Set acceleration in ECEF coordinates (int).
-static inline void stateSetAccelEcef_i(struct EcefCoor_i *ecef_accel)
+static inline void stateSetAccelEcef_i(uint16_t id, struct EcefCoor_i *ecef_accel)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.accel_input_filter, id);
+
   VECT3_COPY(state.ecef_accel_i, *ecef_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_ECEF_I);
 }
 
 /// Set acceleration in NED coordinates (float).
-static inline void stateSetAccelNed_f(struct NedCoor_f *ned_accel)
+static inline void stateSetAccelNed_f(uint16_t id, struct NedCoor_f *ned_accel)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.accel_input_filter, id);
+
   VECT3_COPY(state.ned_accel_f, *ned_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_NED_F);
 }
 
 /// Set acceleration in ECEF coordinates (float).
-static inline void stateSetAccelEcef_f(struct EcefCoor_f *ecef_accel)
+static inline void stateSetAccelEcef_f(uint16_t id, struct EcefCoor_f *ecef_accel)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.accel_input_filter, id);
+
   VECT3_COPY(state.ecef_accel_f, *ecef_accel);
   /* clear bits for all accel representations and only set the new one */
   state.accel_status = (1 << ACCEL_ECEF_F);
+}
+
+/// Set acceleration in Body coordinates (int).
+static inline void stateSetAccelBody_i(uint16_t id, struct Int32Vect3 *body_accel)
+{
+  STATE_CHECK_INPUT_AND_RETURN(state.accel_input_filter, id);
+
+  VECT3_COPY(state.body_accel_i, *body_accel);
 }
 
 /************************ Get functions ****************************/
@@ -1072,38 +1229,44 @@ static inline bool stateIsAttitudeValid(void)
 /************************ Set functions ****************************/
 
 /// Set vehicle body attitude from quaternion (int).
-static inline void stateSetNedToBodyQuat_i(struct Int32Quat *ned_to_body_quat)
+static inline void stateSetNedToBodyQuat_i(uint16_t id, struct Int32Quat *ned_to_body_quat)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetQuat_i(&state.ned_to_body_orientation, ned_to_body_quat);
 }
 
 /// Set vehicle body attitude from rotation matrix (int).
-static inline void stateSetNedToBodyRMat_i(struct Int32RMat *ned_to_body_rmat)
+static inline void stateSetNedToBodyRMat_i(uint16_t id, struct Int32RMat *ned_to_body_rmat)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetRMat_i(&state.ned_to_body_orientation, ned_to_body_rmat);
 }
 
 /// Set vehicle body attitude from euler angles (int).
-static inline void stateSetNedToBodyEulers_i(struct Int32Eulers *ned_to_body_eulers)
+static inline void stateSetNedToBodyEulers_i(uint16_t id, struct Int32Eulers *ned_to_body_eulers)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetEulers_i(&state.ned_to_body_orientation, ned_to_body_eulers);
 }
 
 /// Set vehicle body attitude from quaternion (float).
-static inline void stateSetNedToBodyQuat_f(struct FloatQuat *ned_to_body_quat)
+static inline void stateSetNedToBodyQuat_f(uint16_t id, struct FloatQuat *ned_to_body_quat)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetQuat_f(&state.ned_to_body_orientation, ned_to_body_quat);
 }
 
 /// Set vehicle body attitude from rotation matrix (float).
-static inline void stateSetNedToBodyRMat_f(struct FloatRMat *ned_to_body_rmat)
+static inline void stateSetNedToBodyRMat_f(uint16_t id, struct FloatRMat *ned_to_body_rmat)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetRMat_f(&state.ned_to_body_orientation, ned_to_body_rmat);
 }
 
 /// Set vehicle body attitude from euler angles (float).
-static inline void stateSetNedToBodyEulers_f(struct FloatEulers *ned_to_body_eulers)
+static inline void stateSetNedToBodyEulers_f(uint16_t id, struct FloatEulers *ned_to_body_eulers)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.attitude_input_filter, id);
   orientationSetEulers_f(&state.ned_to_body_orientation, ned_to_body_eulers);
 }
 
@@ -1170,16 +1333,20 @@ static inline bool stateIsRateValid(void)
 /************************ Set functions ****************************/
 
 /// Set vehicle body angular rate (int).
-static inline void stateSetBodyRates_i(struct Int32Rates *body_rate)
+static inline void stateSetBodyRates_i(uint16_t id, struct Int32Rates *body_rate)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.rates_input_filter, id);
+
   RATES_COPY(state.body_rates_i, *body_rate);
   /* clear bits for all attitude representations and only set the new one */
   state.rate_status = (1 << RATE_I);
 }
 
 /// Set vehicle body angular rate (float).
-static inline void stateSetBodyRates_f(struct FloatRates *body_rate)
+static inline void stateSetBodyRates_f(uint16_t id, struct FloatRates *body_rate)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.rates_input_filter, id);
+
   RATES_COPY(state.body_rates_f, *body_rate);
   /* clear bits for all attitude representations and only set the new one */
   state.rate_status = (1 << RATE_F);
@@ -1261,8 +1428,10 @@ static inline bool stateIsSideslipValid(void)
 /************************ Set functions ****************************/
 
 /// Set horizontal windspeed (int).
-static inline void stateSetHorizontalWindspeed_i(struct Int32Vect2 *h_windspeed)
+static inline void stateSetHorizontalWindspeed_i(uint16_t id, struct Int32Vect2 *h_windspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   VECT2_COPY(state.windspeed_i.vect2, *h_windspeed);
   /* clear bits for all horizontal windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, WINDSPEED_F);
@@ -1270,8 +1439,10 @@ static inline void stateSetHorizontalWindspeed_i(struct Int32Vect2 *h_windspeed)
 }
 
 /// Set vertical windspeed (int).
-static inline void stateSetVerticalWindspeed_i(int32_t v_windspeed)
+static inline void stateSetVerticalWindspeed_i(uint16_t id, int32_t v_windspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.windspeed_i.vect3.z = v_windspeed;
   /* clear bits for all vertical windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, DOWNWIND_F);
@@ -1279,8 +1450,10 @@ static inline void stateSetVerticalWindspeed_i(int32_t v_windspeed)
 }
 
 /// Set airspeed (int).
-static inline void stateSetAirspeed_i(int32_t airspeed)
+static inline void stateSetAirspeed_i(uint16_t id, int32_t airspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.airspeed_i = airspeed;
   /* clear bits for all airspeed representations and only set the new one */
   ClearBit(state.wind_air_status, AIRSPEED_F);
@@ -1288,8 +1461,10 @@ static inline void stateSetAirspeed_i(int32_t airspeed)
 }
 
 /// Set horizontal windspeed (float).
-static inline void stateSetHorizontalWindspeed_f(struct FloatVect2 *h_windspeed)
+static inline void stateSetHorizontalWindspeed_f(uint16_t id, struct FloatVect2 *h_windspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   VECT2_COPY(state.windspeed_f.vect2, *h_windspeed);
   /* clear bits for all horizontal windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, WINDSPEED_I);
@@ -1297,8 +1472,10 @@ static inline void stateSetHorizontalWindspeed_f(struct FloatVect2 *h_windspeed)
 }
 
 /// Set vertical windspeed (float).
-static inline void stateSetVerticalWindspeed_f(float v_windspeed)
+static inline void stateSetVerticalWindspeed_f(uint16_t id, float v_windspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.windspeed_f.vect3.z = v_windspeed;
   /* clear bits for all vertical windspeed representations and only set the new one */
   ClearBit(state.wind_air_status, DOWNWIND_I);
@@ -1306,8 +1483,10 @@ static inline void stateSetVerticalWindspeed_f(float v_windspeed)
 }
 
 /// Set airspeed (float).
-static inline void stateSetAirspeed_f(float airspeed)
+static inline void stateSetAirspeed_f(uint16_t id, float airspeed)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.airspeed_f = airspeed;
   /* clear bits for all airspeed representations and only set the new one */
   ClearBit(state.wind_air_status, AIRSPEED_I);
@@ -1315,8 +1494,10 @@ static inline void stateSetAirspeed_f(float airspeed)
 }
 
 /// Set angle of attack in radians (float).
-static inline void stateSetAngleOfAttack_f(float aoa)
+static inline void stateSetAngleOfAttack_f(uint16_t id, float aoa)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.angle_of_attack_f = aoa;
   /* clear bits for all AOA representations and only set the new one */
   /// @todo no integer yet
@@ -1324,8 +1505,10 @@ static inline void stateSetAngleOfAttack_f(float aoa)
 }
 
 /// Set sideslip angle in radians (float).
-static inline void stateSetSideslip_f(float sideslip)
+static inline void stateSetSideslip_f(uint16_t id, float sideslip)
 {
+  STATE_CHECK_INPUT_AND_RETURN(state.wind_air_input_filter, id);
+
   state.sideslip_f = sideslip;
   /* clear bits for all sideslip representations and only set the new one */
   /// @todo no integer yet
@@ -1433,6 +1616,10 @@ static inline float stateGetSideslip_f(void)
 /** @}*/
 
 /** @}*/
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 
 #endif /* STATE_H */

@@ -189,7 +189,7 @@ void ins_vectornav_init(void)
   memset(&(ins_vn.vn_data), 0, sizeof(struct VNData));
 
 #if USE_INS_NAV_INIT
-  ins_init_origin_i_from_flightplan(&ins_vn.ltp_def);
+  ins_init_origin_i_from_flightplan(MODULE_INS_VECTORNAV_ID, &ins_vn.ltp_def);
   ins_vn.ltp_initialized = true;
 #else
   ins_vn.ltp_initialized  = false;
@@ -256,7 +256,7 @@ void ins_vectornav_propagate()
   // in fixed point for sending as ABI and telemetry msgs
   RATES_BFP_OF_REAL(ins_vn.gyro_i, ins_vn.vn_data.gyro);
   float_rmat_ratemult(&body_rate, orientationGetRMat_f(&ins_vn.body_to_imu), &ins_vn.vn_data.gyro); // compute body rates
-  stateSetBodyRates_f(&body_rate);   // Set state [rad/s]
+  stateSetBodyRates_f(MODULE_INS_VECTORNAV_ID, &body_rate);   // Set state [rad/s]
 
   // Attitude [deg]
   static struct FloatQuat imu_quat; // convert from euler to quat
@@ -265,7 +265,7 @@ void ins_vectornav_propagate()
   float_rmat_of_quat(&imu_rmat, &imu_quat);
   static struct FloatRMat ltp_to_body_rmat; // rotate to body frame
   float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&ins_vn.body_to_imu));
-  stateSetNedToBodyRMat_f(&ltp_to_body_rmat); // set body states [rad]
+  stateSetNedToBodyRMat_f(MODULE_INS_VECTORNAV_ID, &ltp_to_body_rmat); // set body states [rad]
 
   // NED (LTP) velocity [m/s]
   // North east down (NED), also known as local tangent plane (LTP),
@@ -277,14 +277,14 @@ void ins_vectornav_propagate()
   // x = North
   // y = East
   // z = Down
-  stateSetSpeedNed_f(&ins_vn.vn_data.vel_ned); // set state
+  stateSetSpeedNed_f(MODULE_INS_VECTORNAV_ID, &ins_vn.vn_data.vel_ned); // set state
 
   // NED (LTP) acceleration [m/s^2]
   static struct FloatVect3 accel_meas_ltp;// first we need to rotate linear acceleration from imu-frame to body-frame
   float_rmat_transp_vmult(&accel_meas_ltp, orientationGetRMat_f(&ins_vn.body_to_imu), &(ins_vn.vn_data.lin_accel));
   static struct NedCoor_f ltp_accel; // assign to NedCoord_f struct
   VECT3_ASSIGN(ltp_accel, accel_meas_ltp.x, accel_meas_ltp.y, accel_meas_ltp.z);
-  stateSetAccelNed_f(&ltp_accel); // then set the states
+  stateSetAccelNed_f(MODULE_INS_VECTORNAV_ID, &ltp_accel); // then set the states
   ins_vn.ltp_accel_f = ltp_accel;
 
   // LLA position [rad, rad, m]
@@ -294,7 +294,7 @@ void ins_vectornav_propagate()
   ins_vn.lla_pos.alt = ((float)ins_vn.vn_data.pos_lla[2]); // ins_impl.pos_lla[2] = alt
   LLA_BFP_OF_REAL(gps.lla_pos, ins_vn.lla_pos);
   SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
-  stateSetPositionLla_i(&gps.lla_pos);
+  stateSetPositionLla_i(MODULE_INS_VECTORNAV_ID, &gps.lla_pos);
 
   // ECEF velocity
   // TODO: properly implement

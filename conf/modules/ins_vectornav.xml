@@ -32,7 +32,6 @@
     <file name="ins.c"/>
     <file name="ins_vectornav.c"/>
     <file name="ins_vectornav_wrapper.c"/>
-    <define name="INS_TYPE_H" value="modules/ins/ins_vectornav_wrapper.h" type="string"/>
 
     <file name="gps.c" dir="modules/gps"/>
     <define name="USE_GPS"/>

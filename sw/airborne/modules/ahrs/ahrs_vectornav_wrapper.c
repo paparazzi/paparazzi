@@ -30,13 +30,9 @@
 #include "modules/core/abi.h"
 #include "state.h"
 
-#ifndef AHRS_VECTORNAV_OUTPUT_ENABLED
-#define AHRS_VECTORNAV_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_VECTORNAV_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_VECTORNAV_TYPE)
 
-/** if TRUE with push the estimation results to the state interface */
-static bool ahrs_vectornav_output_enabled;
+uint8_t ahrs_vectornav_enable;
 static uint8_t ahrs_vectornav_id = AHRS_COMP_ID_VECTORNAV;
 
 #if PERIODIC_TELEMETRY
@@ -52,25 +48,26 @@ static void send_euler(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-
-static bool ahrs_vectornav_enable_output(bool enable)
+void ahrs_vectornav_wrapper_init(void)
 {
-  ahrs_vectornav_output_enabled = enable;
-  return ahrs_vectornav_output_enabled;
-}
-
-bool ahrs_vectornav_is_enabled(void){
-  return ahrs_vectornav_output_enabled;
-}
-
-void ahrs_vectornav_register(void)
-{
-  ahrs_vectornav_output_enabled = AHRS_VECTORNAV_OUTPUT_ENABLED;
   ahrs_vectornav_init();
-  ahrs_register_impl(ahrs_vectornav_enable_output);
+  if (AHRS_VECTORNAV_TYPE == AHRS_PRIMARY) {
+    ahrs_vectornav_wrapper_enable(1);
+  } else {
+    ahrs_vectornav_wrapper_enable(0);
+  }
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_EULER, send_euler);
 #endif
+}
+
+void ahrs_vectornav_wrapper_enable(uint8_t enable)
+{
+  if (enable) {
+    stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_VECTORNAV_ID);
+    stateSetInputFilter(STATE_INPUT_RATES, MODULE_AHRS_VECTORNAV_ID);
+  }
+  ahrs_vectornav_enable = enable;
 }
 

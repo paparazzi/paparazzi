@@ -29,6 +29,7 @@
 
 #include "modules/datalink/telemetry.h"
 #include "modules/core/abi.h"
+#include "state.h"
 
 // The timeout when receiving GPS messages from the ground in ms
 #ifndef TARGET_POS_TIMEOUT
@@ -147,9 +148,9 @@ bool target_get_pos(struct NedCoor_f *pos, float *heading) {
     struct NedCoor_i target_pos_cm, drone_pos_cm;
 
     // Convert from LLA to NED using origin from the UAV
-    ned_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &target.pos.lla);
+    ned_of_lla_point_i(&target_pos_cm, stateGetNedOrigin_i(), &target.pos.lla);
     // Convert from LLA to NED using origin from the UAV
-    ned_of_lla_point_i(&drone_pos_cm, &state.ned_origin_i, &target.gps_lla);
+    ned_of_lla_point_i(&drone_pos_cm, stateGetNedOrigin_i(), &target.gps_lla);
 
     // Convert to floating point (cm to meters)
     pos->x = (target_pos_cm.x - drone_pos_cm.x) * 0.01;
@@ -212,7 +213,7 @@ bool target_pos_set_current_offset(float unk __attribute__((unused))) {
     struct NedCoor_f uav_pos = *stateGetPositionNed_f();
 
     // Convert from LLA to NED using origin from the UAV
-    ned_of_lla_point_i(&target_pos_cm, &state.ned_origin_i, &target.pos.lla);
+    ned_of_lla_point_i(&target_pos_cm, stateGetNedOrigin_i(), &target.pos.lla);
 
     // Convert to floating point (cm to meters)
     struct NedCoor_f pos;

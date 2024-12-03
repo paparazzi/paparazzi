@@ -418,8 +418,8 @@ void wind_estimator_event(void)
         wind_estimator.wind.x,
         wind_estimator.wind.y
       };
-      stateSetHorizontalWindspeed_f(&wind_ne);            //NEED CHECK
-      stateSetVerticalWindspeed_f(wind_estimator.wind.z); //NEED CHECK
+      stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATOR_ID, &wind_ne);            //NEED CHECK
+      stateSetVerticalWindspeed_f(MODULE_WIND_ESTIMATOR_ID, wind_estimator.wind.z); //NEED CHECK
 
       // TODO do something with corrected airspeed norm
 

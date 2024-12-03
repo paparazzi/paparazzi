@@ -177,7 +177,7 @@ void airspeed_ets_read_periodic(void)
   }
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(sim_air_speed);
+  stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, sim_air_speed);
 #endif //SITL
 }
 
@@ -256,7 +256,7 @@ void airspeed_ets_read_event(void)
     AbiSendMsgAIRSPEED(AIRSPEED_ETS_ID, airspeed_ets);
 
 #if USE_AIRSPEED_ETS
-    stateSetAirspeed_f(airspeed_ets);
+    stateSetAirspeed_f(MODULE_AIRSPEED_ETS_ID, airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;

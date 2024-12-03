@@ -30,42 +30,16 @@
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
-#include "state.h"
 
-/* underlying includes (needed for parameters) */
-#ifdef INS_TYPE_H
-#include INS_TYPE_H
-#endif
-
-
-/** INS local origin reset.
- *  Reset horizontal and vertical reference to the current position.
- *  Does nothing if not implemented by specific INS algorithm.
+/** flags for INS reset
  */
-extern void ins_reset_local_origin(void);
+#define INS_RESET_REF           0
+#define INS_RESET_VERTICAL_REF  1
+#define INS_RESET_VERTICAL_POS  2
+#define INS_RESET_UTM_ZONE      3
 
-/** INS altitude reference reset.
- *  Reset only vertical reference to the current altitude.
- *  Does nothing if not implemented by specific INS algorithm.
- */
-extern void ins_reset_altitude_ref(void);
-
-/** INS vertical position reset.
- *  Reset only vertical position to zero.
- *  Does nothing if not implemented by specific INS algorithm.
- */
-extern void ins_reset_vertical_pos(void);
-
-/** INS utm zone reset.
- *  Reset UTM zone according the the actual position.
- *  Only used with fixedwing firmware.
- *  Can be overwritte by specifc INS implementation.
- *  @param utm initial utm zone, returns the corrected utm position
- */
-extern void ins_reset_utm_zone(struct UtmCoor_f *utm);
 
 /** initialize the local origin (ltp_def in fixed point) from flight plan position */
-extern void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def);
-
+extern void ins_init_origin_i_from_flightplan(uint16_t id, struct LtpDef_i *ltp_def);
 
 #endif /* INS_H */

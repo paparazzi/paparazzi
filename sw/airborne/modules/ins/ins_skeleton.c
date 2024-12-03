@@ -66,6 +66,7 @@ PRINT_CONFIG_VAR(INS_MODULE_GPS_ID)
 static abi_event baro_ev;
 static abi_event accel_ev;
 static abi_event gps_ev;
+static abi_event reset_ev;
 
 struct InsModuleInt ins_module;
 
@@ -74,9 +75,9 @@ void ins_module_wrapper_init(void);
 /** copy position and speed to state interface */
 static void ins_ned_to_state(void)
 {
-  stateSetPositionNed_i(&ins_module.ltp_pos);
-  stateSetSpeedNed_i(&ins_module.ltp_speed);
-  stateSetAccelNed_i(&ins_module.ltp_accel);
+  stateSetPositionNed_i(MODULE_INS_SKELETON_ID, &ins_module.ltp_pos);
+  stateSetSpeedNed_i(MODULE_INS_SKELETON_ID, &ins_module.ltp_speed);
+  stateSetAccelNed_i(MODULE_INS_SKELETON_ID, &ins_module.ltp_accel);
 
 #if defined SITL && USE_NPS
   if (nps_bypass_ins) {
@@ -88,6 +89,23 @@ static void ins_ned_to_state(void)
 /***********************************************************
  * ABI callback functions
  **********************************************************/
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  if (flag == INS_RESET_REF) {
+    if (ins_module.gps.fix >= GPS_FIX_3D) {
+      ltp_def_from_ecef_i(&ins_module.ltp_def, &ins_module.gps.ecef_pos);
+      ins_module.ltp_def.lla.alt = ins_module.gps.lla_pos.alt;
+      ins_module.ltp_def.hmsl = ins_module.gps.hmsl;
+      ins_module.ltp_initialized = true;
+      stateSetLocalOrigin_i(MODULE_INS_SKELETON_ID, &ins_module.ltp_def);
+    } else {
+      ins_module.ltp_initialized = false;
+    }
+
+    ins_module_reset_local_origin();
+  }
+}
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
@@ -124,7 +142,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     ins_module.gps = *gps_s;
 
     if (!ins_module.ltp_initialized) {
-      ins_reset_local_origin();
+      reset_cb(MODULE_INS_SKELETON_ID, INS_RESET_REF);
     }
 
     if (gps_s->fix >= GPS_FIX_3D) {
@@ -179,7 +197,7 @@ void WEAK ins_module_update_gps(struct GpsState *gps_s, float dt __attribute__((
 void WEAK ins_module_propagate(struct Int32Vect3 *accel, float dt __attribute__((unused)))
 {
   /* untilt accels */
-  stateSetAccelBody_i(accel);
+  stateSetAccelBody_i(MODULE_INS_SKELETON_ID, accel);
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), accel);
 
@@ -191,30 +209,10 @@ void WEAK ins_module_reset_local_origin(void)
 }
 
 
-/***********************************************************
- * wrapper functions
- **********************************************************/
-
-void ins_reset_local_origin(void)
-{
-  if (ins_module.gps.fix >= GPS_FIX_3D) {
-    ltp_def_from_ecef_i(&ins_module.ltp_def, &ins_module.gps.ecef_pos);
-    ins_module.ltp_def.lla.alt = ins_module.gps.lla_pos.alt;
-    ins_module.ltp_def.hmsl = ins_module.gps.hmsl;
-    ins_module.ltp_initialized = true;
-    stateSetLocalOrigin_i(&ins_module.ltp_def);
-  } else {
-    ins_module.ltp_initialized = false;
-  }
-
-  ins_module_reset_local_origin();
-}
-
-
 void ins_module_wrapper_init(void)
 {
 #if USE_INS_NAV_INIT
-  ins_init_origin_i_from_flightplan(&ins_module.ltp_def);
+  ins_init_origin_i_from_flightplan(MODULE_INS_SKELETON_ID, &ins_module.ltp_def);
   ins_module.ltp_initialized = true;
 #else
   ins_module.ltp_initialized  = false;
@@ -230,5 +228,6 @@ void ins_module_wrapper_init(void)
   AbiBindMsgBARO_ABS(INS_MODULE_BARO_ID, &baro_ev, baro_cb);
   AbiBindMsgIMU_ACCEL(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgGPS(INS_MODULE_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 

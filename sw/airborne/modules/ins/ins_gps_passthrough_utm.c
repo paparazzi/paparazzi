@@ -54,34 +54,53 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
 
   // set position
-  stateSetPositionUtm_f(&utm);
+  stateSetPositionUtm_f(MODULE_INS_GPS_PASSTHROUGH_ID, &utm);
 
   struct NedCoor_f ned_vel = ned_vel_float_from_gps(gps_s);
   // set velocity
-  stateSetSpeedNed_f(&ned_vel);
+  stateSetSpeedNed_f(MODULE_INS_GPS_PASSTHROUGH_ID, &ned_vel);
 }
+
+static abi_event reset_ev;
+static void reset_cb(uint8_t sender_id, uint8_t flag);
 
 
 void ins_gps_passthrough_init(void)
 {
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
+  stateSetLocalUtmOrigin_f(MODULE_INS_GPS_PASSTHROUGH_ID, &utm0);
+  stateSetPositionUtm_f(MODULE_INS_GPS_PASSTHROUGH_ID, &utm0);
 
   AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
 
-void ins_reset_local_origin(void)
+static void reset_ref(void)
 {
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
   // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_GPS_PASSTHROUGH_ID, &utm);
 }
 
-void ins_reset_altitude_ref(void)
+static void reset_vertical_ref(void)
 {
-  struct UtmCoor_f utm = state.utm_origin_f;
+  struct UtmCoor_f utm = *stateGetUtmOrigin_f();
   utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
+  stateSetLocalUtmOrigin_f(MODULE_INS_GPS_PASSTHROUGH_ID, &utm);
 }
+
+static void reset_cb(uint8_t sender_id UNUSED, uint8_t flag)
+{
+  switch (flag) {
+    case INS_RESET_REF:
+      reset_ref();
+      break;
+    case INS_RESET_VERTICAL_REF:
+      reset_vertical_ref();
+      break;
+    default:
+      // unsupported cases
+      break;
+  }
+}
+
