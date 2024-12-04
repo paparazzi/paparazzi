@@ -47,7 +47,7 @@
       <message name="ESC"                      period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.2"/>
       <message name="INS_FLOW_INFO"            period="0.2"/>
-      <message name="GPS_RTK"                  period="0.2"/>
+      <message name="GPS_RELPOS"               period="0.2"/>
       <message name="AOA"                      period="0.2"/>
       <message name="APPROACH_MOVING_TARGET"   period="0.2"/>
       <message name="AIRSPEED_RAW"             period="0.2"/>
@@ -109,7 +109,7 @@
       <message name="ESC"                      period="0.5"/>
       <message name="AHRS_REF_QUAT"            period="0.2"/>
       <message name="INS_FLOW_INFO"            period="0.2"/>
-      <message name="GPS_RTK"                  period="0.2"/>
+      <message name="GPS_RELPOS"               period="0.2"/>
       <message name="AOA"                      period="0.2"/>
       <message name="APPROACH_MOVING_TARGET"   period="0.2"/>
       <message name="AIRSPEED_RAW"             period="0.2"/>
@@ -276,7 +276,7 @@
     <mode name="RTCM3" >
       <message name="GPS_RXMRTCM"             period="1"/>
       <message name="GPS_INT"                 period=".25"/>
-      <message name="GPS_RTK"                 period="1"/>
+      <message name="GPS_RELPOS"              period="1"/>
     </mode>
 
   </process>
@@ -319,7 +319,7 @@
       <message name="ESC"                      period="0.02"/>
       <message name="STAB_ATTITUDE"            period="0.002"/>
       <message name="ACTUATORS"                period="0.002"/>
-      <message name="GPS_RTK"                  period="0.1"/>
+      <message name="GPS_RELPOS"               period="0.1"/>
       <message name="IMU_HEATER"               period="1.0"/>
       <message name="AIRSPEED_RAW"             period="0.01"/>
       <message name="EFF_MAT_STAB"             period="0.02"/>
