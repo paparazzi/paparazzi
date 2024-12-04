@@ -74,6 +74,16 @@ static inline uint32_t get_sys_time_msec(void)
          msec_of_cpu_ticks(systick_get_reload() - systick_get_value());
 }
 
+/**
+ * Get the time in milliseconds since the start of the week.
+ * If no GPS is connected this will return the time since startup
+ * @return Time of the week in milliseconds
+ */
+static inline uint32_t get_sys_time_tow(void)
+{
+  return sys_time.tow_sync + get_sys_time_msec();
+}
+
 
 /** Busy wait in microseconds.
  *
