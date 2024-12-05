@@ -146,6 +146,12 @@ PRINT_CONFIG_VAR(INS_EKF2_MAG_ID)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_GPS_ID)
 
+/* default RELPOS to use for heading in INS */
+#ifndef INS_EKF2_RELPOS_ID
+#define INS_EKF2_RELPOS_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(INS_EKF2_RELPOS_ID)
+
 /* default Optical Flow to use in INS */
 #ifndef INS_EKF2_OF_ID
 #define INS_EKF2_OF_ID ABI_BROADCAST
@@ -278,6 +284,11 @@ PRINT_CONFIG_VAR(INS_EKF2_GPS_P_NOISE)
 #endif
 PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 
+/* Maximum allowed distance error for the RTK relative heading measurement (m) */
+#ifndef INS_EKF2_RELHEADING_ERR
+#define INS_EKF2_RELHEADING_ERR 0.2
+#endif
+
 #ifdef INS_EXT_VISION_ROTATION
 struct FloatQuat ins_ext_vision_rot;
 #endif
@@ -290,6 +301,7 @@ static abi_event gyro_int_ev;
 static abi_event accel_int_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
+static abi_event relpos_ev;
 static abi_event optical_flow_ev;
 static abi_event reset_ev;
 
@@ -301,6 +313,7 @@ static void gyro_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatRates *de
 static void accel_int_cb(uint8_t sender_id, uint32_t stamp, struct FloatVect3 *delta_accel, uint16_t dt);
 static void mag_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
+static void relpos_cb(uint8_t sender_id, uint32_t stamp, struct RelPosNED *relpos);
 static void optical_flow_cb(uint8_t sender_id, uint32_t stamp, int32_t flow_x, int32_t flow_y, int32_t flow_der_x, int32_t flow_der_y, float quality, float size_divergence);
 static void reset_cb(uint8_t sender_id, uint8_t flag);
 
@@ -633,6 +646,7 @@ void ins_ekf2_init(void)
   AbiBindMsgIMU_ACCEL_INT(INS_EKF2_ACCEL_ID, &accel_int_ev, accel_int_cb);
   AbiBindMsgIMU_MAG(INS_EKF2_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGPS(INS_EKF2_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgRELPOS(INS_EKF2_RELPOS_ID, &relpos_ev, relpos_cb);
   AbiBindMsgOPTICAL_FLOW(INS_EKF2_OF_ID, &optical_flow_ev, optical_flow_cb);
   AbiBindMsgINS_RESET(ABI_BROADCAST, &reset_ev, reset_cb);
 }
@@ -983,10 +997,10 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 #if INS_EKF2_GPS_COURSE_YAW
   gps_msg.yaw = wrap_pi((float)gps_s->course / 1e7);
   gps_msg.yaw_offset = 0;
-#elif defined(INS_EKF2_GPS_YAW_OFFSET) && defined(INS_EKF2_ANTENNA_DISTANCE) 
-  if(ISFINITE(gps_relposned.relPosHeading) && gps_relposned.relPosValid && gps_relposned.diffSoln && gps_relposned.carrSoln >= 1 
-  && fabsf(gps_relposned.relPosLength - INS_EKF2_ANTENNA_DISTANCE) <= INS_EKF2_MAX_REL_LENGTH_ERROR * INS_EKF2_ANTENNA_DISTANCE) {
-    gps_msg.yaw = wrap_pi(RadOfDeg(gps_relposned.relPosHeading - INS_EKF2_GPS_YAW_OFFSET));
+#elif defined(INS_EKF2_GPS_YAW_OFFSET)
+  if(ekf2.rel_heading_valid) {
+    gps_msg.yaw = wrap_pi(ekf2.rel_heading - RadOfDeg(INS_EKF2_GPS_YAW_OFFSET));
+    ekf2.rel_heading_valid = false;
   } else {
     gps_msg.yaw = NAN;
   }
@@ -1011,6 +1025,26 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.pdop = gps_s->pdop;
 
   ekf.setGpsData(gps_msg);
+}
+
+/* Update the local relative position information */
+static void relpos_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp __attribute__((unused)), struct RelPosNED *relpos)
+{
+  // Verify if we received a valid heading
+  if(
+#ifdef INS_EKF2_RELHEADING_REF_ID
+    relpos->reference_id != INS_EKF2_RELHEADING_REF_ID ||
+#endif
+#ifdef INS_EKF2_RELHEADING_DISTANCE
+    fabs(relpos->distance - INS_EKF2_RELHEADING_DISTANCE) > INS_EKF2_RELHEADING_ERR ||
+#endif
+    !ISFINITE(relpos->heading)
+  ) {
+    return;
+  }
+
+  ekf2.rel_heading = relpos->heading;
+  ekf2.rel_heading_valid = true;
 }
 
 /* Update INS based on Optical Flow information */
