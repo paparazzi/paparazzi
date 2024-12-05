@@ -62,6 +62,16 @@ static inline uint32_t get_sys_time_msec(void)
          msec_of_cpu_ticks(sys_time.nb_sec_rem);
 }
 
+/**
+ * Get the time in milliseconds since the start of the week.
+ * If no GPS is connected this will return the time since startup
+ * @return Time of the week in milliseconds
+ */
+static inline uint32_t get_sys_time_tow(void)
+{
+  return sys_time.tow_sync + get_sys_time_msec();
+}
+
 
 static inline void sys_time_usleep(uint32_t us __attribute__((unused))) {}
 
