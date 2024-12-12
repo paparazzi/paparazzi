@@ -146,7 +146,7 @@ libpprzlink.update:
 	$(MAKE) -C $(EXT) pprzlink.update
 
 libpprzlink.install:
-	$(Q)Q=$(Q) MAKEFLAGS=-j1 DESTDIR=$(PPRZLINK_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
+	$(Q)Q=$(Q) MAKEFLAGS=-j1 DESTDIR=$(PPRZLINK_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install libpprzlink++-install
 
 libpprz: libpprzlink.update libpprzlink.install _save_build_version
 	$(MAKE) -C $(LIB)/ocaml

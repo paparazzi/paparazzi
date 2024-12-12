@@ -29,20 +29,28 @@ PKG = -package glibivy,pprz,$(USE_LABELGTK)
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink,$(USE_LABELGTK)
 
 LABLGTK2GLADE = $(shell ocamlfind query -p-format lablgtk2.glade 2>/dev/null)
+LIBPPRZLINKCPPDIR = $(PAPARAZZI_HOME)/var/lib/C++
+
+IVY_INC = $(shell pkg-config --cflags-only-I ivy-c 2> /dev/null)
+IVY_LDFLAGS = $(shell pkg-config --libs ivy-c 2> /dev/null)
+ifeq ($(strip $(IVY_INC)),)
+IVY_INC = $(shell pkg-config --cflags-only-I ivy-glib)
+IVY_LDFLAGS = $(shell pkg-config --libs-only-L ivy-glib) -livy
+endif
 
 ifeq ($(USE_LABELGTK),lablgtk2)
 # only compile it lablgtk2.glade is installed
 ifeq ($(LABLGTK2GLADE),)
 XPKG = -package lablgtk2,pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter sd2log plotprofile openlog2tlm sdlogger_download
+all : play plotter sd2log plotprofile openlog2tlm sdlogger_download log2json
 else
 XPKG = -package lablgtk2,pprz.xlib,lablgtk2.glade
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink,$(USE_LABELGTK)
-all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download
+all : play plotter logplotter sd2log plotprofile openlog2tlm sdlogger_download log2json
 endif
 else # no gtk2
-all: sd2log plotprofile openlog2tlm sdlogger_download
+all: sd2log plotprofile openlog2tlm sdlogger_download log2json
 endif
 
 
@@ -69,6 +77,12 @@ sd2log : sd2log.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 sdlogger_download: sdlogger_download.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -std=gnu99 -o $@ $^
+
+LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include $(IVY_INC)
+LOG2JSON_LDFLAGS = -L$(LIBPPRZLINKCPPDIR)/lib -lpprzlink++ -lboost_iostreams -lboost_system -lboost_filesystem -ltinyxml2 $(IVY_LDFLAGS) #$(shell pkg-config --cflags json-c)
+log2json: log2json.cpp
+	@echo CC $@
+	$(Q)$(CXX) $(CFLAGS) $(LOG2JSON_CFLAGS) -o $@ $^ $(LOG2JSON_LDFLAGS) 
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
@@ -148,7 +162,7 @@ ffjoystick: ffjoystick.c
 	$(CC) -g -O2 -Wall $(GLIBIVY_CFLAGS) -o $@ $^ $(IVY_C_LIBS) -lm
 
 clean:
-	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick sd2log sdlogger_download
+	$(Q)rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrs2fg logplotter plotter gtk_export.ml openlog2tlm disp3d plotprofile tmclient ffjoystick sd2log sdlogger_download log2json
 
 .PHONY: all clean
 

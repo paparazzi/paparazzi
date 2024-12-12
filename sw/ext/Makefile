@@ -99,7 +99,7 @@ libsbp: libsbp.update
 pprzlink: pprzlink.update pprzlink.build
 
 pprzlink.build:
-	$(Q)$(MAKE) -C pprzlink
+	$(Q)$(MAKE) -C pprzlink libpprzlink libpprzlink++
 
 opencv_bebop: opencv_bebop.update opencv_bebop.build
 

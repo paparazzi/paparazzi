@@ -149,6 +149,7 @@ Cargo.lock
 /sw/logalizer/ahrs2fg
 /sw/logalizer/disp3d
 /sw/logalizer/sdlogger_download
+/sw/logalizer/log2json
 
 # /sw/misc
 /sw/misc/link/pprzlink_router
