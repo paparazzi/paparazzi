@@ -78,7 +78,7 @@ sdlogger_download: sdlogger_download.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -std=gnu99 -o $@ $^
 
-LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include $(IVY_INC)
+LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include $(IVY_INC) -std=c++17
 LOG2JSON_LDFLAGS = -L$(LIBPPRZLINKCPPDIR)/lib -lpprzlink++ -lboost_iostreams -lboost_system -lboost_filesystem -ltinyxml2 $(IVY_LDFLAGS) #$(shell pkg-config --cflags json-c)
 log2json: log2json.cpp
 	@echo CC $@
