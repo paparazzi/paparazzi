@@ -78,11 +78,11 @@ sdlogger_download: sdlogger_download.c
 	@echo CC $@
 	$(Q)$(CC) $(CFLAGS) -std=gnu99 -o $@ $^
 
-LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include $(IVY_INC) -std=c++17
-LOG2JSON_LDFLAGS = -L$(LIBPPRZLINKCPPDIR)/lib -lpprzlink++ -lboost_iostreams -lboost_system -lboost_filesystem -ltinyxml2 $(IVY_LDFLAGS) #$(shell pkg-config --cflags json-c)
-log2json: log2json.cpp
+LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include  $(IVY_INC) -std=c++17
+LOG2JSON_LDFLAGS = -lboost_iostreams -lboost_system -lboost_filesystem -ltinyxml2 $(IVY_LDFLAGS) #$(shell pkg-config --cflags json-c)
+log2json: log2json.cpp $(LIBPPRZLINKCPPDIR)/lib/libpprzlink++.a
 	@echo CC $@
-	$(Q)$(CXX) $(CFLAGS) $(LOG2JSON_CFLAGS) -o $@ $^ $(LOG2JSON_LDFLAGS) 
+	$(CXX) $(CFLAGS) $(LOG2JSON_CFLAGS) -o $@ $^ $(LOG2JSON_LDFLAGS) 
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
