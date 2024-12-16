@@ -19,7 +19,7 @@ You'll find the complete set of boards in `sw/airborne/boards/ <https://github.c
 Within this directory, you must have :
 
 1. A ``Makefile`` to generate the board.h file from board.cfg using `boardGen.pl <https://github.com/alex31/chibios_enac_various_common/blob/master/TOOLS/boardGen.pl>`_.
-2. A ``board.cfg`` containing the definition of the pins used (see `documentation <https://github.com/alex31/chibios_enac_various_common/blob/master/TOOLS/DOC/boardGen.pdf>`_ ).
+2. A ``board.cfg`` containing the definition of the pins used (see `documentation <https://github.com/alex31/chibios_enac_various_common/blob/master/TOOLS/DOC/boardGen.pdf>`_). It is preferable to use the generic pin names defined in the ``common_board.h`` in the directory `sw/airborne/arch/chibios <https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/arch/chibios/common_board.h>`_. Any information that is not common to the various boards can be inserted in the HEADER section of the ``board.cfg``.
 3. A ``board.h`` file, which is the result of running ``make`` in this directory (this file must not be modified; you have to run `boardGen.pl` for any change in `board.cfg`).
 4. A ``mcuconf_board.h`` file, which defines the microcontroller's configuration (clock, peripherals, etc.). If the microcontroller is supported by ChibiOS, an example can be found in `sw/ext/chibios/demos/STM32/<board_name>/cfg/mcuconf.h <https://github.com/paparazzi/ChibiOS/tree/paparazzi/demos/STM32>`_.
 
@@ -47,7 +47,7 @@ The name of this file will be the name used in the airframe file when defining t
 
 In this Makefile, it is necessary to configure several points :
 
-* ``BOARD_DIR`` must point to the directory defined in :ref:`board_dir` with relative path from `sw/airborne/boards <https://github.com/paparazzi/paparazzi/tree/master/sw/airborne/boards>`_ and ``BOARD_CFG`` must point to the file board.h with relative path from `sw/airborne/ <https://github.com/paparazzi/paparazzi/tree/master/sw/airborne/>`_.
+* ``BOARD_DIR`` must point to the directory defined in :ref:`board_dir` with relative path from `sw/airborne/boards <https://github.com/paparazzi/paparazzi/tree/master/sw/airborne/boards>`_ and ``BOARD_CFG`` must point to the file `sw/airborne/arch/chibios/common_board.h <https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/arch/chibios/common_board.h>`_.
 * check floating-point unit type to configure ``USE_FPU_OPT`` (single-precision and a double-precision).
 * modify the linker script in ``CHIBIOS_BOARD_LINKER`` to use the correct one (see :ref:`linker_script`).
 * modify the architecture used by ``CHIBIOS_BOARD_PLATFORM`` and ``CHIBIOS_BOARD_STARTUP``.
