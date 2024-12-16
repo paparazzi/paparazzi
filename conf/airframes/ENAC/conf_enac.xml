@@ -62,7 +62,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/competitions/IMAV2023_dynamic.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/jevois.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml modules/switch_servo.xml modules/tag_tracking.xml"
+   settings_modules="modules/electrical.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/jevois.xml modules/logger_sd_chibios.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml modules/switch_servo.xml modules/tag_tracking.xml"
    gui_color="#c6d33e3ef958"
   />
   <aircraft
@@ -86,5 +86,27 @@
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/ahrs_float_dcm.xml modules/air_data.xml modules/e_identification_fr.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_full_pid_fw.xml modules/imu_common.xml modules/logger_sd_chibios.xml modules/nav_basic_fw.xml modules/stabilization_adaptive_fw.xml"
    gui_color="#ffff7d7d0000"
+  />
+  <aircraft
+   name="CROW"
+   ac_id="5"
+   airframe="airframes/ENAC/quadrotor/crow_indoor.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/ENAC_stadium.xml"
+   settings=""
+   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/electrical.xml modules/gps.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
+  />
+  <aircraft
+   name="GOOSE"
+   ac_id="7"
+   airframe="airframes/ENAC/quadrotor/goose.xml"
+   radio="radios/FrSky_X-Lite.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/ENAC/ENAC_stadium.xml"
+   settings=""
+   settings_modules="modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_indi.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/ins_ekf2.xml modules/nav_rotorcraft.xml modules/stabilization_indi.xml"
+   gui_color="red"
   />
 </conf>
