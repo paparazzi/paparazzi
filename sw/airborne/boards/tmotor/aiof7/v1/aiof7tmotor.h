@@ -94,7 +94,11 @@
 #endif
 
 #ifndef USE_PWM_TIM4
-#define USE_PWM_TIM4 0
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM8
+#define USE_PWM_TIM8 1
 #endif
 
 // motors,  PWM mode disabled by default (DShot is enabled by default) 

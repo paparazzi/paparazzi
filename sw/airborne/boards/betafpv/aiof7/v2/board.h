@@ -46,63 +46,195 @@
  */
 #define STM32F722xx
 
+/**
+ * DSHOT
+ */
+
+
+#define DSHOT_TIM3_TELEMETRY_DEV NULL
+#define DSHOT_TIM4_TELEMETRY_DEV NULL
+#define DSHOT_TIM5_TELEMETRY_DEV NULL
+
+
+
+#ifndef USE_DSHOT_TIM3
+#define USE_DSHOT_TIM3 1 // SERVO1 SERVO2
+#endif
+
+#ifndef USE_DSHOT_TIM4
+#define USE_DSHOT_TIM4 1 // SERVO5 SERVO6
+#endif
+
+#ifndef USE_DSHOT_TIM5
+#define USE_DSHOT_TIM5 1 // SERVO3 SERVO4
+#endif
+
+#if USE_DSHOT_TIM3 // SERVO1 SERVO2 on TIM3
+
+#define DSHOT_SERVO_1 1
+#define DSHOT_SERVO_1_GPIO PAL_PORT(LINE_SERVO1)
+#define DSHOT_SERVO_1_PIN PAL_PAD(LINE_SERVO1)
+#define DSHOT_SERVO_1_AF AF_LINE_SERVO1
+#define DSHOT_SERVO_1_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO1_TIM)
+#define DSHOT_SERVO_1_CHANNEL SERVO1_TIM_CH
+
+#define DSHOT_SERVO_2 2
+#define DSHOT_SERVO_2_GPIO PAL_PORT(LINE_SERVO2)
+#define DSHOT_SERVO_2_PIN PAL_PAD(LINE_SERVO2)
+#define DSHOT_SERVO_2_AF AF_LINE_SERVO2
+#define DSHOT_SERVO_2_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO2_TIM)
+#define DSHOT_SERVO_2_CHANNEL SERVO2_TIM_CH
+
+
+#define DSHOT_CONF_TIM3 1
+#define DSHOT_CONF3_DEF { \
+  .dma_stream = STM32_PWM3_UP_DMA_STREAM,   \
+  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL, \
+  .pwmp = &PWMD3,                           \
+  .tlm_sd = DSHOT_TIM3_TELEMETRY_DEV,       \
+  .dma_buf = &dshot3DmaBuffer,              \
+  .dcache_memory_in_use = false             \
+}
+
+#endif
+
+
+#if USE_DSHOT_TIM4 // SERVO5 SERVO6 on TIM4
+
+#define DSHOT_SERVO_5 5
+#define DSHOT_SERVO_5_GPIO PAL_PORT(LINE_SERVO5)
+#define DSHOT_SERVO_5_PIN PAL_PAD(LINE_SERVO5)
+#define DSHOT_SERVO_5_AF AF_LINE_SERVO5
+#define DSHOT_SERVO_5_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO5_TIM)
+#define DSHOT_SERVO_5_CHANNEL SERVO5_TIM_CH
+
+#define DSHOT_SERVO_6 6
+#define DSHOT_SERVO_6_GPIO PAL_PORT(LINE_SERVO6)
+#define DSHOT_SERVO_6_PIN PAL_PAD(LINE_SERVO6)
+#define DSHOT_SERVO_6_AF AF_LINE_SERVO6
+#define DSHOT_SERVO_6_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO6_TIM)
+#define DSHOT_SERVO_6_CHANNEL SERVO6_TIM_CH
+
+
+#define DSHOT_CONF_TIM4 1
+#define DSHOT_CONF4_DEF { \
+  .dma_stream = STM32_PWM4_UP_DMA_STREAM,   \
+  .dma_channel = STM32_PWM4_UP_DMA_CHANNEL, \
+  .pwmp = &PWMD4,                           \
+  .tlm_sd = DSHOT_TIM4_TELEMETRY_DEV,       \
+  .dma_buf = &dshot4DmaBuffer,              \
+  .dcache_memory_in_use = false             \
+}
+
+#endif
+
+#if USE_DSHOT_TIM5 // SERVO3 SERVO4 on TIM5
+
+#define DSHOT_SERVO_3 3
+#define DSHOT_SERVO_3_GPIO PAL_PORT(LINE_SERVO3)
+#define DSHOT_SERVO_3_PIN PAL_PAD(LINE_SERVO3)
+#define DSHOT_SERVO_3_AF AF_LINE_SERVO3
+#define DSHOT_SERVO_3_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO3_TIM)
+#define DSHOT_SERVO_3_CHANNEL SERVO3_TIM_CH
+
+#define DSHOT_SERVO_4 4
+#define DSHOT_SERVO_4_GPIO PAL_PORT(LINE_SERVO4)
+#define DSHOT_SERVO_4_PIN PAL_PAD(LINE_SERVO4)
+#define DSHOT_SERVO_4_AF AF_LINE_SERVO4
+#define DSHOT_SERVO_4_DRIVER CONCAT_BOARD_PARAM(DSHOTD, SERVO4_TIM)
+#define DSHOT_SERVO_4_CHANNEL SERVO4_TIM_CH
+
+
+#define DSHOT_CONF_TIM5 1
+#define DSHOT_CONF5_DEF { \
+  .dma_stream = STM32_PWM5_UP_DMA_STREAM,   \
+  .dma_channel = STM32_PWM5_UP_DMA_CHANNEL, \
+  .pwmp = &PWMD5,                           \
+  .tlm_sd = DSHOT_TIM5_TELEMETRY_DEV,       \
+  .dma_buf = &dshot5DmaBuffer,              \
+  .dcache_memory_in_use = false             \
+}
+
+#endif
+
+/*
+ * enable TIM5, TIM3, TIM4 by default
+ */
+#ifndef USE_PWM_TIM3
+#define USE_PWM_TIM3 1
+#endif
+
+#ifndef USE_PWM_TIM4
+#define USE_PWM_TIM4 1
+#endif
+
+#ifndef USE_PWM_TIM5
+#define USE_PWM_TIM5 1
+#endif
+
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_1
+#endif
+
+#define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f)*10.91*adc)
 /*
  * IO pins assignments.
  */
-#define	MOTOR_4                        0U
-#define	MOTOR_3                        1U
-#define	UART2_TX                       2U
-#define	UART2_RX                       3U
-#define	GYRO_CS_1                      4U
-#define	SPI1_CLK                       5U
-#define	SPI1_MISO                      6U
-#define	SPI1_MOSI                      7U
-#define	AUX                            8U
-#define	UART1_TX                       9U
-#define	UART1_RX                       10U
-#define	OTG_FS_DM                      11U
-#define	OTG_FS_DP                      12U
-#define	SWDIO                          13U
-#define	SWCLK                          14U
-#define	OSD_CS                         15U
+#define	PA00_SERVO4                    0U
+#define	PA01_SERVO3                    1U
+#define	PA02_UART2_TX                  2U
+#define	PA03_UART2_RX                  3U
+#define	PA04_SPI_SLAVE0                4U
+#define	PA05_SPI1_CLK                  5U
+#define	PA06_SPI1_MISO                 6U
+#define	PA07_SPI1_MOSI                 7U
+#define	PA08_AUX                       8U
+#define	PA09_UART1_TX                  9U
+#define	PA10_UART1_RX                  10U
+#define	PA11_OTG_FS_DM                 11U
+#define	PA12_OTG_FS_DP                 12U
+#define	PA13_SWDIO                     13U
+#define	PA14_SWCLK                     14U
+#define	PA15_SPI_SLAVE1                15U
 
-#define	MOTOR_1                        0U
-#define	MOTOR_2                        1U
-#define	GYRO_EXTI_2                    2U
-#define	SPI3_CLK                       3U
-#define	SPI3_MISO                      4U
-#define	SPI3_MOSI                      5U
-#define	MOTOR_5                        6U
-#define	MOTOR_6                        7U
-#define	I2C1_SCL                       8U
-#define	I2C1_SDA                       9U
-#define	UART3_TX                       10U
-#define	RC1                            11U
-#define	FLASH_CS                       12U
-#define	SPI2_CLK                       13U
-#define	SPI2_MISO                      14U
-#define	SPI2_MOSI                      15U
+#define	PB00_SERVO1                    0U
+#define	PB01_SERVO2                    1U
+#define	PB02_GYRO_EXTI_2               2U
+#define	PB03_SPI3_CLK                  3U
+#define	PB04_SPI3_MISO                 4U
+#define	PB05_SPI3_MOSI                 5U
+#define	PB06_SERVO5                    6U
+#define	PB07_SERVO6                    7U
+#define	PB08_I2C1_SCL                  8U
+#define	PB09_I2C1_SDA                  9U
+#define	PB10_UART3_TX                  10U
+#define	PB11_RC1                       11U
+#define	PB12_SPI_SLAVE2                12U
+#define	PB13_SPI2_CLK                  13U
+#define	PB14_SPI2_MISO                 14U
+#define	PB15_SPI2_MOSI                 15U
 
-#define	VBAT_MEAS                      0U
+#define	PC00_ADC1                      0U
 #define	PC01                           1U
 #define	PC02                           2U
-#define	GYRO_CS_2                      3U
-#define	GYRO_EXTI_1                    4U
+#define	PC03_SPI_SLAVE3                3U
+#define	PC04_GYRO_EXTI_1               4U
 #define	PC05                           5U
-#define	UART6_TX                       6U
-#define	UART6_RX                       7U
+#define	PC06_UART6_TX                  6U
+#define	PC07_UART6_RX                  7U
 #define	PC08                           8U
 #define	PC09                           9U
-#define	UART4_TX                       10U
-#define	UART4_RX                       11U
-#define	UART5_TX                       12U
-#define	BARO_CS                        13U
-#define	BEEPER                         14U
-#define	LED                            15U
+#define	PC10_UART4_TX                  10U
+#define	PC11_UART4_RX                  11U
+#define	PC12_UART5_TX                  12U
+#define	PC13_SPI_SLAVE4                13U
+#define	PC14_BEEPER                    14U
+#define	PC15_LED1                      15U
 
 #define	PD00                           0U
 #define	PD01                           1U
-#define	UART5_RX                       2U
+#define	PD02_UART5_RX                  2U
 #define	PD03                           3U
 #define	PD04                           4U
 #define	PD05                           5U
@@ -168,8 +300,8 @@
 #define	PG14                           14U
 #define	PG15                           15U
 
-#define	OSC_IN                         0U
-#define	OSC_OUT                        1U
+#define	PH00_OSC_IN                    0U
+#define	PH01_OSC_OUT                   1U
 #define	PH02                           2U
 #define	PH03                           3U
 #define	PH04                           4U
@@ -239,11 +371,11 @@
 /*
  * IO lines assignments.
  */
-#define	LINE_MOTOR_4                   PAL_LINE(GPIOA, 0U)
-#define	LINE_MOTOR_3                   PAL_LINE(GPIOA, 1U)
+#define	LINE_SERVO4                    PAL_LINE(GPIOA, 0U)
+#define	LINE_SERVO3                    PAL_LINE(GPIOA, 1U)
 #define	LINE_UART2_TX                  PAL_LINE(GPIOA, 2U)
 #define	LINE_UART2_RX                  PAL_LINE(GPIOA, 3U)
-#define	LINE_GYRO_CS_1                 PAL_LINE(GPIOA, 4U)
+#define	LINE_SPI_SLAVE0                PAL_LINE(GPIOA, 4U)
 #define	LINE_SPI1_CLK                  PAL_LINE(GPIOA, 5U)
 #define	LINE_SPI1_MISO                 PAL_LINE(GPIOA, 6U)
 #define	LINE_SPI1_MOSI                 PAL_LINE(GPIOA, 7U)
@@ -254,36 +386,36 @@
 #define	LINE_OTG_FS_DP                 PAL_LINE(GPIOA, 12U)
 #define	LINE_SWDIO                     PAL_LINE(GPIOA, 13U)
 #define	LINE_SWCLK                     PAL_LINE(GPIOA, 14U)
-#define	LINE_OSD_CS                    PAL_LINE(GPIOA, 15U)
+#define	LINE_SPI_SLAVE1                PAL_LINE(GPIOA, 15U)
 
-#define	LINE_MOTOR_1                   PAL_LINE(GPIOB, 0U)
-#define	LINE_MOTOR_2                   PAL_LINE(GPIOB, 1U)
+#define	LINE_SERVO1                    PAL_LINE(GPIOB, 0U)
+#define	LINE_SERVO2                    PAL_LINE(GPIOB, 1U)
 #define	LINE_GYRO_EXTI_2               PAL_LINE(GPIOB, 2U)
 #define	LINE_SPI3_CLK                  PAL_LINE(GPIOB, 3U)
 #define	LINE_SPI3_MISO                 PAL_LINE(GPIOB, 4U)
 #define	LINE_SPI3_MOSI                 PAL_LINE(GPIOB, 5U)
-#define	LINE_MOTOR_5                   PAL_LINE(GPIOB, 6U)
-#define	LINE_MOTOR_6                   PAL_LINE(GPIOB, 7U)
+#define	LINE_SERVO5                    PAL_LINE(GPIOB, 6U)
+#define	LINE_SERVO6                    PAL_LINE(GPIOB, 7U)
 #define	LINE_I2C1_SCL                  PAL_LINE(GPIOB, 8U)
 #define	LINE_I2C1_SDA                  PAL_LINE(GPIOB, 9U)
 #define	LINE_UART3_TX                  PAL_LINE(GPIOB, 10U)
 #define	LINE_RC1                       PAL_LINE(GPIOB, 11U)
-#define	LINE_FLASH_CS                  PAL_LINE(GPIOB, 12U)
+#define	LINE_SPI_SLAVE2                PAL_LINE(GPIOB, 12U)
 #define	LINE_SPI2_CLK                  PAL_LINE(GPIOB, 13U)
 #define	LINE_SPI2_MISO                 PAL_LINE(GPIOB, 14U)
 #define	LINE_SPI2_MOSI                 PAL_LINE(GPIOB, 15U)
 
-#define	LINE_VBAT_MEAS                 PAL_LINE(GPIOC, 0U)
-#define	LINE_GYRO_CS_2                 PAL_LINE(GPIOC, 3U)
+#define	LINE_ADC1                      PAL_LINE(GPIOC, 0U)
+#define	LINE_SPI_SLAVE3                PAL_LINE(GPIOC, 3U)
 #define	LINE_GYRO_EXTI_1               PAL_LINE(GPIOC, 4U)
 #define	LINE_UART6_TX                  PAL_LINE(GPIOC, 6U)
 #define	LINE_UART6_RX                  PAL_LINE(GPIOC, 7U)
 #define	LINE_UART4_TX                  PAL_LINE(GPIOC, 10U)
 #define	LINE_UART4_RX                  PAL_LINE(GPIOC, 11U)
 #define	LINE_UART5_TX                  PAL_LINE(GPIOC, 12U)
-#define	LINE_BARO_CS                   PAL_LINE(GPIOC, 13U)
+#define	LINE_SPI_SLAVE4                PAL_LINE(GPIOC, 13U)
 #define	LINE_BEEPER                    PAL_LINE(GPIOC, 14U)
-#define	LINE_LED                       PAL_LINE(GPIOC, 15U)
+#define	LINE_LED1                      PAL_LINE(GPIOC, 15U)
 
 #define	LINE_UART5_RX                  PAL_LINE(GPIOD, 2U)
 
@@ -313,318 +445,318 @@
 #define PIN_PUPDR_PULLDOWN(n)       (2U << ((n) * 2U))
 #define PIN_AFIO_AF(n, v)           ((v) << (((n) % 8U) * 4U))
 
-#define VAL_GPIOA_MODER                 (PIN_MODE_ALTERNATE(MOTOR_4) | \
-					 PIN_MODE_ALTERNATE(MOTOR_3) | \
-					 PIN_MODE_ALTERNATE(UART2_TX) | \
-					 PIN_MODE_ALTERNATE(UART2_RX) | \
-					 PIN_MODE_OUTPUT(GYRO_CS_1) | \
-					 PIN_MODE_ALTERNATE(SPI1_CLK) | \
-					 PIN_MODE_ALTERNATE(SPI1_MISO) | \
-					 PIN_MODE_ALTERNATE(SPI1_MOSI) | \
-					 PIN_MODE_ALTERNATE(AUX) | \
-					 PIN_MODE_ALTERNATE(UART1_TX) | \
-					 PIN_MODE_ALTERNATE(UART1_RX) | \
-					 PIN_MODE_ALTERNATE(OTG_FS_DM) | \
-					 PIN_MODE_ALTERNATE(OTG_FS_DP) | \
-					 PIN_MODE_ALTERNATE(SWDIO) | \
-					 PIN_MODE_ALTERNATE(SWCLK) | \
-					 PIN_MODE_OUTPUT(OSD_CS))
+#define VAL_GPIOA_MODER                 (PIN_MODE_ALTERNATE(PA00_SERVO4) | \
+					 PIN_MODE_ALTERNATE(PA01_SERVO3) | \
+					 PIN_MODE_ALTERNATE(PA02_UART2_TX) | \
+					 PIN_MODE_ALTERNATE(PA03_UART2_RX) | \
+					 PIN_MODE_OUTPUT(PA04_SPI_SLAVE0) | \
+					 PIN_MODE_ALTERNATE(PA05_SPI1_CLK) | \
+					 PIN_MODE_ALTERNATE(PA06_SPI1_MISO) | \
+					 PIN_MODE_ALTERNATE(PA07_SPI1_MOSI) | \
+					 PIN_MODE_ALTERNATE(PA08_AUX) | \
+					 PIN_MODE_ALTERNATE(PA09_UART1_TX) | \
+					 PIN_MODE_ALTERNATE(PA10_UART1_RX) | \
+					 PIN_MODE_ALTERNATE(PA11_OTG_FS_DM) | \
+					 PIN_MODE_ALTERNATE(PA12_OTG_FS_DP) | \
+					 PIN_MODE_ALTERNATE(PA13_SWDIO) | \
+					 PIN_MODE_ALTERNATE(PA14_SWCLK) | \
+					 PIN_MODE_OUTPUT(PA15_SPI_SLAVE1))
 
-#define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(MOTOR_4) | \
-					 PIN_OTYPE_PUSHPULL(MOTOR_3) | \
-					 PIN_OTYPE_PUSHPULL(UART2_TX) | \
-					 PIN_OTYPE_PUSHPULL(UART2_RX) | \
-					 PIN_OTYPE_PUSHPULL(GYRO_CS_1) | \
-					 PIN_OTYPE_PUSHPULL(SPI1_CLK) | \
-					 PIN_OTYPE_PUSHPULL(SPI1_MISO) | \
-					 PIN_OTYPE_PUSHPULL(SPI1_MOSI) | \
-					 PIN_OTYPE_PUSHPULL(AUX) | \
-					 PIN_OTYPE_PUSHPULL(UART1_TX) | \
-					 PIN_OTYPE_PUSHPULL(UART1_RX) | \
-					 PIN_OTYPE_PUSHPULL(OTG_FS_DM) | \
-					 PIN_OTYPE_PUSHPULL(OTG_FS_DP) | \
-					 PIN_OTYPE_PUSHPULL(SWDIO) | \
-					 PIN_OTYPE_PUSHPULL(SWCLK) | \
-					 PIN_OTYPE_PUSHPULL(OSD_CS))
+#define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(PA00_SERVO4) | \
+					 PIN_OTYPE_PUSHPULL(PA01_SERVO3) | \
+					 PIN_OTYPE_PUSHPULL(PA02_UART2_TX) | \
+					 PIN_OTYPE_PUSHPULL(PA03_UART2_RX) | \
+					 PIN_OTYPE_PUSHPULL(PA04_SPI_SLAVE0) | \
+					 PIN_OTYPE_PUSHPULL(PA05_SPI1_CLK) | \
+					 PIN_OTYPE_PUSHPULL(PA06_SPI1_MISO) | \
+					 PIN_OTYPE_PUSHPULL(PA07_SPI1_MOSI) | \
+					 PIN_OTYPE_PUSHPULL(PA08_AUX) | \
+					 PIN_OTYPE_PUSHPULL(PA09_UART1_TX) | \
+					 PIN_OTYPE_PUSHPULL(PA10_UART1_RX) | \
+					 PIN_OTYPE_PUSHPULL(PA11_OTG_FS_DM) | \
+					 PIN_OTYPE_PUSHPULL(PA12_OTG_FS_DP) | \
+					 PIN_OTYPE_PUSHPULL(PA13_SWDIO) | \
+					 PIN_OTYPE_PUSHPULL(PA14_SWCLK) | \
+					 PIN_OTYPE_PUSHPULL(PA15_SPI_SLAVE1))
 
-#define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(MOTOR_4) | \
-					 PIN_OSPEED_SPEED_HIGH(MOTOR_3) | \
-					 PIN_OSPEED_SPEED_HIGH(UART2_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART2_RX) | \
-					 PIN_OSPEED_SPEED_HIGH(GYRO_CS_1) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI1_CLK) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI1_MISO) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI1_MOSI) | \
-					 PIN_OSPEED_SPEED_HIGH(AUX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART1_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART1_RX) | \
-					 PIN_OSPEED_SPEED_HIGH(OTG_FS_DM) | \
-					 PIN_OSPEED_SPEED_HIGH(OTG_FS_DP) | \
-					 PIN_OSPEED_SPEED_HIGH(SWDIO) | \
-					 PIN_OSPEED_SPEED_HIGH(SWCLK) | \
-					 PIN_OSPEED_SPEED_HIGH(OSD_CS))
+#define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(PA00_SERVO4) | \
+					 PIN_OSPEED_SPEED_HIGH(PA01_SERVO3) | \
+					 PIN_OSPEED_SPEED_HIGH(PA02_UART2_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PA03_UART2_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PA04_SPI_SLAVE0) | \
+					 PIN_OSPEED_SPEED_HIGH(PA05_SPI1_CLK) | \
+					 PIN_OSPEED_SPEED_HIGH(PA06_SPI1_MISO) | \
+					 PIN_OSPEED_SPEED_HIGH(PA07_SPI1_MOSI) | \
+					 PIN_OSPEED_SPEED_HIGH(PA08_AUX) | \
+					 PIN_OSPEED_SPEED_HIGH(PA09_UART1_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PA10_UART1_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PA11_OTG_FS_DM) | \
+					 PIN_OSPEED_SPEED_HIGH(PA12_OTG_FS_DP) | \
+					 PIN_OSPEED_SPEED_HIGH(PA13_SWDIO) | \
+					 PIN_OSPEED_SPEED_HIGH(PA14_SWCLK) | \
+					 PIN_OSPEED_SPEED_HIGH(PA15_SPI_SLAVE1))
 
-#define VAL_GPIOA_PUPDR                 (PIN_PUPDR_FLOATING(MOTOR_4) | \
-					 PIN_PUPDR_FLOATING(MOTOR_3) | \
-					 PIN_PUPDR_FLOATING(UART2_TX) | \
-					 PIN_PUPDR_FLOATING(UART2_RX) | \
-					 PIN_PUPDR_FLOATING(GYRO_CS_1) | \
-					 PIN_PUPDR_FLOATING(SPI1_CLK) | \
-					 PIN_PUPDR_FLOATING(SPI1_MISO) | \
-					 PIN_PUPDR_FLOATING(SPI1_MOSI) | \
-					 PIN_PUPDR_FLOATING(AUX) | \
-					 PIN_PUPDR_FLOATING(UART1_TX) | \
-					 PIN_PUPDR_FLOATING(UART1_RX) | \
-					 PIN_PUPDR_FLOATING(OTG_FS_DM) | \
-					 PIN_PUPDR_FLOATING(OTG_FS_DP) | \
-					 PIN_PUPDR_FLOATING(SWDIO) | \
-					 PIN_PUPDR_FLOATING(SWCLK) | \
-					 PIN_PUPDR_FLOATING(OSD_CS))
+#define VAL_GPIOA_PUPDR                 (PIN_PUPDR_FLOATING(PA00_SERVO4) | \
+					 PIN_PUPDR_FLOATING(PA01_SERVO3) | \
+					 PIN_PUPDR_FLOATING(PA02_UART2_TX) | \
+					 PIN_PUPDR_FLOATING(PA03_UART2_RX) | \
+					 PIN_PUPDR_FLOATING(PA04_SPI_SLAVE0) | \
+					 PIN_PUPDR_FLOATING(PA05_SPI1_CLK) | \
+					 PIN_PUPDR_FLOATING(PA06_SPI1_MISO) | \
+					 PIN_PUPDR_FLOATING(PA07_SPI1_MOSI) | \
+					 PIN_PUPDR_FLOATING(PA08_AUX) | \
+					 PIN_PUPDR_FLOATING(PA09_UART1_TX) | \
+					 PIN_PUPDR_FLOATING(PA10_UART1_RX) | \
+					 PIN_PUPDR_FLOATING(PA11_OTG_FS_DM) | \
+					 PIN_PUPDR_FLOATING(PA12_OTG_FS_DP) | \
+					 PIN_PUPDR_FLOATING(PA13_SWDIO) | \
+					 PIN_PUPDR_FLOATING(PA14_SWCLK) | \
+					 PIN_PUPDR_FLOATING(PA15_SPI_SLAVE1))
 
-#define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_LOW(MOTOR_4) | \
-					 PIN_ODR_LEVEL_LOW(MOTOR_3) | \
-					 PIN_ODR_LEVEL_HIGH(UART2_TX) | \
-					 PIN_ODR_LEVEL_HIGH(UART2_RX) | \
-					 PIN_ODR_LEVEL_HIGH(GYRO_CS_1) | \
-					 PIN_ODR_LEVEL_HIGH(SPI1_CLK) | \
-					 PIN_ODR_LEVEL_HIGH(SPI1_MISO) | \
-					 PIN_ODR_LEVEL_HIGH(SPI1_MOSI) | \
-					 PIN_ODR_LEVEL_LOW(AUX) | \
-					 PIN_ODR_LEVEL_HIGH(UART1_TX) | \
-					 PIN_ODR_LEVEL_HIGH(UART1_RX) | \
-					 PIN_ODR_LEVEL_HIGH(OTG_FS_DM) | \
-					 PIN_ODR_LEVEL_HIGH(OTG_FS_DP) | \
-					 PIN_ODR_LEVEL_HIGH(SWDIO) | \
-					 PIN_ODR_LEVEL_HIGH(SWCLK) | \
-					 PIN_ODR_LEVEL_HIGH(OSD_CS))
+#define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_LOW(PA00_SERVO4) | \
+					 PIN_ODR_LEVEL_LOW(PA01_SERVO3) | \
+					 PIN_ODR_LEVEL_HIGH(PA02_UART2_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PA03_UART2_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PA04_SPI_SLAVE0) | \
+					 PIN_ODR_LEVEL_HIGH(PA05_SPI1_CLK) | \
+					 PIN_ODR_LEVEL_HIGH(PA06_SPI1_MISO) | \
+					 PIN_ODR_LEVEL_HIGH(PA07_SPI1_MOSI) | \
+					 PIN_ODR_LEVEL_LOW(PA08_AUX) | \
+					 PIN_ODR_LEVEL_HIGH(PA09_UART1_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PA10_UART1_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PA11_OTG_FS_DM) | \
+					 PIN_ODR_LEVEL_HIGH(PA12_OTG_FS_DP) | \
+					 PIN_ODR_LEVEL_HIGH(PA13_SWDIO) | \
+					 PIN_ODR_LEVEL_HIGH(PA14_SWCLK) | \
+					 PIN_ODR_LEVEL_HIGH(PA15_SPI_SLAVE1))
 
-#define VAL_GPIOA_AFRL			(PIN_AFIO_AF(MOTOR_4, 2) | \
-					 PIN_AFIO_AF(MOTOR_3, 2) | \
-					 PIN_AFIO_AF(UART2_TX, 7) | \
-					 PIN_AFIO_AF(UART2_RX, 7) | \
-					 PIN_AFIO_AF(GYRO_CS_1, 0) | \
-					 PIN_AFIO_AF(SPI1_CLK, 5) | \
-					 PIN_AFIO_AF(SPI1_MISO, 5) | \
-					 PIN_AFIO_AF(SPI1_MOSI, 5))
+#define VAL_GPIOA_AFRL			(PIN_AFIO_AF(PA00_SERVO4, 2) | \
+					 PIN_AFIO_AF(PA01_SERVO3, 2) | \
+					 PIN_AFIO_AF(PA02_UART2_TX, 7) | \
+					 PIN_AFIO_AF(PA03_UART2_RX, 7) | \
+					 PIN_AFIO_AF(PA04_SPI_SLAVE0, 0) | \
+					 PIN_AFIO_AF(PA05_SPI1_CLK, 5) | \
+					 PIN_AFIO_AF(PA06_SPI1_MISO, 5) | \
+					 PIN_AFIO_AF(PA07_SPI1_MOSI, 5))
 
-#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(AUX, 1) | \
-					 PIN_AFIO_AF(UART1_TX, 7) | \
-					 PIN_AFIO_AF(UART1_RX, 7) | \
-					 PIN_AFIO_AF(OTG_FS_DM, 10) | \
-					 PIN_AFIO_AF(OTG_FS_DP, 10) | \
-					 PIN_AFIO_AF(SWDIO, 0) | \
-					 PIN_AFIO_AF(SWCLK, 0) | \
-					 PIN_AFIO_AF(OSD_CS, 0))
+#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(PA08_AUX, 1) | \
+					 PIN_AFIO_AF(PA09_UART1_TX, 7) | \
+					 PIN_AFIO_AF(PA10_UART1_RX, 7) | \
+					 PIN_AFIO_AF(PA11_OTG_FS_DM, 10) | \
+					 PIN_AFIO_AF(PA12_OTG_FS_DP, 10) | \
+					 PIN_AFIO_AF(PA13_SWDIO, 0) | \
+					 PIN_AFIO_AF(PA14_SWCLK, 0) | \
+					 PIN_AFIO_AF(PA15_SPI_SLAVE1, 0))
 
-#define VAL_GPIOB_MODER                 (PIN_MODE_ALTERNATE(MOTOR_1) | \
-					 PIN_MODE_ALTERNATE(MOTOR_2) | \
-					 PIN_MODE_INPUT(GYRO_EXTI_2) | \
-					 PIN_MODE_ALTERNATE(SPI3_CLK) | \
-					 PIN_MODE_ALTERNATE(SPI3_MISO) | \
-					 PIN_MODE_ALTERNATE(SPI3_MOSI) | \
-					 PIN_MODE_ALTERNATE(MOTOR_5) | \
-					 PIN_MODE_ALTERNATE(MOTOR_6) | \
-					 PIN_MODE_ALTERNATE(I2C1_SCL) | \
-					 PIN_MODE_ALTERNATE(I2C1_SDA) | \
-					 PIN_MODE_ALTERNATE(UART3_TX) | \
-					 PIN_MODE_ALTERNATE(RC1) | \
-					 PIN_MODE_OUTPUT(FLASH_CS) | \
-					 PIN_MODE_ALTERNATE(SPI2_CLK) | \
-					 PIN_MODE_ALTERNATE(SPI2_MISO) | \
-					 PIN_MODE_ALTERNATE(SPI2_MOSI))
+#define VAL_GPIOB_MODER                 (PIN_MODE_ALTERNATE(PB00_SERVO1) | \
+					 PIN_MODE_ALTERNATE(PB01_SERVO2) | \
+					 PIN_MODE_INPUT(PB02_GYRO_EXTI_2) | \
+					 PIN_MODE_ALTERNATE(PB03_SPI3_CLK) | \
+					 PIN_MODE_ALTERNATE(PB04_SPI3_MISO) | \
+					 PIN_MODE_ALTERNATE(PB05_SPI3_MOSI) | \
+					 PIN_MODE_ALTERNATE(PB06_SERVO5) | \
+					 PIN_MODE_ALTERNATE(PB07_SERVO6) | \
+					 PIN_MODE_ALTERNATE(PB08_I2C1_SCL) | \
+					 PIN_MODE_ALTERNATE(PB09_I2C1_SDA) | \
+					 PIN_MODE_ALTERNATE(PB10_UART3_TX) | \
+					 PIN_MODE_ALTERNATE(PB11_RC1) | \
+					 PIN_MODE_OUTPUT(PB12_SPI_SLAVE2) | \
+					 PIN_MODE_ALTERNATE(PB13_SPI2_CLK) | \
+					 PIN_MODE_ALTERNATE(PB14_SPI2_MISO) | \
+					 PIN_MODE_ALTERNATE(PB15_SPI2_MOSI))
 
-#define VAL_GPIOB_OTYPER                (PIN_OTYPE_PUSHPULL(MOTOR_1) | \
-					 PIN_OTYPE_PUSHPULL(MOTOR_2) | \
-					 PIN_OTYPE_OPENDRAIN(GYRO_EXTI_2) | \
-					 PIN_OTYPE_PUSHPULL(SPI3_CLK) | \
-					 PIN_OTYPE_PUSHPULL(SPI3_MISO) | \
-					 PIN_OTYPE_PUSHPULL(SPI3_MOSI) | \
-					 PIN_OTYPE_PUSHPULL(MOTOR_5) | \
-					 PIN_OTYPE_PUSHPULL(MOTOR_6) | \
-					 PIN_OTYPE_OPENDRAIN(I2C1_SCL) | \
-					 PIN_OTYPE_OPENDRAIN(I2C1_SDA) | \
-					 PIN_OTYPE_PUSHPULL(UART3_TX) | \
-					 PIN_OTYPE_PUSHPULL(RC1) | \
-					 PIN_OTYPE_PUSHPULL(FLASH_CS) | \
-					 PIN_OTYPE_PUSHPULL(SPI2_CLK) | \
-					 PIN_OTYPE_PUSHPULL(SPI2_MISO) | \
-					 PIN_OTYPE_PUSHPULL(SPI2_MOSI))
+#define VAL_GPIOB_OTYPER                (PIN_OTYPE_PUSHPULL(PB00_SERVO1) | \
+					 PIN_OTYPE_PUSHPULL(PB01_SERVO2) | \
+					 PIN_OTYPE_OPENDRAIN(PB02_GYRO_EXTI_2) | \
+					 PIN_OTYPE_PUSHPULL(PB03_SPI3_CLK) | \
+					 PIN_OTYPE_PUSHPULL(PB04_SPI3_MISO) | \
+					 PIN_OTYPE_PUSHPULL(PB05_SPI3_MOSI) | \
+					 PIN_OTYPE_PUSHPULL(PB06_SERVO5) | \
+					 PIN_OTYPE_PUSHPULL(PB07_SERVO6) | \
+					 PIN_OTYPE_OPENDRAIN(PB08_I2C1_SCL) | \
+					 PIN_OTYPE_OPENDRAIN(PB09_I2C1_SDA) | \
+					 PIN_OTYPE_PUSHPULL(PB10_UART3_TX) | \
+					 PIN_OTYPE_PUSHPULL(PB11_RC1) | \
+					 PIN_OTYPE_PUSHPULL(PB12_SPI_SLAVE2) | \
+					 PIN_OTYPE_PUSHPULL(PB13_SPI2_CLK) | \
+					 PIN_OTYPE_PUSHPULL(PB14_SPI2_MISO) | \
+					 PIN_OTYPE_PUSHPULL(PB15_SPI2_MOSI))
 
-#define VAL_GPIOB_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(MOTOR_1) | \
-					 PIN_OSPEED_SPEED_HIGH(MOTOR_2) | \
-					 PIN_OSPEED_SPEED_VERYLOW(GYRO_EXTI_2) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI3_CLK) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI3_MISO) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI3_MOSI) | \
-					 PIN_OSPEED_SPEED_HIGH(MOTOR_5) | \
-					 PIN_OSPEED_SPEED_HIGH(MOTOR_6) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C1_SCL) | \
-					 PIN_OSPEED_SPEED_HIGH(I2C1_SDA) | \
-					 PIN_OSPEED_SPEED_HIGH(UART3_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(RC1) | \
-					 PIN_OSPEED_SPEED_HIGH(FLASH_CS) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI2_CLK) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI2_MISO) | \
-					 PIN_OSPEED_SPEED_HIGH(SPI2_MOSI))
+#define VAL_GPIOB_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(PB00_SERVO1) | \
+					 PIN_OSPEED_SPEED_HIGH(PB01_SERVO2) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PB02_GYRO_EXTI_2) | \
+					 PIN_OSPEED_SPEED_HIGH(PB03_SPI3_CLK) | \
+					 PIN_OSPEED_SPEED_HIGH(PB04_SPI3_MISO) | \
+					 PIN_OSPEED_SPEED_HIGH(PB05_SPI3_MOSI) | \
+					 PIN_OSPEED_SPEED_HIGH(PB06_SERVO5) | \
+					 PIN_OSPEED_SPEED_HIGH(PB07_SERVO6) | \
+					 PIN_OSPEED_SPEED_HIGH(PB08_I2C1_SCL) | \
+					 PIN_OSPEED_SPEED_HIGH(PB09_I2C1_SDA) | \
+					 PIN_OSPEED_SPEED_HIGH(PB10_UART3_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PB11_RC1) | \
+					 PIN_OSPEED_SPEED_HIGH(PB12_SPI_SLAVE2) | \
+					 PIN_OSPEED_SPEED_HIGH(PB13_SPI2_CLK) | \
+					 PIN_OSPEED_SPEED_HIGH(PB14_SPI2_MISO) | \
+					 PIN_OSPEED_SPEED_HIGH(PB15_SPI2_MOSI))
 
-#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_FLOATING(MOTOR_1) | \
-					 PIN_PUPDR_FLOATING(MOTOR_2) | \
-					 PIN_PUPDR_PULLUP(GYRO_EXTI_2) | \
-					 PIN_PUPDR_FLOATING(SPI3_CLK) | \
-					 PIN_PUPDR_FLOATING(SPI3_MISO) | \
-					 PIN_PUPDR_FLOATING(SPI3_MOSI) | \
-					 PIN_PUPDR_FLOATING(MOTOR_5) | \
-					 PIN_PUPDR_FLOATING(MOTOR_6) | \
-					 PIN_PUPDR_PULLUP(I2C1_SCL) | \
-					 PIN_PUPDR_PULLUP(I2C1_SDA) | \
-					 PIN_PUPDR_FLOATING(UART3_TX) | \
-					 PIN_PUPDR_FLOATING(RC1) | \
-					 PIN_PUPDR_FLOATING(FLASH_CS) | \
-					 PIN_PUPDR_FLOATING(SPI2_CLK) | \
-					 PIN_PUPDR_FLOATING(SPI2_MISO) | \
-					 PIN_PUPDR_FLOATING(SPI2_MOSI))
+#define VAL_GPIOB_PUPDR                 (PIN_PUPDR_FLOATING(PB00_SERVO1) | \
+					 PIN_PUPDR_FLOATING(PB01_SERVO2) | \
+					 PIN_PUPDR_PULLUP(PB02_GYRO_EXTI_2) | \
+					 PIN_PUPDR_FLOATING(PB03_SPI3_CLK) | \
+					 PIN_PUPDR_FLOATING(PB04_SPI3_MISO) | \
+					 PIN_PUPDR_FLOATING(PB05_SPI3_MOSI) | \
+					 PIN_PUPDR_FLOATING(PB06_SERVO5) | \
+					 PIN_PUPDR_FLOATING(PB07_SERVO6) | \
+					 PIN_PUPDR_PULLUP(PB08_I2C1_SCL) | \
+					 PIN_PUPDR_PULLUP(PB09_I2C1_SDA) | \
+					 PIN_PUPDR_FLOATING(PB10_UART3_TX) | \
+					 PIN_PUPDR_FLOATING(PB11_RC1) | \
+					 PIN_PUPDR_FLOATING(PB12_SPI_SLAVE2) | \
+					 PIN_PUPDR_FLOATING(PB13_SPI2_CLK) | \
+					 PIN_PUPDR_FLOATING(PB14_SPI2_MISO) | \
+					 PIN_PUPDR_FLOATING(PB15_SPI2_MOSI))
 
-#define VAL_GPIOB_ODR                   (PIN_ODR_LEVEL_LOW(MOTOR_1) | \
-					 PIN_ODR_LEVEL_LOW(MOTOR_2) | \
-					 PIN_ODR_LEVEL_LOW(GYRO_EXTI_2) | \
-					 PIN_ODR_LEVEL_HIGH(SPI3_CLK) | \
-					 PIN_ODR_LEVEL_HIGH(SPI3_MISO) | \
-					 PIN_ODR_LEVEL_HIGH(SPI3_MOSI) | \
-					 PIN_ODR_LEVEL_LOW(MOTOR_5) | \
-					 PIN_ODR_LEVEL_LOW(MOTOR_6) | \
-					 PIN_ODR_LEVEL_HIGH(I2C1_SCL) | \
-					 PIN_ODR_LEVEL_HIGH(I2C1_SDA) | \
-					 PIN_ODR_LEVEL_HIGH(UART3_TX) | \
-					 PIN_ODR_LEVEL_HIGH(RC1) | \
-					 PIN_ODR_LEVEL_HIGH(FLASH_CS) | \
-					 PIN_ODR_LEVEL_HIGH(SPI2_CLK) | \
-					 PIN_ODR_LEVEL_HIGH(SPI2_MISO) | \
-					 PIN_ODR_LEVEL_HIGH(SPI2_MOSI))
+#define VAL_GPIOB_ODR                   (PIN_ODR_LEVEL_LOW(PB00_SERVO1) | \
+					 PIN_ODR_LEVEL_LOW(PB01_SERVO2) | \
+					 PIN_ODR_LEVEL_LOW(PB02_GYRO_EXTI_2) | \
+					 PIN_ODR_LEVEL_HIGH(PB03_SPI3_CLK) | \
+					 PIN_ODR_LEVEL_HIGH(PB04_SPI3_MISO) | \
+					 PIN_ODR_LEVEL_HIGH(PB05_SPI3_MOSI) | \
+					 PIN_ODR_LEVEL_LOW(PB06_SERVO5) | \
+					 PIN_ODR_LEVEL_LOW(PB07_SERVO6) | \
+					 PIN_ODR_LEVEL_HIGH(PB08_I2C1_SCL) | \
+					 PIN_ODR_LEVEL_HIGH(PB09_I2C1_SDA) | \
+					 PIN_ODR_LEVEL_HIGH(PB10_UART3_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PB11_RC1) | \
+					 PIN_ODR_LEVEL_HIGH(PB12_SPI_SLAVE2) | \
+					 PIN_ODR_LEVEL_HIGH(PB13_SPI2_CLK) | \
+					 PIN_ODR_LEVEL_HIGH(PB14_SPI2_MISO) | \
+					 PIN_ODR_LEVEL_HIGH(PB15_SPI2_MOSI))
 
-#define VAL_GPIOB_AFRL			(PIN_AFIO_AF(MOTOR_1, 2) | \
-					 PIN_AFIO_AF(MOTOR_2, 2) | \
-					 PIN_AFIO_AF(GYRO_EXTI_2, 0) | \
-					 PIN_AFIO_AF(SPI3_CLK, 6) | \
-					 PIN_AFIO_AF(SPI3_MISO, 6) | \
-					 PIN_AFIO_AF(SPI3_MOSI, 6) | \
-					 PIN_AFIO_AF(MOTOR_5, 2) | \
-					 PIN_AFIO_AF(MOTOR_6, 2))
+#define VAL_GPIOB_AFRL			(PIN_AFIO_AF(PB00_SERVO1, 2) | \
+					 PIN_AFIO_AF(PB01_SERVO2, 2) | \
+					 PIN_AFIO_AF(PB02_GYRO_EXTI_2, 0) | \
+					 PIN_AFIO_AF(PB03_SPI3_CLK, 6) | \
+					 PIN_AFIO_AF(PB04_SPI3_MISO, 6) | \
+					 PIN_AFIO_AF(PB05_SPI3_MOSI, 6) | \
+					 PIN_AFIO_AF(PB06_SERVO5, 2) | \
+					 PIN_AFIO_AF(PB07_SERVO6, 2))
 
-#define VAL_GPIOB_AFRH			(PIN_AFIO_AF(I2C1_SCL, 4) | \
-					 PIN_AFIO_AF(I2C1_SDA, 4) | \
-					 PIN_AFIO_AF(UART3_TX, 7) | \
-					 PIN_AFIO_AF(RC1, 7) | \
-					 PIN_AFIO_AF(FLASH_CS, 0) | \
-					 PIN_AFIO_AF(SPI2_CLK, 5) | \
-					 PIN_AFIO_AF(SPI2_MISO, 5) | \
-					 PIN_AFIO_AF(SPI2_MOSI, 5))
+#define VAL_GPIOB_AFRH			(PIN_AFIO_AF(PB08_I2C1_SCL, 4) | \
+					 PIN_AFIO_AF(PB09_I2C1_SDA, 4) | \
+					 PIN_AFIO_AF(PB10_UART3_TX, 7) | \
+					 PIN_AFIO_AF(PB11_RC1, 7) | \
+					 PIN_AFIO_AF(PB12_SPI_SLAVE2, 0) | \
+					 PIN_AFIO_AF(PB13_SPI2_CLK, 5) | \
+					 PIN_AFIO_AF(PB14_SPI2_MISO, 5) | \
+					 PIN_AFIO_AF(PB15_SPI2_MOSI, 5))
 
-#define VAL_GPIOC_MODER                 (PIN_MODE_ANALOG(VBAT_MEAS) | \
+#define VAL_GPIOC_MODER                 (PIN_MODE_ANALOG(PC00_ADC1) | \
 					 PIN_MODE_INPUT(PC01) | \
 					 PIN_MODE_INPUT(PC02) | \
-					 PIN_MODE_OUTPUT(GYRO_CS_2) | \
-					 PIN_MODE_INPUT(GYRO_EXTI_1) | \
+					 PIN_MODE_OUTPUT(PC03_SPI_SLAVE3) | \
+					 PIN_MODE_INPUT(PC04_GYRO_EXTI_1) | \
 					 PIN_MODE_INPUT(PC05) | \
-					 PIN_MODE_ALTERNATE(UART6_TX) | \
-					 PIN_MODE_ALTERNATE(UART6_RX) | \
+					 PIN_MODE_ALTERNATE(PC06_UART6_TX) | \
+					 PIN_MODE_ALTERNATE(PC07_UART6_RX) | \
 					 PIN_MODE_INPUT(PC08) | \
 					 PIN_MODE_INPUT(PC09) | \
-					 PIN_MODE_ALTERNATE(UART4_TX) | \
-					 PIN_MODE_ALTERNATE(UART4_RX) | \
-					 PIN_MODE_ALTERNATE(UART5_TX) | \
-					 PIN_MODE_OUTPUT(BARO_CS) | \
-					 PIN_MODE_OUTPUT(BEEPER) | \
-					 PIN_MODE_OUTPUT(LED))
+					 PIN_MODE_ALTERNATE(PC10_UART4_TX) | \
+					 PIN_MODE_ALTERNATE(PC11_UART4_RX) | \
+					 PIN_MODE_ALTERNATE(PC12_UART5_TX) | \
+					 PIN_MODE_OUTPUT(PC13_SPI_SLAVE4) | \
+					 PIN_MODE_OUTPUT(PC14_BEEPER) | \
+					 PIN_MODE_OUTPUT(PC15_LED1))
 
-#define VAL_GPIOC_OTYPER                (PIN_OTYPE_PUSHPULL(VBAT_MEAS) | \
+#define VAL_GPIOC_OTYPER                (PIN_OTYPE_PUSHPULL(PC00_ADC1) | \
 					 PIN_OTYPE_PUSHPULL(PC01) | \
 					 PIN_OTYPE_PUSHPULL(PC02) | \
-					 PIN_OTYPE_PUSHPULL(GYRO_CS_2) | \
-					 PIN_OTYPE_OPENDRAIN(GYRO_EXTI_1) | \
+					 PIN_OTYPE_PUSHPULL(PC03_SPI_SLAVE3) | \
+					 PIN_OTYPE_OPENDRAIN(PC04_GYRO_EXTI_1) | \
 					 PIN_OTYPE_PUSHPULL(PC05) | \
-					 PIN_OTYPE_PUSHPULL(UART6_TX) | \
-					 PIN_OTYPE_PUSHPULL(UART6_RX) | \
+					 PIN_OTYPE_PUSHPULL(PC06_UART6_TX) | \
+					 PIN_OTYPE_PUSHPULL(PC07_UART6_RX) | \
 					 PIN_OTYPE_PUSHPULL(PC08) | \
 					 PIN_OTYPE_PUSHPULL(PC09) | \
-					 PIN_OTYPE_PUSHPULL(UART4_TX) | \
-					 PIN_OTYPE_PUSHPULL(UART4_RX) | \
-					 PIN_OTYPE_PUSHPULL(UART5_TX) | \
-					 PIN_OTYPE_PUSHPULL(BARO_CS) | \
-					 PIN_OTYPE_PUSHPULL(BEEPER) | \
-					 PIN_OTYPE_PUSHPULL(LED))
+					 PIN_OTYPE_PUSHPULL(PC10_UART4_TX) | \
+					 PIN_OTYPE_PUSHPULL(PC11_UART4_RX) | \
+					 PIN_OTYPE_PUSHPULL(PC12_UART5_TX) | \
+					 PIN_OTYPE_PUSHPULL(PC13_SPI_SLAVE4) | \
+					 PIN_OTYPE_PUSHPULL(PC14_BEEPER) | \
+					 PIN_OTYPE_PUSHPULL(PC15_LED1))
 
-#define VAL_GPIOC_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(VBAT_MEAS) | \
+#define VAL_GPIOC_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PC00_ADC1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC01) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC02) | \
-					 PIN_OSPEED_SPEED_HIGH(GYRO_CS_2) | \
-					 PIN_OSPEED_SPEED_VERYLOW(GYRO_EXTI_1) | \
+					 PIN_OSPEED_SPEED_HIGH(PC03_SPI_SLAVE3) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PC04_GYRO_EXTI_1) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC05) | \
-					 PIN_OSPEED_SPEED_HIGH(UART6_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART6_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PC06_UART6_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PC07_UART6_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC08) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC09) | \
-					 PIN_OSPEED_SPEED_HIGH(UART4_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART4_RX) | \
-					 PIN_OSPEED_SPEED_HIGH(UART5_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(BARO_CS) | \
-					 PIN_OSPEED_SPEED_HIGH(BEEPER) | \
-					 PIN_OSPEED_SPEED_VERYLOW(LED))
+					 PIN_OSPEED_SPEED_HIGH(PC10_UART4_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PC11_UART4_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PC12_UART5_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PC13_SPI_SLAVE4) | \
+					 PIN_OSPEED_SPEED_HIGH(PC14_BEEPER) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PC15_LED1))
 
-#define VAL_GPIOC_PUPDR                 (PIN_PUPDR_FLOATING(VBAT_MEAS) | \
+#define VAL_GPIOC_PUPDR                 (PIN_PUPDR_FLOATING(PC00_ADC1) | \
 					 PIN_PUPDR_PULLDOWN(PC01) | \
 					 PIN_PUPDR_PULLDOWN(PC02) | \
-					 PIN_PUPDR_FLOATING(GYRO_CS_2) | \
-					 PIN_PUPDR_PULLUP(GYRO_EXTI_1) | \
+					 PIN_PUPDR_FLOATING(PC03_SPI_SLAVE3) | \
+					 PIN_PUPDR_PULLUP(PC04_GYRO_EXTI_1) | \
 					 PIN_PUPDR_PULLDOWN(PC05) | \
-					 PIN_PUPDR_FLOATING(UART6_TX) | \
-					 PIN_PUPDR_FLOATING(UART6_RX) | \
+					 PIN_PUPDR_FLOATING(PC06_UART6_TX) | \
+					 PIN_PUPDR_FLOATING(PC07_UART6_RX) | \
 					 PIN_PUPDR_PULLDOWN(PC08) | \
 					 PIN_PUPDR_PULLDOWN(PC09) | \
-					 PIN_PUPDR_FLOATING(UART4_TX) | \
-					 PIN_PUPDR_FLOATING(UART4_RX) | \
-					 PIN_PUPDR_FLOATING(UART5_TX) | \
-					 PIN_PUPDR_FLOATING(BARO_CS) | \
-					 PIN_PUPDR_FLOATING(BEEPER) | \
-					 PIN_PUPDR_FLOATING(LED))
+					 PIN_PUPDR_FLOATING(PC10_UART4_TX) | \
+					 PIN_PUPDR_FLOATING(PC11_UART4_RX) | \
+					 PIN_PUPDR_FLOATING(PC12_UART5_TX) | \
+					 PIN_PUPDR_FLOATING(PC13_SPI_SLAVE4) | \
+					 PIN_PUPDR_FLOATING(PC14_BEEPER) | \
+					 PIN_PUPDR_FLOATING(PC15_LED1))
 
-#define VAL_GPIOC_ODR                   (PIN_ODR_LEVEL_LOW(VBAT_MEAS) | \
+#define VAL_GPIOC_ODR                   (PIN_ODR_LEVEL_LOW(PC00_ADC1) | \
 					 PIN_ODR_LEVEL_LOW(PC01) | \
 					 PIN_ODR_LEVEL_LOW(PC02) | \
-					 PIN_ODR_LEVEL_HIGH(GYRO_CS_2) | \
-					 PIN_ODR_LEVEL_LOW(GYRO_EXTI_1) | \
+					 PIN_ODR_LEVEL_HIGH(PC03_SPI_SLAVE3) | \
+					 PIN_ODR_LEVEL_LOW(PC04_GYRO_EXTI_1) | \
 					 PIN_ODR_LEVEL_LOW(PC05) | \
-					 PIN_ODR_LEVEL_HIGH(UART6_TX) | \
-					 PIN_ODR_LEVEL_HIGH(UART6_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PC06_UART6_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PC07_UART6_RX) | \
 					 PIN_ODR_LEVEL_LOW(PC08) | \
 					 PIN_ODR_LEVEL_LOW(PC09) | \
-					 PIN_ODR_LEVEL_HIGH(UART4_TX) | \
-					 PIN_ODR_LEVEL_HIGH(UART4_RX) | \
-					 PIN_ODR_LEVEL_HIGH(UART5_TX) | \
-					 PIN_ODR_LEVEL_HIGH(BARO_CS) | \
-					 PIN_ODR_LEVEL_LOW(BEEPER) | \
-					 PIN_ODR_LEVEL_LOW(LED))
+					 PIN_ODR_LEVEL_HIGH(PC10_UART4_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PC11_UART4_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PC12_UART5_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PC13_SPI_SLAVE4) | \
+					 PIN_ODR_LEVEL_LOW(PC14_BEEPER) | \
+					 PIN_ODR_LEVEL_LOW(PC15_LED1))
 
-#define VAL_GPIOC_AFRL			(PIN_AFIO_AF(VBAT_MEAS, 0) | \
+#define VAL_GPIOC_AFRL			(PIN_AFIO_AF(PC00_ADC1, 0) | \
 					 PIN_AFIO_AF(PC01, 0) | \
 					 PIN_AFIO_AF(PC02, 0) | \
-					 PIN_AFIO_AF(GYRO_CS_2, 0) | \
-					 PIN_AFIO_AF(GYRO_EXTI_1, 0) | \
+					 PIN_AFIO_AF(PC03_SPI_SLAVE3, 0) | \
+					 PIN_AFIO_AF(PC04_GYRO_EXTI_1, 0) | \
 					 PIN_AFIO_AF(PC05, 0) | \
-					 PIN_AFIO_AF(UART6_TX, 8) | \
-					 PIN_AFIO_AF(UART6_RX, 8))
+					 PIN_AFIO_AF(PC06_UART6_TX, 8) | \
+					 PIN_AFIO_AF(PC07_UART6_RX, 8))
 
 #define VAL_GPIOC_AFRH			(PIN_AFIO_AF(PC08, 0) | \
 					 PIN_AFIO_AF(PC09, 0) | \
-					 PIN_AFIO_AF(UART4_TX, 8) | \
-					 PIN_AFIO_AF(UART4_RX, 8) | \
-					 PIN_AFIO_AF(UART5_TX, 8) | \
-					 PIN_AFIO_AF(BARO_CS, 0) | \
-					 PIN_AFIO_AF(BEEPER, 0) | \
-					 PIN_AFIO_AF(LED, 0))
+					 PIN_AFIO_AF(PC10_UART4_TX, 8) | \
+					 PIN_AFIO_AF(PC11_UART4_RX, 8) | \
+					 PIN_AFIO_AF(PC12_UART5_TX, 8) | \
+					 PIN_AFIO_AF(PC13_SPI_SLAVE4, 0) | \
+					 PIN_AFIO_AF(PC14_BEEPER, 0) | \
+					 PIN_AFIO_AF(PC15_LED1, 0))
 
 #define VAL_GPIOD_MODER                 (PIN_MODE_INPUT(PD00) | \
 					 PIN_MODE_INPUT(PD01) | \
-					 PIN_MODE_ALTERNATE(UART5_RX) | \
+					 PIN_MODE_ALTERNATE(PD02_UART5_RX) | \
 					 PIN_MODE_INPUT(PD03) | \
 					 PIN_MODE_INPUT(PD04) | \
 					 PIN_MODE_INPUT(PD05) | \
@@ -641,7 +773,7 @@
 
 #define VAL_GPIOD_OTYPER                (PIN_OTYPE_PUSHPULL(PD00) | \
 					 PIN_OTYPE_PUSHPULL(PD01) | \
-					 PIN_OTYPE_PUSHPULL(UART5_RX) | \
+					 PIN_OTYPE_PUSHPULL(PD02_UART5_RX) | \
 					 PIN_OTYPE_PUSHPULL(PD03) | \
 					 PIN_OTYPE_PUSHPULL(PD04) | \
 					 PIN_OTYPE_PUSHPULL(PD05) | \
@@ -658,7 +790,7 @@
 
 #define VAL_GPIOD_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PD00) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD01) | \
-					 PIN_OSPEED_SPEED_HIGH(UART5_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PD02_UART5_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD04) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD05) | \
@@ -675,7 +807,7 @@
 
 #define VAL_GPIOD_PUPDR                 (PIN_PUPDR_PULLDOWN(PD00) | \
 					 PIN_PUPDR_PULLDOWN(PD01) | \
-					 PIN_PUPDR_FLOATING(UART5_RX) | \
+					 PIN_PUPDR_FLOATING(PD02_UART5_RX) | \
 					 PIN_PUPDR_PULLDOWN(PD03) | \
 					 PIN_PUPDR_PULLDOWN(PD04) | \
 					 PIN_PUPDR_PULLDOWN(PD05) | \
@@ -692,7 +824,7 @@
 
 #define VAL_GPIOD_ODR                   (PIN_ODR_LEVEL_LOW(PD00) | \
 					 PIN_ODR_LEVEL_LOW(PD01) | \
-					 PIN_ODR_LEVEL_HIGH(UART5_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PD02_UART5_RX) | \
 					 PIN_ODR_LEVEL_LOW(PD03) | \
 					 PIN_ODR_LEVEL_LOW(PD04) | \
 					 PIN_ODR_LEVEL_LOW(PD05) | \
@@ -709,7 +841,7 @@
 
 #define VAL_GPIOD_AFRL			(PIN_AFIO_AF(PD00, 0) | \
 					 PIN_AFIO_AF(PD01, 0) | \
-					 PIN_AFIO_AF(UART5_RX, 8) | \
+					 PIN_AFIO_AF(PD02_UART5_RX, 8) | \
 					 PIN_AFIO_AF(PD03, 0) | \
 					 PIN_AFIO_AF(PD04, 0) | \
 					 PIN_AFIO_AF(PD05, 0) | \
@@ -1034,8 +1166,8 @@
 					 PIN_AFIO_AF(PG14, 0) | \
 					 PIN_AFIO_AF(PG15, 0))
 
-#define VAL_GPIOH_MODER                 (PIN_MODE_ALTERNATE(OSC_IN) | \
-					 PIN_MODE_ALTERNATE(OSC_OUT) | \
+#define VAL_GPIOH_MODER                 (PIN_MODE_ALTERNATE(PH00_OSC_IN) | \
+					 PIN_MODE_ALTERNATE(PH01_OSC_OUT) | \
 					 PIN_MODE_INPUT(PH02) | \
 					 PIN_MODE_INPUT(PH03) | \
 					 PIN_MODE_INPUT(PH04) | \
@@ -1051,8 +1183,8 @@
 					 PIN_MODE_INPUT(PH14) | \
 					 PIN_MODE_INPUT(PH15))
 
-#define VAL_GPIOH_OTYPER                (PIN_OTYPE_PUSHPULL(OSC_IN) | \
-					 PIN_OTYPE_PUSHPULL(OSC_OUT) | \
+#define VAL_GPIOH_OTYPER                (PIN_OTYPE_PUSHPULL(PH00_OSC_IN) | \
+					 PIN_OTYPE_PUSHPULL(PH01_OSC_OUT) | \
 					 PIN_OTYPE_PUSHPULL(PH02) | \
 					 PIN_OTYPE_PUSHPULL(PH03) | \
 					 PIN_OTYPE_PUSHPULL(PH04) | \
@@ -1068,8 +1200,8 @@
 					 PIN_OTYPE_PUSHPULL(PH14) | \
 					 PIN_OTYPE_PUSHPULL(PH15))
 
-#define VAL_GPIOH_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(OSC_IN) | \
-					 PIN_OSPEED_SPEED_HIGH(OSC_OUT) | \
+#define VAL_GPIOH_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(PH00_OSC_IN) | \
+					 PIN_OSPEED_SPEED_HIGH(PH01_OSC_OUT) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PH02) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PH03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PH04) | \
@@ -1085,8 +1217,8 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PH14) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PH15))
 
-#define VAL_GPIOH_PUPDR                 (PIN_PUPDR_FLOATING(OSC_IN) | \
-					 PIN_PUPDR_FLOATING(OSC_OUT) | \
+#define VAL_GPIOH_PUPDR                 (PIN_PUPDR_FLOATING(PH00_OSC_IN) | \
+					 PIN_PUPDR_FLOATING(PH01_OSC_OUT) | \
 					 PIN_PUPDR_PULLDOWN(PH02) | \
 					 PIN_PUPDR_PULLDOWN(PH03) | \
 					 PIN_PUPDR_PULLDOWN(PH04) | \
@@ -1102,8 +1234,8 @@
 					 PIN_PUPDR_PULLDOWN(PH14) | \
 					 PIN_PUPDR_PULLDOWN(PH15))
 
-#define VAL_GPIOH_ODR                   (PIN_ODR_LEVEL_HIGH(OSC_IN) | \
-					 PIN_ODR_LEVEL_HIGH(OSC_OUT) | \
+#define VAL_GPIOH_ODR                   (PIN_ODR_LEVEL_HIGH(PH00_OSC_IN) | \
+					 PIN_ODR_LEVEL_HIGH(PH01_OSC_OUT) | \
 					 PIN_ODR_LEVEL_LOW(PH02) | \
 					 PIN_ODR_LEVEL_LOW(PH03) | \
 					 PIN_ODR_LEVEL_LOW(PH04) | \
@@ -1119,8 +1251,8 @@
 					 PIN_ODR_LEVEL_LOW(PH14) | \
 					 PIN_ODR_LEVEL_LOW(PH15))
 
-#define VAL_GPIOH_AFRL			(PIN_AFIO_AF(OSC_IN, 0) | \
-					 PIN_AFIO_AF(OSC_OUT, 0) | \
+#define VAL_GPIOH_AFRL			(PIN_AFIO_AF(PH00_OSC_IN, 0) | \
+					 PIN_AFIO_AF(PH01_OSC_OUT, 0) | \
 					 PIN_AFIO_AF(PH02, 0) | \
 					 PIN_AFIO_AF(PH03, 0) | \
 					 PIN_AFIO_AF(PH04, 0) | \
@@ -1446,114 +1578,114 @@
 					 PIN_AFIO_AF(PK14, 0) | \
 					 PIN_AFIO_AF(PK15, 0))
 
-#define AF_MOTOR_4                       2U
-#define AF_LINE_MOTOR_4                  2U
-#define AF_MOTOR_3                       2U
-#define AF_LINE_MOTOR_3                  2U
-#define AF_UART2_TX                      7U
+#define AF_PA00_SERVO4                   2U
+#define AF_LINE_SERVO4                   2U
+#define AF_PA01_SERVO3                   2U
+#define AF_LINE_SERVO3                   2U
+#define AF_PA02_UART2_TX                 7U
 #define AF_LINE_UART2_TX                 7U
-#define AF_UART2_RX                      7U
+#define AF_PA03_UART2_RX                 7U
 #define AF_LINE_UART2_RX                 7U
-#define AF_SPI1_CLK                      5U
+#define AF_PA05_SPI1_CLK                 5U
 #define AF_LINE_SPI1_CLK                 5U
-#define AF_SPI1_MISO                     5U
+#define AF_PA06_SPI1_MISO                5U
 #define AF_LINE_SPI1_MISO                5U
-#define AF_SPI1_MOSI                     5U
+#define AF_PA07_SPI1_MOSI                5U
 #define AF_LINE_SPI1_MOSI                5U
-#define AF_AUX                           1U
+#define AF_PA08_AUX                      1U
 #define AF_LINE_AUX                      1U
-#define AF_UART1_TX                      7U
+#define AF_PA09_UART1_TX                 7U
 #define AF_LINE_UART1_TX                 7U
-#define AF_UART1_RX                      7U
+#define AF_PA10_UART1_RX                 7U
 #define AF_LINE_UART1_RX                 7U
-#define AF_OTG_FS_DM                     10U
+#define AF_PA11_OTG_FS_DM                10U
 #define AF_LINE_OTG_FS_DM                10U
-#define AF_OTG_FS_DP                     10U
+#define AF_PA12_OTG_FS_DP                10U
 #define AF_LINE_OTG_FS_DP                10U
-#define AF_SWDIO                         0U
+#define AF_PA13_SWDIO                    0U
 #define AF_LINE_SWDIO                    0U
-#define AF_SWCLK                         0U
+#define AF_PA14_SWCLK                    0U
 #define AF_LINE_SWCLK                    0U
-#define AF_MOTOR_1                       2U
-#define AF_LINE_MOTOR_1                  2U
-#define AF_MOTOR_2                       2U
-#define AF_LINE_MOTOR_2                  2U
-#define AF_SPI3_CLK                      6U
+#define AF_PB00_SERVO1                   2U
+#define AF_LINE_SERVO1                   2U
+#define AF_PB01_SERVO2                   2U
+#define AF_LINE_SERVO2                   2U
+#define AF_PB03_SPI3_CLK                 6U
 #define AF_LINE_SPI3_CLK                 6U
-#define AF_SPI3_MISO                     6U
+#define AF_PB04_SPI3_MISO                6U
 #define AF_LINE_SPI3_MISO                6U
-#define AF_SPI3_MOSI                     6U
+#define AF_PB05_SPI3_MOSI                6U
 #define AF_LINE_SPI3_MOSI                6U
-#define AF_MOTOR_5                       2U
-#define AF_LINE_MOTOR_5                  2U
-#define AF_MOTOR_6                       2U
-#define AF_LINE_MOTOR_6                  2U
-#define AF_I2C1_SCL                      4U
+#define AF_PB06_SERVO5                   2U
+#define AF_LINE_SERVO5                   2U
+#define AF_PB07_SERVO6                   2U
+#define AF_LINE_SERVO6                   2U
+#define AF_PB08_I2C1_SCL                 4U
 #define AF_LINE_I2C1_SCL                 4U
-#define AF_I2C1_SDA                      4U
+#define AF_PB09_I2C1_SDA                 4U
 #define AF_LINE_I2C1_SDA                 4U
-#define AF_UART3_TX                      7U
+#define AF_PB10_UART3_TX                 7U
 #define AF_LINE_UART3_TX                 7U
-#define AF_RC1                           7U
+#define AF_PB11_RC1                      7U
 #define AF_LINE_RC1                      7U
-#define AF_SPI2_CLK                      5U
+#define AF_PB13_SPI2_CLK                 5U
 #define AF_LINE_SPI2_CLK                 5U
-#define AF_SPI2_MISO                     5U
+#define AF_PB14_SPI2_MISO                5U
 #define AF_LINE_SPI2_MISO                5U
-#define AF_SPI2_MOSI                     5U
+#define AF_PB15_SPI2_MOSI                5U
 #define AF_LINE_SPI2_MOSI                5U
-#define AF_UART6_TX                      8U
+#define AF_PC06_UART6_TX                 8U
 #define AF_LINE_UART6_TX                 8U
-#define AF_UART6_RX                      8U
+#define AF_PC07_UART6_RX                 8U
 #define AF_LINE_UART6_RX                 8U
-#define AF_UART4_TX                      8U
+#define AF_PC10_UART4_TX                 8U
 #define AF_LINE_UART4_TX                 8U
-#define AF_UART4_RX                      8U
+#define AF_PC11_UART4_RX                 8U
 #define AF_LINE_UART4_RX                 8U
-#define AF_UART5_TX                      8U
+#define AF_PC12_UART5_TX                 8U
 #define AF_LINE_UART5_TX                 8U
-#define AF_UART5_RX                      8U
+#define AF_PD02_UART5_RX                 8U
 #define AF_LINE_UART5_RX                 8U
-#define AF_OSC_IN                        0U
+#define AF_PH00_OSC_IN                   0U
 #define AF_LINE_OSC_IN                   0U
-#define AF_OSC_OUT                       0U
+#define AF_PH01_OSC_OUT                  0U
 #define AF_LINE_OSC_OUT                  0U
 
 
-#define MOTOR_4_TIM	 5
-#define MOTOR_4_TIM_FN	 CH
-#define MOTOR_4_TIM_CH	 1
-#define MOTOR_4_TIM_AF	 2
-#define MOTOR_3_TIM	 5
-#define MOTOR_3_TIM_FN	 CH
-#define MOTOR_3_TIM_CH	 2
-#define MOTOR_3_TIM_AF	 2
+#define SERVO4_TIM	 5
+#define SERVO4_TIM_FN	 CH
+#define SERVO4_TIM_CH	 1
+#define SERVO4_TIM_AF	 2
+#define SERVO3_TIM	 5
+#define SERVO3_TIM_FN	 CH
+#define SERVO3_TIM_CH	 2
+#define SERVO3_TIM_AF	 2
 #define AUX_TIM	 1
 #define AUX_TIM_FN	 CH
 #define AUX_TIM_CH	 1
 #define AUX_TIM_AF	 1
-#define MOTOR_1_TIM	 3
-#define MOTOR_1_TIM_FN	 CH
-#define MOTOR_1_TIM_CH	 3
-#define MOTOR_1_TIM_AF	 2
-#define MOTOR_2_TIM	 3
-#define MOTOR_2_TIM_FN	 CH
-#define MOTOR_2_TIM_CH	 4
-#define MOTOR_2_TIM_AF	 2
-#define MOTOR_5_TIM	 4
-#define MOTOR_5_TIM_FN	 CH
-#define MOTOR_5_TIM_CH	 1
-#define MOTOR_5_TIM_AF	 2
-#define MOTOR_6_TIM	 4
-#define MOTOR_6_TIM_FN	 CH
-#define MOTOR_6_TIM_CH	 2
-#define MOTOR_6_TIM_AF	 2
+#define SERVO1_TIM	 3
+#define SERVO1_TIM_FN	 CH
+#define SERVO1_TIM_CH	 3
+#define SERVO1_TIM_AF	 2
+#define SERVO2_TIM	 3
+#define SERVO2_TIM_FN	 CH
+#define SERVO2_TIM_CH	 4
+#define SERVO2_TIM_AF	 2
+#define SERVO5_TIM	 4
+#define SERVO5_TIM_FN	 CH
+#define SERVO5_TIM_CH	 1
+#define SERVO5_TIM_AF	 2
+#define SERVO6_TIM	 4
+#define SERVO6_TIM_FN	 CH
+#define SERVO6_TIM_CH	 2
+#define SERVO6_TIM_AF	 2
 #define RC1_USART	 3
 #define RC1_USART_FN	 RX
 #define RC1_USART_AF	 7
-#define VBAT_MEAS_ADC	 1
-#define VBAT_MEAS_ADC_FN	 IN
-#define VBAT_MEAS_ADC_IN	 10
+#define ADC1_ADC	 1
+#define ADC1_ADC_FN	 IN
+#define ADC1_ADC_IN	 10
 
 #define BOARD_GROUP_DECLFOREACH(line, group) \
   static const ioline_t group ## _ARRAY[] = {group}; \
@@ -1571,10 +1703,8 @@
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #define ENERGY_SAVE_INPUT \
-	LINE_OSD_CS, \
-	LINE_FLASH_CS, \
-	LINE_BARO_CS
-#define ENERGY_SAVE_INPUT_SIZE 	 3
+	LINE_LED1
+#define ENERGY_SAVE_INPUT_SIZE 	 1
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

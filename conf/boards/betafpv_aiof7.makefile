@@ -10,7 +10,7 @@ BOARD=aiof7
 BOARD_VERSION=2
 
 BOARD_DIR=$(MANUFACTURER)/$(BOARD)/v$(BOARD_VERSION)
-BOARD_CFG=\"boards/$(BOARD_DIR)/$(BOARD).h\"
+BOARD_CFG=\"arch/chibios/common_board.h\"
 
 ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)

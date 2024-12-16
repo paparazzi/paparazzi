@@ -44,6 +44,12 @@
 
     <module name="board" type="tmotor_aiof7">
     </module>
+    <module name="mag" type="hmc59xx">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="MODULE_HMC58XX_SYNC_SEND" value="FALSE"/> 
+      <define name="USE_I2C2"/>
+    </module>
     <module name="actuators" type="pwm"/>
 
     <!-- <module name="gps" type="ublox">
