@@ -40,7 +40,7 @@ void parse_airframe_list(tinyxml2::XMLElement *root)
 
 /* Generate a pprzlink message */
 pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict,
-                          std::vector<std::vector<boost::variant<int, double, std::string>>> values)
+                          std::vector<std::vector<boost::variant<double, std::string>>> values)
 {
   pprzlink::MessageDefinition def = dict->getDefinition(name);
   pprzlink::Message msg(def);
@@ -54,16 +54,6 @@ pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict,
       case pprzlink::BaseType::UINT8:
       case pprzlink::BaseType::UINT16:
       case pprzlink::BaseType::UINT32:
-        if (field.getType().isArray()) {
-          std::vector<int> vals;
-          for (auto val : values[i]) {
-            vals.push_back(boost::get<int>(val));
-          }
-          msg.addField(field.getName(), vals);
-        } else {
-          msg.addField(field.getName(), boost::get<int>(values[i][0]));
-        }
-        break;
       case pprzlink::BaseType::FLOAT:
       case pprzlink::BaseType::DOUBLE:
         if (field.getType().isArray()) {
@@ -180,11 +170,35 @@ int main(int argc, char *argv[])
     std::cout << " - INFO_MSG: " << timestamp << " " << msg.toString() << "\n";
   };
 
+  // ROTORCRAFT_FP message
+  auto rotorcraft_fp = [&](auto & ctx) {
+    // auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
+    // auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
+    // auto values = boost::fusion::at_c<2>(_attr(ctx));
+    // auto msg = get_msg("ROTORCRAFT_FP", dict, values);
+    // msg.setSenderId(ac_id);
+
+    // std::cout << " - ROTORCRAFT_FP: " << timestamp << " " << msg.toString() << "\n";
+  };
+
+  // STAB_ATTITUDE message
+  auto stab_attitude = [&](auto & ctx) {
+    auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
+    auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
+    auto values = boost::fusion::at_c<2>(_attr(ctx));
+    auto msg = get_msg("STAB_ATTITUDE", dict, values);
+    msg.setSenderId(ac_id);
+
+    std::cout << " - STAB_ATTITUDE: " << timestamp << " " << msg.toString() << "\n";
+  };
+
   // Add the parser
-  auto var_types = int_ | double_ | lexeme[+~char_("\r\n")];
+  auto var_types = (double_ | lexeme[+~char_("\r\n")]);
   auto var_options = (var_types % ',');
   auto matcher = (float_ >> ' ' >> int_ >> ' ' >> "GPS_INT" >> ' ' >> (var_options % ' ') >> eol)[gps_int] \
-                 | (float_ >> ' ' >> int_ >> ' ' >> "INFO_MSG" >> ' ' >> (var_options % ' ') >> eol)[info_msg];
+                 | (float_ >> ' ' >> int_ >> ' ' >> "INFO_MSG" >> ' ' >> (var_options % ' ') >> eol)[info_msg] \
+                  | (float_ >> ' ' >> int_ >> ' ' >> "ROTORCRAFT_FP" >> ' ' >> (var_options % ' ') >> eol)[rotorcraft_fp] \
+                  | (float_ >> ' ' >> int_ >> ' ' >> "STAB_ATTITUDE" >> ' ' >> (var_options % ' ') >> eol)[stab_attitude];
   auto res = matcher | ( * ~char_("\r\n") >> eol);
 
   // Parse the file
