@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2024-2025 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
 #include <boost/iostreams/device/mapped_file.hpp> // for mmap
 #include <boost/filesystem.hpp> // for is_empty
 #include <boost/regex.hpp>
@@ -42,8 +63,10 @@ void parse_airframe_list(tinyxml2::XMLElement *root)
 
 //using List =  boost::mpl::list<double, std::string>;
 
+
 /* Generate a pprzlink message */
-pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict, auto values)
+pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict,
+                          auto values)
 {
   pprzlink::MessageDefinition def = dict->getDefinition(name);
   pprzlink::Message msg(def);
@@ -186,13 +209,13 @@ int main(int argc, char *argv[])
 
   // STAB_ATTITUDE message
   auto stab_attitude = [&](auto & ctx) {
-    auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
+    // auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
     auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
     auto values = boost::fusion::at_c<2>(_attr(ctx));
     auto msg = get_msg("STAB_ATTITUDE", dict, values);
     msg.setSenderId(ac_id);
 
-    std::cout << " - STAB_ATTITUDE: " << timestamp << " " << msg.toString() << "\n";
+    // std::cout << " - STAB_ATTITUDE: " << timestamp << " " << msg.toString() << "\n";
   };
 
   // AUTOPILOT_VERSION message

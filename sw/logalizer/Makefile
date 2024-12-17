@@ -82,7 +82,7 @@ LOG2JSON_CFLAGS = -I$(LIBPPRZLINKCPPDIR)/include  $(IVY_INC) -std=c++17 -fconcep
 LOG2JSON_LDFLAGS = -lboost_iostreams -lboost_system -lboost_filesystem -ltinyxml2 $(IVY_LDFLAGS) #$(shell pkg-config --cflags json-c)
 log2json: log2json.cpp $(LIBPPRZLINKCPPDIR)/lib/libpprzlink++.a
 	@echo CC $@
-	$(CXX) $(CFLAGS) $(LOG2JSON_CFLAGS) -o $@ $^ $(LOG2JSON_LDFLAGS) 
+	$(CXX) -g -Wall $(LOG2JSON_CFLAGS) -o $@ $^ $(LOG2JSON_LDFLAGS)
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
