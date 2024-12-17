@@ -17,30 +17,33 @@
 
 using namespace boost::spirit::x3;
 
-
+std::map<uint8_t, tinyxml2::XMLElement *> aircrafts;
 void parse_airframe_list(tinyxml2::XMLElement *root)
 {
-  auto aircraft = root->FirstChildElement("conf")->FirstChildElement("aircraft");
-  while (aircraft != nullptr) {
-    auto className = aircraft->Attribute("name", nullptr);
-    if (className == nullptr) {
-      className = aircraft->Attribute("NAME", nullptr);
-    }
-    int classId = aircraft->IntAttribute("ac_id", -1);
-    if (classId == -1) {
-      classId = aircraft->IntAttribute("AC_ID", -1);
-    }
-    if (className == nullptr || classId == -1) {
-      std::cout << "aircraft has no name or ac_id.";
-    }
-    // std::cout << " - aircraft: " << className << " id: " << classId << "\n";
-    aircraft = aircraft->NextSiblingElement("aircraft");
-  }
+  // char *ac_or_af = (root->FirstChildElement("conf")->FirstChildElement("aircraft"))? "aircraft" : "airframe";
+  // auto aircraft = root->FirstChildElement("conf")->FirstChildElement(ac_or_af);
+  // while (aircraft != nullptr) {
+  //   auto className = aircraft->Attribute("name", nullptr);
+  //   if (className == nullptr) {
+  //     className = aircraft->Attribute("NAME", nullptr);
+  //   }
+  //   int classId = aircraft->IntAttribute("ac_id", -1);
+  //   if (classId == -1) {
+  //     classId = aircraft->IntAttribute("AC_ID", -1);
+  //   }
+  //   if (className == nullptr || classId == -1) {
+  //     std::cout << "aircraft has no name or ac_id.";
+  //   }
+  //   std::cout << " - aircraft: " << className << " id: " << classId << "\n";
+  //   aircrafts[classId] = aircraft;
+  //   aircraft = aircraft->NextSiblingElement(ac_or_af);
+  // }
 }
 
+//using List =  boost::mpl::list<double, std::string>;
+
 /* Generate a pprzlink message */
-pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict,
-                          std::vector<std::vector<boost::variant<double, std::string>>> values)
+pprzlink::Message get_msg(std::string name, pprzlink::MessageDictionary *dict, auto values)
 {
   pprzlink::MessageDefinition def = dict->getDefinition(name);
   pprzlink::Message msg(def);
@@ -151,10 +154,10 @@ int main(int argc, char *argv[])
   // GPS_INT message
   auto gps_int = [&](auto & ctx) {
     // auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
-    // auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
-    // auto values = boost::fusion::at_c<2>(_attr(ctx));
-    // auto msg = get_msg("GPS_INT", dict, values);
-    // msg.setSenderId(ac_id);
+    auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
+    auto values = boost::fusion::at_c<2>(_attr(ctx));
+    auto msg = get_msg("GPS_INT", dict, values);
+    msg.setSenderId(ac_id);
 
     // std::cout << " - GPS_INT: " << timestamp << " " << msg.toString() << "\n";
   };
@@ -173,10 +176,10 @@ int main(int argc, char *argv[])
   // ROTORCRAFT_FP message
   auto rotorcraft_fp = [&](auto & ctx) {
     // auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
-    // auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
-    // auto values = boost::fusion::at_c<2>(_attr(ctx));
-    // auto msg = get_msg("ROTORCRAFT_FP", dict, values);
-    // msg.setSenderId(ac_id);
+    auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
+    auto values = boost::fusion::at_c<2>(_attr(ctx));
+    auto msg = get_msg("ROTORCRAFT_FP", dict, values);
+    msg.setSenderId(ac_id);
 
     // std::cout << " - ROTORCRAFT_FP: " << timestamp << " " << msg.toString() << "\n";
   };
@@ -192,13 +195,25 @@ int main(int argc, char *argv[])
     std::cout << " - STAB_ATTITUDE: " << timestamp << " " << msg.toString() << "\n";
   };
 
+  // AUTOPILOT_VERSION message
+  auto autopilot_version = [&](auto & ctx) {
+    auto timestamp = boost::fusion::at_c<0>(_attr(ctx));
+    auto ac_id = uint8_t(boost::fusion::at_c<1>(_attr(ctx)));
+    auto values = boost::fusion::at_c<2>(_attr(ctx));
+    auto msg = get_msg("AUTOPILOT_VERSION", dict, values);
+    msg.setSenderId(ac_id);
+
+    std::cout << " - AUTOPILOT_VERSION: " << timestamp << " " << msg.toString() << "\n";
+  };
+
   // Add the parser
   auto var_types = (double_ | lexeme[+~char_("\r\n")]);
   auto var_options = (var_types % ',');
   auto matcher = (float_ >> ' ' >> int_ >> ' ' >> "GPS_INT" >> ' ' >> (var_options % ' ') >> eol)[gps_int] \
                  | (float_ >> ' ' >> int_ >> ' ' >> "INFO_MSG" >> ' ' >> (var_options % ' ') >> eol)[info_msg] \
                   | (float_ >> ' ' >> int_ >> ' ' >> "ROTORCRAFT_FP" >> ' ' >> (var_options % ' ') >> eol)[rotorcraft_fp] \
-                  | (float_ >> ' ' >> int_ >> ' ' >> "STAB_ATTITUDE" >> ' ' >> (var_options % ' ') >> eol)[stab_attitude];
+                  | (float_ >> ' ' >> int_ >> ' ' >> "STAB_ATTITUDE" >> ' ' >> (var_options % ' ') >> eol)[stab_attitude] \
+                  | (float_ >> ' ' >> int_ >> ' ' >> "AUTOPILOT_VERSION" >> ' ' >> (var_options % ' ') >> eol)[autopilot_version];
   auto res = matcher | ( * ~char_("\r\n") >> eol);
 
   // Parse the file
