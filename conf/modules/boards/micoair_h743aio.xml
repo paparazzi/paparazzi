@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="micoair_h743aio" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Micoair 743AIO
+    </description>
+  </doc>
+  <dep>
+    <depends>hard_fault_recovery</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw"/>
+</module>
+

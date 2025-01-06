@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_micoair_h743aio" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors for the Micoair 743AIO board with proper configuration
+      - IMU (BMI088)
+      - Baro (DPS310)
+    </description>
+  </doc>
+  <dep>
+    <depends></depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <configure name="BMI270_SPI_DEV" value="spi2"/>
+    <configure name="BMI088_SPI_DEV" value="spi2"/>
+    <configure name="BMI270_SLAVE_IDX" value="SPI_SLAVE0"/>
+    <configure name="BMI088_GYRO_SLAVE_IDX" value="SPI_SLAVE1"/>
+    <configure name="BMI088_ACCEL_SLAVE_IDX" value="SPI_SLAVE2"/>
+
+    <!-- <define name="TAWAKIV2_IMU_ROT" value=".body_to_sensor={{0,-16383,0,16383,0,0,0,0,16382}}"/> -->
+    <!-- <define name="TAWAKIV2_MAG_ROT" value=".body_to_sensor={{2,16382,0,-16382,2,0,0,0,16382}}"/> -->
+  </makefile>
+</module>
