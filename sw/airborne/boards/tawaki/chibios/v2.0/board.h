@@ -1560,6 +1560,9 @@
 #define AUX_A1_USART	 2
 #define AUX_A1_USART_FN	 CTS
 #define AUX_A1_USART_AF	 7
+#define AUX_A1_UART	 4
+#define AUX_A1_UART_FN	 TX
+#define AUX_A1_UART_AF	 8
 #define AUX_A2_ADC	 1
 #define AUX_A2_ADC_FN	 INP
 #define AUX_A2_ADC_INP	 17
@@ -1570,6 +1573,9 @@
 #define AUX_A2_USART	 2
 #define AUX_A2_USART_FN	 RTS
 #define AUX_A2_USART_AF	 7
+#define AUX_A2_UART	 4
+#define AUX_A2_UART_FN	 RX
+#define AUX_A2_UART_AF	 8
 #define AUX_A3_ADC	 1
 #define AUX_A3_ADC_FN	 INP
 #define AUX_A3_ADC_INP	 14
