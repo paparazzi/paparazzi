@@ -244,6 +244,9 @@ void rotwing_state_periodic(void)
   else if(rotwing_state.state == ROTWING_STATE_REQUEST_HOVER && meas_skew_angle <= (ROTWING_SKEW_ANGLE_STEP + ROTWING_SKEW_BACK_MARGIN)) {
     rotwing_state.sp_skew_angle_deg = 0.f;
   }
+  else if(rotwing_state.state == ROTWING_STATE_FREE && gi_unbounded_airspeed_sp < ROTWING_QUAD_MAX_AIRSPEED) {
+    rotwing_state.sp_skew_angle_deg = 0.f;
+  }
   else {
     // SKEWING function based on Vair
     if (meas_airspeed < ROTWING_SKEW_DOWN_AIRSPEED) {

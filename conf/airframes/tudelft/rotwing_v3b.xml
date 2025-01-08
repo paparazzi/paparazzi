@@ -159,7 +159,7 @@
         <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000"    max="7372"/>
         <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
         <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
     </servos>

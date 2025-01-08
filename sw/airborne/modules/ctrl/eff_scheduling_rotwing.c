@@ -334,10 +334,10 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   roll_motor_p_eff_right = bound_or_zero(roll_motor_p_eff_right, -1.f, -0.00001f);
 
   float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  if(autopilot.in_flight) {
-    float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
-    roll_motor_p_eff_left += roll_motor_airspeed_compensation;
-  }
+  // if(autopilot.in_flight) {
+  //   float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
+  //   roll_motor_p_eff_left += roll_motor_airspeed_compensation;
+  // }
   roll_motor_p_eff_left = bound_or_zero(roll_motor_p_eff_left, 0.00001f, 1.f);
 
   float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
