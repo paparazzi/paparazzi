@@ -221,7 +221,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
   }
 
   if (!ins_altf.origin_initialized) {
-    reset_ref(MODULE_INS_ALT_FLOAT_ID);
+    reset_ref();
   }
 
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
