@@ -114,15 +114,15 @@ void nav_reset_utm_zone(void)
   utm0.alt = ground_alt;
 
   struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
+  lla_of_utm_f(&lla0, &utm0);
   if (bit_is_set(gps.valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    utm->zone = gps.utm_pos.zone;
+    utm0.zone = gps.utm_pos.zone;
   }
   else {
-    utm->zone = 0;  // recompute zone from lla
+    utm0.zone = 0;  // recompute zone from lla
   }
-  utm_of_lla_f(utm, &lla0);
-  stateSetLocalUtmOrigin_f(MODULE_NAV_BASIC_FW_ID, utm);
+  utm_of_lla_f(&utm0, &lla0);
+  stateSetLocalUtmOrigin_f(MODULE_NAV_BASIC_FW_ID, &utm0);
 
   /* Set the real UTM ref */
   nav_utm_zone0 = utm0.zone;
