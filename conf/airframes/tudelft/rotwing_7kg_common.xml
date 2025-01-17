@@ -36,6 +36,7 @@
         <define name="NAV_CLIMB_VSPEED"                     value="2.0" />
         <define name="NAV_DESCEND_VSPEED"                   value="-1.0"/>
         <define name="NAV_CARROT_DIST"                      value="200"/>
+        <define name="MULTI_GPS_MODE"                       value="GPS_MODE_PRIMARY"/>
         <!-- prevent in-flight in start engine block-->
         <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
@@ -263,6 +264,7 @@
     <section name="EKF2" prefix="INS_EKF2_">
         <define name="GPS_YAW_OFFSET" value="0"/>
         <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
+        <define name="FUSION_MODE"          value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
 
         <define name="IMU_POS_X" value="0.321"/>
         <define name="IMU_POS_Y" value="0.0"/>
