@@ -60,6 +60,26 @@
 #define ROTWING_FW_SKEW_ANGLE 85.0
 #endif
 
+/* Maximum measured skew angle to consider the rotating wing drone in quad (deg) */
+#ifndef ROTWING_QUAD_SKEW_ANGLE
+#define ROTWING_QUAD_SKEW_ANGLE 25.0
+#endif
+
+/* Maximum bank angle while the rotwing is skewing */
+#ifndef ROTWING_TRANSITION_MAX_BANK
+#define ROTWING_TRANSITION_MAX_BANK RadOfDeg(20)
+#endif
+
+/* Maximum climb speed while the rotwing is transitioning */
+#ifndef ROTWING_TRANSITION_MAX_CLIMB_SPEED
+#define ROTWING_TRANSITION_MAX_CLIMB_SPEED 0.5
+#endif
+
+/* Maximum descend speed while the rotwing is transitioning */
+#ifndef ROTWING_TRANSITION_MAX_DESCEND_SPEED
+#define ROTWING_TRANSITION_MAX_DESCEND_SPEED -0.5
+#endif
+
 /* TODO: Give a name.... */
 #ifndef ROTWING_SKEW_BACK_MARGIN
 #define ROTWING_SKEW_BACK_MARGIN 5.0
@@ -78,6 +98,11 @@
 /* Amount of time the airspeed needs to be below the FW_MIN_AIRSPEED */
 #ifndef ROTWING_FW_STALL_TIMEOUT
 #define ROTWING_FW_STALL_TIMEOUT 0.5
+#endif
+
+/*  */
+#ifndef ROTWING_FREE_CONFIG_CHANGE_TIMEOUT
+#define ROTWING_FREE_CONFIG_CHANGE_TIMEOUT 10.0
 #endif
 
 /* Fix for not having double can busses */
@@ -176,6 +201,7 @@ bool rotwing_state_hover_motors_idling(void) {
 void rotwing_state_periodic(void)
 {
   /* Get some genericly used variables */
+  // static float free_state_config_change_timeout = 0;
   static float last_stall_time = 0;
   float current_time = get_sys_time_float();
   float meas_airspeed = stateGetAirspeed_f();
@@ -188,7 +214,10 @@ void rotwing_state_periodic(void)
 
   /* Override modes if flying with RC */
   rotwing_state.state = rotwing_state.nav_state;
-  if(guidance_h.mode == GUIDANCE_H_MODE_NONE) {
+  if (autopilot.mode == AP_MODE_FAILSAFE) {
+    rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
+  } 
+  else if (guidance_h.mode == GUIDANCE_H_MODE_NONE) {
     // Kill mode
     if(stabilization.mode == STABILIZATION_MODE_NONE) {
       rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
@@ -244,9 +273,6 @@ void rotwing_state_periodic(void)
   else if(rotwing_state.state == ROTWING_STATE_REQUEST_HOVER && meas_skew_angle <= (ROTWING_SKEW_ANGLE_STEP + ROTWING_SKEW_BACK_MARGIN)) {
     rotwing_state.sp_skew_angle_deg = 0.f;
   }
-  else if(rotwing_state.state == ROTWING_STATE_FREE && gi_unbounded_airspeed_sp < ROTWING_QUAD_MAX_AIRSPEED) {
-    rotwing_state.sp_skew_angle_deg = 0.f;
-  }
   else {
     // SKEWING function based on Vair
     if (meas_airspeed < ROTWING_SKEW_DOWN_AIRSPEED) {
@@ -285,6 +311,17 @@ void rotwing_state_periodic(void)
     rotwing_state.max_airspeed = skew_max_airspeed;
   }
 
+  /* Bound max bank angle, climb speed and descend speed if the rotwing drone is transitioning */
+  if (rotwing_state.meas_skew_angle_deg < ROTWING_FW_SKEW_ANGLE && rotwing_state.meas_skew_angle_deg > ROTWING_QUAD_SKEW_ANGLE) {
+    guidance_set_max_bank_angle(ROTWING_TRANSITION_MAX_BANK);
+    guidance_set_max_climb_speed(ROTWING_TRANSITION_MAX_CLIMB_SPEED, ROTWING_TRANSITION_MAX_CLIMB_SPEED);
+    guidance_set_max_descend_speed(ROTWING_TRANSITION_MAX_DESCEND_SPEED, ROTWING_TRANSITION_MAX_DESCEND_SPEED);
+  } else {
+    guidance_set_max_bank_angle(GUIDANCE_H_MAX_BANK);
+    guidance_set_max_climb_speed(GUIDANCE_INDI_QUAD_CLIMB_SPEED, GUIDANCE_INDI_FWD_CLIMB_SPEED);
+    guidance_set_max_descend_speed(GUIDANCE_INDI_QUAD_DESCEND_SPEED, GUIDANCE_INDI_FWD_DESCEND_SPEED);
+  }
+    
   // Override failing skewing while fwd
   /*if(meas_skew_angle > 70 && rotwing_state_.skewing_failing) {
     rotwing_state.min_airspeed = 0; // Vstall + margin
@@ -292,6 +329,7 @@ void rotwing_state_periodic(void)
   }*/
 
   guidance_set_min_max_airspeed(rotwing_state.min_airspeed, rotwing_state.max_airspeed);
+
   /* Set navigation/guidance settings */
   nav_max_deceleration_sp = ROTWING_FW_MAX_DECELERATION * meas_skew_angle / 90.f + ROTWING_QUAD_MAX_DECELERATION * (90.f - meas_skew_angle) / 90.f; //TODO: Do we really want to based this on the skew?
 
@@ -504,17 +542,4 @@ void rotwing_state_set_transition_wp(uint8_t wp_id) {
                                &waypoints[wp_id].enu_i.z);
   });
 
-}
-
-void rotwing_state_update_WP_height(uint8_t wp_id, float height) {
-  struct EnuCoor_f target_enu = {.x = waypoints[wp_id].enu_f.x,
-                                 .y = waypoints[wp_id].enu_f.y,
-                                 .z = height};
-  
-  waypoint_set_enu(wp_id, &target_enu);
-
-  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                               &waypoints[wp_id].enu_i.x,
-                               &waypoints[wp_id].enu_i.y,
-                               &waypoints[wp_id].enu_i.z);
 }
