@@ -5,6 +5,7 @@
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="CLIMB" x="300." y="70"/>
     <waypoint name="STDBY" x="60" y="20"/>
+    <waypoint name="HOVER" x="300" y="100"/>
     <waypoint name="p1" x="65" y="75"/>
     <waypoint name="p2" x="200" y="120"/>
     <waypoint name="p3" x="250" y="-30"/>
@@ -61,7 +62,12 @@
   <variables>
     <variable var="liftoff_pitch"/>
     <variable var="liftoff_roll"/>
+    <variable var="liftoff_pitch_limit" init="LIFTOFF_PITCH_LIMIT_DEG"/>
+    <variable var="liftoff_roll_limit" init="LIFTOFF_ROLL_LIMIT_DEG"/>
     <variable var="stage_timer_msec"/>
+    <variable var="hybrid_height" init="HYBRID_HEIGHT"/>
+    <variable var="transition_height" init="TRANSITION_HEIGHT"/>
+    <variable var="flare_height" init="FLARE_HEIGHT"/>
   </variables>
   <modules>
     <module name="follow_me">
@@ -71,8 +77,9 @@
   <exceptions>
     <!-- Outside of hard (red) geofence kill -->
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill'))" deroute="Kill"/>
-    <!-- Outside of soft (orange) geofence standby free -->
+    <!-- Outside of soft (orange) geofence go to standby free -->
     <exception cond="Or(!InsideSoftGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 250.0) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby_free"/>
+    <!-- Datalink timeout go to standby free -->
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby_free"/>
     <!-- Bat low return to standby-->
     <exception cond="(electrical.bat_low @AND !(IndexOfBlock('Kill') @GT nav_block) @AND !(nav_block >= IndexOfBlock('land here')) @AND (autopilot_in_flight() == true) )" deroute="Standby_free"/>
@@ -106,7 +113,7 @@
     <block name="Wait takeoff">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <exception cond="stage_time > 10" deroute="Kill"/>
-      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT 5.0) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT 5.0) @AND (stage_time > 2)" vmode="throttle"/>
+      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT liftoff_roll_limit) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT liftoff_pitch_limit) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
@@ -122,8 +129,14 @@
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT hybrid_height" deroute="Climb_Hybrid"/>
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
+      <call_once fun="nav_set_heading_current()"/>
+      <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Climb_Hybrid">
+      <exception cond="GetPosHeight() @GT transition_height" deroute="Circle_Auto_fwd"/>
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
       <call_once fun="nav_set_heading_current()"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
@@ -134,6 +147,16 @@
     <block name="Standby_free">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
         <stay wp="STDBY"/>
+    </block>
+    <block name="Hover_here" strip_button="Hover here" strip_icon="wp_quad.png">
+        <call_once fun="waypoint_set_here(WP_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="HOVER"/>
+    </block>
+    <block name="Loiter_here" strip_button="Loiter here" strip_icon="home.png">
+        <call_once fun="waypoint_set_here(WP_HOVER)"/>
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
+        <stay wp="HOVER"/>
     </block>
     <block name="stay_p1" strip_button="Stay P1" strip_icon="wp_quad.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
@@ -220,7 +243,7 @@
     </block>
     <block name="descend" strip_button="Descend" strip_icon="descend.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-        <exception cond="GetPosHeight() @LT 12.0" deroute="flare"/>
+        <exception cond="GetPosHeight() @LT flare_height" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
