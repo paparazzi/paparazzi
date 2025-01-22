@@ -28,6 +28,7 @@
             <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
+<<<<<<< HEAD
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE2_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE2_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
@@ -35,6 +36,15 @@
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE2_ID"/>
             <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE2_ID"/>
+=======
+            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
+
+            <!--Only send gyro and accel that is being used-->
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+>>>>>>> 879af5cee3 (rotwing airframe files v3i-k and conf)
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
@@ -64,6 +74,10 @@
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
             <configure name="MODEM_BAUD" value="B460800"/>
+<<<<<<< HEAD
+=======
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/>  -->
+>>>>>>> 879af5cee3 (rotwing airframe files v3i-k and conf)
         </module>
 
         <!-- Sensors -->
@@ -85,7 +99,13 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         
+<<<<<<< HEAD
         <module name="air_data"/>
+=======
+        <module name="air_data">
+            <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
+        </module>
+>>>>>>> 879af5cee3 (rotwing airframe files v3i-k and conf)
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
