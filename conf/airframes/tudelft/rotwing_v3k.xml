@@ -1,13 +1,13 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00363
-     * Autopilot:   Cube orange+
+     * Airframe:    TUD00473
+     * Autopilot:   Cube Orange+
      * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3H">
-    <description>RotatingWingV3H</description>
+<airframe name="RotatingWingV3K">
+    <description>RotatingWingV3K</description>
 
     <firmware name="rotorcraft">
         <target name="ap" board="cube_orangeplus">
@@ -63,7 +63,8 @@
 
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
-            <configure name="MODEM_BAUD" value="B460800"/>
+            <!-- <configure name="MODEM_BAUD" value="B460800"/> -->
+            <configure name="MODEM_PORT" value="usb_serial"/> 
         </module>
 
         <!-- Sensors -->
@@ -138,7 +139,6 @@
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
         </module>
         <module name="pfc_actuators"/>
-        <module name="airspeed_consistency"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
@@ -239,9 +239,6 @@
     </section>
 
     <section name="CALIBRATION">
-        <!-- Throttle value in AP_MODE_FAILSAFE -->
-        <define name="FAILSAFE_THROTTLE"                    value="5300"/>
-        
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -365,9 +362,36 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,11}, .scale={{36573,4111,12385},{3737,420,1269}}, .filter_sample_freq=1130, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,-5,24}, .scale={{21205,53606,11977},{4326,10919,2440}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-63,-14,21}, .scale={{32790,18121,37501},{6697,3698,7659}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={11770,9014,-7862}, .scale={{1879,14000,16295},{3057,25229,28216}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1130, .filter_freq=30}}"/>
+
+        <!-- Accelerometer calibration -->
+        <define name="IMU_ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                <field name="neutral" value="true"/>
+                <field name="scale" value="true"/>
+                </field>
+                <field name="neutral" value="-11,4,12" type="int[]"/>
+                <field name="scale" value="{{850,23084,9612},{87,2359,991}}"/>
+            </field>
+        </define>
+
+        <!-- Magnetometer calibration (NOT DONE!) -->
+        
+        <!-- Gyrometer calibration (NOT DONE!) -->
+        <define name="GYRO_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="26"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="false"/>
+                    <field name="scale" value="false"/>
+                    <field name="rotation" value="false"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="filter_sample_freq" value="4042"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
