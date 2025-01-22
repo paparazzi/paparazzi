@@ -84,7 +84,9 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-        <module name="air_data"/>
+        <module name="air_data">
+            <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
+        </module>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
@@ -147,13 +149,13 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-2375" neutral="-172" max="2031"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2211" neutral="-82" max="2047"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-3250"/>
-        <servo no="7"  name="SERVO_RUDDER"    min="-6000" neutral="0"    max="3250"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="5400"  neutral="5400" max="-4349"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
@@ -162,13 +164,13 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="5" name="BROTATION_MECH" min="-2375" neutral="-172" max="2031"/>
+        <servo no="5" name="BROTATION_MECH" min="-2211" neutral="-82" max="2047"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3456"/> <!-- min can go up to -9600-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3456"/> <!-- min can go up to -9600-->
         <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
         <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
     </servos>
