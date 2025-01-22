@@ -64,6 +64,7 @@
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
             <configure name="MODEM_BAUD" value="B460800"/>
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/>  -->
         </module>
 
         <!-- Sensors -->
@@ -84,7 +85,9 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-        <module name="air_data"/>
+        <module name="air_data">
+            <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
+        </module>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
