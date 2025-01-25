@@ -106,7 +106,8 @@ void thd_test_periodic(void)
 }
 
 
-static void test_thd(void*) {
+static void test_thd(void* arg) {
+  (void)arg;
   size_t count = 0;
   while(syracuse != 1) {
     pprz_bsem_wait(&bsem);  // wait to be woken up by the AP thread
