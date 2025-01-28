@@ -9,3 +9,6 @@ pyqtgraph
 unidecode
 matplotlib
 distro
+empy==3.3.4
+pexpect
+
