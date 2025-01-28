@@ -27,16 +27,9 @@
 #include "uavcan/uavcan.h"
 #include "modules/energy/electrical.h"
 #include "math/pprz_random.h"
+#include "uavcan.equipment.power.BatteryInfo.h"
+#include "uavcan.equipment.power.CircuitStatus.h"
 
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
-#define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_ID 1092
-#define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_SIGNATURE (0x249C26548A711966ULL)
-#define UAVCAN_EQUIPMENT_POWER_BATTERYINFO_MAX_SIZE 55
-
-/* uavcan EQUIPMENT_POWER_CIRCUITSTATUS message definition */
-#define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_ID 1091
-#define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_SIGNATURE (0x8313D33D0DDDA115ULL)
-#define UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_MAX_SIZE 7
 
 /* Default maximum amount of batteries */
 #ifndef POWER_UAVCAN_BATTERIES_MAX
@@ -57,40 +50,24 @@
 static uavcan_event power_uavcan_ev;
 static uavcan_event circuit_uavcan_ev;
 
-/* Batteries */
-struct uavcan_equipment_power_BatteryInfo {
+struct battery_info
+{
   bool set;
   uint8_t node_id;
-
-  float temperature;
-  float voltage;
-  float current;
-  float average_power_10sec;
-  float remaining_capacity_wh;
-  float full_charge_capacity_wh;
-  float hours_to_full_charge;
-  uint16_t status_flags;
-  uint8_t state_of_health_pct;
-  uint8_t state_of_charge_pct;
-  uint8_t state_of_charge_pct_stdev;
-  uint8_t battery_id;
-  uint32_t model_instance_id;
-//  struct { uint8_t len; uint8_t data[31]; }model_name;
+  struct uavcan_equipment_power_BatteryInfo info;
 };
-static struct uavcan_equipment_power_BatteryInfo batteries[POWER_UAVCAN_BATTERIES_MAX] = {0};
 
 /* Circuits */
-struct uavcan_equipment_power_CircuitStatus {
+struct circuit_status {
   bool set;
   uint8_t node_id;
   bool is_battery;
-
-  uint16_t circuit_id;
-  float voltage;
-  float current;
-  uint8_t error_flags;
+  struct uavcan_equipment_power_CircuitStatus status;
 };
-static struct uavcan_equipment_power_CircuitStatus circuits[POWER_UAVCAN_CIRCUITS_MAX] = {0};
+
+
+static struct battery_info batteries[POWER_UAVCAN_BATTERIES_MAX] = {0};
+static struct circuit_status circuits[POWER_UAVCAN_CIRCUITS_MAX] = {0};
 
 /* Battery circuits */
 struct uavcan_circuit_battery_t {
@@ -107,8 +84,8 @@ static void power_uavcan_send_power_device(struct transport_tx *trans, struct li
   static uint8_t idx = 0;
   // Send the circuit status
   if(circuits[idx].set) {
-    uint8_t cid = circuits[idx].circuit_id;
-    pprz_msg_send_POWER_DEVICE(trans, dev, AC_ID, &circuits[idx].node_id, &cid, &circuits[idx].current, &circuits[idx].voltage);
+    uint8_t cid = circuits[idx].status.circuit_id;
+    pprz_msg_send_POWER_DEVICE(trans, dev, AC_ID, &circuits[idx].node_id, &cid, &circuits[idx].status.current, &circuits[idx].status.voltage);
   }
 
   // Go to the next
@@ -124,41 +101,16 @@ static void power_uavcan_send_power_device(struct transport_tx *trans, struct li
 
 static void power_uavcan_battery_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
 {
-  uint16_t tmp_float = 0;
-
-  /* Decode the message */
-  canardDecodeScalar(transfer, (uint32_t)0, 16, true, (void *)&tmp_float);
-  float temperature = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)16, 16, true, (void *)&tmp_float);
-  float voltage = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)32, 16, true, (void *)&tmp_float);
-  float current = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)48, 16, true, (void *)&tmp_float);
-  float average_power_10sec = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)64, 16, true, (void *)&tmp_float);
-  float remaining_capacity_wh = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)80, 16, true, (void *)&tmp_float);
-  float full_charge_capacity_wh = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)96, 16, true, (void *)&tmp_float);
-  float hours_to_full_charge = canardConvertFloat16ToNativeFloat(tmp_float);
-  uint16_t status_flags = 0;
-  canardDecodeScalar(transfer, (uint32_t)112, 11, false, (void *)&status_flags);
-  uint8_t state_of_health_pct = 0;
-  canardDecodeScalar(transfer, (uint32_t)123, 7, false, (void *)&state_of_health_pct);
-  uint8_t state_of_charge_pct = 0;
-  canardDecodeScalar(transfer, (uint32_t)130, 7, false, (void *)&state_of_charge_pct);
-  uint8_t state_of_charge_pct_stdev = 0;
-  canardDecodeScalar(transfer, (uint32_t)137, 7, false, (void *)&state_of_charge_pct_stdev);
-  uint8_t battery_id = 0;
-  canardDecodeScalar(transfer, (uint32_t)144, 8, false, (void *)&battery_id);
-  uint32_t model_instance_id = 0;
-  canardDecodeScalar(transfer, (uint32_t)152, 32, false, (void *)&model_instance_id);
+  struct uavcan_equipment_power_BatteryInfo msg;
+  if(uavcan_equipment_power_BatteryInfo_decode(transfer, &msg)) {
+    return;   // decode error
+  }
 
   // Search for the battery or free spot
   uint8_t battery_idx = POWER_UAVCAN_BATTERIES_MAX;
   for (uint8_t i = 0; i < POWER_UAVCAN_BATTERIES_MAX; i++) {
     if (batteries[i].set && batteries[i].node_id == transfer->source_node_id && 
-        batteries[i].battery_id == battery_id && batteries[i].model_instance_id == model_instance_id) {
+        batteries[i].info.battery_id == msg.battery_id && batteries[i].info.model_instance_id == msg.model_instance_id) {
       battery_idx = i;
       break;
     }
@@ -176,51 +128,33 @@ static void power_uavcan_battery_cb(struct uavcan_iface_t *iface __attribute__((
   // Set the battery info
   batteries[battery_idx].set = true;
   batteries[battery_idx].node_id = transfer->source_node_id;
-  batteries[battery_idx].temperature = temperature;
-  batteries[battery_idx].voltage = voltage;
-  batteries[battery_idx].current = current;
-  batteries[battery_idx].average_power_10sec = average_power_10sec;
-  batteries[battery_idx].remaining_capacity_wh = remaining_capacity_wh;
-  batteries[battery_idx].full_charge_capacity_wh = full_charge_capacity_wh;
-  batteries[battery_idx].hours_to_full_charge = hours_to_full_charge;
-  batteries[battery_idx].status_flags = status_flags;
-  batteries[battery_idx].state_of_health_pct = state_of_health_pct;
-  batteries[battery_idx].state_of_charge_pct = state_of_charge_pct;
-  batteries[battery_idx].state_of_charge_pct_stdev = state_of_charge_pct_stdev;
-  batteries[battery_idx].battery_id = battery_id;
-  batteries[battery_idx].model_instance_id = model_instance_id;
+  batteries[battery_idx].info = msg;
 
   // Sum the battery currents
   float current_sum = 0;
   for (uint8_t i = 0; i < POWER_UAVCAN_BATTERIES_MAX; i++) {
     if (batteries[i].set) {
-      current_sum += batteries[i].current;
+      current_sum += batteries[i].info.current;
     }
   }
   electrical.current = current_sum;
-  if (voltage > 0) {
-    electrical.vsupply = voltage;
+  if (msg.voltage > 0) {
+    electrical.vsupply = msg.voltage;
   }
 }
 
 static void power_uavcan_circuit_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
 {
-  uint16_t tmp_float = 0;
 
-  /* Decode the message */
-  uint16_t circuit_id = 0;
-  canardDecodeScalar(transfer, (uint32_t)0, 16, false, (void *)&circuit_id);
-  canardDecodeScalar(transfer, (uint32_t)16, 16, true, (void *)&tmp_float);
-  float voltage = canardConvertFloat16ToNativeFloat(tmp_float);
-  canardDecodeScalar(transfer, (uint32_t)32, 16, true, (void *)&tmp_float);
-  float current = canardConvertFloat16ToNativeFloat(tmp_float);
-  uint8_t error_flags = 0;
-  canardDecodeScalar(transfer, (uint32_t)48, 8, false, (void *)&error_flags);
+  struct uavcan_equipment_power_CircuitStatus msg;
+  if(uavcan_equipment_power_CircuitStatus_decode(transfer, &msg)) {
+    return;   // decode error
+  }
 
   // Search for the circuit or free spot
   uint8_t circuit_idx = POWER_UAVCAN_CIRCUITS_MAX;
   for (uint8_t i = 0; i < POWER_UAVCAN_CIRCUITS_MAX; i++) {
-    if (circuits[i].set && circuits[i].node_id == transfer->source_node_id && circuits[i].circuit_id == circuit_id) {
+    if (circuits[i].set && circuits[i].node_id == transfer->source_node_id && circuits[i].status.circuit_id == msg.circuit_id) {
       circuit_idx = i;
       break;
     }
@@ -238,21 +172,18 @@ static void power_uavcan_circuit_cb(struct uavcan_iface_t *iface __attribute__((
   // Set the circuit info
   circuits[circuit_idx].set = true;
   circuits[circuit_idx].node_id = transfer->source_node_id;
-  circuits[circuit_idx].circuit_id = circuit_id;
-  circuits[circuit_idx].voltage = voltage;
-  circuits[circuit_idx].current = current;
-  circuits[circuit_idx].error_flags = error_flags;
+  circuits[circuit_idx].status = msg;
 
   // Sum the 'battery' circuit currents
   float current_sum = 0;
   for (uint8_t i = 0; i < POWER_UAVCAN_CIRCUITS_MAX; i++) {
     if (circuits[i].set && circuits[i].is_battery) {
-      current_sum += circuits[i].current;
+      current_sum += circuits[i].status.current;
     }
   }
   electrical.current = current_sum;
-  if (voltage > 0 && circuits[circuit_idx].is_battery) {
-    electrical.vsupply = voltage;
+  if (msg.voltage > 0 && circuits[circuit_idx].is_battery) {
+    electrical.vsupply = msg.voltage;
   }
 }
 
@@ -262,7 +193,7 @@ void power_uavcan_init(void)
   for (uint8_t i = 0; i < sizeof(battery_circuits) / sizeof(struct uavcan_circuit_battery_t); i++) {
     circuits[i].set = true;
     circuits[i].node_id = battery_circuits[i].node_id;
-    circuits[i].circuit_id = battery_circuits[i].circuit_id;
+    circuits[i].status.circuit_id = battery_circuits[i].circuit_id;
     circuits[i].is_battery = true;
   }
 
