@@ -30,6 +30,13 @@
 #include "modules/core/abi.h"
 #include "modules/actuators/actuators.h"
 
+
+#include "uavcan.equipment.esc.Status.h"
+#include "uavcan.equipment.esc.RawCommand.h"
+#include "uavcan.equipment.actuator.Status.h"
+#include "uavcan.equipment.actuator.ArrayCommand.h"
+#include "uavcan.equipment.device.Temperature.h"
+
 /* By default enable the usage of the current sensing in the ESC telemetry */
 #ifndef UAVCAN_ACTUATORS_USE_CURRENT
 #define UAVCAN_ACTUATORS_USE_CURRENT TRUE
@@ -82,31 +89,6 @@ static struct actuators_uavcan_telem_t uavcan2_telem[SERVOS_UAVCAN2_NB] = {0};
 
 /* UNUSED value for CMD */
 #define UAVCAN_CMD_UNUSED (MIN_PPRZ-1)
-
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
-#define UAVCAN_EQUIPMENT_ESC_STATUS_ID                     1034
-#define UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE              (0xA9AF28AEA2FBB254ULL)
-#define UAVCAN_EQUIPMENT_ESC_STATUS_MAX_SIZE               ((110 + 7)/8)
-
-/* uavcan EQUIPMENT_ESC_RAWCOMMAND message definition */
-#define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID                 1030
-#define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE          (0x217F5C87D7EC951DULL)
-#define UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_MAX_SIZE           ((285 + 7)/8)
-
-/* uavcan EQUIPMENT_ACTUATOR_STATUS message definition */
-#define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_ID                1011
-#define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_SIGNATURE         (0x5E9BBA44FAF1EA04ULL)
-#define UAVCAN_EQUIPMENT_ACTUATOR_STATUS_MAX_SIZE          ((64 + 7)/8)
-
-/* uavcan EQUIPMENT_ACTUATOR_ARRAYCOMMAND message definition */
-#define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_ID          1010
-#define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_SIGNATURE   (0xD8A7486238EC3AF3ULL)
-#define UAVCAN_EQUIPMENT_ACTUATOR_ARRAYCOMMAND_MAX_SIZE    ((484 + 7)/8)
-
-/* uavcan EQUIMPENT_DEVICE_TEMPERATURE message definition */
-#define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ID             1110
-#define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_SIGNATURE      (0x70261C28A94144C6ULL)
-#define UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_MAX_SIZE       ((40 + 7)/8)
 
 /* private variables */
 static bool actuators_uavcan_initialized = false;
