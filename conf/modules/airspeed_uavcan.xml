@@ -30,5 +30,9 @@
   <init fun="airspeed_uavcan_init()"/>
   <makefile target="ap">
     <file name="airspeed_uavcan.c"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.equipment.air_data.RawAirData.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
   </makefile>
 </module>
