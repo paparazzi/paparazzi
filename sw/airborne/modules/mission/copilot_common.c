@@ -52,9 +52,9 @@ struct CameraPayload cam_payload;
 struct CameraSnapshot cam_snapshot;
 struct CopilotStatus copilot_status;
 
-PPRZ_MUTEX(copilot_cam_snapshot_mtx);
-PPRZ_MUTEX(copilot_cam_payload_mtx);
-PPRZ_MUTEX(copilot_status_mtx);
+pprz_mutex_t copilot_cam_snapshot_mtx;
+pprz_mutex_t copilot_cam_payload_mtx;
+pprz_mutex_t copilot_status_mtx;
 
 /** Init function */
 void copilot_init(void)
@@ -67,15 +67,15 @@ void copilot_init(void)
   memset(&cam_snapshot, 0, sizeof(cam_snapshot));
   memset(&copilot_status, 0, sizeof(copilot_status));
 
-  PPRZ_MUTEX_INIT(copilot_cam_snapshot_mtx);
-  PPRZ_MUTEX_INIT(copilot_cam_payload_mtx);
-  PPRZ_MUTEX_INIT(copilot_status_mtx);
+  pprz_mtx_init(&copilot_cam_snapshot_mtx);
+  pprz_mtx_init(&copilot_cam_payload_mtx);
+  pprz_mtx_init(&copilot_status_mtx);
 }
 
 /** Periodic function */
 void copilot_periodic(void)
 {
-  PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
+  pprz_mtx_lock(&copilot_cam_snapshot_mtx);
   if (send_cam_snapshot) {
     // send down to GCS
     DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice,
@@ -85,9 +85,9 @@ void copilot_periodic(void)
 
     send_cam_snapshot = false;
   }
-  PPRZ_MUTEX_UNLOCK(copilot_cam_snapshot_mtx);
+  pprz_mtx_unlock(&copilot_cam_snapshot_mtx);
 
-  PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
+  pprz_mtx_lock(&copilot_cam_payload_mtx);
   if (send_cam_payload) {
     // NOTE: to send the message over the EXTRA_DL port
     // use "DOWNLINK_SEND_CAMERA_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,"
@@ -99,9 +99,9 @@ void copilot_periodic(void)
 
     send_cam_payload = false;
   }
-  PPRZ_MUTEX_UNLOCK(copilot_cam_payload_mtx);
+  pprz_mtx_unlock(&copilot_cam_payload_mtx);
 
-  PPRZ_MUTEX_LOCK(copilot_status_mtx);
+  pprz_mtx_lock(&copilot_status_mtx);
   // send down to GCS
   if (send_copilot_status) {
     DOWNLINK_SEND_COPILOT_STATUS(DefaultChannel, DefaultDevice,
@@ -111,7 +111,7 @@ void copilot_periodic(void)
 
     send_copilot_status = false;
   }
-  PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
+  pprz_mtx_unlock(&copilot_status_mtx);
 
 }
 
@@ -126,7 +126,7 @@ void copilot_periodic(void)
  */
 void copilot_parse_cam_snapshot_dl(uint8_t *buf)
 {
-  PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
+  pprz_mtx_lock(&copilot_cam_snapshot_mtx);
 
   // copy CAMERA_SNAPSHOT message and mark it to be sent
   cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_DL_camera_id(buf);
@@ -138,7 +138,7 @@ void copilot_parse_cam_snapshot_dl(uint8_t *buf)
 
   send_cam_snapshot = true;
 
-  PPRZ_MUTEX_UNLOCK(copilot_cam_snapshot_mtx);
+  pprz_mtx_unlock(&copilot_cam_snapshot_mtx);
 }
 
 /**
@@ -146,7 +146,7 @@ void copilot_parse_cam_snapshot_dl(uint8_t *buf)
  */
 void copilot_parse_cam_payload_dl(uint8_t *buf)
 {
-  PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
+  pprz_mtx_lock(&copilot_cam_payload_mtx);
 
   cam_payload.timestamp = DL_CAMERA_PAYLOAD_DL_timestamp(buf);
   cam_payload.used_mem = DL_CAMERA_PAYLOAD_DL_used_memory(buf);
@@ -156,7 +156,7 @@ void copilot_parse_cam_payload_dl(uint8_t *buf)
 
   send_cam_payload = true;
 
-  PPRZ_MUTEX_UNLOCK(copilot_cam_payload_mtx);
+  pprz_mtx_unlock(&copilot_cam_payload_mtx);
 }
 
 /**
@@ -164,7 +164,7 @@ void copilot_parse_cam_payload_dl(uint8_t *buf)
  */
 void copilot_parse_copilot_status_dl(uint8_t *buf)
 {
-  PPRZ_MUTEX_LOCK(copilot_status_mtx);
+  pprz_mtx_lock(&copilot_status_mtx);
 
   copilot_status.timestamp = DL_COPILOT_STATUS_DL_timestamp(buf);
   copilot_status.used_mem = DL_COPILOT_STATUS_DL_used_memory(buf);
@@ -174,7 +174,7 @@ void copilot_parse_copilot_status_dl(uint8_t *buf)
 
   send_copilot_status = true;
 
-  PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
+  pprz_mtx_unlock(&copilot_status_mtx);
 }
 
 /**
