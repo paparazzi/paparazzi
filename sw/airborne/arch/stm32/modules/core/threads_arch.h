@@ -18,6 +18,7 @@
 #define THREADS_ATTRIBUTES __attribute__((error("Threads cannot be used in STM32 bare metal ARCH.")))
 
 struct pprzMutex {
+  int dummy;  // avoid warning: empty declaration
 };
 
 struct pprzBSem {

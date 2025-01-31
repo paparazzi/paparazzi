@@ -11,7 +11,7 @@
  * See LICENSE file for the full license version, or see http://www.gnu.org/licenses/
  */
 #include "modules/core/threads.h"
-#include "threads_arch.h"
+#include "modules/core/threads_arch.h"
 #include "stdbool.h"
 
 

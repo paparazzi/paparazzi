@@ -29,7 +29,7 @@
 #include "pprzlink/pprzlink_transport.h"
 #include "pprzlink/pprz_transport.h"
 #include "modules/datalink/gec/gec.h"
-#include "threads.h"
+#include "modules/core/threads.h"
 
 #include "mcu_periph/uart.h"
 #if USE_USB_SERIAL || USE_USB_SERIAL_DEBUG

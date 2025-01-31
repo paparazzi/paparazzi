@@ -13,7 +13,7 @@
 
 #pragma once
 #include "stdbool.h"
-#include "threads_arch.h"
+#include "modules/core/threads_arch.h"
 #include "stdint.h"
 #include <stddef.h>
 
