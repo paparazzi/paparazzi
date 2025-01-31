@@ -48,13 +48,13 @@ void pprz_bsem_signal(pprz_bsem_t* bsem);
  *
  * @api
  */
-int pprz_thread_create(pprz_thread_t* thread, size_t size, const char *name, uint8_t prio, void (*func)(void*), void* arg);
+int pprz_thread_create(pprz_thread_t* thread, size_t size, const char *name, uint8_t prio, void (*func)(void*), void* arg) THREADS_ATTRIBUTES;
 
 /**
  * @brief   Exit the current thread
  * @param[out] retval   The thread's return value
  */
-void pprz_thread_exit(void *retval);
+void pprz_thread_exit(void *retval) THREADS_ATTRIBUTES;
 
 /**
  * @brief Wait for the thread to terminate.
@@ -62,7 +62,7 @@ void pprz_thread_exit(void *retval);
  * @param[in] thread    The thread to be joined
  * @param[out] retval   The thread's return value will be written to the variable pointed by retval
  */
-int pprz_thread_join(pprz_thread_t* thread, void** retval);
+int pprz_thread_join(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
 
 
 /**
@@ -72,4 +72,4 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval);
  *                      must not be used if this fuction did not returned 0.
  * @return        0 if the thread successfully joined.
  */
-int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval);
+int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;

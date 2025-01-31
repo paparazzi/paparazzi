@@ -13,17 +13,16 @@
 
 #pragma once
 
-#include <ch.h>
-
 #define PPRZ_NORMAL_PRIO NORMALPRIO
 
+#define THREADS_ATTRIBUTES __attribute__((error("Threads cannot be used in STM32 bare metal ARCH.")))
+
 struct pprzMutex {
-  mutex_t mtx;
 };
 
 struct pprzBSem {
-  binary_semaphore_t bsem;
+  volatile int value;
 };
 
 
-typedef thread_t* pprz_thread_t;
+typedef int pprz_thread_t;

@@ -46,7 +46,7 @@ void pprz_bsem_wait(pprz_bsem_t* bsem) {
 
 void pprz_bsem_signal(pprz_bsem_t* bsem) {
   int val;
-  pthread_mutex_trylock(&bsem->mtx);
+  pthread_mutex_lock(&bsem->mtx);
   if(!sem_getvalue(&bsem->sem, &val)) {
     if(val < 1) {
       sem_post(&bsem->sem);

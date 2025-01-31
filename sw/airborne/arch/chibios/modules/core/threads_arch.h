@@ -13,19 +13,19 @@
 
 #pragma once
 
-#include <pthread.h>
-#include <semaphore.h>
+#include <ch.h>
 
-#define PPRZ_NORMAL_PRIO 128
+#define PPRZ_NORMAL_PRIO NORMALPRIO
+
+#define THREADS_ATTRIBUTES
 
 struct pprzMutex {
-  pthread_mutex_t mtx;
+  mutex_t mtx;
 };
 
 struct pprzBSem {
-  pthread_mutex_t mtx;
-  sem_t sem;
+  binary_semaphore_t bsem;
 };
 
 
-typedef pthread_t pprz_thread_t;
+typedef thread_t* pprz_thread_t;

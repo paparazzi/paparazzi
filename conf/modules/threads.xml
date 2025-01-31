@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="threads" dir="mcu_periph" task="mcu">
+<module name="threads" dir="core" task="core">
   <doc>
     <description>
       Provide threads and synchronization primitives.
@@ -9,10 +9,10 @@
   <dep>
   </dep>
   <header>
-    <file name="threads.h" dir="."/>
+    <file name="threads.h"/>
   </header>
   <makefile>
-    <file_arch name="threads_arch.c" dir="."/>
+    <file_arch name="threads_arch.c"/>
     <test>
     </test>
   </makefile>

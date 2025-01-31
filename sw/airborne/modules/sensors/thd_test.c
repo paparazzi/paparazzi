@@ -24,7 +24,7 @@
  */
 
 #include "modules/sensors/thd_test.h"
-#include "threads.h"
+#include "modules/core/threads.h"
 #include "led.h"
 #include "modules/datalink/telemetry.h"
 #include <stdio.h>
