@@ -46,11 +46,12 @@
 
 #include "modules/datalink/datalink.h"
 #include "modules/datalink/extra_pprz_dl.h"
-#include "pprz_mutex.h"
+#include "modules/core/threads.h"
 
-PPRZ_MUTEX_DECL(copilot_cam_snapshot_mtx);
-PPRZ_MUTEX_DECL(copilot_cam_payload_mtx);
-PPRZ_MUTEX_DECL(copilot_status_mtx);
+extern pprz_mutex_t copilot_cam_snapshot_mtx;
+extern pprz_mutex_t copilot_cam_payload_mtx;
+extern pprz_mutex_t copilot_status_mtx;
+
 
 struct CameraPayload {
   float timestamp;
