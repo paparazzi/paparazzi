@@ -200,7 +200,7 @@ static void send_air_data(struct transport_tx *trans, struct link_device *dev)
                          &air_data.pressure, &air_data.differential,
                          &air_data.temperature, &air_data.qnh,
                          &air_data.amsl_baro, &air_data.airspeed,
-                         &air_data.tas);
+                         &air_data.tas, &air_data.ratio_circle_2);
 }
 
 static void send_amsl(struct transport_tx *trans, struct link_device *dev)
@@ -239,6 +239,7 @@ void air_data_init(void)
   air_data.sideslip = 0.0f;
   air_data.wind_speed = 0.0f;
   air_data.wind_dir = 0.0f;
+  air_data.ratio_circle_2 = 1.0f;
 
   /* internal variables */
   baro_health_counter = 0;

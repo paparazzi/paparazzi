@@ -172,6 +172,7 @@ class AIRDATAMessage(object):
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
         self.tas = float(msg['tas'])
+        self.ratio_circle_2 = float(msg['ratio_circle_2'])
 
 class IMUHEATERMessage(object):
     def __init__(self, msg):
@@ -503,35 +504,47 @@ class RotWingFrame(wx.Frame):
             dc.DrawText("Nav airspeed: " + str(round(self.rw_status.nav_airspeed,1 )) + " [min: " + str(round(self.rw_status.min_airspeed,1 )) + ", max:" + str(round(self.rw_status.max_airspeed,1 )) + "]", 10, int(4.5*line))
             if hasattr(self, 'air_data'):
                 dc.DrawText("Meas airspeed: " + str(round(self.air_data.airspeed,1 )) + " (TAS: " + str(round(self.air_data.tas,1 )) + ")", 10, int(5.5*line))
+                
+                # MS45XX inflight calibration monitoring
+                if abs(1-self.air_data.ratio_circle_2) < 0.1:
+                    dc.SetTextForeground(wx.Colour(0, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
+                elif abs(1-self.air_data.ratio_circle_2) < 0.25:
+                    dc.SetTextForeground(wx.Colour(139, 64, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
+                else:
+                    dc.SetTextForeground(wx.Colour(255, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
+            
             #self.StatusBox(dc, 5, 5, 0, 0, self.rw_status.get_state(), 1, 1)
             dc.SetTextForeground(wx.Colour(0, 0, 0))
-            dc.DrawText("Force Skew: ", 10, int(6.5*line))
+            dc.DrawText("Force Skew: ", 10, int(7.5*line))
             lbw = dc.GetTextExtent("Force Skew: ").width
             if self.rw_status.skew_forced:
                 dc.SetTextForeground(wx.Colour(255, 0, 0))
-                dc.DrawText("(Enabled)", 10 + lbw, int(6.5*line))
+                dc.DrawText("(Enabled)", 10 + lbw, int(7.5*line))
             else:
                 dc.SetTextForeground(wx.Colour(0, 0, 0))
-                dc.DrawText("(Disabled)", 10 + lbw, int(6.5*line))
+                dc.DrawText("(Disabled)", 10 + lbw, int(7.5*line))
             
             if hasattr(self, 'imu_heater'):
                 imu_temp = float(self.imu_heater.meas_temp)
                 if imu_temp < 65.0:
                     dc.SetTextForeground(wx.Colour(0, 0, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
                 elif imu_temp < 85.0:
                     dc.SetTextForeground(wx.Colour(139, 64, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
                 else:
                     dc.SetTextForeground(wx.Colour(255, 0, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
 
             if self.powers.get_backbat() != None:
-                dc.DrawText("Back Bat: " + str(round(self.powers.get_backbat().current*self.powers.get_backbat().voltage, 1)) + "W (" + str(round(self.powers.get_backbat().voltage, 1)) + "V, " + str(round(self.powers.get_backbat().current, 1)) + "A)", 10, int(8.5*line))
+                dc.DrawText("Back Bat: " + str(round(self.powers.get_backbat().current*self.powers.get_backbat().voltage, 1)) + "W (" + str(round(self.powers.get_backbat().voltage, 1)) + "V, " + str(round(self.powers.get_backbat().current, 1)) + "A)", 10, int(9.5*line))
             if self.powers.get_frontbat() != None:
-                dc.DrawText("Front Bat: " + str(round(self.powers.get_frontbat().current*self.powers.get_frontbat().voltage, 1)) + "W (" + str(round(self.powers.get_frontbat().voltage, 1)) + "V, " + str(round(self.powers.get_frontbat().current, 1)) + "A)", 10, int(9.5*line))
+                dc.DrawText("Front Bat: " + str(round(self.powers.get_frontbat().current*self.powers.get_frontbat().voltage, 1)) + "W (" + str(round(self.powers.get_frontbat().voltage, 1)) + "V, " + str(round(self.powers.get_frontbat().current, 1)) + "A)", 10, int(10.5*line))
             if self.powers.get_backmot() != None:
-                dc.DrawText("Back Mot: " + str(round(self.powers.get_backmot().current*self.powers.get_backmot().voltage, 1)) + "W (" + str(round(self.powers.get_backmot().voltage, 1)) + "V, " + str(round(self.powers.get_backmot().current, 1)) + "A)", 10, int(10.5*line))
+                dc.DrawText("Back Mot: " + str(round(self.powers.get_backmot().current*self.powers.get_backmot().voltage, 1)) + "W (" + str(round(self.powers.get_backmot().voltage, 1)) + "V, " + str(round(self.powers.get_backmot().current, 1)) + "A)", 10, int(11.5*line))
 
         if hasattr(self, 'fuelcell'):
             dc.SetBrush(wx.Brush(wx.Colour(200,200,200)))

@@ -230,6 +230,11 @@ void airspeed_ms45xx_i2c_change_tau(float new_tau)
 #endif
 }
 
+void airspeed_ms45xx_i2c_change_pressure_ratio(float new_ratio)
+{
+  ms45xx.pressure_scale = new_ratio;
+}
+
 
 void ms45xx_i2c_periodic(void)
 {
