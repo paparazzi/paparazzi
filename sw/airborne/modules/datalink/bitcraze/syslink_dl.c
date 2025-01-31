@@ -30,7 +30,7 @@
 #include "mcu_periph/uart.h"
 #include <string.h>
 #include "led.h"
-#include "threads.h"
+#include "modules/core/threads.h"
 
 struct syslink_dl syslink;
 

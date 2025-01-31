@@ -2,6 +2,7 @@
 
 #define PPRZ_NORMAL_PRIO 128
 
+#define THREADS_ATTRIBUTES 
 
 struct pprzMutex {
 };

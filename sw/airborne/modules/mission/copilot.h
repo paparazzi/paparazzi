@@ -46,7 +46,7 @@
 
 #include "modules/datalink/datalink.h"
 #include "modules/datalink/extra_pprz_dl.h"
-#include "threads.h"
+#include "modules/core/threads.h"
 
 extern pprz_mutex_t copilot_cam_snapshot_mtx;
 extern pprz_mutex_t copilot_cam_payload_mtx;
