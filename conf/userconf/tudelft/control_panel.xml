@@ -58,7 +58,11 @@
       </program>
       <program name="Server"/>
       <program name="Messages"/>
-      <program name="PprzGCS"/>
+      <program name="PprzGCS">
+        <arg flag="-g" constant="pprzgcs"/>
+        <arg flag="--"/>
+        <arg flag="--speech"/>
+      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">
@@ -121,6 +125,14 @@
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
       </program>
+    </session>
+    <session name="Flight UDP speech">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
     </session>
   </section>
 </control_panel>

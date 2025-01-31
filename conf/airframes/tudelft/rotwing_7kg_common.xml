@@ -189,6 +189,7 @@
         <define name="QUAD_MAX_DECELERATION"    value="0.75"/>  <!-- Maximum horizontal deceleration in quad mode -->
         <define name="SKEW_UP_AIRSPEED"         value="10.0"/>  <!-- Airspeed where the skewing starts when going up in airspeed -->
         <define name="SKEW_DOWN_AIRSPEED"       value="8.0"/>   <!-- Airspeed where the skewing starts when going down in airspeed -->
+        <define name="STATE_MIN_FW_DIST"        value="150"/>   <!-- Minimum distance to switch to fixed wing mode -->
 
         <define name="SKEW_REF_MODEL"           value="TRUE"/>  <!-- Enable second order reference model for the skewing command -->
         <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->

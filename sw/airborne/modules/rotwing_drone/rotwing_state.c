@@ -100,9 +100,8 @@
 #define ROTWING_FW_STALL_TIMEOUT 0.5
 #endif
 
-/*  */
-#ifndef ROTWING_FREE_CONFIG_CHANGE_TIMEOUT
-#define ROTWING_FREE_CONFIG_CHANGE_TIMEOUT 10.0
+#ifndef ROTWING_STATE_MIN_FW_DIST
+#define ROTWING_STATE_MIN_FW_DIST 200.0
 #endif
 
 /* Fix for not having double can busses */
@@ -515,31 +514,16 @@ bool rotwing_state_choose_circle_direction(uint8_t wp_id) {
   }
 }
 
-void rotwing_state_set_transition_wp(uint8_t wp_id) {
+bool rotwing_state_choose_state_by_dist(uint8_t wp_id) {
+  struct EnuCoor_f wp = waypoints[wp_id].enu_f;
+  float dist2_to_wp = get_dist2_to_point(&wp);
+  float dist_to_wp = sqrtf(dist2_to_wp);
 
-  // Get drone position coordinates in NED
-  struct EnuCoor_f target_enu = {.x = stateGetPositionNed_f()->y,
-                                  .y = stateGetPositionNed_f()->x,
-                                  .z = -stateGetPositionNed_f()->z};
-
-  static struct FloatVect3 x_axis = {.x = 1, .y = 0, .z = 0};
-  struct FloatVect3 x_att_NED;
-
-  float_rmat_transp_vmult(&x_att_NED, stateGetNedToBodyRMat_f(), &x_axis);
-
-  // set the new transition WP coordinates 100m ahead of the drone
-  target_enu.x = 100.f * x_att_NED.y + target_enu.x;
-  target_enu.y = 100.f * x_att_NED.x + target_enu.y;
-
-  waypoint_set_enu(wp_id, &target_enu);
-
-  // Send waypoint update every half second
-  RunOnceEvery(100 / 2, {
-    // Send to the GCS that the waypoint has been moved
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                               &waypoints[wp_id].enu_i.x,
-                               &waypoints[wp_id].enu_i.y,
-                               &waypoints[wp_id].enu_i.z);
-  });
-
+  if (dist_to_wp > ROTWING_STATE_MIN_FW_DIST) {
+    rotwing_state_set(ROTWING_STATE_REQUEST_FW);
+    return true; // Necessary for flight plan
+  } else {
+    rotwing_state_set(ROTWING_STATE_REQUEST_HOVER);
+    return false; // Necessary for flight plan
+  }
 }

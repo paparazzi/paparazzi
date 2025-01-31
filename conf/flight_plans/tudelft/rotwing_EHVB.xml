@@ -140,23 +140,14 @@
       <call_once fun="nav_set_heading_current()"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
-        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="rotwing_state_choose_state_by_dist(WP_STDBY)">
+        <!-- <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/> -->
+        <!-- <call fun="rotwing_state_choose_state_by_dist(WP_STDBY)"/> -->
         <stay wp="STDBY"/>
     </block>
     <block name="Standby_free">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
         <stay wp="STDBY"/>
-    </block>
-    <block name="Hover_here" strip_button="Hover here" strip_icon="wp_quad.png">
-        <call_once fun="waypoint_set_here(WP_HOVER)"/>
-        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-        <stay wp="HOVER"/>
-    </block>
-    <block name="Loiter_here" strip_button="Loiter here" strip_icon="home.png">
-        <call_once fun="waypoint_set_here(WP_HOVER)"/>
-        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-        <stay wp="HOVER"/>
     </block>
     <block name="stay_p1" strip_button="Stay P1" strip_icon="wp_quad.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
