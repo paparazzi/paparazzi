@@ -124,6 +124,7 @@ let print_ap_init = fun modes name out_h ->
   lprintf out_h "autopilot_mode_%s = %s;\n" name (print_mode_name name (Xml.attrib default "name"));
   lprintf out_h "private_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
   lprintf out_h "last_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
+  lprintf out_h "autopilot_core_%s_set_mode(autopilot_mode_%s, TRUE);\n" name name;
   left ();
   lprintf out_h "}\n"
 
@@ -230,9 +231,9 @@ let print_set_mode = fun modes name out_h ->
     lprintf out_h "}\n"
   in
 
-  lprintf out_h "\nstatic inline void autopilot_core_%s_set_mode(uint8_t new_mode) {\n\n" name;
+  lprintf out_h "\nstatic inline void autopilot_core_%s_set_mode(uint8_t new_mode, bool force) {\n\n" name;
   right ();
-  lprintf out_h "if (new_mode == private_autopilot_mode_%s) return;\n\n" name; (* set mode if different from current mode *)
+  lprintf out_h "if (new_mode == private_autopilot_mode_%s && !force) return;\n\n" name; (* set mode if different from current mode *)
   (* Print stop functions for each modes *)
   print_switch ("private_autopilot_mode_"^name) modes "on_exit";
   fprintf out_h "\n";
@@ -322,7 +323,7 @@ let print_ap_periodic = fun modes ctrl_block main_freq name out_h ->
   lprintf out_h "uint8_t mode = autopilot_core_%s_mode_select();\n" name; (* get selected mode *)
   lprintf out_h "mode = autopilot_core_%s_mode_exceptions(mode);\n" name; (* change mode according to exceptions *)
   lprintf out_h "mode = autopilot_core_%s_global_exceptions(mode);\n" name; (* change mode according to global exceptions *)
-  lprintf out_h "autopilot_core_%s_set_mode(mode);\n\n" name; (* set new mode and call start/stop functions *)
+  lprintf out_h "autopilot_core_%s_set_mode(mode, FALSE);\n\n" name; (* set new mode and call start/stop functions *)
   lprintf out_h "switch ( private_autopilot_mode_%s ) {\n" name;
   right ();
   List.iter (fun m -> (* Print control loops for each modes *)
@@ -385,7 +386,6 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     fprintf out_h "\nuint8_t private_autopilot_mode_%s;\n" name;
     fprintf out_h "uint8_t last_autopilot_mode_%s;\n\n" name;
     (* Print functions *)
-    print_ap_init modes name out_h;
     print_test_select modes name out_h;
     print_test_exception modes name out_h;
     print_global_exceptions (get_exceptions sm) name out_h;
@@ -395,6 +395,7 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     | None, f -> f
     | Some f, _ -> f
     in
+    print_ap_init modes name out_h;
     print_ap_periodic modes ctrl_block freq name out_h;
     (* End and close file *)
     fprintf out_h "\n#endif // AUTOPILOT_CORE_%s_C\n" name_up;
