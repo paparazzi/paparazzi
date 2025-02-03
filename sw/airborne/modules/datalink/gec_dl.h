@@ -29,7 +29,7 @@
 #include "pprzlink/pprzlink_transport.h"
 #include "pprzlink/pprz_transport.h"
 #include "modules/datalink/gec/gec.h"
-#include "pprz_mutex.h"
+#include "modules/core/threads.h"
 
 #include "mcu_periph/uart.h"
 #if USE_USB_SERIAL || USE_USB_SERIAL_DEBUG
@@ -84,7 +84,7 @@ struct gec_transport {
   struct gec_whitelist whitelist;
 
   // optional mutex
-  PPRZ_MUTEX(mtx_tx);
+  pprz_mutex_t mtx_tx;
 };
 
 /** PPRZ transport structure */
