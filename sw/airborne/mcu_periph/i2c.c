@@ -28,7 +28,10 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/sys_time.h"
 
-#if PERIODIC_TELEMETRY && (USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4)
+#define USE_I2C (USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4)
+#define USE_SOFT_I2C (USE_SOFTI2C0 || USE_SOFTI2C1)
+
+#if PERIODIC_TELEMETRY && (USE_I2C || USE_SOFT_I2C)
 #include "modules/datalink/telemetry.h"
 
 static void send_i2cx_err(struct transport_tx *trans, struct link_device *dev, struct i2c_periph* i2c)
@@ -132,7 +135,7 @@ extern void send_softi2c0_err(struct transport_tx *trans, struct link_device *de
 extern void send_softi2c1_err(struct transport_tx *trans, struct link_device *dev);
 #endif /* USE_SOFTI2C1 */
 
-#if PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && (USE_I2C || USE_SOFT_I2C)
 static void send_i2c_err(struct transport_tx *trans __attribute__((unused)),
                          struct link_device *dev __attribute__((unused)))
 {
@@ -189,7 +192,7 @@ void i2c_init(struct i2c_periph *p)
   p->status = I2CIdle;
   p->reg_addr = NULL;
 
-#if PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && (USE_I2C || USE_SOFT_I2C)
   // the first to register do it for the others
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_I2C_ERRORS, send_i2c_err);
 #endif
