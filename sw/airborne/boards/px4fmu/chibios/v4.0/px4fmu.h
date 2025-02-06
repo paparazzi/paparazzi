@@ -84,6 +84,17 @@
 #define ADC_3_GPIO_PIN GPIO4
 #endif
 
+//ADC_pin_RSSI_IN
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL 11 // ADC123_IN11
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO1
+#endif
+
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_1
@@ -94,9 +105,14 @@
 #define ADC_CHANNEL_CURRENT ADC_2
 #endif
 
+#ifndef ADC_CHANNEL_RSSI
+#define ADC_CHANNEL_RSSI ADC_4
+#endif
+
+
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
 
 /*
  * PWM TIM defines
@@ -231,6 +247,43 @@
 #define PWM_SERVO_8_CHANNEL (SERVO8_TIM_CH-1)
 #define PWM_SERVO_8_CONF    CONCAT_BOARD_PARAM(pwmcfg, SERVO8_TIM)
 #endif
+#endif
+
+/*
+ * PWM input, also could be used for cooking rice
+ */
+// PWM_INPUT1 on TIM4 , example of better defines see Tawaki board
+//TODO Chibios -itizit for PWM input on RTS/CTS? pin of USART3
+
+#ifdef USE_PWM_INPUT1
+
+#define PWM_INPUT1_ICU            CONCAT_BOARD_PARAM(ICUD, 9) //TODO FIXME
+#define PWM_INPUT1_CHANNEL        CONCAT_BOARD_PARAM(ICU_CHANNEL_, 1) //TODO FIXME
+
+//#define PWM_INPUT1_GPIO_PORT      PAL_PORT(LINE_PWM_INPUT1)
+//#define PWM_INPUT1_GPIO_PIN       PAL_PAD(LINE_PWM_INPUT1)
+//#define PWM_INPUT1_GPIO_AF        AF_LINE_PWM_INPUT1
+#define PWM_INPUT1_GPIO_PORT      GPIOD
+#define PWM_INPUT1_GPIO_PIN       GPIO12
+#define PWM_INPUT1_GPIO_AF        GPIO_AF2
+
+#define PWM_INPUT1_TIMER          TIM4
+#define PWM_INPUT1_CHANNEL_PERIOD TIM_IC1
+#define PWM_INPUT1_CHANNEL_DUTY   TIM_IC2
+#define PWM_INPUT1_TIMER_INPUT    TIM_IC_IN_TI1
+#define PWM_INPUT1_SLAVE_TRIG     TIM_SMCR_TS_TI1FP1
+#define PWM_INPUT1_IRQ            NVIC_TIM4_IRQ
+#define PWM_INPUT1_CC_IE          (TIM_DIER_CC1IE | TIM_DIER_CC2IE)
+#define USE_PWM_INPUT_TIM4        TRUE
+
+#ifdef PWM_INPUT1_TICKS_PER_USEC
+#define TIM4_TICKS_PER_USEC PWM_INPUT1_TICKS_PER_USEC
+#endif
+#define TIM4_PWM_INPUT_IDX        0
+#define TIM4_CC_IF_PERIOD         TIM_SR_CC1IF
+#define TIM4_CC_IF_DUTY           TIM_SR_CC2IF
+#define TIM4_CCR_PERIOD           TIM4_CCR1
+#define TIM4_CCR_DUTY             TIM4_CCR2
 #endif
 
 /**
