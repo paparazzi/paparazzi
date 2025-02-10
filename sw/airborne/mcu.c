@@ -51,6 +51,9 @@
 #define USING_SOFTI2C 1
 #include "mcu_periph/softi2c.h"
 #endif
+#if USE_CAN1 || USE_CAN2
+#include "mcu_periph/can.h"
+#endif
 #if USE_ADC
 #include "mcu_periph/adc.h"
 #endif
@@ -194,6 +197,9 @@ void mcu_init(void)
 #endif
 #ifdef USE_SOFTI2C1
   softi2c1_init();
+#endif
+#if USE_CAN1 || USE_CAN2
+  can_init();
 #endif
 #if USE_ADC
   adc_init();

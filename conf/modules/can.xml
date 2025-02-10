@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="can" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General CAN driver
+      To activate a specific CAN peripheral, define flag USE_CANx where x is your CAN peripheral number
+    </description>
+    <configure name="USE_CANFD" value="TRUE" description="Use CANFD or just CAN"/>
+  </doc>
+  <dep>
+    <depends>mcu</depends>
+    <conflicts>uavcan</conflicts>
+  </dep>
+  <header>
+    <file name="can.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <configure name="USE_CANFD" default="FALSE"/>
+    <define name="USE_CANFD" value="$(USE_CANFD)"/>
+    <file name="can.c" dir="mcu_periph"/>
+    <file_arch name="can_arch.c" dir="mcu_periph"/>
+    <test>
+        <define name="USE_CAN1"/>
+    </test>
+  </makefile>
+</module>
