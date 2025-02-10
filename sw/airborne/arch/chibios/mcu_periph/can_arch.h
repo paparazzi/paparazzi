@@ -15,8 +15,4 @@
 
 #include <hal.h>
 
-// TODO
-#define CAN_NB_PERPIHS_MAX 2
-
-
 void can_hw_init(void);
