@@ -199,7 +199,7 @@ void mcu_init(void)
   softi2c1_init();
 #endif
 #if USE_CAN1 || USE_CAN2
-  pprz_can_init();
+  can_init();
 #endif
 #if USE_ADC
   adc_init();

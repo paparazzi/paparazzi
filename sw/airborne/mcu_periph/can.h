@@ -97,7 +97,7 @@ extern struct can_periph can1;
 extern struct can_periph can2;
 #endif
 
-void pprz_can_init(void);
+void can_init(void);
 
 /**
  * Add a callback on received frames from an interface
@@ -106,9 +106,9 @@ void pprz_can_init(void);
  * @param user_data Pointer that will be passed in callback parameters
  * @return 0 if the callback was successfully added.
  */
-int pprz_can_add_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data);
+int can_add_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data);
 
-int pprz_can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* dst_addr);
+int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* dst_addr);
 
 
 uint8_t can_dlc_to_len(uint8_t dlc);

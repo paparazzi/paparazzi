@@ -135,7 +135,7 @@ static void can_thd_rx(void* arg) {
 
 }
 
-int pprz_can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr) {
+int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr) {
   CANTxFrame frame;
   frame.DLC = can_len_to_dlc(txframe->len);
   if(txframe->can_id & CAN_FRAME_RTR) {
