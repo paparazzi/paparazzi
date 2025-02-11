@@ -24,7 +24,8 @@ import os
 import math
 import datetime
 import numpy as np
-
+import pyttsx3
+engine = pyttsx3.init()
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
@@ -38,6 +39,18 @@ from pprzlink.ivy import IvyMessagesInterface
 
 WIDTH = 600
 BARH = 140
+
+class Speech(object):
+
+    def __init__(self):
+        self.last_speech_time = datetime.datetime.now()
+
+    def speak_every_interval(self, text, interval):
+        if (datetime.datetime.now() - self.last_speech_time).total_seconds() > interval:
+            self.last_speech_time = datetime.datetime.now()
+            engine.say(text)
+            engine.runAndWait()
+
 
 class EscMessage(object):
     def __init__(self, msg):
@@ -506,15 +519,19 @@ class RotWingFrame(wx.Frame):
                 dc.DrawText("Meas airspeed: " + str(round(self.air_data.airspeed,1 )) + " (TAS: " + str(round(self.air_data.tas,1 )) + ")", 10, int(5.5*line))
                 
                 # MS45XX inflight calibration monitoring
-                if abs(1-self.air_data.ratio_circle_2) < 0.1:
+                if abs(1-self.air_data.ratio_circle_2) < 0.08:
                     dc.SetTextForeground(wx.Colour(0, 0, 0))
                     dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
-                elif abs(1-self.air_data.ratio_circle_2) < 0.25:
+                elif abs(1-self.air_data.ratio_circle_2) < 0.15:
                     dc.SetTextForeground(wx.Colour(139, 64, 0))
                     dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 8%, Please Calibrate", 30)
                 else:
                     dc.SetTextForeground(wx.Colour(255, 0, 0))
                     dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle_2, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 15%, Please Calibrate", 5)
             
             #self.StatusBox(dc, 5, 5, 0, 0, self.rw_status.get_state(), 1, 1)
             dc.SetTextForeground(wx.Colour(0, 0, 0))
@@ -623,7 +640,7 @@ class RotWingFrame(wx.Frame):
             except:
                 pass
 
-    def __init__(self):
+    def __init__(self, args):
 
         self.w = WIDTH
         self.h = WIDTH + BARH
@@ -654,6 +671,12 @@ class RotWingFrame(wx.Frame):
      
         self.interface = IvyMessagesInterface("rotwingframe")
         self.interface.subscribe(self.message_recv)
+
+        if args.speech == True:
+            self.speech = True
+            self.airspeed_speaker = Speech()
+        else:
+            self.speech = False
 
     def OnClose(self, event):
         self.interface.shutdown()

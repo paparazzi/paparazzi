@@ -2,6 +2,14 @@
 
 <airframe>
 
+    <section name="GENERATED_AP">
+        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="0"/> <!-- Default was 20 seconds -->
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> <!-- Default was TRUE -->
+        <define name="RC_LOST_MODE"                         value="AP_MODE_NAV"/> 
+        <!-- <define name="GPS_FIX_TIMEOUT"                      value="2"/>  -->
+        <define name="FAILSAFE_DESCENT_SPEED"               value="1.0"/>
+    </section>
+
     <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
@@ -40,8 +48,6 @@
         <!-- prevent in-flight in start engine block-->
         <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
-        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>  
         <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>

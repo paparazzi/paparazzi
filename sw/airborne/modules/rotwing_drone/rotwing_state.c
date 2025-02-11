@@ -206,6 +206,9 @@ void rotwing_state_periodic(void)
   float meas_airspeed = stateGetAirspeed_f();
   float meas_skew_angle = rotwing_state.meas_skew_angle_deg;
   Bound(meas_skew_angle, 0, 90); // Bound to prevent errors
+
+  /* Communicate cruise airspeed to the pitot tube calibration struct */
+  pitot_circle.cruise_airspeed = rotwing_state.cruise_airspeed;
   
   if(meas_airspeed > rotwing_state.fw_min_airspeed) {
     last_stall_time = current_time;
@@ -519,11 +522,15 @@ bool rotwing_state_choose_state_by_dist(uint8_t wp_id) {
   float dist2_to_wp = get_dist2_to_point(&wp);
   float dist_to_wp = sqrtf(dist2_to_wp);
 
-  if (dist_to_wp > ROTWING_STATE_MIN_FW_DIST) {
-    rotwing_state_set(ROTWING_STATE_REQUEST_FW);
-    return true; // Necessary for flight plan
-  } else {
-    rotwing_state_set(ROTWING_STATE_REQUEST_HOVER);
-    return false; // Necessary for flight plan
+  if (autopilot.mode == AP_MODE_NAV) {
+    if (dist_to_wp > ROTWING_STATE_MIN_FW_DIST) {
+      rotwing_state_set(ROTWING_STATE_REQUEST_FW);
+      return true; // Necessary for flight plan
+    } else {
+      rotwing_state_set(ROTWING_STATE_REQUEST_HOVER);
+      return false; // Necessary for flight plan
+    }
   }
+
+  return false; // Necessary for flight plan
 }

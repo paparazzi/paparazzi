@@ -120,7 +120,8 @@ struct PitotCircle_t pitot_circle = {
   .true2meas = 1.0f,
   .count = 0.0f,
   .count_flag = FALSE,
-  .alpha_0 = 0.0f
+  .alpha_0 = 0.0f,
+  .cruise_airspeed = 0.0f // Must be set outside of this file to work
 };
 static void nav_hybrid_check_airspeed(void);
 static float max_speed_for_deceleration(float dist_to_wp);
@@ -337,7 +338,7 @@ static void nav_hybrid_check_airspeed(void){
   update_butterworth_2_low_pass(&pitot_circle.as_meas_filt, stateGetAirspeed_f());
   float gs = sqrtf(stateGetSpeedEnu_f()->x * stateGetSpeedEnu_f()->x + stateGetSpeedEnu_f()->y * stateGetSpeedEnu_f()->y);
 
-  if (fabs(pitot_circle.as_meas_filt.o[0]-19) < 2.0f) {
+  if (fabs(pitot_circle.as_meas_filt.o[0]-pitot_circle.cruise_airspeed) < 2.0f) {
     if (!pitot_circle.count_flag) {
       pitot_circle.alpha_0 = nav_rotorcraft_base.circle.radians;
     }

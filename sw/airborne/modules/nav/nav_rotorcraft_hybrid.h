@@ -42,6 +42,7 @@ struct PitotCircle_t{
   bool  count_flag;
   float alpha_0;
   float new_pitot_scaling;
+  float cruise_airspeed;
 };
 
 extern struct PitotCircle_t pitot_circle;

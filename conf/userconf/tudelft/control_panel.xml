@@ -34,6 +34,14 @@
       <program name="Messages"/>
       <program name="PprzGCS"/>
     </session>
+    <session name="Flight UDP speech">
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="PprzGCS"/>
+    </session>
     <session name="Flight ttyUSB0 Transparent @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -126,13 +134,25 @@
         <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
       </program>
     </session>
-    <session name="Flight UDP speech">
+    <session name="sim_with_rc">
+      <program name="Simulator">
+        <arg flag="-a" constant="RotatingWingV3H"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
       <program name="Data Link">
         <arg flag="-udp"/>
+        <arg flag="-udp_broadcast"/>
       </program>
-      <program name="Server"/>
-      <program name="Messages"/>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
       <program name="PprzGCS"/>
+      <program name="Joystick">
+        <arg flag="-ac" constant="RotatingWingV3H"/>
+        <arg flag="radiomaster_tx12.xml"/>
+      </program>
+      <program name="Environment Simulator"/>
+      <program name="Messages"/>
     </session>
   </section>
 </control_panel>
