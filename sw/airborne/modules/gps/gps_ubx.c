@@ -25,6 +25,9 @@
 #include "pprzlink/dl_protocol.h"
 #include "led.h"
 
+#include "modules/core/settings.h"
+#include "generated/settings.h"
+
 #ifndef USE_GPS_UBX_RTCM
 #define USE_GPS_UBX_RTCM 0
 #endif
@@ -664,6 +667,9 @@ void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , UNUSED uint8_t res
 
 void gps_ubx_msg(struct GpsUbx *gubx)
 {
+  if (gps_manual_fail) {
+    return;
+  }
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 
