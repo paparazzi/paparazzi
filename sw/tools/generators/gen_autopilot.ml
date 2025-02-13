@@ -382,7 +382,7 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     fprintf out_h "\n#ifdef AUTOPILOT_CORE_%s_C\n\n" name_up;
     (* Print includes and private variables *)
     print_includes (get_includes sm) out_h;
-    if has_modules sm then fprintf out_h "\n#include \"modules.h\"\n";
+    if has_modules sm then fprintf out_h "\n#include \"generated/modules.h\"\n";
     fprintf out_h "\nuint8_t private_autopilot_mode_%s;\n" name;
     fprintf out_h "uint8_t last_autopilot_mode_%s;\n\n" name;
     (* Print functions *)
