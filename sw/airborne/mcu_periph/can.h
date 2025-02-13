@@ -61,6 +61,9 @@ typedef uint32_t socketcan_id_t;
 // extended identifier
 #define 	CAN_FRAME_EFF   (1<<31)
 
+#define CAN_EID_MASK 0x1FFFFFFF
+#define CAN_SID_MASK 0x7FF
+
 // /* CAN FD specific flags from Linux Kernel (include/uapi/linux/can.h) */
 #define CANFD_BRS 0x01 
 #define CANFD_ESI 0x02 

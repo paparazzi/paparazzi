@@ -26,7 +26,6 @@ struct can_arch_periph {
   CANDriver* cand;
   CANConfig cfg;
   uint32_t can_baudrate;
-  event_source_t tx_request;
 
   void *thread_rx_wa;
   size_t thread_rx_wa_size;
@@ -143,9 +142,9 @@ int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr)
   }
   if(txframe->can_id & CAN_FRAME_EFF) {
     frame.common.XTD = 1;
-    frame.ext.EID = txframe->can_id & 0x1FFFFFFF;
+    frame.ext.EID = txframe->can_id & CAN_EID_MASK
   } else {
-    frame.std.SID = txframe->can_id & 0x7FF;
+    frame.std.SID = txframe->can_id & CAN_SID_MASK
   }
   memcpy(frame.data8, txframe->data, txframe->len);
 
