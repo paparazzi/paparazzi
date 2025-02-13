@@ -106,7 +106,7 @@ void can_init(void);
  * @param user_data Pointer that will be passed in callback parameters
  * @return 0 if the callback was successfully added.
  */
-int can_add_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data);
+int can_register_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data);
 
 int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* dst_addr);
 

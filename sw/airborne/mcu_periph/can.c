@@ -75,7 +75,7 @@ static int add_can_callback(struct can_periph* canp, can_rx_frame_callback_t cal
   return -1;
 }
 
-int can_add_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data) {
+int can_register_callback(can_rx_frame_callback_t callback, struct pprzaddr_can* src_addr, void* user_data) {
   #if USE_CAN1
   if(src_addr->can_ifindex == 1 || src_addr->can_ifindex == 0) {
     int ret = add_can_callback(&can1, callback, user_data);
