@@ -50,6 +50,15 @@
 [submodule "sw/ext/matrix"]
 	path = sw/ext/matrix
 	url = https://github.com/PX4/Matrix.git
-[submodule "sw/ext/libcanard"]
-	path = sw/ext/libcanard
-	url = https://github.com/UAVCAN/libcanard.git
+[submodule "sw/ext/dronecan/DSDL"]
+	path = sw/ext/dronecan/DSDL
+	url = https://github.com/dronecan/DSDL.git
+[submodule "sw/ext/dronecan/dronecan_dsdlc"]
+	path = sw/ext/dronecan/dronecan_dsdlc
+	url = https://github.com/dronecan/dronecan_dsdlc.git
+[submodule "sw/ext/dronecan/pydronecan"]
+	path = sw/ext/dronecan/pydronecan
+	url = https://github.com/dronecan/pydronecan.git
+[submodule "sw/ext/dronecan/libcanard"]
+	path = sw/ext/dronecan/libcanard
+	url = https://github.com/dronecan/libcanard.git

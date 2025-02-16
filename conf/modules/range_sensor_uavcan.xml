@@ -16,5 +16,9 @@
   <init fun="range_sensor_uavcan_init()"/>
   <makefile target="ap">
     <file name="range_sensor_uavcan.c"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.equipment.range_sensor.Measurement.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
   </makefile>
 </module>
