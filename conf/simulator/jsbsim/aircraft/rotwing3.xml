@@ -121,47 +121,47 @@
       <!--First order filter represents actuator dynamics-->
       <lag_filter name="front_motor_lag">
         <input> fcs/front_motor </input>
-        <c1> 18 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/front_motor_lag</output>
       </lag_filter>
       <lag_filter name="right_motor_lag">
         <input> fcs/right_motor </input>
-        <c1> 18 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/right_motor_lag</output>
       </lag_filter>
       <lag_filter name="back_motor_lag">
         <input> fcs/back_motor </input>
-        <c1> 18 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/back_motor_lag</output>
       </lag_filter>
       <lag_filter name="left_motor_lag">
         <input> fcs/left_motor </input>
-        <c1> 18 </c1>
+        <c1> 22.0 </c1>
         <output> fcs/left_motor_lag</output>
       </lag_filter>
       <lag_filter name="pusher_lag">
         <input> fcs/pusher </input>
-        <c1> 18 </c1>
+        <c1> 30.0 </c1>
         <output> fcs/pusher_lag</output>
       </lag_filter>
       <lag_filter name="elevator_lag">
         <input> fcs/elevator </input>
-        <c1> 54 </c1>
+        <c1> 50.0 </c1>
         <output> fcs/elevator_lag</output>
       </lag_filter>
       <lag_filter name="rudder_lag">
         <input> fcs/rudder </input>
-        <c1> 54 </c1>
+        <c1> 50.0 </c1>
         <output> fcs/rudder_lag</output>
       </lag_filter>
       <lag_filter name="aileron_lag">
         <input> fcs/aileron </input>
-        <c1> 54 </c1>
+        <c1> 50.0 </c1>
         <output> fcs/aileron_lag</output>
       </lag_filter>
       <lag_filter name="flap_lag">
         <input> fcs/flap </input>
-        <c1> 54 </c1>
+        <c1> 50.0 </c1>
         <output> fcs/flap_lag</output>
       </lag_filter>
 
@@ -321,7 +321,7 @@
         <function>
                 <product>
                         <property>fcs/front_motor_lag</property>
-                        <value>7.643508703</value>
+                        <value>6.36958</value>
                 </product>
         </function>
         <location unit="IN">
@@ -340,7 +340,7 @@
         <function>
                 <product>
                         <property>fcs/right_motor_lag</property>
-                        <value>7.643508703</value>
+                        <value>6.36958</value>
                 </product>
         </function>
         <location unit="IN">
@@ -359,7 +359,7 @@
         <function>
                 <product>
                         <property>fcs/back_motor_lag</property>
-                        <value>7.643508703</value>
+                        <value>6.36958</value>
                 </product>
         </function>
         <location unit="IN">
@@ -378,7 +378,7 @@
         <function>
                 <product>
                         <property>fcs/left_motor_lag</property>
-                        <value>7.643508703</value>
+                        <value>6.36958</value>
                 </product>
         </function>
         <location unit="IN">
@@ -825,7 +825,7 @@
         <product>
           <property>aero/qbar-psf</property>
           <value>47.9</value> <!-- Conversion to pascals -->
-          <value>0.0576</value> <!-- CD x Area (m^2) -->
+          <value>0.108</value> <!-- CD x Area (m^2) -->
           <value>0.224808943</value> <!-- N to LBS -->
         </product>
       </function>

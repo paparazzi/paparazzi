@@ -119,13 +119,13 @@
         <!-- G1 and G2 7 kg-->
         <define name="G1_ROLL"      value="{   0.0,  -15.0,    0.0,   15.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_PITCH"     value="{   1.5,    0.0,   -1.5,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{-  0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{  -0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST"    value="{-0.575, -0.575, -0.575, -0.575, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{20.0, 20.0, 20.0, 20.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
+        <define name="ACT_FREQ"             value="{22.0, 22.0, 22.0, 22.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
@@ -165,7 +165,7 @@
         <define name="HOVER_KP"                 value="310"/>
         <define name="HOVER_KD"                 value="130"/>
         <define name="HOVER_KI"                 value="10"/>
-        <define name="NOMINAL_HOVER_THROTTLE"   value="0.42"/>
+        <define name="NOMINAL_HOVER_THROTTLE"   value="0.60"/> <!-- 0.6 (~5800 PPRZ) for V3D+ drones -->
         <define name="ADAPT_THROTTLE_ENABLED"   value="FALSE"/>
 
         <!-- Reference -->
