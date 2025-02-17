@@ -31,7 +31,6 @@
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
-            <define name="MULTI_GPS_MODE"       value="GPS_MODE_PRIMARY"/>
 
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
@@ -143,7 +142,9 @@
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks"/>
+        <module name="preflight_checks">
+            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+        </module>
         <module name="pfc_actuators"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
@@ -244,6 +245,9 @@
     </section>
 
     <section name="CALIBRATION">
+        <!-- Throttle value in AP_MODE_FAILSAFE -->
+        <define name="FAILSAFE_THROTTLE"                    value="5500"/>
+
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
