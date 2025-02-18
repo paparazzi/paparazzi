@@ -31,6 +31,7 @@
  */
 #include "modules/radio_control/radio_control.h"
 #include "modules/radio_control/ppm.h"
+#include "mcu_periph/gpio.h"
 
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
@@ -38,13 +39,8 @@ bool   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
 #ifndef PPM_TIMER_FREQUENCY
-#error "Undefined PPM_TIMER_FREQUENCY"
+#define PPM_TIMER_FREQUENCY 6000000
 #endif
-
-#ifndef PPM_CHANNEL
-#error "PPM channel undefined"
-#endif
-
 
 /**
  * PPM Pulse period callback
@@ -93,6 +89,7 @@ void ppm_arch_init(void)
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
   timer_rollover_cnt = 0;
 
+  gpio_setup_pin_af(PPM_GPIO, PPM_PIN, PPM_AF, false);
   icuStart(&PPM_TIMER, &ppm_icucfg);
   icuStartCapture(&PPM_TIMER);
   icuEnableNotifications(&PPM_TIMER);
