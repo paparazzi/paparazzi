@@ -108,7 +108,6 @@
         <module name="imu" type="cube"/>
         <module name="ins" type="ekf2"/>
 
-        <module name="parachute"/>
         <module name="ekf_aw"/>
 
         <!-- Actuators on dual CAN bus -->
@@ -147,7 +146,6 @@
         </module>
         <module name="pfc_actuators"/>
         <module name="agl_dist"/>
-        <module name="approach_moving_target"/>
     </firmware>
 
     <!-- PWM actuators -->
@@ -246,7 +244,7 @@
 
     <section name="CALIBRATION">
         <!-- Throttle value in AP_MODE_FAILSAFE -->
-        <define name="FAILSAFE_THROTTLE"                    value="5500"/>
+        <define name="FAILSAFE_THROTTLE"                    value="5400"/>
 
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
@@ -389,7 +387,8 @@
         <item name="basic law">Location, airspace and weather</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
-        <item name="wing tape">Check wings taped and secured</item>
+        <item name="wing assembly">Check all four wing bolts present and tightened</item>
+        <item name="wing connection">Check wing power and CAN lines connected</item>
         <item name="inspection">Inspect airframe condition</item>
         <item name="attitude">Check attitude and heading</item>
         <item name="airspeed">Airspeed sensor calibration</item>
@@ -397,7 +396,6 @@
         <item name="actuators">Automated actuator check</item>
         <item name="flight plan">Check flight plan</item>
         <item name="flight block">Switch to correct flight block</item>
-        <item name="drone tag">Switch on drone tag</item>
         <item name="camera">Switch on camera</item>
         <item name="announce">Announce flight to other airspace users</item>
     </checklist>

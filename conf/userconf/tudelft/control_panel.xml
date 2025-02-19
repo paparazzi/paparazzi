@@ -71,6 +71,9 @@
         <arg flag="--"/>
         <arg flag="--speech"/>
       </program>
+      <program name="RotWingStatus">
+        <arg flag="--speech" constant="True"/>
+      </program>
     </session>
     <session name="Raw Sensors">
       <program name="Real-time Plotter">

@@ -6,7 +6,7 @@
         <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> <!-- Only commented out for navy testing -->
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> <!-- Set to FALSE for navy testing -->
         <define name="RC_LOST_MODE"                         value="AP_MODE_NAV"/> 
-        <define name="GPS_FIX_TIMEOUT"                      value="2"/> 
+        <define name="GPS_FIX_TIMEOUT"                      value="5"/> 
         <define name="FAILSAFE_DESCENT_SPEED"               value="1.0"/> <!-- Does not work as expected with AP static -->
     </section>
 
@@ -57,7 +57,7 @@
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD"  value="-12.0"/>
-        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"          value="0.24"/>
+        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"       value="0.24"/>
 
         <!-- AGL distance -->
         <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
@@ -75,7 +75,7 @@
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
         <!-- Limits -->
-        <define name="SP_MAX_PHI"           value="45." unit="deg" />
+        <define name="SP_MAX_PHI"           value="45." unit="deg"/>
         <define name="SP_MAX_THETA"         value="45." unit="deg"/>
         <define name="SP_MAX_R"             value="90." unit="deg/s"/>
         <define name="DEADBAND_R"           value="200"/>
