@@ -130,7 +130,6 @@ void nps_autopilot_run_step(double time)
 
 #if USE_AIRSPEED
   if (nps_sensors_airspeed_available()) {
-    stateSetAirspeed_f(MODULE_NPS_ID, (float)sensors.airspeed.value);
     AbiSendMsgAIRSPEED(AIRSPEED_NPS_ID, (float)sensors.airspeed.value);
     main_ap_event();
   }
