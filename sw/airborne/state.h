@@ -1398,31 +1398,31 @@ extern void stateCalcAirspeed_f(void);
 /// test if wind speed is available.
 static inline bool stateIsWindspeedValid(void)
 {
-  return (state.wind_air_status &= ~((1 << WINDSPEED_I) | (1 << WINDSPEED_F)));
+  return (state.wind_air_status & ((1 << WINDSPEED_I) | (1 << WINDSPEED_F)));
 }
 
 /// test if vertical wind speed is available.
 static inline bool stateIsVerticalWindspeedValid(void)
 {
-  return (state.wind_air_status &= ~((1 << DOWNWIND_I) | (1 << DOWNWIND_F)));
+  return (state.wind_air_status & ((1 << DOWNWIND_I) | (1 << DOWNWIND_F)));
 }
 
 /// test if air speed is available.
 static inline bool stateIsAirspeedValid(void)
 {
-  return (state.wind_air_status &= ~((1 << AIRSPEED_I) | (1 << AIRSPEED_F)));
+  return (state.wind_air_status & ((1 << AIRSPEED_I) | (1 << AIRSPEED_F)));
 }
 
 /// test if angle of attack is available.
 static inline bool stateIsAngleOfAttackValid(void)
 {
-  return (state.wind_air_status &= ~(1 << AOA_F));
+  return (state.wind_air_status & (1 << AOA_F));
 }
 
 /// test if sideslip is available.
 static inline bool stateIsSideslipValid(void)
 {
-  return (state.wind_air_status &= ~(1 << SIDESLIP_F));
+  return (state.wind_air_status & (1 << SIDESLIP_F));
 }
 
 /************************ Set functions ****************************/
