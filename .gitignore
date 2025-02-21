@@ -197,6 +197,9 @@ Cargo.lock
 
 /sw/airborne/test/ahrs/run_ahrs_on_synth
 
+# tmp
+/tmp
+
 # Mac OS X
 .DS_Store
 

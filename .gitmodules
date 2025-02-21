@@ -53,3 +53,6 @@
 [submodule "sw/ext/libcanard"]
 	path = sw/ext/libcanard
 	url = https://github.com/UAVCAN/libcanard.git
+[submodule "sw/ext/pprz-py-plotter"]
+	path = sw/ext/pprz-py-plotter
+	url = https://github.com/Swarm-Systems-Lab/pprz-py-plotter.git
