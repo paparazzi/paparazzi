@@ -313,8 +313,9 @@ void rotwing_state_periodic(void)
     rotwing_state.max_airspeed = skew_max_airspeed;
   }
 
-  /* Bound max bank angle, climb speed and descend speed if the rotwing drone is transitioning */
-  if (rotwing_state.meas_skew_angle_deg < ROTWING_FW_SKEW_ANGLE && rotwing_state.meas_skew_angle_deg > ROTWING_QUAD_SKEW_ANGLE) {
+  /* Bound max bank angle, climb speed and descend speed if the rotwing drone is transitioning and not in FREE mode */
+  if (rotwing_state.meas_skew_angle_deg < ROTWING_FW_SKEW_ANGLE && rotwing_state.meas_skew_angle_deg > ROTWING_QUAD_SKEW_ANGLE 
+      && rotwing_state.state != ROTWING_STATE_FREE) {
     guidance_set_max_bank_angle(ROTWING_TRANSITION_MAX_BANK);
     guidance_set_max_climb_speed(ROTWING_TRANSITION_MAX_CLIMB_SPEED, ROTWING_TRANSITION_MAX_CLIMB_SPEED);
     guidance_set_max_descend_speed(ROTWING_TRANSITION_MAX_DESCEND_SPEED, ROTWING_TRANSITION_MAX_DESCEND_SPEED);
