@@ -244,7 +244,7 @@
 
     <section name="CALIBRATION">
         <!-- Throttle value in AP_MODE_FAILSAFE -->
-        <define name="FAILSAFE_THROTTLE"                    value="5400"/>
+        <define name="FAILSAFE_THROTTLE"                    value="5800"/>
 
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
@@ -362,7 +362,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2800"/>
+                <field name="high_feedback" value="2500"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
