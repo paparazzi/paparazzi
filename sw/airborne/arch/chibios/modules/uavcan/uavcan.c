@@ -89,6 +89,11 @@ struct uavcan_iface_t uavcan2 = {
 #endif
 
 /*
+ * REMOVE ME - This is only here because the can driver is not yet used
+ */
+void can_init(void) { }
+
+/*
  * Receiver thread.
  */
 static THD_FUNCTION(uavcan_rx, p)
