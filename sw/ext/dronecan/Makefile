@@ -26,10 +26,7 @@ Q=@
 
 PAPARAZZI_SRC=../../..
 DRONECAN_DIR=$(PAPARAZZI_SRC)/sw/ext/dronecan
-
-DSDL := $(DRONECAN_DIR)/DSDL
-DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL)/*/)))
-DSDL_ROOTS := $(filter-out $(DRONECAN_DIR)/DSDL/tests/ $(DRONECAN_DIR)/DSDL/,$(DSDL_ROOTS_PART))
+DSDL_DIR := $(DRONECAN_DIR)/DSDL
 
 all: libcanard DSDL dronecan_dsdlc pydronecan
 
@@ -44,6 +41,8 @@ pydronecan : pydronecan.sync pydronecan.update
 
 
 dronecan_dsdlc.build:
+	$(eval DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL_DIR)/*/))))
+	$(eval DSDL_ROOTS := $(filter-out $(DRONECAN_DIR)/DSDL/tests/ $(DRONECAN_DIR)/DSDL/,$(DSDL_ROOTS_PART)))
 	@echo Generating dsdl code from $(DSDL_ROOTS) to $(PAPARAZZI_SRC)/var/include/DSDLcode
 	$(Q) python $(DRONECAN_DIR)/dronecan_dsdlc/dronecan_dsdlc.py -O $(PAPARAZZI_SRC)/var/include/DSDLcode $(DSDL_ROOTS)
 	@echo Done
@@ -65,6 +64,4 @@ dronecan_dsdlc.build:
 clean:
 	$(Q)rm -r $(PAPARAZZI_SRC)/var/include/DSDLcode
 
-.PHONY: all clean pydronecan.sync pydronecan.update \
-		dronecan_dsdlc.sync dronecan_dsdlc.update dronecan_dsdlc.build \
-		DSDL.sync DSDL.update libcanard.sync libcanard.update
+.PHONY: all clean pydronecan dronecan dronecan_dsdlc.build DSDL libcanard
