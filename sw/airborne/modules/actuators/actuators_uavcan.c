@@ -161,54 +161,101 @@ static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_de
 }
 #endif
 
+static struct actuators_uavcan_telem_t *get_actuator_telem(struct uavcan_iface_t *iface, uint8_t idx) {
+  struct actuators_uavcan_telem_t *telem = NULL;
+
+#ifdef UAVCAN1_TELEM_NB
+  if (iface == &uavcan1 && idx < UAVCAN1_TELEM_NB) {
+    telem = &uavcan1_telem[idx];
+  }
+#endif
+#ifdef UAVCAN2_TELEM_NB
+  if (iface == &uavcan2 && idx < UAVCAN2_TELEM_NB) {
+    telem = &uavcan2_telem[idx];
+  }
+#endif
+
+  return telem;
+}
+
+static uint8_t get_actuator_idx(struct uavcan_iface_t *iface, uint8_t idx) {
+  uint8_t actuator_idx = 255;
+
+#ifdef UAVCAN1_TELEM_NB
+  if(iface == &uavcan1) {
+#ifdef SERVOS_UAVCAN1_NB
+    // First try as RAW COMMAND
+    actuator_idx = get_servo_idx_UAVCAN1(idx);
+#endif
+#ifdef SERVOS_UAVCAN1CMD_NB
+    // Then try as ACTUATOR COMMAND
+    if(idx < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[idx] != UAVCAN_CMD_UNUSED) {
+      actuator_idx = get_servo_idx_UAVCAN1CMD(idx);
+    }
+#endif
+  }
+#endif
+#ifdef UAVCAN2_TELEM_NB
+  if(iface == &uavcan2) {
+#ifdef SERVOS_UAVCAN2_NB
+    // First try as RAW COMMAND
+    actuator_idx = get_servo_idx_UAVCAN2(idx);
+#endif
+#ifdef SERVOS_UAVCAN2CMD_NB
+    // Then try as ACTUATOR COMMAND
+    if(idx < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[idx] != UAVCAN_CMD_UNUSED) {
+      actuator_idx = get_servo_idx_UAVCAN2CMD(idx);
+    }
+#endif
+  }
+#endif
+
+  return actuator_idx;
+}
+
 /**
  * Whevener an ESC_STATUS message from the EQUIPMENT group is received
  */
 static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
 {
-  struct actuators_uavcan_telem_t *telem = NULL;
-  uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
-  }
-#endif
-#ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
-  }
-#endif
-
   // Decode the message
   struct uavcan_equipment_esc_Status msg;
   if(uavcan_equipment_esc_Status_decode(transfer, &msg)) {
     return; // Decoding error
   }
 
-  //Could not find the right interface
-  if (msg.esc_index >= max_id || telem == NULL || max_id == 0) {
+  // Get the correct telemetry
+  struct actuators_uavcan_telem_t *telem = get_actuator_telem(iface, msg.esc_index);
+  if(telem == NULL) {
     return;
   }
 
-  // Set the telemetry (FIXME)
-  telem[msg.esc_index].set = true;
-  telem[msg.esc_index].node_id = transfer->source_node_id;
-  telem[msg.esc_index].timestamp = get_sys_time_float();
-  telem[msg.esc_index].energy = msg.error_count;
-  telem[msg.esc_index].voltage = msg.voltage;
-  telem[msg.esc_index].current = msg.current;
-  telem[msg.esc_index].temperature = msg.temperature;
-  telem[msg.esc_index].rpm = msg.rpm;
+  // Set the telemetry (FIXME: copy over fully)
+  telem->set = true;
+  telem->node_id = transfer->source_node_id;
+  telem->timestamp = get_sys_time_float();
+  telem->energy = msg.error_count;
+  telem->voltage = msg.voltage;
+  telem->current = msg.current;
+  telem->temperature = msg.temperature;
+  telem->rpm = msg.rpm;
 
   /* Specification says Kelvin, but some are transmitting in Celsius */
-  if (telem[msg.esc_index].temperature > 230.f) {
-    telem[msg.esc_index].temperature -= 273.15;
+  if (telem->temperature > 230.f) {
+    telem->temperature -= 273.15;
   }
 
+  // Feedback ABI RPM messages
+  struct act_feedback_t feedback = {0};
+  feedback.idx = get_actuator_idx(iface, msg.esc_index);
+  feedback.rpm = telem->rpm;
+  feedback.set.rpm = true;
+
+  // Send ABI message
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
+
 #if UAVCAN_ACTUATORS_USE_CURRENT
-  // Update total current
+  // Update total current based on ESC telemetry
   electrical.current = 0;
 #ifdef UAVCAN1_TELEM_NB
   for (uint8_t i = 0; i < UAVCAN1_TELEM_NB; ++i) {
@@ -221,46 +268,6 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
   }
 #endif
 #endif
-
-  // Feedback ABI RPM messages
-#ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    struct act_feedback_t feedback = {0};
-    feedback.rpm = telem[msg.esc_index].rpm;
-    feedback.set.rpm = true;
-
-#ifdef SERVOS_UAVCAN1_NB
-    feedback.idx = get_servo_idx_UAVCAN1(msg.esc_index);
-#endif
-#ifdef SERVOS_UAVCAN1CMD_NB
-    if(msg.esc_index < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[msg.esc_index] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN1CMD(msg.esc_index);
-    }
-#endif
-
-    // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
-  }
-#endif
-#ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    struct act_feedback_t feedback = {0};
-    feedback.rpm = telem[msg.esc_index].rpm;
-    feedback.set.rpm = true;
-
-#ifdef SERVOS_UAVCAN2_NB
-    feedback.idx = get_servo_idx_UAVCAN2(msg.esc_index);
-#endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-    if(msg.esc_index < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[msg.esc_index] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN2CMD(msg.esc_index);
-    }
-#endif
-
-    // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
-  }
-#endif
 }
 
 /**
@@ -268,74 +275,29 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
  */
 static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
 {
-  struct actuators_uavcan_telem_t *telem = NULL;
-  uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
-  }
-#endif
-#ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
-  }
-#endif
-
   // Decode the message
   struct uavcan_equipment_actuator_Status msg;
   if(uavcan_equipment_actuator_Status_decode(transfer, &msg)) {
     return; // Decoding error
   }
 
-  //Could not find the right interface
-  if (msg.actuator_id >= max_id || telem == NULL || max_id == 0) {
+  // Get the correct telemetry
+  struct actuators_uavcan_telem_t *telem = get_actuator_telem(iface, msg.actuator_id);
+  if(telem == NULL) {
     return;
   }
 
   //telem[msg.actuator_id].set = true;
-  telem[msg.actuator_id].position = msg.position;
+  telem->position = msg.position;
 
-#ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    struct act_feedback_t feedback = {0};
-    feedback.position = telem[msg.actuator_id].position;
-    feedback.set.position = true;
+  // Feedback ABI position messages
+  struct act_feedback_t feedback = {0};
+  feedback.idx = get_actuator_idx(iface, msg.actuator_id);
+  feedback.position = telem->position;
+  feedback.set.position = true;
 
-#ifdef SERVOS_UAVCAN1_NB
-    feedback.idx = get_servo_idx_UAVCAN1(msg.actuator_id);
-#endif
-#ifdef SERVOS_UAVCAN1CMD_NB
-    if(msg.actuator_id < SERVOS_UAVCAN1CMD_NB && actuators_uavcan1cmd_values[msg.actuator_id] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN1CMD(msg.actuator_id);
-    }
-#endif
-
-    // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
-  }
-#endif
-
-#ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    struct act_feedback_t feedback = {0};
-    feedback.position = telem[msg.actuator_id].position;
-    feedback.set.position = true;
-
-#ifdef SERVOS_UAVCAN2_NB
-    feedback.idx = get_servo_idx_UAVCAN2(msg.actuator_id);
-#endif
-#ifdef SERVOS_UAVCAN2CMD_NB
-    if(msg.actuator_id < SERVOS_UAVCAN2CMD_NB && actuators_uavcan2cmd_values[msg.actuator_id] != UAVCAN_CMD_UNUSED) {
-      feedback.idx = get_servo_idx_UAVCAN2CMD(msg.actuator_id);
-    }
-#endif
-
-    // Send ABI message
-    AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
-  }
-#endif
+  // Send ABI message
+  AbiSendMsgACT_FEEDBACK(ACT_FEEDBACK_UAVCAN_ID, &feedback, 1);
 }
 
 /**
@@ -343,34 +305,20 @@ static void actuators_uavcan_actuator_status_cb(struct uavcan_iface_t *iface, Ca
  */
 static void actuators_uavcan_device_temperature_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
 {
-  struct actuators_uavcan_telem_t *telem = NULL;
-  uint8_t max_id = 0;
-#ifdef UAVCAN1_TELEM_NB
-  if (iface == &uavcan1) {
-    telem = uavcan1_telem;
-    max_id = UAVCAN1_TELEM_NB;
-  }
-#endif
-#ifdef UAVCAN2_TELEM_NB
-  if (iface == &uavcan2) {
-    telem = uavcan2_telem;
-    max_id = UAVCAN2_TELEM_NB;
-  }
-#endif
-
   // Decode the message
   struct uavcan_equipment_device_Temperature msg;
   if(uavcan_equipment_device_Temperature_decode(transfer, &msg)) {
     return; // Decoding error
   }
 
-  //Could not find the right interface
-  if (msg.device_id >= max_id || telem == NULL || max_id == 0) {
+  // Get the correct telemetry
+  struct actuators_uavcan_telem_t *telem = get_actuator_telem(iface, msg.device_id);
+  if(telem == NULL) {
     return;
   }
 
-  telem[msg.device_id].set = true;
-  telem[msg.device_id].temperature_dev = msg.temperature - 273.15;
+  telem->set = true;
+  telem->temperature_dev = msg.temperature - 273.15;
 }
 
 
@@ -397,7 +345,7 @@ void actuators_uavcan_init(struct uavcan_iface_t *iface __attribute__((unused)))
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESC, actuators_uavcan_send_esc);
 #endif
 
-  // Set default to not set
+  // Set default to not used
 #ifdef SERVOS_UAVCAN1CMD_NB
   for(uint8_t i = 0; i < SERVOS_UAVCAN1CMD_NB; i++)
     actuators_uavcan1cmd_values[i] = UAVCAN_CMD_UNUSED;
