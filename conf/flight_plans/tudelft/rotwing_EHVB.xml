@@ -97,19 +97,19 @@
       <set var="stabilization.cmd[COMMAND_THRUST_X]" value="0"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
-    <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
+    <block name="Start Engine" strip_button="Take-off" strip_icon="on.png">
         <exception cond="stage_time > 10" deroute="Kill"/>
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
         <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
-    <block name="Wait takeoff">
+    <block name="Wait takeoff" strip_button="Levelling Check">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <exception cond="stage_time > 10" deroute="Kill"/>
       <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT liftoff_roll_limit) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT liftoff_pitch_limit) @AND (stage_time > 2)" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+    <block name="Takeoff" strip_button="Lift-off" strip_icon="takeoff.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <exception cond="agl_dist_valid @AND (agl_dist_value @GT 1.0)" deroute="Climb"/>
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
