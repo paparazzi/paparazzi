@@ -1,12 +1,14 @@
 <!-- Paparazzi Autopilot DTD -->
 
 <!ELEMENT autopilot (state_machine+)>
-<!ELEMENT state_machine (modules*,includes?,settings*,control_block*,exceptions?,mode*)>
+<!ELEMENT state_machine (modules*,includes?,settings*,control_block*,mode_selection?,exceptions?,mode*)>
 <!ELEMENT control_block (call*)>
+<!ELEMENT mode_selection (mode_select*)>
 <!ELEMENT exceptions (exception*)>
 <!ELEMENT includes (include*,define*)>
 <!ELEMENT mode (select*,on_enter?,control*,exception*,on_exit?)>
 <!ELEMENT select EMPTY>
+<!ELEMENT mode_select EMPTY>
 <!ELEMENT on_enter (call)*>
 <!ELEMENT on_exit (call)*>
 <!ELEMENT control (call|call_block)*>
@@ -46,8 +48,15 @@ settings CDATA #IMPLIED>
 
 <!ATTLIST includes>
 
+<!ATTLIST mode_selection>
+
 <!ATTLIST select
 cond CDATA #REQUIRED
+exception CDATA #IMPLIED>
+
+<!ATTLIST mode_select
+cond CDATA #REQUIRED
+mode CDATA #REQUIRED
 exception CDATA #IMPLIED>
 
 <!ATTLIST on_enter>

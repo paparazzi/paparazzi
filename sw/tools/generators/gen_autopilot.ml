@@ -50,6 +50,10 @@ let get_modes = fun sm ->
 let get_ap_control_block = fun ap ->
   List.filter (fun m -> (Xml.tag m) = "control_block") (Xml.children ap)
 
+let get_mode_selection = fun sm ->
+  try ExtXml.child sm "mode_selection"
+  with _ -> Xml.Element ("mode_selection", [], [])
+
 let get_exceptions = fun sm ->
   try ExtXml.child sm "exceptions"
   with _ -> Xml.Element ("exceptions", [], [])
@@ -91,8 +95,13 @@ let print_includes = fun includes out_h ->
     | _ -> failwith "[gen_autopilot] Unknown includes type"
   ) (Xml.children includes)
 
-let print_mode_name = fun sm_name name ->
-  String.concat "" [(String.uppercase_ascii sm_name); "_MODE_"; (String.uppercase_ascii name)]
+let print_mode_name = fun ?modes sm_name name ->
+  match modes with
+  | None -> String.concat "" [(String.uppercase_ascii sm_name); "_MODE_"; (String.uppercase_ascii name)]
+  | Some ms ->
+      if List.exists (fun m -> (Xml.attrib m "name") = name) ms then
+        String.concat "" [(String.uppercase_ascii sm_name); "_MODE_"; (String.uppercase_ascii name)]
+      else name
 
 (** Define modes *)
 let print_modes = fun modes sm_name out_h ->
@@ -105,23 +114,23 @@ let print_modes = fun modes sm_name out_h ->
     with _ -> ()
   ) modes
 
+(* Find default mode in modes list *)
+let find_default_mode = fun modes ->
+  let default = List.find_all (fun m ->
+    List.exists (fun s -> if Xml.tag s = "select" then Xml.attrib s "cond" = "$DEFAULT_MODE" else false) (Xml.children m)
+  ) modes in
+  let mode = match List.length default with
+      0 -> List.hd modes
+    | 1 -> List.hd default
+    | _ -> failwith "Autopilot Core Error: only one default mode can be set"
+  in
+  Xml.attrib mode "name"
+
 (** Init function: set last_mode to initial ap_mode *) (* TODO really needed ? *)
 let print_ap_init = fun modes name out_h ->
-
-  let find_default_mode = fun _ ->
-    let default = List.find_all (fun m ->
-      List.exists (fun s -> if Xml.tag s = "select" then Xml.attrib s "cond" = "$DEFAULT_MODE" else false) (Xml.children m)
-    ) modes in
-    match List.length default with
-        0 -> List.hd modes
-      | 1 -> List.hd default
-      | _ -> failwith "Autopilot Core Error: only one default mode can be set"
-  in
-
-  let default = find_default_mode () in
   lprintf out_h "\nstatic inline void autopilot_core_%s_init(void) {\n" name;
   right ();
-  lprintf out_h "autopilot_mode_%s = %s;\n" name (print_mode_name name (Xml.attrib default "name"));
+  lprintf out_h "autopilot_mode_%s = MODE_STARTUP;\n" name;
   lprintf out_h "private_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
   lprintf out_h "last_autopilot_mode_%s = autopilot_mode_%s;\n" name name;
   lprintf out_h "autopilot_core_%s_set_mode(autopilot_mode_%s, TRUE);\n" name name;
@@ -129,23 +138,27 @@ let print_ap_init = fun modes name out_h ->
   lprintf out_h "}\n"
 
 (** Function to test if a mode is selected *)
-let print_test_select = fun modes name out_h ->
+let print_test_select = fun modes mode_select name out_h ->
   lprintf out_h "\nstatic inline uint8_t autopilot_core_%s_mode_select(void) {\n" name;
   right ();
+  let print_select = fun mode_name s -> (* local print function *)
+    let cond = Xml.attrib s "cond" in
+    let except = try String.concat " || "
+                       (List.map (fun e -> Printf.sprintf "private_autopilot_mode_%s != %s" name (print_mode_name name e))
+                          (Str.split (Str.regexp "|") (Xml.attrib s "exception"))
+                       ) with _ -> "" in
+    match (cond, String.length except) with
+        ("$DEFAULT_MODE", _) -> ()
+      | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name ~modes name mode_name)
+      | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name ~modes name mode_name)
+  in
   List.iter (fun m -> (* Test select for all modes *)
     let select = List.filter (fun s -> Xml.tag s = "select") (Xml.children m) in
-    List.iter (fun s -> (* In each mode, build condition and exceptions' list *)
-      let cond = Xml.attrib s "cond" in
-      let except = try String.concat " || "
-                         (List.map (fun e -> Printf.sprintf "private_autopilot_mode_%s != %s" name (print_mode_name name e))
-                            (Str.split (Str.regexp "|") (Xml.attrib s "exception"))
-                         ) with _ -> "" in
-      match (cond, String.length except) with
-          ("$DEFAULT_MODE", _) -> ()
-        | (_, 0) -> lprintf out_h "if (%s) { return %s; }\n" cond (print_mode_name name (Xml.attrib m "name"))
-        | (_, _) -> lprintf out_h "if ((%s) && (%s)) { return %s; }\n" cond except (print_mode_name name (Xml.attrib m "name"))
-    ) select;
+    (* In each mode, build condition and exceptions' list *)
+    List.iter (fun s -> print_select (Xml.attrib m "name") s) select;
   ) modes;
+  (* Test global mode_select children *)
+  List.iter (fun s -> print_select (Xml.attrib s "mode") s) (Xml.children mode_select);
   lprintf out_h "return private_autopilot_mode_%s;\n" name;
   left ();
   lprintf out_h "}\n"
@@ -385,8 +398,13 @@ let parse_and_gen_modes xml_file ap_name main_freq h_dir sm =
     if has_modules sm then fprintf out_h "\n#include \"generated/modules.h\"\n";
     fprintf out_h "\nuint8_t private_autopilot_mode_%s;\n" name;
     fprintf out_h "uint8_t last_autopilot_mode_%s;\n\n" name;
+    (* Print default mode if not defined by MODE_STARTUP *)
+    let default_mode = find_default_mode modes in
+    fprintf out_h "#ifndef MODE_STARTUP\n";
+    fprintf out_h "#define MODE_STARTUP %s\n" (print_mode_name name_up default_mode);
+    fprintf out_h "#endif\n";
     (* Print functions *)
-    print_test_select modes name out_h;
+    print_test_select modes (get_mode_selection sm) name out_h;
     print_test_exception modes name out_h;
     print_global_exceptions (get_exceptions sm) name out_h;
     print_set_mode modes name out_h;
