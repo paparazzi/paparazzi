@@ -4,23 +4,20 @@
 
   <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
 
+    <modules>
+      <module name="nav" type="rotorcraft"/>
+      <module name="guidance" type="rotorcraft"/>
+      <module name="stabilization" type="rotorcraft"/>
+    </modules>
+
     <includes>
       <include name="generated/airframe.h"/>
-      <include name="autopilot.h"/>
       <include name="autopilot_rc_helpers.h"/>
-      <include name="navigation.h"/>
-      <include name="guidance.h"/>
-      <include name="stabilization.h"/>
       <include name="modules/radio_control/radio_control.h"/>
       <include name="modules/gps/gps.h"/>
-      <include name="modules/actuators/actuators.h"/>
-      <include name="modules/actuators/motor_mixing.h"/>
-      <!--define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" cond="ifndef MODE_MANUAL"/>
-      <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" cond="ifndef MODE_AUTO1"/-->
+      <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" cond="ifndef MODE_MANUAL"/>
+      <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" cond="ifndef MODE_AUTO1"/>
       <define name="MODE_AUTO2" value="AP_MODE_NAV" cond="ifndef MODE_AUTO2"/>
-      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
-      <define name="DLModeNav()" value="(autopilot_mode_auto2 == AP_MODE_NAV)"/>
-      <define name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
     </includes>
 
     <settings>
@@ -43,13 +40,18 @@
       <call fun="stabilization_run(autopilot_in_flight(), &stab_sp, &thrust_sp, stabilization.cmd)"/>
     </control_block>
 
+    <mode_selection>
+      <mode_select cond="RCMode0()" mode="MODE_MANUAL"/>
+      <mode_select cond="RCMode1()" mode="MODE_AUTO1"/>
+      <mode_select cond="RCMode2()" mode="autopilot_mode_auto2" exception="HOME"/>
+    </mode_selection>
+
     <exceptions>
       <exception cond="nav.too_far_from_home" deroute="HOME"/>
       <exception cond="kill_switch_is_on()" deroute="KILL"/>
     </exceptions>
 
     <mode name="ATTITUDE_DIRECT" shortname="ATT">
-      <select cond="RCMode0()"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT)"/>
@@ -62,11 +64,10 @@
         <call_block name="run_attitude_control"/>
         <call_block name="set_commands"/>
       </control>
-      <exception cond="RCLost()" deroute="FAILSAFE"/>
+      <exception cond="RadioControlIsLost()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
-      <select cond="RCMode1()"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NONE)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER)"/>
@@ -79,11 +80,10 @@
         <call_block name="run_attitude_control"/>
         <call_block name="set_commands"/>
       </control>
-      <exception cond="RCLost()" deroute="FAILSAFE"/>
+      <exception cond="RadioControlIsLost()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="NAV">
-      <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_NAV)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_NAV)"/>
@@ -100,7 +100,6 @@
     </mode>
 
     <mode name="GUIDED">
-      <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
       <on_enter>
         <call fun="guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED)"/>
         <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED)"/>
