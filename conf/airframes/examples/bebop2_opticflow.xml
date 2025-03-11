@@ -308,13 +308,6 @@
     <define name="DESCEND_VSPEED" value="-0.75"/>
   </section>
 
-  <section name="AUTOPILOT">
-    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_MANUAL" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-  </section>
 
   <section name="GCS">
     <define name="AC_ICON"             value="quadrotor_x"/>
