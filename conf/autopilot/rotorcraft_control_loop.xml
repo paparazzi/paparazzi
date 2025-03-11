@@ -60,6 +60,7 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
+<!--
     <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
       <select cond="RCMode1()"/>
       <on_enter>
@@ -76,7 +77,7 @@
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
-
+   -->
 
     <mode name="MODULE">
       <select cond="RCMode1()"/>
