@@ -17,6 +17,14 @@
   <makefile target="ap">
     <file name="actuators_uavcan.c"/>
     <file name="pprz_random.c" dir="math"/>
+
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.equipment.esc.Status.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.esc.RawCommand.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.actuator.Status.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.actuator.ArrayCommand.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.device.Temperature.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
   </makefile>
 </module>
 
