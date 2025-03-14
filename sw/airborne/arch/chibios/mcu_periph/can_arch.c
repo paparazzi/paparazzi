@@ -110,7 +110,7 @@ static void can_thd_rx(void* arg) {
         .can_id = id,
         .len = can_dlc_to_len(rx_frame.DLC),
         .flags = 0,
-        .timestamp = get_sys_time_msec(),
+        .timestamp = TIME_I2US(chVTGetSystemTimeX())
       };
       
       if(rx_frame.FDF) {
@@ -142,9 +142,9 @@ int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr)
   }
   if(txframe->can_id & CAN_FRAME_EFF) {
     frame.common.XTD = 1;
-    frame.ext.EID = txframe->can_id & CAN_EID_MASK
+    frame.ext.EID = txframe->can_id & CAN_EID_MASK;
   } else {
-    frame.std.SID = txframe->can_id & CAN_SID_MASK
+    frame.std.SID = txframe->can_id & CAN_SID_MASK;
   }
   memcpy(frame.data8, txframe->data, txframe->len);
 
