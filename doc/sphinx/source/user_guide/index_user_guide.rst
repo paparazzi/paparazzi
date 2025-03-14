@@ -14,6 +14,7 @@ Start conquering the wolrd, by making incredible :doc:`flight_plans`!
     more_on_paparazzi_center
     airframe
     flight_plans
+    mission_mode
     communication
     radio
     gcs_graphics
