@@ -47,6 +47,9 @@ the end of the duration time, but some (like circle) will not end if a positive 
 It is always possible to go to the next mission element with the ``NEXT_MISSION`` message.
 
 
+.. image:: mission_mode.png
+
+
 Navigation patterns
 -------------------
 
