@@ -89,6 +89,7 @@ typedef void(* can_rx_frame_callback_t)(struct pprzcan_frame* rxframe, struct pp
 struct can_periph {
   void* arch_struct;
   int fd;
+  uint32_t nb_errors;
   can_rx_frame_callback_t callbacks[CAN_NB_CALLBACKS_MAX];
   void* callback_user_data[CAN_NB_CALLBACKS_MAX];
 };

@@ -85,11 +85,23 @@ static void can_thd_rx(void* arg) {
   snprintf(thd_name, 10, "can%d_rx", cas->if_index);
   chRegSetThreadName(thd_name);
 
+  event_listener_t rxe;
+  chEvtRegister(&cas->cand->error_event, &rxe, EVENT_MASK(1));
+
+
   struct pprzaddr_can addr = {
     .can_ifindex = cas->if_index
   };
 
   while(!chThdShouldTerminateX()) {
+
+    eventmask_t evts = chEvtWaitAnyTimeout(ALL_EVENTS, TIME_IMMEDIATE);
+    // receive error
+    if (evts & EVENT_MASK(1)) {
+      chEvtGetAndClearFlags(&rxe);
+      canp->nb_errors++;
+    }
+
     CANRxFrame rx_frame;
     msg_t status = canReceiveTimeout(cas->cand, CAN_ANY_MAILBOX, &rx_frame, chTimeMS2I(50));
     if(status == MSG_OK) { 
