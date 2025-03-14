@@ -10,6 +10,9 @@
    <define name="UAVCAN_NODE_ID" value="100" description="The UAVCAN node ID of the AP"/>
    <define name="UAVCAN_BAUDRATE" value="1000000" description="The baudrate of the CAN interface"/>
   </doc>
+  <dep>
+    <depends>can</depends>
+  </dep>
   <header>
     <file name="uavcan.h" dir="modules/uavcan"/>
   </header>
@@ -37,4 +40,3 @@
     <file_arch name="uavcan.c" dir="modules/uavcan"/>
   </makefile>
 </module>
-

@@ -73,7 +73,7 @@ struct pprzcan_frame {
   socketcan_id_t can_id;
   uint8_t len;
   uint8_t flags;  // CAN FD specific flags
-  uint32_t timestamp;   // timestamp in ms.
+  uint32_t timestamp;   // timestamp in us.
   uint8_t data[SOCKETCAN_MAX_DLEN];
 };
 
