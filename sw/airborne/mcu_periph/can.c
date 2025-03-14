@@ -34,6 +34,14 @@ struct can_periph can1 = {
 };
 #endif
 
+#if USE_CAN2
+struct can_periph can2 = {
+  .fd = 2,
+  .callbacks = {0},
+  .callback_user_data = {0}
+};
+#endif
+
 static const uint8_t dlc_to_len[] = {0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64};
 
 uint8_t can_dlc_to_len(uint8_t dlc) {
