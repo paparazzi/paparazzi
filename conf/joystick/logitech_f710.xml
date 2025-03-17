@@ -50,9 +50,9 @@ It has 8 buttons.
   <variables>
     <!-- manual by default and when pressing b_green, AUTO1 on b_yellow, AUTO2 on b_red -->
     <var name="mode" default="0"/>
-    <set var="mode" value="0" on_event="b_green"/>
-    <set var="mode" value="1" on_event="b_yellow"/>
-    <set var="mode" value="2" on_event="b_red"/>
+    <set var="mode" value="-127" on_event="b_green"/>
+    <set var="mode" value="0" on_event="b_yellow"/>
+    <set var="mode" value="127" on_event="b_red"/>
   </variables>
 
   <messages period="0.0333333333">
