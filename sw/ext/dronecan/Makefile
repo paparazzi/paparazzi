@@ -28,7 +28,7 @@ PAPARAZZI_SRC=../../..
 DRONECAN_DIR=$(PAPARAZZI_SRC)/sw/ext/dronecan
 DSDL_DIR := $(DRONECAN_DIR)/DSDL
 
-all: libcanard DSDL dronecan_dsdlc pydronecan
+all: libcanard DSDL pydronecan dronecan_dsdlc
 
 libcanard: libcanard.sync libcanard.update
 

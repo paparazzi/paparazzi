@@ -34,6 +34,7 @@ include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 MY_PYTHON := $(shell echo `which python3`)
 MY_MAVLINKTOOLS := $(shell $(MY_PYTHON) -c 'import imp; import future' 2>&1)
+MY_DRONECANTOOLS := $(shell $(MY_PYTHON) -c 'import em' 2>&1)
 
 all: libopencm3 luftboot chibios fatfs libsbp TRICAL hacl-c key_generator rustlink ecl matrix mavlink dronecan
 
@@ -113,7 +114,11 @@ opencv_bebop.build:
 	$(Q)$(MAKE) -C opencv_bebop
 
 dronecan:
+ifneq ($(findstring ModuleNotFoundError, $(MY_DRONECANTOOLS)),ModuleNotFoundError)
 	$(Q)$(MAKE) -C dronecan
+else
+	@echo dronecan not installes, missing packages 'em'
+endif
 
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
