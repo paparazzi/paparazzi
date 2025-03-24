@@ -366,8 +366,10 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
+        <!-- Accelerometer Calibration -->
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,4,26}, .scale={{59909,31081,6709},{6117,3178,691}}, .filter_sample_freq=1138, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={0,1,60}, .scale={{5003,51323,19499},{1021,10477,3977}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-42,8,6}, .scale={{38293,32787,25898},{7823,6703,5301}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={3073,2311,1939}, .scale={{8241,27895,4777},{15881,55537,10618}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
+        <!-- Magneto Calibration (NOT DONE!) -->
+        <!-- Gyro Calibration -->
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1138, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
