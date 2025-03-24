@@ -39,6 +39,7 @@
 
 #include "generated/airframe.h"
 #include "generated/modules.h"
+#include "generated/flight_plan.h"
 
 #ifdef DEBUG_ALT_KALMAN
 #include "mcu_periph/uart.h"
@@ -100,7 +101,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s);
 void ins_alt_float_init(void)
 {
 #if USE_INS_NAV_INIT
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, GROUND_ALT, nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(MODULE_INS_ALT_FLOAT_ID, &utm0);
   ins_altf.origin_initialized = true;
 
