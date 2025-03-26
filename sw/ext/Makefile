@@ -117,7 +117,7 @@ dronecan:
 ifneq ($(findstring ModuleNotFoundError, $(MY_DRONECANTOOLS)),ModuleNotFoundError)
 	$(Q)$(MAKE) -C dronecan
 else
-	@echo dronecan not installes, missing packages 'em'
+	@echo dronecan not installed, missing package 'em'
 endif
 
 clean:
