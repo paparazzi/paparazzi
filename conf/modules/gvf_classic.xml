@@ -2,8 +2,9 @@
 
 <module name="gvf_classic" dir="guidance/gvf">
   <doc>
-    <description>Guidance algorithm for tracking smooth trajectories. The algorithm is based on the idea of stearing the vehicle to a vector field that smoothly converges to the desired trajectory.
-For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .
+    <description>
+    Guidance algorithm for tracking smooth trajectories. The algorithm is based on the idea of stearing the vehicle to a vector field that smoothly converges to the desired trajectory.
+    For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .
     </description>
     <section name="Ellipse" prefix="GVF_ELLIPSE_">
       <define name="KE" value="1" description="Gain for the aggresivity of the gvf"/>
