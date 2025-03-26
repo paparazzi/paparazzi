@@ -21,45 +21,25 @@
 #ifndef GVF_PARAMETRIC_2D_BEZIER_SPLINES_H
 #define GVF_PARAMETRIC_2D_BEZIER_SPLINES_H
 
-
-// Define only one segment by default
-#ifndef GVF_PARAMETRIC_2D_BEZIER_N_SEG
-#define GVF_PARAMETRIC_2D_BEZIER_N_SEG 1
-#endif
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "modules/guidance/gvf_parametric/gvf_param_traj.h"
 
 typedef struct {
   float kx;
   float ky;
 } gvf_par_2d_bezier_par;
 
-
-// Cubic bezier
-typedef struct {
-  float p0[2];
-  float p1[2];
-  float p2[2];
-  float p3[2];
-} bezier_t;
-
-
 extern gvf_par_2d_bezier_par gvf_parametric_2d_bezier_par;
 
-extern void create_bezier_spline(bezier_t *bezier, float *px, float *py);
-extern void gvf_parametric_2d_bezier_splines_info(bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d,
-    float *f1dd, float *f2dd);
+// 2D BEZIER
+extern bool gvf_parametric_2D_bezier_XY(void);
+extern bool gvf_parametric_2D_bezier_wp(uint8_t first_wp);
 
 #ifdef __cplusplus
 }
 #endif
-
-
-
-
 
 #endif // bezier splines

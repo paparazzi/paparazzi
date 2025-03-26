@@ -19,8 +19,6 @@
  */
 
 /**
- * @file modules/guidance/gvf_parametric/trajectories/gvf_parametric_3d_lissajous.h
- *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  *
  * 3D lissajous figures
@@ -32,6 +30,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "modules/guidance/gvf_parametric/gvf_param_traj.h"
 
 /** @typedef gvf_3d_lis_par
 * @brief Parameters for the GVF parametric 3D lissajous
@@ -67,8 +67,11 @@ typedef struct {
 
 extern gvf_par_3d_lis_par gvf_parametric_3d_lissajous_par;
 
-extern void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-    float *f1dd, float *f2dd, float *f3dd);
+// 3D Lissajous
+extern bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
+    float wz, float dx, float dy, float dz, float alpha);
+extern bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
+    float wz, float dx, float dy, float dz, float alpha);
 
 #ifdef __cplusplus
 }

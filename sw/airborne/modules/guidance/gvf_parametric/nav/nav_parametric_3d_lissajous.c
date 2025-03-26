@@ -19,16 +19,13 @@
  */
 
 /**
- * @file modules/guidance/gvf_parametric/trajectories/gvf_parametric_3d_lissajous.c
- *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  *
  * 3D lissajous
  */
 
-#include "modules/nav/common_nav.h"
+#include "nav_parametric_3d_lissajous.h"
 #include "modules/guidance/gvf_parametric/gvf_parametric.h"
-#include "gvf_parametric_3d_lissajous.h"
 
 /*! Default gain kx for the 3d lissajous trajectory */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_KX
@@ -95,49 +92,65 @@
 #define GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA 0
 #endif
 
-gvf_par_3d_lis_par gvf_parametric_3d_lissajous_par = {GVF_PARAMETRIC_3D_LISSAJOUS_KX, GVF_PARAMETRIC_3D_LISSAJOUS_KY, GVF_PARAMETRIC_3D_LISSAJOUS_KZ, GVF_PARAMETRIC_3D_LISSAJOUS_CX, GVF_PARAMETRIC_3D_LISSAJOUS_CY, GVF_PARAMETRIC_3D_LISSAJOUS_CZ, GVF_PARAMETRIC_3D_LISSAJOUS_WX, GVF_PARAMETRIC_3D_LISSAJOUS_WY, GVF_PARAMETRIC_3D_LISSAJOUS_WZ, GVF_PARAMETRIC_3D_LISSAJOUS_DX, GVF_PARAMETRIC_3D_LISSAJOUS_DY, GVF_PARAMETRIC_3D_LISSAJOUS_DZ, GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA};
+gvf_par_3d_lis_par gvf_parametric_3d_lissajous_par = {
+  GVF_PARAMETRIC_3D_LISSAJOUS_KX, GVF_PARAMETRIC_3D_LISSAJOUS_KY, GVF_PARAMETRIC_3D_LISSAJOUS_KZ, 
+  GVF_PARAMETRIC_3D_LISSAJOUS_CX, GVF_PARAMETRIC_3D_LISSAJOUS_CY, GVF_PARAMETRIC_3D_LISSAJOUS_CZ, 
+  GVF_PARAMETRIC_3D_LISSAJOUS_WX, GVF_PARAMETRIC_3D_LISSAJOUS_WY, GVF_PARAMETRIC_3D_LISSAJOUS_WZ, 
+  GVF_PARAMETRIC_3D_LISSAJOUS_DX, GVF_PARAMETRIC_3D_LISSAJOUS_DY, GVF_PARAMETRIC_3D_LISSAJOUS_DZ, 
+  GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA
+};
 
-void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-                                  float *f1dd, float *f2dd, float *f3dd)
+#ifdef FIXEDWING_FIRMWARE
+
+static int gvf_parametric_p_len_wps = 0;
+
+/** ------------------------------------------------------------------------ **/
+
+// 3D Lissajous
+
+bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
+                                     float wz, float dx, float dy, float dz, float alpha)
 {
-  float xo = gvf_parametric_trajectory.p_parametric[0];
-  float yo = gvf_parametric_trajectory.p_parametric[1];
-  float zo = gvf_parametric_trajectory.p_parametric[2];
-  float cx = gvf_parametric_trajectory.p_parametric[3];
-  float cy = gvf_parametric_trajectory.p_parametric[4];
-  float cz = gvf_parametric_trajectory.p_parametric[5];
-  float wx = gvf_parametric_trajectory.p_parametric[6];
-  float wy = gvf_parametric_trajectory.p_parametric[7];
-  float wz = gvf_parametric_trajectory.p_parametric[8];
-  float deltax_rad = gvf_parametric_trajectory.p_parametric[9]*M_PI/180;
-  float deltay_rad = gvf_parametric_trajectory.p_parametric[10]*M_PI/180;
-  float deltaz_rad = gvf_parametric_trajectory.p_parametric[11]*M_PI/180;
-  float alpha_rad = gvf_parametric_trajectory.p_parametric[12]*M_PI/180;
+  // Safety first! If the asked altitude is low
+  if ((zo - cz) < 1) {
+    zo = 10;
+    cz = 0;
+  }
 
-  float w = gvf_parametric_control.w;
-  float wb = w * gvf_parametric_control.beta * gvf_parametric_control.s;
+  gvf_parametric_trajectory.type = LISSAJOUS_3D;
+  gvf_parametric_trajectory.p_parametric[0] = xo;
+  gvf_parametric_trajectory.p_parametric[1] = yo;
+  gvf_parametric_trajectory.p_parametric[2] = zo;
+  gvf_parametric_trajectory.p_parametric[3] = cx;
+  gvf_parametric_trajectory.p_parametric[4] = cy;
+  gvf_parametric_trajectory.p_parametric[5] = cz;
+  gvf_parametric_trajectory.p_parametric[6] = wx;
+  gvf_parametric_trajectory.p_parametric[7] = wy;
+  gvf_parametric_trajectory.p_parametric[8] = wz;
+  gvf_parametric_trajectory.p_parametric[9] = dx;
+  gvf_parametric_trajectory.p_parametric[10] = dy;
+  gvf_parametric_trajectory.p_parametric[11] = dz;
+  gvf_parametric_trajectory.p_parametric[12] = alpha;
+  gvf_parametric_trajectory.p_len = 13 + gvf_parametric_p_len_wps;
+  gvf_parametric_p_len_wps = 0;
 
-  // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
+  float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
-  float nrf1 = cx*cosf(wx*wb + deltax_rad);
-  float nrf2 = cy*cosf(wy*wb + deltay_rad);
+  gvf_parametric_3d_lissajous_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
+  gvf_parametric_control_3D(gvf_parametric_3d_lissajous_par.kx, gvf_parametric_3d_lissajous_par.ky,
+                            gvf_parametric_3d_lissajous_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 
-  *f1 = cosf(alpha_rad)*nrf1 - sinf(alpha_rad)*nrf2 + xo;
-  *f2 = sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2 + yo;
-  *f3 = cz*cosf(wz*wb + deltaz_rad) + zo;
-
-  float nrf1d = -wx*cx*sinf(wx*wb + deltax_rad);
-  float nrf2d = -wy*cy*sinf(wy*wb + deltay_rad);
-
-  *f1d = cosf(alpha_rad)*nrf1d - sinf(alpha_rad)*nrf2d;
-  *f2d = sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
-  *f3d = -wz*cz*sinf(wz*wb + deltaz_rad);
-
-  float nrf1dd = -wx*wx*cx*cosf(wx*wb + deltax_rad);
-  float nrf2dd = -wy*wy*cy*cosf(wy*wb + deltay_rad);
-
-  *f1dd = cosf(alpha_rad)*nrf1dd - sinf(alpha_rad)*nrf2dd;
-  *f2dd = sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
-  *f3dd = -wz*wz*cz*cosf(wz*wb + deltaz_rad);
+  return true;
 }
 
+bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
+    float wz, float dx, float dy, float dz, float alpha)
+{
+  gvf_parametric_trajectory.p_parametric[13] = wp;
+  gvf_parametric_p_len_wps = 1;
+
+  gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
+  return true;
+}
+
+#endif

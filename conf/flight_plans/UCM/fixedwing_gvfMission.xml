@@ -45,7 +45,7 @@
   </variables>
   
   <modules>
-    <module name="gvf_module">
+    <module name="gvf_classic">
       <define name="GVF_OCAML_GCS" value="FALSE"/>
     </module>
     <module name="gvf_parametric"/> 

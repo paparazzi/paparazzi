@@ -20,16 +20,10 @@
  *
  */
 
-/** \file gvf_ellipse.c
- *
- *  Guidance algorithm based on vector fields
- *  2D Ellipse trajectory
- */
+#include "nav_ellipse.h"
 
-
-#include "modules/nav/common_nav.h"
-#include "gvf_ellipse.h"
 #include "generated/airframe.h"
+#include "modules/guidance/gvf/gvf.h"
 
 /*! Default gain ke for the ellipse trajectory */
 #ifndef GVF_ELLIPSE_KE
@@ -60,36 +54,57 @@ gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_KE, GVF_ELLIPSE_KN,
                                GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA
                               };
 
-void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
-                      struct gvf_Hess *hess)
+// Param array lenght
+static int gvf_p_len_wps = 0;
+
+/** ------------------------------------------------------------------------ **/
+
+// ELLIPSE 
+
+bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
 {
+  float e;
+  struct gvf_grad grad_ellipse;
+  struct gvf_Hess Hess_ellipse;
 
-  struct EnuCoor_f *p = stateGetPositionEnu_f();
-  float px = p->x;
-  float py = p->y;
-  float wx = gvf_trajectory.p[0];
-  float wy = gvf_trajectory.p[1];
-  float a = gvf_trajectory.p[2];
-  float b = gvf_trajectory.p[3];
-  float alpha = gvf_trajectory.p[4];
+  gvf_trajectory.type = 1;
+  gvf_trajectory.p[0] = x;
+  gvf_trajectory.p[1] = y;
+  gvf_trajectory.p[2] = a;
+  gvf_trajectory.p[3] = b;
+  gvf_trajectory.p[4] = alpha;
+  gvf_trajectory.p_len= 5 + gvf_p_len_wps;
+  gvf_p_len_wps = 0;
 
-  float cosa = cosf(alpha);
-  float sina = sinf(alpha);
+  // SAFE MODE
+  if (a < 1 || b < 1) {
+    gvf_trajectory.p[2] = 60;
+    gvf_trajectory.p[3] = 60;
+  }
 
-  // Phi(x,y)
-  float xel = (px - wx) * cosa - (py - wy) * sina;
-  float yel = (px - wx) * sina + (py - wy) * cosa;
-  *phi = (xel / a) * (xel / a) + (yel / b) * (yel / b) - 1;
+  if ((int)gvf_trajectory.p[2] == (int)gvf_trajectory.p[3]) {
+    gvf_setNavMode(GVF_MODE_CIRCLE);
 
-  // grad Phi
-  grad->nx = (2 * xel / (a * a)) * cosa + (2 * yel / (b * b)) * sina;
-  grad->ny = (2 * yel / (b * b)) * cosa - (2 * xel / (a * a)) * sina;
+  } else {
+    gvf_setNavMode(GVF_MODE_WAYPOINT);
+  }
 
-  // Hessian Phi
-  hess->H11 = 2 * (cosa * cosa / (a * a)
-                   + sina * sina / (b * b));
-  hess->H12 = 2 * sina * cosa * (1 / (b * b) - 1 / (a * a));
-  hess->H21 = hess->H12;
-  hess->H22 = 2 * (sina * sina / (a * a)
-                   + cosa * cosa / (b * b));
+  gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
+  gvf_control.ke = gvf_ellipse_par.ke;
+  gvf_control_2D(gvf_ellipse_par.ke, gvf_ellipse_par.kn,
+                 e, &grad_ellipse, &Hess_ellipse);
+
+  gvf_control.error = e;
+
+  return true;
+}
+
+
+bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
+{  
+  gvf_trajectory.p[5] = wp;
+  gvf_p_len_wps = 1;
+
+  gvf_ellipse_XY(WaypointX(wp),  WaypointY(wp), a, b, alpha);
+  return true;
 }

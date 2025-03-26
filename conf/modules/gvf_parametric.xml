@@ -14,8 +14,8 @@
       <dl_settings NAME="GVF_PARAMETRIC">
         <dl_settings NAME="Control">
           <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_parametric_control.s" shortname = "direction"/>
-          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_control.k_roll" shortname="k_roll" param="GVF_PARAMETRIC_CONTROL_KROLL"/>
-          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_parametric_control.k_climb" shortname="k_climb" param="GVF_PARAMETRIC_CONTROL_KCLIMB"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_c_params.k_roll" shortname="k_roll" param="GVF_PARAMETRIC_CONTROL_KROLL"/>
+          <dl_setting MAX="1.25" MIN="0.75" STEP="0.05" VAR="gvf_c_params.k_climb" shortname="k_climb" param="GVF_PARAMETRIC_CONTROL_KCLIMB"/>
           <dl_setting MAX="10" MIN="0.01" STEP="0.05" VAR="gvf_parametric_control.L" shortname="L" param="GVF_PARAMETRIC_CONTROL_L"/>
           <dl_setting MAX="1" MIN="0.001" STEP="0.005" VAR="gvf_parametric_control.beta" shortname="beta" param="GVF_PARAMETRIC_CONTROL_BETA"/>
           <dl_setting MAX="1.5" MIN="0.5" STEP="0.01" VAR="gvf_parametric_control.k_psi" shortname="k_psi" param="GVF_PARAMETRIC_CONTROL_KPSI"/>
@@ -68,11 +68,11 @@
   
   <header>
     <file name="gvf_parametric.h"/>
-    <file name="gvf_parametric_low_level_control.h"/>
-    <file name="trajectories/gvf_parametric_3d_ellipse.h"/>
-    <file name="trajectories/gvf_parametric_3d_lissajous.h"/>
-    <file name="trajectories/gvf_parametric_2d_trefoil.h"/>
-    <file name="trajectories/gvf_parametric_2d_bezier_splines.h"/> 
+    <file name="gvf_param_traj.h"/>
+    <file name="nav/nav_parametric_3d_ellipse.h"/>
+    <file name="nav/nav_parametric_3d_lissajous.h"/>
+    <file name="nav/nav_parametric_2d_trefoil.h"/>
+    <file name="nav/nav_parametric_2d_bezier_splines.h"/> 
   </header>
 
   <init fun = "gvf_parametric_init()"/>
@@ -84,11 +84,11 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_parametric.cpp"/>
-    <file name="gvf_parametric_low_level_control.c"/>
-    <file name="trajectories/gvf_parametric_3d_ellipse.c"/>
-    <file name="trajectories/gvf_parametric_3d_lissajous.c"/>
-    <file name="trajectories/gvf_parametric_2d_trefoil.c"/>
-    <file name="trajectories/gvf_parametric_2d_bezier_splines.c"/>
+    <file name="gvf_param_traj.c"/>
+    <file name="nav/nav_parametric_3d_ellipse.c"/>
+    <file name="nav/nav_parametric_3d_lissajous.c"/>
+    <file name="nav/nav_parametric_2d_trefoil.c"/>
+    <file name="nav/nav_parametric_2d_bezier_splines.c"/>
     <flag name="LDFLAGS" value="lstdc++" />
   </makefile>
 
@@ -99,11 +99,11 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_parametric.cpp"/>
-    <file name="gvf_parametric_low_level_control.c"/>
-    <file name="trajectories/gvf_parametric_3d_ellipse.c"/>
-    <file name="trajectories/gvf_parametric_3d_lissajous.c"/>
-    <file name="trajectories/gvf_parametric_2d_trefoil.c"/>
-    <file name="trajectories/gvf_parametric_2d_bezier_splines.c"/>
+    <file name="gvf_param_traj.c"/>
+    <file name="nav/nav_parametric_3d_ellipse.c"/>
+    <file name="nav/nav_parametric_3d_lissajous.c"/>
+    <file name="nav/nav_parametric_2d_trefoil.c"/>
+    <file name="nav/nav_parametric_2d_bezier_splines.c"/>
     <flag name="LDFLAGS" value="lstdc++" />
   </makefile>
 

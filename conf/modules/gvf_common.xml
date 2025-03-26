@@ -3,22 +3,32 @@
 <module name="gvf_common" dir="guidance/">
   <doc>
     <description> 
-    	Common file to allow both gvf to work together.
-    	Still requires at least one module providing the actual gvf implementation
+     A common module that enables all GVF variants to operate within a unified framework. 
+     It also provides a shared low-level control system. 
+     However, at least one additional module is required to implement the actual GVF functionality.
     </description>
   </doc>
   
   <header>
+     <file name="trajectories/gvf_traj.h"/>
      <file name="gvf_common.h"/>
   </header>
-   
-  <makefile firmware="fixedwing">
+
+   <makefile firmware="fixedwing">
+     <file name="trajectories/gvf_traj.c"/>
      <file name="gvf_common.c"/>
-  </makefile>
-   
-  <makefile firmware="rover">
+   </makefile>
+
+   <makefile firmware="rotorcraft">
+     <define name="ROTORCRAFT_BASE_SEND_TRAJECTORY" value="FALSE"/>
+     <file name="trajectories/gvf_traj.c"/>
      <file name="gvf_common.c"/>
-  </makefile>
+   </makefile>
+   
+   <makefile firmware="rover">
+   <define name="ROVER_BASE_SEND_TRAJECTORY" value="FALSE"/>
+     <file name="trajectories/gvf_traj.c"/>
+     <file name="gvf_common.c"/>
+   </makefile>
   
 </module>
-

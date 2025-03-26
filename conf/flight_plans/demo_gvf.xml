@@ -33,7 +33,7 @@
   </variables>
 
   <modules> 
-    <module name="gvf_module"/>
+    <module name="gvf_classic"/>
     <module name="gvf_parametric"/>
   </modules>
 

@@ -20,37 +20,33 @@
  *
  */
 
-/** @file gvf_sin.h
- *
- *  Guidance algorithm based on vector fields
- *  2D sinusoidal trajectory
- */
+#ifndef GVF_ELLIPSE_H
+#define GVF_ELLIPSE_H
 
-#ifndef GVF_SIN_H
-#define GVF_SIN_H
+#include "modules/guidance/trajectories/gvf_traj.h"
 
-#include "modules/guidance/gvf/gvf.h"
-
-/** @typedef gvf_s_par
+/** @typedef gvf_ell_par
 * @brief Parameters for the GVF line trajectory
 * @param ke Gain defining how agressive is the vector field
 * @param kn Gain for making converge the vehile to the vector field
-* @param alpha Orientation in rads of the sin trajectory
-* @param w Frequency in rads of the sin trajectory
-* @param off Off-set in rads of the sin trajectory
-* @param A Amplitude in meters of the sin trajectory
+* @param a First axis of the ellipse in meters
+* @param b Second axis of the ellipse in meters
+* @param alpha Orientation of the ellipse in rads
 */
 typedef struct {
   float ke;
   float kn;
+  float a;
+  float b;
   float alpha;
-  float w;
-  float off;
-  float A;
-} gvf_s_par;
+} gvf_ell_par;
 
-extern gvf_s_par gvf_sin_par;
+/** ------------------------------------------------------------------------ **/
 
-extern void gvf_sin_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
+extern gvf_ell_par gvf_ellipse_par;
 
-#endif // GVF_SIN_H
+// Ellipse
+extern bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha);
+extern bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha);
+
+#endif // GVF_ELLIPSE_H

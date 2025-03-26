@@ -20,16 +20,10 @@
  *
  */
 
-/** \file gvf_sin.c
- *
- *  Guidance algorithm based on vector fields
- *  2D sinusoidal trajectory
- */
+#include "nav_sin.h"
 
-
-#include "modules/nav/common_nav.h"
-#include "gvf_sin.h"
 #include "generated/airframe.h"
+#include "modules/guidance/gvf/gvf.h"
 
 /*! Default gain ke for the sin trajectory*/
 #ifndef GVF_SIN_KE
@@ -65,42 +59,73 @@ gvf_s_par gvf_sin_par = {GVF_SIN_KE, GVF_SIN_KN,
                          GVF_SIN_ALPHA, GVF_SIN_W, GVF_SIN_OFF, GVF_SIN_A
                         };
 
+// Param array lenght
+static int gvf_p_len_wps = 0;
 
-void gvf_sin_info(float *phi, struct gvf_grad *grad,
-                  struct gvf_Hess *hess)
+/** ------------------------------------------------------------------------ **/
+
+// SINUSOIDAL (if w = 0 and off = 0, then we just have the straight line case)
+
+bool gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A)
 {
+  float e;
+  struct gvf_grad grad_line;
+  struct gvf_Hess Hess_line;
 
-  struct EnuCoor_f *p = stateGetPositionEnu_f();
-  float px = p->x;
-  float py = p->y;
-  float a = gvf_trajectory.p[0];
-  float b = gvf_trajectory.p[1];
-  float alpha = gvf_trajectory.p[2];
-  float w = gvf_trajectory.p[3];
-  float off = gvf_trajectory.p[4];
-  float A = gvf_trajectory.p[5];
+  gvf_trajectory.type = 2;
+  gvf_trajectory.p[0] = a;
+  gvf_trajectory.p[1] = b;
+  gvf_trajectory.p[2] = alpha;
+  gvf_trajectory.p[3] = w;
+  gvf_trajectory.p[4] = off;
+  gvf_trajectory.p[5] = A;
+  gvf_trajectory.p_len= 6 + gvf_p_len_wps;
+  gvf_p_len_wps = 0;
 
-  float cosa = cosf(alpha);
-  float sina = sinf(alpha);
+  gvf_sin_info(&e, &grad_line, &Hess_line);
+  gvf_control.ke = gvf_sin_par.ke;
+  gvf_control_2D(1e-2 * gvf_sin_par.ke, gvf_sin_par.kn, e, &grad_line, &Hess_line);
 
-  // Phi(x,y)
-  float xs = (px - a) * sina - (py - b) * cosa;
-  float ys =  -(px - a) * cosa - (py - b) * sina;
+  gvf_control.error = e;
 
-  // TODO Make it always in (-pi, pi] in an efficient way
-  float ang = (w * xs + off);
-  float cosang = cosf(ang);
-  float sinang = sinf(ang);
+  return true;
+}
 
-  *phi = ys - A * sinang;
+bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
+{
+  w = 2 * M_PI * w;
 
-  // grad Phi
-  grad->nx =  -cosa - A * w * sina * cosang;
-  grad->ny =  -sina + A * w * cosa * cosang;
+  gvf_trajectory.p[6] = wp1;
+  gvf_trajectory.p[7] = wp2;
+  gvf_p_len_wps = 2;
 
-  // Hessian Phi
-  hess->H11 =  A * w * w * sina * sina * sinang;
-  hess->H12 = -A * w * w * sina * cosa * sinang;
-  hess->H21 = -A * w * w * cosa * sina * sinang;
-  hess->H22 =  A * w * w * cosa * cosa * sinang;
+  float x1 = WaypointX(wp1);
+  float y1 = WaypointY(wp1);
+  float x2 = WaypointX(wp2);
+  float y2 = WaypointY(wp2);
+
+  float zx = x1 - x2;
+  float zy = y1 - y2;
+
+  float alpha = atanf(zy / zx);
+
+  gvf_sin_XY_alpha(x1, y1, alpha, w, off, A);
+
+  return true;
+}
+
+bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
+{
+  w = 2 * M_PI * w;
+  alpha = RadOfDeg(alpha);
+
+  gvf_trajectory.p[6] = wp;
+  gvf_p_len_wps = 1;
+
+  float x = WaypointX(wp);
+  float y = WaypointY(wp);
+
+  gvf_sin_XY_alpha(x, y, alpha, w, off, A);
+
+  return true;
 }
