@@ -11,12 +11,11 @@
   </doc>
   <dep>
     <depends>mcu</depends>
-    <conflicts>uavcan</conflicts>
   </dep>
   <header>
     <file name="can.h" dir="mcu_periph"/>
   </header>
-  <event fun="can_event()" cond="ifeq ($(ARCH), stm32)"/>
+  <!-- <event fun="can_event()" cond="ifeq ($(ARCH), stm32)"/> -->
   <makefile>
     <configure name="USE_CANFD" default="FALSE"/>
     <define name="USE_CANFD" value="$(USE_CANFD)"/>
