@@ -74,7 +74,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="2.0814"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -364,7 +364,19 @@
     <section name="IMU" prefix="IMU_">
         <!-- Accelerometer Calibration -->
         <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,4,26}, .scale={{59909,31081,6709},{6117,3178,691}}, .filter_sample_freq=1138, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={0,1,60}, .scale={{5003,51323,19499},{1021,10477,3977}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-42,8,6}, .scale={{38293,32787,25898},{7823,6703,5301}}}}"/>
-        <!-- Magneto Calibration (NOT DONE!) -->
+        <!-- Magneto Calibration -->
+        <define name="IMU_MAG_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="5"/>
+                <field name="calibrated" type="struct">
+                <field name="neutral" value="true"/>
+                <field name="scale" value="true"/>
+                </field>
+                <field name="neutral" value="-4640,3858,-1617" type="int[]"/>
+                <field name="scale" value="{{9601,30525,4187},{17864,55546,7767}}"/>
+            </field>
+        </define>
+
         <!-- Gyro Calibration -->
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1138, .filter_freq=30}}"/>
 
