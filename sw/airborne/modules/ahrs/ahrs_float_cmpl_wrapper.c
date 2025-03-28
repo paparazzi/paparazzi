@@ -261,9 +261,9 @@ void ahrs_fc_wrapper_init(void)
 {
   ahrs_fc_init();
   if (AHRS_FC_TYPE == AHRS_PRIMARY) {
-    ahrs_float_cmp_quat_wrapper_enable(1);
+    ahrs_float_cmpl_wrapper_enable(1);
   } else {
-    ahrs_float_cmp_quat_wrapper_enable(0);
+    ahrs_float_cmpl_wrapper_enable(0);
   }
 
   /*
@@ -285,7 +285,7 @@ void ahrs_fc_wrapper_init(void)
 #endif
 }
 
-void ahrs_float_cmp_quat_wrapper_enable(uint8_t enable)
+void ahrs_float_cmpl_wrapper_enable(uint8_t enable)
 {
   if (enable) {
     stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_FLOAT_CMPL_ID);
