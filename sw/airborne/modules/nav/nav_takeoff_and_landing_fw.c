@@ -316,6 +316,7 @@ static bool nav_land_run(void)
       break;
     case NAV_LANDING_DONE:
     default:
+      NavKillThrottle();
       landing.status = NAV_LANDING_INIT;
       return false;
   }
@@ -346,7 +347,7 @@ bool nav_land_at_loc(float td_alt, float lat, float lon, float dir, float dist, 
     landing.td_id = 0;
     landing.af_id = 0;
     struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), GetAltRef() + td_alt };
-    struct UtmCoor_f utm;
+    struct UtmCoor_f utm = {0};
     utm_of_lla_f(&utm, &lla);
     ENU_OF_UTM_DIFF(landing.td_pos, utm, *stateGetUtmOrigin_f());
     landing.af_pos.x = landing.td_pos.x + dist * sinf(RadOfDeg(dir));
