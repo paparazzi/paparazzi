@@ -33,6 +33,6 @@ extern void ahrs_fc_wrapper_init(void);
 
 // enable setting
 extern uint8_t ahrs_fc_enable;
-extern void ahrs_float_cmp_quat_wrapper_enable(uint8_t enable);
+extern void ahrs_float_cmpl_wrapper_enable(uint8_t enable);
 
 #endif /* AHRS_FLOAT_CMPL_WRAPPER_H */
