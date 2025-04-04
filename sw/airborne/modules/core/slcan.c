@@ -258,10 +258,11 @@ void slcan_can_rx_cb(struct pprzcan_frame* rxframe, struct pprzaddr_can* src_add
   }
 
   if(slcan->timestamp) {
-    slcan->tx_buf[idx++] = nibble2hex((rxframe->timestamp >> 12));
-    slcan->tx_buf[idx++] = nibble2hex((rxframe->timestamp >> 8));
-    slcan->tx_buf[idx++] = nibble2hex((rxframe->timestamp >> 4));
-    slcan->tx_buf[idx++] = nibble2hex((rxframe->timestamp >> 0));
+    uint16_t timestamp_ms = rxframe->timestamp / 1000;
+    slcan->tx_buf[idx++] = nibble2hex((timestamp_ms >> 12));
+    slcan->tx_buf[idx++] = nibble2hex((timestamp_ms >> 8));
+    slcan->tx_buf[idx++] = nibble2hex((timestamp_ms >> 4));
+    slcan->tx_buf[idx++] = nibble2hex((timestamp_ms >> 0));
   }
 
   slcan->tx_buf[idx++] = '\r';
