@@ -28,13 +28,13 @@
             <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
-            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
-            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE2_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE2_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
             <!--Only send gyro and accel that is being used-->
-            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
-            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE2_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE2_ID"/>
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
@@ -64,6 +64,7 @@
         <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
             <configure name="MODEM_BAUD" value="B460800"/>
+            <!-- <configure name="MODEM_PORT" value="usb_serial"/>  -->
         </module>
 
         <!-- Sensors -->
@@ -366,8 +367,58 @@
 
     <section name="IMU" prefix="IMU_">
         <!-- Accelerometer Calibration -->
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
-        <!-- Magneto Calibration (NOT DONE!) -->
+        <define name="ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-25,-9,17" type="int[]"/>
+                <field name="scale" value="{{46918,61969,35413},{4789,6347,3639}}"/>
+                <field name="filter_sample_freq" value="1138"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="21"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-3,-5,56" type="int[]"/>
+                <field name="scale" value="{{60377,40442,16047},{12337,8253,3269}}"/>
+                <field name="filter_sample_freq" value="4022"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="22"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-55,-14,-12" type="int[]"/>
+                <field name="scale" value="{{4966,3294,2529},{1015,673,518}}"/>
+                <field name="filter_sample_freq" value="1132"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
+
+        <!-- Magneto Calibration -->
+        <define name="MAG_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="5"/>
+                    <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                </field>
+                <field name="neutral" value="-1568,-722,-242" type="int[]"/>
+                <field name="scale" value="{{1079,33418,27849},{1799,55791,48943}}"/>
+            </field>
+        </define>
+
         <!-- Gyro Calibration -->
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
