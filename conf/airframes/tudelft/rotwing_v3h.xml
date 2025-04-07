@@ -10,6 +10,7 @@
     <description>RotatingWingV3H</description>
 
     <firmware name="rotorcraft">
+    <!-- <autopilot name="rotorcraft_rotwing.xml"/> -->
         <target name="ap" board="cube_orangeplus">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
@@ -50,12 +51,12 @@
             <module name="fdm" type="jsbsim"/>
 
             <!--Not dealing with these in the simulation-->
-            <define name="RADIO_TH_HOLD"            value="0"/> <!-- Throttle hold in command laws -->
-            <define name="RADIO_FMODE"              value="0"/> <!-- Throttle curve select -->
-            <define name="RADIO_FBW_MODE"           value="0"/> <!-- Switch between AP and FBW control -->
-            <define name="RADIO_KILL_SWITCH"        value="0"/>
-            <define name="RADIO_CONTROL_THRUST_X"   value="0"/>
-            <define name="RADIO_CONTROL_EFF_SWITCH" value="0"/>
+            <define name="RADIO_TH_HOLD"            value="RADIO_AUX1"/>
+            <define name="RADIO_KILL_SWITCH"        value="RADIO_AUX1"/>
+            <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
+            <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
+            <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
+            <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS"   value="TRUE"/>
             <define name="USE_SONAR"                value="1"/> <!-- Because uavcan can't handle simulation yet -->
@@ -73,7 +74,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.6580"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -84,7 +85,10 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-        <module name="air_data"/>
+        
+        <module name="air_data">
+            <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
+        </module>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
@@ -236,6 +240,9 @@
     </section>
 
     <section name="CALIBRATION">
+        <!-- Throttle value in AP_MODE_FAILSAFE -->
+        <define name="FAILSAFE_THROTTLE"                    value="5300"/>
+        
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -392,8 +399,8 @@
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="21.0" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="22.0" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>

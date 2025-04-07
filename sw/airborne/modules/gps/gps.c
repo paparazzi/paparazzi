@@ -290,6 +290,11 @@ void gps_periodic_check(struct GpsState *gps_s)
 #else
   gps = *gps_s;
 #endif
+
+  if (gps_manual_fail) {
+    gps.fix = GPS_FIX_NONE;
+    gps_s->fix = GPS_FIX_NONE;
+  }
 }
 
 bool gps_fix_valid(void)
