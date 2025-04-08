@@ -107,19 +107,15 @@
 
     <!-- ## MISSION ## -->
 
-    <block name="ellipse_wp" strip_icon="oval.png">
-      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
-      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+    <block name="Ellipse ELL" strip_icon="oval.png">
       <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
     
-    <block name="ellipse_ik_wp" strip_icon="oval.png">
-      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
-      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+    <block name="Ellipse IK ELL" strip_icon="oval.png">
       <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
     </block>
     
-    <block name="line_ik_wp" strip_icon="line.png">
+    <block name="Segment IK P2-P3" strip_icon="line.png">
       <call fun="nav_gvf_ik_line_wp1_wp2(WP_P0, WP_P1)"/>
     </block>
     

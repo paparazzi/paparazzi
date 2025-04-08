@@ -25,8 +25,6 @@
     <variable var="a_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
     <variable var="b_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
     <variable var="alpha_stb" init="0.0" min="0.0" max="180.0" step="1.0"/>
-    <variable var="land_rad" init="50.0" min="1.0" max="150.0" step="1.0"/>
-    <variable var="ell_delta" init="10.0" min="0.0" max="100.0" step="1.0" />
   </variables>
   
   <modules>
@@ -89,7 +87,7 @@
     <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
       electrical.bat_critical" deroute="Standby"/-->
 
-    <!-- RC lost && Block Time GT 300 -->
+      <!-- RC lost && Block Time GT 300 -->
     <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
       (radio_control.status == RC_REALLY_LOST) @AND 
       (NavBlockTime() @GT 300)" deroute="Standby"/-->
@@ -141,11 +139,15 @@
     </block>
     
     <block name="Segment P0-P1" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
       <call fun="nav_gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
       <deroute block="Standby"/>
     </block>
   
     <block name="Line" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
       <call fun="nav_gvf_line_wp_heading(WP_P0, gvf_line_par.heading)"/>
     </block>
 
@@ -169,7 +171,9 @@
       <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
     </block>
     
-    <block name="Line IK P2-P3" strip_icon="line.png">
+    <block name="Segment IK P2-P3" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
       <call fun="nav_gvf_ik_segment_wp1_wp2(WP_P2, WP_P3)"/>
       <deroute block="Standby"/>
     </block>

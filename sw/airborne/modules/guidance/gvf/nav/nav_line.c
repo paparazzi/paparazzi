@@ -126,9 +126,6 @@ bool nav_gvf_line_XY_heading(float a, float b, float heading)
 
 bool nav_gvf_line_wp_heading(uint8_t wp, float heading)
 {
-  gvf_trajectory.p[3] = wp;
-  gvf_p_len_wps = 1;
-
   heading = RadOfDeg(heading);
 
   float a = WaypointX(wp);

@@ -124,6 +124,16 @@ bool nav_gvf_ik_line_XY_heading(float a, float b, float heading)
   return true;
 }
 
+bool nav_gvf_ik_line_wp_heading(uint8_t wp, float heading)
+{
+  heading = RadOfDeg(heading);
+
+  float a = WaypointX(wp);
+  float b = WaypointY(wp);
+
+  return nav_gvf_ik_line_XY_heading(a, b, heading);
+}
+
 bool nav_gvf_ik_line_XY1_XY2(float x1, float y1, float x2, float y2)
 { 
   if (gvf_p_len_wps != 2) {
@@ -236,17 +246,4 @@ bool nav_gvf_ik_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float y2 = WaypointY(wp2);
 
   return nav_gvf_ik_segment_XY1_XY2(x1, y1, x2, y2);
-}
-
-bool nav_gvf_ik_line_wp_heading(uint8_t wp, float heading)
-{
-  gvf_trajectory.p[3] = wp;
-  gvf_p_len_wps = 1;
-
-  heading = RadOfDeg(heading);
-
-  float a = WaypointX(wp);
-  float b = WaypointY(wp);
-
-  return nav_gvf_ik_line_XY_heading(a, b, heading);
 }
