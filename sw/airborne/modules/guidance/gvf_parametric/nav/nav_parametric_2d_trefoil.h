@@ -56,8 +56,8 @@ typedef struct {
 extern gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par;
 
 // 2D Trefoil
-extern bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r, float alpha);
-extern bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha);
+extern bool nav_gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r, float alpha);
+extern bool nav_gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha);
 
 #ifdef __cplusplus
 }

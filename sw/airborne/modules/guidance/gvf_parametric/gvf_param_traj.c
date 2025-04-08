@@ -132,26 +132,6 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
 
 // BEZIER
 
-// Bezier is just an array
-void create_bezier_spline(bezier_t *bezier, float *px, float *py)
-{
-  int k, j;
-  j = 0;
-  for (k = 0; k < GVF_PARAMETRIC_2D_BEZIER_N_SEG; k++) {
-    bezier[k].p0[0] = px[j];
-    bezier[k].p0[1] = py[j];
-    bezier[k].p1[0] = px[j + 1];
-    bezier[k].p1[1] = py[j + 1];
-    bezier[k].p2[0] = px[j + 2];
-    bezier[k].p2[1] = py[j + 2];
-    bezier[k].p3[0] = px[j + 3];
-    bezier[k].p3[1] = py[j + 3];
-
-    // This allows for C^0 continuity (last point is init point)
-    j += 3;
-  }
-}
-
 void gvf_parametric_2d_bezier_splines_info(bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d, float *f1dd,
     float *f2dd)
 {

@@ -91,31 +91,31 @@
     </block>
 
     <block name="Standby" strip_icon="home.png"> 
-      <call fun="gvf_ellipse_wp(WP_STDBY, 10, 10, 0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, 10, 10, 0)"/>
     </block>
 
     <!-- ## MISSION ## -->
 
     <block name="Ellipse ELL" strip_icon="oval.png">
-      <call fun="gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
 
     <block name="Ellipse-IK ELL" strip_icon="oval.png">
-      <call fun="gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
     </block>
 
     <block name="Segment P0-P1" strip_icon="line.png">
-      <call fun="gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
+      <call fun="nav_gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
       <deroute block="Standby"/>
     </block>
 
     <block name="Line to HOME" strip_icon="home_drop.png">
-      <call fun="gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
+      <call fun="nav_gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
       <deroute block="Standby"/>
     </block>
 
     <block name="2D_bezier" strip_icon="eight.png">
-      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
+      <call fun="nav_gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
     </block>
     
     <!-- ########################### -->

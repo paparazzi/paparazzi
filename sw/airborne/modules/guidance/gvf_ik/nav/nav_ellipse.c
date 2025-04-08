@@ -61,7 +61,7 @@ static int gvf_p_len_wps = 0;
 
 // ELLIPSE 
 
-bool gvf_ik_ellipse_XY(float x, float y, float a, float b, float alpha)
+bool nav_gvf_ik_ellipse_XY(float x, float y, float a, float b, float alpha)
 {
   float e;
   struct gvf_grad grad_ellipse;
@@ -100,11 +100,11 @@ bool gvf_ik_ellipse_XY(float x, float y, float a, float b, float alpha)
 }
 
 
-bool gvf_ik_ellipse_wp(uint8_t wp, float a, float b, float alpha)
+bool nav_gvf_ik_ellipse_wp(uint8_t wp, float a, float b, float alpha)
 {  
   gvf_trajectory.p[5] = wp;
   gvf_p_len_wps = 1;
 
-  gvf_ik_ellipse_XY(WaypointX(wp),  WaypointY(wp), a, b, alpha);
+  nav_gvf_ik_ellipse_XY(WaypointX(wp),  WaypointY(wp), a, b, alpha);
   return true;
 }

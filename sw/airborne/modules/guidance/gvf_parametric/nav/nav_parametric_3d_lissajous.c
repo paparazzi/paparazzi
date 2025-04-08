@@ -108,7 +108,7 @@ static int gvf_parametric_p_len_wps = 0;
 
 // 3D Lissajous
 
-bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
+bool nav_gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
                                      float wz, float dx, float dy, float dz, float alpha)
 {
   // Safety first! If the asked altitude is low
@@ -143,13 +143,13 @@ bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, flo
   return true;
 }
 
-bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
+bool nav_gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
     float wz, float dx, float dy, float dz, float alpha)
 {
   gvf_parametric_trajectory.p_parametric[13] = wp;
   gvf_parametric_p_len_wps = 1;
 
-  gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
+  nav_gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
   return true;
 }
 

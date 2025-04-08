@@ -56,9 +56,9 @@ typedef struct {
 extern gvf_par_3d_ell_par gvf_parametric_3d_ellipse_par;
 
 // 3D Ellipse
-extern bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha);
-extern bool gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha);
-extern bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha);
+extern bool nav_gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha);
+extern bool nav_gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha);
+extern bool nav_gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha);
 
 #ifdef __cplusplus
 }

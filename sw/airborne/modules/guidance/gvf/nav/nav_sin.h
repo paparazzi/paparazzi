@@ -54,8 +54,8 @@ typedef struct {
 extern gvf_s_par gvf_sin_par;
 
 // Sinusoidal
-extern bool gvf_sin_XY_alpha(float x, float y, float alpha, float w, float off, float A);
-extern bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A);
-extern bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A);
+extern bool nav_gvf_sin_XY_alpha(float x, float y, float alpha, float w, float off, float A);
+extern bool nav_gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A);
+extern bool nav_gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A);
 
 #endif // GVF_SIN_H

@@ -117,14 +117,27 @@ static int out_of_segment_area(float x1, float y1, float x2, float y2, float d1,
 
 // STRAIGHT LINE
 
-bool gvf_line_XY_heading(float a, float b, float heading)
+bool nav_gvf_line_XY_heading(float a, float b, float heading)
 {
   gvf_set_direction(1);
   gvf_line(a, b, heading);
   return true;
 }
 
-bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
+bool nav_gvf_line_wp_heading(uint8_t wp, float heading)
+{
+  gvf_trajectory.p[3] = wp;
+  gvf_p_len_wps = 1;
+
+  heading = RadOfDeg(heading);
+
+  float a = WaypointX(wp);
+  float b = WaypointY(wp);
+
+  return nav_gvf_line_XY_heading(a, b, heading);
+}
+
+bool nav_gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
 { 
   if (gvf_p_len_wps != 2) {
     gvf_trajectory.p[3] = x2;
@@ -136,7 +149,7 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   float zx = x2 - x1;
   float zy = y2 - y1;
 
-  gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
+  nav_gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
   
   gvf_setNavMode(GVF_MODE_ROUTE);
   gvf_segment.seg = 1;
@@ -148,7 +161,7 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   return true;
 }
 
-bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
+bool nav_gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
   gvf_trajectory.p[3] = wp1;
   gvf_trajectory.p[4] = wp2;
@@ -159,10 +172,12 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float x2 = WaypointX(wp2);
   float y2 = WaypointY(wp2);
 
-  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+  return nav_gvf_line_XY1_XY2(x1, y1, x2, y2);
 }
 
-bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
+// SEGMENT
+
+bool nav_gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
 {
   int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
   if (s != 0) {
@@ -186,7 +201,7 @@ bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, 
   return true;
 }
 
-bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
+bool nav_gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 { 
   gvf_trajectory.p[3] = wp1;
   gvf_trajectory.p[4] = wp2;
@@ -199,10 +214,10 @@ bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
   float x2 = WaypointX(wp2);
   float y2 = WaypointY(wp2);
 
-  return gvf_segment_loop_XY1_XY2(x1, y1, x2, y2, d1, d2);
+  return nav_gvf_segment_loop_XY1_XY2(x1, y1, x2, y2, d1, d2);
 }
 
-bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
+bool nav_gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
 { 
   struct EnuCoor_f *p = stateGetPositionEnu_f();
   float px = p->x - x1;
@@ -221,10 +236,10 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
     return false;
   }
 
-  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+  return nav_gvf_line_XY1_XY2(x1, y1, x2, y2);
 }
 
-bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
+bool nav_gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
   gvf_trajectory.p[3] = wp1;
   gvf_trajectory.p[4] = wp2;
@@ -235,18 +250,10 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float x2 = WaypointX(wp2);
   float y2 = WaypointY(wp2);
 
-  return gvf_segment_XY1_XY2(x1, y1, x2, y2);
+  return nav_gvf_segment_XY1_XY2(x1, y1, x2, y2);
 }
 
-bool gvf_line_wp_heading(uint8_t wp, float heading)
+bool nav_gvf_segment_points(struct FloatVect2 start, struct FloatVect2 end)
 {
-  gvf_trajectory.p[3] = wp;
-  gvf_p_len_wps = 1;
-
-  heading = RadOfDeg(heading);
-
-  float a = WaypointX(wp);
-  float b = WaypointY(wp);
-
-  return gvf_line_XY_heading(a, b, heading);
+  return nav_gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y);
 }

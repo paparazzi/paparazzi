@@ -211,7 +211,7 @@ void gvf_control_2D(float ke, float kn __attribute__((unused)), float e,
   
   gvf_control.error_n = e_n;
   
-  // ---------------------------------------------------------------------------
+  // ------------------------------------------------
 
   // Telemetry data
   gvf_telemetry.n_norm = ke*e*sqrtf(nx*nx + ny*ny);
@@ -229,7 +229,10 @@ void gvf_control_2D(float ke, float kn __attribute__((unused)), float e,
   #endif
 }
 
-/** FLIGHT_PLAN FUNCTIONS -------------------------------------------------- **/
+void gvf_set_direction(int8_t s)
+{
+  gvf_control.s = s;
+}
 
 // BEGIN ROTORCRAFT
 
@@ -245,10 +248,5 @@ void gvf_set_align(bool align)
 }
 
 // END ROTORCRAFT
-
-void gvf_set_direction(int8_t s)
-{
-  gvf_control.s = s;
-}
 
 /** ------------------------------------------------------------------------ **/

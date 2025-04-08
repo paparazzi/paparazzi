@@ -76,7 +76,7 @@ static int gvf_parametric_p_len_wps = 0;
 
 // 3D ELLIPSE
 
-bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha)
+bool nav_gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
@@ -111,21 +111,21 @@ bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float 
   return true;
 }
 
-bool gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
+bool nav_gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
 {
   gvf_parametric_trajectory.p_parametric[6] = wp;
   gvf_parametric_p_len_wps = 1;
 
-  gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  nav_gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
   return true;
 }
 
-bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha)
+bool nav_gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha)
 {
   float zl = alt_center - delta;
   float zh = alt_center + delta;
 
-  gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  nav_gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
   return true;
 }
 

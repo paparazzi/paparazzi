@@ -30,6 +30,7 @@
 #define GVF_LINE_H
 
 #include "modules/guidance/trajectories/gvf_traj.h"
+#include "math/pprz_algebra_float.h"
 
 /** @typedef gvf_li_par
 * @brief Parameters for the GVF line trajectory
@@ -59,13 +60,14 @@ extern gvf_li_par gvf_line_par;
 extern gvf_seg_par gvf_segment_par;
 
 // Straight line
-extern bool gvf_line_XY_heading(float x, float y, float heading);
-extern bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2);
-extern bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
-extern bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2);
-extern bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2);
-extern bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2);
-extern bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2);
-extern bool gvf_line_wp_heading(uint8_t wp, float heading);
+extern bool nav_gvf_line_XY_heading(float x, float y, float heading);
+extern bool nav_gvf_line_wp_heading(uint8_t wp, float heading);
+extern bool nav_gvf_line_XY1_XY2(float x1, float y1, float x2, float y2);
+extern bool nav_gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
+extern bool nav_gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2);
+extern bool nav_gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2);
+extern bool nav_gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2);
+extern bool nav_gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2);
+extern bool nav_gvf_segment_points(struct FloatVect2 start, struct FloatVect2 end);
 
 #endif // GVF_LINE_H

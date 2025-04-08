@@ -38,7 +38,10 @@
       
       <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZL" value="40"/>
       <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZH" value="60"/>
-      
+    
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KX" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KY" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KZ" value="0.01"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CX" value="120"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CY" value="120"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CZ" value="5"/>
@@ -108,7 +111,7 @@
       <set var="flight_altitude" value="GetAltRef() + 50"/>
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
     </block>
     
     <!-- ## MISSION ## -->
@@ -116,25 +119,25 @@
     <block name="ellipse_wp" strip_icon="oval.png">
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
     
     <block name="2D_trefoil">
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_parametric_2D_trefoil_wp(WP_TREF, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+      <call fun="nav_gvf_parametric_2D_trefoil_wp(WP_TREF, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
     </block>
 
     <block name="3D_ellipse">
-      <call fun="gvf_parametric_3D_ellipse_wp(WP_ELL, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_parametric_3D_ellipse_wp(WP_ELL, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
     </block>
 
     <block name="3D_lissajous">
-      <call fun="gvf_parametric_3D_lissajous_wp_center(WP_ELL,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+      <call fun="nav_gvf_parametric_3D_lissajous_wp_center(WP_ELL,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
     </block>
 
     <block name="segment" strip_icon="home_drop.png">
-      <call fun="gvf_segment_loop_wp1_wp2(WP_P0, WP_P1, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_P0, WP_P1, gvf_segment_par.d1, gvf_segment_par.d2)"/>
     </block>
   </blocks>
 

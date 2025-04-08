@@ -66,7 +66,7 @@ static int gvf_p_len_wps = 0;
 
 // SINUSOIDAL (if w = 0 and off = 0, then we just have the straight line case)
 
-bool gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A)
+bool nav_gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A)
 {
   float e;
   struct gvf_grad grad_line;
@@ -91,7 +91,7 @@ bool gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A
   return true;
 }
 
-bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
+bool nav_gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 {
   w = 2 * M_PI * w;
 
@@ -109,12 +109,12 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 
   float alpha = atanf(zy / zx);
 
-  gvf_sin_XY_alpha(x1, y1, alpha, w, off, A);
+  nav_gvf_sin_XY_alpha(x1, y1, alpha, w, off, A);
 
   return true;
 }
 
-bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
+bool nav_gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
   alpha = RadOfDeg(alpha);
@@ -125,7 +125,7 @@ bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
   float x = WaypointX(wp);
   float y = WaypointY(wp);
 
-  gvf_sin_XY_alpha(x, y, alpha, w, off, A);
+  nav_gvf_sin_XY_alpha(x, y, alpha, w, off, A);
 
   return true;
 }

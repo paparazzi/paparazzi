@@ -37,9 +37,31 @@ bezier_t gvf_bezier_2D[GVF_PARAMETRIC_2D_BEZIER_N_SEG];
 
 /** ------------------------------------------------------------------------ **/
 
+// Bezier is just an array
+static void create_bezier_spline(bezier_t *bezier, float *px, float *py)
+{
+  int k, j;
+  j = 0;
+  for (k = 0; k < GVF_PARAMETRIC_2D_BEZIER_N_SEG; k++) {
+    bezier[k].p0[0] = px[j];
+    bezier[k].p0[1] = py[j];
+    bezier[k].p1[0] = px[j + 1];
+    bezier[k].p1[1] = py[j + 1];
+    bezier[k].p2[0] = px[j + 2];
+    bezier[k].p2[1] = py[j + 2];
+    bezier[k].p3[0] = px[j + 3];
+    bezier[k].p3[1] = py[j + 3];
+
+    // This allows for C^0 continuity (last point is init point)
+    j += 3;
+  }
+}
+
+/** ------------------------------------------------------------------------ **/
+
 // 2D CUBIC BEZIER CURVE
 
-bool gvf_parametric_2D_bezier_XY(void)
+bool nav_gvf_parametric_2D_bezier_run(void)
 {
   gvf_parametric_trajectory.type = BEZIER_2D;
   float fx, fy, fxd, fyd, fxdd, fydd;
@@ -52,7 +74,7 @@ bool gvf_parametric_2D_bezier_XY(void)
 /* @param first_wp is the first waypoint of the Bézier Spline
  * there should be 3*GVF_PARAMETRIC_2D_BEZIER_N_SEG+1 points
  */
-bool gvf_parametric_2D_bezier_wp(uint8_t first_wp)
+bool nav_gvf_parametric_2D_bezier_wp(uint8_t first_wp)
 {
   float x[3 * GVF_PARAMETRIC_2D_BEZIER_N_SEG + 1];
   float y[3 * GVF_PARAMETRIC_2D_BEZIER_N_SEG + 1];
@@ -79,7 +101,7 @@ bool gvf_parametric_2D_bezier_wp(uint8_t first_wp)
       gvf_parametric_trajectory.p_parametric[k + 1] = y[k];
     }
   }
-  // send kx, ky, beta and anything else needed..
+  // Send kx, ky, beta and anything else needed..
   else {
     gvf_parametric_trajectory.p_parametric[0] = 0.0;
     gvf_parametric_trajectory.p_parametric[1] = gvf_parametric_2d_bezier_par.kx;
@@ -89,13 +111,13 @@ bool gvf_parametric_2D_bezier_wp(uint8_t first_wp)
 
   gvf_parametric_trajectory.p_len = 16;
 
-  // restart the spline
+  // Restart the spline
   if (gvf_parametric_control.w >= (float)GVF_PARAMETRIC_2D_BEZIER_N_SEG) {
     gvf_parametric_control.w = 0;
   } else if (gvf_parametric_control.w < 0) {
     gvf_parametric_control.w = 0;
   }
-  gvf_parametric_2D_bezier_XY();
+  nav_gvf_parametric_2D_bezier_run();
   return true;
 }
 

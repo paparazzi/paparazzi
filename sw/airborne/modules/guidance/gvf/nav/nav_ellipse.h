@@ -46,7 +46,7 @@ typedef struct {
 extern gvf_ell_par gvf_ellipse_par;
 
 // Ellipse
-extern bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha);
-extern bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha);
+extern bool nav_gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha);
+extern bool nav_gvf_ellipse_XY(float x, float y, float a, float b, float alpha);
 
 #endif // GVF_ELLIPSE_H

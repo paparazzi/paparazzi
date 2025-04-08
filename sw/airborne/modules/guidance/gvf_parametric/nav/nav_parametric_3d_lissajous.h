@@ -68,9 +68,9 @@ typedef struct {
 extern gvf_par_3d_lis_par gvf_parametric_3d_lissajous_par;
 
 // 3D Lissajous
-extern bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
+extern bool nav_gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy,
     float wz, float dx, float dy, float dz, float alpha);
-extern bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
+extern bool nav_gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy,
     float wz, float dx, float dy, float dz, float alpha);
 
 #ifdef __cplusplus

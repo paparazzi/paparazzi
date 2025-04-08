@@ -19,16 +19,6 @@
     <waypoint name="P2" x="-269.5" y="143.0"/>
     <waypoint name="P3" x="-245.7" y="-314.3"/>
 
-    <!-- Bézier Waypoints. Define them in order -->
-    <!--waypoint name="BZ0" x="-190.5" y="158.5"/>
-    <waypoint name="BZ1" x="-122.3" y="193.0"/>
-    <waypoint name="BZ2" x="-65.2"  y="145.2"/>
-    <waypoint name="BZ3" x="-59.9"  y="49.8"/>
-    <waypoint name="BZ4" x="-98.6"  y="4.5"/>
-    <waypoint name="BZ5" x="-162.6" y="-13.2"/>
-    <waypoint name="BZ6" x="-199.7" y="47.5"/>
-    <waypoint name="BZ7" x="-234.6" y="111.7"/-->
-
   </waypoints>
   
   <variables>
@@ -67,6 +57,9 @@
       <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZL" value="40"/>
       <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZH" value="60"/>
       
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KX" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KY" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KZ" value="0.01"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CX" value="120"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CY" value="120"/>
       <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CZ" value="5"/>
@@ -89,8 +82,8 @@
       (GetPosAlt() @GT (GetAltRef() + 30))" deroute="Standby"/>
 
       <!-- Block Time GT 300 -->
-    <exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
-      (NavBlockTime() @GT 180)" deroute="Standby"/>
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      (NavBlockTime() @GT 180)" deroute="Standby"/-->
 
       <!-- Bat Low  -->
     <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
@@ -136,7 +129,7 @@
       <set var="flight_altitude" value="GetAltRef() + 50"/>
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
     </block>
 
     <!-- ## MISSION ## -->
@@ -144,40 +137,40 @@
     <block name="Ellipse ELL" strip_icon="oval.png">
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
     
     <block name="Segment P0-P1" strip_icon="line.png">
-      <call fun="gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
+      <call fun="nav_gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
       <deroute block="Standby"/>
     </block>
-    
+  
+    <block name="Line" strip_icon="line.png">
+      <call fun="nav_gvf_line_wp_heading(WP_P0, gvf_line_par.heading)"/>
+    </block>
+
     <block name="2D Trefoil PARAM" strip_icon="eight.png">
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_parametric_2D_trefoil_wp(WP_PARAM, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+      <call fun="nav_gvf_parametric_2D_trefoil_wp(WP_PARAM, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
     </block>
-
-    <!--block name="2D Bezier BZ" strip_icon="eight.png">
-      <call fun="gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
-    </block-->
     
     <block name="3D Ellipse PARAM" strip_icon="eight.png">
-      <call fun="gvf_parametric_3D_ellipse_wp(WP_PARAM, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_parametric_3D_ellipse_wp(WP_PARAM, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
     </block>
 
     <block name="3D Lissajous PARAM" strip_icon="eight.png">
-      <call fun="gvf_parametric_3D_lissajous_wp_center(WP_PARAM,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+      <call fun="nav_gvf_parametric_3D_lissajous_wp_center(WP_PARAM,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
     </block>
 
     <block name="Ellipse IK ELL" strip_icon="oval.png">
       <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
       <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
     </block>
     
     <block name="Line IK P2-P3" strip_icon="line.png">
-      <call fun="gvf_ik_segment_wp1_wp2(WP_P2, WP_P3)"/>
+      <call fun="nav_gvf_ik_segment_wp1_wp2(WP_P2, WP_P3)"/>
       <deroute block="Standby"/>
     </block>
 

@@ -75,7 +75,7 @@ static int gvf_parametric_p_len_wps = 0;
 
 // 2D TREFOIL KNOT
 
-bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r, float alpha)
+bool nav_gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r, float alpha)
 {
   gvf_parametric_trajectory.type = TREFOIL_2D;
   gvf_parametric_trajectory.p_parametric[0] = xo;
@@ -97,11 +97,11 @@ bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float 
   return true;
 }
 
-bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha)
+bool nav_gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha)
 {
   gvf_parametric_trajectory.p_parametric[7] = wp;
   gvf_parametric_p_len_wps = 1;
-  gvf_parametric_2D_trefoil_XY(WaypointX(wp), WaypointY(wp), w1, w2, ratio, r, alpha);
+  nav_gvf_parametric_2D_trefoil_XY(WaypointX(wp), WaypointY(wp), w1, w2, ratio, r, alpha);
   return true;
 }
 

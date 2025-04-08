@@ -61,17 +61,17 @@
 
     <block name="GVF Line STBY_S1" strip_icon="line.png"> 
       <call_once fun="NavVerticalAltitudeMode(nominal_alt, 0.0)"/>
-      <call fun="gvf_line_wp1_wp2(WP_HOME, WP_S1_START)"/>
+      <call fun="nav_gvf_line_wp1_wp2(WP_HOME, WP_S1_START)"/>
     </block>
     
     <block name="GVF Segment S1" strip_icon="line.png"> 
       <call_once fun="NavVerticalAltitudeMode(nominal_alt, 0.0)"/>
-      <call fun="gvf_segment_loop_wp1_wp2(WP_S1_START, WP_S1_END, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_S1_START, WP_S1_END, gvf_segment_par.d1, gvf_segment_par.d2)"/>
     </block>
 
     <block name="GVF Ellipse HOME">
       <call_once fun="NavVerticalAltitudeMode(nominal_alt, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_HOME, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_HOME, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
 
     <!-- ## AUTO LANDING ## -->

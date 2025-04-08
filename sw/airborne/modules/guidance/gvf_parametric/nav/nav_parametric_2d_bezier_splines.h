@@ -35,8 +35,8 @@ typedef struct {
 extern gvf_par_2d_bezier_par gvf_parametric_2d_bezier_par;
 
 // 2D BEZIER
-extern bool gvf_parametric_2D_bezier_XY(void);
-extern bool gvf_parametric_2D_bezier_wp(uint8_t first_wp);
+extern bool nav_gvf_parametric_2D_bezier_run(void);
+extern bool nav_gvf_parametric_2D_bezier_wp(uint8_t first_wp);
 
 #ifdef __cplusplus
 }
