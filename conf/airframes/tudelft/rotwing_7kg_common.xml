@@ -72,6 +72,9 @@
         <define name="LIFTOFF_PITCH_LIMIT_DEG"              value="5"/>
         <define name="LIFTOFF_ROLL_LIMIT_DEG"               value="5"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/>
+
+        <!-- Air data -->
+        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
