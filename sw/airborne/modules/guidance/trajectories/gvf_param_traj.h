@@ -60,13 +60,18 @@ extern gvf_parametric_tra gvf_parametric_trajectory;
 
 /** ------------------------------------------------------------------------ **/
 
-extern void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd);
-extern void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-    float *f1dd, float *f2dd, float *f3dd);
-extern void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-    float *f1dd, float *f2dd, float *f3dd);
-extern void gvf_parametric_2d_bezier_splines_info(bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d,
-    float *f1dd, float *f2dd);
+extern void gvf_parametric_2d_trefoil_info(
+  float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd, 
+  float wb);
+extern void gvf_parametric_3d_ellipse_info(
+  float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d, float *f1dd, float *f2dd, float *f3dd,
+  float wb);
+extern void gvf_parametric_3d_lissajous_info(
+  float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d, float *f1dd, float *f2dd, float *f3dd,
+  float wb);
+extern void gvf_parametric_2d_bezier_splines_info(
+  bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd,
+  float w);
 
 #ifdef __cplusplus
 }

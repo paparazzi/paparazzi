@@ -25,7 +25,7 @@
 
 /** ------------------------------------------------------------------------ **/
 
-gvf_common_ctrl  gvf_c_ctrl;
+gvf_common_ctrl gvf_c_ctrl;
 gvf_common_info gvf_c_info;
 gvf_common_params gvf_c_params = {1,1};
 

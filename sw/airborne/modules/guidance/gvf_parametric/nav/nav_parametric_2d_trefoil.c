@@ -89,8 +89,9 @@ bool nav_gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, fl
   gvf_parametric_p_len_wps = 0;
 
   float f1, f2, f1d, f2d, f1dd, f2dd;
+  float wb = gvf_parametric_control.w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
-  gvf_parametric_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd);
+  gvf_parametric_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd, wb);
   gvf_parametric_control_2D(gvf_parametric_2d_trefoil_par.kx, gvf_parametric_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd,
                             f2dd);
 

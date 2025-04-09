@@ -65,7 +65,7 @@ bool nav_gvf_parametric_2D_bezier_run(void)
 {
   gvf_parametric_trajectory.type = BEZIER_2D;
   float fx, fy, fxd, fyd, fxdd, fydd;
-  gvf_parametric_2d_bezier_splines_info(gvf_bezier_2D, &fx, &fy, &fxd, &fyd, &fxdd, &fydd);
+  gvf_parametric_2d_bezier_splines_info(gvf_bezier_2D, &fx, &fy, &fxd, &fyd, &fxdd, &fydd, gvf_parametric_control.w);
   gvf_parametric_control_2D(gvf_parametric_2d_bezier_par.kx, gvf_parametric_2d_bezier_par.ky, fx, fy, fxd, fyd, fxdd,
                             fydd);
   return true;

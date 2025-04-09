@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#include "modules/guidance/gvf_parametric/gvf_param_traj.h"
+#include "modules/guidance/trajectories/gvf_param_traj.h"
 
 typedef struct {
   float kx;

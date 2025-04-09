@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 #include "modules/guidance/gvf_common.h"
-#include "gvf_param_traj.h"
+#include "modules/guidance/trajectories/gvf_param_traj.h"
 
 /** @typedef gvf_parametric_con
 * @brief Control parameters for the GVF_PARAMETRIC

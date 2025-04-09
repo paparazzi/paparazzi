@@ -19,14 +19,15 @@
  */
 
 #include "gvf_param_traj.h"
-#include "gvf_parametric.h"
 
 // Trajectory
 gvf_parametric_tra gvf_parametric_trajectory = {NONE_PARAMETRIC, {0}, 1};
 
 /** ------------------------------------------------------------------------ **/
 
-void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd)
+void gvf_parametric_2d_trefoil_info(
+  float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd, 
+  float wb)
 {
   float xo = gvf_parametric_trajectory.p_parametric[0];
   float yo = gvf_parametric_trajectory.p_parametric[1];
@@ -35,9 +36,6 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   float ratio = gvf_parametric_trajectory.p_parametric[4];
   float r = gvf_parametric_trajectory.p_parametric[5];
   float alpha_rad = gvf_parametric_trajectory.p_parametric[6]*M_PI/180;
-
-  float w = gvf_parametric_control.w;
-  float wb = w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
   float nrf1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio);
@@ -59,8 +57,9 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   *f2dd = sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
 }
 
-void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-                                  float *f1dd, float *f2dd, float *f3dd)
+void gvf_parametric_3d_ellipse_info(
+  float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d, float *f1dd, float *f2dd, float *f3dd, 
+  float wb)
 {
   float xo = gvf_parametric_trajectory.p_parametric[0];
   float yo = gvf_parametric_trajectory.p_parametric[1];
@@ -68,9 +67,6 @@ void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d,
   float zl = gvf_parametric_trajectory.p_parametric[3];
   float zh = gvf_parametric_trajectory.p_parametric[4];
   float alpha_rad = gvf_parametric_trajectory.p_parametric[5]*M_PI/180;
-
-  float w = gvf_parametric_control.w;
-  float wb = w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
   *f1 = r * cosf(wb) + xo;
@@ -86,8 +82,9 @@ void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d,
   *f3dd = -0.5 * (zl - zh) * sinf(alpha_rad - wb);
 }
 
-void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-                                  float *f1dd, float *f2dd, float *f3dd)
+void gvf_parametric_3d_lissajous_info(
+  float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d, float *f1dd, float *f2dd, float *f3dd,
+  float wb)
 {
   float xo = gvf_parametric_trajectory.p_parametric[0];
   float yo = gvf_parametric_trajectory.p_parametric[1];
@@ -102,9 +99,6 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
   float deltay_rad = gvf_parametric_trajectory.p_parametric[10]*M_PI/180;
   float deltaz_rad = gvf_parametric_trajectory.p_parametric[11]*M_PI/180;
   float alpha_rad = gvf_parametric_trajectory.p_parametric[12]*M_PI/180;
-
-  float w = gvf_parametric_control.w;
-  float wb = w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
 
@@ -132,11 +126,12 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
 
 // BEZIER
 
-void gvf_parametric_2d_bezier_splines_info(bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d, float *f1dd,
-    float *f2dd)
+void gvf_parametric_2d_bezier_splines_info(
+  bezier_t *bezier, float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd,
+  float w)
 {
   // How can we select in which bezier curve are we? Check w. spline zero: 0 <= t <= 1, spline ones: 1 <= t <= 2;
-  float t = gvf_parametric_control.w;
+  float t = w;
   int n_seg = floorl(t);
   float tt = t - n_seg;
   if (n_seg < 0) {

@@ -69,7 +69,6 @@
   
   <header>
     <file name="gvf_parametric.h"/>
-    <file name="gvf_param_traj.h"/>
     <file name="nav/nav_parametric_3d_ellipse.h"/>
     <file name="nav/nav_parametric_3d_lissajous.h"/>
     <file name="nav/nav_parametric_2d_trefoil.h"/>
@@ -85,7 +84,6 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_parametric.cpp"/>
-    <file name="gvf_param_traj.c"/>
     <file name="nav/nav_parametric_3d_ellipse.c"/>
     <file name="nav/nav_parametric_3d_lissajous.c"/>
     <file name="nav/nav_parametric_2d_trefoil.c"/>
@@ -100,7 +98,6 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_parametric.cpp"/>
-    <file name="gvf_param_traj.c"/>
     <file name="nav/nav_parametric_3d_ellipse.c"/>
     <file name="nav/nav_parametric_3d_lissajous.c"/>
     <file name="nav/nav_parametric_2d_trefoil.c"/>

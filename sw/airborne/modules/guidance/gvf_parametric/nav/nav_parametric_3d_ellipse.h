@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#include "modules/guidance/gvf_parametric/gvf_param_traj.h"
+#include "modules/guidance/trajectories/gvf_param_traj.h"
 
 /** @typedef gvf_3d_ell_par
 * @brief Parameters for the GVF parametric 3D ellipse

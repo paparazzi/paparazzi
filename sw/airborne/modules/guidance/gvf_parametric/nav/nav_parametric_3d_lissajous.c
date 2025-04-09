@@ -135,8 +135,9 @@ bool nav_gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx,
   gvf_parametric_p_len_wps = 0;
 
   float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
+  float wb = gvf_parametric_control.w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
-  gvf_parametric_3d_lissajous_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
+  gvf_parametric_3d_lissajous_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd, wb);
   gvf_parametric_control_3D(gvf_parametric_3d_lissajous_par.kx, gvf_parametric_3d_lissajous_par.ky,
                             gvf_parametric_3d_lissajous_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 

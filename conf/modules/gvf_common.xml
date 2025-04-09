@@ -10,25 +10,29 @@
   </doc>
   
   <header>
-     <file name="trajectories/gvf_traj.h"/>
      <file name="gvf_common.h"/>
+     <file name="trajectories/gvf_traj.h"/>
+     <file name="trajectories/gvf_param_traj.h"/>
   </header>
 
    <makefile firmware="fixedwing">
-     <file name="trajectories/gvf_traj.c"/>
      <file name="gvf_common.c"/>
+     <file name="trajectories/gvf_traj.c"/>
+     <file name="trajectories/gvf_param_traj.c"/>
    </makefile>
 
    <makefile firmware="rotorcraft">
      <define name="ROTORCRAFT_BASE_SEND_TRAJECTORY" value="FALSE"/>
-     <file name="trajectories/gvf_traj.c"/>
      <file name="gvf_common.c"/>
+     <file name="trajectories/gvf_traj.c"/>
+     <file name="trajectories/gvf_param_traj.c"/>
    </makefile>
    
    <makefile firmware="rover">
    <define name="ROVER_BASE_SEND_TRAJECTORY" value="FALSE"/>
-     <file name="trajectories/gvf_traj.c"/>
      <file name="gvf_common.c"/>
+     <file name="trajectories/gvf_traj.c"/>
+     <file name="trajectories/gvf_param_traj.c"/>
    </makefile>
   
 </module>
