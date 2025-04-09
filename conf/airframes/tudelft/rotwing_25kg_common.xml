@@ -55,6 +55,9 @@
 
         <!-- AGL distance -->
         <define name="AGL_DIST_FILTER"                  value="0.07"/>
+
+        <!-- Air data -->
+        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
