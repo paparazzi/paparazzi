@@ -56,7 +56,7 @@ The GVF Viewer tool is built inside the GCS map widget but will be deactivated u
   </gcsconf>
   
 
-Once we loaded GVF Viewer, we need an aircraft working with GVF. In order to test some features of this tool, the user can load with ``start.py`` the GVF configurations located in ``conf/userconf/GVF`` and compile the simulation target.
+Once we loaded GVF Viewer, we need an aircraft working with GVF. In order to test some features of this tool, the user can load with ``start.py`` the GVF configurations located in ``conf/userconf/conf_example_gvf.xml`` and compile the simulation target.
 
 How GVF Viewer works
 --------------------

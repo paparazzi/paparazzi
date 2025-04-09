@@ -28,7 +28,7 @@
   </settings>
 
   <dep>
-    <depends>gvf_module</depends>
+    <depends>gvf_classic</depends>
   </dep>
 
   <header>
@@ -45,4 +45,3 @@
   </makefile>
 
 </module>
-

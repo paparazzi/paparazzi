@@ -29,6 +29,10 @@
 
 #include "modules/nav/nav_base.h"
 
+#ifndef ROTORCRAFT_BASE_SEND_TRAJECTORY
+#define ROTORCRAFT_BASE_SEND_TRAJECTORY TRUE
+#endif
+
 /** Basic Nav struct
  */
 extern struct NavBase_t nav_rotorcraft_base;
