@@ -330,18 +330,23 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   float dM_dpprz_right  = dM_dpprz[1];
   float dM_dpprz_left   = dM_dpprz[3];;
 
-  float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  roll_motor_p_eff_right = bound_or_zero(roll_motor_p_eff_right, -1.f, -0.00001f);
+  // float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  roll_motor_p_eff_right = bound_or_zero(roll_motor_p_eff_right, -1.f, -0.0005f);
 
-  float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
-  if(autopilot.in_flight) {
-    float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
-    roll_motor_p_eff_left += roll_motor_airspeed_compensation;
-  }
-  roll_motor_p_eff_left = bound_or_zero(roll_motor_p_eff_left, 0.00001f, 1.f);
+  // float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  float roll_motor_p_eff_left = (dM_dpprz_left * eff_sched_var.cosr) / eff_sched_var.Ixx;
+  // if(autopilot.in_flight) {
+  //   float roll_motor_airspeed_compensation = eff_sched_p.hover_roll_roll_coef[1] * eff_sched_var.airspeed * eff_sched_var.cosr / eff_sched_var.Ixx;
+  //   roll_motor_p_eff_left += roll_motor_airspeed_compensation;
+  // }
+  roll_motor_p_eff_left = bound_or_zero(roll_motor_p_eff_left, 0.0005f, 1.f);
 
-  float roll_motor_q_eff = (eff_sched_p.hover_roll_pitch_coef[0] * eff_sched_var.wing_rotation_rad + eff_sched_p.hover_roll_pitch_coef[1] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.sinr) / eff_sched_var.Iyy;
-  Bound(roll_motor_q_eff, 0, 1);
+  float roll_motor_q_eff_right = (dM_dpprz_right * eff_sched_var.sinr) / eff_sched_var.Iyy;
+  float roll_motor_q_eff_left = -(dM_dpprz_left * eff_sched_var.sinr) / eff_sched_var.Iyy;
+  
+  roll_motor_q_eff_right = bound_or_zero(roll_motor_q_eff_right, 0.0005f, 1.f);;
+  roll_motor_q_eff_left = bound_or_zero(roll_motor_q_eff_left, -1.f, -0.0005f);
 
   // Update front pitch motor q effectiveness
   g1g2[1][0] = dM_dpprz[0] / eff_sched_var.Iyy;   // pitch effectiveness front motor
@@ -349,29 +354,13 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   // Update back motor q effectiveness
   g1g2[1][2] = - dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
   
-#ifdef RADIO_CONTROL_EFF_SWITCH
-  if (radio_control.values[RADIO_CONTROL_EFF_SWITCH] > 1750) {
-    g1g2[0][1] = - roll_eff_slider / 1000.f;
-  } else {
-    g1g2[0][1] = roll_motor_p_eff_right;
-  }
-#else
-  g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
-#endif
   // Update right motor p and q effectiveness
-  g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
+  g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
+  g1g2[1][1] = roll_motor_q_eff_right;    // pitch effectiveness right motor
 
   // Update left motor p and q effectiveness
-#ifdef RADIO_CONTROL_EFF_SWITCH
-  if (radio_control.values[RADIO_CONTROL_EFF_SWITCH] > 1750) {
-    g1g2[0][3] = roll_eff_slider / 1000.f;
-  } else {
-    g1g2[0][3] = roll_motor_p_eff_left; 
-  }
-#else
   g1g2[0][3] = roll_motor_p_eff_left;  // roll effectiveness left motor
-#endif
-  g1g2[1][3] = -roll_motor_q_eff;   // pitch effectiveness left motor
+  g1g2[1][3] = roll_motor_q_eff_left;   // pitch effectiveness left motor
 }
 
 void eff_scheduling_rotwing_update_elevator_effectiveness(void)
@@ -457,7 +446,7 @@ void eff_scheduling_rotwing_schedule_liftd(void)
   float lift_d_tail = eff_sched_p.k_lift_tail * eff_sched_var.airspeed2 / eff_sched_p.m;
 
   float lift_d = lift_d_wing + lift_d_fuselage + lift_d_tail;
-  if (eff_sched_var.wing_rotation_deg < 60.) {
+  if (eff_sched_var.wing_rotation_deg < 54.) {
     lift_d = 0.0;
   }
   Bound(lift_d, -130., 0.);
@@ -561,7 +550,7 @@ void guidance_indi_hybrid_set_wls_settings(float body_v[3], float roll_angle, fl
   wls_guid_p.u_min[0] = -roll_limit_rad - roll_angle; //roll
   wls_guid_p.u_min[1] = min_pitch_limit_rad - pitch_angle; // pitch
 
-  // Set upper limits limits
+  // Set upper limits
   wls_guid_p.u_max[0] = roll_limit_rad - roll_angle; //roll
   wls_guid_p.u_max[1] = max_pitch_limit_rad - pitch_angle; // pitch
 

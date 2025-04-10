@@ -1023,7 +1023,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
   gps_msg.pdop = gps_s->pdop;
-
   ekf.setGpsData(gps_msg);
 }
 

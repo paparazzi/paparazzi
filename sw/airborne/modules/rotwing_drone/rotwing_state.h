@@ -98,7 +98,6 @@ bool rotwing_state_hover_motors_idling(void);
 
 void rotwing_state_set(enum rotwing_states_t state);
 bool rotwing_state_choose_circle_direction(uint8_t wp_id);
-void rotwing_state_set_transition_wp(uint8_t wp_id);
-void rotwing_state_update_WP_height(uint8_t wp_id, float height);
+bool rotwing_state_choose_state_by_dist(uint8_t wp_id);
 
 #endif  // ROTWING_STATE_H

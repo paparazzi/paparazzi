@@ -89,7 +89,6 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 #error "MODE_MANUAL mustn't be AP_MODE_NAV"
 #endif
 
-
 void autopilot_static_init(void)
 {
   /* Mode is finally set by autopilot_static_set_mode if MODE_STARTUP is not KILL.
@@ -162,7 +161,11 @@ void autopilot_static_periodic(void)
   switch (autopilot.mode) {
     case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
+#ifdef FAILSAFE_THROTTLE
+      thrust_sp = th_sp_from_thrust_i(FAILSAFE_THROTTLE, THRUST_AXIS_Z);
+#else
       thrust_sp = guidance_v_run(autopilot_in_flight());
+#endif
       stab_sp = stabilization_get_failsafe_sp();
       stabilization_run(autopilot_in_flight(), &stab_sp, &thrust_sp, stabilization.cmd);
       SetRotorcraftCommands(stabilization.cmd, autopilot.in_flight, autopilot.motors_on);
