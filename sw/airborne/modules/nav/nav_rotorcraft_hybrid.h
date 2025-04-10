@@ -30,6 +30,22 @@
 
 #include "modules/nav/nav_base.h"
 #include "modules/nav/nav_rotorcraft_base.h"
+#include "filters/low_pass_filter.h"
+
+struct PitotCircle_t{
+  float gs_max;
+  float gs_min;
+  float as_true;
+  Butterworth2LowPass as_meas_filt;
+  float true2meas;
+  float count;
+  bool  count_flag;
+  float alpha_0;
+  float new_pitot_scaling;
+  float cruise_airspeed;
+};
+
+extern struct PitotCircle_t pitot_circle;
 
 // settings
 extern float nav_max_speed;   // max speed in route mode
