@@ -242,6 +242,9 @@
     </section>
 
     <section name="CALIBRATION">
+        <!-- Throttle value in AP_MODE_FAILSAFE -->
+        <define name="FAILSAFE_THROTTLE"                    value="5800"/>
+
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>

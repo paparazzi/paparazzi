@@ -2,7 +2,15 @@
 
 <airframe>
 
-    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+    <section name="AP_FAILSAFE">
+        <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> <!-- Only commented out for navy testing -->
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> <!-- Set to FALSE for navy testing -->
+        <define name="RC_LOST_MODE"                         value="AP_MODE_NAV"/> 
+        <define name="GPS_FIX_TIMEOUT"                      value="5"/> 
+        <define name="FAILSAFE_DESCENT_SPEED"               value="1.0"/> <!-- Does not work as expected with AP static -->
+    </section>
+
+    <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.04780"/>
         <define name="IYY_BODY"              value="0.7546"/>
         <define name="IZZ"                   value="0.9752"/>
