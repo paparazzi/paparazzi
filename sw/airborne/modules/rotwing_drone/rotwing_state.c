@@ -188,7 +188,10 @@ void rotwing_state_periodic(void)
 
   /* Override modes if flying with RC */
   rotwing_state.state = rotwing_state.nav_state;
-  if(guidance_h.mode == GUIDANCE_H_MODE_NONE) {
+  if (autopilot.mode == AP_MODE_FAILSAFE) {
+    rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
+  } 
+  else if (guidance_h.mode == GUIDANCE_H_MODE_NONE) {
     // Kill mode
     if(stabilization.mode == STABILIZATION_MODE_NONE) {
       rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
