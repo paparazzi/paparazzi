@@ -60,6 +60,26 @@
 #define ROTWING_FW_SKEW_ANGLE 85.0
 #endif
 
+/* Maximum measured skew angle to consider the rotating wing drone in quad (deg) */
+#ifndef ROTWING_QUAD_SKEW_ANGLE
+#define ROTWING_QUAD_SKEW_ANGLE 25.0
+#endif
+
+/* Maximum bank angle while the rotwing is skewing */
+#ifndef ROTWING_TRANSITION_MAX_BANK
+#define ROTWING_TRANSITION_MAX_BANK RadOfDeg(20)
+#endif
+
+/* Maximum climb speed while the rotwing is transitioning */
+#ifndef ROTWING_TRANSITION_MAX_CLIMB_SPEED
+#define ROTWING_TRANSITION_MAX_CLIMB_SPEED 0.5
+#endif
+
+/* Maximum descend speed while the rotwing is transitioning */
+#ifndef ROTWING_TRANSITION_MAX_DESCEND_SPEED
+#define ROTWING_TRANSITION_MAX_DESCEND_SPEED -0.5
+#endif
+
 /* TODO: Give a name.... */
 #ifndef ROTWING_SKEW_BACK_MARGIN
 #define ROTWING_SKEW_BACK_MARGIN 5.0
@@ -78,6 +98,10 @@
 /* Amount of time the airspeed needs to be below the FW_MIN_AIRSPEED */
 #ifndef ROTWING_FW_STALL_TIMEOUT
 #define ROTWING_FW_STALL_TIMEOUT 0.5
+#endif
+
+#ifndef ROTWING_STATE_MIN_FW_DIST
+#define ROTWING_STATE_MIN_FW_DIST 200.0
 #endif
 
 /* Fix for not having double can busses */
@@ -176,11 +200,15 @@ bool rotwing_state_hover_motors_idling(void) {
 void rotwing_state_periodic(void)
 {
   /* Get some genericly used variables */
+  // static float free_state_config_change_timeout = 0;
   static float last_stall_time = 0;
   float current_time = get_sys_time_float();
   float meas_airspeed = stateGetAirspeed_f();
   float meas_skew_angle = rotwing_state.meas_skew_angle_deg;
   Bound(meas_skew_angle, 0, 90); // Bound to prevent errors
+
+  /* Communicate cruise airspeed to the pitot tube calibration struct */
+  pitot_circle.cruise_airspeed = rotwing_state.cruise_airspeed;
   
   if(meas_airspeed > rotwing_state.fw_min_airspeed) {
     last_stall_time = current_time;
@@ -188,7 +216,10 @@ void rotwing_state_periodic(void)
 
   /* Override modes if flying with RC */
   rotwing_state.state = rotwing_state.nav_state;
-  if(guidance_h.mode == GUIDANCE_H_MODE_NONE) {
+  if (autopilot.mode == AP_MODE_FAILSAFE) {
+    rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
+  } 
+  else if (guidance_h.mode == GUIDANCE_H_MODE_NONE) {
     // Kill mode
     if(stabilization.mode == STABILIZATION_MODE_NONE) {
       rotwing_state.state = ROTWING_STATE_FORCE_HOVER;
@@ -282,6 +313,18 @@ void rotwing_state_periodic(void)
     rotwing_state.max_airspeed = skew_max_airspeed;
   }
 
+  /* Bound max bank angle, climb speed and descend speed if the rotwing drone is transitioning and not in FREE mode */
+  if (rotwing_state.meas_skew_angle_deg < ROTWING_FW_SKEW_ANGLE && rotwing_state.meas_skew_angle_deg > ROTWING_QUAD_SKEW_ANGLE 
+      && rotwing_state.state != ROTWING_STATE_FREE) {
+    guidance_set_max_bank_angle(ROTWING_TRANSITION_MAX_BANK);
+    guidance_set_max_climb_speed(ROTWING_TRANSITION_MAX_CLIMB_SPEED, ROTWING_TRANSITION_MAX_CLIMB_SPEED);
+    guidance_set_max_descend_speed(ROTWING_TRANSITION_MAX_DESCEND_SPEED, ROTWING_TRANSITION_MAX_DESCEND_SPEED);
+  } else {
+    guidance_set_max_bank_angle(GUIDANCE_H_MAX_BANK);
+    guidance_set_max_climb_speed(GUIDANCE_INDI_QUAD_CLIMB_SPEED, GUIDANCE_INDI_FWD_CLIMB_SPEED);
+    guidance_set_max_descend_speed(GUIDANCE_INDI_QUAD_DESCEND_SPEED, GUIDANCE_INDI_FWD_DESCEND_SPEED);
+  }
+    
   // Override failing skewing while fwd
   /*if(meas_skew_angle > 70 && rotwing_state_.skewing_failing) {
     rotwing_state.min_airspeed = 0; // Vstall + margin
@@ -289,6 +332,7 @@ void rotwing_state_periodic(void)
   }*/
 
   guidance_set_min_max_airspeed(rotwing_state.min_airspeed, rotwing_state.max_airspeed);
+
   /* Set navigation/guidance settings */
   nav_max_deceleration_sp = ROTWING_FW_MAX_DECELERATION * meas_skew_angle / 90.f + ROTWING_QUAD_MAX_DECELERATION * (90.f - meas_skew_angle) / 90.f; //TODO: Do we really want to based this on the skew?
 
@@ -474,44 +518,20 @@ bool rotwing_state_choose_circle_direction(uint8_t wp_id) {
   }
 }
 
-void rotwing_state_set_transition_wp(uint8_t wp_id) {
+bool rotwing_state_choose_state_by_dist(uint8_t wp_id) {
+  struct EnuCoor_f wp = waypoints[wp_id].enu_f;
+  float dist2_to_wp = get_dist2_to_point(&wp);
+  float dist_to_wp = sqrtf(dist2_to_wp);
 
-  // Get drone position coordinates in NED
-  struct EnuCoor_f target_enu = {.x = stateGetPositionNed_f()->y,
-                                  .y = stateGetPositionNed_f()->x,
-                                  .z = -stateGetPositionNed_f()->z};
+  if (autopilot.mode == AP_MODE_NAV) {
+    if (dist_to_wp > ROTWING_STATE_MIN_FW_DIST) {
+      rotwing_state_set(ROTWING_STATE_REQUEST_FW);
+      return true; // Necessary for flight plan
+    } else {
+      rotwing_state_set(ROTWING_STATE_REQUEST_HOVER);
+      return false; // Necessary for flight plan
+    }
+  }
 
-  static struct FloatVect3 x_axis = {.x = 1, .y = 0, .z = 0};
-  struct FloatVect3 x_att_NED;
-
-  float_rmat_transp_vmult(&x_att_NED, stateGetNedToBodyRMat_f(), &x_axis);
-
-  // set the new transition WP coordinates 100m ahead of the drone
-  target_enu.x = 100.f * x_att_NED.y + target_enu.x;
-  target_enu.y = 100.f * x_att_NED.x + target_enu.y;
-
-  waypoint_set_enu(wp_id, &target_enu);
-
-  // Send waypoint update every half second
-  RunOnceEvery(100 / 2, {
-    // Send to the GCS that the waypoint has been moved
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                               &waypoints[wp_id].enu_i.x,
-                               &waypoints[wp_id].enu_i.y,
-                               &waypoints[wp_id].enu_i.z);
-  });
-
-}
-
-void rotwing_state_update_WP_height(uint8_t wp_id, float height) {
-  struct EnuCoor_f target_enu = {.x = waypoints[wp_id].enu_f.x,
-                                 .y = waypoints[wp_id].enu_f.y,
-                                 .z = height};
-  
-  waypoint_set_enu(wp_id, &target_enu);
-
-  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
-                               &waypoints[wp_id].enu_i.x,
-                               &waypoints[wp_id].enu_i.y,
-                               &waypoints[wp_id].enu_i.z);
+  return false; // Necessary for flight plan
 }
