@@ -84,7 +84,9 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-        <module name="air_data"/>
+        <module name="air_data">
+            <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
+        </module>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
@@ -236,6 +238,9 @@
     </section>
 
     <section name="CALIBRATION">
+        <!-- Throttle value in AP_MODE_FAILSAFE -->
+        <define name="FAILSAFE_THROTTLE"                    value="5300"/>
+
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -392,8 +397,8 @@
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="21.0" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="22.0" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>

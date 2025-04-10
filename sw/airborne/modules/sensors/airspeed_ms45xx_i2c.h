@@ -44,6 +44,8 @@ struct AirspeedMs45xx {
 extern struct AirspeedMs45xx ms45xx;
 
 extern void airspeed_ms45xx_i2c_change_tau(float new_tau);
+extern void airspeed_ms45xx_i2c_change_pressure_ratio(float new_ratio);
+extern void airspeed_ms45xx_i2c_set_pressure_scale_from_circle(float new_ratio);
 
 extern void ms45xx_i2c_init(void);
 extern void ms45xx_i2c_periodic(void);
