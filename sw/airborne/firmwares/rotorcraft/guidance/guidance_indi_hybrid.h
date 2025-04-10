@@ -71,6 +71,9 @@ enum GuidanceIndiHybrid_VMode {
 extern struct StabilizationSetpoint guidance_indi_run(struct FloatVect3 *accep_sp, float heading_sp);
 extern struct StabilizationSetpoint guidance_indi_run_mode(bool in_flight, struct HorizontalGuidance *gh, struct VerticalGuidance *gv, enum GuidanceIndiHybrid_HMode h_mode, enum GuidanceIndiHybrid_VMode v_mode);
 extern void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed);
+extern void guidance_set_max_bank_angle(float max_bank);
+extern void guidance_set_max_climb_speed(float max_climb_speed_quad, float max_climb_speed_fwd);
+extern void guidance_set_max_descend_speed(float max_descend_speed_quad, float max_descend_speed_fwd);
 
 struct guidance_indi_hybrid_params {
   float pos_gain;
