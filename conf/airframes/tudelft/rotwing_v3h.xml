@@ -136,9 +136,7 @@
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks">
-            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
-        </module>
+        <module name="preflight_checks"/>
         <module name="pfc_actuators"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
