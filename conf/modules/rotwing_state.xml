@@ -17,7 +17,6 @@
         <dl_setting var="rotwing_state.fail_skew_angle" min="0" max="1" step="1" values="OFF|ON" shortname="fail_skew"/>
         <dl_setting var="rotwing_state.fail_hover_motor" min="0" max="1" step="1" values="OFF|ON" shortname="fail_hover"/>
         <dl_setting var="rotwing_state.fail_pusher_motor" min="0" max="1" step="1" values="OFF|ON" shortname="fail_pusher"/>
-        <dl_setting var="failsafe_throttle" min="5000" max="6200" step="10" shortname="failsafe_throttle"/>
       </dl_settings>
     </dl_settings>
   </settings>

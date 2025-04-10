@@ -67,8 +67,6 @@ extern void ins_ekf2_parse_EXTERNAL_POSE(uint8_t *buf);
 extern void ins_ekf2_parse_EXTERNAL_POSE_SMALL(uint8_t *buf);
 extern struct ekf2_t ekf2;
 
-extern bool gps_manual_fail;
-
 #ifdef INS_EXT_VISION_ROTATION
 extern struct FloatQuat ins_ext_vision_rot;
 #endif

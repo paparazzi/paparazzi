@@ -293,8 +293,6 @@ PRINT_CONFIG_VAR(INS_EKF2_BARO_NOISE)
 struct FloatQuat ins_ext_vision_rot;
 #endif
 
-bool gps_manual_fail = false;
-
 /* All registered ABI events */
 static abi_event baro_ev;
 static abi_event temperature_ev;
@@ -1025,10 +1023,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.vel_ned_valid = bit_is_set(gps_s->valid_fields, GPS_VALID_VEL_NED_BIT);
   gps_msg.nsats = gps_s->num_sv;
   gps_msg.pdop = gps_s->pdop;
-
-  if (!gps_manual_fail) {
-    ekf.setGpsData(gps_msg);
-  }
+  ekf.setGpsData(gps_msg);
 }
 
 /* Update the local relative position information */

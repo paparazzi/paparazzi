@@ -667,9 +667,6 @@ void ubx_send_cfg_rst(struct link_device *dev, uint16_t bbr , UNUSED uint8_t res
 
 void gps_ubx_msg(struct GpsUbx *gubx)
 {
-  if (gps_manual_fail) {
-    return;
-  }
   // current timestamp
   uint32_t now_ts = get_sys_time_usec();
 

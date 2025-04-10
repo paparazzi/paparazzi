@@ -79,6 +79,7 @@ static struct RelPosNED gps_relposned[GPS_RELPOS_MAX] = {0};
 static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 #endif
 
+bool gps_manual_fail;
 uint8_t multi_gps_mode;
 
 #if PREFLIGHT_CHECKS
@@ -290,11 +291,6 @@ void gps_periodic_check(struct GpsState *gps_s)
 #else
   gps = *gps_s;
 #endif
-
-  if (gps_manual_fail) {
-    gps.fix = GPS_FIX_NONE;
-    gps_s->fix = GPS_FIX_NONE;
-  }
 }
 
 bool gps_fix_valid(void)
@@ -318,6 +314,11 @@ static void gps_cb(uint8_t sender_id,
   if (sender_id == GPS_MULTI_ID) {
     return;
   }
+
+  if (gps_manual_fail) {
+    gps_s->fix = GPS_FIX_NONE;
+  }
+
   uint32_t now_ts = get_sys_time_usec();
 #ifdef SECONDARY_GPS
   current_gps_id = gps_multi_switch(gps_s);

@@ -64,8 +64,6 @@
 #define MODE_AUTO2 AP_MODE_NAV
 #endif
 
-extern float failsafe_throttle;
-
 /** Specific function for static AP
  */
 extern void autopilot_static_init(void);

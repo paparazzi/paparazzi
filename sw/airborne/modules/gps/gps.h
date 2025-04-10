@@ -70,7 +70,7 @@ extern "C" {
 #define _GpsId(_x) __GpsId(_x)
 #define GpsId(_x) _GpsId(_x)
 
-
+extern bool gps_manual_fail;
 extern uint8_t multi_gps_mode;
 
 /** data structure for Space Vehicle Information of a single satellite */
