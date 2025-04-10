@@ -18,17 +18,12 @@ mode = -1
 port = ""
 try:
     port = "/dev/serial/by-id/usb-Paparazzi_UAV_CDC_Serial_STM32_*"
-    p = glob.glob(port)
-    if len(p) <= 0:
-        print("No Paparazzi CDC device found, looking further.")
-    else:
-        if len(p) > 1:
-            print("Warning: multiple Paparazzi cdc devices found. Selecting the first one.")
-            p = p[0]
-    
-        ser = serial.Serial(p, timeout=0.5)
-        mode = 1
-        print("Paparazzi CDC device found at port: " + p)
+    if len(glob.glob(port)) > 1:
+        print("Warning: multiple Paparazzi cdc devices found. Selecting the first one.")
+    port = glob.glob(port)[0]
+    ser = serial.Serial(port, timeout=0.5)
+    mode = 1
+    print("Paparazzi CDC device found at port: " + port)
 except (serial.serialutil.SerialException, IndexError):
     print("No Paparazzi CDC device found, looking further.")
 
