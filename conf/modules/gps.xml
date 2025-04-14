@@ -20,6 +20,7 @@
           <strip_button name="GPS PRIMARY" icon="gps1.png" value="1" group="gps_mode_setting"/>
           <strip_button name="GPS SECONDARY" icon="gps2.png" value="2" group="gps_mode_setting"/> -->
         </dl_setting>
+        <dl_setting var="gps_manual_fail" min="0" max="1" step="1" values="OFF|ON" type="bool" shortname="fail_gps"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -41,4 +42,3 @@
     </test>
   </makefile>
 </module>
-

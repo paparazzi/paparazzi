@@ -113,6 +113,17 @@ bool force_forward = 0.0f;
 #define NAV_HYBRID_LIMIT_CIRCLE_RADIUS FALSE
 #endif
 
+struct PitotCircle_t pitot_circle = {
+  .gs_max = 0.0f,
+  .gs_min = 100.0f,
+  .as_true = 0.0f,
+  .true2meas = 1.0f,
+  .count = 0.0f,
+  .count_flag = FALSE,
+  .alpha_0 = 0.0f,
+  .cruise_airspeed = 0.0f // Must be set outside of this file to work
+};
+static void nav_hybrid_check_airspeed(void);
 static float max_speed_for_deceleration(float dist_to_wp);
 
 /** Implement basic nav function for the hybrid case
@@ -304,6 +315,7 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
     // 0.8 * MAX_BANK gives some margins for the turns
     desired_speed = sqrtf(PPRZ_ISA_GRAVITY * abs_radius * tanf(0.8f * nav_hybrid_max_bank));
     nav_max_acceleration_sp = nav_hybrid_max_acceleration ;
+    nav_hybrid_check_airspeed();
   }
   if (force_forward) {
     desired_speed = nav_max_speed;
@@ -321,6 +333,40 @@ static void nav_hybrid_circle(struct EnuCoor_f *wp_center, float radius)
   nav.setpoint_mode = NAV_SETPOINT_MODE_SPEED;
 }
 
+/* Function that estimates at every completion of a circle if the airspeed measured is correct*/
+static void nav_hybrid_check_airspeed(void){
+  update_butterworth_2_low_pass(&pitot_circle.as_meas_filt, stateGetAirspeed_f());
+  float gs = sqrtf(stateGetSpeedEnu_f()->x * stateGetSpeedEnu_f()->x + stateGetSpeedEnu_f()->y * stateGetSpeedEnu_f()->y);
+
+  if (fabs(pitot_circle.as_meas_filt.o[0]-pitot_circle.cruise_airspeed) < 2.0f) {
+    if (!pitot_circle.count_flag) {
+      pitot_circle.alpha_0 = nav_rotorcraft_base.circle.radians;
+    }
+    pitot_circle.count_flag = TRUE;
+    pitot_circle.gs_max = Max(pitot_circle.gs_max, gs);
+    pitot_circle.gs_min = Min(pitot_circle.gs_min, gs);
+  } else {
+    pitot_circle.count_flag = FALSE;
+    pitot_circle.count = 0.0f;
+    pitot_circle.true2meas = 1.0f;
+    air_data.ratio_circle_2 = 1.0f;
+  }
+  float new_count = fabs(nav_rotorcraft_base.circle.radians-pitot_circle.alpha_0)/(2.0*M_PI);
+  if(new_count > pitot_circle.count+1.0){
+    pitot_circle.count += 1.0;
+    pitot_circle.as_true = (pitot_circle.gs_max + pitot_circle.gs_min)/2.0;
+    pitot_circle.true2meas = pitot_circle.as_true / pitot_circle.as_meas_filt.o[0];
+    air_data.ratio_circle_2 = pitot_circle.true2meas*pitot_circle.true2meas;
+    pitot_circle.gs_max = 0.0f;
+    pitot_circle.gs_min = 100.0f;
+#if USE_NPS
+    pitot_circle.new_pitot_scaling = air_data.ratio_circle_2; // Just to see if value is updated in sim
+#else
+    pitot_circle.new_pitot_scaling = air_data.ratio_circle_2 * ms45xx.pressure_scale;
+#endif
+  }
+}
+
 /** Init and register nav functions
  *
  * For hybrid vehicle nav
@@ -336,6 +382,8 @@ void nav_rotorcraft_hybrid_init(void)
   // register nav functions
   nav_register_goto_wp(nav_hybrid_goto, nav_hybrid_route, nav_hybrid_approaching);
   nav_register_circle(nav_hybrid_circle);
+  float tau   = 1.0 / (2.0 * M_PI * 0.2);
+  init_butterworth_2_low_pass(&pitot_circle.as_meas_filt, tau, 1.0 / NAVIGATION_FREQUENCY, 0.0);
 }
 
 
