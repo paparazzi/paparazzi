@@ -25,9 +25,6 @@
 #include "pprzlink/dl_protocol.h"
 #include "led.h"
 
-#include "modules/core/settings.h"
-#include "generated/settings.h"
-
 #ifndef USE_GPS_UBX_RTCM
 #define USE_GPS_UBX_RTCM 0
 #endif
