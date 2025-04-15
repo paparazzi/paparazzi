@@ -416,6 +416,20 @@ void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
   gih_params.max_airspeed = max_airspeed;
 }
 
+void guidance_set_max_bank_angle(float max_bank) {
+  guidance_indi_max_bank = max_bank;
+}
+
+void guidance_set_max_climb_speed(float max_climb_speed_quad, float max_climb_speed_fwd) {
+  gih_params.climb_vspeed_quad = max_climb_speed_quad;
+  gih_params.climb_vspeed_fwd = max_climb_speed_fwd;
+}
+
+void guidance_set_max_descend_speed(float max_descend_speed_quad, float max_descend_speed_fwd) {
+  gih_params.descend_vspeed_quad = max_descend_speed_quad;
+  gih_params.descend_vspeed_fwd = max_descend_speed_fwd;
+}
+
 /**
  * @param accel_sp accel setpoint in NED frame [m/s^2]
  * @param heading_sp the desired heading [rad]

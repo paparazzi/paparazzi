@@ -52,6 +52,8 @@ struct AirData {
   bool calc_amsl_baro;  ///< if TRUE, calculate #amsl_baro
   bool calc_tas_factor; ///< if TRUE, calculate #tas_factor when getting a temp measurement
 
+  float ratio_circle_2; ///< Ratio real airspeed / meas airspeed after completing a circle with constant wind
+
   float aoa;          ///< angle of attack (rad)
   float sideslip;     ///< sideslip angle (rad)
   float wind_speed;   ///< wind speed (m/s)

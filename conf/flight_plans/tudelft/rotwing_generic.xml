@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
-<flight_plan alt="180" ground_alt="60" lat0="52.3931434" lon0="5.9205099" max_dist_from_home="5000" name="Rotating Wing 't Harde" security_height="2">
+<flight_plan alt="50" ground_alt="0" lat0="52.962558" lon0="4.793334" max_dist_from_home="5000" name="Rotating Wing Generic" security_height="2">
   <header/>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
@@ -14,25 +14,28 @@
     <!-- <waypoint name="APP" x="70" y="-25"/>
     <waypoint name="FOLLOW" x="300" y="80"/> -->
     <!-- t'Harde -->
-    <waypoint lat="52.4034734" lon="5.9067552" name="C1"/>
-    <waypoint lat="52.3878517" lon="5.9212118" name="C2"/>
-    <waypoint lat="52.4054122" lon="5.9581765" name="C3"/>
-    <waypoint lat="52.4179727" lon="6.0083051" name="C4"/>
-    <waypoint lat="52.4420912" lon="5.9871178" name="C5"/>
+    <waypoint x="1500" y="0" name="C1"/>
+    <waypoint x="750" y="-1299" name="C2"/>
+    <waypoint x="-750" y="-1299" name="C3"/>
+    <waypoint x="-1500" y="0" name="C4"/>
+    <waypoint x="-750" y="1299" name="C5"/>
+    <waypoint x="750" y="1299" name="C6"/>
 
-    <waypoint lat="52.4031030" lon="5.9100930" name="S1"/>
-    <waypoint lat="52.3897030" lon="5.9217331" name="S2"/>
-    <waypoint lat="52.4069299" lon="5.9574477" name="S3"/>
-    <waypoint lat="52.4185648" lon="6.0038740" name="S4"/>
-    <waypoint lat="52.4390574" lon="5.9861463" name="S5"/>
+    <waypoint x="1000" y="0" name="S1"/>
+    <waypoint x="500" y="-866" name="S2"/>
+    <waypoint x="-500" y="-866" name="S3"/>
+    <waypoint x="-1000" y="0" name="S4"/>
+    <waypoint x="-500" y="866" name="S5"/>
+    <waypoint x="500" y="866" name="S6"/>
   </waypoints>
   <sectors>
-    <sector color="red" name="Flyzone">
+    <sector color="red" name="HardGeofence">
       <corner name="C1"/>
       <corner name="C2"/>
       <corner name="C3"/>
       <corner name="C4"/>
       <corner name="C5"/>
+      <corner name="C6"/>
     </sector>
     <sector color="orange" name="SoftGeofence">
       <corner name="S1"/>
@@ -40,6 +43,7 @@
       <corner name="S3"/>
       <corner name="S4"/>
       <corner name="S5"/>
+      <corner name="S6"/>
     </sector>
   </sectors>
   <variables>
@@ -51,12 +55,20 @@
     <variable var="hybrid_height" init="HYBRID_HEIGHT"/>
     <variable var="transition_height" init="TRANSITION_HEIGHT"/>
     <variable var="flare_height" init="FLARE_HEIGHT"/>
+    <variable var="geofence_soft_height" init="250" min="0" step="10" max="5000" shortname="geofence_soft_height"/>
+    <variable var="geofence_hard_height" init="500" min="0" step="10" max="5000" shortname="geofence_hard_height"/>
   </variables>
+  <modules>
+    <module name="follow_me">
+      <define name="FOLLOW_ME_MOVING_WPS" value="WP_STDBY,WP_circ,WP_TD"/>
+    </module>
+  </modules>
+
   <exceptions>
     <!-- Outside of hard (red) geofence kill -->
-    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill'))" deroute="Kill"/>
-    <!-- Outside of soft (orange) geofence go to standby free -->
-    <exception cond="Or(!InsideSoftGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 250.0) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+    <exception cond="Or(!InsideHardGeofence(GetPosX(), GetPosY()), GetPosHeight() @GT geofence_hard_height) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill'))" deroute="Kill"/>
+    <!-- Outside of soft (orange) geofence go to standby-->
+    <exception cond="Or(!InsideSoftGeofence(GetPosX(), GetPosY()), GetPosHeight() @GT geofence_soft_height) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
     <!-- Datalink timeout go to standby free -->
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Kill')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
     <!-- Bat low return to standby-->
@@ -73,7 +85,7 @@
     <block name="Geo init">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call_once fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Kill">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
@@ -180,6 +192,10 @@
       <exception cond="!rotwing_state_choose_circle_direction(WP_circ)" deroute="Circle_CW_fwd"/>
       <exception cond="rotwing_state_choose_circle_direction(WP_circ)" deroute="Circle_CCW_fwd"/>
     </block>
+    <!-- <block name="Survey S1-S2 25m NS" strip_button="Sweep North South p1-p2">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
+      <survey_rectangle grid="100" orientation="NS" wp1="p1" wp2="p2"/>
+    </block> -->
     <!-- <block name="Approach APP">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
