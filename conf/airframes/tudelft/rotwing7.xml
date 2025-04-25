@@ -6,8 +6,8 @@
      * RC:          SBUS Crossfire (diversity)
 -->
 
-<airframe name="RotatingWing6">
-    <description>RotatingWing 6</description>
+<airframe name="RotatingWing7">
+    <description>RotatingWing 7</description>
 
     <firmware name="rotorcraft">
         <target name="ap" board="pixhawk_6x">
@@ -91,7 +91,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="I2C2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.3231"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.3231"/><!-- uncalibrated -->
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.15"/>
         </module>
@@ -299,13 +299,15 @@
             <field type="struct">
                 <field name="abi_id" value="26"/>
                 <field name="calibrated" type="struct">
-                    <field name="neutral" value="false"/>
-                    <field name="scale" value="false"/>
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
                     <field name="rotation" value="false"/>
                     <field name="filter" value="true"/>
                 </field>
                 <field name="filter_sample_freq" value="4042"/>
                 <field name="filter_freq" value="30"/>
+                <field name="neutral" value="-6,-7,-47" type="int[]"/>
+                <field name="scale" value="{{32406,25097,35786},{6623,5114,7131}}"/>
             </field>
         </define>
 
