@@ -19,6 +19,12 @@
     <waypoint lat="52.4054122" lon="5.9581765" name="C3"/>
     <waypoint lat="52.4179727" lon="6.0083051" name="C4"/>
     <waypoint lat="52.4420912" lon="5.9871178" name="C5"/>
+
+    <waypoint lat="52.4031030" lon="5.9100930" name="S1"/>
+    <waypoint lat="52.3897030" lon="5.9217331" name="S2"/>
+    <waypoint lat="52.4069299" lon="5.9574477" name="S3"/>
+    <waypoint lat="52.4185648" lon="6.0038740" name="S4"/>
+    <waypoint lat="52.4390574" lon="5.9861463" name="S5"/>
   </waypoints>
   <sectors>
     <sector color="red" name="Flyzone">
@@ -28,15 +34,35 @@
       <corner name="C4"/>
       <corner name="C5"/>
     </sector>
+    <sector color="orange" name="SoftGeofence">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+      <corner name="S5"/>
+    </sector>
   </sectors>
-  <modules>
-    <!--<module name="follow_me">
-      <define name="FOLLOW_ME_MOVING_WPS" value="WP_p1,WP_p2,WP_p3,WP_p4,WP_STDBY,WP_circ,WP_APP"/>
-    </module> -->
-  </modules>
+  <variables>
+    <variable var="liftoff_pitch"/>
+    <variable var="liftoff_roll"/>
+    <variable var="liftoff_pitch_limit" init="LIFTOFF_PITCH_LIMIT_DEG"/>
+    <variable var="liftoff_roll_limit" init="LIFTOFF_ROLL_LIMIT_DEG"/>
+    <variable var="stage_timer_msec"/>
+    <variable var="hybrid_height" init="HYBRID_HEIGHT"/>
+    <variable var="transition_height" init="TRANSITION_HEIGHT"/>
+    <variable var="flare_height" init="FLARE_HEIGHT"/>
+  </variables>
   <exceptions>
+    <!-- Outside of hard (red) geofence kill -->
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
+    <!-- Outside of soft (orange) geofence go to standby free -->
+    <exception cond="Or(!InsideSoftGeofence(GetPosX(), GetPosY()), GetPosAlt() @GT GetAltRef() + 250.0) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+    <!-- Datalink timeout go to standby free -->
     <exception cond="datalink_time @GT 25 @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point')) @AND !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+    <!-- Bat low return to standby-->
+    <exception cond="(electrical.bat_low @AND !(IndexOfBlock('Holding point') @GT nav_block) @AND !(nav_block >= IndexOfBlock('land here')) @AND (autopilot_in_flight() == true) )" deroute="Standby"/>
+    <!-- Bat critical land here-->
+    <exception cond="(electrical.bat_critical @AND !(IndexOfBlock('Holding point') @GT nav_block) @AND !(nav_block >= IndexOfBlock('land here')) @AND (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
   <blocks>
    <block name="Wait GPS">
@@ -56,84 +82,119 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start Engines" strip_icon="on.png">
+	<exception cond="stage_time > 10" deroute="Holding point"/>
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
+        <call_once fun="nav_set_heading_current()"/>
         <call_once fun="NavResurrect()"/>
-        <attitude pitch="0" roll="0" throttle="0" until="stage_time>10" vmode="throttle"/>
+        <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0" until="rotwing_state_hover_motors_running()" vmode="throttle"/>
     </block>
-    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+    <block name="Wait takeoff">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
+      <exception cond="stage_time > 10" deroute="Holding point"/>
+      <attitude pitch="DegOfRad(stateGetNedToBodyEulers_f()->theta)" roll="DegOfRad(stateGetNedToBodyEulers_f()->phi)" throttle="0.2" until="(fabs(DegOfRad(stateGetNedToBodyEulers_f()->theta)) @LT liftoff_roll_limit) @AND (fabs(DegOfRad(stateGetNedToBodyEulers_f()->phi)) @LT liftoff_pitch_limit) @AND (stage_time > 2)" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_icon="takeoff.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
         <exception cond="agl_dist_valid @AND (agl_dist_value @GT 1.0)" deroute="Climb"/>
+        <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+        <set var="stage_timer_msec" value="get_sys_time_msec()"/>
+        <set var="liftoff_roll" value="DegOfRad(stateGetNedToBodyEulers_f()->phi)"/>
+        <set var="liftoff_pitch" value="DegOfRad(stateGetNedToBodyEulers_f()->theta)"/>
+        <attitude pitch="liftoff_pitch" roll="liftoff_roll" throttle="0.75" until="(get_sys_time_msec()-stage_timer_msec)>250" vmode="throttle"/>
         <call_once fun="autopilot_set_in_flight(true)"/><!-- this is a hack to solve INDI not being active fast enough -->
 
         <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
         <attitude pitch="0" roll="0" throttle="0.75" until="stage_time>3" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <exception cond="GetPosHeight() @GT 20.0" deroute="Standby"/>
+      <exception cond="GetPosHeight() @GT hybrid_height" deroute="Standby"/>
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="nav_set_heading_current()"/>
       <stay climb="nav.climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
-        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="rotwing_state_choose_state_by_dist(WP_STDBY)">
         <stay wp="STDBY"/>
     </block>
-    <block name="Approach APP">
+    <block name="Standby_free" strip_button="Standby Free" strip_icon="home.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
+        <stay wp="STDBY"/>
+    </block>
+    <block name="stay_p1" strip_button="Stay P1" strip_icon="wp_quad.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p1"/>
+    </block>
+    <block name="stay_p2" strip_button="Stay P2" strip_icon="wp_quad.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p2"/>
+    </block>
+    <block name="stay_p3" strip_button="Stay P3" strip_icon="wp_quad.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p3"/>
+    </block>
+    <block name="stay_p4" strip_button="Stay P4" strip_icon="wp_quad.png">
+        <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+        <stay wp="p4"/>
+    </block>
+    <!-- <block name="Approach APP">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
-    </block>
+    </block> -->
     <!-- <block name="follow_module">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
       <stay pre_call="follow_me_set_wp(WP_p1, 0)" wp="p1"/>
     </block> -->
-    <block name="route">
+    <!-- <block name="route">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go from="p1" hmode="route" wp="p2"/>
       <go from="p2" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
       <go from="p4" hmode="route" wp="p1"/>
       <deroute block="route"/>
+    </block> -->
+    <block name="route_p1" strip_button="Route P1" strip_icon="path.png">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
+      <go wp="p1"/>
     </block>
-    <block name="small_route" strip_button="Route" strip_icon="path.png">
+    <block name="route_p2" strip_button="Route P2" strip_icon="path.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go wp="p2"/>
+    </block>
+    <block name="route_p3" strip_button="Route P3" strip_icon="path.png">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go wp="p3"/>
+    </block>
+    <block name="route_p4" strip_button="Route P4" strip_icon="path.png">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
       <go wp="p4"/>
-      <go wp="p1"/>
-      <deroute block="small_route"/>
+      <deroute block="route_p1"/>
     </block>
-    <block name="Circle_CW_fwd" strip_button="CircleRight" strip_icon="circle-right.png">
+    <block name="Circle_CW_fwd" strip_button="Circle CW" strip_icon="circle-right.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="100" wp="circ"/>
+      <circle radius="nav.radius" wp="circ"/>
     </block>
-    <block name="Circle_CCW_fwd" strip_button="CircleLeft" strip_icon="circle-left.png">
+    <block name="Circle_CCW_fwd" strip_button="Circle CCW" strip_icon="circle-left.png">
       <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="-100" wp="circ"/>
+      <circle radius="-nav.radius" wp="circ"/>
     </block>
-    <block name="big_Circle_CW_fwd">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="150" wp="circ"/>
+    <block name="Circle_Auto_fwd" strip_button="Circle Auto" strip_icon="circle-left.png"> <!-- Comment out later -->
+      <exception cond="!rotwing_state_choose_circle_direction(WP_circ)" deroute="Circle_CW_fwd"/>
+      <exception cond="rotwing_state_choose_circle_direction(WP_circ)" deroute="Circle_CCW_fwd"/>
     </block>
-    <block name="big_Circle_CCW_fwd">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_FW)"/>
-      <circle radius="-150" wp="circ"/>
-    </block>
-    <block name="Transition_quad">
-      <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
-      <go wp="STDBY"/>
-      <deroute block="Standby"/>
-    </block>
-    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+    <!-- <block name="Approach APP">
+      <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
+      <stay alt="WaypointAlt(WP_APP)" pre_call="approach_moving_target_enable(WP_APP)" wp="APP"/>
+    </block> -->
+    <block name="land here">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
-    <block name="land">
+    <block name="land" strip_button="Land" strip_icon="land-right.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
         <go wp="TD"/>
     </block>
-    <block name="descend">
+    <block name="descend" strip_button="Descend" strip_icon="descend.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_REQUEST_HOVER)"/>
-        <exception cond="GetPosHeight() @LT 12.0" deroute="flare"/>
+        <exception cond="GetPosHeight() @LT flare_height" deroute="flare"/>
         <stay climb="-1.0" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
