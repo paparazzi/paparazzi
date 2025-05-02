@@ -30,7 +30,7 @@
   </settings>
   
     <dep>
-    <depends>@navigation</depends>
+    <depends>@navigation,gvf_common</depends>
     <provides>guidance,commands</provides>
   </dep>
   

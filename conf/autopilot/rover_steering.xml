@@ -78,7 +78,7 @@
       </control>
       <control>
         <call fun="rover_guidance_steering_speed_ctrl()"/>
-        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_omega.omega)"/>
+        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_ctrl.omega)"/>
 
         <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
         <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>

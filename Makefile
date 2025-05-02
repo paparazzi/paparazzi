@@ -327,7 +327,7 @@ test_tudelft: all
 
 # test GVF conf
 test_gvf: all
-	CONF_XML=conf/userconf/GVF/gvf_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/conf_example_gvf.xml prove tests/aircrafts/
 
 
 # compiles all aircrafts in conf_tests.xml

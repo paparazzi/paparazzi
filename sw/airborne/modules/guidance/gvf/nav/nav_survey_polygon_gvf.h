@@ -27,8 +27,8 @@
  *
  */
 
-#ifndef NAV_SURVEY_POLYGON_GVF_H
-#define NAV_SURVEY_POLYGON_GVF_H
+#ifndef SURVEY_POLYGON_GVF_H
+#define SURVEY_POLYGON_GVF_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
@@ -83,11 +83,11 @@ struct gvf_SurveyPolyAdv {
   struct FloatVect2 ret_end;
 };
 
-// external setting
-extern void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+/** ------------------------------------------------------------------------ **/
+
+// Polygon survey
+extern void nav_gvf_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                      float min_rad, float altitude);
+extern bool nav_gvf_survey_polygon_run(void);
 
-void gvf_nav_direction_circle(float rad);
-extern bool gvf_nav_survey_polygon_run(void);
-
-#endif
+#endif // SURVEY_POLYGON_GVF_H

@@ -1,0 +1,31 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf to use for standard operation (no tuning) -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1000" MIN="0" STEP="5" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="360" MIN="0" STEP="1" VAR="nav_course"/>
+      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" module="firmwares/fixedwing/nav" handler="IncreaseShift" shortname="inc. shift"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="autopilot.flight_time" shortname="flight time" module="autopilot" handler="ResetFlightTimeAndLaunch"/>
+      <!-- <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="firmwares/fixedwing/nav" handler="SetNavRadius">
+        <strip_button icon="circle-right.png" name="Circle right" value="1" group="circle"/>
+        <strip_button icon="circle-left.png" name="Circle left" value="-1" group="circle"/>
+        <key_press key="greater" value="1"/>
+        <key_press key="less" value="-1"/>
+      </dl_setting> -->
+    </dl_settings>
+
+    <dl_settings NAME="mode">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="autopilot.mode" module="autopilot" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="autopilot.launch"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="autopilot.kill_throttle"/>
+    </dl_settings>
+
+    <dl_settings NAME="mcu">
+      <dl_setting var="mcu_reboot" shortname="reboot" min="0" step="1" max="3" values="NORMAL|POWEROFF|FAST|BOOTLOADER" handler="reboot" module="mcu" type="fun"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>
