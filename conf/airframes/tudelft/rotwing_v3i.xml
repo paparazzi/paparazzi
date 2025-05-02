@@ -387,9 +387,11 @@
                     <field name="calibrated" type="struct">
                     <field name="neutral" value="true"/>
                     <field name="scale" value="true"/>
+                    <field name="rotation" value="true"/>
                 </field>
                 <field name="neutral" value="-6457,2295,-1647" type="int[]"/>
                 <field name="scale" value="{{1665,28895,30357},{2764,48833,51862}}"/>
+                <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
             </field>
         </define>
 
