@@ -28,13 +28,13 @@
             <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
-            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE2_ID"/>
-            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE2_ID"/>
+            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
             <!--Only send gyro and accel that is being used-->
-            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE2_ID"/>
-            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE2_ID"/>
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
