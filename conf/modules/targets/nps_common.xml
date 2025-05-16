@@ -62,7 +62,7 @@ VPATH += $(PAPARAZZI_HOME)/var/share
     <file name="nps_ivy.c" dir="$(NPS_DIR)"/>
     <file name="nps_flightgear.c" dir="$(NPS_DIR)"/>
     <file name="nps_random.c" dir="$(NPS_DIR)"/>
-    <file name="pprz_geodetic_wmm2020.c" dir="math"/>
+    <file name="pprz_geodetic_wmm2025.c" dir="math"/>
     <file name="nps_main_common.c" dir="$(NPS_DIR)"/>
   </makefile>
 </module>

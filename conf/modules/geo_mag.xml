@@ -11,7 +11,7 @@
       Method uses is based on the the ngdc noaa DODWMM model and data (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
       The WMM is based on earth magnetic field measuring at an high number of sites on the whole globe and on its mathematical representation through a series of characteristic values listed in a file (WMM.COF) which has a five-year validity.
       The autopilot used data derived from this file to make the complex calculation of declination.
-      Every 5 years (2015, 2020) an updated geomagnetic model is released and datatables in the code must be updated accordingly for more accurate flight.
+      Every 5 years (2015, 2020, 2025) an updated geomagnetic model is released and datatables in the code must be updated accordingly for more accurate flight.
     </description>
   </doc>
   <settings>
@@ -29,7 +29,7 @@
   <event fun="geo_mag_event()"/>
   <makefile target="ap|nps">
     <file name="geo_mag.c"/>
-    <file name="pprz_geodetic_wmm2020.c" dir="math"/>
+    <file name="pprz_geodetic_wmm2025.c" dir="math"/>
   </makefile>
   <makefile target="nps">
     <define name="NPS_CALC_GEO_MAG"/>
