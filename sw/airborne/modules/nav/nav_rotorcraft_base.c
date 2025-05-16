@@ -259,6 +259,7 @@ static void nav_oval(struct EnuCoor_f *wp1, struct EnuCoor_f *wp2, float radius)
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
+#if ROTORCRAFT_BASE_SEND_TRAJECTORY
 static void send_segment(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_SEGMENT(trans, dev, AC_ID,
@@ -275,6 +276,7 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
       &nav_rotorcraft_base.circle.center.y,
       &nav_rotorcraft_base.circle.radius);
 }
+# endif // ROTORCRAFT_BASE_SEND_TRAJECTORY
 
 static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
 {
@@ -285,11 +287,13 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &dist_home, &dist_wp,
                                       &nav_block, &nav_stage,
                                       &nav.horizontal_mode);
+#if ROTORCRAFT_BASE_SEND_TRAJECTORY
   if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_ROUTE) {
     send_segment(trans, dev);
   } else if (nav.horizontal_mode == NAV_HORIZONTAL_MODE_CIRCLE) {
     send_circle(trans, dev);
   }
+#endif // ROTORCRAFT_BASE_SEND_TRAJECTORY
 }
 #endif
 

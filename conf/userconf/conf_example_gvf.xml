@@ -1,0 +1,35 @@
+<conf>
+  <aircraft
+   name="sonic_fixedwing"
+   ac_id="1"
+   airframe="airframes/UGR/sonic_n1.xml"
+   radio="radios/T7C_SBUS.xml"
+   telemetry="telemetry/UGR/gvf_fixedwing.xml"
+   flight_plan="flight_plans/demo_gvf.xml"
+   settings="settings/UGR/fixedwing_basic.xml"
+   settings_modules="modules/ahrs_float_dcm.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_full_pid_fw.xml modules/gvf_classic.xml~GVF~ modules/gvf_ik.xml~GVF_IK~ modules/gvf_parametric.xml~GVF_PARAMETRIC~ modules/imu_common.xml modules/nav_basic_fw.xml modules/power_switch.xml modules/stabilization_adaptive_fw.xml"
+   gui_color="#6200a000ea00"
+  />
+  <aircraft
+   name="st_rover"
+   ac_id="2"
+   airframe="airframes/UGR/steering_rover_n2.xml"
+   radio="radios/UGR/T16SZ_SBUS_rover.xml"
+   telemetry="telemetry/GVF/gvf_rover.xml"
+   flight_plan="flight_plans/UGR/steering_rover_clubalhambra.xml"
+   settings=""
+   settings_modules="modules/ahrs_float_dcm.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/guidance_rover_steering.xml~SR Guidance~ modules/gvf_classic.xml~GVF~ modules/gvf_ik.xml~GVF_IK~ modules/gvf_parametric.xml~GVF_PARAMETRIC~ modules/imu_common.xml modules/nav_rover_base.xml"
+   gui_color="#35008400e400"
+  />
+  <aircraft
+   name="bebop_rotorcraft"
+   ac_id="3"
+   airframe="airframes/examples/bebop2_gvf.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/GVF/gvf_default_rotorcraft.xml"
+   flight_plan="flight_plans/demo_gvf_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/air_data.xml modules/electrical.xml modules/gps.xml modules/gps_ublox.xml modules/gps_ubx_ucenter.xml modules/guidance_pid_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gvf_classic.xml~GVF~ modules/imu_common.xml modules/ins_ekf2.xml modules/nav_rotorcraft.xml modules/stabilization_indi_simple.xml"
+   gui_color="#6200a000ea00"
+  />
+</conf>

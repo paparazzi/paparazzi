@@ -6,16 +6,23 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint alt="235" name="STDBY" x="49.5" y="100.1"/>
-    <waypoint alt="215.0" name="AF" x="177.4" y="45.1"/>
-    <waypoint alt="185.0" name="TD" x="28.8" y="57.0"/>
+    <waypoint name="AF" x="177.4" y="45.1" alt="215.0"/>
+    <waypoint name="TD" x="28.8" y="57.0" alt="185.0"/>
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB" x="-114.5" y="162.3"/>
-    <waypoint alt="235.0" name="ELLIPSE" x="0.5" y="109.0"/>
-    <waypoint alt="235.0" name="S1" x="-14.8" y="157.8"/>
-    <waypoint alt="235.0" name="S2" x="175.7" y="85.2"/>
-    <waypoint alt="235.0" name="S3" x="140.0" y="-2.3"/>
-    <waypoint alt="235.0" name="S4" x="-49.6" y="66.3"/>
+
+    <waypoint name="STDBY" x="49.5" y="100.1" alt="235"/>
+    <waypoint name="ELL" x="0.5" y="109.0"/>
+    <waypoint name="S1" x="-14.8" y="157.8"/>
+    <waypoint name="S2" x="175.7" y="85.2"/>
+    <waypoint name="S3" x="140.0" y="-2.3"/>
+    <waypoint name="S4" x="-49.6" y="66.3"/>
+
+    <waypoint name="P0" x="-60.1" y="85.0"/>
+    <waypoint name="P1" x="134.2" y="-14.5"/>
+    <waypoint name="P2" x="-269.5" y="143.0"/>
+    <waypoint name="P3" x="-245.7" y="-314.3"/>
+
   </waypoints>
 
   <sectors>
@@ -28,90 +35,222 @@
   </sectors>
 
   <variables>
+    <variable var="a_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="b_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="alpha_stb" init="0.0" min="0.0" max="180.0" step="1.0"/>
+
     <variable var="angle_ps" init="0" min="-180" max="179" step="1"/>
-    <variable init="0" max="100" min="0" step="5" var="ell_delta"/>
+    <variable var="ell_delta" init="0" min="0" max="100" step="5" />
   </variables>
 
   <modules> 
-    <module name="gvf_module"/>
-    <module name="gvf_parametric"/>
+    <module name="gvf_classic">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+  
+        <define name="GVF_ELLIPSE_KE" value="1.2"/>
+        <define name="GVF_ELLIPSE_KN" value="1.1"/>
+
+        <define name="GVF_SIN_W" value="0.005"/>
+        <define name="GVF_SIN_A" value="5"/>
+    </module>
+
+    <module name="gvf_ik">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+
+      <define name="GVF_IK_GAMMA_AMPLITUDE" value=".3"/>
+      <define name="GVF_IK_GAMMA_OMEGA" value=".6"/>
+
+      <define name="GVF_IK_ELLIPSE_KE" value=".6"/>
+      <define name="GVF_IK_ELLIPSE_KN" value="1"/>
+
+      <define name="GVF_IK_LINE_KE" value="18"/>
+      <define name="GVF_IK_LINE_KN" value="1"/>
+    </module>
+
+    <module name="gvf_parametric">
+      <define name="GVF_PARAMETRIC_2D_TREFOIL_R" value="50"/>
+      <define name="GVF_PARAMETRIC_2D_TREFOIL_RATIO" value="160"/>
+      
+      <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZL" value="40"/>
+      <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZH" value="60"/>
+      
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KX" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KY" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KZ" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CX" value="120"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CY" value="120"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CZ" value="5"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WX" value="1"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WY" value="2"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WZ" value="2"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DX" value="90"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DY" value="90"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DZ" value="-10"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA" value="105"/>
+    </module>
+
   </modules>
 
+  <!-- EXCEPTIONS ..................................................... -->
+
+  <exceptions>
+      <!-- Takeoff - Standby -->
+    <exception cond="(IndexOfBlock('Takeoff') == nav_block) @AND
+      (GetPosAlt() @GT (GetAltRef() + 30))" deroute="Standby"/>
+
+      <!-- Block Time GT 300 -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      (NavBlockTime() @GT 180)" deroute="Standby"/-->
+
+      <!-- Bat Low  -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      electrical.bat_critical" deroute="Standby"/-->
+
+      <!-- RC lost && Block Time GT 300 -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      (radio_control.status == RC_REALLY_LOST) @AND 
+      (NavBlockTime() @GT 300)" deroute="Standby"/-->
+  </exceptions>
+
+  <!-- ................................................................ -->
+
   <blocks>
-    <block name="Wait GPS">
+
+      <!-- ## INIT ## -->
+
+    <block name="Wait GPS" strip_icon="gps.png">
       <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
-    <block name="Geo init">
+
+    <block name="Geo init" strip_icon="googleearth.png">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
-    <block name="Holding point">
+
+    <block name="Holding point" strip_icon="mob.png">
       <set value="1" var="autopilot.kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
-      <exception cond="GetPosAlt() @GT GetAltRef()+25" deroute="Standby"/>
+
+    <!-- ## AUTO TAKEOFF ## -->
+
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <set value="0" var="autopilot.kill_throttle"/>
       <set value="0" var="autopilot.flight_time"/>
-      <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
-    </block>
-    <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
-      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_ellipse_wp(WP_STDBY, nav_radius, nav_radius, 0)"/>
-    </block>
-    <block name="ellipse">
-      <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
-    </block>
-    <block name="segment_loop">
-      <call fun="gvf_segment_loop_wp1_wp2(WP_ELLIPSE, WP_STDBY, gvf_segment_par.d1, gvf_segment_par.d2)"/>
-    </block>
-    <block name="segment">
-      <call fun="gvf_segment_wp1_wp2(WP_ELLIPSE, WP_STDBY)"/>
-    </block>
-    <block name="line">
-      <call fun="gvf_line_wp_heading(WP_ELLIPSE, gvf_line_par.heading)"/>
-    </block>
-    <block name="Sinusoidal">
-    <call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
-    </block>
-    <block name="Poly Survey">
-      <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, flight_altitude)"/>
-      <call fun="gvf_nav_survey_polygon_run()"/>
-    </block>
-    <block name="3D_ellipse">
-      <call fun="gvf_parametric_3D_ellipse_wp_delta(WP_ELLIPSE,gvf_parametric_3d_ellipse_par.r,flight_altitude-ground_alt,ell_delta,gvf_parametric_3d_ellipse_par.alpha)"/>
-    </block>
-    <block name="3D_lissajous">
-      <call fun="gvf_parametric_3D_lissajous_wp_center(WP_ELLIPSE,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
-    </block>
-    <block name="2D_trefoil">
-      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
-      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
-      <call fun="gvf_parametric_2D_trefoil_wp(WP_ELLIPSE,gvf_parametric_2d_trefoil_par.w1,gvf_parametric_2d_trefoil_par.w2,gvf_parametric_2d_trefoil_par.ratio,gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+      <set value="1" var="autopilot.launch"/> <!-- Just for simulation -->
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="25"/>
     </block>
 
-    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+    <block name="Standby" key="s" strip_button="Standby" strip_icon="home.png">
+      <set var="flight_altitude" value="GetAltRef() + 50"/>
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
+    </block>
+
+    <!-- ## MISSION ## -->
+
+    <block name="Ellipse ELL" strip_icon="oval.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="Segment P0-P1" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
+      <deroute block="Standby"/>
+    </block>
+
+    <block name="Segment Loop P0-P1" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_P0, WP_P1, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+    </block>
+
+    <block name="Line P0-heading" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_line_wp_heading(WP_P0, gvf_line_par.heading)"/>
+    </block>
+
+    <block name="Sinusoidal P0" strip_icon="eight.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_sin_wp_alpha(WP_P0, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    </block>
+
+    <block name="Poly Survey S" strip_icon="survey.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call_once fun="nav_gvf_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, flight_altitude)"/>
+      <call fun="nav_gvf_survey_polygon_run()"/>
+    </block>
+
+    <block name="2D Trefoil ELL" strip_icon="eight.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_parametric_2D_trefoil_wp(WP_ELL, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+    </block>
+
+    <block name="3D Lissajous ELL" strip_icon="eight.png">
+      <call fun="nav_gvf_parametric_3D_lissajous_wp_center(WP_ELL, flight_altitude-ground_alt, gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+    </block>
+
+    <block name="3D Ellipse ELL" strip_icon="eight.png">
+      <call fun="nav_gvf_parametric_3D_ellipse_wp(WP_ELL, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+    </block>
+    
+    <block name="3D Ellipse ELL-delta" strip_icon="eight.png">
+      <call fun="nav_gvf_parametric_3D_ellipse_wp_delta(WP_ELL, gvf_parametric_3d_ellipse_par.r, flight_altitude-ground_alt, ell_delta,gvf_parametric_3d_ellipse_par.alpha)"/>
+    </block>
+  
+    <block name="Ellipse IK ELL" strip_icon="oval.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="Segment IK P2-P3" strip_icon="line.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ik_segment_wp1_wp2(WP_P2, WP_P3)"/>
+      <deroute block="Standby"/>
+    </block>
+
+    <!-- ## AUTO LANDING ## -->
+
+    <!-- Not implemented with GVF yet! -->
+
+    <block name="Land Right AF-TD" group="land" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+
+    <block name="Land Left AF-TD" group="land" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
+
     <block name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() @GT 0.5" wp="_BASELEG"/>
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 @GT fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>
+
     <block name="final">
       <exception cond="GetAltRef() + 10 @GT GetPosAlt()" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
+
     <block name="flare">
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
+
+    <!-- ########################### -->
+
   </blocks>
 </flight_plan>

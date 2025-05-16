@@ -1,0 +1,150 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="750" geofence_max_alt="3000" geofence_max_height="1000" ground_alt="720" home_mode_height="200" lat0="37.29745306" lon0="-3.68272961" max_dist_from_home="1500" name="param" qfu="90" security_height="25">
+ 
+  <header>
+  </header>
+
+  <waypoints>
+    <waypoint name="HOME" alt="713" x="-0.648" y="-0.647"/>
+    <waypoint name="CLIMB" alt="753" x="-77.375" y="-46.790"/>
+    <!--waypoint name="AF" alt="730" x="-139.4" y="-55.5"/>
+    <waypoint name="TD" alt="720" x="-10.4" y="-3.5"/-->
+
+    <waypoint name="STDBY" lat="37.29826926318695" lon="-3.683916936727701"/>
+    <waypoint name="ELL"  lat="37.2982692" lon="-3.6839169"/>
+    <waypoint name="TREF"  lat="37.2987704" lon="-3.6844594"/>
+    <waypoint name="PARAM" lat="37.2987704" lon="-3.6844594"/>
+    <waypoint name="P0" x="-44.1543" y="-30.2445"/>
+    <waypoint name="P1" x="29.784" y="5.24597"/>
+  </waypoints>
+  
+  <variables>
+    <variable var="a_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="b_stb" init="90.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="alpha_stb" init="0.0" min="0.0" max="180.0" step="1.0"/>
+    <variable var="land_rad" init="90.0" min="1.0" max="150.0" step="1.0"/>
+    <variable var="land_min_dist" init="10" min="1.0" max="150.0" step="1.0"/>
+    <variable var="flare_alt" init="5" min="1.0" max="30.0" step="1.0"/>
+  </variables>
+  
+  <modules>
+    <module name="gvf_classic">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+    </module>
+    <module name="gvf_parametric">
+      <define name="GVF_PARAMETRIC_2D_TREFOIL_R" value="50"/>
+      <define name="GVF_PARAMETRIC_2D_TREFOIL_RATIO" value="160"/>
+      
+      <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZL" value="40"/>
+      <define name="GVF_PARAMETRIC_3D_ELLIPSE_ZH" value="60"/>
+    
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KX" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KY" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_KZ" value="0.01"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CX" value="120"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CY" value="120"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_CZ" value="5"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WX" value="1"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WY" value="2"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_WZ" value="2"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DX" value="90"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DY" value="90"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_DZ" value="-10"/>
+      <define name="GVF_PARAMETRIC_3D_LISSAJOUS_ALPHA" value="105"/>
+    </module>
+  </modules>
+
+  <!-- EXCEPTIONS ..................................................... -->
+
+  <exceptions>
+      <!-- Takeoff - Standby -->
+    <exception cond="(IndexOfBlock('Takeoff') == nav_block) @AND
+      (GetPosAlt() @GT (GetAltRef() + 30))" deroute="Standby"/>
+
+      <!-- Block Time GT 300 -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      (NavBlockTime() @GT 180)" deroute="Standby"/-->
+
+      <!-- Bat Low  -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      electrical.bat_critical" deroute="Standby"/-->
+
+    <!-- RC lost && Block Time GT 300 -->
+    <!--exception cond="!(IndexOfBlock('Standby') @GEQ nav_block) @AND
+      (radio_control.status == RC_REALLY_LOST) @AND 
+      (NavBlockTime() @GT 300)" deroute="Standby"/-->
+  </exceptions>
+
+  <!-- ................................................................ -->
+
+  <blocks>
+  
+    <!-- ## INIT ## -->
+
+    <block name="Wait GPS" strip_icon="gps.png">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    
+    <block name="Geo init" strip_icon="googleearth.png">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!--call_once fun="NavSetGroundReferenceHere()"/-->
+      <!-- <call_once fun="NavSetAltitudeReferenceHere()"/> -->
+    </block>
+    
+    <block name="Holding point">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    
+    <!-- ## AUTO TAKEOFF ## -->
+    
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
+      <set value="1" var="autopilot.launch"/> <!-- Just for simulation -->
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="25"/>
+    </block>
+    
+    <block name="Standby" key="s" strip_button="Standby" strip_icon="home.png">
+      <set var="flight_altitude" value="GetAltRef() + 50"/>
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, a_stb, b_stb, alpha_stb)"/>
+    </block>
+    
+    <!-- ## MISSION ## -->
+     
+    <block name="ellipse_wp" strip_icon="oval.png">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+    
+    <block name="2D_trefoil">
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
+      <call fun="nav_gvf_parametric_2D_trefoil_wp(WP_TREF, gvf_parametric_2d_trefoil_par.w1, gvf_parametric_2d_trefoil_par.w2, gvf_parametric_2d_trefoil_par.ratio, gvf_parametric_2d_trefoil_par.r, gvf_parametric_2d_trefoil_par.alpha)"/>
+    </block>
+
+    <block name="3D_ellipse">
+      <call fun="nav_gvf_parametric_3D_ellipse_wp(WP_ELL, gvf_parametric_3d_ellipse_par.r, gvf_parametric_3d_ellipse_par.zl, gvf_parametric_3d_ellipse_par.zh, gvf_parametric_3d_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="3D_lissajous">
+      <call fun="nav_gvf_parametric_3D_lissajous_wp_center(WP_ELL,flight_altitude-ground_alt,gvf_parametric_3d_lissajous_par.cx, gvf_parametric_3d_lissajous_par.cy, gvf_parametric_3d_lissajous_par.cz, gvf_parametric_3d_lissajous_par.wx, gvf_parametric_3d_lissajous_par.wy, gvf_parametric_3d_lissajous_par.wz, gvf_parametric_3d_lissajous_par.dx, gvf_parametric_3d_lissajous_par.dy, gvf_parametric_3d_lissajous_par.dz, gvf_parametric_3d_lissajous_par.alpha)"/>
+    </block>
+
+    <block name="segment" strip_icon="home_drop.png">
+      <call fun="nav_gvf_segment_loop_wp1_wp2(WP_P0, WP_P1, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+    </block>
+  </blocks>
+
+  <!-- ## AUTO LANDING ## -->
+
+  <!-- TODO: implement once it is ready -->
+
+  <!-- ########################### -->
+
+</flight_plan>

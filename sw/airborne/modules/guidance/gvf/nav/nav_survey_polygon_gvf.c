@@ -27,6 +27,8 @@
  *
  */
 
+#include "nav_survey_polygon_gvf.h"
+
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
@@ -39,19 +41,25 @@
 
 struct gvf_SurveyPolyAdv gvf_survey;
 
-static void gvf_nav_points(struct FloatVect2 start, struct FloatVect2 end)
+/** ------------------------------------------------------------------------ **/
+
+static void gvf_circle_direction(float rad)
 {
-  gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y);
+  if (rad > 0) {
+    gvf_set_direction(-1);
+  } else {
+    gvf_set_direction(1);
+  }
 }
 
 /**
- * intercept two lines and give back the point of intersection
- * @return         FALSE if no intersection can be found or intersection does not lie between points a and b
- * else TRUE
+ * Intercept two lines and give back the point of intersection
+ * @return FALSE if no intersection can be found or intersection does not lie 
+ *         between points a and b else TRUE
  * @param p               returns intersection
  * @param x, y            first line is defined by point x and y (goes through this points)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
- */
+ **/
 static bool gvf_intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
                                     float b1, float b2)
 {
@@ -70,11 +78,11 @@ static bool gvf_intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, s
 }
 
 /**
- *  intersects a line with the polygon and gives back the two intersection points
- *  @return        TRUE if two intersection can be found, else FALSE
+ *  Intersects a line with the polygon and gives back the two intersection points
+ *  @return TRUE if two intersection can be found, else FALSE
  *  @param x, y     intersection points
  *  @param a, b     define the line to intersection
- */
+ **/
 static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struct FloatVect2 a, struct FloatVect2 b)
 {
   int i, count = 0;
@@ -122,8 +130,10 @@ static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, s
   return true;
 }
 
+/** ------------------------------------------------------------------------ **/
+
 /**
- *  initializes the variables needed for the survey to start
+ *  Initializes the variables needed for the survey to start
  *  @param first_wp      the first Waypoint of the polygon
  *  @param size          the number of points that make up the polygon
  *  @param angle         angle in which to do the flyovers
@@ -132,7 +142,7 @@ static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, s
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+void nav_gvf_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                   float min_rad, float altitude)
 {
   int i;
@@ -229,28 +239,19 @@ void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, f
 }
 
 /**
- * main navigation routine. This is called periodically evaluates the current
+ * Main navigation routine. This is called periodically evaluates the current
  * Position and stage and navigates accordingly.
  * @returns True until the survey is finished
- */
-void gvf_nav_direction_circle(float rad)
-{
-  if (rad > 0) {
-    gvf_set_direction(-1);
-  } else {
-    gvf_set_direction(1);
-  }
-}
-
-bool gvf_nav_survey_polygon_run(void)
+ **/
+bool nav_gvf_survey_polygon_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(gvf_survey.psa_altitude, 0.0);
 
   //entry circle around entry-center until the desired altitude is reached
   if (gvf_survey.stage == gENTRY) {
-    gvf_nav_direction_circle(gvf_survey.psa_min_rad);
-    gvf_ellipse_XY(gvf_survey.entry_center.x, gvf_survey.entry_center.y, gvf_survey.psa_min_rad, gvf_survey.psa_min_rad, 0);
+    gvf_circle_direction(gvf_survey.psa_min_rad);
+    nav_gvf_ellipse_XY(gvf_survey.entry_center.x, gvf_survey.entry_center.y, gvf_survey.psa_min_rad, gvf_survey.psa_min_rad, 0);
     if (NavCourseCloseTo(gvf_survey.segment_angle)
         && nav_approaching_xy(gvf_survey.seg_start.x, gvf_survey.seg_start.y, last_x, last_y, CARROT)
         && fabs(stateGetPositionUtm_f()->alt - gvf_survey.psa_altitude) <= 20) {
@@ -264,7 +265,7 @@ bool gvf_nav_survey_polygon_run(void)
   }
   //fly the segment until seg_end is reached
   if (gvf_survey.stage == gSEG) {
-    gvf_nav_points(gvf_survey.seg_start, gvf_survey.seg_end);
+    nav_gvf_segment_points(gvf_survey.seg_start, gvf_survey.seg_end);
     //calculate all needed points for the next flyover
     if (nav_approaching_xy(gvf_survey.seg_end.x, gvf_survey.seg_end.y, gvf_survey.seg_start.x, gvf_survey.seg_start.y, 0)) {
 #ifdef DIGITAL_CAM
@@ -295,15 +296,15 @@ bool gvf_nav_survey_polygon_run(void)
   }
   //turn from stage to return
   else if (gvf_survey.stage == gTURN1) {
-    gvf_nav_direction_circle(gvf_survey.psa_min_rad);
-    gvf_ellipse_XY(gvf_survey.seg_center1.x, gvf_survey.seg_center1.y, gvf_survey.psa_min_rad, gvf_survey.psa_min_rad, 0);
+    gvf_circle_direction(gvf_survey.psa_min_rad);
+    nav_gvf_ellipse_XY(gvf_survey.seg_center1.x, gvf_survey.seg_center1.y, gvf_survey.psa_min_rad, gvf_survey.psa_min_rad, 0);
     if (NavCourseCloseTo(gvf_survey.return_angle)) {
       gvf_survey.stage = gRET;
       nav_init_stage();
     }
     //return
   } else if (gvf_survey.stage == gRET) {
-    gvf_nav_points(gvf_survey.ret_start, gvf_survey.ret_end);
+    nav_gvf_segment_points(gvf_survey.ret_start, gvf_survey.ret_end);
     if (nav_approaching_xy(gvf_survey.ret_end.x, gvf_survey.ret_end.y, gvf_survey.ret_start.x, gvf_survey.ret_start.y, 0)) {
       gvf_survey.stage = gTURN2;
       nav_init_stage();
@@ -311,8 +312,8 @@ bool gvf_nav_survey_polygon_run(void)
     //turn from return to stage
   } else if (gvf_survey.stage == gTURN2) {
     float rad_sur = (2 * gvf_survey.psa_min_rad + gvf_survey.psa_sweep_width) * 0.5;
-    gvf_nav_direction_circle(rad_sur);
-    gvf_ellipse_XY(gvf_survey.seg_center2.x, gvf_survey.seg_center2.y, rad_sur, rad_sur, 0);
+    gvf_circle_direction(rad_sur);
+    nav_gvf_ellipse_XY(gvf_survey.seg_center2.x, gvf_survey.seg_center2.y, rad_sur, rad_sur, 0);
     if (NavCourseCloseTo(gvf_survey.segment_angle)) {
       gvf_survey.stage = gSEG;
       nav_init_stage();
