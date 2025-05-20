@@ -327,7 +327,7 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
 
   // Roll motor effectiveness
   float dM_dpprz_right  = dM_dpprz[1];
-  float dM_dpprz_left   = dM_dpprz[3];;
+  float dM_dpprz_left   = dM_dpprz[3];
 
   // float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr + eff_sched_p.hover_roll_roll_coef[0] * eff_sched_var.wing_rotation_rad * eff_sched_var.wing_rotation_rad * eff_sched_var.airspeed * eff_sched_var.cosr) / eff_sched_var.Ixx;
   float roll_motor_p_eff_right = -(dM_dpprz_right * eff_sched_var.cosr) / eff_sched_var.Ixx;
@@ -444,10 +444,7 @@ void eff_scheduling_rotwing_schedule_liftd(void)
   float lift_d_tail = eff_sched_p.k_lift_tail * eff_sched_var.airspeed2 / eff_sched_p.m;
 
   float lift_d = lift_d_wing + lift_d_fuselage + lift_d_tail;
-  if (eff_sched_var.wing_rotation_deg < 50.) {
-    lift_d = 0.0;
-  }
-  Bound(lift_d, -130., 0.);
+  lift_d = bound_or_zero(lift_d, -130., -15.0);
   eff_scheduling_rotwing_lift_d = lift_d;
 }
 
