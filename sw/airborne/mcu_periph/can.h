@@ -73,7 +73,7 @@ struct pprzcan_frame {
   socketcan_id_t can_id;
   uint8_t len;
   uint8_t flags;  // CAN FD specific flags
-  uint32_t timestamp;   // timestamp in ms.
+  uint32_t timestamp;   // timestamp in us.
   uint8_t data[SOCKETCAN_MAX_DLEN];
 };
 
@@ -89,6 +89,7 @@ typedef void(* can_rx_frame_callback_t)(struct pprzcan_frame* rxframe, struct pp
 struct can_periph {
   void* arch_struct;
   int fd;
+  uint32_t nb_errors;
   can_rx_frame_callback_t callbacks[CAN_NB_CALLBACKS_MAX];
   void* callback_user_data[CAN_NB_CALLBACKS_MAX];
 };
