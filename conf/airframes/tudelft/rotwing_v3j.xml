@@ -418,19 +418,19 @@
                 <field name="filter_freq" value="30"/>
             </field>
         </define>
-
+        
         <define name="MAG_CALIB" type="array">
-            <field type="struct">
-                <field name="abi_id" value="5"/>
-                <field name="calibrated" type="struct">
-                    <field name="neutral" value="true"/>
-                    <field name="scale" value="true"/>
-                    <field name="rotation" value="true"/>
-                </field>
-                <field name="neutral" value="5205,3040,2426" type="int[]"/>
-                <field name="scale" value="{{17339,11916,12455},{29996,19967,20668}}"/>
-                <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
+        <field type="struct">
+            <field name="abi_id" value="5"/>
+            <field name="calibrated" type="struct">
+                <field name="neutral" value="true"/>
+                <field name="scale" value="true"/>
+                <field name="rotation" value="true"/>
             </field>
+            <field name="neutral" value="-6571,2116,-2536" type="int[]"/>
+            <field name="scale" value="{{30757,36475,29972},{52388,60818,49223}}"/>
+            <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
+        </field>
         </define>
 
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .filter_sample_freq=4004, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .filter_sample_freq=1136, .filter_freq=30}}"/>
