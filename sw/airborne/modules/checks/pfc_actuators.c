@@ -48,7 +48,7 @@
  * Enable debugging to set the expected feedback values
 */
 #ifndef PFC_ACTUATORS_DEBUG
-#define PFC_ACTUATORS_DEBUG false
+#define PFC_ACTUATORS_DEBUG true
 #endif
 
 /**

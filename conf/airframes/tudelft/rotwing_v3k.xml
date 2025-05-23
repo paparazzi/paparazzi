@@ -1,16 +1,16 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00352
-     * Autopilot:   Cube orange
-     * Datalink:    Kongsberg
+     * Airframe:    TUD00473
+     * Autopilot:   Cube Orange+
+     * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3B">
-    <description>RotatingWingV3B</description>
+<airframe name="RotatingWingV3K">
+    <description>RotatingWingV3K</description>
 
     <firmware name="rotorcraft">
-        <target name="ap" board="cube_orange">
+        <target name="ap" board="cube_orangeplus">
             <configure name="PERIODIC_FREQUENCY" value="500"/> <!-- Configure the main periodic frequency to 500Hz -->
 
             <module name="radio_control" type="sbus">
@@ -31,22 +31,13 @@
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
-            <define name="MULTI_GPS_MODE"       value="GPS_MODE_PRIMARY"/>
 
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
             <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
 
-            <module name="wing_rotation_adc_sensor">
-                <define name="ADC_WING_ROT_SCALE"  value="0.00247111"/>
-                <define name="ADC_WING_ROT_OFFSET" value="-25.635294"/>
-            </module>
-
-            <!-- <module name="mavlink">
-                <configure name="MAVLINK_BAUD" value="B115200"/>
-                <configure name="MAVLINK_PORT" value="UART8"/>
-                <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
-            </module> -->
+            <!-- Range sensor connected to supercan -->
+            <module name="range_sensor_uavcan"/>
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
@@ -70,7 +61,7 @@
             <define name="USE_SONAR"                value="1"/> <!-- Because uavcan can't handle simulation yet -->
         </target>
 
-        <!-- Kongsberg datalink -->
+        <!-- Herelink datalink -->
         <module name="telemetry" type="transparent">
             <configure name="MODEM_BAUD" value="B460800"/>
         </module>
@@ -82,7 +73,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.9077609"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -95,13 +86,12 @@
         </module>
         <module name="air_data"/>
 
+        <configure name="PRIMARY_GPS" value="ublox"/>
+        <configure name="SECONDARY_GPS" value="ublox2"/>
         <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
+            <configure name="UBX2_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
-        </module>
-        <module name="lidar_tfmini">
-            <configure name="TFMINI_PORT"     value="UART8"/>
-            <configure name="USE_TFMINI_AGL"  value="TRUE"/>
         </module>
 
         <!-- IMU / INS -->
@@ -142,17 +132,13 @@
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks"/>
+        <module name="preflight_checks">
+            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+        </module>
         <module name="pfc_actuators"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
-
-    <!-- PWM actuators -->
-    <servos driver="Pwm">
-    <!--1018 = quad 2086 = fw-->
-        <servo NO="0" NAME="ROTATION_MECH"  MIN="1018" NEUTRAL="1552" MAX="2086"/>
-    </servos>
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">
@@ -160,25 +146,31 @@
         <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
-        <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
-        <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="-819"    max="6552"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-1392" neutral="451"  max="2294"/>
+    </servos>
+
+     <!-- CAN BUS 1 command outputs-->
+    <servos driver="Uavcan1Cmd">
+        <servo no="6"  name="SERVO_ELEVATOR"  min="1200"  neutral="1200" max="-8191"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
-    <servos DRIVER="Uavcan2">
-        <servo no="0" name="BMOTOR_FRONT" min="0" neutral="1000" max="7372"/>
-        <servo no="1" name="BMOTOR_RIGHT" min="0" neutral="1000" max="7372"/>
-        <servo no="2" name="BMOTOR_BACK"  min="0" neutral="1000" max="7372"/>
-        <servo no="3" name="BMOTOR_LEFT"  min="0" neutral="1000" max="7372"/>
+    <servos driver="Uavcan2">
+        <servo no="0" name="BMOTOR_FRONT"   min="0" neutral="1000" max="7372"/>
+        <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
+        <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
+        <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
+        <servo no="5" name="BROTATION_MECH" min="-1392" neutral="451"  max="2294"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="7"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="8"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="9"  name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
-        <servo no="10" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
+        <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
     </servos>
 
     <commands>
@@ -228,6 +220,7 @@
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(8, -9600)) : actuators_pprz[1])" SERVO="BMOTOR_RIGHT"/>
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(9, -9600)) : actuators_pprz[2])" SERVO="BMOTOR_BACK"/>
         <set VALUE="($hover_off? ($servo_hold? -9600 : pfc_actuators_value(10, -9600)) : actuators_pprz[3])" SERVO="BMOTOR_LEFT"/>
+        <set VALUE="pfc_actuators_value(6, rotwing_state.skew_cmd)"  SERVO="BROTATION_MECH"/>
     </command_laws>
 
     <section PREFIX="SYS_ID_" NAME="SYS_ID">
@@ -243,9 +236,6 @@
     </section>
 
     <section name="CALIBRATION">
-        <!-- Throttle value in AP_MODE_FAILSAFE -->
-        <define name="FAILSAFE_THROTTLE"                    value="5800"/>
-
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -258,8 +248,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="0.85"/>
-                <field name="high_feedback" value="0.3"/>
+                <field name="low_feedback" value="0.15"/>
+                <field name="high_feedback" value="-0.3"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -267,8 +257,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="-0.15"/>
-                <field name="high_feedback" value="0.15"/>
+                <field name="low_feedback" value="-0.2"/>
+                <field name="high_feedback" value="0.2"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -311,7 +301,7 @@
             <!-- Rotation -->
             <field type="struct">
                 <field name="feedback_id" value="SERVO_ROTATION_MECH_IDX"/>
-                <field name="feedback_id2" value="255"/>
+                <field name="feedback_id2" value="SERVO_BROTATION_MECH_IDX"/>
                 <field name="low" value="-9600"/>
                 <field name="high" value="9600"/>
                 <field name="low_feedback" value="1.57"/>
@@ -362,21 +352,48 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2800"/>
+                <field name="high_feedback" value="3000"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-6,-3,23}, .scale={{6478,36819,14396},{661,3766,1477}}, .filter_sample_freq=1127, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-63,-15,-22}, .scale={{23554,58016,33455},{4537,11839,6837}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-40,-9,6}, .scale={{17919,36647,49183},{3659,7481,10067}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-14,3,42}, .scale={{17279,2209,36874},{30247,3800,64095}}, .body_to_sensor={{0,16384,0,-16384,0,0,0,0,16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1127, .filter_freq=30}}"/>
+
+        <!-- Accelerometer calibration -->
+        <define name="IMU_ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                <field name="neutral" value="true"/>
+                <field name="scale" value="true"/>
+                </field>
+                <field name="neutral" value="-11,4,12" type="int[]"/>
+                <field name="scale" value="{{850,23084,9612},{87,2359,991}}"/>
+            </field>
+        </define>
+
+        <!-- Magnetometer calibration (NOT DONE!) -->
+        
+        <!-- Gyrometer calibration (NOT DONE!) -->
+        <define name="GYRO_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="26"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="false"/>
+                    <field name="scale" value="false"/>
+                    <field name="rotation" value="false"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="filter_sample_freq" value="4042"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
         <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-        <define name="BODY_TO_IMU_PSI"   value="-90." unit="deg"/>
+        <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
     </section>
 
     <checklist>
