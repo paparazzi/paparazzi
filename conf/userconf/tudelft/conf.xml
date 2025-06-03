@@ -672,7 +672,7 @@
   />
   <aircraft
    name="RotatingWingV3I"
-   ac_id="40"
+   ac_id="29"
    airframe="airframes/tudelft/rotwing_v3i.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
@@ -705,7 +705,7 @@
   />
   <aircraft
    name="Rotwing7"
-   ac_id="29"
+   ac_id="40"
    airframe="airframes/tudelft/rotwing7.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
