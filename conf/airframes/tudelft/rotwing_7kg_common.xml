@@ -48,8 +48,6 @@
         <!-- prevent in-flight in start engine block-->
         <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
-        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>  
         <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>
@@ -72,6 +70,9 @@
         <define name="LIFTOFF_PITCH_LIMIT_DEG"              value="5"/>
         <define name="LIFTOFF_ROLL_LIMIT_DEG"               value="5"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/>
+
+        <!-- Air data -->
+        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
