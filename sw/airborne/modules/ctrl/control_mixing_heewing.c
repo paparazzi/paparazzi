@@ -32,6 +32,7 @@
 #include "state.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
+#include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance/guidance_plane.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_plane_pid.h"
