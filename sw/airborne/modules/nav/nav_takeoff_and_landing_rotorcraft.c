@@ -64,9 +64,10 @@ float nav_takeoff_direction;
 
 static bool nav_takeoff_mission(uint8_t nb UNUSED, float *params UNUSED, enum MissionRunFlag flag)
 {
-  if (flag == MissionInit) {
+  if (flag == MissionInit && nb == 1) {
+    float height = params[0];
     takeoff.status = NAV_TAKEOFF_INIT;
-    return nav_takeoff_from_here();
+    return nav_takeoff_from_here(height);
   }
   else if (flag == MissionRun) {
     return nav_takeoff_run();
@@ -157,7 +158,7 @@ static bool nav_takeoff_run(void) {
       autopilot_set_in_flight(true);
       NavGotoWaypoint(takeoff.climb_id);
       NavVerticalClimbMode(NAV_TAKEOFF_CLIMB_SPEED);
-      if (stateGetPositionEnu_f()->z - takeoff.start_pos.z > NAV_TAKEOFF_HEIGHT) {
+      if (stateGetPositionEnu_f()->z - takeoff.start_pos.z > takeoff.climb_pos.z) {
         // end when takeoff height is reached
         takeoff.status = NAV_TAKEOFF_DONE;
       }
@@ -171,29 +172,39 @@ static bool nav_takeoff_run(void) {
   return true;
 }
 
-bool nav_takeoff_from_wp(uint8_t wp_id)
+bool nav_takeoff_from_wp(uint8_t wp_id, float height)
 {
   if (takeoff.status == NAV_TAKEOFF_INIT) {
     takeoff.climb_id = wp_id;
     waypoint_set_here_2d(wp_id);
     takeoff.climb_pos = *waypoint_get_enu_f(wp_id);
     takeoff.start_pos = *stateGetPositionEnu_f();
+    if (height < 0.f) {
+      takeoff.climb_pos.z = takeoff.start_pos.z + NAV_TAKEOFF_HEIGHT; // default value
+    } else {
+      takeoff.climb_pos.z = takeoff.start_pos.z + height;
+    }
   }
 
   return nav_takeoff_run();
 }
 
-bool nav_takeoff_from_loc(float lat UNUSED, float lon UNUSED)
+bool nav_takeoff_from_loc(float lat UNUSED, float lon UNUSED, float height)
 {
-  return nav_takeoff_from_here();
+  return nav_takeoff_from_here(height);
 }
 
-bool nav_takeoff_from_here(void)
+bool nav_takeoff_from_here(float height)
 {
   if (takeoff.status == NAV_TAKEOFF_INIT) {
     takeoff.climb_id = 0; // use dummy hidden WP
     takeoff.start_pos = *stateGetPositionEnu_f();
     takeoff.climb_pos = takeoff.start_pos;
+    if (height < 0.f) {
+      takeoff.climb_pos.z += NAV_TAKEOFF_HEIGHT; // default value
+    } else {
+      takeoff.climb_pos.z += height;
+    }
     waypoint_set_enu(0, &takeoff.climb_pos);
   }
 
