@@ -156,6 +156,10 @@ static inline bool mission_nav_segment(struct _mission_element *el)
 }
 
 
+#ifndef MISSION_PATH_SKIP_GOTO
+#define MISSION_PATH_SKIP_GOTO FALSE
+#endif
+
 /** Navigation function along a path
 */
 static inline bool mission_nav_path(struct _mission_element *el)
@@ -166,7 +170,7 @@ static inline bool mission_nav_path(struct _mission_element *el)
 
   if (el->element.mission_path.path_idx == 0) { //first wp of path
     el->element.mission_wp.wp = el->element.mission_path.path[0];
-    if (!mission_nav_wp(el)) { el->element.mission_path.path_idx++; }
+    if (MISSION_PATH_SKIP_GOTO || !mission_nav_wp(el)) { el->element.mission_path.path_idx++; }
   }
 
   else if (el->element.mission_path.path_idx < el->element.mission_path.nb) { //standart wp of path
