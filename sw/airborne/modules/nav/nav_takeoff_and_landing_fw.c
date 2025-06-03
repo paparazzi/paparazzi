@@ -76,9 +76,10 @@ float nav_takeoff_direction;
 
 static bool nav_takeoff_mission(uint8_t nb UNUSED, float *params UNUSED, enum MissionRunFlag flag)
 {
-  if (flag == MissionInit) {
+  if (flag == MissionInit && nb == 1) {
+    float height = params[0];
     takeoff.status = NAV_TAKEOFF_INIT;
-    return nav_takeoff_from_here();
+    return nav_takeoff_from_here(height);
   }
   else if (flag == MissionRun) {
     return nav_takeoff_run();
@@ -175,7 +176,7 @@ static bool nav_takeoff_run(void) {
       NavVerticalAutoThrottleMode(RadOfDeg(NAV_TAKEOFF_PITCH));
       NavVerticalThrottleMode(TRIM_UPPRZ(MAX_PPRZ*NAV_TAKEOFF_THROTTLE));
       if (nav_approaching_xy(takeoff.climb_pos.x, takeoff.climb_pos.y, takeoff.start_pos.x, takeoff.start_pos.y, CARROT)
-          || (stateGetPositionEnu_f()->z > takeoff.start_pos.z + NAV_TAKEOFF_HEIGHT)) {
+          || (stateGetPositionEnu_f()->z - takeoff.start_pos.z > takeoff.climb_pos.z)) {
         // end when climb point or target alt is reached
         takeoff.status = NAV_TAKEOFF_DONE;
       }
@@ -188,39 +189,53 @@ static bool nav_takeoff_run(void) {
   return true;
 }
 
-bool nav_takeoff_from_wp(uint8_t wp_id)
+bool nav_takeoff_from_wp(uint8_t wp_id, float height)
 {
   if (takeoff.status == NAV_TAKEOFF_INIT) {
+    takeoff.start_pos = *stateGetPositionEnu_f();
     takeoff.climb_id = wp_id;
     takeoff.climb_pos.x = WaypointX(wp_id);
     takeoff.climb_pos.y = WaypointY(wp_id);
-    takeoff.climb_pos.z = WaypointAlt(wp_id) - GetAltRef();
-    takeoff.start_pos = *stateGetPositionEnu_f();
+    if (height < 0.f) {
+      takeoff.climb_pos.z = takeoff.start_pos.z + NAV_TAKEOFF_HEIGHT;
+    } else {
+      takeoff.climb_pos.z = takeoff.start_pos.z + height;
+    }
   }
 
   return nav_takeoff_run();
 }
 
-bool nav_takeoff_from_loc(float lat, float lon)
+bool nav_takeoff_from_loc(float lat, float lon, float height)
 {
   if (takeoff.status == NAV_TAKEOFF_INIT) {
-    struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), stateGetPositionLla_f()->alt + NAV_TAKEOFF_HEIGHT };
+    takeoff.start_pos = *stateGetPositionEnu_f();
+    float alt = stateGetPositionLla_f()->alt;
+    if (height < 0.f) {
+      alt += NAV_TAKEOFF_HEIGHT;
+    } else {
+      alt += height;
+    }
+    struct LlaCoor_f lla = { RadOfDeg(lat), RadOfDeg(lon), alt };
     struct UtmCoor_f utm;
     utm_of_lla_f(&utm, &lla);
     ENU_OF_UTM_DIFF(takeoff.climb_pos, utm, *stateGetUtmOrigin_f());
   }
-  return nav_takeoff_from_here();
+  return nav_takeoff_run();
 }
 
-bool nav_takeoff_from_here(void)
+bool nav_takeoff_from_here(float height)
 {
   if (takeoff.status == NAV_TAKEOFF_INIT) {
     takeoff.climb_id = 0;
     takeoff.start_pos = *stateGetPositionEnu_f();
-    takeoff.climb_pos = takeoff.start_pos;
     takeoff.climb_pos.x = takeoff.start_pos.x + NAV_TAKEOFF_DIST * sinf(RadOfDeg(nav_takeoff_direction));
     takeoff.climb_pos.y = takeoff.start_pos.y + NAV_TAKEOFF_DIST * cosf(RadOfDeg(nav_takeoff_direction));
-    takeoff.climb_pos.z = takeoff.start_pos.z + NAV_TAKEOFF_HEIGHT;
+    if (height < 0.f) {
+      takeoff.climb_pos.z = takeoff.start_pos.z + NAV_TAKEOFF_HEIGHT;
+    } else {
+      takeoff.climb_pos.z = takeoff.start_pos.z + height;
+    }
   }
 
   return nav_takeoff_run();
