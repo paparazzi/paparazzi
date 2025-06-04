@@ -78,6 +78,7 @@ struct sys_time {
   uint32_t ticks_per_sec;         ///< sys_time ticks per second (SYS_TIME_FREQUENCY)
   uint32_t resolution_cpu_ticks;  ///< sys_time_timer resolution in cpu ticks
   uint32_t cpu_ticks_per_sec;     ///< cpu ticks per second
+  uint32_t tow_sync;              ///< time of week at startup, synced with GPS in ms
 };
 
 extern struct sys_time sys_time;
