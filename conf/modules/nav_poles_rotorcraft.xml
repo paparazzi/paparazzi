@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_poles_rotorcraft" dir="nav" task="control">
+  <doc>
+    <description>
+      Navigate around two poles with rotorcraft navigation.
+      Can be initialized with WP id or LLA coordinates.
+      Can be used with missions.
+    </description>
+  </doc>
+  <dep>
+    <depends>@navigation</depends>
+    <conflicts>nav_poles</conflicts>
+  </dep>
+  <header>
+    <file name="nav_poles_rotorcraft.h"/>
+  </header>
+  <init fun="nav_poles_init()"/>
+  <makefile firmware="rotorcraft">
+    <file name="nav_poles_rotorcraft.c"/>
+    <test firmware="rotorcraft">
+      <define name="USE_MISSION"/>
+    </test>
+  </makefile>
+</module>
+
