@@ -1,0 +1,5 @@
+trimesh
+pyqtgraph
+numpy
+scipy
+
