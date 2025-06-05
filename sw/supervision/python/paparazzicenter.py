@@ -234,6 +234,7 @@ class PprzCenter(QMainWindow, Ui_SupervisionWindow):
         settings_dialog.show()
 
     def quit(self, interactive=True):
+        self.magviewer_widget.stop()
         quit_accepted = True
         if self.operation_panel.session.any_program_running():
             quit_accepted = False
