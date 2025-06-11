@@ -230,7 +230,7 @@ int get_wp_data(char* InStr, char* RetBuf) {
   if ( AcID > 0 ) {
     //create wp data string
     char WpStr[MAXWPNUMB*(MAXWPNAMELEN+8)] = "";
-    int i = 1;
+    char i = 1;
     while ( strlen(DevNames[AcID].AcWp[i].Wp_Name)  > 0 ) {
       //Read & add wp data to return string
       char wp_str[MAXWPNAMELEN+8] = "";
