@@ -95,15 +95,15 @@ value c_init_serial(value device, value speed, value hw_flow_control)
 
   int br_idx = Int_val(speed);
   if (br_idx >= sizeof(baudrates)){
-    failwith("Baud rate not supported - are you using MacOS? (br_idx out of bounds)");
+    caml_failwith("Baud rate not supported - are you using MacOS? (br_idx out of bounds)");
   }
   int br = baudrates[br_idx];
 
   int fd = open(String_val(device), O_RDWR|O_NOCTTY|O_NONBLOCK);
 
-  if (fd == -1) failwith("opening modem serial device : fd < 0");
+  if (fd == -1) caml_failwith("opening modem serial device : fd < 0");
 
-  if (tcgetattr(fd, &orig_termios)) failwith("getting modem serial device attr");
+  if (tcgetattr(fd, &orig_termios)) caml_failwith("getting modem serial device attr");
   cur_termios = orig_termios;
 
   /* input modes - turn off input processing */
@@ -129,9 +129,9 @@ value c_init_serial(value device, value speed, value hw_flow_control)
   cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
   cur_termios.c_lflag |= NOFLSH;
 
-  if (cfsetspeed(&cur_termios, br)) failwith("setting modem serial device speed");
+  if (cfsetspeed(&cur_termios, br)) caml_failwith("setting modem serial device speed");
 
-  if (tcsetattr(fd, TCSADRAIN, &cur_termios)) failwith("setting modem serial device attr");
+  if (tcsetattr(fd, TCSADRAIN, &cur_termios)) caml_failwith("setting modem serial device attr");
 
   CAMLreturn (Val_int(fd));
 }
@@ -160,7 +160,7 @@ value c_serial_set_baudrate(value val_fd, value speed)
   int fd = Int_val(val_fd);
 
   if (tcgetattr(fd, &tio) < 0) {
-    failwith("tcgetattr");
+    caml_failwith("tcgetattr");
   }
   tio.c_iflag = 0;
   tio.c_oflag = 0;
@@ -175,7 +175,7 @@ value c_serial_set_baudrate(value val_fd, value speed)
   cfsetispeed(&tio, br);
   cfsetospeed(&tio, br);
   if (tcsetattr(fd, TCSANOW | TCSAFLUSH, &tio) < 0) {
-    failwith("tcsetattr");
+    caml_failwith("tcsetattr");
   }
   CAMLreturn (Val_unit);
 }
