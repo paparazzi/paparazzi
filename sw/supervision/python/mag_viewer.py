@@ -90,8 +90,14 @@ try:
             clear_button.clicked.connect(self.reset_data)
 
             self.distance_auto_chk = QtWidgets.QCheckBox("size auto", self)
+            self.distance_auto_chk.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
             self.cmds_lay.addWidget(self.distance_auto_chk)
             self.distance_auto_chk.setChecked(True)
+
+            calibrate_button = QtWidgets.QPushButton("calibrate", self)
+            calibrate_button.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
+            self.cmds_lay.addWidget(calibrate_button)
+            calibrate_button.clicked.connect(self.calibrate)
         
         def stop(self):
             self.connect.shutdown()
@@ -157,6 +163,10 @@ try:
                 self.xy_grid.setSize(grid_size, grid_size, grid_size)
                 self.xy_grid.setSpacing(grid_spacing, grid_spacing, grid_spacing)
                 self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
+        
+        def calibrate(self):
+            dia = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Information,"Calibration", "plop\ntoto", QtWidgets.QMessageBox.StandardButton.Ok, self)
+            dia.open()
 
 
         def set_points(self, points, color=(1, 0, 0, 1), size=5):
