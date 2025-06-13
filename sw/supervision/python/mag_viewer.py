@@ -37,22 +37,22 @@ try:
             self.gl_widget.setCameraPosition(distance=20)
 
             # Example axis
-            axis = gl.GLAxisItem()
-            axis.setSize(2, 2, 2)
-            self.gl_widget.addItem(axis)
+            self.axis = gl.GLAxisItem()
+            self.axis.setSize(2, 2, 2)
+            self.gl_widget.addItem(self.axis)
             # Axis Texts
-            txt_x = gl.GLTextItem(text='X', pos=[2, 0, 0])
-            self.gl_widget.addItem(txt_x)
-            txt_y = gl.GLTextItem(text='Y', pos=[0, 2, 0])
-            self.gl_widget.addItem(txt_y)
-            txt_z = gl.GLTextItem(text='Z', pos=[0, 0, 2])
-            self.gl_widget.addItem(txt_z)
+            self.txt_x = gl.GLTextItem(text='X', pos=[2, 0, 0])
+            self.gl_widget.addItem(self.txt_x)
+            self.txt_y = gl.GLTextItem(text='Y', pos=[0, 2, 0])
+            self.gl_widget.addItem(self.txt_y)
+            self.txt_z = gl.GLTextItem(text='Z', pos=[0, 0, 2])
+            self.gl_widget.addItem(self.txt_z)
             # XY grid
-            xy_grid = gl.GLGridItem()
-            xy_grid.setSize(2, 2)
-            xy_grid.setSpacing(0.2, 0.2)
-            xy_grid.rotate(0, 1, 0, 0)
-            self.gl_widget.addItem(xy_grid)
+            self.xy_grid = gl.GLGridItem()
+            self.xy_grid.setSize(2, 2)
+            self.xy_grid.setSpacing(0.2, 0.2)
+            self.xy_grid.rotate(0, 1, 0, 0)
+            self.gl_widget.addItem(self.xy_grid)
 
             shaft = np.array([[0,0,0], [1,0,0]])
             self.arrow = gl.GLLinePlotItem(pos=shaft, width=2)
@@ -62,6 +62,8 @@ try:
             self.scatter = None
             self.setMinimumSize(100, 100)
             #self.gl_widget.setBackgroundColor((20, 20, 20, 255))
+
+            self.mean_norm = 1
 
             self.connect = PprzConnect(notify=self.connect_cb)
             self.mag_sig.connect(self.update_mag)
@@ -86,6 +88,10 @@ try:
             clear_button.setSizePolicy(QSP.Policy.Fixed, QSP.Policy.Fixed)
             self.cmds_lay.addWidget(clear_button)
             clear_button.clicked.connect(self.reset_data)
+
+            self.distance_auto_chk = QtWidgets.QCheckBox("size auto", self)
+            self.cmds_lay.addWidget(self.distance_auto_chk)
+            self.distance_auto_chk.setChecked(True)
         
         def stop(self):
             self.connect.shutdown()
@@ -102,6 +108,7 @@ try:
         def reset_data(self):
             self.mag_data = np.empty((0,3))
             self.set_points(self.mag_data)
+            self.mean_norm = 1
         
         def connect_cb(self, conf: PprzConfig):
             self.confs[conf.id] = conf
@@ -127,11 +134,30 @@ try:
         
         def update_mag(self, mag_data):
             mid, mag = mag_data
+            self.mag_data = np.vstack([self.mag_data, mag])
             mag_unit = mag / np.linalg.norm(mag)
-            self.mag_data = np.vstack([self.mag_data, mag_unit])
-            self.set_points(self.mag_data)
-            shaft = np.array([[0,0,0], mag_unit])
+            self.set_points(self.mag_data)           
+            shaft = np.array([[0,0,0], mag_unit*self.mean_norm])
             self.arrow.setData(pos=shaft)
+
+            if self.mag_data.shape[0] % 10 == 0:
+                self.resize_grid()
+        
+        def resize_grid(self):
+            norms = np.linalg.norm(self.mag_data, axis=1)
+            self.mean_norm = np.mean(norms)
+            if self.distance_auto_chk.isChecked():
+                self.txt_x.setData(pos=[self.mean_norm, 0, 0])
+                self.txt_y.setData(pos=[0, self.mean_norm, 0])
+                self.txt_z.setData(pos=[0, 0, self.mean_norm])
+                #print(mean_norm)
+                self.axis.setSize(self.mean_norm, self.mean_norm, self.mean_norm)
+                grid_size = 2*self.mean_norm
+                grid_spacing = self.mean_norm / 10
+                self.xy_grid.setSize(grid_size, grid_size, grid_size)
+                self.xy_grid.setSpacing(grid_spacing, grid_spacing, grid_spacing)
+                self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
+
 
         def set_points(self, points, color=(1, 0, 0, 1), size=5):
             """
