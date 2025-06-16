@@ -50,7 +50,7 @@ bool pca95xx_configure(struct pca95xx *dev, uint8_t val, bool blocking)
   dev->i2c_trans.buf[0] = PCA95XX_CONFIG_REG;
   dev->i2c_trans.buf[1] = val;
   if (blocking) {
-    return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
+    return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2, 0.5) == I2CTransSuccess;
   } else {
     return i2c_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
   }
@@ -68,7 +68,7 @@ bool pca95xx_set_output(struct pca95xx *dev, uint8_t mask, bool blocking)
   dev->i2c_trans.buf[0] = PCA95XX_OUTPUT_REG;
   dev->i2c_trans.buf[1] = mask;
   if (blocking) {
-    return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
+    return i2c_blocking_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2, 0.5) == I2CTransSuccess;
   } else {
     return i2c_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2);
   }
