@@ -104,6 +104,7 @@ static bool i2c_linux_submit(struct i2c_periph *p, struct i2c_transaction *t)
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = next_idx;
 
+  pprz_bsem_init(&t->bsem, true);
   /* wake handler thread */
   pthread_cond_signal(condition);
   pthread_mutex_unlock(mutex);
@@ -199,6 +200,7 @@ static void *i2c_thread(void *data)
     pthread_mutex_lock(mutex);
     p->trans_extract_idx = (p->trans_extract_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
     pthread_mutex_unlock(mutex);
+    pprz_bsem_signal(&t->bsem);
   }
   return NULL;
 }
