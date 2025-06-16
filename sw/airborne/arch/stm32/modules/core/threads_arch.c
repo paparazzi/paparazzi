@@ -51,6 +51,18 @@ void pprz_bsem_wait(pprz_bsem_t* bsem) {
   bsem->value = 0;
 }
 
+int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout) {
+  float time_end = get_sys_time_float() + timeout;
+  while(get_sys_time_float() - time_end > 0) {
+    // active wait
+    if(bsem->value) {
+      bsem->value = 0;
+      return 0;
+    }
+  }
+  return -1;
+}
+
 void pprz_bsem_signal(pprz_bsem_t* bsem) {
   bsem->value = 1;
 }
