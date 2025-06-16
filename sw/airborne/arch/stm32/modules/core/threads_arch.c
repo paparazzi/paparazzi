@@ -66,3 +66,13 @@ int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout) {
 void pprz_bsem_signal(pprz_bsem_t* bsem) {
   bsem->value = 1;
 }
+
+/**
+ * Warning! This is a blocking function, you should probably not use it on stm32 baremetal arch!
+ */
+void pprz_sleep_ms(uint32_t duration) {
+  float start = get_sys_time_float();
+  while ((get_sys_time_float() - start)*1000 < duration) {
+    continue;
+  }
+}

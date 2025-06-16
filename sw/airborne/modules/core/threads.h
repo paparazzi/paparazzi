@@ -81,3 +81,11 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
  * @return        0 if the thread successfully joined.
  */
 int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
+
+
+/**
+ * @brief blocking sleep
+ * @param duration: in milliseconds
+ * @warning Blocking function, do not use it only in the main AP thread.
+ */
+void pprz_sleep_ms(uint32_t duration);

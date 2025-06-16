@@ -84,3 +84,7 @@ int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) {
   }
   return -1;
 }
+
+void pprz_sleep_ms(uint32_t duration) {
+  chThdSleepMilliseconds(duration);
+}

@@ -16,6 +16,7 @@
 #include <semaphore.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 
 int pprz_mtx_init(pprz_mutex_t* mtx) {
@@ -104,4 +105,8 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval) {
 
 int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) {
   return pthread_tryjoin_np(*thread, retval);
+}
+
+void pprz_sleep_ms(uint32_t duration) {
+  usleep(duration * 1000);
 }
