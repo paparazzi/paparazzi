@@ -434,7 +434,7 @@ void Drift_correction()
   //Calculating YAW error
   errorCourse = (DCM_Matrix[0][0] * MAG_Heading_Y) + (DCM_Matrix[1][0] * MAG_Heading_X);
   //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
-  Vector_Scale(errorYaw, &DCM_Matrix[2][0], errorCourse);
+  Vector_Scale(errorYaw, &DCM_Matrix[2][0], -errorCourse);
 
   Vector_Scale(&Scaled_Omega_P[0], &errorYaw[0], Kp_YAW);
   Vector_Add(Omega_P, Omega_P, Scaled_Omega_P); //Adding  Proportional.
@@ -532,6 +532,5 @@ static void compute_ahrs_representations(void)
   ahrs_dcm.ltp_to_body_euler.phi = atan2(DCM_Matrix[2][1], DCM_Matrix[2][2]);
   ahrs_dcm.ltp_to_body_euler.theta = -asin(DCM_Matrix[2][0]);
   ahrs_dcm.ltp_to_body_euler.psi = atan2(DCM_Matrix[1][0], DCM_Matrix[0][0]);
-  ahrs_dcm.ltp_to_body_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 }
