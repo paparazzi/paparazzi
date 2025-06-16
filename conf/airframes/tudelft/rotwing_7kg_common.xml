@@ -3,8 +3,8 @@
 <airframe>
 
     <section name="AP_FAILSAFE">
-        <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> <!-- Only commented out for navy testing -->
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> <!-- Set to FALSE for navy testing -->
+        <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> 
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> 
         <define name="RC_LOST_MODE"                         value="AP_MODE_NAV"/> 
         <define name="GPS_FIX_TIMEOUT"                      value="5"/> 
         <define name="FAILSAFE_DESCENT_SPEED"               value="1.0"/> <!-- Does not work as expected with AP static -->
@@ -48,8 +48,6 @@
         <!-- prevent in-flight in start engine block-->
         <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
-        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>  
         <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>
