@@ -57,7 +57,7 @@
             <define name="RADIO_CONTROL_THRUST_X"   value="0"/>
             <define name="RADIO_CONTROL_ROTWING_DEMO"   value="0"/>
 
-            <define name="PREFLIGHT_CHECK_BYPASS"   value="FALSE"/>
+            <define name="PREFLIGHT_CHECK_BYPASS"   value="TRUE"/>
             <define name="USE_SONAR"                value="1"/> <!-- Because uavcan can't handle simulation yet -->
         </target>
 
