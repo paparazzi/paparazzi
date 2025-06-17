@@ -44,6 +44,16 @@ void pprz_bsem_wait(pprz_bsem_t* bsem) {
   chBSemWait(&bsem->bsem);
 }
 
+int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout) {
+  sysinterval_t chtimeout;
+  if(timeout < 0.002) {
+    chtimeout = chTimeUS2I(timeout*1e6);
+  } else {
+    chtimeout = chTimeMS2I(timeout*1e3);
+  }
+  return chBSemWaitTimeout(&bsem->bsem, chtimeout);
+}
+
 void pprz_bsem_signal(pprz_bsem_t* bsem) {
   chBSemSignal(&bsem->bsem);
 }
@@ -73,4 +83,8 @@ int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) {
     return pprz_thread_join(thread, retval);
   }
   return -1;
+}
+
+void pprz_sleep_ms(uint32_t duration) {
+  chThdSleepMilliseconds(duration);
 }
