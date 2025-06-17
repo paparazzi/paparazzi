@@ -194,7 +194,7 @@ static void write_reg(struct mt9f002_t *mt, uint16_t addr, uint32_t val, uint8_t
   }
 
   // Transmit the buffer
-  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2);
+  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, len + 2, 0.5);
 }
 
 /**

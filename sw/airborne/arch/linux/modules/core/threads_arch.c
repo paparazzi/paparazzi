@@ -15,6 +15,8 @@
 #include "stdbool.h"
 #include <semaphore.h>
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 
 int pprz_mtx_init(pprz_mutex_t* mtx) {
@@ -42,6 +44,16 @@ void pprz_bsem_init(pprz_bsem_t* bsem, bool taken) {
 
 void pprz_bsem_wait(pprz_bsem_t* bsem) {
   sem_wait(&bsem->sem);
+}
+
+int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout) {
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  time_t timeout_secs = (time_t)timeout;
+  long timeout_nsecs = (timeout - timeout_secs) * 1e9;
+  ts.tv_sec += timeout_secs;
+  ts.tv_nsec += timeout_nsecs;
+  return sem_timedwait(&bsem->sem, &ts);
 }
 
 void pprz_bsem_signal(pprz_bsem_t* bsem) {
@@ -93,4 +105,8 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval) {
 
 int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) {
   return pthread_tryjoin_np(*thread, retval);
+}
+
+void pprz_sleep_ms(uint32_t duration) {
+  usleep(duration * 1000);
 }

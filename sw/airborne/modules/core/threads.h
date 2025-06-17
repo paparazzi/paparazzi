@@ -34,6 +34,14 @@ int pprz_mtx_unlock(pprz_mutex_t* mtx);
 
 void pprz_bsem_init(pprz_bsem_t* bsem, bool taken);
 void pprz_bsem_wait(pprz_bsem_t* bsem);
+
+/**
+ * @brief Wait on semaphore no more than timeout.
+ * @param timeout in seconds
+ * @returns 0 on success
+ */
+int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout);
+
 void pprz_bsem_signal(pprz_bsem_t* bsem);
 
 /**
@@ -73,3 +81,11 @@ int pprz_thread_join(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
  * @return        0 if the thread successfully joined.
  */
 int pprz_thread_tryjoin(pprz_thread_t* thread, void** retval) THREADS_ATTRIBUTES;
+
+
+/**
+ * @brief blocking sleep
+ * @param duration: in milliseconds
+ * @warning Blocking function, do not use it only in the main AP thread.
+ */
+void pprz_sleep_ms(uint32_t duration);
