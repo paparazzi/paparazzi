@@ -25,12 +25,11 @@ import re
 from telnetlib import theNULL
 import numpy as np
 from numpy import sin, cos
-from scipy import linalg, stats
+from scipy import linalg, stats, optimize
 from fractions import Fraction
 
 import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def get_ids_in_log(filename):
@@ -141,7 +140,6 @@ def get_min_max_guess(meas, scale):
     else:
         return np.array([0, 0, 0, 0])
 
-
 def scale_measurements(meas, p):
     """Scale the set of measurements."""
     l_comp = []
@@ -152,6 +150,15 @@ def scale_measurements(meas, p):
         l_norm.append(linalg.norm(sm))
     return np.array(l_comp), np.array(l_norm)
 
+def optimize_calibration(meas, ref, p0):
+    """ optimize parameters based on an initial guess """
+    def err_func(p, m, y):
+        c_p, n_p = scale_measurements(m, p)
+        err = y*np.ones(len(m)) - n_p
+        return err
+
+    sol, cov, info, msg, success = optimize.leastsq(err_func, p0[:], args=(meas, ref), full_output=1)
+    return sol, msg, success
 
 def estimate_mag_current_relation(meas):
     """Calculate linear coefficient of magnetometer-current relation."""
@@ -186,32 +193,36 @@ def _continious_frac(v, max_val, a, x, num, den, s):
     else:
         return _continious_frac(v, max_val, a1, x1, (num2, num3), (den2, den3), s)
 
-def print_xml(p, sensor, sensor_id, res):
+def format_xml(p, sensor, sensor_id, res):
     """Print xml for airframe file."""
     x_sens = continious_frac(p[3]*2**res)
     y_sens = continious_frac(p[4]*2**res)
     z_sens = continious_frac(p[5]*2**res)
 
-    print("")
-    print('<define name="IMU_'+sensor+'_CALIB" type="array">')
-    print('  <field type="struct">')
-    print('    <field name="abi_id" value="'+sensor_id+'"/>')
-    print('    <field name="calibrated" type="struct">')
-    print('      <field name="neutral" value="true"/>')
-    print('      <field name="scale" value="true"/>')
-    print('    </field>')
-    print('    <field name="neutral" value="'+str(int(round(p[0])))+','+str(int(round(p[1])))+','+str(int(round(p[2])))+'" type="int[]"/>')
-    print('    <field name="scale" value="{{'+str(x_sens[0])+','+str(y_sens[0])+','+str(z_sens[0])+'},{'+str(x_sens[1])+','+str(y_sens[1])+','+str(z_sens[1])+'}}"/>')
-    print('  </field>')
-    print('</define>')
-    print("")
-    print("<define name=\""+sensor+"_X_NEUTRAL\" value=\""+str(int(round(p[0])))+"\"/>")
-    print("<define name=\""+sensor+"_Y_NEUTRAL\" value=\""+str(int(round(p[1])))+"\"/>")
-    print("<define name=\""+sensor+"_Z_NEUTRAL\" value=\""+str(int(round(p[2])))+"\"/>")
-    print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
-    print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
-    print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
+    s = f""
+    s += f'<define name="IMU_{sensor}_CALIB" type="array">\n'
+    s += f'  <field type="struct">\n'
+    s += f'    <field name="abi_id" value="{sensor_id}"/>\n'
+    s += f'    <field name="calibrated" type="struct">\n'
+    s += f'      <field name="neutral" value="true"/>\n'
+    s += f'      <field name="scale" value="true"/>\n'
+    s += f'    </field>\n'
+    s += f'    <field name="neutral" value="{round(p[0]):d},{int(round(p[1])):d},{int(round(p[2])):d}" type="int[]"/>\n'
+    s += f'    <field name="scale" value="{{{{ {x_sens[0]:d}, {y_sens[0]:d}, {z_sens[0]:d} }},{{ {x_sens[1]:d}, {y_sens[1]:d}, {z_sens[1]:d} }}}}"/>\n'
+    s += f'  </field>\n'
+    s += f'</define>\n'
+    s += f'\n'
+    s += f'<define name="{sensor}_X_NEUTRAL" value="{round(p[0]):d}"/>\n'
+    s += f'<define name="{sensor}_Y_NEUTRAL" value="{round(p[1]):d}"/>\n'
+    s += f'<define name="{sensor}_Z_NEUTRAL" value="{round(p[2]):d}"/>\n'
+    s += f'<define name="{sensor}_X_SENS" value="{p[3]*2**res:.4f}" integer="16"/>\n'
+    s += f'<define name="{sensor}_Y_SENS" value="{p[4]*2**res:.4f}" integer="16"/>\n'
+    s += f'<define name="{sensor}_Z_SENS" value="{p[5]*2**res:.4f}" integer="16"/>\n'
+    return s
 
+def print_xml(p, sensor, sensor_id, res):
+    """Print xml for airframe file."""
+    print(format_xml(p, sensor, sensor_id, res))
 
 def print_imu_scaled(sensor, measurements, attrs):
     print("")
@@ -373,10 +384,7 @@ def plot_mag_3d(measured, calibrated, p):
     rect_r = [left/2+0.5, bottom, width, height]
 
     fig = plt.figure(figsize=plt.figaspect(0.5))
-    if matplotlib.__version__.startswith('0'):
-        ax = Axes3D(fig, rect=rect_l)
-    else:
-        ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
+    ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
     # plot measurements
     ax.scatter(mx, my, mz)
     # plot line from center to ellipsoid center
@@ -398,10 +406,7 @@ def plot_mag_3d(measured, calibrated, p):
     ax.set_ylabel('y')
     ax.set_zlabel('z')
 
-    if matplotlib.__version__.startswith('0'):
-        ax = Axes3D(fig, rect=rect_r)
-    else:
-        ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
+    ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
     ax.plot_wireframe(wx, wy, wz, color='grey', alpha=0.5)
     ax.scatter(cx, cy, cz)
 
