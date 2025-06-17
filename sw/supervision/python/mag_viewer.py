@@ -11,10 +11,12 @@ try:
     #raise ModuleNotFoundError()
 
     sys.path.append(utils.PAPARAZZI_SRC + "/sw/lib/python")
+    sys.path.append(utils.PAPARAZZI_SRC + "/sw/tools/calibration")
     sys.path.append(utils.PAPARAZZI_HOME + "/var/lib/python") # pprzlink
 
     from pprzlink.message import PprzMessage
     from pprz_connect import PprzConnect, PprzConfig
+    import calibration_utils
 
     class MagViewer(QtWidgets.QWidget):
 
@@ -24,6 +26,7 @@ try:
             super().__init__(parent)
 
             self.mag_data = np.empty((0,3))
+            self.mag_id = None
 
             self.vlay = QtWidgets.QVBoxLayout(self)
 
@@ -78,9 +81,9 @@ try:
 
             self.mag_combo = QtWidgets.QComboBox(self)
             self.cmds_lay.addWidget(self.mag_combo)
-            self.mag_combo.addItem("---")
+            self.mag_combo.addItem("--- Select sensor in list ---")
 
-            self.ivy_sub_button = QtWidgets.QPushButton("Subscribe", self)
+            self.ivy_sub_button = QtWidgets.QPushButton("Start listening data", self)
             self.cmds_lay.addWidget(self.ivy_sub_button)
             self.ivy_sub_button.clicked.connect(self.sub_unsub)
 
@@ -105,10 +108,10 @@ try:
         def sub_unsub(self):
             if self.raw_bind_id is None:
                 self.raw_bind_id = self.connect.ivy.subscribe(self.mag_raw_cb, PprzMessage("telemetry", "IMU_MAG_RAW"))
-                self.ivy_sub_button.setText("Unsubscribe")
+                self.ivy_sub_button.setText("Stop listening data")
             else:
                 self.connect.ivy.unsubscribe(self.raw_bind_id)
-                self.ivy_sub_button.setText("Subscribe")
+                self.ivy_sub_button.setText("Start listening data")
                 self.raw_bind_id = None
 
         def reset_data(self):
@@ -124,9 +127,10 @@ try:
             if ac_id not in self.confs:
                 return
             ac_name = self.confs[ac_id].name
-            mag_id = f"{ac_name}: {msg['id']}"
+            mag_id = int(msg['id'])
+            mag_label = f"{ac_name}: {mag_id}"
 
-            mag_idx = self.mag_combo.findText(mag_id)
+            mag_idx = self.mag_combo.findText(mag_label)
             cur_idx = self.mag_combo.currentIndex()
 
             if cur_idx == mag_idx:
@@ -136,10 +140,10 @@ try:
                 mag = np.array([mx, my, mz])
                 self.mag_sig.emit((mag_id, mag))
             elif mag_idx == -1:
-                self.mag_combo.addItem(mag_id)
+                self.mag_combo.addItem(mag_label)
         
         def update_mag(self, mag_data):
-            mid, mag = mag_data
+            self.mag_id, mag = mag_data
             self.mag_data = np.vstack([self.mag_data, mag])
             mag_unit = mag / np.linalg.norm(mag)
             self.set_points(self.mag_data)           
@@ -165,8 +169,19 @@ try:
                 self.gl_widget.setCameraPosition(distance=self.mean_norm*5)
         
         def calibrate(self):
-            dia = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Information,"Calibration", "plop\ntoto", QtWidgets.QMessageBox.StandardButton.Ok, self)
-            dia.open()
+            calib_text = ""
+            try:
+                p0 = calibration_utils.get_min_max_guess(self.mag_data, 1.)
+                p1, msg, success = calibration_utils.optimize_calibration(self.mag_data, 1., p0)
+                if success in [1, 2, 3, 4]:
+                    calib_text = calibration_utils.format_xml(p1, "MAG", self.mag_id, 11)
+                else:
+                    calib_text = "calibration failed\n"+msg
+            except Exception as e:
+                calib_text = "calibration error\n"+str(e)
+            finally:
+                dia = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Icon.Information,"Calibration", calib_text, QtWidgets.QMessageBox.StandardButton.Ok, self)
+                dia.open()
 
 
         def set_points(self, points, color=(1, 0, 0, 1), size=5):
@@ -185,7 +200,7 @@ except ImportError:
         def __init__(self, parent=None):
             super().__init__(parent)
             self.vlay = QtWidgets.QVBoxLayout(self)
-            self.error_label = QtWidgets.QLabel("module not found!")
+            self.error_label = QtWidgets.QLabel("Module not found!\nTry to install pyqtgraph")
             self.vlay.addWidget(self.error_label)
         
         def stop(self):
