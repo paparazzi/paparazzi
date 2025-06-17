@@ -35,6 +35,7 @@
 
 #include "mcu_periph/spi_arch.h"
 #include "mcu_periph/sys_time.h"
+#include "modules/core/threads.h"
 
 #ifndef SPI_BLOCKING_TIMEOUT
 #define SPI_BLOCKING_TIMEOUT 1.f
@@ -160,6 +161,7 @@ struct spi_transaction {
   SPICallback before_cb;        ///< NULL or function called before the transaction
   SPICallback after_cb;         ///< NULL or function called after the transaction
   volatile enum SPITransactionStatus status;
+  pprz_bsem_t bsem;
 };
 
 /** SPI transaction queue length.
@@ -296,19 +298,7 @@ extern bool spi_submit(struct spi_periph *p, struct spi_transaction *t);
  * @param t spi transaction
  * @return TRUE if transaction completed (success or failure)
  */
-static inline bool spi_blocking_transceive(struct spi_periph *p, struct spi_transaction *t) {
-  if (!spi_submit(p, t)) {
-    return false;
-  }
-  // Wait for transaction to complete
-  float start_t = get_sys_time_float();
-  while (t->status == SPITransPending || t->status == SPITransRunning) {
-    if (get_sys_time_float() - start_t > SPI_BLOCKING_TIMEOUT) {
-      break;
-    }
-  }
-  return true;
-}
+enum SPITransactionStatus spi_blocking_transceive(struct spi_periph *p, struct spi_transaction *t, float timeout);
 
 /** Select a slave.
  * @param slave slave id

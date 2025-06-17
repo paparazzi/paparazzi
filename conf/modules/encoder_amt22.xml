@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="encoder_amt22" dir="sensors" task="sensors">
+  <doc>
+    <description>Driver for AMT22 encoder from CUI devices.</description>
+  </doc>
+  <dep>
+    <depends>spi_master</depends>
+  </dep>
+  <header>
+    <file name="encoder_amt22.h"/>
+  </header>
+  <init fun="encoder_amt22_init()"/>
+  <periodic fun="encoder_amt22_periodic()" freq="50.0" autorun="TRUE"/>
+  <makefile>
+    <configure name="AMT22_SPI_DEV" default="SPI2" case="upper|lower"/>
+    <configure name="AMT22_SPI_SLAVE_IDX" default="SPI_SLAVE0"/>
+    <define name="USE_$(AMT22_SPI_DEV_UPPER)"/>
+    <define name="USE_$(AMT22_SPI_SLAVE_IDX)"/>
+    <define name="AMT22_SPI_DEV" value="$(AMT22_SPI_DEV_LOWER)"/>
+    <define name="AMT22_SPI_SLAVE_IDX" value="$(AMT22_SPI_SLAVE_IDX)"/>
+    <file name="encoder_amt22.c"/>
+    <file name="amt22.c" dir="peripherals"/>
+    <test/>
+  </makefile>
+</module>
