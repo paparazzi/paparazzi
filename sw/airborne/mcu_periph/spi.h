@@ -37,11 +37,6 @@
 #include "mcu_periph/sys_time.h"
 #include "modules/core/threads.h"
 
-#ifndef SPI_BLOCKING_TIMEOUT
-#define SPI_BLOCKING_TIMEOUT 1.f
-#endif
-
-
 /**
  * @addtogroup mcu_periph
  * @{
@@ -296,7 +291,8 @@ extern bool spi_submit(struct spi_periph *p, struct spi_transaction *t);
 /** Perform a spi transaction (blocking).
  * @param p spi peripheral to be used
  * @param t spi transaction
- * @return TRUE if transaction completed (success or failure)
+ * @param timeout timeout in seconds after which the transaction is considered failed
+ * @return the status of the transaction, or SPITransFailed if insertion to the transaction queue failed
  */
 enum SPITransactionStatus spi_blocking_transceive(struct spi_periph *p, struct spi_transaction *t, float timeout);
 

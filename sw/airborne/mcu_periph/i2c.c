@@ -229,11 +229,6 @@ bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
   return i2c_submit(p, t);
 }
 
-/** Default timeout for blocking I2C transactions */
-#ifndef I2C_BLOCKING_TIMEOUT
-#define I2C_BLOCKING_TIMEOUT 1.f
-#endif
-
 static enum I2CTransactionStatus i2c_blocking_submit(struct i2c_periph *p, struct i2c_transaction *t, float timeout) {
   if (!i2c_submit(p, t)) {
     return I2CTransFailed;
