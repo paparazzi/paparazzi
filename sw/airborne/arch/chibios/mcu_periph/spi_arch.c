@@ -389,6 +389,7 @@ static void handle_spi_thd(struct spi_periph *p)
     t->after_cb(t);
   }
 
+  pprz_bsem_signal(&t->bsem);
 }
 
 /**
@@ -552,6 +553,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   p->trans_insert_idx = idx;
 
   chSysUnlock();
+  pprz_bsem_init(&t->bsem, true);
   chSemSignal(&((struct spi_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;
