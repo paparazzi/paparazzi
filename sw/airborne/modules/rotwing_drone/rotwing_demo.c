@@ -41,8 +41,13 @@ void rotwing_demo_init(void) {
 void rotwing_demo_periodic(void) {
   
   // If actuator checks are not yet completed and drone is armed, start the actuator checks.
-  if (!kill_switch_is_on() && (pfc_actuators_get_state() != PFC_ACTUATORS_STATE_SUCCESS || pfc_actuators_get_state() != PFC_ACTUATORS_STATE_RUNNING)) {
-    pfc_actuators_start(true); // Detects if already running, can be called multiple times.
+  if (!kill_switch_is_on() && pfc_actuators_get_state() != PFC_ACTUATORS_STATE_SUCCESS && pfc_actuators_get_state() != PFC_ACTUATORS_STATE_RUNNING) {
+    pfc_actuators_start(true);
+  }
+
+  // If actuator checks are running, and drone is disarmed again, stop the actuator checks.
+  if (kill_switch_is_on() && pfc_actuators_get_state() == PFC_ACTUATORS_STATE_RUNNING) {
+    pfc_actuators_start(false);
   }
 
   // If actuator checks are completed, and drone is disarmed again, bypass the preflight checks.
