@@ -34,6 +34,14 @@
 #warning "No RC switch defined for skew demo, please define a 3-way switch in the airframe file, under the ap target, with name RADIO_CONTROL_ROTWING_DEMO. E.g. <define name="RADIO_CONTROL_ROTWING_DEMO"   value="RADIO_AUX5"/>"
 #endif
 
+#ifndef ROTWING_DEMO_SKEW_MIDPOINT
+#define ROTWING_DEMO_SKEW_MIDPOINT 45.0
+#endif
+
+#ifndef ROTWING_DEMO_SKEW_ENDPOINT
+#define ROTWING_DEMO_SKEW_ENDPOINT 70.0
+#endif
+
 void rotwing_demo_init(void) {
   return;
 }
@@ -66,9 +74,9 @@ void rotwing_demo_periodic(void) {
     if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] < (MAX_PPRZ / 3)) {
       rotwing_state.sp_skew_angle_deg = 0.f;
     } else if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] > (2 * MAX_PPRZ / 3)) {
-      rotwing_state.sp_skew_angle_deg = 70.f;
+      rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_ENDPOINT;
     } else {
-      rotwing_state.sp_skew_angle_deg = 45.f;
+      rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_MIDPOINT;
     }
   }
 #endif
