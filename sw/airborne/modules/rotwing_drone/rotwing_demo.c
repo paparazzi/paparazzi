@@ -63,9 +63,9 @@ void rotwing_demo_periodic(void) {
 
   // Set the skew angle based on the RC switch position
   if (rotwing_state.force_skew == true) {
-    if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] < 1250) {
+    if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] < (MAX_PPRZ / 3)) {
       rotwing_state.sp_skew_angle_deg = 0.f;
-    } else if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] > 1750) {
+    } else if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] > (2 * MAX_PPRZ / 3)) {
       rotwing_state.sp_skew_angle_deg = 70.f;
     } else {
       rotwing_state.sp_skew_angle_deg = 45.f;
