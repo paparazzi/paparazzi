@@ -42,10 +42,6 @@
 #define ROTWING_DEMO_SKEW_ENDPOINT 70.0
 #endif
 
-void rotwing_demo_init(void) {
-  return;
-}
-
 void rotwing_demo_periodic(void) {
   
   // If actuator checks are not yet completed and drone is armed, start the actuator checks.
