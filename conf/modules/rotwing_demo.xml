@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="rotwing_demo" dir="rotwing_drone">
+  <doc>
+    <description>This module allows for a simpler setup procedure and adds some features to make demo's of the rotating wing drone simpler</description>
+    <section name="ROTWING_DEMO" prefix="ROTWING_DEMO_">
+    
+    </section>
+  </doc>
+  <header>
+    <file name="rotwing_demo.h"/>
+  </header>
+    <periodic fun="rotwing_demo_periodic()" freq="10"/>
+  <makefile>
+    <file name="rotwing_demo.c"/>
+  </makefile>
+</module>
