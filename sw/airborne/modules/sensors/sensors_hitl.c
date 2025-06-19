@@ -64,6 +64,7 @@ void sensors_hitl_init(void)
     {NPS_GYRO_SENSITIVITY_PP_NUM, NPS_GYRO_SENSITIVITY_QQ_NUM, NPS_GYRO_SENSITIVITY_RR_NUM},
     {NPS_GYRO_SENSITIVITY_PP_DEN, NPS_GYRO_SENSITIVITY_QQ_DEN, NPS_GYRO_SENSITIVITY_RR_DEN}
   };
+  const struct FloatVect3 gyro_scale_f = {NPS_GYRO_SENSITIVITY_PP, NPS_GYRO_SENSITIVITY_QQ, NPS_GYRO_SENSITIVITY_RR};
   const struct Int32Rates gyro_neutral = {
     NPS_GYRO_NEUTRAL_P, NPS_GYRO_NEUTRAL_Q, NPS_GYRO_NEUTRAL_R
   };
@@ -71,6 +72,7 @@ void sensors_hitl_init(void)
     {NPS_ACCEL_SENSITIVITY_XX_NUM, NPS_ACCEL_SENSITIVITY_YY_NUM, NPS_ACCEL_SENSITIVITY_ZZ_NUM},
     {NPS_ACCEL_SENSITIVITY_XX_DEN, NPS_ACCEL_SENSITIVITY_YY_DEN, NPS_ACCEL_SENSITIVITY_ZZ_DEN}
   };
+  const struct FloatVect3 accel_scale_f = {NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ};
   const struct Int32Vect3 accel_neutral = {
     NPS_ACCEL_NEUTRAL_X, NPS_ACCEL_NEUTRAL_Y, NPS_ACCEL_NEUTRAL_Z
   };
@@ -78,12 +80,13 @@ void sensors_hitl_init(void)
     {NPS_MAG_SENSITIVITY_XX_NUM, NPS_MAG_SENSITIVITY_YY_NUM, NPS_MAG_SENSITIVITY_ZZ_NUM},
     {NPS_MAG_SENSITIVITY_XX_DEN, NPS_MAG_SENSITIVITY_YY_DEN, NPS_MAG_SENSITIVITY_ZZ_DEN}
   };
+  const struct FloatVect3 mag_scale_f = {NPS_MAG_SENSITIVITY_XX, NPS_MAG_SENSITIVITY_YY, NPS_MAG_SENSITIVITY_ZZ};
   const struct Int32Vect3 mag_neutral = {
     NPS_MAG_NEUTRAL_X, NPS_MAG_NEUTRAL_Y, NPS_MAG_NEUTRAL_Z
   };
-  imu_set_defaults_gyro(IMU_NPS_ID, NULL, &gyro_neutral, gyro_scale);
-  imu_set_defaults_accel(IMU_NPS_ID, NULL, &accel_neutral, accel_scale);
-  imu_set_defaults_mag(IMU_NPS_ID, NULL, &mag_neutral, mag_scale);
+  imu_set_defaults_gyro(IMU_NPS_ID, NULL, &gyro_neutral, gyro_scale, &gyro_scale_f);
+  imu_set_defaults_accel(IMU_NPS_ID, NULL, &accel_neutral, accel_scale, &accel_scale_f);
+  imu_set_defaults_mag(IMU_NPS_ID, NULL, &mag_neutral, mag_scale, &mag_scale_f);
 }
 
 void sensors_hitl_periodic(void) {

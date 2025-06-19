@@ -81,8 +81,8 @@ void imu_disco_init(void)
   imu_disco.mpu.config.accel_range = DISCO_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[DISCO_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[DISCO_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[DISCO_GYRO_RANGE], &MPU60X0_GYRO_SENS_F[DISCO_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[DISCO_ACCEL_RANGE], &MPU60X0_ACCEL_SENS_F[DISCO_ACCEL_RANGE]);
 
   /* AKM8963 */
   ak8963_init(&imu_disco.ak, &(DISCO_MAG_I2C_DEV), AK8963_ADDR);

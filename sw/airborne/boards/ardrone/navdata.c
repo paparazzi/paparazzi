@@ -94,6 +94,8 @@ static const struct Int32Rates gyro_scale[2] = {
   {1000, 1000, 1000}
 };
 
+static const struct FloatVect3 gyro_scale_f = {4359.0/1000, 4359.0/1000, 4359.0/1000};
+
 /**
  * Default accel scale/neutral
  */
@@ -101,6 +103,8 @@ static const struct Int32Vect3 accel_scale[2] = {
   {195, 195, 195},
   {10,  10,  10}
 };
+static const struct FloatVect3 accel_scale_f = {195.0/10, 195.0/10, 195.0/10};
+
 static const struct Int32Vect3 accel_neutral = {
   2048, 2048, 2048
 };
@@ -112,6 +116,8 @@ static const struct Int32Vect3 mag_scale[2] = {
   {16, 16, 16},
   {1,  1,  1}
 };
+
+static const struct FloatVect3 mag_scale_f = {16, 16, 16};
 
 /**
  * Write to fd even while being interrupted
@@ -255,9 +261,9 @@ bool navdata_init()
   navdata.baro_calibrated = true;
 
   /* Set the default scalings/neutrals */
-  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, gyro_scale);
-  imu_set_defaults_accel(IMU_BOARD_ID, NULL, &accel_neutral, accel_scale);
-  imu_set_defaults_mag(IMU_BOARD_ID, NULL, NULL, mag_scale);
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, gyro_scale, &gyro_scale_f);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, &accel_neutral, accel_scale, &accel_scale_f);
+  imu_set_defaults_mag(IMU_BOARD_ID, NULL, NULL, mag_scale, &mag_scale_f);
 
   /* Start acquisition */
   navdata_cmd_send(NAVDATA_CMD_START);

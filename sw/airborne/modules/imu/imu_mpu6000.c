@@ -130,8 +130,8 @@ void imu_mpu_spi_init(void)
   imu_mpu_spi.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_MPU6000_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_MPU6000_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_MPU6000_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU_GYRO_RANGE], &MPU60X0_GYRO_SENS_F[IMU_MPU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU6000_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU_ACCEL_RANGE], &MPU60X0_ACCEL_SENS_F[IMU_MPU_ACCEL_RANGE]);
 }
 
 void imu_mpu_spi_periodic(void)

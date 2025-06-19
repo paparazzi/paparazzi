@@ -37,6 +37,7 @@
  * sens = 70e-3 * pi/180 * 2^INT32_RATE_FRAC
  * sens = (70e-3 / 180.0f) * pi * 4096
   */
+#define L3GD20_SENS_2000 5.004
 #define L3GD20_SENS_2000_NUM 5004
 #define L3GD20_SENS_2000_DEN 1000
 

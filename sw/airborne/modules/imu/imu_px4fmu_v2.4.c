@@ -51,12 +51,14 @@ void imu_px4_init(void) {
     {L3GD20_SENS_2000_NUM, L3GD20_SENS_2000_NUM, L3GD20_SENS_2000_NUM},
     {L3GD20_SENS_2000_DEN, L3GD20_SENS_2000_DEN, L3GD20_SENS_2000_DEN}
   };
+  const struct FloatVect3 gyro_scale_f = {L3GD20_SENS_2000, L3GD20_SENS_2000, L3GD20_SENS_2000};
   const struct Int32Vect3 accel_scale[2] = {
     {LSM303D_ACCEL_SENS_16G_NUM, LSM303D_ACCEL_SENS_16G_NUM, LSM303D_ACCEL_SENS_16G_NUM},
     {LSM303D_ACCEL_SENS_16G_DEN, LSM303D_ACCEL_SENS_16G_DEN, LSM303D_ACCEL_SENS_16G_DEN}
   };
-  imu_set_defaults_gyro(IMU_PX4_ID, NULL, NULL, gyro_scale);
-  imu_set_defaults_accel(IMU_PX4_ID, NULL, NULL, accel_scale);
+  const struct FloatVect3 accel_scale_f = {LSM303D_ACCEL_SENS_16G, LSM303D_ACCEL_SENS_16G, LSM303D_ACCEL_SENS_16G};
+  imu_set_defaults_gyro(IMU_PX4_ID, NULL, NULL, gyro_scale, &gyro_scale_f);
+  imu_set_defaults_accel(IMU_PX4_ID, NULL, NULL, accel_scale, &accel_scale_f);
 
 #if !IMU_PX4_DISABLE_MAG
   /* LSM303d mag init */
