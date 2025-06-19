@@ -246,9 +246,7 @@ let parse_servo = fun out driver c ->
 
   define_out out (name^"_NEUTRAL") (sof neutral);
   define_out out (name^"_TRAVEL_UP") (sof travel_up);
-  define_integer out (name^"_TRAVEL_UP") travel_up 16;
   define_out out (name^"_TRAVEL_DOWN") (sof travel_down);
-  define_integer out (name^"_TRAVEL_DOWN") travel_down 16;
 
   let s_min = min s_min s_max
   and s_max = max s_min s_max in
@@ -275,8 +273,7 @@ let print_actuators_idx = fun out ->
     fprintf out "  int32_t servo_value;\\\n";
     fprintf out "  int32_t command_value;\\\n\\\n";
     fprintf out "  actuators[SERVO_%s_IDX].pprz_val = ClipAbs( actuator_value_pprz, MAX_PPRZ); \\\n" s;
-    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM); \\\n" s s;
-    fprintf out "  command_value /= actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" s s;
+    fprintf out "  command_value = actuator_value_pprz * (actuator_value_pprz>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN); \\\n" s s;
     fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" s;
     fprintf out "  actuators[SERVO_%s_IDX].driver_val = Clip(servo_value, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
     fprintf out "  Actuator%sSet(SERVO_%s_DRIVER_NO, actuators[SERVO_%s_IDX].driver_val); \\\n" d s s;
