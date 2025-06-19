@@ -83,8 +83,8 @@ void imu_bebop_init(void)
   imu_bebop.mpu.config.accel_range = BEBOP_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[BEBOP_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[BEBOP_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_BOARD_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[BEBOP_GYRO_RANGE], &MPU60X0_GYRO_SENS_F[BEBOP_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_BOARD_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[BEBOP_ACCEL_RANGE], &MPU60X0_ACCEL_SENS_F[BEBOP_ACCEL_RANGE]);
 
   /* AKM8963 */
   ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR);

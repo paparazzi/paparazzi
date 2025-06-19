@@ -62,8 +62,8 @@ void imu_pixhawk6x_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
-  imu_set_defaults_accel(IMU_PIXHAWK1_ID, &rmat, NULL, NULL);
+  imu_set_defaults_gyro(IMU_PIXHAWK1_ID, &rmat, NULL, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK1_ID, &rmat, NULL, NULL, NULL);
 
   /* IMU 2 */
   imu2.abi_id = IMU_PIXHAWK2_ID;
@@ -86,8 +86,8 @@ void imu_pixhawk6x_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(RadOfDeg(180));
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
-  imu_set_defaults_accel(IMU_PIXHAWK2_ID, &rmat, NULL, NULL);
+  imu_set_defaults_gyro(IMU_PIXHAWK2_ID, &rmat, NULL, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK2_ID, &rmat, NULL, NULL, NULL);
 
   /* IMU 3 */
   imu3.abi_id = IMU_PIXHAWK3_ID;
@@ -105,8 +105,8 @@ void imu_pixhawk6x_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(180));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
-  imu_set_defaults_accel(IMU_PIXHAWK3_ID, &rmat, NULL, NULL);
+  imu_set_defaults_gyro(IMU_PIXHAWK3_ID, &rmat, NULL, NULL, NULL);
+  imu_set_defaults_accel(IMU_PIXHAWK3_ID, &rmat, NULL, NULL, NULL);
 }
 
 void imu_pixhawk6x_periodic(void)

@@ -74,8 +74,8 @@ void imu_mpu_i2c_init(void)
   imu_mpu_i2c.mpu.config.accel_range = IMU_MPU60X0_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU60X0_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU60X0_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU60X0_GYRO_RANGE], &MPU60X0_GYRO_SENS_F[IMU_MPU60X0_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU60X0_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU60X0_ACCEL_RANGE], &MPU60X0_ACCEL_SENS_F[IMU_MPU60X0_ACCEL_RANGE]);
 }
 
 void imu_mpu_i2c_periodic(void)

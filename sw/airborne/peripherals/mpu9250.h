@@ -29,6 +29,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 /* Include address and register definition */
 #include "peripherals/mpu9250_regs.h"

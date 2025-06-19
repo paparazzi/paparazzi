@@ -58,6 +58,7 @@
  * fixed point sens: 9.81 [m/s^2] / 732 [LSB/g] * 2^INT32_ACCEL_FRAC
  * sens = 9.81 / 732 * 1024 = 13.72
  */
+#define LSM303D_ACCEL_SENS_16G 13.723
 #define LSM303D_ACCEL_SENS_16G_NUM 13723
 #define LSM303D_ACCEL_SENS_16G_DEN 1000
 
