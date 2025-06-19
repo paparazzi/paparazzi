@@ -348,9 +348,14 @@ static void show_vect3(shell_stream_t *sh, char* name, struct Int32Vect3 *v) {
   chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, v->x, v->y, v->z);
 }
 
+static void show_vect3f(shell_stream_t *sh, char* name, struct Float32Vect3 *v) {
+  chprintf(sh, "  %s: %f, %f, %f\r\n", name, v->x, v->y, v->z);
+}
+
 static void show_rates(shell_stream_t *sh, char* name, struct Int32Rates *r) {
   chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, r->p, r->q, r->r);
 }
+
 
 static void show_matrix(shell_stream_t *sh, char* name, struct Int32RMat *m) {
   chprintf(sh, "  %s:\r\n", name);
@@ -373,8 +378,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
       chprintf(sh, " Gyro id: %u, time %lu\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp);
       show_calibrated(sh, &imu.gyros[i].calibrated);
       show_rates(sh, "neutral", &imu.gyros[i].neutral);
-      show_rates(sh, "scale_num", &imu.gyros[i].scale[0]);
-      show_rates(sh, "scale_den", &imu.gyros[i].scale[1]);
+      show_vect3f(sh, "scale", &imu.gyros[i].scale_f);
       show_matrix(sh, "body_to_sensor", &imu.gyros[i].body_to_sensor);
       show_rates(sh, "unscaled", &imu.gyros[i].unscaled);
       show_rates(sh, "scaled", &imu.gyros[i].scaled);
@@ -389,8 +393,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
       chprintf(sh, " Accel id: %u, time %lu\r\n", imu.accels[i].abi_id, imu.accels[i].last_stamp);
       show_calibrated(sh, &imu.accels[i].calibrated);
       show_vect3(sh, "neutral", &imu.accels[i].neutral);
-      show_vect3(sh, "scale_num", &imu.accels[i].scale[0]);
-      show_vect3(sh, "scale_den", &imu.accels[i].scale[1]);
+      show_vect3f(sh, "scale", &imu.accels[i].scale_f);
       show_matrix(sh, "body_to_sensor", &imu.accels[i].body_to_sensor);
       show_vect3(sh, "unscaled", &imu.accels[i].unscaled);
       show_vect3(sh, "scaled", &imu.accels[i].scaled);
@@ -404,9 +407,8 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
     if (imu.mags[i].abi_id != 0) {
       chprintf(sh, " Mag id: %u\r\n", imu.mags[i].abi_id);
       show_calibrated(sh, &imu.mags[i].calibrated);
-      show_vect3(sh, "neutral", &imu.mags[i].neutral);
-      show_vect3(sh, "scale_num", &imu.mags[i].scale[0]);
-      show_vect3(sh, "scale_den", &imu.mags[i].scale[1]);
+      show_vect3(sh, "neutral", &imu.mags[i].neutral);                  
+      show_vect3f(sh, "scale", &imu.mags[i].scale_f);
       show_matrix(sh, "body_to_sensor", &imu.mags[i].body_to_sensor);
       show_vect3(sh, "unscaled", &imu.mags[i].unscaled);
       show_vect3(sh, "scaled", &imu.mags[i].scaled);
@@ -450,6 +452,7 @@ void imu_init(void)
       imu.gyros[i].abi_id = ABI_DISABLE;
       imu.gyros[i].calibrated.neutral = false;
       imu.gyros[i].calibrated.scale = false;
+      imu.gyros[i].calibrated.scale_f = false;
       imu.gyros[i].calibrated.rotation = false;
       imu.gyros[i].calibrated.filter = false;
     } else {
@@ -460,10 +463,18 @@ void imu_init(void)
     if(!imu.gyros[i].calibrated.neutral) {
       INT_RATES_ZERO(imu.gyros[i].neutral);
     }
-    if(!imu.gyros[i].calibrated.scale) {
-      RATES_ASSIGN(imu.gyros[i].scale[0], IMU_GYRO_P_SIGN, IMU_GYRO_Q_SIGN, IMU_GYRO_R_SIGN);
-      RATES_ASSIGN(imu.gyros[i].scale[1], 1, 1, 1);
+    
+    if(!imu.gyros[i].calibrated.scale_f) {
+      if(imu.gyros[i].calibrated.scale) {
+        imu.gyros[i].scale_f.x = (float)imu.gyros[i].scale[0].p / (float)imu.gyros[i].scale[1].p;
+        imu.gyros[i].scale_f.y = (float)imu.gyros[i].scale[0].q / (float)imu.gyros[i].scale[1].q;
+        imu.gyros[i].scale_f.z = (float)imu.gyros[i].scale[0].r / (float)imu.gyros[i].scale[1].r;
+        imu.gyros[i].calibrated.scale_f = true;
+      } else {
+        VECT3_ASSIGN(imu.accels[i].scale_f, IMU_GYRO_P_SIGN, IMU_GYRO_Q_SIGN, IMU_GYRO_R_SIGN);
+      }
     }
+
     if(!imu.gyros[i].calibrated.rotation) {
       int32_rmat_identity(&imu.gyros[i].body_to_sensor);
     }
@@ -483,6 +494,7 @@ void imu_init(void)
       imu.accels[i].abi_id = ABI_DISABLE;
       imu.accels[i].calibrated.neutral = false;
       imu.accels[i].calibrated.scale = false;
+      imu.accels[i].calibrated.scale_f = false;
       imu.accels[i].calibrated.rotation = false;
       imu.accels[i].calibrated.filter = false;
     } else {
@@ -493,10 +505,17 @@ void imu_init(void)
     if(!imu.accels[i].calibrated.neutral) {
       INT_VECT3_ZERO(imu.accels[i].neutral);
     }
-    if(!imu.accels[i].calibrated.scale) {
-      VECT3_ASSIGN(imu.accels[i].scale[0], IMU_ACCEL_X_SIGN, IMU_ACCEL_Y_SIGN, IMU_ACCEL_Z_SIGN);
-      VECT3_ASSIGN(imu.accels[i].scale[1], 1, 1, 1);
+
+    if(!imu.accels[i].calibrated.scale_f) {
+      if(imu.accels[i].calibrated.scale) {
+        imu.accels[i].scale_f.x = (float)imu.accels[i].scale[0].x / (float)imu.accels[i].scale[1].x;
+        imu.accels[i].scale_f.y = (float)imu.accels[i].scale[0].y / (float)imu.accels[i].scale[1].y;
+        imu.accels[i].scale_f.z = (float)imu.accels[i].scale[0].z / (float)imu.accels[i].scale[1].z;
+      } else {
+        VECT3_ASSIGN(imu.accels[i].scale_f, IMU_ACCEL_X_SIGN, IMU_ACCEL_Y_SIGN, IMU_ACCEL_Z_SIGN);
+      }
     }
+
     if(!imu.accels[i].calibrated.rotation) {
       int32_rmat_identity(&imu.accels[i].body_to_sensor);
     }
@@ -516,6 +535,7 @@ void imu_init(void)
       imu.mags[i].abi_id = ABI_DISABLE;
       imu.mags[i].calibrated.neutral = false;
       imu.mags[i].calibrated.scale = false;
+      imu.mags[i].calibrated.scale_f = false;
       imu.mags[i].calibrated.rotation = false;
       imu.mags[i].calibrated.current = false;
     } else {
@@ -526,9 +546,15 @@ void imu_init(void)
     if(!imu.mags[i].calibrated.neutral) {
       INT_VECT3_ZERO(imu.mags[i].neutral);
     }
-    if(!imu.mags[i].calibrated.scale) {
-      VECT3_ASSIGN(imu.mags[i].scale[0], IMU_MAG_X_SIGN, IMU_MAG_Y_SIGN, IMU_MAG_Z_SIGN);
-      VECT3_ASSIGN(imu.mags[i].scale[1], 1, 1, 1);
+
+    if(!imu.mags[i].calibrated.scale_f) {
+      if(imu.mags[i].calibrated.scale) {
+        imu.mags[i].scale_f.x = (float)imu.mags[i].scale[0].x / (float)imu.mags[i].scale[1].x;
+        imu.mags[i].scale_f.y = (float)imu.mags[i].scale[0].y / (float)imu.mags[i].scale[1].y;
+        imu.mags[i].scale_f.z = (float)imu.mags[i].scale[0].z / (float)imu.mags[i].scale[1].z;
+      }else {
+        VECT3_ASSIGN(imu.mags[i].scale_f, IMU_MAG_X_SIGN, IMU_MAG_Y_SIGN, IMU_MAG_Z_SIGN);
+      }
     }
     if(!imu.mags[i].calibrated.rotation) {
       int32_rmat_identity(&imu.mags[i].body_to_sensor);
@@ -577,7 +603,7 @@ void imu_init(void)
  * @param neutral Neutral values
  * @param scale Scale values, 0 index is multiply and 1 index is divide
  */
-void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct Int32Rates *scale)
+void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatVect3 *scale_f)
 {
   // Find the correct gyro
   struct imu_gyro_t *gyro = imu_get_gyro(abi_id, true);
@@ -593,9 +619,8 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
   }
   if(neutral != NULL && !gyro->calibrated.neutral)
     RATES_COPY(gyro->neutral, *neutral);
-  if(scale != NULL && !gyro->calibrated.scale) {
-    RATES_ASSIGN(gyro->scale[0], IMU_GYRO_P_SIGN*scale[0].p, IMU_GYRO_Q_SIGN*scale[0].q, IMU_GYRO_R_SIGN*scale[0].r);
-    RATES_COPY(gyro->scale[1], scale[1]);
+  if(scale_f != NULL && !gyro->calibrated.scale_f) {
+    VECT3_ASSIGN(gyro->scale_f, IMU_MAG_X_SIGN*scale_f->x, IMU_MAG_Y_SIGN*scale_f->y, IMU_MAG_Z_SIGN*scale_f->z);
   }
 }
 
@@ -607,7 +632,7 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
  * @param neutral Neutral values
  * @param scale Scale values, 0 index is multiply and 1 index is divide
  */
-void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
+void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f)
 {
   // Find the correct accel
   struct imu_accel_t *accel = imu_get_accel(abi_id, true);
@@ -623,9 +648,8 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
   }
   if(neutral != NULL && !accel->calibrated.neutral)
     VECT3_COPY(accel->neutral, *neutral);
-  if(scale != NULL && !accel->calibrated.scale) {
-    VECT3_ASSIGN(accel->scale[0], IMU_ACCEL_X_SIGN*scale[0].x, IMU_ACCEL_Y_SIGN*scale[0].y, IMU_ACCEL_Z_SIGN*scale[0].z);
-    VECT3_COPY(accel->scale[1], scale[1]);
+  if(scale_f != NULL && !accel->calibrated.scale_f) {
+    VECT3_ASSIGN(accel->scale_f, IMU_MAG_X_SIGN*scale_f->x, IMU_MAG_Y_SIGN*scale_f->y, IMU_MAG_Z_SIGN*scale_f->z);
   }
 }
 
@@ -637,7 +661,7 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
  * @param neutral Neutral values
  * @param scale Scale values, 0 index is multiply and 1 index is divide
  */
-void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct Int32Vect3 *scale)
+void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f)
 {
   // Find the correct mag
   struct imu_mag_t *mag = imu_get_mag(abi_id, true);
@@ -653,9 +677,8 @@ void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor,
   }
   if(neutral != NULL && !mag->calibrated.neutral)
     VECT3_COPY(mag->neutral, *neutral);
-  if(scale != NULL && !mag->calibrated.scale) {
-    VECT3_ASSIGN(mag->scale[0], IMU_MAG_X_SIGN*scale[0].x, IMU_MAG_Y_SIGN*scale[0].y, IMU_MAG_Z_SIGN*scale[0].z);
-    VECT3_COPY(mag->scale[1], scale[1]);
+  if(scale_f != NULL && !mag->calibrated.scale_f) {
+    VECT3_ASSIGN(mag->scale_f, IMU_MAG_X_SIGN*scale_f->x, IMU_MAG_Y_SIGN*scale_f->y, IMU_MAG_Z_SIGN*scale_f->z);
   }
 }
 
@@ -682,9 +705,9 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 
   // Scale the gyro
   struct Int32Rates scaled, scaled_rot;
-  scaled.p = (gyro->unscaled.p - gyro->neutral.p) * gyro->scale[0].p / gyro->scale[1].p;
-  scaled.q = (gyro->unscaled.q - gyro->neutral.q) * gyro->scale[0].q / gyro->scale[1].q;
-  scaled.r = (gyro->unscaled.r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r;
+  scaled.p = (gyro->unscaled.p - gyro->neutral.p) * gyro->scale_f.x;
+  scaled.q = (gyro->unscaled.q - gyro->neutral.q) * gyro->scale_f.y;
+  scaled.r = (gyro->unscaled.r - gyro->neutral.r) * gyro->scale_f.z;
 
   // Rotate the sensor
   int32_rmat_transp_ratemult(&scaled_rot, &gyro->body_to_sensor, &scaled);
@@ -710,9 +733,10 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
       // Add all the other samples
       for(uint8_t i = 0; i < samples-1; i++) {
         struct FloatRates f_sample;
-        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale[0].p / gyro->scale[1].p);
-        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale[0].q / gyro->scale[1].q);
-        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale[0].r / gyro->scale[1].r);
+        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale_f.x);
+        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale_f.y);
+        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale_f.z);
+
 
 #if IMU_LOG_HIGHSPEED
         pprz_msg_send_IMU_GYRO(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.p, &f_sample.q, &f_sample.r);
@@ -776,9 +800,10 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
 
   // Scale the accel
   struct Int32Vect3 scaled, scaled_rot;
-  scaled.x = (accel->unscaled.x - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x;
-  scaled.y = (accel->unscaled.y - accel->neutral.y) * accel->scale[0].y / accel->scale[1].y;
-  scaled.z = (accel->unscaled.z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z;
+  scaled.x = (accel->unscaled.x - accel->neutral.x) * accel->scale_f.x;
+  scaled.y = (accel->unscaled.y - accel->neutral.y) * accel->scale_f.y;
+  scaled.z = (accel->unscaled.z - accel->neutral.z) * accel->scale_f.z;
+
 
   // Rotate the sensor
   int32_rmat_transp_vmult(&scaled_rot, &accel->body_to_sensor, &scaled);
@@ -804,9 +829,10 @@ static void imu_accel_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect
       // Add all the other samples
       for(uint8_t i = 0; i < samples-1; i++) {
         struct FloatVect3 f_sample;
-        f_sample.x = ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale[0].x / accel->scale[1].x);
-        f_sample.y = ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale[0].y / accel->scale[1].y);
-        f_sample.z = ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale[0].z / accel->scale[1].z);
+        f_sample.x = ACCEL_FLOAT_OF_BFP((data[i].x - accel->neutral.x) * accel->scale_f.x);
+        f_sample.y = ACCEL_FLOAT_OF_BFP((data[i].y - accel->neutral.y) * accel->scale_f.y);
+        f_sample.z = ACCEL_FLOAT_OF_BFP((data[i].z - accel->neutral.z) * accel->scale_f.z);
+
 
 #if IMU_LOG_HIGHSPEED
         pprz_msg_send_IMU_ACCEL(&pprzlog_tp.trans_tx, &(IMU_LOG_HIGHSPEED_DEVICE).device, AC_ID, &sender_id, &f_sample.x, &f_sample.y, &f_sample.z);
@@ -865,9 +891,10 @@ static void imu_mag_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 
 
   // Scale the mag
   struct Int32Vect3 scaled;
-  scaled.x = (mag->unscaled.x - mag_correction.x - mag->neutral.x) * mag->scale[0].x / mag->scale[1].x;
-  scaled.y = (mag->unscaled.y - mag_correction.y - mag->neutral.y) * mag->scale[0].y / mag->scale[1].y;
-  scaled.z = (mag->unscaled.z - mag_correction.z - mag->neutral.z) * mag->scale[0].z / mag->scale[1].z;
+  scaled.x = (mag->unscaled.x - mag_correction.x - mag->neutral.x) * mag->scale_f.x;
+  scaled.y = (mag->unscaled.y - mag_correction.y - mag->neutral.y) * mag->scale_f.y;
+  scaled.z = (mag->unscaled.z - mag_correction.z - mag->neutral.z) * mag->scale_f.z;
+
 
   // Rotate the sensor
   int32_rmat_transp_vmult(&mag->scaled, &mag->body_to_sensor, &scaled);
