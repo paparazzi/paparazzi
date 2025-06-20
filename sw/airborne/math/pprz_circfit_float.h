@@ -39,11 +39,11 @@ struct circle_t {
   * DOI: 10.1109/icc.2011.5963101
   * 
   * inputs:
-  *   c: pointer to the circle_t structure to store the fitted circle
-  *   x: pointer to the array of x coordinates
-  *   y: pointer to the array of y coordinates
+  *   c: struct to store the fitted circle
+  *   x: x coordinates used during fitting
+  *   y: y coordinates used during fitting
   *   n: number of points
-  *   g: pointer to the initial guess for the circle (NULL for no initial guess)
+  *   g: initial guess for the circle (NULL for no initial guess)
   */
 enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, const float *y, uint16_t n, struct circle_t *g); 
 
