@@ -85,11 +85,23 @@ static void can_thd_rx(void* arg) {
   snprintf(thd_name, 10, "can%d_rx", cas->if_index);
   chRegSetThreadName(thd_name);
 
+  event_listener_t rxe;
+  chEvtRegister(&cas->cand->error_event, &rxe, EVENT_MASK(1));
+
+
   struct pprzaddr_can addr = {
     .can_ifindex = cas->if_index
   };
 
   while(!chThdShouldTerminateX()) {
+
+    eventmask_t evts = chEvtWaitAnyTimeout(ALL_EVENTS, TIME_IMMEDIATE);
+    // receive error
+    if (evts & EVENT_MASK(1)) {
+      chEvtGetAndClearFlags(&rxe);
+      canp->nb_errors++;
+    }
+
     CANRxFrame rx_frame;
     msg_t status = canReceiveTimeout(cas->cand, CAN_ANY_MAILBOX, &rx_frame, chTimeMS2I(50));
     if(status == MSG_OK) { 
@@ -110,7 +122,7 @@ static void can_thd_rx(void* arg) {
         .can_id = id,
         .len = can_dlc_to_len(rx_frame.DLC),
         .flags = 0,
-        .timestamp = get_sys_time_msec(),
+        .timestamp = TIME_I2US(chVTGetSystemTimeX())
       };
       
       if(rx_frame.FDF) {
@@ -142,9 +154,9 @@ int can_transmit_frame(struct pprzcan_frame* txframe, struct pprzaddr_can* addr)
   }
   if(txframe->can_id & CAN_FRAME_EFF) {
     frame.common.XTD = 1;
-    frame.ext.EID = txframe->can_id & CAN_EID_MASK
+    frame.ext.EID = txframe->can_id & CAN_EID_MASK;
   } else {
-    frame.std.SID = txframe->can_id & CAN_SID_MASK
+    frame.std.SID = txframe->can_id & CAN_SID_MASK;
   }
   memcpy(frame.data8, txframe->data, txframe->len);
 

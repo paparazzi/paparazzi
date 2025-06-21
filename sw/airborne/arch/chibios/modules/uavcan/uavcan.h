@@ -26,24 +26,25 @@
 #ifndef MODULES_UAVCAN_ARCH_H
 #define MODULES_UAVCAN_ARCH_H
 
-#include <hal.h>
 #include <canard.h>
 #include <string.h>
+#include "mcu_periph/can.h"
+#include "modules/core/threads.h"
 
 /** uavcan interface structure */
 struct uavcan_iface_t {
-  CANDriver *can_driver;
+  struct pprzaddr_can can_net;
   uint32_t can_baudrate;
-  CANConfig can_cfg;
 
   event_source_t tx_request;
-  mutex_t mutex;
-  void *thread_rx_wa;
-  void *thread_tx_wa;
-  void *thread_uavcan_wa;
-  size_t thread_rx_wa_size;
-  size_t thread_tx_wa_size;
-  size_t thread_uavcan_wa_size;
+
+  pprz_mutex_t mutex;
+  pprz_thread_t thread_tx;
+  // void *thread_tx_wa;
+  // void *thread_uavcan_wa;
+  // size_t thread_tx_wa_size;
+  // size_t thread_uavcan_wa_size;
+  pprz_bsem_t bsem;
 
   uint8_t node_id;
   CanardInstance canard;
