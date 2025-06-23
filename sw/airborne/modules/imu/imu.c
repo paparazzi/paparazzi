@@ -348,7 +348,7 @@ static void show_vect3(shell_stream_t *sh, char* name, struct Int32Vect3 *v) {
   chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, v->x, v->y, v->z);
 }
 
-static void show_vect3f(shell_stream_t *sh, char* name, struct Float32Vect3 *v) {
+static void show_vect3f(shell_stream_t *sh, char* name, struct FloatVect3 *v) {
   chprintf(sh, "  %s: %f, %f, %f\r\n", name, v->x, v->y, v->z);
 }
 
