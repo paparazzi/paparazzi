@@ -403,6 +403,11 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
           lla.lat = target.lat_int;
           lla.lon = target.lon_int;
           lla.alt = MM_OF_M(target.alt);
+          struct LtpDef_i *origin = stateGetNedOrigin_i();
+          if (origin == NULL) {
+            MAVLINK_DEBUG("NED origin not set, cannot set target position\n");
+            return;
+          }
           ned_of_lla_point_i(&ned, stateGetNedOrigin_i(), &lla);
           //NED_FLOAT_OF_BFP(ned_f, ned);
           //autopilot_guided_goto_ned(ned_f.x, ned_f.y, ned_f.z, target.yaw);
@@ -656,7 +661,12 @@ static void mavlink_send_global_position_int(struct transport_tx *trans, struct 
   }
   uint16_t compass_heading = heading * 100;
   int32_t relative_alt = stateGetPositionLla_i()->alt - stateGetLlaOrigin_i().alt;
-  int32_t hmsl_alt = stateGetHmslOrigin_i() - stateGetNedOrigin_i()->alt;
+  float origin_alt = 0.0f;
+  struct LtpDef_i *ned_origin = stateGetNedOrigin_i();
+  if (ned_origin == NULL) {
+    origin_alt = ned_origin->lla.alt;
+  }
+  int32_t hmsl_alt = stateGetHmslOrigin_i() - origin_alt;
   /// TODO: check/ask what coordinate system vel is supposed to be in, not clear from docs
   mavlink_msg_global_position_int_send(MAVLINK_COMM_0,
                                        get_sys_time_msec(),
