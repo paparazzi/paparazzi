@@ -661,7 +661,7 @@ static void mavlink_send_global_position_int(struct transport_tx *trans, struct 
   }
   uint16_t compass_heading = heading * 100;
   int32_t relative_alt = stateGetPositionLla_i()->alt - stateGetLlaOrigin_i().alt;
-  float origin_alt = 0.0f;
+  int32_t origin_alt = 0.0f;
   struct LtpDef_i *ned_origin = stateGetNedOrigin_i();
   if (ned_origin != NULL) {
     origin_alt = ned_origin->lla.alt;
