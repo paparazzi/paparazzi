@@ -661,12 +661,12 @@ static void mavlink_send_global_position_int(struct transport_tx *trans, struct 
   }
   uint16_t compass_heading = heading * 100;
   int32_t relative_alt = stateGetPositionLla_i()->alt - stateGetLlaOrigin_i().alt;
-  int32_t origin_alt = 0.0f;
+  int32_t origin_alt = 0;
   struct LtpDef_i *ned_origin = stateGetNedOrigin_i();
   if (ned_origin != NULL) {
     origin_alt = ned_origin->lla.alt;
   } else {
-    origin_alt = 0.0f; // Default value when ned_origin is NULL
+    origin_alt = 0; // Default value when ned_origin is NULL
   }
   int32_t hmsl_alt = stateGetHmslOrigin_i() - origin_alt;
   /// TODO: check/ask what coordinate system vel is supposed to be in, not clear from docs
