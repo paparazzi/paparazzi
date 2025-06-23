@@ -15,6 +15,7 @@
     <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
     <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
     <define name="SDLOG_PREFLIGHT_ERROR" value="FALSE" description="If set to TRUE, the autopilot will not arm if the SDLogger is not running. Default: FALSE"/>
+    <define name="SDLOG_ENABLE_LOWBAT_FLUSH" value="TRUE" description="If set to TRUE or undefined, the autopilot will flush the buffer on detecting low voltage by ADC."/>
   </doc>
    <settings>
     <dl_settings>
