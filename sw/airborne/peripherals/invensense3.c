@@ -30,6 +30,7 @@
 #include "peripherals/invensense3_regs.h"
 #include "math/pprz_isa.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 #include "modules/imu/imu.h"
 #include "modules/core/abi.h"
 #include "mcu_periph/gpio_arch.h"
@@ -47,37 +48,24 @@ static bool invensense3_reset_fifo(struct invensense3_t *inv);
 static int samples_from_odr(int odr);
 
 /* Default gyro scalings */
-static const struct Int32Rates invensense3_gyro_scale[8][2] = {
-  { {40147,    40147,    40147},
-    {9210,     9210,     9210} },     // 2000DPS
-  { {40147,    40147,    40147},
-    {18420,    18420,    18420} },    // 1000DPS
-  { {60534,    60534,    60534},
-    {55463,    55463,    55463} },    // 500DPS
-  { {30267,    30267,    30267},
-    {55463,    55463,    55463} },    // 250DPS 
-  { {30267,    30267,    30267},
-    {110926,   110926,   110926} },   // 125DPS   vvv (TODO: the new scales are not tested yet) vvv
-  { {3292054,  3292054,  3292054},
-    {24144015, 24144015, 24144015} }, // 62.5DPS
-  { {1646027,  1646027,  1646027},
-    {24144015, 24144015, 24144015} }, // 31.25DPS
-  { {1646027,  1646027,  1646027},
-    {48288030, 48288030, 48288030} }, // 15.625DPS
+static const struct FloatVect3 invensense3_gyro_scale_f[8] = {
+  {40147.0/9210.0,    40147.0/9210.0,    40147.0/9210.0},               // 2000DPS
+  {40147.0/18420.0,    40147.0/18420.0,    40147.0/18420.0},            // 1000DPS
+  {60534.0/55463.0,    60534.0/55463.0,    60534.0/55463.0},            // 500DPS
+  {30267.0/55463.0,    30267.0/55463.0,    30267.0/55463.0},            // 250DPS 
+  {30267.0/110926.0,    30267.0/110926.0,    30267.0/110926.0},         // 125DPS   vvv (TODO: the new scales are not tested yet) vvv
+  {3292054.0/24144015.0,  3292054.0/24144015.0,  3292054.0/24144015.0}, // 62.5DPS
+  {1646027.0/24144015.0,  1646027.0/24144015.0,  1646027.0/24144015.0}, // 31.25DPS
+  {1646027.0/48288030.0,  1646027.0/48288030.0,  1646027.0/48288030.0}, // 15.625DPS
 };
 
 /* Default accel scalings */
-static const struct Int32Vect3 invensense3_accel_scale[5][2] = {
-  { {51024, 51024, 51024},
-    {5203,  5203,  5203} }, // 32G
-  { {25512, 25512, 25512},
-    {5203,  5203,  5203} }, // 16G
-  { {12756, 12756, 12756},
-    {5203,  5203,  5203} }, // 8G
-  { {6378, 6378, 6378},
-    {5203, 5203, 5203} },   // 4G
-  { {3189, 3189, 3189},
-    {5203, 5203, 5203} }    // 2G
+static const struct FloatVect3 invensense3_accel_scale_f[5] = {
+  {51024.0/5203.0, 51024.0/5203.0, 51024.0/5203.0}, // 32G
+  {25512.0/5203.0, 25512.0/5203.0, 25512.0/5203.0}, // 16G
+  {12756.0/5203.0, 12756.0/5203.0, 12756.0/5203.0}, // 8G
+  {6378.0/5203.0, 6378.0/5203.0, 6378.0/5203.0},    // 4G
+  {3189.0/5203.0, 3189.0/5203.0, 3189.0/5203.0},    // 2G
 };
 
 /* AAF settings (3dB Bandwidth [Hz], AAF_DELT, AAF_DELTSQR, AAF_BITSHIFT) */
@@ -711,8 +699,8 @@ static void invensense3_fix_config(struct invensense3_t *inv) {
   }
   
   /* Set the default values */
-  imu_set_defaults_gyro(inv->abi_id, NULL, NULL, invensense3_gyro_scale[inv->gyro_range]);
-  imu_set_defaults_accel(inv->abi_id, NULL, NULL, invensense3_accel_scale[inv->accel_range]);
+  imu_set_defaults_gyro(inv->abi_id, NULL, NULL, &invensense3_gyro_scale_f[inv->gyro_range]);
+  imu_set_defaults_accel(inv->abi_id, NULL, NULL, &invensense3_accel_scale_f[inv->accel_range]);
 }
 
 /**

@@ -114,8 +114,8 @@ void imu_mpu9250_init(void)
   imu_mpu9250.mpu.config.accel_range = IMU_MPU9250_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_MPU9250_ID, NULL, NULL, MPU9250_GYRO_SENS_FRAC[IMU_MPU9250_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_MPU9250_ID, NULL, NULL, MPU9250_ACCEL_SENS_FRAC[IMU_MPU9250_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_MPU9250_ID, NULL, NULL, &MPU9250_GYRO_SENS_F[IMU_MPU9250_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU9250_ID, NULL, NULL, &MPU9250_ACCEL_SENS_F[IMU_MPU9250_ACCEL_RANGE]);
 }
 
 void imu_mpu9250_periodic(void)
