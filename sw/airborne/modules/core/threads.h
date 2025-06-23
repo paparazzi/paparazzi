@@ -34,6 +34,14 @@ int pprz_mtx_unlock(pprz_mutex_t* mtx);
 
 void pprz_bsem_init(pprz_bsem_t* bsem, bool taken);
 void pprz_bsem_wait(pprz_bsem_t* bsem);
+
+/**
+ * @brief Wait on semaphore no more than timeout.
+ * @param timeout in seconds
+ * @returns 0 on success
+ */
+int pprz_bsem_wait_timeout(pprz_bsem_t* bsem, float timeout);
+
 void pprz_bsem_signal(pprz_bsem_t* bsem);
 
 /**
