@@ -46,6 +46,12 @@ void *sys_time_thread_main(void *data);
 
 #define NSEC_OF_SEC(sec) ((sec) * 1e9)
 
+
+
+void mcu_set_fast_reboot(void) {
+}
+  
+
 void *sys_time_thread_main(void *data)
 {
   int fd;

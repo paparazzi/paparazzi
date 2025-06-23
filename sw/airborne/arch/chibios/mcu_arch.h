@@ -35,6 +35,7 @@
 #include <hal.h>
 
 extern void mcu_arch_init(void);
+extern void mcu_set_fast_reboot(void);
 
 #if USE_HARD_FAULT_RECOVERY
 extern bool recovering_from_hard_fault;
