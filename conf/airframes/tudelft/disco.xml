@@ -8,8 +8,12 @@
 
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
+    <define name="USE_BAROMETER" value="TRUE"/>
+    <configure name="USE_BARO_BOARD" value="TRUE"/>
+
 
     <target name="ap" board="disco">
+      <define name="USE_BARO_BOARD" value="TRUE"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
     </target>
@@ -17,6 +21,12 @@
       <configure name="SYS_TIME_FREQUENCY" value="120"/>
       <configure name="PERIODIC_FREQUENCY" value="60"/>
       <module name="radio_control" type="ppm"/>
+    </target>
+    <target name="nps" board="pc">
+      <!-- <configure name="SYS_TIME_FREQUENCY" value="120"/> -->
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
     <module name="telemetry" type="transparent_udp"/>
@@ -126,6 +136,12 @@
     <define name="APP_ANGLE" value="8" unit="deg"/>
   </section>
 
+
+
+  <section name="AIR_DATA" prefix="AIR_DATA_">
+    <define name="CALC_AMSL_BARO" value="TRUE"/>
+  </section>
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.12"/>
@@ -184,15 +200,15 @@
     <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="11000."/>
-    <define name="ROLL_RATE_GAIN" value="1000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="6000."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
     <define name="ROLL_IGAIN" value="100."/>
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
-    <define name="PITCH_PGAIN" value="17250"/>
+    <define name="PITCH_PGAIN" value="14250"/>
     <define name="PITCH_DGAIN" value="500."/>
-    <define name="PITCH_IGAIN" value="400"/>
+    <define name="PITCH_IGAIN" value="300"/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 
