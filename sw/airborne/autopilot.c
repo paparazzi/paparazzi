@@ -143,6 +143,7 @@ void autopilot_init(void)
 
 /** AP periodic call
  */
+static bool fast_reboot = false;
 void autopilot_periodic(void)
 {
   // first check for failsafe case
@@ -160,6 +161,13 @@ void autopilot_periodic(void)
     // after takeoff for fixedwing
     // when in flight for other firmwares
     RunOnceEvery(PERIODIC_FREQUENCY, autopilot.flight_time++);
+
+    if(!fast_reboot) {
+      #ifndef SITL
+      mcu_set_fast_reboot();
+      #endif
+      fast_reboot = true;
+    }
   }
 
 #if USE_GENERATED_AUTOPILOT

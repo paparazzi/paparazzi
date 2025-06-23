@@ -54,6 +54,31 @@ static void init_ram_areas(const ram_init_area_t *rap);
 static void mpuConfigureNonCachedRam(void);
 #endif
 
+CH_IRQ_HANDLER(HardFault_Handler)
+{
+  mcu_reboot(MCU_REBOOT_FAST);
+}
+
+CH_IRQ_HANDLER(NMI_Handler)
+{
+  mcu_reboot(MCU_REBOOT_FAST);
+}
+
+CH_IRQ_HANDLER(MemManage_Handler)
+{
+  mcu_reboot(MCU_REBOOT_FAST);
+}
+
+CH_IRQ_HANDLER(BusFault_Handler)
+{
+  mcu_reboot(MCU_REBOOT_FAST);
+}
+
+CH_IRQ_HANDLER(UsageFault_Handler)
+{
+  mcu_reboot(MCU_REBOOT_FAST);
+}
+
 #if USE_HARD_FAULT_RECOVERY
 
 #if defined(STM32F4XX) || defined (STM32F7XX)
@@ -221,6 +246,12 @@ void mcu_reboot(enum reboot_state_t reboot_state)
 
   // Restart the MCU
   NVIC_SystemReset();
+}
+
+void mcu_set_fast_reboot(void) {
+#if defined(USE_RTC_BACKUP)
+  mcu_set_rtcbackup(RTC_BOOT_FAST);
+#endif
 }
 
 /**
