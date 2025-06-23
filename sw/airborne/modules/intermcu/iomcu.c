@@ -91,6 +91,7 @@ enum iopage {
 #define PAGE_REG_SETUP_PWM_RATE_MASK 2
 #define PAGE_REG_SETUP_DEFAULTRATE   3
 #define PAGE_REG_SETUP_ALTRATE       4
+#define PX4IO_P_SETUP_DSM            6
 #define PAGE_REG_SETUP_REBOOT_BL    10
 #define PAGE_REG_SETUP_CRC      11
 #define PAGE_REG_SETUP_SBUS_RATE    19
@@ -274,4 +275,18 @@ static void iomcu_write_register(uint8_t page, uint8_t offset, uint16_t v)
 void iomcu_set_heater_duty_cycle(uint8_t duty_cycle)
 {
   iomcu_write_register(PAGE_SETUP, PAGE_REG_SETUP_HEATER_DUTY_CYCLE, duty_cycle);
+}
+
+#include "mcu_periph/gpio.h"
+#include "board.h"
+void iomcu_dsm_off(void)
+{
+  //palSetLine(LINE_V3V3_SPEKTRUM_EN);
+  iomcu_write_register(PAGE_SETUP, PX4IO_P_SETUP_DSM, 0);
+}
+
+void iomcu_dsm_on(void)
+{
+  //palClearLine(LINE_V3V3_SPEKTRUM_EN);
+  iomcu_write_register(PAGE_SETUP, PX4IO_P_SETUP_DSM, 1);
 }
