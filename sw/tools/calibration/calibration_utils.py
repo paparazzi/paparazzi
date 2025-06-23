@@ -170,34 +170,11 @@ def estimate_mag_current_relation(meas):
         offset.append(intercept)
     return coefficient, offset
 
-def continious_frac(v):
-    max_val = 2**16
-    if v > 0:
-        s = 1
-    else:
-        v = -v
-        s = -1
-    return _continious_frac(v, max_val, int(v), v, (1, int(v)), (0,1), s)
-
-def _continious_frac(v, max_val, a, x, num, den, s):
-    x1 = 1 / (x - a)
-    a1 = int(x1)
-    (num1, num2) = num
-    num3 = a1 * num2 + num1
-    (den1, den2) = den
-    den3 = a1 * den2 + den1
-    if num3 > max_val or den3 > max_val:
-        return (num2, s*den2)
-    elif (num3 / den3) == v:
-        return (num3, s*den3)
-    else:
-        return _continious_frac(v, max_val, a1, x1, (num2, num3), (den2, den3), s)
-
 def format_xml(p, sensor, sensor_id, res):
     """Print xml for airframe file."""
-    x_sens = continious_frac(p[3]*2**res)
-    y_sens = continious_frac(p[4]*2**res)
-    z_sens = continious_frac(p[5]*2**res)
+    x_sens = p[3]*2**res
+    y_sens = p[4]*2**res
+    z_sens = p[5]*2**res
 
     s = f""
     s += f'<define name="IMU_{sensor}_CALIB" type="array">\n'
@@ -205,19 +182,19 @@ def format_xml(p, sensor, sensor_id, res):
     s += f'    <field name="abi_id" value="{sensor_id}"/>\n'
     s += f'    <field name="calibrated" type="struct">\n'
     s += f'      <field name="neutral" value="true"/>\n'
-    s += f'      <field name="scale" value="true"/>\n'
+    s += f'      <field name="scale_f" value="true"/>\n'
     s += f'    </field>\n'
     s += f'    <field name="neutral" value="{round(p[0]):d},{int(round(p[1])):d},{int(round(p[2])):d}" type="int[]"/>\n'
-    s += f'    <field name="scale" value="{{{{ {x_sens[0]:d}, {y_sens[0]:d}, {z_sens[0]:d} }},{{ {x_sens[1]:d}, {y_sens[1]:d}, {z_sens[1]:d} }}}}"/>\n'
+    s += f'    <field name="scale_f" value="{{ {x_sens:.4f}, {y_sens:.4f}, {z_sens:.4f} }}"/>\n'
     s += f'  </field>\n'
     s += f'</define>\n'
     s += f'\n'
     s += f'<define name="{sensor}_X_NEUTRAL" value="{round(p[0]):d}"/>\n'
     s += f'<define name="{sensor}_Y_NEUTRAL" value="{round(p[1]):d}"/>\n'
     s += f'<define name="{sensor}_Z_NEUTRAL" value="{round(p[2]):d}"/>\n'
-    s += f'<define name="{sensor}_X_SENS" value="{p[3]*2**res:.4f}" integer="16"/>\n'
-    s += f'<define name="{sensor}_Y_SENS" value="{p[4]*2**res:.4f}" integer="16"/>\n'
-    s += f'<define name="{sensor}_Z_SENS" value="{p[5]*2**res:.4f}" integer="16"/>\n'
+    s += f'<define name="{sensor}_X_SENS" value="{x_sens:.4f}" integer="16"/>\n'
+    s += f'<define name="{sensor}_Y_SENS" value="{y_sens:.4f}" integer="16"/>\n'
+    s += f'<define name="{sensor}_Z_SENS" value="{z_sens:.4f}" integer="16"/>\n'
     return s
 
 def print_xml(p, sensor, sensor_id, res):

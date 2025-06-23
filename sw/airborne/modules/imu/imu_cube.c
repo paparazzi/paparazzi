@@ -87,8 +87,8 @@ void imu_cube_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(90));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, NULL);
-  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, NULL);
+  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, NULL, NULL);
+  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, NULL, NULL);
 #else
   /* IMU 2 (ICM20602 isolated) */
   mpu60x0_spi_init(&imu2, &CUBE_IMU2_SPI_DEV, CUBE_IMU2_SPI_SLAVE_IDX);
@@ -104,8 +104,8 @@ void imu_cube_init(void)
   eulers.theta = ANGLE_BFP_OF_REAL(0);
   eulers.psi = ANGLE_BFP_OF_REAL(RadOfDeg(270));
   int32_rmat_of_eulers(&rmat, &eulers);
-  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, MPU60X0_GYRO_SENS_FRAC[MPU60X0_GYRO_RANGE_2000]);
-  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, MPU60X0_ACCEL_SENS_FRAC[MPU60X0_ACCEL_RANGE_16G]);
+  imu_set_defaults_gyro(IMU_CUBE2_ID, &rmat, NULL, &MPU60X0_GYRO_SENS_F[MPU60X0_GYRO_RANGE_2000]);
+  imu_set_defaults_accel(IMU_CUBE2_ID, &rmat, NULL, &MPU60X0_ACCEL_SENS_F[MPU60X0_ACCEL_RANGE_16G]);
 #endif
 
   /* IMU 3 (ICM2094 isolated) */
