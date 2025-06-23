@@ -29,6 +29,16 @@
 
 struct can_periph can1 = {
   .fd = 1,
+  .nb_errors = 0,
+  .callbacks = {0},
+  .callback_user_data = {0}
+};
+#endif
+
+#if USE_CAN2
+struct can_periph can2 = {
+  .fd = 2,
+  .nb_errors = 0,
   .callbacks = {0},
   .callback_user_data = {0}
 };
