@@ -188,13 +188,6 @@ def format_xml(p, sensor, sensor_id, res):
     s += f'    <field name="scale_f" value="{{ {x_sens:.4f}, {y_sens:.4f}, {z_sens:.4f} }}"/>\n'
     s += f'  </field>\n'
     s += f'</define>\n'
-    s += f'\n'
-    s += f'<define name="{sensor}_X_NEUTRAL" value="{round(p[0]):d}"/>\n'
-    s += f'<define name="{sensor}_Y_NEUTRAL" value="{round(p[1]):d}"/>\n'
-    s += f'<define name="{sensor}_Z_NEUTRAL" value="{round(p[2]):d}"/>\n'
-    s += f'<define name="{sensor}_X_SENS" value="{x_sens:.4f}" integer="16"/>\n'
-    s += f'<define name="{sensor}_Y_SENS" value="{y_sens:.4f}" integer="16"/>\n'
-    s += f'<define name="{sensor}_Z_SENS" value="{z_sens:.4f}" integer="16"/>\n'
     return s
 
 def print_xml(p, sensor, sensor_id, res):

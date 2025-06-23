@@ -74,6 +74,10 @@ PRINT_CONFIG_MSG("Using single IMU gyro sensitivity calibration")
 #define IMU_GYRO_CALIB {}
 #endif
 
+#if defined(IMU_IMU_ACCEL_CALIB)
+#error IMU_IMU_ACCEL_CALIB defined. Rename it "ACCEL_CALIB" if your calibration is in a section with the "IMU_" prefix.
+#endif
+
 /** By default accel signs are positive for single IMU with old format and defaults */
 #if defined(IMU_ACCEL_CALIB) && (defined(IMU_ACCEL_X_SIGN) || defined(IMU_ACCEL_Y_SIGN) || defined(IMU_ACCEL_Z_SIGN))
 #warning "The IMU_ACCEL_?_SIGN's aren't compatible with the IMU_ACCEL_CALIB define in the airframe"
