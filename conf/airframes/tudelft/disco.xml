@@ -9,11 +9,11 @@
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
     <define name="USE_BAROMETER" value="TRUE"/>
-    <define name="USE_BARO_BOARD" value="TRUE"/>
     <configure name="USE_BARO_BOARD" value="TRUE"/>
 
 
     <target name="ap" board="disco">
+      <define name="USE_BARO_BOARD" value="TRUE"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
     </target>
