@@ -601,7 +601,7 @@ void imu_init(void)
  * @param abi_id The ABI sender id to set the defaults for
  * @param imu_to_sensor Imu to sensor rotation matrix
  * @param neutral Neutral values
- * @param scale Scale values, 0 index is multiply and 1 index is divide
+ * @param scale_f Scale values
  */
 void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatVect3 *scale_f)
 {
@@ -630,7 +630,7 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
  * @param abi_id The ABI sender id to set the defaults for
  * @param imu_to_sensor Imu to sensor rotation matrix
  * @param neutral Neutral values
- * @param scale Scale values, 0 index is multiply and 1 index is divide
+ * @param scale_f Scale values
  */
 void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f)
 {
@@ -659,7 +659,7 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
  * @param abi_id The ABI sender id to set the defaults for
  * @param imu_to_sensor Imu to sensor rotation matrix
  * @param neutral Neutral values
- * @param scale Scale values, 0 index is multiply and 1 index is divide
+ * @param scale_f Scale values
  */
 void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f)
 {
