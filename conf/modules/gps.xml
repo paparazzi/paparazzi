@@ -20,6 +20,7 @@
           <strip_button name="GPS PRIMARY" icon="gps1.png" value="1" group="gps_mode_setting"/>
           <strip_button name="GPS SECONDARY" icon="gps2.png" value="2" group="gps_mode_setting"/> -->
         </dl_setting>
+        <dl_setting var="gps_disable_fix" min="0" step="1" max="180" shortname="disable_fix"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -28,6 +29,7 @@
     <file name="gps.h"/>
   </header>
   <init fun="gps_init()"/>
+  <periodic fun="gps_periodic_fix_counter()" freq="1.0"/>
   <datalink message="GPS_INJECT" fun="gps_parse_GPS_INJECT(buf)"/>
   <datalink message="RTCM_INJECT" fun="gps_parse_RTCM_INJECT(buf)"/>
 
