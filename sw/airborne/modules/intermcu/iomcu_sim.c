@@ -20,19 +20,19 @@
  */
 
 /**
- * @file modules/intermcu/iomcu.h
- * Driver to communicate with the ardupilot IO MCU
+ * @file modules/intermcu/iomcu_sim.c
+ * Simulate communication with the ardupilot IO MCU
  */
 
-#ifndef IOMCU_H
-#define IOMCU_H
-
-#include "std.h"
-
-/** External functions */
-void iomcu_set_heater_duty_cycle(uint8_t duty_cycle);
-void iomcu_dsm_off(void);
-void iomcu_dsm_on(void);
+ #include "iomcu.h"
 
 
-#endif /* IOMCU_H */
+ void iomcu_dsm_off(void)
+ {
+    printf("DSM off\n");
+ }
+ 
+ void iomcu_dsm_on(void)
+ {
+    printf("DSM on\n");
+ }
