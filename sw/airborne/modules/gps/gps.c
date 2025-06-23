@@ -80,6 +80,13 @@ static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 #endif
 
 uint8_t multi_gps_mode;
+int gps_disable_fix = 0;              ///< Disable fix
+
+void gps_periodic_fix_counter(void) {
+  if (gps_disable_fix > 0) {
+    gps_disable_fix--;
+  }
+}
 
 #if PREFLIGHT_CHECKS
 /* Preflight checks */
@@ -141,7 +148,7 @@ static inline void send_svinfo_available(struct transport_tx *trans, struct link
 
 static void send_gps(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t zero = 0;
+  uint8_t zero = (gps_disable_fix <= 0)? 0 : gps_disable_fix;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
   struct UtmCoor_i utm = utm_int_from_gps(&gps, 0);
@@ -313,16 +320,26 @@ static void gps_cb(uint8_t sender_id,
   if (sender_id == GPS_MULTI_ID) {
     return;
   }
+
+  uint8_t old_fix = gps_s->fix;
   uint32_t now_ts = get_sys_time_usec();
 #ifdef SECONDARY_GPS
   current_gps_id = gps_multi_switch(gps_s);
   if (gps_s->comp_id == current_gps_id) {
     gps = *gps_s;
+    if(gps_disable_fix > 0) {
+      gps_s->fix = GPS_FIX_NONE;
+    }
     AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+    gps_s->fix = old_fix;
   }
 #else
   gps = *gps_s;
+  if(gps_disable_fix > 0) {
+    gps_s->fix = GPS_FIX_NONE;
+  }
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+  gps_s->fix = old_fix;
 #endif
   if (gps.tow != gps_time_sync.t0_tow) {
     gps_time_sync.t0_ticks = sys_time.nb_tick;
@@ -363,6 +380,7 @@ void gps_init(void)
   gps.last_3dfix_time = 0;
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
+  gps_disable_fix = 0;
 
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
