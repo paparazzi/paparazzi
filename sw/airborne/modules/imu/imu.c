@@ -511,6 +511,7 @@ void imu_init(void)
         imu.accels[i].scale_f.x = (float)imu.accels[i].scale[0].x / (float)imu.accels[i].scale[1].x;
         imu.accels[i].scale_f.y = (float)imu.accels[i].scale[0].y / (float)imu.accels[i].scale[1].y;
         imu.accels[i].scale_f.z = (float)imu.accels[i].scale[0].z / (float)imu.accels[i].scale[1].z;
+        imu.accels[i].calibrated.scale_f = true;
       } else {
         VECT3_ASSIGN(imu.accels[i].scale_f, IMU_ACCEL_X_SIGN, IMU_ACCEL_Y_SIGN, IMU_ACCEL_Z_SIGN);
       }
@@ -552,6 +553,7 @@ void imu_init(void)
         imu.mags[i].scale_f.x = (float)imu.mags[i].scale[0].x / (float)imu.mags[i].scale[1].x;
         imu.mags[i].scale_f.y = (float)imu.mags[i].scale[0].y / (float)imu.mags[i].scale[1].y;
         imu.mags[i].scale_f.z = (float)imu.mags[i].scale[0].z / (float)imu.mags[i].scale[1].z;
+        imu.mags[i].calibrated.scale_f = true;
       }else {
         VECT3_ASSIGN(imu.mags[i].scale_f, IMU_MAG_X_SIGN, IMU_MAG_Y_SIGN, IMU_MAG_Z_SIGN);
       }
