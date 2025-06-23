@@ -408,7 +408,7 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
             MAVLINK_DEBUG("NED origin not set, cannot set target position\n");
             return;
           }
-          ned_of_lla_point_i(&ned, stateGetNedOrigin_i(), &lla);
+          ned_of_lla_point_i(&ned, origin, &lla);
           //NED_FLOAT_OF_BFP(ned_f, ned);
           //autopilot_guided_goto_ned(ned_f.x, ned_f.y, ned_f.z, target.yaw);
           waypoint_set_latlon(WP_ML_global_target, &lla);
