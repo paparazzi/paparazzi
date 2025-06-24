@@ -111,11 +111,11 @@ void imu_aspirin_i2c_init(void)
 
   // Default scaling values
 #ifdef IMU_ASPIRIN_VERSION_1_5
-  const struct FloatVect3 gyro_scale_f = {4359.0/1000, 4359.0/1000, 4359.0/1000};
+  const struct FloatVect3 gyro_scale_f = { 4.359f, 4.359f, 4.359f };
 #else
-  const struct FloatVect3 gyro_scale_f = {4973.0/1000, 4973.0/1000, 4973.0/1000};
+  const struct FloatVect3 gyro_scale_f = { 4.973f, 4.973f, 4.973f };
 #endif
-  const struct FloatVect3 accel_scale_f = {3791.0/100, 3791.0/100, 3791.0/100};
+  const struct FloatVect3 accel_scale_f = { 37.91f, 37.91f, 37.91f };
  
   // Set the default scaling
   imu_set_defaults_gyro(IMU_ASPIRIN_ID, NULL, NULL, &gyro_scale_f);
