@@ -31,6 +31,7 @@
 #include "generated/modules.h"
 #include "modules/core/abi.h"
 #include "modules/datalink/telemetry.h"
+#include "modules/nav/nav_rotorcraft_base.h"
 
 #ifndef AIRSPEED_CONSISTENCY_MIN_SAMPLES
 #define AIRSPEED_CONSISTENCY_MIN_SAMPLES 20 // Minimum number of samples before circle fitting starts
@@ -61,9 +62,12 @@ void airspeed_consistency_init(void) {
 
 void airspeed_consistency_periodic(void) {
 
-  // TODO: Wait until the airspeed has roughly reached cruise speed and the drone is flying circles?
-  // Could be important if e.g. circle is initiated far away from the WP. 
-  if (nav.horizontal_mode != NAV_HORIZONTAL_MODE_CIRCLE) {
+  struct FloatVect2 diff;
+  VECT2_DIFF(diff, nav_rotorcraft_base.circle.center, *stateGetPositionEnu_f());
+  float dist_to_point = float_vect2_norm(&diff);
+
+  if (nav.horizontal_mode != NAV_HORIZONTAL_MODE_CIRCLE || dist_to_point > fabsf(nav_rotorcraft_base.circle.radius) + ARRIVED_AT_WAYPOINT
+    || dist_to_point < fabsf(nav_rotorcraft_base.circle.radius) - ARRIVED_AT_WAYPOINT) {
     // Wipe old data if not flying circles
     if (asc.i != 0) {
       reset_speeds();
@@ -84,7 +88,6 @@ void airspeed_consistency_periodic(void) {
       
       // This ratio should be squared if it is used to adjust the pressure scale of an airspeed sensor
       AbiSendMsgAIRSPEED_CONSISTENCY(0, asc.ratio);
-      DOWNLINK_SEND_AIRSPEED_CONSISTENCY(DefaultChannel, DefaultDevice, &asc.ratio);
     }
   });
 }

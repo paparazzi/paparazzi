@@ -185,6 +185,7 @@ class AIRDATAMessage(object):
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
         self.tas = float(msg['tas'])
+        self.ratio_circle = float(msg['ratio_circle'])
 
 class AIRSPEEDCONSISTENCYMessage(object):
     def __init__(self, msg):
@@ -379,10 +380,6 @@ class RotWingFrame(wx.Frame):
             self.air_data = AIRDATAMessage(msg)
             wx.CallAfter(self.update)
 
-        if msg.name == "AIRSPEED_CONSISTENCY":
-            self.airspeed_consistency = AIRSPEEDCONSISTENCYMessage(msg)
-            wx.CallAfter(self.update)
-
         if msg.name == "IMU_HEATER":
             self.imu_heater = IMUHEATERMessage(msg)
             wx.CallAfter(self.update)
@@ -525,21 +522,20 @@ class RotWingFrame(wx.Frame):
             if hasattr(self, 'air_data'):
                 dc.DrawText("Meas airspeed: " + str(round(self.air_data.airspeed,1 )) + " (TAS: " + str(round(self.air_data.tas,1 )) + ")", 10, int(5.5*line))
                 
-                if hasattr(self, 'airspeed_consistency'):
-                # MS45XX inflight calibration monitoring
-                    if abs(1-self.airspeed_consistency.ratio) < 0.08:
-                        dc.SetTextForeground(wx.Colour(0, 0, 0))
-                        dc.DrawText("Airspeed ratio: " + str(round(self.airspeed_consistency.ratio, 2)), 10, int(6.5*line))
-                    elif abs(1-self.airspeed_consistency.ratio) < 0.15:
-                        dc.SetTextForeground(wx.Colour(139, 64, 0))
-                        dc.DrawText("Airspeed ratio: " + str(round(self.airspeed_consistency.ratio, 2)), 10, int(6.5*line))
-                        if self.speech:
-                            self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 8%, Please Calibrate", 30)
-                    else:
-                        dc.SetTextForeground(wx.Colour(255, 0, 0))
-                        dc.DrawText("Airspeed ratio: " + str(round(self.airspeed_consistency.ratio, 2)), 10, int(6.5*line))
-                        if self.speech:
-                            self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 15%, Please Calibrate", 5)
+            # MS45XX inflight calibration monitoring
+                if abs(1-self.air_data.ratio_circle) < 0.08:
+                    dc.SetTextForeground(wx.Colour(0, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
+                elif abs(1-self.air_data.ratio_circle) < 0.15:
+                    dc.SetTextForeground(wx.Colour(139, 64, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 8%, Please Calibrate", 30)
+                else:
+                    dc.SetTextForeground(wx.Colour(255, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 15%, Please Calibrate", 5)
             
             #self.StatusBox(dc, 5, 5, 0, 0, self.rw_status.get_state(), 1, 1)
             dc.SetTextForeground(wx.Colour(0, 0, 0))
