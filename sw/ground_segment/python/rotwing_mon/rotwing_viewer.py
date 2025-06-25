@@ -25,6 +25,7 @@ import math
 import datetime
 import numpy as np
 import pyttsx3
+import re
 engine = pyttsx3.init()
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -185,11 +186,14 @@ class AIRDATAMessage(object):
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
         self.tas = float(msg['tas'])
-        self.ratio_circle = float(msg['ratio_circle'])
 
-class AIRSPEEDCONSISTENCYMessage(object):
+class INFOMSGMessage(object):
     def __init__(self, msg):
-        self.ratio = float(msg['ratio'])
+        str_of_char_arr = ''.join(msg['msg'])
+        str_of_char_arr = str_of_char_arr.replace('\"', '')
+        str_of_char_arr = str_of_char_arr.split(" ")
+        if str_of_char_arr[0] == 'ASC:':
+            self.ratio = float(str_of_char_arr[-1])
 
 class IMUHEATERMessage(object):
     def __init__(self, msg):
@@ -380,6 +384,10 @@ class RotWingFrame(wx.Frame):
             self.air_data = AIRDATAMessage(msg)
             wx.CallAfter(self.update)
 
+        if msg.name == "INFO_MSG":
+            self.infomsg = INFOMSGMessage(msg)
+            wx.CallAfter(self.update)
+
         if msg.name == "IMU_HEATER":
             self.imu_heater = IMUHEATERMessage(msg)
             wx.CallAfter(self.update)
@@ -521,19 +529,20 @@ class RotWingFrame(wx.Frame):
             dc.DrawText("Nav airspeed: " + str(round(self.rw_status.nav_airspeed,1 )) + " [min: " + str(round(self.rw_status.min_airspeed,1 )) + ", max:" + str(round(self.rw_status.max_airspeed,1 )) + "]", 10, int(4.5*line))
             if hasattr(self, 'air_data'):
                 dc.DrawText("Meas airspeed: " + str(round(self.air_data.airspeed,1 )) + " (TAS: " + str(round(self.air_data.tas,1 )) + ")", 10, int(5.5*line))
-                
+            
+            if hasattr(self, 'infomsg') and hasattr(self.infomsg, 'ratio'):
             # MS45XX inflight calibration monitoring
-                if abs(1-self.air_data.ratio_circle) < 0.08:
+                if abs(1-self.infomsg.ratio) < 0.08:
                     dc.SetTextForeground(wx.Colour(0, 0, 0))
-                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
-                elif abs(1-self.air_data.ratio_circle) < 0.15:
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
+                elif abs(1-self.infomsg.ratio) < 0.15:
                     dc.SetTextForeground(wx.Colour(139, 64, 0))
-                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
                     if self.speech:
                         self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 8%, Please Calibrate", 30)
                 else:
                     dc.SetTextForeground(wx.Colour(255, 0, 0))
-                    dc.DrawText("Airspeed ratio: " + str(round(self.air_data.ratio_circle, 2)), 10, int(6.5*line))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
                     if self.speech:
                         self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 15%, Please Calibrate", 5)
             

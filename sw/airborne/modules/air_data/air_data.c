@@ -75,13 +75,6 @@ static abi_event airspeed_ev;
 #endif
 static abi_event incidence_ev;
 
-/** ABI binding for ground speed to airspeed ratio
- */
-#ifndef AIR_DATA_RATIO_ID
-#define AIR_DATA_RATIO_ID ABI_BROADCAST
-#endif
-static abi_event ratio_ev;
-
 /** Default factor to convert estimated airspeed (EAS) to true airspeed (TAS) */
 #ifndef AIR_DATA_TAS_FACTOR
 #define AIR_DATA_TAS_FACTOR 1.0
@@ -192,11 +185,6 @@ static void incidence_cb(uint8_t __attribute__((unused)) sender_id, uint8_t flag
   }
 }
 
-static void ratio_cb(uint8_t __attribute__((unused)) sender_id, float ratio)
-{
-  air_data.circ_ratio = ratio;
-}
-
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
@@ -212,7 +200,7 @@ static void send_air_data(struct transport_tx *trans, struct link_device *dev)
                          &air_data.pressure, &air_data.differential,
                          &air_data.temperature, &air_data.qnh,
                          &air_data.amsl_baro, &air_data.airspeed,
-                         &air_data.tas, &air_data.circ_ratio);
+                         &air_data.tas);
 }
 
 static void send_amsl(struct transport_tx *trans, struct link_device *dev)
@@ -260,7 +248,6 @@ void air_data_init(void)
   AbiBindMsgTEMPERATURE(AIR_DATA_TEMPERATURE_ID, &temperature_ev, temperature_cb);
   AbiBindMsgAIRSPEED(AIR_DATA_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
   AbiBindMsgINCIDENCE(AIR_DATA_INCIDENCE_ID, &incidence_ev, incidence_cb);
-  AbiBindMsgAIRSPEED_CONSISTENCY(AIR_DATA_RATIO_ID, &ratio_ev, ratio_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BARO_RAW, send_baro_raw);
