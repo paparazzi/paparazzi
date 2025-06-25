@@ -29,6 +29,17 @@
 
 #include "std.h"
 
+/**
+ * @brief The status of the preflight checks
+*/
+enum pfc_actuators_state_t {
+  PFC_ACTUATORS_STATE_INIT,
+  PFC_ACTUATORS_STATE_RUNNING,
+  PFC_ACTUATORS_STATE_SUCCESS,
+  PFC_ACTUATORS_STATE_ERROR
+};
+
+enum pfc_actuators_state_t pfc_actuators_get_state(void);
 extern void pfc_actuators_init(void);
 extern void pfc_actuators_run(void);
 extern void pfc_actuators_start(bool start);

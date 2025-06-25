@@ -58,11 +58,6 @@
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"          value="0.24"/>
 
-        <!-- AGL distance -->
-        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
-        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
-        <define name="AGL_DIST_FILTER"                      value="0.07"/>
-
         <!-- Flight plan defines -->
         <define name="FLARE_HEIGHT"                         value="12"/>
         <define name="HYBRID_HEIGHT"                        value="20"/>
@@ -271,7 +266,6 @@
     <section name="EKF2" prefix="INS_EKF2_">
         <define name="GPS_YAW_OFFSET" value="0"/>
         <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
-        <define name="FUSION_MODE"          value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
 
         <define name="IMU_POS_X" value="0.321"/>
         <define name="IMU_POS_Y" value="0.0"/>
