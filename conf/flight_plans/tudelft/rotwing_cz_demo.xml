@@ -48,7 +48,7 @@
     <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
   </exceptions>
   <blocks>
-   <block name="Wait GPS">
+   <block name="Wait GPS" on_enter="ms45xx.autoset_offset=true">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
