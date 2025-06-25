@@ -54,6 +54,5 @@ struct asc_t {
 extern void airspeed_consistency_init(void);
 extern void airspeed_consistency_periodic(void);
 extern void airspeed_consistency_reset(bool reset); // Reset the airspeed consistency check
-float airspeed_consistency_get_gs_to_as_ratio(void); // Ratio between ground speed and airspeed fit
 
 #endif // AIRSPEED_CONSISTENCY_H
