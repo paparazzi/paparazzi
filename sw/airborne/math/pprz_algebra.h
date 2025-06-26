@@ -171,6 +171,12 @@ extern "C" {
     (_a).z += ((_b).z * (_s));        \
   }
 
+/* a += b*s */
+#define VECT2_ADD_SCALED(_a, _b, _s) {      \
+    (_a).x += ((_b).x * (_s));        \
+    (_a).y += ((_b).y * (_s));        \
+  }
+
 /* c = a + _s * b */
 #define VECT3_SUM_SCALED(_c, _a, _b, _s) {    \
     (_c).x = (_a).x + (_s)*(_b).x;      \
