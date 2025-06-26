@@ -28,6 +28,7 @@
  */
 
 #include "mcu_periph/sys_time.h"
+#include "modules/core/abi.h"
 #include "mcu.h"
 
 // check the number of timers against max tid_t value
@@ -116,11 +117,23 @@ static void cmd_sys_time(shell_stream_t *sh, int argc, const char * const argv[]
 }
 #endif
 
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, struct GpsState *gps_s)
+{
+  // Reject GPS's without reception
+  if(gps_s->tow == 0)
+    return;
+
+  // Use the timestamp from the ABI message, as it is more accurate
+  sys_time.tow_sync = gps_s->tow - stamp/1000;
+}
+
 void sys_time_init(void)
 {
   sys_time.nb_sec     = 0;
   sys_time.nb_sec_rem = 0;
   sys_time.nb_tick    = 0;
+  sys_time.tow_sync   = 0;
 
   sys_time.ticks_per_sec = SYS_TIME_FREQUENCY;
   sys_time.resolution = 1.0 / sys_time.ticks_per_sec;
@@ -138,4 +151,7 @@ void sys_time_init(void)
 #if USE_SHELL
   shell_add_entry("sys_time", cmd_sys_time);
 #endif
+
+  // Register for tow sync
+  AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 }
