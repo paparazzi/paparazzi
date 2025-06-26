@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="nav_shakestart" dir="nav">
+  <doc>
+    <description>Shake the RPAS for 1 second to start engines</description>
+  </doc>
+  <header>
+    <file name="nav_shakestart.h"/>
+  </header>
+  <init fun="nav_shakestart_init()"/>
+  <periodic fun="nav_shakestart_periodic()" freq="20.0" autorun="TRUE"/>
+  <makefile>
+    <file name="nav_shakestart.c"/>
+    <test/>
+  </makefile>
+</module>
