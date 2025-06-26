@@ -20,17 +20,17 @@
     <variable var="flightplan_disable_gps_seconds" init="30" type="int" min="1" max="180" step="1"/>
   </variables>
   <modules>
-  	<module name="intermcu_iomcu"/>
+  	<module name="nav_shakestart"/>
   </modules>
   <exceptions>
     <!-- WARNING: No exceptions: this flightplan is not safe /-->
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <call_once fun="iomcu_dsm_off()"/>
+      <!-- call_once fun="iomcu_dsm_off()"/ -->
       <set value="1" var="autopilot.kill_throttle"/>
       <call_once fun="nav_shakestart_reset()"/>
-      <while cond="!GpsFixValid() || !ahrsIsAligned()"/>
+      <while cond="!GpsFixValid()"/> <!-- || !ahrsIsAligned()" -->
     </block>
     <block name="Geo init">
       <set value="1" var="autopilot.kill_throttle"/>
@@ -58,7 +58,6 @@
       <attitude roll="0" pitch="20" throttle="0.8" vmode="throttle"/>
     </block>
     <block name="Climb">
-      <set value="0" var="gps_disable_fix"/>
       <exception cond="(GetPosAlt() @GT  (WaypointAlt(WP_STDBY)-10)) || block_time @GT 60" deroute="Wind"/>
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
@@ -68,20 +67,19 @@
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
-      <set value="0" var="gps_disable_fix"/>
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="base_pattern">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-    <block name="Oval 1-2 X-sec No GPS StoreHeading" strip_button="Oval (wp 1-2) X-sec StoreHeading" on_exit="gps_disable_fix=0" strip_icon="oval.png" group="base_pattern">
+    <block name="Oval 1-2 X-sec No GPS StoreHeading" strip_button="Oval (wp 1-2) X-sec StoreHeading" on_exit="//gps_disable_fix=0" strip_icon="oval.png" group="base_pattern">
       <exception cond="(block_time @GT flightplan_disable_gps_seconds)" deroute="Oval 1-2"/>
-      <set value="flightplan_disable_gps_seconds" var="gps_disable_fix"/>
+      <!-- set value="flightplan_disable_gps_seconds" var="gps_disable_fix"/ -->
       <oval p1="1" p2="2" radius="nav_radius" pre_call="NavSetWaypointHereSend(WP_EST)"/>
     </block>
-    <block name="Oval 1-2 X-sec No GPS RLS" strip_button="Oval (wp 1-2) X-sec RLS" on_exit="gps_disable_fix=0" strip_icon="oval.png" group="base_pattern">
+    <block name="Oval 1-2 X-sec No GPS RLS" strip_button="Oval (wp 1-2) X-sec RLS" on_exit="//gps_disable_fix=0" strip_icon="oval.png" group="base_pattern">
       <exception cond="(block_time @GT flightplan_disable_gps_seconds)" deroute="Oval 1-2"/>
-      <set value="flightplan_disable_gps_seconds" var="gps_disable_fix"/>
+      <!-- set value="flightplan_disable_gps_seconds" var="gps_disable_fix"/ -->
       <oval p1="1" p2="2" radius="nav_radius" pre_call="NavSetWaypointHereSend(WP_EST)"/>
     </block>
     <block name="MOB" strip_button="Circle around here" strip_icon="mob.png" group="base_pattern">
@@ -90,8 +88,8 @@
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block key="Ctrl+w" name="Wind" strip_button="Wind" strip_icon="circle_cw_fwd.png" group="home">
-      <call_once fun="gps_propagate_reset_rls()"/>
-      <set value="true" var="wind_estimation_enabled"/>
+      <!-- call_once fun="gps_propagate_reset_rls()"/ -->
+      <!--set value="true" var="wind_estimation_enabled"/-->
       <circle radius="nav_radius" until="NavCircleCount() @GT 1" wp="STDBY"/>
       <deroute block="Oval 1-2"/>
     </block>
@@ -124,7 +122,7 @@
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
     <block name="flare">
-      <call_once fun="iomcu_dsm_on()"/>
+      <!-- call_once fun="iomcu_dsm_on()"/ -->
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
