@@ -9,13 +9,12 @@
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
     <define name="USE_BAROMETER" value="TRUE"/>
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
-
 
     <target name="ap" board="disco">
-      <define name="USE_BARO_BOARD" value="TRUE"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
+      <define name="BB_MS5611_I2C_DEV" value="i2c1" />
+      <define name="USE_I2C1" />
     </target>
     <target name="sim" board="pc">
       <configure name="SYS_TIME_FREQUENCY" value="120"/>
@@ -36,6 +35,9 @@
     <module name="gps" type="ublox"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="ins" type="alt_float"/>
+    <module name="baro" type="ms5611_i2c">
+      <define name="BB_MS5611_TYPE_MS5607" value="TRUE" />
+    </module>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c1"/>
       <define name="MS45XX_PRESSURE_RANVE" value="0.05"/>
