@@ -83,7 +83,7 @@ void nav_shakestart_periodic(void)
     }
   } else {
     // Check is the acceleration is below a threshold
-    if (nav_shakestart_accel <= 12.0f) { // Threshold of -2g
+    if (nav_shakestart_accel <= 12.0f) { // Threshold of 1.2g
       timer = 15;
       shake_state++;
     }
