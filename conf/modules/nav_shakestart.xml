@@ -10,6 +10,8 @@
   <periodic fun="nav_shakestart_periodic()" freq="20.0" autorun="TRUE"/>
   <makefile>
     <file name="nav_shakestart.c"/>
-    <test/>
+    <test firmware="fixedwing">
+      <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+    </test>
   </makefile>
 </module>
