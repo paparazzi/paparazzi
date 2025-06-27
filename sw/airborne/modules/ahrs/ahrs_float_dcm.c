@@ -228,7 +228,6 @@ void ahrs_dcm_update_accel(struct FloatVect3 *accel)
 void ahrs_dcm_update_mag(struct FloatVect3 *mag)
 {
 #if USE_MAGNETOMETER
-MESSAGE("MAGNETOMETER FEEDBACK NOT TESTED YET")
 
   float cos_roll;
   float sin_roll;
