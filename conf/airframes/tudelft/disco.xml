@@ -13,8 +13,7 @@
     <target name="ap" board="disco">
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <module name="radio_control" type="sbus"/>
-      <define name="BB_MS5611_I2C_DEV" value="i2c1" />
-      <define name="USE_I2C1" />
+      <configure name="MS5611_I2C_DEV" value="i2c1" />
     </target>
     <target name="sim" board="pc">
       <configure name="SYS_TIME_FREQUENCY" value="120"/>
