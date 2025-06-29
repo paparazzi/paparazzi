@@ -72,6 +72,9 @@ extern "C" {
 
 
 extern uint8_t multi_gps_mode;
+extern int gps_disable_fix;              ///< Disable fix
+
+void gps_periodic_fix_counter(void); ///< Increment periodic counter
 
 /** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
