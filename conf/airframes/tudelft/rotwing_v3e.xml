@@ -136,6 +136,7 @@
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
         </module>
         <module name="pfc_actuators"/>
+        <module name="airspeed_consistency"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
