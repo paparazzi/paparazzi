@@ -48,7 +48,7 @@
     </module-->
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B460800"/>
-      <define name="GPS_LOSS_TEST_TIMER" value="30"/><!-- Allows disabling 3D fix for X seconds -->
+      <define name="GPS_LOSS_TEST_TIMER" value="TRUE"/><!-- Allows disabling 3D fix for X seconds -->
     </module>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c4"/>

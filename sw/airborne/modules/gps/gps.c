@@ -83,7 +83,7 @@ uint8_t multi_gps_mode;
 int gps_disable_fix = 0;              ///< Disable fix
 
 void gps_periodic_fix_counter(void) {
-#ifdef GPS_LOSS_TEST_TIMER
+#if GPS_LOSS_TEST_TIMER
   if (gps_disable_fix > 0) {
     gps_disable_fix--;
   }
@@ -331,7 +331,7 @@ static void gps_cb(uint8_t sender_id,
   current_gps_id = gps_multi_switch(gps_s);
   if (gps_s->comp_id == current_gps_id) {
     gps = *gps_s;
-#ifdef GPS_LOSS_TEST_TIMER
+#if GPS_LOSS_TEST_TIMER
     if(gps_disable_fix > 0) {
       gps_s->fix = GPS_FIX_NONE;
     }
@@ -341,7 +341,7 @@ static void gps_cb(uint8_t sender_id,
   }
 #else
   gps = *gps_s;
-#ifdef GPS_LOSS_TEST_TIMER
+#if GPS_LOSS_TEST_TIMER
   if(gps_disable_fix > 0) {
     gps_s->fix = GPS_FIX_NONE;
   }
