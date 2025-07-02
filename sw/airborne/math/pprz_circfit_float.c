@@ -27,6 +27,10 @@
 #define PPRZ_CIRCFIT_ITER_MAX 250
 #endif
 
+#ifndef PPRZ_CIRCFIT_NORM_CUTOFF
+#define PPRZ_CIRCFIT_NORM_CUTOFF 1e-6f
+#endif
+
 enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, const float *y, uint16_t n, struct circle_t *g) {
 
   // Check if initial guess is provided
@@ -62,6 +66,7 @@ enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, 
     c->r = sum_norm / n;
     
     for (int i = 0; i < n; i++) {
+      if (norm[i] < PPRZ_CIRCFIT_NORM_CUTOFF) continue;
       c->x += x[i] + c->r * (x_prev - x[i]) / norm[i];
       c->y += y[i] + c->r * (y_prev - y[i]) / norm[i];
     }
