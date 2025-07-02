@@ -470,9 +470,9 @@ void imu_init(void)
     
     if(!imu.gyros[i].calibrated.scale_f) {
       if(imu.gyros[i].calibrated.scale) {
-        imu.gyros[i].scale_f.x = (float)imu.gyros[i].scale[0].p / (float)imu.gyros[i].scale[1].p;
-        imu.gyros[i].scale_f.y = (float)imu.gyros[i].scale[0].q / (float)imu.gyros[i].scale[1].q;
-        imu.gyros[i].scale_f.z = (float)imu.gyros[i].scale[0].r / (float)imu.gyros[i].scale[1].r;
+        imu.gyros[i].scale_f.p = (float)imu.gyros[i].scale[0].p / (float)imu.gyros[i].scale[1].p;
+        imu.gyros[i].scale_f.q = (float)imu.gyros[i].scale[0].q / (float)imu.gyros[i].scale[1].q;
+        imu.gyros[i].scale_f.r = (float)imu.gyros[i].scale[0].r / (float)imu.gyros[i].scale[1].r;
         imu.gyros[i].calibrated.scale_f = true;
       } else {
         VECT3_ASSIGN(imu.accels[i].scale_f, IMU_GYRO_P_SIGN, IMU_GYRO_Q_SIGN, IMU_GYRO_R_SIGN);
@@ -609,7 +609,7 @@ void imu_init(void)
  * @param neutral Neutral values
  * @param scale_f Scale values
  */
-void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatVect3 *scale_f)
+void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatRates *scale_f)
 {
   // Find the correct gyro
   struct imu_gyro_t *gyro = imu_get_gyro(abi_id, true);
@@ -626,7 +626,7 @@ void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor
   if(neutral != NULL && !gyro->calibrated.neutral)
     RATES_COPY(gyro->neutral, *neutral);
   if(scale_f != NULL && !gyro->calibrated.scale_f) {
-    VECT3_ASSIGN(gyro->scale_f, IMU_MAG_X_SIGN*scale_f->x, IMU_MAG_Y_SIGN*scale_f->y, IMU_MAG_Z_SIGN*scale_f->z);
+    RATES_ASSIGN(gyro->scale_f, IMU_GYRO_P_SIGN*scale_f->p, IMU_GYRO_Q_SIGN*scale_f->q, IMU_GYRO_R_SIGN*scale_f->r);
   }
 }
 
@@ -655,7 +655,7 @@ void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_senso
   if(neutral != NULL && !accel->calibrated.neutral)
     VECT3_COPY(accel->neutral, *neutral);
   if(scale_f != NULL && !accel->calibrated.scale_f) {
-    VECT3_ASSIGN(accel->scale_f, IMU_MAG_X_SIGN*scale_f->x, IMU_MAG_Y_SIGN*scale_f->y, IMU_MAG_Z_SIGN*scale_f->z);
+    VECT3_ASSIGN(accel->scale_f, IMU_ACCEL_X_SIGN*scale_f->x, IMU_ACCEL_Y_SIGN*scale_f->y, IMU_ACCEL_Z_SIGN*scale_f->z);
   }
 }
 
@@ -711,9 +711,9 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
 
   // Scale the gyro
   struct Int32Rates scaled, scaled_rot;
-  scaled.p = (gyro->unscaled.p - gyro->neutral.p) * gyro->scale_f.x;
-  scaled.q = (gyro->unscaled.q - gyro->neutral.q) * gyro->scale_f.y;
-  scaled.r = (gyro->unscaled.r - gyro->neutral.r) * gyro->scale_f.z;
+  scaled.p = (gyro->unscaled.p - gyro->neutral.p) * gyro->scale_f.p;
+  scaled.q = (gyro->unscaled.q - gyro->neutral.q) * gyro->scale_f.q;
+  scaled.r = (gyro->unscaled.r - gyro->neutral.r) * gyro->scale_f.r;
 
   // Rotate the sensor
   int32_rmat_transp_ratemult(&scaled_rot, &gyro->body_to_sensor, &scaled);
@@ -739,9 +739,9 @@ static void imu_gyro_raw_cb(uint8_t sender_id, uint32_t stamp, struct Int32Rates
       // Add all the other samples
       for(uint8_t i = 0; i < samples-1; i++) {
         struct FloatRates f_sample;
-        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale_f.x);
-        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale_f.y);
-        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale_f.z);
+        f_sample.p = RATE_FLOAT_OF_BFP((data[i].p - gyro->neutral.p) * gyro->scale_f.p);
+        f_sample.q = RATE_FLOAT_OF_BFP((data[i].q - gyro->neutral.q) * gyro->scale_f.q);
+        f_sample.r = RATE_FLOAT_OF_BFP((data[i].r - gyro->neutral.r) * gyro->scale_f.r);
 
 
 #if IMU_LOG_HIGHSPEED

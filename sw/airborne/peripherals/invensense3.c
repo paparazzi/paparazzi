@@ -48,7 +48,7 @@ static bool invensense3_reset_fifo(struct invensense3_t *inv);
 static int samples_from_odr(int odr);
 
 /* Default gyro scalings */
-static const struct FloatVect3 invensense3_gyro_scale_f[8] = {
+static const struct FloatRates invensense3_gyro_scale_f[8] = {
   {4.36332, 4.36332, 4.36332},        // 2000DPS
   {2.18166, 2.18166, 2.18166},        // 1000DPS
   {1.09083, 1.09083, 1.09083},        // 500DPS

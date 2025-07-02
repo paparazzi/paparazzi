@@ -89,7 +89,7 @@ static pthread_cond_t  navdata_cond  = PTHREAD_COND_INITIALIZER;
 /**
  * Default gyro scale
  */
-static const struct FloatVect3 gyro_scale_f = { 4.359f, 4.359f, 4.359f };
+static const struct FloatRates gyro_scale_f = { 4.359f, 4.359f, 4.359f };
 
 /**
  * Default accel scale/neutral

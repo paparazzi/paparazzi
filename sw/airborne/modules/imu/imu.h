@@ -56,7 +56,7 @@ struct imu_gyro_t {
   float temperature;                  ///< Temperature in degrees celcius
   struct Int32Rates neutral;          ///< Neutral values, compensation on unscaled->scaled
   struct Int32Rates scale[2];         ///< Scaling, first is numerator and second denominator
-  struct FloatVect3 scale_f;          ///< Scaling
+  struct FloatRates scale_f;          ///< Scaling
   struct Int32RMat body_to_sensor;    ///< Rotation from body to sensor frame (body to imu combined with imu to sensor)
   float filter_freq;                  ///< Filter frequency
   float filter_sample_freq;           ///< Lowpass filter sample frequency (Hz)
@@ -115,7 +115,7 @@ extern struct Imu imu;
 /** External functions */
 extern void imu_init(void);
 
-extern void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatVect3 *scale_f);
+extern void imu_set_defaults_gyro(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Rates *neutral, const struct FloatRates *scale_f);
 extern void imu_set_defaults_accel(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f);
 extern void imu_set_defaults_mag(uint8_t abi_id, const struct Int32RMat *imu_to_sensor, const struct Int32Vect3 *neutral, const struct FloatVect3 *scale_f);
 

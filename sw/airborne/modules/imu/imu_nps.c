@@ -35,7 +35,7 @@ void imu_nps_init(void)
   imu_nps.accel_available = false;
 
   // Set the default scaling
-  const struct FloatVect3 gyro_scale_f = {NPS_GYRO_SENSITIVITY_PP, NPS_GYRO_SENSITIVITY_QQ, NPS_GYRO_SENSITIVITY_RR};
+  const struct FloatRates gyro_scale_f = {NPS_GYRO_SENSITIVITY_PP, NPS_GYRO_SENSITIVITY_QQ, NPS_GYRO_SENSITIVITY_RR};
   const struct Int32Rates gyro_neutral = {NPS_GYRO_NEUTRAL_P, NPS_GYRO_NEUTRAL_Q, NPS_GYRO_NEUTRAL_R};
   const struct FloatVect3 accel_scale_f = {NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ};
   const struct Int32Vect3 accel_neutral = {NPS_ACCEL_NEUTRAL_X, NPS_ACCEL_NEUTRAL_Y, NPS_ACCEL_NEUTRAL_Z};
