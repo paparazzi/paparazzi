@@ -48,7 +48,7 @@ enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, 
   float x_prev = 0;
   float y_prev = 0;
   float r_prev = -1;
-  uint16_t i = 0;
+  uint16_t iteration = 0;
     
   while (fabsf(c->r - r_prev) > PPRZ_CIRCFIT_EPSILON || fabsf(c->x - x_prev) > PPRZ_CIRCFIT_EPSILON || fabsf(c->y - y_prev) > PPRZ_CIRCFIT_EPSILON) {
     
@@ -66,7 +66,10 @@ enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, 
     c->r = sum_norm / n;
     
     for (int i = 0; i < n; i++) {
-      if (norm[i] < PPRZ_CIRCFIT_NORM_CUTOFF) continue;
+      if (norm[i] < PPRZ_CIRCFIT_NORM_CUTOFF)
+      {
+        return CIRC_FIT_NORM_ERROR; // Norm error, too small distance
+      }
       c->x += x[i] + c->r * (x_prev - x[i]) / norm[i];
       c->y += y[i] + c->r * (y_prev - y[i]) / norm[i];
     }
@@ -74,12 +77,12 @@ enum CircFitStatus_t pprz_circfit_wei_float(struct circle_t *c, const float *x, 
     c->x /= n;
     c->y /= n;
 
-    if (i >= PPRZ_CIRCFIT_ITER_MAX) {
+    iteration++;
+
+    if (iteration >= PPRZ_CIRCFIT_ITER_MAX) {
       return CIRC_FIT_ITERATION_LIMIT; // Reached iteration limit
     }
 
-    i++;
-    
   }
 
   return CIRC_FIT_OK; // Circle fit successful

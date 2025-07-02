@@ -25,6 +25,7 @@ enum CircFitStatus_t {
   CIRC_FIT_OK = 0,                  // Circle fit successful
   CIRC_FIT_ERROR = -1,              // Circle fit failed
   CIRC_FIT_ITERATION_LIMIT = -2     // Circle fit reached iteration limit
+  CIRC_FIT_NORM_ERROR = -3,          // Circle fit norm error
 };
 
 struct circle_t {
