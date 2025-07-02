@@ -24,6 +24,7 @@
  * Simple consistency check for airspeed measurements while flying circles
  */
 
+#include <stdio.h>
 #include "modules/checks/airspeed_consistency.h"
 #include "navigation.h"
 #include "state.h"
