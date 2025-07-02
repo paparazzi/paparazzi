@@ -44,7 +44,7 @@ static bool invensense2_select_bank(struct invensense2_t *inv, uint8_t bank);
 static bool invensense2_config(struct invensense2_t *inv);
 
 /* Default gyro scalings */
-static const struct FloatVect3 invensense2_gyro_scale_f[5] = {
+static const struct FloatRates invensense2_gyro_scale_f[5] = {
   {0.545415, 0.545415, 0.545415}, // 250DPS: RATE_BFP_OF_REAL(radians(250)/(2**15))
   {1.09083, 1.09083, 1.09083},    // 500DPS
   {2.18166, 2.18166, 2.18166},    // 1000DPS

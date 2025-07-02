@@ -47,7 +47,7 @@ void imu_px4_init(void) {
   lsm303d_spi_init(&imu_px4.lsm_acc, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM303D_TARGET_ACC);
 
   // Set the default scaling
-  const struct FloatVect3 gyro_scale_f = {L3GD20_SENS_2000, L3GD20_SENS_2000, L3GD20_SENS_2000};
+  const struct FloatRates gyro_scale_f = {L3GD20_SENS_2000, L3GD20_SENS_2000, L3GD20_SENS_2000};
   const struct FloatVect3 accel_scale_f = {LSM303D_ACCEL_SENS_16G, LSM303D_ACCEL_SENS_16G, LSM303D_ACCEL_SENS_16G};
   imu_set_defaults_gyro(IMU_PX4_ID, NULL, NULL, &gyro_scale_f);
   imu_set_defaults_accel(IMU_PX4_ID, NULL, NULL, &accel_scale_f);

@@ -67,7 +67,7 @@
 // Get default sensitivity from a table
 extern const float MPU9250_GYRO_SENS[4];
 // Get default sensitivity numerator and denominator from a table
-extern const struct FloatVect3 MPU9250_GYRO_SENS_F[4];
+extern const struct FloatRates MPU9250_GYRO_SENS_F[4];
 
 /** default accel sensitivy from the datasheet
  * sens = 9.81 [m/s^2] / [LSB/g] * 2^INT32_ACCEL_FRAC
