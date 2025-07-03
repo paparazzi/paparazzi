@@ -136,6 +136,9 @@
     <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="rotwing_state_choose_state_by_dist(WP_STDBY)">
         <stay wp="STDBY"/>
     </block>
+    <block name="Standby_dist" strip_button="Standby Dist" strip_icon="home.png" pre_call="rotwing_state_choose_state_by_dist(WP_STDBY)">
+        <stay wp="STDBY"/>
+    </block>
     <block name="Standby_free" strip_button="Standby Free" strip_icon="home.png">
         <call_once fun="rotwing_state_set(ROTWING_STATE_FREE)"/>
         <stay wp="STDBY"/>

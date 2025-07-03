@@ -346,7 +346,7 @@ void eff_scheduling_rotwing_update_hover_motor_effectiveness(void)
   g1g2[1][0] = dM_dpprz[0] / eff_sched_var.Iyy;   // pitch effectiveness front motor
 
   // Update back motor q effectiveness
-  g1g2[1][2] = - dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
+  g1g2[1][2] = -dM_dpprz[2] / eff_sched_var.Iyy;  // pitch effectiveness back motor
   
   g1g2[0][1] = roll_motor_p_eff_right;   // roll effectiveness right motor (no airspeed compensation)
   g1g2[1][1] = roll_motor_q_eff;    // pitch effectiveness right motor
