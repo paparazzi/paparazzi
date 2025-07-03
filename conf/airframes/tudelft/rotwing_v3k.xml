@@ -361,7 +361,7 @@
     <section name="IMU" prefix="IMU_">
 
         <!-- Accelerometer calibration -->
-        <define name="IMU_ACCEL_CALIB" type="array">
+        <define name="ACCEL_CALIB" type="array">
             <field type="struct">
                 <field name="abi_id" value="20"/>
                 <field name="calibrated" type="struct">
