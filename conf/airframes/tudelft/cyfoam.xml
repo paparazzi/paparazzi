@@ -39,9 +39,6 @@
     <!--<define name="MAG_Y_SENS" value="7.7018409319" integer="16"/>-->
     <!--<define name="MAG_Z_SENS" value="8.16601148911" integer="16"/>-->
 
-    <!--<define name= "MAG_X_CURRENT_COEF" value="0.001455"/>-->
-    <!--<define name= "MAG_Y_CURRENT_COEF" value="0.012152"/>-->
-    <!--<define name= "MAG_Z_CURRENT_COEF" value="-0.0001088"/>-->
 
     <!--Mag of gps-->
     <define name="MAG_X_NEUTRAL" value="21"/>

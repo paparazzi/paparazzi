@@ -129,10 +129,6 @@
     <define name="MAG_Y_SENS" value="3.98840260231" integer="16"/>
     <define name="MAG_Z_SENS" value="4.32568461736" integer="16"/>
     
-    <!-- MAGNETO CURRENT CALIBRATION -->
-    <define name= "MAG_X_CURRENT_COEF" value="-0.0176704713698"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.0174222594634"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.0187570316492"/>
   </section>
   
   <section name="AHRS" prefix="AHRS_">

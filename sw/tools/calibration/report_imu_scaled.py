@@ -97,13 +97,6 @@ def main():
 
     print("")
 
-    # coefficient = calibration_utils.estimate_mag_current_relation(measurements)
-
-    # print("")
-    # print("<define name= \"MAG_X_CURRENT_COEF\" value=\""+str(coefficient[0])+"\"/>")
-    # print("<define name= \"MAG_Y_CURRENT_COEF\" value=\""+str(coefficient[1])+"\"/>")
-    # print("<define name= \"MAG_Z_CURRENT_COEF\" value=\""+str(coefficient[2])+"\"/>")
-
 
 if __name__ == "__main__":
     main()
