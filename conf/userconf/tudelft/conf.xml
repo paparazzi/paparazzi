@@ -705,7 +705,7 @@
   />
   <aircraft
    name="RotatingWingDemo"
-   ac_id="29"
+   ac_id="43"
    airframe="airframes/tudelft/rotwing_v3g_demo.xml"
    radio="radios/crossfire_sbus.xml"
    telemetry="telemetry/highspeed_rotorcraft.xml"
