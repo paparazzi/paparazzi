@@ -1,13 +1,13 @@
 <!-- This is a 7kg rotating wing drone
-     * Airframe:    TUD00363
+     * Airframe:    TUD00474
      * Autopilot:   Cube orange+
      * Datalink:    Herelink
      * GPS:         UBlox F9P
      * RC:          SBUS Crossfire
 -->
 
-<airframe name="RotatingWingV3H">
-    <description>RotatingWingV3H</description>
+<airframe name="RotatingWingV3J">
+    <description>RotatingWingV3J</description>
 
     <firmware name="rotorcraft">
         <target name="ap" board="cube_orangeplus">
@@ -28,13 +28,13 @@
             <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
-            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
-            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
+            <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE2_ID"/>
+            <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE2_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
 
             <!--Only send gyro and accel that is being used-->
-            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
-            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE1_ID"/>
+            <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE2_ID"/>
+            <define name="IMU_ACCEL_ABI_SEND_ID"    value= "IMU_CUBE2_ID"/>
 
             <!-- Range sensor connected to supercan -->
             <module name="range_sensor_uavcan"/>
@@ -84,9 +84,8 @@
             <define name="AIRSPEED_UAVCAN_LOWPASS_TAU"      value="0.15" />
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
-        <module name="air_data">
-            <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
-        </module>
+        
+        <module name="air_data"/>
 
         <configure name="PRIMARY_GPS" value="ublox"/>
         <configure name="SECONDARY_GPS" value="ublox2"/>
@@ -138,7 +137,6 @@
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
         </module>
         <module name="pfc_actuators"/>
-        <module name="airspeed_consistency"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
@@ -150,12 +148,12 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-1392" neutral="451"  max="2294"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-1966" neutral="-123"  max="1720"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="1200"  neutral="1200" max="-8191"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="1680"  neutral="1680" max="-7747"/>
         <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
     </servos>
 
@@ -165,7 +163,7 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="5" name="BROTATION_MECH" min="-1392" neutral="451"  max="2294"/>
+        <servo no="5" name="BROTATION_MECH" min="-1966" neutral="-123"  max="1720"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -239,9 +237,6 @@
     </section>
 
     <section name="CALIBRATION">
-        <!-- Throttle value in AP_MODE_FAILSAFE -->
-        <define name="FAILSAFE_THROTTLE"                    value="5300"/>
-        
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -322,7 +317,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="1000"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -331,7 +326,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="1000"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -340,7 +335,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="1000"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -349,7 +344,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="0"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="975"/>
+                <field name="high_feedback" value="1000"/>
                 <field name="timeout" value="3"/>
             </field>
             <field type="struct">
@@ -358,16 +353,67 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="3000"/>
+                <field name="high_feedback" value="3100"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-19,0,11}, .scale={{36573,4111,12385},{3737,420,1269}}, .filter_sample_freq=1130, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-1,-5,24}, .scale={{21205,53606,11977},{4326,10919,2440}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-63,-14,21}, .scale={{32790,18121,37501},{6697,3698,7659}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={11770,9014,-7862}, .scale={{1879,14000,16295},{3057,25229,28216}}, .body_to_sensor={{0,16384,0,16384,0,0,0,0,-16384}}}}"/>
-        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1130, .filter_freq=30}}"/>
+        <define name="ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-6,2,17" type="int[]"/>
+                <field name="scale" value="{{9236,38828,18480},{943,3981,1891}}"/>
+                <field name="filter_sample_freq" value="1133"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="21"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="0,0,52" type="int[]"/>
+                <field name="scale" value="{{36534,2534,10499},{7451,517,2141}}"/>
+                <field name="filter_sample_freq" value="4004"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="22"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-33,-9,2" type="int[]"/>
+                <field name="scale" value="{{20093,59852,25516},{4106,12229,5229}}"/>
+                <field name="filter_sample_freq" value="1136"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
+        
+        <define name="MAG_CALIB" type="array">
+        <field type="struct">
+            <field name="abi_id" value="5"/>
+            <field name="calibrated" type="struct">
+                <field name="neutral" value="true"/>
+                <field name="scale" value="true"/>
+                <field name="rotation" value="true"/>
+            </field>
+            <field name="neutral" value="-6571,2116,-2536" type="int[]"/>
+            <field name="scale" value="{{30757,36475,29972},{52388,60818,49223}}"/>
+            <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
+        </field>
+        </define>
+
+        <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1133, .filter_freq=30},{.abi_id=21, .calibrated={.filter=true}, .filter_sample_freq=4004, .filter_freq=30},{.abi_id=22, .calibrated={.filter=true}, .filter_sample_freq=1136, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
         <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>

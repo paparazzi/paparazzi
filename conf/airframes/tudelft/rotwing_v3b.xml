@@ -94,6 +94,7 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
+
         <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
@@ -162,7 +163,7 @@
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
         <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
-        <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
+        <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="-819"    max="6552"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
