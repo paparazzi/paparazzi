@@ -52,6 +52,16 @@
 #endif
 
 /**
+ * @brief The status of the preflight checks
+*/
+enum pfc_actuators_state_t {
+  PFC_ACTUATORS_STATE_INIT,
+  PFC_ACTUATORS_STATE_RUNNING,
+  PFC_ACTUATORS_STATE_SUCCESS,
+  PFC_ACTUATORS_STATE_ERROR
+};
+
+/**
  * @brief The state of the actuator during the test
 */
 enum pfc_actuator_state_t {
@@ -300,8 +310,4 @@ static void pfc_act_feedback_cb(uint8_t sender_id __attribute__((unused)), struc
       pfc_actuators.last_feedback_err2 = PFC_ACTUATORS_MAX_ANGLE_ERROR;
     }
   }
-}
-
-enum pfc_actuators_state_t pfc_actuators_get_state(void) {
-  return pfc_actuators.state;
 }

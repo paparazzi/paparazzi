@@ -117,7 +117,8 @@
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
         <module name="preflight_checks">
-            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+            <define name="SDLOG_PREFLIGHT_ERROR" value="FALSE"/>
+            <define name="PREFLIGHT_CHECK_GROUND" value="FALSE"/>
         </module>
         <module name="pfc_actuators"/>
         <module name="agl_dist"/>

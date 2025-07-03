@@ -1,59 +1,37 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 <flight_plan alt="1.5" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="60" name="Safe TU Delft Cyberzoo" security_height="0.4">
   <header>
-    #include "autopilot_rc_helpers.h"
-    #include "modules/radio_control/radio_control.h"
-    #ifndef ROTWING_DEMO_SKEW_ENDPOINT
-    #define ROTWING_DEMO_SKEW_ENDPOINT 70.0
-    #endif
-    #ifndef ROTWING_DEMO_SKEW_MIDPOINT
-    #define ROTWING_DEMO_SKEW_MIDPOINT 45.0
-    #endif
-    static inline void rotwing_rc_set_skew(void) {
-      if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] &lt; (MAX_PPRZ / 3)) {
-      rotwing_state.sp_skew_angle_deg = 0.f;
-      } else if (radio_control.values[RADIO_CONTROL_ROTWING_DEMO] &gt; (2 * MAX_PPRZ / 3)) {
-        rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_ENDPOINT;
-      } else {
-        rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_MIDPOINT;
-      }
-    }
+#include "autopilot_rc_helpers.h"
+#include "modules/radio_control/radio_control.h"
+#include "modules/rotwing_drone/rotwing_state.h"
+#include "modules/checks/preflight_checks.h"
+#include "stdbool.h"
+#ifndef ROTWING_DEMO_SKEW_ENDPOINT
+#define ROTWING_DEMO_SKEW_ENDPOINT 70.0
+#endif
+#ifndef ROTWING_DEMO_SKEW_MIDPOINT
+#define ROTWING_DEMO_SKEW_MIDPOINT 45.0
+#endif
+static inline void rotwing_rc_set_skew(void) {
+  if (LessThan(radio_control.values[RADIO_CONTROL_ROTWING_DEMO], (MAX_PPRZ / 3))) {
+  rotwing_state.sp_skew_angle_deg = 0.f;
+  } else if (LessThan((2 * MAX_PPRZ / 3), radio_control.values[RADIO_CONTROL_ROTWING_DEMO])) {
+    rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_ENDPOINT;
+  } else {
+    rotwing_state.sp_skew_angle_deg = ROTWING_DEMO_SKEW_MIDPOINT;
+  }
+}
   </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint lat="51.9905979" lon="4.3767279" name="CZ1"/>
-    <waypoint lat="51.9906685" lon="4.3767327" name="CZ2"/>
-    <waypoint lat="51.9906652" lon="4.3768481" name="CZ3"/>
-    <waypoint lat="51.9905941" lon="4.3768441" name="CZ4"/>
-    <waypoint lat="51.9906028" lon="4.3767375" name="p1"/>
-    <waypoint lat="51.9906633" lon="4.3767411" name="p2"/>
-    <waypoint lat="51.9906601" lon="4.3768415" name="p3"/>
-    <waypoint lat="51.9905979" lon="4.3768386" name="p4"/>
   </waypoints>
-  <sectors>
-    <sector color="blue" name="CyberZoo">
-      <corner name="CZ1"/>
-      <corner name="CZ2"/>
-      <corner name="CZ3"/>
-      <corner name="CZ4"/>
-    </sector>
-    <sector color="red" name="Flyzone">
-      <corner name="p1"/>
-      <corner name="p2"/>
-      <corner name="p3"/>
-      <corner name="p4"/>
-    </sector>
-  </sectors>
-  <exceptions>
-    <exception cond="Or(!InsideFlyzone(GetPosX(), GetPosY()), GetPosHeight() @GT 1500) @AND !(nav_block == IndexOfBlock('Wait GPS')) @AND !(nav_block == IndexOfBlock('Geo init')) @AND !(nav_block == IndexOfBlock('Holding point'))" deroute="Holding point"/>
-  </exceptions>
   <blocks>
-   <block name="Wait GPS" on_enter="ms45xx.autoset_offset=true">
+   <block name="Wait GPS">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || !state.ned_initialized_i"/>
     </block>
-    <block name="Geo init">
+    <block name="Geo init" on_enter="ms45xx.autoset_offset=true">
       <call_once fun="rotwing_state_set(ROTWING_STATE_FORCE_HOVER)"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>
@@ -66,8 +44,9 @@
       <exception cond="!kill_switch_is_on()" deroute="Actuator Check"/>
     </block>
     <block name="Actuator Check" on_enter="pfc_actuators_start(true)" on_exit="pfc_actuators_start(false)">
-      <exception cond="kill_switch_is_on() @AND !(pfc_actuators_get_state() == PFC_ACTUATORS_STATE_SUCCESS)" deroute="Holding point"/>
-      <exception cond="pfc_actuators_get_state() == PFC_ACTUATORS_STATE_SUCCESS" deroute="Ready"/>
+      <exception cond="kill_switch_is_on() @AND !preflight_check()" deroute="Holding point"/>
+      <exception cond="preflight_check()" deroute="Ready"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Ready" on_enter="rotwing_state.force_skew=true" pre_call="rotwing_rc_set_skew()">
       <attitude pitch="-20" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
