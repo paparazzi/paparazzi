@@ -120,14 +120,7 @@
   <section name="IMU" prefix="IMU_">
     <!-- IMU calibration, make sure to calibrate the IMU properly before flight, see the wiki for more info-->
 
-    <!--     <define name="MAG_X_CURRENT_COEF" value="0."/>
-    <define name="MAG_Y_CURRENT_COEF" value="0."/>
-    <define name="MAG_Z_CURRENT_COEF" value="0."/> -->
 
-
-    <!--define name= "MAG_X_CURRENT_COEF" value="-0.511272562535"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.244268225323"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="1.59518542807"/-->
     <define name="MAG_X_NEUTRAL" value="-1057"/>
     <define name="MAG_Y_NEUTRAL" value="-5436"/>
     <define name="MAG_Z_NEUTRAL" value="-7865"/>

@@ -63,10 +63,6 @@
     <define name="MAG_Y_SENS" value="3.85373116155" integer="16"/>
     <define name="MAG_Z_SENS" value="4.28038049955" integer="16"/>
 
-    <!-- MAGNETO CURRENT CALIBRATION -->
-    <define name="MAG_X_CURRENT_COEF" value="0.0103422023767"/>
-    <define name="MAG_Y_CURRENT_COEF" value="0.0084568317783"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-0.01935617335"/>
   </section>
 
  <section name="AUTOPILOT">

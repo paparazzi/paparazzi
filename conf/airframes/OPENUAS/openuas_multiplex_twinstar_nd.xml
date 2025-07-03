@@ -540,9 +540,7 @@ The most crucial part for the magnetometer calibration:
     <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
     <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
     <!--define name="MAG_OFFSET" value="-?.0" unit="deg"--> <!--  TODO: at least 3 axis in worst case -->
-    <define name="MAG_X_CURRENT_COEF" value="0.000321738038902"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-0.000820010304048"/>
-    <define name="MAG_Z_CURRENT_COEF" value="0.00139218924958"/>
+
 
     <define name="BODY_TO_IMU_PHI" value="0.0" unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0.0" unit="deg"/><!-- TODO: validate -->
