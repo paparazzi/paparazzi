@@ -94,6 +94,7 @@
             <define name="AIRSPEED_UAVCAN_SEND_ABI"         value="0" /> <!-- Read Airspeed for logging but do not use it -->
         </module>
         <module name="air_data"/>
+
         <module name="gps" type="ublox">
             <configure name="UBX_GPS_BAUD" value="B460800"/>
             <define name="USE_GPS_UBX_RTCM" value="TRUE"/>
