@@ -386,6 +386,7 @@
       <message name="WLS_U"                    period="0.002"/>
       <message name="POWER_DEVICE"             period="0.02"/>
       <message name="FUELCELL"                 period="1.5"/>
+      <message name="AIRSPEED_RAW"             period="0.02"/>
     </mode>
   </process>
 
