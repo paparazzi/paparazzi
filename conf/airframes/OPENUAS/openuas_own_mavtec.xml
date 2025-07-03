@@ -109,10 +109,6 @@
     <define name="MAG_Y_SENS" value="3.74966778358" integer="16"/>
     <define name="MAG_Z_SENS" value="4.05311539389" integer="16"/>
 
-    <define name= "MAG_X_CURRENT_COEF" value="0.00322676138551"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.00266367218758"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="-0.0004557295634"/>
-
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="270." unit="deg"/>
