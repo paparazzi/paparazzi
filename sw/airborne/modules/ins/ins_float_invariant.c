@@ -389,7 +389,9 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   float_quat_vmult(&accel_n, &q_b2n, &ins_float_inv.cmd.accel);
   VECT3_SMUL(accel_n, accel_n, 1.f / (ins_float_inv.state.as));
   VECT3_ADD(accel_n, A);
-  stateSetAccelNed_f(MODULE_INS_FLOAT_INVARIANT_ID, (struct NedCoor_f *)&accel_n);
+  struct NedCoor_i accel_coord;
+  VECT3_COPY(accel_coord, accel_n);
+  stateSetAccelNed_f(MODULE_INS_FLOAT_INVARIANT_ID, &accel_coord);
 
   //------------------------------------------------------------//
 
@@ -618,7 +620,8 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   /* dot_V = A + (1/as) * (q * am * q-1) + ME */
   struct FloatQuat q_b2n;
   float_quat_invert(&q_b2n, &(s->quat));
-  float_quat_vmult((struct FloatVect3 *)&s_dot.speed, &q_b2n, &(c->accel));
+  float_quat_vmult(&tmp_vect, &q_b2n, &(c->accel));
+  VECT3_COPY(s_dot.speed, tmp_vect);
   VECT3_SMUL(s_dot.speed, s_dot.speed, 1.f / (s->as));
   VECT3_ADD(s_dot.speed, A);
   VECT3_ADD(s_dot.speed, ins_float_inv.corr.ME);

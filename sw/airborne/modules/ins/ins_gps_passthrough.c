@@ -223,6 +223,6 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, accel);
   accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
-  stateSetAccelNed_i(MODULE_INS_GPS_PASSTHROUGH_ID, (struct NedCoor_i *)&accel_ned);
   VECT3_COPY(ins_gp.ltp_accel, accel_ned);
+  stateSetAccelNed_i(MODULE_INS_GPS_PASSTHROUGH_ID, &ins_gp.ltp_accel);
 }
