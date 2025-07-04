@@ -9,6 +9,7 @@
     </description>
     <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
     <define name="GPS_POS_BROADCAST" value="FALSE|TRUE" description="Broadcast GPS position instead of sending it to the ground station only. This requires to use PPRZLINK version 2 and a capable modem"/>
+    <define name="GPS_LOSS_TEST_TIMER" value="FALSE|TRUE" description="If defined TRUE, this allows the GPS module to simulate GPS loss for a few seconds for testing purposes."/>
   </doc>
 
   <settings>
@@ -20,6 +21,7 @@
           <strip_button name="GPS PRIMARY" icon="gps1.png" value="1" group="gps_mode_setting"/>
           <strip_button name="GPS SECONDARY" icon="gps2.png" value="2" group="gps_mode_setting"/> -->
         </dl_setting>
+        <dl_setting var="gps_disable_fix" min="0" step="1" max="180" shortname="disable_fix"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -28,6 +30,7 @@
     <file name="gps.h"/>
   </header>
   <init fun="gps_init()"/>
+  <periodic fun="gps_periodic_fix_counter()" freq="1.0"/>
   <datalink message="GPS_INJECT" fun="gps_parse_GPS_INJECT(buf)"/>
   <datalink message="RTCM_INJECT" fun="gps_parse_RTCM_INJECT(buf)"/>
 
