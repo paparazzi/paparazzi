@@ -13,7 +13,7 @@
 #include "modules/core/threads.h"
 #include "modules/core/threads_arch.h"
 #include "stdbool.h"
-
+#include "mcu_periph/sys_time.h"
 
 int pprz_mtx_init(pprz_mutex_t* mtx) {
   (void)mtx;
@@ -35,8 +35,6 @@ int pprz_mtx_unlock(pprz_mutex_t* mtx) {
   (void)mtx;
   return 0;
 }
-
-
 
 void pprz_bsem_init(pprz_bsem_t* bsem, bool taken) {
   bsem->value = taken ? 0: 1;
