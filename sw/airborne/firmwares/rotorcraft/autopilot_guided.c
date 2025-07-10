@@ -163,6 +163,29 @@ void autopilot_guided_parse_GUIDED(uint8_t *buf) {
       DL_GUIDED_SETPOINT_NED_yaw(buf));
 }
 
+void autopilot_guided_parse_GUIDED_FULL(uint8_t *buf) {
+  if (DL_GUIDED_FULL_NED_ac_id(buf) != AC_ID || autopilot_get_mode() != AP_MODE_GUIDED) {
+    return;
+  }
+
+  guidance_h_set_all(
+      DL_GUIDED_FULL_NED_x(buf),
+      DL_GUIDED_FULL_NED_y(buf),
+      DL_GUIDED_FULL_NED_vx(buf),
+      DL_GUIDED_FULL_NED_vy(buf),
+      DL_GUIDED_FULL_NED_ax(buf),
+      DL_GUIDED_FULL_NED_ay(buf)
+      );
+  guidance_h_set_heading(
+      DL_GUIDED_FULL_NED_heading(buf)
+      );
+  guidance_v_set_all(
+      DL_GUIDED_FULL_NED_z(buf),
+      DL_GUIDED_FULL_NED_vz(buf),
+      DL_GUIDED_FULL_NED_az(buf)
+      );
+
+}
 #else
 
 bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
@@ -216,5 +239,8 @@ void autopilot_guided_parse_GUIDED(uint8_t *buf) {
   (void) buf;
 }
 
+void autopilot_guided_parse_GUIDED_FULL(uint8_t *buf) {
+  (void) buf;
+}
 #endif
 
