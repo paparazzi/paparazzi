@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 import control_effectiveness_utils as ut
 
-def process_data(conf, f_name, start, end, freq=None, act_dyn=None, verbose=False, plot=False):
+def process_data(conf, f_name, start, end, freq=None, act_freq=None, verbose=False, plot=False):
 
     # Read data from log file
     data = genfromtxt(f_name, delimiter=',', skip_header=1)
@@ -38,8 +38,8 @@ def process_data(conf, f_name, start, end, freq=None, act_dyn=None, verbose=Fals
     var = {}
     if 'variables' in conf:
         var = conf['variables']
-    if act_dyn is not None:
-        var['act_dyn'] = act_dyn # this may overwrite default value
+    if act_freq is not None:
+        var['act_freq'] = act_freq # this may overwrite default value
 
     # Get number of inputs and outputs
     mixing = np.array(conf['mixing'])
@@ -114,16 +114,40 @@ def process_data(conf, f_name, start, end, freq=None, act_dyn=None, verbose=Fals
 
     if disp is not None:
         print("\nAdd the following lines to your airframe file:\n")
+        def value_or_default(key, dic, default):
+            if key in dic:
+                return dic[key]
+            else:
+                return default
         for d in disp:
             name = d['name']
-            coef = d['coef']
-            if isinstance(coef, (int, float, str)):
-                print('<define name="{}" value="{}"/>'.format(name, ut.get_param(coef, var)))
-            elif len(coef) == 2 and isinstance(coef[0], int) and isinstance(coef[1], int):
-                print('<define name="{}" value="{:.5f}"/>'.format(name, output[coef[0], coef[1]]))
-            else:
-                s = ', '.join(["{:.5f}".format(output[e[0], e[1]]) for e in coef])
-                print('<define name="{}" value="{}" type="float[]"/>'.format(name, s))
+            coef = value_or_default('coef', d, None)
+            matrix = value_or_default('matrix', d, None)
+            scaling = value_or_default('scaling', d, 1.)
+            if matrix is not None:
+                print(f'<define name="{name}" type="matrix">')
+                for i in range(len(matrix)):
+                    l = []
+                    for e in matrix[i]:
+                        if isinstance(e, (int, float, str)):
+                            l.append("{:.2f}".format(scaling*ut.get_param(e, var)))
+                        else:
+                            l.append("{:.2f}".format(scaling*output[e[0], e[1]]))
+                    print(f'  <field value="{l}" type="float[]"/>')
+                print('</define>')
+            elif coef is not None:
+                if isinstance(coef, (int, float, str)):
+                    print('<define name="{}" value="{}"/>'.format(name, scaling*ut.get_param(coef, var)))
+                elif len(coef) == 2 and isinstance(coef[0], int) and isinstance(coef[1], int):
+                    print('<define name="{}" value="{:.2f}"/>'.format(name, scaling*output[coef[0], coef[1]]))
+                else:
+                    l = []
+                    for e in coef:
+                        if isinstance(e, (int, float, str)):
+                            l.append("{:.2f}".format(scaling*ut.get_param(e, var)))
+                        else:
+                            l.append("{:.2f}".format(scaling*output[e[0], e[1]]))
+                    print('<define name="{}" value="{}" type="float[]"/>'.format(name, ', '.join(l)))
 
     if plot:
         plt.show()
@@ -136,10 +160,10 @@ def main():
     parser = ArgumentParser(description="Control effectiveness estimation tool")
     parser.add_argument("config", help="JSON configuration file")
     parser.add_argument("data", help="Log file for parameter estimation")
-    parser.add_argument("-f", "--freq", dest="freq",
+    parser.add_argument("-sf", "--sample_freq", dest="freq",
                       help="Sampling frequency, trying auto freq if not set")
-    parser.add_argument("-d", "--dyn", dest="dyn",
-                      help="First order actuator dynamic (discrete time), 'None' for config file default")
+    parser.add_argument("-af", "--act_freq", dest="dyn",
+                      help="First order actuator frequency, 'None' for config file default")
     parser.add_argument("-s", "--start",
                       help="Start time",
                       action="store", dest="start", default="0")

@@ -34,10 +34,11 @@ from matplotlib.pyplot import show
 # functions for actuators model
 #
 
-def first_order_model(signal, tau):
+def first_order_model(signal, freq, cutoff_freq):
     '''
-    Apply a first order filter with (discrete) time constant tau
+    Apply a first order filter with cutoff freq
     '''
+    tau = 1. - np.exp(-cutoff_freq / freq)
     return sp.signal.lfilter([tau], [1, tau-1], signal, axis=0)
 
 def rate_limit_model(signal, max_rate):
@@ -77,8 +78,8 @@ def apply_filter(filt_name, params, signal, var):
     apply a filter to an input signal based on the config (name + params)
     '''
     if filt_name == '1st_order':
-        # params = [tau]
-        return first_order_model(signal, get_param(params[0], var))
+        # params = [freq]
+        return first_order_model(signal, var['freq'], get_param(params[0], var))
 
     elif filt_name == 'rate_limit':
         # params = [max_rate]
@@ -180,7 +181,7 @@ def print_results():
 #
 
 def fit_axis(x, y, axis, start, end, verbose=False):
-    c = np.linalg.lstsq(x[start:end], y[start:end])#, rcond=None)
+    c = np.linalg.lstsq(x[start:end], y[start:end], rcond=None)
     if verbose:
         print("Fit axis", axis)
         print(c[0]*1000)
