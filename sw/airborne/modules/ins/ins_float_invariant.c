@@ -389,7 +389,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   float_quat_vmult(&accel_n, &q_b2n, &ins_float_inv.cmd.accel);
   VECT3_SMUL(accel_n, accel_n, 1.f / (ins_float_inv.state.as));
   VECT3_ADD(accel_n, A);
-  struct NedCoor_i accel_coord;
+  struct NedCoor_f accel_coord;
   VECT3_COPY(accel_coord, accel_n);
   stateSetAccelNed_f(MODULE_INS_FLOAT_INVARIANT_ID, &accel_coord);
 
