@@ -360,6 +360,10 @@ static void show_rates(shell_stream_t *sh, char* name, struct Int32Rates *r) {
   chprintf(sh, "  %s: %ld, %ld, %ld\r\n", name, r->p, r->q, r->r);
 }
 
+static void show_ratesf(shell_stream_t *sh, char* name, struct FloatRates *r) {
+  chprintf(sh, "  %s: %f, %f, %f\r\n", name, r->p, r->q, r->r);
+}
+
 
 static void show_matrix(shell_stream_t *sh, char* name, struct Int32RMat *m) {
   chprintf(sh, "  %s:\r\n", name);
@@ -382,7 +386,7 @@ static void cmd_imu(shell_stream_t *sh, int argc, const char *const argv[])
       chprintf(sh, " Gyro id: %u, time %lu\r\n", imu.gyros[i].abi_id, imu.gyros[i].last_stamp);
       show_calibrated(sh, &imu.gyros[i].calibrated);
       show_rates(sh, "neutral", &imu.gyros[i].neutral);
-      show_vect3f(sh, "scale", &imu.gyros[i].scale_f);
+      show_ratesf(sh, "scale", &imu.gyros[i].scale_f);
       show_matrix(sh, "body_to_sensor", &imu.gyros[i].body_to_sensor);
       show_rates(sh, "unscaled", &imu.gyros[i].unscaled);
       show_rates(sh, "scaled", &imu.gyros[i].scaled);
