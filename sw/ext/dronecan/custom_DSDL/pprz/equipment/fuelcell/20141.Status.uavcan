@@ -1,0 +1,15 @@
+#
+# Fuelcell Status
+#
+
+uint7 tank_pressure        # percentage
+uint8 regulated_pressure   # *100
+
+uint10 battery_voltage     # decivolt *10
+uint14 output_power
+uint13 spm_power
+int16 battery_power
+uint4 psu_state
+uint8 error_code
+uint8 sub_code
+

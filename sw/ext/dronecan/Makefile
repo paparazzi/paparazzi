@@ -27,6 +27,7 @@ Q=@
 PAPARAZZI_SRC=../../..
 DRONECAN_DIR=$(PAPARAZZI_SRC)/sw/ext/dronecan
 DSDL_DIR := $(DRONECAN_DIR)/DSDL
+CUSTOM_DSDL=$(DRONECAN_DIR)/custom_DSDL/pprz
 
 all: libcanard DSDL pydronecan dronecan_dsdlc
 
@@ -43,6 +44,7 @@ pydronecan : pydronecan.sync pydronecan.update
 dronecan_dsdlc.build:
 	$(eval DSDL_ROOTS_PART := $(sort $(dir $(wildcard $(DSDL_DIR)/*/))))
 	$(eval DSDL_ROOTS := $(filter-out $(DRONECAN_DIR)/DSDL/tests/ $(DRONECAN_DIR)/DSDL/,$(DSDL_ROOTS_PART)))
+	$(eval DSDL_ROOTS := $(DSDL_ROOTS) $(CUSTOM_DSDL))
 	@echo Generating dsdl code from $(DSDL_ROOTS) to $(PAPARAZZI_SRC)/var/include/DSDLcode
 	$(Q) python $(DRONECAN_DIR)/dronecan_dsdlc/dronecan_dsdlc.py -O $(PAPARAZZI_SRC)/var/include/DSDLcode $(DSDL_ROOTS)
 	@echo Done
