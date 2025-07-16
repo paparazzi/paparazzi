@@ -27,13 +27,7 @@
 #include "modules/energy/can_fuelcell.h"
 #include "modules/datalink/telemetry.h"
 #include "uavcan/uavcan.h"
-
-
-/* uavcan EQUIPMENT_ESC_STATUS message definition */
-#define UAVCAN_EQUIPMENT_FUELCELL_STATUS_MAX_SIZE 11
-#define UAVCAN_EQUIPMENT_FUELCELL_STATUS_SIGNATURE (0x475459FF3AA36FE5ULL)
-#define UAVCAN_EQUIPMENT_FUELCELL_STATUS_ID 1141
-
+#include "pprz.equipment.fuelcell.Status.h"
 
 /* Fuel-Cell */
 struct uavcan_equipment_fuelcell {
@@ -59,35 +53,20 @@ static uavcan_event fuelcell_uavcan_ev;
 static void fuelcell_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), CanardRxTransfer *transfer)
 {
 
-  uint32_t bit_ofs = 0;
-  canardDecodeScalar(transfer, bit_ofs, 7, false, &can_fuelcell_data.pressure);
-  bit_ofs += 7;
-  uint16_t temp = 0;
-  canardDecodeScalar(transfer, bit_ofs, 8, false, &temp);
-  can_fuelcell_data.press_reg = ((float) temp) / 100.0f;
-  bit_ofs += 8;
-  temp = 0;
-  canardDecodeScalar(transfer, bit_ofs, 10, false, &temp);
-  can_fuelcell_data.volt_bat = ((float) temp) / 10.0f;
-  bit_ofs += 10;
-  temp = 0;
-  canardDecodeScalar(transfer, bit_ofs, 14, false, &temp);
-  can_fuelcell_data.power_out = ((float) temp);
-  bit_ofs += 14;
-  temp = 0;
-  canardDecodeScalar(transfer, bit_ofs, 13, false, &temp);
-  can_fuelcell_data.power_cell = ((float) temp);
-  bit_ofs += 13;
-  int16_t temp2 = 0;
-  canardDecodeScalar(transfer, bit_ofs, 16, true, &temp2);
-  can_fuelcell_data.power_batt = ((float) temp2);
-  bit_ofs += 16;
-  canardDecodeScalar(transfer, bit_ofs, 4, false, &can_fuelcell_data.state);
-  bit_ofs += 4;
-  canardDecodeScalar(transfer, bit_ofs, 8, false, &can_fuelcell_data.error);
-  bit_ofs += 8;
-  canardDecodeScalar(transfer, bit_ofs, 8, false, &can_fuelcell_data.suberror);
-  bit_ofs += 8;
+  struct pprz_equipment_fuelcell_Status msg;
+  if(pprz_equipment_fuelcell_Status_decode(transfer, &msg)) {
+    return;   // decode error
+  }
+  
+  can_fuelcell_data.pressure = msg.tank_pressure;
+  can_fuelcell_data.press_reg = msg.regulated_pressure / 100.0f;
+  can_fuelcell_data.volt_bat = msg.battery_voltage / 10.0f;
+  can_fuelcell_data.power_out = msg.output_power;
+  can_fuelcell_data.power_cell = msg.spm_power;
+  can_fuelcell_data.power_batt = msg.battery_power;
+  can_fuelcell_data.state = msg.psu_state;
+  can_fuelcell_data.error = msg.error_code;
+  can_fuelcell_data.suberror = msg.sub_code;
 
   can_fuelcell_data.timeout = 10;
 
@@ -129,7 +108,7 @@ void can_fuelcell_init(void)
 #if !(USE_NPS)
 
     // Bind uavcan BATTERYINFO message from EQUIPMENT.POWER
-  uavcan_bind(UAVCAN_EQUIPMENT_FUELCELL_STATUS_ID, UAVCAN_EQUIPMENT_FUELCELL_STATUS_SIGNATURE, &fuelcell_uavcan_ev,
+  uavcan_bind(PPRZ_EQUIPMENT_FUELCELL_STATUS_ID, PPRZ_EQUIPMENT_FUELCELL_STATUS_SIGNATURE, &fuelcell_uavcan_ev,
               &fuelcell_uavcan_cb);
 #endif
 

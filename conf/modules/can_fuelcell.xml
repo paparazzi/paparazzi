@@ -12,5 +12,9 @@
   <makefile>
     <!-- Sources -->
     <file name="can_fuelcell.c"/>
+
+      <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="pprz.equipment.fuelcell.Status.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
   </makefile>
 </module>
