@@ -55,6 +55,12 @@ struct VerticalGuidance {
    */
   int32_t zd_sp;
 
+  /** vertical acceleration setpoint in meter/s^2.
+   *  fixed point representation: Q21.10
+   *  accuracy 0.0009766, range 2097152
+   */
+  int32_t zdd_sp;
+
   /** altitude reference in meters.
    *  fixed point representation: Q23.8
    *  accuracy 0.0039, range 8388km
@@ -154,5 +160,12 @@ extern void guidance_v_set_vz(float vz);
  * @param th Throttle setpoint between 0. and 1.
  */
 extern void guidance_v_set_th(float th);
+
+/** Set z position, velocity and acceleration setpoint.
+ * @param z Setpoint (down is positive) in meters.
+ * @param vz Setpoint (down is positive) in meters/second.
+ * @param az Setpoint (down is positive) in meters/second².
+ */
+extern void guidance_v_set_all(float z, float vz, float az);
 
 #endif /* GUIDANCE_V_H */

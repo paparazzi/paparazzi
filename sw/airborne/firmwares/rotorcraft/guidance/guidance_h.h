@@ -80,7 +80,8 @@ struct HorizontalGuidanceSetpoint {
   enum {
     GUIDANCE_H_SP_POS   = 0,
     GUIDANCE_H_SP_SPEED = 1,
-    GUIDANCE_H_SP_ACCEL = 2
+    GUIDANCE_H_SP_ACCEL = 2,
+    GUIDANCE_H_SP_ALL   = 3
   } h_mask;
   enum {
     GUIDANCE_H_SP_YAW       = 0,
@@ -152,24 +153,34 @@ extern void guidance_h_set_body_vel(float vx, float vy);
  * @param vx North velocity (local NED frame) in meters/sec.
  * @param vy East velocity (local NED frame) in meters/sec.
  */
-extern void guidance_h_set_acc(float ax, float ay);
+extern void guidance_h_set_vel(float vx, float vy);
 
 /** Set body relative horizontal acceleration setpoint.
- * @param vx forward acceleration (body frame) in meters/sec².
- * @param vy right acceleration (body frame) in meters/sec².
+ * @param ax forward acceleration (body frame) in meters/sec².
+ * @param ay right acceleration (body frame) in meters/sec².
  */
 extern void guidance_h_set_body_acc(float ax, float ay);
 
 /** Set horizontal acceleration setpoint.
- * @param vx North acceleration (local NED frame) in meters/sec².
- * @param vy East acceleration (local NED frame) in meters/sec².
+ * @param ax North acceleration (local NED frame) in meters/sec².
+ * @param ay East acceleration (local NED frame) in meters/sec².
  */
-extern void guidance_h_set_vel(float vx, float vy);
+extern void guidance_h_set_acc(float ax, float ay);
 
 /** Set heading rate setpoint.
  * @param rate Heading rate in radians.
  */
 extern void guidance_h_set_heading_rate(float rate);
+
+/** Set position speed and acceleration (NED frame).
+ * @param x North position (local NED frame) in meters.
+ * @param y East position (local NED frame) in meters.
+ * @param vx North velocity (local NED frame) in meters/sec.
+ * @param vy East velocity (local NED frame) in meters/sec.
+ * @param ax North acceleration (local NED frame) in meters/sec².
+ * @param ay East acceleration (local NED frame) in meters/sec².
+ */
+extern void guidance_h_set_all(float x, float y, float vx, float vy, float ax, float ay);
 
 /* Make sure that ref can only be temporarily disabled for testing,
  * but not enabled if GUIDANCE_H_USE_REF was defined to FALSE.
