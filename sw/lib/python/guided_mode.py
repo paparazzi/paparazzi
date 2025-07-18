@@ -125,6 +125,24 @@ class GuidedMode(object):
         """
         self.guided_cmd(ac_id, self.FLAG_XY_BODY | self.FLAG_XY_VEL | self.FLAG_Z_VEL | self.FLAG_YAW_VEL, forward, right, down, yaw_rate)
 
+    def set_full_ned(self, ac_id, x, y, z, vx=0.0, vy=0.0, vz=0.0, ax=0.0, ay=0.0, az=0.0, heading=0.0):
+        """
+        set full reference for trajectory following in NED frame
+        """
+        msg = PprzMessage("datalink", "GUIDED_FULL_NED")
+        msg['ac_id'] = ac_id
+        msg['x'] = x
+        msg['y'] = y
+        msg['z'] = z
+        msg['vx'] = vx
+        msg['vy'] = vy
+        msg['vz'] = vz
+        msg['ax'] = ax
+        msg['ay'] = ay
+        msg['az'] = az
+        msg['heading'] = heading
+        self._interface.send_raw_datalink(msg)
+
 
 
 def main():
