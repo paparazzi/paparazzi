@@ -25,7 +25,6 @@ import math
 import datetime
 import numpy as np
 import pyttsx3
-import re
 engine = pyttsx3.init()
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),

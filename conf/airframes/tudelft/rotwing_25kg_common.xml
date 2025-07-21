@@ -2,7 +2,7 @@
 
 <airframe>
 
-    <section name="CTRL_EFF_SHED" prefix="ROTWING_EFF_SCHED_">
+    <section name="CTRL_EFF_SCHED" prefix="ROTWING_EFF_SCHED_">
         <define name="IXX_BODY"              value="0.3953"/>
         <define name="IYY_BODY"              value="8.472"/>
         <define name="IZZ"                   value="10.18"/>
@@ -58,6 +58,9 @@
 
         <!-- Air data -->
         <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
+
+        <!-- SD logger -->
+        <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
