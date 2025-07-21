@@ -543,6 +543,4 @@
 //#define CH_HEAP_SIZE (32*1024)
 //#define CH_HEAP_USE_TLSF 1 // if 0 or undef, chAlloc will be used
 
-#define HAL_USE_RTC     TRUE
-
 #endif /* MCUCONF_H */
