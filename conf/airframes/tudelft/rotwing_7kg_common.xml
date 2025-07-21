@@ -1,7 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe>
-
     <section name="AP_FAILSAFE">
         <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> 
         <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> 
@@ -56,7 +55,8 @@
         <!-- Ground detect -->
         <define name="USE_GROUND_DETECT_INDI_THRUST"        value="TRUE"/>
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
-        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"          value="0.24"/>
+        <define name="GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD"  value="-12.0"/>
+        <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"       value="0.24"/>
 
         <!-- Flight plan defines -->
         <define name="FLARE_HEIGHT"                         value="12"/>
@@ -72,7 +72,7 @@
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
         <!-- Limits -->
-        <define name="SP_MAX_PHI"           value="45." unit="deg" />
+        <define name="SP_MAX_PHI"           value="45." unit="deg"/>
         <define name="SP_MAX_THETA"         value="45." unit="deg"/>
         <define name="SP_MAX_R"             value="90." unit="deg/s"/>
         <define name="DEADBAND_R"           value="200"/>
@@ -116,13 +116,13 @@
         <!-- G1 and G2 7 kg-->
         <define name="G1_ROLL"      value="{   0.0,  -15.0,    0.0,   15.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_PITCH"     value="{   1.5,    0.0,   -1.5,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
-        <define name="G1_YAW"       value="{-  0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
+        <define name="G1_YAW"       value="{  -0.3,    0.3,   -0.3,    0.3, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST"    value="{-0.575, -0.575, -0.575, -0.575, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
         <define name="G1_THRUST_X"  value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.55}"/>
         <define name="G2"           value="{   0.0,    0.0,    0.0,    0.0, 0.0, 0.0, 0.0, 0.0,  0.0}"/>
 
         <!-- Actuator dynamics -->
-        <define name="ACT_FREQ"             value="{20.0, 20.0, 20.0, 20.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
+        <define name="ACT_FREQ"             value="{22.0, 22.0, 22.0, 22.0, 52.7, 52.7, 52.7, 52.7, 30.0}"/>
         <define name="ACT_IS_SERVO"         value="{   0,    0,    0,    0,    1,    1,    1,    1,    0}"/>
         <define name="ACT_IS_THRUSTER_X"    value="{   0,    0,    0,    0,    0,    0,    0,    0,    1}"/>
 
@@ -162,7 +162,7 @@
         <define name="HOVER_KP"                 value="310"/>
         <define name="HOVER_KD"                 value="130"/>
         <define name="HOVER_KI"                 value="10"/>
-        <define name="NOMINAL_HOVER_THROTTLE"   value="0.42"/>
+        <define name="NOMINAL_HOVER_THROTTLE"   value="0.60"/> <!-- 0.6 (~5800 PPRZ) for V3D+ drones -->
         <define name="ADAPT_THROTTLE_ENABLED"   value="FALSE"/>
 
         <!-- Reference -->
@@ -192,7 +192,7 @@
         <define name="QUAD_MAX_DECELERATION"    value="0.75"/>  <!-- Maximum horizontal deceleration in quad mode -->
         <define name="SKEW_UP_AIRSPEED"         value="10.0"/>  <!-- Airspeed where the skewing starts when going up in airspeed -->
         <define name="SKEW_DOWN_AIRSPEED"       value="8.0"/>   <!-- Airspeed where the skewing starts when going down in airspeed -->
-        <define name="STATE_MIN_FW_DIST"        value="150"/>   <!-- Minimum distance to switch to fixed wing mode -->
+        <define name="STATE_MIN_FW_DIST"        value="100"/>   <!-- Switch to quad once the drone is within this radius of Standby -->
 
         <define name="SKEW_REF_MODEL"           value="TRUE"/>  <!-- Enable second order reference model for the skewing command -->
         <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->
