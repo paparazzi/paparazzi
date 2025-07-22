@@ -150,6 +150,20 @@ static void send_rotating_wing_state(struct transport_tx *trans, struct link_dev
 }
 #endif // PERIODIC_TELEMETRY
 
+#if PREFLIGHT_CHECKS
+/* Preflight checks */
+#include "modules/checks/preflight_checks.h"
+static struct preflight_check_t rotwing_state_skew_pfc;
+
+static void rotwing_state_skew_preflight(struct preflight_result_t *result) {
+  if(fabsf(rotwing_state.meas_skew_angle_deg - rotwing_state.sp_skew_angle_deg) < 5.0) {
+    preflight_success(result, "Rotwing skew angle is within %.1f degrees of setpoint", 5.0);
+  } else {
+    preflight_error(result, "Rotwing skew angle is not within %.1f degrees of setpoint", 5.0);
+  }
+}
+#endif // PREFLIGHT_CHECKS
+
 void rotwing_state_init(void)
 {
   // Initialize rotwing state
@@ -176,6 +190,11 @@ void rotwing_state_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTATING_WING_STATE, send_rotating_wing_state);
+#endif
+
+  /* Register preflight checks */
+#if PREFLIGHT_CHECKS
+  preflight_check_register(&rotwing_state_skew_pfc, rotwing_state_skew_preflight);
 #endif
 }
 
