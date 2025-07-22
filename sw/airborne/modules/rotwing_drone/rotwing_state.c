@@ -157,9 +157,9 @@ static struct preflight_check_t rotwing_state_skew_pfc;
 
 static void rotwing_state_skew_preflight(struct preflight_result_t *result) {
   if(fabsf(rotwing_state.meas_skew_angle_deg - rotwing_state.sp_skew_angle_deg) < 5.0) {
-    preflight_success(result, "Rotwing skew angle is within %.1f degrees of setpoint", 5.0);
+    preflight_success(result, "Rotwing measured skew angle is within %.1f degrees of setpoint", 5.0);
   } else {
-    preflight_error(result, "Rotwing skew angle is not within %.1f degrees of setpoint", 5.0);
+    preflight_error(result, "Rotwing measured skew angle is not within %.1f degrees of setpoint", 5.0);
   }
 }
 #endif // PREFLIGHT_CHECKS
