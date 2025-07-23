@@ -156,10 +156,10 @@ static void send_rotating_wing_state(struct transport_tx *trans, struct link_dev
 static struct preflight_check_t rotwing_state_skew_pfc;
 
 static void rotwing_state_skew_preflight(struct preflight_result_t *result) {
-  if(fabsf(rotwing_state.meas_skew_angle_deg - rotwing_state.sp_skew_angle_deg) < 5.0) {
-    preflight_success(result, "Rotwing measured skew angle is within %.1f degrees of setpoint", 5.0);
+  if(fabsf(rotwing_state.meas_skew_angle_deg - rotwing_state.sp_skew_angle_deg) < ROTWING_SKEW_REF_MODEL_MAX_DIFF) {
+    preflight_success(result, "Rotwing measured skew angle is within %.1f degrees of setpoint", ROTWING_SKEW_REF_MODEL_MAX_DIFF);
   } else {
-    preflight_error(result, "Rotwing measured skew angle is not within %.1f degrees of setpoint", 5.0);
+    preflight_error(result, "Rotwing skew setpoint and measurement differ by more than %.1f degrees, meas: %.1f, sp: %.1f", ROTWING_SKEW_REF_MODEL_MAX_DIFF, rotwing_state.meas_skew_angle_deg, rotwing_state.sp_skew_angle_deg);
   }
 }
 #endif // PREFLIGHT_CHECKS
@@ -329,7 +329,7 @@ void rotwing_state_periodic(void)
   }
 
   /* Bound max bank angle, climb speed and descend speed if the rotwing drone is transitioning and not in FREE mode */
-  if (rotwing_state.meas_skew_angle_deg < ROTWING_FW_SKEW_ANGLE && rotwing_state.meas_skew_angle_deg > ROTWING_QUAD_SKEW_ANGLE 
+  if (meas_skew_angle < ROTWING_FW_SKEW_ANGLE && meas_skew_angle > ROTWING_QUAD_SKEW_ANGLE 
       && rotwing_state.state != ROTWING_STATE_FREE) {
     guidance_set_max_bank_angle(ROTWING_TRANSITION_MAX_BANK);
     guidance_set_max_climb_speed(ROTWING_TRANSITION_MAX_CLIMB_SPEED, ROTWING_TRANSITION_MAX_CLIMB_SPEED);
