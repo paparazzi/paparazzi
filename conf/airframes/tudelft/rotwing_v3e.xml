@@ -378,11 +378,11 @@
                 <field name="abi_id" value="5"/>
                 <field name="calibrated" type="struct">
                     <field name="neutral" value="true"/>
-                    <field name="scale" value="true"/>
+                    <field name="scale_f" value="true"/>
                     <field name="rotation" value="true"/>
                 </field>
-                <field name="neutral" value="-4640,3858,-1617" type="int[]"/>
-                <field name="scale" value="{{9601,30525,4187},{17864,55546,7767}}"/>
+                <field name="neutral" value="-4529,3806,-1580" type="int[]"/>
+                <field name="scale_f" value="{ 0.5261, 0.5391, 0.5273 }"/>
                 <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
             </field>
         </define>
