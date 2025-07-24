@@ -13,7 +13,7 @@
       <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
       <!-- <define name="STABILIZATION_INDI_G2_R" value="0.20"/> --><!-- for gazebo -->
     </target>
-
+    
 	  <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
@@ -23,8 +23,7 @@
     <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi_simple"/>
     <module name="ins" type="ekf2"/>
-    <module name="gvf_module"/>
-    <!--module name="gvf_parametric"/-->
+    
     <module name="air_data"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="logger_file">

@@ -1,0 +1,442 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://jsbsim.sourceforge.net/JSBSim.xsl"?>
+<fdm_config name="QUAD COMPLETE EXT" version="2.0" release="BETA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://jsbsim.sourceforge.net/JSBSim.xsd">
+
+  <fileheader>
+    <author>ENAC</author>
+    <filecreationdate>23-01-2025</filecreationdate>
+    <version>1.0</version>
+    <description>Heewing Ranger T1 VTOL</description>
+  </fileheader>
+
+  <metrics>
+    <wingarea unit="M2"> 0.09 </wingarea>
+    <wingspan unit="M"> 0.73 </wingspan>
+    <chord unit="M"> 0.15 </chord>
+    <htailarea unit="M2"> 0.029 </htailarea>
+    <htailarm unit="M"> 0.4 </htailarm>
+    <vtailarea unit="M2"> 0.01 </vtailarea>
+    <vtailarm unit="M"> 0.4 </vtailarm>
+    <wing_incidence unit="DEG"> 0 </wing_incidence>
+    <location name="AERORP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="EYEPOINT" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+    <location name="VRP" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </metrics>
+
+  <mass_balance>
+    <ixx unit="KG*M2"> 0.005 </ixx>
+    <iyy unit="KG*M2"> 0.005  </iyy>
+    <izz unit="KG*M2"> 0.015 </izz>
+    <ixy unit="KG*M2"> 0. </ixy>
+    <ixz unit="KG*M2"> 0. </ixz>
+    <iyz unit="KG*M2"> 0. </iyz>
+    <emptywt unit="KG"> 0.67 </emptywt>
+    <location name="CG" unit="M">
+      <x> 0 </x>
+      <y> 0 </y>
+      <z> 0 </z>
+    </location>
+  </mass_balance>
+
+  <ground_reactions>
+    <contact type="STRUCTURE" name="CONTACT_FRONT">
+      <location unit="M">
+        <x> -0.12 </x>
+        <y> 0.0 </y>
+        <z>-0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_BACK">
+      <location unit="M">
+        <x>  0.12</x>
+        <y>  0.0</y>
+        <z> -0.1</z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_RIGHT">
+      <location unit="M">
+        <x> 0.0  </x>
+        <y> 0.12</y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+
+    <contact type="STRUCTURE" name="CONTACT_LEFT">
+      <location unit="M">
+        <x> 0.0  </x>
+        <y>-0.12</y>
+        <z> -0.1 </z>
+      </location>
+      <static_friction>  0.8 </static_friction>
+      <dynamic_friction> 0.5 </dynamic_friction>
+      <spring_coeff unit="N/M"> 500 </spring_coeff>
+      <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
+      <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
+      <max_steer unit="DEG"> 0.0 </max_steer>
+      <brake_group> NONE </brake_group>
+      <retractable>0</retractable>
+    </contact>
+  </ground_reactions>
+
+  <flight_control name="actuator_dynamics">
+    <property value="30.">fcs/motor_lag</property>
+    <property value="54.">fcs/servo_lag</property>
+    <property value="0.">fcs/tilt_min_rad</property>
+    <property value="1.73329">fcs/tilt_max_rad</property> <!-- 99.3 deg -->
+
+    <channel name="filtering">
+      <!--First order filter represents actuator dynamics-->
+      <lag_filter name="motor_right_lag">
+        <input> fcs/MOTOR_RIGHT </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/motor_right_lag</output>
+      </lag_filter>
+      <lag_filter name="motor_left_lag">
+        <input> fcs/MOTOR_LEFT </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/motor_left_lag</output>
+      </lag_filter>
+      <lag_filter name="motor_tail_lag">
+        <input> fcs/MOTOR_TAIL </input>
+        <clipto>
+            <min>0</min>
+            <max>1</max>
+        </clipto>
+        <c1> fcs/motor_lag </c1>
+        <output> fcs/motor_tail_lag</output>
+      </lag_filter>
+
+      <lag_filter name="aileron_lag">
+        <input> fcs/ROLL </input>
+        <c1> fcs/servo_lag </c1>
+        <output> fcs/aileron_lag</output>
+      </lag_filter>
+      <lag_filter name="elevator_lag">
+        <input> fcs/PITCH </input>
+        <c1> fcs/servo_lag </c1>
+        <output> fcs/elevator_lag</output>
+      </lag_filter>
+
+    </channel>
+
+    <channel name="tilt">
+      <fcs_function name="tilt_right">
+        <function>
+          <sum>
+            <property>fcs/TILT</property>
+            <property>fcs/YAW</property>
+          </sum>
+        </function>
+        <output> fcs/tilt_right </output>
+      </fcs_function>
+      <aerosurface_scale name="tilt_right_dyn">
+        <input> fcs/tilt_right </input>
+        <zero_centered> false </zero_centered>
+        <domain>
+          <min> 0. </min>
+          <max> 1. </max>
+        </domain>
+        <range>
+          <min> 0. </min>
+          <max> 1.73329 </max>
+        </range>
+        <output> fcs/tilt_right_rad </output>
+      </aerosurface_scale >
+      <actuator name="tilt_right_output">
+        <input> fcs/tilt_right_rad </input>
+        <rate_limit> 3.5 </rate_limit> <!-- 200 degrees/sec -->
+        <clipto>
+          <min> fcs/tilt_min_rad </min>
+          <max> fcs/tilt_max_rad </max>
+        </clipto>
+        <output> fcs/tilt_right_lag </output>
+      </actuator>
+      <fcs_function name="tilt_right_dir_x">
+        <function>
+          <cos><property> -fcs/tilt_right_lag </property></cos>
+        </function>
+        <output> external_reactions/motor_right/x </output>
+      </fcs_function>
+      <fcs_function name="tilt_right_dir_z">
+        <function>
+          <sin><property> -fcs/tilt_right_lag </property></sin>
+        </function>
+        <output> external_reactions/motor_right/z </output>
+      </fcs_function>
+      <fcs_function name="torque_right_dir_x">
+        <function>
+          <cos><property> -fcs/tilt_right_lag </property></cos>
+        </function>
+        <output> external_reactions/motor_right_torque/l </output>
+      </fcs_function>
+      <fcs_function name="torque_right_dir_z">
+        <function>
+          <sin><property> -fcs/tilt_right_lag </property></sin>
+        </function>
+        <output> external_reactions/motor_right_torque/n </output>
+      </fcs_function>
+
+      <fcs_function>
+        <function>
+          <sum>
+            <property>fcs/TILT</property>
+            <property>-fcs/YAW</property>
+          </sum>
+        </function>
+        <output> fcs/tilt_left </output>
+      </fcs_function>
+      <aerosurface_scale name="tilt_left">
+        <input> fcs/tilt_left </input>
+        <zero_centered> false </zero_centered>
+        <domain>
+          <min> 0. </min>
+          <max> 1. </max>
+        </domain>
+        <range>
+          <min> 0. </min>
+          <max> 1.73329 </max>
+        </range>
+        <output> fcs/tilt_left_rad </output>
+      </aerosurface_scale >
+      <actuator name="tilt_left_output">
+        <input> fcs/tilt_left_rad </input>
+        <rate_limit> 3.5 </rate_limit> <!-- 200 degrees/sec -->
+        <clipto>
+          <min> fcs/tilt_min_rad </min>
+          <max> fcs/tilt_max_rad </max>
+        </clipto>
+        <output> fcs/tilt_left_lag </output>
+      </actuator>
+      <fcs_function name="tilt_left_dir_x">
+        <function>
+          <cos><property> -fcs/tilt_left_rad </property></cos>
+        </function>
+        <output> external_reactions/motor_left/x </output>
+      </fcs_function>
+      <fcs_function name="tilt_left_dir_z">
+        <function>
+          <sin><property> -fcs/tilt_left_rad </property></sin>
+        </function>
+        <output> external_reactions/motor_left/z </output>
+      </fcs_function>
+      <fcs_function name="torque_left_dir_x">
+        <function>
+          <product>
+            <value>-1.</value>
+            <cos><property> -fcs/tilt_left_rad </property></cos>
+          </product>
+        </function>
+        <output> external_reactions/motor_left_torque/l </output>
+      </fcs_function>
+      <fcs_function name="torque_left_dir_z">
+        <function>
+          <product>
+            <value>-1.</value>
+            <sin><property> -fcs/tilt_left_rad </property></sin>
+          </product>
+        </function>
+        <output> external_reactions/motor_left_torque/n </output>
+      </fcs_function>
+    </channel>
+
+  </flight_control>
+
+  <external_reactions>
+
+    <property>fcs/MOTOR_RIGHT</property>
+    <property>fcs/MOTOR_LEFT</property>
+    <property>fcs/MOTOR_TAIL</property>
+    <property>fcs/PITCH</property>
+    <property>fcs/ROLL</property>
+    <property>fcs/YAW</property>
+    <property>fcs/THRUST</property>
+    <property>fcs/TILT</property>
+    <property>fcs/motor_right_lag</property>
+    <property>fcs/motor_left_lag</property>
+    <property>fcs/motor_tail_lag</property>
+    <property>fcs/aileron_lag</property>
+    <property>fcs/elevator_lag</property>
+    <property>fcs/tilt_left_lag</property>
+    <property>fcs/tilt_right_lag</property>
+
+    <property value="3.5">fcs/motor_max_thrust</property> <!-- 0.67 kg hovering at 62% throttle with 3 motors -->
+    <!--property value="0.00001">fcs/motor_max_torque</property-->
+    <property value="0.">fcs/motor_max_torque</property>
+
+    <!-- First the lift forces produced by each propeller -->
+
+    <force name="motor_right" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/motor_right_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x> -0.09 </x>
+        <y> 0.12 </y>
+        <z> 0. </z>
+      </location>
+      <direction>
+        <x> 1 </x>
+        <y> 0 </y>
+        <z> 0 </z>
+      </direction>
+    </force>
+    <force name="motor_left" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/motor_left_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x> -0.09 </x>
+        <y> -0.12 </y>
+        <z> 0 </z>
+      </location>
+      <direction>
+        <x> 1 </x>
+        <y> 0 </y>
+        <z> 0 </z>
+      </direction>
+    </force>
+    <force name="motor_tail" frame="BODY" unit="LBS">
+      <function>
+        <product>
+          <property>fcs/motor_tail_lag</property>
+          <property>fcs/motor_max_thrust</property>
+          <value>0.224808943</value> <!-- N to LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x> 0.25 </x>
+        <y> 0 </y>
+        <z> 0 </z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </force>
+    
+    <!-- Then the Moment Couples -->
+
+    <moment name="motor_right_torque" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/motor_right_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x> 0.09 </x>
+        <y> 0.12 </y>
+        <z> 0. </z>
+      </location>
+      <direction>
+        <x> 1 </x>
+        <y> 0 </y>
+        <z> 0 </z>
+      </direction>
+    </moment>
+
+
+    <moment name="motor_left_torque" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/motor_left_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x> 0.09 </x>
+        <y> -0.12 </y>
+        <z> 0. </z>
+      </location>
+      <direction>
+        <x> -1 </x>
+        <y> 0 </y>
+        <z> 0 </z>
+      </direction>
+    </moment>
+
+    <moment name="motor_tail_torque" frame="BODY">
+      <function>
+        <product>
+          <property>fcs/motor_tail_lag</property>
+          <property>fcs/motor_max_torque</property>
+          <value> 0.738 </value> <!-- N.m to FT.LBS -->
+        </product>
+      </function>
+      <location unit="M">
+        <x>-0.25</x>
+        <y>0</y>
+        <z>0</z>
+      </location>
+      <direction>
+        <x>0</x>
+        <y>0</y>
+        <z>-1</z>
+      </direction>
+    </moment>
+
+  </external_reactions>
+
+  <propulsion/>
+
+  <flight_control name="FGFCS"/>
+  <aerodynamics file="Systems/aerodynamics_ranger_t1.xml"/>
+
+</fdm_config>

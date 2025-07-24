@@ -48,9 +48,9 @@ struct periodic_telemetry pprz_telemetry = { TELEMETRY_PPRZ_NB_MSG, telemetry_cb
  * @param _cb callback function, called according to telemetry mode and specified period
  * @return -1 on failure to register, index of callback otherwise
  */
-int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, telemetry_cb _cb)
+int16_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint16_t _id, telemetry_cb _cb)
 {
-  uint8_t i, j;
+  uint16_t i, j;
   // return if NULL is passed as periodic_telemetry
   if (_pt == NULL) { return -1; }
   // check if message with id _msgn has a periodic entery in telemetry file
@@ -112,7 +112,7 @@ void telemetry_reporting_task(void)
  * @param _mode telemetry mode
  * @param _id id of the message in telemetry system (see var/<AC>/generated/periodic_telemetry.h)
  */
-void periodic_telemetry_err_report(uint8_t _process, uint8_t _mode, uint8_t _id)
+void periodic_telemetry_err_report(uint8_t _process, uint8_t _mode, uint16_t _id)
 {
   uint8_t process = _process;
   uint8_t mode = _mode;

@@ -57,11 +57,6 @@
     <define name="MAG_X_SENS" value="3.71635905504" integer="16"/>
     <define name="MAG_Y_SENS" value="3.5526454063" integer="16"/>
     <define name="MAG_Z_SENS" value="3.52339566014" integer="16"/>
-
-    <!-- Current correction -->
-    <define name="MAG_X_CURRENT_COEF" value="-0.390312445109"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-0.068976232866"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-0.181415585657"/>
   </section>
 
  <section name="AUTOPILOT">

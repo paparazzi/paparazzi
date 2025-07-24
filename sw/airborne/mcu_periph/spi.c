@@ -164,3 +164,17 @@ extern void spi_slave_init(struct spi_periph *p)
 
 #endif /* SPI_SLAVE */
 
+
+
+enum SPITransactionStatus spi_blocking_transceive(struct spi_periph *p, struct spi_transaction *t, float timeout) {
+  if (!spi_submit(p, t)) {
+    return SPITransFailed;
+  }
+
+  // Wait for transaction to complete
+  if(pprz_bsem_wait_timeout(&t->bsem, timeout) == 0) {
+    return t->status;
+  } else {
+    return SPITransFailed;
+  }
+}

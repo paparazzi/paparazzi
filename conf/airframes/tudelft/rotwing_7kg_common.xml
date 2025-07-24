@@ -3,8 +3,8 @@
 <airframe>
 
     <section name="AP_FAILSAFE">
-        <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> <!-- Only commented out for navy testing -->
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> <!-- Set to FALSE for navy testing -->
+        <!-- <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/> --> 
+        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="FALSE"/> 
         <define name="RC_LOST_MODE"                         value="AP_MODE_NAV"/> 
         <define name="GPS_FIX_TIMEOUT"                      value="5"/> 
         <define name="FAILSAFE_DESCENT_SPEED"               value="1.0"/> <!-- Does not work as expected with AP static -->
@@ -48,8 +48,6 @@
         <!-- prevent in-flight in start engine block-->
         <define name="AUTOPILOT_IN_FLIGHT_MIN_THRUST"       value="4000"/>
         <define name="ARRIVED_AT_WAYPOINT"                  value="50.0"/>
-        <define name="NO_GPS_LOST_WITH_DATALINK_TIME"       value="20"/>
-        <define name="NO_GPS_LOST_WITH_RC_VALID"            value="TRUE"/>
         <define name="USE_AIRSPEED"                         value="TRUE"/>  
         <define name="NAV_HYBRID_MAX_AIRSPEED"              value="22"/>
         <define name="NAV_HYBRID_MAX_DECELERATION"          value="0.8"/>
@@ -60,11 +58,6 @@
         <define name="USE_GROUND_DETECT_AGL_DIST"           value="TRUE"/>
         <define name="GROUND_DETECT_SENSOR_AGL_MIN_VALUE"          value="0.24"/>
 
-        <!-- AGL distance -->
-        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
-        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
-        <define name="AGL_DIST_FILTER"                      value="0.07"/>
-
         <!-- Flight plan defines -->
         <define name="FLARE_HEIGHT"                         value="12"/>
         <define name="HYBRID_HEIGHT"                        value="20"/>
@@ -72,6 +65,9 @@
         <define name="LIFTOFF_PITCH_LIMIT_DEG"              value="5"/>
         <define name="LIFTOFF_ROLL_LIMIT_DEG"               value="5"/>
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/>
+
+        <!-- Air data -->
+        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -273,7 +269,6 @@
     <section name="EKF2" prefix="INS_EKF2_">
         <define name="GPS_YAW_OFFSET" value="0"/>
         <define name="GPS_ANTENNA_DISTANCE" value="1.02"/>
-        <define name="FUSION_MODE"          value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
 
         <define name="IMU_POS_X" value="0.321"/>
         <define name="IMU_POS_Y" value="0.0"/>

@@ -56,9 +56,8 @@
         <!-- AGL distance -->
         <define name="AGL_DIST_FILTER"                  value="0.07"/>
 
-        <!-- Don't oversaturate the UAVCAN bus -->
-        <define name="ACTUATORS_UAVCAN_RAW_DIV"         value="2"/> <!-- ESC's at half the PERIODIC_FREQ -->
-        <define name="ACTUATORS_UAVCAN_CMD_DIV"         value="4"/> <!-- Servo's at 1/4 the PERIODIC_FREQ -->
+        <!-- Air data -->
+        <define name="AIR_DATA_CALC_AMSL_BARO"          value="TRUE"/>   
     </section>
 
     <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">

@@ -33,6 +33,7 @@
 #include "std.h"
 
 #include "mcu_periph/i2c_arch.h"
+#include "modules/core/threads.h"
 
 /**
  * @addtogroup mcu_periph
@@ -124,6 +125,10 @@ struct i2c_transaction {
   /** Transaction status.
    */
   volatile enum I2CTransactionStatus status;
+
+  /** binary semaphore for blocking functions
+   */
+  pprz_bsem_t bsem;
 };
 
 /** I2C transaction queue length.
@@ -328,10 +333,11 @@ extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
  * @param t i2c transaction
  * @param s_addr slave address
  * @param len number of bytes to transmit
- * @return TRUE if insertion to the transaction queue succeeded
+ * @param timeout timeout in seconds after which the transaction is considered failed
+ * @return the status of the transaction, or I2CTransFailed if insertion to the transaction queue failed
  */
-bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                           uint8_t s_addr, uint8_t len);
+enum I2CTransactionStatus i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
+                           uint8_t s_addr, uint8_t len, float timeout);
 
 /** Submit a read only transaction and wait for it to complete.
  * Convenience function which is usually preferred over i2c_submit,
@@ -340,10 +346,11 @@ bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
  * @param t i2c transaction
  * @param s_addr slave address
  * @param len number of bytes to receive
- * @return TRUE if insertion to the transaction queue succeeded
+ * @param timeout timeout in seconds after which the transaction is considered failed
+ * @return the status of the transaction, or I2CTransFailed if insertion to the transaction queue failed
  */
-bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                          uint8_t s_addr, uint16_t len);
+enum I2CTransactionStatus i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
+                          uint8_t s_addr, uint16_t len, float timeout);
 
 /** Submit a write/read transaction and wait for it to complete.
  * Convenience function which is usually preferred over i2c_submit,
@@ -353,10 +360,11 @@ bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
  * @param s_addr slave address
  * @param len_w number of bytes to transmit
  * @param len_r number of bytes to receive
- * @return TRUE if insertion to the transaction queue succeeded
+ * @param timeout timeout in seconds after which the transaction is considered failed
+ * @return the status of the transaction, or I2CTransFailed if insertion to the transaction queue failed
  */
-bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
+enum I2CTransactionStatus i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
+                             uint8_t s_addr, uint8_t len_w, uint16_t len_r, float timeout);
 /** @}*/
 /** @}*/
 

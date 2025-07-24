@@ -1,0 +1,58 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_plane_pid_rotorcraft" dir="guidance" task="control">
+  <doc>
+    <description>
+      Basic guidance code for fixedwing planes using the rotorcraft firmware
+      with PID control, no airspeed control
+    </description>
+    <section name="GUIDANCE_PLANE" prefix="GUIDANCE_PLANE_">
+      <define name="MAX_BANK" value="20" description="maximum commanded bank angle" unit="deg"/>
+      <define name="COURSE_KP" value="79" description="feedback horizontal control P gain"/>
+      <define name="COURSE_KD" value="100" description="feedback horizontal control D gain"/>
+      <define name="ALT_KP" value="283" description="feedback vertical control P gain"/>
+      <define name="MAX_CLIMB" value="1.5" description="maximum commanded vertical speed" unit="m/s"/>
+      <define name="PITCH_KP" value="283" description="feedback vertical control P gain"/>
+      <define name="PITCH_KD" value="82" description="feedback vertical control D gain"/>
+      <define name="PITCH_KI" value="13" description="feedback vertical control I gain"/>
+      <define name="THROTTLE_KP" value="283" description="feedback vertical control P gain"/>
+      <define name="THROTTLE_KD" value="82" description="feedback vertical control D gain"/>
+      <define name="THROTTLE_KI" value="13" description="feedback vertical control I gain"/>
+      <define name="NOMINAL_THROTTLE" value="0.5" description="nominal throttle at hover (between 0 and 1)"/>
+    </section>
+  </doc>
+  <settings target="ap|nps">
+    <dl_settings>
+      <dl_settings NAME="guidance plane">
+        <dl_setting var="guidance_plane.roll_max_setpoint" min="10." step="1." max="60." shortname="max bank" param="GUIDANCE_PLANE_MAX_BANK" module="guidance/guidance_plane" unit="rad" alt_unit="deg"/>
+        <dl_setting var="guidance_plane.pitch_max_setpoint" min="10." step="1." max="45." shortname="max pitch" param="GUIDANCE_PLANE_MAX_PITCH" unit="rad" alt_unit="deg"/>
+        <dl_setting var="guidance_plane.pitch_min_setpoint" min="-30." step="1." max="-10." shortname="min pitch" param="GUIDANCE_PLANE_MIN_PITCH" unit="rad" alt_unit="deg"/>
+        <dl_setting var="guidance_plane.pitch_trim" min="-10." step="1." max="10." shortname="pitch trim" param="GUIDANCE_PLANE_PITCH_TRIM" unit="rad" alt_unit="deg"/>
+        <dl_setting var="guidance_plane.cruise_throttle" min="0." step="0.01" max="1." shortname="cruise throttle" param="GUIDANCE_PLANE_NOMINAL_THROTTLE"/>
+        <dl_setting var="guidance_plane.climb_max_setpoint" min="0.5" step="0.1" max="5." shortname="max climb" param="GUIDANCE_PLANE_MAX_CLIMB" unit="m/s"/>
+        <dl_setting var="guidance_plane.course_kp" min="0." step="0.01" max="10." shortname="course kp" param="GUIDANCE_PLANE_COURSE_KP"/>
+        <dl_setting var="guidance_plane.course_kd" min="0." step="0.01" max="10." shortname="course kd" param="GUIDANCE_PLANE_COURSE_KD"/>
+        <dl_setting var="guidance_plane.climb_kp" min="0." step="0.01" max="10." shortname="climb kp" param="GUIDANCE_PLANE_CLIMB_KP"/>
+        <dl_setting var="guidance_plane.climb_throttle_increment" min="0." step="0.01" max="0.5" shortname="throttle increment" param="GUIDANCE_PLANE_CLIMB_THROTTLE_INCREMENT"/>
+        <dl_setting var="guidance_plane.pitch_of_vz" min="0." step="0.1" max="20." shortname="pitch of vz" param="GUIDANCE_PLANE_PITCH_OF_VZ" unit="rad" alt_unit="deg"/>
+        <dl_setting var="guidance_plane.p_kp" min="0." step="0.1" max="10." shortname="pitch kp" param="GUIDANCE_PLANE_PITCH_KP"/>
+        <dl_setting var="guidance_plane.p_kd" min="0." step="0.1" max="10." shortname="pitch kd" param="GUIDANCE_PLANE_PITCH_KD"/>
+        <dl_setting var="guidance_plane.p_ki" min="0." step="0.1" max="10." shortname="pitch ki" param="GUIDANCE_PLANE_PITCH_KI"/>
+        <dl_setting var="guidance_plane.t_kp" min="0." step="0.1" max="10." shortname="throttle kp" param="GUIDANCE_PLANE_THROTTLE_KP"/>
+        <dl_setting var="guidance_plane.t_kd" min="0." step="0.1" max="10." shortname="throttle kd" param="GUIDANCE_PLANE_THROTTLE_KD"/>
+        <dl_setting var="guidance_plane.t_ki" min="0." step="0.1" max="10." shortname="throttle ki" param="GUIDANCE_PLANE_THROTTLE_KI"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>@stabilization,guidance_rotorcraft</depends>
+    <provides>guidance,attitude_command</provides>
+  </dep>
+  <header>
+    <file name="guidance_plane.h"/>
+  </header>
+  <init fun="guidance_plane_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_plane.c" dir="$(SRC_FIRMWARE)/guidance"/>
+  </makefile>
+</module>

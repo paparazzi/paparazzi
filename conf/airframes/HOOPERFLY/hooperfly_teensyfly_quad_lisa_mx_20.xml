@@ -105,11 +105,6 @@
     <define name="MAG_Y_SENS" value="3.30429585831" integer="16"/>
     <define name="MAG_Z_SENS" value="3.75140831368" integer="16"/>
 
-    <!-- Magnetometer current calibration -->
-    <define name= "MAG_X_CURRENT_COEF" value="-0.000907035498531"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="-0.00160202369806"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="0.00426261634789"/>
-
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>

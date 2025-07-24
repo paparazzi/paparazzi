@@ -112,7 +112,7 @@ bool distributed_circular(uint8_t wp)
 
   u *= -gvf_control.s * dcf_control.k;
 
-  gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
+  nav_gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
   if ((now - last_transmision > dcf_control.broadtime) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
     send_theta_to_nei();

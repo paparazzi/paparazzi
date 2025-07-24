@@ -285,10 +285,6 @@ NOTES:
     <define name="MAG_Y_SENS" value="3.6213651898" integer="16"/>
     <define name="MAG_Z_SENS" value="4.01635370187" integer="16"/>
 
-    <!-- TODO: Calibrate -->
-    <define name="MAG_X_CURRENT_COEF" value="-0.677655963532"/>
-    <define name="MAG_Y_CURRENT_COEF" value="-7.38678178538"/>
-    <define name="MAG_Z_CURRENT_COEF" value="-5.02116042576"/>
   </section>
 
   <section name="AHRS" prefix="AHRS_">

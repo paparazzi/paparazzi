@@ -44,31 +44,21 @@ static bool invensense2_select_bank(struct invensense2_t *inv, uint8_t bank);
 static bool invensense2_config(struct invensense2_t *inv);
 
 /* Default gyro scalings */
-static const struct Int32Rates invensense2_gyro_scale[5][2] = {
-  { {30267, 30267, 30267},
-    {55463, 55463, 55463} }, // 250DPS
-  { {60534, 60534, 60534},
-    {55463, 55463, 55463} }, // 500DPS
-  { {40147, 40147, 40147},
-    {18420, 18420, 18420} }, // 1000DPS
-  { {40147, 40147, 40147},
-    {9210,  9210,  9210} },  // 2000DPS
-  { {40147, 40147, 40147},
-    {4605,  4605,  4605} }   // 4000DPS
+static const struct FloatRates invensense2_gyro_scale_f[5] = {
+  {0.545415, 0.545415, 0.545415}, // 250DPS: RATE_BFP_OF_REAL(radians(250)/(2**15))
+  {1.09083, 1.09083, 1.09083},    // 500DPS
+  {2.18166, 2.18166, 2.18166},    // 1000DPS
+  {4.36332, 4.36332, 4.36332},    // 2000DPS
+  {8.72664, 8.72664, 8.72664},    // 4000DPS
 };
 
 /* Default accel scalings */
-static const struct Int32Vect3 invensense2_accel_scale[5][2] = {
-  { {3189, 3189, 3189},
-    {5203, 5203, 5203} },   // 2G
-  { {6378, 6378, 6378},
-    {5203, 5203, 5203} },   // 4G
-  { {12756, 12756, 12756},
-    {5203,  5203,  5203} }, // 8G
-  { {25512, 25512, 25512},
-    {5203,  5203,  5203} }, // 16G
-  { {51024, 51024, 51024},
-    {5203,  5203,  5203} }  // 30G
+static const struct FloatVect3 invensense2_accel_scale_f[5] = {
+  {0.61312, 0.61312, 0.61312},    // 2G: ACCEL_BFP_OF_REAL(2G*9.81/(2**15))
+  {1.22583, 1.22583, 1.22583},    // 4G
+  {2.4525,  2.4525,  2.4525},     // 8G
+  {4.905, 4.905, 4.905},          // 16G
+  {9.196875, 9.196875, 9.196875}, // 30G
 };
 
 /**
@@ -339,8 +329,8 @@ static void invensense2_fix_config(struct invensense2_t *inv) {
   }
 
   /* Set the default values */
-  imu_set_defaults_gyro(inv->abi_id, NULL, NULL, invensense2_gyro_scale[inv->gyro_range]);
-  imu_set_defaults_accel(inv->abi_id, NULL, NULL, invensense2_accel_scale[inv->accel_range]);
+  imu_set_defaults_gyro(inv->abi_id, NULL, NULL, &invensense2_gyro_scale_f[inv->gyro_range]);
+  imu_set_defaults_accel(inv->abi_id, NULL, NULL, &invensense2_accel_scale_f[inv->accel_range]);
 }
 
 /**

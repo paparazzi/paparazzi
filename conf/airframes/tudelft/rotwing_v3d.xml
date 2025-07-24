@@ -25,7 +25,6 @@
             <define name="RADIO_FMODE"              value="RADIO_AUX2"/>
             <define name="RADIO_FBW_MODE"           value="RADIO_AUX3"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="RADIO_AUX4"/>
-            <define name="RADIO_CONTROL_EFF_SWITCH" value="RADIO_AUX5"/>
 
             <!-- EKF2 configure inputs -->
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
@@ -55,7 +54,6 @@
             <define name="RADIO_FBW_MODE"           value="0"/> <!-- Switch between AP and FBW control -->
             <define name="RADIO_KILL_SWITCH"        value="0"/>
             <define name="RADIO_CONTROL_THRUST_X"   value="0"/>
-            <define name="RADIO_CONTROL_EFF_SWITCH" value="0"/>
 
             <define name="PREFLIGHT_CHECK_BYPASS"   value="TRUE"/>
             <define name="USE_SONAR"                value="1"/> <!-- Because uavcan can't handle simulation yet -->
@@ -73,7 +71,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="2.20"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -136,6 +134,7 @@
             <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
         </module>
         <module name="pfc_actuators"/>
+        <module name="airspeed_consistency"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
@@ -147,13 +146,13 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-2375" neutral="-172" max="2031"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2211" neutral="-82" max="2047"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
     <servos driver="Uavcan1Cmd">
-        <servo no="6"  name="SERVO_ELEVATOR"  min="8191"  neutral="8191" max="-3250"/>
-        <servo no="7"  name="SERVO_RUDDER"    min="-6000" neutral="0"    max="3250"/>
+        <servo no="6"  name="SERVO_ELEVATOR"  min="1200"  neutral="1200" max="-8191"/>
+        <servo no="7"  name="SERVO_RUDDER"    min="-4750" neutral="0"    max="4750"/>
     </servos>
 
     <!-- Can bus 2 actuators -->
@@ -162,13 +161,13 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="5" name="BROTATION_MECH" min="-2375" neutral="-172" max="2031"/>
+        <servo no="5" name="BROTATION_MECH" min="-2211" neutral="-82" max="2047"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
     <servos driver="Uavcan2Cmd">
-        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
-        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3250"/> <!-- min can go up to -9600-->
+        <servo no="8"  name="AIL_LEFT"   min="-3250" neutral="0" max="3456"/> <!-- min can go up to -9600-->
+        <servo no="9"  name="FLAP_LEFT"  min="-3250" neutral="0" max="3456"/> <!-- min can go up to -9600-->
         <servo no="10" name="FLAP_RIGHT" min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
         <servo no="11" name="AIL_RIGHT"  min="-3250" neutral="0" max="3250"/> <!-- max can go up to -9600-->
     </servos>
@@ -235,6 +234,15 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
+    <section name="MISC">
+        <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+
+        <!-- AGL distance -->
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
+        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
+        <define name="AGL_DIST_FILTER"                      value="0.07"/>
+    </section>
+
     <section name="CALIBRATION">
         <!-- Throttle value in AP_MODE_FAILSAFE -->
         <define name="FAILSAFE_THROTTLE"                    value="5300"/>
@@ -251,8 +259,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="0.85"/>
-                <field name="high_feedback" value="0.3"/>
+                <field name="low_feedback" value="0.15"/>
+                <field name="high_feedback" value="-0.3"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -260,8 +268,8 @@
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
-                <field name="low_feedback" value="-0.30"/>
-                <field name="high_feedback" value="0.15"/>
+                <field name="low_feedback" value="-0.20"/>
+                <field name="high_feedback" value="0.20"/>
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
@@ -362,8 +370,62 @@
     </section>
 
     <section name="IMU" prefix="IMU_">
-        <define name="ACCEL_CALIB" value="{{.abi_id=20, .calibrated={.neutral=true, .scale=true, .filter=true},.neutral={-24,-9,18}, .scale={{22586,14285,60640},{2303,1461,6213}}, .filter_sample_freq=1139, .filter_freq=30}, {.abi_id=21, .calibrated={.neutral=true, .scale=true},.neutral={-4,-4,49}, .scale={{49201,22321,17833},{10030,4553,3632}}}, {.abi_id=22, .calibrated={.neutral=true, .scale=true},.neutral={-48,-11,2}, .scale={{37211,48711,18769},{7594,9938,3845}}}}"/>
-        <define name="MAG_CALIB" value="{{.abi_id=5, .calibrated={.neutral=true, .scale=true, .rotation=true},.neutral={-1948,-2534,1576}, .scale={{13543,22822,7749},{23470,38711,13795}}, .body_to_sensor={{16384,0,0,0,16384,0,0,0,-16384}}}}"/>
+        <!-- Accelerometer Calibration -->
+        <define name="ACCEL_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="20"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-25,-9,17" type="int[]"/>
+                <field name="scale" value="{{46918,61969,35413},{4789,6347,3639}}"/>
+                <field name="filter_sample_freq" value="1138"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="21"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-3,-5,56" type="int[]"/>
+                <field name="scale" value="{{60377,40442,16047},{12337,8253,3269}}"/>
+                <field name="filter_sample_freq" value="4022"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+            <field type="struct">
+                <field name="abi_id" value="22"/>
+                <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="filter" value="true"/>
+                </field>
+                <field name="neutral" value="-55,-14,-12" type="int[]"/>
+                <field name="scale" value="{{4966,3294,2529},{1015,673,518}}"/>
+                <field name="filter_sample_freq" value="1132"/>
+                <field name="filter_freq" value="30"/>
+            </field>
+        </define>
+
+        <!-- Magneto Calibration -->
+        <define name="MAG_CALIB" type="array">
+            <field type="struct">
+                <field name="abi_id" value="5"/>
+                    <field name="calibrated" type="struct">
+                    <field name="neutral" value="true"/>
+                    <field name="scale" value="true"/>
+                    <field name="rotation" value="true"/>
+                </field>
+                <field name="neutral" value="-1568,-722,-242" type="int[]"/>
+                <field name="scale" value="{{1079,33418,27849},{1799,55791,48943}}"/>
+                <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,-16384}}"/>
+            </field>
+        </define>
+
+        <!-- Gyro Calibration -->
         <define name="GYRO_CALIB"  value="{{.abi_id=20, .calibrated={.filter=true}, .filter_sample_freq=1139, .filter_freq=30}}"/>
 
         <!-- Define axis in hover frame -->
