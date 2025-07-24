@@ -26,6 +26,7 @@ struct can_arch_periph {
   CANDriver* cand;
   CANConfig cfg;
   uint32_t can_baudrate;
+  uint16_t memory_offset;
 
   void *thread_rx_wa;
   size_t thread_rx_wa_size;
@@ -44,6 +45,7 @@ struct can_arch_periph can1_arch_s = {
   .cand = &CAND1,
   .cfg = {0},
   .can_baudrate = 1000000U,
+  .memory_offset = 0,
   .thread_rx_wa = can1_rx_wa,
   .thread_rx_wa_size = sizeof(can1_rx_wa),
 };
@@ -59,6 +61,7 @@ struct can_arch_periph can2_arch_s = {
   .cand = &CAND2,
   .cfg = {0},
   .can_baudrate = 1000000U,
+  .memory_offset = (128*3),
   .thread_rx_wa = can2_rx_wa,
   .thread_rx_wa_size = sizeof(can2_rx_wa),
 };
@@ -186,9 +189,9 @@ static void can_start(struct can_periph* canp) {
 
   #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
-  can1_arch_s.cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | (0 << FDCAN_RXF0C_F0SA_Pos);
-  can1_arch_s.cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | (128 << FDCAN_RXF1C_F1SA_Pos);
-  can1_arch_s.cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | (256 << FDCAN_TXBC_TBSA_Pos);
+  can1_arch_s.cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | ((cas->memory_offset+0) << FDCAN_RXF0C_F0SA_Pos);
+  can1_arch_s.cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | ((cas->memory_offset+128) << FDCAN_RXF1C_F1SA_Pos);
+  can1_arch_s.cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | ((cas->memory_offset+256) << FDCAN_TXBC_TBSA_Pos);
   can1_arch_s.cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
   can1_arch_s.cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
   #endif
