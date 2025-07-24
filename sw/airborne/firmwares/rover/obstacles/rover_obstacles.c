@@ -36,8 +36,8 @@
 #include "state.h"
 
 
-PRINT_CONFIG_VAR(N_ROW_GRID)
-PRINT_CONFIG_VAR(N_COL_GRID)
+// PRINT_CONFIG_VAR(N_ROW_GRID)
+// PRINT_CONFIG_VAR(N_COL_GRID)
 
 // Probability Map
 #define P_FREE    0.4   // cell observed as free (negative log-odds)
@@ -122,7 +122,6 @@ void init_grid(uint8_t pa, uint8_t pb){
 	obstacle_grid.now_row = 0;
 	
 	#if PERIODIC_TELEMETRY
-  	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OBSTACLE_GRID, send_obstacle_grid);
 		register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GRID_INIT, send_grid_init);
 	#endif	
 	obstacle_grid.is_ready = 1;
@@ -156,7 +155,6 @@ void init_grid_4(uint8_t wp1, uint8_t wp2, uint8_t wp3, uint8_t wp4) {
   memset(obstacle_grid.world, 0, sizeof(obstacle_grid.world));
 
 	#if PERIODIC_TELEMETRY
-  	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OBSTACLE_GRID, send_obstacle_grid);
 		register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GRID_INIT, send_grid_init);
 	#endif
 
@@ -212,7 +210,7 @@ void fill_bayesian_cell(float px, float py){
 }
 
 // Fills the free cells when there is no lidar measurement
-void fill_free_cells() {
+void fill_free_cells(void) {
 		if (!obstacle_grid.is_ready) return;
 
 		// Gets the current lidar measurement
@@ -324,7 +322,7 @@ void compute_cell_bayes(int x, int y, bool is_occupied) {
 		}
     int8_t *cell = &obstacle_grid.world[y][x];
 
-		check_probs(&LOCC, &LFREE, &LT);
+		check_probs();
 		
     int delta = is_occupied ? LOCC : LFREE;
     int updated = *cell + delta;
@@ -335,18 +333,19 @@ void compute_cell_bayes(int x, int y, bool is_occupied) {
 }
 
 
-void check_probs(int8_t *LOCC, int8_t *LFREE, int8_t *LT){
+//int8_t *LOCC, int8_t *LFREE, int8_t *LT
+void check_probs(void){
 
 	if ((obstacle_grid.map.occ != POCC) || (obstacle_grid.map.free != PFREE)){
-		*LOCC = (int8_t) (SCALE*logf(obstacle_grid.map.occ / (1.0f - obstacle_grid.map.occ)));
-		*LFREE = (int8_t) (SCALE*logf(obstacle_grid.map.free / (1.0f - obstacle_grid.map.free)));
+		LOCC = (int8_t) (SCALE*logf(obstacle_grid.map.occ / (1.0f - obstacle_grid.map.occ)));
+		LFREE = (int8_t) (SCALE*logf(obstacle_grid.map.free / (1.0f - obstacle_grid.map.free)));
 		POCC = obstacle_grid.map.occ;
 		PFREE = obstacle_grid.map.free;
-		printf("LOCC: %d, LFREE: %d\n", *LOCC, *LFREE);
+		// printf("LOCC: %d, LFREE: %d\n", *LOCC, *LFREE);
 	}
 
 	if (obstacle_grid.map.threshold != PT){
-		*LT = (int8_t) (SCALE*logf(obstacle_grid.map.threshold / (1.0f - obstacle_grid.map.threshold)));
+		LT = (int8_t) (SCALE*logf(obstacle_grid.map.threshold / (1.0f - obstacle_grid.map.threshold)));
 		PT = obstacle_grid.map.threshold;
 	}
 }

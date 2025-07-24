@@ -77,6 +77,13 @@ extern void obtain_cell_xy(float px, float py, int *cell_x, int *cell_y);
 
 extern void fill_cell(float px, float py);
 extern void fill_bayesian_cell(float px, float py);
-extern void fill_free_cells();
+extern void fill_free_cells(void);
+
+extern void decay_map(void);
+extern void update_line_bayes(int x0, int y0, int x1, int y1);
+extern void update_cell(int x, int y, int new_value);
+extern void compute_cell_bayes(int x, int y, bool is_occupied);
+extern void check_probs(void);
+
 
 #endif // ROVER_OBSTACLES_H
