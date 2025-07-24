@@ -76,25 +76,9 @@ static void tfmini_send_lidar(struct transport_tx *trans, struct link_device *de
   uint8_t status = (uint8_t) tfmini.parse_status;
   pprz_msg_send_LIDAR(trans, dev, AC_ID,
                       &tfmini.distance,
-                      &tf_servo.ang,
                       &tfmini.mode,
                       &status);
 }
-
-#ifdef USE_NPS
-
-static void tfmini_send_nps_lidar(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_NPS_LIDAR(trans, dev, AC_ID,
-                      &nps_lidar.distance,
-                      &tf_servo.ang,
-                      &nps_lidar.pos,
-                      &nps_lidar.t,
-                      &nps_lidar.s,
-                      &nps_lidar.denom);
-}
-
-#endif
 
 #endif
 
@@ -117,9 +101,6 @@ void tfmini_init(void)
 
   #if PERIODIC_TELEMETRY
    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, tfmini_send_lidar);
-   #ifdef USE_NPS
-    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_NPS_LIDAR, tfmini_send_nps_lidar);
-   #endif
   #endif
 }
 
