@@ -113,7 +113,9 @@ UNUSED static void handle_uart_tx(struct uart_periph *p)
     } else {
       // wrapping circular buffer
       sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[p->tx_extract_idx], UART_TX_BUFFER_SIZE - p->tx_extract_idx);
-      sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[0], p->tx_insert_idx);
+      if(p->tx_insert_idx > 0) {
+        sdWrite((SerialDriver *)p->reg_addr, &p->tx_buf[0], p->tx_insert_idx);
+      }
     }
     p->tx_extract_idx = p->tx_insert_idx;
     chMtxUnlock(init_struct->tx_mtx);
