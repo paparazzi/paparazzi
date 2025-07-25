@@ -189,11 +189,11 @@ static void can_start(struct can_periph* canp) {
 
   #if defined(STM32_CAN_USE_FDCAN1) || defined(STM32_CAN_USE_FDCAN2)
   // Configure the RAM
-  can1_arch_s.cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | ((cas->memory_offset+0) << FDCAN_RXF0C_F0SA_Pos);
-  can1_arch_s.cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | ((cas->memory_offset+128) << FDCAN_RXF1C_F1SA_Pos);
-  can1_arch_s.cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | ((cas->memory_offset+256) << FDCAN_TXBC_TBSA_Pos);
-  can1_arch_s.cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
-  can1_arch_s.cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
+  cas->cfg.RXF0C = (32 << FDCAN_RXF0C_F0S_Pos) | ((cas->memory_offset+0) << FDCAN_RXF0C_F0SA_Pos);
+  cas->cfg.RXF1C = (32 << FDCAN_RXF1C_F1S_Pos) | ((cas->memory_offset+128) << FDCAN_RXF1C_F1SA_Pos);
+  cas->cfg.TXBC  = (32 << FDCAN_TXBC_TFQS_Pos) | ((cas->memory_offset+256) << FDCAN_TXBC_TBSA_Pos);
+  cas->cfg.TXESC = 0x000; // 8 Byte mode only (4 words per message)
+  cas->cfg.RXESC = 0x000; // 8 Byte mode only (4 words per message)
   #endif
   if (!canConfigureIface(cas)) {
     return;
