@@ -265,6 +265,13 @@
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="relpos" type="struct RelPosNED *"/>
     </message>
+
+    <message name="LIDAR_SERVO" id="40">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="distance" type="float" unit="m"/>
+      <field name="angle" type="float" unit="degre"/>
+    </message>
+
   </msg_class>
 
 </protocol>
