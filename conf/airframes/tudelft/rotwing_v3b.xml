@@ -106,7 +106,6 @@
         <module name="imu" type="cube"/>
         <module name="ins" type="ekf2"/>
 
-        <module name="parachute"/>
         <module name="ekf_aw"/>
 
         <!-- Actuators on dual CAN bus -->
@@ -159,7 +158,7 @@
         <servo no="1"  name="MOTOR_RIGHT"     min="0"     neutral="1000" max="7372"/>
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
-        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="0"    max="7372"/>
+        <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000"    max="7372"/>
         <servo no="5"  name="SERVO_ELEVATOR"  min="5000"  neutral="5000" max="-5500"/>
         <servo no="6"  name="SERVO_RUDDER"   min="-8191" neutral="0"    max="8191"/>
     </servos>
@@ -262,7 +261,7 @@
         <define name="PFC_ACTUATORS" type="array">
             <!-- Aerodynamic -->
             <field type="struct">
-                <field name="feedback_id" value="SERVO_SERVO_ELEVATOR_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -271,7 +270,7 @@
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
-                <field name="feedback_id" value="SERVO_SERVO_RUDDER_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -280,7 +279,7 @@
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
-                <field name="feedback_id" value="SERVO_AIL_LEFT_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -289,7 +288,7 @@
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
-                <field name="feedback_id" value="SERVO_FLAP_LEFT_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -298,7 +297,7 @@
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
-                <field name="feedback_id" value="SERVO_FLAP_RIGHT_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -307,7 +306,7 @@
                 <field name="timeout" value="1"/>
             </field>
             <field type="struct">
-                <field name="feedback_id" value="SERVO_AIL_RIGHT_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-4500"/>
                 <field name="high" value="4500"/>
@@ -318,7 +317,7 @@
 
             <!-- Rotation -->
             <field type="struct">
-                <field name="feedback_id" value="SERVO_ROTATION_MECH_IDX"/>
+                <field name="feedback_id" value="255"/>
                 <field name="feedback_id2" value="255"/>
                 <field name="low" value="-9600"/>
                 <field name="high" value="9600"/>
@@ -370,7 +369,7 @@
                 <field name="low" value="-9600"/>
                 <field name="high" value="2000"/>
                 <field name="low_feedback" value="0"/>
-                <field name="high_feedback" value="2800"/>
+                <field name="high_feedback" value="2500"/>
                 <field name="timeout" value="3"/>
             </field>
         </define>
@@ -395,7 +394,8 @@
         <item name="basic law">Location, airspace and weather</item>
         <item name="RC Battery">Check the RC battery</item>
         <item name="tail connection">Check tail connection</item>
-        <item name="wing tape">Check wings taped and secured</item>
+        <item name="wing assembly">Check all four wing bolts present and tightened</item>
+        <item name="wing connection">Check wing power and CAN lines connected</item>
         <item name="inspection">Inspect airframe condition</item>
         <item name="attitude">Check attitude and heading</item>
         <item name="airspeed">Airspeed sensor calibration</item>
@@ -403,15 +403,14 @@
         <item name="actuators">Automated actuator check</item>
         <item name="flight plan">Check flight plan</item>
         <item name="flight block">Switch to correct flight block</item>
-        <item name="drone tag">Switch on drone tag</item>
         <item name="camera">Switch on camera</item>
         <item name="announce">Announce flight to other airspace users</item>
     </checklist>
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="21.3" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="22.08" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>

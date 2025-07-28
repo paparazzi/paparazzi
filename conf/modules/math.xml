@@ -24,6 +24,7 @@
     <file name="pprz_trig_int.h" dir="math"/>
     <file name="pprz_orientation_conversion.h" dir="math"/>
     <file name="pprz_stat.h"/>
+    <file name="pprz_random.h" dir="math"/>
   </header>
   <init fun="pprz_trig_int_init()"/>
   <makefile>
@@ -36,7 +37,7 @@
     <file name="pprz_trig_int.c" dir="math"/>
     <file name="pprz_orientation_conversion.c" dir="math"/>
     <file name="pprz_stat.c" dir="math"/>
+    <file name="pprz_random.c" dir="math"/>
     <test/>
   </makefile>
 </module>
-

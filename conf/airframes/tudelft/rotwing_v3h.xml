@@ -71,7 +71,7 @@
         </module>
         <module name="airspeed" type="ms45xx_i2c">
             <configure name="MS45XX_I2C_DEV"            value="i2c2"/>
-            <define name="MS45XX_PRESSURE_SCALE"        value="1.90"/>
+            <define name="MS45XX_PRESSURE_SCALE"        value="1.6580"/>
             <define name="USE_AIRSPEED_LOWPASS_FILTER"  value="TRUE"/>
             <define name="MS45XX_LOWPASS_TAU"           value="0.25"/>
             <define name="AIRSPEED_MS45XX_SEND_ABI"     value="1"/>
@@ -403,8 +403,8 @@
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="21.3" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="22.08" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>
