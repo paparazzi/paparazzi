@@ -21,7 +21,7 @@
 
 /** @file actuators_sbus.c
  *  Sbus actuator driver, which can output as 7 sbus channels at ~11ms.
- *  Channels min, averga and maximum should be: 340, 1024, 1708
+ *  Channels min, averga and maximum should be: 172, 992, 1811
  */
 
 #include "modules/actuators/actuators.h"
@@ -54,6 +54,8 @@ void actuators_sbus_init(void)
 
   uart_periph_set_bits_stop_parity(&ACTUATORS_SBUS_DEV, UBITS_8, USTOP_2, UPARITY_EVEN);
   uart_periph_set_baudrate(&ACTUATORS_SBUS_DEV, B100000);
+  // Try to invert RX data logic when available in hardware periph
+  uart_periph_invert_data_logic(&ACTUATORS_SBUS_DEV, true, true);
 }
 
 /*
@@ -90,42 +92,34 @@ void actuators_sbus_set(void)
 
 static inline void actuators_sbus_send(struct link_device *dev)
 {
-  uint8_t i = 0;
-  uint8_t bits_sent = 0;
-  uint8_t data[22];
+  uint8_t frame[25] = {0};
 
-  /* start */
-  dev->put_byte(dev->periph, 0, SBUS_START_BYTE);
-
-  /* Fill all channels */
-  for (i = 0; i < 22; i++) {
-    data[i] = 0x00;
-  }
-  for (i = 0; i < ACTUATORS_SBUS_MAX_NB; i++) {
-    uint16_t chn = actuators_sbus.cmds[i] & 0x07ff; // 11 bit
-    uint8_t ind = bits_sent / SBUS_BIT_PER_CHANNEL;
-    uint8_t shift = bits_sent % SBUS_BIT_PER_CHANNEL;
-    data[ind] |= (chn >> (3 + shift)) & 0xff; // Sends (8 - shift) bits of the 11: 11-(8-shift) remain = 3 + shift
-    if (shift > 5) { // need 3 bytes to fit the 11 bits
-      data[ind + 1] |= (chn >> (shift - 5)) & 0xff; // Sends next 8
-      data[ind + 2] |= (chn << (3 - shift)) &
-                       0xff; // Sends remaining 3 + shift - 8 bits = shift-5 bits: left aligned: 8 - (shift-5) = 3-shift
-    } else { // (shift <= 5) then it fits in 2 bytes
-      data[ind + 1] |= (chn << (5 - shift)) &
-      0xff; // Sends remaining 3 + shift bits left aligned: 8 - (3 + shift) = 5 - shift
-    }
-    bits_sent += SBUS_BIT_PER_CHANNEL;
-  }
-
-  /* Transmit all channels */
-  for (i = 0; i < 22; i++) {
-    dev->put_byte(dev->periph, 0, data[i]);
-  }
-
-  /* flags */
-  dev->put_byte(dev->periph, 0, 0x00); // No frame lost, switches off, no failsafe
-
-  /* stop byte */
-  dev->put_byte(dev->periph, 0, SBUS_END_BYTE);
+  frame[0] = SBUS_START_BYTE;
+  frame[1] =  (actuators_sbus.cmds[0] & 0x07FF);
+  frame[2] =  (actuators_sbus.cmds[0] & 0x07FF) >> 8 | (actuators_sbus.cmds[1] & 0x07FF) << 3;
+  frame[3] =  (actuators_sbus.cmds[1] & 0x07FF) >> 5 | (actuators_sbus.cmds[2] & 0x07FF) << 6;
+  frame[4] =  (actuators_sbus.cmds[2] & 0x07FF) >> 2;
+  frame[5] =  (actuators_sbus.cmds[2] & 0x07FF) >> 10 | (actuators_sbus.cmds[3] & 0x07FF) << 1;
+  frame[6] =  (actuators_sbus.cmds[3] & 0x07FF) >> 7 | (actuators_sbus.cmds[4] & 0x07FF) << 4;
+  frame[7] =  (actuators_sbus.cmds[4] & 0x07FF) >> 4 | (actuators_sbus.cmds[5] & 0x07FF) << 7;
+  frame[8] =  (actuators_sbus.cmds[5] & 0x07FF) >> 1;
+  frame[9] =  (actuators_sbus.cmds[5] & 0x07FF) >> 9  | (actuators_sbus.cmds[6] & 0x07FF) << 2;
+  frame[10] = (actuators_sbus.cmds[6] & 0x07FF) >> 6  | (actuators_sbus.cmds[7] & 0x07FF) << 5;
+  frame[11] = (actuators_sbus.cmds[7] & 0x07FF) >> 3;
+  frame[12] = (actuators_sbus.cmds[8] & 0x07FF);
+  frame[13] = (actuators_sbus.cmds[8] & 0x07FF) >> 8 | (actuators_sbus.cmds[9]  & 0x07FF) << 3;
+  frame[14] = (actuators_sbus.cmds[9] & 0x07FF) >> 5 | (actuators_sbus.cmds[10] & 0x07FF) << 6;
+  frame[15] = (actuators_sbus.cmds[10] & 0x07FF) >> 2;
+  frame[16] = (actuators_sbus.cmds[10] & 0x07FF) >> 10 | (actuators_sbus.cmds[11] & 0x07FF) << 1;
+  frame[17] = (actuators_sbus.cmds[11] & 0x07FF) >> 7  | (actuators_sbus.cmds[12] & 0x07FF) << 4;
+  frame[18] = (actuators_sbus.cmds[12] & 0x07FF) >> 4  | (actuators_sbus.cmds[13] & 0x07FF) << 7;
+  frame[19] = (actuators_sbus.cmds[13] & 0x07FF) >> 1;
+  frame[20] = (actuators_sbus.cmds[13] & 0x07FF) >> 9  | (actuators_sbus.cmds[14] & 0x07FF) << 2;
+  frame[21] = (actuators_sbus.cmds[14] & 0x07FF) >> 6  | (actuators_sbus.cmds[15] & 0x07FF) << 5;
+  frame[22] = (actuators_sbus.cmds[15] & 0x07FF) >> 3;
+  frame[23] = 0x00; // No frame lost, switches off, no failsafe
+  frame[24] = SBUS_END_BYTE;  // stop byte
+  
+  dev->put_buffer(dev->periph, 0, frame, 25);
 
 }
