@@ -1,0 +1,180 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="boat">
+
+  <firmware name="rover"> 
+    <autopilot name="rover_steering.xml"/>
+    <define name="USE_INS_NAV_INIT"/>
+
+    <target name="ap" board="matek_f405_wing_v1">
+      <configure name="PERIODIC_FREQUENCY" value="100"/>
+      <module name="radio_control" type="sbus">
+        <configure name="SBUS_PORT" value="UART2"/>
+      </module>
+    </target>
+    
+    <target name="nps" board="pc">
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm"           type="rover"/>
+      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+      <define name="NPS_BYPASS_INS"  value="TRUE"/>
+      <define name="NPS_BYPASS_LIDAR"  value="TRUE"/>
+      <module name="telemetry_nps" dir="datalink" />
+    </target>    
+    
+    <!-- Same board module as matek_f405 but with another IMU -->
+    <module name="board" type="matek_f405_wing"/> <!-- IMU included -->
+    
+    <module name="actuators" type="pwm"/>
+
+    <!--F405-WSE GPS and Compass connector are mapped to ports UART4 and I2C2 -->
+    <module name="gps" type="ublox">
+    	<configure name="GPS_PORT"  value="UART3"/>
+    </module>
+    <module name="gps_ubx_ucenter"/>
+
+
+    <module name="ins"/>
+    <module name="ahrs" type="float_dcm">
+      <define name="AHRS_FLOAT_MIN_SPEED_GPS_COURSE" value="0.1"/>
+    </module>
+    
+    <module name="telemetry" type="xbee_api">
+    	<configure name="MODEM_PORT"  value="UART1"/>
+    </module>
+    
+    <!-- Compass ublox m8n -->
+    <!--F405-WSE GPS and Compass connector are mapped to ports UART4 and I2C2 -->
+    <module name="mag_hmc58xx">
+    	<configure name="MAG_HMC58XX_I2C_DEV" value="I2C2"/>
+    	<define  name="MODULE_HMC58XX_SYNC_SEND" value="TRUE"/>
+    	<define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+    </module>
+    
+    
+    <!-- Our modules: Lidar -->
+    <!--LIDAR UART-->
+    <module name="lidar_tfmini">
+    	<configure name="TFMINI_PORT" value="UART6"/>
+    	<configure name="TFMINI_BAUD" value="B115200"/>
+    </module>
+
+    <module name="nav"  type="rover_base"/>    
+    
+    <module name="gvf"  type="classic">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+    </module>
+
+    <module name="gvf_parametric">
+      <define name="GVF_PARAMETRIC_2D_BEZIER_N_SEG" value="4"/>
+    </module>
+
+    <!-- Obstacle grid -->    
+    <module name="obstacle_rover">
+    	<define name="N_COL_GRID" value="100"/>
+    	<define name="N_ROW_GRID" value="100"/>
+    </module>
+   
+    
+    <module name="guidance" type="rover_steering">
+      <define name="MAX_DELTA"            value="15.0"/>
+      <define name="DRIVE_SHAFT_DISTANCE" value="0.25"/>
+      <define name="SR_MEASURED_KF"       value="1400.0"/>
+      <define name="MIN_CMD_SHUT"         value="3800"/>
+      <define name="MAX_CMD_SHUT"         value="1350"/>
+      <define name="MOV_AVG_M"            value="200"/>
+    </module>
+
+  </firmware>
+
+
+  <!-- COMMANDS SECTION ..................................................................... -->
+   <servos> 
+    <!-- "no" 1 and 2 but no 0 because our board don't have S0 actuator entry...
+          On the board is the S3 and S4 -->
+    <servo name="MOTOR_THROTTLE" no="2" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_STEERING" no="3" min="1000" neutral="1500" max="2000"/>
+    <servo name="MOTOR_LIDAR" no="1" min="500" neutral="1500" max="2500"/>
+  </servos> 
+  
+  <!-- Low level commands (PWM signal) -->
+  <commands>
+    <axis name="THROTTLE"    failsafe_value="0"/>
+    <axis name="STEERING"    failsafe_value="0"/>
+    <axis name="SERVO"    failsafe_value="0"/>
+  </commands>
+
+  <!-- When SetCommandsFromRC -->
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="STEERING" value="@ROLL"/>
+  </rc_commands>
+
+  <!-- When SetActuatorsFromCommands-->
+  <command_laws>
+    <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
+    <set servo="MOTOR_STEERING" value="@STEERING"/>
+    <set servo="MOTOR_LIDAR" value="@SERVO"/>
+  </command_laws>
+
+
+  <!-- SECTIONS: General config ............................................................. -->
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+
+    
+    <!-- ....CALIBRATION 2023/12/04 .................................................... -->
+    <define name="ACCEL_X_NEUTRAL" value="34"/>
+    <define name="ACCEL_Y_NEUTRAL" value="13"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-217"/>
+    <define name="ACCEL_X_SENS" value="4.910468072567044" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.87915023807254" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.787109540792222" integer="16"/>
+
+    <!-- ......CALIBRATION 2022/07/30..................................................... -->
+    <define name="MAG_X_NEUTRAL" value="256"/>
+    <define name="MAG_Y_NEUTRAL" value="-412"/>
+    <define name="MAG_Z_NEUTRAL" value="71"/>
+    <define name="MAG_X_SENS" value="3.707420822119781" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.148937385955166" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.242411432686237" integer="16"/>
+
+
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix (i.e NPS), on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <define name="USE_GPS" value="TRUE"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> 
+    <define name="MODE_AUTO1"  value="AP_MODE_CRUISER"/> 
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/> <!-- Ignoring radio_control.values -->
+  </section>
+  
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+  
+  
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="6.35" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="6.70" unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="7.05" unit="V"/>
+    <define name="MAX_BAT_LEVEL"             value="8.44" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="1800" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" unit="mA"/>
+  </section>
+
+  <section name="GCS">
+    <define name="AC_ICON" value="rover"/>
+  </section>
+
+</airframe>

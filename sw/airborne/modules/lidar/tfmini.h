@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2025 Alejandro Rochas <alrochas@ucm.es>
  *
  * This file is part of paparazzi.
  *
@@ -29,6 +30,7 @@
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
+#include "math/pprz_algebra_float.h"
 
 enum TFMiniParseStatus {
   TFMINI_INITIALIZE,
@@ -60,9 +62,32 @@ struct TFMini {
 
 extern struct TFMini tfmini;
 
+struct TFMiniServo {
+  int32_t pos;
+  float ang;
+  bool dir;
+};
+
+struct NPS_Lidar {
+  float distance;
+  float t;
+  float s;
+  float denom;
+  struct FloatVect2 pos;
+};
+
+extern struct NPS_Lidar nps_lidar;
+
+#define PWM2ANGLE(pwm) (((pwm) + MAX_PPRZ) * 90 / MAX_PPRZ) - 90 
+
+extern bool enable_servo;
+extern float motor_speed;
+extern struct TFMiniServo tf_servo;
+
 extern void tfmini_init(void);
 extern void tfmini_event(void);
 extern void tfmini_downlink(void);
+extern void tfmini_servo(void);
 
 #endif /* LIDAR_TFMINI_H */
 

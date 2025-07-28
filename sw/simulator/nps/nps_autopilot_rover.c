@@ -56,6 +56,7 @@
 struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
 bool nps_bypass_ins;
+bool nps_bypass_lidar;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE
@@ -63,6 +64,10 @@ bool nps_bypass_ins;
 
 #ifndef NPS_BYPASS_INS
 #define NPS_BYPASS_INS FALSE
+#endif
+
+#ifndef NPS_BYPASS_LIDAR
+#define NPS_BYPASS_LIDAR FALSE
 #endif
 
 #if INDI_RPM_FEEDBACK
@@ -78,6 +83,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
   nps_bypass_ins = NPS_BYPASS_INS;
+  nps_bypass_lidar = NPS_BYPASS_LIDAR;
 
   modules_mcu_init();
   main_ap_init();
@@ -179,8 +185,7 @@ void nps_autopilot_run_step(double time)
 
 
 void sim_overwrite_ahrs(void)
-{ 
-  stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_NPS_ID);
+{
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);

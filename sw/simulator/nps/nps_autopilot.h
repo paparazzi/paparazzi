@@ -54,6 +54,7 @@ extern struct NpsAutopilot nps_autopilot;
 
 extern bool nps_bypass_ahrs;
 extern bool nps_bypass_ins;
+extern bool nps_bypass_lidar;
 extern void sim_overwrite_ahrs(void);
 extern void sim_overwrite_ins(void);
 
