@@ -28,7 +28,7 @@
 
 // Depends of tfmini lidar(could be replaced by other lidar)
 
-#include "./rover_obstacles.h"
+#include "rover_obstacles.h"
 #include "modules/lidar/tfmini.h"
 #include "math/pprz_geodetic_float.h"
 
@@ -59,6 +59,9 @@ static uint32_t last_s = 0;
 #include "modules/ins/ins_slam_ekf.h"
 float max_distance = ins_slam.max_distance;
 #else
+#include "modules/core/abi.h"
+static abi_event lidar_ev;
+static void lidar_cb(uint8_t sender_id, uint32_t stamp, float distance, float angle);
 float max_distance = 5;
 #endif	
 
@@ -156,6 +159,11 @@ void init_grid_4(uint8_t wp1, uint8_t wp2, uint8_t wp3, uint8_t wp4) {
 
 	#if PERIODIC_TELEMETRY
 		register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GRID_INIT, send_grid_init);
+	#endif
+
+	#ifndef USE_EKF_SLAM
+		init_walls(); // Initialize the walls for NPS
+		AbiBindMsgLIDAR_SERVO(AGL_LIDAR_TFMINI_ID, &lidar_ev, lidar_cb);
 	#endif
 
 	// Send the message to the GCS
@@ -351,4 +359,59 @@ void check_probs(void){
 }
 
 
+
+/*******************************************************************************
+ *                                                                             *
+ *  Testing functions                                                           *
+ *                                                                             *
+ ******************************************************************************/
+
+
+#ifndef USE_EKF_SLAM
+
+
+void ins_update_lidar(float distance, float angle){
+
+  if (!ins_int.ltp_initialized) {
+      return;
+  }
+
+  if(!wall_system.converted_to_ltp){
+    convert_walls_to_ltp();
+  }
+
+	// In case there is real measured for the Lidar
+	if (distance == 0.0){
+		return;
+	}
+
+  // Everything is in ENU
+  float x_rover = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->x);
+  float y_rover = POS_FLOAT_OF_BFP(stateGetPositionEnu_i()->y);
+  
+
+  float theta = stateGetNedToBodyEulers_f()->psi;
+  float corrected_angle = M_PI / 2 - angle*M_PI/180 - theta;
+
+	struct FloatVect2 obstacle = {0.0, 0.0};
+  obstacle.x = x_rover + (distance * cosf(corrected_angle));
+  obstacle.y = y_rover + (distance * sinf(corrected_angle));
+
+  // Fill the grid
+  #ifdef USE_GRID
+    fill_bayesian_cell(obstacle.x, obstacle.y);
+  #endif
+
+}
+
+
+
+static void lidar_cb(uint8_t __attribute__((unused)) sender_id,
+                       uint32_t stamp __attribute__((unused)),
+                       float distance, float angle)
+{
+  ins_update_lidar(distance, angle);
+}
+
+#endif
 
