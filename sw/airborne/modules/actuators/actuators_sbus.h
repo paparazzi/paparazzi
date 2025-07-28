@@ -21,7 +21,7 @@
 
 /** @file actuators_sbus.h
  *  Sbus actuator driver, which can output as 7 sbus channels at ~11ms.
- *  Channels min, average and maximum should be: min 0 neutral 1023  max 2047
+ *  Channels min, average and maximum should be: min 172, neutral 992, max 1811
  */
 
 #ifndef ACTUATORS_SBUS_H
