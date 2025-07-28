@@ -200,7 +200,7 @@ static void can_start(struct can_periph* canp) {
   }
 
 
-  canStart(cas->cand, &can1_arch_s.cfg);
+  canStart(cas->cand, &cas->cfg);
   chThdCreateStatic(cas->thread_rx_wa, cas->thread_rx_wa_size,
                     NORMALPRIO + 8, can_thd_rx, canp);
 }
