@@ -40,6 +40,10 @@
 #endif
 #endif
 
+#ifndef GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD
+#define GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD -5.0
+#endif
+
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
@@ -103,7 +107,7 @@ void ground_detect_periodic()
 
   // Detect ground based on AND of all triggers
   if ((fabsf(vspeed_ned) < 5.0)
-      && (spec_thrust_down > -5.0)
+      && (spec_thrust_down > GROUND_DETECT_SPECIFIC_THRUST_THRESHOLD)
       && (fabsf(accel_filter.o[0]) < 2.0)
 #if USE_GROUND_DETECT_AGL_DIST
       && (agl_dist_valid && (agl_dist_value_filtered < GROUND_DETECT_AGL_MIN_VALUE))
