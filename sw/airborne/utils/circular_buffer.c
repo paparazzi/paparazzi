@@ -34,7 +34,7 @@ int circular_buffer_get(struct circular_buffer *cb, uint8_t *buf, size_t len)
   }
   uint8_t *start = cb->_buf + cb->read_offset + 2;
 
-  if (end_offset > cb->read_offset + 2) {
+  if (end_offset >= cb->read_offset + 2) {
     memcpy(buf, start, *msg_len_p);
   } else {
     size_t len1 = cb->_buf_len - (cb->read_offset + 2);
