@@ -12,8 +12,8 @@
 #include <stddef.h>
 
 /**
- * This is a general purpose circular buffer for storing buffers in a FIFO order.
- * A current limitation: the size of the buffers is limited to 255, is size beeing stored on a uint8_t.
+ * This is a general purpose circular buffer for storing variable lenght buffers in a FIFO order.
+ * Buffers length are stored as uint16_t.
  * 
  * Declare a \ref circular_buffer and allocate a buffer that will outlive it.
  * Initialize the \ref circular_buffer using \ref circular_buffer_init.
@@ -31,6 +31,7 @@ enum cir_error {
   CIR_ERROR_NO_MSG = -1,                /**< circular buffer is empty */
   CIR_ERROR_BUFFER_TOO_SMALL = -2,      /**< destination buffer is too small */
   CIR_ERROR_NO_SPACE_AVAILABLE = -3,    /**< no space available in the circular buffer */
+  CIR_ERROR_LOCKED = -4,                /**< mutex locked */
 };
 
 /**
@@ -58,4 +59,10 @@ int circular_buffer_get(struct circular_buffer *cb, uint8_t *buf, size_t len);
  * @param len Size of \p buf
  * @return 0 on success, Error code if negative
 */
-int circular_buffer_put(struct circular_buffer *cb, uint8_t *buf, size_t len);
+int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t len);
+
+
+/**
+ * @brief Drop last inserted record
+ */
+int circular_buffer_drop(struct circular_buffer *cb);
