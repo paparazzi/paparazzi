@@ -90,7 +90,7 @@ static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_ca
 
   pprz_mtx_lock(&iface->mutex);
 
-  CanardCANFrame rx_frame;
+  CanardCANFrame rx_frame = {0};
   memcpy(rx_frame.data, rx_msg->data, 8);
   rx_frame.data_len = rx_msg->len;
   if (rx_msg->can_id & CAN_FRAME_EFF) {
