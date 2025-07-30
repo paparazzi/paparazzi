@@ -100,10 +100,7 @@ static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_ca
   }
 
   // Let canard handle the frame
-  int ret = canardHandleRxFrame(&iface->canard, &rx_frame, rx_msg->timestamp);
-  if(ret != CANARD_OK) {
-    asm("NOP");
-  }
+  canardHandleRxFrame(&iface->canard, &rx_frame, rx_msg->timestamp);
 
   pprz_mtx_unlock(&iface->mutex);
 }
