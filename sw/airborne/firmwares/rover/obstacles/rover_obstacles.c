@@ -48,6 +48,12 @@
 #define SCALE    20.0f   // scaling of log-odds float to int8_t --> With 20, max prob 0.995
 
 
+// Abi call
+#ifndef OBSTACLES_RECEIVE_ID
+#define OBSTACLES_RECEIVE_ID ABI_BROADCAST
+#endif
+
+
 #define DECAY_INTERVAL 5000 // ms for obstacle probability to decay
 #define DECAY 5 // Decay per second
 static uint32_t last_s = 0;
@@ -163,7 +169,7 @@ void init_grid_4(uint8_t wp1, uint8_t wp2, uint8_t wp3, uint8_t wp4)
 
 #ifndef USE_EKF_SLAM
   init_walls(); // Initialize the walls for NPS
-  AbiBindMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, &lidar_ev, lidar_cb);
+  AbiBindMsgOBSTACLE_DETECTION(OBSTACLES_RECEIVE_ID, &lidar_ev, lidar_cb);
 #endif
 
   // Send the message to the GCS
