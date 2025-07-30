@@ -76,7 +76,7 @@ extern void obtain_cell_xy(float px, float py, int *cell_x, int *cell_y);
 
 extern void fill_cell(float px, float py);
 extern void fill_bayesian_cell(float px, float py);
-extern void fill_free_cells(void);
+extern void fill_free_cells(float lidar, float angle);
 
 extern void decay_map(void);
 extern void update_line_bayes(int x0, int y0, int x1, int y1);

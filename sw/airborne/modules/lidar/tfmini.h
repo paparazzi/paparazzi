@@ -68,26 +68,16 @@ struct TFMiniServo {
   bool dir;
 };
 
-struct NPS_Lidar {
-  float distance;
-  float t;
-  float s;
-  float denom;
-  struct FloatVect2 pos;
-};
-
-extern struct NPS_Lidar nps_lidar;
-
-#define PWM2ANGLE(pwm) (((pwm) + MAX_PPRZ) * 90 / MAX_PPRZ) - 90 
-
-extern bool enable_servo;
-extern float motor_speed;
-extern struct TFMiniServo tf_servo;
 
 extern void tfmini_init(void);
 extern void tfmini_event(void);
 extern void tfmini_downlink(void);
-extern void tfmini_servo(void);
+
+#ifndef USE_NPS
+extern void tfmini_parse(uint8_t byte);
+#else
+extern void setLidarDistance_f(float distance);
+#endif // USE_NPS
 
 #endif /* LIDAR_TFMINI_H */
 

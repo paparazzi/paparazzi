@@ -221,13 +221,9 @@ void fill_bayesian_cell(float px, float py)
 }
 
 // Fills the free cells when there is no lidar measurement
-void fill_free_cells(void)
+void fill_free_cells(float lidar, float angle)
 {
   if (!obstacle_grid.is_ready) { return; }
-
-  // Gets the current lidar measurement
-  float lidar = tfmini.distance;
-  float angle = tf_servo.ang;
 
   // Gets the cell where the rover is
   int rx, ry;

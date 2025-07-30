@@ -57,6 +57,8 @@
     	<configure name="TFMINI_PORT" value="UART6"/>
     	<configure name="TFMINI_BAUD" value="B115200"/>
     </module>
+    <module name="lidar_correction"/> 
+    <module name="servo_lidar"/>
 
     <module name="nav"  type="rover_base"/>    
     

@@ -61,10 +61,6 @@ float distance_to_wall(float theta, const struct FloatVect2 *P, const struct Flo
   float t = ((A->y - B->y) * (A->x - P->x) - (A->x - B->x) * (A->y - P->y)) / denom;
   float s = (cosf(theta) * (A->y - P->y) - sinf(theta) * (A->x - P->x)) / denom;
 
-  // Telemetry
-  nps_lidar.t = t;
-  nps_lidar.s = s;
-  nps_lidar.denom = denom;
 
   // Check if the intersection is valid
   if (t> 0.0f && s >= 0.0f && s <= 1.0f) {
