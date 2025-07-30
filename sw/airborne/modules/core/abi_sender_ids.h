@@ -229,6 +229,10 @@
 #define MAG_QMC5883L_SENDER_ID 7
 #endif
 
+#ifndef MAG_UAVCAN_SENDER_ID
+#define MAG_UAVCAN_SENDER_ID 8
+#endif
+
 #ifndef IMU_MAG_PITOT_ID
 #define IMU_MAG_PITOT_ID 50
 #endif
