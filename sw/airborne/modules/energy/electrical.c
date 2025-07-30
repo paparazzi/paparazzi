@@ -183,6 +183,7 @@ void electrical_periodic(void)
 #ifndef SITL
   int32_t current_adc = electrical_priv.current_adc_buf.sum / electrical_priv.current_adc_buf.av_nb_sample;
   electrical.current = MilliAmpereOfAdc(current_adc) / 1000.f;
+  aaa
 
 #ifdef ADC_CHANNEL_CURRENT2
   current_adc = electrical_priv.current2_adc_buf.sum / electrical_priv.current2_adc_buf.av_nb_sample;
