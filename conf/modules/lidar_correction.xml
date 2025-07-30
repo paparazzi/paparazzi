@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_correction" dir="lidar/slam">
+  <doc>
+    <description>
+      LIDAR correction for SLAM applications
+      Includes functions used to simulate the LIDAR data
+      (Optional module for advanced LIDAR processing)
+    </description>
+    <configure name="USE_LIDAR_CORRECTION" value="true" description="Enable LIDAR correction module"/>
+  </doc>
+
+
+  <header>
+    <file name="lidar_correction.h"/>
+  </header>
+
+  <init fun="init_walls()"/>
+
+  <makefile target="ap|nps">
+    <configure name="USE_LIDAR_CORRECTION" default="true"/>
+    <define name="USE_LIDAR_CORRECTION" value="$(USE_LIDAR_CORRECTION)"/>
+    <file name="lidar_correction.c"/>
+  </makefile>
+</module>

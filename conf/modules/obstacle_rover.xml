@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="obstacle_rover" dir="firmwares/rover/obstacles">
+  <doc>
+    <description> 
+	   Obstacle rover grid
+    </description>
+    <define name="USE_GRID" value="TRUE|FALSE" description="Use it to enable this module"/>
+  </doc>
+
+  <settings name="Obstacle Grid">
+    <dl_settings>
+      <dl_settings NAME="Obstacle Grid">
+          <dl_setting MAX="1" MIN="0.5" STEP="0.05" VAR="obstacle_grid.map.threshold" shortname="threshold"/>
+          <dl_setting MAX="1" MIN="0.5" STEP="0.05" VAR="obstacle_grid.map.occ" shortname="occupied"/>
+          <dl_setting MAX="0.5" MIN="0" STEP="0.05" VAR="obstacle_grid.map.free" shortname="free"/>
+          <dl_setting MAX="10" MIN="1" STEP="1"     VAR="grid_block_size" shortname="radius"/>
+          <dl_setting MAX="20" MIN="0" STEP="1" VAR="obstacle_grid.map.decay" shortname="decay"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  
+  
+  <header>
+     <file name="rover_obstacles.h"/>
+  </header>
+  <periodic fun="decay_map()" freq="100" autorun="TRUE"/>
+      
+  <makefile firmware="rover">
+      <file name="rover_obstacles.c" dir="$(SRC_FIRMWARE)/obstacles"/>
+      <define name="USE_GRID" value="TRUE"/>
+  </makefile>
+  
+</module>
+
