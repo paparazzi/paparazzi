@@ -265,6 +265,7 @@
       <field name="stamp" type="uint32_t" unit="us"/>
       <field name="relpos" type="struct RelPosNED *"/>
     </message>
+
   </msg_class>
 
 </protocol>

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2025 Alejandro Rochas <alrochas@ucm.es>
  *
  * This file is part of paparazzi.
  *
@@ -35,11 +36,19 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
+// Test
+#include "firmwares/rotorcraft/autopilot_static.h"
+
+
+#define LIDAR_MIN_RANGE 0.1
+#define LIDAR_MAX_RANGE 12.0
+
+#define LIDAR_OFFSET 0.20   // Horizontal distance from the IMU to the LiDAR (in meters)
+#define LIDAR_HEIGHT 0.24   // Height of the LiDAR above the ground (in meters)
+
 struct TFMini tfmini = {
   .parse_status = TFMINI_INITIALIZE
 };
-
-static void tfmini_parse(uint8_t byte);
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
@@ -72,10 +81,11 @@ void tfmini_init(void)
   tfmini.distance = 0;
   tfmini.parse_status = TFMINI_PARSE_HEAD;
 
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, tfmini_send_lidar);
-#endif
+  #if PERIODIC_TELEMETRY
+   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, tfmini_send_lidar);
+  #endif
 }
+
 
 /**
  * Lidar event function
@@ -83,11 +93,15 @@ void tfmini_init(void)
  */
 void tfmini_event(void)
 {
-  while (tfmini.parse_status != TFMINI_INITIALIZE && tfmini.device->char_available(tfmini.device->periph)) {
-    tfmini_parse(tfmini.device->get_byte(tfmini.device->periph));
-  }
+  #ifndef USE_NPS
+    while (tfmini.parse_status != TFMINI_INITIALIZE && tfmini.device->char_available(tfmini.device->periph)) {
+      tfmini_parse(tfmini.device->get_byte(tfmini.device->periph));
+    }
+  #endif
 }
 
+
+#ifndef USE_NPS
 /**
  * Parse the lidar bytes 1 by 1
  */
@@ -146,7 +160,6 @@ static void tfmini_parse(uint8_t byte)
     case TFMINI_PARSE_CHECKSUM:
       // When the CRC matches
       if (tfmini.parse_crc == byte) {
-        uint32_t now_ts = get_sys_time_usec();
         tfmini.distance = tfmini.raw_dist / 100.f;
         tfmini.strength = tfmini.raw_strength;
         tfmini.mode = tfmini.raw_mode;
@@ -155,16 +168,32 @@ static void tfmini_parse(uint8_t byte)
         if (tfmini.distance != 0xFFFF) {
           // compensate AGL measurement for body rotation
           if (tfmini.compensate_rotation) {
-            float phi = stateGetNedToBodyEulers_f()->phi;
             float theta = stateGetNedToBodyEulers_f()->theta;
-            float gain = (float)fabs((double)(cosf(phi) * cosf(theta)));
-            tfmini.distance = tfmini.distance * gain;
+            float ground_distance;
+            if(fabs(theta) < 0.01){
+              ground_distance = 100;  // Si es 0 esta recto
+            }
+            else{
+              ground_distance = LIDAR_HEIGHT/sinf(-theta) - LIDAR_OFFSET;
+            }
+            
+            if ((tfmini.distance >= ground_distance) && (ground_distance > 0)) {
+              tfmini.distance = 0;
+            }
+
+            // HERE IT DID THE CALCULATION THINKING OF A DRONE, IT DOESN'T WORK FOR US
+            // float phi = stateGetNedToBodyEulers_f()->phi;
+            // float theta = stateGetNedToBodyEulers_f()->theta;
+            // float gain = (float)fabs((double)(cosf(phi) * cosf(theta)));
+            // tfmini.distance = tfmini.distance * gain;
           }
 
-          // send message (if requested)
+          #ifndef USE_SERVO_LIDAR
+          //send message (if requested, and there is not servo module)
           if (tfmini.update_agl) {
-            AbiSendMsgAGL(AGL_LIDAR_TFMINI_ID, now_ts, tfmini.distance);
+            AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, 0, 0);
           }
+          #endif
         }
       }
 
@@ -178,3 +207,24 @@ static void tfmini_parse(uint8_t byte)
       break;
   }
 }
+
+
+#else
+/**
+ * Set the distance of the lidar
+ * This function is used in NPS to set the distance of the lidar
+ */
+void setLidarDistance_f(float distance) {
+  if (distance < LIDAR_MIN_RANGE|| distance > LIDAR_MAX_RANGE){
+    distance = 0;
+  }
+  tfmini.distance = distance;
+  #ifndef USE_SERVO_LIDAR
+  //send message (if requested, and there is not servo module)
+  if (tfmini.update_agl) {
+    AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, 0, 0);
+  }
+  #endif
+}
+#endif // USE_NPS
+
