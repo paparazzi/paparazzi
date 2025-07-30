@@ -10,7 +10,6 @@
     <configure name="USE_LIDAR_CORRECTION" value="true" description="Enable LIDAR correction module"/>
   </doc>
 
-
   <header>
     <file name="lidar_correction.h"/>
   </header>
@@ -20,6 +19,8 @@
   <makefile target="ap|nps">
     <configure name="USE_LIDAR_CORRECTION" default="true"/>
     <define name="USE_LIDAR_CORRECTION" value="$(USE_LIDAR_CORRECTION)"/>
+    <configure name="OBSTACLES_CONFIG" default="ucm_football"/>
+    <define name="OBSTACLES_CONFIG_FILE" value="modules/lidar/maps/$(OBSTACLES_CONFIG).h"/>
     <file name="lidar_correction.c"/>
   </makefile>
 </module>

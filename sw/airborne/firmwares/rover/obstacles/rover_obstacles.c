@@ -168,7 +168,7 @@ void init_grid_4(uint8_t wp1, uint8_t wp2, uint8_t wp3, uint8_t wp4)
 #endif
 
 #ifndef USE_EKF_SLAM
-  init_walls(); // Initialize the walls for NPS
+  // init_walls(); // Initialize the walls for NPS (no longer needed, its made in the conf file)
   AbiBindMsgOBSTACLE_DETECTION(OBSTACLES_RECEIVE_ID, &lidar_ev, lidar_cb);
 #endif
 

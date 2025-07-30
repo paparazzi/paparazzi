@@ -34,11 +34,16 @@
 #define MAX_POINTS 5     // Máx number of points in a wall
 
 
+// Macro to include the obstacles configuration file
+#define STRINGIFY_L(x) #x
+#define INCLUDE_FILE(x) STRINGIFY_L(x)
+
+
 struct Wall {
-  struct LlaCoor_f points_wgs84[MAX_POINTS]; 
+  struct LlaCoor_f points_wgs84[MAX_POINTS];
   struct FloatVect2 points_ltp[MAX_POINTS];
   uint8_t count;
-  bool converted; 
+  bool converted;
 };
 
 struct WallSystem {
@@ -59,7 +64,7 @@ extern struct WallSystem wall_system;
 extern void init_walls(void);  // Init Obstacles
 extern void convert_walls_to_ltp(void);
 extern float find_nearest_wall(const struct FloatVect2 *obstacle_pos, struct FloatVect2 *nearest_point);
-extern float distance_to_wall(float theta, const struct FloatVect2 *P, const struct FloatVect2 *A, 
-  const struct FloatVect2 *B);
+extern float distance_to_wall(float theta, const struct FloatVect2 *P, const struct FloatVect2 *A,
+                              const struct FloatVect2 *B);
 
 #endif // LIDAR_CORRECTION_H
