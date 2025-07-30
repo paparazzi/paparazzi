@@ -249,7 +249,7 @@
         <define name="FAILSAFE_THROTTLE"                    value="5300"/>
         
         <!-- Voltage and current measurements -->
-        <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
+        <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 12.104533 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
 
         <!-- Preflight check actuators (ELE, RUD, AIL_L, FLAP_L, AIL_R, FLAP_R, ROT_M, M_FRONT, M_RIGHT_, M_BACK, M_LEFT, M_PUSH) -->
@@ -382,8 +382,8 @@
                     <field name="scale_f" value="true"/>
                     <field name="rotation" value="true"/>
                 </field>
-                <field name="neutral" value="-4529,3806,-1580" type="int[]"/>
-                <field name="scale_f" value="{ 0.5261, 0.5391, 0.5273 }"/>
+                <field name="neutral" value="-4599,3821,-1601" type="int[]"/>
+                <field name="scale_f" value="{ 0.5475, 0.5635, 0.5455 }"/>
                 <field name="body_to_sensor" value="{{0,-16384,0,16384,0,0,0,0,16384}}"/>
             </field>
         </define>
