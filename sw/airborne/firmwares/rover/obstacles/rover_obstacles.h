@@ -38,7 +38,6 @@
 #define N_ROW_GRID 100
 #endif
 
-#include "firmwares/rover/navigation.h"
 #include "std.h"
 
 

@@ -26,11 +26,7 @@
      <file name="rover_obstacles.h"/>
   </header>
   <periodic fun="decay_map()" freq="100" autorun="TRUE"/>
-   
-  <makefile firmware="fixedwing">
-     <file name="rover_obstacles.c"/>
-  </makefile>
-   
+      
   <makefile firmware="rover">
       <file name="rover_obstacles.c" dir="$(SRC_FIRMWARE)/obstacles"/>
       <define name="USE_GRID" value="TRUE"/>

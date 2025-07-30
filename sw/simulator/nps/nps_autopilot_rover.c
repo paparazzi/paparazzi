@@ -186,6 +186,7 @@ void nps_autopilot_run_step(double time)
 
 void sim_overwrite_ahrs(void)
 {
+  stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_NPS_ID);
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);

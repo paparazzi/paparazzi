@@ -108,7 +108,7 @@ void tfmini_init(void)
 // Simulated Lidar Measurement
 #ifdef USE_NPS
 void sim_overwrite_lidar(){
-  uint32_t now_ts = get_sys_time_usec();
+  // uint32_t now_ts = get_sys_time_usec(); // No longer needed
 
   if (!ins_int.ltp_initialized) return;
 
@@ -146,7 +146,7 @@ void sim_overwrite_lidar(){
 
   // send message (if requested)
   if (tfmini.update_agl) {
-    AbiSendMsgLIDAR_SERVO(AGL_LIDAR_TFMINI_ID, now_ts, tfmini.distance, tf_servo.ang);
+    AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, tf_servo.ang, 0);
   }
 }
 #endif // USE_NPS
@@ -228,7 +228,6 @@ static void tfmini_parse(uint8_t byte)
     case TFMINI_PARSE_CHECKSUM:
       // When the CRC matches
       if (tfmini.parse_crc == byte) {
-        uint32_t now_ts = get_sys_time_usec();
         tfmini.distance = tfmini.raw_dist / 100.f;
         tfmini.strength = tfmini.raw_strength;
         tfmini.mode = tfmini.raw_mode;
@@ -259,7 +258,7 @@ static void tfmini_parse(uint8_t byte)
 
           // send message (if requested)
           if (tfmini.update_agl) {
-            AbiSendMsgLIDAR_SERVO(AGL_LIDAR_TFMINI_ID, now_ts, tfmini.distance, tf_servo.ang);
+            AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, tf_servo.ang, 0);
           }
         }
       }

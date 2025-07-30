@@ -3,8 +3,7 @@
 <airframe name="boat">
 
   <firmware name="rover"> 
-    <autopilot name="rover_steering.xml"/>
-    <define name="USE_INS_NAV_INIT"/>
+    <autopilot name="rover_steering"/>
 
     <target name="ap" board="matek_f405_wing_v1">
       <configure name="PERIODIC_FREQUENCY" value="100"/>
