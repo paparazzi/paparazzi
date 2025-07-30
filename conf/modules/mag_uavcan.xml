@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="mag_uavcan" dir="sensors" task="sensors">
+  <doc>
+    <description>Mag driver for UAVCAN message MagneticFieldStrength</description>
+    <define name="MAG_UAVCAN_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
+  </doc>
+  <dep>
+    <depends>uavcan</depends>
+    <provides>mag</provides>
+  </dep>
+  <header>
+    <file name="mag_uavcan.h"/>
+  </header>
+  <init fun="mag_uavcan_init()"/>
+  <makefile target="ap">
+    <file name="mag_uavcan.c"/>
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.equipment.ahrs.MagneticFieldStrength.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <file name="uavcan.equipment.ahrs.MagneticFieldStrength2.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <test/>
+  </makefile>
+</module>
