@@ -62,13 +62,6 @@ struct TFMini {
 
 extern struct TFMini tfmini;
 
-struct TFMiniServo {
-  int32_t pos;
-  float ang;
-  bool dir;
-};
-
-
 extern void tfmini_init(void);
 extern void tfmini_event(void);
 extern void tfmini_downlink(void);
