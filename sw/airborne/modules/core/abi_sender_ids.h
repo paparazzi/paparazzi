@@ -300,6 +300,10 @@
 #define GPS_UBX2_ID 16
 #endif
 
+#ifndef GPS_UAVCAN_ID
+#define GPS_UAVCAN_ID 17
+#endif
+
 /*
  * IDs of IMU sensors (accel, gyro)
  */
