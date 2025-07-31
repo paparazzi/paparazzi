@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2025 Alejandro Rochas <alrochas@ucm.es>
  *
  * This file is part of paparazzi.
  *
@@ -29,6 +30,7 @@
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
+#include "math/pprz_algebra_float.h"
 
 enum TFMiniParseStatus {
   TFMINI_INITIALIZE,
@@ -63,6 +65,13 @@ extern struct TFMini tfmini;
 extern void tfmini_init(void);
 extern void tfmini_event(void);
 extern void tfmini_downlink(void);
+extern void tfmini_send_abi(void);
+
+#ifndef USE_NPS
+extern void tfmini_parse(uint8_t byte);
+#else
+extern void setLidarDistance_f(float distance);
+#endif // USE_NPS
 
 #endif /* LIDAR_TFMINI_H */
 
