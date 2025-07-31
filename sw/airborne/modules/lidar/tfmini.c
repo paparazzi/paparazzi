@@ -43,8 +43,16 @@
 #define LIDAR_MIN_RANGE 0.1
 #define LIDAR_MAX_RANGE 12.0
 
-#define LIDAR_OFFSET 0.20   // Horizontal distance from the IMU to the LiDAR (in meters)
-#define LIDAR_HEIGHT 0.24   // Height of the LiDAR above the ground (in meters)
+// Horizontal distance from the IMU to the LiDAR (in meters)
+#ifndef LIDAR_OFFSET
+#define LIDAR_OFFSET 0.0f  
+#endif
+
+// Height of the LiDAR above the ground (in meters)
+#ifndef LIDAR_HEIGHT
+#define LIDAR_HEIGHT 0.0f  
+#endif
+
 
 struct TFMini tfmini = {
   .parse_status = TFMINI_INITIALIZE
@@ -80,6 +88,9 @@ void tfmini_init(void)
   tfmini.strength = 0;
   tfmini.distance = 0;
   tfmini.parse_status = TFMINI_PARSE_HEAD;
+
+  static float lidar_offset = LIDAR_OFFSET;
+  static float lidar_height = LIDAR_HEIGHT;
 
   #if PERIODIC_TELEMETRY
    register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LIDAR, tfmini_send_lidar);
@@ -171,10 +182,10 @@ static void tfmini_parse(uint8_t byte)
             float theta = stateGetNedToBodyEulers_f()->theta;
             float ground_distance;
             if(fabs(theta) < 0.01){
-              ground_distance = 100;  // Si es 0 esta recto
+              ground_distance = 100;  // If it is 0 it is straight
             }
             else{
-              ground_distance = LIDAR_HEIGHT/sinf(-theta) - LIDAR_OFFSET;
+              ground_distance = lidar_height/sinf(-theta) - lidar_offset;
             }
             
             if ((tfmini.distance >= ground_distance) && (ground_distance > 0)) {
@@ -188,12 +199,8 @@ static void tfmini_parse(uint8_t byte)
             // tfmini.distance = tfmini.distance * gain;
           }
 
-          #ifndef USE_SERVO_LIDAR
-          //send message (if requested, and there is not servo module)
-          if (tfmini.update_agl) {
-            AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, 0, 0);
-          }
-          #endif
+          // Send the AGL message
+          tfmini_send_abi();
         }
       }
 
@@ -219,12 +226,22 @@ void setLidarDistance_f(float distance) {
     distance = 0;
   }
   tfmini.distance = distance;
-  #ifndef USE_SERVO_LIDAR
-  //send message (if requested, and there is not servo module)
-  if (tfmini.update_agl) {
-    AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, 0, 0);
-  }
-  #endif
+  tfmini_send_abi();
 }
 #endif // USE_NPS
+
+
+// Send the lidar message (AGL, and, if requested, OBSTACLE_DETECTION)
+void tfmini_send_abi(void)
+{
+  uint32_t now_ts = get_sys_time_usec();
+  if (tfmini.update_agl) {
+    AbiSendMsgAGL(AGL_LIDAR_TFMINI_ID, now_ts, tfmini.distance);
+  }
+  #ifndef USE_SERVO_LIDAR
+  //send message (if there is not servo module)
+  AbiSendMsgOBSTACLE_DETECTION(AGL_LIDAR_TFMINI_ID, tfmini.distance, 0, 0);
+  #endif
+}
+
 

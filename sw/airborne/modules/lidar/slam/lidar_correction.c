@@ -26,12 +26,6 @@
 #include "modules/lidar/tfmini.h"
 #include "modules/ins/ins_int.h"
 
-#ifdef USE_EKF_SLAM
-#include "modules/ins/ins_slam_ekf.h"
-uint8_t psi_counter = 0;
-float psi_list[MAX_LIDAR_MEASUREMENTS];
-#endif
-
 #include "math/pprz_algebra.h"
 #include <math.h>
 #include <float.h>
@@ -132,12 +126,6 @@ float find_nearest_wall(const struct FloatVect2 *obstacle_pos, struct FloatVect2
     }
   }
 
-#ifdef USE_EKF_SLAM
-  if ((psi < 3.14f) && (psi > -3.14f)) {
-    psi_list[psi_counter % MAX_LIDAR_MEASUREMENTS] = psi;
-    psi_counter++;
-  }
-#endif
   return min_distance;
 }
 
@@ -174,18 +162,10 @@ void init_walls(void)
   wall_system.converted_to_ltp = false;
 }
 
-#ifdef USE_GRID
-// TODO: Find a easy way to this
-// void fill_known_grid(){
-
-
-// }
-#endif // USE_GRID
-
 
 void convert_walls_to_ltp(void)
 {
-  if (wall_system.converted_to_ltp || !ins_int.ltp_initialized) { return; }
+  if (wall_system.converted_to_ltp || !stateIsLocalCoordinateValid()) { return; }
 
   for (int w = 0; w < wall_system.wall_count; w++) {
     for (int p = 0; p < wall_system.walls[w].count; p++) {

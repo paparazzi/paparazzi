@@ -234,7 +234,7 @@ void sim_overwrite_ins(void)
 // If you want to use the lidar simulation, you need to use the lidar correction module
 void sim_overwrite_lidar(void)
 {
-  if (!ins_int.ltp_initialized) return;
+  if (!stateIsLocalCoordinateValid()) return;
 
   // Convert GPS position to NED coordinates
   struct FloatVect2 pos = {0.0f, 0.0f};

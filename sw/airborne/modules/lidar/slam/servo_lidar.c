@@ -35,18 +35,20 @@
 
 
 
-#define MOTOR_SPEED 5
+#ifndef SERVO_LIDAR_SPEED
+#define SERVO_LIDAR_SPEED 5
+#endif
+
 static uint32_t last_time = 0;
 
 bool enable_servo = false;
-float motor_speed = MOTOR_SPEED;
 struct TFMiniServo tf_servo;
 
 struct ServoLidar servoLidar;
 
 void servoLidar_init(void) {
   servoLidar.enabled = false;
-  servoLidar.speed = MOTOR_SPEED; // default speed
+  servoLidar.speed = SERVO_LIDAR_SPEED; // default speed
   servoLidar.position = 0;
   servoLidar.angle = 0;
   servoLidar.direction = 0;

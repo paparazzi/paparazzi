@@ -56,6 +56,8 @@
     <module name="lidar_tfmini">
     	<configure name="TFMINI_PORT" value="UART6"/>
     	<configure name="TFMINI_BAUD" value="B115200"/>
+      <configure name="LIDAR_OFFSET" value="0.20"/>
+      <configure name="LIDAR_HEIGHT" value="0.24"/>
     </module>
     <module name="lidar_correction"/> 
     <module name="servo_lidar"/>

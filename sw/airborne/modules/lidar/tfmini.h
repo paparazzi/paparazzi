@@ -65,6 +65,7 @@ extern struct TFMini tfmini;
 extern void tfmini_init(void);
 extern void tfmini_event(void);
 extern void tfmini_downlink(void);
+extern void tfmini_send_abi(void);
 
 #ifndef USE_NPS
 extern void tfmini_parse(uint8_t byte);

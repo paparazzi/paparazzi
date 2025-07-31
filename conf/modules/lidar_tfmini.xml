@@ -41,6 +41,12 @@
     <define name="$(TFMINI_PORT_UPPER)_BAUD" value="$(TFMINI_BAUD)"/>
     <define name="TFMINI_PORT" value="$(TFMINI_PORT_LOWER)"/>
 
+    <!-- Compensation constants -->
+    <configure name="LIDAR_OFFSET" default="0.0"/>
+    <configure name="LIDAR_HEIGHT" default="0.0"/>
+    <define name="LIDAR_OFFSET" value="$(LIDAR_OFFSET)"/>
+    <define name="LIDAR_HEIGHT" value="$(LIDAR_HEIGHT)"/>
+
     <configure name="USE_TFMINI_AGL" default="true"/>
     <configure name="TFMINI_COMPENSATE_ROTATION" default="0"/>
     <define name="USE_TFMINI_AGL" value="$(USE_TFMINI_AGL)"/>
