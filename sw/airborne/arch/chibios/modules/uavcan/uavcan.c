@@ -27,6 +27,7 @@
 #include "uavcan.h"
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
+#include "modules/uavcan/uavcan_allocator.h"
 
 #ifndef UAVCAN_NODE_ID
 #define UAVCAN_NODE_ID    100
@@ -174,7 +175,7 @@ static void uavcan_tx(void* p)
 static void onTransferReceived(CanardInstance *ins, CanardRxTransfer *transfer)
 {
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
-
+  
   // Go through all registered callbacks and call function callback if found
   for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
     if (transfer->data_type_id == ev->data_type_id) {
@@ -200,7 +201,12 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
       return true;
     }
   }
-  // No callback found return
+
+  if(source_node_id != 0 && !uavcan_get_node_id_mapping(source_node_id)) {
+    struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
+    request_node_info(iface);
+  }
+
   return false;
 }
 
@@ -242,6 +248,8 @@ void uavcan_init(void)
 #if UAVCAN_USE_CAN2
   uavcanInitIface(&uavcan2);
 #endif
+
+  uavcan_allocator_init();
 }
 
 /**
