@@ -186,13 +186,13 @@ static void gps_ubx_parse_nav_pvt(struct GpsUbx *gubx)
   uint8_t diffSoln          = bit_is_set(flags, 1);
   uint8_t carrSoln          = (flags & 0xC0) >> 6;
   if (diffSoln && carrSoln == 2) {
-    gubx->state.fix = 5; // rtk
+    gubx->state.fix = GPS_FIX_RTK;
   } else if(diffSoln && carrSoln == 1) {
-    gubx->state.fix = 4; // dgnss
+    gubx->state.fix = GPS_FIX_DGPS;
   } else if(gnssFixOK) {
-    gubx->state.fix = 3; // 3D
+    gubx->state.fix = GPS_FIX_3D;
   } else {
-    gubx->state.fix = 0;
+    gubx->state.fix = GPS_FIX_NONE;
   }
 
   // Copy time information

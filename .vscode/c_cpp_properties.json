@@ -1,4 +1,15 @@
 {
+    "env": {
+        "MCU_PERIPH": "${workspaceFolder}/sw/airborne/mcu_periph/**",
+        "PERIPHERALS": "${workspaceFolder}/sw/airborne/peripherals/**",
+        "ARCH_CHIBIOS": "${workspaceFolder}/sw/airborne/arch/chibios/**",
+        "AIRBORNE": "${workspaceFolder}/sw/airborne/",
+        "MODULES": "${workspaceFolder}/sw/airborne/modules/**",
+        "CHIBIOS": "${workspaceFolder}/sw/ext/chibios",
+        "VAR_INC": "${workspaceFolder}/var/include/**",
+        "FDCANv1": "${CHIBIOS}/os/hal/ports/STM32/LLD/FDCANv1",
+        "CANARD": "${workspaceFolder}/sw/ext/dronecan/libcanard/**"
+    },
     "configurations": [
         {
             "name": "Linux",
@@ -9,12 +20,24 @@
                 "limitSymbolsToIncludedHeaders": true
             },
             "includePath": [
-                "${workspaceFolder}"
+                "${workspaceFolder}",
+                "${MCU_PERIPH}",
+                "${PERIPHERALS}",
+                "${ARCH_CHIBIOS}",
+                "${AIRBORNE}",
+                "${MODULES}",
+                "${VAR_INC}",
+                "${AIRBORNE}/utils",
+                "${workspaceFolder}/sw/include/",
+                "${CHIBIOS}/os/rt/**",
+                "${CHIBIOS}/os/hal/**",
+                "${FDCANv1}",
+                "${CANARD}"
             ],
-            "defines": [],
+            "defines": ["PERIODIC_TELEMETRY=TRUE", "USE_CAN1=TRUE", "STM32F1", "UAVCAN_USE_CAN1", "UAVCAN_USE_CAN2"],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
-            "cppStandard": "c++17",
+            "cppStandard": "c++20",
             "intelliSenseMode": "clang-x64"
         }
     ],
