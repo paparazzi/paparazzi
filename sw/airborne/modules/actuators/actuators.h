@@ -37,8 +37,11 @@
  */
 #include "generated/airframe.h"
 
+extern float actuators_enable_datalink_set;
+
 extern void actuators_init(void);
 extern void actuators_periodic(void);
+extern void actuators_datalink_set(uint8_t* buf);
 
 // Actuator feedback structure for ABI Message
 struct act_feedback_t {
