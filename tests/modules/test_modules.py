@@ -48,15 +48,15 @@ OTHER_PARAMS: List[str] = [
 
 
 class Test:
-    def __init__(self, tst, files, files_arch, test_name, test_id):
+    def __init__(self, tst, files, files_arch, includes, test_name, test_id):
         self.configure_regex = re.compile(r"(\$\([a-zA-Z_][a-zA-Z_0-9]*\))")
         self.files = files              # type: List[str]
         self.files_arch = files_arch    # type: List[str]
+        self.includes = includes        # type: List[str]
         self.firmware = None            # type: Optional[str]
         self.archs = []                 # type: List[str]
         self.defines = []               # type: List[Tuple[str,str, str]]
         self.configures = {}            # type: Dict[str:str]
-        self.includes = []              # type: List[str]
         self.shells = []                # type: List[str]
         self.test_name = test_name
         self.test_id = test_id
@@ -108,6 +108,10 @@ class Test:
             for m in re.findall(self.configure_regex, string):
                 if m[2:-1] in self.configures.keys():
                     string = string.replace(m, self.configures[m[2:-1]])
+                else:
+                    env_val = getenv(m[2:-1])
+                    if env_val is not None:
+                        string = string.replace(m, env_val)
             return string
         self.files = map(substitute, self.files)
         self.files_arch = map(substitute, self.files_arch)
@@ -141,7 +145,8 @@ class Test:
         for file in self.files:
             # build with the "test" arch.
             arch_include = f"-I../../tests/modules/test_arch"
-            cmd_args = [gcc] + GCC_PARAMS + [file] + OTHER_PARAMS + module_id + defines + includes + [arch_include] + shells
+            arch_modules_include = f"-I../../tests/modules/test_arch/modules"
+            cmd_args = [gcc] + GCC_PARAMS + [file] + OTHER_PARAMS + module_id + defines + includes + [arch_include, arch_modules_include] + shells
             cmds.append(cmd_args)
 
         for file in self.files_arch:
@@ -212,8 +217,9 @@ class Module:
         for mkf in mod_elt.findall("makefile"):
             files = self.get_files(mkf)
             files_arch = self.get_files_arch(mkf)
+            includes = self.get_includes(mkf)
             for i, tst in enumerate(mkf.findall("test")):
-                test = Test(tst, files, files_arch, f"{self.name}", i)
+                test = Test(tst, files, files_arch, includes, f"{self.name}", i)
                 self.tests.append(test)
 
     def get_files(self, mkf):
@@ -246,6 +252,14 @@ class Module:
                 file_path = "/".join([dir, name])
             files.append(file_path)
         return files
+
+    def get_includes(self, mkf):
+        includes = []
+        for include in mkf.findall("include"):
+            name = include.attrib["name"]
+            includes.append(name)
+        return includes
+
 
 
 def get_modules():
