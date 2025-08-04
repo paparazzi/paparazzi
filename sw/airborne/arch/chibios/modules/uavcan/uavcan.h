@@ -30,6 +30,17 @@
 #include <string.h>
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
+#include "utils/circular_buffer.h"
+
+
+#ifndef UAVCAN_TX_FIFO_SIZE
+#define UAVCAN_TX_FIFO_SIZE 1024
+#endif
+
+#ifndef UAVCAN_MSG_MAX_SIZE
+#define UAVCAN_MSG_MAX_SIZE 256
+#endif
+
 
 /** uavcan interface structure */
 struct uavcan_iface_t {
@@ -49,6 +60,10 @@ struct uavcan_iface_t {
   uint8_t node_id;
   CanardInstance canard;
   uint8_t canard_memory_pool[1024 * 2];
+
+  uint8_t _tx_fifo_buffer[UAVCAN_TX_FIFO_SIZE];
+  struct circular_buffer _tx_fifo;
+  pprz_mutex_t tx_fifo_mutex;
 
   uint8_t transfer_id;
   bool initialized;
