@@ -12,8 +12,8 @@
     <configure name="USE_TFMINI_AGL" value="true" description="use this lidar for AGL measurements"/>
     <configure name="TFMINI_COMPENSATE_ROTATION" value="0" description="compensate AGL measurements for body rotation"/>
     <configure name="TFMINI_ROVER" value="0" description="is this lidar mounted on a rover? Change the way to calculate the compensation"/>
-    <configure name="LIDAR_OFFSET" value="0.0" unit="m" description="Horizontal offset from vehicle center to LIDAR [m]"/>
-    <configure name="LIDAR_HEIGHT" value="0.0" unit="m" description="Vertical height from ground to LIDAR [m]"/>
+    <configure name="LIDAR_OFFSET" value="0.0" description="Horizontal offset from vehicle center to LIDAR [m]"/>
+    <configure name="LIDAR_HEIGHT" value="0.0" description="Vertical height from ground to LIDAR [m]"/>
     <configure name="LIDAR_MIN_RANGE" value="0.1" description="minimum range of the lidar in meters (see datasheet)"/>
     <configure name="LIDAR_MAX_RANGE" value="12.0" description="maximum range of the lidar in meters (see datasheet)"/>
   </doc>
