@@ -53,15 +53,9 @@
 #include "modules/datalink/datalink.h"
 #include "modules/actuators/actuators.h"
 
-
-#ifdef USE_SERVO_LIDAR
-#include "modules/lidar/slam/servo_lidar.h"
-#endif
-
 struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
 bool nps_bypass_ins;
-bool nps_bypass_lidar;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE
@@ -69,13 +63,6 @@ bool nps_bypass_lidar;
 
 #ifndef NPS_BYPASS_INS
 #define NPS_BYPASS_INS FALSE
-#endif
-
-#ifndef NPS_BYPASS_LIDAR
-#define NPS_BYPASS_LIDAR FALSE
-#else
-#include "modules/lidar/tfmini.h"
-#include "modules/lidar/slam/lidar_correction.h" // Functions needed to compute lidar distance
 #endif
 
 #if INDI_RPM_FEEDBACK
@@ -91,7 +78,6 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
   nps_bypass_ins = NPS_BYPASS_INS;
-  nps_bypass_lidar = NPS_BYPASS_LIDAR;
 
   modules_mcu_init();
   main_ap_init();
@@ -180,10 +166,6 @@ void nps_autopilot_run_step(double time)
     sim_overwrite_ins();
   }
 
-  if (nps_bypass_lidar) {
-    sim_overwrite_lidar();
-  }
-
   main_ap_periodic();
 
   /* feeding the fdm with raw low level commands */
@@ -228,43 +210,3 @@ void sim_overwrite_ins(void)
   // Here we make sure that ENU states are recalculated
   stateCalcPositionEnu_i();
 }
-
-
-#ifdef NPS_BYPASS_LIDAR
-// If you want to use the lidar simulation, you need to use the lidar correction module
-void sim_overwrite_lidar(void)
-{
-  if (!stateIsLocalCoordinateValid()) return;
-
-  // Convert GPS position to NED coordinates
-  struct FloatVect2 pos = {0.0f, 0.0f};
-  struct NedCoor_i ned = {0.0f, 0.0f, 0.0f};
-  ned_of_lla_point_i(&ned, stateGetNedOrigin_i(), &gps.lla_pos);
-  pos.x = (float) (ned.y/100.0f);
-  pos.y = (float) (ned.x/100.0f);
-
-  // Calculate the angle of the rover (and servo if used)
-  float theta = M_PI/2-(stateGetNedToBodyEulers_f()->psi);
-  #ifdef USE_SERVO_LIDAR
-    theta = theta - servoLidar.angle*M_PI/180;
-  #endif
-  
-  float min_distance = FLT_MAX;
-
-  // Traverse the wall array and store the minimum distance (!= 0)
-  for (uint8_t w = 0; w < wall_system.wall_count; w++) {
-    struct Wall *wall = &wall_system.walls[w];
-    for (uint8_t p = 0; p < wall->count - 1; p++) {
-      struct FloatVect2 p1 = wall->points_ltp[p];
-      struct FloatVect2 p2 = wall->points_ltp[p+1];
-      float distance = distance_to_wall(theta, &pos, &p1, &p2);
-      if (distance < min_distance && distance > 0) {
-        min_distance = distance;
-      }
-    }
-  }
-
-  // Store that data in the variable tfmini.distance
-  setLidarDistance_f(min_distance);
-}
-#endif

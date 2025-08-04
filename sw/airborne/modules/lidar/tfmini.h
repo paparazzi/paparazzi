@@ -58,18 +58,19 @@ struct TFMini {
   uint8_t mode;
   bool update_agl;
   bool compensate_rotation;
+  bool is_rover;
 };
 
 extern struct TFMini tfmini;
 
 extern void tfmini_init(void);
 extern void tfmini_event(void);
-extern void tfmini_downlink(void);
 extern void tfmini_send_abi(void);
 
 #ifndef USE_NPS
 extern void tfmini_parse(uint8_t byte);
 #else
+extern void sim_overwrite_lidar(void);
 extern void setLidarDistance_f(float distance);
 #endif // USE_NPS
 

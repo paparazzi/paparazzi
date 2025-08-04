@@ -34,9 +34,18 @@
 #define MAX_POINTS 5     // Máx number of points in a wall
 
 
-// Macro to include the obstacles configuration file
-#define STRINGIFY_L(x) #x
-#define INCLUDE_FILE(x) STRINGIFY_L(x)
+// Structs to include the obstacles configuration file
+struct ObstaclePoint {
+  float lat_deg;
+  float lon_deg;
+  float alt;
+};
+
+struct WallConfig {
+  uint8_t count;
+  struct ObstaclePoint points[MAX_POINTS];
+};
+
 
 
 struct Wall {

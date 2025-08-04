@@ -34,8 +34,8 @@
 
 struct WallSystem wall_system;  // Global wall system
 
-#ifndef OBSTACLES_CONFIG_FILE
-#error "OBSTACLES_CONFIG_FILE is not defined. Please define it in your configuration."
+#ifndef OBSTACLE_WALLS
+#error "OBSTACLE_WALLS is not defined. Please define it in your configuration."
 #endif
 
 #ifdef USE_GRID
@@ -137,24 +137,26 @@ float find_nearest_wall(const struct FloatVect2 *obstacle_pos, struct FloatVect2
  *                                                                             *
  ******************************************************************************/
 
+// Include the obstacles configuration file
+const struct WallConfig obstacle_walls[] = OBSTACLE_WALLS;
 
 // Parse of obstacles (defined in the map file)
 void init_walls(void)
 {
-#include INCLUDE_FILE(OBSTACLES_CONFIG_FILE)  // Include the obstacles configuration file
+  uint8_t wall_count = sizeof(obstacle_walls) / sizeof(obstacle_walls[0]);
+  
+  wall_system.wall_count = wall_count;
 
-  wall_system.wall_count = WALL_DATA_COUNT;
-
-  for (int w = 0; w < wall_system.wall_count; w++) {
-    const struct WallConfig *cfg = &wall_data[w];
+  for (int w = 0; w < wall_count; w++) {
+    const struct WallConfig *cfg = &obstacle_walls[w];
     struct Wall *wall = &wall_system.walls[w];
     wall->count = cfg->count;
 
     for (int p = 0; p < wall->count; p++) {
-      wall->points_wgs84[p] = (struct LlaCoor_f) {
-        .lat = RadOfDeg(cfg->points_wgs84[p].lat_deg),
-        .lon = RadOfDeg(cfg->points_wgs84[p].lon_deg),
-        .alt = cfg->points_wgs84[p].alt
+      wall->points_wgs84[p] = (struct LlaCoor_f){
+        .lat = RadOfDeg(cfg->points[p].lat_deg),
+        .lon = RadOfDeg(cfg->points[p].lon_deg),
+        .alt = cfg->points[p].alt
       };
     }
   }

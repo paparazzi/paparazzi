@@ -26,7 +26,6 @@
   <periodic fun="servoLidar_periodic()" freq="100" autorun="TRUE"/>
 
   <makefile target="ap|nps">
-    <configure name="SERVO_LIDAR_SPEED" default="5"/>
     <configure name="USE_SERVO_LIDAR" default="TRUE"/>   
     <define name="USE_SERVO_LIDAR" value="$(USE_SERVO_LIDAR)"/> 
     <file name="servo_lidar.c"/>

@@ -17,7 +17,6 @@
       <module name="fdm"           type="rover"/>
       <define name="NPS_BYPASS_AHRS" value="TRUE"/>
       <define name="NPS_BYPASS_INS"  value="TRUE"/>
-      <define name="NPS_BYPASS_LIDAR"  value="TRUE"/>
       <module name="telemetry_nps" dir="datalink" />
     </target>    
     
@@ -51,17 +50,21 @@
     </module>
     
     
-    <!-- Our modules: Lidar -->
-    <!--LIDAR UART-->
+    <!-- Our modules -->
+    <!-- Lidar related modules-->
     <module name="lidar_tfmini">
-    	<configure name="TFMINI_PORT" value="UART6"/>
-    	<configure name="TFMINI_BAUD" value="B115200"/>
-      <configure name="LIDAR_OFFSET" value="0.20"/>
-      <configure name="LIDAR_HEIGHT" value="0.24"/>
+        <configure name="TFMINI_PORT" value="UART6"/>
+        <configure name="TFMINI_BAUD" value="B115200"/>
+        <configure name="LIDAR_OFFSET" value="0.20"/>
+        <configure name="LIDAR_HEIGHT" value="0.24"/>
+        <configure name="USE_TFMINI_AGL" value="TRUE"/>
+        <configure name="TFMINI_COMPENSATE_ROTATION" value="TRUE"/>
+        <configure name="TFMINI_ROVER" value="TRUE"/>
     </module>
     <module name="lidar_correction"/> 
     <module name="servo_lidar"/>
 
+    <!-- Navegation -->
     <module name="nav"  type="rover_base"/>    
     
     <module name="gvf"  type="classic">
@@ -178,6 +181,51 @@
 
   <section name="GCS">
     <define name="AC_ICON" value="rover"/>
+  </section>
+
+
+  <!-- Maps -->
+  <section name="OBSTACLE_CONFIG" prefix="OBSTACLE_">
+    <define name="WALLS" type="array">
+      <!-- Padel South Wall -->
+      <field type="struct">
+        <field name="count" value="2"/>
+        <field name="points" type="struct">
+          <field value="{40.4512650, -3.7291591, 650.0}"/>
+          <field value="{40.4512050, -3.7291535, 650.0}"/>
+        </field>
+      </field>
+
+      <!-- Padel West Wall -->
+      <field type="struct">
+        <field name="count" value="3"/>
+        <field name="points" type="struct">
+          <field value="{40.4512037, -3.7291532, 650.0}"/>
+          <field value="{40.4512084, -3.7291015, 650.0}"/>
+          <field value="{40.4512295, -3.7289073, 650.0}"/>
+        </field>
+      </field>
+    
+      <!-- Tower -->
+      <field type="struct">
+        <field name="count" value="4"/>
+        <field name="points" type="struct">
+          <field value="{40.4513016, -3.7289494, 650.0}"/>
+          <field value="{40.4513006, -3.7289645, 650.0}"/>
+          <field value="{40.4513107, -3.7289655, 650.0}"/>
+          <field value="{40.4513120, -3.7289500, 650.0}"/>
+        </field>
+      </field>
+    
+      <!-- Grades -->
+      <field type="struct">
+        <field name="count" value="2"/>
+        <field name="points" type="struct">
+          <field value="{40.451918, -3.729198, 650.0}"/>
+          <field value="{40.452028, -3.728153, 650.0}"/>
+        </field>
+      </field>
+    </define>
   </section>
 
 </airframe>

@@ -39,10 +39,7 @@
 #define SERVO_LIDAR_SPEED 5
 #endif
 
-static uint32_t last_time = 0;
-
 bool enable_servo = false;
-struct TFMiniServo tf_servo;
 
 struct ServoLidar servoLidar;
 
