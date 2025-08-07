@@ -54,13 +54,8 @@ extern struct NpsAutopilot nps_autopilot;
 
 extern bool nps_bypass_ahrs;
 extern bool nps_bypass_ins;
-extern bool nps_bypass_lidar;
 extern void sim_overwrite_ahrs(void);
 extern void sim_overwrite_ins(void);
-
-#ifdef NPS_BYPASS_LIDAR
-extern void sim_overwrite_lidar(void);
-#endif
 
 extern void nps_autopilot_init(enum NpsRadioControlType type, int num_script, char *js_dev);
 extern void nps_autopilot_run_step(double time);

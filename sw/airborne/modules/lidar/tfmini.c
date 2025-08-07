@@ -36,9 +36,6 @@
 #include "pprzlink/messages.h"
 #include "modules/datalink/downlink.h"
 
-// Test
-#include "firmwares/rotorcraft/autopilot_static.h"
-
 
 // Horizontal distance from the IMU to the LiDAR (in meters)
 #ifndef LIDAR_OFFSET
