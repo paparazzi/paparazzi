@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "../module.dtd">
+
+<module name="cube_orange_plus_lts" dir="boards">
+  <doc>
+    <description>
+      Specific configuration for Cube Orange+ with triple ICM45686 IMU
+    </description>
+  </doc>
+  <dep>
+    <depends>spi_master,baro_ms5611_spi</depends>
+  </dep>
+  <makefile target="!sim|nps|fbw">
+    <define name="USE_RTC_BACKUP" value="TRUE"/>
+    <configure name="SDLOG_USE_RTC" value="FALSE"/>
+
+    <configure name="MS5611_SPI_DEV" value="spi1"/>
+    <configure name="MS5611_SLAVE_IDX" value="SPI_SLAVE6"/>
+  </makefile>
+</module>
