@@ -1,0 +1,95 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar_i2c" dir="sonar">
+  <doc>
+    <description>
+    A Sonar with I2C connection can be used as unidirectional rangefinder. Examples of devices are e.g. Maxbotix MB1240 or a GY-US42V2.
+    The sensor can be used as a distance-measuring tool to detect the range (distance) to a surfaces. Usecase for example: AGL hold,terrain following or landing assist.
+
+    To be able to use the I2C version of a Sonar, enable this module in your airframe and set needed parameters.
+
+    Notes:
+    + The maximum useful detection distance is 4m for common sonar based small sized sensors, even if datasheet e.g. states 7m.
+    For most I2C sonar range devices, a sampling rate of at least 15Hz is supported. However, if measurements are taken at longer distances, 
+    the time required for the ultrasonic pulse to return increases, which may limit the maximum achievable sampling rate. 
+    It is recommended to adjust the SONAR_I2C_PERIODIC_FREQUENCY parameter according to the sensor's capabilities and the expected measurement range to ensure reliable readings.
+
+    + If the distance is read but the scale is incorrect, adjust the SONAR_I2C_SCALE parameter to match the sensor's specifications.
+    The scale factor can also be determined experimentally by measuring a known distance and adjusting the scale until the output matches the expected value.
+
+    + If the sensor is used in an airframe with landing gear, it is recommended to set the SONAR_I2C_OFFSET to the height of the landing gear, so that the AGL value is correct. 
+    Keep in mind that most sonar sensors have a deadzone of 0.15m to 0.25m, so the AGL cannot be measured if landinggear shorter than the deadzone range.
+
+    + There is an option to compensate the AGL value for body rotation, which is useful if e.g. a roll maneuver, the sensor is not pointing straight down it compensates the AGL value for the body rotation.
+    
+    + Also an option to filter the sensor output is available, which is useful if the sensor is noisy or has a lot of outliers, in cas of a sonar, almost always the case.
+    
+    + An option to set a different I2C address is available in some hardware but not implemented to set dynamically in this driver. 
+    Use external tools to change the I2C address if needed and set the SONAR_I2C_ADDR parameter accordingly.
+
+    + Distance compensation for pressure and temperature are not implemented, keep in mind that sonar sensors are susceptible to temperature and pressure changes.
+ 
+  </description>
+    <configure name="SONAR_I2C_DEV" value="i2cX" description="I2C device port on flightcontroller to use for this device, e.g i2c2"/>
+    <define name="SONAR_I2C_ADDR" value="0xE0" description="The I2C Slave address in 8bit of this device"/>
+    <configure name="USE_SONAR_I2C_AGL" value="TRUE|FALSE" description="Updates the AGL value in state,if not defined, defaults to FALSE"/>
+    <define name="SONAR_I2C_COMPENSATE_ROTATION" value="TRUE|FALSE" description="Compensate AGL measurements for body rotation. Disabled by default"/>
+    <define name="SONAR_I2C_USE_FILTER" value="TRUE|FALSE" description="If this is enabled, a median filter on the distance output, defaults to TRUE"/>
+    <define name="SONAR_I2C_MEDIAN_SIZE" value="11" description="If median filter is enabled then set this option to filter the output more(or less), default is 7"/>
+    <define name="AGL_SONAR_I2C_ID" value="254" description="Set your own different ID if using both PWM, Analog and I2C version of a sensor at the same time"/>
+    <define name="SONAR_I2C_SCALE" value="0.00006" description="Sensor scale for raw sensor output to a meter unit conversion, "/>
+    <define name="SONAR_I2C_OFFSET" value="0.56"  description="Sensor offset in meters, as in where one wants zero to be, default is 0.0"/>
+    <define name="SONAR_I2C_MIN_RANGE" value="0.44" unit="m" description="If defined, set limit to minimum value reported, default 0.3m"/>
+    <define name="SONAR_I2C_MAX_RANGE" value="3.3" unit="m" description="If defined, set limit to maximum value reported, default 4.0m"/>
+    <define name="MODULE_SONAR_I2C_SYNC_SEND" value="TRUE|FALSE" description="Send RAW and scaled message with each new measurement,useful for debugging sensor issues (default: FALSE)"/>
+  </doc>
+
+  <settings>
+    <dl_settings NAME="Rangefinder">
+      <dl_settings NAME="Sonar I2C">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="sonar_i2c.update_agl" shortname="Update AGL"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>i2c</depends>
+    <provides>sonar</provides>
+  </dep>
+
+  <header>
+    <file name="sonar_i2c.h"/>
+  </header>
+  <init fun="sonar_i2c_init()"/>
+  <periodic fun="sonar_i2c_periodic()" freq="SONAR_I2C_PERIODIC_FREQUENCY"/>
+  <periodic fun="sonar_i2c_report()" freq="50" autorun="FALSE"/>
+  <event fun="sonar_i2c_event()"/>
+  <makefile>
+    <configure name="SONAR_I2C_PERIODIC_FREQUENCY" default="30"/>
+    <configure name="SONAR_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <configure name="SONAR_I2C_ADDR" default="0xE0"/>
+    <configure name="USE_SONAR_I2C_AGL" default="0"/>
+    <configure name="SONAR_I2C_USE_FILTER" default="0"/>
+    <configure name="SONAR_I2C_MEDIAN_SIZE" default="7"/>
+    <configure name="SONAR_I2C_SCALE" default="0.000044"/>
+    <define name="SONAR_I2C_PERIODIC_FREQUENCY" value="$(SONAR_I2C_PERIODIC_FREQUENCY)"/>
+    <define name="SONAR_I2C_ADDR" value="$(SONAR_I2C_ADDR)"/>
+    <define name="USE_SONAR_I2C_AGL" value="$(USE_SONAR_I2C_AGL)"/>
+    <define name="USE_$(SONAR_I2C_DEV_UPPER)"/>
+    <define name="SONAR_I2C_DEV" value="$(SONAR_I2C_DEV_LOWER)"/>
+    <define name="SONAR_I2C_USE_FILTER" value="$(SONAR_I2C_USE_FILTER)"/>
+    <define name="SONAR_I2C_MEDIAN_SIZE" value="$(SONAR_I2C_MEDIAN_SIZE)"/>
+    <define name="SONAR_I2C_SCALE" value="$(SONAR_I2C_SCALE)"/>
+    <define name="USE_SONAR_I2C_AGL" value="$(USE_SONAR_I2C_AGL)"/>
+    <define name="SONAR_I2C_COMPENSATE_ROTATION" value="0"/>
+    <define name="AGL_SONAR_I2C_ID" value="254"/>
+    <raw>
+      ifeq ($(SONAR_I2C_DEV),)
+        $(error sonar_i2c module error: please configure SONAR_I2C_DEV in your airframe)
+      endif
+    </raw>
+    <file name="sonar_i2c.c"/>
+  </makefile>
+  <makefile target="nps">
+    <define name="USE_SONAR" value="TRUE"/><!-- in NPS use a virtual sonar to simulate rangeing measurements -->
+  </makefile>
+</module>
