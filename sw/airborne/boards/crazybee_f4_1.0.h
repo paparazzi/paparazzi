@@ -216,7 +216,7 @@
 #define ADC_2_GPIO_PIN GPIO1
 
 #define ADC_CHANNEL_CURRENT ADC_2
-#define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)// TODO: determine 100% correct value
+#define DefaultMilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)
 #endif
 
 /* TODO: Somehere on the board find PHiSICAL easily reachable I2C SDL SDA so to connect e.g. GNSS, Baro, Magneto
