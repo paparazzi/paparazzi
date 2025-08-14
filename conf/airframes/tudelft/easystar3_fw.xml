@@ -5,6 +5,8 @@
 -->
 
 <airframe name="Easystar3">
+  <description>
+  </description>
 
   <firmware name="fixedwing">
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -13,6 +15,9 @@
     <target name="ap" board="px4fmu_5.0_chibios">
       <define name="USE_BARO_BOARD" value="TRUE"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <!--define name="ADC_CHANNEL_VSUPPLY" value="ADC_3"/>
+      <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/-->
+
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART3"/>
       </module>
@@ -23,8 +28,16 @@
       <module name="radio_control" type="ppm"/>
     </target>
 
+    <target name="nps" board="pc">
+      <!-- <configure name="SYS_TIME_FREQUENCY" value="120"/> -->
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <module name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
     <module name="telemetry" type="transparent">
-        <configure name="MODEM_PORT" value="usb_serial"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
+      <!--configure name="MODEM_PORT" value="usb_serial"/-->
     </module>
 
     <module name="imu" type="mpu6000"/>
@@ -34,22 +47,40 @@
         <define name="NO_RESET_UPDATE_SETPOINT_HEADING" value="true"/>
     </module-->
     <module name="gps" type="ublox">
-      <configure name="GPS_BAUD" value="B115200"/>
+      <configure name="GPS_BAUD" value="B460800"/>
+      <define name="GPS_LOSS_TEST_TIMER" value="TRUE"/><!-- Allows disabling 3D fix for X seconds -->
     </module>
     <module name="airspeed" type="ms45xx_i2c">
       <configure name="MS45XX_I2C_DEV" value="i2c4"/>
     </module>
-    <module name="air_data"/>
+    <module name="baro_board"/>
+    <module name="air_data">
+      <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
+    </module>
     <module name="actuators" type="pwm"/>
     <module name="control" type="new"/>
     <module name="navigation"/>
-    <module name="mag_ist8310">
+
+    <!-- External Drotek -->
+    <module name="mag" type="rm3100">
+        <configure name="MAG_RM3100_I2C_DEV" value="i2c2"/>
+        <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE"/>
+        <define name="RM3100_CHAN_X" value="0"/>
+        <define name="RM3100_CHAN_Y" value="1"/>
+        <define name="RM3100_CHAN_Z" value="2"/>
+        <define name="RM3100_CHAN_X_SIGN" value="-"/>
+        <define name="RM3100_CHAN_Y_SIGN" value="-"/>
+        <define name="RM3100_CHAN_Z_SIGN" value="+"/>
+    </module>
+
+    <!-- Internal IST8310 -->
+    <!--module name="mag_ist8310">
       <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
       <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
       <define name="IST8310_CHAN_X_SIGN" value="+"/>
       <define name="IST8310_CHAN_Y_SIGN" value="-"/>
       <define name="IST8310_CHAN_Z_SIGN" value="-"/>
-    </module>
+    </module-->
 
     <!-- Logger -->
     <define name="SDLOG_ENABLE_LOWBAT_FLUSH" value="FALSE"/>
@@ -61,8 +92,8 @@
   </firmware>
 
    <servos>
-    <servo name="MOTOR" no="1" min="1090" neutral="1110" max="1870"/>
-    <servo name="ELEVATOR" no="3" min="1600" neutral="1300" max="950"/>
+    <servo name="MOTOR" no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER" no="4" min="2000" neutral="1500" max="1000"/>
   </servos>
 
@@ -85,7 +116,7 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.85"/>
+    <define name="MAX_ROLL" value="0.95"/>
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
@@ -98,24 +129,33 @@
     <define name="MPU_Y_SIGN" value="-1"/>
     <define name="MPU_Z_SIGN" value="1"/>
 
-    <!-- Calibrated 2022-08-30 (Next to cyberzoo body only) -->
-    <define name="ACCEL_X_NEUTRAL" value="712"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-69"/>
-    <define name="ACCEL_Z_NEUTRAL" value="37"/>
-    <define name="ACCEL_X_SENS" value="4.3946795784709405" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.892643085453153" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.82814860878492" integer="16"/>
+    <!-- Calibrated (var/logs/25_06_16__10_57_24.data) -->
+    <define name="ACCEL_X_NEUTRAL" value="716"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-68"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-158"/>
+    <define name="ACCEL_X_SENS" value="4.377166124505559" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.876216351543897" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.4096050869220775" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="96"/>
-    <define name="MAG_Y_NEUTRAL" value="7"/>
-    <define name="MAG_Z_NEUTRAL" value="71"/>
-    <define name="MAG_X_SENS" value="12.969012324781003" integer="16"/>
-    <define name="MAG_Y_SENS" value="12.93272866894083" integer="16"/>
-    <define name="MAG_Z_SENS" value="13.211883046446026" integer="16"/>
+    <!-- internal MAG -->
+    <!--define name="MAG_X_NEUTRAL" value="4"/>
+    <define name="MAG_Y_NEUTRAL" value="77"/>
+    <define name="MAG_Z_NEUTRAL" value="-98"/>
+    <define name="MAG_X_SENS" value="12.994669838304425" integer="16"/>
+    <define name="MAG_Y_SENS" value="12.618735647774928" integer="16"/>
+    <define name="MAG_Z_SENS" value="12.877707635616835" integer="16"/-->
+    <!-- external MAG (var/logs/25_06_17__12_45_03.data) -->
+    <define name="MAG_X_NEUTRAL" value="1434"/>
+    <define name="MAG_Y_NEUTRAL" value="-1086"/>
+    <define name="MAG_Z_NEUTRAL" value="-1024"/>
+    <define name="MAG_X_SENS" value="0.5852305011888581" integer="16"/>
+    <define name="MAG_Y_SENS" value="0.5921856694657103" integer="16"/>
+    <define name="MAG_Z_SENS" value="0.5868335994838455" integer="16"/>
+
 
     <define name="BODY_TO_IMU_PHI" value="0" unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0" unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="0.0" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="4" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0" unit="deg"/>
   </section>
 
   <!--section name="AHRS" prefix="AHRS_">
@@ -134,14 +174,16 @@
 
   <section name="BAT">
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="BAT_NB_CELLS" value="4"/>
     <!--define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/-->
+    <define name="VoltageOfAdc(adc)" value="((3.3f/4096.0f) * 12.06741927012f * adc)"/>
   </section>
 
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
-    <define name="CARROT" value="5." unit="s"/>
+    <define name="CARROT" value="7." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100."/>
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
 
@@ -157,7 +199,7 @@
     <define name="AUTO_CLIMB_LIMIT" value="2*V_CTL_ALTITUDE_MAX_CLIMB"/>
 
     <!-- Cruise throttle + limits -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.4"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.1"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
 
@@ -202,7 +244,7 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="0.743"/>
     <define name="COURSE_TAU" value="0.5"/>
-    <define name="ROLL_MAX_SETPOINT" value="30." unit="deg"/>
+    <define name="ROLL_MAX_SETPOINT" value="35." unit="deg"/>
     <define name="PITCH_MAX_SETPOINT" value="30." unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-30." unit="deg"/>
 
@@ -246,13 +288,18 @@
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
   </section>
 
-  <section name="SIMU">
+  <!-- <section name="SIMU">
     <define name="ROLL_RESPONSE_FACTOR" value="20"/>
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
     <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+  </section> -->
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_LAUNCHSPEED" value="15"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="JS_AXIS_MODE" value="4"/>
   </section>
 
 </airframe>
