@@ -3,10 +3,12 @@
 <module name="mag_rm3100" dir="sensors" task="sensors">
   <doc>
     <description>
-      PNI RM3100 magnetometer.
+      PNI RM3100 3-axis magnetometer sensor.
       I2C interface.
     </description>
     <configure name="MAG_RM3100_I2C_DEV" value="i2cX" description="I2C device to use"/>
+    <define name="RM3100_ADDR" value="RM3100_ADDR3" description="To set the address of the sensor to one of four possible values (default: RM3100_ADDR0)"/>
+    <define name="RM3100_DATA_RATE" value="RM3100_RATE_150" description="Continuous conversion data rate"/>
     <define name="MODULE_RM3100_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
     <define name="MODULE_RM3100_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
     <define name="RM3100_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
@@ -19,7 +21,6 @@
       <define name="MAG_TO_IMU_PHI" value="0.0" description="Rotation between sensor frame and IMU frame (phi angle)"/>
       <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
       <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
-      <define name="DATA_RATE" value="RM3100_RATE_150" description="Continuous conversion data rate"/>
     </section>
   </doc>
   <dep>
