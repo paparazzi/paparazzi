@@ -67,7 +67,7 @@
 
 // CUR_SENS
 #ifndef USE_ADC_2
-#define USE_ADC_2 2
+#define USE_ADC_2 1
 #endif
 #if USE_ADC_2
 #define AD1_2_CHANNEL ADC_CHANNEL_IN3
@@ -84,6 +84,17 @@
 #define ADC_3_GPIO_PIN GPIO4
 #endif
 
+//ADC_pin_RSSI_IN
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL ADC_CHANNEL_IN11
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO1
+#endif
+
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_1
@@ -93,6 +104,11 @@
 #ifndef ADC_CHANNEL_CURRENT
 #define ADC_CHANNEL_CURRENT ADC_2
 #endif
+
+#ifndef ADC_CHANNEL_RSSI
+#define ADC_CHANNEL_RSSI ADC_4
+#endif
+
 
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
