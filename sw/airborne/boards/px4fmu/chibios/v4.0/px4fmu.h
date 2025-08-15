@@ -96,7 +96,7 @@
 
 /* Default powerbrick values */
 #define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
+#define DefaultMilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
 
 /*
  * PWM TIM defines
