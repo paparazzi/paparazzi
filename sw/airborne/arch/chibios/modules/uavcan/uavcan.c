@@ -47,6 +47,14 @@ static uavcan_event *uavcan_event_hd = NULL;
 #define UAVCAN_CAN1_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
+struct uavcan_msg_header_t {
+  uint64_t data_type_signature;
+  uint16_t data_type_id;
+  uint8_t priority;
+  uint16_t payload_len;
+  uint8_t *payload;
+};
+
 
 struct uavcan_iface_t uavcan1 = {
   .can_net = {.can_ifindex = 1},
@@ -82,7 +90,7 @@ static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_ca
 
   pprz_mtx_lock(&iface->mutex);
 
-  CanardCANFrame rx_frame;
+  CanardCANFrame rx_frame = {0};
   memcpy(rx_frame.data, rx_msg->data, 8);
   rx_frame.data_len = rx_msg->len;
   if (rx_msg->can_id & CAN_FRAME_EFF) {
@@ -97,6 +105,9 @@ static void can_frame_cb(struct pprzcan_frame* rx_msg, UNUSED struct pprzaddr_ca
   pprz_mtx_unlock(&iface->mutex);
 }
 
+
+uint8_t msg_payload[UAVCAN_MSG_MAX_SIZE];
+
 /*
  * Transmitter thread.
  */
@@ -109,6 +120,26 @@ static void uavcan_tx(void* p)
     pprz_bsem_wait(&iface->bsem);
 
     pprz_mtx_lock(&iface->mutex);
+
+
+    // read the Tx FIFO to canard
+    pprz_mtx_lock(&iface->tx_fifo_mutex);
+    while(true) {
+      struct uavcan_msg_header_t header;
+      int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header));
+      if(ret < 0) {break;}
+      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
+        chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
+      }
+      ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
+      if(ret < 0) {break;}
+      canardBroadcast(&iface->canard,
+                    header.data_type_signature,
+                    header.data_type_id, &iface->transfer_id,
+                    header.priority, msg_payload, header.payload_len);
+    }
+    pprz_mtx_unlock(&iface->tx_fifo_mutex);
+
     for (const CanardCANFrame *txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
       struct pprzcan_frame tx_msg;
       memcpy(tx_msg.data, txf->data, 8);
@@ -181,6 +212,10 @@ static void uavcanInitIface(struct uavcan_iface_t *iface)
 {
   pprz_mtx_init(&iface->mutex);
   pprz_bsem_init(&iface->bsem, true);
+  pprz_mtx_init(&iface->tx_fifo_mutex);
+
+  // Initialize tx fifo
+  circular_buffer_init(&iface->_tx_fifo, iface->_tx_fifo_buffer, UAVCAN_TX_FIFO_SIZE);
 
   // Initialize canard
   canardInit(&iface->canard, iface->canard_memory_pool, sizeof(iface->canard_memory_pool),
@@ -232,11 +267,29 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
                       uint16_t payload_len)
 {
   if (!iface->initialized) { return; }
-  pprz_mtx_lock(&iface->mutex);
-  canardBroadcast(&iface->canard,
-                  data_type_signature,
-                  data_type_id, &iface->transfer_id,
-                  priority, payload, payload_len);
-  pprz_mtx_unlock(&iface->mutex);
+  pprz_mtx_lock(&iface->tx_fifo_mutex);
+
+  struct uavcan_msg_header_t header = {
+    .data_type_signature = data_type_signature,
+    .data_type_id = data_type_id,
+    .priority = priority,
+    .payload_len = payload_len
+  };
+
+  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header))) {
+    // fail to post header
+    pprz_mtx_unlock(&iface->tx_fifo_mutex);
+    return;
+  }
+
+  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len)) {
+    // fail to post payload. Remove the header from the fifo
+    circular_buffer_drop(&iface->_tx_fifo);
+    pprz_mtx_unlock(&iface->tx_fifo_mutex);
+    return;
+  }
+  pprz_mtx_unlock(&iface->tx_fifo_mutex);
+  
+  // Wake Tx thread
   pprz_bsem_signal(&iface->bsem);
 }
