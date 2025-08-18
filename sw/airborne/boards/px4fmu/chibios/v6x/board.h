@@ -42,22 +42,6 @@
 #define MCUCONF_H7
 
 /*
- * PWM TIM defines
- * enable TIM4, TIM5 and TIM12 by default
- */
-#ifndef USE_PWM_TIM4
-#define USE_PWM_TIM4 1
-#endif
-
-#ifndef USE_PWM_TIM5
-#define USE_PWM_TIM5 1
-#endif
-
-#ifndef USE_PWM_TIM12
-//#define USE_PWM_TIM12 1
-#endif
-
-/*
  * IO pins assignments.
  */
 #define	PA00_ADC1                      0U
