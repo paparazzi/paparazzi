@@ -28,6 +28,7 @@
 #include "modules/actuators/actuators.h"
 #include "modules/core/commands.h"
 #include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
 #ifdef INTERMCU_AP
 #include "modules/intermcu/intermcu_ap.h"
 #endif
@@ -39,6 +40,8 @@
 
 #if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
+
+float actuators_enable_datalink_set = 0;
 
 static void send_actuators_raw(struct transport_tx *trans, struct link_device *dev)
 {
@@ -133,9 +136,24 @@ void actuators_periodic(void)
 #endif // USE_COMMANDS
 }
 
+void actuators_datalink_set(uint8_t* buf) {
+  if(actuators_enable_datalink_set < 0.5) {
+    return; // disabled
+  }
+  uint8_t ac_id = pprzlink_get_DL_SET_ACTUATOR_ac_id(buf);
+  uint8_t no = pprzlink_get_DL_SET_ACTUATOR_no(buf);
+  uint16_t value = pprzlink_get_DL_SET_ACTUATOR_value(buf);
+  if(ac_id == AC_ID) {
+    if(no < ACTUATORS_NB) {
+      ActuatorSet(no, value);
+    }
+  }
+}
+
 #else // No command_laws section or no actuators
 
 void actuators_init(void) {}
 void actuators_periodic(void) {}
+void actuators_datalink_set(uint8_t* buf) {}
 
 #endif
