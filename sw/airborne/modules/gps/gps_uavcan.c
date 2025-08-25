@@ -90,6 +90,8 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     state.last_3dfix_ticks = sys_time.nb_sec_rem;
     state.last_3dfix_time = sys_time.nb_sec;
     break;
+  default:
+    return; // unknown value
   }
   
 
