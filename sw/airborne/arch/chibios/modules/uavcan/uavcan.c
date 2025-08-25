@@ -129,11 +129,12 @@ static void uavcan_tx(void* p)
       struct uavcan_msg_header_t header;
       int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header));
       if(ret < 0) {break;}
-      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
-        chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
-      }
       ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
-      if(ret < 0) {break;}
+      if(ret == CIR_ERROR_BUFFER_TOO_SMALL) {
+        // UAVCAN_MSG_MAX_SIZE too small. Drop the message associated with the header
+        circular_buffer_drop_first(&iface->_tx_fifo);
+        continue;
+      } else if(ret < 0) {break;}
       canardBroadcast(&iface->canard,
                     header.data_type_signature,
                     header.data_type_id, &iface->transfer_id,
@@ -292,7 +293,7 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
 
   if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len)) {
     // fail to post payload. Remove the header from the fifo
-    circular_buffer_drop(&iface->_tx_fifo);
+    circular_buffer_drop_last(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }

@@ -31,7 +31,6 @@ enum cir_error {
   CIR_ERROR_NO_MSG = -1,                /**< circular buffer is empty */
   CIR_ERROR_BUFFER_TOO_SMALL = -2,      /**< destination buffer is too small */
   CIR_ERROR_NO_SPACE_AVAILABLE = -3,    /**< no space available in the circular buffer */
-  CIR_ERROR_LOCKED = -4,                /**< mutex locked */
 };
 
 /**
@@ -65,4 +64,9 @@ int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t l
 /**
  * @brief Drop last inserted record
  */
-int circular_buffer_drop(struct circular_buffer *cb);
+int circular_buffer_drop_last(struct circular_buffer *cb);
+
+/**
+ * @brief Drop the oldest record
+ */
+int circular_buffer_drop_first(struct circular_buffer *cb);
