@@ -1,9 +1,15 @@
-#pragma once
-#include "inttypes.h"
+ /*
+ * Copyright (C) 2025 Fabien-B <fabien-b@github.com> 
+ * This file is part of paparazzi. See LICENCE file.
+ */
+
 /**
  *  Dynamic node ID allocation.
  *  See https://dronecan.github.io/Specification/6._Application_level_functions/#dynamic-node-id-allocation
  */
+
+#pragma once
+#include "inttypes.h"
 
 struct uavcan_iface_t;
 

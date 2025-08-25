@@ -1,3 +1,12 @@
+ /*
+ * Copyright (C) 2025 Fabien-B <fabien-b@github.com> 
+ * This file is part of paparazzi. See LICENCE file.
+ */
+
+ /**
+ *  Dynamic node ID allocation.
+ *  See https://dronecan.github.io/Specification/6._Application_level_functions/#dynamic-node-id-allocation
+ */
 
 #include "uavcan/uavcan.h"
 #include "uavcan/uavcan_allocator.h"
@@ -7,14 +16,8 @@
 #include "mcu_periph/gpio.h"
 
 
-/**
- *  Dynamic node ID allocation.
- *  See https://dronecan.github.io/Specification/6._Application_level_functions/#dynamic-node-id-allocation
- */
-
-
-#ifndef UAVCAN_DYN_NODE_NB
-#define UAVCAN_DYN_NODE_NB 10
+#ifndef UAVCAN_MAX_NODES
+#define UAVCAN_MAX_NODES 50
 #endif
 
 #define INVALID_STAGE -1
@@ -32,7 +35,7 @@ static uavcan_event node_info_ev;
 
 
 // keep the correspondance between node id and unique IDs. (even or the fixed ids)
-static struct uavcan_node_mapping_t uavcan_node_ids[UAVCAN_DYN_NODE_NB] = {0};
+static struct uavcan_node_mapping_t uavcan_node_ids[UAVCAN_MAX_NODES] = {0};
 
 
 
@@ -41,7 +44,7 @@ uint32_t last_message_timestamp = 0;
 
 
 struct uavcan_node_mapping_t* uavcan_get_node_id_mapping(const uint8_t id) {
-  for(int i=0; i<UAVCAN_DYN_NODE_NB; i++) {
+  for(int i=0; i<UAVCAN_MAX_NODES; i++) {
     if(uavcan_node_ids[i].allocated_id == id) {
       return &uavcan_node_ids[i];
     }
@@ -111,7 +114,7 @@ static bool unique_id_identical(int index) {
 static void handleAllocationRequest(struct uavcan_iface_t *iface, uint8_t preferred_node_id) {
   uint8_t allocated_id = 0;
 
-  for(int i=0; i<UAVCAN_DYN_NODE_NB; i++) {
+  for(int i=0; i<UAVCAN_MAX_NODES; i++) {
 
     if(uavcan_node_ids[i].allocated_id != 0) {
       // allocation slot taken, check if unique id matches
@@ -260,10 +263,4 @@ void uavcan_allocator_init(void) {
   
   uavcan_bind(UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_ID, UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_SIGNATURE,
     &node_info_ev, &node_info_resp_cb);
-}
-
-
-
-void uavcan_allocator_periodic(void) {
-
 }
