@@ -86,7 +86,7 @@ int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t l
   return 0;
 }
 
-int circular_buffer_drop(struct circular_buffer *cb) {
+int circular_buffer_drop_last(struct circular_buffer *cb) {
   // buffer empty
   if (cb->read_offset == cb->write_offset) { return CIR_ERROR_NO_MSG; }
 
@@ -103,5 +103,21 @@ int circular_buffer_drop(struct circular_buffer *cb) {
   }
 
   cb->write_offset = record_head_offset;
+  return 0;
+}
+
+int circular_buffer_drop_first(struct circular_buffer *cb) {
+  // buffer empty
+  if (cb->read_offset == cb->write_offset) { return CIR_ERROR_NO_MSG; }
+
+  // LEN| MSG...| LEN | MSG...
+  uint16_t* msg_len_p = (uint16_t*)&cb->_buf[cb->read_offset];
+
+  size_t end_offset = cb->read_offset + *msg_len_p + 2;
+  if (end_offset >= cb->_buf_len) {
+    end_offset -= cb->_buf_len;
+  }
+
+  cb->read_offset = end_offset;
   return 0;
 }
