@@ -36,5 +36,8 @@
           $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_uavcan.h\"
           endif
     </raw>
+    <test>
+      <include name="$(PAPARAZZI_HOME)/sw/ext/dronecan/libcanard"/>
+    </test>
   </makefile>
 </module>
