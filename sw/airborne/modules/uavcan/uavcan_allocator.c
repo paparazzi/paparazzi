@@ -12,9 +12,6 @@
 #include "uavcan/uavcan_allocator.h"
 #include "uavcan.protocol.dynamic_node_id.Allocation.h"
 #include "uavcan.protocol.GetNodeInfo.h"
-#include "uavcan.equipment.air_data.AngleOfAttack.h"
-#include "mcu_periph/gpio.h"
-
 
 #ifndef UAVCAN_MAX_NODES
 #define UAVCAN_MAX_NODES 50
@@ -36,7 +33,6 @@ static uavcan_event node_info_ev;
 
 // keep the correspondance between node id and unique IDs. (even or the fixed ids)
 static struct uavcan_node_mapping_t uavcan_node_ids[UAVCAN_MAX_NODES] = {0};
-
 
 
 struct uavcan_unique_id_t current_unique_id = {0};
@@ -161,9 +157,6 @@ static void handleAllocationRequest(struct uavcan_iface_t *iface, uint8_t prefer
     iface,
     UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_SIGNATURE, UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_ID,
     CANARD_TRANSFER_PRIORITY_HIGH, msg_buffer, total_size);
-
-
-
 }
 
 
@@ -220,8 +213,6 @@ static void id_alloc_uavcan_cb(struct uavcan_iface_t *iface, CanardRxTransfer *t
       iface,
       UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_SIGNATURE, UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_ID,
       CANARD_TRANSFER_PRIORITY_HIGH, msg_buffer, total_size);
-
-
   }
 
   // It is important to update the timestamp only if the request has been processed successfully.
@@ -264,3 +255,4 @@ void uavcan_allocator_init(void) {
   uavcan_bind(UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_ID, UAVCAN_PROTOCOL_GETNODEINFO_RESPONSE_SIGNATURE,
     &node_info_ev, &node_info_resp_cb);
 }
+
