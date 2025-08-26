@@ -27,6 +27,7 @@
 #include "uavcan.h"
 #include "mcu_periph/can.h"
 #include "modules/core/threads.h"
+#include "modules/uavcan/uavcan_allocator.h"
 
 #ifndef UAVCAN_NODE_ID
 #define UAVCAN_NODE_ID    100
@@ -128,11 +129,12 @@ static void uavcan_tx(void* p)
       struct uavcan_msg_header_t header;
       int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header));
       if(ret < 0) {break;}
-      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
-        chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
-      }
       ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
-      if(ret < 0) {break;}
+      if(ret == CIR_ERROR_BUFFER_TOO_SMALL) {
+        // UAVCAN_MSG_MAX_SIZE too small. Drop the message associated with the header
+        circular_buffer_drop_first(&iface->_tx_fifo);
+        continue;
+      } else if(ret < 0) {break;}
       canardBroadcast(&iface->canard,
                     header.data_type_signature,
                     header.data_type_id, &iface->transfer_id,
@@ -174,7 +176,7 @@ static void uavcan_tx(void* p)
 static void onTransferReceived(CanardInstance *ins, CanardRxTransfer *transfer)
 {
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
-
+  
   // Go through all registered callbacks and call function callback if found
   for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
     if (transfer->data_type_id == ev->data_type_id) {
@@ -200,7 +202,12 @@ static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused
       return true;
     }
   }
-  // No callback found return
+
+  if(source_node_id != 0 && !uavcan_get_node_id_mapping(source_node_id)) {
+    struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
+    request_node_info(iface);
+  }
+
   return false;
 }
 
@@ -242,6 +249,8 @@ void uavcan_init(void)
 #if UAVCAN_USE_CAN2
   uavcanInitIface(&uavcan2);
 #endif
+
+  uavcan_allocator_init();
 }
 
 /**
@@ -284,7 +293,7 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
 
   if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len)) {
     // fail to post payload. Remove the header from the fifo
-    circular_buffer_drop(&iface->_tx_fifo);
+    circular_buffer_drop_last(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }
