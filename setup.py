@@ -27,6 +27,11 @@ def run(args):
     else:
         print("venv successfully created.")
 
+    cmd = ["git", "submodule", "update", "--init", "./sw/ext/pprzlink"]
+    result = subprocess.run(cmd, check=False)
+    if result.returncode:
+        print("Failed to update submodule pprzlink!")
+
     # installing pprzlink
     print("Installing pprzlink...")
     cmd = [f'./{ENV_NAME}/bin/pip', 'install', '-e' , 'sw/ext/pprzlink/lib/v2.0/python']
