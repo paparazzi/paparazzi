@@ -51,19 +51,19 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
 
   struct GpsState state;
 
-  // uint8_t comp_id;               ///< id of current gps
+  // id of current gps
 #if GPS_UAVCAN_USE_NODE_ID
   state.comp_id = transfer->source_node_id;
 #else
   state.comp_id = GPS_UAVCAN_ID;
 #endif
 
-  // uint32_t last_msg_ticks;       ///< cpu time ticks at last received GPS message
-  // uint32_t last_msg_time;        ///< cpu time in sec at last received GPS message
+  // cpu time ticks at last received GPS message
   state.last_msg_ticks = sys_time.nb_sec_rem;
+  // cpu time in sec at last received GPS message
   state.last_msg_time = sys_time.nb_sec;
 
-  // uint8_t fix;                   ///< status of fix
+  // status of fix
   switch (msg.status)
   {
   case UAVCAN_EQUIPMENT_GNSS_FIX2_STATUS_NO_FIX:
@@ -85,9 +85,9 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     } else {
       state.fix = GPS_FIX_3D;
     }
-    // uint32_t last_3dfix_ticks;     ///< cpu time ticks at last valid 3D fix
-    // uint32_t last_3dfix_time;      ///< cpu time in sec at last valid 3D fix
+    // cpu time ticks at last valid 3D fix
     state.last_3dfix_ticks = sys_time.nb_sec_rem;
+    // cpu time in sec at last valid 3D fix
     state.last_3dfix_time = sys_time.nb_sec;
     break;
   default:
@@ -96,13 +96,13 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
   
 
   if(msg.ecef_position_velocity.len > 0) {
-    // struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
+    // position in ECEF in cm
     state.ecef_pos.x = msg.ecef_position_velocity.data[0].position_xyz_mm[0] / 10;
     state.ecef_pos.y = msg.ecef_position_velocity.data[0].position_xyz_mm[1] / 10;
     state.ecef_pos.z = msg.ecef_position_velocity.data[0].position_xyz_mm[2] / 10;
     SetBit(state.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
-    // struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
+    // speed ECEF in cm/s
     state.ecef_vel.x = msg.ecef_position_velocity.data[0].velocity_xyz[0] * 100;
     state.ecef_vel.y = msg.ecef_position_velocity.data[0].velocity_xyz[1] * 100;
     state.ecef_vel.z = msg.ecef_position_velocity.data[0].velocity_xyz[2] * 100;
@@ -111,52 +111,50 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     // TODO handle msg.ecef_position_velocity.data[0].covariance
   }
 
-  // struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
+  // position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
   state.lla_pos.lat = msg.latitude_deg_1e8 / 10;
   state.lla_pos.lon = msg.longitude_deg_1e8 / 10;
   state.lla_pos.alt = msg.height_ellipsoid_mm;
   SetBit(state.valid_fields, GPS_VALID_POS_LLA_BIT);
 
-  // struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over MSL)
-  // TODO convert from LLA or ECEF ?
+  // utm_pos ignored.
 
-  // int32_t hmsl;                  ///< height above mean sea level (MSL) in mm
+  // height above mean sea level (MSL) in mm
   state.hmsl = msg.height_msl_mm;
   SetBit(state.valid_fields, GPS_VALID_HMSL_BIT);
   
-  // struct NedCoor_i ned_vel;      ///< speed NED in cm/s
+  // speed NED in cm/s
   state.ned_vel.x = msg.ned_velocity[0] * 100;
   state.ned_vel.y = msg.ned_velocity[1] * 100;
   state.ned_vel.z = msg.ned_velocity[2] * 100;
   SetBit(state.valid_fields, GPS_VALID_VEL_NED_BIT);
 
-  // uint16_t gspeed;               ///< norm of 2d ground speed in cm/s
+  // norm of 2d ground speed in cm/s
   state.gspeed = VECT2_NORM2(state.ned_vel);
-  // uint16_t speed_3d;             ///< norm of 3d speed in cm/s
+  // norm of 3d speed in cm/s
   state.speed_3d = VECT3_NORM2(state.ned_vel);
-  // int32_t course;                ///< GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
+  // GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
   float course = atan2f(state.ned_vel.y, state.ned_vel.x);
   NormCourseRad(course);
   state.course = course * 1e7;
   SetBit(state.valid_fields, GPS_VALID_COURSE_BIT);
 
-  // uint32_t cacc;                 ///< course accuracy in rad*1e7
-  // TODO
+  // cacc ignored (course accuracy in rad*1e7)
 
   if (msg.covariance.len == 6) {
-    // uint32_t hacc;                 ///< horizontal accuracy in cm
+    // horizontal accuracy in cm
     if (!isnan(msg.covariance.data[0])) {
       state.hacc = sqrtf(msg.covariance.data[0]) * 100;
     }
-    // uint32_t vacc;                 ///< vertical accuracy in cm
+    // vertical accuracy in cm
     if (!isnan(msg.covariance.data[2])) {
       state.vacc = sqrtf(msg.covariance.data[2]) * 100;
     }
-    // uint32_t pacc;                 ///< position accuracy in cm
+    // position accuracy in cm
     if(!isnan(msg.covariance.data[0]) && !isnan(msg.covariance.data[2])) {
       state.pacc = sqrtf(SQUARE(state.hacc) + SQUARE(state.vacc));
     }
-    // uint32_t sacc;                 ///< speed accuracy in cm/s
+    // speed accuracy in cm/s
     if (!isnan(msg.covariance.data[3]) &&
         !isnan(msg.covariance.data[4]) &&
         !isnan(msg.covariance.data[5])) {
@@ -166,27 +164,24 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
     // TODO handle the other cases ?
   }
 
-  // uint16_t pdop;                 ///< position dilution of precision scaled by 100
+  // position dilution of precision scaled by 100
   state.pdop = msg.pdop * 100;
-  // uint8_t num_sv;                ///< number of sat in fix
+  // number of sat in fix
   state.num_sv = msg.sats_used;
 
-  // uint16_t week;                 ///< GPS week
-  // uint32_t tow;                  ///< GPS time of week in ms
+  // GPS week
+  // GPS time of week in ms
   const uint32_t unixToGpsEpoch = 315964800;  // Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC
   uint64_t gnss_ts_msec = msg.gnss_timestamp.usec / 1000 - unixToGpsEpoch*1000;
   switch (msg.gnss_time_standard)
   {
   case UAVCAN_EQUIPMENT_GNSS_FIX2_GNSS_TIME_STANDARD_NONE:
-    //TODO how to handle it ?
     break;
   case UAVCAN_EQUIPMENT_GNSS_FIX2_GNSS_TIME_STANDARD_TAI:
     gnss_ts_msec -= 19000;
-    /* code */
     break;
   case UAVCAN_EQUIPMENT_GNSS_FIX2_GNSS_TIME_STANDARD_UTC:
     gnss_ts_msec += (msg.num_leap_seconds*1000 - 9000);
-    /* code */
     break;
   case UAVCAN_EQUIPMENT_GNSS_FIX2_GNSS_TIME_STANDARD_GPS:
     // good
@@ -199,13 +194,9 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
   state.tow = (gnss_ts_msec % SECS_IN_WEEK);
   
   
-  // TODO what are channels ? Can we get SVinfo ?
-  // uint8_t nb_channels;           ///< Number of scanned satellites
-  state.nb_channels = msg.sats_used;
-  // struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
-
-
-  // uint16_t reset;                ///< hotstart, warmstart, coldstart
+  // Number of scanned satellites
+  // cannot get SVinfo from GPS
+  state.nb_channels = 0;
   
   AbiSendMsgGPS(state.comp_id, now_ts, &state);
 }
@@ -213,11 +204,9 @@ static void gps_uavcan_cb(struct uavcan_iface_t *iface __attribute__((unused)), 
 
 void gps_uavcan_init(void)
 {
-  // your init code here
   uavcan_bind(
     UAVCAN_EQUIPMENT_GNSS_FIX2_ID,
     UAVCAN_EQUIPMENT_GNSS_FIX2_SIGNATURE,
     &gps_uavcan_ev, &gps_uavcan_cb);
 }
-
 
