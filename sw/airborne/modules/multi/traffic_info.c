@@ -136,6 +136,36 @@ bool parse_acinfo_dl(uint8_t *buf)
                         DL_GPS_LLA_itow(buf));
       }
       break;
+      case DL_GPS_INT: {
+        struct LtpDef_i def = {0};
+        struct EcefCoor_i ecef_pos = {
+          .x = DL_GPS_INT_ecef_x(buf),
+          .y = DL_GPS_INT_ecef_y(buf),
+          .z = DL_GPS_INT_ecef_z(buf),
+        };
+        struct EcefCoor_i ecef_vel = {
+          .x = DL_GPS_INT_ecef_xd(buf),
+          .y = DL_GPS_INT_ecef_yd(buf),
+          .z = DL_GPS_INT_ecef_zd(buf),
+        };
+        struct NedCoor_i ned_vel;
+        ltp_def_from_ecef_i(&def, &ecef_pos);
+        ned_of_ecef_vect_i(&ned_vel, &def, &ecef_vel);
+        struct NedCoor_f ned_vel_f;
+        VECT3_FLOAT_OF_CM(ned_vel_f, ned_vel);
+        int16_t course = (int16_t)(10.f * DegOfRad(atan2f(ned_vel_f.y, ned_vel_f.x))); // decideg
+        uint16_t gspeed = (uint16_t)(CM_OF_M(FLOAT_VECT2_NORM(ned_vel_f)));
+        int16_t climb = (int16_t)(CM_OF_M(-ned_vel_f.z));
+        set_ac_info_lla(sender_id,
+                        DL_GPS_INT_lat(buf),
+                        DL_GPS_INT_lon(buf),
+                        DL_GPS_INT_alt(buf),
+                        course,
+                        gspeed,
+                        climb,
+                        DL_GPS_INT_tow(buf));
+      }
+      break;
       default:
         return FALSE;
     }
@@ -182,6 +212,10 @@ void set_ac_info_utm(uint8_t id, uint32_t utm_east, uint32_t utm_north, uint32_t
       ti_acs[ti_acs_id[id]].ac_id = id;
     }
 
+    if (itow < ti_acs[ti_acs_id[id]].itow) {
+      return; // don't update on old data
+    }
+
     ti_acs[ti_acs_id[id]].status = 0;
 
     uint16_t my_zone = stateGetUtmOrigin_f()->zone;
@@ -222,6 +256,10 @@ void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
     if (id > 0 && ti_acs_id[id] == 0) {
       ti_acs_id[id] = ti_acs_idx++;
       ti_acs[ti_acs_id[id]].ac_id = id;
+    }
+
+    if (itow < ti_acs[ti_acs_id[id]].itow) {
+      return; // don't update on old data
     }
 
     ti_acs[ti_acs_id[id]].status = 0;
