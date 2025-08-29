@@ -1596,6 +1596,14 @@
 #define RSSI_IN_ADC	 1
 #define RSSI_IN_ADC_FN	 IN
 #define RSSI_IN_ADC_IN	 11
+#define PWM_INPUT1_TIM		 9
+#define PWM_INPUT1_TIM_FN	 CH
+#define PWM_INPUT1_TIM_CH	 1
+#define PWM_INPUT1_TIM_AF	 3
+#define PWM_INPUT2_TIM		 3
+#define PWM_INPUT2_TIM_FN	 CH
+#define PWM_INPUT2_TIM_CH	 1
+#define PWM_INPUT2_TIM_AF	 2
 
 #define BOARD_GROUP_DECLFOREACH(line, group) \
   static const ioline_t group ## _ARRAY[] = {group}; \
