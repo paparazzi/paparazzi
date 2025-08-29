@@ -169,8 +169,16 @@ if __name__ == "__main__":
             continue
         try:
             man = dfudev.handle.getString(dfudev.dev.iManufacturer, 30)
+            if isinstance(man, bytes):
+                man = man.decode("utf-8")
+
             product = dfudev.handle.getString(dfudev.dev.iProduct, 30)
+            if isinstance(product, bytes):
+                product = product.decode("utf-8")
+
             serial = dfudev.handle.getString(dfudev.dev.iSerialNumber, 40)
+            if isinstance(serial, bytes):
+                serial = serial.decode("utf-8")
         except Exception as e:
             print("Whoops... could not get device description.")
             print("Exception:", e)
