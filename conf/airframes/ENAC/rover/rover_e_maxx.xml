@@ -1,0 +1,142 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe name="Rover E Maxx">
+
+  <firmware name="rover">
+    <autopilot name="rover_steering_pid"/>
+    <configure name="PERIODIC_FREQUENCY" value="150"/>
+
+    <target name="ap" board="tawaki_1.0">
+      <module name="radio_control" type="sbus"/>
+    </target>
+    
+    <target name="nps" board="pc">
+      <module name="radio_control" type="datalink"/>
+      <module name="fdm"           type="rover"/>
+      <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+      <define name="NPS_BYPASS_INS"  value="TRUE"/>
+      <!-- Multiple agents simulation -->
+      <!--configure name="MODEM_PORT_OUT" value="4246"/>
+      <configure name="MODEM_PORT_IN"  value="4247"/-->
+    </target>    
+    
+    <module name="actuators" type="pwm"/>
+    <module name="telemetry" type="xbee_api"/>
+	
+    <module name="actuators" type="sbus">
+      <configure name="ACTUATORS_SBUS_DEV" value="UART4"/>
+    </module>
+
+    <module name="power_switch" >
+      <define  name="POWER_SWITCH_GPIO" value="GPIOA,GPIO1"/>
+    </module>
+    <module name="gimbal_ctrl"/>
+
+    <module name="board_tawaki" />
+	
+    <module name="gps" type="ublox">
+      <configure name="GPS_BAUD" value="B115200"/>
+      <define name="GPS_POS_BROADCAST"/>
+    </module>
+
+    <module name="ins"/>
+
+    <module name="ahrs" type="int_cmpl_quat">
+      <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="0.1"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+    </module>
+
+  </firmware>
+
+
+  <!-- COMMANDS SECTION ..................................................................... -->
+  <servos driver="Pwm"> 
+    <!-- "no" 1 and 2 but no 0 because our board don't have S0 actuator entry... -->
+    <servo name="MOTOR_THROTTLE" no="1" min="1410" neutral="1510" max="1730"/>
+    <servo name="MOTOR_STEERING" no="2" min="942" neutral="1436" max="1944"/>
+  </servos> 
+  
+  <!-- gimbal -->
+  <servos driver="Sbus">
+    <servo name="CAM_MODE"  no="0" min="172" neutral="992" max="1811"/>
+    <servo name="CAM_ROLL"  no="1" min="172" neutral="992" max="1811"/>
+    <servo name="CAM_PITCH" no="2" min="172" neutral="992" max="1811"/>
+    <servo name="CAM_YAW"   no="3" min="172" neutral="992" max="1811"/>
+    <servo name="CAM_SENS"  no="4" min="172" neutral="992" max="1811"/>
+  </servos>
+
+  
+  <!-- Low level commands (PWM signal) -->
+  <commands>
+    <axis name="THROTTLE"    failsafe_value="0"/>
+    <axis name="STEERING" failsafe_value="0"/>
+  </commands>
+
+  <!-- When SetCommandsFromRC -->
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="STEERING" value="@ROLL"/>
+  </rc_commands>
+
+  <!-- When SetActuatorsFromCommands-->
+  <command_laws>
+    <set servo="MOTOR_THROTTLE" value="@THROTTLE"/>
+    <set servo="MOTOR_STEERING" value="@STEERING"/>
+  </command_laws>
+
+
+  <!-- SECTIONS: General config ............................................................. -->
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="90." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix (i.e NPS), on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <define name="USE_GPS" value="TRUE"/>
+  </section>
+
+  <section name="ROVER_GUIDANCE_STEERING">
+    <define name="MAX_DELTA"            value="30.0"/>
+    <define name="DRIVE_SHAFT_DISTANCE" value="0.5"/>
+    <define name="SR_MEASURED_KF"       value="1920"/>
+    <define name="ROVER_GUIDANCE_MAX_SPEED" value="5.0"/>
+    <define name="ROVER_GUIDANCE_POS_KP" value="0.6"/>
+    <define name="ROVER_GUIDANCE_HEADING_KP" value="0.8"/>
+    <define name="ROVER_GUIDANCE_SPEED_KP" value="10.0"/>
+    <define name="ROVER_GUIDANCE_SPEED_KI" value="10.0"/>
+    <define name="ROVER_GUIDANCE_PROXIMITY_DISTANCE" value="3.0"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_KILL"/> 
+    <define name="MODE_AUTO1"  value="AP_MODE_DIRECT"/> 
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_STARTUP"  value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ROVER_FRICTION" value="0.5"/>
+    <define name="ROVER_ACCELERATION" value="2.5"/>
+    <define name="USE_COMMANDS" value="TRUE"/>
+  </section>
+  
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL"    value="12.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL"          value="13" unit="V"/>
+    <define name="LOW_BAT_LEVEL"             value="13.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL"             value="17" unit="V"/>
+    <define name="BAT_NB_CELLS"              value="4"/>
+  </section>
+
+  <section name="GCS">
+    <define name="AC_ICON" value="rover"/>
+  </section>
+  
+</airframe>
