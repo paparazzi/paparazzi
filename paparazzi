@@ -4,7 +4,7 @@ import os
 import sys
 
 # Make sure to use Wayland for high DPI screens
-os.environ["QT_QPA_PLATFORM"] = "wayland"
+os.environ["QT_QPA_PLATFORM"] = "wayland;xcb"
 
 dirname = os.path.dirname(os.path.abspath(__file__))
 PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME",dirname)
