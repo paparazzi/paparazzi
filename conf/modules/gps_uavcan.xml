@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gps_uavcan" dir="gps" task="sensors">
+  <doc>
+    <description>UAVCAN gps module. Handle uavcan.equipment.gnss.Fix2 message (1063).</description>
+    <define name="GPS_UAVCAN_USE_NODE_ID" value="TRUE|FALSE" description="Use source node ID as ABI ID (default:FALSE)"/>
+  </doc>
+  <dep>
+    <depends>uavcan,gps</depends>
+    <provides>gps</provides>
+  </dep>
+  <header>
+    <file name="gps_uavcan.h"/>
+  </header>
+  <init fun="gps_uavcan_init()"/>
+  <makefile>
+    <file name="gps_uavcan.c"/>
+    <!-- Load DSDL generated files-->
+    <include name="$(PAPARAZZI_HOME)/var/include/DSDLcode/include"/>
+    <file name="uavcan.equipment.gnss.Fix2.c" dir="$(PAPARAZZI_HOME)/var/include/DSDLcode/src"/>
+    <define name="PRIMARY_GPS" value="GPS_UAVCAN"/>
+    <raw>
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_uavcan.h\"
+    </raw>
+        <raw>
+          ifdef SECONDARY_GPS
+          ifneq (,$(findstring $(SECONDARY_GPS), uavcan))
+          # this is the secondary GPS
+          $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/gps/gps_uavcan.h\"
+          $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_UAVCAN
+          else
+          $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_uavcan.h\"
+          $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_UAVCAN
+          endif
+          else
+          # plain old single GPS usage
+          $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/gps/gps_uavcan.h\"
+          endif
+    </raw>
+    <test>
+      <include name="$(PAPARAZZI_HOME)/sw/ext/dronecan/libcanard"/>
+    </test>
+  </makefile>
+</module>
