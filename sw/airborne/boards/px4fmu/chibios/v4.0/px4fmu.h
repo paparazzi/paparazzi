@@ -249,6 +249,26 @@
 #endif
 #endif
 
+/*
+ * PWM input
+ */
+// On Header 8266 PD pin using TIM9 CH1
+#ifdef USE_PWM_INPUT1
+#define PWM_INPUT1_ICU            ICUD9
+#define PWM_INPUT1_CHANNEL        ICU_CHANNEL_1
+#define PWM_INPUT1_GPIO_PORT      GPIOE
+#define PWM_INPUT1_GPIO_PIN       GPIO5
+#define PWM_INPUT1_GPIO_AF        GPIO_AF3
+#endif
+// On Header 8266 GPIO2 pin using TIM3 CH1 
+#ifdef USE_PWM_INPUT2
+#define PWM_INPUT2_ICU            ICUD3
+#define PWM_INPUT2_CHANNEL        ICU_CHANNEL_1
+#define PWM_INPUT2_GPIO_PORT      GPIOB
+#define PWM_INPUT2_GPIO_PIN       GPIO4
+#define PWM_INPUT2_GPIO_AF        GPIO_AF2
+#endif
+
 /**
  * UART defines
  */
@@ -303,26 +323,6 @@
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
 #define PERIPHERAL3V3_ENABLE_ON gpio_set
 #define PERIPHERAL3V3_ENABLE_OFF gpio_clear
-
-// /**
-//  * PPM radio defines TODO
-//  */
-// #define RC_PPM_TICKS_PER_USEC 2
-// #define PPM_TIMER_FREQUENCY 2000000
-// #define PPM_CHANNEL ICU_CHANNEL_1
-// #define PPM_TIMER ICUD1
-
-// /*
-//  * PWM input TODO
-//  */
-// // PWM_INPUT 1 on PA8 (also PPM IN)
-// #define PWM_INPUT1_ICU            ICUD1
-// #define PWM_INPUT1_CHANNEL        ICU_CHANNEL_1
-// // PPM in (aka PA8) is used: not compatible with PPM RC receiver
-// #define PWM_INPUT1_GPIO_PORT      GPIOA
-// #define PWM_INPUT1_GPIO_PIN       GPIO8
-// #define PWM_INPUT1_GPIO_AF        GPIO_AF1
-
 
 /**
  * I2C defines
