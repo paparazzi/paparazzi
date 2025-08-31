@@ -13,6 +13,7 @@
   <makefile>
     <file name="mission_rover_nav.c"/>
     <test firmware="rover"> 
+      <define name="USE_GENERATED_AUTOPILOT"/>
       <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
       <define name="DOWNLINK_DEVICE" value="uart0"/>
       <define name="USE_UART0"/>
