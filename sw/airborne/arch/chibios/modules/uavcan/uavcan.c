@@ -276,13 +276,13 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
     .payload_len = payload_len
   };
 
-  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header))) {
+  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header)) < 0) {
     // fail to post header
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }
 
-  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len)) {
+  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
     // fail to post payload. Remove the header from the fifo
     circular_buffer_drop(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
