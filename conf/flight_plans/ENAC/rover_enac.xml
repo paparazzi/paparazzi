@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="157" ground_alt="147" lat0="43.5634" lon0="1.48448" max_dist_from_home="80" name="Enac test rover" security_height="1" wp_frame="ltp">
+  <header/>
+  <waypoints>
+    <waypoint name="HOME" x="0." y="0."/>
+    
+    <waypoint name="STDBY" x="-14.974" y="18.525"/>
+    <waypoint name="p1" x="-38.2" y="18.5"/>
+    <waypoint name="p2" x="-15.3" y="-14.3"/>
+    <waypoint name="p3" x="17.5" y="8.6"/>
+    <waypoint name="p4" x="-5.5" y="41.4"/>
+    
+    <waypoint name="_FLY1" x="-6.8" y="59.0"/>
+    <waypoint name="_FLY2" x="53.6" y="-25.7"/>
+    <waypoint name="_FLY3" x="5.3" y="-55.8"/>
+    <waypoint name="_FLY4" x="-54.3" y="25.9"/>
+    <waypoint name="_KILL1" x="-6.3" y="68.6"/>
+    <waypoint name="_KILL2" x="62.8" y="-29.8"/>
+    <waypoint name="_KILL3" x="4.4" y="-65.8"/>
+    <waypoint name="_KILL4" x="-67.4" y="29.7"/>
+  </waypoints>
+  <sectors>
+    <sector color="lime" name="Flight_Area">
+      <corner name="_FLY1"/>
+      <corner name="_FLY2"/>
+      <corner name="_FLY3"/>
+      <corner name="_FLY4"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="_KILL1"/>
+      <corner name="_KILL2"/>
+      <corner name="_KILL3"/>
+      <corner name="_KILL4"/>
+    </sector>
+  </sectors>
+  <modules>
+    <module name="mission" type="rover"/>
+  </modules>
+  <exceptions>
+    <exception cond="!InsideFlight_Area(GetPosX(), GetPosY()) @AND (nav_block @GT IndexOfBlock('Holding point'))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Standby" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle();" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="Mission" strip_button="Mission">
+      <call fun="mission_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Square">
+      <go wp="p1"/>
+      <path wpts="p1,p2,p3,p4,p1"/>
+      <stay wp="p1"/>
+    </block>
+    <block name="Circle">
+      <circle radius="nav.radius" wp="STDBY"/>
+    </block>
+    <block name="Oval">
+      <oval p1="STDBY" p2="HOME" radius="nav.radius"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -2,7 +2,13 @@
 
 <autopilot name="Steering Rover Autopilot">
 
-  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true">
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <modules>
+      <module name="nav" type="rover_base"/>
+      <module name="guidance" type="rover_steering"/>
+      <module name="gvf_common"/>
+    </modules>
 
     <includes>
       <include name="generated/airframe.h"/>
@@ -11,8 +17,6 @@
       <include name="modules/gps/gps.h"/>
       <include name="modules/actuators/actuators.h"/>
       <include name="modules/radio_control/radio_control.h"/>
-      <include name="modules/guidance/gvf_common.h"/>
-      <include name="navigation.h"/>
       <include name="state.h"/>
 
       <define  name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/> <!-- TODO: define it in nav.h?? -->
