@@ -201,6 +201,10 @@
 #define AGL_UAVCAN_ID 16
 #endif
 
+#ifndef AGL_SONAR_I2C_ID
+#define AGL_SONAR_I2C_ID 17
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
