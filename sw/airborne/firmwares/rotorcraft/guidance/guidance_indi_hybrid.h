@@ -113,5 +113,6 @@ extern bool coordinated_turn_use_accel;
 
 extern Butterworth2LowPass roll_filt;
 extern Butterworth2LowPass pitch_filt;
+extern Butterworth2LowPass yaw_filt;
 
 #endif /* GUIDANCE_INDI_HYBRID_H */

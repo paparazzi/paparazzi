@@ -53,7 +53,6 @@ float guidance_indi_thrust_z_eff = GUIDANCE_INDI_THRUST_Z_EFF;
 #endif
 
 Butterworth2LowPass accel_bodyz_filt;
-Butterworth2LowPass yaw_filt;
 
 /**
  *
@@ -61,10 +60,8 @@ Butterworth2LowPass yaw_filt;
  */
 void guidance_indi_quadplane_init(void) {
   float tau_bodyz = 1.0/(2.0*M_PI*GUIDANCE_INDI_BODYZ_FILTER_CUTOFF);
-  float tau = 1.0/(2.0*M_PI*GUIDANCE_INDI_FILTER_CUTOFF);
   float sample_time = 1.0 / PERIODIC_FREQUENCY;
   init_butterworth_2_low_pass(&accel_bodyz_filt, tau_bodyz, sample_time, -9.81);
-  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, 0.0);
 }
 
 /**
@@ -77,10 +74,6 @@ void guidance_indi_quadplane_propagate_filters(void) {
    // Propagate filter for thrust/lift estimate
   float accelz = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->z);
   update_butterworth_2_low_pass(&accel_bodyz_filt, accelz);
-  // Propagate filter for yaw
-  struct FloatEulers eulers_zxy;
-  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
-  update_butterworth_2_low_pass(&yaw_filt, eulers_zxy.psi);
 }
 
 /**
