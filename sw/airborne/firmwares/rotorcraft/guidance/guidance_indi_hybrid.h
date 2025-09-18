@@ -111,4 +111,7 @@ extern bool force_forward;       ///< forward flight for hybrid nav
 extern bool guidance_indi_airspeed_filtering;
 extern bool coordinated_turn_use_accel;
 
+extern Butterworth2LowPass roll_filt;
+extern Butterworth2LowPass pitch_filt;
+
 #endif /* GUIDANCE_INDI_HYBRID_H */
