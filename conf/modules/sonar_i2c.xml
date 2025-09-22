@@ -67,7 +67,7 @@
   </header>
   <init fun="sonar_i2c_init()"/>
   <periodic fun="sonar_i2c_periodic()" freq="SONAR_I2C_PERIODIC_FREQUENCY"/>
-  <periodic fun="sonar_i2c_report()" freq="50" autorun="FALSE"/>
+  <periodic fun="sonar_i2c_report()" freq="10" autorun="FALSE"/>
   <event fun="sonar_i2c_event()"/>
   <makefile>
     <configure name="SONAR_I2C_DEV" default="i2c1" case="lower|upper"/>
