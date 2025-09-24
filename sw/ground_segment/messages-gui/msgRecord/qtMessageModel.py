@@ -583,7 +583,7 @@ class SenderItem(QStandardItem):
             for msg in msgDict.values():
                 self.updateMessage(msg)
         except RuntimeError:
-            time.sleep(0.1) # Wait a bit and retry
+            time.sleep(0.001) # Wait a bit and retry
             try:
                 for msg in msgDict.values():
                     self.updateMessage(msg)
@@ -776,7 +776,7 @@ class FilteredIvyModel(QSortFilterProxyModel):
         
         self.__checkedOnly = False
         
-        ivyModel.dataChanged.connect(lambda tl,br,r : self.dataChanged.emit(self.mapFromSource(tl),self.mapFromSource(br),r))
+        # ivyModel.dataChanged.connect(lambda tl,br,r : self.dataChanged.emit(self.mapFromSource(tl),self.mapFromSource(br),r))
         ivyModel.multiPinningDone.connect(lambda : self.invalidateFilter())
     
     def senderIndex(self,senderId:int) -> QModelIndex:
