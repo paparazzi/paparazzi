@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 
 import control_effectiveness_utils as ut
 
-def process_data(conf, f_name, start, end, freq=None, act_freq=None, verbose=False, plot=False):
+def process_data(conf, f_name, start, end, freq=None, variables=None, verbose=False, use_ranges=False, plot=False):
 
     # Read data from log file
     data = genfromtxt(f_name, delimiter=',', skip_header=1)
@@ -38,8 +38,21 @@ def process_data(conf, f_name, start, end, freq=None, act_freq=None, verbose=Fal
     var = {}
     if 'variables' in conf:
         var = conf['variables']
-    if act_freq is not None:
-        var['act_freq'] = act_freq # this may overwrite default value
+    if variables is not None:
+        # overwrite default value if needed
+        for var_name, value in variables:
+            if var_name not in var:
+                print(f"Variable name '{var_name}' not in list '{var.keys()}'")
+                break
+            try:
+                var[var_name] = float(value)
+            except:
+                print(f"Variable value '{value}' not a float or int")
+
+    # extract ranges
+    ranges = None
+    if 'ranges' in conf and use_ranges:
+        ranges = conf['ranges']
 
     # Get number of inputs and outputs
     mixing = np.array(conf['mixing'])
@@ -74,84 +87,58 @@ def process_data(conf, f_name, start, end, freq=None, act_freq=None, verbose=Fal
         time = np.arange(end-start) / freq # default time vector if not in data
     var['freq'] = freq
 
-    # Search and filter inputs and outputs
-    inputs = np.zeros((end-start, nb_in))
-    commands = np.zeros((end-start, nb_out))
     output = np.zeros((nb_in, nb_out))
-    for el in conf['data']:
-        t = el['type']
-        idx = el['index']
-        col = el['column']
-        if t == 'input' and idx >= 0:
-            if idx >= nb_in:
-                print("Invalid input index for {}".format(el['name']))
-                exit(1)
-            inputs[:, idx] = ut.apply_format(el, data[start:end, col])
-            for (filt_name, params) in el['filters']:
-                inputs[:,idx] = ut.apply_filter(filt_name, params, inputs[:, idx].copy(), var)
-        if t == 'command' and idx >= 0:
-            if idx >= nb_out:
-                print("Invalid command index for {}".format(el['name']))
-                exit(1)
-            commands[:, idx] = ut.apply_format(el, data[start:end, col])
-            for (filt_name, params) in el['filters']:
-                commands[:,idx] = ut.apply_filter(filt_name, params, commands[:, idx].copy(), var)
 
-    for i in range(nb_in):
-        name = ut.get_name_by_index(conf, 'input', i)
-        cmd = np.multiply(commands, mixing[[i],:])
-        fit = ut.fit_axis(cmd, inputs[:,[i]], name, 0, N, verbose)
-        output[[i],:] = fit.T
-        cmd_fit = np.dot(cmd, fit)
-        ut.plot_results(cmd_fit, inputs[:,[i]], time, 0, N, name)
+    if ranges is None:
+        # Search and filter inputs and outputs
+        inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(conf, var, data, nb_in, nb_out, start, end)
 
-    try:
-        # display if needed
-        disp = conf['display']
-    except:
-        disp = None
-        print("No display section")
+        for i in range(nb_in):
+            name = ut.get_name_by_index(conf, 'input', i)
+            cmd = np.multiply(commands, mixing[[i],:])
+            axis_fit = ut.fit_axis(cmd, inputs[:,[i]], name, verbose)
+            output[[i],:] = axis_fit.T
+            cmd_fit = np.dot(cmd, axis_fit)
+            lin_fit, res = ut.fit_lin(cmd_fit[:,0], inputs[:,[i]][:,0], name, True)
+            ut.plot_results(cmd_fit, inputs[:,[i]], raw_inputs[:,[i]], lin_fit, time, freq, name)
 
-    if disp is not None:
-        print("\nAdd the following lines to your airframe file:\n")
-        def value_or_default(key, dic, default):
-            if key in dic:
-                return dic[key]
-            else:
-                return default
-        for d in disp:
-            name = d['name']
-            coef = value_or_default('coef', d, None)
-            matrix = value_or_default('matrix', d, None)
-            scaling = value_or_default('scaling', d, 1.)
-            if matrix is not None:
-                print(f'<define name="{name}" type="matrix">')
-                for i in range(len(matrix)):
-                    l = []
-                    for e in matrix[i]:
-                        if isinstance(e, (int, float, str)):
-                            l.append("{:.2f}".format(scaling*ut.get_param(e, var)))
-                        else:
-                            l.append("{:.2f}".format(scaling*output[e[0], e[1]]))
-                    print(f'  <field value="{l}" type="float[]"/>')
-                print('</define>')
-            elif coef is not None:
-                if isinstance(coef, (int, float, str)):
-                    print('<define name="{}" value="{}"/>'.format(name, scaling*ut.get_param(coef, var)))
-                elif len(coef) == 2 and isinstance(coef[0], int) and isinstance(coef[1], int):
-                    print('<define name="{}" value="{:.2f}"/>'.format(name, scaling*output[coef[0], coef[1]]))
-                else:
-                    l = []
-                    for e in coef:
-                        if isinstance(e, (int, float, str)):
-                            l.append("{:.2f}".format(scaling*ut.get_param(e, var)))
-                        else:
-                            l.append("{:.2f}".format(scaling*output[e[0], e[1]]))
-                    print('<define name="{}" value="{}" type="float[]"/>'.format(name, ', '.join(l)))
+    else:
+        for e in ranges:
+            r = ranges[e]
+            lin_var = np.arange(r[0], r[1]+r[2], r[2])
+            lin_res = np.zeros(lin_var.shape)
+            best = np.inf
+            best_result = None
+            tmp_output = np.zeros((nb_in, nb_out))
+            for j, v in enumerate(lin_var):
+                var[e] = v
+                inputs, raw_inputs, commands, raw_commands = ut.extract_filtered_data(
+                        conf, var, data, nb_in, nb_out, start, end)
+                res_total = 0.
+                for i in range(nb_in):
+                    name = ut.get_name_by_index(conf, 'input', i)
+                    cmd = np.multiply(commands, mixing[[i],:])
+                    axis_fit = ut.fit_axis(cmd, inputs[:,[i]], name, verbose)
+                    tmp_output[[i],:] = axis_fit.T
+                    cmd_fit = np.dot(cmd, axis_fit)
+                    lin_fit, residual = ut.fit_lin(cmd_fit[:,0], inputs[:,[i]][:,0], name, verbose)
+                    res_total += float(residual[0])
+
+                if res_total < best:
+                    best = res_total
+                    best_result = v
+                    output = tmp_output.copy()
+                lin_res[j] = res_total
+
+            # show results for this range
+            print(f'Best result for {e} with value {best_result:.2f} (res = {best:.5E})')
+            ut.plot_residuals(lin_var, lin_res, e)
+            var[e] = best_result # set best value in variables
+
+    ut.print_results(conf, var, output)
 
     if plot:
         plt.show()
-
 
 def main():
     from argparse import ArgumentParser
@@ -160,10 +147,11 @@ def main():
     parser = ArgumentParser(description="Control effectiveness estimation tool")
     parser.add_argument("config", help="JSON configuration file")
     parser.add_argument("data", help="Log file for parameter estimation")
-    parser.add_argument("-sf", "--sample_freq", dest="freq",
+    parser.add_argument("-f", "--sample_freq", dest="freq",
                       help="Sampling frequency, trying auto freq if not set")
-    parser.add_argument("-af", "--act_freq", dest="dyn",
-                      help="First order actuator frequency, 'None' for config file default")
+    parser.add_argument("-var", "--variable", dest="vars", action='append', nargs=2,
+                      metavar=('var_name','value'),
+                      help="Set variables by name, 'None' for config file default")
     parser.add_argument("-s", "--start",
                       help="Start time",
                       action="store", dest="start", default="0")
@@ -173,6 +161,8 @@ def main():
     parser.add_argument("-p", "--plot",
                       help="Show resulting plots",
                       action="store_true", dest="plot")
+    parser.add_argument("-r", "--use_ranges",
+                      action="store_true", dest="use_ranges")
     parser.add_argument("-v", "--verbose",
                       action="store_true", dest="verbose")
     args = parser.parse_args()
@@ -186,13 +176,10 @@ def main():
     freq = args.freq
     if freq is not None:
         freq = float(freq)
-    dyn = args.dyn
-    if dyn is not None:
-        dyn = float(dyn)
 
     with open(args.config, 'r') as f:
         conf = json.load(f)
-        process_data(conf, args.data, start, end, freq, dyn, args.verbose, args.plot)
+        process_data(conf, args.data, start, end, freq, args.vars, args.verbose, args.use_ranges, args.plot)
 
 
 if __name__ == "__main__":
