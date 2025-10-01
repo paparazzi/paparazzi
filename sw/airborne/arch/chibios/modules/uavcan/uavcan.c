@@ -119,27 +119,27 @@ static void uavcan_tx(void* p)
   while (true) {
     pprz_bsem_wait(&iface->bsem);
 
-    pprz_mtx_lock(&iface->mutex);
-
-
     // read the Tx FIFO to canard
     pprz_mtx_lock(&iface->tx_fifo_mutex);
     while(true) {
       struct uavcan_msg_header_t header;
-      int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header));
+      int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t));
       if(ret < 0) {break;}
-      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
+      if(((header.payload_len+7)/8) >= UAVCAN_MSG_MAX_SIZE) {
         chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
       }
       ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
       if(ret < 0) {break;}
+      pprz_mtx_lock(&iface->mutex);
       canardBroadcast(&iface->canard,
                     header.data_type_signature,
                     header.data_type_id, &iface->transfer_id,
                     header.priority, msg_payload, header.payload_len);
+      pprz_mtx_unlock(&iface->mutex);
     }
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
 
+    pprz_mtx_lock(&iface->mutex);
     for (const CanardCANFrame *txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
       struct pprzcan_frame tx_msg;
       memcpy(tx_msg.data, txf->data, 8);
@@ -273,16 +273,16 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
     .data_type_signature = data_type_signature,
     .data_type_id = data_type_id,
     .priority = priority,
-    .payload_len = payload_len
+    .payload_len = payload_len // in bits
   };
 
-  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(header)) < 0) {
+  if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t)) < 0) {
     // fail to post header
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
     return;
   }
 
-  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
+  if(circular_buffer_put(&iface->_tx_fifo, payload, (payload_len+7)/8) < 0) {
     // fail to post payload. Remove the header from the fifo
     circular_buffer_drop(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
