@@ -105,8 +105,8 @@ int circular_buffer_drop(struct circular_buffer *cb) {
 
   while(end_offset != cb->write_offset) {
     size_t record_head_offset = end_offset;
-    uint16_t* msg_len_p = (uint16_t*)&cb->_buf[record_head_offset];
-    size_t end_offset = record_head_offset + *msg_len_p + 2;
+    uint16_t msg_len_p = cb->_buf[record_head_offset] | (cb->_buf[(record_head_offset + 1) % cb->_buf_len] << 8);
+    size_t end_offset = record_head_offset + msg_len_p + 2;
     if (end_offset >= cb->_buf_len) {
       end_offset -= cb->_buf_len;
     }
