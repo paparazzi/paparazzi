@@ -66,3 +66,13 @@ int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t l
  * @brief Drop last inserted record
  */
 int circular_buffer_drop(struct circular_buffer *cb);
+
+/**
+ * @brief Get the available sapce for the next buffer
+ */
+size_t circular_buffer_available(struct circular_buffer *cb);
+
+/**
+ * @brief Clear buffer
+ */
+void circular_buffer_clear(struct circular_buffer *cb);
