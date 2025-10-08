@@ -43,6 +43,8 @@ ifneq ($(TEST_VERBOSE), 0)
 VERBOSE = --verbose
 endif
 
+FLAGS=-Wall -g -O0
+
 all: test
 
 build_tests: $(TESTS)
@@ -54,7 +56,7 @@ test_circular_buffer.run: $(PAPARAZZI_SRC)/sw/airborne/utils/circular_buffer.c
 
 %.run: %.c
 	@echo BUILD $@
-	$(Q)$(CC) -I$(PAPARAZZI_SRC)/sw/airborne/utils -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/tests/common $(USER_CFLAGS) $(PAPARAZZI_SRC)/tests/common/tap.c $^ -o $@
+	$(Q)$(CC) $(FLAGS) -I$(PAPARAZZI_SRC)/sw/airborne/utils -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/tests/common $(USER_CFLAGS) $(PAPARAZZI_SRC)/tests/common/tap.c $^ -o $@
 
 clean:
 	$(Q)rm -f $(TESTS)
