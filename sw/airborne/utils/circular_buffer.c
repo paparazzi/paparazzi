@@ -51,18 +51,9 @@ int circular_buffer_get(struct circular_buffer *cb, uint8_t *buf, size_t len)
 
 int circular_buffer_put(struct circular_buffer *cb, const uint8_t *buf, size_t len)
 {
-  int available = 0;
-  if (cb->read_offset > cb->write_offset) {
-    available = cb->read_offset - cb->write_offset - 2;
-  } else {
-    available = cb->_buf_len - (cb->write_offset - cb->read_offset) - 2;
-  }
+  size_t available = circular_buffer_available(cb);
 
-  /**
-   * len == available is invalid because it will cause
-   * write_offset to be equal to read_offset, which is considered an empty buffer.
-  */
-  if ((int)len >= available) {
+  if (len > available) {
     return CIR_ERROR_NO_SPACE_AVAILABLE;
   }
 
@@ -104,9 +95,9 @@ int circular_buffer_drop(struct circular_buffer *cb) {
   size_t end_offset = cb->read_offset;
 
   while(end_offset != cb->write_offset) {
-    size_t record_head_offset = end_offset;
+    record_head_offset = end_offset;
     uint16_t msg_len_p = cb->_buf[record_head_offset] | (cb->_buf[(record_head_offset + 1) % cb->_buf_len] << 8);
-    size_t end_offset = record_head_offset + msg_len_p + 2;
+    end_offset = record_head_offset + msg_len_p + 2;
     if (end_offset >= cb->_buf_len) {
       end_offset -= cb->_buf_len;
     }
@@ -114,4 +105,21 @@ int circular_buffer_drop(struct circular_buffer *cb) {
 
   cb->write_offset = record_head_offset;
   return 0;
+}
+
+size_t circular_buffer_available(struct circular_buffer *cb) {
+  // write_offset == read_offset is considered an empty buffer. => 3= 2 (lenght) + 1 (margin)
+  int available = 0;
+  if (cb->read_offset > cb->write_offset) {
+    available = (int)cb->read_offset - (int)cb->write_offset - 3;
+  } else {
+    available = cb->_buf_len - ((int)cb->write_offset - (int)cb->read_offset) - 3;
+  }
+
+  return available > 0 ? (size_t)available : 0;
+}
+
+void circular_buffer_clear(struct circular_buffer *cb) {
+  cb->read_offset = 0;
+  cb->write_offset = 0;
 }
