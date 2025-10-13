@@ -52,7 +52,7 @@
 /* Default actuators driver */
 #ifndef DEFAULT_ACTUATORS
 #define DEFAULT_ACTUATORS "boards/bebop/actuators.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorsBebopSet(_x,_y)
+#define ActuatorDefaultSet ActuatorsBebopSet
 #define ActuatorsDefaultInit() ActuatorsBebopInit()
 #define ActuatorsDefaultCommit() ActuatorsBebopCommit()
 #endif

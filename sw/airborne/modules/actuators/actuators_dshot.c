@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2025 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi
  *
@@ -19,14 +19,20 @@
  */
 
 /**
- * @file "modules/actuators/actuators_dshot_arch.h"
+ * @file "modules/actuators/actuators_dshot.c"
  * @author Gautier Hattenberger
- * Simulation driver for DSHOT speed controller protocol
- * Arch dependent part
  */
 
-#ifndef ACTUATORS_DSHOT_H
-#define ACTUATORS_DSHOT_H
+#include "modules/actuators/actuators_dshot.h"
 
+struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
 
-#endif /* ACTUATORS_DSHOT_ARCH_H */
+void actuators_dshot_set(uint8_t idx, int16_t value)
+{
+  if (value == 0) {
+    actuators_dshot_values[idx].cmd  = 0;
+  } else {
+    actuators_dshot_values[idx].cmd = value + ACTUATORS_DSHOT_OFFSET;
+  }
+}
+

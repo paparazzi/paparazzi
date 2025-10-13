@@ -42,7 +42,6 @@ struct dshot_private {
   uint32_t channel;
 };
 
-struct dshot actuators_dshot_values[ACTUATORS_DSHOT_NB];
 struct dshot_private actuators_dshot_private[ACTUATORS_DSHOT_NB];
 
 #if DSHOT_CONF_TIM1
