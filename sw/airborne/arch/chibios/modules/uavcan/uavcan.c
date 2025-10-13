@@ -125,7 +125,7 @@ static void uavcan_tx(void* p)
       struct uavcan_msg_header_t header;
       int ret = circular_buffer_get(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t));
       if(ret < 0) {break;}
-      if(((header.payload_len+7)/8) >= UAVCAN_MSG_MAX_SIZE) {
+      if(header.payload_len >= UAVCAN_MSG_MAX_SIZE) {
         chSysHalt("UAVCAN_MSG_MAX_SIZE too small");
       }
       ret = circular_buffer_get(&iface->_tx_fifo, msg_payload, UAVCAN_MSG_MAX_SIZE);
@@ -273,7 +273,7 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
     .data_type_signature = data_type_signature,
     .data_type_id = data_type_id,
     .priority = priority,
-    .payload_len = payload_len // in bits
+    .payload_len = payload_len
   };
 
   if(circular_buffer_put(&iface->_tx_fifo, (uint8_t*)&header, sizeof(struct uavcan_msg_header_t)) < 0) {
@@ -282,7 +282,7 @@ void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature
     return;
   }
 
-  if(circular_buffer_put(&iface->_tx_fifo, payload, (payload_len+7)/8) < 0) {
+  if(circular_buffer_put(&iface->_tx_fifo, payload, payload_len) < 0) {
     // fail to post payload. Remove the header from the fifo
     circular_buffer_drop(&iface->_tx_fifo);
     pprz_mtx_unlock(&iface->tx_fifo_mutex);
