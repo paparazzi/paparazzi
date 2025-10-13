@@ -40,7 +40,7 @@ enum faulhaber_modes_t {
 struct faulhaber_t {
   enum faulhaber_modes_t mode;    ///< Current mode of the controller
   uint8_t state;                  ///< The state of the mode
-  
+
   float p_gain;                   ///< The proportional gain of the velocity controller
   int32_t max_velocity;           ///< The maximum velocity of the controller
 
@@ -58,18 +58,13 @@ extern void actuators_faulhaber_init(void);
 extern void actuators_faulhaber_periodic(void);
 extern void actuators_faulhaber_event(void);
 extern void actuators_faulhaber_SetMode(uint8_t mode);
+extern void actuators_faulhaber_set(uint8_t idx, int16_t value);
 
 
 #define ACTUATORS_FAULHABER_COMMAND_SCALE 1000.0f
 
-#if USE_NPS
-#define ActuatorsFaulhaberInit() {}
-#define ActuatorFaulhaberSet(_i, _v) {}
-#define ActuatorsFaulhaberCommit()  {}
-#else
+#define ActuatorFaulhaberSet actuators_faulhaber_set
 #define ActuatorsFaulhaberInit() actuators_faulhaber_init()
-#define ActuatorFaulhaberSet(_i, _v) { faulhaber.setpoint_position = ((get_servo_max_FAULHABER(0)-_v) + get_servo_min_FAULHABER(0))*ACTUATORS_FAULHABER_COMMAND_SCALE; }
-#define ActuatorsFaulhaberCommit()  {}
-#endif
+#define ActuatorsFaulhaberCommit() {}
 
 #endif /* ACTUATORS_FAULHABER_H */

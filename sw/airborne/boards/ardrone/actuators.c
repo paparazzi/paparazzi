@@ -225,6 +225,13 @@ void actuators_ardrone_commit(void)
   RunOnceEvery(100, actuators_ardrone_motor_status());
 }
 
+void actuators_ardrone_set(uint8_t idx, int16_t value)
+{
+  if (idx < ACTUATORS_ARDRONE_NB) {
+    actuators_pwm_values[idx] = value;
+  }
+}
+
 /**
  * Write motor speed command
  * cmd = 001aaaaa aaaabbbb bbbbbccc ccccccdd ddddddd0
