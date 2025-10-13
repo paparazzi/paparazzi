@@ -321,7 +321,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "modules/actuators/actuators_pwm.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
+#define ActuatorDefaultSet ActuatorPwmSet
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 

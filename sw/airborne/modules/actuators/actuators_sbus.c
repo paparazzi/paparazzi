@@ -61,7 +61,7 @@ void actuators_sbus_init(void)
 /*
  * Transmit the sbus output at 1 / 7ms
  */
-void actuators_sbus_set(void)
+void actuators_sbus_commit(void)
 {
   static uint8_t cnt = 0;
 
@@ -71,6 +71,11 @@ void actuators_sbus_set(void)
     actuators_sbus_send(actuators_sbus.device);
     cnt = 0;
   }
+}
+
+void actuators_sbus_set(uint8_t idx, int16_t value)
+{
+  actuators_sbus.cmds[idx] = value;
 }
 
 /*
