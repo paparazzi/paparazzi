@@ -13,7 +13,8 @@
   <header>
     <file name="actuators_pwm.h"/>
   </header>
-  <makefile target="!sim">
+  <makefile>
+    <file name="actuators_pwm.c"/>
     <file_arch name="actuators_pwm_arch.c"/>
     <file_arch name="actuators_shared_arch.c" cond="ifeq ($(ARCH), stm32)"/>
   </makefile>
