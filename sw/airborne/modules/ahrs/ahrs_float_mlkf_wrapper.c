@@ -30,13 +30,9 @@
 #include "modules/core/abi.h"
 #include "state.h"
 
-#ifndef AHRS_MLKF_OUTPUT_ENABLED
-#define AHRS_MLKF_OUTPUT_ENABLED TRUE
-#endif
-PRINT_CONFIG_VAR(AHRS_MLKF_OUTPUT_ENABLED)
+PRINT_CONFIG_VAR(AHRS_MLKF_TYPE)
 
-/** if TRUE with push the estimation results to the state interface */
-static bool ahrs_mlkf_output_enabled;
+uint8_t ahrs_mlkf_enable;
 static uint32_t ahrs_mlkf_last_stamp;
 static uint8_t ahrs_mlkf_id = AHRS_COMP_ID_MLKF;
 
@@ -183,29 +179,24 @@ static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVe
   ahrs_mlkf.mag_h = *h;
 }
 
-static bool ahrs_mlkf_enable_output(bool enable)
-{
-  ahrs_mlkf_output_enabled = enable;
-  return ahrs_mlkf_output_enabled;
-}
-
 /**
  * Compute body orientation and rates from imu orientation and rates
  */
 static void set_body_state_from_quat(void)
 {
-  if (ahrs_mlkf_output_enabled) {
-    /* Set in state interface */
-    stateSetNedToBodyQuat_f(&ahrs_mlkf.ltp_to_body_quat);
-    stateSetBodyRates_f(&ahrs_mlkf.body_rate);
-  }
+  /* Set in state interface */
+  stateSetNedToBodyQuat_f(MODULE_AHRS_FLOAT_MLKF_ID, &ahrs_mlkf.ltp_to_body_quat);
+  stateSetBodyRates_f(MODULE_AHRS_FLOAT_MLKF_ID, &ahrs_mlkf.body_rate);
 }
 
-void ahrs_mlkf_register(void)
+void ahrs_mlkf_wrapper_init(void)
 {
-  ahrs_mlkf_output_enabled = AHRS_MLKF_OUTPUT_ENABLED;
   ahrs_mlkf_init();
-  ahrs_register_impl(ahrs_mlkf_enable_output);
+  if (AHRS_MLKF_TYPE == AHRS_PRIMARY) {
+    ahrs_float_mlkf_wrapper_enable(1);
+  } else {
+    ahrs_float_mlkf_wrapper_enable(0);
+  }
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
@@ -222,5 +213,14 @@ void ahrs_mlkf_register(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GEO_MAG, send_geo_mag);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
 #endif
+}
+
+void ahrs_float_mlkf_wrapper_enable(uint8_t enable)
+{
+  if (enable) {
+    stateSetInputFilter(STATE_INPUT_ATTITUDE, MODULE_AHRS_FLOAT_MLKF_ID);
+    stateSetInputFilter(STATE_INPUT_RATES, MODULE_AHRS_FLOAT_MLKF_ID);
+  }
+  ahrs_mlkf_enable = enable;
 }
 

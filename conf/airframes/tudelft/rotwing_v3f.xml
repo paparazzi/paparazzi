@@ -30,7 +30,6 @@
             <define name="INS_EKF2_GYRO_ID"     value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_ACCEL_ID"    value="IMU_CUBE1_ID"/>
             <define name="INS_EKF2_MAG_ID"      value="MAG_RM3100_SENDER_ID"/>
-            <define name="MULTI_GPS_MODE"       value="GPS_MODE_PRIMARY"/>
 
             <!--Only send gyro and accel that is being used-->
             <define name="IMU_GYRO_ABI_SEND_ID"     value= "IMU_CUBE1_ID"/>
@@ -131,8 +130,11 @@
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks"/>
+        <module name="preflight_checks">
+            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
+        </module>
         <module name="pfc_actuators"/>
+        <module name="airspeed_consistency"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
     </firmware>
@@ -144,7 +146,7 @@
         <servo no="2"  name="MOTOR_BACK"      min="0"     neutral="1000" max="7372"/>
         <servo no="3"  name="MOTOR_LEFT"      min="0"     neutral="1000" max="7372"/>
         <servo no="4"  name="MOTOR_PUSH"      min="0"     neutral="1000" max="7372"/>
-        <servo no="5"  name="ROTATION_MECH"   min="-1769" neutral="66"   max="1900"/>
+        <servo no="5"  name="ROTATION_MECH"   min="-2200" neutral="-338"   max="1525"/>
     </servos>
 
      <!-- CAN BUS 1 command outputs-->
@@ -159,7 +161,7 @@
         <servo no="1" name="BMOTOR_RIGHT"   min="0" neutral="1000" max="7372"/>
         <servo no="2" name="BMOTOR_BACK"    min="0" neutral="1000" max="7372"/>
         <servo no="3" name="BMOTOR_LEFT"    min="0" neutral="1000" max="7372"/>
-        <servo no="5" name="BROTATION_MECH" min="-1769" neutral="66"  max="1900"/>
+        <servo no="5" name="BROTATION_MECH" min="-2200" neutral="-338"   max="1525"/>
     </servos>
 
     <!-- CAN BUS 2 command outputs-->
@@ -232,7 +234,19 @@
         <define name="CHIRP_RADIO_CHANNEL" value="9"/>
     </section>
 
+    <section name="MISC">
+        <define name="INS_EKF2_FUSION_MODE"  value="(MASK_USE_GPS|MASK_USE_GPSYAW)"/>
+
+        <!-- AGL distance -->
+        <define name="AGL_DIST_MIN_DISTANCE_CHECK"          value="0.18"/>
+        <define name="AGL_DIST_MAX_DISTANCE_CHECK"          value="0.25"/>
+        <define name="AGL_DIST_FILTER"                      value="0.07"/>
+    </section>
+
     <section name="CALIBRATION">
+        <!-- Throttle value in AP_MODE_FAILSAFE -->
+        <define name="FAILSAFE_THROTTLE"                    value="5300"/>
+        
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
         <define name="VBoardOfAdc(adc)" value="((3.3f/65536.0f) * 1.89036 * adc)"/>
@@ -389,8 +403,8 @@
 
     <section name="BAT">
         <define name="CATASTROPHIC_BAT_LEVEL"   value="18.0" unit="V"/>
-        <define name="CRITIC_BAT_LEVEL"         value="18.6" unit="V"/>
-        <define name="LOW_BAT_LEVEL"            value="19.2" unit="V"/>
+        <define name="CRITIC_BAT_LEVEL"         value="21.3" unit="V"/>
+        <define name="LOW_BAT_LEVEL"            value="22.08" unit="V"/>
         <define name="MAX_BAT_LEVEL"            value="25.2" unit="V"/>
         <define name="TAKEOFF_BAT_LEVEL"        value="24.2" unit="V"/>
         <define name="BAT_NB_CELLS"             value="6"/>

@@ -236,6 +236,7 @@ float thrust_act = 0.f;
 Butterworth2LowPass filt_accel_ned[3];
 Butterworth2LowPass roll_filt;
 Butterworth2LowPass pitch_filt;
+Butterworth2LowPass yaw_filt;
 Butterworth2LowPass thrust_filt;
 Butterworth2LowPass accely_filt;
 Butterworth2LowPass guidance_indi_airspeed_filt;
@@ -360,6 +361,7 @@ void guidance_indi_init(void)
   }
   init_butterworth_2_low_pass(&roll_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 
@@ -404,6 +406,7 @@ void guidance_indi_enter(void)
 
   init_butterworth_2_low_pass(&roll_filt, tau, sample_time, eulers_zxy.phi);
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, eulers_zxy.theta);
+  init_butterworth_2_low_pass(&yaw_filt, tau, sample_time, eulers_zxy.psi);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, thrust_in);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
 
@@ -411,9 +414,23 @@ void guidance_indi_enter(void)
   init_butterworth_2_low_pass(&guidance_indi_airspeed_filt, tau_guidance_indi_airspeed, sample_time, 0.0);
 }
 
-void guidance_indi_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
+void guidance_set_min_max_airspeed(float min_airspeed, float max_airspeed) {
   gih_params.min_airspeed = min_airspeed;
   gih_params.max_airspeed = max_airspeed;
+}
+
+void guidance_set_max_bank_angle(float max_bank) {
+  guidance_indi_max_bank = max_bank;
+}
+
+void guidance_set_max_climb_speed(float max_climb_speed_quad, float max_climb_speed_fwd) {
+  gih_params.climb_vspeed_quad = max_climb_speed_quad;
+  gih_params.climb_vspeed_fwd = max_climb_speed_fwd;
+}
+
+void guidance_set_max_descend_speed(float max_descend_speed_quad, float max_descend_speed_fwd) {
+  gih_params.descend_vspeed_quad = max_descend_speed_quad;
+  gih_params.descend_vspeed_fwd = max_descend_speed_fwd;
 }
 
 /**

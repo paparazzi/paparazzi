@@ -70,9 +70,9 @@ struct __attribute__((__packed__)) ActuatorsT4In {
   //int16_t esc_4_temperature;
 
   /* SERVOS telemetry where angle is in Degrees times 100 */
-	int16_t servo_1_angle;
-	int16_t servo_2_angle;
-	int16_t servo_3_angle;
+  int16_t servo_1_angle;
+  int16_t servo_2_angle;
+  int16_t servo_3_angle;
   int16_t servo_4_angle;
   int16_t servo_5_angle;
   int16_t servo_6_angle;

@@ -9,3 +9,7 @@ pyqtgraph
 unidecode
 matplotlib
 distro
+empy
+pexpect
+setuptools
+

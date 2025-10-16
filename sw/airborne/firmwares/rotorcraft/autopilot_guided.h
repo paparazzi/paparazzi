@@ -92,6 +92,10 @@ extern void autopilot_guided_update(uint8_t flags, float x, float y, float z, fl
  */
 extern void autopilot_guided_parse_GUIDED(uint8_t *buf);
 
+/** Parse GUIDED_FULL_NED messages from datalink
+ */
+extern void autopilot_guided_parse_GUIDED_FULL(uint8_t *buf);
+
 /** Bitmask for setting the flags attribute in autopilot_guided_update function
  *  See function description for more details
  */

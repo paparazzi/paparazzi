@@ -22,4 +22,4 @@ the order of the functon in the list
     <channel ctl="SW3"               function="AUX9" min="1100" neutral="1500" max="1900" average="0"/> <!-- SW White Right -->
     <channel ctl="SW2"               function="AUX10" min="1100" neutral="1500" max="1900" average="0"/> <!-- SW unclad Left -->
     <channel ctl="CONTROL6"          function="AUX11" min="1100" neutral="1500" max="1900" average="0"/> <!-- DTRIM Left -->
-   </radio>
+</radio>

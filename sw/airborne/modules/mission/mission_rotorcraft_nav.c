@@ -46,11 +46,11 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   }
 
   // change geoid alt to ellipsoid alt
-  lla->alt = lla->alt - state.ned_origin_i.hmsl + state.ned_origin_i.lla.alt;
+  lla->alt = lla->alt - stateGetHmslOrigin_i() + stateGetLlaOrigin_i().alt;
 
   //Compute ENU components from LLA with respect to ltp origin
   struct EnuCoor_i tmp_enu_point_i;
-  enu_of_lla_point_i(&tmp_enu_point_i, &state.ned_origin_i, lla);
+  enu_of_lla_point_i(&tmp_enu_point_i, stateGetNedOrigin_i(), lla);
   struct EnuCoor_f tmp_enu_point_f;
   // result of enu_of_lla_point_i is in cm, convert to float in m
   VECT3_SMUL(tmp_enu_point_f, tmp_enu_point_i, 0.01);
@@ -156,6 +156,10 @@ static inline bool mission_nav_segment(struct _mission_element *el)
 }
 
 
+#ifndef MISSION_PATH_SKIP_GOTO
+#define MISSION_PATH_SKIP_GOTO FALSE
+#endif
+
 /** Navigation function along a path
 */
 static inline bool mission_nav_path(struct _mission_element *el)
@@ -166,7 +170,7 @@ static inline bool mission_nav_path(struct _mission_element *el)
 
   if (el->element.mission_path.path_idx == 0) { //first wp of path
     el->element.mission_wp.wp = el->element.mission_path.path[0];
-    if (!mission_nav_wp(el)) { el->element.mission_path.path_idx++; }
+    if (MISSION_PATH_SKIP_GOTO || !mission_nav_wp(el)) { el->element.mission_path.path_idx++; }
   }
 
   else if (el->element.mission_path.path_idx < el->element.mission_path.nb) { //standart wp of path

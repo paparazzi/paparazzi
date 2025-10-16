@@ -162,7 +162,7 @@ void wind_estimation_quadrotor_periodic(void)
     we_quad.filter.X[WE_QUAD_W_X],
     we_quad.filter.X[WE_QUAD_W_Y]
   };
-  stateSetHorizontalWindspeed_f(&wind_ne);
+  stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATION_QUADROTOR_ID, &wind_ne);
 #endif
 }
 
@@ -171,7 +171,7 @@ void wind_estimation_quadrotor_stop(void)
   we_quad.status = WE_QUAD_STATUS_IDLE;
 #if WE_QUAD_UPDATE_STATE
   struct FloatVect2 zero_wind_ne = { 0.f, 0.f };
-  stateSetHorizontalWindspeed_f(&zero_wind_ne);
+  stateSetHorizontalWindspeed_f(MODULE_WIND_ESTIMATION_QUADROTOR_ID, &zero_wind_ne);
 #endif
 }
 

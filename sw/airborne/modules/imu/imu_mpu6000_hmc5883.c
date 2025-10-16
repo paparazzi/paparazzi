@@ -47,7 +47,7 @@ PRINT_CONFIG_VAR(IMU_HMC_I2C_DEV)
 #define IMU_MPU_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define IMU_MPU_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif PERIODIC_FREQUENCY == 512
+#elif (PERIODIC_FREQUENCY == 500) || (PERIODIC_FREQUENCY == 512)
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
@@ -131,8 +131,8 @@ void imu_mpu_hmc_init(void)
   imu_mpu_hmc.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
 
   // Set the default scaling
-  imu_set_defaults_gyro(IMU_MPU6000_HMC_ID, NULL, NULL, MPU60X0_GYRO_SENS_FRAC[IMU_MPU_GYRO_RANGE]);
-  imu_set_defaults_accel(IMU_MPU6000_HMC_ID, NULL, NULL, MPU60X0_ACCEL_SENS_FRAC[IMU_MPU_ACCEL_RANGE]);
+  imu_set_defaults_gyro(IMU_MPU6000_HMC_ID, NULL, NULL, &MPU60X0_GYRO_SENS_F[IMU_MPU_GYRO_RANGE]);
+  imu_set_defaults_accel(IMU_MPU6000_HMC_ID, NULL, NULL, &MPU60X0_ACCEL_SENS_F[IMU_MPU_ACCEL_RANGE]);
 
   /* initialize mag and set default options */
   hmc58xx_init(&imu_mpu_hmc.hmc, &IMU_HMC_I2C_DEV, HMC58XX_ADDR);

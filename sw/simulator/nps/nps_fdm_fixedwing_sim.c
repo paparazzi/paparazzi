@@ -238,6 +238,7 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb __attribute
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_vel, &ltpdef, &fdm.ecef_ecef_vel);
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
   fdm.hmsl = -fdm.ltpprz_pos.z + NAV_ALT0 / 1000.;
+  fdm.agl = -fdm.ltpprz_pos.z; // flat Earth
 
   /* Eulers */
   fdm.ltp_to_body_eulers = sim_state.attitude;

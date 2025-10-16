@@ -41,11 +41,11 @@
             </module>
 
             <!-- MAVLink Genius communication -->
-            <module name="mavlink">
+            <!--module name="mavlink">
                 <configure name="MAVLINK_BAUD" value="B57600"/>
                 <configure name="MAVLINK_PORT" value="UART3"/>
                 <define name="MAV_AUTOPILOT_ID" value="MAV_AUTOPILOT_ARDUPILOTMEGA"/>
-            </module>
+            </module-->
 
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
@@ -158,19 +158,14 @@
         <module name="sys_id_auto_doublets"/>
         <module name="ground_detect"/>
         <module name="rotwing_state"/>
-        <module name="preflight_checks">
-            <define name="SDLOG_PREFLIGHT_ERROR" value="TRUE"/>
-        </module>
+        <module name="preflight_checks"/>
         <module name="agl_dist"/>
         <module name="approach_moving_target"/>
-
 
         <!-- Forward FuelCell data back to the GCS -->
         <module name="can_fuelcell"/>
 
     </firmware>
-
-
 
     <!-- Can bus 1 actuators -->
     <servos driver="Uavcan1">

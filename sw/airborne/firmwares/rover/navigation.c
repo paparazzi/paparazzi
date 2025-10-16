@@ -126,63 +126,61 @@ void nav_parse_MOVE_WP(uint8_t *buf)
     /* WP_alt from message is alt above MSL in mm
      * lla.alt is above ellipsoid in mm
      */
-    lla.alt = DL_MOVE_WP_alt(buf) - state.ned_origin_i.hmsl +
-      state.ned_origin_i.lla.alt;
+    lla.alt = DL_MOVE_WP_alt(buf) - stateGetHmslOrigin_i() +
+      stateGetLlaOrigin_i().alt;
     waypoint_move_lla(wp_id, &lla);
   }
 }
 
 bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time)
 {
-  (void) wp;
-  (void) stay_time;
-  return true;
-//  uint16_t time_at_wp;
-//  float dist_to_point;
-//  static uint16_t wp_entry_time = 0;
-//  static bool wp_reached = false;
-//  static struct EnuCoor_i wp_last = { 0, 0, 0 };
-//  struct Int32Vect2 diff;
-//
-//  if ((wp_last.x != wp->x) || (wp_last.y != wp->y)) {
-//    wp_reached = false;
-//    wp_last = *wp;
-//  }
-//
-//  VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
-//  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
-//  dist_to_point = float_vect2_norm(&diff_f);
-//  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
-//    if (!wp_reached) {
-//      wp_reached = true;
-//      wp_entry_time = autopilot.flight_time;
-//      time_at_wp = 0;
-//    } else {
-//      time_at_wp = autopilot.flight_time - wp_entry_time;
-//    }
-//  } else {
-//    time_at_wp = 0;
-//    wp_reached = false;
-//  }
-//  if (time_at_wp > stay_time) {
-//    INT_VECT3_ZERO(wp_last);
-//    return true;
-//  }
-//  return false;
+  uint16_t time_at_wp;
+  float dist_to_point;
+  static uint16_t wp_entry_time = 0;
+  static bool wp_reached = false;
+  static struct EnuCoor_i wp_last = { 0, 0, 0 };
+  struct EnuCoor_i wp_i;
+  struct FloatVect2 diff;
+
+  ENU_BFP_OF_REAL(wp_i, *wp);
+  if ((wp_last.x != wp_i.x) || (wp_last.y != wp_i.y)) {
+    wp_reached = false;
+    wp_last = wp_i;
+  }
+
+  VECT2_DIFF(diff, *wp, *stateGetPositionEnu_f());
+  dist_to_point = float_vect2_norm(&diff);
+  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
+    if (!wp_reached) {
+      wp_reached = true;
+      wp_entry_time = autopilot.flight_time;
+      time_at_wp = 0;
+    } else {
+      time_at_wp = autopilot.flight_time - wp_entry_time;
+    }
+  } else {
+    time_at_wp = 0;
+    wp_reached = false;
+  }
+  if (time_at_wp > stay_time) {
+    INT_VECT3_ZERO(wp_last);
+    return true;
+  }
+  return false;
 }
 
 
 /** Reset the geographic reference to the current GPS fix */
 void nav_reset_reference(void)
 {
-  ins_reset_local_origin();
+  AbiSendMsgINS_RESET(0, INS_RESET_REF);
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
 }
 
 void nav_reset_alt(void)
 {
-  ins_reset_altitude_ref();
+  AbiSendMsgINS_RESET(0, INS_RESET_VERTICAL_REF);
   waypoints_localize_all();
 }
 
@@ -190,14 +188,14 @@ void nav_init_stage(void)
 {
   VECT3_COPY(nav.last_pos, *stateGetPositionEnu_f());
   stage_time = 0;
-  //nav_circle_radians = 0; FIXME
+  if (nav.nav_stage_init) {
+    nav.nav_stage_init();
+  }
 }
 
 void nav_periodic_task(void)
 {
   RunOnceEvery(NAVIGATION_FREQUENCY, { stage_time++;  block_time++; });
-
-  //nav.dist2_to_wp = 0; FIXME
 
   /* from flight_plan.h */
   auto_nav();
@@ -216,8 +214,6 @@ void nav_home(void)
 {
   nav.mode = NAV_MODE_WAYPOINT;
   VECT3_COPY(nav.target, waypoints[WP_HOME].enu_f);
-
-  //nav.dist2_to_wp = nav.dist2_to_home; FIXME
 
   /* run carrot loop */
   nav_run();
@@ -306,6 +302,11 @@ void nav_set_failsafe(void)
 
 /** Register functions
  */
+
+void nav_register_stage_init(nav_rover_stage_init nav_stage_init)
+{
+  nav.nav_stage_init = nav_stage_init;
+}
 
 void nav_register_goto_wp(nav_rover_goto nav_goto, nav_rover_route nav_route, nav_rover_approaching nav_approaching)
 {

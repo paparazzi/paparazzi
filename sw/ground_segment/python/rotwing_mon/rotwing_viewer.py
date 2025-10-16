@@ -24,7 +24,8 @@ import os
 import math
 import datetime
 import numpy as np
-
+import pyttsx3
+engine = pyttsx3.init()
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
@@ -38,6 +39,18 @@ from pprzlink.ivy import IvyMessagesInterface
 
 WIDTH = 600
 BARH = 140
+
+class Speech(object):
+
+    def __init__(self):
+        self.last_speech_time = datetime.datetime.now()
+
+    def speak_every_interval(self, text, interval):
+        if (datetime.datetime.now() - self.last_speech_time).total_seconds() > interval:
+            self.last_speech_time = datetime.datetime.now()
+            engine.say(text)
+            engine.runAndWait()
+
 
 class EscMessage(object):
     def __init__(self, msg):
@@ -172,6 +185,14 @@ class AIRDATAMessage(object):
     def __init__(self, msg):
         self.airspeed = float(msg['airspeed'])
         self.tas = float(msg['tas'])
+
+class INFOMSGMessage(object):
+    def __init__(self, msg):
+        str_of_char_arr = ''.join(msg['msg'])
+        str_of_char_arr = str_of_char_arr.replace('\"', '')
+        str_of_char_arr = str_of_char_arr.split(" ")
+        if str_of_char_arr[0] == 'ASC:':
+            self.ratio = float(str_of_char_arr[-1])
 
 class IMUHEATERMessage(object):
     def __init__(self, msg):
@@ -362,6 +383,10 @@ class RotWingFrame(wx.Frame):
             self.air_data = AIRDATAMessage(msg)
             wx.CallAfter(self.update)
 
+        if msg.name == "INFO_MSG":
+            self.infomsg = INFOMSGMessage(msg)
+            wx.CallAfter(self.update)
+
         if msg.name == "IMU_HEATER":
             self.imu_heater = IMUHEATERMessage(msg)
             wx.CallAfter(self.update)
@@ -503,35 +528,52 @@ class RotWingFrame(wx.Frame):
             dc.DrawText("Nav airspeed: " + str(round(self.rw_status.nav_airspeed,1 )) + " [min: " + str(round(self.rw_status.min_airspeed,1 )) + ", max:" + str(round(self.rw_status.max_airspeed,1 )) + "]", 10, int(4.5*line))
             if hasattr(self, 'air_data'):
                 dc.DrawText("Meas airspeed: " + str(round(self.air_data.airspeed,1 )) + " (TAS: " + str(round(self.air_data.tas,1 )) + ")", 10, int(5.5*line))
+            
+            if hasattr(self, 'infomsg') and hasattr(self.infomsg, 'ratio'):
+            # MS45XX inflight calibration monitoring
+                if abs(1-self.infomsg.ratio) < 0.08:
+                    dc.SetTextForeground(wx.Colour(0, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
+                elif abs(1-self.infomsg.ratio) < 0.15:
+                    dc.SetTextForeground(wx.Colour(139, 64, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 8%, Please Calibrate", 30)
+                else:
+                    dc.SetTextForeground(wx.Colour(255, 0, 0))
+                    dc.DrawText("Airspeed ratio: " + str(round(self.infomsg.ratio, 2)), 10, int(6.5*line))
+                    if self.speech:
+                        self.airspeed_speaker.speak_every_interval("Airspeed is off by more than 15%, Please Calibrate", 5)
+            
             #self.StatusBox(dc, 5, 5, 0, 0, self.rw_status.get_state(), 1, 1)
             dc.SetTextForeground(wx.Colour(0, 0, 0))
-            dc.DrawText("Force Skew: ", 10, int(6.5*line))
+            dc.DrawText("Force Skew: ", 10, int(7.5*line))
             lbw = dc.GetTextExtent("Force Skew: ").width
             if self.rw_status.skew_forced:
                 dc.SetTextForeground(wx.Colour(255, 0, 0))
-                dc.DrawText("(Enabled)", 10 + lbw, int(6.5*line))
+                dc.DrawText("(Enabled)", 10 + lbw, int(7.5*line))
             else:
                 dc.SetTextForeground(wx.Colour(0, 0, 0))
-                dc.DrawText("(Disabled)", 10 + lbw, int(6.5*line))
+                dc.DrawText("(Disabled)", 10 + lbw, int(7.5*line))
             
             if hasattr(self, 'imu_heater'):
                 imu_temp = float(self.imu_heater.meas_temp)
                 if imu_temp < 65.0:
                     dc.SetTextForeground(wx.Colour(0, 0, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
                 elif imu_temp < 85.0:
                     dc.SetTextForeground(wx.Colour(139, 64, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
                 else:
                     dc.SetTextForeground(wx.Colour(255, 0, 0))
-                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(7.5*line))
+                    dc.DrawText("Meas IMU temp: " + str(round(imu_temp, 0)), 10, int(8.5*line))
 
             if self.powers.get_backbat() != None:
-                dc.DrawText("Back Bat: " + str(round(self.powers.get_backbat().current*self.powers.get_backbat().voltage, 1)) + "W (" + str(round(self.powers.get_backbat().voltage, 1)) + "V, " + str(round(self.powers.get_backbat().current, 1)) + "A)", 10, int(8.5*line))
+                dc.DrawText("Back Bat: " + str(round(self.powers.get_backbat().current*self.powers.get_backbat().voltage, 1)) + "W (" + str(round(self.powers.get_backbat().voltage, 1)) + "V, " + str(round(self.powers.get_backbat().current, 1)) + "A)", 10, int(9.5*line))
             if self.powers.get_frontbat() != None:
-                dc.DrawText("Front Bat: " + str(round(self.powers.get_frontbat().current*self.powers.get_frontbat().voltage, 1)) + "W (" + str(round(self.powers.get_frontbat().voltage, 1)) + "V, " + str(round(self.powers.get_frontbat().current, 1)) + "A)", 10, int(9.5*line))
+                dc.DrawText("Front Bat: " + str(round(self.powers.get_frontbat().current*self.powers.get_frontbat().voltage, 1)) + "W (" + str(round(self.powers.get_frontbat().voltage, 1)) + "V, " + str(round(self.powers.get_frontbat().current, 1)) + "A)", 10, int(10.5*line))
             if self.powers.get_backmot() != None:
-                dc.DrawText("Back Mot: " + str(round(self.powers.get_backmot().current*self.powers.get_backmot().voltage, 1)) + "W (" + str(round(self.powers.get_backmot().voltage, 1)) + "V, " + str(round(self.powers.get_backmot().current, 1)) + "A)", 10, int(10.5*line))
+                dc.DrawText("Back Mot: " + str(round(self.powers.get_backmot().current*self.powers.get_backmot().voltage, 1)) + "W (" + str(round(self.powers.get_backmot().voltage, 1)) + "V, " + str(round(self.powers.get_backmot().current, 1)) + "A)", 10, int(11.5*line))
 
         if hasattr(self, 'fuelcell'):
             dc.SetBrush(wx.Brush(wx.Colour(200,200,200)))
@@ -610,7 +652,7 @@ class RotWingFrame(wx.Frame):
             except:
                 pass
 
-    def __init__(self):
+    def __init__(self, args):
 
         self.w = WIDTH
         self.h = WIDTH + BARH
@@ -642,7 +684,12 @@ class RotWingFrame(wx.Frame):
         self.interface = IvyMessagesInterface("rotwingframe")
         self.interface.subscribe(self.message_recv)
 
+        if args.speech == True:
+            self.speech = True
+            self.airspeed_speaker = Speech()
+        else:
+            self.speech = False
+
     def OnClose(self, event):
         self.interface.shutdown()
         self.Destroy()
-

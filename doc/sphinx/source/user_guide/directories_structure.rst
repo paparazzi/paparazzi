@@ -41,7 +41,6 @@ Here is an extract of the Paparazzi tree:
     │       └── source
     ├── Makefile
     ├── paparazzi
-    ├── start.py
     ├── sw
     │   ├── ext
     │   ├── airborne
@@ -136,7 +135,7 @@ Compiled and generated files are located in the ``var`` directory.
 Launcher
 --------
 
-You can launch Paparazzi  with the eponym executable file ``paparazzi``, or via the configuration utility ``start.py``. In the later case, you can choose what conf file and what control panel file you want to use.
+You can launch Paparazzi with the eponym executable file ``paparazzi``.
 
 
 

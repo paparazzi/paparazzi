@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gimbal_caddx_gm3" dir="cam_control" task="control">
+  <doc>
+    <description>
+      Caddx gm3 gimbal control.
+
+      Can be used with actuators SBUS (1 wire) or PWM (multiple wires).
+      Define a servo named GIMBAL_CADDX_ROLL in airframe to activate roll control.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="gimbal gm3">
+        <dl_setting MAX="60." MIN="-60." STEP="1." module="cam_control/gimbal_caddx_gm3" VAR="gimbal_caddx_gm3_roll" shortname="roll" unit="rad" alt_unit="deg"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <dep>
+    <depends>cam_gimbal</depends>
+  </dep>
+  <header>
+    <file name="gimbal_caddx_gm3.h"/>
+  </header>
+  <init fun="gimbal_caddx_gm3_init()"/>
+  <periodic fun="gimbal_caddx_gm3_periodic()" freq="10.0"/> 
+  <makefile>
+    <file name="gimbal_caddx_gm3.c"/>
+    <test/>
+  </makefile>
+</module>

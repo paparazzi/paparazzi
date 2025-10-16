@@ -1,0 +1,151 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Steering Rover Autopilot">
+
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <modules>
+      <module name="nav" type="rover_base"/>
+      <module name="guidance" type="rover_steering"/>
+      <module name="gvf_common"/>
+    </modules>
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="modules/gps/gps.h"/>
+      <include name="modules/actuators/actuators.h"/>
+      <include name="modules/radio_control/radio_control.h"/>
+      <include name="state.h"/>
+
+      <define  name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/> <!-- TODO: define it in nav.h?? -->
+      <define  name="RCCruiseMode0()" value="rc_mode_switch(RADIO_CRUISE_MODE, 0, 2)" cond="ifdef RADIO_CRUISE_MODE"/>
+      <define  name="RCCruiseMode1()" value="rc_mode_switch(RADIO_CRUISE_MODE, 1, 2)" cond="ifdef RADIO_CRUISE_MODE"/>
+      <define  name="RCCruiseMode0()" value="TRUE" cond="ifndef RADIO_CRUISE_MODE"/>
+      <define  name="RCCruiseMode1()" value="FALSE" cond="ifndef RADIO_CRUISE_MODE"/>
+    </includes>
+
+    <settings>
+      <dl_setting var="autopilot.kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
+    </settings>
+
+    <exceptions>
+      <exception cond="nav.too_far_from_home" deroute="HOME"/>
+      <exception cond="kill_switch_is_on()"   deroute="KILL"/> <!-- Radio KILL_SWITCH -->
+      <exception cond="RCLost() || (GpsIsLost() && autopilot_in_flight())" deroute="KILL"/>
+    </exceptions>
+
+    <!-- * AP MODES * ...................................................... -->
+    <!-- RC Manual -->
+    <mode name="DIRECT" shortname="MANUAL">
+      <select cond="RCMode0() && RCCruiseMode0()"/>
+      <on_enter>
+        <call fun="rover_guidance_steering_pid_reset()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY"> <!-- Only for display -->
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+
+        <call fun="SetAPThrottleFromCommands(commands[COMMAND_THROTTLE])"/>
+      </control>
+    </mode>
+
+    <!-- Cruiser: Speed ctrl (from state speed on enter)
+                + heading from RC --> <!-- TODO: delete this mode?? -->
+    <mode name="CRUISER">
+      <select cond="(RCMode1() || RCMode0()) && RCCruiseMode1()"/>
+      <on_enter>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+
+        <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+    
+    <!-- Assisted: RC manul throttle
+                 + heading ctrl (from GCS & flight plans) -->
+    <mode name="ASSISTED">
+      <select cond="(RCMode1() || RCMode2()) && RCCruiseMode0()"/>
+      <on_enter>
+        <call fun="rover_guidance_steering_pid_reset()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_ctrl.omega)"/>
+
+        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+
+        <call fun="SetAPThrottleFromCommands(commands[COMMAND_THROTTLE])"/>
+      </control>
+    </mode>
+
+    <!-- Navigation: Speed crtl (from state speed on enter) 
+                   + heading ctrl (from GCS & flight plans) -->
+    <mode name="NAV">
+      <select cond="$DEFAULT_MODE"/>
+      <select cond="RCMode2() && RCCruiseMode1()"/>
+      <on_enter>
+        <call fun="guidance_control.cmd.speed = stateGetHorizontalSpeedNorm_f()"/>
+      </on_enter>
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_steering_speed_ctrl()"/>
+        <call fun="rover_guidance_steering_heading_ctrl(gvf_c_ctrl.omega)"/>
+
+        <call fun="commands[COMMAND_STEERING] = GetCmdFromDelta(guidance_control.cmd.delta);"/>
+        <call fun="commands[COMMAND_THROTTLE] = GetCmdFromThrottle(guidance_control.throttle);"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+    
+    <!-- HOME (not yet implemented) -->
+    <mode name="HOME">
+      <control freq="NAVIGATION_FREQUENCY">
+        <call fun="nav_home()"/>
+      </control>
+      <control>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+        
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+
+    <!-- Kill throttle -->
+    <mode name="KILL">
+      <on_enter>
+        <call fun="autopilot_set_in_flight(false)"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+      </on_enter>
+      <control>
+        <call fun="rover_guidance_steering_kill()"/>
+
+        <call fun="SetCommands(commands_failsafe)"/>
+        <call fun="SetAPThrottleFromCommands()"/>
+      </control>
+    </mode>
+  <!-- ..................................................................... -->
+
+  </state_machine>
+
+</autopilot>

@@ -15,6 +15,7 @@
     <file name="softi2c.c" dir="mcu_periph"/>
     <file_arch name="i2c_arch.c" dir="mcu_periph"/>
     <test>
+        <define name="USE_I2C2" value="TRUE"/>
     </test>
   </makefile>
 </module>

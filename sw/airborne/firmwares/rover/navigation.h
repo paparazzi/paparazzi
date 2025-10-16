@@ -40,7 +40,7 @@
 #endif
 
 #ifndef CARROT_DIST
-#define CARROT_DIST 2.f
+#define CARROT_DIST 5.f
 #endif
 
 /** default navigation frequency */
@@ -75,6 +75,7 @@
 #define NAV_MODE_HEADING  3
 #define NAV_MODE_MANUAL   4
 
+typedef void (*nav_rover_stage_init)(void);
 typedef void (*nav_rover_goto)(struct EnuCoor_f *wp);
 typedef void (*nav_rover_route)(struct EnuCoor_f *wp_start, struct EnuCoor_f *wp_end);
 typedef bool (*nav_rover_approaching)(struct EnuCoor_f *wp_to, struct EnuCoor_f *wp_from, float approaching_time);
@@ -106,6 +107,7 @@ struct RoverNavigation {
   struct EnuCoor_f last_pos;  ///< last stage position
 
   // pointers to basic nav functions
+  nav_rover_stage_init nav_stage_init;
   nav_rover_goto nav_goto;
   nav_rover_route nav_route;
   nav_rover_approaching nav_approaching;
@@ -118,6 +120,7 @@ extern struct RoverNavigation nav;
 
 /** Registering functions
  */
+extern void nav_register_stage_init(nav_rover_stage_init nav_stage_init);
 extern void nav_register_goto_wp(nav_rover_goto nav_goto,
     nav_rover_route nav_route,
     nav_rover_approaching nav_approaching);
@@ -135,7 +138,7 @@ extern void nav_register_oval(nav_rover_oval_init nav_oval_init, nav_rover_oval 
 /// Get current y (north) position in local coordinates
 #define GetPosY() (stateGetPositionEnu_f()->y)
 /// Get current altitude above MSL
-#define GetPosAlt() (stateGetPositionEnu_f()->z+state.ned_origin_f.hmsl)
+#define GetPosAlt() (stateGetPositionEnu_f()->z+stateGetHmslOrigin_f())
 /// Get current height above reference
 #define GetPosHeight() (stateGetPositionEnu_f()->z)
 /**
@@ -144,7 +147,7 @@ extern void nav_register_oval(nav_rover_oval_init nav_oval_init, nav_rover_oval 
  * but might be updated later through a call to NavSetGroundReferenceHere() or
  * NavSetAltitudeReferenceHere(), e.g. in the GeoInit flight plan block.
  */
-#define GetAltRef() (state.ned_origin_f.hmsl)
+#define GetAltRef() (stateGetHmslOrigin_f())
 
 
 /** Normalize a degree angle between 0 and 359 */
@@ -243,8 +246,9 @@ bool nav_check_wp_time(struct EnuCoor_f *wp, float stay_time);
 static inline void NavGotoWaypoint(uint8_t wp)
 {
   nav.mode = NAV_MODE_WAYPOINT;
-  VECT3_COPY(nav.target, waypoints[wp].enu_f);
-  //nav.dist2_to_wp = get_dist2_to_waypoint(wp); FIXME
+  if (nav.nav_goto) {
+    nav.nav_goto(&waypoints[wp].enu_f);
+  }
 }
 
 /*********** Navigation along a line *************************************/

@@ -63,18 +63,34 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #endif
 #endif
 
+/* Maximum number of relative positions */
+#ifndef GPS_RELPOS_MAX
+#define GPS_RELPOS_MAX 3
+#endif
+
 #define MSEC_PER_WEEK (1000*60*60*24*7)
 #define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps;
 struct GpsTimeSync gps_time_sync;
-struct GpsRelposNED gps_relposned;
+static struct RelPosNED gps_relposned[GPS_RELPOS_MAX] = {0};
 
 #ifdef SECONDARY_GPS
 static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 #endif
 
 uint8_t multi_gps_mode;
+int gps_disable_fix = 0;              ///< Disable fix
+
+void gps_periodic_fix_counter(void) {
+#if GPS_LOSS_TEST_TIMER
+  if (gps_disable_fix > 0) {
+    gps_disable_fix--;
+  }
+#else
+  gps_disable_fix = 0; // reset disable fix counter
+#endif
+}
 
 #if PREFLIGHT_CHECKS
 /* Preflight checks */
@@ -136,7 +152,7 @@ static inline void send_svinfo_available(struct transport_tx *trans, struct link
 
 static void send_gps(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t zero = 0;
+  uint8_t zero = (gps_disable_fix <= 0)? 0 : gps_disable_fix;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
   struct UtmCoor_i utm = utm_int_from_gps(&gps, 0);
@@ -160,18 +176,26 @@ static void send_gps(struct transport_tx *trans, struct link_device *dev)
   send_svinfo_available(trans, dev);
 }
 
-static void send_gps_rtk(struct transport_tx *trans, struct link_device *dev)
+static void send_gps_relpos(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_GPS_RTK(trans, dev, AC_ID,
-                        &gps_relposned.iTOW,
-                        &gps_relposned.refStationId,
-                        &gps_relposned.relPosN, &gps_relposned.relPosE, &gps_relposned.relPosD,
-                        &gps_relposned.relPosHPN, &gps_relposned.relPosHPE, &gps_relposned.relPosHPD,
-                        &gps_relposned.accN, &gps_relposned.accE, &gps_relposned.accD,
-                        &gps_relposned.carrSoln,
-                        &gps_relposned.relPosValid,
-                        &gps_relposned.diffSoln,
-                        &gps_relposned.gnssFixOK);
+  static uint8_t idx = 0;
+  if(gps_relposned[idx].tow == 0)
+    return;
+  
+  pprz_msg_send_GPS_RELPOS(trans, dev, AC_ID,
+                        &gps_relposned[idx].reference_id,
+                        &gps_relposned[idx].tow,
+                        &gps_relposned[idx].pos.x, &gps_relposned[idx].pos.y, &gps_relposned[idx].pos.z,
+                        &gps_relposned[idx].distance,
+                        &gps_relposned[idx].heading,
+                        &gps_relposned[idx].pos_acc.x, &gps_relposned[idx].pos_acc.y, &gps_relposned[idx].pos_acc.z,
+                        &gps_relposned[idx].distance_acc,
+                        &gps_relposned[idx].heading_acc);
+  
+  // Send the next index that is set
+  idx++;
+  if(idx >= GPS_RELPOS_MAX || gps_relposned[idx].tow == 0)
+    idx = 0;
 }
 
 static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
@@ -300,20 +324,50 @@ static void gps_cb(uint8_t sender_id,
   if (sender_id == GPS_MULTI_ID) {
     return;
   }
+
+  uint8_t old_fix = gps_s->fix;
   uint32_t now_ts = get_sys_time_usec();
 #ifdef SECONDARY_GPS
   current_gps_id = gps_multi_switch(gps_s);
   if (gps_s->comp_id == current_gps_id) {
     gps = *gps_s;
+#if GPS_LOSS_TEST_TIMER
+    if(gps_disable_fix > 0) {
+      gps_s->fix = GPS_FIX_NONE;
+    }
+#endif
     AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+    gps_s->fix = old_fix;
   }
 #else
   gps = *gps_s;
+#if GPS_LOSS_TEST_TIMER
+  if(gps_disable_fix > 0) {
+    gps_s->fix = GPS_FIX_NONE;
+  }
+#endif
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
+  gps_s->fix = old_fix;
 #endif
   if (gps.tow != gps_time_sync.t0_tow) {
     gps_time_sync.t0_ticks = sys_time.nb_tick;
     gps_time_sync.t0_tow = gps.tow;
+  }
+}
+
+static abi_event gps_relpos_ev;
+static void gps_relpos_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct RelPosNED *relpos)
+{
+  for(uint8_t i = 0; i < GPS_RELPOS_MAX; i++) {
+    // Find our index or a free index
+    if(gps_relposned[i].tow == 0 || gps_relposned[i].reference_id == relpos->reference_id)
+    {
+      // Copy and save result
+      gps_relposned[i] = *relpos;
+      break;
+    }
   }
 }
 
@@ -334,8 +388,7 @@ void gps_init(void)
   gps.last_3dfix_time = 0;
   gps.last_msg_ticks = 0;
   gps.last_msg_time = 0;
-
-  gps_relposned.relPosHeading = NAN;
+  gps_disable_fix = 0;
 
 #ifdef GPS_POWER_GPIO
   gpio_setup_output(GPS_POWER_GPIO);
@@ -346,6 +399,7 @@ void gps_init(void)
 #endif
 
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
+  AbiBindMsgRELPOS(ABI_BROADCAST, &gps_relpos_ev, gps_relpos_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS, send_gps);
@@ -353,7 +407,7 @@ void gps_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_LLA, send_gps_lla);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_SOL, send_gps_sol);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SVINFO, send_svinfo);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RTK, send_gps_rtk);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GPS_RELPOS, send_gps_relpos);
 #endif
 
   /* Register preflight checks */

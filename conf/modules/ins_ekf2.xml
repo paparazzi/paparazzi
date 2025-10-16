@@ -40,7 +40,8 @@
     <define name="INS_EKF2_GYRO_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for gyro measurements"/>
     <define name="INS_EKF2_ACCEL_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for acceleration measurements"/>
     <define name="INS_EKF2_MAG_ID" value="ABI_BROADCAST" description="ABI sensor ID used as input for magnetic measurements"/>
-    <define name="INS_EKF2_GPS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for GPS measurements"/>
+    <define name="INS_EKF2_GPS_ID" value="GPS_MULTI_ID" description="ABI sensor ID used ad input for GPS measurements"/>
+    <define name="INS_EKF2_RELPOS_ID" value="ABI_BROADCAST" description="ABI sensor ID used ad input for Relative Position heading measurements"/>
   </doc>
   <settings>
 	<dl_settings NAME="INS">
@@ -70,7 +71,6 @@
     <flag name="CXXFLAGS" value="Wno-unused-variable"/>
 
     <!-- EKF2 files -->
-    <define name="INS_TYPE_H" value="modules/ins/ins_ekf2.h" type="string"/>
     <file name="ins.c"/>
     <file name="ins_ekf2.cpp"/>
 

@@ -80,15 +80,12 @@
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <define name="USE_AHRS_ALIGNER"/>
-    <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
     <test firmware="fixedwing">
       <define name="FIXEDWING_FIRMWARE"/>
-      <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
       <include name="../ext/eigen"/>
     </test>
     <test firmware="rotorcraft">
       <define name="ROTORCRAFT_FIRMWARE"/>
-      <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
       <include name="../ext/eigen"/>
     </test>
   </makefile>
@@ -98,7 +95,6 @@
     <flag name="CXXFLAGS" value="Wno-logical-not-parentheses"/>
   </makefile>
   <makefile target="sim" firmware="fixedwing">
-    <define name="AHRS_TYPE_H" value="modules/ahrs/ahrs_sim.h" type="string"/>
     <define name="USE_AHRS"/>
     <file name="ahrs.c" dir="modules/ahrs"/>
     <file name="ahrs_sim.c" dir="modules/ahrs"/>

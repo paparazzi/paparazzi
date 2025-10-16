@@ -46,7 +46,7 @@ CHIBIOS_BOARD_STARTUP = startup_stm32f7xx.mk
 FLASH_MODE ?= PX4_BOOTLOADER
 PX4_TARGET = "ap"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu_5.0.prototype"
-PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics_PX4_BL_FMU_v5.x_0-if00"
+PX4_BL_PORT ?= "/dev/serial/by-id/*-BL_*,/dev/serial/by-id/*_BL_*"
 
 
 #

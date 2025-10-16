@@ -80,7 +80,7 @@ void autopilot_generated_SetModeHandler(float mode)
 
 void autopilot_generated_set_mode(uint8_t new_autopilot_mode)
 {
-  autopilot_core_ap_set_mode(new_autopilot_mode);
+  autopilot_core_ap_set_mode(new_autopilot_mode, FALSE);
   // copy generated mode to public mode
   autopilot.mode = autopilot_mode_ap;
 }

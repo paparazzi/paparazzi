@@ -28,6 +28,16 @@
 
 #include "std.h"
 
+/* Magnitude skew angle jump away from quad */
+#ifndef ROTWING_SKEW_ANGLE_STEP
+#define ROTWING_SKEW_ANGLE_STEP 55.0
+#endif
+
+/* Preferred pitch angle for the quad mode (deg) */
+#ifndef ROTWING_QUAD_PREF_PITCH
+#define ROTWING_QUAD_PREF_PITCH -5.0
+#endif
+
 enum rotwing_states_t {
   ROTWING_STATE_FORCE_HOVER,
   ROTWING_STATE_REQUEST_HOVER,
@@ -84,10 +94,10 @@ void rotwing_state_periodic(void);
 bool rotwing_state_hover_motors_running(void);
 bool rotwing_state_pusher_motor_running(void);
 bool rotwing_state_skew_angle_valid(void);
+bool rotwing_state_hover_motors_idling(void);
 
 void rotwing_state_set(enum rotwing_states_t state);
 bool rotwing_state_choose_circle_direction(uint8_t wp_id);
-void rotwing_state_set_transition_wp(uint8_t wp_id);
-void rotwing_state_update_WP_height(uint8_t wp_id, float height);
+bool rotwing_state_choose_state_by_dist(uint8_t wp_id);
 
 #endif  // ROTWING_STATE_H

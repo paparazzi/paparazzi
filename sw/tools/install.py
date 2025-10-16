@@ -96,7 +96,7 @@ class InstallWindow(QWidget):
     def cmd_go(self):
         self.execute('make clean')
         self.execute('make -j1')
-        self.execute('./start.py &')
+        self.execute('./paparazzi &')
 
     def cmd_pdf(self):
         self.view('https://github.com/tudelft/coursePaparazzi/raw/master/paparazzi_crash_course.pdf')
@@ -173,7 +173,7 @@ class InstallWindow(QWidget):
         button10.clicked.connect(self.cmd_doc)
         btn_layout.addWidget(button10)
 
-        button11 = QPushButton('11) Make and ./start.py')
+        button11 = QPushButton('11) Make and start Pprz Center')
         button11.clicked.connect(self.cmd_go)
         btn_layout.addWidget(button11)
 

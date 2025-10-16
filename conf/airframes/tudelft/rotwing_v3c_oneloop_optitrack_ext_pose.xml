@@ -44,6 +44,7 @@
             <!-- Log in high speed (Remove for outdoor flights) -->
             <!-- <define name="IMU_LOG_HIGHSPEED"    value="TRUE"/> -->
             <define name="I2C2_CLOCK_SPEED" value="100000"/>
+            <define name="INS_EXT_VISION_ROTATION"  value="TRUE"/><!--AP only-->
         </target>
 
         <target name="nps" board="pc">
@@ -131,9 +132,7 @@
         </module>
 
         <module name="ground_detect"/>
-        <module name="rotwing_state_V2">
-            <define name="RW_USE_MODULES_V2" value="TRUE"/>
-        </module>
+        <module name="rotwing_state"/>
         <module name="agl_dist"/>
     </firmware>
 
@@ -216,7 +215,24 @@
         <set VALUE="($th_hold? -9600 : commands[COMMAND_MOTOR_BACK] )"  SERVO="BMOTOR_BACK"/>
         <set VALUE="($th_hold? -9600 : commands[COMMAND_MOTOR_LEFT] )"  SERVO="BMOTOR_LEFT"/>
     </command_laws>
+    <section name="ROTWING" prefix="ROTWING_">
+        <define name="FW_MIN_AIRSPEED"          value="17.0"/>  <!-- Forward stall airspeed + margin (motors off) -->
+        <define name="FW_QUAD_MIN_AIRSPEED"     value="15.0"/>  <!-- Forward stall airspeed + margin with quad motors on -->
+        <define name="FW_CRUISE_AIRSPEED"       value="19.0"/>  <!-- Default cruise airspeed -->
+        <define name="FW_MAX_AIRSPEED"          value="22.0"/>  <!-- Maximum forward airspeed -->
+        <define name="FW_MAX_DECELERATION"      value="0.75"/>  <!-- Maximum horizontal deceleration in fixed wing mode -->
+        <define name="QUAD_NOPUSH_AIRSPEED"     value="5.0"/>   <!-- Maximum quadrotor without pusher motor airspeed -->
+        <define name="QUAD_MAX_AIRSPEED"        value="12.0"/>  <!-- Maximum quadrotor airspeed (with pusher motor)-->
+        <define name="QUAD_MAX_DECELERATION"    value="0.75"/>  <!-- Maximum horizontal deceleration in quad mode -->
+        <define name="SKEW_UP_AIRSPEED"         value="10.0"/>  <!-- Airspeed where the skewing starts when going up in airspeed -->
+        <define name="SKEW_DOWN_AIRSPEED"       value="8.0"/>   <!-- Airspeed where the skewing starts when going down in airspeed -->
 
+        <define name="SKEW_REF_MODEL"           value="TRUE"/>  <!-- Enable second order reference model for the skewing command -->
+        <define name="SKEW_REF_MODEL_P_GAIN"    value="0.001"/> <!-- Skewing reference model proportional gain -->
+        <define name="SKEW_REF_MODEL_D_GAIN"    value="0.003"/> <!-- Skewing reference model differential gain -->
+        <define name="SKEW_REF_MODEL_MAX_SPEED" value="20"/>    <!-- Maximum rotational skewing speed bound for the reference model -->
+        <define name="FW_SKEW_ANGLE"            value="85"/> 
+    </section>
     <section NAME="MISC">
         <!-- Voltage and current measurements -->
         <define name="VoltageOfAdc(adc)" value="((3.3f/65536.0f) * 11.98389 * adc)"/>
@@ -237,9 +253,6 @@
         <define name="STABILIZATION_ATTITUDE_SP_MAX_R"      value="90." unit="deg/s"/>
         <define name="STABILIZATION_ATTITUDE_DEADBAND_R"    value="200"             />
         <define name="FWD_SIDESLIP_GAIN"                    value="0.25"/> <!-- cyfoam 0.32-->
-        <!-- <define name="THRESHOLD_GROUND_DETECT"              value="40"/> -->
-        <define name="ROTWING_STATE_USE_ROTATION_REF_MODEL" value="TRUE"/>
-        <define name="INS_EXT_VISION_ROTATION"              value="TRUE"/>
     </section>
     <section name="GROUND_DETECT">
         <define name="THRESHOLD_GROUND_DETECT"              value="40"/>

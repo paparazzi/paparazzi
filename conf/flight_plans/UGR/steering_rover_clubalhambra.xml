@@ -1,0 +1,124 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="750" ground_alt="720" lat0="37.29745306" lon0="-3.68272961" max_dist_from_home="100" name="Rover Steering" security_height="0.3">
+
+  <header>
+  <!-- CITIC coords for bebugging: lat0="37.19762703" lon0="-3.62415667"-->
+ </header>
+
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" lat="37.2975591" lon="-3.6831233"/>
+    <waypoint name="ELL" lat="37.2975632" lon="-3.6831887"/>
+    <waypoint name="P0" lat="37.2978504" lon="-3.6832013"/>
+    <waypoint name="P1" lat="37.2974861" lon="-3.6828853"/>
+    
+    <!-- Bézier Waypoints. Define them in order -->
+    <waypoint name="BZ0" x="1.7" y="-6.0"/>
+    <waypoint name="BZ1" x="-1.4" y="-14.7"/>
+    <waypoint name="BZ2" x="-0.688" y="-24.723"/>
+    <waypoint name="BZ3" x="6.3" y="-26.2"/>
+    <waypoint name="BZ4" x="16.9" y="-30.7"/>
+    <waypoint name="BZ5" x="25.6" y="-30.0"/>
+    <waypoint name="BZ6" x="31.0" y="-22.6"/>
+    <waypoint name="BZ7" x="33.4" y="-14.7"/>
+    <waypoint name="BZ8" x="32.3" y="-7.0"/>
+    <waypoint name="BZ9" x="27.3" y="-2.0"/>
+    <waypoint name="BZ10" x="19.7" y="0.6"/>
+    <waypoint name="BZ11" x="12.6" y="1.6"/>
+    <waypoint name="BZ12" x="8.373" y="-2.597"/>
+
+  </waypoints>
+
+<modules>
+    <module name="gvf_classic">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+      <define name="GVF_ELLIPSE_KE" value="1.5"/>
+      <define name="GVF_ELLIPSE_KN" value="1.5"/>
+      <define name="GVF_ELLIPSE_A" value="10"/>
+      <define name="GVF_ELLIPSE_B" value="10"/>
+      <define name="GVF_ELLIPSE_ALPHA" value="0"/>
+          
+      <define name="GVF_LINE_KE" value="20"/>
+      <define name="GVF_LINE_KN" value="2"/>
+    </module>
+
+
+    <module name="gvf_ik">
+      <define name="GVF_OCAML_GCS" value="FALSE"/>
+
+      <define name="GVF_IK_GAMMA_AMPLITUDE" value=".1"/>
+      <define name="GVF_IK_GAMMA_OMEGA" value=".6"/>
+      <define name="GVF_IK_ELLIPSE_A" value="10"/>
+      <define name="GVF_IK_ELLIPSE_B" value="10"/>
+      <define name="GVF_IK_ELLIPSE_ALPHA" value="0"/>
+
+      <define name="GVF_IK_ELLIPSE_KE" value="1"/>
+      <define name="GVF_IK_ELLIPSE_KN" value="2"/>
+    </module>
+
+    <module name="gvf_parametric">
+      <define name="GVF_PARAMETRIC_2D_BEZIER_N_SEG" value="4"/>
+    </module>
+  </modules>
+
+  <!-- EXCEPTIONS ..................................................... -->
+
+  <!-- ................................................................ -->
+
+  <blocks>
+    
+    <!-- ## INIT ## -->
+
+    <block name="Wait GPS" strip_icon="gps.png">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    
+    <block name="Geo init" strip_icon="googleearth.png">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <!--call_once fun="NavSetGroundReferenceHere()"/-->
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+    </block>
+    
+    <block name="Start Engine" strip_icon="on.png">
+      <while cond="LessThan(NavBlockTime(), 1)"/>
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
+    </block>
+
+    <block name="Holding Point" strip_icon="mob.png"> 
+      <attitude roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+    <block name="Standby" strip_icon="home.png"> 
+      <call fun="nav_gvf_ellipse_wp(WP_STDBY, 10, 10, 0)"/>
+    </block>
+
+    <!-- ## MISSION ## -->
+
+    <block name="Ellipse ELL" strip_icon="oval.png">
+      <call fun="nav_gvf_ellipse_wp(WP_ELL, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="Ellipse-IK ELL" strip_icon="oval.png">
+      <call fun="nav_gvf_ik_ellipse_wp(WP_ELL, gvf_ik_ellipse_par.a, gvf_ik_ellipse_par.b, gvf_ik_ellipse_par.alpha)"/>
+    </block>
+
+    <block name="Segment P0-P1" strip_icon="line.png">
+      <call fun="nav_gvf_segment_wp1_wp2(WP_P0, WP_P1)"/>
+      <deroute block="Standby"/>
+    </block>
+
+    <block name="Line to HOME" strip_icon="home_drop.png">
+      <call fun="nav_gvf_segment_XY1_XY2(GetPosX(), GetPosY(), 0.f, 0.f)"/>
+      <deroute block="Standby"/>
+    </block>
+
+    <block name="2D_bezier" strip_icon="eight.png">
+      <call fun="nav_gvf_parametric_2D_bezier_wp(WP_BZ0)"/>
+    </block>
+    
+    <!-- ########################### -->
+
+  </blocks>
+</flight_plan>

@@ -163,7 +163,7 @@ static void detection_cb(uint8_t sender_id UNUSED,
     // now, T_w.z should be equal to zero as it is assumed that the target is on a flat ground
     // compute absolute position
     struct EcefCoor_f target_ecef;
-    ecef_of_ned_point_f(&target_ecef, &state.ned_origin_f, &target_loc.target);
+    ecef_of_ned_point_f(&target_ecef, stateGetNedOrigin_f(), &target_loc.target);
     lla_of_ecef_f(&target_loc.pos_lla, &target_ecef);
 
     target_loc.type = (uint8_t) extra; // use 'extra' field to encode the type of target

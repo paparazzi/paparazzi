@@ -12,6 +12,7 @@
         <dl_setting var="rotwing_state.nav_state" min="0" max="4" step="1" values="FORCE_HOVER|REQ_HOVER|FORCE_FW|REQ_FW|FREE" shortname="nav_state"/>
         <dl_setting var="rotwing_state.fw_min_airspeed" min="0" max="50" step="0.1" shortname="fw_min_airspeed"/>
         <dl_setting var="rotwing_state.cruise_airspeed" min="0" max="50" step="0.1" shortname="cruise_airspeed"/>
+        <dl_setting var="nav.radius" min="50" step="1" max="1000" unit="m" shortname="circle_radius"></dl_setting>
         <dl_setting var="rotwing_state.force_skew" min="0" max="1" step="1" values="FALSE|TRUE" shortname="force_skew"/>
         <dl_setting var="rotwing_state.sp_skew_angle_deg" min="0" max="90" step="1" shortname="sp_skew_angle"/>
         <dl_setting var="rotwing_state.fail_skew_angle" min="0" max="1" step="1" values="OFF|ON" shortname="fail_skew"/>
