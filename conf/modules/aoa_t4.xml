@@ -1,0 +1,75 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="aoa_t4" dir="sensors">
+  <doc>
+    <description>
+      Angle of Attack (AOA) sensor using angle input from a modiefied hall servo connected to a T4 Actuators Board.
+      For the hardware and software used to make your own T4 Actuators board, find all information here:
+
+        https://github.com/tudelft/t4_actuators_board/
+
+      To make it work, the motor of the servo needs to be removed, only the hall sensors is used for angle feedback.
+      If the MOTOR is NOT REMOVED from the servo there will be to much friction and the sensor will NOT WORK properly.
+
+      Budget wise it is a flexible solution for angle of attack sensor if one uses a T4 Actuators Board already.
+
+      Aditionall a second servo can added to be assigned to fuction as a SideSlip angle (SSA) sensor.
+
+      If SSA is added, it is assumed that both sensors are the same, offset and direction can be set to different values.
+
+      A Servo modified for sensor use which works well is a Feetech STS3032. It is a 360 degree serial bus servo with hall sensor feedback.
+
+      Simply add the "aoa_t4" module to your myname_airframe.xml file to be able to use this solution.
+      Also for initial offset determination, enabeling the SYNC message is very helpfull. Just add the SYNC_SEND_AOA_T4 define.
+
+      For a 3D design of a vane that can be 3D printed and mounted on the  servo used, download it here:
+
+    </description>
+    <define name="AOA_T4_SERVO_ID" value="10" description="Set the Servo ID of servo to use as an Angle Of Attack(AOA) sensor."/>
+    <define name="AOA_T4_ANGLE_OFFSET" value="3.14"  description="How the sensor is physically  mounted, a global offset in radian corresponding to the sensor mounting (default: 3.14)"/>
+    <define name="AOA_T4_OFFSET" value="-0.123" description="Initial offset on the neutral angle value."/>
+    <define name="AOA_T4_REVERSE" value="TRUE|FALSE" description="Set to TRUE to reverse AOA output rotation direction (sign)"/>
+    <define name="AOA_T4_USE_FILTER" value="TRUE|FALSE"  description="Filter the AOA angle sensor output to avoid to much angle fluctuation"/>
+    <define name="AOA_T4_FILTER" value="0.08" description="If filtered is true, then set how much to filter the output"/>
+    <define name="AOA_T4_SYNC_SEND" value="TRUE|FALSE" description="Enable telemetry report from AOA or SSA sensor, best set to TRUE to determine the neutral angle to set in offset"/>
+    <define name="AOA_T4_USE_COMPENSATION" value="TRUE|FALSE" description="Compensate the output"/>
+    <define name="USE_AOA" value="TRUE|FALSE" description="Enable AOA sensor values to the state (default: TRUE)"/>
+    <define name="AOA_T4_COMP_A1" value="0.0" description=""/>
+    <define name="AOA_T4_COMP_B1" value="0.0" description=""/>
+    <define name="AOA_T4_COMP_A2" value="-0.34" description=""/>
+    <define name="AOA_T4_COMP_B2" value="0.0" description=""/>
+    <!-- Optionally if a SideSlip Angle(SSA) sensor is available -->
+    <define name="SSA_T4_SERVO_ID" value="9" description="Set the Servo ID of servo to use as an SideSlip Angle(SSA) sensor"/>
+    <define name="SSA_T4_ANGLE_OFFSET" value="3.14"  description="How the sensor is physically  mounted, a global offset in radian corresponding to the sensor mounting (default: 3.14)"/>
+    <define name="SSA_T4_OFFSET" value="-0.456" description="Initial offset on the neutral angle value."/>
+    <define name="SSA_T4_REVERSE" value="TRUE|FALSE" description="Set to TRUE to reverse AOA output rotation direction (sign)"/>
+    <define name="SSA_T4_USE_FILTER" value="TRUE|FALSE"  description="Filter the AOA angle sensor output to avoid to much angle fluctuation"/>
+    <define name="SSA_T4_FILTER" value="0.15" description="If filtered is true, then set how much to filter the output"/>
+    <define name="USE_SIDESLIP" value="TRUE|FALSE" description="Enable SSA sensor values into the state"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="AOA T4">
+        <dl_setting var="aoa_send_type" min="0" max="1" step="1" shortname="Send AOA or SSA" module="modules/sensors/aoa_t4" values="AOA|SIDESLIP"/>
+        <dl_setting var="aoa_t4.offset" min="-3.14" max="3.14" step="0.01" shortname="AOA Offset" module="modules/sensors/aoa_t4" param="AOA_OFFSET" unit="rad" alt_unit="deg"/>
+        <dl_setting var="aoa_t4.filter" min="0.0" max="0.95" step="0.01" shortname="AOA Filter" module="modules/sensors/aoa_t4" param="AOA_FILTER"/>
+        <dl_setting var="ssa_t4.offset" min="-3.14" max="3.14" step="0.01" shortname="SSA Offset" module="modules/sensors/aoa_t4" param="SSA_OFFSET" unit="rad" alt_unit="deg"/>
+        <dl_setting var="ssa_t4.filter" min="0.0" max="0.95" step="0.01" shortname="SSA Filter" module="modules/sensors/aoa_t4" param="SSA_FILTER"/>
+        <dl_setting var="aoa_t4_a1" min="-1" max="1" step="0.001" shortname="Comp A1" />
+        <dl_setting var="aoa_t4_b1" min="-1" max="1" step="0.001" shortname="Comp B1" />
+        <dl_setting var="aoa_t4_a2" min="-1" max="1" step="0.001" shortname="Comp A2" />
+        <dl_setting var="aoa_t4_b2" min="-1" max="1" step="0.001" shortname="Comp B2" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="aoa_t4.h"/>
+  </header>
+  <init fun="aoa_t4_init()"/>
+  <periodic fun="aoa_t4_update()" freq="200."/>
+  <makefile target="ap|sim|nps">
+    <file name="aoa_t4.c"/>
+  </makefile>
+
+</module>
