@@ -33,7 +33,7 @@
 #endif
 
 
-#ifndef HITL_DEVICE 
+#ifndef HITL_DEVICE
 #error "HITL_DEVICE must be defined"
 #endif
 

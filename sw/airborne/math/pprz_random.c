@@ -25,7 +25,7 @@
 
 #include "pprz_random.h"
 
-#ifdef BOARD_CONFIG
+#if (defined BOARD_CONFIG) && (!defined HITL)
 #include "mcu_periph/sys_time.h"
 #else
 #include <time.h>
@@ -34,7 +34,7 @@
 
 void init_random(void)
 {
-#ifdef BOARD_CONFIG
+#if (defined BOARD_CONFIG) && (!defined HITL)
   srand(get_sys_time_msec());
 #else
   srand(time(NULL));

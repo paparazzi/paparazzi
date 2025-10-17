@@ -70,6 +70,11 @@ void actuators_bebop_init(void)
 #endif
 }
 
+void actuators_bebop_set(uint8_t idx, int16_t value)
+{
+  actuators_bebop.rpm_ref[idx] = value;
+}
+
 void actuators_bebop_commit(void)
 {
   // Receive the status

@@ -120,6 +120,12 @@ void actuators_sts3032_periodic(void)
 
 }
 
+void actuators_sts3032_set(uint8_t idx, int16_t value)
+{
+  if (sts3032_enabled) {
+    sts3032_write_pos(&sts, sts.ids[idx], value);
+  }
+}
 
 
 static void sts3032_event(struct sts3032 *sts)

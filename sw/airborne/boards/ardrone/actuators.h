@@ -39,9 +39,9 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorArdroneSet(_i, _v) { actuators_pwm_values[_i] = _v; }
-#define ActuatorsArdroneCommit() actuators_ardrone_commit();
-#define ActuatorsArdroneInit() actuators_ardrone_init();
+#define ActuatorArdroneSet actuators_ardrone_set
+#define ActuatorsArdroneCommit actuators_ardrone_commit
+#define ActuatorsArdroneInit actuators_ardrone_init
 
 #define MOT_LEDOFF 0
 #define MOT_LEDRED 1
@@ -52,6 +52,7 @@ extern uint16_t actuators_pwm_values[ACTUATORS_ARDRONE_NB];
 
 extern void actuators_ardrone_commit(void);
 extern void actuators_ardrone_init(void);
+extern void actuators_ardrone_set(uint8_t idx, int16_t value);
 
 
 int actuators_ardrone_cmd(uint8_t cmd, uint8_t *reply, int replylen);

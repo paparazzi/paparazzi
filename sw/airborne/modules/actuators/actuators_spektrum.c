@@ -60,7 +60,7 @@ void actuators_spektrum_init(void)
 /*
  * Transmit the spektrum output at ~90Hz
  */
-void actuators_spektrum_set(void)
+void actuators_spektrum_commit(void)
 {
   static uint8_t cnt = 0;
 
@@ -76,6 +76,15 @@ void actuators_spektrum_set(void)
     cnt = 0;
   }
 }
+
+/*
+ * Set actuator value in array
+ */
+void actuators_spektrum_set(uint8_t idx, int16_t value)
+{
+  actuators_spektrum.cmds[idx] = value;
+}
+
 
 /*
  * Actually transmit the spektrum output on a link device

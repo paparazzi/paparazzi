@@ -38,6 +38,8 @@
 
 extern uint32_t actuators_dualpwm_values[ACTUATORS_DUALPWM_NB];
 
+extern void actuators_dualpwm_set(uint8_t idx, int16_t value);
+
 extern void actuators_dualpwm_commit(void);
 
 extern void dual_pwm_isr(void);
@@ -50,7 +52,7 @@ extern void set_dual_pwm_timer_s_oc(uint32_t oc_value, uint32_t oc_value2);
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorDualpwmSet(_i, _v) { actuators_dualpwm_values[_i] = _v; }
+#define ActuatorDualpwmSet actuators_dualpwm_set
 #define ActuatorsDualpwmCommit  actuators_dualpwm_commit
 
 #endif /* ACTUATORS_dualpwm_ARCH_H */

@@ -98,15 +98,15 @@ void actuators_disco_init(void)
   }
 }
 
-void actuators_disco_set(uint8_t idx, uint16_t val)
+void actuators_disco_set(uint8_t idx, int16_t val)
 {
   if (idx == ACTUATORS_DISCO_MOTOR_IDX) {
-    actuators_disco.motor_rpm = val;
+    actuators_disco.motor_rpm = (uint16_t)val;
   } else if (idx > ACTUATORS_DISCO_PWM_NB) {
     // wrong index, do nothing
   } else {
     // val is a PWM value in ms, convert to ns
-    pwm_sysfs_set_duty(&actuators_disco.pwm[idx-1], val * 1000);
+    pwm_sysfs_set_duty(&actuators_disco.pwm[idx-1], (uint16_t)val * 1000);
   }
 }
 

@@ -27,13 +27,15 @@
 /** Stub file needed per uavcan interface because of generator */
 extern int16_t actuators_uavcan2cmd_values[SERVOS_UAVCAN2CMD_NB];
 
+extern void actuators_uavcan2cmd_set(uint8_t idx, int16_t value);
+
 #if USE_NPS
+#define ActuatorUavcan2CmdSet NULL
 #define ActuatorsUavcan2CmdInit() {}
-#define ActuatorUavcan2CmdSet(_i, _v) {}
 #define ActuatorsUavcan2CmdCommit()  {}
 #else
+#define ActuatorUavcan2CmdSet actuators_uavcan2cmd_set
 #define ActuatorsUavcan2CmdInit() actuators_uavcan_init(&uavcan2)
-#define ActuatorUavcan2CmdSet(_i, _v) { actuators_uavcan2cmd_values[_i] = _v; }
 #define ActuatorsUavcan2CmdCommit()  RunOnceEvery(ACTUATORS_UAVCAN_CMD_DIV,actuators_uavcan_cmd_commit(&uavcan2, actuators_uavcan2cmd_values, SERVOS_UAVCAN2CMD_NB))
 #endif
 

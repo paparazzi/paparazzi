@@ -28,6 +28,7 @@
 #include "modules/ins/ins.h"
 
 #include "generated/airframe.h"
+#include "generated/modules.h"
 
 #include "mcu_periph/sys_time.h"
 #include "modules/core/abi.h"
