@@ -50,7 +50,7 @@
     <configure name="UBX2_GPS_BAUD" default="$(GPS2_BAUD)"/>
     <define name="USE_$(UBX2_GPS_PORT_UPPER)" cond="ifneq ($(UBX2_GPS_PORT)$(SECONDARY_GPS),)"/>
     <define name="UBX2_GPS_PORT" value="$(UBX2_GPS_PORT_LOWER)" cond="ifneq ($(UBX2_GPS_PORT)$(SECONDARY_GPS),)"/>
-    <define name="$(UBX2_GPS_PORT_UPPER)_BAUD" value="$(UBX2_GPS_BAUD)" cond="ifneq ($(UBX2_GPS_BAUD)$(SECONDARY_GPS),)"/>
+    <define name="$(UBX2_GPS_PORT_UPPER)_BAUD" value="$(UBX2_GPS_BAUD)" cond="ifdef SECONDARY_GPS"/>
 
     <raw>
       ifdef SECONDARY_GPS
@@ -85,4 +85,3 @@
     </test>
   </makefile>
 </module>
-
