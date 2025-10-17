@@ -38,15 +38,4 @@
 
 #include BOARD_CONFIG
 
-#ifndef ACTUATORS_PWM_NB
-#define ACTUATORS_PWM_NB 8
-#endif
-
-extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
-
-extern void actuators_pwm_commit(void);
-
-#define ActuatorPwmSet(_i, _v) { actuators_pwm_values[_i] = _v; }
-#define ActuatorsPwmCommit  actuators_pwm_commit
-
 #endif /* ACTUATORS_PWM_ARCH_H */

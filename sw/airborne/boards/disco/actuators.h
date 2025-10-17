@@ -60,12 +60,12 @@ struct ActuatorsDisco {
   bool rpm_saturated;               ///< RPM saturation flag (bit 15 in obs data)
 };
 
-#define ActuatorsDiscoSet(_i, _v) actuators_disco_set(_i, _v)
+#define ActuatorsDiscoSet actuators_disco_set
 #define ActuatorsDiscoCommit() actuators_disco_commit()
 #define ActuatorsDiscoInit() actuators_disco_init()
 
 extern struct ActuatorsDisco actuators_disco;
-extern void actuators_disco_set(uint8_t idx, uint16_t val);
+extern void actuators_disco_set(uint8_t idx, int16_t val);
 extern void actuators_disco_commit(void);
 extern void actuators_disco_init(void);
 

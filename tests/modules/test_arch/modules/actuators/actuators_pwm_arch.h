@@ -28,9 +28,6 @@
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 
-#define ActuatorPwmSet(_i, _v) {}
-#define ActuatorsPwmCommit() {}
-
 extern void actuators_pwm_arch_init(void);
 
 #endif /* ACTUATORS_PWM_ARCH_H */

@@ -54,7 +54,7 @@
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/disco/actuators.h"
-#define ActuatorDefaultSet(_x,_y) ActuatorsDiscoSet(_x,_y)
+#define ActuatorDefaultSet ActuatorsDiscoSet
 #define ActuatorsDefaultInit() ActuatorsDiscoInit()
 #define ActuatorsDefaultCommit() ActuatorsDiscoCommit()
 
