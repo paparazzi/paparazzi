@@ -22,10 +22,10 @@
 
 #include "mcu_periph/uart.h"
 
-#if PERIODIC_TELEMETRY && (USE_UART0 || USE_UART1 || USE_UART2 || USE_UART3 || USE_UART4 || USE_UART5 || USE_UART6 || USE_UART7 || USE_UART8)
+#if PERIODIC_TELEMETRY
 #include "modules/datalink/telemetry.h"
 
-static void send_uartx_err(struct transport_tx *trans, struct link_device *dev, struct uart_periph* uart)
+UNUSED static void send_uartx_err(struct transport_tx *trans, struct link_device *dev, struct uart_periph* uart)
 {
   uint16_t ore    = uart->ore;
   uint16_t ne_err = uart->ne_err;
