@@ -7,6 +7,9 @@
     </description>
     <configure name="SYS_TIME_LED" value="none|num" description="LED number used for systime heartbeat or 'none' to disable"/>
   </doc>
+  <dep>
+    <depends>threads</depends>
+  </dep>
   <header>
     <file name="sys_time.h" dir="mcu_periph"/>
   </header>

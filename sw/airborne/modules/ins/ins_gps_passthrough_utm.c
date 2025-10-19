@@ -35,6 +35,7 @@
 #include "state.h"
 #include "modules/gps/gps.h"
 #include "firmwares/fixedwing/nav.h"
+#include "generated/modules.h"
 
 
 #include "modules/core/abi.h"
